@@ -144,7 +144,26 @@ Read `agents/diagnostician.md` and spawn. The diagnostician:
 
 ### Step 5: Judge Review (SUB-AGENT)
 
-Read `agents/judge.md` and spawn. If score < 90, loop back to Step 4 (max 3x).
+Read `agents/judge.md` and spawn. The judge scores 10 criteria (weighted). If score < 90, the judge writes `repair_instruction` fields in `judge_feedback.json`.
+
+**Automated repair loop:**
+1. If verdict is PASS (score >= 90) → proceed to Step 6
+2. If verdict is NEEDS_REPAIR (70-89) → read `judge_feedback.json`, extract the `repair_instruction` from each blocking_issue, and re-spawn the diagnostician with these instructions appended to the prompt. Max 3 iterations.
+3. If verdict is FAIL (< 70) → the issues are too severe for automated repair. Report to user with the judge feedback and ask for guidance.
+4. If max iterations (3) reached without PASS → proceed with warning, the reporter will note the limitation.
+
+**Judge feedback format** (in `05_review/judge_feedback.json`):
+```json
+{
+  "verdict": "pass|needs_repair|major_issues|fail",
+  "overall_score": 85,
+  "blocking_issues": [
+    {"description": "...", "repair_instruction": "Re-analyze X with Y data...", "affected_steps": ["step_4"]}
+  ]
+}
+```
+
+The `repair_instruction` field is the key to automation — it tells the diagnostician exactly what to fix.
 
 ### Step 6: Report (SUB-AGENT)
 
@@ -196,6 +215,23 @@ The agent reads the toolkit, classifies data dimensions, selects relevant primit
 | Template | Purpose |
 |----------|---------|
 | `template_preprocess.py` | Missing values, outlier detection, resampling |
+
+## Schema Reference
+
+JSON Schema draft-07 schemas for validating all artifacts:
+
+| Schema | Validates | Used By |
+|--------|-----------|---------|
+| `schemas/ontology_schema.json` | Process ontology structure | context-builder |
+| `schemas/signal_schema.json` | Signal classification and mapping | context-builder |
+| `schemas/run_config_schema.json` | Run configuration | setup |
+| `schemas/analysis_schema.json` | Statistical analysis output | data-processor |
+| `schemas/report_schema.json` | Report structure validation | reporter |
+| `schemas/diagnosis_schema.json` | Diagnosis output (causal chain, hypotheses) | diagnostician |
+| `schemas/evidence_schema.json` | Structured evidence (visual, numerical, domain) | diagnostician |
+| `schemas/confidence_schema.json` | Confidence scoring and uncertainty disclosure | diagnostician, judge |
+
+Agents should read their relevant schema files to ensure output validity. Schemas are normative — agent prompts are explanatory.
 
 ## Diagnosis Language
 

@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Confidence Schema",
+  "description": "Schema for diagnostic confidence assessment",
+  "type": "object",
+  "required": ["run_id", "diagnosis_time", "confidence_breakdown", "overall_confidence", "uncertainty_disclosure"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "diagnosis_time": {"type": "string", "format": "date-time"},
+    "confidence_breakdown": {
+      "type": "object",
+      "description": "Per-hypothesis confidence scoring with evidence criteria",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["confidence_score", "level", "scoring"],
+        "properties": {
+          "confidence_score": {"type": "integer", "minimum": 0, "maximum": 100},
+          "level": {"type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "VERY LOW", "EXCLUDED"]},
+          "scoring": {
+            "type": "object",
+            "description": "Breakdown scoring by causation criteria",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "score": {"type": "integer"},
+                "max": {"type": "integer"},
+                "note": {"type": "string"}
+              }
+            }
+          },
+          "evidence_gaps": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "overall_confidence": {
+      "type": "object",
+      "required": ["score", "level", "summary"],
+      "properties": {
+        "score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "level": {"type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "VERY LOW"]},
+        "summary": {"type": "string"}
+      }
+    },
+    "uncertainty_disclosure": {
+      "type": "object",
+      "required": ["what_is_certain", "what_is_uncertain"],
+      "properties": {
+        "what_is_certain": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "what_is_uncertain": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "what_additional_data_would_help": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evidence Schema",
+  "description": "Schema for structured evidence chains in industrial diagnostics",
+  "type": "object",
+  "required": ["run_id", "evidence_chain"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "evidence_chain": {
+      "type": "object",
+      "required": ["visual_evidence", "numerical_evidence"],
+      "properties": {
+        "visual_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["plot", "finding", "evidence_rank", "implication"],
+            "properties": {
+              "plot": {
+                "type": "string",
+                "description": "Path relative to RUN_DIR, e.g. 03_figures/01_aligned_timeseries.png"
+              },
+              "finding": {
+                "type": "string",
+                "description": "What the plot visually shows — specific, measurable"
+              },
+              "generation_method": {
+                "type": "object",
+                "description": "From plot_manifest.json — how the plot was created",
+                "properties": {
+                  "function": {"type": "string"},
+                  "time_alignment": {"type": "string"},
+                  "normalization": {"type": "string"},
+                  "anomaly_highlighting": {"type": "boolean"},
+                  "panel_count": {"type": "integer"},
+                  "signals": {"type": "array", "items": {"type": "string"}}
+                }
+              },
+              "evidence_rank": {"type": "integer", "const": 4},
+              "implication": {
+                "type": "string",
+                "description": "What this visual evidence means for the diagnosis"
+              },
+              "confidence_note": {
+                "type": "string",
+                "description": "Caveats from alignment, normalization, or resolution limits"
+              }
+            }
+          }
+        },
+        "numerical_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["metric", "value", "evidence_rank", "source", "interpretation"],
+            "properties": {
+              "metric": {"type": "string"},
+              "value": {},
+              "evidence_rank": {"type": "integer", "minimum": 1, "maximum": 3},
+              "source": {"type": "string"},
+              "interpretation": {"type": "string"}
+            }
+          }
+        },
+        "domain_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["domain", "finding", "evidence_rank"],
+            "properties": {
+              "domain": {"type": "string"},
+              "finding": {"type": "string"},
+              "evidence_rank": {"type": "integer", "minimum": 5, "maximum": 6},
+              "source": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -19,8 +19,9 @@ Read from SKILL_PATH:
 
 Read from RUN_DIR:
 - `01_ontology/ontology.json`
-- `02_processed/feature_summary.json`
+- `02_processed/feature_summary.json` — **contains lagged_correlations: critical for causal ordering**
 - `00_input/data_inspection.json`
+- `schemas/diagnosis_schema.json` (if exists) — output structure reference
 
 ## Step 1: Read Plot Manifest — Understand What Was Visualized
 
@@ -92,6 +93,17 @@ Combine:
 - Domain knowledge from resources/ (Rank 5)
 - Reference documents from 01_ontology/ (Rank 2)
 
+**CRITICAL: Analyze lagged correlations first.** Read `lagged_correlations` from `feature_summary.json`. This tells you which signal leads and which follows — the foundation of causal ordering:
+
+1. For each target variable (quality signal), find the process parameter with strongest |r|
+2. Check the `lag_periods` field — if lag ≠ 0, the process signal leads/lags the quality signal
+3. Positive lag → process changes BEFORE quality (evidence of causation)
+4. Negative lag → quality changes BEFORE process (rules out that process as cause)
+5. Lag = 0 within sampling resolution → check visual evidence for finer timing
+6. Document the temporal ordering: which signal moved FIRST, SECOND, THIRD...
+
+Example: "mdo_preheat_z2_temp_c → thickness_std_um: r=-0.97, lag=0 periods. The zero lag within 10-second sampling means the thermal effect is nearly instantaneous. Combined with visual evidence showing Z2 temp drops first at the anomaly onset, this confirms temporal precedence."
+
 Build the causal timeline using ALL evidence sources.
 
 ## Step 5: Hypothesis Formation
@@ -139,6 +151,9 @@ Save to RUN_DIR/04_diagnostics/:
 - Use generation_method fields to calibrate interpretation confidence
 - Note if time alignment was applied — it affects temporal precision claims
 - Visual evidence is Evidence Rank 4. Always cite plot filename.
-- Use [OBSERVATION] / [INFERENCE] / [HYPOTHESIS] / [UNCERTAULTY] markers
+- Use [OBSERVATION] / [INFERENCE] / [HYPOTHESIS] / [UNCERTAINTY] markers
 - No unsupported causal claims
 - Disclose all uncertainty
+- Always analyze lagged_correlations from feature_summary.json for temporal ordering
+- When a process-quality pair has |r|>0.7 and lag=0, cite both the correlation AND the visual evidence for timing
+- If the strongest correlations (|r|>0.7) are concentrated on a single process parameter, and all others have |r|<0.2, this is strong evidence of a single root cause

@@ -166,9 +166,29 @@ Write a COMPLETE Python script to `RUN_DIR/06_scripts/visualize.py`:
 5. Build plot_records list with generation_method from each primitive's return value
 6. Call write_plot_manifest() at the end
 
-Run: `python3 RUN_DIR/06_scripts/visualize.py` (try python3.11 first)
+Run: `python3 RUN_DIR/06_scripts/visualize.py` (try `python3.11` first, then `python3`).
 
-If Python fails: `pip3 install matplotlib numpy pandas`, then retry.
+### 3.6 Error Recovery
+
+If the visualization script fails, follow this recovery sequence. Do NOT skip to the next step — all plots MUST exist.
+
+| Error | Cause | Recovery |
+|-------|-------|----------|
+| `ModuleNotFoundError: matplotlib` | Missing dependency | `pip3 install matplotlib numpy pandas` then retry |
+| `ModuleNotFoundError: seaborn` | Optional dep missing | Seaborn is optional — the script auto-detects and falls back to matplotlib. If the fallback fails, install: `pip3 install seaborn` |
+| `ImportError: No module named 'X'` | Missing dependency | Install the missing package and retry |
+| `ValueError` / `KeyError` about column name | Column name mismatch | Check `data_inspection.json` for actual column names. Update INPUT_FILE, TIME_COL, or the signal selection in the script |
+| `MemoryError` or `Killed` | Data too large | Reduce DPI to 100, downsample data before plotting, or limit to fewer panels |
+| Figure is blank or has no data | Wrong column selection | Verify the columns exist in `df.columns`. Check that `all_numeric` list is not empty |
+| `PermissionError: [Errno 13]` | Output directory not writable | Ensure OUTPUT_DIR exists: `mkdir -p OUTPUT_DIR` |
+| script runs but no PNG files produced | Silent matplotlib error | Run: `python3 -c "import matplotlib; print(matplotlib.get_backend())"` — should be 'Agg' |
+
+**After recovery:** Re-run the script. Verify that `03_figures/*.png` files exist and are non-zero size. Then proceed to Step 4.
+
+**Maximum retries: 3.** If after 3 recovery attempts the script still fails:
+1. Save the error log to `03_figures/visualization_error.log`
+2. Note in `plot_manifest.json`: `{"error": "Visualization partially failed", "available_plots": [...]}`
+3. Continue with whatever plots succeeded — the diagnostician will note the gap
 
 ## Step 4: Write Plot Manifest — THIS IS THE KEY DELIVERABLE
 

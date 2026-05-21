@@ -10,6 +10,9 @@ node_modules/
 workspace/diagnostic-runs/
 workspace/*.csv
 workspace/*.png
+workspace/*.py
+workspace/*.json
+!workspace/.gitkeep
 
 # OS
 .DS_Store

@@ -982,15 +982,84 @@ def main():
 
     # --- 2D Profile ---
     if pattern['type'] in ('2d_profile', 'mixed') and pattern['spatial_columns']:
-        # Agent: customize this section based on actual spatial column structure
-        print("  [2D profile primitives available — customize in main()]")
+        spatial_cols = sorted(pattern['spatial_columns'],
+                              key=lambda c: int(''.join(filter(str.isdigit, c)) or 0))
+        if len(spatial_cols) >= 2:
+            import re as _re
+            positions = []
+            for col in spatial_cols:
+                nums = _re.findall(r'\d+', col)
+                positions.append(float(nums[-1]) if nums else 0)
+            positions = np.array(positions)
+
+            profile_matrix = df[spatial_cols].values
+            time_labels = df[TIME_COL].astype(str).values
+
+            # 5a. Profile evolution
+            fig, ax = plt.subplots(figsize=(14, 6))
+            meta = plot_profile_evolution(ax, positions, profile_matrix,
+                                          n_profiles=30, title='Profile Evolution Over Time')
+            fig.tight_layout()
+            fname5a = "05_profile_evolution.png"
+            fig.savefig(out / fname5a, dpi=DPI, bbox_inches='tight', facecolor='white')
+            plt.close(fig)
+            plot_records.append({
+                "filename": fname5a,
+                "plot_type": "profile_evolution",
+                "description": f"{len(spatial_cols)} cross-web profiles colored by time progression",
+                "generation_method": meta,
+                "key_features": "Profile shape change over time — which positions deviate",
+                "anomaly_highlighted": False,
+            })
+            print(f"  -> {fname5a}")
+
+            # 5b. Position x Time heatmap
+            fig, ax = plt.subplots(figsize=(16, 8))
+            meta = plot_position_time_heatmap(ax, positions, time_labels, profile_matrix,
+                                              xlabel='Position', ylabel='Time')
+            ax.set_title('Position x Time Thickness Heatmap', fontweight='bold')
+            fig.tight_layout()
+            fname5b = "06_position_time_heatmap.png"
+            fig.savefig(out / fname5b, dpi=DPI, bbox_inches='tight', facecolor='white')
+            plt.close(fig)
+            plot_records.append({
+                "filename": fname5b,
+                "plot_type": "position_time_heatmap",
+                "description": f"Full position x time heatmap ({len(profile_matrix)} times x {len(positions)} positions)",
+                "generation_method": meta,
+                "key_features": "Spatial-temporal pattern — where and when the anomaly appears",
+                "anomaly_highlighted": bool(ANOMALY_INTERVALS),
+            })
+            print(f"  -> {fname5b}")
+
+            # 5c. Deviation from target
+            fig, ax = plt.subplots(figsize=(16, 8))
+            meta = plot_deviation_from_target(ax, positions, time_labels, profile_matrix,
+                                              target=None, xlabel='Position')
+            ax.set_title('Deviation from Target Profile', fontweight='bold')
+            fig.tight_layout()
+            fname5c = "07_deviation_from_target.png"
+            fig.savefig(out / fname5c, dpi=DPI, bbox_inches='tight', facecolor='white')
+            plt.close(fig)
+            plot_records.append({
+                "filename": fname5c,
+                "plot_type": "deviation_from_target",
+                "description": "Deviation from mean thickness profile across position and time",
+                "generation_method": meta,
+                "key_features": "Red regions = thicker than average; blue = thinner",
+                "anomaly_highlighted": True,
+            })
+            print(f"  -> {fname5c}")
 
     # --- Batch/Event ---
     if pattern['type'] in ('batch_event', 'mixed') and pattern['batch_columns']:
         batch_col = pattern['batch_columns'][0]
-        for sig in all_numeric[:4]:
-            fig, ax = plt.subplots(figsize=(12, 5))
+        n_batches = df[batch_col].nunique()
+        # Box plots per batch for key signals
+        for sig in all_numeric[:min(4, len(all_numeric))]:
+            fig, ax = plt.subplots(figsize=(max(10, n_batches * 0.8), 5))
             meta = plot_box_by_group(ax, df, sig, batch_col)
+            ax.tick_params(axis='x', rotation=45)
             fig.tight_layout()
             fname = f"box_{sig}_by_{batch_col}.png"
             fig.savefig(out / fname, dpi=DPI, bbox_inches='tight', facecolor='white')
@@ -998,15 +1067,64 @@ def main():
             plot_records.append({
                 "filename": fname,
                 "plot_type": "box_by_group",
-                "description": f"Distribution of {sig} by {batch_col}",
+                "description": f"Distribution of {sig} grouped by {batch_col}",
                 "generation_method": meta,
-                "key_features": "Compare signal distributions across batches",
+                "key_features": "Compare signal distributions across batches — look for outliers",
                 "anomaly_highlighted": False,
             })
+            print(f"  -> {fname}")
+
+        # Event timeline if additional categorical columns exist
+        event_cols = [c for c in pattern['categorical_columns']
+                      if c not in pattern['batch_columns'] and c != TIME_COL]
+        if event_cols:
+            event_col = event_cols[0]
+            fig, ax = plt.subplots(figsize=(16, 5))
+            overlay_sig = all_numeric[0] if all_numeric else None
+            meta = plot_event_timeline(ax, df, TIME_COL, event_col, signal_col=overlay_sig)
+            fig.tight_layout()
+            fname_evt = f"event_timeline_{event_col}.png"
+            fig.savefig(out / fname_evt, dpi=DPI, bbox_inches='tight', facecolor='white')
+            plt.close(fig)
+            plot_records.append({
+                "filename": fname_evt,
+                "plot_type": "event_timeline",
+                "description": f"Timeline of {event_col} events with {overlay_sig or 'no'} signal overlay",
+                "generation_method": meta,
+                "key_features": "Check if anomalies coincide with specific events",
+                "anomaly_highlighted": False,
+            })
+            print(f"  -> {fname_evt}")
 
     # --- Spectral ---
-    if pattern['type'] in ('spectral', 'mixed'):
-        print("  [Spectral primitives available — customize in main()]")
+    if pattern['type'] in ('spectral', 'mixed') and pattern['frequency_columns']:
+        freq_cols = pattern['frequency_columns']
+        fs_default = 1.0 / pattern['sampling_info'].get('median_interval_sec', 1.0)
+        for fcol in freq_cols[:2]:
+            if fcol in df.columns and df[fcol].dtype in (np.float64, np.int64, np.float32):
+                fig, (ax_s, ax_d) = plt.subplots(1, 2, figsize=(20, 6))
+                signal = df[fcol].dropna().values
+                if len(signal) >= 16:
+                    meta_spec = plot_spectrogram(ax_s, signal, fs=fs_default,
+                                                 title=f'{fcol} Spectrogram')
+                    meta_dom = plot_dominant_frequency(ax_d, signal, fs=fs_default,
+                                                       title=f'{fcol} Dominant Frequency')
+                    fig.suptitle(f'Spectral Analysis - {fcol}', fontweight='bold')
+                    fig.tight_layout()
+                    fname_spec = f"spectral_{fcol}.png"
+                    fig.savefig(out / fname_spec, dpi=DPI, bbox_inches='tight', facecolor='white')
+                    plot_records.append({
+                        "filename": fname_spec,
+                        "plot_type": "spectral_analysis",
+                        "description": f"Spectrogram and dominant frequency trend for {fcol}",
+                        "generation_method": {"spectrogram": meta_spec, "dominant_freq": meta_dom},
+                        "key_features": "Frequency content shifts indicate mechanical or electrical changes",
+                        "anomaly_highlighted": False,
+                    })
+                    print(f"  -> {fname_spec}")
+                else:
+                    print(f"  [skip spectral: {fcol} too short ({len(signal)} points)]")
+                plt.close(fig)
 
     # ═══ Write manifest ═══
     write_plot_manifest(OUTPUT_DIR, plot_records, pattern,
