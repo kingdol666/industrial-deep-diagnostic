@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Industrial Ontology Schema",
+  "description": "Schema for industrial process ontology used in deep diagnostic analysis",
+  "type": "object",
+  "required": ["scene", "signals", "relationships", "metadata"],
+  "properties": {
+    "scene": {
+      "type": "object",
+      "required": ["name", "process_type"],
+      "properties": {
+        "name": {"type": "string", "description": "Scene identifier name"},
+        "process_type": {"type": "string", "description": "Type of industrial process (e.g., extrusion, coating, reaction)"},
+        "production_goal": {"type": "string", "description": "Primary production objective"},
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "type"],
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "location": {"type": "string"},
+              "manufacturer": {"type": "string"},
+              "model": {"type": "string"}
+            }
+          }
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "sequence"],
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "sequence": {"type": "integer", "minimum": 0},
+              "entry_criteria": {"type": "string"},
+              "exit_criteria": {"type": "string"},
+              "duration_typical": {"type": "string"},
+              "key_parameters": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "objectives": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "signals": {
+      "type": "object",
+      "required": ["inspection_signals", "process_parameters", "control_variables", "events", "metadata_columns"],
+      "properties": {
+        "inspection_signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/signal_definition"
+          }
+        },
+        "process_parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/signal_definition"
+          }
+        },
+        "control_variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/signal_definition"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/event_definition"
+          }
+        },
+        "metadata_columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/metadata_definition"
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "type", "direction"],
+        "properties": {
+          "from": {"type": "string", "description": "Source signal name"},
+          "to": {"type": "string", "description": "Target signal name"},
+          "type": {"type": "string", "enum": ["causal", "correlative", "control", "physical"]},
+          "direction": {"type": "string", "enum": ["forward", "bidirectional"]},
+          "strength": {"type": "string", "enum": ["strong", "moderate", "weak"]},
+          "description": {"type": "string"},
+          "inferred": {"type": "boolean", "default": false},
+          "evidence_source": {"type": "string"}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "units": {"type": "object", "additionalProperties": {"type": "string"}},
+        "sampling_rate": {"type": ["string", "null"]},
+        "batch_id": {"type": ["string", "null"]},
+        "timezone": {"type": ["string", "null"]},
+        "start_time": {"type": ["string", "null"], "format": "date-time"},
+        "end_time": {"type": ["string", "null"], "format": "date-time"}
+      }
+    }
+  },
+  "definitions": {
+    "signal_definition": {
+      "type": "object",
+      "required": ["name", "column"],
+      "properties": {
+        "name": {"type": "string"},
+        "column": {"type": "string"},
+        "unit": {"type": "string"},
+        "description": {"type": "string"},
+        "target": {"type": ["number", "null"]},
+        "tolerance": {"type": ["number", "null"]},
+        "normal_range": {
+          "type": "array",
+          "items": {"type": ["number", "null"]},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "setpoint": {"type": ["number", "null"]},
+        "controlled_by": {"type": "string"},
+        "equipment_ref": {"type": "string"},
+        "stage_ref": {"type": "string"}
+      }
+    },
+    "event_definition": {
+      "type": "object",
+      "required": ["name", "column"],
+      "properties": {
+        "name": {"type": "string"},
+        "column": {"type": "string"},
+        "description": {"type": "string"},
+        "event_values": {"type": "array", "items": {}},
+        "event_meanings": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "metadata_definition": {
+      "type": "object",
+      "required": ["name", "column"],
+      "properties": {
+        "name": {"type": "string"},
+        "column": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    }
+  }
+}

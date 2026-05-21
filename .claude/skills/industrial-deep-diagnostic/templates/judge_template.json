@@ -1,0 +1,28 @@
+{
+  "overall_score": 0,
+  "verdict": "needs_repair",
+  "criteria_scores": {
+    "data_quality": {"score": 0, "weight": 0.15, "notes": ""},
+    "variable_classification": {"score": 0, "weight": 0.10, "notes": ""},
+    "time_alignment": {"score": 0, "weight": 0.10, "notes": ""},
+    "visualization_quality": {"score": 0, "weight": 0.10, "notes": ""},
+    "evidence_based_conclusions": {"score": 0, "weight": 0.25, "notes": ""},
+    "correlation_vs_causation": {"score": 0, "weight": 0.10, "notes": ""},
+    "uncertainty_disclosure": {"score": 0, "weight": 0.10, "notes": ""},
+    "report_quality": {"score": 0, "weight": 0.10, "notes": ""},
+    "no_over_claiming": {"score": 0, "weight": "blocking", "notes": ""},
+    "completeness": {"score": 0, "weight": 0.05, "notes": ""}
+  },
+  "blocking_issues": [],
+  "warnings": [],
+  "evidence_gaps": [],
+  "strengths": [],
+  "repair_instructions": {
+    "steps_to_rerun": [],
+    "specific_changes": [],
+    "evidence_needed": []
+  },
+  "iteration": 1,
+  "max_iterations": 3,
+  "review_timestamp": ""
+}

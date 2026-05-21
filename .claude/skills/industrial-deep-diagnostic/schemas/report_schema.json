@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Report Schema",
+  "description": "Schema for validating diagnostic report structure and content",
+  "type": "object",
+  "required": ["sections", "metadata"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["scene_name", "run_id", "date"],
+      "properties": {
+        "scene_name": {"type": "string"},
+        "batch_id": {"type": "string"},
+        "run_id": {"type": "string"},
+        "date": {"type": "string", "format": "date"},
+        "analyst": {"type": "string"}
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "number"],
+        "properties": {
+          "title": {"type": "string"},
+          "number": {"type": "integer"},
+          "required": {"type": "boolean", "default": true},
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {"type": "string"},
+                "number": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "validation_rules": {
+      "type": "object",
+      "properties": {
+        "must_cite_evidence": {"type": "boolean", "default": true},
+        "must_distinguish_facts_from_hypotheses": {"type": "boolean", "default": true},
+        "must_include_uncertainty": {"type": "boolean", "default": true},
+        "must_use_language_templates": {"type": "boolean", "default": true},
+        "external_knowledge_must_be_labeled": {"type": "boolean", "default": true}
+      }
+    }
+  }
+}

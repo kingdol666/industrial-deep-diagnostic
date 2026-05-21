@@ -1,0 +1,66 @@
+{
+  "scene": {
+    "name": "BOPET Line 3 Thickness Anomaly",
+    "process_type": "BOPET_film_extrusion",
+    "production_goal": "Produce 12μm BOPET film with thickness tolerance ±3%",
+    "equipment": [
+      {"id": "EXT-01", "name": "Main Extruder", "type": "twin_screw_extruder"},
+      {"id": "DIE-01", "name": "Flat Die", "type": "coat_hanger_die"},
+      {"id": "CHILL-01", "name": "Chill Roll Unit", "type": "chill_roll"},
+      {"id": "MDO-01", "name": "MDO Section", "type": "longitudinal_stretcher"},
+      {"id": "TDO-01", "name": "TDO Section", "type": "transverse_stretcher"},
+      {"id": "WINDER-01", "name": "Winder", "type": "center_winder"}
+    ],
+    "stages": [
+      {"id": "S1", "name": "Extrusion", "sequence": 1, "entry_criteria": "Polymer melted and homogenized", "exit_criteria": "Uniform melt flow to die"},
+      {"id": "S2", "name": "Casting", "sequence": 2, "entry_criteria": "Melt exits die lip", "exit_criteria": "Solidified amorphous sheet on chill roll"},
+      {"id": "S3", "name": "MDO Stretching", "sequence": 3, "entry_criteria": "Preheated to Tg", "exit_criteria": "Longitudinally oriented"},
+      {"id": "S4", "name": "TDO Stretching", "sequence": 4, "entry_criteria": "Preheated to Tg", "exit_criteria": "Biaxially oriented"},
+      {"id": "S5", "name": "Heat Setting", "sequence": 5, "entry_criteria": "Entering HSO oven", "exit_criteria": "Dimensionally stabilized"},
+      {"id": "S6", "name": "Winding", "sequence": 6, "entry_criteria": "Cooled to room temp", "exit_criteria": "Wound on core"}
+    ],
+    "objectives": [
+      "Identify root cause of periodic thickness variation",
+      "Determine if variation is equipment-related or process-related",
+      "Recommend corrective actions"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {"name": "thickness", "column": "thickness_um", "unit": "μm", "description": "Film thickness measured by beta gauge", "target": 12.0, "tolerance": 0.36}
+    ],
+    "process_parameters": [
+      {"name": "die_temperature", "column": "die_temp_c", "unit": "°C", "description": "Flat die zone temperature", "normal_range": [270, 285]},
+      {"name": "screw_speed", "column": "screw_speed_rpm", "unit": "RPM", "description": "Main extruder screw speed", "normal_range": [180, 220]},
+      {"name": "chill_roll_temp", "column": "chill_roll_temp_c", "unit": "°C", "description": "Chill roll surface temperature", "normal_range": [18, 25]},
+      {"name": "line_speed", "column": "line_speed_mpm", "unit": "m/min", "description": "Line speed at winder", "normal_range": [80, 120]},
+      {"name": "melt_pressure", "column": "melt_pressure_mpa", "unit": "MPa", "description": "Melt pressure at die inlet", "normal_range": [8, 14]},
+      {"name": "melt_temp", "column": "melt_temp_c", "unit": "°C", "description": "Melt temperature at die inlet", "normal_range": [275, 290]}
+    ],
+    "control_variables": [
+      {"name": "heater_power", "column": "heater_power_pct", "unit": "%", "description": "Die heater power output", "controlled_by": "PID_controller"},
+      {"name": "screw_speed_sp", "column": "screw_speed_sp_rpm", "unit": "RPM", "description": "Screw speed setpoint", "controlled_by": "operator"}
+    ],
+    "events": [
+      {"name": "batch_status", "column": "batch_status", "description": "Batch production status", "event_values": ["RUNNING", "STOPPED", "CHANGEOVER"]}
+    ],
+    "metadata_columns": [
+      {"name": "batch_id", "column": "batch_id", "description": "Production batch identifier"},
+      {"name": "product_code", "column": "product_code", "description": "Product specification code"}
+    ]
+  },
+  "relationships": [
+    {"from": "die_temperature", "to": "thickness", "type": "causal", "direction": "forward", "strength": "strong", "description": "Die temperature affects melt viscosity which affects flow uniformity"},
+    {"from": "screw_speed", "to": "melt_pressure", "type": "causal", "direction": "forward", "strength": "strong", "description": "Screw speed directly controls throughput and melt pressure"},
+    {"from": "melt_pressure", "to": "thickness", "type": "causal", "direction": "forward", "strength": "strong", "description": "Pressure variation at die affects thickness uniformity"},
+    {"from": "chill_roll_temp", "to": "thickness", "type": "physical", "direction": "forward", "strength": "moderate", "description": "Cooling rate affects crystallization which affects final thickness"},
+    {"from": "line_speed", "to": "thickness", "type": "causal", "direction": "forward", "strength": "strong", "description": "Line speed directly affects draw-down ratio and thickness"},
+    {"from": "heater_power", "to": "die_temperature", "type": "control", "direction": "forward", "strength": "strong", "description": "PID controller adjusts heater power to maintain die temperature setpoint"}
+  ],
+  "metadata": {
+    "units": {"thickness": "μm", "temperature": "°C", "pressure": "MPa", "speed": "RPM"},
+    "sampling_rate": "1s",
+    "batch_id": "BOPET-2024-0315-A",
+    "timezone": "Asia/Shanghai"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "run_id": "",
+  "run_timestamp": "",
+  "scene_name": "",
+  "batch_id": "",
+  "status": "completed",
+  "data_source": "",
+  "data_dimensions": {"rows": 0, "columns": 0},
+  "time_range": {"start": "", "end": ""},
+  "signals": {
+    "total": 0,
+    "inspection": 0,
+    "process": 0,
+    "control": 0,
+    "events": 0,
+    "metadata": 0
+  },
+  "abnormal_intervals_found": 0,
+  "primary_diagnosis": "",
+  "overall_confidence": "medium",
+  "judge_score": 0,
+  "judge_iterations": 0,
+  "artifacts": {
+    "files_generated": 0,
+    "figures_generated": 0,
+    "total_size_bytes": 0
+  },
+  "references_used": 0,
+  "web_research_queries": 0,
+  "duration_seconds": 0
+}

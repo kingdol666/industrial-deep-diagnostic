@@ -1,0 +1,23 @@
+{
+  "data_path": "./reactor_temperature_data.csv",
+  "scene_name": "CSTR Reactor Temperature Runaway",
+  "process_description": "Continuous Stirred Tank Reactor (CSTR) producing a specialty chemical via exothermic reaction. Temperature control is critical for product quality and safety. The investigation focuses on a temperature excursion event that occurred during normal production.",
+  "batch_id": "RXT-2024-0422-B",
+  "user_objective": "Investigate the temperature runaway event that occurred on 2024-04-22, identify the initiating cause, and recommend safeguards to prevent recurrence.",
+  "reference_dir": "./references/",
+  "known_faults": [
+    "Cooling water valve failure",
+    "Agitator speed reduction",
+    "Feed composition variation",
+    "Catalyst activity increase"
+  ],
+  "analysis_constraints": {
+    "focus_signals": ["reactor_temp", "cooling_water_flow", "feed_rate", "agitator_speed", "product_quality"],
+    "time_range": {
+      "start": "2024-04-22T06:00:00",
+      "end": "2024-04-22T18:00:00"
+    },
+    "judge_score_threshold": 90,
+    "max_iterations": 3
+  }
+}

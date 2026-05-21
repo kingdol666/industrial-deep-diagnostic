@@ -1,0 +1,12 @@
+{
+  "data_path": "./tests/fixtures/sample_timeseries.csv",
+  "scene_name": "BOPET Thickness Test",
+  "batch_id": "TEST-001",
+  "process_description": "Test fixture for BOPET film production with a simulated thickness anomaly between timestamps 08:00:17 and 08:00:29",
+  "user_objective": "Detect and diagnose the thickness anomaly in the test data",
+  "known_faults": [],
+  "analysis_constraints": {
+    "judge_score_threshold": 90,
+    "max_iterations": 3
+  }
+}
