@@ -1,0 +1,1 @@
+{"eval_id": 3, "eval_name": "anomaly_detection_accuracy", "prompt": "Detect known anomaly injected at rows 20-25 (08:20-08:25)", "assertions": ["anomaly at idx 20-25 detected", "count >= 1", "interval count >= 5", "no false positives outside 08:20-08:25", "z-score threshold correct at |z|>3", "timestamps correctly extracted"]}

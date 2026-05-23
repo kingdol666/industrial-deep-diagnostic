@@ -1,0 +1,14 @@
+{
+  "eval_name": "inspect_data_accuracy",
+  "configuration": "with_skill",
+  "graded_at": "2026-05-21T12:00:00Z",
+  "expectations": [
+    {"text": "Correctly detects 30 rows and 7 columns", "passed": true, "evidence": "inspect_result.json: rows=30, columns=7 — matches ground truth exactly"},
+    {"text": "Detects timestamp as time column", "passed": true, "evidence": "time_column=timestamp — column 0 is datetime type, correctly auto-detected"},
+    {"text": "Classifies stage as string with 3 unique values", "passed": true, "evidence": "stage: type=string, unique=3 — correctly identifies categorical column"},
+    {"text": "Classifies all 5 numeric columns correctly", "passed": true, "evidence": "temp_a_c, temp_b_c, pressure_mpa, thickness_um, quality_index all type=number with valid stats"},
+    {"text": "Correctly identifies zero missing values", "passed": true, "evidence": "All columns: missing=0, missing_pct=0 — data is clean"},
+    {"text": "Excludes stage column from numeric columns", "passed": true, "evidence": "column_details shows stage as type=string, not in numeric count"}
+  ],
+  "summary": {"total": 6, "passed": 6, "failed": 0, "pass_rate": 1.0}
+}

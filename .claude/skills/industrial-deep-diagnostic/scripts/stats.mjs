@@ -8,12 +8,17 @@ import fs from 'fs';
 function loadData(filePath) {
   const raw = fs.readFileSync(filePath, 'utf-8');
   const parsed = JSON.parse(raw);
-  if (Array.isArray(parsed)) return parsed;
+  if (Array.isArray(parsed)) return { data: parsed, note: null };
   if (parsed.column_details) {
-    // Convert inspect output format to row objects
-    return parsed.preview || [];
+    // inspect.mjs output — warn that stats on preview rows alone are unreliable
+    const previewRows = (parsed.preview || []).length;
+    return {
+      data: parsed.preview || [],
+      note: `WARNING: Input is inspect.mjs output with only ${previewRows} preview rows. Stats from this data are unreliable. Use 'node convert.mjs <file.csv> --output data.json' to convert the full dataset first.`
+    };
   }
-  return parsed.data || [parsed];
+  if (parsed.data && Array.isArray(parsed.data)) return { data: parsed.data, note: null };
+  return { data: [parsed], note: null };
 }
 
 function pearson(x, y) {
@@ -79,9 +84,9 @@ const args = process.argv.slice(2);
 const filePath = args[0];
 if (!filePath) { console.error('Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C] [--max-lag N]'); process.exit(1); }
 
-const raw = fs.readFileSync(filePath, 'utf-8');
-const rows = JSON.parse(raw);
-if (!Array.isArray(rows) || rows.length === 0) { console.error('Expected JSON array of objects'); process.exit(1); }
+const { data: rows, note } = loadData(filePath);
+if (note) console.error(note);
+if (!Array.isArray(rows) || rows.length === 0) { console.error('Expected JSON array of objects. If you passed inspect.mjs output, use convert.mjs to generate full row data first.'); process.exit(1); }
 
 const timeCol = (args[args.indexOf('--time-col') + 1]) || null;
 const targetColsStr = (args[args.indexOf('--target-cols') + 1]) || '';

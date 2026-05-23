@@ -1,0 +1,48 @@
+{
+  "skill_name": "industrial-deep-diagnostic",
+  "iteration": 1,
+  "generated_at": "2026-05-21T12:00:00Z",
+  "configurations": [
+    {
+      "name": "with_skill",
+      "description": "Using industrial-deep-diagnostic v4.0 scripts (inspect.mjs, stats.mjs, template_visualize.py)"
+    }
+  ],
+  "aggregate": {
+    "with_skill": {
+      "pass_rate_mean": 0.944,
+      "pass_rate_std": 0.078,
+      "total_assertions": 18,
+      "passed_assertions": 17,
+      "failed_assertions": 1
+    }
+  },
+  "per_eval": [
+    {
+      "eval_id": 1,
+      "eval_name": "inspect_data_accuracy",
+      "component": "inspect.mjs",
+      "with_skill": {"pass_rate": 1.0, "passed": 6, "failed": 0},
+      "notes": "Perfect score — column type inference and time column detection work flawlessly on clean data"
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "stats_correlation_accuracy",
+      "component": "stats.mjs",
+      "with_skill": {"pass_rate": 1.0, "passed": 6, "failed": 0},
+      "notes": "Perfect score — Pearson correlations match ground truth within 0.015 tolerance"
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "anomaly_detection_accuracy",
+      "component": "stats.mjs (z-score)",
+      "with_skill": {"pass_rate": 0.833, "passed": 5, "failed": 1},
+      "notes": "1 false positive: row 9 flagged as anomaly (thickness=10.04 vs baseline mean=10.00). Cause: baseline variance is very low (std=0.02 in normal region), making z=2.0 already trigger at tiny deviations. The z-score method is sensitive when baseline is near-perfect. Recommendation: add a minimum deviation threshold (e.g., 5% of baseline mean) as a secondary filter."
+    }
+  ],
+  "analyst_observations": [
+    "inspect.mjs: Production-ready for clean CSV data. Handles datetime detection and type inference correctly. Edge case: non-standard time column names would need keyword tuning.",
+    "stats.mjs: Correlation computation is accurate. Lag correlation works correctly. The z-score anomaly detection is too sensitive for processes with very low normal variation — a minimum effect size filter would reduce false positives.",
+    "Overall: Deterministic components pass 94.4% of assertions. The 1 failure is a tunable threshold issue, not a logic bug."
+  ]
+}

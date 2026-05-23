@@ -35,7 +35,9 @@ Every conclusion must cite its evidence source and rank (1=direct data, 2=user d
 ```
 MAIN AGENT (you — orchestrator only, keep context clean)
 │
-├── inspect.mjs (Node, zero-dep) ──► inspect data, get schema & stats
+├── inspect.mjs (Node, zero-dep) ──► inspect CSV/JSON/TSV, auto-route Excel/Parquet to file_inspect.py
+├── file_inspect.py (Python, pandas)  ──► inspect Excel, Parquet, Feather
+├── convert.mjs (Node, zero-dep) ──► safe CSV → JSON conversion
 ├── setup.mjs  (Node, zero-dep) ──► create workspace directory
 │
 ├── spawn agents/context-builder.md   ──► ontology + references
@@ -106,6 +108,11 @@ workspace/diagnostic-runs/<timestamp>_<name>/
 node <skill_path>/scripts/inspect.mjs <data_path>
 ```
 
+`inspect.mjs` auto-routes by file format:
+- **CSV / TSV / JSON** → parsed natively by Node.js (zero-dependency)
+- **Excel (.xlsx/.xls) / Parquet (.parquet) / Feather** → delegates to `file_inspect.py` (requires pandas)
+- **Files > 100K rows** → systematic sampling for stats computation to avoid OOM
+
 This outputs JSON with column names, types, stats, time column detection, and preview. **Read this output carefully** — it tells you exactly what the data looks like.
 
 Then ask the user clarification questions (max 5 at a time). Only ask what you cannot infer from the inspection results.
@@ -167,11 +174,20 @@ The `repair_instruction` field is the key to automation — it tells the diagnos
 
 ### Step 6: Report (SUB-AGENT)
 
-Read `agents/reporter.md` and spawn.
+Read `agents/reporter.md` and spawn. The reporter MUST:
+
+1. Read every image in `03_figures/` via VLM before writing the report
+2. Embed every figure in the report using `![title](03_figures/filename.png)` markdown syntax
+3. Provide per-figure analysis for each embedded image: what it shows, visual findings (Rank 4), and diagnostic implication
+4. Use the template at `templates/report_template.md` which has section 11 dedicated to per-figure analysis with embedded images
+
+**No figure may be skipped.** The reporter reads `03_figures/plot_manifest.json` to get the full list of plots.
 
 ### Step 7: Present Results (MAIN)
 
 Show the user: executive summary, key findings, primary diagnosis, top recommendations, workspace path.
+
+Verify that report.md contains embedded images (not just text references) before presenting to the user.
 
 ## Parallel Execution
 
@@ -192,9 +208,29 @@ Steps 2 and 3 can run **in parallel**. Steps 4→5→6 must be **sequential**.
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `inspect.mjs` | Inspect data file, output schema & stats | `node inspect.mjs <file> [--rows N]` |
+| `inspect.mjs` | Inspect data file, output schema & stats. Routes Excel/Parquet/Feather to `file_inspect.py` | `node inspect.mjs <file> [--rows N] [--sample-size N]` |
 | `stats.mjs` | Correlations, z-scores, abnormal intervals | `node stats.mjs <data.json> --time-col X --target-cols A,B` |
 | `setup.mjs` | Create workspace directory structure | `node setup.mjs --name X [--base-dir D]` |
+| `convert.mjs` | Safe CSV/TSV → JSON conversion (handles quoted fields, large files via sampling) | `node convert.mjs <file> --output out.json [--sample N]` |
+
+### Python Scripts
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `file_inspect.py` | Inspect Excel/Parquet/Feather data (pandas-based) | `python3 file_inspect.py <file> [--rows N]` |
+| `template_visualize.py` | Adaptive visualization toolkit (~16 composable primitives) | Agent composes into custom script |
+| `template_preprocess.py` | Missing values, outlier detection, resampling | Agent customizes per dataset |
+
+### Dependencies
+
+Python packages required for full format support: `pip3 install -r scripts/requirements.txt`
+
+| Package | Required For |
+|---------|-------------|
+| matplotlib, numpy, pandas | Core visualization (required) |
+| seaborn | Enhanced heatmaps (optional) |
+| openpyxl | Excel .xlsx reading (optional) |
+| pyarrow | Parquet / Feather reading (optional) |
 
 ### Python Toolkit (agent selects primitives based on data dimensions)
 

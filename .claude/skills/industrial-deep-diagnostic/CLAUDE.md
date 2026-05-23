@@ -18,7 +18,7 @@ Lives in `.claude/skills/industrial-deep-diagnostic/`.
 SKILL.md              — Skill definition, workflow, commands (authoritative source)
 CLAUDE.md             — This file: developer notes, conventions, gotchas
 agents/               — Sub-agent prompt files (context-builder, data-processor, diagnostician, judge, reporter)
-scripts/              — Node.js utils (inspect.mjs, stats.mjs, setup.mjs) + Python toolkit (template_visualize.py, template_preprocess.py)
+scripts/              — Node.js utils (inspect.mjs, stats.mjs, setup.mjs, convert.mjs) + Python toolkit (template_visualize.py, template_preprocess.py, file_inspect.py)
 resources/            — Reference docs loaded by agents (evidence_rules, diagnosis_method, process_knowledge_base)
 schemas/              — JSON Schema draft-07 for ontology, signals, analysis, run_config, report
 templates/            — Output templates (report, diagnosis, judge, input_manifest, run_summary)
@@ -44,7 +44,8 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 
 - **CLAUDE.md vs SKILL.md**: SKILL.md is authoritative. This file is developer reference only. If they conflict, trust SKILL.md.
 - **Agent output paths**: Each agent's prompt specifies exact output paths under `RUN_DIR/`. The main agent must pass `RUN_DIR` correctly when spawning.
-- **Python execution**: Always try `python3` first, fall back to `python3.11`. If matplotlib missing: `pip3 install matplotlib numpy pandas`.
+- **Python execution**: Always try `python3` first, fall back to `python3.11`. If matplotlib missing: `pip3 install -r scripts/requirements.txt`.
 - **time_col detection**: `inspect.mjs` auto-detects time columns by keyword + type inference. Can fail on non-standard column names — the main agent should verify and override.
-- **stats.mjs requires JSON input**: The main agent must convert CSV to JSON via Node one-liner before calling stats.mjs (see data-processor.md Step 2).
+- **stats.mjs requires JSON input**: Use `convert.mjs` to safely convert CSV to JSON (handles quoted fields, embedded delimiters). For files > 100K rows, use `--sample 50000` to avoid OOM.
+- **Excel/Parquet/Feather**: `inspect.mjs` auto-routes these formats to `inspect.py` (requires pandas + openpyxl or pyarrow).
 - **Worktree isolation**: If the skill runs in a worktree, `RUN_DIR` will be inside the worktree. All paths must be absolute.

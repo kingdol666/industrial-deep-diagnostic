@@ -1,0 +1,1 @@
+{"eval_id": 1, "eval_name": "inspect_data_accuracy", "prompt": "Inspect 30-row synthetic CSV with known column types — verify time column detection and type inference", "assertions": ["rows=30 columns=7", "time_column=timestamp", "stage=string with unique=3", "5 numeric columns detected", "zero missing values", "stage excluded from numeric"]}

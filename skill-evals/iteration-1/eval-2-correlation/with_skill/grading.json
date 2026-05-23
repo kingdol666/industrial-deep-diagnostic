@@ -1,0 +1,14 @@
+{
+  "eval_name": "stats_correlation_accuracy",
+  "configuration": "with_skill",
+  "graded_at": "2026-05-21T12:00:00Z",
+  "expectations": [
+    {"text": "temp_a_c vs temp_b_c: r > 0.95 (near-identical tracking)", "passed": true, "evidence": "r=0.9896 — both temperatures track together, as designed in synthetic data"},
+    {"text": "temp_a_c vs pressure_mpa: r < -0.95 (strong inverse)", "passed": true, "evidence": "r=-0.9756 — pressure inversely follows temperature, correct physical relationship"},
+    {"text": "temp_a_c vs thickness_um: r < -0.95 (strong inverse)", "passed": true, "evidence": "r=-0.9849 — thickness inversely follows temperature, correct"},
+    {"text": "pressure_mpa vs thickness_um: r > 0.95 (strong positive)", "passed": true, "evidence": "r=0.9976 — near-perfect positive correlation, correct"},
+    {"text": "All correlations within ±0.02 of expected values", "passed": true, "evidence": "Expected all ~±0.99, observed 0.9756-0.9976 — within 0.015 tolerance"},
+    {"text": "Lagged correlations at optimal lag=0 (instantaneous)", "passed": true, "evidence": "All lagged_correlations show lag_periods=0 — correct for this instantaneous system"}
+  ],
+  "summary": {"total": 6, "passed": 6, "failed": 0, "pass_rate": 1.0}
+}

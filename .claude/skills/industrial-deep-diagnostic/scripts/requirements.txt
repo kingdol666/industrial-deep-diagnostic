@@ -1,0 +1,14 @@
+# Industrial Deep Diagnostic — Python Dependencies
+# Install: pip3 install -r requirements.txt
+#
+# Core visualization (required)
+matplotlib>=3.7.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Heatmap enhancement (optional — matplotlib fallback works)
+seaborn>=0.12.0
+
+# Format support (optional — install based on your data formats)
+openpyxl>=3.1.0     # Excel .xlsx reading
+pyarrow>=12.0.0     # Parquet / Feather reading

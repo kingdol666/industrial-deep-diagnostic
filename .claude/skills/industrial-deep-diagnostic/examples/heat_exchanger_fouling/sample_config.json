@@ -1,0 +1,45 @@
+{
+  "data_path": "./data/heat_exchanger_fouling.csv",
+  "reference_dir": "./data/references/heat_exchanger",
+  "scene_name": "heat_exchanger_e201_fouling",
+  "process_description": "Shell-and-tube heat exchanger E-201 cooling phenol-acetone process fluid (180°C, tube side) with cooling tower water (30°C, shell side). 30 days of 5-minute data from March 2025. Known issue: declining heat transfer performance, suspected fouling. Chemical cleaning performed on March 25 but achieved only partial recovery. Two cooling water pump trip events occurred during the period.",
+  "user_objective": "Diagnose the root cause of declining heat transfer performance in E-201. Determine why the March 25 cleaning only achieved partial recovery. Identify what triggered the fouling and recommend preventive actions.",
+  "known_faults": [
+    "Gradual HTC decline starting approximately mid-March 2025",
+    "Chemical cleaning on March 25 restored only ~72% of performance",
+    "Two cooling water pump trip events during the month"
+  ],
+  "analysis_constraints": [
+    "Hot inlet is tightly controlled by upstream distillation — unlikely to be root cause",
+    "Cold inlet has known diurnal (±1.5°C) and seasonal variations — must be distinguished from fouling signal",
+    "Pump trip events are transient — focus analysis on the persistent HTC decline trend"
+  ],
+  "target_columns": [
+    "heat_transfer_coeff_wm2k",
+    "hot_outlet_temp_c",
+    "approach_temp_c",
+    "effectiveness",
+    "pressure_drop_hot_kpa"
+  ],
+  "quality_columns": [
+    "heat_transfer_coeff_wm2k",
+    "approach_temp_c",
+    "effectiveness"
+  ],
+  "process_columns": [
+    "hot_inlet_temp_c",
+    "cold_inlet_temp_c",
+    "hot_flow_rate_lpm",
+    "cold_flow_rate_lpm",
+    "pressure_drop_cold_kpa"
+  ],
+  "control_columns": [
+    "hot_flow_rate_lpm",
+    "cold_flow_rate_lpm"
+  ],
+  "event_columns": [
+    "pump_trip_event",
+    "cleaning_cycle"
+  ],
+  "time_column": "timestamp"
+}

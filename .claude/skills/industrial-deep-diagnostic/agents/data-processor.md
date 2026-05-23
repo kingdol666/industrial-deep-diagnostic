@@ -15,6 +15,8 @@ then select and compose the right visualization primitives from the toolkit.
 node SKILL_PATH/scripts/inspect.mjs DATA_PATH --rows 10 > RUN_DIR/00_input/data_inspection.json
 ```
 
+`inspect.mjs` auto-routes by format: CSV/TSV/JSON parsed natively; Excel/Parquet/Feather delegated to `file_inspect.py`. For files > 100K rows, stats are computed on a systematic sample to avoid OOM (check the `_note` field in the output).
+
 Read the output carefully. Understand:
 - How many numeric columns? What types (process, quality, control)?
 - Is there a time column? What's the sampling rate?
@@ -26,16 +28,18 @@ Read the output carefully. Understand:
 
 ## Step 2: Statistical Analysis (Node.js)
 
-Convert CSV to JSON and run stats:
+First, convert CSV to JSON using the safe converter (handles quoted fields, embedded delimiters, and large files):
+
 ```bash
-node -e "
-const fs = require('fs');
-const raw = fs.readFileSync('DATA_PATH','utf-8');
-const lines = raw.trim().split('\n');
-const headers = lines[0].split(',');
-const rows = lines.slice(1).map(l => { const v = l.split(','); const o = {}; headers.forEach((h,i) => o[h.trim()] = v[i]?.trim() || null); return o; });
-fs.writeFileSync('RUN_DIR/02_processed/data.json', JSON.stringify(rows));
-"
+# For files < 100K rows: full conversion
+node SKILL_PATH/scripts/convert.mjs DATA_PATH --output RUN_DIR/02_processed/data.json
+
+# For files > 100K rows: systematic sample to avoid memory issues
+node SKILL_PATH/scripts/convert.mjs DATA_PATH --output RUN_DIR/02_processed/data.json --sample 50000
+```
+
+Then run statistical analysis:
+```bash
 node SKILL_PATH/scripts/stats.mjs RUN_DIR/02_processed/data.json --time-col <time_col> --target-cols <quality_cols> --max-lag 30 > RUN_DIR/02_processed/feature_summary.json
 ```
 

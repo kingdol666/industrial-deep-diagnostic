@@ -66,16 +66,44 @@
 
 {{time_alignment}}
 
-## 11. Visualization Interpretation
+## 11. Visualization Evidence — Per-Figure Analysis
 
-### 11.1 Aligned Time-Series Overview
-{{timeseries_interpretation}}
+> **Every figure from 03_figures/ is embedded here. Each figure includes visual findings and diagnostic implications.**
 
-### 11.2 Correlation Analysis
-{{correlation_interpretation}}
+### 11.1 {{figure_1_title}}
+![{{figure_1_title}}](03_figures/{{figure_1_filename}})
 
-### 11.3 Anomaly Detail Views
-{{anomaly_interpretation}}
+**What this figure shows**: {{figure_1_description}}
+
+**Visual findings ([OBSERVATION], Rank 4)**: {{figure_1_visual_findings}}
+
+**Diagnostic implication**: {{figure_1_implication}}
+
+---
+
+### 11.2 {{figure_2_title}}
+![{{figure_2_title}}](03_figures/{{figure_2_filename}})
+
+**What this figure shows**: {{figure_2_description}}
+
+**Visual findings ([OBSERVATION], Rank 4)**: {{figure_2_visual_findings}}
+
+**Diagnostic implication**: {{figure_2_implication}}
+
+---
+
+### 11.N {{figure_N_title}}
+![{{figure_N_title}}](03_figures/{{figure_N_filename}})
+
+**What this figure shows**: {{figure_N_description}}
+
+**Visual findings ([OBSERVATION], Rank 4)**: {{figure_N_visual_findings}}
+
+**Diagnostic implication**: {{figure_N_implication}}
+
+---
+
+*(Repeat for every plot in plot_manifest.json. Do not skip any figure.)*
 
 ## 12. Diagnostic Findings
 
