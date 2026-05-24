@@ -1,27 +1,16 @@
 import { spawn, execSync } from 'child_process';
 import { existsSync, readdirSync } from 'fs';
-import { resolve, join, dirname, extname, basename } from 'path';
-import { fileURLToPath } from 'url';
+import { join, extname, basename } from 'path';
+import { config, PROJECT_ROOT } from '../../../config/loader.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const PROJECT_ROOT = resolve(__dirname, '..', '..', '..');
-const DATA_DIR = join(PROJECT_ROOT, 'data');
-const WORKSPACE_DIR = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs');
-
-const SKILL_DIR = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-deep-diagnostic');
+const DATA_DIR = join(PROJECT_ROOT, config.data.dir);
+const WORKSPACE_DIR = join(PROJECT_ROOT, config.data.workspace_dir);
+const SKILL_DIR = join(PROJECT_ROOT, config.claude.skill_dir);
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md');
-
-const ALLOWED_ENV = [
-  'PATH', 'HOME', 'USER', 'LANG', 'LC_ALL',
-  'ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL',
-  'NODE_PATH', 'SHELL', 'TERM',
-];
 
 function buildEnv() {
   const env = {};
-  for (const key of ALLOWED_ENV) {
+  for (const key of config.security.allowed_env_vars) {
     if (process.env[key] !== undefined) {
       env[key] = process.env[key];
     }
@@ -33,15 +22,13 @@ function buildEnv() {
 }
 
 function findClaudeCLI() {
-  try {
-    return execSync('which claude', { encoding: 'utf-8', timeout: 3000 }).trim();
-  } catch {
+  const bins = [config.claude.binary, config.claude.fallback_binary];
+  for (const bin of bins) {
     try {
-      return execSync('which claude-code', { encoding: 'utf-8', timeout: 3000 }).trim();
-    } catch {
-      return null;
-    }
+      return execSync(`which ${bin}`, { encoding: 'utf-8', timeout: 3000 }).trim();
+    } catch { /* try next */ }
   }
+  return null;
 }
 
 function sanitize(str) {
@@ -53,15 +40,15 @@ function discoverDataFiles(folderPath) {
     ? folderPath
     : join(PROJECT_ROOT, folderPath);
   const entries = readdirSync(absolutePath);
-  const exts = ['.csv', '.xlsx', '.xls', '.parquet', '.json', '.tsv'];
+  const exts = config.data.allowed_extensions;
   return entries
     .filter(e => exts.includes(extname(e).toLowerCase()))
     .map(e => join(absolutePath, e))
     .sort();
 }
 
-function buildPrompt(sceneName, userQuestion, target, reportLanguage = 'zh') {
-  const safeScene = sanitize(sceneName || 'industrial_analysis');
+function buildPrompt(sceneName, userQuestion, target, reportLanguage) {
+  const safeScene = sanitize(sceneName || config.diagnosis.default_scene_name);
   const safeQuestion = sanitize(userQuestion || '');
 
   let dataDescription;
@@ -80,7 +67,7 @@ function buildPrompt(sceneName, userQuestion, target, reportLanguage = 'zh') {
     ? 'IMPORTANT: Write ALL narrative text, headings, analysis descriptions, recommendations, and report.md content in Chinese (中文). Keep technical terms, variable names, column names, and code in English.'
     : 'Write all output in English.';
 
-  return `/industrial-deep-diagnostic ${safeScene}
+  return `${config.claude.skill_command} ${safeScene}
 
 ## Data
 
@@ -88,38 +75,19 @@ ${dataDescription}
 
 ## Analysis Question
 
-${safeQuestion || 'Perform a comprehensive root cause analysis following the full 8-step pipeline.'}
+${safeQuestion || config.diagnosis.default_question}
 
 ## Language
 
 ${langRule}`;
 }
 
-// Dangerous command patterns for HITL interception
-const DANGEROUS_PATTERNS = [
-  { pattern: /rm\s+-rf\s+\//, level: 'CRITICAL', desc: 'Recursive delete from root' },
-  { pattern: /rm\s+-rf\s+\/\*/, level: 'CRITICAL', desc: 'Delete all files from root' },
-  { pattern: /rm\s+-rf\s+~/, level: 'CRITICAL', desc: 'Delete home directory' },
-  { pattern: /rm\s+-rf\s+\$HOME/, level: 'CRITICAL', desc: 'Delete home directory' },
-  { pattern: /chmod\s+(-R\s+)?777\s+\//, level: 'CRITICAL', desc: 'World-writable permissions on system dirs' },
-  { pattern: /chown\s+-R\s+\S+\s+\//, level: 'CRITICAL', desc: 'Recursive ownership change from root' },
-  { pattern: />\s*\/dev\/sd[a-z]/, level: 'CRITICAL', desc: 'Write directly to disk device' },
-  { pattern: /dd\s+if=/, level: 'CRITICAL', desc: 'Raw disk copy operation' },
-  { pattern: /mkfs\./, level: 'CRITICAL', desc: 'Filesystem creation (destroys data)' },
-  { pattern: /mount\s+-o\s+remount/, level: 'HIGH', desc: 'Remount filesystem' },
-  { pattern: /:\\(\\)\s*\{\s*:\|\:&\s*\}/, level: 'CRITICAL', desc: 'Fork bomb' },
-  { pattern: /while\s+true\s*;\s*do\s+\S+\s*;\s*done/, level: 'HIGH', desc: 'Infinite loop' },
-  { pattern: /curl\s+\S+\s*\|\s*(ba)?sh/, level: 'CRITICAL', desc: 'Curl piped to shell' },
-  { pattern: /wget\s+\S+\s*-O\s*-\s*\|\s*(ba)?sh/, level: 'CRITICAL', desc: 'Wget piped to shell' },
-  { pattern: /curl\s+\S+\s*\|\s*sudo\s*(ba)?sh/, level: 'CRITICAL', desc: 'Curl piped to sudo shell' },
-  { pattern: /git\s+push\s+(-f|--force)\s+origin\s+(main|master)/, level: 'HIGH', desc: 'Force push to main/master' },
-  { pattern: /sudo\s+su/, level: 'CRITICAL', desc: 'Switch to root user' },
-  { pattern: /sudo\s+passwd/, level: 'CRITICAL', desc: 'Change passwords via sudo' },
-  { pattern: /sudo\s+rm/, level: 'HIGH', desc: 'Delete with sudo' },
-  { pattern: /iptables\s+-F/, level: 'HIGH', desc: 'Flush firewall rules' },
-  { pattern: /systemctl\s+disable/, level: 'HIGH', desc: 'Disable system service' },
-  { pattern: /kill\s+-9\s+-1/, level: 'CRITICAL', desc: 'Kill all processes' },
-];
+// Build dangerous command patterns from config
+const DANGEROUS_PATTERNS = config.security.dangerous_patterns.map(rule => ({
+  pattern: new RegExp(rule.pattern),
+  level: rule.level,
+  desc: rule.desc,
+}));
 
 export function isDangerousCommand(command) {
   if (!command || typeof command !== 'string') return null;
@@ -141,19 +109,19 @@ export function resolveHITL(permissionId, approved) {
   return true;
 }
 
-export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 120, reportLanguage = 'zh' }) {
+export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage }) {
+  const lang = reportLanguage || config.diagnosis.default_language;
+  const timeout = timeoutMinutes || config.claude.timeout_minutes;
+
   let dataPaths = [];
 
-  // Paths are stored relative to PROJECT_ROOT (e.g. data/file.csv) or relative to DATA_DIR
-  // validateDataPath already verified existence against DATA_DIR, normalize all to absolute
   function resolveDataPath(p) {
     if (p.startsWith('/')) return p;
-    // Try PROJECT_ROOT first (for paths like data/file.csv), then DATA_DIR
     const fromRoot = join(PROJECT_ROOT, p);
     if (existsSync(fromRoot)) return fromRoot;
     const fromData = join(DATA_DIR, p);
     if (existsSync(fromData)) return fromData;
-    return fromRoot; // let caller throw the error
+    return fromRoot;
   }
 
   if (analysisTarget.mode === 'multi') {
@@ -203,15 +171,15 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     throw err;
   }
 
-  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, reportLanguage);
+  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, lang);
 
-  // Use -p for direct prompt input (not stream-json input) — skill invocation needs natural language
+  const allowedTools = config.claude.allowed_tools;
   const claudeArgs = [
     '-p', prompt,
-    '--output-format', 'stream-json',
+    '--output-format', config.claude.output_format,
     '--verbose',
     '--dangerously-skip-permissions',
-    '--allowedTools', 'Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Task',
+    '--allowedTools', allowedTools,
   ];
   if (maxTurns > 0) {
     claudeArgs.push('--max-turns', String(maxTurns));
@@ -223,34 +191,34 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
-  // Close stdin immediately — prompt is passed via -p flag
   child.stdin.end();
 
   let sigkillTimer = null;
+  const graceMs = (config.claude.sigkill_grace_seconds || 5) * 1000;
 
-  const timeout = setTimeout(() => {
+  const killTimeout = setTimeout(() => {
     if (!child.killed) {
       child.kill('SIGTERM');
       sigkillTimer = setTimeout(() => {
         try { process.kill(child.pid, 'SIGKILL'); } catch {}
-      }, 5000);
+      }, graceMs);
     }
-  }, timeoutMinutes * 60 * 1000);
+  }, timeout * 60 * 1000);
 
   child.on('close', () => {
-    clearTimeout(timeout);
+    clearTimeout(killTimeout);
     if (sigkillTimer) clearTimeout(sigkillTimer);
   });
 
   child.on('error', () => {
-    clearTimeout(timeout);
+    clearTimeout(killTimeout);
     if (sigkillTimer) clearTimeout(sigkillTimer);
   });
 
   child.stdout.on('error', () => {});
   child.stderr.on('error', () => {});
 
-  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes };
+  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes: timeout };
 }
 
 export function parseStreamLine(line) {

@@ -1,17 +1,18 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { frontend, server as serverConfig } from '../../config/loader.mjs';
 
 export default defineConfig({
   plugins: [vue()],
   server: {
-    port: 5180,
+    port: frontend.port,
     proxy: {
       '/api': {
-        target: 'http://localhost:3210',
+        target: frontend.backend_url,
         changeOrigin: true,
       },
       '/ws': {
-        target: 'ws://localhost:3210',
+        target: frontend.ws_url,
         ws: true,
       },
     },

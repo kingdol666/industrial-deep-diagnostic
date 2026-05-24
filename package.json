@@ -1,0 +1,32 @@
+{
+  "name": "industrial-deep-diagnostic",
+  "version": "1.0.0",
+  "description": "端到端工业深度诊断系统 — 调用 Claude Code CLI 对工业数据进行 8 阶段根因分析",
+  "type": "module",
+  "bin": {
+    "ind-diag": "./commands/cli.mjs"
+  },
+  "scripts": {
+    "start": "node commands/cli.mjs all",
+    "backend": "node commands/cli.mjs backend",
+    "frontend": "node commands/cli.mjs frontend",
+    "build": "node commands/cli.mjs build",
+    "status": "node commands/cli.mjs status",
+    "link": "npm link",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["industrial", "diagnostic", "root-cause-analysis", "claude"],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kingdol666/industrial-deep-diagnostic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kingdol666/industrial-deep-diagnostic/issues"
+  },
+  "homepage": "https://github.com/kingdol666/industrial-deep-diagnostic#readme",
+  "dependencies": {
+    "js-yaml": "^4.1.1"
+  }
+}

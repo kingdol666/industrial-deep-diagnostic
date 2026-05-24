@@ -1,26 +1,52 @@
 import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import fileRoutes from './routes/files.mjs';
 import diagnosisRoutes from './routes/diagnosis.mjs';
 import historyRoutes from './routes/history.mjs';
 import { initWebSocket } from './ws-server.mjs';
-import { stmts } from './db.mjs';
+import { initDB, stmts } from './db.mjs';
+import { existsSync } from 'fs';
+import { server as serverConfig, PROJECT_ROOT } from '../../../config/loader.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 3210;
+async function initialize() {
+  console.log('[Init] Checking project configuration...');
+
+  // Verify default.yaml exists
+  const defaultYamlPath = join(PROJECT_ROOT, 'config', 'default.yaml');
+  if (!existsSync(defaultYamlPath)) {
+    console.error('[Init] FATAL: config/default.yaml not found');
+    console.error('[Init] Run: ind-diag init');
+    process.exit(1);
+  }
+  console.log('[Init] Config loaded successfully');
+
+  // Init database (idempotent)
+  initDB();
+
+  // Mark stale runs as interrupted
+  const staleRuns = stmts.getActiveRuns.all();
+  if (staleRuns.length > 0) {
+    for (const run of staleRuns) {
+      stmts.failRun.run({ runId: run.run_id, error: 'Server restarted — diagnosis interrupted' });
+      console.log(`[Init] Marked stale run as interrupted: ${run.run_id}`);
+    }
+  }
+
+  console.log('[Init] Initialization complete.');
+}
+
+const PORT = process.env.PORT || serverConfig.port;
 
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: serverConfig.body_limit }));
 
 // Serve uploaded data files statically (for preview/download)
-const projectRoot = join(__dirname, '..', '..', '..');
-app.use('/data-files', express.static(join(projectRoot, 'data')));
-app.use('/workspace-files', express.static(join(projectRoot, 'workspace')));
+app.use('/data-files', express.static(join(PROJECT_ROOT, 'data')));
+app.use('/workspace-files', express.static(join(PROJECT_ROOT, 'workspace')));
 
 // API routes
 app.use('/api/files', fileRoutes);
@@ -33,7 +59,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve Vue frontend in production
-const frontendDist = join(__dirname, '..', '..', 'frontend', 'dist');
+const frontendDist = join(PROJECT_ROOT, 'app', 'frontend', 'dist');
 app.use(express.static(frontendDist));
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api/') && !req.path.startsWith('/ws')) {
@@ -47,18 +73,16 @@ const server = createServer(app);
 // Initialize WebSocket server on /ws
 initWebSocket(server);
 
-// Mark any stale 'running' runs as interrupted (server was restarted)
-const staleRuns = stmts.getActiveRuns.all();
-for (const run of staleRuns) {
-  stmts.failRun.run({ runId: run.run_id, error: 'Server restarted — diagnosis interrupted' });
-  console.log(`[Industrial Diagnostic API] Marked stale run as interrupted: ${run.run_id}`);
-}
-
-server.listen(PORT, () => {
-  console.log(`[Industrial Diagnostic API] HTTP + WebSocket server on http://localhost:${PORT}`);
-  console.log(`[Industrial Diagnostic API] WebSocket endpoint: ws://localhost:${PORT}/ws`);
-  console.log(`[Industrial Diagnostic API] Project root: ${projectRoot}`);
-  console.log(`[Industrial Diagnostic API] Data dir: ${join(projectRoot, 'data')}`);
+initialize().then(() => {
+  server.listen(PORT, () => {
+    console.log(`[Industrial Diagnostic API] HTTP + WebSocket server on http://localhost:${PORT}`);
+    console.log(`[Industrial Diagnostic API] WebSocket endpoint: ws://localhost:${PORT}/ws`);
+    console.log(`[Industrial Diagnostic API] Project root: ${PROJECT_ROOT}`);
+    console.log(`[Industrial Diagnostic API] Data dir: ${join(PROJECT_ROOT, 'data')}`);
+  });
+}).catch(err => {
+  console.error('[Init] Failed to start:', err.message);
+  process.exit(1);
 });
 
 export default app;

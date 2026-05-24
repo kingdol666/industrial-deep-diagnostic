@@ -8,6 +8,7 @@ node_modules/
 
 # Database
 app/backend/data/*.db*
+data/*.db*
 
 # Diagnostic runs (generated artifacts, large files)
 workspace/diagnostic-runs/
@@ -23,6 +24,9 @@ app/frontend/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Config (user overrides)
+config/local.yaml
 
 # Temp
 *.tmp

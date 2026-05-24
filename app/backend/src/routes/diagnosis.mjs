@@ -9,11 +9,11 @@ import {
   setMeta, getMeta, resetRun,
 } from '../diagnosis-engine.mjs';
 import { stmts } from '../db.mjs';
+import { config, diagnosis as diagConfig, security as secConfig, pipeline as pipeConfig, engine as engConfig } from '../../../../config/loader.mjs';
 
 const router = Router();
 
 // Validate that a resolved data path is safe (contained within project root)
-// Paths may be relative to PROJECT_ROOT (e.g. data/file.csv) or relative to DATA_DIR (e.g. file.csv)
 async function validateDataPath(dataPath) {
   if (dataPath.startsWith('/')) {
     if (!existsSync(dataPath)) {
@@ -33,15 +33,13 @@ async function validateDataPath(dataPath) {
     return { absolutePath: resolved, relativePath: rel };
   }
 
-  // Try PROJECT_ROOT first, then DATA_DIR
   const candidates = [join(PROJECT_ROOT, dataPath), join(DATA_DIR, dataPath)];
   let resolved = null;
-  let resolvedRoot = null;
 
   for (const abs of candidates) {
     if (existsSync(abs)) {
       resolved = await realpath(abs);
-      resolvedRoot = await realpath(PROJECT_ROOT);
+      const resolvedRoot = await realpath(PROJECT_ROOT);
       const rel = relative(resolvedRoot, resolved);
       if (!rel.startsWith('..') && rel !== '') {
         return { absolutePath: resolved, relativePath: rel };
@@ -95,7 +93,7 @@ router.post('/start', async (req, res) => {
       return res.status(400).json({ success: false, error: 'One of dataPath, folderPath, or dataPaths is required' });
     }
 
-    const runId = uuid().slice(0, 8);
+    const runId = uuid().slice(0, diagConfig.run_id_length);
     const name = `${scene}_${runId}`;
 
     stmts.insertRun.run({
@@ -105,14 +103,13 @@ router.post('/start', async (req, res) => {
       dataPath: dataPathForDb,
       dataFolder,
       userQuestion: userQuestion || '',
-      model: 'claude-opus-4-7',
-      maxTurns: maxTurns ?? 0,
-      reportLanguage: reportLanguage || 'zh',
+      model: config.claude.model,
+      maxTurns: maxTurns ?? config.claude.max_turns,
+      reportLanguage: reportLanguage || diagConfig.default_language,
     });
 
-    // Store timeoutMinutes in engine meta for executeDiagnosis to use
     createRun(runId);
-    setMeta(runId, { timeoutMinutes: timeoutMinutes ?? 120 });
+    setMeta(runId, { timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes });
 
     res.json({ success: true, data: { runId, name, status: 'pending', mode } });
   } catch (err) {
@@ -148,10 +145,11 @@ function executeDiagnosis(runId, run, isRetry = false) {
   }
 
   let child = null;
+  const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
 
   try {
     const meta = getMeta(runId);
-    const timeoutMinutes = meta.timeoutMinutes || 120;
+    const timeoutMinutes = meta.timeoutMinutes || config.claude.timeout_minutes;
 
     const result = startDiagnosis({
       analysisTarget,
@@ -160,7 +158,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
       runId,
       maxTurns: run.max_turns,
       timeoutMinutes,
-      reportLanguage: run.report_language || 'zh',
+      reportLanguage: run.report_language || diagConfig.default_language,
     });
 
     child = result.child;
@@ -224,7 +222,6 @@ function executeDiagnosis(runId, run, isRetry = false) {
                 if (danger) {
                   const hitlId = `hitl_${runId}_${++hitlSeq}`;
 
-                  // Emit HITL request to frontend
                   emit(runId, {
                     type: 'hitl_request',
                     data: {
@@ -238,48 +235,32 @@ function executeDiagnosis(runId, run, isRetry = false) {
                     },
                   });
 
-                  // Pause the process immediately
                   if (child && !child.killed) {
                     try { process.kill(child.pid, 'SIGSTOP'); } catch {}
                   }
 
-                  // Create a pending promise and wait for it
                   const hitlPromise = new Promise((resolve) => {
                     hitlRequests.set(hitlId, { resolve, child, runId });
 
-                    // Auto-deny after 120 seconds if no response
                     setTimeout(() => {
                       if (hitlRequests.has(hitlId)) {
                         hitlRequests.delete(hitlId);
-                        // Resume and let it continue (deny the dangerous command but keep process alive)
                         emit(runId, {
                           type: 'hitl_result',
                           data: { hitlId, approved: false, reason: 'Timeout — auto-denied' },
                         });
-                        // Kill the process since we can't selectively deny one command
                         try { process.kill(child.pid, 'SIGKILL'); } catch {}
                         resolve(false);
                       }
-                    }, 120_000);
+                    }, hitlTimeoutMs);
                   });
 
-                  // This blocks the event processing loop for this stdout handler,
-                  // but Node.js continues buffering stdout data
-                  // We process the HITL asynchronously
                   hitlPromise.then((approved) => {
                     if (approved) {
-                      emit(runId, {
-                        type: 'hitl_result',
-                        data: { hitlId, approved: true },
-                      });
-                      // Resume the process
+                      emit(runId, { type: 'hitl_result', data: { hitlId, approved: true } });
                       try { process.kill(child.pid, 'SIGCONT'); } catch {}
                     } else {
-                      emit(runId, {
-                        type: 'hitl_result',
-                        data: { hitlId, approved: false, reason: 'Denied by user' },
-                      });
-                      // Kill the process
+                      emit(runId, { type: 'hitl_result', data: { hitlId, approved: false, reason: 'Denied by user' } });
                       try { process.kill(child.pid, 'SIGKILL'); } catch {}
                     }
                   });
@@ -354,7 +335,6 @@ function executeDiagnosis(runId, run, isRetry = false) {
     child.stderr.on('error', () => {});
 
     child.on('close', async (code) => {
-      // Clean up any pending HITL requests for this run
       for (const [id, req] of hitlRequests) {
         if (req.runId === runId) {
           req.resolve(false);
@@ -373,21 +353,20 @@ function executeDiagnosis(runId, run, isRetry = false) {
           const runDirName = basename(runDir);
           const workspaceRel = `workspace/diagnostic-runs/${runDirName}`;
 
-          // Check for report.md
-          if (existsSync(join(runDir, 'report.md'))) {
-            reportPath = `${workspaceRel}/report.md`;
+          const reportFile = join(runDir, pipeConfig.report_filename);
+          if (existsSync(reportFile)) {
+            reportPath = `${workspaceRel}/${pipeConfig.report_filename}`;
           }
 
-          // Check for optimizer.md
-          hasOptimizer = existsSync(join(runDir, 'optimizer.md'));
+          const optimizerFile = join(runDir, pipeConfig.optimizer_filename);
+          hasOptimizer = existsSync(optimizerFile);
 
-          // Extract score from judge_feedback.json — check multiple iterations
           const reviewDir = join(runDir, '05_review');
           if (existsSync(reviewDir)) {
+            const prefix = pipeConfig.judge_feedback_prefix;
             const reviewFiles = readdirSync(reviewDir)
-              .filter(f => f.startsWith('judge_feedback') && f.endsWith('.json'))
+              .filter(f => f.startsWith(prefix) && f.endsWith('.json'))
               .sort();
-            // Use the last (highest iteration) judge feedback
             for (let i = reviewFiles.length - 1; i >= 0; i--) {
               try {
                 const jf = JSON.parse(readFileSync(join(reviewDir, reviewFiles[i]), 'utf-8'));
@@ -400,14 +379,12 @@ function executeDiagnosis(runId, run, isRetry = false) {
             }
           }
 
-          // Log artifact summary
           const artifacts = [];
-          const expectedDirs = ['00_input', '01_ontology', '02_processed', '03_figures', '04_diagnostics', '05_review', '06_scripts'];
-          for (const d of expectedDirs) {
+          for (const d of pipeConfig.artifact_dirs) {
             if (existsSync(join(runDir, d))) artifacts.push(d);
           }
-          if (reportPath) artifacts.push('report.md');
-          if (hasOptimizer) artifacts.push('optimizer.md');
+          if (reportPath) artifacts.push(pipeConfig.report_filename);
+          if (hasOptimizer) artifacts.push(pipeConfig.optimizer_filename);
           emit(runId, {
             type: 'system',
             subtype: 'artifacts',
@@ -451,14 +428,14 @@ function executeDiagnosis(runId, run, isRetry = false) {
         emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
       }
 
-      setTimeout(() => closeRun(runId), 60_000);
+      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
     });
 
   } catch (err) {
     updateStatus(runId, 'failed');
     stmts.failRun.run({ runId, error: err.message });
     emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
-    setTimeout(() => closeRun(runId), 60_000);
+    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }
 
@@ -579,7 +556,6 @@ router.post('/execute/:runId', async (req, res) => {
   if (run.status !== 'pending') {
     return res.status(400).json({ success: false, error: `Run is not pending (status: ${run.status})` });
   }
-  // Check for an actually running child process, not just the engine channel
   const existingChild = getChild(runId);
   if (existingChild && !existingChild.killed && existingChild.exitCode === null) {
     return res.status(409).json({ success: false, error: 'Run is already executing' });
@@ -604,10 +580,7 @@ router.post('/continue/:runId', async (req, res) => {
     return res.status(409).json({ success: false, error: 'Run is already executing' });
   }
 
-  // Update status back to running
   stmts.updateRunStatus.run({ runId, status: 'running' });
-
-  // Execute with isRetry flag
   executeDiagnosis(runId, run, true);
 
   res.json({ success: true, data: { runId, status: 'running', continued: true } });
@@ -675,7 +648,6 @@ async function findLatestRunDir(sceneName) {
   return latest;
 }
 
-// Export for ws-server HITL handling
 export { hitlRequests };
 
 export default router;

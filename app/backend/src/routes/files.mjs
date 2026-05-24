@@ -3,14 +3,18 @@ import multer from 'multer';
 import { readdir, stat, mkdir, rm, writeFile } from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { existsSync } from 'fs';
-import { DATA_DIR, PROJECT_ROOT } from '../claude-code.mjs';
+import { config, PROJECT_ROOT, data as dataConfig, pipeline as pipeConfig } from '../../../../config/loader.mjs';
 import { stmts } from '../db.mjs';
+
+const DATA_DIR = join(PROJECT_ROOT, dataConfig.dir);
+const UPLOAD_DIR = join(PROJECT_ROOT, dataConfig.upload_dir);
+const FOLDER_NAME_RE = new RegExp(dataConfig.folder_name_pattern);
 
 const router = Router();
 
 const upload = multer({
-  dest: join(PROJECT_ROOT, 'data', '.uploads'),
-  limits: { fileSize: 500 * 1024 * 1024 },
+  dest: UPLOAD_DIR,
+  limits: { fileSize: dataConfig.upload.max_file_size_mb * 1024 * 1024 },
 });
 
 // List all data files and folders
@@ -44,7 +48,7 @@ router.get('/data/:folder', async (req, res) => {
 router.post('/data/folder', async (req, res) => {
   try {
     const { name, description } = req.body;
-    if (!name || !/^[a-zA-Z0-9_\-一-龥]+$/.test(name)) {
+    if (!name || !FOLDER_NAME_RE.test(name)) {
       return res.status(400).json({ success: false, error: 'Invalid folder name' });
     }
     const folderPath = join(DATA_DIR, name);
@@ -80,7 +84,7 @@ router.delete('/data/folder/:name', async (req, res) => {
 });
 
 // Upload files to a folder
-router.post('/data/upload', upload.array('files', 50), async (req, res) => {
+router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), async (req, res) => {
   try {
     const folder = req.body.folder || req.query.folder || '';
     const targetDir = folder ? join(DATA_DIR, folder) : DATA_DIR;
@@ -127,7 +131,7 @@ router.get('/data/file/*', async (req, res) => {
       return res.send(content);
     }
     const text = typeof content === 'string' ? content : content.toString('utf-8');
-    const preview = text.slice(0, 50000);
+    const preview = text.slice(0, dataConfig.file_preview_max_chars);
     res.json({ success: true, data: { path: req.params[0], content: preview, size: text.length } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -147,8 +151,8 @@ router.get('/workspace', async (req, res) => {
       const fullPath = join(runsDir, entry);
       const s = await stat(fullPath);
       if (s.isDirectory()) {
-        const reportPath = join(fullPath, 'report.md');
-        const optimizerPath = join(fullPath, 'optimizer.md');
+        const reportPath = join(fullPath, pipeConfig.report_filename);
+        const optimizerPath = join(fullPath, pipeConfig.optimizer_filename);
         runs.push({
           name: entry,
           path: `workspace/diagnostic-runs/${entry}`,
@@ -168,7 +172,7 @@ router.get('/workspace', async (req, res) => {
 // Get report content
 router.get('/workspace/report/:runName', async (req, res) => {
   try {
-    const reportPath = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', req.params.runName, 'report.md');
+    const reportPath = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', req.params.runName, pipeConfig.report_filename);
     if (!existsSync(reportPath)) {
       return res.status(404).json({ success: false, error: 'Report not found' });
     }
@@ -183,7 +187,7 @@ router.get('/workspace/report/:runName', async (req, res) => {
 // Get optimizer content
 router.get('/workspace/optimizer/:runName', async (req, res) => {
   try {
-    const optimizerPath = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', req.params.runName, 'optimizer.md');
+    const optimizerPath = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', req.params.runName, pipeConfig.optimizer_filename);
     if (!existsSync(optimizerPath)) {
       return res.status(404).json({ success: false, error: 'optimizer.md not found' });
     }
@@ -228,15 +232,10 @@ router.get('/workspace/asset/:runName/*', async (req, res) => {
     }
 
     const ext = extname(filePath).toLowerCase();
-    const mimeTypes = {
-      '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-      '.gif': 'image/gif', '.svg': 'image/svg+xml', '.webp': 'image/webp',
-      '.json': 'application/json', '.csv': 'text/csv', '.html': 'text/html',
-    };
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    const contentType = config.mime_types[ext] || 'application/octet-stream';
 
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Cache-Control', `public, max-age=${dataConfig.asset_cache_max_age}`);
 
     const { readFile } = await import('fs/promises');
     const content = await readFile(filePath);

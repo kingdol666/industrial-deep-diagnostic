@@ -1,0 +1,180 @@
+# ============================================================
+# Industrial Deep Diagnostic — Default Configuration
+# All customizable global variables in one place
+# Override via environment variables or create config/local.yaml
+# ============================================================
+
+# --- HTTP Server ---
+server:
+  port: 3210
+  body_limit: "10mb"
+
+# --- Frontend Dev Server ---
+frontend:
+  port: 5180
+  backend_url: "http://localhost:3210"
+  ws_url: "ws://localhost:3210"
+
+# --- Database ---
+database:
+  path: "data/diagnostic.db"
+  journal_mode: "WAL"
+  foreign_keys: true
+
+# --- Claude Code Integration ---
+claude:
+  binary: "claude"                          # Preferred binary name (auto-detected from PATH)
+  fallback_binary: "claude-code"
+  skill_name: "industrial-deep-diagnostic"
+  skill_command: "/industrial-deep-diagnostic"
+  skill_dir: ".claude/skills/industrial-deep-diagnostic"
+  output_format: "stream-json"
+  verbose: true
+  dangerously_skip_permissions: true
+  allowed_tools: "Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Task"
+  model: "claude-opus-4-7"
+  max_turns: 200                             # 0 = unlimited
+  timeout_minutes: 120
+  sigkill_grace_seconds: 5
+
+# --- Diagnosis Defaults ---
+diagnosis:
+  default_scene_name: "industrial_analysis"
+  default_question: "Perform a comprehensive root cause analysis following the full 8-step pipeline."
+  default_language: "zh"                     # "zh" (Chinese) or "en" (English)
+  run_id_length: 8
+  name_format: "{scene}_{run_id}"
+
+# --- Data Paths (relative to project root) ---
+data:
+  dir: "data"
+  workspace_dir: "workspace/diagnostic-runs"
+  upload_dir: "data/.uploads"
+  references_dir: "data/references"
+  allowed_extensions:
+    - ".csv"
+    - ".xlsx"
+    - ".xls"
+    - ".parquet"
+    - ".json"
+    - ".tsv"
+  upload:
+    max_file_size_mb: 500                    # 500 MB
+    max_files: 50
+  folder_name_pattern: "^[a-zA-Z0-9_\\-一-龥]+$"
+  file_preview_max_chars: 50000
+  asset_cache_max_age: 3600
+
+# --- Diagnosis Engine ---
+engine:
+  max_event_buffer: 500
+  close_run_delay_seconds: 60
+
+# --- Security ---
+security:
+  hitl_auto_deny_seconds: 120
+  allowed_env_vars:
+    - PATH
+    - HOME
+    - USER
+    - LANG
+    - LC_ALL
+    - ANTHROPIC_API_KEY
+    - ANTHROPIC_BASE_URL
+    - NODE_PATH
+    - SHELL
+    - TERM
+  dangerous_patterns:
+    - pattern: "rm\\s+-rf\\s+/"
+      level: CRITICAL
+      desc: "Recursive delete from root"
+    - pattern: "rm\\s+-rf\\s+/\\*"
+      level: CRITICAL
+      desc: "Delete all files from root"
+    - pattern: "rm\\s+-rf\\s+~"
+      level: CRITICAL
+      desc: "Delete home directory"
+    - pattern: "rm\\s+-rf\\s+\\$HOME"
+      level: CRITICAL
+      desc: "Delete home directory (env var)"
+    - pattern: "chmod\\s+(-R\\s+)?777\\s+/"
+      level: CRITICAL
+      desc: "World-writable permissions on system dirs"
+    - pattern: "chown\\s+-R\\s+\\S+\\s+/"
+      level: CRITICAL
+      desc: "Recursive ownership change from root"
+    - pattern: ">\\s*/dev/sd[a-z]"
+      level: CRITICAL
+      desc: "Write directly to disk device"
+    - pattern: "dd\\s+if="
+      level: CRITICAL
+      desc: "Raw disk copy operation"
+    - pattern: "mkfs\\."
+      level: CRITICAL
+      desc: "Filesystem creation (destroys data)"
+    - pattern: "mount\\s+-o\\s+remount"
+      level: HIGH
+      desc: "Remount filesystem"
+    - pattern: ":\\\\(\\\\)\\s*\\{\\s*:\\|:&\\s*\\}"
+      level: CRITICAL
+      desc: "Fork bomb"
+    - pattern: "while\\s+true\\s*;\\s*do\\s+\\S+\\s*;\\s*done"
+      level: HIGH
+      desc: "Infinite loop"
+    - pattern: "curl\\s+\\S+\\s*\\|\\s*(ba)?sh"
+      level: CRITICAL
+      desc: "Curl piped to shell"
+    - pattern: "wget\\s+\\S+\\s*-O\\s*-\\s*\\|\\s*(ba)?sh"
+      level: CRITICAL
+      desc: "Wget piped to shell"
+    - pattern: "curl\\s+\\S+\\s*\\|\\s*sudo\\s*(ba)?sh"
+      level: CRITICAL
+      desc: "Curl piped to sudo shell"
+    - pattern: "git\\s+push\\s+(-f|--force)\\s+origin\\s+(main|master)"
+      level: HIGH
+      desc: "Force push to main/master"
+    - pattern: "sudo\\s+su"
+      level: CRITICAL
+      desc: "Switch to root user"
+    - pattern: "sudo\\s+passwd"
+      level: CRITICAL
+      desc: "Change passwords via sudo"
+    - pattern: "sudo\\s+rm"
+      level: HIGH
+      desc: "Delete with sudo"
+    - pattern: "iptables\\s+-F"
+      level: HIGH
+      desc: "Flush firewall rules"
+    - pattern: "systemctl\\s+disable"
+      level: HIGH
+      desc: "Disable system service"
+    - pattern: "kill\\s+-9\\s+-1"
+      level: CRITICAL
+      desc: "Kill all processes"
+
+# --- Expected Pipeline Artifacts ---
+pipeline:
+  artifact_dirs:
+    - "00_input"
+    - "01_ontology"
+    - "02_processed"
+    - "03_figures"
+    - "04_diagnostics"
+    - "05_review"
+    - "06_scripts"
+  report_filename: "report.md"
+  optimizer_filename: "optimizer.md"
+  input_manifest_filename: "input_manifest.json"
+  judge_feedback_prefix: "judge_feedback"
+
+# --- MIME Types for Asset Serving ---
+mime_types:
+  ".png": "image/png"
+  ".jpg": "image/jpeg"
+  ".jpeg": "image/jpeg"
+  ".gif": "image/gif"
+  ".svg": "image/svg+xml"
+  ".webp": "image/webp"
+  ".json": "application/json"
+  ".csv": "text/csv"
+  ".html": "text/html"
