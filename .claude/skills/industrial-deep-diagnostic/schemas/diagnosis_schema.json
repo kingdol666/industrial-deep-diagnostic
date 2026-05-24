@@ -19,7 +19,7 @@
         "properties": {
           "step": {"type": "integer"},
           "event": {"type": "string"},
-          "evidence_type": {"type": "string", "enum": ["OBSERVATION", "INFERENCE", "HYPOTHESIS"]},
+          "evidence_type": {"type": "string", "enum": ["OBSERVATION", "INFERENCE", "HYPOTHESIS", "UNCERTAINTY"]},
           "variable": {"type": "string"},
           "observed_behavior": {"type": "string"},
           "physical_mechanism": {"type": "string"},

@@ -138,7 +138,7 @@ def detect_data_pattern(df, time_col=None):
     spatial_cols = [c for c in df.columns
                     if any(kw in c.lower() for kw in spatial_kw)]
 
-    freq_kw = ['freq', 'fft', 'spectral', 'harmonic', 'hz', 'rpm', 'cpsd', 'order']
+    freq_kw = ['freq', 'fft', 'spectral', 'harmonic', 'hz', 'cpsd', 'order']
     freq_cols = [c for c in df.columns
                  if any(kw in c.lower() for kw in freq_kw)]
 
@@ -680,6 +680,253 @@ def plot_dominant_frequency(ax, signal, fs=1.0, title='Dominant Frequency'):
         "function": "plot_dominant_frequency",
         "sampling_frequency": fs,
         "n_segments": n_seg,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+#  STATISTICAL VALIDATION PRIMITIVES (v4.1+)
+# ═══════════════════════════════════════════════════════════════
+
+def plot_ccf_lag_window(ax, ccf_data, best_lag, consistency_info=None, title='Cross-Correlation Function'):
+    """
+    Full lag cross-correlation function with consistency markers.
+
+    Parameters
+    ----------
+    ccf_data : list of {lag, r, n}
+    best_lag : int, lag with highest |r|
+    consistency_info : dict from lagWindowConsistency() or None
+    title : str
+
+    Returns dict — generation metadata
+    """
+    lags = [e['lag'] for e in ccf_data]
+    rs = [e['r'] for e in ccf_data]
+
+    colors = []
+    for lag in lags:
+        if lag == best_lag:
+            colors.append('#d62728')  # red for best lag
+        elif abs(lag - best_lag) <= 3:
+            colors.append('#ff7f0e')  # orange for adjacent window
+        else:
+            colors.append('#1f77b4')  # blue for rest
+
+    ax.bar(lags, rs, color=colors, alpha=0.8, width=0.8)
+    ax.axhline(y=0, color='black', linewidth=0.5)
+    ax.axvline(x=0, color='gray', linestyle='--', alpha=0.5, label='Lag=0 (concurrent)')
+    ax.axvline(x=best_lag, color='red', linestyle='--', alpha=0.7, label=f'Best lag={best_lag}, r={max(rs):.3f}')
+
+    # Consistency window highlight
+    if consistency_info and consistency_info.get('isolated_spike'):
+        ax.annotate('ISOLATED SPIKE\nCheck data sorting!',
+                    xy=(best_lag, rs[lags.index(best_lag)]),
+                    xytext=(best_lag + 5, max(rs) * 0.7),
+                    arrowprops=dict(arrowstyle='->', color='red'),
+                    fontsize=9, color='red', fontweight='bold')
+
+    ax.set_xlabel('Lag (periods)', fontsize=10)
+    ax.set_ylabel('Pearson r', fontsize=10)
+    ax.set_title(title, fontsize=11)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+
+    return {
+        "function": "plot_ccf_lag_window",
+        "best_lag": best_lag,
+        "best_r": float(max(rs)),
+        "n_lags": len(lags),
+        "consistent": consistency_info.get('consistent', None) if consistency_info else None,
+        "isolated_spike": consistency_info.get('isolated_spike', False) if consistency_info else False
+    }
+
+
+def plot_stratified_correlation(ax, strata_data, full_r, param_name, target_name, group_col='Group'):
+    """
+    Subgroup correlation comparison — visual Simpson's Paradox detection.
+
+    Parameters
+    ----------
+    strata_data : list of {group, r, n}
+    full_r : float, full-dataset correlation
+    param_name : str
+    target_name : str
+    group_col : str
+
+    Returns dict — generation metadata
+    """
+    groups = [s['group'] for s in strata_data]
+    rs = [s['r'] for s in strata_data]
+    ns = [s['n'] for s in strata_data]
+
+    x_pos = range(len(groups))
+    colors = ['#d62728' if (r > 0) != (full_r > 0) else '#1f77b4' for r in rs]
+
+    bars = ax.bar(x_pos, rs, color=colors, alpha=0.8, width=0.6)
+
+    # Annotate with group size
+    for i, (r, n) in enumerate(zip(rs, ns)):
+        ax.text(i, r + 0.02 * max(abs(r) for r in rs) * (1 if r >= 0 else -1),
+                f'n={n}', ha='center', fontsize=7)
+
+    # Full dataset reference line
+    ax.axhline(y=full_r, color='green', linestyle='--', linewidth=2,
+               label=f'Full dataset r={full_r:.3f}')
+    ax.axhline(y=0, color='black', linewidth=0.5)
+
+    # Highlight reversals
+    reversal_count = sum(1 for r in rs if (r > 0.05) != (full_r > 0.05))
+    if reversal_count > 0:
+        ax.set_title(f'Simpson\'s Paradox: {param_name} vs {target_name}\n'
+                     f'{reversal_count} subgroups show direction reversal!',
+                     fontsize=10, color='red', fontweight='bold')
+    else:
+        ax.set_title(f'Stratified: {param_name} vs {target_name} by {group_col}', fontsize=10)
+
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(groups, rotation=45, ha='right', fontsize=8)
+    ax.set_ylabel('Pearson r', fontsize=10)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3, axis='y')
+
+    return {
+        "function": "plot_stratified_correlation",
+        "full_r": float(full_r),
+        "n_groups": len(groups),
+        "direction_reversals": reversal_count,
+        "method": "pearson"
+    }
+
+
+def plot_detrended_comparison(ax, pairs_data, title='Detrending Impact Analysis'):
+    """
+    Raw vs detrended correlation comparison.
+
+    Parameters
+    ----------
+    pairs_data : list of {label, raw_r, detrended_r, attenuation_pct}
+    title : str
+
+    Returns dict — generation metadata
+    """
+    labels = [p['label'] for p in pairs_data]
+    raw_rs = [p['raw_r'] for p in pairs_data]
+    detrended_rs = [p['detrended_r'] for p in pairs_data]
+    attenuations = [p['attenuation_pct'] for p in pairs_data]
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    bars1 = ax.bar(x - width / 2, raw_rs, width, label='Raw Pearson r',
+                    color='#1f77b4', alpha=0.8)
+    bars2 = ax.bar(x + width / 2, detrended_rs, width, label='Detrended r',
+                    color='#ff7f0e', alpha=0.8)
+
+    # Annotate attenuation
+    for i, att in enumerate(attenuations):
+        if abs(att) > 30:
+            ax.annotate(f'-{abs(att):.0f}%', xy=(x[i], max(raw_rs[i], detrended_rs[i])),
+                        fontsize=7, color='red', fontweight='bold', ha='center',
+                        xytext=(0, 5), textcoords='offset points')
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+    ax.set_ylabel('Correlation (r)', fontsize=10)
+    ax.set_title(title, fontsize=11)
+    ax.legend(fontsize=9)
+    ax.axhline(y=0, color='black', linewidth=0.5)
+    ax.grid(True, alpha=0.3, axis='y')
+
+    return {
+        "function": "plot_detrended_comparison",
+        "n_pairs": len(pairs_data),
+        "severe_attenuation_count": sum(1 for a in attenuations if abs(a) > 50)
+    }
+
+
+def plot_spearman_vs_pearson(ax, pairs_data, title='Spearman vs Pearson Robustness'):
+    """
+    Spearman vs Pearson scatter — distance from identity line reveals outlier influence.
+
+    Parameters
+    ----------
+    pairs_data : list of {label, pearson_r, spearman_r}
+    title : str
+
+    Returns dict — generation metadata
+    """
+    pearson_vals = [p['pearson_r'] for p in pairs_data]
+    spearman_vals = [p['spearman_r'] for p in pairs_data]
+    labels = [p['label'] for p in pairs_data]
+
+    # Identity line
+    r_min = min(min(pearson_vals), min(spearman_vals)) - 0.1
+    r_max = max(max(pearson_vals), max(spearman_vals)) + 0.1
+    ax.plot([r_min, r_max], [r_min, r_max], 'k--', alpha=0.3, label='Identity (no divergence)')
+
+    # Color by divergence magnitude
+    divergences = [abs(p - s) for p, s in zip(pearson_vals, spearman_vals)]
+    sc = ax.scatter(pearson_vals, spearman_vals, c=divergences, cmap='YlOrRd',
+                    s=80, alpha=0.7, edgecolors='black', linewidth=0.5)
+
+    # Label high-divergence points
+    for i, (p, s, l, d) in enumerate(zip(pearson_vals, spearman_vals, labels, divergences)):
+        if d > 0.15:
+            ax.annotate(l, (p, s), fontsize=6, xytext=(5, 5),
+                        textcoords='offset points', color='red')
+
+    plt.colorbar(sc, ax=ax, label='|Pearson - Spearman| divergence')
+    ax.set_xlabel('Pearson r', fontsize=10)
+    ax.set_ylabel('Spearman r', fontsize=10)
+    ax.set_title(title, fontsize=11)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+
+    return {
+        "function": "plot_spearman_vs_pearson",
+        "n_pairs": len(pairs_data),
+        "high_divergence_count": sum(1 for d in divergences if d > 0.15)
+    }
+
+
+def plot_outlier_sensitivity(ax, sensitivity_data, title='Outlier Sensitivity Analysis'):
+    """
+    Full vs cleaned (outlier-removed) correlation comparison.
+
+    Parameters
+    ----------
+    sensitivity_data : list of {label, full_r, clean_r, r_change_pct, outliers_removed}
+    title : str
+
+    Returns dict — generation metadata
+    """
+    labels = [s['label'] for s in sensitivity_data]
+    full_rs = [abs(s['full_r']) for s in sensitivity_data]
+    clean_rs = [abs(s['clean_r']) for s in sensitivity_data]
+    changes = [s['r_change_pct'] for s in sensitivity_data]
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    ax.bar(x - width / 2, full_rs, width, label='Full data |r|', color='#1f77b4', alpha=0.8)
+    ax.bar(x + width / 2, clean_rs, width, label='Outlier-removed |r|', color='#2ca02c', alpha=0.8)
+
+    for i, (change, removed) in enumerate(zip(changes, [s['outliers_removed'] for s in sensitivity_data])):
+        if abs(change) > 30:
+            ax.annotate(f'{change:+.0f}%\n({removed} pts)', xy=(x[i], max(full_rs[i], clean_rs[i])),
+                        fontsize=7, color='red', fontweight='bold', ha='center')
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+    ax.set_ylabel('|Pearson r|', fontsize=10)
+    ax.set_title(title, fontsize=11)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, axis='y')
+
+    return {
+        "function": "plot_outlier_sensitivity",
+        "n_pairs": len(sensitivity_data),
+        "outlier_driven_count": sum(1 for c in changes if abs(c) > 50)
     }
 
 

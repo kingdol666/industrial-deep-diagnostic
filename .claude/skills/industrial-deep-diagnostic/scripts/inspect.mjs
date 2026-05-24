@@ -223,7 +223,7 @@ const columns = headers.map((name, ci) => {
 });
 
 const timeCol = detectTimeColumn(columns);
-const previewDataRows = USE_SAMPLE ? parsed.slice(1, 1 + previewRows) : dataRows.slice(0, previewRows);
+const previewDataRows = dataRows.slice(0, previewRows);
 const preview = previewDataRows.map(row => {
   const obj = {};
   headers.forEach((h, i) => obj[h] = row[i] ?? '');

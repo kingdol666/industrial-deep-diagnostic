@@ -1,86 +1,93 @@
 ---
 name: industrial-deep-diagnostic
-description: >
-  Evidence-first industrial time-series analysis and root cause diagnostic.
-  Analyzes process data, searches local references, performs statistical analysis,
-  generates engineering visualizations, diagnoses anomalies with traceable evidence,
-  and produces rigorous engineering reports.
-  Use this skill whenever the user provides industrial/process/manufacturing data
-  (CSV, XLSX, Parquet) and asks about anomalies, root causes, quality issues,
-  equipment faults, or process diagnostics. Also use when the user mentions:
-  industrial diagnosis, process analysis, anomaly detection, root cause analysis,
-  time-series analysis, quality investigation, fault diagnosis, production issue,
-  sensor data analysis, equipment health, SPC, statistical process control,
-  工业诊断, 过程分析, 异常检测, 根因分析, 质量分析, 故障诊断, 传感器数据.
-  Do NOT use for: simple data visualization, general statistics homework,
-  financial time-series, or non-industrial data analysis.
+description: "Use when the user provides industrial, process, or manufacturing time-series data (CSV, XLSX, Parquet) and asks about anomalies, root causes, quality issues, equipment faults, or process diagnostics. Also triggers on: anomaly detection, root cause analysis, fault diagnosis, sensor data analysis, equipment health, SPC, statistical process control, 工业诊断, 过程分析, 异常检测, 根因分析, 质量分析, 故障诊断, 传感器数据. Do NOT trigger for: simple data visualization, general statistics homework, financial time-series, or non-industrial data."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
   - industrial-deep-diagnostic review
   - industrial-deep-diagnostic report
-version: 4.0.0
+  - industrial-deep-diagnostic audit
+version: 4.2.0
 ---
 
 # Industrial Deep Diagnostic
 
-## Core Principle
+## Overview
 
-**Evidence first. Reasoning second. Conclusions last.**
+Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → visualize + validate → diagnose → judge → report → physical truth audit.
 
-Every conclusion must cite its evidence source and rank (1=direct data, 2=user docs, 3=statistics, 4=visual, 5=process logic, 6=web, 7=hypothesis). No unsupported assumptions. No exaggerated causal claims.
+**Core principle: Evidence first. Reasoning second. Conclusions last.**
 
-## Architecture
+Every conclusion cites its evidence rank. No unsupported assumptions. No exaggerated causal claims.
 
+## When to Use
+
+- User provides sensor/process/manufacturing data and asks "what went wrong" or "why did X happen"
+- Anomaly detection in industrial time-series (temperature, pressure, vibration, thickness, etc.)
+- Root cause analysis for quality deviations, equipment faults, or production issues
+- Process diagnostic requiring statistical evidence + domain knowledge
+
+## When NOT to Use
+
+- Simple data visualization without diagnostic intent
+- General statistics homework or academic exercises
+- Financial time-series (different domain assumptions)
+- Non-industrial data (healthcare, social science, etc.)
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `/industrial-deep-diagnostic` | Full pipeline (Steps 0-8) |
+| `/industrial-deep-diagnostic analyze` | Skip intake, run from Step 2 |
+| `/industrial-deep-diagnostic review` | Re-run judge on existing results |
+| `/industrial-deep-diagnostic report` | Regenerate report from existing artifacts |
+| `/industrial-deep-diagnostic audit` | Run report-reviewer only (generates optimizer.md) |
+
+## Execution Flow
+
+```dot
+digraph diagnostic_flow {
+  rankdir=TB;
+  node [shape=box];
+
+  setup [label="Step 0: Setup\nnode setup.mjs"];
+  inspect [label="Step 1: Inspect Data\nnode inspect.mjs\n(ask user questions)"];
+  context [label="Step 2: Context Build\nspawn context-builder"];
+  dataproc [label="Step 3: Data + Viz + Validate\nspawn data-processor\n(includes stats_validate.mjs)"];
+  diag [label="Step 4: Diagnose\nspawn diagnostician\n(reads validate_report.json)"];
+  judge [label="Step 5: Judge\nspawn judge\n(cross-refs validate_report.json)"];
+  report [label="Step 6: Report\nspawn reporter\n(includes validation section)"];
+  review [label="Step 7: Physical Audit\nspawn report-reviewer\n(independent verification)"];
+  present [label="Step 8: Present\n(main agent)"];
+
+  setup -> inspect;
+  inspect -> context;
+  inspect -> dataproc [style=dashed label="parallel" ];
+  context -> diag;
+  dataproc -> diag;
+  diag -> judge;
+  judge -> diag [label="repair (max 3)" style=dashed];
+  judge -> report [label="pass/warn"];
+  report -> review;
+  review -> present;
+}
 ```
-MAIN AGENT (you — orchestrator only, keep context clean)
-│
-├── inspect.mjs (Node, zero-dep) ──► inspect CSV/JSON/TSV, auto-route Excel/Parquet to file_inspect.py
-├── file_inspect.py (Python, pandas)  ──► inspect Excel, Parquet, Feather
-├── convert.mjs (Node, zero-dep) ──► safe CSV → JSON conversion
-├── setup.mjs  (Node, zero-dep) ──► create workspace directory
-│
-├── spawn agents/context-builder.md   ──► ontology + references
-│                                         writes: 01_ontology/*
-├── spawn agents/data-processor.md    ──► adaptive visualization
-│                                         reads:  00_input/*
-│                                         writes: 02_processed/*, 03_figures/*, 06_scripts/*
-├── spawn agents/diagnostician.md     ──► diagnosis with evidence
-│                                         reads:  01_ontology/*, 02_processed/*, 03_figures/plot_manifest.json
-│                                         writes: 04_diagnostics/*
-├── spawn agents/judge.md             ──► verify + score
-│                                         reads:  04_diagnostics/*
-│                                         writes: 05_review/*
-├── spawn agents/reporter.md          ──► generate report
-│                                         reads:  ALL previous outputs
-│                                         writes: report.md, run_summary.json
-│
-└── present results to user
-```
 
-### Agent Decoupling via Workspace Files
+**Parallelism**: Steps 2 and 3 run in parallel. Steps 4→5→6→7 are sequential (each depends on previous output).
 
-Agents do NOT share context through the main agent. They communicate exclusively through files in the workspace directory:
+### Key Pipeline Files Flow
 
 ```
 Context Builder ──► 01_ontology/ontology.json, schema.json
-                        ↓
-Data Processor  ──► 02_processed/feature_summary.json
-                 ──► 03_figures/*.png
-                 ──► 03_figures/plot_manifest.json  ← INTERFACE CONTRACT
-                        ↓
+Data Processor  ──► 02_processed/feature_summary.json (enhanced stats)
+                ──► 02_processed/validate_report.json   (NEW: statistical validation)
+                ──► 03_figures/*.png + plot_manifest.json
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json
-                        ↓
 Judge           ──► 05_review/judge_feedback.json
-                        ↓
 Reporter        ──► report.md, run_summary.json
+Report Reviewer ──► optimizer.md
 ```
-
-**Key interface: `plot_manifest.json`** — the data-processor writes it to tell the diagnostician exactly what plots exist, why each was generated, and HOW (time alignment, normalization, function used).
-
-**Script philosophy**: Node.js for fixed operations (zero dependency, always works). Python as adaptive toolkit — the agent reads data first, then selects visualization primitives based on data dimensions.
-
-## Execution Steps
 
 ### Step 0: Setup Workspace
 
@@ -88,19 +95,7 @@ Reporter        ──► report.md, run_summary.json
 node <skill_path>/scripts/setup.mjs --name <scene_name> --base-dir ./workspace/diagnostic-runs
 ```
 
-This creates a structured workspace:
-```
-workspace/diagnostic-runs/<timestamp>_<name>/
-├── 00_input/          ← data manifest, user context
-├── 01_ontology/       ← ontology.json, schema.json
-├── 02_processed/      ← cleaned data, feature summary
-├── 03_figures/        ← plots (PNG) + plot_manifest.json
-├── 04_diagnostics/    ← diagnosis, evidence, confidence
-├── 05_review/         ← judge feedback
-├── 06_scripts/        ← custom Python scripts written by agent
-├── report.md          ← final report
-└── run_summary.json   ← run metadata
-```
+Creates `workspace/diagnostic-runs/<timestamp>_<name>/` with subdirs: `00_input/`, `01_ontology/`, `02_processed/`, `03_figures/`, `04_diagnostics/`, `05_review/`, `06_scripts/`.
 
 ### Step 1: Inspect Data (MAIN)
 
@@ -108,166 +103,156 @@ workspace/diagnostic-runs/<timestamp>_<name>/
 node <skill_path>/scripts/inspect.mjs <data_path>
 ```
 
-`inspect.mjs` auto-routes by file format:
-- **CSV / TSV / JSON** → parsed natively by Node.js (zero-dependency)
-- **Excel (.xlsx/.xls) / Parquet (.parquet) / Feather** → delegates to `file_inspect.py` (requires pandas)
-- **Files > 100K rows** → systematic sampling for stats computation to avoid OOM
+Auto-routes: CSV/TSV/JSON → Node.js native; Excel/Parquet/Feather → `file_inspect.py`. Files >100K rows get sampled. Output: column names, types, stats, time column detection, preview.
 
-This outputs JSON with column names, types, stats, time column detection, and preview. **Read this output carefully** — it tells you exactly what the data looks like.
+Then ask user clarification questions (max 5). Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
-Then ask the user clarification questions (max 5 at a time). Only ask what you cannot infer from the inspection results.
-
-Save `input_manifest.json` and `user_context.json` to `00_input/`.
+**Key questions to ask:**
+1. What is the process type and what are the main production stages?
+2. What are the known quality issues or defect types?
+3. Are there product grade/recipe changes in the data? Which column identifies them?
+4. What parameters have known physical meanings? Which are proprietary/unknown?
+5. What key intermediate variables are NOT measured (known data gaps)?
 
 ### Step 2: Context Building (SUB-AGENT)
 
-Read `agents/context-builder.md` and spawn a sub-agent. Pass: DATA_PATH, RUN_DIR, REFERENCE_DIR, PROCESS_DESCRIPTION, SKILL_PATH.
+Read `agents/context-builder.md` and spawn. Pass: DATA_PATH, RUN_DIR, REFERENCE_DIR, PROCESS_DESCRIPTION, USER_OBJECTIVE, SKILL_PATH. Writes to `01_ontology/`.
 
-### Step 3: Data Processing + Adaptive Visualization (SUB-AGENT)
+**Enhanced**: Now identifies confounders, parameter groups, and attempts to determine physical meaning of every parameter.
 
-Read `agents/data-processor.md` and spawn a sub-agent. This agent follows a structured decision protocol:
+### Step 3: Data Processing + Visualization + Statistical Validation (SUB-AGENT)
 
-1. **Inspect data** (node inspect.mjs) → understand structure
-2. **Compute statistics** (node stats.mjs) → correlations, anomalies
-3. **Classify data pattern** using `detect_data_pattern()`:
-   - 1D scalar, multi-axis, 2D profile, batch/event, spectral, or mixed
-4. **Select visualization primitives** from the toolkit based on pattern
-5. **Apply time alignment** if sampling is irregular (via `align_timeindex()`)
-6. **Compose and run** custom visualization script
-7. **Write `03_figures/plot_manifest.json`** — tells the diagnostician:
-   - What plots exist, what each shows
-   - HOW each was generated (function, alignment, normalization)
-   - What to look for (interpretation hints)
+Read `agents/data-processor.md` and spawn.
 
-The visualization toolkit (`scripts/template_visualize.py`) provides composable primitives for ALL dimension types — the Agent selects which ones to use based on the actual data.
+**Enhanced workflow (v4.2):**
+1. Inspect data, classify pattern
+2. Preprocess + validate data sorting
+3. **Run enhanced stats.mjs** (Pearson, Spearman, detrended, full CCF, stratified)
+4. **Run stats_validate.mjs** (Simpson's Paradox, confounders, outlier sensitivity)
+5. Select visualization primitives (including statistical validation plots)
+6. Compose and run visualization script
+7. Write plot_manifest.json
+
+**New mandatory outputs:**
+- `02_processed/validate_report.json` — Statistical validation report
+- Statistical validation plots when issues detected (CCF lag window, stratified corr, detrended comparison, Spearman vs Pearson, outlier sensitivity)
 
 ### Step 4: Diagnosis (SUB-AGENT)
 
-Read `agents/diagnostician.md` and spawn. The diagnostician:
-1. Reads `plot_manifest.json` FIRST — the interface contract from data-processor
-2. Uses `generation_method` fields to understand HOW each plot was created
-3. Reads each plot image via VLM
-4. Combines visual (Rank 4) + statistical (Rank 3) + direct (Rank 1) evidence
+Read `agents/diagnostician.md` and spawn.
+
+**Enhanced workflow (v4.2):**
+1. **Read validate_report.json BEFORE forming hypotheses**
+2. Apply confidence adjustments based on validation findings
+3. Never use lag correlations as causal evidence if data is not time-sorted
+4. Always check dominant subgroup support before claiming aggregate correlation is meaningful
+5. Report detrended r alongside raw r for key correlations
+6. Prefer Spearman over Pearson for heavily skewed defect data
 
 ### Step 5: Judge Review (SUB-AGENT)
 
-Read `agents/judge.md` and spawn. The judge scores 10 criteria (weighted). If score < 90, the judge writes `repair_instruction` fields in `judge_feedback.json`.
+Read `agents/judge.md` and spawn. Scores 10 criteria (weighted).
 
-**Automated repair loop:**
-1. If verdict is PASS (score >= 90) → proceed to Step 6
-2. If verdict is NEEDS_REPAIR (70-89) → read `judge_feedback.json`, extract the `repair_instruction` from each blocking_issue, and re-spawn the diagnostician with these instructions appended to the prompt. Max 3 iterations.
-3. If verdict is FAIL (< 70) → the issues are too severe for automated repair. Report to user with the judge feedback and ask for guidance.
-4. If max iterations (3) reached without PASS → proceed with warning, the reporter will note the limitation.
+**Enhanced (v4.2):**
+- Cross-references validate_report.json against diagnosis
+- Checks if sorting/stratification/trend issues are acknowledged
+- Blocks diagnoses that ignore Simpson's Paradox or use lag correlations on unsorted data
 
-**Judge feedback format** (in `05_review/judge_feedback.json`):
-```json
-{
-  "verdict": "pass|needs_repair|major_issues|fail",
-  "overall_score": 85,
-  "blocking_issues": [
-    {"description": "...", "repair_instruction": "Re-analyze X with Y data...", "affected_steps": ["step_4"]}
-  ]
-}
-```
+**Repair loop:**
+1. PASS (score >= 90) → proceed to Step 6
+2. NEEDS_REPAIR (70-89) → Re-spawn diagnostician with REPAIR_INSTRUCTIONS. Max 3 iterations.
+3. FAIL (< 70) → report to user with feedback
 
-The `repair_instruction` field is the key to automation — it tells the diagnostician exactly what to fix.
+**Score ceiling**: Score cannot exceed 85 if data is not time-sorted AND lag correlations are used as primary evidence.
 
 ### Step 6: Report (SUB-AGENT)
 
-Read `agents/reporter.md` and spawn. The reporter MUST:
+Read `agents/reporter.md` and spawn.
 
-1. Read every image in `03_figures/` via VLM before writing the report
-2. Embed every figure in the report using `![title](03_figures/filename.png)` markdown syntax
-3. Provide per-figure analysis for each embedded image: what it shows, visual findings (Rank 4), and diagnostic implication
-4. Use the template at `templates/report_template.md` which has section 11 dedicated to per-figure analysis with embedded images
+**Enhanced (v4.2):**
+- **New mandatory Section 13**: Statistical Validation & Confidence Assessment
+- Transparent disclosure of sorting validation, Simpson's Paradox findings, trend confounding
+- Adjusted confidence table showing original vs validation-adjusted scores
+- Validation findings cited prominently, not buried in appendix
 
-**No figure may be skipped.** The reporter reads `03_figures/plot_manifest.json` to get the full list of plots.
+### Step 7: Physical Truth Audit (SUB-AGENT)
 
-### Step 7: Present Results (MAIN)
+Read `agents/report-reviewer.md` and spawn.
 
-Show the user: executive summary, key findings, primary diagnosis, top recommendations, workspace path.
+**Enhanced (v4.2):**
+- Independent verification with actual Python code execution
+- Quantitative physical mechanism checks (Arrhenius kinetics, mass transfer rates, etc.)
+- Direct data inspection — distrusts pipeline summaries
+- Six-dimension assessment with detailed domain-specific verification protocols
 
-Verify that report.md contains embedded images (not just text references) before presenting to the user.
+Output: `optimizer.md` with verdict ENDORSED / CONDITIONAL / REJECTED.
 
-## Parallel Execution
+### Step 8: Present Results (MAIN)
 
-Steps 2 and 3 can run **in parallel**. Steps 4→5→6 must be **sequential**.
+Show user: executive summary, key findings, diagnosis, recommendations, workspace path. Verify report.md has embedded images. If `optimizer.md` verdict is CONDITIONAL or REJECTED, highlight concerns prominently and present the validation findings.
 
-## Commands
+---
 
-| Command | Action |
-|---------|--------|
-| `/industrial-deep-diagnostic` | Full pipeline |
-| `/industrial-deep-diagnostic analyze` | Skip intake, run from Step 2 |
-| `/industrial-deep-diagnostic review` | Re-run judge on existing results |
-| `/industrial-deep-diagnostic report` | Regenerate report from existing artifacts |
+## Agent Decoupling
 
-## Script Reference
+Agents communicate ONLY through workspace files — never through the main agent's context:
 
-### Node.js (fixed, zero-dependency, always works)
+```
+Context Builder ──► 01_ontology/ontology.json, schema.json
+Data Processor  ──► 02_processed/feature_summary.json
+                ──► 02_processed/validate_report.json   ← NEW
+                ──► 03_figures/*.png + plot_manifest.json
+Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json
+Judge           ──► 05_review/judge_feedback.json
+Reporter        ──► report.md, run_summary.json
+Report Reviewer ──► optimizer.md
+```
 
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| `inspect.mjs` | Inspect data file, output schema & stats. Routes Excel/Parquet/Feather to `file_inspect.py` | `node inspect.mjs <file> [--rows N] [--sample-size N]` |
-| `stats.mjs` | Correlations, z-scores, abnormal intervals | `node stats.mjs <data.json> --time-col X --target-cols A,B` |
-| `setup.mjs` | Create workspace directory structure | `node setup.mjs --name X [--base-dir D]` |
-| `convert.mjs` | Safe CSV/TSV → JSON conversion (handles quoted fields, large files via sampling) | `node convert.mjs <file> --output out.json [--sample N]` |
+---
 
-### Python Scripts
+## Evidence Hierarchy
 
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| `file_inspect.py` | Inspect Excel/Parquet/Feather data (pandas-based) | `python3 file_inspect.py <file> [--rows N]` |
-| `template_visualize.py` | Adaptive visualization toolkit (~16 composable primitives) | Agent composes into custom script |
-| `template_preprocess.py` | Missing values, outlier detection, resampling | Agent customizes per dataset |
+| Rank | Source | Label |
+|------|--------|-------|
+| 1 | Direct measurements in data | [Evidence Rank 1] |
+| 2 | User-provided documentation | [Evidence Rank 2] |
+| 3 | Statistical analysis (incl. validation report) | [Evidence Rank 3] |
+| 4 | Visual evidence from charts | [Evidence Rank 4] |
+| 5 | Established process logic / domain knowledge | [Evidence Rank 5] |
+| 6 | External web references | [Evidence Rank 6] [EXTERNAL] |
+| 7 | Hypotheses (unsupported) | [Evidence Rank 7] |
 
-### Dependencies
+Every conclusion limited by its weakest evidence rank.
 
-Python packages required for full format support: `pip3 install -r scripts/requirements.txt`
+---
 
-| Package | Required For |
-|---------|-------------|
-| matplotlib, numpy, pandas | Core visualization (required) |
-| seaborn | Enhanced heatmaps (optional) |
-| openpyxl | Excel .xlsx reading (optional) |
-| pyarrow | Parquet / Feather reading (optional) |
+## Statistical Validation Framework (v4.2)
 
-### Python Toolkit (agent selects primitives based on data dimensions)
+The pipeline now includes a comprehensive statistical validation layer that runs BEFORE diagnosis:
 
-| Section | Primitives | When |
-|---------|-----------|------|
-| Data Utilities | `load_data`, `align_timeindex`, `detect_data_pattern`, `normalize_01` | Always available |
-| 1D Scalar | `plot_multi_panel_timeseries`, `plot_normalized_overlay`, `plot_anomaly_zoom`, `plot_coupling_scatter`, `plot_correlation_heatmap` | Scalar time-series (default) |
-| 2D Profile | `plot_profile_evolution`, `plot_position_time_heatmap`, `plot_deviation_from_target` | Spatial/position data |
-| Multi-Axis | `plot_orbit`, `plot_axis_ratio` | Multi-direction measurements |
-| Batch/Event | `plot_box_by_group`, `plot_event_timeline` | Categorical grouping columns |
-| Spectral | `plot_spectrogram`, `plot_dominant_frequency` | Frequency-domain data |
-| Manifest | `write_plot_manifest` | Always — generates the interface contract |
+| Check | Tool | What It Catches |
+|-------|------|----------------|
+| Data sorting validation | `stats.mjs` | Lag analysis on batch-sorted data → spurious lag correlations |
+| Simpson's Paradox | `stats.mjs` + `stats_validate.mjs` | Aggregate correlations that reverse within subgroups |
+| Time-trend confounding | `stats.mjs` | Correlations driven by shared time drifts, not direct coupling |
+| Outlier sensitivity | `stats_validate.mjs` | Correlations dominated by a few extreme batches |
+| Spearman-Pearson divergence | `stats.mjs` | Outlier or non-linear influence on Pearson correlations |
+| Lag window consistency | `stats.mjs` | Isolated spikes in CCF (artifact indicators) |
+| Multiple testing correction | `stats.mjs` | Chance "significant" results from many comparisons |
 
-The agent reads the toolkit, classifies data dimensions, selects relevant primitives, and composes a custom script. NOT a fixed template — adapts to what the data actually looks like.
+**Confidence Adjustment Rules:**
 
-### Python Templates (agent customizes per dataset)
+| Validation Finding | Confidence Impact |
+|--------------------|:---:|
+| Data NOT time-sorted + lag used as evidence | -25 to -40 points |
+| Simpson's Paradox (direction reversal) | -20 to -30 points |
+| Simpson's Paradox (moderate attenuation) | -10 to -15 points |
+| Trend confounding (attenuation > 50%) | -15 to -20 points |
+| Outlier-driven correlation | -10 to -15 points |
+| Spearman-Pearson divergence > 0.15 | -5 to -10 points |
+| Isolated lag spike (not consistent window) | Treat as concurrent only |
 
-| Template | Purpose |
-|----------|---------|
-| `template_preprocess.py` | Missing values, outlier detection, resampling |
-
-## Schema Reference
-
-JSON Schema draft-07 schemas for validating all artifacts:
-
-| Schema | Validates | Used By |
-|--------|-----------|---------|
-| `schemas/ontology_schema.json` | Process ontology structure | context-builder |
-| `schemas/signal_schema.json` | Signal classification and mapping | context-builder |
-| `schemas/run_config_schema.json` | Run configuration | setup |
-| `schemas/analysis_schema.json` | Statistical analysis output | data-processor |
-| `schemas/report_schema.json` | Report structure validation | reporter |
-| `schemas/diagnosis_schema.json` | Diagnosis output (causal chain, hypotheses) | diagnostician |
-| `schemas/evidence_schema.json` | Structured evidence (visual, numerical, domain) | diagnostician |
-| `schemas/confidence_schema.json` | Confidence scoring and uncertainty disclosure | diagnostician, judge |
-
-Agents should read their relevant schema files to ensure output validity. Schemas are normative — agent prompts are explanatory.
+---
 
 ## Diagnosis Language
 
@@ -277,9 +262,46 @@ Agents should read their relevant schema files to ensure output validity. Schema
 | Inference | [INFERENCE] | "This coincides with [event/measurement]." |
 | Hypothesis | [HYPOTHESIS] | "This suggests [mechanism] may have contributed." |
 | Uncertainty | [UNCERTAINTY] | "Evidence is [level] to [conclude X]." |
+| Validation Finding | [VALIDATION] | "Statistical validation check [X] found [Y]. Confidence adjusted from [A] to [B]." |
+
+---
 
 ## Anti-Speculation
 
-NEVER state root cause without: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradicting evidence. If ANY missing, use [HYPOTHESIS].
+NEVER state root cause without ALL four: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradicting evidence. Missing any → [HYPOTHESIS].
+
+**Additional v4.2 requirements:**
+- NEVER claim a lag correlation as causal evidence if data is not time-sorted
+- NEVER claim an aggregate correlation is meaningful if it reverses in the dominant subgroup
+- NEVER cite a raw correlation without checking the detrended correlation when both variables show time trends
 
 ALWAYS disclose confidence, evidence gaps, and assumptions.
+
+---
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Using lag correlations on non-time-sorted data | `stats.mjs` now validates sorting; check `sorting_validation.time_sorted` before any lag claim |
+| Missing Simpson's Paradox | `stats.mjs` stratified analysis + `stats_validate.mjs` automatically detect subgroup reversals |
+| Confusing trend correlation with causal coupling | Detrended correlations now computed automatically; check `attenuation_pct` |
+| Trusting Pearson for heavily skewed defect data | Spearman now computed alongside Pearson; check divergence |
+| Stating "X caused Y" without all 4 criteria | Use [HYPOTHESIS] marker instead |
+| Skipping `plot_manifest.json` | Data-processor MUST write it — diagnostician depends on it |
+| Main agent holding domain context | Spawn sub-agents; main agent only orchestrates |
+| Skipping Step 7 (physical audit) | Always run — catches spurious correlations the Judge misses |
+| Not validating parameter physical meaning | Context Builder must attempt to determine what each parameter physically represents |
+
+---
+
+## Reference Files
+
+- **Script & toolkit details**: `resources/script_and_toolkit_reference.md`
+- **Evidence rules**: `resources/evidence_rules.md`
+- **Diagnosis methodology**: `resources/diagnosis_method.md`
+- **Process knowledge base**: `resources/process_knowledge_base.md` (quantitative physics + statistical pitfalls)
+- **Agent prompts**: `agents/*.md` (read when spawning each agent)
+- **Schemas**: `schemas/*.json` (normative — agents read their relevant schema)
+- **Templates**: `templates/*.md`, `templates/*.json`
+- **Examples**: `examples/{reactor_temperature,heat_exchanger_fouling,bopet_film_thickness}/`

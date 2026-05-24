@@ -58,19 +58,17 @@
 
 {{variable_classification}}
 
-## 9. Preprocessing Methods
+## 9. Preprocessing & Alignment
 
 {{preprocessing_methods}}
 
-## 10. Time Alignment Strategy
-
 {{time_alignment}}
 
-## 11. Visualization Evidence — Per-Figure Analysis
+## 10. Visualization Evidence — Per-Figure Analysis
 
 > **Every figure from 03_figures/ is embedded here. Each figure includes visual findings and diagnostic implications.**
 
-### 11.1 {{figure_1_title}}
+### 10.1 {{figure_1_title}}
 ![{{figure_1_title}}](03_figures/{{figure_1_filename}})
 
 **What this figure shows**: {{figure_1_description}}
@@ -81,7 +79,7 @@
 
 ---
 
-### 11.2 {{figure_2_title}}
+### 10.2 {{figure_2_title}}
 ![{{figure_2_title}}](03_figures/{{figure_2_filename}})
 
 **What this figure shows**: {{figure_2_description}}
@@ -92,7 +90,7 @@
 
 ---
 
-### 11.N {{figure_N_title}}
+### 10.N {{figure_N_title}}
 ![{{figure_N_title}}](03_figures/{{figure_N_filename}})
 
 **What this figure shows**: {{figure_N_description}}
@@ -105,41 +103,38 @@
 
 *(Repeat for every plot in plot_manifest.json. Do not skip any figure.)*
 
-## 12. Diagnostic Findings
+## 11. Diagnostic Findings
 
 {{diagnostic_findings}}
 
-## 13. Root Cause Analysis
+## 12. Root Cause Analysis
 
 {{root_cause_analysis}}
 
-## 14. Confidence and Uncertainty
+## 13. Confidence & Uncertainty
 
 {{confidence_and_uncertainty}}
 
-## 15. Recommended Actions
+## 14. Recommended Actions
 
 | Priority | Action | Rationale | Evidence |
 |----------|--------|-----------|----------|
 {{recommendations_table}}
 
-## 16. Limitations
+## 15. Limitations
 
 {{limitations}}
 
-## 17. Appendix
+## 16. Appendix
 
 ### A. Run Configuration
 {{run_configuration}}
 
-### B. Feature Summary Statistics
+### B. Statistical Summary
 {{feature_summary}}
 
 ### C. Change Point Log
 {{change_point_log}}
 
-### D. Full Correlation Matrix
-{{correlation_matrix}}
-
-### E. File Inventory
+### D. File Inventory
 {{file_inventory}}

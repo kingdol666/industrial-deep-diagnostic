@@ -1,24 +1,90 @@
 {
-  "abnormal_intervals": [],
-  "correlations": {
-    "pearson": {},
-    "lagged": {}
+  "run_id": "2025-01-15T103000_bopet-thickness-anomaly",
+  "diagnosis_time": "2025-01-15T12:45:00Z",
+  "primary_diagnosis": "BOPET film thickness deviation (CD profile) caused by TDO zone-3 heater degradation producing non-uniform transverse stretching",
+  "causal_chain": [
+    {
+      "step": 1,
+      "event": "TDO zone-3 temperature drops 8°C below setpoint while zones 1-2 and 4-5 remain stable",
+      "evidence_type": "OBSERVATION",
+      "variable": "TDO_zone3_temp",
+      "observed_behavior": "Step decline from 215°C to 207°C starting at row 3400",
+      "physical_mechanism": "Heater element degradation reduces radiative heat transfer to stretching film",
+      "evidence_rank": 2,
+      "evidence_source": "02_processed/feature_summary.json — TDO_zone3_temp statistical summary"
+    },
+    {
+      "step": 2,
+      "event": "Film edges show thickness increase (+0.6 µm) while center thins (-0.4 µm), creating M-shaped CD profile",
+      "evidence_type": "OBSERVATION",
+      "variable": "thickness_cd_profile",
+      "observed_behavior": "Symmetric edge-thick / center-thin deviation from flat target",
+      "physical_mechanism": "Non-uniform temperature across web width causes differential draw ratio in transverse direction",
+      "evidence_rank": 3,
+      "evidence_source": "03_figures/02_thickness_cd_profile.png"
+    },
+    {
+      "step": 3,
+      "event": "Thickness deviation onset lags TDO temperature shift by approximately 45 seconds (15 rows at 3s sampling)",
+      "evidence_type": "INFERENCE",
+      "variable": "thickness_vs_TDO_zone3_temp",
+      "observed_behavior": "Cross-correlation peak at lag 15 rows",
+      "physical_mechanism": "Thermal mass of film and transport delay between TDO and thickness gauge",
+      "evidence_rank": 4,
+      "evidence_source": "04_diagnostics/evidence.json — lagged correlation analysis"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "TDO zone-3 heater degradation",
+      "is_primary": true,
+      "confidence": 82,
+      "physical_mechanism": "Aging heater element in TDO zone 3 reduces temperature below setpoint, causing non-uniform transverse stretching and M-shaped CD thickness profile",
+      "supporting_evidence": [
+        {"rank": 2, "source": "02_processed/feature_summary.json", "detail": "TDO_zone3_temp mean dropped 8°C with stable variance — consistent with heater output loss"},
+        {"rank": 4, "source": "03_figures/02_thickness_cd_profile.png", "detail": "M-shaped CD profile correlates temporally with zone-3 temperature drop"}
+      ],
+      "contradicting_evidence": [],
+      "testable_predictions": [
+        "Replacing zone-3 heater element should restore uniform CD profile within 30 minutes of stabilization",
+        "IR thermography of zone-3 should show cold spot on the affected heater bank"
+      ]
+    },
+    {
+      "id": "H2",
+      "name": "Raw material (resin) melt index variation",
+      "is_primary": false,
+      "confidence": 28,
+      "physical_mechanism": "Batch-to-batch melt flow index variation changes extrusion die swell behavior",
+      "supporting_evidence": [
+        {"rank": 6, "source": "EXTERNAL KNOWLEDGE", "detail": "Melt index variation is a known cause of thickness non-uniformity in BOPET processes"}
+      ],
+      "contradicting_evidence": [
+        {"detail": "Thickness deviation correlates with TDO zone-3 temperature, not with extruder parameters", "significance": "Weakens resin-based explanation"}
+      ],
+      "testable_predictions": [
+        "If resin batch changed, extruder pressure and melt temperature should also shift — they did not"
+      ]
+    }
+  ],
+  "spatial_analysis": {
+    "anomaly_center_position_mm": 450,
+    "anomaly_width_mm": 1200,
+    "affected_zone": "Transverse edges (positions 0-200mm and 700-900mm from center)",
+    "pattern": "Symmetric M-profile (edges thickened, center thinned)",
+    "edges_affected": true
   },
-  "root_causes": [],
-  "recommendations": [],
-  "confidence": {
-    "overall": "medium",
-    "overall_score": 0,
-    "primary_diagnosis": "",
-    "per_conclusion": []
+  "temporal_analysis": {
+    "anomaly_onset": "2025-01-15T10:52:15Z",
+    "anomaly_onset_row": 3400,
+    "total_duration_minutes": 45,
+    "sampling_interval_sec": 3,
+    "response_lag": "45 seconds (15 rows) after TDO zone-3 temperature shift",
+    "degradation_rate": "Gradual over first 10 minutes, then stable at deviated level"
   },
-  "uncertainties": [],
-  "evidence_log": [],
-  "analysis_metadata": {
-    "data_source": "",
-    "signals_analyzed": 0,
-    "features_computed": 0,
-    "judge_score": 0,
-    "judge_iterations": 0
-  }
+  "ruled_out": [
+    "Line speed variation — speed signal was constant within 0.1% throughout anomaly window",
+    "Extruder pressure fluctuation — pressure stable, no correlation with thickness deviation"
+  ]
 }
