@@ -13,6 +13,25 @@ const WORKSPACE_DIR = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs');
 const SKILL_DIR = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-deep-diagnostic');
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md');
 
+// Minimal env vars the Claude CLI needs — avoid leaking secrets
+const ALLOWED_ENV = [
+  'PATH', 'HOME', 'USER', 'LANG', 'LC_ALL',
+  'ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL',
+  'NODE_PATH', 'SHELL', 'TERM',
+];
+
+function buildEnv() {
+  const env = {};
+  for (const key of ALLOWED_ENV) {
+    if (process.env[key] !== undefined) {
+      env[key] = process.env[key];
+    }
+  }
+  env.FORCE_COLOR = '0';
+  env.NO_COLOR = '1';
+  return env;
+}
+
 function findClaudeCLI() {
   try {
     return execSync('which claude', { encoding: 'utf-8', timeout: 3000 }).trim();
@@ -26,18 +45,26 @@ function findClaudeCLI() {
   }
 }
 
+function sanitize(str) {
+  // Strip characters that could enable prompt injection via newlines or markup
+  return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
+}
+
 function buildPrompt(sceneName, userQuestion, dataPath) {
+  const safeScene = sanitize(sceneName);
+  const safeQuestion = sanitize(userQuestion || '');
+
   return `Execute the /industrial-deep-diagnostic skill on industrial data.
 
 ## Input
 
 - **Data file**: ${dataPath}
-- **Scene name**: ${sceneName}
-- **Analysis question**: ${userQuestion || 'Perform a comprehensive root cause analysis'}
+- **Scene name**: ${safeScene}
+- **Analysis question**: ${safeQuestion || 'Perform a comprehensive root cause analysis'}
 
 ## Instructions
 
-1. Invoke the /industrial-deep-diagnostic skill with the scene name "${sceneName}"
+1. Invoke the /industrial-deep-diagnostic skill with the scene name "${safeScene}"
 2. The skill will guide you through the 8-step pipeline: setup, data inspection, ontology building, statistical analysis, visualization, diagnosis, judge review, and report generation
 3. All output artifacts go to workspace/diagnostic-runs/<run_dir>/
 4. After completing all pipeline steps and passing the judge quality gate (score >= 90), present the final report
@@ -86,23 +113,36 @@ export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTu
 
   const child = spawn(claudeBin, claudeArgs, {
     cwd: PROJECT_ROOT,
-    env: {
-      ...process.env,
-      FORCE_COLOR: '0',
-      NO_COLOR: '1',
-    },
+    env: buildEnv(),
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+
+  let sigkillTimer = null;
 
   const timeout = setTimeout(() => {
     if (!child.killed) {
       child.kill('SIGTERM');
-      setTimeout(() => { if (!child.killed) child.kill('SIGKILL'); }, 5000);
+      // Schedule SIGKILL escalation — store handle so we can clear it
+      sigkillTimer = setTimeout(() => {
+        // Use kill(pid, signal) directly since child.killed is set synchronously by Node
+        try { process.kill(child.pid, 'SIGKILL'); } catch {}
+      }, 5000);
     }
   }, timeoutMinutes * 60 * 1000);
 
-  child.on('close', () => clearTimeout(timeout));
-  child.on('error', () => clearTimeout(timeout));
+  child.on('close', () => {
+    clearTimeout(timeout);
+    if (sigkillTimer) clearTimeout(sigkillTimer);
+  });
+
+  child.on('error', () => {
+    clearTimeout(timeout);
+    if (sigkillTimer) clearTimeout(sigkillTimer);
+  });
+
+  // Prevent unhandled stream errors from crashing the process
+  child.stdout.on('error', () => {});
+  child.stderr.on('error', () => {});
 
   return { child, prompt, projectRoot: PROJECT_ROOT };
 }
