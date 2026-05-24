@@ -103,6 +103,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { api } from '../api.js';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 const props = defineProps({
   autoRunId: { type: String, default: null },
@@ -123,33 +124,36 @@ onMounted(() => {
 
 watch(() => props.autoRunId, (newId) => {
   if (newId) {
-    // Wait a bit for the report to be generated, then try to load it
-    loadRuns();
+    loadRuns().then(() => {
+      const match = runs.value.find(r => r.name.endsWith(newId) || r.run_id === newId);
+      if (match) openRun(match);
+    });
   }
 });
 
 watch(() => props.targetRunName, (name) => {
   if (name) {
+    const requestedName = name;
     selectedRun.value = name;
     reportContent.value = null;
     loadingFiles.value = true;
     api.listWorkspaceFiles(name).then(files => {
-      runFiles.value = files;
+      if (selectedRun.value === requestedName) runFiles.value = files;
     }).catch(() => {
-      runFiles.value = [];
+      if (selectedRun.value === requestedName) runFiles.value = [];
     }).finally(() => {
-      loadingFiles.value = false;
+      if (selectedRun.value === requestedName) loadingFiles.value = false;
     });
     loadingReport.value = true;
     api.getReport(name).then(data => {
-      reportContent.value = data.content;
+      if (selectedRun.value === requestedName) reportContent.value = data.content;
     }).catch(() => {
-      reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
+      if (selectedRun.value === requestedName) reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
     }).finally(() => {
-      loadingReport.value = false;
+      if (selectedRun.value === requestedName) loadingReport.value = false;
     });
   }
-});
+}, { immediate: true });
 
 async function loadRuns() {
   loadingRuns.value = true;
@@ -163,16 +167,18 @@ async function loadRuns() {
 }
 
 async function openRun(run) {
+  const requestedName = run.name;
   selectedRun.value = run.name;
   reportContent.value = null;
 
   loadingFiles.value = true;
   try {
-    runFiles.value = await api.listWorkspaceFiles(run.name);
+    const files = await api.listWorkspaceFiles(run.name);
+    if (selectedRun.value === requestedName) runFiles.value = files;
   } catch {
-    runFiles.value = [];
+    if (selectedRun.value === requestedName) runFiles.value = [];
   } finally {
-    loadingFiles.value = false;
+    if (selectedRun.value === requestedName) loadingFiles.value = false;
   }
 
   if (run.hasReport) {
@@ -181,15 +187,16 @@ async function openRun(run) {
 }
 
 async function loadReport(runName) {
+  const requestedName = runName;
   loadingReport.value = true;
   try {
     const data = await api.getReport(runName);
-    reportContent.value = data.content;
+    if (selectedRun.value === requestedName) reportContent.value = data.content;
   } catch (err) {
     console.error('Failed to load report:', err);
-    reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
+    if (selectedRun.value === requestedName) reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
   } finally {
-    loadingReport.value = false;
+    if (selectedRun.value === requestedName) loadingReport.value = false;
   }
 }
 
@@ -209,7 +216,6 @@ async function copyReport() {
   try {
     await navigator.clipboard.writeText(reportContent.value);
   } catch {
-    // fallback
     const ta = document.createElement('textarea');
     ta.value = reportContent.value;
     document.body.appendChild(ta);
@@ -221,14 +227,20 @@ async function copyReport() {
 
 const renderedReport = computed(() => {
   if (!reportContent.value) return '';
-  return marked(reportContent.value, {
+  const raw = marked(reportContent.value, {
     breaks: true,
     gfm: true,
+  });
+  return DOMPurify.sanitize(raw, {
+    ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+      'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'em', 'strong',
+      'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'span', 'div', 'details', 'summary'],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'target', 'rel'],
   });
 });
 
 function formatRunName(name) {
-  // Convert timestamp-based names: 20260521080744._PVA-TEST-V3 → PVA-TEST-V3 (2026-05-21 08:07)
   const match = name.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})[._]\s*(.+)/);
   if (match) {
     const [, y, m, d, hh, mm, ss, label] = match;
