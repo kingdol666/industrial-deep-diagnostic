@@ -26,11 +26,12 @@ function findClaudeCLI() {
   }
 }
 
-function buildPrompt(sceneName, userQuestion) {
-  return `Execute the /industrial-deep-diagnostic skill on the data file in the workspace.
+function buildPrompt(sceneName, userQuestion, dataPath) {
+  return `Execute the /industrial-deep-diagnostic skill on industrial data.
 
 ## Input
 
+- **Data file**: ${dataPath}
 - **Scene name**: ${sceneName}
 - **Analysis question**: ${userQuestion || 'Perform a comprehensive root cause analysis'}
 
@@ -73,7 +74,7 @@ export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTu
     throw err;
   }
 
-  const prompt = buildPrompt(sceneName, userQuestion);
+  const prompt = buildPrompt(sceneName, userQuestion, dataPath);
 
   const claudeArgs = [
     '-p', prompt,
