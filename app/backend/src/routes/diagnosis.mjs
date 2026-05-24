@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { v4 as uuid } from 'uuid';
-import { readdir, stat, readFile } from 'fs/promises';
+import { readdir, stat, readFile, realpath } from 'fs/promises';
 import { existsSync } from 'fs';
-import { join, basename } from 'path';
+import { join, basename, relative } from 'path';
 import { startDiagnosis, parseStreamLine, PROJECT_ROOT, WORKSPACE_DIR } from '../claude-code.mjs';
 import { stmts } from '../db.mjs';
 
@@ -10,6 +10,35 @@ const router = Router();
 
 // Active diagnosis processes (in-memory)
 const activeProcesses = new Map();
+
+// Validate that a resolved data path is safe (contained within project root)
+async function validateDataPath(dataPath) {
+  const absoluteDataPath = dataPath.startsWith('/')
+    ? dataPath
+    : join(PROJECT_ROOT, dataPath);
+
+  if (!existsSync(absoluteDataPath)) {
+    const err = new Error(`Data not found: ${dataPath}`);
+    err.code = 'DATA_NOT_FOUND';
+    throw err;
+  }
+
+  // Resolve symlinks and check containment
+  const resolved = await realpath(absoluteDataPath);
+  const resolvedRoot = await realpath(PROJECT_ROOT);
+  const rel = relative(resolvedRoot, resolved);
+
+  if (rel.startsWith('..') || rel === '') {
+    const err = new Error(`Path traversal blocked: ${dataPath}`);
+    err.code = 'PATH_TRAVERSAL';
+    err.status = 403;
+    throw err;
+  }
+
+  // Store the relative path for the database
+  const relativePath = relative(PROJECT_ROOT, resolved);
+  return { absolutePath: resolved, relativePath };
+}
 
 // Start a new diagnosis
 router.post('/start', async (req, res) => {
@@ -20,26 +49,20 @@ router.post('/start', async (req, res) => {
       return res.status(400).json({ success: false, error: 'dataPath is required' });
     }
 
-    const absoluteDataPath = dataPath.startsWith('/')
-      ? dataPath
-      : join(PROJECT_ROOT, dataPath);
-
-    if (!existsSync(absoluteDataPath)) {
-      return res.status(400).json({ success: false, error: `Data not found: ${dataPath}` });
-    }
+    const { relativePath } = await validateDataPath(dataPath);
 
     const runId = uuid().slice(0, 8);
-    const scene = sceneName || basename(dataPath).replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+    const scene = sceneName || basename(relativePath).replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
     const name = `${scene}_${runId}`;
 
-    const pathParts = dataPath.split('/');
-    const dataFolder = pathParts.length > 2 ? pathParts[1] : null;
+    const pathParts = relativePath.split('/');
+    const dataFolder = pathParts.length > 1 ? pathParts[0] : null;
 
     stmts.insertRun.run({
       runId,
       name,
       sceneName: scene,
-      dataPath,
+      dataPath: relativePath,
       dataFolder,
       userQuestion: userQuestion || '',
       model: 'claude-opus-4-7',
@@ -48,7 +71,8 @@ router.post('/start', async (req, res) => {
 
     res.json({ success: true, data: { runId, name, status: 'pending' } });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 
@@ -92,6 +116,7 @@ router.get('/stream/:runId', async (req, res) => {
   });
 
   const sendEvent = (event, data) => {
+    if (res.destroyed) return;
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   };
 
@@ -99,8 +124,21 @@ router.get('/stream/:runId', async (req, res) => {
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
+  let child = null;
+
+  const cleanup = () => {
+    activeProcesses.delete(runId);
+    if (child && !child.killed) {
+      child.kill('SIGTERM');
+    }
+  };
+
+  // Handle client disconnect or error
+  req.on('close', cleanup);
+  req.on('error', cleanup);
+
   try {
-    const { child } = startDiagnosis({
+    const result = startDiagnosis({
       dataPath: run.data_path,
       userQuestion: run.user_question,
       sceneName: run.scene_name,
@@ -108,6 +146,7 @@ router.get('/stream/:runId', async (req, res) => {
       maxTurns: run.max_turns,
     });
 
+    child = result.child;
     activeProcesses.set(runId, child);
 
     let buffer = '';
@@ -154,6 +193,8 @@ router.get('/stream/:runId', async (req, res) => {
       }
     });
 
+    child.stdout.on('error', () => {});
+
     let stderrBuf = '';
     child.stderr.on('data', (chunk) => {
       stderrBuf += chunk.toString();
@@ -166,8 +207,12 @@ router.get('/stream/:runId', async (req, res) => {
       }
     });
 
+    child.stderr.on('error', () => {});
+
     child.on('close', async (code) => {
       activeProcesses.delete(runId);
+
+      if (res.destroyed) return;
 
       try {
         const runDir = await findLatestRunDir(run.scene_name);
@@ -183,8 +228,8 @@ router.get('/stream/:runId', async (req, res) => {
           if (existsSync(jp)) {
             try {
               const jf = JSON.parse(await readFile(jp, 'utf-8'));
-              score = jf.score || null;
-              verdict = jf.verdict || null;
+              score = jf.score ?? null;
+              verdict = jf.verdict ?? null;
             } catch {}
           }
         }
@@ -213,19 +258,13 @@ router.get('/stream/:runId', async (req, res) => {
         sendEvent('error', { status: 'failed', error: err.message });
       }
 
-      res.end();
+      if (!res.destroyed) res.end();
     });
 
-    req.on('close', () => {
-      if (!child.killed) {
-        child.kill('SIGTERM');
-        activeProcesses.delete(runId);
-      }
-    });
   } catch (err) {
-    stmts.failRun.run({ runId, error: err.message });
+    activeProcesses.delete(runId);
     sendEvent('error', { status: 'failed', error: err.message });
-    res.end();
+    if (!res.destroyed) res.end();
   }
 });
 
@@ -233,8 +272,10 @@ router.get('/stream/:runId', async (req, res) => {
 router.post('/stop/:runId', (req, res) => {
   const { runId } = req.params;
   const child = activeProcesses.get(runId);
-  if (child && !child.killed) {
-    child.kill('SIGTERM');
+  if (child) {
+    if (!child.killed) {
+      child.kill('SIGTERM');
+    }
     activeProcesses.delete(runId);
     stmts.updateRunStatus.run({ runId, status: 'stopped' });
     res.json({ success: true, data: { runId, status: 'stopped' } });
