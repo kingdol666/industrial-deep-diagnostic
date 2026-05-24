@@ -203,57 +203,67 @@ async function startDiagnosis() {
     // Open SSE stream
     eventSource = new EventSource(api.streamUrl(data.runId));
 
+    function safeParse(data) {
+      try { return JSON.parse(data); } catch { return null; }
+    }
+
     eventSource.addEventListener('status', (e) => {
-      const d = JSON.parse(e.data);
-      addMessage('system', `Status: ${d.status}`);
+      const d = safeParse(e.data);
+      if (d) addMessage('system', `Status: ${d.status}`);
     });
 
     eventSource.addEventListener('message', (e) => {
-      const d = JSON.parse(e.data);
-      const text = d.content || '';
-      if (text) {
-        addMessage('text', text);
-        progressPct.value = Math.min(90, progressPct.value + 2);
+      const d = safeParse(e.data);
+      if (d) {
+        const text = d.content || '';
+        if (text) {
+          addMessage('text', text);
+          progressPct.value = Math.min(90, progressPct.value + 2);
+        }
       }
     });
 
     eventSource.addEventListener('tool_use', (e) => {
-      const d = JSON.parse(e.data);
-      const inputStr = (d.input != null && typeof d.input === 'object')
-        ? JSON.stringify(d.input).slice(0, 200)
-        : String(d.input ?? '').slice(0, 200);
-      addMessage('tool_use', `[${d.name}] ${inputStr}`);
-      progressPct.value = Math.min(90, progressPct.value + 5);
+      const d = safeParse(e.data);
+      if (d) {
+        const inputStr = (d.input != null && typeof d.input === 'object')
+          ? JSON.stringify(d.input).slice(0, 200)
+          : String(d.input ?? '').slice(0, 200);
+        addMessage('tool_use', `[${d.name}] ${inputStr}`);
+        progressPct.value = Math.min(90, progressPct.value + 5);
+      }
     });
 
     eventSource.addEventListener('log', (e) => {
-      const d = JSON.parse(e.data);
-      addMessage('system', d.message);
+      const d = safeParse(e.data);
+      if (d) addMessage('system', d.message);
     });
 
     eventSource.addEventListener('stats', (e) => {
-      const d = JSON.parse(e.data);
-      addMessage('system', `Stats: ${JSON.stringify(d).slice(0, 200)}`);
+      const d = safeParse(e.data);
+      if (d) addMessage('system', `Stats: ${JSON.stringify(d).slice(0, 200)}`);
     });
 
     eventSource.addEventListener('complete', (e) => {
+      if (didError) return;
       didComplete = true;
-      const d = JSON.parse(e.data);
+      const d = safeParse(e.data);
       completed.value = true;
       isRunning.value = false;
       progressPct.value = 100;
-      result.value = d;
-      addMessage('system', `Completed! Score: ${d.score ?? 'N/A'}, Verdict: ${d.verdict ?? 'N/A'}`);
+      result.value = d || {};
+      addMessage('system', `Completed! Score: ${d?.score ?? 'N/A'}, Verdict: ${d?.verdict ?? 'N/A'}`);
       closeSSE();
     });
 
     eventSource.addEventListener('error', (e) => {
+      if (didComplete) return;
       didError = true;
-      const d = JSON.parse(e.data);
+      const d = safeParse(e.data);
       failed.value = true;
       isRunning.value = false;
-      result.value = d;
-      addMessage('error', d.error || 'Diagnosis failed');
+      result.value = d || {};
+      addMessage('error', d?.error || 'Diagnosis failed');
       closeSSE();
     });
 
@@ -279,6 +289,8 @@ function stopDiagnosis() {
   }
   closeSSE();
   isRunning.value = false;
+  completed.value = false;
+  failed.value = false;
   addMessage('system', 'Stopped by user');
 }
 
