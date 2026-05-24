@@ -47,7 +47,7 @@ function findClaudeCLI() {
 
 function sanitize(str) {
   // Strip characters that could enable prompt injection via newlines or markup
-  return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
+  return str.replace(/[\x00-\x08\x0A-\x1F]/g, '').trim();
 }
 
 function buildPrompt(sceneName, userQuestion, dataPath) {
