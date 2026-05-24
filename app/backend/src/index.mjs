@@ -1,11 +1,12 @@
+import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { mkdirSync } from 'fs';
 import fileRoutes from './routes/files.mjs';
 import diagnosisRoutes from './routes/diagnosis.mjs';
 import historyRoutes from './routes/history.mjs';
+import { initWebSocket } from './ws-server.mjs';
 import { stmts } from './db.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -35,10 +36,16 @@ app.get('/api/health', (req, res) => {
 const frontendDist = join(__dirname, '..', '..', 'frontend', 'dist');
 app.use(express.static(frontendDist));
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/')) {
+  if (!req.path.startsWith('/api/') && !req.path.startsWith('/ws')) {
     res.sendFile(join(frontendDist, 'index.html'));
   }
 });
+
+// Create HTTP server (shared by Express + WebSocket)
+const server = createServer(app);
+
+// Initialize WebSocket server on /ws
+initWebSocket(server);
 
 // Mark any stale 'running' runs as interrupted (server was restarted)
 const staleRuns = stmts.getActiveRuns.all();
@@ -47,8 +54,11 @@ for (const run of staleRuns) {
   console.log(`[Industrial Diagnostic API] Marked stale run as interrupted: ${run.run_id}`);
 }
 
-app.listen(PORT, () => {
-  console.log(`[Industrial Diagnostic API] Server running on http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`[Industrial Diagnostic API] HTTP + WebSocket server on http://localhost:${PORT}`);
+  console.log(`[Industrial Diagnostic API] WebSocket endpoint: ws://localhost:${PORT}/ws`);
   console.log(`[Industrial Diagnostic API] Project root: ${projectRoot}`);
   console.log(`[Industrial Diagnostic API] Data dir: ${join(projectRoot, 'data')}`);
 });
+
+export default app;

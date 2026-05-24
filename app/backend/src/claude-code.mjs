@@ -1,6 +1,6 @@
 import { spawn, execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { existsSync, readdirSync } from 'fs';
+import { resolve, join, dirname, extname, basename } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,7 +13,6 @@ const WORKSPACE_DIR = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs');
 const SKILL_DIR = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-deep-diagnostic');
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md');
 
-// Minimal env vars the Claude CLI needs — avoid leaking secrets
 const ALLOWED_ENV = [
   'PATH', 'HOME', 'USER', 'LANG', 'LC_ALL',
   'ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL',
@@ -29,6 +28,7 @@ function buildEnv() {
   }
   env.FORCE_COLOR = '0';
   env.NO_COLOR = '1';
+  env.SKILL_PATH = SKILL_DIR;
   return env;
 }
 
@@ -37,8 +37,7 @@ function findClaudeCLI() {
     return execSync('which claude', { encoding: 'utf-8', timeout: 3000 }).trim();
   } catch {
     try {
-      const alt = execSync('which claude-code', { encoding: 'utf-8', timeout: 3000 }).trim();
-      return alt;
+      return execSync('which claude-code', { encoding: 'utf-8', timeout: 3000 }).trim();
     } catch {
       return null;
     }
@@ -46,47 +45,149 @@ function findClaudeCLI() {
 }
 
 function sanitize(str) {
-  // Strip characters that could enable prompt injection via newlines or markup
   return str.replace(/[\x00-\x08\x0A-\x1F]/g, '').trim();
 }
 
-function buildPrompt(sceneName, userQuestion, dataPath) {
-  const safeScene = sanitize(sceneName || '');
-  const safeQuestion = sanitize(userQuestion || '');
-  const safeDataPath = sanitize(dataPath);
-
-  return `Execute the /industrial-deep-diagnostic skill on industrial data.
-
-## Input
-
-- **Data file**: ${safeDataPath}
-- **Scene name**: ${safeScene}
-- **Analysis question**: ${safeQuestion || 'Perform a comprehensive root cause analysis'}
-
-## Instructions
-
-1. Invoke the /industrial-deep-diagnostic skill with the scene name "${safeScene}"
-2. The skill will guide you through the 8-step pipeline: setup, data inspection, ontology building, statistical analysis, visualization, diagnosis, judge review, and report generation
-3. All output artifacts go to workspace/diagnostic-runs/<run_dir>/
-4. After completing all pipeline steps and passing the judge quality gate (score >= 90), present the final report
-
-## Critical Rules
-
-- Evidence first. Reasoning second. Conclusions last.
-- Every root cause claim must satisfy ALL four criteria: temporal precedence, statistical evidence, physical mechanism, no contradicting evidence
-- Missing any criterion -> label as [HYPOTHESIS]
-- Use the statistical validation framework to catch confounders`;
+function discoverDataFiles(folderPath) {
+  const absolutePath = folderPath.startsWith('/')
+    ? folderPath
+    : join(PROJECT_ROOT, folderPath);
+  const entries = readdirSync(absolutePath);
+  const exts = ['.csv', '.xlsx', '.xls', '.parquet', '.json', '.tsv'];
+  return entries
+    .filter(e => exts.includes(extname(e).toLowerCase()))
+    .map(e => join(absolutePath, e))
+    .sort();
 }
 
-export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTurns = 200, timeoutMinutes = 30 }) {
-  const absoluteDataPath = dataPath.startsWith('/')
-    ? dataPath
-    : join(PROJECT_ROOT, dataPath);
+function buildPrompt(sceneName, userQuestion, target, reportLanguage = 'zh') {
+  const safeScene = sanitize(sceneName || 'industrial_analysis');
+  const safeQuestion = sanitize(userQuestion || '');
 
-  if (!existsSync(absoluteDataPath)) {
-    const err = new Error(`Data path not found: ${absoluteDataPath}`);
-    err.code = 'DATA_NOT_FOUND';
-    throw err;
+  let dataDescription;
+  if (target.mode === 'multi') {
+    const files = target.files.map(f => sanitize(f)).join('\n  - ');
+    dataDescription = `${target.files.length} files:\n  - ${files}`;
+  } else if (target.mode === 'folder') {
+    const safeFolder = sanitize(target.folderPath);
+    const fileList = target.dataFiles.map(f => sanitize(basename(f))).join(', ');
+    dataDescription = `Folder: ${safeFolder}\n  Files (${target.dataFiles.length}): ${fileList}`;
+  } else {
+    dataDescription = `File: ${sanitize(target.dataPath)}`;
+  }
+
+  const langRule = reportLanguage === 'zh'
+    ? 'IMPORTANT: Write ALL narrative text, headings, analysis descriptions, recommendations, and report.md content in Chinese (中文). Keep technical terms, variable names, column names, and code in English.'
+    : 'Write all output in English.';
+
+  return `/industrial-deep-diagnostic ${safeScene}
+
+## Data
+
+${dataDescription}
+
+## Analysis Question
+
+${safeQuestion || 'Perform a comprehensive root cause analysis following the full 8-step pipeline.'}
+
+## Language
+
+${langRule}`;
+}
+
+// Dangerous command patterns for HITL interception
+const DANGEROUS_PATTERNS = [
+  { pattern: /rm\s+-rf\s+\//, level: 'CRITICAL', desc: 'Recursive delete from root' },
+  { pattern: /rm\s+-rf\s+\/\*/, level: 'CRITICAL', desc: 'Delete all files from root' },
+  { pattern: /rm\s+-rf\s+~/, level: 'CRITICAL', desc: 'Delete home directory' },
+  { pattern: /rm\s+-rf\s+\$HOME/, level: 'CRITICAL', desc: 'Delete home directory' },
+  { pattern: /chmod\s+(-R\s+)?777\s+\//, level: 'CRITICAL', desc: 'World-writable permissions on system dirs' },
+  { pattern: /chown\s+-R\s+\S+\s+\//, level: 'CRITICAL', desc: 'Recursive ownership change from root' },
+  { pattern: />\s*\/dev\/sd[a-z]/, level: 'CRITICAL', desc: 'Write directly to disk device' },
+  { pattern: /dd\s+if=/, level: 'CRITICAL', desc: 'Raw disk copy operation' },
+  { pattern: /mkfs\./, level: 'CRITICAL', desc: 'Filesystem creation (destroys data)' },
+  { pattern: /mount\s+-o\s+remount/, level: 'HIGH', desc: 'Remount filesystem' },
+  { pattern: /:\\(\\)\s*\{\s*:\|\:&\s*\}/, level: 'CRITICAL', desc: 'Fork bomb' },
+  { pattern: /while\s+true\s*;\s*do\s+\S+\s*;\s*done/, level: 'HIGH', desc: 'Infinite loop' },
+  { pattern: /curl\s+\S+\s*\|\s*(ba)?sh/, level: 'CRITICAL', desc: 'Curl piped to shell' },
+  { pattern: /wget\s+\S+\s*-O\s*-\s*\|\s*(ba)?sh/, level: 'CRITICAL', desc: 'Wget piped to shell' },
+  { pattern: /curl\s+\S+\s*\|\s*sudo\s*(ba)?sh/, level: 'CRITICAL', desc: 'Curl piped to sudo shell' },
+  { pattern: /git\s+push\s+(-f|--force)\s+origin\s+(main|master)/, level: 'HIGH', desc: 'Force push to main/master' },
+  { pattern: /sudo\s+su/, level: 'CRITICAL', desc: 'Switch to root user' },
+  { pattern: /sudo\s+passwd/, level: 'CRITICAL', desc: 'Change passwords via sudo' },
+  { pattern: /sudo\s+rm/, level: 'HIGH', desc: 'Delete with sudo' },
+  { pattern: /iptables\s+-F/, level: 'HIGH', desc: 'Flush firewall rules' },
+  { pattern: /systemctl\s+disable/, level: 'HIGH', desc: 'Disable system service' },
+  { pattern: /kill\s+-9\s+-1/, level: 'CRITICAL', desc: 'Kill all processes' },
+];
+
+export function isDangerousCommand(command) {
+  if (!command || typeof command !== 'string') return null;
+  for (const rule of DANGEROUS_PATTERNS) {
+    if (rule.pattern.test(command)) {
+      return { level: rule.level, desc: rule.desc, match: command.match(rule.pattern)[0] };
+    }
+  }
+  return null;
+}
+
+const pendingHITL = new Map();
+
+export function resolveHITL(permissionId, approved) {
+  const entry = pendingHITL.get(permissionId);
+  if (!entry) return false;
+  pendingHITL.delete(permissionId);
+  entry.resolve(approved === true);
+  return true;
+}
+
+export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 120, reportLanguage = 'zh' }) {
+  let dataPaths = [];
+
+  // Paths are stored relative to PROJECT_ROOT (e.g. data/file.csv) or relative to DATA_DIR
+  // validateDataPath already verified existence against DATA_DIR, normalize all to absolute
+  function resolveDataPath(p) {
+    if (p.startsWith('/')) return p;
+    // Try PROJECT_ROOT first (for paths like data/file.csv), then DATA_DIR
+    const fromRoot = join(PROJECT_ROOT, p);
+    if (existsSync(fromRoot)) return fromRoot;
+    const fromData = join(DATA_DIR, p);
+    if (existsSync(fromData)) return fromData;
+    return fromRoot; // let caller throw the error
+  }
+
+  if (analysisTarget.mode === 'multi') {
+    for (const dp of analysisTarget.files) {
+      const abs = resolveDataPath(dp);
+      if (!existsSync(abs)) {
+        const err = new Error(`Data path not found: ${abs}`);
+        err.code = 'DATA_NOT_FOUND';
+        throw err;
+      }
+      dataPaths.push(abs);
+    }
+  } else if (analysisTarget.mode === 'folder') {
+    const absFolder = resolveDataPath(analysisTarget.folderPath);
+    if (!existsSync(absFolder)) {
+      const err = new Error(`Folder not found: ${absFolder}`);
+      err.code = 'DATA_NOT_FOUND';
+      throw err;
+    }
+    dataPaths = discoverDataFiles(absFolder);
+    if (dataPaths.length === 0) {
+      const err = new Error(`No data files found in folder: ${absFolder}`);
+      err.code = 'NO_DATA_FOUND';
+      throw err;
+    }
+    analysisTarget.dataFiles = dataPaths;
+  } else {
+    const abs = resolveDataPath(analysisTarget.dataPath);
+    if (!existsSync(abs)) {
+      const err = new Error(`Data path not found: ${abs}`);
+      err.code = 'DATA_NOT_FOUND';
+      throw err;
+    }
+    dataPaths = [abs];
   }
 
   if (!existsSync(SKILL_MD)) {
@@ -102,15 +203,19 @@ export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTu
     throw err;
   }
 
-  const prompt = buildPrompt(sceneName, userQuestion, dataPath);
+  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, reportLanguage);
 
+  // Use -p for direct prompt input (not stream-json input) — skill invocation needs natural language
   const claudeArgs = [
     '-p', prompt,
     '--output-format', 'stream-json',
-    '--max-turns', String(maxTurns),
     '--verbose',
-    '--allowedTools', 'Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch',
+    '--dangerously-skip-permissions',
+    '--allowedTools', 'Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Task',
   ];
+  if (maxTurns > 0) {
+    claudeArgs.push('--max-turns', String(maxTurns));
+  }
 
   const child = spawn(claudeBin, claudeArgs, {
     cwd: PROJECT_ROOT,
@@ -118,14 +223,15 @@ export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTu
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
+  // Close stdin immediately — prompt is passed via -p flag
+  child.stdin.end();
+
   let sigkillTimer = null;
 
   const timeout = setTimeout(() => {
     if (!child.killed) {
       child.kill('SIGTERM');
-      // Schedule SIGKILL escalation — store handle so we can clear it
       sigkillTimer = setTimeout(() => {
-        // Use kill(pid, signal) directly since child.killed is set synchronously by Node
         try { process.kill(child.pid, 'SIGKILL'); } catch {}
       }, 5000);
     }
@@ -141,11 +247,10 @@ export function startDiagnosis({ dataPath, userQuestion, sceneName, runId, maxTu
     if (sigkillTimer) clearTimeout(sigkillTimer);
   });
 
-  // Prevent unhandled stream errors from crashing the process
   child.stdout.on('error', () => {});
   child.stderr.on('error', () => {});
 
-  return { child, prompt, projectRoot: PROJECT_ROOT };
+  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes };
 }
 
 export function parseStreamLine(line) {
@@ -161,4 +266,4 @@ export function extractReportPath(output) {
   return match ? match[0] : null;
 }
 
-export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR };
+export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR, pendingHITL };

@@ -6,6 +6,9 @@ __pycache__/
 # Node
 node_modules/
 
+# Database
+app/backend/data/*.db*
+
 # Diagnostic runs (generated artifacts, large files)
 workspace/diagnostic-runs/
 workspace/*.csv
@@ -13,6 +16,9 @@ workspace/*.png
 workspace/*.py
 workspace/*.json
 !workspace/.gitkeep
+
+# Build output
+app/frontend/dist/
 
 # OS
 .DS_Store

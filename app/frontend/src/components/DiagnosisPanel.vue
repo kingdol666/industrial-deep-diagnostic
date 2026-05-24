@@ -1,32 +1,60 @@
 <template>
   <div class="diagnosis-panel">
-    <!-- Selected file info -->
-    <div class="card" v-if="selectedFile">
+    <!-- Selected data info -->
+    <div class="card" v-if="analysisTarget">
       <div class="card-title">Selected Data</div>
-      <div class="selected-info">
+      <div class="selected-info" v-if="analysisTarget.mode === 'file'">
         <div class="info-row">
           <span class="info-label">File:</span>
-          <span class="info-value">{{ selectedFile.name }}</span>
+          <span class="info-value">{{ analysisTarget.file.name }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Size:</span>
-          <span class="info-value">{{ formatSize(selectedFile.size) }}</span>
+          <span class="info-value">{{ formatSize(analysisTarget.file.size) }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Path:</span>
-          <span class="info-value path">{{ selectedFile.path }}</span>
+          <span class="info-value path">{{ analysisTarget.file.path }}</span>
+        </div>
+      </div>
+      <div class="selected-info" v-else-if="analysisTarget.mode === 'folder'">
+        <div class="info-row">
+          <span class="info-label">Folder:</span>
+          <span class="info-value">{{ analysisTarget.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">CSV Files:</span>
+          <span class="info-value">{{ analysisTarget.csvCount }} file(s)</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Path:</span>
+          <span class="info-value path">{{ analysisTarget.path }}</span>
+        </div>
+      </div>
+      <div class="selected-info" v-else-if="analysisTarget.mode === 'multi'">
+        <div class="info-row">
+          <span class="info-label">Selected Files:</span>
+          <span class="info-value">{{ analysisTarget.files.length }} file(s)</span>
+        </div>
+        <div class="info-row" v-for="(f, i) in analysisTarget.files.slice(0, 5)" :key="i">
+          <span class="info-label">{{ i === 0 ? 'Files:' : '' }}</span>
+          <span class="info-value path">{{ typeof f === 'string' ? f : f.path || f.name }}</span>
+        </div>
+        <div class="info-row" v-if="analysisTarget.files.length > 5">
+          <span class="info-label"></span>
+          <span class="info-value">...and {{ analysisTarget.files.length - 5 }} more</span>
         </div>
       </div>
     </div>
 
     <div class="card" v-else>
       <div class="empty-state">
-        <p>No data file selected. Go to the Data tab and select a file to analyze.</p>
+        <p>No data selected. Go to the Data tab and select files or a folder to analyze.</p>
       </div>
     </div>
 
     <!-- Analysis form -->
-    <div class="card" v-if="selectedFile && !isRunning">
+    <div class="card" v-if="analysisTarget && !isRunning">
       <div class="card-title">Analysis Configuration</div>
       <div class="form-group">
         <label>Scene Name</label>
@@ -45,7 +73,7 @@
         <input v-model.number="maxTurns" type="number" min="10" max="500" style="max-width:120px" />
       </div>
       <div class="form-actions">
-        <button class="btn btn-primary" @click="startDiagnosis" :disabled="!selectedFile">
+        <button class="btn btn-primary" @click="startDiagnosis" :disabled="!analysisTarget">
           Start Analysis
         </button>
       </div>
@@ -126,7 +154,7 @@ import { ref, nextTick, watch, onUnmounted } from 'vue';
 import { api } from '../api.js';
 
 const props = defineProps({
-  selectedFile: { type: Object, default: null },
+  analysisTarget: { type: Object, default: null },
 });
 
 const emit = defineEmits(['started']);
@@ -154,7 +182,7 @@ onUnmounted(() => {
   closeSSE();
 });
 
-watch(() => props.selectedFile, (file) => {
+watch(() => props.analysisTarget, (target) => {
   // Full teardown of any running diagnosis
   closeSSE();
   isRunning.value = false;
@@ -164,8 +192,19 @@ watch(() => props.selectedFile, (file) => {
   msgCount = 0;
   truncated.value = false;
 
-  if (file && !sceneName.value) {
-    sceneName.value = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+  if (target) {
+    let name = '';
+    if (target.mode === 'file') {
+      name = target.file.name;
+    } else if (target.mode === 'folder') {
+      name = target.name;
+    } else if (target.mode === 'multi' && target.files.length > 0) {
+      const f = target.files[0];
+      name = typeof f === 'string' ? f.split('/').pop() : f.name;
+    }
+    if (name && !sceneName.value) {
+      sceneName.value = name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+    }
   }
   messages.value = [];
   result.value = null;
@@ -174,7 +213,7 @@ watch(() => props.selectedFile, (file) => {
 });
 
 async function startDiagnosis() {
-  if (!props.selectedFile) return;
+  if (!props.analysisTarget) return;
 
   closeSSE();
   isRunning.value = true;
@@ -189,12 +228,22 @@ async function startDiagnosis() {
   progressPct.value = 5;
 
   try {
-    const data = await api.startDiagnosis({
-      dataPath: props.selectedFile.path,
+    const target = props.analysisTarget;
+    const payload = {
       userQuestion: userQuestion.value,
       sceneName: sceneName.value || undefined,
       maxTurns: maxTurns.value,
-    });
+    };
+
+    if (target.mode === 'multi') {
+      payload.dataPaths = target.files.map(f => typeof f === 'string' ? f : f.path);
+    } else if (target.mode === 'folder') {
+      payload.folderPath = target.path;
+    } else {
+      payload.dataPath = target.file.path;
+    }
+
+    const data = await api.startDiagnosis(payload);
 
     runId.value = data.runId;
     emit('started', data.runId);

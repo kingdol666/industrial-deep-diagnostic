@@ -14,11 +14,18 @@
       </nav>
     </header>
     <main class="app-main">
-      <DataBrowser v-if="currentTab === 'data'" @select-file="onSelectFile" />
-      <DiagnosisPanel
+      <DataBrowser
+        v-if="currentTab === 'data'"
+        @select-file="onSelectFile"
+        @select-folder="onSelectFolder"
+        @select-files="onSelectFiles"
+      />
+      <DiagnosisView
         v-if="currentTab === 'diagnose'"
-        :selected-file="selectedFile"
+        :analysisTarget="analysisTarget"
+        :autoRunId="autoOpenRunId"
         @started="onDiagnosisStarted"
+        @view-report="onViewReport"
       />
       <ReportViewer
         v-if="currentTab === 'reports'"
@@ -28,6 +35,7 @@
       <HistoryList
         v-if="currentTab === 'history'"
         @open-report="onOpenReport"
+        @continue-run="onContinueRun"
       />
     </main>
   </div>
@@ -36,12 +44,12 @@
 <script setup>
 import { ref } from 'vue';
 import DataBrowser from './components/DataBrowser.vue';
-import DiagnosisPanel from './components/DiagnosisPanel.vue';
+import DiagnosisView from './components/DiagnosisView.vue';
 import ReportViewer from './components/ReportViewer.vue';
 import HistoryList from './components/HistoryList.vue';
 
 const currentTab = ref('data');
-const selectedFile = ref(null);
+const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 
@@ -53,12 +61,35 @@ const tabs = [
 ];
 
 function onSelectFile(file) {
-  selectedFile.value = file;
+  analysisTarget.value = { mode: 'file', file };
+  currentTab.value = 'diagnose';
+}
+
+function onSelectFolder(folderInfo) {
+  analysisTarget.value = { mode: 'folder', ...folderInfo };
+  currentTab.value = 'diagnose';
+}
+
+function onSelectFiles(files) {
+  analysisTarget.value = { mode: 'multi', files };
   currentTab.value = 'diagnose';
 }
 
 function onDiagnosisStarted(runId) {
   autoOpenRunId.value = runId;
+}
+
+function onContinueRun(runId) {
+  autoOpenRunId.value = runId;
+  currentTab.value = 'diagnose';
+}
+
+function onViewReport(reportPath) {
+  if (reportPath) {
+    const parts = reportPath.split('/');
+    openReportPath.value = parts[parts.length - 2] || '';
+  }
+  currentTab.value = 'reports';
 }
 
 function onOpenReport(reportPath) {
