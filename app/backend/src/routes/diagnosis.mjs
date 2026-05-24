@@ -212,8 +212,6 @@ router.get('/stream/:runId', async (req, res) => {
     child.on('close', async (code) => {
       activeProcesses.delete(runId);
 
-      if (res.destroyed) return;
-
       try {
         const runDir = await findLatestRunDir(run.scene_name);
         let reportPath = null;
@@ -263,6 +261,7 @@ router.get('/stream/:runId', async (req, res) => {
 
   } catch (err) {
     activeProcesses.delete(runId);
+    stmts.failRun.run({ runId, error: err.message });
     sendEvent('error', { status: 'failed', error: err.message });
     if (!res.destroyed) res.end();
   }
