@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, onUnmounted } from 'vue';
 import { api } from '../api.js';
 
 const props = defineProps({
@@ -144,10 +144,26 @@ const progressPct = ref(0);
 const outputStream = ref(null);
 let eventSource = null;
 let didComplete = false;
+let didError = false;
 let msgCount = 0;
+const MAX_MESSAGES = 200;
 const truncated = ref(false);
 
+// Cleanup on component unmount (tab switch)
+onUnmounted(() => {
+  closeSSE();
+});
+
 watch(() => props.selectedFile, (file) => {
+  // Full teardown of any running diagnosis
+  closeSSE();
+  isRunning.value = false;
+  progressPct.value = 0;
+  didComplete = false;
+  didError = false;
+  msgCount = 0;
+  truncated.value = false;
+
   if (file && !sceneName.value) {
     sceneName.value = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
   }
@@ -160,12 +176,15 @@ watch(() => props.selectedFile, (file) => {
 async function startDiagnosis() {
   if (!props.selectedFile) return;
 
+  closeSSE();
   isRunning.value = true;
   completed.value = false;
   failed.value = false;
   messages.value = [];
   result.value = null;
   msgCount = 0;
+  didComplete = false;
+  didError = false;
   truncated.value = false;
   progressPct.value = 5;
 
@@ -200,9 +219,11 @@ async function startDiagnosis() {
 
     eventSource.addEventListener('tool_use', (e) => {
       const d = JSON.parse(e.data);
-      const inputStr = typeof d.input === 'object' ? JSON.stringify(d.input).slice(0, 200) : '';
+      const inputStr = (d.input != null && typeof d.input === 'object')
+        ? JSON.stringify(d.input).slice(0, 200)
+        : String(d.input ?? '').slice(0, 200);
       addMessage('tool_use', `[${d.name}] ${inputStr}`);
-      progressPct.value = Math.min(85, progressPct.value + 5);
+      progressPct.value = Math.min(90, progressPct.value + 5);
     });
 
     eventSource.addEventListener('log', (e) => {
@@ -222,11 +243,12 @@ async function startDiagnosis() {
       isRunning.value = false;
       progressPct.value = 100;
       result.value = d;
-      addMessage('system', `Completed! Score: ${d.score || 'N/A'}, Verdict: ${d.verdict || 'N/A'}`);
+      addMessage('system', `Completed! Score: ${d.score ?? 'N/A'}, Verdict: ${d.verdict ?? 'N/A'}`);
       closeSSE();
     });
 
     eventSource.addEventListener('error', (e) => {
+      didError = true;
       const d = JSON.parse(e.data);
       failed.value = true;
       isRunning.value = false;
@@ -236,7 +258,7 @@ async function startDiagnosis() {
     });
 
     eventSource.onerror = () => {
-      if (didComplete) return;
+      if (didComplete || didError) return;
       if (isRunning.value) {
         failed.value = true;
         isRunning.value = false;
@@ -269,11 +291,11 @@ function closeSSE() {
 
 function addMessage(type, content) {
   msgCount++;
-  if (messages.value.length >= 200) {
+  messages.value.push({ type, content });
+  if (messages.value.length > MAX_MESSAGES) {
+    messages.value = messages.value.slice(-MAX_MESSAGES);
     truncated.value = true;
   }
-  messages.value = messages.value.slice(-200); // Keep last 200 messages
-  messages.value.push({ type, content });
   nextTick(() => {
     if (outputStream.value) {
       outputStream.value.scrollTop = outputStream.value.scrollHeight;
