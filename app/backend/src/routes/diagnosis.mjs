@@ -36,7 +36,7 @@ async function validateDataPath(dataPath) {
   }
 
   // Store the relative path for the database
-  const relativePath = relative(PROJECT_ROOT, resolved);
+  const relativePath = relative(resolvedRoot, resolved);
   return { absolutePath: resolved, relativePath };
 }
 
@@ -66,7 +66,7 @@ router.post('/start', async (req, res) => {
       dataFolder,
       userQuestion: userQuestion || '',
       model: 'claude-opus-4-7',
-      maxTurns: maxTurns || 200,
+      maxTurns: maxTurns ?? 200,
     });
 
     res.json({ success: true, data: { runId, name, status: 'pending' } });
