@@ -51,14 +51,15 @@ function sanitize(str) {
 }
 
 function buildPrompt(sceneName, userQuestion, dataPath) {
-  const safeScene = sanitize(sceneName);
+  const safeScene = sanitize(sceneName || '');
   const safeQuestion = sanitize(userQuestion || '');
+  const safeDataPath = sanitize(dataPath);
 
   return `Execute the /industrial-deep-diagnostic skill on industrial data.
 
 ## Input
 
-- **Data file**: ${dataPath}
+- **Data file**: ${safeDataPath}
 - **Scene name**: ${safeScene}
 - **Analysis question**: ${safeQuestion || 'Perform a comprehensive root cause analysis'}
 
