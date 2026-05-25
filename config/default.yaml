@@ -31,6 +31,8 @@ claude:
   output_format: "stream-json"
   verbose: true
   dangerously_skip_permissions: true
+  api_base_url: ""                          # Override Anthropic API base URL (used when env var is missing, e.g. under sudo)
+  api_key: ""                               # Override Anthropic API key (used when env var is missing)
   allowed_tools: "Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Task"
   model: "claude-opus-4-7"
   max_turns: 200                             # 0 = unlimited
@@ -80,7 +82,15 @@ security:
     - LANG
     - LC_ALL
     - ANTHROPIC_API_KEY
+    - ANTHROPIC_AUTH_TOKEN
     - ANTHROPIC_BASE_URL
+    - ANTHROPIC_MODEL
+    - ANTHROPIC_REASONING_MODEL
+    - ANTHROPIC_DEFAULT_HAIKU_MODEL
+    - ANTHROPIC_DEFAULT_OPUS_MODEL
+    - ANTHROPIC_DEFAULT_SONNET_MODEL
+    - ENABLE_TOOL_SEARCH
+    - CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
     - NODE_PATH
     - SHELL
     - TERM

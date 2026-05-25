@@ -15,6 +15,16 @@ function buildEnv() {
       env[key] = process.env[key];
     }
   }
+  // Fallback: use config values when env vars are missing (e.g. backend runs under sudo)
+  if (!env.ANTHROPIC_BASE_URL && config.claude.api_base_url) {
+    env.ANTHROPIC_BASE_URL = config.claude.api_base_url;
+  }
+  if (!env.ANTHROPIC_API_KEY && config.claude.api_key) {
+    env.ANTHROPIC_API_KEY = config.claude.api_key;
+  }
+  if (!env.ANTHROPIC_AUTH_TOKEN && config.claude.api_auth_token) {
+    env.ANTHROPIC_AUTH_TOKEN = config.claude.api_auth_token;
+  }
   env.FORCE_COLOR = '0';
   env.NO_COLOR = '1';
   env.SKILL_PATH = SKILL_DIR;
