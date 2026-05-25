@@ -54,7 +54,6 @@ async function buildFrontend() {
     const child = spawn('npx', ['vite', 'build'], {
       cwd: FRONTEND_DIR,
       stdio: 'inherit',
-      shell: true,
     });
     child.on('close', (code) => {
       if (code === 0) resolve();
@@ -70,7 +69,6 @@ function startBackend() {
   const child = spawn('node', ['src/index.mjs'], {
     cwd: BACKEND_DIR,
     stdio: ['pipe', 'pipe', 'pipe'],
-    shell: true,
     env: { ...process.env, PORT: String(PORT) },
   });
 
@@ -102,7 +100,6 @@ function startTunnel() {
   return new Promise((resolve, reject) => {
     const child = spawn('cloudflared', ['tunnel', '--url', `http://localhost:${PORT}`], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true,
     });
 
     let resolved = false;
@@ -191,7 +188,7 @@ async function main() {
   if (!existsSync(join(BACKEND_DIR, 'node_modules'))) {
     console.log('  [INSTALL] Installing backend dependencies...');
     await new Promise((resolve, reject) => {
-      const child = spawn('npm', ['install'], { cwd: BACKEND_DIR, stdio: 'inherit', shell: true });
+      const child = spawn('npm', ['install'], { cwd: BACKEND_DIR, stdio: 'inherit' });
       child.on('close', (code) => code === 0 ? resolve() : reject(new Error('npm install failed')));
     });
   }

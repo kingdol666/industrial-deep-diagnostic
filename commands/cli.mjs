@@ -52,7 +52,7 @@ function printUsage() {
 
 async function runCommand(cmd, args, cwd) {
   return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd, stdio: 'inherit', shell: true });
+    const child = spawn(cmd, args, { cwd, stdio: 'inherit' });
     child.on('close', (code) => {
       if (code === 0) resolve();
       else reject(new Error(`${cmd} exited with code ${code}`));
@@ -187,10 +187,10 @@ async function cmdAll() {
   await checkDeps(BACKEND_DIR, 'backend');
   await checkDeps(FRONTEND_DIR, 'frontend');
 
-  const backend = spawn('node', ['src/index.mjs'], { cwd: BACKEND_DIR, stdio: 'inherit', shell: true });
+  const backend = spawn('node', ['src/index.mjs'], { cwd: BACKEND_DIR, stdio: 'inherit' });
   await new Promise(r => setTimeout(r, 1500));
 
-  const frontend = spawn('npx', ['vite', '--host'], { cwd: FRONTEND_DIR, stdio: 'inherit', shell: true });
+  const frontend = spawn('npx', ['vite', '--host'], { cwd: FRONTEND_DIR, stdio: 'inherit' });
 
   const cleanup = () => { backend.kill('SIGTERM'); frontend.kill('SIGTERM'); process.exit(0); };
   process.on('SIGINT', cleanup);
