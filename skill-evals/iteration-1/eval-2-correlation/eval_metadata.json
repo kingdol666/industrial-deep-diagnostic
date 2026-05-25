@@ -1,1 +1,0 @@
-{"eval_id": 2, "eval_name": "stats_correlation_accuracy", "prompt": "Compute Pearson correlations on data with known relationships (temp↔thickness r≈-0.99)", "assertions": ["temp_a↔temp_b r>0.95", "temp_a↔pressure r<-0.95", "temp_a↔thickness r<-0.95", "pressure↔thickness r>0.95", "correlations within ±0.02 of expected", "lag=0 for instantaneous system"]}

@@ -28,6 +28,13 @@ Thumbs.db
 # Config (user overrides)
 config/local.yaml
 
+# Tool caches
+.omc/
+.serena/
+
+# Skill workspace (generated at runtime)
+.claude/skills/industrial-deep-diagnostic/workspace/
+
 # Temp
 *.tmp
 *.swp

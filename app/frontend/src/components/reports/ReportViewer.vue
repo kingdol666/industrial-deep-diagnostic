@@ -97,7 +97,10 @@
     <div class="card report-card" v-if="reportContent || optimizerContent">
       <div class="card-title">
         <span>{{ activeTab === 'optimizer' ? 'Optimizer Suggestions' : 'Diagnostic Report' }}</span>
-        <button class="btn btn-sm" @click="copyReport" style="margin-left:auto">Copy</button>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? 'View Rendered' : 'View Raw' }}</button>
+          <button class="btn btn-sm" @click="copyReport">Copy</button>
+        </div>
       </div>
       <div class="report-tabs" v-if="hasOptimizer">
         <button
@@ -109,8 +112,10 @@
           @click="activeTab = 'optimizer'"
         >Optimizer</button>
       </div>
-      <div class="report-body" v-if="activeTab === 'report'" v-html="renderedReport"></div>
-      <div class="report-body" v-else v-html="renderedOptimizer"></div>
+      <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
+      <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
+      <div class="report-body" v-if="activeTab !== 'report' && !viewRaw" v-html="renderedOptimizer"></div>
+      <pre class="report-raw" v-if="activeTab !== 'report' && viewRaw">{{ optimizerContent }}</pre>
     </div>
   </div>
 </template>
@@ -133,6 +138,7 @@ const reportContent = ref(null);
 const optimizerContent = ref(null);
 const hasOptimizer = ref(false);
 const activeTab = ref('report');
+const viewRaw = ref(false);
 const loadingReport = ref(false);
 const runFiles = ref([]);
 const loadingFiles = ref(false);
@@ -730,5 +736,28 @@ function formatSize(bytes) {
 
 .report-body :deep(details > *:not(summary)) {
   padding: 0 14px;
+}
+
+/* Raw markdown view */
+.report-raw {
+  padding: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.btn-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 </style>

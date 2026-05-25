@@ -135,6 +135,7 @@
           </div>
           <div class="rb-actions">
             <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">View Full Report</button>
+            <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">Download MD</button>
             <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">Retry (Same Parameters)</button>
           </div>
           <div class="rb-hint" v-if="failed">
@@ -525,6 +526,26 @@ function openReport() {
   if (reportPath.value) emit('view-report', reportPath.value);
 }
 
+async function downloadReportMD() {
+  if (!reportPath.value) return;
+  const parts = reportPath.value.split('/');
+  const runName = parts[parts.length - 2] || '';
+  if (!runName) return;
+  try {
+    const data = await api.getReport(runName);
+    if (!data || !data.content) return;
+    const blob = new Blob([data.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `diagnostic-report-${runName}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Failed to download report:', err);
+  }
+}
+
 async function onAnswer({ questionId, toolUseId, answers }) {
   if (!runId.value) return;
   try {
@@ -878,6 +899,8 @@ onUnmounted(() => {
 }
 .rb-btn-primary { background: var(--accent2); color: #fff; }
 .rb-btn-primary:hover { background: var(--accent); }
+.rb-btn-md { background: rgba(88,166,255,.1); color: var(--accent); border: 1px solid rgba(88,166,255,.3); }
+.rb-btn-md:hover { background: rgba(88,166,255,.2); }
 .rb-btn-retry { background: rgba(248,81,73,.1); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
 .rb-btn-retry:hover { background: rgba(248,81,73,.2); }
 .rb-hint { font-size: 12px; color: var(--text2); margin-top: 8px; font-style: italic; }
