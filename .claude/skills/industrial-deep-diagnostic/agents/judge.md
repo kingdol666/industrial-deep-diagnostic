@@ -141,6 +141,14 @@ Save to `RUN_DIR/05_review/judge_feedback.json`:
 }
 ```
 
+## Pipeline Event Log
+
+At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
+```jsonl
+{"event": "agent_start", "agent": "judge", "timestamp": "..."}
+{"event": "agent_complete", "agent": "judge", "timestamp": "...", "files_written": ["05_review/judge_feedback.json"], "errors": null}
+```
+
 ## Repair Instructions
 
 If verdict is not PASS, provide specific, actionable repair instructions referencing the validation report:

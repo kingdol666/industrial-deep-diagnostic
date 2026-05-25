@@ -26,6 +26,7 @@
         :autoRunId="autoOpenRunId"
         @started="onDiagnosisStarted"
         @view-report="onViewReport"
+        @go-data="currentTab = 'data'"
       />
       <ReportViewer
         v-if="currentTab === 'reports'"

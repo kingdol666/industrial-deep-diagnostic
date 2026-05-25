@@ -45,10 +45,24 @@ export const api = {
   getRunStatus: (runId) => request(`/diagnosis/status/${runId}`),
   stopDiagnosis: (runId) =>
     request(`/diagnosis/stop/${runId}`, { method: 'POST' }),
-  continueDiagnosis: (runId) =>
-    request(`/diagnosis/continue/${runId}`, { method: 'POST' }),
+  continueDiagnosis: (runId, followUpMessage) =>
+    request(`/diagnosis/continue/${runId}`, {
+      method: 'POST',
+      body: followUpMessage ? JSON.stringify({ followUpMessage }) : undefined,
+    }),
+  sendChat: (runId, message) =>
+    request(`/diagnosis/chat/${runId}`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
   respondHITL: (hitlId, approved) =>
     request(`/diagnosis/hitl/${hitlId}`, { method: 'POST', body: JSON.stringify({ approved }) }),
+  listRuns: () => request('/diagnosis/list'),
+  submitAnswer: (runId, questionId, toolUseId, answers) =>
+    request(`/diagnosis/answer/${runId}`, {
+      method: 'POST',
+      body: JSON.stringify({ questionId, toolUseId, answers }),
+    }),
 
   // History
   getRuns: () => request('/history/runs'),

@@ -224,6 +224,14 @@ Write to `RUN_DIR/run_summary.json`:
 }
 ```
 
+## Pipeline Event Log
+
+At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
+```jsonl
+{"event": "agent_start", "agent": "reporter", "timestamp": "..."}
+{"event": "agent_complete", "agent": "reporter", "timestamp": "...", "files_written": ["report.md", "run_summary.json"], "errors": null}
+```
+
 ## Rules
 
 - The report must be self-contained — readable without any other files

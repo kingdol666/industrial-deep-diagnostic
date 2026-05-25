@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { readdir, stat, realpath } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, basename, relative } from 'path';
-import { startDiagnosis, parseStreamLine, isDangerousCommand, PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR } from '../claude-code.mjs';
+import { startDiagnosis, parseStreamLine, isDangerousCommand, PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, writeAnswer } from '../claude-code.mjs';
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun, hasRun, subscribe,
   setMeta, getMeta, resetRun,
@@ -118,6 +118,20 @@ router.post('/start', async (req, res) => {
   }
 });
 
+// List all diagnosis runs
+router.get('/list', (_req, res) => {
+  try {
+    const runs = stmts.getAllRuns.all();
+    const enriched = runs.map(r => ({
+      ...r,
+      engineStatus: getStatus(r.run_id) || r.status,
+    }));
+    res.json({ success: true, data: enriched });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Track HITL requests per run: hitlId -> { resolve, child }
 const hitlRequests = new Map();
 let hitlSeq = 0;
@@ -150,6 +164,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
   try {
     const meta = getMeta(runId);
     const timeoutMinutes = meta.timeoutMinutes || config.claude.timeout_minutes;
+    const followUpMessage = meta.followUpMessage || null;
 
     const result = startDiagnosis({
       analysisTarget,
@@ -159,10 +174,12 @@ function executeDiagnosis(runId, run, isRetry = false) {
       maxTurns: run.max_turns,
       timeoutMinutes,
       reportLanguage: run.report_language || diagConfig.default_language,
+      followUpMessage,
     });
 
     child = result.child;
     setChild(runId, child);
+    registerChild(runId, child);
 
     let buffer = '';
 
@@ -265,6 +282,24 @@ function executeDiagnosis(runId, run, isRetry = false) {
                     }
                   });
                 }
+              }
+
+              // AskUserQuestion detection
+              if (block.name === 'AskUserQuestion' && block.input?.questions) {
+                const questionId = `q_${runId}_${Date.now()}`;
+                emit(runId, {
+                  type: 'question',
+                  data: {
+                    questionId,
+                    toolUseId: block.id,
+                    questions: block.input.questions.map(q => ({
+                      question: q.question || '',
+                      header: q.header || '',
+                      options: q.options || [],
+                      multiSelect: q.multiSelect || false,
+                    })),
+                  },
+                });
               }
 
               emit(runId, {
@@ -500,6 +535,9 @@ router.get('/stream/:runId', async (req, res) => {
       case 'log':
         sendSSE('log', event.data);
         break;
+      case 'question':
+        sendSSE('question', event.data);
+        break;
       case 'hitl_request':
         sendSSE('hitl_request', event.data);
         break;
@@ -566,9 +604,45 @@ router.post('/execute/:runId', async (req, res) => {
   res.json({ success: true, data: { runId, status: 'running' } });
 });
 
+// Send a chat message to running Claude process
+router.post('/chat/:runId', (req, res) => {
+  const { runId } = req.params;
+  const { message } = req.body;
+
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ success: false, error: 'message is required' });
+  }
+
+  // Send as a user text message via stdin
+  const userMessage = {
+    type: 'user',
+    message: {
+      role: 'user',
+      content: [{ type: 'text', text: message }],
+    },
+  };
+
+  const wrote = writeAnswer(runId, userMessage);
+  if (!wrote) {
+    return res.status(404).json({
+      success: false,
+      error: 'Process not found or already ended. Use /continue to restart with a follow-up message.',
+    });
+  }
+
+  emit(runId, {
+    type: 'system',
+    subtype: 'chat_sent',
+    data: { message, timestamp: new Date().toISOString() },
+  });
+
+  res.json({ success: true, data: { runId, sent: true } });
+});
+
 // Continue / retry a failed or stopped run
 router.post('/continue/:runId', async (req, res) => {
   const { runId } = req.params;
+  const { followUpMessage } = req.body || {};
   const run = stmts.getRunById.get(runId);
 
   if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
@@ -581,6 +655,12 @@ router.post('/continue/:runId', async (req, res) => {
   }
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
+
+  // Store follow-up message in meta so executeDiagnosis can use it
+  if (followUpMessage) {
+    setMeta(runId, { followUpMessage });
+  }
+
   executeDiagnosis(runId, run, true);
 
   res.json({ success: true, data: { runId, status: 'running', continued: true } });
@@ -600,6 +680,45 @@ router.post('/hitl/:hitlId', (req, res) => {
   entry.resolve(approved === true);
 
   res.json({ success: true, data: { hitlId, approved } });
+});
+
+// Submit answer to AskUserQuestion
+router.post('/answer/:runId', (req, res) => {
+  const { runId } = req.params;
+  const { questionId, toolUseId, answers } = req.body;
+
+  if (!toolUseId || !answers) {
+    return res.status(400).json({ success: false, error: 'toolUseId and answers are required' });
+  }
+
+  // Build the Claude CLI expected response format
+  const answerText = Object.entries(answers)
+    .map(([q, a]) => `Q: ${q}\nA: ${a}`)
+    .join('\n\n');
+
+  const responseMessage = {
+    type: 'user',
+    message: {
+      role: 'user',
+      content: [{
+        type: 'tool_result',
+        tool_use_id: toolUseId,
+        content: [{ type: 'text', text: answerText }],
+      }],
+    },
+  };
+
+  const wrote = writeAnswer(runId, responseMessage);
+  if (!wrote) {
+    return res.status(404).json({ success: false, error: 'Process not found or already ended' });
+  }
+
+  emit(runId, {
+    type: 'question_result',
+    data: { questionId, answers, timestamp: new Date().toISOString() },
+  });
+
+  res.json({ success: true, data: { runId, questionId, answered: true } });
 });
 
 // Get run status

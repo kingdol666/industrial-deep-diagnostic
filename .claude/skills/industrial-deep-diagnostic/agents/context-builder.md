@@ -131,6 +131,14 @@ Save to `RUN_DIR/01_ontology/schema.json`:
 }
 ```
 
+## Pipeline Event Log
+
+At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
+```jsonl
+{"event": "agent_start", "agent": "context-builder", "timestamp": "..."}
+{"event": "agent_complete", "agent": "context-builder", "timestamp": "...", "files_written": ["01_ontology/ontology.json", "01_ontology/schema.json", "00_input/extracted_knowledge.json"], "errors": null}
+```
+
 ## Rules
 
 - Do NOT fabricate information not present in documents or data

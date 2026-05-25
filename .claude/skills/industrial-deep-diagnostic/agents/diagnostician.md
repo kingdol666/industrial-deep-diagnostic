@@ -207,6 +207,30 @@ To state "X caused Y" you need ALL four:
 
 **If any criterion is missing, use [HYPOTHESIS] language.**
 
+## Step 5.5: Schema Validation
+
+After writing all output files, validate them against the schemas:
+
+```bash
+# Validate each output against its schema
+node <skill_path>/scripts/validate.mjs \
+  <skill_path>/schemas/diagnosis_schema.json \
+  <run_dir>/04_diagnostics/diagnosis.json 2>&1 || \
+  echo "[WARNING] Diagnosis schema validation found issues — check 04_diagnostics/diagnosis.json"
+
+node <skill_path>/scripts/validate.mjs \
+  <skill_path>/schemas/evidence_schema.json \
+  <run_dir>/04_diagnostics/evidence.json 2>&1 || \
+  echo "[WARNING] Evidence schema validation found issues"
+
+node <skill_path>/scripts/validate.mjs \
+  <skill_path>/schemas/confidence_schema.json \
+  <run_dir>/04_diagnostics/confidence.json 2>&1 || \
+  echo "[WARNING] Confidence schema validation found issues"
+```
+
+Schema validation warnings should be logged but do NOT block output — fix structural issues if present (missing required fields, wrong types, out-of-range values).
+
 ## Step 6: Confidence Assessment
 
 Score each hypothesis 0-100 using the 5-factor method:
@@ -215,6 +239,15 @@ Score each hypothesis 0-100 using the 5-factor method:
 3. **Temporal evidence** (0-20): Clear temporal ordering with validated time-sorting
 4. **Absence of confounds** (0-20): Survives stratification, detrending, outlier checks
 5. **Symptom completeness** (0-10): Explains all observed symptoms without contradictions
+
+## Pipeline Event Log
+
+At the start and completion of your run, append to `RUN_DIR/.pipeline_events.jsonl`:
+
+```jsonl
+{"event": "agent_start", "agent": "diagnostician", "timestamp": "2026-05-25T10:00:00Z"}
+{"event": "agent_complete", "agent": "diagnostician", "timestamp": "2026-05-25T10:05:00Z", "files_written": ["04_diagnostics/diagnosis.json", "04_diagnostics/evidence.json", "04_diagnostics/confidence.json"], "errors": null}
+```
 
 ## Output
 

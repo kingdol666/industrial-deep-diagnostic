@@ -47,7 +47,7 @@ function discoverDataFiles(folderPath) {
     .sort();
 }
 
-function buildPrompt(sceneName, userQuestion, target, reportLanguage) {
+function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMessage) {
   const safeScene = sanitize(sceneName || config.diagnosis.default_scene_name);
   const safeQuestion = sanitize(userQuestion || '');
 
@@ -67,7 +67,7 @@ function buildPrompt(sceneName, userQuestion, target, reportLanguage) {
     ? 'IMPORTANT: Write ALL narrative text, headings, analysis descriptions, recommendations, and report.md content in Chinese (中文). Keep technical terms, variable names, column names, and code in English.'
     : 'Write all output in English.';
 
-  return `${config.claude.skill_command} ${safeScene}
+  const basePrompt = `${config.claude.skill_command} ${safeScene}
 
 ## Data
 
@@ -80,6 +80,20 @@ ${safeQuestion || config.diagnosis.default_question}
 ## Language
 
 ${langRule}`;
+
+  if (followUpMessage) {
+    return `${basePrompt}
+
+## Follow-Up Instruction
+
+The previous run ended. Additional instruction from user:
+
+${sanitize(followUpMessage)}
+
+Please address the follow-up instruction above and continue the analysis.`;
+  }
+
+  return basePrompt;
 }
 
 // Build dangerous command patterns from config
@@ -109,7 +123,7 @@ export function resolveHITL(permissionId, approved) {
   return true;
 }
 
-export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage }) {
+export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
 
@@ -171,7 +185,7 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     throw err;
   }
 
-  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, lang);
+  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
 
   const allowedTools = config.claude.allowed_tools;
   const claudeArgs = [
@@ -191,7 +205,8 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
-  child.stdin.end();
+  // Keep stdin open for interactive question answering
+  // child.stdin.end() is NOT called — answers are written via writeAnswer()
 
   let sigkillTimer = null;
   const graceMs = (config.claude.sigkill_grace_seconds || 5) * 1000;
@@ -232,6 +247,30 @@ export function parseStreamLine(line) {
 export function extractReportPath(output) {
   const match = output.match(/workspace\/diagnostic-runs\/[^\s]+\/report\.md/);
   return match ? match[0] : null;
+}
+
+// Active child processes tracked by runId for stdin writing (question answering)
+const activeChildren = new Map();
+
+export function registerChild(runId, child) {
+  activeChildren.set(runId, child);
+}
+
+export function unregisterChild(runId) {
+  activeChildren.delete(runId);
+}
+
+export function writeAnswer(runId, answerJson) {
+  const child = activeChildren.get(runId);
+  if (!child || child.killed) {
+    return false;
+  }
+  try {
+    child.stdin.write(JSON.stringify(answerJson) + '\n');
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR, pendingHITL };

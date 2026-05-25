@@ -1,5 +1,8 @@
 # Diagnosis Methodology
 
+> **Canonical evidence rules, causation criteria, and confidence scoring:** See `evidence_rules.md`.
+> This file contains the diagnostic process phases 1-5.
+
 ## Phase 0: Statistical Validation (NEW — v4.2)
 
 **Before any causal reasoning, validate the statistical evidence base:**
@@ -117,14 +120,5 @@ Document:
 
 ---
 
-## Causation Criteria (Strengthened v4.2)
+> **Causation criteria (5 criteria for "X caused Y") and evidence ranking (1-7):** See `evidence_rules.md`.
 
-To state "X caused Y" you need ALL five:
-
-1. **Temporal precedence**: X changed BEFORE Y (with measured lag AND data confirmed time-sorted)
-2. **Statistical significance**: Strong correlation (|r| > 0.7 Pearson or Spearman) with correct lag
-3. **Lag window consistency**: The correlation persists across adjacent lags, not an isolated spike
-4. **Physical mechanism**: A plausible explanation from process physics/chemistry with quantitative magnitude check
-5. **No contradictions**: No evidence that contradicts, INCLUDING within subgroups (no Simpson's Paradox)
-
-If any criterion is missing, use [HYPOTHESIS] language instead of causal language.

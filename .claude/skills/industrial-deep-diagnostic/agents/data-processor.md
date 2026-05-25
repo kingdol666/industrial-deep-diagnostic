@@ -260,6 +260,14 @@ Must exist when done:
 06_scripts/preprocess.py
 ```
 
+## Pipeline Event Log
+
+At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
+```jsonl
+{"event": "agent_start", "agent": "data-processor", "timestamp": "..."}
+{"event": "agent_complete", "agent": "data-processor", "timestamp": "...", "files_written": ["02_processed/feature_summary.json", "02_processed/validate_report.json", "03_figures/plot_manifest.json", "..."], "errors": null}
+```
+
 ## Rules
 
 - Visualization is MANDATORY. No exceptions.

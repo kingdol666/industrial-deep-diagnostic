@@ -16,12 +16,15 @@ Lives in `.claude/skills/industrial-deep-diagnostic/`.
 ## File Organization
 
 ```
-SKILL.md              — Skill definition, workflow, commands (authoritative source)
+SKILL.md              — Skill definition, workflow, commands (authoritative entry point)
 CLAUDE.md             — This file: developer notes, conventions, gotchas
+pipeline-execution.md — Detailed per-step pipeline protocol (extracted from SKILL.md for maintainability)
 agents/               — Sub-agent prompt files (context-builder, data-processor, diagnostician, judge, reporter, report-reviewer)
-scripts/              — Node.js utils (inspect.mjs, stats.mjs, stats_validate.mjs, setup.mjs, convert.mjs) + Python toolkit (template_visualize.py, template_preprocess.py, file_inspect.py)
+scripts/              — Node.js utils (inspect.mjs, stats.mjs, stats_validate.mjs, setup.mjs,
+                        convert.mjs, validate.mjs, artifact-check.mjs)
+                        + Python toolkit (template_visualize.py, template_preprocess.py, file_inspect.py)
 resources/            — Reference docs loaded by agents (evidence_rules, diagnosis_method, process_knowledge_base, script_and_toolkit_reference)
-schemas/              — JSON Schema draft-07 for ontology, signals, analysis, run_config, report
+schemas/              — JSON Schema draft-07 for ontology, signals, analysis, diagnosis, evidence, confidence, report
 templates/            — Output templates (report, diagnosis, judge, input_manifest, run_summary)
 tests/                — Checklists (per-agent QA) + fixtures (sample CSV, config)
 examples/             — Domain-specific sample ontologies (reactor, BOPET film, heat exchanger)
@@ -80,6 +83,7 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 ## Gotchas
 
 - **CLAUDE.md vs SKILL.md**: SKILL.md is authoritative. This file is developer reference only. If they conflict, trust SKILL.md.
+- **Pipeline reference**: `pipeline-execution.md` contains the detailed step protocol, artifact chain, and validation framework. SKILL.md delegates to it.
 - **Agent output paths**: Each agent uses numbered subdirectories under `RUN_DIR/`.
 - **Python execution**: Always try `python3` first, fall back to `python3.11`. If matplotlib missing: `pip3 install -r scripts/requirements.txt`.
 - **time_col detection**: `inspect.mjs` auto-detects time columns by keyword + type inference. Can fail on non-standard column names — verify and override.
@@ -89,3 +93,21 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Script & toolkit details**: Moved to `resources/script_and_toolkit_reference.md`.
 - **CRITICAL — Sorting**: If data is NOT time-sorted (sorted by batch_id or product), ALL lag correlation results are invalid. This is the #1 fatal error in industrial diagnostics. `stats.mjs` now automatically validates this.
 - **Simpson's Paradox**: Always check if correlations hold within product/grade subgroups. The aggregate correlation may be driven by between-group differences, not within-group physics.
+
+## Validation & Integrity Scripts
+
+| Script | Purpose | When to Run |
+|--------|---------|-------------|
+| `validate.mjs` | JSON Schema run-time validation | After each agent produces JSON output |
+| `artifact-check.mjs` | Verify all pipeline artifacts exist | At pipeline completion (Step 8) |
+
+Both are zero-dependency Node.js scripts. `validate.mjs` checks: required fields, types, min/max, enum values, pattern, date-time format. Exits non-zero on error.
+
+## Pipeline Event Log
+
+Each agent writes to `RUN_DIR/.pipeline_events.jsonl` at start and completion. Format:
+```jsonl
+{"event": "agent_start", "agent": "diagnostician", "timestamp": "2026-05-25T10:00:00Z"}
+{"event": "agent_complete", "agent": "diagnostician", "timestamp": "2026-05-25T10:05:00Z", "files_written": ["04_diagnostics/diagnosis.json"], "errors": null}
+```
+Enables post-pipeline debugging without reading every agent's output files.
