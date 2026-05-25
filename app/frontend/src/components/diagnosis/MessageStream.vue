@@ -112,6 +112,18 @@
               Artifacts: <strong>{{ (ev.data?.artifacts || []).join(', ') }}</strong>
               <span v-if="ev.data?.score != null"> · Score: <strong>{{ ev.data.score }}</strong></span>
             </template>
+            <template v-else-if="ev.subtype === 'continue'">
+              <span class="sys-continue-icon">↻</span>
+              <span>{{ ev.data?.message || 'Continuing analysis...' }}</span>
+            </template>
+            <template v-else-if="ev.subtype === 'chat_sent'">
+              <span class="sys-chat-icon">💬</span>
+              <span>Sent: {{ ev.data?.message?.slice(0, 200) || '' }}</span>
+            </template>
+            <template v-else-if="ev.subtype === 'chat_error'">
+              <span class="sys-error-icon">⚠</span>
+              <span>Chat error: {{ ev.data?.error || '' }}</span>
+            </template>
             <template v-else>{{ ev.subtype || 'System' }}</template>
           </div>
         </div>

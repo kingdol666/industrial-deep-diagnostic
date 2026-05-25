@@ -494,19 +494,21 @@ async function retryDiagnosis() {
     completed.value = false;
     failed.value = false;
     isRunning.value = true;
-    events.value = [];
-    turnCount.value = 0;
-    toolCount.value = 0;
-    msgCount.value = 0;
-    progressPct.value = 0;
     startTime.value = Date.now();
-    currentPhase.value = 'Retrying analysis...';
+    currentPhase.value = 'Continuing analysis...';
     errorMsg.value = '';
     score.value = null;
     verdict.value = null;
     reportPath.value = null;
     hitlPending.value = false;
     currentQuestion.value = null;
+    // Append separator so user sees continuation, not restart
+    events.value.push({
+      type: 'system',
+      subtype: 'continue',
+      data: { message: 'Continuing from previous state...' },
+      _seq: Date.now(),
+    });
     connectSSE(runId.value);
     startElapsed();
   } catch (err) { errorMsg.value = err.message; }
@@ -560,17 +562,10 @@ async function onSendMessage(message) {
 async function onResumeWithMessage(message) {
   if (!runId.value) return;
   try {
-    // Use /continue with followUpMessage to restart with context
     await api.continueDiagnosis(runId.value, message);
-    // Reset state for new run
     failed.value = false;
     completed.value = false;
     isRunning.value = true;
-    events.value = [];
-    turnCount.value = 0;
-    toolCount.value = 0;
-    msgCount.value = 0;
-    progressPct.value = 0;
     startTime.value = Date.now();
     currentPhase.value = 'Resuming with follow-up...';
     errorMsg.value = '';
@@ -579,7 +574,13 @@ async function onResumeWithMessage(message) {
     reportPath.value = null;
     hitlPending.value = false;
     currentQuestion.value = null;
-    // Reconnect SSE
+    // Append separator — preserve history so user sees continuation
+    events.value.push({
+      type: 'system',
+      subtype: 'continue',
+      data: { message: `User: ${message}` },
+      _seq: Date.now(),
+    });
     connectSSE(runId.value);
     startElapsed();
   } catch (err) {
