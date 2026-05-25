@@ -39,6 +39,7 @@ function printUsage() {
   console.log(`    frontend              Start frontend dev server (port ${FRONTEND_PORT})`);
   console.log('    all                   Start backend + frontend');
   console.log('    build                 Build frontend for production');
+  console.log('    webfrp                Expose service to internet via Cloudflare Tunnel');
   console.log('    status                Project status overview');
   console.log('    help                  Show this help');
   console.log('');
@@ -207,6 +208,15 @@ async function cmdBuild() {
   return runCommand('npx', ['vite', 'build'], FRONTEND_DIR);
 }
 
+async function cmdWebfrp() {
+  const webfrpScript = join(PROJECT_ROOT, 'webfrp', 'expose.mjs');
+  if (!existsSync(webfrpScript)) {
+    console.error('  [ERROR] webfrp/expose.mjs not found');
+    process.exit(1);
+  }
+  return runCommand('node', [webfrpScript], PROJECT_ROOT);
+}
+
 function cmdStatus() {
   printBanner();
   console.log('  Project Information:');
@@ -296,6 +306,7 @@ async function main() {
     frontend: cmdFrontend,
     all: cmdAll,
     build: cmdBuild,
+    webfrp: cmdWebfrp,
     status: cmdStatus,
   };
 

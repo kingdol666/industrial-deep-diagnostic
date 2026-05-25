@@ -177,6 +177,40 @@ ind-diag build
 
 构建后，后端会自动 serve 前端静态文件。只访问 `http://localhost:3210` 即可，无需单独启动前端。
 
+### 外网映射（Webfrp）
+
+```bash
+ind-diag webfrp
+```
+
+通过 Cloudflare Tunnel 将本地服务暴露到公网。脚本会自动：
+1. 检查 `cloudflared` 是否已安装（需要 `brew install cloudflared`）
+2. 构建前端（如果尚未构建）
+3. 启动后端服务
+4. 创建 Cloudflare Tunnel 并输出公网 URL
+
+启动后输出示例：
+```
+  ╔══════════════════════════════════════════════╗
+  ║   Service is LIVE on the internet!            ║
+  ╚══════════════════════════════════════════════╝
+
+  Public URL:
+
+    https://xxxx-yyyy-zzzz.trycloudflare.com
+
+  Share this URL with anyone to access the
+  Industrial Diagnostic WebUI.
+
+  Press Ctrl+C to stop.
+```
+
+**注意事项**：
+- Cloudflare Tunnel 免费使用，无需注册
+- 公网 URL 每次启动随机分配，不固定
+- 中国大陆访问速度可能不稳定，如需稳定访问建议使用 frp + 国内 VPS
+- 按 `Ctrl+C` 停止服务
+
 ### 项目状态
 
 ```bash
