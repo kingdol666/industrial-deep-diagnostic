@@ -117,7 +117,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { api } from '../api.js';
+import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 

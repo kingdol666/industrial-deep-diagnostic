@@ -82,7 +82,8 @@
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
-import { api } from '../api.js';
+import { api } from '../../api/index.js';
+import { formatTime } from '../../utils/time.js';
 
 const emit = defineEmits(['view-run', 'view-report', 'new-task']);
 const runs = ref([]);
@@ -128,21 +129,6 @@ function verdictColor(v) {
   if (v === 'PASS' || v === 'ENDORSED') return 'text-green';
   if (v === 'CONDITIONAL' || v === 'NEEDS_REPAIR') return 'text-yellow';
   return 'text-red';
-}
-
-function formatTime(ts) {
-  if (!ts) return '';
-  try {
-    const d = new Date(ts + 'Z');
-    const now = new Date();
-    const diff = now - d;
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return d.toLocaleDateString();
-  } catch {
-    return ts;
-  }
 }
 
 // Initial fetch

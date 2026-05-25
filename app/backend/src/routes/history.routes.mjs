@@ -1,12 +1,14 @@
+// History Routes — Thin HTTP handlers, delegates business logic to history service
+
 import { Router } from 'express';
-import { db, stmts } from '../db.mjs';
+import { getAllRuns, getRunWithLogs, deleteRun } from '../services/history.service.mjs';
 
 const router = Router();
 
 // Get all runs
 router.get('/runs', (req, res) => {
   try {
-    const runs = stmts.getAllRuns.all();
+    const runs = getAllRuns();
     res.json({ success: true, data: runs });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -16,10 +18,9 @@ router.get('/runs', (req, res) => {
 // Get a specific run with logs
 router.get('/runs/:runId', (req, res) => {
   try {
-    const run = stmts.getRunById.get(req.params.runId);
+    const run = getRunWithLogs(req.params.runId);
     if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
-    const logs = stmts.getLogsByRunId.all(req.params.runId);
-    res.json({ success: true, data: { ...run, logs } });
+    res.json({ success: true, data: run });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -28,13 +29,11 @@ router.get('/runs/:runId', (req, res) => {
 // Delete a run record
 router.delete('/runs/:runId', (req, res) => {
   try {
-    const run = stmts.getRunById.get(req.params.runId);
-    if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
-    db.prepare('DELETE FROM diagnosis_logs WHERE run_id = ?').run(req.params.runId);
-    db.prepare('DELETE FROM diagnostic_runs WHERE run_id = ?').run(req.params.runId);
+    deleteRun(req.params.runId);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 

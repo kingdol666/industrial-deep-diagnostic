@@ -100,7 +100,7 @@ async function cmdInit() {
 
   // Init DB
   try {
-    const { initDB } = await import('../app/backend/src/db.mjs');
+    const { initDB } = await import('../app/backend/src/db/database.mjs');
     initDB();
   } catch (err) {
     console.error(`  [ERROR] Database init failed: ${err.message}`);

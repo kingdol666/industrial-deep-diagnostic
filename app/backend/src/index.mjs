@@ -2,11 +2,11 @@ import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
 import { join } from 'path';
-import fileRoutes from './routes/files.mjs';
-import diagnosisRoutes from './routes/diagnosis.mjs';
-import historyRoutes from './routes/history.mjs';
-import { initWebSocket } from './ws-server.mjs';
-import { initDB, stmts } from './db.mjs';
+import fileRoutes from './routes/files.routes.mjs';
+import diagnosisRoutes from './routes/diagnosis.routes.mjs';
+import historyRoutes from './routes/history.routes.mjs';
+import { initWebSocket } from './transport/ws-server.mjs';
+import { initDB, stmts } from './db/database.mjs';
 import { existsSync } from 'fs';
 import { server as serverConfig, PROJECT_ROOT } from '../../../config/loader.mjs';
 

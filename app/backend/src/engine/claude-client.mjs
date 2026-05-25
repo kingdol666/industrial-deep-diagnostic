@@ -1,7 +1,7 @@
 import { spawn, execSync } from 'child_process';
 import { existsSync, readdirSync } from 'fs';
 import { join, extname, basename } from 'path';
-import { config, PROJECT_ROOT } from '../../../config/loader.mjs';
+import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 
 const DATA_DIR = join(PROJECT_ROOT, config.data.dir);
 const WORKSPACE_DIR = join(PROJECT_ROOT, config.data.workspace_dir);
@@ -204,9 +204,6 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     env: buildEnv(),
     stdio: ['pipe', 'pipe', 'pipe'],
   });
-
-  // Keep stdin open for interactive question answering
-  // child.stdin.end() is NOT called — answers are written via writeAnswer()
 
   let sigkillTimer = null;
   const graceMs = (config.claude.sigkill_grace_seconds || 5) * 1000;

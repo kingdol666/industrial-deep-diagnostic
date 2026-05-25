@@ -113,7 +113,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { api } from '../api.js';
+import { api } from '../../api/index.js';
 
 const emit = defineEmits(['select-file', 'select-folder', 'select-files']);
 

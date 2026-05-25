@@ -2,7 +2,7 @@
 // Decouples Claude Code process events from transport (WebSocket/SSE)
 
 import { EventEmitter } from 'events';
-import { engine as engineConfig } from '../../../config/loader.mjs';
+import { engine as engineConfig } from '../../../../config/loader.mjs';
 
 const engine = new EventEmitter();
 

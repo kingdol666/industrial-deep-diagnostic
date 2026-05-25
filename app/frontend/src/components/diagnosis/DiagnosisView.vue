@@ -167,7 +167,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue';
-import { api } from '../api.js';
+import { api } from '../../api/index.js';
 import TaskList from './TaskList.vue';
 import MessageStream from './MessageStream.vue';
 import AnswerBar from './AnswerBar.vue';

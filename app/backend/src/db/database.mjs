@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'fs';
 import { join, dirname } from 'path';
-import { config, PROJECT_ROOT } from '../../../config/loader.mjs';
+import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 
 const DB_PATH = join(PROJECT_ROOT, config.database.path);
 mkdirSync(dirname(DB_PATH), { recursive: true });

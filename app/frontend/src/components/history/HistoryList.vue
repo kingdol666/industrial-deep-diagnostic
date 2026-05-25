@@ -178,7 +178,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { api } from '../api.js';
+import { api } from '../../api/index.js';
 
 const emit = defineEmits(['open-report', 'continue-run']);
 

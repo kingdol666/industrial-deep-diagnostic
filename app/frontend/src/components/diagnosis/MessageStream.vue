@@ -157,8 +157,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import { renderMarkdown } from '../../utils/markdown.js';
 
 const props = defineProps({
   events: { type: Array, default: () => [] },
@@ -213,12 +212,8 @@ function formatDuration(ms) {
   return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
 }
 
-const ALLOWED_TAGS = ['h1','h2','h3','h4','h5','h6','p','br','hr','ul','ol','li','blockquote','pre','code','em','strong','a','img','table','thead','tbody','tr','th','td','span','div','details','summary'];
-const ALLOWED_ATTR = ['href','src','alt','class','id','target','rel'];
-
 function renderMd(text) {
-  if (!text) return '';
-  return DOMPurify.sanitize(marked(text, { breaks: true, gfm: true }), { ALLOWED_TAGS, ALLOWED_ATTR });
+  return renderMarkdown(text);
 }
 
 // Auto-scroll when new events arrive

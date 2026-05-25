@@ -2,8 +2,8 @@
 // Clients subscribe to specific run channels and receive typed events
 
 import { WebSocketServer } from 'ws';
-import { subscribe, getEvents, getStatus, getActiveRuns, hasRun } from './diagnosis-engine.mjs';
-import { hitlRequests } from './routes/diagnosis.mjs';
+import { subscribe, getEvents, getStatus, getActiveRuns, hasRun } from '../engine/diagnosis-engine.mjs';
+import { hitlRequests } from '../services/diagnosis.service.mjs';
 
 let wss = null;
 
@@ -27,7 +27,6 @@ export function initWebSocket(httpServer) {
             subscribedRunId = runId;
 
             if (!hasRun(runId)) {
-              // Run doesn't exist (might be old / completed)
               ws.send(JSON.stringify({
                 type: 'error',
                 data: { message: `Run not found: ${runId}`, runId },
@@ -35,22 +34,16 @@ export function initWebSocket(httpServer) {
               return;
             }
 
-            // Subscribe to live events
             unsubscribe = subscribe(runId, (event) => {
               if (ws.readyState === ws.OPEN) {
                 ws.send(JSON.stringify(event));
               }
             });
 
-            // Send connection confirmation with buffered event count
             const events = getEvents(runId);
             ws.send(JSON.stringify({
               type: 'connected',
-              data: {
-                runId,
-                status: getStatus(runId),
-                bufferedEventCount: events.length,
-              },
+              data: { runId, status: getStatus(runId), bufferedEventCount: events.length },
             }));
 
             break;
@@ -121,13 +114,9 @@ export function initWebSocket(httpServer) {
 
     ws.on('error', () => {});
 
-    // Send welcome
     ws.send(JSON.stringify({
       type: 'welcome',
-      data: {
-        version: '1.0',
-        activeRuns: getActiveRuns(),
-      },
+      data: { version: '1.0', activeRuns: getActiveRuns() },
     }));
   });
 
