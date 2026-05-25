@@ -79,7 +79,7 @@
               </template>
               <template v-else-if="ev.data.name === 'AskUserQuestion'">
                 <span class="tool-label">❓</span>
-                <code>Asking user {{ ev.data.input?.questions?.length || 0 }} question(s)</code>
+                <code>Questions for user ({{ ev.data.input?.questions?.length || 0 }} question(s) — see below)</code>
               </template>
               <template v-else>
                 <code>{{ formatToolInput(ev.data.input) }}</code>
@@ -130,6 +130,48 @@
         </div>
       </div>
 
+      <!-- TASK PROGRESS -->
+      <div v-else-if="ev.type === 'task_progress'" class="ms-item ms-progress">
+        <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-progress" :class="'progress-' + (ev.data.status || 'running')">
+            <div class="ms-card-header">
+              <span class="ms-card-icon">{{ statusIcon(ev.data.status) }}</span>
+              <span class="ms-card-title">{{ ev.data.name || 'Task Progress' }}</span>
+              <span :class="['progress-badge', 'badge-' + statusBadgeClass(ev.data.status)]">
+                {{ ev.data.status || 'running' }}
+              </span>
+            </div>
+            <div class="progress-detail" v-if="ev.data.currentStep">
+              <span class="progress-step">{{ ev.data.currentStep }}</span>
+            </div>
+            <div class="progress-bar-wrapper" v-if="ev.data.progress">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  :style="{ width: progressPercent(ev.data.progress) + '%' }"
+                ></div>
+              </div>
+              <span class="progress-text">{{ progressText(ev.data.progress) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UNKNOWN / FALLBACK -->
+      <div v-else-if="ev.type === 'unknown'" class="ms-item ms-unknown">
+        <div class="ms-rail"><div class="ms-dot dot-gray"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-unknown">
+            <div class="ms-card-header">
+              <span class="ms-card-icon">📋</span>
+              <span class="ms-card-title">{{ ev.subtype || 'Event' }}</span>
+            </div>
+            <pre class="unknown-payload">{{ JSON.stringify(ev.data, null, 2) }}</pre>
+          </div>
+        </div>
+      </div>
+
       <!-- HITL -->
       <div v-else-if="ev.type === 'hitl_request'" class="ms-item ms-hitl">
         <div class="ms-rail"><div class="ms-dot dot-red pulse"></div></div>
@@ -137,6 +179,50 @@
           <div class="ms-card card-hitl">
             <div class="hitl-warn">⚠ Dangerous command: {{ ev.data.riskDesc }}</div>
             <code class="hitl-cmd">{{ ev.data.command }}</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUESTION (AskUserQuestion) -->
+      <div v-else-if="ev.type === 'question'" class="ms-item ms-question">
+        <div class="ms-rail"><div class="ms-dot dot-purple"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-question">
+            <div class="ms-card-header">
+              <span class="ms-card-icon">❓</span>
+              <span class="ms-card-title">Questions from Claude</span>
+              <span class="ms-question-count" v-if="ev.data.questions?.length > 1">
+                {{ ev.data.questions.length }} questions
+              </span>
+            </div>
+            <div class="question-list">
+              <div
+                v-for="(q, qi) in ev.data.questions"
+                :key="qi"
+                class="question-block"
+              >
+                <div class="question-header" v-if="q.header">{{ q.header }}</div>
+                <div class="question-text">
+                  <span class="question-num">{{ qi + 1 }}.</span>
+                  {{ q.question }}
+                </div>
+                <div class="question-options">
+                  <div
+                    v-for="(opt, oi) in q.options"
+                    :key="oi"
+                    class="question-option"
+                  >
+                    <span class="option-marker">{{ q.multiSelect ? '☐' : '○' }}</span>
+                    <span class="option-label">{{ opt.label }}</span>
+                    <span class="option-desc" v-if="opt.description">{{ opt.description }}</span>
+                  </div>
+                  <div v-if="!q.options || q.options.length === 0" class="question-option question-option-empty">
+                    <span class="option-marker">—</span>
+                    <span class="option-label">Free text input</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -214,6 +300,40 @@ function formatDuration(ms) {
 
 function renderMd(text) {
   return renderMarkdown(text);
+}
+
+function statusIcon(status) {
+  const map = {
+    running: '🔄', in_progress: '🔄', completed: '✅', failed: '❌',
+    pending: '⏳', stopped: '⏹',
+  };
+  return map[status] || '📌';
+}
+
+function statusBadgeClass(status) {
+  const map = {
+    running: 'blue', in_progress: 'blue', completed: 'green',
+    failed: 'red', pending: 'yellow', stopped: 'yellow',
+  };
+  return map[status] || 'blue';
+}
+
+function progressPercent(progress) {
+  if (!progress) return 0;
+  if (typeof progress === 'number') return Math.min(100, Math.max(0, progress));
+  if (progress.completed != null && progress.total) {
+    return Math.min(100, Math.round((progress.completed / progress.total) * 100));
+  }
+  return 0;
+}
+
+function progressText(progress) {
+  if (!progress) return '';
+  if (typeof progress === 'number') return `${progress}%`;
+  if (progress.completed != null && progress.total) {
+    return `${progress.completed}/${progress.total}`;
+  }
+  return '';
 }
 
 // Auto-scroll when new events arrive
@@ -406,4 +526,142 @@ watch(() => props.events.length, () => {
   border-radius: 50%; animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Question event card */
+.card-question {
+  border-left: 3px solid var(--purple);
+}
+
+.ms-question-count {
+  font-size: 11px; color: var(--text2); background: var(--surface2);
+  padding: 2px 8px; border-radius: 10px; margin-left: auto;
+}
+
+.question-list {
+  padding: 8px 12px 4px;
+}
+
+.question-block {
+  margin-bottom: 14px;
+}
+
+.question-block:last-child {
+  margin-bottom: 4px;
+}
+
+.question-header {
+  font-size: 11px; font-weight: 700; color: var(--purple);
+  text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 4px;
+}
+
+.question-text {
+  font-size: 13px; color: var(--text); font-weight: 600;
+  margin-bottom: 8px; line-height: 1.45;
+}
+
+.question-num {
+  color: var(--purple); font-weight: 700; margin-right: 4px;
+}
+
+.question-options {
+  display: flex; flex-direction: column; gap: 3px;
+  padding-left: 8px; border-left: 1px solid var(--border);
+}
+
+.question-option {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 4px 8px; border-radius: 4px; font-size: 13px;
+  color: var(--text); line-height: 1.45;
+  transition: background .1s;
+}
+
+.question-option:hover {
+  background: rgba(188, 140, 255, 0.05);
+}
+
+.question-option-empty {
+  color: var(--text2); font-style: italic;
+}
+
+.option-marker {
+  flex-shrink: 0; width: 16px; text-align: center;
+  color: var(--purple); font-size: 12px;
+}
+
+.option-label {
+  font-weight: 500; color: var(--text);
+}
+
+.option-desc {
+  color: var(--text2); font-size: 12px;
+  margin-left: 4px;
+}
+
+/* Task Progress card */
+.card-progress {
+  border-left: 3px solid var(--accent);
+}
+
+.card-progress.progress-completed {
+  border-left-color: var(--green);
+}
+
+.card-progress.progress-failed {
+  border-left-color: var(--red);
+}
+
+.progress-badge {
+  margin-left: auto;
+}
+
+.progress-detail {
+  padding: 6px 12px 2px;
+}
+
+.progress-step {
+  font-size: 13px; color: var(--text); line-height: 1.45;
+}
+
+.progress-bar-wrapper {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+}
+
+.progress-bar-wrapper .progress-bar {
+  flex: 1; height: 6px; background: var(--surface2);
+  border-radius: 3px; overflow: hidden;
+}
+
+.progress-bar-wrapper .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 3px; transition: width .4s ease;
+}
+
+.card-progress.progress-completed .progress-fill {
+  background: linear-gradient(90deg, #238636, var(--green));
+}
+
+.card-progress.progress-failed .progress-fill {
+  background: linear-gradient(90deg, #da3633, var(--red));
+}
+
+.progress-text {
+  font-size: 12px; color: var(--text2); flex-shrink: 0;
+  min-width: 40px; text-align: right; font-weight: 600;
+}
+
+/* Unknown event card */
+.card-unknown {
+  border-left: 3px solid var(--border);
+}
+
+.unknown-payload {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px 12px; margin: 8px 12px 12px;
+  font-size: 11px; font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text2); max-height: 200px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-all; line-height: 1.5;
+}
 </style>

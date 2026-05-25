@@ -331,10 +331,24 @@ function connectSSE(rid) {
       const d = JSON.parse(e.data);
       currentQuestion.value = d;
       events.value.push({
-        type: 'tool_use',
-        data: { name: 'AskUserQuestion', input: { questions: d.questions }, id: d.toolUseId },
+        type: 'question',
+        data: d,
         _seq: Date.now(),
       });
+    } catch {}
+  });
+
+  eventSource.addEventListener('task_progress', (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      events.value.push({ type: 'task_progress', data: d, _seq: Date.now() });
+    } catch {}
+  });
+
+  eventSource.addEventListener('unknown', (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      events.value.push({ type: 'unknown', subtype: d?.subtype || 'unknown', data: d, _seq: Date.now() });
     } catch {}
   });
 

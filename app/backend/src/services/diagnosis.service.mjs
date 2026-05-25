@@ -443,6 +443,38 @@ function executeDiagnosis(runId, run, isRetry = false) {
               stopReason: parsed.stop_reason,
             },
           });
+        } else if (parsed.type === 'task_progress') {
+          emit(runId, {
+            type: 'task_progress',
+            data: {
+              taskId: parsed.task_id || parsed.id || '',
+              name: parsed.name || parsed.task_name || '',
+              status: parsed.status || '',
+              currentStep: parsed.current_step || parsed.message || '',
+              progress: parsed.progress || null,
+            },
+          });
+        } else if (parsed.type === 'stream_event' && parsed.event) {
+          // Handle nested stream_event wrapper (newer Claude Code format)
+          const ev = parsed.event;
+          if (ev.type === 'task_progress') {
+            emit(runId, {
+              type: 'task_progress',
+              data: {
+                taskId: ev.task?.id || ev.task_id || '',
+                name: ev.task?.name || ev.name || '',
+                status: ev.task?.status || ev.status || '',
+                currentStep: ev.message || ev.current_step || '',
+                progress: ev.progress || null,
+              },
+            });
+          } else {
+            // Generic fallback for other stream_event types
+            emit(runId, { type: 'stream_event', subtype: ev.type, data: ev });
+          }
+        } else {
+          // Catch-all: emit unrecognized types so frontend can still see them
+          emit(runId, { type: 'unknown', subtype: parsed.type || 'unknown', data: parsed });
         }
       }
     });
@@ -578,6 +610,8 @@ export function subscribeSSE(runId, callback) {
       case 'hitl_result': sseEvent = 'hitl_result'; break;
       case 'complete': sseEvent = 'complete'; break;
       case 'error': sseEvent = 'error'; break;
+      case 'task_progress': sseEvent = 'task_progress'; break;
+      case 'unknown': sseEvent = 'unknown'; break;
       case 'stream_end': sseEvent = 'stream_end'; break;
       default: return;
     }
