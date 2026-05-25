@@ -87,6 +87,9 @@ stats.mjs now computes:
 - Stratified correlations (per group — Simpson's Paradox detection)
 - Bonferroni-corrected significance thresholds
 - Data sorting validation
+- **Mutual Information** (non-linear dependency detection via k-NN estimator)
+- **Granger Causality** (temporal predictive causality via F-test on VAR models)
+- **Interaction Effects** (synergistic parameter pair detection via X1×X2 terms)
 
 ### 4.2 Validation Report (stats_validate.mjs)
 
@@ -107,6 +110,8 @@ This produces a validation report detecting:
 - Time-trend confounding
 - Pearson-Spearman divergence
 - Lag data sorting artifacts
+- **Change Point Detection** (regime shifts via PELT algorithm)
+- **Distribution skewness analysis**
 
 **The validate report MUST be passed to the Diagnostician along with feature_summary.json.**
 
@@ -198,6 +203,9 @@ Based on the classified pattern, select primitives:
 | IF trend confounding | `plot_detrended_comparison` | Any detrended correlation with attenuation > 30% |
 | IF outlier-driven | `plot_outlier_sensitivity` | Any outlier check with `r_change_pct > 30` |
 | IF skew + high corr | `plot_spearman_vs_pearson` | Divergence > 0.15 on top correlations |
+| **IF change points detected** | `plot_change_point_regime` | Regime shifts with significant mean changes |
+| **IF interaction synergy** | `plot_interaction_heatmap` | Synergistic parameter pairs with synergy_gain > 0.2 |
+| **IF high MI, low Pearson** | `plot_mutual_information_scatter` | mi_normalized > 0.3 but |r_pearson| < 0.2 |
 
 **Pattern: `batch_event`**
 All 1D primitives PLUS:

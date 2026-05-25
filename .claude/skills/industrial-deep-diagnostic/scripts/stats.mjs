@@ -411,6 +411,332 @@ function multipleTestingReport(correlations, targetCols, alpha = 0.05) {
 }
 
 // ═══════════════════════════════════════════════
+//  MUTUAL INFORMATION (k-NN estimator, no external deps)
+// ═══════════════════════════════════════════════
+
+function mutualInformation(x, y, k = 3) {
+  // k-nearest neighbor estimator of mutual information
+  // Uses Kraskov estimator: I(X;Y) ≈ ψ(k) - ⟨ψ(n_x+1)⟩ - ⟨ψ(n_y+1)⟩ + ψ(N)
+  // where ψ is the digamma function
+  const valid = [];
+  for (let i = 0; i < x.length; i++) {
+    if (x[i] != null && y[i] != null && !isNaN(x[i]) && !isNaN(y[i])) {
+      valid.push({ xi: x[i], yi: y[i] });
+    }
+  }
+  const n = valid.length;
+  if (n < k + 2) return { mi: 0, n, warning: 'insufficient data' };
+
+  // Normalize to [0,1] for distance computation
+  const xs = valid.map(v => v.xi);
+  const ys = valid.map(v => v.yi);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const xRange = xMax - xMin || 1;
+  const yRange = yMax - yMin || 1;
+
+  const points = valid.map(v => ({
+    xn: (v.xi - xMin) / xRange,
+    yn: (v.yi - yMin) / yRange
+  }));
+
+  // Compute distances and k-th nearest neighbor distances
+  let sumDigammaNx = 0, sumDigammaNy = 0;
+  const digammaN = digamma(n);
+
+  for (let i = 0; i < n; i++) {
+    const dists = [];
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      const dx = points[i].xn - points[j].xn;
+      const dy = points[i].yn - points[j].yn;
+      dists.push({ dx: Math.abs(dx), dy: Math.abs(dy), dist: Math.max(Math.abs(dx), Math.abs(dy)) });
+    }
+    // Sort by Chebyshev (max) distance
+    dists.sort((a, b) => a.dist - b.dist);
+    const eps = dists[k - 1].dist;
+
+    // Count points with |x - xi| < eps and |y - yi| < eps
+    let nx = 0, ny = 0;
+    for (const d of dists) {
+      if (d.dx < eps) nx++;
+      if (d.dy < eps) ny++;
+    }
+    sumDigammaNx += digamma(nx + 1);
+    sumDigammaNy += digamma(ny + 1);
+  }
+
+  const mi = Math.max(0, digammaN + digamma(k) - sumDigammaNx / n - sumDigammaNy / n);
+
+  // Normalize by entropy estimate: MI_norm ≈ MI / max(Hx, Hy)
+  // Use a simple normalization: MI / (0.5 * log2(N)) as a rough upper bound
+  const maxMi = 0.5 * Math.log2(n);
+  const miNormalized = maxMi > 0 ? Math.min(1, mi / maxMi) : 0;
+
+  return { mi: +mi.toFixed(4), mi_normalized: +miNormalized.toFixed(4), n, k };
+}
+
+function digamma(x) {
+  // Digamma function ψ(x) = Γ'(x)/Γ(x)
+  // Asymptotic expansion for large x
+  if (x < 6) {
+    return digamma(x + 1) - 1 / x;
+  }
+  const invX = 1 / x;
+  const invX2 = invX * invX;
+  const invX4 = invX2 * invX2;
+  const invX6 = invX4 * invX2;
+  return Math.log(x) - 0.5 * invX - (1/12) * invX2 + (1/120) * invX4 - (1/252) * invX6;
+}
+
+// ═══════════════════════════════════════════════
+//  GRANGER CAUSALITY TEST
+// ═══════════════════════════════════════════════
+
+function grangerCausality(x, y, maxLag = 5) {
+  // Tests whether past values of X help predict Y beyond past values of Y alone
+  // H0: X does NOT Granger-cause Y
+  // Uses F-test on restricted (Y lags only) vs unrestricted (Y + X lags) models
+
+  const valid = [];
+  for (let i = 0; i < x.length; i++) {
+    if (x[i] != null && y[i] != null && !isNaN(x[i]) && !isNaN(y[i])) {
+      valid.push({ xi: x[i], yi: y[i] });
+    }
+  }
+  const n = valid.length;
+  if (n < maxLag + 10) return { f_stat: 0, p_value: 1, significant: false, warning: 'insufficient data' };
+
+  // Build lag matrix for each candidate lag count
+  const results = [];
+  for (let lag = 1; lag <= maxLag; lag++) {
+    const T = n - lag;
+    if (T < 10) continue;
+
+    // Build Y vector (dependent variable)
+    const Y = [];
+    for (let t = lag; t < n; t++) {
+      Y.push(valid[t].yi);
+    }
+
+    // Restricted model: Y_t = α + Σ β_i Y_{t-i} + ε_t
+    const X_restricted = [];
+    for (let t = lag; t < n; t++) {
+      const row = [1]; // intercept
+      for (let i = 1; i <= lag; i++) {
+        row.push(valid[t - i].yi);
+      }
+      X_restricted.push(row);
+    }
+
+    // Unrestricted model: Y_t = α + Σ β_i Y_{t-i} + Σ γ_i X_{t-i} + ε_t
+    const X_unrestricted = [];
+    for (let t = lag; t < n; t++) {
+      const row = [1]; // intercept
+      for (let i = 1; i <= lag; i++) {
+        row.push(valid[t - i].yi);
+      }
+      for (let i = 1; i <= lag; i++) {
+        row.push(valid[t - i].xi);
+      }
+      X_unrestricted.push(row);
+    }
+
+    // OLS: β = (X'X)^-1 X'Y
+    const ssrRestricted = olsSSR(Y, X_restricted);
+    const ssrUnrestricted = olsSSR(Y, X_unrestricted);
+
+    const pRestricted = lag + 1; // intercept + lag Y terms
+    const pUnrestricted = 2 * lag + 1; // intercept + lag Y + lag X terms
+    const dfNum = pUnrestricted - pRestricted; // number of X lag terms
+    const dfDen = T - pUnrestricted;
+
+    if (dfDen <= 0 || ssrUnrestricted < 0 || ssrRestricted < 0) continue;
+
+    const fStat = ((ssrRestricted - ssrUnrestricted) / dfNum) / (ssrUnrestricted / dfDen);
+    const pValue = fTestPValue(Math.max(0, fStat), dfNum, dfDen);
+
+    results.push({
+      lag,
+      f_stat: +fStat.toFixed(4),
+      p_value: +pValue.toFixed(4),
+      significant: pValue < 0.05,
+      ssr_restricted: +ssrRestricted.toFixed(4),
+      ssr_unrestricted: +ssrUnrestricted.toFixed(4)
+    });
+  }
+
+  // Find best lag (lowest p-value)
+  let best = results[0] || null;
+  for (const r of results) {
+    if (r.p_value < (best?.p_value || 1)) best = r;
+  }
+
+  return {
+    best_lag: best?.lag || 0,
+    best_f_stat: best?.f_stat || 0,
+    best_p_value: best?.p_value || 1,
+    significant: best?.significant || false,
+    all_lags: results,
+    direction: best?.significant ? 'X → Y (Granger-causes)' : 'no evidence of Granger causality',
+    warning: null
+  };
+}
+
+function olsSSR(y, X) {
+  // Ordinary Least Squares: compute sum of squared residuals
+  const n = X.length;
+  const p = X[0].length;
+  if (n <= p) return -1;
+
+  // Solve normal equations: (X'X) β = X'y
+  // Use Gaussian elimination on augmented matrix
+
+  // Build X'X and X'y
+  const XtX = new Array(p).fill(0).map(() => new Array(p).fill(0));
+  const Xty = new Array(p).fill(0);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < p; j++) {
+      Xty[j] += X[i][j] * y[i];
+      for (let k = 0; k < p; k++) {
+        XtX[j][k] += X[i][j] * X[i][k];
+      }
+    }
+  }
+
+  // Gaussian elimination with partial pivoting
+  const aug = new Array(p).fill(0).map((_, i) => [...XtX[i], Xty[i]]);
+
+  for (let col = 0; col < p; col++) {
+    // Find pivot
+    let maxRow = col;
+    for (let row = col + 1; row < p; row++) {
+      if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row;
+    }
+    [aug[col], aug[maxRow]] = [aug[maxRow], aug[col]];
+
+    if (Math.abs(aug[col][col]) < 1e-12) continue;
+
+    for (let row = col + 1; row < p; row++) {
+      const factor = aug[row][col] / aug[col][col];
+      for (let j = col; j <= p; j++) {
+        aug[row][j] -= factor * aug[col][j];
+      }
+    }
+  }
+
+  // Back substitution
+  const beta = new Array(p).fill(0);
+  for (let i = p - 1; i >= 0; i--) {
+    let sum = aug[i][p];
+    for (let j = i + 1; j < p; j++) {
+      sum -= aug[i][j] * beta[j];
+    }
+    beta[i] = Math.abs(aug[i][i]) < 1e-12 ? 0 : sum / aug[i][i];
+  }
+
+  // Compute SSR
+  let ssr = 0;
+  for (let i = 0; i < n; i++) {
+    let pred = 0;
+    for (let j = 0; j < p; j++) {
+      pred += X[i][j] * beta[j];
+    }
+    ssr += (y[i] - pred) * (y[i] - pred);
+  }
+
+  return ssr;
+}
+
+function fTestPValue(f, df1, df2) {
+  // F-test p-value via regularized incomplete beta
+  if (f <= 0) return 1;
+  const x = df2 / (df2 + df1 * f);
+  return regularizedBeta(x, df2 / 2, df1 / 2);
+}
+
+// ═══════════════════════════════════════════════
+//  INTERACTION EFFECT ANALYSIS
+// ═══════════════════════════════════════════════
+
+function interactionAnalysis(colData, targetCols, numericCols) {
+  // For parameter pairs with weak individual correlations but potential synergy:
+  // compute interaction term X1 × X2 and test against target
+  const results = [];
+
+  for (const target of targetCols) {
+    if (!colData[target]) continue;
+    const y = colData[target];
+
+    // Get individual correlations first
+    const individualR = {};
+    for (const col of numericCols) {
+      if (col === target) continue;
+      const { r } = pearson(y, colData[col]);
+      individualR[col] = r;
+    }
+
+    // Find pairs where both have weak individual correlations (|r| < 0.3)
+    // but whose product may have stronger correlation (synergy detection)
+    const candidateParams = numericCols.filter(c => c !== target && Math.abs(individualR[c]) < 0.3);
+
+    // Limit candidates to avoid combinatorial explosion
+    const topN = Math.min(candidateParams.length, 15);
+    const sorted = candidateParams.sort((a, b) => Math.abs(individualR[b]) - Math.abs(individualR[a]));
+    const candidates = sorted.slice(0, topN);
+
+    for (let i = 0; i < candidates.length; i++) {
+      for (let j = i + 1; j < candidates.length; j++) {
+        const c1 = candidates[i], c2 = candidates[j];
+        const x1 = colData[c1], x2 = colData[c2];
+
+        // Compute interaction term
+        const interaction = [];
+        let validCount = 0;
+        for (let k = 0; k < y.length; k++) {
+          if (x1[k] != null && x2[k] != null && y[k] != null &&
+              !isNaN(x1[k]) && !isNaN(x2[k]) && !isNaN(y[k])) {
+            interaction.push(x1[k] * x2[k]);
+            validCount++;
+          } else {
+            interaction.push(null);
+          }
+        }
+
+        if (validCount < 20) continue;
+
+        const { r: rInteraction, p: pInteraction } = pearson(y, interaction);
+        const r1 = individualR[c1], r2 = individualR[c2];
+
+        // Detect synergy: interaction r is substantially stronger than both individual r's
+        const synergyGain = Math.abs(rInteraction) - Math.max(Math.abs(r1), Math.abs(r2));
+        const isSynergistic = synergyGain > 0.2 && Math.abs(rInteraction) > 0.4;
+
+        if (isSynergistic || Math.abs(rInteraction) > 0.3) {
+          results.push({
+            target,
+            param_1: c1, param_2: c2,
+            r_p1: +r1.toFixed(4), r_p2: +r2.toFixed(4),
+            r_interaction: +rInteraction.toFixed(4),
+            p_interaction: +pInteraction.toFixed(4),
+            synergy_gain: +synergyGain.toFixed(4),
+            synergistic: isSynergistic,
+            interpretation: isSynergistic ?
+              `${c1} and ${c2} individually have weak effects, but their interaction shows a strong relationship with ${target}. This suggests a synergistic failure mode where both conditions must co-occur.` :
+              `Interaction effect detected but not definitively synergistic.`
+          });
+        }
+      }
+    }
+  }
+
+  // Sort by synergy gain descending
+  results.sort((a, b) => b.synergy_gain - a.synergy_gain);
+  return results;
+}
+
+// ═══════════════════════════════════════════════
 //  MAIN
 // ═══════════════════════════════════════════════
 
@@ -531,6 +857,42 @@ if (groupCol) {
   }
 }
 
+// Mutual Information matrix (non-linear dependency)
+const miMatrix = {};
+if (numericCols.length <= 50) { // Skip for very wide datasets
+  for (const c1 of numericCols) {
+    miMatrix[c1] = {};
+    for (const c2 of numericCols) {
+      if (c1 === c2) {
+        miMatrix[c1][c2] = { mi: 1.0, mi_normalized: 1.0 };
+      } else if (c1 < c2) { // compute once, mirror
+        const mi = mutualInformation(colData[c1], colData[c2]);
+        miMatrix[c1][c2] = mi;
+        if (!miMatrix[c2]) miMatrix[c2] = {};
+        miMatrix[c2][c1] = mi;
+      }
+    }
+  }
+}
+
+// Granger causality tests (only if time-sorted and time column exists)
+let grangerResults = null;
+if (sortingValidation.time_sorted && timeCol) {
+  grangerResults = {};
+  for (const target of effectiveTargets) {
+    if (!colData[target]) continue;
+    grangerResults[target] = {};
+    for (const col of numericCols) {
+      if (col === target) continue;
+      const gc = grangerCausality(colData[col], colData[target], Math.min(maxLag, 5));
+      grangerResults[target][col] = gc;
+    }
+  }
+}
+
+// Interaction effect analysis
+const interactionResults = interactionAnalysis(colData, effectiveTargets, numericCols);
+
 // Build output
 const result = {
   data_summary: {
@@ -548,7 +910,10 @@ const result = {
     pearson: pearsonMatrix,
     spearman: spearmanMatrix
   },
+  mutual_information: miMatrix,
   target_analysis: targetAnalysis,
+  granger_causality: grangerResults,
+  interaction_effects: interactionResults,
   multiple_testing: multiTestReport,
   stratified_analysis: stratifiedResults
 };

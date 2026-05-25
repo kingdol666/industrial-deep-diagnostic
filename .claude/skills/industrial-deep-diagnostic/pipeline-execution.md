@@ -13,32 +13,41 @@ digraph diagnostic_flow {
   setup [label="Step 0: Setup\nnode setup.mjs"];
   inspect [label="Step 1: Inspect Data\nnode inspect.mjs\n(ask user questions)"];
   context [label="Step 2: Context Build\nspawn context-builder"];
+  clarify [label="Step 2.5: Clarification Gate\nAskUserQuestion\n(unknown parameters)" shape=diamond];
   dataproc [label="Step 3: Data + Viz + Validate\nspawn data-processor\n(includes stats_validate.mjs)"];
   diag [label="Step 4: Diagnose\nspawn diagnostician\n(reads validate_report.json)"];
   judge [label="Step 5: Judge\nspawn judge\n(cross-refs validate_report.json)"];
   report [label="Step 6: Report\nspawn reporter\n(includes validation section)"];
   review [label="Step 7: Physical Audit\nspawn report-reviewer\n(independent verification)"];
+  repair [label="Step 7.5: Review Repair\nfix issues found by reviewer" shape=diamond];
   present [label="Step 8: Present\n(main agent)"];
 
   setup -> inspect;
   inspect -> context;
   inspect -> dataproc [style=dashed label="parallel"];
-  context -> diag;
+  context -> clarify;
+  clarify -> dataproc [label="ontology\nenriched"];
+  clarify -> diag [style=dashed label="enriched\ncontext"];
   dataproc -> diag;
   diag -> judge;
   judge -> diag [label="repair (max 3)" style=dashed];
   judge -> report [label="pass/warn"];
   report -> review;
-  review -> present;
+  review -> repair [label="CONDITIONAL/\nREJECTED"];
+  repair -> diag [label="re-diagnose\nwith fixes" style=dashed];
+  review -> present [label="ENDORSED"];
 }
 ```
 
-**Parallelism**: Steps 2 and 3 run in parallel. Steps 4→5→6→7 are sequential (each depends on previous output).
+**Parallelism**: Steps 2 and 3 run in parallel. Steps 4→5→6→7 are sequential (each depends on previous output). Step 2.5 is a synchronization gate — Step 3 and Step 4 both depend on enriched ontology from the clarification step.
 
 ## File Artifact Chain
 
 ```
 Context Builder ──► 01_ontology/ontology.json, schema.json
+                ──► 00_input/clarification_needed.json   (NEW)
+                ──► 00_input/extracted_knowledge.json
+User Clarification ──► Updated ontology.json, schema.json (enriched)
 Data Processor  ──► 02_processed/feature_summary.json (enhanced stats)
                 ──► 02_processed/validate_report.json   (statistical validation)
                 ──► 03_figures/*.png + plot_manifest.json
@@ -54,8 +63,11 @@ Each agent MUST append a JSON line to `RUN_DIR/.pipeline_events.jsonl` at start 
 
 ```jsonl
 {"event": "agent_start", "agent": "context-builder", "timestamp": "2026-05-25T10:00:00Z", "pid": 12345}
-{"event": "agent_complete", "agent": "context-builder", "timestamp": "2026-05-25T10:02:30Z", "files_written": ["01_ontology/ontology.json", "01_ontology/schema.json"], "errors": null}
+{"event": "agent_complete", "agent": "context-builder", "timestamp": "2026-05-25T10:02:30Z", "files_written": ["01_ontology/ontology.json", "01_ontology/schema.json", "00_input/clarification_needed.json"], "clarifications_requested": 3, "clarifications_resolved": 2, "errors": null}
+{"event": "clarification_gate", "agent": "main", "timestamp": "2026-05-25T10:03:00Z", "parameters_asked": 3, "parameters_resolved": 2, "rounds": 1}
 ```
+
+The main agent should verify this file exists and log its own events at Step 8.
 
 ## Step-by-Step Protocol
 
@@ -88,7 +100,51 @@ Then ask user clarification questions (max 5). Save `input_manifest.json` and `u
 
 Read `agents/context-builder.md` and spawn. Pass: DATA_PATH, RUN_DIR, REFERENCE_DIR, PROCESS_DESCRIPTION, USER_OBJECTIVE, SKILL_PATH. Writes to `01_ontology/`.
 
-Now identifies confounders, parameter groups, and attempts to determine physical meaning of every parameter.
+The Context Builder now:
+- Searches references and web for parameter meanings
+- Infers physical meanings from column name patterns and value ranges
+- Identifies parameters with unknown physical meanings
+- Scores their importance (CRITICAL/HIGH/MEDIUM/LOW)
+- Outputs `00_input/clarification_needed.json`
+- Uses AskUserQuestion for CRITICAL and HIGH importance unknowns
+- Updates ontology with user-provided physical meanings
+
+### Step 2.5: Clarification Gate (MAIN — NEW)
+
+**This is a new synchronization gate.** After the Context Builder completes, the main agent checks `00_input/clarification_needed.json`.
+
+**If CRITICAL or HIGH importance parameters need clarification:**
+
+1. Read `clarification_needed.json` to understand what's unknown
+2. Use AskUserQuestion to present unknown parameters to the user
+3. Group related parameters into single questions (max 4 questions per round)
+4. Provide the Context Builder's best guesses — the user can confirm or correct
+5. After receiving answers, update the ontology files:
+   - Update `01_ontology/ontology.json` with confirmed physical meanings
+   - Update `01_ontology/schema.json` with confirmed units and roles
+   - Mark parameters as resolved in `clarification_needed.json`
+6. If HIGH-importance parameters remain, consider a second round
+7. Log the clarification event to `.pipeline_events.jsonl`
+
+**If no critical unknowns exist**, proceed directly to Step 3/4.
+
+**Protocol for AskUserQuestion in clarification gate:**
+
+```
+For each group of related unknown parameters:
+  - State the column name and our best guess at physical meaning
+  - Show the value range observed in the data
+  - Ask: what does this parameter physically represent?
+  - Ask: what is its unit?
+  - Ask: is it a setpoint or measured value?
+  
+Use the "Other" option to allow free-text detailed explanations.
+```
+
+**After clarification:**
+- The enriched ontology now flows to BOTH the Data Processor (Step 3) and Diagnostician (Step 4)
+- Parameters that remain unknown after clarification are marked with `"physical_meaning_confidence": "unknown"`
+- The Diagnostician and Report Reviewer will apply confidence penalties to conclusions based on unknown parameters
 
 ### Step 3: Data Processing + Visualization + Statistical Validation (SUB-AGENT)
 
@@ -97,15 +153,15 @@ Read `agents/data-processor.md` and spawn.
 **Workflow:**
 1. Inspect data, classify pattern
 2. Preprocess + validate data sorting
-3. Run enhanced `stats.mjs` (Pearson, Spearman, detrended, full CCF, stratified)
-4. Run `stats_validate.mjs` (Simpson's Paradox, confounders, outlier sensitivity)
+3. Run enhanced `stats.mjs` (Pearson, Spearman, detrended, full CCF, stratified, mutual information)
+4. Run `stats_validate.mjs` (Simpson's Paradox, confounders, outlier sensitivity, change point detection)
 5. Select visualization primitives (including statistical validation plots)
 6. Compose and run visualization script
 7. Write `plot_manifest.json`
 
 **Mandatory outputs:**
-- `02_processed/feature_summary.json` — Raw statistics
-- `02_processed/validate_report.json` — Statistical validation report
+- `02_processed/feature_summary.json` — Raw statistics (now includes mutual information + Granger causality)
+- `02_processed/validate_report.json` — Statistical validation report (now includes change point detection)
 - Statistical validation plots when issues detected
 - `03_figures/plot_manifest.json` — Interface contract for diagnostician
 
@@ -115,11 +171,13 @@ Read `agents/diagnostician.md` and spawn.
 
 **Critical sequence:**
 1. Read `validate_report.json` BEFORE forming hypotheses
-2. Apply confidence adjustments based on validation findings
-3. Never use lag correlations as causal evidence if data is not time-sorted
-4. Always check dominant subgroup support before claiming aggregate correlation is meaningful
-5. Report detrended r alongside raw r for key correlations
-6. Prefer Spearman over Pearson for heavily skewed defect data
+2. Read `01_ontology/ontology.json` — pay attention to `physical_meaning_confidence` flags
+3. Apply confidence adjustments based on validation findings
+4. Never use lag correlations as causal evidence if data is not time-sorted
+5. Always check dominant subgroup support before claiming aggregate correlation is meaningful
+6. Report detrended r alongside raw r for key correlations
+7. Prefer Spearman over Pearson for heavily skewed defect data
+8. **For parameters with unknown physical meaning, flag conclusions as [UNCERTAINTY] and reduce confidence by 15-25 points**
 
 **After completion, run schema validation:**
 ```bash
@@ -159,6 +217,23 @@ Independent verification with actual Python code execution. Quantitative physica
 
 Output: `optimizer.md` with verdict ENDORSED / CONDITIONAL / REJECTED.
 
+### Step 7.5: Review Repair Loop (NEW)
+
+**If the Report Reviewer returns CONDITIONAL or REJECTED verdict:**
+
+The issues found by the reviewer are different from the Judge's issues:
+- Judge checks: internal consistency, statistical rigor, evidence usage
+- Reviewer checks: physical plausibility, real-world truth, quantitative mechanism verification
+
+**Repair protocol:**
+1. Read `optimizer.md` for specific concerns and correction requirements
+2. For each FATAL or SERIOUS concern:
+   - If it's a physical mechanism error → re-spawn Diagnostician with REPAIR_INSTRUCTIONS containing the reviewer's physical critique
+   - If it's a missing confounder → re-spawn Data Processor with additional stratification instructions
+   - If it's a parameter meaning issue → return to clarification gate (Step 2.5) if parameter meanings are still unknown
+3. After re-diagnosis, re-run Judge (Step 5), Reporter (Step 6), and Reviewer (Step 7)
+4. Maximum 2 review repair iterations
+
 ### Step 8: Present Results (MAIN)
 
 Before presenting, run the artifact integrity check:
@@ -171,16 +246,7 @@ Review the check output. If any critical artifacts are missing, note them to the
 
 Show user: executive summary, key findings, diagnosis, recommendations, workspace path. Verify report.md has embedded images. If `optimizer.md` verdict is CONDITIONAL or REJECTED, highlight concerns prominently and present the validation findings.
 
-## Pipeline Event Log
-
-Each agent MUST append a JSON line to `RUN_DIR/.pipeline_events.jsonl` at start and completion:
-
-```jsonl
-{"event": "agent_start", "agent": "context-builder", "timestamp": "2026-05-25T10:00:00Z", "pid": 12345}
-{"event": "agent_complete", "agent": "context-builder", "timestamp": "2026-05-25T10:02:30Z", "files_written": ["01_ontology/ontology.json", "01_ontology/schema.json"], "errors": null}
-```
-
-The main agent should verify this file exists and log its own events at Step 8.
+---
 
 ## Statistical Validation Framework
 
@@ -195,6 +261,10 @@ The pipeline includes a comprehensive statistical validation layer that runs BEF
 | Spearman-Pearson divergence | `stats.mjs` | Outlier or non-linear influence on Pearson correlations |
 | Lag window consistency | `stats.mjs` | Isolated spikes in CCF (artifact indicators) |
 | Multiple testing correction | `stats.mjs` | Chance "significant" results from many comparisons |
+| **Mutual Information** | `stats.mjs` (NEW) | Non-linear dependencies that Pearson/Spearman miss |
+| **Granger Causality** | `stats.mjs` (NEW) | Temporal predictive causality (requires time-sorted data) |
+| **Change Point Detection** | `stats_validate.mjs` (NEW) | Regime shifts that invalidate stationarity assumptions |
+| **Interaction Effects** | `stats.mjs` (NEW) | Parameter combinations with synergistic effects on quality |
 
 ### Confidence Adjustment Rules
 
@@ -207,6 +277,69 @@ The pipeline includes a comprehensive statistical validation layer that runs BEF
 | Outlier-driven correlation | -10 to -15 points |
 | Spearman-Pearson divergence > 0.15 | -5 to -10 points |
 | Isolated lag spike (not consistent window) | Treat as concurrent only |
+| **Parameter physical meaning unknown** (NEW) | **-15 to -25 points** |
+| **Change point detected in analysis window** (NEW) | **-10 to -20 points** |
+| **Granger causality contradicts correlation direction** (NEW) | **-20 to -30 points** |
+
+---
+
+## New Statistical Methods (v4.3)
+
+### Mutual Information
+
+Measures non-linear dependency between parameter pairs. Computed via k-nearest neighbor estimation. Catches relationships that Pearson (linear) and Spearman (monotonic) miss entirely.
+
+Usage: `node stats.mjs ...` — included automatically in feature_summary.json.
+
+### Granger Causality
+
+Tests whether past values of parameter X help predict parameter Y beyond what past values of Y alone can predict. Uses F-test on restricted vs unrestricted VAR models.
+
+**Critical**: Only valid when data IS time-sorted. The sorting validation check MUST pass before Granger results are used.
+
+### Change Point Detection
+
+Identifies structural breaks in the time series using PELT (Pruned Exact Linear Time) algorithm. Detects regime shifts that may explain apparent correlations as artifacts of operating mode changes.
+
+### Interaction Effects
+
+For parameter pairs with weak individual correlations but strong combined effects: computes interaction terms (X1 × X2) and tests against quality metrics. Catches synergistic failure modes.
+
+---
+
+## Clarification Gate Protocol (NEW — Step 2.5)
+
+The physical meaning of parameters is foundational to valid diagnosis. An incorrect assumption about what a parameter measures can invalidate the entire analysis.
+
+### When to Ask
+
+Ask the user when:
+1. Parameter has CRITICAL or HIGH importance (high variance, strong correlations, part of key parameter group)
+2. Physical meaning could not be determined from references, web, or column name inference
+3. The parameter appears in multiple causal hypotheses
+
+### How to Ask
+
+1. **Group related parameters** — ask about a group of casting parameters together rather than one at a time
+2. **Provide your best guess** — the user can confirm or correct, which is faster than explaining from scratch
+3. **Show the data** — include value ranges and units guess so the user can verify against their knowledge
+4. **Be specific** — ask about physical quantity, unit, setpoint vs measured, and normal range
+5. **Respect the user's time** — maximum 4 questions per round, 2 rounds maximum
+
+### What to Do With Answers
+
+1. Immediately update ontology.json and schema.json
+2. Re-save files so downstream agents use enriched context
+3. Log the clarification event for traceability
+
+### When to Proceed Without Answers
+
+If the user cannot or will not provide clarification after 2 rounds:
+- Mark parameters as `"physical_meaning_confidence": "unknown"`
+- Proceed with the pipeline
+- The Diagnostician and Report Reviewer will apply appropriate confidence penalties
+
+---
 
 ## Diagnosis Language
 
@@ -217,6 +350,7 @@ The pipeline includes a comprehensive statistical validation layer that runs BEF
 | Hypothesis | [HYPOTHESIS] | "This suggests [mechanism] may have contributed." |
 | Uncertainty | [UNCERTAINTY] | "Evidence is [level] to [conclude X]." |
 | Validation Finding | [VALIDATION] | "Statistical validation check [X] found [Y]. Confidence adjusted from [A] to [B]." |
+| **Parameter Ambiguity** (NEW) | [PARAM_AMBIGUITY] | "Parameter [X] physical meaning is [unknown/uncertain]. Conclusions based on this parameter are [confidence level]." |
 
 ## Common Mistakes
 
@@ -230,8 +364,10 @@ The pipeline includes a comprehensive statistical validation layer that runs BEF
 | Skipping `plot_manifest.json` | Data-processor MUST write it — diagnostician depends on it |
 | Main agent holding domain context | Spawn sub-agents; main agent only orchestrates |
 | Skipping Step 7 (physical audit) | Always run — catches spurious correlations the Judge misses |
-| Not validating parameter physical meaning | Context Builder must determine what each parameter physically represents |
+| Not validating parameter physical meaning | **Context Builder now uses AskUserQuestion for unknown parameters** |
 | Python dependency missing in Step 7 | Reviewer should run `pip3 install -r <skill_path>/scripts/requirements.txt` before independent verification |
+| **Proceeding with unknown parameter meanings** (NEW) | **Use the clarification gate (Step 2.5). Unknown parameters → lower confidence, potentially wrong diagnosis** |
+| **Ignoring Reviewer's physical concerns** (NEW) | **Step 7.5 repair loop: re-diagnose with reviewer's corrections, not just Judge's** |
 
 ## Reference Files
 

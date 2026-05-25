@@ -22,10 +22,25 @@ Read from SKILL_PATH:
 
 Read from RUN_DIR:
 - `01_ontology/ontology.json`
-- `02_processed/feature_summary.json` — **Enhanced stats: Pearson, Spearman, detrended, full CCF, stratified**
-- `02_processed/validate_report.json` — **NEW: Statistical validation report — read BEFORE forming hypotheses**
+- `01_ontology/schema.json`
+- `00_input/clarification_needed.json` (if exists) — **Parameters with unknown physical meaning**
+- `02_processed/feature_summary.json` — **Enhanced stats: Pearson, Spearman, detrended, full CCF, stratified, mutual information, Granger causality, interaction effects**
+- `02_processed/validate_report.json` — **Statistical validation report + change point detection — read BEFORE forming hypotheses**
 - `00_input/data_inspection.json`
 - `schemas/diagnosis_schema.json` (if exists)
+
+## Step 0.2: Check Parameter Physical Meaning Context (NEW)
+
+Before forming any hypotheses, check `00_input/clarification_needed.json` if it exists:
+
+1. **Resolved parameters**: Parameters where the user confirmed physical meaning — use these confidently in mechanism construction
+2. **Unresolved parameters**: Parameters still marked as unknown — flag these for confidence reduction
+3. **Parameter groups with unknowns**: If a group (e.g., casting parameters) has some known and some unknown members, note the limitation
+
+**Confidence rule for unknown-meaning parameters:**
+- Any hypothesis whose primary evidence relies on a parameter with unknown physical meaning → **reduce confidence by 15-25 points**
+- Mark such hypotheses with [PARAM_AMBIGUITY] marker
+- The physical mechanism chain cannot be fully validated if the parameter's physical role is unknown
 
 ## Step 0.3: Read Statistical Validation Report FIRST
 
@@ -168,6 +183,48 @@ When interpreting correlations, apply these checks from the validation report:
 
 Build a defect co-occurrence matrix. Identify defect clusters (groups of defects with high inter-correlation). These suggest shared root causes. Verify that defect clusters are robust within product subgroups.
 
+### 4.4 Mutual Information Analysis (NEW)
+
+Read `mutual_information` from feature_summary.json. This captures non-linear dependencies that Pearson and Spearman miss:
+
+1. For each target variable, identify parameters with **high MI but low Pearson/Spearman** (|r| < 0.2 but mi_normalized > 0.3)
+2. These represent non-linear relationships — the parameter DOES influence the target, but not linearly
+3. Check the scatter plots for these pairs — look for U-shaped, threshold, or saturating patterns
+4. Flag: "Parameter X shows non-linear dependency with target Y (MI=0.X, Pearson=0.X). The relationship may involve a threshold effect or optimal operating window."
+
+### 4.5 Granger Causality Analysis (NEW)
+
+Read `granger_causality` from feature_summary.json. **Only use if sorting_validation.time_sorted == true.**
+
+For each significant Granger-causal relationship (best_p_value < 0.05):
+1. The direction is X → Y (past values of X help predict Y)
+2. This supports temporal precedence — a key criterion for causation
+3. Check the best_lag: does it match the CCF best lag?
+4. If Granger direction contradicts CCF best lag → investigate further
+
+**If Granger causality contradicts the correlation-based hypothesis:**
+- A positive correlation where X↑ correlates with Y↑, but Granger says Y → X
+- This suggests reverse causation or a common driver
+- Reduce confidence by 20-30 points and flag as [UNCERTAINTY]
+
+### 4.6 Interaction Effect Analysis (NEW)
+
+Read `interaction_effects` from feature_summary.json. Look for synergistic parameter pairs:
+
+1. Parameters with weak individual effects (|r| < 0.3) but strong interaction effects (|r_interaction| > 0.4)
+2. These indicate **synergistic failure modes** — both conditions must co-occur
+3. Example: Temperature alone doesn't cause defects, pressure alone doesn't cause defects, but high temperature + high pressure together does
+4. Flag: "Synergistic effect detected: [Param1] × [Param2] shows r_interaction = X.XX vs individual r_P1 = X.XX, r_P2 = X.XX. This suggests [mechanism hypothesis]."
+
+### 4.7 Change Point / Regime Shift Analysis (NEW)
+
+Read `change_point_detection` from validate_report.json. If regime shifts are detected in key parameters:
+
+1. Correlations computed across regime boundaries may be spurious
+2. If a change point aligns with a known process change (product switch, maintenance, recipe change) → the correlation may be driven by the regime shift, not continuous coupling
+3. Consider analyzing each segment separately and comparing
+4. Flag: "Change point detected in [parameter] at position [X]. Segment means: [A] → [B]. Correlations spanning this boundary may reflect the regime shift, not continuous process physics."
+
 ## Step 5: Hypothesis Formation
 
 List ALL plausible hypotheses. For each:
@@ -196,6 +253,11 @@ Starting from raw evidence strength, apply these adjustments:
 | Spearman-Pearson divergence > 0.2 | Reduce confidence by 5-10 points. Prefer Spearman |
 | Isolated lag spike (not consistent across adjacent lags) | **Cannot use as lag evidence.** Treat as concurrent correlation |
 | Subgroup too small for stratified analysis (n < 20) | Note limitation. Cannot rule out Simpson's Paradox |
+| **Parameter physical meaning unknown** (NEW) | **Reduce confidence by 15-25 points.** Physical mechanism cannot be validated for unknown parameters. Use [PARAM_AMBIGUITY] marker |
+| **Change point detected in analysis window** (NEW) | **Reduce confidence by 10-20 points.** Correlations crossing regime boundaries may reflect the shift, not continuous physics |
+| **Granger causality contradicts correlation direction** (NEW) | **Reduce confidence by 20-30 points.** Temporal predictive relationship conflicts with proposed causal direction |
+| **Synergistic interaction without individual effects** (NEW) | **Raise confidence for interaction hypothesis by 5-10.** But note: interaction effects require both conditions to co-occur |
+| **High mutual information with low Pearson** (NEW) | **Note non-linear dependency.** Do not dismiss parameter just because linear correlation is weak. Check for threshold/saturating effects |
 
 ### Causation Criteria
 

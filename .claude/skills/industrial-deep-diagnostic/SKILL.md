@@ -7,18 +7,18 @@ commands:
   - industrial-deep-diagnostic review
   - industrial-deep-diagnostic report
   - industrial-deep-diagnostic audit
-version: 4.2.0
+version: 4.3.0
 ---
 
 # Industrial Deep Diagnostic
 
 ## Overview
 
-Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → visualize + validate → diagnose → judge → report → physical truth audit.
+Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → **clarify unknown parameters with user** → visualize + validate → diagnose → judge → report → physical truth audit → **review repair loop**.
 
 **Core principle: Evidence first. Reasoning second. Conclusions last.**
 
-Every conclusion cites its evidence rank. No unsupported assumptions. No exaggerated causal claims.
+Every conclusion cites its evidence rank. No unsupported assumptions. No exaggerated causal claims. **No silent guesses about parameter physical meanings — unknown parameters trigger interactive clarification.**
 
 ## When to Use
 
@@ -52,29 +52,71 @@ See `pipeline-execution.md` for detailed per-step protocol, artifact chain, repa
 digraph diagnostic_flow {
   rankdir=TB;
   node [shape=box];
+
   setup [label="Step 0: Setup"];
   inspect [label="Step 1: Inspect"];
   context [label="Step 2: Context"];
+  clarify [label="Step 2.5: Clarify\nParameters" shape=diamond];
   dataproc [label="Step 3: Data+Viz"];
   diag [label="Step 4: Diagnose"];
   judge [label="Step 5: Judge"];
   report [label="Step 6: Report"];
   review [label="Step 7: Audit"];
+  repair [label="Step 7.5: Review\nRepair" shape=diamond];
   present [label="Step 8: Present"];
+
   setup -> inspect;
   inspect -> context;
   inspect -> dataproc [style=dashed];
-  context -> diag;
+  context -> clarify;
+  clarify -> dataproc;
+  clarify -> diag [style=dashed];
   dataproc -> diag;
   diag -> judge;
   judge -> diag [label="⟳ max3" style=dashed];
   judge -> report;
   report -> review;
-  review -> present;
+  review -> repair [label="CONDITIONAL/\nREJECTED"];
+  repair -> diag [label="re-diagnose" style=dashed];
+  review -> present [label="ENDORSED"];
 }
 ```
 
-**Steps 2-3 parallel. Steps 4→5→6→7 sequential.**
+**Steps 2-3 parallel. Step 2.5 synchronizes. Steps 4→5→6→7 sequential. Step 7.5 repair loop (max 2).**
+
+---
+
+## What's New in v4.3
+
+### 1. Physical Meaning Clarification Gate (Step 2.5)
+
+The Context Builder now identifies parameters whose physical meaning is unknown. Instead of silently guessing, it uses **AskUserQuestion** to ask the user:
+
+- What does this parameter physically represent?
+- What is its unit?
+- Is it a setpoint or measured value?
+- What is its normal operating range?
+
+This addresses the #1 source of diagnostic errors: misinterpreting what a column actually measures.
+
+### 2. Review Repair Loop (Step 7.5)
+
+When the Report Reviewer finds physical mechanism errors (CONDITIONAL or REJECTED verdict), the pipeline now re-spawns the Diagnostician with the reviewer's corrections. Previously, reviewer findings were only advisory — now they trigger a repair loop (max 2 iterations).
+
+### 3. Deeper Statistical Analysis
+
+New statistical methods in `stats.mjs`:
+- **Mutual Information** — captures non-linear dependencies Pearson/Spearman miss
+- **Granger Causality** — temporal predictive causality testing (requires time-sorted data)
+- **Interaction Effects** — parameter combinations with synergistic effects
+- **Change Point Detection** — regime shift identification in stats_validate.mjs
+
+### 4. Enhanced Agent Orchestration
+
+- Diagnostician now receives BOTH enriched ontology AND validation report before forming hypotheses
+- Parameter physical meaning confidence affects diagnosis confidence scores
+- Data Processor and Diagnostician both read clarification-enriched ontology
+- [PARAM_AMBIGUITY] marker for conclusions based on unknown-meaning parameters
 
 ---
 
@@ -84,8 +126,10 @@ Agents communicate ONLY through workspace files — never through the main agent
 
 ```
 Context Builder ──► 01_ontology/ontology.json, schema.json
+                ──► 00_input/clarification_needed.json   ← NEW
+User Clarification ──► Updated ontology.json, schema.json ← NEW
 Data Processor  ──► 02_processed/feature_summary.json
-                ──► 02_processed/validate_report.json   ← NEW
+                ──► 02_processed/validate_report.json
                 ──► 03_figures/*.png + plot_manifest.json
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json
 Judge           ──► 05_review/judge_feedback.json
@@ -115,10 +159,12 @@ Every conclusion limited by its weakest evidence rank.
 
 NEVER state root cause without ALL four: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradicting evidence. Missing any → [HYPOTHESIS].
 
-**Additional v4.2 requirements:**
+**Additional v4.3 requirements:**
 - NEVER claim a lag correlation as causal evidence if data is not time-sorted
 - NEVER claim an aggregate correlation is meaningful if it reverses in the dominant subgroup
 - NEVER cite a raw correlation without checking the detrended correlation when both variables show time trends
+- **NEVER silently assume a parameter's physical meaning — if unknown, ask the user via the clarification gate**
+- **NEVER cite Granger causality results if sorting validation failed**
 
 ALWAYS disclose confidence, evidence gaps, and assumptions.
 
@@ -126,7 +172,7 @@ ALWAYS disclose confidence, evidence gaps, and assumptions.
 
 ## Reference Files
 
-- **Pipeline protocol**: `pipeline-execution.md` (step-by-step, validation framework, common mistakes)
+- **Pipeline protocol**: `pipeline-execution.md` (step-by-step, validation framework, clarification gate, common mistakes)
 - **Script & toolkit details**: `resources/script_and_toolkit_reference.md`
 - **Evidence rules**: `resources/evidence_rules.md`
 - **Diagnosis methodology**: `resources/diagnosis_method.md`

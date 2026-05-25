@@ -11,7 +11,8 @@ Lives in `.claude/skills/industrial-deep-diagnostic/`.
 - **Agent prompts**: `agents/*.md` — each defines one sub-agent's instructions and output contract.
 - **Agent decoupling**: Agents communicate exclusively through workspace files (see SKILL.md for the file chain).
 - **Script philosophy**: Node.js for fixed operations (zero-dep, always works). Python as adaptive toolkit (agent selects primitives by data dimension).
-- **Statistical validation layer** (v4.2): `stats.mjs` + `stats_validate.mjs` run BEFORE diagnosis to detect sorting artifacts, Simpson's Paradox, trend confounding, and outlier-driven correlations.
+- **Statistical validation layer** (v4.3): `stats.mjs` + `stats_validate.mjs` run BEFORE diagnosis. New in v4.3: mutual information, Granger causality, interaction effects, change point detection.
+- **Clarification gate** (v4.3 NEW): Context Builder uses AskUserQuestion when parameter physical meanings are unknown. Step 2.5 in the pipeline.
 
 ## File Organization
 
@@ -40,7 +41,7 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Workspace persistence**: All outputs go to `./workspace/diagnostic-runs/<timestamp>_<name>/`.
 - **Numbered subdirectories**: All agent outputs use numbered prefixes (`00_input/`, `01_ontology/`, `02_processed/`, `03_figures/`, `04_diagnostics/`, `05_review/`, `06_scripts/`).
 
-## Statistical Scripts (v4.2)
+## Statistical Scripts (v4.3)
 
 ### stats.mjs — Enhanced Statistical Engine
 - **Pearson + Spearman** correlations (Spearman for skew-robust comparison)
@@ -49,6 +50,9 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Stratified correlations** (per group, Simpson's Paradox detection)
 - **Sorting validation** (checks if data is sorted by time column)
 - **Multiple testing** (Bonferroni correction, expected false positives)
+- **Mutual Information** (NEW v4.3 — k-NN estimator for non-linear dependency)
+- **Granger Causality** (NEW v4.3 — F-test on VAR models for temporal causality)
+- **Interaction Effects** (NEW v4.3 — synergistic parameter pair detection)
 - Usage: `node stats.mjs <data.json> --time-col T --target-cols A,B --group-col G --max-lag 20 --alpha 0.05`
 
 ### stats_validate.mjs — Statistical Validation Engine
@@ -58,14 +62,18 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Distribution analysis** (skewness, Pearson vs Spearman recommendation)
 - **Confounder partial correlation** (controls for suspected confounders)
 - **Pearson-Spearman divergence detection**
+- **Change Point Detection** (NEW v4.3 — PELT algorithm for regime shift identification)
 - Usage: `node stats_validate.mjs <feature_summary.json> <data.json> --group-col G --time-col T`
 
 ### Validation Report Pipeline Contract
-1. `stats.mjs` → `feature_summary.json` (raw statistics)
-2. `stats_validate.mjs` → `validate_report.json` (validation findings)
-3. Diagnostician reads BOTH before forming hypotheses
-4. Judge cross-references diagnosis against validate_report.json
-5. Reporter includes Section 13: Statistical Validation in report
+1. `stats.mjs` → `feature_summary.json` (raw statistics + MI, Granger, interactions)
+2. `stats_validate.mjs` → `validate_report.json` (validation findings + change points)
+3. Context Builder outputs `clarification_needed.json` for unknown parameters
+4. Main agent runs clarification gate (Step 2.5) before proceeding
+5. Diagnostician reads BOTH enriched ontology AND validation report before forming hypotheses
+6. Judge cross-references diagnosis against validate_report.json
+7. Reporter includes Section 13: Statistical Validation in report
+8. Report Reviewer checks physical mechanisms + parameter meaning confidence
 
 ## Visualization Toolkit (`scripts/template_visualize.py`)
 
@@ -93,6 +101,10 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Script & toolkit details**: Moved to `resources/script_and_toolkit_reference.md`.
 - **CRITICAL — Sorting**: If data is NOT time-sorted (sorted by batch_id or product), ALL lag correlation results are invalid. This is the #1 fatal error in industrial diagnostics. `stats.mjs` now automatically validates this.
 - **Simpson's Paradox**: Always check if correlations hold within product/grade subgroups. The aggregate correlation may be driven by between-group differences, not within-group physics.
+- **Parameter physical meaning** (v4.3): Unknown parameter meanings → clarification gate (Step 2.5). Never silently guess. Use [PARAM_AMBIGUITY] marker when unresolved.
+- **Granger causality** requires time-sorted data. Results are invalid if sorting validation failed.
+- **Change points**: Correlations computed across regime boundaries may be spurious. Check before drawing conclusions.
+- **Interaction effects**: Weak individual correlations + strong interaction = synergistic failure mode. Don't dismiss parameters just because |r| is low.
 
 ## Validation & Integrity Scripts
 

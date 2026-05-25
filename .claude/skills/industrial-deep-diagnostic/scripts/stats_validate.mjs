@@ -226,6 +226,117 @@ function computeSlope(t, vals) {
   return (count * sumXY - sumX * sumY) / (count * sumX2 - sumX * sumX + 1e-12);
 }
 
+// ═══════════════════════════════════════════════
+//  CHANGE POINT DETECTION (PELT algorithm)
+// ═══════════════════════════════════════════════
+
+function detectChangePoints(values, minSegmentLength = 10, penalty = null) {
+  // PELT (Pruned Exact Linear Time) for mean shift detection
+  // Detects structural breaks that may indicate regime changes
+  const valid = [];
+  for (let i = 0; i < values.length; i++) {
+    if (values[i] != null && !isNaN(values[i])) valid.push({ idx: i, v: values[i] });
+  }
+  const n = valid.length;
+  if (n < minSegmentLength * 2) return { change_points: [], n_segments: 1, warning: 'insufficient data' };
+
+  const y = valid.map(v => v.v);
+  const mean = y.reduce((a, b) => a + b, 0) / n;
+  const variance = y.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
+  const pen = penalty || 2 * Math.log(n) * Math.max(variance, 1e-10);
+
+  // Precompute cumulative sums for O(1) segment cost
+  const cumSum = [0], cumSumSq = [0];
+  for (let i = 0; i < n; i++) {
+    cumSum.push(cumSum[i] + y[i]);
+    cumSumSq.push(cumSumSq[i] + y[i] * y[i]);
+  }
+
+  function segmentCost(start, end) {
+    const len = end - start;
+    if (len < 2) return 0;
+    const sum = cumSum[end] - cumSum[start];
+    const sumSq = cumSumSq[end] - cumSumSq[start];
+    const segMean = sum / len;
+    const segVar = Math.max(sumSq / len - segMean * segMean, 1e-10);
+    return len * Math.log(segVar) / 2;
+  }
+
+  // PELT dynamic programming
+  const F = new Array(n + 1).fill(Infinity);
+  F[0] = -pen;
+  const cp = new Array(n + 1).fill(0);
+  let R = [0];
+
+  for (let t = minSegmentLength; t <= n; t++) {
+    let bestCost = Infinity, bestTau = 0;
+    for (const tau of R) {
+      if (t - tau < minSegmentLength) continue;
+      const cost = F[tau] + segmentCost(tau, t) + pen;
+      if (cost < bestCost) { bestCost = cost; bestTau = tau; }
+    }
+    F[t] = bestCost;
+    cp[t] = bestTau;
+    R = R.filter(tau => {
+      if (t - tau < minSegmentLength) return true;
+      return F[tau] + segmentCost(tau, t) < F[t];
+    });
+    R.push(t);
+  }
+
+  // Backtrack
+  const changePoints = [];
+  let t = n;
+  while (t > 0) {
+    const prev = cp[t];
+    if (prev > 0) changePoints.unshift(valid[prev].idx);
+    t = prev;
+  }
+
+  // Build segments
+  const segments = [];
+  let prevIdx = valid[0].idx;
+  const allBreaks = [...changePoints, valid[n - 1].idx + 1];
+  for (const breakIdx of allBreaks) {
+    const segVals = valid.filter(v => v.idx >= prevIdx && v.idx < breakIdx);
+    if (segVals.length >= minSegmentLength) {
+      const segMean = segVals.reduce((s, v) => s + v.v, 0) / segVals.length;
+      segments.push({
+        start_idx: segVals[0].idx,
+        end_idx: segVals[segVals.length - 1].idx,
+        length: segVals.length,
+        mean: +segMean.toFixed(4)
+      });
+    }
+    prevIdx = breakIdx;
+  }
+
+  // Analyze regime shifts
+  const regimeShifts = [];
+  for (let i = 1; i < segments.length; i++) {
+    const prev = segments[i - 1];
+    const curr = segments[i];
+    const meanShift = Math.abs(curr.mean - prev.mean) / (Math.abs(prev.mean) + 1e-12);
+    regimeShifts.push({
+      position: curr.start_idx,
+      from_mean: prev.mean, to_mean: curr.mean,
+      relative_change_pct: +(meanShift * 100).toFixed(1),
+      significant: meanShift > 0.1
+    });
+  }
+
+  return {
+    change_points: changePoints,
+    n_segments: segments.length,
+    n_changes: changePoints.length,
+    segments,
+    regime_shifts: regimeShifts,
+    has_regime_change: regimeShifts.some(r => r.significant),
+    warning: regimeShifts.filter(r => r.significant).length > 0 ?
+      `Detected ${regimeShifts.filter(r => r.significant).length} significant regime shifts. Correlations computed across regime boundaries may be spurious. Consider analyzing each segment separately.` : null
+  };
+}
+
 // ═══════════════════════════════════════════
 //  SIMPSON'S PARADOX DEEP DETECTION
 // ═══════════════════════════════════════════
@@ -453,7 +564,34 @@ if (multiTest.nominally_significant_p0_05 && multiTest.expected_false_positives)
   }
 }
 
-// ═══ 7. Pearson vs Spearman Divergence ═══
+// ═══ 7. Change Point Detection ═══
+const changePointResults = {};
+if (timeCol) {
+  for (const target of targets) {
+    if (!colData[target]) continue;
+    const cp = detectChangePoints(colData[target]);
+    if (cp && cp.n_changes > 0) {
+      changePointResults[target] = cp;
+    }
+  }
+  // Also check key predictor parameters
+  const analysis = stats.target_analysis?.[targets[0]];
+  if (analysis) {
+    const topParams = Object.entries(analysis.pearson_correlations || {})
+      .filter(([, v]) => Math.abs(v.r) > 0.3)
+      .sort((a, b) => Math.abs(b[1].r) - Math.abs(a[1].r))
+      .slice(0, 5);
+    for (const [param] of topParams) {
+      if (!colData[param] || changePointResults[param]) continue;
+      const cp = detectChangePoints(colData[param]);
+      if (cp && cp.n_changes > 0) {
+        changePointResults[param] = cp;
+      }
+    }
+  }
+}
+
+// ═══ 8. Pearson vs Spearman Divergence ═══
 const spearmanWarnings = [];
 for (const target of targets) {
   const analysis = stats.target_analysis?.[target];
@@ -491,6 +629,7 @@ const validateReport = {
     trend_confounded_correlations: trendChecks.length,
     simpson_paradox_findings: simpsonResults.filter(s => s.simpson_paradox || s.direction_reversal).length,
     spearman_divergence_findings: spearmanWarnings.filter(w => w.severity === 'SERIOUS').length,
+    change_points_detected: Object.values(changePointResults).filter(c => c.has_regime_change).length,
     fatal_issues: lagWarning ? 1 : 0
   },
   sorting_validation: sortingValidation,
@@ -500,6 +639,7 @@ const validateReport = {
   time_trend_confounding: trendChecks,
   simpson_paradox: simpsonResults,
   spearman_divergence: spearmanWarnings,
+  change_point_detection: changePointResults,
   multiple_testing_warning: multiTestWarning,
   overall_validity: null  // Set below
 };
@@ -509,7 +649,8 @@ const fatalCount = validateReport.summary.fatal_issues;
 const seriousCount = (
   simpsonResults.filter(s => s.simpson_paradox || s.direction_reversal || s.severity === 'CRITICAL').length +
   outlierChecks.filter(c => c.outlier_driven).length +
-  spearmanWarnings.filter(w => w.severity === 'SERIOUS').length
+  spearmanWarnings.filter(w => w.severity === 'SERIOUS').length +
+  Object.values(changePointResults).filter(c => c.has_regime_change).length
 );
 const moderateCount = (
   trendChecks.length +
