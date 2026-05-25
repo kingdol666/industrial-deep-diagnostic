@@ -357,7 +357,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
                   });
 
                   if (child && !child.killed) {
-                    try { process.kill(child.pid, 'SIGSTOP'); } catch {}
+                    try { process.kill(child.pid, 'SIGSTOP'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
                   }
 
                   const hitlPromise = new Promise((resolve) => {
@@ -370,7 +370,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
                           type: 'hitl_result',
                           data: { hitlId, approved: false, reason: 'Timeout — auto-denied' },
                         });
-                        try { process.kill(child.pid, 'SIGKILL'); } catch {}
+                        try { process.kill(child.pid, 'SIGKILL'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
                         resolve(false);
                       }
                     }, hitlTimeoutMs);
@@ -379,10 +379,10 @@ function executeDiagnosis(runId, run, isRetry = false) {
                   hitlPromise.then((approved) => {
                     if (approved) {
                       emit(runId, { type: 'hitl_result', data: { hitlId, approved: true } });
-                      try { process.kill(child.pid, 'SIGCONT'); } catch {}
+                      try { process.kill(child.pid, 'SIGCONT'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
                     } else {
                       emit(runId, { type: 'hitl_result', data: { hitlId, approved: false, reason: 'Denied by user' } });
-                      try { process.kill(child.pid, 'SIGKILL'); } catch {}
+                      try { process.kill(child.pid, 'SIGKILL'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
                     }
                   });
                 }
@@ -530,7 +530,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
               try {
                 const jf = JSON.parse(readFileSync(join(reviewDir, reviewFiles[i]), 'utf-8'));
                 if (jf.score != null) { score = jf.score; verdict = jf.verdict || jf.result || null; break; }
-              } catch {}
+              } catch (e) { console.error("[Diagnosis] error:", e.message); }
             }
           }
 

@@ -10,6 +10,23 @@ const engine = new EventEmitter();
 const runs = new Map();
 
 const MAX_EVENT_BUFFER = engineConfig.max_event_buffer;
+const MAX_RUNS = 100;
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+// Periodic cleanup: remove finished runs that have no active subscribers
+setInterval(() => {
+  if (runs.size <= MAX_RUNS) return;
+  const finished = [];
+  for (const [runId, run] of runs) {
+    if (run.status === 'completed' || run.status === 'failed' || run.status === 'stopped') {
+      if (run.subscribers.size === 0) finished.push(runId);
+    }
+  }
+  for (const runId of finished) {
+    runs.delete(runId);
+  }
+  if (finished.length > 0) console.log(`[Engine] cleaned up ${finished.length} finished runs, ${runs.size} remaining`);
+}, CLEANUP_INTERVAL);
 
 export function createRun(runId) {
   if (runs.has(runId)) return;
@@ -74,7 +91,7 @@ export function emit(runId, event) {
   }
 
   for (const cb of run.subscribers) {
-    try { cb(enriched); } catch {}
+    try { cb(enriched); } catch (e) { console.error('[Engine] subscriber error:', e.message); }
   }
 
   engine.emit(`run:${runId}`, enriched);
@@ -88,7 +105,7 @@ export function subscribe(runId, callback) {
   run.subscribers.add(callback);
 
   for (const event of run.events) {
-    try { callback(event); } catch {}
+    try { callback(event); } catch (e) { console.error('[Engine] replay error:', e.message); }
   }
 
   return () => {
@@ -105,7 +122,7 @@ export function closeRun(runId) {
   if (!run) return;
 
   for (const cb of run.subscribers) {
-    try { cb({ type: 'stream_end', _ts: Date.now() }); } catch {}
+    try { cb({ type: 'stream_end', _ts: Date.now() }); } catch (e) { console.error('[Engine] close callback error:', e.message); }
   }
 
   run.subscribers.clear();

@@ -112,7 +112,7 @@ export function initWebSocket(httpServer) {
       }
     });
 
-    ws.on('error', () => {});
+    ws.on('error', (err) => { console.error('[WS] connection error:', err.message); });
 
     ws.send(JSON.stringify({
       type: 'welcome',

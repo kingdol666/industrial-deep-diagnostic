@@ -25,7 +25,7 @@ export async function listDataDir(dir) {
         modified: s.mtime.toISOString(),
         ext: extname(entry).toLowerCase(),
       });
-    } catch {}
+    } catch (e) { console.error("[Files] error:", e.message); }
   }
   return result.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
@@ -132,7 +132,7 @@ export async function deleteDataFolder(name) {
     throw err;
   }
   await rm(folderPath, { recursive: true });
-  try { stmts.deleteFolder.run(name); } catch {}
+  try { stmts.deleteFolder.run(name); } catch (e) { console.error("[Files] error:", e.message); }
   return true;
 }
 

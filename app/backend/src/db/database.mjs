@@ -49,8 +49,12 @@ export function initDB() {
       message_type TEXT DEFAULT 'text',
       tool_name TEXT,
       created_at TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (run_id) REFERENCES diagnostic_runs(run_id)
+      FOREIGN KEY (run_id) REFERENCES diagnostic_runs(run_id) ON DELETE CASCADE
     );
+
+    CREATE INDEX IF NOT EXISTS idx_runs_status ON diagnostic_runs(status);
+    CREATE INDEX IF NOT EXISTS idx_runs_created ON diagnostic_runs(created_at);
+    CREATE INDEX IF NOT EXISTS idx_logs_run_id ON diagnosis_logs(run_id);
 
     CREATE TABLE IF NOT EXISTS data_folders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +71,28 @@ export function initDB() {
   const hasReportLang = cols.some(c => c.name === 'report_language');
   if (!hasReportLang) {
     db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN report_language TEXT DEFAULT '${sqlQuote(config.diagnosis.default_language)}'`);
+  }
+
+  // Migration: rebuild diagnosis_logs with ON DELETE CASCADE if missing
+  const fkCols = db.prepare('PRAGMA foreign_key_list(diagnosis_logs)').all();
+  const hasCascade = fkCols.some(fk => fk.on_delete === 'CASCADE');
+  if (fkCols.length > 0 && !hasCascade) {
+    db.exec(`
+      ALTER TABLE diagnosis_logs RENAME TO diagnosis_logs_old;
+      CREATE TABLE diagnosis_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        content TEXT,
+        message_type TEXT DEFAULT 'text',
+        tool_name TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (run_id) REFERENCES diagnostic_runs(run_id) ON DELETE CASCADE
+      );
+      INSERT INTO diagnosis_logs SELECT * FROM diagnosis_logs_old;
+      DROP TABLE diagnosis_logs_old;
+      CREATE INDEX IF NOT EXISTS idx_logs_run_id ON diagnosis_logs(run_id);
+    `);
   }
 
   console.log('[DB] Database initialized successfully.');
