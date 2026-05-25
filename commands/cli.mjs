@@ -214,7 +214,17 @@ async function cmdWebfrp() {
     console.error('  [ERROR] webfrp/expose.mjs not found');
     process.exit(1);
   }
-  return runCommand('node', [webfrpScript], PROJECT_ROOT);
+  return new Promise((resolve, reject) => {
+    const child = spawn('node', [webfrpScript], {
+      cwd: PROJECT_ROOT,
+      stdio: 'inherit',
+    });
+    child.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`webfrp exited with code ${code}`));
+    });
+    child.on('error', reject);
+  });
 }
 
 function cmdStatus() {
