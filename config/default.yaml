@@ -33,7 +33,8 @@ claude:
   dangerously_skip_permissions: true
   api_base_url: ""                          # Override Anthropic API base URL (used when env var is missing, e.g. under sudo)
   api_key: ""                               # Override Anthropic API key (used when env var is missing)
-  allowed_tools: "Read(/**),Write(/**),Edit(/**),Bash(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Task"
+  api_auth_token: ""                        # Auth token for 3rd-party API providers (e.g. zhipu/glm)
+  allowed_tools: "Read(/**),Write(/**),Edit(/**),Bash(/**),Agent(/**),Task(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Glob(/**),Grep(/**),AskUserQuestion"
   model: "claude-opus-4-7"
   max_turns: 200                             # 0 = unlimited
   timeout_minutes: 120
