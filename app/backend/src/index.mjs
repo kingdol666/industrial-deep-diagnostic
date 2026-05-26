@@ -5,6 +5,7 @@ import { join } from 'path';
 import fileRoutes from './routes/files.routes.mjs';
 import diagnosisRoutes from './routes/diagnosis.routes.mjs';
 import historyRoutes from './routes/history.routes.mjs';
+import analysisRoutes from './routes/analysis.routes.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
@@ -53,6 +54,7 @@ app.use('/workspace-files', express.static(join(PROJECT_ROOT, 'workspace')));
 app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/analysis', analysisRoutes);
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {
