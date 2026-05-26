@@ -208,14 +208,16 @@ export function continueDiagnosis(runId, followUpMessage) {
     err.status = 404;
     throw err;
   }
-  if (!['failed', 'stopped', 'completed'].includes(run.status)) {
-    const err = new Error(`Run status is "${run.status}" — only failed, stopped, or completed runs can be continued`);
+  // Allow continue for completed, failed, stopped, OR running-with-dead-child
+  const allowedStatuses = ['failed', 'stopped', 'completed', 'running'];
+  if (!allowedStatuses.includes(run.status)) {
+    const err = new Error(`Run status is "${run.status}" — cannot continue`);
     err.status = 400;
     throw err;
   }
   const existingChild = getChild(runId);
   if (existingChild && !existingChild.killed && existingChild.exitCode === null) {
-    const err = new Error('Run is already executing');
+    const err = new Error('Run is already executing — use chat to send live messages, or stop first');
     err.status = 409;
     throw err;
   }
@@ -335,6 +337,10 @@ function executeDiagnosis(runId, run, isRetry = false) {
               content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
               messageType: 'system', toolName: null,
             });
+            // Capture Claude session_id and child PID for tracking
+            if (parsed.session_id) {
+              stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
+            }
           }
         } else if (parsed.type === 'assistant') {
           const content = parsed.message?.content || [];

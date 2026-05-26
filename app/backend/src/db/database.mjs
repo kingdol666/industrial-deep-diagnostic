@@ -125,7 +125,7 @@ const stmts = {
   `),
   getAllRuns: db.prepare(`
     SELECT id, run_id, name, scene_name, data_path, data_folder, user_question, status,
-           score, judge_verdict, created_at, completed_at, error_message
+           session_id, score, judge_verdict, created_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
   `),
   getRunById: db.prepare('SELECT * FROM diagnostic_runs WHERE run_id = ?'),
@@ -138,6 +138,7 @@ const stmts = {
   getFolderByName: db.prepare('SELECT * FROM data_folders WHERE name = ?'),
   deleteFolder: db.prepare('DELETE FROM data_folders WHERE name = ?'),
   getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
+  updateRunSession: db.prepare('UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime(\'now\') WHERE run_id = @runId'),
 };
 
 export { db, stmts };
