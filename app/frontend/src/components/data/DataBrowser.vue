@@ -250,8 +250,8 @@ function isDataFile(ext) {
 
 async function preview(item) {
   const path = currentFolder.value
-    ? `${currentFolder.value}/${item.name}`
-    : item.name;
+    ? `data/${currentFolder.value}/${item.name}`
+    : `data/${item.name}`;
   try {
     const data = await api.readFile(path);
     previewFile.value = item;
