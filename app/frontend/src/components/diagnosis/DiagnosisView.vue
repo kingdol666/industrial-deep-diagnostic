@@ -112,12 +112,12 @@
         @skip="onSkipQuestion"
       />
 
-      <!-- Chat Input (for running AND failed sessions) -->
+      <!-- Chat Input — always visible when viewing a run, enables follow-up messages -->
       <ChatInput
-        v-if="viewingRun && (isRunning || failed)"
+        v-if="viewingRun"
         ref="chatInputRef"
         :isRunning="isRunning"
-        :isFailed="failed"
+        :isFailed="failed || completed"
         :runId="runId"
         @send-message="onSendMessage"
         @resume-with-message="onResumeWithMessage"
