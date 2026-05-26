@@ -190,16 +190,17 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     : buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
 
   const allowedTools = config.claude.allowed_tools;
-  const claudeArgs = [
+  const claudeArgs = [];
+  if (sessionId) {
+    claudeArgs.push('--resume', sessionId);
+  }
+  claudeArgs.push(
     '-p', prompt,
     '--output-format', config.claude.output_format,
     '--verbose',
     '--dangerously-skip-permissions',
     '--allowedTools', allowedTools,
-  ];
-  if (sessionId) {
-    claudeArgs.push('--resume', sessionId);
-  }
+  );
   if (maxTurns > 0) {
     claudeArgs.push('--max-turns', String(maxTurns));
   }

@@ -351,8 +351,8 @@ function executeDiagnosis(runId, run, isRetry = false) {
               content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
               messageType: 'system', toolName: null,
             });
-            // Capture Claude session_id and child PID for tracking
-            if (parsed.session_id) {
+            // Capture Claude session_id only on FIRST run — don't overwrite on resume
+            if (parsed.session_id && !run.session_id) {
               stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
             }
           }
