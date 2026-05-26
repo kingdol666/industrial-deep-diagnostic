@@ -20,6 +20,7 @@ Read from RUN_DIR:
 - `04_diagnostics/diagnosis.json` — The diagnosis to review
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence breakdown
+- `04_diagnostics/reasoning_chain.json` — **NEW: Structured Chain-of-Thought reasoning trace**
 
 Read from SKILL_PATH:
 - `resources/evidence_rules.md` — Evidence hierarchy and anti-speculation rules
@@ -66,11 +67,49 @@ Read from SKILL_PATH:
    - If change points are detected, are regime shifts addressed?
    - Missing all of these when data supports them → **WARNING**
 
+## Step 0.6: Audit Reasoning Chain Quality (NEW)
+
+Read `04_diagnostics/reasoning_chain.json`. Verify the reasoning trace is complete and sound.
+
+### Check 1: Completeness
+- Are ALL 8 reasoning steps present? (step_id 1-8)
+- Does each step have: inputs, reasoning, outputs, alternatives_considered, uncertainty, falsification_condition?
+- If any step is missing required fields → **BLOCKING ISSUE**
+
+### Check 2: Evidence Grounding
+- Does each reasoning step cite SPECIFIC evidence sources? (not just "correlation is high")
+- Are evidence ranks (1-7) assigned correctly?
+- Are [OBSERVED] claims backed by direct data (Rank 1-4)?
+- Are [INFERRED] claims properly flagged?
+- If any conclusion lacks evidence grounding → **BLOCKING ISSUE**
+
+### Check 3: Counterfactual Adequacy
+- For each surviving hypothesis, is there at least ONE alternative considered?
+- Is the alternative actually POSSIBLE? (not a straw man)
+- Is the elimination reasoning specific and data-backed? (not just "unlikely")
+- If any hypothesis lacks counterfactual analysis → **WARNING**
+
+### Check 4: Falsifiability
+- For each conclusion, does `falsification_condition` specify REAL, TESTABLE evidence?
+- "What would disprove this" must be clear enough that someone could actually collect that evidence
+- Vague falsification conditions ("would need more data") → **WARNING**
+
+### Check 5: Hallucination Audit
+- Spot-check 3 conclusions at random
+- Verify each has: specific data backing, evidence rank, [OBSERVED]/[INFERRED] marker
+- If the diagnostician marked a conclusion as valid in the hallucination audit but the Judge finds it unsupported → **BLOCKING ISSUE**
+
+### Check 6: Uncertainty Decomposition
+- Are aleatory (irreducible) and epistemic (reducible) uncertainty properly separated?
+- Is the overall confidence ceiling justified by the uncertainty analysis?
+- Does `what_would_change_conclusions` list actionable next steps?
+- If uncertainty is handwaved without decomposition → **WARNING**
+
 ## Step 1: Evaluate 10 Criteria
 
 Score each 0-10:
 
-### 1. Data Quality Awareness (weight 15%)
+### 1. Data Quality Awareness (weight 10%)
 Was data loaded correctly? Missing values handled? Outliers documented? **Sorting order validated and documented?** No silent data loss?
 
 ### 2. Variable Classification (10%)
@@ -79,11 +118,20 @@ All variables classified? Consistent with ontology? Uncertain ones flagged? **Ca
 ### 3. Time Alignment & Sorting (10%)
 Alignment method appropriate? No artifacts? Statistical preservation verified? **Data confirmed time-sorted before lag analysis? If not, is the limitation explicitly stated?**
 
-### 4. Visualization Quality (10%)
+### 4. Visualization Quality (5%)
 Plots match data? Labels, units, legends present? **Statistical validation plots generated when issues exist?** Referenced plots exist?
 
 ### 5. Evidence-Based Conclusions (20%)
 Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** Hypotheses separated from facts?
+
+### 5.5. Reasoning Chain Quality (NEW — weight 15%)
+
+Score 0-10:
+- Chain completeness: Are all 8 steps present with full fields? (0-3)
+- Evidence grounding: Are claims backed by specific data with ranks? (0-2)
+- Counterfactual adequacy: Are alternatives genuinely considered and properly eliminated? (0-2)
+- Uncertainty quality: Is aleatory vs epistemic properly decomposed? (0-2)
+- Hallucination guard: Does the STOP checklist pass on spot-checked conclusions? (0-1)
 
 ### 6. Correlation vs Causation (10%)
 No confusion between correlation and causation? Temporal ordering analyzed? **Lag correlations validated against time-sorting? Simpson's Paradox ruled out within subgroups? Time-trend confounding checked?** Alternative explanations considered?
@@ -91,7 +139,7 @@ No confusion between correlation and causation? Temporal ordering analyzed? **La
 ### 7. Uncertainty Disclosure (10%)
 Confidence levels assigned? Evidence gaps identified? **Sorting/stratification/trend caveats stated?** Assumptions stated?
 
-### 8. Report Quality (10%)
+### 8. Report Quality (5%)
 Language templates used correctly? Self-contained? No internal contradictions?
 
 ### 9. No Over-Claiming (BLOCKING — -20 per violation)
@@ -137,6 +185,19 @@ Save to `RUN_DIR/05_review/judge_feedback.json`:
     "report_quality": {"score": 0, "notes": "..."},
     "no_over_claiming": {"score": 0, "blocking_issues": 0, "violations": [], "notes": "..."},
     "completeness": {"score": 0, "notes": "..."}
+  },
+  "reasoning_chain_audit": {
+    "score": 0,
+    "checks": {
+      "completeness": {"passed": true, "issues": []},
+      "evidence_grounding": {"passed": true, "issues": []},
+      "counterfactual_adequacy": {"passed": true, "issues": []},
+      "falsifiability": {"passed": true, "issues": []},
+      "hallucination_audit": {"passed": true, "issues": []},
+      "uncertainty_decomposition": {"passed": true, "issues": []}
+    },
+    "blocking_issues": [],
+    "warnings": []
   },
   "blocking_issues": [
     {"description": "...", "repair_instruction": "...", "affected_steps": ["..."], "validation_source": "validate_report.json"}
