@@ -23,6 +23,7 @@ Read from RUN_DIR:
 - `04_diagnostics/diagnosis.json`
 - `04_diagnostics/evidence.json`
 - `04_diagnostics/confidence.json`
+- `04_diagnostics/reasoning_chain.json` — **NEW: Structured reasoning trace from Chain-of-Thought protocol**
 - `05_review/judge_feedback.json`
 
 Read from SKILL_PATH:
@@ -48,6 +49,25 @@ Read from SKILL_PATH:
 - Spearman vs Pearson plot → "Are the correlations robust to method choice?"
 - Outlier sensitivity plot → "Are the correlations outlier-driven?"
 
+## Step 1.5: Read and Synthesize Reasoning Chain (NEW)
+
+Read `04_diagnostics/reasoning_chain.json`. This is the complete step-by-step reasoning trace produced by the diagnostician.
+
+For each reasoning step, extract:
+- The key finding
+- The evidence that supports it (with rank)
+- What alternatives were considered and why they were ruled out
+- The uncertainty classification (aleatory vs epistemic)
+
+Populate the Section 2 (Reasoning Overview) of the report from this data.
+
+For the Hallucination Audit Log (Appendix E), verify each conclusion against the STOP checklist:
+- Does the conclusion have specific data backing?
+- Is the evidence rank cited?
+- Are inferences marked [INFERRED]?
+- Was counter-evidence checked?
+Document any conclusion that fails the audit.
+
 ## Step 2: Generate Report
 
 Write the report to `RUN_DIR/report.md`. Use the following structure:
@@ -68,38 +88,73 @@ Write the report to `RUN_DIR/report.md`. Use the following structure:
 Include overall confidence level AND note any critical validation findings.
 Written for engineering management.]
 
-## 2. Analysis Objective
+## Step 2: Reasoning Overview
+
+The reasoning overview MUST:
+- Be understandable by an engineer reading the report without access to raw data
+- Show the chain of logic from observation → inference → hypothesis → conclusion
+- Clearly distinguish [OBSERVED] from [INFERRED] claims
+- List hypotheses that were CONSIDERED but RULED OUT, with the specific evidence that eliminated them
+- State what additional evidence would change each conclusion
+- Include the hallucination audit pass/fail for each major conclusion
+
+## 2. Reasoning Overview
+[Synthesized from `04_diagnostics/reasoning_chain.json`. Step-by-step trace of the diagnostic reasoning.
+Populate subsections from reasoning_chain data.]
+
+### 2.1 Data Characterization
+[Key characteristics of the dataset that shaped the analysis approach.]
+
+### 2.2 Statistical Discovery
+[Key statistical findings and patterns discovered during analysis.]
+
+### 2.3 Validation Filter
+[How statistical validation findings were applied to filter hypotheses.]
+
+### 2.4 Hypothesis Evolution
+[How hypotheses evolved through the analysis — which were modified, refined, or discarded.]
+
+### 2.5 Key Inferences vs Observations
+[Distinguish what was directly observed from what was inferred.]
+
+### 2.6 What We Ruled Out
+[Hypotheses considered and eliminated, with specific evidence.]
+
+### 2.7 Uncertainty Boundaries
+[Classification of uncertainties and their boundaries.]
+
+## 3. Analysis Objective
 [What question the analysis was trying to answer.]
 
-## 3. User Context and Constraints
+## 4. User Context and Constraints
 [User-provided context, known issues, constraints.]
 
-## 4. Industrial Context and Ontology
+## 5. Industrial Context and Ontology
 [Process type, equipment, stages, key variables. Reference ontology.json.]
 
-## 5. Reference Documents Used
+## 6. Reference Documents Used
 [List documents consulted and key knowledge extracted.]
 
-## 6. External Research Used
+## 7. External Research Used
 [Web findings labeled [EXTERNAL KNOWLEDGE].]
 
-## 7. Data Description
+## 8. Data Description
 [Data summary table. Sampling rate, time range, data quality summary.
 **NEW**: Include data sorting information — is data sorted by time or by batch_id?]
 
-## 8. Variable Classification
+## 9. Variable Classification
 [How variables were classified. Include parameter groups.]
 
-## 9. Preprocessing & Alignment
+## 10. Preprocessing & Alignment
 [What cleaning was done. Missing value handling. Alignment method.
 **NEW**: Include data sorting validation result.]
 
-## 10. Visualization Evidence — Per-Figure Analysis
+## 11. Visualization Evidence — Per-Figure Analysis
 
 **This is a central section. Every figure from 03_figures/ MUST appear here.**
 
 For each figure:
-### 10.N [Figure Title]
+### 11.N [Figure Title]
 ![Figure Name](03_figures/filename.png)
 
 **What this figure shows**: [chart type, axes, data]
@@ -112,20 +167,29 @@ For each figure:
 
 [Repeat for EVERY plot in the manifest.]
 
-## 11. Diagnostic Findings
-[Per-defect type analysis with hypotheses.]
+## 12. Diagnostic Findings
 
-## 12. Root Cause Analysis — Synthesis
+### 12.1 Evidence-Eliminated Hypotheses
+[List hypotheses that were ruled out and the specific evidence that eliminated them.]
+
+### 12.2 Surviving Hypotheses with Reasoning
+[Hypotheses that survived validation, with the reasoning chain that supports each.
+Every claim MUST cite which link in the reasoning chain supports it ([Chain Link N]).]
+
+### 12.3 Causal Chain Models
+[Causal chain diagrams or descriptions for each surviving hypothesis.]
+
+## 13. Root Cause Analysis — Synthesis
 [Parameter impact ranking. Defect groups. Causal chain model.]
 
-## 13. Statistical Validation & Confidence Assessment
+## 14. Statistical Validation & Confidence Assessment
 
 **NEW SECTION**: Transparent disclosure of all statistical validation findings.
 
-### 13.1 Data Sorting Validation
+### 14.1 Data Sorting Validation
 [State whether data is time-sorted. If not, explain impact on lag-based claims.]
 
-### 13.2 Subgroup Analysis (Simpson's Paradox Check)
+### 14.2 Subgroup Analysis (Simpson's Paradox Check)
 [For each key correlation, report whether it holds within the dominant product group.]
 [If direction reversals exist, state them clearly with a table:]
 
@@ -133,49 +197,65 @@ For each figure:
 |-------------|:-:|:-:|-----------|
 | film_points vs MD_TH009 | 0.22 | -0.01 | REVERSED |
 
-### 13.3 Time-Trend Confounding
+### 14.3 Time-Trend Confounding
 [Report detrended correlations for key relationships:]
 
 | Relationship | Raw r | Detrended r | Attenuation |
 |-------------|:-----:|:----------:|:----------:|
 | W1C88 vs melt_spots | 0.37 | 0.09 | -76% |
 
-### 13.4 Correlation Robustness
+### 14.4 Correlation Robustness
 [Spearman vs Pearson for key correlations. Outlier sensitivity.]
 
-### 13.5 Adjusted Confidence Assessment
+### 14.5 Adjusted Confidence Assessment
 
 | Hypothesis | Original Confidence | Adjustment Reason | Adjusted Confidence |
 |-----------|:---:|---|:---:|
 | H1: Thermal degradation | 75 | Simpson's Paradox in PG31DS subgroup | 45-50 |
 | H4: Temperature fluctuation → scratches | 80 | Lag correlations not validated (sorting issue) | Pending re-analysis |
 
-## 14. Confidence & Uncertainty
+## 15. Confidence & Uncertainty
 [Overall confidence. Evidence gaps. What additional data would help.]
 
-## 15. Recommended Actions
+## 16. Limitations & Uncertainty
+
+### 16.1 Aleatory Uncertainty
+[Irreducible uncertainty inherent to the process or measurement.]
+
+### 16.2 Epistemic Uncertainty
+[Reducible uncertainty that could be resolved with more data or better models.]
+
+### 16.3 What Would Change Our Conclusions
+[Specific evidence or data that would overturn each conclusion.]
+
+### 16.4 Reasoning Chain Weaknesses
+[Identified weaknesses or gaps in the reasoning chain.]
+
+## 17. Recommended Actions
 
 | Priority | Action | Rationale | Evidence Strength | Validation Notes |
 |----------|--------|-----------|:---:|------------------|
 | P0 | ... | ... | High | Robust to all checks |
 | P1 | ... | ... | Medium | Attenuates in subgroup |
 
-## 16. Limitations
+## 18. Limitations
 [What this analysis does NOT cover. Assumptions. Caveats.
 **NEW**: Explicitly list validation limitations found.]
 
-## 17. Appendix
+## 19. Appendix
 ### A. Run Configuration
 ### B. Statistical Summary
 ### C. File Inventory
 ### D. Validation Report Summary
+### E. Hallucination Audit Log
+[Pass/fail for each major conclusion against STOP checklist.]
 ```
 
 ### Image Embedding Rules
 
 1. **Use relative paths from report location**: `03_figures/filename.png`
 2. **Always use `![title](path)` markdown syntax**
-3. **Every figure must appear exactly once** in Section 10
+3. **Every figure must appear exactly once** in Section 11
 4. **Order figures by interpretation_hints reading order** from plot_manifest.json
 5. **If a figure cannot be read**, note: "*Image unavailable*" with explanation
 
@@ -190,6 +270,10 @@ For each figure:
 - Precise language: "increased by 8%" not "went up a lot"
 - Tables for structured data
 - **Every figure must be visible in the report as an embedded image**
+- **Every claim MUST cite which link in the reasoning chain supports it ([Chain Link N])**
+- **Distinguish [OBSERVED] from [INFERRED] at all times**
+- **If a conclusion cannot be falsified by ANY possible evidence — it is speculation, DO NOT include it**
+- **Every uncertainty statement MUST specify whether it is aleatory (irreducible) or epistemic (reducible)**
 
 ## Step 3: Generate Run Summary
 
@@ -238,7 +322,7 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 - **Every figure MUST be embedded using `![title](path)` markdown syntax**
 - **Every embedded figure MUST have detailed analysis**
 - **Read each figure via the Read tool BEFORE writing its analysis**
-- **Section 13 (Statistical Validation) is MANDATORY** — do not skip it
+- **Section 14 (Statistical Validation) is MANDATORY** — do not skip it
 - All web/external knowledge must be labeled [EXTERNAL KNOWLEDGE]
 - Never present hypotheses as facts
 - Include units everywhere
