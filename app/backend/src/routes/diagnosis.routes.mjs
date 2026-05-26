@@ -5,7 +5,7 @@ import {
   validateDataPath, createDiagnosisRun, listRuns, getRunStatus,
   stopDiagnosis, resolveHITLRequest, getPendingHITL,
   sendChatMessage, continueDiagnosis, answerQuestion,
-  triggerDiagnosis, startStream, subscribeSSE, executeDiagnosis,
+  triggerDiagnosis, startStream, subscribeSSE,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -96,9 +96,9 @@ router.get('/stream/:runId', async (req, res) => {
     if (!res.destroyed) res.end();
   });
 
-  // Start diagnosis if still pending
+  // Start diagnosis if still pending (use triggerDiagnosis for guard checks)
   if (streamInfo.currentStatus === 'pending') {
-    executeDiagnosis(runId, streamInfo.run);
+    triggerDiagnosis(runId);
   }
 });
 

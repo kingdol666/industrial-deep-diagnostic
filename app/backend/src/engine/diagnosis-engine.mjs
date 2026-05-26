@@ -42,7 +42,7 @@ export function createRun(runId) {
 export function resetRun(runId) {
   const existing = runs.get(runId);
   if (existing) {
-    existing.events = [];
+    // Preserve existing events so SSE/WS subscribers don't lose history
     existing.status = 'pending';
     existing.child = null;
     existing.meta = {};

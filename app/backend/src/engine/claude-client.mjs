@@ -123,16 +123,6 @@ export function isDangerousCommand(command) {
   return null;
 }
 
-const pendingHITL = new Map();
-
-export function resolveHITL(permissionId, approved) {
-  const entry = pendingHITL.get(permissionId);
-  if (!entry) return false;
-  pendingHITL.delete(permissionId);
-  entry.resolve(approved === true);
-  return true;
-}
-
 export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
@@ -260,6 +250,11 @@ export function extractReportPath(output) {
 const activeChildren = new Map();
 
 export function registerChild(runId, child) {
+  // Kill any previous child process for this run to prevent orphaned processes
+  const prev = activeChildren.get(runId);
+  if (prev && !prev.killed && prev.pid !== child.pid) {
+    try { prev.kill('SIGKILL'); } catch {}
+  }
   activeChildren.set(runId, child);
 }
 
@@ -280,4 +275,4 @@ export function writeAnswer(runId, answerJson) {
   }
 }
 
-export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR, pendingHITL };
+export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR };

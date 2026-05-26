@@ -23,6 +23,9 @@ import {
 const hitlRequests = new Map();
 let hitlSeq = 0;
 
+// Guard: prevent double execution of the same run
+const executingRuns = new Set();
+
 // Validate that a resolved data path is safe (contained within project root)
 export async function validateDataPath(dataPath) {
   if (dataPath.startsWith('/')) {
@@ -257,6 +260,13 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
 
 // Core diagnosis execution — spawns Claude, streams events, handles HITL
 function executeDiagnosis(runId, run, isRetry = false) {
+  // Guard: prevent double execution of the same run
+  if (executingRuns.has(runId)) {
+    console.warn(`[Diagnosis] executeDiagnosis called twice for run: ${runId} — skipping duplicate`);
+    return;
+  }
+  executingRuns.add(runId);
+
   if (isRetry) {
     resetRun(runId);
   } else {
@@ -284,6 +294,9 @@ function executeDiagnosis(runId, run, isRetry = false) {
     const meta = getMeta(runId);
     const timeoutMinutes = meta.timeoutMinutes || config.claude.timeout_minutes;
     const followUpMessage = meta.followUpMessage || null;
+
+    // Snapshot workspace dirs BEFORE spawning Claude to detect new dirs later
+    const preExistingDirs = snapshotWorkspaceDirs();
 
     const result = startDiagnosis({
       analysisTarget,
@@ -505,7 +518,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
       }
 
       try {
-        const runDir = await findLatestRunDir(run.scene_name);
+        const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
         let reportPath = null, score = null, verdict = null, hasOptimizer = false;
 
         if (runDir) {
@@ -581,14 +594,21 @@ function executeDiagnosis(runId, run, isRetry = false) {
         emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
       }
 
-      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+      setTimeout(() => {
+        executingRuns.delete(runId);
+        closeRun(runId);
+      }, engConfig.close_run_delay_seconds * 1000);
     });
 
   } catch (err) {
+    executingRuns.delete(runId);
     updateStatus(runId, 'failed');
     stmts.failRun.run({ runId, error: err.message });
     emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
-    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+    setTimeout(() => {
+      executingRuns.delete(runId);
+      closeRun(runId);
+    }, engConfig.close_run_delay_seconds * 1000);
   }
 }
 
@@ -657,17 +677,39 @@ export function startStream(runId) {
   return { run, currentStatus, isFinished: false };
 }
 
-async function findLatestRunDir(sceneName) {
+// Take a snapshot of existing workspace dirs before spawning Claude.
+// After completion, find any NEW dir that appeared.
+export function snapshotWorkspaceDirs() {
+  if (!existsSync(WORKSPACE_DIR)) return new Set();
+  return new Set(readdirSync(WORKSPACE_DIR));
+}
+
+async function findLatestRunDir(sceneName, knownDirs = new Set()) {
   if (!existsSync(WORKSPACE_DIR)) return null;
   const entries = await readdir(WORKSPACE_DIR);
+  const escapedName = sceneName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const dirPattern = new RegExp(`_${escapedName}$`);
+
+  // Collect all matching dirs, excluding known ones (from snapshot)
+  // and directories already claimed by other runs in the DB
+  const claimedDirs = new Set(
+    stmts.getClaimedWorkspacePaths.all().map(r => r.workspace_path)
+  );
+
   let latest = null, latestTime = 0;
   for (const entry of entries) {
-    const escapedName = sceneName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const dirPattern = new RegExp(`_${escapedName}$`);
-    if (dirPattern.test(entry)) {
-      const s = await stat(join(WORKSPACE_DIR, entry));
-      if (s.mtimeMs > latestTime) { latestTime = s.mtimeMs; latest = join(WORKSPACE_DIR, entry); }
-    }
+    if (!dirPattern.test(entry)) continue;
+    const fullPath = join(WORKSPACE_DIR, entry);
+    const relPath = `workspace/diagnostic-runs/${entry}`;
+    // Skip directories that existed before this run started or are claimed by others
+    if (knownDirs.has(entry) || claimedDirs.has(relPath)) continue;
+    try {
+      const s = await stat(fullPath);
+      if (s.mtimeMs > latestTime) {
+        latestTime = s.mtimeMs;
+        latest = fullPath;
+      }
+    } catch {}
   }
   return latest;
 }

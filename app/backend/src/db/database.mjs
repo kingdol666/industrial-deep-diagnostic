@@ -136,6 +136,7 @@ const stmts = {
   getAllFolders: db.prepare('SELECT * FROM data_folders ORDER BY created_at DESC'),
   getFolderByName: db.prepare('SELECT * FROM data_folders WHERE name = ?'),
   deleteFolder: db.prepare('DELETE FROM data_folders WHERE name = ?'),
+  getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
 };
 
 export { db, stmts };
