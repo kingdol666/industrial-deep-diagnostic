@@ -316,16 +316,18 @@ function executeDiagnosis(runId, run, isRetry = false) {
       sessionId,
     });
 
-    // Store the file-based session ID for future --resume calls
-    const fileSessionChecker = setInterval(() => {
-      const fsid = result.getSessionId();
-      if (fsid) {
-        stmts.updateRunSession.run({ runId, sessionId: fsid });
-        setMeta(runId, { sessionId: fsid });
-        clearInterval(fileSessionChecker);
-      }
-    }, 500);
-    setTimeout(() => clearInterval(fileSessionChecker), 10000);
+    // Store the file-based session ID only on FIRST run (not on resume)
+    if (!sessionId) {
+      const fileSessionChecker = setInterval(() => {
+        const fsid = result.getSessionId();
+        if (fsid) {
+          stmts.updateRunSession.run({ runId, sessionId: fsid });
+          setMeta(runId, { sessionId: fsid });
+          clearInterval(fileSessionChecker);
+        }
+      }, 500);
+      setTimeout(() => clearInterval(fileSessionChecker), 10000);
+    }
 
     child = result.child;
     setChild(runId, child);
@@ -352,10 +354,6 @@ function executeDiagnosis(runId, run, isRetry = false) {
               content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
               messageType: 'system', toolName: null,
             });
-            // Capture Claude session_id only on FIRST run — don't overwrite on resume
-            if (parsed.session_id && !run.session_id) {
-              stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
-            }
           }
         } else if (parsed.type === 'assistant') {
           const content = parsed.message?.content || [];

@@ -43,10 +43,10 @@ export function createRun(runId) {
 export function resetRun(runId) {
   const existing = runs.get(runId);
   if (existing) {
-    // Preserve existing events so SSE/WS subscribers don't lose history
+    // Preserve events for SSE/WS subscribers and sessionId for resume
     existing.status = 'pending';
     existing.child = null;
-    existing.meta = {};
+    existing.meta = { sessionId: existing.meta.sessionId };
   } else {
     createRun(runId);
   }
