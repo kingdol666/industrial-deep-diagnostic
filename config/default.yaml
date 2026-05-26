@@ -188,3 +188,12 @@ mime_types:
   ".json": "application/json"
   ".csv": "text/csv"
   ".html": "text/html"
+
+# --- Logging Configuration ---
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+  file_path: "logs/app.log"
+  max_size_mb: 50
+  max_files: 5
