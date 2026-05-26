@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ind-diag-backend
+    ports:
+      - "3210:3210"
+    volumes:
+      - ./data:/app/data
+      - ./workspace:/app/workspace
+      - ./config/local.yaml:/app/config/local.yaml:ro
+    environment:
+      - SERVER_PORT=3210
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      - CLAUDE_API_BASE_URL=${CLAUDE_API_BASE_URL:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - LOGGING_FORMAT=json
+      - LOGGING_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3210/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
