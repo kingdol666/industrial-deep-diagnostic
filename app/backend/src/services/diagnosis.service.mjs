@@ -178,26 +178,37 @@ export function getPendingHITL(runId) {
   return pending;
 }
 
-// Send a chat message to running Claude process
+// Send a chat message — tries live stdin first, falls back to resume
 export function sendChatMessage(runId, message) {
-  const userMessage = {
-    type: 'user',
-    message: {
-      role: 'user',
-      content: [{ type: 'text', text: message }],
-    },
-  };
+  const child = getChild(runId);
 
-  const wrote = writeAnswer(runId, userMessage);
-  if (!wrote) return false;
+  // If child is alive, write to stdin
+  if (child && !child.killed && child.exitCode === null) {
+    const userMessage = {
+      type: 'user',
+      message: {
+        role: 'user',
+        content: [{ type: 'text', text: message }],
+      },
+    };
+    const wrote = writeAnswer(runId, userMessage);
+    if (wrote) {
+      emit(runId, {
+        type: 'system',
+        subtype: 'chat_sent',
+        data: { message, timestamp: new Date().toISOString() },
+      });
+      return true;
+    }
+  }
 
-  emit(runId, {
-    type: 'system',
-    subtype: 'chat_sent',
-    data: { message, timestamp: new Date().toISOString() },
-  });
-
-  return true;
+  // Child is dead — auto-resume the existing session with the message as follow-up
+  try {
+    continueDiagnosis(runId, message);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Continue / retry a failed or stopped run
@@ -224,9 +235,10 @@ export function continueDiagnosis(runId, followUpMessage) {
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
-  if (followUpMessage) {
-    setMeta(runId, { followUpMessage });
-  }
+  setMeta(runId, {
+    followUpMessage: followUpMessage || null,
+    sessionId: run.session_id || null,
+  });
 
   executeDiagnosis(runId, run, true);
   return { runId, status: 'running', continued: true };
@@ -297,6 +309,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
     const meta = getMeta(runId);
     const timeoutMinutes = meta.timeoutMinutes || config.claude.timeout_minutes;
     const followUpMessage = meta.followUpMessage || null;
+    const sessionId = meta.sessionId || null;
 
     // Snapshot workspace dirs BEFORE spawning Claude to detect new dirs later
     const preExistingDirs = snapshotWorkspaceDirs();
@@ -310,6 +323,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
       timeoutMinutes,
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
+      sessionId,
     });
 
     child = result.child;

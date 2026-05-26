@@ -123,7 +123,7 @@ export function isDangerousCommand(command) {
   return null;
 }
 
-export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage }) {
+export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage, sessionId = null }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
 
@@ -185,7 +185,9 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     throw err;
   }
 
-  const prompt = buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
+  const prompt = sessionId
+    ? (followUpMessage || 'Continue the analysis.')
+    : buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
 
   const allowedTools = config.claude.allowed_tools;
   const claudeArgs = [
@@ -195,6 +197,9 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     '--dangerously-skip-permissions',
     '--allowedTools', allowedTools,
   ];
+  if (sessionId) {
+    claudeArgs.push('--resume', sessionId);
+  }
   if (maxTurns > 0) {
     claudeArgs.push('--max-turns', String(maxTurns));
   }
