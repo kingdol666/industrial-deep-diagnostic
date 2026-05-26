@@ -143,6 +143,34 @@
           </div>
         </div>
       </div>
+
+      <!-- Chart Dashboard -->
+      <div v-if="completed && chartData" class="card chart-dashboard">
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>📊 诊断数据可视化</span>
+          <button class="btn btn-sm" @click="toggleCharts">
+            {{ showCharts ? '收起' : '展开' }}
+          </button>
+        </div>
+        <div v-if="showCharts" class="chart-grid">
+          <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
+            <div class="card-title" style="font-size:13px">变量相关性矩阵</div>
+            <HeatmapChart
+              :data="chartData.heatmap.data"
+              :x-labels="chartData.heatmap.xLabels"
+              :y-labels="chartData.heatmap.yLabels"
+              title="Correlation Matrix"
+            />
+          </div>
+          <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
+            <GaugeChart
+              :value="chartData.confidence.overall"
+              title="诊断置信度"
+              unit="%"
+            />
+          </div>
+        </div>
+      </div>
     </template>
 
     <!-- HITL Approval Dialog -->
@@ -173,6 +201,7 @@ import TaskList from './TaskList.vue';
 import MessageStream from './MessageStream.vue';
 import AnswerBar from './AnswerBar.vue';
 import ChatInput from './ChatInput.vue';
+import { HeatmapChart, GaugeChart } from '../charts/index.js';
 
 const props = defineProps({
   analysisTarget: { type: Object, default: null },
@@ -214,6 +243,9 @@ const hitlId = ref(null);
 const hitlCommand = ref('');
 const hitlRisk = ref('');
 const hitlDesc = ref('');
+
+const chartData = ref(null);
+const showCharts = ref(true);
 
 let eventSource = null;
 let elapsedTimer = null;
@@ -384,6 +416,10 @@ function connectSSE(rid) {
         score.value = d.score;
         verdict.value = d.verdict;
         reportPath.value = d.reportPath;
+        if (d.reportPath) {
+          const runDir = d.reportPath.split('/').slice(0, -1).join('/');
+          fetchChartData(runDir);
+        }
         errorMsg.value = '';
       }
       progressPct.value = 100;
@@ -626,6 +662,10 @@ function openRun(rid) {
         completed.value = true;
         isRunning.value = false;
         reportPath.value = status.report_path;
+        if (status.report_path) {
+          const runDir = status.report_path.split('/').slice(0, -1).join('/');
+          fetchChartData(runDir);
+        }
         score.value = status.score;
         verdict.value = status.judge_verdict;
         progressPct.value = 100;
@@ -698,6 +738,20 @@ function formatSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+function toggleCharts() { showCharts.value = !showCharts.value; }
+
+async function fetchChartData(runDir) {
+  if (!runDir) return;
+  try {
+    const dirName = runDir.replace('workspace/diagnostic-runs/', '');
+    const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
+    const json = await res.json();
+    if (json.success && json.data) chartData.value = json.data;
+  } catch (err) {
+    console.error('Failed to fetch chart data:', err);
+  }
+}
+
 // --- Watchers ---
 watch(() => props.analysisTarget, (target) => {
   closeSSE();
@@ -753,6 +807,10 @@ watch(() => props.autoRunId, async (newRunId) => {
       if (status.status === 'completed') {
         completed.value = true;
         reportPath.value = status.report_path;
+        if (status.report_path) {
+          const runDir = status.report_path.split('/').slice(0, -1).join('/');
+          fetchChartData(runDir);
+        }
         score.value = status.score;
         verdict.value = status.judge_verdict;
       } else {
@@ -940,4 +998,15 @@ onUnmounted(() => {
 .hitl-deny:hover { background: rgba(248,81,73,.25); }
 .hitl-approve { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; }
 .hitl-approve:hover { opacity: .9; transform: translateY(-1px); }
+
+.chart-dashboard { margin-top: 16px; }
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.chart-cell { min-height: 300px; }
+.chart-cell-full { grid-column: 1 / -1; }
+.chart-cell-half { grid-column: span 1; }
 </style>

@@ -100,6 +100,10 @@
         <div style="margin-left:auto;display:flex;gap:6px;">
           <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? 'View Rendered' : 'View Raw' }}</button>
           <button class="btn btn-sm" @click="copyReport">Copy</button>
+          <button
+            class="btn btn-sm"
+            @click="showChartPanel = !showChartPanel"
+          >{{ showChartPanel ? '📊 Hide' : '📊 Charts' }}</button>
         </div>
       </div>
       <div class="report-tabs" v-if="hasOptimizer">
@@ -117,6 +121,32 @@
       <div class="report-body" v-if="activeTab !== 'report' && !viewRaw" v-html="renderedOptimizer"></div>
       <pre class="report-raw" v-if="activeTab !== 'report' && viewRaw">{{ optimizerContent }}</pre>
     </div>
+
+    <!-- Chart panel -->
+    <div v-if="showChartPanel && chartData" class="card" style="margin-top:12px">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>📊 Interactive Charts</span>
+        <button class="btn btn-sm" @click="showChartPanel = false">Close</button>
+      </div>
+      <div class="chart-grid">
+        <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
+          <div class="card-title" style="font-size:13px">Correlation Matrix</div>
+          <HeatmapChart
+            :data="chartData.heatmap.data"
+            :x-labels="chartData.heatmap.xLabels"
+            :y-labels="chartData.heatmap.yLabels"
+            title="Correlation Matrix"
+          />
+        </div>
+        <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
+          <GaugeChart
+            :value="chartData.confidence.overall"
+            title="Confidence Score"
+            unit="%"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,6 +155,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { HeatmapChart, GaugeChart } from '../charts/index.js';
 
 const props = defineProps({
   autoRunId: { type: String, default: null },
@@ -142,6 +173,9 @@ const viewRaw = ref(false);
 const loadingReport = ref(false);
 const runFiles = ref([]);
 const loadingFiles = ref(false);
+
+const showChartPanel = ref(false);
+const chartData = ref(null);
 
 onMounted(() => {
   loadRuns();
@@ -175,6 +209,9 @@ watch(() => props.targetRunName, (name) => {
     loadingReport.value = true;
     api.getReport(name).then(data => {
       if (selectedRun.value === requestedName) reportContent.value = data.content;
+      if (selectedRun.value === requestedName) {
+        fetchChartData(`workspace/diagnostic-runs/${requestedName}`);
+      }
     }).catch(() => {
       if (selectedRun.value === requestedName) reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
     }).finally(() => {
@@ -298,6 +335,18 @@ async function copyReport() {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
+  }
+}
+
+async function fetchChartData(runDir) {
+  if (!runDir) return;
+  try {
+    const dirName = runDir.replace('workspace/diagnostic-runs/', '');
+    const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
+    const json = await res.json();
+    if (json.success && json.data) chartData.value = json.data;
+  } catch (err) {
+    console.error('Chart fetch failed:', err);
   }
 }
 
@@ -760,4 +809,14 @@ function formatSize(bytes) {
   color: #fff;
   border-color: var(--accent);
 }
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.chart-cell { min-height: 300px; }
+.chart-cell-full { grid-column: 1 / -1; }
+.chart-cell-half { grid-column: span 1; }
 </style>
