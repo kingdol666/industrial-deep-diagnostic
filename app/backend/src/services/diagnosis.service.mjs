@@ -316,6 +316,17 @@ function executeDiagnosis(runId, run, isRetry = false) {
       sessionId,
     });
 
+    // Store the file-based session ID for future --resume calls
+    const fileSessionChecker = setInterval(() => {
+      const fsid = result.getSessionId();
+      if (fsid) {
+        stmts.updateRunSession.run({ runId, sessionId: fsid });
+        setMeta(runId, { sessionId: fsid });
+        clearInterval(fileSessionChecker);
+      }
+    }, 500);
+    setTimeout(() => clearInterval(fileSessionChecker), 10000);
+
     child = result.child;
     setChild(runId, child);
     registerChild(runId, child);

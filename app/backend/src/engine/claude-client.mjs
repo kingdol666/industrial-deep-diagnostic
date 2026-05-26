@@ -123,6 +123,27 @@ export function isDangerousCommand(command) {
   return null;
 }
 
+// Helper: detect the real file-based session ID after spawning Claude
+import { join as pathJoin } from 'path';
+import { homedir } from 'os';
+
+const SESSION_DIR = pathJoin(homedir(), '.claude', 'projects',
+  '-Volumes-laxer-codes-skills--industrial-deep-diagnostic');
+
+function snapshotSessions() {
+  if (!existsSync(SESSION_DIR)) return new Set();
+  return new Set(readdirSync(SESSION_DIR).filter(f => f.endsWith('.jsonl')));
+}
+
+function findNewSession(prevSnapshot) {
+  if (!existsSync(SESSION_DIR)) return null;
+  const current = readdirSync(SESSION_DIR).filter(f => f.endsWith('.jsonl'));
+  for (const f of current) {
+    if (!prevSnapshot.has(f)) return f.replace('.jsonl', '');
+  }
+  return null;
+}
+
 export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage, sessionId = null }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
@@ -205,11 +226,25 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     claudeArgs.push('--max-turns', String(maxTurns));
   }
 
+  // Snapshot existing sessions to detect the new one
+  const prevSessions = sessionId ? new Set() : snapshotSessions();
+
   const child = spawn(claudeBin, claudeArgs, {
     cwd: PROJECT_ROOT,
     env: buildEnv(),
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+
+  // Detect the file-based session ID (different from stream-json session_id)
+  let fileSessionId = sessionId || null;
+  if (!fileSessionId) {
+    // Poll for new session file (created within first 5 seconds)
+    const detectSession = setInterval(() => {
+      const found = findNewSession(prevSessions);
+      if (found) { fileSessionId = found; clearInterval(detectSession); }
+    }, 500);
+    setTimeout(() => clearInterval(detectSession), 10000);
+  }
 
   let sigkillTimer = null;
   const graceMs = (config.claude.sigkill_grace_seconds || 5) * 1000;
@@ -236,7 +271,10 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
   child.stdout.on('error', () => {});
   child.stderr.on('error', () => {});
 
-  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes: timeout };
+  // Return the file-based session ID (detected from disk, not from stream-json)
+  const getSessionId = () => fileSessionId;
+
+  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes: timeout, getSessionId };
 }
 
 export function parseStreamLine(line) {
