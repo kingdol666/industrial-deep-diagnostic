@@ -1,0 +1,12 @@
+node_modules/
+.git/
+.gitignore
+*.md
+workspace/
+data/diagnostic.db*
+app/frontend/node_modules/
+app/backend/node_modules/
+docs/
+.omc/
+.claude/
+webfrp/
