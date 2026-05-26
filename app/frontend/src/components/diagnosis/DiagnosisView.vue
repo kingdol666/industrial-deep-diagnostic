@@ -145,14 +145,21 @@
       </div>
 
       <!-- Chart Dashboard -->
-      <div v-if="completed && chartData" class="card chart-dashboard">
+      <div v-if="completed" class="card chart-dashboard">
         <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
           <span>📊 诊断数据可视化</span>
-          <button class="btn btn-sm" @click="toggleCharts">
-            {{ showCharts ? '收起' : '展开' }}
-          </button>
+          <div style="display:flex;gap:6px;">
+            <button v-if="chartData === null" class="btn btn-sm" @click="loadCharts" :disabled="chartLoading">加载图表</button>
+            <button v-if="chartData" class="btn btn-sm" @click="toggleCharts">
+              {{ showCharts ? '收起' : '展开' }}
+            </button>
+          </div>
         </div>
-        <div v-if="showCharts" class="chart-grid">
+        <div v-if="chartLoading" style="padding:12px;text-align:center;color:var(--text2)">加载图表数据中...</div>
+        <div v-if="chartData && !chartData.heatmap && !chartData.confidence && !chartData.runSummary" style="padding:12px;text-align:center;color:var(--text2)">
+          该诊断运行没有可用的图表数据。
+        </div>
+        <div v-if="showCharts && chartData" class="chart-grid">
           <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
             <div class="card-title" style="font-size:13px">变量相关性矩阵</div>
             <HeatmapChart
@@ -245,6 +252,7 @@ const hitlRisk = ref('');
 const hitlDesc = ref('');
 
 const chartData = ref(null);
+const chartLoading = ref(false);
 const showCharts = ref(true);
 
 let eventSource = null;
@@ -740,15 +748,32 @@ function formatSize(bytes) {
 
 function toggleCharts() { showCharts.value = !showCharts.value; }
 
+function loadCharts() {
+  if (chartLoading.value) return;
+  // Derive runDir from the current report path
+  if (!reportPath.value) return;
+  const runDir = reportPath.value.split('/').slice(0, -1).join('/');
+  fetchChartData(runDir);
+}
+
 async function fetchChartData(runDir) {
   if (!runDir) return;
+  chartLoading.value = true;
   try {
     const dirName = runDir.replace('workspace/diagnostic-runs/', '');
     const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
     const json = await res.json();
-    if (json.success && json.data) chartData.value = json.data;
+    if (json.success && json.data) {
+      chartData.value = json.data;
+      showCharts.value = true;
+    } else {
+      chartData.value = {}; // Set to empty object to show "no data" state
+    }
   } catch (err) {
     console.error('Failed to fetch chart data:', err);
+    chartData.value = {}; // Prevent loading state from sticking
+  } finally {
+    chartLoading.value = false;
   }
 }
 
