@@ -142,11 +142,11 @@ router.post('/chat/:runId', (req, res) => {
   if (!sent) {
     return res.status(404).json({
       success: false,
-      error: 'Process not found or already ended. Use /continue to restart with a follow-up message.',
+      error: 'Run not found or could not be resumed.',
     });
   }
 
-  res.json({ success: true, data: { runId, sent: true } });
+  res.json({ success: true, data: { runId, resumed: true } });
 });
 
 // Continue / retry a failed or stopped run

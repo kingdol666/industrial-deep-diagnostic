@@ -178,31 +178,16 @@ export function getPendingHITL(runId) {
   return pending;
 }
 
-// Send a chat message — tries live stdin first, falls back to resume
+// Send a chat message — ALWAYS resume session: kill current child, spawn new --resume
 export function sendChatMessage(runId, message) {
+  // Kill any running child process for this run
   const child = getChild(runId);
-
-  // If child is alive, write to stdin
-  if (child && !child.killed && child.exitCode === null) {
-    const userMessage = {
-      type: 'user',
-      message: {
-        role: 'user',
-        content: [{ type: 'text', text: message }],
-      },
-    };
-    const wrote = writeAnswer(runId, userMessage);
-    if (wrote) {
-      emit(runId, {
-        type: 'system',
-        subtype: 'chat_sent',
-        data: { message, timestamp: new Date().toISOString() },
-      });
-      return true;
-    }
+  if (child && !child.killed) {
+    try { child.kill('SIGKILL'); } catch {}
+    setChild(runId, null);
   }
 
-  // Child is dead — auto-resume the existing session with the message as follow-up
+  // Resume the session with the user's message
   try {
     continueDiagnosis(runId, message);
     return true;
@@ -219,18 +204,18 @@ export function continueDiagnosis(runId, followUpMessage) {
     err.status = 404;
     throw err;
   }
-  // Allow continue for completed, failed, stopped, OR running-with-dead-child
-  const allowedStatuses = ['failed', 'stopped', 'completed', 'running'];
-  if (!allowedStatuses.includes(run.status)) {
-    const err = new Error(`Run status is "${run.status}" — cannot continue`);
+  // Allow continue for ANY non-pending status
+  if (run.status === 'pending') {
+    const err = new Error('Run is still pending — execute it first');
     err.status = 400;
     throw err;
   }
+
+  // Kill any existing child process — we're starting fresh
   const existingChild = getChild(runId);
-  if (existingChild && !existingChild.killed && existingChild.exitCode === null) {
-    const err = new Error('Run is already executing — use chat to send live messages, or stop first');
-    err.status = 409;
-    throw err;
+  if (existingChild && !existingChild.killed) {
+    try { existingChild.kill('SIGKILL'); } catch {}
+    setChild(runId, null);
   }
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
