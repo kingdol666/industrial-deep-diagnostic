@@ -269,7 +269,150 @@ To state "X caused Y" you need ALL four:
 
 **If any criterion is missing, use [HYPOTHESIS] language.**
 
-## Step 5.5: Schema Validation
+## Step 5.5: Structured Chain-of-Thought Reasoning (NEW)
+
+You MUST produce a structured reasoning trace that shows how each conclusion was reached. This is NOT optional — it is the core of your diagnostic work and will be audited by the Judge and Report Reviewer.
+
+### 5.5.1 Reasoning Protocol
+
+For each hypothesis that survives initial filtering, run the following chain-of-thought steps:
+
+#### Chain Link 1: EVIDENCE SCAN
+- What SPECIFIC data points support this hypothesis? (cite exact numbers, not "correlation is high")
+- What evidence rank does each piece have?
+- What is the weakest evidence link? (the chain is only as strong as this)
+
+#### Chain Link 2: MECHANISM TRACE
+- Construct the FULL causal chain from root → intermediate state → observed symptom
+- At each link, ask: "Is there direct evidence for this, or am I inferring?"
+- If inferring, flag as [INFERRED]. If directly observed, flag as [OBSERVED].
+- Example: "High temperature [OBSERVED] → accelerates oxidation [INFERRED] → creates surface defects [OBSERVED]"
+
+#### Chain Link 3: COUNTERFACTUAL TEST ("RULING OUT")
+- "If this parameter were NOT the cause, what would we expect to see?"
+- "If the correlation were spurious, what would look different?"
+- Explicitly state what would DISPROVE this hypothesis
+- Consider at least ONE alternative explanation per hypothesis and explain why it's less likely
+
+#### Chain Link 4: CONFOUNDER CHECK
+- Could a THIRD variable explain both the cause and the effect?
+- Check against the validation report: stratification, detrending, outlier sensitivity
+- If any confounder check FAILED → reduce confidence by the prescribed amount
+
+#### Chain Link 5: GRADIENT CHECK
+- Does increasing the parameter cause increasing severity?
+- Is there a threshold effect? (parameter only matters above/below a certain value)
+- Does the effect scale linearly, or is there saturation?
+
+#### Chain Link 6: TEMPORAL VERDICT  
+- If data IS time-sorted: what is the lag? Does the cause precede the effect?
+- If data is NOT time-sorted: can I still assert temporal ordering from domain knowledge?
+- If NO temporal evidence exists → [UNCERTAINTY] marker REQUIRED
+
+### 5.5.2 Hypothesis Elimination
+
+After running the chain-of-thought on each hypothesis:
+
+1. **ELIMINATE** hypotheses that fail counterfactual testing
+2. **DEPRIORITIZE** hypotheses with broken mechanism chains (>50% links are [INFERRED])
+3. **DISQUALIFY** hypotheses where confounder checks fail and residual evidence is insufficient
+4. **RETAIN** hypotheses that survive all checks, even if confidence is lowered
+
+For eliminated hypotheses, document EXACTLY which chain link broke and why.
+
+### 5.5.3 Uncertainty Decomposition
+
+For each surviving hypothesis, classify and quantify uncertainty:
+
+| Uncertainty Type | Description | Example |
+|-----------------|-------------|---------|
+| **Aleatory** (irreducible) | Natural process variability, measurement noise | "Sensor noise floor limits precision to ±2°C" |
+| **Epistemic** (reducible) | Lack of data, unmeasured variables, unknown mechanisms | "We don't have pressure data for this time period" |
+| **Model uncertainty** | Linear correlation may not capture non-linear relationships | "MI = 0.65 suggests non-linear, but linear model used" |
+| **Confidence in reasoning** | How certain are you of each link in the mechanism chain | "Oxidation step is well-established; degradation path is speculative" |
+
+### 5.5.4 Hallucination Prevention — The "STOP" Checklist
+
+Before writing ANY conclusion, check:
+
+- [ ] Does this statement have a SPECIFIC data point backing it? (Rank 1-4 evidence)
+- [ ] Am I stating the EVIDENCE RANK alongside the conclusion?
+- [ ] If this is inference, did I use [INFERRED] not [OBSERVED]?
+- [ ] Did I check the validation report for counter-evidence?
+- [ ] Could a reasonable expert disagree with this interpretation?
+- [ ] Am I using precise language (numbers, units, magnitudes) rather than vague terms?
+- [ ] Is this conclusion FALSIFIABLE? (if not, it's speculation — don't state it)
+- [ ] Did I say "X caused Y" without ALL 4 causation criteria? → Change to [HYPOTHESIS]
+
+**Any "NO" → STOP. Do not output that conclusion. Fix it or downgrade it.**
+
+### 5.5.5 Write Structured Reasoning Chain
+
+Save the complete reasoning chain to `RUN_DIR/04_diagnostics/reasoning_chain.json`. Use the schema at `<skill_path>/schemas/reasoning_chain_schema.json`.
+
+**The 8 required reasoning steps:**
+
+```json
+{
+  "run_id": "...",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "step_name": "Data Characterization",
+      "step_question": "What is the structure, quality, and time-sorting status of our data?",
+      ...
+    },
+    {
+      "step_id": 2,
+      "step_name": "Statistical Discovery",
+      "step_question": "Which variables show statistically significant relationships with the target?",
+      ...
+    },
+    {
+      "step_id": 3,
+      "step_name": "Validation Filter",
+      "step_question": "Which correlations survive stratification, detrending, and outlier checks?",
+      ...
+    },
+    {
+      "step_id": 4,
+      "step_name": "Hypothesis Generation",
+      "step_question": "What physical mechanisms could explain the validated correlations?",
+      ...
+    },
+    {
+      "step_id": 5,
+      "step_name": "Mechanism Tracing",
+      "step_question": "For each hypothesis, what is the complete causal chain from root cause to observed defect?",
+      ...
+    },
+    {
+      "step_id": 6,
+      "step_name": "Counterfactual Elimination",
+      "step_question": "What evidence would disprove each hypothesis, and which hypotheses fail this test?",
+      ...
+    },
+    {
+      "step_id": 7,
+      "step_name": "Confidence Assessment",
+      "step_question": "What is the overall confidence in each surviving hypothesis?",
+      ...
+    },
+    {
+      "step_id": 8,
+      "step_name": "Uncertainty Bounding",
+      "step_question": "What do we NOT know, and what would change our conclusions?",
+      ...
+    }
+  ],
+  "hypothesis_evolution": [...],
+  "uncertainty_summary": {...}
+}
+```
+
+The reasoning_chain.json MUST be a valid JSON file. The Judge and Report Reviewer will read it to audit your reasoning.
+
+## Step 5.6: Schema Validation
 
 After writing all output files, validate them against the schemas:
 
@@ -308,12 +451,14 @@ At the start and completion of your run, append to `RUN_DIR/.pipeline_events.jso
 
 ```jsonl
 {"event": "agent_start", "agent": "diagnostician", "timestamp": "2026-05-25T10:00:00Z"}
-{"event": "agent_complete", "agent": "diagnostician", "timestamp": "2026-05-25T10:05:00Z", "files_written": ["04_diagnostics/diagnosis.json", "04_diagnostics/evidence.json", "04_diagnostics/confidence.json"], "errors": null}
+{"event": "agent_complete", "agent": "diagnostician", "timestamp": "2026-05-25T10:05:00Z", "files_written": ["04_diagnostics/reasoning_chain.json", "04_diagnostics/diagnosis.json", "04_diagnostics/evidence.json", "04_diagnostics/confidence.json"], "errors": null}
 ```
 
 ## Output
 
 Save to RUN_DIR/04_diagnostics/:
+
+**reasoning_chain.json** — Full structured chain-of-thought reasoning trace, including all 8 reasoning steps, hypothesis evolution, and uncertainty summary. Auditable by Judge and Report Reviewer.
 
 **diagnosis.json** — Full structured diagnosis including:
 - Validation-adjusted confidence scores
