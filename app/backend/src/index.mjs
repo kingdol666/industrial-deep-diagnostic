@@ -6,7 +6,7 @@ import fileRoutes from './routes/files.routes.mjs';
 import diagnosisRoutes from './routes/diagnosis.routes.mjs';
 import historyRoutes from './routes/history.routes.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
-import { initDB, stmts } from './db/database.mjs';
+import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
 import { server as serverConfig, PROJECT_ROOT } from '../../../config/loader.mjs';
 import logger from './utils/logger.mjs';
@@ -54,9 +54,37 @@ app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/history', historyRoutes);
 
-// Health check
+// Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const checks = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: {
+      rss: Math.round(process.memoryUsage().rss / 1024 / 1024) + 'MB',
+      heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+      heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB',
+    },
+    checks: {},
+  };
+
+  // Database check
+  try {
+    db.prepare('SELECT 1 AS ok').get();
+    checks.checks.database = { status: 'ok' };
+  } catch (err) {
+    checks.checks.database = { status: 'error', message: err.message };
+    checks.status = 'degraded';
+  }
+
+  // Active runs count
+  try {
+    const count = stmts.getActiveRuns.all().length;
+    checks.checks.activeRuns = count;
+  } catch {}
+
+  const httpCode = checks.status === 'ok' ? 200 : 503;
+  res.status(httpCode).json(checks);
 });
 
 // Serve Vue frontend in production
