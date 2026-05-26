@@ -4,6 +4,7 @@
 import { WebSocketServer } from 'ws';
 import { subscribe, getEvents, getStatus, getActiveRuns, hasRun } from '../engine/diagnosis-engine.mjs';
 import { hitlRequests } from '../services/diagnosis.service.mjs';
+import logger from '../utils/logger.mjs';
 
 let wss = null;
 
@@ -112,7 +113,7 @@ export function initWebSocket(httpServer) {
       }
     });
 
-    ws.on('error', (err) => { console.error('[WS] connection error:', err.message); });
+    ws.on('error', (err) => { logger.error(`Connection error: ${err.message}`, { context: 'WS' }); });
 
     ws.send(JSON.stringify({
       type: 'welcome',
@@ -120,7 +121,7 @@ export function initWebSocket(httpServer) {
     }));
   });
 
-  console.log(`[WebSocket] Server ready on path /ws`);
+  logger.info('Server ready on path /ws', { context: 'WebSocket' });
   return wss;
 }
 

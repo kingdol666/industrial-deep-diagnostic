@@ -4,6 +4,7 @@ import { readdir, stat, mkdir, rm, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, extname } from 'path';
 import { config, PROJECT_ROOT, data as dataConfig, pipeline as pipeConfig } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 
 const DATA_DIR = join(PROJECT_ROOT, dataConfig.dir);
@@ -25,7 +26,7 @@ export async function listDataDir(dir) {
         modified: s.mtime.toISOString(),
         ext: extname(entry).toLowerCase(),
       });
-    } catch (e) { console.error("[Files] error:", e.message); }
+    } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Files' }); }
   }
   return result.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
@@ -132,7 +133,7 @@ export async function deleteDataFolder(name) {
     throw err;
   }
   await rm(folderPath, { recursive: true });
-  try { stmts.deleteFolder.run(name); } catch (e) { console.error("[Files] error:", e.message); }
+  try { stmts.deleteFolder.run(name); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Files' }); }
   return true;
 }
 

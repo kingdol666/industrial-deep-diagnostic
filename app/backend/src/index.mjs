@@ -9,18 +9,19 @@ import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts } from './db/database.mjs';
 import { existsSync } from 'fs';
 import { server as serverConfig, PROJECT_ROOT } from '../../../config/loader.mjs';
+import logger from './utils/logger.mjs';
 
 async function initialize() {
-  console.log('[Init] Checking project configuration...');
+  logger.info('Checking project configuration...', { context: 'Init' });
 
   // Verify default.yaml exists
   const defaultYamlPath = join(PROJECT_ROOT, 'config', 'default.yaml');
   if (!existsSync(defaultYamlPath)) {
-    console.error('[Init] FATAL: config/default.yaml not found');
-    console.error('[Init] Run: ind-diag init');
+    logger.error('FATAL: config/default.yaml not found', { context: 'Init' });
+    logger.error('Run: ind-diag init', { context: 'Init' });
     process.exit(1);
   }
-  console.log('[Init] Config loaded successfully');
+  logger.info('Config loaded successfully', { context: 'Init' });
 
   // Init database (idempotent)
   initDB();
@@ -30,11 +31,11 @@ async function initialize() {
   if (staleRuns.length > 0) {
     for (const run of staleRuns) {
       stmts.failRun.run({ runId: run.run_id, error: 'Server restarted — diagnosis interrupted' });
-      console.log(`[Init] Marked stale run as interrupted: ${run.run_id}`);
+      logger.info(`Marked stale run as interrupted: ${run.run_id}`, { context: 'Init', runId: run.run_id });
     }
   }
 
-  console.log('[Init] Initialization complete.');
+  logger.info('Initialization complete.', { context: 'Init' });
 }
 
 const PORT = process.env.PORT || serverConfig.port;
@@ -75,13 +76,13 @@ initWebSocket(server);
 
 initialize().then(() => {
   server.listen(PORT, () => {
-    console.log(`[Industrial Diagnostic API] HTTP + WebSocket server on http://localhost:${PORT}`);
-    console.log(`[Industrial Diagnostic API] WebSocket endpoint: ws://localhost:${PORT}/ws`);
-    console.log(`[Industrial Diagnostic API] Project root: ${PROJECT_ROOT}`);
-    console.log(`[Industrial Diagnostic API] Data dir: ${join(PROJECT_ROOT, 'data')}`);
+    logger.info(`HTTP + WebSocket server on http://localhost:${PORT}`, { context: 'Server' });
+    logger.info(`WebSocket endpoint: ws://localhost:${PORT}/ws`, { context: 'Server' });
+    logger.info(`Project root: ${PROJECT_ROOT}`, { context: 'Server' });
+    logger.info(`Data dir: ${join(PROJECT_ROOT, 'data')}`, { context: 'Server' });
   });
 }).catch(err => {
-  console.error('[Init] Failed to start:', err.message);
+  logger.error(`Failed to start: ${err.message}`, { context: 'Init' });
   process.exit(1);
 });
 

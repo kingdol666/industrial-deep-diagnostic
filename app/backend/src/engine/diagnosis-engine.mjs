@@ -3,6 +3,7 @@
 
 import { EventEmitter } from 'events';
 import { engine as engineConfig } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
 
 const engine = new EventEmitter();
 
@@ -25,7 +26,7 @@ setInterval(() => {
   for (const runId of finished) {
     runs.delete(runId);
   }
-  if (finished.length > 0) console.log(`[Engine] cleaned up ${finished.length} finished runs, ${runs.size} remaining`);
+  if (finished.length > 0) logger.info(`Cleaned up ${finished.length} finished runs, ${runs.size} remaining`, { context: 'Engine' });
 }, CLEANUP_INTERVAL);
 
 export function createRun(runId) {
@@ -91,7 +92,7 @@ export function emit(runId, event) {
   }
 
   for (const cb of run.subscribers) {
-    try { cb(enriched); } catch (e) { console.error('[Engine] subscriber error:', e.message); }
+    try { cb(enriched); } catch (e) { logger.error(`Subscriber error: ${e.message}`, { context: 'Engine' }); }
   }
 
   engine.emit(`run:${runId}`, enriched);
@@ -105,7 +106,7 @@ export function subscribe(runId, callback) {
   run.subscribers.add(callback);
 
   for (const event of run.events) {
-    try { callback(event); } catch (e) { console.error('[Engine] replay error:', e.message); }
+    try { callback(event); } catch (e) { logger.error(`Replay error: ${e.message}`, { context: 'Engine' }); }
   }
 
   return () => {
@@ -122,7 +123,7 @@ export function closeRun(runId) {
   if (!run) return;
 
   for (const cb of run.subscribers) {
-    try { cb({ type: 'stream_end', _ts: Date.now() }); } catch (e) { console.error('[Engine] close callback error:', e.message); }
+    try { cb({ type: 'stream_end', _ts: Date.now() }); } catch (e) { logger.error(`Close callback error: ${e.message}`, { context: 'Engine' }); }
   }
 
   run.subscribers.clear();

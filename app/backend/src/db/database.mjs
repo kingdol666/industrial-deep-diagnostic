@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import { mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
 
 const DB_PATH = join(PROJECT_ROOT, config.database.path);
 mkdirSync(dirname(DB_PATH), { recursive: true });
@@ -15,8 +16,8 @@ function sqlQuote(str) {
 }
 
 export function initDB() {
-  console.log('[DB] Initializing database...');
-  console.log(`[DB] Path: ${DB_PATH}`);
+  logger.info('Initializing database...', { context: 'DB' });
+  logger.info(`Path: ${DB_PATH}`, { context: 'DB' });
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS diagnostic_runs (
@@ -95,7 +96,7 @@ export function initDB() {
     `);
   }
 
-  console.log('[DB] Database initialized successfully.');
+  logger.info('Database initialized successfully.', { context: 'DB' });
 }
 
 initDB();

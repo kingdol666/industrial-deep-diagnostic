@@ -18,6 +18,7 @@ import {
   config, diagnosis as diagConfig, security as secConfig,
   pipeline as pipeConfig, engine as engConfig,
 } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
 
 // Track HITL requests per run: hitlId -> { resolve, child }
 const hitlRequests = new Map();
@@ -262,7 +263,7 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
 function executeDiagnosis(runId, run, isRetry = false) {
   // Guard: prevent double execution of the same run
   if (executingRuns.has(runId)) {
-    console.warn(`[Diagnosis] executeDiagnosis called twice for run: ${runId} — skipping duplicate`);
+    logger.warn(`executeDiagnosis called twice for run: ${runId} — skipping duplicate`, { context: 'Diagnosis', runId });
     return;
   }
   executingRuns.add(runId);
@@ -370,7 +371,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
                   });
 
                   if (child && !child.killed) {
-                    try { process.kill(child.pid, 'SIGSTOP'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
+                    try { process.kill(child.pid, 'SIGSTOP'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
                   }
 
                   const hitlPromise = new Promise((resolve) => {
@@ -383,7 +384,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
                           type: 'hitl_result',
                           data: { hitlId, approved: false, reason: 'Timeout — auto-denied' },
                         });
-                        try { process.kill(child.pid, 'SIGKILL'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
+                        try { process.kill(child.pid, 'SIGKILL'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
                         resolve(false);
                       }
                     }, hitlTimeoutMs);
@@ -392,10 +393,10 @@ function executeDiagnosis(runId, run, isRetry = false) {
                   hitlPromise.then((approved) => {
                     if (approved) {
                       emit(runId, { type: 'hitl_result', data: { hitlId, approved: true } });
-                      try { process.kill(child.pid, 'SIGCONT'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
+                      try { process.kill(child.pid, 'SIGCONT'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
                     } else {
                       emit(runId, { type: 'hitl_result', data: { hitlId, approved: false, reason: 'Denied by user' } });
-                      try { process.kill(child.pid, 'SIGKILL'); } catch (e) { console.error("[Diagnosis] error:", e.message); }
+                      try { process.kill(child.pid, 'SIGKILL'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
                     }
                   });
                 }
@@ -543,7 +544,7 @@ function executeDiagnosis(runId, run, isRetry = false) {
               try {
                 const jf = JSON.parse(readFileSync(join(reviewDir, reviewFiles[i]), 'utf-8'));
                 if (jf.score != null) { score = jf.score; verdict = jf.verdict || jf.result || null; break; }
-              } catch (e) { console.error("[Diagnosis] error:", e.message); }
+              } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
             }
           }
 
