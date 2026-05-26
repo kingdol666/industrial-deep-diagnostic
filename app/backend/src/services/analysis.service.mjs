@@ -7,7 +7,7 @@ import { WORKSPACE_DIR } from '../engine/claude-client.mjs';
  * Returns structured data for each chart type, or null if unavailable.
  */
 export function getRunChartData(runDirName) {
-  const runDir = join(WORKSPACE_DIR, 'diagnostic-runs', runDirName);
+  const runDir = join(WORKSPACE_DIR, runDirName);
   if (!existsSync(runDir)) return null;
 
   const result = {};
