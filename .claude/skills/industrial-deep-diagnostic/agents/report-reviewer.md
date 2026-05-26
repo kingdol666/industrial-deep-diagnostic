@@ -44,6 +44,7 @@ Read from RUN_DIR:
 - `04_diagnostics/diagnosis.json` — Structured diagnosis
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence assessment
+- `04_diagnostics/reasoning_chain.json` — **NEW: Full Chain-of-Thought reasoning trace from the diagnostician**
 - `02_processed/feature_summary.json` — Enhanced statistical data (Pearson, Spearman, detrended, CCF)
 - `02_processed/validate_report.json` — **Statistical validation report (primary verification tool)**
 - `01_ontology/ontology.json` — Process ontology
@@ -100,6 +101,54 @@ For EVERY parameter claimed as a key predictor:
 - Flag it: "Cannot verify mechanism — parameter physical meaning unknown"
 - The claimed mechanism is speculative regardless of statistical evidence
 - Reduce confidence ceiling for that hypothesis
+
+## Step 1.2: Reasoning Chain Audit — Hallucination Detection (NEW)
+
+Read the complete reasoning_chain.json. This is the diagnostician's step-by-step thinking — it is WHERE hallucination would occur.
+
+### 1.2.1 Pattern Detection
+
+Scan the reasoning chain for these hallucination red flags:
+
+| Pattern | Indicator | What to Check |
+|---------|-----------|---------------|
+| **Vague quantification** | "high correlation", "strong effect", "significant impact" without numbers | Verify exact r values are present |
+| **Unanchored inference** | Claims that jump from observation to conclusion without intermediate reasoning | Check whether mechanism links exist between observation and conclusion |
+| **Missing alternative** | Hypothesis with no alternatives considered | Ensure `alternatives_considered` is non-empty |
+| **Unfalsifiable conclusion** | `falsification_condition` is empty or says "none" or "would need more data" | Flag as **BLOCKING** |
+| **Evidence rank inflation** | Claims marked Rank 3 that should be Rank 5, or [OBSERVED] that should be [INFERRED] | Verify ranks against data sources |
+| **Confidence overstatement** | Confidence > 80 when >3 mechanism links are [INFERRED] | Flag as overconfident |
+| **Ignored contradiction** | Validation report flags a correlation as unreliable, but reasoning still uses it without adjustment | Flag as **BLOCKING** |
+| **Regime blindness** | Change points detected but reasoning treats entire dataset as one regime | Flag as caveat |
+
+### 1.2.2 Spot-Check Protocol
+
+Randomly select 3 conclusions from the diagnosis and trace them BACK through the reasoning chain:
+
+1. **Find** the conclusion in `diagnosis.json`
+2. **Trace** it to its evidence in `reasoning_chain.json`
+3. **Verify** the evidence is: (a) real data, (b) correctly ranked, (c) properly tagged [OBSERVED]/[INFERRED]
+4. **Check** that the uncertainty bounds are reasonable given the evidence
+
+If ANY of the 3 spot-checks fail → **BLOCKING ISSUE**
+
+### 1.2.3 Logical Gap Detection
+
+Read each reasoning step's `outputs` and check the logic:
+
+- **Input → Output gap**: Does the output logically follow from the step's inputs? If there's a jump without reasoning → flag.
+- **Assumption hidden as fact**: Does any `outputs.finding` contain an unstated assumption? → flag as [UNSTATED_ASSUMPTION]
+- **Circular reasoning**: Is the conclusion used as evidence for itself? → flag as **BLOCKING**
+
+### 1.2.4 Uncertainty Integrity Check
+
+Verify the uncertainty_summary:
+- Is `overall_confidence_ceiling` justified by the list of `epistemic_gaps`?
+- Are `aleatory_limits` genuinely irreducible, or are some actually reducible (epistemic)?
+- Does `what_would_change_conclusions` list SPECIFIC, ACTIONABLE next steps?
+- If uncertainty is trivialized ("generally confident") → flag as overconfident
+
+Document all findings in the optimizer output.
 
 ## Step 2: Confounding Variable Detection — WITH INDEPENDENT VERIFICATION
 
@@ -269,6 +318,24 @@ Rate 0-10:
 
 ## 5. Physical Mechanism Verification
 [Per-hypothesis verification against real physics]
+
+### Reasoning Chain Issues
+
+| Step | Issue Type | Issue | Impact |
+|------|-----------|-------|--------|
+| ... | ... | ... | ... |
+
+#### Hallucination Indicators Found
+[Count and describe. If none found, state: "No hallucination indicators detected in random spot-check."]
+
+#### Logical Gaps
+[Count and describe. If none found, state: "No logical gaps detected — chain is complete and logically sound."]
+
+#### Uncertainty Assessment
+- Epistemic gaps properly classified: [yes/no/partial]
+- Aleatory limits genuinely irreducible: [yes/no/partial]  
+- Confidence ceiling justified: [yes/no]
+- Additional evidence that would change conclusions: [list]
 
 ## 6. Confounding Variable Analysis
 [What confounders were checked, what was missed]
