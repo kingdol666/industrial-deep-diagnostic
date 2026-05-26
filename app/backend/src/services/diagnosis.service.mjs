@@ -186,6 +186,8 @@ export function sendChatMessage(runId, message) {
     try { child.kill('SIGKILL'); } catch {}
     setChild(runId, null);
   }
+  // Clear execution guard from the killed process so re-entry works
+  executingRuns.delete(runId);
 
   // Resume the session with the user's message
   try {
@@ -210,6 +212,9 @@ export function continueDiagnosis(runId, followUpMessage) {
     err.status = 400;
     throw err;
   }
+
+  // Clear execution guard from previous run (enables re-entry)
+  executingRuns.delete(runId);
 
   // Kill any existing child process — we're starting fresh
   const existingChild = getChild(runId);
@@ -515,6 +520,9 @@ function executeDiagnosis(runId, run, isRetry = false) {
     child.stderr.on('error', () => {});
 
     child.on('close', async (code) => {
+      // Guard: ignore close events from stale children (killed and replaced by new resume)
+      if (getChild(runId) && getChild(runId).pid !== child.pid) return;
+
       // Clean up HITL requests for this run
       for (const [id, req] of hitlRequests) {
         if (req.runId === runId) {
@@ -600,10 +608,10 @@ function executeDiagnosis(runId, run, isRetry = false) {
         emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
       }
 
-      setTimeout(() => {
-        executingRuns.delete(runId);
-        closeRun(runId);
-      }, engConfig.close_run_delay_seconds * 1000);
+      // Clear execution guard immediately so re-entry is possible
+      executingRuns.delete(runId);
+      // Delay SSE cleanup to let last events flush
+      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
     });
 
   } catch (err) {
@@ -611,10 +619,8 @@ function executeDiagnosis(runId, run, isRetry = false) {
     updateStatus(runId, 'failed');
     stmts.failRun.run({ runId, error: err.message });
     emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
-    setTimeout(() => {
-      executingRuns.delete(runId);
-      closeRun(runId);
-    }, engConfig.close_run_delay_seconds * 1000);
+    // Delay SSE cleanup to let last events flush
+    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }
 
