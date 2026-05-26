@@ -208,8 +208,8 @@ export function continueDiagnosis(runId, followUpMessage) {
     err.status = 404;
     throw err;
   }
-  if (!['failed', 'stopped'].includes(run.status)) {
-    const err = new Error(`Run status is "${run.status}" — only failed or stopped runs can be continued`);
+  if (!['failed', 'stopped', 'completed'].includes(run.status)) {
+    const err = new Error(`Run status is "${run.status}" — only failed, stopped, or completed runs can be continued`);
     err.status = 400;
     throw err;
   }
