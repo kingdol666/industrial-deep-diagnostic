@@ -266,7 +266,7 @@ All 1D primitives PLUS all Statistical Validation primitives PLUS:
 
 **Physical Process-Aligned Plots (REQUIRED):**
 
-These plots are the PRIMARY visual evidence for BOTH engines. The Statistical Engine reads them for data patterns; the Physical Engine reads them for physical sequences. They MUST be organized by process stage, not by column order.
+These plots are the PRIMARY visual evidence for the Diagnostician. They enable both statistical pattern recognition and physical sequence analysis in a single, process-aligned view. They MUST be organized by process stage, not by column order.
 
 | Priority | Primitive | When | Description |
 |----------|-----------|------|-------------|

@@ -20,7 +20,17 @@ Before forming any hypothesis, load and understand ALL available evidence.
 
 ### 0.1 Verify Required Files Exist
 
-If any critical file is missing, write an error to `RUN_DIR/04_diagnostics/diagnosis.json` with `{"error": "Missing required input: <filename>"}` and stop.
+These files are CRITICAL — if any is missing, write an error to `RUN_DIR/04_diagnostics/diagnosis.json` with `{"error": "Missing required input: <filename>"}` and stop:
+- `02_processed/feature_summary.json`
+- `02_processed/validate_report.json`
+- `01_ontology/ontology.json`
+- `01_ontology/schema.json`
+- `03_figures/plot_manifest.json`
+
+These files are IMPORTANT but can be missing without blocking:
+- `00_input/clarification_needed.json` — if missing, all parameter meanings are considered unknown
+- `02_processed/cleaned_data.json` — if missing, use feature_summary.json for numeric values
+- `00_input/data_inspection.json` — if missing, infer data structure from feature_summary
 
 ### 0.2 Load Reference Knowledge
 
@@ -32,13 +42,14 @@ Read from SKILL_PATH:
 ### 0.3 Load Data Artifacts
 
 Read from RUN_DIR:
-- `01_ontology/ontology.json` — Process structure, equipment stages, parameter groups
-- `01_ontology/schema.json` — Parameter physical meanings and units
+- `01_ontology/ontology.json` — Process structure, equipment stages, parameter groups (CRITICAL)
+- `01_ontology/schema.json` — Parameter physical meanings and units (CRITICAL)
 - `00_input/clarification_needed.json` (if exists) — Parameters with unknown physical meaning
 - `00_input/data_inspection.json` — Data overview
-- `02_processed/feature_summary.json` — Statistics: Pearson, Spearman, detrended, CCF, MI, Granger
-- `02_processed/validate_report.json` — **Validation: sorting, Simpson, trends, outliers, change points**
-- `03_figures/plot_manifest.json` — What was visualized and how
+- `02_processed/feature_summary.json` — Statistics: Pearson, Spearman, detrended, CCF, MI, Granger (CRITICAL)
+- `02_processed/validate_report.json` — **Validation: sorting, Simpson, trends, outliers, change points** (CRITICAL)
+- `02_processed/cleaned_data.json` (if exists) — Cleaned numeric data for direct value lookups
+- `03_figures/plot_manifest.json` — What was visualized and how (CRITICAL)
 
 ### 0.4 Read Statistical Validation Report FIRST
 

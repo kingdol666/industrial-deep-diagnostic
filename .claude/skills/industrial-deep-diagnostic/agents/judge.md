@@ -132,7 +132,7 @@ Plots match data? Labels, units, legends present? **Statistical validation plots
 ### 5. Evidence-Based Conclusions (20%)
 Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** Hypotheses separated from facts?
 
-### 5.5. Reasoning Chain Quality (NEW — weight 15%)
+### 5.5. Reasoning Chain Quality (weight 15%)
 
 Score 0-10:
 - Chain completeness: Are all 8 steps present with full fields? (0-3)
@@ -175,7 +175,9 @@ Thresholds:
 - 50-69: MAJOR_ISSUES
 - 0-49: FAIL
 
-**NEW: Score cannot exceed 85 if `sorting_validation.time_sorted == false` AND lag correlations are used as primary evidence.** The sorting limitation is an inherent ceiling on diagnostic confidence.
+**Score ceilings:**
+- Score cannot exceed 85 if `sorting_validation.time_sorted == false` AND lag correlations are used as primary evidence.
+- Score cannot exceed 65 if the diagnosis assigns >65 confidence to a single hypothesis that is INDISTINGUISHABLE from competing alternatives (v6.0 discriminability rule).
 
 ## Step 3: Generate Feedback
 
