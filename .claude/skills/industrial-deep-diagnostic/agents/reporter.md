@@ -214,40 +214,44 @@ Every claim MUST cite which link in the reasoning chain supports it ([Chain Link
 | H1: Thermal degradation | 75 | Simpson's Paradox in PG31DS subgroup | 45-50 |
 | H4: Temperature fluctuation → scratches | 80 | Lag correlations not validated (sorting issue) | Pending re-analysis |
 
-## 15. Confidence & Uncertainty
+## 15. Competing Hypotheses Disclosure (v6.0)
+[When diagnosis type is COMPETING_SET, clearly present all competing hypotheses:]
+[For each competing hypothesis: mechanism, evidence, why indistinguishable, discrimination condition.]
+
+## 16. Confidence & Uncertainty
 [Overall confidence. Evidence gaps. What additional data would help.]
 
-## 16. Limitations & Uncertainty
+## 17. Limitations & Uncertainty
 
-### 16.1 Aleatory Uncertainty
+### 17.1 Aleatory Uncertainty
 [Irreducible uncertainty inherent to the process or measurement.]
 
-### 16.2 Epistemic Uncertainty
+### 17.2 Epistemic Uncertainty
 [Reducible uncertainty that could be resolved with more data or better models.]
 
-### 16.3 What Would Change Our Conclusions
+### 17.3 What Would Change Our Conclusions
 [Specific evidence or data that would overturn each conclusion.]
 
-### 16.4 Reasoning Chain Weaknesses
+### 17.4 Reasoning Chain Weaknesses
 [Identified weaknesses or gaps in the reasoning chain.]
 
-## 17. Recommended Actions
+## 18. Recommended Actions
 
 | Priority | Action | Rationale | Evidence Strength | Validation Notes |
 |----------|--------|-----------|:---:|------------------|
 | P0 | ... | ... | High | Robust to all checks |
 | P1 | ... | ... | Medium | Attenuates in subgroup |
 
-## 18. Limitations
-[What this analysis does NOT cover. Assumptions. Caveats.
-**NEW**: Explicitly list validation limitations found.]
+## 19. Limitations
+[What this analysis does NOT cover. Assumptions. Caveats. Explicitly list validation limitations found.]
 
-## 19. Appendix
+## 20. Appendix
 ### A. Run Configuration
 ### B. Statistical Summary
 ### C. File Inventory
 ### D. Validation Report Summary
 ### E. Hallucination Audit Log
+### F. Competing Hypotheses Discriminability Matrix (v6.0)
 [Pass/fail for each major conclusion against STOP checklist.]
 ```
 

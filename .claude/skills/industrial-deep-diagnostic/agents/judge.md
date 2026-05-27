@@ -60,12 +60,20 @@ Read from SKILL_PATH:
    - If the diagnosis uses unresolved parameters as primary evidence WITHOUT [PARAM_AMBIGUITY] marker → **BLOCKING ISSUE**
    - If the diagnosis uses unresolved parameters but acknowledges the ambiguity → **WARNING**
 
-7. **Does the diagnosis use new statistical methods appropriately?** (NEW)
+7. **Does the diagnosis use new statistical methods appropriately?**
    - If Granger causality results exist (time-sorted data), are they referenced in temporal ordering analysis?
    - If significant interaction effects are present, are they discussed?
    - If mutual information reveals non-linear dependencies, are they noted?
    - If change points are detected, are regime shifts addressed?
    - Missing all of these when data supports them → **WARNING**
+
+8. **Data Discriminability Assessment (NEW v6.0 — BLOCKING if absent):**
+   - Does the diagnosis explicitly check whether competing hypotheses predict DIFFERENT observable patterns?
+   - Does it identify INDISTINGUISHABLE hypothesis pairs?
+   - For indistinguishable pairs, does it output COMPETING_SET rather than picking a winner?
+   - Does it specify WHAT discriminating data would resolve the ambiguity?
+   - **If the diagnosis assigns >65 confidence to a single hypothesis without checking whether alternatives predict the same observables → BLOCKING ISSUE**
+   - **If time-colinear degradation mechanisms are treated as independently confirmed → BLOCKING ISSUE**
 
 ## Step 0.6: Audit Reasoning Chain Quality (NEW)
 
@@ -144,13 +152,15 @@ Language templates used correctly? Self-contained? No internal contradictions?
 
 ### 9. No Over-Claiming (BLOCKING — -20 per violation)
 No definitive root causes without evidence? No unsupported causal claims? No assumptions about unknown variables?
-**New violations:**
+**Violations:**
 - Claiming causation from lag correlation when data is NOT time-sorted
 - Claiming a correlation is "robust" when it reverses direction in the dominant product subgroup
 - Claiming a parameter-defect relationship without checking detrended correlation
-- **Claiming causation through a parameter whose physical meaning is unknown without the [PARAM_AMBIGUITY] marker** (NEW)
-- **Claiming a correlation is causal when Granger causality contradicts the direction** (NEW)
-- **Ignoring change point / regime shift evidence** (NEW)
+- Claiming causation through a parameter whose physical meaning is unknown without the [PARAM_AMBIGUITY] marker
+- Claiming a correlation is causal when Granger causality contradicts the direction
+- Ignoring change point / regime shift evidence
+- **Claiming a single root cause when competing hypotheses are INDISTINGUISHABLE (v6.0)**
+- **Assigning >65 confidence to a hypothesis without checking discriminability against alternatives (v6.0)**
 
 ### 10. Completeness (5%)
 All required outputs present? All plots generated? **validate_report.json exists and was consulted?** All artifacts saved?
