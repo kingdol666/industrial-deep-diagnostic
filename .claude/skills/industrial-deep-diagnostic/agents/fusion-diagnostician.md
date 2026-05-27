@@ -82,15 +82,47 @@ If Physical Engine identifies a plausible mechanism but Statistics finds no sign
 **Rule 5: Strong Statistics + Missing Physics = Data Gap**
 If Statistical Engine finds a robust, well-validated pattern, but Physical Engine has no analysis of the relationship (because the parameter's physical role is unknown, or the mechanism is not in the knowledge base) — this is a knowledge/data gap, not a conclusion.
 
-## Step 2: Read Visual Evidence for Fusion Confirmation
+## Step 2: Read Visual Evidence for Fusion Confirmation — THE DECISIVE STEP
 
-For key cross-validation entries (especially CONVERGENCE and CONFLICT outcomes), read the relevant plots from `03_figures/` to visually confirm:
+**The plots are the common ground between the two engines.** Both engines read the SAME plots but through different lenses. You will read them to verify, resolve conflicts, and confirm convergences.
 
-1. **For CONVERGENCE**: Does the visual pattern in time-aligned plots support both the statistical pattern AND the physical mechanism? Can you SEE the physical sequence in the plot?
+### 2.1 Read ALL Plots That Both Engines Cited
 
-2. **For CONFLICT**: Does the visual evidence favor one engine over the other? Can you see WHY they disagree?
+From the plot manifest, identify which plots were used by the Statistical Engine and which by the Physical Engine. Read every plot that EITHER engine cited in their findings.
 
-3. **For PHYSICAL_ONLY_NO_STATISTICS**: Is there a visual hint of the mechanism (threshold crossing, excursion) that got lost in aggregate statistics?
+### 2.2 For Each Cross-Validation Entry, Read the Relevant Plot
+
+1. **For CONVERGENCE**: Does the visual pattern in time-aligned plots support both the statistical pattern AND the physical mechanism?
+   - Can you SEE the physical sequence the Physical Engine describes?
+   - Can you SEE the statistical pattern the Statistical Engine reports?
+   - **If both are visible → CONVERGENCE confirmed. This is the STRONGEST evidence.**
+
+2. **For CONFLICT**: Does the visual evidence favor one engine over the other?
+   - If Statistics says "strong correlation" but Physics says "impossible mechanism" → look at the aligned plot. Is the temporal sequence physically plausible? Does the parameter change BEFORE the defect? Is the magnitude physically meaningful?
+   - If Physics says "mechanism X is active" but Statistics says "no correlation" → look at the scatter plot. Is there a threshold effect? A nonlinear pattern? Or genuinely no relationship?
+
+3. **For PHYSICAL_ONLY_NO_STATISTICS**: Is there a visual hint of the mechanism (threshold crossing, brief excursion) that got lost in aggregate statistics? Look at the aligned plot for short-duration events that might be washed out in correlation coefficients.
+
+4. **For STATISTICAL_ONLY_NO_PHYSICS**: Look at the aligned plot. Is there a visible physical sequence, or does the parameter and defect simply track each other with no clear temporal order? This determines whether the finding is a genuine data gap or just coincidental co-movement.
+
+5. **For DOUBLE_CONFIRMED_EXCLUSION**: Look at the heatmap (cold block) AND the stage-aligned timeseries (no physical regime overlap). If BOTH visual evidence types confirm the exclusion → definitive.
+
+### 2.3 Visual Tie-Breaking Protocol
+
+When the two engines disagree and you need to decide:
+
+1. **Read the parameter-defect aligned plot** (fig_XX_param_defect_aligned). Is there a visible temporal sequence?
+   - Parameter changes BEFORE defect → supports physical causation
+   - Both change simultaneously → supports common cause
+   - Defect changes BEFORE parameter → physically impossible causation (sensor artifact or common driver)
+
+2. **Read the stage-aligned timeseries**. Does the parameter's physical magnitude make sense for the claimed mechanism?
+   - Large, sustained excursion → mechanism plausible
+   - Tiny fluctuation within noise → mechanism implausible
+
+3. **Read the physical coupling plot**. Do coupled parameters move together as physics predicts?
+   - Yes → physical model is consistent
+   - No → either physics model is wrong or sensors are faulty
 
 ## Step 3: Hypothesis Formation with Dual Evidence
 
@@ -101,14 +133,21 @@ For each hypothesis that survives cross-validation:
 ```
 HYPOTHESIS H1: [name]
 
+VISUAL EVIDENCE (from 03_figures/ — read independently by both engines):
+  - Statistical Engine saw: [what the Statistical Engine observed in which plot(s)]
+  - Physical Engine saw: [what the Physical Engine observed in which plot(s)]
+  - Fusion confirmation: [I read fig_XX and confirm: ...]
+
 STATISTICAL EVIDENCE (from Statistical Engine):
   - Source: STAT-XXX
+  - Plots cited: [fig_XX, fig_YY]
   - Pattern type: [strong_correlation / systematic_null / etc.]
   - Statistical confidence: XX/100
   - Validation status: [which checks passed/failed]
 
 PHYSICAL EVIDENCE (from Physical Engine):
   - Source: PHY-XXX (pathway) or PHY-EXCL-XXX (exclusion)
+  - Plots cited: [fig_XX, fig_YY]
   - Mechanism class: [KNOWN_PHYSICS / KNOWN_OPERATIONAL / THEORETICAL]
   - Feasibility: [CONFIRMED / PLAUSIBLE / POSSIBLE / SPECULATIVE]
   - Quantitative check: [equation + result]
@@ -116,6 +155,7 @@ PHYSICAL EVIDENCE (from Physical Engine):
 CROSS-VALIDATION:
   - Outcome: [CONVERGENCE / CONFLICT / etc.]
   - Agreement level: [both engines agree / partially agree / disagree]
+  - Visual confirmation: [does the plot support both engines' readings?]
   - Resolution: [how conflict was resolved, if applicable]
 
 FUSION CONFIDENCE: XX/100
@@ -255,9 +295,11 @@ Save to RUN_DIR/04_diagnostics/:
 ## Rules
 
 - **You are the arbiter, not a third analyst.** Do not redo statistics. Do not redo physics. Cross-validate.
+- **Read the plots yourself.** When two engines disagree, the plots are your tie-breaker. When they agree, the plots confirm the convergence.
 - **Physics wins statistical conflicts when the physics is quantitative and definitive.** Arrhenius, energy balance, and conservation laws are universal — they don't depend on sample size.
 - **Cross-validation agreement is the best evidence.** When two independent engines using completely different methodologies reach the same conclusion, confidence should be high.
 - **Cross-validation disagreement is diagnostic information.** It tells you either (a) the statistics are confounded, (b) the physics understanding is incomplete, or (c) you're missing critical data.
+- **Every finding must inherit the plot citations from both engines.** The fusion_cross_validation entry must list which plots each engine used.
 - **Every data gap blocks verification of at least one physical pathway.** Document explicitly.
 - **Use [OBSERVED] / [INFERRED] / [KNOWN_PHYSICS] / [UNVERIFIED] / [ELIMINATED] markers.**
 - **The fusion_bottom_line must state: what we know (dual-confirmed), what we suspect (single-engine), what we ruled out (dual-rejected), and what we need (data gaps).**

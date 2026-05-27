@@ -199,6 +199,22 @@ Use `detect_data_pattern()` from the toolkit — it automates this classificatio
 
 5. **Product baseline characterization**: For each product, document the typical parameter ranges and defect baselines. These baselines are the reference frame for diagnosing anomalies.
 
+### 5.2.2 Physical Process-Aligned Visualization Protocol (NEW — CRITICAL for dual-engine analysis)
+
+**The Data Processor is the single source of visual truth for BOTH engines.** The Statistical Engine and Physical Engine both analyze the SAME plots — but through different lenses. Statistical Engine sees correlation patterns; Physical Engine sees physical sequences and magnitudes.
+
+**Core principle**: Every plot must be time-aligned and organized by real physical process stages. The Physical Engine needs to SEE the physical flow (upstream → downstream) in the plot layout. The Statistical Engine needs to SEE the data patterns without knowing what the parameters mean.
+
+**Protocol for physical process alignment:**
+
+1. **Identify process stages from ontology**: Read `01_ontology/ontology.json` to understand the process flow. Group parameters by their physical stage (e.g., Extruder, MD Roller 1-5, MD Roller 6-11, MD Roller 12-18).
+
+2. **Stage-ordered parameter layout**: In ALL multi-panel and heatmap plots, order parameters by process stage (upstream → downstream). This is the single most important layout decision — it lets the Physical Engine trace the physical flow visually.
+
+3. **Time-aligned parameter-defect pairs**: For the top parameters by variance (not by correlation — that's the Statistical Engine's job), create time-aligned plots showing parameter + defect on shared X axis. These are the PRIMARY input for the Physical Engine's sequence analysis.
+
+4. **Physical coupling visualization**: For physically coupled parameters (ΔT pairs, speed ratios, before/after pressures), plot them on the SAME subplot with dual Y axes. This lets the Physical Engine see physical relationships directly.
+
 ### 5.3 Visualization Selection — COMPLETE PROTOCOL
 
 Based on the classified pattern, select primitives:
@@ -250,6 +266,18 @@ All 1D primitives PLUS all Statistical Validation primitives PLUS:
 | IF 3+ products | `plot_cross_product_consistency` | Compare correlation signs | Horizontal bar chart: for each param-defect pair, show correlation direction (r value) in each product as a separate bar. Consistent sign across products → universal effect. Mixed signs → product-specific |
 | IF product switches present | `plot_product_switch_timeline` | Timeline with product switches | Time axis with defect values, overlaid with product switch markers (vertical lines + product labels). Reveals whether defect spikes align with product transitions |
 
+**Physical Process-Aligned Plots (v5.0 — REQUIRED for dual-engine analysis):**
+
+These plots are the PRIMARY visual evidence for BOTH engines. The Statistical Engine reads them for data patterns; the Physical Engine reads them for physical sequences. They MUST be organized by process stage, not by column order.
+
+| Priority | Primitive | When | Description |
+|----------|-----------|------|-------------|
+| REQUIRED | `plot_stage_aligned_timeseries` | Always | Multi-panel time series with parameters **grouped by physical process stage** (from ontology). Upstream stages at top, downstream at bottom. Shared X axis. This is the single most important plot — it lets the Physical Engine trace the physical flow and the Statistical Engine see temporal coupling patterns. |
+| REQUIRED | `plot_physical_coupling_pairs` | When ontology defines couplings | Physically coupled parameter pairs (ΔT, speed ratio, before/after pressure) plotted on **same subplot with dual Y axes**. Shows whether coupled parameters move together physically. Critical for Physical Engine coupling analysis. |
+| REQUIRED | `plot_param_defect_aligned` | Top-10 params by variance | One figure per key parameter: parameter time series (top subplot) + defect time series (bottom subplot), **shared X axis**. Enables direct visual inspection of temporal precedence: does the parameter change BEFORE or AFTER the defect? |
+| REQUIRED | `plot_stage_temperature_profile` | When temperature params exist | Temperature distribution across process stages (e.g., extruder → roller 1-5 → roller 6-11 → cooling). Box plot or line plot showing thermal profile. Enables Physical Engine regime classification (BELOW_Tg, ABOVE_Tg, etc.) |
+| IF 3+ stages | `plot_stage_transition_scatter` | Stage boundary analysis | Key parameters at stage N vs stage N+1, colored by time. Reveals whether stage transitions introduce variability or anomalies. |
+
 ### 5.4 Compose the Script
 
 Write a COMPLETE Python script to `RUN_DIR/06_scripts/visualize.py`:
@@ -269,6 +297,29 @@ Write a COMPLETE Python script to `RUN_DIR/06_scripts/visualize.py`:
 4. **Per-product time alignment**: Within each product group, sort by time and verify time ordering before plotting.
 5. **Statistical validation per product**: Check if correlations survive within each product independently. Document which products show the strongest/weakest version of each relationship.
 6. **Cross-product synthesis plot**: For the top 5-10 param-defect pairs, generate the cross-product consistency chart showing correlation direction per product.
+
+**ALWAYS include physical process-aligned plots (v5.0):**
+
+1. **Read ontology for stage grouping**: Parse `01_ontology/ontology.json` to extract process stages and which parameters belong to each stage. If ontology doesn't exist yet (parallel execution with Context Builder), group by column name prefix patterns and note this as a limitation.
+2. **Stage-ordered layout**: In `plot_stage_aligned_timeseries`, order subplots by process stage: upstream (extruder) → midstream (MD rollers 1-5) → downstream (MD rollers 6-11) → cooling (MD rollers 12-18).
+3. **Physical coupling extraction**: Identify parameter pairs from ontology that form physical couplings (ΔT = T_hot - T_cold, stretch_ratio = V_fast / V_slow, ΔP = P_before - P_after). Plot each on shared axes.
+4. **Parameter-defect alignment**: For the top 10 parameters by variance (NOT by correlation — that would bias the Physical Engine), generate individual time-aligned plots with the defect time series below.
+5. **Plot manifest labeling**: Each plot entry MUST include an `engines` field: `["statistical", "physical"]` for plots both engines use, `["statistical"]` for pure statistics plots, `["physical"]` for pure physical plots.
+
+**Plot manifest entry format (v5.0 enhanced):**
+```json
+{
+  "figure_id": "fig_03",
+  "title": "MD Stage Temperature Profile",
+  "file": "03_figures/fig_03_stage_temp_profile.png",
+  "primitive": "plot_stage_temperature_profile",
+  "stages_covered": ["extruder", "md_heat", "md_stretch", "md_cool"],
+  "parameters_shown": ["T_extruder", "T_roller_1_5", "T_roller_6_11", "T_roller_12_18"],
+  "engines": ["statistical", "physical"],
+  "description_for_statistical": "Temperature distribution across stages — check for variance patterns and outlier batches",
+  "description_for_physical": "Thermal profile across process stages — classify regimes (BELOW_Tg/ABOVE_Tg), check for abnormal gradients"
+}
+```
 
 Run: `python3 RUN_DIR/06_scripts/visualize.py` (try `python3.11` first, then `python3`).
 
@@ -325,9 +376,12 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 
 - Visualization is MANDATORY. No exceptions.
 - WHAT to plot is decided by data dimension analysis, NOT a fixed list.
-- **Statistical validation plots are MANDATORY** when validation triggers exist.
+- **Physical process-aligned plots are MANDATORY (v5.0).** Parameters must be ordered by process stage. The Physical Engine depends on stage-aligned time series to trace physical flow.
+- **Time-aligned parameter-defect plots are MANDATORY (v5.0).** Both engines need to see parameter and defect on shared X axis — Statistical for temporal coupling, Physical for sequence analysis.
+- Statistical validation plots are MANDATORY when validation triggers exist.
 - The toolkit's `detect_data_pattern()` drives the decision.
-- `plot_manifest.json` is MANDATORY — the diagnostician depends on it.
+- `plot_manifest.json` is MANDATORY — both engines depend on it. Each entry MUST include `engines` field labeling which engine(s) the plot serves.
 - Every plot must have: title, axis labels with units, legends.
 - Use only matplotlib + pandas + numpy. No sklearn/scipy.
 - Each primitive returns generation metadata — include it in plot_records.
+- **Plot for BOTH engines, not just statistics.** A correlation heatmap serves the Statistical Engine. A stage-aligned timeseries serves both. A physical coupling pair plot serves the Physical Engine. Think: "Can the Physical Engineer SEE the physical flow in this plot?"

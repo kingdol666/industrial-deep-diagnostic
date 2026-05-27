@@ -4,22 +4,31 @@
   "title": "Physical Engine Findings",
   "description": "Pure physics-driven findings from the Physical Engine. Contains NO correlation statistics.",
   "type": "object",
-  "required": ["engine", "timestamp", "run_id", "parameter_states", "physical_couplings", "physical_exclusions", "physical_positive_pathways", "physical_bottom_line"],
+  "required": ["engine", "timestamp", "run_id", "plots_read", "parameter_states", "physical_couplings", "physical_exclusions", "physical_positive_pathways", "physical_bottom_line"],
   "properties": {
     "engine": { "const": "physical" },
     "timestamp": { "type": "string", "format": "date-time" },
     "run_id": { "type": "string" },
+    "plots_read": {
+      "type": "array",
+      "description": "List of figure_ids from plot_manifest.json that were visually inspected",
+      "items": { "type": "string" }
+    },
     "parameter_states": {
       "type": "object",
       "patternProperties": {
         ".*": {
           "type": "object",
-          "required": ["stage", "observed_range", "physical_regime", "regime_description", "can_physically_cause", "cannot_physically_cause"],
+          "required": ["stage", "observed_range", "physical_regime", "regime_description", "plot_source", "can_physically_cause", "cannot_physically_cause"],
           "properties": {
             "stage": { "type": "string" },
             "observed_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
             "physical_regime": { "type": "string" },
             "regime_description": { "type": "string" },
+            "plot_source": {
+              "type": "string",
+              "description": "Which plot(s) from 03_figures/ show this parameter's values and regime"
+            },
             "can_physically_cause": { "type": "array", "items": { "type": "string" } },
             "cannot_physically_cause": { "type": "array", "items": { "type": "string" } },
             "regime_boundaries": {
@@ -63,11 +72,15 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "excluded_hypothesis", "physical_basis", "exclusion_confidence"],
+        "required": ["id", "excluded_hypothesis", "physical_basis", "plot_source", "exclusion_confidence"],
         "properties": {
           "id": { "type": "string", "pattern": "^PHY-EXCL-\\d{3}$" },
           "excluded_hypothesis": { "type": "string" },
           "physical_basis": { "type": "string" },
+          "plot_source": {
+            "type": "string",
+            "description": "Which plot(s) from 03_figures/ support this exclusion"
+          },
           "exclusion_confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
           "quantitative_check": {
             "type": "object",
@@ -85,10 +98,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "hypothesis", "mechanism_class", "feasibility"],
+        "required": ["id", "hypothesis", "mechanism_class", "plot_source", "feasibility"],
         "properties": {
           "id": { "type": "string", "pattern": "^PHY-PATH-\\d{3}$" },
           "hypothesis": { "type": "string" },
+          "plot_source": {
+            "type": "string",
+            "description": "Which plot(s) from 03_figures/ show evidence of this physical pathway"
+          },
           "mechanism_class": { "type": "string", "enum": ["KNOWN_PHYSICS", "KNOWN_OPERATIONAL", "THEORETICAL", "SPECULATIVE"] },
           "supporting_physics": { "type": "string" },
           "missing_measurement": { "type": "string" },

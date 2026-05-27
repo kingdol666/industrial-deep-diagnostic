@@ -18,6 +18,15 @@
           "id": { "type": "string", "pattern": "^XV-\\d{3}$" },
           "statistical_finding": { "type": "string" },
           "physical_finding": { "type": "string" },
+          "plots_confirming": {
+            "type": "array",
+            "description": "Figure_ids from 03_figures/ that both engines cited for this finding",
+            "items": { "type": "string" }
+          },
+          "visual_confirmation": {
+            "type": "string",
+            "description": "What the Fusion Diagnostician observed when reading these plots independently"
+          },
           "fusion_result": {
             "type": "string",
             "enum": [

@@ -4,19 +4,28 @@
   "title": "Statistical Engine Findings",
   "description": "Pure data-driven findings from the Statistical Engine. Contains NO physical interpretation.",
   "type": "object",
-  "required": ["engine", "timestamp", "run_id", "findings", "confound_summary", "statistical_bottom_line"],
+  "required": ["engine", "timestamp", "run_id", "plots_read", "findings", "confound_summary", "statistical_bottom_line"],
   "properties": {
     "engine": { "const": "statistical" },
     "timestamp": { "type": "string", "format": "date-time" },
     "run_id": { "type": "string" },
+    "plots_read": {
+      "type": "array",
+      "description": "List of figure_ids from plot_manifest.json that were visually inspected",
+      "items": { "type": "string" }
+    },
     "findings": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "relationship", "pattern_type", "statistics", "validation", "statistical_confidence", "ranking"],
+        "required": ["id", "relationship", "pattern_type", "visual_evidence", "statistics", "validation", "statistical_confidence", "ranking"],
         "properties": {
           "id": { "type": "string", "pattern": "^STAT-\\d{3}$" },
           "relationship": { "type": "string" },
+          "visual_evidence": {
+            "type": "string",
+            "description": "Which plot(s) from 03_figures/ show this pattern and what was observed. Cite figure_id from plot_manifest."
+          },
           "pattern_type": {
             "type": "string",
             "enum": [
