@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "physical_findings_schema.json",
+  "title": "Physical Engine Findings",
+  "description": "Pure physics-driven findings from the Physical Engine. Contains NO correlation statistics.",
+  "type": "object",
+  "required": ["engine", "timestamp", "run_id", "parameter_states", "physical_couplings", "physical_exclusions", "physical_positive_pathways", "physical_bottom_line"],
+  "properties": {
+    "engine": { "const": "physical" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "run_id": { "type": "string" },
+    "parameter_states": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "required": ["stage", "observed_range", "physical_regime", "regime_description", "can_physically_cause", "cannot_physically_cause"],
+          "properties": {
+            "stage": { "type": "string" },
+            "observed_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+            "physical_regime": { "type": "string" },
+            "regime_description": { "type": "string" },
+            "can_physically_cause": { "type": "array", "items": { "type": "string" } },
+            "cannot_physically_cause": { "type": "array", "items": { "type": "string" } },
+            "regime_boundaries": {
+              "type": "object",
+              "properties": {
+                "lower": { "type": "number" },
+                "upper": { "type": "number" },
+                "critical_points": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "physical_couplings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "params", "formula", "physical_significance"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^PHY-COUP-\\d{3}$" },
+          "name": { "type": "string" },
+          "params": { "type": "array", "items": { "type": "string" } },
+          "formula": { "type": "string" },
+          "computed": {
+            "type": "object",
+            "properties": {
+              "value": { "type": "number" },
+              "unit": { "type": "string" },
+              "trend": { "type": "string" },
+              "regime": { "type": "string" }
+            }
+          },
+          "normal_range": { "type": "array", "items": { "type": "number" } },
+          "warning_threshold": { "type": "number" },
+          "physical_significance": { "type": "string" }
+        }
+      }
+    },
+    "physical_exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "excluded_hypothesis", "physical_basis", "exclusion_confidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^PHY-EXCL-\\d{3}$" },
+          "excluded_hypothesis": { "type": "string" },
+          "physical_basis": { "type": "string" },
+          "exclusion_confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "quantitative_check": {
+            "type": "object",
+            "properties": {
+              "equation": { "type": "string" },
+              "inputs": { "type": "object" },
+              "result": { "type": "number" },
+              "interpretation": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "physical_positive_pathways": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "hypothesis", "mechanism_class", "feasibility"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^PHY-PATH-\\d{3}$" },
+          "hypothesis": { "type": "string" },
+          "mechanism_class": { "type": "string", "enum": ["KNOWN_PHYSICS", "KNOWN_OPERATIONAL", "THEORETICAL", "SPECULATIVE"] },
+          "supporting_physics": { "type": "string" },
+          "missing_measurement": { "type": "string" },
+          "feasibility": { "type": "string", "enum": ["CONFIRMED", "PLAUSIBLE_BUT_UNVERIFIED", "POSSIBLE_UNLIKELY", "SPECULATIVE"] },
+          "quantitative_basis": { "type": "string" }
+        }
+      }
+    },
+    "physical_bottom_line": { "type": "string" }
+  }
+}

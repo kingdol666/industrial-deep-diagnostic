@@ -7,16 +7,16 @@ commands:
   - industrial-deep-diagnostic review
   - industrial-deep-diagnostic report
   - industrial-deep-diagnostic audit
-version: 4.3.0
+version: 5.0.0
 ---
 
 # Industrial Deep Diagnostic
 
 ## Overview
 
-Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → **clarify unknown parameters with user** → visualize + validate → diagnose → judge → report → physical truth audit → **review repair loop**.
+Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → **clarify unknown parameters with user** → visualize + validate → **parallel dual-engine analysis (statistical + physical)** → **fusion cross-validation** → diagnose → judge → report → physical truth audit → **review repair loop**.
 
-**Core principle: Evidence first. Reasoning second. Conclusions last.**
+**Core principle: Physical + Statistical dual-drive. Two independent engines, cross-validated conclusions.**
 
 Every conclusion cites its evidence rank. No unsupported assumptions. No exaggerated causal claims. **No silent guesses about parameter physical meanings — unknown parameters trigger interactive clarification.**
 
@@ -58,7 +58,9 @@ digraph diagnostic_flow {
   context [label="Step 2: Context"];
   clarify [label="Step 2.5: Clarify\nParameters" shape=diamond];
   dataproc [label="Step 3: Data+Viz"];
-  diag [label="Step 4: Diagnose"];
+  stats [label="Step 4A: Statistical\nEngine" style=filled fillcolor="#E3F2FD"];
+  phys [label="Step 4B: Physical\nEngine" style=filled fillcolor="#FFE0B2"];
+  fusion [label="Step 4C: Fusion\nDiagnostician" style=filled fillcolor="#C8E6C9"];
   judge [label="Step 5: Judge"];
   report [label="Step 6: Report"];
   review [label="Step 7: Audit"];
@@ -70,53 +72,53 @@ digraph diagnostic_flow {
   inspect -> dataproc [style=dashed];
   context -> clarify;
   clarify -> dataproc;
-  clarify -> diag [style=dashed];
-  dataproc -> diag;
-  diag -> judge;
-  judge -> diag [label="⟳ max3" style=dashed];
+  clarify -> stats [style=dashed];
+  clarify -> phys [style=dashed];
+  dataproc -> stats;
+  dataproc -> phys;
+  stats -> fusion;
+  phys -> fusion;
+  fusion -> judge;
+  judge -> fusion [label="⟳ max3" style=dashed];
   judge -> report;
   report -> review;
   review -> repair [label="CONDITIONAL/\nREJECTED"];
-  repair -> diag [label="re-diagnose" style=dashed];
+  repair -> fusion [label="re-diagnose" style=dashed];
   review -> present [label="ENDORSED"];
 }
 ```
 
-**Steps 2-3 parallel. Step 2.5 synchronizes. Steps 4→5→6→7 sequential. Step 7.5 repair loop (max 2).**
+**Steps 2-3 parallel. Step 2.5 synchronizes. Steps 4A+4B parallel (dual-engine). Step 4C→5→6→7 sequential. Step 7.5 repair loop (max 2).**
 
 ---
 
-## What's New in v4.3
+## What's New in v5.0 — Dual-Drive Architecture
 
-### 1. Physical Meaning Clarification Gate (Step 2.5)
+### 1. Dual-Engine Analysis (Steps 4A + 4B — PARALLEL)
 
-The Context Builder now identifies parameters whose physical meaning is unknown. Instead of silently guessing, it uses **AskUserQuestion** to ask the user:
+The Diagnostician is split into three agents running a **dual-blind validation protocol**:
 
-- What does this parameter physically represent?
-- What is its unit?
-- Is it a setpoint or measured value?
-- What is its normal operating range?
+- **Statistical Engine** (`agents/statistical-engine.md`): Pure data-driven analysis. Knows column names as opaque identifiers, computes correlation patterns, detects confounds. Explicitly FORBIDDEN from knowing parameter physical meanings.
+- **Physical Engine** (`agents/physical-engine.md`): Pure physics-driven analysis. Knows parameter physical meanings, computes physical regimes and couplings, runs quantitative feasibility checks (Arrhenius, residence time, energy balance). Explicitly FORBIDDEN from knowing any statistical results.
+- **Fusion Diagnostician** (`agents/fusion-diagnostician.md`): Receives BOTH independent reports. Cross-validates them. Produces diagnosis with dual-source confidence.
 
-This addresses the #1 source of diagnostic errors: misinterpreting what a column actually measures.
+**Why dual-blind**: Two engines using completely different methodologies reach independent conclusions. Where they agree → high confidence. Where they disagree → valuable diagnostic signal (either statistics are confounded, or physics understanding is incomplete).
 
-### 2. Review Repair Loop (Step 7.5)
+### 2. Cross-Validation Matrix (NEW Artifact)
 
-When the Report Reviewer finds physical mechanism errors (CONDITIONAL or REJECTED verdict), the pipeline now re-spawns the Diagnostician with the reviewer's corrections. Previously, reviewer findings were only advisory — now they trigger a repair loop (max 2 iterations).
+`fusion_cross_validation.json` systematically documents where the two engines agree/disagree:
+- **DOUBLE_CONFIRMED_EXCLUSION**: Both engines independently conclude "not a cause" — highest confidence (98%+)
+- **CONVERGENCE**: Both engines independently point to the same root cause — high confidence
+- **CONFLICT_PHYSICS_OVERRIDES**: Statistics finds a pattern but physics says impossible → physics wins
+- **PHYSICAL_ONLY_NO_STATISTICS**: Physics says possible but no statistical signal → dormant risk
 
-### 3. Deeper Statistical Analysis
+### 3. Physical Process Binding (Diagnostician Step 2.5)
 
-New statistical methods in `stats.mjs`:
-- **Mutual Information** — captures non-linear dependencies Pearson/Spearman miss
-- **Granger Causality** — temporal predictive causality testing (requires time-sorted data)
-- **Interaction Effects** — parameter combinations with synergistic effects
-- **Change Point Detection** — regime shift identification in stats_validate.mjs
+Every parameter is mapped to its physical regime (BELOW_Tg, ABOVE_Tg, NEAR_Tm, etc.). Every parameter group is analyzed for physical couplings (ΔT, ΔP, stretch ratio). Quantitative feasibility checks (Arrhenius, residence time, concentration) are mandatory before accepting any causal claim.
 
-### 4. Enhanced Agent Orchestration
+### 4. Product-Stratified Analysis (v4.3→v5.0 integration)
 
-- Diagnostician now receives BOTH enriched ontology AND validation report before forming hypotheses
-- Parameter physical meaning confidence affects diagnosis confidence scores
-- Data Processor and Diagnostician both read clarification-enriched ontology
-- [PARAM_AMBIGUITY] marker for conclusions based on unknown-meaning parameters
+Per-product analysis is now mandatory when a product/model column exists. Six new visualization primitives for product-grouped data. Cross-product consistency classified as UNIVERSAL / CONSISTENT-WEAK / PRODUCT-SPECIFIC / SIMPSON-REVERSAL.
 
 ---
 
@@ -126,16 +128,30 @@ Agents communicate ONLY through workspace files — never through the main agent
 
 ```
 Context Builder ──► 01_ontology/ontology.json, schema.json
-                ──► 00_input/clarification_needed.json   ← NEW
-User Clarification ──► Updated ontology.json, schema.json ← NEW
+                ──► 00_input/clarification_needed.json
+User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/feature_summary.json
                 ──► 02_processed/validate_report.json
                 ──► 03_figures/*.png + plot_manifest.json
-Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json
-Judge           ──► 05_review/judge_feedback.json
-Reporter        ──► report.md, run_summary.json
-Report Reviewer ──► optimizer.md
+Statistical Engine ──► 04_diagnostics/statistical_findings.json   (NEW v5.0 — blind to physics)
+Physical Engine    ──► 04_diagnostics/physical_findings.json       (NEW v5.0 — blind to statistics)
+Fusion Diagnostician ──► 04_diagnostics/fusion_cross_validation.json  (NEW v5.0)
+                     ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json
+Judge              ──► 05_review/judge_feedback.json
+Reporter           ──► report.md, run_summary.json
+Report Reviewer    ──► optimizer.md
 ```
+
+### Dual-Engine Information Firewall (v5.0)
+
+The Statistical Engine and Physical Engine operate under strict information separation:
+
+| Engine | Knows | Does NOT Know |
+|--------|-------|---------------|
+| Statistical Engine | Column names as opaque IDs, numeric values, statistical properties | Any physical meaning of parameters, process flow, physics/chemistry |
+| Physical Engine | Physical meaning of every parameter, actual numeric values, process topology | Any correlation coefficients, p-values, statistical test results |
+
+**Why**: Two engines using completely different methodologies reach independent conclusions. Where they agree → high confidence. Where they disagree → valuable diagnostic signal (either statistics are confounded, or physics understanding is incomplete).
 
 ---
 
@@ -159,12 +175,21 @@ Every conclusion limited by its weakest evidence rank.
 
 NEVER state root cause without ALL four: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradicting evidence. Missing any → [HYPOTHESIS].
 
-**Additional v4.3 requirements:**
+**v4.3 requirements (all retained):**
 - NEVER claim a lag correlation as causal evidence if data is not time-sorted
 - NEVER claim an aggregate correlation is meaningful if it reverses in the dominant subgroup
 - NEVER cite a raw correlation without checking the detrended correlation when both variables show time trends
-- **NEVER silently assume a parameter's physical meaning — if unknown, ask the user via the clarification gate**
-- **NEVER cite Granger causality results if sorting validation failed**
+- NEVER silently assume a parameter's physical meaning — if unknown, ask the user via the clarification gate
+- NEVER cite Granger causality results if sorting validation failed
+
+**v5.0 dual-drive requirements (NEW):**
+- **NEVER accept a statistical correlation as causal without a physical mechanism — correlation is not causation**
+- **NEVER dismiss a physical mechanism because of weak correlation — statistics may be confounded (Simpson's, trends, low sample)**
+- **NEVER override a definitive physical exclusion with a statistical pattern — physics wins (Arrhenius, energy balance, conservation laws)**
+- **NEVER claim convergence without both engines independently reaching the same conclusion — single-engine findings are WEAKER evidence**
+- **NEVER use statistics-only findings as a final diagnosis — they must pass through physical feasibility checks**
+- **Physical engine MUST cite quantitative checks (Arrhenius, residence time, energy balance), not qualitative hand-waving**
+- **Statistical engine MUST report which validation checks passed/failed, not just |r| magnitude**
 
 ALWAYS disclose confidence, evidence gaps, and assumptions.
 
@@ -177,7 +202,7 @@ ALWAYS disclose confidence, evidence gaps, and assumptions.
 - **Evidence rules**: `resources/evidence_rules.md`
 - **Diagnosis methodology**: `resources/diagnosis_method.md`
 - **Process knowledge base**: `resources/process_knowledge_base.md`
-- **Agent prompts**: `agents/*.md`
-- **Schemas**: `schemas/*.json` (normative — validate outputs against these)
+- **Agent prompts**: `agents/*.md` (statistical-engine, physical-engine, fusion-diagnostician, context-builder, data-processor, judge, reporter, report-reviewer)
+- **Schemas**: `schemas/*.json` (normative — validate outputs against these; includes statistical_findings, physical_findings, fusion_cross_validation schemas)
 - **Templates**: `templates/*.md`, `templates/*.json`
 - **Examples**: `examples/{reactor_temperature,heat_exchanger_fouling,bopet_film_thickness}/`

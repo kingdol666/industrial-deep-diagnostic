@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "statistical_findings_schema.json",
+  "title": "Statistical Engine Findings",
+  "description": "Pure data-driven findings from the Statistical Engine. Contains NO physical interpretation.",
+  "type": "object",
+  "required": ["engine", "timestamp", "run_id", "findings", "confound_summary", "statistical_bottom_line"],
+  "properties": {
+    "engine": { "const": "statistical" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "run_id": { "type": "string" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "relationship", "pattern_type", "statistics", "validation", "statistical_confidence", "ranking"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^STAT-\\d{3}$" },
+          "relationship": { "type": "string" },
+          "pattern_type": {
+            "type": "string",
+            "enum": [
+              "strong_co_occurrence",
+              "strong_correlation",
+              "weak_correlation",
+              "systematic_null",
+              "simpson_confounded",
+              "trend_confounded",
+              "outlier_driven",
+              "nonlinear_dependency",
+              "temporal_trend",
+              "granger_causal",
+              "interaction_synergy",
+              "regime_shift"
+            ]
+          },
+          "statistics": {
+            "type": "object",
+            "properties": {
+              "spearman_r": { "type": "number", "minimum": -1, "maximum": 1 },
+              "pearson_r": { "type": "number", "minimum": -1, "maximum": 1 },
+              "p_value": { "type": "number" },
+              "n": { "type": "integer" },
+              "pairs_tested": { "type": "integer" },
+              "pairs_significant": { "type": "integer" },
+              "max_abs_r": { "type": "number" },
+              "aggregate_spearman": { "type": "number" },
+              "within_group_spearman": { "type": "number" },
+              "attenuation_pct": { "type": "number" },
+              "detrended_r": { "type": "number" },
+              "detrend_attenuation_pct": { "type": "number" },
+              "granger_best_lag": { "type": "integer" },
+              "granger_best_p": { "type": "number" },
+              "mi_normalized": { "type": "number" },
+              "interaction_r": { "type": "number" }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "survives_stratification": { "type": "boolean" },
+              "survives_detrending": { "type": "boolean" },
+              "not_outlier_driven": { "type": "boolean" },
+              "pearson_spearman_consistent": { "type": "boolean" },
+              "simpson_severity": { "type": "string" },
+              "trend_confounded": { "type": "boolean" },
+              "outlier_driven": { "type": "boolean" },
+              "lag_consistent": { "type": "boolean" }
+            }
+          },
+          "statistical_confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "ranking": { "type": "integer" },
+          "interpretation": { "type": "string" }
+        }
+      }
+    },
+    "top_param_defect_pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "param": { "type": "string" },
+          "defect": { "type": "string" },
+          "within_r": { "type": "number" },
+          "survives_all": { "type": "boolean" },
+          "issue": { "type": "string" }
+        }
+      }
+    },
+    "confound_summary": {
+      "type": "object",
+      "properties": {
+        "total_simpson_critical": { "type": "integer" },
+        "total_trend_confounded": { "type": "integer" },
+        "total_outlier_driven": { "type": "integer" },
+        "total_pearson_spearman_divergent": { "type": "integer" },
+        "total_granger_significant": { "type": "integer" },
+        "total_change_points": { "type": "integer" }
+      }
+    },
+    "statistical_bottom_line": { "type": "string" }
+  }
+}
