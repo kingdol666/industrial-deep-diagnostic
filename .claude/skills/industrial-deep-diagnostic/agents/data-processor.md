@@ -170,10 +170,34 @@ A dataset can match MULTIPLE patterns simultaneously.
 | `multi_axis` | Column names share stems with direction suffixes (vib_x/y/z) |
 | `2d_profile` | Spatial/position columns exist (zone, width, position) |
 | `batch_event` | Categorical batch/stage/phase columns exist |
+| `product_grouped` | A product/model/grade column exists with 2+ distinct values — triggers per-product analysis (see 5.2.1) |
 | `spectral` | Frequency/FFT columns exist |
 | `mixed` | Two or more of the above |
 
 Use `detect_data_pattern()` from the toolkit — it automates this classification.
+
+### 5.2.1 Product-Grouped Data Pattern (NEW — CRITICAL for multi-product data)
+
+**When `product_grouped` is detected**, the data contains multiple product models/grades. This is the #1 source of Simpson's Paradox in industrial diagnostics and MUST be handled explicitly.
+
+**Detection**: The `group_col` passed to `stats.mjs` (e.g., `model`, `product`, `grade`) identifies the product column. Check `data_inspection.json` for categorical columns with 2+ distinct values.
+
+**Why this matters**: Different products have different process parameter setpoints (temperature, speed, tension). When you mix products together:
+- Aggregate correlations are dominated by between-product differences, not within-product physics
+- A parameter may appear correlated with defects simply because Product A runs hot + has more defects, while Product B runs cold + has fewer — even if temperature has zero effect within each product
+- See Simpson's Paradox in the validation report
+
+**Protocol for product_grouped data:**
+
+1. **Identify dominant products**: Products with n >= 20 batches have sufficient statistical power for within-product analysis. Products with n < 10 should be noted but not used for standalone conclusions.
+
+2. **Per-product time alignment**: Within each product group, sort by time and align process parameters with defect measurements on the same time axis. This is the foundation of all per-product analysis.
+
+3. **Per-product statistics**: Compute correlations (Pearson, Spearman) within each product group separately. The `stats.mjs --group-col` flag already does this — read the `stratified` section of feature_summary.json.
+
+4. **Cross-product comparison**: Compare the same parameter-defect relationship across products. If the correlation direction is consistent across products → universal effect. If it flips sign → product-specific confound.
+
+5. **Product baseline characterization**: For each product, document the typical parameter ranges and defect baselines. These baselines are the reference frame for diagnosing anomalies.
 
 ### 5.3 Visualization Selection — COMPLETE PROTOCOL
 
@@ -214,6 +238,18 @@ All 1D primitives PLUS:
 | REQUIRED | `plot_box_by_group` | Key signals × batch column |
 | IF signal+events | `plot_event_timeline` | Signal overlay with event markers |
 
+**Pattern: `product_grouped` (NEW — MANDATORY when group_col exists)**
+All 1D primitives PLUS all Statistical Validation primitives PLUS:
+
+| Priority | Primitive | When | Description |
+|----------|-----------|------|-------------|
+| REQUIRED | `plot_per_product_defect_timeseries` | Always when product_grouped | Defect time series **split by product**, each product as a separate subplot row with shared X axis. Shows: (a) different defect baselines per product, (b) within-product trend shapes, (c) which products dominate which defect types |
+| REQUIRED | `plot_product_param_profile` | Always when product_grouped | **Same process parameter across products** — bar/box chart of parameter distributions grouped by product. Shows: (a) setpoint differences between products, (b) within-product variability, (c) whether products overlap or are fully separated (Simpson's Paradox root) |
+| REQUIRED | `plot_within_product_correlation` | Always when product_grouped | Per-product correlation heatmap matrix or grid. **Each product gets its own correlation computed independently.** Contrast with aggregate correlation — if a product's internal pattern differs from aggregate, flag as Simpson's Paradox visual |
+| REQUIRED | `plot_product_defect_scatter` | When dominant product n>=20 | Scatter of key process parameter vs defect, **points colored by product**, with per-product regression lines overlaid. Shows whether the relationship holds within each product or is driven by between-product separation |
+| IF 3+ products | `plot_cross_product_consistency` | Compare correlation signs | Horizontal bar chart: for each param-defect pair, show correlation direction (r value) in each product as a separate bar. Consistent sign across products → universal effect. Mixed signs → product-specific |
+| IF product switches present | `plot_product_switch_timeline` | Timeline with product switches | Time axis with defect values, overlaid with product switch markers (vertical lines + product labels). Reveals whether defect spikes align with product transitions |
+
 ### 5.4 Compose the Script
 
 Write a COMPLETE Python script to `RUN_DIR/06_scripts/visualize.py`:
@@ -224,6 +260,15 @@ Write a COMPLETE Python script to `RUN_DIR/06_scripts/visualize.py`:
 5. **Read validate_report.json if it exists** — if statistical issues are flagged, generate the corresponding validation plots
 6. Build plot_records list with generation_method from each primitive's return value
 7. Call write_plot_manifest() at the end
+
+**When `product_grouped` pattern is detected, the compose script MUST include:**
+
+1. **Group identification**: Read the `group_col` from inspection/ontology. List all unique product values and their batch counts.
+2. **Per-product data splitting**: `for product in df[group_col].unique(): product_df = df[df[group_col] == product].sort_values(time_col)`
+3. **Dominant product selection**: Products with n >= 20 → full within-product analysis. Products with 10 <= n < 20 → correlations with caveats. Products with n < 10 → skip standalone, include in cross-product comparison only.
+4. **Per-product time alignment**: Within each product group, sort by time and verify time ordering before plotting.
+5. **Statistical validation per product**: Check if correlations survive within each product independently. Document which products show the strongest/weakest version of each relationship.
+6. **Cross-product synthesis plot**: For the top 5-10 param-defect pairs, generate the cross-product consistency chart showing correlation direction per product.
 
 Run: `python3 RUN_DIR/06_scripts/visualize.py` (try `python3.11` first, then `python3`).
 

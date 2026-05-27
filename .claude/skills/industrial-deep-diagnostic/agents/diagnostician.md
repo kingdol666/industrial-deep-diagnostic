@@ -97,33 +97,60 @@ For each plot in `plots[]`:
 
 **Read the manifest FIRST, before looking at any image.**
 
-## Step 2: Read and Interpret Plots Using VLM
+## Step 2: Read and Interpret Plots Using VLM — WITH PHYSICAL CONTEXT
 
 For each plot listed in the manifest, use the Read tool to view the image.
 
-### Standard Plots — Interpretation Protocol
-For each standard plot, answer:
+**CRITICAL PRINCIPLE: Correlation is a clue, NOT a conclusion.** Every plot must be interpreted through the lens of the physical process. A high correlation without a physical mechanism is noise. A moderate correlation with a clear physical mechanism is a finding.
+
+### 2.0 Before Reading Any Plot: Load Physical Context
+
+Before looking at a single chart, load your physical understanding from these sources:
+
+1. **Ontology** (`01_ontology/ontology.json`): What equipment stages exist? What is the physical flow (A→B→C)? What parameters belong to which stage? What are the known causal relationships?
+
+2. **Schema** (`01_ontology/schema.json`): What does each parameter code physically represent? Temperature? Pressure? Speed? At which position in the process?
+
+3. **Process Knowledge Base** (`resources/process_knowledge_base.md`): What are the known physical/chemical mechanisms for this type of process? What degradation pathways exist? What are the typical failure modes?
+
+4. **Clarification results** (`00_input/clarification_needed.json`): Which parameters have confirmed physical meanings from the user?
+
+**Build a mental model of the physical process BEFORE reading plots.** You should be able to answer: "If defect X increases, which physical mechanism is most likely responsible, and which parameters should show changes BEFORE the defect appears?"
+
+### 2.1 Standard Plots — Physical Interpretation Protocol
+
+For each standard plot (especially time-aligned plots), answer BOTH the pattern questions AND the physical binding questions:
+
+**Pattern questions** (what the data looks like):
 - What trend shapes do you see? (linear drift, step, oscillation, spike, S-curve)
 - Which signal moves FIRST from baseline?
 - What is the relative timing between signals?
 - Are signals coupled (same shape when normalized) or independent?
-- What does the visual pattern RULE OUT?
 
-### Statistical Validation Plots — Interpretation Protocol
+**Physical binding questions** (what the data MEANS — MANDATORY):
+- **Physical role**: What does this parameter PHYSICALLY do in the process? (e.g., "MD_TH012 is the 12th roller temperature in the quench zone — it controls film cooling rate and crystallinity freeze point")
+- **Expected physical relationship**: Based on process physics, IF this parameter were driving the defect, what would the expected relationship look like? (direction, lag, threshold, linearity)
+- **Observed vs expected**: Does the observed pattern MATCH the physical expectation? If the correlation shows X↑ → Y↑ but physics predicts X↑ → Y↓, the correlation is likely spurious regardless of |r|.
+- **Physical exclusion**: What physical mechanisms does this visual pattern RULE OUT? (e.g., "MD temperature at 84°C cannot cause PET chemical degradation — Arrhenius equation gives rate ratio ~10⁻¹⁰")
+- **Upstream/downstream tracing**: Where in the process flow does this parameter sit? Could a change here be the EFFECT of something upstream, rather than the CAUSE of something downstream?
+
+### 2.2 Statistical Validation Plots — Physical Interpretation Protocol
 
 **For `plot_ccf_lag_window`** (lag CCF):
 - Is the best-lag correlation isolated (single spike) or part of a consistent pattern across adjacent lags?
 - If isolated spike + data is batch-sorted: The correlation is almost certainly a sorting artifact. Do NOT use as primary evidence.
 - If consistent pattern across lags -5 to -3: Temporal precedence is supported.
+- **Physical check**: Does the observed lag (in seconds/minutes/batches) match the physical residence time or transport delay between the parameter's location and the defect detection point? If CCF says lag=3 batches but physical residence time is seconds → mismatch → investigate further.
 
 **For `plot_stratified_correlation`** (Simpson's Paradox):
 - Do subgroup correlations have the SAME SIGN as the full-dataset correlation?
 - If any subgroup has opposite sign → direction reversal → the aggregate correlation is NOT causal.
 - Check the dominant group's r: if it's near zero while full r is moderate, product switching is the confound.
+- **Physical check**: Do the different subgroups (products) operate in physically different regimes? (e.g., different temperature ranges, different speeds) If so, a parameter may genuinely have different effects in different regimes — this is NOT always a confound, it may be a real threshold effect.
 
 **For `plot_detrended_comparison`** (trend confounding):
 - If detrended bar is dramatically shorter than raw bar → time-trend driven, not direct coupling.
-- This is especially dangerous when both variables increase monotonically over the observation period.
+- **Physical check**: Is the shared time trend itself physically meaningful? (e.g., both parameter drift and defect rise over 9 days could reflect real equipment degradation, not a statistical artifact)
 
 **For `plot_spearman_vs_pearson`** (robustness):
 - Points far from the identity line indicate outlier influence.
@@ -131,7 +158,98 @@ For each standard plot, answer:
 
 **For `plot_outlier_sensitivity`** (outlier impact):
 - Large difference between full and cleaned bars → correlation depends on a few extreme batches.
-- Flag as potentially non-generalizable to normal operating conditions.
+- **Physical check**: Are the "outlier" batches physically meaningful extreme events (equipment failure, startup, shutdown) rather than measurement errors? If so, they may contain the most important diagnostic signal — don't discard them blindly.
+
+## Step 2.5: Physical Process Binding — THE CORE REASONING STEP
+
+**This is the most important step in the entire diagnosis. Do not skip it. Do not rush it.**
+
+Correlation tells you WHAT moves together. Physical process binding tells you WHY — and whether the correlation is causal or coincidental. A diagnosis built on correlations alone is worthless. A diagnosis built on physical understanding + data is powerful.
+
+### 2.5.1 The Physical Binding Protocol
+
+For EVERY key parameter-defect relationship observed in the plots and statistics, run through this protocol:
+
+```
+STATISTICAL SIGNAL (r=0.X, p=0.0X)
+        ↓
+PHYSICAL PARAMETER: What does this parameter physically measure/control?
+        ↓
+PROCESS LOCATION: Where in the process flow does it act?
+        ↓
+PHYSICAL MECHANISM: How could a change in this parameter PHYSICALLY cause the defect?
+   (temperature → degradation? pressure → shear? speed → residence time?)
+        ↓
+TEMPORAL ORDER: Does the parameter change BEFORE the defect? (required for causation)
+        ↓
+QUANTITATIVE CHECK: Do the magnitudes make physical sense?
+   (e.g., Arrhenius: is this temperature high enough? Residence time: is it long enough?)
+        ↓
+CONFOUND CHECK: Could a third variable drive both?
+        ↓
+CONCLUSION: Causally linked [OBSERVED] / Physically plausible [INFERRED] / Physically impossible [ELIMINATED]
+```
+
+### 2.5.2 Build the Process-Data Map
+
+Create a structured mapping that connects EVERY parameter group to its physical role:
+
+| Parameter Group | Physical Location | Physical Role | Expected Defect Link | Actual Data | Match? |
+|----------------|-------------------|---------------|---------------------|-------------|--------|
+| MD_TH001-005 | Pre-heat rollers 1-5 | Heat film to Tg (~75°C) for stretching | If too cold: uneven stretch → thickness variation. If too hot: surface sticking | r≈0 with all defects | Physical expectation confirmed: MD temp cannot cause chemical degradation |
+| MD_TH006-011 | Stretch rollers 6-11 | Maintain stretch temp (82-84°C) | Controls crystallization rate. No chemical degradation pathway | r≈0 with film_points, oligomer | Physical expectation confirmed |
+| Extruder temp (MISSING) | Main extruder zones | PET melting at ~280°C | Thermal degradation → gel particles, oligomers, gas | NOT MEASURED | Cannot verify — this is the key data gap |
+| W1C40@PV1 | MD slow roller speed | Controls stretch ratio | Speed changes → residence time in stretch zone changes | r≈-0.32 within PG31DS | Weak signal, physically plausible as secondary effect |
+| F_PS002@PV1 | Main filter inlet pressure | Indicates filter blockage | Rising ΔP → degraded melt → more defects downstream | No significant within-product correlation | 9-day window too short for significant filter blockage |
+
+**This table is the bridge between statistics and physics. Every hypothesis must trace its lineage through this table.**
+
+### 2.5.3 Time-Aligned Plot Analysis: The Physical Sequence Rule
+
+When analyzing time-aligned plots (process parameters and defects on the same time axis), apply the **Physical Sequence Rule**:
+
+1. **Trace the material flow**: A batch of material flows through Extruder → Filter → Die → Casting → MD Stretch → Inspection. Each stage has a physical residence time.
+
+2. **Parameters must change BEFORE their downstream effects**: If parameter X at stage S is the cause of defect Y, then X must change BEFORE Y appears — by at least the physical transport time from S to the inspection point.
+
+3. **Upstream parameters can explain downstream effects, never the reverse**: A change in MD roller temperature CANNOT cause a change in extruder pressure that happened earlier. If they're correlated, either (a) extruder pressure changes caused both, or (b) it's coincidental.
+
+4. **Within-batch parameter-defect coupling**: In time-aligned plots, look for parameters and defects that rise/fall TOGETHER within the same batch or adjacent batches. If a parameter spikes in batch N and the defect spikes in batch N (not N+1, N+2...), the parameter is either:
+   - NOT the cause (no time for physical transport), OR
+   - A real-time indicator of an upstream condition that started earlier
+
+5. **Lag must match physics**: If CCF shows best lag at -3 batches, calculate: 3 batches × cycle time per batch = physical delay. Does this delay match the residence time from the parameter's location to inspection? If CCF says lag=0 but physical residence time is 30 minutes → the correlation is probably picking up a common cause, not direct causation.
+
+### 2.5.4 Physical Elimination: The Most Powerful Diagnostic Tool
+
+**Physically impossible relationships are definitive — they are STRONGER evidence than any positive correlation.**
+
+Example from BOPET diagnosis:
+- MD temperature-缺陷 correlation analysis: 18 rollers × 5 defects = 90 pairs tested
+- Finding: ALL 90 pairs |r| < 0.15, p > 0.1 within PG31DS
+- Physical check: Arrhenius equation — k(84°C)/k(280°C) ≈ 8.5×10⁻¹⁰
+- Conclusion: MD段降解被物理排除 (排除置信度 95%)
+
+This is the pattern: **Statistical null result + Physical impossibility = DEFINITIVE EXCLUSION.** This is stronger than any positive correlation because physics is universal — it doesn't depend on sample size or p-values.
+
+For each hypothesis you eliminate, document:
+1. What the data shows (or doesn't show)
+2. What physics says about the mechanism
+3. Why the combination is definitive
+
+### 2.5.5 Quantitative Physical Feasibility Check
+
+Before accepting any causal hypothesis, verify the numbers make physical sense:
+
+- **Temperature-driven degradation**: Is the temperature high enough? Use Arrhenius: k = A·exp(-Ea/RT). Compare rates at different temperatures.
+- **Residence time**: Is the material exposed long enough? rate × time must produce a measurable effect.
+- **Concentration/dose**: If a contaminant is proposed, is the concentration physically achievable?
+- **Mechanical stress**: If shear is proposed, is the shear rate above the material's threshold?
+- **Energy balance**: Does the proposed mechanism respect energy conservation?
+
+**If the numbers don't work, the hypothesis is false — regardless of correlation strength.**
+
+Example: "Temperature fluctuation of ±2°C at 84°C increases PET degradation" → Arrhenius check: at 84°C, PET degradation half-life ≈ 20,000 years. A ±2°C fluctuation changes the rate by ~30%, making the half-life ~15,000 years instead of ~20,000 years. Still immeasurable over a 9-day observation window. **Physically impossible. Eliminate.**
 
 ## Step 3: Observation Phase
 
@@ -142,17 +260,47 @@ Document exact observations with [OBSERVATION] markers. Include:
 - Magnitude and direction of change
 - Statistical context (n, distribution shape)
 
-## Step 4: Synthesize Visual + Numerical + Validation Evidence
+## Step 4: Synthesize — Physical Mechanism FIRST, Statistics SECOND
 
-Combine:
-- Visual evidence from plots (Rank 4)
-- Statistical evidence from feature_summary.json (Rank 3) — Pearson, Spearman, detrended, CCF
-- **Validation evidence from validate_report.json (Rank 3)** — sorting, Simpson, outliers, trends
-- Direct measurements (Rank 1)
-- Domain knowledge from resources/ (Rank 5)
-- Reference documents from 01_ontology/ (Rank 2)
+**The diagnostic synthesis is a physical reasoning process supported by statistics, NOT a statistical exercise with physical commentary.**
 
-### 4.1 Temporal Ordering Analysis (CRITICAL)
+Combine evidence in this priority order:
+
+1. **Physical process structure** (from ontology + process knowledge): What is the physical flow? Which stages exist? What mechanisms are physically possible at each stage?
+
+2. **Physical elimination** (from Step 2.5): What mechanisms are PHYSICALLY IMPOSSIBLE? These are definitive and do not depend on sample size.
+
+3. **Direct measurements** (Rank 1): What do the actual parameter values tell us? Are they within normal range? Are there excursions?
+
+4. **Visual evidence from time-aligned plots** (Rank 4): Does the temporal sequence match the physical process sequence? Do changes in upstream parameters precede downstream effects?
+
+5. **Statistical evidence** (Rank 3): Correlations, CCF, Granger, MI — used to CONFIRM or REFUTE physically-grounded hypotheses, NOT to generate hypotheses out of thin air.
+
+6. **Domain knowledge** (Rank 5): Known failure modes, degradation chemistry, operational experience.
+
+### 4.0 The Synthesis Workflow
+
+Follow this workflow — do NOT jump to Step 4.1 (temporal ordering) before completing the physical synthesis:
+
+```
+PHYSICAL PROCESS MODEL (what SHOULD happen)
+        +
+TIME-ALIGNED OBSERVATIONS (what DID happen)
+        ↓
+IDENTIFY DEVIATIONS: Where does reality diverge from the physical model?
+        ↓
+PHYSICAL MECHANISM HYPOTHESIS: What physical/chemical mechanism could explain the deviation?
+        ↓
+QUANTITATIVE CHECK: Do the numbers work? (rates, energies, concentrations, times)
+        ↓
+STATISTICAL CORROBORATION: Do correlations, CCF, Granger support the physical mechanism?
+        ↓
+CONFOUND CHECK: Could something else explain both the deviation and the statistical pattern?
+        ↓
+CAUSAL CONCLUSION (or [HYPOTHESIS] if gaps remain)
+```
+
+### 4.1 Temporal Ordering Analysis (CRITICAL — but must follow physical context)
 
 1. For each target variable, find the process parameter with strongest |r|
 2. Check full CCF for consistent lag patterns (NOT just best single lag)
@@ -225,18 +373,120 @@ Read `change_point_detection` from validate_report.json. If regime shifts are de
 3. Consider analyzing each segment separately and comparing
 4. Flag: "Change point detected in [parameter] at position [X]. Segment means: [A] → [B]. Correlations spanning this boundary may reflect the regime shift, not continuous process physics."
 
+### 4.8 Product-Stratified Analysis (NEW — MANDATORY when group_col exists)
+
+**If the dataset contains a product/model/grade column, you MUST perform per-product analysis BEFORE forming any hypotheses.** This is one of the most critical steps for accurate diagnosis. Aggregate correlations that ignore product grouping are the #1 source of false conclusions in industrial diagnostics.
+
+#### 4.8.1 Per-Product Analysis Protocol
+
+For each product model with sufficient sample size (n >= 20):
+
+1. **Within-product correlation matrix**: Read the `stratified` section of feature_summary.json. For each product, extract the correlation matrix computed on that product's data ONLY. This is your PRIMARY evidence source — aggregate (all-product) correlations are secondary.
+
+2. **Per-product defect baseline**: For each defect type, compute the mean, std, and trend within the product. Document: "Product X: film_points baseline = Y ± Z, trend = T over observation window."
+
+3. **Per-product parameter ranges**: For each key process parameter, document the typical operating range per product. These ranges often differ substantially between products — that's the root of Simpson's Paradox.
+
+4. **Per-product param-defect relationships**: For each product, identify the top 5 param-defect correlations. Answer for each:
+   - Does this relationship exist in this product? (|r| > 0.3, p < 0.05)
+   - What is the direction? (positive/negative)
+   - What is the strength compared to aggregate? (stronger/weaker/same/reversed)
+   - Is there a consistent pattern across products? (see 4.8.2)
+
+#### 4.8.2 Cross-Product Consistency Classification
+
+For each key param-defect relationship, classify it into one of four categories:
+
+| Category | Pattern | Interpretation | Confidence Impact |
+|----------|---------|---------------|-------------------|
+| **UNIVERSAL** | Same direction + similar strength in ALL products with n>=20 | Genuine process-physics relationship. Parameter genuinely affects defect regardless of product. | **+10 to +15** — strongest possible evidence |
+| **CONSISTENT-WEAK** | Same direction in all products, but weaker within each than aggregate | Real but weak effect. Aggregate correlation is inflated by between-product differences. | **No adjustment** — use within-product r as the true effect size |
+| **PRODUCT-SPECIFIC** | Strong in one product, absent/reversed in others | The relationship only holds under specific product conditions (specific temperature range, speed, formulation). NOT a universal root cause. | **-15 to -25** — cannot generalize across products |
+| **SIMPSON-REVERSAL** | Aggregate shows strong correlation, but within-product correlations are near zero or opposite sign | Complete confound. Product switching drives the aggregate correlation. Parameter has NO causal effect. | **-25 to -40** — eliminate from hypothesis consideration |
+
+#### 4.8.3 Per-Product vs Overall Synthesis
+
+After completing per-product analysis, synthesize findings:
+
+1. **Product-specific findings**: "In PG31DS (67 batches), parameter X shows consistent positive correlation with defect Y (within-product r=0.45). This relationship is absent in PG32D (16 batches, r=0.05) — possibly because PG32D operates at lower temperatures where the degradation mechanism is not activated."
+
+2. **Universal findings**: "Defect co-occurrence (film_points-oligomer) is strong in ALL products (PG31DS r=0.84, PG32D r=0.79, FP21 r=0.81). This is UNIVERSAL evidence of shared upstream source — the strongest finding in this diagnosis."
+
+3. **Dominant product caveat**: "PG31DS accounts for 45% of all batches. Findings that only appear in PG31DS may reflect its specific process window rather than general physics. Flag as [PRODUCT-SPECIFIC]."
+
+4. **Small-product exclusion**: "Products with n < 10 (list them) are excluded from per-product analysis due to insufficient statistical power. Their data is included in cross-product comparisons but individual correlations are unreliable."
+
+#### 4.8.4 Per-Product Visualization Interpretation
+
+When reading per-product plots from the data-processor:
+
+- **`plot_per_product_defect_timeseries`**: Look for within-product trends (does defect rise over time within a single product run?), not just between-product baseline differences. A rising trend within a single product is stronger evidence of degradation/accumulation than a high baseline in one product.
+
+- **`plot_product_param_profile`**: If product parameter distributions DON'T overlap → aggregate correlation is almost certainly Simpson's Paradox. If they DO overlap but defects differ → genuine process-physics may exist.
+
+- **`plot_within_product_correlation`**: Compare the heatmap for each product side by side. If the pattern of hot/cold cells is similar across products → universal. If each product's heatmap looks completely different → product-specific effects dominate.
+
+- **`plot_product_defect_scatter`**: The key question: do the per-product regression lines have the SAME SLOPE? Same slope = universal effect (just shifted baselines). Different slopes = product-specific physics. Opposite slopes = confound.
+
+- **`plot_cross_product_consistency`**: A horizontal bar chart where all bars point in the same direction (even if different lengths) = consistent signal. Mixed red/blue bars for the same param-defect pair = the relationship is NOT real.
+
 ## Step 5: Hypothesis Formation
 
 List ALL plausible hypotheses. For each:
 
 ### Required Structure
-- **Physical mechanism**: Full causal chain from parameter → intermediate state → defect
+
+Every hypothesis MUST be structured as a PHYSICAL CAUSAL CHAIN. Correlation is supporting evidence, not the chain itself.
+
+- **Physical causal chain** (REQUIRED — this is the core of the hypothesis):
+  
+  Map every link in the chain from root parameter to observed defect. Each link must be classified:
+  - `[OBSERVED]` — directly measured in the data (cite exact value/source)
+  - `[INFERRED]` — logically deduced from observations + physics (cite the reasoning)
+  - `[KNOWN_PHYSICS]` — established physical/chemical principle (cite the principle, e.g., Arrhenius equation, PET degradation chemistry)
+  - `[UNVERIFIED]` — plausible but no direct evidence (flag for confidence reduction)
+  
+  Example structure:
+  ```
+  [OBSERVED] PET熔体在挤出机中经受高温 (280°C 工艺设定值)
+      ↓
+  [KNOWN_PHYSICS] PET在>200°C发生热降解: 链断裂→交联凝胶, 环化→环状三聚体, 脱羧→气体
+      ↓
+  [INFERRED] 降解产物随熔体流经过滤器→模头→铸片→MD纵拉 (物理流程推导)
+      ↓
+  [OBSERVED] 膜点(凝胶)与低聚物(三聚体)高度共现 PG31DS内 r=0.838 p=0.000
+      ↓
+  [OBSERVED] 膜点与气泡也正相关 r=0.524 (降解气体≠水解气体)
+      ↓
+  [UNVERIFIED] 挤出段实际温度波动幅度未知 → 无法量化降解速率变化
+  ```
+  
+  **A hypothesis with >50% [UNVERIFIED] or [INFERRED] links is NOT a conclusion — it's a research question.**
+
+- **Physical mechanism** (same as above, summarized): Full causal chain from parameter → intermediate state → defect
+
 - **Supporting evidence**: Cite rank + source. Distinguish between:
   - Evidence that survives all validation checks (robust)
   - Evidence weakened by Simpson/trend/outlier/sorting issues
-- **Contradicting evidence**: What goes against this hypothesis
-- **Testable predictions**: What would confirm or refute this hypothesis
-- **Confidence**: Numeric score 0-100, adjusted for validation findings
+  - **Physical evidence** (NEW): Evidence from physical principles (Arrhenius, material science, chemistry) — this is often the STRONGEST evidence, even when statistical evidence is moderate
+
+- **Quantitative feasibility** (NEW — REQUIRED): For the proposed mechanism, verify the numbers:
+  - Temperature: Is it in the range where the mechanism activates? (e.g., "PET degradation requires >200°C; MD段最高84°C → MD段排除")
+  - Time: Is the exposure time sufficient? (e.g., "MD residence time ~seconds; degradation requires minutes at 280°C → MD residence insufficient")
+  - Concentration: Are the proposed contaminants/drivers at detectable levels?
+  - Energy: Does the mechanism respect energy conservation?
+
+- **Per-product evidence** (NEW — REQUIRED when group_col exists): For each hypothesis, list:
+  - Which products support it (consistent direction, |r| > 0.3)?
+  - Which products contradict it (opposite direction or r ≈ 0)?
+  - Cross-product classification: UNIVERSAL / CONSISTENT-WEAK / PRODUCT-SPECIFIC / SIMPSON-REVERSAL
+  - Dominant product (largest n) finding: does the hypothesis hold in the dominant product?
+
+- **Contradicting evidence**: What goes against this hypothesis — both statistical AND physical
+
+- **Testable predictions**: What would confirm or refute this hypothesis — be specific about what data to collect
+
+- **Confidence**: Numeric score 0-100, adjusted for validation findings + per-product consistency + physical chain completeness
 
 ### Confidence Adjustment Rules
 
@@ -244,6 +494,11 @@ Starting from raw evidence strength, apply these adjustments:
 
 | Validation Finding | Confidence Adjustment |
 |--------------------|----------------------|
+| **Product-stratified analysis NOT performed when group_col exists** (NEW) | **BLOCKING. Do not proceed. All aggregate-only conclusions are unreliable.** |
+| **Product-Stratified: UNIVERSAL** (same direction+strength in ALL products n>=20) (NEW) | **Raise confidence by 10-15 points.** Strongest possible validation — relationship survives all products |
+| **Product-Stratified: CONSISTENT-WEAK** (same direction, weaker within-product) (NEW) | **No adjustment.** Use within-product r as true effect size. Note aggregate inflation. |
+| **Product-Stratified: PRODUCT-SPECIFIC** (strong in one product only) (NEW) | **Reduce confidence by 15-25 points.** Cannot generalize. Flag as [PRODUCT-SPECIFIC] |
+| **Product-Stratified: SIMPSON-REVERSAL** (aggregate strong, within-product zero/reversed) (NEW) | **Reduce confidence by 25-40 points. Eliminate from consideration.** Complete confound. |
 | Sorting validation FAIL (data not time-sorted) | **Cannot use lag evidence.** Any hypothesis relying on lag → reduce confidence by 25-40 points |
 | Simpson's Paradox (direction reversal in dominant subgroup) | **Reduce confidence by 20-30 points.** The aggregate correlation is likely spurious |
 | Simpson's Paradox (moderate attenuation in subgroup) | Reduce confidence by 10-15 points |
@@ -261,11 +516,18 @@ Starting from raw evidence strength, apply these adjustments:
 
 ### Causation Criteria
 
-To state "X caused Y" you need ALL four:
-1. **Temporal precedence**: X changed BEFORE Y (with measured lag AND data time-sorted)
-2. **Statistical evidence**: Strong correlation (|r| > 0.7 for Pearson, or consistent Spearman)
-3. **Physical mechanism**: Plausible explanation from process physics/chemistry
-4. **No contradictions**: No evidence that contradicts, including within subgroups
+To state "X caused Y" you need ALL four. **The physical mechanism criterion is weighted most heavily — without it, even r=0.99 is meaningless.**
+
+1. **Physical mechanism** (PRIMARY — must be satisfied first): A plausible, quantitative explanation from process physics/chemistry. Must include:
+   - The specific physical/chemical pathway (not "temperature affects quality" but "temperature at 280°C accelerates PET chain scission at the ester linkage, producing terephthalic acid-terminated oligomers that crystallize as surface defects")
+   - Quantitative feasibility check (temperatures, rates, times, concentrations all within physically meaningful ranges)
+   - **If no physical mechanism exists → stop. The relationship is correlation, not causation. Do not pass GO.**
+
+2. **Temporal precedence**: X changed BEFORE Y (with measured lag AND data time-sorted). The lag must be consistent with physical residence/transport time.
+
+3. **Statistical evidence**: Correlation (|r| > 0.7 for Pearson, or consistent Spearman) that survives stratification, detrending, and outlier checks. **Note: statistical evidence alone is NEVER sufficient for causation.**
+
+4. **No contradictions**: No evidence that contradicts — including within subgroups, across products, or from physical principles.
 
 **If any criterion is missing, use [HYPOTHESIS] language.**
 
@@ -336,13 +598,17 @@ For each surviving hypothesis, classify and quantify uncertainty:
 Before writing ANY conclusion, check:
 
 - [ ] Does this statement have a SPECIFIC data point backing it? (Rank 1-4 evidence)
+- [ ] **Does this statement have a PHYSICAL MECHANISM backing it?** (NEW — if no physical pathway exists, it's correlation, not causation)
+- [ ] **Have I run the quantitative feasibility check?** (NEW — do the temperatures/times/concentrations make physical sense?)
 - [ ] Am I stating the EVIDENCE RANK alongside the conclusion?
 - [ ] If this is inference, did I use [INFERRED] not [OBSERVED]?
 - [ ] Did I check the validation report for counter-evidence?
+- [ ] **Did I check the physical process sequence?** (NEW — does the temporal order in the data match the physical flow order in the process?)
 - [ ] Could a reasonable expert disagree with this interpretation?
 - [ ] Am I using precise language (numbers, units, magnitudes) rather than vague terms?
 - [ ] Is this conclusion FALSIFIABLE? (if not, it's speculation — don't state it)
 - [ ] Did I say "X caused Y" without ALL 4 causation criteria? → Change to [HYPOTHESIS]
+- [ ] **Did I cite a correlation without checking what physical mechanism could explain it?** (NEW — if yes, STOP and run Step 2.5)
 
 **Any "NO" → STOP. Do not output that conclusion. Fix it or downgrade it.**
 
@@ -487,6 +753,10 @@ Save to RUN_DIR/04_diagnostics/:
 
 ## Rules
 
+- **Physical mechanism FIRST, correlation SECOND.** A moderate correlation with a clear physical mechanism is worth more than a strong correlation with no physical explanation.
+- **Run Step 2.5 (Physical Process Binding) on EVERY key relationship.** This is the core reasoning step. Do not skip it.
+- **Quantitative feasibility is mandatory.** Temperature, time, concentration, energy — verify the numbers before accepting any mechanism.
+- **Physical elimination is the strongest evidence.** "Parameter X cannot cause defect Y because physics says it's impossible" is more definitive than "Parameter Z correlates with defect Y at r=0.8."
 - **Read validate_report.json BEFORE forming hypotheses** — it may invalidate your strongest correlations
 - **Never cite a lag correlation as causal evidence if data is NOT time-sorted**
 - **Always check if the dominant product group supports the aggregate correlation**
@@ -494,6 +764,6 @@ Save to RUN_DIR/04_diagnostics/:
 - **Prefer Spearman over Pearson for heavily skewed defect distributions**
 - ALWAYS read plot_manifest.json FIRST
 - ALWAYS read every plot listed in the manifest
-- Use [OBSERVATION] / [INFERENCE] / [HYPOTHESIS] / [UNCERTAINTY] markers
+- Use [OBSERVATION] / [INFERENCE] / [HYPOTHESIS] / [UNCERTAINTY] / [KNOWN_PHYSICS] / [UNVERIFIED] / [ELIMINATED] markers
 - No unsupported causal claims
 - Disclose all uncertainty, especially from validation findings

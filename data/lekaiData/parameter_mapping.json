@@ -1,0 +1,140 @@
+{
+  "_meta": {
+    "source": "XLSX mapping file diagnostic.db-wal.xlsx + user domain knowledge + actual data verification",
+    "verified_by": "逐行比对XLSX映射表与aligned_multidefect.csv实际数据",
+    "confidence": "verified — 每个参数含义均由XLSX和数据双重确认",
+    "unverified_fields": "unit(单位)和causal_relationships(因果关系)基于物理常识推断，未在数据中直接确认"
+  },
+
+  "scene": "BOPET挤出→纵拉段生产过程",
+  "data_file": "aligned_multidefect.csv (149批次, 批次级对齐数据)",
+
+  "process_equipment": [
+    {
+      "id": "main_extruder",
+      "name": "主挤出机 (MG)",
+      "function": "主层熔融挤出",
+      "measured_parameters": ["MG-SPEED", "MF-P-BEFORE", "MF-P-AFTER"]
+    },
+    {
+      "id": "secondary_extruder",
+      "name": "辅挤出机 (SG)",
+      "function": "共挤层熔融挤出",
+      "measured_parameters": ["SG-SPEED", "SF-P-BEFORE", "SF-P-AFTER"]
+    },
+    {
+      "id": "md_stretcher",
+      "name": "MD纵拉机 (18辊)",
+      "function": "薄膜纵向拉伸：加热至Tg以上→拉伸→冷却定型",
+      "measured_parameters": ["MD_TH001-018辊温", "W1C40辊1速度", "W1C4B辊12速度", "W1C7C-8D扭矩"]
+    }
+  ],
+
+  "parameters": {
+
+    "MD_TH001@PV": {"roll": 1,  "physical_meaning": "1#纵拉辊温度",   "zone": "预加热段 (near Tg)", "typical_from_data": "~75.5°C", "note": "PET Tg≈75°C"},
+    "MD_TH002@PV": {"roll": 2,  "physical_meaning": "2#纵拉辊温度",   "zone": "预加热段 (near Tg)", "typical_from_data": "~75.3°C"},
+    "MD_TH003@PV": {"roll": 3,  "physical_meaning": "3#纵拉辊温度",   "zone": "预加热段 (near Tg)", "typical_from_data": "~76.5°C"},
+    "MD_TH004@PV": {"roll": 4,  "physical_meaning": "4#纵拉辊温度",   "zone": "预加热段 (near Tg)", "typical_from_data": "~76.4°C"},
+    "MD_TH005@PV": {"roll": 5,  "physical_meaning": "5#纵拉辊温度",   "zone": "预加热段 (near Tg)", "typical_from_data": "~76.5°C"},
+    "MD_TH006@PV": {"roll": 6,  "physical_meaning": "6#纵拉辊温度",   "zone": "拉伸段 (above Tg)", "typical_from_data": "~82.4°C", "note": "从76°C跳升至82°C, 开始拉伸"},
+    "MD_TH007@PV": {"roll": 7,  "physical_meaning": "7#纵拉辊温度",   "zone": "拉伸段 (above Tg)", "typical_from_data": "~82.3°C"},
+    "MD_TH008@PV": {"roll": 8,  "physical_meaning": "8#纵拉辊温度",   "zone": "拉伸段 (above Tg)", "typical_from_data": "~82.7°C"},
+    "MD_TH009@PV": {"roll": 9,  "physical_meaning": "9#纵拉辊温度",   "zone": "拉伸段 (above Tg)", "typical_from_data": "~82.1°C"},
+    "MD_TH010@PV": {"roll": 10, "physical_meaning": "10#纵拉辊温度",  "zone": "拉伸段 (above Tg)", "typical_from_data": "~82.1°C"},
+    "MD_TH011@PV": {"roll": 11, "physical_meaning": "11#纵拉辊温度",  "zone": "拉伸段 (above Tg)", "typical_from_data": "~83.5°C"},
+    "MD_TH012@PV": {"roll": 12, "physical_meaning": "12#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~30.8°C", "note": "从83.5°C断崖降至30.8°C"},
+    "MD_TH013@PV": {"roll": 13, "physical_meaning": "13#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~35.6°C"},
+    "MD_TH014@PV": {"roll": 14, "physical_meaning": "14#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~35.4°C"},
+    "MD_TH015@PV": {"roll": 15, "physical_meaning": "15#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~35.2°C"},
+    "MD_TH016@PV": {"roll": 16, "physical_meaning": "16#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~35.0°C"},
+    "MD_TH017@PV": {"roll": 17, "physical_meaning": "17#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~34.8°C"},
+    "MD_TH018@PV": {"roll": 18, "physical_meaning": "18#纵拉辊温度",  "zone": "急冷定型段 (<< Tg)", "typical_from_data": "~34.6°C"},
+
+    "W1C40@PV1": {
+      "roll": 1,
+      "type": "speed",
+      "physical_meaning": "1#纵拉辊线速度 (拉伸入口速度/慢辊)",
+      "xlsx_label": "1#SPEED",
+      "typical_from_data": "mean=13.7, range=[11.2, 20.4]"
+    },
+
+    "W1C7C@PV1":  {"roll": 1,  "type": "torque", "xlsx_label": "1#",  "physical_meaning": "1#纵拉辊扭矩 (预加热始端)"},
+    "W1C7D@PV1":  {"roll": 2,  "type": "torque", "xlsx_label": "2#",  "physical_meaning": "2#纵拉辊扭矩 (预加热段)"},
+    "W1C7E@PV1":  {"roll": 3,  "type": "torque", "xlsx_label": "3#",  "physical_meaning": "3#纵拉辊扭矩 (预加热段)"},
+    "W1C7F@PV1":  {"roll": 4,  "type": "torque", "xlsx_label": "4#",  "physical_meaning": "4#纵拉辊扭矩 (预加热段)"},
+    "W1C80@PV1":  {"roll": 5,  "type": "torque", "xlsx_label": "5#",  "physical_meaning": "5#纵拉辊扭矩 (预加热段)"},
+    "W1C81@PV1":  {"roll": 6,  "type": "torque", "xlsx_label": "6#",  "physical_meaning": "6#纵拉辊扭矩 (拉伸起始)"},
+    "W1C82@PV1":  {"roll": 7,  "type": "torque", "xlsx_label": "7#",  "physical_meaning": "7#纵拉辊扭矩 (拉伸主段)"},
+    "W1C83@PV1":  {"roll": 8,  "type": "torque", "xlsx_label": "8#",  "physical_meaning": "8#纵拉辊扭矩 (拉伸主段)"},
+    "W1C84@PV1":  {"roll": 9,  "type": "torque", "xlsx_label": "9#",  "physical_meaning": "9#纵拉辊扭矩 (拉伸主段)"},
+    "W1C85@PV1":  {"roll": 10, "type": "torque", "xlsx_label": "10#", "physical_meaning": "10#纵拉辊扭矩 (拉伸末段)"},
+    "W1C86@PV1":  {"roll": 11, "type": "torque", "xlsx_label": "11#", "physical_meaning": "11#纵拉辊扭矩 (拉伸完成点)"},
+
+    "W1C4B@PV1": {
+      "roll": 12,
+      "type": "speed",
+      "physical_meaning": "12#纵拉辊线速度 (拉伸出口速度/快辊)",
+      "xlsx_label": "12#SPEED",
+      "typical_from_data": "mean=42.4, range=[34.1, 64.0]"
+    },
+
+    "W1C87@PV1":  {"roll": 12, "type": "torque", "xlsx_label": "12#", "physical_meaning": "12#纵拉辊扭矩 (急冷始端)"},
+    "W1C88@PV1":  {"roll": 13, "type": "torque", "xlsx_label": "13#", "physical_meaning": "13#纵拉辊扭矩 (急冷段)"},
+    "W1C89@PV1":  {"roll": 14, "type": "torque", "xlsx_label": "14#", "physical_meaning": "14#纵拉辊扭矩 (急冷段)"},
+    "W1C8A@PV1":  {"roll": 15, "type": "torque", "xlsx_label": "15#", "physical_meaning": "15#纵拉辊扭矩 (急冷段)"},
+    "W1C8B@PV1":  {"roll": 16, "type": "torque", "xlsx_label": "16#", "physical_meaning": "16#纵拉辊扭矩 (冷却定型)"},
+    "W1C8C@PV1":  {"roll": 17, "type": "torque", "xlsx_label": "17#", "physical_meaning": "17#纵拉辊扭矩 (冷却定型)"},
+    "W1C8D@PV1":  {"roll": 18, "type": "torque", "xlsx_label": "18#", "physical_meaning": "18#纵拉辊扭矩 (冷却出口)"},
+
+    "W1C00@PV1": {
+      "physical_meaning": "主挤出机螺杆转速 (MG-SPEED)",
+      "xlsx_label": "MG-SPEED",
+      "typical_from_data": "mean=24.6, range=[23.5, 24.7]"
+    },
+    "F_PS002@PV1": {
+      "physical_meaning": "主过滤器前熔体压力 (MF-P-BEFORE)",
+      "xlsx_label": "MF-P-BEFORE",
+      "typical_from_data": "mean=13.8, range=[12.6, 15.3]"
+    },
+    "F_PS003@PV1": {
+      "physical_meaning": "主过滤器后熔体压力 (MF-P-AFTER)",
+      "xlsx_label": "MF-P-AFTER",
+      "typical_from_data": "mean=7.1, range=[6.5, 7.3]"
+    },
+    "W1C01@PV1": {
+      "physical_meaning": "辅挤出机螺杆转速 (SG-SPEED)",
+      "xlsx_label": "SG-SPEED",
+      "typical_from_data": "mean=7.8, range=[7.1, 11.7]"
+    },
+    "F_PS005@PV1": {
+      "physical_meaning": "辅过滤器前熔体压力 (SF-P-BEFORE)",
+      "xlsx_label": "SF-P-BEFORE",
+      "typical_from_data": "mean=9.2, range=[7.3, 12.3]"
+    },
+    "F_PS006@PV1": {
+      "physical_meaning": "辅过滤器后熔体压力 (SF-P-AFTER)",
+      "xlsx_label": "SF-P-AFTER",
+      "typical_from_data": "mean=4.4, range=[3.1, 6.0]"
+    }
+  },
+
+  "derived_parameters": {
+    "MD_DRAW_RATIO": {
+      "formula": "W1C4B@PV1 / W1C40@PV1",
+      "physical_meaning": "MD纵向拉伸比 (出口快辊速度 ÷ 入口慢辊速度)",
+      "typical_from_data": "mean≈3.08, range=[3.03, 3.14], CV≈1%",
+      "note": "拉伸比变动极小(CV~1%), 单个速度参数(W1C40或W1C4B独用)与缺陷的相关性比拉伸比更强"
+    },
+    "MF_FILTER_DELTA_P": {
+      "formula": "F_PS002@PV1 - F_PS003@PV1",
+      "physical_meaning": "主过滤器压差 (过滤网堵塞程度的间接指标)",
+      "typical_from_data": "mean≈6.8, range=[5.5, 8.2]"
+    },
+    "SF_FILTER_DELTA_P": {
+      "formula": "F_PS005@PV1 - F_PS006@PV1",
+      "physical_meaning": "辅过滤器压差",
+      "typical_from_data": "mean≈4.8"
+    }
+  }
+}
