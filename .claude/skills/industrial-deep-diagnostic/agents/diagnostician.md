@@ -104,102 +104,299 @@ Read every plot listed in `03_figures/plot_manifest.json`. Plots are your primar
 | Detrended comparison | Does correlation survive detrending? If not → time-trend confound |
 | Per-product timeseries | Do defects rise WITHIN a single product run, or just differ BETWEEN products? |
 
+### 1.3 Extract Candidate Defect-Linked Parameters from Visuals and Features
+
+From the visual evidence (all plots read above) and statistical features (feature_summary.json + validate_report.json), actively SCREEN all parameters to identify ~3-10 that are most plausibly linked to the target defects.
+
+**Screening criteria — a parameter qualifies if it meets ANY of:**
+
+| Condition | Description |
+|-----------|-------------|
+| Strong linear correlation | \|r\| > 0.3 AND \|ρ\| > 0.3 (Pearson and Spearman agree) AND r_det <30% attenuation |
+| Stratified survives | Within-dominant-group correlation \|r_subgroup\| > 0.2 AND direction matches overall |
+| Non-linear dependency | Mutual Information MI > 0.3 (captures threshold/ saturation effects Pearson misses) |
+| Consistent CCF window | CCF shows smooth lag window (not isolated spike) AND lag ≠ 0 implies plausible physical delay |
+| Interaction effect | Strong interaction (synergy score > 0.3) with another already-implicated parameter |
+| Visual coincidence | Time-series plot shows parameter change PRECEDING defect change (requires time-sorted data) |
+
+**Exclusion criteria — parameter is REMOVED from candidate list if:**
+- Validation shows `outlier_driven: true` AND no physical mechanism
+- Attenuation > 50% without correction (time-trend confounded)
+- \|r_subgroup\| < 0.1 AND product column exists (pattern is purely between-product)
+
+**Output: Candidate Parameter Table**
+
+```
+| Candidate # | Parameter | Physical Meaning | Defect Link | Qualified By | Product Consistency (TBD) | Notes |
+|-------------|-----------|-----------------|-------------|-------------|--------------------------|-------|
+| C01 | MD_TH012 | MD roller temp(°C) | melt_spots | r=0.42, r_subgroup=0.02 | TBD — needs stratification | Collapses in subgroup |
+| C02 | F_PS002@PV1 | Filter pressure(bar) | oligomer | r=0.55, r_subgroup=0.49 | TBD — needs stratification | Robust |
+| C03 | vib_x | Spindle vibration(mm/s) | roughness | r=0.88, r_subgroup=0.82 | TBD — needs stratification | Very strong, CCF flat |
+```
+
+"Product Consistency" is filled in during Step 2. Parameters flagged as potentially between-product-only are provisionally kept until stratified analysis confirms.
+
 ---
 
-## Step 2: 5-STEP COMPETING HYPOTHESES PROTOCOL
+## Step 2: Product-Stratified Analysis — 分型号与整体并行分析
+
+**This step runs ONLY if the data has a product/grade/model column** (e.g., `product_id`, `grade`, `recipe`). If not, skip to Step 3.
+
+**Core insight**: In multi-product manufacturing, aggregate correlations are often driven by BETWEEN-PRODUCT baseline differences, not WITHIN-PRODUCT physical causation. A parameter may correlate with defects overall simply because "product A runs hotter AND has more defects" — not because heat causes defects. The only way to distinguish is to check WITHIN each product.
+
+### 2.1 Overall Analysis (整体分析)
+
+Extract from `feature_summary.json` the aggregate-level correlations using ALL data combined:
+
+```
+| Relationship | r (Pearson) | ρ (Spearman) | r_det | MI | CCF_best | Note |
+|-------------|:-----------:|:------------:|:-----:|:--:|:--------:|------|
+| MD_TH012 → melt_spots | 0.42 | 0.39 | 0.08 | 0.18 | lag=0 | Strong overall, but r_det collapsed |
+| F_PS002@PV1 → oligomer | 0.55 | 0.52 | 0.48 | 0.45 | lag=-2 | Robust overall |
+```
+
+### 2.2 Per-Product Analysis (分型号分析)
+
+For EACH product type, compute the same correlations. Extract from `feature_summary.json` stratified results or compute from `cleaned_data.json`:
+
+```
+| Product | Parameter | Defect | r | ρ | r_det | MI | Direction vs Overall |
+|---------|-----------|--------|:-:|:--:|:----:|:--:|:-------------------:|
+| PG31DS | MD_TH012 | melt_spots | 0.02 | 0.01 | -0.01 | 0.05 | COLLAPSED — direction uncertain |
+| PG31DS | F_PS002@PV1 | oligomer | 0.49 | 0.47 | 0.44 | 0.42 | SAME — consistent |
+| PG12 | F_PS002@PV1 | oligomer | 0.51 | 0.49 | 0.47 | 0.40 | SAME — consistent |
+| PG12 | MD_TH012 | melt_spots | 0.38 | 0.36 | 0.30 | 0.25 | REDUCED but same direction |
+```
+
+**Key analytical questions for each product group:**
+- Does the correlation survive WITHIN a single product run? (same setpoint, same grade)
+- Or does it only appear ACROSS different products? (different baselines)
+- Is the sample size per product sufficient for meaningful correlation?
+
+### 2.3 Cross-Product Comparison (跨型号对比)
+
+Compare each product's correlation matrix. Answer these questions systematically:
+
+**Q1 — Direction consistency**: Do ALL products show the SAME sign for each parameter-defect pair?
+- If any product reverses direction → flag as potential Simpson's Paradox
+- Cross-check against `validate_report.json.simpson_paradox[]`
+- **Critical**: If the reversal is in the DOMINANT product group (most data points) → the aggregate r is MISLEADING
+
+**Q2 — Magnitude consistency**: Is the effect size similar across products?
+- Similar r → real physical coupling, not product-dependent
+- One product drives the entire signal → either product-specific mechanism, or between-product confound
+
+**Q3 — Baseline defect rate**: Do defect rates differ between products even when parameters are at the same value?
+- If baseline differs AND parameter baseline differs → the aggregate correlation may be entirely between-product
+- Check: compare mean defect rate vs mean parameter value per product
+
+### 2.4 Cross-Product Consistency Classification
+
+For EACH candidate parameter-defect pair from Step 1.3, classify:
+
+| Classification | Definition | Diagnostic Meaning |
+|---------------|-----------|-------------------|
+| **UNIVERSAL** | Effect holds direction + magnitude across ALL products | Real physical coupling, not product-dependent |
+| **CONSISTENT-WEAK** | Direction same across products but attenuated in some | Likely real but modulated by product properties |
+| **PRODUCT-SPECIFIC** | Effect present in only ONE product type | Possible product-specific mechanism; low sample size warning |
+| **SIMPSON-REVERSAL** | Overall r is POSITIVE but within-product r is NEGATIVE (or vice versa) | **Aggregate signal is MISLEADING. Physical mechanism may actually be REVERSED.** |
+| **BETWEEN-PRODUCT ONLY** | No within-product correlation for ANY product; aggregate driven by baseline differences | **NOT a causal relationship. Correlation from "Product A has higher X AND more defects" not "X causes defects."** |
+
+### 2.5 Update Candidate Parameter Table with Product Findings
+
+Go back to the table from Step 1.3. For each candidate:
+
+1. Fill in the "Product Consistency" column with the classification from 2.4
+2. **Remove parameters classified as BETWEEN-PRODUCT ONLY** — they are not causal mechanisms
+3. **Flag SIMPSON-REVERSAL parameters** — note the direction discrepancy
+4. Add per-product r values to the table
+
+---
+
+## Step 3: Candidate Parameter Shortlisting — 候选参数筛选
+
+From the updated Candidate Parameter Table, select the final shortlist that proceeds to hypothesis generation.
+
+### 3.1 Shortlist Criteria
+
+**KEEP a parameter if it meets ANY of:**
+1. **UNIVERSAL** or **CONSISTENT-WEAK** — strong evidence of real physical coupling
+2. **PRODUCT-SPECIFIC** BUT within-product r > 0.3 AND plausible physical mechanism exists
+3. MI > 0.3 (non-linear dependency) even without strong linear correlation
+4. Strong interaction effect (synergy > 0.3) with another shortlisted parameter
+5. Borderline statistics BUT strong physical plausibility (known mechanism from domain knowledge)
+
+**REMOVE a parameter if:**
+1. **BETWEEN-PRODUCT ONLY** — the "correlation" is purely from baseline differences
+2. **SIMPSON-REVERSAL** AND dominant product group shows reversal → aggregate r has wrong sign
+3. No plausible physical mechanism AND no domain knowledge can identify one
+4. `outlier_driven: true` AND no physical mechanism to explain it
+
+### 3.2 Final Shortlist Table
+
+```
+| Rank | Parameter | Physical Meaning | Defect | Overall r | Per-Product r | Consistency | Physical Plausibility | Priority |
+|------|-----------|-----------------|--------|:---------:|:-------------:|:-----------:|:---------------------:|:--------:|
+| 1 | F_PS002@PV1 | Filter pressure(bar) | oligomer | 0.55 | 0.49(PG31) / 0.51(PG12) | UNIVERSAL | High: ΔP→flow→degradation | MUST ANALYZE |
+| 2 | vib_x | Spindle vib(mm/s) | roughness | 0.88 | 0.82(PG31) / 0.85(PG12) | UNIVERSAL | High: vib→tool mark | MUST ANALYZE |
+| 3 | MD_TH012 | MD roller temp(°C) | melt_spots | 0.42 | 0.02(PG31) / 0.38(PG12) | BETWEEN-PRODUCT ONLY | None within-product | REMOVED |
+| 4 | EXT_T004 | Extruder temp(°C) | melt_spots | 0.38 | 0.35(PG31) / 0.30(PG12) | UNIVERSAL | Medium: temp→degradation | ANALYZE |
+```
+
+### 3.3 Pruned Observation Table (Input to Hypothesis Generation)
+
+Build a clean table containing ONLY the shortlisted parameters. This is the primary input to Step 4's hypothesis generation:
+
+```
+PARAMETER | DEFECT | r | ρ | r_det | per-product r | MI | CCF | Consistency
+F_PS002@PV1 | oligomer | 0.55 | 0.52 | 0.48 | 0.49(PG31) / 0.51(PG12) | 0.45 | lag=-2 | UNIVERSAL
+vib_x | roughness | 0.88 | 0.85 | 0.82 | 0.82(PG31) / 0.85(PG12) | 0.72 | lag=0 | UNIVERSAL
+EXT_T004 | melt_spots | 0.38 | 0.35 | 0.30 | 0.35(PG31) / 0.30(PG12) | 0.22 | lag=-1 | UNIVERSAL
+MD_TH012 | melt_spots | 0.42 | 0.39 | 0.08 | 0.02(PG31) / 0.38(PG12) | 0.18 | lag=0 | BETWEEN-PRODUCT ONLY → REMOVED
+```
+
+---
+
+## Step 4: 5-STEP COMPETING HYPOTHESES PROTOCOL
 
 This is the core diagnostic methodology. Follow it exactly.
 
 ---
 
-### STEP A: Data Pattern Discovery — "What statistical signals exist?"
+### STEP A: Hypothesis Generation with Physical Logic Chains — "物理逻辑链推理"
 
-**Goal**: Document ALL observed patterns without interpretation. Pure observation.
+**Goal**: For each shortlisted candidate parameter, construct a complete physical logic chain tracing HOW the parameter's physical variation causes the observed defect. Physical mechanism FIRST — statistics confirm or refute, but do not replace the chain.
 
-For each target variable (defect, quality metric):
+**Input**: The Pruned Observation Table from Step 3.3 (shortlisted parameters with product-stratified validation).
 
-1. **Top correlations**: List parameters with |r| > 0.3 (or top 10, whichever is fewer). For each: report Pearson r, Spearman ρ, detrended r, within-dominant-group r.
+#### A.1 Build the Physical Logic Chain Mapping
 
-2. **Non-linear dependencies**: Parameters with high MI but low Pearson (mi_normalized > 0.3, |r| < 0.2). These may have threshold or saturation effects.
-
-3. **Temporal patterns**: For each key parameter-defect pair:
-   - CCF best lag and lag window consistency
-   - Granger causality direction (only if time-sorted)
-   - Visual temporal sequence from time-aligned plots
-
-4. **Defect co-occurrence**: Which defects rise together? Build a co-occurrence matrix.
-
-5. **Regime structure**: Any change points detected? Do they align with known events (product switches, maintenance)?
-
-6. **Product/group effects**: If group_col exists — per-product correlations, baseline differences, cross-product consistency classification.
-
-**Output**: A structured observation table. No causal claims yet.
+For EACH shortlisted candidate parameter, trace the full causal pathway:
 
 ```
-PARAMETER          | DEFECT      | r    | ρ    | r_det | r_subgroup | MI  | CCF_best | Pattern
-MD_TH012           | melt_spots  | 0.42 | 0.39 | 0.08  | 0.02(PG31) | 0.18| lag=0    | Trend-confounded, collapses in subgroup
-F_PS002@PV1        | oligomer    | 0.55 | 0.52 | 0.48  | 0.49(PG31) | 0.45| lag=-2   | Robust correlation, survives all checks
-vib_x              | roughness   | 0.88 | 0.85 | 0.82  | N/A        | 0.72| lag=0    | Very strong, but CCF flat → no temporal precedence
+PARAMETER VARIATION → PHYSICAL VARIABLE CHANGE → PROCESS STATE CHANGE → INTERMEDIATE EFFECT → PERFORMANCE CHANGE → DEFECT
 ```
 
----
+Each link must specify:
+- **WHAT** physically happens at this step
+- **WHY** it happens (physical law: thermodynamics, kinetics, mechanics, fluid dynamics)
+- **QUANTITATIVE estimate** of magnitude (not just "increase" but "~15% increase")
+- **Evidence status**: [OBSERVED] in data, [KNOWN_PHYSICS] from first principles, or [INFERRED] by elimination
 
-### STEP B: Candidate Root Cause Generation — "What could explain these patterns?"
+**See `resources/diagnostician_reference.md §1`** for a complete worked example (filter pressure → residence time → oligomer defect).
 
-**Goal**: Generate ALL physically plausible hypotheses. Be exhaustive, not selective.
+**Chain quality assessment**: Count the evidence statuses:
+- ≥70% [OBSERVED] + [KNOWN_PHYSICS] → **ACTIONABLE HYPOTHESIS** — can proceed to diagnosis
+- 50-70% [OBSERVED] + [KNOWN_PHYSICS] → **PLAUSIBLE HYPOTHESIS** — confidence capped
+- >50% [INFERRED] or [UNVERIFIED] → **RESEARCH QUESTION** — not sufficient for diagnosis
 
-#### B.1 For Each Robust Pattern, Generate Physical Mechanisms
+#### A.2 Physical Mechanism Classification
 
-For each pattern from Step A that survives validation checks (r_subgroup substantial, r_det not collapsed, not outlier-driven):
+Classify the root cause mechanism type for each hypothesis:
 
-1. **Start from process physics**: Given this parameter's physical role and location in the process, HOW could its variation cause the observed defect?
+| Class | Description | Example | Diagnostic Implication |
+|-------|-------------|---------|----------------------|
+| [WEAR] | Progressive equipment degradation | Bearing wear, filter clogging, die erosion | Predicts monotonic trend; maintenance intervention |
+| [DRIFT] | Process parameter gradual shift | Temperature drift, pressure decay | Often correctable by control tuning |
+| [CONTAMINATION] | Material contamination | Oligomer accumulation, foreign particles | May need raw material or filtration change |
+| [OPERATION] | Setpoint/recipe change | Speed change, temperature setpoint shift | Correlates with product/grade changes |
+| [ENVIRONMENT] | Ambient effect | Humidity, ambient temp change | External factor, not process-internal |
+| [INTERACTION] | Multi-parameter synergy | Temp+pressure combined effect | Single-parameter fix may not resolve |
 
-2. **Trace the full causal chain**: Parameter change → intermediate state → downstream effect → defect. Every link must be physically specified.
+#### A.3 Quantitative Feasibility Check
 
-3. **Quantitative feasibility**: Do the magnitudes make sense? (Arrhenius for temperature, residence time, concentration, energy balance)
+For each hypothesis, verify the mechanism magnitude is physically plausible:
 
-4. **Document the mechanism class**:
-   - `[WEAR]` — Progressive equipment degradation
-   - `[DRIFT]` — Gradual process parameter drift
-   - `[CONTAMINATION]` — Material/fluid contamination
-   - `[OPERATION]` — Setpoint/recipe/operator change
-   - `[ENVIRONMENT]` — Ambient condition effects
-   - `[INTERACTION]` — Synergistic multi-parameter effects
+| Check | Required Data | Verification | Implication |
+|-------|--------------|--------------|-------------|
+| Arrhenius | Temp T(°C/K), Ea range(kJ/mol) | k(T_obs)/k(T_cause) ≷ 1? | <10⁻⁶ → IMPOSSIBLE |
+| Energy balance | Power_in/out (kW) | ΔE_required ≷ ΔE_available? | >available → IMPOSSIBLE |
+| Residence time | Flow rate(kg/h), volume(m³) | τ_available ≷ τ_required? | <required → IMPOSSIBLE |
+| Concentration | Mass flows(kg/h) | C_expected ≷ C_measured? | Off by >10× → unlikely |
+| Stress/strain | Force(N), area(m²) | σ_applied ≷ σ_yield? | >yield → deformation expected |
 
-#### B.2 Hypothesis Structure
+**Flag as QUANTITATIVELY_PLAUSIBLE, BORDERLINE, or QUANTITATIVELY_IMPOSSIBLE.** If IMPOSSIBLE → the hypothesis is eliminated regardless of correlation strength.
 
-Each hypothesis MUST have:
+#### A.4 Generate Structured Hypotheses
+
+For each surviving candidate (passed all checks), produce a structured hypothesis with these fields. See `resources/diagnostician_reference.md §2` for a complete filled example.
 
 ```json
 {
   "id": "H1",
-  "name": "Short descriptive name",
-  "mechanism_class": "WEAR",
-  "physical_causal_chain": [
-    {"link": "Root cause description", "status": "OBSERVED|INFERRED|KNOWN_PHYSICS|UNVERIFIED"},
-    {"link": "Intermediate effect", "status": "..."},
-    {"link": "Observed symptom", "status": "..."}
+  "name": "Short descriptive name — cause → intermediate → defect",
+  "mechanism_class": "WEAR|DRIFT|CONTAMINATION|OPERATION|ENVIRONMENT|INTERACTION",
+  "root_physical_cause": "One-line description of the physical root cause",
+  "physical_logic_chain": [
+    {"link": "Step 1 description", "evidence_status": "OBSERVED|KNOWN_PHYSICS|INFERRED|UNVERIFIED", "quantification": "value"},
+    {"link": "Step 2 description", "evidence_status": "...", "quantification": "..."},
+    {"link": "Step 3 description", "evidence_status": "...", "quantification": "..."}
   ],
+  "chain_quality": "ACTIONABLE_HYPOTHESIS|PLAUSIBLE_HYPOTHESIS|RESEARCH_QUESTION",
   "quantitative_check": {
-    "check_type": "Arrhenius|ResidenceTime|EnergyBalance|Concentration",
+    "check_type": "Arrhenius|ResidenceTime|EnergyBalance|Concentration|StressStrain",
     "calculation": "...",
-    "result": "feasible|impossible|borderline"
+    "result": "feasible|borderline|impossible",
+    "note": "..."
   },
-  "predicted_observables": [
-    "What SHOULD we see in the data if this hypothesis is true?",
-    "What should we NOT see?"
-  ],
-  "falsification_conditions": [
-    "Specific evidence that would DISPROVE this hypothesis"
-  ]
+  "predicted_observables": ["What SHOULD be seen if true", "What should NOT be seen"],
+  "falsification_conditions": ["Evidence that would disprove this hypothesis"],
+  "consistency_across_products": "UNIVERSAL|CONSISTENT_WEAK|PRODUCT_SPECIFIC",
+  "product_specific_notes": {}
 }
 ```
 
-**Rule**: A hypothesis where >50% of causal chain links are [INFERRED] or [UNVERIFIED] is a RESEARCH QUESTION, not a diagnosis.
+**Rule**: >50% [INFERRED] or [UNVERIFIED] links in the chain → **RESEARCH QUESTION**, not a diagnosis. produce one hypothesis per candidate aggregated across the dataset.
 
-#### B.3 Generate ALL Candidates — Don't Filter Yet
+**For each product type**, if the cross-product comparison shows significant differences (CONSISTENT-WEAK, PRODUCT-SPECIFIC, or SIMPSON-REVERSAL), produce ADDITIONAL product-specific notes in the same hypothesis object explaining how the mechanism may differ.
 
-Include hypotheses even if they seem unlikely. The filtering happens in Steps C and D. A hypothesis you exclude prematurely may be the true root cause.
+**Deliverable**: A hypothesis set containing:
+1. **Overall hypotheses** — one per shortlisted parameter, reflecting the aggregate mechanism
+2. **Product-specific annotations** — for each hypothesis, how the mechanism changes per product
+3. For PRODUCT-SPECIFIC mechanisms, separate hypotheses by product
+
+---
+
+### STEP B: Hypothesis Refinement — Cross-Check with Observed Patterns
+
+**Goal**: Validate each hypothesis from Step A against the actual data patterns (Pruned Observation Table from Step 3.3). For each predicted observable, check: is it CONFIRMED or CONTRADICTED by the data? This bridges hypothesis generation (A) and discriminability assessment (C).
+
+#### B.1 Predicted-Observed Cross-Check
+
+For EACH hypothesis, take its `predicted_observables` and check each against the Pruned Observation Table and visual evidence. See `resources/diagnostician_reference.md §3` for a complete worked example.
+
+```
+Predicted Observable | Data Pattern | Result (CONFIRMED|CONTRADICTED|CANNOT_VERIFY) | Note
+```
+- CONFIRMED count ≥ PREDICTED count × 0.7 → **STRONG pattern match** — proceed with confidence
+- CONFIRMED count between 0.4 and 0.7 → **PARTIAL match** — flag which predictions lack data
+- CONFIRMED count < 0.4 → **WEAK match** — downgrade hypothesis, consider elimination
+- Any CONTRADICTED prediction → **SERIOUS concern** — must explain or eliminate
+
+#### B.2 Validated Hypothesis Set
+
+For each hypothesis that passes the cross-check (STRONG or PARTIAL match), output the refined hypothesis:
+
+```json
+{
+  "id": "H1",
+  "physical_causal_chain": {...},
+  "quantitative_feasibility": "feasible|borderline",
+  "predicted_observable_checks": [
+    {"prediction": "...", "data_evidence": "...", "result": "CONFIRMED|CONTRADICTED|CANNOT_VERIFY"}
+  ],
+  "overall_pattern_match": "STRONG|PARTIAL|WEAK",
+  "product_consistency": "UNIVERSAL|CONSISTENT_WEAK|PRODUCT_SPECIFIC",
+  "consistency_note": "...",
+  "remaining_uncertainties": ["..."]
+}
+```
+
+Hypotheses with WEAK match or CONTRADICTED predictions are REMOVED from the set. They proceed to Step D (Exclusion) for formal documentation.
+
+#### B.3 Prepare for Discriminability
+
+The validated hypothesis set is the input to Step C. If multiple hypotheses survive, proceed to discriminability assessment. If only ONE hypothesis survives after Step B, verify it passes the STOP checklist (bottom of this document) before concluding DETERMINED.
 
 ---
 
@@ -231,12 +428,7 @@ For EVERY pair of competing hypotheses (H_i, H_j), answer:
 
 **This is the key insight**: When two root causes produce the same cascade of observable effects in your sensor data, NO amount of statistical analysis can tell them apart.
 
-Example from CNC diagnosis:
-- **Bearing wear** → increased friction → higher temperature + higher vibration → thermal expansion + roughness
-- **Tool wear** → increased cutting force → higher temperature + higher vibration → thermal expansion + roughness
-- Both produce: temp↑, vib↑, dim_error↑, roughness↑ — ALL correlated, ALL synchronous
-- **These are INDISTINGUISHABLE with the available sensor data.**
-- Discriminating signal needed: vibration FFT spectrum (bearing fault frequencies vs tool passing frequencies)
+See `resources/diagnostician_reference.md §4` for a complete example (CNC bearing wear vs tool wear — both produce temp↑, vib↑, error↑).
 
 **When you find indistinguishable hypotheses, you MUST output them as a COMPETING SET, not pick one with slightly higher confidence.**
 
@@ -251,6 +443,29 @@ Check: For each hypothesis pair, are BOTH hypothesized root causes time-monotoni
          Statistical separation is IMPOSSIBLE.
   → Classify as INDISTINGUISHABLE without discriminating sensor.
 ```
+
+#### C.5 Cross-Product Discriminability Check (跨型号可分辨性)
+
+**Additional discriminability dimension**: When product stratification reveals differences, check whether product-specific analysis can help DISCRIMINATE between otherwise indistinguishable hypotheses.
+
+For each hypothesis pair that was marked INDISTINGUISHABLE in the overall analysis:
+
+**Q1 — Does the hypothesis pair behave DIFFERENTLY across products?**
+- If H1 predicts UNIVERSAL behavior but H2 predicts PRODUCT-SPECIFIC behavior → product data discriminates
+- Check: Does the consistency classification (UNIVERSAL vs PRODUCT-SPECIFIC) differ between the two hypotheses?
+- If yes → the cross-product pattern is itself a discriminating signal
+
+**Q2 — Can per-product analysis break the time-colinearity?**
+- If both H1 and H2 are time-monotonic overall, check if they are ALSO time-monotonic within each product
+- Within a single product, over a shorter time window, the colinearity may break
+- Example: H1 (bearing wear, monotonic over entire run) and H2 (tool wear, monotonic) are colinear overall — but within a single product grade, tool wear may reset (tool change between products) while bearing wear does not → **PARTIALLY_DISCRIMINABLE**
+
+**Q3 — Do competing hypotheses predict different product-specific patterns?**
+- H1 predicts "defect rate rises with parameter X across ALL products" (UNIVERSAL)
+- H2 predicts "defect rate rises with parameter X in product A but NOT in product B" (PRODUCT-SPECIFIC)
+- If data shows UNIVERSAL pattern → H1 favored. If PRODUCT-SPECIFIC → H2 favored.
+
+**Update the discriminability matrix** with cross-product findings. Reclassify pairs if product stratification provides discriminating evidence.
 
 ---
 
@@ -272,15 +487,7 @@ A hypothesis is physically impossible if the mechanism violates established phys
 
 **Physical exclusion is DEFINITIVE.** It does not depend on sample size, p-values, or correlation strength. Physics is universal.
 
-```
-Example: "MD roller temperature at 84°C cannot cause PET thermal degradation"
-  Arrhenius: Ea = 250 kJ/mol
-  k(84°C) / k(280°C) = exp(-250000/8.314 × (1/357 - 1/553))
-                       = 8.5 × 10^-10
-  At 280°C: degradation half-life ~hours
-  At 84°C: degradation half-life ~20,000 years
-  Conclusion: PHYSICALLY IMPOSSIBLE. Eliminate regardless of correlation.
-```
+See `resources/diagnostician_reference.md §5` for a worked Arrhenius exclusion calculation.
 
 #### D.2 Statistical Exclusion
 
@@ -302,6 +509,20 @@ For each eliminated hypothesis, document:
 3. Specific evidence (calculation, data point, physical principle)
 4. Exclusion confidence: 90-99%
 5. What would REVIVE this hypothesis (what new evidence would overturn the exclusion)?
+
+#### D.4 Product-Stratified Exclusion (分型号排除)
+
+When product stratification reveals differences, use cross-product findings to strengthen exclusions:
+
+**BETWEEN-PRODUCT ONLY exclusion**: A hypothesis whose sole evidence is an overall correlation that collapses to |r_subgroup| < 0.1 in ALL product groups is excluded as "between-product confound." The correlation is from baseline differences, not causation. This is a STRONG exclusion — supported by product stratification.
+
+**PRODUCT-SPECIFIC exclusion**: A hypothesis may have evidence in one product but not others. Document which product(s) support it and which don't. This is NOT full exclusion — the mechanism may be product-dependent — but the confidence should reflect the limited scope.
+
+**SIMPSON-REVERSAL exclusion**: If the DOMINANT product group (most data) shows direction REVERSAL compared to the aggregate, the hypothesis is excluded on the grounds that the aggregate correlation is misleading. Exclusion note: "Aggregate r shows positive correlation, but the dominant product group (PG31DS, 65% of data) shows negative within-product correlation. The overall direction is a Simpson's Paradox artifact."
+
+**Document in exclusion output**:
+
+See `resources/diagnostician_reference.md §6` for the exclusion JSON template.
 
 ---
 
@@ -339,21 +560,25 @@ For each surviving hypothesis (DETERMINED or within a COMPETING_SET):
 BASE_CONFIDENCE = min(statistical_strength, physical_plausibility, temporal_evidence)
 
 ADJUSTMENTS:
-  - Sorting not validated + lag used:    -25 to -40
-  - Simpson's Paradox in key evidence:    -20 to -30
-  - Trend confounding > 50%:             -15 to -20
-  - Parameter meaning unknown:           -15 to -25
-  - Causal chain > 30% INFERRED:         -10 to -20
-  - No discriminating sensor (competing): -15 to -30
-  - Physical mechanism quantitative:     +5 to +10
-  - Universal (all product groups):      +10 to +15
-  - Both physical + statistical agree:   +10 to +15
+  - Sorting not validated + lag used:               -25 to -40
+  - Simpson's Paradox in key evidence:               -20 to -30
+  - Trend confounding > 50%:                        -15 to -20
+  - Parameter meaning unknown:                      -15 to -25
+  - Causal chain > 30% INFERRED:                    -10 to -20
+  - No discriminating sensor (competing):            -15 to -30
+  - Product-specific only (single product group):   -10 to -15
+  - Between-product-only confound flagged:          -20 to -30
+  - Physical mechanism quantitative:                +5 to +10
+  - Universal across all product groups:            +10 to +15
+  - Product-stratified evidence cross-validated:    +5 to +10
+  - Both physical + statistical agree:              +10 to +15
 
 CONFIDENCE_CEILING:
-  - INDISTINGUISHABLE competing set:     65 (cannot exceed regardless of r)
-  - No time-sorted data + lag claims:    85
-  - All criteria independently verified: 95
-  - Direct measurement of root cause:    98
+  - INDISTINGUISHABLE competing set:                65 (cannot exceed regardless of r)
+  - No time-sorted data + lag claims:               85
+  - Product-specific only (single product group):   85
+  - All criteria independently verified:             95
+  - Direct measurement of root cause:                98
 ```
 
 #### E.3 Uncertainty Decomposition
@@ -374,7 +599,7 @@ If you cannot write a clear falsification condition, the conclusion is unfalsifi
 
 ---
 
-## Step 3: Write Structured Reasoning Chain
+## Step 5: Write Structured Reasoning Chain
 
 Save to `RUN_DIR/04_diagnostics/reasoning_chain.json`. This is the AUDITABLE record of your thinking. Use the schema at `schemas/reasoning_chain_schema.json`.
 
@@ -382,8 +607,8 @@ The 8 required reasoning steps:
 
 1. **Data Characterization** — Structure, quality, time-sorting status
 2. **Statistical Discovery** — Key correlations, patterns, clusters
-3. **Validation Filter** — Which patterns survive stratification/detrending/outlier checks
-4. **Hypothesis Generation** — ALL candidate root causes (Step B output)
+3. **Validation Filter** — Which patterns survive stratification/detrending/outlier/product-stratified checks
+4. **Hypothesis Generation** — Shortlisted candidates with physical logic chains (Step A output)
 5. **Discriminability Assessment** — Can data tell candidates apart? (Step C output)
 6. **Exclusion Verification** — Which candidates eliminated and why (Step D output)
 7. **Diagnostic Conclusion** — DETERMINED / COMPETING_SET / NEEDS_DATA (Step E output)
@@ -393,68 +618,27 @@ Each step MUST include: inputs, reasoning, outputs, alternatives_considered, unc
 
 ---
 
-## Step 4: Write Output Files
+## Step 6: Write Output Files
 
-### 4.1 diagnosis.json
+### 6.1 diagnosis.json
 
-```json
-{
-  "run_id": "...",
-  "diagnosis_type": "DETERMINED|COMPETING_SET|NEEDS_DATA",
-  "primary_finding": "One-sentence summary",
-  "hypotheses": {
-    "surviving": [...],
-    "competing_sets": [
-      {
-        "set_id": "CS1",
-        "hypotheses": ["H2", "H3"],
-        "discriminability": "INDISTINGUISHABLE",
-        "reason": "Both produce identical observable patterns: temp↑, vib↑, error↑. CCF flat for both.",
-        "discriminating_data_needed": "Vibration FFT spectrum to check bearing fault frequencies vs tool passing frequencies",
-        "confidence_ceiling": 65
-      }
-    ],
-    "eliminated": [...]
-  },
-  "evidence_summary": {...},
-  "data_gaps": [...],
-  "discriminability_matrix": [...]
-}
-```
+Output structure (see  for full template):
+- `run_id`, `diagnosis_type` (DETERMINED|COMPETING_SET|NEEDS_DATA), `primary_finding`
+- `product_stratified_analysis`: `has_product_column`, `products_found[]`, `overall_vs_per_product_comparison[]`, `analysis_scope`
+- `hypotheses`: `surviving[]`, `competing_sets[]` (with `cross_product_discriminability`), `eliminated[]`
+- `evidence_summary`, `data_gaps[]`, `discriminability_matrix[]`
 
-### 4.2 evidence.json
+### 6.2 evidence.json
 
-```json
-{
-  "visual_evidence": [
-    {"source": "fig_01", "finding": "...", "rank": 4}
-  ],
-  "numerical_evidence": [
-    {"source": "feature_summary.json", "finding": "r=0.84, p<0.001", "rank": 3}
-  ],
-  "physical_evidence": [
-    {"source": "Arrhenius calculation", "finding": "k(84°C)/k(280°C)=8.5e-10", "rank": 5}
-  ],
-  "validation_evidence": [
-    {"source": "validate_report.json", "finding": "...", "affected_hypotheses": ["H1"]}
-  ]
-}
-```
+See `resources/diagnostician_reference.md §7.2` for the full evidence.json template with field descriptions.
 
-### 4.3 confidence.json
+### 6.3 confidence.json
 
-5-factor breakdown per hypothesis:
-1. Statistical strength (0-25)
-2. Physical plausibility (0-25)
-3. Temporal evidence (0-20)
-4. Absence of confounds (0-20)
-5. Symptom completeness (0-10)
-
-Include adjustment log showing each +/- applied.
+See `resources/diagnostician_reference.md §7.3` for the 5-factor breakdown template. Include adjustment log showing each +/- applied.
 
 ---
 
-## Step 5: Schema Validation
+## Step 7: Schema Validation
 
 ```bash
 node <skill_path>/scripts/validate.mjs \

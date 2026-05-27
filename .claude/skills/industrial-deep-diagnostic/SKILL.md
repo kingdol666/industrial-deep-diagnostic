@@ -46,42 +46,37 @@ Every conclusion cites its evidence rank. No unsupported assumptions. No exagger
 
 ## Execution Flow
 
-See `pipeline-execution.md` for detailed per-step protocol, artifact chain, repair loops, and statistical validation framework.
+See `pipeline-execution.md` for the complete flow diagram (dot graph), per-step protocol, artifact chain, and statistical validation framework.
 
-```dot
-digraph diagnostic_flow {
-  rankdir=TB;
-  node [shape=box];
-
-  setup [label="Step 0: Setup"];
-  inspect [label="Step 1: Inspect"];
-  context [label="Step 2: Context"];
-  clarify [label="Step 2.5: Clarify\nParameters" shape=diamond];
-  dataproc [label="Step 3: Data+Viz\n+Validate"];
-  diagnose [label="Step 4: Diagnostician\n5-Step Competing\nHypotheses Protocol" style=filled fillcolor="#C8E6C9"];
-  judge [label="Step 5: Judge"];
-  report [label="Step 6: Report"];
-  review [label="Step 7: Audit"];
-  repair [label="Step 7.5: Review\nRepair" shape=diamond];
-  present [label="Step 8: Present"];
-
-  setup -> inspect;
-  inspect -> context;
-  inspect -> dataproc [style=dashed];
-  context -> clarify;
-  clarify -> dataproc;
-  dataproc -> diagnose;
-  diagnose -> judge;
-  judge -> diagnose [label="⟳ max3" style=dashed];
-  judge -> report;
-  report -> review;
-  review -> repair [label="CONDITIONAL/\nREJECTED"];
-  repair -> diagnose [label="re-diagnose" style=dashed];
-  review -> present [label="ENDORSED"];
-}
+```
+Step 0: Setup    ──► Step 1: Inspect ──► Step 2: Context ──[clarify?]──┐
+                                      └──► Step 3: Data+Viz+Validate ──┤
+                                                                        ▼
+                                                                  Step 4: Diagnostician
+                                                                  5-Step Competing Hypotheses
+                                                                        │
+                                                                  ┌─────▼─────┐
+                                                                  │ Step 5:   │◄──── repair max 3 ──┐
+                                                                  │ Judge     │                      │
+                                                                  └─────┬─────┘                      │
+                                                                        │ pass/warn                  │
+                                                                        ▼                            │
+                                                                  Step 6: Report                     │
+                                                                        │                            │
+                                                                        ▼                            │
+                                                                  ┌─────▼──────┐                     │
+                                                                  │ Step 7:    │────── re-diagnose ──┘
+                                                                  │ Physical   │      with fixes
+                                                                  │ Audit      │
+                                                                  └─────┬──────┘
+                                                                 CONDITIONAL/
+                                                                  REJECTED
+                                                                        │ ENDORSED
+                                                                        ▼
+                                                                  Step 8: Present
 ```
 
-**Steps 2-3 parallel. Step 2.5 synchronizes. Steps 4→5→6→7 sequential. Step 7.5 repair loop (max 2).**
+**Parallelism**: Steps 2 and 3 run in parallel. Step 2.5 (clarification gate) synchronizes before Step 3. Steps 4→5→6→7 are sequential. Step 7.5 repair loop (max 2). Judge→Diagnostician repair max 3 iterations.
 
 ---
 
