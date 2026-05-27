@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 数据概况</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #C62828; }
+/* Header */
+.header { position: absolute; top: 24pt; left: 36pt; right: 36pt; }
+.header h1 { font-size: 18pt; font-weight: bold; color: #212121; }
+.header h1 span { color: #C62828; }
+.header .sub { font-size: 10pt; color: #757575; margin-top: 2pt; }
+.header .sub p { color: #757575; }
+/* Stats row */
+.stats-row { position: absolute; top: 80pt; left: 36pt; right: 36pt; height: 110pt; display: flex; gap: 12pt; }
+.stat-card { flex: 1; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+.stat-card.accent { background: #C62828; }
+.stat-card .big-num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 42pt; font-weight: bold; color: #212121; line-height: 1; }
+.stat-card.accent .big-num { color: #FFFFFF; }
+.stat-card .label { font-size: 10pt; color: #757575; margin-top: 4pt; font-weight: bold; }
+.stat-card.accent .label { color: #FFCDD2; }
+.stat-card .detail { font-size: 8pt; color: #9E9E9E; margin-top: 2pt; }
+.stat-card.accent .detail { color: rgba(255,255,255,0.7); }
+/* Bottom sections */
+.bottom-sections { position: absolute; top: 210pt; left: 36pt; right: 36pt; bottom: 34pt; display: flex; gap: 14pt; }
+/* Left: data inventory */
+.inventory { flex: 5; background: #FFFFFF; border-left: 4pt solid #212121; padding: 14pt; }
+.inventory h2 { font-size: 12pt; font-weight: bold; color: #212121; margin-bottom: 8pt; }
+.inventory table { width: 100%; border-collapse: collapse; }
+.inventory td { font-size: 9pt; padding: 5pt 8pt; border-bottom: 1pt solid #F5F5F5; color: #212121; }
+.inventory td:first-child { font-weight: bold; color: #616161; width: 110pt; }
+/* Right: anomaly card */
+.anomaly { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
+.anomaly-card { flex: 1; background: #FFFFFF; border-left: 4pt solid #FDD835; padding: 12pt; display: flex; flex-direction: column; justify-content: center; }
+.anomaly-card.warn { border-left-color: #C62828; }
+.anomaly-card h3 { font-size: 10pt; font-weight: bold; color: #212121; margin-bottom: 3pt; }
+.anomaly-card p { font-size: 9pt; color: #757575; line-height: 1.5; }
+.anomaly-card .tag { display: inline-block; background: #C62828; padding: 1pt 6pt; }
+.anomaly-card .tag p { color: #FFFFFF; font-size: 8pt; font-weight: bold; }
+.anomaly-card .tag-ok { display: inline-block; background: #2E7D32; padding: 1pt 6pt; }
+.anomaly-card .tag-ok p { color: #FFFFFF; font-size: 8pt; font-weight: bold; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <h1>数据采集概况：<span>149批次 · 9天窗口</span></h1>
+  <div class="sub"><p>BOPET挤出→MD纵拉段 · 批次级聚合工艺数据 · 2026-05-04至05-13</p></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <p class="big-num">149</p>
+    <p class="label">生产批次</p>
+    <p class="detail">2026-05-04 ~ 05-13</p>
+  </div>
+  <div class="stat-card">
+    <p class="big-num">180</p>
+    <p class="label">工艺参数</p>
+    <p class="detail">温度/扭矩/速度/压力</p>
+  </div>
+  <div class="stat-card">
+    <p class="big-num">5</p>
+    <p class="label">表面缺陷类型</p>
+    <p class="detail">膜点/低聚物/尘埃/气泡/熔斑</p>
+  </div>
+  <div class="stat-card">
+    <p class="big-num">9</p>
+    <p class="label">产品型号</p>
+    <p class="detail">PG31DS占45% (67批)</p>
+  </div>
+  <div class="stat-card accent">
+    <p class="big-num">4</p>
+    <p class="label">统计量维度</p>
+    <p class="detail">_mean / _std / _min / _max</p>
+  </div>
+</div>
+
+<div class="bottom-sections">
+  <div class="inventory">
+    <h2>数据清单</h2>
+    <table>
+      <tr><td>MD辊温度</td><td>MD_TH001~018@PV (18辊 × 4统计量 = 72参数)</td></tr>
+      <tr><td>MD速度/扭矩</td><td>W1C40@PV1, W1C4B@PV1, W1C7C~8D@PV1 (18辊扭矩)</td></tr>
+      <tr><td>挤出机转速</td><td>W1C00@PV1 (主挤出机), W1C01@PV1 (辅挤出机)</td></tr>
+      <tr><td>过滤器压力</td><td>F_PS002/003/005/006@PV1 (主/辅过滤器前后)</td></tr>
+      <tr><td>缺陷目标</td><td>film_points, oligomer, dust, bubbles, melt_spots</td></tr>
+      <tr><td>元数据</td><td>timestamp, model (产品型号)</td></tr>
+    </table>
+  </div>
+  <div class="anomaly">
+    <div class="anomaly-card warn">
+      <h3>数据异常发现</h3>
+      <div style="margin-bottom:3pt;"><div class="tag"><p>异常</p></div></div>
+      <p>melt_spots 在9天内持续上升 (时间趋势 r=0.379, p&lt;0.001) — 提示残留物累积效应</p>
+    </div>
+    <div class="anomaly-card warn">
+      <h3>数据局限</h3>
+      <div style="margin-bottom:3pt;"><div class="tag"><p>缺口</p></div></div>
+      <p>缺失挤出机各区温度数据、原料IV/含水率、设备清理记录 — 限制根因直接验证能力</p>
+    </div>
+    <div class="anomaly-card">
+      <h3>数据质量</h3>
+      <div style="margin-bottom:3pt;"><div class="tag-ok"><p>正常</p></div></div>
+      <p>时间排序验证通过 (100%递增) · 无缺失值 · 批次级聚合数据 (非连续时间序列)</p>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>03</p></div>
+</div>
+</body>
+</html>

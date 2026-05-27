@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 目录</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #212121; }
+/* Header */
+.header { position: absolute; top: 28pt; left: 48pt; right: 48pt; display: flex; align-items: center; }
+.header .red-block { width: 8pt; height: 28pt; background: #C62828; margin-right: 14pt; }
+.header h1 { font-size: 22pt; font-weight: bold; color: #212121; letter-spacing: 1pt; }
+/* TOC grid */
+.toc-grid { position: absolute; top: 90pt; left: 48pt; right: 48pt; bottom: 40pt; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14pt; }
+.toc-item { background: #FFFFFF; border-top: 4pt solid #212121; padding: 16pt 14pt; position: relative; display: flex; flex-direction: column; }
+.toc-item.accent { border-top-color: #C62828; }
+.toc-item .num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 36pt; font-weight: bold; color: #E0E0E0; position: absolute; bottom: 10pt; right: 14pt; }
+.toc-item .num p { color: #E0E0E0; }
+.toc-item h2 { font-size: 12pt; font-weight: bold; color: #212121; margin-bottom: 6pt; position: relative; z-index: 1; }
+.toc-item p { font-size: 9pt; color: #757575; line-height: 1.5; position: relative; z-index: 1; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <div class="red-block"></div>
+  <h1>报告结构</h1>
+</div>
+
+<div class="toc-grid">
+  <div class="toc-item accent">
+    <h2>数据采集概况</h2>
+    <p>149批次 · 180参数 · 5缺陷 · 9型号<br>2026-05-04 ~ 05-13</p>
+    <div class="num"><p>01</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>数据特征与异常</h2>
+    <p>缺陷时间序列 · 型号间基线差异<br>melt_spots上升趋势</p>
+    <div class="num"><p>02</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>Simpson悖论</h2>
+    <p>859个CRITICAL案例<br>聚合相关不可信</p>
+    <div class="num"><p>03</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>缺陷共现分析</h2>
+    <p>膜点-低聚物 r=0.838<br>共享上游来源的证据</p>
+    <div class="num"><p>04</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>物理约束验证</h2>
+    <p>MD温度分布 · Arrhenius方程<br>速率比 ~8.5×10⁻¹⁰</p>
+    <div class="num"><p>05</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>根因结论</h2>
+    <p>挤出段PET热降解为主根因<br>置信度72/100 · Judge 87/100</p>
+    <div class="num"><p>06</p></div>
+  </div>
+  <div class="toc-item">
+    <h2>优化方案</h2>
+    <p>高/中优先级措施<br>补充数据建议</p>
+    <div class="num"><p>07</p></div>
+  </div>
+  <div class="toc-item accent">
+    <h2>下部打算</h2>
+    <p>下一步行动计划<br>关键数据采集路线图</p>
+    <div class="num"><p>08</p></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>02</p></div>
+</div>
+</body>
+</html>

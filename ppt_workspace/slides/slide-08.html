@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 分析结果</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #C62828; }
+/* Header */
+.header { position: absolute; top: 18pt; left: 36pt; right: 36pt; }
+.header h1 { font-size: 17pt; font-weight: bold; color: #212121; }
+/* Main layout */
+.content { position: absolute; top: 52pt; left: 36pt; right: 36pt; bottom: 34pt; display: flex; gap: 14pt; }
+/* Left: root cause hero card */
+.hero-card { flex: 5; background: #C62828; display: flex; flex-direction: column; justify-content: center; padding: 24pt; }
+.hero-card .label p { font-size: 10pt; color: #FFCDD2; letter-spacing: 2pt; margin-bottom: 8pt; }
+.hero-card h2 { font-size: 22pt; font-weight: bold; color: #FFFFFF; line-height: 1.4; margin-bottom: 10pt; }
+.hero-card .chain p { font-size: 9pt; color: #FFCDD2; line-height: 1.7; margin-bottom: 12pt; }
+.hero-card .conf-row { display: flex; align-items: baseline; gap: 8pt; }
+.hero-card .conf-num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 42pt; font-weight: bold; color: #FDD835; }
+.hero-card .conf-num p { color: #FDD835; }
+.hero-card .conf-label p { font-size: 10pt; color: #FFFFFF; }
+/* Right: cards */
+.right-col { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
+.score-card { flex: 1; background: #212121; display: flex; flex-direction: column; justify-content: center; padding: 14pt; }
+.score-card h3 { font-size: 11pt; font-weight: bold; color: #FFFFFF; margin-bottom: 8pt; }
+.score-grid { display: flex; gap: 14pt; }
+.score-item { text-align: center; flex: 1; }
+.score-item .val { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 20pt; font-weight: bold; color: #FDD835; }
+.score-item .val p { color: #FDD835; }
+.score-item .lbl p { font-size: 7pt; color: #BDBDBD; line-height: 1.3; }
+.judge-card { background: #FFFFFF; border-left: 4pt solid #2E7D32; padding: 12pt; display: flex; flex-direction: column; justify-content: center; }
+.judge-card .judge-score { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 32pt; font-weight: bold; color: #2E7D32; }
+.judge-card .judge-score p { color: #2E7D32; }
+.judge-card h3 { font-size: 10pt; font-weight: bold; color: #212121; }
+.judge-card p { font-size: 8pt; color: #757575; line-height: 1.4; }
+.excluded-card { background: #FFFFFF; padding: 10pt 12pt; flex: 1; }
+.excluded-card h3 { font-size: 9pt; font-weight: bold; color: #757575; margin-bottom: 4pt; }
+.excluded-card .ex-list p { font-size: 8pt; color: #9E9E9E; line-height: 1.7; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <h1>分析结果：挤出段PET热降解为主根因，MD段参数非因果驱动</h1>
+</div>
+
+<div class="content">
+  <div class="hero-card">
+    <div class="label"><p>主根因声明</p></div>
+    <h2>挤出段PET热降解<br>+ 残留物累积</h2>
+    <div class="chain">
+      <p>PET 280°C高温+剪切 → 链断裂(交联凝胶→膜点) + 环化(三聚体→低聚物) + 脱羧(气体→气泡) → 降解产物经MD拉伸被放大显现为表面缺陷</p>
+    </div>
+    <div class="conf-row">
+      <div class="conf-num"><p>72</p></div>
+      <div class="conf-label"><p>/ 100 置信度<br>中高 · 统计+物理高度一致</p></div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="score-card">
+      <h3>置信度三维分解</h3>
+      <div class="score-grid">
+        <div class="score-item">
+          <div class="val"><p>25</p></div>
+          <div class="lbl"><p>/35 数据强度<br>PG31DS型号内证据</p></div>
+        </div>
+        <div class="score-item">
+          <div class="val"><p>25</p></div>
+          <div class="lbl"><p>/35 物理机制<br>Arrhenius定量排除MD</p></div>
+        </div>
+        <div class="score-item">
+          <div class="val"><p>22</p></div>
+          <div class="lbl"><p>/30 逻辑一致性<br>排除法严密</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="judge-card">
+      <h3>Judge独立评审</h3>
+      <div class="judge-score"><p>87 / 100</p></div>
+      <p>NEEDS_REPAIR · 无阻塞问题 · 物理审计 ENDORSED · 2处数值已修正 (Arrhenius速率比10⁻²⁰→8.5×10⁻¹⁰, melt_spots趋势r值0.868→0.379)</p>
+    </div>
+    <div class="excluded-card">
+      <h3>已排除假设 (5个)</h3>
+      <div class="ex-list">
+        <p>MD温度波动→降解 (排除置信度95%) | MD线速度→停留时间→降解 (90%) | 过滤器堵塞→降解加剧 (70%) | 某特定辊温度驱动特定缺陷 (98%) | 产品型号切换是唯一原因 (85%)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>08</p></div>
+</div>
+</body>
+</html>

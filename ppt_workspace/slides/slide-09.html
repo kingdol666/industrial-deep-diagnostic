@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 下部打算</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #212121; }
+/* Header */
+.header { position: absolute; top: 18pt; left: 36pt; right: 36pt; }
+.header h1 { font-size: 17pt; font-weight: bold; color: #212121; }
+.header h1 span { color: #C62828; }
+/* Three columns */
+.columns { position: absolute; top: 58pt; left: 36pt; right: 36pt; bottom: 90pt; display: flex; gap: 12pt; }
+.col { flex: 1; display: flex; flex-direction: column; }
+.col-header { padding: 10pt 14pt; text-align: center; margin-bottom: 8pt; }
+.col-header.high { background: #C62828; }
+.col-header.mid { background: #1E88E5; }
+.col-header.low { background: #616161; }
+.col-header .prio { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 20pt; font-weight: bold; color: #FFFFFF; }
+.col-header .prio p { color: #FFFFFF; }
+.col-header .scope p { font-size: 7pt; color: rgba(255,255,255,0.8); margin-top: 2pt; }
+.action-list { flex: 1; display: flex; flex-direction: column; gap: 6pt; }
+.action { background: #FFFFFF; border-left: 3pt solid #E0E0E0; padding: 8pt 10pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.action.high { border-left-color: #C62828; }
+.action.mid { border-left-color: #1E88E5; }
+.action.low { border-left-color: #BDBDBD; }
+.action h3 { font-size: 9pt; font-weight: bold; color: #212121; margin-bottom: 2pt; }
+.action p { font-size: 7pt; color: #757575; line-height: 1.5; }
+/* Bottom data roadmap */
+.roadmap { position: absolute; bottom: 34pt; left: 36pt; right: 36pt; height: 48pt; background: #212121; padding: 8pt 14pt; display: flex; align-items: center; gap: 12pt; }
+.roadmap .rm-title p { font-size: 8pt; color: #FDD835; font-weight: bold; white-space: nowrap; }
+.roadmap .rm-items { display: flex; gap: 16pt; flex: 1; }
+.roadmap .rm-item { display: flex; align-items: center; gap: 4pt; }
+.roadmap .rm-item .num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9pt; font-weight: bold; color: #FFFFFF; }
+.roadmap .rm-item .num p { color: #FFFFFF; }
+.roadmap .rm-item .desc p { font-size: 7pt; color: #BDBDBD; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <h1>下部打算：<span>高优先级优化挤出段 + 补齐关键数据缺口</span></h1>
+</div>
+
+<div class="columns">
+  <!-- High Priority -->
+  <div class="col">
+    <div class="col-header high">
+      <div class="prio"><p>高优先级</p></div>
+      <div class="scope"><p>挤出段优化 · 需补充数据验证</p></div>
+    </div>
+    <div class="action-list">
+      <div class="action high">
+        <h3>降低挤出机各区温度</h3>
+        <p>在充分熔融前提下降低设定温度。Arrhenius: 每降10°C降解速率减半 → 减少全缺陷类型</p>
+      </div>
+      <div class="action high">
+        <h3>缩短熔体停留时间</h3>
+        <p>提高螺杆转速 / 降低模头阻力。降解产物 ∝ 温度×时间 → 减少低聚物和凝胶</p>
+      </div>
+      <div class="action high">
+        <h3>加强真空排气</h3>
+        <p>检查真空泵效率，目标 &lt;50 mbar → 有效脱除挥发性降解产物 → 减少气泡</p>
+      </div>
+      <div class="action high">
+        <h3>建立定期清理计划</h3>
+        <p>清理螺杆/模头残留物 → 解决melt_spots持续上升 (时间趋势r=0.379)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mid Priority -->
+  <div class="col">
+    <div class="col-header mid">
+      <div class="prio"><p>中优先级</p></div>
+      <div class="scope"><p>MD段监测优化 · 低实施难度</p></div>
+    </div>
+    <div class="action-list">
+      <div class="action mid">
+        <h3>建立型号内SPC控制图</h3>
+        <p>消除Simpson悖论误判 — 聚合数据会掩盖型号内变异。按型号分别监控</p>
+      </div>
+      <div class="action mid">
+        <h3>监控扭矩波动趋势</h3>
+        <p>W1C83@PV1_std — 扭矩波动是黏度变化的代理信号，可用于早期预警降解程度变化</p>
+      </div>
+      <div class="action mid">
+        <h3>减少型号切换频率</h3>
+        <p>型号切换时的过渡状态缺陷率通常更高 → 减少过渡批次浪费</p>
+      </div>
+      <div class="action mid">
+        <h3>严格控制原料含水率</h3>
+        <p>目标 &lt;50 ppm → 水分超标会显著加速IV下降+增加水解气泡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Supplement -->
+  <div class="col">
+    <div class="col-header low">
+      <div class="prio"><p>补充数据</p></div>
+      <div class="scope"><p>最迫切需要 · 按优先级排列</p></div>
+    </div>
+    <div class="action-list">
+      <div class="action low">
+        <h3>1. 挤出机各区温度</h3>
+        <p>MG-T1~T6, SG-T1~T4 — 直接验证热降解假设，可将置信度从72提升至85+</p>
+      </div>
+      <div class="action low">
+        <h3>2. 螺杆转速和熔体泵转速</h3>
+        <p>估算熔体停留时间 — 量化降解程度的关键参数</p>
+      </div>
+      <div class="action low">
+        <h3>3. 原料PET IV和含水率</h3>
+        <p>区分原料因素与工艺因素 — 明确各因素贡献比例</p>
+      </div>
+      <div class="action low">
+        <h3>4. 1-3个月长周期数据</h3>
+        <p>提高统计效力 · 验证长期退化趋势 · Granger因果需要更长时序列</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="roadmap">
+  <div class="rm-title"><p>数据采集路线图</p></div>
+  <div class="rm-items">
+    <div class="rm-item">
+      <div class="num"><p>1</p></div>
+      <div class="desc"><p>安装挤出段熔体温度传感器</p></div>
+    </div>
+    <div class="rm-item">
+      <div class="num"><p>2</p></div>
+      <div class="desc"><p>记录原料IV/含水率批检数据</p></div>
+    </div>
+    <div class="rm-item">
+      <div class="num"><p>3</p></div>
+      <div class="desc"><p>记录设备清理/螺杆更换时间</p></div>
+    </div>
+    <div class="rm-item">
+      <div class="num"><p>4</p></div>
+      <div class="desc"><p>积累1-3月长周期连续数据</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>09</p></div>
+</div>
+</body>
+</html>

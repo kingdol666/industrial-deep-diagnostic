@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - Simpson悖论</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #C62828; }
+/* Header */
+.header { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
+.header h1 { font-size: 16pt; font-weight: bold; color: #212121; }
+.header h1 span { color: #C62828; }
+/* Layout: left figure + right explanation */
+.content { position: absolute; top: 48pt; left: 28pt; right: 28pt; bottom: 34pt; display: flex; gap: 14pt; }
+/* Left: figure */
+.figure-col { flex: 6; }
+.figure-col .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
+/* Right: explanation */
+.explain-col { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
+.concept-card { background: #212121; padding: 14pt; }
+.concept-card h2 { font-size: 12pt; font-weight: bold; color: #FFFFFF; margin-bottom: 4pt; }
+.concept-card p { font-size: 9pt; color: #BDBDBD; line-height: 1.5; }
+.case-card { background: #FFFFFF; border-left: 4pt solid #C62828; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.case-card h3 { font-size: 10pt; font-weight: bold; color: #C62828; margin-bottom: 6pt; }
+.case-card .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4pt; padding-bottom: 4pt; border-bottom: 1pt solid #F5F5F5; }
+.case-card .row .param { font-size: 8pt; color: #757575; }
+.case-card .row .vals { font-size: 9pt; font-weight: bold; color: #212121; }
+.case-card .row .vals .bad { color: #C62828; }
+.stat-banner { background: #FDD835; padding: 10pt 14pt; display: flex; align-items: center; gap: 10pt; }
+.stat-banner .big { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 28pt; font-weight: bold; color: #212121; }
+.stat-banner .big p { color: #212121; }
+.stat-banner .desc p { font-size: 9pt; color: #212121; font-weight: bold; line-height: 1.4; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <h1>核心发现：<span>859个Simpson悖论 — 聚合相关完全不可信</span></h1>
+</div>
+
+<div class="content">
+  <div class="figure-col">
+    <div class="placeholder" id="img-simpson"></div>
+  </div>
+  <div class="explain-col">
+    <div class="concept-card">
+      <h2>什么是Simpson悖论？</h2>
+      <p>当数据按产品型号分层后，原本在聚合层面显著的相关性，在单一型号内部急剧衰减、消失甚至反转。不控制产品型号，所有聚合相关结论都是虚假的。</p>
+    </div>
+    <div class="case-card">
+      <h3>关键反转案例 (PG31DS型号内)</h3>
+      <div class="row">
+        <p class="param">MD_TH017_max vs dust</p>
+        <p class="vals">聚合 r=-0.251 → 型号内 <span class="bad">r=-0.073 (归零)</span></p>
+      </div>
+      <div class="row">
+        <p class="param">MD_TH012_max vs dust</p>
+        <p class="vals">聚合 r=-0.238 → 型号内 <span class="bad">r=+0.070 (反转!)</span></p>
+      </div>
+      <div class="row">
+        <p class="param">W1C40_mean vs melt_spots</p>
+        <p class="vals">聚合 ρ=-0.655 → 型号内 <span class="bad">ρ=-0.319 (衰减51%)</span></p>
+      </div>
+      <div class="row">
+        <p class="param">W1C4B_mean vs melt_spots</p>
+        <p class="vals">聚合 ρ=-0.659 → 型号内 <span class="bad">ρ=-0.319 (衰减52%)</span></p>
+      </div>
+    </div>
+    <div class="stat-banner">
+      <div class="big"><p>859</p></div>
+      <div class="desc"><p>个CRITICAL Simpson悖论案例<br>聚合分析完全弃用</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>05</p></div>
+</div>
+</body>
+</html>

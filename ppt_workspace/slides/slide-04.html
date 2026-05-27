@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 缺陷时间序列</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #212121; }
+/* Title */
+.title { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
+.title h1 { font-size: 16pt; font-weight: bold; color: #212121; }
+.title h1 span { color: #C62828; }
+/* Main figure */
+.figure-area { position: absolute; top: 48pt; left: 28pt; right: 28pt; height: 280pt; }
+.figure-area .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
+/* Bottom insight cards */
+.insights { position: absolute; bottom: 34pt; left: 28pt; right: 28pt; height: 150pt; display: flex; gap: 10pt; }
+.insight-card { flex: 1; background: #FFFFFF; border-top: 3pt solid #212121; padding: 10pt 12pt; display: flex; flex-direction: column; }
+.insight-card.highlight { border-top-color: #C62828; }
+.insight-card h3 { font-size: 10pt; font-weight: bold; color: #212121; margin-bottom: 4pt; }
+.insight-card p { font-size: 8pt; color: #757575; line-height: 1.5; }
+.insight-card .stat { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 14pt; font-weight: bold; color: #C62828; }
+.insight-card .stat p { color: #C62828; font-size: 14pt; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="title">
+  <h1>缺陷时间序列：<span>型号切换是Simpson悖论的视觉根源</span></h1>
+</div>
+
+<div class="figure-area">
+  <div class="placeholder" id="img-defect-ts"></div>
+</div>
+
+<div class="insights">
+  <div class="insight-card highlight">
+    <h3>不同型号基线明显不同</h3>
+    <p>不同颜色代表不同产品型号 — 缺陷基线在型号间存在显著差异。这是859个Simpson悖论案例的直接原因：聚合分析混淆了型号切换效应。</p>
+  </div>
+  <div class="insight-card">
+    <h3>melt_spots 持续上升</h3>
+    <div class="stat"><p>r = 0.379</p></div>
+    <p>9天内 melt_spots (紫色) 从低值逐渐攀升，具有显著的时间依赖性 (p&lt;0.001)。提示残留物在螺杆/模头内壁累积。</p>
+  </div>
+  <div class="insight-card">
+    <h3>膜点-低聚物 同步尖峰</h3>
+    <p>膜点和低聚物存在同步的尖峰模式 — 与它们的高相关 (PG31DS内 r=0.838) 一致。两种缺陷共享PET热降解上游来源。</p>
+  </div>
+  <div class="insight-card">
+    <h3>数据特征总结</h3>
+    <p>批次级聚合数据 (非连续时间序列) · 缺陷数据严重偏态 (skewness 2.28-12.12) · 型号样本不均衡 (仅PG31DS有足够统计效力 n=67)</p>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>04</p></div>
+</div>
+</body>
+</html>

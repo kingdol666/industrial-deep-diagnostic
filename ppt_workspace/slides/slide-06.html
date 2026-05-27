@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>BOPET MD根因诊断 - 缺陷共现</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
+/* Top bar */
+.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #212121; }
+/* Header */
+.header { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
+.header h1 { font-size: 16pt; font-weight: bold; color: #212121; }
+.header h1 span { color: #C62828; }
+/* Layout: figure takes most space, key stats on right */
+.content { position: absolute; top: 48pt; left: 28pt; right: 28pt; bottom: 34pt; display: flex; gap: 12pt; }
+/* Figure */
+.figure-col { flex: 7; }
+.figure-col .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
+/* Stats column */
+.stats-col { flex: 3; display: flex; flex-direction: column; gap: 8pt; }
+.corr-card { background: #212121; padding: 14pt; }
+.corr-card .pair { font-size: 9pt; color: #BDBDBD; margin-bottom: 2pt; }
+.corr-card .val-row { display: flex; align-items: baseline; gap: 8pt; margin-bottom: 8pt; }
+.corr-card .val-row .r { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 28pt; font-weight: bold; color: #FDD835; }
+.corr-card .val-row .r p { color: #FDD835; }
+.corr-card .val-row .pval p { font-size: 8pt; color: #9E9E9E; }
+.corr-card .note p { font-size: 8pt; color: #FFFFFF; line-height: 1.4; }
+.chem-card { background: #FFFFFF; border-left: 4pt solid #1E88E5; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.chem-card h3 { font-size: 10pt; font-weight: bold; color: #1E88E5; margin-bottom: 4pt; }
+.chem-card p { font-size: 8pt; color: #212121; line-height: 1.6; }
+.insight-card { background: #FFFFFF; border-left: 4pt solid #C62828; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.insight-card h3 { font-size: 10pt; font-weight: bold; color: #C62828; margin-bottom: 4pt; }
+.insight-card p { font-size: 8pt; color: #212121; line-height: 1.5; }
+/* Bottom bar */
+.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
+.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+
+<div class="header">
+  <h1>缺陷共现分析：<span>共享上游来源的最优雅证据</span></h1>
+</div>
+
+<div class="content">
+  <div class="figure-col">
+    <div class="placeholder" id="img-defect-corr"></div>
+  </div>
+  <div class="stats-col">
+    <div class="corr-card">
+      <p class="pair">film_points ↔ oligomer (膜点 ↔ 低聚物)</p>
+      <div class="val-row">
+        <div class="r"><p>r=0.838</p></div>
+        <div class="pval"><p>p=0.000</p></div>
+      </div>
+      <p class="pair">oligomer ↔ bubbles (低聚物 ↔ 气泡)</p>
+      <div class="val-row">
+        <div class="r"><p>r=0.704</p></div>
+        <div class="pval"><p>p=0.000</p></div>
+      </div>
+      <p class="pair">film_points ↔ melt_spots (膜点 ↔ 熔斑)</p>
+      <div class="val-row">
+        <div class="r"><p>r=0.524</p></div>
+        <div class="pval"><p>p=0.000</p></div>
+      </div>
+      <div class="note"><p>PG31DS型号内Spearman相关 · n=67</p></div>
+    </div>
+    <div class="insight-card">
+      <h3>诊断意义</h3>
+      <p>缺陷间相关 (0.52-0.84) 远超任何工艺参数-缺陷相关 (&lt;0.49)。五种缺陷全部正相关 — 共享上游挤出段热降解来源。</p>
+    </div>
+    <div class="chem-card">
+      <h3>PET降解化学</h3>
+      <p>膜点 = 交联凝胶粒子<br>低聚物 = 环状三聚体析出<br>气泡 = 降解气体 (CO&#8322;/乙醛)<br>均源自280°C挤出段热降解</p>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="page-num"><p>06</p></div>
+</div>
+</body>
+</html>
