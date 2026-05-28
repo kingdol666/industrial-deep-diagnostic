@@ -187,8 +187,8 @@ function timeTrendConfounding(x, y) {
   const n = x.length;
   const t = Array.from({ length: n }, (_, i) => i);
 
-  const xTrend = pearsonSimple(t, x.filter(v => v != null && !isNaN(v)) ? x : []);
-  const yTrend = pearsonSimple(t, y.filter(v => v != null && !isNaN(v)) ? y : []);
+  const xTrend = pearsonSimple(t, x);
+  const yTrend = pearsonSimple(t, y);
 
   // If both have strong time trends, the raw correlation may be spurious
   const rawR = pearsonSimple(x, y);

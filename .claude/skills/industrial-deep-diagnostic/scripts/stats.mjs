@@ -850,9 +850,9 @@ const multiTestReport = multipleTestingReport(
 let stratifiedResults = null;
 let groupValues = [];
 if (groupCol) {
-  groupValues = [...new Set(rows.map(r => String(r[groupCol] || '')))].filter(v => v);
+  groupValues = [...new Set(rows.map(r => String(r[groupCol] || '').trim()))].filter(v => v);
   if (groupValues.length >= 2) {
-    const groupColData = rows.map(r => String(r[groupCol] || ''));
+    const groupColData = rows.map(r => String(r[groupCol] || '').trim());
     stratifiedResults = stratifiedAnalysis(colData, effectiveTargets, groupColData, groupValues);
   }
 }

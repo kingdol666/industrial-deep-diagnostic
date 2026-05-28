@@ -211,6 +211,7 @@ For EACH candidate parameter-defect pair from Phase 1.3, classify:
 | Classification | Definition | Diagnostic Meaning |
 |---------------|-----------|-------------------|
 | **UNIVERSAL** | Effect holds direction + magnitude across ALL products | Real physical coupling, not product-dependent |
+| **CONSISTENT_SIGN** | Direction SAME across all products, magnitude varies | Real coupling, magnitude modulated by product properties |
 | **CONSISTENT-WEAK** | Direction same across products but attenuated in some | Likely real but modulated by product properties |
 | **PRODUCT-SPECIFIC** | Effect present in only ONE product type | Possible product-specific mechanism; low sample size warning |
 | **SIMPSON-REVERSAL** | Overall r is POSITIVE but within-product r is NEGATIVE (or vice versa) | **Aggregate signal is MISLEADING. Physical mechanism may actually be REVERSED.** |

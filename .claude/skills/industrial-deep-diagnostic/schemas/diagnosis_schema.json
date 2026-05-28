@@ -38,7 +38,7 @@
               },
               "consistency_class": {
                 "type": "string",
-                "enum": ["UNIVERSAL", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC", "SIMPSON_REVERSAL", "BETWEEN_PRODUCT_ONLY"]
+                "enum": ["UNIVERSAL", "CONSISTENT_SIGN", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC", "SIMPSON_REVERSAL", "BETWEEN_PRODUCT_ONLY"]
               },
               "conclusion": {"type": "string"}
             }
@@ -126,7 +126,7 @@
               },
               "consistency_across_products": {
                 "type": "string",
-                "enum": ["UNIVERSAL", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC"]
+                "enum": ["UNIVERSAL", "CONSISTENT_SIGN", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC"]
               },
               "product_specific_notes": {"type": "object"}
             }
