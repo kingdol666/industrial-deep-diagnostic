@@ -3,6 +3,23 @@
 > Detailed execution flow for the Industrial Deep Diagnostic pipeline.
 > **Authoritative reference for sub-agent orchestration.** SKILL.md is the entry point; this file contains the detailed per-step protocol.
 
+## Numbering Systems — Four Separate Schemes
+
+**默认中文输出。** 所有报告和审计文档使用中文。技术术语可保留英文。
+
+**Default Chinese output.** All reports and audit documents are in Chinese. Technical terms may remain in English.
+
+This skill uses FOUR distinct numbering systems. Do not conflate them.
+
+| System | Scope | Used In | Example |
+|--------|-------|---------|---------|
+| **Pipeline Step 0-8** | Orchestration-level workflow | SKILL.md, pipeline-execution.md | "Step 4: Diagnostician" |
+| **Agent Phase 0-7** | Diagnostician's internal workflow | agents/diagnostician.md | "Phase 4: 5-STEP Competing Hypotheses" |
+| **Reasoning Segment R1-R8** | Structured reasoning trace output | reasoning_chain.json, diagnostician.md Phase 5 | "R4: Hypothesis Generation" |
+| **Method Stage 1-6** | Generic diagnostic methodology reference | resources/diagnosis_method.md | "Stage 3: Temporal & Correlation Analysis" |
+
+**Relationship**: Pipeline Step 4 spawns the Diagnostician, which executes Phases 0-7 internally. Phase 4 contains the 5-STEP protocol (Steps A-E). Phase 5 writes the reasoning chain with segments R1-R8. Method Stages 1-6 are a standalone reference methodology, not a pipeline execution step. When discussing logic flow, always specify which system you're referencing.
+
 ## Execution Flow
 
 ```dot
@@ -26,7 +43,7 @@ digraph diagnostic_flow {
   inspect -> context;
   inspect -> dataproc [style=dashed label="parallel"];
   context -> clarify;
-  clarify -> dataproc [label="ontology\nenriched"];
+  context -> diagnose [label="ontology\nenriched" style=dashed];
   dataproc -> diagnose;
   diagnose -> judge;
   judge -> diagnose [label="repair (max 3)" style=dashed];
@@ -38,7 +55,13 @@ digraph diagnostic_flow {
 }
 ```
 
-**Parallelism**: Steps 2 and 3 run in parallel. Step 2.5 is a synchronization gate. Steps 4→5→6→7 are sequential. Step 7.5 repair loop (max 2).
+**Parallelism**: Steps 2 and 3 run in parallel. Step 2.5 is a synchronization gate. Steps 4→5→6→7 are sequential.
+
+**Repair Loop Rules** (see §Repair Loop Protocol below):
+- Judge→Diagnostician repair: max 3 iterations per judge session (Step 5).
+- Reviewer repair (Step 7.5): max 2 full cycles (each cycle re-runs Diagnostician + Judge + Reporter + Reviewer).
+- **Global cap**: Total re-diagnosis iterations across ALL repair loops MUST NOT exceed 5. When the global cap is hit, stop and present results with caveats rather than re-diagnosing again.
+- Each Reviewer repair cycle counts as 1 Judge iteration + 1 Diagnostician iteration toward the global cap.
 
 ## File Artifact Chain
 
@@ -50,7 +73,7 @@ User Clarification ──► Updated ontology.json, schema.json (enriched)
 Data Processor  ──► 02_processed/feature_summary.json (enhanced stats)
                 ──► 02_processed/validate_report.json (statistical validation)
                 ──► 03_figures/*.png + plot_manifest.json
-Diagnostician   ──► 04_diagnostics/reasoning_chain.json (8-step reasoning trace)
+Diagnostician   ──► 04_diagnostics/reasoning_chain.json (8-segment reasoning trace R1-R8)
                 ──► 04_diagnostics/diagnosis.json (DETERMINED/COMPETING_SET/NEEDS_DATA)
                 ──► 04_diagnostics/evidence.json
                 ──► 04_diagnostics/confidence.json
@@ -76,15 +99,17 @@ The main agent should verify this file exists and log its own events at Step 8.
 ### Step 0: Setup Workspace
 
 ```bash
-node <skill_path>/scripts/setup.mjs --name <scene_name> --base-dir ./workspace/diagnostic-runs
+# Compute project root (parent of .claude/) from SKILL_PATH
+PROJECT_ROOT=$(cd "$SKILL_PATH/../../.." && pwd)
+node $SKILL_PATH/scripts/setup.mjs --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 ```
 
-Creates `workspace/diagnostic-runs/<timestamp>_<name>/` with subdirs: `00_input/`, `01_ontology/`, `02_processed/`, `03_figures/`, `04_diagnostics/`, `05_review/`, `06_scripts/`.
+Creates `<project_root>/workspace/diagnostic-runs/<timestamp>_<name>/` with subdirs: `00_input/`, `01_ontology/`, `02_processed/`, `03_figures/`, `04_diagnostics/`, `05_review/`, `06_scripts/`.
 
 ### Step 1: Inspect Data (MAIN)
 
 ```bash
-node <skill_path>/scripts/inspect.mjs <data_path>
+node $SKILL_PATH/scripts/inspect.mjs <data_path>
 ```
 
 Auto-routes: CSV/TSV/JSON → Node.js native; Excel/Parquet/Feather → `file_inspect.py`. Files >100K rows get sampled. Output: column names, types, stats, time column detection, preview.
@@ -203,22 +228,22 @@ The Diagnostician follows a structured 5-step protocol. This is the core reasoni
 - Falsification conditions for every conclusion
 
 **Outputs:**
-- `04_diagnostics/reasoning_chain.json` — 8-step auditable reasoning trace
+- `04_diagnostics/reasoning_chain.json` — 8-segment auditable reasoning trace (R1-R8)
 - `04_diagnostics/diagnosis.json` — DETERMINED / COMPETING_SET / NEEDS_DATA
 - `04_diagnostics/evidence.json` — Evidence inventory
 - `04_diagnostics/confidence.json` — 5-factor confidence breakdown with adjustment log
 
 **Schema validation:**
 ```bash
-node <skill_path>/scripts/validate.mjs \
-  <skill_path>/schemas/diagnosis_schema.json \
-  RUN_DIR/04_diagnostics/diagnosis.json
-node <skill_path>/scripts/validate.mjs \
-  <skill_path>/schemas/evidence_schema.json \
-  RUN_DIR/04_diagnostics/evidence.json
-node <skill_path>/scripts/validate.mjs \
-  <skill_path>/schemas/confidence_schema.json \
-  RUN_DIR/04_diagnostics/confidence.json
+node $SKILL_PATH/scripts/validate.mjs \
+  $SKILL_PATH/schemas/diagnosis_schema.json \
+  $RUN_DIR/04_diagnostics/diagnosis.json
+node $SKILL_PATH/scripts/validate.mjs \
+  $SKILL_PATH/schemas/evidence_schema.json \
+  $RUN_DIR/04_diagnostics/evidence.json
+node $SKILL_PATH/scripts/validate.mjs \
+  $SKILL_PATH/schemas/confidence_schema.json \
+  $RUN_DIR/04_diagnostics/confidence.json
 ```
 
 ### Step 5: Judge Review (SUB-AGENT)
@@ -235,7 +260,7 @@ Read `agents/judge.md` and spawn. Scores 10 criteria (weighted).
 
 **Repair loop:**
 1. PASS (score >= 90) → proceed to Step 6
-2. NEEDS_REPAIR (70-89) → Re-spawn diagnostician with REPAIR_INSTRUCTIONS. Max 3 iterations.
+2. NEEDS_REPAIR (70-89) → Re-spawn diagnostician with REPAIR_INSTRUCTIONS. Max 3 iterations per Judge session. Each iteration counts toward the global re-diagnosis cap (5 total).
 3. FAIL (< 70) → report to user with feedback
 
 **Score ceiling**: Score cannot exceed 85 if data is not time-sorted AND lag correlations are used as primary evidence.
@@ -276,14 +301,43 @@ The issues found by the reviewer are different from the Judge's issues:
    - Missing confounder → re-spawn Data Processor with additional stratification instructions
    - Parameter meaning issue → return to clarification gate (Step 2.5)
 3. After re-diagnosis, re-run Judge (Step 5), Reporter (Step 6), and Reviewer (Step 7)
-4. Maximum 2 review repair iterations
+4. Maximum 2 review repair cycles. Each cycle counts toward the global re-diagnosis cap (5 total).
+
+### Repair Loop Protocol — Global Rules
+
+The pipeline has TWO independent repair loops, but they share a global re-diagnosis counter:
+
+```
+Global counter diag_iters = 0  (tracks total re-diagnosis spawns)
+
+Judge loop (Step 5):
+  for iter in 1..3:
+    if score >= 90 → break (PASS)
+    if diag_iters >= 5 → break (GLOBAL_CAP)
+    diag_iters++
+    re-spawn Diagnostician with REPAIR_INSTRUCTIONS
+
+Reviewer loop (Step 7.5):
+  for iter in 1..2:
+    if verdict == ENDORSED → break
+    if diag_iters >= 5 → break (GLOBAL_CAP)
+    re-spawn Diagnostician with physical critique
+    diag_iters++
+    re-run Judge (fresh iteration counter) → re-run Reporter → re-run Reviewer
+```
+
+**Rules:**
+- Each re-diagnosis spawn increments `diag_iters`. When `diag_iters >= 5`, stop ALL repair loops.
+- When Reviewer repair triggers Diagnostician re-spawn, the subsequent Judge run starts with a fresh Judge iteration counter (no carryover).
+- When the global cap is hit: present results with a `[REPAIR_CAP_REACHED]` caveat explaining what was unresolved.
+- The main agent tracks `diag_iters` across the entire pipeline run.
 
 ### Step 8: Present Results (MAIN)
 
-Before presenting, run the artifact integrity check:
+**Before presenting**, run the artifact integrity check:
 
 ```bash
-node <skill_path>/scripts/artifact-check.mjs <run_dir> <skill_path>
+node $SKILL_PATH/scripts/artifact-check.mjs $RUN_DIR $SKILL_PATH
 ```
 
 Review the check output. If any critical artifacts are missing, note them to the user.
@@ -355,7 +409,7 @@ The pipeline includes a comprehensive statistical validation layer that runs BEF
 | Main agent holding domain context | Spawn sub-agents; main agent only orchestrates |
 | Skipping Step 7 (physical audit) | Always run — catches spurious correlations the Judge misses |
 | Not validating parameter physical meaning | Context Builder uses AskUserQuestion for unknown parameters |
-| Python dependency missing in Step 7 | Reviewer should run `pip3 install -r <skill_path>/scripts/requirements.txt` |
+| Python dependency missing in Step 7 | Reviewer should run `pip3 install -r $SKILL_PATH/scripts/requirements.txt` |
 | Proceeding with unknown parameter meanings | Use clarification gate (Step 2.5). Unknown parameters → lower confidence |
 | Ignoring Reviewer's physical concerns | Step 7.5 repair loop: re-diagnose with reviewer's corrections |
 | **Picking one root cause when alternatives predict identical observables (v6.0)** | **Step C: Data Discriminability Assessment. INDISTINGUISHABLE → COMPETING_SET.** |

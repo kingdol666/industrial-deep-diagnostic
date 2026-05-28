@@ -34,7 +34,7 @@ function validateValue(value, schema, path = '$') {
     return;
   }
 
-  // Type checks
+  // Type checks — supports both single type string and array of types (JSON Schema draft-07)
   if (schema.type) {
     const typeMap = {
       string: 'string',
@@ -44,22 +44,27 @@ function validateValue(value, schema, path = '$') {
       array: 'array',
       object: 'object'
     };
-    const expected = typeMap[schema.type];
+    const types = Array.isArray(schema.type) ? schema.type : [schema.type];
     const actual = typeof value;
     const isArray = Array.isArray(value);
 
-    if (schema.type === 'integer' && actual === 'number') {
-      if (!Number.isInteger(value)) {
-        addError(path, `Expected integer, got float: ${value}`);
+    let matched = false;
+    for (const t of types) {
+      if (t === 'null' && value === null) { matched = true; break; }
+      const expected = typeMap[t];
+      if (expected === undefined) continue;
+      if (t === 'integer' && actual === 'number') {
+        if (Number.isInteger(value)) { matched = true; break; }
+      } else if (expected === 'array') {
+        if (isArray) { matched = true; break; }
+      } else if (expected === 'object') {
+        if (actual === 'object' && !isArray && value !== null) { matched = true; break; }
+      } else if (actual === expected) {
+        matched = true; break;
       }
-    } else if (expected === 'array') {
-      if (!isArray) addError(path, `Expected array, got ${actual}`);
-    } else if (expected === 'object') {
-      if (actual !== 'object' || isArray || value === null) {
-        addError(path, `Expected object, got ${actual}`);
-      }
-    } else if (actual !== expected) {
-      addError(path, `Expected ${expected}, got ${actual}`);
+    }
+    if (!matched) {
+      addError(path, `Value type not in [${types.join(', ')}], got ${value === null ? 'null' : actual}`);
     }
   }
 

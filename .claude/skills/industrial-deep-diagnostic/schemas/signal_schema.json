@@ -1,29 +1,56 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Signal Schema",
-  "description": "Schema for normalized signal definitions and classification",
+  "title": "Signal Schema v6.0",
+  "description": "Schema for normalized signal definitions and classification (v6.0: adds role, physical_meaning, group_columns, known_confounders, parameter_groups)",
   "type": "object",
   "required": ["time_column", "column_mappings", "time_range"],
   "properties": {
-    "time_column": {
-      "type": "string",
-      "description": "Name of the time/datetime column"
-    },
+    "time_column": {"type": "string", "description": "Name of the time/datetime column"},
     "column_mappings": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["original", "canonical", "data_type"],
+        "required": ["original", "canonical", "data_type", "role"],
         "properties": {
           "original": {"type": "string", "description": "Original column name from data file"},
           "canonical": {"type": "string", "description": "Normalized canonical name"},
-          "unit": {"type": "string", "description": "Normalized unit"},
-          "original_unit": {"type": "string", "description": "Original unit as found"},
+          "unit": {"type": "string"},
+          "original_unit": {"type": "string"},
           "data_type": {"type": "string", "enum": ["datetime64", "float64", "int64", "category", "string", "bool"]},
-          "conversion_factor": {"type": ["number", "null"], "description": "Multiply original by this to get canonical"},
+          "role": {
+            "type": "string",
+            "enum": ["target", "predictor", "confounder", "control", "metadata"],
+            "description": "v6.0: Analytical role — target=quality/defect, predictor=process parameter, confounder=affects both, control=control system, metadata=identifier"
+          },
+          "physical_meaning": {"type": "string", "description": "v6.0: What this parameter physically measures"},
+          "physical_meaning_confidence": {
+            "type": "string",
+            "enum": ["KNOWN", "INFERRED", "UNKNOWN"],
+            "description": "v6.0: Certainty level of physical meaning"
+          },
+          "control_type": {"type": "string", "enum": ["setpoint", "measurement", "output"]},
+          "conversion_factor": {"type": ["number", "null"]},
           "category": {"type": "string", "enum": ["inspection", "process", "control", "event", "metadata", "uncertain"]},
           "description": {"type": "string"}
         }
+      }
+    },
+    "group_columns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "v6.0: Columns that define subgroups for stratified analysis (product, grade, model)"
+    },
+    "known_confounders": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "v6.0: Variables that could confound parameter-defect relationships (product_model, shift, operator)"
+    },
+    "parameter_groups": {
+      "type": "object",
+      "description": "v6.0: Parameters grouped by physical function or process zone",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"}
       }
     },
     "sampling_rate": {
@@ -64,9 +91,6 @@
         }
       }
     },
-    "quality_notes": {
-      "type": "array",
-      "items": {"type": "string"}
-    }
+    "quality_notes": {"type": "array", "items": {"type": "string"}}
   }
 }

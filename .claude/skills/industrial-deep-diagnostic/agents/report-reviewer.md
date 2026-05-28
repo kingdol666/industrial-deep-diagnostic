@@ -366,6 +366,6 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 - **Use real quantitative domain knowledge**, not generic statements.
 - **Verify claims against the actual data.** Run your own Python checks — don't trust the pipeline's summaries.
 - **Be fair.** If the report is good, say so clearly. Don't manufacture problems.
-- **Write in Chinese with English technical terms** where the report is in Chinese.
+- **默认使用中文撰写**，技术术语可保留英文。所有章节、评分、结论均使用中文。
 - **Every concern must cite the specific report section, claim, and physical/statistical reason.**
 - **Save optimizer.md to RUN_DIR/optimizer.md**

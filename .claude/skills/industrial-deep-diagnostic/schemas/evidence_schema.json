@@ -1,45 +1,38 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Evidence Schema",
-  "description": "Schema for structured evidence chains in industrial diagnostics",
+  "title": "Evidence Schema v6.0",
+  "description": "Schema for structured evidence chains in industrial diagnostics (v6.0 Competing Hypotheses Protocol)",
   "type": "object",
-  "required": ["run_id", "evidence_chain"],
+  "required": ["run_id", "evidence_inventory"],
   "properties": {
     "run_id": {"type": "string"},
-    "evidence_chain": {
+    "evidence_inventory": {
       "type": "object",
       "required": ["visual_evidence", "numerical_evidence"],
       "properties": {
         "visual_evidence": {
           "type": "array",
+          "description": "Evidence from plots and visualizations (Rank 4)",
           "items": {
             "type": "object",
-            "required": ["plot", "finding", "evidence_rank", "implication"],
+            "required": ["source", "finding", "rank", "implication"],
             "properties": {
-              "plot": {
+              "source": {
                 "type": "string",
-                "description": "Path relative to RUN_DIR, e.g. 03_figures/01_aligned_timeseries.png"
+                "description": "Figure file path relative to RUN_DIR, e.g. 03_figures/01_defect_timeseries.png"
               },
               "finding": {
                 "type": "string",
                 "description": "What the plot visually shows — specific, measurable"
               },
-              "generation_method": {
-                "type": "object",
-                "description": "From plot_manifest.json — how the plot was created",
-                "properties": {
-                  "function": {"type": "string"},
-                  "time_alignment": {"type": "string"},
-                  "normalization": {"type": "string"},
-                  "anomaly_highlighting": {"type": "boolean"},
-                  "panel_count": {"type": "integer"},
-                  "signals": {"type": "array", "items": {"type": "string"}}
-                }
-              },
-              "evidence_rank": {"type": "integer", "const": 4},
+              "rank": {"type": "integer", "const": 4},
               "implication": {
                 "type": "string",
                 "description": "What this visual evidence means for the diagnosis"
+              },
+              "generation_method": {
+                "type": "object",
+                "description": "From plot_manifest.json — how the plot was created"
               },
               "confidence_note": {
                 "type": "string",
@@ -50,28 +43,46 @@
         },
         "numerical_evidence": {
           "type": "array",
+          "description": "Statistical evidence from data analysis (Rank 3)",
           "items": {
             "type": "object",
-            "required": ["metric", "value", "evidence_rank", "source", "interpretation"],
+            "required": ["source", "finding", "rank"],
             "properties": {
+              "source": {"type": "string", "description": "e.g., feature_summary.json"},
+              "finding": {"type": "string"},
+              "rank": {"type": "integer", "minimum": 1, "maximum": 3},
               "metric": {"type": "string"},
               "value": {},
-              "evidence_rank": {"type": "integer", "minimum": 1, "maximum": 3},
-              "source": {"type": "string"},
               "interpretation": {"type": "string"}
             }
           }
         },
-        "domain_evidence": {
+        "physical_evidence": {
           "type": "array",
+          "description": "Physical/domain knowledge evidence (Rank 5)",
           "items": {
             "type": "object",
-            "required": ["domain", "finding", "evidence_rank"],
+            "required": ["source", "finding", "rank"],
             "properties": {
-              "domain": {"type": "string"},
+              "source": {"type": "string", "description": "e.g., Arrhenius calculation, thermodynamics"},
               "finding": {"type": "string"},
-              "evidence_rank": {"type": "integer", "minimum": 5, "maximum": 6},
-              "source": {"type": "string"}
+              "rank": {"type": "integer", "minimum": 5, "maximum": 6}
+            }
+          }
+        },
+        "validation_evidence": {
+          "type": "array",
+          "description": "Statistical validation findings that affected hypotheses",
+          "items": {
+            "type": "object",
+            "required": ["source", "finding", "affected_hypotheses"],
+            "properties": {
+              "source": {"type": "string", "description": "e.g., validate_report.json"},
+              "finding": {"type": "string"},
+              "affected_hypotheses": {
+                "type": "array",
+                "items": {"type": "string", "pattern": "^H[0-9]+$"}
+              }
             }
           }
         }

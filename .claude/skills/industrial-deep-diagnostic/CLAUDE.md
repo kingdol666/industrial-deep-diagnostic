@@ -5,6 +5,10 @@
 Claude Code Skill for evidence-first industrial time-series analysis and root cause diagnostic.
 Lives in `.claude/skills/industrial-deep-diagnostic/`.
 
+## Language Default
+
+**默认中文输出。** 所有报告、诊断结论、审计文档使用中文。Schema enum字段保持英文。
+
 ## Architecture Notes
 
 - **Orchestration**: `SKILL.md` defines the workflow. Main agent only orchestrates — never holds domain context.
@@ -12,9 +16,11 @@ Lives in `.claude/skills/industrial-deep-diagnostic/`.
 - **Agent decoupling**: Agents communicate exclusively through workspace files (see SKILL.md for the file chain).
 - **Script philosophy**: Node.js for fixed operations (zero-dep, always works). Python as adaptive toolkit (agent selects primitives by data dimension).
 - **Statistical validation layer**: `stats.mjs` + `stats_validate.mjs` run BEFORE diagnosis. Diagnostician MUST read `validate_report.json` before forming hypotheses.
-- **Clarification gate** (v4.3): Context Builder uses AskUserQuestion when parameter physical meanings are unknown. Step 2.5 in the pipeline.
-- **Competing Hypotheses Protocol** (v6.0): Single Diagnostician follows a structured 5-step protocol with front-loaded candidate parameter screening from visual+statistical evidence, product-stratified analysis (整体与分型号并行), and physical-logic-chain hypothesis generation. Steps: A: Physical Logic Chain Generation, B: Hypothesis Refinement, C: Discriminability Assessment, D: Exclusion Verification, E: Diagnostic Conclusion.
+- **Clarification gate** (v4.3): Context Builder uses AskUserQuestion when parameter physical meanings are unknown. Pipeline Step 2.5.
+- **Competing Hypotheses Protocol** (v6.0): Single Diagnostician follows a structured 5-step protocol (Steps A-E, within the agent's Phase 4). The Diagnostician agent uses its own internal numbering (Phase 0-7), distinct from pipeline Steps (0-8).
+- **Numbering disambiguation** (v6.0+): Four separate numbering systems — Pipeline Steps (0-8), Diagnostician Phases (0-7), Reasoning Chain Segments (R1-R8), Method Stages (1-6 in diagnosis_method.md). See `pipeline-execution.md` §Numbering Systems.
 - **Data Discriminability Assessment** (v6.0): The key innovation. Before assigning confidence to any hypothesis, the Diagnostician checks whether available data CAN distinguish between competing hypotheses. When multiple hypotheses predict identical observables → output as COMPETING_SET, not a guess.
+- **Repair loop global cap** (v6.0+): Total re-diagnosis iterations across Judge + Reviewer repair loops capped at 5. See `pipeline-execution.md` §Repair Loop Protocol.
 
 ## File Organization
 
@@ -42,7 +48,7 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Statistical validation**: `stats_validate.mjs` runs BEFORE diagnosis. Diagnostician MUST read `validate_report.json` before forming hypotheses.
 - **Sorting validation**: `stats.mjs` automatically detects if data is time-sorted. If NOT, lag correlations are invalid and confidence ceilings apply.
 - **Judge quality gate**: Score >= 90 required before report generation. Max 3 repair iterations. Score ceiling of 85 when lag correlations used on unsorted data.
-- **Workspace persistence**: All outputs go to `./workspace/diagnostic-runs/<timestamp>_<name>/`.
+- **Workspace persistence**: All outputs go to `workspace/diagnostic-runs/<timestamp>_<name>/` (relative to project root, sibling of `.claude/`). Compute project root from SKILL_PATH: `SKILL_PATH/../../..`.
 - **Numbered subdirectories**: All agent outputs use numbered prefixes (`00_input/`, `01_ontology/`, `02_processed/`, `03_figures/`, `04_diagnostics/`, `05_review/`, `06_scripts/`).
 
 ## Statistical Scripts
@@ -105,7 +111,7 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **CRITICAL — Data Discriminability** (v6.0): The #1 failure mode is confidently diagnosing H1 when H2 predicts identical observables. Step C of the Diagnostician protocol MUST check whether available data can distinguish between competing hypotheses. When indistinguishable → COMPETING_SET with discrimination conditions, NOT a guess.
 - **Confidence ceiling** (v6.0): INDISTINGUISHABLE competing hypotheses capped at 65 confidence, regardless of correlation strength. No single hypothesis can exceed 65 when alternatives predict the same observables.
 - **Physical exclusions need quantitative justification**: "Temperature is too low for degradation" is not an exclusion. "Arrhenius calculation: k(84°C)/k(280°C) ≈ 10^-15, meaning degradation rate is effectively zero at MD temperatures" IS an exclusion.
-- **CRITICAL — Product-Stratified Analysis** (v6.0+): Diagnostician MUST run Step 2 (Product-Stratified Analysis) before generating hypotheses when product column exists. BETWEEN-PRODUCT ONLY correlations must be removed — they represent baseline differences, not causal mechanisms. This catches the common confound where "Product A runs hotter AND has more defects" is mistaken for "heat causes defects."
+- **CRITICAL — Product-Stratified Analysis** (v6.0+): Diagnostician MUST run Phase 2 (Product-Stratified Analysis) before generating hypotheses when product column exists. BETWEEN-PRODUCT ONLY correlations must be removed — they represent baseline differences, not causal mechanisms. This catches the common confound where "Product A runs hotter AND has more defects" is mistaken for "heat causes defects."
 - **Physical Logic Chain** (v6.0+): Every hypothesis must trace a complete physical logic chain (parameter → physical variable → process state → intermediate effect → defect). >50% [INFERRED] links = RESEARCH QUESTION, not diagnosis. Quantitative feasibility checks (Arrhenius, residence time, energy balance) are mandatory before accepting any causal claim.
 - **Cross-Product Discriminability** (v6.0+): Product stratification can sometimes break time-colinearity between competing hypotheses. Check if hypotheses behave differently across products — this is an additional discriminability dimension.
 

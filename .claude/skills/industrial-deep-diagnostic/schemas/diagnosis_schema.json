@@ -1,97 +1,218 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Diagnosis Schema",
-  "description": "Schema for the diagnostician agent's primary output",
+  "title": "Diagnosis Schema v6.0",
+  "description": "Schema for the Diagnostician agent's primary output (Competing Hypotheses Protocol)",
   "type": "object",
-  "required": ["run_id", "diagnosis_time", "primary_diagnosis", "causal_chain", "hypotheses"],
+  "required": ["run_id", "diagnosis_time", "diagnosis_type", "primary_finding", "hypotheses"],
   "properties": {
     "run_id": {"type": "string"},
     "diagnosis_time": {"type": "string", "format": "date-time"},
-    "primary_diagnosis": {
+    "diagnosis_type": {
       "type": "string",
-      "description": "One-line summary of the primary finding"
+      "enum": ["DETERMINED", "COMPETING_SET", "NEEDS_DATA"],
+      "description": "DETERMINED: single hypothesis survives all exclusion. COMPETING_SET: multiple indistinguishable hypotheses. NEEDS_DATA: no hypothesis meets minimum evidence threshold."
     },
-    "causal_chain": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["step", "event", "evidence_type", "evidence_rank"],
-        "properties": {
-          "step": {"type": "integer"},
-          "event": {"type": "string"},
-          "evidence_type": {"type": "string", "enum": ["OBSERVATION", "INFERENCE", "HYPOTHESIS", "UNCERTAINTY"]},
-          "variable": {"type": "string"},
-          "observed_behavior": {"type": "string"},
-          "physical_mechanism": {"type": "string"},
-          "evidence_rank": {"type": "integer", "minimum": 1, "maximum": 7},
-          "evidence_source": {"type": "string"}
+    "primary_finding": {
+      "type": "string",
+      "description": "One-sentence summary of the primary diagnostic finding"
+    },
+    "product_stratified_analysis": {
+      "type": "object",
+      "description": "Per-product stratification results when product column exists",
+      "properties": {
+        "has_product_column": {"type": "boolean"},
+        "products_found": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "overall_vs_per_product_comparison": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": {"type": "string"},
+              "overall_r": {"type": "number"},
+              "per_product_r": {
+                "type": "object",
+                "additionalProperties": {"type": "number"}
+              },
+              "consistency_class": {
+                "type": "string",
+                "enum": ["UNIVERSAL", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC", "SIMPSON_REVERSAL", "BETWEEN_PRODUCT_ONLY"]
+              },
+              "conclusion": {"type": "string"}
+            }
+          }
+        },
+        "analysis_scope": {
+          "type": "string",
+          "enum": ["overall_only", "overall_and_per_product"]
         }
       }
     },
     "hypotheses": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "name", "is_primary", "confidence"],
-        "properties": {
-          "id": {"type": "string", "pattern": "^H[0-9]+$"},
-          "name": {"type": "string"},
-          "is_primary": {"type": "boolean"},
-          "confidence": {"type": "integer", "minimum": 0, "maximum": 100},
-          "physical_mechanism": {"type": "string"},
-          "supporting_evidence": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "rank": {"type": "integer", "minimum": 1, "maximum": 7},
-                "source": {"type": "string"},
-                "detail": {"type": "string"}
-              }
+      "type": "object",
+      "required": ["surviving", "eliminated"],
+      "properties": {
+        "surviving": {
+          "type": "array",
+          "description": "Hypotheses that survived elimination (DETERMINED case: single entry)",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "mechanism_class", "confidence"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^H[0-9]+$"},
+              "name": {"type": "string"},
+              "mechanism_class": {
+                "type": "string",
+                "enum": ["WEAR", "DRIFT", "CONTAMINATION", "OPERATION", "ENVIRONMENT", "INTERACTION"]
+              },
+              "root_physical_cause": {"type": "string"},
+              "physical_logic_chain": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "link": {"type": "string"},
+                    "evidence_status": {"type": "string", "enum": ["OBSERVED", "KNOWN_PHYSICS", "INFERRED", "UNVERIFIED"]},
+                    "quantification": {"type": "string"}
+                  }
+                }
+              },
+              "chain_quality": {
+                "type": "string",
+                "enum": ["ACTIONABLE_HYPOTHESIS", "PLAUSIBLE_HYPOTHESIS", "RESEARCH_QUESTION"]
+              },
+              "confidence": {"type": "integer", "minimum": 0, "maximum": 100},
+              "confidence_adjustments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reason": {"type": "string"},
+                    "adjustment": {"type": "integer"},
+                    "source": {"type": "string"}
+                  }
+                }
+              },
+              "supporting_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "rank": {"type": "integer", "minimum": 1, "maximum": 7},
+                    "source": {"type": "string"},
+                    "detail": {"type": "string"}
+                  }
+                }
+              },
+              "contradicting_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {"type": "string"},
+                    "significance": {"type": "string"}
+                  }
+                }
+              },
+              "predicted_observables": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "falsification_conditions": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "consistency_across_products": {
+                "type": "string",
+                "enum": ["UNIVERSAL", "CONSISTENT_WEAK", "PRODUCT_SPECIFIC"]
+              },
+              "product_specific_notes": {"type": "object"}
             }
-          },
-          "contradicting_evidence": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "detail": {"type": "string"},
-                "significance": {"type": "string"}
-              }
+          }
+        },
+        "competing_sets": {
+          "type": "array",
+          "description": "Groups of indistinguishable hypotheses (COMPETING_SET diagnosis only)",
+          "items": {
+            "type": "object",
+            "required": ["set_id", "hypotheses", "discriminability"],
+            "properties": {
+              "set_id": {"type": "string", "pattern": "^CS[0-9]+$"},
+              "hypotheses": {
+                "type": "array",
+                "items": {"type": "string", "pattern": "^H[0-9]+$"}
+              },
+              "discriminability": {
+                "type": "string",
+                "enum": ["INDISTINGUISHABLE", "PARTIALLY_DISCRIMINABLE"]
+              },
+              "cross_product_discriminability": {
+                "type": "string",
+                "enum": ["REMAINS_INDISTINGUISHABLE", "PARTIALLY_DISCRIMINABLE", "DISCRIMINABLE"]
+              },
+              "reason": {"type": "string"},
+              "discriminating_data_needed": {"type": "string"},
+              "confidence_ceiling": {"type": "integer", "default": 65}
             }
-          },
-          "testable_predictions": {
-            "type": "array",
-            "items": {"type": "string"}
+          }
+        },
+        "eliminated": {
+          "type": "array",
+          "description": "Hypotheses definitively ruled out",
+          "items": {
+            "type": "object",
+            "required": ["hypothesis_id", "exclusion_type", "specific_evidence"],
+            "properties": {
+              "hypothesis_id": {"type": "string"},
+              "exclusion_type": {
+                "type": "string",
+                "enum": ["PHYSICAL", "STATISTICAL", "COMBINED"]
+              },
+              "subtype": {
+                "type": "string",
+                "enum": ["BETWEEN_PRODUCT_ONLY", "SIMPSON_REVERSAL", "PRODUCT_SPECIFIC_ONLY", null]
+              },
+              "specific_evidence": {"type": "string"},
+              "exclusion_confidence": {"type": "integer", "minimum": 90, "maximum": 100},
+              "revival_condition": {"type": "string"}
+            }
           }
         }
       }
     },
-    "spatial_analysis": {
+    "evidence_summary": {
       "type": "object",
+      "description": "Aggregated evidence inventory by type",
       "properties": {
-        "anomaly_center_position_mm": {"type": "number"},
-        "anomaly_width_mm": {"type": "number"},
-        "affected_zone": {"type": "string"},
-        "pattern": {"type": "string"},
-        "edges_affected": {"type": "boolean"}
+        "visual_evidence_count": {"type": "integer"},
+        "numerical_evidence_count": {"type": "integer"},
+        "physical_evidence_count": {"type": "integer"},
+        "validation_evidence_count": {"type": "integer"}
       }
     },
-    "temporal_analysis": {
-      "type": "object",
-      "properties": {
-        "anomaly_onset": {"type": "string"},
-        "anomaly_onset_row": {"type": "integer"},
-        "total_duration_minutes": {"type": "number"},
-        "sampling_interval_sec": {"type": "number"},
-        "response_lag": {"type": "string"},
-        "degradation_rate": {"type": "string"}
-      }
-    },
-    "ruled_out": {
+    "data_gaps": {
       "type": "array",
-      "items": {"type": "string"},
-      "description": "Causes that were investigated and excluded, with brief reason"
+      "description": "Missing data that limits the diagnosis",
+      "items": {"type": "string"}
+    },
+    "discriminability_matrix": {
+      "type": "array",
+      "description": "Pairwise discriminability assessment between all competing hypotheses",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pair": {"type": "array", "items": {"type": "string", "pattern": "^H[0-9]+$"}, "minItems": 2, "maxItems": 2},
+          "classification": {
+            "type": "string",
+            "enum": ["INDISTINGUISHABLE", "PARTIALLY_DISCRIMINABLE", "DISCRIMINABLE", "ONE_SIDE_EXCLUDED"]
+          },
+          "discriminating_signal": {"type": "string"},
+          "discriminating_signal_available": {"type": "boolean"},
+          "cross_product_finding": {"type": "string"}
+        }
+      }
     }
   }
 }

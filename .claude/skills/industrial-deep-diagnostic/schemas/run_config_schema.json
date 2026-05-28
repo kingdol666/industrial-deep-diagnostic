@@ -1,47 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Run Configuration Schema",
-  "description": "Schema for configuring a diagnostic run",
+  "title": "Run Configuration Schema v6.0",
+  "description": "Schema for configuring a v6.0 diagnostic run (Competing Hypotheses Protocol). Adds global iteration caps and repair loop settings.",
   "type": "object",
   "required": ["data_path"],
   "properties": {
-    "data_path": {
-      "type": "string",
-      "description": "Path to time-series data file"
-    },
-    "ontology_path": {
-      "type": "string",
-      "description": "Path to pre-defined ontology JSON"
-    },
-    "reference_dir": {
-      "type": "string",
-      "description": "Directory with reference documents"
-    },
-    "process_description": {
-      "type": "string",
-      "description": "Free-text description of the industrial process"
-    },
-    "scene_name": {
-      "type": "string",
-      "description": "Name for this diagnostic scene"
-    },
-    "batch_id": {
-      "type": "string",
-      "description": "Production batch identifier"
-    },
-    "output_dir": {
-      "type": "string",
-      "description": "Override default output directory"
-    },
-    "user_objective": {
-      "type": "string",
-      "description": "Specific analysis objective"
-    },
-    "known_faults": {
-      "type": "array",
-      "items": {"type": "string"},
-      "description": "Known fault patterns"
-    },
+    "data_path": {"type": "string", "description": "Path to time-series data file"},
+    "ontology_path": {"type": "string", "description": "Path to pre-defined ontology JSON"},
+    "reference_dir": {"type": "string", "description": "Directory with reference documents"},
+    "process_description": {"type": "string", "description": "Free-text description of the industrial process"},
+    "scene_name": {"type": "string", "description": "Name for this diagnostic scene"},
+    "batch_id": {"type": "string", "description": "Production batch identifier"},
+    "output_dir": {"type": "string", "description": "Override default output directory"},
+    "user_objective": {"type": "string", "description": "Specific analysis objective"},
+    "known_faults": {"type": "array", "items": {"type": "string"}, "description": "Known fault patterns"},
     "analysis_constraints": {
       "type": "object",
       "properties": {
@@ -52,33 +24,30 @@
             "end": {"type": "string", "format": "date-time"}
           }
         },
-        "focus_signals": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Signals to prioritize in analysis"
-        },
-        "exclude_signals": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Signals to exclude from analysis"
-        },
-        "max_web_research_queries": {
-          "type": "integer",
-          "default": 5,
-          "minimum": 0,
-          "maximum": 10
-        },
-        "judge_score_threshold": {
-          "type": "integer",
-          "default": 90,
-          "minimum": 50,
-          "maximum": 100
-        },
-        "max_iterations": {
+        "focus_signals": {"type": "array", "items": {"type": "string"}},
+        "exclude_signals": {"type": "array", "items": {"type": "string"}},
+        "max_web_research_queries": {"type": "integer", "default": 5, "minimum": 0, "maximum": 10},
+        "judge_score_threshold": {"type": "integer", "default": 90, "minimum": 50, "maximum": 100},
+        "max_judge_iterations": {
           "type": "integer",
           "default": 3,
           "minimum": 1,
-          "maximum": 5
+          "maximum": 3,
+          "description": "v6.0: Max Judge→Diagnostician repair iterations per judge session"
+        },
+        "max_reviewer_iterations": {
+          "type": "integer",
+          "default": 2,
+          "minimum": 1,
+          "maximum": 2,
+          "description": "v6.0: Max Reviewer repair cycles (each cycle re-runs Diagnostician+Judge+Reporter+Reviewer)"
+        },
+        "global_max_iterations": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 10,
+          "description": "v6.0: Global cap — total re-diagnosis iterations across ALL repair loops"
         }
       }
     }

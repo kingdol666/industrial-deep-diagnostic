@@ -1,95 +1,106 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Analysis Schema",
-  "description": "Schema for diagnostic analysis results",
+  "title": "Analysis Schema v6.0",
+  "description": "Schema for v6.0 diagnostic analysis results (Competing Hypotheses Protocol). Used as supplementary validation for feature_summary.json integration.",
   "type": "object",
-  "required": ["abnormal_intervals", "correlations", "root_causes", "confidence", "uncertainties"],
+  "required": ["run_id", "analysis_time", "data_characterization", "statistical_findings", "hypotheses", "conclusion"],
   "properties": {
-    "abnormal_intervals": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "start", "end", "severity", "observations"],
-        "properties": {
-          "id": {"type": "string"},
-          "start": {"type": "string", "format": "date-time"},
-          "end": {"type": "string", "format": "date-time"},
-          "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
-          "observations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["signal", "description", "evidence", "confidence"],
-              "properties": {
-                "signal": {"type": "string"},
-                "description": {"type": "string"},
-                "evidence": {
-                  "type": "object",
-                  "required": ["type"],
-                  "properties": {
-                    "type": {"type": "string", "enum": ["data", "stats", "visual", "reference", "web"]},
-                    "details": {"type": "string"},
-                    "source": {"type": "string"}
-                  }
-                },
-                "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
-              }
-            }
-          },
-          "correlations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "signals": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2},
-                "correlation_type": {"type": "string", "enum": ["simultaneous", "leading", "lagging"]},
-                "strength": {"type": "string", "enum": ["strong", "moderate", "weak"]},
-                "lag_seconds": {"type": "number"},
-                "correlation_value": {"type": "number", "minimum": -1, "maximum": 1}
-              }
-            }
-          },
-          "hypotheses": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["description", "mechanism", "confidence", "confidence_score"],
-              "properties": {
-                "description": {"type": "string"},
-                "mechanism": {"type": "string"},
-                "supporting_evidence": {"type": "array", "items": {"type": "string"}},
-                "contradicting_evidence": {"type": "array", "items": {"type": "string"}},
-                "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
-                "confidence_score": {"type": "number", "minimum": 0, "maximum": 100},
-                "validation_needed": {"type": "array", "items": {"type": "string"}}
-              }
-            }
-          },
-          "primary_hypothesis": {"type": "string"},
-          "root_cause_probability": {"type": "number", "minimum": 0, "maximum": 1}
+    "run_id": {"type": "string"},
+    "analysis_time": {"type": "string", "format": "date-time"},
+    "data_characterization": {
+      "type": "object",
+      "required": ["time_sorted", "product_groups_present", "dimensionality"],
+      "properties": {
+        "time_sorted": {"type": "boolean"},
+        "product_groups_present": {"type": "boolean"},
+        "dimensionality": {"type": "string", "enum": ["1d_scalar", "multi_axis", "2d_profile", "batch_event", "product_grouped", "spectral", "mixed"]},
+        "row_count": {"type": "integer"},
+        "column_count": {"type": "integer"},
+        "time_range": {
+          "type": "object",
+          "properties": {
+            "start": {"type": "string", "format": "date-time"},
+            "end": {"type": "string", "format": "date-time"}
+          }
         }
       }
     },
-    "correlations": {
+    "statistical_findings": {
       "type": "object",
       "properties": {
-        "pearson": {"type": "object", "additionalProperties": {"additionalProperties": {"type": "number"}, "type": "object"}},
-        "lagged": {"type": "object", "additionalProperties": {}}
+        "top_correlations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": {"type": "string"},
+              "defect": {"type": "string"},
+              "pearson_r": {"type": "number", "minimum": -1, "maximum": 1},
+              "spearman_rho": {"type": "number", "minimum": -1, "maximum": 1},
+              "detrended_r": {"type": "number", "minimum": -1, "maximum": 1},
+              "mutual_information": {"type": "number"},
+              "granger_p_value": {"type": "number"}
+            }
+          }
+        },
+        "validation_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "check": {"type": "string"},
+              "severity": {"type": "string", "enum": ["CRITICAL", "SERIOUS", "MODERATE", "INFO"]},
+              "affected_relationships": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
       }
     },
-    "root_causes": {
+    "hypotheses": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["description", "evidence_refs", "confidence"],
+        "required": ["id", "name", "mechanism_class", "confidence"],
         "properties": {
-          "description": {"type": "string"},
-          "evidence_refs": {"type": "array", "items": {"type": "string"}},
-          "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
-          "confidence_score": {"type": "number"},
-          "mechanism": {"type": "string"},
-          "validation_steps": {"type": "array", "items": {"type": "string"}}
+          "id": {"type": "string", "pattern": "^H[0-9]+$"},
+          "name": {"type": "string"},
+          "mechanism_class": {"type": "string", "enum": ["WEAR", "DRIFT", "CONTAMINATION", "OPERATION", "ENVIRONMENT", "INTERACTION"]},
+          "chain_quality": {"type": "string", "enum": ["ACTIONABLE_HYPOTHESIS", "PLAUSIBLE_HYPOTHESIS", "RESEARCH_QUESTION"]},
+          "confidence": {"type": "integer", "minimum": 0, "maximum": 100},
+          "supporting_evidence": {"type": "array", "items": {"type": "string"}},
+          "contradicting_evidence": {"type": "array", "items": {"type": "string"}},
+          "falsification_conditions": {"type": "array", "items": {"type": "string"}}
         }
+      }
+    },
+    "discriminability": {
+      "type": "object",
+      "description": "Data Discriminability Assessment (v6.0 Step C)",
+      "properties": {
+        "matrix": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pair": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2},
+              "classification": {"type": "string", "enum": ["INDISTINGUISHABLE", "PARTIALLY_DISCRIMINABLE", "DISCRIMINABLE", "ONE_SIDE_EXCLUDED"]},
+              "discriminating_signal_needed": {"type": "string"}
+            }
+          }
+        },
+        "indistinguishable_sets": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}}
+      }
+    },
+    "conclusion": {
+      "type": "object",
+      "required": ["diagnosis_type", "primary_finding"],
+      "properties": {
+        "diagnosis_type": {"type": "string", "enum": ["DETERMINED", "COMPETING_SET", "NEEDS_DATA"]},
+        "primary_finding": {"type": "string"},
+        "surviving_hypotheses": {"type": "array", "items": {"type": "string"}},
+        "eliminated_hypotheses": {"type": "array", "items": {"type": "string"}},
+        "competing_sets": {"type": "array", "items": {"type": "object"}},
+        "data_gaps": {"type": "array", "items": {"type": "string"}}
       }
     },
     "recommendations": {
@@ -99,30 +110,9 @@
         "required": ["action", "priority", "rationale"],
         "properties": {
           "action": {"type": "string"},
-          "priority": {"type": "string", "enum": ["high", "medium", "low"]},
+          "priority": {"type": "string", "enum": ["P0", "P1", "P2", "P3"]},
           "rationale": {"type": "string"},
           "evidence_ref": {"type": "string"}
-        }
-      }
-    },
-    "confidence": {
-      "type": "object",
-      "required": ["overall", "primary_diagnosis"],
-      "properties": {
-        "overall": {"type": "string", "enum": ["high", "medium", "low"]},
-        "overall_score": {"type": "number", "minimum": 0, "maximum": 100},
-        "primary_diagnosis": {"type": "string"},
-        "per_conclusion": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "conclusion": {"type": "string"},
-              "confidence": {"type": "string"},
-              "confidence_score": {"type": "number"},
-              "evidence_rank": {"type": "integer", "minimum": 1, "maximum": 7}
-            }
-          }
         }
       }
     },
@@ -130,12 +120,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["description", "impact"],
+        "required": ["description", "type", "impact"],
         "properties": {
           "description": {"type": "string"},
+          "type": {"type": "string", "enum": ["aleatory", "epistemic", "model"]},
           "impact": {"type": "string", "enum": ["high", "medium", "low"]},
-          "affected_conclusions": {"type": "array", "items": {"type": "string"}},
-          "recommended_validation": {"type": "string"}
+          "affected_hypotheses": {"type": "array", "items": {"type": "string"}},
+          "resolution": {"type": "string"}
         }
       }
     }

@@ -12,6 +12,12 @@ version: 6.0.0
 
 # Industrial Deep Diagnostic
 
+## Language Default
+
+**默认输出语言为中文。** 所有报告、诊断结论、审计文档均使用中文撰写（技术术语可保留英文）。结构化JSON数据（如evidence.json中的enum字段）保持英文以兼容schema验证，但自然语言描述字段使用中文。
+
+**Default output language is Chinese.** All reports, diagnostic conclusions, and audit documents are written in Chinese (technical terms may remain in English). Structured JSON enums stay in English for schema compatibility, but natural language description fields use Chinese.
+
 ## Overview
 
 Evidence-first industrial time-series analysis and root cause diagnostic. Multi-agent pipeline: inspect data → build context → clarify unknown parameters with user → visualize + validate → **competing hypotheses diagnosis** → judge → report → physical truth audit → review repair loop.
@@ -76,7 +82,9 @@ Step 0: Setup    ──► Step 1: Inspect ──► Step 2: Context ──[clar
                                                                   Step 8: Present
 ```
 
-**Parallelism**: Steps 2 and 3 run in parallel. Step 2.5 (clarification gate) synchronizes before Step 3. Steps 4→5→6→7 are sequential. Step 7.5 repair loop (max 2). Judge→Diagnostician repair max 3 iterations.
+**Parallelism**: Steps 2 and 3 run in parallel. Step 2.5 (clarification gate) synchronizes before Step 3. Steps 4→5→6→7 are sequential.
+
+**Repair loops**: Judge→Diagnostician repair max 3 iterations. Reviewer repair (Step 7.5) max 2 cycles. **Global cap**: total re-diagnosis iterations across all repair loops must not exceed 5. See `pipeline-execution.md` §Repair Loop Protocol for detailed rules.
 
 ---
 

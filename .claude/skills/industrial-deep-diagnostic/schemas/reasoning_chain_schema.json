@@ -1,19 +1,21 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "title": "Reasoning Chain Schema",
+  "title": "Reasoning Chain Schema v6.0",
+  "description": "Schema for the 8-segment (R1-R8) auditable reasoning trace. Segment IDs correspond to: R1=Data Characterization, R2=Statistical Discovery, R3=Validation Filter, R4=Hypothesis Generation, R5=Discriminability Assessment, R6=Exclusion Verification, R7=Diagnostic Conclusion, R8=Uncertainty Bounding.",
   "type": "object",
   "required": ["run_id", "reasoning_chains", "uncertainty_summary"],
   "properties": {
     "run_id": { "type": "string" },
     "reasoning_chains": {
       "type": "array",
+      "description": "Ordered array of 8 reasoning segments (R1-R8). The step_id field uses 1-8 corresponding to R1-R8.",
       "items": {
         "type": "object",
         "required": ["step_id", "step_name", "inputs", "reasoning", "outputs", "alternatives_considered", "uncertainty", "falsification_condition"],
         "properties": {
-          "step_id": { "type": "integer" },
-          "step_name": { "type": "string", "description": "Short name for this reasoning step" },
-          "step_question": { "type": "string", "description": "The specific question this step answers" },
+          "step_id": { "type": "integer", "minimum": 1, "maximum": 8, "description": "Segment number (1-8), corresponding to R1-R8 in documentation" },
+          "step_name": { "type": "string", "description": "Short name for this reasoning segment (R1-R8)" },
+          "step_question": { "type": "string", "description": "The specific question this segment answers" },
           "inputs": {
             "type": "array",
             "items": {

@@ -1,9 +1,11 @@
 # Diagnosis Methodology
 
 > **Canonical evidence rules, causation criteria, and confidence scoring:** See `evidence_rules.md`.
-> This file contains the diagnostic process phases 1-5.
+> This file contains the diagnostic methodology stages 1-6.
 
-## Phase 0: Statistical Validation (NEW — v4.2)
+**Numbering note**: This file uses **Method Stage 1-6** — distinct from Pipeline Steps (0-8), Diagnostician Phases (0-7), and Reasoning Segments (R1-R8). See `pipeline-execution.md` §Numbering Systems.
+
+## Stage 1: Statistical Validation (formerly Phase 0 — v4.2)
 
 **Before any causal reasoning, validate the statistical evidence base:**
 
@@ -16,7 +18,7 @@
 
 **Every diagnostic hypothesis must be scored against these validation checks before confidence is assigned.**
 
-## Phase 1: Observation
+## Stage 2: Observation
 
 For each abnormal interval:
 1. **What** changed — which signals deviated, by how much (absolute + %)
@@ -25,7 +27,7 @@ For each abnormal interval:
 4. **Pattern** — gradual drift / sudden step / oscillation / spike
 5. **What did NOT change** — signals that stayed stable (critical for ruling out hypotheses)
 
-## Phase 2: Temporal & Correlation Analysis
+## Stage 3: Temporal & Correlation Analysis
 
 1. Build a **timeline** — which signal changed first, second, third...
 2. Compute **lagged cross-correlations** — for each process parameter vs each inspection signal, find the lag that maximizes |r|
@@ -36,7 +38,7 @@ For each abnormal interval:
 6. Compute **Spearman correlations** — for robustness against outliers and non-linearity.
 7. Cross-reference with **ontology relationships** — do observed correlations match known causal relationships?
 
-## Phase 3: Hypothesis Formation
+## Stage 4: Hypothesis Formation
 
 For each abnormal interval, list ALL plausible hypotheses. For each:
 - Describe the physical mechanism (full causal chain)
@@ -60,7 +62,7 @@ Start with evidence-based confidence, then adjust:
 | Multiple independent evidence sources agree | UP | +5 to +10 |
 | Quantitative physical model supports magnitude | UP | +10 to +15 |
 
-## Phase 4: Confidence Assessment
+## Stage 5: Confidence Assessment
 
 Score each hypothesis 0-100 using 5 factors:
 
@@ -78,7 +80,7 @@ Document:
 - **Validation findings that affect confidence**
 - Validation steps to confirm or reject
 
-## Phase 5: Synthesis
+## Stage 6: Synthesis
 
 1. Identify the primary hypothesis
 2. Construct the causal chain with evidence at each step
