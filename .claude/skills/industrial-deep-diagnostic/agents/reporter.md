@@ -87,22 +87,14 @@ Write the report to `RUN_DIR/report.md`. Use the following structure:
 
 ---
 
-## 1. Executive Summary
+## 1. 执行摘要 / Executive Summary
 [2-3 paragraphs. What was investigated, what was found, what is recommended.
 Include overall confidence level AND note any critical validation findings.
 Written for engineering management.]
 
-## Step 2: Reasoning Overview
+**Reasoning Overview guidelines**: The reasoning overview MUST be understandable by an engineer without raw data access, show the observation→inference→hypothesis→conclusion chain, clearly distinguish [OBSERVED] from [INFERRED], list considered-but-ruled-out hypotheses with elimination evidence, state what additional evidence would change each conclusion, and include hallucination audit results.
 
-The reasoning overview MUST:
-- Be understandable by an engineer reading the report without access to raw data
-- Show the chain of logic from observation → inference → hypothesis → conclusion
-- Clearly distinguish [OBSERVED] from [INFERRED] claims
-- List hypotheses that were CONSIDERED but RULED OUT, with the specific evidence that eliminated them
-- State what additional evidence would change each conclusion
-- Include the hallucination audit pass/fail for each major conclusion
-
-## 2. Reasoning Overview
+## 2. 推理概述 / Reasoning Overview
 [Synthesized from `04_diagnostics/reasoning_chain.json`. Step-by-step trace of the diagnostic reasoning.
 Populate subsections from reasoning_chain data.]
 
@@ -127,33 +119,33 @@ Populate subsections from reasoning_chain data.]
 ### 2.7 Uncertainty Boundaries
 [Classification of uncertainties and their boundaries.]
 
-## 3. Analysis Objective
+## 3. 分析目标 / Analysis Objective
 [What question the analysis was trying to answer.]
 
-## 4. User Context and Constraints
+## 4. 用户上下文与约束 / User Context and Constraints
 [User-provided context, known issues, constraints.]
 
-## 5. Industrial Context and Ontology
+## 5. 工业上下文与本体 / Industrial Context and Ontology
 [Process type, equipment, stages, key variables. Reference ontology.json.]
 
-## 6. Reference Documents Used
+## 6. 参考文档 / Reference Documents Used
 [List documents consulted and key knowledge extracted.]
 
-## 7. External Research Used
+## 7. 外部知识 / External Research Used
 [Web findings labeled [EXTERNAL KNOWLEDGE].]
 
-## 8. Data Description
+## 8. 数据描述 / Data Description
 [Data summary table. Sampling rate, time range, data quality summary.
 **NEW**: Include data sorting information — is data sorted by time or by batch_id?]
 
-## 9. Variable Classification
+## 9. 变量分类 / Variable Classification
 [How variables were classified. Include parameter groups.]
 
-## 10. Preprocessing & Alignment
+## 10. 预处理与对齐 / Preprocessing & Alignment
 [What cleaning was done. Missing value handling. Alignment method.
 **NEW**: Include data sorting validation result.]
 
-## 11. Visualization Evidence — Per-Figure Analysis
+## 11. 可视化证据 — 逐图分析 / Visualization Evidence — Per-Figure Analysis
 
 **This is a central section. Every figure from 03_figures/ MUST appear here.**
 
@@ -161,101 +153,100 @@ For each figure:
 ### 11.N [Figure Title]
 ![Figure Name](03_figures/filename.png)
 
-**What this figure shows**: [chart type, axes, data]
+**图表展示内容 / What this figure shows**: [chart type, axes, data]
 
-**Visual findings ([OBSERVATION], Rank 4)**: [What is actually visible]
+**可视化发现 / Visual findings ([OBSERVATION], 证据等级 4)**: [What is actually visible]
 
-**Diagnostic implication**: [How this supports or contradicts hypotheses]
+**诊断含义 / Diagnostic implication**: [How this supports or contradicts hypotheses]
 
-**For validation plots, add**: **Validation finding**: [What statistical issue this plot reveals]
+**For validation plots, add**: **验证发现 / Validation finding**: [What statistical issue this plot reveals]
 
 [Repeat for EVERY plot in the manifest.]
 
-## 12. Diagnostic Findings
+## 12. 诊断结果 / Diagnostic Findings
 
-### 12.1 Evidence-Eliminated Hypotheses
+### 12.1 证据排除的假设 / Evidence-Eliminated Hypotheses
 [List hypotheses that were ruled out and the specific evidence that eliminated them.]
 
-### 12.2 Surviving Hypotheses with Reasoning
+### 12.2 存活的假设及推理 / Surviving Hypotheses with Reasoning
 [Hypotheses that survived validation, with the reasoning chain that supports each.
 Every claim MUST cite which link in the reasoning chain supports it ([Chain Link N]).]
 
-### 12.3 Causal Chain Models
+### 12.3 因果链模型 / Causal Chain Models
 [Causal chain diagrams or descriptions for each surviving hypothesis.]
 
-## 13. Root Cause Analysis — Synthesis
+## 13. 根因分析 — 综合 / Root Cause Analysis — Synthesis
 [Parameter impact ranking. Defect groups. Causal chain model.]
 
-## 14. Statistical Validation & Confidence Assessment
+## 14. 统计验证与置信度评估 / Statistical Validation & Confidence Assessment
 
-**NEW SECTION**: Transparent disclosure of all statistical validation findings.
+**v6.0 强制节** — 透明披露所有统计验证发现。
 
-### 14.1 Data Sorting Validation
+### 14.1 数据排序验证 / Data Sorting Validation
 [State whether data is time-sorted. If not, explain impact on lag-based claims.]
 
-### 14.2 Subgroup Analysis (Simpson's Paradox Check)
+### 14.2 子组分析 / Subgroup Analysis (Simpson's Paradox Check)
 [For each key correlation, report whether it holds within the dominant product group.]
-[If direction reversals exist, state them clearly with a table:]
 
-| Relationship | Full Dataset r | Dominant Subgroup r | Direction |
-|-------------|:-:|:-:|-----------|
+| 关系 / Relationship | 全数据集 r | 主子组 r | 方向 / Direction |
+|---------------------|:---------:|:-------:|-----------------|
 | film_points vs MD_TH009 | 0.22 | -0.01 | REVERSED |
 
-### 14.3 Time-Trend Confounding
+### 14.3 时间趋势混杂 / Time-Trend Confounding
 [Report detrended correlations for key relationships:]
 
-| Relationship | Raw r | Detrended r | Attenuation |
-|-------------|:-----:|:----------:|:----------:|
+| 关系 / Relationship | 原始 r | 去趋势 r | 衰减率 / Attenuation |
+|-------------------|:------:|:-------:|:-------------------:|
 | W1C88 vs melt_spots | 0.37 | 0.09 | -76% |
 
-### 14.4 Correlation Robustness
+### 14.4 相关性稳健性 / Correlation Robustness
 [Spearman vs Pearson for key correlations. Outlier sensitivity.]
 
-### 14.5 Adjusted Confidence Assessment
+### 14.5 调整后的置信度评估 / Adjusted Confidence Assessment
 
-| Hypothesis | Original Confidence | Adjustment Reason | Adjusted Confidence |
-|-----------|:---:|---|:---:|
-| H1: Thermal degradation | 75 | Simpson's Paradox in PG31DS subgroup | 45-50 |
-| H4: Temperature fluctuation → scratches | 80 | Lag correlations not validated (sorting issue) | Pending re-analysis |
+| 假设 / Hypothesis | 原始置信度 | 调整原因 / Adjustment Reason | 调整后置信度 |
+|-------------------|:--------:|-----------------------------|:----------:|
+| H1 | 75 | Simpson's Paradox in PG31DS subgroup | 45-50 |
 
-## 15. Competing Hypotheses Disclosure (v6.0)
-[When diagnosis type is COMPETING_SET, clearly present all competing hypotheses:]
+## 15. 竞争假设披露 / Competing Hypotheses Disclosure (v6.0)
+
+**v6.0 强制节** — 当诊断类型为 COMPETING_SET 时，清晰呈现所有竞争假设。
 [For each competing hypothesis: mechanism, evidence, why indistinguishable, discrimination condition.]
 
-## 16. Confidence & Uncertainty
+## 16. 置信度与不确定性 / Confidence & Uncertainty
 [Overall confidence. Evidence gaps. What additional data would help.]
 
-## 17. Limitations & Uncertainty
+## 17. 局限性与不确定性 / Limitations & Uncertainty
 
-### 17.1 Aleatory Uncertainty
+### 17.1 偶然不确定性 / Aleatory Uncertainty
 [Irreducible uncertainty inherent to the process or measurement.]
 
-### 17.2 Epistemic Uncertainty
+### 17.2 认知不确定性 / Epistemic Uncertainty
 [Reducible uncertainty that could be resolved with more data or better models.]
 
-### 17.3 What Would Change Our Conclusions
+### 17.3 什么会改变我们的结论 / What Would Change Our Conclusions
 [Specific evidence or data that would overturn each conclusion.]
 
-### 17.4 Reasoning Chain Weaknesses
+### 17.4 推理链弱点 / Reasoning Chain Weaknesses
 [Identified weaknesses or gaps in the reasoning chain.]
 
-## 18. Recommended Actions
+## 18. 建议行动 / Recommended Actions
 
-| Priority | Action | Rationale | Evidence Strength | Validation Notes |
-|----------|--------|-----------|:---:|------------------|
+| 优先级 | 行动 | 理由 | 证据强度 | 验证备注 |
+|:------:|------|------|:------:|----------|
 | P0 | ... | ... | High | Robust to all checks |
 | P1 | ... | ... | Medium | Attenuates in subgroup |
 
-## 19. Limitations
+## 19. 限制说明 / Limitations
 [What this analysis does NOT cover. Assumptions. Caveats. Explicitly list validation limitations found.]
 
-## 20. Appendix
-### A. Run Configuration
-### B. Statistical Summary
-### C. File Inventory
-### D. Validation Report Summary
-### E. Hallucination Audit Log
-### F. Competing Hypotheses Discriminability Matrix (v6.0)
+## 20. 附录 / Appendix
+### A. 运行配置 / Run Configuration
+### B. 统计摘要 / Statistical Summary
+### C. 文件清单 / File Inventory
+### D. 验证报告摘要 / Validation Report Summary
+### E. 幻觉审计日志 / Hallucination Audit Log
+### F. 竞争假设可分辨性矩阵 / Discriminability Matrix (v6.0)
 [Pass/fail for each major conclusion against STOP checklist.]
 ```
 
