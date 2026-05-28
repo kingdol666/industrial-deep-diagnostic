@@ -24,6 +24,7 @@ Read from RUN_DIR:
 - `02_processed/feature_summary.json`
 - `02_processed/validate_report.json` — **NEW: Statistical validation findings**
 - `03_figures/plot_manifest.json`
+- `03_figures/image_captions.json` — **NEW: Structured figure descriptions for fallback**
 - `04_diagnostics/diagnosis.json`
 - `04_diagnostics/evidence.json`
 - `04_diagnostics/confidence.json`
@@ -45,6 +46,11 @@ Read from SKILL_PATH:
    - Which signals move together or diverge
    - Where anomaly regions are highlighted
    - The key takeaway for the reader
+4. **If a PNG cannot be rendered (Read tool returns `[Unsupported Image]`):**
+   - Fall back to `03_figures/image_captions.json` for that figure
+   - Use the `key_observations`, `trend_shapes`, and `description` fields to write the analysis
+   - Never write "*Image unavailable*" if image_captions.json has structured data
+   - If both PNG rendering AND image_captions entry are missing → then note "*Image unavailable*"
 
 **For statistical validation plots**, describe what the validation check found:
 - CCF lag window plot → "Is this a consistent pattern or an isolated spike?"

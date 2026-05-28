@@ -72,7 +72,7 @@ Context Builder ──► 01_ontology/ontology.json, schema.json
 User Clarification ──► Updated ontology.json, schema.json (enriched)
 Data Processor  ──► 02_processed/feature_summary.json (enhanced stats)
                 ──► 02_processed/validate_report.json (statistical validation)
-                ──► 03_figures/*.png + plot_manifest.json
+                ──► 03_figures/*.png + plot_manifest.json + image_captions.json
 Diagnostician   ──► 04_diagnostics/reasoning_chain.json (8-segment reasoning trace R1-R8)
                 ──► 04_diagnostics/diagnosis.json (DETERMINED/COMPETING_SET/NEEDS_DATA)
                 ──► 04_diagnostics/evidence.json
@@ -92,7 +92,14 @@ Each agent MUST append a JSON line to `RUN_DIR/.pipeline_events.jsonl` at start 
 {"event": "clarification_gate", "agent": "main", "timestamp": "2026-05-25T10:03:00Z", "parameters_asked": 3, "parameters_resolved": 2, "rounds": 1}
 ```
 
-The main agent should verify this file exists and log its own events at Step 8.
+The main agent logs the following repair-loop events:
+
+```jsonl
+{"event": "repair_spawn", "iteration": 1, "source": "judge", "source_iteration": 1, "diag_iters_total": 1, "timestamp": "2026-05-25T10:10:00Z"}
+{"event": "repair_cap_reached", "diag_iters_total": 5, "reason": "Global re-diagnosis cap (5) exceeded", "timestamp": "2026-05-25T10:30:00Z"}
+```
+
+The main agent should verify this file exists and log its own events at Step 8. **At the start of any repair loop (Judge or Reviewer), count `repair_spawn` entries in this file to restore the current `diag_iters` value** — do not rely on in-memory state.
 
 ## Step-by-Step Protocol
 
@@ -191,6 +198,7 @@ Read `agents/data-processor.md` and spawn.
 - `02_processed/validate_report.json` — Statistical validation report (includes change point detection)
 - Statistical validation plots when issues detected
 - `03_figures/plot_manifest.json` — Interface contract for diagnostician
+- `03_figures/image_captions.json` — Structured figure descriptions (fallback for reporter)
 
 ### Step 4: Diagnostician — 5-Step Competing Hypotheses Protocol (SUB-AGENT)
 
@@ -308,13 +316,12 @@ The issues found by the reviewer are different from the Judge's issues:
 The pipeline has TWO independent repair loops, but they share a global re-diagnosis counter:
 
 ```
-Global counter diag_iters = 0  (tracks total re-diagnosis spawns)
-
 Judge loop (Step 5):
   for iter in 1..3:
     if score >= 90 → break (PASS)
     if diag_iters >= 5 → break (GLOBAL_CAP)
     diag_iters++
+    log_counter_event(diag_iters, "judge", iter)
     re-spawn Diagnostician with REPAIR_INSTRUCTIONS
 
 Reviewer loop (Step 7.5):
@@ -323,14 +330,33 @@ Reviewer loop (Step 7.5):
     if diag_iters >= 5 → break (GLOBAL_CAP)
     re-spawn Diagnostician with physical critique
     diag_iters++
+    log_counter_event(diag_iters, "reviewer", iter)
     re-run Judge (fresh iteration counter) → re-run Reporter → re-run Reviewer
 ```
+
+**Counter persistence — file-backed diag_iters:**
+
+The global counter `diag_iters` is NOT a main-agent-memory-only variable. It is tracked in the pipeline event log for crash resilience:
+
+1. **Initialization**: Before Step 5, the main agent reads `RUN_DIR/.pipeline_events.jsonl` and counts existing `event: "repair_spawn"` entries to restore `diag_iters`. If no entries exist, `diag_iters = 0`.
+
+2. **After each re-diagnosis spawn**: The main agent appends a counter event:
+   ```jsonl
+   {"event": "repair_spawn", "iteration": 1, "source": "judge", "source_iteration": 1, "diag_iters_total": 1, "timestamp": "..."}
+   ```
+
+3. **Recovery on reconnection**: Read the event log, sum all `repair_spawn` events to get the current `diag_iters`. This ensures the counter survives main-agent disconnections, context compaction, and process restarts.
+
+4. **When global cap is reached**: Log a final event:
+   ```jsonl
+   {"event": "repair_cap_reached", "diag_iters_total": 5, "reason": "Global re-diagnosis cap (5) exceeded", "timestamp": "..."}
+   ```
 
 **Rules:**
 - Each re-diagnosis spawn increments `diag_iters`. When `diag_iters >= 5`, stop ALL repair loops.
 - When Reviewer repair triggers Diagnostician re-spawn, the subsequent Judge run starts with a fresh Judge iteration counter (no carryover).
 - When the global cap is hit: present results with a `[REPAIR_CAP_REACHED]` caveat explaining what was unresolved.
-- The main agent tracks `diag_iters` across the entire pipeline run.
+- **The counter is file-persisted** — if the main agent's state resets (context compaction, disconnection), the counter is restored from `.pipeline_events.jsonl`.
 
 ### Step 8: Present Results (MAIN)
 

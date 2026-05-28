@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Analysis Schema v6.0",
-  "description": "Schema for v6.0 diagnostic analysis results (Competing Hypotheses Protocol). Used as supplementary validation for feature_summary.json integration.",
+  "description": "Schema for the consolidated diagnostic analysis document that combines statistical findings (from Data Processor: feature_summary.json + validate_report.json) with diagnostic conclusions (from Diagnostician: diagnosis.json + evidence.json). This is an integration/export schema for downstream systems that need a single unified analysis file — no individual agent produces this file directly. To validate individual agent outputs, use diagnosis_schema.json, evidence_schema.json, and confidence_schema.json respectively.",
   "type": "object",
   "required": ["run_id", "analysis_time", "data_characterization", "statistical_findings", "hypotheses", "conclusion"],
   "properties": {

@@ -73,17 +73,60 @@ Before looking at any plot or statistic, understand the data quality:
 2. **Simpson's Paradox** (`simpson_paradox[]`): Direction reversals in subgroups → aggregate correlations are confounded
 3. **Time-trend confounding** (`time_trend_confounding[]`): attenuation > 50% → correlation is time-drift, not coupling
 4. **Outlier sensitivity** (`outlier_sensitivity[]`): outlier_driven = true → correlation from few extreme points
-5. **Change points** (`change_point_detection[]`): Regime shifts → correlations across boundaries may be spurious
+5. **Change points** (`change_point_detection[]`): Regime shifts → correlations across boundaries may be spurious. **If change points exist, re-verify core correlations within each regime segment.**
 6. **Granger causality**: Only valid if time-sorted. If not → ignore entirely
 
-### 0.5 Check Parameter Physical Meaning
+### 0.5 Change-Point Segment Verification Protocol (MANDATORY when change points detected)
+
+**Purpose**: Correlations computed across regime shift boundaries can be deceptive. A strong aggregate r may conceal the fact that the relationship is only present in some regimes and absent in others. This protocol eliminates a common failure mode: diagnosing a parameter-defect relationship as UNIVERSAL when it is actually REGIME-SPECIFIC.
+
+**When to run**: If `validate_report.json.change_point_detection[]` contains entries with `severity: CRITICAL` or `segment_count > 5`, run this protocol.
+
+**If NO change points detected or no entries are CRITICAL**, note in reasoning chain R3: "No significant change points — single-regime analysis sufficient."
+
+#### 0.5.1 Per-Segment Correlation Re-Verification
+
+For EACH parameter-defect pair identified as a candidate in Phase 1.3, re-verify within the regime segments detected by the change-point algorithm:
+
+```
+1. Extract regime boundary indices from validate_report.json.change_point_detection[]
+2. Split the dataset into regime segments (between adjacent change point boundaries)
+3. Within EACH segment, compute the same correlation metrics:
+   - Pearson r, Spearman ρ, detrended r
+4. Classify each parameter-defect pair:
+
+| Pattern | Segment Behavior | Classification |
+|---------|----------------|---------------|
+| ALL_PRESENT | |r| > 0.2 in ≥80% of segments | REGIME_UNIVERSAL — relationship robust to regime shifts |
+| MOST_PRESENT | |r| > 0.2 in 50-80% of segments | REGIME_CONSISTENT — relationship mostly preserved, note absent segments |
+| PARTIAL | |r| > 0.2 in 20-50% of segments | REGIME_SPECIFIC — relationship present only in specific regimes, investigate why |
+| ABSENT | |r| > 0.2 in <20% of segments | REGIME_SPURIOUS — aggregate correlation is an artifact of regime mixing |
+```
+
+#### 0.5.2 Segment-Aware Parameter Adjustment
+
+For parameters classified as REGIME_SPECIFIC or REGIME_SPURIOUS:
+- **REGIME_SPECIFIC**: Lower confidence by 10-15 points. Document which regimes support the relationship and which don't.
+- **REGIME_SPURIOUS**: Flag as exclusion candidate. If the relationship only appears because of between-regime differences (analogous to between-product confounding), it is NOT a causal mechanism.
+- **ALL_PRESENT / REGIME_UNIVERSAL**: Add +5 to confidence — the relationship survived the strictest independence check.
+
+#### 0.5.3 Cross-Reference with Product Stratification
+
+Change-point regimes often coincide with product/model switches. When both change points AND product column exist:
+- Check whether regime boundaries align with product transitions
+- If YES → the regime shifts ARE the product switches → stratify by product (Phase 2) rather than regime
+- If NO → these are additional, product-internal regime shifts → BOTH types of segmentation should be checked
+
+### 0.6 Check Parameter Physical Meaning
+
+After completing the change-point segment verification (0.5), check parameter physical meanings:
 
 Read `00_input/clarification_needed.json` if it exists:
 - Parameters with confirmed physical meaning → use confidently in mechanism construction
 - Parameters marked unknown → any hypothesis relying on them gets `[PARAM_AMBIGUITY]` marker and -15 to -25 confidence reduction
 - If a CRITICAL parameter has unknown meaning, note this as a fundamental analysis limitation
 
-### 0.6 Read Repair Instructions (if present)
+### 0.7 Read Repair Instructions (if present)
 
 If REPAIR_INSTRUCTIONS is provided, read `RUN_DIR/05_review/judge_feedback.json` and address each blocking issue before proceeding.
 
@@ -117,6 +160,7 @@ Read every plot listed in `03_figures/plot_manifest.json`. Plots are your primar
 | Stratified correlation | Do subgroups agree on direction? If not → Simpson's Paradox |
 | Detrended comparison | Does correlation survive detrending? If not → time-trend confound |
 | Per-product timeseries | Do defects rise WITHIN a single product run, or just differ BETWEEN products? |
+| Change-point regime plot | Does the core correlation persist WITHIN each regime segment, or is it a between-regime artifact? |
 
 ### 1.3 Extract Candidate Defect-Linked Parameters from Visuals and Features
 
@@ -137,6 +181,7 @@ From the visual evidence (all plots read above) and statistical features (featur
 - Validation shows `outlier_driven: true` AND no physical mechanism
 - Attenuation > 50% without correction (time-trend confounded)
 - \|r_subgroup\| < 0.1 AND product column exists (pattern is purely between-product)
+- Classified REGIME_SPURIOUS (Phase 0.5) — correlation collapses in ≥80% of change-point regime segments
 
 **Output: Candidate Parameter Table**
 
@@ -732,6 +777,7 @@ Before writing ANY conclusion:
 - [ ] Have I run the QUANTITATIVE FEASIBILITY CHECK?
 - [ ] Did I check the VALIDATION REPORT for counter-evidence?
 - [ ] **Did I check if ALTERNATIVE HYPOTHESES predict the SAME observables?** (Step C)
+- [ ] **Did I verify core correlations WITHIN each change-point regime segment?** (Phase 0.5)
 - [ ] Is the evidence RANK cited?
 - [ ] Is this conclusion FALSIFIABLE? (what would disprove it?)
 - [ ] Am I using [INFERRED] not [OBSERVED] for deductions?

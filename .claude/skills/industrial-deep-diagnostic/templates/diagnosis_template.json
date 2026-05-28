@@ -1,90 +1,228 @@
 {
   "run_id": "2025-01-15T103000_bopet-thickness-anomaly",
   "diagnosis_time": "2025-01-15T12:45:00Z",
-  "primary_diagnosis": "BOPET film thickness deviation (CD profile) caused by TDO zone-3 heater degradation producing non-uniform transverse stretching",
-  "causal_chain": [
-    {
-      "step": 1,
-      "event": "TDO zone-3 temperature drops 8°C below setpoint while zones 1-2 and 4-5 remain stable",
-      "evidence_type": "OBSERVATION",
-      "variable": "TDO_zone3_temp",
-      "observed_behavior": "Step decline from 215°C to 207°C starting at row 3400",
-      "physical_mechanism": "Heater element degradation reduces radiative heat transfer to stretching film",
-      "evidence_rank": 2,
-      "evidence_source": "02_processed/feature_summary.json — TDO_zone3_temp statistical summary"
-    },
-    {
-      "step": 2,
-      "event": "Film edges show thickness increase (+0.6 µm) while center thins (-0.4 µm), creating M-shaped CD profile",
-      "evidence_type": "OBSERVATION",
-      "variable": "thickness_cd_profile",
-      "observed_behavior": "Symmetric edge-thick / center-thin deviation from flat target",
-      "physical_mechanism": "Non-uniform temperature across web width causes differential draw ratio in transverse direction",
-      "evidence_rank": 3,
-      "evidence_source": "03_figures/02_thickness_cd_profile.png"
-    },
-    {
-      "step": 3,
-      "event": "Thickness deviation onset lags TDO temperature shift by approximately 45 seconds (15 rows at 3s sampling)",
-      "evidence_type": "INFERENCE",
-      "variable": "thickness_vs_TDO_zone3_temp",
-      "observed_behavior": "Cross-correlation peak at lag 15 rows",
-      "physical_mechanism": "Thermal mass of film and transport delay between TDO and thickness gauge",
-      "evidence_rank": 4,
-      "evidence_source": "04_diagnostics/evidence.json — lagged correlation analysis"
-    }
-  ],
-  "hypotheses": [
-    {
-      "id": "H1",
-      "name": "TDO zone-3 heater degradation",
-      "is_primary": true,
-      "confidence": 82,
-      "physical_mechanism": "Aging heater element in TDO zone 3 reduces temperature below setpoint, causing non-uniform transverse stretching and M-shaped CD thickness profile",
-      "supporting_evidence": [
-        {"rank": 2, "source": "02_processed/feature_summary.json", "detail": "TDO_zone3_temp mean dropped 8°C with stable variance — consistent with heater output loss"},
-        {"rank": 4, "source": "03_figures/02_thickness_cd_profile.png", "detail": "M-shaped CD profile correlates temporally with zone-3 temperature drop"}
-      ],
-      "contradicting_evidence": [],
-      "testable_predictions": [
-        "Replacing zone-3 heater element should restore uniform CD profile within 30 minutes of stabilization",
-        "IR thermography of zone-3 should show cold spot on the affected heater bank"
-      ]
-    },
-    {
-      "id": "H2",
-      "name": "Raw material (resin) melt index variation",
-      "is_primary": false,
-      "confidence": 28,
-      "physical_mechanism": "Batch-to-batch melt flow index variation changes extrusion die swell behavior",
-      "supporting_evidence": [
-        {"rank": 6, "source": "EXTERNAL KNOWLEDGE", "detail": "Melt index variation is a known cause of thickness non-uniformity in BOPET processes"}
-      ],
-      "contradicting_evidence": [
-        {"detail": "Thickness deviation correlates with TDO zone-3 temperature, not with extruder parameters", "significance": "Weakens resin-based explanation"}
-      ],
-      "testable_predictions": [
-        "If resin batch changed, extruder pressure and melt temperature should also shift — they did not"
-      ]
-    }
-  ],
-  "spatial_analysis": {
-    "anomaly_center_position_mm": 450,
-    "anomaly_width_mm": 1200,
-    "affected_zone": "Transverse edges (positions 0-200mm and 700-900mm from center)",
-    "pattern": "Symmetric M-profile (edges thickened, center thinned)",
-    "edges_affected": true
+  "diagnosis_type": "COMPETING_SET",
+  "primary_finding": "BOPET 膜厚偏差由 TDO zone-3 加热器退化和/或树脂熔融指数批次变化共同导致 — 当前数据无法区分这两种假设",
+
+  "product_stratified_analysis": {
+    "has_product_column": true,
+    "products_found": ["PET_12um", "PET_23um", "PET_50um"],
+    "overall_vs_per_product_comparison": [
+      {
+        "parameter": "TDO_zone3_temp",
+        "overall_r": -0.72,
+        "per_product_r": {
+          "PET_12um": -0.68,
+          "PET_23um": -0.71,
+          "PET_50um": -0.70
+        },
+        "consistency_class": "UNIVERSAL",
+        "conclusion": "TDO zone-3 温度与膜厚偏差的相关在各产品中一致成立"
+      },
+      {
+        "parameter": "extruder_pressure",
+        "overall_r": 0.45,
+        "per_product_r": {
+          "PET_12um": 0.12,
+          "PET_23um": 0.08,
+          "PET_50um": 0.95
+        },
+        "consistency_class": "PRODUCT_SPECIFIC",
+        "conclusion": "挤出机压力仅在 PET_50um 中与膜厚偏差相关 — 整体 r=0.45 主要由此产品驱动"
+      }
+    ],
+    "analysis_scope": "overall_and_per_product"
   },
-  "temporal_analysis": {
-    "anomaly_onset": "2025-01-15T10:52:15Z",
-    "anomaly_onset_row": 3400,
-    "total_duration_minutes": 45,
-    "sampling_interval_sec": 3,
-    "response_lag": "45 seconds (15 rows) after TDO zone-3 temperature shift",
-    "degradation_rate": "Gradual over first 10 minutes, then stable at deviated level"
+
+  "hypotheses": {
+    "surviving": [
+      {
+        "id": "H1",
+        "name": "TDO zone-3 加热器性能退化",
+        "mechanism_class": "WEAR",
+        "root_physical_cause": "加热元件老化导致 zone-3 辐射热通量下降 15-20%，横向拉伸不均匀",
+        "physical_logic_chain": [
+          {
+            "link": "加热元件电阻随时间上升 → 实际热输出低于设定值",
+            "evidence_status": "INFERRED",
+            "quantification": "正常热通量约 8.5 kW/m² → 退化后约 6.8-7.2 kW/m² (降低 15-20%)"
+          },
+          {
+            "link": "zone-3 实际膜面温度下降约 8°C → 横向拉伸比分布改变",
+            "evidence_status": "OBSERVED",
+            "quantification": "zone-3 热电偶读数从 215°C 降至 207°C (测量值)"
+          },
+          {
+            "link": "非均匀横向拉伸 → M 形横截面厚度轮廓 (边缘厚 +0.6μm, 中心薄 -0.4μm)",
+            "evidence_status": "OBSERVED",
+            "quantification": "CD 轮廓偏差 ±0.6μm (相对 23μm 目标)"
+          }
+        ],
+        "chain_quality": "ACTIONABLE_HYPOTHESIS",
+        "confidence": 52,
+        "confidence_adjustments": [
+          {
+            "reason": "H2 预测的观测数据与 H1 相同 — COMPETING_SET 置信度上限 65",
+            "adjustment": -13,
+            "source": "discriminability_matrix"
+          },
+          {
+            "reason": "缺少直接热成像数据验证加热器表面温度分布",
+            "adjustment": -10,
+            "source": "data_gaps"
+          }
+        ],
+        "supporting_evidence": [
+          {
+            "rank": 1,
+            "source": "02_processed/feature_summary.json",
+            "detail": "TDO_zone3_temp 均值下降 8°C，方差稳定 — 与加热器输出损失一致"
+          },
+          {
+            "rank": 4,
+            "source": "03_figures/02_thickness_cd_profile.png",
+            "detail": "M 形 CD 轮廓与 zone-3 温度下降时序对齐"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "detail": "无 zone-3 加热器功率/电流直接测量数据",
+            "significance": "无法确认退化速率是否符合加热元件典型寿命曲线"
+          }
+        ],
+        "predicted_observables": [
+          "zone-3 温度逐步下降 (非突变)",
+          "M 形 CD 厚度轮廓",
+          "边缘区域膜厚增加"
+        ],
+        "falsification_conditions": [
+          "更换 zone-3 加热器后 CD 轮廓应在 30 分钟内恢复正常",
+          "如果红外热像未显示 zone-3 冷点，则排除 H1"
+        ],
+        "consistency_across_products": "UNIVERSAL",
+        "product_specific_notes": {
+          "PET_12um": "温度-膜厚 r=-0.68 (强)",
+          "PET_23um": "温度-膜厚 r=-0.71 (强)",
+          "PET_50um": "温度-膜厚 r=-0.70 (强)"
+        }
+      },
+      {
+        "id": "H2",
+        "name": "树脂熔融指数批次波动",
+        "mechanism_class": "CONTAMINATION",
+        "root_physical_cause": "原料批次间熔融指数 (MFI) 差异 (±1.5 g/10min) 改变挤出模头膨胀行为，影响拉伸前膜片厚度均匀性",
+        "physical_logic_chain": [
+          {
+            "link": "树脂 MFI 批次差异 → 挤出机内熔体黏度变化",
+            "evidence_status": "KNOWN_PHYSICS",
+            "quantification": "MFI ±1.5 g/10min 对应熔体黏度变化约 8-12% (Carreau 模型估算)"
+          },
+          {
+            "link": "熔体黏度变化 → 模头出口膜片厚度分布改变",
+            "evidence_status": "INFERRED",
+            "quantification": "模头膨胀比变化约 3-5% (Tanner 模型)"
+          },
+          {
+            "link": "膜片初始厚度分布变化 → 拉伸后 CD 轮廓偏差",
+            "evidence_status": "INFERRED",
+            "quantification": "拉伸比 3.5× → 初始 ±2% 偏差放大至约 ±5-7%"
+          }
+        ],
+        "chain_quality": "PLAUSIBLE_HYPOTHESIS",
+        "confidence": 48,
+        "confidence_adjustments": [
+          {
+            "reason": "与 H1 的观测预测无法区分 — COMPETING_SET 置信度上限 65",
+            "adjustment": -17,
+            "source": "discriminability_matrix"
+          }
+        ],
+        "supporting_evidence": [
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "膜厚偏差在树脂批次切换边界出现台阶变化"
+          },
+          {
+            "rank": 6,
+            "source": "EXTERNAL KNOWLEDGE",
+            "detail": "熔融指数批次变化是 BOPET 膜厚均匀性的已知影响因子"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "detail": "无直接 MFI 批次测量数据",
+            "significance": "仅能间接推断 — 批次切换时间与膜厚变化关联"
+          }
+        ],
+        "predicted_observables": [
+          "膜厚偏差在批次切换点出现台阶变化",
+          "挤出机压力和熔体温度可能同步变化",
+          "CD 轮廓形状与拉伸参数设定相关但与加热器状态无关"
+        ],
+        "falsification_conditions": [
+          "如果在同一批次内也观察到同等的膜厚波动 → H2 被削弱",
+          "如果在另一批次的相同 MFI 范围内未出现类似偏差 → H2 被排除"
+        ],
+        "consistency_across_products": "CONSISTENT_WEAK",
+        "product_specific_notes": {
+          "PET_12um": "批次切换仅 3 次，统计功效不足",
+          "PET_50um": "批次切换时厚度变化不明显 (0.2μm)"
+        }
+      }
+    ],
+
+    "competing_sets": [
+      {
+        "set_id": "CS1",
+        "hypotheses": ["H1", "H2"],
+        "discriminability": "INDISTINGUISHABLE",
+        "cross_product_discriminability": "PARTIALLY_DISCRIMINABLE",
+        "reason": "H1 (温度变化) 和 H2 (批次变化) 在时间上共线 — 温度下降恰好与树脂批次切换时间重合。两种假设预测相同的 M 形 CD 轮廓。当前数据传感器集无法区分。",
+        "discriminating_data_needed": "需以下之一: (a) TDO zone-3 加热器功率/电流直接测量数据, (b) 每批次树脂 MFI 实测值, (c) 红外热像确认加热器表面温度分布",
+        "confidence_ceiling": 65
+      }
+    ],
+
+    "eliminated": [
+      {
+        "hypothesis_id": "H3_line_speed",
+        "exclusion_type": "STATISTICAL",
+        "specific_evidence": "线速变化 < 0.1% (σ=0.03 m/min) 在整个异常窗口内 — 不足以产生 ±0.6μm 的 CD 偏差",
+        "exclusion_confidence": 98,
+        "revival_condition": "如果有证据表明线速编码器故障导致虚假稳定读数"
+      }
+    ]
   },
-  "ruled_out": [
-    "Line speed variation — speed signal was constant within 0.1% throughout anomaly window",
-    "Extruder pressure fluctuation — pressure stable, no correlation with thickness deviation"
+
+  "evidence_summary": {
+    "visual_evidence_count": 8,
+    "numerical_evidence_count": 15,
+    "physical_evidence_count": 4,
+    "validation_evidence_count": 3
+  },
+
+  "data_gaps": [
+    "缺少 TDO 各 zone 加热器功率/电流数据 — 无法确认加热器退化速率",
+    "缺少每批次树脂 MFI 实测值 — 仅能推断批次-质量关联",
+    "缺少红外热像或膜面温度分布数据 — 温度-膜厚关系仅为点测量",
+    "产品 PET_12um 仅 3 次批次切换 — 批次效应统计功效不足"
+  ],
+
+  "discriminability_matrix": [
+    {
+      "pair": ["H1", "H2"],
+      "classification": "INDISTINGUISHABLE",
+      "discriminating_signal": "加热器功率/电流 vs 树脂 MFI 实测值",
+      "discriminating_signal_available": false,
+      "cross_product_finding": "PET_50um 中温度-膜厚 r=-0.70 强于 PET_12um 的 r=-0.68 → 弱偏向 H1，但不构成决定性区分"
+    },
+    {
+      "pair": ["H1", "H3_line_speed"],
+      "classification": "ONE_SIDE_EXCLUDED",
+      "discriminating_signal": "线速方差 — H3 预测线速变化，实际 σ=0.03 m/min",
+      "discriminating_signal_available": true,
+      "cross_product_finding": null
+    }
   ]
 }

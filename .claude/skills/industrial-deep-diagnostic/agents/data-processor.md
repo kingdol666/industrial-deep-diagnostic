@@ -340,11 +340,56 @@ If the visualization script fails, follow this recovery sequence:
 2. Note in `plot_manifest.json`: `{"error": "Visualization partially failed"}`
 3. Continue with whatever plots succeeded
 
-## Step 6: Write Plot Manifest
+## Step 6: Write Plot Manifest and Image Captions
 
-The manifest is written automatically by `write_plot_manifest()` at the end of the script.
+The plot manifest is written automatically by `write_plot_manifest()` at the end of the script.
 
-**Verify** that `RUN_DIR/03_figures/plot_manifest.json` was created and is valid JSON.
+After the visualization script completes, generate a companion `image_captions.json` file for reliable fallback when PNG rendering is unavailable:
+
+```bash
+# Generate structured image captions from plot_manifest.json + feature_summary.json
+node SKILL_PATH/scripts/generate_captions.mjs RUN_DIR 2>&1 || echo "Captions generation skipped — will use plot descriptions from manifest"
+```
+
+If `generate_captions.mjs` does not exist, generate `image_captions.json` manually from the plot manifest and statistical features. Each entry MUST include:
+
+```json
+{
+  "generated_at": "2026-05-28T12:00:00Z",
+  "figures": {
+    "fig_01_correlation_heatmap.png": {
+      "figure_id": "fig_01",
+      "title": "参数-缺陷相关热力图",
+      "chart_type": "heatmap",
+      "axes": {"x": "14 numeric columns", "y": "14 numeric columns", "color": "Pearson r"},
+      "key_observations": [
+        "spindle_vibration_mm_s 与 surface_roughness_Ra_um 的 r=0.99 (极强正相关)",
+        "spindle_temp_C 与 dimensional_deviation_mm 的 r=0.99",
+        "hardness_HV 与 process params 的 r≈0.9 (但这是 Simpson's Paradox — 按 material 分组后 r≈0)"
+      ],
+      "trend_shapes": "温度类参数和振动类参数各自形成簇",
+      "validation_issues": ["hardness_HV 相关是 Simpson's Paradox (aggregate r≈0.9, within-material r≈0)"],
+      "description": "全数值列的相关热力图，使用 Pearson 相关系数。红=正相关，蓝=负相关。"
+    },
+    "...": "One entry per figure in 03_figures/"
+  }
+}
+```
+
+**Entry fields definition:**
+
+| Field | Content |
+|-------|---------|
+| `figure_id` | Matching ID from plot_manifest.json |
+| `title` | Figure title (matching plot_manifest.json) |
+| `chart_type` | heatmap, scatter, line, bar, box, timeseries, overlap, contour |
+| `axes` | What each axis represents, with units |
+| `key_observations` | List of the MOST IMPORTANT visible patterns (3-5 bullets with actual numbers) |
+| `trend_shapes` | Overall trend shapes visible (linear drift, step, oscillation, clusters, outliers) |
+| `validation_issues` | Any validation flags visible in this plot (empty array if none) |
+| `description` | One-paragraph summary suitable for a reader who cannot see the image |
+
+**Verify** that `RUN_DIR/03_figures/plot_manifest.json` was created and is valid JSON, and that `image_captions.json` exists with all figures covered.
 
 ## Output Contract
 
@@ -359,6 +404,7 @@ Must exist when done:
 02_processed/data_quality_report.json
 03_figures/*.png                          ← ALL generated plots (including validation plots)
 03_figures/plot_manifest.json
+03_figures/image_captions.json             ← Structured descriptions for every figure (fallback when PNG rendering unavailable)
 06_scripts/visualize.py
 06_scripts/preprocess.py
 ```

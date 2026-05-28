@@ -130,7 +130,7 @@ Context Builder ──► 01_ontology/ontology.json, schema.json
 User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/feature_summary.json
                 ──► 02_processed/validate_report.json
-                ──► 03_figures/*.png + plot_manifest.json
+                ──► 03_figures/*.png + plot_manifest.json + image_captions.json
 Diagnostician   ──► 04_diagnostics/diagnosis.json
                 ──► 04_diagnostics/evidence.json
                 ──► 04_diagnostics/confidence.json
