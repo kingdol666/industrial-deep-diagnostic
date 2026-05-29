@@ -1,0 +1,124 @@
+{
+  "overall_score": 98,
+  "verdict": "pass",
+  "criteria_scores": {
+    "data_quality_awareness": {
+      "score": 9,
+      "notes": "数据完整(0缺失, 1500行), 时间排序已验证(100%递增), 异常值驱动检测已引用。轻微扣分: 未单独讨论surface_defect_grade的分布特征, 但整体质量意识出色。"
+    },
+    "variable_classification": {
+      "score": 10,
+      "notes": "所有21列参数均已分类, 5个质量目标/10个工艺参数/3个分组列清晰标识, 材料(group列)用于分层分析, 分类与ontology.json完全一致。"
+    },
+    "time_alignment_and_sorting": {
+      "score": 10,
+      "sorting_validated": true,
+      "notes": "数据已确认时间排序(time_sorted=true, increasing_pct=100), 滞后分析和格兰杰因果分析有效。排序验证结果已引用。"
+    },
+    "visualization_quality": {
+      "score": 9,
+      "notes": "引用7张图表(时序图/相关热图/Simpson散点图/缺陷相关图/温度剖面/刀具磨损/材料对比), 每张都有evidence_rank和implication说明。无法实地验证图表文件质量, 但引用规范且一致。"
+    },
+    "evidence_based_conclusions": {
+      "score": 10,
+      "validation_report_consulted": true,
+      "notes": "每个结论均引用具体证据源和rank(1-6), validate_report.json的Simpson悖论/时间混杂/异常值敏感性/变化点/排序验证等所有关键发现均已纳入。证据分层正确。"
+    },
+    "correlation_vs_causation": {
+      "score": 10,
+      "simpson_checked": true,
+      "trend_checked": true,
+      "notes": "明确区分相关与因果: 近端链(振动→粗糙度)满足全部5条因果标准(时序先行/统计显著/多lag一致/物理机制/无矛盾), 但根因(H1 vs H2)标记为不可区分。Simpson悖论(硬度)和时间混杂均已检查和排除。"
+    },
+    "uncertainty_disclosure": {
+      "score": 10,
+      "notes": "置信度分解清晰(5维打分+调整日志), 认知性(epistemic)与偶然性(aleatory)不确定性分离, 证据缺口列出6项, 数据需求具体可操作(FFT频谱/受控实验/轴承维护记录等)。"
+    },
+    "report_quality": {
+      "score": 10,
+      "notes": "自洽无矛盾, [OBSERVED]/[INFERENCE]/[UNCERTAINTY]标记使用正确, 语言模板规范。三层结论分类(DETERMINED/COMPETING_SET/排除)清晰。"
+    },
+    "no_over_claiming": {
+      "score": 10,
+      "blocking_issues": 0,
+      "violations": [],
+      "notes": "无过度声称违规。未对不可区分假设(H1 vs H2)指定单一根因, 置信度上限65遵守v6.0规则, Simpson悖论已识别, 去趋势分析已检查, 变化点证据已讨论, 所有参数物理意义明确(无需[PARAM_AMBIGUITY])。"
+    },
+    "completeness": {
+      "score": 10,
+      "notes": "所有必需输出齐全(diagnosis.json/evidence.json/confidence.json/reasoning_chain.json), validate_report.json已充分引用, 假设演化路径完整记录。"
+    }
+  },
+  "reasoning_chain_audit": {
+    "score": 9.5,
+    "checks": {
+      "completeness": {
+        "passed": true,
+        "issues": []
+      },
+      "evidence_grounding": {
+        "passed": true,
+        "issues": []
+      },
+      "counterfactual_adequacy": {
+        "passed": true,
+        "issues": [
+          "Step E(诊断结论)的alternatives_considered为空数组, 但结论步骤中替代方案已在之前步骤充分讨论, 不影响整体质量。"
+        ]
+      },
+      "falsifiability": {
+        "passed": true,
+        "issues": []
+      },
+      "hallucination_audit": {
+        "passed": true,
+        "issues": [
+          "检查了3条结论: (1)振动→粗糙度近端因果(r=0.993, 三类一致) — 有具体数据支撑, rank正确 [PASS]; (2)振动-温度共线(r=0.967)不可区分 — 有数据支撑 [PASS]; (3)硬度Simpson悖论 — validate_report佐证, 排除合理 [PASS]。"
+        ]
+      },
+      "uncertainty_decomposition": {
+        "passed": true,
+        "issues": []
+      }
+    },
+    "blocking_issues": [],
+    "warnings": []
+  },
+  "blocking_issues": [],
+  "repair_instructions": {
+    "summary": "无需修复 — 诊断通过所有质量检查。",
+    "steps_to_rerun": [],
+    "key_changes": []
+  },
+  "warnings": [],
+  "evidence_gaps": [
+    "无高频振动FFT数据 — 无法区分轴承故障特征频率与热不平衡频率",
+    "无刀具磨损直接测量(如刀具后刀面磨损量VB) — 无法精确评估刀具状态",
+    "无主轴轴承型号和维护记录 — 无法进行轴承寿命计算",
+    "无受控实验(冷启动、更换轴承后的对比数据) — 无法验证因果方向",
+    "无刀具更换事件标记 — 无法确认粗糙度短期波动来源",
+    "19种刀具使用全局tool_age而非各自独立tool_age — 可能低估刀具磨损效应"
+  ],
+  "strengths": [
+    "完整实施了v6.0竞争假设协议5步推理流程(A→E), 逻辑链清晰可追溯",
+    "近端因果链(振动→粗糙度)提供多重统计验证: r=0.993(三类一致), 去趋势后r=0.969(2.4%衰减), 格兰杰F=307, 分层验证普适",
+    "正确识别CS1(H1轴承磨损 vs H2热效应)为INDISTINGUISHABLE, 置信度上限65遵守v6.0规则",
+    "全面排除5个竞争假设(H3/H5/H6/硬度/冷却液流量), 均提供量化排除置信度(92-99/100)",
+    "不确定性分解优秀: 认知性(epistemic)与偶然性(aleatory)清晰分离, 6项可操作数据需求",
+    "Simpson悖论(硬度-工艺参数)被正确识别为CRITICAL级别, 并归类为材料固有属性排除",
+    "跨材料分层分析(L7075/SS304/TI6AL4V)确认振动→粗糙度为普适物理机制",
+    "置信度调整日志完整记录5次调整(-15, -10, +10, +5, +5)及其触发步骤",
+    "自证弱点(reasoning_weaknesses)包含缓解措施和残余风险评估"
+  ],
+  "validation_findings_cited": [
+    "sorting_validation: time_sorted=true, 100%递增",
+    "simpson_paradox: 硬度CRITICAL悖论(spindle_speed/feed_rate/cutting_force→hardness)已引用和处理",
+    "time_trend_confounding: 振动→粗糙度衰减仅2.4%, 温度→粗糙度衰减16.3%, 冷却液→粗糙度衰减42%, day代理变量排除",
+    "outlier_sensitivity: 振纹(chatter_mark_count)所有相关100%异常值驱动已标注",
+    "distribution_analysis: chatter_mark_count零膨胀分布已标注",
+    "change_point_detection: 振动5个段/粗糙度56个段/温度3个段/振纹44个段均已引用",
+    "data_quality_report: 0缺失值, 1500行, 已排序"
+  ],
+  "iteration": 1,
+  "max_iterations": 3
+}

@@ -1,0 +1,50 @@
+{
+  "process": {
+    "type": "CNC Machining",
+    "operation": "Milling",
+    "materials": [
+      {"id": "AL7075", "type": "Aluminum Alloy", "hardness_range_HV": "150-180"},
+      {"id": "SS304", "type": "Stainless Steel", "hardness_range_HV": "240-260"},
+      {"id": "TI6AL4V", "type": "Titanium Alloy", "hardness_range_HV": "370-390"}
+    ],
+    "tools": {
+      "count": 19,
+      "ids": ["T001-T019"],
+      "max_life_parts": 80
+    },
+    "shifts": [1, 2],
+    "days": 30,
+    "total_parts": 1500
+  },
+  "parameters": {
+    "process": {
+      "spindle_speed_rpm": {"unit": "rpm", "range": [5631, 12326], "category": "cutting", "physical_meaning": "Spindle rotational speed"},
+      "feed_rate_mm_min": {"unit": "mm/min", "range": [1277, 3218], "category": "cutting", "physical_meaning": "Table feed rate"},
+      "depth_of_cut_mm": {"unit": "mm", "range": [0.5, 2.0], "category": "cutting", "physical_meaning": "Axial depth of cut"},
+      "coolant_flow_l_min": {"unit": "L/min", "range": [9.04, 14.59], "category": "coolant", "physical_meaning": "Coolant flow rate"},
+      "coolant_temp_C": {"unit": "°C", "range": [21.8, 32.4], "category": "coolant", "physical_meaning": "Coolant temperature at inlet"},
+      "spindle_temp_C": {"unit": "°C", "range": [32.5, 76.3], "category": "thermal", "physical_meaning": "Spindle bearing/motor temperature"},
+      "spindle_vibration_mm_s": {"unit": "mm/s", "range": [0.1, 6.25], "category": "dynamic", "physical_meaning": "Spindle housing vibration velocity"},
+      "cutting_force_N": {"unit": "N", "range": [485.5, 1384.7], "category": "cutting", "physical_meaning": "Resultant cutting force"},
+      "ambient_temp_C": {"unit": "°C", "range": [14.1, 27.0], "category": "environment", "physical_meaning": "Workshop ambient temperature"},
+      "tool_age_parts": {"unit": "parts", "range": [0, 79], "category": "wear", "physical_meaning": "Number of parts machined by current tool"}
+    },
+    "quality": {
+      "surface_roughness_Ra_um": {"unit": "µm", "range": [0.536, 2.899], "target": "<1.0", "USL": 2.5},
+      "chatter_mark_count": {"unit": "count", "range": [0, 13], "target": "0", "description": "Number of chatter marks on surface"},
+      "dimensional_deviation_mm": {"unit": "mm", "range": [0.0, 0.1224], "target": "<0.05", "USL": 0.12},
+      "hardness_HV": {"unit": "HV", "range": [142.6, 400.3], "description": "Surface hardness, material-dependent"},
+      "surface_defect_grade": {"type": "ordinal", "values": ["A", "B", "C"], "A": "acceptable", "B": "marginal", "C": "reject"}
+    }
+  },
+  "known_relationships": {
+    "tool_wear_signatures": ["increased_cutting_force", "elevated_spindle_temp", "increased_vibration", "poorer_surface_finish"],
+    "thermal_effects": ["coolant_temp_rise_reduces_heat_removal", "spindle_temp_rise_indicates_bearing_wear_or_thermal_growth"],
+    "vibration_sources": ["tool_wear", "spindle_bearing_degradation", "chatter", "imbalance", "workpiece_fixture_issues"],
+    "material_machinability": {
+      "AL7075": "highest_machinability_low_force",
+      "SS304": "moderate_machinability_work_hardening",
+      "TI6AL4V": "lowest_machinability_high_heat_generation"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "figures": [
+    {
+      "file": "01_quality_trends.png",
+      "title": "Quality Metrics over Production Sequence",
+      "description": "Surface roughness, chatter marks, dimensional deviation, and hardness trends across 1500 parts"
+    },
+    {
+      "file": "02_correlation_heatmap.png",
+      "title": "Process-Quality Correlation Heatmap",
+      "description": "Pearson correlation between process parameters and quality metrics"
+    },
+    {
+      "file": "03_params_by_grade.png",
+      "title": "Key Process Parameters by Defect Grade",
+      "description": "Box plots of spindle vibration, temperature, coolant temp, cutting force, tool age, spindle speed across grades A/B/C"
+    },
+    {
+      "file": "04_tool_age_effect.png",
+      "title": "Tool Age vs Defect Rate",
+      "description": "Defect rate and surface roughness as function of tool age"
+    },
+    {
+      "file": "05_spindle_temp_vib_trend.png",
+      "title": "Spindle Temp + Vibration Trend",
+      "description": "Dual-axis scatter of spindle temperature and vibration colored by defect grade"
+    }
+  ]
+}

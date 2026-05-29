@@ -1,0 +1,41 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "plots": [
+    {
+      "file": "01_defect_timeseries.png",
+      "description": "\u8d28\u91cf\u6307\u6807\u968f\u65f6\u95f4\u53d8\u5316\u65f6\u95f4\u5e8f\u5217",
+      "type": "timeseries"
+    },
+    {
+      "file": "02_correlation_heatmap.png",
+      "description": "\u5de5\u827a\u53c2\u6570\u4e0e\u8d28\u91cf\u6307\u6807\u76f8\u5173\u77e9\u9635",
+      "type": "heatmap"
+    },
+    {
+      "file": "03_simpson_paradox.png",
+      "description": "\u5206\u6750\u6599Simpson\u6096\u8bba\u68c0\u67e5",
+      "type": "stratified"
+    },
+    {
+      "file": "04_defect_correlations.png",
+      "description": "\u8d28\u91cf\u6307\u6807\u95f4\u76f8\u5173\u6027\uff08\u5200\u5177\u5bff\u547d\u7740\u8272\uff09",
+      "type": "scatter_matrix"
+    },
+    {
+      "file": "05_temperature_profiles.png",
+      "description": "\u4e3b\u8f74\u6e29\u5ea6/\u51b7\u5374\u6db2\u6e29\u5ea6/\u632f\u52a8\u65f6\u95f4\u5e8f\u5217",
+      "type": "timeseries"
+    },
+    {
+      "file": "06_tool_wear_analysis.png",
+      "description": "\u5200\u5177\u5bff\u547d\u533a\u95f4\u4e0e\u8d28\u91cf\u6307\u6807\u5206\u6790",
+      "type": "bar"
+    },
+    {
+      "file": "07_material_comparison.png",
+      "description": "\u4e0d\u540c\u6750\u6599\u8d28\u91cf\u5206\u5e03\u5bf9\u6bd4",
+      "type": "comparison"
+    }
+  ],
+  "generated_at": "2026-05-28T00:09:04.174807"
+}

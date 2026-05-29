@@ -1,0 +1,68 @@
+{
+  "evidence_items": [
+    {
+      "id": "E1",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Defect rate increases from 26.1% (first 750) to 93.1% (last 750)",
+      "supporting_hypotheses": ["H1", "H2", "H3", "H5"],
+      "details": "Surface roughness mean: 0.90µm → 1.95µm. Dimensional deviation: 0.014mm → 0.079mm."
+    },
+    {
+      "id": "E2",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Spindle temperature Cohen's d=7.98 between Grade A and C",
+      "supporting_hypotheses": ["H1", "H3", "H5"],
+      "details": "A mean=38.4°C, B=44.8°C, C=68.7°C. r=0.956 with surface roughness."
+    },
+    {
+      "id": "E3",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Spindle vibration Cohen's d=6.39 between Grade A and C",
+      "supporting_hypotheses": ["H1", "H5"],
+      "details": "A mean=0.66 mm/s, B=1.35 mm/s, C=4.81 mm/s. r=0.993 with surface roughness."
+    },
+    {
+      "id": "E4",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Coolant temperature Cohen's d=4.11 between Grade A and C",
+      "supporting_hypotheses": ["H3", "H1", "H5"],
+      "details": "A mean=24.7°C, B=25.5°C, C=29.2°C. r=0.875 with surface roughness."
+    },
+    {
+      "id": "E5",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Spindle speed and feed rate NOT significantly different across defect grades (ANOVA p>0.14)",
+      "supporting_hypotheses": ["NONE_H4_excluded"],
+      "details": "Negates H4 (process parameter drift)."
+    },
+    {
+      "id": "E6",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Tool age effect is moderate (d=0.49) and monotonic",
+      "supporting_hypotheses": ["H2", "H5"],
+      "details": "Defect rate 41.6% at tool age 0-10 → 86.4% at tool age 70-80."
+    },
+    {
+      "id": "E7",
+      "type": "analysis",
+      "rank": 3,
+      "description": "Within each tool age group, spindle condition dominates defect classification",
+      "supporting_hypotheses": ["H1", "H5"],
+      "details": "Grade C parts consistently show spindle temp >60°C regardless of tool age. Grade A parts always have spindle temp <42°C."
+    },
+    {
+      "id": "E8",
+      "type": "statistical",
+      "rank": 3,
+      "description": "Process capability severely inadequate",
+      "supporting_hypotheses": ["H1", "H2", "H3", "H5"],
+      "details": "Cp roughness=0.608, Cp dimensional=0.522, Cpk even lower."
+    }
+  ]
+}

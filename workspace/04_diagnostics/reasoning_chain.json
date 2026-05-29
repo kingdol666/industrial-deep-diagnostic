@@ -1,0 +1,43 @@
+{
+  "reasoning_chain": [
+    {
+      "step": 1,
+      "observation": "Data shows 59.6% overall defect rate (B+C) with severe monotonic degradation from 26.1% to 93.1% over 1500 parts",
+      "implication": "There is a progressive, time-dependent degradation mechanism - not a random failure"
+    },
+    {
+      "step": 2,
+      "observation": "Spindle temperature and vibration have near-perfect correlation with quality metrics (r>0.95) and massive effect sizes (d=7.98, 6.39)",
+      "implication": "Spindle condition is the strongest predictor of product quality by a wide margin"
+    },
+    {
+      "step": 3,
+      "observation": "When spindle temperature exceeds 50°C, defect rate is 99.2%. When vibration exceeds 2.0 mm/s, defect rate is 100%",
+      "implication": "Clean thresholds exist - spindle condition acts as a binary classifier for acceptable vs reject quality"
+    },
+    {
+      "step": 4,
+      "observation": "Within-Tool-Age analysis: Grade A parts have spindle temp ~38°C and vibration ~0.6 mm/s regardless of whether tool age is 0-20 or 60-80. Grade C parts have ~68°C and ~4.8 mm/s regardless of tool age",
+      "implication": "Spindle condition dominates tool age. Pure tool wear hypothesis (H2) is decisively excluded"
+    },
+    {
+      "step": 5,
+      "observation": "Time block Q5 has same mean tool age (37.7) as Q1 (37.7) but 100% vs 26% defect rate",
+      "implication": "The degradation is NOT driven by tool age scheduling. A separate mechanism (bearing wear) drives quality loss independently"
+    },
+    {
+      "step": 6,
+      "observation": "Spindle temperature > 50°C predicts 99.3% defect rate for the next 10 parts. > 55°C predicts 100%",
+      "implication": "Spindle condition is not just a correlate but has predictive temporal precedence - consistent with a causal role"
+    },
+    {
+      "step": 7,
+      "observation": "Coolant temperature elevation (d=4.11) correlates with degration but spindle temp rises independently and earlier",
+      "implication": "Coolant temperature rise is likely a consequence of increased spindle heat load, not an independent cause"
+    },
+    {
+      "step": 8,
+      "conclusion": "H1 (Spindle Bearing Degradation) is the dominant root cause (weight 0.70). The progressive bearing wear increases friction generating heat and vibration, directly degrading surface finish and dimensional accuracy. H5 (combined bearing + tool) has secondary contribution (weight 0.25). Tool alone cannot explain the magnitude or pattern of degradation observed."
+    }
+  ]
+}

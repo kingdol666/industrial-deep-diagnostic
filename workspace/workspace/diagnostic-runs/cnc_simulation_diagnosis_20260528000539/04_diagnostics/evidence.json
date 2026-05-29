@@ -1,0 +1,183 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "发现时间": "2026-05-28T00:30:00.000Z",
+  "evidence_chain": {
+    "visual_evidence": [
+      {
+        "plot": "03_figures/01_defect_timeseries.png",
+        "finding": "表面粗糙度从Day1的~0.8μm单调递增至Day30的~2.7μm, 尺寸偏差从~0.005mm增至~0.115mm, 均在Day17后加速恶化",
+        "evidence_rank": 4,
+        "implication": "确认存在与时间相关的渐进退化过程, 非随机缺陷"
+      },
+      {
+        "plot": "03_figures/02_correlation_heatmap.png",
+        "finding": "spindle_vibration与surface_roughness的Pearson r=0.993, 为所有参数对中最强; spindle_temp与roughness r=0.956第二",
+        "evidence_rank": 4,
+        "implication": "振动是粗糙度最相关的工艺参数, 温度次之"
+      },
+      {
+        "plot": "03_figures/03_simpson_paradox.png",
+        "finding": "三类材料(AL7075/SS304/TI6AL4V)中振动-粗糙度散点完全重叠在同一条直线上, 每类材料r=0.993",
+        "evidence_rank": 4,
+        "implication": "振动→粗糙度效应为普适机制, 非材料依赖性"
+      },
+      {
+        "plot": "03_figures/04_defect_correlations.png",
+        "finding": "质量指标间高度相关(r=0.97), 颜色编码显示tool_age非主要驱动因素",
+        "evidence_rank": 4,
+        "implication": "粗糙度和尺寸偏差反映同一底层退化过程"
+      },
+      {
+        "plot": "03_figures/05_temperature_profiles.png",
+        "finding": "主轴温度(38→约68°C)、冷却液温度(24.5→29.5°C)、振动(0.63→5.41mm/s)同步上升",
+        "evidence_rank": 4,
+        "implication": "温度与振动高度共线, 无法从时序数据区分因果方向"
+      },
+      {
+        "plot": "03_figures/06_tool_wear_analysis.png",
+        "finding": "按tool_age分箱后, 各箱内振动-粗糙度关系保持强相关, 而tool_age本身与粗糙度相关性弱",
+        "evidence_rank": 4,
+        "implication": "刀具磨损不是振动和粗糙度退化的主要驱动因素"
+      },
+      {
+        "plot": "03_figures/07_material_comparison.png",
+        "finding": "三类材料硬度分布明显分离(AL7075:~170HV, SS304:~245HV, TI6AL4V:~340HV), 与工艺参数无关",
+        "evidence_rank": 4,
+        "implication": "硬度为材料固有属性, 非加工过程缺陷指标"
+      }
+    ],
+    "numerical_evidence": [
+      {
+        "metric": "spindle_vibration_mm_s vs surface_roughness_Ra_um Pearson r",
+        "value": 0.9927,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:correlation_matrices.pearson",
+        "interpretation": "近乎完美的线性相关, 振动解释粗糙度变异的98.5%"
+      },
+      {
+        "metric": "spindle_vibration_mm_s vs surface_roughness_Ra_um Spearman r",
+        "value": 0.9571,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:correlation_matrices.spearman",
+        "interpretation": "单调相关极强, 非离群值驱动的伪相关"
+      },
+      {
+        "metric": "spindle_vibration → roughness 去趋势相关系数",
+        "value": 0.9689,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:detrended_correlations",
+        "interpretation": "去除时间趋势后仅衰减2.4%, 确认振动-粗糙度关系非时间混杂"
+      },
+      {
+        "metric": "spindle_vibration → roughness 格兰杰F统计量@lag1",
+        "value": 306.97,
+        "evidence_rank": 3,
+        "source": "feature_summary.json:granger_causality",
+        "interpretation": "所有参数中最强的格兰杰因果关系(p≈0), 支持振动先于粗糙度的时序方向"
+      },
+      {
+        "metric": "spindle_temp → roughness 格兰杰F统计量@lag1",
+        "value": 150.45,
+        "evidence_rank": 3,
+        "source": "feature_summary.json:granger_causality",
+        "interpretation": "温度也是粗糙度的强格兰杰因, 但F值约为振动的一半"
+      },
+      {
+        "metric": "spindle_temp vs spindle_vibration Pearson r",
+        "value": 0.9668,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:correlation_matrices.pearson",
+        "interpretation": "温度和振动近乎完全共线, 两者在任何被动时序分析中不可分离"
+      },
+      {
+        "metric": "spindle_vibration → roughness 分层r(AL7075/SS304/TI6AL4V)",
+        "value": "0.9929/0.9932/0.9937",
+        "evidence_rank": 2,
+        "source": "feature_summary.json:simpson_paradox",
+        "interpretation": "三类材料完全一致, 非Simpson悖论, 确认普适物理机制"
+      },
+      {
+        "metric": "tool_age_parts → roughness Pearson r",
+        "value": 0.1449,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:correlation_matrices.pearson",
+        "interpretation": "刀具年龄与粗糙度相关性极弱(r=0.14), 排除刀具磨损为主因"
+      },
+      {
+        "metric": "tool_age_parts → roughness 格兰杰F@lag1",
+        "value": 1.9151,
+        "evidence_rank": 3,
+        "source": "feature_summary.json:granger_causality",
+        "interpretation": "刀具年龄在lag1无格兰杰因果关系(p=0.17), 不支持时序因果"
+      },
+      {
+        "metric": "spindle_vibration change point regime shifts",
+        "value": "5个段: mean 0.74→1.50→2.25→3.33→4.28→5.41 mm/s",
+        "evidence_rank": 2,
+        "source": "validate_report.json:change_point_detection",
+        "interpretation": "振动经历5个明显的阶跃式增长阶段, 可能对应轴承退化里程碑"
+      },
+      {
+        "metric": "surface_roughness change point segments",
+        "value": 56,
+        "evidence_rank": 2,
+        "source": "validate_report.json:change_point_detection",
+        "interpretation": "粗糙度56个段反映刀具更换/班次交替叠加在振动退化趋势上的短期波动"
+      },
+      {
+        "metric": "spindle_temp_C detrended vs roughness",
+        "value": 0.8002,
+        "evidence_rank": 2,
+        "source": "feature_summary.json:detrended_correlations",
+        "interpretation": "温度去趋势后仍与粗糙度强相关(r=0.800), 但衰减16.3%高于振动(2.4%)"
+      },
+      {
+        "metric": "chatter_mark_count 异常值驱动检查",
+        "value": "100%衰减(clean_r=0)",
+        "evidence_rank": 2,
+        "source": "validate_report.json:outlier_sensitivity",
+        "interpretation": "振纹所有相关均为异常值驱动, 零膨胀分布限制统计有效性"
+      },
+      {
+        "metric": "硬度Simpson悖论(spindle_speed→hardness)",
+        "value": "整体r=-0.93, 分层r≈0",
+        "evidence_rank": 2,
+        "source": "validate_report.json:simpson_paradox",
+        "interpretation": "硬度-工艺参数高相关为材料间差异, 非因果过程, 严重程度CRITICAL"
+      },
+      {
+        "metric": "数据集时间排序验证",
+        "value": "100%递增, 已排序",
+        "evidence_rank": 2,
+        "source": "validate_report.json:sorting_validation",
+        "interpretation": "数据已按时间排序, 滞后相关和格兰杰因果分析有效"
+      }
+    ],
+    "domain_evidence": [
+      {
+        "domain": "切削动力学",
+        "finding": "主轴振动直接增大已加工表面粗糙度的物理机制: 刀尖相对于工件的振动会在加工表面留下周期性痕迹, 振动幅值直接决定Ra值(ISO 230-7加工中心测试条件, 切削动力学中再生颤振理论)",
+        "evidence_rank": 5,
+        "source": "process_knowledge_base:切削动力学基本原理"
+      },
+      {
+        "domain": "轴承失效物理",
+        "finding": "滚动轴承退化历程: 正常运行→轻微磨损→点蚀→剥落→严重损坏, 伴随振动逐步增大。振动均方根值(RMS)可增加5-10倍, 与本数据中8.6倍增幅一致",
+        "evidence_rank": 5,
+        "source": "process_knowledge_base:轴承失效物理"
+      },
+      {
+        "domain": "热效应物理",
+        "finding": "钢材热膨胀系数~12μm/m/°C。主轴温升~30°C, 悬伸量~100mm: 热膨胀=12×30×0.1=36μm。实际尺寸偏差~115μm, 热效应可解释约30%。需要结合振动导致的弹性让刀解释剩余部分",
+        "evidence_rank": 5,
+        "source": "process_knowledge_base:热变形计算"
+      },
+      {
+        "domain": "时间混杂物理",
+        "finding": "所有退化机制(轴承磨损+温升+冷却效率下降+刀具磨损)均随运行时间单调增加。任何两个随时间单调递增的变量必然显示强相关, 无论是否存在因果联系。这是被动工业数据诊断的根本局限",
+        "evidence_rank": 6,
+        "source": "process_knowledge_base:时间混杂局限性"
+      }
+    ]
+  }
+}

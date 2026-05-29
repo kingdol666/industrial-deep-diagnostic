@@ -1,0 +1,265 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "诊断时间": "2026-05-28T00:30:00.000Z",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "step_name": "Step A: 物理逻辑链生成",
+      "step_question": "哪些工艺参数与质量缺陷相关, 背后的物理机制是什么?",
+      "inputs": [
+        {"source": "02_processed/feature_summary.json", "content_summary": "Pearson/Spearman相关矩阵, 互信息, 滞后互相关, 格兰杰因果, 去趋势相关, 分层分析", "evidence_rank": 2},
+        {"source": "02_processed/validate_report.json", "content_summary": "分布分析, 异常值敏感性, 时间混杂, Simpson悖论, 变化点检测", "evidence_rank": 2},
+        {"source": "02_processed/data_quality_report.json", "content_summary": "数据完整性: 0缺失值, 1500行, 20列, 已时间排序", "evidence_rank": 2},
+        {"source": "01_ontology/ontology.json", "content_summary": "21列参数定义, 5个质量目标, 10个工艺参数, 3个分组列", "evidence_rank": 6},
+        {"source": "03_figures/*.png", "content_summary": "7张可视化图表: 缺陷时序、相关热图、Simpson散点、缺陷相关、温度剖面、刀具磨损、材料对比", "evidence_rank": 4}
+      ],
+      "reasoning": {
+        "applied_logic": "参数筛查 + 物理链构建 + 证据标记",
+        "step_by_step": "【候选参数筛查】\n- 表面粗糙度: spindle_vibration(r=0.993) > spindle_temp(r=0.956) > coolant_temp(r=0.875) > day(r=0.874) > chatter(r=0.50) > cutting_force(r=0.20) > tool_age(r=0.14) > others(r<0.05)\n- 筛选阈值|r|>0.2: 保留vibration, temp, coolant_temp, day, chatter, cutting_force\n- 去趋势后保留: vibration(r=0.969), temp(r=0.800), coolant_temp(r=0.507), dimensional_deviation(r=0.890)\n- day去趋势后r=0.04(衰减95%) → 排除为纯时间代理变量\n- 切削力相关性弱(r=0.196)且格兰杰边缘显著, 保留为次要\n\n【物理链构建】\nH1(轴承磨损/动平衡): 轴承退化→振动↑→刀尖位移波动→切削深度波动→表面波度→Ra↑ [OBSERVED+KNOWN_PHYSICS: 8/10链节=80%]\nH2(热效应): 运行时间→主轴温升→热膨胀→刀具位置漂移→尺寸偏差→次生粗糙度变化 [OBSERVED+KNOWN_PHYSICS: 7/9=78%]\nH3(刀具磨损): 刀具钝化→切削力↑→振动↑→质量恶化 [OBSERVED部分弱: 工具年龄相关性仅0.14, 6/10=60%]\nH4(冷却劣化): 冷却液温升→冷却效率↓→主轴温升→[同H2] [OBSERVED部分弱: 去趋势后r=0.507, 6/10=60%]",
+        "assumptions": [
+          "Pearson相关假设线性关系",
+          "格兰杰因果假设VAR模型适用",
+          "物理链中的[KNOWN_PHYSICS]基于标准机械工程理论"
+        ]
+      },
+      "outputs": [
+        {"finding": "H1(轴振→粗糙度)为最强假设, 物理链80%已确认, 去趋势后衰减仅2.4%", "confidence": 85, "supported_by": ["r=0.993", "detrended_r=0.969", "Granger F=307@lag1", "三材料一致"]},
+        {"finding": "H2(温度→热变形)物理链79%已确认, 去趋势衰减16.3%", "confidence": 75, "supported_by": ["r=0.956/0.991", "Granger F=150@lag1", "热膨胀物理机制"]},
+        {"finding": "H3(刀具磨损→振动)证据薄弱, tool_age相关性极弱", "confidence": 25, "supported_by": ["r=0.145(粗糙度)", "r=0.083(振动)", "Granger lag1 p=0.17"]},
+        {"finding": "H4(冷却→温升)为间接次要效应", "confidence": 35, "supported_by": ["去趋势衰减42%", "冷却液温度为主轴温度反映"]},
+        {"finding": "硬度_HV排除: CRITICAL Simpson悖论, 纯材料属性", "confidence": 95, "supported_by": ["分层r≈0 vs 整体|r|>0.9"]},
+        {"finding": "工艺参数直接效应排除: 几乎零相关", "confidence": 98, "supported_by": ["|r|<0.05 for all process params vs quality"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "切削力→质量影响", "why_ruled_out": "r=0.196(弱), 格兰杰在lag1-3不显著"},
+        {"alternative": "冷却液流量→质量影响", "why_ruled_out": "r<0.05, 格兰杰不显著"}
+      ],
+      "uncertainty": {
+        "aleatory": "粗糙度测量精度和采样频率限制分辨率",
+        "epistemic": "振动和温度r=0.967→无法区分因果方向, 需FFT数据",
+        "impact_on_conclusion": "根因分析受限, 近端因果链仍然置信"
+      },
+      "falsification_condition": "如果更换主轴轴承后振动未下降且质量未改善 → H1根因假设错误"
+    },
+    {
+      "step_id": 2,
+      "step_name": "Step B: 假设精炼",
+      "step_question": "各假设的预测是否与实际数据一致? 跨产品一致性如何?",
+      "inputs": [
+        {"source": "Step A输出: H1-H5物理链", "content_summary": "5个候选假设及其物理链和证据等级", "evidence_rank": 6},
+        {"source": "02_processed/validate_report.json", "content_summary": "simpson_paradox, time_trend_confounding, outlier_sensitivity", "evidence_rank": 2}
+      ],
+      "reasoning": {
+        "applied_logic": "预测-观测交叉检查",
+        "step_by_step": "【H1预测检查】\n- 预测1: 振动↑→粗糙度↑: ✓ 确认 (r=0.993, 三类材料一致)\n- 预测2: 振动↑→尺寸偏差↑: ✓ 确认 (r=0.979)\n- 预测3: 振动↑→振纹↑: ✓ 部分确认 (r=0.50总体, 异常值驱动但趋势一致)\n- 预测4: 三类材料一致性: ✓ 确认 (0.9929/0.9932/0.9937)\n\n【H2预测检查】\n- 预测1: 温度↑→尺寸偏差↑: ✓ 确认 (r=0.991)\n- 预测2: 温度↑→粗糙度↑: ✓ 确认 (r=0.956) \n- 预测3: 冷却系统→温度控制: ? 无法验证 (无冷却系统维护数据)\n- 预测4: 定量热膨胀: 部分确认 (36μm/115μm=31%, 不足以完全解释)\n\n【H3预测检查】\n- 预测1: tool_age→切削力↑: 弱 (r=0.19)\n- 预测2: tool_age→振动↑: ✗ 几乎不相关 (r=0.08)\n- 预测3: tool_age→粗糙度↑: ✗ 弱 (r=0.145, 格兰杰lag1不显著)\n\n【跨产品一致性】\n- H1/H2: UNIVERSAL — 三类材料效果一致\n- 硬度: BETWEEN-MATERIAL ONLY — 高相关性来自材料间差异",
+        "assumptions": [
+          "假设三类材料在不同的加工参数区间操作(AL7075~12000rpm, SS304~8000rpm, TI6AL4V~6000rpm)",
+          "但振动-粗糙度关系不受加工参数区间影响"
+        ]
+      },
+      "outputs": [
+        {"finding": "H1全部预测通过检查, 三类材料一致", "confidence": 90, "supported_by": ["完整覆盖4项缺陷指标"]},
+        {"finding": "H2大部分通过, 但定量热膨胀计算不能完全解释偏差幅度", "confidence": 65, "supported_by": ["36μm预测 vs 115μm实际"]},
+        {"finding": "H3关键预测未通过: 刀具年龄与振动/粗糙度关系极弱", "confidence": 10, "supported_by": ["相关性弱, 格兰杰不显著"]},
+        {"finding": "冷却系统预测无法验证: 缺少维护事件数据", "confidence": 30, "supported_by": ["CANNOT_VERIFY评级"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "是否存在振动传感器异常(如松动)导致虚假高读数", "why_ruled_out": "相关矩阵中振动与温度(r=0.967)、冷却液温度(r=0.887)的强相关表明信号一致性高, 非传感器故障"}
+      ],
+      "uncertainty": {
+        "aleatory": "无维护事件标记(如轴承更换日期)",
+        "epistemic": "无法验证更换轴承/刀具后的效果预测",
+        "impact_on_conclusion": "H1/H2均无法被证伪, 根因不确定"
+      },
+      "falsification_condition": "如果某假设的所有预测均未通过→排除"
+    },
+    {
+      "step_id": 3,
+      "step_name": "Step C: 数据区分度评估",
+      "step_question": "竞争假设在现有数据中能否被区分?",
+      "inputs": [
+        {"source": "Step B输出", "content_summary": "H1-H5经过精炼后的预测-观测匹配状态", "evidence_rank": 6}
+      ],
+      "reasoning": {
+        "applied_logic": "区分度矩阵: 比较各假设预测的观测模式是否不同",
+        "step_by_step": "【CS1: H1 vs H2】\nH1预测: 振动↑ → 粗糙度↑, 尺寸偏差↑, 温度随之↑(摩擦生热)\nH2预测: 温度↑ → 尺寸偏差↑(热膨胀), 振动随之↑(热不平衡), 粗糙度↑\n\n实际观测模式两者完全一致: [振动↑, 温度↑, 尺寸偏差↑, 粗糙度↑]\n— 所有信号同步变化(r=0.967振动-温度)\n— 均随时间单调增加\n— 均随退化程度加剧\n→ INDISTINGUISHABLE (v6.0第2条规则)\n\n潜在区分信号: \n1. 去趋势分析: 振动衰减2.4% vs 温度衰减16.3% → 振动更独立于时间\n2. 变化点数量: 振动5个 vs 温度3个 → 振动有额外退化步骤\n3. 定量计算: 温升30°C→~36μm vs 实际115μm → 热效应不足以独立解释\n→ 这些提供了WEAK区分能力, 但不足以完全区分\n\n【CS1 vs H3】\nH3预测: tool_age↑ → 切削力↑ → 振动↑\n实际观测: tool_age与振动近乎无关(r=0.08)\n→ DISTINGUISHED — H3已被排除\n\n【CS1 vs H4】\nH4预测: coolant_temp↑ → spindle_temp↑ → 连锁效应\n实际: 冷却液温升5°C, 去趋势衰减42%\n→ DISTINGUISHED — H4为次要贡献者\n\n【关键结论】\n根据v6.0规则第2条: 时间共线退化机制不可区分 → COMPETING_SET(CS1)\n根据v6.0规则第3条: 置信度上限65\n根据v6.0规则第5条: 跨产品一致性虽然很高, 但H1和H2在三种材料中均表现出高度一致性, 因此跨产品分层未提供额外区分能力",
+        "assumptions": [
+          "区分所需信号(FFT)在数据集中不可用",
+          "假设被动时序数据的内在局限性: 无法区分双向因果(振动↔温度)"
+        ]
+      },
+      "outputs": [
+        {"finding": "H1 vs H2: INDISTINGUISHABLE — 组成竞争集CS1", "confidence": 65, "supported_by": ["时间共线退化机制", "振动-温度r=0.967"]},
+        {"finding": "H3: DISTINGUISHED — 已经排除", "confidence": 92, "supported_by": ["相关性极弱", "格兰杰lag1不显著"]},
+        {"finding": "H4: DISTINGUISHED — 次要贡献者", "confidence": 80, "supported_by": ["去趋势衰减42%", "5°C温升物理效应有限"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "跨产品区分: H1和H2在三种材料中表现一致 → 未提供额外区分能力", "why_ruled_out": "Universal效应意味着跨产品分层不增加区分度"}
+      ],
+      "uncertainty": {
+        "aleatory": "测量精度限制",
+        "epistemic": "缺少区分性测量(FFT), 根因不确定性无法从当前数据降低",
+        "impact_on_conclusion": "根因诊断从DETERMINED降级为COMPETING_SET"
+      },
+      "falsification_condition": "如果获得振动FFT数据且显示轴承故障频率 → H1可确认; 若显示主要为1×转速谐波 → H2(热不平衡)更可能"
+    },
+    {
+      "step_id": 4,
+      "step_name": "Step D: 排除验证",
+      "step_question": "哪些假设可通过物理/统计/分层排除?",
+      "inputs": [
+        {"source": "Step C输出: 区分度评估", "content_summary": "CS1组成及排除状态", "evidence_rank": 6}
+      ],
+      "reasoning": {
+        "applied_logic": "三层排除法: 物理排除 → 统计排除 → 分层排除",
+        "step_by_step": "【物理排除】\n1. H5(工艺参数影响): spindle_speed与粗糙度r=-0.04 → 物理上工艺参数在这个数据中未变化到足以影响质量的幅度。排除置信度98/100\n2. H6(环境温度): ambient_temp与所有质量目标r<0.05 → 排除置信度99/100\n3. 硬度缺陷: 硬度是材料固有属性, 加工过程不改变材料微观结构的硬度。分层r≈0证实。排除置信度95/100\n\n【统计排除】\n1. H3(刀具磨损): tool_age_parts与振动r=0.083, 与粗糙度r=0.145。格兰杰lag1 F=1.9(p=0.17)不显著。但tool_age与粗糙度的Spearman r=0.295(高于Pearson), 说明有一定单调关系 → 不排出刀具磨损的短期调制效应, 仅排除为长期退化根因。排除置信度92/100\n\n【分层排除】\n1. 硬度-Simpson: 整体r=-0.93但分层r≈0 → BETWEEN_MATERIAL_ONLY。已排除。\n2. 振动-粗糙度的Simpson检查: 三类材料均r=0.993 → UNIVERSAL, 未发现分层问题\n3. 温度-粗糙度的Simpson检查: 同类 -> UNIVERSAL\n\n【CS1无法排除】\nH1和H2无Simpson悖论, 无物理排他性证据, 统计上均高度显著",
+        "assumptions": ["物理排除基于标准机械工程知识: 加工工艺不改变材料硬度, 环境温度对机床内切削过程几乎无影响"]
+      },
+      "outputs": [
+        {"finding": "H5(工艺参数)排除 ✓ 置信度98/100", "confidence": 98, "supported_by": ["全部|r|<0.05"]},
+        {"finding": "H6(环境温度)排除 ✓ 置信度99/100", "confidence": 99, "supported_by": ["全部r<0.05"]},
+        {"finding": "硬度问题排除 ✓ 置信度95/100", "confidence": 95, "supported_by": ["CRITICAL Simpson悖论"]},
+        {"finding": "H3(刀具磨损为根因)排除 ✓ 置信度92/100", "confidence": 92, "supported_by": ["相关性弱", "格兰杰不显著@lag1"]},
+        {"finding": "H1和H2无法排除", "confidence": 0, "supported_by": ["均为强相关", "无排他性证据"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "H3作为短期调制因素而非根因", "why_ruled_out": "粗糙度56个段vs振动5个段→粗糙度短期波动可能来自刀具更换。保留为可能但非主要"}
+      ],
+      "uncertainty": {
+        "aleatory": "无",
+        "epistemic": "刀具磨损排除的置信度为92/100而非100: 因数据中tool_age为全局计数, 未按每种刀具分别计算, 可能遗漏跨刀具的累加效应",
+        "impact_on_conclusion": "排除了错误假设, 缩小了竞争假设范围"
+      },
+      "falsification_condition": "如发现spindle_speed在更广范围内显著影响粗糙度→H5待复查"
+    },
+    {
+      "step_id": 5,
+      "step_name": "Step E: 诊断结论",
+      "step_question": "最终诊断结论是什么?",
+      "inputs": [
+        {"source": "Steps A-D输出", "content_summary": "完整的假设推理链", "evidence_rank": 6}
+      ],
+      "reasoning": {
+        "applied_logic": "综合所有证据, 输出3类结论",
+        "step_by_step": "【DETERMINED结论】\n1. 主轴振动是表面粗糙度和尺寸偏差的近端直接原因\n   - 证据: r=0.993(三类材料一致), 去趋势后r=0.969, 格兰杰F=307\n2. 刀具磨损不是长期退化根因(但可能是短期调制因素)\n3. 工艺参数和环境温度对质量无显著影响\n4. 硬度是材料固有属性\n\n【COMPETING_SET结论】\nCS1: 主轴轴承磨损 vs 热致动平衡变化\n- 两者预测完全相同的观测模式\n- 现有数据无法区分(振动-温度r=0.967)\n- 需FFT频谱或受控实验\n- 置信度上限: 65\n\n【NEEDS_DATA结论: 无】\n\n近端因果链置信度高(85+), 但根因分析受限于数据区分度(上限65)",
+        "assumptions": [
+          "v6.0协议: INDISTINGUISHABLE假设置信度上限65"
+        ]
+      },
+      "outputs": [
+        {"finding": "诊断类型: COMPETING_SET(CS1: H1 vs H2)", "confidence": 65, "supported_by": ["v6.0规则第2-3条"]},
+        {"finding": "近端因果链DETERMINED: 主轴振动→表面粗糙度", "confidence": 85, "supported_by": ["r=0.993, 格兰杰F=307, 三类一致"]},
+        {"finding": "4项已排除假设: H3/H5/H6/硬度", "confidence": 92, "supported_by": ["Step D完整性验证"]}
+      ],
+      "alternatives_considered": [],
+      "uncertainty": {
+        "aleatory": "当前数据为低频振动测量(速度mm/s), 非加速度/FFT",
+        "epistemic": "缺少高频振动频谱, 限制根因分析深度",
+        "impact_on_conclusion": "诊断结论保守但诚实反映数据限制"
+      },
+      "falsification_condition": "振动FFT数据若显示轴承故障频率→H1确认; 若显示1×转速谐波→H2更可能"
+    }
+  ],
+  "hypothesis_evolution": [
+    {
+      "hypothesis_id": "H1(轴承磨损→振动→质量)",
+      "initial_confidence": 80,
+      "final_confidence": 65,
+      "confidence_adjustments": [
+        {"adjustment_reason": "去趋势分析验证: 振动-粗糙度关系非时间混杂", "adjustment_points": 5, "triggered_by": "Step A"},
+        {"adjustment_reason": "三类材料一致确认, 非Simpson悖论", "adjustment_points": 5, "triggered_by": "Step B"},
+        {"adjustment_reason": "与H2不可区分(CS1), 置信度上限65", "adjustment_points": -15, "triggered_by": "Step C"},
+        {"adjustment_reason": "振动-温度r=0.967, 温度效应无法完全分离", "adjustment_points": -10, "triggered_by": "Step C"}
+      ],
+      "survival_path": "保留为主要假设, 进入CS1竞争集"
+    },
+    {
+      "hypothesis_id": "H2(热效应→振动→质量)",
+      "initial_confidence": 70,
+      "final_confidence": 60,
+      "confidence_adjustments": [
+        {"adjustment_reason": "温度-尺寸偏差极强相关(r=0.991)", "adjustment_points": 5, "triggered_by": "Step A"},
+        {"adjustment_reason": "去趋势衰减16.3%高于振动", "adjustment_points": -5, "triggered_by": "Step B"},
+        {"adjustment_reason": "定量热膨胀计算仅解释~30%偏差", "adjustment_points": -5, "triggered_by": "Step B"},
+        {"adjustment_reason": "与H1不可区分(CS1)", "adjustment_points": -5, "triggered_by": "Step C"}
+      ],
+      "survival_path": "保留为竞争假设H2, 与H1组CS1"
+    },
+    {
+      "hypothesis_id": "H3(刀具磨损→根因)",
+      "initial_confidence": 30,
+      "final_confidence": 5,
+      "confidence_adjustments": [
+        {"adjustment_reason": "相关性极弱(r=0.08-0.14)", "adjustment_points": -10, "triggered_by": "Step A"},
+        {"adjustment_reason": "格兰杰lag1不显著(F=1.9, p=0.17)", "adjustment_points": -10, "triggered_by": "Step A"},
+        {"adjustment_reason": "排除验证: 非长期退化根因", "adjustment_points": -5, "triggered_by": "Step D"}
+      ],
+      "survival_path": "排除"
+    },
+    {
+      "hypothesis_id": "H4(冷却系统→间接效应)",
+      "initial_confidence": 40,
+      "final_confidence": 35,
+      "confidence_adjustments": [
+        {"adjustment_reason": "去趋势衰减42%, 独立性差", "adjustment_points": -5, "triggered_by": "Step B"}
+      ],
+      "survival_path": "保留为次要贡献者"
+    },
+    {
+      "hypothesis_id": "H5(工艺参数→直接效应)",
+      "initial_confidence": 20,
+      "final_confidence": 2,
+      "confidence_adjustments": [
+        {"adjustment_reason": "|r|<0.05, 几乎零相关", "adjustment_points": -18, "triggered_by": "Step A"}
+      ],
+      "survival_path": "排除"
+    },
+    {
+      "hypothesis_id": "硬度缺陷",
+      "initial_confidence": 25,
+      "final_confidence": 2,
+      "confidence_adjustments": [
+        {"adjustment_reason": "CRITICAL Simpson悖论: 材料间差异", "adjustment_points": -23, "triggered_by": "Step A"}
+      ],
+      "survival_path": "排除"
+    }
+  ],
+  "uncertainty_summary": {
+    "epistemic_gaps": [
+      "无振动FFT频谱 → 无法区分轴承故障频率 vs 热不平衡频率",
+      "无主轴轴承型号和维护记录 → 无法进行轴承寿命计算",
+      "无受控实验(冷启动数据、更换轴承后对比) → 无法验证因果方向",
+      "无刀具磨损直接测量(VB值) → 无法精确评估刀具状态",
+      "无刀具更换事件标记 → 无法确认粗糙度波动来源"
+    ],
+    "aleatory_limits": [
+      "被动时序数据无法完全区分双向因果关系(振动↔温度)",
+      "时间共线性退化机制不可区分(任何随时间单调增加的变量都会相关)",
+      "低频振动测量(速度mm/s)不包含频率信息, 无法进行FFT频谱分析"
+    ],
+    "overall_confidence_ceiling": 65,
+    "what_would_change_conclusions": [
+      "振动FFT频谱 → 区分轴承故障(特征频率) vs 热不平衡(1×转速)",
+      "受控实验: 冷启动后立即测量质量 → 隔离温度效应",
+      "更换主轴轴承后的测量 → 确认根因",
+      "多位置振动传感器 → 定位振动源"
+    ],
+    "reasoning_weaknesses": [
+      {
+        "weakness": "依赖Pearson线性相关系数, 可能遗漏非线性关系",
+        "mitigation": "同时使用Spearman相关(r=0.957)和互信息检查, 确认线性关系充分捕捉了关联",
+        "residual_risk": "低 — 散点图显示为高度线性关系"
+      },
+      {
+        "weakness": "格兰杰因果检验适用于线性VAR模型, 可能遗漏非线性因果",
+        "mitigation": "F统计量极高(F=307), 不太可能是由非线性结构遗漏导致",
+        "residual_risk": "低"
+      },
+      {
+        "weakness": "tool_age为全局计数(19种刀具统一计数), 未按刀具分别跟踪tool_age",
+        "mitigation": "此问题可能导致低估tool_age的实际效应(每种刀具的年龄独立变量)",
+        "residual_risk": "中等 — 如果每种刀具的年龄独立计数, 刀具磨损可能比当前分析显示的影响更大"
+      }
+    ]
+  }
+}

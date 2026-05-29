@@ -1,0 +1,1225 @@
+{
+  "meta": {
+    "engine": "cnc_per_part_analysis",
+    "n_parts": 1500,
+    "materials": [
+      "AL7075",
+      "SS304",
+      "TI6AL4V"
+    ],
+    "process_params": [
+      "spindle_speed_rpm",
+      "feed_rate_mm_min",
+      "depth_of_cut_mm",
+      "coolant_flow_l_min",
+      "coolant_temp_C",
+      "spindle_temp_C",
+      "spindle_vibration_mm_s",
+      "cutting_force_N",
+      "ambient_temp_C",
+      "tool_age_parts"
+    ],
+    "quality_metrics": [
+      "surface_roughness_Ra_um",
+      "chatter_mark_count",
+      "dimensional_deviation_mm",
+      "hardness_HV"
+    ],
+    "time_range": {
+      "start": "2026-04-01 16:00:00",
+      "end": "2026-05-01 13:36:00"
+    }
+  },
+  "correlations": {
+    "surface_roughness_Ra_um": [
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.9927,
+        "spearman_r": 0.9571,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.9557,
+        "spearman_r": 0.8321,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.8746,
+        "spearman_r": 0.7737,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.1449,
+        "spearman_r": 0.295,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.1963,
+        "spearman_r": 0.2451,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0435,
+        "spearman_r": -0.0707,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0404,
+        "spearman_r": -0.0597,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": 0.0219,
+        "spearman_r": 0.0535,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_flow_l_min",
+        "pearson_r": 0.0467,
+        "spearman_r": 0.032,
+        "n": 1500
+      },
+      {
+        "feature": "ambient_temp_C",
+        "pearson_r": 0.0039,
+        "spearman_r": -0.0025,
+        "n": 1500
+      }
+    ],
+    "chatter_mark_count": [
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.4633,
+        "spearman_r": 0.4147,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.5001,
+        "spearman_r": 0.402,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.4242,
+        "spearman_r": 0.3861,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.0855,
+        "spearman_r": 0.1052,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.0698,
+        "spearman_r": 0.043,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0126,
+        "spearman_r": -0.0336,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0145,
+        "spearman_r": -0.0249,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": -0.0191,
+        "spearman_r": 0.0086,
+        "n": 1500
+      },
+      {
+        "feature": "ambient_temp_C",
+        "pearson_r": -0.0013,
+        "spearman_r": 0.0068,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_flow_l_min",
+        "pearson_r": -0.0158,
+        "spearman_r": 0.0004,
+        "n": 1500
+      }
+    ],
+    "dimensional_deviation_mm": [
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.9908,
+        "spearman_r": 0.9541,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.9794,
+        "spearman_r": 0.9256,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.9208,
+        "spearman_r": 0.8729,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.2092,
+        "spearman_r": 0.2695,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.1028,
+        "spearman_r": 0.1979,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0776,
+        "spearman_r": -0.1295,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0751,
+        "spearman_r": -0.1247,
+        "n": 1500
+      },
+      {
+        "feature": "ambient_temp_C",
+        "pearson_r": 0.0529,
+        "spearman_r": 0.1026,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_flow_l_min",
+        "pearson_r": 0.0476,
+        "spearman_r": 0.0335,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": -0.0157,
+        "spearman_r": -0.0185,
+        "n": 1500
+      }
+    ],
+    "hardness_HV": [
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.9252,
+        "spearman_r": -0.881,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.9318,
+        "spearman_r": -0.8803,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.9019,
+        "spearman_r": 0.8521,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.0638,
+        "spearman_r": 0.0927,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.0782,
+        "spearman_r": 0.0552,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.0434,
+        "spearman_r": 0.0477,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": -0.0216,
+        "spearman_r": -0.0265,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_flow_l_min",
+        "pearson_r": -0.018,
+        "spearman_r": -0.0252,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.029,
+        "spearman_r": -0.0133,
+        "n": 1500
+      },
+      {
+        "feature": "ambient_temp_C",
+        "pearson_r": -0.0112,
+        "spearman_r": -0.0115,
+        "n": 1500
+      }
+    ]
+  },
+  "top_predictors": {
+    "surface_roughness_Ra_um": [
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.9927,
+        "spearman_r": 0.9571,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.9557,
+        "spearman_r": 0.8321,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.8746,
+        "spearman_r": 0.7737,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.1449,
+        "spearman_r": 0.295,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.1963,
+        "spearman_r": 0.2451,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0435,
+        "spearman_r": -0.0707,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0404,
+        "spearman_r": -0.0597,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": 0.0219,
+        "spearman_r": 0.0535,
+        "n": 1500
+      }
+    ],
+    "chatter_mark_count": [
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.4633,
+        "spearman_r": 0.4147,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.5001,
+        "spearman_r": 0.402,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.4242,
+        "spearman_r": 0.3861,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.0855,
+        "spearman_r": 0.1052,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.0698,
+        "spearman_r": 0.043,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0126,
+        "spearman_r": -0.0336,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0145,
+        "spearman_r": -0.0249,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": -0.0191,
+        "spearman_r": 0.0086,
+        "n": 1500
+      }
+    ],
+    "dimensional_deviation_mm": [
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.9908,
+        "spearman_r": 0.9541,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.9794,
+        "spearman_r": 0.9256,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_temp_C",
+        "pearson_r": 0.9208,
+        "spearman_r": 0.8729,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.2092,
+        "spearman_r": 0.2695,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.1028,
+        "spearman_r": 0.1979,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.0776,
+        "spearman_r": -0.1295,
+        "n": 1500
+      },
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.0751,
+        "spearman_r": -0.1247,
+        "n": 1500
+      },
+      {
+        "feature": "ambient_temp_C",
+        "pearson_r": 0.0529,
+        "spearman_r": 0.1026,
+        "n": 1500
+      }
+    ],
+    "hardness_HV": [
+      {
+        "feature": "feed_rate_mm_min",
+        "pearson_r": -0.9252,
+        "spearman_r": -0.881,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_speed_rpm",
+        "pearson_r": -0.9318,
+        "spearman_r": -0.8803,
+        "n": 1500
+      },
+      {
+        "feature": "cutting_force_N",
+        "pearson_r": 0.9019,
+        "spearman_r": 0.8521,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_vibration_mm_s",
+        "pearson_r": 0.0638,
+        "spearman_r": 0.0927,
+        "n": 1500
+      },
+      {
+        "feature": "tool_age_parts",
+        "pearson_r": 0.0782,
+        "spearman_r": 0.0552,
+        "n": 1500
+      },
+      {
+        "feature": "spindle_temp_C",
+        "pearson_r": 0.0434,
+        "spearman_r": 0.0477,
+        "n": 1500
+      },
+      {
+        "feature": "depth_of_cut_mm",
+        "pearson_r": -0.0216,
+        "spearman_r": -0.0265,
+        "n": 1500
+      },
+      {
+        "feature": "coolant_flow_l_min",
+        "pearson_r": -0.018,
+        "spearman_r": -0.0252,
+        "n": 1500
+      }
+    ]
+  },
+  "stratified": {
+    "surface_roughness_Ra_um": {
+      "spindle_speed_rpm": {
+        "AL7075": {
+          "r": -0.03,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0263,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0204,
+          "n": 375
+        }
+      },
+      "feed_rate_mm_min": {
+        "AL7075": {
+          "r": 0.052,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0257,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0106,
+          "n": 375
+        }
+      },
+      "depth_of_cut_mm": {
+        "AL7075": {
+          "r": 0.0529,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0195,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.1197,
+          "n": 375
+        }
+      },
+      "coolant_flow_l_min": {
+        "AL7075": {
+          "r": 0.0353,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0245,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0574,
+          "n": 375
+        }
+      },
+      "coolant_temp_C": {
+        "AL7075": {
+          "r": 0.772,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.7657,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.7806,
+          "n": 375
+        }
+      },
+      "spindle_temp_C": {
+        "AL7075": {
+          "r": 0.818,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.8231,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.853,
+          "n": 375
+        }
+      },
+      "spindle_vibration_mm_s": {
+        "AL7075": {
+          "r": 0.9624,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.9581,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.9546,
+          "n": 375
+        }
+      },
+      "cutting_force_N": {
+        "AL7075": {
+          "r": 0.4973,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.492,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.5296,
+          "n": 375
+        }
+      },
+      "ambient_temp_C": {
+        "AL7075": {
+          "r": 0.0257,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0305,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0022,
+          "n": 375
+        }
+      },
+      "tool_age_parts": {
+        "AL7075": {
+          "r": 0.2452,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.3389,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.3055,
+          "n": 375
+        }
+      }
+    },
+    "chatter_mark_count": {
+      "spindle_speed_rpm": {
+        "AL7075": {
+          "r": 0.0495,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0047,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0108,
+          "n": 375
+        }
+      },
+      "feed_rate_mm_min": {
+        "AL7075": {
+          "r": 0.0005,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0139,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.014,
+          "n": 375
+        }
+      },
+      "depth_of_cut_mm": {
+        "AL7075": {
+          "r": -0.0425,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0201,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0713,
+          "n": 375
+        }
+      },
+      "coolant_flow_l_min": {
+        "AL7075": {
+          "r": 0.0028,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0368,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0452,
+          "n": 375
+        }
+      },
+      "coolant_temp_C": {
+        "AL7075": {
+          "r": 0.4048,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.3521,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.3955,
+          "n": 375
+        }
+      },
+      "spindle_temp_C": {
+        "AL7075": {
+          "r": 0.4314,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.391,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.4161,
+          "n": 375
+        }
+      },
+      "spindle_vibration_mm_s": {
+        "AL7075": {
+          "r": 0.419,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.3671,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.398,
+          "n": 375
+        }
+      },
+      "cutting_force_N": {
+        "AL7075": {
+          "r": 0.1849,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.1845,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.2776,
+          "n": 375
+        }
+      },
+      "ambient_temp_C": {
+        "AL7075": {
+          "r": 0.0092,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0533,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0793,
+          "n": 375
+        }
+      },
+      "tool_age_parts": {
+        "AL7075": {
+          "r": 0.0276,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0029,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.1162,
+          "n": 375
+        }
+      }
+    },
+    "dimensional_deviation_mm": {
+      "spindle_speed_rpm": {
+        "AL7075": {
+          "r": -0.0217,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0282,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0205,
+          "n": 375
+        }
+      },
+      "feed_rate_mm_min": {
+        "AL7075": {
+          "r": 0.0341,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0436,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0129,
+          "n": 375
+        }
+      },
+      "depth_of_cut_mm": {
+        "AL7075": {
+          "r": 0.0017,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.066,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0371,
+          "n": 375
+        }
+      },
+      "coolant_flow_l_min": {
+        "AL7075": {
+          "r": 0.0379,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0062,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0893,
+          "n": 375
+        }
+      },
+      "coolant_temp_C": {
+        "AL7075": {
+          "r": 0.8629,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.8682,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.8862,
+          "n": 375
+        }
+      },
+      "spindle_temp_C": {
+        "AL7075": {
+          "r": 0.9362,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.956,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.963,
+          "n": 375
+        }
+      },
+      "spindle_vibration_mm_s": {
+        "AL7075": {
+          "r": 0.9105,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.9289,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.9216,
+          "n": 375
+        }
+      },
+      "cutting_force_N": {
+        "AL7075": {
+          "r": 0.4119,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.3748,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.4437,
+          "n": 375
+        }
+      },
+      "ambient_temp_C": {
+        "AL7075": {
+          "r": 0.1399,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0387,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.1453,
+          "n": 375
+        }
+      },
+      "tool_age_parts": {
+        "AL7075": {
+          "r": 0.1611,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.2121,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.2068,
+          "n": 375
+        }
+      }
+    },
+    "hardness_HV": {
+      "spindle_speed_rpm": {
+        "AL7075": {
+          "r": -0.0171,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0454,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0139,
+          "n": 375
+        }
+      },
+      "feed_rate_mm_min": {
+        "AL7075": {
+          "r": -0.0524,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0035,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0156,
+          "n": 375
+        }
+      },
+      "depth_of_cut_mm": {
+        "AL7075": {
+          "r": -0.0094,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0174,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0385,
+          "n": 375
+        }
+      },
+      "coolant_flow_l_min": {
+        "AL7075": {
+          "r": -0.0056,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0327,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0194,
+          "n": 375
+        }
+      },
+      "coolant_temp_C": {
+        "AL7075": {
+          "r": -0.1574,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.2251,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.1447,
+          "n": 375
+        }
+      },
+      "spindle_temp_C": {
+        "AL7075": {
+          "r": -0.1719,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.2394,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.1676,
+          "n": 375
+        }
+      },
+      "spindle_vibration_mm_s": {
+        "AL7075": {
+          "r": -0.1984,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.2194,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.1969,
+          "n": 375
+        }
+      },
+      "cutting_force_N": {
+        "AL7075": {
+          "r": -0.1477,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.1194,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.1472,
+          "n": 375
+        }
+      },
+      "ambient_temp_C": {
+        "AL7075": {
+          "r": -0.0343,
+          "n": 600
+        },
+        "SS304": {
+          "r": 0.0431,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": 0.0208,
+          "n": 375
+        }
+      },
+      "tool_age_parts": {
+        "AL7075": {
+          "r": -0.0943,
+          "n": 600
+        },
+        "SS304": {
+          "r": -0.0242,
+          "n": 525
+        },
+        "TI6AL4V": {
+          "r": -0.0367,
+          "n": 375
+        }
+      }
+    }
+  },
+  "tool_age_analysis": {
+    "surface_roughness_Ra_um": [
+      {
+        "tool_age_avg": 3.5,
+        "surface_roughness_Ra_um_mean": 1.2404
+      },
+      {
+        "tool_age_avg": 11.4,
+        "surface_roughness_Ra_um_mean": 1.2776
+      },
+      {
+        "tool_age_avg": 19.3,
+        "surface_roughness_Ra_um_mean": 1.3362
+      },
+      {
+        "tool_age_avg": 27.2,
+        "surface_roughness_Ra_um_mean": 1.3727
+      },
+      {
+        "tool_age_avg": 35.1,
+        "surface_roughness_Ra_um_mean": 1.4279
+      },
+      {
+        "tool_age_avg": 43.0,
+        "surface_roughness_Ra_um_mean": 1.4556
+      },
+      {
+        "tool_age_avg": 50.9,
+        "surface_roughness_Ra_um_mean": 1.5126
+      },
+      {
+        "tool_age_avg": 58.8,
+        "surface_roughness_Ra_um_mean": 1.5381
+      },
+      {
+        "tool_age_avg": 67,
+        "surface_roughness_Ra_um_mean": 1.5007
+      },
+      {
+        "tool_age_avg": 75.3,
+        "surface_roughness_Ra_um_mean": 1.5917
+      }
+    ],
+    "chatter_mark_count": [
+      {
+        "tool_age_avg": 3.5,
+        "chatter_mark_count_mean": 0.3133
+      },
+      {
+        "tool_age_avg": 11.4,
+        "chatter_mark_count_mean": 0.6667
+      },
+      {
+        "tool_age_avg": 19.3,
+        "chatter_mark_count_mean": 0.7133
+      },
+      {
+        "tool_age_avg": 27.2,
+        "chatter_mark_count_mean": 0.5333
+      },
+      {
+        "tool_age_avg": 35.1,
+        "chatter_mark_count_mean": 0.6667
+      },
+      {
+        "tool_age_avg": 43.0,
+        "chatter_mark_count_mean": 0.86
+      },
+      {
+        "tool_age_avg": 50.9,
+        "chatter_mark_count_mean": 1.08
+      },
+      {
+        "tool_age_avg": 58.8,
+        "chatter_mark_count_mean": 0.7733
+      },
+      {
+        "tool_age_avg": 67,
+        "chatter_mark_count_mean": 0.7533
+      },
+      {
+        "tool_age_avg": 75.3,
+        "chatter_mark_count_mean": 0.9667
+      }
+    ],
+    "dimensional_deviation_mm": [
+      {
+        "tool_age_avg": 3.5,
+        "dimensional_deviation_mm_mean": 0.0392
+      },
+      {
+        "tool_age_avg": 11.4,
+        "dimensional_deviation_mm_mean": 0.0407
+      },
+      {
+        "tool_age_avg": 19.3,
+        "dimensional_deviation_mm_mean": 0.0423
+      },
+      {
+        "tool_age_avg": 27.2,
+        "dimensional_deviation_mm_mean": 0.0441
+      },
+      {
+        "tool_age_avg": 35.1,
+        "dimensional_deviation_mm_mean": 0.0463
+      },
+      {
+        "tool_age_avg": 43.0,
+        "dimensional_deviation_mm_mean": 0.0478
+      },
+      {
+        "tool_age_avg": 50.9,
+        "dimensional_deviation_mm_mean": 0.0507
+      },
+      {
+        "tool_age_avg": 58.8,
+        "dimensional_deviation_mm_mean": 0.0506
+      },
+      {
+        "tool_age_avg": 67,
+        "dimensional_deviation_mm_mean": 0.049
+      },
+      {
+        "tool_age_avg": 75.3,
+        "dimensional_deviation_mm_mean": 0.0539
+      }
+    ],
+    "hardness_HV": [
+      {
+        "tool_age_avg": 3.5,
+        "hardness_HV_mean": 226.2307
+      },
+      {
+        "tool_age_avg": 11.4,
+        "hardness_HV_mean": 262.7473
+      },
+      {
+        "tool_age_avg": 19.3,
+        "hardness_HV_mean": 239.75
+      },
+      {
+        "tool_age_avg": 27.2,
+        "hardness_HV_mean": 249.16
+      },
+      {
+        "tool_age_avg": 35.1,
+        "hardness_HV_mean": 266.492
+      },
+      {
+        "tool_age_avg": 43.0,
+        "hardness_HV_mean": 229.142
+      },
+      {
+        "tool_age_avg": 50.9,
+        "hardness_HV_mean": 273.492
+      },
+      {
+        "tool_age_avg": 58.8,
+        "hardness_HV_mean": 251.858
+      },
+      {
+        "tool_age_avg": 67,
+        "hardness_HV_mean": 247.9247
+      },
+      {
+        "tool_age_avg": 75.3,
+        "hardness_HV_mean": 266.9613
+      }
+    ]
+  }
+}

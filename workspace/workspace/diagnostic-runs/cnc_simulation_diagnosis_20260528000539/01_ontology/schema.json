@@ -1,0 +1,26 @@
+{
+  "column_types": {
+    "timestamp": "datetime",
+    "part_id": "string",
+    "day": "number",
+    "shift": "string",
+    "material": "string",
+    "tool_id": "string",
+    "tool_age_parts": "number",
+    "spindle_speed_rpm": "number",
+    "feed_rate_mm_min": "number",
+    "depth_of_cut_mm": "number",
+    "coolant_flow_l_min": "number",
+    "coolant_temp_C": "number",
+    "spindle_temp_C": "number",
+    "spindle_vibration_mm_s": "number",
+    "cutting_force_N": "number",
+    "ambient_temp_C": "number",
+    "surface_roughness_Ra_um": "number",
+    "chatter_mark_count": "number",
+    "dimensional_deviation_mm": "number",
+    "surface_defect_grade": "string",
+    "hardness_HV": "number"
+  },
+  "run_id": "cnc_simulation_diagnosis_20260528000539"
+}

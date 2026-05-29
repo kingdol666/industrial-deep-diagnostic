@@ -1,0 +1,221 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "diagnosis_time": "2026-05-28T00:30:00.000Z",
+  "diagnosis_type": "COMPETING_SET",
+  "primary_diagnosis": "主轴振动是表面粗糙度和尺寸偏差的直接近端原因(r=0.993, p≈0, 三类材料一致), 但振动的根因(轴承磨损 vs 热致动平衡变化)在现有被动时序数据中不可区分",
+  "产品分层分析": {
+    "有产品列": true,
+    "产品": ["AL7075", "SS304", "TI6AL4V"],
+    "整体与分层对比": [
+      {
+        "参数": "spindle_vibration_mm_s → surface_roughness_Ra_um",
+        "整体r": 0.9927,
+        "分层r": {"AL7075": 0.9929, "SS304": 0.9932, "TI6AL4V": 0.9937},
+        "一致性类型": "UNIVERSAL",
+        "结论": "确认 — 三类材料高度一致, 非材料依赖效应"
+      },
+      {
+        "参数": "spindle_temp_C → surface_roughness_Ra_um",
+        "整体r": 0.9557,
+        "分层r": {"AL7075": 0.9572, "SS304": 0.9537, "TI6AL4V": 0.9610},
+        "一致性类型": "UNIVERSAL",
+        "结论": "确认 — 三类材料一致"
+      },
+      {
+        "参数": "spindle_speed_rpm → hardness_HV",
+        "整体r": -0.9318,
+        "分层r": {"AL7075": -0.0330, "SS304": -0.0385, "TI6AL4V": 0.0213},
+        "一致性类型": "SIMPSON_PARADOX_CRITICAL",
+        "结论": "排除 — 硬度是材料固有属性, 非加工过程导致"
+      }
+    ],
+    "分析范围": "整体与分层并行"
+  },
+  "causal_chain": [
+    {
+      "step": 1,
+      "event": "长时间运行后主轴振动渐进增大(0.63→5.41 mm/s, 约8.6倍)",
+      "evidence_type": "OBSERVATION",
+      "variable": "spindle_vibration_mm_s",
+      "observed_behavior": "30天内振动从均值~0.74增至~5.41mm/s, 包含5个明显阶跃式 regime shift",
+      "physical_mechanism": "主轴轴承或转子系统渐进退化",
+      "evidence_rank": 1,
+      "evidence_source": "raw_data.csv 直接观测 + change_point_detection"
+    },
+    {
+      "step": 2,
+      "event": "振动增大 → 刀尖-工件相对位移波动",
+      "evidence_type": "INFERENCE",
+      "variable": "spindle_vibration_mm_s → cutting dynamics",
+      "observed_behavior": "振动幅值增长与粗糙度几乎完美同步(r=0.993)",
+      "physical_mechanism": "主轴振动直接传递至切削界面, 导致切削深度和切削力波动",
+      "evidence_rank": 2,
+      "evidence_source": "feature_summary.json pearson r=0.9927, spearman r=0.9571"
+    },
+    {
+      "step": 3,
+      "event": "切削深度波动 → 表面波度/粗糙度恶化",
+      "evidence_type": "INFERENCE",
+      "variable": "surface_roughness_Ra_um",
+      "observed_behavior": "粗糙度从~0.76μm增至~2.67μm",
+      "physical_mechanism": "振动导致刀尖轨迹在工件表面留下周期性的波峰波谷, 增加Ra值",
+      "evidence_rank": 2,
+      "evidence_source": "raw_data.csv: 粗糙度长期上升趋势与振动一致"
+    },
+    {
+      "step": 4,
+      "event": "振动增大 → 尺寸偏差增大",
+      "evidence_type": "OBSERVATION",
+      "variable": "dimensional_deviation_mm",
+      "observed_behavior": "尺寸偏差从~0.005mm增至~0.115mm, r=0.9794 with vibration",
+      "physical_mechanism": "振动造成刀具平均位置偏移, 同时切削力波动导致弹性让刀量变化",
+      "evidence_rank": 1,
+      "evidence_source": "feature_summary.json dimensional_deviation vs vibration r=0.9794"
+    },
+    {
+      "step": 5,
+      "event": "极端振动 → 振纹产生(chatter marks)",
+      "evidence_type": "OBSERVATION",
+      "variable": "chatter_mark_count",
+      "observed_behavior": "振纹在高压轴段(振动>3mm/s)频发, 最终段均值2.55个",
+      "physical_mechanism": "振动超过稳定切削阈值→再生颤振→明显振纹",
+      "evidence_rank": 2,
+      "evidence_source": "validate_report.json: 振纹主要出现在振动第4-5阶段"
+    },
+    {
+      "step": 6,
+      "event": "振动增大的根因分析(轴承磨损 vs 热效应 vs 刀具磨损)",
+      "evidence_type": "UNCERTAINTY",
+      "variable": "root_cause_of_vibration",
+      "observed_behavior": "温度(r=0.967)与振动同步变化, 无法区分因果关系方向",
+      "physical_mechanism": "多种物理机制(轴承退化/热不平衡/刀具磨损)均预测相同观测模式: 振动↑温度↑",
+      "evidence_rank": 6,
+      "evidence_source": "v6.0 discriminability assessment: 时间共线性退化机制不可区分"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "主轴轴承/转子系统渐进退化 → 振动增大 → 表面质量和尺寸精度恶化",
+      "is_primary": true,
+      "confidence": 65,
+      "physical_mechanism": "主轴轴承滚道/滚动体磨损或主轴动平衡劣化导致旋转精度下降, 振动能量增大, 通过切削界面传递至工件表面。振动引起刀尖轨迹波动, 直接增加表面粗糙度和尺寸偏差。",
+      "hypothesis_type": "PROXIMAL_DETERMINED_ROOT_COMPETING",
+      "supporting_evidence": [
+        {"rank": 1, "source": "raw_data.csv", "detail": "主轴振动从0.63增至5.41mm/s, 与粗糙度时间序列几乎完全平行"},
+        {"rank": 2, "source": "feature_summary.json", "detail": "spindle_vibration vs roughness: r=0.9927(Pearson), r=0.9571(Spearman), p≈0"},
+        {"rank": 2, "source": "feature_summary.json", "detail": "去趋势后: detrended_r=0.9689, 仅衰减2.4% — 非时间混杂"},
+        {"rank": 2, "source": "feature_summary.json", "detail": "三类材料分层: r=0.9929/0.9932/0.9937 — 普适效应, 非材料依赖"},
+        {"rank": 3, "source": "feature_summary.json", "detail": "格兰杰因果: F=306.97@lag1, p=0 — 所有参数中最强的时序因果证据"},
+        {"rank": 4, "source": "03_figures/02_correlation_heatmap.png", "detail": "热图显示振动-粗糙度相关性为所有参数对中最高"},
+        {"rank": 4, "source": "03_figures/03_simpson_paradox.png", "detail": "分层散点图显示三类材料高度一致趋势"},
+        {"rank": 4, "source": "03_figures/05_temperature_profiles.png", "detail": "温度-振动-粗糙度联合时间序列显示同步变化"},
+        {"rank": 4, "source": "03_figures/06_tool_wear_analysis.png", "detail": "刀具寿命分段显示振动为主导因素而非刀具年龄"},
+        {"rank": 5, "source": "process_knowledge_base", "detail": "已知物理: 主轴振动直接增大表面粗糙度(ISO 230-7, 切削动力学理论)"}
+      ],
+      "contradicting_evidence": [
+        {"detail": "振动与温度(r=0.967)高度共线性, 无法完全隔离温度效应", "significance": "中等 — 导致根因不可区分"},
+        {"detail": "振动变化点(5个)少于粗糙度变化点(56个), 说明粗糙度还受其他短期因素调制", "significance": "低 — 反映刀具更换等操作的叠加效应"}
+      ],
+      "testable_predictions": [
+        "更换主轴轴承后振动应大幅下降, 粗糙度同步改善",
+        "振动FFT频谱应显示轴承故障特征频率(如外圈BPFO、内圈BPFI)",
+        "同一切削参数下, 振动水平直接决定粗糙度值(线性关系)"
+      ],
+      "置信度上限说明": "根因不可区分性导致置信度上限为65/100"
+    },
+    {
+      "id": "H2",
+      "name": "热致主轴动平衡变化/热变形 → 振动增大 → 质量恶化",
+      "is_primary": false,
+      "confidence": 60,
+      "physical_mechanism": "主轴长时间运行后温升(38→约70°C区间)导致热不对称变形, 破坏转子动平衡, 产生同步振动。同时主轴热膨胀直接导致刀具位置漂移(尺寸偏差)。",
+      "hypothesis_type": "COMPETING",
+      "supporting_evidence": [
+        {"rank": 2, "source": "feature_summary.json", "detail": "spindle_temp vs roughness: r=0.9557, 三类材料一致"},
+        {"rank": 2, "source": "feature_summary.json", "detail": "spindle_temp vs dimensional_deviation: r=0.9908"},
+        {"rank": 3, "source": "feature_summary.json", "detail": "格兰杰因果: F=150.45@lag1, p=0"},
+        {"rank": 5, "source": "process_knowledge_base", "detail": "已知物理: 温升→热膨胀→刀具位置漂移(CLC=12μm/m/°C × ΔT × 悬伸量)"},
+        {"rank": 4, "source": "03_figures/05_temperature_profiles.png", "detail": "主轴温度与振动同步上升趋势"}
+      ],
+      "contradicting_evidence": [
+        {"detail": "去趋势后温度-粗糙度衰减16.3%而振动仅衰减2.4%", "significance": "中等 — 表明温度效应部分由时间混杂驱动"},
+        {"detail": "温度变化量(约30°C)对应的热膨胀(约18μm)不足以完全解释尺寸偏差(0.005→0.115mm)", "significance": "中等 — 热效应为主因时需要更大的温升"},
+        {"detail": "温度变化点(3个)远少于振动变化点(5个)", "significance": "中等 — 振动有独立于温度的额外退化机制"}
+      ],
+      "testable_predictions": [
+        "机床冷机启动时尺寸偏差应为最小, 热平衡后趋于稳定",
+        "安装主轴冷却系统后应明显改善尺寸稳定性"
+      ]
+    },
+    {
+      "id": "H4",
+      "name": "冷却系统效率下降 → 温升连锁 → 间接质量影响",
+      "is_primary": false,
+      "confidence": 35,
+      "physical_mechanism": "冷却液温度上升(24.5→29.5°C)降低了主轴冷却效率, 间接贡献于主轴温升, 通过H2路径影响质量。",
+      "hypothesis_type": "SECONDARY_CONTRIBUTOR",
+      "supporting_evidence": [
+        {"rank": 2, "source": "feature_summary.json", "detail": "coolant_temp vs spindle_temp: r=0.936"},
+        {"rank": 2, "source": "feature_summary.json", "detail": "coolant_temp vs roughness: r=0.8746, 去趋势后r=0.5073"},
+        {"rank": 4, "source": "03_figures/05_temperature_profiles.png", "detail": "冷却液温度与主轴温度平行上升"}
+      ],
+      "contradicting_evidence": [
+        {"detail": "去趋势后衰减42%, 近一半相关性来自时间混杂", "significance": "高 — 表明冷却液温度为主轴温升的反映而非独立原因"},
+        {"detail": "冷却液温度变化仅5°C, 物理效应有限", "significance": "中等 — 对于冷却效率影响较小"}
+      ],
+      "testable_predictions": [
+        "更换冷却液或清洗冷却系统后主轴温度应下降",
+        "冷却液流量变化应直接影响主轴温度和加工质量"
+      ]
+    }
+  ],
+  "competing_sets": [
+    {
+      "set_id": "CS1",
+      "hypotheses": ["H1", "H2"],
+      "discriminability": "INDISTINGUISHABLE",
+      "跨产品区分性": "REMAINS_INDISTINGUISHABLE",
+      "reason": "H1(轴承磨损→振动)和H2(热效应→振动)均预测相同观测模式: 振动↑, 温度↑, 尺寸偏差↑, 粗糙度↑。所有参数时间共线性(r=0.967)。从被动时序数据中无法区分振动是温度的原因还是结果。",
+      "discriminating_data_needed": [
+        "振动FFT频谱分析: 轴承故障频率(~2-10kHz BPFO/BPFI) vs 热不平衡(1×转速频率)",
+        "加速度传感器(高频)替代位移/速度传感器",
+        "受控实验: 冷启动后立即测量(温度尚未上升时的振动水平)",
+        "主轴轴承状态监测数据(如油液分析、声发射)"
+      ],
+      "confidence_ceiling": 65
+    }
+  ],
+  "eliminated_hypotheses": [
+    "H3(刀具磨损): tool_age_parts vs roughness仅r=0.145, 格兰杰因果lag1不显著(F=1.9, p=0.17), 排除为根因。刀具磨损可能是短期波动的调制因素(粗糙度的56个段内波动), 但不是全局退化趋势的驱动力。",
+    "H5(工艺参数偏移): spindle_speed(r=-0.04), feed_rate(r=-0.04), depth_of_cut(r=0.02)均与质量指标近乎零相关。排除。",
+    "H6(环境温度): ambient_temp与任何质量指标均无相关(r<0.05)。排除。",
+    "硬度问题(spindle_speed→hardness): Simpson悖论—整体r=-0.93但分层r≈0(均p>0.3)。硬度是材料固有属性, 非加工过程缺陷。排除。",
+    "冷却液流量(coolant_flow): 与所有质量指标r<0.05。排除。"
+  ],
+  "data_gaps": [
+    "无高频振动FFT数据 — 无法区分轴承故障特征频率",
+    "无刀具磨损直接测量(如刀具后刀面磨损量VB) — 无法确认刀具状态",
+    "无主轴轴承型号和维护记录 — 无法进行轴承寿命计算",
+    "无受控实验(冷启动、更换轴承后的对比数据)",
+    "无刀具更换事件标记 — 无法确认粗糙度短期波动的来源"
+  ],
+  "discriminability_matrix": [
+    {
+      "对比假设": "H1(轴承磨损→振动) vs H2(热效应→振动)",
+      "预测观测": "同样: 振动↑, 温度↑, 尺寸偏差↑, 粗糙度↑",
+      "区分所需数据": "振动FFT频谱(轴承故障频率 vs 1×转速谐波)",
+      "当前区分能力": "INDISTINGUISHABLE",
+      "alternative": "H3(刀具磨损)",
+      "预测观测": "tool_age与振动弱相关(r=0.08), 格兰杰lag1不显著",
+      "当前区分能力": "DISTINGUISHED — 排除为根因"
+    }
+  ],
+  "ruled_out": [
+    "刀具磨损作为根因 — tool_age_parts相关性太弱(排除置信度92/100)",
+    "工艺参数直接效应 — spindle_speed/feed_rate/depth近乎零相关(排除置信度98/100)",
+    "硬度反映加工质量 — Simpson悖论, 纯材料属性(排除置信度95/100)",
+    "环境温度影响 — 零相关(排除置信度99/100)",
+    "冷却液流量 — 零相关(排除置信度95/100)"
+  ]
+}

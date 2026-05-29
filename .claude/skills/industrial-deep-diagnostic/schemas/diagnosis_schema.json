@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Diagnosis Schema v6.0",
-  "description": "Schema for the Diagnostician agent's primary output (Competing Hypotheses Protocol)",
+  "title": "Diagnosis Schema v8.0",
+  "description": "Schema for the Interpreter agent's primary output (Agent-driven analysis with physical anchoring)",
   "type": "object",
   "required": ["run_id", "diagnosis_time", "diagnosis_type", "primary_finding", "hypotheses"],
   "properties": {

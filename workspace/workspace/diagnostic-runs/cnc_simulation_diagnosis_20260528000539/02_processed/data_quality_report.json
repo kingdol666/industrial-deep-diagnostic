@@ -1,0 +1,23 @@
+{
+  "total_rows": 1500,
+  "total_parameters": 16,
+  "missing_values": 0,
+  "missing_pct": 0,
+  "time_sorted": true,
+  "time_range": "2026-04-01 to 2026-05-01",
+  "groups": [
+    "AL7075",
+    "SS304",
+    "TI6AL4V"
+  ],
+  "defect_grades": {
+    "A": 606,
+    "B": 395,
+    "C": 499
+  },
+  "outlier_driven_correlations": 5,
+  "trend_confounded_correlations": 8,
+  "simpson_paradox_findings": 3,
+  "change_points_detected": 4,
+  "overall_validity": "SERIOUS_CONCERNS \u2014 Multiple statistical robustness issues detected. Key correlations should be re-verified before drawing causal conclusions."
+}

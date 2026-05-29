@@ -1,0 +1,16 @@
+{
+  "overall_confidence": 65,
+  "constraints": [
+    "Confidence capped at 65 per v6.0 COMPETING_SET protocol",
+    "H1 (Spindle Bearing Degradation) is strongly supported but H5 (Combined) cannot be fully excluded",
+    "No direct bearing inspection data available",
+    "No controlled experiment data with spindle replacement"
+  ],
+  "by_hypothesis": {
+    "H1": {"confidence": 70, "limitation": "Strong statistical evidence but no direct bearing inspection"},
+    "H5": {"confidence": 25, "limitation": "Plausible but tool age effect is much weaker than spindle condition effect"},
+    "H2": {"confidence": 5, "limitation": "Cannot explain magnitude of degradation independent of spindle condition"},
+    "H3": {"confidence": 5, "limitation": "Coolant temperature rise is likely consequence not cause"},
+    "H4": {"confidence": 0, "limitation": "EXCLUDED - no statistical or temporal evidence"}
+  }
+}

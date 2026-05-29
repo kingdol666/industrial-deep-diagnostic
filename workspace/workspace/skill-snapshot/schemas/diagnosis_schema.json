@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Diagnosis Schema",
+  "description": "Schema for the diagnostician agent's primary output",
+  "type": "object",
+  "required": ["run_id", "diagnosis_time", "primary_diagnosis", "causal_chain", "hypotheses"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "diagnosis_time": {"type": "string", "format": "date-time"},
+    "primary_diagnosis": {
+      "type": "string",
+      "description": "One-line summary of the primary finding"
+    },
+    "causal_chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "event", "evidence_type", "evidence_rank"],
+        "properties": {
+          "step": {"type": "integer"},
+          "event": {"type": "string"},
+          "evidence_type": {"type": "string", "enum": ["OBSERVATION", "INFERENCE", "HYPOTHESIS", "UNCERTAINTY"]},
+          "variable": {"type": "string"},
+          "observed_behavior": {"type": "string"},
+          "physical_mechanism": {"type": "string"},
+          "evidence_rank": {"type": "integer", "minimum": 1, "maximum": 7},
+          "evidence_source": {"type": "string"}
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "is_primary", "confidence"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^H[0-9]+$"},
+          "name": {"type": "string"},
+          "is_primary": {"type": "boolean"},
+          "confidence": {"type": "integer", "minimum": 0, "maximum": 100},
+          "physical_mechanism": {"type": "string"},
+          "supporting_evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": {"type": "integer", "minimum": 1, "maximum": 7},
+                "source": {"type": "string"},
+                "detail": {"type": "string"}
+              }
+            }
+          },
+          "contradicting_evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "detail": {"type": "string"},
+                "significance": {"type": "string"}
+              }
+            }
+          },
+          "testable_predictions": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "spatial_analysis": {
+      "type": "object",
+      "properties": {
+        "anomaly_center_position_mm": {"type": "number"},
+        "anomaly_width_mm": {"type": "number"},
+        "affected_zone": {"type": "string"},
+        "pattern": {"type": "string"},
+        "edges_affected": {"type": "boolean"}
+      }
+    },
+    "temporal_analysis": {
+      "type": "object",
+      "properties": {
+        "anomaly_onset": {"type": "string"},
+        "anomaly_onset_row": {"type": "integer"},
+        "total_duration_minutes": {"type": "number"},
+        "sampling_interval_sec": {"type": "number"},
+        "response_lag": {"type": "string"},
+        "degradation_rate": {"type": "string"}
+      }
+    },
+    "ruled_out": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Causes that were investigated and excluded, with brief reason"
+    }
+  }
+}

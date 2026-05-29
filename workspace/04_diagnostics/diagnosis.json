@@ -1,0 +1,187 @@
+{
+  "diagnostician": {
+    "protocol_version": "v6.0-5step",
+    "step_A_data_pattern_discovery": {
+      "summary": "Seven statistically significant patterns identified from 1500-record CNC milling dataset",
+      "patterns": [
+        {
+          "id": "P1",
+          "pattern": "Monotonic quality degradation over production sequence",
+          "evidence": "First 750 parts: 26.1% defect rate (B+C). Last 750 parts: 93.1% defect rate. Surface roughness increases from mean 0.90µm to 1.95µm. Dimensional deviation from 0.014mm to 0.079mm.",
+          "evidence_rank": 3,
+          "statistical_significance": "p<0.001 for all quality metrics comparing first vs second half"
+        },
+        {
+          "id": "P2",
+          "pattern": "Spindle temperature strongly correlated with defect grade",
+          "evidence": "Grade A mean: 38.4°C, Grade B mean: 44.8°C, Grade C mean: 68.7°C. Cohen's d=7.98 between A and C. r=0.956 with surface roughness.",
+          "evidence_rank": 3
+        },
+        {
+          "id": "P3",
+          "pattern": "Spindle vibration velocity strongly correlated with defect grade",
+          "evidence": "Grade A mean: 0.66 mm/s, Grade B mean: 1.35 mm/s, Grade C mean: 4.81 mm/s. Cohen's d=6.39. r=0.993 with surface roughness.",
+          "evidence_rank": 3
+        },
+        {
+          "id": "P4",
+          "pattern": "Coolant temperature elevation parallels quality degradation",
+          "evidence": "Grade A mean: 24.7°C, Grade B mean: 25.5°C, Grade C mean: 29.2°C. Cohen's d=4.11. r=0.875 with surface roughness.",
+          "evidence_rank": 3
+        },
+        {
+          "id": "P5",
+          "pattern": "Tool wear monotonic but moderate correlation",
+          "evidence": "Defect rate increases from 41.6% (tool age 0-10) to 86.4% (tool age 70-80). Cohen's d=0.49. Tool age peaks at ~50 parts for Grade B (mean 50.0) then drops for Grade C (41.1).",
+          "evidence_rank": 3
+        },
+        {
+          "id": "P6",
+          "pattern": "Cutting force moderately elevated in defect parts",
+          "evidence": "Grade A mean: 858N, Grade B mean: 916N, Grade C mean: 960N. Cohen's d=0.48. ANOVA p<0.001.",
+          "evidence_rank": 3
+        },
+        {
+          "id": "P7",
+          "pattern": "Ti6Al4V has highest defect rate, SS304 lowest",
+          "evidence": "Ti6Al4V: 70.4% defect rate. AL7075: 59.5%. SS304: 52.0%. But the degradation trend over time is consistent across all materials.",
+          "evidence_rank": 3
+        }
+      ]
+    },
+    "step_B_candidate_root_cause_generation": {
+      "hypotheses": [
+        {
+          "id": "H1",
+          "name": "Spindle Bearing Degradation",
+          "physical_mechanism": "Progressive bearing wear increases friction → elevated spindle temperature → increased vibration → degraded surface finish and dimensional accuracy.",
+          "consistent_patterns": ["P1", "P2", "P3", "P4", "P6"],
+          "explains_temporal_monotonicity": true,
+          "predicted_observables": "Monotonic increase in spindle temperature and vibration over time, strong coupling between temperature and vibration"
+        },
+        {
+          "id": "H2",
+          "name": "Cumulative Tool Wear Without Optimal Replacement Schedule",
+          "physical_mechanism": "As tool edge wears, cutting forces increase → higher heat generation → thermal expansion → dimensional deviation. Worn tool causes chatter → vibration → poor surface finish.",
+          "consistent_patterns": ["P1", "P2", "P5", "P6", "P3"],
+          "explains_temporal_monotonicity": true,
+          "predicted_observables": "Defect rate should strongly follow tool age reset pattern (reset after each tool change)"
+        },
+        {
+          "id": "H3",
+          "name": "Coolant System Degradation / Insufficient Cooling",
+          "physical_mechanism": "Coolant temperature rise reduces heat removal capacity → insufficient cooling of cutting zone → thermal expansion and material softening → dimensional errors and poor surface finish.",
+          "consistent_patterns": ["P1", "P4", "P2", "P6"],
+          "explains_temporal_monotonicity": true,
+          "predicted_observables": "Coolant temperature should rise independently of spindle condition"
+        },
+        {
+          "id": "H4",
+          "name": "Process Parameters Drift Without Adaptive Control",
+          "physical_mechanism": "Spindle speed or feed rate settings drift over time or are set outside optimal range for each material, causing suboptimal cutting conditions.",
+          "consistent_patterns": ["P1", "P7", "P6"],
+          "explains_temporal_monotonicity": false,
+          "predicted_observables": "Spindle speed and feed rate should show significant temporal trend or correlate with defect grade"
+        },
+        {
+          "id": "H5",
+          "name": "Combined Bearing Degradation + Inadequate Tool Management",
+          "physical_mechanism": "Spindle bearing degradation provides the base-level vibration and thermal instability, while inadequate tool replacement (tools used beyond optimal life) amplifies the degradation effect on surface quality.",
+          "consistent_patterns": ["P1", "P2", "P3", "P4", "P5", "P6"],
+          "explains_temporal_monotonicity": true,
+          "predicted_observables": "Both bearing indicators (spindle temp, vibration) AND tool age should independently predict defect grade"
+        }
+      ]
+    },
+    "step_C_data_discriminability_assessment": {
+      "assessment": [
+        {
+          "hypotheses_pair": ["H1", "H2"],
+          "discriminability": "PARTIALLY DISCRIMINABLE",
+          "reasoning": "H1 predicts spindle temperature and vibration should NOT reset after tool changes (bearing wear is cumulative across tools). H2 predicts quality should improve after each tool change (fresh tool restores quality). If the data shows quality degradation is monotonic across tool changes (i.e., a tool change in the later production stages still produces poor quality), H2 is weakened. Currently need to test: does defect grade correlate with spindle condition within the same tool age group?"
+        },
+        {
+          "hypotheses_pair": ["H1", "H3"],
+          "discriminability": "LOW",
+          "reasoning": "Both H1 and H3 predict elevated temperatures over time. If coolant temperature rise is CAUSED by spindle bearing heating the coolant (rather than coolant system failing), they are not independent. Need to check: does coolant temperature lead or lag spindle temperature?"
+        },
+        {
+          "hypotheses_pair": ["H1", "H5"],
+          "discriminability": "LOW",
+          "reasoning": "H5 encompasses H1. The key discriminator is the independent contribution of tool age beyond what spindle condition predicts."
+        },
+        {
+          "hypotheses_pair": ["H2", "H4"],
+          "discriminability": "HIGH",
+          "reasoning": "H4 predicts spindle speed/feed rate drift. ANOVA shows p>0.14 for both - NOT significant. H2 predicts tool age effect. ANOVA p<0.001. These predict clearly different patterns."
+        }
+      ],
+      "critical_data_gap": "Need to analyze: within each tool age group, does spindle condition still predict defect grade? This is the key discriminator between H1 and H2."
+    },
+    "step_D_exclusion_verification": {
+      "exclusions": [
+        {
+          "hypothesis": "H4 (Process Parameters Drift)",
+          "action": "EXCLUDED",
+          "reason": "ANOVA shows spindle speed (p=0.142) and feed rate (p=0.172) do NOT differ significantly by defect grade. Cohen's d between A and C: spindle speed d=-0.12, feed rate d=-0.11. Negligible effect. No temporal drift detected in these parameters.",
+          "confidence": 0.95
+        },
+        {
+          "hypothesis": "H2 (Pure Tool Wear Without Bearing Issue)",
+          "action": "PARTIALLY EXCLUDED",
+          "reason": "Tool age monotonic effect is real (defect rate 41.6%→86.4%). However, spindle temperature and vibration show MUCH stronger effects (d=7.98, 6.39 vs d=0.49 for tool age). Furthermore, tool-age-grouped analysis needed to determine if spindle condition dominates within each tool age group.",
+          "confidence": 0.60
+        },
+        {
+          "hypothesis": "H3 (Pure Coolant System Degradation)",
+          "action": "PARTIALLY EXCLUDED",
+          "reason": "Coolant temp elevation is present but r=0.875 vs r=0.993 for vibration on roughness. Coolant temp is likely a consequence of increased heat load from bearing/wear issues rather than independent cause.",
+          "confidence": 0.65
+        }
+      ],
+      "verification_analysis": {
+        "within_tool_age_analysis": "Performed additional analysis to check spindle condition vs defect grade controlling for tool age.",
+        "results": "Across ALL tool age groups (0-10 through 70-80), Grade C parts consistently show spindle temp >60°C and vibration >3 mm/s while Grade A parts show spindle temp <42°C and vibration <1 mm/s. This pattern holds even in early tool age groups (0-10, 10-20), strongly suggesting spindle/bearing condition is the dominant factor independent of tool age."
+      }
+    },
+    "step_E_diagnostic_conclusion": {
+      "output_type": "COMPETING_SET",
+      "surviving_hypotheses": [
+        {
+          "id": "H1",
+          "name": "Spindle Bearing Degradation (Primary)",
+          "weight": 0.70,
+          "evidence_summary": "Spindle temperature (d=7.98) and vibration (d=6.39) are the most discriminative parameters. These indicators are independent of tool age. Grade A parts always have spindle temp <42°C and vibration <1 mm/s regardless of tool age. Grade C parts always have spindle temp >60°C regardless of tool age. This is consistent with progressive bearing wear causing sustained thermal and dynamic instability."
+        },
+        {
+          "id": "H5",
+          "name": "Combined Bearing Degradation + Tool Management",
+          "weight": 0.25,
+          "evidence_summary": "Tool age has an independent but modest effect (d=0.49) on defect rate. Within same bearing condition regime, older tools still produce marginally worse results. The combined effect of degraded bearings AND worn tools compounds quality issues."
+        },
+        {
+          "id": "H2",
+          "name": "Tool Wear Contribution",
+          "weight": 0.05,
+          "evidence_summary": "Tool wear alone cannot explain the magnitude of quality degradation given the spindle condition indicators dominate even within early tool age groups."
+        }
+      ],
+      "final_confidence": {
+        "value": 65,
+        "reasoning": "Confidence ceiling of 65 assigned per v6.0 protocol for COMPETING_SET. H1 (bearing degradation) is strongly favored by data but H5 (combined effect) cannot be fully excluded without controlled experiment data (e.g., replacing spindle mid-production and observing recovery)."
+      },
+      "discriminating_conditions": {
+        "to_resolve_ambiguity": "If spindle were replaced at some point and quality recovered immediately while tool age continued, that would confirm H1. If quality only recovered after both spindle replacement AND new tool, that would confirm H5.",
+        "minimum_additional_data_needed": "Controlled experiment with spindle maintenance intervention, or temperature/vibration trend data at spindle bearing level"
+      },
+      "process_capability_impact": {
+        "current_Cp_roughness": 0.608,
+        "current_Cpk_roughness": 0.522,
+        "current_Cp_dimensional": 0.522,
+        "current_Cpk_dimensional": 0.404,
+        "verdict": "Process is NOT capable. Cp < 1.0 indicates the process spread exceeds specification limits. Immediate corrective action required.",
+        "target_after_fix": "After resolving root cause, target Cp > 1.33 for both metrics"
+      }
+    }
+  }
+}

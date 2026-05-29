@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "diagnose-anomaly",
+  "prompt": "I have this BOPET film production data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv — it has thickness measurements, die temperature, screw speed, chill roll temp, line speed, melt pressure, melt temp, and heater power. There's a thickness spike around 08:00:17 to 08:00:30. I need you to run a full root cause diagnosis to find what caused this thickness deviation. Use the industrial-deep-diagnostic skill.",
+  "assertions": []
+}

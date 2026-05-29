@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Reasoning Chain Schema",
+  "type": "object",
+  "required": ["run_id", "reasoning_chains", "uncertainty_summary"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "reasoning_chains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_id", "step_name", "inputs", "reasoning", "outputs", "alternatives_considered", "uncertainty", "falsification_condition"],
+        "properties": {
+          "step_id": { "type": "integer" },
+          "step_name": { "type": "string", "description": "Short name for this reasoning step" },
+          "step_question": { "type": "string", "description": "The specific question this step answers" },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": { "type": "string", "description": "File or data source" },
+                "content_summary": { "type": "string", "description": "What was extracted" },
+                "evidence_rank": { "type": "integer", "minimum": 1, "maximum": 7 }
+              }
+            }
+          },
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "applied_logic": { "type": "string", "description": "What reasoning method was used" },
+              "step_by_step": { "type": "string", "description": "Detailed reasoning trace" },
+              "assumptions": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Assumptions made in this step"
+              }
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "finding": { "type": "string" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+                "supported_by": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "alternatives_considered": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "alternative": { "type": "string" },
+                "why_ruled_out": { "type": "string" }
+              }
+            }
+          },
+          "uncertainty": {
+            "type": "object",
+            "properties": {
+              "aleatory": { "type": "string", "description": "Irreducible randomness" },
+              "epistemic": { "type": "string", "description": "Lack of knowledge that could be reduced" },
+              "impact_on_conclusion": { "type": "string" }
+            }
+          },
+          "falsification_condition": {
+            "type": "string",
+            "description": "What specific evidence would invalidate this step's conclusion"
+          }
+        }
+      }
+    },
+    "hypothesis_evolution": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hypothesis_id": { "type": "string" },
+          "initial_confidence": { "type": "number" },
+          "final_confidence": { "type": "number" },
+          "confidence_adjustments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "adjustment_reason": { "type": "string" },
+                "adjustment_points": { "type": "number" },
+                "triggered_by": { "type": "string", "description": "Which reasoning step caused this adjustment" }
+              }
+            }
+          },
+          "survival_path": { "type": "string", "description": "How this hypothesis survived elimination" }
+        }
+      }
+    },
+    "uncertainty_summary": {
+      "type": "object",
+      "required": ["epistemic_gaps", "aleatory_limits", "overall_confidence_ceiling"],
+      "properties": {
+        "epistemic_gaps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What we could know with more/better data"
+        },
+        "aleatory_limits": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What we fundamentally cannot know from this data"
+        },
+        "overall_confidence_ceiling": {
+          "type": "number",
+          "description": "The maximum possible confidence given all uncertainty sources"
+        },
+        "what_would_change_conclusions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific additional evidence that could change the diagnosis"
+        },
+        "reasoning_weaknesses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "weakness": { "type": "string" },
+              "mitigation": { "type": "string" },
+              "residual_risk": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

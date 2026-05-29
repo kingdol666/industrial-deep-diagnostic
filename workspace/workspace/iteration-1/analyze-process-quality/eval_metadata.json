@@ -1,0 +1,6 @@
+{
+  "eval_id": 2,
+  "eval_name": "analyze-process-quality",
+  "prompt": "Analyze this manufacturing sensor data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv. I want to understand the time-offset relationships between process parameters (die_temp, screw_speed, melt_pressure, melt_temp, heater_power) and quality metrics (thickness). Which process parameter has the strongest causal link to thickness variation, and at what time lag? Please use the industrial diagnostic pipeline.",
+  "assertions": []
+}

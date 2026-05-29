@@ -1,0 +1,142 @@
+{
+  "run_id": "cnc_sim_20260529",
+  "diagnosis_time": "2026-05-29T11:58:07.340823",
+  "diagnoses": {
+    "surface_roughness_Ra_um": {
+      "diagnosis_type": "DETERMINED",
+      "primary_finding": "主轴振动是表面粗糙度的决定性因素(Sp=+0.957, 三种材料层内一致)，物理路径为振动→刀具径跳→表面波纹加深",
+      "confidence": 92,
+      "hypotheses": {
+        "surviving": [
+          {
+            "id": "H1",
+            "name": "主轴振动→刀具径向跳动→粗糙度上升",
+            "parameter": "spindle_vibration_mm_s",
+            "statistical_evidence": {
+              "spearman_r": 0.957,
+              "pearson_r": 0.993,
+              "stratified_consistent": true
+            },
+            "physical_logic_chain": [
+              {
+                "link": "振动增加→刀具偏心距增大",
+                "evidence_status": "KNOWN_PHYSICS",
+                "quantification": "0.5→4.0mm/s = 8倍"
+              },
+              {
+                "link": "偏心距→切削深度不均",
+                "evidence_status": "KNOWN_PHYSICS",
+                "quantification": "切削几何直接传递"
+              },
+              {
+                "link": "切削不均→粗糙度上升",
+                "evidence_status": "OBSERVED",
+                "quantification": "Ra 0.7→2.5μm (+260%)"
+              }
+            ],
+            "chain_quality": "ACTIONABLE_HYPOTHESIS"
+          }
+        ],
+        "eliminated": [
+          {
+            "hypothesis_id": "H-coolant",
+            "exclusion_type": "COMBINED",
+            "specific_evidence": "coolant_temp与spindle_temp共线，间接路径而非直接因果"
+          }
+        ]
+      }
+    },
+    "dimensional_deviation_mm": {
+      "diagnosis_type": "DETERMINED",
+      "primary_finding": "主轴热膨胀是尺寸偏差的根因(Sp=+0.954)，ΔL=αLΔT计算0.126mm完美匹配观测max 0.122mm",
+      "confidence": 95,
+      "hypotheses": {
+        "surviving": [
+          {
+            "id": "H1",
+            "name": "主轴温度→热膨胀→尺寸偏差",
+            "parameter": "spindle_temp_C",
+            "statistical_evidence": {
+              "spearman_r": 0.954,
+              "pearson_r": 0.991,
+              "stratified_consistent": true
+            },
+            "physical_logic_chain": [
+              {
+                "link": "主轴温度升高35°C",
+                "evidence_status": "OBSERVED",
+                "quantification": "35→70°C"
+              },
+              {
+                "link": "热膨胀ΔL=αLΔT",
+                "evidence_status": "KNOWN_PHYSICS",
+                "quantification": "12e-6 × 300mm × 35 = 0.126mm"
+              },
+              {
+                "link": "Z向偏移→尺寸偏差",
+                "evidence_status": "OBSERVED",
+                "quantification": "max观测0.122mm → 完美匹配"
+              }
+            ],
+            "chain_quality": "ACTIONABLE_HYPOTHESIS"
+          }
+        ],
+        "eliminated": []
+      }
+    },
+    "chatter_mark_count": {
+      "diagnosis_type": "COMPETING_SET",
+      "primary_finding": "颤振由切削稳定性问题驱动(中等相关Sp~0.4)，间歇性事件(14.5%发生率)，参数组合vs刀具磨损不可区分",
+      "confidence": 60,
+      "hypotheses": {
+        "surviving": [
+          {
+            "id": "H1",
+            "name": "切削参数组合不当→再生颤振",
+            "confidence": 55
+          },
+          {
+            "id": "H2",
+            "name": "刀具磨损→刚度下降→颤振阈值降低",
+            "confidence": 45
+          }
+        ],
+        "competing_sets": [
+          {
+            "set_id": "CS1",
+            "hypotheses": [
+              "H1",
+              "H2"
+            ],
+            "discriminability": "INDISTINGUISHABLE"
+          }
+        ]
+      }
+    },
+    "hardness_HV": {
+      "diagnosis_type": "NEEDS_DATA",
+      "primary_finding": "Simpson's Paradox — 整体Sp=-0.88但层内全部<0.15。硬度是材料固有属性，非切削参数因果",
+      "confidence": 99,
+      "hypotheses": {
+        "surviving": [],
+        "eliminated": [
+          {
+            "hypothesis_id": "H-feed",
+            "exclusion_type": "STATISTICAL",
+            "specific_evidence": "Simpson's Paradox: 整体Sp=-0.88, 层内AL7075=-0.05, SS304=+0.00, TI6AL4V=-0.02"
+          },
+          {
+            "hypothesis_id": "H-speed",
+            "exclusion_type": "STATISTICAL",
+            "specific_evidence": "Simpson's Paradox: 整体Sp=-0.88, 层内全部<0.05"
+          }
+        ]
+      }
+    }
+  },
+  "data_gaps": [
+    "缺少颤振事件的精确切削参数组合(稳定性叶瓣图)",
+    "缺少刀具更换事件记录",
+    "缺少主轴动平衡状态数据"
+  ]
+}

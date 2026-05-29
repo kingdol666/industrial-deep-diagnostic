@@ -1,0 +1,32 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "diagnosis_type": "COMPETING_SET",
+  "primary_finding": "主轴振动是表面粗糙度和尺寸偏差的直接近端原因(r=0.993, 三类材料一致, 去趋势r=0.969, Granger F=307), 但根因(轴承磨损 vs 热效应)在现有被动时序数据中不可区分",
+  "overall_confidence": 65,
+  "judge_score": 98,
+  "judge_verdict": "pass",
+  "competing_sets": [
+    {
+      "set_id": "CS1",
+      "hypotheses": ["H1: 轴承磨损→振动→质量恶化", "H2: 热效应→振动→质量恶化"],
+      "discriminability": "INDISTINGUISHABLE",
+      "discriminating_data_needed": ["振动FFT频谱(轴承故障频率 vs 1×转速谐波)", "受控实验(冷启动对比)", "轴承维护记录与状态检查"]
+    }
+  ],
+  "eliminated": [
+    "H3: 刀具磨损为根因(排除置信度92/100, Granger lag1不显著F=1.9, p=0.17)",
+    "H5: 工艺参数偏移(排除置信度98/100, 全部|r|<0.05)",
+    "环境温度影响(排除置信度99/100, r<0.05)",
+    "硬度缺陷: CRITICAL Simpson悖论, 材料固有属性(排除置信度95/100)",
+    "冷却液流量(排除置信度95/100, r<0.05)"
+  ],
+  "data_gaps": [
+    "无高频振动FFT数据 — 无法区分轴承故障特征频率",
+    "无刀具磨损直接测量(VB值)",
+    "无主轴轴承型号和维护记录",
+    "无受控实验(冷启动、更换轴承后的对比数据)",
+    "无刀具更换事件标记",
+    "19种刀具使用全局tool_age而非各自独立计数"
+  ],
+  "plots_generated": 7
+}

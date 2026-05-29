@@ -1,0 +1,172 @@
+{
+  "run_id": "cnc_simulation_diagnosis_20260528000539",
+  "process_name": "CNC Machining Process",
+  "process_description": "数控机床加工过程，包含主轴参数、冷却系统、刀具磨损等多维工艺参数对加工质量的影响分析",
+  "parameters": [
+    {
+      "name": "timestamp",
+      "type": "datetime",
+      "role": "time",
+      "description": "加工时间戳"
+    },
+    {
+      "name": "part_id",
+      "type": "categorical",
+      "role": "identifier",
+      "description": "工件ID"
+    },
+    {
+      "name": "day",
+      "type": "numerical",
+      "role": "time_index",
+      "description": "加工天数(1-30)",
+      "unit": "day"
+    },
+    {
+      "name": "shift",
+      "type": "categorical",
+      "role": "operational",
+      "description": "班次(1/2)"
+    },
+    {
+      "name": "material",
+      "type": "categorical",
+      "role": "group",
+      "description": "材料(AL7075/SS304/TI6AL4V)"
+    },
+    {
+      "name": "tool_id",
+      "type": "categorical",
+      "role": "operational",
+      "description": "刀具ID"
+    },
+    {
+      "name": "tool_age_parts",
+      "type": "numerical",
+      "role": "wear",
+      "description": "刀具已加工件数/寿命",
+      "unit": "parts"
+    },
+    {
+      "name": "spindle_speed_rpm",
+      "type": "numerical",
+      "role": "process",
+      "description": "主轴转速",
+      "unit": "rpm"
+    },
+    {
+      "name": "feed_rate_mm_min",
+      "type": "numerical",
+      "role": "process",
+      "description": "进给速度",
+      "unit": "mm/min"
+    },
+    {
+      "name": "depth_of_cut_mm",
+      "type": "numerical",
+      "role": "process",
+      "description": "切削深度",
+      "unit": "mm"
+    },
+    {
+      "name": "coolant_flow_l_min",
+      "type": "numerical",
+      "role": "cooling",
+      "description": "冷却液流量",
+      "unit": "L/min"
+    },
+    {
+      "name": "coolant_temp_C",
+      "type": "numerical",
+      "role": "cooling",
+      "description": "冷却液温度",
+      "unit": "°C"
+    },
+    {
+      "name": "spindle_temp_C",
+      "type": "numerical",
+      "role": "temperature",
+      "description": "主轴温度",
+      "unit": "°C"
+    },
+    {
+      "name": "spindle_vibration_mm_s",
+      "type": "numerical",
+      "role": "vibration",
+      "description": "主轴振动",
+      "unit": "mm/s"
+    },
+    {
+      "name": "cutting_force_N",
+      "type": "numerical",
+      "role": "force",
+      "description": "切削力",
+      "unit": "N"
+    },
+    {
+      "name": "ambient_temp_C",
+      "type": "numerical",
+      "role": "environment",
+      "description": "环境温度",
+      "unit": "°C"
+    },
+    {
+      "name": "surface_roughness_Ra_um",
+      "type": "numerical",
+      "role": "quality_target",
+      "description": "表面粗糙度Ra",
+      "unit": "um"
+    },
+    {
+      "name": "chatter_mark_count",
+      "type": "numerical",
+      "role": "quality_target",
+      "description": "振纹数量",
+      "unit": "count"
+    },
+    {
+      "name": "dimensional_deviation_mm",
+      "type": "numerical",
+      "role": "quality_target",
+      "description": "尺寸偏差",
+      "unit": "mm"
+    },
+    {
+      "name": "surface_defect_grade",
+      "type": "categorical",
+      "role": "quality_class",
+      "description": "表面缺陷等级(A/B/C)"
+    },
+    {
+      "name": "hardness_HV",
+      "type": "numerical",
+      "role": "quality_target",
+      "description": "硬度",
+      "unit": "HV"
+    }
+  ],
+  "defect_parameters": [
+    "surface_roughness_Ra_um",
+    "chatter_mark_count",
+    "dimensional_deviation_mm",
+    "surface_defect_grade",
+    "hardness_HV"
+  ],
+  "process_parameters": [
+    "spindle_speed_rpm",
+    "feed_rate_mm_min",
+    "depth_of_cut_mm",
+    "coolant_flow_l_min",
+    "coolant_temp_C",
+    "spindle_temp_C",
+    "spindle_vibration_mm_s",
+    "cutting_force_N",
+    "ambient_temp_C",
+    "tool_age_parts"
+  ],
+  "group_columns": [
+    "material",
+    "tool_id",
+    "shift"
+  ]
+}

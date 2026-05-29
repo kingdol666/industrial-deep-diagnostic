@@ -1,0 +1,45 @@
+{
+  "judge_verdict": "APPROVED_WITH_WARNINGS",
+  "evaluation": {
+    "strengths": [
+      "Comprehensive statistical analysis with proper effect sizes (Cohen's d) and ANOVA",
+      "Clean within-tool-age-group analysis definitively separates H1 from H2",
+      "Threshold analysis provides actionable alarm limits",
+      "Proper use of v6.0 competing hypotheses protocol with discriminability assessment",
+      "Temporal lead/lag analysis strengthens causal inference",
+      "No missing data, no data quality issues"
+    ],
+    "weaknesses": [
+      {
+        "issue": "No direct bearing condition measurement available",
+        "impact": "Cannot confirm bearing degradation directly - only through secondary indicators (temperature, vibration)",
+        "mitigation": "Add bearing condition monitoring (acceleration envelope analysis, acoustic emission)"
+      },
+      {
+        "issue": "Confidence capped at 65 per protocol but evidence is unusually strong for COMPETING_SET",
+        "impact": "Conservative - actual confidence in H1 may be higher",
+        "mitigation": "Accept per protocol limitations"
+      }
+    ],
+    "evidence_rank_audit": {
+      "rank_1_direct_measurement": false,
+      "rank_2_user_documentation": false,
+      "rank_3_statistical": true,
+      "rank_4_visual": true,
+      "rank_5_domain_knowledge": true,
+      "overall_strongest_rank": 3
+    },
+    "verification_checks": [
+      {"check": "No silent assumption about unknown parameters", "status": "PASS"},
+      {"check": "Causal claims cite statistical evidence", "status": "PASS"},
+      {"check": "Competing hypotheses properly assessed", "status": "PASS"},
+      {"check": "Discriminability explicitly evaluated", "status": "PASS"},
+      {"check": "Confidence disclosed", "status": "PASS"},
+      {"check": "Evidence gaps documented", "status": "PASS"}
+    ],
+    "recommendations": [
+      "Upgrade diagnostician from COMPETING_SET to DETERMINED if spindle bearing inspection data confirms wear pattern matching temperature/vibration profile",
+      "Add controlled experiment: replace spindle bearings at production mid-point and observe quality recovery"
+    ]
+  }
+}

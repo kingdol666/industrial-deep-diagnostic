@@ -1,0 +1,46 @@
+{
+  "total_records": 1500,
+  "features": 21,
+  "missing_values": 0,
+  "process_summary": {
+    "grade_distribution": {"A": 606, "B": 395, "C": 499},
+    "defect_rate_B_plus_C": 59.6,
+    "material_defect_rate": {
+      "AL7075": {"A": 243, "B": 167, "C": 190, "defect_rate_pct": 59.5},
+      "SS304": {"A": 252, "B": 108, "C": 165, "defect_rate_pct": 52.0},
+      "TI6AL4V": {"A": 111, "B": 120, "C": 144, "defect_rate_pct": 70.4}
+    }
+  },
+  "temporal_analysis": {
+    "first_750_defect_rate": 26.1,
+    "last_750_defect_rate": 93.1,
+    "degradation_ratio": 3.57,
+    "quality_degradation_pattern": "severe_monotonic_degradation_over_production_sequence"
+  },
+  "tool_age_analysis": {
+    "tool_age_0_10_defect_rate": 41.6,
+    "tool_age_70_80_defect_rate": 86.4,
+    "monotonic_increase": true
+  },
+  "process_capability": {
+    "surface_roughness_Cp": 0.608,
+    "surface_roughness_Cpk": 0.522,
+    "dimensional_deviation_Cp": 0.522,
+    "dimensional_deviation_Cpk": 0.404
+  },
+  "top_discriminative_parameters": {
+    "spindle_temp_C": {"cohen_d_grade_A_vs_C": 7.98, "anova_p": 0.0},
+    "spindle_vibration_mm_s": {"cohen_d_grade_A_vs_C": 6.39, "anova_p": 0.0},
+    "coolant_temp_C": {"cohen_d_grade_A_vs_C": 4.11, "anova_p": 0.0},
+    "cutting_force_N": {"cohen_d_grade_A_vs_C": 0.48, "anova_p": 0.0},
+    "tool_age_parts": {"cohen_d_grade_A_vs_C": 0.49, "anova_p": 0.0}
+  },
+  "critical_findings": [
+    "Spindle temperature, vibration, and coolant temperature have near-perfect correlation with quality degradation",
+    "Dramatic defect rate increase from 26.1% (first half) to 93.1% (second half)",
+    "Process capability severely inadequate: Cp=0.61 for roughness, Cp=0.52 for dimensional deviation",
+    "Tool age shows monotonic but moderate correlation with quality degradation",
+    "Shift effect negligible",
+    "Material type affects base hardness but not defect distribution pattern"
+  ]
+}

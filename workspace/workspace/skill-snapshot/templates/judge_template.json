@@ -1,0 +1,32 @@
+{
+  "overall_score": 0,
+  "verdict": "needs_repair",
+  "criteria_scores": {
+    "data_quality": {"score": 0, "weight": 0.15, "notes": ""},
+    "variable_classification": {"score": 0, "weight": 0.10, "notes": ""},
+    "time_alignment": {"score": 0, "weight": 0.10, "notes": ""},
+    "visualization_quality": {"score": 0, "weight": 0.10, "notes": ""},
+    "evidence_based_conclusions": {"score": 0, "weight": 0.20, "notes": ""},
+    "correlation_vs_causation": {"score": 0, "weight": 0.10, "notes": ""},
+    "uncertainty_disclosure": {"score": 0, "weight": 0.10, "notes": ""},
+    "report_quality": {"score": 0, "weight": 0.10, "notes": ""},
+    "no_over_claiming": {"score": 0, "weight": "blocking", "notes": ""},
+    "completeness": {"score": 0, "weight": 0.05, "notes": ""}
+  },
+  "blocking_issues": [
+    {"description": "", "repair_instruction": "", "affected_steps": []}
+  ],
+  "warnings": [
+    {"description": "", "suggestion": ""}
+  ],
+  "evidence_gaps": [],
+  "strengths": [],
+  "repair_instructions": {
+    "summary": "",
+    "steps_to_rerun": [],
+    "key_changes": []
+  },
+  "iteration": 1,
+  "max_iterations": 3,
+  "review_timestamp": ""
+}

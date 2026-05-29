@@ -1,0 +1,43 @@
+{
+  "run_id": "202605260854464_bopet_scratch_analysis",
+  "created": "2026-05-26T08:54:46.478Z",
+  "run_dir": "/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202605260854464_bopet_scratch_analysis",
+  "status": "initialized",
+  "steps": [
+    {
+      "dir": "00_input",
+      "index": 0,
+      "status": "pending"
+    },
+    {
+      "dir": "01_ontology",
+      "index": 1,
+      "status": "pending"
+    },
+    {
+      "dir": "02_processed",
+      "index": 2,
+      "status": "pending"
+    },
+    {
+      "dir": "03_figures",
+      "index": 3,
+      "status": "pending"
+    },
+    {
+      "dir": "04_diagnostics",
+      "index": 4,
+      "status": "pending"
+    },
+    {
+      "dir": "05_review",
+      "index": 5,
+      "status": "pending"
+    },
+    {
+      "dir": "06_scripts",
+      "index": 6,
+      "status": "pending"
+    }
+  ]
+}

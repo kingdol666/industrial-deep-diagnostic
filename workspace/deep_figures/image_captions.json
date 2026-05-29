@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-05-29T10:56:54.771235",
+  "figures": {
+    "fig_02_zone_profile.png": {
+      "figure_id": "fig_02",
+      "title": "MD辊温分区剖面图",
+      "description": "各产品等级的18辊温度分布曲线。可清晰看到三段物理分区：预加热(~75°C near Tg)→拉伸(~82°C above Tg)→急冷(~35°C)。不同产品在预加热和急冷段的设定点差异显著"
+    },
+    "fig_03_corr_heatmap.png": {
+      "figure_id": "fig_03",
+      "title": "参数-缺陷Spearman相关热力图",
+      "description": "Top 25参数与5种缺陷的Spearman秩相关。红色=正相关, 蓝色=负相关。基于高频时序的批次内均值特征。注意melt_spots列有极强相关(>0.7)"
+    },
+    "fig_04_top_predictors.png": {
+      "figure_id": "fig_04",
+      "title": "各缺陷Top预测因子",
+      "description": "5种缺陷各Top 8预测因子的Spearman(彩色)vs Pearson(灰色)对比。Sp和Pe方向不一致时暗示离 outlier驱动或非线性关系"
+    },
+    "fig_06_scatter_by_product.png": {
+      "figure_id": "fig_06",
+      "title": "缺陷-参数散点图(按产品着色)",
+      "description": "每种缺陷vs Top预测参数的散点图。点按产品等级着色。可直观看到是产品内相关还是产品间差异驱动"
+    },
+    "fig_07_transition_timeline.png": {
+      "figure_id": "fig_07",
+      "title": "产品切换时间线",
+      "description": "批次过渡点的产品序列。红线标记产品等级切换。可帮助理解Simpson Paradox的来源"
+    },
+    "fig_08_cooccurrence.png": {
+      "figure_id": "fig_08",
+      "title": "缺陷共现矩阵",
+      "description": "5种缺陷间的Spearman相关矩阵。基于高频对齐的55个批次数据"
+    },
+    "fig_09_stratified.png": {
+      "figure_id": "fig_09",
+      "title": "分层相关对比(Simpson检测)",
+      "description": "各产品内部参数-缺陷相关 vs 整体相关的对比。方向不一致= Simpson's Paradox。基于高频时序对齐的批次数据"
+    }
+  }
+}

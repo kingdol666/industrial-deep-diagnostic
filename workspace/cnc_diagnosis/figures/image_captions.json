@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-05-29",
+  "figures": {
+    "fig_01_corr_heatmap.png": {
+      "title": "工艺-质量相关热力图",
+      "description": "8个工艺参数×4个质量指标的Spearman相关。spindle_vibration与surface_roughness(r=0.96)、spindle_temp与dimensional_deviation(r=0.95)为最强信号"
+    },
+    "fig_02_top_predictors.png": {
+      "title": "各质量指标Top预测因子",
+      "description": "spindle_vibration主导粗糙度和尺寸偏差，spindle_speed/feed_rate主导硬度"
+    },
+    "fig_03_scatter_by_material.png": {
+      "title": "关键参数-质量散点图(按材料着色)",
+      "description": "spindle_vibration与粗糙度线性关系极强(TI6AL4V最显著)。spindle_temp与尺寸偏差关系清晰。feed_rate与硬度负相关。"
+    },
+    "fig_04_tool_wear.png": {
+      "title": "刀具磨损效应",
+      "description": "粗糙度随tool_age单调上升。颤振在41-60段显著增加。尺寸偏差轻微上升。硬度基本不变。TI6AL4V刀具磨损最快。"
+    },
+    "fig_05_stratified.png": {
+      "title": "分层相关对比(按材料)",
+      "description": "spindle_vibration与粗糙度的相关在所有材料中均极强(>0.9)，材料非混杂因素"
+    },
+    "fig_06_grade_dist.png": {
+      "title": "质量指标按缺陷等级分布",
+      "description": "Grade C零件粗糙度集中在1.5-3.0μm区间，颤振0-13次，尺寸偏差0-0.12mm。Grade A与C分布几乎不重叠。"
+    }
+  }
+}

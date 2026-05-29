@@ -1,0 +1,25 @@
+{
+  "run_id": "cnc_sim_20260529",
+  "key_findings": [
+    {
+      "defect": "surface_roughness",
+      "reasoning": "G1✓(Sp+Pe同号) G2✓(无趋势混杂) G3✓(三材料层内>0.95) G4✓(n>375) → 物理锚定: 切削动力学，振动→径跳→刀痕，量级260%匹配",
+      "falsification": "如果降低振动后粗糙度不降 → 排除"
+    },
+    {
+      "defect": "dimensional_deviation",
+      "reasoning": "G1✓ G2✓ G3✓(层内>0.94) G4✓ → 物理锚定: 热膨胀定律 ΔL=0.126mm vs 观测0.122mm，完美匹配",
+      "falsification": "如果在恒温环境下偏差不消失 → 排除"
+    },
+    {
+      "defect": "chatter",
+      "reasoning": "中等相关(Sp~0.4)，间歇性事件，需要稳定性叶瓣图区分参数组合vs磨损假设",
+      "falsification": "获取精确切削参数组合数据"
+    },
+    {
+      "defect": "hardness",
+      "reasoning": "G3✗ — Simpson's Paradox! 整体Sp=-0.88但层内全部<0.15。材料固有属性差异制造了伪相关。cutting_force层内相关为负(-0.15)vs整体正(+0.85) = 方向反转",
+      "falsification": "如果同材料内调整feed_rate后硬度变化>5% → 重新评估(加工硬化效应)"
+    }
+  ]
+}

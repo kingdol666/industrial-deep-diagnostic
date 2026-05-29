@@ -1,0 +1,6 @@
+{
+  "eval_id": 3,
+  "eval_name": "engineer-troubleshooting",
+  "prompt": "I'm an engineer troubleshooting a BOPET film line. We saw a thickness spike in our data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv around 08:00:17-08:00:30. The line has die temp at 278°C, screw at 200 RPM, chill roll at 20°C. I need to know: (1) what caused the thickness spike, (2) what action to take to prevent recurrence, (3) how confident you are in this conclusion. Do a full industrial diagnostic.",
+  "assertions": []
+}

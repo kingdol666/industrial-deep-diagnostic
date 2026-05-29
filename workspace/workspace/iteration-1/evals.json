@@ -1,0 +1,23 @@
+{
+  "skill_name": "industrial-deep-diagnostic",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have this BOPET film production data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv — it has thickness measurements, die temperature, screw speed, chill roll temp, line speed, melt pressure, melt temp, and heater power. There's a thickness spike around 08:00:17 to 08:00:30. I need you to run a full root cause diagnosis to find what caused this thickness deviation. Use the industrial-deep-diagnostic skill.",
+      "expected_output": "A root cause diagnosis identifying which process parameter caused the thickness anomaly, with evidence chain, time-matched correlations, and confidence assessment.",
+      "files": ["/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv"]
+    },
+    {
+      "id": 2,
+      "prompt": "Analyze this manufacturing sensor data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv. I want to understand the time-offset relationships between process parameters (die_temp, screw_speed, melt_pressure, melt_temp, heater_power) and quality metrics (thickness). Which process parameter has the strongest causal link to thickness variation, and at what time lag? Please use the industrial diagnostic pipeline.",
+      "expected_output": "A ranked list of process-quality relationships with optimal CCF lags, correlation strengths, and identification of the dominant causal parameter.",
+      "files": ["/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv"]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm an engineer troubleshooting a BOPET film line. We saw a thickness spike in our data at /Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv around 08:00:17-08:00:30. The line has die temp at 278°C, screw at 200 RPM, chill roll at 20°C. I need to know: (1) what caused the thickness spike, (2) what action to take to prevent recurrence, (3) how confident you are in this conclusion. Do a full industrial diagnostic.",
+      "expected_output": "A complete industrial diagnostic report with root cause identified, recommended corrective actions with target values, and confidence assessment with uncertainty disclosure.",
+      "files": ["/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/tests/fixtures/sample_timeseries.csv"]
+    }
+  ]
+}
