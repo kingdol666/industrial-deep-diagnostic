@@ -46,6 +46,11 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **Competing hypotheses protocol** (v6.0): 5-step structured reasoning within a single Diagnostician agent. Step C (Data Discriminability) is the critical new step that prevents the #1 failure mode — confidently picking the wrong root cause when alternatives predict identical observables.
 - **Three output categories** (v6.0): DETERMINED (single survivor), COMPETING_SET (multiple indistinguishable, with discrimination conditions), NEEDS_DATA (insufficient evidence).
 - **Statistical validation**: `stats_validate.mjs` runs BEFORE diagnosis. Diagnostician MUST read `validate_report.json` before forming hypotheses.
+- **Scenario-adaptive analysis** (v6.1): Data Processor classifies the process scenario (CNC, continuous, batch, heat exchange) and generates targeted visualizations per scenario type. Generic plots replaced by scenario-specific diagnostic visualizations.
+- **Anomaly detection** (v6.1): Data Processor runs anomaly detection (adaptive thresholds, critical thresholds, anomaly intervals) and transition event analysis (categorical column changes → before/after quality comparison).
+- **Causal evidence map** (v6.1): Data Processor builds a validated causal graph from filtered correlations, identifying colinear groups and root cause candidates.
+- **Direct data probing** (v6.1): Diagnostician MUST probe raw data at transition points (tool changes, material switches) to test whether quality resets — this is the most powerful discriminability tool for competing hypotheses.
+- **Physical quantitative verification** (v6.1): Every hypothesis MUST include at least one quantitative physical calculation (thermal expansion, Arrhenius, energy balance, force balance, etc.). Qualitative "mechanism is plausible" is NOT sufficient.
 - **Sorting validation**: `stats.mjs` automatically detects if data is time-sorted. If NOT, lag correlations are invalid and confidence ceilings apply.
 - **Judge quality gate**: Score >= 90 required before report generation. Max 3 repair iterations. Score ceiling of 85 when lag correlations used on unsorted data.
 - **Workspace persistence**: All outputs go to `workspace/diagnostic-runs/<timestamp>_<name>/` (relative to project root, sibling of `.claude/`). Compute project root from SKILL_PATH: `SKILL_PATH/../../..`.
@@ -116,6 +121,10 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **CRITICAL — Product-Stratified Analysis** (v6.0+): Diagnostician MUST run Phase 2 (Product-Stratified Analysis) before generating hypotheses when product column exists. BETWEEN-PRODUCT ONLY correlations must be removed — they represent baseline differences, not causal mechanisms. This catches the common confound where "Product A runs hotter AND has more defects" is mistaken for "heat causes defects."
 - **Physical Logic Chain** (v6.0+): Every hypothesis must trace a complete physical logic chain (parameter → physical variable → process state → intermediate effect → defect). >50% [INFERRED] links = RESEARCH QUESTION, not diagnosis. Quantitative feasibility checks (Arrhenius, residence time, energy balance) are mandatory before accepting any causal claim.
 - **Cross-Product Discriminability** (v6.0+): Product stratification can sometimes break time-colinearity between competing hypotheses. Check if hypotheses behave differently across products — this is an additional discriminability dimension.
+- **Transition analysis as discriminability tool** (v6.1): When categorical columns change (tool_id, material, shift), the before/after quality comparison is a natural experiment. If quality resets on component change → component IS a root cause. If quality continues → component is NOT the root cause. This single test can often resolve INDISTINGUISHABLE competing hypotheses.
+- **Anomaly report integration** (v6.1): Data Processor generates `anomaly_report.json` with anomaly intervals, critical thresholds, and transition events. Diagnostician reads this as primary input for Phase 1 (Data Probing).
+- **Causal evidence map** (v6.1): Data Processor generates `causal_evidence_map.json` with validated edges, colinear groups, and root cause candidates. Diagnostician uses this as primary input for hypothesis generation, NOT raw correlation tables.
+- **Image diagnostic implications** (v6.1): Every figure in `image_captions.json` includes a `diagnostic_implication` field explaining what root cause insight it provides.
 
 ## Validation & Integrity Scripts
 
