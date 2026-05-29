@@ -71,10 +71,15 @@
             <td class="cell-date">{{ formatDate(run.created_at) }}</td>
             <td class="cell-actions" @click.stop>
               <button
+                v-if="run.session_id"
+                class="btn btn-sm btn-session"
+                @click="viewSession(run)"
+              >Session</button>
+              <button
                 v-if="run.status === 'completed' && run.report_path"
                 class="btn btn-sm btn-primary"
                 @click="viewReport(run)"
-              >View</button>
+              >Report</button>
               <button
                 v-if="run.status === 'failed' || run.status === 'stopped'"
                 class="btn btn-sm btn-continue"
@@ -226,6 +231,10 @@ async function toggleDetail(runId) {
 
 function viewReport(run) {
   emit('open-report', run.report_path);
+}
+
+function viewSession(run) {
+  emit('continue-run', run.run_id);
 }
 
 async function continueRun(run) {
@@ -486,6 +495,15 @@ const paginatedLogs = computed(() => {
 }
 .btn-continue:hover {
   background: rgba(88, 166, 255, 0.2);
+}
+
+.btn-session {
+  background: rgba(163, 113, 247, 0.1);
+  border-color: #a371f7;
+  color: #a371f7;
+}
+.btn-session:hover {
+  background: rgba(163, 113, 247, 0.2);
 }
 
 .spinner-sm {

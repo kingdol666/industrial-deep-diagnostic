@@ -8,11 +8,15 @@ import logger from '../utils/logger.mjs';
 
 // Dynamic SDK import (ESM-only module)
 let queryFn = null;
+let getSessionMessagesFn = null;
+let getSessionInfoFn = null;
 let sdkAvailable = true;
 
 try {
   const sdk = await import('@anthropic-ai/claude-agent-sdk');
   queryFn = sdk.query;
+  getSessionMessagesFn = sdk.getSessionMessages;
+  getSessionInfoFn = sdk.getSessionInfo;
 } catch (e) {
   sdkAvailable = false;
   logger.error(`SDK not available: ${e.message}`, { context: 'ClaudeClient' });
@@ -282,6 +286,20 @@ const _noop = {};
 export function registerChild(runId, _query) {
   // Stub — SDK manages child processes internally
   activeQueries.set(runId, _query);
+}
+
+export async function getSessionMessages(sessionId) {
+  if (!getSessionMessagesFn) {
+    throw new Error('SDK not available — cannot fetch session messages');
+  }
+  return getSessionMessagesFn(sessionId, { dir: PROJECT_ROOT, includeSystemMessages: true });
+}
+
+export async function getSessionInfo(sessionId) {
+  if (!getSessionInfoFn) {
+    throw new Error('SDK not available — cannot fetch session info');
+  }
+  return getSessionInfoFn(sessionId, { dir: PROJECT_ROOT });
 }
 
 export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR };

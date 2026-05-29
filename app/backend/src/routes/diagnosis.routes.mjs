@@ -6,6 +6,7 @@ import {
   stopDiagnosis, resolveHITLRequest, getPendingHITL,
   sendChatMessage, continueDiagnosis, answerQuestion,
   triggerDiagnosis, startStream, subscribeSSE,
+  getSessionContent,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -42,6 +43,16 @@ router.get('/list', (_req, res) => {
     res.json({ success: true, data: runs });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/session/:runId', async (req, res) => {
+  try {
+    const { runId } = req.params;
+    const data = await getSessionContent(runId);
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(err.status || 500).json({ success: false, error: err.message });
   }
 });
 

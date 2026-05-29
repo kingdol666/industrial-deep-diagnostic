@@ -235,6 +235,10 @@ const MAX_EVENTS = 1500;
 let _seqCounter = 0;
 let _sseClosed = false;
 
+let _seenEventKeys = new Set();
+let _hybridPhase = 'idle';
+let _catchUpTimer = null;
+
 const score = ref(null);
 const verdict = ref(null);
 const reportPath = ref(null);
@@ -299,8 +303,30 @@ const verdictClass = computed(() => {
 });
 
 
-// Push events with capped array — prevents timeline freeze
+function eventFingerprint(ev) {
+  switch (ev.type) {
+    case 'tool_use': return ev.data?.id ? `tu:${ev.data.id}` : null;
+    case 'tool_result': return ev.data?.toolUseId ? `tr:${ev.data.toolUseId}` : null;
+    case 'message': return ev.data?.content ? `msg:${ev.data.content.slice(0, 80)}` : null;
+    case 'thinking': return ev.data?.content ? `th:${ev.data.content.slice(0, 80)}` : null;
+    case 'question': return (ev.data?.questionId || ev.data?.toolUseId) ? `q:${ev.data.questionId || ev.data.toolUseId}` : null;
+    case 'system': return ev.data?.message?.uuid ? `sys:${ev.data.message.uuid}` : null;
+    default: return null;
+  }
+}
+
 function pushEvent(e) {
+  if (_hybridPhase === 'catching_up') {
+    const fp = eventFingerprint(e);
+    if (fp && _seenEventKeys.has(fp)) return;
+    if (fp) _seenEventKeys.add(fp);
+  }
+
+  if (_hybridPhase === 'live' || _hybridPhase === 'done' || _hybridPhase === 'idle') {
+    if (e.type === 'tool_use') toolCount.value++;
+    if (e.type === 'message') msgCount.value++;
+  }
+
   const arr = events.value;
   if (arr.length >= 1500) arr.splice(0, 100);
   arr.push(e);
@@ -326,7 +352,6 @@ function connectSSE(rid) {
   eventSource.addEventListener('message', (e) => {
     try {
       const d = JSON.parse(e.data);
-      msgCount.value++;
       pushEvent({ type: 'message', data: d, _seq: ++_seqCounter });
       tickProgress(2);
     } catch {}
@@ -335,7 +360,6 @@ function connectSSE(rid) {
   eventSource.addEventListener('tool_use', (e) => {
     try {
       const d = JSON.parse(e.data);
-      toolCount.value++;
       pushEvent({ type: 'tool_use', data: d, _seq: ++_seqCounter });
       tickProgress(3);
       detectPhase(d.name);
@@ -828,7 +852,7 @@ watch(() => props.autoRunId, async (newRunId) => {
   msgCount.value = 0;
   progressPct.value = 0;
   startTime.value = Date.now();
-  currentPhase.value = 'Connecting to running diagnosis...';
+  currentPhase.value = 'Loading session history...';
   score.value = null;
   verdict.value = null;
   reportPath.value = null;
@@ -836,37 +860,83 @@ watch(() => props.autoRunId, async (newRunId) => {
   hitlPending.value = false;
   currentQuestion.value = null;
 
-  connectSSE(newRunId);
-  startElapsed();
+  _seenEventKeys = new Set();
+  _hybridPhase = 'history_loading';
+  if (_catchUpTimer) { clearTimeout(_catchUpTimer); _catchUpTimer = null; }
+
+  closeSSE();
+
+  let historyEvents = [];
+  try {
+    const result = await api.getSessionContent(newRunId);
+    historyEvents = result.messages || [];
+    for (const ev of historyEvents) {
+      const fp = eventFingerprint(ev);
+      if (fp) _seenEventKeys.add(fp);
+    }
+    events.value = historyEvents;
+    toolCount.value = historyEvents.filter(e => e.type === 'tool_use').length;
+    msgCount.value = historyEvents.length;
+  } catch (err) {
+    console.error('Failed to load session history:', err);
+  }
 
   try {
     const status = await api.getRunStatus(newRunId);
     runName.value = status.name || '';
-    if (status.status === 'completed' || status.status === 'failed' || status.status === 'stopped') {
-      isRunning.value = false;
-      if (status.status === 'completed') {
-        completed.value = true;
-        reportPath.value = status.report_path;
-        if (status.report_path) {
-          const runDir = status.report_path.split('/').slice(0, -1).join('/');
-          fetchChartData(runDir);
-        }
-        score.value = status.score;
-        verdict.value = status.judge_verdict;
-      } else {
-        failed.value = true;
-        errorMsg.value = status.error_message || 'Run ' + status.status;
-      }
-      progressPct.value = 100;
-      stopElapsed();
+
+    if (status.status === 'running') {
+      _hybridPhase = 'catching_up';
+      currentPhase.value = 'Syncing live updates...';
+      connectSSE(newRunId);
+      startElapsed();
+
+      _catchUpTimer = setTimeout(() => {
+        _hybridPhase = 'live';
+        _catchUpTimer = null;
+      }, 3000);
+    } else {
+      _hybridPhase = 'done';
+      applyFinishState(status);
     }
-  } catch {}
+  } catch {
+    _hybridPhase = 'catching_up';
+    currentPhase.value = 'Connecting...';
+    connectSSE(newRunId);
+    startElapsed();
+    _catchUpTimer = setTimeout(() => {
+      _hybridPhase = 'live';
+      _catchUpTimer = null;
+    }, 3000);
+  }
 });
+
+function applyFinishState(status) {
+  isRunning.value = false;
+  if (status.status === 'completed') {
+    completed.value = true;
+    reportPath.value = status.report_path;
+    if (status.report_path) {
+      const runDir = status.report_path.split('/').slice(0, -1).join('/');
+      fetchChartData(runDir);
+    }
+    score.value = status.score;
+    verdict.value = status.judge_verdict;
+  } else {
+    failed.value = true;
+    errorMsg.value = status.error_message || 'Run ' + status.status;
+  }
+  progressPct.value = 100;
+  currentPhase.value = '';
+  stopElapsed();
+}
 
 onUnmounted(() => {
   closeSSE();
   stopElapsed();
 });
+
+
 </script>
 
 <style scoped>

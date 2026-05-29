@@ -8,6 +8,7 @@ import { join, basename, relative } from 'path';
 import {
   startDiagnosis, parseStreamEvent, isDangerousCommand,
   PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, writeAnswer, closeQuery,
+  getSessionMessages, getSessionInfo,
 } from '../engine/claude-client.mjs';
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
@@ -547,4 +548,124 @@ export function startStream(runId) {
     return { run, currentStatus, isFinished: true };
   }
   return { run, currentStatus, isFinished: false };
+}
+
+export async function getSessionContent(runId) {
+  const run = stmts.getRunById.get(runId);
+  if (!run) {
+    const err = new Error('Run not found');
+    err.status = 404;
+    throw err;
+  }
+  if (!run.session_id) {
+    const err = new Error('No session ID associated with this run');
+    err.status = 400;
+    throw err;
+  }
+
+  let sessionInfo = null;
+  try {
+    sessionInfo = await getSessionInfo(run.session_id);
+  } catch (e) {
+    logger.warn(`Failed to get session info for ${run.session_id}: ${e.message}`, { context: 'Diagnosis' });
+  }
+
+  const rawMessages = await getSessionMessages(run.session_id);
+
+  const events = [];
+  let seq = 0;
+
+  for (const msg of rawMessages) {
+    seq++;
+    if (msg.type === 'user') {
+      const userMsg = msg.message || {};
+      const content = userMsg.content || [];
+
+      for (const block of content) {
+        if (block.type === 'tool_result') {
+          const resultContent = block.content;
+          const summary = typeof resultContent === 'string'
+            ? resultContent.slice(0, 300)
+            : (Array.isArray(resultContent)
+                ? resultContent.map(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300)
+                : String(resultContent).slice(0, 300));
+
+          events.push({
+            type: 'tool_result',
+            data: {
+              toolUseId: block.tool_use_id,
+              summary,
+              isError: block.is_error || false,
+            },
+            _seq: seq,
+          });
+        }
+      }
+    } else if (msg.type === 'assistant') {
+      const asstMsg = msg.message || {};
+      const content = asstMsg.content || [];
+
+      for (const block of content) {
+        if (block.type === 'text') {
+          events.push({
+            type: 'message',
+            data: { content: block.text || '', uuid: msg.uuid },
+            _seq: seq,
+          });
+        } else if (block.type === 'tool_use') {
+          if (block.name === 'AskUserQuestion' && block.input?.questions) {
+            const questionId = `q_${runId}_${seq}`;
+            events.push({
+              type: 'question',
+              data: {
+                questionId,
+                toolUseId: block.id,
+                questions: block.input.questions.map(q => ({
+                  question: q.question || '',
+                  header: q.header || '',
+                  options: (q.options || []).map(o => ({
+                    label: o.label || '',
+                    description: o.description || '',
+                    preview: o.preview || '',
+                  })),
+                  multiSelect: q.multiSelect || false,
+                })),
+              },
+              _seq: seq,
+            });
+          }
+
+          events.push({
+            type: 'tool_use',
+            data: { name: block.name, input: block.input, id: block.id },
+            _seq: seq,
+          });
+        } else if (block.type === 'thinking') {
+          events.push({
+            type: 'thinking',
+            data: { content: block.thinking?.slice(0, 500) || '' },
+            _seq: seq,
+          });
+        }
+      }
+    } else if (msg.type === 'system') {
+      events.push({
+        type: 'system',
+        subtype: 'system',
+        data: { message: msg },
+        _seq: seq,
+      });
+    }
+  }
+
+  return {
+    runId,
+    sessionId: run.session_id,
+    sessionInfo: sessionInfo ? {
+      summary: sessionInfo.summary || '',
+      lastModified: sessionInfo.lastModified || '',
+      createdAt: sessionInfo.createdAt || '',
+    } : null,
+    messages: events,
+  };
 }

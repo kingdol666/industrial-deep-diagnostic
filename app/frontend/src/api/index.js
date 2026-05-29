@@ -69,6 +69,7 @@ export const api = {
   getRunWithLogs: (runId) => request(`/history/runs/${runId}`),
   deleteRun: (runId) =>
     request(`/history/runs/${runId}`, { method: 'DELETE' }),
+  getSessionContent: (runId) => request(`/diagnosis/session/${runId}`),
 
   // SSE stream
   streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
