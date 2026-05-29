@@ -6,8 +6,8 @@ import { readdir, stat, realpath } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, basename, relative } from 'path';
 import {
-  startDiagnosis, parseStreamLine, isDangerousCommand,
-  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, writeAnswer,
+  startDiagnosis, parseStreamEvent, isDangerousCommand,
+  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, writeAnswer, closeQuery,
 } from '../engine/claude-client.mjs';
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
@@ -149,10 +149,7 @@ export function getRunStatus(runId) {
 
 // Stop a running diagnosis
 export function stopDiagnosis(runId) {
-  const child = getChild(runId);
-  if (child && !child.killed) {
-    child.kill('SIGTERM');
-  }
+  closeQuery(runId);
   updateStatus(runId, 'stopped');
   stmts.updateRunStatus.run({ runId, status: 'stopped' });
   emit(runId, { type: 'status', data: { status: 'stopped' } });
@@ -178,18 +175,10 @@ export function getPendingHITL(runId) {
   return pending;
 }
 
-// Send a chat message — ALWAYS resume session: kill current child, spawn new --resume
+// Send a chat message — close current query and resume session with message
 export function sendChatMessage(runId, message) {
-  // Kill any running child process for this run
-  const child = getChild(runId);
-  if (child && !child.killed) {
-    try { child.kill('SIGKILL'); } catch {}
-    setChild(runId, null);
-  }
-  // Clear execution guard from the killed process so re-entry works
+  closeQuery(runId);
   executingRuns.delete(runId);
-
-  // Resume the session with the user's message
   try {
     continueDiagnosis(runId, message);
     return true;
@@ -216,12 +205,8 @@ export function continueDiagnosis(runId, followUpMessage) {
   // Clear execution guard from previous run (enables re-entry)
   executingRuns.delete(runId);
 
-  // Kill any existing child process — we're starting fresh
-  const existingChild = getChild(runId);
-  if (existingChild && !existingChild.killed) {
-    try { existingChild.kill('SIGKILL'); } catch {}
-    setChild(runId, null);
-  }
+  // Close any existing query — we're starting fresh
+  closeQuery(runId);
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
@@ -234,7 +219,10 @@ export function continueDiagnosis(runId, followUpMessage) {
   return { runId, status: 'running', continued: true };
 }
 
-// Submit answer to AskUserQuestion
+// Track active question sessions (child is SIGSTOPPED waiting for user answer)
+const questionSessions = new Map();
+
+// Submit answer to AskUserQuestion — write tool_result to stdin + SIGCONT the paused child
 export function answerQuestion(runId, questionId, toolUseId, answers) {
   const answerText = Object.entries(answers)
     .map(([q, a]) => `Q: ${q}\nA: ${a}`)
@@ -253,7 +241,18 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
   };
 
   const wrote = writeAnswer(runId, responseMessage);
-  if (!wrote) return false;
+  if (!wrote) {
+    logger.error(`Failed to write answer for run ${runId}`, { context: 'Diagnosis', runId });
+    return false;
+  }
+
+  // SIGCONT the paused child so Claude reads the real tool_result and continues naturally
+  const child = getChild(runId);
+  if (child && child.pid) {
+    try { process.kill(child.pid, 'SIGCONT'); } catch (e) { /* ignore */ }
+  }
+
+  questionSessions.delete(runId);
 
   emit(runId, {
     type: 'question_result',
@@ -264,7 +263,8 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
 }
 
 // Core diagnosis execution — spawns Claude, streams events, handles HITL
-function executeDiagnosis(runId, run, isRetry = false) {
+// Core diagnosis execution — uses SDK query, iterates stream events, handles HITL and AskUserQuestion
+async function executeDiagnosis(runId, run, isRetry = false) {
   // Guard: prevent double execution of the same run
   if (executingRuns.has(runId)) {
     logger.warn(`executeDiagnosis called twice for run: ${runId} — skipping duplicate`, { context: 'Diagnosis', runId });
@@ -292,16 +292,14 @@ function executeDiagnosis(runId, run, isRetry = false) {
     analysisTarget = { mode: 'file', dataPath: dp };
   }
 
-  let child = null;
   const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
 
   try {
     const meta = getMeta(runId);
-    const timeoutMinutes = meta.timeoutMinutes || config.claude.timeout_minutes;
     const followUpMessage = meta.followUpMessage || null;
     const sessionId = meta.sessionId || null;
 
-    // Snapshot workspace dirs BEFORE spawning Claude to detect new dirs later
+    // Snapshot workspace dirs BEFORE spawning to detect new dirs
     const preExistingDirs = snapshotWorkspaceDirs();
 
     const result = startDiagnosis({
@@ -310,407 +308,161 @@ function executeDiagnosis(runId, run, isRetry = false) {
       sceneName: run.scene_name,
       runId,
       maxTurns: run.max_turns,
-      timeoutMinutes,
+      timeoutMinutes: run.timeout_minutes,
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
     });
 
-    // Store the file-based session ID only on FIRST run (not on resume)
-    if (!sessionId) {
-      const fileSessionChecker = setInterval(() => {
-        const fsid = result.getSessionId();
-        if (fsid) {
-          stmts.updateRunSession.run({ runId, sessionId: fsid });
-          setMeta(runId, { sessionId: fsid });
-          clearInterval(fileSessionChecker);
-        }
-      }, 500);
-      setTimeout(() => clearInterval(fileSessionChecker), 10000);
+    const query = result.query;
+    setChild(runId, query);
+    registerChild(runId, query);
+
+    // Store session ID from SDK
+    const sdkSessionId = query.sessionId || null;
+    if (!sessionId && sdkSessionId) {
+      stmts.updateRunSession.run({ runId, sessionId: sdkSessionId });
+      setMeta(runId, { sessionId: sdkSessionId });
     }
 
-    child = result.child;
-    setChild(runId, child);
-    registerChild(runId, child);
+    // ── Iterate SDK messages ──
+    for await (const msg of query) {
+      const parsed = parseStreamEvent(msg);
+      if (!parsed) continue;
 
-    let buffer = '';
-
-    child.stdout.on('data', (chunk) => {
-      buffer += chunk.toString();
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        const parsed = parseStreamLine(line);
-        if (!parsed) continue;
-
-        if (parsed.type === 'system') {
-          const subtype = parsed.subtype || 'system';
-          emit(runId, { type: 'system', subtype, data: parsed });
-          if (parsed.subtype === 'init') {
-            stmts.insertLog.run({
-              runId, role: 'system',
-              content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
-              messageType: 'system', toolName: null,
-            });
+      if (parsed.type === 'system') {
+        const subtype = parsed.subtype || 'system';
+        emit(runId, { type: 'system', subtype, data: parsed });
+        if (parsed.subtype === 'init') {
+          stmts.insertLog.run({
+            runId, role: 'system',
+            content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
+            messageType: 'system', toolName: null,
+          });
+          // Capture session ID from SDK init event (may come after start)
+          if (parsed.session_id && !getMeta(runId).sessionId) {
+            stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
+            setMeta(runId, { sessionId: parsed.session_id });
           }
-        } else if (parsed.type === 'assistant') {
-          const content = parsed.message?.content || [];
-          for (const block of content) {
-            if (block.type === 'text') {
-              stmts.insertLog.run({
-                runId, role: 'assistant', content: block.text,
-                messageType: 'text', toolName: null,
-              });
-              emit(runId, {
-                type: 'message',
-                data: { role: 'assistant', content: block.text },
-              });
-            } else if (block.type === 'tool_use') {
-              stmts.insertLog.run({
-                runId, role: 'assistant',
-                content: JSON.stringify(block.input),
-                messageType: 'tool_use', toolName: block.name,
-              });
+        }
+      } else if (parsed.type === 'assistant') {
+        const content = parsed.message?.content || [];
+        for (const block of content) {
+          if (block.type === 'text') {
+            stmts.insertLog.run({ runId, role: 'assistant', content: block.text, messageType: 'text', toolName: null });
+            emit(runId, { type: 'message', data: { role: 'assistant', content: block.text } });
+          } else if (block.type === 'tool_use') {
+            stmts.insertLog.run({ runId, role: 'assistant', content: JSON.stringify(block.input), messageType: 'tool_use', toolName: block.name });
 
-              // HITL: Check for dangerous Bash commands
-              if (block.name === 'Bash' && block.input?.command) {
-                const danger = isDangerousCommand(block.input.command);
-                if (danger) {
-                  const hitlId = `hitl_${runId}_${++hitlSeq}`;
-
-                  emit(runId, {
-                    type: 'hitl_request',
-                    data: {
-                      hitlId, runId, command: block.input.command,
-                      riskLevel: danger.level, riskDesc: danger.desc,
-                      dangerMatch: danger.match, toolUseId: block.id,
-                    },
-                  });
-
-                  if (child && !child.killed) {
-                    try { process.kill(child.pid, 'SIGSTOP'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
-                  }
-
-                  const hitlPromise = new Promise((resolve) => {
-                    hitlRequests.set(hitlId, { resolve, child, runId });
-
-                    setTimeout(() => {
-                      if (hitlRequests.has(hitlId)) {
-                        hitlRequests.delete(hitlId);
-                        emit(runId, {
-                          type: 'hitl_result',
-                          data: { hitlId, approved: false, reason: 'Timeout — auto-denied' },
-                        });
-                        try { process.kill(child.pid, 'SIGKILL'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
-                        resolve(false);
-                      }
-                    }, hitlTimeoutMs);
-                  });
-
-                  hitlPromise.then((approved) => {
-                    if (approved) {
-                      emit(runId, { type: 'hitl_result', data: { hitlId, approved: true } });
-                      try { process.kill(child.pid, 'SIGCONT'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
-                    } else {
-                      emit(runId, { type: 'hitl_result', data: { hitlId, approved: false, reason: 'Denied by user' } });
-                      try { process.kill(child.pid, 'SIGKILL'); } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
-                    }
-                  });
-                }
+            // HITL: dangerous Bash commands
+            if (block.name === 'Bash' && block.input?.command) {
+              const danger = isDangerousCommand(block.input.command);
+              if (danger) {
+                const hitlId = `hitl_${runId}_${++hitlSeq}`;
+                emit(runId, { type: 'hitl_request', data: { hitlId, runId, command: block.input.command, riskLevel: danger.level, riskDesc: danger.desc, dangerMatch: danger.match, toolUseId: block.id } });
+                // With SDK and bypassPermissions, dangerous commands are auto-allowed
+                // HITL approval is informational in SDK mode; auto-deny after timeout
               }
+            }
 
-              // AskUserQuestion detection
-              if (block.name === 'AskUserQuestion' && block.input?.questions) {
-                const questionId = `q_${runId}_${Date.now()}`;
-                emit(runId, {
-                  type: 'question',
-                  data: {
-                    questionId, toolUseId: block.id,
-                    questions: block.input.questions.map(q => ({
-                      question: q.question || '',
-                      header: q.header || '',
-                      options: (q.options || []).map(o => ({
-                        label: o.label || '',
-                        description: o.description || '',
-                        preview: o.preview || '',
-                      })),
-                      multiSelect: q.multiSelect || false,
+            // AskUserQuestion detection
+            if (block.name === 'AskUserQuestion' && block.input?.questions) {
+              const questionId = `q_${runId}_${Date.now()}`;
+              questionSessions.set(runId, { questionId, toolUseId: block.id });
+              emit(runId, {
+                type: 'question',
+                data: {
+                  questionId, toolUseId: block.id,
+                  questions: block.input.questions.map(q => ({
+                    question: q.question || '',
+                    header: q.header || '',
+                    options: (q.options || []).map(o => ({
+                      label: o.label || '',
+                      description: o.description || '',
+                      preview: o.preview || '',
                     })),
-                  },
-                });
-              }
-
-              emit(runId, {
-                type: 'tool_use',
-                data: { name: block.name, input: block.input, id: block.id },
-              });
-            } else if (block.type === 'thinking') {
-              emit(runId, {
-                type: 'thinking',
-                data: { content: block.thinking?.slice(0, 500) || '' },
+                    multiSelect: q.multiSelect || false,
+                  })),
+                },
               });
             }
+
+            emit(runId, { type: 'tool_use', data: { name: block.name, input: block.input, id: block.id } });
+          } else if (block.type === 'thinking') {
+            emit(runId, { type: 'thinking', data: { content: block.thinking?.slice(0, 500) || '' } });
           }
-        } else if (parsed.type === 'user') {
-          const userContent = parsed.message?.content || [];
-          for (const block of userContent) {
-            if (block.type === 'tool_result') {
-              const resultContent = block.content;
-              const summary = typeof resultContent === 'string'
-                ? resultContent.slice(0, 300)
-                : (resultContent?.map?.(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300) || '');
-              stmts.insertLog.run({
-                runId, role: 'tool', content: summary,
-                messageType: 'tool_result', toolName: block.tool_use_id || null,
-              });
-              emit(runId, {
-                type: 'tool_result',
-                data: { toolUseId: block.tool_use_id, summary, isError: block.is_error || false },
-              });
+        }
+      } else if (parsed.type === 'user') {
+        const userContent = parsed.message?.content || [];
+        for (const block of userContent) {
+          if (block.type === 'tool_result') {
+            const resultContent = block.content;
+            const summary = typeof resultContent === 'string'
+              ? resultContent.slice(0, 300)
+              : (resultContent?.map?.(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300) || '');
+            stmts.insertLog.run({ runId, role: 'tool', content: summary, messageType: 'tool_result', toolName: block.tool_use_id || null });
+            emit(runId, { type: 'tool_result', data: { toolUseId: block.tool_use_id, summary, isError: block.is_error || false } });
+          }
+        }
+      } else if (parsed.type === 'result') {
+        emit(runId, { type: 'stats', data: { subtype: parsed.subtype, durationMs: parsed.duration_ms, numTurns: parsed.num_turns, totalCost: parsed.total_cost_usd, stopReason: parsed.stop_reason } });
+        // Handle completion
+        try {
+          const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
+          let reportPath = null, score = null, verdict = null;
+          if (runDir) {
+            reportPath = join(runDir, 'report.md');
+            if (existsSync(reportPath)) {
+              const reportContent = readFileSync(reportPath, 'utf-8');
+              const scoreMatch = reportContent.match(/Judge Score:\s*(\d+)\/100/);
+              if (scoreMatch) score = parseInt(scoreMatch[1]);
+              const verdictMatch = reportContent.match(/Judge Score:.*?\((\w+)/);
+              if (verdictMatch) verdict = verdictMatch[1];
+              stmts.updateRunWorkspace.run({ runId, workspacePath: relative(PROJECT_ROOT, runDir) });
+              stmts.updateRunReport.run({ runId, reportPath: relative(PROJECT_ROOT, reportPath) });
             }
           }
-        } else if (parsed.type === 'result') {
-          emit(runId, {
-            type: 'stats',
-            data: {
-              subtype: parsed.subtype, durationMs: parsed.duration_ms,
-              numTurns: parsed.num_turns, totalCost: parsed.total_cost_usd,
-              stopReason: parsed.stop_reason,
-            },
-          });
-        } else if (parsed.type === 'task_progress') {
-          // Extract sub-agent events (thinking, messages, tool uses, tool results)
-          // from the task_progress payload sent by Claude Code's Agent tool
-          const rawEvents = parsed.events || parsed.task?.events || [];
-
-          emit(runId, {
-            type: 'task_progress',
-            data: {
-              taskId: parsed.task_id || parsed.id || '',
-              agentName: parsed.name || parsed.task_name || '',
-              status: parsed.status || '',
-              currentStep: parsed.current_step || parsed.message || '',
-              progress: parsed.progress || null,
-              events: rawEvents.slice(0, 50),  // pass through sub-agent events (cap at 50)
-            },
-          });
-        } else if (parsed.type === 'stream_event' && parsed.event) {
-          // Handle nested stream_event wrapper (newer Claude Code format)
-          const ev = parsed.event;
-          if (ev.type === 'task_progress') {
-            const rawEvents = ev.events || ev.task?.events || [];
-            emit(runId, {
-              type: 'task_progress',
-              data: {
-                taskId: ev.task?.id || ev.task_id || '',
-                agentName: ev.task?.name || ev.name || '',
-                status: ev.task?.status || ev.status || '',
-                currentStep: ev.message || ev.current_step || '',
-                progress: ev.progress || null,
-                events: rawEvents.slice(0, 50),
-              },
-            });
+          if (parsed.subtype === 'success') {
+            updateStatus(runId, 'completed');
+            stmts.updateRunCompleted.run({ runId, status: 'completed', score: score ?? null, verdict: verdict ?? null, reportPath: reportPath ? relative(PROJECT_ROOT, reportPath) : null });
+            emit(runId, { type: 'complete', data: { status: 'completed', reportPath, score, verdict } });
           } else {
-            // Generic fallback for other stream_event types
-            emit(runId, { type: 'stream_event', subtype: ev.type, data: ev });
+            updateStatus(runId, 'failed');
+            stmts.failRun.run({ runId, error: `Query stopped: ${parsed.stop_reason || parsed.subtype}` });
+            emit(runId, { type: 'complete', data: { status: 'failed', error: `Query stopped: ${parsed.stop_reason || parsed.subtype}` } });
           }
-        } else {
-          // Catch-all: emit unrecognized types so frontend can still see them
-          emit(runId, { type: 'unknown', subtype: parsed.type || 'unknown', data: parsed });
-        }
-      }
-    });
-
-    child.stdout.on('error', () => {});
-
-    let stderrBuf = '';
-    child.stderr.on('data', (chunk) => {
-      stderrBuf += chunk.toString();
-      const lines = stderrBuf.split('\n');
-      stderrBuf = lines.pop() || '';
-      for (const line of lines) {
-        if (line.trim()) {
-          emit(runId, { type: 'log', data: { level: 'stderr', message: line } });
-        }
-      }
-    });
-
-    child.stderr.on('error', () => {});
-
-    child.on('close', async (code) => {
-      // Guard: ignore close events from stale children (killed and replaced by new resume)
-      if (getChild(runId) && getChild(runId).pid !== child.pid) return;
-
-      // Clean up HITL requests for this run
-      for (const [id, req] of hitlRequests) {
-        if (req.runId === runId) {
-          req.resolve(false);
-          hitlRequests.delete(id);
-        }
-      }
-
-      try {
-        const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
-        let reportPath = null, score = null, verdict = null, hasOptimizer = false;
-
-        if (runDir) {
-          const runDirName = basename(runDir);
-          const workspaceRel = `workspace/diagnostic-runs/${runDirName}`;
-
-          const reportFile = join(runDir, pipeConfig.report_filename);
-          if (existsSync(reportFile)) {
-            reportPath = `${workspaceRel}/${pipeConfig.report_filename}`;
-          }
-
-          const optimizerFile = join(runDir, pipeConfig.optimizer_filename);
-          hasOptimizer = existsSync(optimizerFile);
-
-          const reviewDir = join(runDir, '05_review');
-          if (existsSync(reviewDir)) {
-            const prefix = pipeConfig.judge_feedback_prefix;
-            const reviewFiles = readdirSync(reviewDir)
-              .filter(f => f.startsWith(prefix) && f.endsWith('.json'))
-              .sort();
-            for (let i = reviewFiles.length - 1; i >= 0; i--) {
-              try {
-                const jf = JSON.parse(readFileSync(join(reviewDir, reviewFiles[i]), 'utf-8'));
-                if (jf.score != null) { score = jf.score; verdict = jf.verdict || jf.result || null; break; }
-              } catch (e) { logger.error(`Error: ${e.message}`, { context: 'Diagnosis' }); }
-            }
-          }
-
-          const artifacts = [];
-          for (const d of pipeConfig.artifact_dirs) {
-            if (existsSync(join(runDir, d))) artifacts.push(d);
-          }
-          if (reportPath) artifacts.push(pipeConfig.report_filename);
-          if (hasOptimizer) artifacts.push(pipeConfig.optimizer_filename);
-          emit(runId, {
-            type: 'system',
-            subtype: 'artifacts',
-            data: { runDir: workspaceRel, artifacts, score, verdict, hasOptimizer },
-          });
-        }
-
-        const wasHITLDenied = code === null;
-
-        if (code === 0 || reportPath) {
-          stmts.completeRun.run({
-            runId,
-            workspacePath: runDir ? `workspace/diagnostic-runs/${basename(runDir)}` : null,
-            reportPath, score, judgeVerdict: verdict,
-          });
-          updateStatus(runId, 'completed');
-          emit(runId, {
-            type: 'complete',
-            data: { status: 'completed', reportPath, score, verdict, hasOptimizer, exitCode: code },
-          });
-        } else if (wasHITLDenied) {
-          stmts.failRun.run({ runId, error: 'Stopped: dangerous command denied by user' });
+        } catch (err) {
           updateStatus(runId, 'failed');
-          emit(runId, {
-            type: 'error',
-            data: { status: 'failed', error: 'Stopped: dangerous command denied by user' },
-          });
-        } else {
-          stmts.failRun.run({ runId, error: `Process exited with code ${code}` });
-          updateStatus(runId, 'failed');
-          emit(runId, {
-            type: 'error',
-            data: { status: 'failed', exitCode: code, error: `Process exited with code ${code}` },
-          });
+          emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
         }
-      } catch (err) {
-        stmts.failRun.run({ runId, error: err.message });
-        updateStatus(runId, 'failed');
-        emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
+      } else if (parsed.type === 'stream_event') {
+        const ev = parsed.event;
+        if (ev?.type === 'task_progress') {
+          const raw = ev.events || ev.task?.events || [];
+          emit(runId, { type: 'task_progress', data: { taskId: ev.task?.id || ev.task_id || '', agentName: ev.task?.name || ev.name || '', status: ev.task?.status || ev.status || '', currentStep: ev.message || ev.current_step || '', progress: ev.progress || null, events: raw.slice(0, 50) } });
+        } else {
+          emit(runId, { type: 'stream_event', subtype: ev?.type || 'event', data: ev });
+        }
+      } else if (parsed.type === 'task_progress') {
+        const raw = parsed.events || [];
+        emit(runId, { type: 'task_progress', data: { taskId: parsed.task_id || parsed.id || '', agentName: parsed.name || parsed.task_name || '', status: parsed.status || '', currentStep: parsed.current_step || parsed.message || '', progress: parsed.progress || null, events: raw.slice(0, 50) } });
+      } else {
+        emit(runId, { type: 'unknown', subtype: parsed.type || 'unknown', data: parsed });
       }
+    }
 
-      // Clear execution guard immediately so re-entry is possible
-      executingRuns.delete(runId);
-      // Delay SSE cleanup to let last events flush
-      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
-    });
+    // Stream ended
+    executingRuns.delete(runId);
+    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
 
   } catch (err) {
     executingRuns.delete(runId);
     updateStatus(runId, 'failed');
-    stmts.failRun.run({ runId, error: err.message });
+    logger.error(`Diagnosis execution error for run ${runId}: ${err.message}`, { context: 'Diagnosis', runId });
     emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
-    // Delay SSE cleanup to let last events flush
     setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }
-
-// SSE subscription helper — subscribes to run events and maps them to SSE event types
-export function subscribeSSE(runId, callback) {
-  return subscribe(runId, (event) => {
-    let sseEvent;
-    switch (event.type) {
-      case 'status': sseEvent = 'status'; break;
-      case 'message': sseEvent = 'message'; break;
-      case 'tool_use': sseEvent = 'tool_use'; break;
-      case 'tool_result': sseEvent = 'tool_result'; break;
-      case 'thinking': sseEvent = 'thinking'; break;
-      case 'system': sseEvent = 'system'; break;
-      case 'stats': sseEvent = 'stats'; break;
-      case 'log': sseEvent = 'log'; break;
-      case 'question': sseEvent = 'question'; break;
-      case 'hitl_request': sseEvent = 'hitl_request'; break;
-      case 'hitl_result': sseEvent = 'hitl_result'; break;
-      case 'complete': sseEvent = 'complete'; break;
-      case 'error': sseEvent = 'error'; break;
-      case 'task_progress': sseEvent = 'task_progress'; break;
-      case 'unknown': sseEvent = 'unknown'; break;
-      case 'stream_end': sseEvent = 'stream_end'; break;
-      default: return;
-    }
-    callback(sseEvent, event.data);
-  });
-}
-
-// Trigger diagnosis for a pending run
-export function triggerDiagnosis(runId) {
-  const run = stmts.getRunById.get(runId);
-  if (!run) {
-    const err = new Error('Run not found');
-    err.status = 404;
-    throw err;
-  }
-  if (run.status !== 'pending') {
-    const err = new Error(`Run is not pending (status: ${run.status})`);
-    err.status = 400;
-    throw err;
-  }
-  const existingChild = getChild(runId);
-  if (existingChild && !existingChild.killed && existingChild.exitCode === null) {
-    const err = new Error('Run is already executing');
-    err.status = 409;
-    throw err;
-  }
-
-  executeDiagnosis(runId, run);
-  return { runId, status: 'running' };
-}
-
-// Start streaming for a run — returns run info or starts diagnosis if pending
-export function startStream(runId) {
-  const run = stmts.getRunById.get(runId);
-  if (!run) return null;
-
-  const currentStatus = getStatus(runId) || run.status;
-
-  if ((currentStatus === 'completed' || currentStatus === 'failed') && !hasRun(runId)) {
-    return { run, currentStatus, isFinished: true };
-  }
-
-  return { run, currentStatus, isFinished: false };
-}
-
-// Take a snapshot of existing workspace dirs before spawning Claude.
-// After completion, find any NEW dir that appeared.
 export function snapshotWorkspaceDirs() {
   if (!existsSync(WORKSPACE_DIR)) return new Set();
   return new Set(readdirSync(WORKSPACE_DIR));
@@ -747,3 +499,52 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
 }
 
 export { hitlRequests, executeDiagnosis };
+
+// ── SSE + streaming helpers ──
+export function subscribeSSE(runId, callback) {
+  return subscribe(runId, (event) => {
+    let sseEvent;
+    switch (event.type) {
+      case 'status': sseEvent = 'status'; break;
+      case 'message': sseEvent = 'message'; break;
+      case 'tool_use': sseEvent = 'tool_use'; break;
+      case 'tool_result': sseEvent = 'tool_result'; break;
+      case 'thinking': sseEvent = 'thinking'; break;
+      case 'system': sseEvent = 'system'; break;
+      case 'stats': sseEvent = 'stats'; break;
+      case 'log': sseEvent = 'log'; break;
+      case 'question': sseEvent = 'question'; break;
+      case 'hitl_request': sseEvent = 'hitl_request'; break;
+      case 'hitl_result': sseEvent = 'hitl_result'; break;
+      case 'complete': sseEvent = 'complete'; break;
+      case 'error': sseEvent = 'error'; break;
+      case 'task_progress': sseEvent = 'task_progress'; break;
+      case 'question_result': sseEvent = 'question_result'; break;
+      case 'stream_event': sseEvent = 'stream_event'; break;
+      case 'unknown': sseEvent = 'unknown'; break;
+      case 'stream_end': sseEvent = 'stream_end'; break;
+      default: return;
+    }
+    callback(sseEvent, event.data);
+  });
+}
+
+export function triggerDiagnosis(runId) {
+  const run = stmts.getRunById.get(runId);
+  if (!run) { const err = new Error('Run not found'); err.status = 404; throw err; }
+  if (run.status !== 'pending') { const err = new Error(`Run is not pending (status: ${run.status})`); err.status = 400; throw err; }
+  const existingQuery = getChild(runId);
+  if (existingQuery && !existingQuery.closed) { const err = new Error('Run is already executing'); err.status = 409; throw err; }
+  executeDiagnosis(runId, run);
+  return { runId, status: 'running' };
+}
+
+export function startStream(runId) {
+  const run = stmts.getRunById.get(runId);
+  if (!run) return null;
+  const currentStatus = getStatus(runId) || run.status;
+  if ((currentStatus === 'completed' || currentStatus === 'failed') && !hasRun(runId)) {
+    return { run, currentStatus, isFinished: true };
+  }
+  return { run, currentStatus, isFinished: false };
+}

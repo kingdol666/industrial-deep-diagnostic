@@ -231,6 +231,10 @@ const runId = ref(null);
 const runName = ref('');
 const connected = ref(false);
 const events = ref([]);
+const MAX_EVENTS = 1500;
+let _seqCounter = 0;
+let _sseClosed = false;
+
 const score = ref(null);
 const verdict = ref(null);
 const reportPath = ref(null);
@@ -294,6 +298,14 @@ const verdictClass = computed(() => {
   return 'banner-pass';
 });
 
+
+// Push events with capped array — prevents timeline freeze
+function pushEvent(e) {
+  const arr = events.value;
+  if (arr.length >= 1500) arr.splice(0, 100);
+  arr.push(e);
+}
+
 // --- SSE Connection ---
 function connectSSE(rid) {
   closeSSE();
@@ -315,7 +327,7 @@ function connectSSE(rid) {
     try {
       const d = JSON.parse(e.data);
       msgCount.value++;
-      events.value.push({ type: 'message', data: d, _seq: Date.now() });
+      pushEvent({ type: 'message', data: d, _seq: ++_seqCounter });
       tickProgress(2);
     } catch {}
   });
@@ -324,7 +336,7 @@ function connectSSE(rid) {
     try {
       const d = JSON.parse(e.data);
       toolCount.value++;
-      events.value.push({ type: 'tool_use', data: d, _seq: Date.now() });
+      pushEvent({ type: 'tool_use', data: d, _seq: ++_seqCounter });
       tickProgress(3);
       detectPhase(d.name);
     } catch {}
@@ -333,21 +345,21 @@ function connectSSE(rid) {
   eventSource.addEventListener('tool_result', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'tool_result', data: d, _seq: Date.now() });
+      pushEvent({ type: 'tool_result', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
   eventSource.addEventListener('thinking', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'thinking', data: d, _seq: Date.now() });
+      pushEvent({ type: 'thinking', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
   eventSource.addEventListener('system', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'system', subtype: d?.subtype || 'system', data: d, _seq: Date.now() });
+      pushEvent({ type: 'system', subtype: d?.subtype || 'system', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
@@ -355,7 +367,7 @@ function connectSSE(rid) {
     try {
       const d = JSON.parse(e.data);
       turnCount.value = d.numTurns || 0;
-      events.value.push({ type: 'stats', data: d, _seq: Date.now() });
+      pushEvent({ type: 'stats', data: d, _seq: ++_seqCounter });
       progressPct.value = Math.min(95, Math.max(progressPct.value, turnCount.value * 0.3));
     } catch {}
   });
@@ -363,7 +375,7 @@ function connectSSE(rid) {
   eventSource.addEventListener('log', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'system', subtype: 'log', data: d, _seq: Date.now() });
+      pushEvent({ type: 'system', subtype: 'log', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
@@ -371,10 +383,10 @@ function connectSSE(rid) {
     try {
       const d = JSON.parse(e.data);
       currentQuestion.value = d;
-      events.value.push({
+      pushEvent({
         type: 'question',
         data: d,
-        _seq: Date.now(),
+        _seq: ++_seqCounter,
       });
     } catch {}
   });
@@ -382,21 +394,17 @@ function connectSSE(rid) {
   eventSource.addEventListener('task_progress', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'task_progress', data: d, _seq: Date.now() });
+      pushEvent({ type: 'task_progress', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
-  eventSource.addEventListener('stream_event', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      events.value.push({ type: 'stream_event', subtype: d?.subtype || 'event', data: d, _seq: Date.now() });
-    } catch {}
-  });
+  // Suppress per-token stream_event to prevent timeline flood
+  eventSource.addEventListener('stream_event', () => {});
 
   eventSource.addEventListener('unknown', (e) => {
     try {
       const d = JSON.parse(e.data);
-      events.value.push({ type: 'unknown', subtype: d?.subtype || 'unknown', data: d, _seq: Date.now() });
+      pushEvent({ type: 'unknown', subtype: d?.subtype || 'unknown', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
@@ -408,7 +416,7 @@ function connectSSE(rid) {
       hitlRisk.value = d.riskLevel;
       hitlDesc.value = d.riskDesc;
       hitlPending.value = true;
-      events.value.push({ type: 'hitl_request', data: d, _seq: Date.now() });
+      pushEvent({ type: 'hitl_request', data: d, _seq: ++_seqCounter });
     } catch {}
   });
 
@@ -461,9 +469,9 @@ function connectSSE(rid) {
 
   eventSource.onerror = () => {
     connected.value = false;
-    if (isRunning.value) {
+    if (isRunning.value && !_sseClosed) {
       setTimeout(() => {
-        if (isRunning.value && runId.value) connectSSE(runId.value);
+        if (isRunning.value && runId.value && !_sseClosed) connectSSE(runId.value);
       }, 3000);
     }
   };
@@ -555,11 +563,11 @@ async function retryDiagnosis() {
     hitlPending.value = false;
     currentQuestion.value = null;
     // Append separator so user sees continuation, not restart
-    events.value.push({
+    pushEvent({
       type: 'system',
       subtype: 'continue',
       data: { message: 'Continuing from previous state...' },
-      _seq: Date.now(),
+      _seq: ++_seqCounter,
     });
     connectSSE(runId.value);
     startElapsed();
@@ -615,18 +623,18 @@ async function onSendMessage(message) {
   if (!runId.value) return;
   try {
     await api.sendChat(runId.value, message);
-    events.value.push({
+    pushEvent({
       type: 'system',
       subtype: 'chat_sent',
       data: { message },
-      _seq: Date.now(),
+      _seq: ++_seqCounter,
     });
   } catch (err) {
-    events.value.push({
+    pushEvent({
       type: 'system',
       subtype: 'chat_error',
       data: { error: err.message },
-      _seq: Date.now(),
+      _seq: ++_seqCounter,
     });
   }
 }
@@ -647,11 +655,11 @@ async function onResumeWithMessage(message) {
     hitlPending.value = false;
     currentQuestion.value = null;
     // Append separator — preserve history so user sees continuation
-    events.value.push({
+    pushEvent({
       type: 'system',
       subtype: 'continue',
       data: { message: `User: ${message}` },
-      _seq: Date.now(),
+      _seq: ++_seqCounter,
     });
     connectSSE(runId.value);
     startElapsed();

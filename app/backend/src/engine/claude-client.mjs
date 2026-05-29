@@ -1,45 +1,27 @@
-import { spawn, execSync } from 'child_process';
-import { existsSync, readdirSync } from 'fs';
+// Claude Client — wraps the Claude Agent SDK for diagnostic runs
+// Replaces the old child_process-based Claude CLI execution.
+
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, extname, basename } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
+
+// Dynamic SDK import (ESM-only module)
+let queryFn = null;
+let sdkAvailable = true;
+
+try {
+  const sdk = await import('@anthropic-ai/claude-agent-sdk');
+  queryFn = sdk.query;
+} catch (e) {
+  sdkAvailable = false;
+  logger.error(`SDK not available: ${e.message}`, { context: 'ClaudeClient' });
+}
 
 const DATA_DIR = join(PROJECT_ROOT, config.data.dir);
 const WORKSPACE_DIR = join(PROJECT_ROOT, config.data.workspace_dir);
 const SKILL_DIR = join(PROJECT_ROOT, config.claude.skill_dir);
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md');
-
-function buildEnv() {
-  const env = {};
-  for (const key of config.security.allowed_env_vars) {
-    if (process.env[key] !== undefined) {
-      env[key] = process.env[key];
-    }
-  }
-  // Fallback: use config values when env vars are missing (e.g. backend runs under sudo)
-  if (!env.ANTHROPIC_BASE_URL && config.claude.api_base_url) {
-    env.ANTHROPIC_BASE_URL = config.claude.api_base_url;
-  }
-  if (!env.ANTHROPIC_API_KEY && config.claude.api_key) {
-    env.ANTHROPIC_API_KEY = config.claude.api_key;
-  }
-  if (!env.ANTHROPIC_AUTH_TOKEN && config.claude.api_auth_token) {
-    env.ANTHROPIC_AUTH_TOKEN = config.claude.api_auth_token;
-  }
-  env.FORCE_COLOR = '0';
-  env.NO_COLOR = '1';
-  env.SKILL_PATH = SKILL_DIR;
-  return env;
-}
-
-function findClaudeCLI() {
-  const bins = [config.claude.binary, config.claude.fallback_binary];
-  for (const bin of bins) {
-    try {
-      return execSync(`which ${bin}`, { encoding: 'utf-8', timeout: 3000 }).trim();
-    } catch { /* try next */ }
-  }
-  return null;
-}
 
 function sanitize(str) {
   return str.replace(/[\x00-\x08\x0A-\x1F]/g, '').trim();
@@ -106,7 +88,7 @@ Please address the follow-up instruction above and continue the analysis.`;
   return basePrompt;
 }
 
-// Build dangerous command patterns from config
+// ── Dangerous Command Detection ──
 const DANGEROUS_PATTERNS = config.security.dangerous_patterns.map(rule => ({
   pattern: new RegExp(rule.pattern),
   level: rule.level,
@@ -123,33 +105,27 @@ export function isDangerousCommand(command) {
   return null;
 }
 
-// Helper: detect the real file-based session ID after spawning Claude
-import { join as pathJoin } from 'path';
-import { homedir } from 'os';
+// ── Disallowed tool names ──
+const disallowedTools = [];
 
-const SESSION_DIR = pathJoin(homedir(), '.claude', 'projects',
-  '-Volumes-laxer-codes-skills--industrial-deep-diagnostic');
+// ── Active query objects (for close and stdin writing) ──
+const activeQueries = new Map();
 
-function snapshotSessions() {
-  if (!existsSync(SESSION_DIR)) return new Set();
-  return new Set(readdirSync(SESSION_DIR).filter(f => f.endsWith('.jsonl')));
-}
-
-function findNewSession(prevSnapshot) {
-  if (!existsSync(SESSION_DIR)) return null;
-  const current = readdirSync(SESSION_DIR).filter(f => f.endsWith('.jsonl'));
-  for (const f of current) {
-    if (!prevSnapshot.has(f)) return f.replace('.jsonl', '');
+// ── Start Diagnosis via SDK ──
+export function startDiagnosis({
+  analysisTarget, userQuestion, sceneName,
+  runId, maxTurns = 0, timeoutMinutes = 0,
+  reportLanguage, followUpMessage, sessionId = null,
+}) {
+  if (!sdkAvailable || !queryFn) {
+    throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
   }
-  return null;
-}
 
-export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId: _runId, maxTurns = 0, timeoutMinutes = 0, reportLanguage, followUpMessage, sessionId = null }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
-
   let dataPaths = [];
 
+  // Resolve data paths
   function resolveDataPath(p) {
     if (p.startsWith('/')) return p;
     const fromRoot = join(PROJECT_ROOT, p);
@@ -193,130 +169,119 @@ export function startDiagnosis({ analysisTarget, userQuestion, sceneName, runId:
     dataPaths = [abs];
   }
 
-  if (!existsSync(SKILL_MD)) {
-    const err = new Error(`Skill definition not found at: ${SKILL_MD}`);
-    err.code = 'SKILL_NOT_FOUND';
-    throw err;
-  }
-
-  const claudeBin = findClaudeCLI();
-  if (!claudeBin) {
-    const err = new Error('Claude Code CLI not found in PATH. Install with: npm install -g @anthropic-ai/claude-code');
-    err.code = 'CLAUDE_NOT_FOUND';
-    throw err;
+  // Read skill content for system prompt enrichment
+  let skillContent = '';
+  if (existsSync(SKILL_MD)) {
+    try {
+      skillContent = readFileSync(SKILL_MD, 'utf-8').slice(0, 8000);
+    } catch { /* ignore */ }
   }
 
   const prompt = sessionId
     ? (followUpMessage || 'Continue the analysis.')
     : buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
 
-  const allowedTools = config.claude.allowed_tools;
-  const claudeArgs = [];
-  if (sessionId) {
-    claudeArgs.push('--resume', sessionId);
-  }
-  claudeArgs.push(
-    '-p', prompt,
-    '--output-format', config.claude.output_format,
-    '--verbose',
-    '--dangerously-skip-permissions',
-    '--allowedTools', allowedTools,
-  );
-  if (maxTurns > 0) {
-    claudeArgs.push('--max-turns', String(maxTurns));
-  }
-
-  // Snapshot existing sessions to detect the new one
-  const prevSessions = sessionId ? new Set() : snapshotSessions();
-
-  const child = spawn(claudeBin, claudeArgs, {
+  // Build SDK options
+  const options = {
     cwd: PROJECT_ROOT,
-    env: buildEnv(),
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
+    model: config.claude.model,
+    permissionMode: 'bypassPermissions',
+    allowDangerouslySkipPermissions: true,
+    includePartialMessages: true,
+    forwardSubagentText: true,
+    maxTurns: maxTurns > 0 ? maxTurns : undefined,
+  };
 
-  // Detect the file-based session ID (different from stream-json session_id)
-  let fileSessionId = sessionId || null;
-  if (!fileSessionId) {
-    // Poll for new session file (created within first 5 seconds)
-    const detectSession = setInterval(() => {
-      const found = findNewSession(prevSessions);
-      if (found) { fileSessionId = found; clearInterval(detectSession); }
-    }, 500);
-    setTimeout(() => clearInterval(detectSession), 10000);
+  if (sessionId) {
+    options.resume = sessionId;
   }
 
-  let sigkillTimer = null;
-  const graceMs = (config.claude.sigkill_grace_seconds || 5) * 1000;
+  // Start the SDK query
+  const query = queryFn({ prompt, options });
 
-  const killTimeout = setTimeout(() => {
-    if (!child.killed) {
-      child.kill('SIGTERM');
-      sigkillTimer = setTimeout(() => {
-        try { process.kill(child.pid, 'SIGKILL'); } catch {}
-      }, graceMs);
-    }
-  }, timeout * 60 * 1000);
+  // Register for later reference
+  activeQueries.set(runId, query);
 
-  child.on('close', () => {
-    clearTimeout(killTimeout);
-    if (sigkillTimer) clearTimeout(sigkillTimer);
-  });
+  const getSessionId = () => query.sessionId || null;
 
-  child.on('error', () => {
-    clearTimeout(killTimeout);
-    if (sigkillTimer) clearTimeout(sigkillTimer);
-  });
-
-  child.stdout.on('error', () => {});
-  child.stderr.on('error', () => {});
-
-  // Return the file-based session ID (detected from disk, not from stream-json)
-  const getSessionId = () => fileSessionId;
-
-  return { child, prompt, projectRoot: PROJECT_ROOT, timeoutMinutes: timeout, getSessionId };
+  return { query, dataPaths, prompt, getSessionId, runId };
 }
 
-export function parseStreamLine(line) {
+// ── Write tool_result to the query (for AskUserQuestion answers) ──
+export async function writeAnswer(runId, message) {
+  const query = activeQueries.get(runId);
+  if (!query) return false;
+
   try {
-    return JSON.parse(line);
-  } catch {
-    return null;
+    // Send the user message as an async iterable
+    await query.streamInput(
+      (async function* () {
+        yield message;
+      })()
+    );
+    return true;
+  } catch (e) {
+    logger.error(`writeAnswer failed: ${e.message}`, { context: 'ClaudeClient', runId });
+    return false;
   }
 }
 
+// ── Close / kill a query ──
+export function closeQuery(runId) {
+  const query = activeQueries.get(runId);
+  if (query) {
+    try { query.close(); } catch { /* ignore */ }
+    activeQueries.delete(runId);
+  }
+}
+
+// ── Parse SDK stream event into standardized format ──
+export function parseStreamEvent(message) {
+  // The SDK emits various message types:
+  // - SDKAssistantMessage: { type: 'assistant', message: { content: [...] } }
+  // - SDKUserMessage: { type: 'user', message: { role: 'user', content: [...] } }
+  // - SDKResultMessage: { type: 'result', subtype, duration_ms, num_turns, total_cost_usd, ... }
+  // - SDKPartialAssistantMessage: { type: 'stream_event', ... } (partial text chunks)
+
+  if (!message || typeof message !== 'object') return null;
+
+  const type = message.type;
+
+  if (type === 'assistant') {
+    return { type: 'assistant', message: message.message };
+  } else if (type === 'user') {
+    return { type: 'user', message: message.message };
+  } else if (type === 'result') {
+    return {
+      type: 'result',
+      subtype: message.subtype,
+      duration_ms: message.duration_ms,
+      num_turns: message.num_turns,
+      total_cost_usd: message.total_cost_usd,
+      stop_reason: message.stop_reason,
+      session_id: message.session_id,
+    };
+  } else if (type === 'system') {
+    return { type: 'system', subtype: message.subtype || 'system', ...message };
+  } else if (type === 'stream_event') {
+    return { type: 'stream_event', event: message.event };
+  }
+
+  // Fallback — pass through
+  return message;
+}
+
+// ── Extract report path from output ──
 export function extractReportPath(output) {
   const match = output.match(/workspace\/diagnostic-runs\/[^\s]+\/report\.md/);
   return match ? match[0] : null;
 }
 
-// Active child processes tracked by runId for stdin writing (question answering)
-const activeChildren = new Map();
-
-export function registerChild(runId, child) {
-  // Kill any previous child process for this run to prevent orphaned processes
-  const prev = activeChildren.get(runId);
-  if (prev && !prev.killed && prev.pid !== child.pid) {
-    try { prev.kill('SIGKILL'); } catch {}
-  }
-  activeChildren.set(runId, child);
-}
-
-export function unregisterChild(runId) {
-  activeChildren.delete(runId);
-}
-
-export function writeAnswer(runId, answerJson) {
-  const child = activeChildren.get(runId);
-  if (!child || child.killed) {
-    return false;
-  }
-  try {
-    child.stdin.write(JSON.stringify(answerJson) + '\n');
-    return true;
-  } catch {
-    return false;
-  }
+// ── Legacy compat: registerChild / writeAnswer (for diagnosis.service.mjs) ──
+const _noop = {};
+export function registerChild(runId, _query) {
+  // Stub — SDK manages child processes internally
+  activeQueries.set(runId, _query);
 }
 
 export { PROJECT_ROOT, DATA_DIR, WORKSPACE_DIR };

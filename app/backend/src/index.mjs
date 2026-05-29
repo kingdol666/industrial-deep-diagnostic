@@ -6,6 +6,7 @@ import fileRoutes from './routes/files.routes.mjs';
 import diagnosisRoutes from './routes/diagnosis.routes.mjs';
 import historyRoutes from './routes/history.routes.mjs';
 import analysisRoutes from './routes/analysis.routes.mjs';
+import chatRoutes from './routes/chat.routes.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
@@ -55,6 +56,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/analysis', analysisRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {
