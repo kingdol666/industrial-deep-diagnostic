@@ -386,6 +386,13 @@ function connectSSE(rid) {
     } catch {}
   });
 
+  eventSource.addEventListener('stream_event', (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      events.value.push({ type: 'stream_event', subtype: d?.subtype || 'event', data: d, _seq: Date.now() });
+    } catch {}
+  });
+
   eventSource.addEventListener('unknown', (e) => {
     try {
       const d = JSON.parse(e.data);

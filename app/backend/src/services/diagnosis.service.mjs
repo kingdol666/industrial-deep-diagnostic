@@ -431,7 +431,11 @@ function executeDiagnosis(runId, run, isRetry = false) {
                     questions: block.input.questions.map(q => ({
                       question: q.question || '',
                       header: q.header || '',
-                      options: q.options || [],
+                      options: (q.options || []).map(o => ({
+                        label: o.label || '',
+                        description: o.description || '',
+                        preview: o.preview || '',
+                      })),
                       multiSelect: q.multiSelect || false,
                     })),
                   },
@@ -477,28 +481,35 @@ function executeDiagnosis(runId, run, isRetry = false) {
             },
           });
         } else if (parsed.type === 'task_progress') {
+          // Extract sub-agent events (thinking, messages, tool uses, tool results)
+          // from the task_progress payload sent by Claude Code's Agent tool
+          const rawEvents = parsed.events || parsed.task?.events || [];
+
           emit(runId, {
             type: 'task_progress',
             data: {
               taskId: parsed.task_id || parsed.id || '',
-              name: parsed.name || parsed.task_name || '',
+              agentName: parsed.name || parsed.task_name || '',
               status: parsed.status || '',
               currentStep: parsed.current_step || parsed.message || '',
               progress: parsed.progress || null,
+              events: rawEvents.slice(0, 50),  // pass through sub-agent events (cap at 50)
             },
           });
         } else if (parsed.type === 'stream_event' && parsed.event) {
           // Handle nested stream_event wrapper (newer Claude Code format)
           const ev = parsed.event;
           if (ev.type === 'task_progress') {
+            const rawEvents = ev.events || ev.task?.events || [];
             emit(runId, {
               type: 'task_progress',
               data: {
                 taskId: ev.task?.id || ev.task_id || '',
-                name: ev.task?.name || ev.name || '',
+                agentName: ev.task?.name || ev.name || '',
                 status: ev.task?.status || ev.status || '',
                 currentStep: ev.message || ev.current_step || '',
                 progress: ev.progress || null,
+                events: rawEvents.slice(0, 50),
               },
             });
           } else {

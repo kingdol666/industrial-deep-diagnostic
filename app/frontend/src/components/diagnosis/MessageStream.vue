@@ -142,14 +142,14 @@
         </div>
       </div>
 
-      <!-- TASK PROGRESS -->
+      <!-- SUB-AGENT TASK PROGRESS (renders actual agent events) -->
       <div v-else-if="ev.type === 'task_progress'" class="ms-item ms-progress">
         <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
         <div class="ms-body">
           <div class="ms-card card-progress" :class="'progress-' + (ev.data.status || 'running')">
             <div class="ms-card-header">
               <span class="ms-card-icon">{{ statusIcon(ev.data.status) }}</span>
-              <span class="ms-card-title">{{ ev.data.name || 'Task Progress' }}</span>
+              <span class="ms-card-title">{{ ev.data.agentName || ev.data.name || 'Sub-Agent Task' }}</span>
               <span :class="['progress-badge', 'badge-' + statusBadgeClass(ev.data.status)]">
                 {{ ev.data.status || 'running' }}
               </span>
@@ -157,6 +157,61 @@
             <div class="progress-detail" v-if="ev.data.currentStep">
               <span class="progress-step">{{ ev.data.currentStep }}</span>
             </div>
+
+            <!-- Sub-agent events (thinking, messages, tool calls) -->
+            <div v-if="ev.data.events && ev.data.events.length" class="sa-events">
+              <div
+                v-for="(saEv, si) in ev.data.events"
+                :key="si"
+                class="sa-event"
+              >
+                <!-- sa: thinking -->
+                <div v-if="saEv.type === 'thinking'" class="sa-thinking" @click.stop="toggleSaThinking(ev._seq, si)">
+                  <span class="sa-icon">🧠</span>
+                  <span class="sa-label">Thinking</span>
+                  <span class="sa-toggle" :class="{ open: saThinkingOpen(ev._seq, si) }">▶</span>
+                  <div v-if="saThinkingOpen(ev._seq, si)" class="sa-thinking-content">
+                    {{ saEv.thinking || saEv.content || '' }}
+                  </div>
+                </div>
+
+                <!-- sa: message -->
+                <div v-else-if="saEv.type === 'message' || saEv.type === 'text'" class="sa-message">
+                  <span class="sa-msg-icon">💬</span>
+                  <div class="sa-msg-text">{{ extractSaText(saEv) }}</div>
+                </div>
+
+                <!-- sa: tool_use -->
+                <div v-else-if="saEv.type === 'tool_use'" class="sa-tool">
+                  <span class="sa-icon sa-tool-icon">⚙</span>
+                  <span class="sa-tool-name">{{ saEv.name || 'tool' }}</span>
+                  <span class="sa-tool-input">{{ formatSaInput(saEv) }}</span>
+                </div>
+
+                <!-- sa: tool_result -->
+                <div v-else-if="saEv.type === 'tool_result'" class="sa-result">
+                  <span class="sa-icon" :class="saEv.is_error ? 'sa-err-icon' : 'sa-ok-icon'">
+                    {{ saEv.is_error ? '✗' : '✓' }}
+                  </span>
+                  <span class="sa-result-text">{{ extractSaResult(saEv) }}</span>
+                </div>
+
+                <!-- sa: task_progress (nested) -->
+                <div v-else-if="saEv.type === 'task_progress'" class="sa-task-progress">
+                  <span class="sa-icon">🔄</span>
+                  <span class="sa-label">{{ saEv.name || saEv.task?.name || 'Sub-task' }}</span>
+                  <span class="sa-status">{{ saEv.status || '' }}</span>
+                </div>
+
+                <!-- sa: fallback -->
+                <div v-else class="sa-fallback">
+                  <span class="sa-icon">📋</span>
+                  <span class="sa-label">{{ saEv.type || 'event' }}</span>
+                  <span class="sa-fallback-preview">{{ JSON.stringify(saEv).slice(0, 120) }}</span>
+                </div>
+              </div>
+            </div>
+
             <div class="progress-bar-wrapper" v-if="ev.data.progress">
               <div class="progress-bar">
                 <div
@@ -165,6 +220,43 @@
                 ></div>
               </div>
               <span class="progress-text">{{ progressText(ev.data.progress) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STREAM EVENT (raw sub-agent events from newer Claude wrapper) -->
+      <div v-else-if="ev.type === 'stream_event'" class="ms-item ms-progress">
+        <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-progress">
+            <div class="ms-card-header">
+              <span class="ms-card-icon">📡</span>
+              <span class="ms-card-title">Sub-Agent Event: {{ ev.subtype || 'update' }}</span>
+            </div>
+            <div class="sa-events" style="max-height:200px">
+              <div class="sa-event" v-if="ev.data?.type === 'thinking'">
+                <span class="sa-icon">🧠</span>
+                <span class="sa-label">Thinking</span>
+                <span class="sa-fallback-preview">{{ (ev.data.thinking || ev.data.content || '').slice(0, 200) }}</span>
+              </div>
+              <div class="sa-event" v-else-if="ev.data?.type === 'message' || ev.data?.type === 'text'">
+                <span class="sa-icon">💬</span>
+                <span class="sa-msg-text">{{ extractStreamEventText(ev.data) }}</span>
+              </div>
+              <div class="sa-event" v-else-if="ev.data?.type === 'tool_use'">
+                <span class="sa-icon sa-tool-icon">⚙</span>
+                <span class="sa-tool-name">{{ ev.data.name || 'tool' }}</span>
+                <span class="sa-tool-input">{{ JSON.stringify(ev.data.input || {}).slice(0, 100) }}</span>
+              </div>
+              <div class="sa-event" v-else-if="ev.data?.type === 'tool_result'">
+                <span class="sa-icon" :class="ev.data.is_error ? 'sa-err-icon' : 'sa-ok-icon'">{{ ev.data.is_error ? '✗' : '✓' }}</span>
+                <span class="sa-result-text">{{ typeof ev.data.content === 'string' ? ev.data.content.slice(0, 80) : (ev.data.summary || '').slice(0, 80) }}</span>
+              </div>
+              <div class="sa-event" v-else>
+                <span class="sa-icon">📡</span>
+                <span class="sa-fallback-preview">{{ JSON.stringify(ev.data).slice(0, 150) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -202,9 +294,9 @@
           <div class="ms-card card-question">
             <div class="ms-card-header">
               <span class="ms-card-icon">❓</span>
-              <span class="ms-card-title">Questions from Claude</span>
-              <span class="ms-question-count" v-if="ev.data.questions?.length > 1">
-                {{ ev.data.questions.length }} questions
+              <span class="ms-card-title">Claude asked for your input</span>
+              <span class="ms-question-count" v-if="ev.data.questions?.length">
+                {{ ev.data.questions.length }} question{{ ev.data.questions.length > 1 ? 's' : '' }}
               </span>
             </div>
             <div class="question-list">
@@ -213,7 +305,9 @@
                 :key="qi"
                 class="question-block"
               >
-                <div class="question-header" v-if="q.header">{{ q.header }}</div>
+                <div class="question-header" v-if="q.header">
+                  <span class="q-chip">{{ q.header }}</span>
+                </div>
                 <div class="question-text">
                   <span class="question-num">{{ qi + 1 }}.</span>
                   {{ q.question }}
@@ -225,14 +319,21 @@
                     class="question-option"
                   >
                     <span class="option-marker">{{ q.multiSelect ? '☐' : '○' }}</span>
-                    <span class="option-label">{{ opt.label }}</span>
-                    <span class="option-desc" v-if="opt.description">{{ opt.description }}</span>
+                    <div class="option-info">
+                      <span class="option-label">{{ opt.label }}</span>
+                      <span class="option-desc" v-if="opt.description">{{ opt.description }}</span>
+                      <div class="option-preview" v-if="opt.preview">
+                        <div class="option-preview-chip">👁 preview</div>
+                        <div class="option-preview-content" v-html="renderMd(opt.preview)"></div>
+                      </div>
+                    </div>
                   </div>
                   <div v-if="!q.options || q.options.length === 0" class="question-option question-option-empty">
                     <span class="option-marker">—</span>
                     <span class="option-label">Free text input</span>
                   </div>
                 </div>
+                <div class="question-type-badge" v-if="q.multiSelect">Multi-select</div>
               </div>
             </div>
           </div>
@@ -264,6 +365,7 @@ const props = defineProps({
 });
 
 const expandedThinking = ref(new Set());
+const expandedSaThinking = ref(new Set());
 const streamEl = ref(null);
 const MAX_EVENTS = 500;
 
@@ -345,6 +447,53 @@ function progressText(progress) {
   if (progress.completed != null && progress.total) {
     return `${progress.completed}/${progress.total}`;
   }
+  return '';
+}
+
+// Sub-agent event helpers
+const saThinkingKey = (seq, idx) => `${seq}_sa_${idx}`;
+
+function toggleSaThinking(seq, idx) {
+  const key = saThinkingKey(seq, idx);
+  const next = new Set(expandedSaThinking.value);
+  if (next.has(key)) next.delete(key); else next.add(key);
+  expandedSaThinking.value = next;
+}
+
+function saThinkingOpen(seq, idx) {
+  return expandedSaThinking.value.has(saThinkingKey(seq, idx));
+}
+
+function extractSaText(saEv) {
+  // message content can be string or block array
+  if (typeof saEv.content === 'string') return saEv.content;
+  if (saEv.content && Array.isArray(saEv.content)) {
+    return saEv.content.map(c => typeof c === 'string' ? c : c.text || '').join(' ').slice(0, 300);
+  }
+  return '';
+}
+
+function formatSaInput(saEv) {
+  const input = saEv.input || {};
+  // Show relevant fields
+  const show = input.file_path || input.command || input.query || input.skill || input.pattern;
+  if (show) return typeof show === 'string' ? show : JSON.stringify(show);
+  return JSON.stringify(input).slice(0, 100);
+}
+
+function extractStreamEventText(ev) {
+  if (typeof ev.content === 'string') return ev.content.slice(0, 200);
+  if (ev.content && Array.isArray(ev.content)) {
+    return ev.content.map(c => typeof c === 'string' ? c : c.text || '').join(' ').slice(0, 200);
+  }
+  if (ev.text) return ev.text.slice(0, 200);
+  return '';
+}
+
+function extractSaResult(saEv) {
+  if (typeof saEv.content === 'string') return saEv.content.slice(0, 100);
+  if (saEv.summary) return saEv.summary.slice(0, 100);
+  if (saEv.text) return saEv.text.slice(0, 100);
   return '';
 }
 
@@ -550,21 +699,31 @@ watch(() => props.events.length, () => {
 }
 
 .question-list {
-  padding: 8px 12px 4px;
+  padding: 10px 14px 6px;
 }
 
 .question-block {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .question-block:last-child {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .question-header {
-  font-size: 11px; font-weight: 700; color: var(--purple);
-  text-transform: uppercase; letter-spacing: .5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.q-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  background: rgba(188, 140, 255, .1);
+  color: var(--purple);
 }
 
 .question-text {
@@ -577,19 +736,21 @@ watch(() => props.events.length, () => {
 }
 
 .question-options {
-  display: flex; flex-direction: column; gap: 3px;
-  padding-left: 8px; border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 4px;
+  padding-left: 2px;
 }
 
 .question-option {
-  display: flex; align-items: baseline; gap: 8px;
-  padding: 4px 8px; border-radius: 4px; font-size: 13px;
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 10px; border-radius: 6px; font-size: 13px;
   color: var(--text); line-height: 1.45;
   transition: background .1s;
+  border: 1px solid transparent;
 }
 
 .question-option:hover {
-  background: rgba(188, 140, 255, 0.05);
+  background: rgba(188, 140, 255, .04);
+  border-color: rgba(188, 140, 255, .1);
 }
 
 .question-option-empty {
@@ -597,17 +758,78 @@ watch(() => props.events.length, () => {
 }
 
 .option-marker {
-  flex-shrink: 0; width: 16px; text-align: center;
-  color: var(--purple); font-size: 12px;
+  flex-shrink: 0; width: 18px; text-align: center;
+  color: var(--purple); font-size: 13px; margin-top: 1px;
+}
+
+.option-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .option-label {
-  font-weight: 500; color: var(--text);
+  font-weight: 600; color: var(--text);
 }
 
 .option-desc {
   color: var(--text2); font-size: 12px;
-  margin-left: 4px;
+  margin-top: 2px; display: block;
+}
+
+.option-preview {
+  margin-top: 8px;
+}
+
+.option-preview-chip {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(188, 140, 255, .08);
+  color: var(--purple);
+  margin-bottom: 6px;
+}
+
+.option-preview-content {
+  padding: 8px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.option-preview-content :deep(pre) {
+  background: var(--bg);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.option-preview-content :deep(code) {
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.option-preview-content :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+
+.question-type-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(88, 166, 255, .1);
+  color: var(--accent);
 }
 
 /* Task Progress card */
@@ -663,6 +885,126 @@ watch(() => props.events.length, () => {
   font-size: 12px; color: var(--text2); flex-shrink: 0;
   min-width: 40px; text-align: right; font-weight: 600;
 }
+
+/* ── Sub-Agent Events Timeline (nested) ── */
+.sa-events {
+  border-top: 1px solid var(--border);
+  padding: 6px 12px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.sa-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  border-bottom: 1px solid rgba(48, 54, 61, .4);
+}
+.sa-event:last-child { border-bottom: none; }
+
+.sa-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.sa-thinking { cursor: pointer; flex-wrap: wrap; }
+.sa-thinking:hover { background: rgba(188,140,255,.04); }
+.sa-label { color: var(--text2); font-weight: 600; font-size: 11px; flex: 1; }
+.sa-toggle { font-size: 10px; color: var(--text2); transition: transform .2s; margin-left: auto; }
+.sa-toggle.open { transform: rotate(90deg); }
+.sa-thinking-content {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: rgba(188,140,255,.04);
+  border: 1px solid rgba(188,140,255,.08);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.5;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  white-space: pre-wrap;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.sa-message { }
+.sa-msg-icon { flex-shrink: 0; width: 20px; text-align: center; font-size: 11px; color: var(--accent); }
+.sa-msg-text {
+  flex: 1;
+  color: var(--text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.sa-tool { }
+.sa-tool-icon { color: var(--yellow); }
+.sa-tool-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 11px;
+  flex-shrink: 0;
+  background: rgba(210,153,34,.08);
+  padding: 0 6px;
+  border-radius: 3px;
+}
+.sa-tool-input {
+  flex: 1;
+  color: var(--text2);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sa-result { }
+.sa-ok-icon { color: var(--green); }
+.sa-err-icon { color: var(--red); }
+.sa-result-text {
+  flex: 1;
+  color: var(--text2);
+  font-size: 11px;
+  font-family: 'SF Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sa-task-progress { gap: 4px; }
+.sa-status {
+  font-size: 10px;
+  color: var(--accent);
+  background: rgba(88,166,255,.08);
+  padding: 0 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.sa-fallback { }
+.sa-fallback-preview {
+  flex: 1;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Sub-Agent Event Icons by type (pseudo) ── */
 
 /* Unknown event card */
 .card-unknown {
