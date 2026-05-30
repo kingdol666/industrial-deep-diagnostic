@@ -11,7 +11,7 @@ Instructions for the agent:
    - Set FILL_STRATEGY per column based on its type
    - Set RESAMPLE_RATE if needed
 3. Write the customized script to <RUN_DIR>/06_scripts/preprocess.py
-4. Run it: python3 <RUN_DIR>/06_scripts/preprocess.py
+4. Run it: $PYTHON <RUN_DIR>/06_scripts/preprocess.py (use uv venv, NOT system python3)
 """
 
 import json, sys
@@ -30,7 +30,7 @@ try:
     import pandas as pd
     import numpy as np
 except ImportError:
-    print("ERROR: pip install pandas numpy", file=sys.stderr)
+    print("ERROR: Run: node scripts/uv_env_setup.mjs to create the Python venv", file=sys.stderr)
     sys.exit(1)
 
 def main():

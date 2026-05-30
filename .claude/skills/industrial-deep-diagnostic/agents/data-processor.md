@@ -292,7 +292,17 @@ Write `RUN_DIR/06_scripts/visualize.py`:
 
 **Dependencies**: matplotlib, pandas, numpy only. networkx optional (for causal map — fallback to manual layout if unavailable).
 
-Run: `python3 RUN_DIR/06_scripts/visualize.py`
+**Python execution** — MUST use uv venv, not system python:
+```bash
+# Step 1: Ensure venv ready — use node to parse JSON (no system python needed)
+PYTHON=$(node SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
+  let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+    try{const j=JSON.parse(d.split('\n').pop());process.stdout.write(j.python||'')}catch{process.stdout.write('')}
+  })
+")
+# Step 2: Run with venv python
+$PYTHON RUN_DIR/06_scripts/visualize.py
+```
 
 ---
 

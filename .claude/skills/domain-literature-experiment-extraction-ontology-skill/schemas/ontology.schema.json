@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/ontology.schema.json",
+  "title": "Domain Ontology",
+  "description": "A structured domain ontology extracted from experiment data",
+  "type": "object",
+  "required": ["ontology_id", "domain", "classes", "object_properties", "triples"],
+  "properties": {
+    "ontology_id": { "type": "string" },
+    "domain": { "type": "string" },
+    "version": { "type": "string" },
+    "generated": { "type": "string", "format": "date-time" },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "parent": { "type": ["string", "null"] },
+          "definition": { "type": "string" },
+          "instances": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "required": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "object_properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "domain", "range"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "domain": { "type": "string" },
+          "range": { "type": "string" },
+          "definition": { "type": "string" },
+          "inverse": { "type": ["string", "null"] },
+          "transitive": { "type": "boolean" }
+        }
+      }
+    },
+    "data_properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "domain", "range"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "domain": { "type": "string" },
+          "range": { "type": "string" },
+          "definition": { "type": "string" }
+        }
+      }
+    },
+    "individuals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "class"],
+        "properties": {
+          "id": { "type": "string" },
+          "class": { "type": "string" },
+          "label": { "type": "string" },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "paper_count": { "type": "integer" }
+        }
+      }
+    },
+    "triples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["subject", "predicate", "object"],
+        "properties": {
+          "subject": { "type": "string" },
+          "predicate": { "type": "string" },
+          "object": {},
+          "provenance": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "subject", "predicate", "object"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["relationship_contradiction", "naming_conflict", "attribute_conflict"]
+          },
+          "subject": { "type": "string" },
+          "predicate": { "type": "string" },
+          "object": { "type": "string" },
+          "source_1": {
+            "type": "object",
+            "properties": {
+              "paper": { "type": "string" },
+              "claim": { "type": "string" }
+            }
+          },
+          "source_2": {
+            "type": "object",
+            "properties": {
+              "paper": { "type": "string" },
+              "claim": { "type": "string" }
+            }
+          },
+          "resolution_notes": { "type": "string" }
+        }
+      }
+    },
+    "sparse_entities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Entity IDs that appear but have minimal attributes"
+    },
+    "single_occurrence_measurements": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

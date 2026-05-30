@@ -1,0 +1,63 @@
+{
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "pva": "http://example.org/ontology/pva-bopet/"
+  },
+  "@graph": [
+    {
+      "@id": "pva:Ontology",
+      "@type": "owl:Ontology",
+      "rdfs:label": "PVA/BOPET Optical Film Domain Ontology",
+      "owl:versionInfo": "1.0.0",
+      "rdfs:comment": "Automatically constructed from literature data extraction"
+    },
+    {
+      "@id": "pva:Material",
+      "@type": "owl:Class",
+      "rdfs:label": "Material",
+      "rdfs:comment": "Any substance used in film formation: polymer matrix, additive, or solvent"
+    },
+    {
+      "@id": "pva:Polymer",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": {"@id": "pva:Material"},
+      "rdfs:label": "Polymer"
+    },
+    {
+      "@id": "pva:Additive",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": {"@id": "pva:Material"},
+      "rdfs:label": "Additive"
+    },
+    {
+      "@id": "pva:Solvent",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": {"@id": "pva:Material"},
+      "rdfs:label": "Solvent"
+    },
+    {
+      "@id": "pva:hasAdditive",
+      "@type": "owl:ObjectProperty",
+      "rdfs:domain": {"@id": "pva:Polymer"},
+      "rdfs:range": {"@id": "pva:Additive"},
+      "rdfs:label": "has additive"
+    },
+    {
+      "@id": "pva:hasProperty",
+      "@type": "owl:ObjectProperty",
+      "rdfs:domain": {"@id": "pva:Material"},
+      "rdfs:range": {"@id": "pva:Measurement"},
+      "rdfs:label": "has property"
+    },
+    {
+      "@id": "pva:reportedIn",
+      "@type": "owl:ObjectProperty",
+      "rdfs:domain": {"@id": "pva:Measurement"},
+      "rdfs:range": {"@id": "pva:Source"},
+      "rdfs:label": "reported in"
+    }
+  ]
+}

@@ -15,20 +15,32 @@ You are a senior industrial engineer with 20+ years of hands-on experience. You 
 
 **You do NOT trust the pipeline's conclusions. You verify them from scratch against physical reality.**
 
-## Step 0: Ensure Python Dependencies
+## Step 0: Ensure Python Dependencies (uv venv)
 
-Before any analysis, ensure Python dependencies are available:
+Before any analysis, ensure the uv-managed Python environment is ready:
 
 ```bash
-# Try to install requirements if missing (continues on failure)
-if ! python3 -c "import matplotlib, numpy, pandas" 2>/dev/null; then
-  echo "[REVIEW] Installing Python dependencies..."
-  pip3 install -q matplotlib numpy pandas 2>&1 || \
-    echo "[WARNING] Python dependencies not available — will skip independent verification code and rely on pipeline summaries"
+# Ensure uv venv is set up (auto-installs uv + deps if needed)
+# Use node to parse JSON output — no system python3 needed
+PYTHON=$(node SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
+  let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+    try{const j=JSON.parse(d.split('\n').pop());process.stdout.write(j.python||'')}catch{process.stdout.write('')}
+  })
+")
+
+# Fallback: if uv_env_setup fails, try venv path directly, then system python
+if [ -z "$PYTHON" ] || ! "$PYTHON" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
+  VENV_PY="SKILL_PATH/scripts/.venv/bin/python"
+  if [ -f "$VENV_PY" ] && "$VENV_PY" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
+    PYTHON="$VENV_PY"
+  else
+    echo "[WARNING] No Python environment available — will skip independent verification and rely on pipeline summaries"
+    PYTHON=""
+  fi
 fi
 ```
 
-If Python dependencies are NOT available, skip Step 2 (Independent Statistical Checks) but continue with all other steps.
+If Python is NOT available (`$PYTHON` is empty), skip Step 2 (Independent Statistical Checks) but continue with all other steps. All subsequent Python invocations use `$PYTHON` instead of `python3`.
 
 ## Step 0.5: Load Resources
 

@@ -124,21 +124,28 @@ const BINARY_FORMATS = new Set(['.xlsx', '.xls', '.parquet', '.feather', '.ipc',
 function delegateToPython(filePath, previewRows) {
   const scriptDir = path.dirname(new URL(import.meta.url).pathname);
   const pyScript = path.join(scriptDir, 'file_inspect.py');
-  const cmd = `python3 "${pyScript}" "${filePath}" --rows ${previewRows}`;
+
+  // Resolve Python from uv venv (preferred) or fallback to system python
+  const venvPython = path.join(scriptDir, '.venv', 'bin', 'python');
+  const pythonBin = fs.existsSync(venvPython) ? venvPython : 'python3';
+  const cmd = `"${pythonBin}" "${pyScript}" "${filePath}" --rows ${previewRows}`;
   try {
     const result = execSync(cmd, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
     return result;
   } catch (e) {
-    // Fallback: try python3.11
-    try {
-      const cmd2 = `python3.11 "${pyScript}" "${filePath}" --rows ${previewRows}`;
-      return execSync(cmd2, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
-    } catch (e2) {
-      return JSON.stringify({
-        error: `Python inspection failed. Install dependencies: pip3 install pandas numpy openpyxl pyarrow\n  Node: ${e.stderr || e.message}\n  Python: ${e2.stderr || e2.message}`,
-        file: filePath,
-      });
+    // Fallback: try system python3 if venv failed
+    if (pythonBin !== 'python3') {
+      try {
+        const cmd2 = `python3 "${pyScript}" "${filePath}" --rows ${previewRows}`;
+        return execSync(cmd2, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
+      } catch (e2) {
+        // ignore, report original error below
+      }
     }
+    return JSON.stringify({
+      error: `Python inspection failed. Run: node ${path.join(scriptDir, 'uv_env_setup.mjs')}\n  ${e.stderr || e.message}`,
+      file: filePath,
+    });
   }
 }
 

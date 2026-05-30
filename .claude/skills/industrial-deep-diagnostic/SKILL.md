@@ -77,15 +77,22 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context ──[clarify
 
 ## Step-by-Step Protocol
 
-### Step 0: Setup Workspace
+### Step 0: Setup Workspace + Python Environment
 
 ```bash
 SKILL_PATH="<path-to-this-skill>"
 PROJECT_ROOT="$(cd "$SKILL_PATH/../.." && pwd)"
+
+# Step 0a: Create run directory structure
 node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+
+# Step 0b: Ensure Python venv is ready (auto-installs uv + deps)
+node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 ```
 
-Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Copy input data files into `00_input/`.
+Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Also ensures the uv-managed Python venv exists with all dependencies (matplotlib, numpy, pandas, seaborn, scipy, openpyxl, pyarrow). Copy input data files into `00_input/`.
+
+**Python execution rule (ZERO TOLERANCE)**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. NEVER use system `python3`, `python3.11`, or `pip3`. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field. Violating this rule causes dependency pollution and version conflicts.
 
 ### Step 1: Inspect Data (Main Agent)
 
@@ -112,6 +119,8 @@ Check `00_input/clarification_needed.json`. If CRITICAL/HIGH unknowns exist, ask
 **Read first**: `agents/data-processor.md`
 
 Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
+
+> **Python Execution (MANDATORY)**: All Python scripts in this step (stats_validate.mjs internal calls, `file_inspect.py`, `template_visualize.py`, `template_preprocess.py`, and the generated `RUN_DIR/06_scripts/visualize.py`) MUST use the uv venv Python at `scripts/.venv/bin/python`. Never `python3`. See §Python Execution Protocol in CLAUDE.md.
 
 The agent runs the full analysis pipeline:
 1. Classify process scenario (CNC / continuous / batch / heat exchange / generic)

@@ -4,7 +4,7 @@ file_inspect.py — Data file inspection for Excel, Parquet, Feather formats
 =====================================================================
 Zero-dep for CSV. Requires pandas + openpyxl (Excel) or pyarrow (Parquet/Feather).
 
-Usage: python3 file_inspect.py <file> [--rows N]
+Usage: file_inspect.py <file> [--rows N] (invoke via uv venv Python)
 Output: JSON with column details, types, stats, time column detection, preview
 
 Used by inspect.mjs as a fallback for binary/proprietary formats that
@@ -22,7 +22,7 @@ try:
     import pandas as pd
 except ImportError:
     print(json.dumps({
-        "error": "Missing pandas/numpy. Install: pip3 install pandas numpy openpyxl pyarrow",
+        "error": "Missing pandas/numpy. Install: node scripts/uv_env_setup.mjs  # was: pip3 install pandas numpy openpyxl pyarrow",
         "file": sys.argv[1] if len(sys.argv) > 1 else None
     }, indent=2))
     sys.exit(1)
@@ -115,7 +115,7 @@ def detect_time_column(df):
 def main():
     file_path = sys.argv[1] if len(sys.argv) > 1 else None
     if not file_path:
-        print(json.dumps({"error": "Usage: python3 file_inspect.py <file> [--rows N]"}, indent=2))
+        print(json.dumps({"error": "Usage: file_inspect.py <file> [--rows N] (invoke via uv venv Python)"}, indent=2))
         sys.exit(1)
 
     if not os.path.exists(file_path):
@@ -134,7 +134,7 @@ def main():
             import pyarrow
         except ImportError:
             print(json.dumps({
-                "error": "pyarrow required for Feather/Arrow format. Install: pip3 install pyarrow",
+                "error": "pyarrow required for Feather/Arrow format. Install: node scripts/uv_env_setup.mjs  # was: pip3 install pyarrow",
                 "file": file_path
             }, indent=2))
             sys.exit(1)
@@ -144,7 +144,7 @@ def main():
             import openpyxl
         except ImportError:
             print(json.dumps({
-                "error": "openpyxl required for Excel format. Install: pip3 install openpyxl",
+                "error": "openpyxl required for Excel format. Install: node scripts/uv_env_setup.mjs  # was: pip3 install openpyxl",
                 "file": file_path
             }, indent=2))
             sys.exit(1)

@@ -1,0 +1,348 @@
+{
+  "domain": "PVA/BOPET Optical Films",
+  "version": "1.0.0",
+  "materials": {
+    "polymers": [
+      {
+        "canonical_name": "PVA 1799",
+        "synonyms": ["PVA-1799", "PVA1799", "poly(vinyl alcohol) 1799", "polyvinyl alcohol 1799", "PVA (1799)", "PVA 99% hydrolyzed"],
+        "hydrolysis_degree": 99,
+        "polymerization_degree": 1700,
+        "molecular_weight": "74,800-79,200 g/mol",
+        "tg": "75-80 °C",
+        "tm": "220-230 °C",
+        "refractive_index": 1.52,
+        "common_suppliers": ["Kuraray", "Sinopec", "Chang Chun Petrochemical"],
+        "notes": "Fully hydrolyzed grade; most common for optical films due to high crystallinity"
+      },
+      {
+        "canonical_name": "PVA 1788",
+        "synonyms": ["PVA-1788", "PVA1788", "poly(vinyl alcohol) 1788", "PVA 88% hydrolyzed", "partially hydrolyzed PVA"],
+        "hydrolysis_degree": 88,
+        "polymerization_degree": 1700,
+        "molecular_weight": "74,800 g/mol",
+        "tg": "65-70 °C",
+        "tm": "180-200 °C",
+        "refractive_index": 1.51,
+        "common_suppliers": ["Kuraray", "Sinopec"],
+        "notes": "Partially hydrolyzed; better water solubility, more flexible films, lower crystallinity"
+      },
+      {
+        "canonical_name": "PVA 1792",
+        "synonyms": ["PVA-1792", "PVA1792", "poly(vinyl alcohol) 1792"],
+        "hydrolysis_degree": 92,
+        "polymerization_degree": 1700,
+        "tg": "70-75 °C",
+        "notes": "Intermediate hydrolysis; balance of solubility and mechanical properties"
+      },
+      {
+        "canonical_name": "PVA 0588",
+        "synonyms": ["PVA-0588", "PVA0588", "PVA 0588", "low DP PVA"],
+        "hydrolysis_degree": 88,
+        "polymerization_degree": 500,
+        "molecular_weight": "22,000 g/mol",
+        "tg": "60-65 °C",
+        "notes": "Low polymerization degree; very soluble, low viscosity solutions; less common for films"
+      },
+      {
+        "canonical_name": "PET",
+        "synonyms": ["poly(ethylene terephthalate)", "polyethylene terephthalate", "BOPET", "PET film", "polyester film"],
+        "tg": "67-81 °C",
+        "tm": "250-265 °C",
+        "refractive_index": 1.57,
+        "density": "1.38-1.40 g/cm³",
+        "common_suppliers": ["Toray", "Mitsubishi", "DuPont Teijin", "SKC"],
+        "notes": "Biaxially oriented PET is the dominant substrate for optical display films"
+      },
+      {
+        "canonical_name": "TAC",
+        "synonyms": ["triacetyl cellulose", "cellulose triacetate", "TAC film"],
+        "tg": "170-180 °C",
+        "refractive_index": 1.48,
+        "notes": "Traditional polarizer protective film; being replaced by PET/COP/PMMA in some applications"
+      },
+      {
+        "canonical_name": "COP",
+        "synonyms": ["cyclo-olefin polymer", "cyclic olefin polymer", "COP film", "Zeonor", "ZEONEX"],
+        "tg": "100-170 °C",
+        "refractive_index": 1.53,
+        "notes": "Low birefringence; used for retardation films and optical compensation"
+      },
+      {
+        "canonical_name": "PMMA",
+        "synonyms": ["poly(methyl methacrylate)", "polymethyl methacrylate", "acrylic", "PMMA film"],
+        "tg": "85-105 °C",
+        "refractive_index": 1.49,
+        "notes": "High optical clarity; used as polarizer protective film and hard coating"
+      },
+      {
+        "canonical_name": "PC",
+        "synonyms": ["polycarbonate", "PC film"],
+        "tg": "145-150 °C",
+        "refractive_index": 1.58,
+        "notes": "High impact resistance; used in flexible displays; high birefringence is a limitation"
+      }
+    ],
+    "additives": {
+      "nanofillers": [
+        {
+          "canonical_name": "CNC",
+          "synonyms": ["cellulose nanocrystal", "nanocrystalline cellulose", "NCC", "cellulose nanowhisker", "CNW"],
+          "typical_dimensions": "length: 100-300 nm, diameter: 5-20 nm",
+          "aspect_ratio": "10-60 (wood), 50-100 (tunicate)",
+          "refractive_index": 1.54,
+          "density": "1.5-1.6 g/cm³",
+          "typical_loading": "1-10 wt%",
+          "effect_on_transmittance": "Minimal at <5 wt%; slight decrease at higher loadings due to aggregation",
+          "effect_on_tensile": "30-50% improvement at optimal loading (3-7 wt%)",
+          "notes": "Sulfate ester groups from acid hydrolysis provide good PVA compatibility via H-bonding"
+        },
+        {
+          "canonical_name": "CNF",
+          "synonyms": ["cellulose nanofiber", "nanofibrillated cellulose", "NFC", "microfibrillated cellulose", "MFC", "cellulose microfibril"],
+          "typical_dimensions": "length: 0.5-5 μm, diameter: 10-100 nm",
+          "aspect_ratio": "50-500",
+          "refractive_index": 1.54,
+          "typical_loading": "1-20 wt%",
+          "notes": "Higher aspect ratio than CNC; forms entangled network; better reinforcement but more haze"
+        },
+        {
+          "canonical_name": "GO",
+          "synonyms": ["graphene oxide", "graphite oxide"],
+          "typical_dimensions": "lateral: 0.1-10 μm, thickness: 0.7-1.2 nm",
+          "aspect_ratio": "100-10000",
+          "refractive_index": 1.9,
+          "typical_loading": "0.1-5 wt%",
+          "effect_on_transmittance": "Decreases at >0.5 wt% (strong absorption)",
+          "effect_on_tensile": "Up to 80% improvement at 1-2 wt%",
+          "notes": "Oxygen functional groups (epoxy, hydroxyl, carboxyl) provide PVA compatibility; excellent barrier properties"
+        },
+        {
+          "canonical_name": "rGO",
+          "synonyms": ["reduced graphene oxide", "chemically reduced graphene oxide", "CRGO", "thermally reduced graphene oxide", "TRGO"],
+          "refractive_index": 2.0,
+          "typical_loading": "0.1-3 wt%",
+          "notes": "Better electrical conductivity than GO; poorer dispersion; more light absorption"
+        },
+        {
+          "canonical_name": "MMT",
+          "synonyms": ["montmorillonite", "nanoclay", "organoclay", "Cloisite"],
+          "typical_dimensions": "lateral: 100-500 nm, thickness: ~1 nm",
+          "typical_loading": "1-10 wt%",
+          "refractive_index": 1.5,
+          "notes": "Platelet morphology; exfoliation quality critical for transparency; good barrier improvement"
+        },
+        {
+          "canonical_name": "CNT",
+          "synonyms": ["carbon nanotube", "MWCNT", "SWCNT", "multi-walled carbon nanotube", "single-walled carbon nanotube"],
+          "typical_dimensions": "MWCNT: diameter 10-50 nm, length 1-10 μm. SWCNT: diameter 0.7-2 nm",
+          "typical_loading": "0.1-3 wt%",
+          "effect_on_transmittance": "Severe decrease at >1 wt% (strong absorption, black color)",
+          "effect_on_tensile": "Up to 100% improvement at 0.5-1 wt%",
+          "notes": "Best mechanical reinforcement but worst optical transparency; requires functionalization for dispersion"
+        },
+        {
+          "canonical_name": "SiO2",
+          "synonyms": ["silica", "silicon dioxide", "nanosilica", "fumed silica", "colloidal silica", "SiO₂"],
+          "typical_dimensions": "7-40 nm (fumed), 5-100 nm (colloidal)",
+          "refractive_index": 1.46,
+          "typical_loading": "1-10 wt%",
+          "notes": "Good transparency (low RI); improves thermal stability and scratch resistance"
+        },
+        {
+          "canonical_name": "TiO2",
+          "synonyms": ["titania", "titanium dioxide", "TiO₂", "titanium oxide"],
+          "refractive_index": "2.7 (rutile), 2.5 (anatase)",
+          "typical_loading": "0.1-5 wt%",
+          "notes": "High refractive index; UV blocking; can increase haze at higher loadings"
+        },
+        {
+          "canonical_name": "ZnO",
+          "synonyms": ["zinc oxide", "ZnO nanoparticle", "nano-ZnO"],
+          "refractive_index": 2.0,
+          "typical_loading": "0.5-5 wt%",
+          "notes": "UV absorption, antimicrobial; good transparency at low loadings"
+        }
+      ],
+      "plasticizers": [
+        {
+          "canonical_name": "glycerol",
+          "synonyms": ["glycerin", "glycerine", "1,2,3-propanetriol", "丙三醇"],
+          "typical_loading": "20-40 wt% (relative to PVA)",
+          "molecular_weight": "92.09 g/mol",
+          "boiling_point": "290 °C",
+          "notes": "Most common PVA plasticizer; three OH groups for H-bonding with PVA chains; reduces Tg and crystallinity"
+        },
+        {
+          "canonical_name": "EG",
+          "synonyms": ["ethylene glycol", "1,2-ethanediol", "乙二醇"],
+          "typical_loading": "10-30 wt%",
+          "molecular_weight": "62.07 g/mol",
+          "boiling_point": "197 °C",
+          "notes": "Smaller molecule than glycerol; can evaporate during drying; less effective at high temperature"
+        },
+        {
+          "canonical_name": "PEG",
+          "synonyms": ["polyethylene glycol", "PEO", "poly(ethylene oxide)", "聚乙二醇"],
+          "typical_loading": "10-30 wt%",
+          "molecular_weight": "200-20,000 g/mol (varies)",
+          "notes": "Molecular weight affects plasticization efficiency; PEG-400 most common; PEG-2000+ can phase separate"
+        },
+        {
+          "canonical_name": "sorbitol",
+          "synonyms": ["D-sorbitol", "D-glucitol", "山梨醇"],
+          "typical_loading": "20-40 wt%",
+          "molecular_weight": "182.17 g/mol",
+          "notes": "Six OH groups; stronger H-bonding than glycerol; less volatile; better at high temperature"
+        }
+      ],
+      "crosslinkers": [
+        {
+          "canonical_name": "boric acid",
+          "synonyms": ["borax", "sodium tetraborate", "H₃BO₃", "硼酸"],
+          "typical_loading": "1-5 wt%",
+          "crosslinking_mechanism": "Borate ester formation with PVA -OH groups; didiol complexation",
+          "notes": "pH-dependent crosslinking (optimal pH 8-9); reversible; reduces WVTR by 40-60%"
+        },
+        {
+          "canonical_name": "glutaraldehyde",
+          "synonyms": ["GA", "glutaric dialdehyde", "pentane-1,5-dial", "戊二醛"],
+          "typical_loading": "1-5 wt%",
+          "crosslinking_mechanism": "Acetal formation between aldehyde groups and PVA -OH groups; acid-catalyzed",
+          "notes": "Irreversible crosslinking; strong embrittlement at high loading; toxicity concern"
+        },
+        {
+          "canonical_name": "citric acid",
+          "synonyms": ["CA", "2-hydroxypropane-1,2,3-tricarboxylic acid", "柠檬酸"],
+          "typical_loading": "5-20 wt%",
+          "crosslinking_mechanism": "Esterification between carboxylic acid groups and PVA -OH; requires thermal curing >120°C",
+          "notes": "Bio-based; multi-functional (3 COOH groups); plasticizing + crosslinking dual role; less embrittlement than GA"
+        }
+      ]
+    },
+    "solvents": [
+      {
+        "canonical_name": "water",
+        "synonyms": ["H₂O", "distilled water", "deionized water", "DI water", "DDI water", "ultrapure water", "Milli-Q water", "水", "去离子水"],
+        "boiling_point": "100 °C",
+        "notes": "Primary solvent for PVA; requires heating to 80-95°C for dissolution of fully hydrolyzed grades"
+      },
+      {
+        "canonical_name": "DMSO",
+        "synonyms": ["dimethyl sulfoxide", "二甲基亚砜"],
+        "boiling_point": "189 °C",
+        "notes": "Good solvent for PVA and many additives; high boiling point requires longer drying"
+      }
+    ],
+    "instruments": [
+      {
+        "canonical_name": "UV-Vis spectrophotometer",
+        "synonyms": ["UV-Vis", "UV-vis spectrometer", "UV-visible spectrophotometer", "紫外可见分光光度计"],
+        "measures": ["light_transmittance", "absorbance"],
+        "typical_wavelength_range": "200-800 nm",
+        "standard": "ASTM D1003 (haze and transmittance)"
+      },
+      {
+        "canonical_name": "Haze meter",
+        "synonyms": ["hazemeter", "haze meter", "雾度计", "haze-gard"],
+        "measures": ["haze", "clarity", "total_transmittance"],
+        "standard": "ASTM D1003"
+      },
+      {
+        "canonical_name": "Universal Testing Machine (UTM)",
+        "synonyms": ["UTM", "universal testing machine", "tensile tester", "万能试验机", "万能材料试验机", "Instron"],
+        "measures": ["tensile_strength", "elongation_at_break", "youngs_modulus", "yield_strength"],
+        "standard": "ASTM D882 (thin plastic films)"
+      },
+      {
+        "canonical_name": "DSC",
+        "synonyms": ["differential scanning calorimeter", "差示扫描量热仪"],
+        "measures": ["tg", "tm", "tc", "crystallinity", "delta_H"],
+        "standard": "ASTM D3418"
+      },
+      {
+        "canonical_name": "TGA",
+        "synonyms": ["thermogravimetric analyzer", "热重分析仪"],
+        "measures": ["td", "thermal_stability", "weight_loss", "residue"],
+        "standard": "ASTM E1131"
+      }
+    ]
+  },
+  "properties": {
+    "optical": {
+      "light_transmittance": {
+        "canonical_property": "light_transmittance",
+        "synonyms": ["transmittance", "light transmission", "T%", "optical transmittance", "透光率", "透光性"],
+        "canonical_unit": "%",
+        "typical_wavelength": "550 nm (visible light center)",
+        "application_thresholds": {
+          "display_cover": ">90%",
+          "optical_compensation": ">88%",
+          "general_packaging": ">80%"
+        }
+      },
+      "haze": {
+        "canonical_property": "haze",
+        "synonyms": ["雾度", "haze value"],
+        "canonical_unit": "%",
+        "application_thresholds": {
+          "display_quality": "<2%",
+          "optical_grade": "<3%",
+          "general_use": "<5%"
+        }
+      }
+    },
+    "mechanical": {
+      "tensile_strength": {
+        "canonical_property": "tensile_strength",
+        "synonyms": ["tensile stress at break", "σ_b", "ultimate tensile strength", "UTS", "拉伸强度", "拉伸断裂强度"],
+        "canonical_unit": "MPa",
+        "typical_pure_pva_range": "40-60 MPa (dry, 25°C)"
+      },
+      "elongation_at_break": {
+        "canonical_property": "elongation_at_break",
+        "synonyms": ["elongation", "strain at break", "ε_b", "断裂伸长率", "延伸率"],
+        "canonical_unit": "%",
+        "typical_pure_pva_range": "100-300% (dry, 25°C; highly dependent on RH)"
+      },
+      "youngs_modulus": {
+        "canonical_property": "youngs_modulus",
+        "synonyms": ["elastic modulus", "Young's modulus", "E", "tensile modulus", "弹性模量", "杨氏模量"],
+        "canonical_unit": "GPa",
+        "typical_pure_pva_range": "1.5-3.0 GPa"
+      }
+    },
+    "barrier": {
+      "wvtr": {
+        "canonical_property": "WVTR",
+        "synonyms": ["water vapor transmission rate", "WVTR", "water vapor permeability", "WVP", "水蒸气透过率", "透湿性"],
+        "canonical_unit": "g/(m²·day)",
+        "test_condition": "38°C, 90%RH (standard); may vary by paper"
+      },
+      "otr": {
+        "canonical_property": "OTR",
+        "synonyms": ["oxygen transmission rate", "oxygen permeability", "氧气透过率"],
+        "canonical_unit": "cc/(m²·day·atm)",
+        "test_condition": "23°C, 0%RH or 50%RH"
+      }
+    },
+    "thermal": {
+      "tg": {
+        "canonical_property": "Tg",
+        "synonyms": ["glass transition temperature", "玻璃化转变温度"],
+        "canonical_unit": "°C"
+      },
+      "tm": {
+        "canonical_property": "Tm",
+        "synonyms": ["melting temperature", "melting point", "熔点"],
+        "canonical_unit": "°C"
+      },
+      "td": {
+        "canonical_property": "Td",
+        "synonyms": ["decomposition temperature", "thermal degradation temperature", "分解温度", "热分解温度"],
+        "canonical_unit": "°C",
+        "typical_method": "TGA, 5% or 10% weight loss point"
+      }
+    }
+  }
+}

@@ -11,16 +11,25 @@
 
 ## Python Scripts
 
+**IMPORTANT**: All Python scripts MUST run via the uv-managed venv, not system python3.
+
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `file_inspect.py` | Inspect Excel/Parquet/Feather data (pandas-based) | `python3 file_inspect.py <file> [--rows N]` |
+| `file_inspect.py` | Inspect Excel/Parquet/Feather data (pandas-based) | `$PYTHON file_inspect.py <file> [--rows N]` |
 | `template_visualize.py` | Adaptive visualization toolkit (~16 composable primitives) | Agent composes into custom script |
 | `template_preprocess.py` | Missing values, outlier detection, resampling | Agent customizes per dataset |
 
-## Python Dependencies
+**Get $PYTHON path**: `node scripts/uv_env_setup.mjs` → parse JSON output → use `python` field.
 
-```
-pip3 install -r scripts/requirements.txt
+## Python Environment (uv-managed)
+
+```bash
+# One-time setup (auto-installs uv + creates venv + installs deps)
+node scripts/uv_env_setup.mjs
+
+# Get Python path for all subsequent invocations
+PYTHON=$(node scripts/uv_env_setup.mjs | tail -1 | sed 's/.*"python":"\([^"]*\)".*/\1/')
+$PYTHON <script.py> [args]
 ```
 
 | Package | Required For |

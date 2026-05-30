@@ -40,7 +40,7 @@ try:
     import numpy as np
     import pandas as pd
 except ImportError:
-    print("ERROR: pip install matplotlib numpy pandas", file=sys.stderr)
+    print("ERROR: Run: node scripts/uv_env_setup.mjs to create the Python venv", file=sys.stderr)
     sys.exit(1)
 
 warnings.filterwarnings('ignore')

@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/ambiguity.schema.json",
+  "title": "Ambiguity Log",
+  "description": "Collection of all unresolved ambiguities, missing fields, and conflicts across the pipeline",
+  "type": "object",
+  "required": ["pipeline_id", "total_ambiguities"],
+  "properties": {
+    "pipeline_id": { "type": "string" },
+    "total_ambiguities": { "type": "integer" },
+    "ambiguities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ambiguity_id", "type", "severity", "description"],
+        "properties": {
+          "ambiguity_id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "missing_field",
+              "value_conflict",
+              "unit_ambiguity",
+              "name_not_recognized",
+              "ontology_conflict",
+              "implied_relationship",
+              "unconvertible_unit",
+              "extraction_ambiguous",
+              "parse_failure",
+              "graph_only_data"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "module": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "experiment_id": { "type": ["string", "null"] },
+          "source_id": { "type": ["string", "null"] },
+          "field": { "type": ["string", "null"] },
+          "description": { "type": "string" },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "source": { "type": "string" }
+              }
+            }
+          },
+          "resolution_suggestion": { "type": "string" },
+          "requires_human_review": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "by_severity": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "by_module": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_date": { "type": "string", "format": "date" },
+        "skill_version": { "type": "string" }
+      }
+    }
+  }
+}

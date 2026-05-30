@@ -1,0 +1,188 @@
+{
+  "domain": "pva_bopet",
+  "version": "1.0.0",
+  "description": "Default extraction configuration for PVA/BOPET optical films. Customize fields for other domains.",
+  "fields": [
+    {
+      "field_name": "sample_name",
+      "data_type": "string",
+      "required": true,
+      "description": "Sample or formulation name as given in the paper",
+      "table_header_keywords": ["Sample", "Film", "Formulation", "Specimen", "样品", "薄膜", "试样"],
+      "text_patterns": ["(\\w[\\w\\-/]+(?:film|sample|specimen|composite))"]
+    },
+    {
+      "field_name": "material_system",
+      "data_type": "string",
+      "required": true,
+      "description": "Primary polymer material",
+      "table_header_keywords": ["Matrix", "Polymer", "基体", "树脂"],
+      "text_patterns": ["(PVA|PET|TAC|COP|PMMA|PC|poly\\(vinyl alcohol\\)|polyethylene terephthalate)"]
+    },
+    {
+      "field_name": "material_grade",
+      "data_type": "string",
+      "required": false,
+      "description": "Material grade (e.g., 1799, 1788 for PVA)",
+      "table_header_keywords": ["Grade", "Type", "牌号", "型号"],
+      "text_patterns": ["(?:PVA[-\\s]?(\\d{4}))", "(?:grade[:\\s]?(\\d{4}))"]
+    },
+    {
+      "field_name": "additive",
+      "data_type": "string",
+      "required": false,
+      "description": "Additive/filler name",
+      "table_header_keywords": ["Additive", "Filler", "Nanofiller", "Reinforcement", "添加物", "填料", "增强体"],
+      "text_patterns": ["(CNC|CNF|GO|rGO|MMT|CNT|MWCNT|SWCNT|SiO2|TiO2|ZnO|AgNP)"]
+    },
+    {
+      "field_name": "additive_concentration",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "additive_concentration_unit",
+      "canonical_unit": "wt%",
+      "table_header_keywords": ["Content", "Loading", "Concentration", "wt%", "含量", "浓度", "添加量"],
+      "text_patterns": ["(\\d+\\.?\\d*)\\s*(?:wt%|wt\\.?%|w/w)"]
+    },
+    {
+      "field_name": "plasticizer",
+      "data_type": "string",
+      "required": false,
+      "description": "Plasticizer name",
+      "table_header_keywords": ["Plasticizer", "增塑剂"],
+      "text_patterns": ["(glycerol|glycerin|EG|ethylene glycol|PEG|sorbitol)"]
+    },
+    {
+      "field_name": "crosslinker",
+      "data_type": "string",
+      "required": false,
+      "description": "Crosslinker name",
+      "table_header_keywords": ["Crosslinker", "交联剂"],
+      "text_patterns": ["(boric acid|glutaraldehyde|citric acid|GA|CA)"]
+    },
+    {
+      "field_name": "solvent",
+      "data_type": "string",
+      "required": false,
+      "description": "Solvent used for solution preparation",
+      "table_header_keywords": ["Solvent", "溶剂"],
+      "text_patterns": ["(water|DMSO|DMF|ethanol|methanol|acetone|THF|chloroform)"]
+    },
+    {
+      "field_name": "film_preparation_method",
+      "data_type": "enum",
+      "required": false,
+      "allowed_values": ["solution_casting", "melt_extrusion", "spin_coating", "dip_coating", "bar_coating", "slot_die_coating", "electrospinning"],
+      "table_header_keywords": ["Method", "Preparation", "制备方法"],
+      "text_patterns": ["(solution casting|solvent casting|melt extrusion|spin coating|dip coating|bar coating|slot.die)"]
+    },
+    {
+      "field_name": "drying_temperature",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "drying_temperature_unit",
+      "canonical_unit": "°C",
+      "table_header_keywords": ["Drying temp", "干燥温度"],
+      "text_patterns": ["dried at (\\d+\\.?\\d*)\\s*(?:°C|C)"]
+    },
+    {
+      "field_name": "drying_time",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "drying_time_unit",
+      "canonical_unit": "h",
+      "table_header_keywords": ["Drying time", "干燥时间"],
+      "text_patterns": ["dried for (\\d+\\.?\\d*)\\s*(?:h|hours?|hr)"]
+    },
+    {
+      "field_name": "film_thickness",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "film_thickness_unit",
+      "canonical_unit": "μm",
+      "table_header_keywords": ["Thickness", "Film thickness", "厚度"],
+      "text_patterns": ["thickness (?:of |was |is )?(\\d+\\.?\\d*)\\s*(?:μm|um|micron|mm|nm)"]
+    },
+    {
+      "field_name": "light_transmittance",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "light_transmittance_unit",
+      "canonical_unit": "%",
+      "table_header_keywords": ["Transmittance", "T%", "Light transmission", "透光率"],
+      "text_patterns": ["transmittance (?:of )?(\\d+\\.?\\d*)\\s*%"]
+    },
+    {
+      "field_name": "haze",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "haze_unit",
+      "canonical_unit": "%",
+      "table_header_keywords": ["Haze", "雾度"],
+      "text_patterns": ["haze (?:of |value )?(\\d+\\.?\\d*)\\s*%"]
+    },
+    {
+      "field_name": "tensile_strength",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "tensile_strength_unit",
+      "canonical_unit": "MPa",
+      "table_header_keywords": ["Tensile strength", "σ", "UTS", "拉伸强度"],
+      "text_patterns": ["tensile strength (?:of )?(\\d+\\.?\\d*)\\s*(?:MPa|GPa)"]
+    },
+    {
+      "field_name": "elongation_at_break",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "elongation_unit",
+      "canonical_unit": "%",
+      "table_header_keywords": ["Elongation", "ε", "Strain at break", "断裂伸长率"],
+      "text_patterns": ["elongation (?:at break |of )?(\\d+\\.?\\d*)\\s*%"]
+    },
+    {
+      "field_name": "youngs_modulus",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "youngs_modulus_unit",
+      "canonical_unit": "GPa",
+      "table_header_keywords": ["Young's modulus", "E", "Elastic modulus", "弹性模量"],
+      "text_patterns": ["(?:Young's |elastic )?modulus (?:of )?(\\d+\\.?\\d*)\\s*(?:GPa|MPa)"]
+    },
+    {
+      "field_name": "wvtr",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "wvtr_unit",
+      "canonical_unit": "g/(m²·day)",
+      "table_header_keywords": ["WVTR", "Water vapor transmission", "水蒸气透过率"],
+      "text_patterns": ["WVTR (?:of )?(\\d+\\.?\\d*)\\s*(?:g/m²)"]
+    },
+    {
+      "field_name": "otr",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "otr_unit",
+      "canonical_unit": "cc/(m²·day·atm)",
+      "table_header_keywords": ["OTR", "Oxygen transmission", "氧气透过率"],
+      "text_patterns": ["OTR (?:of )?(\\d+\\.?\\d*)\\s*(?:cc/m²|cm³/m²)"]
+    },
+    {
+      "field_name": "tg",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "tg_unit",
+      "canonical_unit": "°C",
+      "table_header_keywords": ["Tg", "Glass transition", "玻璃化转变温度"],
+      "text_patterns": ["Tg (?:of |was )?(\\d+\\.?\\d*)\\s*(?:°C|C)"]
+    },
+    {
+      "field_name": "contact_angle",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "contact_angle_unit",
+      "canonical_unit": "°",
+      "table_header_keywords": ["Contact angle", "WCA", "接触角"],
+      "text_patterns": ["contact angle (?:of )?(\\d+\\.?\\d*)\\s*°"]
+    }
+  ]
+}

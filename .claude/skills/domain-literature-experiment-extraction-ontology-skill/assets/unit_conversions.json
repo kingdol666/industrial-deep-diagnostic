@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "description": "Unit conversion map for PVA/BOPET experiment data normalization. Each entry defines: from_unit → to_unit with multiplier and offset.",
+  "temperature": [
+    {"from": "K", "to": "°C", "multiplier": 1, "offset": -273.15},
+    {"from": "°F", "to": "°C", "multiplier": 0.5555556, "offset": -17.77778}
+  ],
+  "film_thickness": [
+    {"from": "mm", "to": "μm", "multiplier": 1000},
+    {"from": "nm", "to": "μm", "multiplier": 0.001},
+    {"from": "mil", "to": "μm", "multiplier": 25.4},
+    {"from": "Å", "to": "μm", "multiplier": 0.0001},
+    {"from": "Angstrom", "to": "μm", "multiplier": 0.0001}
+  ],
+  "concentration": [
+    {"from": "phr", "to": "wt%", "multiplier": null, "note": "Cannot auto-convert without knowing total formulation; keep as phr"},
+    {"from": "mg/mL", "to": "g/mL", "multiplier": 0.001},
+    {"from": "g/L", "to": "g/mL", "multiplier": 0.001},
+    {"from": "g/dL", "to": "g/mL", "multiplier": 0.01}
+  ],
+  "pressure": [
+    {"from": "Pa", "to": "kPa", "multiplier": 0.001},
+    {"from": "MPa", "to": "kPa", "multiplier": 1000},
+    {"from": "bar", "to": "kPa", "multiplier": 100},
+    {"from": "mbar", "to": "kPa", "multiplier": 0.1},
+    {"from": "atm", "to": "kPa", "multiplier": 101.325},
+    {"from": "psi", "to": "kPa", "multiplier": 6.89476},
+    {"from": "mmHg", "to": "kPa", "multiplier": 0.133322},
+    {"from": "Torr", "to": "kPa", "multiplier": 0.133322}
+  ],
+  "mechanical": [
+    {"from": "GPa", "to": "MPa", "multiplier": 1000, "note": "For strength values; modulus stays in GPa"},
+    {"from": "kgf/cm²", "to": "MPa", "multiplier": 0.0980665},
+    {"from": "kgf/mm²", "to": "MPa", "multiplier": 9.80665},
+    {"from": "psi", "to": "MPa", "multiplier": 0.00689476},
+    {"from": "N/mm²", "to": "MPa", "multiplier": 1, "note": "1 N/mm² = 1 MPa, keep value"}
+  ],
+  "barrier_wvtr": [
+    {"from": "g/(m²·24h)", "to": "g/(m²·day)", "multiplier": 1, "note": "Equivalent; standardize notation"},
+    {"from": "g/(100in²·day)", "to": "g/(m²·day)", "multiplier": 0.155},
+    {"from": "g/(m²·h)", "to": "g/(m²·day)", "multiplier": 24},
+    {"from": "mg/(m²·day)", "to": "g/(m²·day)", "multiplier": 0.001}
+  ],
+  "barrier_otr": [
+    {"from": "cc/(m²·day·bar)", "to": "cc/(m²·day·atm)", "multiplier": 1.01325},
+    {"from": "mL/(m²·day)", "to": "cc/(m²·day·atm)", "multiplier": 1, "warning": "Pressure condition may differ; verify if at 1 atm"},
+    {"from": "cm³/(m²·day·atm)", "to": "cc/(m²·day·atm)", "multiplier": 1}
+  ],
+  "time": [
+    {"from": "min", "to": "h", "multiplier": 0.0166667},
+    {"from": "s", "to": "h", "multiplier": 0.00027778},
+    {"from": "day", "to": "h", "multiplier": 24},
+    {"from": "d", "to": "h", "multiplier": 24}
+  ],
+  "unconvertible_patterns": [
+    {"pattern": ".*_g$", "reason": "Gauge pressure (e.g., bar_g, psi_g) cannot be auto-converted to absolute pressure"},
+    {"pattern": ".*\\broom temperature\\b.*", "reason": "Ambiguous; assume 20-25°C but flag uncertainty"},
+    {"pattern": ".*\\bambient\\b.*", "reason": "Ambiguous; cannot convert to specific value"}
+  ]
+}

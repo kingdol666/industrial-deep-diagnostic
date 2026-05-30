@@ -1,5 +1,5 @@
 # Industrial Deep Diagnostic — Python Dependencies
-# Install: pip3 install -r requirements.txt
+# Install: node uv_env_setup.mjs (auto-creates uv-managed venv)
 #
 # Core visualization (required)
 matplotlib>=3.7.0

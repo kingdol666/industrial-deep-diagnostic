@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/explanation.schema.json",
+  "title": "Experiment Explanation",
+  "description": "A human-readable scientific explanation for an extracted experiment record",
+  "type": "object",
+  "required": ["experiment_id", "what_was_tested", "result_interpretation", "explanation_confidence"],
+  "properties": {
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^SRC_\\d+_E\\d+$"
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC_\\d+$"
+    },
+    "what_was_tested": {
+      "type": "string",
+      "description": "One-sentence experiment objective"
+    },
+    "parameter_meaning": {
+      "type": "string",
+      "description": "Physical/chemical role of key parameters"
+    },
+    "result_interpretation": {
+      "type": "string",
+      "description": "How the measured value should be understood, with application context"
+    },
+    "trend_or_pattern": {
+      "type": ["string", "null"],
+      "description": "Visible trend across related experiments, or null if single data point"
+    },
+    "hypothesis_support": {
+      "type": "string",
+      "enum": ["supports", "partially_supports", "contradicts", "inconclusive", "no_hypothesis_stated"]
+    },
+    "caveats": {
+      "type": "string",
+      "description": "Limitations, confounding factors, measurement uncertainties"
+    },
+    "explanation_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence in the explanation itself (separate from data confidence)"
+    },
+    "domain_knowledge_used": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Domain knowledge facts referenced in the explanation"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_date": { "type": "string", "format": "date" },
+        "language": { "type": "string", "enum": ["zh", "en"] },
+        "skill_version": { "type": "string" }
+      }
+    }
+  }
+}

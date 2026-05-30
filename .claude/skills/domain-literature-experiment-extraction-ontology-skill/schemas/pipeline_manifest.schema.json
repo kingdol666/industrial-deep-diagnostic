@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/pipeline_manifest.schema.json",
+  "title": "Pipeline Manifest",
+  "description": "Pipeline run configuration and status",
+  "type": "object",
+  "required": ["pipeline_id", "mode", "status"],
+  "properties": {
+    "pipeline_id": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "enum": ["full", "extract-only", "knowledge-build", "explain", "resume"]
+    },
+    "domain": { "type": "string" },
+    "classified_inputs": {
+      "type": "object",
+      "properties": {
+        "papers": { "type": "array", "items": { "type": "string" } },
+        "web_articles": { "type": "array", "items": { "type": "string" } },
+        "supplementary_tables": { "type": "array", "items": { "type": "string" } },
+        "supplementary_docs": { "type": "array", "items": { "type": "string" } },
+        "pre_extracted_data": { "type": "array", "items": { "type": "string" } },
+        "unrecognized": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "search_terms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["initialized", "running", "completed", "partial_success", "failed"]
+    },
+    "modules_executed": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1, "maximum": 7 }
+    },
+    "modules_skipped": {
+      "type": "array",
+      "items": { "type": "integer" }
+    },
+    "resumed_from": { "type": ["string", "null"] },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "papers_processed": { "type": "integer" },
+        "papers_after_dedup": { "type": "integer" },
+        "experiments_extracted": { "type": "integer" },
+        "experiments_after_dedup": { "type": "integer" },
+        "mean_confidence": { "type": "number" },
+        "low_confidence_records": { "type": "integer" },
+        "ontology_classes": { "type": "integer" },
+        "ontology_relationships": { "type": "integer" },
+        "ambiguities_unresolved": { "type": "integer" }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "module": { "type": "integer" },
+          "error_type": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "output_artifacts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "total_duration_ms": { "type": "integer" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

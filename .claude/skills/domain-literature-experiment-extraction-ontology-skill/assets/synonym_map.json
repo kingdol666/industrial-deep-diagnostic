@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "description": "Canonical name mapping for materials, additives, solvents, instruments, and properties in PVA/BOPET domain",
+  "mappings": {
+    "materials": {
+      "PVA 1799": ["PVA-1799", "PVA1799", "poly(vinyl alcohol) 1799", "polyvinyl alcohol 1799", "PVA (1799)", "99% hydrolyzed PVA", "fully hydrolyzed PVA", "PVA 99", "PVA 99%", "FH-PVA"],
+      "PVA 1788": ["PVA-1788", "PVA1788", "poly(vinyl alcohol) 1788", "88% hydrolyzed PVA", "partially hydrolyzed PVA", "PVA 88", "PVA 88%", "PH-PVA"],
+      "PVA 1792": ["PVA-1792", "PVA1792", "92% hydrolyzed PVA"],
+      "PVA 0588": ["PVA-0588", "PVA0588", "low DP PVA", "low molecular weight PVA 88%"],
+      "PET": ["poly(ethylene terephthalate)", "polyethylene terephthalate", "BOPET", "polyester", "PET film", "polyester film"],
+      "TAC": ["triacetyl cellulose", "cellulose triacetate", "TAC film", "CTA"],
+      "COP": ["cyclo-olefin polymer", "cyclic olefin polymer", "COP film", "Zeonor", "ZEONEX", "cycloolefin"],
+      "PMMA": ["poly(methyl methacrylate)", "polymethyl methacrylate", "acrylic", "PMMA film", "plexiglass"],
+      "PC": ["polycarbonate", "PC film"]
+    },
+    "additives": {
+      "CNC": ["cellulose nanocrystal", "nanocrystalline cellulose", "NCC", "cellulose nanowhisker", "CNW", "cellulose nanocrystals"],
+      "CNF": ["cellulose nanofiber", "nanofibrillated cellulose", "NFC", "microfibrillated cellulose", "MFC", "cellulose nanofibril", "cellulose microfibril"],
+      "GO": ["graphene oxide", "graphite oxide", "GO nanosheet"],
+      "rGO": ["reduced graphene oxide", "chemically reduced graphene oxide", "CRGO", "thermally reduced graphene oxide", "TRGO"],
+      "MMT": ["montmorillonite", "nanoclay", "organoclay", "Cloisite", "Cloisite Na+", "Cloisite 30B"],
+      "CNT": ["carbon nanotube", "MWCNT", "SWCNT", "multi-walled carbon nanotube", "single-walled carbon nanotube", "multi-wall CNT", "single-wall CNT"],
+      "SiO2": ["silica", "silicon dioxide", "nanosilica", "fumed silica", "colloidal silica", "SiO₂", "nano-SiO2", "nano-silica"],
+      "TiO2": ["titania", "titanium dioxide", "TiO₂", "titanium oxide", "nano-TiO2", "nano-titania"],
+      "ZnO": ["zinc oxide", "ZnO nanoparticle", "nano-ZnO", "zinc oxide nanoparticle"],
+      "AgNP": ["silver nanoparticle", "Ag nanoparticle", "nano-silver", "nano-Ag", "silver NPs"],
+      "glycerol": ["glycerin", "glycerine", "1,2,3-propanetriol", "丙三醇", "GLY"],
+      "EG": ["ethylene glycol", "1,2-ethanediol", "乙二醇", "EGlycol"],
+      "PEG": ["polyethylene glycol", "PEO", "poly(ethylene oxide)", "聚乙二醇"],
+      "sorbitol": ["D-sorbitol", "D-glucitol", "山梨醇"],
+      "boric acid": ["borax", "sodium tetraborate", "H₃BO₃", "硼酸", "BA"],
+      "glutaraldehyde": ["GA", "glutaric dialdehyde", "pentane-1,5-dial", "戊二醛", "GTA"],
+      "citric acid": ["CA", "2-hydroxypropane-1,2,3-tricarboxylic acid", "柠檬酸"]
+    },
+    "solvents": {
+      "water": ["H₂O", "H2O", "distilled water", "deionized water", "DI water", "DDI water", "ultrapure water", "Milli-Q water", "水", "去离子水", "蒸馏水"],
+      "DMSO": ["dimethyl sulfoxide", "二甲基亚砜"],
+      "DMF": ["dimethylformamide", "N,N-dimethylformamide"],
+      "ethanol": ["EtOH", "ethyl alcohol", "乙醇", "酒精"],
+      "methanol": ["MeOH", "methyl alcohol", "甲醇"],
+      "acetone": ["丙酮", "propanone"]
+    },
+    "instruments": {
+      "UV-Vis spectrophotometer": ["UV-Vis", "UV-vis spectrometer", "UV-visible spectrophotometer", "紫外可见分光光度计", "UV-Vis spectrometer", "UV/Vis"],
+      "Haze meter": ["hazemeter", "haze meter", "雾度计", "haze-gard", "haze meter (BYK-Gardner)"],
+      "Universal Testing Machine (UTM)": ["UTM", "universal testing machine", "tensile tester", "万能试验机", "万能材料试验机", "Instron", "Shimadzu AG-X", "Zwick/Roell"],
+      "DSC": ["differential scanning calorimeter", "差示扫描量热仪", "DSC Q2000", "DSC 204 F1"],
+      "TGA": ["thermogravimetric analyzer", "热重分析仪", "TGA Q500", "TGA/DSC"],
+      "SEM": ["scanning electron microscope", "扫描电子显微镜", "field emission SEM", "FE-SEM"],
+      "AFM": ["atomic force microscope", "原子力显微镜"],
+      "XRD": ["X-ray diffractometer", "X射线衍射仪", "X-ray diffraction"],
+      "FTIR": ["FT-IR", "Fourier transform infrared spectrometer", "傅里叶红外光谱仪", "FTIR spectrometer", "ATR-FTIR"]
+    },
+    "properties": {
+      "light_transmittance": ["transmittance", "light transmission", "T%", "optical transmittance", "透光率", "透光性", "visible light transmittance", "VLT"],
+      "haze": ["雾度", "haze value", "haze ratio"],
+      "tensile_strength": ["tensile stress at break", "σ_b", "ultimate tensile strength", "UTS", "拉伸强度", "拉伸断裂强度", "tensile stress"],
+      "elongation_at_break": ["elongation", "strain at break", "ε_b", "断裂伸长率", "延伸率", "elongation at break (EAB)"],
+      "youngs_modulus": ["elastic modulus", "Young's modulus", "E", "tensile modulus", "弹性模量", "杨氏模量", "modulus of elasticity"],
+      "wvtr": ["water vapor transmission rate", "WVTR", "water vapor permeability", "WVP", "水蒸气透过率", "透湿性", "water vapour transmission"],
+      "otr": ["oxygen transmission rate", "oxygen permeability", "氧气透过率", "OTR"],
+      "tg": ["glass transition temperature", "玻璃化转变温度", "T_g"],
+      "tm": ["melting temperature", "melting point", "熔点", "T_m"],
+      "td": ["decomposition temperature", "thermal degradation temperature", "分解温度", "热分解温度", "T_d", "T_onset"],
+      "contact_angle": ["水接触角", "water contact angle", "WCA", "contact angle"],
+      "crystallinity": ["结晶度", "X_c", "degree of crystallinity", "% crystallinity"]
+    },
+    "process_methods": {
+      "solution_casting": ["solution casting", "solvent casting", "casting method", "溶液浇铸", "流延法", "tape casting", "doctor blade casting"],
+      "melt_extrusion": ["melt extrusion", "熔融挤出", "extrusion casting", "extrusion"],
+      "spin_coating": ["spin coating", "旋转涂布", "旋涂"],
+      "dip_coating": ["dip coating", "浸涂", "浸渍涂布"],
+      "bar_coating": ["bar coating", "Mayer rod coating", "线棒涂布"],
+      "slot_die_coating": ["slot die coating", "slot-die", "狭缝涂布"],
+      "electrospinning": ["electrospinning", "静电纺丝"]
+    }
+  }
+}

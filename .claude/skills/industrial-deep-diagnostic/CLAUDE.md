@@ -102,7 +102,7 @@ examples/             — Domain-specific sample ontologies (reactor, BOPET film
 - **CLAUDE.md vs SKILL.md**: SKILL.md is authoritative. This file is developer reference only. If they conflict, trust SKILL.md.
 - **Pipeline reference**: `pipeline-execution.md` contains the detailed step protocol, artifact chain, and validation framework. SKILL.md delegates to it.
 - **Agent output paths**: Each agent uses numbered subdirectories under `RUN_DIR/`.
-- **Python execution**: Always try `python3` first, fall back to `python3.11`. If matplotlib missing: `pip3 install -r scripts/requirements.txt`.
+- **Python execution (uv venv)**: All Python scripts MUST run in the skill's dedicated uv-managed venv, NOT system python. See §Python Execution Protocol below.
 - **time_col detection**: `inspect.mjs` auto-detects time columns by keyword + type inference. Can fail on non-standard column names — verify and override.
 - **stats.mjs requires JSON input**: Use `convert.mjs` to safely convert CSV to JSON.
 - **Excel/Parquet/Feather**: `inspect.mjs` auto-routes to `file_inspect.py`.
@@ -143,3 +143,118 @@ Each agent writes to `RUN_DIR/.pipeline_events.jsonl` at start and completion. F
 {"event": "agent_complete", "agent": "diagnostician", "timestamp": "2026-05-25T10:05:00Z", "files_written": ["04_diagnostics/diagnosis.json"], "errors": null}
 ```
 Enables post-pipeline debugging without reading every agent's output files.
+
+## Python Execution Protocol (uv venv)
+
+```
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        ⛔ ZERO TOLERANCE RULE ⛔                              ║
+║                                                                              ║
+║   ANY Python invocation in this skill MUST use the uv-managed venv Python.   ║
+║                                                                              ║
+║   STOP and FIX immediately if you see ANY of these patterns in skill files:  ║
+║        python3      →  REPLACE with $PYTHON (from uv_env_setup.mjs)         ║
+║        python3.11   →  REPLACE with $PYTHON                                 ║
+║        python        →  REPLACE with $PYTHON (unless it IS the venv python) ║
+║        pip3 install  →  REPLACE with uv pip install --python $PYTHON        ║
+║        pip install   →  REPLACE with uv pip install --python $PYTHON        ║
+║                                                                              ║
+║   The ONLY valid way to run a Python script or command in this skill:        ║
+║        Step 1: node scripts/uv_env_setup.mjs  →  resolves $PYTHON path      ║
+║        Step 2: $PYTHON <script.py> [args]     →  execute with venv python   ║
+║                                                                              ║
+║   No shortcuts. No "$PYTHON" alias that resolves to system python3.          ║
+║   The venv lives at: scripts/.venv/bin/python                                ║
+║   If venv doesn't exist → uv_env_setup.mjs creates it. No bypass.            ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**All Python scripts MUST run in the skill's dedicated uv-managed venv. NEVER use system `python3` or `pip3`.**
+
+### Why
+
+- Avoids polluting system Python with project-specific dependencies
+- Ensures reproducible dependency versions across machines
+- Prevents conflicts with other Python projects
+- uv is fast (ms-level install) and deterministic
+
+### Environment Location
+
+```
+.claude/skills/industrial-deep-diagnostic/scripts/.venv/
+```
+
+The venv lives inside the skill's `scripts/` directory. Python binary at `scripts/.venv/bin/python`.
+
+### Setup (automatic — run once per machine)
+
+Before any Python script execution, agents MUST call:
+
+```bash
+node scripts/uv_env_setup.mjs
+```
+
+This script:
+1. Checks if `uv` is installed → if not, installs it automatically
+2. Checks if venv exists and deps are satisfied
+3. Creates venv + installs deps if needed
+4. Outputs JSON: `{ "python": "<abs-path>", "uv": "<abs-path>", "installed": true }`
+
+Parse the JSON output to get the absolute Python path. Use that path for ALL subsequent `python` invocations.
+
+### Execution Pattern
+
+```
+Step 1: Setup env → node scripts/uv_env_setup.mjs → get PYTHON path
+Step 2: Run script → $PYTHON scripts/template_visualize.py <args>
+```
+
+**Get PYTHON without using system python3 (avoids chicken-and-egg):**
+```bash
+PYTHON=$(node SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
+  let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+    try{const j=JSON.parse(d.split('\\n').pop());process.stdout.write(j.python||'')}catch{process.stdout.write('')}
+  })
+")
+```
+
+Agents that run Python MUST follow this 2-step pattern. Never assume `python3` is the right interpreter.
+
+**Every place Python is invoked in this skill:**
+1. `scripts/inspect.mjs` → routes Excel/Parquet to `file_inspect.py` via `$PYTHON` (auto-resolves venv path)
+2. `agents/data-processor.md` → writes `visualize.py` to `RUN_DIR/06_scripts/`, runs via `$PYTHON`
+3. `agents/report-reviewer.md` → independent statistical checks via `$PYTHON`
+4. Any agent inline code (`python -c "..."`) → must use `$PYTHON`, not `python3`
+5. `scripts/template_visualize.py`, `scripts/template_preprocess.py`, `scripts/file_inspect.py` — source files, invoked via `$PYTHON`
+
+### Check-only mode
+
+For quick checks without creating anything:
+
+```bash
+node scripts/uv_env_setup.mjs --check-only
+# Exit 0 = ready, Exit 1 = needs setup
+```
+
+### Dependencies
+
+Defined in `scripts/requirements.txt`:
+- matplotlib, numpy, pandas (core)
+- seaborn (heatmap enhancement)
+- openpyxl (Excel support)
+- pyarrow (Parquet/Feather support)
+- scipy (statistical functions)
+
+### .gitignore
+
+`scripts/.venv/` is auto-generated and should NOT be committed. Add to `.gitignore:
+
+```
+scripts/.venv/
+```
+
+### Troubleshooting
+
+- **"uv not found"**: Install manually: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **venv broken**: Delete `scripts/.venv/` and re-run `uv_env_setup.mjs`
+- **dep conflict**: Delete venv + re-run setup. uv resolves deps from scratch.

@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/literature_summary.schema.json",
+  "title": "Literature Summary",
+  "description": "Structured summary synthesizing findings across all collected papers",
+  "type": "object",
+  "required": ["overview", "themes", "performance_trends", "gaps", "promising_directions"],
+  "properties": {
+    "overview": {
+      "type": "object",
+      "required": ["papers_analyzed", "total_experiments"],
+      "properties": {
+        "papers_analyzed": { "type": "integer" },
+        "year_range": { "type": "string" },
+        "total_experiments": { "type": "integer" },
+        "unique_materials": { "type": "integer" },
+        "unique_additives": { "type": "integer" },
+        "unique_measurement_types": { "type": "integer" },
+        "journals_represented": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "geographic_distribution": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "summary_text": { "type": "string" }
+      }
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["theme", "paper_count", "core_question"],
+        "properties": {
+          "theme": { "type": "string" },
+          "papers": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "paper_count": { "type": "integer" },
+          "experiment_count": { "type": "integer" },
+          "core_question": { "type": "string" },
+          "consensus": { "type": "string" },
+          "key_finding": { "type": "string" },
+          "unresolved": { "type": "string" }
+        }
+      }
+    },
+    "experimental_patterns": {
+      "type": "object",
+      "properties": {
+        "preparation_methods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "method": { "type": "string" },
+              "count": { "type": "integer" },
+              "percentage": { "type": "number" }
+            }
+          }
+        },
+        "most_studied_properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "property": { "type": "string" },
+              "records": { "type": "integer" }
+            }
+          }
+        },
+        "typical_sample_size": { "type": "string" },
+        "common_controls": { "type": "string" },
+        "common_testing_standards": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "performance_trends": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["property", "unit"],
+        "properties": {
+          "property": { "type": "string" },
+          "unit": { "type": "string" },
+          "baseline_pure_pva": {
+            "type": "object",
+            "properties": {
+              "mean": { "type": "number" },
+              "std": { "type": "number" },
+              "n": { "type": "integer" }
+            }
+          },
+          "best_performing_systems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "formulation": { "type": "string" },
+                "mean_value": { "type": "number" },
+                "papers": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          },
+          "trend": { "type": "string" }
+        }
+      }
+    },
+    "common_materials": {
+      "type": "object",
+      "properties": {
+        "polymers": { "type": "array" },
+        "top_additives": { "type": "array" },
+        "top_solvents": { "type": "array" }
+      }
+    },
+    "common_conditions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "range": { "type": "string" },
+          "most_common": { "type": "string" }
+        }
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gap", "severity", "description"],
+        "properties": {
+          "gap": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "description": { "type": "string" },
+          "papers_with_partial_data": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "suggested_experiment": { "type": "string" }
+        }
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contradiction"],
+        "properties": {
+          "contradiction": { "type": "string" },
+          "claim_1": {
+            "type": "object",
+            "properties": {
+              "paper": { "type": "string" },
+              "claim": { "type": "string" }
+            }
+          },
+          "claim_2": {
+            "type": "object",
+            "properties": {
+              "paper": { "type": "string" },
+              "claim": { "type": "string" }
+            }
+          },
+          "possible_explanation": { "type": "string" },
+          "resolution_status": { "type": "string" }
+        }
+      }
+    },
+    "promising_directions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["direction", "rationale"],
+        "properties": {
+          "direction": { "type": "string" },
+          "rationale": { "type": "string" },
+          "supporting_evidence": { "type": "string" },
+          "risk": { "type": "string" }
+        }
+      }
+    },
+    "flags": {
+      "type": "object",
+      "properties": {
+        "limited_sample": { "type": "boolean" },
+        "single_paper_dominance": { "type": "boolean" },
+        "narrow_coverage": { "type": "boolean" },
+        "no_baseline_data": { "type": "boolean" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_date": { "type": "string", "format": "date" },
+        "language": { "type": "string" },
+        "skill_version": { "type": "string" }
+      }
+    }
+  }
+}

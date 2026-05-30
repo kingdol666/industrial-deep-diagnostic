@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/search_config.schema.json",
+  "title": "Literature Search Configuration",
+  "description": "User-provided configuration for literature search parameters",
+  "type": "object",
+  "required": ["keywords"],
+  "properties": {
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Search keywords, supports Boolean operators"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["semantic_scholar", "pubmed", "arxiv", "google_scholar", "patents", "local_files"]
+      },
+      "default": ["semantic_scholar", "pubmed", "google_scholar"]
+    },
+    "year_from": {
+      "type": "integer",
+      "minimum": 1900,
+      "default": 2015
+    },
+    "year_to": {
+      "type": "integer",
+      "minimum": 1900
+    },
+    "max_results": {
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 500,
+      "default": 50
+    },
+    "journals_filter": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "material_types": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "experimental_methods": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "language": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["en", "zh", "ja", "ko", "de", "fr"] },
+      "default": ["en", "zh"]
+    },
+    "exclude_reviews": {
+      "type": "boolean",
+      "default": true
+    },
+    "exclude_patents": {
+      "type": "boolean",
+      "default": false
+    },
+    "open_access_only": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
