@@ -1,121 +1,58 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - 数据概况</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #C62828; }
-/* Header */
-.header { position: absolute; top: 24pt; left: 36pt; right: 36pt; }
-.header h1 { font-size: 18pt; font-weight: bold; color: #212121; }
-.header h1 span { color: #C62828; }
-.header .sub { font-size: 10pt; color: #757575; margin-top: 2pt; }
-.header .sub p { color: #757575; }
-/* Stats row */
-.stats-row { position: absolute; top: 80pt; left: 36pt; right: 36pt; height: 110pt; display: flex; gap: 12pt; }
-.stat-card { flex: 1; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-.stat-card.accent { background: #C62828; }
-.stat-card .big-num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 42pt; font-weight: bold; color: #212121; line-height: 1; }
-.stat-card.accent .big-num { color: #FFFFFF; }
-.stat-card .label { font-size: 10pt; color: #757575; margin-top: 4pt; font-weight: bold; }
-.stat-card.accent .label { color: #FFCDD2; }
-.stat-card .detail { font-size: 8pt; color: #9E9E9E; margin-top: 2pt; }
-.stat-card.accent .detail { color: rgba(255,255,255,0.7); }
-/* Bottom sections */
-.bottom-sections { position: absolute; top: 210pt; left: 36pt; right: 36pt; bottom: 34pt; display: flex; gap: 14pt; }
-/* Left: data inventory */
-.inventory { flex: 5; background: #FFFFFF; border-left: 4pt solid #212121; padding: 14pt; }
-.inventory h2 { font-size: 12pt; font-weight: bold; color: #212121; margin-bottom: 8pt; }
-.inventory table { width: 100%; border-collapse: collapse; }
-.inventory td { font-size: 9pt; padding: 5pt 8pt; border-bottom: 1pt solid #F5F5F5; color: #212121; }
-.inventory td:first-child { font-weight: bold; color: #616161; width: 110pt; }
-/* Right: anomaly card */
-.anomaly { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
-.anomaly-card { flex: 1; background: #FFFFFF; border-left: 4pt solid #FDD835; padding: 12pt; display: flex; flex-direction: column; justify-content: center; }
-.anomaly-card.warn { border-left-color: #C62828; }
-.anomaly-card h3 { font-size: 10pt; font-weight: bold; color: #212121; margin-bottom: 3pt; }
-.anomaly-card p { font-size: 9pt; color: #757575; line-height: 1.5; }
-.anomaly-card .tag { display: inline-block; background: #C62828; padding: 1pt 6pt; }
-.anomaly-card .tag p { color: #FFFFFF; font-size: 8pt; font-weight: bold; }
-.anomaly-card .tag-ok { display: inline-block; background: #2E7D32; padding: 1pt 6pt; }
-.anomaly-card .tag-ok p { color: #FFFFFF; font-size: 8pt; font-weight: bold; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <h1>数据采集概况：<span>149批次 · 9天窗口</span></h1>
-  <div class="sub"><p>BOPET挤出→MD纵拉段 · 批次级聚合工艺数据 · 2026-05-04至05-13</p></div>
-</div>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #1A6B45; font-weight: 700; letter-spacing: 0.15em;">✓ CS2 DISCRIMINATED</p>
 
-<div class="stats-row">
-  <div class="stat-card">
-    <p class="big-num">149</p>
-    <p class="label">生产批次</p>
-    <p class="detail">2026-05-04 ~ 05-13</p>
-  </div>
-  <div class="stat-card">
-    <p class="big-num">180</p>
-    <p class="label">工艺参数</p>
-    <p class="detail">温度/扭矩/速度/压力</p>
-  </div>
-  <div class="stat-card">
-    <p class="big-num">5</p>
-    <p class="label">表面缺陷类型</p>
-    <p class="detail">膜点/低聚物/尘埃/气泡/熔斑</p>
-  </div>
-  <div class="stat-card">
-    <p class="big-num">9</p>
-    <p class="label">产品型号</p>
-    <p class="detail">PG31DS占45% (67批)</p>
-  </div>
-  <div class="stat-card accent">
-    <p class="big-num">4</p>
-    <p class="label">统计量维度</p>
-    <p class="detail">_mean / _std / _min / _max</p>
-  </div>
-</div>
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; width: 400px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold; line-height: 1.3;">气泡根因已锁定：<br>过滤器堵塞改善脱气</h1>
 
-<div class="bottom-sections">
-  <div class="inventory">
-    <h2>数据清单</h2>
-    <table>
-      <tr><td>MD辊温度</td><td>MD_TH001~018@PV (18辊 × 4统计量 = 72参数)</td></tr>
-      <tr><td>MD速度/扭矩</td><td>W1C40@PV1, W1C4B@PV1, W1C7C~8D@PV1 (18辊扭矩)</td></tr>
-      <tr><td>挤出机转速</td><td>W1C00@PV1 (主挤出机), W1C01@PV1 (辅挤出机)</td></tr>
-      <tr><td>过滤器压力</td><td>F_PS002/003/005/006@PV1 (主/辅过滤器前后)</td></tr>
-      <tr><td>缺陷目标</td><td>film_points, oligomer, dust, bubbles, melt_spots</td></tr>
-      <tr><td>元数据</td><td>timestamp, model (产品型号)</td></tr>
-    </table>
+<!-- Decorative number -->
+<p style="position: absolute; top: -10px; left: 160px; font-family: Georgia, serif; font-size: 140px; color: #1A6B45; opacity: 0.04; font-weight: bold;">61</p>
+
+<!-- Left column: evidence (35%) -->
+<div style="position: absolute; top: 130px; left: 40px; width: 400px;">
+  <!-- Causal chain card -->
+  <div style="background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 16px 18px; margin-bottom: 14px;">
+    <p style="font-size: 14px; color: #1A1A1A; line-height: 1.7;">过滤器堵塞↑ → 背压↑</p>
+    <p style="font-size: 14px; color: #1A1A1A; line-height: 1.7;">→ 真空脱气效率↑ → <b>气泡↓</b></p>
+    <p style="font-size: 12px; color: #1A6B45; margin-top: 8px;">置信度 61 (MEDIUM)</p>
   </div>
-  <div class="anomaly">
-    <div class="anomaly-card warn">
-      <h3>数据异常发现</h3>
-      <div style="margin-bottom:3pt;"><div class="tag"><p>异常</p></div></div>
-      <p>melt_spots 在9天内持续上升 (时间趋势 r=0.379, p&lt;0.001) — 提示残留物累积效应</p>
-    </div>
-    <div class="anomaly-card warn">
-      <h3>数据局限</h3>
-      <div style="margin-bottom:3pt;"><div class="tag"><p>缺口</p></div></div>
-      <p>缺失挤出机各区温度数据、原料IV/含水率、设备清理记录 — 限制根因直接验证能力</p>
-    </div>
-    <div class="anomaly-card">
-      <h3>数据质量</h3>
-      <div style="margin-bottom:3pt;"><div class="tag-ok"><p>正常</p></div></div>
-      <p>时间排序验证通过 (100%递增) · 无缺失值 · 批次级聚合数据 (非连续时间序列)</p>
-    </div>
+
+  <!-- Stats card -->
+  <div style="background: #F0F0EC; border-top: 2px solid #C8000A; padding: 14px 18px; margin-bottom: 14px;">
+    <p style="font-size: 12px; color: #C8000A; font-weight: 700; margin-bottom: 6px;">关键证据</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">MF_FILTER_DELTA_P → bubbles</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">Pearson r = <b>-0.36</b> (p&lt;0.001)</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">Spearman Sp = <b>-0.44</b></p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">离群稳健：r_change = 12.9%</p>
+  </div>
+
+  <!-- H5 falsified -->
+  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 18px;">
+    <p style="font-size: 12px; color: #C8000A; font-weight: 700; margin-bottom: 4px;">H5 速度共同原因 — 已证伪</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">控制线速后偏相关 = -0.366</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">比零阶(-0.357)更强 → 速度不是混杂</p>
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>03</p></div>
-</div>
+<!-- Right column: scatter plot (65%) -->
+<div class="placeholder" id="img-scatter" style="position: absolute; top: 22px; left: 460px; width: 800px; height: 620px; background: #f5f5f5;"></div>
+
+<p style="position: absolute; top: 640px; left: 460px; font-size: 10px; color: #999999;">图：过滤器压差与气泡散点图 — FP21内r=-0.78, PG32M内r=-0.69</p>
+
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">3</p>
 </body>
 </html>

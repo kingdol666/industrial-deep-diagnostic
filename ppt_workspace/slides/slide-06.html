@@ -1,85 +1,61 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - 缺陷共现</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #212121; }
-/* Header */
-.header { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
-.header h1 { font-size: 16pt; font-weight: bold; color: #212121; }
-.header h1 span { color: #C62828; }
-/* Layout: figure takes most space, key stats on right */
-.content { position: absolute; top: 48pt; left: 28pt; right: 28pt; bottom: 34pt; display: flex; gap: 12pt; }
-/* Figure */
-.figure-col { flex: 7; }
-.figure-col .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
-/* Stats column */
-.stats-col { flex: 3; display: flex; flex-direction: column; gap: 8pt; }
-.corr-card { background: #212121; padding: 14pt; }
-.corr-card .pair { font-size: 9pt; color: #BDBDBD; margin-bottom: 2pt; }
-.corr-card .val-row { display: flex; align-items: baseline; gap: 8pt; margin-bottom: 8pt; }
-.corr-card .val-row .r { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 28pt; font-weight: bold; color: #FDD835; }
-.corr-card .val-row .r p { color: #FDD835; }
-.corr-card .val-row .pval p { font-size: 8pt; color: #9E9E9E; }
-.corr-card .note p { font-size: 8pt; color: #FFFFFF; line-height: 1.4; }
-.chem-card { background: #FFFFFF; border-left: 4pt solid #1E88E5; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.chem-card h3 { font-size: 10pt; font-weight: bold; color: #1E88E5; margin-bottom: 4pt; }
-.chem-card p { font-size: 8pt; color: #212121; line-height: 1.6; }
-.insight-card { background: #FFFFFF; border-left: 4pt solid #C62828; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.insight-card h3 { font-size: 10pt; font-weight: bold; color: #C62828; margin-bottom: 4pt; }
-.insight-card p { font-size: 8pt; color: #212121; line-height: 1.5; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <h1>缺陷共现分析：<span>共享上游来源的最优雅证据</span></h1>
-</div>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #666666; font-weight: 700; letter-spacing: 0.15em;">? CS1 INDISTINGUISHABLE</p>
 
-<div class="content">
-  <div class="figure-col">
-    <div class="placeholder" id="img-defect-corr"></div>
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; width: 440px; font-family: Georgia, 'SimSun', serif; font-size: 22px; color: #1A1A1A; font-weight: bold; line-height: 1.3;">膜点+低聚物：3个假设预测相同结果，数据无法区分</h1>
+
+<!-- Left column: 3 hypotheses (40%) -->
+<div style="position: absolute; top: 120px; left: 40px; width: 440px;">
+  <!-- H1 -->
+  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
+    <p style="font-size: 11px; color: #666666; font-weight: 700; margin-bottom: 4px;">H1 · 置信度 45</p>
+    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">上游挤出段热降解</p>
+    <p style="font-size: 12px; color: #666666; line-height: 1.5;">PET在280°C降解→交联凝胶+环状三聚体</p>
   </div>
-  <div class="stats-col">
-    <div class="corr-card">
-      <p class="pair">film_points ↔ oligomer (膜点 ↔ 低聚物)</p>
-      <div class="val-row">
-        <div class="r"><p>r=0.838</p></div>
-        <div class="pval"><p>p=0.000</p></div>
-      </div>
-      <p class="pair">oligomer ↔ bubbles (低聚物 ↔ 气泡)</p>
-      <div class="val-row">
-        <div class="r"><p>r=0.704</p></div>
-        <div class="pval"><p>p=0.000</p></div>
-      </div>
-      <p class="pair">film_points ↔ melt_spots (膜点 ↔ 熔斑)</p>
-      <div class="val-row">
-        <div class="r"><p>r=0.524</p></div>
-        <div class="pval"><p>p=0.000</p></div>
-      </div>
-      <div class="note"><p>PG31DS型号内Spearman相关 · n=67</p></div>
-    </div>
-    <div class="insight-card">
-      <h3>诊断意义</h3>
-      <p>缺陷间相关 (0.52-0.84) 远超任何工艺参数-缺陷相关 (&lt;0.49)。五种缺陷全部正相关 — 共享上游挤出段热降解来源。</p>
-    </div>
-    <div class="chem-card">
-      <h3>PET降解化学</h3>
-      <p>膜点 = 交联凝胶粒子<br>低聚物 = 环状三聚体析出<br>气泡 = 降解气体 (CO&#8322;/乙醛)<br>均源自280°C挤出段热降解</p>
-    </div>
+  <!-- H2 -->
+  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
+    <p style="font-size: 11px; color: #666666; font-weight: 700; margin-bottom: 4px;">H2 · 置信度 50（上限）</p>
+    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">产品等级基线差异</p>
+    <p style="font-size: 12px; color: #666666; line-height: 1.5;">不同产品不同工艺设定和缺陷基线</p>
+  </div>
+  <!-- H3 -->
+  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
+    <p style="font-size: 11px; color: #C8000A; font-weight: 700; margin-bottom: 4px;">H3 · 置信度 25 · 方向矛盾</p>
+    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">急冷温度影响</p>
+    <p style="font-size: 12px; color: #666666; line-height: 1.5;">急冷段31-36°C远低于Tg(75°C)，低聚物扩散冻结</p>
+  </div>
+  <!-- Co-occurrence note -->
+  <div style="background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 10px 16px;">
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;"><b>共现证据：</b>膜点-低聚物PG31DS层内 r=<b style="color: #1A6B45;">0.84</b> — 共现非产品混杂，指向共同根因</p>
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>06</p></div>
+<!-- Right column: timeseries (60%) -->
+<div class="placeholder" id="img-timeseries" style="position: absolute; top: 22px; left: 500px; width: 740px; height: 440px; background: #f5f5f5;"></div>
+<p style="position: absolute; top: 460px; left: 500px; width: 740px; font-size: 10px; color: #999999;">图：5种缺陷时间趋势按产品着色 — 产品切换时缺陷跳变，FG22/FP41极端高值</p>
+
+<!-- Bottom explanation -->
+<div style="position: absolute; top: 490px; left: 500px; width: 740px; background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
+  <p style="font-size: 13px; color: #1A1A1A; font-weight: bold; margin-bottom: 6px;">为什么不可区分？</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">三个假设预测完全相同的观测模式：产品切换时缺陷跳变 + 层内相关弱 + 膜点-低聚物高度共现</p>
+  <p style="font-size: 12px; color: #666666; line-height: 1.6; margin-top: 4px;">区分条件：获取挤出段熔体粘度数据 + 滤网更换日志 + 原料PET IV/水分</p>
 </div>
+
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">6</p>
 </body>
 </html>

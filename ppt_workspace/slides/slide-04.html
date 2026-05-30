@@ -1,66 +1,54 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - 缺陷时间序列</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #212121; }
-/* Title */
-.title { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
-.title h1 { font-size: 16pt; font-weight: bold; color: #212121; }
-.title h1 span { color: #C62828; }
-/* Main figure */
-.figure-area { position: absolute; top: 48pt; left: 28pt; right: 28pt; height: 280pt; }
-.figure-area .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
-/* Bottom insight cards */
-.insights { position: absolute; bottom: 34pt; left: 28pt; right: 28pt; height: 150pt; display: flex; gap: 10pt; }
-.insight-card { flex: 1; background: #FFFFFF; border-top: 3pt solid #212121; padding: 10pt 12pt; display: flex; flex-direction: column; }
-.insight-card.highlight { border-top-color: #C62828; }
-.insight-card h3 { font-size: 10pt; font-weight: bold; color: #212121; margin-bottom: 4pt; }
-.insight-card p { font-size: 8pt; color: #757575; line-height: 1.5; }
-.insight-card .stat { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 14pt; font-weight: bold; color: #C62828; }
-.insight-card .stat p { color: #C62828; font-size: 14pt; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="title">
-  <h1>缺陷时间序列：<span>型号切换是Simpson悖论的视觉根源</span></h1>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">METHODOLOGY · 白话科普</p>
+
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 26px; color: #1A1A1A; font-weight: bold;">为什么我们的结论可信？——三道严格检验</h1>
+
+<!-- Subtitle -->
+<p style="position: absolute; top: 82px; left: 40px; font-size: 13px; color: #666666;">每一项"强相关"都要经受三道检验，通过才算数。</p>
+
+<!-- Method 1: Outlier filtering -->
+<div style="position: absolute; top: 120px; left: 40px; width: 1200px; height: 165px; background: #F0F0EC; border-top: 2px solid #C8000A; padding: 16px 20px 16px 90px;">
+  <p style="position: absolute; top: 10px; left: 20px; font-family: Georgia, serif; font-size: 48px; color: #C8000A; opacity: 0.15; font-weight: bold;">①</p>
+  <p style="font-size: 15px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">离群过滤 <span style="font-weight: normal; color: #999999;">— "去掉极端值，还成立吗？"</span></p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>比方说：</b>假设班里99人考试都在80分左右，但1人考了0分。算全班平均分时，被这1个人拉低了。删掉这个极端值后，才能看到真实的班级水平。</p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>我们的做法：</b>删掉少数极端批次后重算相关系数。如果之前"很强"的相关变弱或<b>方向反转</b>了，说明那是被极端值"撑起来"的<b>假相关</b>。</p>
+  <p style="font-size: 12px; color: #C8000A; margin-top: 4px;">实例：W1C80→膜点 删掉26个极端批次后 r 从 0.52 变成 -0.08（方向反转！）</p>
 </div>
 
-<div class="figure-area">
-  <div class="placeholder" id="img-defect-ts"></div>
+<!-- Method 2: Simpson stratification -->
+<div style="position: absolute; top: 298px; left: 40px; width: 1200px; height: 165px; background: #F0F0EC; border-top: 2px solid #C8000A; padding: 16px 20px 16px 90px;">
+  <p style="position: absolute; top: 10px; left: 20px; font-family: Georgia, serif; font-size: 48px; color: #C8000A; opacity: 0.15; font-weight: bold;">②</p>
+  <p style="font-size: 15px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">Simpson分层 <span style="font-weight: normal; color: #999999;">— "分产品看，还成立吗？"</span></p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>比方说：</b>比较"苹果的甜度和大小"和"橘子的甜度和大小"——混在一起看，好像甜度和大小有"关系"。但分开看，苹果归苹果、橘子归橘子，甜度和大小其实没有关系。</p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>我们的做法：</b>按单个产品等级单独算相关。如果混在一起"很强"的相关，分开后就<b>消失或反转</b>了，说明是不同产品的差异造成的<b>假相关</b>。</p>
+  <p style="font-size: 12px; color: #C8000A; margin-top: 4px;">发现：873个参数-缺陷对存在方向反转 — 产品等级是最大干扰项</p>
 </div>
 
-<div class="insights">
-  <div class="insight-card highlight">
-    <h3>不同型号基线明显不同</h3>
-    <p>不同颜色代表不同产品型号 — 缺陷基线在型号间存在显著差异。这是859个Simpson悖论案例的直接原因：聚合分析混淆了型号切换效应。</p>
-  </div>
-  <div class="insight-card">
-    <h3>melt_spots 持续上升</h3>
-    <div class="stat"><p>r = 0.379</p></div>
-    <p>9天内 melt_spots (紫色) 从低值逐渐攀升，具有显著的时间依赖性 (p&lt;0.001)。提示残留物在螺杆/模头内壁累积。</p>
-  </div>
-  <div class="insight-card">
-    <h3>膜点-低聚物 同步尖峰</h3>
-    <p>膜点和低聚物存在同步的尖峰模式 — 与它们的高相关 (PG31DS内 r=0.838) 一致。两种缺陷共享PET热降解上游来源。</p>
-  </div>
-  <div class="insight-card">
-    <h3>数据特征总结</h3>
-    <p>批次级聚合数据 (非连续时间序列) · 缺陷数据严重偏态 (skewness 2.28-12.12) · 型号样本不均衡 (仅PG31DS有足够统计效力 n=67)</p>
-  </div>
+<!-- Method 3: Pearson vs Spearman -->
+<div style="position: absolute; top: 476px; left: 40px; width: 1200px; height: 165px; background: #F0F0EC; border-top: 2px solid #C8000A; padding: 16px 20px 16px 90px;">
+  <p style="position: absolute; top: 10px; left: 20px; font-family: Georgia, serif; font-size: 48px; color: #C8000A; opacity: 0.15; font-weight: bold;">③</p>
+  <p style="font-size: 15px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">Pearson vs Spearman <span style="font-weight: normal; color: #999999;">— "两种算法结果一致吗？"</span></p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>比方说：</b>Pearson容易被少数极端值"拉偏"——就像班级里几个特别高的人拉高了平均身高。Spearman只看排名（谁高谁矮），不受极端值影响。</p>
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;"><b>我们的做法：</b>如果两种算法<b>方向一致</b>，说明关联是可信的。如果<b>方向相反</b>（一个说正相关，一个说负相关），说明关联不可靠。</p>
+  <p style="font-size: 12px; color: #1A6B45; margin-top: 4px;">唯一幸存：气泡-压差 Pearson=-0.36 / Spearman=-0.44 — 方向一致，可信！</p>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>04</p></div>
-</div>
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">4</p>
 </body>
 </html>

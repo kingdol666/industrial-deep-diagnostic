@@ -1,83 +1,70 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - 目录</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #212121; }
-/* Header */
-.header { position: absolute; top: 28pt; left: 48pt; right: 48pt; display: flex; align-items: center; }
-.header .red-block { width: 8pt; height: 28pt; background: #C62828; margin-right: 14pt; }
-.header h1 { font-size: 22pt; font-weight: bold; color: #212121; letter-spacing: 1pt; }
-/* TOC grid */
-.toc-grid { position: absolute; top: 90pt; left: 48pt; right: 48pt; bottom: 40pt; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14pt; }
-.toc-item { background: #FFFFFF; border-top: 4pt solid #212121; padding: 16pt 14pt; position: relative; display: flex; flex-direction: column; }
-.toc-item.accent { border-top-color: #C62828; }
-.toc-item .num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 36pt; font-weight: bold; color: #E0E0E0; position: absolute; bottom: 10pt; right: 14pt; }
-.toc-item .num p { color: #E0E0E0; }
-.toc-item h2 { font-size: 12pt; font-weight: bold; color: #212121; margin-bottom: 6pt; position: relative; z-index: 1; }
-.toc-item p { font-size: 9pt; color: #757575; line-height: 1.5; position: relative; z-index: 1; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <div class="red-block"></div>
-  <h1>报告结构</h1>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">EXECUTIVE SUMMARY</p>
+
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; font-family: Georgia, 'SimSun', serif; font-size: 28px; color: #1A1A1A; font-weight: bold;">诊断结论总览</h1>
+
+<!-- Decorative background number -->
+<p style="position: absolute; top: -20px; left: 860px; font-family: Georgia, serif; font-size: 180px; color: #C8000A; opacity: 0.04; font-weight: bold;">3</p>
+
+<!-- Left column: Confirmed (50% = 600px) -->
+<div style="position: absolute; top: 100px; left: 40px; width: 580px; height: 500px; background: #F0F8F4; border-top: 3px solid #1A6B45; padding: 24px;">
+  <p style="font-size: 12px; color: #1A6B45; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 10px;">✓ 已确认 · CS2 DISCRIMINATED</p>
+  <h2 style="font-family: Georgia, serif; font-size: 24px; color: #1A1A1A; font-weight: bold; margin-bottom: 10px;">气泡根因已锁定</h2>
+  <p style="font-family: Georgia, serif; font-size: 56px; color: #1A6B45; font-weight: bold; line-height: 1;">61</p>
+  <p style="font-size: 13px; color: #666666; margin-bottom: 16px;">置信度 MEDIUM — 最高存活假设</p>
+  <p style="font-size: 14px; color: #1A1A1A; line-height: 1.8;">过滤器压差↑ → 背压↑ → 脱气效率↑ → 气泡↓</p>
+  <p style="font-size: 13px; color: #666666; line-height: 1.7; margin-top: 12px;">r = -0.36, Sp = -0.44</p>
+  <p style="font-size: 13px; color: #666666; line-height: 1.7;">偏相关控制线速后 = -0.366（比零阶更强）</p>
+  <p style="font-size: 13px; color: #666666; line-height: 1.7;">FP21内 r = -0.78, PG32M内 r = -0.69</p>
 </div>
 
-<div class="toc-grid">
-  <div class="toc-item accent">
-    <h2>数据采集概况</h2>
-    <p>149批次 · 180参数 · 5缺陷 · 9型号<br>2026-05-04 ~ 05-13</p>
-    <div class="num"><p>01</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>数据特征与异常</h2>
-    <p>缺陷时间序列 · 型号间基线差异<br>melt_spots上升趋势</p>
-    <div class="num"><p>02</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>Simpson悖论</h2>
-    <p>859个CRITICAL案例<br>聚合相关不可信</p>
-    <div class="num"><p>03</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>缺陷共现分析</h2>
-    <p>膜点-低聚物 r=0.838<br>共享上游来源的证据</p>
-    <div class="num"><p>04</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>物理约束验证</h2>
-    <p>MD温度分布 · Arrhenius方程<br>速率比 ~8.5×10⁻¹⁰</p>
-    <div class="num"><p>05</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>根因结论</h2>
-    <p>挤出段PET热降解为主根因<br>置信度72/100 · Judge 87/100</p>
-    <div class="num"><p>06</p></div>
-  </div>
-  <div class="toc-item">
-    <h2>优化方案</h2>
-    <p>高/中优先级措施<br>补充数据建议</p>
-    <div class="num"><p>07</p></div>
-  </div>
-  <div class="toc-item accent">
-    <h2>下部打算</h2>
-    <p>下一步行动计划<br>关键数据采集路线图</p>
-    <div class="num"><p>08</p></div>
-  </div>
+<!-- Middle column: Pending (25% = 300px) -->
+<div style="position: absolute; top: 100px; left: 640px; width: 290px; height: 240px; background: #F0F0EC; border-top: 3px solid #666666; padding: 20px;">
+  <p style="font-size: 11px; color: #666666; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px;">? 待定 · CS1 INDISTINGUISHABLE</p>
+  <h2 style="font-family: Georgia, serif; font-size: 18px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">膜点+低聚物</h2>
+  <p style="font-family: Georgia, serif; font-size: 40px; color: #666666; font-weight: bold; line-height: 1;">50</p>
+  <p style="font-size: 12px; color: #999999; margin-bottom: 8px;">置信度上限</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">3个假设不可区分</p>
+  <p style="font-size: 11px; color: #999999; line-height: 1.5;">膜点-低聚物层内共现 r=0.84</p>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>02</p></div>
+<!-- Right column: Excluded (25% = 300px) -->
+<div style="position: absolute; top: 100px; left: 950px; width: 290px; height: 240px; background: #FFF5F5; border-top: 3px solid #C8000A; padding: 20px;">
+  <p style="font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px;">✗ 已排除 · 5项(>90%)</p>
+  <p style="font-family: Georgia, serif; font-size: 40px; color: #C8000A; font-weight: bold; line-height: 1;">5</p>
+  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">MD温度降解 99%</p>
+  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">STD参数因果 92%</p>
+  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">熔体斑伪相关 95%</p>
+  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">灰尘MD关联 95%</p>
+  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">拉伸比因果 90%</p>
 </div>
+
+<!-- Bottom: Data gaps -->
+<div style="position: absolute; top: 360px; left: 640px; width: 600px; height: 240px; background: #F0F0EC; border-top: 2px solid #C8000A; padding: 18px;">
+  <p style="font-size: 12px; color: #C8000A; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 10px;">关键数据缺口</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">① 挤出段熔体粘度数据 — 解决CS1不可区分性</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">② 滤网更换日志 — 直接验证H4气泡机制</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">③ 原料PET IV/水分数据 — 分离产品vs过程效应</p>
+  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">④ 真空脱气系统压力 — 完善H4物理链</p>
+  <p style="font-size: 11px; color: #999999; margin-top: 12px;">整体置信度：45 (LOW) — 受CS1不可区分性上限50严格制约</p>
+</div>
+
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">2</p>
 </body>
 </html>

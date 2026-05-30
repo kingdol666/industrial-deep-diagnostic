@@ -1,102 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - 分析结果</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4pt; background: #C62828; }
-/* Header */
-.header { position: absolute; top: 18pt; left: 36pt; right: 36pt; }
-.header h1 { font-size: 17pt; font-weight: bold; color: #212121; }
-/* Main layout */
-.content { position: absolute; top: 52pt; left: 36pt; right: 36pt; bottom: 34pt; display: flex; gap: 14pt; }
-/* Left: root cause hero card */
-.hero-card { flex: 5; background: #C62828; display: flex; flex-direction: column; justify-content: center; padding: 24pt; }
-.hero-card .label p { font-size: 10pt; color: #FFCDD2; letter-spacing: 2pt; margin-bottom: 8pt; }
-.hero-card h2 { font-size: 22pt; font-weight: bold; color: #FFFFFF; line-height: 1.4; margin-bottom: 10pt; }
-.hero-card .chain p { font-size: 9pt; color: #FFCDD2; line-height: 1.7; margin-bottom: 12pt; }
-.hero-card .conf-row { display: flex; align-items: baseline; gap: 8pt; }
-.hero-card .conf-num { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 42pt; font-weight: bold; color: #FDD835; }
-.hero-card .conf-num p { color: #FDD835; }
-.hero-card .conf-label p { font-size: 10pt; color: #FFFFFF; }
-/* Right: cards */
-.right-col { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
-.score-card { flex: 1; background: #212121; display: flex; flex-direction: column; justify-content: center; padding: 14pt; }
-.score-card h3 { font-size: 11pt; font-weight: bold; color: #FFFFFF; margin-bottom: 8pt; }
-.score-grid { display: flex; gap: 14pt; }
-.score-item { text-align: center; flex: 1; }
-.score-item .val { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 20pt; font-weight: bold; color: #FDD835; }
-.score-item .val p { color: #FDD835; }
-.score-item .lbl p { font-size: 7pt; color: #BDBDBD; line-height: 1.3; }
-.judge-card { background: #FFFFFF; border-left: 4pt solid #2E7D32; padding: 12pt; display: flex; flex-direction: column; justify-content: center; }
-.judge-card .judge-score { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 32pt; font-weight: bold; color: #2E7D32; }
-.judge-card .judge-score p { color: #2E7D32; }
-.judge-card h3 { font-size: 10pt; font-weight: bold; color: #212121; }
-.judge-card p { font-size: 8pt; color: #757575; line-height: 1.4; }
-.excluded-card { background: #FFFFFF; padding: 10pt 12pt; flex: 1; }
-.excluded-card h3 { font-size: 9pt; font-weight: bold; color: #757575; margin-bottom: 4pt; }
-.excluded-card .ex-list p { font-size: 8pt; color: #9E9E9E; line-height: 1.7; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <h1>分析结果：挤出段PET热降解为主根因，MD段参数非因果驱动</h1>
-</div>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #1A6B45; font-weight: 700; letter-spacing: 0.15em;">CO-OCCURRENCE · 共现分析</p>
 
-<div class="content">
-  <div class="hero-card">
-    <div class="label"><p>主根因声明</p></div>
-    <h2>挤出段PET热降解<br>+ 残留物累积</h2>
-    <div class="chain">
-      <p>PET 280°C高温+剪切 → 链断裂(交联凝胶→膜点) + 环化(三聚体→低聚物) + 脱羧(气体→气泡) → 降解产物经MD拉伸被放大显现为表面缺陷</p>
-    </div>
-    <div class="conf-row">
-      <div class="conf-num"><p>72</p></div>
-      <div class="conf-label"><p>/ 100 置信度<br>中高 · 统计+物理高度一致</p></div>
-    </div>
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold;">膜点与低聚物高度共现：来自上游挤出段的共同根因</h1>
+
+<!-- Left: co-occurrence figure (45%) -->
+<div class="placeholder" id="img-cooccurrence" style="position: absolute; top: 80px; left: 40px; width: 520px; height: 480px; background: #f5f5f5;"></div>
+<p style="position: absolute; top: 558px; left: 40px; width: 520px; font-size: 10px; color: #999999;">图：5种缺陷间Spearman相关矩阵 — 膜点-低聚物共现最亮</p>
+
+<!-- Right: evidence (55%) -->
+<div style="position: absolute; top: 80px; left: 580px; width: 660px;">
+  <h2 style="font-family: Georgia, serif; font-size: 20px; color: #1A1A1A; font-weight: bold; margin-bottom: 16px;">共同根因证据</h2>
+
+  <!-- Evidence card -->
+  <div style="background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 16px 18px; margin-bottom: 14px;">
+    <p style="font-size: 14px; color: #1A6B45; font-weight: bold; margin-bottom: 8px;">膜点-低聚物共现：可信度最高观测</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">整体 Spearman r = 0.61（Pearson r = 0.86）</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">PG31DS层内 r = <b style="color: #1A6B45;">0.84</b> — 共现不是产品混杂造成的</p>
+    <p style="font-size: 12px; color: #666666; margin-top: 6px;">两者在物理上可能共享同一上游来源</p>
   </div>
-  <div class="right-col">
-    <div class="score-card">
-      <h3>置信度三维分解</h3>
-      <div class="score-grid">
-        <div class="score-item">
-          <div class="val"><p>25</p></div>
-          <div class="lbl"><p>/35 数据强度<br>PG31DS型号内证据</p></div>
-        </div>
-        <div class="score-item">
-          <div class="val"><p>25</p></div>
-          <div class="lbl"><p>/35 物理机制<br>Arrhenius定量排除MD</p></div>
-        </div>
-        <div class="score-item">
-          <div class="val"><p>22</p></div>
-          <div class="lbl"><p>/30 逻辑一致性<br>排除法严密</p></div>
-        </div>
-      </div>
-    </div>
-    <div class="judge-card">
-      <h3>Judge独立评审</h3>
-      <div class="judge-score"><p>87 / 100</p></div>
-      <p>NEEDS_REPAIR · 无阻塞问题 · 物理审计 ENDORSED · 2处数值已修正 (Arrhenius速率比10⁻²⁰→8.5×10⁻¹⁰, melt_spots趋势r值0.868→0.379)</p>
-    </div>
-    <div class="excluded-card">
-      <h3>已排除假设 (5个)</h3>
-      <div class="ex-list">
-        <p>MD温度波动→降解 (排除置信度95%) | MD线速度→停留时间→降解 (90%) | 过滤器堵塞→降解加剧 (70%) | 某特定辊温度驱动特定缺陷 (98%) | 产品型号切换是唯一原因 (85%)</p>
-      </div>
-    </div>
+
+  <!-- Physical mechanism -->
+  <div style="background: #F0F0EC; border-top: 2px solid #C8000A; padding: 16px 18px; margin-bottom: 14px;">
+    <p style="font-size: 13px; color: #C8000A; font-weight: 700; margin-bottom: 8px;">物理推断：指向挤出段降解</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">环状三聚体形成需 T > 200°C — 仅挤出段满足</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">低聚物在MD段是迁移/结晶，不是生成</p>
+    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">MD拉伸比3.08倍 — 上游微小缺陷被放大至可见</p>
+  </div>
+
+  <!-- Data gaps -->
+  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
+    <p style="font-size: 13px; color: #666666; font-weight: 700; margin-bottom: 6px;">需要的数据 — 解决不可区分性</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">① 挤出段熔体粘度数据 — 直接验证降解假说</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">② 滤网更换日志 — 验证降解累积假设</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">③ 原料PET IV/水分数据 — 分离产品vs过程效应</p>
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>08</p></div>
-</div>
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">8</p>
 </body>
 </html>

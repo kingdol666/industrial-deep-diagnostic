@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+</style>
+</head>
+<body>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
+
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">NEXT STEPS · 行动建议</p>
+
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; font-family: Georgia, 'SimSun', serif; font-size: 28px; color: #1A1A1A; font-weight: bold;">下一步行动</h1>
+
+<!-- P0 Row (tallest) -->
+<div style="position: absolute; top: 100px; left: 40px; width: 1200px;">
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="width: 40px; height: 24px; background: #C8000A; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+      <p style="color: #FFFFFF; font-size: 11px; font-weight: bold;">P0</p>
+    </div>
+    <p style="font-size: 16px; color: #C8000A; font-weight: bold; margin-left: 10px;">紧急 — 直接影响核心结论验证</p>
+  </div>
+  <div style="display: flex; gap: 14px;">
+    <div style="flex: 1; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 16px 18px;">
+      <p style="font-size: 14px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">① 安装在线熔体粘度计或定期取样</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">测量挤出段熔体粘度/PET降解产物</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">解决膜点+低聚物不可区分性</p>
+      <p style="font-size: 11px; color: #C8000A;">重点关注FG22和FP41批次</p>
+    </div>
+    <div style="flex: 1; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 16px 18px;">
+      <p style="font-size: 14px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">② 建立滤网更换日志</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">记录：时间 + 型号 + 更换前后压差</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">换滤网后压差突降→气泡应短暂增加→直接验证H4</p>
+      <p style="font-size: 11px; color: #C8000A;">需 ≥ 5次事件建立统计</p>
+    </div>
+  </div>
+</div>
+
+<!-- P1 Row -->
+<div style="position: absolute; top: 310px; left: 40px; width: 1200px;">
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="width: 40px; height: 24px; background: #666666; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+      <p style="color: #FFFFFF; font-size: 11px; font-weight: bold;">P1</p>
+    </div>
+    <p style="font-size: 15px; color: #666666; font-weight: bold; margin-left: 10px;">重要 — 补全关键数据缺口</p>
+  </div>
+  <div style="display: flex; gap: 14px;">
+    <div style="flex: 1; background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
+      <p style="font-size: 13px; color: #1A1A1A; font-weight: bold; margin-bottom: 6px;">③ 记录原料批次PET IV值和水分含量</p>
+      <p style="font-size: 12px; color: #666666; line-height: 1.5;">分离产品基线差异 vs 真实过程效应</p>
+    </div>
+    <div style="flex: 1; background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
+      <p style="font-size: 13px; color: #1A1A1A; font-weight: bold; margin-bottom: 6px;">④ FP41灰尘极端值根源调查</p>
+      <p style="font-size: 12px; color: #666666; line-height: 1.5;">FP41(3批)dust均值1277，其他产品&lt;22 — 确认是否测量异常</p>
+    </div>
+  </div>
+</div>
+
+<!-- P2 Row -->
+<div style="position: absolute; top: 460px; left: 40px; width: 1200px;">
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="width: 40px; height: 24px; background: #CCCCCC; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+      <p style="color: #666666; font-size: 11px; font-weight: bold;">P2</p>
+    </div>
+    <p style="font-size: 14px; color: #999999; font-weight: bold; margin-left: 10px;">建议 — 进一步提升分析能力</p>
+  </div>
+  <div style="display: flex; gap: 14px;">
+    <div style="flex: 1; background: #F0F0EC; border-top: 2px solid #CCCCCC; padding: 12px 18px;">
+      <p style="font-size: 12px; color: #1A1A1A; font-weight: bold;">⑤ PG31DS聚焦分析（67批）</p>
+      <p style="font-size: 11px; color: #999999; line-height: 1.5;">消除产品混杂后观察真实参数-缺陷关系，现有数据即可完成</p>
+    </div>
+    <div style="flex: 1; background: #F0F0EC; border-top: 2px solid #CCCCCC; padding: 12px 18px;">
+      <p style="font-size: 12px; color: #1A1A1A; font-weight: bold;">⑥ 记录环境温湿度和洁净室压差</p>
+      <p style="font-size: 11px; color: #999999; line-height: 1.5;">熔体斑趋势和灰尘根因可能关联环境因素，低成本高回报</p>
+    </div>
+  </div>
+</div>
+
+<!-- Summary sentence -->
+<div style="position: absolute; top: 570px; left: 40px; width: 1200px; border-top: 1px solid #CCCCCC; padding-top: 12px;">
+  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;"><b>预期效果：</b>P0完成后可验证气泡机制并解开膜点/低聚物不可区分性，将整体置信度从45提升至70+。</p>
+</div>
+
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">10</p>
+</body>
+</html>

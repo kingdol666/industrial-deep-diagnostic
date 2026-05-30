@@ -1,86 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - Simpson悖论</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #C62828; }
-/* Header */
-.header { position: absolute; top: 16pt; left: 28pt; right: 28pt; }
-.header h1 { font-size: 16pt; font-weight: bold; color: #212121; }
-.header h1 span { color: #C62828; }
-/* Layout: left figure + right explanation */
-.content { position: absolute; top: 48pt; left: 28pt; right: 28pt; bottom: 34pt; display: flex; gap: 14pt; }
-/* Left: figure */
-.figure-col { flex: 6; }
-.figure-col .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
-/* Right: explanation */
-.explain-col { flex: 4; display: flex; flex-direction: column; gap: 10pt; }
-.concept-card { background: #212121; padding: 14pt; }
-.concept-card h2 { font-size: 12pt; font-weight: bold; color: #FFFFFF; margin-bottom: 4pt; }
-.concept-card p { font-size: 9pt; color: #BDBDBD; line-height: 1.5; }
-.case-card { background: #FFFFFF; border-left: 4pt solid #C62828; padding: 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.case-card h3 { font-size: 10pt; font-weight: bold; color: #C62828; margin-bottom: 6pt; }
-.case-card .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4pt; padding-bottom: 4pt; border-bottom: 1pt solid #F5F5F5; }
-.case-card .row .param { font-size: 8pt; color: #757575; }
-.case-card .row .vals { font-size: 9pt; font-weight: bold; color: #212121; }
-.case-card .row .vals .bad { color: #C62828; }
-.stat-banner { background: #FDD835; padding: 10pt 14pt; display: flex; align-items: center; gap: 10pt; }
-.stat-banner .big { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 28pt; font-weight: bold; color: #212121; }
-.stat-banner .big p { color: #212121; }
-.stat-banner .desc p { font-size: 9pt; color: #212121; font-weight: bold; line-height: 1.4; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <h1>核心发现：<span>859个Simpson悖论 — 聚合相关完全不可信</span></h1>
-</div>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">VALIDATION RESULTS · 验证结果</p>
 
-<div class="content">
-  <div class="figure-col">
-    <div class="placeholder" id="img-simpson"></div>
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold;">三重验证结果：绝大多数"强相关"是假的</h1>
+
+<!-- Left: Pearson vs Spearman figure (55%) -->
+<div class="placeholder" id="img-robustness" style="position: absolute; top: 80px; left: 40px; width: 660px; height: 530px; background: #f5f5f5;"></div>
+<p style="position: absolute; top: 608px; left: 40px; width: 660px; font-size: 10px; color: #999999;">图：Pearson vs Spearman对比 — 偏离对角线=不可靠。气泡-压差方向一致。</p>
+
+<!-- Right: results (45%) -->
+<div style="position: absolute; top: 80px; left: 720px; width: 520px;">
+  <h2 style="font-family: Georgia, serif; font-size: 18px; color: #1A1A1A; font-weight: bold; margin-bottom: 16px;">验证打击结果</h2>
+
+  <!-- Falsified 1 -->
+  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
+    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 离群驱动：15个伪相关被揭穿</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">W1C80→膜点：删掉26个极端值后</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">r 从 <b>0.52</b> → <b style="color: #C8000A;">-0.08</b>（方向反转）</p>
   </div>
-  <div class="explain-col">
-    <div class="concept-card">
-      <h2>什么是Simpson悖论？</h2>
-      <p>当数据按产品型号分层后，原本在聚合层面显著的相关性，在单一型号内部急剧衰减、消失甚至反转。不控制产品型号，所有聚合相关结论都是虚假的。</p>
-    </div>
-    <div class="case-card">
-      <h3>关键反转案例 (PG31DS型号内)</h3>
-      <div class="row">
-        <p class="param">MD_TH017_max vs dust</p>
-        <p class="vals">聚合 r=-0.251 → 型号内 <span class="bad">r=-0.073 (归零)</span></p>
-      </div>
-      <div class="row">
-        <p class="param">MD_TH012_max vs dust</p>
-        <p class="vals">聚合 r=-0.238 → 型号内 <span class="bad">r=+0.070 (反转!)</span></p>
-      </div>
-      <div class="row">
-        <p class="param">W1C40_mean vs melt_spots</p>
-        <p class="vals">聚合 ρ=-0.655 → 型号内 <span class="bad">ρ=-0.319 (衰减51%)</span></p>
-      </div>
-      <div class="row">
-        <p class="param">W1C4B_mean vs melt_spots</p>
-        <p class="vals">聚合 ρ=-0.659 → 型号内 <span class="bad">ρ=-0.319 (衰减52%)</span></p>
-      </div>
-    </div>
-    <div class="stat-banner">
-      <div class="big"><p>859</p></div>
-      <div class="desc"><p>个CRITICAL Simpson悖论案例<br>聚合分析完全弃用</p></div>
-    </div>
+
+  <!-- Falsified 2 -->
+  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
+    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ Simpson分层：873个方向反转</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">膜点STD参数</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">Pearson = <b>0.52</b> vs Spearman = <b style="color: #C8000A;">-0.13</b></p>
+  </div>
+
+  <!-- Falsified 3 -->
+  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
+    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 趋势混杂：熔体斑全为时间伪相关</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">7对去趋势后衰减59-100%</p>
+  </div>
+
+  <!-- Survivor -->
+  <div style="background: #F0F8F4; border-top: 3px solid #1A6B45; padding: 16px;">
+    <p style="font-size: 14px; color: #1A6B45; font-weight: bold; margin-bottom: 6px;">✓ 唯一幸存：压差 → 气泡</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">Pearson = -0.36 / Spearman = -0.44</p>
+    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">方向一致 ✓  离群稳健 ✓  偏相关更强 ✓</p>
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>05</p></div>
-</div>
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">5</p>
 </body>
 </html>

@@ -1,98 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BOPET MD根因诊断 - MD温度与Arrhenius</title>
+<meta charset="utf-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 960pt; height: 540pt; margin: 0; padding: 0; background: #FAFAFA; overflow: hidden; font-family: "Microsoft YaHei", "思源黑体", "Noto Sans SC", sans-serif }
-/* Top bar */
-.top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3pt; background: #1E88E5; }
-/* Header */
-.header { position: absolute; top: 14pt; left: 28pt; right: 28pt; }
-.header h1 { font-size: 15pt; font-weight: bold; color: #212121; }
-.header h1 span { color: #1E88E5; }
-/* Layout: left figure, right cards */
-.content { position: absolute; top: 46pt; left: 28pt; right: 28pt; bottom: 34pt; display: flex; gap: 12pt; }
-/* Figure */
-.figure-col { flex: 6; }
-.figure-col .placeholder { width: 100%; height: 100%; background: #F5F5F5; }
-/* Right cards */
-.info-col { flex: 4; display: flex; flex-direction: column; gap: 8pt; }
-.temp-zones { background: #FFFFFF; padding: 10pt 12pt; }
-.temp-zones h3 { font-size: 10pt; font-weight: bold; color: #212121; margin-bottom: 6pt; }
-.zone-row { display: flex; gap: 6pt; margin-bottom: 4pt; }
-.zone-tag { flex: 1; padding: 6pt; text-align: center; }
-.zone-tag.preheat { background: #FFF3E0; }
-.zone-tag.stretch { background: #FFE0B2; }
-.zone-tag.quench { background: #E3F2FD; }
-.zone-tag p.name { font-size: 7pt; font-weight: bold; color: #616161; margin-bottom: 1pt; }
-.zone-tag p.range { font-size: 9pt; font-weight: bold; color: #212121; }
-.zone-tag p.rollers { font-size: 7pt; color: #757575; }
-.arrhenius-card { background: #212121; padding: 14pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.arrhenius-card h2 { font-size: 11pt; font-weight: bold; color: #FDD835; margin-bottom: 6pt; }
-.arrhenius-card .eq p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9pt; color: #BDBDBD; margin-bottom: 6pt; }
-.arrhenius-card .result p { font-size: 10pt; color: #FFFFFF; line-height: 1.5; }
-.arrhenius-card .highlight p { color: #FDD835; font-weight: bold; }
-.evidence-card { background: #FFFFFF; border-left: 4pt solid #1E88E5; padding: 10pt 12pt; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.evidence-card h3 { font-size: 10pt; font-weight: bold; color: #1E88E5; margin-bottom: 3pt; }
-.evidence-card p { font-size: 8pt; color: #212121; line-height: 1.5; }
-/* Bottom bar */
-.bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 24pt; background: #212121; display: flex; align-items: center; justify-content: flex-end; padding: 0 20pt; }
-.bottom-bar .page-num p { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11pt; color: #C62828; font-weight: bold; }
+body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
 </style>
 </head>
 <body>
-<div class="top-bar"></div>
+<!-- Top red rule -->
+<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<div class="header">
-  <h1>物理约束：<span>Arrhenius方程定量排除MD段降解可能性</span></h1>
-</div>
+<!-- Section label -->
+<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">KEY FINDING · 核心发现</p>
 
-<div class="content">
-  <div class="figure-col">
-    <div class="placeholder" id="img-md-temp"></div>
+<!-- Title -->
+<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold;">最大发现：产品等级差异是最大的"干扰项"</h1>
+
+<!-- Upper: Simpson figure (55%) -->
+<div class="placeholder" id="img-simpson" style="position: absolute; top: 80px; left: 40px; width: 1200px; height: 300px; background: #f5f5f5;"></div>
+
+<!-- Lower: Plain language explanation + comparisons -->
+<div style="position: absolute; top: 396px; left: 40px; width: 1200px;">
+  <!-- White-language explanation -->
+  <div style="background: #F0F0EC; border-top: 2px solid #C8000A; padding: 14px 18px; margin-bottom: 12px;">
+    <p style="font-size: 14px; color: #1A1A1A; line-height: 1.7;"><b>白话说：</b>9种产品等级的工艺设定完全不同（温度、速度各异）。把所有产品混在一起看，会看到很多"强相关"。但按<b>单个产品</b>单独看，这些相关就消失或反转了。就好比"把苹果橘子混在一起看甜度和大小有关系，分开看没有"。</p>
   </div>
-  <div class="info-col">
-    <div class="temp-zones">
-      <h3>MD纵拉机18辊三段温区</h3>
-      <div class="zone-row">
-        <div class="zone-tag preheat">
-          <p class="name">预加热段</p>
-          <p class="range">75~77°C</p>
-          <p class="rollers">辊1-5</p>
-        </div>
-        <div class="zone-tag stretch">
-          <p class="name">拉伸段</p>
-          <p class="range">82~84°C</p>
-          <p class="rollers">辊6-11</p>
-        </div>
-        <div class="zone-tag quench">
-          <p class="name">急冷定型段</p>
-          <p class="range">31~35°C</p>
-          <p class="rollers">辊12-18</p>
-        </div>
-      </div>
-      <p style="font-size:7pt;color:#9E9E9E;margin-top:4pt;">辊11→12温度断崖: 83.5°C→30.8°C (超过50°C)</p>
+
+  <!-- Three comparison cases -->
+  <div style="display: flex; gap: 12px;">
+    <div style="flex: 1; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 14px;">
+      <p style="font-size: 12px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 方向反转</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">W1C80_std → 膜点</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">整体 r = <b>0.52</b></p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">PG31DS内 r = <b style="color: #C8000A;">0.22</b></p>
     </div>
-    <div class="arrhenius-card">
-      <h2>Arrhenius降解速率对比</h2>
-      <div class="eq"><p>k = A · exp(-Ea/RT) &nbsp; Ea=175 kJ/mol</p></div>
-      <div class="result">
-        <p>280°C (553K)挤出段: 半衰期 <b>~10分钟</b></p>
-        <p>84°C (357K) MD段: 半衰期 <b>~2万年</b></p>
-        <div class="highlight"><p>速率比 k(84°C)/k(280°C) ≈ 8.5×10⁻¹⁰</p></div>
-      </div>
+    <div style="flex: 1; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 14px;">
+      <p style="font-size: 12px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 趋势伪相关</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">W1C88_mean → 熔体斑</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">原始 r = <b>0.37</b></p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">去趋势 r = <b style="color: #C8000A;">0.09</b></p>
     </div>
-    <div class="evidence-card">
-      <h3>统计+物理双重排除</h3>
-      <p>MD温度-缺陷 90对检验 (18辊×5缺陷) 全部 |r|&lt;0.15, p&gt;0.1 — 型号内系统性零效应。Arrhenius确认MD段不可能产生可观测降解。</p>
+    <div style="flex: 1; background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 12px 14px;">
+      <p style="font-size: 12px; color: #1A6B45; font-weight: bold; margin-bottom: 4px;">✓ 维持稳健</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">压差 → 气泡</p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">整体 r = <b>-0.36</b></p>
+      <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;">FP21内 r = <b style="color: #1A6B45;">-0.78</b></p>
     </div>
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="page-num"><p>07</p></div>
-</div>
+<!-- Bottom rule + page number -->
+<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
+<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">7</p>
 </body>
 </html>
