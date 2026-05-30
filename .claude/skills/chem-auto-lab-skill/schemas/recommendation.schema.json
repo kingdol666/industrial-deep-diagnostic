@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chem-auto-lab.skill/schemas/recommendation.schema.json",
+  "title": "Experiment Recommendation",
+  "description": "Structured experiment recommendation output",
+  "type": "object",
+  "required": ["metadata", "recommendations"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["script", "version", "n_experiments_analyzed", "processing_timestamp"],
+      "properties": {
+        "script": {"type": "string"},
+        "version": {"type": "string"},
+        "n_experiments_analyzed": {"type": "integer"},
+        "processing_timestamp": {"type": "string", "format": "date-time"},
+        "mode": {"type": "string", "enum": ["auto", "optimize", "explore", "validate"]},
+        "goal": {"type": ["string", "null"]}
+      }
+    },
+    "current_state_summary": {
+      "type": "object",
+      "properties": {
+        "parameters_varied": {"type": "array", "items": {"type": "string"}},
+        "parameters_fixed": {"type": "array", "items": {"type": "string"}},
+        "trends_observed": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "information_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parameter": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "priority", "title", "description", "justification"],
+        "properties": {
+          "id": {"type": "integer"},
+          "type": {"type": "string", "enum": ["optimize", "explore", "validate", "contrast", "characterize"]},
+          "priority": {"type": "integer"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "parameters": {"type": "object"},
+          "justification": {
+            "type": "object",
+            "properties": {
+              "data_evidence": {"type": "string"},
+              "chemical_principle": {"type": "string"},
+              "expected_outcome": {"type": "string"},
+              "success_metric": {"type": "string"},
+              "failure_modes": {"type": "string"},
+              "safety_notes": {"type": "string"}
+            }
+          },
+          "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
+        }
+      }
+    },
+    "iterative_strategy": {"type": "string"}
+  }
+}

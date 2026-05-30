@@ -1,0 +1,65 @@
+{
+  "_description": "Functional group reference ranges for spectral interpretation",
+  "ftir": [
+    {"group": "O-H (stretch, broad)", "range": [3200, 3600], "intensity": "strong, broad", "notes": "Alcohols, phenols, carboxylic acids; water at ~3400"},
+    {"group": "N-H (stretch)", "range": [3300, 3500], "intensity": "medium", "notes": "Primary amines (2 peaks), secondary amines (1 peak)"},
+    {"group": "≡C-H (stretch)", "range": [3260, 3330], "intensity": "strong, sharp", "notes": "Terminal alkynes"},
+    {"group": "=C-H (stretch)", "range": [3000, 3100], "intensity": "medium", "notes": "Alkenes, aromatics"},
+    {"group": "C-H (stretch, alkane)", "range": [2850, 2960], "intensity": "strong", "notes": "CH3, CH2, CH groups"},
+    {"group": "C≡C (stretch)", "range": [2100, 2260], "intensity": "variable", "notes": "Alkynes; weak or absent if symmetric"},
+    {"group": "C≡N (stretch)", "range": [2210, 2260], "intensity": "medium", "notes": "Nitriles"},
+    {"group": "C=O (stretch, anhydride)", "range": [1750, 1820], "intensity": "strong", "notes": "Two bands ~1760 and ~1810 cm⁻¹"},
+    {"group": "C=O (stretch, ester)", "range": [1735, 1750], "intensity": "strong", "notes": "Saturated esters"},
+    {"group": "C=O (stretch, aldehyde)", "range": [1720, 1740], "intensity": "strong", "notes": "Aldehydes; also check C-H stretch ~2720, 2820"},
+    {"group": "C=O (stretch, ketone)", "range": [1705, 1725], "intensity": "strong", "notes": "Saturated ketones; conjugation lowers ~20-40 cm⁻¹"},
+    {"group": "C=O (stretch, carboxylic acid)", "range": [1700, 1725], "intensity": "strong", "notes": "Carboxylic acids; O-H broad ~2500-3300"},
+    {"group": "C=O (stretch, amide)", "range": [1630, 1690], "intensity": "strong", "notes": "Amide I band"},
+    {"group": "C=C (stretch, alkene)", "range": [1600, 1680], "intensity": "variable", "notes": "Weak or absent for symmetric alkenes"},
+    {"group": "C=C (stretch, aromatic)", "range": [1450, 1600], "intensity": "medium", "notes": "2-3 bands in this region"},
+    {"group": "N-H (bend, amine/amide)", "range": [1550, 1650], "intensity": "medium", "notes": "Amide II band; primary amine bend"},
+    {"group": "C-O (stretch, ester/ether)", "range": [1000, 1300], "intensity": "strong", "notes": "Ester C-O-C asymmetric ~1150-1250"},
+    {"group": "C-O (stretch, alcohol)", "range": [1050, 1150], "intensity": "strong", "notes": "Primary ~1050, secondary ~1100, tertiary ~1150"},
+    {"group": "C-F (stretch)", "range": [1000, 1400], "intensity": "strong", "notes": "Often multiple bands"},
+    {"group": "C-Cl (stretch)", "range": [600, 800], "intensity": "strong", "notes": "Halogen stretching"},
+    {"group": "C-Br (stretch)", "range": [500, 600], "intensity": "strong", "notes": "Halogen stretching"},
+    {"group": "Aromatic C-H (out-of-plane bend)", "range": [675, 900], "intensity": "strong", "notes": "Substitution pattern determination"}
+  ],
+  "raman": [
+    {"group": "C≡N (stretch)", "range": [2220, 2260], "intensity": "strong", "notes": "Much stronger in Raman than IR"},
+    {"group": "C≡C (stretch)", "range": [2100, 2250], "intensity": "strong", "notes": "Strong Raman band"},
+    {"group": "Aromatic ring breathing", "range": [990, 1010], "intensity": "strong", "notes": "Mono-substituted benzene"},
+    {"group": "C-S (stretch)", "range": [600, 750], "intensity": "strong", "notes": "Thiols, sulfides"},
+    {"group": "S-S (stretch)", "range": [480, 550], "intensity": "strong", "notes": "Disulfide bonds"}
+  ],
+  "nmr_1h": [
+    {"group": "TMS reference", "range": [0.0, 0.0], "notes": "Chemical shift reference"},
+    {"group": "R-CH3 (alkyl)", "range": [0.7, 1.3], "multiplicity": "triplet for CH3-CH2-", "notes": "Alkyl methyl groups"},
+    {"group": "R2-CH2 (alkyl)", "range": [1.2, 1.4], "multiplicity": "multiplet", "notes": "Methylene chain"},
+    {"group": "R3-CH (alkyl)", "range": [1.4, 1.7], "multiplicity": "multiplet", "notes": "Methine"},
+    {"group": "≡C-H (alkyne)", "range": [1.7, 2.7], "multiplicity": "singlet or triplet", "notes": "Terminal alkyne"},
+    {"group": "CH3-C=O", "range": [2.0, 2.6], "multiplicity": "singlet", "notes": "Methyl ketone"},
+    {"group": "CH3-O", "range": [3.3, 4.0], "multiplicity": "singlet", "notes": "Methyl ether/ester"},
+    {"group": "CH2-O", "range": [3.5, 4.2], "notes": "Methylene adjacent to O"},
+    {"group": "=C-H (alkene)", "range": [4.5, 6.5], "notes": "Vinylic protons"},
+    {"group": "Ar-H (aromatic)", "range": [6.5, 8.5], "notes": "Aromatic protons"},
+    {"group": "RC(O)-H (aldehyde)", "range": [9.0, 10.0], "notes": "Aldehydic proton; characteristic"},
+    {"group": "RCO2H (carboxylic acid)", "range": [10.0, 13.0], "notes": "Often broad; exchangeable"},
+    {"group": "R-NH2/OH (exchangeable)", "range": [1.0, 5.0], "notes": "Broad; shifts with concentration; disappears with D2O"}
+  ],
+  "uvvis": [
+    {"group": "C=C (isolated)", "range": [170, 200], "notes": "π→π* transition; short wavelength"},
+    {"group": "C=O (carbonyl, n→π*)", "range": [270, 300], "intensity": "weak (ε ~10-100)", "notes": "Forbidden transition; aldehydes/ketones"},
+    {"group": "C=C-C=C (conjugated diene)", "range": [215, 230], "intensity": "strong", "notes": "Woodward-Fieser rules for prediction"},
+    {"group": "C=C-C=O (enone)", "range": [220, 260], "intensity": "strong", "notes": "π→π*; Woodward-Fieser rules"},
+    {"group": "Aromatic (benzene)", "range": [250, 260], "notes": "Fine structure characteristic"},
+    {"group": "Aromatic (extended)", "range": [300, 400], "intensity": "stronger with conjugation", "notes": "Polycycles, heteroaromatics"},
+    {"group": "Metal d-d transitions", "range": [400, 800], "intensity": "weak", "notes": "Transition metal complexes"},
+    {"group": "Metal-ligand charge transfer", "range": [200, 500], "intensity": "very strong", "notes": "LMCT/MLCT bands"}
+  ],
+  "hplc": [
+    {"group": "Void volume marker", "range": [2.0, 3.5], "notes": "Depends heavily on column and flow rate"},
+    {"group": "Non-polar compounds (RP)", "range": [7.0, 20.0], "notes": "Long retention on C18"},
+    {"group": "Moderate polarity (RP)", "range": [4.0, 8.0], "notes": "Intermediate retention"},
+    {"group": "Polar compounds (RP)", "range": [2.5, 5.0], "notes": "Early elution on C18"}
+  ]
+}

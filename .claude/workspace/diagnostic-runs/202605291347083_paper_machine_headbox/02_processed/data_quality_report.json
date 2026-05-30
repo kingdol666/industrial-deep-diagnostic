@@ -1,0 +1,230 @@
+{
+  "run_id": "202605291347083_paper_machine_headbox",
+  "initial": {
+    "rows": 3240,
+    "columns": 23
+  },
+  "steps": [
+    {
+      "step": "handle_missing",
+      "missing_values_before": {
+        "headbox_pressure_kPa": 25,
+        "approach_flow_lpm": 3,
+        "machine_speed_mmin": 4,
+        "stock_temp_C": 2,
+        "vacuum_pump2_kPa": 5,
+        "moisture_pct": 2
+      },
+      "rows_dropped": 39,
+      "method": "forward_fill_numeric_then_drop_remaining"
+    },
+    {
+      "step": "filter_shutdown",
+      "condition": "machine_speed_mmin <= 100 OR headbox_pressure_kPa < 5",
+      "rows_removed": 0,
+      "rows_remaining": 3201
+    },
+    {
+      "step": "filter_vacuum_pump2_outliers",
+      "method": "z_score > 4",
+      "mean": 47.56079350203063,
+      "std": 6.873954683816133,
+      "iqr_bounds": {
+        "Q1": 43.8,
+        "Q3": 51.6,
+        "IQR": 7.800000000000004
+      },
+      "rows_removed": 15,
+      "rows_remaining": 3186
+    },
+    {
+      "step": "filter_stock_temp_faults",
+      "condition": "stock_temp_C == 0",
+      "rows_removed": 0,
+      "rows_remaining": 3186
+    },
+    {
+      "step": "encode_defect_grade",
+      "mapping": {
+        "A": 3,
+        "B": 2,
+        "C": 1
+      },
+      "unmapped": 0
+    }
+  ],
+  "summary": {
+    "final_rows": 3186,
+    "final_columns": 23,
+    "rows_removed_total": 54,
+    "retention_pct": 98.33,
+    "grade_distribution": {
+      "GSM120": 1077,
+      "GSM100": 1071,
+      "GSM80": 1038
+    },
+    "defect_grade_distribution": {
+      "B": 1293,
+      "C": 969,
+      "A": 924
+    },
+    "numeric_summary": {
+      "headbox_pressure_kPa": {
+        "mean": 24.288474576271188,
+        "std": 5.855300605116403,
+        "min": 13.51,
+        "max": 39.84,
+        "q1": 19.7225,
+        "median": 23.765,
+        "q3": 28.55,
+        "cv_pct": 24.107321300600674
+      },
+      "approach_flow_lpm": {
+        "mean": 4521.850282485876,
+        "std": 453.8358265754662,
+        "min": 3705.0,
+        "max": 5412.0,
+        "q1": 4038.25,
+        "median": 4485.0,
+        "q3": 5025.0,
+        "cv_pct": 10.036507142513598
+      },
+      "fan_pump_speed_rpm": {
+        "mean": 905.2384494664157,
+        "std": 18.11226494032594,
+        "min": 864.4,
+        "max": 956.3,
+        "q1": 889.1,
+        "median": 905.9,
+        "q3": 919.2,
+        "cv_pct": 2.0008280636999065
+      },
+      "white_water_consistency_pct": {
+        "mean": 1.0278678593848085,
+        "std": 0.13704280160647264,
+        "min": 0.3,
+        "max": 2.0,
+        "q1": 0.925,
+        "median": 1.044,
+        "q3": 1.128,
+        "cv_pct": 13.332725637368839
+      },
+      "retention_aid_dosage_ppm": {
+        "mean": 225.11967984934088,
+        "std": 30.04242722580911,
+        "min": 153.9,
+        "max": 298.5,
+        "q1": 198.5,
+        "median": 229.1,
+        "q3": 248.9,
+        "cv_pct": 13.34509148463373
+      },
+      "slice_opening_mm": {
+        "mean": 9.782200251098557,
+        "std": 1.2674863040686106,
+        "min": 6.57,
+        "max": 13.18,
+        "q1": 8.71,
+        "median": 9.71,
+        "q3": 10.92,
+        "cv_pct": 12.957067648725243
+      },
+      "machine_speed_mmin": {
+        "mean": 1512.405335844319,
+        "std": 155.3869176260409,
+        "min": 1267.3,
+        "max": 1763.6,
+        "q1": 1326.825,
+        "median": 1510.5,
+        "q3": 1694.975,
+        "cv_pct": 10.274158252641593
+      },
+      "stock_temp_C": {
+        "mean": 43.35172630257376,
+        "std": 4.42523360585105,
+        "min": 31.9,
+        "max": 62.4,
+        "q1": 40.1,
+        "median": 43.2,
+        "q3": 46.7,
+        "cv_pct": 10.207744842650769
+      },
+      "jet_to_wire_ratio": {
+        "mean": 1.020720652856246,
+        "std": 0.029613530474098565,
+        "min": 0.907,
+        "max": 1.137,
+        "q1": 1.0,
+        "median": 1.02,
+        "q3": 1.04,
+        "cv_pct": 2.901237512068761
+      },
+      "vacuum_pump1_kPa": {
+        "mean": 52.0166980539862,
+        "std": 5.0367606788605235,
+        "min": 32.6,
+        "max": 68.2,
+        "q1": 48.6,
+        "median": 52.0,
+        "q3": 55.3,
+        "cv_pct": 9.682968868252761
+      },
+      "vacuum_pump2_kPa": {
+        "mean": 47.644978028876324,
+        "std": 6.470579345304508,
+        "min": 20.2,
+        "max": 72.7,
+        "q1": 43.9,
+        "median": 47.95,
+        "q3": 51.6,
+        "cv_pct": 13.580821343611213
+      },
+      "cd_basis_weight_cv_pct": {
+        "mean": 1.7803060263653485,
+        "std": 0.8484016940217236,
+        "min": 0.15,
+        "max": 4.358,
+        "q1": 1.03125,
+        "median": 1.876,
+        "q3": 2.446,
+        "cv_pct": 47.65482346615488
+      },
+      "formation_index": {
+        "mean": 6.339566854990584,
+        "std": 1.3759179955142204,
+        "min": 2.6,
+        "max": 9.5,
+        "q1": 5.25,
+        "median": 6.11,
+        "q3": 7.5875,
+        "cv_pct": 21.703659366429445
+      },
+      "ash_content_pct": {
+        "mean": 24.87138104205901,
+        "std": 2.1944774500862816,
+        "min": 18.0,
+        "max": 32.0,
+        "q1": 23.38,
+        "median": 24.81,
+        "q3": 26.36,
+        "cv_pct": 8.823303564748928
+      },
+      "strength_rel_pct": {
+        "mean": 96.38323917137477,
+        "std": 3.0396379283137938,
+        "min": 86.3,
+        "max": 105.0,
+        "q1": 94.1,
+        "median": 96.4,
+        "q3": 98.5,
+        "cv_pct": 3.1536997038553025
+      }
+    },
+    "excluded_columns": [
+      "moisture_pct"
+    ],
+    "encoded_columns": [
+      "defect_grade_numeric"
+    ]
+  }
+}

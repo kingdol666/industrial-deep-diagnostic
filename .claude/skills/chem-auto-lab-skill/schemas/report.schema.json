@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chem-auto-lab.skill/schemas/report.schema.json",
+  "title": "Report Structure",
+  "description": "Structure for chemistry experiment report",
+  "type": "object",
+  "required": ["title", "sections"],
+  "properties": {
+    "title": {"type": "string"},
+    "date": {"type": "string", "format": "date"},
+    "generator": {"type": "string"},
+    "sections": {
+      "type": "object",
+      "properties": {
+        "executive_summary": {"type": "string"},
+        "methods": {"type": "string"},
+        "data_quality": {
+          "type": "object",
+          "properties": {
+            "grade": {"type": "string", "enum": ["A", "B", "C", "D"]},
+            "n_input": {"type": "integer"},
+            "n_output": {"type": "integer"},
+            "missing_rate": {"type": "number"},
+            "n_outliers": {"type": "integer"}
+          }
+        },
+        "results": {
+          "type": "object",
+          "properties": {
+            "descriptive_stats": {"type": "object"},
+            "trend_analysis": {"type": "string"},
+            "comparative_analysis": {"type": "string"},
+            "correlation_analysis": {"type": "string"}
+          }
+        },
+        "discussion": {"type": "string"},
+        "conclusions": {"type": "string"},
+        "appendix": {"type": "string"}
+      }
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "file": {"type": "string"},
+          "type": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    }
+  }
+}

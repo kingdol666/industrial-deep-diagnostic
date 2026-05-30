@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chem-auto-lab.skill/schemas/spectroscopy_output.schema.json",
+  "title": "Spectroscopy Output",
+  "description": "Structured output from spectroscopy data parsing",
+  "type": "object",
+  "required": ["metadata", "peaks"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["script", "version", "spectrum_type", "processing_timestamp"],
+      "properties": {
+        "script": {"type": "string"},
+        "version": {"type": "string"},
+        "input_file": {"type": "string"},
+        "spectrum_type": {"type": "string", "enum": ["ftir", "raman", "uvvis", "nmr", "hplc"]},
+        "processing_timestamp": {"type": "string", "format": "date-time"},
+        "x_unit": {"type": "string"},
+        "y_unit": {"type": "string"},
+        "n_points": {"type": "integer"},
+        "snr_estimated": {"type": "number"},
+        "processing": {
+          "type": "object",
+          "properties": {
+            "baseline_correction": {"type": "string"},
+            "smoothing": {"type": "string"}
+          }
+        }
+      }
+    },
+    "peaks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["peak_id", "position", "position_unit"],
+        "properties": {
+          "peak_id": {"type": "integer"},
+          "position": {"type": "number"},
+          "position_unit": {"type": "string"},
+          "height": {"type": "number"},
+          "area": {"type": "number"},
+          "fwhm": {"type": "number"},
+          "asymmetry": {"type": "number"},
+          "prominence": {"type": "number"},
+          "functional_group_matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "group": {"type": "string"},
+                "match_quality": {"type": "string", "enum": ["strong", "tentative", "weak"]},
+                "reference_range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+                "notes": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "regions_of_interest": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "region": {"type": "string"},
+          "range": {"type": "array", "items": {"type": "number"}},
+          "description": {"type": "string"},
+          "key_peaks": {"type": "array", "items": {"type": "integer"}}
+        }
+      }
+    },
+    "overall_assessment": {"type": "string"}
+  }
+}

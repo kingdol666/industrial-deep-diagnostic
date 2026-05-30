@@ -1,0 +1,51 @@
+{
+  "run_id": "202605291155259_tablet_press",
+  "created": "2026-05-29T11:55:25.957Z",
+  "scene": "tablet_press",
+  "process_type": "batch_tablet_compression",
+  "data_files": {
+    "batch_record_2025Q4.csv": {
+      "rows": 80,
+      "columns": 17,
+      "time_col": "ts_start",
+      "description": "Batch-level process parameters for tablet compression runs Nov-Dec 2025"
+    },
+    "production_event_log_2025Q4.csv": {
+      "rows": 4,
+      "columns": 3,
+      "time_col": "ts_event",
+      "description": "Key production events (calibration, material incident, punch dressing, lubricant change)"
+    },
+    "tablet_test_results_2025Q4.csv": {
+      "rows": 1943,
+      "columns": 11,
+      "description": "Individual tablet quality test results across 80 batches"
+    }
+  },
+  "time_range": {
+    "start": "2025-11-01 06:00:00",
+    "end": "2025-11-28 22:00:00"
+  },
+  "quality_metrics": {
+    "tablet_weight_mg": { "mean": 501.6, "std": 2.92 },
+    "hardness_N": { "mean": 93.04, "std": 11.18 },
+    "friability_pct": { "mean": 0.612, "std": 0.544 },
+    "disintegration_time_min": { "mean": 7.66, "std": 0.776 },
+    "thickness_mm": { "mean": 5.023, "std": 0.047 }
+  },
+  "defect_grade_distribution": {
+    "A": 1459,
+    "B": 97,
+    "C": 387
+  },
+  "defect_rate_pct": 24.9,
+  "stations": 3,
+  "punches": ["P101-7047", "P102-9032", "P103-1001"],
+  "operators": ["OP_A", "OP_B", "OP_C"],
+  "key_events": [
+    { "date": "2025-11-02 22:00", "event": "CALIBRATION", "description": "Hardness tester calibrated" },
+    { "date": "2025-11-08 22:00", "event": "MATERIAL_INCIDENT", "description": "Granulation moisture out of spec (3.8%) - blend adjusted" },
+    { "date": "2025-11-14 14:00", "event": "PUNCH_DRESSING", "description": "Station 3 punch re-ground (R9.0→R8.8)" },
+    { "date": "2025-11-17 23:00", "event": "LUBRICANT_CHANGE", "description": "Changed magnesium stearate batch" }
+  ]
+}

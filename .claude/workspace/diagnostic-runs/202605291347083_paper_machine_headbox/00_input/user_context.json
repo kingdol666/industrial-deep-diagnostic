@@ -1,0 +1,25 @@
+{
+  "quality_focus": "comprehensive",
+  "target_variable": "defect_grade",
+  "secondary_targets": ["cd_basis_weight_cv_pct", "formation_index", "strength_rel_pct"],
+  "defect_baseline": "unknown",
+  "data_cleaning": "auto_filter",
+  "auto_filter_rules": [
+    "Exclude rows where machine_speed_mmin == 0 (shutdown)",
+    "Exclude rows where headbox_pressure_kPa == 0 (likely shutdown)",
+    "Flag vacuum_pump2_kPa outliers > 3 IQR for exclusion",
+    "Exclude rows where stock_temp_C == 0"
+  ],
+  "event_impacts": "analyze_all",
+  "notable_events": [
+    {"event": "Vacuum pump #2 belt replaced", "type": "MAINTENANCE"},
+    {"event": "Headbox pressure transmitter recalibrated (+0.35 kPa offset)", "type": "CALIBRATION"},
+    {"event": "BOIL_OUT cleaning cycle", "type": "BOIL_OUT"},
+    {"event": "Web break event", "type": "BREAK"}
+  ],
+  "grade_quality_standard": "unified",
+  "process_type": "paper_machine_headbox_continuous",
+  "grades": ["GSM80", "GSM100", "GSM120"],
+  "user_questions_asked": 4,
+  "user_answered": false
+}

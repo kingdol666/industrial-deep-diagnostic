@@ -1,0 +1,48 @@
+{
+  "scenario": "batch pharmaceutical compression",
+  "confidence": "high",
+  "key_indicators": [
+    "compression_force_kN",
+    "pre_compression_force_kN",
+    "turret_speed_rpm",
+    "fill_depth_mm",
+    "dwell_time_ms",
+    "blend_moisture_pct",
+    "lubricant_level_pct",
+    "compression_zone_temp_C"
+  ],
+  "quality_targets": [
+    "hardness_N",
+    "friability_pct",
+    "disintegration_time_min",
+    "tablet_weight_mg",
+    "thickness_mm"
+  ],
+  "process_stages": [
+    "die_filling",
+    "pre_compression",
+    "main_compression",
+    "ejection",
+    "post_compression_quality_testing"
+  ],
+  "grouping_columns": [
+    "station",
+    "punch_serial",
+    "operator_id",
+    "batch_day"
+  ],
+  "degradation_candidates": [
+    "compression_zone_temp_C",
+    "blend_moisture_pct",
+    "lubricant_level_pct",
+    "compression_force_kN"
+  ],
+  "expected_physics": "compression_force↑ → hardness↑ (positive correlation, consolidation); compression_force↑ → disintegration_time↑ (over-compression); blend_moisture↑ → hardness↓ (plasticization, sticking); turret_speed↑ → dwell_time↓ → incomplete bonding → hardness↓; lubricant_level↑ → reduced interparticle bonding → hardness↓; fill_depth↑ → weight↑ → hardness↑ (thicker compact); punch wear (progressive) → inconsistent force transmission → quality variation. 24.9% defect rate suggests systematic failure mode(s), not random variation.",
+  "data_structure": "batch_level(80 rows) joined with tablet_level(1943 rows) via batch_id. Aggregate quality per batch then correlate with process parameters.",
+  "quality_spec_limits": {
+    "hardness_N": {"min": 80, "rationale": "User assumption: >80N acceptable"},
+    "friability_pct": {"max": 1.0, "rationale": "User assumption: <1% acceptable (USP guidance)"},
+    "disintegration_time_min": {"max": 15, "rationale": "User assumption: <15min acceptable (USP/EP)"},
+    "tablet_weight_mg": {"target": 500, "tolerance_pct": 5, "rationale": "Typical weight variation limit"}
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "files": {
+    "batch_record_2025Q4.csv": {
+      "rows": 80,
+      "columns": 17,
+      "time_column": "ts_start",
+      "sampling": "8-hour intervals (3 shifts/day), 27 days of Nov 2025",
+      "numeric_columns": {
+        "process_params": ["compression_force_kN", "pre_compression_force_kN", "turret_speed_rpm", "fill_depth_mm", "dwell_time_ms"],
+        "material_params": ["blend_moisture_pct", "lubricant_level_pct", "blend_uniformity_index"],
+        "environment_params": ["compression_zone_temp_C", "ambient_temp_C", "ambient_humidity_pct"]
+      },
+      "categorical_columns": {
+        "batch_id": "80 unique values, primary key",
+        "station": "3 stations (1,2,3), balanced ~27 each",
+        "punch_serial": "3 values: P101-7047(27), P102-9032(27), P103-1001(26)",
+        "operator_id": "3 values: OP_A(26), OP_B(24), OP_C(30)"
+      }
+    },
+    "tablet_test_results_2025Q4.csv": {
+      "rows": 1943,
+      "columns": 11,
+      "time_column": null,
+      "batch_link": "batch_id (joins to batch_record), batch_seq (1-80 aligned batch index)",
+      "quality_metrics": {
+        "tablet_weight_mg": {"mean": 501.6, "std": 2.92, "range": [496.94, 512.34]},
+        "hardness_N": {"mean": 93.04, "std": 11.18, "range": [56.17, 113.28]},
+        "friability_pct": {"mean": 0.612, "std": 0.544, "range": [0.1, 2.335]},
+        "disintegration_time_min": {"mean": 7.66, "std": 0.776, "range": [5.03, 9.8]},
+        "thickness_mm": {"mean": 5.023, "std": 0.047, "range": [4.932, 5.197]}
+      },
+      "defect_grades": {"A": 1459, "B": 97, "C": 387},
+      "defect_rate_pct": 24.9,
+      "per_tablet": true
+    },
+    "production_event_log_2025Q4.csv": {
+      "rows": 4,
+      "columns": 3,
+      "events": [
+        {"ts": "2025-11-02 22:00", "type": "CALIBRATION", "detail": "Hardness tester calibrated"},
+        {"ts": "2025-11-08 22:00", "type": "MATERIAL_INCIDENT", "detail": "Granulation moisture 3.8% out of spec"},
+        {"ts": "2025-11-14 14:00", "type": "PUNCH_DRESSING", "detail": "Station 3 punch re-ground R9.0->R8.8"},
+        {"ts": "2025-11-17 23:00", "type": "LUBRICANT_CHANGE", "detail": "New magnesium stearate batch"}
+      ]
+    }
+  },
+  "data_characteristics": {
+    "dimensionality": "2-level hierarchical: batch-level (80 rows) + tablet-level (1943 rows, ~24 tablets/batch)",
+    "temporal_aspects": "batch_record time-sorted by ts_start (8-hour shifts). tablet_test has no timestamp - linked via batch_seq",
+    "missing_values": "None detected in any file",
+    "grouping_possibilities": ["station", "punch_serial", "operator_id", "batch_day"],
+    "key_challenge": "Multi-level analysis: aggregate tablet quality per batch, then correlate with batch-level process parameters"
+  },
+  "inspection_summary": "Three-file dataset for rotary tablet press. 80 batches across 3 stations/punches over 27 days. ~1943 individual tablet tests. 24.9% overall defect rate. Key quality targets: hardness_N (large variance 56-113N), friability_pct (up to 2.335%), disintegration_time_min. 4 production events provide temporal context."
+}

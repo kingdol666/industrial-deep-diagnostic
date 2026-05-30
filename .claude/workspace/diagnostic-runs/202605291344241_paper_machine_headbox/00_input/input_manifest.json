@@ -1,0 +1,46 @@
+{
+  "run_id": "202605291344241_paper_machine_headbox",
+  "created": "2026-05-29T13:44:24.194Z",
+  "process_type": "paper_machine_headbox",
+  "data_period": "2025-10-01 to 2025-12-29",
+  "files": {
+    "DCS_export": {
+      "rows": 64800,
+      "columns": 15,
+      "interval": "2 min",
+      "description": "Process control data (headbox pressure, approach flow, fan pump, white water consistency, retention aid, slice opening, machine speed, stock temp, jet/wire ratio, vacuum pumps)"
+    },
+    "QCS_quality_export": {
+      "rows": 3240,
+      "columns": 9,
+      "description": "Quality control data (CD basis weight CV, formation index, ash content, moisture, strength, defect grade)"
+    },
+    "merged_dcs_qcs": {
+      "rows": 3240,
+      "columns": 23,
+      "description": "Aligned DCS+QCS data"
+    },
+    "operator_event_log": {
+      "rows": 623,
+      "events": {
+        "GRADE_CHANGE": 619,
+        "MAINTENANCE": 1,
+        "CALIBRATION": 1,
+        "BOIL_OUT": 1,
+        "BREAK": 1
+      }
+    }
+  },
+  "grades": ["GSM80", "GSM100", "GSM120"],
+  "defect_grade_distribution": {
+    "A": {"count": 942, "pct": 29.1},
+    "B": {"count": 1320, "pct": 40.7},
+    "C": {"count": 978, "pct": 30.2}
+  },
+  "notable_observations": [
+    "70.9% of production is defect B or C - significant quality issue",
+    "Moisture is essentially constant at 3.0 (tightly controlled or sensor issue)",
+    "619 grade changes in 3 months - very frequent cycling",
+    "Vacuum pump 2 has extreme range (-166.9 to 404.6 kPa) suggesting sensor anomaly or transient"
+  ]
+}

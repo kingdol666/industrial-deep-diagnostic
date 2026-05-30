@@ -1,0 +1,81 @@
+{
+  "_description": "This template captures the structure of a typical chemistry experiment log. Fill in relevant fields, leave empty strings for unknowns.",
+  "experiment_id": "",
+  "project": "",
+  "date": "",
+  "researcher": "",
+  "title": "",
+  "objective": "",
+  "materials": [
+    {
+      "name": "",
+      "cas_number": "",
+      "molecular_weight": "",
+      "purity": "",
+      "supplier": "",
+      "lot_number": "",
+      "role": "reagent|substrate|catalyst|solvent|other",
+      "amount": 0.0,
+      "unit": "",
+      "equivalents": 0.0,
+      "storage_conditions": ""
+    }
+  ],
+  "apparatus": [
+    {
+      "name": "",
+      "model": "",
+      "settings": {}
+    }
+  ],
+  "procedure": [
+    {
+      "step": 1,
+      "action": "",
+      "details": "",
+      "duration": "",
+      "temperature": "",
+      "observations": ""
+    }
+  ],
+  "conditions": {
+    "temperature": "",
+    "pressure": "",
+    "atmosphere": "",
+    "stirring_rate": "",
+    "ph": "",
+    "duration": ""
+  },
+  "measurements": [
+    {
+      "parameter": "",
+      "value": 0.0,
+      "unit": "",
+      "timestamp": "",
+      "instrument": "",
+      "notes": ""
+    }
+  ],
+  "results": {
+    "yield": {
+      "value": 0.0,
+      "unit": "g",
+      "percent": 0.0,
+      "calculation_method": ""
+    },
+    "purity": "",
+    "appearance": "",
+    "spectra_collected": []
+  },
+  "characterization": {
+    "ftir": {"peaks": []},
+    "nmr": {"peaks": []},
+    "uvvis": {"peaks": []},
+    "dsc_tg": {"transitions": []},
+    "xrd": {"peaks": []}
+  },
+  "conclusions": "",
+  "next_experiment": "",
+  "references": [],
+  "tags": []
+}

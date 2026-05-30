@@ -1,0 +1,245 @@
+{
+  "nodes": [
+    {
+      "id": "compression_force_kN",
+      "type": "predictor",
+      "label": "compression_force_kN",
+      "connects_to_targets": 3
+    },
+    {
+      "id": "pre_compression_force_kN",
+      "type": "predictor",
+      "label": "pre_compression_force_kN",
+      "connects_to_targets": 5
+    },
+    {
+      "id": "turret_speed_rpm",
+      "type": "predictor",
+      "label": "turret_speed_rpm",
+      "connects_to_targets": 4
+    },
+    {
+      "id": "fill_depth_mm",
+      "type": "predictor",
+      "label": "fill_depth_mm",
+      "connects_to_targets": 3
+    },
+    {
+      "id": "blend_moisture_pct",
+      "type": "predictor",
+      "label": "blend_moisture_pct",
+      "connects_to_targets": 3
+    },
+    {
+      "id": "hardness_N",
+      "type": "target",
+      "label": "hardness_N"
+    },
+    {
+      "id": "friability_pct",
+      "type": "target",
+      "label": "friability_pct"
+    },
+    {
+      "id": "disintegration_time_min",
+      "type": "target",
+      "label": "disintegration_time_min"
+    },
+    {
+      "id": "tablet_weight_mg",
+      "type": "target",
+      "label": "tablet_weight_mg"
+    },
+    {
+      "id": "thickness_mm",
+      "type": "target",
+      "label": "thickness_mm"
+    }
+  ],
+  "edges": [
+    {
+      "from": "compression_force_kN",
+      "to": "hardness_N",
+      "r": -0.386,
+      "validated": true
+    },
+    {
+      "from": "pre_compression_force_kN",
+      "to": "hardness_N",
+      "r": -0.436,
+      "validated": true
+    },
+    {
+      "from": "turret_speed_rpm",
+      "to": "hardness_N",
+      "r": 0.255,
+      "validated": false
+    },
+    {
+      "from": "fill_depth_mm",
+      "to": "hardness_N",
+      "r": -0.37,
+      "validated": true
+    },
+    {
+      "from": "blend_moisture_pct",
+      "to": "hardness_N",
+      "r": 0.575,
+      "validated": true
+    },
+    {
+      "from": "compression_force_kN",
+      "to": "friability_pct",
+      "r": 0.29,
+      "validated": false
+    },
+    {
+      "from": "pre_compression_force_kN",
+      "to": "friability_pct",
+      "r": 0.363,
+      "validated": true
+    },
+    {
+      "from": "turret_speed_rpm",
+      "to": "friability_pct",
+      "r": -0.295,
+      "validated": false
+    },
+    {
+      "from": "fill_depth_mm",
+      "to": "friability_pct",
+      "r": 0.291,
+      "validated": false
+    },
+    {
+      "from": "blend_moisture_pct",
+      "to": "friability_pct",
+      "r": -0.267,
+      "validated": false
+    },
+    {
+      "from": "pre_compression_force_kN",
+      "to": "disintegration_time_min",
+      "r": -0.288,
+      "validated": false
+    },
+    {
+      "from": "compression_force_kN",
+      "to": "tablet_weight_mg",
+      "r": 0.283,
+      "validated": false
+    },
+    {
+      "from": "pre_compression_force_kN",
+      "to": "tablet_weight_mg",
+      "r": 0.353,
+      "validated": true
+    },
+    {
+      "from": "turret_speed_rpm",
+      "to": "tablet_weight_mg",
+      "r": -0.283,
+      "validated": false
+    },
+    {
+      "from": "fill_depth_mm",
+      "to": "tablet_weight_mg",
+      "r": 0.282,
+      "validated": false
+    },
+    {
+      "from": "blend_moisture_pct",
+      "to": "tablet_weight_mg",
+      "r": -0.253,
+      "validated": false
+    },
+    {
+      "from": "pre_compression_force_kN",
+      "to": "thickness_mm",
+      "r": 0.304,
+      "validated": true
+    },
+    {
+      "from": "turret_speed_rpm",
+      "to": "thickness_mm",
+      "r": -0.253,
+      "validated": false
+    }
+  ],
+  "colinear_groups": [
+    {
+      "members": [
+        "compression_force_kN",
+        "pre_compression_force_kN"
+      ],
+      "r_mutual": 0.9657,
+      "implication": "Shared upstream variation source"
+    },
+    {
+      "members": [
+        "compression_force_kN",
+        "fill_depth_mm"
+      ],
+      "r_mutual": 0.9731,
+      "implication": "Shared upstream variation source"
+    },
+    {
+      "members": [
+        "pre_compression_force_kN",
+        "fill_depth_mm"
+      ],
+      "r_mutual": 0.9586,
+      "implication": "Shared upstream variation source"
+    }
+  ],
+  "root_cause_candidates": [
+    {
+      "parameter": "pre_compression_force_kN",
+      "reason": "Connects to 5 quality targets, avg |r|=0.059",
+      "connected_targets": [
+        "tablet_weight_mg",
+        "thickness_mm",
+        "friability_pct",
+        "hardness_N",
+        "disintegration_time_min"
+      ]
+    },
+    {
+      "parameter": "turret_speed_rpm",
+      "reason": "Connects to 4 quality targets, avg |r|=0.144",
+      "connected_targets": [
+        "tablet_weight_mg",
+        "friability_pct",
+        "hardness_N",
+        "thickness_mm"
+      ]
+    },
+    {
+      "parameter": "compression_force_kN",
+      "reason": "Connects to 3 quality targets, avg |r|=0.062",
+      "connected_targets": [
+        "tablet_weight_mg",
+        "friability_pct",
+        "hardness_N"
+      ]
+    },
+    {
+      "parameter": "fill_depth_mm",
+      "reason": "Connects to 3 quality targets, avg |r|=0.068",
+      "connected_targets": [
+        "tablet_weight_mg",
+        "friability_pct",
+        "hardness_N"
+      ]
+    },
+    {
+      "parameter": "blend_moisture_pct",
+      "reason": "Connects to 3 quality targets, avg |r|=0.018",
+      "connected_targets": [
+        "tablet_weight_mg",
+        "friability_pct",
+        "hardness_N"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "run_id": "202605291347083_paper_machine_headbox",
+  "scene": "paper_machine_headbox",
+  "process_type": "continuous_paper_manufacturing",
+  "time_range": "2025-10-01 to 2025-12-29",
+  "duration_days": 91,
+  "files": [
+    {
+      "name": "DCS_export_20251001_20251229.csv",
+      "role": "process_data",
+      "rows": 64800,
+      "columns": 15,
+      "time_column": "ts_dcs",
+      "sample_interval": "~2 min",
+      "key_variables": [
+        "headbox_pressure_kPa", "approach_flow_lpm", "fan_pump_speed_rpm",
+        "white_water_consistency_pct", "retention_aid_dosage_ppm",
+        "slice_opening_mm", "machine_speed_mmin", "stock_temp_C",
+        "jet_to_wire_ratio", "vacuum_pump1_kPa", "vacuum_pump2_kPa"
+      ],
+      "categorical_variables": ["grade_running", "shift"],
+      "grades": ["GSM80", "GSM100", "GSM120"],
+      "data_quality_notes": [
+        "vacuum_pump2_kPa has extreme outliers (min -166.9, max 404.6)",
+        "headbox_pressure_kPa min=0 suggests missing values or shutdown periods",
+        "machine_speed_mmin min=0 suggests shutdown periods",
+        "stock_temp_C min=0 suggests missing data"
+      ]
+    },
+    {
+      "name": "QCS_quality_export_20251001_20251229.csv",
+      "role": "quality_data",
+      "rows": 3240,
+      "columns": 9,
+      "time_column": "ts_qcs",
+      "sample_interval": "~40 min (uneven)",
+      "quality_variables": [
+        "cd_basis_weight_cv_pct", "formation_index", "ash_content_pct",
+        "moisture_pct", "strength_rel_pct"
+      ],
+      "target_variable": "defect_grade",
+      "defect_distribution": {"A": 942, "B": 1320, "C": 978},
+      "grades": ["GSM80", "GSM100", "GSM120"],
+      "data_quality_notes": [
+        "moisture_pct nearly constant (mean=3.0, std=0.074) - limited diagnostic value"
+      ]
+    },
+    {
+      "name": "merged_dcs_qcs_20251001_20251229.csv",
+      "role": "merged_analysis_data",
+      "rows": 3240,
+      "columns": 23,
+      "time_column": "ts_dcs",
+      "description": "DCS variables merged with QCS quality measurements at QCS timestamps"
+    },
+    {
+      "name": "operator_event_log_2025Q4.csv",
+      "role": "event_log",
+      "rows": 623,
+      "columns": 3,
+      "time_column": "ts_event",
+      "event_types": {
+        "GRADE_CHANGE": 619,
+        "MAINTENANCE": 1,
+        "CALIBRATION": 1,
+        "BOIL_OUT": 1,
+        "BREAK": 1
+      },
+      "notable_events": [
+        "Vacuum pump #2 belt replaced (MAINTENANCE)",
+        "Headbox pressure transmitter recalibrated offset +0.35 kPa (CALIBRATION)",
+        "BOIL_OUT event (cleaning cycle)",
+        "BREAK event (web break)"
+      ]
+    }
+  ]
+}

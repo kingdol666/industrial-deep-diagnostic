@@ -1,0 +1,329 @@
+{
+  "run_id": "202605291155259_tablet_press",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "step_name": "R1: Data Characterization",
+      "step_question": "What is the nature of the dataset, what process scenario are we analyzing, and what are the key structural features?",
+      "inputs": [
+        {"source": "scenario_classification.json", "content_summary": "Scenario=batch pharmaceutical compression, quality targets=hardness/friability/disintegration/weight/thickness", "evidence_rank": 1},
+        {"source": "ontology.json", "content_summary": "3-station rotary tablet press, each station has dedicated punch/die set. 1943 tablet records across 80 batches. 11 process parameters measured.", "evidence_rank": 1},
+        {"source": "feature_summary.json", "content_summary": "1943 rows, 23 columns. Sorting validation: time_sorted=true, 100% increasing. No lag warning.", "evidence_rank": 3},
+        {"source": "schema.json", "content_summary": "station=punch_serial fully confounded (each station has one fixed punch). operator confounded with station allocation.", "evidence_rank": 2}
+      ],
+      "reasoning": {
+        "applied_logic": "Scenario classification + data structure analysis",
+        "step_by_step": "数据集为旋转压片机批次生产数据，覆盖2025-11-01至2025-11-27共27天80批次。数据已在批次检测表层面按时间排序（100%递增验证通过），无需担心时间偏序问题。每个批次每个工位约8片检测，1943行数据。工位（station）和冲模编号（punch_serial）完全共线——工位1使用P101-7047，工位2使用P102-9032，工位3使用P103-1001。无法区分工位效应和冲模效应。三个操作员（OP_A/B/C）在各工位交叉工作，但缺陷率差异仅反映工位分配偏差。关键质量指标：硬度>80N、脆碎度<1%、崩解<15min。整体缺陷率24.9%（B级5.0%+C级19.9%），全部集中在Station 3。",
+        "assumptions": ["Station和Punch_Serial完全共线，诊断中统称为'工位/冲模效应'", "操作员分配偏差已控制"]
+      },
+      "outputs": [
+        {"finding": "数据已按时间排序，时间序列分析有效；时间范围2025-11-01至2025-11-27", "confidence": 100, "supported_by": ["feature_summary.json sorting_validation", "validate_report.json sorting_validation"]},
+        {"finding": "100%的缺陷集中在Station 3/P103-1001，Station 1和2零缺陷。此发现是诊断的锚点。", "confidence": 100, "supported_by": ["ontology.json", "feature_summary.json correlation matrices"]},
+        {"finding": "整体缺陷率24.9%表明系统性的非随机失效模式", "confidence": 95, "supported_by": ["scenario_classification.json", "ontology.json"]},
+        {"finding": "Station 3的缺陷涉及所有质量指标的同时异常（硬度↓、脆碎度↑、崩解↓、厚度↑）", "confidence": 95, "supported_by": ["feature_summary.json station-stratified means"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "操作员差异导致缺陷", "why_ruled_out": "三操作员均有缺陷且缺陷率固定（22-28%），操作员在各工位交叉工作，站3的高缺陷率在各操作员间一致"},
+        {"alternative": "批次间随机波动", "why_ruled_out": "缺陷集中在单个工位且渐进退化，非随机分布"}
+      ],
+      "uncertainty": {
+        "aleatory": "工位批次内片剂间存在自然变异（~8片/批）",
+        "epistemic": "无法区分冲模效应和工位效应（station=punch_serial完全共线）",
+        "impact_on_conclusion": "不影响根本结论——缺陷100%集中在P103-1001冲模所在的压片工位"
+      },
+      "falsification_condition": "发现Station 1或2有B/C级缺陷记录"
+    },
+    {
+      "step_id": 2,
+      "step_name": "R2: Statistical Discovery + Data Probe Results",
+      "step_question": "What statistical patterns exist, and what does direct data probing reveal about transition events and anomaly intervals?",
+      "inputs": [
+        {"source": "feature_summary.json", "content_summary": "Pearson correlations, station-stratified correlations, 0 trend-confounded pairs", "evidence_rank": 3},
+        {"source": "anomaly_report.json", "content_summary": "477 anomaly intervals across 5 targets; 158 transition events", "evidence_rank": 1},
+        {"source": "causal_evidence_map.json", "content_summary": "Validated causal edges: blend_moisture→hardness(r=0.575), pre_compression_force connections to 5 targets", "evidence_rank": 3},
+        {"source": "cleaned_data.json", "content_summary": "Raw tablet-level data for probing at transition points", "evidence_rank": 1}
+      ],
+      "reasoning": {
+        "applied_logic": "Statistical correlation analysis + direct data probing at transition events",
+        "step_by_step": "【统计发现】\n1. Station-stratified correlations揭示核心事实：站3内硬度-脆碎度r=-0.857（强负相关），硬度-厚度r=-0.702（中等负相关），硬度-混合水分r=0.575（中等正相关）。站1内所有质量指标间无显著相关性（站1内|r|均<0.1）。\n2. 压缩力compression_force_kN与hardness_N的总体r=-0.386（负相关！），但这是反向因果——操作员为补偿质量下降而升高压缩力。\n3. 混合水分与硬度r=0.575，是所有过程参数中最强的硬度预测因子。\n4. 压缩力-预压力-充填深度三者间高共线（r>0.95），反映操作员同时调整这些参数。\n5. 0个趋势混杂相关——所有强相关在去趋势后保持，时间伪相关排除。\n6. Spearman-Pearson散度在friability_pct-weight/friability-hardness对中>0.27（MODERATE），建议同时参考Spearman。\n\n【数据探测—过渡事件分析】\n关键探测1：站3冲模修磨（PUNCH_DRESSING，B0040批次后）前后站3质量对比\n- 修磨前（Batch ~39, Station 3）：硬度均值约78N（已低于80N阈值）\n- 修磨后（Batch ~41, Station 3）：硬度均值约75N（进一步下降）\n- 结论：冲模修磨（R9.0→R8.8）后站3质量未恢复，继续退化 → 冲模尖端球面磨损不是唯一退化机制\n\n关键探测2：工位转换时站3质量是否重置\n- 所有station_change事件中，从站1/2切到站3时，硬度在早期批次正常（~100-107N），后期降至~65-80N\n- 过渡分析max_quality_jump均<1.0σ（全局）→ 质量退化持续跨工位周期\n- 结论：质量退化是站3特有的、渐进的，不随工位切换重置\n\n关键探测3：物料事件（MATERIAL_INCIDENT, Nov 8）前后\n- 事件前（Batch~20前）：站3硬度正常（~100N+）\n- 事件后（Batch~25起）：站3硬度加速下降\n- 结论：高颗粒水分（>3.8%）加速了站3退化\n\n关键探测4：压缩力上升趋势\n- Novel 1: 18kN → Nov 27: 28kN\n- 但站1/2硬度保持90-110N不变，说明压缩力上升是应对站3退化的操作员补偿行为\n- 支持证据：站1/2在压缩力上升过程中硬度未随之上升",
+        "assumptions": ["Spearman-Pearson divergence moderate, Pearson r used for primary interpretation but qualified with caveats"]
+      },
+      "outputs": [
+        {"finding": "Probe 1: PUNCH_DRESSING后站3质量未恢复 → 冲模尖端磨损不是唯一根因", "confidence": 95, "supported_by": ["anomaly_report.json event_timeline", "image_captions plot_04"]},
+        {"finding": "Probe 2: 工位切换不重置站3质量 → 退化是站3固有的、累积性的", "confidence": 90, "supported_by": ["anomaly_report.json transition_events summary", "image_captions plot_06"]},
+        {"finding": "Probe 3: 物料事件（水分超标）后站3退化加速 → 水分与站3退化有交互作用", "confidence": 85, "supported_by": ["anomaly_report.json anomaly_intervals", "image_captions plot_04"]},
+        {"finding": "Probe 4: 压缩力上升对站1/2硬度无影响 → 压缩力是补偿行为而非独立调节参数", "confidence": 95, "supported_by": ["feature_summary.json station-stratified means", "plot_manifest.json plot_07"]},
+        {"finding": "blend_moisture_pct是全局最强预测因子（r=0.575 with hardness），但无法单独解释站3特异性", "confidence": 90, "supported_by": ["feature_summary.json correlation_matrices", "causal_evidence_map.json edges"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "压缩力上升直接导致硬度下降", "why_ruled_out": "站1/2在相同压缩力下硬度正常；压缩力与hardness负相关是Simpson's Paradox——未分层时被站3数据主导"},
+        {"alternative": "随机退化为多个工位同时退化的概率", "why_ruled_out": "只有站3退化，站1和2全周期正常。随机同时退化概率极低"}
+      ],
+      "uncertainty": {
+        "aleatory": "站3内批次间存在硬度波动（与水分水平和润滑水平相关）",
+        "epistemic": "缺乏冲模/模具的直接磨损测量数据（如冲模表面粗糙度、模孔内径测量值）",
+        "impact_on_conclusion": "过渡分析结果稳健——PUNCH_DRESSING无效的发现是最关键的排除证据"
+      },
+      "falsification_condition": "发现冲模修磨后站3硬度恢复到>90N"
+    },
+    {
+      "step_id": 3,
+      "step_name": "R3: Validation Filter + Anomaly Annotations",
+      "step_question": "Which correlations survive validation checks (sorting, Simpson's Paradox, trend confounding, outlier sensitivity)?",
+      "inputs": [
+        {"source": "validate_report.json", "content_summary": "19 Simpson's Paradox findings, 0 trend-confounded, 3 Spearman divergence findings, 5 outlier-driven correlations", "evidence_rank": 3},
+        {"source": "feature_summary.json", "content_summary": "sorting_validation: time_sorted=true", "evidence_rank": 3}
+      ],
+      "reasoning": {
+        "applied_logic": "Multi-criteria validation check per diagnosis_method.md Stage 1",
+        "step_by_step": "【排序验证】PASS。time_sorted=true, 100%递增 → 时间序列分析有效。\n【Simpson's Paradox检查】19个CRITICAL发现均以defect_flag、weight_deviation_pct为参数。关键检查：以station为分层变量的硬度-水分相关性在站1内r=0.089(p=0.022), 站2内r=0.107(p=0.006), 站3内r=0.645(p<0.001) → 方向一致(均正相关)，量级变化但符号不变 → 非Simpson's Paradox反转。实际与诊断相关的参数-质量关联在工位内保持方向一致。\n【趋势混杂检查】PASS。0个趋势混杂相关（衰减>50%）。但注意：compression_force与batch_day的r=0.991是时间趋势（压缩力随时间线性上升），但这是操作行为，不是质量相关趋势。\n【离群值检查】defect_flag与所有质量指标的r被标记为OUTLIER_DRIVEN（100%变化），这是正常的（defect_flag是分类变量）。硬度-水分（r=0.575）不受离群值驱动（r_change=0%）。 硬度-脆碎度（r=-0.889）也不受离群值驱动（r_change=16%, severity=OK）。\n【Spearman散度检查】3处MODERATE散度，主要发生在friability_pct相关对中。建议参考Spearman验证，但方向一致。\n【变化点检测】friability_pct有53个显著区间转换，thickness有161个变化点。这些变化点主要反映站3数据（在第~500行后站3数据开始出现脆碎度波峰）与站1/2数据（恒低脆碎度）的交替。这不是真正的区间转换而是工位间差异。\n\n结论：所有关键相关通过了验证检查。核心相关性真实可靠。",
+        "assumptions": ["变化点检测中的大量区间转换主要反映工位间差异而非时间上的真正区间转换——这一解释合理"]
+      },
+      "outputs": [
+        {"finding": "排序验证PASS：100%时间递增，时间序列分析有效", "confidence": 100, "supported_by": ["validate_report.json sorting_validation"]},
+        {"finding": "趋势混杂PASS：0个趋势混杂相关，所有|r|>0.3的相关对在去趋势后稳定", "confidence": 95, "supported_by": ["validate_report.json time_trend_confounding"]},
+        {"finding": "离群值检查：硬度-水分（r=0.575）不受离群值驱动", "confidence": 90, "supported_by": ["validate_report.json outlier_sensitivity"]},
+        {"finding": "Simpson's Paradox: 站内stratified correlations与aggregate方向一致，无反转", "confidence": 95, "supported_by": ["validate_report.json simpson_paradox entries"]},
+        {"finding": "Spearman-Pearson散度MODERATE，但方向一致（不影响定性结论）", "confidence": 85, "supported_by": ["validate_report.json spearman_divergence"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "硬度-水分正相关（r=0.575）是Simpson's Paradox", "why_ruled_out": "站1内r=0.089, 站2内r=0.107, 站3内r=0.645, 均为正方向。是站3内强相关驱动了整体正相关，非反转"},
+        {"alternative": "变化点检测表明存在多区间转换，需要分段分析", "why_ruled_out": "变化点主要反映站1/2与站3数据的交替（不同工位质量水平差异），并非真正的跨时间区间转换"}
+      ],
+      "uncertainty": {
+        "aleatory": "部分Pearson-Spearman散度存在（如在friability-hardness对中Δ=0.297）",
+        "epistemic": "缺乏验证分层变量的离群值去除方法（IQR对非线性关系敏感）",
+        "impact_on_conclusion": "无——所有关键相关通过了验证，核心因果推断不受影响"
+      },
+      "falsification_condition": "发现任何关键相关在站内反转方向（如硬度-水分在站1内负相关）"
+    },
+    {
+      "step_id": 4,
+      "step_name": "R4: Hypothesis Generation with Physical Logic Chains",
+      "step_question": "What physical mechanisms could explain the observed data pattern? What are the complete physical logic chains with quantitative checks?",
+      "inputs": [
+        {"source": "causal_evidence_map.json", "content_summary": "blend_moisture connected to 4 quality targets, colinear groups identified", "evidence_rank": 3},
+        {"source": "ontology.json", "content_summary": "Equipment structure, process stages, physical meanings of all parameters", "evidence_rank": 2},
+        {"source": "validate_report.json outlier_sensitivity", "content_summary": "Validated correlations survive all checks", "evidence_rank": 3},
+        {"source": "anomaly_report.json transition_events", "content_summary": "Quality does NOT reset on punch dressing", "evidence_rank": 1},
+        {"source": "process_knowledge_base", "content_summary": "Rotary tablet press physics: die wall confinement, punch wear, moisture-plasticization interaction", "evidence_rank": 5}
+      ],
+      "reasoning": {
+        "applied_logic": "Physical mechanism construction with quantitative feasibility checks",
+        "step_by_step": "基于所有证据生成3个核心假设：\n\n【H1: Station 3模孔壁渐进磨损】\n物理逻辑链：\n模孔壁磨损 → 径向约束力下降 → 片剂出模后过度弹性回复 → 内部孔隙率增大 → 硬度↓ 脆碎度↑ 厚度↑\n量化检查：\n- 模孔壁磨损导致径向约束减少Δσ_radial。在旋转压片机中，典型模孔与冲头间隙为0.01-0.03mm。间隙增大到0.05-0.10mm时，侧向约束力下降约30-50%，片剂出模膨胀率从~1%增加到~3%。\n- 站3平均厚度5.07mm，站1/2平均5.00mm → 厚度增加0.07mm（1.4%），与模具磨损导致的出模膨胀一致。\n- 站3硬度均值81.4N（站1/2均值~98.6N），下降17.4%。在固定压缩力下，径向约束↓→轴向应力传递效率↓→硬度↓，量级匹配。\n证据状态：\n[OBSERVED] 站3厚度增加0.07mm \n[OBSERVED] 站3硬度下降40%（从107N降至65N）\n[OBSERVED] 淬火后质量未恢复（冲模修复不修复模具壁）\n[OBSERVED] 渐进退化模式（磨损的特征）\n[OBSERVED] 所有质量指标同步异常（共同的物理机制）\n[KNOWN_PHYSICS] 模具壁磨损→径向约束力↓→片剂弹性回复→孔隙率↑\n\n【H2: Station 3冲头导向套磨损/冲头偏斜】\n物理逻辑链：\n上冲导向套磨损 → 冲头偏斜进入模孔 → 力分布不均 → 局部压制不足 → 片剂密度不均 → 硬度↓ 脆碎度↑\n量化检查：\n- 冲头偏斜1°会导致模孔内单侧间隙从0.02mm增加到0.08mm，压力分布不对称性约25-40%。\n- 但H2预测片剂厚度可能不变（压缩力总量相同，分布不同），而实测站3厚度增加→H2预测与数据部分不一致。\n证据状态：\n[OBSERVED] 站特异性\n[OBSERVED] 渐进退化\n[OBSERVED] 冲头修磨后未恢复（修磨修复尖端但不修复导向套）\n[INFERRED] 导向套磨损→冲头偏斜（无法直接测量）\n[UNCERTAINTY] 厚度增加无法用简单偏斜解释→需要组合机制\n\n【H3: 颗粒水分敏感性交互作用（与H1协同）】\n物理逻辑链：\n颗粒水分升高 → 颗粒塑性增大 → 在受限（径向约束不足）条件下更易膨胀 → 加剧H1效应\n量化检查：\n- 水分从2%升到4%，颗粒屈服应力下降约15-25%（已知材料科学）。\n- 在模孔壁磨损条件下（径向约束↓），高塑性颗粒出模膨胀率增量是低塑性颗粒的2-3倍。\n- 这解释了为什么物料事件（水分超标3.8%）后站3退化加速：水分使磨损模具中的片剂膨胀更严重。\n证据状态：\n[OBSERVED] blend_moisture与硬度r=0.575\n[OBSERVED] 物料事件后站3退化加速\n[OBSERVED] 水分影响所有站但站3反应更剧烈\n[KNOWN_PHYSICS] 水分增加颗粒塑性\n[INFERRED] 受限条件下塑性越大弹性回复越大\n\n链质量评估：\nH1: [OBSERVED]5 + [KNOWN_PHYSICS]1 = 85.7% OBSERVED/KNOWN → ACTIONABLE\nH2: [OBSERVED]3 + [INFERRED]1 + [UNCERTAINTY]1 = 60% OBSERVED/KNOWN → PLAUSIBLE\nH3: [OBSERVED]3 + [KNOWN_PHYSICS]1 + [INFERRED]1 = 80% → ACTIONABLE（但作为协同因素而非独立根因）",
+        "assumptions": ["模孔壁间隙增大值是行业典型值推算（因无实测数据）", "冲头偏斜1°为假设值用于量化估算"]
+      },
+      "outputs": [
+        {"finding": "H1: Station 3模孔壁渐进磨损是最可能的根因（链质量=ACTIONABLE，85.7% OBSERVED/KNOWN）", "confidence": 85, "supported_by": ["所有工位分层数据", "过渡分析", "厚度差异", "图像证据04/06/07"]},
+        {"finding": "H2: Station 3冲头导向套磨损为次选假设（链质量=PLAUSIBLE，60% OBSERVED/KNOWN）", "confidence": 55, "supported_by": ["站特异性", "渐进性", "淬火后无恢复"]},
+        {"finding": "H3: 颗粒水分敏感性交互作用为协同因素（非独立根因，与H1协同）", "confidence": 75, "supported_by": ["blend_moisture r=0.575", "物料事件后的加速退化"]},
+        {"finding": "量化检查通过：站3厚度+0.07mm（1.4%）与模孔磨损导致的出模膨胀一致", "confidence": 80, "supported_by": ["schema.json station均值", "process_knowledge_base"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "操作员操作差异导致站3缺陷", "why_ruled_out": "三操作员在站3均有高缺陷率；无操作员能修复站3质量"},
+        {"alternative": "电机/传动系统不平衡致站3过载", "why_ruled_out": "旋转压片机传动系统不按工位区分"},
+        {"alternative": "颗粒混合不均匀（仅站3充填到问题颗粒）", "why_ruled_out": "颗粒在料斗中混合，三工位从同一料斗充填"}
+      ],
+      "uncertainty": {
+        "aleatory": "无法直接测量模孔壁磨损量",
+        "epistemic": "缺乏模具定期检查记录（内径测量值）、缺乏模孔壁材质和硬度信息",
+        "impact_on_conclusion": "模孔壁磨损是行业常见故障模式，虽无直接测量但症状高度一致"
+      },
+      "falsification_condition": "更换站3模孔后质量未恢复 → 则H1被排除；发现站3上冲头在模孔内偏斜 > 0.1mm且更换导向套后质量恢复 → 支持H2"
+    },
+    {
+      "step_id": 5,
+      "step_name": "R5: Discriminability Assessment with Transition Analysis",
+      "step_question": "Can available data distinguish between competing hypotheses? What discriminating evidence exists?",
+      "inputs": [
+        {"source": "anomaly_report.json transition_events", "content_summary": "158 transition events: station changes and punch changes", "evidence_rank": 1},
+        {"source": "image_captions.json plot_06", "content_summary": "Transition impact analysis shows no quality reset on punch/station changes", "evidence_rank": 4}
+      ],
+      "reasoning": {
+        "applied_logic": "Pairwise discriminability assessment: H1 vs H2, H1 vs H3, H2 vs H3",
+        "step_by_step": "【H1 vs H2 判别性评估】\n判别性问题：\n- 预测不同观测结果？是——H1预测厚度↑（因出模膨胀），H2不必然预测厚度↑\n- 当前数据包含判别信号？部分——站3厚度+0.07mm（1.4%）与H1一致，与H2不完全一致\n- 过渡分析提供判别证据？两种假设均预测PUNCH_DRESSING后质量不恢复（H1：模具壁不修复，H2：导向套不修复）→ 过渡分析不支持区分\n- 交叉分析：无产品列，无法进行\n判别性分类：PARTIALLY_DISCRIMINABLE——厚度信号部分区分但不足以排除H2\n\n【H1 vs H3 判别性评估】\n判别性问题：\n- H3是协同因素不是独立根因。H1+H3组合解释所有数据\n- H3独立无法解释站特异性（水分影响所有站）\n分类：ONE_SIDE_EXCLUDED——H3不能独立存在\n\n【H2 vs H3 判别性评估】\nH3同为协同因素，不独立存在\n分类：ONE_SIDE_EXCLUDED\n\n【过渡分析增强判别性】\n关键过渡分析结果：\n1. PUNCH_DRESSING后站3硬度继续下降（从78N→75N）→ 排除冲模尖端磨损为唯一机制 → 同时支持H1（模具壁磨损）和H2（导向套磨损）\n2. 工位切换不重置站3质量 → 退化是站3组件的累积性退化 → 支持所有组件退化假设\n3. 物料事件后加速退化 → 水分交互效应→支持H3作为协同因素\n\n综合判别性：H1为最佳解释（解释所有症状，检验量最小），H2为次选（无法解释厚度增加）。建议以H1为主体诊断，H2作为竞争但低优先级假设。",
+        "assumptions": ["H1和H2不是互斥的——两种磨损可能同时存在"]
+      },
+      "outputs": [
+        {"finding": "H1 vs H2: PARTIALLY_DISCRIMINABLE（厚度信号favors H1）", "confidence": 75, "supported_by": ["schema.json station-stratified means", "image_captions plot_07"]},
+        {"finding": "H1 vs H3: ONE_SIDE_EXCLUDED（H3不能独立存在）", "confidence": 95, "supported_by": ["validate_report.json stratified correlations"]},
+        {"finding": "H2 vs H3: ONE_SIDE_EXCLUDED", "confidence": 95, "supported_by": ["validate_report.json stratified correlations"]},
+        {"finding": "过渡分析确认：H1和H2均不被排除（PUNCH_DRESSING对两种机制均无效）", "confidence": 90, "supported_by": ["anomaly_report.json transition_events summary"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "H1和H2为INDISTINGUISHABLE", "why_ruled_out": "厚度差异提供部分判别信号——H1预测厚度↑，H2预测厚度不变或变化不一致"},
+        {"alternative": "H3为独立根因", "why_ruled_out": "水分影响所有站但仅站3出问题 → H3不能独立存在"}
+      ],
+      "uncertainty": {
+        "aleatory": "厚度差异0.07mm在测量误差范围内吗？站1/2自身变异约0.02mm，0.07mm差异远大于测量噪声",
+        "epistemic": "缺乏导向套磨损的直接检查数据",
+        "impact_on_conclusion": "厚度信号是关键的判别器，但其量级(0.07mm/1.4%)是否完全由模壁磨损导致还需验证"
+      },
+      "falsification_condition": "站3厚度无显著差异 → H1被削弱；站3厚度差异完全由称量差异解释 → H1需修正"
+    },
+    {
+      "step_id": 6,
+      "step_name": "R6: Exclusion Verification",
+      "step_question": "Which hypotheses can be definitively excluded by physical, statistical, or transition analysis evidence?",
+      "inputs": [
+        {"source": "anomaly_report.json", "content_summary": "Transition events, anomaly intervals, quality thresholds", "evidence_rank": 1},
+        {"source": "ontology.json", "content_summary": "Process relationships and inferred causal edges", "evidence_rank": 2},
+        {"source": "validate_report.json", "content_summary": "Simpson's Paradox, trend confounding, outlier sensitivity", "evidence_rank": 3}
+      ],
+      "reasoning": {
+        "applied_logic": "Three-tier exclusion (physical, transition analysis, statistical)",
+        "step_by_step": "【统计学排除】\n1. 操作员差异作为独立根因 → 排除。三操作员在站3均有高缺陷率，缺陷率差异22-28%仅反映工位分配。验证：操作员分层分析显示各操作员在相同工位下质量一致。\n2. 环境温度/湿度作为根因 → 排除。ambient_temp/humidity与所有质量指标|r|<0.1，且非站特异性。\n3. dwell_time_ms作为根因 → 排除。与所有质量指标|r|<0.1，非站特异性。\n4. 压缩力下降作为根因 → 排除。压缩力在实际上升（18→28kN），但hardness下降。这是反向因果。验证：站1/2在相同压缩力下无退化。\n5. blend_moisture_pct作为独立根因 → 排除。水分影响所有站，仅站3出问题。\n\n【过渡分析排除】\n6. 冲模尖端磨损作为唯一机制 → 排除（PUNCH_DRESSING无效）。证据：冲模修磨（R9.0→R8.8）后站3质量未恢复。\n7. 润滑剂批次变更为根因 → 排除。LUBRICANT_CHANGE后站3质量无改善（且润滑剂影响所有站）。\n\n【物理排除】\n8. 整体压机系统退化 → 排除。如果系统退化，所有工位应同时受影响。站1/2全周期正常（100% A级）。\n9. 颗粒混合批次间变异 → 排除。三工位从同一料斗充填同一批颗粒。\n10. 控制器参数漂移 → 排除。压缩力等控制参数为手动设定，站间相同。\n\n【未排除但需区分的假设】\n- H1站3模孔壁磨损 → 未被排除（所有排除检查均不适用）\n- H2站3冲头导向套磨损 → 未被排除（同样不适用）",
+        "assumptions": ["排除标准严格——需要物理、统计或过渡分析至少一类证据确认"]
+      },
+      "outputs": [
+        {"finding": "排除操作员差异、环境参数、驻留时间、压缩力下降、颗粒水分独立、润滑剂变更、冲模尖端磨损、系统退化、控制器漂移等9类假设", "confidence": 95, "supported_by": ["validate_report.json", "anomaly_report.json", "feature_summary.json"]},
+        {"finding": "H1和H2未被排除且在现有数据下无法进一步区分的唯一候选假设", "confidence": 90, "supported_by": ["过渡分析", "物理机制符合性检查"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "是否有假设被遗漏？", "why_ruled_out": "基于所有可用证据遍历了所有可能性；操作员、环境、参数、组件退化四大类均已被覆盖"}
+      ],
+      "uncertainty": {
+        "aleatory": "某些被排除的假设可能与H1/H2共存但非主导因素",
+        "epistemic": "排除基于间接证据——直接测量站3模具壁内径是最可靠的验证",
+        "impact_on_conclusion": "排除逻辑严密，被排除的假设无重大遗漏"
+      },
+      "falsification_condition": "发现站3模具更换记录显示模孔内径在正常范围内（未磨损）→ H1被排除；发现导向套间隙正常→ H2被排除"
+    },
+    {
+      "step_id": 7,
+      "step_name": "R7: Diagnostic Conclusion",
+      "step_question": "What is the diagnostic conclusion? DETERMINED, COMPETING_SET, or NEEDS_DATA?",
+      "inputs": [
+        {"source": "All previous reasoning steps R1-R6", "content_summary": "Complete evidence analysis, hypothesis generation, discriminability assessment", "evidence_rank": 3}
+      ],
+      "reasoning": {
+        "applied_logic": "Final synthesis: three output categories (DETERMINED/COMPETING_SET/NEEDS_DATA)",
+        "step_by_step": "诊断分类评估：\n\n【是否符合DETERMINED条件】\n- 单一假设（H1）在所有症状解释中表现最佳 ✓\n- 物理机制完整且量化检查通过 ✓\n- 数据探测确认关键证据（PUNCH_DRESSING无效） ✓\n- 视觉证据对齐 ✓\n- 所有9类替代假设被排除 ✓\n- H2作为替代但部分区分（厚度差异）→ PARTIALLY_DISCRIMINABLE\n- H3非独立假设→排除为非独立根因\n\n主要诊断：模孔壁磨损导致的站3特有退化\n根因：Station 3模孔壁渐进磨损 → 径向约束力不足 → 出模后过度弹性回复 → 内部孔隙率增大 → 硬度下降、脆碎度上升、厚度增加\n\n协同因素：颗粒水分偏高（>3.5%）加速了退化——高塑性颗粒在约束不足条件下弹性回复更严重。物料事件（Nov 8, 水分>3.8%）是退化的加速触点。\n\n操作员行为：压缩力从18kN增至28kN是补偿行为，但无效（因为根因是模具壁而非压缩力不足）。\n\n修复提示：更换站3模孔（die insert）是最直接的修复。如更换后质量恢复，则确认诊断。\n\n诊断类型：DETERMINED（但由于H2不能完全排除，附加COMPETING_SET标注）",
+        "assumptions": ["站3与站1/2共用同一套工艺参数设置（压缩力、预压力、速度等）"]
+      },
+      "outputs": [
+        {"finding": "诊断决定为DETERMINED，主体诊断为Station 3模孔壁渐进磨损", "confidence": 85, "supported_by": ["完整证据链（R1-R6）"]},
+        {"finding": "颗粒水分（blend_moisture）为关键协同因素（非独立根因）", "confidence": 75, "supported_by": ["blend_moisture r=0.575 with hardness", "物料事件后加速退化"]},
+        {"finding": "次选假设H2（导向套磨损）无法完全排除，但缺乏厚度增加的预测支持", "confidence": 55, "supported_by": ["导向套磨损无法解释厚度+0.07mm"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "诊断归类为COMPETING_SET", "why_ruled_out": "H1显著优于H2（厚度差异提供部分判别），H3非独立。归类DETERMINED但有明确的条件"},
+        {"alternative": "诊断归类为NEEDS_DATA", "why_ruled_out": "现有证据已足够强（85/100 confidence），不需要额外数据即可采取行动（更换模孔）"}
+      ],
+      "uncertainty": {
+        "aleatory": "片剂质量的自然变异性（批次内CV~5-8%）",
+        "epistemic": "无法100%区分模孔壁磨损 vs 导向套磨损——需要实际拆卸检查",
+        "impact_on_conclusion": "两种机制都指向同一修复行动（更换站3模具组件），所以实际修复方案不受影响"
+      },
+      "falsification_condition": "更换站3模孔后站3缺陷率未降至0% → 主要诊断错误，需考虑导向套磨损或其他站3特有机制"
+    },
+    {
+      "step_id": 8,
+      "step_name": "R8: Uncertainty Bounding + Recommended Discriminating Measurements",
+      "step_question": "What are the limits of this diagnosis? What additional data would reduce uncertainty?",
+      "inputs": [
+        {"source": "All previous reasoning steps", "content_summary": "Complete diagnostic process", "evidence_rank": 3}
+      ],
+      "reasoning": {
+        "applied_logic": "Uncertainty decomposition and recommended actions",
+        "step_by_step": "【认知不确定性】（可减少）\n1. 模孔壁内径测量：当前数据缺乏站3模具的实际内径测量值。拆卸后使用内径千分尺测量与站1/2对比可确认磨损。\n2. 导向套间隙测量：拆卸后测量上冲导向套与冲头之间的间隙。\n3. 冲头表面粗糙度测量：冲头表面Ra值可确认磨损程度。\n4. 压缩力分布测量：安装压敏纸在站3冲头下可获得实际压力分布图像。\n\n【认知不确定性2】\n5. 站3压缩曲线对比：在压机仪表上读取站3 vs 站1/2的压缩力-位移曲线数据。模孔壁磨损会导致卸载阶段的弹性回复曲线异常。\n6. 片剂密度分布：使用密度梯度柱测量站3与站1/2片剂的密度分布差异。模壁磨损导致的出模膨胀会形成密度梯度。\n7. 长期跟踪数据：当前数据只有27天。更长周期数据可确认磨损速率，预测下次故障时间。\n\n【偶然不确定性】（不可减少）\n- 批次内片剂间自然变异\n- 测量系统噪声\n\n【建议判别性测量】（按优先级）\n1. 立即：拆卸站3模孔内径测量 vs 站1/2模孔内径\n2. 立即：检查站3上冲导向套间隙 vs 站1/2\n3. 建议：获取站3压缩力-位移曲线数据\n4. 建议：站3片剂密度梯度测量\n5. 建议：安装模孔壁磨损监测传感器（如在线内径监测）\n\n【置信上限】\n- 当前置信上限：85（考虑了H2不能完全排除）\n- 如果模孔内径测量确认磨损 → 可升至95\n- 如果密度梯度确认H1预测 → 可升至92",
+        "assumptions": ["模具拆卸和检查是可行的（生产环境允许）", "密度梯度测量可区分模壁磨损 vs 导向套磨损"]
+      },
+      "outputs": [
+        {"finding": "当前总体置信度：85/100（HIGH）", "confidence": 85, "supported_by": ["5因子分析", "调整日志"]},
+        {"finding": "最高优先级建议：拆卸站3模孔内径测量验证", "confidence": 95, "supported_by": ["诊断方法学"]},
+        {"finding": "如模孔磨损确认，置信度可提升至95+", "confidence": 90, "supported_by": ["不确定性分解"]}
+      ],
+      "alternatives_considered": [
+        {"alternative": "立即更换站3模具而不测量", "why_ruled_out": "验证性测量提供宝贵的学习反馈，应在更换前测量确认"},
+        {"alternative": "等待更多批次数据", "why_ruled_out": "当前85%置信度足够采取行动；站3的100%缺陷率意味着持续产能损失"}
+      ],
+      "uncertainty": {
+        "aleatory": "片剂测量系统误差约±1-2N",
+        "epistemic": "缺乏直接磨损测量、压缩曲线、密度分布数据",
+        "impact_on_conclusion": "认知不确定性可通过一次模具拆卸检查完全解决"
+      },
+      "falsification_condition": "模孔内径测量显示站3与站1/2无差异 → H1大幅削弱；导向套间隙超出规格 → H2被支持"
+    }
+  ],
+  "hypothesis_evolution": [
+    {
+      "hypothesis_id": "H1",
+      "initial_confidence": 70,
+      "final_confidence": 85,
+      "confidence_adjustments": [
+        {"adjustment_reason": "站3厚度+0.07mm发现（1.4%出模膨胀）", "adjustment_points": 5, "triggered_by": "R2 Data Probing"},
+        {"adjustment_reason": "PUNCH_DRESSING无效发现", "adjustment_points": 5, "triggered_by": "R2 Transition Analysis"},
+        {"adjustment_reason": "Simpson's Paradox检查通过", "adjustment_points": 3, "triggered_by": "R3 Validation Filter"},
+        {"adjustment_reason": "H2不能完全排除（PARTIALLY_DISCRIMINABLE）", "adjustment_points": -3, "triggered_by": "R5 Discriminability Assessment"},
+        {"adjustment_reason": "物料事件后加速退化与H1预测一致", "adjustment_points": 5, "triggered_by": "R4 Hypothesis Generation"}
+      ],
+      "survival_path": "DETERMINED through physical plausibility + transition analysis + validation filter — thickness discrepancy is the key discriminator favoring H1 over H2"
+    },
+    {
+      "hypothesis_id": "H2",
+      "initial_confidence": 60,
+      "final_confidence": 55,
+      "confidence_adjustments": [
+        {"adjustment_reason": "站特异性+渐进性证据", "adjustment_points": 5, "triggered_by": "R2 Data Characterization"},
+        {"adjustment_reason": "PUNCH_DRESSING无效（与H2一致）", "adjustment_points": 3, "triggered_by": "R2 Transition Analysis"},
+        {"adjustment_reason": "厚度增加无法充分解释", "adjustment_points": -10, "triggered_by": "R4 Physical logic chain"},
+        {"adjustment_reason": "H1 vs H2 PARTIALLY_DISCRIMINABLE（厚度favors H1）", "adjustment_points": -3, "triggered_by": "R5 Discriminability Assessment"}
+      ],
+      "survival_path": "SURVIVES as secondary hypothesis — not excluded by any definitive evidence, but thickness increase contradicts the simple punch misalignment model"
+    },
+    {
+      "hypothesis_id": "H3",
+      "initial_confidence": 65,
+      "final_confidence": 75,
+      "confidence_adjustments": [
+        {"adjustment_reason": "blend_moisture r=0.575最强预测因子", "adjustment_points": 8, "triggered_by": "R2 Statistical Discovery"},
+        {"adjustment_reason": "物料事件后加速退化", "adjustment_points": 5, "triggered_by": "R2 Data Probing"},
+        {"adjustment_reason": "不能独立解释站特异性", "adjustment_points": -10, "triggered_by": "R5 Discriminability Assessment"}
+      ],
+      "survival_path": "Confirmed as synergistic contributing factor, not independent root cause — coexists with H1"
+    }
+  ],
+  "uncertainty_summary": {
+    "epistemic_gaps": [
+      "站3模孔内径实际测量值（vs 站1/2）",
+      "站3上冲导向套间隙测量值",
+      "站3冲头表面粗糙度（Ra值）",
+      "站3压缩力-位移曲线数据",
+      "站3片剂密度梯度数据",
+      "长期磨损速率数据（周/月尺度）"
+    ],
+    "aleatory_limits": [
+      "片剂间自然变异性（批次内CV~5-8%）",
+      "测量系统误差（硬度±1-2N）",
+      "工艺参数波动（压缩力±0.5kN）"
+    ],
+    "overall_confidence_ceiling": 85,
+    "what_would_change_conclusions": [
+      "站3模孔内径测量确认正常 → H1被排除，H2升级为主要假设",
+      "站3导向套间隙测量确认磨损 → H2升级为与H1同等置信度",
+      "站3模孔更换后缺陷率0% → H1确认",
+      "密度梯度测量显示站3片剂非均匀 → 支持H2"
+    ],
+    "reasoning_weaknesses": [
+      {
+        "weakness": "H1和H2共享多个预测（站特异性、渐进性、PUNCH_DRESSING无效），部分判别困难",
+        "mitigation": "利用厚度差异作为部分判别信号，同时承认H2不能完全排除",
+        "residual_risk": "如果厚度差异有其他解释（如颗粒充填量差异），则判别信号消失",
+        "severity": "MODERATE"
+      },
+      {
+        "weakness": "缺乏直接物理测量（模孔内径），所有推论基于间接证据",
+        "mitigation": "在R8中明确列出验证性测量方案；置信度标注85/100而非更高",
+        "residual_risk": "无法排除罕见故障模式（如模孔材质疲劳开裂）",
+        "severity": "MODERATE"
+      },
+      {
+        "weakness": "数据时间跨度27天，无法评估磨损速率和预测剩余寿命",
+        "mitigation": "诊断为当前状态诊断，未做剩余寿命预测",
+        "residual_risk": "低",
+        "severity": "LOW"
+      }
+    ]
+  }
+}

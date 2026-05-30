@@ -1,0 +1,105 @@
+{
+  "source_files": [
+    "batch_record_2025Q4.csv",
+    "tablet_test_results_2025Q4.csv"
+  ],
+  "total_tablet_records": 1943,
+  "total_batches": 80,
+  "missing_value_analysis": {
+    "has_missing": false,
+    "missing_fields": "None found"
+  },
+  "outlier_flagging": {
+    "hardness_N": {
+      "q1": 88.93,
+      "q3": 100.65,
+      "iqr": 11.72,
+      "lower_fence": 71.35,
+      "upper_fence": 118.23,
+      "outlier_count": 134,
+      "outlier_pct": 6.9,
+      "outlier_range": [
+        56.17,
+        71.35
+      ]
+    },
+    "friability_pct": {
+      "q1": 0.286,
+      "q3": 0.748,
+      "iqr": 0.462,
+      "lower_fence": -0.407,
+      "upper_fence": 1.441,
+      "outlier_count": 268,
+      "outlier_pct": 13.79,
+      "outlier_range": [
+        1.444,
+        2.335
+      ]
+    },
+    "disintegration_time_min": {
+      "q1": 7.19,
+      "q3": 8.21,
+      "iqr": 1.02,
+      "lower_fence": 5.66,
+      "upper_fence": 9.74,
+      "outlier_count": 19,
+      "outlier_pct": 0.98,
+      "outlier_range": [
+        5.03,
+        9.8
+      ]
+    },
+    "tablet_weight_mg": {
+      "q1": 499.8,
+      "q3": 502.46,
+      "iqr": 2.66,
+      "lower_fence": 495.81,
+      "upper_fence": 506.45,
+      "outlier_count": 213,
+      "outlier_pct": 10.96,
+      "outlier_range": [
+        506.45,
+        512.34
+      ]
+    },
+    "thickness_mm": {
+      "q1": 4.99,
+      "q3": 5.042,
+      "iqr": 0.052,
+      "lower_fence": 4.912,
+      "upper_fence": 5.12,
+      "outlier_count": 111,
+      "outlier_pct": 5.71,
+      "outlier_range": [
+        5.12,
+        5.197
+      ]
+    }
+  },
+  "sorting_validation": {
+    "is_batch_seq_sorted_ascending": true,
+    "is_within_batch_tablet_seq_sorted": true,
+    "note": "Data is sorted by batch_seq then tablet_seq. Time series info from batch_record.ts_start join. Data is NOT raw time-sorted (tablet-level has no timestamp) - batch_grouped sorting is appropriate for this hierarchical batch structure.",
+    "appropriate_for_analysis": true,
+    "warning": "Lag correlations across tablet_seq within a batch are not temporal - use batch_seq-level time axis for temporal analysis."
+  },
+  "scenario_specific": {
+    "derived_features": [
+      "compression_ratio = compression_force_kN / pre_compression_force_kN",
+      "hardness_friability_ratio = hardness_N / friability_pct",
+      "weight_deviation_pct = (tablet_weight_mg - 500) / 500 * 100",
+      "defect_flag = 1 if defect_grade in (B, C) else 0"
+    ]
+  },
+  "data_quality_summary": {
+    "total_records": 1943,
+    "defect_distribution": {
+      "A": 1459,
+      "B": 97,
+      "C": 387
+    },
+    "defect_rate_pct": 5.0,
+    "failure_rate_pct": 19.9,
+    "total_defect_rate_pct": 24.9
+  }
+}

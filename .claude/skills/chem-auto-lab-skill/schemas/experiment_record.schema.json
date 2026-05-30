@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chem-auto-lab.skill/schemas/experiment_record.schema.json",
+  "title": "Experiment Record",
+  "description": "Standardized chemistry experiment data record",
+  "type": "object",
+  "required": ["metadata", "experiments"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["script", "version", "processing_timestamp"],
+      "properties": {
+        "script": {"type": "string"},
+        "version": {"type": "string"},
+        "input_file": {"type": "string"},
+        "processing_timestamp": {"type": "string", "format": "date-time"},
+        "rows_input": {"type": "integer"},
+        "rows_output": {"type": "integer"},
+        "rows_removed": {"type": "integer"},
+        "transformations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "column": {"type": "string"},
+              "operation": {"type": "string", "enum": ["impute", "outlier_flag", "unit_normalize", "unit_verified", "annotate_only"]},
+              "method": {"type": "string"},
+              "imputed_count": {"type": "integer"},
+              "outliers_found": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["experiment_id", "variables"],
+        "properties": {
+          "experiment_id": {"type": "string"},
+          "timestamp": {"type": ["string", "null"]},
+          "variables": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {"type": "null"},
+                {"type": "string"},
+                {"type": "number"},
+                {
+                  "type": "object",
+                  "properties": {
+                    "value": {"type": "number"},
+                    "unit": {"type": ["string", "null"]},
+                    "outlier": {"type": "boolean"}
+                  }
+                }
+              ]
+            }
+          },
+          "observations": {"type": "object"},
+          "batch_id": {"type": ["string", "null"]},
+          "source_file": {"type": "string"},
+          "source_sheet": {"type": "string"},
+          "source_row": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

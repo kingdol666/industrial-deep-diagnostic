@@ -1,0 +1,735 @@
+{
+  "scene": {
+    "name": "纸机流浆箱质量诊断",
+    "process_type": "continuous_paper_manufacturing_headbox",
+    "production_goal": "生产三种纸品等级（GSM80/GSM100/GSM120），目标A级品率>60%，实际仅29%",
+    "equipment": [
+      {
+        "id": "HEADBOX-01",
+        "name": "水力式流浆箱",
+        "type": "hydraulic_headbox",
+        "function": "将纸浆悬浮液均匀分布到成形网上，通过堰板喷出均匀浆流",
+        "location": "湿部 / 成形部之前"
+      },
+      {
+        "id": "FAN-PUMP-01",
+        "name": "冲浆泵",
+        "type": "centrifugal_fan_pump",
+        "function": "将稀释后的纸浆输送至流浆箱，提供流浆箱所需压力和流量",
+        "location": "湿部 / 流浆箱上游"
+      },
+      {
+        "id": "SLICE-01",
+        "name": "堰板（唇板）",
+        "type": "adjustable_slice_lip",
+        "function": "控制浆流喷出厚度和速度，调节横幅定量分布",
+        "location": "流浆箱出口"
+      },
+      {
+        "id": "VAC-PUMP-01",
+        "name": "真空泵 #1",
+        "type": "liquid_ring_vacuum_pump",
+        "function": "成形网部脱水真空源，控制初始脱水速率",
+        "location": "湿部 / 成形网下方"
+      },
+      {
+        "id": "VAC-PUMP-02",
+        "name": "真空泵 #2",
+        "type": "liquid_ring_vacuum_pump",
+        "function": "辅助脱水真空源，影响纸页干度和强度",
+        "location": "湿部 / 成形网中后段"
+      },
+      {
+        "id": "RET-AID-01",
+        "name": "助留剂添加系统",
+        "type": "chemical_dosing_system",
+        "function": "向纸浆中定量添加助留剂，提高细小纤维和填料的留着率",
+        "location": "湿部 / 冲浆泵入口"
+      },
+      {
+        "id": "WIRE-01",
+        "name": "成形网",
+        "type": "fourdrinier_wire",
+        "function": "纸浆脱水成形，纤维交织形成湿纸页",
+        "location": "湿部 / 流浆箱下游"
+      }
+    ],
+    "stages": [
+      {
+        "id": "S1",
+        "name": "浆料制备与输送",
+        "sequence": 1,
+        "typical_duration": "连续",
+        "key_physics": "冲浆泵将稀释浆料加压输送至流浆箱，浆料温度影响黏度和流动性",
+        "key_parameters": ["fan_pump_speed_rpm", "approach_flow_lpm", "stock_temp_C", "white_water_consistency_pct"]
+      },
+      {
+        "id": "S2",
+        "name": "流浆箱分配与整流",
+        "sequence": 2,
+        "typical_duration": "连续",
+        "key_physics": "流浆箱内压力转化为浆流动能，通过整流元件消除大尺度湍流，产生微湍流以分散纤维絮聚",
+        "key_parameters": ["headbox_pressure_kPa", "retention_aid_dosage_ppm"]
+      },
+      {
+        "id": "S3",
+        "name": "堰板喷射与着网",
+        "sequence": 3,
+        "typical_duration": "连续",
+        "key_physics": "浆流从堰板喷出，jet-to-wire ratio决定剪切力——ratio=1.0时无明显剪切，偏离1.0产生剪切力分散纤维絮聚但影响纤维取向",
+        "key_parameters": ["slice_opening_mm", "machine_speed_mmin", "jet_to_wire_ratio"]
+      },
+      {
+        "id": "S4",
+        "name": "网部脱水成形",
+        "sequence": 4,
+        "typical_duration": "连续",
+        "key_physics": "真空泵提供负压驱动力，水分从纸页中脱除，脱水速率影响纤维分布和纸页紧度",
+        "key_parameters": ["vacuum_pump1_kPa", "vacuum_pump2_kPa"]
+      }
+    ],
+    "objectives": [
+      "诊断导致B/C级品率高达71%的根因",
+      "区分工艺参数偏差、设备老化和操作差异对质量的影响",
+      "分析三种纸品等级（GSM80/100/120）间质量差异的结构性原因",
+      "评估频繁换产（619次等级切换）对质量稳定性的影响",
+      "量化四个显著事件（真空泵皮带更换、压力变送器校准、BOIL_OUT清洗、断纸）对质量的冲击"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "缺陷等级",
+        "column": "defect_grade",
+        "unit": "category",
+        "role": "target",
+        "physical_meaning": "综合质量评级，A=优等品，B=合格品，C=次品。基于横幅定量变异、匀度、灰分、水分、强度等多项指标综合判定",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "tolerance": null,
+        "normal_range": null,
+        "stage_ref": "S4"
+      },
+      {
+        "name": "横幅定量变异系数",
+        "column": "cd_basis_weight_cv_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "纸页横幅方向克重分布的变异系数，反映横幅定量均匀性。CV越高表示横幅方向厚薄不均越严重",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "tolerance": null,
+        "normal_range": [0.15, 2.0],
+        "stage_ref": "S3"
+      },
+      {
+        "name": "匀度指数",
+        "column": "formation_index",
+        "unit": "index",
+        "role": "target",
+        "physical_meaning": "纸页纤维分布均匀程度的综合指标。指数越高表示纤维分布越均匀（匀度越好），指数越低表示存在絮聚或云状不均匀",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "tolerance": null,
+        "normal_range": [7.0, 9.5],
+        "stage_ref": "S2"
+      },
+      {
+        "name": "灰分含量",
+        "column": "ash_content_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "纸页中无机填料和矿物质残留量占总质量的百分比，反映填料留着率和成纸功能特性",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "tolerance": null,
+        "normal_range": [20.0, 28.0],
+        "stage_ref": "S4"
+      },
+      {
+        "name": "水分含量",
+        "column": "moisture_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "成纸残余含水量，影响纸页物理强度和尺寸稳定性。本数据集中该参数几乎恒定(mean=3.0, std≈0)，诊断价值有限",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": 3.0,
+        "tolerance": 0.5,
+        "normal_range": [2.5, 3.5],
+        "stage_ref": "S4"
+      },
+      {
+        "name": "相对强度",
+        "column": "strength_rel_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "纸页抗张强度相对标准值的百分比。受纤维取向(MD/CD比)、纤维间结合力和纤维本身强度共同影响",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": 100.0,
+        "tolerance": null,
+        "normal_range": [95.0, 105.0],
+        "stage_ref": "S4"
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "流浆箱压力",
+        "column": "headbox_pressure_kPa",
+        "unit": "kPa",
+        "role": "predictor",
+        "physical_meaning": "流浆箱内总压头，根据Vj=Cv*sqrt(2g*H_T)决定浆流喷出速度。压力波动直接导致MD方向定量波动(±2%速度扰动→±7%定量变化)",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [13.5, 39.8],
+        "controlled_by": "fan_pump_speed_rpm",
+        "equipment_ref": "HEADBOX-01",
+        "stage_ref": "S2"
+      },
+      {
+        "name": "上浆流量",
+        "column": "approach_flow_lpm",
+        "unit": "L/min",
+        "role": "predictor",
+        "physical_meaning": "进入流浆箱的纸浆体积流量，与浆速和堰板开口相关。流量=面积×速度，流量不稳定导致上浆压力波动和横幅定量变化",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [3705, 5412],
+        "controlled_by": "fan_pump_speed_rpm",
+        "equipment_ref": "FAN-PUMP-01",
+        "stage_ref": "S1"
+      },
+      {
+        "name": "冲浆泵转速",
+        "column": "fan_pump_speed_rpm",
+        "unit": "RPM",
+        "role": "predictor",
+        "physical_meaning": "冲浆泵驱动电机的转速，是调节上浆流量和流浆箱压力的主要手段。转速波动通过泵特性曲线影响出口压力和流量",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "output",
+        "target": null,
+        "normal_range": [864, 956],
+        "controlled_by": "operator_or_DCS",
+        "equipment_ref": "FAN-PUMP-01",
+        "stage_ref": "S1"
+      },
+      {
+        "name": "白水浓度",
+        "column": "white_water_consistency_pct",
+        "unit": "%",
+        "role": "predictor",
+        "physical_meaning": "成形网滤出白水中的纤维和填料含量，是留着率的间接反馈指标。白水浓度越高→留着率越低→纤维和填料流失越严重",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [0.7, 1.3],
+        "controlled_by": "retention_aid_dosage_ppm",
+        "equipment_ref": "WIRE-01",
+        "stage_ref": "S4"
+      },
+      {
+        "name": "助留剂用量",
+        "column": "retention_aid_dosage_ppm",
+        "unit": "ppm",
+        "role": "predictor",
+        "physical_meaning": "每百万份浆料中添加的助留剂量。助留剂通过电荷中和和桥联作用使细小纤维和填料絮聚留在纸页中。过量会导致过度絮聚→匀度变差",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "setpoint",
+        "target": null,
+        "normal_range": [154, 299],
+        "controlled_by": "DCS_retention_controller",
+        "equipment_ref": "RET-AID-01",
+        "stage_ref": "S2"
+      },
+      {
+        "name": "堰板开口",
+        "column": "slice_opening_mm",
+        "unit": "mm",
+        "role": "predictor",
+        "physical_meaning": "流浆箱唇板缝隙宽度，控制浆流喷出厚度。堰板开口×浆速×浓度=定量(单位面积克重)。开口不均匀导致横幅定量条纹",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "setpoint",
+        "target": null,
+        "normal_range": [6.6, 13.2],
+        "controlled_by": "operator_or_DCS",
+        "equipment_ref": "SLICE-01",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "纸机速度",
+        "column": "machine_speed_mmin",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "成形网运行线速度，直接控制纸页在网部的牵引拉伸。速度与浆速的比值(jet-to-wire ratio)决定纤维取向和匀度",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "setpoint",
+        "target": null,
+        "normal_range": [1267, 1764],
+        "controlled_by": "operator_or_DCS",
+        "equipment_ref": "WIRE-01",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "浆料温度",
+        "column": "stock_temp_C",
+        "unit": "°C",
+        "role": "predictor",
+        "physical_meaning": "纸浆悬浮液温度。温度影响水的黏度——温度升高→黏度降低→浆料流动性改善、脱水速度加快。温度异常波动可能反映白水循环系统问题",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [35, 50],
+        "controlled_by": null,
+        "stage_ref": "S1"
+      },
+      {
+        "name": "浆网速比",
+        "column": "jet_to_wire_ratio",
+        "unit": "ratio",
+        "role": "predictor",
+        "physical_meaning": "浆流喷射速度与成形网速度之比(rush/drag ratio)。=1.0时无剪切，匀度最差(纤维絮聚无法被破坏)；偏离1.0产生剪切力改善匀度但增强纤维MD取向，影响MD/CD强度比。典型运行范围0.97-1.05",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [0.97, 1.05],
+        "controlled_by": "headbox_pressure_and_machine_speed",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "真空泵1真空度",
+        "column": "vacuum_pump1_kPa",
+        "unit": "kPa",
+        "role": "predictor",
+        "physical_meaning": "成形网前段真空脱水负压值，控制初始脱水速率。真空度过高→初始脱水过快→纤维“封闭”过早→后续脱水困难、纸页蓬松度下降",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [40, 62],
+        "controlled_by": null,
+        "equipment_ref": "VAC-PUMP-01",
+        "stage_ref": "S4"
+      },
+      {
+        "name": "真空泵2真空度",
+        "column": "vacuum_pump2_kPa",
+        "unit": "kPa",
+        "role": "predictor",
+        "physical_meaning": "成形网中后段真空脱水负压值，控制后期脱水程度。数据质量差（极端离群值min=-166.9, max=404.6），需剔除异常后进行诊断。期间发生过真空泵2皮带更换事件",
+        "physical_meaning_confidence": "KNOWN",
+        "control_type": "measurement",
+        "target": null,
+        "normal_range": [35, 65],
+        "controlled_by": null,
+        "equipment_ref": "VAC-PUMP-02",
+        "stage_ref": "S4"
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "冲浆泵转速",
+        "column": "fan_pump_speed_rpm",
+        "unit": "RPM",
+        "role": "control",
+        "physical_meaning": "冲浆泵驱动电机转速，DCS通过调节转速控制上浆流量和流浆箱压力",
+        "control_type": "output",
+        "setpoint": null,
+        "controlled_by": "DCS_total_head_controller",
+        "equipment_ref": "FAN-PUMP-01",
+        "stage_ref": "S1"
+      },
+      {
+        "name": "堰板开口",
+        "column": "slice_opening_mm",
+        "unit": "mm",
+        "role": "control",
+        "physical_meaning": "流浆箱唇板开口宽度设定值，用于调节横幅定量分布和浆流厚度",
+        "control_type": "setpoint",
+        "setpoint": null,
+        "controlled_by": "operator_or_DCS",
+        "equipment_ref": "SLICE-01",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "纸机速度",
+        "column": "machine_speed_mmin",
+        "unit": "m/min",
+        "role": "control",
+        "physical_meaning": "成形网运行速度设定值，为生产不同定量纸品而调整",
+        "control_type": "setpoint",
+        "setpoint": null,
+        "controlled_by": "operator_or_DCS",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "助留剂用量",
+        "column": "retention_aid_dosage_ppm",
+        "unit": "ppm",
+        "role": "control",
+        "physical_meaning": "助留剂添加量的设定值，DCS根据白水浓度反馈自动调节",
+        "control_type": "setpoint",
+        "setpoint": null,
+        "controlled_by": "DCS_retention_controller",
+        "equipment_ref": "RET-AID-01",
+        "stage_ref": "S2"
+      }
+    ],
+    "events": [
+      {
+        "name": "换产事件",
+        "column": "grade_change",
+        "description": "纸品等级切换(GSM80↔GSM100↔GSM120)，91天内发生619次，平均每天约6.8次。频繁换产影响工艺稳定性",
+        "event_values": ["GSM80→GSM100", "GSM80→GSM120", "GSM100→GSM80", "GSM100→GSM120", "GSM120→GSM80", "GSM120→GSM100"],
+        "event_meanings": {
+          "GSM80→GSM100": "从80克纸切换至100克纸，需提高浆料流量、纸机速度和堰板开口",
+          "GSM100→GSM120": "从100克纸切换至120克纸，需进一步提高各参数",
+          "GSM120→GSM80": "从120克纸降级至80克纸，大幅降低各参数设定"
+        }
+      },
+      {
+        "name": "真空泵2皮带更换",
+        "column": "maintenance_event",
+        "description": "真空泵2传动皮带更换(MAINTENANCE)。可能影响真空泵2的真空度输出和稳定性",
+        "event_values": ["VAC_PUMP2_BELT_REPLACED"]
+      },
+      {
+        "name": "流浆箱压力变送器校准",
+        "column": "calibration_event",
+        "description": "流浆箱压力变送器重新校准，发现+0.35 kPa偏移。校准前后压力读数不可直接比较",
+        "event_values": ["PRESSURE_TRANSMITTER_RECALIBRATED"]
+      },
+      {
+        "name": "BOIL_OUT清洗",
+        "column": "boilout_event",
+        "description": "流浆箱和管道系统化学清洗(BOIL_OUT)，清除沉积物和污染物。清洗后工艺参数可能短期改善",
+        "event_values": ["BOIL_OUT_PERFORMED"]
+      },
+      {
+        "name": "断纸事件",
+        "column": "break_event",
+        "description": "纸页在网部或压榨部断裂，导致生产中断。断纸后重新引纸过程中工艺参数波动剧烈",
+        "event_values": ["WEB_BREAK_OCCURRED"]
+      }
+    ],
+    "metadata_columns": [
+      {
+        "name": "DCS时间戳",
+        "column": "ts_dcs",
+        "role": "timestamp",
+        "description": "DCS过程参数采样时间（~2分钟间隔）"
+      },
+      {
+        "name": "QCS时间戳",
+        "column": "ts_qcs",
+        "role": "timestamp",
+        "description": "QCS质量参数采样时间（~40分钟间隔，非均匀）"
+      },
+      {
+        "name": "生产日期",
+        "column": "day",
+        "role": "batch_id",
+        "description": "生产天数编号(1-91)，从2025-10-01起算。可用于按天聚合分析质量趋势"
+      },
+      {
+        "name": "班次",
+        "column": "shift",
+        "role": "operator",
+        "description": "操作班次(1=白班, 2=夜班)。可能存在操作习惯、调整策略的差异"
+      },
+      {
+        "name": "运行纸品等级",
+        "column": "grade_running",
+        "role": "product_code",
+        "description": "当前运行的纸品等级(GSM80/GSM100/GSM120)。不同等级有不同的工艺设定点，是最关键的混淆变量"
+      },
+      {
+        "name": "纸品等级(质量)",
+        "column": "grade",
+        "role": "product_code",
+        "description": "QCS质量检测时对应的纸品等级，应与grade_running一致"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "压力-流量子系统": ["headbox_pressure_kPa", "approach_flow_lpm", "fan_pump_speed_rpm"],
+    "浆网速比控制子系统": ["jet_to_wire_ratio", "slice_opening_mm", "machine_speed_mmin"],
+    "留着率-白水子系统": ["white_water_consistency_pct", "retention_aid_dosage_ppm", "ash_content_pct"],
+    "脱水真空子系统": ["vacuum_pump1_kPa", "vacuum_pump2_kPa", "moisture_pct"],
+    "浆料性质子系统": ["stock_temp_C"],
+    "质量输出子系统": ["defect_grade", "cd_basis_weight_cv_pct", "formation_index", "strength_rel_pct"],
+    "混淆变量组": ["grade_running", "shift"],
+    "事件标记组": ["vacuum_pump2_belt_replace", "pressure_transmitter_calibration", "boil_out", "web_break"]
+  },
+  "relationships": [
+    {
+      "from": "fan_pump_speed_rpm",
+      "to": "approach_flow_lpm",
+      "type": "control",
+      "strength": "strong",
+      "mechanism": "冲浆泵转速通过泵特性曲线(Q-H曲线)直接决定出口流量。离心泵流量近似与转速成正比",
+      "time_lag": "0-5s",
+      "inferred": false
+    },
+    {
+      "from": "fan_pump_speed_rpm",
+      "to": "headbox_pressure_kPa",
+      "type": "control",
+      "strength": "strong",
+      "mechanism": "冲浆泵转速提高→出口压力提高(近似与转速平方成正比)→流浆箱总压头增加。压力波动直接传导至浆流喷出速度",
+      "time_lag": "1-3s",
+      "inferred": false
+    },
+    {
+      "from": "approach_flow_lpm",
+      "to": "headbox_pressure_kPa",
+      "type": "physical",
+      "strength": "strong",
+      "mechanism": "流量与压力通过系统阻力特性关联。流量增大→流浆箱内流速增加→动压转化为静压的程度变化→总压头变化",
+      "time_lag": "0-2s",
+      "inferred": false
+    },
+    {
+      "from": "headbox_pressure_kPa",
+      "to": "jet_to_wire_ratio",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "流浆箱总压头H_T决定浆流喷射速度(Vj=Cv*sqrt(2g*H_T))。Vj/网速=jet-to-wire ratio。压力波动→浆速波动→速比波动",
+      "time_lag": "0s",
+      "inferred": false
+    },
+    {
+      "from": "machine_speed_mmin",
+      "to": "jet_to_wire_ratio",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "jet-to-wire ratio = Vj/Vwire。网速变化直接改变速比。网速提升→速比下降→从rush变为drag→纤维取向和匀度变化",
+      "time_lag": "0s",
+      "inferred": false
+    },
+    {
+      "from": "slice_opening_mm",
+      "to": "cd_basis_weight_cv_pct",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "堰板开口不均匀或设定不当→浆流厚度分布不均→横幅定量变异。唇板变形/磨损可导致>80%相关性的横幅定量条纹",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "slice_opening_mm",
+      "to": "formation_index",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "堰板开口影响收缩比(contraction ratio)。开口越小→收缩比越大→微湍流被抑制→纤维絮聚更难被分散→匀度下降。存在最优开口值使匀度最佳",
+      "time_lag": "dwell_time",
+      "inferred": true
+    },
+    {
+      "from": "jet_to_wire_ratio",
+      "to": "formation_index",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "速比=1.0时浆流与网速无速度差→无剪切力→纤维絮聚无法被破坏→匀度最差。速比偏离1.0(无论rush还是drag)→剪切力分散絮聚→匀度改善。这是纸机匀度控制的物理基础",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "jet_to_wire_ratio",
+      "to": "strength_rel_pct",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "速比偏离1.0→纤维在MD方向预取向→MD抗张强度增加、CD抗张强度减少→MD/CD强度比变化。速比=1.0时MD拉伸最小、抗撕裂最大",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "retention_aid_dosage_ppm",
+      "to": "white_water_consistency_pct",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "助留剂通过电荷中和和桥联作用使细小纤维和填料絮聚留在纸页中→白水中流失的固形物减少→白水浓度降低。这是湿部化学控制的核心反馈回路",
+      "time_lag": "30s-2min",
+      "inferred": false
+    },
+    {
+      "from": "retention_aid_dosage_ppm",
+      "to": "formation_index",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "助留剂过量→过度絮聚(over-flocculation)→纤维形成大团絮→纸页中出现云状不均匀→匀度恶化。这是留着率-匀度的经典权衡关系(retention-formation trade-off)",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "white_water_consistency_pct",
+      "to": "ash_content_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "白水浓度升高→填料和细小纤维流失增加→成纸灰分含量降低。白水浓度是留着率的间接指标，留着率=1-(白水浓度/上网浓度)",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "stock_temp_C",
+      "to": "headbox_pressure_kPa",
+      "type": "physical",
+      "strength": "weak",
+      "mechanism": "温度升高→水黏度降低→浆料在管道和流浆箱中的流动阻力减小→相同流量下所需压力降低，或相同压力下流量增加",
+      "time_lag": "0-5s",
+      "inferred": true
+    },
+    {
+      "from": "stock_temp_C",
+      "to": "formation_index",
+      "type": "physical",
+      "strength": "weak",
+      "mechanism": "温度影响浆料黏度和纤维溶胀程度→影响纤维在湍流中的分散行为→间接影响匀度。较高温度可能促进纤维柔顺性→改善交织",
+      "time_lag": "dwell_time",
+      "inferred": true
+    },
+    {
+      "from": "vacuum_pump1_kPa",
+      "to": "moisture_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "真空泵1提供成形网前段脱水驱动力。真空度越高→初始脱水越快→可降低纸页进入压榨部前的含水量。但过度真空会导致纤维过早“封闭”→后续脱水困难",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "vacuum_pump2_kPa",
+      "to": "moisture_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "真空泵2提供中后段真空脱水。真空度异常(如皮带磨损导致真空不足)→脱水不充分→湿纸页含水量偏高→干燥负荷增加",
+      "time_lag": "dwell_time",
+      "inferred": false
+    },
+    {
+      "from": "vacuum_pump1_kPa",
+      "to": "formation_index",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "真空度过高→初始脱水过于剧烈→纤维在成形网上的重排时间不足→纤维分布不均匀→匀度下降。适当的真空梯度才能兼顾脱水效率和匀度",
+      "time_lag": "dwell_time",
+      "inferred": true
+    },
+    {
+      "from": "vacuum_pump2_kPa",
+      "to": "strength_rel_pct",
+      "type": "causal",
+      "strength": "weak",
+      "mechanism": "脱水不充分→湿纸页含水量高→进入压榨部时纤维间结合水过多→影响纤维间氢键形成→纸页强度下降",
+      "time_lag": "dwell_time",
+      "inferred": true
+    },
+    {
+      "from": "cd_basis_weight_cv_pct",
+      "to": "defect_grade",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "横幅定量变异是缺陷等级判定的核心指标之一。CV过高→横幅方向厚薄不均→局部定量超标→降级",
+      "time_lag": "0",
+      "inferred": false
+    },
+    {
+      "from": "formation_index",
+      "to": "defect_grade",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "匀度指数是缺陷等级判定的核心指标之一。匀度差→纸页局部纤维分布不均→强度和印刷适性下降→降级",
+      "time_lag": "0",
+      "inferred": false
+    },
+    {
+      "from": "grade_running",
+      "to": "headbox_pressure_kPa",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "不同纸品等级对应不同的工艺设定点。GSM120需要最高的压力和流量以达到所需的定量水平",
+      "time_lag": "0",
+      "inferred": false
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "grade_running",
+      "why": "不同纸品等级(GSM80/100/120)有不同的工艺设定点和操作窗口。GSM120需要更高压力/流量/速度，这些系统性的参数差异可能导致'高压高热导致质量差'的虚假关联。必须按等级分层分析以避免辛普森悖论",
+      "controlled": false
+    },
+    {
+      "variable": "shift",
+      "why": "不同班次的操作人员可能有不同的调整策略、操作习惯和技能水平。班组差异可能导致在相同工艺参数下产生不同的质量结果",
+      "controlled": false
+    },
+    {
+      "variable": "day",
+      "why": "数据跨91天，设备磨损、季节性温度变化、原料批次差异等时间趋势可能同时影响工艺参数和质量输出，产生虚假的时间相关性",
+      "controlled": false
+    },
+    {
+      "variable": "grade_change_frequency",
+      "why": "频繁的等级切换(619次/91天，平均每天6.8次)导致工艺参数频繁调整。换产过渡期的不稳定可能是质量差的独立原因，而非稳态操作参数本身",
+      "controlled": false
+    }
+  ],
+  "metadata": {
+    "units": {
+      "pressure": "kPa",
+      "flow_rate": "L/min",
+      "speed": "m/min, RPM",
+      "temperature": "°C",
+      "consistency_concentration": "%",
+      "dosage": "ppm",
+      "dimension": "mm",
+      "ratio": "dimensionless",
+      "strength": "%"
+    },
+    "sampling_rate": "DCS: ~2min, QCS: ~40min",
+    "batch_id": null,
+    "timezone": null,
+    "start_time": "2025-10-01T00:00:00",
+    "end_time": "2025-12-29T23:59:59",
+    "product_grades": [
+      {
+        "name": "GSM80",
+        "key_parameter_differences": {
+          "headbox_pressure_kPa": "mean=20.91, std=4.33",
+          "approach_flow_lpm": "mean=3984, std=76",
+          "slice_opening_mm": "mean=8.38, std=0.50",
+          "machine_speed_mmin": "mean=1321, std=13",
+          "jet_to_wire_ratio": "mean=1.02, std=0.03",
+          "defect_A_rate": "32.1%"
+        }
+      },
+      {
+        "name": "GSM100",
+        "key_parameter_differences": {
+          "headbox_pressure_kPa": "mean=23.96, std=5.02",
+          "approach_flow_lpm": "mean=4483, std=84",
+          "slice_opening_mm": "mean=9.70, std=0.49",
+          "machine_speed_mmin": "mean=1509, std=13",
+          "jet_to_wire_ratio": "mean=1.02, std=0.03",
+          "defect_A_rate": "30.9%"
+        }
+      },
+      {
+        "name": "GSM120",
+        "key_parameter_differences": {
+          "headbox_pressure_kPa": "mean=27.84, std=5.88",
+          "approach_flow_lpm": "mean=5078, std=84",
+          "slice_opening_mm": "mean=11.23, std=0.52",
+          "machine_speed_mmin": "mean=1700, std=13",
+          "jet_to_wire_ratio": "mean=1.02, std=0.03",
+          "defect_A_rate": "24.4%"
+        }
+      }
+    ]
+  }
+}

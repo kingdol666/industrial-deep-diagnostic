@@ -1,0 +1,114 @@
+[
+  {
+    "file": "01_correlation_heatmap.png",
+    "title": "Correlation Heatmap - Pearson Matrix and Spearman Divergence",
+    "description": "左图：Pearson相关矩阵（-1到1，红蓝双色），右图：Spearman散度（|Pearson-Spearman|，黄-红渐变色）。",
+    "key_observations": [
+      "硬度hardness_N与脆碎度friability_pct高度负相关（r=-0.889），硬度高→脆碎度低",
+      "硬度hardness_N与片重tablet_weight_mg负相关（r=-0.857），密集化程度高的片更重也更硬",
+      "颗粒水分blend_moisture_pct与硬度正相关（r=0.575），异常现象——水分应降低硬度",
+      "Spearman散度在friability_pct-defect_flag对中高达0.16，表明非线性/阈值关系",
+      "大多数工艺参数间相关较弱（|r|<0.3），无严重共线性问题"
+    ],
+    "validation_issues": "defect_flag与质量指标的相关为100%离群值驱动，需谨慎；blend_moisture-hardness的Pearson>Spearman可能存在非线性",
+    "diagnostic_implication": "硬度-脆碎度-崩解三者的强相关表明它们由共同的物理机制驱动（片剂密度/孔隙率），不是各自独立的缺陷模式"
+  },
+  {
+    "file": "02_scatter_grid_by_station.png",
+    "title": "Process Parameter vs Quality Scatter Grid (Station-colored)",
+    "description": "Top-4关键工艺参数与5个质量指标散点图网格。三色按工位（Station 1/2/3），虚线为每组线性回归。",
+    "key_observations": [
+      "blend_moisture_pct是硬度最强的工艺参数预测因子（r=0.575），且趋势在三个工位一致",
+      "compression_force_kN与硬度呈轻微负相关（r=-0.386），与预期不一致——可能需要分层控制",
+      "pre_compression_force_kN的预测能力与主压缩力相当，预压阶段对质量有显著影响",
+      "Station 2（蓝色）的参数范围略不同于工位1和3，可能暗示工位间调校差异",
+      "各工位的参数-质量斜率整体一致，未发现Simpson's Paradox反转信号"
+    ],
+    "validation_issues": "validate_report报告19个Simpson's Paradox发现——但多以defect_flag为目标，以质量指标为目标的分组分析未见反转",
+    "diagnostic_implication": "参数-质量关系在工位间基本一致，说明缺陷的根因不是工位特有的调校问题，而是全局性因素（如颗粒水分、润滑水平）"
+  },
+  {
+    "file": "03_raw_vs_detrended.png",
+    "title": "Raw vs Detrended Correlation Comparison",
+    "description": "原始Pearson r（蓝色）与去趋势后Pearson r（红色）对比柱状图。Δ>0.05标注变化量。",
+    "key_observations": [
+      "validate_report显示趋势混杂量为0——无任何|r|>0.3的相关对受时间趋势显著影响",
+      "去趋势前后的相关系数变化极小，表明观测到的相关性不是时间伪相关",
+      "所有强相关（|r|>0.7）在去趋势后保持稳定",
+      "无趋势混杂意味着batch_seq（时间序）与工艺参数的变化方向不一致——工艺参数在试验条件下波动而非单调漂移"
+    ],
+    "validation_issues": "0个趋势混杂相关——排序验证通过（100%递增），时间序列分析有效",
+    "diagnostic_implication": "相关性是真实物理关联而非时间伪相关，诊断师可信任Pearson相关作为因果推断的基础证据"
+  },
+  {
+    "file": "04_batch_quality_trend.png",
+    "title": "Batch-to-Batch Quality Variation Trend with Production Events",
+    "description": "按批次序号的批次均值折线图（含标准差带），红色虚线为质量标准限（硬度>80N，脆碎度<1%，崩解<15min）。事件标记：绿色=校准，橙色=物料事件，蓝色=冲模重修，紫色=润滑剂更换。",
+    "key_observations": [
+      "硬度在批次30-45（约11月12-16日）出现明显下降趋势，部分批次均值低于80N阈值",
+      "脆碎度在批次30-45同步上升，与硬度下降相反——说明片剂整体质量恶化",
+      "11月8日物料事件（水分超标）后硬度持续下降约5-7N，持续多个批次",
+      "11月14日冲模重修（Station 3）后趋势未明显恢复，说明问题不是冲模磨损",
+      "11月17日润滑剂更换后硬度略有回升，但效果有限",
+      "方差在不同批次间波动明显，第40-50批次的变异性最大"
+    ],
+    "validation_issues": "批次序号的钟形时间趋势表明存在系统性退化过程，非随机波动",
+    "diagnostic_implication": "质量退化从第30批开始持续到第50批，跨越多起事件——表明是累积性系统退化（如压轮磨损/导轨变形），而非单一事件触发"
+  },
+  {
+    "file": "05_anomaly_timeline.png",
+    "title": "Anomaly Timeline with Event Markers",
+    "description": "质量指标时间序列（每片），红色/橙色背景=异常区间（自适应±2σ阈值），绿色虚线=质量标准，彩色竖线=生产事件。",
+    "key_observations": [
+      "硬度异常：79个异常区间覆盖94个异常点（4.84%），集中在批次30-45区域",
+      "脆碎度异常：79个区间共118点（6.07%），与硬度异常区间高度重叠",
+      "片重异常：113个区间共149点（7.67%），遍布整个时间轴，提示片重控制存在持续问题",
+      "物料事件（橙色竖线）后出现密集异常区间，硬度骤降、脆碎度骤升",
+      "四起事件中，只有物料事件和润滑剂更换与异常区间有明显时间关联"
+    ],
+    "validation_issues": "自适应±2σ阈值对厚尾分布可能过于敏感，建议验证时调整至2.5σ",
+    "diagnostic_implication": "异常区间在批次30后密集爆发且三种质量指标同步异常——指向共同的根因（如颗粒密度/水分驱动的压实力不足）"
+  },
+  {
+    "file": "06_transition_impact.png",
+    "title": "Transition Impact Analysis - Before/After Change Events",
+    "description": "冲模更换和工位更换前后质量变化对比图。浅色=更换前，深色=更换后。",
+    "key_observations": [
+      "冲模更换（P101/P102/P103之间轮换）前后硬度、脆碎度、崩解的变化量较小（max_jump<0.9sigma）",
+      "工位更换同样未引起质量指标的大幅跳变（max_jump<0.7sigma）",
+      "冲模/工位更换后质量未出现明显恢复（reset）——不支持组件级退化假说",
+      "158个过渡事件中仅少数几个的quality_jump>1.0sigma，远低于根因事件应有的信号强度",
+      "质量退化的持续性（非重置性）强烈指向系统级根因"
+    ],
+    "validation_issues": "过渡分析基于batch_seq的连续性，实际生产中的过渡可能包含更多未记录的中间批次",
+    "diagnostic_implication": "冲模更换和工位更换后质量不恢复——排除冲模磨损/工位偏差作为唯一根因，诊断师应聚焦系统级因素（如预压凸轮磨损、颗粒性质漂移）"
+  },
+  {
+    "file": "07_degradation_curves.png",
+    "title": "Degradation Curves - Process Parameters vs Quality (LOWESS Fit)",
+    "description": "工艺参数与质量指标散点图，黑线=LOWESS拟合趋势，颜色按缺陷等级（绿=合格，橙=边缘，红=不合格），红色虚线=质量标准。",
+    "key_observations": [
+      "blend_moisture_pct vs hardness：LOWESS曲线在2.5-3.5%范围内硬度先升后降，4%以上出现大量Grade C",
+      "compression_force_kN vs hardness：LOWESS趋势平坦，压缩力与硬度的直接关系弱于预期",
+      "pre_compression_force_kN vs hardness：弱正相关，预压力增加对硬度有轻微改善",
+      "lubricant_level_pct vs friability：润滑水平>1.5%时脆碎度显著上升，Grade C占比增加",
+      "水分>3.5%或润滑剂>1.5%是质量退化的两个临界阈值区域"
+    ],
+    "validation_issues": "LOWESS平滑参数（frac=0.15）可能掩盖短周期波动，但对本分析目的（识别临界阈值）足够",
+    "diagnostic_implication": "颗粒水分和润滑水平是质量退化的两个关键临界参数——在特定阈值（水分>3.5%，润滑剂>1.5%）之上缺陷率急剧增加"
+  },
+  {
+    "file": "08_causal_evidence_map.png",
+    "title": "Causal Evidence Map - Validated Parameter-Quality Relationships",
+    "description": "验证后的因果网络图。左列=工艺参数节点（蓝色圆圈），右列=质量指标节点（红色方块），边宽度=|r|，颜色：绿色=已验证，橙色=弱相关。",
+    "key_observations": [
+      "blend_moisture_pct连接4个质量目标（硬度/脆碎度/崩解/片重），是连接数量最多的根因候选",
+      "pre_compression_force_kN同样连接5个质量目标，但平均|r|仅为0.35",
+      "dwell_time_ms和ambient_*参数与所有质量指标的相关性均|<0.1——可以排除为根因",
+      "compression_force_kN对硬度的直接影响弱于预期（r=-0.39）——提示压缩力不是硬度的直接调节器",
+      "无任何参数对之间的共线性>0.8——参数独立性好，有利于多变量分析"
+    ],
+    "validation_issues": "边标注仅为Pearson r，但validate_report确认了非线性（Spearman散度>0.1在部分对中存在）",
+    "diagnostic_implication": "因果证据图指向颗粒水分（blend_moisture_pct）为最可能的根因候选——它连接最多质量目标且影响方向物理上合理（水分->颗粒塑性->压缩行为->片剂微观结构->所有质量属性）"
+  }
+]

@@ -1,0 +1,265 @@
+{
+  "time_column": "ts_start",
+  "column_mappings": [
+    {
+      "original": "batch_id",
+      "canonical": "batch_id",
+      "unit": "无",
+      "data_type": "string",
+      "role": "metadata",
+      "physical_meaning": "批次唯一标识编码（B0001-B0080）"
+    },
+    {
+      "original": "ts_start",
+      "canonical": "batch_start_time",
+      "unit": "datetime",
+      "data_type": "datetime",
+      "role": "metadata",
+      "physical_meaning": "批次开始时间"
+    },
+    {
+      "original": "batch_day",
+      "canonical": "batch_day",
+      "unit": "天",
+      "data_type": "integer",
+      "role": "metadata",
+      "physical_meaning": "批次所属的生产天数序号（1-27）"
+    },
+    {
+      "original": "batch_seq",
+      "canonical": "batch_sequence",
+      "unit": "无",
+      "data_type": "integer",
+      "role": "metadata",
+      "physical_meaning": "批次在检测表中的顺序号"
+    },
+    {
+      "original": "tablet_seq",
+      "canonical": "tablet_sequence",
+      "unit": "无",
+      "data_type": "integer",
+      "role": "metadata",
+      "physical_meaning": "批次内片剂检测顺序号"
+    },
+    {
+      "original": "station",
+      "canonical": "station",
+      "unit": "无",
+      "data_type": "integer",
+      "role": "confounder",
+      "physical_meaning": "压片工位号（1/2/3），每个工位固定使用一把冲模。这是本诊断中最关键的分层变量：100%的B+C级缺陷集中在station 3。"
+    },
+    {
+      "original": "punch_serial",
+      "canonical": "punch_serial",
+      "unit": "无",
+      "data_type": "string",
+      "role": "confounder",
+      "physical_meaning": "冲模编号，与station完全相关（station 1=P101-7047, station 2=P102-9032, station 3=P103-1001）。无法区分工位效应和冲模效应。"
+    },
+    {
+      "original": "operator_id",
+      "canonical": "operator_id",
+      "unit": "无",
+      "data_type": "string",
+      "role": "confounder",
+      "physical_meaning": "操作员ID（OP_A/OP_B/OP_C）。操作员在各工位交叉工作，缺陷率差异22-28%主要反映工位分配偏差。"
+    },
+    {
+      "original": "compression_force_kN",
+      "canonical": "compression_force",
+      "unit": "kN",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "主压阶段最大压缩力。注意：此值随生产进程显著上升（18→28kN），可能是对质量下降的补偿行为（反向因果风险）。"
+    },
+    {
+      "original": "pre_compression_force_kN",
+      "canonical": "pre_compression_force",
+      "unit": "kN",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "预压阶段压缩力"
+    },
+    {
+      "original": "turret_speed_rpm",
+      "canonical": "turret_speed",
+      "unit": "rpm",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "转塔旋转速度"
+    },
+    {
+      "original": "fill_depth_mm",
+      "canonical": "fill_depth",
+      "unit": "mm",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "充填深度，控制片重的直接手段"
+    },
+    {
+      "original": "dwell_time_ms",
+      "canonical": "dwell_time",
+      "unit": "ms",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "冲头在压缩滚轮下的驻留时间（测量值，受转塔速度影响）"
+    },
+    {
+      "original": "blend_moisture_pct",
+      "canonical": "blend_moisture",
+      "unit": "%",
+      "data_type": "numeric",
+      "role": "confounder",
+      "physical_meaning": "颗粒混合水分含量。随机波动，同时影响所有工位，可能掩盖或放大工位间差异。"
+    },
+    {
+      "original": "lubricant_level_pct",
+      "canonical": "lubricant_level",
+      "unit": "%",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "硬脂酸镁润滑剂含量"
+    },
+    {
+      "original": "blend_uniformity_index",
+      "canonical": "blend_uniformity_index",
+      "unit": "无量纲",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "混合均匀度指数"
+    },
+    {
+      "original": "compression_zone_temp_C",
+      "canonical": "compression_zone_temp",
+      "unit": "°C",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "压缩区温度（传感器读数，可能响应滞后）"
+    },
+    {
+      "original": "ambient_temp_C",
+      "canonical": "ambient_temp",
+      "unit": "°C",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "环境温度"
+    },
+    {
+      "original": "ambient_humidity_pct",
+      "canonical": "ambient_humidity",
+      "unit": "%",
+      "data_type": "numeric",
+      "role": "predictor",
+      "physical_meaning": "环境相对湿度"
+    },
+    {
+      "original": "tablet_weight_mg",
+      "canonical": "tablet_weight",
+      "unit": "mg",
+      "data_type": "numeric",
+      "role": "target",
+      "physical_meaning": "片剂单片重量，合格范围~500mg ±5%"
+    },
+    {
+      "original": "hardness_N",
+      "canonical": "hardness",
+      "unit": "N",
+      "data_type": "numeric",
+      "role": "target",
+      "physical_meaning": "片剂径向破碎力，关键质量指标。站1/2均值~98N，站3均值~81N，整体变异大（56-113N）。"
+    },
+    {
+      "original": "friability_pct",
+      "canonical": "friability",
+      "unit": "%",
+      "data_type": "numeric",
+      "role": "target",
+      "physical_meaning": "片剂脆碎度，站1/2均值~0.30%，站3均值~1.26%（>1%不合格）"
+    },
+    {
+      "original": "disintegration_time_min",
+      "canonical": "disintegration_time",
+      "unit": "min",
+      "data_type": "numeric",
+      "role": "target",
+      "physical_meaning": "片剂崩解时间，站1/2均值~8.0min，站3均值~6.96min"
+    },
+    {
+      "original": "thickness_mm",
+      "canonical": "thickness",
+      "unit": "mm",
+      "data_type": "numeric",
+      "role": "target",
+      "physical_meaning": "片剂厚度，站1/2均值~5.00mm，站3均值~5.07mm"
+    },
+    {
+      "original": "defect_grade",
+      "canonical": "defect_grade",
+      "unit": "等级",
+      "data_type": "categorical",
+      "role": "target",
+      "physical_meaning": "综合缺陷等级：A=合格（75.1%）、B=边缘（5.0%）、C=不合格（19.9%）。"
+    }
+  ],
+  "group_columns": [
+    "station",
+    "punch_serial",
+    "operator_id",
+    "batch_day"
+  ],
+  "sampling_rate": {
+    "value": null,
+    "unit": "batch-level (batch_record) / tablet-level (test_results)",
+    "note": "batch_record.csv为每批1行；test_results.csv每批~24行（约60%抽样覆盖率）"
+  },
+  "time_range": {
+    "start": "2025-11-01T06:00:00",
+    "end": "2025-11-27T14:00:00"
+  },
+  "known_confounders": [
+    "station",
+    "punch_serial",
+    "operator_id",
+    "blend_moisture_pct",
+    "batch_day",
+    "compression_force_kN (reverse causality risk)",
+    "event_effects (PUNCH_DRESSING, LUBRICANT_CHANGE)"
+  ],
+  "parameter_groups": {
+    "compression_parameters": [
+      "compression_force_kN",
+      "pre_compression_force_kN",
+      "dwell_time_ms"
+    ],
+    "speed_and_fill": [
+      "turret_speed_rpm",
+      "fill_depth_mm",
+      "dwell_time_ms"
+    ],
+    "material_properties": [
+      "blend_moisture_pct",
+      "lubricant_level_pct",
+      "blend_uniformity_index"
+    ],
+    "environmental": [
+      "ambient_temp_C",
+      "ambient_humidity_pct",
+      "compression_zone_temp_C"
+    ],
+    "quality_metrics": [
+      "tablet_weight_mg",
+      "hardness_N",
+      "friability_pct",
+      "disintegration_time_min",
+      "thickness_mm",
+      "defect_grade"
+    ],
+    "stratification_variables": [
+      "station",
+      "punch_serial",
+      "operator_id",
+      "batch_day"
+    ]
+  }
+}

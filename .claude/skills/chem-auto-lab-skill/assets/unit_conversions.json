@@ -1,0 +1,61 @@
+{
+  "_description": "Common chemistry unit conversion factors. Multiply by factor to convert from unit_a to unit_b.",
+  "concentration": {
+    "M_to_mM": {"from": "M", "to": "mM", "factor": 1000.0},
+    "M_to_uM": {"from": "M", "to": "μM", "factor": 1000000.0},
+    "mg_per_mL_to_M": {"description": "Requires molecular weight", "formula": "factor = 1 / (Mw * 1000)"},
+    "ppm_to_mg_per_L": {"from": "ppm", "to": "mg/L", "factor": 1.0},
+    "wt_pct_to_mg_per_g": {"from": "wt%", "to": "mg/g", "factor": 10.0}
+  },
+  "mass": {
+    "kg_to_g": {"from": "kg", "to": "g", "factor": 1000.0},
+    "g_to_mg": {"from": "g", "to": "mg", "factor": 1000.0},
+    "mg_to_ug": {"from": "mg", "to": "μg", "factor": 1000.0},
+    "ug_to_ng": {"from": "μg", "to": "ng", "factor": 1000.0}
+  },
+  "volume": {
+    "L_to_mL": {"from": "L", "to": "mL", "factor": 1000.0},
+    "mL_to_uL": {"from": "mL", "to": "μL", "factor": 1000.0},
+    "L_to_uL": {"from": "L", "to": "μL", "factor": 1000000.0}
+  },
+  "temperature": {
+    "C_to_F": {"from": "°C", "to": "°F", "formula": "°F = °C * 9/5 + 32"},
+    "F_to_C": {"from": "°F", "to": "°C", "formula": "°C = (°F - 32) * 5/9"},
+    "C_to_K": {"from": "°C", "to": "K", "factor_offset": 273.15, "formula": "K = °C + 273.15"},
+    "K_to_C": {"from": "K", "to": "°C", "formula": "°C = K - 273.15"}
+  },
+  "pressure": {
+    "MPa_to_GPa": {"from": "MPa", "to": "GPa", "factor": 0.001},
+    "GPa_to_MPa": {"from": "GPa", "to": "MPa", "factor": 1000.0},
+    "atm_to_Pa": {"from": "atm", "to": "Pa", "factor": 101325.0},
+    "bar_to_Pa": {"from": "bar", "to": "Pa", "factor": 100000.0},
+    "psi_to_Pa": {"from": "psi", "to": "Pa", "factor": 6894.76},
+    "kPa_to_Pa": {"from": "kPa", "to": "Pa", "factor": 1000.0}
+  },
+  "time": {
+    "h_to_min": {"from": "h", "to": "min", "factor": 60.0},
+    "min_to_s": {"from": "min", "to": "s", "factor": 60.0},
+    "h_to_s": {"from": "h", "to": "s", "factor": 3600.0}
+  },
+  "length": {
+    "nm_to_um": {"from": "nm", "to": "μm", "factor": 0.001},
+    "um_to_mm": {"from": "μm", "to": "mm", "factor": 0.001},
+    "mm_to_cm": {"from": "mm", "to": "cm", "factor": 0.1},
+    "cm_to_m": {"from": "cm", "to": "m", "factor": 0.01}
+  },
+  "energy": {
+    "eV_to_J": {"from": "eV", "to": "J", "factor": 1.602176634e-19},
+    "kJ_to_J": {"from": "kJ", "to": "J", "factor": 1000.0},
+    "kcal_to_J": {"from": "kcal", "to": "J", "factor": 4184.0},
+    "J_to_cal": {"from": "J", "to": "cal", "factor": 0.239006}
+  },
+  "frequency_wavelength": {
+    "Hz_to_kHz": {"from": "Hz", "to": "kHz", "factor": 0.001},
+    "kHz_to_MHz": {"from": "kHz", "to": "MHz", "factor": 0.001},
+    "cm1_to_THz": {"from": "cm⁻¹", "to": "THz", "formula": "frequency_THz = wavenumber * c / 1e12", "note": "c = 2.99792458e10 cm/s"},
+    "cm1_to_nm": {"from": "cm⁻¹", "to": "nm", "formula": "wavelength_nm = 1e7 / wavenumber"},
+    "nm_to_cm1": {"from": "nm", "to": "cm⁻¹", "formula": "wavenumber = 1e7 / wavelength_nm"},
+    "ppm_to_Hz": {"description": "NMR chemical shift conversion", "formula": "Hz = ppm * spectrometer_frequency_MHz"},
+    "min_to_kav": {"description": "SEC chromatography partition coefficient", "formula": "Kav = (Ve - V0) / (Vt - V0)"}
+  }
+}
