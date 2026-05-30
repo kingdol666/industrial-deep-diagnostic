@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "module": "Module 4: Evidence & Traceability",
+    "generated_at": "2026-05-30",
+    "provenance_schema": "Each record has source_id, page, extraction_method, confidence, and source_snippet"
+  },
+  "provenance_records": [
+    {
+      "experiment_id": "SRC001_E001",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "source_title": "低雾高清BOPET薄膜的制备及其性能研究",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (roughness) + Table 3 (friction) + Figure 3 (optical)",
+      "page": "43-46",
+      "source_snippet": "Baseline BOPET film without anti-block agent. Haze <0.5%, transmittance ~91%, Ra=18nm, friction coefficient static=1.22/dynamic=0.82",
+      "confidence": 0.85,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC001_E002",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "source_title": "低雾高清BOPET薄膜的制备及其性能研究",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (Sample 2) + Table 3 (Sample 2) + Figure 3",
+      "page": "44-45",
+      "source_snippet": "A-type masterbatch at 0.0125%: Haze=0.83%, Transmittance=90.8%, Clarity=99.6%, Gloss=136 GU, Ra=23nm, Friction static=0.36/dynamic=0.30",
+      "confidence": 0.92,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC001_E003",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (Sample 3) + Figure 3",
+      "page": "44-45",
+      "confidence": 0.88,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC001_E004",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (Sample 4) + Figure 3",
+      "page": "44-45",
+      "confidence": 0.90,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC001_E005",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (Sample 5) + Figure 3",
+      "page": "44-45",
+      "confidence": 0.90,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC001_E006",
+      "source_id": "SRC001",
+      "doi": "10.15925/j.cnki.issn1005-3360.2024.05.009",
+      "extraction_method": "table_extraction",
+      "source_location": "Table 2 (Sample 7) + Figure 3",
+      "page": "44-45",
+      "confidence": 0.90,
+      "data_completeness": "full"
+    },
+    {
+      "experiment_id": "SRC002_E001",
+      "source_id": "SRC002",
+      "doi": "10.1134/S0965545X24600145",
+      "source_title": "Effect of Heat-Setting Temperature on the Structure and Properties of BOPET Film",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract + qualitative trend descriptions",
+      "page": "Abstract",
+      "source_snippet": "With increasing heat-setting temperature, crystallinity and long period increased; tensile strength (MD) decreased; fracture elongation (TD) and elastic modulus (TD) increased; haze increased; transmittance showed little change; thermal shrinkage decreased",
+      "confidence": 0.55,
+      "data_completeness": "partial_paywalled",
+      "notes": "Full table data requires subscription access"
+    },
+    {
+      "experiment_id": "SRC002_E002",
+      "source_id": "SRC002",
+      "doi": "10.1134/S0965545X24600145",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract + qualitative trends",
+      "page": "Abstract",
+      "confidence": 0.50,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC002_E003",
+      "source_id": "SRC002",
+      "doi": "10.1134/S0965545X24600145",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract + qualitative trends",
+      "page": "Abstract",
+      "confidence": 0.50,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC003_E001",
+      "source_id": "SRC003",
+      "doi": "10.1016/j.polymer.2022.125594",
+      "source_title": "Mono-layer films with superior barrier properties and full recyclability: PET/PGA",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract + key results",
+      "page": "Abstract",
+      "confidence": 0.60,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC003_E002",
+      "source_id": "SRC003",
+      "doi": "10.1016/j.polymer.2022.125594",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract + discussion",
+      "page": "Abstract",
+      "confidence": 0.58,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC003_E003",
+      "source_id": "SRC003",
+      "doi": "10.1016/j.polymer.2022.125594",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract (explicit: 90 ± 2.2% reduction, T > 80%, ~40% elongation)",
+      "page": "Abstract",
+      "source_snippet": "Oxygen permeability decreased by 90 ± 2.2% compared to neat PET... high transparency (T > 80%)... good toughness (~40% elongation at break)",
+      "confidence": 0.68,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC003_E004",
+      "source_id": "SRC003",
+      "doi": "10.1016/j.polymer.2022.125594",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Morphology characterization",
+      "page": "Results",
+      "confidence": 0.55,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "SRC004_E001",
+      "source_id": "SRC004",
+      "doi": "10.1021/acs.macromol.3c02511",
+      "source_title": "X-ray Scattering Analyses on PET Films under Bending Deformation",
+      "extraction_method": "narrative_extraction",
+      "source_location": "Full article (open-access preprint available)",
+      "page": "3687-3695",
+      "confidence": 0.80,
+      "data_completeness": "full_from_supplementary"
+    },
+    {
+      "experiment_id": "SRC005_E001",
+      "source_id": "SRC005",
+      "doi": "10.1515/polyeng-2022-0145",
+      "source_title": "Structural evolution and barrier properties in biaxially stretched PET/HTPB films",
+      "extraction_method": "abstract_narrative",
+      "source_location": "Abstract",
+      "page": "Abstract",
+      "confidence": 0.50,
+      "data_completeness": "partial_paywalled"
+    },
+    {
+      "experiment_id": "PAT001_E001",
+      "source_id": "PAT001",
+      "source_title": "一种高透光率聚酯薄膜及其制造方法",
+      "extraction_method": "patent_text",
+      "source_location": "Patent abstract + claims",
+      "page": "Claims",
+      "confidence": 0.70,
+      "data_completeness": "partial"
+    },
+    {
+      "experiment_id": "PAT002_E001",
+      "source_id": "PAT002",
+      "source_title": "一种高硬度的PET光学膜及其制备方法",
+      "extraction_method": "patent_text",
+      "source_location": "Patent abstract + claims",
+      "page": "Abstract",
+      "confidence": 0.65,
+      "data_completeness": "partial"
+    }
+  ],
+  "confidence_distribution": {
+    "high_confidence_0.8_1.0": {"count": 7, "sources": ["SRC001 (Table data)"]},
+    "medium_confidence_0.6_0.8": {"count": 4, "sources": ["SRC003 (Abstract quantitative)", "SRC004 (Detailed narrative)", "PAT001, PAT002"]},
+    "low_confidence_0.4_0.6": {"count": 6, "sources": ["SRC002 (Paywalled)", "SRC005 (Paywalled)", "SRC003 parts"]}
+  }
+}

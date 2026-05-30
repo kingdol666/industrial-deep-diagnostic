@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://literature-to-lab-bridge.skill/schemas/bridge_manifest.schema.json",
+  "title": "Bridge Manifest",
+  "description": "Overall status and configuration of a literature-to-lab bridge run",
+  "type": "object",
+  "required": ["bridge_id", "domain", "mode", "status", "phases", "run_dir", "created_at"],
+  "properties": {
+    "bridge_id": {
+      "type": "string",
+      "pattern": "^bridge_\\d{14}$",
+      "description": "Unique bridge run identifier, format: bridge_YYYYMMDDHHMMSS"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain name (e.g., pva_bopet, catalyst_synthesis)"
+    },
+    "search_keywords": {
+      "type": "string",
+      "description": "Search keywords used for literature search"
+    },
+    "paper_files_provided": {
+      "type": "boolean",
+      "description": "Whether user provided local paper files instead of search keywords"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["full", "literature-only", "lab-only", "resume"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["initialized", "running", "gate_failed", "phase2_failed", "completed", "failed"]
+    },
+    "phases": {
+      "type": "object",
+      "required": ["phase1", "quality_gate", "transform", "phase2"],
+      "properties": {
+        "phase1": {
+          "type": "object",
+          "required": ["status", "skill"],
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "skill": {"type": "string"},
+            "papers_processed": {"type": "integer"},
+            "experiments_extracted": {"type": "integer"},
+            "mean_confidence": {"type": "number"},
+            "spectral_data_present": {"type": "boolean"},
+            "spectral_records": {"type": "integer"},
+            "errors": {"type": "array", "items": {"type": "string"}},
+            "warnings": {"type": "array", "items": {"type": "string"}},
+            "duration_ms": {"type": "integer"},
+            "statistics": {"type": "object"}
+          }
+        },
+        "quality_gate": {
+          "type": "object",
+          "required": ["status", "checks"],
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "passed", "failed"]},
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["check", "value", "threshold", "passed", "message"],
+                "properties": {
+                  "check": {"type": "string"},
+                  "value": {"type": ["number", "boolean", "string"]},
+                  "threshold": {"type": ["number", "boolean", "string"]},
+                  "passed": {"type": "boolean"},
+                  "message": {"type": "string"}
+                }
+              }
+            },
+            "warnings": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "transform": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "records_input": {"type": "integer"},
+            "records_output": {"type": "integer"},
+            "records_filtered": {"type": "integer"},
+            "spectral_detected": {"type": "boolean"},
+            "notes": {"type": "string"},
+            "duration_ms": {"type": "integer"}
+          }
+        },
+        "phase2": {
+          "type": "object",
+          "required": ["status", "skill"],
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "skill": {"type": "string"},
+            "modules_executed": {
+              "type": "array",
+              "items": {"type": "integer"}
+            },
+            "modules_skipped": {
+              "type": "array",
+              "items": {"type": "integer"}
+            },
+            "report_generated": {"type": "string"},
+            "recommendations_count": {"type": "integer"},
+            "figures_count": {"type": "integer"},
+            "errors": {"type": "array", "items": {"type": "string"}},
+            "duration_ms": {"type": "integer"},
+            "statistics": {"type": "object"}
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_duration_ms": {"type": "integer"},
+        "total_papers": {"type": "integer"},
+        "total_experiments_analyzed": {"type": "integer"},
+        "spectral_analysis": {"type": "boolean"},
+        "key_outputs": {"type": "array", "items": {"type": "string"}},
+        "key_findings": {"type": "string"},
+        "recommendations": {"type": "string"}
+      }
+    },
+    "output_artifacts": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "errors": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "run_dir": {
+      "type": "string",
+      "description": "Absolute path to the bridge run directory"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

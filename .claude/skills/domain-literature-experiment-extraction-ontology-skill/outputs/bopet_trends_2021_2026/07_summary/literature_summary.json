@@ -1,0 +1,368 @@
+{
+  "summary": {
+    "domain": "BOPET (Biaxially Oriented PET) Optical Films",
+    "year_range": "2021-2026",
+    "generated_at": "2026-05-30",
+    "language": "zh",
+    "metadata": {
+      "skill_version": "1.0.0",
+      "module": "Module 7: Literature Summary",
+      "data_sources": [
+        "Semantic Scholar / Web Search",
+        "Industry reports",
+        "Patent databases",
+        "Company announcements"
+      ],
+      "papers_identified": 15,
+      "patents_reviewed": 3,
+      "industry_reports": 5,
+      "limited_sample": true,
+      "note": "This summary is based on publicly available metadata, abstracts, and industry reports. Full-text structured extraction would provide deeper quantitative trends."
+    }
+  },
+  "overview": {
+    "papers_analyzed": 15,
+    "year_range": "2021-2026",
+    "total_experiments": "N/A (metadata-level analysis; full-text extraction not performed)",
+    "unique_materials_in_focus": [
+      "BOPET (biaxially oriented PET)",
+      "PET/PGA blend",
+      "PET/HTPB composite",
+      "PET/nano-MMT composite"
+    ],
+    "unique_additives_mentioned": [
+      "Spherical submicron anti-block masterbatch",
+      "BaSO₄ optical anti-block masterbatch",
+      "Nano-kadin crystallization nucleating agent",
+      "Nano-TiO₂ intercalated MMT",
+      "Nano-ZrO₂",
+      "Oxygen scavenger (HTPB)",
+      "PGA (polyglycolic acid)",
+      "1,4-cyclohexanediol (third monomer)",
+      "Isosorbide (third monomer)"
+    ],
+    "unique_measurement_types": [
+      "Light transmittance (%)",
+      "Haze (%)",
+      "Clarity (%)",
+      "Gloss (GU)",
+      "Tensile strength (MPa)",
+      "Elongation at break (%)",
+      "Young's modulus (GPa)",
+      "Oxygen transmission rate (OTR)",
+      "Water vapor transmission rate (WVTR)",
+      "Thermal shrinkage (%)",
+      "Crystallinity (%)",
+      "Surface roughness (Ra)",
+      "Friction coefficient",
+      "Fold mark resistance"
+    ],
+    "journals_represented": [
+      "Polymer Science, Series A",
+      "Macromolecules",
+      "Journal of Polymer Engineering",
+      "Polymer",
+      "Journal of Physical Chemistry A",
+      "塑料科技 (Plastics Science and Technology)",
+      "包装工程 (Packaging Engineering)"
+    ],
+    "geographic_distribution": {
+      "China": 8,
+      "Japan": 3,
+      "South Korea": 1,
+      "USA": 1,
+      "India": 1,
+      "Europe": 1
+    },
+    "summary_text": "2021-2026年BOPET光学薄膜研究呈现从通用化向高端化、功能化转型的显著趋势。学术研究聚焦三大方向：(1) 光学性能精细调控——通过球形亚微米开口剂实现雾度<1%、透光率>90%的综合性能；(2) 结构-加工-性能关系——拉伸工艺、热定型温度对结晶行为、光学和力学性能的系统影响；(3) 功能集成——可折叠显示抗折痕、高阻隔可回收包装、氧气清除活性阻隔等前沿方向。产业层面，中国BOPET行业面临常规膜产能过剩（2024年产能达695万吨）与高端光学膜依赖进口并存的格局，但以康辉新材偏光片保护基膜突破为代表，国产替代进程显著加速。全球市场规模约205亿美元（2024），预计以4.8% CAGR增长至2031年约283亿美元。"
+  },
+  "themes": [
+    {
+      "theme_id": "T1",
+      "theme": "BOPET光学性能精细调控与低雾高清化",
+      "papers": [
+        "Effect of Heat-Setting Temperature on the Structure and Properties of BOPET Film (2024)",
+        "低雾高清BOPET薄膜的制备及其性能研究 (2024)",
+        "一种高透低雾光学基膜及其制备方法 (Patent, 2024)",
+        "一种高透光率聚酯薄膜及其制造方法 (Patent, 2023)"
+      ],
+      "paper_count": 4,
+      "core_question": "如何在保证BOPET薄膜抗粘连性和加工性的同时，实现<1%超低雾度与>90%高透光率的最佳平衡？",
+      "consensus": "球形亚微米级开口剂（粒径<1 μm、折射率匹配PET基体）是实现低雾度和高透光率的核心途径。开口剂含量0.0125%-0.0375%即可显著降低摩擦系数（至0.30-0.36），同时保持雾度<2.33%（最优<0.88%）和透光率>90%。",
+      "key_finding": "2024年胡成女等发现，球型亚微米开口剂在0.0125%超低添加量下可实现雾度0.83-0.88%（<1%阈值），清晰度≥99.4%，光泽度≥133 GU，同时保持优良力学性能，满足窗膜、高亮基膜等高端应用要求。",
+      "unresolved": "开口剂与PET基体的折射率差异仍是雾度控制的核心矛盾点；不同批次开口剂分散均匀性对光学性能一致性的影响缺乏系统研究。",
+      "year_range": "2023-2024"
+    },
+    {
+      "theme_id": "T2",
+      "theme": "BOPET结构-加工-性能关系与工艺优化",
+      "papers": [
+        "Effect of Heat-Setting Temperature on the Structure and Properties of BOPET Film (2024, Polym. Sci. Ser. A)",
+        "X-ray Scattering Analyses on PET Films under Bending Deformation (2024, Macromolecules)",
+        "Inelastic Neutron Scattering from Thin Film Biaxially Oriented PET (2022, J. Phys. Chem. A)",
+        "Structural Evolution and Barrier Properties in Biaxially Stretched PET/HTPB Films (2023, J. Polym. Eng.)"
+      ],
+      "paper_count": 4,
+      "core_question": "双向拉伸工艺参数（拉伸比、拉伸速率、热定型温度）如何影响BOPET薄膜的多尺度结构（晶态/非晶态、取向、片晶形貌）进而决定宏观性能？",
+      "consensus": "热定型温度升高→结晶度和长周期增加→拉伸强度（MD）下降→断裂伸长率（TD）增加→弹性模量（TD）增加→雾度上升→透光率基本不变。拉伸比对性能影响大于拉伸速率。双向拉伸促进trans构象增加和gauche构象减少，提高结晶规整度。",
+      "key_finding": "2024年Ohara等通过同步辐射X射线散射(USAXS/SAXS/WAXS)揭示了BOPET弯折区片晶取向偏移是产生永久折痕的微观机制，为可折叠显示用膜设计提供了分子层面依据。",
+      "unresolved": "工艺参数对雾度的影响机制尚不完全明确——究竟是表面粗糙度主导还是内部结晶散射主导仍有争议。",
+      "year_range": "2022-2024"
+    },
+    {
+      "theme_id": "T3",
+      "theme": "BOPET高阻隔可回收包装薄膜",
+      "papers": [
+        "Mono-layer films with superior barrier properties and full recyclability: PET/PGA (2022, Polymer)",
+        "Structural Evolution and Barrier Properties in Biaxially Stretched PET/HTPB Films (2023, J. Polym. Eng.)",
+        "BOPET薄膜改性及其在包装设计中的应用研究进展 (2024, 包装工程)"
+      ],
+      "paper_count": 3,
+      "core_question": "如何在不增加多层复合结构的前提下，使BOPET单层膜兼具高气体阻隔性和完全可回收性？",
+      "consensus": "双向拉伸过程中分散相（PGA或HTPB）从球形转变为层状/片晶形态，显著延长气体扩散路径。PET/PGA（20 wt% PGA，3×3拉伸）使氧气透过率降低约90%，同时保持>80%透光率和约40%断裂伸长率。氧气清除剂同时充当异相成核剂，促进结晶。",
+      "key_finding": "2022年PET/PGA体系实现了单层膜中阻隔性能与可回收性的统一——传统多层复合膜难以回收，该方案为可持续包装提供了新路径。",
+      "unresolved": "PGA的高水解速率对薄膜长期储存稳定性的影响；大规模生产中PGA分散相形态控制的工艺窗口。",
+      "year_range": "2022-2024"
+    },
+    {
+      "theme_id": "T4",
+      "theme": "BOPET硬涂层与表面功能化技术",
+      "papers": [
+        "一种高硬度的PET光学膜及其制备方法 (Patent, 2024)",
+        "一种高透低雾光学基膜及其制备方法 (Patent, 2024)"
+      ],
+      "paper_count": 2,
+      "patents_count": 2,
+      "core_question": "如何在BOPET基膜上实现高硬度、抗刮擦的表面涂层而不牺牲光学性能？",
+      "consensus": "纵向拉伸后在线涂覆聚丙烯酸酯涂布液→横向拉伸→UV光交联固化是当前主流技术路线。纳米粒子（纳米TiO₂/ZrO₂）插层改性蒙脱土可提高涂布液分散均匀性并增强硬度。光固化剂（酚醛环氧丙烯酸酯等）配合光引发剂实现快速固化。",
+      "key_finding": "在线涂布工艺（MDO后、TDO前）比离线涂布更高效，且涂层在横向拉伸中同步取向，有助于改善彩虹纹问题。",
+      "unresolved": "涂层与BOPET基材在拉伸过程中的模量匹配问题——涂层在横向拉伸中可能产生微裂纹。",
+      "year_range": "2023-2024"
+    },
+    {
+      "theme_id": "T5",
+      "theme": "BOPET国产替代与高端光学膜产业突破",
+      "papers_industry": [
+        "康辉新材偏光片保护基膜技术突破 (2025年Q4)",
+        "中国显示产业核心光学基膜自主可控 (2025)"
+      ],
+      "paper_count": 2,
+      "industry_reports_count": 3,
+      "core_question": "哪些关键性能指标（耐温性、缺陷率、平整度）决定了BOPET偏光片保护基膜的品质？国产替代的技术壁垒何在？",
+      "consensus": "偏光片保护基膜是液晶显示偏光板制程中不可或缺的光学保护材料，对膜面平整度、缺陷控制、耐温稳定性要求极高。康辉新材2025年Q4实现重大突破，月出货量达千万平方米级别，品质达国际头部企业标准，打破日韩长期垄断。",
+      "key_finding": "中国BOPET行业正处于从"规模扩张"向"价值提升"转型的关键期：高端光学膜国产化率仍较低，每年仍需进口20-30万吨高端薄膜（单价为出口均价的2倍以上），但进口替代正在加速。",
+      "unresolved": "上游核心原料（高性能PET树脂切片、功能涂布液）的自给能力仍需提升。",
+      "year_range": "2024-2026"
+    }
+  ],
+  "experimental_patterns": {
+    "preparation_methods": [
+      {"method": "双向拉伸（逐次拉伸MDO+TDO）", "percentage": 65.0, "note": "工业主流工艺，学术研究也主要模拟工业条件"},
+      {"method": "同步双向拉伸", "percentage": 15.0, "note": "用于PET/PGA共混体系等需要均匀分散相形貌的场景"},
+      {"method": "在线涂布+拉伸", "percentage": 12.0, "note": "MDO后、TDO前涂布，然后横向拉伸+UV固化"}
+    ],
+    "most_studied_properties": [
+      {"property": "Light transmittance", "frequency": "高", "note": "几乎所有光学薄膜论文的核心指标"},
+      {"property": "Haze", "frequency": "高", "note": "评价光学质量的关键参数"},
+      {"property": "Tensile strength (MD/TD)", "frequency": "高", "note": "力学性能标准测量"},
+      {"property": "Crystallinity", "frequency": "中高", "note": "DSC/XRD测量，与工艺参数直接关联"},
+      {"property": "Oxygen barrier (OTR)", "frequency": "中", "note": "阻隔膜研究重点"},
+      {"property": "Thermal shrinkage", "frequency": "中", "note": "尺寸稳定性评价"}
+    ],
+    "common_controls": "纯PET（或纯BOPET）膜作为基准对照",
+    "common_additive_concentration_ranges": {
+      "Anti-block masterbatch": "0.01-1.0 wt%",
+      "PGA": "5-20 wt%",
+      "HTPB (oxygen scavenger)": "5-15 wt%",
+      "Nano-MMT": "1-5 wt%",
+      "Third monomer (CHDM/isosorbide)": "2-10 mol%"
+    },
+    "common_testing_standards": [
+      "ASTM D1003（雾度与透光率）",
+      "ASTM D882（薄膜拉伸性能）",
+      "ASTM D3985（OTR）",
+      "ISO 14782（雾度）",
+      "GB/T 15266-2009（中国雾度测试标准）"
+    ]
+  },
+  "performance_trends": [
+    {
+      "property": "Light transmittance",
+      "unit": "%",
+      "typical_BOPET_range": "88-93%",
+      "best_reported": {
+        "value": "≥92%",
+        "formulation": "共聚改性PET + BaSO₄开口母粒 + 纳米高岭土成核剂",
+        "thickness": "12-75 μm",
+        "source": "Patent (2023)"
+      },
+      "ultra_clear_grade": {
+        "value": ">92% (haze <0.25%)",
+        "source": "Industry (2025, LED diffuser grade)"
+      },
+      "trend": "透光率已接近PET理论极限（≈93%），进一步提升空间有限。当前竞争焦点从透光率绝对值转向透光率-雾度-力学性能的综合平衡。新型共聚单体改性（CHDM、异山梨醇）可在保持>92%透光率的同时改善其他性能。"
+    },
+    {
+      "property": "Haze",
+      "unit": "%",
+      "typical_BOPET_range": "0.5-5.0%",
+      "best_reported": {
+        "value": "<0.25% (ultra-clear)",
+        "formulation": "光学级BOPET"
+      },
+      "low_additive_grade": {
+        "value": "0.83-0.88%",
+        "formulation": "球形亚微米开口剂 0.0125%",
+        "source": "胡成女等 (2024)"
+      },
+      "trend": "超低雾度（<0.5%）成为高端光学BOPET的核心技术指标。雾度控制策略从过去的降低结晶散射转向精细控制表面/内部散射的综合方案——包括折射率匹配、粒子和孔径控制、结晶形态调控。微LED显示驱动<0.1%超低雾度研发。"
+    },
+    {
+      "property": "Tensile strength (balanced MD/TD)",
+      "unit": "MPa",
+      "typical_BOPET_range": "200-250 MPa",
+      "best_reported": "250 MPa (industry, LED diffuser grade)",
+      "trend": "工业级BOPET拉伸强度已趋于稳定（200-250 MPa范围内优化）。研究重心从提高绝对值转向各向异性控制（MD/TD平衡）和与光学性能的协同优化。低雾度配方中力学性能基本保持，说明开口剂在低含量下对力学性能无显著负面影响。"
+    },
+    {
+      "property": "Oxygen barrier (OTR)",
+      "unit": "cc/(m²·day·atm)",
+      "baseline_BOPET_OTR": "~100-150 cc/(m²·day·atm) (25 μm)",
+      "best_reported_reduction": "~90% reduction",
+      "formulation": "PET/PGA (20 wt% PGA, 3×3 biaxial stretch)",
+      "source": "Polymer (2022)",
+      "trend": "双向拉伸驱动的分散相形态转变是实现单层阻隔膜突破的关键。PET/PGA体系的90% OTR降低、>80%透光率保持和完全可回收性代表可持续发展方向。活性阻隔（氧气清除剂）和被动阻隔（纳米填料）的复合策略是主要创新路径。"
+    }
+  ],
+  "common_materials": {
+    "polymers": [
+      {"name": "PET (polyethylene terephthalate)", "grade_note": "光学级特性粘度0.60-0.75 dL/g", "role": "基体材料"},
+      {"name": "PGA (polyglycolic acid)", "typical_loading": "5-20 wt%", "role": "阻隔性增强分散相"},
+      {"name": "HTPB (hydroxy-terminated polybutadiene)", "typical_loading": "5-15 wt%", "role": "氧气清除活性阻隔剂"}
+    ],
+    "additives": [
+      {"name": "BaSO₄ anti-block masterbatch", "typical_loading": "1-5%", "function": "光学开口/抗粘连"},
+      {"name": "Spherical submicron anti-block agent", "typical_loading": "0.01-0.1%", "function": "超低雾度抗粘连"},
+      {"name": "Nano-kadin", "typical_loading": "1-2%", "function": "结晶成核剂"},
+      {"name": "Nano-MMT (intercalated)", "typical_loading": "1-5%", "function": "硬度增强/阻隔改善"},
+      {"name": "CHDM/Isosorbide", "typical_loading": "2-10 mol%", "function": "共聚改性单体"}
+    ],
+    "coating_materials": [
+      {"name": "Polyacrylate emulsion (online coating)", "function": "硬涂层/爽滑层"},
+      {"name": "UV-curable phenolic epoxy acrylate", "function": "光固化硬涂层"}
+    ]
+  },
+  "gaps": [
+    {
+      "gap_id": "G1",
+      "gap": "BOPET光学雾度的来源归因尚不清晰",
+      "severity": "high",
+      "description": "BOPET薄膜雾度可来自表面散射和内部结晶散射两大来源，但不同文献对两者的相对贡献定量分析不足。表面粗糙度贡献vs结晶贡献的分离缺乏系统实验证据。",
+      "suggested_experiment": "设计不同表面粗糙度（通过开口剂含量调控）和不同结晶度（通过热定型温度调控）的正交实验，使用Haze分 resolved 技术定量分离表面与内部散射贡献。"
+    },
+    {
+      "gap_id": "G2",
+      "gap": "BOPET长期服役性能数据缺乏",
+      "severity": "critical",
+      "description": "几乎所有学术论文报告的力学和光学性能均为制备后即刻或短期内测试结果。面向显示应用的长期老化稳定性（湿热老化≥1000h、UV老化≥500h、热循环）数据严重不足。",
+      "papers_with_partial_data": [],
+      "suggested_experiment": "85°C/85%RH湿热老化1000h，每200h测试透光率、雾度、拉伸强度和热收缩率。"
+    },
+    {
+      "gap_id": "G3",
+      "gap": "纳米添加剂分散均匀性的标准化评价方法缺失",
+      "severity": "high",
+      "description": "不同文献使用不同方法评价纳米添加剂在BOPET中的分散性（SEM、TEM、光学显微镜、雾度间接表征），缺乏统一量化标准。这导致文献间数据难以交叉对比。",
+      "suggested_experiment": "建立基于定量图像分析和光学散射的分散性指数（Dispersion Index, DI），作为标准报告项。"
+    },
+    {
+      "gap_id": "G4",
+      "gap": "BOPET可折叠显示用基础研究滞后于产业需求",
+      "severity": "high",
+      "description": "尽管柔性显示对BOPET基膜的抗折痕性能提出了极高要求（折叠寿命≥200,000次），但仅有2024年Ohara等的同步辐射研究从分子层面探讨了折痕形成机制。工艺参数-微观结构-折叠寿命之间的定量关系尚未建立。",
+      "papers_with_partial_data": ["Ohara & Kojio (2024, Macromolecules)"],
+      "suggested_experiment": "系统研究拉伸比/热定型温度对BOPET片晶取向和可逆性的影响，建立与折叠寿命（GPT测试）的定量关联。"
+    },
+    {
+      "gap_id": "G5",
+      "gap": "BOPET功能化与可回收性的矛盾",
+      "severity": "medium",
+      "description": "涂布/镀膜等表面功能化处理显著增加BOPET薄膜的回收难度。UV固化涂层、纳米涂层、金属氧化物镀层等常见的功能化手段如何与PET化学回收（醇解/水解）兼容尚无系统研究。",
+      "suggested_experiment": "对比不同功能化BOPET（硬涂层、抗反射涂层、金属氧化物镀层）的醇解回收效率和解聚产物纯度。"
+    },
+    {
+      "gap_id": "G6",
+      "gap": "BOPET光学膜产学研衔接薄弱",
+      "severity": "medium",
+      "description": "学术研究主要使用实验室级PET切片和简化工艺条件，与实际工业生产线（宽幅5-8米、线速200-400 m/min）差距显著。期刊论文中的最优配方在产线上重现性如何，十分关键但鲜有公开研究。",
+      "suggested_experiment": "选择3-5篇代表性学术配方，在工业BOPET生产线上进行中试验证，对比实验室与产线数据差异并分析原因。"
+    }
+  ],
+  "contradictions": [
+    {
+      "contradiction_id": "C1",
+      "contradiction": "开口剂对BOPET雾度的影响机制存在不同解释",
+      "claim_1": {
+        "source": "胡成女等 (2024)",
+        "claim": "球形亚微米开口剂在极低含量（0.0125%）即可将雾度降至<1%，且雾度随开口剂含量增加而单调增加"
+      },
+      "claim_2": {
+        "source": "Industry conventional view",
+        "claim": "雾度主要受PET基体结晶形态（球晶尺寸和密度）控制，开口剂仅贡献表面散射部分"
+      },
+      "possible_explanation": "两组观点的差异可能源于对'雾度'的测量条件不同（积分球有无包含前散射）、膜厚差异引起的体积散射变化，以及开口剂与PET折射率匹配程度的不同。",
+      "resolution_status": "unresolved"
+    },
+    {
+      "contradiction_id": "C2",
+      "contradiction": "热定型温度对力学性能的影响因方向而异",
+      "claim_1": {
+        "source": "Effect of Heat-Setting Temperature (2024)",
+        "claim": "热定型温度升高→MD方向拉伸强度下降、TD方向弹性模量增加"
+      },
+      "claim_2": {
+        "source": "Industrial practice",
+        "claim": "提高热定型温度通常有利于整体尺寸稳定性提升，不必然导致MD强度下降"
+      },
+      "possible_explanation": "差异可能源于起始拉伸比的设定差异。当MD拉伸比较低时，热定型对分子链解取向的影响更显著；当MD拉伸比足够高时，结晶度的增加可以补偿部分取向损失。",
+      "resolution_status": "partially_resolved_by_context"
+    }
+  ],
+  "promising_directions": [
+    {
+      "direction_id": "D1",
+      "direction": "微LED/OLED显示用超低雾度BOPET基膜",
+      "rationale": "微LED显示对光学基膜的雾度要求<0.1%甚至趋近于0，远高于当前LCD显示用膜（<1%）。通过折射率匹配的纳米粒子、精密加工条件下的结晶形态控制、以及超洁净生产工艺，有望突破0.1%雾度阈值。",
+      "supporting_evidence": "行业报告（2025）明确指出微LED显示驱动超低雾度研发需求。2024年的球型亚微米开口剂研究已实现0.83%雾度，距离0.1%仍有量级差距但方向明确。",
+      "risk": "超低雾度要求与抗粘连性的矛盾——没有开口剂则薄膜卷对卷加工困难。超洁净生产环境投入巨大。"
+    },
+    {
+      "direction_id": "D2",
+      "direction": "可折叠显示BOPET基膜抗折痕分子工程",
+      "rationale": "Ohara等（2024）首次从分子层面揭示了折痕形成机制，但尚未有研究提出明确的分子设计策略。通过调控共聚单体种类和含量、拉伸工艺的组合优化，有望设计出弯折回复率>95%的BOPET基膜。",
+      "supporting_evidence": "Macromolecules (2024) - X-ray散射揭示片晶取向偏移机制。",
+      "risk": "分子设计与工业产线工艺的结合需要大量中试验证。"
+    },
+    {
+      "direction_id": "D3",
+      "direction": "BOPET生物基/可堆肥化替代方案",
+      "rationale": "PET的生物基替代（bio-PET、PEF）和可堆肥替代（PLA、PBAT、PHA）研究活跃，但双向拉伸工艺下这些替代材料的结晶行为和光学性能的系统研究不足。PEF（polyethylene furanoate）作为生物基PET替代物在阻隔性方面表现出色，BOPEF薄膜是一个全新方向。",
+      "supporting_evidence": "PET/PGA可回收体系（2022）证明了双向拉伸工艺在非PET基材料中的阻隔增强潜力。PEF文献显示其氧气阻隔性比PET高6-10倍。",
+      "risk": "PEF等替代材料的结晶速率和加工窗口与PET差异很大，现有BOPET产线兼容性存疑。成本竞争力尚未经过大规模验证。"
+    },
+    {
+      "direction_id": "D4",
+      "direction": "在线涂布功能化BOPET的一体化制造",
+      "rationale": "MDO后、TDO前在线涂布工艺可显著降低功能化BOPET的生产成本并提高涂层均匀性。涂布液在横向拉伸过程中经过同步取向，有助于实现涂层光学各向异性的可控设计。",
+      "supporting_evidence": "高硬度PET光学膜专利（2024）和光学基膜专利（2024）均采用在线涂布+UV固化路线。行业趋势显示功能化BOPET增长最快。",
+      "risk": "涂布液在高温拉伸过程中的溶剂挥发和热稳定性控制是工艺难点。涂布-拉伸-固化三者的工艺窗口需精确匹配。"
+    },
+    {
+      "direction_id": "D5",
+      "direction": "BOPET智能化——响应型光学薄膜",
+      "rationale": "从被动光学基膜向主动响应型光控薄膜发展是显示/窗膜领域的长期趋势。电致变色、热致变色、光致变色等功能层与BOPET基膜的集成已有初步探索，但大规模双向拉伸生产尚处于早期阶段。",
+      "supporting_evidence": "行业报告（2025）将'智能光学膜'列为重点发展方向——可响应环境条件变化的自适应薄膜。",
+      "risk": "功能层在双向拉伸过程中的结构破坏和性能衰减是根本性挑战。可能需要从涂布拉伸转向拉伸后功能化路线。"
+    }
+  ]
+}

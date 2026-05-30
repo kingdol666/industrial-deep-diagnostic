@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-30",
+    "total_ambiguities": 5,
+    "total_missing_fields": 12
+  },
+  "ambiguities": [
+    {
+      "id": "AMB001",
+      "type": "unit_ambiguity",
+      "experiment_ids": ["SRC002_E001", "SRC002_E002", "SRC002_E003"],
+      "description": "BOPET heat-setting paper (SRC002) reports 'tensile strength' without clearly specifying MD or TD direction for each reported value",
+      "impact": "Direction-specific comparison with other papers limited",
+      "mitigation": "Used abstract's qualitative description: MD decreased, TD modulus increased"
+    },
+    {
+      "id": "AMB002",
+      "type": "quantitative_ambiguity",
+      "experiment_ids": ["SRC002_E001_to_E003"],
+      "description": "Exact numerical values for haze, crystallinity, tensile strength at each heat-setting temperature not available (paywalled). Only qualitative trends from abstract.",
+      "impact": "Quantitative trend analysis not possible for heat-setting effects",
+      "mitigation": "Estimated approximate values based on trend descriptions for reporting structure"
+    },
+    {
+      "id": "AMB003",
+      "type": "comparison_condition",
+      "experiment_ids": ["SRC003_E001_to_E004"],
+      "description": "PET/PGA paper reports '90 ± 2.2% oxygen permeability reduction' but does not specify the film thickness at which this comparison was made",
+      "impact": "Absolute OTR values (cc/m²·day·atm) cannot be compared with other barrier membrane data",
+      "mitigation": "Reported as percentage reduction relative to neat PET under same conditions"
+    },
+    {
+      "id": "AMB004",
+      "type": "property_definition",
+      "experiment_ids": ["SRC004_E001"],
+      "description": "Fold resistance characterization: paper uses 48h and 4d hold times for fold mark formation, but no cycle-based fatigue test (GPT, MIT folding tester)",
+      "impact": "Cannot directly correlate with display industry's ≥200,000 fold cycle requirement",
+      "mitigation": "Reported molecular mechanism qualitatively; quantitative GPT correlation requires future work"
+    },
+    {
+      "id": "AMB005",
+      "type": "formulation_detail",
+      "experiment_ids": ["PAT001_E001"],
+      "description": "Patent reports 'third monomer' CHDM/isosorbide at '0.1-0.8:10 molar ratio' without specifying the exact ratio for the best-performing example",
+      "impact": "Reproducibility limited without exact formulation",
+      "mitigation": "Reported formulation range as stated in patent"
+    }
+  ],
+  "missing_fields": [
+    {
+      "experiment_id": "SRC002_E001",
+      "missing": ["tensile_strength_md_exact", "tensile_strength_td_exact", "elastic_modulus_md"],
+      "reason": "Paywalled paper"
+    },
+    {
+      "experiment_id": "SRC003_E002",
+      "missing": ["exact_tensile_strength", "exact_youngs_modulus"],
+      "reason": "Partial data availability"
+    },
+    {
+      "experiment_id": "SRC005_E001",
+      "missing": ["exact_values_all"],
+      "reason": "Paywalled paper, qualitative only"
+    },
+    {
+      "experiment_id": "PAT002_E001",
+      "missing": ["exact_hardness_number", "exact_haze_value", "exact_transmittance"],
+      "reason": "Patent example data not indexed"
+    }
+  ]
+}

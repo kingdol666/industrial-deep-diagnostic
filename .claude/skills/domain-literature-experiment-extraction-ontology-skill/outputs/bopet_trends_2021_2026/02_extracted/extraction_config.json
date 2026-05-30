@@ -1,0 +1,59 @@
+{
+  "domain": "bopet_optical_films",
+  "version": "1.0.0",
+  "description": "Extraction configuration for BOPET optical films",
+  "fields": [
+    {
+      "field_name": "sample_name",
+      "data_type": "string",
+      "required": true
+    },
+    {
+      "field_name": "material_system",
+      "data_type": "string",
+      "required": true
+    },
+    {
+      "field_name": "additive",
+      "data_type": "string",
+      "required": false
+    },
+    {
+      "field_name": "additive_concentration",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "additive_concentration_unit",
+      "canonical_unit": "wt%"
+    },
+    {
+      "field_name": "film_preparation_method",
+      "data_type": "enum",
+      "required": false,
+      "allowed_values": ["solution_casting", "melt_extrusion", "biaxial_stretching", "simultaneous_biaxial_stretching", "sequential_biaxial_stretching", "online_coating", "cast_extrusion_no_stretch"]
+    },
+    {
+      "field_name": "stretching_ratio_md",
+      "data_type": "number",
+      "required": false
+    },
+    {
+      "field_name": "stretching_ratio_td",
+      "data_type": "number",
+      "required": false
+    },
+    {
+      "field_name": "heat_treatment_temperature",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "heat_treatment_temperature_unit",
+      "canonical_unit": "°C"
+    },
+    {
+      "field_name": "film_thickness",
+      "data_type": "number",
+      "required": false,
+      "unit_field": "film_thickness_unit",
+      "canonical_unit": "μm"
+    }
+  ]
+}

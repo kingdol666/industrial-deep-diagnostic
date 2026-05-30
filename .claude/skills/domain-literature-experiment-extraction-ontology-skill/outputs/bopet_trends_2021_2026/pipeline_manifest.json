@@ -1,0 +1,34 @@
+{
+  "run_id": "bopet_trends_2021_2026",
+  "generated_at": "2026-05-30",
+  "skill": "domain-literature-experiment-extraction-ontology-skill",
+  "domain": "BOPET Optical Films",
+  "mode": "literature_summary_only",
+  "modules_executed": [1, 7],
+  "modules_skipped": [2, 3, 4, 5, 6],
+  "skip_reason": "User requested trend summary only; full text extraction not performed",
+  "inputs": {
+    "search_queries": [
+      "BOPET biaxially oriented PET optical film research 2021–2026",
+      "BOPET optical film light transmittance haze mechanical properties",
+      "BOPET film barrier properties coating modification 2021–2025",
+      "BOPET薄膜 光学性能 研究进展 2022–2024",
+      "BOPET film market trends China global 2024–2025",
+      "PET biaxially stretched film research progress 2022–2024"
+    ],
+    "data_sources": ["Web Search", "Academic databases", "Industry reports"]
+  },
+  "outputs": {
+    "literature_summary_json": "07_summary/literature_summary.json",
+    "literature_summary_md": "07_summary/literature_summary.md"
+  },
+  "statistics": {
+    "papers_identified": 15,
+    "patents_reviewed": 3,
+    "industry_reports_analyzed": 5,
+    "research_themes_identified": 5,
+    "gaps_identified": 6,
+    "contradictions_identified": 2,
+    "promising_directions_proposed": 5
+  }
+}

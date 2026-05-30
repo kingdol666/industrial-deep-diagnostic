@@ -1,0 +1,50 @@
+{
+  "run_id": "bopet_trends_2021_2026",
+  "generated_at": "2026-05-30",
+  "domain": "BOPET Optical Films",
+  "pipeline_mode": "literature_search_extraction_analysis",
+  "modules_executed": [
+    "Module 1: Literature Acquisition (15 papers + 3 patents + 5 industry reports)",
+    "Module 2: Experiment Extraction (17 records)",
+    "Module 3: Data Normalization (17 records processed)",
+    "Module 4: Provenance & Confidence (all records tagged)",
+    "Module 5: Explanation Generation (6 explanations)"
+  ],
+  "modules_not_executed": [
+    "Module 6: Ontology Modeling",
+    "Module 7: Literature Summary (already done in previous run)"
+  ],
+  "outputs": {
+    "raw_extraction": "02_extracted/experiments_raw.json",
+    "extraction_config": "02_extracted/extraction_config.json",
+    "normalized_data": "03_normalized/experiments_normalized.json",
+    "provenance": "04_provenance/provenance.json",
+    "explanations": "05_explanations/explanations.json",
+    "ambiguities": "ambiguities.json",
+    "analysis_report": "EXPERIMENTAL_DATA_ANALYSIS_REPORT.md",
+    "literature_summary": "07_summary/literature_summary.md",
+    "literature_summary_json": "07_summary/literature_summary.json"
+  },
+  "statistics": {
+    "papers_identified": 15,
+    "patents_reviewed": 3,
+    "industry_reports": 5,
+    "total_experiment_records": 17,
+    "full_data_records": 7,
+    "partial_data_records": 10,
+    "high_confidence_records": 7,
+    "medium_confidence_records": 4,
+    "low_confidence_records": 6,
+    "paywalled_partial_extractions": 2,
+    "research_themes": 5,
+    "scientific_explanations": 6,
+    "ambiguities_flagged": 5,
+    "industrial_recommendations": 5
+  },
+  "data_quality_notes": [
+    "Paper SRC001 (胡成女等, 2024) provides the most complete experimental data set with 6 precise records from Tables 2-3 and Figure 3",
+    "Papers SRC002 (heat-setting) and SRC005 (PET/HTPB) are paywalled — only qualitative trends extracted from abstracts",
+    "Paper SRC003 (PET/PGA, Polymer, 2023) has key quantitative results available (90% OTR reduction, >80% transmittance) from abstract",
+    "Paper SRC004 (Macromolecules, 2024) has detailed structural data from synchrotron X-ray scattering"
+  ]
+}
