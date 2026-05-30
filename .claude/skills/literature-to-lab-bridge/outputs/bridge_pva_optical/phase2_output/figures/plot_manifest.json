@@ -1,0 +1,53 @@
+{
+  "plots": [
+    {
+      "id": "fig01",
+      "file": "01_pva_transmittance_vs_haze.png",
+      "type": "scatter",
+      "x_axis": "haze_pct",
+      "y_axis": "transmittance_pct",
+      "title": "PVA 光学膜透光率-雾度相关性全景图",
+      "note": "x: 雾度(%), y: 透光率(%), 颜色区分材料类型, 标注显示级和光管理级区域"
+    },
+    {
+      "id": "fig02",
+      "file": "02_pva_system_performance_comparison.png",
+      "type": "bar_chart",
+      "x_axis": "sample_category",
+      "y_axis": "transmittance_pct",
+      "title": "PVA 各体系透光率对比",
+      "note": "按材料体系分组：纯PVA / CNF / 纤维素 / GO-CNC / 塑化PVA"
+    },
+    {
+      "id": "fig03",
+      "file": "03_pva_additive_transmittance_impact.png",
+      "type": "scatter_line",
+      "x_axis": "CNF_content_wt",
+      "y_axis": "transmittance_pct",
+      "title": "CNF含量对PVA薄膜透光率的影响 (RSC Advances 2024数据)"
+    },
+    {
+      "id": "fig04",
+      "file": "04_pva_crystallinity_vs_transmittance.png",
+      "type": "scatter",
+      "x_axis": "crystallinity_pct",
+      "y_axis": "transmittance_pct",
+      "title": "结晶度与透光率关系"
+    },
+    {
+      "id": "fig05",
+      "file": "05_pva_bandgap_tuning.png",
+      "type": "bar_chart",
+      "x_axis": "sample",
+      "y_axis": "bandgap_eV",
+      "title": "PVA纳米复合材料的带隙调控 (Polymers 2025数据)"
+    },
+    {
+      "id": "fig06",
+      "file": "06_pva_optical_performance_radar.png",
+      "type": "radar",
+      "title": "PVA各体系光学综合性能雷达图",
+      "dimensions": ["透光率", "低雾度", "UV阻挡", "力学强度", "柔性"]
+    }
+  ]
+}

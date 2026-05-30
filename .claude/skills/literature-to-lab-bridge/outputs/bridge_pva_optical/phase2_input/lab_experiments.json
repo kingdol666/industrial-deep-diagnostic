@@ -1,0 +1,267 @@
+{
+  "metadata": {
+    "script": "transform_literature_to_lab.py",
+    "version": "1.0.0",
+    "source": "literature_extraction",
+    "bridge_id": "bridge_pva_optical_001",
+    "processing_timestamp": "2026-05-31T00:00:00Z",
+    "rows_input": 19,
+    "rows_output": 17,
+    "rows_filtered": 2,
+    "filter_reason": "qualitative only / insufficient numeric data",
+    "spectral_data_present": false,
+    "data_type": "optical_properties_material_properties"
+  },
+  "experiments": [
+    {
+      "experiment_id": "PVA001_E001",
+      "batch_id": "SRC_PVA_001",
+      "timestamp": null,
+      "variables": {
+        "material": "PVA",
+        "material_grade": "2099",
+        "preparation_method": "solution_casting",
+        "film_thickness": {"value": 50, "unit": "μm"},
+        "solution_concentration": {"value": 8, "unit": "wt%"},
+        "transmittance_550nm": {"value": 90.2, "unit": "%"},
+        "haze": {"value": 0.4, "unit": "%"},
+        "crystal_size": {"value": 3.29, "unit": "nm"},
+        "crystallinity": {"value": 38, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "PVA2099 optical film: transmittance 90.2%, haze 0.4%, crystal size 3.29 nm",
+        "paper_ref": "Optical Materials, 2024, doi:10.1016/j.optmat.2023.114627",
+        "source_confidence": 0.75,
+        "extraction_method": "abstract_table"
+      },
+      "low_confidence": false,
+      "category": "baseline_pure_PVA"
+    },
+    {
+      "experiment_id": "PVA001_E002",
+      "batch_id": "SRC_PVA_001",
+      "variables": {
+        "material": "PVA",
+        "material_grade": "2099",
+        "preparation_method": "solution_casting_heat_treatment",
+        "heat_treatment_temp": {"value": 200, "unit": "°C"},
+        "heat_treatment_time": {"value": 30, "unit": "min"},
+        "film_thickness": {"value": 50, "unit": "μm"},
+        "transmittance": {"value": 84.8, "unit": "%"},
+        "haze": {"value": 2.4, "unit": "%"},
+        "tensile_strength": {"value": 120, "unit": "MPa"}
+      },
+      "observations": {
+        "source_text": "After <200°C heat treatment: T 90.2→84.8%, H 0.4→2.4%, strength +200%",
+        "paper_ref": "Optical Materials, 2024, doi:10.1016/j.optmat.2023.114627",
+        "source_confidence": 0.70
+      },
+      "low_confidence": false,
+      "category": "heat_treated_PVA"
+    },
+    {
+      "experiment_id": "PVA002_E001",
+      "batch_id": "SRC_PVA_002",
+      "variables": {
+        "material": "PVA",
+        "additive": {"name": "regenerated_cellulose", "concentration": {"value": 15, "unit": "wt%"}},
+        "preparation_method": "solution_casting",
+        "film_thickness": {"value": 80, "unit": "μm"},
+        "transmittance_550nm": {"value": 90.5, "unit": "%"},
+        "haze": {"value": 96, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "RC/PVA: transmittance 90.5%, ultrahigh haze 96%. Anti-reflection layer improves solar cell eff. 10.38%",
+        "paper_ref": "Carbohydrate Polymers, 2023, doi:10.1016/j.carbpol.2023.121303",
+        "source_confidence": 0.78
+      },
+      "low_confidence": false,
+      "category": "cellulose_composite_light_management"
+    },
+    {
+      "experiment_id": "PVA004_E001",
+      "batch_id": "SRC_PVA_004",
+      "variables": {
+        "material": "PVA",
+        "preparation_method": "solution_casting",
+        "transmittance": {"value": 86.4, "unit": "%"},
+        "tensile_strength": {"value": 22.5, "unit": "MPa"},
+        "crystallinity_index": {"value": 74.8, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "Pure PVA baseline: T=86.4%, TS=22.5 MPa, CI=74.8%",
+        "paper_ref": "RSC Advances, 2024, doi:10.1039/D4RA04205K",
+        "source_confidence": 0.80
+      },
+      "low_confidence": false,
+      "category": "baseline_pure_PVA"
+    },
+    {
+      "experiment_id": "PVA004_E002",
+      "batch_id": "SRC_PVA_004",
+      "variables": {
+        "material": "PVA",
+        "additive": {"name": "CNF", "concentration": {"value": 1, "unit": "wt%"}},
+        "transmittance": {"value": 83.6, "unit": "%"},
+        "crystallinity_index": {"value": 77.7, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "PVA-CNF-1%: T=83.6%, CI=77.7%",
+        "paper_ref": "RSC Advances, 2024, doi:10.1039/D4RA04205K",
+        "source_confidence": 0.80
+      },
+      "low_confidence": false,
+      "category": "CNF_nanocomposite"
+    },
+    {
+      "experiment_id": "PVA004_E005",
+      "batch_id": "SRC_PVA_004",
+      "variables": {
+        "material": "PVA",
+        "additive": {"name": "CNF", "concentration": {"value": 4, "unit": "wt%"}},
+        "transmittance": {"value": 86.0, "unit": "%"},
+        "tensile_strength": {"value": 28.9, "unit": "MPa"},
+        "crystallinity_index": {"value": 78.8, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "PVA-CNF-4% optimal: T=86.0%, TS=28.9 MPa (+28.2%), CI=78.8%",
+        "paper_ref": "RSC Advances, 2024, doi:10.1039/D4RA04205K",
+        "source_confidence": 0.85
+      },
+      "low_confidence": false,
+      "category": "CNF_nanocomposite_optimal"
+    },
+    {
+      "experiment_id": "PVA004_E006",
+      "batch_id": "SRC_PVA_004",
+      "variables": {
+        "material": "PVA",
+        "additive": {"name": "CNF", "concentration": {"value": 5, "unit": "wt%"}},
+        "transmittance": {"value": 88.1, "unit": "%"},
+        "crystallinity_index": {"value": 77.4, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "PVA-CNF-5%: T=88.1%, CI=77.4%",
+        "paper_ref": "RSC Advances, 2024, doi:10.1039/D4RA04205K",
+        "source_confidence": 0.80
+      },
+      "low_confidence": false,
+      "category": "CNF_nanocomposite"
+    },
+    {
+      "experiment_id": "PVA005_E001",
+      "batch_id": "SRC_PVA_005",
+      "variables": {
+        "material": "PVA",
+        "material_grade": "20kDa_low_MW",
+        "additive": [
+          {"name": "GO", "concentration": {"value": 1.0, "unit": "wt%"}},
+          {"name": "CNC", "concentration": {"value": 3.52, "unit": "wt%"}}
+        ],
+        "film_thickness": {"value": 100, "unit": "μm"},
+        "transmittance": {"value": 43.9, "unit": "%"},
+        "uva_barrier": {"value": 82.3, "unit": "%"},
+        "uvb_barrier": {"value": 91.7, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "Low MW PVA: GO 1% + CNC 3.52%, T=43.9%, UVA barrier 82.3%, UVB 91.7%",
+        "paper_ref": "Carbohydrate Polymer Tech. App., 2024, doi:10.1016/j.carpta.2024.100533",
+        "source_confidence": 0.70
+      },
+      "low_confidence": false,
+      "category": "GO_CNC_UV_barrier"
+    },
+    {
+      "experiment_id": "PVA005_E002",
+      "batch_id": "SRC_PVA_005",
+      "variables": {
+        "material": "PVA",
+        "material_grade": "130kDa_high_MW",
+        "additive": [
+          {"name": "GO", "concentration": {"value": 0.6, "unit": "wt%"}},
+          {"name": "CNC", "concentration": {"value": 1.86, "unit": "wt%"}}
+        ],
+        "film_thickness": {"value": 100, "unit": "μm"},
+        "transmittance": {"value": 50.8, "unit": "%"},
+        "uva_barrier": {"value": 69.2, "unit": "%"},
+        "uvb_barrier": {"value": 77.9, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "High MW PVA: GO 0.6% + CNC 1.86%, T=50.8%, UVA 69.2%, UVB 77.9%",
+        "paper_ref": "Carbohydrate Polymer Tech. App., 2024, doi:10.1016/j.carpta.2024.100533",
+        "source_confidence": 0.70
+      },
+      "low_confidence": false,
+      "category": "GO_CNC_UV_barrier"
+    },
+    {
+      "experiment_id": "PVA006_E001",
+      "batch_id": "SRC_PVA_006",
+      "variables": {
+        "material": "PVA",
+        "preparation_method": "solution_casting",
+        "transmittance": {"value": 88, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "Pure PVA: T≈88%",
+        "paper_ref": "Materials Research Express, 2024, doi:10.1088/2053-1591/ad4100",
+        "source_confidence": 0.60
+      },
+      "low_confidence": false,
+      "category": "baseline_pure_PVA"
+    },
+    {
+      "experiment_id": "PVA006_E002",
+      "batch_id": "SRC_PVA_006",
+      "variables": {
+        "material": "PVA",
+        "plasticizer": {"name": "glycerol", "concentration": {"value": 30, "unit": "wt%"}},
+        "transmittance": {"value": 85, "unit": "%"}
+      },
+      "observations": {
+        "source_text": "PVA/glycerol-30%: T≈85%, slightly decreased from 88%",
+        "paper_ref": "Materials Research Express, 2024, doi:10.1088/2053-1591/ad4100",
+        "source_confidence": 0.60
+      },
+      "low_confidence": false,
+      "category": "plasticized_PVA"
+    },
+    {
+      "experiment_id": "PVA007_E001",
+      "batch_id": "SRC_PVA_007",
+      "variables": {
+        "material": "PVA",
+        "preparation_method": "solution_casting",
+        "bandgap_direct": {"value": 5.42, "unit": "eV"},
+        "bandgap_indirect": {"value": 4.99, "unit": "eV"},
+        "refractive_index": {"value": 1.69}
+      },
+      "observations": {
+        "source_text": "Neat PVA: direct bandgap 5.42 eV, indirect 4.99 eV, refractive index 1.69",
+        "paper_ref": "Polymers, 2025, doi:10.3390/polym17060818",
+        "source_confidence": 0.75
+      },
+      "low_confidence": false,
+      "category": "baseline_pure_PVA_optical_constants"
+    },
+    {
+      "experiment_id": "PVA007_E002",
+      "batch_id": "SRC_PVA_007",
+      "variables": {
+        "material": "PVA",
+        "additive": {"name": "ZnO_CuO_SWCNT", "concentration": {"value": 10, "unit": "wt%"}},
+        "bandgap_direct": {"value": 3.20, "unit": "eV"},
+        "bandgap_indirect": {"value": 2.26, "unit": "eV"},
+        "refractive_index": {"value": 2.0},
+        "cut_off_edge": {"value": 560, "unit": "nm"}
+      },
+      "observations": {
+        "source_text": "PVA/ZnO/CuO/SWCNT-10%: direct bandgap 5.42→3.20 eV, refractive index 1.69→2.0",
+        "paper_ref": "Polymers, 2025, doi:10.3390/polym17060818",
+        "source_confidence": 0.78
+      },
+      "low_confidence": false,
+      "category": "nanocomposite_optical_tuning"
+    }
+  ]
+}

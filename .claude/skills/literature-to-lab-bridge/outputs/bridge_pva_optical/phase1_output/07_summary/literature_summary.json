@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "domain": "PVA Optical Films - Transmittance & Haze",
+    "year_range": "2023-2025",
+    "generated_at": "2026-05-31",
+    "language": "zh"
+  },
+  "overview": {
+    "papers_analyzed": 10,
+    "total_experiments_extracted": 19,
+    "cleaned_records": 17,
+    "unique_materials": 5,
+    "unique_additives": 8,
+    "unique_measurement_types": 6,
+    "journals_represented": [
+      "Optical Materials",
+      "Carbohydrate Polymers",
+      "Advanced Composites and Hybrid Materials",
+      "RSC Advances",
+      "Carbohydrate Polymer Technologies and Applications",
+      "Materials Research Express",
+      "Polymers",
+      "International Journal of Nano and Biomaterials",
+      "Science Progress"
+    ],
+    "summary_text": "2023–2025年间PVA光学薄膜文献集中在通过纳米填料（CNF、CNC、GO、再生纤维素等）调控透光率和雾度的"二象性"研究。纯PVA基膜可达90.2%透光率和0.4%超低雾度（显示级），再生纤维素/PVA复合膜可实现90.5%透光率与96%超高雾度（光管理级），展示了PVA光学性能在极端之间的非凡可调性。主要文献空白：湿度依赖性光学性能、交联协同效应、长期老化稳定性。"
+  },
+  "themes": [
+    {
+      "theme_id": "T1",
+      "theme": "PVA薄膜的微晶结构与光学透明性",
+      "paper_count": 1,
+      "core_question": "PVA的微晶尺寸和结构如何决定其可见光透过率？",
+      "consensus": "PVA的晶粒尺寸（<5 nm）远小于可见光波长（400-800 nm），因此即使结晶度高达38%仍能保持高透明度。热处理（200°C）虽使结晶完善，但同时使透光率下降6%、雾度升高2%。"
+    },
+    {
+      "theme_id": "T2",
+      "theme": "纳米纤维素（CNF/CNC）增强PVA光学膜",
+      "paper_count": 4,
+      "core_question": "纳米纤维素添加量如何影响PVA薄膜的光学-力学性能平衡？",
+      "consensus": "CNF含量在1-5%范围内，透光率呈现U形曲线（83-88%），存在最优添加量（4 wt%）同时实现力学增强（+28%）和光学保持（86%）。CNC单独添加时透明度损失更小。"
+    },
+    {
+      "theme_id": "T3",
+      "theme": "高透高雾PVA薄膜用于光管理",
+      "paper_count": 2,
+      "core_question": "如何在保持高透光率的同时实现超高雾度？",
+      "consensus": "通过添加微米级再生纤维素纤维（14-16 μm宽）在PVA基体中形成Mie散射体，可在T=90.5%下实现H=96%。CNNs@CNF/PVA体系通过纳米片的UV转换功能实现了T≈90%/H>60%/UV转换三重功能。"
+    },
+    {
+      "theme_id": "T4",
+      "theme": "PVA光学功能化（UV阻挡、带隙调控）",
+      "paper_count": 3,
+      "core_question": "GO和金属氧化物如何改变PVA的UV-Vis光学特性？",
+      "consensus": "GO通过π→π*吸收提供优异UV阻挡（UVB 91.7%），但可见光透光率骤降至<50%。ZnO/CuO/SWCNT可将带隙从5.42 eV调至3.20 eV，折射率从1.69升至2.0。"
+    }
+  ],
+  "gaps": [
+    {
+      "gap": "湿度依赖性光学性能数据缺失",
+      "severity": "critical",
+      "description": "所有10篇论文均在干燥条件或未控湿条件下测试。PVA强亲水（吸水率可达50%），高RH下的透光率/雾度变化和尺寸稳定性完全未知。"
+    },
+    {
+      "gap": "交联剂与纳米填料的协同效应",
+      "severity": "high",
+      "description": "文献中交联剂（硼酸、戊二醛、柠檬酸）和纳米填料（CNF、CNC、GO）均为独立研究。两者在PVA基体中的作用机制（交联在分子链间、填料在分子链间网络）互补，协同潜力大。"
+    },
+    {
+      "gap": "长期服役性能数据",
+      "severity": "critical",
+      "description": "所有实验数据为制备后即刻测试。无任何加速老化、湿热循环、UV耐久性数据。无法评估实际使用条件下的性能衰减。"
+    },
+    {
+      "gap": "三元/多元体系研究不足",
+      "severity": "medium",
+      "description": "文献均为二元体系（PVA+一种填料）。PVA+CNF+甘油、PVA+CNC+交联剂等三元组合可同时优化光学、力学和耐水性。"
+    },
+    {
+      "gap": "超薄和超厚膜的厚度效应",
+      "severity": "low",
+      "description": "所有实验膜厚集中在50-100 μm。超薄(<20 μm)和超厚(>200 μm)条件下的透光率和雾度数据缺乏。"
+    }
+  ],
+  "promising_directions": [
+    {
+      "direction": "CNF + 甘油三元体系",
+      "rationale": "CNF提供力学增强(+28%)，甘油提供柔性(伸长率>200%)，两者作用机制互补，三层体系的透光率有望保持在>85%。"
+    },
+    {
+      "direction": "超低GO含量的高透明UV阻挡膜",
+      "rationale": "将GO含量降至≤0.3 wt%，可在UVB阻挡>95%的同时将透光率从<50%提升至>70%。"
+    },
+    {
+      "direction": "交联密度调控雾度的新机理",
+      "rationale": "硼酸交联在PVA链间产生折射率微区，有望通过交联度实现雾度的连续可调（<5%→>50%）。"
+    }
+  ]
+}

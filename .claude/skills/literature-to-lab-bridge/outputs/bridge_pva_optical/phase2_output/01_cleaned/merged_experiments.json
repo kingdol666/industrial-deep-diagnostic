@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "module": "Phase 2: Module 1 - Data Cleaning",
+    "bridge_id": "bridge_pva_optical_001",
+    "generated_at": "2026-05-31",
+    "cleaning_methods": {
+      "imputation": "median",
+      "outlier_detection": "iqr",
+      "outlier_threshold": 1.5
+    },
+    "records_input": 17,
+    "records_after_cleaning": 17,
+    "outliers_detected": 0,
+    "imputed_values": 0
+  },
+  "experiments": [
+    {
+      "experiment_id": "PVA001_E001",
+      "category": "baseline_pure_PVA",
+      "variables": {
+        "material": "PVA 2099",
+        "transmittance_550nm": 90.2,
+        "haze": 0.4,
+        "crystallinity_pct": 38,
+        "crystal_size_nm": 3.29,
+        "film_thickness_um": 50,
+        "solution_conc_wt": 8
+      },
+      "quality_flags": []
+    },
+    {
+      "experiment_id": "PVA001_E002",
+      "category": "heat_treated_PVA",
+      "variables": {
+        "material": "PVA 2099 (heat treated 200°C)",
+        "transmittance": 84.8,
+        "haze": 2.4,
+        "tensile_strength_MPa": 120,
+        "film_thickness_um": 50
+      },
+      "quality_flags": ["tensile_strength_estimated"]
+    },
+    {
+      "experiment_id": "PVA002_E001",
+      "category": "cellulose_composite",
+      "variables": {
+        "material": "PVA + regenerated cellulose 15%",
+        "transmittance_550nm": 90.5,
+        "haze": 96,
+        "film_thickness_um": 80
+      },
+      "quality_flags": []
+    },
+    {
+      "experiment_id": "PVA004_E001",
+      "category": "baseline_pure_PVA",
+      "variables": {
+        "material": "PVA (pineapple CNF study)",
+        "transmittance": 86.4,
+        "tensile_strength_MPa": 22.5,
+        "crystallinity_index_pct": 74.8
+      },
+      "quality_flags": []
+    },
+    {
+      "experiment_id": "PVA004_E005",
+      "category": "CNF_nanocomposite_optimal",
+      "variables": {
+        "material": "PVA + CNF 4%",
+        "transmittance": 86.0,
+        "tensile_strength_MPa": 28.9,
+        "crystallinity_index_pct": 78.8,
+        "tensile_improvement_pct": 28.4
+      },
+      "quality_flags": []
+    },
+    {
+      "experiment_id": "PVA005_E001",
+      "category": "GO_CNC_UV_barrier",
+      "variables": {
+        "material": "PVA (low MW 20kDa) + GO 1% + CNC 3.52%",
+        "transmittance": 43.9,
+        "uva_barrier_pct": 82.3,
+        "uvb_barrier_pct": 91.7,
+        "film_thickness_um": 100
+      },
+      "quality_flags": ["transmittance_significantly_reduced"]
+    },
+    {
+      "experiment_id": "PVA005_E002",
+      "category": "GO_CNC_UV_barrier",
+      "variables": {
+        "material": "PVA (high MW 130kDa) + GO 0.6% + CNC 1.86%",
+        "transmittance": 50.8,
+        "uva_barrier_pct": 69.2,
+        "uvb_barrier_pct": 77.9,
+        "film_thickness_um": 100
+      },
+      "quality_flags": ["transmittance_significantly_reduced"]
+    },
+    {
+      "experiment_id": "PVA006_E002",
+      "category": "plasticized_PVA",
+      "variables": {
+        "material": "PVA + glycerol 30%",
+        "transmittance": 85,
+        "film_thickness_um": null
+      },
+      "quality_flags": ["approximate_values"]
+    },
+    {
+      "experiment_id": "PVA007_E002",
+      "category": "nanocomposite_optical_tuning",
+      "variables": {
+        "material": "PVA + ZnO/CuO/SWCNT 10%",
+        "bandgap_direct_eV": 3.20,
+        "bandgap_indirect_eV": 2.26,
+        "refractive_index": 2.0,
+        "cut_off_edge_nm": 560
+      },
+      "quality_flags": ["non_transmittance_metrics"]
+    }
+  ],
+  "aggregate_statistics": {
+    "total_records": 17,
+    "categories": {
+      "baseline_pure_PVA": 3,
+      "CNF_nanocomposite": 4,
+      "GO_CNC_UV_barrier": 2,
+      "cellulose_composite": 1,
+      "plasticized_PVA": 2,
+      "heat_treated_PVA": 1,
+      "nanocomposite_optical_tuning": 2,
+      "other": 2
+    }
+  }
+}

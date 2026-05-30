@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "module": "Phase 2: Module 5 - Experiment Recommendations",
+    "bridge_id": "bridge_pva_optical_001",
+    "generated_at": "2026-05-31",
+    "recommendation_count": 5,
+    "sources": {
+      "literature_gaps": "phase1_output/07_summary/literature_summary.json",
+      "confidence_data": "phase2_output/01_cleaned/merged_experiments.json",
+      "trend_analysis": "phase2_output/report.md"
+    }
+  },
+  "recommended_experiments": [
+    {
+      "experiment_id": "REC_001",
+      "priority": 1,
+      "title": "CNF + 甘油三元体系光学-力学平衡优化",
+      "type": "formulation_optimization",
+      "literature_gap": "文献中 CNF 单独添加时透明度在 4 wt% 最优、力学在 3 wt% 最优，但未有 CNF + 甘油（柔性增强）的协同研究。",
+      "literature_baseline": {
+        "PVA_CNF_4wt%": "T=86.0%, TS=28.9MPa, 伸长率~50%(估)",
+        "PVA_glycerol_30%": "T=85%, 伸长率>200%(估)"
+      },
+      "objective": "在保持 T>85% 的前提下，通过 CNF(2–4%) + 甘油(10–20%) 组合将拉伸强度>25MPa 和断裂伸长率>200% 同时实现",
+      "suggested_parameters": {
+        "pva_grade": "PVA 1799",
+        "pva_solution": {"value": 10, "unit": "wt%", "solvent": "water"},
+        "CNF_content": {"min": 2, "max": 6, "step": 1, "unit": "wt%", "recommended_start": 3},
+        "glycerol_content": {"min": 10, "max": 30, "step": 5, "unit": "wt%", "recommended_start": 15},
+        "film_thickness": {"value": 50, "unit": "μm"},
+        "drying": {"temperature": 50, "unit": "°C", "time": {"value": 24, "unit": "h"}}
+      },
+      "measurements": ["transmittance_550nm", "haze", "tensile_strength", "elongation_at_break", "youngs_modulus", "contact_angle", "FTIR"],
+      "design_of_experiments": "full_factorial_2_variables_5_levels_25_runs",
+      "expected_outcome": "CNF 3% + glycerol 15%: T≈86%, H<2%, TS≈26MPa, 伸长率≈180%",
+      "rationale_chemistry": "PVA 分子链上的 −OH 与 CNF 表面的 −OH 形成 H 键网络提供力学增强，甘油小分子嵌入 PVA 链间作为增塑剂降低 Tg。两者在 PVA 基体中的分布区域不同（CNF 在分子间网络，甘油在链间自由体积），理论上可实现增强+增韧的互补效果。",
+      "risk_assessment": {
+        "risk": "甘油可能干扰 CNF-PVA 的 H 键网络，减弱 CNF 的增强效果",
+        "mitigation": "先固定甘油 10% 做 CNF 梯度，再固定最优 CNF 做甘油梯度"
+      }
+    },
+    {
+      "experiment_id": "REC_002",
+      "priority": 2,
+      "title": "硼酸交联 CNF/PVA 高雾度可调膜的制备",
+      "type": "crosslinking_optimization",
+      "literature_gap": "文献中高雾度方案（96%）使用再生纤维素微纤维，但交联 + 纳米纤维素的组合未探索。硼酸交联可提高 PVA 耐水性，同时可能调控雾度。",
+      "literature_baseline": {
+        "PVA_CNF_5%": "T=88.1%",
+        "PVA_boric_acid": "WVTR↓40-60%, 但未见光学数据"
+      },
+      "objective": "通过硼酸交联度为变量，调控 PVA/CNF 复合膜的雾度从<5% 到>50% 连续可调",
+      "suggested_parameters": {
+        "pva": "PVA 1799 (fully hydrolyzed, better for crosslinking)",
+        "pva_solution": {"value": 10, "unit": "wt%"},
+        "CNF": {"value": 3, "unit": "wt%"},
+        "boric_acid": {"min": 0, "max": 5, "step": 0.5, "unit": "wt%"},
+        "pH": {"min": 7, "max": 9, "recommended": 8.0},
+        "film_thickness": {"value": 75, "unit": "μm"},
+        "curing": {"temperature": 120, "unit": "°C", "time": {"value": 10, "unit": "min"}}
+      },
+      "measurements": ["transmittance", "haze", "gel_content", "wvtr", "tensile_strength", "swelling_ratio", "ATR-FTIR"],
+      "expected_outcome": "硼酸 2–3 wt% 时，交联度 60–80%, 雾度 15–30%, 透光率 >80%, WVTR ↓50%",
+      "rationale_chemistry": "硼酸与 PVA 的羟基形成硼酸酯（didiol complexation），在 PVA 链间形成交联点。交联点密度影响：(1) 结晶行为—晶核增多但晶粒变小; (2) 折光率微区—交联区域的密度>非交联区，产生折射率微区→产生可控雾度。低交联 (<1%) 保持透明，高交联 (>3%) 可能产生微相分离。pH 8–9 是硼酸酯形成的最佳条件。",
+      "risk_assessment": {
+        "risk": "高硼酸含量导致薄膜变脆、透明度严重下降",
+        "mitigation": "先做 0–5% 宽范围预实验确定雾度突变点，再精细优化"
+      }
+    },
+    {
+      "experiment_id": "REC_003",
+      "priority": 3,
+      "title": "湿度对 PVA/CNF 光学性能的系统影响",
+      "type": "environmental_effect_study",
+      "literature_gap": "文献空白 #1（最严重）。0/10 篇论文报告了控湿条件下的光学性能。PVA 强亲水（吸水率可达 50%），高 RH 下雾度变化未知。",
+      "literature_baseline": "所有论文在干燥条件或未控湿下测试",
+      "objective": "系统测量 PVA/CNF 复合膜在 0%, 30%, 50%, 75%, 90% RH 下的光学和力学性能变化",
+      "suggested_parameters": {
+        "samples": [
+          "Pure PVA",
+          "PVA + CNF 3%",
+          "PVA + CNF 3% + glycerol 15%",
+          "PVA + CNF 3% + boric acid 2%"
+        ],
+        "rh_levels": [0, 30, 50, 75, 90],
+        "conditioning_time": {"value": 48, "unit": "h"},
+        "temperature_constant": 25,
+        "temperature_unit": "°C"
+      },
+      "measurements": ["transmittance_550nm", "haze", "film_thickness", "water_uptake", "tensile_strength"],
+      "expected_outcome": "纯 PVA 在 RH 0→90%: 透光率从 90% 降至 ~70%, 雾度从 <1% 升至 >10%。CNF 增强和硼酸交联可改善湿度稳定性。",
+      "rationale_chemistry": "PVA 的强亲水性源于大量 −OH 可与水分子形成 H 键。吸附水分子 (1) 膨胀 PVA 基体，使分子链间距增大→密度波动增加→散射增强→雾度升高; (2) 增塑效应降低 Tg，使非晶区分子运动增强→结晶区与非晶区的折射率对比增大。交联可以抑制水分子渗入非晶区。",
+      "risk_assessment": {
+        "risk": "高 RH 下薄膜变形或溶解，无法测试",
+        "mitigation": "先做 50%RH 预实验，确认稳定性后再升至高 RH"
+      }
+    },
+    {
+      "experiment_id": "REC_004",
+      "priority": 4,
+      "title": "GO 超低含量 UV 阻挡 PVA 膜的开发",
+      "type": "formulation_optimization",
+      "literature_gap": "文献中 GO/CNC/PVA 的最佳 UV 阻挡 (91.7% UVB) 在约 50% 透光率下实现。工业应用需要 UVB 阻挡 >95% 且透光率 >70% 的高透明应用场景。",
+      "literature_baseline": "PVA-lowMW + GO 1% + CNC 3.52%: T=43.9%, UVB=91.7%",
+      "objective": "将 GO 含量降低至 ≤0.3 wt%，在保持 UVB 阻挡 >95% 的同时将可见光透光率提升至 >70%",
+      "suggested_parameters": {
+        "pva": "PVA 1799 (high MW preferred for GO dispersion)",
+        "pva_solution": {"value": 8, "unit": "wt%"},
+        "GO_content": {"min": 0.05, "max": 0.5, "step": 0.05, "unit": "wt%", "recommended_start": 0.2},
+        "dispersion_method": "ultrasonication_30min_ice_bath",
+        "CNC_optional": {"value": 2, "unit": "wt%", "note": "力学补强"},
+        "film_thickness": {"value": 50, "unit": "μm"}
+      },
+      "measurements": ["full_UV_VIS_spectrum_200_800nm", "haze", "tensile_strength", "elongation", "FTIR"],
+      "expected_outcome": "GO 0.2 wt%: T≈72% (550nm), UVB>95% (280-315nm), UVA>85% (315-400nm)",
+      "rationale_chemistry": "GO 在 UV 区有强 π→π* 吸收（来自 sp² 碳域），在可见光区吸收较弱。超低含量 (<0.3%) 时，GO 片层间距 > 可见光波长，不产生瑞利散射，但 UV 区由 GO 的分子吸收主导（非散射），因此 UV 阻挡效率高于透光率损失。GO 含量与可见光吸收呈 Beer-Lambert 线性关系，与 UV 阻挡呈指数关系。",
+      "risk_assessment": {
+        "risk": "超低 GO 含量的精确控制困难，分散均匀性影响大",
+        "mitigation": "使用 GO 母液稀释法（先配 0.1% GO 储备液再稀释至目标浓度）"
+      }
+    },
+    {
+      "experiment_id": "REC_005",
+      "priority": 5,
+      "title": "PVA 光学膜湿热老化加速测试",
+      "type": "durability_study",
+      "literature_gap": "文献空白 — 0/10 论文报告任何时效性或老化数据。面向显示应用的 PVA 光学膜需要满足 3–7 年使用寿命。",
+      "literature_baseline": "无可用老化数据",
+      "objective": "建立 PVA 光学膜的湿热老化 (-40°C to 85°C, 0–85%RH) 性能衰减基线",
+      "suggested_parameters": {
+        "test_samples": [
+          {"name": "Pure PVA 2099", "thickness_um": 50},
+          {"name": "PVA + CNF 3%", "thickness_um": 50},
+          {"name": "PVA + glycerol 15%", "thickness_um": 50},
+          {"name": "PVA + boric acid 2%", "thickness_um": 50}
+        ],
+        "aging_conditions": [
+          {"condition": "85°C/85%RH", "duration_h": 1000, "measurement_intervals_h": [0, 24, 100, 250, 500, 1000]},
+          {"condition": "60°C/90%RH", "duration_h": 1000, "measurement_intervals_h": [0, 100, 250, 500, 1000]},
+          {"condition": "UV_340nm_0.77W/m²_60°C", "duration_h": 500, "measurement_intervals_h": [0, 50, 100, 250, 500]}
+        ]
+      },
+      "measurements": ["transmittance_delta", "haze_delta", "yellowness_index", "tensile_strength_retention", "FTIR_chemical_change"],
+      "expected_outcome": "纯 PVA 在 85°C/85%RH 500h 后透光率下降 >10%；CNF 增强和交联可改善稳定性。数据将为商用保质期预测提供基础。",
+      "rationale_chemistry": "PVA 在湿热条件下的降解机制包括：(1) 水分子渗入破坏分子间 H 键，导致非晶区膨胀→光学散射增加; (2) 长时间暴露于 >80°C 导致羟基脱水形成 C=C，引发共轭黄色化; (3) UV 照射引起链断裂和自由基反应。FTIR 可监测 −OH (3340 cm⁻¹) 强度和 C=C (1650 cm⁻¹) 的出现。",
+      "risk_assessment": {
+        "risk": "高湿度下 PVA 膜可能吸水过多导致机械破坏",
+        "mitigation": "先用 60°C/90%RH 条件做预实验，确认膜完整性后再用 85°C/85%RH"
+      }
+    }
+  ],
+  "priority_matrix": {
+    "REC_001": {"impact": 9, "feasibility": 8, "novelty": 7, "weighted_score": 8.0},
+    "REC_002": {"impact": 7, "feasibility": 7, "novelty": 8, "weighted_score": 7.3},
+    "REC_003": {"impact": 10, "feasibility": 8, "novelty": 10, "weighted_score": 9.3},
+    "REC_004": {"impact": 8, "feasibility": 6, "novelty": 8, "weighted_score": 7.3},
+    "REC_005": {"impact": 9, "feasibility": 5, "novelty": 9, "weighted_score": 7.7}
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "bridge_id": "bridge_pva_optical_001",
+  "domain": "PVA Optical Films — Transmittance & Haze",
+  "mode": "full",
+  "status": "completed",
+  "phases": {
+    "phase1": {
+      "status": "completed",
+      "skill": "domain-literature-experiment-extraction-ontology-skill",
+      "papers_processed": 10,
+      "experiments_extracted": 19,
+      "experiments_after_normalization": 19,
+      "mean_confidence": 0.72,
+      "spectral_data_present": false,
+      "has_observations": true
+    },
+    "quality_gate": {
+      "status": "passed",
+      "auto_proceed": true,
+      "checks": [
+        {"check": "min_records", "value": 19, "threshold": 10, "passed": true},
+        {"check": "mean_confidence", "value": 0.72, "threshold": 0.5, "passed": true},
+        {"check": "min_papers", "value": 10, "threshold": 3, "passed": true},
+        {"check": "spectral_data", "value": false, "passed": true, "note": "informational"}
+      ]
+    },
+    "transform": {
+      "status": "completed",
+      "records_input": 19,
+      "records_output": 17,
+      "records_filtered": 2,
+      "filter_reason": "qualitative data only",
+      "spectral_detected": false,
+      "data_category": "optical_properties_material_properties"
+    },
+    "phase2": {
+      "status": "completed",
+      "skill": "chem-auto-lab-skill (interpreted)",
+      "modules_executed": [
+        "Module 1: Data Cleaning (17 records, 0 outliers)",
+        "Module 4: Report Generation (report.md + 6 figure specs)",
+        "Module 5: Recommendations (5 recommended experiments)"
+      ],
+      "modules_skipped": [2, 3],
+      "skip_reason": "No spectral data detected; no free-text observations requiring log structuring",
+      "report_generated": "report.md",
+      "recommendations_count": 5,
+      "figures_planned": 6
+    }
+  },
+  "summary": {
+    "total_papers_from_literature": 10,
+    "total_experiments_analyzed": 17,
+    "research_themes_found": 4,
+    "literature_gaps_identified": 5,
+    "recommended_experiments_proposed": 5,
+    "key_claim": "PVA光学膜的透光率(86-91%)和雾度(0.4-96%)可在几乎完全独立调控的基础上通过不同填料实现极端调控——这是PVA相对于其他透明聚合物的独特优势。"
+  },
+  "output_artifacts": [
+    "phase1_output/01_literature/source_manifest.json",
+    "phase1_output/02_extracted/experiments_raw.json",
+    "phase1_output/03_normalized/experiments_normalized.json",
+    "phase1_output/07_summary/literature_summary.json",
+    "phase2_input/lab_experiments.json",
+    "phase2_output/01_cleaned/merged_experiments.json",
+    "phase2_output/figures/plot_manifest.json",
+    "phase2_output/report.md",
+    "phase2_output/recommendations.json"
+  ],
+  "warnings": [
+    "2 records filtered in transform stage (qualitative only)",
+    "2 papers provided approximate values (marked in metadata)",
+    "No spectral data detected — Spectroscopy Module 2 skipped"
+  ],
+  "created_at": "2026-05-31T00:00:00Z"
+}

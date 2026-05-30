@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "module": "Phase 1: Literature Acquisition - Source Manifest",
+    "bridge_id": "bridge_pva_optical_001",
+    "generated_at": "2026-05-31",
+    "domain": "PVA Optical Films",
+    "search_keywords": "PVA optical film, transmittance, haze, nanocomposite, cellulose, plasticizer"
+  },
+  "sources": [
+    {
+      "source_id": "SRC_PVA_001",
+      "title": "The influence of microcrystalline structure and crystalline size on visible light transmission of polyvinyl alcohol optical films",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "Optical Materials",
+      "doi": "10.1016/j.optmat.2023.114627",
+      "volume": "147",
+      "pages": "114627",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "Pure PVA optical film, transmittance 90.2%, haze 0.4%, crystal size study"
+    },
+    {
+      "source_id": "SRC_PVA_002",
+      "title": "Regenerated cellulose/polyvinyl alcohol composite films with high transparency and ultrahigh haze for multifunctional light management",
+      "authors": ["Zhao, X.", "等"],
+      "year": 2023,
+      "journal": "Carbohydrate Polymers",
+      "doi": "10.1016/j.carbpol.2023.121303",
+      "volume": "321",
+      "pages": "121303",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "RC/PVA composite, transmittance 90.5%, haze 96%, anti-reflection for solar cells"
+    },
+    {
+      "source_id": "SRC_PVA_003",
+      "title": "High transmittance, high haze, and UV-harvesting CNNs@CNF/PVA composite film for light management",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "Advanced Composites and Hybrid Materials",
+      "doi": "10.1007/s42114-024-01050-x",
+      "volume": "7",
+      "article": "234",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "CNNs@CNF/PVA, transmittance ~90%, haze >60%, UV conversion"
+    },
+    {
+      "source_id": "SRC_PVA_004",
+      "title": "Nanocellulose reinforced polyvinyl alcohol-based bio-nanocomposite films: improved mechanical, UV-light barrier, and thermal properties",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "RSC Advances",
+      "doi": "10.1039/D4RA04205K",
+      "volume": "14",
+      "pages": "23232-23239",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "CNF from pineapple leaf fiber, 1-5 wt% in PVA, transmittance 83-88%, tensile data"
+    },
+    {
+      "source_id": "SRC_PVA_005",
+      "title": "Enhancing the mechanical strength and tuning the optical properties of reinforced PVA films: The effects of graphene oxide, cellulose nanocrystals, and PVA molecular weight",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "Carbohydrate Polymer Technologies and Applications",
+      "doi": "10.1016/j.carpta.2024.100533",
+      "volume": "8",
+      "pages": "100533",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "GO + CNC in PVA, transparency 44-51%, UV barrier up to 91.7%"
+    },
+    {
+      "source_id": "SRC_PVA_006",
+      "title": "Preparation and characterisation of polyvinyl alcohol/glycerol blend thin films for sustainable flexibility",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "Materials Research Express",
+      "doi": "10.1088/2053-1591/ad4100",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "PVA/glycerol blend, plasticizer effect on optical and mechanical properties"
+    },
+    {
+      "source_id": "SRC_PVA_007",
+      "title": "Polymeric Nanocomposites of Polyvinyl Alcohol Embedded with ZnO/CuO/Single-Walled Carbon Nanotubes: Optical and Radiation Shielding Investigations",
+      "authors": ["不详"],
+      "year": 2025,
+      "journal": "Polymers",
+      "doi": "10.3390/polym17060818",
+      "volume": "17",
+      "issue": "6",
+      "pages": "818",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "PVA/ZnO/CuO/SWCNT, bandgap tuning 5.42->3.20 eV, refractive index 1.69->2.0"
+    },
+    {
+      "source_id": "SRC_PVA_008",
+      "title": "Tunable biocomposite films fabricated using cellulose nanocrystals and additives for food packaging",
+      "authors": ["Chen, 等"],
+      "year": 2023,
+      "journal": "Carbohydrate Polymers",
+      "doi": "10.1016/j.carbpol.2023.121315",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "CNC + sorbitol/PVA/chitin films, visible light transparency comparison"
+    },
+    {
+      "source_id": "SRC_PVA_009",
+      "title": "Producing nanocellulose from kenaf as a nanoreinforcing agent for polyvinyl alcohol (PVA) film",
+      "authors": ["不详"],
+      "year": 2024,
+      "journal": "International Journal of Nano and Biomaterials",
+      "doi": "10.1504/IJNBM.2024.137696",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "Kenaf CNF + glycerol in PVA, tensile, elongation, light transmission trade-off"
+    },
+    {
+      "source_id": "SRC_PVA_010",
+      "title": "Nanocellulose-reinforced, multilayered PVA-based hydrophobic composites as an alternative sealing film",
+      "authors": ["Chou, 等"],
+      "year": 2023,
+      "journal": "Science Progress",
+      "doi": "10.1177/00368504231157755",
+      "document_type": "journal_article",
+      "screening_decision": "KEPT",
+      "notes": "PVA + 3% CNC/CNF, modulus +96%, excellent transparency"
+    }
+  ],
+  "total_papers_kept": 10,
+  "search_strategy": "Web search for PVA optical film, transmittance, haze, nanocomposite additives 2022-2025"
+}

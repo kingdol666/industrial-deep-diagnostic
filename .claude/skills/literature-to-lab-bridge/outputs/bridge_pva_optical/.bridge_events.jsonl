@@ -1,0 +1,16 @@
+{"event": "bridge_start", "bridge_id": "bridge_pva_optical_001", "mode": "full", "domain": "PVA Optical Films", "timestamp": "2026-05-31T00:00:00Z"}
+{"event": "phase_start", "phase": 1, "skill": "domain-literature-experiment-extraction-ontology-skill", "keywords": "PVA optical film, transmittance, haze, nanocomposite, cellulose, plasticizer, crosslinker", "timestamp": "2026-05-31T00:00:01Z"}
+{"event": "phase1_search_complete", "papers_found": 15, "papers_screened_kept": 10, "timestamp": "2026-05-31T00:00:05Z"}
+{"event": "phase1_extraction_complete", "experiments_extracted": 19, "timestamp": "2026-05-31T00:00:10Z"}
+{"event": "phase1_normalization_complete", "experiments_normalized": 19, "names_canonicalized": 8, "units_converted": 3, "timestamp": "2026-05-31T00:00:15Z"}
+{"event": "phase_complete", "phase": 1, "papers_processed": 10, "experiments_extracted_total": 19, "mean_confidence": 0.72, "timestamp": "2026-05-31T00:00:16Z"}
+{"event": "gate_start", "timestamp": "2026-05-31T00:00:17Z"}
+{"event": "gate_complete", "passed": true, "checks": {"min_records": {"value": 19, "threshold": 10, "passed": true}, "mean_confidence": {"value": 0.72, "threshold": 0.5, "passed": true}, "min_papers": {"value": 10, "threshold": 3, "passed": true}}, "timestamp": "2026-05-31T00:00:18Z"}
+{"event": "transform_start", "timestamp": "2026-05-31T00:00:19Z"}
+{"event": "transform_complete", "records_input": 19, "records_output": 17, "records_filtered": 2, "spectral_detected": false, "timestamp": "2026-05-31T00:00:20Z"}
+{"event": "phase_start", "phase": 2, "skill": "chem-auto-lab-skill", "modules": [1, 4, 5], "modules_skipped": [2, 3], "timestamp": "2026-05-31T00:00:21Z"}
+{"event": "phase2_cleaning_complete", "records_cleaned": 17, "outliers_detected": 0, "quality_flags": 4, "timestamp": "2026-05-31T00:00:22Z"}
+{"event": "phase2_report_generated", "report": "report.md", "sections": ["Data Cleaning", "Literature Distribution", "Key Optical Analysis", "Chemical Analysis", "Gaps & Recommendations"], "timestamp": "2026-05-31T00:00:25Z"}
+{"event": "phase2_recommendations_complete", "recommendations": 5, "categories": ["formulation_optimization", "crosslinking_optimization", "environmental_effect_study", "formulation_optimization", "durability_study"], "timestamp": "2026-05-31T00:00:28Z"}
+{"event": "phase_complete", "phase": 2, "modules_executed": [1, 4, 5], "report": "report.md", "recommendations": "recommendations.json", "timestamp": "2026-05-31T00:00:30Z"}
+{"event": "bridge_complete", "status": "completed", "total_papers": 10, "total_experiments_analyzed": 17, "recommendations_proposed": 5, "timestamp": "2026-05-31T00:00:31Z"}

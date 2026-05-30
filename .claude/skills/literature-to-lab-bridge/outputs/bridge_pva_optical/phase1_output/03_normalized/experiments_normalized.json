@@ -1,0 +1,244 @@
+{
+  "metadata": {
+    "module": "Phase 1: Module 3 - Data Normalization",
+    "bridge_id": "bridge_pva_optical_001",
+    "generated_at": "2026-05-31",
+    "transformations": {
+      "names_canonicalized": 8,
+      "units_converted": 3,
+      "missing_flagged": 2,
+      "ambiguous_flagged": 1
+    }
+  },
+  "experiments": [
+    {
+      "experiment_id": "PVA001_E001",
+      "source_id": "SRC_PVA_001",
+      "sample_name": "PVA2099-8wt%-solution-cast",
+      "material_system": "PVA",
+      "material_grade": "2099",
+      "additive": null,
+      "film_preparation_method": "solution_casting",
+      "film_thickness": {"value": 50, "unit": "μm"},
+      "solution_concentration": {"value": 8, "unit": "wt%"},
+      "transmittance": {"value": 90.2, "unit": "%", "wavelength_nm": 550},
+      "haze": {"value": 0.4, "unit": "%"},
+      "crystal_size": {"value": 3.29, "unit": "nm"},
+      "crystallinity": {"value": 38, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA001_E002",
+      "source_id": "SRC_PVA_001",
+      "sample_name": "PVA2099-8wt%-heat-treated-200C",
+      "material_system": "PVA",
+      "material_grade": "2099",
+      "film_preparation_method": "solution_casting_heat_treatment",
+      "heat_treatment_temperature": {"value": 200, "unit": "°C"},
+      "heat_treatment_time": {"value": 30, "unit": "min"},
+      "film_thickness": {"value": 50, "unit": "μm"},
+      "transmittance": {"value": 84.8, "unit": "%"},
+      "haze": {"value": 2.4, "unit": "%"},
+      "tensile_strength": {"value": 120, "unit": "MPa", "value_type": "approximate"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA002_E001",
+      "source_id": "SRC_PVA_002",
+      "sample_name": "RC/PVA composite film",
+      "material_system": "PVA",
+      "additive": {"name": "regenerated_cellulose", "concentration": {"value": 15, "unit": "wt%"}},
+      "film_preparation_method": "solution_casting",
+      "film_thickness": {"value": 80, "unit": "μm"},
+      "transmittance": {"value": 90.5, "unit": "%", "wavelength_nm": 550},
+      "haze": {"value": 96, "unit": "%"},
+      "fiber_width": {"value": 15, "unit": "μm", "value_type": "range", "min": 14.55, "max": 16.16},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA003_E001",
+      "source_id": "SRC_PVA_003",
+      "sample_name": "CNNs@CNF/PVA composite",
+      "material_system": "PVA",
+      "additive": [
+        {"name": "CNF", "concentration": {"value": 5, "unit": "wt%"}},
+        {"name": "CNNs", "concentration": {"value": 2, "unit": "wt%"}}
+      ],
+      "film_preparation_method": "solution_casting",
+      "transmittance": {"value": 90, "unit": "%", "value_type": "approximate"},
+      "haze": {"value": 60, "unit": "%", "value_type": "approximate"},
+      "uv_conversion": "250-375nm_to_420-550nm",
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E001",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "Pure PVA baseline",
+      "material_system": "PVA",
+      "film_preparation_method": "solution_casting",
+      "transmittance": {"value": 86.4, "unit": "%"},
+      "tensile_strength": {"value": 22.5, "unit": "MPa"},
+      "crystallinity_index": {"value": 74.8, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E002",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "PVA-CNF-1%",
+      "material_system": "PVA",
+      "additive": {"name": "CNF", "concentration": {"value": 1, "unit": "wt%"}},
+      "film_preparation_method": "solution_casting",
+      "transmittance": {"value": 83.6, "unit": "%"},
+      "crystallinity_index": {"value": 77.7, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E003",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "PVA-CNF-2%",
+      "material_system": "PVA",
+      "additive": {"name": "CNF", "concentration": {"value": 2, "unit": "wt%"}},
+      "transmittance": {"value": 83.2, "unit": "%"},
+      "crystallinity_index": {"value": 77.3, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E004",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "PVA-CNF-3%",
+      "material_system": "PVA",
+      "additive": {"name": "CNF", "concentration": {"value": 3, "unit": "wt%"}},
+      "transmittance": {"value": 86.8, "unit": "%"},
+      "crystallinity_index": {"value": 77.9, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E005",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "PVA-CNF-4%-optimal",
+      "material_system": "PVA",
+      "additive": {"name": "CNF", "concentration": {"value": 4, "unit": "wt%"}},
+      "transmittance": {"value": 86.0, "unit": "%"},
+      "tensile_strength": {"value": 28.9, "unit": "MPa"},
+      "crystallinity_index": {"value": 78.8, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA004_E006",
+      "source_id": "SRC_PVA_004",
+      "sample_name": "PVA-CNF-5%",
+      "material_system": "PVA",
+      "additive": {"name": "CNF", "concentration": {"value": 5, "unit": "wt%"}},
+      "transmittance": {"value": 88.1, "unit": "%"},
+      "crystallinity_index": {"value": 77.4, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA005_E001",
+      "source_id": "SRC_PVA_005",
+      "sample_name": "PVA-lowMW-GO1%-CNC3.5%",
+      "material_system": "PVA",
+      "material_grade": "20_kDa_low_MW",
+      "additive": [
+        {"name": "GO", "concentration": {"value": 1.0, "unit": "wt%"}},
+        {"name": "CNC", "concentration": {"value": 3.52, "unit": "wt%"}}
+      ],
+      "film_preparation_method": "solution_casting",
+      "film_thickness": {"value": 100, "unit": "μm"},
+      "transmittance": {"value": 43.9, "unit": "%"},
+      "uva_barrier": {"value": 82.3, "unit": "%"},
+      "uvb_barrier": {"value": 91.7, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA005_E002",
+      "source_id": "SRC_PVA_005",
+      "sample_name": "PVA-highMW-GO0.6%-CNC1.86%",
+      "material_system": "PVA",
+      "material_grade": "130_kDa_high_MW",
+      "additive": [
+        {"name": "GO", "concentration": {"value": 0.6, "unit": "wt%"}},
+        {"name": "CNC", "concentration": {"value": 1.86, "unit": "wt%"}}
+      ],
+      "film_thickness": {"value": 100, "unit": "μm"},
+      "transmittance": {"value": 50.8, "unit": "%"},
+      "uva_barrier": {"value": 69.2, "unit": "%"},
+      "uvb_barrier": {"value": 77.9, "unit": "%"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA006_E001",
+      "source_id": "SRC_PVA_006",
+      "sample_name": "PVA pure",
+      "material_system": "PVA",
+      "film_preparation_method": "solution_casting",
+      "transmittance": {"value": 88, "unit": "%", "value_type": "approximate"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA006_E002",
+      "source_id": "SRC_PVA_006",
+      "sample_name": "PVA/glycerol-30%",
+      "material_system": "PVA",
+      "plasticizer": {"name": "glycerol", "concentration": {"value": 30, "unit": "wt%"}},
+      "film_preparation_method": "solution_casting",
+      "transmittance": {"value": 85, "unit": "%", "value_type": "approximate"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA007_E001",
+      "source_id": "SRC_PVA_007",
+      "sample_name": "Neat PVA",
+      "material_system": "PVA",
+      "film_preparation_method": "solution_casting",
+      "bandgap_direct": {"value": 5.42, "unit": "eV"},
+      "bandgap_indirect": {"value": 4.99, "unit": "eV"},
+      "refractive_index": {"value": 1.69},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA007_E002",
+      "source_id": "SRC_PVA_007",
+      "sample_name": "PVA/ZnO/CuO/SWCNT-10%",
+      "material_system": "PVA",
+      "additive": {"name": "ZnO_CuO_SWCNT_mixture", "concentration": {"value": 10, "unit": "wt%"}},
+      "film_preparation_method": "solution_casting",
+      "bandgap_direct": {"value": 3.20, "unit": "eV"},
+      "bandgap_indirect": {"value": 2.26, "unit": "eV"},
+      "refractive_index": {"value": 2.0},
+      "cut_off_edge": {"value": 560, "unit": "nm"},
+      "normalization_status": "complete"
+    },
+    {
+      "experiment_id": "PVA009_E001",
+      "source_id": "SRC_PVA_009",
+      "sample_name": "PVA/CNF-5%-glycerol-2%",
+      "material_system": "PVA",
+      "additive": {"name": "CNF_kenaf", "concentration": {"value": 5, "unit": "wt%"}},
+      "plasticizer": {"name": "glycerol", "concentration": {"value": 2, "unit": "wt%"}},
+      "transmittance_trend": "decreased_vs_pure_PVA",
+      "normalization_status": "qualitative_only"
+    },
+    {
+      "experiment_id": "PVA010_E001",
+      "source_id": "SRC_PVA_010",
+      "sample_name": "PVA/CNC-3%-blade-coated",
+      "material_system": "PVA",
+      "additive": {"name": "CNC", "concentration": {"value": 3, "unit": "wt%"}},
+      "film_preparation_method": "blade_coating_solution_casting",
+      "youngs_modulus_improvement": {"value": 96, "unit": "%_vs_commercial"},
+      "tensile_strength_improvement": {"value": 3, "unit": "%_vs_commercial"},
+      "transmittance_qualitative": "excellent",
+      "normalization_status": "partial"
+    }
+  ],
+  "normalization_statistics": {
+    "total_records": 19,
+    "fully_normalized": 16,
+    "qualitative_only": 1,
+    "partial_normalization": 2,
+    "names_canonicalized": ["CNF", "CNC", "GO", "glycerol", "regenerated_cellulose", "CNNs"],
+    "mean_transmittance_pure_PVA": 88.2,
+    "mean_transmittance_all": 78.3
+  }
+}
