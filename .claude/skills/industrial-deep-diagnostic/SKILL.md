@@ -1,13 +1,16 @@
 ---
 name: industrial-deep-diagnostic
-description: "Use when the user provides industrial, process, or manufacturing time-series data (CSV, XLSX, Parquet) and asks about anomalies, root causes, quality issues, equipment faults, or process diagnostics. Version 6.2 adds interaction_mode: 'auto' (full auto-pilot, no questions), 'interactive' (original behavior), or 'minimal' (CRITICAL questions only). Also triggers on: anomaly detection, root cause analysis, fault diagnosis, sensor data analysis, equipment health, SPC, statistical process control, 工业诊断, 过程分析, 异常检测, 根因分析, 质量分析, 故障诊断, 传感器数据. Do NOT trigger for: simple data visualization, general statistics homework, financial time-series, or non-industrial data."
+description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis across CNC, continuous process, batch chemical, heat exchange, or quality inspection scenarios. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
   - industrial-deep-diagnostic review
   - industrial-deep-diagnostic report
   - industrial-deep-diagnostic audit
-version: 6.2.0
+compatibility: |
+  Requires Node.js 18+ for pipeline orchestration scripts (setup.mjs, inspect.mjs, stats.mjs, stats_validate.mjs, validate.mjs).
+  Python 3.9+ managed via uv venv for adaptive analysis (matplotlib, numpy, pandas, scipy, seaborn, openpyxl).
+  uv auto-installed if missing. Run `node scripts/uv_env_setup.mjs` before any Python use.
 ---
 
 # Industrial Deep Diagnostic
@@ -37,6 +40,7 @@ This skill uses progressive loading. Read only what each step needs:
 | During diagnosis | `resources/evidence_rules.md` | Evidence rank definitions |
 | During diagnosis | `resources/diagnosis_method.md` | Diagnostic methodology reference |
 | During diagnosis | `resources/process_knowledge_base.md` | Domain knowledge by process type |
+| During diagnosis | `resources/diagnostician_dual_drive_reference.md` | Pre-computed physical checks, reset analysis tables, onset-coincidence classification |
 | After each agent | `schemas/*.json` matching output | Validate JSON outputs |
 
 **Do NOT load everything upfront.** Each agent prompt is self-contained — read it only when that step begins.
@@ -81,7 +85,7 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context ──[clarify
 
 ```bash
 SKILL_PATH="<path-to-this-skill>"
-PROJECT_ROOT="$(cd "$SKILL_PATH/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 
 # Step 0a: Create run directory structure
 node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
@@ -92,7 +96,7 @@ node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 
 Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Also ensures the uv-managed Python venv exists with all dependencies (matplotlib, numpy, pandas, seaborn, scipy, openpyxl, pyarrow). Copy input data files into `00_input/`.
 
-**Python execution rule (ZERO TOLERANCE)**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. NEVER use system `python3`, `python3.11`, or `pip3`. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field. Violating this rule causes dependency pollution and version conflicts.
+**Python execution rule**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. NEVER use system `python3`, `python3.11`, or `pip3`. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field. This avoids dependency pollution and version conflicts between projects.
 
 ### Step 1: Inspect Data (Main Agent)
 
@@ -100,7 +104,7 @@ Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Al
 node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
 ```
 
-Inspect all input files. Read `interaction_mode` from `run_config.json` (defaults to `auto` if not set):
+Inspect all input files. **If `00_input/run_config.json` does not exist, create one with `{"interaction_mode": "auto"}` by default.** Read `interaction_mode` from `run_config.json` (defaults to `auto` if not set):
 
 | Mode | Behavior |
 |------|----------|
@@ -162,6 +166,7 @@ Schema-validate Step 3 outputs:
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/causal_evidence_map_schema.json" "$RUN_DIR/02_processed/causal_evidence_map.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
 ```
 
 ### Step 4: Diagnostician — Competing Hypotheses (Sub-Agent)
@@ -268,15 +273,16 @@ Every conclusion limited by its weakest evidence rank.
 
 ## Anti-Speculation Rules
 
-- NEVER claim lag correlation as causal if data is not time-sorted
-- NEVER claim aggregate correlation if it reverses in the dominant subgroup (Simpson's Paradox)
-- NEVER cite raw correlation without checking detrended when both variables trend with time
-- NEVER assume parameter physical meaning — if unknown, use clarification gate
-- NEVER assign high confidence without checking if alternatives predict the same observables
-- ALWAYS output COMPETING_SET when data cannot discriminate between hypotheses
-- ALWAYS specify what discriminating data would resolve ambiguity
-- **Confidence ceiling 65 for INDISTINGUISHABLE competing hypotheses**
-- ALWAYS disclose confidence, evidence gaps, and assumptions
+Every conclusion carries the burden of proof. Apply these checks before writing any finding:
+
+- **Lag correlations** require time-sorted data. Without temporal ordering, lag is meaningless — check `sorting_validation.time_sorted` first.
+- **Aggregate correlations** can reverse direction within subgroups. Always check stratified correlations for Simpson's Paradox before claiming a relationship holds.
+- **Trending variables** share time as a hidden confounder. When both X and Y trend upward, the raw r reflects shared drift, not coupling. Check detrended r.
+- **Unknown parameter meanings** are a failure mode. If physical meaning isn't confirmed, flag the hypothesis as `[PARAM_AMBIGUITY]` — a strong correlation on an unknown quantity is a correlation to a label, not a physical cause.
+- **Competing hypotheses** that predict identical observables are INDISTINGUISHABLE. Do not pick a winner. Output as COMPETING_SET with the specific data that would discriminate.
+- **Discriminating data** must be specified for every competing set — what measurement, where, and what values would settle it.
+- **Confidence ceiling 65** for INDISTINGUISHABLE competing hypotheses: no single hypothesis may exceed 65 when alternatives predict the same observables.
+- **Confidence, evidence gaps, and assumptions** must always be disclosed alongside conclusions.
 
 ---
 
@@ -306,6 +312,8 @@ Every conclusion limited by its weakest evidence rank.
 | `resources/evidence_rules.md` | During Step 4 | Evidence hierarchy details |
 | `resources/diagnosis_method.md` | During Step 4 | Diagnostic methodology |
 | `resources/process_knowledge_base.md` | During Step 4 | Domain knowledge by process type |
+| `resources/diagnostician_dual_drive_reference.md` | During Step 4 | Pre-computed Dual-Drive check results, classification tables, R2 documentation format |
 | `schemas/*.json` | After each agent output | JSON Schema validation |
 | `templates/*.md`, `templates/*.json` | During Steps 4, 5, 6 | Output templates |
+| `assets/` | As needed | Shared resources (watermark templates, icon sets, cover images) |
 | `examples/` | When building context for similar process types | Sample ontologies |

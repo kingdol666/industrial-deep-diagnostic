@@ -1,0 +1,331 @@
+{
+  "skill_name": "industrial-deep-diagnostic",
+  "description": "Formal evaluation suite for the industrial deep diagnostic skill. Tests 5 industrial scenarios covering CNC machining, film production, chemical reactor, heat exchanger, and steel rolling. Each test verifies correct root cause identification, transition event analysis, confounder rejection, and statistical validation integrity.",
+  "schema_version": "2.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "CNC_spindle_bearing_spalling",
+      "prompt": "一名工艺工程师从精密加工中心提供了一份数据集。该数据集包含1050行，列包括 spindle_vibration_mm_s、spindle_temp_C、surface_roughness_Ra_um、tool_age_parts、tool_id、material（AL7075/AL6061/SS304）和 timestamp。在过去8小时内，他们注意到表面粗糙度 Ra 从 ~0.5μm 上升至 ~3.5μm，废品率上升。请分析数据并找出根因。数据文件位于 data/eval_cnc_spindle_wear/data.csv",
+      "expected_output": "1) 根因: 主轴轴承内圈剥落（非刀具磨损）；2) 换刀后粗糙度不重置的过渡事件分析；3) 按material分层的UNIVERSAL验证；4) DETERMINED诊断类型；5) 置信度>85",
+      "files": ["data/eval_cnc_spindle_wear/data.csv"],
+      "metadata": {
+        "scenario_type": "CNC machining",
+        "data_dimensions": "1050 rows × 7 columns",
+        "expected_diagnosis_type": "DETERMINED",
+        "expected_root_cause_category": "bearing_degradation",
+        "expected_confidence_floor": 80,
+        "key_transition_event": "tool_change",
+        "validation_checks": ["Simpson's Paradox (material stratification)", "transition analysis (tool change)", "outlier sensitivity"]
+      },
+      "assertions": [
+        {
+          "name": "correct_root_cause",
+          "description": "诊断正确识别根因为主轴轴承退化（非刀具磨损）",
+          "check": "diagnosis.primary_finding contains 轴承 or 主轴",
+          "jsonpath": "$.diagnosis.root_cause[*].name",
+          "expected_type": "contains_any",
+          "expected_values": ["轴承", "主轴", "spindle", "bearing"],
+          "weight": "critical"
+        },
+        {
+          "name": "transition_event_analysis",
+          "description": "诊断包含换刀事件的过渡分析",
+          "check": "evidence.json or diagnosis.json contains transition or 换刀",
+          "jsonpath": "$.diagnosis.transition_events[*].type",
+          "expected_type": "contains",
+          "expected_values": ["tool_change", "换刀"],
+          "weight": "high"
+        },
+        {
+          "name": "rejects_tool_wear",
+          "description": "排除刀具磨损为唯一根因",
+          "check": "hypotheses.eliminated contains tool_id or 刀具",
+          "jsonpath": "$.diagnosis.hypotheses.eliminated",
+          "expected_type": "contains_any",
+          "expected_values": ["tool_id", "刀具", "tool_age", "tool_wear"],
+          "weight": "critical"
+        },
+        {
+          "name": "product_stratified",
+          "description": "按material做过分层验证",
+          "check": "diagnosis.product_stratified_analysis present and UNIVERSAL",
+          "jsonpath": "$.diagnosis.product_stratified_analysis.classification",
+          "expected_type": "equals",
+          "expected_values": ["UNIVERSAL"],
+          "weight": "high"
+        },
+        {
+          "name": "diagnosis_type_correct",
+          "description": "诊断类型为DETERMINED",
+          "check": "diagnosis.diagnosis_type == DETERMINED",
+          "jsonpath": "$.diagnosis.diagnosis_type",
+          "expected_type": "equals",
+          "expected_values": ["DETERMINED"],
+          "weight": "critical"
+        },
+        {
+          "name": "confidence_above_80",
+          "description": "整体置信度>=80",
+          "check": "confidence.overall_confidence.score >= 80",
+          "jsonpath": "$.confidence.overall_confidence.score",
+          "expected_type": "numeric_gte",
+          "expected_values": [80],
+          "weight": "high"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "BOPET_film_MD_TH003_drift",
+      "prompt": "BOPET薄膜生产线出现产品质量问题——厚度波动增大、熔斑率上升。数据集包含2500行x39列，涵盖12个MD温区、6个TD温区、5个模口间隙位置。已知MD_TH003设定值为95°C。请分析根因。数据文件位于 data/eval_bopet_film_drift/data.csv",
+      "expected_output": "1) MD_TH003加热器退化为主因（温度从95°C漂移至~86°C）；2) 模口右侧间隙增大为次因；3) 筛网更换(t=1200)后质量不重置；4) 按product_grade分层验证；5) DETERMINED诊断",
+      "files": ["data/eval_bopet_film_drift/data.csv"],
+      "metadata": {
+        "scenario_type": "continuous_process (film)",
+        "data_dimensions": "2500 rows × 39 columns",
+        "expected_diagnosis_type": "DETERMINED",
+        "expected_root_cause_category": "thermal_degradation_setpoint_drift",
+        "expected_confidence_floor": 80,
+        "key_transition_event": "screen_change",
+        "validation_checks": ["product_grade stratification (product_grade)", "trend confounding (time-trend on MD_TH003)", "Simpson's Paradox check"]
+      },
+      "assertions": [
+        {
+          "name": "identifies_MD_TH003",
+          "description": "识别MD_TH003为唯一漂移温区",
+          "check": "diagnosis.hypotheses.surviving[0].name contains MD_TH003 or 温区3",
+          "jsonpath": "$.diagnosis.hypotheses.surviving[*].parameter",
+          "expected_type": "contains_any",
+          "expected_values": ["MD_TH003", "MD_TH", "温区3"],
+          "weight": "critical"
+        },
+        {
+          "name": "screen_change_transition",
+          "description": "分析筛网更换事件中质量不重置",
+          "check": "anomaly_report.json has transition_events with screen or 筛网",
+          "jsonpath": "$.anomaly_report.transition_events[*].type",
+          "expected_type": "contains",
+          "expected_values": ["screen_change", "筛网", "screen"],
+          "weight": "high"
+        },
+        {
+          "name": "double_root_cause",
+          "description": "识别双根因（加热器+模口间隙）",
+          "check": "hypotheses.surviving length >= 2 OR mentions both 加热 and 间隙",
+          "jsonpath": "$.diagnosis.hypotheses.surviving",
+          "expected_type": "array_length_gte",
+          "expected_values": [2],
+          "weight": "high"
+        },
+        {
+          "name": "grade_stratified",
+          "description": "按product_grade做过UNIVERSAL验证",
+          "check": "diagnosis.product_stratified_analysis present",
+          "jsonpath": "$.diagnosis.product_stratified_analysis",
+          "expected_type": "exists",
+          "expected_values": ["present"],
+          "weight": "medium"
+        },
+        {
+          "name": "confidence_above_80",
+          "description": "整体置信度>=80",
+          "check": "confidence.overall_confidence.score >= 80",
+          "jsonpath": "$.confidence.overall_confidence.score",
+          "expected_type": "numeric_gte",
+          "expected_values": [80],
+          "weight": "high"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "CSTR_catalyst_poisoning",
+      "prompt": "连续搅拌反应器(CSTR)出现转化率从~95%降至~68%的问题。数据共1440行x16列，包括反应温度、压力、H₂分压、进料速率、转化率、副产物浓度等。催化剂再生在t=1200进行了。请分析根因。数据文件位于 data/eval_reactor_catalyst/data.csv",
+      "expected_output": "1) 催化剂硫中毒为主因；2) 再生(t=1200)后活性部分恢复的确诊证据；3) H₂压缩机维护和进料泵跳车辨识为干扰事件；4) DETERMINED诊断",
+      "files": ["data/eval_reactor_catalyst/data.csv"],
+      "metadata": {
+        "scenario_type": "batch_chemical (CSTR)",
+        "data_dimensions": "1440 rows × 16 columns",
+        "expected_diagnosis_type": "DETERMINED",
+        "expected_root_cause_category": "catalyst_poisoning",
+        "expected_confidence_floor": 80,
+        "key_transition_event": "catalyst_regeneration",
+        "validation_checks": ["catalyst_bed_id stratification", "transition analysis (regeneration)", "time-trend confounding check"]
+      },
+      "assertions": [
+        {
+          "name": "identifies_catalyst_poisoning",
+          "description": "诊断正确指出催化剂毒化为根因",
+          "check": "diagnosis.primary_finding contains 催化剂 or 毒化 or poison",
+          "jsonpath": "$.diagnosis.root_cause[*].name",
+          "expected_type": "contains_any",
+          "expected_values": ["催化剂", "毒化", "poison", "sulfur"],
+          "weight": "critical"
+        },
+        {
+          "name": "regeneration_analysis",
+          "description": "分析催化剂再生事件",
+          "check": "evidence.json or diagnosis.json mentions 再生 or regeneration",
+          "jsonpath": "$.diagnosis.transition_events[*].type",
+          "expected_type": "contains",
+          "expected_values": ["regeneration", "再生"],
+          "weight": "high"
+        },
+        {
+          "name": "rejects_feed_pump",
+          "description": "排除进料泵跳车事件为根因",
+          "check": "hypotheses.eliminated contains 泵 or pump",
+          "jsonpath": "$.diagnosis.hypotheses.eliminated",
+          "expected_type": "contains_any",
+          "expected_values": ["泵", "pump", "feed_pump"],
+          "weight": "high"
+        },
+        {
+          "name": "product_stratified",
+          "description": "按catalyst_bed_id做到分层分析",
+          "check": "diagnosis.product_stratified_analysis present",
+          "jsonpath": "$.diagnosis.product_stratified_analysis",
+          "expected_type": "exists",
+          "expected_values": ["present"],
+          "weight": "medium"
+        },
+        {
+          "name": "confidence_above_80",
+          "description": "整体置信度>=80",
+          "check": "confidence.overall_confidence.score >= 80",
+          "jsonpath": "$.confidence.overall_confidence.score",
+          "expected_type": "numeric_gte",
+          "expected_values": [80],
+          "weight": "high"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "HX_CaCO3_scaling",
+      "prompt": "管壳式换热器效率从~90%降至~68%，出口热流体温度升高。数据2160行x16列，涵盖进出口温度、HTC、压降、泵速等。酸洗在t=1300进行。请分析根因。数据文件位于 data/eval_heat_exchanger_scaling/data.csv",
+      "expected_output": "1) CaCO₃结垢为主因；2) 酸洗(t=1300)HTC部分恢复的确诊证据；3) 压降不恢复→垢层未完全去除；4) 泵维护和冷却塔风扇故障辨识为干扰事件；5) DETERMINED",
+      "files": ["data/eval_heat_exchanger_scaling/data.csv"],
+      "metadata": {
+        "scenario_type": "heat_exchange",
+        "data_dimensions": "2160 rows × 16 columns",
+        "expected_diagnosis_type": "DETERMINED",
+        "expected_root_cause_category": "fouling_scaling",
+        "expected_confidence_floor": 80,
+        "key_transition_event": "acid_wash",
+        "validation_checks": ["transition analysis (acid wash)", "trend confounding check (HTC vs time)", "outlier sensitivity"]
+      },
+      "assertions": [
+        {
+          "name": "identifies_scaling",
+          "description": "诊断明确指出CaCO₃结垢为根因",
+          "check": "diagnosis.primary_finding contains 结垢 or scaling or 垢",
+          "jsonpath": "$.diagnosis.root_cause[*].name",
+          "expected_type": "contains_any",
+          "expected_values": ["结垢", "scaling", "垢", "fouling"],
+          "weight": "critical"
+        },
+        {
+          "name": "acid_wash_transition",
+          "description": "分析酸洗事件中HTC部分恢复",
+          "check": "evidence.json or diagnosis.json mentions 酸洗 or cleaning",
+          "jsonpath": "$.diagnosis.transition_events[*].type",
+          "expected_type": "contains",
+          "expected_values": ["acid_wash", "酸洗", "cleaning"],
+          "weight": "high"
+        },
+        {
+          "name": "pressure_drop_noted",
+          "description": "识别压降不随酸洗恢复的特征",
+          "check": "diagnosis mentions 压降 or pressure_drop",
+          "jsonpath": "$.diagnosis.key_observations",
+          "expected_type": "contains_any",
+          "expected_values": ["压降", "pressure_drop", "pressure drop"],
+          "weight": "high"
+        },
+        {
+          "name": "rejects_pump_issue",
+          "description": "排除泵维护事件为根因",
+          "check": "hypotheses.eliminated contains 泵 or pump",
+          "jsonpath": "$.diagnosis.hypotheses.eliminated",
+          "expected_type": "contains_any",
+          "expected_values": ["泵", "pump", "cooling_tower"],
+          "weight": "medium"
+        },
+        {
+          "name": "confidence_above_80",
+          "description": "整体置信度>=80",
+          "check": "confidence.overall_confidence.score >= 80",
+          "jsonpath": "$.confidence.overall_confidence.score",
+          "expected_type": "numeric_gte",
+          "expected_values": [80],
+          "weight": "high"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "cold_rolling_roll_eccentricity",
+      "prompt": "冷轧机出现出口厚度波动增大（±40μm）和振纹缺陷。数据2500行x18列，50个钢卷。Coil#35进行了换辊。请分析根因。数据文件位于 data/eval_steel_cold_rolling/data.csv",
+      "expected_output": "1) 工作辊轴承偏心为主因；2) 换辊(coil#35)后厚度偏差完全重置的确诊证据；3) Chatter振纹特征频率（~2Hz=轧辊旋转频率）；4) 热轧原料厚度异常(coil#28)辨识为上游问题；5) DETERMINED",
+      "files": ["data/eval_steel_cold_rolling/data.csv"],
+      "metadata": {
+        "scenario_type": "metal_forming (cold rolling)",
+        "data_dimensions": "2500 rows × 18 columns, 50 coils",
+        "expected_diagnosis_type": "DETERMINED",
+        "expected_root_cause_category": "roll_eccentricity_bearing",
+        "expected_confidence_floor": 80,
+        "key_transition_event": "roll_change (coil#35)",
+        "validation_checks": ["transition analysis (roll change)", "per-coil stratification", "frequency analysis (chatter ~2Hz)"]
+      },
+      "assertions": [
+        {
+          "name": "identifies_roll_eccentricity",
+          "description": "诊断正确指出轧辊偏心/轴承为根因",
+          "check": "diagnosis.primary_finding contains 轧辊 or 偏心 or 轴承",
+          "jsonpath": "$.diagnosis.root_cause[*].name",
+          "expected_type": "contains_any",
+          "expected_values": ["轧辊", "偏心", "轴承", "roll", "eccentricity"],
+          "weight": "critical"
+        },
+        {
+          "name": "roll_change_transition",
+          "description": "分析换辊事件中厚度偏差完全重置",
+          "check": "diagnosis or evidence mentions 换辊 or roll_change",
+          "jsonpath": "$.diagnosis.transition_events[*].type",
+          "expected_type": "contains",
+          "expected_values": ["roll_change", "换辊"],
+          "weight": "high"
+        },
+        {
+          "name": "coil_28_identified",
+          "description": "识别coil#28原料厚度异常为干扰事件",
+          "check": "hypotheses.eliminated contains 原料 or 热轧 or entry_thickness",
+          "jsonpath": "$.diagnosis.hypotheses.eliminated",
+          "expected_type": "contains_any",
+          "expected_values": ["原料", "热轧", "entry_thickness", "coil_28"],
+          "weight": "high"
+        },
+        {
+          "name": "chatter_frequency_note",
+          "description": "提及振纹特征(2Hz/周期性)与轧辊的关系",
+          "check": "diagnosis or evidence mentions 2Hz or 周期 or chatter",
+          "jsonpath": "$.diagnosis.key_observations",
+          "expected_type": "contains_any",
+          "expected_values": ["2Hz", "chatter", "周期", "旋转频率"],
+          "weight": "medium"
+        },
+        {
+          "name": "confidence_above_80",
+          "description": "整体置信度>=80",
+          "check": "confidence.overall_confidence.score >= 80",
+          "jsonpath": "$.confidence.overall_confidence.score",
+          "expected_type": "numeric_gte",
+          "expected_values": [80],
+          "weight": "high"
+        }
+      ]
+    }
+  ]
+}

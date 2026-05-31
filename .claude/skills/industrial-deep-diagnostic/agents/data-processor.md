@@ -13,7 +13,7 @@ You process industrial time-series data and generate **adaptive, scenario-driven
 - RUN_DIR: {{RUN_DIR}}
 - SKILL_PATH: {{SKILL_PATH}}
 
-**Path resolution**: RUN_DIR = absolute path to the run directory (e.g., `workspace/diagnostic-runs/<timestamp>_<name>/`). SKILL_PATH = absolute path to this skill directory. Compute project root from SKILL_PATH: `SKILL_PATH/../..`.
+**Path resolution**: RUN_DIR = absolute path to the run directory (e.g., `workspace/diagnostic-runs/<timestamp>_<name>/`). SKILL_PATH = absolute path to this skill directory. Compute project root from SKILL_PATH: `SKILL_PATH/../../..`.
 
 **Before starting, verify:** `DATA_PATH` file exists and `RUN_DIR` directory exists. If either missing, output error JSON to stdout and stop.
 
@@ -21,17 +21,15 @@ You process industrial time-series data and generate **adaptive, scenario-driven
 
 ## Step 1: Inspect & Classify Scenario
 
-### 1.1 Data Inspection (Node.js)
+### 1.1 Read Data Inspection
 
-```bash
-node SKILL_PATH/scripts/inspect.mjs DATA_PATH --rows 10 > RUN_DIR/00_input/data_inspection.json
-```
-
-Read the output. Understand:
+Read `RUN_DIR/00_input/input_manifest.json` (produced by pipeline Step 1). Understand:
 - Numeric columns: count, types, ranges → identify process vs quality vs control variables
 - Time column: existence, format, sampling rate → determines temporal analysis options
 - Categorical columns: values, counts → identify grouping/product/batch columns
 - Data dimensionality: 1D scalar / 2D profile / multi-axis / spectral
+
+> **Note**: Do NOT re-run `inspect.mjs` — the `input_manifest.json` was already created in pipeline Step 1. Re-running would produce duplicate work and lose any user context from the initial inspection.
 
 ### 1.2 Scenario Classification (CRITICAL — drives ALL subsequent analysis)
 
@@ -156,6 +154,74 @@ When categorical columns change value (tool_id changes, material switches, shift
 4. **Persist vs reset check**: Does quality degrade continuously across transitions (system-level) or reset (component-level)?
 
 This is critical for the Diagnostician to distinguish component wear (resets on replacement) from system degradation (never resets).
+
+---
+
+## Step 5: Automated Physical Feasibility Checks (NEW — Dual-Drive Engine)
+
+**This is the core innovation of the dual-drive approach.** Instead of asking the Diagnostician to manually compute physics, run `physics_check.py` which automatically:
+
+1. Reads `ontology.json` to understand the scenario and equipment
+2. Reads `feature_summary.json` for validated statistical correlations
+3. Reads `anomaly_report.json` for anomaly intervals and transition events
+4. Reads `cleaned_data.json` for actual data values
+5. Automatically detects which physical checks are applicable (by matching parameter names from `ontology.json` with known physical models)
+6. Executes quantitative calculations: thermal expansion, Arrhenius kinetics, vibration thresholds, energy balance, flow restriction, force balance, heat transfer, corrosion rate
+7. **PRE-COMPUTES quality reset analysis** — checks if quality resets after each transition event
+8. **PRE-COMPUTES anomaly-onset coincidence** — determines which parameters change BEFORE quality degradation
+
+Run the physics check engine:
+
+```bash
+PHYSICS_OUTPUT=$RUN_DIR/02_processed/physics_check.json
+
+# Ensure uv venv is available
+PYTHON=$(node $SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
+  let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+    try{const j=JSON.parse(d.split('\n').pop());process.stdout.write(j.python||'')}catch{process.stdout.write('')}
+  })
+")
+
+if [ -n "$PYTHON" ]; then
+  $PYTHON $SKILL_PATH/scripts/physics_check.py "$RUN_DIR" \
+    "$RUN_DIR/01_ontology/ontology.json" \
+    "$RUN_DIR/02_processed/feature_summary.json" \
+    "$RUN_DIR/02_processed/anomaly_report.json" \
+    --output "$PHYSICS_OUTPUT" \
+    --cleaned-data "$RUN_DIR/02_processed/cleaned_data.json"
+else
+  echo "WARNING: uv venv not available — physics checks skipped. Diagnostician must compute manually."
+fi
+```
+
+### 5.1 Merge Physics Check Results into anomaly_report.json
+
+After running physics_check.py, merge the quality_reset_analysis into anomaly_report.json so that the Diagnostician can read everything in one place:
+
+```bash
+# Merge quality_reset_analysis from physics_check.json into anomaly_report.json
+if [ -f "$PHYSICS_OUTPUT" ]; then
+  node -e "
+    const fs = require('fs');
+    const anomaly = JSON.parse(fs.readFileSync('$RUN_DIR/02_processed/anomaly_report.json', 'utf-8'));
+    const physics = JSON.parse(fs.readFileSync('$PHYSICS_OUTPUT', 'utf-8'));
+    anomaly.quality_reset_analysis = physics.phyiscal_checks.quality_reset_analysis || null;
+    anomaly.anomaly_onset_coincidence = physics.phyiscal_checks.anomaly_onset_coincidence || [];
+    anomaly.phyiscal_checks = {};
+    for (const [k, v] of Object.entries(physics.phyiscal_checks || {})) {
+      if (!['quality_reset_analysis', 'anomaly_onset_coincidence'].includes(k)) {
+        anomaly.phyiscal_checks[k] = v;
+      }
+    }
+    fs.writeFileSync('$RUN_DIR/02_processed/anomaly_report.json', JSON.stringify(anomaly, null, 2));
+    console.log('Physics checks merged into anomaly_report.json');
+  "
+fi
+```
+
+### 5.2 Verify Physics Check Output
+
+Read `$PHYSICS_OUTPUT` and confirm which checks were executed. Each check has a `conclusion` field (e.g., `THERMAL_EXPANSION_PLAUSIBLE`, `VIBRATION_CLIFF_DETECTED`, `FORCE_BALANCE_PLAUSIBLE`). If a critical check failed to run (status: INCONCLUSIVE), note this for the Diagnostician.
 
 ---
 
@@ -329,21 +395,22 @@ If `generate_captions.mjs` doesn't exist, generate manually. Each entry MUST inc
 
 Must exist when done:
 ```
-00_input/data_inspection.json
+00_input/input_manifest.json          ← already exists from pipeline Step 1
 02_processed/data.json
 02_processed/cleaned_data.csv / cleaned_data.json
-02_processed/scenario_classification.json     ← NEW
-02_processed/feature_summary.json
-02_processed/validate_report.json
-02_processed/anomaly_report.json              ← NEW
-02_processed/causal_evidence_map.json         ← NEW
-02_processed/data_quality_report.json
+02_processed/scenario_classification.json     ← Step 1.2
+02_processed/feature_summary.json            ← Step 4.1
+02_processed/validate_report.json            ← Step 4.2
+02_processed/anomaly_report.json             ← Step 4.3 (merged with physics_check results in Step 5)
+02_processed/physics_check.json              ← NEW Step 5
+02_processed/causal_evidence_map.json         ← Step 6.6
+02_processed/data_quality_report.json         ← Step 3
 03_figures/*.png
 03_figures/plot_manifest.json
 03_figures/image_captions.json
 06_scripts/visualize.py
 06_scripts/preprocess.py
-06_scripts/anomaly_detection.py               ← NEW
+06_scripts/anomaly_detection.py               ← Step 4.3
 ```
 
 ## Pipeline Event Log

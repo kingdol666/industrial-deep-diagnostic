@@ -217,7 +217,12 @@ Every claim MUST cite which link in the reasoning chain supports it ([Chain Link
 ## 15. 竞争假设披露 / Competing Hypotheses Disclosure (v6.0)
 
 **v6.0 强制节** — 当诊断类型为 COMPETING_SET 时，清晰呈现所有竞争假设。
-[For each competing hypothesis: mechanism, evidence, why indistinguishable, discrimination condition.]
+
+**IMPORTANT — Conditional rendering**: This section's content depends on `diagnosis_type`:
+
+- **diagnosis_type == "COMPETING_SET"**: REQUIRED. Present every competing set from `diagnosis.json.hypotheses.competing_sets[]`. For each set, list: all hypotheses in the set, why they are indistinguishable, what discriminating data would resolve the ambiguity, and the confidence ceiling.
+- **diagnosis_type == "DETERMINED"**: Include a SHORT paragraph stating: "诊断已确定单一根因。以下列出曾被考虑但通过可分辨性矩阵排除的替代假设：" followed by a brief list of eliminated hypotheses and why each was distinguishable from the winner.
+- **diagnosis_type == "NEEDS_DATA"**: Include a SHORT paragraph stating: "证据不足以完成可分辨性评估。以下列出需要采集的数据以进行有意义的假设分辨：" followed by the data gaps from `diagnosis.json.data_gaps[]`.
 
 ## 16. 置信度与不确定性 / Confidence & Uncertainty
 [Overall confidence. Evidence gaps. What additional data would help.]

@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Parameter-to-Physics Mapping Table",
+  "version": "1.0",
+  "description": "Maps industrial process parameter names to their physical meanings, governing equations, and causal chains. The Diagnostician uses this to automatically link data discoveries to physical mechanisms.",
+  "parameters": {
+    "spindle_vibration_mm_s": {
+      "synonyms": ["vibration", "vib", "spindle_vibration"],
+      "physical_quantity": "振动速度 RMS (mm/s)",
+      "governing_law": "ISO 10816-1 振动严重度分类",
+      "typical_ranges": {"good": [0, 1.8], "acceptable": [1.8, 4.5], "unsatisfactory": [4.5, 11.2], "unacceptable": [11.2, null]},
+      "causal_chains": [
+        {"mechanism": "轴承磨损 → 旋转不平衡 → 振动↑ → 刀尖位移 → 表面粗糙度↑ → 尺寸偏差↑", "check_function": "check_vibration_threshold", "time_lag": "即时"},
+        {"mechanism": "主轴过热 → 热膨胀 → 轴承间隙变化 → 振动↑ → 加工质量↓", "check_function": "check_thermal_expansion", "time_lag": "数分钟"}
+      ],
+      "quantitative_check": "vibration_amplitude × inverse_tool_stiffness = tool_tip_deflection; Δroughness ∝ deflection × material_factor",
+      "threshold_physics": "ISO 10816 Zone C (>4.5mm/s) 表示需要维修 — 超过此阈值时滚动轴承寿命指数级下降",
+      "physical_unit_SI": "m/s",
+      "competing_hypotheses": {
+        "H1_bearing_wear": "振动与主轴温度强相关(共变)→轴承磨损同时导致振动和温升",
+        "H2_imbalance": "振动与转速相关→旋转部件不平衡(刀具/卡盘)",
+        "H3_resonance": "振动在特定转速下峰值→结构共振"
+      }
+    },
+    "spindle_temp_C": {
+      "synonyms": ["temperature", "temp", "spindle_temp"],
+      "physical_quantity": "轴承/主轴温度 (°C)",
+      "governing_law": "能量平衡：ΔT = P_loss × t / (m × Cp)",
+      "typical_ranges": {"normal": [20, 60], "elevated": [60, 80], "critical": [80, null]},
+      "causal_chains": [
+        {"mechanism": "轴承磨损 → 摩擦↑ → 发热↑ → 温度↑ → 热膨胀 → 轴承间隙变化", "check_function": "check_energy_balance", "time_lag": "数分钟"},
+        {"mechanism": "冷却不足 → 热量堆积 → 温度↑ → 主轴热漂移 → 尺寸偏差↑", "check_function": "check_heat_transfer", "time_lag": "10-30分钟"}
+      ],
+      "quantitative_check": "ΔT_calculated = P_friction / (m_bearing × Cp_steel); P_friction = μ × F_load × v; μ_bearing ≈ 0.001-0.005",
+      "physical_unit_SI": "K",
+      "competing_hypotheses": {
+        "H1_bearing_wear": "振动与温度同时↑→摩擦热增加→轴承磨损",
+        "H2_cooling_failure": "温度↑但振动不↑→冷却系统故障(冷却液流量不足/散热器堵塞)",
+        "H3_overload": "温度与主轴负载(P×t)成正比→加工参数过高"
+      }
+    },
+    "tool_age_parts": {
+      "synonyms": ["tool_age", "parts_machined", "tool_wear", "tool_life"],
+      "physical_quantity": "刀具累积加工零件数 (piece)",
+      "governing_law": "泰勒刀具寿命方程：VT^n = C (V=切削速度, T=刀具寿命, n=材料常数)",
+      "typical_ranges": {"new": [0, 50], "moderate_wear": [50, 200], "heavy_wear": [200, null]},
+      "causal_chains": [
+        {"mechanism": "刀具加工零件↑ → 切削刃磨损 → 切削力↑ → 振动↑ → 粗糙度↑ → 尺寸偏差↑", "check_function": "check_force_balance", "time_lag": "渐进"},
+        {"mechanism": "磨损 → 切削温度↑ → 工件热变形 → 尺寸偏差↑", "check_function": "check_thermal_expansion", "time_lag": "渐进"}
+      ],
+      "quantitative_check": "VB_wear_rate = dVB/dN; 当VB>0.3mm时需换刀; 磨损加速点通常在寿命的70-80%处",
+      "physical_unit_SI": "1 (count)",
+      "competing_hypotheses": {
+        "H1_tool_wear": "tool_age与粗糙度单调正相关→刀具自然磨损",
+        "H2_chipping": "tool_age vs 粗糙度出现阶跃↑→刀刃崩刃(非渐进)",
+        "H3_built_up_edge": "tool_age中段粗糙度异常高→积屑瘤(BUE)形成"
+      }
+    },
+    "cutting_force_N": {
+      "synonyms": ["force", "cutting_force", "Fx", "Fy", "Fz", "machining_force"],
+      "physical_quantity": "主切削力 (N)",
+      "governing_law": "F = k_s × a_p × f (k_s=比切削力, a_p=切削深度, f=每转进给)",
+      "typical_ranges": {"depends on material": null},
+      "causal_chains": [
+        {"mechanism": "刀具磨损 → 切削刃钝圆半径ρ↑ → 实际k_s↑ → 切削力↑ → 振动↑ → 粗糙度↑", "check_function": "check_force_balance", "time_lag": "渐进"},
+        {"mechanism": "切削深度↑ → 切削面积↑ → 切削力↑ → 工件变形 → 尺寸偏差↑", "check_function": "check_force_balance", "time_lag": "即时"}
+      ],
+      "quantitative_check": "F_measured / (a_p × f) = k_s_actual; k_s_steel ≈ 2000-3000 N/mm²; k_s_aluminum ≈ 800-1200 N/mm²",
+      "physical_unit_SI": "N",
+      "competing_hypotheses": {
+        "H1_wear": "力单调↑且与tool_age同步→刀具磨损",
+        "H2_parameter_change": "力与a_p或f同步变化→加工参数调整(非退化)",
+        "H3_material_hardness": "力与材料批次相关→材料硬度波动"
+      }
+    },
+    "surface_roughness_Ra_um": {
+      "synonyms": ["roughness", "Ra", "surface_roughness"],
+      "physical_quantity": "表面粗糙度算术平均偏差 (μm)",
+      "governing_law": "Ra = f²/(32 × r_ε) + vibration_contribution (f=进给, r_ε=刀尖圆弧半径)",
+      "typical_ranges": {"precision_finish": [0.1, 0.8], "fine_machining": [0.8, 3.2], "rough": [3.2, 12.5]},
+      "causal_chains": [
+        {"mechanism": "振动↑ → 刀尖与工件相对位移 → 表面波纹 → Ra↑", "check_function": "check_vibration_threshold", "time_lag": "即时"},
+        {"mechanism": "刀具磨损 → 刀尖圆弧半径变化 → 理论Ra值偏差 → 实际Ra↑", "check_function": "check_force_balance", "time_lag": "渐进"}
+      ],
+      "quantitative_check": "Ra_theoretical = f²/(32×r_ε) vs Ra_measured; 差值>20%表示异常振动的贡献",
+      "physical_unit_SI": "m",
+      "is_quality_metric": true,
+      "confounding_warning": "进给量f变化也会改变Ra，需排除加工参数调整导致的Ra变化"
+    },
+    "dimensional_deviation_mm": {
+      "synonyms": ["deviation", "dimension_error", "size_error"],
+      "physical_quantity": "加工尺寸偏差 (mm)",
+      "governing_law": "ΔD = α × L × ΔT + F/(k_system) (热膨胀 + 力变形)",
+      "typical_ranges": {"IT6": [0, 0.025], "IT7": [0, 0.040], "IT8": [0, 0.064]},
+      "causal_chains": [
+        {"mechanism": "主轴温升 → 主轴热伸长 → Z轴零点漂移 → 轴向尺寸偏差", "check_function": "check_thermal_expansion", "time_lag": "10-60分钟"},
+        {"mechanism": "切削力↑ → 工件/刀具弹性让刀 → 径向尺寸偏差", "check_function": "check_force_balance", "time_lag": "即时"}
+      ],
+      "quantitative_check": "ΔT × α_steel × spindle_length = thermal_drift_mm; F/k_system = deflection_mm",
+      "physical_unit_SI": "m",
+      "is_quality_metric": true,
+      "confounding_warning": "热膨胀有显著时间滞后——机床刚启动时偏差小，运行30分钟后稳定"
+    },
+    "heat_transfer_coeff": {
+      "synonyms": ["U", "h", "heat_transfer_coefficient"],
+      "physical_quantity": "传热系数 (W/m²K)",
+      "governing_law": "U = Q / (A × ΔT_LMTD); 1/U = 1/h_inside + R_fouling + 1/h_outside",
+      "typical_ranges": {"water_water": [800, 1500], "water_oil": [100, 300], "steam_water": [1500, 4000]},
+      "causal_chains": [
+        {"mechanism": "结垢 → R_fouling↑ → 1/U↑ → U↓ → 换热效率↓ → 出口温度异常", "check_function": "check_heat_transfer", "time_lag": "数周至数月"},
+        {"mechanism": "流速↓ → 边界层增厚 → h↓ → U↓", "check_function": "check_flow_restriction", "time_lag": "即时"}
+      ],
+      "quantitative_check": "U_current / U_clean = efficiency; fouling_resistance R_f = 1/U_fouled - 1/U_clean",
+      "physical_unit_SI": "W/(m²·K)",
+      "is_quality_metric": false,
+      "competing_hypotheses": {
+        "H1_fouling": "U随时间单调递减→渐进式结垢",
+        "H2_flow_decrease": "U与流速同步变化→流量不足",
+        "H3_irreversible": "U下降后清洗不恢复→永久性损伤(腐蚀/脆化)"
+      }
+    },
+    "pressure_drop_bar": {
+      "synonyms": ["pressure_drop", "ΔP", "dp"],
+      "physical_quantity": "压降 (bar)",
+      "governing_law": "ΔP = f × (L/D) × (ρv²/2); f = 64/Re (层流) 或 Blasius (湍流)",
+      "typical_ranges": {"typical": [0.5, 3.0], "high": [3.0, 6.0]},
+      "causal_chains": [
+        {"mechanism": "结垢/堵塞 → 有效管径D↓ → ΔP ∝ 1/D^5 → ΔP↑", "check_function": "check_flow_restriction", "time_lag": "渐进"},
+        {"mechanism": "流速↑ → ΔP ∝ v² → ΔP↑", "check_function": null, "time_lag": "即时"}
+      ],
+      "quantitative_check": "ΔP_normalized = ΔP / (ρv²/2); 当ΔP_normalized↑而流量不变=堵塞或结垢",
+      "physical_unit_SI": "Pa",
+      "confounding_warning": "压降与流量成平方关系——分析前必须归一化到相同流量"
+    },
+    "flow_rate": {
+      "synonyms": ["flow", "flow_rate", "Q", "volumetric_flow"],
+      "physical_quantity": "体积流量 (m³/s)",
+      "governing_law": "连续性方程：Q = A × v; 泵特性：H = H₀ - kQ²",
+      "typical_ranges": {"depends on system": null},
+      "causal_chains": [
+        {"mechanism": "泵叶轮磨损/气蚀 → 泵性能曲线下移 → 相同转速下Q↓", "check_function": null, "time_lag": "渐进"},
+        {"mechanism": "管路阻力↑ → 系统需求曲线变陡 → Q↓", "check_function": "check_flow_restriction", "time_lag": "渐进"}
+      ],
+      "quantitative_check": "Q_actual / Q_design = flow_degradation_ratio; pump_efficiency = ρgQH / P_motor",
+      "physical_unit_SI": "m³/s",
+      "confounding_warning": "流量受阀门开度/转速控制——不能仅凭流量判断退化"
+    },
+    "temperature_C": {
+      "synonyms": ["temp", "temperature", "T"],
+      "physical_quantity": "温度 (°C)",
+      "governing_law": "能量守恒：mCp × dT/dt = Q_in - Q_out",
+      "typical_ranges": {"ambient": [15, 30], "process": [30, 200], "high_temp": [200, 500]},
+      "causal_chains": [
+        {"mechanism": "冷却失效 → 热量积累 → T↑ → 材料性能下降 → 加速退化", "check_function": "check_energy_balance", "time_lag": "数分钟至小时"},
+        {"mechanism": "摩擦↑ → 发热↑ → T↑ → 热膨胀 → 间隙/尺寸变化", "check_function": "check_thermal_expansion", "time_lag": "即时"}
+      ],
+      "quantitative_check": "dT/dt = (P_input - P_loss)/(mCp); 稳态T = T_ambient + P_loss/(hA)",
+      "physical_unit_SI": "K",
+      "universal": true
+    },
+    "pH": {
+      "synonyms": ["ph", "acidity", "alkalinity"],
+      "physical_quantity": "pH值 (无量纲)",
+      "governing_law": "pH = -log[H⁺]; Nernst方程控制电化学腐蚀速率",
+      "typical_ranges": {"acidic": [0, 4], "mild_acid": [4, 6.5], "neutral": [6.5, 8.5], "mild_alkaline": [8.5, 10], "alkaline": [10, 14]},
+      "causal_chains": [
+        {"mechanism": "pH<4 → 酸性腐蚀 → 金属溶解速率↑ → 壁厚减薄 → 泄漏风险↑", "check_function": "check_corrosion_rate", "time_lag": "数周至数月"},
+        {"mechanism": "pH波动 → 钝化膜破坏 → 点蚀 → 局部应力集中 → 裂纹", "check_function": "check_corrosion_rate", "time_lag": "数周至数月"}
+      ],
+      "quantitative_check": "corrosion_rate(mm/y) = k × [H⁺]^n × exp(-Ea/RT); 钢铁在pH<4时腐蚀速率指数级增长",
+      "physical_unit_SI": "1",
+      "confounding_warning": "pH测量易受温度影响——需温度补偿"
+    },
+    "motor_current_A": {
+      "synonyms": ["current", "motor_current", "I"],
+      "physical_quantity": "电机电流 (A)",
+      "governing_law": "P = √3 × V × I × cosφ × η; T_motor = k_T × I",
+      "typical_ranges": {"depends on motor": null},
+      "causal_chains": [
+        {"mechanism": "负载↑ → 转矩需求↑ → 电流↑ → 发热↑ → 绝缘老化加速", "check_function": "check_energy_balance", "time_lag": "即时"},
+        {"mechanism": "轴承磨损 → 摩擦转矩↑ → 电流↑", "check_function": null, "time_lag": "渐进"}
+      ],
+      "quantitative_check": "I_noload (空载电流) 反映电机自身损耗; I_load - I_noload ∝ 机械负载",
+      "physical_unit_SI": "A",
+      "confounding_warning": "电流随工艺参数变化(如切深增大)正常增加——需区分负载变化和退化"
+    },
+    "motor_power_kW": {
+      "synonyms": ["power", "motor_power", "P"],
+      "physical_quantity": "电机功率 (kW)",
+      "governing_law": "P = T × ω = F × v",
+      "typical_ranges": {"depends on machine": null},
+      "causal_chains": [
+        {"mechanism": "切削力↑ → 功率消耗↑ → 能耗↑ → 效率↓", "check_function": "check_force_balance", "time_lag": "即时"},
+        {"mechanism": "传动效率↓ → 相同负载下功率↑ → 能量损失↑", "check_function": "check_energy_balance", "time_lag": "渐进"}
+      ],
+      "quantitative_check": "η = P_output / P_input; P_cutting = F × v / η_machine",
+      "physical_unit_SI": "W",
+      "confounding_warning": "功率随加工参数变化——需归一化到单位材料去除率(MRR)后比较"
+    },
+    "pressure_bar": {
+      "synonyms": ["pressure", "P"],
+      "physical_quantity": "压力 (bar)",
+      "governing_law": "P = F/A; 流体静力学: P = ρgh",
+      "typical_ranges": {"hydraulic": [50, 350], "pneumatic": [4, 10], "process": [1, 20]},
+      "causal_chains": [
+        {"mechanism": "液压系统内泄漏 → 压力建立慢/保压失败 → 夹紧力不足 → 工件位移 → 加工偏差", "check_function": "check_flow_restriction", "time_lag": "即时"},
+        {"mechanism": "管路堵塞 → 局部压力↑ → 过载 → 密封失效", "check_function": "check_flow_restriction", "time_lag": "渐进"}
+      ],
+      "physical_unit_SI": "Pa",
+      "confounding_warning": "压力受设定值控制——需结合阀门/泵状态判断"
+    },
+    "coolant_flow_L_min": {
+      "synonyms": ["coolant", "coolant_flow"],
+      "physical_quantity": "冷却液流量 (L/min)",
+      "governing_law": "Q_coolant = A_pipe × v; 冷却能力 = ṁ × Cp × ΔT",
+      "typical_ranges": {"machining": [10, 50], "heat_exchanger": [100, 1000]},
+      "causal_chains": [
+        {"mechanism": "冷却液流量↓ → 冷却不足 → 温度↑ → 热膨胀 → 尺寸偏差↑", "check_function": "check_heat_transfer", "time_lag": "数分钟"},
+        {"mechanism": "冷却液流量↓ → 润滑不足 → 摩擦↑ → 刀具磨损加速", "check_function": null, "time_lag": "数小时"}
+      ],
+      "physical_unit_SI": "m³/s",
+      "confounding_warning": "流量可能被阀门调节——需检查控制信号与实际流量的一致性"
+    },
+    "feed_rate_mm_min": {
+      "synonyms": ["feed", "feed_rate", "f"],
+      "physical_quantity": "进给速度 (mm/min)",
+      "governing_law": "Ra = f²/(32 × r_ε); 进给力 F_f = k_s × a_p × f × sin(κ)",
+      "typical_ranges": {"roughing": [200, 800], "finishing": [50, 200]},
+      "causal_chains": [
+        {"mechanism": "进给量设定值↑ → 理论Ra↑ → 表面质量↓", "check_function": null, "time_lag": "即时"},
+        {"mechanism": "进给轴磨损 → 实际进给速度波动 → 表面纹理不均匀", "check_function": null, "time_lag": "渐进"}
+      ],
+      "quantitative_check": "Ra_theoretical = f²/(32 × r_ε); f=0.1mm/rev, r_ε=0.4mm → Ra=0.78μm",
+      "physical_unit_SI": "m/s",
+      "confounding_warning": "进给量是设定参数——非退化变量，但可作为控制变量检查"
+    },
+    "spindle_speed_rpm": {
+      "synonyms": ["speed", "rpm", "spindle_speed", "N", "n"],
+      "physical_quantity": "主轴转速 (rpm)",
+      "governing_law": "V_c = π × D × N / 1000 (切削速度m/min)",
+      "typical_ranges": {"low_speed": [0, 1000], "medium": [1000, 5000], "high_speed": [5000, 30000]},
+      "causal_chains": [
+        {"mechanism": "转速↑ → 切削速度↑ → 切削温度↑ → 刀具磨损加速", "check_function": null, "time_lag": "渐进"},
+        {"mechanism": "转速波动 → 切削不连续 → 振动 → 表面质量↓", "check_function": null, "time_lag": "即时"}
+      ],
+      "physical_unit_SI": "rad/s",
+      "confounding_warning": "转速是设定参数——异常波动才指示问题"
+    },
+    "vibration_g_X": {
+      "synonyms": ["vibration_g", "acceleration", "g_X", "g_axial"],
+      "physical_quantity": "振动加速度 (g)",
+      "governing_law": "a = ω² × d (加速度=角速度²×位移); 高速时加速度更敏感",
+      "typical_ranges": {"good": [0, 0.5], "moderate": [0.5, 2.0], "high": [2.0, null]},
+      "causal_chains": [
+        {"mechanism": "轴承早期缺陷 → 高频冲击脉冲 → 加速度↓(高频成分↑)", "check_function": "check_vibration_threshold", "time_lag": "数天至数周"},
+        {"mechanism": "轴承严重磨损 → 低频振动↑ → 加速度 RMS↑", "check_function": "check_vibration_threshold", "time_lag": "渐进"}
+      ],
+      "quantitative_check": "crest_factor = peak / RMS; crest_factor>6表示早期轴承缺陷; crest_factor↓表示缺陷扩展",
+      "physical_unit_SI": "m/s²",
+      "confounding_warning": "加速度对高频敏感——适合早期缺陷检测; 速度RMS适合整体严重度评估"
+    }
+  }
+}

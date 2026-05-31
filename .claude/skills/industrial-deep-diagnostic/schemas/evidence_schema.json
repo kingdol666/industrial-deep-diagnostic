@@ -50,7 +50,7 @@
             "properties": {
               "source": {"type": "string", "description": "e.g., feature_summary.json"},
               "finding": {"type": "string"},
-              "rank": {"type": "integer", "minimum": 1, "maximum": 3},
+              "rank": {"type": "integer", "const": 3, "description": "Statistical analysis evidence is always Rank 3"},
               "metric": {"type": "string"},
               "value": {},
               "interpretation": {"type": "string"}

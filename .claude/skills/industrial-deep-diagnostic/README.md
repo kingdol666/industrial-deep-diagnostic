@@ -6,11 +6,11 @@ A production-grade, evidence-first industrial time-series analysis and diagnosti
 
 - **Ontology-guided analysis**: Builds or uses industrial process ontologies to structure understanding
 - **Multi-source evidence**: Combines data, local documents, web research, and statistical analysis
-- **Self-correcting**: Judge agent reviews every conclusion with a repair loop
+- **Self-correcting pipeline**: Judge agent reviews every conclusion with a repair loop (max 3 iters); physical-truth auditor provides independent reality check
 - **Full artifact persistence**: Timestamped run directories with all intermediate outputs
-- **Publication-quality visualizations**: Engineering-standard plots with anomaly markers
-- **Evidence hierarchy**: Every conclusion ranked by evidence reliability
-- **Anti-speculation enforcement**: Strict rules against unsupported causal claims
+- **Statistical validation**: Built-in Simpson's Paradox, trend confounding, change-point detection
+- **Physical dual-drive engine**: Automated `physics_check.py` pre-computes thermal, vibration, and kinetic checks
+- **Anti-speculation enforcement**: Evidence hierarchy + STOP checklist + confidence ceilings
 
 ## Quick Start
 
@@ -21,35 +21,40 @@ A production-grade, evidence-first industrial time-series analysis and diagnosti
 # Analyze with specific data
 /industrial-deep-diagnostic analyze --data-path ./sensor_data.csv
 
-# Review existing results
-/industrial-deep-diagnostic review
-
-# Regenerate report
-/industrial-deep-diagnostic report
+# Run pipeline steps individually (after initial intake)
+/industrial-deep-diagnostic review    # Re-run judge
+/industrial-deep-diagnostic report    # Regenerate report
+/industrial-deep-diagnostic audit     # Physical-truth audit only
 ```
 
 ## Input Formats
 
-Supported data formats: CSV, XLSX, Parquet, JSON, Feather
+Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series with at least one quality/defect target column.
 
-## Workflow
+## Skill Structure
 
-1. **Intake** — Validate data, ask clarification questions
-2. **Reference search** — Extract knowledge from user-provided documents
-3. **Web research** — Fill domain knowledge gaps (optional)
-4. **Ontology** — Build process ontology
-5. **Schema** — Normalize columns and units
-6. **Classification** — Separate inspection, process, control, event signals
-7. **Data engineering** — Clean, resample, preprocess
-8. **Alignment** — Synchronize on common time axis
-9. **Features** — Compute statistical features
-10. **Visualization** — Generate engineering plots
-11. **Diagnosis** — Identify anomalies with evidence
-12. **Judge** — Verify conclusions (iterate until score >= 90)
-13. **Report** — Generate professional Markdown report
-14. **Persist** — Save all artifacts
+```
+.claude/skills/industrial-deep-diagnostic/
+├── SKILL.md                 ←  Pipeline orchestration (entry point)
+├── CLAUDE.md                ←  Developer notes (SKILL.md is authoritative)
+├── README.md                ←  This file — quick start guide
+├── agents/                  ←  6 sub-agent instructions
+│   ├── context-builder.md
+│   ├── data-processor.md
+│   ├── diagnostician.md
+│   ├── judge.md
+│   ├── reporter.md
+│   └── report-reviewer.md
+├── schemas/                 ←  14 JSON Schemas for output validation
+├── scripts/                 ←  Pipeline scripts (Node.js + Python/uv)
+├── references/              ←  Domain knowledge base
+├── templates/               ←  Output templates (report, diagnosis, judge)
+├── evals/                   ←  5 formal test scenarios with assertions
+├── tests/                   ←  Quality checklists
+└── assets/                  ←  Shared resources (icons, watermark templates)
+```
 
-## Configuration
+## Configuration Parameters
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
@@ -57,50 +62,19 @@ Supported data formats: CSV, XLSX, Parquet, JSON, Feather
 | `ontology_path` | No | Pre-defined ontology JSON |
 | `reference_dir` | No | Reference documents directory |
 | `process_description` | No | Process description text |
-| `scene_name` | No | Scene identifier |
-| `batch_id` | No | Batch identifier |
-| `output_dir` | No | Output directory override |
+| `interaction_mode` | No | `auto` / `interactive` / `minimal` (default: `auto`) |
 | `user_objective` | No | Analysis objective |
 | `known_faults` | No | Known fault patterns |
 | `analysis_constraints` | No | Analysis constraints |
-
-## Output
-
-All outputs are saved to `./workspace/diagnostic-runs/<timestamp>_<name>/` (relative to project root):
-
-```
-run_root/
-├── 00_input/                # input_manifest.json, user_context.json
-├── 01_ontology/             # ontology.json, schema.json
-├── 02_processed/            # cleaned_data.csv, feature_summary.json, data_quality_report.json
-├── 03_figures/              # Generated plots (PNG) + plot_manifest.json
-├── 04_diagnostics/          # diagnosis.json, evidence.json, confidence.json
-├── 05_review/               # judge_feedback.json
-├── 06_scripts/              # Custom Python scripts generated by agent
-├── report.md                # Final report
-└── run_summary.json         # Run metadata
-```
 
 ## Example Scenarios
 
 - BOPET film thickness anomaly analysis
 - Reactor temperature runaway diagnosis
+- CNC spindle bearing spalling
 - Fan vibration analysis
-- Boiler combustion instability
-- Extrusion melt pressure fluctuation
+- Heat exchanger fouling progression
 - PVA optical film defect analysis
-
-## Evidence Standards
-
-Every conclusion is backed by ranked evidence:
-
-1. Direct measurements (highest confidence)
-2. User-provided documentation
-3. Statistical analysis
-4. Visual evidence
-5. Process logic
-6. External references
-7. Hypotheses (lowest confidence, always labeled)
 
 ## License
 

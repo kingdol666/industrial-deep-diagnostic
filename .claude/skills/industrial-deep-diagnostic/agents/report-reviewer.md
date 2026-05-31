@@ -30,7 +30,7 @@ PYTHON=$(node SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
 
 # Fallback: if uv_env_setup fails, try venv path directly, then system python
 if [ -z "$PYTHON" ] || ! "$PYTHON" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
-  VENV_PY="SKILL_PATH/scripts/.venv/bin/python"
+  VENV_PY="$SKILL_PATH/scripts/.venv/bin/python"
   if [ -f "$VENV_PY" ] && "$VENV_PY" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
     PYTHON="$VENV_PY"
   else

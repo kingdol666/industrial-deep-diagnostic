@@ -49,6 +49,18 @@ Use this checklist to validate the diagnostic analysis output.
 - [ ] Validation steps are recommended
 - [ ] Root cause probability is estimated
 
+## Dual-Drive Verification (v6.0)
+
+- [ ] Product-stratified analysis performed (Phase 2) — UNIVERSAL/CONSISTENT_SIGN/BETWEEN_PRODUCT_ONLY/SIMPSON_REVERSAL
+- [ ] Quality reset analysis consulted for each transition event
+- [ ] Onset coincidence (PRECURSOR vs CONCURRENT) analyzed for shortlisted parameters
+- [ ] `parameter_to_physics.json` referenced for each surviving hypothesis
+- [ ] Pre-computed physical checks (`physics_check.py`) used instead of manual re-computation
+- [ ] Discriminability assessment performed (Step C) for competing hypothesis pairs
+- [ ] INDISTINGUISHABLE pairs output as COMPETING_SET with specifying data
+- [ ] Hallucination STOP checklist completed before each conclusion
+- [ ] Confidence adjusted per validation findings (Simpson's, trend, sorting, outlier)
+
 ## Recommendations
 
 - [ ] Actions are prioritized (high/medium/low)

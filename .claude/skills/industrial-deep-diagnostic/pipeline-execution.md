@@ -79,7 +79,7 @@ The `diag_iters` counter is file-persisted in `.pipeline_events.jsonl`:
 
 ## Step 2.5: Clarification Gate Protocol
 
-After Context Builder completes, check `00_input/clarification_needed.json`. Behavior depends on `interaction_mode` from `run_config.json`:
+After Context Builder completes, check `00_input/clarification_needed.json`. Behavior depends on `interaction_mode` from `00_input/run_config.json` (defaults to `auto` if the file does not exist or the field is missing):
 
 ### `auto` mode:
 1. Read `clarification_needed.json` to understand unknown parameters

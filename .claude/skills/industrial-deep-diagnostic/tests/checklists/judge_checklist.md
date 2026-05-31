@@ -2,13 +2,15 @@
 
 Use this checklist to validate the judge review process.
 
-## Review Completeness
+## Review Completeness (v6.0 — 10 weighted criteria + 1 blocking criterion)
 
-- [ ] All 10 criteria are evaluated
+- [ ] All 10 weighted criteria are evaluated (1-8, 10) + reasoning_chain_quality (5.5)
+- [ ] No over-claiming (criterion 9) checked for blocking issues
 - [ ] Each criterion has a score (0-10)
 - [ ] Each criterion has notes explaining the score
 - [ ] Overall score is calculated with correct weights
-- [ ] Verdict matches score threshold (>=90 pass, <90 repair)
+- [ ] Score ceilings applied (85 for sorting issues, 65 for indistinguishable hypotheses)
+- [ ] Verdict matches score threshold (>=90 pass, 70-89 needs_repair, 50-69 major_issues, <50 fail)
 
 ## Blocking Issues
 
@@ -30,22 +32,26 @@ Use this checklist to validate the judge review process.
 - [ ] Affected conclusions are listed
 - [ ] Recommended action to fill the gap is provided
 
-## Score Calculation
+## Score Calculation (v6.0 weights — MUST match judge.md)
 
 - [ ] Weighted sum is correct:
-  - data_quality: 15%
+  - data_quality_awareness: 10%
   - variable_classification: 10%
-  - time_alignment: 10%
-  - visualization_quality: 10%
-  - evidence_based_conclusions: 25%
+  - time_alignment_and_sorting: 10%
+  - visualization_quality: 5%
+  - evidence_based_conclusions: 20%
+  - reasoning_chain_quality: 15%  (NEW v6.0 — Chain-of-Thought audit)
   - correlation_vs_causation: 10%
   - uncertainty_disclosure: 10%
-  - report_quality: 10%
+  - report_quality: 5%
   - completeness: 5%
-  - (no_over_claiming: blocking, -20 if failed)
+  - (no_over_claiming: blocking, -20 per violation)
 
-- [ ] Blocking deductions applied correctly
-- [ ] Warning deductions applied correctly (-5 each)
+- [ ] Blocking deductions applied correctly (-20 per violation)
+- [ ] Warning deductions applied correctly (-5 per warning)
+- [ ] Score ceilings checked:
+  - Score ≤ 85 if `sorting_validation.time_sorted == false` AND lag used as primary evidence
+  - Score ≤ 65 if diagnosis assigns >65 to single indistinguishable hypothesis
 - [ ] Final score is clamped to 0-100
 
 ## Anti-Speculation Verification

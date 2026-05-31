@@ -116,6 +116,32 @@ function main() {
     physical_cascade: 'scatter',
   };
 
+  // ── Diagnostic implication per plot_type ──
+  // Each implication tells the Diagnostician WHY this plot matters for root cause tracing
+  const plotTypeToImplication = {
+    correlation_heatmap: '显示所有参数间的线性关系强度，用于快速识别与质量目标高度相关的候选参数',
+    top_correlation_bar: '按相关性排序的候选参数列表，用于优先筛选需要物理验证的根因候选',
+    param_timeseries: '参数随时间的变化趋势，用于判断是否有漂移、阶跃或周期性模式——退化型根因表现为单调递增/减',
+    quality_timeseries: '质量指标随时间的变化趋势，用于定位质量退化的起始点和恶化速度',
+    normalized_overlay: '多参数归一化叠加对比，用于观察参数变化的时序先后关系——先变者可能是因，后变者可能是果',
+    scatter_plot: '参数与质量指标的直接关联散点图，用于判断线性/非线性关系及是否存在阈值效应',
+    coupling_scatter: '两个过程参数的耦合关系散点图——强耦合意味着共享上游退化机制',
+    stratified_correlation: '按产品/批次分层的相关性对比，用于检测Simpson Paradox——全局高r但组内无关联说明不是因果',
+    detrended_comparison: '去趋势前后的相关性对比，用于判断关联是否由共同时间趋势造成的伪相关',
+    outlier_sensitivity: '去除离群点前后的相关性对比，用于判断关联是否由少数极端值驱动',
+    product_timeseries: '按产品分层的质量时间序列，用于判断质量退化是否在所有产品上一致——通用退化 vs 产品特异',
+    product_param_profile: '不同产品的参数分布对比，用于判断参数设定差异是否导致质量差异',
+    within_product_correlation: '组内相关性矩阵，用于排除BETWEEN_PRODUCT_ONLY的伪因果',
+    product_defect_scatter: '产品分组下的参数-缺陷散点图，用于验证关联是否在每个产品内都成立',
+    cross_product_consistency: '跨产品的相关性方向和强度一致性条形图——UNIVERSAL因果的必经验证',
+    product_switch_timeline: '产品切换时序图，用于观察切换瞬间质量是否有跳变——切换导致的质量变化说明参数设定影响质量',
+    param_defect_aligned: '双Y轴时间对齐图，用于观察参数变化与缺陷的时序关系——参数变化先于缺陷=潜在因果，同步变化=相关但不一定因果',
+    stage_aligned_timeseries: '按工艺阶段对齐的参数量纲图，用于将参数映射到具体工艺阶段——追踪根因在哪个阶段引入',
+    physical_coupling: '两个物理量参数的耦合关系图，用于验证已知物理定律是否成立——如振动与温度通过轴承磨损耦合',
+    physical_mechanism: '物理机制验证散点图，用于检验物理公式在实际数据中的适用性——如ΔL=α×L×ΔT是否成立',
+    physical_cascade: '物理级联效应图，用于展现一个根因通过多级传递影响最终质量——如轴承磨损→振动↑→粗糙度↑→尺寸偏差↑',
+  };
+
   // ── Build figure captions ──
   const figures = {};
 
@@ -193,6 +219,7 @@ function main() {
       key_observations: keyObs.length > 0 ? keyObs : [fullDesc],
       trend_shapes: trendShapes || '参见 key_observations',
       validation_issues: plotValidationIssues,
+      diagnostic_implication: plotTypeToImplication[plotType] || plotTypeToImplication[chartType] || '此图展示参数关联关系，用于辅助根因分析',
       description: fullDesc,
     };
   }
