@@ -1,13 +1,13 @@
 ---
 name: industrial-deep-diagnostic
-description: "Use when the user provides industrial, process, or manufacturing time-series data (CSV, XLSX, Parquet) and asks about anomalies, root causes, quality issues, equipment faults, or process diagnostics. Also triggers on: anomaly detection, root cause analysis, fault diagnosis, sensor data analysis, equipment health, SPC, statistical process control, 工业诊断, 过程分析, 异常检测, 根因分析, 质量分析, 故障诊断, 传感器数据. Do NOT trigger for: simple data visualization, general statistics homework, financial time-series, or non-industrial data."
+description: "Use when the user provides industrial, process, or manufacturing time-series data (CSV, XLSX, Parquet) and asks about anomalies, root causes, quality issues, equipment faults, or process diagnostics. Version 6.2 adds interaction_mode: 'auto' (full auto-pilot, no questions), 'interactive' (original behavior), or 'minimal' (CRITICAL questions only). Also triggers on: anomaly detection, root cause analysis, fault diagnosis, sensor data analysis, equipment health, SPC, statistical process control, 工业诊断, 过程分析, 异常检测, 根因分析, 质量分析, 故障诊断, 传感器数据. Do NOT trigger for: simple data visualization, general statistics homework, financial time-series, or non-industrial data."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
   - industrial-deep-diagnostic review
   - industrial-deep-diagnostic report
   - industrial-deep-diagnostic audit
-version: 6.1.0
+version: 6.2.0
 ---
 
 # Industrial Deep Diagnostic
@@ -69,7 +69,7 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context ──[clarify
                                                                  Step 8: Present
 ```
 
-**Parallelism**: Steps 2 and 3 can run in parallel. Step 2.5 (clarification gate) synchronizes before Step 3. Steps 4→5→6→7 are sequential.
+**Sequence**: Steps 2→2.5→3 are strictly sequential (Step 2 must complete ontology before Step 3 can use it for scenario classification). Steps 4→5→6→7 are sequential.
 
 **Repair loops**: Judge→Diagnostician repair max 3 iterations. Reviewer repair (Step 7.5) max 2 cycles. **Global cap: total re-diagnosis ≤ 5**. See `pipeline-execution.md` §Repair Loop Protocol for counter persistence rules.
 
@@ -100,19 +100,40 @@ Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Al
 node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
 ```
 
-Inspect all input files. Ask user up to 5 clarification questions about process type, quality issues, known parameters. Save `input_manifest.json` and `user_context.json` to `00_input/`.
+Inspect all input files. Read `interaction_mode` from `run_config.json` (defaults to `auto` if not set):
+
+| Mode | Behavior |
+|------|----------|
+| **`auto`** | No user questions. Automatically infer: process_type from column name heuristics, quality targets from column naming patterns, known parameters from data ranges. Generate `user_context.json` with all fields set to inferred values. Mark inferred fields with `"source": "auto_inferred"`. |
+| **`interactive`** | Ask user up to 5 clarification questions about process type, quality issues, known parameters (original behavior). Save answers to `user_context.json`. |
+| **`minimal`** | Ask only 1-2 essential questions (e.g., "Which column is the quality target?"). For remaining unknowns, use auto-inference with `"source": "auto_inferred"` marker. |
+
+Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
 ### Step 2: Context Build (Sub-Agent)
 
 **Read first**: `agents/context-builder.md`
 
-Pass: `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `SKILL_PATH`.
+Pass: `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `SKILL_PATH`, `INTERACTION_MODE`.
 
-The agent builds ontology from data + references, identifies unknown parameters, and outputs to `01_ontology/`. If CRITICAL parameters have unknown physical meanings, it creates `00_input/clarification_needed.json`.
+The agent builds ontology from data + references, identifies unknown parameters, and outputs to `01_ontology/`. If CRITICAL parameters have unknown physical meanings, it creates `00_input/clarification_needed.json`. **In `auto` mode**, the agent uses inference to fill unknowns without asking the user.
+
+Schema-validate ontology output:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"
+```
 
 ### Step 2.5: Clarification Gate (Main Agent)
 
-Check `00_input/clarification_needed.json`. If CRITICAL/HIGH unknowns exist, ask the user. Update ontology with confirmed meanings. If no unknowns, proceed.
+Check `00_input/clarification_needed.json`. Behavior depends on `interaction_mode`:
+
+| Mode | Behavior |
+|------|----------|
+| **`auto`** | Skip all user questions. If CRITICAL parameters exist, use heuristics to assign best-guess physical meanings (mark `"physical_meaning_confidence": "inferred"`). Log unknowns to `.pipeline_events.jsonl` for downstream awareness. Proceed directly to Step 3. |
+| **`interactive`** | If CRITICAL/HIGH unknowns exist, ask the user in grouped questions (max 4 per round). Update ontology with confirmed meanings. If no unknowns, proceed (original behavior). |
+| **`minimal`** | If CRITICAL unknowns exist, ask ONLY about CRITICAL ones (skip HIGH/MEDIUM). For HIGH unknowns, use auto-inference. Mark unresolved parameters with `"physical_meaning_confidence": "unknown"`. Proceed after resolving CRITICAL items. |
+
+For `auto` and `minimal` modes, the auto-inference algorithm in `context-builder.md` Step 5.8 is used to assign best-guess physical meanings without user confirmation.
 
 ### Step 3: Data Processing + Visualization + Validation (Sub-Agent)
 
@@ -137,6 +158,12 @@ Key outputs consumed by Step 4:
 - `02_processed/causal_evidence_map.json` — validated causal graph with root cause candidates
 - `03_figures/plot_manifest.json` + `image_captions.json` — figure descriptions with diagnostic implications
 
+Schema-validate Step 3 outputs:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/causal_evidence_map_schema.json" "$RUN_DIR/02_processed/causal_evidence_map.json"
+```
+
 ### Step 4: Diagnostician — Competing Hypotheses (Sub-Agent)
 
 **Read first**: `agents/diagnostician.md`
@@ -158,6 +185,7 @@ Schema-validate outputs:
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
 ```
 
 ### Step 5: Judge Review (Sub-Agent)
@@ -169,11 +197,21 @@ Scores 10 criteria. Cross-references diagnosis against `validate_report.json`.
 - **NEEDS_REPAIR** (70-89) → re-spawn Diagnostician with REPAIR_INSTRUCTIONS. Max 3 iterations.
 - **FAIL** (<70) → report to user
 
+Schema-validate judge output:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_schema.json" "$RUN_DIR/05_review/judge_feedback.json"
+```
+
 ### Step 6: Report Generation (Sub-Agent)
 
 **Read first**: `agents/reporter.md`
 
 Generates `report.md` with mandatory sections: Executive Summary, Statistical Findings, Diagnostic Findings, Competing Hypotheses Disclosure, Confidence Assessment, Limitations, Recommendations.
+
+Schema-validate run summary:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"
+```
 
 ### Step 7: Physical Truth Audit (Sub-Agent)
 
@@ -198,14 +236,14 @@ Show user: executive summary, key findings, diagnosis type, confidence, recommen
 Agents communicate ONLY through workspace files — never through the main agent's context:
 
 ```
-Context Builder ──► 01_ontology/ontology.json, schema.json
-                ──► 00_input/clarification_needed.json
+Context Builder ──► 01_ontology/ontology.json, schema.json  (ontology.json schema-validated)
+                ──► 00_input/extracted_knowledge.json, clarification_needed.json, web_findings.md
 User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/feature_summary.json, validate_report.json
                 ──► 02_processed/scenario_classification.json, anomaly_report.json, causal_evidence_map.json
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
-Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
-Judge           ──► 05_review/judge_feedback.json
+Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json (all schema-validated)
+Judge           ──► 05_review/judge_feedback.json (schema-validated)
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
 ```

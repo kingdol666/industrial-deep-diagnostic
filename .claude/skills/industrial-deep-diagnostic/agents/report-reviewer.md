@@ -171,8 +171,22 @@ This is where most diagnostic reports fail. Do NOT trust the pipeline's validate
 ```python
 import pandas as pd
 import numpy as np
+import os
 
-df = pd.read_csv(DATA_PATH)
+# Try cleaned data first (pipeline's authoritative dataset), fall back to raw DATA_PATH
+cleaned_csv = os.path.join(RUN_DIR, "02_processed", "cleaned_data.csv")
+if os.path.exists(cleaned_csv):
+    df = pd.read_csv(cleaned_csv)
+    # Also load raw data for comparison to detect preprocessing artifacts
+    df_raw = pd.read_csv(DATA_PATH)
+else:
+    df = pd.read_csv(DATA_PATH)
+    df_raw = df  # same dataset, no preprocessing comparison possible
+
+# 0. Compare cleaned vs raw data to detect preprocessing artifacts (if both available)
+if 'df_raw' in dir() and len(df) != len(df_raw):
+    print(f"NOTE: Cleaned data has {len(df)} rows vs raw {len(df_raw)} rows — {len(df_raw) - len(df)} rows were removed during cleaning")
+    print("Check if removed rows contain key transition events or anomalous periods")
 
 # 1. Check within-group correlations (Simpson's Paradox)
 if 'product_model' in df.columns or 'batch_id' in df.columns:

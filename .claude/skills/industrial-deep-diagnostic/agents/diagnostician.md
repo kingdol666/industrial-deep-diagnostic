@@ -36,9 +36,9 @@ You are the **Diagnostician** — the core reasoning engine. You diagnose indust
 
 ### 0.1 Verify Required Files
 
-CRITICAL (missing → error and stop): `02_processed/feature_summary.json`, `02_processed/validate_report.json`, `01_ontology/ontology.json`, `03_figures/plot_manifest.json`
+CRITICAL (missing → error and stop): `02_processed/feature_summary.json`, `02_processed/validate_report.json`, `01_ontology/ontology.json`, `03_figures/plot_manifest.json`, `00_input/extracted_knowledge.json`
 
-IMPORTANT (missing → note, continue): `02_processed/anomaly_report.json`, `02_processed/causal_evidence_map.json`, `02_processed/scenario_classification.json`, `02_processed/cleaned_data.json`
+IMPORTANT (missing → note, continue): `02_processed/anomaly_report.json`, `02_processed/causal_evidence_map.json`, `02_processed/scenario_classification.json`, `02_processed/cleaned_data.json`, `00_input/clarification_needed.json`, `01_ontology/schema.json`
 
 ### 0.2 Load and Organize ALL Evidence
 
@@ -46,6 +46,8 @@ Read ALL artifacts before forming ANY hypothesis:
 
 | Artifact | What to Extract |
 |----------|----------------|
+| `extracted_knowledge.json` | Known fault patterns from references, known causal relationships, known degradation modes |
+| `clarification_needed.json` | Parameters with UNKNOWN physical meanings — mark as [PARAM_AMBIGUITY] in hypotheses |
 | `scenario_classification.json` | Process type, expected physics, degradation candidates |
 | `ontology.json` + `schema.json` | Process stages, equipment, parameter physical meanings |
 | `feature_summary.json` | Correlations, MI, Granger, interactions, stratified results |
@@ -68,6 +70,29 @@ Before ANY hypothesis formation, internalize these constraints:
 ### 0.4 Read Repair Instructions (if present)
 
 If REPAIR_INSTRUCTIONS provided, read `05_review/judge_feedback.json` and address blocking issues first.
+
+### 0.5 Incorporate Extracted Knowledge and Clarification Data
+
+#### 0.5.1 Load Extracted Knowledge
+
+Read `00_input/extracted_knowledge.json`. Extract known fault patterns and causal relationships from reference documents and web research:
+
+- **known_faults**: Known failure modes with root cause / symptom / detection method
+- **causal_relationships**: Documented cause-effect links with time lag estimates
+- **knowledge_gaps**: What is still unknown after reference search
+
+For each known fault pattern that matches the current scenario, create a hypothesis with [Evidence Rank 2] (user-provided documentation) baseline.
+
+#### 0.5.2 Check Clarification Status
+
+Read `00_input/clarification_needed.json` if it exists:
+
+1. Identify ALL parameters marked as UNKNOWN physical meaning
+2. For each parameter used in a hypothesis, append `[PARAM_AMBIGUITY]` marker
+3. If CRITICAL parameters remain UNRESOLVED → mark any hypothesis relying on them as `PLAUSIBLE_HYPOTHESIS` (not ACTIONABLE), confidence ceiling 50
+4. If the user clarified previously UNKNOWN parameters → use those confirmed meanings, update ontology locally
+
+**This prevents the Diagnostician from building confident conclusions on unknown physical quantities.**
 
 ---
 
@@ -335,6 +360,7 @@ Standard schema. Each evidence item should reference BOTH statistical data AND d
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/diagnosis_schema.json $RUN_DIR/04_diagnostics/diagnosis.json
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/evidence_schema.json $RUN_DIR/04_diagnostics/evidence.json
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/confidence_schema.json $RUN_DIR/04_diagnostics/confidence.json
+node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/reasoning_chain_schema.json $RUN_DIR/04_diagnostics/reasoning_chain.json
 ```
 
 ---

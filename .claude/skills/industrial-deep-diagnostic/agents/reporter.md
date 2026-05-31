@@ -39,18 +39,18 @@ Read from SKILL_PATH:
 
 **This step is required. Do NOT skip any figure.**
 
-1. From `03_figures/plot_manifest.json`, extract the list of all plots.
-2. **Use the Read tool to view each PNG image.**
-3. For each figure, note:
-   - What trend shapes are visible
-   - Which signals move together or diverge
-   - Where anomaly regions are highlighted
-   - The key takeaway for the reader
-4. **If a PNG cannot be rendered (Read tool returns `[Unsupported Image]`):**
-   - Fall back to `03_figures/image_captions.json` for that figure
-   - Use the `key_observations`, `trend_shapes`, and `description` fields to write the analysis
-   - Never write "*Image unavailable*" if image_captions.json has structured data
-   - If both PNG rendering AND image_captions entry are missing → then note "*Image unavailable*"
+**IMPORTANT: image_captions.json is the PRIMARY source for figure content.** LLMs cannot reliably interpret raw PNG images. Use the structured descriptions in image_captions.json as the authoritative source for what each figure shows.
+
+1. From `03_figures/plot_manifest.json`, extract the list of all plots and their generation metadata.
+2. From `03_figures/image_captions.json`, load structured descriptions for every figure.
+3. For each figure, read the following fields from image_captions.json:
+   - `description` — What the figure displays
+   - `key_observations` — What is actually visible (trends, divergences, anomaly regions)
+   - `trend_shapes`, `divergence_points`, `anomaly_regions` — Structured observations
+   - `diagnostic_implication` — How this figure supports or contradicts hypotheses
+   - `generation_method` — How the figure was created (from plot_manifest.json)
+4. Optionally attempt to view each PNG image via the Read tool for additional detail. If the Read tool returns `[Unsupported Image]` (expected for PNG files), rely on the image_captions.json data as the authoritative source.
+5. Never write "*Image unavailable*" if image_captions.json has structured data for that figure. Only note "*Image unavailable*" if BOTH PNG rendering and image_captions.json entry are missing.
 
 **For statistical validation plots**, describe what the validation check found:
 - CCF lag window plot → "Is this a consistent pattern or an isolated spike?"
