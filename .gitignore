@@ -11,8 +11,9 @@ node_modules/
 app/backend/data/*.db*
 data/*.db*
 
-# Diagnostic runs (generated artifacts, large files)
+# Diagnostic runs & bridge runs (generated artifacts, large files)
 workspace/diagnostic-runs/
+workspace/bridge-runs/
 workspace/*.csv
 workspace/*.png
 workspace/*.py

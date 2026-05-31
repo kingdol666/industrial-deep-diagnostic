@@ -96,7 +96,7 @@ node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 
 Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Also ensures the uv-managed Python venv exists with all dependencies (matplotlib, numpy, pandas, seaborn, scipy, openpyxl, pyarrow). Copy input data files into `00_input/`.
 
-**Python execution rule**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. NEVER use system `python3`, `python3.11`, or `pip3`. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field. This avoids dependency pollution and version conflicts between projects.
+**Python execution rule**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. Using system `python3`, `python3.11`, or `pip3` will cause dependency pollution and version conflicts between projects. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field.
 
 ### Step 1: Inspect Data (Main Agent)
 
