@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Industrial Ontology Schema v6.0",
-  "description": "Schema for industrial process ontology used in v6.0 deep diagnostic (Competing Hypotheses Protocol). Includes product grades, confounders, parameter groups, and physical meaning confidence.",
+  "title": "Industrial Ontology Schema v6.2",
+  "description": "Schema for industrial process ontology used in v6.2 deep diagnostic (Competing Hypotheses Protocol + Interaction Mode). Adds auto_inferred, inference_basis for auto-pilot mode.",
   "type": "object",
   "required": ["scene", "signals", "relationships", "metadata"],
   "properties": {
@@ -148,7 +148,15 @@
         "physical_meaning_confidence": {
           "type": "string",
           "enum": ["KNOWN", "INFERRED", "UNKNOWN"],
-          "description": "v6.0: Certainty of physical meaning determination"
+          "description": "v6.2: Certainty of physical meaning determination. KNOWN=confirmed from docs/web; INFERRED=auto-inference (interaction_mode=auto); UNKNOWN=could not be determined"
+        },
+        "auto_inferred": {
+          "type": "boolean",
+          "description": "v6.2: True if this meaning was assigned by auto-inference algorithm without user confirmation (interaction_mode=auto/minimal)"
+        },
+        "inference_basis": {
+          "type": "string",
+          "description": "v6.2: Explanation of the auto-inference rationale (column pattern, value range, neighbor context, statistical signature)"
         },
         "control_type": {
           "type": "string",
@@ -178,6 +186,13 @@
         "unit": {"type": "string"},
         "role": {"type": "string", "const": "control"},
         "physical_meaning": {"type": "string"},
+        "physical_meaning_confidence": {
+          "type": "string",
+          "enum": ["KNOWN", "INFERRED", "UNKNOWN"],
+          "description": "v6.2: Certainty of physical meaning determination"
+        },
+        "auto_inferred": {"type": "boolean", "description": "v6.2: True if auto-inference was used"},
+        "inference_basis": {"type": "string", "description": "v6.2: Auto-inference rationale"},
         "control_type": {"type": "string", "enum": ["setpoint", "measurement", "output"]},
         "setpoint": {"type": ["number", "null"]},
         "controlled_by": {"type": "string"},

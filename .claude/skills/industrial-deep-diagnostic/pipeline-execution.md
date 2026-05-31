@@ -79,8 +79,17 @@ The `diag_iters` counter is file-persisted in `.pipeline_events.jsonl`:
 
 ## Step 2.5: Clarification Gate Protocol
 
-After Context Builder completes, check `00_input/clarification_needed.json`:
+After Context Builder completes, check `00_input/clarification_needed.json`. Behavior depends on `interaction_mode` from `run_config.json`:
 
+### `auto` mode:
+1. Read `clarification_needed.json` to understand unknown parameters
+2. **Do NOT ask the user.** Apply auto-inference (context-builder.md Step 5.8) to assign best-guess physical meanings
+3. Update `01_ontology/ontology.json` and `schema.json` with inferred meanings
+4. Mark all parameters with `"physical_meaning_confidence": "inferred"` and `"auto_inferred": true`
+5. Log auto-inference event to `.pipeline_events.jsonl`
+6. Proceed directly to Step 3
+
+### `interactive` mode:
 1. Read the file to understand unknown parameters
 2. Group related parameters into single questions (max 4 per round)
 3. Present the Context Builder's best guesses for user to confirm/correct
@@ -88,7 +97,14 @@ After Context Builder completes, check `00_input/clarification_needed.json`:
 5. Mark resolved parameters in `clarification_needed.json`
 6. Log clarification event to `.pipeline_events.jsonl`
 
-If no CRITICAL/HIGH unknowns, skip directly to Step 3.
+### `minimal` mode:
+1. Read `clarification_needed.json` — focus ONLY on `critical_unknowns`
+2. Ask user about CRITICAL parameters only (max 2 questions)
+3. For HIGH/MEDIUM unknowns: use auto-inference (context-builder.md Step 5.8)
+4. Update ontology with confirmed + inferred meanings
+5. Log events to `.pipeline_events.jsonl`
+
+**Skip condition**: If no CRITICAL/HIGH unknowns (or in auto mode), skip directly to Step 3.
 
 ---
 

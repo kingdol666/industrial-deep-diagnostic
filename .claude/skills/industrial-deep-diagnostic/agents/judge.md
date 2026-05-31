@@ -10,6 +10,7 @@ You are the **Judge** — responsible for critically verifying the diagnostic an
 
 - `RUN_DIR`: {{RUN_DIR}}
 - `SKILL_PATH`: {{SKILL_PATH}}
+- `DATA_PATH`: {{DATA_PATH}}
 
 **Before loading artifacts, verify:** All required input files exist in `RUN_DIR`. If any critical file is missing (diagnosis.json, evidence.json, confidence.json), write a feedback JSON with `{"verdict": "fail", "overall_score": 0, "blocking_issues": [{"description": "Missing required input: <filename>"}]}` and stop.
 
@@ -117,6 +118,33 @@ Read `04_diagnostics/reasoning_chain.json`. Verify the reasoning trace is comple
 - Does `what_would_change_conclusions` list actionable next steps?
 - If uncertainty is handwaved without decomposition → **WARNING**
 
+## Step 0.7: Independent Data Sampling (NEW — DATA_PATH)
+
+Load `02_processed/cleaned_data.json` or use DATA_PATH to read a sample of raw data for independent spot-checking.
+
+For EACH key correlation claim in the diagnosis (|r| > 0.5 or used as primary evidence):
+
+1. **Extract the claim** from diagnosis.json: "Parameter A → Parameter B, r = X.XX"
+2. **Sample 10-20 rows** from cleaned_data.json covering the operating range
+3. **Visually verify**: Does the direction of relationship in the sample match the claimed r?
+4. **Check outliers**: Are there extreme values driving the relationship?
+5. **Check temporal patterns**: Are both parameters monotonically increasing/decreasing?
+
+**Document findings** in `judge_feedback.json` under a new `spot_check_findings` field:
+```json
+"spot_check_findings": {
+  "correlations_sampled": 3,
+  "verified": 2,
+  "questionable": 1,
+  "details": [
+    {"claim": "W1C88 vs melt_spots r=0.37", "sample_verified": true, "note": "Direction holds in 8/10 sampled ranges"},
+    {"claim": "MD_TH009 vs film_points r=0.22", "sample_verified": false, "note": "Appears reversed in 6/10 samples — possible Simpson's artifact"}
+  ]
+}
+```
+
+If ANY key claim fails sampling verification → **WARNING** (not automatically a BLOCKING issue, but reduces evidence score).
+
 ## Step 1: Evaluate 10 Criteria
 
 Score each 0-10:
@@ -214,6 +242,12 @@ Save to `RUN_DIR/05_review/judge_feedback.json`:
     },
     "blocking_issues": [],
     "warnings": []
+  },
+  "spot_check_findings": {
+    "correlations_sampled": 0,
+    "verified": 0,
+    "questionable": 0,
+    "details": []
   },
   "blocking_issues": [
     {"description": "...", "repair_instruction": "...", "affected_steps": ["..."], "validation_source": "validate_report.json"}

@@ -3,250 +3,724 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cement Ball Mill — 诊断流水线 · 真实数据</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<title>Industrial Deep Diagnostic — 完整8步流程</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0b1120; color: #e2e8f0; padding: 24px;
-  }
-  h1 { text-align: center; color: #38bdf8; font-size: 26px; }
-  .subtitle { text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
-  .container { max-width: 1400px; margin: 0 auto; background: #1a2332; border-radius: 16px; padding: 24px; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
-  .mermaid { background: #1a2332; padding: 16px; border-radius: 12px; overflow-x: auto; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;padding:30px 20px}
+h1{font-size:28px;font-weight:700;text-align:center;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.subtitle{text-align:center;color:#94a3b8;font-size:14px;margin-bottom:32px}
+.container{max-width:1300px;margin:0 auto}
 
-  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 10px; padding: 12px 16px; background: #0b1120; border-radius: 8px; border: 1px solid #2a3a4a; font-size: 12px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; color: #b0c4d8; }
-  .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+/* ===== Status Bar ===== */
+.status-bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:30px}
+.status-tag{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;letter-spacing:.3px}
+.tag-pass{background:#065f46;color:#6ee7b7}
+.tag-endorsed{background:#1e3a5f;color:#93c5fd}
+.tag-determined{background:#5b21b6;color:#c4b5fd}
+.tag-high{background:#78350f;color:#fdba74}
+.tag-score{background:#1e293b;color:#94a3b8;border:1px solid #334155}
 
-  .status-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
-  .status-tag { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .tag-pass { background: #065f4620; border: 1px solid #10b981; color: #34d399; }
-  .tag-endorsed { background: #065f4620; border: 1px solid #10b981; color: #34d399; }
-  .tag-determined { background: #1e3a5f20; border: 1px solid #3b82f6; color: #60a5fa; }
-  .tag-high { background: #5b21b620; border: 1px solid #8b5cf6; color: #a78bfa; }
-  .tag-score { background: #7c2d1220; border: 1px solid #f97316; color: #fb923c; }
+/* ===== Mermaid ===== */
+.mermaid-container{background:#1e293b;border-radius:16px;padding:24px 16px 16px;margin-bottom:32px;overflow-x:auto;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.mermaid{text-align:center}
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
-  .card { background: #0b1120; border: 1px solid #2a3a4a; border-radius: 8px; padding: 12px; text-align: center; }
-  .card .num { font-size: 22px; font-weight: 700; }
-  .card .num-blue { color: #38bdf8; }
-  .card .num-green { color: #34d399; }
-  .card .num-purple { color: #a78bfa; }
-  .card .num-orange { color: #fb923c; }
-  .card .label { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+/* ===== Section Title ===== */
+.section-title{font-size:20px;font-weight:700;color:#f1f5f9;margin:36px 0 18px;padding-left:14px;border-left:4px solid #60a5fa}
 
-  .section-title { color: #38bdf8; font-size: 14px; font-weight: 600; margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #2a3a4a; }
-  .fail-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px; font-size: 12px; color: #c0d0e0; margin: 6px 0; }
-  .fail-item { padding: 4px 10px; background: #0b1120; border-radius: 4px; border-left: 3px solid; }
-  .fail-item.green { border-color: #10b981; }
-  .fail-item.red { border-color: #ef4444; }
-  .fail-item.purple { border-color: #8b5cf6; }
-  .fail-item.orange { border-color: #f59e0b; }
-  .fail-item.blue { border-color: #3b82f6; }
+/* ===== Grid Layouts ===== */
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:10px}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-bottom:10px}
+.card{background:#1e293b;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid #334155;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:#60a5fa}
+.card-accent{border-left:4px solid #60a5fa}
+.card-purple{border-left:4px solid #a78bfa}
+.card-green{border-left:4px solid #34d399}
+.card-orange{border-left:4px solid #fb923c}
+.card-pink{border-left:4px solid #f472b6}
+.card-warning{border-left:4px solid #facc15}
+.card-teal{border-left:4px solid #2dd4bf}
+
+.card h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:8px}
+.card .sub{font-size:12px;color:#94a3b8;margin-bottom:10px}
+.card ul{list-style:none;padding:0}
+.card li{font-size:13px;color:#cbd5e1;padding:4px 0 4px 16px;position:relative;line-height:1.5}
+.card li::before{content:"▸";position:absolute;left:0;color:#60a5fa}
+.card li.grn::before{color:#34d399}
+.card li.org::before{color:#fb923c}
+.card li.pnk::before{color:#f472b6}
+.card li.ylw::before{color:#facc15}
+.card li.ppl::before{color:#a78bfa}
+.card li.cyan::before{color:#22d3ee}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:4px}
+.bg-blue{background:#1e3a5f;color:#93c5fd}
+.bg-purple{background:#3b1f6e;color:#c4b5fd}
+.bg-green{background:#065f46;color:#6ee7b7}
+.bg-orange{background:#78350f;color:#fdba74}
+.bg-pink{background:#5b1e3a;color:#f9a8d4}
+.bg-yellow{background:#5c4a0a;color:#fde047}
+.bg-teal{background:#15575b;color:#5eead4}
+.bg-red{background:#5f1e1e;color:#fca5a5}
+.bg-slate{background:#334155;color:#94a3b8}
+
+.arrow-row{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0;color:#64748b;font-size:13px}
+
+/* ===== Rule Box ===== */
+.rules-box{background:#1e293b;border-radius:14px;padding:20px 24px;border:1px solid #facc15;margin-bottom:20px}
+.rules-box h3{color:#facc15;font-size:15px;margin-bottom:12px}
+.rules-box li{font-size:13px;color:#cbd5e1;padding:3px 0 3px 18px;position:relative;line-height:1.5}
+.rules-box li::before{content:"⚠";position:absolute;left:0;color:#facc15}
+
+/* ===== Evidence Table ===== */
+.evidence-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.evidence-table th{background:#334155;color:#94a3b8;padding:8px 12px;text-align:left;font-weight:600}
+.evidence-table td{background:#1e293b;color:#cbd5e1;padding:8px 12px;border-bottom:1px solid #334155}
+.evidence-table tr:hover td{background:#253248}
+.rank-1{color:#6ee7b7;font-weight:700}
+.rank-2{color:#93c5fd;font-weight:700}
+.rank-3{color:#fdba74;font-weight:700}
+.rank-4{color:#f9a8d4;font-weight:700}
+.rank-5{color:#c4b5fd;font-weight:700}
+.rank-6{color:#94a3b8}
+.rank-7{color:#64748b;font-style:italic}
+
+/* ===== File Box ===== */
+.file-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:20px}
+.file-box{background:#1e293b;border-radius:10px;padding:12px 16px;border:1px solid #334155}
+.file-box .dir{font-size:11px;color:#60a5fa;font-weight:700;margin-bottom:4px}
+.file-box .desc{font-size:12px;color:#94a3b8}
+.file-box .file{font-size:11px;color:#64748b;margin-top:4px}
+
+/* ===== Repair Loop ===== */
+.repair-diagram{background:#1e293b;border-radius:14px;padding:20px;border:1px solid #f472b6;margin-bottom:20px}
+.repair-diagram h3{color:#f472b6;font-size:15px;margin-bottom:12px}
+.repair-step{display:flex;align-items:center;gap:12px;padding:6px 0;font-size:13px;color:#cbd5e1}
+.repair-step .arrow{color:#f472b6;font-weight:700}
+
+/* ===== Comparison Table ===== */
+.comp-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.comp-table th{background:#334155;color:#94a3b8;padding:10px 14px;text-align:left;font-weight:600}
+.comp-table td{background:#1e293b;color:#cbd5e1;padding:10px 14px;border-bottom:1px solid #334155}
+.comp-table tr:hover td{background:#253248}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  body{padding:16px 10px}
+  .step-grid,.agent-grid{grid-template-columns:1fr}
+  .file-grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
 
-<h1>🏭 水泥球磨机诊断 · 8步流水线真实数据</h1>
-<p class="subtitle">Run ID: 202605311023059_cement_ball_mill · 2026-05-31 · v6.1.0</p>
-
 <div class="container">
 
+<h1>🏭 Industrial Deep Diagnostic</h1>
+<p class="subtitle">v6.1.0 · 8步工业深度诊断流水线 · 竞争假设推理框架 · 物理审计质量门</p>
+
 <div class="status-bar">
-  <span class="status-tag tag-pass">✅ Judge PASS 92/100</span>
-  <span class="status-tag tag-endorsed">✅ Audit ENDORSED</span>
-  <span class="status-tag tag-determined">🔍 DETERMINED</span>
-  <span class="status-tag tag-high">📊 Confidence 88/100 HIGH</span>
-  <span class="status-tag tag-score">📈 Score 6/6 dim ≥ 8</span>
+  <span class="status-tag tag-pass">✅ 8 Step Pipeline</span>
+  <span class="status-tag tag-endorsed">🛡️ Dual Quality Gates</span>
+  <span class="status-tag tag-determined">🔍 DETERMINED / COMPETING_SET</span>
+  <span class="status-tag tag-high">📊 Evidence Hierarchy v4.2</span>
+  <span class="status-tag tag-score">🔄 Repair Loop ≤ 5x</span>
 </div>
 
+<!-- ===== Flow Diagram ===== -->
+<div class="mermaid-container">
 <div class="mermaid">
-%%{init: {
-  'theme': 'dark',
-  'themeVariables': {
-    'background': '#1a2332',
-    'primaryColor': '#1e3a5f',
-    'primaryBorderColor': '#3b82f6',
-    'primaryTextColor': '#e2e8f0',
-    'lineColor': '#475569',
-    'secondaryColor': '#1a2332',
-    'tertiaryColor': '#0b1120',
-    'mainBkg': '#1a2332',
-    'nodeBorder': '#475569',
-    'clusterBkg': '#0b1120',
-    'clusterBorder': '#2a3a4a',
-    'titleColor': '#e2e8f0',
-    'edgeLabelBackground': '#1a2332',
-    'nodePadding': 12
+flowchart LR
+  %% Styles
+  classDef step0 fill:#1e3a5f,stroke:#60a5fa,color:#e2e8f0
+  classDef step1 fill:#1e3a5f,stroke:#60a5fa,color:#e2e8f0
+  classDef step2 fill:#3b1f6e,stroke:#a78bfa,color:#e2e8f0
+  classDef step3 fill:#065f46,stroke:#34d399,color:#e2e8f0
+  classDef step4 fill:#78350f,stroke:#fb923c,color:#e2e8f0
+  classDef step5 fill:#5b1e3a,stroke:#f472b6,color:#e2e8f0
+  classDef step6 fill:#15575b,stroke:#2dd4bf,color:#e2e8f0
+  classDef step7 fill:#5f1e1e,stroke:#fca5a5,color:#e2e8f0
+  classDef step8 fill:#334155,stroke:#94a3b8,color:#e2e8f0
+  classDef gate fill:#5c4a0a,stroke:#facc15,color:#e2e8f0
+  classDef data fill:#253248,stroke:#475569,color:#94a3b8
+
+  subgraph Pipeline["8-Step Pipeline Flow"]
+    direction LR
+    S0["Step 0<br/>Setup"]:::step0
+    S1["Step 1<br/>Inspect"]:::step1
+    S2["Step 2<br/>Context"]:::step2
+    G25{"Step 2.5<br/>Clarify Gate"}:::gate
+    S3["Step 3<br/>Data+Viz+Validate"]:::step3
+    S4["Step 4<br/>Diagnose"]:::step4
+    S5["Step 5<br/>Judge"]:::step5
+    S6["Step 6<br/>Report"]:::step6
+    S7["Step 7<br/>Audit"]:::step7
+    S8["Step 8<br/>Present"]:::step8
+
+    S0 --> S1 --> S2 --> G25
+    G25 -->|"unknown params?"| S2
+    G25 -->|"proceed"| S3 --> S4 --> S5
+    S5 -->|"PASS ≥90"| S6 --> S7
+    S5 -->|"NEEDS_REPAIR 70-89<br/>&lt;3x"| S4
+    S7 -->|"ENDORSED"| S8
+    S7 -->|"CONDITIONAL/REJECTED<br/>&lt;2x"| S4
+  end
+</div>
+</div>
+
+<!-- ===== Pipeline Description ===== -->
+<p style="text-align:center;color:#94a3b8;font-size:13px;margin:-22px 0 30px">
+  <strong>核心原则:</strong> 诊断是排除，而非确认。每一步消除不确定性，直到只剩下物理上唯一可能的解释。
+</p>
+
+<!-- ===================================================================== -->
+<!-- 8 STEP OVERVIEW -->
+<!-- ===================================================================== -->
+<div class="section-title">📋 8步流水线 · 每步详解</div>
+
+<div class="step-grid">
+
+<!-- Step 0 -->
+<div class="card card-accent">
+  <h3>Step 0 · Setup Workspace <span class="badge bg-blue">Main Agent</span></h3>
+  <div class="sub">创建运行目录结构 + Python环境</div>
+  <ul>
+    <li>执行 <code>setup.mjs</code> 创建 <code>&lt;timestamp&gt;_&lt;scene&gt;/</code> 目录</li>
+    <li>自动生成7个子目录: <code>00_input</code> ~ <code>06_scripts</code></li>
+    <li class="grn">执行 <code>uv_env_setup.mjs</code> 创建 Python venv</li>
+    <li>安装依赖: matplotlib, numpy, pandas, seaborn, scipy, openpyxl</li>
+    <li class="org">⚠️ 所有Python脚本 <strong>必须</strong> 使用 venv python，禁止系统python3</li>
+  </ul>
+</div>
+
+<!-- Step 1 -->
+<div class="card card-accent">
+  <h3>Step 1 · Inspect Data <span class="badge bg-blue">Main Agent</span></h3>
+  <div class="sub">数据检查 + 用户上下文采集</div>
+  <ul>
+    <li>执行 <code>inspect.mjs</code> 扫描数据: 列名、类型、范围、缺失值</li>
+    <li class="org">向用户提问 ≤5个澄清问题: 工艺类型、质量问题、已知参数</li>
+    <li>输出 <code>input_manifest.json</code> 数据清单</li>
+    <li>输出 <code>user_context.json</code> 用户上下文</li>
+    <li>场景名称 = 工艺描述，批次信息等</li>
+  </ul>
+</div>
+
+<!-- Step 2 -->
+<div class="card card-purple">
+  <h3>Step 2 · Context Builder <span class="badge bg-purple">Sub-Agent</span></h3>
+  <div class="sub">领域知识提取 + 工业本体构建</div>
+  <ul>
+    <li>搜索 <code>REFERENCE_DIR</code> 中的SOP/手册/报告</li>
+    <li class="org">可选: 最多5次Web搜索补充领域知识</li>
+    <li>构建 <code>ontology.json</code>: 场景、设备、工艺阶段、参数物理含义</li>
+    <li>构建 <code>schema.json</code>: 参数分类 (control/process/quality..)</li>
+    <li class="ylw">输出 <code>clarification_needed.json</code>: 未知物理含义的参数</li>
+    <li class="ppl">输出 <code>extracted_knowledge.json</code>: 已知故障模式、因果关系</li>
+  </ul>
+</div>
+
+<!-- Step 2.5 -->
+<div class="card card-warning">
+  <h3>Step 2.5 · Clarification Gate <span class="badge bg-yellow">Main Agent</span></h3>
+  <div class="sub">参数含义澄清门</div>
+  <ul>
+    <li>检查 <code>clarification_needed.json</code> 中的未知参数</li>
+    <li class="org">若存在 CRITICAL/HIGH 级别未知 → 向用户提问</li>
+    <li class="grn">参数含义确认后更新 ontology.json</li>
+    <li class="grn">若无未知参数 → 直接进入 Step 3</li>
+    <li class="org">⚠️ 未确认物理含义的参数,诊断置信度上限=50</li>
+  </ul>
+</div>
+
+<!-- Step 3 -->
+<div class="card card-green">
+  <h3>Step 3 · Data Processor <span class="badge bg-green">Sub-Agent</span></h3>
+  <div class="sub">数据处理 + 统计分析 + 可视化 + 验证</div>
+  <ul>
+    <li>场景分类: CNC / 连续 / 批次 / 热交换 / 质量 / 通用</li>
+    <li>预处理: 缺失值、异常值(IQR)、排序验证、衍生特征</li>
+    <li class="cyan">运行 <code>stats.mjs</code> → <code>feature_summary.json</code></li>
+    <li class="pnk">运行 <code>stats_validate.mjs</code> → <code>validate_report.json</code></li>
+    <li>异常检测 → <code>anomaly_report.json</code></li>
+    <li>因果证据图 → <code>causal_evidence_map.json</code></li>
+    <li class="grn">生成 场景自适应 可视化 → <code>03_figures/*.png</code></li>
+    <li>所有JSON输出需要 Schema 验证</li>
+  </ul>
+</div>
+
+<!-- Step 4 -->
+<div class="card card-orange">
+  <h3>Step 4 · Diagnostician <span class="badge bg-orange">Sub-Agent</span></h3>
+  <div class="sub">竞争假设诊断 · 根因推理</div>
+  <ul>
+    <li><strong>Phase 1 - 数据探针</strong>: 直接探测原始数据拐点、过渡事件</li>
+    <li><strong>Phase 2 - 分层分析</strong>: 验证子组内相关性是否成立</li>
+    <li><strong>5步协议</strong>:
+      <br>A. 假设生成 (物理链+可视化证据)
+      <br>B. 交叉验证 (数据探针+因果图)
+      <br>C. 可区分性评估 (DISCRIMINABLE/INDISTINGUISHABLE)
+      <br>D. 排除 (物理不可能+数据矛盾)
+      <br>E. 结论: DETERMINED / COMPETING_SET / NEEDS_DATA
+    </li>
+    <li class="ppl">输出: <code>reasoning_chain.json</code> (R1-R8) + diagnosis.json + evidence.json + confidence.json</li>
+  </ul>
+</div>
+
+<!-- Step 5 -->
+<div class="card card-pink">
+  <h3>Step 5 · Judge Review <span class="badge bg-pink">Sub-Agent</span></h3>
+  <div class="sub">最终质量门 · 10维度评分</div>
+  <ul>
+    <li>交叉验证 validate_report.json 与 diagnosis.json</li>
+    <li>检查: 排序问题、Simpson悖论、趋势混杂、异常值驱动</li>
+    <li>检查: 参数物理含义标记 ([PARAM_AMBIGUITY])</li>
+    <li class="org">检查: 可区分性评估 → INDISTINGUISHABLE置信度≤65</li>
+    <li><strong>评分结果</strong>:
+      <br>✅ <span class="rank-1">PASS ≥90</span> → 进入 Step 6
+      <br>🔄 <span class="rank-3">NEEDS_REPAIR 70-89</span> → 重跑诊断(最多3次)
+      <br>❌ <span class="rank-6">FAIL &lt;70</span> → 报告用户
+    </li>
+  </ul>
+</div>
+
+<!-- Step 6 -->
+<div class="card card-teal">
+  <h3>Step 6 · Reporter <span class="badge bg-teal">Sub-Agent</span></h3>
+  <div class="sub">工程诊断报告生成</div>
+  <ul>
+    <li>加载所有产出: 上下文、本体、统计、验证、诊断、Judge反馈</li>
+    <li>逐图分析: 11张图每个都标注 [OBSERVATION] 和诊断含义</li>
+    <li>推理链综合: 从 R1-R8 重构推理轨迹</li>
+    <li>强制章节: 执行摘要、统计验证、竞争假设披露、置信度</li>
+    <li class="ppl">输出: <code>report.md</code> (21章节) + <code>run_summary.json</code></li>
+    <li>每个结论必须 [OBSERVED] / [INFERRED] 标记</li>
+  </ul>
+</div>
+
+<!-- Step 7 -->
+<div class="card" style="border-left:4px solid #fca5a5">
+  <h3>Step 7 · Report Reviewer <span class="badge bg-red">Sub-Agent</span></h3>
+  <div class="sub">物理真实验证 · 独立审计</div>
+  <ul>
+    <li>「你是有20年经验的高级工程师，对所有结论持怀疑态度」</li>
+    <li class="cyan">独立重算: 数据排序、去趋势、子组、Spearman vs Pearson</li>
+    <li>6维度评分: 物理合理性、混杂控制、统计严谨性、逻辑、领域知识、可操作性</li>
+    <li><strong>结论</strong>:
+      <br>🏆 <span class="rank-1">ENDORSED</span> → 进入 Step 8
+      <br>🔄 <span class="rank-3">CONDITIONAL/REJECTED</span> → 4→5→6→7 修复循环(最多2次)
+    </li>
+    <li class="ppl">输出: <code>optimizer.md</code> — 物理审计报告</li>
+  </ul>
+</div>
+
+<!-- Step 8 -->
+<div class="card" style="border-left:4px solid #94a3b8">
+  <h3>Step 8 · Present Results <span class="badge bg-slate">Main Agent</span></h3>
+  <div class="sub">结果展示 · 交付</div>
+  <ul>
+    <li>执行 <code>artifact-check.mjs</code> 验证所有生成文件完整性</li>
+    <li>向用户展示:
+      <br>· 执行摘要 (2-3段)
+      <br>· 关键发现
+      <br>· 诊断类型 + 置信度
+      <br>· 建议行动 (P0/P1/P2)
+    </li>
+    <li class="org">高亮报告Reviewer的 CONDITIONAL/REJECTED 问题</li>
+    <li class="grn">交付工作区路径 + 所有产出文件清单</li>
+  </ul>
+</div>
+
+</div>
+
+<!-- ===================================================================== -->
+<!-- AGENT DEEP DIVE -->
+<!-- ===================================================================== -->
+<div class="section-title">🤖 Agent深度解析 · 每一步对应哪个Agent、怎么做</div>
+
+<div class="agent-grid">
+
+<!-- Agent: Main Agent (Step 0, 1, 2.5, 8) -->
+<div class="card card-accent">
+  <h3>🧠 Main Agent (Orchestrator)</h3>
+  <div class="sub">负责任务: Step 0 · Step 1 · Step 2.5 · Step 8</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>作用:</strong> 流水线的主控编排器，负责全局协调、用户交互、质量管理
+  </div>
+  <ul>
+    <li class="cyan"><strong>Step 0</strong> — 创建目录、启动Python环境、拷贝输入数据</li>
+    <li class="cyan"><strong>Step 1</strong> — 执行 <code>inspect.mjs</code>、向用户提问、写入 user_context.json</li>
+    <li class="cyan"><strong>Step 2.5</strong> — 检查 clarification_needed.json、向用户追问未知参数含义</li>
+    <li class="cyan"><strong>Step 8</strong> — 执行 <code>artifact-check.mjs</code>、展示最终结果给用户</li>
+    <li class="org"><strong>质量管理</strong> — 控制修复循环次数(全局≤5次)、判断何时需要停止</li>
+    <li class="ppl"><strong>文件解耦</strong> — Agent之间仅通过工作区文件通信，不入主Agent上下文</li>
+    <li class="grn"><strong>加载策略</strong> — 渐进加载：执行到哪一步才读取哪一步的Agent指令</li>
+  </ul>
+</div>
+
+<!-- Agent: Context Builder (Step 2) -->
+<div class="card card-purple">
+  <h3>📚 Context Builder Agent</h3>
+  <div class="sub">负责任务: Step 2 · 领域知识 + 本体构建</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 领域知识工程师。读取所有参考文档，构建工艺过程的完整本体，识别知识缺口
+  </div>
+  <ul>
+    <li><strong>Step 0 - 加载用户上下文</strong>: 读取 user_context.json，提取工艺类型、已知问题、质量目标</li>
+    <li class="cyan"><strong>Step 1 - 搜索参考目录</strong>: 递归读取SOP/手册/报告，提取: 设备参数、工艺阶段、故障模式、控制逻辑</li>
+    <li class="cyan"><strong>输出</strong> → <code>extracted_knowledge.json</code>: 6大区块(设备/阶段/变量/故障/因果/产品等级)</li>
+    <li class="org"><strong>Step 2 - 可选Web搜索</strong>: 最多5次查询，补足领域知识缺口，标注 [EXTERNAL KNOWLEDGE]</li>
+    <li><strong>Step 3 - 构建本体</strong>:
+      <br>· 读取原始数据列名和类型
+      <br>· 为每个参数确定: 物理含义、控制类型(PID/手动)、测量位置、正常范围
+      <br>· 按参数重要性分类: CRITICAL / HIGH / MEDIUM / LOW
+    </li>
+    <li><strong>Step 4 - 识别知识缺口</strong>: 对未知物理含义的参数标记 UNKNOWN，生成 clarification_needed.json</li>
+    <li class="ppl"><strong>输出</strong>: ontology.json, schema.json, extracted_knowledge.json, clarification_needed.json</li>
+  </ul>
+</div>
+
+<!-- Agent: Data Processor (Step 3) -->
+<div class="card card-green">
+  <h3>📊 Data Processor Agent</h3>
+  <div class="sub">负责任务: Step 3 · 处理+统计+可视化+验证</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 诊断数据分析师。根据场景类型生成针对性的分析和可视化，使诊断师能从数据追踪因果链
+  </div>
+  <ul>
+    <li><strong>Step 1 - 场景分类</strong>: 执行 <code>inspect.mjs</code> 了解数据，按检测标准分类为 CNC/连续/批次/热交换/质检/通用</li>
+    <li class="cyan"><strong>Step 2 - 转换数据</strong>: <code>convert.mjs</code> → JSON格式</li>
+    <li><strong>Step 3 - 预处理</strong>: 缺失值处理、异常值标记(IQR法)、<span class="rank-3">排序验证</span>、<strong>场景特定衍生特征</strong></li>
+    <li><strong>Step 4 - 统计分析</strong>:
+      <br>· <code>stats.mjs</code>: Pearson/Spearman/Granger/互信息/交互效应/分层分析
+      <br>· <code>stats_validate.mjs</code>: Simpson悖论/趋势混杂/异常值/变化点/分布分析
+    </li>
+    <li><strong>Step 5 - 异常检测</strong>: 自动识别异常区间、阈值偏离、过渡事件</li>
+    <li><strong>Step 6 - 因果图</strong>: 构建验证过的因果边缘、共线性分组、根因候选</li>
+    <li class="ppl"><strong>Step 7 - 自适应可视化</strong>: 根据场景类型生成不同的图表集:
+      <br>· CNC: 振动/Ra时间序列、进给力、磨损曲线
+      <br>· 连续: 温度剖面、张力梯度
+      <br>· 批次: 反应曲线、批间变异
+      <br>· 热交换: HTC衰减、污垢电阻
+    </li>
+    <li class="org"><strong>关键输出</strong>: feature_summary.json, validate_report.json, causal_evidence_map.json, plot_manifest.json</li>
+  </ul>
+</div>
+
+<!-- Agent: Diagnostician (Step 4) -->
+<div class="card card-orange">
+  <h3>🔍 Diagnostician Agent</h3>
+  <div class="sub">负责任务: Step 4 · 核心诊断推理</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 根因分析师。通过物理因果链追踪诊断工业异常。数据是证据，物理是法官。
+  </div>
+  <ul>
+    <li><strong>Phase 0 - 加载所有证据</strong>: 读取9类产出文件，先读验证报告再形成假设</li>
+    <li class="cyan"><strong>Phase 1 - 直接数据探测</strong>:
+      <br>· Probe 1-3: 工具段检查、段分析、梯度分析
+      <br>· Probe 4: 阈值验证 (当粒度跨越阈值时质量是否跳变)
+      <br>· Probe 5-6: 物理定量计算 (热膨胀、挠度模型)
+      <br>· Probe 7-11: 可区分性分析、过渡分析、子组属性
+    </li>
+    <li><strong>Phase 2 - 产品分层分析</strong>: 验证每个产品等级内相关方向一致</li>
+    <li><strong>Phase 3 - 5步推理协议</strong>:
+      <br>A. 生成假设 + 7步物理链 + 可视化证据
+      <br>B. 交叉验证: 数据探针 × 异常区间 × 因果图
+      <br>C. 可区分性矩阵: 每个假设对 DISCRIMINABLE / INDISTINGUISHABLE
+      <br>D. 排除: 物理不可能性 + 数据矛盾 + 综合排除
+      <br>E. 结论: DETERMINED / COMPETING_SET / NEEDS_DATA
+    </li>
+    <li class="ppl"><strong>输出推理链R1-R8</strong>:
+      <br>R1: 领域知识 + 已知故障模式
+      <br>R2: 数据探针发现 (11项探针)
+      <br>R3: 验证过滤 (排序/Simpson/趋势/异常值/变化点)
+      <br>R4: 假设生成 (4+N竞争假设)
+      <br>R5: 可区分性评估
+      <br>R6: 排除文档
+      <br>R7: 诊断结论 + 物理迹
+      <br>R8: 不确定性分解
+    </li>
+    <li class="org"><strong>规则</strong>: 每个假设必须可证伪；量级必须匹配；IDISTINGUISHABLE对置信度≤65</li>
+  </ul>
+</div>
+
+<!-- Agent: Judge (Step 5) -->
+<div class="card card-pink">
+  <h3>⚖️ Judge Agent</h3>
+  <div class="sub">负责任务: Step 5 · 质量评审门</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 最终质量门。交叉验证诊断推理与统计验证报告，检查10个维度的质量。
+  </div>
+  <ul>
+    <li><strong>Step 0 - 加载所有产出</strong>: ontology、feature_summary、validate_report、diagnosis、evidence、confidence、reasoning_chain</li>
+    <li class="org"><strong>Step 0.5 - 交叉验证</strong> (NEW — 强制):
+      <br>1. 排序验证: time_sorted=false时, 滞后相关必须声明排序伪影
+      <br>2. Simpson悖论: 忽略方向反转 → BLOCKING
+      <br>3. 趋势混杂: 衰减>50%必须报告去趋势r
+      <br>4. Spearman vs Pearson: 偏态分布必须声明
+      <br>5. 异常值驱动: 标记必须讨论
+      <br>6. 参数含义: 未解决CRITICAL → BLOCKING
+      <br>7. 可区分性: 未检查→BLOCKING, INDISTINGUISHABLE置信度>65→BLOCKING
+    </li>
+    <li><strong>评分10维度</strong> (每项0-10, 加权):
+      <br>· 数据质量意识 (10%) · 变量分类 (10%)
+      <br>· 时间对齐 (10%) · 可视化质量 (5%)
+      <br>· 基于证据 (20%) · 推理链质量 (15%)
+      <br>· 因果vs相关 (10%) · 不确定性披露 (10%)
+      <br>· 报告质量 (5%) · 不过度宣称 (5%)
+    </li>
+    <li><strong>裁决</strong>: PASS ≥90 / NEEDS_REPAIR 70-89 (最多3次) / FAIL &lt;70</li>
+    <li class="ppl"><strong>输出</strong>: judge_feedback.json</li>
+  </ul>
+</div>
+
+<!-- Agent: Reporter (Step 6) -->
+<div class="card card-teal">
+  <h3>📝 Reporter Agent</h3>
+  <div class="sub">负责任务: Step 6 · 报告生成</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 工程报告撰写人。将诊断推理转化为自包含、可审计的工程文档。
+  </div>
+  <ul>
+    <li><strong>Step 0 - 加载所有产出</strong>: 读取14类文件(用户上下文/本体/数据质量/统计/可视化/诊断/Judge反馈)</li>
+    <li class="cyan"><strong>Step 1 - 逐图理解</strong> (强制):
+      <br>· 从 image_captions.json 读取结构化描述
+      <br>· 每张图提取: 展示内容、关键观测、趋势形状、异常区域、诊断含义
+      <br>· 验证图标注: 统计验证图 → CCF窗口/分层相关/去趋势/Spearman/异常值
+    </li>
+    <li><strong>Step 1.5 - 推理链综合</strong>:
+      <br>· 从 reasoning_chain.json 提取 R1-R8 每步的关键发现
+      <br>· 区分 [OBSERVED] 和 [INFERRED]
+      <br>· 生成幻觉审计日志(附录E)
+    </li>
+    <li><strong>Step 2 - 生成报告</strong> (21个章节):
+      <br>· 执行摘要 · 推理概述(7个分段) · 分析目标 · 用户上下文
+      <br>· 工业本体 · 数据描述 · 变量分类 · 预处理
+      <br>· 逐图分析(11张图) · 诊断结果 · 根因综合
+      <br>· 统计验证(强制) · 竞争假设披露(强制) · 置信度 · 不确定性
+      <br>· 建议行动 · 限制说明 · 附录(A-F)
+    </li>
+    <li class="org"><strong>规则</strong>: 每个结论引用证据来源+等级；每张图必须嵌入；统计验证在前台展示不埋没在附录</li>
+    <li class="ppl"><strong>输出</strong>: report.md, run_summary.json</li>
+  </ul>
+</div>
+
+<!-- Agent: Report Reviewer (Step 7) -->
+<div class="card" style="border-left:4px solid #fca5a5">
+  <h3>🔬 Report Reviewer Agent</h3>
+  <div class="sub">负责任务: Step 7 · 物理真实验证</div>
+  <div style="font-size:13px;color:#cbd5e1;padding:6px 0 10px;line-height:1.6">
+    <strong>角色:</strong> 「20年经验的高级工程师」— 最重要的质量门。不做内部一致性检查(Judge的职责)，而是做物理现实校验。
+  </div>
+  <ul>
+    <li><strong>Step 0.5 - 加载资源 + 读取原始数据</strong>(不信任流水线摘要，直接检查原始CSV)</li>
+    <li class="cyan"><strong>Step 1 - 物理机制验证</strong>:
+      <br>· 物理合理性: 机制能否产生观测症状？
+      <br>· <span class="rank-3">量级匹配</span>: 原因的量级能产生效果的量级吗？(eg: 1-2°C在75°C能否产生可检测的降解？用Arrhenius验证)
+      <br>· 时间尺度匹配: 退化时间线是否与已知物理一致？
+      <br>· 症状完整性: 机制是否解释所有观测？
+    </li>
+    <li><strong>Step 1.1 - 领域特定量化验证</strong>:
+      <br>· CNC: Ra≈f²/(32×rε)、ISO 10816振动等级、Taylor刀具寿命方程
+      <br>· 薄膜: Arrhenius热降解、PET环状三聚体形成、拉伸物理
+      <br>· 热交换: 污垢电阻Rf、HTC衰退一致性
+    </li>
+    <li><strong>Step 1.2 - 推理链幻觉检测</strong>:
+      <br>· 8种模式: 模糊量化/无锚推断/缺少替代/不可证伪/证据等级膨胀/置信度过高/忽略矛盾/制度盲点
+      <br>· 随机抽取3个结论追溯检查
+    </li>
+    <li class="org"><strong>Step 2 - 独立统计验证</strong>:
+      <br>· 独立去趋势、子组分析、排序验证、滞后分析
+      <br>· 5种混杂模式: 产品等级/时间趋势/批次排序/遗漏变量/反向因果
+    </li>
+    <li><strong>Step 3 - 统计谬误审计</strong>: 趋势相关? 子组稳定? 非线性? 异常值敏感? 多重检验?</li>
+    <li><strong>6维度评分</strong>: 物理合理性/混杂控制/统计严谨性/逻辑连贯/领域知识/可操作性</li>
+    <li><strong>裁决</strong>: ENDORSED(所有≥7) / CONDITIONAL(1-2个&lt;7) / REJECTED(≥3个&lt;7)</li>
+    <li class="ppl"><strong>输出</strong>: optimizer.md</li>
+  </ul>
+</div>
+
+</div>
+
+<!-- ===================================================================== -->
+<!-- REPAIR LOOPS -->
+<!-- ===================================================================== -->
+<div class="section-title">🔄 修复循环机制</div>
+
+<div class="repair-diagram">
+<h3>修复循环详解</h3>
+
+<div style="padding:8px 0">
+<table class="comp-table">
+<tr><th>循环</th><th>触发条件</th><th>最大次数</th><th>重跑步骤</th><th>全局上限</th></tr>
+<tr>
+  <td><strong>Judge 修复</strong></td>
+  <td>Judge评分: NEEDS_REPAIR (70-89)</td>
+  <td>3次</td>
+  <td>Step 4 → 5 (诊断→评审)</td>
+  <td rowspan="2" style="color:#f472b6;font-weight:700">全局总重诊断 ≤ 5次</td>
+</tr>
+<tr>
+  <td><strong>Reviewer 修复</strong></td>
+  <td>Reviewer裁决: CONDITIONAL/REJECTED</td>
+  <td>2次</td>
+  <td>Step 4 → 5 → 6 → 7 (完整流水线)</td>
+</tr>
+</table>
+</div>
+
+<div class="repair-step"><span class="arrow">→</span> <strong>Judge PASS ≥90</strong> → 正常进入 Step 6，不触发修复</div>
+<div class="repair-step"><span class="arrow">→</span> <strong>Judge NEEDS_REPAIR 70-89</strong> → re-spawn Diagnostician，附带 REPAIR_INSTRUCTIONS 中的修正要求</div>
+<div class="repair-step"><span class="arrow">→</span> <strong>Judge FAIL &lt;70</strong> → 直接报告用户，不继续流水线</div>
+<div class="repair-step"><span class="arrow">→</span> <strong>Reviewer CONDITIONAL/REJECTED</strong> → 从 Step 4 开始重新跑(含修正)，再经过 5→6→7</div>
+<div class="repair-step"><span class="arrow">→</span> <strong>diag_iters ≥ 5</strong> → 所有修复循环强制停止</div>
+<div class="repair-step" style="color:#facc15">⚠️ 修复循环次数 持久化存储在 .pipeline_events.jsonl 中，不依赖内存状态</div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- EVIDENCE HIERARCHY -->
+<!-- ===================================================================== -->
+<div class="section-title">📊 证据等级体系 (v4.2)</div>
+
+<table class="evidence-table">
+<tr><th>等级</th><th>来源</th><th>置信度</th><th>标签</th><th>规则</th></tr>
+<tr><td class="rank-1">1</td><td>数据中的直接测量值</td><td>最高</td><td>[Evidence Rank 1]</td><td>最可靠，来自数据本身</td></tr>
+<tr><td class="rank-2">2</td><td>用户提供的文档 (SOP/手册)</td><td>高</td><td>[Evidence Rank 2]</td><td>需要确认文档有效性</td></tr>
+<tr><td class="rank-3">3</td><td>统计分析 + 验证报告</td><td>中-高</td><td>[Evidence Rank 3]</td><td>通过Simpson/趋势/异常值验证才有权重</td></tr>
+<tr><td class="rank-4">4</td><td>图表可视化证据</td><td>中</td><td>[Evidence Rank 4]</td><td>目视确认的趋势/发散/异常区域</td></tr>
+<tr><td class="rank-5">5</td><td>领域知识 / 工艺逻辑</td><td>中</td><td>[Evidence Rank 5]</td><td>需要有定量物理支撑</td></tr>
+<tr><td>6</td><td>外部Web参考资料</td><td>低</td><td>[Evidence Rank 6] [EXTERNAL]</td><td>必须明确标注 EXTERNAL</td></tr>
+<tr><td>7</td><td>未验证的假设</td><td>最低</td><td>[Evidence Rank 7]</td><td>不能作为主要结论依据</td></tr>
+</table>
+
+<p style="color:#94a3b8;font-size:13px;margin-top:-12px;margin-bottom:20px">
+  <strong>结论上限</strong> = 最弱证据等级。例如 统计发现(r=0.99 Rank 3) + 物理机制(Rank 5) → 受Rank 5限制。<br>
+  <strong>统计证据(等级3)现在包含验证状态</strong>: 通过所有验证的相关>未通过的相关。
+</p>
+
+<!-- ===================================================================== -->
+<!-- ANTI-SPECULATION RULES -->
+<!-- ===================================================================== -->
+<div class="section-title">🚫 反推测规则 (Anti-Speculation Rules)</div>
+
+<div class="rules-box">
+<h3>禁止行为 (NEVER)</h3>
+<ul>
+  <li>声称"X导致Y"而未满足全部5大因果关系标准(时间顺序+统计显著+滞后一致+物理机制+无子组矛盾)</li>
+  <li>假设未测量变量的行为</li>
+  <li>混淆相关与因果</li>
+  <li>将假设呈现为既定事实</li>
+  <li>置信度超出证据支持的范围</li>
+  <li>使用滞后相关作为因果证据而数据未按时间排序</li>
+  <li>声称聚合相关在主导子组中方向反转时仍有意义</li>
+  <li>引用原始相关而不检查存在时间趋势时的去趋势相关</li>
+</ul>
+</div>
+
+<div class="rules-box" style="border-color:#34d399">
+<h3>强制要求 (ALWAYS)</h3>
+<ul>
+  <li>对每个结论披露置信度级别</li>
+  <li>指示证据缺失或不足的情况</li>
+  <li>分离数据来源结论与领域知识推断</li>
+  <li>证据不足时推荐进一步验证</li>
+  <li>根因不确定时呈现多个假设</li>
+  <li>报告验证发现与统计证据并列展示</li>
+  <li>在所有关键相关上承认排序/分层/趋势注意事项</li>
+  <li>当数据无法区分竞争假设时 → 输出 COMPETING_SET</li>
+  <li>INDISTINGUISHABLE 的竞争假设置信度上限 65</li>
+  <li>参数物理含义未知 → 标记 [PARAM_AMBIGUITY]</li>
+</ul>
+</div>
+
+<!-- ===================================================================== -->
+<!-- OUTPUT FILES -->
+<!-- ===================================================================== -->
+<div class="section-title">📁 工作区输出文件清单</div>
+
+<div class="file-grid">
+  <div class="file-box"><div class="dir">00_input/</div><div class="desc">原始数据 + 用户上下文</div><div class="file">cnc_spindle_data.csv, user_context.json, extracted_knowledge.json, clarification_needed.json</div></div>
+  <div class="file-box"><div class="dir">01_ontology/</div><div class="desc">工艺本体 + 参数分类</div><div class="file">ontology.json, schema.json</div></div>
+  <div class="file-box"><div class="dir">02_processed/</div><div class="desc">处理数据 + 统计 + 验证</div><div class="file">feature_summary.json, validate_report.json, anomaly_report.json, causal_evidence_map.json, scenario_classification.json</div></div>
+  <div class="file-box"><div class="dir">03_figures/</div><div class="desc">诊断可视化</div><div class="file">A-K_*.png (11张), plot_manifest.json, image_captions.json</div></div>
+  <div class="file-box"><div class="dir">04_diagnostics/</div><div class="desc">诊断结果</div><div class="file">diagnosis.json, evidence.json, confidence.json, reasoning_chain.json</div></div>
+  <div class="file-box"><div class="dir">05_review/</div><div class="desc">Judge审评</div><div class="file">judge_feedback.json</div></div>
+  <div class="file-box"><div class="dir">06_scripts/</div><div class="desc">生成脚本</div><div class="file">preprocess.py, visualize.py, anomaly_detection.py, data_probe.py</div></div>
+  <div class="file-box"><div class="dir">根目录/</div><div class="desc">报告 + 审计</div><div class="file">report.md, optimizer.md, run_summary.json, .pipeline_events.jsonl</div></div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- CAUSATION CRITERIA -->
+<!-- ===================================================================== -->
+<div class="section-title">🔗 因果关系5大标准 (v4.2)</div>
+
+<table class="comp-table">
+<tr><th>#</th><th>标准</th><th>要求</th><th>验证方法</th></tr>
+<tr>
+  <td>1</td>
+  <td><strong>时间优先</strong></td>
+  <td>X在Y<strong>之前</strong>变化，有可测量的滞后</td>
+  <td>cross-correlation 确认 lag</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><strong>统计显著</strong></td>
+  <td>强相关 (|r| &gt; 0.7 Pearson 或 Spearman)，正确滞后</td>
+  <td>feature_summary.json 的相关系数</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><strong>滞后窗口一致性</strong></td>
+  <td>相关在相邻滞后持续存在(≥2个同号滞后 |r| &gt; 0.3×|best_r|)</td>
+  <td>CCF滞后窗口图</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><strong>物理机制</strong></td>
+  <td>来自工艺物理/化学的合理解释 + <span class="rank-3">量级匹配验证</span></td>
+  <td>定量计算 (如热膨胀ΔL=αLΔT)</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><strong>无矛盾</strong></td>
+  <td>包括子组内：主导产品组内方向不反转</td>
+  <td>validate_report.json Simpson's Paradox</td>
+</tr>
+</table>
+
+<p style="color:#facc15;font-size:13px;margin-top:8px">
+  <strong>缺少任意一项 → 使用 [HYPOTHESIS] 语言, 不得使用因果语言</strong>
+</p>
+
+<!-- ===================================================================== -->
+<!-- DECORATIVE FOOTER -->
+<!-- ===================================================================== -->
+<div style="text-align:center;margin-top:48px;padding:24px 0;border-top:1px solid #334155;color:#64748b;font-size:13px">
+  <p>Industrial Deep Diagnostic v6.1.0 · Skill-based Pipeline · Competing Hypotheses Protocol</p>
+  <p>AI-powered root cause analysis for industrial process data</p>
+</div>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'dark',
+  themeVariables:{
+    primaryColor:'#1e293b',
+    primaryTextColor:'#e2e8f0',
+    primaryBorderColor:'#475569',
+    lineColor:'#64748b',
+    secondaryColor:'#334155',
+    tertiaryColor:'#253248',
+    fontSize:'12px'
+  },
+  flowchart:{
+    htmlLabels:true,
+    curve:'basis',
+    padding:8
   }
-}}%%
-
-graph TB
-  classDef step0 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step1 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step2 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step25 fill:#92400e,stroke:#f59e0b,color:#fff,stroke-width:2px,rx:8,ry:8
-  classDef step3 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step4 fill:#4c1d95,stroke:#8b5cf6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step5 fill:#065f46,stroke:#10b981,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step6 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step7 fill:#7c2d12,stroke:#f97316,color:#fff,stroke-width:2px,rx:10,ry:10
-  classDef step8 fill:#5b21b6,stroke:#a78bfa,color:#fff,stroke-width:2px,rx:12,ry:12
-
-  classDef data fill:#0b1120,stroke:#2a3a4a,color:#94a3b8,stroke-dasharray: 3 2,rx:6,ry:6
-
-  %% --- Step 0 ---
-  S0["> Step 0 · Setup Workspace<br/>──────────────"]:::step0
-  S0D["📁 7 subdirs (00-06)<br/>📄 37 artifact files<br/>🐍 Python venv ready"]:::data
-
-  %% --- Step 1 ---
-  S1["> Step 1 · Inspect Data<br/>──────────────"]:::step1
-  S1D["📊 DCS: 777 rows × 2min<br/>🧪 Lab: ~65 quality records<br/>📝 Events: 2 ball additions<br/>🔧 Bearing spike + Meter recal"]:::data
-
-  %% --- Step 2 ---
-  S2["> Step 2 · Context Builder<br/>──────────────"]:::step2
-  S2D["🏭 4 Process Stages<br/>⚙️ 14 Equipment nodes<br/>📡 19 Signals mapped<br/>📂 ontology.json + schema.json"]:::data
-
-  %% --- Step 2.5 ---
-  G25{"> Step 2.5 Clarification Gate<br/>──────────────<br/>❌ No CRITICAL unknowns<br/>✅ SKIP → Step 3"}:::step25
-
-  %% --- Step 3 ---
-  S3["> Step 3 · Data + Viz + Validate<br/>──────────────"]:::step3
-  S3D["📈 11 figures generated<br/>🔬 stats.mjs → feature_summary<br/>✅ stats_validate.mjs → validate_report<br/>⚠️ anomaly_detection → report<br/>🔗 causal_evidence_map.json"]:::data
-
-  %% --- Step 4 ---
-  S4["> Step 4 · Diagnostician<br/>──────────────"]:::step4
-  S4D["🔍 DETERMINED · H1 Root Cause<br/>🎯 Ball/Liner Wear conf=88/100<br/>❌ H2-H6 ALL ELIMINATED<br/>📊 5 vis + 6 num + 3 phys evid."]:::data
-
-  %% --- Step 5 ---
-  S5["> Step 5 · Judge Review<br/>──────────────"]:::step5
-  S5D["⭐ SCORE: 92/100 · PASS<br/>📋 10 criteria all ≥ 8/10<br/>✅ 0 blocking issues<br/>⚠️ 1 minor warning (bearing skew)"]:::data
-
-  %% --- Step 6 ---
-  S6["> Step 6 · Report Generation<br/>──────────────"]:::step6
-  S6D["📝 report.md · 587 lines<br/>📑 20 sections + Appendix<br/>📎 11 figures referenced<br/>🔗 20章 完整诊断报告"]:::data
-
-  %% --- Step 7 ---
-  S7["> Step 7 · Physical Truth Audit<br/>──────────────"]:::step7
-  S7D["🏆 ENDORSED<br/>📊 6-Dimension Score<br/>🔬 Phys verif: P∝D³ ✅<br/>🔧 Confound check: all ✅"]:::data
-
-  %% --- Step 8 ---
-  S8["> Step 8 · Present Results<br/>──────────────"]:::step8
-  S8D["✅ Pipeline COMPLETE<br/>📁 workspace/diagnostic-runs/<br/>📄 artifact-check.mjs OK"]:::data
-
-  %% --- Edges ---
-  S0 --> S1
-  S1 --> S2
-  S2 --> G25
-  G25 -->|"SKIP - no unknowns"| S3
-  S3 --> S4
-  S4 --> S5
-  S5 -->|"PASS ≥90"| S6
-  S6 --> S7
-  S7 -->|"ENDORSED"| S8
-
-  %% --- Data links ---
-  S0 -.- S0D
-  S1 -.- S1D
-  S2 -.- S2D
-  S3 -.- S3D
-  S4 -.- S4D
-  S5 -.- S5D
-  S6 -.- S6D
-  S7 -.- S7D
-  S8 -.- S8D
-</div>
-
-<div class="section-title">📊 统计数据验证结果</div>
-<div class="fail-list">
-  <div class="fail-item green">✅ 时间排序: 100%递增 (776/776)</div>
-  <div class="fail-item green">✅ Simpson悖论: 0个发现 (PASS)</div>
-  <div class="fail-item orange">⚠️ 趋势混淆: 32个关联 (退化场景预期)</div>
-  <div class="fail-item green">✅ 异常值影响: 0个驱动型 (PASS)</div>
-  <div class="fail-item green">✅ Spearman-Pearson: 0个分歧 (PASS)</div>
-  <div class="fail-item green">✅ 变点检测: 1个 (回粉率, 用于结构分析)</div>
-</div>
-
-<div class="section-title">🔬 物理机制验证</div>
-<div class="fail-list">
-  <div class="fail-item green">✅ P∝D³: 理论-27.2% vs 实测-24% (误差3.2%)</div>
-  <div class="fail-item green">✅ 加球自然实验: 功率恢复+60kW, 持续3-5天</div>
-  <div class="fail-item green">✅ 磨损率: 90天8mm (0.089mm/day) 正常范围</div>
-  <div class="fail-item green">✅ 症状完整性: 6/6质量指标同步恶化</div>
-  <div class="fail-item green">✅ 缺失症状: 无 (预测=观测)</div>
-</div>
-
-<div class="section-title">🧪 竞争假设排除 (6个)</div>
-<div class="fail-list">
-  <div class="fail-item green">H1 · 钢球/衬板磨损 → ✅ DETERMINED conf=88/100</div>
-  <div class="fail-item green">H2 · 熟料源切换 → ❌ 分层分析: 加性偏移, 非趋势驱动</div>
-  <div class="fail-item green">H3 · 选粉机故障 → ❌ 反向因果: SP≠PV, 操作补偿行为</div>
-  <div class="fail-item green">H4 · 轴承异常 → ❌ 时间尺度不匹配: 3天 vs 90天</div>
-  <div class="fail-item green">H5 · 水分增加 → ❌ r=0.006, 统计无任何证据</div>
-  <div class="fail-item green">H6 · 传感器故障 → ❌ 质量数据来自独立化验室</div>
-</div>
-
-<div class="section-title">⚡ 核心相关性 (Pearson |r|)</div>
-<div class="grid">
-  <div class="card"><div class="num num-blue">-0.963</div><div class="label">功率 vs 时间</div></div>
-  <div class="card"><div class="num num-blue">+0.829</div><div class="label">功率 vs Blaine</div></div>
-  <div class="card"><div class="num num-blue">+0.859</div><div class="label">功率 vs 28d强度</div></div>
-  <div class="card"><div class="num num-blue">-0.922</div><div class="label">功率 vs 45μm筛余</div></div>
-  <div class="card"><div class="num num-blue">+0.982</div><div class="label">选粉机转速 vs 时间</div></div>
-  <div class="card"><div class="num num-blue">+0.943</div><div class="label">回粉率 vs 时间</div></div>
-  <div class="card"><div class="num num-blue">-0.965</div><div class="label">功率 vs 转速(共线性)</div></div>
-  <div class="card"><div class="num num-blue">-0.946</div><div class="label">磨音传感器(积灰)</div></div>
-</div>
-
-<div class="section-title">📈 Judge 10项评分明细</div>
-<div class="grid">
-  <div class="card"><div class="num num-green">9/10</div><div class="label">数据质量意识</div></div>
-  <div class="card"><div class="num num-green">9/10</div><div class="label">变量分类</div></div>
-  <div class="card"><div class="num num-green">10/10</div><div class="label">时间对齐</div></div>
-  <div class="card"><div class="num num-green">9/10</div><div class="label">可视化质量</div></div>
-  <div class="card"><div class="num num-green">18/20</div><div class="label">证据基础结论</div></div>
-  <div class="card"><div class="num num-green">14/15</div><div class="label">推理链质量</div></div>
-  <div class="card"><div class="num num-green">9/10</div><div class="label">相关vs因果</div></div>
-  <div class="card"><div class="num num-green">9/10</div><div class="label">不确定性披露</div></div>
-  <div class="card"><div class="num num-green">10/10</div><div class="label">无过度宣称</div></div>
-  <div class="card"><div class="num num-green">5/5</div><div class="label">报告质量</div></div>
-</div>
-
-<div class="section-title">🏆 Physical Audit — 6维评分</div>
-<div class="grid">
-  <div class="card"><div class="num num-orange">9/10</div><div class="label">物理合理性</div></div>
-  <div class="card"><div class="num num-orange">9/10</div><div class="label">混杂控制</div></div>
-  <div class="card"><div class="num num-orange">8/10</div><div class="label">统计严谨性</div></div>
-  <div class="card"><div class="num num-orange">10/10</div><div class="label">逻辑一致性</div></div>
-  <div class="card"><div class="num num-orange">9/10</div><div class="label">领域知识深度</div></div>
-  <div class="card"><div class="num num-orange">9/10</div><div class="label">可操作性</div></div>
-</div>
-
-<div class="section-title">💡 置信度分解 (88/100)</div>
-<div class="fail-list">
-  <div class="fail-item blue">+5 · 加球事件后功率部分恢复 (数据探针)</div>
-  <div class="fail-item blue">+5 · 功率-Blaine分层验证 UNIVERSAL</div>
-  <div class="fail-item blue">+5 · 定量物理检查通过: -24% vs -27.2%理论</div>
-  <div class="fail-item blue">+3 · 所有5个竞争假设有排除依据</div>
-  <div class="fail-item blue">-3 · 缺乏直接停磨测量数据</div>
-  <div class="fail-item blue">-2 · 功率-转速共线性 (r=-0.965)</div>
-</div>
-
-<div class="section-title">📁 输出文件明细 (37个)</div>
-<div class="fail-list">
-  <div class="fail-item purple">00_input/ · 7 files (merged DCS+lab, inspection JSONs)</div>
-  <div class="fail-item purple">01_ontology/ · 2 files (ontology.json, schema.json)</div>
-  <div class="fail-item purple">02_processed/ · 9 files (cleaned data, stats, validation, anomaly)</div>
-  <div class="fail-item purple">03_figures/ · 13 files (11 PNG + manifest + captions)</div>
-  <div class="fail-item purple">04_diagnostics/ · 4 files (diagnosis, evidence, confidence, reasoning)</div>
-  <div class="fail-item purple">05_review/ · 1 file (judge_feedback.json · 92/100)</div>
-  <div class="fail-item purple">06_scripts/ · 3 files (preprocess, visualize, anomaly)</div>
-  <div class="fail-item purple">root/ · 4 files (report.md, optimizer.md, run_manifest.json)</div>
-</div>
-
-</div>
+});
+</script>
 
 </body>
 </html>

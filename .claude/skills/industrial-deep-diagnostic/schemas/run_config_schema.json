@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Run Configuration Schema v6.0",
-  "description": "Schema for configuring a v6.0 diagnostic run (Competing Hypotheses Protocol). Adds global iteration caps and repair loop settings.",
+  "title": "Run Configuration Schema v6.2",
+  "description": "Schema for configuring a v6.2 diagnostic run (Competing Hypotheses Protocol + Interaction Mode). Controls whether the pipeline asks the user questions or auto-executes based on prompt heuristics.",
   "type": "object",
   "required": ["data_path"],
   "properties": {
@@ -14,6 +14,12 @@
     "output_dir": {"type": "string", "description": "Override default output directory"},
     "user_objective": {"type": "string", "description": "Specific analysis objective"},
     "known_faults": {"type": "array", "items": {"type": "string"}, "description": "Known fault patterns"},
+    "interaction_mode": {
+      "type": "string",
+      "enum": ["auto", "interactive", "minimal"],
+      "default": "auto",
+      "description": "Controls user interaction level: auto=no questions, auto-execute full pipeline; interactive=ask user when CRITICAL/HIGH unknowns exist (original behavior); minimal=only ask for CRITICAL unknowns, use heuristics for the rest"
+    },
     "analysis_constraints": {
       "type": "object",
       "properties": {
@@ -33,21 +39,21 @@
           "default": 3,
           "minimum": 1,
           "maximum": 3,
-          "description": "v6.0: Max Judge→Diagnostician repair iterations per judge session"
+          "description": "v6.2: Max Judge→Diagnostician repair iterations per judge session"
         },
         "max_reviewer_iterations": {
           "type": "integer",
           "default": 2,
           "minimum": 1,
           "maximum": 2,
-          "description": "v6.0: Max Reviewer repair cycles (each cycle re-runs Diagnostician+Judge+Reporter+Reviewer)"
+          "description": "v6.2: Max Reviewer repair cycles (each cycle re-runs Diagnostician+Judge+Reporter+Reviewer)"
         },
         "global_max_iterations": {
           "type": "integer",
           "default": 5,
           "minimum": 1,
           "maximum": 10,
-          "description": "v6.0: Global cap — total re-diagnosis iterations across ALL repair loops"
+          "description": "v6.2: Global cap — total re-diagnosis iterations across ALL repair loops"
         }
       }
     }

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Scenario Classification Schema v6.0",
+  "description": "Schema for the scenario classification output from Data Processor. Defines the process type and adaptive visualization strategy.",
+  "type": "object",
+  "required": ["scene_type", "process_category", "confidence"],
+  "properties": {
+    "scene_type": {
+      "type": "string",
+      "description": "Human-readable scene name, e.g., 'cement_ball_mill_grinding'"
+    },
+    "process_category": {
+      "type": "string",
+      "enum": ["CNC", "continuous", "batch", "heat_exchange", "quality_inspection", "generic"],
+      "description": "The industrial process category that determines analysis and visualization strategy"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Confidence in the classification. Low if based only on column name heuristics without ontology."
+    },
+    "classification_basis": {
+      "type": "array",
+      "description": "Evidence used for classification",
+      "items": {
+        "type": "string",
+        "enum": ["ontology", "column_name_heuristics", "value_range_patterns", "user_provided"]
+      }
+    },
+    "ontology_available": {
+      "type": "boolean",
+      "description": "Whether ontology.json existed at classification time"
+    },
+    "adaptive_visualization_plan": {
+      "type": "object",
+      "description": "Which visualization strategies apply to this process category",
+      "properties": {
+        "time_series_required": {"type": "boolean", "default": true},
+        "scatter_plots_required": {"type": "boolean", "default": true},
+        "heatmap_required": {"type": "boolean", "default": true},
+        "ccf_lag_analysis": {"type": "boolean", "default": false},
+        "transition_analysis": {"type": "boolean", "default": false},
+        "batch_cycle_overlay": {"type": "boolean", "default": false},
+        "quality_reset_check": {"type": "boolean", "default": false},
+        "custom_strategies": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "expected_physics": {
+      "type": "array",
+      "description": "Expected physical behaviors for this process type, used by Diagnostician",
+      "items": {
+        "type": "string"
+      }
+    },
+    "degradation_candidates": {
+      "type": "array",
+      "description": "Candidates for degradation analysis based on process type",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
