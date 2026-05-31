@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cement Ball Mill — 诊断流水线 · 真实数据</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0b1120; color: #e2e8f0; padding: 24px;
+  }
+  h1 { text-align: center; color: #38bdf8; font-size: 26px; }
+  .subtitle { text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+  .container { max-width: 1400px; margin: 0 auto; background: #1a2332; border-radius: 16px; padding: 24px; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+  .mermaid { background: #1a2332; padding: 16px; border-radius: 12px; overflow-x: auto; }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 10px; padding: 12px 16px; background: #0b1120; border-radius: 8px; border: 1px solid #2a3a4a; font-size: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; color: #b0c4d8; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+
+  .status-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .status-tag { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .tag-pass { background: #065f4620; border: 1px solid #10b981; color: #34d399; }
+  .tag-endorsed { background: #065f4620; border: 1px solid #10b981; color: #34d399; }
+  .tag-determined { background: #1e3a5f20; border: 1px solid #3b82f6; color: #60a5fa; }
+  .tag-high { background: #5b21b620; border: 1px solid #8b5cf6; color: #a78bfa; }
+  .tag-score { background: #7c2d1220; border: 1px solid #f97316; color: #fb923c; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  .card { background: #0b1120; border: 1px solid #2a3a4a; border-radius: 8px; padding: 12px; text-align: center; }
+  .card .num { font-size: 22px; font-weight: 700; }
+  .card .num-blue { color: #38bdf8; }
+  .card .num-green { color: #34d399; }
+  .card .num-purple { color: #a78bfa; }
+  .card .num-orange { color: #fb923c; }
+  .card .label { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+  .section-title { color: #38bdf8; font-size: 14px; font-weight: 600; margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #2a3a4a; }
+  .fail-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px; font-size: 12px; color: #c0d0e0; margin: 6px 0; }
+  .fail-item { padding: 4px 10px; background: #0b1120; border-radius: 4px; border-left: 3px solid; }
+  .fail-item.green { border-color: #10b981; }
+  .fail-item.red { border-color: #ef4444; }
+  .fail-item.purple { border-color: #8b5cf6; }
+  .fail-item.orange { border-color: #f59e0b; }
+  .fail-item.blue { border-color: #3b82f6; }
+</style>
+</head>
+<body>
+
+<h1>🏭 水泥球磨机诊断 · 8步流水线真实数据</h1>
+<p class="subtitle">Run ID: 202605311023059_cement_ball_mill · 2026-05-31 · v6.1.0</p>
+
+<div class="container">
+
+<div class="status-bar">
+  <span class="status-tag tag-pass">✅ Judge PASS 92/100</span>
+  <span class="status-tag tag-endorsed">✅ Audit ENDORSED</span>
+  <span class="status-tag tag-determined">🔍 DETERMINED</span>
+  <span class="status-tag tag-high">📊 Confidence 88/100 HIGH</span>
+  <span class="status-tag tag-score">📈 Score 6/6 dim ≥ 8</span>
+</div>
+
+<div class="mermaid">
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'background': '#1a2332',
+    'primaryColor': '#1e3a5f',
+    'primaryBorderColor': '#3b82f6',
+    'primaryTextColor': '#e2e8f0',
+    'lineColor': '#475569',
+    'secondaryColor': '#1a2332',
+    'tertiaryColor': '#0b1120',
+    'mainBkg': '#1a2332',
+    'nodeBorder': '#475569',
+    'clusterBkg': '#0b1120',
+    'clusterBorder': '#2a3a4a',
+    'titleColor': '#e2e8f0',
+    'edgeLabelBackground': '#1a2332',
+    'nodePadding': 12
+  }
+}}%%
+
+graph TB
+  classDef step0 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step1 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step2 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step25 fill:#92400e,stroke:#f59e0b,color:#fff,stroke-width:2px,rx:8,ry:8
+  classDef step3 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step4 fill:#4c1d95,stroke:#8b5cf6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step5 fill:#065f46,stroke:#10b981,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step6 fill:#1e3a5f,stroke:#3b82f6,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step7 fill:#7c2d12,stroke:#f97316,color:#fff,stroke-width:2px,rx:10,ry:10
+  classDef step8 fill:#5b21b6,stroke:#a78bfa,color:#fff,stroke-width:2px,rx:12,ry:12
+
+  classDef data fill:#0b1120,stroke:#2a3a4a,color:#94a3b8,stroke-dasharray: 3 2,rx:6,ry:6
+
+  %% --- Step 0 ---
+  S0["> Step 0 · Setup Workspace<br/>──────────────"]:::step0
+  S0D["📁 7 subdirs (00-06)<br/>📄 37 artifact files<br/>🐍 Python venv ready"]:::data
+
+  %% --- Step 1 ---
+  S1["> Step 1 · Inspect Data<br/>──────────────"]:::step1
+  S1D["📊 DCS: 777 rows × 2min<br/>🧪 Lab: ~65 quality records<br/>📝 Events: 2 ball additions<br/>🔧 Bearing spike + Meter recal"]:::data
+
+  %% --- Step 2 ---
+  S2["> Step 2 · Context Builder<br/>──────────────"]:::step2
+  S2D["🏭 4 Process Stages<br/>⚙️ 14 Equipment nodes<br/>📡 19 Signals mapped<br/>📂 ontology.json + schema.json"]:::data
+
+  %% --- Step 2.5 ---
+  G25{"> Step 2.5 Clarification Gate<br/>──────────────<br/>❌ No CRITICAL unknowns<br/>✅ SKIP → Step 3"}:::step25
+
+  %% --- Step 3 ---
+  S3["> Step 3 · Data + Viz + Validate<br/>──────────────"]:::step3
+  S3D["📈 11 figures generated<br/>🔬 stats.mjs → feature_summary<br/>✅ stats_validate.mjs → validate_report<br/>⚠️ anomaly_detection → report<br/>🔗 causal_evidence_map.json"]:::data
+
+  %% --- Step 4 ---
+  S4["> Step 4 · Diagnostician<br/>──────────────"]:::step4
+  S4D["🔍 DETERMINED · H1 Root Cause<br/>🎯 Ball/Liner Wear conf=88/100<br/>❌ H2-H6 ALL ELIMINATED<br/>📊 5 vis + 6 num + 3 phys evid."]:::data
+
+  %% --- Step 5 ---
+  S5["> Step 5 · Judge Review<br/>──────────────"]:::step5
+  S5D["⭐ SCORE: 92/100 · PASS<br/>📋 10 criteria all ≥ 8/10<br/>✅ 0 blocking issues<br/>⚠️ 1 minor warning (bearing skew)"]:::data
+
+  %% --- Step 6 ---
+  S6["> Step 6 · Report Generation<br/>──────────────"]:::step6
+  S6D["📝 report.md · 587 lines<br/>📑 20 sections + Appendix<br/>📎 11 figures referenced<br/>🔗 20章 完整诊断报告"]:::data
+
+  %% --- Step 7 ---
+  S7["> Step 7 · Physical Truth Audit<br/>──────────────"]:::step7
+  S7D["🏆 ENDORSED<br/>📊 6-Dimension Score<br/>🔬 Phys verif: P∝D³ ✅<br/>🔧 Confound check: all ✅"]:::data
+
+  %% --- Step 8 ---
+  S8["> Step 8 · Present Results<br/>──────────────"]:::step8
+  S8D["✅ Pipeline COMPLETE<br/>📁 workspace/diagnostic-runs/<br/>📄 artifact-check.mjs OK"]:::data
+
+  %% --- Edges ---
+  S0 --> S1
+  S1 --> S2
+  S2 --> G25
+  G25 -->|"SKIP - no unknowns"| S3
+  S3 --> S4
+  S4 --> S5
+  S5 -->|"PASS ≥90"| S6
+  S6 --> S7
+  S7 -->|"ENDORSED"| S8
+
+  %% --- Data links ---
+  S0 -.- S0D
+  S1 -.- S1D
+  S2 -.- S2D
+  S3 -.- S3D
+  S4 -.- S4D
+  S5 -.- S5D
+  S6 -.- S6D
+  S7 -.- S7D
+  S8 -.- S8D
+</div>
+
+<div class="section-title">📊 统计数据验证结果</div>
+<div class="fail-list">
+  <div class="fail-item green">✅ 时间排序: 100%递增 (776/776)</div>
+  <div class="fail-item green">✅ Simpson悖论: 0个发现 (PASS)</div>
+  <div class="fail-item orange">⚠️ 趋势混淆: 32个关联 (退化场景预期)</div>
+  <div class="fail-item green">✅ 异常值影响: 0个驱动型 (PASS)</div>
+  <div class="fail-item green">✅ Spearman-Pearson: 0个分歧 (PASS)</div>
+  <div class="fail-item green">✅ 变点检测: 1个 (回粉率, 用于结构分析)</div>
+</div>
+
+<div class="section-title">🔬 物理机制验证</div>
+<div class="fail-list">
+  <div class="fail-item green">✅ P∝D³: 理论-27.2% vs 实测-24% (误差3.2%)</div>
+  <div class="fail-item green">✅ 加球自然实验: 功率恢复+60kW, 持续3-5天</div>
+  <div class="fail-item green">✅ 磨损率: 90天8mm (0.089mm/day) 正常范围</div>
+  <div class="fail-item green">✅ 症状完整性: 6/6质量指标同步恶化</div>
+  <div class="fail-item green">✅ 缺失症状: 无 (预测=观测)</div>
+</div>
+
+<div class="section-title">🧪 竞争假设排除 (6个)</div>
+<div class="fail-list">
+  <div class="fail-item green">H1 · 钢球/衬板磨损 → ✅ DETERMINED conf=88/100</div>
+  <div class="fail-item green">H2 · 熟料源切换 → ❌ 分层分析: 加性偏移, 非趋势驱动</div>
+  <div class="fail-item green">H3 · 选粉机故障 → ❌ 反向因果: SP≠PV, 操作补偿行为</div>
+  <div class="fail-item green">H4 · 轴承异常 → ❌ 时间尺度不匹配: 3天 vs 90天</div>
+  <div class="fail-item green">H5 · 水分增加 → ❌ r=0.006, 统计无任何证据</div>
+  <div class="fail-item green">H6 · 传感器故障 → ❌ 质量数据来自独立化验室</div>
+</div>
+
+<div class="section-title">⚡ 核心相关性 (Pearson |r|)</div>
+<div class="grid">
+  <div class="card"><div class="num num-blue">-0.963</div><div class="label">功率 vs 时间</div></div>
+  <div class="card"><div class="num num-blue">+0.829</div><div class="label">功率 vs Blaine</div></div>
+  <div class="card"><div class="num num-blue">+0.859</div><div class="label">功率 vs 28d强度</div></div>
+  <div class="card"><div class="num num-blue">-0.922</div><div class="label">功率 vs 45μm筛余</div></div>
+  <div class="card"><div class="num num-blue">+0.982</div><div class="label">选粉机转速 vs 时间</div></div>
+  <div class="card"><div class="num num-blue">+0.943</div><div class="label">回粉率 vs 时间</div></div>
+  <div class="card"><div class="num num-blue">-0.965</div><div class="label">功率 vs 转速(共线性)</div></div>
+  <div class="card"><div class="num num-blue">-0.946</div><div class="label">磨音传感器(积灰)</div></div>
+</div>
+
+<div class="section-title">📈 Judge 10项评分明细</div>
+<div class="grid">
+  <div class="card"><div class="num num-green">9/10</div><div class="label">数据质量意识</div></div>
+  <div class="card"><div class="num num-green">9/10</div><div class="label">变量分类</div></div>
+  <div class="card"><div class="num num-green">10/10</div><div class="label">时间对齐</div></div>
+  <div class="card"><div class="num num-green">9/10</div><div class="label">可视化质量</div></div>
+  <div class="card"><div class="num num-green">18/20</div><div class="label">证据基础结论</div></div>
+  <div class="card"><div class="num num-green">14/15</div><div class="label">推理链质量</div></div>
+  <div class="card"><div class="num num-green">9/10</div><div class="label">相关vs因果</div></div>
+  <div class="card"><div class="num num-green">9/10</div><div class="label">不确定性披露</div></div>
+  <div class="card"><div class="num num-green">10/10</div><div class="label">无过度宣称</div></div>
+  <div class="card"><div class="num num-green">5/5</div><div class="label">报告质量</div></div>
+</div>
+
+<div class="section-title">🏆 Physical Audit — 6维评分</div>
+<div class="grid">
+  <div class="card"><div class="num num-orange">9/10</div><div class="label">物理合理性</div></div>
+  <div class="card"><div class="num num-orange">9/10</div><div class="label">混杂控制</div></div>
+  <div class="card"><div class="num num-orange">8/10</div><div class="label">统计严谨性</div></div>
+  <div class="card"><div class="num num-orange">10/10</div><div class="label">逻辑一致性</div></div>
+  <div class="card"><div class="num num-orange">9/10</div><div class="label">领域知识深度</div></div>
+  <div class="card"><div class="num num-orange">9/10</div><div class="label">可操作性</div></div>
+</div>
+
+<div class="section-title">💡 置信度分解 (88/100)</div>
+<div class="fail-list">
+  <div class="fail-item blue">+5 · 加球事件后功率部分恢复 (数据探针)</div>
+  <div class="fail-item blue">+5 · 功率-Blaine分层验证 UNIVERSAL</div>
+  <div class="fail-item blue">+5 · 定量物理检查通过: -24% vs -27.2%理论</div>
+  <div class="fail-item blue">+3 · 所有5个竞争假设有排除依据</div>
+  <div class="fail-item blue">-3 · 缺乏直接停磨测量数据</div>
+  <div class="fail-item blue">-2 · 功率-转速共线性 (r=-0.965)</div>
+</div>
+
+<div class="section-title">📁 输出文件明细 (37个)</div>
+<div class="fail-list">
+  <div class="fail-item purple">00_input/ · 7 files (merged DCS+lab, inspection JSONs)</div>
+  <div class="fail-item purple">01_ontology/ · 2 files (ontology.json, schema.json)</div>
+  <div class="fail-item purple">02_processed/ · 9 files (cleaned data, stats, validation, anomaly)</div>
+  <div class="fail-item purple">03_figures/ · 13 files (11 PNG + manifest + captions)</div>
+  <div class="fail-item purple">04_diagnostics/ · 4 files (diagnosis, evidence, confidence, reasoning)</div>
+  <div class="fail-item purple">05_review/ · 1 file (judge_feedback.json · 92/100)</div>
+  <div class="fail-item purple">06_scripts/ · 3 files (preprocess, visualize, anomaly)</div>
+  <div class="fail-item purple">root/ · 4 files (report.md, optimizer.md, run_manifest.json)</div>
+</div>
+
+</div>
+
+</body>
+</html>
