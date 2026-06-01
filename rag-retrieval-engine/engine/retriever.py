@@ -4,7 +4,7 @@ Knowledge Retriever — Local (ChromaDB) + Web (WebSearchEngine) retrieval with 
 
 import json, time, re, hashlib
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from .models import KnowledgeChunk, ChunkSource, RetrievalResult
 from .web_search import WebSearchEngine
 
@@ -163,6 +163,35 @@ class KnowledgeRetriever:
                 all_chunks.extend(chunks)
             except Exception as e:
                 errors.append(f"[{perspective}] {e}")
+
+        # Auto-escalation: if local results are insufficient, trigger
+        # expanded web queries targeting knowledge gaps in the column names.
+        if mode in ("hybrid", "web_only") and len(all_chunks) < self.top_k * 4:
+            # Build expanded queries for the specific scenario
+            gap_cols = []
+            local_param_cols = set()
+            for c in all_chunks:
+                for t in c.parameter_tags:
+                    local_param_cols.add(t.lower())
+            # Find columns not covered by local results
+            for col in param_cols + target_cols:
+                col_lower = col.lower().replace("_", " ")
+                if not any(col_lower in tag or tag in col_lower for tag in local_param_cols):
+                    gap_cols.append(col)
+
+            # Generate expanded web queries
+            from .web_search import WebSearchEngine
+            expanded = WebSearchEngine.build_expanded_queries(
+                scenario, param_cols, target_cols, gap_cols)
+            for i, eq in enumerate(expanded[:3]):
+                try:
+                    web_chunks = self._retrieve_web(eq, f"expanded_{i}")
+                    for c in web_chunks:
+                        c.perspective = f"auto_escalated_{i}"
+                        c.retrieval_query = eq
+                    all_chunks.extend(web_chunks)
+                except Exception as e:
+                    errors.append(f"[expanded_{i}] {e}")
 
         # Deduplicate
         unique = self._deduplicate(all_chunks)

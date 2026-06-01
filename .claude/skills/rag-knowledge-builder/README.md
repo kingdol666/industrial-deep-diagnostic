@@ -1,52 +1,47 @@
 # RAG Knowledge Builder
 
-A pluggable RAG engine for industrial diagnostic scenarios. Retrieves domain knowledge from local vector DB and web search, scores relevance with 5-dimensional metrics, and builds structured ontology drafts for downstream diagnostic agents.
+A pluggable RAG skill for industrial diagnostic scenarios. Called via `Skill()` tool from `industrial-deep-diagnostic` context-builder agent, or used standalone to build knowledge ontology from ChromaDB + web search.
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+# Start the RAG engine
+cd rag-retrieval-engine && uv sync && uv run python server.py &
 
-# 2. Initialize knowledge base (one-time)
-python scripts/kb_build.py --init --skill-path ../industrial-deep-diagnostic
+# Build knowledge index
+curl -X POST http://localhost:8765/index -H "Content-Type: application/json" -d '{}'
 
-# 3. Retrieve knowledge for a diagnostic scenario
-python scripts/kb_retrieve.py \
+# Run full pipeline (retrieve + score + inject)
+uv run python scripts/rag_client.py pipeline \
   --scenario "CNC machining" \
   --target-cols "surface_roughness_Ra_um,thermal_deviation_mm" \
   --param-cols "spindle_vibration_mm_s,spindle_temp_C,tool_age_parts" \
-  --mode hybrid \
-  --output /tmp/results.json
-
-# 4. Score relevance
-python scripts/kb_score.py \
-  --input /tmp/results.json \
-  --context /tmp/context.json \
-  --output /tmp/scored.json
-
-# 5. Build ontology draft
-python scripts/kb_inject.py \
-  --scored /tmp/scored.json \
-  --manifest input_manifest.json \
-  --output ontology_draft.json
+  --output-dir /tmp/output
+# → /tmp/output/00_input/rag_ontology_draft.json
 ```
 
 ## Architecture
 
 ```
-Knowledge Sources         Retrieval          Scoring          Output
-─────────────────     ──────────────     ─────────────     ─────────────
-Local references  ──┐
-(static KB)         │   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-                     ├──►│ kb_retrieve  │──►│  kb_score    │──►│  kb_inject   │
-Web search       ───┘   │ 4-perspective│   │ 5-dimension  │   │ Schema-driven│
-(open-websearch)       │ multi-query  │   │ scoring      │   │ ontology     │
-                     │               │   │ gate: ≥0.65  │   │ injection    │
-Verified past       ──►│               │   │               │   │               │
-diagnoses (high      │               │   │               │   │               │
-confidence only)     └──────────────┘   └──────────────┘   └──────────────┘
+Calling skill ──Skill()──►  rag-knowledge-builder skill (this skill)
+                                │
+                                ├── rag_client.py start    (auto-start engine)
+                                └── rag_client.py pipeline  (POST /pipeline/full)
+                                                              │
+                                        rag-retrieval-engine  │
+                                          ├── /retrieve  → ChromaDB + DuckDuckGo
+                                          ├── /score     → 5-dimension quality gates
+                                          └── /inject    → Schema-driven ontology build
 ```
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `rag_client.py start` | Auto-start RAG engine (if not running) |
+| `rag_client.py health` | Check engine status |
+| `rag_client.py pipeline` | Full retrieve + score + inject |
+| `rag_client.py web-search` | Standalone web search (DuckDuckGo) |
 
 ## Scoring Metrics
 
@@ -54,13 +49,13 @@ confidence only)     └──────────────┘   └─�
 |-----------|:------:|------------------|
 | D1 Semantic Relevance | 30% | Content-to-context embedding similarity |
 | D2 Parameter Match | 25% | Column names appearing in knowledge chunk |
-| D3 Scenario Consistency | 20% | Process type tag matching |
+| D3 Scenario Consistency | 20% | Process type tag matching (word-overlap based) |
 | D4 Source Credibility | 15% | local_reference(10) > web_authoritative(6) > web_general(3) |
 | D5 Cross-Reference Count | 10% | Independent source confirmations |
 
 ## Integration
 
-Designed to plug into `industrial-deep-diagnostic` Step 2 — inject `ontology_draft.json` before context-builder runs. See `resources/integration_guide.md` for details.
+Designed to be called by `industrial-deep-diagnostic` context-builder via `Skill({skill: "rag-knowledge-builder", args: "..."})`. Writes ontology draft to `$RUN_DIR/00_input/rag_ontology_draft.json`.
 
 ## License
 

@@ -197,43 +197,97 @@ class WebSearchEngine:
     # Normalization
     # ═══════════════════════════════════════════════════════════
 
+    
+    @staticmethod
+    def _score_content_quality(title: str, snippet: str, url: str) -> float:
+        """Score web content from 0.0 (noise) to 1.0 (high-value technical).
+        Three factors: technical density, noise penalties, domain authority."""
+        import re as reassign
+        text = (title + " " + snippet).lower()
+        score = 0.0
+        # Technical signal patterns
+        tech_patterns = [
+            r'\d+[°]\w', r'\d+\.\d+\s*(mm|um|nm|kg|bar|MPa|kW|rpm|Hz)',
+            r'temperature|pressure|vibration|speed|flow|concentration',
+            r'parameter|threshold|coefficient|ratio|yield|conversion',
+            r'thermal|kinetics|balance|gradient|combustion|sintering',
+            r'clinker|cement|kiln|furnace|reactor|exchanger',
+            r'acceleration|frequency|amplitude|modulus|tensile',
+        ]
+        tech_hits = sum(1 for p in tech_patterns if reassign.search(p, text))
+        score += min(0.6, tech_hits * 0.06)
+        # Noise penalties
+        noise_patterns = [r'top\s+\d+', r'click\s+here', r'sponsored',
+            r'buy\s+now', r'subscribe', r'casino', r'SEO', r'affiliate']
+        for p in noise_patterns:
+            if reassign.search(p, text): score -= 0.15
+        if len(snippet.split()) < 15: score -= 0.1
+        if not reassign.search(r'\d', snippet): score -= 0.1
+        # Domain boost
+        url_lower = url.lower()
+        for d in ['wikipedia', '.edu', '.gov', 'iso.org', 'researchgate']:
+            if d in url_lower: score += 0.2; break
+        for d in ['amazon.', 'ebay.', 'aliexpress.', 'pinterest.']:
+            if d in url_lower: score -= 0.3; break
+        return max(0.0, min(1.0, score))
+
+    # --- Auto-escalation query enhancement ---
+    @staticmethod
+    def build_expanded_queries(scenario: str, param_cols: list,
+                                target_cols: list, gaps: list) -> list:
+        """Generate expanded web queries when local KB results are insufficient.
+        Focuses on knowledge gaps to get the most useful information."""
+        queries = []
+        # Query 1: General scenario + key targets
+        targets = " ".join(target_cols[:3])
+        params = " ".join(param_cols[:4])
+        queries.append(f"{targets} {scenario} root cause analysis diagnosis")
+        # Query 2: Parameter physical meaning
+        if param_cols:
+            queries.append(f"{' '.join(param_cols[:6])} physical meaning measurement unit")
+        # Query 3: Knowledge gaps
+        if gaps:
+            queries.append(f"{' '.join(gaps[:4])} meaning in {scenario}")
+        # Query 4: Fault patterns
+        if targets:
+            queries.append(f"{targets} degradation failure mechanism troubleshooting")
+        return queries
+
+    # ═══════════════════════════════════════════════════════════
+    # Normalization (with content quality filter)
+    # ═══════════════════════════════════════════════════════════
+
     def _normalize_chunks(self, raw_results: List[dict],
-                          query: str, perspective: str) -> List[KnowledgeChunk]:
-        """Convert raw search results into KnowledgeChunk objects."""
-        chunks = []
-        for i, item in enumerate(raw_results[:self.max_results_per_query]):
-            url = item.get("url", item.get("link", ""))
-            title = item.get("title", item.get("name", ""))
-            snippet = item.get("snippet", item.get("description",
-                          item.get("text", item.get("summary", ""))))
-
-            if not snippet or len(snippet.strip()) < 30:
-                continue
-
-            chunk_id = f"web_{hashlib.md5(url.encode()).hexdigest()[:12]}"
-            source_type = self._classify_source(url)
-
-            chunks.append(KnowledgeChunk(
-                chunk_id=chunk_id,
-                content=f"Title: {title}\nSource: {url}\n\n{snippet.strip()}",
-                content_preview=snippet.strip()[:300],
-                source=ChunkSource(
-                    type=SourceType(source_type),
-                    url=url,
-                    title=title,
-                ),
-                scenario_tags=self._guess_scenarios(snippet + " " + title),
-                parameter_tags=self._extract_parameter_mentions(snippet + " " + title),
-                mechanism_type=self._guess_mechanism_type(snippet + " " + title),
-                semantic_score=None,  # Web chunks — scored later by LLM or keyword overlap
-                perspective=perspective,
-                retrieval_query=query,
-            ))
-        return chunks
-
-    # ═══════════════════════════════════════════════════════════
-    # Content classification helpers
-    # ═══════════════════════════════════════════════════════════
+                              query: str, perspective: str) -> List[KnowledgeChunk]:
+            """Convert raw search results, applying content quality filter.
+            Only chunks with quality_score >= 0.30 are kept."""
+            chunks = []
+            for i, item in enumerate(raw_results[:self.max_results_per_query * 2]):
+                url = item.get("url", item.get("link", ""))
+                title = item.get("title", item.get("name", ""))
+                snippet = item.get("snippet", item.get("description",
+                              item.get("text", item.get("summary", ""))))
+                if not snippet or len(snippet.strip()) < 30: continue
+                # Content quality gate
+                quality = self._score_content_quality(title, snippet, url)
+                if quality < 0.30: continue
+                chunk_id = f"web_{hashlib.md5(url.encode()).hexdigest()[:12]}"
+                source_type = self._classify_source(url)
+                chunks.append(KnowledgeChunk(
+                    chunk_id=chunk_id,
+                    content=f"Title: {title}\nSource: {url}\n\n{snippet.strip()}",
+                    content_preview=snippet.strip()[:300],
+                    source=ChunkSource(type=SourceType(source_type), url=url, title=title),
+                    scenario_tags=self._guess_scenarios(snippet+" "+title),
+                    parameter_tags=self._extract_parameter_mentions(snippet+" "+title),
+                    mechanism_type=self._guess_mechanism_type(snippet+" "+title),
+                    semantic_score=None, perspective=perspective, retrieval_query=query,
+                    content_quality_score=quality,
+                ))
+            return chunks
+        # ═══════════════════════════════════════════════════════════
+        # Content classification helpers
+        # ═══════════════════════════════════════════════════════════
 
     @staticmethod
     def _classify_source(url: str) -> str:

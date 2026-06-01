@@ -144,6 +144,7 @@ class KnowledgeChunk(BaseModel):
     semantic_score: Optional[float] = None
     perspective: Optional[str] = None
     retrieval_query: Optional[str] = None
+    content_quality_score: Optional[float] = None
 
 
 class RetrievalResult(BaseModel):

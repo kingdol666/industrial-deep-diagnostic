@@ -1,0 +1,64 @@
+{
+  "skill_name": "rag-knowledge-builder",
+  "schema_version": "1.0",
+  "description": "Formal evaluation suite for the rag-knowledge-builder skill. Tests retrieval accuracy, scoring quality gates, ontology injection completeness, and web search integration.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "CNC_retrieval_accuracy",
+      "prompt": "检索 CNC 主轴轴承退化的相关知识并构建本体",
+      "expected_output": "ontology_draft.json 包含 spindle_vibration 的物理含义、因果链和混杂因子",
+      "files": [],
+      "metadata": {
+        "scenario_type": "CNC machining",
+        "retrieval_mode": "local_only",
+        "expected_min_relationships": 5,
+        "expected_min_match_rate": 80,
+        "checks": ["parameter meanings match column names", "causal chains have governing equations", "confounders identified"]
+      },
+      "assertions": [
+        {"name": "retrieves_knowledge_chunks", "jsonpath": "$.total_chunks_retrieved", "expected_type": "numeric_gte", "expected_values": [3], "weight": "critical", "description": "至少检索到 3 个知识块"},
+        {"name": "injects_relationships", "jsonpath": "$.relationships.length()", "expected_type": "numeric_gte", "expected_values": [5], "weight": "critical", "description": "注入至少 5 条因果链"},
+        {"name": "identifies_confounders", "jsonpath": "$.confounders.length()", "expected_type": "numeric_gte", "expected_values": [2], "weight": "high", "description": "识别至少 2 个混杂因子"},
+        {"name": "match_rate_above_80", "jsonpath": "$.rag_injection_metadata.match_rate_pct", "expected_type": "numeric_gte", "expected_values": [80], "weight": "high", "description": "列匹配率 >= 80%"},
+        {"name": "scene_has_process_type", "jsonpath": "$.scene.process_type", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "场景描述存在"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unknown_scenario_fallback",
+      "prompt": "检索一个数据库中没有的新兴工业领域知识并尝试构建本体",
+      "expected_output": "即使没有精确匹配，也应返回 0++ 个 chunk，3-5 条通用因果链，match_rate >= 60%",
+      "files": [],
+      "metadata": {
+        "scenario_type": "generic novel process",
+        "retrieval_mode": "local_only",
+        "expected_min_relationships": 3,
+        "expected_min_match_rate": 50,
+        "checks": ["graceful fallback for unknown columns", "generic relationships still useful"]
+      },
+      "assertions": [
+        {"name": "no_crash_on_unknown", "jsonpath": "$.relationships", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "即使无精确匹配也不崩溃"},
+        {"name": "some_relationships_returned", "jsonpath": "$.relationships.length()", "expected_type": "numeric_gte", "expected_values": [2], "weight": "high", "description": "至少返回 2 条通用因果链"},
+        {"name": "injection_metadata_present", "jsonpath": "$.rag_injection_metadata", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "注入元数据始终存在"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "web_search_integration",
+      "prompt": "通过 web 搜索获取外部知识并用于本体构建",
+      "expected_output": "web 搜索返回至少 1 个结果并可以与本地结果合并",
+      "files": [],
+      "metadata": {
+        "scenario_type": "generic",
+        "retrieval_mode": "web_only",
+        "expected_min_results": 1,
+        "checks": ["web search returns results", "results normalized to KnowledgeChunk format"]
+      },
+      "assertions": [
+        {"name": "web_returns_results", "jsonpath": "$.total_chunks_retrieved", "expected_type": "numeric_gte", "expected_values": [1], "weight": "critical", "description": "web 搜索返回至少 1 个结果"},
+        {"name": "source_marked_web", "jsonpath": "$.chunks[0].source.type", "expected_type": "contains_any", "expected_values": ["web_authoritative", "web_general"], "weight": "high", "description": "结果标记为 web 来源"}
+      ]
+    }
+  ]
+}

@@ -82,27 +82,25 @@ This skill uses progressive loading. Read only what each step needs:
 ## Pipeline Overview
 
 ```
-                  ┌──────────────────────────────────────────┐
-                  │     RAG KNOWLEDGE BUILDER PIPELINE       │
-                  └──────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│              RAG KNOWLEDGE BUILDER PIPELINE               │
+│  (All phases handled internally by the engine API)        │
+└──────────────────────────────────────────────────────────┘
 
-Phase 0: Preparation
-  ├── kb_build.py --init          ← One-time: index static resources
-  └── kb_build.py --verify        ← Verify KB integrity
+Phase 0: Engine Startup
+  ├── rag_client.py start      ← Auto-start rag-retrieval-engine (uv run)
+  └── curl POST /index          ← Build knowledge index from config.yaml sources
 
-Phase 1: Retrieval (parallel)
-  ├── kb_retrieve.py --local      ← ChromaDB semantic search
-  └── kb_retrieve.py --web        ← open-websearch + structured extraction
+Phase 1-3: Atomic Pipeline (single HTTP POST)
+  └── rag_client.py pipeline    ← /pipeline/full → retrieve + score + inject
 
-Phase 2: Scoring & Filtering
-  └── kb_score.py                 ← 5-dimension scoring + gate
-
-Phase 3: Ontology Construction
-  └── kb_inject.py                ← Schema-driven knowledge → ontology draft
-
-Phase 4: Quality Verification
-  └── Quality Gate                ← Score threshold + cross-reference check
+  Internal engine phases:
+    1. Retriever  — 4-perspective multi-query (ChromaDB + optionally Web)
+    2. Scorer     — 5-dimension evaluation + quality gates
+    3. Injector   — Schema-driven mapping → ontology_draft.json
 ```
+
+(All backend logic lives in rag-retrieval-engine/engine/. The Knowledge Builder skill only orchestrates.)
 
 ---
 
@@ -152,7 +150,7 @@ uv run python scripts/rag_client.py pipeline \
 ```
 
 **Key design principles** (detailed in agent files):
-- **Retrieval**: 4-perspective queries auto-generated from column names. Local ChromaDB + Web (via open-websearch daemon)
+- **Retrieval**: 4-perspective queries auto-generated from column names. Local ChromaDB + Web (via DuckDuckGo ddgs library, no API key)
 - **Scoring**: 5-dimension relevance evaluation with quality gates (≥8.5 CRITICAL, ≥7.0 ACCEPTED, ≥6.5 CONDITIONAL, rest REJECTED)
 - **Injection**: Schema-driven mapping of scored chunks to ontology fields
 
@@ -166,18 +164,6 @@ The 5-dimension scoring rubric and quality gate logic lives in `agents/scoring-a
 ### Ontology Injection
 
 The engine's `engine/injector.py` maps scored chunks to the diagnostic skill's `ontology_schema.json` v6.2. Each injection is traceable to its source chunk via `knowledge_source` and `injected_from_chunk` fields. See `agents/ontology-builder.md` for the full mapping specification.
-
----
-
-## Commands
-
-| Command | Action |
-|---------|--------|
-| `/rag-knowledge-builder init` | Initialize KB: index all static resources via engine API |
-| `/rag-knowledge-builder retrieve` | Retrieval + Scoring + Injection (full pipeline) |
-| `/rag-knowledge-builder search <query>` | Ad-hoc semantic search via engine API |
-| `/rag-knowledge-builder verify` | Verify KB integrity and knowledge coverage |
-| `/rag-knowledge-builder inject <run_dir>` | Inject knowledge into an existing diagnostic run |
 
 ---
 
@@ -236,5 +222,3 @@ The skill supports **live web search** via the `rag-retrieval-engine` (DuckDuckG
 | `resources/ontology_templates.md` | Phase 3 | Pre-defined extraction templates per scenario |
 | `resources/indexing_guide.md` | Phase 0 | Chunking strategy + metadata design |
 | `resources/integration_guide.md` | Before diagnosing | How to connect to diagnostic skill |
-| `resources/scoring_rubric.md` | Phase 2 | Detailed scoring examples + edge cases |
-| `resources/ontology_templates.md` | Phase 3 | Pre-defined extraction templates per scenario |
