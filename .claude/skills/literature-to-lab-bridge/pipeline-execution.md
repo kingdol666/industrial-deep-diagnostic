@@ -70,7 +70,83 @@ Write initial `bridge_manifest.json`:
 }
 ```
 
-### Step 1: Phase 1 — Literature Search & Extraction
+### Step 1: Phase 0 — Multi-Round Literature Search (NEW v2.0)
+
+#### 1.1 Generate Search Queries
+
+Based on user input, construct 4 rounds of search queries:
+
+```python
+def build_search_rounds(user_input: str, domain: str) -> list[dict]:
+    core_keywords = extract_keywords(user_input)
+    return [
+        {
+            "round": 1,
+            "name": "Core",
+            "query": f"{core_keywords['material']} {core_keywords['property']} {core_keywords['condition']}",
+            "expected_hits": "8-15"
+        },
+        {
+            "round": 2,
+            "name": "Expanded",
+            "query": f"({core_keywords['material']} OR {get_synonym(core_keywords['material'])}) {core_keywords['property']}",
+            "expected_hits": "10-20"
+        },
+        {
+            "round": 3,
+            "name": "Deep Dive",
+            "query": f"{core_keywords['material']} {core_keywords['mechanism']} degradation",
+            "expected_hits": "8-15"
+        },
+        {
+            "round": 4,
+            "name": "Quality",
+            "query": f"{core_keywords['material']} review {core_keywords['property']} recent",
+            "expected_hits": "10-15"
+        }
+    ]
+```
+
+#### 1.2 Execute Rounds
+
+Each round uses `WebSearch` tool. Results are collected, deduplicated by title, and merged:
+
+```python
+all_papers = []
+seen_titles = set()
+
+for round_config in search_rounds:
+    results = web_search(round_config["query"])
+    for paper in results:
+        if paper["title"] not in seen_titles:
+            seen_titles.add(paper["title"])
+            paper["discovery_round"] = round_config["round"]
+            paper["relevance_score"] = compute_relevance(paper, user_input)
+            all_papers.append(paper)
+
+# Papers appearing in multiple rounds get higher relevance
+for paper in all_papers:
+    if paper["title"] in multi_round_titles:
+        paper["relevance_score"] += 0.2
+```
+
+#### 1.3 Output
+
+```json
+// phase0_output/search_rounds.json
+{
+  "rounds": [
+    {"round": 1, "query": "...", "results": 12, "unique_new": 12},
+    {"round": 2, "query": "...", "results": 15, "unique_new": 8},
+    {"round": 3, "query": "...", "results": 10, "unique_new": 6},
+    {"round": 4, "query": "...", "results": 8, "unique_new": 3}
+  ],
+  "total_unique_papers": 29,
+  "total_after_quality_filter": 22
+}
+```
+
+### Step 2: Phase 1 — Literature Extraction & Normalization
 
 #### 1.1 Determine Input Source
 
@@ -248,7 +324,77 @@ If gate fails, present the gate report to user:
 
 Update manifest with `quality_gate.status: "failed"` and wait for user input.
 
-### Step 3: Data Transformation
+### Step 3: Phase 1.5 — Gap Verification (NEW v2.0)
+
+#### 3.1 Purpose
+
+After quality gate passes, verify each identified research gap against the actual literature data to:
+- **Reject false gaps** (actually well-studied but missed by initial search)
+- **Score true gaps** by novelty (0-10), evidence grade (A-E), and research value (0-10)
+- **Prioritize** only high-value verified gaps for Phase 3 recommendation generation
+
+#### 3.2 Execute Gap Verifier
+
+```bash
+python "$BRIDGE_SKILL/scripts/gap_verifier.py" \
+  --gaps "$RUN_DIR/phase1_output/07_summary/literature_summary.json" \
+  --experiments "$RUN_DIR/phase1_output/03_normalized/experiments_normalized.json" \
+  --papers "$RUN_DIR/phase1_output/01_literature/source_manifest.json" \
+  --domain "$DOMAIN" \
+  --output "$RUN_DIR/phase1.5_output/verified_gaps.json"
+```
+
+#### 3.3 Gap Verification Logic
+
+For each gap in `literature_summary.json`:
+
+1. **Cross-reference** against all extracted experiments — check if any paper already addresses this gap
+2. **Score novelty** (0-10):
+   - 0-3: Well-studied, many papers exist
+   - 4-6: Partially addressed, significant work remains
+   - 7-9: Genuinely novel, very few papers address it
+   - 10: Completely unexplored
+3. **Assign evidence grade** (A-E):
+   - A = Direct experimental papers confirm gap exists
+   - B = Indirect evidence suggests gap is open
+   - C = Theoretical reasoning only
+   - D = Papers exist that partially address this gap
+   - E = Multiple papers fully address this gap (gap is closed)
+4. **Compute research value**: `scientific_impact × 0.4 + industrial_impact × 0.3 + feasibility × 0.3`
+
+#### 3.4 Gap Classification
+
+| Priority | Criteria | Action |
+|----------|----------|--------|
+| **high** | novelty≥7 AND composite≥7 | Proceed to Phase 3 |
+| **medium** | novelty≥5 AND composite≥5 | Include in Phase 3 with lower priority |
+| **low** | novelty≥3 | Document but deprioritize |
+| **rejected** | novelty<3 OR evidence_grade=E | Gap is closed — exclude |
+
+#### 3.5 Output
+
+```json
+// phase1.5_output/verified_gaps.json
+{
+  "total_gaps_input": 5,
+  "verified_gaps": 3,
+  "rejected_gaps": 1,
+  "priority_distribution": {"high": 1, "medium": 2, "low": 1, "rejected": 1},
+  "gaps": [
+    {
+      "gap_id": "GAP-001",
+      "description": "55°C 等温循环数据缺失",
+      "novelty_score": 8,
+      "evidence_grade": "B",
+      "verified_as_gap": true,
+      "research_value": {"composite": 8.2},
+      "recommended_priority": "high"
+    }
+  ]
+}
+```
+
+### Step 4: Data Transformation
 
 #### 3.1 Determine Spectral Status
 
@@ -419,7 +565,69 @@ This enriches recommendations with:
 - Low-confidence findings worth validating
 - Parameter ranges not yet covered in the literature
 
-### Step 5: Finalize
+### Step 5: Phase 3 — Evidence-Graded Recommendations (NEW v2.0)
+
+#### 5.1 Purpose
+
+Phase 3 is the **anti-fabrication guarantee** layer. It takes verified gaps from Phase 1.5 and lab analysis from Phase 2, then produces a **single, highest-feasibility research plan** where every claim is anchored to specific literature evidence.
+
+#### 5.2 Execute Evidence Grader
+
+```bash
+python "$BRIDGE_SKILL/scripts/evidence_grader.py" \
+  --verified-gaps "$RUN_DIR/phase1.5_output/verified_gaps.json" \
+  --experiments "$RUN_DIR/phase1_output/03_normalized/experiments_normalized.json" \
+  --literature-summary "$RUN_DIR/phase1_output/07_summary/literature_summary.json" \
+  --output "$RUN_DIR/phase3_output/evidence_graded_recommendations.json" \
+  --max-recommendations 3
+```
+
+#### 5.3 Evidence Grading
+
+Every claim in the recommendation is graded:
+
+| Grade | Definition | Source Requirement |
+|:-----:|-----------|-------------------|
+| **A** | Direct experimental evidence | ≥3 papers with consistent data |
+| **B** | Strong indirect evidence | ≥1 paper with related data |
+| **C** | Weak indirect / theoretical | Well-established mechanism, no direct data |
+| **D** | Inference only | Chemical intuition, adjacent systems |
+| **F** | Pure speculation | **EXCLUDED** from final output |
+
+**Anti-fabrication rule**: Claims graded D are flagged with `⚠️ 推断 — 无文献直接支持`. Claims graded F are never included.
+
+#### 5.4 Feasibility Scoring
+
+```python
+feasibility_score = (
+    equipment_score × 0.25 +
+    complexity_score × 0.25 +
+    time_score × 0.25 +
+    cost_score × 0.25
+)
+```
+
+| Factor | Levels |
+|--------|--------|
+| **Equipment** | standard(9) / specialized(6) / advanced(3) / custom(1) |
+| **Complexity** | simple(9) / moderate(6) / complex(3) / very_complex(1) |
+| **Time** | fast(9) / moderate(6) / long(3) / very_long(1) |
+| **Cost** | low(9) / moderate(6) / high(3) / very_high(1) |
+
+#### 5.5 Output: TOP_PLAN.md
+
+The final output is a single Markdown document containing:
+
+1. **Executive Summary** — One-paragraph summary
+2. **Literature Evidence** — Every claim with evidence grade and source
+3. **Experimental Protocol** — Materials, equipment, step-by-step procedure
+4. **Expected Results** — What to expect with confidence intervals
+5. **Risk Assessment** — What could go wrong and mitigation
+6. **Evidence Anchors** — Table mapping each claim to literature source
+
+Selection criteria: `max(evidence_grade_score × feasibility_score × novelty_score)`
+
+### Step 6: Finalize
 
 #### 5.1 Generate Bridge Summary
 

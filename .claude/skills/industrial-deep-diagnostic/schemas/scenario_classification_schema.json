@@ -11,8 +11,7 @@
     },
     "process_category": {
       "type": "string",
-      "enum": ["CNC", "continuous", "batch", "heat_exchange", "quality_inspection", "generic"],
-      "description": "The industrial process category that determines analysis and visualization strategy"
+      "description": "Descriptive process category label. This is a free-form field — use whatever terms best describe THIS specific process (e.g., 'rotating_equipment_thermal_degradation', 'continuous_web_tension_control', 'batch_bioreactor', 'cement_kiln_combustion'). The downstream agents use the text content, not a fixed enum, to guide analysis."
     },
     "confidence": {
       "type": "string",

@@ -77,16 +77,121 @@ Focus web research on:
 
 Label ALL web findings as EXTERNAL KNOWLEDGE. Save to `RUN_DIR/00_input/web_findings.md`.
 
+## Step 2.0: RAG Knowledge Retrieval — Delegate to rag-knowledge-builder Skill
+
+**v7.2 — Skill-to-Skill Integration.** Before building the ontology from scratch, delegate knowledge retrieval to the dedicated `rag-knowledge-builder` skill. This skill has its own pipeline (retrieval agent → scoring agent → ontology builder agent) and its own backend (ChromaDB + WebSearchEngine). You do NOT construct HTTP queries directly — you invoke the skill and it handles everything.
+
+### 2.0.1 Construct the Skill Invocation
+
+From the data inspection results (Step 1), build the invocation context:
+
+1. **scenario**: Use `PROCESS_DESCRIPTION` if available; otherwise, name the process based on column name patterns (e.g., "industrial process with vibration and temperature sensors")
+2. **target_columns**: From `input_manifest.json` — the quality/defect metrics (comma-separated)
+3. **parameter_columns**: All numeric columns minus targets and metadata (comma-separated)  
+4. **group_columns**: Categorical columns for stratification (comma-separated)
+5. **run_dir**: Use `RUN_DIR` — the skill writes `rag_ontology_draft.json` to `$RUN_DIR/00_input/`
+
+### 2.0.2 Invoke the rag-knowledge-builder Skill
+
+Use the `Skill` tool to invoke the `rag-knowledge-builder` skill:
+
+```
+Skill({
+  skill: "rag-knowledge-builder",
+  args: "scenario='<constructed_scenario_label>' target_cols='<comma_separated>' param_cols='<comma_separated>' group_cols='<comma_separated>' run_dir='<RUN_DIR>' interaction_mode='auto'"
+})
+```
+
+**This delegates the ENTIRE retrieval pipeline to the rag-knowledge-builder skill:**
+- The skill checks if the RAG engine (rag-retrieval-engine) is running; if not, starts it or uses the local KB scripts directly
+- The skill's retrieval-agent builds 4-perspective queries from the column names
+- The skill's scoring-agent evaluates every retrieved chunk across 5 dimensions and applies quality gates
+- The skill's ontology-builder-agent injects scored knowledge into a structured ontology draft
+- The final output is written to `$RUN_DIR/00_input/rag_ontology_draft.json`
+
+**Why this is better than raw HTTP calls:**
+- context-builder doesn't need to know about ChromaDB, port numbers, or JSON payload formats
+- The rag-knowledge-builder skill encapsulates all retrieval logic and can evolve independently
+- The skill can fall back between the HTTP engine, local Python scripts, or pure web search — context-builder doesn't care which path was used
+- Error handling and retry logic live in the rag-knowledge-builder skill, not duplicated here
+
+### 2.0.3 Handle Skill Completion
+
+After the Skill tool call returns:
+
+```
+IF skill returned successfully:
+  → Check $RUN_DIR/00_input/rag_ontology_draft.json was created
+  → Log: "RAG skill returned N relationships, M parameter meanings"
+  → Proceed to Step 2.1
+
+ELSE (skill invocation failed):
+  → Log the failure reason
+  → Proceed to Step 2.1: check for pre-generated draft as fallback
+  → If no fallback → build ontology from scratch (Step 3)
+```
+
+### 2.0.4 Fallback Chain
+
+```
+1. Try: Skill("rag-knowledge-builder", ...)
+   ↓ FAILED (skill not available / engine unreachable / error)
+2. Try: Pre-generated rag_ontology_draft.json already in 00_input/
+   ↓ NOT FOUND
+3. Fallback: Build ontology from scratch (Step 3) — the original behavior
+```
+
+> **RAG is an acceleration, not a hard dependency.** If the rag-knowledge-builder skill is unavailable or the RAG engine is down, the diagnostic pipeline continues normally by building the ontology from first principles.
+
+## Step 2.1: Load RAG Knowledge Draft
+
+**This step is the consumer of whichever retrieval method succeeded in Step 2.0.** Read `RUN_DIR/00_input/rag_ontology_draft.json` if it exists. The file contains:
+
+- **parameter meanings**: Physical meanings inferred from knowledge base retrieval, with confidence scores
+- **causal relationships**: Verified causal chains with governing equations
+- **known confounders**: Variables identified as confounding factors
+- **fault patterns**: Known degradation mechanisms for this process type
+
+**How to use the RAG draft:**
+
+1. **For each data column**, check if `rag_ontology_draft.json` has an entry in `signals.process_parameters[]` or `signals.inspection_signals[]` matching this column name.
+   - If YES → use the RAG-provided `physical_meaning`, `governing_law`, `normal_range` as starting values. Mark with `"physical_meaning_confidence": "KNOWN"` (was RAG-verified against knowledge base) and set `"knowledge_source": "rag_retrieval"`.
+   - If NO → proceed with auto-inference (Step 5.8) or user clarification as usual.
+
+2. **For causal relationships**, read `rag_ontology_draft.relationships[]`. Each entry provides a `mechanism`, `governing_equation`, and `knowledge_confidence`. Use these to populate `ontology.json.relationships[]`.
+   - Mark RAG-sourced relationships with `"inferred": false` (they are externally verified) and add `"knowledge_source": "rag_retrieval"`.
+
+3. **For confounders**, copy `rag_ontology_draft.confounders[]` into `ontology.json.confounders[]` if they match actual data columns.
+
+4. **For fault patterns**, use `rag_ontology_draft.scene.expected_faults[]` as `extracted_knowledge.json.known_faults[]`.
+
+**Fallback**: If `rag_ontology_draft.json` does not exist → proceed directly to Step 3 (build ontology from scratch). The RAG skill is optional acceleration, not a hard dependency.
+
+**Example field mapping:**
+
+| RAG ontology_draft field | → | Diagnostic ontology field |
+|--------------------------|---|--------------------------|
+| `signals.process_parameters[].physical_meaning` | → | `ontology.json.signals.process_parameters[].physical_meaning` |
+| `signals.process_parameters[].governing_law` | → | attached as `mechanism` in the relationship |
+| `signals.process_parameters[].knowledge_confidence` | → | `extracted_knowledge.json.variable_descriptions[].confidence` |
+| `relationships[].mechanism` | → | `ontology.json.relationships[].mechanism` |
+| `relationships[].governing_equation` | → | `ontology.json.relationships[].additional_evidence` |
+| `confounders[].variable` + `confounders[].why` | → | `ontology.json.confounders[]` |
+| `rag_injection_metadata.columns_without_knowledge` | → | `clarification_needed.json` (new entries) |
+
 ## Step 3: Build Ontology
 
 Construct an industrial process ontology. Read the data file at DATA_PATH to inspect column names and data types.
 
+**If `rag_ontology_draft.json` was loaded in Step 2.1 (via skill delegation or pre-generated file)**, use it as a pre-filled template. Your job is to validate, correct, and complete the ontology — not to build from scratch. Only fields NOT covered by the RAG draft need to be inferred or asked.
+
 Combine knowledge from:
-1. User-provided process description
-2. Reference documents (from Step 1)
-3. Web research (from Step 2, if any)
-4. Data column names and patterns
-5. User objective (USER_OBJECTIVE) — prioritize variables and relationships relevant to the stated objective
+1. RAG knowledge draft (from Step 2.1, if available)
+2. User-provided process description
+3. Reference documents (from Step 1)
+4. Web research (from Step 2, if any)
+5. Data column names and patterns
+6. User objective (USER_OBJECTIVE) — prioritize variables and relationships relevant to the stated objective
 
 **IMPORTANT**: For each parameter, attempt to determine:
 - Physical meaning (not just column name)
@@ -145,9 +250,8 @@ Save to `RUN_DIR/01_ontology/schema.json`:
   "time_range": {"start": "ISO8601", "end": "ISO8601"},
   "known_confounders": ["product_model", "shift", "operator"],
   "parameter_groups": {
-    "temperature_zones": ["MD_TH001", "MD_TH002", ...],
-    "casting_parameters": ["W1C88", "W1C7D", ...],
-    "pressure_parameters": ["F_PS002", "F_PS005", ...]
+    "group_name_1": ["COL001", "COL002", ...],
+    "group_name_2": ["COL003", "COL004", ...]
   }
 }
 ```
@@ -182,6 +286,8 @@ Not all unknown parameters need clarification. Score importance:
 2. **HIGH**: Parameter is part of a group where other members have known meanings, or has moderate statistical significance → **Should ask user**
 3. **MEDIUM**: Parameter appears in data but has low variance or weak correlations → **Nice to have, can proceed without**
 4. **LOW**: Parameter is metadata, constant, or irrelevant to analysis → **Skip**
+
+> ⚠️ **GENERALITY NOTE**: All parameter names in the JSON examples and AskUserQuestion templates below (W1C88, F_PS002, etc.) are **placeholder illustrations**. Replace them with the actual column names from `input_manifest.json` for the CURRENT diagnostic session. The inference prefix rules (TH→temp, PS→pressure, etc.) apply universally — the specific column names in examples are just one possible scenario.
 
 ### 5.3 Attempt Inference First
 
@@ -222,56 +328,29 @@ Before asking the user, attempt to infer physical meaning from:
 
 ### 5.4 Output clarification_needed.json
 
-Save parameters requiring clarification to `RUN_DIR/00_input/clarification_needed.json`:
+Save parameters requiring clarification to `RUN_DIR/00_input/clarification_needed.json`. Use the structure below — fill in YOUR actual column names, inferred values, and questions:
 
 ```json
 {
   "timestamp": "ISO8601",
-  "total_unknown": 5,
-  "critical_unknowns": 2,
+  "total_unknown": <count>,
+  "critical_unknowns": <count>,
   "parameters": [
     {
-      "column_name": "W1C88",
-      "canonical_name": "W1C88",
-      "current_guess": "Possibly casting parameter or MD zone temperature",
-      "inferred_from": "Value range 24-76 (possibly °C), near MD_TH columns",
-      "data_type": "numeric",
-      "value_range": [24.0, 76.0],
-      "unit_guess": "°C",
-      "importance": "CRITICAL",
-      "importance_reason": "High variance across batches; potential predictor for melt_spots",
-      "role": "predictor",
-      "questions_for_user": [
-        "What physical quantity does 'W1C88' measure?",
-        "What is its unit?",
-        "Is it a setpoint or a measured value?",
-        "What is its normal operating range?"
-      ]
-    },
-    {
-      "column_name": "F_PS002",
-      "current_guess": "Pressure sensor in casting section",
-      "inferred_from": "PS prefix suggests pressure; F_ prefix suggests casting area",
-      "data_type": "numeric",
-      "value_range": [0.5, 3.2],
-      "unit_guess": "bar or MPa",
-      "importance": "HIGH",
-      "importance_reason": "Moderate correlation with bubble_defect; part of casting parameter group",
-      "role": "predictor",
-      "questions_for_user": [
-        "Is 'F_PS002' a pressure measurement? What unit?",
-        "Where in the casting process is it located?"
-      ]
+      "column_name": "<actual_column_name>",
+      "current_guess": "<best inference from prefix/value/context>",
+      "inferred_from": "<e.g., PS prefix, 0-150 range, proximity to known columns>",
+      "data_type": "numeric|string",
+      "value_range": [<min>, <max>],
+      "unit_guess": "<best unit guess>",
+      "importance": "CRITICAL|HIGH|MEDIUM|LOW",
+      "importance_reason": "<why this parameter matters for diagnosis>",
+      "role": "predictor|target|confounder|metadata",
+      "questions_for_user": ["<what to ask>", "..."]
     }
   ],
   "parameter_groups_with_unknowns": [
-    {
-      "group_name": "casting_parameters",
-      "total_in_group": 8,
-      "unknown_in_group": 3,
-      "known_members": ["W1C7D (casting roll temperature)", "F_PS005 (die pressure)"],
-      "unknown_members": ["W1C88", "W1C89", "F_PS003"]
-    }
+    {"group_name": "<group_label>", "known_members": [...], "unknown_members": [...]}
   ]
 }
 ```
@@ -290,38 +369,8 @@ If there are any CRITICAL or HIGH importance unknown parameters (depending on mo
 
 When invoking AskUserQuestion:
 
-1. **Group related parameters** into a single question to minimize user burden
-2. **Provide your best guess** based on inference — the user can correct or confirm
-3. **Ask about parameter groups** rather than individual columns when they share context
-4. **Prioritize CRITICAL parameters** first; HIGH can be asked in a second round if needed
-5. **Maximum 4 questions per round** (tool limitation)
-
-Example AskUserQuestion call for unknown parameters:
-
-```
-AskUserQuestion({
-  questions: [
-    {
-      question: "The following parameters have unknown physical meanings. Can you describe what they represent?\\n\\nParameter: W1C88 (value range 24-76)\\nOur guess: Possibly a casting section temperature\\n\\nParameter: W1C89 (value range 0-100)\\nOur guess: Possibly a valve opening percentage\\n\\nParameter: F_PS002 (value range 0.5-3.2)\\nOur guess: Pressure sensor in casting area",
-      header: "Parameters",
-      options: [
-        {label: "Confirm our guesses", description: "W1C88 and W1C89 are casting temperatures, F_PS002 is casting pressure"},
-        {label: "Partially correct", description: "I'll describe each parameter below"},
-        {label: "None are correct", description: "I'll explain what these actually measure"}
-      ]
-    },
-    {
-      question: "Is W1C88 a setpoint (target value for control system) or a measured value (actual sensor reading)?",
-      header: "W1C88 Type",
-      options: [
-        {label: "Setpoint", description: "It's the target value the control system tries to maintain"},
-        {label: "Measured value", description: "It's the actual sensor reading from the process"},
-        {label: "Both exist", description: "There are separate columns for setpoint and measurement"}
-      ]
-    }
-  ]
-})
-```
+1. **Group related parameters** into a single question; provide your best guess; maximum 4 questions per round.
+2. Template: `AskUserQuestion({questions: [{header: "Parameters", question: "Describe these unknowns:\\n\\n[PARAM_1] (range X-Y, guess: Z)\\n[PARAM_2] ...", options: [{label: "Confirm", description: "..."}, {label: "Partially correct", description: "..."}, {label: "Wrong", description: "..."}]}, {header: "Type", question: "Is [key_param] a setpoint or measurement?", options: [{label: "Setpoint", description: "..."}, {label: "Measured", description: "..."}]}]})`
 
 **After receiving user answers (interactive/minimal modes only):**
 

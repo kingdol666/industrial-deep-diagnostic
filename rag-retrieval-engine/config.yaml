@@ -1,0 +1,125 @@
+# RAG Retrieval Engine Configuration
+
+server:
+  host: "0.0.0.0"
+  port: 8765
+  workers: 1
+  reload: false
+
+  # API key for admin endpoints (/index rebuild, /accumulate).
+  # Set to a non-empty string to enable authentication.
+  # Requests must include header: X-API-Key: <value>
+  api_key: ""
+
+security:
+  # All file-system access via client-supplied paths is restricted
+  # to subdirectories of these base directories.
+  allowed_base_dirs:
+    - "./storage"
+    - "./knowledge_base"
+
+knowledge_base:
+  # Path to ChromaDB persistent storage
+  chroma_dir: "./knowledge_base/chroma_db"
+  collection_name: "industrial_knowledge"
+
+  # Embedding model (local, no API needed)
+  embedding_model: "all-MiniLM-L6-v2"
+  embedding_dim: 384
+
+  # Source documents to index on startup
+  index_sources:
+    - path: "../.claude/skills/industrial-deep-diagnostic/resources/process_knowledge_base.md"
+      type: markdown
+      scenario: multi
+    - path: "../.claude/skills/industrial-deep-diagnostic/resources/parameter_to_physics.json"
+      type: json_params
+      scenario: multi
+    - path: "../.claude/skills/industrial-deep-diagnostic/resources/evidence_rules.md"
+      type: markdown
+      scenario: generic
+    - path: "../.claude/skills/industrial-deep-diagnostic/resources/diagnosis_method.md"
+      type: markdown
+      scenario: generic
+    - path: "../.claude/skills/industrial-deep-diagnostic/resources/diagnostician_dual_drive_reference.md"
+      type: markdown
+      scenario: generic
+
+retrieval:
+  # Max chunks per query perspective
+  top_k_per_query: 5
+
+  # Total perspectives (always 4)
+  perspectives:
+    - "parameter_physics"
+    - "fault_patterns"
+    - "quantitative_rules"
+    - "confounders"
+
+  # Deduplication threshold (Jaccard similarity)
+  dedup_threshold: 0.85
+
+  # Min content length (chars) to keep a chunk
+  min_content_length: 50
+
+# Web search integration
+web_search:
+  # Master switch — set to false to disable all web retrieval
+  enabled: true
+
+  # Max results per web query
+  max_results: 5
+
+  # Request timeout (seconds)
+  timeout: 15
+
+  # DuckDuckGo HTML mode (no API key, works in most networks)
+  # Falls back to this when open-websearch daemon is unavailable
+  html_mode: true
+
+  # Preferred: local open-websearch daemon
+  # Start with: open-websearch serve
+  daemon_url: "http://localhost:8686"
+
+  # Fallback: direct search API (optional)
+  # Supports {query} placeholder for URL interpolation
+  fallback_url: ""
+  # fallback_url: "https://api.duckduckgo.com/?q={query}&format=json"
+
+scoring:
+  # Pass threshold for composite score (0-10 scale)
+  pass_threshold: 6.5
+
+  # Dimension weights (must sum to 1.0)
+  weights:
+    D1_semantic: 0.30
+    D2_param_match: 0.25
+    D3_scenario: 0.20
+    D4_source: 0.15
+    D5_crossref: 0.10
+
+  # Auto-reject rules
+  auto_reject:
+    D1_below: 5.0         # Semantic too far
+    D4_below: 3.0         # Source unreliable
+    D2_and_D3: [4.0, 5.0] # Neither param match nor scenario match
+
+  # Source credibility mapping
+  source_credibility:
+    local_reference: 10
+    accumulated_diag_verified: 8
+    user_documentation: 7
+    web_authoritative: 6
+    accumulated_diag_unverified: 4
+    web_general: 3
+    unknown: 1
+
+storage:
+  # SQLite database for persisting retrieval runs
+  db_path: "./storage/retrieval_engine.db"
+
+  # Raw retrieval results directory
+  results_dir: "./storage/retrieval_runs"
+
+  # Auto-cleanup: delete runs older than N days (0 = never)
+  retention_days: 90

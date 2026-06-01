@@ -1,6 +1,6 @@
 ---
 name: industrial-deep-diagnostic
-description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis across CNC, continuous process, batch chemical, heat exchange, or quality inspection scenarios. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
+description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial or manufacturing process. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
@@ -11,6 +11,7 @@ compatibility: |
   Requires Node.js 18+ for pipeline orchestration scripts (setup.mjs, inspect.mjs, stats.mjs, stats_validate.mjs, validate.mjs).
   Python 3.9+ managed via uv venv for adaptive analysis (matplotlib, numpy, pandas, scipy, seaborn, openpyxl).
   uv auto-installed if missing. Run `node scripts/uv_env_setup.mjs` before any Python use.
+  Optional: rag-retrieval-engine running on localhost:8765 for runtime knowledge retrieval. If unavailable, the skill falls back to local-only ontology building.
 ---
 
 # Industrial Deep Diagnostic
@@ -30,7 +31,9 @@ This skill uses progressive loading. Read only what each step needs:
 | When | Read | Why |
 |------|------|-----|
 | Pipeline start | This file (SKILL.md) | Orchestration protocol, step sequence |
-| Before Step 2 | `agents/context-builder.md` | Instructions for the context-building sub-agent |
+| Before Step 0 | `resources/rag_integration_guide.md` | How the RAG knowledge retrieval pipeline works |
+| Before Step 2 | `agents/context-builder.md` (§Step 0-2.1 for RAG + knowledge) | Instructions for context-building + RAG skill delegation (reads §Step 0-2.1 first; §Step 3-5 when building ontology) |
+| Before Step 2 (optional) | `rag-knowledge-builder` skill (via `Skill` tool) | Dedicated RAG skill — invoked by context-builder for runtime knowledge retrieval |
 | Before Step 3 | `agents/data-processor.md` | Instructions for data processing + visualization |
 | Before Step 4 | `agents/diagnostician.md` | Instructions for competing hypotheses diagnosis |
 | Before Step 5 | `agents/judge.md` | Instructions for quality gate review |
@@ -44,6 +47,8 @@ This skill uses progressive loading. Read only what each step needs:
 | After each agent | `schemas/*.json` matching output | Validate JSON outputs |
 
 **Do NOT load everything upfront.** Each agent prompt is self-contained — read it only when that step begins.
+
+**RAG dependency**: Step 2 (context-builder) delegates knowledge retrieval to the dedicated `rag-knowledge-builder` skill via the `Skill` tool. The rag-knowledge-builder skill internally manages the RAG engine (rag-retrieval-engine on port 8765) and falls back to local Python scripts if the engine is unavailable. If the entire rag-knowledge-builder skill is unavailable, context-builder falls back to building the ontology from scratch. See `resources/rag_integration_guide.md` for setup instructions.
 
 ---
 
@@ -114,13 +119,13 @@ Inspect all input files. **If `00_input/run_config.json` does not exist, create 
 
 Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
-### Step 2: Context Build (Sub-Agent)
+### Step 2: Context Build (Sub-Agent + RAG Skill Delegation)
 
 **Read first**: `agents/context-builder.md`
 
 Pass: `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `SKILL_PATH`, `INTERACTION_MODE`.
 
-The agent builds ontology from data + references, identifies unknown parameters, and outputs to `01_ontology/`. If CRITICAL parameters have unknown physical meanings, it creates `00_input/clarification_needed.json`. **In `auto` mode**, the agent uses inference to fill unknowns without asking the user.
+The context-builder agent first delegates to the **`rag-knowledge-builder`** skill (via `Skill` tool) to retrieve structured domain knowledge — ontology pre-fill, causal chains, confounders. It then builds the final ontology by merging RAG knowledge with reference documents, web research, and auto-inference. Outputs to `01_ontology/`. If CRITICAL parameters have unknown physical meanings, it creates `00_input/clarification_needed.json`. **In `auto` mode**, the agent uses inference to fill unknowns without asking the user.
 
 Schema-validate ontology output:
 ```bash
@@ -148,7 +153,7 @@ Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
 > **Python Execution (MANDATORY)**: All Python scripts in this step (stats_validate.mjs internal calls, `file_inspect.py`, `template_visualize.py`, `template_preprocess.py`, and the generated `RUN_DIR/06_scripts/visualize.py`) MUST use the uv venv Python at `scripts/.venv/bin/python`. Never `python3`. See §Python Execution Protocol in CLAUDE.md.
 
 The agent runs the full analysis pipeline:
-1. Classify process scenario (CNC / continuous / batch / heat exchange / generic)
+1. Classify process scenario — derive a descriptive label from column name patterns and value ranges (data-driven, not from a fixed list)
 2. Run `stats.mjs` → `feature_summary.json`
 3. Run `stats_validate.mjs` → `validate_report.json`
 4. Run anomaly detection → `anomaly_report.json`

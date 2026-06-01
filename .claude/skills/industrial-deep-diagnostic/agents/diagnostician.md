@@ -165,12 +165,12 @@ From `feature_summary.json.stratified_correlations` (already computed by stats.m
 
 **KEEP if** ALL THREE conditions met:
 1. **Data side**: Validated correlation (survives Simpson + detrending + outlier) OR strong MI (>0.3) — from `causal_evidence_map.json.root_cause_candidates[]`
-2. **Physics side**: Parameter exists in `parameter_to_physics.json` with a causal chain connecting to the observed quality defect
+2. **Physics side**: EITHER (a) parameter has a pre-cached entry in `parameter_to_physics.json` with a causal chain connecting to the quality defect, OR (b) you can INFER a plausible physical mechanism from first principles (identify the physical quantity → propose a governing law → construct a causal chain → define competing hypotheses). Document [INFERRED_PHYSICS] if using first-principles inference.
 3. **Evidence fusion**: Quality reset analysis or onset coincidence supports the direction (parameter changes BEFORE quality)
 
 **REMOVE if** any of:
 - BETWEEN_PRODUCT_ONLY or OUTLIOR_ARTIFACT or trend-confounded (>50%)
-- Parameter NOT in `parameter_to_physics.json` AND no physical mechanism can be inferred
+- Parameter has NO pre-cached physics AND you cannot infer ANY plausible mechanism from first principles → label as [UNKNOWN_PHYSICS]
 - Quality reset analysis shows NO_RESET for the component this parameter represents
 - Parameter shows CONCURRENT but NOT PRECURSOR timing (changed at the same time, not before)
 
@@ -405,8 +405,8 @@ Append to `RUN_DIR/.pipeline_events.jsonl`:
 - **If pre-computed evidence is missing (status: INCONCLUSIVE), note it.** Do not fabricate numbers. Use `[NO_PHYSICS_CHECK]` as a confidence ceiling.
 
 ### The Parameter-to-Physics Rule
-- **Every hypothesis MUST reference `parameter_to_physics.json`.** If a parameter is not in the mapping table, you must either infer its physical meaning from first principles (document as [INFERRED]) or note it as [UNKNOWN_PHYSICS].
-- **Use the pre-defined competing hypotheses in the mapping table** as starting points for your discriminability assessment.
+- **Every hypothesis MUST have a physical mechanism.** Prefer `parameter_to_physics.json` entries when available. For parameters NOT in the mapping table (common for novel process types), DERIVE the mechanism from first principles: identify what physical quantity the parameter measures → find the relevant governing law (thermal, mechanical, fluid, chemical, electrical) → construct a causal chain → estimate expected magnitudes. Document as `[INFERRED_PHYSICS]` with your derivation steps. Only mark as `[UNKNOWN_PHYSICS]` if you cannot identify ANY plausible mechanism.
+- **Use the `parameter_to_physics.json` entries as PATTERNS** — their structure (governing law → causal chain → quantitative check → competing hypotheses → thresholds) shows how to construct physics arguments for ANY parameter type, across any industry. Apply this pattern, not just this data.
 
 ### The Visual Alignment Rule
 - **Every conclusion MUST reference at least one `diagnostic_implication` from `image_captions.json`.**
@@ -429,8 +429,8 @@ Append to `RUN_DIR/.pipeline_events.jsonl`:
 
 Before writing ANY conclusion:
 - [ ] Does this have SPECIFIC data backing? (cite exact numbers from feature_summary / anomaly_report)
-- [ ] Does this have a PHYSICAL MECHANISM from `parameter_to_physics.json`?
-- [ ] Is the quantitative check PRE-COMPUTED in `anomaly_report.phyiscal_checks`? (cite conclusion)
+- [ ] Does this have a PHYSICAL MECHANISM? (from `parameter_to_physics.json` OR first-principles derivation — cite source)
+- [ ] Is the quantitative check PRE-COMPUTED in `anomaly_report.phyiscal_checks`? (cite conclusion; or mark [NO_PHYSICS_CHECK] if unavailable)
 - [ ] What does the QUALITY RESET ANALYSIS say? (cite reset_classification)
 - [ ] What does the ONSET COINCIDENCE say? (cite PRECURSOR vs CONCURRENT)
 - [ ] What does the IMAGE CAPTION say? (cite diagnostic_implication)

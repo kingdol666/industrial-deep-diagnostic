@@ -35,6 +35,17 @@
       "type": "object",
       "required": ["phase1", "quality_gate", "transform", "phase2"],
       "properties": {
+        "phase0": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "rounds_executed": {"type": "integer"},
+            "total_unique_papers": {"type": "integer"},
+            "total_after_quality_filter": {"type": "integer"},
+            "search_rounds": {"type": "array", "items": {"type": "object"}},
+            "duration_ms": {"type": "integer"}
+          }
+        },
         "phase1": {
           "type": "object",
           "required": ["status", "skill"],
@@ -87,6 +98,25 @@
             "duration_ms": {"type": "integer"}
           }
         },
+        "phase1.5": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "total_gaps_input": {"type": "integer"},
+            "verified_gaps": {"type": "integer"},
+            "rejected_gaps": {"type": "integer"},
+            "priority_distribution": {
+              "type": "object",
+              "properties": {
+                "high": {"type": "integer"},
+                "medium": {"type": "integer"},
+                "low": {"type": "integer"},
+                "rejected": {"type": "integer"}
+              }
+            },
+            "duration_ms": {"type": "integer"}
+          }
+        },
         "phase2": {
           "type": "object",
           "required": ["status", "skill"],
@@ -107,6 +137,18 @@
             "errors": {"type": "array", "items": {"type": "string"}},
             "duration_ms": {"type": "integer"},
             "statistics": {"type": "object"}
+          }
+        },
+        "phase3": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "running", "completed", "failed", "skipped"]},
+            "total_recommendations": {"type": "integer"},
+            "top_evidence_grade": {"type": "string", "enum": ["A", "B", "C", "D"]},
+            "top_feasibility_score": {"type": "number"},
+            "top_plan_generated": {"type": "boolean"},
+            "anti_fabrication_enabled": {"type": "boolean"},
+            "duration_ms": {"type": "integer"}
           }
         }
       }

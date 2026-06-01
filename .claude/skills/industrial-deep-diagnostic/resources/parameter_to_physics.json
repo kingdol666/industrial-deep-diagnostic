@@ -1,8 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "Parameter-to-Physics Mapping Table",
-  "version": "1.0",
-  "description": "Maps industrial process parameter names to their physical meanings, governing equations, and causal chains. The Diagnostician uses this to automatically link data discoveries to physical mechanisms.",
+  "version": "2.0",
+  "description": "PATTERN LIBRARY — extensible mapping of industrial process parameter names to their physical meanings, governing equations, and causal chains. The entries below are illustrated templates for common parameter types. The Diagnostician uses these as PATTERNS to infer physics for ANY parameter, not just those listed. When a parameter is not found here, apply the same structure from first principles: identify the physical quantity → find the governing law → construct a causal chain → define competing hypotheses.",
+  "_extensibility_note": "This file is a growable knowledge library. Add new parameters for any industrial domain by following the same structure (synonyms, physical_quantity, governing_law, typical_ranges, causal_chains, quantitative_check, threshold_physics, competing_hypotheses). The Diagnostician, Judge, and physics_check.py all consume this structure generically — they will automatically use any new entries.",
   "parameters": {
     "spindle_vibration_mm_s": {
       "synonyms": ["vibration", "vib", "spindle_vibration"],

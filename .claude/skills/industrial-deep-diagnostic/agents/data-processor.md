@@ -33,23 +33,39 @@ Read `RUN_DIR/00_input/input_manifest.json` (produced by pipeline Step 1). Under
 
 ### 1.2 Scenario Classification (CRITICAL — drives ALL subsequent analysis)
 
-Based on the data inspection, classify the **process scenario**. This classification determines your entire analysis strategy:
+Based on data inspection, classify the **process scenario**. The classification is **data-driven** — derived from column name patterns and statistical signatures, NOT from a pre-defined list of known process types.
 
-| Scenario | Detection Criteria | Key Analysis Focus |
-|----------|-------------------|-------------------|
-| **CNC machining** | Columns: speed/rpm, feed, depth, vibration, force, roughness, tool_age/wear | Tool wear progression, vibration thresholds, thermal effects |
-| **Continuous process** (extrusion, casting, film) | Temperature zones, pressure, speed/tension, thickness, flow rate | Zone-by-zone thermal profile, tension balance, steady-state deviation |
-| **Batch chemical** | Concentration, pH, temperature, pressure, reactor stage | Reaction kinetics, batch-to-batch variation, endpoint detection |
-| **Heat exchange/thermal** | Inlet/outlet temp, flow, pressure, fouling indicator | Heat transfer efficiency decay, fouling progression |
-| **Quality inspection** | Defect types, counts, grades, measurement values | Defect pattern clustering, Pareto analysis, correlation with process conditions |
-| **Generic/unknown** | Doesn't fit above patterns | Full correlation exploration, anomaly detection |
+**How to classify ANY process:**
+
+1. **Inspect column names** for measurement-type signals (via token analysis and range inference):
+   - Any column with rotating-equipment terms (rpm, speed, vibration, bearing) → rotating equipment present
+   - Any column with thermal terms (temp, heat, thermal, cooling) → thermal system present
+   - Any column with chemical terms (concentration, pH, conversion, yield, selectivity) → chemical process present
+   - Any column with thickness/dimension terms → forming/shaping process present
+   - Any column with flow/pressure terms → fluid system present
+   - Any column with defect/count/grade terms → quality inspection focus
+
+2. **Analyze column value ranges** to confirm physical quantities:
+   - 0-150 range → likely temperature (°C)
+   - 0-10 range → likely pressure (bar) or small dimension (mm)
+   - 100-10000 range → likely speed (rpm) or large dimension (μm)
+   - 0-1 or -1 to 1 → likely normalized value or ratio
+
+3. **Name the scenario** using a descriptive label that captures the dominant process physics — use whatever terms best describe THIS data. Examples: "rotating equipment with thermal degradation", "continuous web with tension control", "batch reaction with catalyst deactivation", "fluid heat exchange with fouling". There is no fixed taxonomy — the label should help the Diagnostician understand the physical context.
+
+4. **Identify degradation candidates** — which parameters naturally drift with equipment wear or process fouling:
+   - Parameters with monotonic trends over long time windows
+   - Parameters that co-vary with quality degradation
+   - Parameters that are known wear indicators (tool_age, cycle_count, etc.)
+
+**The output format stays the same** — `scenario_classification.json` — but the scenario label and key indicators are freely chosen based on what the data actually contains, not matched against a pre-defined list.
 
 **If ontology.json exists in `RUN_DIR/01_ontology/`**, read it first — it provides the authoritative process type and stage definitions. The scenario classification should align with the ontology.
 
 Save scenario classification to `RUN_DIR/02_processed/scenario_classification.json`:
 ```json
 {
-  "scenario": "CNC machining",
+  "scenario": "your-process-description-here",
   "confidence": "high",
   "key_indicators": ["spindle_speed_rpm", "feed_rate_mm_min", "spindle_vibration_mm_s"],
   "quality_targets": ["surface_roughness_Ra_um", "dimensional_deviation_mm"],
@@ -80,10 +96,10 @@ Write `RUN_DIR/06_scripts/preprocess.py`, run it. Must include:
 
 | Scenario | Derived Features (examples) |
 |----------|----------------------------|
-| CNC | vibration_rolling_mean, thermal_error_estimate = α × ΔT, tool_wear_rate |
-| Continuous/film | zone_ΔT = T_hot - T_cold, speed_ratio, tension_gradient |
-| Heat exchange | heat_transfer_coeff = Q / (A × ΔT_LMTD), fouling_resistance |
-| Batch chemical | reaction_rate, conversion_pct, selectivity |
+| Any process with vibration+temp | rolling_mean(vibration), thermal_error = α×ΔT(from baseline), wear_rate = Δvalue÷Δtime |
+| Any process with multi-zone sensors | zone_Δ = adjacent_pair_diff, zone_deviation = actual - setpoint |
+| Any process with heat+flow balance | heat_transfer_coeff = Q / (A × ΔT_LMTD), fouling_resistance |
+| Any process with conversion+yield | reaction_rate, conversion_pct, selectivity |
 
 Output: `cleaned_data.csv`, `data_quality_report.json`.
 Re-convert: `node SKILL_PATH/scripts/convert.mjs RUN_DIR/02_processed/cleaned_data.csv --output RUN_DIR/02_processed/cleaned_data.json`
@@ -246,41 +262,36 @@ These are always generated regardless of scenario:
 **Fig B: Top-Parameter vs Quality Scatter Grid** — For top-5 parameters by |r|, scatter with quality target, colored by group column, with per-group regression lines
 **Fig C: Raw vs Detrended Comparison** — Bar chart comparing raw r vs detrended r for all |r|>0.3 pairs (highlights trend confounding)
 
-### 5.3 Scenario-Driven Visualizations
+### 5.3 Scenario-Driven Visualizations — Generic Approach
 
-Based on Step 1.2 classification, generate ADDITIONAL targeted plots:
+Instead of pre-defined plot lists for specific process types, generate visualizations based on **what the data actually contains**:
 
-#### CNC Machining Scenario
-| Plot | Purpose | What It Shows for Diagnostician |
-|------|---------|--------------------------------|
-| Vibration-Roughness alignment | Trace vibration→surface causal chain | Temporal alignment: does vibration change precede roughness change? |
-| Temperature-Deviation alignment | Trace thermal expansion chain | Is thermal error proportional to ΔT from baseline? |
-| Tool wear progression per tool | Check if degradation resets on tool change | If roughness resets → tool wear (H1). If not → bearing wear (H2) |
-| Defect grade by tool_age bins | Quantify wear-quality relationship | At what tool_age does Grade C dominate? |
-| Vibration threshold chart | Find critical vibration for defect onset | Vertical line at vibration threshold → enables monitoring |
-| Per-material parameter distributions | Check Simpson's Paradox sources | Do materials use different process parameter ranges? |
+**Decision logic for ANY process:**
 
-#### Continuous Process (Film/Extrusion)
-| Plot | Purpose |
-|------|---------|
-| Zone temperature profile (upstream→downstream) | Trace thermal gradient across process stages |
-| Speed-Tension coupling (dual Y-axis) | Check if speed and tension move together physically |
-| Thickness deviation by zone | Identify which process stage introduces variability |
-| Steady-state deviation time series | Detect gradual drift vs sudden shifts |
-
-#### Heat Exchange / Thermal System
-| Plot | Purpose |
-|------|---------|
-| Heat transfer coefficient vs time | Track efficiency decay → fouling progression |
-| Inlet vs Outlet temperature gap | Monitor ΔT trend |
-| Fouling indicator vs flow rate | Check if flow restriction correlates with degradation |
-
-#### Batch Chemical
-| Plot | Purpose |
-|------|---------|
-| Batch-to-batch quality variation | Identify drifting or oscillating batch quality |
-| Reaction profile overlay (per batch) | Check if temperature/pressure profiles are consistent |
-| Endpoint vs quality scatter | Check if reaction completion predicts product quality |
+1. **If data has time-series columns with drift/trend**:
+   → Generate a temporal alignment plot: overlay quality metric with suspected driver, marking anomaly onset
+   
+2. **If data has grouping/stratification columns** (batch_id, product_grade, material):
+   → Generate per-group scatter plots with separate regression lines → exposes Simpson's Paradox
+   
+3. **If data has event columns** (tool_id changes, material switches, maintenance events):
+   → Generate transition analysis: before/after quality distributions for each transition event
+   
+4. **If data has degradation-suspect columns** (tool_age, cycle_count, runtime_hours):
+   → Generate degradation curve: quality vs degradation driver, mark critical threshold
+   
+5. **If data has multiple parameters of the same physical type** (e.g., 12 temperature zones, 6 pressure sensors):
+   → Generate spatial profile: parameter values across positions/stages/zones
+   
+6. **If statistical validation found issues**:
+   → Simpson's Paradox: per-group correlation bar chart
+   → Trend confounding: raw vs detrended comparison
+   → Outlier sensitivity: full data vs trimmed data scatter
+   
+7. **Always**: 
+   → Correlation heatmap (all numeric columns)
+   → Top-parameter vs quality scatter grid
+   → Anomaly timeline with shaded anomaly intervals
 
 ### 5.4 Statistical Validation Visualizations (Conditional)
 
@@ -425,7 +436,7 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 
 - Every visualization must serve a **diagnostic purpose** — if you can't explain what root cause insight it provides, don't generate it
 - **Physical process alignment** — read ontology.json to order parameters by process stage, NOT by column order
-- **Scenario-adaptive** — CNC data gets different plots than film production data. Don't generate generic plots that ignore the physical process
+- **Scenario-adaptive** — each process type gets plots adapted to its actual columns. Don't generate generic plots that ignore the physical process
 - **Anomaly annotations are MANDATORY** — the Diagnostician needs to know WHEN things went wrong, not just THAT they correlate
 - **Transition analysis is MANDATORY** when categorical columns change value — this is often the key to root cause identification
 - Use only matplotlib + pandas + numpy. No sklearn/scipy.

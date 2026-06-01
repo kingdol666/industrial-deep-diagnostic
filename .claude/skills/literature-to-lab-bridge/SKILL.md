@@ -12,55 +12,84 @@ version: 1.0.0
 
 ## Core Principle
 
-This skill orchestrates a two-phase pipeline: **Phase 1** searches literature and extracts experiment data using `domain-literature-experiment-extraction-ontology-skill`; **Phase 2** feeds that extracted data into `chem-auto-lab-skill` for automated chemical analysis, report generation, and experiment recommendations. The two phases are connected by a **data transformer** that maps literature-extracted records into the lab analysis input format.
+This skill orchestrates a **five-phase pipeline with anti-fabrication guarantees**:
+
+- **Phase 0**: Multi-round iterative literature search (3-4 rounds of increasingly specific queries)
+- **Phase 1**: Literature data extraction + normalization (`domain-literature-experiment-extraction-ontology-skill`)
+- **Phase 1.5**: **Gap Verification** — verifies each identified research gap via targeted literature cross-reference
+- **Phase 2**: Lab analysis — cleaning, report, recommendations (`chem-auto-lab-skill`)
+- **Phase 3**: **Evidence Grading** — grades every recommendation by evidence quality (A/B/C/D), scores feasibility, and outputs the single most feasible research plan with literature anchors for every claim
+
+A **data transformer** bridges Phase 1 → Phase 2 to map literature schema into lab-compatible format.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    Literature-to-Lab Bridge Pipeline                     │
-│                                                                          │
-│  ┌───────────────────────────────────────┐                               │
-│  │           PHASE 1: Literature          │                               │
-│  │  domain-literature-experiment-         │                               │
-│  │  extraction-ontology-skill             │                               │
-│  │                                         │                               │
-│  │  Module 1 → Literature Search          │                               │
-│  │  Module 2 → Experiment Extraction      │                               │
-│  │  Module 3 → Data Normalization         │                               │
-│  │  Module 4 → Evidence & Traceability    │                               │
-│  │  Module 7 → Literature Summary         │                               │
-│  └──────────────────┬────────────────────┘                               │
-│                     │ experiments_normalized.json                        │
-│                     ▼                                                    │
-│  ┌───────────────────────────────────────┐                               │
-│  │         DATA TRANSFORMER              │                               │
-│  │  transform_literature_to_lab.py       │                               │
-│  │                                         │                               │
-│  │  文献 schema → 化学实验 schema 映射     │                               │
-│  │  - material_system → variables        │                               │
-│  │  - measured_value → variables         │                               │
-│  │  - unit → unit annotation            │                               │
-│  └──────────────────┬────────────────────┘                               │
-│                     │ lab_experiments.json                                │
-│                     ▼                                                    │
-│  ┌───────────────────────────────────────┐                               │
-│  │           PHASE 2: Lab Analysis        │                               │
-│  │  chem-auto-lab-skill                   │                               │
-│  │                                         │                               │
-│  │  Module 1 → Data Cleaning             │                               │
-│  │  Module 2 → Spectroscopy (if data)    │                               │
-│  │  Module 4 → Report Generation         │                               │
-│  │  Module 5 → Experiment Recommendation │                               │
-│  └───────────────────────────────────────┘                               │
-│                     │                                                    │
-│                     ▼                                                    │
-│  ┌───────────────────────────────────────┐                               │
-│  │         INTEGRATED OUTPUTS            │                               │
-│  │  - lab_report.md                     │                               │
-│  │  - recommendations.json              │                               │
-│  │  - figures/                           │                               │
-│  │  - bridge_manifest.json              │                               │
-│  └───────────────────────────────────────┘                               │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                   Literature-to-Lab Bridge Pipeline v2.0                          │
+│                        with Anti-Fabrication Guarantees                            │
+│                                                                                   │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  PHASE 0: Multi-Round Literature Search (NEW)                 │                 │
+│  │  Round 1: Core domain keywords                                │                 │
+│  │  Round 2: Synonym/related terms broader coverage              │                 │
+│  │  Round 3: Mechanism-specific deep dive                        │                 │
+│  │  Round 4: Quality filter (impact factor, citations, recency)  │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ merged paper corpus                                  │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  PHASE 1: Literature Extraction & Normalization               │                 │
+│  │  domain-literature-experiment-extraction-ontology-skill       │                 │
+│  │  Module 1→2→3→4→7                                             │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ experiments_normalized.json                          │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  QUALITY GATE                                                 │                 │
+│  │  records≥10 | confidence≥0.5 | papers≥3                       │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ PASS                                               │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  PHASE 1.5: Gap Verification (NEW)                            │                 │
+│  │  gap_verifier.py                                              │                 │
+│  │  ├─ Cross-reference gaps against all extracted papers         │                 │
+│  │  ├─ Build targeted search queries for each gap                │                 │
+│  │  ├─ Score: novelty (0-10) + evidence grade (A-E)              │                 │
+│  │  └─ Reject false gaps, prioritize verified ones               │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ verified_gaps.json                                   │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  DATA TRANSFORMER                                             │                 │
+│  │  transform_literature_to_lab.py                               │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ lab_experiments.json                                  │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  PHASE 2: Lab Analysis                                        │                 │
+│  │  chem-auto-lab-skill (Module 1→4→5)                           │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │ report.md + recommendations.json                     │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  PHASE 3: Evidence-Graded Recommendations (NEW)               │                 │
+│  │  evidence_grader.py                                           │                 │
+│  │  ├─ Grade every claim: A(直接证据) B(间接) C(理论) D(推断)     │                 │
+│  │  ├─ Score feasibility: equipment×complexity×time×cost         │                 │
+│  │  ├─ Generate literature anchors for every claim               │                 │
+│  │  └─ Output: SINGLE most feasible, evidence-backed plan        │                 │
+│  └──────────────────────────┬───────────────────────────────────┘                 │
+│                             │                                                     │
+│                             ▼                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐                 │
+│  │  INTEGRATED OUTPUTS                                           │                 │
+│  │  - bridge_manifest.json (complete execution trace)            │                 │
+│  │  - verified_gaps.json (verified research gaps with scores)    │                 │
+│  │  - evidence_graded_recommendations.json (graded plans)        │                 │
+│  │  - lab_report.md (analysis report)                            │                 │
+│  │  - TOP_PLAN.md (single most feasible plan, ready to execute)  │                 │
+│  └──────────────────────────────────────────────────────────────┘                 │
+└──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## When to Use This Skill
@@ -89,7 +118,14 @@ This skill orchestrates a two-phase pipeline: **Phase 1** searches literature an
 Step 0: Bridge Setup
     │
     ▼
-Step 1: PHASE 1 — Literature Search & Extraction
+Step 0.5: PHASE 0 — Multi-Round Literature Search (NEW)
+    │  Round 1: Core domain keywords → broad coverage
+    │  Round 2: Synonym/related terms → expanded coverage
+    │  Round 3: Mechanism-specific keywords → deep dive
+    │  Round 4: Quality filter → deduplicate, rank by relevance
+    │
+    ▼
+Step 1: PHASE 1 — Literature Extraction & Normalization
     │  (domain-literature-experiment-extraction-ontology-skill)
     │  Modules 1→2→3→4→7
     │
@@ -101,21 +137,88 @@ Step 2: QUALITY GATE — Data Sufficiency Check
     │  └── FAIL → report to user, offer options
     │
     ▼
+Step 2.5: PHASE 1.5 — Gap Verification (NEW)
+    │  gap_verifier.py
+    │  ├── Cross-reference each gap against all extracted papers
+    │  ├── Score novelty (0-10), evidence grade (A-E)
+    │  ├── Build targeted search queries for each gap
+    │  └── Reject false gaps, keep verified ones
+    │
+    ▼
 Step 3: DATA TRANSFORMER — Schema Mapping
     │  transform_literature_to_lab.py
     │  文献 experiment_record → 化学 lab experiment_record
     │
     ▼
-Step 4: PHASE 2 — Lab Analysis & Recommendations
+Step 4: PHASE 2 — Lab Analysis & Report
     │  (chem-auto-lab-skill)
     │  Modules 1→4→5 (+ Module 2 if spectral data present)
     │
     ▼
-Step 5: INTEGRATED REPORT — Merge & Present
-       bridge_manifest.json + combined summary
+Step 5: PHASE 3 — Evidence-Graded Recommendations (NEW)
+    │  evidence_grader.py
+    │  ├── Grade every claim: A(直接) B(间接) C(理论) D(推断)
+    │  ├── Score feasibility: equipment × complexity × time × cost
+    │  ├── Generate literature anchors for every claim
+    │  └── Output single most feasible evidence-backed plan
+    │
+    ▼
+Step 6: INTEGRATED OUTPUT — Merge & Present
+       bridge_manifest.json + verified_gaps.json + TOP_PLAN.md
 ```
 
-## Phase 1: Literature Search & Extraction
+## Phase 0: Multi-Round Literature Search (NEW)
+
+Before running Phase 1 extraction, execute **3-4 rounds of iterative literature search** to maximize coverage and minimize the risk of missing key papers.
+
+### Round Strategy
+
+| Round | Purpose | Query Type | Expected Results |
+|-------|---------|-----------|:---:|
+| **R1: Core** | Domain + primary keywords | "{material} {property} {condition}" | 8-15 papers |
+| **R2: Expanded** | Synonyms, related terms, broader scope | "{material} {synonym} {related_property}" | 10-20 papers |
+| **R3: Deep Dive** | Specific mechanisms, degradation pathways | "{mechanism} {material} {condition}" | 8-15 papers |
+| **R4: Quality** | Filter by impact, citations, recency | Same as R1-R3 with quality filters | 10-15 papers |
+
+### Round Construction Algorithm
+
+```python
+def build_multi_round_queries(user_input: str, domain: str) -> dict:
+    # Round 1: Core — extract primary keywords from user input
+    core_keywords = extract_keywords(user_input)
+    r1 = f"{core_keywords['material']} {core_keywords['property']} {core_keywords['condition']}"
+
+    # Round 2: Expanded — synonyms and related terms
+    synonyms = get_synonyms(core_keywords['material'])
+    r2 = f"({' OR '.join(synonyms)}) {core_keywords['property']}"
+
+    # Round 3: Deep Dive — mechanism-specific
+    mechanisms = infer_mechanisms(domain, core_keywords)
+    r3 = f"{core_keywords['material']} {mechanisms[0]} {core_keywords['condition']}"
+
+    # Round 4: Quality — cited by / recent / high impact
+    r4 = f"{core_keywords['material']} review {core_keywords['property']}"
+
+    return {
+        "round_1_core": r1,
+        "round_2_expanded": r2,
+        "round_3_deep_dive": r3,
+        "round_4_quality": r4
+    }
+```
+
+### Deduplication & Merge
+
+After all rounds, deduplicate papers by title/DOI and merge into a single corpus. Papers appearing in multiple rounds get higher relevance scores.
+
+### Output
+
+- `phase0_output/search_rounds.json` — Query strategy and per-round results
+- `phase0_output/merged_corpus.json` — Deduplicated paper list for Phase 1 input
+
+---
+
+## Phase 1: Literature Extraction & Normalization
 
 Invoke `domain-literature-experiment-extraction-ontology-skill` with the user's domain and search keywords.
 
@@ -175,7 +278,56 @@ python "$BRIDGE_SKILL/scripts/bridge_pipeline.py" \
 | `mean_confidence` | ≥ `min_confidence` (default 0.5) | Report low-confidence records. Ask user: accept lower confidence, manually review, or skip |
 | `unique_papers` | ≥ `min_papers` (default 3) | Report: "有效论文数量不足 (N papers)。建议：扩展搜索源或放宽筛选条件。" |
 
-If gate passes, proceed to Phase 2 automatically. If gate fails, present results to user and ask for direction.
+If gate passes, proceed to Phase 1.5 automatically. If gate fails, present results to user and ask for direction.
+
+---
+
+## Phase 1.5: Gap Verification (NEW)
+
+After quality gate passes, run `gap_verifier.py` to verify each identified research gap against the actual literature data.
+
+### Purpose
+
+Research gaps identified in `literature_summary.json` may be:
+- **True gaps** — genuinely under-studied with high research value
+- **False gaps** — actually well-studied, but missed by the initial search
+- **Low-value gaps** — real but not worth investigating (no practical impact)
+
+Phase 1.5 verifies each gap by cross-referencing against all extracted papers and scoring on novelty, evidence, and research value.
+
+### Execution
+
+```bash
+python "$BRIDGE_SKILL/scripts/gap_verifier.py" \
+  --gaps "$RUN_DIR/phase1_output/07_summary/literature_summary.json" \
+  --experiments "$RUN_DIR/phase1_output/03_normalized/experiments_normalized.json" \
+  --papers "$RUN_DIR/phase1_output/01_literature/source_manifest.json" \
+  --domain "$DOMAIN" \
+  --output "$RUN_DIR/phase1.5_output/verified_gaps.json"
+```
+
+### Scoring System
+
+| Metric | Range | Meaning |
+|--------|:-----:|---------|
+| **novelty_score** | 0-10 | 0=well-studied, 10=completely unexplored |
+| **evidence_grade** | A-E | A=direct papers confirm gap exists, E=multiple papers fully address it |
+| **research_value.composite** | 0-10 | Weighted: scientific(40%) + industrial(30%) + feasibility(30%) |
+
+### Gap Classification
+
+| Verdict | Criteria | Action |
+|---------|----------|--------|
+| **high** | novelty≥7, composite≥7 | Proceed to Phase 3 recommendation |
+| **medium** | novelty≥5, composite≥5 | Include in Phase 3 with lower priority |
+| **low** | novelty≥3 | Document but deprioritize |
+| **rejected** | novelty<3 or evidence_grade=E | Gap is closed — exclude from recommendations |
+
+### Output
+
+- `verified_gaps.json` — Each gap with novelty score, evidence grade, research value, and priority classification
+
+---
 
 ## Data Transformer
 
@@ -245,6 +397,64 @@ Phase 2 Module 5 is enhanced by Phase 1 literature summary data. The recommender
 2. **Confidence distribution** from Phase 1 → prioritize validating low-confidence findings
 3. **Trend analysis** from report → suggest parameter ranges that extend beyond literature coverage
 
+---
+
+## Phase 3: Evidence-Graded Recommendations (NEW)
+
+Phase 3 is the **anti-fabrication guarantee** layer. It takes the verified gaps from Phase 1.5 and the lab analysis from Phase 2, then produces a single, highest-feasibility research plan where every claim is anchored to specific literature evidence.
+
+### Execution
+
+```bash
+python "$BRIDGE_SKILL/scripts/evidence_grader.py" \
+  --verified-gaps "$RUN_DIR/phase1.5_output/verified_gaps.json" \
+  --experiments "$RUN_DIR/phase1_output/03_normalized/experiments_normalized.json" \
+  --literature-summary "$RUN_DIR/phase1_output/07_summary/literature_summary.json" \
+  --output "$RUN_DIR/phase3_output/evidence_graded_recommendations.json" \
+  --max-recommendations 3
+```
+
+### Evidence Grading System
+
+| Grade | Definition | Source Requirement |
+|:-----:|-----------|-------------------|
+| **A** | Direct experimental evidence | ≥3 papers with consistent data |
+| **B** | Strong indirect evidence | ≥1 paper with related data |
+| **C** | Weak indirect / theoretical | Well-established mechanism, no direct data |
+| **D** | Inference only | Chemical intuition, adjacent systems |
+| **F** | Pure speculation | **EXCLUDED** from final output |
+
+**Anti-fabrication rule**: Any claim graded D is flagged with `⚠️ 推断 — 无文献直接支持`. Claims graded F are never included.
+
+### Feasibility Scoring
+
+| Factor | Weight | Levels |
+|--------|:------:|--------|
+| **Equipment** | 25% | standard(9) / specialized(6) / advanced(3) / custom(1) |
+| **Complexity** | 25% | simple(9) / moderate(6) / complex(3) / very_complex(1) |
+| **Time** | 25% | fast(9) / moderate(6) / long(3) / very_long(1) |
+| **Cost** | 25% | low(9) / moderate(6) / high(3) / very_high(1) |
+
+### Output: TOP_PLAN.md
+
+The final output is a single Markdown document — **TOP_PLAN.md** — containing:
+
+1. **Executive Summary** — One-paragraph summary of the recommended plan
+2. **Literature Evidence** — Every claim with its evidence grade and source citation
+3. **Experimental Protocol** — Materials, equipment, step-by-step procedure
+4. **Expected Results** — What to expect, with confidence intervals
+5. **Risk Assessment** — What could go wrong and mitigation strategies
+6. **Evidence Anchors** — Table mapping each claim to its literature source
+
+### Why Only One Plan?
+
+Previous versions generated 3-5 recommendations. The optimization narrows to **one** plan because:
+- The single best plan is what a researcher needs to start working
+- Multiple plans dilute focus and create decision paralysis
+- The one plan is selected by: `max(evidence_grade_score × feasibility_score × novelty_score)`
+
+---
+
 ## Integrated Output
 
 After both phases complete, generate the bridge manifest:
@@ -263,6 +473,9 @@ python "$BRIDGE_SKILL/scripts/bridge_pipeline.py" \
 <run_dir>/
 ├── bridge_manifest.json              # Overall bridge status
 ├── .bridge_events.jsonl              # Bridge execution log
+├── phase0_output/                    # (NEW) Multi-round search results
+│   ├── search_rounds.json
+│   └── merged_corpus.json
 ├── phase1_output/                    # Literature skill outputs
 │   ├── 01_literature/
 │   ├── 02_extracted/
@@ -273,6 +486,8 @@ python "$BRIDGE_SKILL/scripts/bridge_pipeline.py" \
 │   ├── 07_summary/
 │   │   └── literature_summary.json
 │   └── run_summary.json
+├── phase1.5_output/                  # (NEW) Gap verification results
+│   └── verified_gaps.json
 ├── phase2_input/                     # Transformed data
 │   └── lab_experiments.json
 ├── phase2_output/                    # Lab analysis outputs
@@ -282,6 +497,9 @@ python "$BRIDGE_SKILL/scripts/bridge_pipeline.py" \
 │   ├── figures/
 │   ├── report.md
 │   └── recommendations.json
+├── phase3_output/                    # (NEW) Evidence-graded recommendations
+│   ├── evidence_graded_recommendations.json
+│   └── TOP_PLAN.md                   # ⭐ Single most feasible plan
 └── integrated_report.md              # Combined summary (optional)
 ```
 
@@ -303,7 +521,17 @@ python "$BRIDGE_SKILL/scripts/bridge_pipeline.py" \
 ## Roadmap / Future Enhancements
 
 1. **Incremental mode** — Add new papers to existing extraction without re-running entire Phase 1
-2. **Iterative feedback loop** — Phase 2 recommendations feed back into Phase 1 search keywords
-3. **Multi-domain support** — Pre-built vocabulary for battery materials, catalysts, drug formulations
-4. **Confidence-weighted analysis** — Phase 2 report generation weights results by Phase 1 confidence scores
-5. **Auto-search refinement** — Phase 2 gap analysis automatically generates new Phase 1 search queries
+2. **Multi-domain support** — Pre-built vocabulary for battery materials, catalysts, drug formulations
+3. **Confidence-weighted analysis** — Phase 2 report generation weights results by Phase 1 confidence scores
+4. **External API integration** — Direct Semantic Scholar / PubMed / Crossref API for Phase 0 search
+5. **Auto-search refinement** — Phase 1.5 gap verification automatically triggers new Phase 0 search rounds
+
+### v2.0 Optimizations (Implemented)
+
+| Feature | Status | Description |
+|---------|:------:|-------------|
+| **Phase 0: Multi-Round Search** | ✅ | 3-4 rounds of iterative literature search with increasing specificity |
+| **Phase 1.5: Gap Verification** | ✅ | Cross-reference gaps against literature, score novelty, reject false gaps |
+| **Phase 3: Evidence Grading** | ✅ | Grade every claim (A/B/C/D), feasibility scoring, TOP_PLAN.md output |
+| **Anti-Fabrication** | ✅ | No claim included without evidence anchor; F-grade claims excluded |
+| **Single Best Plan** | ✅ | One recommendation instead of multiple, selected by evidence×feasibility×novelty |

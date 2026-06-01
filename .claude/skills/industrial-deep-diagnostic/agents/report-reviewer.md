@@ -82,25 +82,43 @@ For the primary diagnosis, answer:
 
 ### 1.2 Domain-Specific Quantitative Verification
 
-Apply quantitative domain knowledge, not just qualitative reasoning:
+Apply quantitative domain knowledge, not just qualitative reasoning. The approach is **universal** — it works for any industrial process:
 
-#### Film Production (BOPET/BOPP)
-- **PET thermal degradation**: Arrhenius kinetics — rate roughly doubles per 10°C. At 75-80°C (near Tg), degradation half-life is months, not days. 1-2°C difference produces negligible rate change over 9 days.
-- **Oligomer formation**: Cyclic trimer is the dominant oligomer. Formation requires temperatures well above Tg. Concentration in film is typically ppm-level.
-- **MD stretching physics**: Temperature uniformity affects stretching ratio uniformity. MD temperature fluctuation of ±2°C can cause 1-3% thickness variation depending on the stress-strain curve slope at the stretching temperature.
-- **Casting parameters**: Melt temperature heterogeneity at the die exit is the primary cause of melt spots. Die gap uniformity and melt viscosity (temperature-dependent) are the controlling physics.
-- **Scratch formation**: Requires relative motion between film layers under contact pressure. Winding tension is the direct driver. Temperature fluctuation → thickness variation → winding tension variation is a multi-step chain — each step has its own transfer function that must be plausible.
-- **Vacuum degassing**: For PET extrusion, vacuum level of 20-50 mbar absolute at the vent port is typical. Residual moisture > 50 ppm causes hydrolysis and bubble formation during MD stretching.
+**How to verify any claim quantitatively:**
 
-#### CNC Machining
-- Ra ≈ fz²/(8×rε). If vibration is claimed as dominant driver, is feed-induced roughness negligible?
-- ISO 10816 vibration severity classes. Is reported vibration actually "severe"?
-- Spindle thermal expansion: 10-50 μm/°C. Is dimensional deviation consistent?
-- Taylor tool life equation: VT^n = C. Does tool_age behave like a wear proxy?
+1. **Identify the governing physics**: For the claimed mechanism (e.g., "temperature rise causes dimensional deviation"), find the relevant physical law:
+   - Thermal: ΔL = α × L₀ × ΔT (thermal expansion)
+   - Kinetics: Arrhenius equation (rate ∝ e^(-Ea/RT))
+   - Fluid: Darcy's law, Bernoulli, or pump affinity laws
+   - Mechanical: Hooke's law, beam deflection, or vibration severity standards
+   - Mass transfer: Fick's law, or concentration-driven diffusion
+   - Electrical: Ohm's law, or power-law relationships
 
-#### Heat Exchanger
-- Fouling resistance Rf: 0.0001-0.001 m²K/W per month. Is HTC decline consistent?
-- Does dP increase match the fouling thickness implied by HTC decline?
+2. **Estimate the expected magnitude**: Plug actual data values into the equation:
+   - "Claimed: 2°C rise causes 50μm dimensional deviation"
+   - Check: α_steel ≈ 12×10⁻⁶/K, L₀ ≈ 300mm → ΔL = 12×10⁻⁶ × 300 × 2 = 7.2μm
+   - Observed: 50μm → ratio = 50/7.2 ≈ 7× → IMPLAUSIBLE (too large for thermal alone)
+
+3. **Verify timescale consistency**: Does the claimed degradation rate match known physics?
+   - "Claimed: catalyst deactivation at 200°C over 8 hours"
+   - Check: Typical catalyst half-life at 200°C → calculate from known activation energy
+   - If half-life should be 500+ hours → mechanism is implausible at this timescale
+
+4. **Symptom completeness check**: Does the mechanism explain ALL observed symptoms?
+   - If the claim predicts vibration increase but NOT temperature increase, yet temperature rose first → mechanism is incomplete or wrong
+
+5. **Missing symptom check**: Would the mechanism produce effects NOT observed?
+   - If wear is claimed but no debris/particle count increase → mechanism is suspect
+
+6. **Use whatever domain knowledge you have** — the `process_knowledge_base.md` resource contains quantitative physics for many common processes. For unknown processes, derive from first principles (mass balance, energy balance, force balance). Attempt a quantitative check for every major claim.
+
+**Examples of universal quantitative verification (just illustrations):**
+
+- Thermal degradation claim: Arrhenius rate at process temperature vs claim timescale
+- Vibration-induced quality: vibration amplitude × structural compliance ÷ quality tolerance → ratio must be 0.5-2.0 for plausibility
+- Flow restriction claim: ΔP ∝ Q² relationship — does pressure drop scale with flow rate squared?
+- Wear claim: tool/component life data — does the claimed wear rate produce the observed degradation slope?
+- Concentration drift: mass balance — inlet vs outlet + accumulation = 0?
 
 ### 1.3 Parameter Physical Meaning Verification
 
