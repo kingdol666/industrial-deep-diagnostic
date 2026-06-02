@@ -29,6 +29,7 @@ Read from RUN_DIR:
 - `02_processed/event_analysis.json` — Quality reset analysis (if event markers)
 - `03_figures/plot_manifest.json`
 - `03_figures/image_captions.json`
+- `03_figures/visual_analysis.json`
 - `04_diagnostics/diagnosis.json`
 - `04_diagnostics/evidence.json`
 - `04_diagnostics/confidence.json`
@@ -45,18 +46,20 @@ Read from SKILL_PATH:
 
 **This step is required. Do NOT skip any figure.**
 
-**IMPORTANT: image_captions.json is the PRIMARY source for figure content.** LLMs cannot reliably interpret raw PNG images. Use the structured descriptions in image_captions.json as the authoritative source for what each figure shows.
+**IMPORTANT: visual_analysis.json is the PRIMARY source for VLM visual insights. image_captions.json is the SECONDARY source.** LLMs cannot reliably interpret raw PNG images. Use the structured descriptions in visual_analysis.json (rich VLM observations) and image_captions.json (compatibility layer) as the authoritative sources for what each figure shows.
 
-1. From `03_figures/plot_manifest.json`, extract the list of all plots and their generation metadata.
-2. From `03_figures/image_captions.json`, load structured descriptions for every figure.
-3. For each figure, read the following fields from image_captions.json:
-   - `description` — What the figure displays
-   - `key_observations` — What is actually visible (trends, divergences, anomaly regions)
-   - `trend_shapes`, `divergence_points`, `anomaly_regions` — Structured observations
-   - `diagnostic_implication` — How this figure supports or contradicts hypotheses
-   - `generation_method` — How the figure was created (from plot_manifest.json)
-4. Optionally attempt to view each PNG image via the Read tool for additional detail. If the Read tool returns `[Unsupported Image]` (expected for PNG files), rely on the image_captions.json data as the authoritative source.
-5. Never write "*Image unavailable*" if image_captions.json has structured data for that figure. Only note "*Image unavailable*" if BOTH PNG rendering and image_captions.json entry are missing.
+1. From `03_figures/visual_analysis.json`, load VLM-extracted visual observations for every figure:
+   - `visual_observations[]` — Per-figure structured observations with type, description, parameters, diagnostic weight
+   - `cross_parameter_temporal_alignment` — Synchronous groups, precedence signals, independent parameters
+   - `synthesis` — Overall visual conclusion
+2. From `03_figures/plot_manifest.json`, extract the list of all plots and their generation metadata.
+3. From `03_figures/image_captions.json`, load structured descriptions for every figure (fallback / complement).
+4. For each figure, read the following fields:
+   - From `visual_analysis.json`: VLM observations (temporal synchronization, event response, trend morphology, clustering)
+   - From `image_captions.json`: `description`, `key_observations`, `trend_shapes`, `divergence_points`, `anomaly_regions`, `diagnostic_implication`
+   - From `plot_manifest.json`: `generation_method`
+5. Optionally attempt to view each PNG image via the Read tool for additional detail. If the Read tool returns `[Unsupported Image]` (expected for PNG files), rely on visual_analysis.json + image_captions.json data as the authoritative sources.
+6. Never write "*Image unavailable*" if visual_analysis.json or image_captions.json has structured data for that figure. Only note "*Image unavailable*" if ALL three sources (PNG rendering, visual_analysis.json, image_captions.json) are missing.
 
 **For statistical validation plots**, describe what the validation check found:
 - CCF lag window plot → "Is this a consistent pattern or an isolated spike?"
@@ -167,11 +170,16 @@ For each figure:
 
 **图表展示内容 / What this figure shows**: [chart type, axes, data]
 
-**可视化发现 / Visual findings ([OBSERVATION], 证据等级 4)**: [What is actually visible]
+**VLM 视觉洞察 / VLM Visual Insights ([OBSERVATION], 证据等级 4)**: [What the VLM agent observed when reading this image — temporal synchronization, event response, trend morphology, clustering. Cite specific observations from visual_analysis.json]
 
-**诊断含义 / Diagnostic implication**: [How this supports or contradicts hypotheses]
+**可视化发现 / Visual findings ([OBSERVATION], 证据等级 4)**: [What is actually visible — from image_captions.json]
+
+**诊断含义 / Diagnostic implication**: [How this supports or contradicts hypotheses — synthesize both VLM insights and statistical evidence]
 
 **For validation plots, add**: **验证发现 / Validation finding**: [What statistical issue this plot reveals]
+
+**For VLM-specific charts (temporal overlay, event response, Simpson, synchronization), add**:
+**VLM 对齐分析 / VLM Alignment Analysis**: [How the temporal alignment reveals parameter grouping and causal ordering — from visual_analysis.json.cross_parameter_temporal_alignment]
 
 [Repeat for EVERY plot in the manifest.]
 

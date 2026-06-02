@@ -20,6 +20,7 @@ These rules ensure each step maximizes the value of upstream artifacts:
 |------|-----------|-------------|
 | **R2 Split** | Context Builder → Data Processor | RAG claim validation is split: context-builder does PRE-CHECKS (range, basic direction), data-processor does THOROUGH validation (lag, stratification, detrending) |
 | **Physics Feeding** | Context Builder → Data Processor → Diagnostician | Physics principles extracted by context-builder guide data-processor's analysis; data-processor's physics checks feed diagnostician's hypothesis validation |
+| **VLM Visual Bridge** | Data Processor → Diagnostician → Judge → Reporter | Data-processor generates VLM-readable charts + visual_analysis.json; diagnostician fuses VLM visual insights with statistical evidence; judge verifies visual-statistical consistency; reporter presents both visual and statistical evidence per figure |
 | **Bidirectional Ontology** | Context Builder ↔ Data Processor | Context-builder builds initial ontology with predicted→observed mapping; data-processor REFINES it with full-statistical insights and newly discovered discrepancy signals |
 | **Discrepancy Escalation** | All → Diagnostician | Discrepancy signals (prediction≠observation) discovered at ANY step are collected in ontology.json.discrepancy_signals[] and treated as PRIMARY diagnostic inputs |
 | **Physics Source Tracking** | Diagnostician → Judge → Reviewer | Physics source (pre_cached/rag_extracted/first_principles) propagates through all quality gates; confidence adjustments are verified at each stage |
@@ -35,6 +36,10 @@ Before presenting results to the user, verify pipeline coherence:
 - [ ] Does the judge verify that physics sources are properly tracked and confidence-adjusted? If not → overconfidence risk
 - [ ] Does the report-reviewer cross-check the diagnosis against rag_deep_understanding.json? If not → RAG-contradicted claims may survive
 - [ ] Are ontology discrepancy signals from ALL steps visible in the final diagnosis? If not → diagnostic signals were lost
+- [ ] Does visual_analysis.json exist with structured VLM observations? If not → data-processor Phase 5.5 was skipped
+- [ ] Does the diagnostician reference visual_analysis.json observations in evidence.json? If not → visual insights were ignored
+- [ ] Does the report Section 11 include VLM visual insights per figure? If not → reporter didn't consume visual_analysis.json
+- [ ] Are visual observations (from VLM) and statistical correlations consistent? If not → flag as discrepancy for investigation
 
 ### RAG Knowledge Validation: Two-Stage Protocol
 
@@ -63,6 +68,7 @@ Every artifact produced by each step must contain the enrichment fields needed b
 |----------|---------------------------|
 | `ontology.json` (from Step 2) | , , , ,  |
 | `ontology.json` (from Step 2) | , , , ,  (claims needing Stage 2) |
+| `visual_analysis.json` (from Step 3) | `visual_observations[]`, `cross_parameter_temporal_alignment` (synchronous_groups, precedence_signals, independent_parameters), `synthesis` — consumed by diagnostician Phase 2.4, judge Step 0.5.9, reporter Section 11 |
 | `rag_validation_report.json` (from Step 3) | Thorough validation of every RAG claim from Stage 2: temporal, stratified, detrended, functional form results |
 | `rag_validation_report.json` (from Step 3) | , ,  (merged from physics_check.json) |
 | `rag_validation_report.json` (from Step 3) | Data-driven scenario label (free-form, not template-matched), ,  |

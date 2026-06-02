@@ -83,11 +83,15 @@
 
 **图表展示内容 / What this figure shows**: {{figure_description}}
 
+**VLM 视觉洞察 / VLM Visual Insights ([OBSERVATION], 证据等级 4)**: {{vlm_visual_observations}}
+
 **可视化发现 / Visual findings ([OBSERVATION], 证据等级 4)**: {{figure_visual_findings}}
 
 **诊断含义 / Diagnostic implication**: {{figure_implication}}
 
 **[统计验证图附加] 验证发现 / Validation finding**: {{validation_finding}}
+
+**[VLM特化图附加] VLM 对齐分析 / VLM Alignment Analysis**: {{vlm_alignment_analysis}}
 
 *(对 `plot_manifest.json` 中的每张图重复。不要跳过任何图片。)*
 

@@ -32,6 +32,9 @@ Read from RUN_DIR:
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence breakdown
 - `04_diagnostics/reasoning_chain.json` — Structured Chain-of-Thought reasoning trace
+- `03_figures/visual_analysis.json` — VLM visual insights (synchronous groups, event response, trend morphology)
+- `03_figures/plot_manifest.json` — Plot inventory
+- `03_figures/image_captions.json` — Per-figure descriptions and diagnostic implications
 
 Read from SKILL_PATH:
 - `resources/evidence_rules.md` — Evidence hierarchy and anti-speculation rules
@@ -87,6 +90,15 @@ Read from SKILL_PATH:
    - Does it specify WHAT discriminating data would resolve the ambiguity?
    - **If the diagnosis assigns >65 confidence to a single hypothesis without checking whether alternatives predict the same observables → BLOCKING ISSUE**
    - **If time-colinear degradation mechanisms are treated as independently confirmed → BLOCKING ISSUE**
+
+9. **VLM Visual Evidence Consistency (NEW v6.4 — WARNING if inconsistent):**
+   - Does the diagnosis reference VLM visual observations from `visual_analysis.json`?
+   - For each key claim, is the visual evidence direction CONSISTENT with statistical evidence?
+     - If visual_analysis says "params A and B are synchronized" but diagnosis treats them as independent → **WARNING**
+     - If visual_analysis says "param C is independent of quality" but diagnosis uses C as root cause → **WARNING**
+   - Has the diagnostician explicitly cross-validated visual observations with statistical correlations?
+   - Does the reasoning chain (R2 or R4) cite specific visual_analysis.json observations?
+   - **If the diagnosis ignores visual_analysis.json entirely (never references it) → WARNING**
 
 ## Step 0.6: Audit Reasoning Chain Quality (NEW)
 
@@ -243,7 +255,7 @@ All variables classified? Consistent with ontology? Uncertain ones flagged? **Ca
 Alignment method appropriate? No artifacts? Statistical preservation verified? **Data confirmed time-sorted before lag analysis? If not, is the limitation explicitly stated?**
 
 ### 4. Visualization Quality (5%)
-Plots match data? Labels, units, legends present? **Statistical validation plots generated when issues exist?** Referenced plots exist?
+Plots match data? Labels, units, legends present? **Statistical validation plots generated when issues exist?** Referenced plots exist? **VLM-specific charts generated (temporal overlay, event response, synchronization)? visual_analysis.json exists with structured VLM observations?**
 
 ### 5. Evidence-Based Conclusions (20%)
 Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** **Physics source properly tracked (pre_cached/rag_extracted/first_principles)? First-principles derivations include complete L1-L5 documentation? RAG claims verified against rag_validation_report.json?** Hypotheses separated from facts?
@@ -277,6 +289,7 @@ No definitive root causes without evidence? No unsupported causal claims? No ass
 - Ignoring change point / regime shift evidence
 - **Claiming a single root cause when competing hypotheses are INDISTINGUISHABLE (v6.0)**
 - **Assigning >65 confidence to a hypothesis without checking discriminability against alternatives (v6.0)**
+- **Claiming visual evidence supports a hypothesis when visual_analysis.json contradicts it (e.g., visual_analysis says parameter is independent but diagnosis claims it's causal)**
 
 ### 10. Completeness (5%)
 All required outputs present? All plots generated? **validate_report.json exists and was consulted?** All artifacts saved?

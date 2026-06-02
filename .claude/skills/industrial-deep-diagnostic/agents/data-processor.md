@@ -344,6 +344,8 @@ Output: `RUN_DIR/02_processed/rag_validation_report.json`
 
 **Rule**: Every plot must answer a diagnostic question. If you can't state what root cause insight a plot provides, don't generate it.
 
+**VLM Design Principle**: Charts are not decorative evidence — they are **diagnostic input for a Vision Language Model**. A VLM Agent will read these images to extract insights that pure statistics cannot provide: temporal synchronization, event response patterns, visual clustering, and trend morphology. Design every chart so a VLM can read it.
+
 ### 5.1 Universal Plots (Always Generate)
 
 These apply to ANY industrial dataset:
@@ -351,6 +353,33 @@ These apply to ANY industrial dataset:
 1. **Temporal alignment**: Overlay each quality target with its top-3 correlated parameters on shared time axis. Mark known events (maintenance, grade changes) with vertical lines. Mark anomaly intervals with shaded regions.
 2. **Top-parameter scatter grid**: For each quality target, scatter against its top-3 parameters. Color by the primary grouping column. Add per-group regression lines if groups exist.
 3. **Correlation robustness**: Side-by-side bar chart: raw r vs detrended r vs Spearman ρ for top-15 parameter-quality pairs. Highlights which correlations are trend-artifacts vs genuine.
+
+### 5.2 VLM-Specific Charts (Always Generate)
+
+**These charts are specifically designed for VLM readability.** They complement the universal plots above.
+
+Generate these using `visual_analysis.py`:
+
+```bash
+"$PYTHON" "$SKILL_PATH/scripts/visual_analysis.py" "$RUN_DIR" \
+  --target-cols <quality_cols> --key-params <top_params> --group-col <group_col>
+```
+
+| Chart | VLM Design Feature | What VLM Can Read From It |
+|-------|-------------------|--------------------------|
+| **Time-aligned overlay** (`fig_vlm_temporal_overlay.png`) | All parameters z-score normalized, negative correlations reversed, shared time axis | Which parameters move together (synchronous groups), which diverge, event responses, trend morphology |
+| **Event response** (`fig_vlm_event_response.png`) | Before/after coloring, mean lines, transition marker | Whether quality resets at events, magnitude of jump, recovery completeness |
+| **Simpson Paradox** (`fig_vlm_simpson_*.png`) | Per-stratum subplots with regression lines, direction arrows | Direction reversal across strata, r-value contrast |
+| **Synchronization heatmap** (`fig_vlm_synchronization.png`) | Rolling correlation over time, threshold lines | Which correlations are stable vs time-varying, when relationships break down |
+
+**Design requirements for VLM readability** (from `resources/visual_analysis_framework.md`):
+- Shared time axis across all time-series overlays
+- z-score normalization so different units are comparable
+- Negative-correlation parameters reversed so ALL lines move in the same direction when process is healthy
+- Event markers: red dashed lines with bold text labels
+- Anomaly intervals: red semi-transparent shading
+- Large fonts (≥12pt), high contrast, clean layout
+- Clear legend with direction annotations
 
 ### 5.2 Scenario-Specific Plots (Generate Based on Phase 1 Classification)
 
@@ -401,7 +430,100 @@ Then run it:
 
 ---
 
-## Phase 6: Write Plot Manifest and Image Captions
+## Phase 5.5: VLM Visual Image Analysis Protocol
+
+**This is a critical new phase.** After generating all charts (Phase 5 + Phase 5.2), you MUST read and analyze every image using the Read tool. This is not optional — it transforms images from passive evidence into active diagnostic input.
+
+**Important — script vs agent responsibilities**:
+- The `visual_analysis.py` script (Phase 5.2) produces a **skeleton** `visual_analysis.json` containing `chart_inventory`, `cross_parameter_temporal_alignment` (computed from statistics), and `reading_guide`
+- **YOUR job in Phase 5.5** is to **read each PNG image using the Read tool** and ADD `visual_observations[]` and `synthesis` — the VLM observations that only a vision-capable agent can provide
+- If you cannot read PNG images (Read tool returns `[Unsupported Image]`), generate `visual_observations[]` from the chart design knowledge + `image_captions.json` data instead
+- The final `visual_analysis.json` must contain BOTH the script-generated skeleton AND your VLM observations
+
+**Core principle**: A VLM agent can see things in images that pure statistics cannot express. Two parameters with r=0.88 might be "almost perfectly correlated" in statistics, but in the image you can SEE that they are truly synchronized at every time point — or you can see that they diverge during a specific period. This visual nuance is diagnostic gold.
+
+### 5.5.1 Read Every Image (VLM Direct Reading)
+
+For each PNG in `03_figures/`, use the Read tool to view the image directly. For each image, answer these questions:
+
+| Question | Applies To | Expected Insight |
+|----------|-----------|-----------------|
+| **时序同步性** | Time-series / overlay | Which parameters fluctuate in sync? Who leads? Who lags? |
+| **事件响应** | Charts with event markers | Which parameters jump at events? Direction? Magnitude? |
+| **分簇/分层** | Scatter plots (colored by group) | Do groups form independent clusters? Different within-cluster slopes? |
+| **非线性** | Scatter plots | Visible inflection points? Threshold effects? |
+| **趋势形态** | Trend / degradation curves | Linear or accelerating? Inflection points? |
+| **异常聚集** | Anomaly-annotated time series | Are anomalies clustered in specific periods? |
+| **方向一致性** | Multi-indicator time series | Do multiple quality metrics degrade in the same direction? |
+
+### 5.5.2 Write visual_analysis.json
+
+Based on your VLM reading, write structured observations to `03_figures/visual_analysis.json`:
+
+```json
+{
+  "generated_at": "ISO timestamp",
+  "vlm_chart_count": 4,
+  "chart_design_purpose": "VLM-readable charts with time-aligned overlays, event markers, and direction-reversed parameters",
+  "visual_observations": [
+    {
+      "figure": "fig_vlm_temporal_overlay.png",
+      "observations": [
+        {
+          "type": "temporal_synchronization | event_response | trend_morphology | clustering | nonlinear | anomaly_clustering | direction_consistency",
+          "description": "VLM's visual observation in natural language — be specific about WHAT you see",
+          "parameters_involved": ["param1", "param2"],
+          "estimated_lag": "0 (synchronous) | N time units | unclear",
+          "confidence": "high | medium | low",
+          "diagnostic_weight": "CRITICAL | STRONG | MODERATE | WEAK — why this visual insight matters for diagnosis"
+        }
+      ]
+    }
+  ],
+  "cross_parameter_temporal_alignment": {
+    "synchronous_groups": [
+      {
+        "parameters": ["param_a", "param_b", "param_c"],
+        "description": "Why these parameters appear synchronized — what VLM sees",
+        "estimated_group_lag": "0 | N units"
+      }
+    ],
+    "precedence_signals": [
+      {
+        "earlier": "param_a starts declining",
+        "later": "param_b starts declining",
+        "description": "What the VLM observes about temporal ordering",
+        "visual_confidence": "HIGH | MEDIUM | LOW — needs CCF numerical confirmation?"
+      }
+    ],
+    "independent_parameters": [
+      {
+        "parameters": ["param_x"],
+        "description": "Why this parameter appears visually independent",
+        "diagnostic_weight": "MODERATE — not a driver"
+      }
+    ]
+  },
+  "chart_inventory": [
+    {
+      "figure": "filename.png",
+      "purpose": "What diagnostic question this chart answers",
+      "visual_questions": ["Q1", "Q2"]
+    }
+  ],
+  "synthesis": "Overall visual conclusion — the 'story' the images tell. This should be 3-5 sentences summarizing the key visual patterns and their diagnostic implications."
+}
+```
+
+### 5.5.3 Generate image_captions.json (Compatibility Layer)
+
+From `visual_analysis.json`, extract key information to generate `image_captions.json` for non-VLM downstream agents. Each entry must include:
+- `key_observations`: 3-5 bullets with ACTUAL NUMBERS (r values, threshold values, anomaly counts, drift rates)
+- `diagnostic_implication`: one sentence explaining what this plot tells the Diagnostician about root cause
+
+The `image_captions.json` is the **fallback** for agents that cannot read PNG images. The `visual_analysis.json` is the **primary** rich source.
+
+## Phase 6: Write Plot Manifest and Generate Captions
 
 ```bash
 node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR" 2>&1 || echo "Captions generation skipped — writing manually"
@@ -433,9 +555,10 @@ Must exist when done:
 02_processed/zone_analysis.json               ← if multi-zone sensors (Phase 3A)
 02_processed/event_analysis.json              ← if event markers (Phase 3D)
 02_processed/physics_manual_verification.md   ← if physics_check ran 0 checks (Phase 3G)
-03_figures/*.png
+03_figures/*.png                              ← universal + scenario-specific + VLM charts
 03_figures/plot_manifest.json
-03_figures/image_captions.json
+03_figures/visual_analysis.json               ← VLM visual image analysis (Phase 5.5)
+03_figures/image_captions.json                ← compatibility layer from visual_analysis.json
 06_scripts/scenario_plots.py                  ← scenario-specific visualization
 ```
 
@@ -458,3 +581,5 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 7. **Zone analysis is MANDATORY when data has multi-zone sensors.** Spatial localization of the drift identifies the failed component.
 8. **Document your reasoning in `analysis_plan.md`.** The Diagnostician needs to understand why you chose these analyses — not just what you ran.
 9. **Use only matplotlib + pandas + numpy.** No sklearn/scipy unless absolutely necessary.
+10. **VLM visual analysis is MANDATORY (Phase 5.5).** After generating all charts, you MUST read each PNG and produce `visual_analysis.json`. Charts are not decorative evidence — they are diagnostic input that a VLM Agent will actively read and reason from.
+11. **Charts must be VLM-readable.** Use shared time axes, z-score normalization, direction reversal for negative correlations, large fonts (≥12pt), high contrast, and clear event markers. Design for an Agent, not a human slide deck.

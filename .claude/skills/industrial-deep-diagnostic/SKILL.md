@@ -60,7 +60,8 @@ Each agent prompt is self-contained — read the corresponding `agents/<agent>.m
 | Before Step 0 | `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
 | Before Step 2 | `agents/context-builder.md` | RAG retrieval + ontology construction + deep mapping |
 | Before Step 2 | **`rag-knowledge-builder` skill** via `Skill` tool | Domain-specific knowledge retrieval, ontology construction, and structured data generation. The data exchange contract is documented in `rag-knowledge-builder/resources/integration_guide.md` (within that skill's directory). |
-| Before Step 3 | `agents/data-processor.md` | Statistical analysis + physics checks + scenario-adaptive visualization |
+| Before Step 3 | `agents/data-processor.md` | Statistical analysis + physics checks + scenario-adaptive visualization + **VLM visual image analysis** |
+| Before Step 3 | `resources/visual_analysis_framework.md` | VLM chart design principles + Phase 5.5 visual analysis protocol |
 | Before Step 4 | `agents/diagnostician.md` | Physics-based competing hypotheses diagnosis |
 | Before Step 5 | `agents/judge.md` | Quality gate (10 criteria + physics source audit) |
 | Before Step 6 | `agents/reporter.md` | Report generation from structured artifacts |
@@ -104,6 +105,9 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context Build (RAG + O
                                           │               │
                                           ▼               │
                                      Step 3: Data+Viz+Validate (Scenario-Adaptive)
+                                          │               │
+                                          ▼               │
+                                     Step 3.5: VLM Visual Analysis ──► visual_analysis.json
                                           │               │
                                           ▼               │
                                      Step 4: Diagnostician (Physics-Based Competing Hypotheses)
@@ -189,7 +193,7 @@ Check `clarification_needed.json`. Auto mode skips all questions and applies phy
 
 ### Step 3: Data Processing + Visualization (Sub-Agent)
 
-**Load**: `agents/data-processor.md` + `resources/data_ontology_mapping_framework.md` (for updating ontology)
+**Load**: `agents/data-processor.md` + `resources/data_ontology_mapping_framework.md` (for updating ontology) + `resources/visual_analysis_framework.md` (for VLM chart design and visual analysis protocol)
 
 Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
 
@@ -208,10 +212,29 @@ The agent follows a **Phase 0 → Phase 1 → ... → Phase 6** structure:
   - F: Periodic/cyclic patterns → FFT, cycle-phase analysis, partial correlation
   - G: physics_check returns 0 → manual L1-L5 physics verification
 - **Phase 4**: RAG knowledge Stage 2 validation
-- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table
-- **Phase 6**: Plot manifest + image captions
+- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table + **VLM-specific charts** (time-aligned overlay, event response, synchronization heatmap)
+- **Phase 6**: Plot manifest + image captions + **VLM visual image analysis** (Phase 5.5 in agent)
 
-Key outputs: `02_processed/` (universal + scenario-specific files), `03_figures/` (universal + scenario-specific plots), `analysis_plan.md`, `scenario_plots.py`
+Key outputs: `02_processed/` (universal + scenario-specific files), `03_figures/` (universal + scenario-specific plots), `03_figures/visual_analysis.json` (VLM visual insights), `analysis_plan.md`, `scenario_plots.py`
+
+### Step 3.5: VLM Visual Analysis (Sub-Agent — Integrated in Step 3)
+
+**This step is embedded within Data Processor's Phase 5.5–6 but described here for pipeline clarity.**
+
+After all charts are generated (Phase 5), the Data Processor Agent **reads each generated PNG image using the Read tool** and performs structured VLM visual analysis:
+
+1. **逐图阅读**: Read each PNG from `03_figures/` directly. For each image, answer: temporal synchronization? event response? clustering? nonlinear? trend morphology?
+2. **结构化洞察提取**: Write `03_figures/visual_analysis.json` containing:
+   - `visual_observations[]`: Per-chart structured observations (type, description, parameters, diagnostic weight)
+   - `cross_parameter_temporal_alignment`: Synchronous groups, precedence signals, independent parameters
+   - `synthesis`: Overall visual conclusion in natural language
+3. **兼容层**: Generate `03_figures/image_captions.json` from visual analysis for non-VLM downstream agents.
+
+**Why this matters**: The VLM agent reads the same images a human engineer would read. Visual patterns that are invisible in pure statistics — like "parameter A starts declining 30 minutes before parameter B" or "the scatter plot shows two distinct clusters with opposite slopes" — become explicit diagnostic evidence.
+
+**Load**: `resources/visual_analysis_framework.md` for detailed design principles and chart specifications.
+
+Outputs: `03_figures/visual_analysis.json`, updated `03_figures/image_captions.json`
 
 ### Step 4: Diagnostician (Sub-Agent)
 
@@ -220,14 +243,14 @@ Key outputs: `02_processed/` (universal + scenario-specific files), `03_figures/
 Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, optional `REPAIR_INSTRUCTIONS`.
 
 Physics-Based Competing Hypotheses Protocol:
-- **Phase 0**: Load all 12 evidence files; read validation constraints first
+- **Phase 0**: Load all evidence files (now including `visual_analysis.json`); read validation constraints first
 - **Phase 1**: For novel parameters, derive physics via L1-L5 Inference Ladder
-- **Phase 2**: Evidence fusion — combine data evidence with physics evidence
-- **Phase 3**: 5-Step protocol (Generate → Cross-check → Discriminate → Exclude → Conclude)
+- **Phase 2**: Evidence fusion — combine data evidence + physics evidence + **VLM visual insights** from `visual_analysis.json`
+- **Phase 3**: 5-Step protocol (Generate → Cross-check → Discriminate → Exclude → Conclude) — visual observations serve as evidence alongside statistics
 
 **CRITICAL — Schema-First 输出规则**: 在 `Phase 6` 写入任何文件之前，先读取 `templates/diagnosis_template.json` 和所有 4 个 schema 文件（`schemas/diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json`）。按 schema 的 `required` 字段和 `properties` 结构精确构造输出。**一次写入，通过验证**。不要先写再修。
 
-Every hypothesis must have: physical mechanism with governing equation, quantitative magnitude check, data evidence, quality reset/onset evidence, visual evidence, falsification condition.
+Every hypothesis must have: physical mechanism with governing equation, quantitative magnitude check, data evidence, quality reset/onset evidence, **VLM visual evidence** (from `visual_analysis.json`), falsification condition.
 
 Validate (×4):
 ```bash
@@ -301,8 +324,10 @@ Context Builder ──► 01_ontology/ontology.json, schema.json
 User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/ (universal + scenario-specific analysis files)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
+                ──► 03_figures/visual_analysis.json (VLM visual insights)
                 ──► analysis_plan.md, scenario_plots.py
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
+                ── (consumes visual_analysis.json for visual evidence fusion)
 Judge           ──► 05_review/judge_feedback.json
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
@@ -401,8 +426,8 @@ Apply these checks before writing any finding:
 | File | When | Content |
 |------|------|---------|
 | `agents/context-builder.md` | Before Step 2 | RAG retrieval + deep understanding + ontology construction |
-| `agents/data-processor.md` | Before Step 3 | Statistical analysis + anomaly detection + physics checks + RAG Stage 2 validation + visualization |
-| `agents/diagnostician.md` | Before Step 4 | Physics-based competing hypotheses + first-principles inference |
+| `agents/data-processor.md` | Before Step 3 | Statistical analysis + anomaly detection + physics checks + RAG Stage 2 validation + **VLM visualization** + **visual image analysis** |
+| `agents/diagnostician.md` | Before Step 4 | Physics-based competing hypotheses + first-principles inference + **VLM visual evidence fusion** |
 | `agents/judge.md` | Before Step 5 | 10-criteria quality gate + physics source audit + independent data sampling |
 | `agents/reporter.md` | Before Step 6 | Report generation from structured artifacts |
 | `agents/report-reviewer.md` | Before Step 7 | Independent physical truth audit + RAG knowledge cross-check |
@@ -411,6 +436,7 @@ Apply these checks before writing any finding:
 | File | When | Content |
 |------|------|---------|
 | `resources/rag_deep_understanding_protocol.md` | context-builder Phase 3 | R1-R4: semantic comprehension → knowledge-data alignment → physics extraction → gap identification |
+| `resources/visual_analysis_framework.md` | data-processor Phase 5.5 / diagnostician Phase 0 | VLM chart design principles, time-aligned overlay spec, visual observation extraction protocol, cross-parameter temporal alignment |
 | `resources/data_ontology_mapping_framework.md` | context-builder Phase 4 / data-processor Step 5.5.6 | Three mapping directions, discrepancy-as-signal, deep mapping checklist |
 | `resources/physics_inference_framework.md` | diagnostician Phase 1 | L1-L5 ladder: quantity ID → governing law → causal chain → magnitude → competing mechanisms |
 | `resources/pipeline_coherence_and_synergy.md` | Troubleshooting pipeline integration | Step synergy rules, cross-step verification, RAG two-stage protocol, artifact completeness |
@@ -430,6 +456,6 @@ Apply these checks before writing any finding:
 |-----------|------|---------|
 | `schemas/*.json` (11 files) | After each agent output | JSON Schema validation for every structured artifact |
 | `templates/*.md`, `templates/*.json` (5 files) | During Steps 4-6 | Output format templates for diagnosis, judge feedback, report, run summary |
-| `scripts/` (12 files) | Throughout pipeline | Pre-built Node.js + Python scripts (stats, validation, physics checks, conversion, inspection) |
+| `scripts/` (14 files) | Throughout pipeline | Pre-built Node.js + Python scripts (stats, validation, physics checks, conversion, inspection, visual analysis) |
 | `examples/` (3 scenarios) | Context builder reference | Sample ontologies for common process types |
 | `tests/checklists/` (4 files) | Developer QA | Diagnosis, judge, ontology, report quality checklists |

@@ -106,6 +106,21 @@
                   }
                 }
               },
+              "visual_evidence": {
+                "type": "object",
+                "description": "VLM visual observations supporting this hypothesis",
+                "properties": {
+                  "synchronous_with_quality": {"type": "boolean", "description": "Whether visual_analysis.json reports this parameter in a synchronous group with quality"},
+                  "event_response": {"type": "string", "description": "How this parameter visually responds to events"},
+                  "trend_alignment": {"type": "string", "description": "aligned_with_quality_decline | independent | opposite"},
+                  "vlm_observations": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Specific VLM observations from visual_analysis.json about this parameter"
+                  },
+                  "temporal_alignment_group": {"type": "string", "description": "Which synchronous group this parameter belongs to, from visual_analysis.json"}
+                }
+              },
               "contradicting_evidence": {
                 "type": "array",
                 "items": {
