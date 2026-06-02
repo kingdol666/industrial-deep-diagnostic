@@ -1,10 +1,8 @@
 # RAG Knowledge Builder — Integration Guide
 
-> How consumer skills (like `industrial-deep-diagnostic`) invoke this skill to get structured domain knowledge.
+> 消费者 skill 如何调用本 skill 获取领域本体。
 
 ## Integration Pattern: Skill-to-Skill Invocation
-
-Consumer skills invoke this skill via the `Skill` tool. The context-builder agent calls:
 
 ```
 Skill({
@@ -13,83 +11,119 @@ Skill({
 })
 ```
 
-| Parameter | Required | Source in diagnostic skill | Example |
-|-----------|:--------:|---------------------------|---------|
-| `domain` | Yes | `PROCESS_DESCRIPTION` or auto-constructed from column name patterns | `domain='biaxial PET film stretching with thickness control'` |
-| `target_concepts` | Yes | Quality target columns from data inspection | `target_concepts='thickness_um,haze_pct'` |
-| `related_concepts` | Yes | All numeric predictors minus targets and metadata | `related_concepts='mdo_temp_C,tdo_temp_C,line_speed_m_min'` |
-| `context_dimensions` | Yes | Categorical columns for stratification | `context_dimensions='product_grade,material_batch'` |
-| `run_dir` | Yes | Pipeline run directory (writes to `$run_dir/00_input/`) | `run_dir='/path/to/workspace/runs/20260602_xxx'` |
-| `interaction_mode` | No | Default `auto` — matches diagnostic's interaction mode | `interaction_mode='auto'` |
+| Parameter | Required | Source in consumer skill | Example |
+|-----------|:--------:|--------------------------|---------|
+| `domain` | Yes | Domain description or auto-constructed from column names | `domain='biaxial PET film stretching with thickness control'` |
+| `target_concepts` | Yes | Quality target columns | `target_concepts='thickness_um,haze_pct'` |
+| `related_concepts` | Yes | Numeric predictors minus targets | `related_concepts='mdo_temp_C,tdo_temp_C,line_speed_m_min'` |
+| `context_dimensions` | Yes | Categorical columns | `context_dimensions='product_grade,material_batch'` |
+| `run_dir` | No | Pipeline run directory | `run_dir='/path/to/workspace/runs/20260602_xxx'` |
+| `interaction_mode` | No | Default `auto` | `interaction_mode='auto'` |
 
 ## Files Exchanged
 
-| From RAG Builder (write) | → | To Diagnostic Skill (read) | Purpose |
-|--------------------------|---|---------------------------|---------|
-| `rag_ontology_draft.json` | → | `00_input/rag_ontology_draft.json` | Structured domain ontology — entities, concepts with semantic meanings, causal relationships, confounders |
-| `rag_structured_data.json` | → | `00_input/rag_structured_data.json` | Machine-consumable templates — sample data rows, validation bounds, query templates, prompt templates |
-| `rag_scored_chunks.json` | → | `00_input/rag_scored_chunks.json` | Raw scored knowledge chunks — for evidence tracing and provenance |
-| `rag_clarification_needed.json` | → | **MERGED INTO** `00_input/clarification_needed.json` | Concepts with UNKNOWN semantic meaning — merged with diagnostic's own unknowns |
-| `rag_audit_log.json` | → | `00_input/rag_audit_log.json` | Quality verdict + provenance + rejection reasons — consumed by Judge for knowledge quality awareness |
+| From RAG Builder (write) | → | To Consumer Skill (read) | Purpose |
+|--------------------------|---|--------------------------|---------|
+| `rag_ontology_draft.json` | → | `00_input/rag_ontology_draft.json` | **结构化本体** — 实体、概念字典（含精确定义、层次、术语映射）、关系图谱、约束规则、混杂因子 |
+| `rag_ontology_nl_spec.md` | → | `00_input/rag_ontology_nl_spec.md` | **自然语言本体规范** — 人类可读的领域本体文档 |
+| `rag_structured_data.json` | → | `00_input/rag_structured_data.json` | 机器消费模板 — 示例数据、验证规则、查询模板 |
+| `rag_scored_chunks.json` | → | `00_input/rag_scored_chunks.json` | 知识块（5 维评分 + LLM 分类） |
+| `rag_clarification_needed.json` | → | **MERGE INTO** `00_input/clarification_needed.json` | 语义未确定的概念 — 与消费者自己的 unknowns 合并 |
+| `rag_audit_log.json` | → | `00_input/rag_audit_log.json` | 质量验证结果 + 知识追溯 |
 
-**Critical**: RAG writes `rag_clarification_needed.json`. The diagnostic context-builder MUST merge any unresolved concepts from this file into the diagnostic's own `clarification_needed.json` before proceeding to Step 2.5.
+**Critical:** RAG 写入 `rag_clarification_needed.json`。消费者 skill 必须在进入下一步前将未解决概念合并到自己的 `clarification_needed.json`。
 
-## Output Format (v3 Universal)
+## Ontology Output Format (v4.0)
 
-The RAG builder produces a **domain-agnostic** ontology. Field names are generic — they describe roles that apply to any domain:
+### JSON 结构
 
 ```
 rag_ontology_draft.json
-├── scene: { name, domain_type, domain_summary, primary_outcomes[] }
-├── entities[]: { id, name, type, function, role_in_domain, key_attributes[] }
+├── scene: { name, domain_type, domain_summary, primary_outcomes }
+├── entities[]: {
+│     id, name, type, definition, role_in_domain,
+│     lifecycle, interacts_with[], owns_concepts[]
+│   }
 ├── concepts:
-│   ├── target_concepts[]: { name, semantic_meaning, confidence, concept_type, unit, expected_value_range }
-│   ├── related_concepts[]: { name, semantic_meaning, confidence, concept_type, unit, expected_value_range }
-│   └── context_dimensions[]: { name, semantic_meaning, confidence, cardinality }
-├── process_or_logic_stages[]: { id, name, order, function, key_entity_ids, key_concept_ids }
-├── relationships[]: { from, to, type, mechanism, direction, expected_lag, knowledge_confidence }
-├── confounders[]: { name, type, reasoning, expected_impact }
-└── rag_injection_metadata: { chunks reviewed, accepted, rejected, match_rate, knowledge_gaps[] }
+│   ├── target_concepts[]: {
+│   │     name, definition, definition_confidence,
+│   │     concept_type, broader_concept, sibling_concepts[],
+│   │     distinguish_from, unit, expected_value_range,
+│   │     abnormal_indicates, terminology{}
+│   │   }
+│   ├── related_concepts[]: { ...同上... }
+│   └── context_dimensions[]: { name, definition, cardinality }
+├── process_or_logic_stages[]: { id, name, order, function }
+├── relationships[]: {
+│     id, name, from, to, type, mechanism,
+│     direction, conditions, exceptions, expected_lag,
+│     knowledge_confidence
+│   }
+├── constraints[]: {
+│     name, type, description, applies_to[]
+│   }
+├── confounders[]: {
+│     name, type, reasoning, expected_impact
+│   }
+└── rag_injection_metadata: {
+      chunks reviewed/accepted/rejected, match_rate,
+      knowledge_gaps[], ontology_version
+    }
 ```
 
-**For backward compatibility**, the schema also accepts legacy field names:
-- `signals.inspection_signals[]` → alias for `concepts.target_concepts[]`
-- `signals.process_parameters[]` → alias for `concepts.related_concepts[]`
-- `equipment[]` → alias for `entities[]`
+### Markdown 结构
 
-**Consumer skills should use the new universal field names.** The diagnostic skill's field mapping in `context-builder.md` Step 2.1 handles both formats.
+`rag_ontology_nl_spec.md` 是本体的**人类可读面**，包含：
+1. 领域概述（边界、覆盖范围）
+2. 核心实体（角色、生命周期、交互）
+3. 概念字典（定义、层次、消歧义、术语映射）
+4. 关系图谱（机制、方向、条件、例外）
+5. 公理与约束
+6. 混杂因子
+7. 过程/逻辑阶段
+8. 知识缺口
+9. 构建元数据
 
-## How the Diagnostic Skill Consumes the Output
+## How Consumer Skills Use the Output
 
-### Step 2.1 (Context Builder): Load and Map
+### Context Builder: Load and Map
 
-1. Read `rag_ontology_draft.json` → extract `concepts.target_concepts[]` and `concepts.related_concepts[]` → map `semantic_meaning` to parameter `physical_meaning`, `expected_value_range` to `normal_range`, `semantic_meaning_confidence` to `physical_meaning_confidence`
-2. Read `rag_structured_data.json` → extract `validation_rules[]` → use as plausibility bounds for parameter range checks; extract `sample_data_templates[]` → populate initial ontology `expected_data_behavior` fields
-3. Read `rag_scored_chunks.json` → extract HIGH-scored chunks → cross-reference with `extracted_knowledge.json`
-4. Read `rag_audit_log.json` → note `match_rate` (low = knowledge sparse), document `chunks_rejected_reasons`, record LLM confidence
-5. Merge `rag_clarification_needed.json` into diagnostic's `clarification_needed.json`
+1. Read `rag_ontology_draft.json` → 提取 `concepts.target_concepts[]` 和 `concepts.related_concepts[]`
+   - `definition` → parameter 的自然语言语义
+   - `expected_value_range` → plausibility bounds
+   - `abnormal_indicates` → 异常诊断指引
+   - `terminology` → 列名到概念名的映射
+2. Read `rag_ontology_nl_spec.md` → 给 diagnostician agent 作为领域背景
+3. Read `rag_structured_data.json` → validation rules + sample data + query templates
+4. Read `rag_scored_chunks.json` → 交叉验证 evidence
+5. Merge `rag_clarification_needed.json` into consumer's own `clarification_needed.json`
 
-### Step 5 (Judge): Knowledge Quality Awareness
+### Diagnostician: Use Ontology for Reasoning
 
-The Judge reads `rag_audit_log.json` to understand:
-- How many chunks were reviewed vs accepted vs rejected
-- What the LLM's confidence in its ontology construction was
-- Whether knowledge coverage was sparse (`match_rate < 0.3`)
+- `relationships[]` → 因果假设库
+- `constraints[]` → 物理可行性检查
+- `confounders[]` → Simpson's Paradox 风险
+- `terminology` → 理解数据列名
 
-This informs the "Evidence-Based Conclusions" scoring criterion — conclusions based on low-match-rate RAG knowledge get reduced confidence.
+### Judge: Knowledge Quality Awareness
 
-### Step 7 (Report Reviewer): RAG Knowledge Cross-Check
+Read `rag_audit_log.json` to understand:
+- match_rate（低 = 知识稀疏）
+- LLM confidence
+- Rejected chunks + reasons
 
-The Reviewer reads `rag_deep_understanding.json` (which incorporates RAG knowledge) to cross-check the diagnosis against extracted physics principles and validated RAG claims.
+### Reporter: Use NL Spec for Reports
+
+Read `rag_ontology_nl_spec.md` for human-readable concept definitions and relationship mechanisms.
 
 ## Fallback Chain
 
 ```
 1. Try: Skill("rag-knowledge-builder", ...)
-   ↓ FAILED (skill not available / engine unreachable / error)
+   ↓ FAILED
 2. Try: Pre-generated rag_ontology_draft.json in 00_input/
    ↓ NOT FOUND
-3. Fallback: Build ontology from scratch (context-builder steps)
+3. Fallback: Build ontology from scratch (consumer's own steps)
 ```
 
 RAG is an acceleration, not a hard dependency.
@@ -97,14 +131,13 @@ RAG is an acceleration, not a hard dependency.
 ## First-Time Setup
 
 ```bash
-# Terminal 1: Start RAG engine (keep running)
+# Terminal 1: Start RAG engine
 cd rag-retrieval-engine && uv sync && uv run python server.py &
-# → http://localhost:8765 (API docs at /docs)
+# → http://localhost:8765
 
 # One-time: Build initial knowledge index
 curl -X POST http://localhost:8765/index -H "Content-Type: application/json" -d '{"rebuild": false}'
 
 # Verify
 curl -s http://localhost:8765/health
-# → {"status":"healthy","kb_ready":true,"total_chunks":63}
 ```
