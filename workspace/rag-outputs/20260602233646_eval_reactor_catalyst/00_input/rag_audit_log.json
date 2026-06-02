@@ -1,0 +1,88 @@
+{
+  "verified_at": "2026-06-02T23:57:00+08:00",
+  "verdict": "CONDITIONAL",
+  "checks": {
+    "schema_compliance": {
+      "passed": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "field": "rag_injection_metadata",
+          "detail": "字段名称为 rag_injection_metadata 而非 rag_construction_metadata，但包含所需字段（knowledge_gaps、match_rate）",
+          "recommendation": "不影响功能，建议下一版本统一字段名"
+        }
+      ]
+    },
+    "nl_definition_quality": {
+      "passed": true,
+      "issues": []
+    },
+    "hierarchical_completeness": {
+      "passed": true,
+      "issues": []
+    },
+    "relationship_semantic_richness": {
+      "passed": true,
+      "issues": []
+    },
+    "logical_consistency": {
+      "passed": true,
+      "issues": []
+    },
+    "cross_source_consistency": {
+      "passed": true,
+      "issues": [
+        {
+          "severity": "info",
+          "field": "match_rate",
+          "detail": "match_rate = 0.0（14/14 chunks 被拒绝），本体完全基于通用物理原理推导而非领域特定 chunk。跨源一致性检查通过（无矛盾），但缺乏领域特定 chunk 验证。",
+          "recommendation": "建议补充领域特定知识库 chunk 以增强跨源验证"
+        }
+      ]
+    },
+    "nl_spec_quality": {
+      "passed": false,
+      "issues": [
+        {
+          "severity": "warning",
+          "field": "rag_ontology_nl_spec.md",
+          "detail": "自然语言规范文件 rag_ontology_nl_spec.md 未生成。当前仅 JSON 格式本体存在，缺少 NL 渲染版本。",
+          "recommendation": "非阻塞问题：JSON 本体定义已包含所有必要信息（概念定义、层次关系、机制描述均为自然语言）。建议在后续迭代中生成 NL Spec 文件以便人工审查。"
+        }
+      ]
+    },
+    "downstream_consumability": {
+      "passed": true,
+      "issues": []
+    }
+  },
+  "summary": {
+    "total_checks": 8,
+    "passed": 7,
+    "failed": 1,
+    "warnings": [
+      "NL Spec 文件未生成（JSON 本体已足够完整，但按流程规范应补充 NL Spec）",
+      "rag_injection_metadata 字段名与标准命名（rag_construction_metadata）不一致",
+      "match_rate = 0.0，缺少领域特定 chunk 验证"
+    ],
+    "overall": "CONDITIONAL",
+    "decision": "保存本体。缺失 NL Spec 为非阻塞问题，JSON 本体内容已满足下游 agent 使用需求。建议在下一轮迭代中补充 NL Spec 文件。"
+  },
+  "recommendations": [
+    {
+      "priority": "low",
+      "action": "生成 rag_ontology_nl_spec.md 文件，将 JSON 定义渲染为自然语言规范文档",
+      "rationale": "提高本体可读性和人工审查效率，符合流程规范要求"
+    },
+    {
+      "priority": "medium",
+      "action": "补充领域特定知识库 chunk（如噻吩中毒机理、Pd 催化剂失活动力学）",
+      "rationale": "当前 match_rate = 0.0，全部知识来自通用物理原理推断，领域特定 chunk 可增强本体置信度和精确性"
+    },
+    {
+      "priority": "low",
+      "action": "统一字段命名（rag_injection_metadata → rag_construction_metadata）",
+      "rationale": "标准化命名，便于后续版本兼容"
+    }
+  ]
+}

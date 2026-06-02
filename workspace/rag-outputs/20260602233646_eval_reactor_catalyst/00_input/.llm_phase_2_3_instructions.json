@@ -1,0 +1,96 @@
+{
+  "skill_root": "/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/.claude/skills/rag-knowledge-builder",
+  "domain": "CSTR reactor catalyst selective poisoning — continuous stirred tank reactor for hydrogenation reactions, Pd/Al2O3 catalyst deactivation by thiophene poisoning",
+  "target_concepts": [
+    "conversion_pct",
+    "selectivity_pct",
+    "quality_index"
+  ],
+  "related_concepts": [
+    "reactor_temp_C",
+    "reactor_pressure_bar",
+    "h2_partial_pressure_bar",
+    "feed_rate_kg_hr",
+    "feed_sulfur_ppm",
+    "byproduct_ppm",
+    "cooling_duty_kW",
+    "delta_T_reactor_C",
+    "cooling_water_temp_C"
+  ],
+  "context_dimensions": [
+    "product_lot",
+    "catalyst_bed_id",
+    "shift"
+  ],
+  "run_id": "run_1780414606_cb5aabfa",
+  "input_files": {
+    "scored_chunks": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_scored_chunks.json"
+  },
+  "output_files": {
+    "ontology_draft": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_ontology_draft.json",
+    "ontology_nl_spec": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_ontology_nl_spec.md",
+    "structured_data": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_structured_data.json",
+    "clarification_needed": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_clarification_needed.json",
+    "audit_log": "workspace/rag-outputs/20260602233646_eval_reactor_catalyst/00_input/rag_audit_log.json"
+  },
+  "llm_agents": {
+    "phase_2_ontology": {
+      "prompt_file": "agents/ontology-construction-agent.md",
+      "design_principles": "resources/ontology-design-principles.md",
+      "input": "rag_scored_chunks.json -> chunks[] (each has 'content' field)",
+      "outputs": [
+        "rag_ontology_draft.json",
+        "rag_ontology_nl_spec.md"
+      ],
+      "key_steps": [
+        "Read domain description and concept lists",
+        "Read every chunk's FULL content (not just metadata/tags)",
+        "Judge applicability: APPLICABLE / PARTIALLY / NOT_APPLICABLE",
+        "Write precise concept definitions (say 'what it is', not 'what it's called')",
+        "Build concept hierarchy (broader_concept, sibling_concepts)",
+        "Extract relationships with mechanism, conditions, exceptions",
+        "Discover domain constraints (hard/soft/rules)",
+        "Build terminology mapping (synonyms, abbreviations, cross-language)",
+        "Generate NL Spec (Markdown) alongside JSON",
+        "Mark UNKNOWN for uncertain definitions"
+      ]
+    },
+    "phase_3_structured_data": {
+      "prompt_file": "agents/structured-data-generator.md",
+      "input": "rag_ontology_draft.json + rag_ontology_nl_spec.md",
+      "output": "rag_structured_data.json",
+      "key_steps": [
+        "Generate sample data rows with realistic values",
+        "Generate validation rules from ontology constraints",
+        "Generate causal query templates from relationships",
+        "Generate terminology index from concept mappings",
+        "Generate LLM prompt templates referencing ontology",
+        "Generate defect scenarios from constraints"
+      ]
+    },
+    "phase_4_verification": {
+      "prompt_file": "agents/quality-verification-agent.md",
+      "input": "rag_ontology_draft.json + rag_ontology_nl_spec.md + rag_structured_data.json",
+      "output": "rag_audit_log.json (with PASS/CONDITIONAL/FAIL verdict)",
+      "checks": [
+        "Schema compliance",
+        "NL definition quality (precise, disambiguated)",
+        "Hierarchical completeness (broader_concept exists)",
+        "Relationship semantic richness (mechanism, conditions, exceptions)",
+        "Logical consistency (no circular chains)",
+        "Cross-source consistency",
+        "NL Spec quality (complete, human-readable)",
+        "Downstream consumability"
+      ]
+    }
+  },
+  "anti_patterns": [
+    "DO NOT keyword-match for concept classification",
+    "DO NOT write tautological definitions ('温度就是温度值')",
+    "DO NOT skip hierarchy — every concept needs broader_concept",
+    "DO NOT produce relationships without mechanism descriptions",
+    "DO NOT skip NL Spec generation",
+    "DO NOT use domain_type='generic'",
+    "DO NOT skip rejection documentation"
+  ]
+}

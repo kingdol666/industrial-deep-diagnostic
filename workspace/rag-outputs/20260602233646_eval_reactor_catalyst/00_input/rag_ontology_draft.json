@@ -1,0 +1,656 @@
+{
+  "scene": {
+    "name": "CSTR 加氢反应催化剂选择性中毒诊断领域",
+    "domain_type": "cstr_hydrogenation_catalyst_deactivation",
+    "domain_type_confidence": "KNOWN",
+    "domain_summary": "本领域覆盖连续搅拌釜式反应器（CSTR）中 Pd/Al₂O₃ 催化剂加氢反应的性能监控与故障诊断。核心关注点是催化剂因原料中微量噻吩选择性中毒而逐渐失活，表现为转化率下降、副产物上升和选择性劣化。关键物理实体包括反应器本体、催化剂床层、换热系统和进料系统。诊断的独特性在于催化剂再生（热氢汽提）可使活性部分恢复——这是区分催化剂失活与其他故障机制的决定性证据。本领域排除无催化剂的均相反应器、非加氢反应类型以及单纯机械故障（如搅拌器损坏）。",
+    "primary_outcomes": [
+      "conversion_pct",
+      "selectivity_pct",
+      "quality_index"
+    ]
+  },
+  "entities": [
+    {
+      "id": "cstr_reactor_vessel",
+      "name": "CSTR 反应器本体",
+      "type": "system",
+      "definition": "连续搅拌釜式反应器（CSTR），一个带搅拌装置的压力容器，用于气-液-固三相催化加氢反应。反应器内装有 Pd/Al₂O₃ 催化剂固体颗粒，氢气（气相）和液态原料在搅拌作用下充分混合接触。反应器配备温度、压力传感器以及冷却夹套/盘管用于移出反应热。与管式反应器（PFR）不同，CSTR 的反应物浓度均匀分布，出口组成与釜内相同。反应器本体不直接参与化学反应，而是提供反应所需的热力学环境和传质传热条件。",
+      "role_in_domain": "Midstream",
+      "lifecycle": "安装→开车→正常运行→催化剂再生循环→停車检修→再开车",
+      "interacts_with": [
+        "catalyst_bed",
+        "heat_exchange_system",
+        "feed_system",
+        "hydrogen_supply_system"
+      ],
+      "owns_concepts": [
+        "reactor_temp_C",
+        "reactor_pressure_bar",
+        "delta_T_reactor_C"
+      ],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "id": "catalyst_bed",
+      "name": "Pd/Al₂O₃ 催化剂床层",
+      "type": "material",
+      "definition": "以 γ-Al₂O₃（活性氧化铝）为载体、钯（Pd）为活性组分的负载型加氢催化剂，以固定床或淤浆床形式装填在 CSTR 反应器中。催化剂的活性取决于 Pd 活性位点的数量和可及性。原料中微量噻吩（thiophene, C₄H₄S）会不可逆吸附于 Pd 活性位点，导致催化剂选择性中毒——这是本领域的核心故障机制。与热烧结不同，选择性中毒仅占据活性位点而不破坏催化剂结构，因此可以通过热氢汽提（再生）部分恢复活性。催化剂床层按生产周期编号（catalyst_bed_id），不同批次的催化剂可能有不同的初始活性和抗毒性能。",
+      "role_in_domain": "Midstream",
+      "lifecycle": "装填→初始活化→正常运行（逐渐失活）→再生（热氢汽提）→二次失活→更换",
+      "interacts_with": [
+        "cstr_reactor_vessel",
+        "feed_system",
+        "hydrogen_supply_system"
+      ],
+      "owns_concepts": [
+        "conversion_pct",
+        "selectivity_pct",
+        "quality_index"
+      ],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "id": "heat_exchange_system",
+      "name": "反应器换热系统",
+      "type": "system",
+      "definition": "用于控制 CSTR 反应温度的热交换系统，由冷却夹套/盘管、冷却水循环泵和冷却塔组成。加氢反应是强放热反应，反应热需要通过冷却介质移除以维持反应温度在设定范围（约 180-200°C）。冷却负荷（cooling_duty_kW）直接反映反应放热量，进而反映催化剂活性和反应速率。冷却水温（cooling_water_temp_C）受环境季节性影响，是潜在的混杂变量。当催化剂失活导致反应放热减少时，冷却负荷下降——这一特征可用于区分催化剂失活和进料波动。",
+      "role_in_domain": "Downstream",
+      "lifecycle": "运行→维护（清洗换热表面）→季节性调整",
+      "interacts_with": [
+        "cstr_reactor_vessel"
+      ],
+      "owns_concepts": [
+        "cooling_duty_kW",
+        "cooling_water_temp_C",
+        "delta_T_reactor_C"
+      ],
+      "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0"
+    },
+    {
+      "id": "feed_system",
+      "name": "进料系统",
+      "type": "system",
+      "definition": "将液态原料输送至 CSTR 反应器的系统，包括进料泵、流量计、预热器和相关管路。进料速率（feed_rate_kg_hr）决定反应物的空时和停留时间。原料来源批次（product_lot）不同，可能含有不同浓度的噻吩等催化剂毒物。进料总硫含量（feed_sulfur_ppm）是常规监控指标，但噻吩作为微量杂质（0.05-0.15 ppm）可能低于总硫分析检测限。进料泵可能发生跳车等瞬时故障，造成短暂的入口条件变化——需与渐进式催化剂失活区分。",
+      "role_in_domain": "Upstream",
+      "lifecycle": "运行→进料批次切换→维护",
+      "interacts_with": [
+        "cstr_reactor_vessel"
+      ],
+      "owns_concepts": [
+        "feed_rate_kg_hr",
+        "feed_sulfur_ppm",
+        "product_lot"
+      ],
+      "knowledge_source": "kb_process_knowledge_base_1"
+    },
+    {
+      "id": "hydrogen_supply_system",
+      "name": "氢气供应系统",
+      "type": "system",
+      "definition": "为加氢反应提供氢气的系统，包含氢气压缩机、缓冲罐和压力调节阀。氢气分压（h2_partial_pressure_bar）是影响加氢反应速率的关键参数——根据 Langmuir-Hinshelwood 动力学，较高的氢分压有利于加氢反应速率。氢气压缩机可能因维护而停机，导致氢分压暂时下降，造成短期转化率波动。与催化剂渐进失活不同，氢气供应波动引起的转化率变化是瞬时可逆的，停机结束后立即恢复。",
+      "role_in_domain": "Upstream",
+      "lifecycle": "运行→压缩机维护→恢复",
+      "interacts_with": [
+        "cstr_reactor_vessel"
+      ],
+      "owns_concepts": [
+        "h2_partial_pressure_bar"
+      ],
+      "knowledge_source": "kb_parameter_to_physics_pressure_bar_0"
+    }
+  ],
+  "concepts": {
+    "target_concepts": [
+      {
+        "name": "conversion_pct",
+        "definition": "反应转化率（%），定义为已反应的原料量占进入反应器的总原料量的百分比。计算方式为（进料中反应物浓度 - 出料中反应物浓度）/ 进料中反应物浓度 × 100%。在 CSTR 加氢反应中，转化率直接反映催化剂活性：高活性催化剂（新鲜或再生后）转化率可达 93-95%，活性下降后逐步降至约 40%。转化率是诊断催化剂状态的**首要指标**——其变化趋势（单调下降 vs 阶跃变化 vs 周期性波动）是区分故障机制的关键判据。与选择性（selectivity_pct）不同，转化率度量的是反应进行的程度，而非产物分布的偏好。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "measurement",
+        "broader_concept": "化学反应性能指标",
+        "sibling_concepts": ["selectivity_pct", "quality_index"],
+        "distinguish_from": "与 selectivity_pct 的区别：conversion_pct 表示有多少原料被消耗，selectivity_pct 表示消耗的原料中有多少转化为目标产物而非副产物。两者可以独立变化——催化剂失活通常同时降低两者，而工艺条件变化可能只影响其一。与 byproduct_ppm 本质反相关——转化率下降时因停留时间相同而副产物生成量减少（但实际操作中转化率下降通常伴随副产物上升，因为选择性劣化）。",
+        "unit": "%",
+        "expected_value_range": "35-97%",
+        "abnormal_indicates": "持续下降（>72h）→ 催化剂渐进失活（中毒或烧结）；阶跃下降 → 进料/氢气流速突变或控制回路故障；振荡 → 控制回路不稳定或进料泵故障；再生后恢复至~75% 而非 100% → 部分中毒可逆（确证中毒），不可逆部分=热烧结损伤",
+        "terminology": {
+          "canonical_name": "反应转化率",
+          "synonyms": ["转化率", "反应转化百分比", "原料转化率"],
+          "abbreviations": ["X", "conv", "Conv"],
+          "cross_language": {"zh": "转化率", "en": "conversion percentage"},
+          "context_aliases": {"data_column": "conversion_pct", "process_control": "反应转化率", "quality_report": "转化率"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "conversion_pct 是化学反应器最核心的输出指标，通用物理原理（Arrhenius 方程+物料平衡）直接适用于此。该概念的定义来自化学工程基础，无需领域特定 chunk。"
+      },
+      {
+        "name": "selectivity_pct",
+        "definition": "反应选择性（%），定义为转化为目标产物的原料量占已反应原料量的百分比。在加氢反应中，选择性度量催化剂对目标反应路径相对于副反应路径的偏好程度。高选择性（>97%）意味着几乎全部原料都转化为目标产物，低选择性（<86%）意味着大量原料转化为不需要的副产物。选择性下降通常指示催化剂活性位点的化学环境发生变化——选择性中毒的毒物（如噻吩）占据特定活性位点后，剩余位点对目标路径的偏好性降低。选择性不受单纯物理因素（如温度变化）的直接影响——这是区分选择性中毒与热烧结的关键特征。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "measurement",
+        "broader_concept": "化学反应性能指标",
+        "sibling_concepts": ["conversion_pct", "quality_index"],
+        "distinguish_from": "与 conversion_pct 的区别见上。与 byproduct_ppm 本质反相关的定量关系：selectivity_pct 下降 → 副产物生成比例上升 → byproduct_ppm 升高。但 byproduct_ppm 还受进料速率和总转化率影响，selectivity_pct 是归一化的无量纲指标。",
+        "unit": "%",
+        "expected_value_range": "85-99%",
+        "abnormal_indicates": "持续下降 → 催化剂选择性中毒（活性位点化学环境改变）；急剧下降 → 可能有其他竞争反应被激活（如过热导致的热裂解副反应）",
+        "terminology": {
+          "canonical_name": "反应选择性",
+          "synonyms": ["选择性", "目标产物选择性"],
+          "abbreviations": ["S", "sel", "Sel"],
+          "cross_language": {"zh": "选择性", "en": "selectivity"},
+          "context_aliases": {"data_column": "selectivity_pct", "process_control": "选择性%"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_1",
+        "reasoning": "选择性是催化反应领域的标准概念，受 Arrhenius 竞争反应动力学控制。不同活化能的竞争反应在不同温度下具有不同的选择性。虽然没有针对 Pd 加氢选择性的具体 chunk，但通用化学动力学原理支持 INFERRED 置信度。"
+      },
+      {
+        "name": "quality_index",
+        "definition": "产品品质指数（无量纲，范围 0-100），是综合反映产品满足规格程度的复合指标。该指数综合了转化率、选择性、副产物含量和其他质量参数（如色度、纯度等）。数值越高表示产品质量越好。新鲜催化剂运行时 quality_index 可达 90+，催化剂严重失活后降至约 35。由于是复合指标，quality_index 的变化通常滞后于单个过程参数，但一旦开始下降，其趋势往往单调且不可逆——催化剂再生后该指数会恢复，但通常达不到初始水平。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "composite_score",
+        "broader_concept": "产品品质指标",
+        "sibling_concepts": ["conversion_pct", "selectivity_pct"],
+        "distinguish_from": "与 conversion_pct 和 selectivity_pct 的区别：quality_index 是复合指标，综合多个单指标。转换率下降一定导致 quality_index 下降，但 quality_index 还考虑其他不在数据集中出现的品质参数。因此 quality_index 包含比转换率和选择性更全面的信息。",
+        "unit": "无量纲（0-100）",
+        "expected_value_range": "30-100",
+        "abnormal_indicates": "持续下降至 <70 → 产品质量不达标，需干预；<50 → 严重品质问题，应考虑停车检查；再生后恢复但不及初始 → 确认催化剂永久性损伤",
+        "terminology": {
+          "canonical_name": "产品品质指数",
+          "synonyms": ["品质指数", "质量指数", "产品综合品质"],
+          "abbreviations": ["QI", "Qidx"],
+          "cross_language": {"zh": "品质指数", "en": "quality index"},
+          "context_aliases": {"data_column": "quality_index", "quality_report": "产品综合品质评分"}
+        },
+        "knowledge_source": "kb_process_knowledge_base_5",
+        "reasoning": "quality_index 是工厂特定定义的综合指标，其具体计算方法（加权公式）在数据中未明确给出，但作为产品质量的最终度量指标是合理的。CONFIDENCE INFERRED——定义来自工业实践而非具体 chunk。"
+      }
+    ],
+    "related_concepts": [
+      {
+        "name": "reactor_temp_C",
+        "definition": "反应器操作温度（°C），测量 CSTR 反应釜内部（通常为液相主体）的温度。在 Pd/Al₂O₃ 催化的加氢反应中，典型操作温度范围为 183-197°C。温度通过两种途径影响转化率：(1) Arrhenius 效应——温度升高指数级提高反应速率常数 k = A·exp(-Ea/RT)；(2) 催化剂稳定性——过高温度（>200°C）加速 Pd 烧结。反应温度在中毒场景中是**结果而非原因**——操作员主动提高温度以补偿催化剂活性下降（提温补偿效应），因此温度上升与转化率下降同时出现是中毒的特征表现。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "predictor",
+        "broader_concept": "温度量",
+        "sibling_concepts": ["cooling_water_temp_C", "delta_T_reactor_C"],
+        "distinguish_from": "与冷却水温（cooling_water_temp_C）的区别：reactor_temp_C 是反应釜内部温度，受反应放热和冷却控制的共同影响；cooling_water_temp_C 是冷却介质入口温度，受环境季节影响。与 delta_T_reactor_C（反应器温差）的区别：delta_T 是反应温度与冷却介质的温差，反映传热推动力。",
+        "unit": "°C",
+        "expected_value_range": "180-200°C",
+        "abnormal_indicates": "持续上升 + 转化率下降 → 操作员提温补偿催化剂失活（重要诊断信号）；持续上升 + 冷却负荷不变 → 反应放热增加（可能进料浓度升高）；急剧上升 → 冷却失效或失控反应",
+        "terminology": {
+          "canonical_name": "反应器温度",
+          "synonyms": ["反应温度", "釜温", "反应器操作温度"],
+          "abbreviations": ["T_reactor", "Tr"],
+          "cross_language": {"zh": "反应器温度", "en": "reactor temperature"},
+          "context_aliases": {"data_column": "reactor_temp_C", "process_control": "反应釜温度"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "温度概念是通用物理量，Arrhenius 公式和能量守恒定律适用。chunk kb_parameter_to_physics_temperature_C_0 和 _1 提供了温度与化学反应/降解关系的通用物理框架。"
+      },
+      {
+        "name": "reactor_pressure_bar",
+        "definition": "反应器操作压力（bar），测量 CSTR 反应釜顶部的表压。在加氢反应中，压力影响气体（H₂）在液相中的溶解度，进而影响反应物可及性。典型的加氢反应操作压力为 28-32 bar。催化剂中毒导致反应速率下降时，H₂ 消耗减少，可能引起反应器压力轻微上升（因为 H₂ 的消耗速率降低）。压力本身不是导致催化剂失活的原因，但压力变化可以反映反应器内部状态的变化。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "predictor",
+        "broader_concept": "压力量",
+        "sibling_concepts": ["h2_partial_pressure_bar"],
+        "distinguish_from": "与 h2_partial_pressure_bar（氢气分压）的区别：reactor_pressure_bar 是总压，包含 H₂ 和其他气体组分的分压之和。h2_partial_pressure_bar 仅是 H₂ 的分压，是动力学参数。",
+        "unit": "bar",
+        "expected_value_range": "28-32 bar",
+        "abnormal_indicates": "持续上升 + H₂ 分压不变 → 可能惰性气体累积或下游受阻；下降 + H₂ 分压同步下降 → H₂ 供应问题",
+        "terminology": {
+          "canonical_name": "反应器压力",
+          "synonyms": ["反应压力", "釜压", "系统压力"],
+          "abbreviations": ["P_reactor", "Pr"],
+          "cross_language": {"zh": "反应器压力", "en": "reactor pressure"},
+          "context_aliases": {"data_column": "reactor_pressure_bar", "process_control": "系统压力"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_pressure_bar_0",
+        "reasoning": "压力是通用物理量，chunk kb_parameter_to_physics_pressure_bar_0 和 _1 提供压力物理框架。"
+      },
+      {
+        "name": "h2_partial_pressure_bar",
+        "definition": "反应器中氢气的分压（bar），计算为总压 × H₂ 摩尔分数。在 Pd/Al₂O₃ 催化加氢反应中，H₂ 分压直接影响加氢反应速率——根据 Langmuir-Hinshelwood 动力学模型，加氢速率与 H₂ 分压呈正相关（在高分压下趋于饱和）。典型 H₂ 分压范围为 24-28 bar。H₂ 分压受压缩机和流量控制阀调节，可能因压缩机维护而暂时下降（影响 3-5 bar，持续约 10h）。H₂ 分压下降导致转化率暂时降低，但与催化剂失活不同——H₂ 恢复后转化率立即恢复。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "predictor",
+        "broader_concept": "分压量",
+        "sibling_concepts": ["reactor_pressure_bar"],
+        "distinguish_from": "与 reactor_pressure_bar 的区别见上。与 feed_rate_kg_hr 的区别：H₂ 分压影响的是气相反应物的可及性，feed_rate 影响的是液相反应物的停留时间。",
+        "unit": "bar",
+        "expected_value_range": "23-28 bar",
+        "abnormal_indicates": "突然下降 >3 bar → H₂ 压缩机或供应问题（短期事件，与催化剂失活无关）；持续缓慢下降 + 总压不变 → H₂ 纯度下降或惰性气体累积",
+        "terminology": {
+          "canonical_name": "氢气分压",
+          "synonyms": ["H₂ 分压", "氢分压", "氢气压力"],
+          "abbreviations": ["PH₂", "P_H2", "H2_pp"],
+          "cross_language": {"zh": "氢气分压", "en": "hydrogen partial pressure"},
+          "context_aliases": {"data_column": "h2_partial_pressure_bar", "process_control": "氢气分压"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_pressure_bar_1",
+        "reasoning": "分压概念是物理化学基础原理。H₂ 分压对加氢反应速率的影响遵循 Langmuir-Hinshelwood 动力学模型。"
+      },
+      {
+        "name": "feed_rate_kg_hr",
+        "definition": "进料速率（kg/h），液态原料进入 CSTR 反应器的质量流量。进料速率决定反应物在反应器中的停留时间 τ = V/Q（反应器体积除以体积流量）。在催化剂活性固定的条件下，进料速率降低（停留时间增加）可提高转化率。因此操作员可能在催化剂失活后降低进料速率以维持转化率——这是另一种补偿行为。进料泵可能发生短暂跳车故障，造成进料中断 4h 左右——这是一个瞬时扰动事件，与渐进失活不同。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "input",
+        "broader_concept": "物料流量",
+        "sibling_concepts": ["feed_sulfur_ppm"],
+        "distinguish_from": "与 feed_sulfur_ppm（进料硫含量）的区别：feed_rate 度量的"量"，feed_sulfur_ppm 度量的"质"。两者独立变化。",
+        "unit": "kg/hr",
+        "expected_value_range": "470-510 kg/hr",
+        "abnormal_indicates": "阶跃下降至 0 → 进料泵跳车（独立事件，约 4h 恢复）；波动增大 → 进料泵或流量控制器不稳定",
+        "terminology": {
+          "canonical_name": "进料速率",
+          "synonyms": ["进料流量", "原料流量", "进料量"],
+          "abbreviations": ["F_feed", "F_in"],
+          "cross_language": {"zh": "进料速率", "en": "feed rate"},
+          "context_aliases": {"data_column": "feed_rate_kg_hr", "process_control": "进料量设定"}
+        },
+        "knowledge_source": "kb_process_knowledge_base_1",
+        "reasoning": "进料速率是化工过程基本控制参数，其变化对转化率的影响遵循 CSTR 物料平衡方程。"
+      },
+      {
+        "name": "feed_sulfur_ppm",
+        "definition": "进料总硫含量（ppm），液态原料中各种含硫化合物（包括噻吩、硫醇、硫醚等）的总硫质量浓度。常规实验室分析的进料硫含量在 5-8 ppm 范围内，属于正常操作范围。但关键的诊断陷阱是——总硫分析无法区分噻吩和其他含硫化合物。即使总硫在正常范围（5-8 ppm），微量噻吩（0.05-0.15 ppm）仍然可能存在于特定原料批次中并造成催化剂选择性中毒。因此 feed_sulfur_ppm 处于正常范围**不排除**噻吩中毒的可能性。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "risk_factor",
+        "broader_concept": "原料质量指标",
+        "sibling_concepts": ["feed_rate_kg_hr"],
+        "distinguish_from": "与 byproduct_ppm 的区别：feed_sulfur_ppm 是进料中的硫含量（上游），byproduct_ppm 是产物中的副产物浓度（下游）。前者是可能导致催化剂中毒的原因，后者是中毒后的结果。",
+        "unit": "ppm",
+        "expected_value_range": "5-8 ppm",
+        "abnormal_indicates": "持续 >10 ppm → 进料质量异常，需关注；在 5-8 ppm 范围内的小幅波动通常不指示催化剂问题——噻吩中毒可在总硫正常时发生",
+        "terminology": {
+          "canonical_name": "进料总硫含量",
+          "synonyms": ["进料硫含量", "总硫", "进料硫"],
+          "abbreviations": ["S_feed", "S_in"],
+          "cross_language": {"zh": "进料总硫", "en": "feed sulfur content"},
+          "context_aliases": {"data_column": "feed_sulfur_ppm", "lab_analysis": "总硫分析"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_pH_0",
+        "reasoning": "硫对催化剂的毒化作用是化工领域常识。虽然 pH_0 chunk 讨论的是 pH/腐蚀而非硫毒化，但化学毒物对催化剂的影响原理类似。"
+      },
+      {
+        "name": "byproduct_ppm",
+        "definition": "副产物浓度（ppm），反应产物中不需要的副反应产物的质量浓度。在 Pd/Al₂O₃ 催化加氢反应中，副产物主要包括过度加氢产物或热裂解副产物。当催化剂活性位点被噻吩占据后，剩余活性位点的催化环境改变，导致目标反应路径的活化能升高、副反应路径的竞争增强——因此副产物浓度上升。byproduct_ppm 与 conversion_pct 呈高度反相关（r≈-0.97），两者是同一底层机制（催化剂活性下降）的互补表现。副产物浓度在催化剂再生后显著下降——这是中毒可逆性的重要证据。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "outcome",
+        "broader_concept": "产物质量指标",
+        "sibling_concepts": ["quality_index"],
+        "distinguish_from": "与 selectivity_pct 的区别：byproduct_ppm 是绝对浓度（质量/体积），selectivity_pct 是相对比例（%）。byproduct_ppm 随进料速率和转化率水平变化，selectivity_pct 是归一化的。两者方向一致（催化剂失活时副产物↑ 和选择性↓），但幅度不同。",
+        "unit": "ppm",
+        "expected_value_range": "70-500 ppm",
+        "abnormal_indicates": "持续上升至 >400 ppm → 催化剂活性严重下降；上升至 >450 ppm → 产品质量不达标；再生后降至 ~250 ppm → 可逆中毒的确证证据",
+        "terminology": {
+          "canonical_name": "副产物浓度",
+          "synonyms": ["副产物含量", "杂质含量", "副产品浓度"],
+          "abbreviations": ["BP", "byprod"],
+          "cross_language": {"zh": "副产物浓度", "en": "byproduct concentration"},
+          "context_aliases": {"data_column": "byproduct_ppm", "quality_report": "杂质含量"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "副产物生成量随催化剂活性和选择性变化，受竞争反应动力学控制。通用 Arrhenius 动力学框架适用，但具体副产物种类和生成路径需要领域特定知识。"
+      },
+      {
+        "name": "cooling_duty_kW",
+        "definition": "冷却负荷（kW），换热系统从反应器中移出的热功率。加氢反应是放热反应，反应放热量与反应速率成正比（Q_reaction = ΔH × r × V，其中 r 为反应速率，V 为反应器体积）。当催化剂失活导致反应速率下降时，反应放热量减少，冷却负荷随之下降。冷却负荷从约 850 kW 降至约 680 kW（约 20% 下降）与催化剂活性下降程度一致。冷却负荷是**催化剂活性的间接度量**——它直接反映反应放热，而非受操作员补偿行为影响。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "measurement",
+        "broader_concept": "传热量",
+        "sibling_concepts": ["delta_T_reactor_C", "cooling_water_temp_C"],
+        "distinguish_from": "与 delta_T_reactor_C 的区别：cooling_duty_kW 是移出的热功率绝对值，delta_T_reactor_C 是温差。两者通过 Q = U × A × ΔT 关联。与 reactor_temp_C 的区别：cooling_duty 是传热速率，reactor_temp 是温度状态。",
+        "unit": "kW",
+        "expected_value_range": "640-860 kW",
+        "abnormal_indicates": "持续下降 → 反应放热减少（催化剂活性下降）；再生后部分恢复 → 确认催化剂活性恢复但不及初始",
+        "terminology": {
+          "canonical_name": "冷却负荷",
+          "synonyms": ["冷却功率", "换热负荷", "冷却量"],
+          "abbreviations": ["Q_cool", "CoolDuty"],
+          "cross_language": {"zh": "冷却负荷", "en": "cooling duty"},
+          "context_aliases": {"data_column": "cooling_duty_kW", "process_control": "冷却负荷"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0",
+        "reasoning": "冷却负荷通过能量守恒定律与反应放热关联，遵循 Q = ṁ × Cp × ΔT 原理。chunk kb_parameter_to_physics_heat_transfer_coeff_0 提供了传热系数框架。"
+      },
+      {
+        "name": "delta_T_reactor_C",
+        "definition": "反应器温差（°C），通常定义为反应温度与冷却介质出口温度之差，或反应器进出口温度之差。在 CSTR 加氢反应中，温差反映传热推动力——ΔT = Q/(U × A)。当催化剂活性下降、反应放热减少时，传热需求降低，反应器温差可能减小。温差的变化可以提供关于反应放热和冷却效率的独立信息。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "measurement",
+        "broader_concept": "温差量",
+        "sibling_concepts": ["reactor_temp_C", "cooling_water_temp_C"],
+        "distinguish_from": "与 reactor_temp_C 的区别：delta_T 是温差（两点之差），reactor_temp 是单点温度值。delta_T 提供传热效率信息，reactor_temp 提供热力学状态信息。",
+        "unit": "°C",
+        "expected_value_range": "150-165°C",
+        "abnormal_indicates": "减小 → 反应放热减少（催化剂失活）；增大 → 传热效率下降（结垢）或反应放热增加",
+        "terminology": {
+          "canonical_name": "反应器温差",
+          "synonyms": ["反应器 ΔT", "传热温差"],
+          "abbreviations": ["ΔT_r", "dT_reactor"],
+          "cross_language": {"zh": "反应器温差", "en": "reactor delta-T"},
+          "context_aliases": {"data_column": "delta_T_reactor_C"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0",
+        "reasoning": "温差概念遵循传热基本方程 Q = U × A × ΔT。虽然 chunk 是关于传热系数的，温差是传热方程中的标准参数。"
+      },
+      {
+        "name": "cooling_water_temp_C",
+        "definition": "冷却水入口温度（°C），进入反应器冷却夹套/盘管的冷却介质温度。该温度受环境季节影响（典型范围 22-30°C），是潜在的混杂变量。当冷却水温升高时，同等冷却负荷下需要更大的冷却水流量或传热面积，可能导致反应器温度控制性能下降。在诊断中需要排除冷却水温变化导致的反应温度波动——去趋势分析可以分离冷却水温的贡献。冷却水温的变化是缓慢的、季节性的，与催化剂失活（持续约 60 天的单调趋势）可能部分重叠。",
+        "definition_confidence": "KNOWN",
+        "concept_type": "control",
+        "broader_concept": "温度量",
+        "sibling_concepts": ["reactor_temp_C", "delta_T_reactor_C"],
+        "distinguish_from": "与 reactor_temp_C 的区别和关联见 Q = U × A × ΔT_LMTD。冷却水温是传热方程的入口条件，反应器温度是方程的因变量之一。",
+        "unit": "°C",
+        "expected_value_range": "22-32°C（季节性变化）",
+        "abnormal_indicates": "夏季升高至 >30°C → 冷却能力下降，可能导致反应器温度升高（需与催化剂失活区分）；冬季降低至 <24°C → 冷却能力充足",
+        "terminology": {
+          "canonical_name": "冷却水温度",
+          "synonyms": ["冷却水温", "冷却介质温度", "循环水温度"],
+          "abbreviations": ["T_cw", "T_cool"],
+          "cross_language": {"zh": "冷却水温度", "en": "cooling water temperature"},
+          "context_aliases": {"data_column": "cooling_water_temp_C", "process_control": "冷却水入口温度"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "冷却水温是通用传热参数。关键诊断价值在于它是一个潜在的混杂变量——其季节性趋势可能与催化剂失活趋势重叠。"
+      }
+    ],
+    "context_dimensions": [
+      {
+        "name": "product_lot",
+        "definition": "原料产品批次编号（如 LOT-0001, LOT-0002），标识不同批次的进料原料。不同批次的原料可能来自不同的供应商、不同的生产日期或不同的原油来源，因此可能含有不同的微量杂质（如噻吩）浓度。product_lot 是离散的批次标识符，通常每批次持续数天至一周。在诊断分析中，按 product_lot 分层可能揭示某些批次与其他批次之间的转化率下降模式差异——如果某个特定批次的转化率下降加速，可能指示该批次含有更高的噻吩浓度。",
+        "definition_confidence": "KNOWN",
+        "cardinality": "low (≤20)",
+        "knowledge_source": "kb_process_knowledge_base_1",
+        "reasoning": "product_lot 是进料批次标识符，可能反映原料来源差异导致的毒物浓度变化。"
+      },
+      {
+        "name": "catalyst_bed_id",
+        "definition": "催化剂床层编号（如 CAT-A, CAT-B），标识反应器中不同的催化剂装填批次。催化剂床层是诊断的核心焦点——不同床层可能具有不同的初始活性、不同的抗毒性能或不同的使用历史。催化剂再生涉及更换或再生催化剂床层（catalyst_bed_id 切换），这是诊断催化剂失活的关键区分事件。再生后如果质量指标恢复，则确认根因在催化剂；如果质量指标不恢复，则说明问题可能出在反应器本身或上游。",
+        "definition_confidence": "KNOWN",
+        "cardinality": "low (≤20)",
+        "knowledge_source": "kb_process_knowledge_base_0",
+        "reasoning": "catalyst_bed_id 是催化剂装填批次标识。诊断中最为关键——bed_id 切换对应催化剂再生事件，是区分催化剂失活与其他故障的决定性证据。"
+      },
+      {
+        "name": "shift",
+        "definition": "操作班次（Day/Night），标识操作班组。不同班次的操作员可能具有不同的操作风格和干预策略（如在催化剂失活时调整温度或进料速率的倾向不同）。Shift 是操作员行为的代理变量，通常不是导致催化剂失活的原因，但可能影响过程参数的短期波动。在诊断分析中，shift 的效应通常较弱，且需要排除操作员补偿对趋势分析的干扰。",
+        "definition_confidence": "KNOWN",
+        "cardinality": "low (≤20)",
+        "knowledge_source": "kb_diagnostician_dual_drive_reference_4",
+        "reasoning": "shift 是操作班次标识，常用于质量控制中的操作员效应分析。"
+      }
+    ]
+  },
+  "process_or_logic_stages": [
+    {
+      "id": "feed_intake",
+      "name": "进料阶段",
+      "order": 1,
+      "function": "液态原料和氢气连续进入 CSTR 反应器。原料批次切换引入潜在的催化剂毒物（噻吩）。进料速率和氢气分压在此阶段设定。",
+      "key_entity_ids": ["feed_system", "hydrogen_supply_system"],
+      "key_concept_ids": ["feed_rate_kg_hr", "feed_sulfur_ppm", "h2_partial_pressure_bar"]
+    },
+    {
+      "id": "catalytic_reaction",
+      "name": "催化反应阶段",
+      "order": 2,
+      "function": "在 Pd/Al₂O₃ 催化剂表面上发生加氢反应。原料中的不饱和键在 Pd 活性位点上与吸附的 H₂ 反应，生成目标产物。噻吩不可逆吸附于 Pd 活性位点，逐渐减少可用活性位点数。热量在此阶段释放，传至冷却系统。",
+      "key_entity_ids": ["cstr_reactor_vessel", "catalyst_bed"],
+      "key_concept_ids": ["conversion_pct", "selectivity_pct", "reactor_temp_C", "reactor_pressure_bar"]
+    },
+    {
+      "id": "heat_removal",
+      "name": "热移除阶段",
+      "order": 3,
+      "function": "冷却系统通过夹套或盘管移出反应放热。冷却负荷直接反映反应速率——催化剂活性下降时冷却负荷同步下降。冷却水温的季节性波动是潜在混杂变量。",
+      "key_entity_ids": ["heat_exchange_system"],
+      "key_concept_ids": ["cooling_duty_kW", "cooling_water_temp_C", "delta_T_reactor_C"]
+    },
+    {
+      "id": "product_discharge",
+      "name": "产物排出与质量检测",
+      "order": 4,
+      "function": "反应产物（包含目标产物和副产物）连续排出反应器。在线或离线分析检测转化率、副产物浓度和品质指数。产物的质量指标反映反应器的综合运行状态。",
+      "key_entity_ids": ["cstr_reactor_vessel"],
+      "key_concept_ids": ["conversion_pct", "byproduct_ppm", "selectivity_pct", "quality_index"]
+    },
+    {
+      "id": "catalyst_regeneration",
+      "name": "催化剂再生阶段",
+      "order": 5,
+      "function": "当催化剂活性下降至经济不可行时（约转化率 40-50%），进行催化剂再生（热氢汽提）。再生操作通过高温 H₂ 处理，脱附 Pd 活性位点上的吸附毒物，恢复部分活性。再生是催化剂失活的诊断性操作——活性恢复确认中毒可逆。再生仅恢复至~75%（而非 100%），说明部分不可逆损伤（热烧结）同时存在。",
+      "key_entity_ids": ["catalyst_bed"],
+      "key_concept_ids": ["conversion_pct", "selectivity_pct", "byproduct_ppm"]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel_catalyst_activity_to_conversion",
+      "name": "催化剂活性驱动转化率",
+      "from": "催化剂活性（实体 catalyst_bed 的属性）",
+      "to": "conversion_pct",
+      "type": "causal",
+      "mechanism": "Pd/Al₂O₃ 催化剂上的活性位点数直接决定加氢反应速率。每个 Pd 活性位点提供一个催化反应中心，反应物分子在此吸附并与 H₂ 反应。噻吩分子不可逆吸附于 Pd 位点后，该位点永久失活（在非再生条件下），可用活性位点数随时间单调递减。根据 Langmuir-Hinshelwood 动力学，反应速率 r = k × θ_A × θ_H（其中 θ_A 和 θ_H 分别为反应物和 H₂ 的表面覆盖度），活性位点减少直接导致反应速率和转化率下降。该机制的关键诊断特征是渐进性——催化剂失活是连续的、不可逆的（再生前），因此转化率呈现单调下降而非阶跃变化。",
+      "direction": "活性位点数↓ → 反应速率↓ → conversion_pct↓",
+      "conditions": "在正常操作温度范围（180-200°C）和 H₂ 分压范围内成立。温度过低（<170°C）时反应受动力学控制，活性位点减少的影响可能被掩盖。",
+      "exceptions": "如果原料中不含催化剂毒物，催化剂活性可在较长时间内保持稳定（~1-2 年），转化率不会明显下降。",
+      "expected_lag": "0-2h（活性位点的减少立即反映在反应速率上，但统计上需数小时才能从噪声中分辨趋势）",
+      "knowledge_confidence": 0.95,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_conversion_to_byproduct",
+      "name": "转化率下降伴随副产物上升",
+      "from": "conversion_pct",
+      "to": "byproduct_ppm",
+      "type": "correlative",
+      "mechanism": "催化剂活性下降同时影响主反应和副反应路径。当 Pd 活性位点被噻吩占据后，剩余位点的催化环境改变，目标反应路径的活化能相对升高，使副反应路径更具竞争力。因此转化率下降和副产物上升是同一底层原因（催化剂失活）的两种表现，两者高度反相关（r≈-0.97）。这种近乎完美的反相关是选择性中毒的特征——如果是单纯的热烧结，选择性（目标 vs 副产物的比例）受影响较小。",
+      "direction": "conversion_pct↓ 时 byproduct_ppm↑",
+      "conditions": "在催化剂选择性中毒机制占主导的条件下成立。如果催化剂失活主要是热烧结（非选择性），副产物上升可能不明显。",
+      "exceptions": "在进料速率变化时，两者可能不同步——进料速率降低（停留时间增加）可提高转化率但同时可能增加副产物生成。",
+      "expected_lag": "~0h（两者来自同一个反应过程，同步变化）",
+      "knowledge_confidence": 0.95,
+      "knowledge_source": "kb_process_knowledge_base_5",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_temp_arrhenius_conversion",
+      "name": "温度通过 Arrhenius 动力学影响转化率",
+      "from": "reactor_temp_C",
+      "to": "conversion_pct",
+      "type": "physical",
+      "mechanism": "根据 Arrhenius 定律，反应速率常数 k = A·exp(-Ea/RT)，温度每升高 10°C，反应速率约提高 1.5-2.5 倍（取决于活化能 Ea）。在加氢反应中，操作员观察到转化率下降后会主动提高反应温度以补偿催化剂活性损失——这是"提温补偿效应"。因此在本数据中，温度上升与转化率下降同时出现，是操作员对催化剂失活的响应而非原因。正确的诊断需要区分温度作为 cause（Arrhenius 主导）和 temperature 作为 result（操作补偿主导）。",
+      "direction": "在纯 Arrhenius 主导下：reactor_temp_C↑ → conversion_pct↑；但在本场景（操作补偿主导）中：catalyst_activity↓ → operator 提高温度 → reactor_temp_C↑ 与 conversion_pct↓ 同时出现",
+      "conditions": "Arrhenius 关系在 180-200°C 范围内成立；催化剂活性稳定的前提下。",
+      "exceptions": "当催化剂活性持续下降时，即使提高温度也只能部分补偿转化率损失——温度升高 10°C 可能只能弥补约 5-10% 的转化率下降。",
+      "expected_lag": "1-3h（温度变化后反应达到新的稳态所需时间）",
+      "knowledge_confidence": 0.90,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_regeneration_recovery",
+      "name": "催化剂再生恢复活性",
+      "from": "催化剂再生事件（catalyst_bed_id 切换）",
+      "to": "conversion_pct",
+      "type": "causal",
+      "mechanism": "催化剂再生（热氢汽提）通过高温 H₂ 处理，使吸附在 Pd 活性位点上的噻吩毒物脱附，释放被占据的活性位点。再生后催化剂活性恢复约 55%（从~42% 升至~75%），转化率和副产物浓度显著改善。但再生无法恢复至 100% 初始活性——这有两种可能的解释：(1) 部分 Pd 活性位点在高温操作中经历了不可逆的热烧结（Ostwald 熟化或 Pd 晶粒长大）;(2) 部分噻吩吸附过于强烈，热氢汽提无法完全脱附。无论何种机制，再生后活性部分恢复是选择性中毒的确诊证据。",
+      "direction": "再生事件 → 催化剂活性↑ → conversion_pct↑（42%→~75%）、byproduct_ppm↓（450→~250 ppm）、selectivity_pct↑（87%→~93%）",
+      "conditions": "再生操作必须在适当的温度（300-400°C）和 H₂ 分压下进行，时间足够（数小时至数十小时）。",
+      "exceptions": "如果催化剂已经完全烧结（长时间过热导致 Pd 晶粒长大至不可逆），则再生无效。",
+      "expected_lag": "2-8h（再生操作本身需要时间，活性恢复在再生完成后逐步体现）",
+      "knowledge_confidence": 0.95,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_1",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_cooling_duty_to_activity",
+      "name": "冷却负荷反映催化剂活性",
+      "from": "catalyst_activity",
+      "to": "cooling_duty_kW",
+      "type": "causal",
+      "mechanism": "加氢反应是放热反应，每摩尔反应物转化释放固定量的热量（ΔH_reaction）。因此反应放热速率 = ΔH × r × V，与转化率（催化剂活性的函数）成正比。冷却负荷必须等于反应放热（稳态时），因此冷却负荷直接反映催化剂活性。当催化剂失活、反应速率下降时，冷却负荷同步降低。冷却负荷的优势在于它不受操作员补偿行为的影响——操作员可以提高温度但无法改变单位反应物的放热量。",
+      "direction": "catalyst_activity↓ → 反应放热↓ → cooling_duty_kW↓（从~850 降至~680 kW，~20%）",
+      "conditions": "稳态操作条件下（反应器温度稳定 6h 以上）。在瞬态（如再生前后 24h）传热暂态可能使冷却负荷与活性短期不一致。",
+      "exceptions": "如果冷却系统本身故障（如结垢、泵故障），冷却负荷变化不反映催化剂活性。可通过 delta_T_reactor_C 和冷却水温交叉验证。",
+      "expected_lag": "0-1h（反应放热变化立即影响冷却负荷）",
+      "knowledge_confidence": 0.90,
+      "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_h2_partial_pressure_to_conversion",
+      "name": "H₂ 分压影响转化率",
+      "from": "h2_partial_pressure_bar",
+      "to": "conversion_pct",
+      "type": "physical",
+      "mechanism": "根据 Langmuir-Hinshelwood 动力学模型，加氢反应速率与 H₂ 分压的关系为 r = k × K_H × P_H2 / (1 + K_H × P_H2)（在简单情况下）。在低 H₂ 分压下速率与 P_H2 成正比；在高分压下趋于饱和。H₂ 分压的突然下降（如压缩机维护导致的~3 bar 下降）会导致转化率暂时下降，但 H₂ 恢复后转化率立即恢复——这与催化剂失活不同。",
+      "direction": "h2_partial_pressure_bar↓ → 反应速率↓ → conversion_pct↓（短期，可逆）",
+      "conditions": "在 H₂ 分压低于饱和区时成立。在正常操作范围（23-28 bar）内通常处于过渡区。",
+      "exceptions": "H₂ 过量时（P_H2 远高于化学计量需求），分压变化对转化率影响很小。",
+      "expected_lag": "0.5-2h（H₂ 浓度在液相中达到新平衡的时间）",
+      "knowledge_confidence": 0.85,
+      "knowledge_source": "kb_parameter_to_physics_pressure_bar_1",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_feed_rate_to_conversion",
+      "name": "进料速率通过停留时间影响转化率",
+      "from": "feed_rate_kg_hr",
+      "to": "conversion_pct",
+      "type": "physical",
+      "mechanism": "CSTR 的停留时间 τ = V/Q（反应器体积除以体积流量）。根据 CSTR 物料平衡方程，转化率 X = kτ/(1 + kτ)，其中 k 为反应速率常数。进料速率增加（停留时间减少）导致转化率下降；反之亦然。但进料速率变化引起的转化率变化是瞬时可逆的——进料速率恢复后转化率回到原值。这与催化剂失活导致的渐进性、不可逆（再生前）转化率下降形成对比。",
+      "direction": "feed_rate_kg_hr↑ → 停留时间↓ → conversion_pct↓",
+      "conditions": "CSTR 理想混合假设下成立。在 CSTR 中此关系是确定的。",
+      "exceptions": "如果反应受传质限制而非动力学控制（在高度失活的催化剂上可能出现），进料速率的变化对转化率影响变小。",
+      "expected_lag": "1-3h（停留时间的 1-3 倍，达到新稳态所需时间）",
+      "knowledge_confidence": 0.85,
+      "knowledge_source": "kb_process_knowledge_base_1",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_temperature_to_sintering",
+      "name": "过高温度加速催化剂烧结",
+      "from": "reactor_temp_C",
+      "to": "catalyst_activity",
+      "type": "causal",
+      "mechanism": "Pd 金属颗粒在高温下发生 Ostwald 熟化和晶粒迁移-聚结，导致 Pd 晶粒长大。大的 Pd 晶粒具有较小的比表面积，因此活性位点数减少。烧结速率与温度呈指数关系——在>200°C 时烧结显著加速。操作员的提温补偿行为可能使反应温度从 185°C 升至 197°C，此温度区间内烧结速率已不可忽略。因此诊断中催化剂活性下降包含两种成分：(1) 可逆中毒（噻吩占据位点）;(2) 不可逆烧结（活性表面永久减少）。再生后的转化率恢复水平（~75% 而非 100%）反映了不可逆烧结的比例。",
+      "direction": "reactor_temp_C↑ →（超过烧结阈值 T_ sintering > 190°C）→ 烧结速率↑ → catalyst_activity↓（不可逆）",
+      "conditions": "温度超过烧结阈值（约 190-200°C 取决于 Pd 颗粒大小和载体类型）时成立。",
+      "exceptions": "短时间（<24h）轻微超温通常不造成显著烧结。烧结是累积效应。",
+      "expected_lag": "数天至数周（烧结是缓慢的累积过程，但可以加速）",
+      "knowledge_confidence": 0.85,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    }
+  ],
+  "constraints": [
+    {
+      "name": "AXIOM_arrhenius_rate",
+      "type": "hard_constraint",
+      "description": "AXIOM arrhenius_rate_01: 反应温度每升高 10°C，加氢反应速率约提高 1.5-2.5 倍（在 Arrhenius 控制区域内，活化能 Ea ≈ 50-100 kJ/mol）。违反后果：如果温度升高后转化率不升反降，说明催化剂活性正在下降（温度在补偿失活），不是 Arrhenius 关系失效。",
+      "applies_to": ["reactor_temp_C", "conversion_pct"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "name": "AXIOM_catalyst_regeneration_diagnosis",
+      "type": "domain_rule",
+      "description": "AXIOM regen_diagnosis_01: 催化剂再生后如果性能显著恢复（转换率从 ~42% 升至 ~75%），则催化剂失活的确诊证据成立。如果再生后性能不恢复，根因很可能不在催化剂本身。",
+      "applies_to": ["catalyst_bed", "conversion_pct", "selectivity_pct"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_1"
+    },
+    {
+      "name": "AXIOM_sulfur_analysis_limitation",
+      "type": "domain_rule",
+      "description": "AXIOM sulfur_analysis_01: 进料总硫分析（5-8 ppm 正常范围）不能排除微量噻吩中毒的可能性。噻吩作为特定物种在 0.05-0.15 ppm 浓度下即可造成显著催化剂失活，但低于总硫检测方法的区分能力和常规关注水平。",
+      "applies_to": ["feed_sulfur_ppm"],
+      "knowledge_source": "kb_parameter_to_physics_pH_0"
+    },
+    {
+      "name": "AXIOM_temperature_increase_is_result",
+      "type": "soft_constraint",
+      "description": "AXIOM temp_as_result_01: 在本场景中反应温度上升是操作员对催化剂失活的补偿行为（结果），而非导致转化率下降的原因。诊断时需注意：如果数据中温度升高与转化率下降同步出现，应优先假设催化剂失活而非 Arrhenius 效应。",
+      "applies_to": ["reactor_temp_C", "conversion_pct"],
+      "knowledge_source": "kb_process_knowledge_base_5"
+    },
+    {
+      "name": "AXIOM_feed_pump_trip",
+      "type": "soft_constraint",
+      "description": "AXIOM feed_pump_trip_01: 进料泵短暂跳车（如 t=750-754 的 4h 中断）应视为独立事件，与催化剂渐进失活趋势无关。此类事件表现为进料速率归零后的转化率迅速下降，以及恢复进料后的快速复原。",
+      "applies_to": ["feed_rate_kg_hr", "conversion_pct"],
+      "knowledge_source": "kb_process_knowledge_base_5"
+    },
+    {
+      "name": "AXIOM_confounder_cooling_water",
+      "type": "soft_constraint",
+      "description": "AXIOM confounder_cooling_water_01: 冷却水温的季节性趋势（22-30°C）与催化剂失活趋势在时间上可能部分重叠，造成伪相关。应使用去趋势分析分离冷却水温的贡献。",
+      "applies_to": ["cooling_water_temp_C", "reactor_temp_C"],
+      "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0"
+    }
+  ],
+  "confounders": [
+    {
+      "name": "product_lot",
+      "type": "batch",
+      "reasoning": "不同产品批次（LOT-0001 至 LOT-000N）的原料可能来自不同的原油来源或加工工艺。某些批次的原料可能含有微量噻吩（0.05-0.15 ppm），而其他批次可能不含。这个差异同时影响催化剂失活速率（related concept）和转化率/副产物（target concepts）。如果不按 product_lot 分层分析，某些批次的加速失活可能被错误归因于其他操作条件。预期影响高——因为催化剂失活的根本原因是原料中的毒物。",
+      "expected_impact": "high",
+      "knowledge_source": "kb_process_knowledge_base_1"
+    },
+    {
+      "name": "catalyst_bed_id",
+      "type": "category",
+      "reasoning": "不同催化剂床层（CAT-A vs CAT-B）代表不同的催化剂装填批次，可能具有不同的初始活性、不同的抗毒性能或不同的使用历史。catalyst_bed_id 切换（再生事件）直接改变催化剂活性水平——这是诊断催化剂失活的关键事件，但也是最重要的分层变量。如果不按 catalyst_bed_id 分层，再生前的下降趋势和再生后的恢复趋势会混杂在一起。预期影响极高——因为催化剂床层切换是诊断的焦点事件。",
+      "expected_impact": "high",
+      "knowledge_source": "kb_process_knowledge_base_0"
+    },
+    {
+      "name": "shift",
+      "type": "operator",
+      "reasoning": "日班（Day）和夜班（Night）的操作员可能具有不同的操作风格——在催化剂失活时，日班可能更倾向于提高反应温度做补偿，而夜班可能采取不同策略（如降低进料速率）。Shift 影响操作员行为，操作员行为影响过程参数，但 shift 本身不直接影响催化剂的化学状态。预期影响低——shift 主要引入过程参数的短期波动而非长期趋势。",
+      "expected_impact": "low",
+      "knowledge_source": "kb_diagnostician_dual_drive_reference_4"
+    },
+    {
+      "name": "cooling_water_temp_C",
+      "type": "environment",
+      "reasoning": "冷却水温（22-30°C）随环境季节变化，夏季升高冬季降低。冷却水温升高时，同等冷却负荷下需要更大的传热推动力，可能导致反应器温度控制性能下降。冷却水温的季节性趋势与催化剂失活趋势（约 60 天的单调下降）在时间上可能部分重叠，造成"冷却水温→反应温度→转化率"的伪相关路径。需要使用去趋势分析分离冷却水温的季节效应。预期影响中等——冷却水温的幅度（±4°C）相对于过程噪声较小，但趋势重叠不可忽略。",
+      "expected_impact": "medium",
+      "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0"
+    }
+  ],
+  "rag_injection_metadata": {
+    "total_chunks_reviewed": 14,
+    "chunks_accepted": 0,
+    "chunks_rejected": 14,
+    "chunks_rejected_reasons": [
+      {"chunk_id": "kb_diagnostician_dual_drive_reference_5", "reason": "NOT_APPLICABLE — 通用诊断方法论（物理检查结论分类表），非 CSTR 催化剂领域特定知识"},
+      {"chunk_id": "kb_process_knowledge_base_0", "reason": "PARTIALLY_APPLICABLE — 通用物理知识库介绍（转移性物理原理），提供了通用方法框架但无领域特定内容"},
+      {"chunk_id": "kb_process_knowledge_base_1", "reason": "PARTIALLY_APPLICABLE — 如何使用通用物理参考的指南，通用方法论而非领域知识"},
+      {"chunk_id": "kb_process_knowledge_base_3", "reason": "NOT_APPLICABLE — BOPET/BOPP 薄膜生产工艺知识（PET 挤出、拉伸、光学性能），与 CSTR 加氢催化剂中毒完全不同的工业领域"},
+      {"chunk_id": "kb_parameter_to_physics_pH_0", "reason": "PARTIALLY_APPLICABLE — pH/腐蚀通用物理原理，虽然涉及化学概念但讨论的是电化学腐蚀而非催化剂中毒"},
+      {"chunk_id": "kb_diagnostician_dual_drive_reference_4", "reason": "PARTIALLY_APPLICABLE — 异常-发作一致性分析框架，通用方法论可适用于任何领域"},
+      {"chunk_id": "kb_process_knowledge_base_5", "reason": "PARTIALLY_APPLICABLE — 通用诊断模式分类（阶跃/漂移/振荡/尖峰），可适用的通用诊断框架"},
+      {"chunk_id": "kb_parameter_to_physics_heat_transfer_coeff_0", "reason": "PARTIALLY_APPLICABLE — 传热系数物理原理，对反应器冷却系统分析有参考价值但非领域特定"},
+      {"chunk_id": "kb_parameter_to_physics_pH_1", "reason": "NOT_APPLICABLE — pH 波动→点蚀→裂纹链，讨论的是材料腐蚀而非催化剂化学"},
+      {"chunk_id": "kb_parameter_to_physics_temperature_C_1", "reason": "PARTIALLY_APPLICABLE — 温度→摩擦→热膨胀链，通用温度物理原理但因果链（摩擦→热膨胀）不直接适用于化学反应器"},
+      {"chunk_id": "kb_parameter_to_physics_temperature_C_0", "reason": "PARTIALLY_APPLICABLE — 温度→冷却失效→材料退化链，通用温度物理原理，冷却失效→退化部分适用于催化剂热烧结"},
+      {"chunk_id": "kb_parameter_to_physics_pressure_bar_1", "reason": "PARTIALLY_APPLICABLE — 压力→堵塞/密封失效链，通用压力物理原理，不直接适用于催化剂失活"},
+      {"chunk_id": "kb_parameter_to_physics_pressure_bar_0", "reason": "PARTIALLY_APPLICABLE — 压力→液压泄漏链，通用压力物理原理，与本领域关联最低"},
+      {"chunk_id": "kb_parameter_to_physics_pressure_drop_bar_1", "reason": "PARTIALLY_APPLICABLE — 压降物理原理，通用流体力学，与本领域关联最低"}
+    ],
+    "match_rate": 0.0,
+    "construction_timestamp": "2026-06-02T23:50:00+08:00",
+    "llm_model": "claude-agent-sdk",
+    "ontology_version": "v4.0-ontology-first",
+    "knowledge_gaps": [
+      "thiophene_specific_poisoning_mechanism — 缺少关于噻吩在 Pd 表面吸附的能量学和选择性毒化机理的领域特定知识",
+      "pd_al2o3_catalyst_deactivation_kinetics — 缺少 Pd/Al₂O₃ 催化剂失活动力学的定量模型",
+      "regeneration_effectiveness_model — 缺少热氢汽提再生的效果预测模型",
+      "specific_hydrogenation_reaction_pathways — 缺少具体加氢反应的路径和中间体信息"
+    ]
+  }
+}

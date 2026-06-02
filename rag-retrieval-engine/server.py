@@ -9,7 +9,7 @@ Start:  python server.py
         uvicorn server:app --host 0.0.0.0 --port 8765 --reload
 """
 
-import sys, os, time, yaml, hashlib, shutil
+import sys, os, time, yaml, hashlib, shutil, json
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -449,6 +449,11 @@ async def build_index(req: IndexRequest, _api_key: str = Depends(_require_api_ke
         except Exception:
             pass
         r._collection = None
+        # Re-create empty collection so subsequent upserts don't fail
+        try:
+            r._collection = r.client.create_collection(r.collection_name)
+        except Exception:
+            r._collection = None
 
     # Iterate configured sources
     for src in kb_cfg.get("index_sources", []):

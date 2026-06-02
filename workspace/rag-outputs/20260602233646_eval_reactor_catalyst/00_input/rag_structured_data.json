@@ -1,0 +1,451 @@
+{
+  "scenario_metadata": {
+    "domain_type": "cstr_hydrogenation_catalyst_deactivation",
+    "scenario_name": "CSTR 加氢反应催化剂选择性中毒诊断领域",
+    "construction_timestamp": "2026-06-02T23:55:00+08:00",
+    "llm_model": "claude-agent-sdk",
+    "data_template_version": "v4.0"
+  },
+  "sample_data": {
+    "purpose": "提供下游 agent 将收到的数据结构的具体示例。每个样品行代表 CSTR 加氢反应器在不同操作条件和催化剂状态下的典型数据。",
+    "rows": [
+      {
+        "row_id": "sample_001",
+        "context": "新鲜 Pd/Al₂O₃ 催化剂（CAT-A），刚完成初始活化，运行第 2 天，原料批次 LOT-0003，转化率和选择性处于高值区间",
+        "values": {
+          "conversion_pct": 94.2,
+          "selectivity_pct": 98.1,
+          "quality_index": 95.3,
+          "reactor_temp_C": 184.7,
+          "reactor_pressure_bar": 30.2,
+          "h2_partial_pressure_bar": 26.5,
+          "feed_rate_kg_hr": 491,
+          "feed_sulfur_ppm": 6.2,
+          "byproduct_ppm": 87,
+          "cooling_duty_kW": 845,
+          "delta_T_reactor_C": 162.3,
+          "cooling_water_temp_C": 25.1,
+          "product_lot": "LOT-0003",
+          "catalyst_bed_id": "CAT-A",
+          "shift": "Day"
+        },
+        "expected_outcome": "正常运行，产品质量 A 级，无需干预"
+      },
+      {
+        "row_id": "sample_002",
+        "context": "催化剂运行约 40 天（CAT-A），经历持续失活，操作员已两次提温补偿（从 184°C 升至 193°C），原料 LOT-0005 批次，转化率和选择性明显下降",
+        "values": {
+          "conversion_pct": 62.8,
+          "selectivity_pct": 90.4,
+          "quality_index": 71.5,
+          "reactor_temp_C": 193.2,
+          "reactor_pressure_bar": 30.8,
+          "h2_partial_pressure_bar": 26.1,
+          "feed_rate_kg_hr": 488,
+          "feed_sulfur_ppm": 6.8,
+          "byproduct_ppm": 298,
+          "cooling_duty_kW": 732,
+          "delta_T_reactor_C": 159.7,
+          "cooling_water_temp_C": 26.8,
+          "product_lot": "LOT-0005",
+          "catalyst_bed_id": "CAT-A",
+          "shift": "Day"
+        },
+        "expected_outcome": "催化剂渐进失活，需计划再生；诊断应指向催化剂中毒而非进料或氢气问题"
+      },
+      {
+        "row_id": "sample_003",
+        "context": "催化剂再生后第 3 天（CAT-B 新床层），转化率恢复至约 75%（未达初始 94%），副产物显著下降，但不可逆烧结损伤使活性无法完全恢复",
+        "values": {
+          "conversion_pct": 74.9,
+          "selectivity_pct": 93.2,
+          "quality_index": 83.7,
+          "reactor_temp_C": 186.5,
+          "reactor_pressure_bar": 29.8,
+          "h2_partial_pressure_bar": 26.3,
+          "feed_rate_kg_hr": 493,
+          "feed_sulfur_ppm": 6.5,
+          "byproduct_ppm": 248,
+          "cooling_duty_kW": 785,
+          "delta_T_reactor_C": 161.1,
+          "cooling_water_temp_C": 25.9,
+          "product_lot": "LOT-0008",
+          "catalyst_bed_id": "CAT-B",
+          "shift": "Night"
+        },
+        "expected_outcome": "再生有效，确认催化剂中毒可逆部分恢复；不可逆部分（~25%）指向热烧结损伤"
+      }
+    ]
+  },
+  "validation_rules": {
+    "purpose": "物理合理性边界，来自本体中的 constraints 和 expected_value_range。每条规则用于下游 agent 在接收数据时进行快速有效性检查。",
+    "rules": [
+      {
+        "column": "conversion_pct",
+        "rule_type": "range",
+        "specification": "35 <= conversion_pct <= 97",
+        "rationale": "转化率范围由 CSTR 加氢反应工艺决定：新鲜催化剂可达 93-95%，严重失活后约 40% 左右。低于 35% 表示反应基本停止（催化剂完全失活或进料中断），高于 97% 违反物料平衡约束。",
+        "constraint_source": "conversion_pct.expected_value_range + AXIOM_arrhenius_rate",
+        "severity": "hard"
+      },
+      {
+        "column": "selectivity_pct",
+        "rule_type": "range",
+        "specification": "85 <= selectivity_pct <= 99",
+        "rationale": "选择性范围由催化剂选择性决定：新鲜催化剂 >97%，失活后选择性下降但一般不 <85%。低于 85% 表示严重的副反应路径激活。",
+        "constraint_source": "selectivity_pct.expected_value_range",
+        "severity": "hard"
+      },
+      {
+        "column": "quality_index",
+        "rule_type": "range",
+        "specification": "30 <= quality_index <= 100",
+        "rationale": "品质指数为复合指标，范围 0-100。新鲜运行时可达 90+，严重失活时降至约 35。低于 30 暗示产品质量严重不合格。",
+        "constraint_source": "quality_index.expected_value_range",
+        "severity": "hard"
+      },
+      {
+        "column": "reactor_temp_C",
+        "rule_type": "range",
+        "specification": "180 <= reactor_temp_C <= 200",
+        "rationale": "反应器温度由加氢反应工艺要求决定：低于 180°C 反应速率过慢，高于 200°C 显著加速催化剂热烧结。正常操作点约 183-197°C。",
+        "constraint_source": "reactor_temp_C.expected_value_range + AXIOM_arrhenius_rate",
+        "severity": "hard"
+      },
+      {
+        "column": "reactor_pressure_bar",
+        "rule_type": "range",
+        "specification": "28 <= reactor_pressure_bar <= 32",
+        "rationale": "反应器总压由 H₂ 供应和系统设计决定。正常操作范围为 28-32 bar。",
+        "constraint_source": "reactor_pressure_bar.expected_value_range",
+        "severity": "hard"
+      },
+      {
+        "column": "h2_partial_pressure_bar",
+        "rule_type": "range",
+        "specification": "23 <= h2_partial_pressure_bar <= 28",
+        "rationale": "H₂ 分压由原料气组成和总压决定。正常范围 23-28 bar，下降 >3 bar 指示 H₂ 供应异常。",
+        "constraint_source": "h2_partial_pressure_bar.expected_value_range",
+        "severity": "hard"
+      },
+      {
+        "column": "feed_rate_kg_hr",
+        "rule_type": "range",
+        "specification": "470 <= feed_rate_kg_hr <= 510",
+        "rationale": "进料速率由进料泵能力决定。正常范围 470-510 kg/hr。归零指示进料泵跳车。",
+        "constraint_source": "feed_rate_kg_hr.expected_value_range + AXIOM_feed_pump_trip",
+        "severity": "hard"
+      },
+      {
+        "column": "feed_sulfur_ppm",
+        "rule_type": "range",
+        "specification": "5 <= feed_sulfur_ppm <= 8",
+        "rationale": "进料总硫含量正常操作范围 5-8 ppm。>10 ppm 指示进料质量异常。但此范围不排除微量噻吩（0.05-0.15 ppm）中毒的可能性。",
+        "constraint_source": "feed_sulfur_ppm.expected_value_range + AXIOM_sulfur_analysis_limitation",
+        "severity": "soft"
+      },
+      {
+        "column": "byproduct_ppm",
+        "rule_type": "range",
+        "specification": "70 <= byproduct_ppm <= 500",
+        "rationale": "副产物浓度与转化率高度反相关。>400 ppm 指示催化剂活性严重下降，>450 ppm 产品质量不达标。",
+        "constraint_source": "byproduct_ppm.expected_value_range",
+        "severity": "hard"
+      },
+      {
+        "column": "cooling_duty_kW",
+        "rule_type": "range",
+        "specification": "640 <= cooling_duty_kW <= 860",
+        "rationale": "冷却负荷直接反映反应放热。正常范围 640-860 kW，约 20% 下降对应催化剂活性显著降低。低于 640 kW 指示反应放热严重不足。",
+        "constraint_source": "cooling_duty_kW.expected_value_range + rel_cooling_duty_to_activity",
+        "severity": "hard"
+      },
+      {
+        "column": "delta_T_reactor_C",
+        "rule_type": "range",
+        "specification": "150 <= delta_T_reactor_C <= 165",
+        "rationale": "反应器温差反映传热推动力。正常范围 150-165°C，减小指示反应放热减少（催化剂失活）。",
+        "constraint_source": "delta_T_reactor_C.expected_value_range",
+        "severity": "soft"
+      },
+      {
+        "column": "cooling_water_temp_C",
+        "rule_type": "range",
+        "specification": "22 <= cooling_water_temp_C <= 32",
+        "rationale": "冷却水温度受环境季节影响，冬季约 22°C，夏季约 32°C。超出范围指示冷却系统异常。",
+        "constraint_source": "cooling_water_temp_C.expected_value_range + AXIOM_confounder_cooling_water",
+        "severity": "soft"
+      },
+      {
+        "column": "conversion_pct",
+        "rule_type": "monotonic",
+        "specification": "conversion_pct 在催化剂再生前应呈单调下降趋势（非严格单调，但应无持续超过 48h 的上升趋势）",
+        "rationale": "催化剂失活是渐进不可逆过程（再生前），转化率应呈单调下降。持续上升超过 48h 违反催化剂失活物理机制。",
+        "constraint_source": "rel_catalyst_activity_to_conversion.direction + rel_regeneration_recovery",
+        "severity": "hard"
+      },
+      {
+        "column": "byproduct_ppm",
+        "rule_type": "monotonic",
+        "specification": "byproduct_ppm 与 conversion_pct 应呈反相关（r 应显著 < -0.8）",
+        "rationale": "根据 rel_conversion_to_byproduct，两者是同一底层机制（催化剂失活）的互补表现，呈高度反相关。",
+        "constraint_source": "rel_conversion_to_byproduct.expected_correlation + rel_conversion_to_byproduct.mechanism",
+        "severity": "soft"
+      }
+    ]
+  },
+  "causal_query_templates": {
+    "purpose": "每条因果关系的可测试查询模板。下游 agent（如 diagnostician）可使用这些模板验证数据中的因果假设。",
+    "queries": [
+      {
+        "query_id": "q_catalyst_activity_to_conversion",
+        "relationship_id": "rel_catalyst_activity_to_conversion",
+        "from_concept": "catalyst_activity（catalyst_bed 的属性）",
+        "to_concept": "conversion_pct",
+        "hypothesis": "催化剂活性下降（由噻吩中毒引起）导致转化率单调下降，且此效应在催化剂再生前不可逆",
+        "test_template": "df.groupby('catalyst_bed_id')['conversion_pct'].apply(lambda x: x.diff().rolling(24).mean().dropna().quantile(0.95) < 0)",
+        "expected_correlation_sign": "positive（活性↑ → 转化率↑）",
+        "expected_lag": "0-2h",
+        "expected_magnitude": "新鲜催化剂转化率 93-95%，失活后降至约 40%（约 50 个百分点下降）",
+        "conditions": "在正常操作温度范围（180-200°C）和 H₂ 分压范围内成立。温度过低（<170°C）时反应受动力学控制。"
+      },
+      {
+        "query_id": "q_conversion_to_byproduct",
+        "relationship_id": "rel_conversion_to_byproduct",
+        "from_concept": "conversion_pct",
+        "to_concept": "byproduct_ppm",
+        "hypothesis": "转化率下降与副产物上升高度反相关（r≈-0.97），两者是同一底层机制（催化剂失活）的互补表现",
+        "test_template": "df['conversion_pct'].corr(df['byproduct_ppm'])",
+        "expected_correlation_sign": "negative",
+        "expected_lag": "~0h",
+        "expected_magnitude": "r ≈ -0.97（数据中应观察到高度反相关）",
+        "conditions": "在催化剂选择性中毒机制占主导的条件下成立。"
+      },
+      {
+        "query_id": "q_temp_arrhenius_conversion",
+        "relationship_id": "rel_temp_arrhenius_conversion",
+        "from_concept": "reactor_temp_C",
+        "to_concept": "conversion_pct",
+        "hypothesis": "本场景中温度上升是操作员对催化剂失活的补偿行为（而非 Arrhenius 原因），因此温度与转化率应呈反相关",
+        "test_template": "df['reactor_temp_C'].corr(df['conversion_pct'])",
+        "expected_correlation_sign": "negative（操作补偿主导时）；positive（纯 Arrhenius 主导时）",
+        "expected_lag": "1-3h",
+        "expected_magnitude": "温度每升 10°C 补偿约 5-10% 转化率损失（低于纯 Arrhenius 预期的 1.5-2.5 倍）",
+        "conditions": "在催化剂活性稳定的前提下成立；当活性持续下降时补偿效果有限。"
+      },
+      {
+        "query_id": "q_regeneration_recovery",
+        "relationship_id": "rel_regeneration_recovery",
+        "from_concept": "catalyst_bed_id 切换（再生事件）",
+        "to_concept": "conversion_pct",
+        "hypothesis": "催化剂再生后转化率应显著恢复（从~42% 升至~75%），但不可完全恢复至初始水平",
+        "test_template": "df_before = df[df['catalyst_bed_id']=='CAT-A'].tail(50)['conversion_pct'].mean()\ndf_after = df[df['catalyst_bed_id']=='CAT-B'].head(50)['conversion_pct'].mean()\nrecovery_rate = df_after / df_before",
+        "expected_correlation_sign": "positive（再生 → 转化率↑）",
+        "expected_lag": "2-8h",
+        "expected_magnitude": "转化率从~42% 恢复至~75%（约 33 个百分点恢复，但不可达初始 94%）",
+        "conditions": "再生操作在适当温度（300-400°C）和 H₂ 分压下进行。"
+      },
+      {
+        "query_id": "q_cooling_duty_to_activity",
+        "relationship_id": "rel_cooling_duty_to_activity",
+        "from_concept": "catalyst_activity",
+        "to_concept": "cooling_duty_kW",
+        "hypothesis": "冷却负荷应随催化剂活性下降而同步降低，且不受操作员补偿行为影响",
+        "test_template": "df['cooling_duty_kW'].corr(df['conversion_pct'])",
+        "expected_correlation_sign": "positive（活性↑ → 冷却负荷↑）",
+        "expected_lag": "0-1h",
+        "expected_magnitude": "冷却负荷从~850 kW 降至~680 kW（约 20% 下降）",
+        "conditions": "稳态操作条件下（反应器温度稳定 6h 以上）。"
+      },
+      {
+        "query_id": "q_h2_partial_pressure_to_conversion",
+        "relationship_id": "rel_h2_partial_pressure_to_conversion",
+        "from_concept": "h2_partial_pressure_bar",
+        "to_concept": "conversion_pct",
+        "hypothesis": "H₂ 分压突然下降导致转化率暂时下降，但 H₂ 恢复后转化率立即恢复（与催化剂失活的可逆性不同）",
+        "test_template": "event_window = df[(df['h2_partial_pressure_bar'] < 23) & (df.index.isin(range(750, 800)))]\nevent_window['conversion_pct'].plot()",
+        "expected_correlation_sign": "positive",
+        "expected_lag": "0.5-2h",
+        "expected_magnitude": "H₂ 分压下降~3 bar 导致转化率下降约 5-10%",
+        "conditions": "在 H₂ 分压低于饱和区时成立。"
+      },
+      {
+        "query_id": "q_feed_rate_to_conversion",
+        "relationship_id": "rel_feed_rate_to_conversion",
+        "from_concept": "feed_rate_kg_hr",
+        "to_concept": "conversion_pct",
+        "hypothesis": "进料速率增加（停留时间减少）导致转化率下降，但此效应是可逆的",
+        "test_template": "df['feed_rate_kg_hr'].corr(df['conversion_pct'])",
+        "expected_correlation_sign": "negative",
+        "expected_lag": "1-3h",
+        "expected_magnitude": "进料速率波动 ±10 kg/hr 引起转化率变化约 ±3-5%",
+        "conditions": "CSTR 理想混合假设下成立。"
+      },
+      {
+        "query_id": "q_temperature_to_sintering",
+        "relationship_id": "rel_temperature_to_sintering",
+        "from_concept": "reactor_temp_C",
+        "to_concept": "catalyst_activity",
+        "hypothesis": "操作员提温补偿行为（185→197°C）加速了 Pd 催化剂热烧结，造成不可逆活性损失",
+        "test_template": "high_temp_periods = df[df['reactor_temp_C'] > 192]\nhigh_temp_periods['conversion_pct'].diff().mean()",
+        "expected_correlation_sign": "negative（温度↑ → 累积烧结→ 活性↓，但此效应在时间上滞后）",
+        "expected_lag": "数天至数周",
+        "expected_magnitude": "持续 50 天高温操作导致约 25% 不可逆活性损失（再生后恢复至~75% 而非 100%）",
+        "conditions": "温度超过烧结阈值（约 190-200°C）时成立。"
+      }
+    ]
+  },
+  "terminology_index": {
+    "purpose": "术语快速查找表，来自本体中每个概念的 terminology 字段。下游 agent 可用任何别名查找概念。",
+    "entries": [
+      {
+        "canonical_name": "反应转化率",
+        "data_column": "conversion_pct",
+        "synonyms": ["转化率", "反应转化百分比", "原料转化率"],
+        "abbreviations": ["X", "conv", "Conv"],
+        "cross_language": {"zh": "转化率", "en": "conversion percentage"}
+      },
+      {
+        "canonical_name": "反应选择性",
+        "data_column": "selectivity_pct",
+        "synonyms": ["选择性", "目标产物选择性"],
+        "abbreviations": ["S", "sel", "Sel"],
+        "cross_language": {"zh": "选择性", "en": "selectivity"}
+      },
+      {
+        "canonical_name": "产品品质指数",
+        "data_column": "quality_index",
+        "synonyms": ["品质指数", "质量指数", "产品综合品质"],
+        "abbreviations": ["QI", "Qidx"],
+        "cross_language": {"zh": "品质指数", "en": "quality index"}
+      },
+      {
+        "canonical_name": "反应器温度",
+        "data_column": "reactor_temp_C",
+        "synonyms": ["反应温度", "釜温", "反应器操作温度"],
+        "abbreviations": ["T_reactor", "Tr"],
+        "cross_language": {"zh": "反应器温度", "en": "reactor temperature"}
+      },
+      {
+        "canonical_name": "反应器压力",
+        "data_column": "reactor_pressure_bar",
+        "synonyms": ["反应压力", "釜压", "系统压力"],
+        "abbreviations": ["P_reactor", "Pr"],
+        "cross_language": {"zh": "反应器压力", "en": "reactor pressure"}
+      },
+      {
+        "canonical_name": "氢气分压",
+        "data_column": "h2_partial_pressure_bar",
+        "synonyms": ["H₂ 分压", "氢分压", "氢气压力"],
+        "abbreviations": ["PH₂", "P_H2", "H2_pp"],
+        "cross_language": {"zh": "氢气分压", "en": "hydrogen partial pressure"}
+      },
+      {
+        "canonical_name": "进料速率",
+        "data_column": "feed_rate_kg_hr",
+        "synonyms": ["进料流量", "原料流量", "进料量"],
+        "abbreviations": ["F_feed", "F_in"],
+        "cross_language": {"zh": "进料速率", "en": "feed rate"}
+      },
+      {
+        "canonical_name": "进料总硫含量",
+        "data_column": "feed_sulfur_ppm",
+        "synonyms": ["进料硫含量", "总硫", "进料硫"],
+        "abbreviations": ["S_feed", "S_in"],
+        "cross_language": {"zh": "进料总硫", "en": "feed sulfur content"}
+      },
+      {
+        "canonical_name": "副产物浓度",
+        "data_column": "byproduct_ppm",
+        "synonyms": ["副产物含量", "杂质含量", "副产品浓度"],
+        "abbreviations": ["BP", "byprod"],
+        "cross_language": {"zh": "副产物浓度", "en": "byproduct concentration"}
+      },
+      {
+        "canonical_name": "冷却负荷",
+        "data_column": "cooling_duty_kW",
+        "synonyms": ["冷却功率", "换热负荷", "冷却量"],
+        "abbreviations": ["Q_cool", "CoolDuty"],
+        "cross_language": {"zh": "冷却负荷", "en": "cooling duty"}
+      },
+      {
+        "canonical_name": "反应器温差",
+        "data_column": "delta_T_reactor_C",
+        "synonyms": ["反应器 ΔT", "传热温差"],
+        "abbreviations": ["ΔT_r", "dT_reactor"],
+        "cross_language": {"zh": "反应器温差", "en": "reactor delta-T"}
+      },
+      {
+        "canonical_name": "冷却水温度",
+        "data_column": "cooling_water_temp_C",
+        "synonyms": ["冷却水温", "冷却介质温度", "循环水温度"],
+        "abbreviations": ["T_cw", "T_cool"],
+        "cross_language": {"zh": "冷却水温度", "en": "cooling water temperature"}
+      }
+    ]
+  },
+  "llm_prompt_templates": {
+    "purpose": "下游 agent 可复用的 prompt 模板。模板引用本体的实际概念定义、关系机制和约束，不写通用模板。",
+    "templates": {
+      "diagnostician_system_prompt": "你是一个工业过程诊断 agent，专注于 CSTR 加氢反应器中 Pd/Al₂O₃ 催化剂的性能诊断。\n\n## 核心知识\n- 本领域为 CSTR 加氢反应催化剂选择性中毒诊断（domain_type: cstr_hydrogenation_catalyst_deactivation）\n- 核心故障机制：原料中微量噻吩（thiophene, C₄H₄S, 0.05-0.15 ppm）不可逆吸附于 Pd 活性位点，导致催化剂选择性中毒\n- 关键诊断特征：转化率单调下降（>72h）+ 选择性下降 + 副产物上升 + 冷却负荷同步下降 + 操作员提温补偿\n- 催化剂再生（热氢汽提，catalyst_bed_id 切换）后活性部分恢复（~42%→~75%）是确诊中毒的决定性证据\n\n## 关键概念定义\n- conversion_pct（转化率）：已反应原料占进料百分比，新鲜催化剂 93-95%，失活后约 40%\n- selectivity_pct（选择性）：目标产物占已反应原料的比例，新鲜 >97%，失活后 <86%\n- byproduct_ppm（副产物浓度）：与 conversion_pct 高度反相关（r≈-0.97）\n- cooling_duty_kW（冷却负荷）：直接反映反应放热，不受操作员补偿行为影响\n- reactor_temp_C（反应器温度）：本场景中温度上升是操作员对失活的**补偿结果**，而非转化率下降的原因\n\n## 关键因果关系\n- {rel_catalyst_activity_to_conversion}：活性位点数↓ → 反应速率↓ → conversion_pct↓\n- {rel_temp_arrhenius_conversion}：操作补偿主导时温度↑与转化率↓同时出现\n- {rel_regeneration_recovery}：再生事件 → 活性部分恢复（关键的诊断证据）\n- {rel_cooling_duty_to_activity}：冷却负荷与催化剂活性正相关，不受补偿行为影响\n\n## 关键约束\n- AXIOM_arrhenius_rate：温度升 10°C，反应速率提高 1.5-2.5 倍\n- AXIOM_sulfur_analysis_limitation：总硫（5-8 ppm 正常）不排除噻吩中毒\n- AXIOM_temperature_increase_is_result：温度上升是结果而非原因\n- AXIOM_confounder_cooling_water：冷却水温的季节性趋势是潜在混杂变量\n\n## 诊断指南\n1. 按 catalyst_bed_id 分层分析（区分再生前后）\n2. 检查转化率趋势：单调下降→催化失活，阶跃下降→进料/氢气扰动\n3. 检查冷却负荷趋势：同步下降→确认催化活性降低\n4. 检查温度趋势：上升+转化率下降→提温补偿（经典提示）\n5. 再生后的恢复水平：部分恢复→中毒+烧结共存\n6. 排除冷却水温的季节性混杂效应（使用去趋势分析）",
+      "diagnostician_user_prompt_template": "调查为什么 {target_concept} 异常。\n\n最近 200 个时间点的数据趋势：\n- {target_concept}：当前值 {current_value}，范围 {expected_range}，趋势 {trend_description}\n- 相关参数变化：{related_parameters_summary}\n- 操作上下文：catalyst_bed_id={bed_id}，product_lot={lot}，shift={shift}\n\n请分析：\n1. 异常类型（阶跃/漂移/振荡/尖峰）\n2. 最可能的根因（催化剂中毒、进料扰动、氢气问题、冷却问题、操作补偿）\n3. 支持的因果链证据\n4. 需要排除的混杂因素",
+      "judge_prompt_template": "比较以下两个诊断假设：\n\n假设 A：{diagnosis_A_summary}\n假设 B：{diagnosis_B_summary}\n\n数据时间段：{time_range}\n\n使用本体的因果关系和约束进行评估：\n1. 哪些因果链在数据中得到了证实？引用具体 relationship_id\n2. 哪些约束被违反了？引用具体 constraint name\n3. 是否有混杂变量未被考虑？（product_lot, catalyst_bed_id, shift, cooling_water_temp_C）\n4. 哪个假设更符合数据的整体趋势？\n5. 推荐下一步验证操作",
+      "reporter_prompt_template": "生成操作员友好的诊断报告。\n\n## 问题摘要\n{problem_summary}\n\n## 诊断结论\n{diagnosis_conclusion}\n\n## 建议的行动\n{recommended_actions}\n\n格式要求：\n- 使用中文，简洁明了\n- 避免技术术语，用操作员熟悉的语言\n- 0.5 页以内\n- 包含：问题 → 原因 → 证据 → 行动建议"
+    }
+  },
+  "defect_scenarios": {
+    "purpose": "具体测试场景，来自本体中的约束和异常指示。每个场景测试下游 agent 的诊断能力。",
+    "scenarios": [
+      {
+        "scenario_id": "defect_001",
+        "name": "CSTR 催化剂噻吩选择性中毒渐进失活",
+        "trigger_conditions": "原料批次 LOT-0005 中含有微量噻吩（0.05-0.15 ppm），总硫分析（6.8 ppm）在正常范围。噻吩在 Pd 活性位点上不可逆吸附，活性位点数随时间单调递减。",
+        "affected_targets": ["conversion_pct", "selectivity_pct", "quality_index", "byproduct_ppm"],
+        "expected_root_cause": "原料批次 LOT-0005 中微量噻吩导致 Pd/Al₂O₃ 催化剂选择性中毒",
+        "expected_chain": "rel_catalyst_activity_to_conversion → rel_conversion_to_byproduct → rel_temp_arrhenius_conversion（操作员提温补偿）→ rel_cooling_duty_to_activity（冷却负荷同步下降）",
+        "expected_diagnosis": "诊断应识别出：(1) 转化率单调下降趋势（非阶跃）→ 渐进失活；(2) 选择性同步下降 → 选择性中毒（非热烧结）；(3) 温度上升 + 转化率下降 → 操作补偿效应；(4) 冷却负荷同步下降 → 确认反应放热减少；(5) 总硫正常不排除中毒",
+        "constraint_violated": "AXIOM_sulfur_analysis_limitation（总硫正常不排除噻吩中毒）"
+      },
+      {
+        "scenario_id": "defect_002",
+        "name": "进料泵短暂跳车（独立扰动事件）",
+        "trigger_conditions": "t=750-754 期间进料泵跳车，feed_rate_kg_hr 降至 0 并维持约 4h，随后恢复。这是一个瞬时的独立事件，与催化剂渐进失活趋势无关。",
+        "affected_targets": ["feed_rate_kg_hr", "conversion_pct"],
+        "expected_root_cause": "进料泵机械故障导致的短暂跳车（独立事件）",
+        "expected_chain": "rel_feed_rate_to_conversion → 进料中断 → 停留时间无限大 → 转化率迅速下降 → 进料恢复后转化率快速复原",
+        "expected_diagnosis": "诊断应将此事件识别为独立扰动而非催化剂失活加剧：(1) 进料归零的阶跃变化；(2) 转化率下降时间与进料中断时间一致；(3) 进料恢复后转化率快速复原；(4) 冷却负荷无同步趋势变化",
+        "constraint_violated": "AXIOM_feed_pump_trip（进料泵跳车为独立事件，与催化剂失活趋势无关）"
+      },
+      {
+        "scenario_id": "defect_003",
+        "name": "H₂ 压缩机维护导致的短期转化率波动",
+        "trigger_conditions": "H₂ 压缩机计划维护，h2_partial_pressure_bar 从 ~26 bar 突然下降约 3 bar 至 ~23 bar，维持约 10h 后恢复。",
+        "affected_targets": ["h2_partial_pressure_bar", "conversion_pct"],
+        "expected_root_cause": "H₂ 压缩机维护导致氢气分压暂时下降",
+        "expected_chain": "rel_h2_partial_pressure_to_conversion → H₂ 分压↓ → 反应速率↓ → 转化率暂时↓ → H₂ 恢复后转化率立即恢复",
+        "expected_diagnosis": "诊断应将此识别为短期可逆扰动而非催化剂失活：(1) H₂ 分压阶跃下降 + 阶跃恢复；(2) 转化率同步下降 + 同步恢复；(3) 其他参数（选择性、冷却负荷）无趋势变化；(4) H₂ 恢复后转化率回到原基线",
+        "constraint_violated": "无（此事件不违反约束，但需与催化剂失活区分）"
+      },
+      {
+        "scenario_id": "defect_004",
+        "name": "催化剂再生后部分恢复（确诊中毒证据）",
+        "trigger_conditions": "催化剂运行末期转化率降至 ~42%，进行热氢汽提再生（catalyst_bed_id 从 CAT-A 切换至 CAT-B）。再生后转化率恢复至 ~75%，副产物从 ~450 ppm 降至 ~250 ppm，选择性从 ~87% 提升至 ~93%。",
+        "affected_targets": ["conversion_pct", "byproduct_ppm", "selectivity_pct", "quality_index"],
+        "expected_root_cause": "催化剂再生有效，确诊噻吩选择性中毒（可逆部分恢复）且存在不可逆热烧结损伤（不可恢复至 100%）",
+        "expected_chain": "rel_regeneration_recovery → 转化率↑ 副产物↓ 选择性↑ → 但不可完全恢复 → rel_temperature_to_sintering（提温加速烧结）",
+        "expected_diagnosis": "诊断应确定：(1) 再生后性能显著恢复 → 确认根因在催化剂；(2) 恢复至~75% 而非 100% → 同时存在不可逆损伤；(3) 不可逆损伤因操作员提温（185→197°C）加速 Pd 烧结；(4) 建议优化再生频率以在失活早期恢复 避免不可逆损失",
+        "constraint_violated": "AXIOM_catalyst_regeneration_diagnosis（再生后性能恢复则催化剂失活确诊）"
+      },
+      {
+        "scenario_id": "defect_005",
+        "name": "冷却水温季节性趋势造成的伪相关",
+        "trigger_conditions": "夏季冷却水温从 24°C 上升至 30°C，反应器温度控制受轻度影响。此趋势与催化剂失活趋势（约 60 天单调下降）在时间上部分重叠。",
+        "affected_targets": ["cooling_water_temp_C", "reactor_temp_C", "conversion_pct"],
+        "expected_root_cause": "冷却水温季节性升高（环境因素，非故障）",
+        "expected_chain": "冷却水温↑ → 传热推动力↓ → 反应器温度控制偏差 → 潜在伪相关路径",
+        "expected_diagnosis": "诊断应识别出冷却水温是混杂变量并予以排除：(1) 冷却水温趋势符合季节性模式（非单调）; (2) 去趋势分析后冷却水温与转化率的相关性消失; (3) 冷却负荷与转化率的关系不受影响",
+        "constraint_violated": "AXIOM_confounder_cooling_water（冷却水温的季节性趋势与催化剂失活趋势重叠）"
+      }
+    ]
+  }
+}
