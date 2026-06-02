@@ -57,11 +57,15 @@ Read from RUN_DIR:
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence assessment
 - `04_diagnostics/reasoning_chain.json` — Full Chain-of-Thought reasoning trace from the diagnostician
-- `00_input/rag_deep_understanding.json` — **NEW: Extracted physics principles, validated RAG claims, known failure modes, key confounders**
-- `02_processed/rag_validation_report.json` — **NEW: Stage 2 thorough RAG validation (if exists)**
+- `00_input/rag_deep_understanding.json` — Extracted physics principles, validated RAG claims, known failure modes, key confounders
+- `02_processed/rag_validation_report.json` — Stage 2 thorough RAG validation (if exists)
 - `02_processed/feature_summary.json` — Enhanced statistical data (Pearson, Spearman, detrended, CCF)
-- `02_processed/validate_report.json` — **Statistical validation report (primary verification tool)**
+- `02_processed/validate_report.json` — Statistical validation report (primary verification tool)
 - `01_ontology/ontology.json` — Process ontology (with behavior_match and discrepancy_signals)
+- `02_processed/analysis_plan.md` — Data-processor's detected data shape and analysis rationale (if exists)
+- `02_processed/zone_analysis.json` — Per-zone drift localization (if multi-zone sensors)
+- `02_processed/event_analysis.json` — Quality reset classifications (if event markers)
+- `02_processed/physics_manual_verification.md` — Manual L1-L5 derivations (if physics_check ran 0 checks)
 - `03_figures/plot_manifest.json` — Visualization manifest
 
 **Read the ACTUAL DATA** (via inspect.mjs or direct CSV reading) — do not rely solely on the pipeline's summary statistics. Verify key claims by checking the raw data yourself.
@@ -205,61 +209,82 @@ This is where most diagnostic reports fail. Do NOT trust the pipeline's validate
 ```python
 import pandas as pd
 import numpy as np
-import os
+import os, json
 
 # Try cleaned data first (pipeline's authoritative dataset), fall back to raw DATA_PATH
 cleaned_csv = os.path.join(RUN_DIR, "02_processed", "cleaned_data.csv")
 if os.path.exists(cleaned_csv):
     df = pd.read_csv(cleaned_csv)
-    # Also load raw data for comparison to detect preprocessing artifacts
     df_raw = pd.read_csv(DATA_PATH)
 else:
     df = pd.read_csv(DATA_PATH)
-    df_raw = df  # same dataset, no preprocessing comparison possible
+    df_raw = df
 
-# 0. Compare cleaned vs raw data to detect preprocessing artifacts (if both available)
+# 0. Compare cleaned vs raw data to detect preprocessing artifacts
 if 'df_raw' in dir() and len(df) != len(df_raw):
     print(f"NOTE: Cleaned data has {len(df)} rows vs raw {len(df_raw)} rows — {len(df_raw) - len(df)} rows were removed during cleaning")
-    print("Check if removed rows contain key transition events or anomalous periods")
+
+# Derive column roles from ontology.json (not hardcoded names)
+ontology_path = os.path.join(RUN_DIR, "01_ontology", "ontology.json")
+if os.path.exists(ontology_path):
+    ontology = json.load(open(ontology_path))
+    signals = ontology.get("signals", {})
+    targets = [p.get("column", "") for p in signals.get("inspection_signals", [])]
+    predictors = [p.get("column", "") for p in signals.get("process_parameters", [])]
+    control_cols = [p.get("column", "") for p in signals.get("control_variables", [])]
+    meta = signals.get("metadata_columns", [])
+    group_cols = [m.get("column", "") for m in meta if m.get("role") in ("product_code", "batch_id")]
+else:
+    # Fallback: auto-detect from dataframe
+    cat_cols = [c for c in df.columns if df[c].dtype == 'object' and df[c].nunique() < 20]
+    targets = [c for c in df.columns if df[c].dtype in ('float64', 'int64')][-4:]
+    predictors = [c for c in df.columns if df[c].dtype in ('float64', 'int64') and c not in targets][:10]
+    group_cols = cat_cols[:2]
+time_col = next((c for c in df.columns if 'time' in c.lower() or 'ts_' in c.lower()), None)
+targets = [t for t in targets if t in df.columns]
+predictors = [p for p in predictors if p in df.columns]
+group_cols = [g for g in group_cols if g in df.columns and g not in targets]
+
+print(f"Targets: {targets}")
+print(f"Predictors: {predictors[:8]}")
+print(f"Group cols: {group_cols}")
 
 # 1. Check within-group correlations (Simpson's Paradox)
-if 'product_model' in df.columns or 'batch_id' in df.columns:
-    group_col = 'product_model' if 'product_model' in df.columns else 'batch_id'
-    for group_val in df[group_col].unique()[:5]:  # check top 5 groups
+for group_col in group_cols[:3]:
+    for group_val in df[group_col].unique()[:5]:
         subset = df[df[group_col] == group_val]
         if len(subset) > 20:
-            for cause_col in ['key_param_1', 'key_param_2']:
-                for effect_col in ['defect_1', 'defect_2']:
+            for cause_col in predictors[:5]:
+                for effect_col in targets[:3]:
                     if cause_col in df.columns and effect_col in df.columns:
                         r = subset[cause_col].corr(subset[effect_col])
                         if abs(r) < 0.1:
                             print(f"WARNING: {cause_col}-{effect_col} r={r:.3f} in {group_val}")
 
 # 2. Detrend key correlations
-for cause_col in ['key_param_1', 'key_param_2']:
-    for effect_col in ['defect_1', 'defect_2']:
+for cause_col in predictors[:5]:
+    for effect_col in targets[:3]:
         if cause_col in df.columns and effect_col in df.columns:
             x = df[cause_col].values.astype(float)
             y = df[effect_col].values.astype(float)
             t = np.arange(len(x))
-            # Detrend x
-            x_coeffs = np.polyfit(t, x, 1)
-            x_detrended = x - np.polyval(x_coeffs, t)
-            # Detrend y
-            y_coeffs = np.polyfit(t, y, 1)
-            y_detrended = y - np.polyval(y_coeffs, t)
-            r_raw = np.corrcoef(x, y)[0,1]
-            r_detrended = np.corrcoef(x_detrended, y_detrended)[0,1]
+            x_detrended = x - np.polyval(np.polyfit(t, x, 1), t)
+            y_detrended = y - np.polyval(np.polyfit(t, y, 1), t)
+            r_raw = np.corrcoef(x, y)[0, 1]
+            r_detrended = np.corrcoef(x_detrended, y_detrended)[0, 1]
             att = (r_raw - r_detrended) / abs(r_raw) * 100
             if abs(att) > 30:
                 print(f"TREND CONFOUND: {cause_col}-{effect_col} attenuates {att:.0f}%")
 
 # 3. Check data sorting before accepting lag results
-if 'ts_start' in df.columns:
-    times = pd.to_datetime(df['ts_start'])
-    is_sorted = (times.diff().dropna().dt.total_seconds() > 0).mean() > 0.95
-    if not is_sorted:
-        print("FATAL: Data not time-sorted — lag correlations are sorting artifacts")
+if time_col and time_col in df.columns:
+    try:
+        times = pd.to_datetime(df[time_col])
+        is_sorted = (times.diff().dropna().dt.total_seconds() > 0).mean() > 0.95
+        if not is_sorted:
+            print("FATAL: Data not time-sorted — lag correlations are sorting artifacts")
+    except:
+        print(f"NOTE: Could not parse {time_col} as datetime — skipping sort check")
 ```
 
 ### 2.2 Confounding Patterns to Check
@@ -340,9 +365,9 @@ Rate 0-10:
 
 ### 5.2 Verdict
 
-- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors, RAG knowledge cross-check passed
-- **CONDITIONAL**: 1-2 dimensions < 7, or significant concerns exist, or RAG knowledge partially contradicted. Diagnosis direction may be correct but evidence is insufficient
-- **REJECTED**: 3+ dimensions < 7, or fundamental mechanism is physically impossible, or fatal statistical errors (sorting artifact, Simpson's Paradox), or diagnosis relies on CONTRADICTED RAG claims
+- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors, RAG knowledge cross-check passed → proceed to Step 8 (Present)
+- **CONDITIONAL**: 1-2 dimensions < 7, or significant concerns exist, or RAG knowledge partially contradicted. Diagnosis direction may be correct but evidence is insufficient → re-spawn Step 4 (Diagnostician) with physical critique from this audit, max 2 cycles, global cap 5 re-diagnoses total (see `pipeline-execution.md` §Repair Loop Protocol)
+- **REJECTED**: 3+ dimensions < 7, or fundamental mechanism is physically impossible, or fatal statistical errors (sorting artifact, Simpson's Paradox), or diagnosis relies on CONTRADICTED RAG claims → re-spawn Step 4 with full repair instructions, max 2 cycles, global cap 5
 
 ### 5.3 Output: RUN_DIR/optimizer.md
 

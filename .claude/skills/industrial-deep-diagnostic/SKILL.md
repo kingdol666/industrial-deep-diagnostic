@@ -193,21 +193,25 @@ Check `clarification_needed.json`. Auto mode skips all questions and applies phy
 
 Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
 
-The agent runs scenario-adaptive analysis driven by data characteristics (not templates):
-- Convert data → preprocess → statistical analysis (`stats.mjs` + `stats_validate.mjs`)
-- Anomaly detection + transition analysis + automated physics checks (`physics_check.py`)
-- **Stage 2 RAG validation**: thorough statistical validation of every RAG claim queued in Stage 1
-- Update ontology with new discrepancy signals discovered during analysis
-- Generate scenario-adaptive visualizations (`03_figures/*.png`)
+**Scenario-adaptive analysis** — the agent reads the data first, understands what kind of process it is, then decides what analyses to run. No two datasets get the same treatment.
 
-Validate (×3):
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/causal_evidence_map_schema.json" "$RUN_DIR/02_processed/causal_evidence_map.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
-```
+The agent follows a **Phase 0 → Phase 1 → ... → Phase 6** structure:
+- **Phase 0 (MANDATORY)**: Data exploration — understand the process, identify data shape (multi-zone? paired sensors? hierarchical groups? events? cyclic?), write an `analysis_plan.md` BEFORE running any scripts
+- **Phase 1**: Scenario classification → `scenario_classification.json`
+- **Phase 2**: Universal analysis (convert, preprocess, stats, anomaly detection) — applies to all scenarios
+- **Phase 3 (THE CORE)**: Scenario-specific deep analysis using a decision tree:
+  - A: Multi-zone sensors → zone drift localization, spatial profiles, per-zone trends
+  - B: Paired/cascaded sensors → differentials, efficiency metrics, cascade timing
+  - C: Multi-level grouping → variance decomposition, level-specific trends
+  - D: Event markers → quality reset analysis (the #1 diagnostic signal)
+  - E: Nonlinear relationships → threshold detection, regime-separated stats
+  - F: Periodic/cyclic patterns → FFT, cycle-phase analysis, partial correlation
+  - G: physics_check returns 0 → manual L1-L5 physics verification
+- **Phase 4**: RAG knowledge Stage 2 validation
+- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table
+- **Phase 6**: Plot manifest + image captions
 
-Key outputs: `02_processed/` (11 files), `03_figures/` (plots + manifests), `rag_validation_report.json`
+Key outputs: `02_processed/` (universal + scenario-specific files), `03_figures/` (universal + scenario-specific plots), `analysis_plan.md`, `scenario_plots.py`
 
 ### Step 4: Diagnostician (Sub-Agent)
 
@@ -220,6 +224,8 @@ Physics-Based Competing Hypotheses Protocol:
 - **Phase 1**: For novel parameters, derive physics via L1-L5 Inference Ladder
 - **Phase 2**: Evidence fusion — combine data evidence with physics evidence
 - **Phase 3**: 5-Step protocol (Generate → Cross-check → Discriminate → Exclude → Conclude)
+
+**CRITICAL — Schema-First 输出规则**: 在 `Phase 6` 写入任何文件之前，先读取 `templates/diagnosis_template.json` 和所有 4 个 schema 文件（`schemas/diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json`）。按 schema 的 `required` 字段和 `properties` 结构精确构造输出。**一次写入，通过验证**。不要先写再修。
 
 Every hypothesis must have: physical mechanism with governing equation, quantitative magnitude check, data evidence, quality reset/onset evidence, visual evidence, falsification condition.
 
@@ -256,7 +262,7 @@ Output: `05_review/judge_feedback.json`
 
 Pass: `RUN_DIR`, `SKILL_PATH`.
 
-Generates `report.md` (Chinese) with 8 mandatory sections: Executive Summary, Reasoning Overview (R1-R8), Statistical Findings, Diagnostic Findings, Competing Hypotheses Disclosure, Confidence Assessment, Limitations, Recommendations.
+Generates `report.md` (Chinese) with 20 sections covering: Executive Summary, Reasoning Overview (R1-R8), Data Description, Variable Classification, Visualization Evidence (per-figure analysis), Diagnostic Findings (eliminated + surviving hypotheses with causal chains), Root Cause Synthesis, Statistical Validation & Confidence (sorting, Simpson, trend confounding, robustness), Competing Hypotheses Disclosure, Limitations & Uncertainty (aleatory vs epistemic), Recommended Actions, and Appendices (file inventory, hallucination audit, discriminability matrix).
 
 Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"`
 Output: `report.md`, `run_summary.json`
@@ -293,8 +299,9 @@ Context Builder ──► 01_ontology/ontology.json, schema.json
                 ──► 00_input/rag_deep_understanding.json
                 ──► 00_input/rag_ontology_draft.json, rag_structured_data.json, rag_audit_log.json (from RAG skill)
 User Clarification ──► Updated ontology.json, schema.json
-Data Processor  ──► 02_processed/ (11 files: stats, anomalies, physics, RAG validation)
+Data Processor  ──► 02_processed/ (universal + scenario-specific analysis files)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
+                ──► analysis_plan.md, scenario_plots.py
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
 Judge           ──► 05_review/judge_feedback.json
 Reporter        ──► report.md, run_summary.json
@@ -302,6 +309,42 @@ Report Reviewer ──► optimizer.md
 ```
 
 ---
+
+## 全局规则: Schema-First Writing Protocol（防止重写浪费）
+
+**这是最重要的规则。本节的所有重写和修复都源于违反此规则。**
+
+在向 `RUN_DIR` **写入任何结构化文件**之前，必须先读取对应的 schema 文件（`schemas/*.json`）和模板（`templates/*.json`）—— 这样一次写入就能通过验证。
+
+```mermaid
+flowchart LR
+    A[读取 schema] --> B[按 schema 字段构造]
+    B --> C[一次写入]
+    C --> D[立即验证]
+    D -->|通过| E[继续下一步]
+    D -->|失败| F[停止! 检查 schema 字段定义]
+    F --> B
+```
+
+| 步骤 | 写入文件 | 写入前必须读取 |
+|------|---------|---------------|
+| Step 2 | `ontology.json` | `schemas/ontology_schema.json` |
+| Step 3 | `scenario_classification.json` | `schemas/scenario_classification_schema.json` |
+| Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
+| Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
+| Step 4 | `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |
+| Step 4 | `evidence.json` | `schemas/evidence_schema.json` |
+| Step 4 | `confidence.json` | `schemas/confidence_schema.json` |
+| Step 4 | `reasoning_chain.json` | `schemas/reasoning_chain_schema.json` |
+| Step 5 | `judge_feedback.json` | `schemas/judge_feedback_schema.json` + `templates/judge_template.json` |
+| Step 6 | `run_summary.json` | `schemas/run_summary_schema.json` + `templates/run_summary_template.json` |
+
+**规则**: 先读 schema，再构造内容，一次写入，立即验证。**不要**先写再验证 → 这是 token 浪费的主要原因。
+
+## JSON 转义与路径引号规则
+
+1. **JSON 中的引号嵌套**: 在 JSON 字符串中写入中文文本时，如果文本包含双引号（如「"根因竞争"」），必须转义为 `\"根因竞争\"`，或改写为无引号的表达方式。未转义的嵌套引号会导致 JSON 解析失败。
+2. **路径引号**: 当 `SKILL_PATH` 或 `DATA_PATH` 包含空格时，Bash 命令必须对所有路径变量使用双引号包裹：`"$SKILL_PATH/..."`。
 
 ## Evidence Hierarchy
 

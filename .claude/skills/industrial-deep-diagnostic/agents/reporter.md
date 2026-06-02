@@ -18,22 +18,28 @@ Read from RUN_DIR:
 - `01_ontology/ontology.json`
 - `01_ontology/schema.json`
 - `00_input/extracted_knowledge.json` (if exists)
-- `00_input/rag_deep_understanding.json` — Physics principles, validated RAG claims, confounders (if exists)
-- `02_processed/rag_validation_report.json` — Stage 2 thorough RAG validation (if exists)
+- `00_input/rag_deep_understanding.json` (if exists)
+- `02_processed/rag_validation_report.json` (if exists)
 - `02_processed/data_quality_report.json`
 - `02_processed/feature_summary.json`
-- `02_processed/validate_report.json` — **NEW: Statistical validation findings**
+- `02_processed/validate_report.json`
+- `02_processed/scenario_classification.json`
+- `02_processed/analysis_plan.md` — Data-processor's analysis rationale (if exists)
+- `02_processed/zone_analysis.json` — Zone drift localization (if multi-zone sensors)
+- `02_processed/event_analysis.json` — Quality reset analysis (if event markers)
 - `03_figures/plot_manifest.json`
-- `03_figures/image_captions.json` — **NEW: Structured figure descriptions for fallback**
+- `03_figures/image_captions.json`
 - `04_diagnostics/diagnosis.json`
 - `04_diagnostics/evidence.json`
 - `04_diagnostics/confidence.json`
-- `04_diagnostics/reasoning_chain.json` — **NEW: Structured reasoning trace from Chain-of-Thought protocol**
+- `04_diagnostics/reasoning_chain.json`
 - `05_review/judge_feedback.json`
 
 Read from SKILL_PATH:
 - `resources/evidence_rules.md`
-- `templates/report_template.md`
+- `templates/report_template.md` — Report structure reference
+- `schemas/run_summary_schema.json` — Schema validation target for run_summary.json
+- `templates/run_summary_template.json` — Output structure reference for run_summary.json
 
 ## Step 1: Read and Understand Every Figure (MANDATORY)
 
@@ -287,34 +293,21 @@ Every claim MUST cite which link in the reasoning chain supports it ([Chain Link
 
 ## Step 3: Generate Run Summary
 
+Read `schemas/run_summary_schema.json` before writing. Required fields: `run_id`, `scene_name`, `timestamp`, `pipeline_steps_completed`, `diagnosis_type`, `judge_verdict` (object with `score`+`verdict`).
+
 Write to `RUN_DIR/run_summary.json`:
 ```json
 {
   "run_id": "...",
-  "run_timestamp": "...",
+  "timestamp": "...",
   "scene_name": "...",
-  "batch_id": "...",
-  "status": "completed",
-  "data_source": "...",
-  "data_dimensions": {"rows": 0, "columns": 0},
-  "time_range": {"start": "...", "end": "..."},
-  "signals": {"inspection": 0, "process": 0, "control": 0, "event": 0, "metadata": 0},
-  "primary_diagnosis": "...",
-  "overall_confidence": "...",
-  "judge_score": 0,
-  "judge_verdict": "...",
-  "judge_iterations": 0,
-  "validation_summary": {
-    "sorting_validated": true,
-    "simpson_paradox_findings": 0,
-    "trend_confounded_correlations": 0,
-    "outlier_driven_correlations": 0,
-    "overall_validity": "..."
-  },
-  "artifacts": {"files_generated": 0, "figures_generated": 0},
-  "references_used": 0,
-  "web_research_queries": 0,
-  "duration_seconds": 0
+  "pipeline_steps_completed": ["setup","inspect","context_builder","data_processor","diagnostician","judge","reporter"],
+  "diagnosis_type": "DETERMINED",
+  "primary_finding": "...",
+  "judge_verdict": {"score": 0, "verdict": "pass"},
+  "data_sources": [{"source": "...", "rows": 0, "columns": 0}],
+  "figure_count": 0,
+  "diagnostic_iterations": 1
 }
 ```
 

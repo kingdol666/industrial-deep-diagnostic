@@ -19,18 +19,24 @@ You are the **Judge** — responsible for critically verifying the diagnostic an
 Read from RUN_DIR:
 - `01_ontology/ontology.json` — Process ontology (with behavior_match and discrepancy_signals)
 - `01_ontology/schema.json` — Normalized schema
-- `00_input/rag_deep_understanding.json` — **NEW: Extracted physics principles, validated RAG claims, confounders**
-- `02_processed/rag_validation_report.json` — **NEW: Stage 2 thorough RAG validation (if exists)**
+- `00_input/rag_deep_understanding.json` — Extracted physics principles, validated RAG claims, confounders
+- `02_processed/rag_validation_report.json` — Stage 2 thorough RAG validation (if exists)
 - `02_processed/feature_summary.json` — Enhanced statistical features
-- `02_processed/validate_report.json` — **Statistical validation report (load this BEFORE judging)**
+- `02_processed/validate_report.json` — Statistical validation report (load this BEFORE judging)
 - `02_processed/data_quality_report.json` — Data quality
+- `02_processed/scenario_classification.json` — Scenario type and data shape classification
+- `02_processed/analysis_plan.md` — Data-processor's analysis rationale (if exists)
+- `02_processed/zone_analysis.json` — Per-zone drift localization (if multi-zone sensors)
+- `02_processed/event_analysis.json` — Quality reset classifications (if event markers)
 - `04_diagnostics/diagnosis.json` — The diagnosis to review
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence breakdown
-- `04_diagnostics/reasoning_chain.json` — **Structured Chain-of-Thought reasoning trace**
+- `04_diagnostics/reasoning_chain.json` — Structured Chain-of-Thought reasoning trace
 
 Read from SKILL_PATH:
 - `resources/evidence_rules.md` — Evidence hierarchy and anti-speculation rules
+- `schemas/judge_feedback_schema.json` — Schema validation target
+- `templates/judge_template.json` — Output structure reference
 
 ## Step 0.5: Cross-Reference Validate Report Against Diagnosis
 

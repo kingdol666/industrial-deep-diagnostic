@@ -9,7 +9,18 @@ The Diagnostician references these results instead of manually computing
 Arrhenius rates, thermal expansion, or energy balances.
 
 Usage:
-    python physics_check.py <RUN_DIR> <ontology.json> <feature_summary.json> <anomaly_report.json> --output <output.json>
+    python physics_check.py <RUN_DIR> <ontology.json> <feature_summary.json> <anomaly_report.json> \\
+        --output <output.json> \\
+        --temp-col <col_name> --dev-col <col_name>    # explicit column assignments
+        --vib-col <col_name> --flow-col <col_name>
+        --pressure-col <col_name> --power-col <col_name>
+        --quality-targets <col1> <col2> ...
+        --candidate-params <col1> <col2> ...
+        --cleaned-data <cleaned_data.json>
+
+    This script is a GENERIC TEMPLATE. The data-processor agent reads ontology.json
+    to determine which physical checks are applicable, then passes the actual column
+    names as CLI arguments. No column-name guessing occurs.
 """
 
 import json
@@ -454,67 +465,6 @@ def check_heat_transfer(
     return result
 
 
-def check_force_balance(
-    cutting_speed_col: str,
-    feed_col: str,
-    depth_of_cut_col: str,
-    force_col: str,
-    data: list[dict],
-    specific_cutting_force_N_per_mm2: float = 2500,
-) -> dict:
-    """
-    F = k_s × a_p × f
-
-    Checks if measured cutting force is consistent with cutting parameters.
-    k_s (specific cutting force) for steel: ~2500 N/mm²
-    """
-    speeds = [row[cutting_speed_col] for row in data if cutting_speed_col in row]
-    feeds = [row[feed_col] for row in data if feed_col in row]
-    depths = [row[depth_of_cut_col] for row in data if depth_of_cut_col in row]
-    forces = [row[force_col] for row in data if force_col in row]
-
-    if not all([speeds, feeds, depths, forces]):
-        return {"check": "force_balance", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
-
-    from statistics import mean, stdev
-
-    # Predicted force from cutting parameters (simplified)
-    predicted_forces = []
-    for i in range(len(feeds)):
-        F_pred = specific_cutting_force_N_per_mm2 * depths[i] * feeds[i]
-        predicted_forces.append(F_pred)
-
-    F_actual_mean = mean(forces)
-    F_pred_mean = mean(predicted_forces)
-    force_ratio = F_actual_mean / F_pred_mean if F_pred_mean > 0 else 0
-
-    result = {
-        "check": "force_balance",
-        "specific_cutting_force_N_per_mm2": specific_cutting_force_N_per_mm2,
-        "actual_force_mean": round(F_actual_mean, 2),
-        "predicted_force_mean": round(F_pred_mean, 2),
-        "ratio_actual_to_predicted": round(force_ratio, 4),
-    }
-
-    if 0.5 <= force_ratio <= 2.0:
-        result["conclusion"] = "FORCE_BALANCE_PLAUSIBLE"
-        result[
-            "explanation"
-        ] = f"Measured force ({F_actual_mean:.1f}N) is within 2× of cutting force model ({F_pred_mean:.1f}N) — consistent with machining physics"
-    elif force_ratio > 2.0:
-        result["conclusion"] = "FORCE_EXCEEDS_MODEL"
-        result[
-            "explanation"
-        ] = f"Measured force ({F_actual_mean:.1f}N) is {force_ratio:.1f}× predicted ({F_pred_mean:.1f}N) — tool wear, material hardening, or wrong k_s value"
-    elif force_ratio < 0.5 and force_ratio > 0:
-        result["conclusion"] = "FORCE_BELOW_MODEL"
-        result[
-            "explanation"
-        ] = f"Measured force ({F_actual_mean:.1f}N) is only {force_ratio:.1%} of predicted ({F_pred_mean:.1f}N) — overestimated k_s or no actual cutting load"
-
-    return result
-
-
 def check_corrosion_rate(
     pH_col: str,
     temp_col: str,
@@ -776,9 +726,19 @@ def main():
     parser.add_argument("feature_summary", help="Path to feature_summary.json")
     parser.add_argument("anomaly_report", help="Path to anomaly_report.json")
     parser.add_argument("--output", required=True, help="Output JSON path")
-    parser.add_argument("--cleaned-data", help="Path to cleaned_data.json (for reset analysis)")
+    parser.add_argument("--cleaned-data", help="Path to cleaned_data.json")
     parser.add_argument("--quality-targets", nargs="+", default=[], help="Quality target column names")
-    parser.add_argument("--candidate-params", nargs="+", default=[], help="Candidate parameter columns for onset analysis")
+    parser.add_argument("--candidate-params", nargs="+", default=[], help="Candidate parameter columns")
+    # Explicit column assignments (agent reads ontology, passes these)
+    parser.add_argument("--temp-col", default=None, help="Temperature column name")
+    parser.add_argument("--dev-col", default=None, help="Dimensional deviation column name")
+    parser.add_argument("--vib-col", default=None, help="Vibration column name")
+    parser.add_argument("--flow-col", default=None, help="Flow rate column name")
+    parser.add_argument("--pressure-col", default=None, help="Pressure column name")
+    parser.add_argument("--power-col", default=None, help="Power/current column name")
+    parser.add_argument("--speed-col", default=None, help="Speed/RPM column name")
+    parser.add_argument("--ph-col", default=None, help="pH column name")
+    parser.add_argument("--corrosion-col", default=None, help="Corrosion rate column name")
 
     args = parser.parse_args()
 
@@ -833,58 +793,41 @@ def main():
         return found
 
     # ── Run available checks ──
-    temp_cols = find_cols(["temp", "temperature", "T_"])
-    dev_cols = find_cols(["deviation", "dimension", "error", "defect_size"])
-    vib_cols = find_cols(["vibration", "vib"])
-    power_cols = find_cols(["power", "current", "motor_load", "power_consumption"])
-    flow_cols = find_cols(["flow", "flow_rate"])
-    pressure_cols = find_cols(["pressure", "pressure_drop"])
-    speed_cols = find_cols(["speed", "rpm", "cutting_speed"])
-    feed_cols = find_cols(["feed", "feed_rate"])
-    depth_cols = find_cols(["depth", "depth_of_cut", "ap"])
-    force_cols = find_cols(["force", "cutting_force", "Fx", "Fy", "Fz"])
-    quality_cols = quality_targets
-    ph_cols = find_cols(["pH", "acidity"])
-    corrosion_cols = find_cols(["corrosion", "corrosion_rate"])
+    # Column priority: explicit CLI arg > ontology > keyword fallback
+    temp_col = args.temp_col or (find_cols(["temp", "temperature"])[:1] or [None])[0]
+    dev_col = args.dev_col or (find_cols(["deviation", "dimension", "error", "defect_size", "gap", "thickness"])[:1] or [None])[0]
+    vib_col = args.vib_col or (find_cols(["vibration", "vib"])[:1] or [None])[0]
+    flow_col = args.flow_col or (find_cols(["flow", "flow_rate"])[:1] or [None])[0]
+    pressure_col = args.pressure_col or (find_cols(["pressure"])[:1] or [None])[0]
+    power_col = args.power_col or (find_cols(["power", "current"])[:1] or [None])[0]
 
-    # 1. Thermal expansion check
-    if temp_cols and dev_cols:
-        checks["thermal_expansion"] = check_thermal_expansion(
-            temp_cols[0], dev_cols[0], cleaned_data if cleaned_data else []
-        )
+    # --- Run applicable checks ---
+    if temp_col and dev_col and cleaned_data:
+        checks["thermal_expansion"] = check_thermal_expansion(temp_col, dev_col, cleaned_data)
 
-    # 2. Vibration threshold check
-    if vib_cols and quality_cols:
-        checks["vibration_threshold"] = check_vibration_threshold(
-            vib_cols[0], quality_cols[0], cleaned_data if cleaned_data else []
-        )
+    if temp_col and cleaned_data:
+        low_temp_cols = [c for c in all_param_names if c != temp_col and "temp" in c.lower()]
+        low_temp = low_temp_cols[0] if low_temp_cols else None
+        if low_temp and quality_targets:
+            checks["arrhenius_kinetics"] = check_arrhenius(temp_col, low_temp, quality_targets[0], cleaned_data)
 
-    # 3. Energy balance check (requires mass/Cp from user or defaults)
-    if power_cols and temp_cols and cleaned_data:
-        checks["energy_balance"] = check_energy_balance(
-            power_cols[0], temp_cols[0], mass_kg=100.0, cp_J_per_kgK=500.0, data=cleaned_data
-        )
+    if vib_col and quality_targets and cleaned_data:
+        checks["vibration_threshold"] = check_vibration_threshold(vib_col, quality_targets[0], cleaned_data)
 
-    # 4. Flow restriction check
-    if flow_cols and pressure_cols and cleaned_data:
-        checks["flow_restriction"] = check_flow_restriction(
-            flow_cols[0], pressure_cols[0], cleaned_data
-        )
+    if power_col and temp_col and cleaned_data:
+        checks["energy_balance"] = check_energy_balance(power_col, temp_col, mass_kg=100.0, cp_J_per_kgK=500.0, data=cleaned_data)
 
-    # 5. Force balance check (CNC-specific)
-    if speed_cols and feed_cols and depth_cols and force_cols and cleaned_data:
-        checks["force_balance"] = check_force_balance(
-            speed_cols[0], feed_cols[0], depth_cols[0], force_cols[0], cleaned_data
-        )
+    if flow_col and pressure_col and cleaned_data:
+        checks["flow_restriction"] = check_flow_restriction(flow_col, pressure_col, cleaned_data)
 
-    # 6. Corrosion check
-    if ph_cols and temp_cols and corrosion_cols and cleaned_data:
-        checks["corrosion_rate"] = check_corrosion_rate(
-            ph_cols[0], temp_cols[0], corrosion_cols[0], cleaned_data
-        )
+    all_temps = find_cols(["temp", "temperature"])
+    if len(all_temps) >= 2 and flow_col and cleaned_data:
+        checks["heat_transfer"] = check_heat_transfer(all_temps[0], all_temps[1], flow_col, cleaned_data)
 
-    # 7. Quality reset analysis (from transitions)
-    transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
+    if args.ph_col and args.temp_col and args.corrosion_col and cleaned_data:
+        checks["corrosion_rate"] = check_corrosion_rate(args.ph_col, args.temp_col, args.corrosion_col, cleaned_data)
+
+        transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
     if transition_results:
         checks["quality_reset_analysis"] = {
             "reset_found": any(r["reset_detected"] for r in transition_results),
@@ -902,7 +845,7 @@ def main():
         "generated_at": __import__("datetime").datetime.now().isoformat(),
         "scenario": ontology.get("scene", {}).get("process_type", "unknown"),
         "checks_summary": {k: v.get("conclusion", v.get("status", "COMPLETED")) for k, v in checks.items() if isinstance(v, dict)},
-        "phyiscal_checks": checks,
+        "physical_checks": checks,
     }
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)

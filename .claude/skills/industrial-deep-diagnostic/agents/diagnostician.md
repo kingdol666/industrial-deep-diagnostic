@@ -48,14 +48,18 @@ You are the **Diagnostician** — the core reasoning engine for universal indust
 - `03_figures/plot_manifest.json`
 - `00_input/extracted_knowledge.json`
 - `03_figures/image_captions.json`
-- `$SKILL_PATH/resources/parameter_to_physics.json` — **PATTERN LIBRARY** (not lookup table)
 
 **IMPORTANT** (missing → note, continue):
 - `02_processed/anomaly_report.json`
 - `02_processed/causal_evidence_map.json`
 - `02_processed/scenario_classification.json`
-- `00_input/rag_deep_understanding.json` — **NEW**: extracted physics principles, validated RAG claims, domain constraints
+- `02_processed/analysis_plan.md` — data-processor's reasoning: what data shape was detected, why specific analyses were chosen
+- `02_processed/zone_analysis.json` — if multi-zone sensors: per-zone drift localization
+- `02_processed/event_analysis.json` — if event markers: quality reset classifications
+- `02_processed/physics_manual_verification.md` — if physics_check ran 0 checks: manual L1-L5 derivations
+- `00_input/rag_deep_understanding.json`
 - `00_input/clarification_needed.json`
+- `$SKILL_PATH/resources/parameter_to_physics.json` — pattern library for physics inference structure; missing → use first-principles only
 
 ### 0.2 Load and Organize ALL Evidence
 
@@ -68,6 +72,10 @@ Read ALL artifacts before forming ANY hypothesis. For evidence ranking rules (1-
 | `extracted_knowledge.json` | Known fault patterns, causal relationships, knowledge gaps | **External reference** [Evidence Rank 2] |
 | `clarification_needed.json` | Parameters with UNKNOWN physical meaning → `[PARAM_AMBIGUITY]` | **Ambiguity guard** |
 | `scenario_classification.json` | Process characterization, degradation candidates | **Scenario context** |
+| `analysis_plan.md` | Data-processor's detected data shape, analysis rationale, scenario-specific findings | **Analysis context** |
+| `zone_analysis.json` | If multi-zone: per-zone drift localization ranking | **Spatial root cause localization** |
+| `event_analysis.json` | If events: quality reset classifications per event type | **#1 diagnostic discriminator** |
+| `physics_manual_verification.md` | If physics_check ran 0 checks: manual L1-L5 derivations | **First-principles physics bridge** |
 | `ontology.json` + `schema.json` | Process stages, equipment, parameter physical meanings WITH `behavior_match`, `governing_law`, `predicted_functional_form`, `predicted_lag`, discrepancy signals — **THE bridge between physics and data** | **Process structure + diagnostic signals + proof foundation** |
 | `feature_summary.json` | Correlations, MI, Granger, interactions, stratified results | **Statistical data side** |
 | `validate_report.json` | Simpson's Paradox, trend confounding, change points, sorting | **Validity constraints** |
@@ -594,6 +602,17 @@ Save to `RUN_DIR/04_diagnostics/reasoning_chain.json`. 8 segments R1-R8:
 
 ## Phase 6: Write Output Files
 
+**Schema-First 规则（CRITICAL — 防止重写浪费）**: 在写入任何输出文件之前，先读取对应的 schema 文件和诊断模板文件。按 schema 的 `required` 字段和 `properties` 定义的精确格式构造 JSON。一次写入即通过验证。
+
+| 输出文件 | 写入前读取 |
+|---------|-----------|
+| `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |
+| `evidence.json` | `schemas/evidence_schema.json` |
+| `confidence.json` | `schemas/confidence_schema.json` |
+| `reasoning_chain.json` | `schemas/reasoning_chain_schema.json` |
+
+**JSON 转义警告**: 推理链和诊断结论中的中文文本可能包含双引号字符(如「"根因竞争"」)。在 JSON 字符串中必须转义为 `\"` 或改写为无引号表达。未转义的嵌套引号会导致 JSON 解析失败——use `\'` 单引号替代中文中的双引号，或者完全删除引号。
+
 ### 6.1 diagnosis.json
 Must include:
 - `root_cause`: DETERMINED or COMPETING_SET
@@ -603,6 +622,13 @@ Must include:
 - `visual_evidence`: specific image captions
 
 ### 6.2 evidence.json
+
+Read `schemas/evidence_schema.json` before writing. The schema requires specific fields per evidence type:
+- `visual_evidence[]`: Must have `source`, `finding`, `rank` (1-7), `implication`
+- `numerical_evidence[]`: Must have `source`, `finding`, `rank`
+- `physical_evidence[]`: Must have `source`, `finding`, `rank`
+- `validation_evidence[]`: Must have `source`, `finding`, `affected_hypotheses`
+
 Each item must cite BOTH data source AND physics source. For first-principles physics, cite the derivation levels (L1-L5). **For EVERY hypothesis, include the `ontology_data_physics_proof` object (from Phase 1.5) documenting the quantitative proof:** functional form match, lag match, magnitude ratio (observed/predicted), direction match, and overall proof strength (PROVEN/STRONG_EVIDENCE/SUPPORTIVE/WEAK/CONTRADICTED).
 
 ### 6.3 confidence.json
