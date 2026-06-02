@@ -22,10 +22,15 @@ You receive:
   "group_columns": ["col5"],
   "ontology_draft": {
     "scene": { ... },
-    "signals": { ... },
+    "entities": [ ... ],
+    "concepts": {
+      "target_concepts": [ ... ],
+      "related_concepts": [ ... ],
+      "context_dimensions": [ ... ]
+    },
+    "process_or_logic_stages": [ ... ],
     "relationships": [ ... ],
     "confounders": [ ... ],
-    "equipment": [ ... ],
     "rag_injection_metadata": { ... }
   },
   "triaged_chunks": [
@@ -71,37 +76,40 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
 
 | 检查项 | 判定 | 失败处理 |
 |--------|:----:|----------|
-| `scene.name` 和 `scene.process_type` 必须是非空字符串 | PASS/FAIL | ❌ 阻塞——下游需要场景标识 |
-| `scene.process_type` 不能是 `"generic"`（必须根据 chunk 内容推断具体过程类型） | PASS/FAIL | ❌ 阻塞——太泛化会影响 Diagnostician |
-| `signals` 下 5 个子数组都必须存在 | PASS/FAIL | ❌ 阻塞——Schema 必需 |
-| 每个 signal 必须有 `name`, `column`, `role` | PASS/FAIL | ❌ 阻塞 |
-| 每个 signal 的 `role` 必须是有效值（target/predictor/control/metadata） | PASS/FAIL | ❌ 阻塞 |
+| `scene.name` 和 `scene.domain_type` 必须是非空字符串 | PASS/FAIL | ❌ 阻塞——下游需要场景标识 |
+| `scene.domain_type` 不能是 `"generic"`（必须根据 chunk 内容推断具体域类型） | PASS/FAIL | ❌ 阻塞——太泛化会影响 Diagnostician |
+| `concepts` 下 `target_concepts`, `related_concepts`, `context_dimensions` 都必须存在 | PASS/FAIL | ❌ 阻塞——Schema 必需 |
+| 每个 concept 必须有 `name`, `semantic_meaning` | PASS/FAIL | ❌ 阻塞 |
+| 每个 concept 的 `semantic_meaning_confidence` 必须是 `KNOWN|INFERRED|UNKNOWN` | PASS/FAIL | ❌ 阻塞 |
 | 每个 relationship 必须有 `from`, `to`, `type` | PASS/FAIL | ❌ 阻塞 |
-| `type` 必须是 causal/correlation/interaction | PASS/FAIL | ❌ 阻塞 |
-| 每个 confounder 必须有 `variable` 和 `why` | PASS/FAIL | ❌ 阻塞 |
-| `rag_injection_metadata` 必须包含 columns_without_knowledge 和 match_rate_pct | PASS/WARN | ⚠️ 发出警告 |
+| `type` 必须是 causal|correlative|control|physical|legal|precedential|regulatory|statistical|definitional|temporal 之一 | PASS/FAIL | ❌ 阻塞 |
+| 每个 confounder 必须有 `name` 和 `reasoning` | PASS/FAIL | ❌ 阻塞 |
+| `rag_injection_metadata` 必须包含 knowledge_gaps 和 match_rate | PASS/WARN | ⚠️ 发出警告 |
 
 ### Check 2: Content Plausibility — 内容合理性
 
 验证注入的参数含义和因果链在物理上是否合理：
 
-**2.1 参数含义合理性**
+**2.1 概念语义合理性**
 
-对于每个 `physical_meaning_confidence != "UNKNOWN"` 的 signal:
+对于每个 `semantic_meaning_confidence != "UNKNOWN"` 的 concept:
 
 ```
-检查: column 的注入含义是否与其列名隐含的物理量一致？
+检查: concept 的注入语义是否与其名称隐含的含义一致？
   "burning_zone_temp_C" → "轴承/主轴温度 (°C)" →  ❌ 不合理
-    解释: 列名暗示这是燃烧区温度（水泥窑），不是主轴温度
+    解释: 名称暗示这是燃烧区温度（水泥窑），不是主轴温度
     修复: 应标记为 UNKNOWN 或寻找更匹配的 chunk
 
   "inlet_air_temp_C" → "温度 (°C)" → ✅ 合理
-    解释: 列名和注入含义一致，虽然不够具体但无误
+    解释: 名称和注入语义一致，虽然不够具体但无误
 
   "pressure_bar" → "压力 (bar)" → ✅ 合理
+
+  "hba1c_pct" → "糖化血红蛋白百分比，反映2-3个月平均血糖水平" → ✅ 合理
+    解释: 名称和语义精确匹配，且有临床上下文
 ```
 
-**2.2 因果链合理性**
+**2.2 因果/关系链合理性**
 
 对于每条 relationship:
 
@@ -114,18 +122,19 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
   "温度↑ → 质量↓" → ⚠️ 缺少中间链路（不够完整）
   "温度↑ → 粘度↓ → 流速↑ → 填充不均匀 → 质量↓" → ✅ 完整
 
-检查 3: mechanism 是否与当前场景相关？
-  水泥窑场景中 "刀具磨损加速" → ❌ 不相关
-  水泥窑场景中 "结垢→热阻↑→效率↓" → ✅ 相关
+检查 3: mechanism 是否与当前领域相关？
+  水泥窑领域中 "刀具磨损加速" → ❌ 不相关
+  水泥窑领域中 "结垢→热阻↑→效率↓" → ✅ 相关
+  临床领域中 "胰腺β细胞功能↓→胰岛素分泌↓→HbA1c↑" → ✅ 相关
 ```
 
 ### Check 3: Logical Consistency — 逻辑一致性
 
 验证 ontology 内部不自相矛盾：
 
-**3.1 角色一致性**
-- 同一列不能在 inspection_signals 和 process_parameters 中都出现（同一列只能有一个角色）
-- 如果某一列被标记为 `role: target`，它应该出现在 `inspection_signals` 中
+**3.1 概念角色一致性**
+- 同一 concept 不能在 target_concepts 和 related_concepts 中都出现（同一概念只能有一个角色）
+- 每个 concept 的 `concept_type` 必须与其所在数组匹配（target → measurement/outcome/...; related → predictor/input/...）
 
 **3.2 因果链自洽性**
 - 不能出现循环因果链（A→B→A）
@@ -133,8 +142,8 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
 - 关系链中的 `from` 和 `to` 必须是 ontology 中存在的列名
 
 **3.3 分类覆盖性**
-- 数据中的所有数值列都应该被分类到某个 signal 类型
-- 未被分类的列应在 `columns_without_knowledge` 中列出
+- 数据中的所有数值列都应该被分类到某个 concept 类型（target/related/context）
+- 未被分类的列应在 `rag_injection_metadata.knowledge_gaps` 中列出
 
 ### Check 4: Cross-Source Consistency — 跨源一致性
 
@@ -147,8 +156,8 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
   → ❌ 矛盾——同一个参数不能有两种含义
 
 检查 2: 检索阶段的 triaging 判断与注入结果是否一致？
-  chunk 被标记为 NOT_APPLICABLE → 检查它是否仍被注入
-  如果 NOT_APPLICABLE 的 chunk 的内容出现在 ontology 中 → ❌ 阻塞
+  chunk 被标记为 NOT_APPLICABLE → 检查它是否仍被注入到 concepts/entities/relationships
+  如果 NOT_APPLICABLE 的 chunk 内容出现在 ontology 中 → ❌ 阻塞
 
 检查 3: 因果关系的方向在不同 chunk 间是否一致？
   chunk_A: "温度↑ → 粘度↓"
@@ -174,12 +183,12 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
 
 ```
 检查 1: Diagnostician 能否直接引用？
-  relationships[].from 和 to 是否在 signals 中存在
+  relationships[].from 和 to 是否在 concepts（target+related）中存在
   → 如果不存在：Diagnostician 无法将因果链与数据列关联 → ❌ 阻塞
 
 检查 2: context-builder 能否正确合并？
-  rag_injection_metadata.columns_without_knowledge 是否准确反映了
-  未被任何 chunk 覆盖的列 → ⚠️ 如果遗漏则警告
+  rag_injection_metadata.knowledge_gaps 是否准确反映了
+  未被任何 chunk 覆盖的概念 → ⚠️ 如果遗漏则警告
 
 检查 3: Schema validate.mjs 能否通过？
   所有 ontology_draft 的字段必须能被 validate.mjs 解析
@@ -198,11 +207,11 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
 
 ### 阻塞问题清单（只要有任意一项就判 FAIL）
 
-1. Schema 缺少必需字段（scene.name / signals.inspection_signals / 等）
-2. `process_type` 为 `"generic"`（未做场景识别）
-3. relationship 的 `from` 或 `to` 指向的数据列在 signals 中不存在
+1. Schema 缺少必需字段（scene.name / concepts.target_concepts / 等）
+2. `domain_type` 为 `"generic"`（未做领域识别）
+3. relationship 的 `from` 或 `to` 指向的概念在 concepts 中不存在
 4. NOT_APPLICABLE chunk 的内容被注入到 ontology
-5. 同一列在两个不同类型的 signal 组中出现
+5. 同一概念在 target_concepts 和 related_concepts 中重复出现
 
 ### 验证输出
 
@@ -215,8 +224,8 @@ You produce a `verification_result` dict. If all checks pass, the ontology is sa
   "checks": {
     "schema_compliance": {"passed": true, "issues": []},
     "content_plausibility": {"passed": true, "issues": [
-      {"severity": "warning", "field": "signals.process_parameters[0].physical_meaning",
-       "message": "burning_zone_temp_C 的注入含义 '温度' 过于泛化，无法精确描述'燃烧区温度'"}
+      {"severity": "warning", "field": "concepts.related_concepts[0].semantic_meaning",
+       "message": "burning_zone_temp_C 的注入语义 '温度' 过于泛化，无法精确描述'燃烧区温度'"}
     ]},
     "logical_consistency": {"passed": true, "issues": []},
     "cross_source_consistency": {"passed": true, "issues": []},

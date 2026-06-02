@@ -147,37 +147,54 @@ ELSE (skill invocation failed):
 
 **This step is the consumer of whichever retrieval method succeeded in Step 2.0.** Read `RUN_DIR/00_input/rag_ontology_draft.json` if it exists. The file contains:
 
-- **parameter meanings**: Physical meanings inferred from knowledge base retrieval, with confidence scores
-- **causal relationships**: Verified causal chains with governing equations
-- **known confounders**: Variables identified as confounding factors
-- **fault patterns**: Known degradation mechanisms for this process type
+- **concept meanings**: Semantic meanings of each target/related concept, with confidence scores
+- **causal relationships**: Verified causal chains with mechanism descriptions
+- **known confounders**: Variables identified as confounding factors with reasoning
+- **domain entities**: Domain-specific equipment, components, agents, systems
+- **knowledge gaps**: Concepts whose semantic meaning could not be determined
 
 **How to use the RAG draft:**
 
-1. **For each data column**, check if `rag_ontology_draft.json` has an entry in `signals.process_parameters[]` or `signals.inspection_signals[]` matching this column name.
-   - If YES → use the RAG-provided `physical_meaning`, `governing_law`, `normal_range` as starting values. Mark with `"physical_meaning_confidence": "KNOWN"` (was RAG-verified against knowledge base) and set `"knowledge_source": "rag_retrieval"`.
+1. **For each data column**, check if `rag_ontology_draft.json` has an entry in `concepts.target_concepts[]` or `concepts.related_concepts[]` matching this column name.
+   - If YES → use the RAG-provided `semantic_meaning` as `physical_meaning`, `expected_value_range` as `normal_range`, and `unit` as starting values. Convert `semantic_meaning_confidence` to `physical_meaning_confidence` (KNOWN→KNOWN, INFERRED→INFERRED, UNKNOWN→unknown). Mark with `"knowledge_source": "rag_retrieval"`.
    - If NO → proceed with auto-inference (Step 5.8) or user clarification as usual.
 
-2. **For causal relationships**, read `rag_ontology_draft.relationships[]`. Each entry provides a `mechanism`, `governing_equation`, and `knowledge_confidence`. Use these to populate `ontology.json.relationships[]`.
+2. **For causal relationships**, read `rag_ontology_draft.relationships[]`. Each entry provides a `mechanism`, `direction`, `expected_lag`, and `knowledge_confidence`. Use these to populate `ontology.json.relationships[]`.
+   - Map `direction` to the relationship direction description.
+   - Map `knowledge_confidence` (0.0-1.0 float) to confidence level (>0.8→HIGH, 0.5-0.8→MEDIUM, <0.5→LOW).
    - Mark RAG-sourced relationships with `"inferred": false` (they are externally verified) and add `"knowledge_source": "rag_retrieval"`.
 
-3. **For confounders**, copy `rag_ontology_draft.confounders[]` into `ontology.json.confounders[]` if they match actual data columns.
+3. **For confounders**, read `rag_ontology_draft.confounders[]`. Each entry has `name`, `type`, `reasoning`, and `expected_impact`. Map to `ontology.json.confounders[]` if they match actual data columns.
 
-4. **For fault patterns**, use `rag_ontology_draft.scene.expected_faults[]` as `extracted_knowledge.json.known_faults[]`.
+4. **For entities**, read `rag_ontology_draft.entities[]`. Each entry has `name`, `type`, `function`, and `role_in_domain`. Use these to populate `ontology.json.scene.equipment[]` where type=component, or other entity collections as appropriate.
+
+5. **For knowledge gaps**, read `rag_ontology_draft.rag_injection_metadata.knowledge_gaps[]`. These are concepts whose semantic meaning is UNKNOWN and should be added to `clarification_needed.json`.
 
 **Fallback**: If `rag_ontology_draft.json` does not exist → proceed directly to Step 3 (build ontology from scratch). The RAG skill is optional acceleration, not a hard dependency.
 
-**Example field mapping:**
+**Field mapping table (RAG v3 output → Diagnostic ontology):**
 
-| RAG ontology_draft field | → | Diagnostic ontology field |
-|--------------------------|---|--------------------------|
-| `signals.process_parameters[].physical_meaning` | → | `ontology.json.signals.process_parameters[].physical_meaning` |
-| `signals.process_parameters[].governing_law` | → | attached as `mechanism` in the relationship |
-| `signals.process_parameters[].knowledge_confidence` | → | `extracted_knowledge.json.variable_descriptions[].confidence` |
-| `relationships[].mechanism` | → | `ontology.json.relationships[].mechanism` |
-| `relationships[].governing_equation` | → | `ontology.json.relationships[].additional_evidence` |
-| `confounders[].variable` + `confounders[].why` | → | `ontology.json.confounders[]` |
-| `rag_injection_metadata.columns_without_knowledge` | → | `clarification_needed.json` (new entries) |
+| RAG ontology_draft field | → | Diagnostic ontology field | Notes |
+|--------------------------|---|--------------------------|-------|
+| `concepts.target_concepts[].name` | → | match to data column name | concept name may differ from column name — match by semantic meaning |
+| `concepts.target_concepts[].semantic_meaning` | → | `signals.inspection_signals[].physical_meaning` | direct mapping |
+| `concepts.target_concepts[].expected_value_range` | → | `signals.inspection_signals[].normal_range` | convert "3-15" to [3, 15] |
+| `concepts.target_concepts[].unit` | → | `signals.inspection_signals[].unit` | direct mapping |
+| `concepts.target_concepts[].semantic_meaning_confidence` | → | `physical_meaning_confidence` | KNOWN→KNOWN, INFERRED→INFERRED, UNKNOWN→unknown |
+| `concepts.related_concepts[].semantic_meaning` | → | `signals.process_parameters[].physical_meaning` | same mapping as target |
+| `concepts.related_concepts[].expected_value_range` | → | `signals.process_parameters[].normal_range` | same mapping as target |
+| `concepts.related_concepts[].semantic_meaning_confidence` | → | `physical_meaning_confidence` | same mapping as target |
+| `relationships[].from` + `relationships[].to` | → | `ontology.json.relationships[].from/to` | concept names → column names |
+| `relationships[].mechanism` | → | `ontology.json.relationships[].mechanism` | direct mapping |
+| `relationships[].direction` | → | relationship direction description | e.g., "from→to increases when from↑" |
+| `relationships[].expected_lag` | → | `ontology.json.relationships[].time_lag` | direct mapping |
+| `relationships[].knowledge_confidence` | → | confidence level | float→enum: >0.8→strong, 0.5-0.8→moderate, <0.5→weak |
+| `confounders[].name` | → | `ontology.json.confounders[].variable` | name→variable |
+| `confounders[].reasoning` | → | `ontology.json.confounders[].why` | reasoning→why |
+| `confounders[].expected_impact` | → | `ontology.json.confounders[].expected_impact` | direct mapping |
+| `entities[]` | → | `ontology.json.scene.equipment[]` | entities with type=component → equipment |
+| `rag_injection_metadata.knowledge_gaps` | → | `clarification_needed.json` (new entries) | gaps needing user input |
+| `process_or_logic_stages[]` | → | `ontology.json.scene.stages[]` | process stages |
 
 ## Step 3: Build Ontology
 

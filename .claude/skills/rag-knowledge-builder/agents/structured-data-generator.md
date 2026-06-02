@@ -13,12 +13,16 @@ You are a **Structured Data Generator Agent**. Your job is to read a completed o
 Read `00_input/rag_ontology_draft.json` (the ontology built by the LLM-driven Phase 2 agent).
 
 The ontology contains:
-- `scene.process_type` — the scenario identifier
-- `signals.inspection_signals[]` — every column with role, physical_meaning, unit, expected_range
-- `equipment[]` — scenario-specific equipment
-- `process_stages[]` — process flow stages
-- `relationships[]` — causal chains between columns
-- `confounders[]` — columns that must be controlled
+- `scene.domain_type` — the domain identifier
+- `concepts.target_concepts[]` — target concepts with semantic_meaning, unit, expected_value_range
+- `concepts.related_concepts[]` — related/predictor concepts with semantic_meaning, unit, expected_value_range
+- `concepts.context_dimensions[]` — context/confounder dimensions
+- `entities[]` — domain-specific entities (agents, components, systems, etc.)
+- `process_or_logic_stages[]` — domain process/logic flow stages
+- `relationships[]` — causal/relational chains between concepts
+- `confounders[]` — variables that must be controlled
+
+> **Backward compatibility:** Legacy consumers using `signals.inspection_signals[]` and `signals.process_parameters[]` can still be served — these map 1:1 to `concepts.target_concepts[]` and `concepts.related_concepts[]` respectively. Similarly, `equipment[]` maps to `entities[]`. New generators should use the universal field names.
 
 ---
 

@@ -44,3 +44,10 @@ config/local.yaml
 # RAG run artifacts
 workspace/rag_ontology_*
 rag-retrieval-engine/storage/retrieval_runs/
+
+# RAG engine runtime data (vector DB + storage)
+rag-retrieval-engine/knowledge_base/chroma_db/
+rag-retrieval-engine/storage/retrieval_engine.db
+
+# Diagnostic run directories
+runs/
