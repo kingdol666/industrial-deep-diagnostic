@@ -14,23 +14,23 @@
 
 **按节分割**: 每个 `## Section` 是一个独立的语义单元。如果一个节超过 512 tokens，进一步在段落边界处分割。
 
-**参数保留**: 确保每个块保留任何参数名、物理公式和阈值。如果一个参数跨越两个块，在重叠中复制参数行。
+**概念保留**: 确保每个块保留任何概念名、公式和阈值。如果一个概念跨越两个块，在重叠中复制关键行。
 
-### 2. JSON 文件 (`parameter_to_physics.json`)
+### 2. JSON 文件（知识库）
 
 ```
 算法: 超边分块 (OG-RAG pattern)
 ```
 
-每个 `causal_chain` 条目成为一个完整的超边块 — "轴承磨损 → 振动↑ → 粗糙度↑" 的整个因果弧保存在一个块中。
+每个 `causal_chain` / `concept_definition` / `quantitative_rule` 条目成为一个完整的语义块 — 整个因果弧或定义保存在一个块中。
 
 ```json
 {
-  "chunk_id": "kb_parameter_to_physics_spindle_vibration_0",
-  "content": "Parameter: spindle_vibration_mm_s\nPhysical Quantity: 振动速度 RMS (mm/s)\nGoverning Law: ISO 10816-1\nCausal Chain: 轴承磨损 → 旋转不平衡 → 振动↑ → 刀尖位移 → 表面波纹 → Ra↑\nQuantitative Check: vibration_amplitude × inverse_tool_stiffness = tool_tip_deflection\nThreshold: ISO 10816 Zone C (>4.5mm/s)",
-  "mechanism_type": "causal_chain",
-  "parameter_tags": ["spindle_vibration_mm_s", "vibration", "spindle_vibration"],
-  "scenario_types": ["CNC_machining"]
+  "chunk_id": "kb_<domain>_<concept>_<index>",
+  "content": "概念名: <name>\n定义: <definition>\n因果链: <chain>\n公式: <equation>\n阈值: <threshold>",
+  "mechanism_type": "causal_chain|concept_definition|quantitative_rule|risk_pattern|confounder",
+  "concept_tags": ["concept_name_1", "concept_name_2"],
+  "domain_tags": ["domain_type_1", "domain_type_2"]
 }
 ```
 
@@ -41,7 +41,7 @@
 每个搜索结果片段 = 1 个块
 ```
 
-网页片段是临时性的 — 它们只在当前检索会话中存在。如果它们通过了评分门槛并被注入本体，它们将被标记为与源 URL 一起注入。
+网页片段是临时性的 — 它们只在当前检索会话中存在。如果它们通过了评分门槛并被用于本体构建，它们将被标记为与源 URL 一起。
 
 ## Metadata 模式
 
@@ -49,19 +49,25 @@
 
 ```python
 metadatas = {
-    "source_type": "local_reference",          # 来源类型(用于 D4 评分)
-    "source_path": "parameter_to_physics.json", # 回溯到源
-    "scenario_types": "CNC_machining,metal_forming",  # 逗号分隔(用于 D3 过滤)
-    "mechanism_type": "causal_chain",         # 知识类型(用于查询过滤)
-    "parameter_tags": "spindle_vibration_mm_s,vibration",  # 逗号分隔(用于 D2 匹配)
+    "source_type": "local_reference|web_authoritative|web_general|user_documentation|accumulated_verified",
+    "source_path": "path/to/source/file",
+    "domain_tags": "domain_1,domain_2",           # 逗号分隔（用于 D3 过滤）
+    "mechanism_type": "causal_chain|concept_definition|quantitative_rule|...",
+    "concept_tags": "concept_1,concept_2,concept_3", # 逗号分隔（用于 D2 匹配）
 }
 ```
+
+**字段说明：**
+- `domain_tags` — 该知识块涉及的领域（用于 D3 领域一致性评分）
+- `concept_tags` — 该知识块讨论的概念（用于 D2 概念匹配）
+- `mechanism_type` — 知识类型（用于检索时的过滤）
+- `source_type` — 来源类型（用于 D4 来源信誉评分）
 
 ## 索引更新策略
 
 | 操作 | 命令 | 频率 | 说明 |
 |------|------|------|------|
 | 完全重建 | `--rebuild` | 仅当源文件变更时 | 删除并重新创建所有内容 |
-| 增量添加静态文件 | `--add-source <file>` | 按需 | 索引一个新的参考文件 |
-| 从诊断累积 | `--accumulate <RUN_DIR>` | 每次高置信度诊断后 | 仅在 Judge≥90 + audit=ENDORSED 时 |
+| 增量添加 | `--add-source <file>` | 按需 | 索引一个新的参考文件 |
+| 从运行累积 | `--accumulate <RUN_DIR>` | 每次高置信度运行后 | 仅在 audit=PASS 且 match_rate≥0.6 时 |
 | 移除过时知识 | `--prune` | 每月 | 移除超过 6 个月未使用的块 |

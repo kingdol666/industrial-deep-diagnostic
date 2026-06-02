@@ -56,7 +56,6 @@
         "composite_score": 7.5,
         "tier": "CRITICAL|ACCEPTED|CONDITIONAL|REJECTED",
         "scores": {"D1_semantic": 8.0, "D2_concept_match": 7.0, "D3_domain": 6.0, "D4_source": 9.0, "D5_crossref": 5.0},
-        "injectable": true,
         "rejection_reason": null
       }
     ]
@@ -201,7 +200,7 @@
       "knowledge_source": "chunk_id"
     }
   ],
-  "rag_injection_metadata": {
+  "rag_construction_metadata": {
     "total_chunks_reviewed": 0,
     "chunks_accepted": 0,
     "chunks_rejected": 0,

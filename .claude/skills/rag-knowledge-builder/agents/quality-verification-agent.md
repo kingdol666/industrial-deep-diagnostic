@@ -31,7 +31,7 @@
     "relationships": [ ... ],
     "constraints": [ ... ],
     "confounders": [ ... ],
-    "rag_injection_metadata": { ... }
+    "rag_construction_metadata": { ... }
   },
   "ontology_nl_spec": "rag_ontology_nl_spec.md 的内容",
   "triaged_chunks": [
@@ -85,7 +85,7 @@
 | 每条关系有 `from`, `to`, `type`, `mechanism` | PASS/FAIL | ❌ 阻塞 |
 | 每条关系有 `conditions`, `exceptions` | PASS/WARN | ⚠️ 警告 |
 | `constraints[]` 存在 | PASS/WARN | ⚠️ 警告 |
-| `rag_injection_metadata` 含 knowledge_gaps 和 match_rate | PASS/WARN | ⚠️ 警告 |
+| `rag_construction_metadata` 含 knowledge_gaps 和 match_rate | PASS/WARN | ⚠️ 警告 |
 
 ### Check 2: NL Definition Quality — 自然语言定义质量
 

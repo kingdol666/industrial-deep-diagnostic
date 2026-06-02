@@ -21,7 +21,7 @@
         {"name": "has_relationships", "jsonpath": "$.relationships.length()", "expected_type": "numeric_gte", "expected_values": [5], "weight": "critical", "description": "至少 5 条关系"},
         {"name": "has_constraints", "jsonpath": "$.constraints.length()", "expected_type": "numeric_gte", "expected_values": [3], "weight": "critical", "description": "至少 3 条约束"},
         {"name": "identifies_confounders", "jsonpath": "$.confounders.length()", "expected_type": "numeric_gte", "expected_values": [2], "weight": "high", "description": "至少 2 个混杂因子"},
-        {"name": "match_rate_sufficient", "jsonpath": "$.rag_injection_metadata.match_rate", "expected_type": "numeric_gte", "expected_values": [0.6], "weight": "high", "description": "匹配率 >= 0.6"},
+        {"name": "match_rate_sufficient", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_gte", "expected_values": [0.6], "weight": "high", "description": "匹配率 >= 0.6"},
         {"name": "scene_has_domain_type", "jsonpath": "$.scene.domain_type", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "domain_type 存在"},
         {"name": "concepts_have_definitions", "jsonpath": "$.concepts.target_concepts[0].definition", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "目标概念有 definition"},
         {"name": "concepts_have_hierarchy", "jsonpath": "$.concepts.target_concepts[0].broader_concept", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "概念有 broader_concept"},
@@ -42,8 +42,8 @@
       },
       "assertions": [
         {"name": "no_crash_on_unknown", "jsonpath": "$.relationships", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "不崩溃"},
-        {"name": "metadata_present", "jsonpath": "$.rag_injection_metadata", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "元数据存在"},
-        {"name": "low_match_rate_reported", "jsonpath": "$.rag_injection_metadata.match_rate", "expected_type": "numeric_lt", "expected_values": [0.5], "weight": "high", "description": "匹配率 <0.5（反映知识不足）"}
+        {"name": "metadata_present", "jsonpath": "$.rag_construction_metadata", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "元数据存在"},
+        {"name": "low_match_rate_reported", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_lt", "expected_values": [0.5], "weight": "high", "description": "匹配率 <0.5（反映知识不足）"}
       ]
     },
     {

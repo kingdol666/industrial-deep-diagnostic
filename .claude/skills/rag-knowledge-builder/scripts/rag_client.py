@@ -141,7 +141,7 @@ def cmd_build_ontology(args):
           f"{scoring.get('accepted', 0)}A / "
           f"{scoring.get('conditional', 0)}COND / "
           f"{scoring.get('rejected', 0)}R -> "
-          f"{scoring.get('injectable', 0)} injectable")
+          f"{scoring.get('usable_for_ontology', 0)} usable")
 
     # Count chunks with content
     chunks_with_content = sum(1 for c in result.get("chunks", []) if c.get("content"))
@@ -292,7 +292,7 @@ def cmd_retrieve_score(args):
           f"{scoring.get('accepted', 0)}A / "
           f"{scoring.get('conditional', 0)}COND / "
           f"{scoring.get('rejected', 0)}R -> "
-          f"{scoring.get('injectable', 0)} injectable")
+          f"{scoring.get('usable_for_ontology', 0)} usable")
 
     chunks_with_content = sum(1 for c in result.get("chunks", []) if c.get("content"))
     print(f"  Content:   {chunks_with_content} chunks have full content")

@@ -1,6 +1,8 @@
-# Parameter Pattern Library v3.0
+# Parameter Pattern Library v4.0
 
-**v3.0 restructuring:** Previous version was organized by equipment (spindle_*, tool_*, bearing_*), which only worked for CNC. The new version is organized by **physical quantity** (temperature, vibration, flow, pressure, etc.), which works for ANY industrial scenario.
+**v4.0 定位：** 本文件是**物理量通用模式参考库**，适用于涉及物理过程的任何领域（工业、化工、材料、半导体、电池等）。LLM 从中提取模式来推断概念的物理含义和因果机制。
+
+> **注意：** 对于非物理领域（临床、法律、金融、教育等），本库不直接适用。那些领域的概念定义和因果机制由 ontology-construction-agent 从知识块中动态推断。本库仅作为物理量推断的辅助参考。
 
 The LLM uses this library as PATTERNS to infer physics for any parameter name, not just those listed. When a parameter is not found here, apply the same structure from first principles:
 1. Identify the physical quantity (temperature? vibration? flow?)
@@ -270,4 +272,4 @@ The LLM uses this library as PATTERNS to infer physics for any parameter name, n
 4. **Use typical ranges** for validation rule generation.
 5. **Combine with scenario-specific knowledge** from `process_knowledge_base.md` to refine the chain.
 
-**Anti-pattern:** Do NOT use this library to inject a specific scenario's equipment. This library describes **generic physics patterns** that apply to any scenario. Equipment identification is done by the LLM in the ontology-construction-agent.
+**Anti-pattern:** Do NOT use this library to assume a specific domain's equipment. This library describes **generic physics patterns** that apply to any physical-domain scenario. Entity identification is done by the LLM in the ontology-construction-agent based on actual knowledge content.

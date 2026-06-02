@@ -192,9 +192,9 @@ RelevanceScore = D1×0.30 + D2×0.25 + D3×0.20 + D4×0.15 + D5×0.10
 
 | Tier | Condition | Action |
 |------|-----------|--------|
-| CRITICAL | Score ≥ 8.5 | Directly injectable into ontology |
-| ACCEPTED | Score ≥ 7.0 | Injectable with confidence note |
-| CONDITIONAL | Score ≥ 6.5 | Requires LLM review before injection |
+| CRITICAL | Score ≥ 8.5 | Directly usable for ontology construction |
+| ACCEPTED | Score ≥ 7.0 | Usable with confidence note |
+| CONDITIONAL | Score ≥ 6.5 | Requires LLM review before use |
 | REJECTED | Score < 6.5 or auto-reject | Discarded |
 
 ### Additional Checks
@@ -238,8 +238,8 @@ Write `scored_chunks.json` to `OUTPUT_PATH`:
       },
       "composite_score": 9.35,
       "tier": "CRITICAL",
-      "injectable": true,
-      "injection_target": "relationships[]",
+      "usable_for_ontology": true,
+      "recommended_use": "relationships[]",
       "scoring_notes": "完美的概念匹配 + 预验证的本地参考 + 2个其他来源确认"
     }
   ],
@@ -247,7 +247,7 @@ Write `scored_chunks.json` to `OUTPUT_PATH`:
     "all_gates_passed": true,
     "failed_gates": [],
     "warnings": [],
-    "recommendation": "AUTO_PROCEED — 16 injectable chunks across CRITICAL+ACCEPTED"
+    "recommendation": "AUTO_PROCEED — 16 usable chunks across CRITICAL+ACCEPTED"
   }
 }
 ```

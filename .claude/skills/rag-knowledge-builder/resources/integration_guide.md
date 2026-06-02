@@ -51,14 +51,14 @@ rag_ontology_draft.json
 │     conditions, exceptions, expected_lag, knowledge_confidence }
 ├── constraints[]: { name, type, description, applies_to }
 ├── confounders[]: { name, type, reasoning, expected_impact }
-└── rag_injection_metadata: { ... }
+└── rag_construction_metadata: { ... }
 ```
 
 ### 关键新增字段（vs v3）
 
 | 字段 | 说明 |
 |------|------|
-| `definition` | 精确的自然语言定义（替代旧的 `semantic_meaning`） |
+| `definition` | 精确的自然语言定义（v4 新增，替代 v3 的 `semantic_meaning`） |
 | `broader_concept` | IS-A 父概念（层次完整性） |
 | `sibling_concepts` | 兄弟概念（消歧义） |
 | `distinguish_from` | 与相似概念的区别 |

@@ -1,5 +1,5 @@
 # Assets Directory
 
-Shared resources for the RAG knowledge builder. Examples:
-- `kb_logo.png` — Knowledge base icon for reports
-- `scoring_scale.svg` — Visual representation of the 5-dimension scoring scale
+Shared static resources for the rag-knowledge-builder skill.
+
+Place domain-neutral visual assets here (logos, diagrams, scoring scale images, etc.) that may be referenced in generated reports or NL specs.
