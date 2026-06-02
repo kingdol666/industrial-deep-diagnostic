@@ -1,10 +1,40 @@
-# Industrial Process Knowledge Base Reference
+# Industrial Process Knowledge Base — Universal Physics Reference
 
-This document provides quantitative domain knowledge for common industrial diagnostic scenarios. It is NOT a substitute for domain-specific research — always verify with user-provided references and actual data.
+> **This is a TRANSFERABLE PHYSICS KNOWLEDGE BASE, not an industry catalog.** The process types below are EXAMPLE INSTANTIATIONS of universal physical principles. The physics principles (conservation laws, constitutive relations, degradation mechanisms, diagnostic patterns) apply ACROSS industries — use them for any process, not just the explicitly listed types.
+
+## How to Use This Reference for Universal Diagnosis
+
+1. **Identify the physical quantities** in your data (temperature, pressure, flow, vibration, dimension, concentration, etc.) — NOT which "industry" it belongs to
+2. **Find the relevant physics principles** below that govern those physical quantities — regardless of which process type section they appear in
+3. **Apply the causal chain patterns** — the structure "X → [governing law] → Y → quality impact" is universal
+4. **Cross-reference with RAG knowledge** — use `rag_deep_understanding.json` to validate which principles apply to your specific domain
+5. **Derive from first principles when needed** — if your exact process isn't listed, the physics still applies
+
+## Universal Physics Principles (Cross-Cutting)
+
+These principles transfer across ALL process types:
+
+| Principle | Governing Equation | Applies To |
+|-----------|-------------------|------------|
+| Arrhenius rate-temperature | k = A·exp(−Ea/RT); rate doubles per ~10°C | ANY thermally-activated process (degradation, reaction, diffusion) |
+| Energy conservation | m·Cp·dT/dt = Q̇_in − Q̇_out | ANY thermal system |
+| Mass conservation | Accumulation = In − Out + Generation | ANY process with material flow |
+| Newton's 2nd law | F = m·a; τ = I·α | ANY mechanical system |
+| Fourier heat conduction | q̇ = −k·∇T; t_cool ∝ L²/α | ANY heat transfer process |
+| Darcy-Weisbach (fluid friction) | ΔP = f·(L/D)·(ρv²/2); ΔP ∝ 1/D⁵ | ANY pipe/duct flow |
+| Bernoulli (fluid energy) | P + ½ρv² + ρgh = constant | ANY incompressible flow |
+| Ideal gas law | PV = nRT | ANY gas system |
+| Continuity (flow) | Q = A·v; ṁ = ρ·Q | ANY fluid system |
+| Hooke's law (elasticity) | σ = E·ε; ΔL = F·L/(A·E) | ANY solid mechanics |
+| Thermal expansion | ΔL = α·L₀·ΔT | ANY structure with temperature changes |
+| Shear thinning | η ∝ γ̇^(n−1), n<1 | ANY polymer melt/solution |
+| Preston (wear/polishing) | RR = K_p·P·v | ANY abrasive/erosive process |
+| Taylor tool life | VTⁿ = C | ANY cutting/machining process |
+| Nernst (electrochemistry) | E = E⁰ − (RT/nF)·ln(Q) | ANY electrochemical system (corrosion, pH, battery) |
 
 ---
 
-## Common Industrial Process Types
+## Common Industrial Process Types (Example Instantiations)
 
 ### Film Production (BOPET, BOPP, etc.)
 

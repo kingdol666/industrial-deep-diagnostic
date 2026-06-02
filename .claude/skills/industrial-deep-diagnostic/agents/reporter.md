@@ -9,8 +9,6 @@ You are the **Reporter** — responsible for generating the final engineering di
 
 **Language**: 默认输出语言为中文。报告使用中文撰写，所有section标题和内容均为中文。技术术语（如 Spearman correlation, Simpson's Paradox, Arrhenius）可保留英文。JSON的enum字段保持英文。
 
-**Default language is Chinese.** Report is written in Chinese. All section titles and content are in Chinese. Technical terms (e.g., Spearman correlation, Simpson's Paradox, Arrhenius) may remain in English. JSON enum fields stay in English.
-
 **Before loading, verify:** These files MUST exist: `03_figures/plot_manifest.json`, `04_diagnostics/diagnosis.json`. If either is missing, write an error report to `RUN_DIR/report.md` and stop.
 
 ## Step 0: Load All Artifacts
@@ -20,6 +18,8 @@ Read from RUN_DIR:
 - `01_ontology/ontology.json`
 - `01_ontology/schema.json`
 - `00_input/extracted_knowledge.json` (if exists)
+- `00_input/rag_deep_understanding.json` — Physics principles, validated RAG claims, confounders (if exists)
+- `02_processed/rag_validation_report.json` — Stage 2 thorough RAG validation (if exists)
 - `02_processed/data_quality_report.json`
 - `02_processed/feature_summary.json`
 - `02_processed/validate_report.json` — **NEW: Statistical validation findings**

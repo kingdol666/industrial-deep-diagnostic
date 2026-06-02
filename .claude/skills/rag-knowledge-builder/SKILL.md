@@ -1,6 +1,6 @@
 ---
 name: rag-knowledge-builder
-description: "Universal RAG-powered knowledge retrieval and LLM-driven ontology/structured-data construction engine. Retrieves domain knowledge from local vector DB (ChromaDB) and web search, scores with 5-dimensional metrics, then uses an LLM agent to construct domain-specific ontology models and structured data templates. Works for ANY knowledge domain — science, engineering, medicine, law, finance, education, business, humanities, manufacturing, software, agriculture, etc. The LLM dynamically identifies domain concepts, entities, relationships, and constraints from knowledge content rather than relying on hardcoded mappings. Triggers on: 知识库构建, 知识检索, 本体构建, 从文档提取知识, RAG search, knowledge retrieval, ontology construction, build ontology, retrieve knowledge, build knowledge base, 构建本体模型, 结构化数据生成, 知识图谱, 领域知识, 通用知识库. Use as a pre-step for any skill that needs domain-aware structured knowledge. Do NOT trigger for: simple file search, generic web Q&A that doesn't need knowledge base construction."
+description: "Universal RAG-powered knowledge retrieval and LLM-driven ontology/structured-data construction engine. Retrieves domain knowledge from local vector DB (ChromaDB) and web search, scores with 5-dimensional metrics, then uses an LLM agent to construct domain-specific ontology models and structured data templates. Works for ANY knowledge domain — science, engineering, medicine, law, finance, education, business, humanities, manufacturing, software, agriculture, etc. The LLM dynamically identifies domain concepts, entities, relationships, and constraints from knowledge content rather than relying on hardcoded mappings. Triggers on: 知识库构建, 本体构建, 构建本体模型, 结构化数据生成, 领域知识库, ontology construction, build ontology, knowledge retrieval, build knowledge base, RAG search. Use as a pre-step for any skill that needs domain-aware structured knowledge. Do NOT trigger for: simple file search, generic web Q&A that doesn't need knowledge base construction."
 commands:
   - rag-knowledge-builder
   - rag-knowledge-builder start
@@ -15,6 +15,10 @@ compatibility: |
 
 # RAG Knowledge Builder — Universal Knowledge → Ontology → Structured Data
 
+## Language Default
+
+默认输出语言为中文。ontology、structured_data、audit_log 中的自然语言描述使用中文。结构化字段和 enum 值保持英文。
+
 ## Core Principle
 
 **Every structured knowledge claim MUST be traceable to a source, scored for relevance, and validated by an LLM for domain applicability before being injected.** This skill does three things in sequence, and only three things:
@@ -26,6 +30,55 @@ compatibility: |
 **There is no keyword-matching fallback.** The LLM agent is the only path from chunks to ontology. Any chunk that is not validated by the LLM as APPLICABLE to the target domain is rejected and documented.
 
 **This skill is domain-agnostic by design.** It works for ANY knowledge domain — industrial, scientific, medical, legal, financial, educational, agricultural, environmental, software, humanities, and beyond. The LLM dynamically identifies domain concepts, entities, relationships, causal chains, confounders, and constraints based on the user's domain description and accepted knowledge chunks. There are **no hardcoded domain-specific mappings** in this skill.
+
+---
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `/rag-knowledge-builder` | Full pipeline (Phase 0-4) |
+| `/rag-knowledge-builder start` | Start/health-check the RAG retrieval engine |
+| `/rag-knowledge-builder build-ontology` | End-to-end: retrieve → score → ontology → structured data → verify |
+| `/rag-knowledge-builder retrieve-score` | Phase 1 only: retrieve + score chunks |
+| `/rag-knowledge-builder web-search` | Web-only retrieval (no local KB) |
+
+---
+
+## Workspace Convention
+
+This skill operates in two modes. Both use the same dynamic path resolution — zero hardcoding.
+
+### Path Resolution (shared by both modes)
+
+```
+SKILL_PATH   = <skill 部署位置>
+PROJECT_ROOT = cd $SKILL_PATH/../../.. && pwd     ← 纯公式，无需 git
+```
+
+### Mode A: Consumer-Call (被诊断 Skill 调用)
+
+诊断 skill 的 context-builder 通过 `run_dir` 参数指定输出目录。直接写入 `$run_dir/00_input/`。
+
+### Mode B: Standalone (独立使用)
+
+当没有 `run_dir` 参数时，自动在工作区创建运行目录：
+
+```bash
+SKILL_PATH="<path-to-this-skill>"
+PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
+WORKSPACE="$PROJECT_ROOT/workspace/rag-outputs"
+
+# 创建运行目录
+RUN_DIR="$WORKSPACE/$(date +%Y%m%d%H%M%S)_$(echo "$domain" | tr ' ' '_' | tr -cd '[:alnum:]_-' | cut -c1-40)"
+mkdir -p "$RUN_DIR/00_input"
+```
+
+**子目录**: 独立模式下只创建 `00_input/`（不需要诊断 skill 的全套子目录）。若消费者 skill 需要，它会在提供 `run_dir` 后自行创建完整结构。
+
+**目录命名**: 独立模式使用 `workspace/rag-outputs/<timestamp>_<scene>/`，区别于诊断 skill 的 `workspace/diagnostic-runs/<timestamp>_<scene>/`。
+
+所有路径在同一棵 `PROJECT_ROOT` 树下。无需 git、find 或任何外部工具。
 
 ---
 
@@ -52,13 +105,15 @@ Skill({
 | `target_concepts` | Yes | Comma-separated field/concept names to be explained | `hba1c_pct,egfr_ml_min,cardiovascular_event_risk` |
 | `related_concepts` | Yes | Comma-separated candidate explanatory concepts | `fasting_glucose_mg_dl,bmi_kg_m2,age_years,medication_dose_mg,exercise_min_week` |
 | `context_dimensions` | Yes | Comma-separated grouping/categorical fields | `patient_cohort,study_site,ethnicity,measurement_batch` |
-| `run_dir` | Yes | Absolute path | `/path/to/workspace/runs/xxx` |
+| `run_dir` | No | Absolute path (required for consumer-call mode) | `/path/to/diagnostic-runs/<timestamp>_<name>` |
 | `interaction_mode` | No | `auto` / `interactive` / `minimal` | `auto` |
 | `use_web` | No | `true` / `false` | `true` |
 
 > **Legacy parameter names** (`scenario`, `target_cols`, `param_cols`, `group_cols`) remain accepted as aliases for backwards compatibility.
+>
+> **`run_dir` is optional for standalone mode.** If omitted, the workspace is auto-created at `$PROJECT_ROOT/workspace/rag-outputs/<timestamp>_<scene>/`.
 
-**Output contracts (all written to `$run_dir/00_input/`):**
+**Output contracts (all written to `$run_dir/00_input/`, or `<auto-created-workspace>/00_input/` in standalone mode):**
 
 | File | Content | Phase |
 |------|---------|-------|
@@ -90,97 +145,6 @@ Then read the LLM agent prompt and execute it manually:
 
 ## Execution Flow
 
-### Phase 0: Engine Startup (automatic)
-
-```
-rag_client.py start
-└── Checks GET /health; if down, auto-starts `uv run python server.py` from rag-retrieval-engine
-└── Waits up to 30s for readiness
-└── If engine fails: continue in offline mode (chunks-only, no scoring, no web)
-```
-
-### Phase 1: Retrieve + Score (engine)
-
-Multi-perspective query (4 angles × local ChromaDB + optional web), 5-dim score, quality gates. Produces `rag_scored_chunks.json`.
-
-```
-rag_client.py retrieve-score \
-  --domain "..." \
-  --target-concepts "..." \
-  --related-concepts "..." \
-  --context-dimensions "..." \
-  --output-dir "$run_dir"
-```
-
-The chunk content remains in scored chunks for the LLM to read.
-
-### Phase 2: LLM-Driven Ontology Construction (CORE)
-
-The LLM (Claude, GPT, etc.) reads `agents/ontology-construction-agent.md` and **performs the construction itself**, treating the engine's output as raw input material only.
-
-**Critical design decision:** Phase 2 is NOT executed by the Python engine. The engine's legacy `injector.py` (template-based injection with hardcoded equipment/process mappings) has been **decommissioned** — it produced incorrect results whenever chunks came from a different domain than the hardcoded one. The LLM agent is now the only valid construction path, and is the only mechanism that can correctly handle arbitrary domains.
-
-**LLM agent's 7-step protocol (read `agents/ontology-construction-agent.md` for full details):**
-1. **Domain Understanding** — what is the domain? what concepts/entities/relationships are involved? what are the key outcomes?
-2. **Chunk-by-chunk Content Review** — read full content, judge applicability, reject with reason if not applicable
-3. **Concept Classification (LLM)** — classify by semantic meaning, not keyword
-4. **Relationship Extraction** — extract mechanism/dependency, map to actual concept names, validate
-5. **Entity / Component Identification** — domain-specific entities (not hardcoded)
-6. **Confounder / Context Dimension Identification** — explain WHY each context dimension matters
-7. **Metadata Assembly** — provenance, match rate, knowledge gaps
-
-**Anti-hallucination rules:**
-- Never invent semantic meanings — mark `UNKNOWN` if no chunk discusses it
-- Never force-fit relationships from wrong-domain chunks
-- Never use generic entity names — always identify domain-specific entities
-- Always cite the source chunk
-- Always explain rejection reasons
-
-### Phase 3: LLM-Driven Structured Data Generation
-
-After the ontology is built, a second LLM agent (`agents/structured-data-generator.md`) consumes the ontology and produces **structured data templates** that downstream agents can consume directly:
-
-1. **Sample data templates** — for each role (target/related/context/metadata), generate a sample row showing expected format
-2. **Validation rules** — semantic plausibility bounds (e.g., HbA1c ∈ [3, 15]% for clinical, BMI ∈ [10, 60] kg/m²)
-3. **Causal/Relational query templates** — SQL/JSON-Path queries for testing the inferred relationships
-4. **LLM prompt templates** — for downstream agents to reference the ontology
-5. **Test scenarios** — concrete test cases with expected behavior
-
-### Phase 4: Quality Verification (final gate)
-
-The quality verification agent (`agents/quality-verification-agent.md`) validates the ontology + structured data across 5 dimensions:
-1. Schema compliance
-2. Content plausibility (domain reasoning)
-3. Logical consistency (no contradictions)
-4. Cross-source consistency (chunks agree)
-5. Downstream consumability (any consumer skill can directly use)
-
-Verdict: PASS / CONDITIONAL / FAIL. FAIL triggers re-construction with feedback.
-
----
-
-## Loading Guide
-
-This skill uses progressive loading. Read only what each step needs:
-
-| When | Read | Why |
-|------|------|-----|
-| Invoked | This file (SKILL.md) | Invocation contract + execution flow |
-| Phase 1 | `agents/retrieval-agent.md` | 4-perspective queries + content filtering |
-| Phase 1 | `agents/scoring-agent.md` | 5-dim scoring rubric + quality gates |
-| Phase 2 | `agents/ontology-construction-agent.md` | **LLM-driven ontology construction (PRIMARY PATH)** |
-| Phase 3 | `agents/structured-data-generator.md` | **LLM-driven structured data generation** |
-| Phase 4 | `agents/quality-verification-agent.md` | 5-dim quality check |
-| Integration | `resources/integration_guide.md` | How to connect to any consumer skill |
-| KB expansion | `resources/kb_taxonomy_guide.md` | How to add new domains to the KB |
-| Pattern library | `resources/concept_pattern_library.md` | Domain-generic concept patterns (entity, property, event, relationship, classification, ...) |
-
-**Do NOT load everything upfront.** Each agent prompt is self-contained.
-
----
-
-## Pipeline Overview
-
 ```
 ┌──────────────────────────────────────────────────────────┐
 │          RAG KNOWLEDGE BUILDER — Universal Pipeline      │
@@ -211,7 +175,7 @@ Phase 2: LLM Ontology Construction (CORE)
   │  ⑥ Confounder / context identification             │
   │  ⑦ Metadata assembly                               │
   └─────────────────────────────────────────────────────┘
-  Output: rag_ontology_draft.json (schema-compliant)
+  Output: rag_ontology_draft.json
 
 Phase 3: LLM Structured Data Generation
   ┌─────────────────────────────────────────────────────┐
@@ -220,7 +184,7 @@ Phase 3: LLM Structured Data Generation
   │  ② Validation rules (semantic plausibility bounds) │
   │  ③ Relational query templates (SQL/JSON-Path)      │
   │  ④ LLM prompt templates (for downstream agents)    │
-  │ ⑤ Test scenarios (concrete test cases)            │
+  │  ⑤ Test scenarios (concrete test cases)            │
   └─────────────────────────────────────────────────────┘
   Output: rag_structured_data.json
 
@@ -235,48 +199,23 @@ Phase 4: Quality Verification (gate)
 
 ---
 
-## Architecture Decisions
+## Loading Guide
 
-**Why LLM is the only construction path (no fallback to template injection):**
-- Template injection (`injector.py` with hardcoded equipment/process keywords) was tested across multiple domains: it injected irrelevant entities, mapped concepts to wrong meanings, and added false causal chains whenever the input domain differed from the templated one.
-- LLM correctly rejected wrong-domain chunks and reconstructed the ontology from the actual domain knowledge.
-- Conclusion: keyword matching cannot scale across knowledge domains. LLM content understanding is mandatory.
+This skill uses progressive loading. Read only what each step needs:
 
-**Why structured data generation is a separate phase:**
-- Ontology describes WHAT each concept means; structured data templates describe HOW downstream agents should USE them.
-- Consumer agents need: (a) sample rows to test their pipelines, (b) validation bounds to detect outliers, (c) relational query templates to test hypotheses, (d) prompt templates to reference the ontology consistently.
-- Without structured data, the ontology is "descriptive but not consumable".
+| When | Read | Why |
+|------|------|-----|
+| Invoked | This file (SKILL.md) | Invocation contract + execution flow |
+| Phase 1 | `agents/retrieval-agent.md` | 4-perspective queries + content filtering |
+| Phase 1 | `agents/scoring-agent.md` | 5-dim scoring rubric + quality gates |
+| Phase 2 | `agents/ontology-construction-agent.md` | **LLM-driven ontology construction (PRIMARY PATH)** |
+| Phase 3 | `agents/structured-data-generator.md` | **LLM-driven structured data generation** |
+| Phase 4 | `agents/quality-verification-agent.md` | 5-dim quality check |
+| Integration | `resources/integration_guide.md` | How to connect to any consumer skill |
+| Pattern library | `resources/parameter_pattern_library.md` | Domain-generic concept patterns (entity, property, event, relationship, classification, ...) |
+| Scoring detail | `resources/scoring_rubric.md` | Detailed scoring examples + edge cases (multi-domain) |
 
-**Why the pattern library is organized by generic concept type, not by domain:**
-- A previous version organized patterns by physical quantity (temperature, vibration, flow, pressure, etc.), which only worked for engineering/manufacturing domains.
-- The new version is organized by **generic concept type** (entity, property, event, relationship, classification, measurement, time-series, etc.) — applicable to any domain.
-- LLM uses the pattern library to infer the meaning of any concept name, in any domain.
-
----
-
-## When to Use This Skill
-
-Use this skill **whenever you need to build a domain-specific structured knowledge base from documents or web content**, including but not limited to:
-
-- **Before any domain-analysis pipeline** that needs grounded, evidence-backed concept definitions
-- **Standalone** — to index, retrieve, and structure a domain knowledge base
-- **As a modular RAG plugin** — any skill can call this skill
-- **Across many domains**: science, engineering, medicine, law, finance, education, business, humanities, manufacturing, software, agriculture, environmental science, etc.
-
-**Domain coverage (LLM-driven, extensible on demand):**
-- ✅ Industrial / manufacturing / process engineering
-- ✅ Medicine / clinical / biomedical
-- ✅ Legal / regulatory / compliance
-- ✅ Finance / economics / risk
-- ✅ Software / IT / cybersecurity
-- ✅ Education / pedagogy
-- ✅ Agriculture / environmental science
-- ✅ Scientific research (physics, chemistry, biology, materials)
-- ✅ Humanities (history, linguistics, philosophy)
-- ✅ Business / marketing / operations
-- ✅ Any other domain with retrievable knowledge
-
-**The skill is domain-agnostic by design.** New domains are supported as long as the LLM can find applicable knowledge (local KB or web). If knowledge gaps exist, the skill reports them in `rag_clarification_needed.json` for the user to fill in.
+**Do NOT load everything upfront.** Each agent prompt is self-contained.
 
 ---
 
@@ -309,6 +248,52 @@ The skill returns once the ontology draft and structured data are written. The c
 
 ---
 
+## When to Use This Skill
+
+Use this skill **whenever you need to build a domain-specific structured knowledge base from documents or web content**, including but not limited to:
+
+- **Before any domain-analysis pipeline** that needs grounded, evidence-backed concept definitions
+- **Standalone** — to index, retrieve, and structure a domain knowledge base
+- **As a modular RAG plugin** — any skill can call this skill via the `Skill` tool
+- **Across many domains**: science, engineering, medicine, law, finance, education, business, humanities, manufacturing, software, agriculture, environmental science, etc.
+
+**Domain coverage (LLM-driven, extensible on demand):**
+- ✅ Industrial / manufacturing / process engineering
+- ✅ Medicine / clinical / biomedical
+- ✅ Legal / regulatory / compliance
+- ✅ Finance / economics / risk
+- ✅ Software / IT / cybersecurity
+- ✅ Education / pedagogy
+- ✅ Agriculture / environmental science
+- ✅ Scientific research (physics, chemistry, biology, materials)
+- ✅ Humanities (history, linguistics, philosophy)
+- ✅ Business / marketing / operations
+- ✅ Semiconductors / microelectronics (etching, deposition, lithography, etc.)
+- ✅ Any other domain with retrievable knowledge
+
+**The skill is domain-agnostic by design.** New domains are supported as long as the LLM can find applicable knowledge (local KB or web). If knowledge gaps exist, the skill reports them in `rag_clarification_needed.json` for the user to fill in.
+
+---
+
+## Architecture Decisions
+
+**Why LLM is the only construction path (no fallback to template injection):**
+- Template injection (`injector.py` with hardcoded equipment/process keywords) was tested across multiple domains: it injected irrelevant entities, mapped concepts to wrong meanings, and added false causal chains whenever the input domain differed from the templated one.
+- LLM correctly rejected wrong-domain chunks and reconstructed the ontology from the actual domain knowledge.
+- Conclusion: keyword matching cannot scale across knowledge domains. LLM content understanding is mandatory.
+
+**Why structured data generation is a separate phase:**
+- Ontology describes WHAT each concept means; structured data templates describe HOW downstream agents should USE them.
+- Consumer agents need: (a) sample rows to test their pipelines, (b) validation bounds to detect outliers, (c) relational query templates to test hypotheses, (d) prompt templates to reference the ontology consistently.
+- Without structured data, the ontology is "descriptive but not consumable".
+
+**Why the pattern library is organized by generic concept type, not by domain:**
+- A previous version organized patterns by physical quantity (temperature, vibration, flow, pressure, etc.), which only worked for engineering/manufacturing domains.
+- The new version is organized by **generic concept type** (entity, property, event, relationship, classification, measurement, time-series, etc.) — applicable to any domain.
+- LLM uses the pattern library to infer the meaning of any concept name, in any domain.
+
+---
+
 ## Reference Files
 
 | File | When to Read | Content |
@@ -318,14 +303,11 @@ The skill returns once the ontology draft and structured data are written. The c
 | `agents/ontology-construction-agent.md` | **Phase 2 (PRIMARY)** | **LLM-driven ontology construction with content understanding** |
 | `agents/structured-data-generator.md` | **Phase 3** | **LLM-driven structured data generation** |
 | `agents/quality-verification-agent.md` | **Phase 4 (GATE)** | **5-dim quality check (domain-neutral)** |
-| `resources/concept_pattern_library.md` | Phase 2 | Generic concept patterns (entity/property/event/relationship/...) |
-| `resources/kb_taxonomy_guide.md` | KB expansion | How to add new domains to the KB |
+| `resources/parameter_pattern_library.md` | Phase 2 | Generic concept patterns (entity/property/event/relationship/...) |
 | `resources/integration_guide.md` | Integration | How to connect to any consumer skill |
 | `resources/scoring_rubric.md` | Phase 1 | Detailed scoring examples + edge cases (multi-domain) |
-
-**Removed / Deprecated:**
-- `agents/ontology-builder.md` — legacy template-based injection with hardcoded domain mappings. **Removed.** Replaced by `agents/ontology-construction-agent.md`.
-- `engine/injector.py` — hardcoded entity identification. **Removed.** `rag_client.py` no longer calls it.
+| `resources/ontology_templates.md` | Phase 2 | Ontology output schema templates |
+| `resources/indexing_guide.md` | KB expansion | How to add new domains to the KB |
 
 ---
 

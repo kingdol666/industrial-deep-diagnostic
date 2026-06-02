@@ -26,7 +26,7 @@ This skill uses **four separate numbering systems by design**. Do not conflate t
 | System | Scope | Example |
 |--------|-------|---------|
 | Pipeline Step 0-8 | Orchestration | "Step 4: Diagnostician" |
-| Agent Phase 0-6 | Diagnostician internal | "Phase 1: Data Probing" |
+| Agent Phase 0-7 | Diagnostician internal | "Phase 1.5: Ontology-Data-Physics Proof" |
 | Reasoning Segment R1-R8 | Reasoning_chain.json | "R4: Hypothesis Generation" |
 | Method Stage 1-6 | diagnosis_method.md | "Stage 3: Temporal Analysis" |
 
@@ -40,7 +40,7 @@ Each numbering system is scoped to its own context (orchestration / agent logic 
 | `schemas/` | JSON Schema for output validation | New structured artifact |
 | `assets/` | Shared binary/media resources (watermarks, icons, cover images) | Visual assets used by templates or reports |
 | `scripts/` | Executable pipeline code (Node.js + Python/uv) | Reusable deterministic logic |
-| `references/` | Domain knowledge loaded on demand by sub-agents | Process-specific reference docs |
+| `resources/` | Domain knowledge loaded on demand by sub-agents | Process-specific reference docs |
 | `examples/` | Sample inputs/ontologies for common process types | Reference for context builder |
 
 **`templates/` vs `assets/` distinction**: templates are text-based skeletons filled by reporter/agents; assets are binary/media resources referenced from those templates.

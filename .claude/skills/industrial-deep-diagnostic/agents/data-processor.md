@@ -62,6 +62,16 @@ Based on data inspection, classify the **process scenario**. The classification 
 
 **If ontology.json exists in `RUN_DIR/01_ontology/`**, read it first — it provides the authoritative process type and stage definitions. The scenario classification should align with the ontology.
 
+### 1.3 Consume RAG Deep Understanding for Scenario-Aware Analysis
+
+Read `RUN_DIR/00_input/rag_deep_understanding.json` if it exists. Use its contents to enhance your analysis:
+
+1. **Extracted physics principles**: Use to guide statistical analysis — e.g., if "Arrhenius rate-temperature" is a principle, pay special attention to temperature-quality correlations and check for non-linear (exponential) relationships
+2. **Known failure modes**: Use to guide anomaly detection — if "bearing wear → monotonic vibration increase" is a known mode, configure anomaly detection to look for monotonic vibration trends
+3. **Key confounders**: Use to guide stratification — ensure these variables are used as group columns in stratified analysis
+4. **RAG validation queue**: Read `validation_queue` to know which specific statistical validations to run (see new Step 5.5)
+5. **Domain constraints**: Use to validate analysis results — if detected anomaly exceeds domain-typical ranges, flag for the Diagnostician
+
 Save scenario classification to `RUN_DIR/02_processed/scenario_classification.json`:
 ```json
 {
@@ -81,7 +91,7 @@ Save scenario classification to `RUN_DIR/02_processed/scenario_classification.js
 ## Step 2: Convert Data
 
 ```bash
-node SKILL_PATH/scripts/convert.mjs DATA_PATH --output RUN_DIR/02_processed/data.json
+node "$SKILL_PATH/scripts/convert.mjs" "$DATA_PATH" --output "$RUN_DIR/02_processed/data.json"
 ```
 
 ---
@@ -102,7 +112,7 @@ Write `RUN_DIR/06_scripts/preprocess.py`, run it. Must include:
 | Any process with conversion+yield | reaction_rate, conversion_pct, selectivity |
 
 Output: `cleaned_data.csv`, `data_quality_report.json`.
-Re-convert: `node SKILL_PATH/scripts/convert.mjs RUN_DIR/02_processed/cleaned_data.csv --output RUN_DIR/02_processed/cleaned_data.json`
+Re-convert: `node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/cleaned_data.json"`
 
 ---
 
@@ -111,7 +121,7 @@ Re-convert: `node SKILL_PATH/scripts/convert.mjs RUN_DIR/02_processed/cleaned_da
 ### 4.1 Enhanced Stats (stats.mjs)
 
 ```bash
-node SKILL_PATH/scripts/stats.mjs RUN_DIR/02_processed/cleaned_data.json \
+node "$SKILL_PATH/scripts/stats.mjs" "$RUN_DIR"/02_processed/cleaned_data.json \
   --time-col <time_col> --target-cols <quality_cols> --group-col <group_col> \
   --max-lag 20 --alpha 0.05 > RUN_DIR/02_processed/feature_summary.json
 ```
@@ -119,7 +129,7 @@ node SKILL_PATH/scripts/stats.mjs RUN_DIR/02_processed/cleaned_data.json \
 ### 4.2 Validation (stats_validate.mjs)
 
 ```bash
-node SKILL_PATH/scripts/stats_validate.mjs \
+node "$SKILL_PATH/scripts/stats_validate.mjs" \
   RUN_DIR/02_processed/feature_summary.json RUN_DIR/02_processed/cleaned_data.json \
   --group-col <group_col> --time-col <time_col> \
   --output RUN_DIR/02_processed/validate_report.json
@@ -199,7 +209,7 @@ PYTHON=$(node $SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
 ")
 
 if [ -n "$PYTHON" ]; then
-  $PYTHON $SKILL_PATH/scripts/physics_check.py "$RUN_DIR" \
+  "$PYTHON" "$SKILL_PATH/scripts/physics_check.py" "$RUN_DIR" \
     "$RUN_DIR/01_ontology/ontology.json" \
     "$RUN_DIR/02_processed/feature_summary.json" \
     "$RUN_DIR/02_processed/anomaly_report.json" \
@@ -238,6 +248,101 @@ fi
 ### 5.2 Verify Physics Check Output
 
 Read `$PHYSICS_OUTPUT` and confirm which checks were executed. Each check has a `conclusion` field (e.g., `THERMAL_EXPANSION_PLAUSIBLE`, `VIBRATION_CLIFF_DETECTED`, `FORCE_BALANCE_PLAUSIBLE`). If a critical check failed to run (status: INCONCLUSIVE), note this for the Diagnostician.
+
+---
+
+### Step 5.5: RAG Knowledge Thorough Validation (NEW — Stage 2 of Two-Stage Protocol)
+
+> **This is Stage 2 of the RAG validation protocol.** The Context Builder ran Stage 1 pre-checks (range, basic direction). You have the full statistical pipeline — run the THOROUGH validation.
+
+**Input**: `RUN_DIR/00_input/rag_deep_understanding.json.validation_queue[]`
+
+For each queued RAG claim, use your complete statistical analysis to validate:
+
+#### 5.5.1 Temporal Validation
+
+For claims about causality with expected time lags:
+- Use lagged cross-correlation (CCF) from `feature_summary.json` to check if X precedes Y
+- Verify lag window consistency (≥2 adjacent lags with same sign)
+- Cross-check against anomaly_onset_coincidence from `anomaly_report.json`
+
+#### 5.5.2 Stratified Validation
+
+For claims that should hold across all operating conditions:
+- Use stratified correlations from `feature_summary.json` to check within-group consistency
+- Check for Simpson's Paradox using `validate_report.json`
+- If the claim holds in aggregate but fails within groups → mark as BETWEEN_GROUP_ONLY
+
+#### 5.5.3 Detrended Validation
+
+For claims that could be time-drift artifacts:
+- Compare raw r vs detrended r from `feature_summary.json`
+- If attenuation > 50% → the claimed relationship may be trend-confounded
+- Check if the detrended relationship still supports the claim
+
+#### 5.5.4 Functional Form Validation
+
+For claims about specific governing equations:
+- Check if the data follows the claimed functional form (linear vs exponential vs polynomial)
+- Compare actual curve fit against predicted form from the RAG claim
+- Calculate R² for the claimed functional form vs alternative forms
+
+#### 5.5.5 Output: rag_validation_report.json
+
+Save to `RUN_DIR/02_processed/rag_validation_report.json`:
+```json
+{
+  "validated_claims": [
+    {
+      "rag_claim": "Melt temperature affects viscosity with 2-3% decrease per °C",
+      "stage1_pre_check": "direction consistent",
+      "stage2_validations": {
+        "temporal": {"result": "CONSISTENT", "evidence": "temp leads viscosity by lag=-3, CCF consistent window"},
+        "stratified": {"result": "CONSISTENT", "evidence": "holds within all 3 product grades, |r|>0.6 each"},
+        "detrended": {"result": "CONSISTENT", "evidence": "detrended r=-0.62 vs raw r=-0.68, 9% attenuation"},
+        "functional_form": {"result": "CONSISTENT", "evidence": "R²=0.81 for exponential fit vs R²=0.65 for linear"}
+      },
+      "overall_validation": "FULLY_VALIDATED",
+      "confidence_adjustment": "+10 (confirmed by comprehensive statistical analysis)"
+    },
+    {
+      "rag_claim": "Bearing wear causes vibration increase over weeks",
+      "stage1_pre_check": "trend exists but faster than claimed",
+      "stage2_validations": {
+        "temporal": {"result": "PARTIALLY_CONSISTENT", "evidence": "vibration leads quality by lag=-5, but time scale is days not weeks"},
+        "detrended": {"result": "CONSISTENT", "evidence": "trend r=0.72, detrended r=0.58, relationship persists beyond trend"},
+        "functional_form": {"result": "UNTESTABLE", "evidence": "insufficient duration for week-scale verification"}
+      },
+      "overall_validation": "PARTIALLY_VALIDATED — time scale differs from RAG claim",
+      "confidence_adjustment": "-5 (accelerated degradation, possible additional mechanism)"
+    }
+  ],
+  "claims_not_validated": [],
+  "new_discrepancies_discovered": [
+    {
+      "parameter": "COL_X",
+      "observation": "Strong correlation with quality only in product grade A, disappears in grades B and C",
+      "implication": "Parameter's effect is product-grade dependent — not a universal degradation driver"
+    }
+  ],
+  "summary": {
+    "total_queued": 8,
+    "fully_validated": 5,
+    "partially_validated": 2,
+    "contradicted": 1,
+    "untestable": 0
+  }
+}
+```
+
+#### 5.5.6 Update Ontology with New Discoveries
+
+After thorough validation, check if any newly discovered patterns should update the ontology:
+- New discrepancy signals → append to `ontology.json.discrepancy_signals[]`
+- Newly confirmed/contradicted behavior matches → update `behavior_match` fields
+- Newly discovered parameter groups → update `parameter_groups` in `schema.json`
+
+This keeps the ontology ALIVE — it evolves as analysis deepens.
 
 ---
 
@@ -372,7 +477,7 @@ Write `RUN_DIR/06_scripts/visualize.py`:
 **Python execution** — MUST use uv venv, not system python:
 ```bash
 # Step 1: Ensure venv ready — use node to parse JSON (no system python needed)
-PYTHON=$(node SKILL_PATH/scripts/uv_env_setup.mjs 2>/dev/null | node -e "
+PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "
   let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
     try{const j=JSON.parse(d.split('\n').pop());process.stdout.write(j.python||'')}catch{process.stdout.write('')}
   })
@@ -388,7 +493,7 @@ $PYTHON RUN_DIR/06_scripts/visualize.py
 After visualization completes, generate `image_captions.json`:
 
 ```bash
-node SKILL_PATH/scripts/generate_captions.mjs RUN_DIR 2>&1 || echo "Captions generation skipped"
+node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR" 2>&1 || echo "Captions generation skipped"
 ```
 
 If `generate_captions.mjs` doesn't exist, generate manually. Each entry MUST include:
@@ -413,7 +518,8 @@ Must exist when done:
 02_processed/feature_summary.json            ← Step 4.1
 02_processed/validate_report.json            ← Step 4.2
 02_processed/anomaly_report.json             ← Step 4.3 (merged with physics_check results in Step 5)
-02_processed/physics_check.json              ← NEW Step 5
+02_processed/physics_check.json              ← Step 5
+02_processed/rag_validation_report.json      ← NEW Step 5.5 (Stage 2 RAG validation)
 02_processed/causal_evidence_map.json         ← Step 6.6
 02_processed/data_quality_report.json         ← Step 3
 03_figures/*.png
@@ -429,7 +535,7 @@ Must exist when done:
 At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 ```jsonl
 {"event": "agent_start", "agent": "data-processor", "timestamp": "..."}
-{"event": "agent_complete", "agent": "data-processor", "timestamp": "...", "files_written": [...], "errors": null}
+{"event": "agent_complete", "agent": "data-processor", "timestamp": "...", "files_written": [...], "rag_claims_thoroughly_validated": 8, "rag_claims_fully_validated": 5, "rag_claims_contradicted": 1, "discrepancy_signals_updated": true, "errors": null}
 ```
 
 ## Rules

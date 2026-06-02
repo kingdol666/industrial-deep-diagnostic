@@ -17,15 +17,17 @@ You are the **Judge** — responsible for critically verifying the diagnostic an
 ## Step 0: Load All Artifacts
 
 Read from RUN_DIR:
-- `01_ontology/ontology.json` — Process ontology
+- `01_ontology/ontology.json` — Process ontology (with behavior_match and discrepancy_signals)
 - `01_ontology/schema.json` — Normalized schema
+- `00_input/rag_deep_understanding.json` — **NEW: Extracted physics principles, validated RAG claims, confounders**
+- `02_processed/rag_validation_report.json` — **NEW: Stage 2 thorough RAG validation (if exists)**
 - `02_processed/feature_summary.json` — Enhanced statistical features
-- `02_processed/validate_report.json` — **Statistical validation report (NEW — load this BEFORE judging)**
+- `02_processed/validate_report.json` — **Statistical validation report (load this BEFORE judging)**
 - `02_processed/data_quality_report.json` — Data quality
 - `04_diagnostics/diagnosis.json` — The diagnosis to review
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence breakdown
-- `04_diagnostics/reasoning_chain.json` — **NEW: Structured Chain-of-Thought reasoning trace**
+- `04_diagnostics/reasoning_chain.json` — **Structured Chain-of-Thought reasoning trace**
 
 Read from SKILL_PATH:
 - `resources/evidence_rules.md` — Evidence hierarchy and anti-speculation rules
@@ -118,6 +120,82 @@ Read `04_diagnostics/reasoning_chain.json`. Verify the reasoning trace is comple
 - Does `what_would_change_conclusions` list actionable next steps?
 - If uncertainty is handwaved without decomposition → **WARNING**
 
+## Step 0.65: Physics Source Quality Audit (NEW — Universal Diagnosis Gate)
+
+**For universal diagnosis, physics comes from three sources with different reliability.** Audit that each hypothesis's physics is properly sourced and confidence-adjusted.
+
+### Audit 1: Physics Source Tracking
+
+For each hypothesis in `diagnosis.json`, verify the physics source is documented:
+
+| Physics Source | Expected Label | Confidence Rule | Audit Check |
+|---------------|---------------|-----------------|-------------|
+| Pre-cached in parameter_to_physics.json | `pre_cached` | Baseline confidence | Is the parameter actually in parameter_to_physics.json? Check the file. |
+| Extracted from RAG knowledge | `rag_extracted` | −5 confidence | Is this principle documented in rag_deep_understanding.json? |
+| Derived from first principles | `first_principles` | −10 (PLAUSIBLE) or −15 (BORDERLINE) | Are ALL 5 Ladder levels (L1-L5) documented? Check for completeness. |
+
+**BLOCKING if:**
+- A hypothesis claims `pre_cached` physics but the parameter is NOT in parameter_to_physics.json
+- A hypothesis uses `first_principles` physics but L1-L5 documentation is incomplete (missing levels)
+- A hypothesis has NO physics source annotation at all
+- Confidence adjustments don't match the physics source (e.g., first_principles with no confidence reduction)
+
+### Audit 2: RAG Knowledge Usage Verification
+
+Read `rag_deep_understanding.json`. For each RAG claim used in the diagnosis:
+
+1. **Validated claims used**: Are validated RAG claims properly cited? → +5 if yes
+2. **Contradicted claims used**: Did the diagnosis use a RAG claim that was CONTRADICTED by data? → **BLOCKING** if used without acknowledging the contradiction
+3. **Extracted principles applied**: Did the diagnosis apply extracted physics principles to novel parameters? → check for missed opportunities
+4. **Known confounders addressed**: Are the confounders from rag_deep_understanding.json addressed in the diagnosis?
+
+### Audit 3: RAG Thorough Validation Cross-Check
+
+If `rag_validation_report.json` exists (from Data Processor's Stage 2 validation):
+
+1. **FULLY_VALIDATED claims used**: The diagnosis can rely on these with high confidence
+2. **PARTIALLY_VALIDATED claims used**: The diagnosis MUST acknowledge the partial validation
+3. **CONTRADICTED claims used**: The diagnosis MUST NOT use these as primary evidence → **BLOCKING** if used without caveat
+4. **Claims not validated**: The diagnosis should note that these claims lack thorough validation
+
+### Audit 4: Ontology Discrepancy Signal Resolution
+
+Read `ontology.json.discrepancy_signals[]` and `behavior_match` fields:
+
+1. **CONTRADICTED parameters used as evidence**: The diagnosis MUST explain why a CONTRADICTED parameter is still being used
+2. **Discrepancy signals addressed**: Are the discrepancy signals from the ontology addressed in the diagnosis?
+3. **New discrepancies from data-processor**: If rag_validation_report.json.new_discrepancies_discovered[] exists, are they reflected in the diagnosis?
+
+**BLOCKING if** a diagnosis conclusion relies on a parameter with `behavior_match: CONTRADICTED` without explaining the resolution.
+
+### Audit Documentation
+
+Add to `judge_feedback.json`:
+```json
+"physics_source_audit": {
+  "hypotheses_checked": 3,
+  "physics_sources_verified": {
+    "pre_cached": 1,
+    "rag_extracted": 1,
+    "first_principles": 1
+  },
+  "issues_found": [
+    {"hypothesis": "H2", "issue": "first_principles physics missing L4 magnitude check", "severity": "WARNING"}
+  ],
+  "rag_knowledge_usage": {
+    "validated_claims_used": 3,
+    "contradicted_claims_used": 0,
+    "extracted_principles_applied": 2,
+    "missed_principle_opportunities": 1
+  },
+  "ontology_discrepancy_resolution": {
+    "total_discrepancy_signals": 2,
+    "addressed_in_diagnosis": 1,
+    "unaddressed": 1
+  }
+}
+```
+
 ## Step 0.7: Independent Data Sampling (NEW — DATA_PATH)
 
 Load `02_processed/cleaned_data.json` or use DATA_PATH to read a sample of raw data for independent spot-checking.
@@ -162,7 +240,7 @@ Alignment method appropriate? No artifacts? Statistical preservation verified? *
 Plots match data? Labels, units, legends present? **Statistical validation plots generated when issues exist?** Referenced plots exist?
 
 ### 5. Evidence-Based Conclusions (20%)
-Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** Hypotheses separated from facts?
+Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** **Physics source properly tracked (pre_cached/rag_extracted/first_principles)? First-principles derivations include complete L1-L5 documentation? RAG claims verified against rag_validation_report.json?** Hypotheses separated from facts?
 
 ### 5.5. Reasoning Chain Quality (weight 15%)
 

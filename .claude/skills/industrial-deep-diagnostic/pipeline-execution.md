@@ -83,7 +83,7 @@ After Context Builder completes, check `00_input/clarification_needed.json`. Beh
 
 ### `auto` mode:
 1. Read `clarification_needed.json` to understand unknown parameters
-2. **Do NOT ask the user.** Apply auto-inference (context-builder.md Step 5.8) to assign best-guess physical meanings
+2. **Do NOT ask the user.** Apply auto-inference (resources/physics_inference_framework.md L1-L5) to assign best-guess physical meanings
 3. Update `01_ontology/ontology.json` and `schema.json` with inferred meanings
 4. Mark all parameters with `"physical_meaning_confidence": "inferred"` and `"auto_inferred": true`
 5. Log auto-inference event to `.pipeline_events.jsonl`
@@ -100,11 +100,23 @@ After Context Builder completes, check `00_input/clarification_needed.json`. Beh
 ### `minimal` mode:
 1. Read `clarification_needed.json` — focus ONLY on `critical_unknowns`
 2. Ask user about CRITICAL parameters only (max 2 questions)
-3. For HIGH/MEDIUM unknowns: use auto-inference (context-builder.md Step 5.8)
+3. For HIGH/MEDIUM unknowns: use auto-inference (resources/physics_inference_framework.md L1-L5)
 4. Update ontology with confirmed + inferred meanings
 5. Log events to `.pipeline_events.jsonl`
 
 **Skip condition**: If no CRITICAL/HIGH unknowns (or in auto mode), skip directly to Step 3.
+
+---
+
+## RAG Knowledge Validation — Two-Stage Protocol
+
+RAG validation occurs in TWO stages across two pipeline steps. See `resources/pipeline_coherence_and_synergy.md` for the full protocol.
+
+**Stage 1 (Context Builder, Step 2)**: Pre-checks on raw data — value range, basic direction sign, trend slope, confound presence. Outputs `rag_deep_understanding.json.validation_queue[]` with claims needing thorough validation.
+
+**Stage 2 (Data Processor, Step 3)**: Thorough validation using full statistical pipeline — temporal (CCF lag), stratified (Simpson's), detrended, functional form. Outputs `rag_validation_report.json`.
+
+The Diagnostician (Step 4), Judge (Step 5), and Report Reviewer (Step 7) all consume both Stage 1 and Stage 2 results.
 
 ---
 

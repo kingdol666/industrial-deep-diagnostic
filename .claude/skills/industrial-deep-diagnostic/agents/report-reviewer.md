@@ -56,10 +56,12 @@ Read from RUN_DIR:
 - `04_diagnostics/diagnosis.json` — Structured diagnosis
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence assessment
-- `04_diagnostics/reasoning_chain.json` — **NEW: Full Chain-of-Thought reasoning trace from the diagnostician**
+- `04_diagnostics/reasoning_chain.json` — Full Chain-of-Thought reasoning trace from the diagnostician
+- `00_input/rag_deep_understanding.json` — **NEW: Extracted physics principles, validated RAG claims, known failure modes, key confounders**
+- `02_processed/rag_validation_report.json` — **NEW: Stage 2 thorough RAG validation (if exists)**
 - `02_processed/feature_summary.json` — Enhanced statistical data (Pearson, Spearman, detrended, CCF)
 - `02_processed/validate_report.json` — **Statistical validation report (primary verification tool)**
-- `01_ontology/ontology.json` — Process ontology
+- `01_ontology/ontology.json` — Process ontology (with behavior_match and discrepancy_signals)
 - `03_figures/plot_manifest.json` — Visualization manifest
 
 **Read the ACTUAL DATA** (via inspect.mjs or direct CSV reading) — do not rely solely on the pipeline's summary statistics. Verify key claims by checking the raw data yourself.
@@ -131,6 +133,20 @@ For EVERY parameter claimed as a key predictor:
 - Flag it: "Cannot verify mechanism — parameter physical meaning unknown"
 - The claimed mechanism is speculative regardless of statistical evidence
 - Reduce confidence ceiling for that hypothesis
+
+### 1.1b RAG Knowledge Cross-Check
+
+Cross-check the diagnosis against `rag_deep_understanding.json`:
+
+1. **Physics Principle Alignment**: Do the diagnosis's causal chains align with the extracted physics principles? If the diagnosis claims a mechanism that contradicts a well-established principle → FLAG
+2. **Failure Mode Consistency**: Do the diagnosis's hypotheses match known failure modes for this domain? If proposing a novel failure mode not in RAG knowledge → acceptable but flag as NOVEL
+3. **Confounder Coverage**: Are the key confounders from rag_deep_understanding.json addressed in the diagnosis? If a known confounder is ignored → FLAG
+4. **Validated Claim Usage**: If the diagnosis relies on RAG claims that were CONTRADICTED by data (in claim_validations) → **FATAL**
+5. **Domain Constraint Violation**: Does the diagnosis's mechanism violate any domain constraints? (e.g., claiming thermal degradation at a temperature below the activation threshold)
+
+If `rag_validation_report.json` exists from the Data Processor:
+6. **PARTIALLY_VALIDATED claims**: Does the diagnosis acknowledge the partial validation?
+7. **CONTRADICTED claims**: Are any contradicted RAG claims used as primary evidence? → **FATAL** if yes
 
 ## Step 1.2: Reasoning Chain Audit — Hallucination Detection (NEW)
 
@@ -315,6 +331,7 @@ Rate 0-10:
 | Dimension | What it measures |
 |-----------|-----------------|
 | Physical plausibility | Does the diagnosis make physical sense? **Quantitative check required.** |
+| RAG knowledge alignment | Are claims consistent with extracted physics principles and validated RAG knowledge? **Cross-check against rag_deep_understanding.json and rag_validation_report.json.** |
 | Confounder control | Were alternative explanations properly ruled out? **Independent verification required.** |
 | Statistical rigor | Were methods appropriate and robust? **Detrending, stratification, Spearman all checked?** |
 | Logical coherence | Is the causal chain logically consistent? |
@@ -323,9 +340,9 @@ Rate 0-10:
 
 ### 5.2 Verdict
 
-- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors
-- **CONDITIONAL**: 1-2 dimensions < 7, or significant concerns exist. Diagnosis direction may be correct but evidence is insufficient
-- **REJECTED**: 3+ dimensions < 7, or fundamental mechanism is physically impossible, or fatal statistical errors (sorting artifact, Simpson's Paradox)
+- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors, RAG knowledge cross-check passed
+- **CONDITIONAL**: 1-2 dimensions < 7, or significant concerns exist, or RAG knowledge partially contradicted. Diagnosis direction may be correct but evidence is insufficient
+- **REJECTED**: 3+ dimensions < 7, or fundamental mechanism is physically impossible, or fatal statistical errors (sorting artifact, Simpson's Paradox), or diagnosis relies on CONTRADICTED RAG claims
 
 ### 5.3 Output: RUN_DIR/optimizer.md
 

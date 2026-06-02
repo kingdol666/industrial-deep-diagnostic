@@ -1,6 +1,6 @@
 ---
 name: industrial-deep-diagnostic
-description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial or manufacturing process. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
+description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial or manufacturing process. Also trigger on 诊断, 故障分析, 异常检测, 根因分析, 质量缺陷, 过程异常, 设备故障, 传感器数据分析, 工艺参数优化, 生产过程诊断. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
@@ -20,88 +20,134 @@ compatibility: |
 
 **默认输出语言为中文。** 报告、诊断结论、审计文档使用中文。JSON enum字段保持英文。
 
+---
+
+## What This Skill Does
+
+This is a **scenario-adaptive diagnostic engine** — it diagnoses ANY industrial process by combining three sources of knowledge:
+
+1. **Data self-describes** — column names, value ranges, and statistical signatures reveal what kind of process this is, without matching against a fixed taxonomy
+2. **RAG provides domain context** — retrieved physics principles, causal mechanisms, known failure modes, and parameter semantics for whatever domain the data represents
+3. **First-principles physics** — every statistical correlation must trace to a governing equation; for unknown parameters, physics is derived from conservation laws, dimensional analysis, and constitutive relations
+
 ## Core Principle
 
-Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradictions. Missing any → label as [HYPOTHESIS]. When data cannot discriminate between competing hypotheses → output COMPETING_SET, not a guess.
+Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradictions. Missing any → label as `[HYPOTHESIS]`. When data cannot discriminate between competing hypotheses → output `COMPETING_SET`, not a guess.
 
-## Loading Guide — What to Read and When
+**Four pillars** that make this work across any industry:
 
-This skill uses progressive loading. Read only what each step needs:
+| Pillar | Principle | Anti-Pattern |
+|--------|-----------|--------------|
+| Scenario-Adaptive | Analysis flows from data characteristics — no hardcoded process types | Applying a "CNC template" to non-CNC data |
+| RAG Deep Understanding | RAG knowledge is semantically comprehended, not mechanically mapped | Field-by-field copy from RAG output to ontology |
+| Data↔Ontology Bidirectional | Ontology predicts → data confirms; data reveals → ontology explains; discrepancies are diagnostic signals | Building ontology and analyzing data independently |
+| Physics-Based Inference | Every correlation must trace to governing equations; derive from first principles when needed | "Parameter X correlates with quality, therefore X is the cause" |
+
+---
+
+## Loading Guide — Progressive Disclosure
+
+This skill uses **three levels** of loading. Only read what the current step needs:
+
+### Level 1: Always Loaded (this file)
+The orchestration protocol — step sequence, commands, evidence rules, anti-speculation checks.
+
+### Level 2: Loaded Per Step (agents/)
+Each agent prompt is self-contained — read the corresponding `agents/<agent>.md` only when that step begins.
 
 | When | Read | Why |
 |------|------|-----|
-| Pipeline start | This file (SKILL.md) | Orchestration protocol, step sequence |
-| Before Step 0 | `resources/rag_integration_guide.md` | How the RAG knowledge retrieval pipeline works |
-| Before Step 2 | `agents/context-builder.md` (§Step 0-2.1 for RAG + knowledge) | Instructions for context-building + RAG skill delegation (reads §Step 0-2.1 first; §Step 3-5 when building ontology) |
-| Before Step 2 (optional) | `rag-knowledge-builder` skill (via `Skill` tool) | Dedicated RAG skill — invoked by context-builder for runtime knowledge retrieval |
-| Before Step 3 | `agents/data-processor.md` | Instructions for data processing + visualization |
-| Before Step 4 | `agents/diagnostician.md` | Instructions for competing hypotheses diagnosis |
-| Before Step 5 | `agents/judge.md` | Instructions for quality gate review |
-| Before Step 6 | `agents/reporter.md` | Instructions for report generation |
-| Before Step 7 | `agents/report-reviewer.md` | Instructions for physical truth audit |
-| During repair loops | `pipeline-execution.md` §Repair Loop Protocol | Detailed repair counter rules |
-| During diagnosis | `resources/evidence_rules.md` | Evidence rank definitions |
-| During diagnosis | `resources/diagnosis_method.md` | Diagnostic methodology reference |
-| During diagnosis | `resources/process_knowledge_base.md` | Domain knowledge by process type |
-| During diagnosis | `resources/diagnostician_dual_drive_reference.md` | Pre-computed physical checks, reset analysis tables, onset-coincidence classification |
-| After each agent | `schemas/*.json` matching output | Validate JSON outputs |
+| Before Step 0 | `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
+| Before Step 2 | `agents/context-builder.md` | RAG retrieval + ontology construction + deep mapping |
+| Before Step 2 | **`rag-knowledge-builder` skill** via `Skill` tool | Domain-specific knowledge retrieval, ontology construction, and structured data generation. The data exchange contract is documented in `rag-knowledge-builder/resources/integration_guide.md` (within that skill's directory). |
+| Before Step 3 | `agents/data-processor.md` | Statistical analysis + physics checks + scenario-adaptive visualization |
+| Before Step 4 | `agents/diagnostician.md` | Physics-based competing hypotheses diagnosis |
+| Before Step 5 | `agents/judge.md` | Quality gate (10 criteria + physics source audit) |
+| Before Step 6 | `agents/reporter.md` | Report generation from structured artifacts |
+| Before Step 7 | `agents/report-reviewer.md` | Independent physical truth audit |
+| During repair loops | `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
 
-**Do NOT load everything upfront.** Each agent prompt is self-contained — read it only when that step begins.
+### Level 3: Loaded On-Demand (resources/)
+Detailed frameworks — load only when the agent's instructions tell you to.
 
-**RAG dependency**: Step 2 (context-builder) delegates knowledge retrieval to the dedicated `rag-knowledge-builder` skill via the `Skill` tool. The rag-knowledge-builder skill internally manages the RAG engine (rag-retrieval-engine on port 8765) and falls back to local Python scripts if the engine is unavailable. If the entire rag-knowledge-builder skill is unavailable, context-builder falls back to building the ontology from scratch. See `resources/rag_integration_guide.md` for setup instructions.
+| When | Read | Content |
+|------|------|---------|
+| context-builder needs RAG deep understanding protocol | `resources/rag_deep_understanding_protocol.md` | R1-R4: semantic comprehension, knowledge-data alignment, physics extraction, gap identification |
+| context-builder builds ontology; data-processor updates it | `resources/data_ontology_mapping_framework.md` | Three mapping directions: prediction→validation, discovery→refinement, discrepancy→diagnostic signal |
+| diagnostician encounters novel parameters | `resources/physics_inference_framework.md` | L1-L5 ladder: physical quantity → governing law → causal chain → magnitude → competing mechanisms |
+| troubleshooting pipeline integration | `resources/pipeline_coherence_and_synergy.md` | Step synergy rules, cross-step verification checklist, RAG two-stage protocol, artifact completeness |
+| diagnostician needs evidence definitions | `resources/evidence_rules.md` | 7-rank evidence hierarchy and causation criteria |
+| diagnostician needs methodology | `resources/diagnosis_method.md` | 6-stage diagnostic methodology with statistical thresholds |
+| diagnostician reads pre-computed checks | `resources/diagnostician_dual_drive_reference.md` | Quality reset analysis tables, onset-coincidence classification, physical check conclusions |
+| any agent needs physics pattern examples | `resources/parameter_to_physics.json` | Pattern library — structural examples for building physics arguments, NOT a lookup table |
+| report-reviewer needs cross-industry physics | `resources/process_knowledge_base.md` | 16 universal physics principles, quantitative relationships, degradation patterns |
+| developer reference | `resources/script_and_toolkit_reference.md` | Complete catalog of scripts, schemas, and templates |
+
+**After each agent produces output**, validate with the matching schema:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/<schema>.json" "$RUN_DIR/<path>/<output>.json"
+```
+
+**Do NOT load everything upfront.** The detailed frameworks (Level 3) are only needed when an agent explicitly needs them. The agents (Level 2) are self-contained instructions.
+
+**RAG dependency**: Step 2 delegates to the `rag-knowledge-builder` skill via `Skill` tool. If unavailable, context-builder falls back to building the ontology from scratch. See `resources/rag_integration_guide.md`.
 
 ---
 
 ## Execution Flow
 
 ```
-Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context ──[clarify?]──┐
-                                     └──► Step 3: Data+Viz+Validate ──┤
-                                                                       ▼
-                                                                 Step 4: Diagnostician
-                                                                       │
-                                                                 ┌─────▼─────┐
-                                                                 │ Step 5:   │◄── repair max 3 ─┐
-                                                                 │ Judge     │                    │
-                                                                 └─────┬─────┘                    │
-                                                                       │ pass/warn               │
-                                                                       ▼                         │
-                                                                 Step 6: Report                │
-                                                                       │                         │
-                                                                       ▼                         │
-                                                                 ┌─────▼──────┐                  │
-                                                                 │ Step 7:    │── re-diagnose ───┘
-                                                                 │ Audit      │
-                                                                 └─────┬──────┘
-                                                                       │ ENDORSED
-                                                                       ▼
-                                                                 Step 8: Present
+Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context Build (RAG + Ontology + Deep Mapping)
+                                          │
+                                          ▼
+                                     Step 2.5: Clarify ──┐
+                                          │               │
+                                          ▼               │
+                                     Step 3: Data+Viz+Validate (Scenario-Adaptive)
+                                          │               │
+                                          ▼               │
+                                     Step 4: Diagnostician (Physics-Based Competing Hypotheses)
+                                          │               │
+                                    ┌─────▼─────┐         │
+                                    │ Step 5:   │◄── repair max 3 ─┐
+                                    │ Judge     │                    │
+                                    └─────┬─────┘                    │
+                                          │ pass                     │
+                                          ▼                         │
+                                    Step 6: Report                │
+                                          │                         │
+                                          ▼                         │
+                                    ┌─────▼──────┐                  │
+                                    │ Step 7:    │── re-diagnose ───┘
+                                    │ Audit      │
+                                    └─────┬──────┘
+                                          │ ENDORSED
+                                          ▼
+                                    Step 8: Present
 ```
 
-**Sequence**: Steps 2→2.5→3 are strictly sequential (Step 2 must complete ontology before Step 3 can use it for scenario classification). Steps 4→5→6→7 are sequential.
+**Sequence**: Steps 2→2.5→3 are strictly sequential. Steps 4→5→6→7 are sequential with quality gates between each.
 
-**Repair loops**: Judge→Diagnostician repair max 3 iterations. Reviewer repair (Step 7.5) max 2 cycles. **Global cap: total re-diagnosis ≤ 5**. See `pipeline-execution.md` §Repair Loop Protocol for counter persistence rules.
+**Repair loops**: Judge→Diagnostician max 3 iterations. Reviewer→Diagnostician max 2 cycles. **Global cap: total re-diagnosis ≤ 5**. Counter persists in `.pipeline_events.jsonl`. See `pipeline-execution.md` §Repair Loop Protocol.
 
 ---
 
 ## Step-by-Step Protocol
 
-### Step 0: Setup Workspace + Python Environment
+### Step 0: Setup (Main Agent)
 
 ```bash
 SKILL_PATH="<path-to-this-skill>"
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 
-# Step 0a: Create run directory structure
+# Create run directory: <timestamp>_<name>/ with 00_input/ through 06_scripts/
 node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 
-# Step 0b: Ensure Python venv is ready (auto-installs uv + deps)
+# Ensure Python venv ready (auto-installs uv + deps)
 node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 ```
 
-Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Also ensures the uv-managed Python venv exists with all dependencies (matplotlib, numpy, pandas, seaborn, scipy, openpyxl, pyarrow). Copy input data files into `00_input/`.
-
-**Python execution rule**: All subsequent Python script invocations MUST use the venv Python at `scripts/.venv/bin/python`. Using system `python3`, `python3.11`, or `pip3` will cause dependency pollution and version conflicts between projects. Get the path: `node scripts/uv_env_setup.mjs` → parse JSON `.python` field.
+Copy input data files into `00_input/`. All Python invocations MUST use `scripts/.venv/bin/python` — never system `python3`.
 
 ### Step 1: Inspect Data (Main Agent)
 
@@ -109,88 +155,75 @@ Creates `<timestamp>_<name>/` with subdirs `00_input/` through `06_scripts/`. Al
 node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
 ```
 
-Inspect all input files. **If `00_input/run_config.json` does not exist, create one with `{"interaction_mode": "auto"}` by default.** Read `interaction_mode` from `run_config.json` (defaults to `auto` if not set):
+If `00_input/run_config.json` doesn't exist, create `{"interaction_mode": "auto"}`.
 
 | Mode | Behavior |
 |------|----------|
-| **`auto`** | No user questions. Automatically infer: process_type from column name heuristics, quality targets from column naming patterns, known parameters from data ranges. Generate `user_context.json` with all fields set to inferred values. Mark inferred fields with `"source": "auto_inferred"`. |
-| **`interactive`** | Ask user up to 5 clarification questions about process type, quality issues, known parameters (original behavior). Save answers to `user_context.json`. |
-| **`minimal`** | Ask only 1-2 essential questions (e.g., "Which column is the quality target?"). For remaining unknowns, use auto-inference with `"source": "auto_inferred"` marker. |
+| **auto** | Zero user questions. Infer process characteristics, quality targets, parameter meanings from column patterns and value ranges. |
+| **interactive** | Ask up to 5 clarification questions. |
+| **minimal** | Ask 1-2 essential questions only. |
+
+Produce process-agnostic characterization: column name patterns → physical quantity hypotheses, value range confirmation, statistical signature classification (trending/cyclic/step-change/stationary), categorical columns for stratification, time column detection.
 
 Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
-### Step 2: Context Build (Sub-Agent + RAG Skill Delegation)
+### Step 2: Context Build (Sub-Agent)
 
-**Read first**: `agents/context-builder.md`
+**Load**: `agents/context-builder.md` + `resources/rag_deep_understanding_protocol.md` + `resources/data_ontology_mapping_framework.md`
 
 Pass: `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `SKILL_PATH`, `INTERACTION_MODE`.
 
-The context-builder agent first delegates to the **`rag-knowledge-builder`** skill (via `Skill` tool) to retrieve structured domain knowledge — ontology pre-fill, causal chains, confounders. It then builds the final ontology by merging RAG knowledge with reference documents, web research, and auto-inference. Outputs to `01_ontology/`. If CRITICAL parameters have unknown physical meanings, it creates `00_input/clarification_needed.json`. **In `auto` mode**, the agent uses inference to fill unknowns without asking the user.
+Four integrated phases:
+- **Phase A**: Delegate to `rag-knowledge-builder` skill → R1-R4 deep understanding protocol
+- **Phase B**: Search reference directory + web (max 5 queries)
+- **Phase C**: Bidirectional data↔ontology mapping (prediction→validation, discovery→refinement, discrepancy capture)
+- **Phase D**: Output `ontology.json` with physical quantity, governing law, behavior_match, discrepancy signals per parameter
 
-Schema-validate ontology output:
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"
-```
+Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
+
+Outputs: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
 ### Step 2.5: Clarification Gate (Main Agent)
 
-Check `00_input/clarification_needed.json`. Behavior depends on `interaction_mode`:
+Check `clarification_needed.json`. Auto mode skips all questions and applies physics inference. Interactive/minimal modes ask per their respective rules. See `pipeline-execution.md` §Step 2.5 for detailed protocol.
 
-| Mode | Behavior |
-|------|----------|
-| **`auto`** | Skip all user questions. If CRITICAL parameters exist, use heuristics to assign best-guess physical meanings (mark `"physical_meaning_confidence": "inferred"`). Log unknowns to `.pipeline_events.jsonl` for downstream awareness. Proceed directly to Step 3. |
-| **`interactive`** | If CRITICAL/HIGH unknowns exist, ask the user in grouped questions (max 4 per round). Update ontology with confirmed meanings. If no unknowns, proceed (original behavior). |
-| **`minimal`** | If CRITICAL unknowns exist, ask ONLY about CRITICAL ones (skip HIGH/MEDIUM). For HIGH unknowns, use auto-inference. Mark unresolved parameters with `"physical_meaning_confidence": "unknown"`. Proceed after resolving CRITICAL items. |
+### Step 3: Data Processing + Visualization (Sub-Agent)
 
-For `auto` and `minimal` modes, the auto-inference algorithm in `context-builder.md` Step 5.8 is used to assign best-guess physical meanings without user confirmation.
-
-### Step 3: Data Processing + Visualization + Validation (Sub-Agent)
-
-**Read first**: `agents/data-processor.md`
+**Load**: `agents/data-processor.md` + `resources/data_ontology_mapping_framework.md` (for updating ontology)
 
 Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
 
-> **Python Execution (MANDATORY)**: All Python scripts in this step (stats_validate.mjs internal calls, `file_inspect.py`, `template_visualize.py`, `template_preprocess.py`, and the generated `RUN_DIR/06_scripts/visualize.py`) MUST use the uv venv Python at `scripts/.venv/bin/python`. Never `python3`. See §Python Execution Protocol in CLAUDE.md.
+The agent runs scenario-adaptive analysis driven by data characteristics (not templates):
+- Convert data → preprocess → statistical analysis (`stats.mjs` + `stats_validate.mjs`)
+- Anomaly detection + transition analysis + automated physics checks (`physics_check.py`)
+- **Stage 2 RAG validation**: thorough statistical validation of every RAG claim queued in Stage 1
+- Update ontology with new discrepancy signals discovered during analysis
+- Generate scenario-adaptive visualizations (`03_figures/*.png`)
 
-The agent runs the full analysis pipeline:
-1. Classify process scenario — derive a descriptive label from column name patterns and value ranges (data-driven, not from a fixed list)
-2. Run `stats.mjs` → `feature_summary.json`
-3. Run `stats_validate.mjs` → `validate_report.json`
-4. Run anomaly detection → `anomaly_report.json`
-5. Build causal evidence map → `causal_evidence_map.json`
-6. Generate scenario-adaptive visualizations → `03_figures/*.png`
-
-Key outputs consumed by Step 4:
-- `02_processed/feature_summary.json` — validated correlations
-- `02_processed/validate_report.json` — Simpson's Paradox, trend confounding, outlier flags
-- `02_processed/anomaly_report.json` — anomaly intervals, thresholds, transition events
-- `02_processed/causal_evidence_map.json` — validated causal graph with root cause candidates
-- `03_figures/plot_manifest.json` + `image_captions.json` — figure descriptions with diagnostic implications
-
-Schema-validate Step 3 outputs:
+Validate (×3):
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/causal_evidence_map_schema.json" "$RUN_DIR/02_processed/causal_evidence_map.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
 ```
 
-### Step 4: Diagnostician — Competing Hypotheses (Sub-Agent)
+Key outputs: `02_processed/` (11 files), `03_figures/` (plots + manifests), `rag_validation_report.json`
 
-**Read first**: `agents/diagnostician.md`
+### Step 4: Diagnostician (Sub-Agent)
+
+**Load**: `agents/diagnostician.md` + `resources/physics_inference_framework.md`
 
 Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, optional `REPAIR_INSTRUCTIONS`.
 
-The Diagnostician follows three phases then a 5-step protocol:
-1. **Phase 1: Data Probing** — Probe raw data at transition points (tool changes, material switches). Check: does quality reset when a component is replaced?
-2. **Phase 2: Product-Stratified Analysis** — Verify correlations hold within each product group. Remove BETWEEN_PRODUCT_ONLY correlations.
-3. **Phase 3: 5-Step Protocol**:
-   - **Step A**: Generate hypotheses with quantitative physical logic chains + visual evidence
-   - **Step B**: Cross-check with data probes, anomaly intervals, causal evidence map
-   - **Step C**: Discriminability assessment (enhanced with transition analysis)
-   - **Step D**: Exclusion using physical impossibility + data probe contradictions
-   - **Step E**: DETERMINED / COMPETING_SET / NEEDS_DATA
+Physics-Based Competing Hypotheses Protocol:
+- **Phase 0**: Load all 12 evidence files; read validation constraints first
+- **Phase 1**: For novel parameters, derive physics via L1-L5 Inference Ladder
+- **Phase 2**: Evidence fusion — combine data evidence with physics evidence
+- **Phase 3**: 5-Step protocol (Generate → Cross-check → Discriminate → Exclude → Conclude)
 
-Schema-validate outputs:
+Every hypothesis must have: physical mechanism with governing equation, quantitative magnitude check, data evidence, quality reset/onset evidence, visual evidence, falsification condition.
+
+Validate (×4):
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
@@ -198,38 +231,47 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.j
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
 ```
 
+Outputs: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
+
 ### Step 5: Judge Review (Sub-Agent)
 
-**Read first**: `agents/judge.md`
+**Load**: `agents/judge.md`
 
-Scores 10 criteria. Cross-references diagnosis against `validate_report.json`.
-- **PASS** (≥90) → proceed to Step 6
-- **NEEDS_REPAIR** (70-89) → re-spawn Diagnostician with REPAIR_INSTRUCTIONS. Max 3 iterations.
+Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`.
+
+Scores 10 criteria including physics source quality audit (new). Cross-references diagnosis against `validate_report.json`.
+- **PASS** (≥90) → Step 6
+- **NEEDS_REPAIR** (70-89) → re-spawn Step 4 (max 3 iterations)
 - **FAIL** (<70) → report to user
 
-Schema-validate judge output:
+Validate:
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_schema.json" "$RUN_DIR/05_review/judge_feedback.json"
 ```
+Output: `05_review/judge_feedback.json`
 
 ### Step 6: Report Generation (Sub-Agent)
 
-**Read first**: `agents/reporter.md`
+**Load**: `agents/reporter.md` + `templates/report_template.md`
 
-Generates `report.md` with mandatory sections: Executive Summary, Statistical Findings, Diagnostic Findings, Competing Hypotheses Disclosure, Confidence Assessment, Limitations, Recommendations.
+Pass: `RUN_DIR`, `SKILL_PATH`.
 
-Schema-validate run summary:
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"
-```
+Generates `report.md` (Chinese) with 8 mandatory sections: Executive Summary, Reasoning Overview (R1-R8), Statistical Findings, Diagnostic Findings, Competing Hypotheses Disclosure, Confidence Assessment, Limitations, Recommendations.
+
+Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"`
+Output: `report.md`, `run_summary.json`
 
 ### Step 7: Physical Truth Audit (Sub-Agent)
 
-**Read first**: `agents/report-reviewer.md`
+**Load**: `agents/report-reviewer.md`
 
-Independent verification with quantitative physical checks. Output: `optimizer.md` with verdict ENDORSED / CONDITIONAL / REJECTED.
+Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`.
 
-If CONDITIONAL or REJECTED → repair loop (max 2 cycles, each re-runs Steps 4→5→6→7).
+Independent external auditor — 7-dimension assessment including RAG knowledge cross-check.
+- **ENDORSED** → Step 8
+- **CONDITIONAL** / **REJECTED** → re-spawn Step 4 (max 2 cycles, global cap 5)
+
+Output: `optimizer.md`
 
 ### Step 8: Present Results (Main Agent)
 
@@ -237,7 +279,7 @@ If CONDITIONAL or REJECTED → repair loop (max 2 cycles, each re-runs Steps 4�
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-Show user: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight any CONDITIONAL/REJECTED concerns from reviewer.
+Show: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight CONDITIONAL/REJECTED concerns.
 
 ---
 
@@ -246,14 +288,15 @@ Show user: executive summary, key findings, diagnosis type, confidence, recommen
 Agents communicate ONLY through workspace files — never through the main agent's context:
 
 ```
-Context Builder ──► 01_ontology/ontology.json, schema.json  (ontology.json schema-validated)
+Context Builder ──► 01_ontology/ontology.json, schema.json
                 ──► 00_input/extracted_knowledge.json, clarification_needed.json, web_findings.md
+                ──► 00_input/rag_deep_understanding.json
+                ──► 00_input/rag_ontology_draft.json, rag_structured_data.json, rag_audit_log.json (from RAG skill)
 User Clarification ──► Updated ontology.json, schema.json
-Data Processor  ──► 02_processed/feature_summary.json, validate_report.json
-                ──► 02_processed/scenario_classification.json, anomaly_report.json, causal_evidence_map.json
+Data Processor  ──► 02_processed/ (11 files: stats, anomalies, physics, RAG validation)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
-Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json (all schema-validated)
-Judge           ──► 05_review/judge_feedback.json (schema-validated)
+Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
+Judge           ──► 05_review/judge_feedback.json
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
 ```
@@ -264,13 +307,13 @@ Report Reviewer ──► optimizer.md
 
 | Rank | Source | Label |
 |------|--------|-------|
-| 1 | Direct measurements in data | [Evidence Rank 1] |
-| 2 | User-provided documentation | [Evidence Rank 2] |
-| 3 | Statistical analysis (incl. validation report) | [Evidence Rank 3] |
-| 4 | Visual evidence from charts | [Evidence Rank 4] |
-| 5 | Established process logic / domain knowledge | [Evidence Rank 5] |
-| 6 | External web references | [Evidence Rank 6] [EXTERNAL] |
-| 7 | Hypotheses (unsupported) | [Evidence Rank 7] |
+| 1 | Direct measurements in data | `[Evidence Rank 1]` |
+| 2 | User-provided documentation | `[Evidence Rank 2]` |
+| 3 | Statistical analysis (incl. validation report) | `[Evidence Rank 3]` |
+| 4 | Visual evidence from charts | `[Evidence Rank 4]` |
+| 5 | Established process logic / domain knowledge | `[Evidence Rank 5]` |
+| 6 | External web references | `[Evidence Rank 6] [EXTERNAL]` |
+| 7 | Hypotheses (unsupported) | `[Evidence Rank 7]` |
 
 Every conclusion limited by its weakest evidence rank.
 
@@ -278,16 +321,17 @@ Every conclusion limited by its weakest evidence rank.
 
 ## Anti-Speculation Rules
 
-Every conclusion carries the burden of proof. Apply these checks before writing any finding:
+Apply these checks before writing any finding:
 
-- **Lag correlations** require time-sorted data. Without temporal ordering, lag is meaningless — check `sorting_validation.time_sorted` first.
-- **Aggregate correlations** can reverse direction within subgroups. Always check stratified correlations for Simpson's Paradox before claiming a relationship holds.
-- **Trending variables** share time as a hidden confounder. When both X and Y trend upward, the raw r reflects shared drift, not coupling. Check detrended r.
-- **Unknown parameter meanings** are a failure mode. If physical meaning isn't confirmed, flag the hypothesis as `[PARAM_AMBIGUITY]` — a strong correlation on an unknown quantity is a correlation to a label, not a physical cause.
-- **Competing hypotheses** that predict identical observables are INDISTINGUISHABLE. Do not pick a winner. Output as COMPETING_SET with the specific data that would discriminate.
-- **Discriminating data** must be specified for every competing set — what measurement, where, and what values would settle it.
-- **Confidence ceiling 65** for INDISTINGUISHABLE competing hypotheses: no single hypothesis may exceed 65 when alternatives predict the same observables.
-- **Confidence, evidence gaps, and assumptions** must always be disclosed alongside conclusions.
+- **Lag correlations** require time-sorted data — check `sorting_validation.time_sorted` first
+- **Aggregate correlations** can reverse within subgroups — always check stratified correlations
+- **Trending variables** share time as hidden confounder — check detrended r
+- **Unknown parameter meanings** → `[PARAM_AMBIGUITY]` — correlation to a label is not correlation to a physical cause
+- **Competing hypotheses** with identical observables are INDISTINGUISHABLE → `COMPETING_SET`, confidence ceiling 65
+- **Physics-free correlations** are not diagnoses — `STATISTICAL_ONLY` is not a root cause
+- **RAG knowledge is suggestive, not authoritative** — every RAG claim must be validated against actual data
+- **Confidence, evidence gaps, and assumptions** must always be disclosed
+- **Falsification conditions** must be specified for every conclusion
 
 ---
 
@@ -303,22 +347,46 @@ Every conclusion carries the burden of proof. Apply these checks before writing 
 
 ---
 
-## Reference Files
+## Reference Files — Complete Index
 
-| File | When to Load | Content |
-|------|-------------|---------|
-| `pipeline-execution.md` | During repair loops | Detailed repair protocol, validation framework, change-point verification |
-| `agents/context-builder.md` | Before Step 2 | Context-building agent instructions |
-| `agents/data-processor.md` | Before Step 3 | Data processing + visualization agent instructions |
-| `agents/diagnostician.md` | Before Step 4 | Competing hypotheses diagnosis instructions |
-| `agents/judge.md` | Before Step 5 | Judge quality gate instructions |
-| `agents/reporter.md` | Before Step 6 | Report generation instructions |
-| `agents/report-reviewer.md` | Before Step 7 | Physical truth audit instructions |
-| `resources/evidence_rules.md` | During Step 4 | Evidence hierarchy details |
-| `resources/diagnosis_method.md` | During Step 4 | Diagnostic methodology |
-| `resources/process_knowledge_base.md` | During Step 4 | Domain knowledge by process type |
-| `resources/diagnostician_dual_drive_reference.md` | During Step 4 | Pre-computed Dual-Drive check results, classification tables, R2 documentation format |
-| `schemas/*.json` | After each agent output | JSON Schema validation |
-| `templates/*.md`, `templates/*.json` | During Steps 4, 5, 6 | Output templates |
-| `assets/` | As needed | Shared resources (watermark templates, icon sets, cover images) |
-| `examples/` | When building context for similar process types | Sample ontologies |
+### Execution & Protocol
+| File | When | Content |
+|------|------|---------|
+| `pipeline-execution.md` | During repair loops | Repair counter protocol, clarification gate details, statistical validation framework, confidence adjustment rules |
+
+### Agent Instructions (Level 2)
+| File | When | Content |
+|------|------|---------|
+| `agents/context-builder.md` | Before Step 2 | RAG retrieval + deep understanding + ontology construction |
+| `agents/data-processor.md` | Before Step 3 | Statistical analysis + anomaly detection + physics checks + RAG Stage 2 validation + visualization |
+| `agents/diagnostician.md` | Before Step 4 | Physics-based competing hypotheses + first-principles inference |
+| `agents/judge.md` | Before Step 5 | 10-criteria quality gate + physics source audit + independent data sampling |
+| `agents/reporter.md` | Before Step 6 | Report generation from structured artifacts |
+| `agents/report-reviewer.md` | Before Step 7 | Independent physical truth audit + RAG knowledge cross-check |
+
+### Frameworks & Methodology (Level 3 — load on demand)
+| File | When | Content |
+|------|------|---------|
+| `resources/rag_deep_understanding_protocol.md` | context-builder Phase 3 | R1-R4: semantic comprehension → knowledge-data alignment → physics extraction → gap identification |
+| `resources/data_ontology_mapping_framework.md` | context-builder Phase 4 / data-processor Step 5.5.6 | Three mapping directions, discrepancy-as-signal, deep mapping checklist |
+| `resources/physics_inference_framework.md` | diagnostician Phase 1 | L1-L5 ladder: quantity ID → governing law → causal chain → magnitude → competing mechanisms |
+| `resources/pipeline_coherence_and_synergy.md` | Troubleshooting pipeline integration | Step synergy rules, cross-step verification, RAG two-stage protocol, artifact completeness |
+| `resources/evidence_rules.md` | diagnostician / judge / reviewer | Evidence hierarchy details and causation criteria |
+| `resources/diagnosis_method.md` | diagnostician | 6-stage methodology with statistical thresholds |
+| `resources/diagnostician_dual_drive_reference.md` | diagnostician | Pre-computed check results, classification tables, R2 documentation format |
+
+### Knowledge & Data
+| File | When | Content |
+|------|------|---------|
+| `resources/parameter_to_physics.json` | diagnostician Phase 0.5 | **Pattern library** — structural examples for physics arguments, NOT a lookup table |
+| `resources/process_knowledge_base.md` | report-reviewer Step 1 | 16 universal physics principles, cross-industry quantitative relationships, degradation patterns |
+| `resources/rag_integration_guide.md` | Before Step 0 | RAG engine setup, one-time indexing, fallback behavior |
+
+### Schemas, Templates & Scripts
+| Directory | When | Content |
+|-----------|------|---------|
+| `schemas/*.json` (11 files) | After each agent output | JSON Schema validation for every structured artifact |
+| `templates/*.md`, `templates/*.json` (5 files) | During Steps 4-6 | Output format templates for diagnosis, judge feedback, report, run summary |
+| `scripts/` (12 files) | Throughout pipeline | Pre-built Node.js + Python scripts (stats, validation, physics checks, conversion, inspection) |
+| `examples/` (3 scenarios) | Context builder reference | Sample ontologies for common process types |
+| `tests/checklists/` (4 files) | Developer QA | Diagnosis, judge, ontology, report quality checklists |

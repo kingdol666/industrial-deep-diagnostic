@@ -25,8 +25,8 @@ async function initialize() {
   }
   logger.info('Config loaded successfully', { context: 'Init' });
 
-  // Init database (idempotent)
-  initDB();
+  // DB already initialized at module load time (database.mjs)
+  // Just mark stale runs as interrupted
 
   // Mark stale runs as interrupted
   const staleRuns = stmts.getActiveRuns.all();
