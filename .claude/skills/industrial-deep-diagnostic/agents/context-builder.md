@@ -79,16 +79,16 @@ Label ALL web findings as EXTERNAL KNOWLEDGE. Save to `RUN_DIR/00_input/web_find
 
 ## Step 2.0: RAG Knowledge Retrieval — Delegate to rag-knowledge-builder Skill
 
-**v7.2 — Skill-to-Skill Integration.** Before building the ontology from scratch, delegate knowledge retrieval to the dedicated `rag-knowledge-builder` skill. This skill has its own pipeline (retrieval agent → scoring agent → ontology builder agent) and its own backend (ChromaDB + WebSearchEngine). You do NOT construct HTTP queries directly — you invoke the skill and it handles everything.
+**v7.3 — Skill-to-Skill Integration.** Before building the ontology from scratch, delegate knowledge retrieval to the dedicated `rag-knowledge-builder` skill. This skill has its own pipeline (retrieval agent → scoring agent → ontology builder agent) and its own backend (ChromaDB + WebSearchEngine). You do NOT construct HTTP queries directly — you invoke the skill and it handles everything.
 
 ### 2.0.1 Construct the Skill Invocation
 
 From the data inspection results (Step 1), build the invocation context:
 
-1. **scenario**: Use `PROCESS_DESCRIPTION` if available; otherwise, name the process based on column name patterns (e.g., "industrial process with vibration and temperature sensors")
-2. **target_columns**: From `input_manifest.json` — the quality/defect metrics (comma-separated)
-3. **parameter_columns**: All numeric columns minus targets and metadata (comma-separated)  
-4. **group_columns**: Categorical columns for stratification (comma-separated)
+1. **domain**: Use `PROCESS_DESCRIPTION` if available; otherwise, name the process based on column name patterns (e.g., "industrial process with vibration and temperature sensors")
+2. **target_concepts**: From `input_manifest.json` — the quality/defect metrics (comma-separated)
+3. **related_concepts**: All numeric columns minus targets and metadata (comma-separated)
+4. **context_dimensions**: Categorical columns for stratification (comma-separated)
 5. **run_dir**: Use `RUN_DIR` — the skill writes `rag_ontology_draft.json` to `$RUN_DIR/00_input/`
 
 ### 2.0.2 Invoke the rag-knowledge-builder Skill
@@ -98,7 +98,7 @@ Use the `Skill` tool to invoke the `rag-knowledge-builder` skill:
 ```
 Skill({
   skill: "rag-knowledge-builder",
-  args: "scenario='<constructed_scenario_label>' target_cols='<comma_separated>' param_cols='<comma_separated>' group_cols='<comma_separated>' run_dir='<RUN_DIR>' interaction_mode='auto'"
+  args: "domain='<constructed_scenario_label>' target_concepts='<comma_separated>' related_concepts='<comma_separated>' context_dimensions='<comma_separated>' run_dir='<RUN_DIR>' interaction_mode='auto'"
 })
 ```
 

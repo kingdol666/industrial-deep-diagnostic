@@ -169,6 +169,7 @@ class DimensionScores(BaseModel):
 
 class ScoredChunk(BaseModel):
     chunk_id: str
+    content: Optional[str] = None  # Full text — LLM agent needs this for Phase 2
     content_preview: Optional[str] = None
     source: ChunkSource
     scores: DimensionScores

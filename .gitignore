@@ -40,3 +40,7 @@ config/local.yaml
 # Temp
 *.tmp
 *.swp
+
+# RAG run artifacts
+workspace/rag_ontology_*
+rag-retrieval-engine/storage/retrieval_runs/

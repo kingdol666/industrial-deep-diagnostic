@@ -247,3 +247,188 @@ This document provides quantitative domain knowledge for common industrial diagn
 | Current | A | mA, kA |
 | Power | W | kW, MW |
 | Viscosity | Pa·s | Poise, cP |
+
+---
+
+## Additional Process Types (v3.0 expansion)
+
+### Injection Molding
+
+**Signals**: melt_temp, mold_temp, injection_pressure, hold_pressure, cooling_time, cycle_time, part_weight, dimension
+**Common issues**: short shot, flash, sink marks, warpage, weld lines, voids, birefringence, dimensional drift
+
+**Quantitative Physics:**
+
+| Relationship | Formula/Rule of Thumb | Source |
+|-------------|----------------------|--------|
+| Polymer melt temp (PP) | 200-280°C | Injection molding handbook |
+| Polymer melt temp (ABS) | 220-260°C | Injection molding handbook |
+| Polymer melt temp (PC) | 280-320°C | Injection molding handbook |
+| Mold surface temp (PP) | 20-80°C | Cooling physics |
+| Mold surface temp (PC) | 80-120°C | Cooling physics |
+| Mold surface temp (PMMA) | 60-90°C | Cooling physics |
+| Injection pressure | 50-150 MPa typical | Molding machinery |
+| Hold-to-injection pressure ratio | 0.4-0.8 | PVT behavior |
+| Cooling time (1mm wall, PP) | ~5-10s | Heat diffusion |
+| Cooling time scaling | t_cool ∝ (wall_thickness)² / thermal_diffusivity | Fourier heat conduction |
+| Shear rate at gate | 10³-10⁵ s⁻¹ | Rheology |
+| Shear thinning (PP) | Viscosity drops 1-2 decades over shear rate range | Carreau model |
+| Crystallinity vs mold temp | Higher mold temp → higher crystallinity → more shrinkage | Polymer physics |
+| Part shrinkage (semi-crystalline) | 1-3% typical | PVT data |
+| Part shrinkage (amorphous) | 0.3-0.7% typical | PVT data |
+| Weld line strength reduction | 30-80% of bulk strength | Knit-line mechanics |
+| Birefringence indicator | Frozen-in orientation from flow; correlates with residual stress | Polymer optics |
+| Cycle time breakdown | Injection (5%) + Hold (20%) + Cooling (60%) + Ejection (15%) | Industry standard |
+
+**Confounders**: material_grade (different MFI → different fill behavior), masterbatch_lot (color/additive concentration affects MFI), machine_id (screw wear → shear history differs), ambient_humidity (PA6 hydrolysis)
+
+**Equipment**: injection_molding_machine (clamp unit, injection unit, mold), mold (cavities, runners, gates, cooling_channels), hopper/dryer, granulator, temperature_control_unit (TCU), robot_arm
+
+**Common Defect Causal Chains:**
+- `mold_temp_C ↓ → cooling_rate ↑ → crystallinity ↓ → warpage ↓` (good for tight tolerance)
+- `mold_temp_C ↓ → skin_layer cools too fast → frozen orientation high → birefringence ↑ → optical distortion`
+- `melt_temp_C ↑ → viscosity ↓ → fill easier → short_shot risk ↓` BUT `→ IV degradation ↑ → mechanical strength ↓`
+- `hold_pressure ↓ → cavity packing insufficient → sink_marks ↑ + voids ↑`
+- `cooling_time ↓ → ejection temp too high → part warpage ↑`
+
+---
+
+### Chemical Reactor (CSTR/PFR)
+
+**Signals**: reactor_temp, jacket_temp, feed_flow, product_flow, agitator_RPM, agitator_torque, agitator_power, pressure, conversion, selectivity, MW_dist_moments
+**Common issues**: conversion drift, selectivity loss, runaway reaction, fouling, catalyst deactivation, off-spec product
+
+**Quantitative Physics:**
+
+| Relationship | Formula/Rule of Thumb | Source |
+|-------------|----------------------|--------|
+| Arrhenius rate constant | k = A·exp(-Ea/RT) | Reaction kinetics |
+| Typical Ea (chemical reactions) | 50-200 kJ/mol | Reaction engineering |
+| Reaction rate temperature sensitivity | 10°C increase → 2-3x rate (for typical Ea) | Arrhenius |
+| CSTR steady-state design eqn | τ = (C_A0 - C_A) / (-r_A) | Levenspiel |
+| PFR design eqn | τ = ∫ dX / (-r_A / C_A0) | Levenspiel |
+| Damköhler number | Da = reaction_rate / flow_rate | Reaction engineering |
+| Adiabatic temperature rise | ΔT_ad = -ΔH_rxn · C_A0 / (ρ·Cp) | Energy balance |
+| Heat removal limit (CSTR) | Q_max = UA · (T_jacket - T_reactor) | Energy balance |
+| Runaway criterion (Semenov) | Heat generation > heat removal at T_onset | Thermal safety |
+| Mass transfer (gas-liquid) | k_L · a · (C* - C_L) | Two-film theory |
+| Mixing time (Rushton turbine) | t_mix ∝ (D/T)^(-2) · N^(-1) | Mixing literature |
+| Power number (Rushton) | Np ≈ 5-6 in turbulent regime | Mixing literature |
+| Catalyst deactivation models | 1st order, 2nd order, exponential, S-shaped | Catalyst engineering |
+| Selectivity vs conversion | S = k2·C_B / (k1·C_A) for parallel reactions | Kinetics |
+| Fouling resistance growth | R_f(t) = R_f0 · (1 + α·t) for linear | Heat exchanger fouling |
+| Cooling water ΔT | ΔT_CW = Q / (m_dot · Cp_water) | Energy balance |
+| Jacket response time | τ_jacket = m_jacket · Cp_jacket / (UA + m_dot·Cp) | Control dynamics |
+
+**Confounders**: catalyst_batch_id (activity varies ±10%), feed_composition (impurities affect kinetics), ambient_temp (affects cooling water inlet), operator (different loading procedures)
+
+**Equipment**: reactor_vessel (CSTR or PFR), agitator/mixer (Rushton, helical, pitched-blade), jacket (for heat transfer), condenser, feed_tank, product_tank, pump, heat_exchanger, instrumentation (T, P, pH, level)
+
+**Common Defect Causal Chains:**
+- `reactor_temp ↑ 5°C → k doubles → conversion ↑ 50%` (for typical Ea) BUT `→ selectivity ↓ → side product ↑`
+- `agitator_RPM ↓ → mixing time ↑ → hot spots → runaway risk ↑`
+- `catalyst_age ↑ → activity ↓ → conversion ↓ at same conditions`
+- `feed_flow ↑ → residence time ↓ → conversion ↓`
+- `fouling ↑ (R_f) → heat_transfer_coeff ↓ → temperature control degrades → conversion drift`
+
+---
+
+### Lithium-Ion Battery Manufacturing (Electrode Coating)
+
+**Signals**: slurry_solids_pct, coating_thickness_um, coating_weight_gsm, oven_temp_zones, line_speed, calendaring_pressure, electrode_density_gcc, moisture_ppm, NMP_ppm
+**Common issues**: coating defects (streaks, pinholes, agglomerates), thickness variation, density variation, adhesion failure, calendar defects, moisture-induced capacity loss
+
+**Quantitative Physics:**
+
+| Relationship | Formula/Rule of Thumb | Source |
+|-------------|----------------------|--------|
+| Slurry solids (NMC cathode) | 50-70% | Slurry rheology |
+| Slurry viscosity target | 1000-10000 cP (Brookfield) | Coating rheology |
+| Coating speed (slot-die) | 10-100 m/min | Coating engineering |
+| Wet film thickness to dry | t_dry = t_wet · solids_pct / (1 - solvent_pct) | Mass balance |
+| Coating weight (NMC single side) | 100-250 gsm | Cell design |
+| Electrode density (NMC) | 3.4-3.7 g/cc (calendared) | Cell design |
+| Porosity target | 20-35% | Cell design |
+| Active material:binder:carbon (NMC) | 90-95 : 3-7 : 2-5 | Cathode formulation |
+| Drying oven zones | 3-5 zones; gradient T profile (60→120°C) | Drying kinetics |
+| NMP evaporation rate | Function of T, airflow, vapor pressure | Evaporation physics |
+| Moisture spec (dry room) | < -40°C dew point (≈100 ppm) | Battery safety |
+| Calendar pressure | 50-200 tons | Electrode calendering |
+| Electrode compression (porosity reduction) | porosity = 1 - (ρ_electrode / ρ_true) | Composite physics |
+| Adhesion strength (peel test) | > 30 N/m (cathode) | Cell design |
+| Thickness uniformity | ±2-3% (good), ±5% (poor) | Coating physics |
+| Edge bead control | Bead width < 5 mm typical | Coating engineering |
+| Vacuum drying (after coating) | 120°C × 24h, < 100 Pa | Drying standard |
+| Electrolyte filling (cell assembly) | 1.0-1.5x pore volume | Cell design |
+
+**Confounders**: active_material_lot (different surface area → different binder demand), binder_lot (different MW → different viscosity), solvent_batch (NMP water content affects drying), ambient_humidity (slurry pickup moisture), operator (coating head alignment)
+
+**Equipment**: slurry_mixer (planetary, centrifugal), coating_machine (slot-die, comma, doctor-blade), drying_oven (3-5 zones, IR + convection), calendar (roll press), slitter, vacuum_dryer, dry_room (NMP-recovery, dehumidification)
+
+**Common Defect Causal Chains:**
+- `slurry_solids_pct ↑ → viscosity ↑ → coating defects ↑ (streaks, pinholes)`
+- `oven_temp ↑ → solvent_evaporation_rate ↑ → skin formation → trapped solvent → blistering`
+- `calendaring_pressure ↑ → porosity ↓ → energy_density ↑ BUT → particle cracking → cycle_life ↓`
+- `coating_speed ↑ → wet film uniformity ↓ → thickness variation ↑`
+- `moisture ↑ → Li-proton exchange → capacity_loss ↑ + gassing`
+- `NMP_residual ↑ → SEI instability → cycle_life ↓`
+
+---
+
+### Semiconductor (CMP — Chemical Mechanical Polishing)
+
+**Signals**: slurry_flow, platen_RPM, carrier_RPM, down_force, back-pressure, polishing_time, removal_rate_nm_min, wafer_temperature, defect_count, non-uniformity_pct
+**Common issues**: dishing, erosion, microscratches, residue, non-uniform removal, endpoint detection failure, slurry starvation
+
+**Quantitative Physics:**
+
+| Relationship | Formula/Rule of Thumb | Source |
+|-------------|----------------------|--------|
+| Preston's equation | RR = K_p · P · v (P=pressure, v=relative velocity) | CMP physics |
+| Preston's coefficient (Cu/SiO2) | K_p ≈ 7e-14 to 5e-13 (units dependent) | CMP literature |
+| Typical removal rate (Cu) | 2000-5000 Å/min | CMP engineering |
+| Typical removal rate (SiO2) | 1500-3000 Å/min | CMP engineering |
+| Typical removal rate (W) | 2000-4000 Å/min | CMP engineering |
+| Platen speed | 30-120 RPM | CMP engineering |
+| Carrier speed | 30-120 RPM (independent of platen) | CMP engineering |
+| Down force | 2-8 psi | CMP engineering |
+| Slurry flow rate | 100-300 mL/min | CMP engineering |
+| Wafer-to-pad relative velocity | v = π · (R_platen + R_carrier) · (RPM_platen + RPM_carrier) / 60 | Kinematics |
+| Dishing (Cu over SiO2) | Function of pattern density; 100-500 Å typical | CMP literature |
+| Erosion (dielectric) | Function of pattern density | CMP literature |
+| Selectivity Cu:SiO2 | 1:1 to 4:1 depending on slurry | Slurry chemistry |
+| Selectivity W:SiO2 | High (tungsten-selective slurries exist) | Slurry chemistry |
+| Defect adders | Particles from slurry, pad glazing, handling | CMP literature |
+| Pad conditioning | Diamond disc; 5-20 RPM; restores pad asperities | CMP engineering |
+| Slurry temperature effect | 1°C → 1-2% RR change | Chemical kinetics |
+| Slurry pH (Cu slurry) | 6-10 (oxidizer + complexing agent) | Slurry chemistry |
+| Endpoint detection (optical) | Interference signal at fixed wavelength | Metrology |
+
+**Confounders**: slurry_lot (particle size distribution varies), pad_age (asperity density changes), wafer_lot (film thickness variations), tool_id (chuck flatness differs), ambient_temp (slurry temp drift)
+
+**Equipment**: polisher (platen, carrier, slurry delivery), pad (polyurethane, with conditioner), slurry_system (mixing, distribution, filtration), cleaner (post-CMP brush scrubber + chemistry), metrology (in-situ optical, ex-situ profilometer)
+
+**Common Defect Causal Chains:**
+- `down_force ↑ → RR ↑ BUT → dishing ↑ + erosion ↑ + microscratch risk ↑`
+- `platen_RPM ↑ → v ↑ → RR ↑ BUT → non_uniformity ↑ at high speeds`
+- `slurry_flow ↓ → pad starvation → local RR ↓ → non_uniformity ↑`
+- `pad_conditioning ↓ → pad glazing → RR ↓ + defect_count ↑`
+- `slurry_temp ↑ → chemical activity ↑ → RR ↑ BUT selectivity shifts → dishing worse`
+- `wafer_pressure_asymmetry → edge_fast → edge RR higher → non_uniformity ↑`
+
+---
+
+### Cross-Scenario Universal Physics (apply to ANY process)
+
+| Principle | Effect | Applicable to |
+|-----------|--------|---------------|
+| Arrhenius | k doubles per 10°C (typical Ea) | All chemical reactions |
+| Heat conduction (Fourier) | q = -k·dT/dx | All thermal processes |
+| Mass conservation | Accumulation = In - Out + Generation | All processes |
+| Momentum conservation | F = m·a (Newton 2nd) | All mechanical systems |
+| Shear thinning | Viscosity ↓ with shear rate ↑ | All polymer processes |
+| Crystallinity ↔ cooling rate | Fast cooling → low crystallinity | All semi-crystalline polymers |
+| Defect propagation | Local disturbance → propagates downstream | All continuous processes |
+| Mixing time vs Reynolds | Re > 10⁴ → turbulent → fast mixing | All mixing operations |
+| Catalyst deactivation | Activity decays with time-on-stream | All catalytic reactions |
+| Sensor drift | Reading drift over weeks/months | All processes with sensors |

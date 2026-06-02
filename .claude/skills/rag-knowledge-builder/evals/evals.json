@@ -59,6 +59,23 @@
         {"name": "web_returns_results", "jsonpath": "$.total_chunks_retrieved", "expected_type": "numeric_gte", "expected_values": [1], "weight": "critical", "description": "web 搜索返回至少 1 个结果"},
         {"name": "source_marked_web", "jsonpath": "$.chunks[0].source.type", "expected_type": "contains_any", "expected_values": ["web_authoritative", "web_general"], "weight": "high", "description": "结果标记为 web 来源"}
       ]
+    },
+    {
+      "id": 4,
+      "name": "quality_verification_rejects_generic",
+      "prompt": "验证质量验证 agent 能检测到 process_type 为 generic 的 ontology",
+      "expected_output": "quality verification 应标识 process_type 为 generic 的 ontology 为 FAIL",
+      "files": [],
+      "metadata": {
+        "scenario_type": "generic",
+        "expected_verdict": "FAIL",
+        "checks": ["schema compliance rejects generic process_type", "content plausibility warns on vague meanings"]
+      },
+      "assertions": [
+        {"name": "rejects_generic_type", "jsonpath": "$.checks.schema_compliance.passed", "expected_type": "equals", "expected_values": [false], "weight": "critical", "description": "process_type 为 generic 应被拒绝"},
+        {"name": "has_five_checks", "jsonpath": "$.checks", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "5 项检查全部执行"},
+        {"name": "produces_verdict", "jsonpath": "$.verdict", "expected_type": "equals", "expected_values": ["FAIL"], "weight": "critical", "description": "最终判定为 FAIL"}
+      ]
     }
   ]
 }

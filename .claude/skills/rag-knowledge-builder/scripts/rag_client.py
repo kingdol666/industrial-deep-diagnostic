@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-RAG Engine HTTP Client.
+RAG Engine HTTP Client (v3.1).
 
 Called by the rag-knowledge-builder skill. Uses `uv run` for Python execution.
-The diagnostic skill's uv_env_setup.mjs ensures uv is available.
-All retrieval, scoring, and injection happens server-side via the RAG engine HTTP API.
+Phase 0-1 (retrieve + score) runs in the RAG engine (server.py).
+Phase 2-4 (ontology + structured data + verification) run in the LLM agent.
 
 Usage:
-  uv run python scripts/rag_client.py pipeline --scenario "..." --target-cols "..." --param-cols "..." --output-dir <path>
+  uv run python scripts/rag_client.py build-ontology --domain "..." --target-concepts "..." --related-concepts "..." --output-dir <path>
+
+Legacy CLI flags (--scenario, --target-cols, --param-cols, --group-cols) remain as hidden aliases.
 """
 
 import argparse, json, os, sys, time
@@ -18,6 +20,9 @@ from urllib.error import URLError, HTTPError
 
 # Default engine endpoint
 ENGINE_URL = os.environ.get("RAG_ENGINE_URL", "http://localhost:8765")
+
+# Skill root (rag_client.py is at .claude/skills/rag-knowledge-builder/scripts/)
+SKILL_ROOT = str(Path(__file__).resolve().parent.parent)
 
 
 def _post(endpoint: str, data: dict) -> dict:
@@ -64,13 +69,250 @@ def check_health() -> dict:
     return _get("health")
 
 
-def cmd_retrieve(args):
-    """Execute retrieval via engine API."""
+def _resolve_arg(primary, legacy, fallback=None):
+    """Resolve CLI arg: prefer primary name, fall back to legacy alias."""
+    return primary if primary is not None else (legacy if legacy is not None else fallback)
+
+
+def _parse_context_dimensions(raw: Optional[str]) -> list:
+    """Parse context_dimensions/group_cols, defaulting to empty list."""
+    if not raw:
+        return []
+    return [c.strip() for c in raw.split(",") if c.strip()]
+
+
+# ═══════════════════════════════════════════════════════════════
+# Commands
+# ═══════════════════════════════════════════════════════════════
+
+def cmd_build_ontology(args):
+    """PRIMARY command (v3.1). Phase 1 retrieve+score, then LLM handoff.
+
+    This command:
+    1. Calls the engine's /pipeline/retrieve-score (Retrieve + Score only)
+    2. Saves scored chunks with FULL content to rag_scored_chunks.json
+    3. Writes LLM handoff instructions for Phase 2-4
+
+    The LLM agent (Claude/GPT) then reads agents/ontology-construction-agent.md
+    and processes the chunks to build rag_ontology_draft.json.
+    """
+    domain = _resolve_arg(getattr(args, 'domain', None), getattr(args, 'scenario', None))
+    target_concepts = _resolve_arg(getattr(args, 'target_concepts', None), getattr(args, 'target_cols', None))
+    related_concepts = _resolve_arg(getattr(args, 'related_concepts', None), getattr(args, 'param_cols', None))
+    context_dimensions_raw = _resolve_arg(getattr(args, 'context_dimensions', None), getattr(args, 'group_cols', None))
+
+    if not domain or not target_concepts or not related_concepts:
+        missing = []
+        if not domain: missing.append("--domain")
+        if not target_concepts: missing.append("--target-concepts")
+        if not related_concepts: missing.append("--related-concepts")
+        print(f"ERROR: Required parameters missing: {', '.join(missing)}")
+        print(f"  Primary: --domain --target-concepts --related-concepts")
+        print(f"  Legacy:  --scenario --target-cols --param-cols")
+        sys.exit(1)
+
+    mode = "hybrid" if args.use_web else args.mode
     payload = {
-        "scenario": args.scenario,
-        "target_columns": [c.strip() for c in args.target_cols.split(",")],
-        "parameter_columns": [c.strip() for c in args.param_cols.split(",")],
-        "group_columns": [c.strip() for c in (args.group_cols or "material").split(",")],
+        "scenario": domain,
+        "target_columns": [c.strip() for c in target_concepts.split(",")],
+        "parameter_columns": [c.strip() for c in related_concepts.split(",")],
+        "group_columns": _parse_context_dimensions(context_dimensions_raw),
+        "mode": mode,
+        "top_k": args.top_k,
+    }
+
+    print(f"{'=' * 70}")
+    print(f"RAG Knowledge Builder v3.1 — build-ontology")
+    print(f"{'=' * 70}")
+    print(f"  Domain:   {payload['scenario']}")
+    print(f"  Mode:     {payload['mode']}")
+    print(f"  Targets:  {payload['target_columns']}")
+    print(f"  Related:  {payload['parameter_columns']}")
+    print(f"  Context:  {payload['group_columns']}")
+
+    # === Phase 1: Retrieve + Score (engine) ===
+    print(f"\n[Phase 1/4] Retrieve + Score (engine)...")
+    result = _post("pipeline/retrieve-score", payload)
+
+    scoring = result.get('scoring', {})
+    print(f"  Run ID:    {result['run_id']}")
+    print(f"  Retrieval: {result['retrieval']['total_chunks']} chunks")
+    print(f"  Scoring:   {scoring.get('critical', 0)}C / "
+          f"{scoring.get('accepted', 0)}A / "
+          f"{scoring.get('conditional', 0)}COND / "
+          f"{scoring.get('rejected', 0)}R -> "
+          f"{scoring.get('injectable', 0)} injectable")
+
+    # Count chunks with content
+    chunks_with_content = sum(1 for c in result.get("chunks", []) if c.get("content"))
+    print(f"  Content:   {chunks_with_content} chunks have full content (LLM needs this)")
+
+    # === Save outputs ===
+    if not args.output_dir:
+        print("\n  (No output_dir specified — results not saved)")
+        return
+
+    od = Path(args.output_dir)
+    input_dir = od / "00_input"
+    input_dir.mkdir(parents=True, exist_ok=True)
+
+    # Primary: full scored chunks (with content) — what LLM reads in Phase 2
+    _save(str(input_dir / "rag_scored_chunks.json"), result)
+    _save(str(input_dir / "rag_retrieval_result.json"), result.get("retrieval", {}))
+    _save(str(input_dir / "rag_scoring_result.json"), result.get("scoring", {}))
+    (od / ".last_rag_run_id").write_text(result["run_id"])
+
+    # === LLM handoff instructions ===
+    handoff = {
+        "skill_root": SKILL_ROOT,
+        "scenario": result.get("scenario", args.scenario),
+        "target_columns": result.get("target_columns", payload["target_columns"]),
+        "parameter_columns": result.get("parameter_columns", payload["parameter_columns"]),
+        "group_columns": result.get("group_columns", payload["group_columns"]),
+        "run_id": result["run_id"],
+        "input_files": {
+            "scored_chunks": str(input_dir / "rag_scored_chunks.json"),
+        },
+        "output_files": {
+            "ontology_draft": str(input_dir / "rag_ontology_draft.json"),
+            "structured_data": str(input_dir / "rag_structured_data.json"),
+            "clarification_needed": str(input_dir / "rag_clarification_needed.json"),
+            "audit_log": str(input_dir / "rag_audit_log.json"),
+        },
+        "llm_agents": {
+            "phase_2_ontology": {
+                "prompt_file": "agents/ontology-construction-agent.md",
+                "input": "rag_scored_chunks.json -> chunks[] (each has 'content' field)",
+                "output": "rag_ontology_draft.json",
+                "key_steps": [
+                    "Read scenario description and column lists",
+                    "Read every chunk's FULL content (not just metadata/tags)",
+                    "Judge applicability: APPLICABLE / PARTIALLY / NOT_APPLICABLE",
+                    "Classify signals by physical meaning (NOT keyword matching)",
+                    "Extract causal chains with physical mechanisms",
+                    "Identify scenario-specific equipment (no hardcoded names)",
+                    "Identify confounders with physical reasoning",
+                    "Mark UNKNOWN for any uncertain physical meaning",
+                ]
+            },
+            "phase_3_structured_data": {
+                "prompt_file": "agents/structured-data-generator.md",
+                "input": "rag_ontology_draft.json",
+                "output": "rag_structured_data.json",
+                "key_steps": [
+                    "Generate sample data rows per role",
+                    "Generate validation rules (physical plausibility bounds)",
+                    "Generate causal query templates",
+                    "Generate LLM prompt templates for downstream agents",
+                    "Generate defect scenarios (concrete test cases)",
+                ]
+            },
+            "phase_4_verification": {
+                "prompt_file": "agents/quality-verification-agent.md",
+                "input": "rag_ontology_draft.json + rag_structured_data.json",
+                "output": "rag_audit_log.json (with PASS/CONDITIONAL/FAIL verdict)",
+                "checks": [
+                    "Schema compliance",
+                    "Content plausibility",
+                    "Logical consistency",
+                    "Cross-source consistency",
+                    "Downstream consumability",
+                ]
+            }
+        },
+        "anti_patterns": [
+            "DO NOT keyword-match for signal classification",
+            "DO NOT use hardcoded equipment names (spindle, bearing, cutter, etc.)",
+            "DO NOT force-fit causal chains from wrong-process chunks",
+            "DO NOT skip rejection documentation",
+            "DO NOT use process_type='generic'",
+        ]
+    }
+    _save(str(input_dir / ".llm_phase_2_3_instructions.json"), handoff)
+
+    print(f"\n{'=' * 70}")
+    print(f"[Phase 1/4] COMPLETE. Engine output saved.")
+    print(f"{'=' * 70}")
+    print(f"\nNEXT STEPS (LLM agent — the invoking LLM reads these):")
+    print(f"  [Phase 2/4] LLM ontology construction")
+    print(f"    Read: {handoff['llm_agents']['phase_2_ontology']['prompt_file']}")
+    print(f"    Input: rag_scored_chunks.json (chunks[] with content)")
+    print(f"    Output: rag_ontology_draft.json")
+    print(f"")
+    print(f"  [Phase 3/4] LLM structured data generation")
+    print(f"    Read: {handoff['llm_agents']['phase_3_structured_data']['prompt_file']}")
+    print(f"    Input: rag_ontology_draft.json")
+    print(f"    Output: rag_structured_data.json")
+    print(f"")
+    print(f"  [Phase 4/4] Quality verification gate")
+    print(f"    Read: {handoff['llm_agents']['phase_4_verification']['prompt_file']}")
+    print(f"    Output: rag_audit_log.json")
+
+
+def cmd_retrieve_score(args):
+    """Phase 1 only: Retrieve + Score. LLM agent handles Phase 2+.
+
+    Use this when you want fine-grained control between engine and LLM phases.
+    For the recommended end-to-end flow, use `build-ontology` instead.
+    """
+    domain = _resolve_arg(args.domain, args.scenario)
+    target_concepts = _resolve_arg(args.target_concepts, args.target_cols)
+    related_concepts = _resolve_arg(args.related_concepts, args.param_cols)
+    context_dimensions_raw = _resolve_arg(args.context_dimensions, args.group_cols)
+
+    mode = "hybrid" if args.use_web else args.mode
+    payload = {
+        "scenario": domain,
+        "target_columns": [c.strip() for c in target_concepts.split(",")],
+        "parameter_columns": [c.strip() for c in related_concepts.split(",")],
+        "group_columns": _parse_context_dimensions(context_dimensions_raw),
+        "mode": mode,
+        "top_k": args.top_k,
+    }
+    print(f"RAG Retrieve+Score: {payload['scenario']} | mode={payload['mode']}")
+    print(f"  Targets: {payload['target_columns']}")
+    print(f"  Related: {payload['parameter_columns']}")
+
+    result = _post("pipeline/retrieve-score", payload)
+    scoring = result.get('scoring', {})
+    print(f"  Run ID:    {result['run_id']}")
+    print(f"  Retrieval: {result['retrieval']['total_chunks']} chunks")
+    print(f"  Scoring:   {scoring.get('critical', 0)}C / "
+          f"{scoring.get('accepted', 0)}A / "
+          f"{scoring.get('conditional', 0)}COND / "
+          f"{scoring.get('rejected', 0)}R -> "
+          f"{scoring.get('injectable', 0)} injectable")
+
+    chunks_with_content = sum(1 for c in result.get("chunks", []) if c.get("content"))
+    print(f"  Content:   {chunks_with_content} chunks have full content")
+
+    if args.output_dir:
+        od = Path(args.output_dir)
+        input_dir = od / "00_input"
+        input_dir.mkdir(parents=True, exist_ok=True)
+
+        _save(str(input_dir / "rag_scored_chunks.json"), result)
+        _save(str(input_dir / "rag_retrieval_result.json"), result.get("retrieval", {}))
+        _save(str(input_dir / "rag_scoring_result.json"), result.get("scoring", {}))
+        (od / ".last_rag_run_id").write_text(result["run_id"])
+
+        print(f"\n  Phase 1 complete. Output saved to: {input_dir}/")
+        print(f"  -> rag_scored_chunks.json (PRIMARY: chunks with full content for LLM)")
+        print(f"  NEXT: Read agents/ontology-construction-agent.md and execute Phase 2")
+
+
+def cmd_retrieve(args):
+    """Execute retrieval only (no scoring)."""
+    domain = _resolve_arg(args.domain, args.scenario)
+    target_concepts = _resolve_arg(args.target_concepts, args.target_cols)
+    related_concepts = _resolve_arg(args.related_concepts, args.param_cols)
+    context_dimensions_raw = _resolve_arg(args.context_dimensions, args.group_cols)
+
+    payload = {
+        "scenario": domain,
+        "target_columns": [c.strip() for c in target_concepts.split(",")],
+        "parameter_columns": [c.strip() for c in related_concepts.split(",")],
+        "group_columns": _parse_context_dimensions(context_dimensions_raw),
         "mode": args.mode,
         "top_k": args.top_k,
     }
@@ -78,30 +320,32 @@ def cmd_retrieve(args):
           f"targets={len(payload['target_columns'])} params={len(payload['parameter_columns'])}")
     result = _post("retrieve", payload)
     run_id = result.get("retrieval_run_id")
-    total = result.get("total_after_dedup", 0) if "total_after_dedup" in result else result.get("total_chunks_retrieved", 0)
+    total = result.get("total_after_dedup", 0)
     print(f"  Run ID: {run_id}")
     print(f"  Chunks: {total} (after dedup)")
 
     if args.output:
         _save(args.output, result)
-        # Also save run ID for subsequent steps
         id_path = Path(args.output).parent / ".last_run_id"
         id_path.write_text(run_id)
     return result
 
 
 def cmd_score(args):
-    """Execute scoring via engine API."""
+    """Execute scoring only (requires prior retrieval)."""
     run_id = args.run_id
     if not run_id and args.run_id_file:
         run_id = Path(args.run_id_file).read_text().strip()
 
-    # Build context from args or file
+    domain = _resolve_arg(args.domain, args.scenario)
+    target_concepts = _resolve_arg(args.target_concepts, args.target_cols)
+    related_concepts = _resolve_arg(args.related_concepts, args.param_cols)
+
     payload = {
         "retrieval_run_id": run_id,
-        "scenario": args.scenario,
-        "parameter_columns": [c.strip() for c in args.param_cols.split(",")],
-        "target_columns": [c.strip() for c in args.target_cols.split(",")],
+        "scenario": domain,
+        "parameter_columns": [c.strip() for c in related_concepts.split(",")],
+        "target_columns": [c.strip() for c in target_concepts.split(",")],
         "pass_threshold": args.pass_threshold,
     }
     print(f"Scoring run {run_id}...")
@@ -114,32 +358,8 @@ def cmd_score(args):
         _save(args.output, result)
 
 
-def cmd_inject(args):
-    """Execute ontology injection via engine API."""
-    run_id = args.run_id
-    if not run_id and args.run_id_file:
-        run_id = Path(args.run_id_file).read_text().strip()
-
-    manifest = json.loads(Path(args.manifest).read_text())
-    payload = {
-        "retrieval_run_id": run_id,
-        "column_details": manifest.get("column_details", []),
-        "mode": args.mode,
-    }
-    print(f"Injecting from run {run_id}...")
-    result = _post("inject", payload)
-    meta = result.get("rag_injection_metadata", {})
-    print(f"  Columns matched: {meta.get('columns_matched', 0)}/"
-          f"{meta.get('total_columns', 0)} ({meta.get('match_rate_pct', 0)}%)")
-    print(f"  Chunks injected: {meta.get('total_chunks_injected', 0)}")
-    print(f"  Gaps: {meta.get('columns_without_knowledge', [])}")
-
-    if args.output:
-        _save(args.output, result)
-
-
 def cmd_web_search(args):
-    """Standalone web search — directly query the internet for knowledge."""
+    """Standalone web search."""
     result = _post("retrieve", {
         "scenario": args.scenario,
         "target_columns": [],
@@ -156,69 +376,6 @@ def cmd_web_search(args):
     return result
 
 
-def cmd_pipeline(args):
-    """Execute full Retrieve-Score-Inject via engine API.
-
-    Output files saved in diagnostic workspace:
-      output_dir/00_input/rag_ontology_draft.json     -- consumed by context-builder
-      output_dir/00_input/rag_retrieval_result.json   -- audit trail
-      output_dir/00_input/rag_scoring_result.json     -- audit trail
-    """
-    mode = "hybrid" if args.use_web else args.mode
-    if args.use_web:
-        print("  Web search enabled (hybrid mode)")
-    payload = {
-        "scenario": args.scenario,
-        "target_columns": [c.strip() for c in args.target_cols.split(",")],
-        "parameter_columns": [c.strip() for c in args.param_cols.split(",")],
-        "group_columns": [c.strip() for c in (args.group_cols or "material").split(",")],
-        "mode": mode,
-        "top_k": args.top_k,
-    }
-    print(f"RAG Pipeline: {payload['scenario']} | mode={payload['mode']}")
-    print(f"  Targets: {payload['target_columns']}")
-    print(f"  Params:  {payload['parameter_columns']}")
-    result = _post("pipeline/full", payload)
-    ontology = result.get("ontology", {})
-    meta = ontology.get("rag_injection_metadata", {})
-
-    print(f"  Run ID:     {result['run_id']}")
-    print(f"  Retrieval:  {result['retrieval']['total_chunks']} chunks")
-    print(f"  Scoring:    {result['scoring']['critical']}C / "
-          f"{result['scoring']['accepted']}A -> "
-          f"{result['scoring']['injectable']} injectable")
-    print(f"  Ontology:   {len(ontology.get('relationships', []))} relationships, "
-          f"{len(ontology.get('signals', {}).get('process_parameters', []))} params")
-    print(f"  Match rate: {meta.get('match_rate_pct', 0)}% "
-          f"({meta.get('columns_matched', 0)}/{meta.get('total_columns', 0)})")
-    print(f"  Gaps:       {meta.get('columns_without_knowledge', [])}")
-
-    if args.output_dir:
-        od = Path(args.output_dir)
-        # Ensure diagnostic workspace structure
-        input_dir = od / "00_input"
-        input_dir.mkdir(parents=True, exist_ok=True)
-
-        # Main deliverable: ontology draft consumed by context-builder
-        _save(str(input_dir / "rag_ontology_draft.json"), ontology)
-
-        # Audit trail: raw retrieval + scoring results
-        _save(str(input_dir / "rag_retrieval_result.json"),
-              {"run_id": result["run_id"],
-               "total_chunks": result["retrieval"]["total_chunks"]})
-        _save(str(input_dir / "rag_scoring_result.json"),
-              {"run_id": result["run_id"],
-               "critical": result["scoring"]["critical"],
-               "accepted": result["scoring"]["accepted"],
-               "injectable": result["scoring"]["injectable"]})
-
-        # Persist run_id for subsequent score/inject steps
-        (od / ".last_rag_run_id").write_text(result["run_id"])
-        print(f"\n  Output saved to: {input_dir}/")
-        print(f"  -> rag_ontology_draft.json  (consumed by context-builder Step 2.1)")
-        print(f"  -> rag_retrieval_result.json (audit trail)")
-
-
 def cmd_health(_args):
     """Check engine health."""
     try:
@@ -232,16 +389,13 @@ def cmd_health(_args):
 
 def cmd_start(args):
     """Check RAG engine, auto-start if not running."""
-    import subprocess, time
+    import subprocess
 
-    # Detect engine dir: rag_client.py is at .claude/skills/rag-knowledge-builder/scripts/
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    # Go up 4 levels: scripts -> rag-knowledge-builder -> skills -> .claude -> project root
     project_root = os.path.realpath(os.path.join(script_dir, "..", "..", "..", ".."))
     ENGINE_DIR = args.engine_dir or os.path.join(project_root, "rag-retrieval-engine")
     ENGINE_DIR = os.path.realpath(ENGINE_DIR)
 
-    # First check if already running
     try:
         h = check_health()
         print(f"Engine already running: {h['total_chunks']} chunks | uptime={h['uptime_seconds']}s")
@@ -254,7 +408,6 @@ def cmd_start(args):
         print(f"Set RAG_ENGINE_DIR env var or pass --engine-dir")
         sys.exit(1)
 
-    # Start engine
     engine = subprocess.Popen(
         ["uv", "run", "python", "server.py"],
         cwd=ENGINE_DIR,
@@ -266,7 +419,6 @@ def cmd_start(args):
     print(f"Started RAG engine (PID: {engine.pid})")
     print("Waiting for engine to be ready...", end="", flush=True)
 
-    # Wait for startup (up to 30s)
     for i in range(30):
         time.sleep(1)
         print(".", end="", flush=True)
@@ -281,75 +433,136 @@ def cmd_start(args):
     sys.exit(1)
 
 
+# ═══════════════════════════════════════════════════════════════
+# Deprecated commands
+# ═══════════════════════════════════════════════════════════════
+
+def _deprecate_inject(_args):
+    print("=" * 70)
+    print("DEPRECATED: `inject` command REMOVED in v3.0")
+    print("=" * 70)
+    print("injector.py contained hardcoded CNC equipment (spindle_assembly)")
+    print("and produced WRONG results for non-CNC scenarios.")
+    print("")
+    print("Use: rag_client.py build-ontology --domain '...' ...")
+    sys.exit(2)
+
+
+def _deprecate_pipeline(_args):
+    print("=" * 70)
+    print("DEPRECATED: `pipeline` command DEMOTED in v3.0")
+    print("=" * 70)
+    print("It called injector.py which hardcoded CNC-specific equipment.")
+    print("")
+    print("Use: rag_client.py build-ontology --domain '...' ...")
+    sys.exit(2)
+
+
+# ═══════════════════════════════════════════════════════════════
+# CLI
+# ═══════════════════════════════════════════════════════════════
+
 def main():
-    parser = argparse.ArgumentParser(description="RAG Engine HTTP Client")
+    parser = argparse.ArgumentParser(
+        description="RAG Engine HTTP Client (v3.1). "
+                    "Phase 1 (retrieve+score) via engine; Phase 2-4 via LLM agent.")
     sub = parser.add_subparsers(dest="command")
 
-    # retrieve
-    p = sub.add_parser("retrieve", help="Retrieve knowledge chunks")
-    p.add_argument("--scenario", required=True)
-    p.add_argument("--target-cols", required=True)
-    p.add_argument("--param-cols", required=True)
-    p.add_argument("--group-cols")
-    p.add_argument("--mode", default="hybrid",
-                   choices=["local_only", "web_only", "hybrid"])
+    # build-ontology (PRIMARY v3.1)
+    p = sub.add_parser("build-ontology",
+                       help="[PRIMARY] Phase 1 retrieve+score + LLM handoff for Phase 2-4")
+    p.add_argument("--domain", help="Domain description (primary)")
+    p.add_argument("--target-concepts", help="Target concept names, comma-separated (primary)")
+    p.add_argument("--related-concepts", help="Related concept names, comma-separated (primary)")
+    p.add_argument("--context-dimensions", default=None,
+                   help="Context/categorical dimensions, comma-separated (primary)")
+    # Legacy aliases (hidden from --help)
+    p.add_argument("--scenario", dest="scenario", help=argparse.SUPPRESS)
+    p.add_argument("--target-cols", dest="target_cols", help=argparse.SUPPRESS)
+    p.add_argument("--param-cols", dest="param_cols", help=argparse.SUPPRESS)
+    p.add_argument("--group-cols", dest="group_cols", default=None, help=argparse.SUPPRESS)
+    p.add_argument("--mode", default="hybrid", choices=["local_only", "web_only", "hybrid"])
+    p.add_argument("--top-k", type=int, default=5)
+    p.add_argument("--output-dir", help="Directory to save results for LLM agent")
+    p.add_argument("--use-web", action="store_true", help="Enable web search (sets mode=hybrid)")
+
+    # retrieve-score (Phase 1 only)
+    p = sub.add_parser("retrieve-score",
+                       help="Phase 1 only: Retrieve + Score (LLM handles Phase 2+)")
+    p.add_argument("--domain", help="Domain description (primary)")
+    p.add_argument("--target-concepts", help="Target concept names, comma-separated (primary)")
+    p.add_argument("--related-concepts", help="Related concept names, comma-separated (primary)")
+    p.add_argument("--context-dimensions", default=None,
+                   help="Context/categorical dimensions, comma-separated (primary)")
+    p.add_argument("--scenario", dest="scenario", help=argparse.SUPPRESS)
+    p.add_argument("--target-cols", dest="target_cols", help=argparse.SUPPRESS)
+    p.add_argument("--param-cols", dest="param_cols", help=argparse.SUPPRESS)
+    p.add_argument("--group-cols", dest="group_cols", default=None, help=argparse.SUPPRESS)
+    p.add_argument("--mode", default="hybrid", choices=["local_only", "web_only", "hybrid"])
+    p.add_argument("--top-k", type=int, default=5)
+    p.add_argument("--output-dir", help="Directory to save results")
+    p.add_argument("--use-web", action="store_true")
+
+    # retrieve (raw retrieval only)
+    p = sub.add_parser("retrieve", help="Retrieve knowledge chunks (no scoring)")
+    p.add_argument("--domain", help="Domain description (primary)")
+    p.add_argument("--target-concepts", help="Target concept names, comma-separated (primary)")
+    p.add_argument("--related-concepts", help="Related concept names, comma-separated (primary)")
+    p.add_argument("--context-dimensions", default=None,
+                   help="Context/categorical dimensions, comma-separated (primary)")
+    p.add_argument("--scenario", dest="scenario", help=argparse.SUPPRESS)
+    p.add_argument("--target-cols", dest="target_cols", help=argparse.SUPPRESS)
+    p.add_argument("--param-cols", dest="param_cols", help=argparse.SUPPRESS)
+    p.add_argument("--group-cols", dest="group_cols", default=None, help=argparse.SUPPRESS)
+    p.add_argument("--mode", default="hybrid", choices=["local_only", "web_only", "hybrid"])
     p.add_argument("--top-k", type=int, default=5)
     p.add_argument("--output", help="Save results to JSON file")
 
-    # score
-    p = sub.add_parser("score", help="Score retrieved chunks")
+    # score (scoring only)
+    p = sub.add_parser("score", help="Score previously retrieved chunks")
     p.add_argument("--run-id")
     p.add_argument("--run-id-file", help="Read run ID from file")
-    p.add_argument("--scenario", required=True)
-    p.add_argument("--param-cols", required=True)
-    p.add_argument("--target-cols", required=True)
+    p.add_argument("--domain", help="Domain description (primary)")
+    p.add_argument("--target-concepts", help="Target concept names, comma-separated (primary)")
+    p.add_argument("--related-concepts", help="Related concept names, comma-separated (primary)")
+    p.add_argument("--scenario", dest="scenario", help=argparse.SUPPRESS)
+    p.add_argument("--param-cols", dest="param_cols", help=argparse.SUPPRESS)
+    p.add_argument("--target-cols", dest="target_cols", help=argparse.SUPPRESS)
     p.add_argument("--pass-threshold", type=float, default=6.5)
     p.add_argument("--output")
 
-    # inject
-    p = sub.add_parser("inject", help="Inject knowledge into ontology")
-    p.add_argument("--run-id")
-    p.add_argument("--run-id-file")
-    p.add_argument("--manifest", required=True,
-                   help="Path to input_manifest.json")
-    p.add_argument("--mode", default="auto", choices=["auto", "review"])
-    p.add_argument("--output")
-
-    # web-search (standalone web search)
-    p = sub.add_parser("web-search", help="Search the web for knowledge and save results")
-    p.add_argument("--keywords", required=True, help="Keywords to search for")
-    p.add_argument("--scenario", default="generic", help="Scenario tag for the results")
+    # web-search
+    p = sub.add_parser("web-search", help="Standalone web search")
+    p.add_argument("--keywords", required=True)
+    p.add_argument("--scenario", default="generic")
     p.add_argument("--max-results", type=int, default=5)
-    p.add_argument("--output", default=None, help="Save results to JSON file")
-
-    # pipeline (full)
-    p = sub.add_parser("pipeline", help="Run full Retrieve->Score->Inject")
-    p.add_argument("--scenario", required=True)
-    p.add_argument("--target-cols", required=True)
-    p.add_argument("--param-cols", required=True)
-    p.add_argument("--group-cols")
-    p.add_argument("--mode", default="hybrid", choices=["local_only", "web_only", "hybrid"])
-    p.add_argument("--top-k", type=int, default=5)
-    p.add_argument("--output-dir", help="Directory to save all results")
-    p.add_argument("--use-web", action="store_true", help="Enable web search alongside local KB (sets mode=hybrid)")
+    p.add_argument("--output", default=None)
 
     # health
     sub.add_parser("health", help="Check engine health")
 
-    # start (auto-start engine if not running)
-    p = sub.add_parser("start", help="Check RAG engine, auto-start if not running")
-    p.add_argument("--engine-dir", help="Path to rag-retrieval-engine directory (default: auto-detect)")
+    # start
+    p = sub.add_parser("start", help="Auto-start RAG engine if not running")
+    p.add_argument("--engine-dir", help="Path to rag-retrieval-engine (default: auto-detect)")
+
+    # DEPRECATED commands
+    p = sub.add_parser("inject",
+                       help="[DEPRECATED] Use build-ontology instead")
+    p = sub.add_parser("pipeline",
+                       help="[DEPRECATED] Use build-ontology instead")
 
     args = parser.parse_args()
 
     commands = {
+        "build-ontology": cmd_build_ontology,
+        "retrieve-score": cmd_retrieve_score,
         "retrieve": cmd_retrieve,
         "score": cmd_score,
-        "inject": cmd_inject,
-        "pipeline": cmd_pipeline,
+        "web-search": cmd_web_search,
         "health": cmd_health,
         "start": cmd_start,
-        "web-search": cmd_web_search,
+        "inject": _deprecate_inject,
+        "pipeline": _deprecate_pipeline,
     }
 
     if args.command not in commands:

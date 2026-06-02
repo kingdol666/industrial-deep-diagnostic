@@ -318,11 +318,13 @@ async def inject(req: InjectRequest):
 # Full Pipeline (convenience)
 # ═══════════════════════════════════════════════════════════════
 
-@app.post("/pipeline/full", response_model=dict)
-async def pipeline_full(req: RetrieveRequest):
+@app.post("/pipeline/retrieve-score", response_model=dict)
+async def pipeline_retrieve_score(req: RetrieveRequest):
     """
-    Run the complete pipeline: Retrieve → Score → Inject.
-    Returns all three results in one call.
+    Retrieve + Score only (no inject). Returns scored chunks with FULL content
+    so the LLM agent can read them and construct the ontology.
+
+    This is the recommended endpoint for LLM-driven ontology construction (v3.0+).
     """
     # Retrieve
     retriever = get_retriever()
@@ -345,7 +347,7 @@ async def pipeline_full(req: RetrieveRequest):
                               num_chunks_retrieved=len(ret_result.chunks))
 
     # Score
-    from engine.models import KnowledgeChunk, ChunkSource
+    from engine.models import KnowledgeChunk
     chunks = [KnowledgeChunk(
         chunk_id=c.chunk_id, content=c.content, content_preview=c.content_preview,
         source=c.source, scenario_tags=c.scenario_tags,
@@ -362,37 +364,58 @@ async def pipeline_full(req: RetrieveRequest):
                                     scr_result.model_dump(mode="json"))
     storage.update_run_status(run_id, "scored", scoring_result_path=scr_path)
 
-    # Inject
-    from engine.models import ScoredChunk, Tier
-    scored = [ScoredChunk(
-        chunk_id=s.chunk_id, content_preview=s.content_preview, source=s.source,
-        scores=s.scores, composite_score=s.composite_score, tier=s.tier,
-        injectable=s.injectable, injection_target=s.injection_target,
-    ) for s in scr_result.chunks if s.injectable]
-
-    # Build column details from target + param columns
-    col_details = []
-    for name in req.target_columns:
-        col_details.append({"name": name, "type": "number"})
-    for name in req.parameter_columns:
-        col_details.append({"name": name, "type": "number"})
-    for name in req.group_columns:
-        col_details.append({"name": name, "type": "string"})
-
-    injector = KnowledgeInjector(scored, col_details)
-    draft = injector.inject()
-    inj_path = storage.save_result(run_id, "ontology_draft",
-                                    draft.model_dump(mode="json"))
-    storage.update_run_status(run_id, "injected", ontology_path=inj_path)
+    # Return ALL scored chunks (not just injectable) with FULL content
+    # so the LLM agent can triage them in Phase 2
+    all_scored = []
+    for s in scr_result.chunks:
+        all_scored.append({
+            "chunk_id": s.chunk_id,
+            "content": _find_chunk_content(ret_result.chunks, s.chunk_id),
+            "content_preview": s.content_preview,
+            "source": s.source.model_dump(mode="json"),
+            "scores": s.scores.model_dump(mode="json"),
+            "composite_score": s.composite_score,
+            "tier": s.tier.value,
+            "injectable": s.injectable,
+            "rejection_reason": s.rejection_reason,
+        })
 
     return {
         "run_id": run_id,
-        "status": "completed",
+        "status": "scored",
+        "scenario": req.scenario,
+        "target_columns": req.target_columns,
+        "parameter_columns": req.parameter_columns,
+        "group_columns": req.group_columns,
         "retrieval": {"total_chunks": ret_result.total_after_dedup},
-        "scoring": {"critical": scr_result.critical, "accepted": scr_result.accepted,
-                    "injectable": len(scored)},
-        "ontology": draft.model_dump(mode="json"),
+        "scoring": {
+            "critical": scr_result.critical,
+            "accepted": scr_result.accepted,
+            "conditional": scr_result.conditional,
+            "rejected": scr_result.rejected,
+            "injectable": sum(1 for s in scr_result.chunks if s.injectable),
+        },
+        "chunks": all_scored,
     }
+
+
+@app.post("/pipeline/full", response_model=dict)
+async def pipeline_full(req: RetrieveRequest):
+    """
+    DEPRECATED (v3.0). Use /pipeline/retrieve-score instead.
+    Kept for backward compatibility. Returns Retrieve → Score → Inject (stub).
+    """
+    # Delegate to retrieve-score, then add legacy stub inject
+    rs_result = await pipeline_retrieve_score(req)
+    return rs_result
+
+
+def _find_chunk_content(chunks: list, chunk_id: str) -> str:
+    """Look up full content from original retrieval result by chunk_id."""
+    for c in chunks:
+        if c.chunk_id == chunk_id:
+            return c.content or ""
+    return ""
 
 
 # ═══════════════════════════════════════════════════════════════
