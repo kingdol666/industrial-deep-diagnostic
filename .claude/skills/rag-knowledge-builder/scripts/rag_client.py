@@ -162,19 +162,20 @@ def cmd_build_ontology(args):
     _save(str(input_dir / "rag_scoring_result.json"), result.get("scoring", {}))
     (od / ".last_rag_run_id").write_text(result["run_id"])
 
-    # === LLM handoff instructions ===
+    # === LLM handoff instructions (v4.0 ontology-first) ===
     handoff = {
         "skill_root": SKILL_ROOT,
-        "scenario": result.get("scenario", args.scenario),
-        "target_columns": result.get("target_columns", payload["target_columns"]),
-        "parameter_columns": result.get("parameter_columns", payload["parameter_columns"]),
-        "group_columns": result.get("group_columns", payload["group_columns"]),
+        "domain": domain,
+        "target_concepts": payload["target_columns"],
+        "related_concepts": payload["parameter_columns"],
+        "context_dimensions": payload["group_columns"],
         "run_id": result["run_id"],
         "input_files": {
             "scored_chunks": str(input_dir / "rag_scored_chunks.json"),
         },
         "output_files": {
             "ontology_draft": str(input_dir / "rag_ontology_draft.json"),
+            "ontology_nl_spec": str(input_dir / "rag_ontology_nl_spec.md"),
             "structured_data": str(input_dir / "rag_structured_data.json"),
             "clarification_needed": str(input_dir / "rag_clarification_needed.json"),
             "audit_log": str(input_dir / "rag_audit_log.json"),
@@ -182,50 +183,59 @@ def cmd_build_ontology(args):
         "llm_agents": {
             "phase_2_ontology": {
                 "prompt_file": "agents/ontology-construction-agent.md",
+                "design_principles": "resources/ontology-design-principles.md",
                 "input": "rag_scored_chunks.json -> chunks[] (each has 'content' field)",
-                "output": "rag_ontology_draft.json",
+                "outputs": ["rag_ontology_draft.json", "rag_ontology_nl_spec.md"],
                 "key_steps": [
-                    "Read scenario description and column lists",
+                    "Read domain description and concept lists",
                     "Read every chunk's FULL content (not just metadata/tags)",
                     "Judge applicability: APPLICABLE / PARTIALLY / NOT_APPLICABLE",
-                    "Classify signals by physical meaning (NOT keyword matching)",
-                    "Extract causal chains with physical mechanisms",
-                    "Identify scenario-specific equipment (no hardcoded names)",
-                    "Identify confounders with physical reasoning",
-                    "Mark UNKNOWN for any uncertain physical meaning",
+                    "Write precise concept definitions (say 'what it is', not 'what it's called')",
+                    "Build concept hierarchy (broader_concept, sibling_concepts)",
+                    "Extract relationships with mechanism, conditions, exceptions",
+                    "Discover domain constraints (hard/soft/rules)",
+                    "Build terminology mapping (synonyms, abbreviations, cross-language)",
+                    "Generate NL Spec (Markdown) alongside JSON",
+                    "Mark UNKNOWN for uncertain definitions",
                 ]
             },
             "phase_3_structured_data": {
                 "prompt_file": "agents/structured-data-generator.md",
-                "input": "rag_ontology_draft.json",
+                "input": "rag_ontology_draft.json + rag_ontology_nl_spec.md",
                 "output": "rag_structured_data.json",
                 "key_steps": [
-                    "Generate sample data rows per role",
-                    "Generate validation rules (physical plausibility bounds)",
-                    "Generate causal query templates",
-                    "Generate LLM prompt templates for downstream agents",
-                    "Generate defect scenarios (concrete test cases)",
+                    "Generate sample data rows with realistic values",
+                    "Generate validation rules from ontology constraints",
+                    "Generate causal query templates from relationships",
+                    "Generate terminology index from concept mappings",
+                    "Generate LLM prompt templates referencing ontology",
+                    "Generate defect scenarios from constraints",
                 ]
             },
             "phase_4_verification": {
                 "prompt_file": "agents/quality-verification-agent.md",
-                "input": "rag_ontology_draft.json + rag_structured_data.json",
+                "input": "rag_ontology_draft.json + rag_ontology_nl_spec.md + rag_structured_data.json",
                 "output": "rag_audit_log.json (with PASS/CONDITIONAL/FAIL verdict)",
                 "checks": [
                     "Schema compliance",
-                    "Content plausibility",
-                    "Logical consistency",
+                    "NL definition quality (precise, disambiguated)",
+                    "Hierarchical completeness (broader_concept exists)",
+                    "Relationship semantic richness (mechanism, conditions, exceptions)",
+                    "Logical consistency (no circular chains)",
                     "Cross-source consistency",
+                    "NL Spec quality (complete, human-readable)",
                     "Downstream consumability",
                 ]
             }
         },
         "anti_patterns": [
-            "DO NOT keyword-match for signal classification",
-            "DO NOT use hardcoded equipment names (spindle, bearing, cutter, etc.)",
-            "DO NOT force-fit causal chains from wrong-process chunks",
+            "DO NOT keyword-match for concept classification",
+            "DO NOT write tautological definitions ('温度就是温度值')",
+            "DO NOT skip hierarchy — every concept needs broader_concept",
+            "DO NOT produce relationships without mechanism descriptions",
+            "DO NOT skip NL Spec generation",
+            "DO NOT use domain_type='generic'",
             "DO NOT skip rejection documentation",
-            "DO NOT use process_type='generic'",
         ]
     }
     _save(str(input_dir / ".llm_phase_2_3_instructions.json"), handoff)
@@ -234,17 +244,18 @@ def cmd_build_ontology(args):
     print(f"[Phase 1/4] COMPLETE. Engine output saved.")
     print(f"{'=' * 70}")
     print(f"\nNEXT STEPS (LLM agent — the invoking LLM reads these):")
-    print(f"  [Phase 2/4] LLM ontology construction")
+    print(f"  [Phase 2/4] LLM ontology construction (CORE)")
     print(f"    Read: {handoff['llm_agents']['phase_2_ontology']['prompt_file']}")
+    print(f"    Principles: {handoff['llm_agents']['phase_2_ontology']['design_principles']}")
     print(f"    Input: rag_scored_chunks.json (chunks[] with content)")
-    print(f"    Output: rag_ontology_draft.json")
+    print(f"    Output: rag_ontology_draft.json + rag_ontology_nl_spec.md")
     print(f"")
     print(f"  [Phase 3/4] LLM structured data generation")
     print(f"    Read: {handoff['llm_agents']['phase_3_structured_data']['prompt_file']}")
-    print(f"    Input: rag_ontology_draft.json")
+    print(f"    Input: rag_ontology_draft.json + rag_ontology_nl_spec.md")
     print(f"    Output: rag_structured_data.json")
     print(f"")
-    print(f"  [Phase 4/4] Quality verification gate")
+    print(f"  [Phase 4/4] Quality verification gate (8-dim)")
     print(f"    Read: {handoff['llm_agents']['phase_4_verification']['prompt_file']}")
     print(f"    Output: rag_audit_log.json")
 
