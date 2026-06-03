@@ -90,6 +90,74 @@ function validatePipelineLog(label, critical = true) {
   }
 }
 
+function readJsonIfExists(filePath) {
+  const full = join(runDir, filePath);
+  if (!fs.existsSync(full)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(full, 'utf-8'));
+  } catch (_) {
+    return null;
+  }
+}
+
+function conditionalFigureCheck() {
+  const inputManifest = readJsonIfExists('00_input/input_manifest.json');
+  const visualAnalysis = readJsonIfExists('03_figures/visual_analysis.json');
+  const hasTimeColumn = Boolean(inputManifest && inputManifest.time_column);
+  const masterFigurePath = '03_figures/fig_master_time_aligned_overlay.png';
+
+  if (hasTimeColumn) {
+    return check('Master Time Aligned Overlay', masterFigurePath, true);
+  }
+
+  const notApplicable = visualAnalysis && visualAnalysis.time_alignment_applicable === false;
+  const reason = visualAnalysis && (visualAnalysis.not_applicable_reason || visualAnalysis.cross_parameter_temporal_alignment?.not_applicable_reason);
+
+  if (notApplicable && reason) {
+    return {
+      label: 'Master Time Aligned Overlay',
+      path: masterFigurePath,
+      status: `NOT_APPLICABLE (${String(reason).slice(0, 160)})`,
+      critical: false
+    };
+  }
+
+  return {
+    label: 'Master Time Aligned Overlay',
+    path: masterFigurePath,
+    status: 'MISSING (expected explicit NA proof or figure)',
+    critical: true
+  };
+}
+
+function validateDeliveryContract() {
+  const manifest = readJsonIfExists('run_manifest.json');
+  const issues = [];
+  const presentStep = manifest && Array.isArray(manifest.steps) ? manifest.steps.find((step) => step.step === 'present') : null;
+  const requiredArtifacts = manifest?.delivery_contract?.required_runtime_artifacts || [];
+
+  for (const relPath of requiredArtifacts) {
+    if (!exists(relPath)) {
+      issues.push(`missing required artifact: ${relPath}`);
+    }
+  }
+
+  if (!presentStep || !['completed', 'completed_with_errors'].includes(presentStep.status || '')) {
+    issues.push('present step not completed in run_manifest.json');
+  }
+
+  if (manifest?.pipeline?.integrity?.last_artifact_check && manifest.pipeline.integrity.last_artifact_check !== 'PASS') {
+    issues.push(`last_artifact_check=${manifest.pipeline.integrity.last_artifact_check}`);
+  }
+
+  return {
+    label: 'Delivery Contract',
+    path: 'run_manifest.json',
+    status: issues.length === 0 ? 'VALID' : `INVALID: ${issues.join('; ').slice(0, 300)}`,
+    critical: true
+  };
+}
+
 function validateEvidenceClosure(label, critical = true) {
   try {
     const stdout = execFileSync('node', [join(skillPath, 'scripts', 'evidence-closure-check.mjs'), runDir], {
@@ -124,6 +192,7 @@ function validateEvidenceClosure(label, critical = true) {
 // Define required artifacts per pipeline stage
 const checks = [
   check('Run Manifest', 'run_manifest.json'),
+  check('Run Config', '00_input/run_config.json'),
   // Stage 1: Input
   check('Input Manifest', '00_input/input_manifest.json', false),
   check('User Context', '00_input/user_context.json', false),
@@ -148,6 +217,7 @@ const checks = [
   check('Plot Manifest', '03_figures/plot_manifest.json'),
   check('Visual Analysis', '03_figures/visual_analysis.json'),
   check('Image Captions', '03_figures/image_captions.json'),
+  conditionalFigureCheck(),
 
   // Stage 4: Diagnosis
   check('Diagnosis', '04_diagnostics/diagnosis.json'),
@@ -173,12 +243,15 @@ const schemaChecks = [
   validate('Feature Evidence Map', 'schemas/causal_evidence_map_schema.json', '02_processed/causal_evidence_map.json', false),
   validate('Anomaly Report', 'schemas/anomaly_report_schema.json', '02_processed/anomaly_report.json'),
   validate('Data Analysis Conclusion', 'schemas/data_analysis_conclusion_schema.json', '02_processed/data_analysis_conclusion.json'),
+  validate('Visual Analysis (VLM)', 'schemas/visual_analysis_schema.json', '03_figures/visual_analysis.json'),
+  validate('Image Captions (VLM)', 'schemas/image_captions_schema.json', '03_figures/image_captions.json', false),
   validate('Diagnosis', 'schemas/diagnosis_schema.json', '04_diagnostics/diagnosis.json'),
   validate('Evidence', 'schemas/evidence_schema.json', '04_diagnostics/evidence.json'),
   validate('Confidence', 'schemas/confidence_schema.json', '04_diagnostics/confidence.json'),
   validate('Reasoning Chain', 'schemas/reasoning_chain_schema.json', '04_diagnostics/reasoning_chain.json'),
   validate('Judge Feedback', 'schemas/judge_feedback_schema.json', '05_review/judge_feedback.json', false),
   validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json', false),
+  validateDeliveryContract(),
   validatePipelineLog('Pipeline Event Log'),
   validateEvidenceClosure('Evidence Closure')
 ];

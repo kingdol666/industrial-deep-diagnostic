@@ -43,6 +43,20 @@ for (const sub of subdirs) {
   fs.mkdirSync(path.join(runDir, sub), { recursive: true });
 }
 
+const defaultRunConfig = {
+  data_path: '',
+  interaction_mode: 'auto',
+  process_description: '',
+  user_objective: '',
+  analysis_constraints: {
+    max_web_research_queries: 5,
+    judge_score_threshold: 90,
+    max_judge_iterations: 3,
+    max_reviewer_iterations: 2,
+    global_max_iterations: 5
+  }
+};
+
 const manifest = {
   run_id: `${timestamp}_${name}`,
   created: new Date().toISOString(),
@@ -60,6 +74,25 @@ const manifest = {
     outputs: [],
     notes: []
   })),
+  delivery_contract: {
+    strict_pipeline_required: true,
+    evidence_closure_required: true,
+    required_runtime_artifacts: [
+      '00_input/run_config.json',
+      '00_input/input_manifest.json',
+      '01_ontology/ontology.json',
+      '02_processed/scenario_classification.json',
+      '02_processed/anomaly_report.json',
+      '02_processed/data_analysis_conclusion.json',
+      '03_figures/plot_manifest.json',
+      '03_figures/visual_analysis.json',
+      '03_figures/image_captions.json',
+      '04_diagnostics/diagnosis.json',
+      '04_diagnostics/evidence.json',
+      '04_diagnostics/confidence.json',
+      '04_diagnostics/reasoning_chain.json'
+    ]
+  },
   pipeline: {
     version: 'v6.5',
     current_step: 'inspect',
@@ -75,6 +108,7 @@ const manifest = {
 };
 
 fs.writeFileSync(path.join(runDir, 'run_manifest.json'), JSON.stringify(manifest, null, 2));
+fs.writeFileSync(path.join(runDir, '00_input', 'run_config.json'), JSON.stringify(defaultRunConfig, null, 2));
 const logPath = path.join(runDir, '.pipeline_events.jsonl');
 const initEvent = {
   event: 'run_initialized',
@@ -83,7 +117,7 @@ const initEvent = {
   timestamp: new Date().toISOString(),
   run_id: manifest.run_id,
   run_dir: manifest.run_dir,
-  files_written: ['run_manifest.json'],
+  files_written: ['run_manifest.json', '00_input/run_config.json'],
   status: 'completed'
 };
 fs.writeFileSync(logPath, `${JSON.stringify(initEvent)}\n`);

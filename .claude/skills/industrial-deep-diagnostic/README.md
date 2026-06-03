@@ -41,13 +41,14 @@ Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series wi
 ├── SKILL.md                 ←  Pipeline orchestration (entry point)
 ├── CLAUDE.md                ←  Developer notes (SKILL.md is authoritative)
 ├── README.md                ←  This file — quick start guide
-├── agents/                  ←  6 sub-agent instructions
+├── agents/                  ←  7 sub-agent instructions
 │   ├── context-builder.md
 │   ├── data-processor.md
 │   ├── diagnostician.md
 │   ├── judge.md
 │   ├── reporter.md
-│   └── report-reviewer.md
+│   ├── report-reviewer.md
+│   └── vlm-visual-analyzer.md
 ├── schemas/                 ←  12 JSON Schemas for output validation
 ├── scripts/                 ←  Pipeline scripts (Node.js + Python/uv)
 ├── resources/               ←  Domain knowledge base and execution references
@@ -75,6 +76,7 @@ Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series wi
 The full pipeline is strict: every step must run or record a documented not-applicable condition. Key outputs include:
 
 - `02_processed/analysis_plan.md` — Data Processor's plan before running scripts
+- `00_input/run_config.json` — standardized run contract; must be updated with actual data path and execution constraints
 - `02_processed/data_analysis_conclusion.json` — expert handoff with baseline results, custom analysis, ontology interpretation, and caveats
 - `03_figures/fig_master_time_aligned_overlay.png` — generated when a valid time column exists
 - `03_figures/visual_analysis.json` — structured visual/VLM evidence from generated plots
@@ -128,3 +130,7 @@ This skill can be integrated into an online system that pulls data from database
 ## License
 
 MIT
+
+## Engineering Acceptance
+
+For a run to be considered deployable, it must satisfy the contract in `resources/engineering_delivery_contract.md`.

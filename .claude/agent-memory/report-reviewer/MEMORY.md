@@ -1,0 +1,2 @@
+- [Scratch Defect Target Variable Pattern](scratch-defect-target-variable-pattern.md) — BOPET scratch diagnosis revealed scratch_count vs scratch_rate mixing as pipeline weakness
+- [Statistical Robustness Checks](statistical-robustness-checks.md) — validate_report SERIOUS_CONCERNS must be surfaced in report text, not summarized as "passed"

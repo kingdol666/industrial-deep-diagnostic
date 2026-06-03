@@ -59,21 +59,23 @@ This skill uses **three levels** of loading. Only read what the current step nee
 ### Level 1: Always Loaded (this file)
 The orchestration protocol — step sequence, commands, evidence rules, anti-speculation checks.
 
-### Level 2: Loaded Per Step (agents/)
-Each agent prompt is self-contained — read the corresponding `agents/<agent>.md` only when that step begins.
+For any production-style execution, also treat `resources/engineering_delivery_contract.md` as binding acceptance criteria.
 
-| When | Read | Why |
-|------|------|-----|
-| Before Step 0 | `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
-| Before Step 2 | `agents/context-builder.md` | RAG retrieval + ontology construction + deep mapping |
-| Before Step 2 | **`rag-knowledge-builder` skill** via `Skill` tool | Domain-specific knowledge retrieval, ontology construction, and structured data generation. The data exchange contract is documented in `rag-knowledge-builder/resources/integration_guide.md` (within that skill's directory). |
-| Before Step 3 | `agents/data-processor.md` | Statistical analysis + physics checks + scenario-adaptive visualization + **VLM visual image analysis** |
+### Level 2: Launched Per Step (agents/)
+
+> ⚠️ **禁止主 agent 执行子智能体工作！** 表格中的 **Launch sub-agent** 行意味着：直接启动子智能体，**不是**主 agent 读协议自己干。子智能体启动后自己 Read 自己的协议并执行，主 agent 只负责传参和等待。曾经发生过主 agent 读了 context-builder 的 500+ 行协议后忍不住自己执行了全部工作，这是违反管线纪律的。
+
+| When | Action | Why |
+|------|--------|-----|
+| Before Step 0 | Read `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
+| Before Step 2 | **Launch sub-agent** `Agent({subagent_type: "context-builder", ...})` — 子智能体自行加载协议 | RAG retrieval + ontology construction + deep mapping |
+| Before Step 3 | **Launch sub-agent** `Agent({subagent_type: "data-processor", ...})` — 子智能体自行加载协议。**data-processor 内部会委托 `vlm-visual-analyzer` 子智能体做图像分析** | Statistical analysis + physics checks + scenario-adaptive visualization |
 | Before Step 3 | `resources/visual_analysis_framework.md` | VLM chart design principles + Phase 5.5 visual analysis protocol |
-| Before Step 4 | `agents/diagnostician.md` | Physics-based competing hypotheses diagnosis |
-| Before Step 5 | `agents/judge.md` | Quality gate (10 criteria + physics source audit) |
-| Before Step 6 | `agents/reporter.md` | Report generation from structured artifacts |
-| Before Step 7 | `agents/report-reviewer.md` | Independent physical truth audit |
-| During repair loops | `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
+| Before Step 4 | **Launch sub-agent** `Agent({subagent_type: "diagnostician", ...})` — 子智能体自行加载协议 | Physics-based competing hypotheses diagnosis |
+| Before Step 5 | **Launch sub-agent** `Agent({subagent_type: "judge", ...})` — 子智能体自行加载协议 | Quality gate (10 criteria + physics source audit) |
+| Before Step 6 | **Launch sub-agent** `Agent({subagent_type: "reporter", ...})` — 子智能体自行加载协议 | Report generation from structured artifacts |
+| Before Step 7 | **Launch sub-agent** `Agent({subagent_type: "report-reviewer", ...})` — 子智能体自行加载协议 | Independent physical truth audit |
+| During repair loops | Read `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
 
 ### Level 3: Loaded On-Demand (resources/)
 Detailed frameworks — load only when the agent's instructions tell you to.
@@ -90,6 +92,7 @@ Detailed frameworks — load only when the agent's instructions tell you to.
 | any agent needs physics pattern examples | `resources/parameter_to_physics.json` | Pattern library — structural examples for building physics arguments, NOT a lookup table |
 | report-reviewer needs cross-industry physics | `resources/process_knowledge_base.md` | 16 universal physics principles, quantitative relationships, degradation patterns |
 | developer reference | `resources/script_and_toolkit_reference.md` | Complete catalog of scripts, schemas, and templates |
+| engineering delivery contract | `resources/engineering_delivery_contract.md` | Mandatory execution, artifact, and completion contract for deployable runs |
 
 **After each agent produces output**, validate with the matching schema:
 ```bash
@@ -104,18 +107,19 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/<schema>.json" "$RU
 
 ## Multi-Agent Pipeline Architecture
 
-This skill uses **6 specialized sub-agents** defined in `.claude/agents/`. Each agent is launched via the `Agent` tool with `permissionMode: "bypassPermissions"` for zero-interruption execution.
+This skill uses **7 specialized sub-agents** defined in `.claude/skills/industrial-deep-diagnostic/agents/`. Each agent is launched via the `Agent` tool with `permissionMode: "bypassPermissions"` for zero-interruption execution.
 
 | Pipeline Step | Agent Name | Subagent Type | Model | Purpose |
 |:-------------:|------------|:-------------:|:-----:|---------|
 | Step 2 | Context Builder | `context-builder` | opus | RAG检索 + 本体ontology构建 |
-| Step 3 | Data Processor | `data-processor` | opus | 数据分析 + 可视化 + VLM视觉分析 |
+| Step 3 | Data Processor | `data-processor` | opus | 数据分析 + 可视化 |
+| Step 3.5 (internal) | VLM Visual Analyzer | `vlm-visual-analyzer` | opus | 本体感知的VLM视觉图像分析 — 由图+统计+知识联合提取结构化视觉证据 |
 | Step 4 | Diagnostician | `diagnostician` | opus | 竞争假说根因诊断 |
 | Step 5 | Judge | `judge` | opus | 10项标准质量门审查 |
 | Step 6 | Reporter | `reporter` | opus | 20节中文诊断报告生成 |
 | Step 7 | Report Reviewer | `report-reviewer` | opus | 独立物理真实审计 |
 
-Each agent runs in its own context window with a specialized system prompt, independent tool access, and `permissionMode: "bypassPermissions"`.
+> **vlm-visual-analyzer 是内部子智能体** — 它由 data-processor 在其 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为一个 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
 
 ## Execution Flow
 
@@ -157,6 +161,8 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: context-builder (RAG +
 
 **Execution proof rule**: A run is not considered fully valid unless the final artifact check confirms both the output artifacts and the `.pipeline_events.jsonl` execution log. Producing files without a coherent event log is treated as an execution-integrity failure.
 
+**Engineering acceptance rule**: A run is not considered deployable unless it also satisfies `resources/engineering_delivery_contract.md`, including standardized `run_config`, mandatory sub-agent deliverables, present-step completion, and final gate checks.
+
 **Evidence-closure rule**: A run is not considered diagnostically complete unless the final checks also confirm the evidence loop is closed: process-side abnormality entry → dual-drive linkage entry → ontology/physics interpretation → diagnosis outputs → review/report handoff. The machine-readable proof is `evidence_closure_report.json`.
 
 ---
@@ -193,7 +199,7 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_sta
 node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_complete --agent main-agent --step inspect --files 00_input/input_manifest.json,00_input/user_context.json
 ```
 
-If `00_input/run_config.json` doesn't exist, create `{"interaction_mode": "auto"}`.
+`setup.mjs` now creates a default `00_input/run_config.json`. Main agent must update it with the real `data_path` and any user-provided objective/constraints before Step 2.
 
 | Mode | Behavior |
 |------|----------|
@@ -207,7 +213,17 @@ Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
 ### Step 2: Context Build (Sub-Agent: `context-builder`)
 
-**Launch the `context-builder` sub-agent** with bypass permissions:
+⚠️ **DELEGATION GUARD — 不要在主 agent 中执行 context-builder 的工作！**
+
+| 错误的做法 | 正确的做法 |
+|-----------|-----------|
+| Read `agents/context-builder.md` 全文后自己执行 Phase A-D | 直接启动子智能体，让它自己读协议执行 |
+| 自己调用 `rag-knowledge-builder` skill | 子智能体有 `Skill` 工具权限，它会自己调用 |
+| 自己写 ontology.json | 子智能体写完后主 agent 只需验证 |
+
+> **为什么不能自己做？** context-builder 协议长达 500+ 行，包含 R1-R4 深度理解、数据↔本体双向映射、物理推断阶梯。主 agent 一旦读了全文就会被带入执行模式。子智能体自己读并执行，主 agent 只负责传参和等待。
+
+**正确的启动方式 — Launch the `context-builder` sub-agent** with bypass permissions:
 
 ```javascript
 Agent({
@@ -233,7 +249,7 @@ INTERACTION_MODE=auto
 })
 ```
 
-**Sub-agent loads**: Its own system prompt from `.claude/agents/context-builder.md` (no need to manually load).
+**Sub-agent loads**: Its own system prompt from `.claude/skills/industrial-deep-diagnostic/agents/context-builder.md` (no need to manually load).
 
 **Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
@@ -276,7 +292,7 @@ SKILL_PATH=${SKILL_PATH}
 })
 ```
 
-**Sub-agent loads**: Its own system prompt from `.claude/agents/data-processor.md` (no need to manually load). The agent knows full Phase 0-6 structure, group-aware rules, visualization protocol, and VLM analysis.
+**Sub-agent loads**: Its own system prompt from `.claude/skills/industrial-deep-diagnostic/agents/data-processor.md` (no need to manually load). The agent knows full Phase 0-6 structure, group-aware rules, visualization protocol, and internally delegates image reading to `.claude/skills/industrial-deep-diagnostic/agents/vlm-visual-analyzer.md`.
 
 **Stabilization rule**: Before Step 4, run:
 ```bash
@@ -288,9 +304,11 @@ node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
 
 ### Step 3.5: VLM Visual Analysis (Embedded in Step 3)
 
-The `data-processor` agent's Phase 5.5 delegates VLM image reading to the `vlm-visual-analyzer` sub-agent internally. No separate main-agent call needed.
+The `data-processor` agent's Phase 5.5 delegates VLM image reading to the `vlm-visual-analyzer` sub-agent internally. No separate main-agent call needed, but the VLM sub-agent contract must still be honored and it must emit its own `agent_start` / `agent_complete` events as part of Step 3 execution proof.
 
 Outputs: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`
+
+If a valid time column exists, Step 3 is only considered complete when a master shared-time-axis figure such as `03_figures/fig_master_time_aligned_overlay.png` exists. If no valid time column exists, Step 3 must explicitly record the not-applicable reason in `visual_analysis.json` and `analysis_plan.md`.
 
 ### Step 4: Diagnostician (Sub-Agent: `diagnostician`)
 
@@ -323,7 +341,7 @@ CRITICAL: 按 schema-first 规则 — 每写一个 JSON 前先读对应 schema +
 })
 ```
 
-**Sub-agent loads**: Its system prompt from `.claude/agents/diagnostician.md`.
+**Sub-agent loads**: Its system prompt from `.claude/skills/industrial-deep-diagnostic/agents/diagnostician.md`.
 
 **Schema-First 规则**: Sub-agent 按 Phase 6 规则执行 — 先读 `templates/diagnosis_template.json` 和全部 4 个 schema，按 required 字段构造，一次写入通过验证。
 
@@ -403,7 +421,7 @@ SKILL_PATH=${SKILL_PATH}
 })
 ```
 
-**Sub-agent loads**: Its system prompt from `.claude/agents/reporter.md`.
+**Sub-agent loads**: Its system prompt from `.claude/skills/industrial-deep-diagnostic/agents/reporter.md`.
 
 Output: `report.md` (791+ lines, 20 sections), `run_summary.json`
 
@@ -468,7 +486,7 @@ User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/ (universal + scenario-specific analysis files)
                 ──► 02_processed/data_analysis_conclusion.json (expert data-analysis handoff)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
-                ──► 03_figures/visual_analysis.json (VLM visual insights)
+                ──► 03_figures/visual_analysis.json (VLM visual insights from vlm-visual-analyzer sub-agent)
                 ──► analysis_plan.md, 06_scripts/scenario_plots.py, 06_scripts/expert_analysis.py when needed
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
                 ── (consumes visual_analysis.json for visual evidence fusion)
@@ -502,6 +520,11 @@ flowchart LR
 | Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
 | Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
 | Step 3 | `data_analysis_conclusion.json` | `schemas/data_analysis_conclusion_schema.json` + `templates/data_analysis_conclusion_template.json` |
+| Step 3 | `scenario_classification.json` | `schemas/scenario_classification_schema.json` |
+| Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
+| Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
+| Step 3.5 | `visual_analysis.json` | `schemas/visual_analysis_schema.json` |
+| Step 3.5 | `image_captions.json` | `schemas/image_captions_schema.json` |
 | Step 4 | `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |
 | Step 4 | `evidence.json` | `schemas/evidence_schema.json` |
 | Step 4 | `confidence.json` | `schemas/confidence_schema.json` |

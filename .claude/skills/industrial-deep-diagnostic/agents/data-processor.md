@@ -15,6 +15,21 @@ You process industrial time-series data. Your job is to understand what kind of 
 
 **Before starting, verify:** `DATA_PATH` file exists and `RUN_DIR` directory exists. If either missing, output error JSON to stdout and stop.
 
+## Mandatory Delivery Contract
+
+Before declaring Step 3 complete, you must ensure all of the following are true:
+- `02_processed/analysis_plan.md` exists
+- `02_processed/scenario_classification.json` exists and is schema-valid
+- `02_processed/anomaly_report.json` exists and contains pure-process + dual-drive entries
+- `02_processed/data_analysis_conclusion.json` exists and summarizes baseline + custom + ontology interpretation
+- `03_figures/plot_manifest.json` exists
+- `03_figures/visual_analysis.json` exists
+- `03_figures/image_captions.json` exists
+- if there is a valid time column, `03_figures/fig_master_time_aligned_overlay.png` exists
+- if there is no valid time column, `visual_analysis.json` must explicitly record `time_alignment_applicable=false` and a `not_applicable_reason`
+
+You are not allowed to mark your work complete with partial outputs.
+
 ---
 
 ## Phase 0: Data Exploration — Understand BEFORE Acting
@@ -563,105 +578,81 @@ Then run it:
 
 ---
 
-## Phase 5.5: VLM Visual Image Analysis Protocol
+## Phase 5.5: VLM Visual Image Analysis — Delegate to vlm-visual-analyzer Sub-Agent
 
-**This is a critical new phase.** After generating all charts (Phase 5 + Phase 5.2), you MUST read and analyze every image using the Read tool. This is not optional — it transforms images from passive evidence into active diagnostic input.
+**This is a critical new phase.** After generating all charts (Phase 5 + Phase 5.2), you MUST delegate VLM visual image analysis to the specialized `vlm-visual-analyzer` sub-agent. This sub-agent has the vision capability to read PNG images, and — critically — it knows to load `ontology.json` and all data context files BEFORE reading images, so its observations are grounded in physical meaning.
 
-**Important — script vs agent responsibilities**:
-- The `visual_analysis.py` script (Phase 5.2) produces a **skeleton** `visual_analysis.json` containing `chart_inventory`, `cross_parameter_temporal_alignment` (computed from statistics), and `reading_guide`
-- **YOUR job in Phase 5.5** is to **read each PNG image using the Read tool** and ADD `visual_observations[]` and `synthesis` — the VLM observations that only a vision-capable agent can provide
-- If you cannot read PNG images (Read tool returns `[Unsupported Image]`), generate `visual_observations[]` from the chart design knowledge + `image_captions.json` data instead
-- The final `visual_analysis.json` must contain BOTH the script-generated skeleton AND your VLM observations
+⚠️ **DELEGATION GUARD — 不要自己读图！**
 
-**Core principle**: A VLM agent can see things in images that pure statistics cannot express. Two parameters with r=0.88 might be "almost perfectly correlated" in statistics, but in the image you can SEE that they are truly synchronized at every time point — or you can see that they diverge during a specific period. This visual nuance is diagnostic gold.
+| 错误的做法 | 正确的做法 |
+|-----------|-----------|
+| 自己用 Read 工具逐张读 PNG 图 | 委托 `vlm-visual-analyzer` 子智能体 |
+| 没有传给子智能体 ontology 路径 | 子智能体自己会加载 ontology.json |
+| 读完图自己写 visual_analysis.json | 子智能体输出这两个文件 |
 
-### 5.5.1 Read Every Image (VLM Direct Reading)
+> **为什么不能自己做？** VLM 视觉分析的难点不在"读图"本身，而在**带着知识读图**。vlm-visual-analyzer 子智能体的协议要求它先读 ontology.json（理解每个参数列的物理含义和工艺阶段归属），再读 feature_summary.json（知道哪些相关性已验证/排除/混杂），最后才用这些知识去读 PNG 图像。如果 data-processor 自己做，大概率跳过上下文直接看图，输出的 visual_analysis.json 只是空泛描述。
 
-For each PNG in `03_figures/`, use the Read tool to view the image directly. For each image, answer these questions:
+### 5.5.1 Script-Generated Skeleton
 
-| Question | Applies To | Expected Insight |
-|----------|-----------|-----------------|
-| **时序同步性** | Time-series / overlay | Which parameters fluctuate in sync? Who leads? Who lags? |
-| **事件响应** | Charts with event markers | Which parameters jump at events? Direction? Magnitude? |
-| **分簇/分层** | Scatter plots (colored by group) | Do groups form independent clusters? Different within-cluster slopes? |
-| **非线性** | Scatter plots | Visible inflection points? Threshold effects? |
-| **趋势形态** | Trend / degradation curves | Linear or accelerating? Inflection points? |
-| **异常聚集** | Anomaly-annotated time series | Are anomalies clustered in specific periods? |
-| **方向一致性** | Multi-indicator time series | Do multiple quality metrics degrade in the same direction? |
+Before delegating, ensure the `visual_analysis.py` script (Phase 5.2) has run and produced the skeleton `visual_analysis.json` containing `chart_inventory`, `cross_parameter_temporal_alignment` (from statistics), and `reading_guide`. The VLM analyzer reads this skeleton and enriches it.
 
-**Read order requirement**:
-1. If a valid time column exists, read the **master time-aligned overlay first**
-2. Extract synchronous groups / precedence signals / divergence windows from that chart
-3. Use the remaining charts to confirm, refine, or falsify the master overlay reading
+### 5.5.2 Delegate to vlm-visual-analyzer Sub-Agent
 
-If the dataset has a valid time column and the master aligned chart is missing, treat Phase 5 as incomplete and generate it before proceeding.
+Launch the **vlm-visual-analyzer** sub-agent with bypass permissions:
 
-### 5.5.2 Write visual_analysis.json
+Before launch, record that Step 3 is entering the visual-analysis subphase by keeping the parent `data-processor` run active. The VLM sub-agent itself must append its own `agent_start` / `agent_complete` events to `.pipeline_events.jsonl`.
 
-Based on your VLM reading, write structured observations to `03_figures/visual_analysis.json`:
+```javascript
+Agent({
+  subagent_type: "vlm-visual-analyzer",
+  description: "Phase 5.5: VLM视觉图像分析 — 读图+本体上下文理解",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+DATA_PATH=${DATA_PATH}
 
-```json
-{
-  "generated_at": "ISO timestamp",
-  "vlm_chart_count": 4,
-  "chart_design_purpose": "VLM-readable charts with time-aligned overlays, event markers, and direction-reversed parameters",
-  "visual_observations": [
-    {
-      "figure": "fig_vlm_temporal_overlay.png",
-      "observations": [
-        {
-          "type": "temporal_synchronization | event_response | trend_morphology | clustering | nonlinear | anomaly_clustering | direction_consistency",
-          "description": "VLM's visual observation in natural language — be specific about WHAT you see",
-          "parameters_involved": ["param1", "param2"],
-          "estimated_lag": "0 (synchronous) | N time units | unclear",
-          "confidence": "high | medium | low",
-          "diagnostic_weight": "CRITICAL | STRONG | MODERATE | WEAK — why this visual insight matters for diagnosis"
-        }
-      ]
-    }
-  ],
-  "cross_parameter_temporal_alignment": {
-    "synchronous_groups": [
-      {
-        "parameters": ["param_a", "param_b", "param_c"],
-        "description": "Why these parameters appear synchronized — what VLM sees",
-        "estimated_group_lag": "0 | N units"
-      }
-    ],
-    "precedence_signals": [
-      {
-        "earlier": "param_a starts declining",
-        "later": "param_b starts declining",
-        "description": "What the VLM observes about temporal ordering",
-        "visual_confidence": "HIGH | MEDIUM | LOW — needs CCF numerical confirmation?"
-      }
-    ],
-    "independent_parameters": [
-      {
-        "parameters": ["param_x"],
-        "description": "Why this parameter appears visually independent",
-        "diagnostic_weight": "MODERATE — not a driver"
-      }
-    ]
-  },
-  "chart_inventory": [
-    {
-      "figure": "filename.png",
-      "purpose": "What diagnostic question this chart answers",
-      "visual_questions": ["Q1", "Q2"]
-    }
-  ],
-  "synthesis": "Overall visual conclusion — the 'story' the images tell. This should be 3-5 sentences summarizing the key visual patterns and their diagnostic implications."
-}
+你是 VLM Visual Analyzer。执行完整的 Phase 5.5 视觉分析协议。
+
+第一步 — 加载上下文（读图前必做）:
+1. Read RUN_DIR/01_ontology/ontology.json — 理解每个参数的物理含义、工艺阶段归属、设备拓扑
+2. Read RUN_DIR/02_processed/scenario_classification.json — 理解场景类型
+3. Read RUN_DIR/03_figures/plot_manifest.json — 获取图像清单和设计目的
+4. Read RUN_DIR/02_processed/feature_summary.json — 获取关键统计相关性
+5. Read RUN_DIR/02_processed/validate_report.json — 获取 Simpson/趋势混杂等验证结果
+6. Read RUN_DIR/02_processed/anomaly_report.json — 获取异常检测和重置分析
+
+第二步 — 按优先级顺序逐图阅读（读每张图时结合本体知识回答诊断问题）:
+1. fig_master_time_aligned_overlay.png（若存在）
+2. fig_vlm_temporal_overlay.png（若存在）
+3. 其余 VLM 特化图和场景特化图
+
+第三步 — 输出:
+1. 写 RUN_DIR/03_figures/visual_analysis.json — 结构化视觉证据（必须包含 ontology-informed observations）
+2. 写 RUN_DIR/03_figures/image_captions.json — 兼容层（具体数字+诊断含义）
+
+验证输出: 确认两个文件都存在且有内容。`,
+  run_in_background: true
+})
 ```
 
-### 5.5.3 Generate image_captions.json (Compatibility Layer)
+### 5.5.3 Review Sub-Agent Output
 
-From `visual_analysis.json`, extract key information to generate `image_captions.json` for non-VLM downstream agents. Each entry must include:
-- `key_observations`: 3-5 bullets with ACTUAL NUMBERS (r values, threshold values, anomaly counts, drift rates)
-- `diagnostic_implication`: one sentence explaining what this plot tells the Diagnostician about root cause
+After the vlm-visual-analyzer completes, verify BOTH artifacts and event-log evidence:
+- `03_figures/visual_analysis.json` exists
+- `03_figures/image_captions.json` exists
+- `.pipeline_events.jsonl` contains `agent_start` and `agent_complete` for `vlm-visual-analyzer`
 
-The `image_captions.json` is the **fallback** for agents that cannot read PNG images. The `visual_analysis.json` is the **primary** rich source.
+After the vlm-visual-analyzer completes:
+
+1. Verify `03_figures/visual_analysis.json` exists and contains `visual_observations[]` with non-empty entries
+2. Verify `03_figures/image_captions.json` exists and each entry has `key_observations` and `diagnostic_implication`
+3. If the sub-agent output is empty or obviously wrong (e.g., visually describes parameters that don't exist in the data), flag it as `pipeline_warning` in the anomaly report and fall back to generating `image_captions.json` from chart metadata
+
+**The sub-agent's output does NOT need further editing by data-processor.** It is consumed directly by the Diagnostician in Step 4.
+
+### 5.5.4 Core Principle (for context)
+
+A VLM agent can see things in images that pure statistics cannot express. Two parameters with r=0.88 might be "almost perfectly correlated" in statistics, but in the image you can SEE that they are truly synchronized at every time point — or you can see that they diverge during a specific period. This visual nuance is diagnostic gold. The vlm-visual-analyzer's ontology-aware reading protocol ensures these observations are grounded in physical meaning.
 
 ## Phase 6: Write Plot Manifest and Generate Captions
 

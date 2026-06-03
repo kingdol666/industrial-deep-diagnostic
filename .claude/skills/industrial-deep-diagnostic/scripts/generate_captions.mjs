@@ -4,6 +4,7 @@
  * Generates structured image_captions.json from plot_manifest.json + feature_summary.json + validate_report.json
  * Provides fallback for Reporter when PNG rendering is unavailable.
  *
+ * Output conforms to schemas/image_captions_schema.json
  * Usage: node generate_captions.mjs <RUN_DIR>
  */
 

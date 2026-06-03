@@ -19,6 +19,7 @@ const logPath = join(runDir, '.pipeline_events.jsonl');
 const knownAgents = [
   'context-builder',
   'data-processor',
+  'vlm-visual-analyzer',
   'diagnostician',
   'judge',
   'reporter',
@@ -41,6 +42,7 @@ const orderedSteps = [
 const agentToStep = {
   'context-builder': 'context_builder',
   'data-processor': 'data_processor',
+  'vlm-visual-analyzer': 'data_processor',
   diagnostician: 'diagnostician',
   judge: 'judge',
   reporter: 'reporter',
@@ -50,6 +52,7 @@ const agentToStep = {
 const agentArtifactHints = {
   'context-builder': ['01_ontology/ontology.json', '00_input/extracted_knowledge.json'],
   'data-processor': ['02_processed/feature_summary.json', '03_figures/plot_manifest.json'],
+  'vlm-visual-analyzer': ['03_figures/visual_analysis.json', '03_figures/image_captions.json'],
   diagnostician: ['04_diagnostics/diagnosis.json'],
   judge: ['05_review/judge_feedback.json'],
   reporter: ['report.md', 'run_summary.json'],
@@ -230,6 +233,18 @@ for (const agent of requiredAgents) {
           message: `Agent "${agent}" started before prerequisite steps were completed.`,
           missing_prerequisites: missingPrereqs
         });
+      }
+      if (agent === 'vlm-visual-analyzer') {
+        const dpStartLine = agentState.get('data-processor')?.starts?.[0]?.__line || null;
+        const vlmStartLine = bucket.starts[0]?.__line || null;
+        if (dpStartLine && vlmStartLine && vlmStartLine < dpStartLine) {
+          issues.push({
+            severity: 'critical',
+            code: 'VLM_STARTED_BEFORE_DATA_PROCESSOR',
+            agent,
+            message: 'vlm-visual-analyzer started before data-processor had started.'
+          });
+        }
       }
     }
   }
