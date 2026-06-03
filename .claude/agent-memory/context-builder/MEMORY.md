@@ -1,0 +1,2 @@
+- [CNC Spindle Wear Diagnostic Insights](cnc-spindle-wear-diagnostic-insights.md) — Key discrepancy patterns: tool_age not dominant, vibration is, thermal no-equilibrium, Simpson's paradox candidates
+- [Parameter to Physics CNC Coverage](parameter-to-physics-cnc-coverage.md) — parameter_to_physics.json covers CNC spindle/machining parameters directly; check before RAG fallback

@@ -140,6 +140,7 @@ let repairCapReachedCount = 0;
 let runInitializedSeen = false;
 let artifactFinalizeSeen = false;
 let artifactCheckSeen = false;
+let runCompletedSeen = false;
 
 for (const event of events) {
   if (event.event === 'run_initialized') {
@@ -156,6 +157,9 @@ for (const event of events) {
   }
   if (event.event === 'artifact_check_complete') {
     artifactCheckSeen = true;
+  }
+  if (event.event === 'run_completed') {
+    runCompletedSeen = true;
   }
   if ((event.event === 'agent_start' || event.event === 'agent_complete') && knownAgents.includes(event.agent)) {
     const bucket = agentState.get(event.agent);
@@ -279,6 +283,14 @@ if (exists('run_summary.json') && !artifactCheckSeen) {
     severity: 'warning',
     code: 'ARTIFACT_CHECK_EVENT_MISSING',
     message: 'run_summary.json exists but artifact_check_complete was not logged.'
+  });
+}
+
+if (exists('run_summary.json') && !runCompletedSeen) {
+  issues.push({
+    severity: 'warning',
+    code: 'RUN_COMPLETED_EVENT_MISSING',
+    message: 'run_summary.json exists but run_completed was not logged.'
   });
 }
 

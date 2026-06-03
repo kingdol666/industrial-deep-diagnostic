@@ -469,7 +469,7 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 Show: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight CONDITIONAL/REJECTED concerns.
 
-`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json`; `artifact-check.mjs` now treats both execution proof and evidence closure as final gate items.
+`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats both execution proof and evidence closure as final gate items.
 
 ---
 

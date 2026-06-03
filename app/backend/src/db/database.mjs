@@ -65,6 +65,33 @@ export function initDB() {
       file_count INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS chat_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chat_id TEXT NOT NULL UNIQUE,
+      title TEXT,
+      session_id TEXT,
+      status TEXT DEFAULT 'active',
+      model TEXT DEFAULT '${sqlQuote(config.claude.model)}',
+      permission_mode TEXT DEFAULT 'bypassPermissions',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chat_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT,
+      event_type TEXT DEFAULT 'message',
+      event_subtype TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (chat_id) REFERENCES chat_sessions(chat_id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_chat_sessions_created ON chat_sessions(created_at);
+    CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_id ON chat_messages(chat_id);
   `);
 
   // Migration: add report_language column if missing
@@ -139,6 +166,39 @@ const stmts = {
   deleteFolder: db.prepare('DELETE FROM data_folders WHERE name = ?'),
   getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
   updateRunSession: db.prepare('UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime(\'now\') WHERE run_id = @runId'),
+  insertChatSession: db.prepare(`
+    INSERT INTO chat_sessions (chat_id, title, session_id, status, model, permission_mode)
+    VALUES (@chatId, @title, @sessionId, @status, @model, @permissionMode)
+  `),
+  updateChatSession: db.prepare(`
+    UPDATE chat_sessions
+    SET title = COALESCE(@title, title),
+        session_id = COALESCE(@sessionId, session_id),
+        status = COALESCE(@status, status),
+        updated_at = datetime('now'),
+        completed_at = CASE WHEN @status IN ('completed', 'failed', 'stopped') THEN datetime('now') ELSE completed_at END
+    WHERE chat_id = @chatId
+  `),
+  getChatSessionByChatId: db.prepare('SELECT * FROM chat_sessions WHERE chat_id = ?'),
+  getChatSessionBySessionId: db.prepare('SELECT * FROM chat_sessions WHERE session_id = ? ORDER BY created_at DESC LIMIT 1'),
+  getAllChatSessions: db.prepare(`
+    SELECT * FROM chat_sessions ORDER BY updated_at DESC, created_at DESC
+  `),
+  renameChatSession: db.prepare(`
+    UPDATE chat_sessions
+    SET title = @title, updated_at = datetime('now')
+    WHERE chat_id = @chatId
+  `),
+  deleteChatSession: db.prepare(`
+    DELETE FROM chat_sessions WHERE chat_id = ?
+  `),
+  insertChatMessage: db.prepare(`
+    INSERT INTO chat_messages (chat_id, role, content, event_type, event_subtype)
+    VALUES (@chatId, @role, @content, @eventType, @eventSubtype)
+  `),
+  getChatMessagesByChatId: db.prepare(`
+    SELECT * FROM chat_messages WHERE chat_id = ? ORDER BY id ASC
+  `),
 };
 
 export { db, stmts };

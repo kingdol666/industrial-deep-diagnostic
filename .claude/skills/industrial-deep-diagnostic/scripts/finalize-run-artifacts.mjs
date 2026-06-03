@@ -75,4 +75,6 @@ logEvent('artifact_finalize_complete', [
   '02_processed/anomaly_report.json,02_processed/data_analysis_conclusion.json,run_summary.json,evidence_closure_report.json'
 ]);
 
+logEvent('run_completed', ['--step', 'present']);
+
 console.log(JSON.stringify({ ok: true, run_dir: runDir, results }, null, 2));

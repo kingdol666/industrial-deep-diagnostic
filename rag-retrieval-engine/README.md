@@ -1,108 +1,118 @@
 # RAG Retrieval Engine
 
-Standalone HTTP microservice for industrial knowledge retrieval, scoring, and ontology injection.
+独立运行的 HTTP 检索服务，为本项目的 `rag-knowledge-builder` Skill 提供知识检索、评分、知识注入和运行管理能力。
 
-```
-Skill (rag_client.py)  ──HTTP──►  RAG Engine (FastAPI)
-                                  ├── /retrieve   ChromaDB + web
-                                  ├── /score      5-dim scoring
-                                  ├── /inject     Ontology builder
-                                  ├── /health
-                                  └── /pipeline/full (one-shot)
+## 服务定位
+
+这个服务不是最终用户直接使用的“知识问答产品”，而是一个**面向 Skill 的后端知识基础设施**：
+- 接收领域描述与概念列表
+- 从本地知识库与可选 Web 中检索候选知识
+- 对知识块进行打分
+- 将知识结果注入到本体构建流程
+- 保存检索运行记录
+
+## 服务在项目中的位置
+
+```text
+Industrial Deep Diagnostic Skill
+        │
+        └── calls
+                │
+                ▼
+        RAG Knowledge Builder Skill
+                │
+                └── HTTP
+                        ▼
+                 RAG Retrieval Engine
 ```
 
-## Quick Start
+## 功能概览
+
+- `/health`：健康检查与知识库状态
+- `/index`：构建或重建知识索引
+- `/retrieve`：多视角知识检索
+- `/score`：知识块评分
+- `/inject`：知识注入 / 本体构建辅助
+- `/pipeline/full`：一站式检索流水线
+- `/runs`：运行记录查询
+- `/stats`：知识库与存储统计
+
+## 目录结构
+
+```text
+rag-retrieval-engine/
+├── README.md
+├── server.py
+├── engine/                    # 检索、评分、存储等核心逻辑
+├── knowledge_base/
+│   ├── chroma_db/             # 向量索引
+│   └── user_docs/             # 用户知识源
+├── storage/
+│   └── retrieval_runs/        # 检索运行记录
+└── tests/
+```
+
+## 快速开始
+
+### 1. 安装依赖
+
+推荐使用 `uv`：
 
 ```bash
-# 1. Install
 cd rag-retrieval-engine
-pip install -r requirements.txt
+uv sync
+```
 
-# 2. Start server
-python server.py
-# → Uvicorn running on http://0.0.0.0:8765
+如果你不使用 `uv`，再退回 `pip`。
 
-# 3. Check health
+### 2. 启动服务
+
+```bash
+uv run python server.py
+```
+
+默认监听：`http://0.0.0.0:8765`
+
+### 3. 健康检查
+
+```bash
 curl http://localhost:8765/health
-# → {"status":"healthy","kb_ready":false,...}
+```
 
-# 4. Index knowledge (first time)
+### 4. 首次建立索引
+
+```bash
 curl -X POST http://localhost:8765/index \
   -H "Content-Type: application/json" \
   -d '{}'
-
-# 5. Run full pipeline
-curl -X POST http://localhost:8765/pipeline/full \
-  -H "Content-Type: application/json" \
-  -d '{
-    "scenario": "CNC machining",
-    "target_columns": ["surface_roughness_Ra_um", "thermal_deviation_mm"],
-    "parameter_columns": ["spindle_vibration_mm_s", "spindle_temp_C", "tool_age_parts"],
-    "group_columns": ["material", "tool_id"],
-    "mode": "hybrid",
-    "top_k": 5
-  }'
-
-# 6. Or use the client from the skill
-cd ../.claude/skills/rag-knowledge-builder
-python scripts/rag_client.py pipeline \
-  --scenario "CNC machining" \
-  --target-cols "surface_roughness_Ra_um,thermal_deviation_mm" \
-  --param-cols "spindle_vibration_mm_s,spindle_temp_C,tool_age_parts" \
-  --output-dir /tmp/rag_output
 ```
 
-## API Reference
+### 5. 通过 Skill 使用
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Service health + KB status |
-| POST | `/retrieve` | Multi-query knowledge retrieval |
-| POST | `/score` | 5-dimension relevance scoring |
-| POST | `/inject` | Ontology draft construction |
-| POST | `/pipeline/full` | Retrieve→Score→Inject in one call |
-| POST | `/index` | Build/rebuild knowledge index |
-| POST | `/accumulate` | Add verified diagnosis to KB |
-| GET | `/runs` | List retrieval runs |
-| GET | `/runs/{id}` | Get run metadata |
-| GET | `/runs/{id}/result/{type}` | Get run result |
-| GET | `/stats` | Storage + KB statistics |
+通常不建议直接手写 HTTP 请求，而是通过：
+- `rag-knowledge-builder` Skill
+- 或其客户端脚本
 
-## Architecture
+## 适用场景
 
-```
-┌─────────────────────────────────────────────────┐
-│                  FastAPI Server                 │
-│                   (server.py)                   │
-├─────────────────────────────────────────────────┤
-│  POST /retrieve    POST /score   POST /inject   │
-│       │                │              │          │
-│       ▼                ▼              ▼          │
-│  ┌──────────┐   ┌───────────┐  ┌──────────┐    │
-│  │Retriever │   │  Scorer   │  │Injector  │    │
-│  │ChromaDB  │   │5-dim gate │  │Schema    │    │
-│  │+ web     │   │≥0.65 pass│  │Injection │    │
-│  └────┬─────┘   └─────┬─────┘  └────┬─────┘    │
-│       │               │              │          │
-│       └───────────────┴──────────────┘          │
-│                       │                         │
-│                       ▼                         │
-│              ┌─────────────────┐                │
-│              │  StorageManager │                │
-│              │  SQLite + JSON  │                │
-│              └─────────────────┘                │
-└─────────────────────────────────────────────────┘
-```
+适用：
+- 作为 Skill 的检索后端
+- 领域知识块检索与评分
+- 本地知识库 + 可选 Web 混合检索
 
-## Configuration
+不适用：
+- 直接替代最终分析 Skill
+- 直接产出完整诊断报告
+- 作为独立前端产品使用
 
-Edit `config.yaml` to customize:
-- `server.port` — HTTP port (default: 8765)
-- `knowledge_base.index_sources` — source documents to index
-- `scoring.weights` — D1-D5 dimension weights
-- `scoring.pass_threshold` — minimum composite score
-- `storage.retention_days` — auto-cleanup old runs
+## 与其他模块的关系
 
-## License
+- 它不负责最终诊断
+- 它不负责最终工业报告
+- 它不负责多子代理编排
+- 它负责为上层 Skill 提供稳定、可调用的知识检索能力
 
-MIT
+## 配套文档
+
+- 上游 Skill：`.`claude/skills/rag-knowledge-builder/README.md:1`
+- 最终消费者之一：`.`claude/skills/industrial-deep-diagnostic/README.md:1`

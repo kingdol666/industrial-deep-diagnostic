@@ -311,6 +311,16 @@ function eventFingerprint(ev) {
     case 'thinking': return ev.data?.content ? `th:${ev.data.content.slice(0, 80)}` : null;
     case 'question': return (ev.data?.questionId || ev.data?.toolUseId) ? `q:${ev.data.questionId || ev.data.toolUseId}` : null;
     case 'system': return ev.data?.message?.uuid ? `sys:${ev.data.message.uuid}` : null;
+    case 'stream_event':
+      return ev.data?.uuid
+        ? `se:${ev.data.uuid}`
+        : (ev.subtype && ev.data?.type
+          ? `se:${ev.subtype}:${ev.data.type}:${JSON.stringify(ev.data).slice(0, 120)}`
+          : null);
+    case 'error':
+      return ev.data?.error ? `err:${ev.data.error}` : null;
+    case 'complete':
+      return ev.data?.status ? `done:${ev.data.status}:${ev.data.reportPath || ''}` : null;
     default: return null;
   }
 }
@@ -422,8 +432,17 @@ function connectSSE(rid) {
     } catch {}
   });
 
-  // Suppress per-token stream_event to prevent timeline flood
-  eventSource.addEventListener('stream_event', () => {});
+  eventSource.addEventListener('stream_event', (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      pushEvent({
+        type: 'stream_event',
+        subtype: d?.subtype || d?.type || 'stream_event',
+        data: d?.data ?? d,
+        _seq: ++_seqCounter,
+      });
+    } catch {}
+  });
 
   eventSource.addEventListener('unknown', (e) => {
     try {
@@ -451,6 +470,7 @@ function connectSSE(rid) {
   eventSource.addEventListener('complete', (e) => {
     try {
       const d = JSON.parse(e.data);
+      pushEvent({ type: 'complete', data: d, _seq: ++_seqCounter });
       if (d.status === 'failed') {
         failed.value = true;
         completed.value = false;
@@ -483,6 +503,7 @@ function connectSSE(rid) {
       failed.value = true;
       isRunning.value = false;
       errorMsg.value = d.error || 'Unknown error';
+      pushEvent({ type: 'error', data: d, _seq: ++_seqCounter });
       stopElapsed();
     } catch {}
   });

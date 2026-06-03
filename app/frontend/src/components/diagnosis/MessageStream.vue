@@ -1,323 +1,106 @@
 <template>
   <div class="message-stream" ref="streamEl">
-    <!-- Connecting overlay -->
     <div v-if="!connected && isRunning" class="ms-connecting">
       <div class="spinner-sm"></div>
       <span>Connecting to engine...</span>
     </div>
 
-    <template v-for="(ev, i) in visibleEvents" :key="ev._seq ?? i">
-
-      <!-- THINKING -->
-      <div v-if="ev.type === 'thinking'" class="ms-item ms-thinking">
+    <template v-for="(item, i) in renderedItems" :key="item.key || i">
+      <div v-if="item.kind === 'thinking'" class="ms-item ms-thinking">
         <div class="ms-rail"><div class="ms-dot dot-purple"></div></div>
         <div class="ms-body">
-          <div class="ms-card card-thinking" @click="toggleThinking(ev)">
+          <div class="ms-card card-thinking" @click="toggleThinking(item)">
             <div class="ms-card-header">
               <span class="ms-card-icon">🧠</span>
-              <span class="ms-card-title">Agent Reasoning</span>
-              <span class="ms-card-toggle" :class="{ open: expandedThinking.has(ev._seq) }">▶</span>
+              <span class="ms-card-title">Claude Thinking</span>
+              <span class="ms-card-toggle" :class="{ open: expandedThinking.has(item.key) }">▶</span>
             </div>
-            <div v-if="expandedThinking.has(ev._seq)" class="ms-thinking-content">
-              {{ ev.data.content }}
-            </div>
+            <div v-if="expandedThinking.has(item.key)" class="ms-thinking-content">{{ item.content }}</div>
           </div>
         </div>
       </div>
 
-      <!-- ASSISTANT MESSAGE -->
-      <div v-else-if="ev.type === 'message'" class="ms-item ms-msg">
+      <div v-else-if="item.kind === 'assistant'" class="ms-item ms-msg">
         <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
         <div class="ms-body">
           <div class="ms-card card-msg">
             <div class="ms-card-header">
               <span class="ms-card-icon">🤖</span>
-              <span class="ms-card-title">Analysis</span>
+              <span class="ms-card-title">Claude</span>
             </div>
-            <div class="msg-content" v-html="renderMd(ev.data.content)"></div>
+            <div class="msg-content" v-html="renderMd(item.content)"></div>
           </div>
         </div>
       </div>
 
-      <!-- TOOL USE -->
-      <div v-else-if="ev.type === 'tool_use'" class="ms-item ms-tool">
-        <div class="ms-rail"><div class="ms-dot" :class="toolDotClass(ev.data.name)"></div></div>
+      <div v-else-if="item.kind === 'tool'" class="ms-item ms-tool">
+        <div class="ms-rail"><div class="ms-dot" :class="toolDotClass(item.name)"></div></div>
         <div class="ms-body">
-          <div class="ms-card card-tool" :class="'tool-' + toolCategory(ev.data.name)">
+          <div class="ms-card card-tool" :class="['tool-' + toolCategory(item.name), item.result ? 'tool-complete' : 'tool-running']">
             <div class="ms-card-header">
-              <span class="ms-tool-badge">{{ ev.data.name }}</span>
-              <span class="ms-tool-id">{{ ev.data.id?.slice(0, 8) }}</span>
-            </div>
-            <div class="ms-tool-input">
-              <template v-if="ev.data.name === 'Bash'">
-                <span class="tool-label">$</span>
-                <code>{{ ev.data.input?.command || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'Read'">
-                <span class="tool-label">file:</span>
-                <code>{{ ev.data.input?.file_path || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'Write'">
-                <span class="tool-label">→</span>
-                <code>{{ ev.data.input?.file_path || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'Edit'">
-                <span class="tool-label">✏</span>
-                <code>{{ ev.data.input?.file_path || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'Glob'">
-                <span class="tool-label">🔍</span>
-                <code>{{ ev.data.input?.pattern || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'WebSearch'">
-                <span class="tool-label">🌐</span>
-                <code>{{ ev.data.input?.query || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'Skill'">
-                <span class="tool-label">⚡</span>
-                <code>{{ ev.data.input?.skill || ev.data.input?.args || '' }}</code>
-              </template>
-              <template v-else-if="ev.data.name === 'AskUserQuestion'">
-                <span class="tool-label">❓</span>
-                <code>Questions for user ({{ ev.data.input?.questions?.length || 0 }} question(s) — see below)</code>
-              </template>
-              <template v-else>
-                <code>{{ formatToolInput(ev.data.input) }}</code>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TOOL RESULT -->
-      <div v-else-if="ev.type === 'tool_result'" class="ms-item ms-result">
-        <div class="ms-rail"><div class="ms-dot" :class="ev.data.isError ? 'dot-red' : 'dot-green'"></div></div>
-        <div class="ms-body">
-          <div :class="['ms-result-card', ev.data.isError ? 'result-err' : 'result-ok']">
-            <span class="result-icon">{{ ev.data.isError ? '✗' : '✓' }}</span>
-            <span class="result-text" v-if="ev.data.summary">{{ ev.data.summary }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- SYSTEM -->
-      <div v-else-if="ev.type === 'system'" class="ms-item ms-sys">
-        <div class="ms-rail"><div class="ms-dot dot-gray"></div></div>
-        <div class="ms-body">
-          <div class="ms-sys-card">
-            <template v-if="ev.subtype === 'init'">
-              Engine initialized · Model: <strong>{{ ev.data?.model }}</strong> · Tools: <strong>{{ ev.data?.tools?.length }}</strong>
-            </template>
-            <template v-else-if="ev.subtype === 'artifacts'">
-              Artifacts: <strong>{{ (ev.data?.artifacts || []).join(', ') }}</strong>
-              <span v-if="ev.data?.score != null"> · Score: <strong>{{ ev.data.score }}</strong></span>
-            </template>
-            <template v-else-if="ev.subtype === 'continue'">
-              <span class="sys-continue-icon">↻</span>
-              <span>{{ ev.data?.message || 'Continuing analysis...' }}</span>
-            </template>
-            <template v-else-if="ev.subtype === 'chat_sent'">
-              <span class="sys-chat-icon">💬</span>
-              <span>Sent: {{ ev.data?.message?.slice(0, 200) || '' }}</span>
-            </template>
-            <template v-else-if="ev.subtype === 'chat_error'">
-              <span class="sys-error-icon">⚠</span>
-              <span>Chat error: {{ ev.data?.error || '' }}</span>
-            </template>
-            <template v-else>{{ ev.subtype || 'System' }}</template>
-          </div>
-        </div>
-      </div>
-
-      <!-- STATS -->
-      <div v-else-if="ev.type === 'stats'" class="ms-item ms-stats">
-        <div class="ms-rail"><div class="ms-dot dot-yellow"></div></div>
-        <div class="ms-body">
-          <div class="ms-stats-card">
-            <div class="stat-item"><span class="stat-val">{{ ev.data.numTurns }}</span><span class="stat-lbl">Turns</span></div>
-            <div class="stat-item"><span class="stat-val">{{ formatDuration(ev.data.durationMs) }}</span><span class="stat-lbl">Duration</span></div>
-            <div class="stat-item"><span class="stat-val">${{ (ev.data.totalCost || 0).toFixed(4) }}</span><span class="stat-lbl">Cost</span></div>
-            <div class="stat-item" v-if="ev.data.stopReason"><span class="stat-val">{{ ev.data.stopReason }}</span><span class="stat-lbl">Reason</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SUB-AGENT TASK PROGRESS (renders actual agent events) -->
-      <div v-else-if="ev.type === 'task_progress'" class="ms-item ms-progress">
-        <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
-        <div class="ms-body">
-          <div class="ms-card card-progress" :class="'progress-' + (ev.data.status || 'running')">
-            <div class="ms-card-header">
-              <span class="ms-card-icon">{{ statusIcon(ev.data.status) }}</span>
-              <span class="ms-card-title">{{ ev.data.agentName || ev.data.name || 'Sub-Agent Task' }}</span>
-              <span :class="['progress-badge', 'badge-' + statusBadgeClass(ev.data.status)]">
-                {{ ev.data.status || 'running' }}
+              <span class="ms-tool-badge">{{ item.title }}</span>
+              <span class="ms-tool-id" v-if="item.shortId">{{ item.shortId }}</span>
+              <span class="tool-state" :class="item.result?.isError ? 'tool-state-error' : 'tool-state-ok'">
+                {{ item.result ? (item.result.isError ? 'Failed' : 'Done') : 'Running' }}
               </span>
             </div>
-            <div class="progress-detail" v-if="ev.data.currentStep">
-              <span class="progress-step">{{ ev.data.currentStep }}</span>
+            <div class="tool-summary">{{ item.summary }}</div>
+            <div class="ms-tool-input">
+              <template v-if="item.preview">
+                <code>{{ item.preview }}</code>
+              </template>
             </div>
-
-            <!-- Sub-agent events (thinking, messages, tool calls) -->
-            <div v-if="ev.data.events && ev.data.events.length" class="sa-events">
-              <div
-                v-for="(saEv, si) in ev.data.events"
-                :key="si"
-                class="sa-event"
-              >
-                <!-- sa: thinking -->
-                <div v-if="saEv.type === 'thinking'" class="sa-thinking" @click.stop="toggleSaThinking(ev._seq, si)">
-                  <span class="sa-icon">🧠</span>
-                  <span class="sa-label">Thinking</span>
-                  <span class="sa-toggle" :class="{ open: saThinkingOpen(ev._seq, si) }">▶</span>
-                  <div v-if="saThinkingOpen(ev._seq, si)" class="sa-thinking-content">
-                    {{ saEv.thinking || saEv.content || '' }}
-                  </div>
-                </div>
-
-                <!-- sa: message -->
-                <div v-else-if="saEv.type === 'message' || saEv.type === 'text'" class="sa-message">
-                  <span class="sa-msg-icon">💬</span>
-                  <div class="sa-msg-text">{{ extractSaText(saEv) }}</div>
-                </div>
-
-                <!-- sa: tool_use -->
-                <div v-else-if="saEv.type === 'tool_use'" class="sa-tool">
-                  <span class="sa-icon sa-tool-icon">⚙</span>
-                  <span class="sa-tool-name">{{ saEv.name || 'tool' }}</span>
-                  <span class="sa-tool-input">{{ formatSaInput(saEv) }}</span>
-                </div>
-
-                <!-- sa: tool_result -->
-                <div v-else-if="saEv.type === 'tool_result'" class="sa-result">
-                  <span class="sa-icon" :class="saEv.is_error ? 'sa-err-icon' : 'sa-ok-icon'">
-                    {{ saEv.is_error ? '✗' : '✓' }}
-                  </span>
-                  <span class="sa-result-text">{{ extractSaResult(saEv) }}</span>
-                </div>
-
-                <!-- sa: task_progress (nested) -->
-                <div v-else-if="saEv.type === 'task_progress'" class="sa-task-progress">
-                  <span class="sa-icon">🔄</span>
-                  <span class="sa-label">{{ saEv.name || saEv.task?.name || 'Sub-task' }}</span>
-                  <span class="sa-status">{{ saEv.status || '' }}</span>
-                </div>
-
-                <!-- sa: fallback -->
-                <div v-else class="sa-fallback">
-                  <span class="sa-icon">📋</span>
-                  <span class="sa-label">{{ saEv.type || 'event' }}</span>
-                  <span class="sa-fallback-preview">{{ JSON.stringify(saEv).slice(0, 120) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="progress-bar-wrapper" v-if="ev.data.progress">
-              <div class="progress-bar">
-                <div
-                  class="progress-fill"
-                  :style="{ width: progressPercent(ev.data.progress) + '%' }"
-                ></div>
-              </div>
-              <span class="progress-text">{{ progressText(ev.data.progress) }}</span>
+            <div v-if="item.result?.summary" :class="['ms-result-card tool-result-inline', item.result.isError ? 'result-err' : 'result-ok']">
+              <span class="result-icon">{{ item.result.isError ? '✗' : '✓' }}</span>
+              <span class="result-text">{{ item.result.summary }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- STREAM EVENT (raw sub-agent events from newer Claude wrapper) -->
-      <div v-else-if="ev.type === 'stream_event'" class="ms-item ms-progress">
-        <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
+      <div v-else-if="item.kind === 'subagent'" class="ms-item ms-progress">
+        <div class="ms-rail"><div class="ms-dot dot-cyan"></div></div>
         <div class="ms-body">
-          <div class="ms-card card-progress">
+          <div class="ms-card card-progress" :class="'progress-' + (item.status || 'running')">
             <div class="ms-card-header">
-              <span class="ms-card-icon">📡</span>
-              <span class="ms-card-title">Sub-Agent Event: {{ ev.subtype || 'update' }}</span>
+              <span class="ms-card-icon">{{ statusIcon(item.status) }}</span>
+              <span class="ms-card-title">{{ item.title }}</span>
+              <span class="stage-chip" :class="'stage-' + item.stage.tone">{{ item.stage.label }}</span>
+              <span :class="['progress-badge', 'badge-' + statusBadgeClass(item.status)]">{{ item.statusLabel }}</span>
             </div>
-            <div class="sa-events" style="max-height:200px">
-              <div class="sa-event" v-if="ev.data?.type === 'thinking'">
-                <span class="sa-icon">🧠</span>
-                <span class="sa-label">Thinking</span>
-                <span class="sa-fallback-preview">{{ (ev.data.thinking || ev.data.content || '').slice(0, 200) }}</span>
-              </div>
-              <div class="sa-event" v-else-if="ev.data?.type === 'message' || ev.data?.type === 'text'">
-                <span class="sa-icon">💬</span>
-                <span class="sa-msg-text">{{ extractStreamEventText(ev.data) }}</span>
-              </div>
-              <div class="sa-event" v-else-if="ev.data?.type === 'tool_use'">
-                <span class="sa-icon sa-tool-icon">⚙</span>
-                <span class="sa-tool-name">{{ ev.data.name || 'tool' }}</span>
-                <span class="sa-tool-input">{{ JSON.stringify(ev.data.input || {}).slice(0, 100) }}</span>
-              </div>
-              <div class="sa-event" v-else-if="ev.data?.type === 'tool_result'">
-                <span class="sa-icon" :class="ev.data.is_error ? 'sa-err-icon' : 'sa-ok-icon'">{{ ev.data.is_error ? '✗' : '✓' }}</span>
-                <span class="sa-result-text">{{ typeof ev.data.content === 'string' ? ev.data.content.slice(0, 80) : (ev.data.summary || '').slice(0, 80) }}</span>
-              </div>
-              <div class="sa-event" v-else>
-                <span class="sa-icon">📡</span>
-                <span class="sa-fallback-preview">{{ JSON.stringify(ev.data).slice(0, 150) }}</span>
+            <div class="progress-detail" v-if="item.step">
+              <span class="progress-step">{{ item.step }}</span>
+            </div>
+            <div class="progress-bar-wrapper" v-if="item.progress">
+              <div class="progress-bar"><div class="progress-fill" :style="{ width: progressPercent(item.progress) + '%' }"></div></div>
+              <span class="progress-text">{{ progressText(item.progress) }}</span>
+            </div>
+            <div v-if="item.highlights.length" class="sa-events">
+              <div v-for="(entry, index) in item.highlights" :key="index" class="sa-event">
+                <span class="sa-icon">{{ entry.icon }}</span>
+                <span class="sa-label">{{ entry.label }}</span>
+                <span class="sa-fallback-preview">{{ entry.text }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- UNKNOWN / FALLBACK -->
-      <div v-else-if="ev.type === 'unknown'" class="ms-item ms-unknown">
-        <div class="ms-rail"><div class="ms-dot dot-gray"></div></div>
-        <div class="ms-body">
-          <div class="ms-card card-unknown">
-            <div class="ms-card-header">
-              <span class="ms-card-icon">📋</span>
-              <span class="ms-card-title">{{ ev.subtype || 'Event' }}</span>
-            </div>
-            <pre class="unknown-payload">{{ JSON.stringify(ev.data, null, 2) }}</pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- HITL -->
-      <div v-else-if="ev.type === 'hitl_request'" class="ms-item ms-hitl">
-        <div class="ms-rail"><div class="ms-dot dot-red pulse"></div></div>
-        <div class="ms-body">
-          <div class="ms-card card-hitl">
-            <div class="hitl-warn">⚠ Dangerous command: {{ ev.data.riskDesc }}</div>
-            <code class="hitl-cmd">{{ ev.data.command }}</code>
-          </div>
-        </div>
-      </div>
-
-      <!-- QUESTION (AskUserQuestion) -->
-      <div v-else-if="ev.type === 'question'" class="ms-item ms-question">
+      <div v-else-if="item.kind === 'question'" class="ms-item ms-question">
         <div class="ms-rail"><div class="ms-dot dot-purple"></div></div>
         <div class="ms-body">
           <div class="ms-card card-question">
             <div class="ms-card-header">
               <span class="ms-card-icon">❓</span>
-              <span class="ms-card-title">Claude asked for your input</span>
-              <span class="ms-question-count" v-if="ev.data.questions?.length">
-                {{ ev.data.questions.length }} question{{ ev.data.questions.length > 1 ? 's' : '' }}
-              </span>
+              <span class="ms-card-title">Claude needs your input</span>
+              <span class="ms-question-count" v-if="item.questions?.length">{{ item.questions.length }} question{{ item.questions.length > 1 ? 's' : '' }}</span>
             </div>
             <div class="question-list">
-              <div
-                v-for="(q, qi) in ev.data.questions"
-                :key="qi"
-                class="question-block"
-              >
-                <div class="question-header" v-if="q.header">
-                  <span class="q-chip">{{ q.header }}</span>
-                </div>
-                <div class="question-text">
-                  <span class="question-num">{{ qi + 1 }}.</span>
-                  {{ q.question }}
-                </div>
+              <div v-for="(q, qi) in item.questions" :key="qi" class="question-block">
+                <div class="question-header" v-if="q.header"><span class="q-chip">{{ q.header }}</span></div>
+                <div class="question-text"><span class="question-num">{{ qi + 1 }}.</span>{{ q.question }}</div>
                 <div class="question-options">
-                  <div
-                    v-for="(opt, oi) in q.options"
-                    :key="oi"
-                    class="question-option"
-                  >
+                  <div v-for="(opt, oi) in q.options" :key="oi" class="question-option">
                     <span class="option-marker">{{ q.multiSelect ? '☐' : '○' }}</span>
                     <div class="option-info">
                       <span class="option-label">{{ opt.label }}</span>
@@ -340,15 +123,66 @@
         </div>
       </div>
 
+      <div v-else-if="item.kind === 'system'" class="ms-item ms-sys">
+        <div class="ms-rail"><div class="ms-dot" :class="systemDotClass(item.level)"></div></div>
+        <div class="ms-body">
+          <div class="ms-sys-card" :class="'sys-' + item.level">
+            <strong><span class="sys-icon">{{ systemIcon(item.level) }}</span>{{ item.title }}</strong>
+            <span v-if="item.text"> · {{ item.text }}</span>
+            <div v-if="item.details?.length" class="sys-details">
+              <span v-for="(detail, di) in item.details" :key="di" class="sys-detail-chip">{{ detail }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="item.kind === 'stats'" class="ms-item ms-stats">
+        <div class="ms-rail"><div class="ms-dot dot-yellow"></div></div>
+        <div class="ms-body">
+          <div class="ms-stats-card">
+            <div class="stat-item"><span class="stat-val">{{ item.numTurns }}</span><span class="stat-lbl">Turns</span></div>
+            <div class="stat-item"><span class="stat-val">{{ formatDuration(item.durationMs) }}</span><span class="stat-lbl">Duration</span></div>
+            <div class="stat-item"><span class="stat-val">${{ (item.totalCost || 0).toFixed(4) }}</span><span class="stat-lbl">Cost</span></div>
+            <div class="stat-item" v-if="item.stopReason"><span class="stat-val">{{ item.stopReason }}</span><span class="stat-lbl">Reason</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="item.kind === 'complete'" class="ms-item ms-complete">
+        <div class="ms-rail"><div class="ms-dot" :class="item.status === 'failed' ? 'dot-red' : 'dot-green'"></div></div>
+        <div class="ms-body">
+          <div :class="['ms-result-card', item.status === 'failed' ? 'result-err' : 'result-ok']">
+            <span class="result-icon">{{ item.status === 'failed' ? '✗' : '✓' }}</span>
+            <span class="result-text">{{ item.text }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="item.kind === 'error'" class="ms-item ms-error">
+        <div class="ms-rail"><div class="ms-dot dot-red"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-hitl">
+            <div class="hitl-warn">⚠ Runtime error</div>
+            <code class="hitl-cmd">{{ item.text }}</code>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="item.kind === 'hitl'" class="ms-item ms-hitl">
+        <div class="ms-rail"><div class="ms-dot dot-red pulse"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-hitl">
+            <div class="hitl-warn">⚠ Dangerous command: {{ item.riskDesc }}</div>
+            <code class="hitl-cmd">{{ item.command }}</code>
+          </div>
+        </div>
+      </div>
     </template>
 
-    <!-- Live typing indicator -->
     <div v-if="isRunning && connected" class="ms-item ms-typing">
       <div class="ms-rail"><div class="ms-dot dot-blue pulse"></div></div>
       <div class="ms-body">
-        <div class="typing-indicator">
-          <span></span><span></span><span></span>
-        </div>
+        <div class="typing-indicator"><span></span><span></span><span></span></div>
       </div>
     </div>
   </div>
@@ -365,20 +199,185 @@ const props = defineProps({
 });
 
 const expandedThinking = ref(new Set());
-const expandedSaThinking = ref(new Set());
 const streamEl = ref(null);
-const MAX_EVENTS = 500;
+const MAX_ITEMS = 300;
 
-const visibleEvents = computed(() => {
-  if (props.events.length <= MAX_EVENTS) return props.events;
-  return props.events.slice(-MAX_EVENTS);
+const renderedItems = computed(() => {
+  const items = [];
+  const toolMap = new Map();
+  const subagentMap = new Map();
+  const systemMap = new Map();
+
+  for (const ev of props.events || []) {
+    if (!ev) continue;
+
+    if (ev.type === 'message' && ev.data?.content) {
+      const prev = items[items.length - 1];
+      if (prev?.kind === 'assistant') {
+        prev.content = `${prev.content}\n\n${ev.data.content}`;
+      } else {
+        items.push({
+          kind: 'assistant',
+          key: `msg:${ev._seq}`,
+          content: ev.data.content,
+        });
+      }
+      continue;
+    }
+
+    if (ev.type === 'thinking' && ev.data?.content) {
+      const prev = items[items.length - 1];
+      if (prev?.kind === 'thinking') {
+        prev.content = `${prev.content}\n\n${ev.data.content}`;
+      } else {
+        items.push({
+          kind: 'thinking',
+          key: `thinking:${ev._seq}`,
+          content: ev.data.content,
+        });
+      }
+      continue;
+    }
+
+    if (ev.type === 'tool_use') {
+      const item = {
+        kind: 'tool',
+        key: `tool:${ev.data?.id || ev._seq}`,
+        toolId: ev.data?.id || null,
+        name: ev.data?.name || 'Tool',
+        title: toolTitle(ev.data?.name),
+        shortId: ev.data?.id?.slice(0, 8) || '',
+        summary: toolSummary(ev.data?.name),
+        preview: toolPreview(ev.data?.name, ev.data?.input),
+        result: null,
+      };
+      toolMap.set(item.toolId, item);
+      items.push(item);
+      continue;
+    }
+
+    if (ev.type === 'tool_result') {
+      const matched = toolMap.get(ev.data?.toolUseId);
+      if (matched) {
+        matched.result = { summary: ev.data?.summary || '', isError: !!ev.data?.isError };
+      } else {
+        items.push({
+          kind: 'tool',
+          key: `tool-result:${ev._seq}`,
+          toolId: ev.data?.toolUseId || null,
+          name: 'Tool Result',
+          title: 'Tool Result',
+          shortId: ev.data?.toolUseId?.slice?.(0, 8) || '',
+          summary: 'Tool execution finished',
+          preview: '',
+          result: { summary: ev.data?.summary || '', isError: !!ev.data?.isError },
+        });
+      }
+      continue;
+    }
+
+    if (ev.type === 'task_progress' || ev.type === 'stream_event') {
+      const subagent = normalizeSubagentEvent(ev);
+      if (subagent) {
+        const key = subagent.id || `subagent:${subagent.title}`;
+        const existing = subagentMap.get(key);
+        if (existing) {
+          existing.status = subagent.status || existing.status;
+          existing.statusLabel = subagent.statusLabel || existing.statusLabel;
+          existing.step = subagent.step || existing.step;
+          existing.progress = subagent.progress ?? existing.progress;
+          if (subagent.highlights.length) existing.highlights = dedupeHighlights([...existing.highlights, ...subagent.highlights]).slice(-8);
+        } else {
+          subagentMap.set(key, subagent);
+          items.push(subagent);
+        }
+        continue;
+      }
+    }
+
+    if (ev.type === 'question') {
+      items.push({
+        kind: 'question',
+        key: `question:${ev.data?.questionId || ev._seq}`,
+        questions: ev.data?.questions || [],
+      });
+      continue;
+    }
+
+    if (ev.type === 'system') {
+      const systemItem = normalizeSystemEvent(ev);
+      if (systemItem) {
+        if (systemItem.aggregateKey) {
+          const existing = systemMap.get(systemItem.aggregateKey);
+          if (existing) {
+            mergeSystemItem(existing, systemItem);
+          } else {
+            systemMap.set(systemItem.aggregateKey, systemItem);
+            items.push(systemItem);
+          }
+        } else {
+          items.push(systemItem);
+        }
+      }
+      continue;
+    }
+
+    if (ev.type === 'stats') {
+      items.push({
+        kind: 'stats',
+        key: `stats:${ev._seq}`,
+        numTurns: ev.data?.numTurns || 0,
+        durationMs: ev.data?.durationMs || 0,
+        totalCost: ev.data?.totalCost || 0,
+        stopReason: ev.data?.stopReason || '',
+      });
+      continue;
+    }
+
+    if (ev.type === 'complete') {
+      items.push({
+        kind: 'complete',
+        key: `complete:${ev._seq}`,
+        status: ev.data?.status || 'completed',
+        text: ev.data?.status === 'failed'
+          ? `Diagnosis failed: ${ev.data?.error || ''}`
+          : `Diagnosis completed${ev.data?.verdict ? ` · Verdict: ${ev.data.verdict}` : ''}${ev.data?.score != null ? ` · Score: ${ev.data.score}` : ''}`,
+      });
+      continue;
+    }
+
+    if (ev.type === 'error') {
+      items.push({
+        kind: 'error',
+        key: `error:${ev._seq}`,
+        text: ev.data?.error || 'Unknown runtime error',
+      });
+      continue;
+    }
+
+    if (ev.type === 'hitl_request') {
+      items.push({
+        kind: 'hitl',
+        key: `hitl:${ev.data?.hitlId || ev._seq}`,
+        command: ev.data?.command || '',
+        riskDesc: ev.data?.riskDesc || 'Dangerous command',
+      });
+    }
+  }
+
+  if (items.length <= MAX_ITEMS) return items;
+  return items.slice(-MAX_ITEMS);
 });
 
-function toggleThinking(ev) {
-  const key = ev._seq;
+function toggleThinking(item) {
   const next = new Set(expandedThinking.value);
-  if (next.has(key)) next.delete(key); else next.add(key);
+  if (next.has(item.key)) next.delete(item.key);
+  else next.add(item.key);
   expandedThinking.value = next;
+}
+
+function renderMd(text) {
+  return renderMarkdown(text);
 }
 
 function toolCategory(name) {
@@ -387,6 +386,7 @@ function toolCategory(name) {
   if (name === 'Bash') return 'bash';
   if (['WebSearch', 'WebFetch'].includes(name)) return 'web';
   if (name === 'Skill') return 'skill';
+  if (name === 'AskUserQuestion') return 'skill';
   return 'default';
 }
 
@@ -399,10 +399,339 @@ function toolDotClass(name) {
   return map[name] || 'dot-blue';
 }
 
-function formatToolInput(input) {
+function toolTitle(name) {
+  const map = {
+    Read: 'Reading file',
+    Glob: 'Searching files',
+    Write: 'Writing file',
+    Edit: 'Editing file',
+    NotebookEdit: 'Editing notebook',
+    Bash: 'Running command',
+    WebSearch: 'Searching web',
+    WebFetch: 'Fetching web content',
+    Skill: 'Invoking skill',
+    AskUserQuestion: 'Preparing questions',
+  };
+  return map[name] || (name || 'Using tool');
+}
+
+function toolSummary(name) {
+  const map = {
+    Read: 'Claude is inspecting source or data content.',
+    Glob: 'Claude is locating matching files or patterns.',
+    Write: 'Claude is creating or replacing file content.',
+    Edit: 'Claude is patching existing content.',
+    NotebookEdit: 'Claude is updating a notebook cell or file.',
+    Bash: 'Claude is executing a shell command.',
+    WebSearch: 'Claude is gathering external information.',
+    WebFetch: 'Claude is opening a remote page.',
+    Skill: 'Claude is delegating work to a specialized skill.',
+    AskUserQuestion: 'Claude is pausing for structured user input.',
+  };
+  return map[name] || 'Claude is using an external tool.';
+}
+
+function toolPreview(name, input) {
   if (!input) return '';
-  if (typeof input === 'string') return input.slice(0, 300);
-  return JSON.stringify(input, null, 2).slice(0, 300);
+  if (name === 'Bash') return input.command || '';
+  if (name === 'Read' || name === 'Write' || name === 'Edit' || name === 'NotebookEdit') return input.file_path || '';
+  if (name === 'Glob') return input.pattern || '';
+  if (name === 'WebSearch') return input.query || '';
+  if (name === 'WebFetch') return input.url || input.query || '';
+  if (name === 'Skill') return input.skill || input.args || '';
+  if (name === 'AskUserQuestion') return `${input.questions?.length || 0} question(s) prepared`;
+  try {
+    return JSON.stringify(input).slice(0, 200);
+  } catch {
+    return String(input).slice(0, 200);
+  }
+}
+
+function normalizeSubagentEvent(ev) {
+  const data = ev.data || {};
+  const baseTitle = data.agentName || data.name || data.task?.name || inferSubagentTitleFromStream(data) || 'Sub-agent';
+  const status = data.status || data.task?.status || inferStatusFromStream(data) || 'running';
+  const highlights = extractHighlights(data.events || [data]);
+  const stage = inferSubagentStage(baseTitle, data, highlights);
+  return {
+    kind: 'subagent',
+    key: `subagent:${ev._seq}:${baseTitle}`,
+    id: data.taskId || data.task?.id || data.id || baseTitle,
+    title: baseTitle,
+    status,
+    statusLabel: humanizeStatus(status),
+    step: data.currentStep || data.message || data.current_step || inferStepFromStream(data),
+    progress: data.progress || null,
+    highlights,
+    stage,
+  };
+}
+
+function normalizeSystemEvent(ev) {
+  const subtype = ev.subtype || ev.data?.subtype || 'system';
+  if (subtype === 'init') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey: 'system:init',
+      title: 'Engine initialized',
+      text: `Model ${ev.data?.model || 'unknown'} · ${ev.data?.tools?.length || 0} tools · ${ev.data?.permissionMode || 'default'} permissions`,
+      level: 'important',
+      details: [],
+    };
+  }
+  if (subtype === 'continue') {
+    return { kind: 'system', key: `system:${ev._seq}`, title: 'Continuing session', text: ev.data?.message || 'Claude resumed the run.', level: 'important', details: [] };
+  }
+  if (subtype === 'chat_sent') {
+    return { kind: 'system', key: `system:${ev._seq}`, title: 'Follow-up sent', text: (ev.data?.message || '').slice(0, 200), level: 'normal', details: [] };
+  }
+  if (subtype === 'chat_error') {
+    return { kind: 'system', key: `system:${ev._seq}`, title: 'Chat error', text: ev.data?.error || 'Unknown chat error', level: 'warning', details: [] };
+  }
+  if (subtype.startsWith('hook_')) {
+    return normalizeHookSystemEvent(ev, subtype);
+  }
+  return {
+    kind: 'system',
+    key: `system:${ev._seq}`,
+    title: humanizeLabel(subtype),
+    text: summarizeSystemPayload(ev.data),
+    level: inferSystemLevel(subtype, ev.data),
+    details: [],
+  };
+}
+
+function normalizeHookSystemEvent(ev, subtype) {
+  const hookName = ev.data?.hook_name || 'system hook';
+  const hookEvent = ev.data?.hook_event || '';
+  const aggregateKey = `hook:${hookName}`;
+  if (subtype === 'hook_started') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey,
+      title: 'Running system hook',
+      text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
+      hookState: 'running',
+      level: 'normal',
+      details: [],
+    };
+  }
+  if (subtype === 'hook_progress') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey,
+      title: 'Running system hook',
+      text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
+      hookState: 'running',
+      level: 'normal',
+      details: collectHookDetails(ev.data),
+    };
+  }
+  if (subtype === 'hook_response') {
+    const outcome = ev.data?.outcome || (ev.data?.exit_code === 0 ? 'success' : 'finished');
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey,
+      title: outcome === 'success' ? 'System hook completed' : 'System hook finished',
+      text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
+      hookState: outcome,
+      level: outcome === 'success' ? 'normal' : 'important',
+      details: collectHookDetails(ev.data),
+    };
+  }
+  return {
+    kind: 'system',
+    key: `system:${ev._seq}`,
+    aggregateKey,
+    title: 'System hook',
+    text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
+    hookState: 'running',
+    level: 'normal',
+    details: collectHookDetails(ev.data),
+  };
+}
+
+function mergeSystemItem(existing, incoming) {
+  existing.title = incoming.title || existing.title;
+  existing.text = incoming.text || existing.text;
+  existing.hookState = incoming.hookState || existing.hookState;
+  const merged = [...(existing.details || []), ...(incoming.details || [])];
+  existing.details = dedupeTextList(merged).slice(-3);
+}
+
+function collectHookDetails(data) {
+  const details = [];
+  const metrics = extractHookMetrics(data);
+  if (metrics) details.push(metrics);
+  const outcome = extractHookOutcome(data);
+  if (outcome) details.push(outcome);
+  return details;
+}
+
+function extractHookMetrics(data) {
+  const raw = [data?.stdout, data?.output].filter(Boolean).join('\n');
+  const match = raw.match(/sdk_bootstrap_ms\":\s*(\d+)/) || raw.match(/\"pv\":\s*(\d+)/);
+  if (match) {
+    if (raw.includes('sdk_bootstrap_ms')) {
+      const ms = raw.match(/sdk_bootstrap_ms\":\s*(\d+)/)?.[1];
+      return ms ? `Bootstrap ${ms}ms` : '';
+    }
+    if (raw.includes('"pv"')) {
+      const pv = raw.match(/\"pv\":\s*(\d+)/)?.[1];
+      return pv ? `Context ${pv}` : '';
+    }
+  }
+  return '';
+}
+
+function extractHookOutcome(data) {
+  if (data?.outcome) return humanizeLabel(data.outcome);
+  if (typeof data?.exit_code === 'number') return `Exit ${data.exit_code}`;
+  return '';
+}
+
+function dedupeTextList(list) {
+  const seen = new Set();
+  return list.filter((item) => {
+    if (!item) return false;
+    if (seen.has(item)) return false;
+    seen.add(item);
+    return true;
+  });
+}
+
+function summarizeSystemPayload(value) {
+  if (!value || typeof value !== 'object') return summarizeAny(value);
+  const filtered = {};
+  for (const [key, val] of Object.entries(value)) {
+    if (['stdout', 'stderr', 'output', 'additionalContext'].includes(key)) continue;
+    if (val == null || val === '') continue;
+    filtered[key] = val;
+  }
+  return summarizeAny(filtered);
+}
+
+function inferSystemLevel(subtype, data) {
+  if (String(subtype).includes('error')) return 'warning';
+  if (String(subtype).includes('init') || String(subtype).includes('continue')) return 'important';
+  if (data?.outcome && data.outcome !== 'success') return 'warning';
+  return 'normal';
+}
+
+function inferSubagentStage(title, data, highlights) {
+  const haystack = [
+    title,
+    data?.currentStep,
+    data?.message,
+    ...(highlights || []).map(h => `${h.label} ${h.text}`),
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if (/(read|load|inspect|parse|csv|excel|json|schema|browse|file)/.test(haystack)) {
+    return { key: 'data', label: '读数据', tone: 'blue' };
+  }
+  if (/(plot|chart|figure|visual|trend|draw|graph|heatmap)/.test(haystack)) {
+    return { key: 'visual', label: '画图', tone: 'cyan' };
+  }
+  if (/(reason|diagnos|root cause|infer|physics|ontology|hypothesis|analysis)/.test(haystack)) {
+    return { key: 'reason', label: '推理', tone: 'purple' };
+  }
+  if (/(report|summary|write report|markdown|output|deliverable)/.test(haystack)) {
+    return { key: 'report', label: '报告', tone: 'green' };
+  }
+  return { key: 'general', label: '处理中', tone: 'gray' };
+}
+
+function systemIcon(level) {
+  return level === 'warning' ? '⚠ ' : level === 'important' ? '✦ ' : 'ℹ ';
+}
+
+function systemDotClass(level) {
+  if (level === 'warning') return 'dot-red';
+  if (level === 'important') return 'dot-yellow';
+  return 'dot-gray';
+}
+
+function extractHighlights(events) {
+  return dedupeHighlights((events || []).map((entry) => {
+    if (!entry) return null;
+    if (entry.type === 'thinking') return { icon: '🧠', label: 'Thinking', text: summarizeAny(entry.thinking || entry.content) };
+    if (entry.type === 'message' || entry.type === 'text') return { icon: '💬', label: 'Message', text: summarizeAny(entry.content || entry.text) };
+    if (entry.type === 'tool_use') return { icon: '⚙️', label: entry.name || 'Tool', text: toolPreview(entry.name, entry.input) };
+    if (entry.type === 'tool_result') return { icon: entry.is_error ? '✗' : '✓', label: 'Result', text: summarizeAny(entry.summary || entry.content || entry.text) };
+    if (entry.type === 'task_progress') return { icon: '🔄', label: entry.name || entry.task?.name || 'Task', text: entry.message || entry.current_step || entry.status || '' };
+    return { icon: '📡', label: humanizeLabel(entry.type || 'event'), text: summarizeAny(entry) };
+  }).filter(Boolean)).slice(-6);
+}
+
+function dedupeHighlights(entries) {
+  const seen = new Set();
+  return entries.filter((entry) => {
+    const key = `${entry.icon}:${entry.label}:${entry.text}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function inferSubagentTitleFromStream(data) {
+  if (data?.type === 'tool_use') return 'Sub-agent tool action';
+  if (data?.type === 'tool_result') return 'Sub-agent tool result';
+  if (data?.type === 'thinking') return 'Sub-agent reasoning';
+  if (data?.type === 'message' || data?.type === 'text') return 'Sub-agent update';
+  return '';
+}
+
+function inferStatusFromStream(data) {
+  if (data?.type === 'tool_result' && data?.is_error) return 'failed';
+  return 'running';
+}
+
+function inferStepFromStream(data) {
+  if (data?.type === 'tool_use') return `${data.name || 'Tool'} in progress`;
+  if (data?.type === 'tool_result') return `${data.is_error ? 'Tool failed' : 'Tool finished'}`;
+  if (data?.type === 'message' || data?.type === 'text') return summarizeAny(data.content || data.text);
+  if (data?.type === 'thinking') return 'Reasoning about next step';
+  return '';
+}
+
+function summarizeAny(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value.slice(0, 180);
+  if (Array.isArray(value)) {
+    return value.map((v) => summarizeAny(v)).join(' ').slice(0, 180);
+  }
+  if (typeof value === 'object') {
+    if (typeof value.text === 'string') return value.text.slice(0, 180);
+    if (typeof value.content === 'string') return value.content.slice(0, 180);
+    try {
+      return JSON.stringify(value).slice(0, 180);
+    } catch {
+      return String(value).slice(0, 180);
+    }
+  }
+  return String(value).slice(0, 180);
+}
+
+function humanizeStatus(status) {
+  const map = {
+    running: 'Running',
+    in_progress: 'Running',
+    completed: 'Completed',
+    failed: 'Failed',
+    pending: 'Pending',
+    stopped: 'Stopped',
+  };
+  return map[status] || 'Running';
+}
+
+function humanizeLabel(text) {
+  return String(text || 'event')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
 }
 
 function formatDuration(ms) {
@@ -410,10 +739,6 @@ function formatDuration(ms) {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
   return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
-}
-
-function renderMd(text) {
-  return renderMarkdown(text);
 }
 
 function statusIcon(status) {
@@ -435,116 +760,82 @@ function statusBadgeClass(status) {
 function progressPercent(progress) {
   if (!progress) return 0;
   if (typeof progress === 'number') return Math.min(100, Math.max(0, progress));
-  if (progress.completed != null && progress.total) {
-    return Math.min(100, Math.round((progress.completed / progress.total) * 100));
-  }
+  if (progress.completed != null && progress.total) return Math.min(100, Math.round((progress.completed / progress.total) * 100));
   return 0;
 }
 
 function progressText(progress) {
   if (!progress) return '';
   if (typeof progress === 'number') return `${progress}%`;
-  if (progress.completed != null && progress.total) {
-    return `${progress.completed}/${progress.total}`;
-  }
+  if (progress.completed != null && progress.total) return `${progress.completed}/${progress.total}`;
   return '';
 }
 
-// Sub-agent event helpers
-const saThinkingKey = (seq, idx) => `${seq}_sa_${idx}`;
-
-function toggleSaThinking(seq, idx) {
-  const key = saThinkingKey(seq, idx);
-  const next = new Set(expandedSaThinking.value);
-  if (next.has(key)) next.delete(key); else next.add(key);
-  expandedSaThinking.value = next;
-}
-
-function saThinkingOpen(seq, idx) {
-  return expandedSaThinking.value.has(saThinkingKey(seq, idx));
-}
-
-function extractSaText(saEv) {
-  // message content can be string or block array
-  if (typeof saEv.content === 'string') return saEv.content;
-  if (saEv.content && Array.isArray(saEv.content)) {
-    return saEv.content.map(c => typeof c === 'string' ? c : c.text || '').join(' ').slice(0, 300);
-  }
-  return '';
-}
-
-function formatSaInput(saEv) {
-  const input = saEv.input || {};
-  // Show relevant fields
-  const show = input.file_path || input.command || input.query || input.skill || input.pattern;
-  if (show) return typeof show === 'string' ? show : JSON.stringify(show);
-  return JSON.stringify(input).slice(0, 100);
-}
-
-function extractStreamEventText(ev) {
-  if (typeof ev.content === 'string') return ev.content.slice(0, 200);
-  if (ev.content && Array.isArray(ev.content)) {
-    return ev.content.map(c => typeof c === 'string' ? c : c.text || '').join(' ').slice(0, 200);
-  }
-  if (ev.text) return ev.text.slice(0, 200);
-  return '';
-}
-
-function extractSaResult(saEv) {
-  if (typeof saEv.content === 'string') return saEv.content.slice(0, 100);
-  if (saEv.summary) return saEv.summary.slice(0, 100);
-  if (saEv.text) return saEv.text.slice(0, 100);
-  return '';
-}
-
-// Auto-scroll when new events arrive
 watch(() => props.events.length, () => {
   nextTick(() => {
-    if (streamEl.value) {
-      streamEl.value.scrollTo({ top: streamEl.value.scrollHeight, behavior: 'smooth' });
-    }
+    if (streamEl.value) streamEl.value.scrollTo({ top: streamEl.value.scrollHeight, behavior: 'smooth' });
   });
 });
 </script>
 
 <style scoped>
 .message-stream {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px 16px;
-  flex: 1; overflow-y: auto; scroll-behavior: smooth;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   min-height: 200px;
 }
-
 .ms-connecting {
-  display: flex; align-items: center; gap: 10px;
-  justify-content: center; padding: 32px; color: var(--text2); font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 32px;
+  color: var(--text2);
+  font-size: 13px;
 }
-
-/* Timeline Item */
 .ms-item {
-  display: flex; gap: 12px; padding: 4px 0;
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
   animation: fadeSlideIn .25s ease;
 }
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-/* Rail */
 .ms-rail {
-  display: flex; flex-direction: column; align-items: center;
-  width: 20px; flex-shrink: 0; position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+  position: relative;
 }
 .ms-rail::before {
-  content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
-  width: 1px; background: var(--border); transform: translateX(-50%);
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
 }
 .ms-item:first-child .ms-rail::before { top: 50%; }
 .ms-item:last-child .ms-rail::before { bottom: 50%; }
-
 .ms-dot {
-  width: 8px; height: 8px; border-radius: 50%; z-index: 1;
-  position: relative; flex-shrink: 0; margin: 6px 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  z-index: 1;
+  position: relative;
+  flex-shrink: 0;
+  margin: 6px 0;
 }
 .dot-blue { background: var(--accent); }
 .dot-green { background: var(--green); }
@@ -560,40 +851,55 @@ watch(() => props.events.length, () => {
 }
 .dot-blue.pulse { color: var(--accent); }
 .dot-red.pulse { color: var(--red); }
-
-/* Body */
 .ms-body { flex: 1; min-width: 0; padding-right: 4px; }
-
-/* Event Cards */
 .ms-card { border-radius: 8px; overflow: hidden; }
-
-/* Thinking */
 .card-thinking {
-  background: rgba(188,140,255,.05); border: 1px solid rgba(188,140,255,.15);
-  border-radius: 8px; cursor: pointer;
+  background: rgba(188,140,255,.05);
+  border: 1px solid rgba(188,140,255,.15);
+  border-radius: 8px;
+  cursor: pointer;
 }
 .card-thinking:hover { background: rgba(188,140,255,.08); }
 .ms-card-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 .ms-card-icon { font-size: 14px; }
 .ms-card-title { font-weight: 600; color: var(--text2); }
 .ms-card-toggle { margin-left: auto; font-size: 10px; color: var(--text2); transition: transform .2s; }
 .ms-card-toggle.open { transform: rotate(90deg); }
 .ms-thinking-content {
-  padding: 8px 16px 12px; font-size: 12px; color: var(--text2);
-  line-height: 1.6; font-family: 'SF Mono', 'Fira Code', monospace;
+  padding: 8px 16px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  font-family: 'SF Mono', 'Fira Code', monospace;
   border-top: 1px solid rgba(188,140,255,.1);
-  white-space: pre-wrap; max-height: 300px; overflow-y: auto;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
 }
-
-/* Message */
 .card-msg { background: transparent; border: none; }
 .msg-content { font-size: 13px; line-height: 1.8; color: var(--text); }
 .msg-content :deep(p) { margin: 4px 0; }
-.msg-content :deep(code) { background: var(--surface2); padding: 2px 6px; border-radius: 3px; font-size: 12px; color: var(--accent); }
-.msg-content :deep(pre) { background: var(--surface2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
+.msg-content :deep(code) {
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--accent);
+}
+.msg-content :deep(pre) {
+  background: var(--surface2);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 12px;
+  margin: 8px 0;
+}
 .msg-content :deep(pre code) { background: none; padding: 0; color: var(--text); }
 .msg-content :deep(ul), .msg-content :deep(ol) { padding-left: 20px; margin: 4px 0; }
 .msg-content :deep(strong) { font-weight: 700; color: #fff; }
@@ -602,8 +908,6 @@ watch(() => props.events.length, () => {
 .msg-content :deep(table) { border-collapse: collapse; margin: 8px 0; width: 100%; }
 .msg-content :deep(th), .msg-content :deep(td) { border: 1px solid var(--border); padding: 6px 10px; font-size: 12px; }
 .msg-content :deep(th) { background: var(--surface2); font-weight: 600; }
-
-/* Tool Use */
 .card-tool { border-radius: 8px; padding: 10px 14px; }
 .tool-read { background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.12); }
 .tool-write { background: rgba(63,185,80,.05); border: 1px solid rgba(63,185,80,.12); }
@@ -611,67 +915,149 @@ watch(() => props.events.length, () => {
 .tool-web { background: rgba(34,211,238,.05); border: 1px solid rgba(34,211,238,.12); }
 .tool-skill { background: rgba(188,140,255,.05); border: 1px solid rgba(188,140,255,.12); }
 .tool-default { background: var(--surface2); border: 1px solid var(--border); }
-
+.tool-running {
+  position: relative;
+  overflow: hidden;
+}
+.tool-running::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
+  transform: translateX(-100%);
+  animation: toolSweep 1.8s infinite;
+  pointer-events: none;
+}
+.tool-complete::after { display: none; }
+@keyframes toolSweep {
+  to { transform: translateX(100%); }
+}
 .ms-tool-badge {
-  display: inline-block; padding: 2px 10px; border-radius: 4px;
-  font-size: 11px; font-weight: 700; background: rgba(255,255,255,.06); color: var(--text);
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,.06);
+  color: var(--text);
   letter-spacing: .3px;
 }
-.ms-tool-id { font-size: 10px; color: var(--text2); font-family: monospace; margin-left: 8px; }
+.ms-tool-id { font-size: 10px; color: var(--text2); font-family: monospace; }
+.tool-state {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(88,166,255,.08);
+  color: var(--accent);
+}
+.tool-state-ok { background: rgba(63,185,80,.1); color: var(--green); }
+.tool-state-error { background: rgba(248,81,73,.1); color: var(--red); }
+.tool-summary {
+  padding: 0 12px 8px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
 .ms-tool-input {
-  margin-top: 8px; font-size: 12px; line-height: 1.5;
-  display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap;
+  margin: 0 12px 8px;
+  font-size: 12px;
+  line-height: 1.5;
 }
-.ms-tool-input .tool-label { color: var(--text2); font-weight: 600; font-size: 11px; flex-shrink: 0; }
 .ms-tool-input code {
-  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px;
-  color: var(--accent); background: rgba(88,166,255,.06);
-  padding: 2px 8px; border-radius: 4px; word-break: break-all;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(88,166,255,.06);
+  padding: 6px 8px;
+  border-radius: 4px;
+  word-break: break-all;
+  display: block;
 }
-.tool-bash .ms-tool-input code { color: var(--yellow); background: rgba(210,153,34,.06); }
-.tool-write .ms-tool-input code { color: var(--green); background: rgba(63,185,80,.06); }
-
-/* Tool Result */
+.tool-result-inline { margin: 0 12px 4px; }
 .ms-result-card {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 6px 12px; border-radius: 6px; font-size: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 .result-ok { background: rgba(63,185,80,.05); color: var(--green); }
 .result-err { background: rgba(248,81,73,.05); color: var(--red); }
 .result-icon { font-weight: 700; flex-shrink: 0; }
-.result-text { color: var(--text2); font-family: 'SF Mono', monospace; font-size: 11px;
-  max-height: 80px; overflow-y: auto; line-height: 1.5; word-break: break-all; }
-
-/* System */
+.result-text {
+  color: var(--text2);
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.5;
+  word-break: break-all;
+}
 .ms-sys-card {
-  font-size: 12px; color: var(--text2); padding: 6px 12px;
-  background: rgba(139,148,158,.04); border-radius: 6px;
+  font-size: 12px;
+  color: var(--text2);
+  padding: 6px 12px;
+  background: rgba(139,148,158,.04);
+  border-radius: 6px;
+}
+.ms-sys-card.sys-normal {
+  border-left: 3px solid rgba(139,148,158,.35);
+}
+.ms-sys-card.sys-important {
+  border-left: 3px solid rgba(210,153,34,.8);
+  background: rgba(210,153,34,.05);
+}
+.ms-sys-card.sys-warning {
+  border-left: 3px solid rgba(248,81,73,.85);
+  background: rgba(248,81,73,.06);
 }
 .ms-sys-card strong { color: var(--text); }
-
-/* Stats */
+.sys-icon { opacity: .9; }
+.sys-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.sys-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: rgba(255,255,255,.05);
+  color: var(--text2);
+}
 .ms-stats-card {
-  display: flex; gap: 20px; flex-wrap: wrap;
-  padding: 10px 16px; background: rgba(210,153,34,.04);
-  border: 1px solid rgba(210,153,34,.1); border-radius: 8px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: rgba(210,153,34,.04);
+  border: 1px solid rgba(210,153,34,.1);
+  border-radius: 8px;
 }
 .stat-item { display: flex; flex-direction: column; gap: 2px; }
 .stat-val { font-size: 14px; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
 .stat-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; }
-
-/* HITL */
 .card-hitl {
-  padding: 10px 14px; background: rgba(248,81,73,.05);
-  border: 1px solid rgba(248,81,73,.15); border-radius: 8px;
+  padding: 10px 14px;
+  background: rgba(248,81,73,.05);
+  border: 1px solid rgba(248,81,73,.15);
+  border-radius: 8px;
 }
 .hitl-warn { font-size: 12px; color: var(--red); font-weight: 600; margin-bottom: 6px; }
 .hitl-cmd { font-size: 11px; color: var(--text2); font-family: monospace; word-break: break-all; }
-
-/* Typing */
 .typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
 .typing-indicator span {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); opacity: .4;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .4;
   animation: typingBounce 1.2s infinite;
 }
 .typing-indicator span:nth-child(2) { animation-delay: .2s; }
@@ -680,40 +1066,29 @@ watch(() => props.events.length, () => {
   0%, 60%, 100% { transform: translateY(0); opacity: .4; }
   30% { transform: translateY(-4px); opacity: 1; }
 }
-
 .spinner-sm {
-  display: inline-block; width: 14px; height: 14px;
-  border: 2px solid var(--border); border-top-color: var(--accent);
-  border-radius: 50%; animation: spin .8s linear infinite;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* Question event card */
-.card-question {
-  border-left: 3px solid var(--purple);
-}
-
+.card-question { border-left: 3px solid var(--purple); }
 .ms-question-count {
-  font-size: 11px; color: var(--text2); background: var(--surface2);
-  padding: 2px 8px; border-radius: 10px; margin-left: auto;
+  font-size: 11px;
+  color: var(--text2);
+  background: var(--surface2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: auto;
 }
-
-.question-list {
-  padding: 10px 14px 6px;
-}
-
-.question-block {
-  margin-bottom: 16px;
-}
-
-.question-block:last-child {
-  margin-bottom: 8px;
-}
-
-.question-header {
-  margin-bottom: 6px;
-}
-
+.question-list { padding: 10px 14px 6px; }
+.question-block { margin-bottom: 16px; }
+.question-block:last-child { margin-bottom: 8px; }
+.question-header { margin-bottom: 6px; }
 .q-chip {
   display: inline-block;
   padding: 2px 10px;
@@ -725,61 +1100,44 @@ watch(() => props.events.length, () => {
   background: rgba(188, 140, 255, .1);
   color: var(--purple);
 }
-
 .question-text {
-  font-size: 13px; color: var(--text); font-weight: 600;
-  margin-bottom: 8px; line-height: 1.45;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.45;
 }
-
-.question-num {
-  color: var(--purple); font-weight: 700; margin-right: 4px;
-}
-
-.question-options {
-  display: flex; flex-direction: column; gap: 4px;
-  padding-left: 2px;
-}
-
+.question-num { color: var(--purple); font-weight: 700; margin-right: 4px; }
+.question-options { display: flex; flex-direction: column; gap: 4px; padding-left: 2px; }
 .question-option {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 6px 10px; border-radius: 6px; font-size: 13px;
-  color: var(--text); line-height: 1.45;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
   transition: background .1s;
   border: 1px solid transparent;
 }
-
 .question-option:hover {
   background: rgba(188, 140, 255, .04);
   border-color: rgba(188, 140, 255, .1);
 }
-
-.question-option-empty {
-  color: var(--text2); font-style: italic;
-}
-
+.question-option-empty { color: var(--text2); font-style: italic; }
 .option-marker {
-  flex-shrink: 0; width: 18px; text-align: center;
-  color: var(--purple); font-size: 13px; margin-top: 1px;
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  color: var(--purple);
+  font-size: 13px;
+  margin-top: 1px;
 }
-
-.option-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.option-label {
-  font-weight: 600; color: var(--text);
-}
-
-.option-desc {
-  color: var(--text2); font-size: 12px;
-  margin-top: 2px; display: block;
-}
-
-.option-preview {
-  margin-top: 8px;
-}
-
+.option-info { flex: 1; min-width: 0; }
+.option-label { font-weight: 600; color: var(--text); }
+.option-desc { color: var(--text2); font-size: 12px; margin-top: 2px; display: block; }
+.option-preview { margin-top: 8px; }
 .option-preview-chip {
   display: inline-block;
   font-size: 10px;
@@ -789,7 +1147,6 @@ watch(() => props.events.length, () => {
   color: var(--purple);
   margin-bottom: 6px;
 }
-
 .option-preview-content {
   padding: 8px 12px;
   background: var(--surface2);
@@ -798,7 +1155,6 @@ watch(() => props.events.length, () => {
   font-size: 12px;
   line-height: 1.5;
 }
-
 .option-preview-content :deep(pre) {
   background: var(--bg);
   padding: 8px;
@@ -807,7 +1163,6 @@ watch(() => props.events.length, () => {
   font-size: 11px;
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
-
 .option-preview-content :deep(code) {
   background: var(--bg);
   padding: 2px 6px;
@@ -815,12 +1170,7 @@ watch(() => props.events.length, () => {
   font-size: 11px;
   color: var(--accent);
 }
-
-.option-preview-content :deep(pre code) {
-  background: none;
-  padding: 0;
-}
-
+.option-preview-content :deep(pre code) { background: none; padding: 0; }
 .question-type-badge {
   display: inline-block;
   margin-top: 6px;
@@ -831,81 +1181,72 @@ watch(() => props.events.length, () => {
   background: rgba(88, 166, 255, .1);
   color: var(--accent);
 }
-
-/* Task Progress card */
-.card-progress {
-  border-left: 3px solid var(--accent);
-}
-
-.card-progress.progress-completed {
-  border-left-color: var(--green);
-}
-
-.card-progress.progress-failed {
-  border-left-color: var(--red);
-}
-
-.progress-badge {
+.card-progress { border-left: 3px solid var(--accent); }
+.card-progress.progress-completed { border-left-color: var(--green); }
+.card-progress.progress-failed { border-left-color: var(--red); }
+.progress-badge { margin-left: auto; }
+.stage-chip {
   margin-left: auto;
+  margin-right: 8px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: .2px;
 }
-
-.progress-detail {
-  padding: 6px 12px 2px;
-}
-
-.progress-step {
-  font-size: 13px; color: var(--text); line-height: 1.45;
-}
-
+.stage-blue { background: rgba(88,166,255,.12); color: var(--accent); }
+.stage-cyan { background: rgba(34,211,238,.12); color: #22d3ee; }
+.stage-purple { background: rgba(188,140,255,.12); color: var(--purple); }
+.stage-green { background: rgba(63,185,80,.12); color: var(--green); }
+.stage-gray { background: rgba(139,148,158,.12); color: var(--text2); }
+.progress-detail { padding: 6px 12px 2px; }
+.progress-step { font-size: 13px; color: var(--text); line-height: 1.45; }
 .progress-bar-wrapper {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 12px;
 }
-
 .progress-bar-wrapper .progress-bar {
-  flex: 1; height: 6px; background: var(--surface2);
-  border-radius: 3px; overflow: hidden;
+  flex: 1;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
 }
-
 .progress-bar-wrapper .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--accent2), var(--accent));
-  border-radius: 3px; transition: width .4s ease;
+  border-radius: 3px;
+  transition: width .4s ease;
 }
-
-.card-progress.progress-completed .progress-fill {
-  background: linear-gradient(90deg, #238636, var(--green));
-}
-
-.card-progress.progress-failed .progress-fill {
-  background: linear-gradient(90deg, #da3633, var(--red));
-}
-
+.card-progress.progress-completed .progress-fill { background: linear-gradient(90deg, #238636, var(--green)); }
+.card-progress.progress-failed .progress-fill { background: linear-gradient(90deg, #da3633, var(--red)); }
 .progress-text {
-  font-size: 12px; color: var(--text2); flex-shrink: 0;
-  min-width: 40px; text-align: right; font-weight: 600;
+  font-size: 12px;
+  color: var(--text2);
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: right;
+  font-weight: 600;
 }
-
-/* ── Sub-Agent Events Timeline (nested) ── */
 .sa-events {
   border-top: 1px solid var(--border);
   padding: 6px 12px;
-  max-height: 360px;
+  max-height: 260px;
   overflow-y: auto;
 }
-
 .sa-event {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 3px 6px;
+  padding: 4px 6px;
   border-radius: 4px;
   font-size: 12px;
   line-height: 1.45;
   border-bottom: 1px solid rgba(48, 54, 61, .4);
 }
 .sa-event:last-child { border-bottom: none; }
-
 .sa-icon {
   flex-shrink: 0;
   width: 20px;
@@ -914,86 +1255,7 @@ watch(() => props.events.length, () => {
   color: var(--text2);
   margin-top: 2px;
 }
-
-.sa-thinking { cursor: pointer; flex-wrap: wrap; }
-.sa-thinking:hover { background: rgba(188,140,255,.04); }
-.sa-label { color: var(--text2); font-weight: 600; font-size: 11px; flex: 1; }
-.sa-toggle { font-size: 10px; color: var(--text2); transition: transform .2s; margin-left: auto; }
-.sa-toggle.open { transform: rotate(90deg); }
-.sa-thinking-content {
-  width: 100%;
-  margin-top: 6px;
-  padding: 8px 10px;
-  background: rgba(188,140,255,.04);
-  border: 1px solid rgba(188,140,255,.08);
-  border-radius: 4px;
-  font-size: 11px;
-  color: var(--text2);
-  line-height: 1.5;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  white-space: pre-wrap;
-  max-height: 120px;
-  overflow-y: auto;
-}
-
-.sa-message { }
-.sa-msg-icon { flex-shrink: 0; width: 20px; text-align: center; font-size: 11px; color: var(--accent); }
-.sa-msg-text {
-  flex: 1;
-  color: var(--text);
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-
-.sa-tool { }
-.sa-tool-icon { color: var(--yellow); }
-.sa-tool-name {
-  font-weight: 700;
-  color: var(--text);
-  font-size: 11px;
-  flex-shrink: 0;
-  background: rgba(210,153,34,.08);
-  padding: 0 6px;
-  border-radius: 3px;
-}
-.sa-tool-input {
-  flex: 1;
-  color: var(--text2);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sa-result { }
-.sa-ok-icon { color: var(--green); }
-.sa-err-icon { color: var(--red); }
-.sa-result-text {
-  flex: 1;
-  color: var(--text2);
-  font-size: 11px;
-  font-family: 'SF Mono', monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sa-task-progress { gap: 4px; }
-.sa-status {
-  font-size: 10px;
-  color: var(--accent);
-  background: rgba(88,166,255,.08);
-  padding: 0 6px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.sa-fallback { }
+.sa-label { color: var(--text2); font-weight: 600; font-size: 11px; flex-shrink: 0; }
 .sa-fallback-preview {
   flex: 1;
   font-family: monospace;
@@ -1002,20 +1264,5 @@ watch(() => props.events.length, () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* ── Sub-Agent Event Icons by type (pseudo) ── */
-
-/* Unknown event card */
-.card-unknown {
-  border-left: 3px solid var(--border);
-}
-
-.unknown-payload {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 4px; padding: 10px 12px; margin: 8px 12px 12px;
-  font-size: 11px; font-family: 'SF Mono', 'Fira Code', monospace;
-  color: var(--text2); max-height: 200px; overflow-y: auto;
-  white-space: pre-wrap; word-break: break-all; line-height: 1.5;
 }
 </style>

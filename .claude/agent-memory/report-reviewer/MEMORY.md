@@ -1,2 +1,4 @@
 - [Scratch Defect Target Variable Pattern](scratch-defect-target-variable-pattern.md) — BOPET scratch diagnosis revealed scratch_count vs scratch_rate mixing as pipeline weakness
 - [Statistical Robustness Checks](statistical-robustness-checks.md) — validate_report SERIOUS_CONCERNS must be surfaced in report text, not summarized as "passed"
+- [Time Trend Confound Within Model](time-trend-confound-within-model.md) — PG31DS W1C8C r=-0.964 time trend: within-model time partialling is mandatory even when global time_sorted=null
+- [Cross-Model Consistency Is Not Causal](cross-model-consistency-is-not-causal.md) — H2's cross-model sign consistency is same between-model pattern as H1's BETWEEN_PRODUCT_ONLY false alarm

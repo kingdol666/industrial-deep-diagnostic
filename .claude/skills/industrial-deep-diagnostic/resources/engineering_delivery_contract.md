@@ -62,3 +62,4 @@
 - `evidence-closure-check.mjs` 通过
 - `artifact-check.mjs` 通过
 - `run_manifest.json` 中 `present` 步骤完成
+- `.pipeline_events.jsonl` 中存在最终 `run_completed` 事件

@@ -1,6 +1,6 @@
 // Chat Routes — direct Claude Agent SDK chat with streaming SSE
 import { Router } from 'express';
-import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter } from '../services/chat.service.mjs';
+import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter, getChatHistory, getChatSession, renameChatSession, deleteChatSession } from '../services/chat.service.mjs';
 
 const router = Router();
 
@@ -86,7 +86,47 @@ router.get('/info/:chatId', (req, res) => {
   res.json({ success: true, data: info || { active: false } });
 });
 
-// GET /api/chat/list — list active chat IDs
+// GET /api/chat/history/:chatId — persisted chat session + messages
+router.get('/history/:chatId', (req, res) => {
+  const history = getChatHistory(req.params.chatId);
+  if (!history) {
+    return res.status(404).json({ success: false, error: 'Chat history not found' });
+  }
+  res.json({ success: true, data: history });
+});
+
+// GET /api/chat/session/:chatId — persisted chat session only
+router.get('/session/:chatId', (req, res) => {
+  const session = getChatSession(req.params.chatId);
+  if (!session) {
+    return res.status(404).json({ success: false, error: 'Chat session not found' });
+  }
+  res.json({ success: true, data: session });
+});
+
+// PATCH /api/chat/session/:chatId — rename chat session
+router.patch('/session/:chatId', (req, res) => {
+  const { title } = req.body || {};
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    return res.status(400).json({ success: false, error: 'title is required' });
+  }
+  const session = renameChatSession(req.params.chatId, title.trim());
+  if (!session) {
+    return res.status(404).json({ success: false, error: 'Chat session not found' });
+  }
+  res.json({ success: true, data: session });
+});
+
+// DELETE /api/chat/session/:chatId — delete chat session + history
+router.delete('/session/:chatId', (req, res) => {
+  const deleted = deleteChatSession(req.params.chatId);
+  if (!deleted) {
+    return res.status(404).json({ success: false, error: 'Chat session not found' });
+  }
+  res.json({ success: true, data: { chatId: req.params.chatId, deleted: true } });
+});
+
+// GET /api/chat/list — list persisted chat sessions
 router.get('/list', (_req, res) => {
   res.json({ success: true, data: listActiveChats() });
 });

@@ -71,6 +71,23 @@ export const api = {
     request(`/history/runs/${runId}`, { method: 'DELETE' }),
   getSessionContent: (runId) => request(`/diagnosis/session/${runId}`),
 
+  // Chat
+  startChat: (params) =>
+    request('/chat/start', { method: 'POST', body: JSON.stringify(params) }),
+  sendChatMessage: (chatId, params) =>
+    request(`/chat/send/${chatId}`, { method: 'POST', body: JSON.stringify(params) }),
+  stopChat: (chatId) =>
+    request(`/chat/stop/${chatId}`, { method: 'POST' }),
+  getChatInfo: (chatId) => request(`/chat/info/${chatId}`),
+  getChatSession: (chatId) => request(`/chat/session/${chatId}`),
+  renameChatSession: (chatId, title) =>
+    request(`/chat/session/${chatId}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
+  deleteChatSession: (chatId) =>
+    request(`/chat/session/${chatId}`, { method: 'DELETE' }),
+  getChatHistory: (chatId) => request(`/chat/history/${chatId}`),
+  listChats: () => request('/chat/list'),
+  chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}`,
+
   // SSE stream
   streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
 };

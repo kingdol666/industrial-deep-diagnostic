@@ -1,0 +1,2 @@
+- [CNC Spindle Wear — Simpson Paradox Rejected](cnc-simpson-paradox-rejected.md) — Material-based Simpson Paradox hypothesis was NOT confirmed: time confounding was the true mechanism
+- [cleaned_data.json String Type Gotcha](string-type-gotcha.md) — dp_toolkit.py preprocess outputs string-typed numerics that crash physics_check.py

@@ -28,6 +28,9 @@
         @view-report="onViewReport"
         @go-data="currentTab = 'data'"
       />
+      <ChatView
+        v-if="currentTab === 'chat'"
+      />
       <ReportViewer
         v-if="currentTab === 'reports'"
         :auto-run-id="autoOpenRunId"
@@ -46,6 +49,7 @@
 import { ref } from 'vue';
 import DataBrowser from './components/data/DataBrowser.vue';
 import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
+import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 
@@ -57,6 +61,7 @@ const openReportPath = ref(null);
 const tabs = [
   { key: 'data', label: 'Data' },
   { key: 'diagnose', label: 'Diagnose' },
+  { key: 'chat', label: 'Chat' },
   { key: 'reports', label: 'Reports' },
   { key: 'history', label: 'History' },
 ];
