@@ -102,35 +102,47 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/<schema>.json" "$RU
 
 ---
 
+## Multi-Agent Pipeline Architecture
+
+This skill uses **6 specialized sub-agents** defined in `.claude/agents/`. Each agent is launched via the `Agent` tool with `permissionMode: "bypassPermissions"` for zero-interruption execution.
+
+| Pipeline Step | Agent Name | Subagent Type | Model | Purpose |
+|:-------------:|------------|:-------------:|:-----:|---------|
+| Step 2 | Context Builder | `context-builder` | opus | RAG检索 + 本体ontology构建 |
+| Step 3 | Data Processor | `data-processor` | opus | 数据分析 + 可视化 + VLM视觉分析 |
+| Step 4 | Diagnostician | `diagnostician` | opus | 竞争假说根因诊断 |
+| Step 5 | Judge | `judge` | opus | 10项标准质量门审查 |
+| Step 6 | Reporter | `reporter` | opus | 20节中文诊断报告生成 |
+| Step 7 | Report Reviewer | `report-reviewer` | opus | 独立物理真实审计 |
+
+Each agent runs in its own context window with a specialized system prompt, independent tool access, and `permissionMode: "bypassPermissions"`.
+
 ## Execution Flow
 
 ```
-Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context Build (RAG + Ontology + Deep Mapping)
+Step 0: Setup ──► Step 1: Inspect ──► Step 2: context-builder (RAG + Ontology + Deep Mapping)
                                           │
                                           ▼
                                      Step 2.5: Clarify ──┐
                                           │               │
                                           ▼               │
-                                     Step 3: Data+Viz+Validate (Scenario-Adaptive)
+                                     Step 3: data-processor (Data+Viz+VLM Analysis)
                                           │               │
                                           ▼               │
-                                     Step 3.5: VLM Visual Analysis ──► visual_analysis.json
-                                          │               │
-                                          ▼               │
-                                     Step 4: Diagnostician (Physics-Based Competing Hypotheses)
+                                     Step 4: diagnostician (Physics-Based Competing Hypotheses)
                                           │               │
                                     ┌─────▼─────┐         │
                                     │ Step 5:   │◄── repair max 3 ─┐
-                                    │ Judge     │                    │
+                                    │ judge     │                    │
                                     └─────┬─────┘                    │
                                           │ pass                     │
                                           ▼                         │
-                                    Step 6: Report                │
+                                    Step 6: reporter (Report Generation)
                                           │                         │
                                           ▼                         │
                                     ┌─────▼──────┐                  │
                                     │ Step 7:    │── re-diagnose ───┘
-                                    │ Audit      │
+                                    │ report-reviewer (Audit)│
                                     └─────┬──────┘
                                           │ ENDORSED
                                           ▼
@@ -193,21 +205,37 @@ Produce process-agnostic characterization: column name patterns → physical qua
 
 Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
-### Step 2: Context Build (Sub-Agent)
+### Step 2: Context Build (Sub-Agent: `context-builder`)
 
-**Load**: `agents/context-builder.md` + `resources/rag_deep_understanding_protocol.md` + `resources/data_ontology_mapping_framework.md`
+**Launch the `context-builder` sub-agent** with bypass permissions:
 
-Pass: `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `SKILL_PATH`, `INTERACTION_MODE`.
+```javascript
+Agent({
+  subagent_type: "context-builder",
+  description: "Step 2: 构建领域本体 — RAG检索+网络搜索+本体构建",
+  permissionMode: "bypassPermissions",
+  prompt: `DATA_PATH=${DATA_PATH}
+RUN_DIR=${RUN_DIR}
+REFERENCE_DIR=${REFERENCE_DIR}
+PROCESS_DESCRIPTION=${PROCESS_DESCRIPTION}
+USER_OBJECTIVE=${USER_OBJECTIVE}
+SKILL_PATH=${SKILL_PATH}
+INTERACTION_MODE=auto
 
-Four integrated phases:
-- **Phase A**: Delegate to `rag-knowledge-builder` skill → R1-R4 deep understanding protocol
-- **Phase B**: Search reference directory + web (max 5 queries)
-- **Phase C**: Bidirectional data↔ontology mapping (prediction→validation, discovery→refinement, discrepancy capture)
-- **Phase D**: Output `ontology.json` with physical quantity, governing law, behavior_match, discrepancy signals per parameter
+执行 context-builder 协议完整流程：
+- Phase A: 调用 rag-knowledge-builder skill → R1-R4 深度理解协议
+- Phase B: 搜索参考目录 + 最多5次网络搜索
+- Phase C: 数据↔本体双向映射
+- Phase D: 输出 ontology.json with governing_law, behavior_match, discrepancy_signals
 
-Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
+完成后验证: node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`,
+  run_in_background: true
+})
+```
 
-Outputs: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
+**Sub-agent loads**: Its own system prompt from `.claude/agents/context-builder.md` (no need to manually load).
+
+**Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
 ### Step 2.5: Clarification Gate (Main Agent)
 
@@ -218,71 +246,86 @@ Record the gate outcome explicitly:
 node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event clarification_auto_inferred --agent main-agent --step clarification_gate
 ```
 
-### Step 3: Data Processing + Visualization (Sub-Agent)
+### Step 3: Data Processing + Visualization (Sub-Agent: `data-processor`)
 
-**Load**: `agents/data-processor.md` + `resources/data_ontology_mapping_framework.md` (for updating ontology) + `resources/visual_analysis_framework.md` (for VLM chart design and visual analysis protocol)
+**Launch the `data-processor` sub-agent** with bypass permissions:
 
-Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
+```javascript
+Agent({
+  subagent_type: "data-processor",
+  description: "Step 3: 数据分析与可视化 — 基线脚本+专家分析+VLM视觉",
+  permissionMode: "bypassPermissions",
+  prompt: `DATA_PATH=${DATA_PATH}
+RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
 
-**Scenario-adaptive expert analysis** — the agent reads the data first, understands what kind of process it is, runs fixed baseline scripts for reproducibility, then writes focused custom scripts when the data shape or ontology requires deeper evidence. No two datasets get the same treatment.
+执行 data-processor 完整流程（Phase 0-6）：
+- Phase 0 (MANDATORY): 数据探索 — 理解工艺、识别数据结构、写 analysis_plan.md
+- Phase 1: 场景分类 → scenario_classification.json
+- Phase 2: 通用基线分析（convert, preprocess, stats, anomaly detection）
+- Phase 2.5: 如存在产品分组列 → group-aware analysis 强制执行
+- Phase 2.7: 专家缺口分析 → 决定是否需要 custom scripts
+- Phase 3 (CORE): 场景特化分析（按 A-G 决策树执行）
+- Phase 4: RAG知识 Stage 2 验证
+- Phase 5: 自适应可视化（主时间对齐叠加图 + 场景特化图 + VLM图表）
+- Phase 5.5: VLM视觉分析 — 委托 vlm-visual-analyzer subagent 读图
+- Phase 6: 写 data_analysis_conclusion.json + 运行 normalize/synthesize helper scripts
 
-The agent follows a **Phase 0 → Phase 1 → ... → Phase 6** structure:
-- **Phase 0 (MANDATORY)**: Data exploration — understand the process, identify data shape (multi-zone? paired sensors? hierarchical groups? events? cyclic?), write an `analysis_plan.md` BEFORE running any scripts
-- **Phase 1**: Scenario classification → `scenario_classification.json`
-- **Phase 2**: Universal analysis (convert, preprocess, stats, anomaly detection) — applies to all scenarios
-- **Phase 2.5 (group-aware preprocessing rule)**: If a product / lot / batch / grade grouping column exists, group-aware analysis is mandatory; if a valid time column also exists, preserve within-group time order before product-specific plotting or temporal claims
-- **Phase 2.7 (expert gap analysis)**: After fixed scripts run, review evidence gaps and decide whether custom scripts are required for scenario-specific metrics, figures, ontology validation, or industry-knowledge checks
-- **Phase 3 (THE CORE)**: Scenario-specific deep analysis using a decision tree:
-  - A: Multi-zone sensors → zone drift localization, spatial profiles, per-zone trends
-  - B: Paired/cascaded sensors → differentials, efficiency metrics, cascade timing
-  - C: Multi-level grouping → variance decomposition, level-specific trends
-  - D: Event markers → quality reset analysis (the #1 diagnostic signal)
-  - E: Nonlinear relationships → threshold detection, regime-separated stats
-  - F: Periodic/cyclic patterns → FFT, cycle-phase analysis, partial correlation
-  - G: physics_check returns 0 → manual L1-L5 physics verification
-- **Phase 4**: RAG knowledge Stage 2 validation
-- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table + **VLM-specific charts**. **When a valid time column exists**, the first-priority chart is one master time-aligned overlay that places key quality targets and key process parameters on the same x time axis in a single figure, followed by event response and synchronization charts. If no time column exists, do not force temporal overlays; choose the strongest non-temporal views instead.
-- **Phase 5 product-aware rule**: If a product-like grouping column exists, also generate per-product grouped views so diagnosis can distinguish within-product process instability from between-product recipe/product confounding
-- **Phase 6**: Plot manifest + image captions + **VLM visual image analysis** (Phase 5.5 in agent) + expert data-analysis conclusion
+所有 Python 必须用 "$PYTHON" 来自 uv_env_setup.mjs 的 venv 路径`,
+  run_in_background: true
+})
+```
 
-Key outputs: `02_processed/` (universal + scenario-specific files, including process/inspection dual-drive analysis fields and `data_analysis_conclusion.json`), `03_figures/` (universal + scenario-specific plots, including the master time-aligned overlay when a valid time column exists and per-product grouped figures when a product grouping column exists), `03_figures/visual_analysis.json` (VLM visual insights), `analysis_plan.md`, `06_scripts/scenario_plots.py`, and any focused expert scripts needed for the dataset.
+**Sub-agent loads**: Its own system prompt from `.claude/agents/data-processor.md` (no need to manually load). The agent knows full Phase 0-6 structure, group-aware rules, visualization protocol, and VLM analysis.
 
-**Stabilization rule for deployable runs**: before Step 4 begins, normalize `anomaly_report.json` if custom analysis rewrote it, and generate `data_analysis_conclusion.json` using the provided helper scripts when the agent has not already written a schema-valid version. Before Step 8, generate or refresh `run_summary.json` using the helper scripts if needed.
+**Stabilization rule**: Before Step 4, run:
+```bash
+node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+```
 
-### Step 3.5: VLM Visual Analysis (Sub-Agent — Integrated in Step 3)
+**Key outputs**: `02_processed/` (17+ files), `03_figures/*.png` (9+ plots), `03_figures/visual_analysis.json`, `analysis_plan.md`, `06_scripts/`
 
-**This step is embedded within Data Processor's Phase 5.5–6 but described here for pipeline clarity.**
+### Step 3.5: VLM Visual Analysis (Embedded in Step 3)
 
-After all charts are generated (Phase 5), the Data Processor Agent **reads each generated PNG image using the Read tool** and performs structured VLM visual analysis:
+The `data-processor` agent's Phase 5.5 delegates VLM image reading to the `vlm-visual-analyzer` sub-agent internally. No separate main-agent call needed.
 
-1. **逐图阅读**: Read each PNG from `03_figures/` directly. For each image, answer: temporal synchronization? event response? clustering? nonlinear? trend morphology?
-2. **结构化洞察提取**: Write `03_figures/visual_analysis.json` containing:
-   - `visual_observations[]`: Per-chart structured observations (type, description, parameters, diagnostic weight)
-   - `cross_parameter_temporal_alignment`: Synchronous groups, precedence signals, independent parameters
-   - `synthesis`: Overall visual conclusion in natural language
-3. **兼容层**: Generate `03_figures/image_captions.json` from visual analysis for non-VLM downstream agents.
+Outputs: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`
 
-**Why this matters**: The VLM agent reads the same images a human engineer would read. Visual patterns that are invisible in pure statistics — like "parameter A starts declining 30 minutes before parameter B" or "the scatter plot shows two distinct clusters with opposite slopes" — become explicit diagnostic evidence.
+### Step 4: Diagnostician (Sub-Agent: `diagnostician`)
 
-**Load**: `resources/visual_analysis_framework.md` for detailed design principles and chart specifications.
+**Launch the `diagnostician` sub-agent** with bypass permissions:
 
-Outputs: `03_figures/visual_analysis.json`, updated `03_figures/image_captions.json`
+```javascript
+Agent({
+  subagent_type: "diagnostician",
+  description: "Step 4: 物理驱动根因诊断 — 竞争假说协议",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+DATA_PATH=${DATA_PATH}
+${REPAIR_INSTRUCTIONS ? 'REPAIR_INSTRUCTIONS=' + REPAIR_INSTRUCTIONS : ''}
 
-### Step 4: Diagnostician (Sub-Agent)
+执行 diagnostician 完整流程（Phase 0-7）：
+- Phase 0: 加载所有证据文件（包括 visual_analysis.json）
+- Phase 1: 对陌生参数执行 L1-L5 物理推断阶梯
+- Phase 1.5: 本体-数据-物理证明构造（函数形式/时滞/量级/方向）
+- Phase 2: 融合预计算证据 + VLM 视觉洞察
+- Phase 3: 候选参数筛选（保留通过验证+有物理机制+视觉确认的）
+- Phase 4: 5步竞争假说协议（生成→交叉检验→可分辨性→排除→结论）
+- Phase 5: 写推理链 R1-R8
+- Phase 6: Schema-First 写 diagnosis.json / evidence.json / confidence.json / reasoning_chain.json
+- Phase 7: 验证全部4个输出文件
 
-**Load**: `agents/diagnostician.md` + `resources/physics_inference_framework.md`
+CRITICAL: 按 schema-first 规则 — 每写一个 JSON 前先读对应 schema + template。
+必须输出两个诊断视图：纯工艺波动诊断 + 工艺检测双驱动诊断`,
+  run_in_background: true
+})
+```
 
-Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, optional `REPAIR_INSTRUCTIONS`.
+**Sub-agent loads**: Its system prompt from `.claude/agents/diagnostician.md`.
 
-Physics-Based Competing Hypotheses Protocol:
-- **Phase 0**: Load all evidence files (now including `visual_analysis.json`); read validation constraints first
-- **Phase 1**: For novel parameters, derive physics via L1-L5 Inference Ladder
-- **Phase 2**: Evidence fusion — combine data evidence + physics evidence + **VLM visual insights** from `visual_analysis.json`
-- **Phase 3**: 5-Step protocol (Generate → Cross-check → Discriminate → Exclude → Conclude) — visual observations serve as evidence alongside statistics
-
-**CRITICAL — Schema-First 输出规则**: 在 `Phase 6` 写入任何文件之前，先读取 `templates/diagnosis_template.json` 和所有 4 个 schema 文件（`schemas/diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json`）。按 schema 的 `required` 字段和 `properties` 结构精确构造输出。**一次写入，通过验证**。不要先写再修。
-
-Every hypothesis must have: physical mechanism with governing equation, quantitative magnitude check, data evidence, quality reset/onset evidence, **VLM visual evidence** (from `visual_analysis.json`), falsification condition.
+**Schema-First 规则**: Sub-agent 按 Phase 6 规则执行 — 先读 `templates/diagnosis_template.json` 和全部 4 个 schema，按 required 字段构造，一次写入通过验证。
 
 Validate (×4):
 ```bash
@@ -294,16 +337,35 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_sch
 
 Outputs: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
 
-### Step 5: Judge Review (Sub-Agent)
+### Step 5: Judge Review (Sub-Agent: `judge`)
 
-**Load**: `agents/judge.md`
+**Launch the `judge` sub-agent** with bypass permissions:
 
-Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`.
+```javascript
+Agent({
+  subagent_type: "judge",
+  description: "Step 5: 质量门审查 — 10项标准评分",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+DATA_PATH=${DATA_PATH}
 
-Scores 10 criteria including physics source quality audit (new). Cross-references diagnosis against `validate_report.json`.
-- **PASS** (≥90) → Step 6
-- **NEEDS_REPAIR** (70-89) → re-spawn Step 4 (max 3 iterations)
-- **FAIL** (<70) → report to user
+执行 judge 完整审查流程：
+- Step 0: 加载所有工件（diagnosis.json, evidence.json, confidence.json, reasoning_chain.json, validate_report.json, visual_analysis.json...）
+- Step 0.5: 交叉验证 validate_report.json 与诊断（排序/Simpson/趋势混杂/Spearman/异常值/可分辨性）
+- Step 0.6: 推理链质量审计（完整性/证据基础/反事实/可证伪性/幻觉审计）
+- Step 0.65: 物理源质量审计（pre_cached/rag_extracted/first_principles 追踪）
+- Step 0.7: 独立数据抽样验证（对 |r| > 0.5 的关键相关性抽样）
+- Step 1: 10项标准评分（数据质量/变量分类/时间对齐/可视化/证据/推理链/相关vs因果/不确定性/不夸大/完整性）
+- Step 2: 计算加权分 → PASS(≥90) / NEEDS_REPAIR(70-89) / FAIL(<70)
+- Step 3: 写 05_review/judge_feedback.json（先读 schema + template）
+
+写 judge_feedback.json 前必须先读 schemas/judge_feedback_schema.json + templates/judge_template.json`,
+  run_in_background: true
+})
+```
+
+**Verdict**: PASS (≥90) → Step 6 | NEEDS_REPAIR (70-89) → re-spawn diagnostician (max 3) | FAIL (<70) → halt
 
 Validate:
 ```bash
@@ -311,26 +373,72 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_sche
 ```
 Output: `05_review/judge_feedback.json`
 
-### Step 6: Report Generation (Sub-Agent)
+### Step 6: Report Generation (Sub-Agent: `reporter`)
 
-**Load**: `agents/reporter.md` + `templates/report_template.md`
+**Launch the `reporter` sub-agent** with bypass permissions:
 
-Pass: `RUN_DIR`, `SKILL_PATH`.
+```javascript
+Agent({
+  subagent_type: "reporter",
+  description: "Step 6: 生成诊断报告 — 20节中文报告",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
 
-Generates `report.md` (Chinese) with 20 sections covering: Executive Summary, Reasoning Overview (R1-R8), Data Description, Variable Classification, Visualization Evidence (per-figure analysis), Diagnostic Findings (eliminated + surviving hypotheses with causal chains), Root Cause Synthesis, Statistical Validation & Confidence (sorting, Simpson, trend confounding, robustness), Competing Hypotheses Disclosure, Limitations & Uncertainty (aleatory vs epistemic), Recommended Actions, and Appendices (file inventory, hallucination audit, discriminability matrix).
+执行 reporter 完整流程：
+- Step 0: 加载所有工件（diagnosis/evidence/confidence/reasoning_chain/judge_feedback/visual_analysis/data_analysis_conclusion...）
+- Step 1: 逐图分析（visual_analysis.json 为主要来源，image_captions.json 为兼容层）
+- Step 1.5: 综合推理链 R1-R8
+- Step 2: 生成 20节中文报告 → report.md
+  * Section 1: 执行摘要
+  * Section 2: 推理概述（R1-R8综合）
+  * Section 11: 可视化证据（每张图嵌入+分析+诊断含义）
+  * Section 14: 统计验证（MANDATORY — 排序/Simpson/趋势/稳健性）
+  * Section 16A: 纯工艺波动诊断
+  * Section 16B: 工艺+检测双驱动诊断
+- Step 3: 写 run_summary.json（先读 schemas/run_summary_schema.json + templates/run_summary_template.json）
 
-Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"`
-Output: `report.md`, `run_summary.json`
+完成后验证: node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"`,
+  run_in_background: true
+})
+```
 
-### Step 7: Physical Truth Audit (Sub-Agent)
+**Sub-agent loads**: Its system prompt from `.claude/agents/reporter.md`.
 
-**Load**: `agents/report-reviewer.md`
+Output: `report.md` (791+ lines, 20 sections), `run_summary.json`
 
-Pass: `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`.
+### Step 7: Physical Truth Audit (Sub-Agent: `report-reviewer`)
 
-Independent external auditor — 7-dimension assessment including RAG knowledge cross-check.
-- **ENDORSED** → Step 8
-- **CONDITIONAL** / **REJECTED** → re-spawn Step 4 (max 2 cycles, global cap 5)
+**Launch the `report-reviewer` sub-agent** with bypass permissions:
+
+```javascript
+Agent({
+  subagent_type: "report-reviewer",
+  description: "Step 7: 物理真实审计 — 独立验证",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+DATA_PATH=${DATA_PATH}
+
+你是拥有20+年经验的高级工程师。**默认立场是怀疑。** 独立验证诊断报告。
+
+执行完整审计流程：
+- Step 0: 加载 py 环境 + 所有工件（report.md/diagnosis/evidence/confidence/reasoning_chain/validate_report/rag...）
+- Step 1: 物理机制验证（核心）— 物理可行性/量级匹配/时间尺度匹配/症状完整性/缺失症状检查
+- Step 1.1b: RAG知识交叉检查
+- Step 1.2: 推理链幻觉审计 — 扫描8种幻觉红旗，随机选3个结论回溯验证
+- Step 2: 混杂变量检测（独立验证 — 自己运行 py 检查 Simpson/去趋势/排序）
+- Step 3: 统计谬误审计 — 对 |r| > 0.25 做去趋势/子组/非线性/异常值/Spearman 五项检查
+- Step 4: 逻辑一致性审计 — 因果链连贯性/排除充分性/自洽性
+- Step 5: 6维评分+裁决 → ENDORSED / CONDITIONAL / REJECTED
+- 输出: optimizer.md（中文）
+
+自己运行 python 验证，不要信任 pipeline 的摘要！`,
+  run_in_background: true
+})
+```
+
+**Verdict**: ENDORSED → Step 8 | CONDITIONAL / REJECTED → re-spawn diagnostician (max 2 cycles, global cap ≤ 5)
 
 Output: `optimizer.md`
 

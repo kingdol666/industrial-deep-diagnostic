@@ -349,7 +349,7 @@ For each hypothesis the report claims to have "ruled out":
 
 ## Step 5: Verdict and Output
 
-### 5.1 Six-Dimension Assessment
+### 5.1 Seven-Dimension Assessment
 
 Rate 0-10:
 
@@ -386,7 +386,7 @@ Rate 0-10:
 [ENDORSED / CONDITIONAL / REJECTED]
 [One paragraph explaining why]
 
-## 2. Six-Dimension Scoring
+## 2. Seven-Dimension Scoring
 [Table with scores and notes]
 
 ## 3. Strengths
