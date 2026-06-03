@@ -16,6 +16,74 @@
       "type": "string",
       "description": "One-sentence summary of the primary diagnostic finding"
     },
+    "process_fluctuation_analysis": {
+      "type": "object",
+      "description": "Diagnosis path A: pure process-data fluctuation analysis, without requiring defect/anomaly linkage as the starting point",
+      "properties": {
+        "analysis_performed": {"type": "boolean"},
+        "scope": {"type": "string", "enum": ["process_only", "process_with_time", "process_with_grouping", "not_applicable"]},
+        "grouping_basis": {"type": "string"},
+        "time_order_basis": {"type": "string"},
+        "key_process_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": {"type": "string"},
+              "behavior_type": {"type": "string", "enum": ["drift", "high_variability", "step_change", "threshold_crossing", "regime_switch", "cyclic", "stable"]},
+              "affected_group": {"type": "string"},
+              "evidence": {"type": "string"},
+              "ontology_interpretation": {"type": "string"},
+              "physics_mechanism": {"type": "string"},
+              "diagnostic_implication": {"type": "string"}
+            }
+          }
+        },
+        "ontology_physics_reasoning": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": {"type": "string"},
+              "ontology_role": {"type": "string"},
+              "governing_law": {"type": "string"},
+              "reasoning_summary": {"type": "string"},
+              "proof_strength": {"type": "string", "enum": ["PROVEN", "STRONG_EVIDENCE", "SUPPORTIVE", "WEAK", "CONTRADICTED"]}
+            }
+          }
+        },
+        "conclusion": {"type": "string"}
+      }
+    },
+    "integrated_dual_drive_analysis": {
+      "type": "object",
+      "description": "Diagnosis path B: combined process + inspection/quality anomaly analysis",
+      "properties": {
+        "analysis_performed": {"type": "boolean"},
+        "has_quality_or_inspection_targets": {"type": "boolean"},
+        "linked_groups": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "process_to_quality_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {"type": "string"},
+              "process_parameter": {"type": "string"},
+              "quality_target": {"type": "string"},
+              "link_type": {"type": "string", "enum": ["same_window", "process_precedes_quality", "coincident", "between_group_only", "unclear"]},
+              "statistical_evidence": {"type": "string"},
+              "anomaly_evidence": {"type": "string"},
+              "ontology_physics_reasoning": {"type": "string"},
+              "diagnostic_weight": {"type": "string", "enum": ["critical", "strong", "moderate", "weak"]}
+            }
+          }
+        },
+        "integrated_conclusion": {"type": "string"}
+      }
+    },
     "product_stratified_analysis": {
       "type": "object",
       "description": "Per-product stratification results when product column exists",

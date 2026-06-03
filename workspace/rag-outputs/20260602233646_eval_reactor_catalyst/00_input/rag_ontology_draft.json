@@ -237,7 +237,7 @@
         "concept_type": "input",
         "broader_concept": "物料流量",
         "sibling_concepts": ["feed_sulfur_ppm"],
-        "distinguish_from": "与 feed_sulfur_ppm（进料硫含量）的区别：feed_rate 度量的"量"，feed_sulfur_ppm 度量的"质"。两者独立变化。",
+        "distinguish_from": "与 feed_sulfur_ppm（进料硫含量）的区别：feed_rate 度量的'量'，feed_sulfur_ppm 度量的'质'。两者独立变化。",
         "unit": "kg/hr",
         "expected_value_range": "470-510 kg/hr",
         "abnormal_indicates": "阶跃下降至 0 → 进料泵跳车（独立事件，约 4h 恢复）；波动增大 → 进料泵或流量控制器不稳定",
@@ -463,7 +463,7 @@
       "from": "reactor_temp_C",
       "to": "conversion_pct",
       "type": "physical",
-      "mechanism": "根据 Arrhenius 定律，反应速率常数 k = A·exp(-Ea/RT)，温度每升高 10°C，反应速率约提高 1.5-2.5 倍（取决于活化能 Ea）。在加氢反应中，操作员观察到转化率下降后会主动提高反应温度以补偿催化剂活性损失——这是"提温补偿效应"。因此在本数据中，温度上升与转化率下降同时出现，是操作员对催化剂失活的响应而非原因。正确的诊断需要区分温度作为 cause（Arrhenius 主导）和 temperature 作为 result（操作补偿主导）。",
+      "mechanism": "根据 Arrhenius 定律，反应速率常数 k = A·exp(-Ea/RT)，温度每升高 10°C，反应速率约提高 1.5-2.5 倍（取决于活化能 Ea）。在加氢反应中，操作员观察到转化率下降后会主动提高反应温度以补偿催化剂活性损失——这是'提温补偿效应'。因此在本数据中，温度上升与转化率下降同时出现，是操作员对催化剂失活的响应而非原因。正确的诊断需要区分温度作为 cause（Arrhenius 主导）和 temperature 作为 result（操作补偿主导）。",
       "direction": "在纯 Arrhenius 主导下：reactor_temp_C↑ → conversion_pct↑；但在本场景（操作补偿主导）中：catalyst_activity↓ → operator 提高温度 → reactor_temp_C↑ 与 conversion_pct↓ 同时出现",
       "conditions": "Arrhenius 关系在 180-200°C 范围内成立；催化剂活性稳定的前提下。",
       "exceptions": "当催化剂活性持续下降时，即使提高温度也只能部分补偿转化率损失——温度升高 10°C 可能只能弥补约 5-10% 的转化率下降。",
@@ -617,7 +617,7 @@
     {
       "name": "cooling_water_temp_C",
       "type": "environment",
-      "reasoning": "冷却水温（22-30°C）随环境季节变化，夏季升高冬季降低。冷却水温升高时，同等冷却负荷下需要更大的传热推动力，可能导致反应器温度控制性能下降。冷却水温的季节性趋势与催化剂失活趋势（约 60 天的单调下降）在时间上可能部分重叠，造成"冷却水温→反应温度→转化率"的伪相关路径。需要使用去趋势分析分离冷却水温的季节效应。预期影响中等——冷却水温的幅度（±4°C）相对于过程噪声较小，但趋势重叠不可忽略。",
+      "reasoning": "冷却水温（22-30°C）随环境季节变化，夏季升高冬季降低。冷却水温升高时，同等冷却负荷下需要更大的传热推动力，可能导致反应器温度控制性能下降。冷却水温的季节性趋势与催化剂失活趋势（约 60 天的单调下降）在时间上可能部分重叠，造成'冷却水温→反应温度→转化率'的伪相关路径。需要使用去趋势分析分离冷却水温的季节效应。预期影响中等——冷却水温的幅度（±4°C）相对于过程噪声较小，但趋势重叠不可忽略。",
       "expected_impact": "medium",
       "knowledge_source": "kb_parameter_to_physics_heat_transfer_coeff_0"
     }

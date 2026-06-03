@@ -16,7 +16,10 @@ Industrial time-series diagnostic skill. Lives in `.claude/skills/industrial-dee
 | `time_col` detection | `inspect.mjs` auto-detects by keyword + type. Can fail on non-standard names — verify. |
 | Python path in worktrees | If running in a worktree, all paths must be absolute. `uv_env_setup.mjs` resolves correctly. |
 | Repair counter persistence | `diag_iters` tracked in `.pipeline_events.jsonl` via `repair_spawn` events — DO NOT rely on in-memory state |
+| Execution proof | A run is only considered fully valid when `.pipeline_events.jsonl` passes `scripts/pipeline-log-check.mjs`, not merely when output files exist. |
 | Image captions fallback | `image_captions.json` is the fallback when PNG rendering fails. Never write "*Image unavailable*" if captions exist. |
+| Expert data handoff | `02_processed/data_analysis_conclusion.json` is mandatory. It summarizes baseline scripts, custom expert scripts, ontology interpretation, and caveats for the Diagnostician. |
+| Custom script boundary | Custom scripts belong under `06_scripts/`; they must write deterministic JSON/PNG evidence and be summarized in `data_analysis_conclusion.json`. |
 | CLAUDE.md vs SKILL.md | SKILL.md is the entry point for pipeline execution. This file is developer reference only. |
 
 ## Numbering Systems (four distinct schemes)

@@ -54,6 +54,7 @@ You are the **Diagnostician** — the core reasoning engine for universal indust
 
 **IMPORTANT** (missing → note, continue):
 - `02_processed/anomaly_report.json`
+- `02_processed/data_analysis_conclusion.json` — Data Processor's expert handoff: fixed-script results, custom analyses, ontology/industry interpretation, and data-supported conclusions
 - `02_processed/causal_evidence_map.json`
 - `02_processed/scenario_classification.json`
 - `02_processed/analysis_plan.md` — data-processor's reasoning: what data shape was detected, why specific analyses were chosen
@@ -76,13 +77,14 @@ Read ALL artifacts before forming ANY hypothesis. For evidence ranking rules (1-
 | `clarification_needed.json` | Parameters with UNKNOWN physical meaning → `[PARAM_AMBIGUITY]` | **Ambiguity guard** |
 | `scenario_classification.json` | Process characterization, degradation candidates | **Scenario context** |
 | `analysis_plan.md` | Data-processor's detected data shape, analysis rationale, scenario-specific findings | **Analysis context** |
+| `data_analysis_conclusion.json` | Baseline script findings, custom expert analysis outputs, ontology/industry interpretation, priority hypothesis inputs | **Expert data-analysis handoff** |
 | `zone_analysis.json` | If multi-zone: per-zone drift localization ranking | **Spatial root cause localization** |
 | `event_analysis.json` | If events: quality reset classifications per event type | **#1 diagnostic discriminator** |
 | `physics_manual_verification.md` | If physics_check ran 0 checks: manual L1-L5 derivations | **First-principles physics bridge** |
-| `ontology.json` + `schema.json` | Process stages, equipment, parameter physical meanings WITH `behavior_match`, `governing_law`, `predicted_functional_form`, `predicted_lag`, discrepancy signals — **THE bridge between physics and data** | **Process structure + diagnostic signals + proof foundation** |
+| `ontology.json` + `schema.json` | Process stages, equipment, parameter physical meanings WITH `behavior_match`, `governing_law`, `predicted_functional_form`, `time_lag` (schema field), discrepancy signals — **THE bridge between physics and data** | **Process structure + diagnostic signals + proof foundation** |
 | `feature_summary.json` | Correlations, MI, Granger, interactions, stratified results | **Statistical data side** |
 | `validate_report.json` | Simpson's Paradox, trend confounding, change points, sorting | **Validity constraints** |
-| `anomaly_report.json` | Anomaly intervals, transitions, quality_reset_analysis, anomaly_onset_coincidence, phyiscal_checks | **Fused dual-drive evidence** |
+| `anomaly_report.json` | Anomaly intervals, transitions, quality_reset_analysis, anomaly_onset_coincidence, phyiscal_checks, `process_parameter_fluctuation`, `dual_drive_analysis` | **Fused dual-drive evidence** |
 | `causal_evidence_map.json` | Validated edges, co-linear groups, root cause candidates | **Graph structure** |
 | `plot_manifest.json` + `image_captions.json` | Per-plot: key_observations, validation_issues, **diagnostic_implication** | **Visual alignment** |
 | `visual_analysis.json` | **VLM-extracted visual observations**: temporal synchronization groups, event response patterns, trend morphology, precedence signals, independent parameters, cross-parameter alignment synthesis | **VLM visual insights (primary visual evidence)** |
@@ -95,6 +97,34 @@ Before using ANY correlation:
 3. **Trend confounding**: `attenuation>50%` → time-drift, not coupling
 4. **Outlier-driven**: correlations vanish after outlier removal → OUTLIER_ARTIFACT
 5. **Change points**: regime shifts may invalidate cross-regime correlations
+
+### 0.3A Read Data-Processor's Two Diagnostic Entries FIRST
+
+Before forming hypotheses, extract TWO evidence entry points from `anomaly_report.json`:
+
+1. **Pure process-side evidence**:
+   - `process_parameter_fluctuation`
+   - question: 哪些工艺参数本身存在显著波动、漂移、跨阈值、组内失稳？
+
+2. **Integrated dual-drive evidence**:
+   - `dual_drive_analysis.per_product_analysis`
+   - `dual_drive_analysis.cross_domain_links`
+   - question: 哪些产品组内同时出现了工艺异常与检测/质量异常？两者是同步还是先后？
+
+**Do not merge these two views too early.** First diagnose process abnormality itself, then decide whether quality/inspection evidence upgrades it to a root-cause chain.
+
+### 0.3B Read Expert Data Analysis Conclusion
+
+If `02_processed/data_analysis_conclusion.json` exists, treat it as the Data Processor's expert evidence handoff.
+
+Extract:
+- fixed baseline script findings and limitations
+- custom scripts written and what they produced
+- ontology/industry interpretation of important patterns
+- data-supported conclusions and their caveats
+- priority hypothesis inputs and evidence gaps
+
+Use this file to prioritize hypotheses, but do not accept it as final diagnosis. Your job is to test its conclusions against physics, competing explanations, validation constraints, and falsification conditions.
 
 ### 0.4 Read Ontology Discrepancy Signals
 
@@ -268,11 +298,11 @@ For EVERY shortlisted parameter, execute this 5-step protocol:
 
 #### Step 1: Extract Ontology Prediction
 
-From `ontology.json.parameters[]`, for the target parameter, read:
-- `physical_quantity` — what physical quantity this measures
-- `governing_law` — the equation that controls its behavior
+From `ontology.json.parameters[]` (signal_v6 entries in `signals`), for the target parameter, read:
+- `physical_meaning` — what physical quantity this measures (schema field name)
+- `governing_law` — the equation that controls its behavior (diagnostic enrichment)
 - `predicted_functional_form` — from `ontology.json.relationships[]` (linear, exponential, polynomial, inverse)
-- `predicted_lag` — expected time delay between cause and effect
+- `time_lag` — expected time delay between cause and effect (schema field name)
 - `behavior_match` — CONSISTENT / CONTRADICTED / UNVERIFIED (context-builder's pre-check)
 
 #### Step 2: Map Ontology to Data
@@ -328,10 +358,10 @@ For each shortlisted parameter, document the proof in `evidence.json`:
   "parameter": "spindle_vibration_mm_s",
   "ontology_data_physics_proof": {
     "ontology_prediction": {
-      "physical_quantity": "振动速度 RMS (mm/s)",
+      "physical_meaning": "振动速度 RMS (mm/s)",
       "governing_law": "ISO 10816-1 + forced oscillator: mẍ + cẋ + kx = F(t)",
       "predicted_functional_form": "linear (roughness ∝ vibration amplitude)",
-      "predicted_lag": "0 (instantaneous mechanical coupling)",
+      "time_lag": "0 (instantaneous mechanical coupling)",
       "predicted_direction": "positive (vibration↑ → roughness↑)",
       "behavior_match_precheck": "CONSISTENT"
     },
@@ -508,6 +538,58 @@ For each shortlisted parameter, attach both data evidence and physics evidence:
 }
 ```
 
+### 3.3 Build Two Diagnostic Views Before Final Hypothesis Ranking
+
+**MANDATORY: build two reasoning views and keep both in the diagnosis.**
+
+#### View A — Pure Process-Fluctuation Diagnosis
+
+Start from process-side abnormal behavior alone.
+
+For each key process parameter, determine:
+- does it show `drift | high_variability | step_change | threshold_crossing | regime_switch | cyclic`
+- in which product / batch / lot group this occurs
+- which ontology role it belongs to
+- which governing law explains why this fluctuation matters physically
+- whether this already indicates an abnormal process mechanism, even before quality is considered
+
+This view answers:
+- “从纯工艺数据波动角度，系统本身出了什么问题？”
+
+#### View B — Integrated Dual-Drive Diagnosis
+
+Then build the integrated process + inspection/quality view.
+
+For each linked process-quality pair, determine:
+- group
+- process parameter
+- quality / inspection target
+- whether the process side precedes quality, is merely coincident, or is only between-group
+- whether statistics, anomaly windows, ontology semantics, physics mechanism, and VLM visual evidence all point the same way
+
+This view answers:
+- “从工艺异常与质量异常结合的角度，哪条链更像真正根因？”
+
+**Output rule**:
+- View A may conclude “工艺侧存在异常机制”
+- View B may conclude “该异常机制与质量/检测异常形成根因链”
+- Final conclusion must explicitly state whether it is supported by:
+  - process-side only
+  - integrated dual-drive only
+  - both
+
+### 3.4 Use the Expert Handoff to Strengthen Evidence
+
+For every `data_analysis_conclusion.json.data_supported_conclusions[]` item:
+- map it to one or more hypotheses
+- check whether its supporting artifacts exist
+- verify whether its caveats affect confidence
+- convert strong conclusions into supporting evidence only if ontology + physics reasoning remains valid
+
+For every `handoff_to_diagnostician.priority_hypothesis_inputs[]` item:
+- consider it as a candidate input, not a final answer
+- require a physical mechanism and falsification condition before it becomes a surviving hypothesis
+
 ---
 
 ## Phase 4: 5-STEP COMPETING HYPOTHESES PROTOCOL
@@ -520,6 +602,9 @@ For each shortlisted parameter, BUILD the hypothesis by combining:
 3. **Evidence fusion** — from `anomaly_report.quality_reset_analysis` + `anomaly_onset_coincidence`
 4. **VLM visual evidence** — from `visual_analysis.json.visual_observations[]` + `cross_parameter_temporal_alignment` (primary) and `image_captions.json.diagnostic_implication` (fallback)
 5. **RAG context** — from `rag_deep_understanding.json` (domain constraints, known failure modes)
+6. **Process-only abnormality evidence** — from `anomaly_report.process_parameter_fluctuation`
+7. **Integrated dual-drive evidence** — from `anomaly_report.dual_drive_analysis`
+8. **Expert data-analysis handoff** — from `data_analysis_conclusion.json`, especially custom-script outputs and ontology/industry interpretation
 
 **Template for hypothesis documentation:**
 
@@ -545,6 +630,11 @@ Visual Alignment:
 
 Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_QUESTION]
 ```
+
+**Before ranking hypotheses**, summarize for each major candidate:
+- What the **process-only** view says
+- What the **integrated dual-drive** view says
+- Whether the two views reinforce each other or diverge
 
 **Chain quality assessment:**
 - ≥70% [OBSERVED] + [KNOWN_PHYSICS] → **ACTIONABLE**
@@ -642,7 +732,7 @@ Save to `RUN_DIR/04_diagnostics/reasoning_chain.json`. 8 segments R1-R8:
 | **R1** | Data characterization + scenario description (data-driven, not template-matched) | `scenario_classification.json`, `ontology.json`, `input_manifest.json` |
 | **R2** | Statistical discovery + fusion evidence (quality reset, onset coincidence, physical checks, image implications, **VLM visual observations**) | `feature_summary.json`, `anomaly_report.*`, `image_captions.*`, **`visual_analysis.json`** |
 | **R3** | Validation filter (Simpson, trend, outlier) + anomaly annotations | `validate_report.json`, `anomaly_report.anomaly_intervals[]` |
-| **R4** | Hypothesis generation — for EACH: causal chain (citing governing equation + source: pre-cached/rag/first-principles), **ontology-data-physics proof (Phase 1.5: functional form, lag, magnitude, direction)**, quantitative verification, timing, **VLM visual evidence (synchronous groups, precedence, event response)** | `parameter_to_physics.json`, `rag_deep_understanding.json`, `ontology.json` (governing_law, predicted_functional_form, predicted_lag), first-principles derivations, `anomaly_report.phyiscal_checks[]`, **`visual_analysis.json`** |
+| **R4** | Hypothesis generation — for EACH: causal chain (citing governing equation + source: pre-cached/rag/first-principles), **ontology-data-physics proof (Phase 1.5: functional form, lag, magnitude, direction)**, quantitative verification, timing, **VLM visual evidence (synchronous groups, precedence, event response)** | `parameter_to_physics.json`, `rag_deep_understanding.json`, `ontology.json` (governing_law, predicted_functional_form, `time_lag`), first-principles derivations, `anomaly_report.phyiscal_checks[]`, **`visual_analysis.json`** |
 | **R5** | Discriminability assessment — quality reset + physics checks + magnitude as discriminators | `anomaly_report.quality_reset_analysis`, `anomaly_report.phyiscal_checks[]` |
 | **R6** | Exclusion documentation — which eliminated and by what evidence | Quality reset exclusions, physics exclusions, magnitude exclusions, statistical exclusions |
 | **R7** | Diagnostic conclusion (DETERMINED/COMPETING_SET/NEEDS_DATA) + falsification condition | Synthesis of ALL evidence |
@@ -670,6 +760,22 @@ Must include:
 - `quantitative_verification`: specific physics check results OR first-principles magnitude calculation
 - `quality_reset_evidence`: specific reset analysis
 - `visual_evidence`: specific VLM observations from `visual_analysis.json` + image captions
+- `process_fluctuation_analysis`: a standalone conclusion from pure process-data behavior, with ontology + physics reasoning
+- `integrated_dual_drive_analysis`: a standalone conclusion from process + inspection/quality joint evidence, with ontology + physics reasoning
+
+### 6.1A Required Writing Rule for the Two Views
+
+When writing `diagnosis.json`:
+
+1. **`process_fluctuation_analysis` must not depend on defect evidence to exist**
+   - it should answer: “仅从工艺参数波动与工艺机理看，哪里异常？”
+
+2. **`integrated_dual_drive_analysis` must explicitly connect process abnormality to quality/inspection abnormality**
+   - it should answer: “哪些工艺异常真的进入了质量/缺陷结果链？”
+
+3. **Both views must reference ontology + physics**
+   - ontology role / process stage / parameter meaning
+   - governing law / physical chain / proof strength
 
 ### 6.2 evidence.json
 

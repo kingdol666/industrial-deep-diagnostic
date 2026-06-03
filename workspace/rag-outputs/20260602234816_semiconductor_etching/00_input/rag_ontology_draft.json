@@ -1,0 +1,491 @@
+{
+  "scene": {
+    "name": "半导体晶圆等离子体蚀刻工艺 — RIE 蚀刻速率均匀性与缺陷控制",
+    "domain_type": "semiconductor_plasma_etching_rie",
+    "domain_type_confidence": "INFERRED",
+    "domain_summary": "本领域覆盖半导体制造中的反应离子蚀刻（RIE）工艺过程监控与质量诊断。核心关注等离子体蚀刻中蚀刻速率、均匀性和缺陷密度的控制与异常诊断。关键物理实体包括蚀刻腔体、RF 电源系统、气体输送系统和晶圆卡盘。工艺受 RF 功率、腔体压力、气体流量和晶圆温度等多参数耦合控制。诊断的独特性在于等离子体状态（离子能量、自由基密度）与宏观工艺参数之间的非线性关系，以及腔体壁面状态对工艺重复性的持续影响。",
+    "primary_outcomes": [
+      "etch_rate_nm_min",
+      "uniformity_pct",
+      "defect_density_cm2"
+    ]
+  },
+  "entities": [
+    {
+      "id": "rie_chamber",
+      "name": "RIE 蚀刻腔体",
+      "type": "system",
+      "definition": "反应离子蚀刻（RIE）腔体是一个密封真空容器，内部产生等离子体对晶圆表面进行各向异性蚀刻。腔体配备 RF 电极（上电极/下电极）、气体喷淋头（showerhead）、晶圆卡盘（electrostatic chuck）和真空泵接口。腔体壁面状态（聚合物沉积量）是影响工艺重复性的关键隐性变量。与 PECVD 等沉积设备不同，蚀刻腔体需要周期性干法清洗（O₂ plasma clean）来去除壁面聚合物。",
+      "role_in_domain": "Midstream",
+      "lifecycle": "安装→ seasoning（ seasoning 晶圆稳定壁面）→ 正常蚀刻→ 干法清洗→ seasoning→ ...→ 大修",
+      "interacts_with": ["rf_power_system", "gas_delivery_system", "wafer_chuck"],
+      "owns_concepts": ["chamber_pressure_mTorr", "DC_bias_V"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "id": "rf_power_system",
+      "name": "RF 射频电源系统",
+      "type": "system",
+      "definition": "提供 13.56 MHz（标准频段）射频功率以在蚀刻腔体中产生和维持等离子体。RF 功率通过阻抗匹配网络耦合到腔体电极。功率水平直接决定等离子体密度（离子和自由基的浓度），进而决定蚀刻速率。DC 偏压（DC_bias_V）是 RF 功率和腔体几何/压力的耦合结果，反映离子轰击能量。",
+      "role_in_domain": "Upstream",
+      "lifecycle": "持续运行，定期校准匹配网络",
+      "interacts_with": ["rie_chamber"],
+      "owns_concepts": ["rf_power_W", "DC_bias_V"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "id": "gas_delivery_system",
+      "name": "气体输送系统",
+      "type": "system",
+      "definition": "通过质量流量控制器（MFC）精确控制蚀刻气体（如 CF₄、CHF₃、SF₆、O₂、Ar 等）的流量进入蚀刻腔体。气体种类和流量比例决定等离子体化学（自由基种类和浓度），是蚀刻选择比和各向异性的主要控制参数。MFC 校准漂移和管路泄漏是常见故障源。",
+      "role_in_domain": "Upstream",
+      "lifecycle": "MFC 定期校准，gas line 定期检漏",
+      "interacts_with": ["rie_chamber"],
+      "owns_concepts": ["gas_flow_sccm"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "id": "wafer_chuck",
+      "name": "静电卡盘（ESC）",
+      "type": "component",
+      "definition": "通过静电吸附力固定晶圆的卡盘系统，同时控制晶圆温度。卡盘内嵌冷却通道（He 背面冷却），通过调节氦气压力控制热传导效率。晶圆温度直接影响光刻胶蚀刻速率和选择比。卡盘的夹紧力均匀性影响蚀刻均匀性——边缘夹紧力不足会导致晶圆边缘温度偏高。",
+      "role_in_domain": "Midstream",
+      "lifecycle": "持续使用，定期检查 He 泄漏",
+      "interacts_with": ["rie_chamber"],
+      "owns_concepts": ["wafer_temp_C"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    }
+  ],
+  "concepts": {
+    "target_concepts": [
+      {
+        "name": "etch_rate_nm_min",
+        "definition": "蚀刻速率（nm/min）是单位时间内从晶圆表面去除的材料厚度。在 RIE 中，蚀刻速率由等离子体化学蚀刻（自由基反应）和物理溅射（离子轰击）的叠加效应决定。蚀刻速率的绝对值取决于材料/气体组合（如 SiO₂/CHF₃ 典型 50-150 nm/min，Si/SF₆ 典型 200-1000 nm/min）。蚀刻速率漂移通常指示腔体条件变化（壁面聚合物积累、气体纯度下降）而非 RF 功率问题。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "measurement",
+        "broader_concept": "材料去除速率",
+        "sibling_concepts": ["deposition_rate_nm_min", "cmp_removal_rate_nm_min"],
+        "distinguish_from": "与沉积速率（deposition rate）方向相反；与 CMP 去除速率机制不同（化学机械 vs 等离子体化学/物理）",
+        "unit": "nm/min",
+        "expected_value_range": "10-2000 nm/min（视材料/气体组合而定，SiO₂ 蚀刻通常 50-200，Si 蚀刻 200-1500）",
+        "abnormal_indicates": "蚀刻速率持续下降→腔体壁面聚合物积累或气体纯度问题；蚀刻速率突然升高→可能 RF 功率异常或气体比例偏移",
+        "terminology": {
+          "canonical_name": "etch_rate",
+          "synonyms": ["蚀刻速率", "etch rate", "removal rate", "刻蚀速率"],
+          "abbreviations": ["ER"],
+          "cross_language": {"zh": "蚀刻速率", "en": "etch rate"},
+          "context_aliases": {"data_column": "etch_rate_nm_min", "process_recipe": "ER_target", "SPC_chart": "ETCH_RATE"}
+        },
+        "knowledge_source": "web_science_gov_etch_rate_uniformity",
+        "reasoning": "从 web 搜索结果中提到 ICP-RIE 和 etch rate，结合通用物理知识中温度/流量的因果模式推断"
+      },
+      {
+        "name": "uniformity_pct",
+        "definition": "蚀刻均匀性（%）是衡量晶圆不同位置蚀刻速率一致性的指标，通常定义为 1 - (max_rate - min_rate) / (2 × avg_rate) × 100%。95% 以上为良好，90-95% 为可接受，低于 90% 需要工艺调整。均匀性受气体流量分布、RF 功率耦合均匀性、晶圆温度梯度、卡盘平整度共同影响。边缘效应（edge effect）是最常见的非均匀性来源。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "outcome",
+        "broader_concept": "工艺均匀性指标",
+        "sibling_concepts": ["thin_thickness_uniformity_pct", "dose_uniformity_pct"],
+        "distinguish_from": "与薄膜厚度均匀性概念相似但机制不同——蚀刻均匀性由等离子体分布决定，薄膜均匀性由沉积气体分布决定",
+        "unit": "%",
+        "expected_value_range": "85-99%（生产级通常要求 >95%）",
+        "abnormal_indicates": "均匀性下降→可能卡盘 He 背面冷却不均、气体喷淋头堵塞、RF 匹配网络失衡",
+        "terminology": {
+          "canonical_name": "etch_uniformity",
+          "synonyms": ["蚀刻均匀性", "etch uniformity", "within-wafer uniformity", "WIW uniformity"],
+          "abbreviations": ["UNIF"],
+          "cross_language": {"zh": "蚀刻均匀性", "en": "etch uniformity"},
+          "context_aliases": {"data_column": "uniformity_pct", "SPC_chart": "ETCH_UNIF"}
+        },
+        "knowledge_source": "web_science_gov_etch_rate_uniformity",
+        "reasoning": "从 web 结果中的 etch rate uniformity 关键词，结合通用工业均匀性概念推断"
+      },
+      {
+        "name": "defect_density_cm2",
+        "definition": "缺陷密度（个/cm²）是蚀刻后晶圆表面单位面积上的缺陷数量。蚀刻相关缺陷包括：微掩膜效应残留物（micromasking）、等离子体损伤（plasma-induced damage）、侧壁粗糙（sidewall roughness）、蚀刻残留物（residual polymer）。缺陷密度直接决定芯片良率——在先进节点（<7nm）每个缺陷都可能杀死整个芯片。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "outcome",
+        "broader_concept": "产品缺陷指标",
+        "sibling_concepts": ["particle_count", "scratch_density_cm2"],
+        "distinguish_from": "与颗粒计数（particle count）不同——缺陷密度包含蚀刻工艺引入的结构性缺陷，不仅是外来颗粒污染",
+        "unit": "个/cm²",
+        "expected_value_range": "0-100 个/cm²（先进节点要求 <1 个/cm²）",
+        "abnormal_indicates": "缺陷密度升高→可能气体纯度下降、腔体清洁不足、光刻胶残留、 chamber wall flaking",
+        "terminology": {
+          "canonical_name": "etch_defect_density",
+          "synonyms": ["蚀刻缺陷密度", "defect density", "post-etch defect density"],
+          "abbreviations": ["DD"],
+          "cross_language": {"zh": "蚀刻缺陷密度", "en": "etch defect density"},
+          "context_aliases": {"data_column": "defect_density_cm2", "inspection_tool": "KLA_defect_count"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "无直接 KB 支持，基于半导体蚀刻领域知识推断"
+      }
+    ],
+    "related_concepts": [
+      {
+        "name": "rf_power_W",
+        "definition": "RF 射频功率（W）是驱动等离子体产生的能量输入。在 13.56 MHz 标准频段下，RF 功率直接决定等离子体密度和离子能量。功率增加→等离子体密度增加→自由基和离子数量增加→蚀刻速率增加（近似线性关系在低功率范围内）。但过高的 RF 功率会导致等离子体不稳定和晶圆损伤。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "control",
+        "broader_concept": "能量输入参数",
+        "sibling_concepts": ["DC_bias_V", "ion_energy_eV"],
+        "distinguish_from": "与 DC_bias 不同——RF_power 是输入控制量，DC_bias 是输出响应量",
+        "unit": "W",
+        "expected_value_range": "50-3000W（200mm 通常 100-1000W，300mm 通常 500-2500W）",
+        "abnormal_indicates": "RF 功率无法稳定→匹配网络故障或腔体阻抗变化（壁面聚合物积累改变了腔体阻抗）",
+        "terminology": {
+          "canonical_name": "RF_power",
+          "synonyms": ["射频功率", "RF power", "forward power"],
+          "abbreviations": ["RF", "P_RF"],
+          "cross_language": {"zh": "射频功率", "en": "RF power"},
+          "context_aliases": {"data_column": "rf_power_W", "recipe_parameter": "RF_POWER"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "基于通用物理知识中能量守恒模式（输入功率→过程响应）推断"
+      },
+      {
+        "name": "chamber_pressure_mTorr",
+        "definition": "腔体压力（mTorr）由真空泵抽速和气体进气流量共同决定。压力影响等离子体中的平均自由程——低压（<10 mTorr）离子方向性好但密度低，高压（>50 mTorr）密度高但各向异性差。蚀刻工艺通常在 5-100 mTorr 范围内运行。压力波动直接影响蚀刻均匀性和选择比。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "control",
+        "broader_concept": "压力参数",
+        "sibling_concepts": ["upstream_pressure_Torr", "throttle_valve_position_pct"],
+        "distinguish_from": "与进气流量相关但不是同一变量——压力是流量和抽速的平衡结果",
+        "unit": "mTorr",
+        "expected_value_range": "1-200 mTorr（RIE 通常 10-100，ICP 可低至 1-10）",
+        "abnormal_indicates": "压力异常升高→可能真空泵性能下降、腔体密封泄漏、气体流量控制异常",
+        "terminology": {
+          "canonical_name": "chamber_pressure",
+          "synonyms": ["腔体压力", "process pressure", "etch pressure"],
+          "abbreviations": ["P_ch"],
+          "cross_language": {"zh": "蚀刻腔体压力", "en": "chamber pressure"},
+          "context_aliases": {"data_column": "chamber_pressure_mTorr", "recipe_parameter": "PRESSURE"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "基于通用物理知识中压力/流量因果模式推断"
+      },
+      {
+        "name": "gas_flow_sccm",
+        "definition": "气体流量（sccm = standard cm³/min）是通过 MFC 控制的蚀刻气体进给速率。流量决定等离子体中反应物的供应量，与 RF 功率和压力共同决定蚀刻化学。气体流量比例（如 CF₄/O₂ 比率）比绝对流量更重要——它决定了蚀刻/沉积的平衡。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "control",
+        "broader_concept": "流量参数",
+        "sibling_concepts": ["He_backside_flow_sccm", "purge_flow_sccm"],
+        "distinguish_from": "与 He 背面冷却流量不同——气体流量是蚀刻化学反应物，He 流量是热传导介质",
+        "unit": "sccm",
+        "expected_value_range": "10-500 sccm（总流量，视腔体大小和工艺）",
+        "abnormal_indicates": "流量波动→MFC 校准漂移或气体供应压力下降",
+        "terminology": {
+          "canonical_name": "process_gas_flow",
+          "synonyms": ["气体流量", "gas flow rate", "process gas flow"],
+          "abbreviations": ["GF"],
+          "cross_language": {"zh": "蚀刻气体流量", "en": "etch gas flow rate"},
+          "context_aliases": {"data_column": "gas_flow_sccm", "recipe_parameter": "GAS_FLOW"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "基于通用物理知识中流量因果模式推断"
+      },
+      {
+        "name": "wafer_temp_C",
+        "definition": "晶圆温度（°C）通过静电卡盘的 He 背面冷却控制。晶圆温度影响化学反应速率（Arrhenius 关系）和光刻胶的蚀刻选择比。温度升高→化学反应速率增加→蚀刻速率增加，但同时光刻胶蚀刻速率也增加→选择比可能下降。温度控制在 RIE 中通常需要 ±1°C 精度。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "control",
+        "broader_concept": "温度参数",
+        "sibling_concepts": ["chamber_wall_temp_C", "He_coolant_temp_C"],
+        "distinguish_from": "与腔体壁面温度不同——晶圆温度直接影响蚀刻反应，壁面温度影响等离子体稳定性",
+        "unit": "°C",
+        "expected_value_range": "-20°C 到 +80°C（通常 20-40°C，低温蚀刻可低至 -20°C）",
+        "abnormal_indicates": "晶圆温度升高→ESC He 冷却不足、He 泄漏、卡盘吸附力下降",
+        "terminology": {
+          "canonical_name": "wafer_temperature",
+          "synonyms": ["晶圆温度", "wafer temperature", "substrate temperature"],
+          "abbreviations": ["T_w"],
+          "cross_language": {"zh": "晶圆温度", "en": "wafer temperature"},
+          "context_aliases": {"data_column": "wafer_temp_C", "recipe_parameter": "WAFER_TEMP"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "基于通用温度因果模式（Arrhenius、热传导）推断"
+      },
+      {
+        "name": "etch_selectivity_ratio",
+        "definition": "蚀刻选择比是目标材料蚀刻速率与掩膜材料（通常是光刻胶）蚀刻速率的比值。选择比 >5:1 为良好，<3:1 需要工艺优化。选择比由气体化学（如添加 O₂ 提高 SiO₂ 对 PR 的选择比）和离子能量（过高离子能量会溅射掉光刻胶）共同决定。选择比不足会导致线宽损失和 CD（Critical Dimension）偏移。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "property",
+        "broader_concept": "工艺选择比",
+        "sibling_concepts": ["deposition_selectivity"],
+        "distinguish_from": "与沉积选择比方向相反——蚀刻选择比是'多蚀刻目标少蚀刻掩膜'，沉积选择比是'多沉积目标少沉积其他'",
+        "unit": "ratio（无量纲）",
+        "expected_value_range": "1-50（典型 3-20）",
+        "abnormal_indicates": "选择比下降→气体比例偏移、离子能量过高、光刻胶固化不足",
+        "terminology": {
+          "canonical_name": "etch_selectivity",
+          "synonyms": ["蚀刻选择比", "etch selectivity", "etch:mask ratio"],
+          "abbreviations": ["SEL"],
+          "cross_language": {"zh": "蚀刻选择比", "en": "etch selectivity"},
+          "context_aliases": {"data_column": "etch_selectivity_ratio", "recipe_parameter": "SELECTIVITY"}
+        },
+        "knowledge_source": "web_science_gov_etch_rate_uniformity",
+        "reasoning": "基于 web 搜索中 etch rate 相关信息推断"
+      },
+      {
+        "name": "DC_bias_V",
+        "definition": "DC 偏压（V）是 RF 等离子体在绝缘电极表面自建的自偏压电压。它反映离子轰击晶圆表面的能量——DC 偏压越高，离子轰击能量越大，物理溅射效应越强。DC 偏压不是直接控制量，而是 RF 功率、腔体压力和气体化学的耦合输出。它是诊断等离子体状态的关键代理指标。",
+        "definition_confidence": "INFERRED",
+        "concept_type": "measurement",
+        "broader_concept": "等离子体状态指标",
+        "sibling_concepts": ["plasma_impedance_ohm", "optical_emission_intensity"],
+        "distinguish_from": "与 RF 功率不同——DC 偏压是响应量不是控制量；与 RF 电压不同——DC 偏压是直流分量",
+        "unit": "V",
+        "expected_value_range": "50-600V（高 bias = 高离子能量 = 强各向异性蚀刻）",
+        "abnormal_indicates": "DC 偏压漂移→腔体条件变化（壁面聚合物、气体纯度）或 RF 匹配网络异常",
+        "terminology": {
+          "canonical_name": "DC_self_bias",
+          "synonyms": ["DC偏压", "DC bias", "self-bias voltage", "V_DC"],
+          "abbreviations": ["VDC"],
+          "cross_language": {"zh": "直流自偏压", "en": "DC self-bias voltage"},
+          "context_aliases": {"data_column": "DC_bias_V", "recipe_parameter": "DC_BIAS"}
+        },
+        "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+        "reasoning": "基于通用电学模式（电压/功率耦合）推断"
+      }
+    ],
+    "context_dimensions": [
+      {
+        "name": "wafer_lot_id",
+        "definition": "晶圆批次编号——区分不同生产批次的晶圆。不同批次可能来自不同的前道工序，光刻胶厚度和图形密度不同，影响蚀刻行为。",
+        "definition_confidence": "INFERRED",
+        "cardinality": "medium",
+        "knowledge_source": "kb_diagnostic_patterns_common",
+        "reasoning": "基于通用工业批次管理模式推断"
+      },
+      {
+        "name": "chamber_id",
+        "definition": "蚀刻腔体编号——区分同型号不同腔体的工艺差异。不同腔体即使运行相同 recipe，由于壁面状态历史和硬件微小差异，蚀刻结果可能有系统性偏移。chamber matching 是半导体厂的核心 SPC 任务之一。",
+        "definition_confidence": "INFERRED",
+        "cardinality": "low",
+        "knowledge_source": "kb_diagnostic_patterns_common",
+        "reasoning": "基于通用多设备并行生产模式推断"
+      },
+      {
+        "name": "recipe_id",
+        "definition": "蚀刻配方编号——标识具体的工艺参数组合（RF功率、压力、气体比例等）。不同 recipe 之间参数差异大，不应混合比较。",
+        "definition_confidence": "INFERRED",
+        "cardinality": "low",
+        "knowledge_source": "kb_diagnostic_patterns_common",
+        "reasoning": "基于通用工业配方管理模式推断"
+      },
+      {
+        "name": "operator_shift",
+        "definition": "操作员班次——标识生产时间段。不同班次的晶圆可能受到环境温湿度变化（日/夜温差影响冷却水温）和操作员装片差异的影响。",
+        "definition_confidence": "INFERRED",
+        "cardinality": "low",
+        "knowledge_source": "kb_diagnostic_patterns_common",
+        "reasoning": "基于通用工业班次管理模式推断"
+      }
+    ]
+  },
+  "process_or_logic_stages": [
+    {
+      "id": "stage_1_chamber_prep",
+      "name": "腔体准备与 Seasoning",
+      "order": 1,
+      "function": "干法清洗（O₂ plasma）去除壁面残留聚合物，然后运行 seasoning 晶圆使壁面沉积稳定的聚合物层，确保后续蚀刻的腔体条件可重复",
+      "key_entity_ids": ["rie_chamber"],
+      "key_concept_ids": ["rf_power_W", "chamber_pressure_mTorr"]
+    },
+    {
+      "id": "stage_2_main_etch",
+      "name": "主蚀刻",
+      "order": 2,
+      "function": "按 recipe 设定的 RF 功率、压力、气体流量执行主蚀刻步骤，将晶圆表面材料从目标区域去除。主蚀刻阶段关注蚀刻速率和均匀性。",
+      "key_entity_ids": ["rie_chamber", "rf_power_system", "gas_delivery_system"],
+      "key_concept_ids": ["etch_rate_nm_min", "uniformity_pct", "rf_power_W", "gas_flow_sccm", "chamber_pressure_mTorr"]
+    },
+    {
+      "id": "stage_3_overetch",
+      "name": "过蚀刻（Over-etch）",
+      "order": 3,
+      "function": "在主蚀刻到达终点后继续蚀刻一定比例（通常 10-30%），确保完全去除目标材料。过蚀刻阶段关注选择比（不能过度蚀刻下层材料）和缺陷控制。",
+      "key_entity_ids": ["rie_chamber"],
+      "key_concept_ids": ["etch_selectivity_ratio", "defect_density_cm2"]
+    },
+    {
+      "id": "stage_4_inspection",
+      "name": "蚀刻后检测",
+      "order": 4,
+      "function": "通过量测工具（CD-SEM、椭偏仪、缺陷检测仪）检测蚀刻后的关键尺寸、蚀刻深度和缺陷密度，反馈到 SPC 系统。",
+      "key_entity_ids": [],
+      "key_concept_ids": ["etch_rate_nm_min", "uniformity_pct", "defect_density_cm2"]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel_001",
+      "name": "RF功率→蚀刻速率",
+      "from": "rf_power_W",
+      "to": "etch_rate_nm_min",
+      "type": "causal",
+      "mechanism": "RF 功率增加→等离子体密度增加→自由基和离子浓度增加→化学反应速率和物理溅射速率同时增加→蚀刻速率增加。在低功率范围内（<1000W）近似线性关系；高功率区域可能出现饱和效应（等离子体密度受限于电离效率）。同时 RF 功率增加→DC 偏压增加→离子能量增加→溅射蚀刻贡献增加。",
+      "direction": "rf_power_W↑ → etch_rate_nm_min↑（近似线性，低功率范围）",
+      "conditions": "气体流量和压力保持恒定；等离子体未达到饱和状态",
+      "exceptions": "极高功率下等离子体不稳定，蚀刻速率可能反而下降；壁面聚合物严重积累时功率耦合效率下降",
+      "expected_lag": "0-5s（等离子体响应非常快）",
+      "knowledge_confidence": 0.7,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_002",
+      "name": "腔体压力→蚀刻均匀性",
+      "from": "chamber_pressure_mTorr",
+      "to": "uniformity_pct",
+      "type": "causal",
+      "mechanism": "压力增加→气体分子密度增加→平均自由程缩短→离子碰撞频率增加→离子方向性变差→侧向蚀刻增加→边缘效应加剧→均匀性下降。同时压力分布的径向不均匀性会放大：中心区域和边缘区域的气体密度差异在高压下更显著。",
+      "direction": "chamber_pressure_mTorr↑ → uniformity_pct↓（压力过高时均匀性变差）",
+      "conditions": "RF 功率恒定；气体流量分布均匀",
+      "exceptions": "极低压（<5 mTorr）时均匀性也可能下降——离子密度太低导致中心-边缘不均匀",
+      "expected_lag": "1-3s（压力平衡时间）",
+      "knowledge_confidence": 0.6,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_003",
+      "name": "气体流量→蚀刻选择比",
+      "from": "gas_flow_sccm",
+      "to": "etch_selectivity_ratio",
+      "type": "causal",
+      "mechanism": "气体流量比例（非绝对值）决定等离子体化学。以 SiO₂/CHF₃+O₂ 为例：O₂ 比例增加→氟原子浓度增加→SiO₂ 蚀刻速率增加；但同时 O₂ 过量会加速光刻胶氧化去除→选择比先升后降呈倒U形。精确控制气体比例是选择比优化的核心。",
+      "direction": "gas_flow_sccm ratio 变化 → etch_selectivity_ratio 非单调（倒 U 形）",
+      "conditions": "需要指定具体的气体种类和比例",
+      "exceptions": "不同材料/气体组合有完全不同的选择比行为",
+      "expected_lag": "2-5s（气体混合+等离子体化学平衡时间）",
+      "knowledge_confidence": 0.5,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_004",
+      "name": "RF功率→DC偏压",
+      "from": "rf_power_W",
+      "to": "DC_bias_V",
+      "type": "physical",
+      "mechanism": "RF 电压在电容耦合等离子体中通过电子迁移率远大于离子的机制，在绝缘电极（晶圆侧）表面自建负偏压（DC self-bias）。RF 功率增加→RF 电压幅值增加→DC 偏压绝对值增加。DC 偏压与 RF 功率的关系受腔体几何和压力调制。",
+      "direction": "rf_power_W↑ → DC_bias_V↑（近似线性）",
+      "conditions": "腔体几何不变，压力恒定",
+      "exceptions": "压力大幅变化时 DC 偏压-RF 功率关系会偏移",
+      "expected_lag": "0s（电响应即时）",
+      "knowledge_confidence": 0.7,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_005",
+      "name": "晶圆温度→蚀刻速率",
+      "from": "wafer_temp_C",
+      "to": "etch_rate_nm_min",
+      "type": "causal",
+      "mechanism": "晶圆温度升高→表面化学反应速率增加（Arrhenius 关系）→化学蚀刻分量增加→总蚀刻速率增加。但温度升高同时加速光刻胶蚀刻→选择比可能下降。温度对蚀刻速率的影响相比 RF 功率较小（温度敏感性通常 1-3%/°C）。",
+      "direction": "wafer_temp_C↑ → etch_rate_nm_min↑（Arrhenius，指数关系但范围小可用线性近似）",
+      "conditions": "温度变化范围在正常工艺窗口内（±10°C）",
+      "exceptions": "低温蚀刻（<0°C）时温度影响更显著，Arrhenius 线性近似失效",
+      "expected_lag": "5-30s（卡盘热传导延迟）",
+      "knowledge_confidence": 0.6,
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0",
+      "validated_against_domain": true
+    },
+    {
+      "id": "rel_006",
+      "name": "DC偏压漂移→缺陷密度",
+      "from": "DC_bias_V",
+      "to": "defect_density_cm2",
+      "type": "correlative",
+      "mechanism": "DC 偏压异常波动→离子能量不稳定→部分区域过蚀刻或欠蚀刻→侧壁形貌不一致→缺陷密度增加。DC 偏压的长期漂移也是腔体条件退化的代理指标——壁面聚合物积累改变了等离子体阻抗，导致 DC 偏压缓慢变化，同时壁面脱落风险增加→颗粒缺陷增加。",
+      "direction": "DC_bias_V 波动幅度↑ → defect_density_cm2↑",
+      "conditions": "需要区分 DC 偏压的正常设定值变化和异常漂移",
+      "exceptions": "缺陷密度可能由非等离子体因素主导（如光刻胶缺陷、晶圆传送污染）",
+      "expected_lag": "几分钟到几小时（缺陷累积需要时间）",
+      "knowledge_confidence": 0.4,
+      "knowledge_source": "kb_diagnostic_patterns_common",
+      "validated_against_domain": true
+    }
+  ],
+  "constraints": [
+    {
+      "name": "蚀刻速率变化率限制",
+      "type": "soft_constraint",
+      "description": "同一 recipe 下同一腔体的蚀刻速率在连续运行中变化不应超过 ±5%（2σ）。如果漂移超过 5%/100 片晶圆，提示腔体 seasoning 状态退化或气体纯度问题，需要安排干法清洗。蚀刻速率持续下降 >10% 通常需要立即停机检查。",
+      "applies_to": ["etch_rate_nm_min", "chamber_id", "recipe_id"],
+      "knowledge_source": "kb_diagnostic_patterns_common"
+    },
+    {
+      "name": "均匀性最低阈值",
+      "type": "hard_constraint",
+      "description": "蚀刻均匀性不得低于 90%。低于 90% 会导致线宽均匀性超标（CD uniformity failure），影响后续光刻套刻精度。紧急措施：暂停该腔体，检查气体喷淋头是否有堵塞，检查 He 背面冷却压力是否正常。",
+      "applies_to": ["uniformity_pct"],
+      "knowledge_source": "web_science_gov_etch_rate_uniformity"
+    },
+    {
+      "name": "DC偏压稳定性要求",
+      "type": "soft_constraint",
+      "description": "同一 recipe 下 DC 偏压的标准差不应超过设定值的 3%（短期，50 片晶圆内）。DC 偏压波动 >5% 表明等离子体不稳定，可能由匹配网络故障、气体流量波动或腔体泄漏引起。DC 偏压的长期漂移趋势（>2%/周）提示壁面聚合物积累需要干法清洗。",
+      "applies_to": ["DC_bias_V", "rf_power_W"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    },
+    {
+      "name": "RF功率-压力耦合安全区",
+      "type": "hard_constraint",
+      "description": "RF 功率和压力的组合必须在等离子体稳定窗口内。高功率 + 极低压（<5 mTorr）可能导致弧光放电（arcing），损坏晶圆和腔体。低功率 + 高压（>100 mTorr）可能导致等离子体熄灭。recipe 参数组合必须经过 DOE 验证。",
+      "applies_to": ["rf_power_W", "chamber_pressure_mTorr"],
+      "knowledge_source": "kb_parameter_to_physics_temperature_C_0"
+    }
+  ],
+  "confounders": [
+    {
+      "name": "chamber_id",
+      "type": "category",
+      "reasoning": "不同腔体即使运行相同 recipe，由于壁面 polymer 历史不同、硬件微小差异（匹配网络参数、喷淋头孔径分布），蚀刻速率和均匀性有系统性偏移。chamber matching 是半导体厂持续 SPC 的核心任务。当分析蚀刻速率趋势时如果不分 chamber_id，会把腔间差异与时间趋势混淆。",
+      "expected_impact": "high",
+      "knowledge_source": "kb_diagnostic_patterns_common"
+    },
+    {
+      "name": "wafer_lot_id",
+      "type": "batch",
+      "reasoning": "不同批次的晶圆可能来自不同的前道光刻工序——光刻胶厚度、图形密度（pattern density）不同。高图形密度区域蚀刻负载更大（loading effect），导致蚀刻速率低于低密度区域。如果批次的图形密度分布不同，蚀刻速率比较就会混入 loading effect 的影响。",
+      "expected_impact": "medium",
+      "knowledge_source": "kb_diagnostic_patterns_common"
+    },
+    {
+      "name": "operator_shift",
+      "type": "environment",
+      "reasoning": "不同班次的晶圆可能受到昼夜温差影响冷却水温——冷却水温升高→晶圆温度控制偏移→蚀刻速率偏移。此外不同操作员的装片方式和 FOUP 开封时间可能引入微小差异。",
+      "expected_impact": "low",
+      "knowledge_source": "kb_diagnostic_patterns_common"
+    }
+  ],
+  "rag_construction_metadata": {
+    "total_chunks_reviewed": 13,
+    "chunks_accepted": 5,
+    "chunks_rejected": 8,
+    "chunks_rejected_reasons": [
+      {"chunk_id": "chunk_3", "reason": "CNC 尺寸偏差因果链，与半导体蚀刻无关"},
+      {"chunk_id": "chunk_5", "reason": "CNC 尺寸偏差因果链（重复），与半导体蚀刻无关"},
+      {"chunk_id": "chunk_7", "reason": "pH 值腐蚀模式，属于水处理/化工领域，与干法蚀刻无关"},
+      {"chunk_id": "chunk_8", "reason": "表面粗糙度 Ra 公式基于切削加工，与等离子体蚀刻机制不同"},
+      {"chunk_id": "chunk_9", "reason": "质量重置分析模板，通用诊断框架但不含蚀刻领域知识"},
+      {"chunk_id": "chunk_11", "reason": "通用温度模式（摩擦→发热），不适用于等离子体蚀刻的温度控制场景"},
+      {"chunk_id": "chunk_12", "reason": "通用温度模式（冷却失效），不适用于等离子体蚀刻场景"},
+      {"chunk_id": "chunk_13", "reason": "进给速度粗糙度公式基于切削加工，与蚀刻无关"}
+    ],
+    "match_rate": 0.38,
+    "construction_timestamp": "2026-06-02T23:50:00+08:00",
+    "llm_model": "claude-opus-4-8",
+    "ontology_version": "v4.0-ontology-first",
+    "knowledge_gaps": [
+      "所有概念的 definition_confidence 均为 INFERRED——KB 中没有半导体蚀刻的专门知识",
+      "蚀刻选择比的具体气体化学影响（如 CF₄/CHF₃/O₂ 比例）无 KB 支持",
+      "缺陷类型分类（micromasking、plasma damage、polymer residue）无 KB 支持"
+    ]
+  }
+}

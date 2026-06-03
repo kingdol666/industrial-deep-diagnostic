@@ -43,6 +43,7 @@ Before touching any script, answer these questions in your own words:
 3. **What are the candidate causes?** Which columns could explain changes in the quality targets? Group them by physical type (temperatures, pressures, speeds, gaps, etc.).
 
 4. **What is the temporal structure?** Is the data evenly spaced? Are there long trends? Cycles? Step changes? Regime shifts? Is there a categorical column that segments the timeline (batches, shifts, product grades)?
+   - **If a product / lot / batch / grade style column exists, identify the primary product grouping column.** This is not just metadata — it determines whether aggregate correlations are trustworthy.
 
 5. **What special structure exists in the data?**
    - Multi-zone sensors (e.g., 12 temperature zones along a machine) → spatial profiles matter
@@ -60,6 +61,8 @@ Based on your answers, write a **scenario-specific analysis plan**. This is a na
 - What specific statistical tests make sense for THIS data
 - What derived features would be diagnostically useful (temperature differentials? rolling variances? rate-of-change? cumulative deviations?)
 - What visualizations would reveal the causal structure
+- If a product grouping column exists: **how you will group by product, preserve within-product time order, and separate within-product behavior from between-product confounding**
+- How you will combine **process-side evidence** (parameter fluctuation, drift, transition, threshold crossing) with **inspection-side evidence** (defect, quality, abnormal intervals)
 - What you will NOT do (because it doesn't apply)
 
 Save this plan as `RUN_DIR/02_processed/analysis_plan.md`. It documents your reasoning for the Diagnostician.
@@ -93,6 +96,7 @@ Scan ALL column names. For each column, ask: what physical quantity could this m
 | Multi-zone sensors | Same prefix, sequential numbering (e.g., `zone_1` through `zone_12`) | Spatial profile plots, zone-to-zone differentials, drift localization |
 | Paired/in-out sensors | Pairs like `inlet_temp`/`outlet_temp`, `feed_pressure`/`die_pressure` | Differential calculation, efficiency metrics |
 | Hierarchical grouping | Multiple categorical columns with nesting (batch → reel → grade) | Multi-level stratification, variance decomposition |
+| Product / lot grouping | Columns like `product_no`, `product_code`, `product_grade`, `lot_id`, `batch_id` | **Per-product time ordering, within-product trend analysis, between-product confounding checks, product-switch transition analysis** |
 | Profile/array data | Many columns measuring the same quantity at different positions (e.g., `thickness_pos1` through `thickness_pos100`) | Profile evolution over time, CD/MD decomposition |
 | Event markers | Columns that change value at specific times (maintenance, grade changes, tool changes) | Before/after analysis, reset detection |
 | Derived/calculated columns | Columns that are clearly formulas from other columns | Identify to avoid circular analysis |
@@ -129,7 +133,7 @@ The rich data_shape analysis (multi-zone, paired sensors, hierarchical groups, e
 
 ## Phase 2: Run Universal Analysis (Applicable to All Scenarios)
 
-These steps run for ANY industrial dataset. Use the pre-built scripts — no need to write code.
+These steps run for ANY industrial dataset. Use the pre-built scripts to establish a reproducible baseline. This baseline is mandatory, but it is not the whole job: after baseline analysis, you must think like an industrial data-analysis diagnostician and decide what custom analysis is still needed.
 
 **Before running scripts, check for edge cases that change analysis behavior:**
 
@@ -137,6 +141,7 @@ These steps run for ANY industrial dataset. Use the pre-built scripts — no nee
 |-----------|-----------|----------------|
 | **No time column** | `input_manifest.json.time_column` is null | Skip CCF, lag analysis, and time-derived features. Label analysis as "snapshot/cross-sectional" in `analysis_plan.md`. Temporal ordering claims are impossible. |
 | **No group column** | No categorical columns with 2-20 unique values | Skip stratified correlation. Simpson's Paradox checks are not applicable. |
+| **Product grouping exists** | Product/grade/lot/batch style categorical column present | **Group by product first; if time exists, sort within each product by time; compare within-product vs cross-product relationships** |
 | **Single numeric column** | Only 1 numeric column besides time/group | Skip correlation matrix. Run only trend and anomaly detection. |
 | **All columns numeric** | No categorical/metadata columns | Grouping unavailable. Stratification limited to value-based binning (quartile splits). |
 | **< 50 rows** | `input_manifest.json.rows` < 50 | Statistical tests unreliable. Use only visual inspection and simple trend detection. Flag as "low data confidence" in all outputs. |
@@ -161,6 +166,7 @@ Then add scenario-specific derived features based on your Phase 1.2 `data_shape`
 | Multi-zone sensors | zone-to-zone differentials, zone range (max-min), zone deviation from baseline, zone drift rate per zone |
 | Paired sensors | differential (in-out), efficiency ratio (out/in), log-mean difference |
 | Hierarchical groups | per-group centered values (value - group_mean) to isolate within-group variation |
+| Product grouping | per-product mean, per-product centered values, per-product volatility (CV), product-switch markers |
 | Profile data | CD profile mean/std/skew, edge-center-edge gradient |
 | Time-series with events | time-since-last-event, cumulative-time-in-current-regime |
 
@@ -206,11 +212,60 @@ node "$SKILL_PATH/scripts/stats_validate.mjs" \
 "$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" anomaly "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed"
 ```
 
+### 2.6 Baseline Result Review
+
+After running the fixed scripts, review their outputs before writing any custom code:
+
+| Baseline artifact | Expert question |
+|------------------|-----------------|
+| `feature_summary.json` | Which relationships are statistically strong, and which are suspicious or likely confounded? |
+| `validate_report.json` | Which correlations cannot be trusted because of Simpson's Paradox, trend confounding, sorting, outliers, or regime shifts? |
+| `anomaly_report.json` | Which parameters or quality targets actually show abnormal intervals, transitions, or product-specific behavior? |
+| `physics_check.json` | Which mechanisms are physically plausible, impossible, negligible, or still untested? |
+| `ontology.json` | Which findings match or contradict the ontology's expected physics? |
+
+Document this review in `analysis_plan.md` under a section named `Baseline Script Findings and Gaps`.
+
 ---
 
-## Phase 3: Scenario-Specific Deep Analysis
+## Phase 2.7: Expert Gap Analysis — Decide What Custom Scripts Are Needed
+
+**This is mandatory.** You are not just a script runner. You are a professional data-analysis diagnostician.
+
+After fixed scripts run, ask:
+
+1. What evidence would a human process engineer still ask for?
+2. Which important plot or metric is missing from the fixed toolkit?
+3. Which ontology-predicted mechanism has not been tested yet?
+4. Which industry-knowledge claim from RAG needs a custom validation?
+5. Which data structure demands a scenario-specific script: product grouping, multi-zone profile, paired sensors, process stage alignment, scanner/profile data, event windows, nonlinear threshold, cycle phase, or equipment cascade?
+
+If the fixed scripts already answer the diagnostic questions, you may set `custom_scripts_written=false`, but you must justify why. Otherwise, write one or more focused Python scripts under `RUN_DIR/06_scripts/`.
+
+**Custom scripts must be narrow and evidence-producing.** They should create:
+- scenario-specific JSON artifacts in `02_processed/`
+- scenario-specific figures in `03_figures/`
+- explicit numeric findings that the Diagnostician can cite
+
+Recommended script naming:
+- `06_scripts/expert_analysis.py` for scenario-specific data analysis
+- `06_scripts/scenario_plots.py` for scenario-specific visualization
+- `06_scripts/ontology_validation.py` when testing ontology-predicted behavior
+
+Each custom script must:
+- read from `02_processed/cleaned_data.csv` or `cleaned_data.json`
+- read `01_ontology/ontology.json` when physical meaning matters
+- write deterministic outputs with stable filenames
+- avoid hardcoding example-specific columns unless those columns are discovered and justified in `analysis_plan.md`
+- use only pandas, numpy, matplotlib unless the analysis truly requires another installed package
+
+---
+
+## Phase 3: Scenario-Specific Deep Analysis and Custom Script Execution
 
 **This is where you differentiate.** Based on what you discovered in Phase 0-1, run analyses tailored to THIS specific data. This is NOT optional — it's the core value you provide.
+
+For every applicable scenario below, decide whether the fixed scripts are sufficient. If not, implement the missing analysis in a focused custom script under `06_scripts/` and run it. The output must become part of the evidence package, not just an informal observation.
 
 ### 3.1 Decision Tree: What Specific Analysis Does THIS Data Need?
 
@@ -247,6 +302,29 @@ This is one of the most common industrial patterns. Temperature zones, pressure 
 1. **Variance decomposition**: Compute variance components at each grouping level. If >70% of quality variance is between-batch → raw material is the likely driver. If >70% is within-batch → process control is the driver.
 2. **Level-specific trends**: Compute trends within each batch, then compare trend slopes across batches. Consistent within-batch trends → process degradation. Batch-to-batch step changes → material or setup issues.
 3. **Interaction detection**: Does the effect of parameter X on quality depend on which product grade is running? Compute grade-specific correlations and test for significant differences.
+
+#### C1. If data has PRODUCT / LOT / GRADE grouping (very common and very important)
+
+**Key question**: Is the observed defect/quality issue caused by within-product process instability, or is it mainly a difference between products / recipes / lots?
+
+**This analysis becomes mandatory when a product-like grouping column exists.**
+
+**Analysis to run**:
+1. **Primary grouping selection**: Pick one main grouping column (`product_no` / `product_code` / `product_grade` / `lot_id` / `batch_id`) and justify why it is the primary grouping dimension.
+2. **Within-product time ordering**: If a valid time column exists, sort data **within each product group by time** before drawing any product-specific trend plots or inferring temporal order.
+3. **Per-product timeline analysis**: For each major product group, overlay key process parameters and key inspection targets on the same time axis. Check whether abnormal process fluctuation precedes inspection deterioration **within the same product**.
+4. **Between-product confounding check**: Compare aggregate correlation vs within-product correlation. If the aggregate relationship disappears or reverses inside products, classify as `BETWEEN_PRODUCT_ONLY` / Simpson-like confounding.
+5. **Product-switch transition analysis**: Mark product change boundaries and inspect whether quality/defect baselines jump at switches. If yes, treat product recipe/setpoint difference as a strong confounder.
+6. **Per-product fluctuation severity**: For each key process parameter, compute within-product CV / p05-p95 span / drift slope. Flag large fluctuation products as process-instability candidates.
+7. **Dual-drive integration**: For each product, explicitly connect:
+   - process-side abnormality: large parameter fluctuation, step jump, drift, threshold crossing
+   - inspection-side abnormality: defect spike, quality excursion, anomaly interval
+   - integrated statement: “在产品A中，参数X的大幅波动与缺陷Y异常同窗出现 / 先后出现”
+
+**Required output content**:
+- `anomaly_report.json.dual_drive_analysis.per_product_analysis`
+- product-grouped figures in `03_figures/`
+- `analysis_plan.md` must describe the chosen grouping logic
 
 #### D. If data has EVENT MARKERS (maintenance, grade changes, tool changes, filter replacements)
 
@@ -325,6 +403,48 @@ if [ -f "$PHYSICS_OUTPUT" ]; then
 fi
 ```
 
+### 3.4 Build a Dual-Drive Diagnostic Layer (Process + Inspection)
+
+This is required whenever both process parameters and inspection/quality signals exist.
+
+**Goal**: Do not stop at “parameter X correlates with defect Y”. Build a two-sided diagnostic statement:
+- **Process side**: Did process parameters show abnormal fluctuation, drift, regime switch, threshold crossing, or event response?
+- **Inspection side**: Did defect/quality metrics show anomaly intervals, reset behavior, excursions, or product-specific deterioration?
+- **Linkage**: Did those two phenomena occur in the same product group, same time window, or plausible causal order?
+
+At minimum, your outputs must make it possible for the Diagnostician to say:
+1. 哪个产品组出现了明显的工艺参数异常波动
+2. 哪个检测指标在同一产品组中异常
+3. 两者是同步、先后、还是仅组间共现
+4. 这更像“工艺内失稳”还是“产品配方/产品切换导致的表观差异”
+
+### 3.5 Write the Expert Data Analysis Conclusion
+
+After baseline scripts and custom scripts are complete, write:
+
+`RUN_DIR/02_processed/data_analysis_conclusion.json`
+
+Read `schemas/data_analysis_conclusion_schema.json` and `templates/data_analysis_conclusion_template.json` before writing. This file is the Data Processor's expert handoff to the Diagnostician.
+
+It must summarize:
+- which fixed scripts ran and what they found
+- which custom scripts were written and why
+- what custom artifacts/figures were generated
+- how ontology and industry knowledge change the interpretation of raw statistical results
+- data-supported conclusions, with caveats
+- priority hypothesis inputs for the Diagnostician
+
+Do not make final root-cause claims here. Make **data-supported expert conclusions** that the Diagnostician can test against physics, competing hypotheses, and falsification conditions.
+
+**Deployable workflow helper**: after writing or updating `anomaly_report.json`, run:
+
+```bash
+node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+```
+
+If you already produced a richer hand-written `data_analysis_conclusion.json`, the synthesized file should be used as a structural baseline and then overwritten only if your richer version still passes schema validation.
+
 ---
 
 ## Phase 4: RAG Knowledge Validation (Stage 2)
@@ -350,9 +470,20 @@ Output: `RUN_DIR/02_processed/rag_validation_report.json`
 
 These apply to ANY industrial dataset:
 
-1. **Temporal alignment**: Overlay each quality target with its top-3 correlated parameters on shared time axis. Mark known events (maintenance, grade changes) with vertical lines. Mark anomaly intervals with shaded regions.
-2. **Top-parameter scatter grid**: For each quality target, scatter against its top-3 parameters. Color by the primary grouping column. Add per-group regression lines if groups exist.
-3. **Correlation robustness**: Side-by-side bar chart: raw r vs detrended r vs Spearman ρ for top-15 parameter-quality pairs. Highlights which correlations are trend-artifacts vs genuine.
+1. **Global time-aligned overlay (MANDATORY when a time column exists; highest priority in time-series cases)**: If the dataset has a valid time column, create **one master chart** that places the key quality targets and key process parameters on the **same x time axis** in a single figure. Before plotting, normalize the series (z-score preferred) and reverse negatively-correlated parameters when useful so the VLM can compare co-movement directly. Mark known events (maintenance, grade changes, catalyst changes, tool changes) with vertical lines. Mark anomaly intervals with shaded regions. This chart is the primary cross-parameter diagnostic view for time-series diagnosis. If there is **no time column**, do **not** force this chart; instead, document that temporal alignment is unavailable and prioritize cross-sectional, grouped, event-free, or distributional views that fit the data.
+   - **If a primary product grouping column exists**, the grouped analysis must also include **per-product time-ordered overlays** so downstream diagnosis can distinguish within-product abnormality from between-product differences.
+2. **Target-centric temporal alignment**: Overlay each quality target with its top-3 correlated parameters on shared time axis. These can be multi-panel or per-target views, but they are secondary to the master global time-aligned overlay above.
+3. **Top-parameter scatter grid**: For each quality target, scatter against its top-3 parameters. Color by the primary grouping column. Add per-group regression lines if groups exist.
+4. **Correlation robustness**: Side-by-side bar chart: raw r vs detrended r vs Spearman ρ for top-15 parameter-quality pairs. Highlights which correlations are trend-artifacts vs genuine.
+
+**Non-negotiable requirement when the master time-aligned figure is applicable:**
+- Use a **single shared x-axis** representing real time
+- Put **multiple key parameters in the same figure**, not in separate unrelated plots
+- Include **at least**: primary quality targets, top candidate causes, and major event markers
+- Use normalization so amplitude differences do not hide temporal relationships
+- If too many series would make the chart unreadable, keep the full master overlay for the top 8-12 most diagnostic series and create secondary focused overlays for subsets
+- Name it clearly in the manifest as a master aligned chart, e.g. `fig_master_time_aligned_overlay.png` or equivalent
+- If there is **no valid time column**, explicitly state that this requirement is not applicable and choose the best non-temporal global view instead
 
 ### 5.2 VLM-Specific Charts (Always Generate)
 
@@ -367,12 +498,13 @@ Generate these using `visual_analysis.py`:
 
 | Chart | VLM Design Feature | What VLM Can Read From It |
 |-------|-------------------|--------------------------|
-| **Time-aligned overlay** (`fig_vlm_temporal_overlay.png`) | All parameters z-score normalized, negative correlations reversed, shared time axis | Which parameters move together (synchronous groups), which diverge, event responses, trend morphology |
+| **Master time-aligned overlay** (`fig_vlm_temporal_overlay.png`, only when time column exists) | All key parameters z-score normalized, negative correlations reversed, **same shared time axis in one figure** | Which parameters move together (synchronous groups), which diverge, who responds first, event responses, trend morphology |
 | **Event response** (`fig_vlm_event_response.png`) | Before/after coloring, mean lines, transition marker | Whether quality resets at events, magnitude of jump, recovery completeness |
 | **Simpson Paradox** (`fig_vlm_simpson_*.png`) | Per-stratum subplots with regression lines, direction arrows | Direction reversal across strata, r-value contrast |
 | **Synchronization heatmap** (`fig_vlm_synchronization.png`) | Rolling correlation over time, threshold lines | Which correlations are stable vs time-varying, when relationships break down |
 
 **Design requirements for VLM readability** (from `resources/visual_analysis_framework.md`):
+- If a valid time column exists, the **master time-aligned overlay is mandatory** and must be reviewed first before interpreting any other chart
 - Shared time axis across all time-series overlays
 - z-score normalization so different units are comparable
 - Negative-correlation parameters reversed so ALL lines move in the same direction when process is healthy
@@ -391,6 +523,7 @@ Generate these using `visual_analysis.py`:
 | Paired sensors | Inlet vs outlet time series overlaid; Differential trend plot; Efficiency metric over time |
 | Event markers | Quality-before-after box plots per event type; Event-aligned average trajectory; Cumulative degradation between events |
 | Grouping columns | Per-group correlation bar chart; Variance decomposition pie/donut chart |
+| Product grouping + time | Per-product grouped timeline (same x time axis within each product), product-switch timeline, process fluctuation by product bar chart |
 | Monotonic drift | Degradation curve: quality vs time, with LOWESS fit and critical threshold marker |
 | Cyclic patterns | FFT periodogram of key quality metrics; Phase-averaged quality by cycle position |
 | Nonlinear relationships | Scatter with piecewise linear fit and breakpoint marker; Regime-separated correlation panels |
@@ -455,6 +588,13 @@ For each PNG in `03_figures/`, use the Read tool to view the image directly. For
 | **趋势形态** | Trend / degradation curves | Linear or accelerating? Inflection points? |
 | **异常聚集** | Anomaly-annotated time series | Are anomalies clustered in specific periods? |
 | **方向一致性** | Multi-indicator time series | Do multiple quality metrics degrade in the same direction? |
+
+**Read order requirement**:
+1. If a valid time column exists, read the **master time-aligned overlay first**
+2. Extract synchronous groups / precedence signals / divergence windows from that chart
+3. Use the remaining charts to confirm, refine, or falsify the master overlay reading
+
+If the dataset has a valid time column and the master aligned chart is missing, treat Phase 5 as incomplete and generate it before proceeding.
 
 ### 5.5.2 Write visual_analysis.json
 
@@ -542,6 +682,7 @@ If the script fails, write `03_figures/image_captions.json` manually. Each entry
 Must exist when done:
 ```
 02_processed/analysis_plan.md                 ← Phase 0.3 (NEW: your reasoning)
+02_processed/data_analysis_conclusion.json    ← expert data-analysis handoff: baseline + custom analysis + ontology/industry interpretation
 02_processed/data.json
 02_processed/cleaned_data.csv / cleaned_data.json
 02_processed/data_quality_report.json
@@ -555,11 +696,15 @@ Must exist when done:
 02_processed/zone_analysis.json               ← if multi-zone sensors (Phase 3A)
 02_processed/event_analysis.json              ← if event markers (Phase 3D)
 02_processed/physics_manual_verification.md   ← if physics_check ran 0 checks (Phase 3G)
+02_processed/*_analysis.json                  ← if custom expert scripts generate scenario-specific data artifacts
 03_figures/*.png                              ← universal + scenario-specific + VLM charts
+03_figures/fig_vlm_temporal_overlay.png      ← REQUIRED only when a valid time column exists: all key parameters aligned on the same time axis in one figure
 03_figures/plot_manifest.json
 03_figures/visual_analysis.json               ← VLM visual image analysis (Phase 5.5)
 03_figures/image_captions.json                ← compatibility layer from visual_analysis.json
 06_scripts/scenario_plots.py                  ← scenario-specific visualization
+06_scripts/expert_analysis.py                 ← if needed: custom scenario-specific data analysis
+06_scripts/ontology_validation.py             ← if needed: custom ontology/industry-knowledge validation
 ```
 
 ## Pipeline Event Log
@@ -570,16 +715,30 @@ At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 {"event": "agent_complete", "agent": "data-processor", "timestamp": "...", "scenario": "...", "data_shape_detected": {...}, "specific_analyses_run": [...], "files_written": [...], "errors": null}
 ```
 
+Prefer the helper script over ad hoc manual appends:
+
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_start --agent data-processor
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_complete --agent data-processor --files 02_processed/anomaly_report.json,02_processed/data_analysis_conclusion.json,03_figures/plot_manifest.json
+```
+
 ## Rules
 
 1. **Scenario-first, not pipeline-first.** Phase 0 exploration drives everything. Two different datasets must get two different analysis plans.
 2. **Every plot answers a diagnostic question.** If you can't state what root cause insight it provides, don't generate it.
-3. **Use the pre-built scripts for universal steps** (convert, preprocess, stats, anomaly, physics_check). Write custom code ONLY for scenario-specific analysis (Phase 3) and scenario-specific plots (Phase 5.2).
+3. **Use the pre-built scripts for universal steps** (convert, preprocess, stats, anomaly, physics_check), then perform an expert gap review. Write custom code when the fixed scripts cannot answer the scenario-specific diagnostic question.
 4. **Read the ontology before deciding what to do.** It tells you what physical quantities the columns represent, which governs what analysis makes sense.
 5. **Anomaly annotations are MANDATORY.** The Diagnostician needs to know WHEN things went wrong.
 6. **Event/transition analysis is MANDATORY when categorical columns change value.** Quality reset analysis is the single most powerful diagnostic signal.
 7. **Zone analysis is MANDATORY when data has multi-zone sensors.** Spatial localization of the drift identifies the failed component.
 8. **Document your reasoning in `analysis_plan.md`.** The Diagnostician needs to understand why you chose these analyses — not just what you ran.
 9. **Use only matplotlib + pandas + numpy.** No sklearn/scipy unless absolutely necessary.
-10. **VLM visual analysis is MANDATORY (Phase 5.5).** After generating all charts, you MUST read each PNG and produce `visual_analysis.json`. Charts are not decorative evidence — they are diagnostic input that a VLM Agent will actively read and reason from.
-11. **Charts must be VLM-readable.** Use shared time axes, z-score normalization, direction reversal for negative correlations, large fonts (≥12pt), high contrast, and clear event markers. Design for an Agent, not a human slide deck.
+10. **If a valid time column exists, the master time-aligned overlay is MANDATORY.** Generate one figure that places the key quality targets and key process parameters on the same time axis in a single chart. This is the first chart the downstream diagnosis should read in time-series cases.
+11. **If no valid time column exists, do not force temporal alignment.** State this explicitly in `analysis_plan.md` and switch to the strongest non-temporal views for the data shape.
+12. **VLM visual analysis is MANDATORY (Phase 5.5).** After generating all charts, you MUST read each PNG and produce `visual_analysis.json`. Charts are not decorative evidence — they are diagnostic input that a VLM Agent will actively read and reason from.
+13. **Charts must be VLM-readable.** Use shared time axes when applicable, z-score normalization, direction reversal for negative correlations, large fonts (≥12pt), high contrast, and clear event markers. Design for an Agent, not a human slide deck.
+14. **If a product / lot / batch / grade grouping column exists, per-product grouped analysis is MANDATORY.** Group first, then sort by time within each group when a valid time column exists. Do not rely only on aggregate plots.
+15. **Dual-drive diagnosis support is MANDATORY when both process and inspection data exist.** Your outputs must explicitly connect process-parameter fluctuation evidence with inspection/quality abnormality evidence at the group and time-window level.
+16. **Expert custom analysis is expected when the data shape demands it.** The Data Processor must be able to write focused scripts under `06_scripts/` to produce scenario-specific JSON artifacts and figures. If no custom script is needed, justify this in `data_analysis_conclusion.json`.
+17. **Every data-supported conclusion must cite artifacts.** A conclusion without a source file, figure, or computed metric is not evidence.
+18. **Ontology and industry knowledge must shape interpretation.** Do not report statistical patterns as raw correlations only; explain what the ontology says the parameter is, which physical mechanism or industry rule applies, and whether the data supports or contradicts it.

@@ -9,8 +9,11 @@ A production-grade, evidence-first industrial time-series analysis and diagnosti
 - **Self-correcting pipeline**: Judge agent reviews every conclusion with a repair loop (max 3 iters); physical-truth auditor provides independent reality check
 - **Full artifact persistence**: Timestamped run directories with all intermediate outputs
 - **Statistical validation**: Built-in Simpson's Paradox, trend confounding, change-point detection
-- **Physical dual-drive engine**: Automated `physics_check.py` pre-computes thermal, vibration, and kinetic checks
+- **Expert data-analysis handoff**: Fixed baseline scripts plus focused custom scripts produce `02_processed/data_analysis_conclusion.json`
+- **Physical dual-drive engine**: Combines process-parameter fluctuation analysis with inspection/quality anomalies and physics checks
 - **Anti-speculation enforcement**: Evidence hierarchy + STOP checklist + confidence ceilings
+- **Execution-proof logging**: `.pipeline_events.jsonl` plus `run_manifest.json` now jointly prove step order, retries, and declared outputs
+- **Evidence-closure proof**: `evidence_closure_report.json` proves the run closed the loop from process evidence to dual-drive diagnosis to final report
 
 ## Quick Start
 
@@ -45,9 +48,9 @@ Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series wi
 │   ├── judge.md
 │   ├── reporter.md
 │   └── report-reviewer.md
-├── schemas/                 ←  14 JSON Schemas for output validation
+├── schemas/                 ←  12 JSON Schemas for output validation
 ├── scripts/                 ←  Pipeline scripts (Node.js + Python/uv)
-├── references/              ←  Domain knowledge base
+├── resources/               ←  Domain knowledge base and execution references
 ├── templates/               ←  Output templates (report, diagnosis, judge)
 ├── evals/                   ←  5 formal test scenarios with assertions
 ├── tests/                   ←  Quality checklists
@@ -67,6 +70,48 @@ Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series wi
 | `known_faults` | No | Known fault patterns |
 | `analysis_constraints` | No | Analysis constraints |
 
+## Required Execution Outputs
+
+The full pipeline is strict: every step must run or record a documented not-applicable condition. Key outputs include:
+
+- `02_processed/analysis_plan.md` — Data Processor's plan before running scripts
+- `02_processed/data_analysis_conclusion.json` — expert handoff with baseline results, custom analysis, ontology interpretation, and caveats
+- `03_figures/fig_master_time_aligned_overlay.png` — generated when a valid time column exists
+- `03_figures/visual_analysis.json` — structured visual/VLM evidence from generated plots
+- `04_diagnostics/diagnosis.json` — final physics-grounded diagnosis with competing hypotheses
+- `.pipeline_events.jsonl` — execution proof that the agents actually ran in pipeline order and respected repair-loop limits
+- `evidence_closure_report.json` — machine-readable proof that pure-process evidence, dual-drive evidence, ontology/physics interpretation, diagnosis, and report handoff are coherently connected
+
+Validate a completed run with:
+
+```bash
+node .claude/skills/industrial-deep-diagnostic/scripts/finalize-run-artifacts.mjs <run_dir> .claude/skills/industrial-deep-diagnostic
+node .claude/skills/industrial-deep-diagnostic/scripts/artifact-check.mjs <run_dir> .claude/skills/industrial-deep-diagnostic
+```
+
+`finalize-run-artifacts.mjs` now also writes `evidence_closure_report.json`, and `artifact-check.mjs` now treats both execution-proof integrity and evidence-closure integrity as first-class final gates.
+
+## Eval Compatibility
+
+`evals/evals.json` is maintained in a dual-compatible form:
+
+- `expectations` supports the standard `skill-creator` grading / benchmark flow
+- `assertions` keeps the richer JSON-path-based checks used by this diagnostic skill
+
+This lets the skill preserve domain-specific checks while still fitting the broader skill improvement toolchain.
+
+Programmatic assertion grading is available via:
+
+```bash
+node .claude/skills/industrial-deep-diagnostic/scripts/eval-assertions.mjs \
+  .claude/skills/industrial-deep-diagnostic/evals/evals.json \
+  1 \
+  <run_dir> \
+  --write-grading
+```
+
+This evaluates the domain-specific `assertions` against run artifacts and writes skill-creator-compatible `grading.json`.
+
 ## Example Scenarios
 
 - BOPET film thickness anomaly analysis
@@ -75,6 +120,10 @@ Supported: **CSV, XLSX, Parquet, JSON, Feather** — any columnar time-series wi
 - Fan vibration analysis
 - Heat exchanger fouling progression
 - PVA optical film defect analysis
+
+## Online Integration
+
+This skill can be integrated into an online system that pulls data from databases / historians / MES / quality systems on demand. The recommended insertion points are documented in `resources/online_integration_entrypoints.md:1`.
 
 ## License
 

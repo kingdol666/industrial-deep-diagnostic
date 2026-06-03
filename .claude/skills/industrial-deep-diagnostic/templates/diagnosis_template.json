@@ -3,6 +3,51 @@
   "diagnosis_time": "2025-01-15T12:45:00Z",
   "diagnosis_type": "COMPETING_SET",
   "primary_finding": "BOPET 膜厚偏差由 TDO zone-3 加热器退化和/或树脂熔融指数批次变化共同导致 — 当前数据无法区分这两种假设",
+  "process_fluctuation_analysis": {
+    "analysis_performed": true,
+    "scope": "process_with_grouping",
+    "grouping_basis": "product_grade",
+    "time_order_basis": "timestamp within each product group",
+    "key_process_findings": [
+      {
+        "parameter": "TDO_zone3_temp",
+        "behavior_type": "drift",
+        "affected_group": "PET_23um",
+        "evidence": "组内时序上 zone3 温度持续下降约 8°C，CV 低但存在持续负斜率",
+        "ontology_interpretation": "ontology 将其归类为关键热区过程参数，直接影响横向拉伸热历史",
+        "physics_mechanism": "热输出下降 → 膜面温度下降 → 拉伸均匀性变差",
+        "diagnostic_implication": "即使暂不看缺陷数据，仅从工艺侧也提示 zone3 存在持续退化"
+      }
+    ],
+    "ontology_physics_reasoning": [
+      {
+        "parameter": "TDO_zone3_temp",
+        "ontology_role": "process_parameter",
+        "governing_law": "Energy balance + heat transfer",
+        "reasoning_summary": "温度漂移与本体定义的热致厚度均匀性机理一致，且量级上可解释下游质量变化",
+        "proof_strength": "STRONG_EVIDENCE"
+      }
+    ],
+    "conclusion": "纯工艺数据视角表明，关键热区存在持续退化信号，属于优先诊断对象。"
+  },
+  "integrated_dual_drive_analysis": {
+    "analysis_performed": true,
+    "has_quality_or_inspection_targets": true,
+    "linked_groups": ["PET_23um", "PET_50um"],
+    "process_to_quality_links": [
+      {
+        "group": "PET_23um",
+        "process_parameter": "TDO_zone3_temp",
+        "quality_target": "thickness_deviation",
+        "link_type": "process_precedes_quality",
+        "statistical_evidence": "组内 detrended r=-0.71，方向稳定",
+        "anomaly_evidence": "温度下降先于厚度异常窗口约 30min，视觉上同步退化",
+        "ontology_physics_reasoning": "本体和热传递机理均支持温度先变、厚度后变",
+        "diagnostic_weight": "strong"
+      }
+    ],
+    "integrated_conclusion": "工艺参数退化与质量异常在产品组内可闭环对应，支持双驱动根因判断。"
+  },
 
   "product_stratified_analysis": {
     "has_product_column": true,

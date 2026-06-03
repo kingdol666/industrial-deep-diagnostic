@@ -20,6 +20,7 @@ These rules ensure each step maximizes the value of upstream artifacts:
 |------|-----------|-------------|
 | **R2 Split** | Context Builder → Data Processor | RAG claim validation is split: context-builder does PRE-CHECKS (range, basic direction), data-processor does THOROUGH validation (lag, stratification, detrending) |
 | **Physics Feeding** | Context Builder → Data Processor → Diagnostician | Physics principles extracted by context-builder guide data-processor's analysis; data-processor's physics checks feed diagnostician's hypothesis validation |
+| **Expert Data Analysis Handoff** | Data Processor → Diagnostician → Judge → Reporter | Data-processor runs fixed baseline scripts, writes custom expert scripts when needed, and summarizes the evidence in `data_analysis_conclusion.json`; downstream agents consume it as the data-supported evidence package, not as a final root-cause answer |
 | **VLM Visual Bridge** | Data Processor → Diagnostician → Judge → Reporter | Data-processor generates VLM-readable charts + visual_analysis.json; diagnostician fuses VLM visual insights with statistical evidence; judge verifies visual-statistical consistency; reporter presents both visual and statistical evidence per figure |
 | **Bidirectional Ontology** | Context Builder ↔ Data Processor | Context-builder builds initial ontology with predicted→observed mapping; data-processor REFINES it with full-statistical insights and newly discovered discrepancy signals |
 | **Discrepancy Escalation** | All → Diagnostician | Discrepancy signals (prediction≠observation) discovered at ANY step are collected in ontology.json.discrepancy_signals[] and treated as PRIMARY diagnostic inputs |
@@ -32,6 +33,8 @@ Before presenting results to the user, verify pipeline coherence:
 
 - [ ] Do context-builder's predicted behaviors match data-processor's observed behaviors? If not → discrepancy signals are documented
 - [ ] Does the scenario classification from data-processor align with the ontology from context-builder? If not → ontology may need updating
+- [ ] Does `data_analysis_conclusion.json` exist and summarize fixed scripts, custom scripts, ontology/industry interpretation, data-supported conclusions, and handoff priorities?
+- [ ] Did the diagnostician consume `data_analysis_conclusion.json` without treating its data-supported conclusions as final root-cause claims?
 - [ ] Does the diagnostician use rag_deep_understanding.json extracted physics for novel parameters? If not → physics inference may be incomplete
 - [ ] Does the judge verify that physics sources are properly tracked and confidence-adjusted? If not → overconfidence risk
 - [ ] Does the report-reviewer cross-check the diagnosis against rag_deep_understanding.json? If not → RAG-contradicted claims may survive
@@ -75,5 +78,4 @@ Every artifact produced by each step must contain the enrichment fields needed b
 |  (from Step 4) |  with source annotation, , physics source tracking per hypothesis |
 |  (from Step 5) |  (NEW),  |
 |  (from Step 7) | Cross-check against rag_deep_understanding.json physics principles, RAG claim validation status |
-
 

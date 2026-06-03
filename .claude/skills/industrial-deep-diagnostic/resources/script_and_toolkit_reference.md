@@ -10,7 +10,15 @@
 | `setup.mjs` | Create workspace directory structure (00_input-06_scripts) | `node setup.mjs --name X [--base-dir D]` |
 | `convert.mjs` | Safe CSV/TSV → JSON conversion (handles quoted fields, large files via sampling) | `node convert.mjs <file> --output out.json [--sample N]` |
 | `validate.mjs` | Schema-validate any JSON file against a JSON Schema | `node validate.mjs <schema.json> <data.json>` |
-| `artifact-check.mjs` | Verify all required artifacts exist for a completed pipeline run | `node artifact-check.mjs <RUN_DIR> <SKILL_PATH>` |
+| `artifact-check.mjs` | Verify required artifacts exist and validate key JSON outputs against schemas for a completed pipeline run | `node artifact-check.mjs <RUN_DIR> <SKILL_PATH>` |
+| `pipeline-log-check.mjs` | Validate `.pipeline_events.jsonl` to prove step-by-step execution and repair-loop integrity | `node pipeline-log-check.mjs <RUN_DIR>` |
+| `eval-assertions.mjs` | Execute eval `assertions[]` against a completed run and optionally emit skill-creator-compatible `grading.json` | `node eval-assertions.mjs <evals.json> <eval-id-or-name> <RUN_DIR> [--write-grading]` |
+| `append-pipeline-event.mjs` | Append a structured `agent_start` / `agent_complete` event to `.pipeline_events.jsonl` | `node append-pipeline-event.mjs <RUN_DIR> --event agent_start --agent data-processor` |
+| `evidence-closure-check.mjs` | Verify the evidence loop is closed from process fluctuation evidence → dual-drive evidence → ontology/physics interpretation → diagnosis → final report | `node evidence-closure-check.mjs <RUN_DIR> --write` |
+| `normalize-anomaly-report.mjs` | Repair legacy or custom `anomaly_report.json` into the current schema shape | `node normalize-anomaly-report.mjs <RUN_DIR>` |
+| `synthesize-data-analysis-conclusion.mjs` | Generate `02_processed/data_analysis_conclusion.json` from processed artifacts and custom script inventory | `node synthesize-data-analysis-conclusion.mjs <RUN_DIR>` |
+| `synthesize-run-summary.mjs` | Generate schema-aligned `run_summary.json` from run artifacts | `node synthesize-run-summary.mjs <RUN_DIR>` |
+| `finalize-run-artifacts.mjs` | Run the anomaly normalization + data-analysis conclusion synthesis + run summary synthesis + evidence closure refresh sequence before final validation | `node finalize-run-artifacts.mjs <RUN_DIR> <SKILL_PATH>` |
 | `generate_captions.mjs` | Generate `image_captions.json` from existing figures and plot manifest | `node generate_captions.mjs <RUN_DIR>` |
 | `uv_env_setup.mjs` | Auto-install `uv`, create Python venv, install dependencies; outputs JSON with `.python` path | `node uv_env_setup.mjs` |
 
@@ -22,6 +30,18 @@
 |--------|---------|-------|
 | `file_inspect.py` | Inspect Excel/Parquet/Feather data (pandas-based) | `$PYTHON file_inspect.py <file> [--rows N]` |
 | `physics_check.py` | **Dual-Drive engine**: automatic thermal expansion, Arrhenius kinetics, vibration thresholds, energy balance, force balance, quality reset analysis, anomaly-onset coincidence | `$PYTHON physics_check.py <RUN_DIR> <ontology.json> <feature_summary.json> <anomaly_report.json> [--output out.json] [--cleaned-data data.json]` |
+
+## Expert Custom Scripts
+
+The Data Processor may write focused custom scripts under `RUN_DIR/06_scripts/` when fixed scripts do not answer the scenario-specific diagnostic question.
+
+| Script Pattern | Purpose | Expected Outputs |
+|----------------|---------|------------------|
+| `06_scripts/expert_analysis.py` | Scenario-specific data analysis such as product-group trends, multi-zone profile metrics, threshold checks, cascade timing, event windows, or ontology-predicted behavior validation | `02_processed/*_analysis.json`, numeric findings for `data_analysis_conclusion.json` |
+| `06_scripts/scenario_plots.py` | Scenario-specific plots not covered by fixed visualization scripts | `03_figures/*.png`, entries in `plot_manifest.json` |
+| `06_scripts/ontology_validation.py` | Tests whether ontology or RAG-predicted physical behavior appears in the data | `02_processed/ontology_validation.json` or merged findings in `data_analysis_conclusion.json` |
+
+Custom scripts are evidence producers, not free-form notebooks. They should read cleaned data and ontology, write deterministic JSON/PNG outputs, and be summarized in `02_processed/data_analysis_conclusion.json`.
 
 **Get $PYTHON path**: `node scripts/uv_env_setup.mjs` → parse JSON output → use `python` field.
 
@@ -43,7 +63,7 @@ $PYTHON <script.py> [args]
 | openpyxl | Excel .xlsx reading (optional) |
 | pyarrow | Parquet / Feather reading (optional) |
 
-## JSON Schema Files (11 active schemas)
+## JSON Schema Files (12 active schemas)
 
 Schemas are validated via `node validate.mjs <schema.json> <data.json>` in the step-by-step protocol.
 
@@ -54,6 +74,7 @@ Schemas are validated via `node validate.mjs <schema.json> <data.json>` in the s
 | `schemas/scenario_classification_schema.json` | Scenario classification | data-processor |
 | `schemas/anomaly_report_schema.json` | Anomaly intervals, transitions, quality reset analysis | data-processor |
 | `schemas/causal_evidence_map_schema.json` | Validated causal graph with root cause candidates | data-processor |
+| `schemas/data_analysis_conclusion_schema.json` | Expert Data Processor handoff: fixed scripts, custom scripts, ontology/industry interpretation, and data-supported conclusions | data-processor, diagnostician |
 | `schemas/diagnosis_schema.json` | Diagnosis output (causal chain, hypotheses) | diagnostician |
 | `schemas/evidence_schema.json` | Structured evidence (visual, numerical, domain) | diagnostician |
 | `schemas/confidence_schema.json` | Confidence scoring and uncertainty disclosure | diagnostician, judge |

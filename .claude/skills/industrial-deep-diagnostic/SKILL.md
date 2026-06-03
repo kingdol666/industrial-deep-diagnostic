@@ -30,6 +30,13 @@ This is a **scenario-adaptive diagnostic engine** — it diagnoses ANY industria
 2. **RAG provides domain context** — retrieved physics principles, causal mechanisms, known failure modes, and parameter semantics for whatever domain the data represents
 3. **First-principles physics** — every statistical correlation must trace to a governing equation; for unknown parameters, physics is derived from conservation laws, dimensional analysis, and constitutive relations
 
+In the final diagnosis, this skill must always support **two complementary reasoning views**:
+
+1. **纯工艺波动诊断 / Process-Fluctuation Diagnosis** — from the process data alone, identify whether parameters show physically meaningful abnormal drift, instability, threshold behavior, or regime switching
+2. **工艺+检测双驱动诊断 / Integrated Dual-Drive Diagnosis** — combine process abnormalities with inspection/quality anomalies to determine whether the process-side abnormality actually enters the defect / quality causal chain
+
+**Both views must be grounded in ontology semantics and physical reasoning, not just statistics.**
+
 ## Core Principle
 
 Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradictions. Missing any → label as `[HYPOTHESIS]`. When data cannot discriminate between competing hypotheses → output `COMPETING_SET`, not a guess.
@@ -132,7 +139,13 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: Context Build (RAG + O
 
 **Sequence**: Steps 2→2.5→3 are strictly sequential. Steps 4→5→6→7 are sequential with quality gates between each.
 
+**Pipeline discipline rule**: When executing this skill, the agent MUST follow the pipeline step-by-step and **must not skip, reorder, or silently omit steps** just to save time or tokens. Every step must be explicitly checked and executed according to the pipeline contract unless the pipeline itself defines a documented skip condition (for example, no valid time column for temporal alignment, or no clarification needed in `auto` mode). If a step is not applicable, the agent must say so in the relevant artifact and continue with the next defined step — not silently bypass it.
+
 **Repair loops**: Judge→Diagnostician max 3 iterations. Reviewer→Diagnostician max 2 cycles. **Global cap: total re-diagnosis ≤ 5**. Counter persists in `.pipeline_events.jsonl`. See `pipeline-execution.md` §Repair Loop Protocol.
+
+**Execution proof rule**: A run is not considered fully valid unless the final artifact check confirms both the output artifacts and the `.pipeline_events.jsonl` execution log. Producing files without a coherent event log is treated as an execution-integrity failure.
+
+**Evidence-closure rule**: A run is not considered diagnostically complete unless the final checks also confirm the evidence loop is closed: process-side abnormality entry → dual-drive linkage entry → ontology/physics interpretation → diagnosis outputs → review/report handoff. The machine-readable proof is `evidence_closure_report.json`.
 
 ---
 
@@ -151,12 +164,21 @@ node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_RO
 node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 ```
 
+`setup.mjs` now bootstraps both `run_manifest.json` and `.pipeline_events.jsonl` with a `run_initialized` event. Treat this as the start of execution proof.
+
 Copy input data files into `00_input/`. All Python invocations MUST use `scripts/.venv/bin/python` — never system `python3`.
 
 ### Step 1: Inspect Data (Main Agent)
 
 ```bash
 node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
+```
+
+Recommended main-agent execution log:
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_start --agent main-agent --step inspect --data '{"data_path":"<data_path>"}'
+# run inspect + write 00_input/input_manifest.json / user_context.json
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_complete --agent main-agent --step inspect --files 00_input/input_manifest.json,00_input/user_context.json
 ```
 
 If `00_input/run_config.json` doesn't exist, create `{"interaction_mode": "auto"}`.
@@ -191,18 +213,25 @@ Outputs: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowled
 
 Check `clarification_needed.json`. Auto mode skips all questions and applies physics inference. Interactive/minimal modes ask per their respective rules. See `pipeline-execution.md` §Step 2.5 for detailed protocol.
 
+Record the gate outcome explicitly:
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event clarification_auto_inferred --agent main-agent --step clarification_gate
+```
+
 ### Step 3: Data Processing + Visualization (Sub-Agent)
 
 **Load**: `agents/data-processor.md` + `resources/data_ontology_mapping_framework.md` (for updating ontology) + `resources/visual_analysis_framework.md` (for VLM chart design and visual analysis protocol)
 
 Pass: `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`.
 
-**Scenario-adaptive analysis** — the agent reads the data first, understands what kind of process it is, then decides what analyses to run. No two datasets get the same treatment.
+**Scenario-adaptive expert analysis** — the agent reads the data first, understands what kind of process it is, runs fixed baseline scripts for reproducibility, then writes focused custom scripts when the data shape or ontology requires deeper evidence. No two datasets get the same treatment.
 
 The agent follows a **Phase 0 → Phase 1 → ... → Phase 6** structure:
 - **Phase 0 (MANDATORY)**: Data exploration — understand the process, identify data shape (multi-zone? paired sensors? hierarchical groups? events? cyclic?), write an `analysis_plan.md` BEFORE running any scripts
 - **Phase 1**: Scenario classification → `scenario_classification.json`
 - **Phase 2**: Universal analysis (convert, preprocess, stats, anomaly detection) — applies to all scenarios
+- **Phase 2.5 (group-aware preprocessing rule)**: If a product / lot / batch / grade grouping column exists, group-aware analysis is mandatory; if a valid time column also exists, preserve within-group time order before product-specific plotting or temporal claims
+- **Phase 2.7 (expert gap analysis)**: After fixed scripts run, review evidence gaps and decide whether custom scripts are required for scenario-specific metrics, figures, ontology validation, or industry-knowledge checks
 - **Phase 3 (THE CORE)**: Scenario-specific deep analysis using a decision tree:
   - A: Multi-zone sensors → zone drift localization, spatial profiles, per-zone trends
   - B: Paired/cascaded sensors → differentials, efficiency metrics, cascade timing
@@ -212,10 +241,13 @@ The agent follows a **Phase 0 → Phase 1 → ... → Phase 6** structure:
   - F: Periodic/cyclic patterns → FFT, cycle-phase analysis, partial correlation
   - G: physics_check returns 0 → manual L1-L5 physics verification
 - **Phase 4**: RAG knowledge Stage 2 validation
-- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table + **VLM-specific charts** (time-aligned overlay, event response, synchronization heatmap)
-- **Phase 6**: Plot manifest + image captions + **VLM visual image analysis** (Phase 5.5 in agent)
+- **Phase 5**: Adaptive visualization — universal plots + scenario-specific plots from a decision table + **VLM-specific charts**. **When a valid time column exists**, the first-priority chart is one master time-aligned overlay that places key quality targets and key process parameters on the same x time axis in a single figure, followed by event response and synchronization charts. If no time column exists, do not force temporal overlays; choose the strongest non-temporal views instead.
+- **Phase 5 product-aware rule**: If a product-like grouping column exists, also generate per-product grouped views so diagnosis can distinguish within-product process instability from between-product recipe/product confounding
+- **Phase 6**: Plot manifest + image captions + **VLM visual image analysis** (Phase 5.5 in agent) + expert data-analysis conclusion
 
-Key outputs: `02_processed/` (universal + scenario-specific files), `03_figures/` (universal + scenario-specific plots), `03_figures/visual_analysis.json` (VLM visual insights), `analysis_plan.md`, `scenario_plots.py`
+Key outputs: `02_processed/` (universal + scenario-specific files, including process/inspection dual-drive analysis fields and `data_analysis_conclusion.json`), `03_figures/` (universal + scenario-specific plots, including the master time-aligned overlay when a valid time column exists and per-product grouped figures when a product grouping column exists), `03_figures/visual_analysis.json` (VLM visual insights), `analysis_plan.md`, `06_scripts/scenario_plots.py`, and any focused expert scripts needed for the dataset.
+
+**Stabilization rule for deployable runs**: before Step 4 begins, normalize `anomaly_report.json` if custom analysis rewrote it, and generate `data_analysis_conclusion.json` using the provided helper scripts when the agent has not already written a schema-valid version. Before Step 8, generate or refresh `run_summary.json` using the helper scripts if needed.
 
 ### Step 3.5: VLM Visual Analysis (Sub-Agent — Integrated in Step 3)
 
@@ -305,10 +337,13 @@ Output: `optimizer.md`
 ### Step 8: Present Results (Main Agent)
 
 ```bash
+node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
 Show: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight CONDITIONAL/REJECTED concerns.
+
+`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json`; `artifact-check.mjs` now treats both execution proof and evidence closure as final gate items.
 
 ---
 
@@ -323,9 +358,10 @@ Context Builder ──► 01_ontology/ontology.json, schema.json
                 ──► 00_input/rag_ontology_draft.json, rag_structured_data.json, rag_audit_log.json (from RAG skill)
 User Clarification ──► Updated ontology.json, schema.json
 Data Processor  ──► 02_processed/ (universal + scenario-specific analysis files)
+                ──► 02_processed/data_analysis_conclusion.json (expert data-analysis handoff)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
                 ──► 03_figures/visual_analysis.json (VLM visual insights)
-                ──► analysis_plan.md, scenario_plots.py
+                ──► analysis_plan.md, 06_scripts/scenario_plots.py, 06_scripts/expert_analysis.py when needed
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
                 ── (consumes visual_analysis.json for visual evidence fusion)
 Judge           ──► 05_review/judge_feedback.json
@@ -357,6 +393,7 @@ flowchart LR
 | Step 3 | `scenario_classification.json` | `schemas/scenario_classification_schema.json` |
 | Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
 | Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
+| Step 3 | `data_analysis_conclusion.json` | `schemas/data_analysis_conclusion_schema.json` + `templates/data_analysis_conclusion_template.json` |
 | Step 4 | `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |
 | Step 4 | `evidence.json` | `schemas/evidence_schema.json` |
 | Step 4 | `confidence.json` | `schemas/confidence_schema.json` |
@@ -455,7 +492,17 @@ Apply these checks before writing any finding:
 | Directory | When | Content |
 |-----------|------|---------|
 | `schemas/*.json` (11 files) | After each agent output | JSON Schema validation for every structured artifact |
-| `templates/*.md`, `templates/*.json` (5 files) | During Steps 4-6 | Output format templates for diagnosis, judge feedback, report, run summary |
+| `templates/*.md`, `templates/*.json` | During Steps 3-6 | Output format templates for data-analysis conclusion, diagnosis, judge feedback, report, run summary |
 | `scripts/` (14 files) | Throughout pipeline | Pre-built Node.js + Python scripts (stats, validation, physics checks, conversion, inspection, visual analysis) |
 | `examples/` (3 scenarios) | Context builder reference | Sample ontologies for common process types |
 | `tests/checklists/` (4 files) | Developer QA | Diagnosis, judge, ontology, report quality checklists |
+
+### Eval & Benchmark Note
+
+For `skill-creator` style improvement loops:
+
+- use `evals/evals.json.expectations[]` as the viewer / benchmark-facing expectation layer
+- use `evals/evals.json.assertions[]` as the executable domain-specific assertion layer
+- run `scripts/eval-assertions.mjs` to turn domain assertions into `grading.json` before aggregation
+
+This keeps the diagnostic skill's rich artifact-aware checks while remaining compatible with the broader skill evaluation workflow.

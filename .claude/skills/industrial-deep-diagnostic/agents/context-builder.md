@@ -249,27 +249,85 @@ Record in `rag_deep_understanding.json`:
 
 #### 3.3.1 Primary: rag_ontology_draft.json -> Field Mapping to Diagnostic Ontology
 
-Read `RUN_DIR/00_input/rag_ontology_draft.json`. This is the structured domain ontology from Phase 2 of the RAG skill. Map its fields to the diagnostic ontology you'll build in Phase 4:
+Read `RUN_DIR/00_input/rag_ontology_draft.json`. This is the structured domain ontology from Phase 2 of the RAG skill (v4 ontology-first format). Map its fields to the diagnostic ontology you'll build in Phase 4.
 
-| RAG v3 Field | Diagnostic Ontology Field | Mapping Logic |
+**Step 1 — Classify concepts into diagnostic signal categories:**
+
+RAG v4 groups concepts as `target_concepts[]`, `related_concepts[]`, and `context_dimensions[]`. Each concept has a `concept_type` field that tells you which diagnostic signal bucket it belongs to:
+
+| RAG `concept_type` | Diagnostic Signal Category | Example |
+|---------------------|---------------------------|---------|
+| `measurement` | `signals.inspection_signals[]` or `signals.process_parameters[]` depending on role | quality metrics → inspection; process state → process_parameters |
+| `outcome` | `signals.inspection_signals[]` | conversion_pct, selectivity_pct |
+| `composite_score` | `signals.inspection_signals[]` | quality_index |
+| `predictor` / `input` | `signals.process_parameters[]` | reactor_temp_C, feed_rate_kg_hr |
+| `control` | `signals.control_variables[]` | cooling_water_temp_C |
+| `risk_factor` | `signals.process_parameters[]` with `role: "confounder"` | feed_sulfur_ppm |
+| `metadata` (context_dimensions) | `signals.metadata_columns[]` | product_lot, catalyst_bed_id, shift |
+
+**Step 2 — Map RAG v4 concept fields to diagnostic signal_v6 fields:**
+
+For each concept (target_concepts or related_concepts), map as follows:
+
+| RAG v4 Concept Field | Diagnostic signal_v6 Field | Mapping Logic |
+|----------------------|---------------------------|---------------|
+| `name` | `name` + `column` | `name` as display name; check `terminology.context_aliases.data_column` for actual column name; fallback: use `name` directly as `column` |
+| `definition` | `physical_meaning` | Direct — the v4 `definition` is a precise natural language description of what this parameter physically represents |
+| `definition_confidence` | `physical_meaning_confidence` | Direct mapping: `KNOWN`→`KNOWN`, `INFERRED`→`INFERRED`, `UNKNOWN`→`UNKNOWN` |
+| `expected_value_range` | `normal_range` | Parse string like "35-97%" or "180-200°C" to numeric array `[35, 97]` or `[180, 200]` |
+| `unit` | `unit` | Direct |
+| `abnormal_indicates` | Enriches `discrepancy_signal` in Phase 4 | Provides diagnostic context when data contradicts expected range — carry into Phase 4.3 |
+| `broader_concept` | Enriches `physical_meaning` context in Phase 4 | The IS-A parent reveals what physical quantity family this belongs to (e.g., "温度量" → temperature quantity) — adds taxonomy depth to `physical_meaning` |
+| `distinguish_from` | Disambiguation metadata | If two data columns could match the same concept, use `distinguish_from` to pick the correct one |
+| `sibling_concepts` | Cross-reference metadata | Identifies related parameters in the same physical family — useful for `parameter_groups` grouping |
+| `terminology.canonical_name` | `name` (if more readable than raw `name`) | Use canonical name for display if `name` is a code-like identifier |
+| `terminology.synonyms` | Column name matching candidates | When matching concept to data column, also try synonyms as aliases |
+| `terminology.abbreviations` | Column name matching candidates | Short codes like "Tr", "QI" may appear as column names |
+| `terminology.cross_language` | Column name matching candidates | Use for cross-language column matching (zh↔en) |
+| `terminology.context_aliases` | Column name matching + context-aware mapping | `data_column` alias is the PRIMARY column name hint; other aliases provide domain context |
+| `concept_type` | `role` + signal category | See Step 1 classification table above. Also maps to `role`: measurement→target/predictor, outcome→target, predictor→predictor, control→control, risk_factor→confounder, input→predictor |
+| `knowledge_source` | `knowledge_source` tag | Set to `"rag_retrieval"` for all RAG-mapped concepts; preserve original `knowledge_source` for traceability |
+
+**Step 3 — Map entities, relationships, constraints, stages:**
+
+| RAG v4 Field | Diagnostic Ontology Target | Mapping Logic |
 |-------------|--------------------------|---------------|
-| `concepts.target_concepts[].semantic_meaning` | `parameter.physical_meaning` | Direct - this IS the physical meaning |
-| `concepts.target_concepts[].expected_value_range` | `parameter.normal_range` | Parse "3-15" to [3, 15] |
-| `concepts.target_concepts[].unit` | `parameter.unit` | Direct |
-| `concepts.target_concepts[].semantic_meaning_confidence` | `parameter.physical_meaning_confidence` | KNOWN->KNOWN, INFERRED->INFERRED, UNKNOWN->unknown |
-| `concepts.related_concepts[]` (all fields) | Same mapping as target_concepts | For process parameters |
-| `entities[]` where type=component | `ontology.scene.equipment[]` | Other entity types to other collections |
-| `relationships[].mechanism` | `ontology.relationships[].physics_mechanism` | Direct |
-| `relationships[].knowledge_confidence` | strength enum | >0.8->strong, 0.5-0.8->moderate, <0.5->weak |
-| `relationships[].expected_lag` | `predicted_lag` | Direct |
-| `relationships[].direction` | relationship direction description | e.g., "from->to increases when from_up" |
-| `confounders[]` | `ontology.confounders[]` | name->variable, reasoning->why |
-| `process_or_logic_stages[]` | `ontology.scene.stages[]` | Direct mapping |
-| `rag_injection_metadata.knowledge_gaps[]` | Merge into `clarification_needed.json` | Unknown concepts need user input |
+| `entities[].id` | `scene.equipment[].id` | Direct |
+| `entities[].name` | `scene.equipment[].name` | Direct |
+| `entities[].type` | `scene.equipment[].type` | Map: `system`→`system`, `component`→`component`, `material`→`material` |
+| `entities[].definition` | `scene.equipment[].function` | Extract the functional description (1-2 sentences) |
+| `entities[].owns_concepts` | Cross-reference with signals | Which parameters belong to this equipment → link via `equipment_ref` |
+| `entities[].interacts_with` | Enriches relationship mapping | Reveals entity-level causal paths between equipment groups |
+| `relationships[].from` / `.to` | `relationships[].from` / `.to` | Direct — concept names as identifiers |
+| `relationships[].mechanism` | `relationships[].mechanism` | Direct — v4 mechanism descriptions are rich (2-3 sentences with physics) |
+| `relationships[].type` | `relationships[].type` | Direct — v4 types (`causal`, `correlative`, `physical`, `control`) align with diagnostic schema enum |
+| `relationships[].knowledge_confidence` | `relationships[].strength` | Numeric → enum: >0.8→`strong`, 0.5-0.8→`moderate`, <0.5→`weak` |
+| `relationships[].expected_lag` | `relationships[].time_lag` | Direct |
+| `relationships[].direction` | Parsed into `mechanism` enrichment | Append direction summary to mechanism text (e.g., "from↑ → to↑") |
+| `relationships[].conditions` | Enriches `mechanism` | Prepend as "前提条件: ..." — the relationship only holds under these conditions |
+| `relationships[].exceptions` | Enriches `mechanism` | Append as "例外: ..." — when the relationship breaks down |
+| `relationships[].validated_against_domain` | Set `rag_validated: true` in Phase 4 | If RAG confirmed domain validity, mark the relationship as RAG-validated |
+| `constraints[]` (NEW in v4) | `extracted_knowledge.json` domain_rules | v4 constraints (hard_constraint, soft_constraint, domain_rule) become diagnostic axioms — save to extracted_knowledge for Data Processor and Diagnostician reference |
+| `constraints[].name` | Rule identifier | e.g., "AXIOM_arrhenius_rate" → used by Judge and Diagnostician |
+| `constraints[].description` | Natural language axiom | Contains the full condition + violation consequence — critical for physics-based reasoning |
+| `constraints[].applies_to` | Parameter cross-reference | Which parameters this constraint governs |
+| `confounders[].name` | `confounders[].variable` | Direct |
+| `confounders[].reasoning` | `confounders[].why` | Direct — v4 reasoning is richer (includes mechanism and expected impact) |
+| `confounders[].expected_impact` | Additional metadata for stratification priority | high→must stratify, medium→should stratify, low→optional |
+| `process_or_logic_stages[].id` | `scene.stages[].id` | Direct |
+| `process_or_logic_stages[].name` | `scene.stages[].name` | Direct |
+| `process_or_logic_stages[].order` | `scene.stages[].sequence` | Direct |
+| `process_or_logic_stages[].function` | `scene.stages[].key_physics` | The function description describes what physically happens in this stage |
+| `process_or_logic_stages[].key_concept_ids` | `scene.stages[].key_parameters` | Direct — concept names map to parameter names |
+| `rag_injection_metadata.knowledge_gaps[]` | Merge into `clarification_needed.json` | Unknown concepts need user input or first-principles inference in Phase 5 |
 
-**Match concepts to data columns by semantic meaning, not string equality.** If RAG says "melt temperature" and your column is `T_MELT_C`, they match. If RAG says "bearing vibration velocity" and your column is `VIB_RMS_mm_s`, they match. Mark all RAG-mapped parameters with `"knowledge_source": "rag_retrieval"`.
+**Match concepts to data columns using the full terminology chain, not string equality:** try `name` → `terminology.context_aliases.data_column` → `terminology.synonyms` → `terminology.abbreviations` → `terminology.cross_language`. If RAG says "melt temperature" and your column is `T_MELT_C`, they match. Mark all RAG-mapped parameters with `"knowledge_source": "rag_retrieval"`.
 
-For backward compatibility, the RAG schema also accepts legacy field-name aliases (`signals.inspection_signals[]`, `equipment[]`). Handle both formats; prefer the new universal names.
+**v4 adds three new data structures not present in v3 — ensure you consume them:**
+
+1. **`constraints[]`** — Domain axioms and rules. These are NOT just documentation — the Diagnostician uses them as falsification conditions for hypotheses, and the Judge checks them during quality gate. Extract into `extracted_knowledge.json` under a `domain_rules` key.
+2. **`entities[].definition`** — Rich entity descriptions reveal equipment-level causal paths (which system owns which parameters, what interacts with what). Use `owns_concepts` to link signals to equipment via `equipment_ref`, and `interacts_with` to validate relationship graph completeness.
+3. **`concepts[].terminology`** — The full terminology mapping (synonyms, abbreviations, cross_language, context_aliases) is the primary tool for robust column matching. Always check `terminology.context_aliases.data_column` first when matching a concept to a data column.
 
 #### 3.3.2: rag_structured_data.json -> Plausibility Bounds & Expected Behaviors
 
@@ -369,36 +427,98 @@ Document every mismatch between ontology expectation and data observation:
 
 Combine ALL knowledge sources — RAG deep understanding, reference docs, web research, data patterns, and physics principles — into a unified ontology.
 
-**For EACH parameter**, the ontology MUST include:
+> **⚠️ Schema-First 输出规则**: `ontology.json` 必须同时满足两套要求：(1) `schemas/ontology_schema.json` 的所有 required 字段，确保 `validate.mjs` 通过；(2) 下面的诊断增强字段，确保 Diagnostician/Judge 能读取物理预测和差异信号。**先读 schema，再按下面的模板构造，一次写入通过验证。**
+
+**For EACH parameter**, the ontology MUST include ALL `signal_v6` schema fields PLUS diagnostic-enriched fields:
+
 ```json
 {
-  "column": "actual_column_name",
-  "physical_quantity": "What physical quantity this measures",
-  "governing_law": "What equation governs its behavior",
-  "expected_data_behavior": "How it SHOULD behave if the process is normal",
-  "observed_data_behavior": "How it ACTUALLY behaves in this data",
-  "behavior_match": "CONSISTENT | CONTRADICTED | UNVERIFIED",
-  "discrepancy_signal": "If CONTRADICTED — what the mismatch might mean diagnostically",
+  "name": "Human-readable parameter name (e.g. 反应器温度)",
+  "column": "actual_column_name from data",
+  "unit": "SI or domain unit (e.g. °C, bar, kg/hr)",
+  "role": "target | predictor | confounder | control | metadata",
+  "physical_meaning": "What this parameter physically represents — from RAG definition or first-principles inference (matches schema field)",
   "physical_meaning_confidence": "KNOWN | INFERRED | UNKNOWN",
-  "knowledge_source": "rag_retrieval | reference_doc | web_research | auto_inferred | user_provided",
-  "role": "target | predictor | confounder | control | metadata"
+  "normal_range": [35, 97],
+  "auto_inferred": true,
+  "inference_basis": "Why this meaning was assigned (e.g. column pattern + RAG definition + value range confirmation)",
+  "equipment_ref": "entity_id from scene.equipment that owns this parameter",
+  "stage_ref": "stage_id from scene.stages where this parameter is measured",
+  "control_type": "setpoint | measurement | output (if applicable)",
+
+  "governing_law": "What equation governs its behavior (DIAGNOSTIC ENRICHMENT — not in schema)",
+  "expected_data_behavior": "How it SHOULD behave if the process is normal (DIAGNOSTIC ENRICHMENT)",
+  "observed_data_behavior": "How it ACTUALLY behaves in this data (DIAGNOSTIC ENRICHMENT)",
+  "behavior_match": "CONSISTENT | CONTRADICTED | UNVERIFIED (DIAGNOSTIC ENRICHMENT)",
+  "discrepancy_signal": "If CONTRADICTED — what the mismatch means diagnostically (DIAGNOSTIC ENRICHMENT)",
+  "knowledge_source": "rag_retrieval | reference_doc | web_research | auto_inferred | user_provided"
 }
 ```
 
-**For EACH relationship**, the ontology MUST include:
+**Field mapping notes:**
+- `physical_meaning` (NOT `physical_quantity`) — this is the schema field name. Populate from RAG `definition` field.
+- `normal_range` is a numeric `[min, max]` array — parse from RAG `expected_value_range` string (e.g. "35-97%" → `[35, 97]`).
+- `expected_data_behavior` is a separate text field describing qualitative behavior patterns (e.g. "monotonic decline during catalyst deactivation, should reset after regeneration") — it complements but does NOT replace `normal_range`.
+- `equipment_ref` and `stage_ref` link parameters to the entity/stage structure — populated from RAG `entities[].owns_concepts` and `process_or_logic_stages[].key_concept_ids`.
+
+**For EACH relationship**, the ontology MUST include ALL schema fields PLUS diagnostic-enriched fields:
+
 ```json
 {
   "from": "parameter_A",
   "to": "parameter_B",
   "type": "causal | correlative | control | physical",
   "strength": "strong | moderate | weak",
-  "physics_mechanism": "Full causal chain through governing equations",
-  "governing_equation": "The specific equation that governs this relationship",
-  "predicted_lag": "Expected time lag based on physics",
-  "predicted_functional_form": "linear | exponential | polynomial | inverse",
-  "rag_validated": "true if RAG knowledge supports, false if from inference",
-  "data_direction_validated": "true | false | untested — does the data correlation direction match physics prediction?"
+  "mechanism": "Full causal chain through governing equations (matches schema field — NOT physics_mechanism)",
+  "time_lag": "Expected time lag based on physics (matches schema field — NOT predicted_lag)",
+  "inferred": false,
+
+  "governing_equation": "The specific equation that governs this relationship (DIAGNOSTIC ENRICHMENT)",
+  "predicted_functional_form": "linear | exponential | polynomial | inverse (DIAGNOSTIC ENRICHMENT)",
+  "rag_validated": "true if RAG knowledge supports, false if from inference (DIAGNOSTIC ENRICHMENT)",
+  "data_direction_validated": "true | false | untested — does the data correlation direction match physics prediction? (DIAGNOSTIC ENRICHMENT)"
 }
+```
+
+**Field mapping notes:**
+- `mechanism` (NOT `physics_mechanism`) — this is the schema field name. Populate from RAG `relationships[].mechanism` field.
+- `time_lag` (NOT `predicted_lag`) — this is the schema field name. Populate from RAG `relationships[].expected_lag` field.
+- Enrich the `mechanism` text with RAG v4's `conditions` and `exceptions` fields (e.g. "前提条件: ...；例外: ...").
+
+**For the top-level ontology structure**, follow `ontology_schema.json` exactly:
+```json
+{
+  "scene": {
+    "name": "Scene identifier",
+    "process_type": "Free-text process description from RAG scene.domain_type",
+    "equipment": [],
+    "stages": [],
+    "objectives": []
+  },
+  "signals": {
+    "inspection_signals": [],
+    "process_parameters": [],
+    "control_variables": [],
+    "events": [],
+    "metadata_columns": []
+  },
+  "parameter_groups": {},
+  "relationships": [],
+  "confounders": [],
+  "metadata": {
+    "units": {},
+    "sampling_rate": null,
+    "batch_id": null,
+    "timezone": null
+  }
+}
+```
+
+Classify parameters into signal categories using the Step 1 concept_type → signal category table from Phase 3.3.1.
+
+After writing, validate immediately:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"
 ```
 
 Save to `RUN_DIR/01_ontology/ontology.json` and schema.json.

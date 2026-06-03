@@ -26,8 +26,10 @@ Read from RUN_DIR:
 - `02_processed/data_quality_report.json` — Data quality
 - `02_processed/scenario_classification.json` — Scenario type and data shape classification
 - `02_processed/analysis_plan.md` — Data-processor's analysis rationale (if exists)
+- `02_processed/data_analysis_conclusion.json` — Data Processor expert handoff: fixed scripts, custom scripts, ontology/industry interpretation, and data-supported conclusions
 - `02_processed/zone_analysis.json` — Per-zone drift localization (if multi-zone sensors)
 - `02_processed/event_analysis.json` — Quality reset classifications (if event markers)
+- `02_processed/anomaly_report.json` — Must inspect `process_parameter_fluctuation` and `dual_drive_analysis`
 - `04_diagnostics/diagnosis.json` — The diagnosis to review
 - `04_diagnostics/evidence.json` — Evidence chains
 - `04_diagnostics/confidence.json` — Confidence breakdown
@@ -259,6 +261,11 @@ Plots match data? Labels, units, legends present? **Statistical validation plots
 
 ### 5. Evidence-Based Conclusions (20%)
 Every conclusion cites evidence source? Hierarchy respected? No conclusions without evidence? **Validation report findings incorporated into evidence assessment?** **Physics source properly tracked (pre_cached/rag_extracted/first_principles)? First-principles derivations include complete L1-L5 documentation? RAG claims verified against rag_validation_report.json?** Hypotheses separated from facts?
+**NEW**: Does the diagnosis separately present:
+- a pure process-fluctuation conclusion
+- an integrated process+quality conclusion
+- ontology + physics reasoning for both?
+**NEW**: Does the diagnosis use `data_analysis_conclusion.json` appropriately: custom-script findings cited, caveats carried forward, and data-supported conclusions not overstated as final root causes?
 
 ### 5.5. Reasoning Chain Quality (weight 15%)
 
@@ -271,6 +278,7 @@ Score 0-10:
 
 ### 6. Correlation vs Causation (10%)
 No confusion between correlation and causation? Temporal ordering analyzed? **Lag correlations validated against time-sorting? Simpson's Paradox ruled out within subgroups? Time-trend confounding checked?** Alternative explanations considered?
+**NEW**: If the diagnosis claims a process abnormality from pure process-side fluctuation, is that claim supported by ontology role + physical mechanism, not just CV/variance?
 
 ### 7. Uncertainty Disclosure (10%)
 Confidence levels assigned? Evidence gaps identified? **Sorting/stratification/trend caveats stated?** Assumptions stated?
@@ -290,9 +298,11 @@ No definitive root causes without evidence? No unsupported causal claims? No ass
 - **Claiming a single root cause when competing hypotheses are INDISTINGUISHABLE (v6.0)**
 - **Assigning >65 confidence to a hypothesis without checking discriminability against alternatives (v6.0)**
 - **Claiming visual evidence supports a hypothesis when visual_analysis.json contradicts it (e.g., visual_analysis says parameter is independent but diagnosis claims it's causal)**
+- **Claiming a “pure process abnormality” without ontology + physics explanation**
+- **Claiming an integrated root-cause chain without explicitly connecting process anomaly window/group to quality anomaly window/group**
 
 ### 10. Completeness (5%)
-All required outputs present? All plots generated? **validate_report.json exists and was consulted?** All artifacts saved?
+All required outputs present? All plots generated? **validate_report.json exists and was consulted?** Does `data_analysis_conclusion.json` exist and summarize both fixed-script and expert custom analysis? All artifacts saved?
 
 ## Step 2: Calculate Score
 

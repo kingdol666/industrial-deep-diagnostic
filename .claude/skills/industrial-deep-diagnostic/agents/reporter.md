@@ -25,6 +25,8 @@ Read from RUN_DIR:
 - `02_processed/validate_report.json`
 - `02_processed/scenario_classification.json`
 - `02_processed/analysis_plan.md` — Data-processor's analysis rationale (if exists)
+- `02_processed/data_analysis_conclusion.json` — Expert data-analysis handoff from Data Processor
+- `02_processed/anomaly_report.json` — especially `process_parameter_fluctuation` and `dual_drive_analysis`
 - `02_processed/zone_analysis.json` — Zone drift localization (if multi-zone sensors)
 - `02_processed/event_analysis.json` — Quality reset analysis (if event markers)
 - `03_figures/plot_manifest.json`
@@ -241,6 +243,31 @@ Every claim MUST cite which link in the reasoning chain supports it ([Chain Link
 ## 16. 置信度与不确定性 / Confidence & Uncertainty
 [Overall confidence. Evidence gaps. What additional data would help.]
 
+## 16C. 数据分析专家结论 / Expert Data Analysis Findings
+[Summarize `data_analysis_conclusion.json`.
+Must cover:
+- 固定脚本跑出了什么稳定基线证据
+- Data Processor 又写了哪些专用脚本，为什么需要
+- 专用脚本生成了哪些关键图像和数据文件
+- 哪些结论有数据支撑，哪些只是待诊断验证的线索
+- 本体模型和行业知识如何改变统计结果的解释]
+
+## 16A. 纯工艺波动诊断 / Process-Fluctuation Diagnosis
+[Summarize the pure process-data abnormality view from diagnosis.json.process_fluctuation_analysis.
+Must answer:
+- 哪些工艺参数本身表现出异常波动/漂移/阈值行为
+- 属于哪个工艺阶段/设备/本体角色
+- 对应什么物理机制
+- 即使不看缺陷数据，也能得出的工艺侧结论]
+
+## 16B. 工艺+检测双驱动诊断 / Integrated Dual-Drive Diagnosis
+[Summarize diagnosis.json.integrated_dual_drive_analysis.
+Must answer:
+- 哪些产品组/时间窗中，工艺异常与质量/检测异常联动
+- 是工艺先变还是仅同步
+- 哪些联动最能支持根因判断
+- 本体模型和物理知识如何闭环支持]
+
 ## 17. 局限性与不确定性 / Limitations & Uncertainty
 
 ### 17.1 偶然不确定性 / Aleatory Uncertainty
@@ -319,12 +346,27 @@ Write to `RUN_DIR/run_summary.json`:
 }
 ```
 
+**Deployable workflow helper**: after drafting the report, run:
+
+```bash
+node "$SKILL_PATH/scripts/synthesize-run-summary.mjs" "$RUN_DIR"
+```
+
+If your hand-written summary is richer, keep it only if it still passes `schemas/run_summary_schema.json`; otherwise use the synthesized summary as the canonical output.
+
 ## Pipeline Event Log
 
 At start and completion, append to `RUN_DIR/.pipeline_events.jsonl`:
 ```jsonl
 {"event": "agent_start", "agent": "reporter", "timestamp": "..."}
 {"event": "agent_complete", "agent": "reporter", "timestamp": "...", "files_written": ["report.md", "run_summary.json"], "errors": null}
+```
+
+Prefer the helper script:
+
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_start --agent reporter
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_complete --agent reporter --files report.md,run_summary.json
 ```
 
 ## Rules

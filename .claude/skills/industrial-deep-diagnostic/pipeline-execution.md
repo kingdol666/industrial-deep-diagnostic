@@ -34,6 +34,23 @@ The main agent logs repair-loop events:
 
 **At the start of any repair loop, count `repair_spawn` entries to restore `diag_iters`.** Do not rely on in-memory state.
 
+**Recommended implementation**: use `scripts/append-pipeline-event.mjs` rather than handwritten JSONL appends. This reduces malformed logs and missing agent lifecycle entries.
+
+### Main-Agent Events
+
+The main agent must also leave machine-verifiable breadcrumbs for non-subagent steps:
+
+```jsonl
+{"event":"run_initialized","step":"setup","agent":"main-agent","timestamp":"..."}
+{"event":"step_start","step":"inspect","agent":"main-agent","timestamp":"..."}
+{"event":"step_complete","step":"inspect","agent":"main-agent","timestamp":"...","files_written":["00_input/input_manifest.json","00_input/user_context.json"]}
+{"event":"clarification_auto_inferred","step":"clarification_gate","agent":"main-agent","timestamp":"..."}
+{"event":"artifact_finalize_complete","step":"present","agent":"main-agent","timestamp":"...","files_written":["run_summary.json","evidence_closure_report.json"]}
+{"event":"artifact_check_complete","step":"present","agent":"main-agent","timestamp":"...","status":"PASS"}
+```
+
+The helper now also synchronizes `run_manifest.json`, enforces prerequisite order for step/agent starts, and verifies declared outputs exist before recording successful completion.
+
 ---
 
 ## Repair Loop Protocol
@@ -63,6 +80,8 @@ for iter in 1..2:
 
 ### Global Rules
 
+- The agent MUST execute the pipeline in order and must not skip, reorder, compress, or silently omit pipeline steps unless a step has an explicit documented skip condition in the skill protocol.
+- "Not applicable" is different from "skipped": if a step does not apply to the current data (for example, no valid time column for temporal alignment), the agent must record that explicitly in the relevant artifact and then continue to the next defined pipeline step.
 - Each re-diagnosis spawn increments `diag_iters`. When `diag_iters >= 5`, stop ALL repair loops.
 - Reviewer repair triggers full re-run: Diagnostician → Judge → Reporter → Reviewer.
 - Judge iteration counter resets when Reviewer triggers re-diagnosis (no carryover).
@@ -117,6 +136,33 @@ RAG validation occurs in TWO stages across two pipeline steps. See `resources/pi
 **Stage 2 (Data Processor, Step 3)**: Thorough validation using full statistical pipeline — temporal (CCF lag), stratified (Simpson's), detrended, functional form. Outputs `rag_validation_report.json`.
 
 The Diagnostician (Step 4), Judge (Step 5), and Report Reviewer (Step 7) all consume both Stage 1 and Stage 2 results.
+
+---
+
+## Evidence Closure Gate
+
+At the end of a run, the pipeline must pass not only artifact existence checks but also **evidence closure**:
+
+1. `anomaly_report.json` must expose both:
+   - `process_parameter_fluctuation`
+   - `dual_drive_analysis`
+2. `data_analysis_conclusion.json` must summarize:
+   - baseline scripts
+   - custom expert scripts or explicit no-custom justification
+   - ontology / industry interpretation
+   - data-supported conclusions
+3. `diagnosis.json` must contain both:
+   - `process_fluctuation_analysis`
+   - `integrated_dual_drive_analysis`
+4. `evidence.json` / `judge_feedback.json` must carry forward validation constraints from `validate_report.json`
+5. `report.md` must explicitly disclose the pure-process view, dual-drive view, and expert data-analysis conclusion
+
+Use:
+```bash
+node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
+```
+
+If this check fails, the run is not diagnostically closed even if all files exist.
 
 ---
 

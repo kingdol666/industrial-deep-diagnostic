@@ -827,7 +827,7 @@ def main():
     if args.ph_col and args.temp_col and args.corrosion_col and cleaned_data:
         checks["corrosion_rate"] = check_corrosion_rate(args.ph_col, args.temp_col, args.corrosion_col, cleaned_data)
 
-        transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
+    transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
     if transition_results:
         checks["quality_reset_analysis"] = {
             "reset_found": any(r["reset_detected"] for r in transition_results),
