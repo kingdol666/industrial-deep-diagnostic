@@ -1,0 +1,120 @@
+# Industrial Deep Diagnostic — Agent Configuration
+# 项目级 Agent 配置，定义每个管线 Agent 的模型、工具集和启动方式
+#
+# 使用方法:
+#   1. 主 agent 加载此文件获取各子 agent 的配置
+#   2. 根据 spawn_method 决定启动方式:
+#      - delegate_task: 继承父进程模型，可通过 delegation config 全局覆盖
+#      - terminal_spawn: 独立 Hermes 进程，支持 -m 指定模型
+#
+# 模型选择策略:
+#   - 重推理 Agent (diagnostician, judge, report-reviewer):
+#     需要强推理能力，使用主模型 deepseek-v4-pro
+#   - 视觉 Agent (vlm-visual-analyzer):
+#     需要视觉能力，使用支持 vision 的模型
+#   - 数据处理 Agent (data-processor, context-builder):
+#     使用主模型，重在工具调用和数据处理
+#   - 报告生成 Agent (reporter):
+#     使用主模型，重在文本生成和格式化
+
+agents:
+  # === Step 2: Context Builder ===
+  context-builder:
+    description: "RAG检索 + 本体构建"
+    spawn_method: delegate_task
+    toolsets: [terminal, file, web]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 50
+    reasoning_effort: high
+
+  # === Step 3: Data Processor ===
+  data-processor:
+    description: "数据分析 + 可视化 + VLM委托"
+    spawn_method: delegate_task
+    toolsets: [terminal, file, vision]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 80          # 数据处理需要更多迭代
+    reasoning_effort: high
+
+  # === Step 3.5 (internal): VLM Visual Analyzer ===
+  # ⚠️ 专属模型配置: 此 Agent 需要视觉能力
+  # DeepSeek V4 Pro 已支持视觉，如果不可用，切换为支持 vision 的模型
+  vlm-visual-analyzer:
+    description: "VLM视觉图像分析 — 本体感知读图"
+    spawn_method: terminal_spawn  # 独立进程，可使用独立模型
+    toolsets: [terminal, file, vision]
+    model:
+      # 首选: DeepSeek V4 Pro (支持视觉)
+      # 备选: 任何支持 vision 的模型，如:
+      #   - openrouter: google/gemini-2.5-flash (vision-native)
+      #   - openrouter: anthropic/claude-sonnet-4 (vision-native)
+      #   - openrouter: openai/gpt-4o (vision-native)
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 40
+    reasoning_effort: medium
+    # terminal_spawn 模式下的额外参数
+    spawn_flags: "--yolo"          # 跳过危险命令审批
+    spawn_timeout: 600             # 10分钟超时
+
+  # === Step 4: Diagnostician ===
+  diagnostician:
+    description: "物理驱动竞争假说根因诊断"
+    spawn_method: delegate_task
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 60
+    reasoning_effort: xhigh       # 诊断需要最高推理强度
+
+  # === Step 5: Judge ===
+  judge:
+    description: "10项标准质量门审查"
+    spawn_method: delegate_task
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 40
+    reasoning_effort: high
+
+  # === Step 6: Reporter ===
+  reporter:
+    description: "20节中文诊断报告生成"
+    spawn_method: delegate_task
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 50
+    reasoning_effort: medium
+
+  # === Step 7: Report Reviewer ===
+  report-reviewer:
+    description: "独立物理真实审计"
+    spawn_method: delegate_task
+    toolsets: [terminal, file, web]
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+    max_iterations: 50
+    reasoning_effort: high
+
+# === 全局配置 ===
+global:
+  # 管线修复循环设置
+  repair:
+    judge_max_iterations: 3       # Judge→Diagnostician 最多3次
+    reviewer_max_cycles: 2        # Reviewer→Diagnostician 最多2轮
+    global_rediagnosis_cap: 5     # 全局重诊断上限
+
+  # 默认交互模式
+  default_interaction_mode: auto  # auto | interactive | minimal
+
+  # 默认语言
+  default_language: zh-CN

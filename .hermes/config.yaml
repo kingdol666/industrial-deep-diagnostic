@@ -1,0 +1,37 @@
+# Industrial Deep Diagnostic — Hermes Project Config
+#
+# 此文件为项目级 Hermes 配置覆盖。不需要写死外部路径 — 技能发现通过 symlink 实现。
+#
+# 配置应用方式:
+#   方式A (推荐): symlink + 手动合并
+#     1. bash setup_skills.sh          # 创建 symlink 到 ~/.hermes/skills/
+#     2. hermes config edit            # 合并需要的配置段到 ~/.hermes/config.yaml
+#
+#   方式B: 使用 Hermes profile
+#     cp this_file ~/.hermes/profiles/ind-diag/config.yaml
+#     hermes -p ind-diag
+#
+# 技能路径策略:
+#   不使用 skills.external_dirs 写死绝对路径。
+#   通过 setup_skills.sh 创建 symlink，Hermes 自动发现 ~/.hermes/skills/ 下的技能。
+
+# === Delegation 配置 (delegate_task 子代理) ===
+delegation:
+  model: deepseek-v4-pro
+  provider: deepseek
+  base_url: https://api.deepseek.com
+  max_iterations: 80
+  reasoning_effort: high
+
+# === Vision 辅助模型配置 (vlm-visual-analyzer 依赖) ===
+auxiliary:
+  vision:
+    provider: deepseek
+    model: deepseek-v4-pro
+    timeout: 300
+    download_timeout: 60
+
+  web_extract:
+    provider: deepseek
+    model: deepseek-v4-pro
+    timeout: 360
