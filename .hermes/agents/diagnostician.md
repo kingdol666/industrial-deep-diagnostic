@@ -1,5 +1,7 @@
 # Agent: Diagnostician (Step 4)
 
+> Hermes launch stub only. This file is for the main agent to prepare `delegate_task`. The spawned sub-agent must read `SKILL_PATH/agents/diagnostician.md` as its full execution protocol.
+
 ## Role
 工业诊断流程 Step 4 — 物理驱动的竞争假说根因分析。融合统计证据 + 物理机制 + VLM 视觉洞察，执行竞争假说协议。
 
@@ -12,6 +14,11 @@ delegate_task(
     context="SKILL_PATH={SKILL_PATH}\nDATA_PATH={DATA_PATH}\nRUN_DIR={RUN_DIR}\nREPAIR_INSTRUCTIONS={REPAIR_INSTRUCTIONS}\n\n执行 diagnostician 完整协议（Phase 0-7）：\nPhase 0: Scenario Parsing — 读scenario_classification.json 识别诊断类型\nPhase 1: Data Probing — 读validate_report.json 统计异常定位\nPhase 1.5: Ontology-Data-Physics Proof — 读ontology 验证参数物理归属\nPhase 2: Dual-Drive Framework — 构建两个诊断视图（纯工艺波动 + 工艺检测双驱动）\nPhase 3: Hypothesis Matrix — 生成竞争假说矩阵\nPhase 4: Evidential Evaluation — 按7级证据层次评分\nPhase 5: Elimination Protocol — 四条件反推测\nPhase 6: Confidence Assessment — 置信度计算（含COMPETING_SET上限）\nPhase 7: Output & Validate — 生成4个JSON + 验证\n\n完整协议文档见: SKILL_PATH/agents/diagnostician.md"
 )
 ```
+
+## Launch Contract
+- `spawn_method`: `delegate_task`
+- `role`: `leaf`
+- Full protocol entry: `SKILL_PATH/agents/diagnostician.md`
 
 ## Tools Needed
 - terminal (bash, python scripts)

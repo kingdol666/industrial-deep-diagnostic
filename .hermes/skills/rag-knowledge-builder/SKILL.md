@@ -4,10 +4,12 @@ description: "Use when building domain ontology models from knowledge sources. C
 version: 2.1.0
 author: Hermes Agent
 license: MIT
+platforms: [macos, linux]
 metadata:
   hermes:
     tags: [rag, ontology, knowledge-base, chromadb, domain-modeling]
     related_skills: [industrial-deep-diagnostic]
+    requires_toolsets: [terminal, file]
 requirements:
   python: ">=3.10"
   node: ">=18"
@@ -35,6 +37,26 @@ requirements:
 - 简单文件搜索
 - 不需要本体构建的通用 Web Q&A
 - 纯关键词匹配（没有 LLM 语义理解需求）
+
+## Quick Reference
+
+| Item | Path / Rule |
+|------|-------------|
+| Main skill entry | `SKILL.md` |
+| Hermes launch stubs | `.hermes/agents/rag-*.md` |
+| Full phase protocols | `agents/*.md` |
+| Shared agent runtime config | `.hermes/agents.yaml` |
+| Shared delegation config | `.hermes/config.yaml` |
+| Required runtime | Node.js 18+, Python 3.10+, `uv` |
+| Mandatory toolsets | `terminal`, `file` |
+| Default execution model | Main agent orchestrates phases; phase bodies are executed from `agents/*.md` |
+| Python rule | Use the skill-managed runtime for Python scripts |
+| Project-local usage | Prefer `hermes -p ind-diag`; do not register this skill in global `~/.hermes/skills/` |
+
+**职责边界 / Boundary**
+- `SKILL.md` 定义 skill 入口、阶段顺序、输入输出契约和校验要求。
+- `.hermes/agents/rag-*.md` 只定义 Hermes 子阶段启动模板。
+- `agents/*.md` 定义每个阶段/子 agent 的完整执行协议，由被启动的子 agent 自行读取。
 
 ## Core Mission
 
@@ -250,6 +272,7 @@ Phase 4: Quality Verification (gate)
 | When | Read | Why |
 |------|------|-----|
 | Invoked | This file (SKILL.md) | Invocation contract + execution flow |
+| Before delegated phase execution | `.hermes/agents/rag-*.md` | Hermes launch stubs for phase delegation |
 | Phase 1 | `agents/retrieval-agent.md` | 4-perspective queries + LLM triaging |
 | Phase 1 | `agents/scoring-agent.md` | 5-dim scoring rubric + quality gates |
 | Phase 2 | **`agents/ontology-construction-agent.md`** | **本体构建方法论（核心 agent）** |
@@ -261,6 +284,23 @@ Phase 4: Quality Verification (gate)
 | Scoring detail | `resources/scoring_rubric.md` | 评分详细示例 |
 
 **Do NOT load everything upfront.** 每个 agent prompt 是自包含的。
+
+## Hermes Delegation Convention
+
+当以 Hermes 工程化方式运行本 skill 时，推荐把每个主要阶段视为一个可委托的子任务：
+
+- Phase 1: `retrieval-agent` + `scoring-agent`
+- Phase 2: `ontology-construction-agent`
+- Phase 3: `structured-data-generator`
+- Phase 4: `quality-verification-agent`
+
+主 agent 只负责：
+- 读取本 `SKILL.md`
+- 读取对应的 `.hermes/agents/rag-*.md` 启动模板
+- 发起 `delegate_task`
+- 校验阶段产物
+
+主 agent **不应**在读完 `agents/*.md` 后自己代替子 agent 执行完整阶段协议。
 
 ---
 
@@ -333,6 +373,16 @@ From the `industrial-deep-diagnostic` skill, the context-builder sub-agent shoul
 | `resources/integration_guide.md` | Integration | 消费者 skill 集成 |
 | `resources/scoring_rubric.md` | Phase 1 | 评分详细示例 |
 | `resources/indexing_guide.md` | KB expansion | KB 扩展指南 |
+
+### Hermes Launch Stubs
+
+| File | When | Content |
+|------|------|---------|
+| `.hermes/agents/rag-retrieval-agent.md` | Phase 1 | Retrieval phase launch contract |
+| `.hermes/agents/rag-scoring-agent.md` | Phase 1 | Scoring phase launch contract |
+| `.hermes/agents/rag-ontology-construction-agent.md` | Phase 2 | Ontology construction launch contract |
+| `.hermes/agents/rag-structured-data-generator.md` | Phase 3 | Structured data generation launch contract |
+| `.hermes/agents/rag-quality-verification-agent.md` | Phase 4 | Quality gate launch contract |
 
 ---
 

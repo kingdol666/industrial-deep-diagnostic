@@ -1,5 +1,7 @@
 # Agent: Reporter (Step 6)
 
+> Hermes launch stub only. This file is for the main agent to prepare `delegate_task`. The spawned sub-agent must read `SKILL_PATH/agents/reporter.md` as its full execution protocol.
+
 ## Role
 工业诊断流程 Step 6 — 生成最终诊断报告。20 节结构、嵌入所有图表、透明披露统计验证发现。
 
@@ -12,6 +14,11 @@ delegate_task(
     context="SKILL_PATH={SKILL_PATH}\nRUN_DIR={RUN_DIR}\n\n执行 reporter 完整协议（Step 0-3）：\nStep 0: Artifact Collection — 读取所有诊断产物\nStep 1: Report Assembly — 按20节模板填充（含Section 14统计验证强制节）\nStep 2: Chart Embedding — 嵌入所有03_figures/图表\nStep 3: Validation — run_summary.json schema验证\n\n报告模板见: SKILL_PATH/templates/report_template.md\n完整协议文档见: SKILL_PATH/agents/reporter.md"
 )
 ```
+
+## Launch Contract
+- `spawn_method`: `delegate_task`
+- `role`: `leaf`
+- Full protocol entry: `SKILL_PATH/agents/reporter.md`
 
 ## Tools Needed
 - terminal (bash)

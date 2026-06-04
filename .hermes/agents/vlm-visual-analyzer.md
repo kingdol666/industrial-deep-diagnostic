@@ -1,17 +1,19 @@
 # Agent: VLM Visual Analyzer (Phase 5.5, internal)
 
+> Hermes launch stub only. This file is consumed by `data-processor` when it needs to launch the nested VLM sub-agent. The spawned agent must read `SKILL_PATH/agents/vlm-visual-analyzer.md` as its full execution protocol.
+
 ## Model Configuration
 **此 Agent 使用专属模型配置，定义在 `agents.yaml`。**
 
 ```
 model:
   provider: deepseek
-  model: deepseek-v4-pro       # DeepSeek V4 Pro 支持视觉
+  model: deepseek-v4-flash
   max_iterations: 40
   reasoning_effort: medium
 ```
 
-**视觉模型回退方案** (如果 DeepSeek V4 视觉不可用):
+**视觉模型回退方案** (如果当前默认视觉模型不可用):
 - OpenRouter: `google/gemini-2.5-flash` — Gemini 2.5 Flash (原生视觉, 免费)
 - OpenRouter: `anthropic/claude-sonnet-4` — Claude Sonnet 4 (原生视觉)
 - OpenRouter: `openai/gpt-4o` — GPT-4o (原生视觉)
@@ -43,7 +45,7 @@ delegate_task(
 当需要为视觉任务使用专属模型时:
 
 ```bash
-hermes chat -m deepseek-v4-pro --yolo -q "
+hermes chat -m deepseek-v4-flash --yolo -q "
 加载 SKILL_PATH/agents/vlm-visual-analyzer.md 协议。
 RUN_DIR={RUN_DIR}
 SKILL_PATH={SKILL_PATH}
@@ -67,6 +69,12 @@ Schema-First规则：写前必读 visual_analysis_schema.json 和 image_captions
 - terminal (bash, validate.mjs)
 - file (read images, write JSON)
 - vision (image analysis, read PNG charts) — **核心工具，需要模型支持视觉**
+
+## Launch Contract
+- Preferred `spawn_method`: `terminal_spawn`
+- `role`: `leaf`
+- Full protocol entry: `SKILL_PATH/agents/vlm-visual-analyzer.md`
+- Caller: `data-processor` only
 
 ## Core Rules
 - 先理解上下文，再读图 — 不知道本体模型的参数含义就去看图 = 盲人摸象

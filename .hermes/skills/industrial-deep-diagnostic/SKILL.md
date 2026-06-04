@@ -4,10 +4,16 @@ description: "Use when the user provides industrial sensor/process data (CSV, XL
 version: 2.1.0
 author: Hermes Agent
 license: MIT
+platforms: [macos, linux]
 metadata:
   hermes:
     tags: [industrial, diagnostics, root-cause-analysis, time-series, manufacturing, physics, multi-agent]
     related_skills: [data-science, jupyter-live-kernel, hermes-agent]
+    requires_toolsets: [terminal, file]
+requirements:
+  python: ">=3.10"
+  node: ">=18"
+  uv: true
 ---
 
 # Industrial Deep Diagnostic
@@ -30,6 +36,25 @@ metadata:
 - 简单图表绘制（没有诊断需求）
 - 通用数据分析（没有物理机制要求）
 - 纯 RAG 知识检索（没有数据文件输入）
+
+## Quick Reference
+
+| Item | Path / Rule |
+|------|-------------|
+| Main skill entry | `SKILL.md` |
+| Hermes launch stubs | `.hermes/agents/*.md` |
+| Full sub-agent protocols | `agents/*.md` |
+| Agent runtime config | `.hermes/agents.yaml` |
+| Delegation config | `.hermes/config.yaml` |
+| Required runtime | Node.js 18+, Python 3.10+, `uv` |
+| Mandatory toolsets | `terminal`, `file` |
+| Nested delegation | `data-processor` must run as `role="orchestrator"` and requires `delegation.max_spawn_depth >= 2` |
+| Python rule | Always use `"$SKILL_PATH/scripts/.venv/bin/python"` |
+
+**职责边界 / Boundary**
+- `SKILL.md` 定义 skill 入口、触发条件、主流程和校验要求。
+- `.hermes/agents/*.md` 只定义 Hermes 子 agent 的启动模板。
+- `agents/*.md` 定义每个子 agent 的完整执行协议，由子 agent 启动后自行读取。
 
 ## Core Principle
 
@@ -107,22 +132,27 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/<schema>.json" "$RU
 - **toolsets**: 推荐工具集
 - **max_iterations**: 最大迭代次数
 - **reasoning_effort**: 推理强度
+- **role**: 是否需要 `orchestrator` 权限继续启动下一级子 agent
 
 ```bash
 # 读取 agent 配置
 cat "$PROJECT_ROOT/.hermes/agents.yaml"
 ```
 
-**技能发现机制 (Symlink)**:
-- **无需写死绝对路径** — 通过 symlink 让 Hermes 自动发现项目技能
-- 运行 `bash .hermes/setup_skills.sh` 创建 symlink
-- 两个技能会链接到 `~/.hermes/skills/` 下，Hermes 自动加载
+**项目内使用推荐方式 (Profile + external_dirs)**:
+- 不要把本项目 skill 链接到全局 `~/.hermes/skills/`
+- 推荐运行 `bash .hermes/setup_skills.sh` 生成项目专用 profile：`~/.hermes/profiles/ind-diag/config.yaml`
+- 该 profile 通过 `skills.external_dirs` 指向当前仓库的 `.hermes/skills/`
+- 仅在执行 `hermes -p ind-diag` 时加载这两个 skill
 
 ---
 
 ## Multi-Agent Pipeline Architecture
 
-This skill uses **7 specialized sub-agents** launched via Hermes `delegate_task`. Each agent has a task definition in `.hermes/agents/` containing its `goal`, `context`, and recommended `toolsets`.
+This skill uses **7 specialized sub-agents** launched via Hermes `delegate_task`. Each agent has:
+
+- a **launch stub** in `.hermes/agents/` containing the `delegate_task` template
+- a **full execution protocol** in `agents/` that the spawned sub-agent reads itself
 
 | Pipeline Step | Agent Name | Purpose |
 |:-------------:|------------|---------|
@@ -134,7 +164,9 @@ This skill uses **7 specialized sub-agents** launched via Hermes `delegate_task`
 | Step 6 | Reporter | 20节中文诊断报告生成 |
 | Step 7 | Report Reviewer | 独立物理真实审计 |
 
-> **vlm-visual-analyzer 是内部子代理** — 它由 data-processor 在其 Phase 5.5 内部启动，不是独立的管线步骤。
+> **vlm-visual-analyzer 是内部子代理** — 它由 `data-processor` 在其 Phase 5.5 内部启动，不是独立的管线步骤。
+>
+> **Hermes nested delegation requirement**: `data-processor` 必须以 `role="orchestrator"` 启动；`.hermes/config.yaml` 必须启用嵌套委托，并设置 `delegation.max_spawn_depth >= 2`，否则 Phase 5.5 无法按规范继续委托到 `vlm-visual-analyzer`。
 
 ## Execution Flow
 
@@ -480,7 +512,7 @@ This skill does not use slash commands. Instead, load this skill and describe wh
 |------|------|---------|
 | `pipeline-execution.md` | During repair loops | Repair counter protocol, clarification gate details, statistical validation framework, confidence adjustment rules |
 
-### Agent Instructions (Level 2)
+### Agent Execution Protocols (skill-local, loaded by sub-agents)
 | File | When | Content |
 |------|------|---------|
 | `agents/context-builder.md` | Before Step 2 | Full RAG retrieval + deep understanding + ontology construction protocol |
@@ -491,16 +523,16 @@ This skill does not use slash commands. Instead, load this skill and describe wh
 | `agents/report-reviewer.md` | Before Step 7 | Full independent physical truth audit protocol |
 | `agents/vlm-visual-analyzer.md` | Before Step 3.5 (internal) | Full VLM image reading protocol |
 
-### Hermes Agent Task Definitions
+### Hermes Agent Launch Stubs (project-level, loaded by main agent before `delegate_task`)
 | File | When | Content |
 |------|------|---------|
-| `.hermes/agents/context-builder.md` | Before Step 2 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/data-processor.md` | Before Step 3 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/diagnostician.md` | Before Step 4 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/judge.md` | Before Step 5 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/reporter.md` | Before Step 6 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/report-reviewer.md` | Before Step 7 | delegate_task goal/context/toolsets template |
-| `.hermes/agents/vlm-visual-analyzer.md` | Before Step 3.5 | delegate_task goal/context/toolsets template |
+| `.hermes/agents/context-builder.md` | Before Step 2 | Minimal launch contract pointing to `SKILL_PATH/agents/context-builder.md` |
+| `.hermes/agents/data-processor.md` | Before Step 3 | Minimal launch contract pointing to `SKILL_PATH/agents/data-processor.md`; must use `role="orchestrator"` |
+| `.hermes/agents/diagnostician.md` | Before Step 4 | Minimal launch contract pointing to `SKILL_PATH/agents/diagnostician.md` |
+| `.hermes/agents/judge.md` | Before Step 5 | Minimal launch contract pointing to `SKILL_PATH/agents/judge.md` |
+| `.hermes/agents/reporter.md` | Before Step 6 | Minimal launch contract pointing to `SKILL_PATH/agents/reporter.md` |
+| `.hermes/agents/report-reviewer.md` | Before Step 7 | Minimal launch contract pointing to `SKILL_PATH/agents/report-reviewer.md` |
+| `.hermes/agents/vlm-visual-analyzer.md` | Before Step 3.5 | Internal nested-agent launch contract for the VLM step |
 
 ### Frameworks & Methodology (Level 3 — load on demand)
 | File | When | Content |

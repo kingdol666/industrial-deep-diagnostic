@@ -6,10 +6,11 @@
 #   2. 根据 spawn_method 决定启动方式:
 #      - delegate_task: 继承父进程模型，可通过 delegation config 全局覆盖
 #      - terminal_spawn: 独立 Hermes 进程，支持 -m 指定模型
+#   3. 若某个子 agent 还要继续启动下一级子 agent，必须显式标记 role: orchestrator
 #
 # 模型选择策略:
 #   - 重推理 Agent (diagnostician, judge, report-reviewer):
-#     需要强推理能力，使用主模型 deepseek-v4-pro
+#     需要强推理能力，默认使用当前共享 delegation 模型
 #   - 视觉 Agent (vlm-visual-analyzer):
 #     需要视觉能力，使用支持 vision 的模型
 #   - 数据处理 Agent (data-processor, context-builder):
@@ -18,14 +19,75 @@
 #     使用主模型，重在文本生成和格式化
 
 agents:
+  # === RAG Phase 1: Retrieval ===
+  rag-retrieval-agent:
+    description: "RAG多视角检索"
+    spawn_method: delegate_task
+    role: leaf
+    toolsets: [terminal, file, web]
+    model:
+      provider: deepseek
+      model: deepseek-v4-flash
+    max_iterations: 40
+    reasoning_effort: medium
+
+  # === RAG Phase 1: Scoring ===
+  rag-scoring-agent:
+    description: "RAG知识块评分与筛选"
+    spawn_method: delegate_task
+    role: leaf
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-flash
+    max_iterations: 40
+    reasoning_effort: medium
+
+  # === RAG Phase 2: Ontology Construction ===
+  rag-ontology-construction-agent:
+    description: "RAG本体构建"
+    spawn_method: delegate_task
+    role: leaf
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-flash
+    max_iterations: 60
+    reasoning_effort: high
+
+  # === RAG Phase 3: Structured Data Generation ===
+  rag-structured-data-generator:
+    description: "RAG机器消费模板生成"
+    spawn_method: delegate_task
+    role: leaf
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-flash
+    max_iterations: 40
+    reasoning_effort: medium
+
+  # === RAG Phase 4: Quality Verification ===
+  rag-quality-verification-agent:
+    description: "RAG最终质量验证"
+    spawn_method: delegate_task
+    role: leaf
+    toolsets: [terminal, file]
+    model:
+      provider: deepseek
+      model: deepseek-v4-flash
+    max_iterations: 40
+    reasoning_effort: high
+
   # === Step 2: Context Builder ===
   context-builder:
     description: "RAG检索 + 本体构建"
     spawn_method: delegate_task
+    role: leaf
     toolsets: [terminal, file, web]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash
     max_iterations: 50
     reasoning_effort: high
 
@@ -33,10 +95,11 @@ agents:
   data-processor:
     description: "数据分析 + 可视化 + VLM委托"
     spawn_method: delegate_task
+    role: orchestrator
     toolsets: [terminal, file, vision]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash  
     max_iterations: 80          # 数据处理需要更多迭代
     reasoning_effort: high
 
@@ -46,6 +109,7 @@ agents:
   vlm-visual-analyzer:
     description: "VLM视觉图像分析 — 本体感知读图"
     spawn_method: terminal_spawn  # 独立进程，可使用独立模型
+    role: leaf
     toolsets: [terminal, file, vision]
     model:
       # 首选: DeepSeek V4 Pro (支持视觉)
@@ -54,7 +118,7 @@ agents:
       #   - openrouter: anthropic/claude-sonnet-4 (vision-native)
       #   - openrouter: openai/gpt-4o (vision-native)
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash
     max_iterations: 40
     reasoning_effort: medium
     # terminal_spawn 模式下的额外参数
@@ -65,10 +129,11 @@ agents:
   diagnostician:
     description: "物理驱动竞争假说根因诊断"
     spawn_method: delegate_task
+    role: leaf
     toolsets: [terminal, file]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash  
     max_iterations: 60
     reasoning_effort: xhigh       # 诊断需要最高推理强度
 
@@ -76,10 +141,11 @@ agents:
   judge:
     description: "10项标准质量门审查"
     spawn_method: delegate_task
+    role: leaf
     toolsets: [terminal, file]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash  
     max_iterations: 40
     reasoning_effort: high
 
@@ -87,10 +153,11 @@ agents:
   reporter:
     description: "20节中文诊断报告生成"
     spawn_method: delegate_task
+    role: leaf
     toolsets: [terminal, file]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash  
     max_iterations: 50
     reasoning_effort: medium
 
@@ -98,10 +165,11 @@ agents:
   report-reviewer:
     description: "独立物理真实审计"
     spawn_method: delegate_task
+    role: leaf
     toolsets: [terminal, file, web]
     model:
       provider: deepseek
-      model: deepseek-v4-pro
+      model: deepseek-v4-flash  
     max_iterations: 50
     reasoning_effort: high
 

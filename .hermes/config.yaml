@@ -1,23 +1,27 @@
 # Industrial Deep Diagnostic — Hermes Project Config
 #
-# 此文件为项目级 Hermes 配置覆盖。不需要写死外部路径 — 技能发现通过 symlink 实现。
+# 此文件为项目级 Hermes 配置模板。推荐通过 Hermes profile 使用，
+# 仅在当前项目激活 skill，不要把本项目 skill 注册到全局 ~/.hermes/skills/。
 #
 # 配置应用方式:
-#   方式A (推荐): symlink + 手动合并
-#     1. bash setup_skills.sh          # 创建 symlink 到 ~/.hermes/skills/
-#     2. hermes config edit            # 合并需要的配置段到 ~/.hermes/config.yaml
-#
-#   方式B: 使用 Hermes profile
-#     cp this_file ~/.hermes/profiles/ind-diag/config.yaml
-#     hermes -p ind-diag
+#   推荐: 使用 Hermes profile
+#     1. 将本文件复制到 ~/.hermes/profiles/ind-diag/config.yaml
+#     2. 将 skills.external_dirs 中的路径改为当前项目的绝对路径
+#     3. 使用 hermes -p ind-diag
 #
 # 技能路径策略:
-#   不使用 skills.external_dirs 写死绝对路径。
-#   通过 setup_skills.sh 创建 symlink，Hermes 自动发现 ~/.hermes/skills/ 下的技能。
+#   使用 skills.external_dirs 指向当前项目的 .hermes/skills/。
+#   这样 skill 只在启用该 profile 时可见，不进入全局 skill 注册目录。
+
+skills:
+  external_dirs:
+    - /ABSOLUTE/PATH/TO/industrial-deep-diagnostic/.hermes/skills
 
 # === Delegation 配置 (delegate_task 子代理) ===
 delegation:
-  model: deepseek-v4-pro
+  orchestrator_enabled: true
+  max_spawn_depth: 2
+  model: deepseek-v4-flash  
   provider: deepseek
   base_url: https://api.deepseek.com
   max_iterations: 80
@@ -27,11 +31,11 @@ delegation:
 auxiliary:
   vision:
     provider: deepseek
-    model: deepseek-v4-pro
+    model: deepseek-v4-flash  
     timeout: 300
     download_timeout: 60
 
   web_extract:
     provider: deepseek
-    model: deepseek-v4-pro
+    model: deepseek-v4-flash  
     timeout: 360

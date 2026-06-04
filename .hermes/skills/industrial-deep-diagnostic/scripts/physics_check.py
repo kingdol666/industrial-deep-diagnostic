@@ -30,6 +30,22 @@ import math
 from typing import Any
 
 
+
+def _to_float(val):
+    """Convert value to float if it's a string."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        try:
+            return float(val)
+        except ValueError:
+            return None
+    return float(val) if isinstance(val, (int, bool)) else val
+
+def _get_numeric_col(data, col_name):
+    """Extract numeric values from a column."""
+    return [_to_float(row[col_name]) for row in data if col_name in row and _to_float(row.get(col_name)) is not None]
+
 def load_json(path: str) -> dict:
     with open(path, "r") as f:
         return json.load(f)
@@ -53,12 +69,15 @@ def check_thermal_expansion(
     Verifies whether dimensional deviation is consistent with thermal expansion.
     For steel: α ≈ 12×10⁻⁶ /°C
     """
-    temps = [row[temp_col] for row in data if temp_col in row]
-    devs = [row[dev_col] for row in data if dev_col in row]
+    temps_raw = [row[temp_col] for row in data if temp_col in row]
+    devs_raw = [row[dev_col] for row in data if dev_col in row]
+    # Convert to float if strings
+    temps = [float(t) if isinstance(t, str) else t for t in temps_raw if t is not None]
+    devs = [float(d) if isinstance(d, str) else d for d in devs_raw if d is not None]
     if not temps or not devs:
         return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
-    T_ref = min(temps) if temps else 20.0
+    T_ref = float(min(temps)) if temps else 20.0
     predicted_devs = [coefficient_alpha * reference_length_m * (t - T_ref) for t in temps]
 
     from statistics import mean, stdev
@@ -405,9 +424,9 @@ def check_heat_transfer(
     Calculates heat transfer coefficient to check for fouling/degradation.
     U decreasing over time = fouling progression.
     """
-    T_ins = [row[T_in_col] for row in data if T_in_col in row]
-    T_outs = [row[T_out_col] for row in data if T_out_col in row]
-    flows = [row[flow_col] for row in data if flow_col in row]
+    T_ins = _get_numeric_col(data, T_in_col)
+    T_outs = _get_numeric_col(data, T_out_col)
+    flows = _get_numeric_col(data, flow_col)
 
     if not T_ins or not T_outs or not flows:
         return {"check": "heat_transfer", "status": "INCONCLUSIVE", "reason": "Missing data columns"}

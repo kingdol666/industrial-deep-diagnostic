@@ -1,5 +1,7 @@
 # Agent: Report Reviewer (Step 7)
 
+> Hermes launch stub only. This file is for the main agent to prepare `delegate_task`. The spawned sub-agent must read `SKILL_PATH/agents/report-reviewer.md` as its full execution protocol.
+
 ## Role
 工业诊断流程 Step 7 — 物理真实审计。独立验证诊断报告的物理机制、统计基础、逻辑一致性，输出 ENDORSED/CONDITIONAL/REJECTED。
 
@@ -12,6 +14,11 @@ delegate_task(
     context="SKILL_PATH={SKILL_PATH}\nDATA_PATH={DATA_PATH}\nRUN_DIR={RUN_DIR}\n\n执行 report-reviewer 完整协议（Step 0-5）：\nStep 0: Evidence Collection — 读report.md + 所有产物 + 可能运行独立stats\nStep 1: Physics Audit — 物理机制可溯源性+定量验证\nStep 2: Statistics Audit — 自行验证关键统计声明\nStep 3: Logic Audit — 因果链一致性+遗漏假说检查\nStep 4: Completeness Audit — 证据闭合+报告完整性\nStep 5: Output — optimizer.md + ENDORSED/CONDITIONAL/REJECTED判定\n\n完整协议文档见: SKILL_PATH/agents/report-reviewer.md"
 )
 ```
+
+## Launch Contract
+- `spawn_method`: `delegate_task`
+- `role`: `leaf`
+- Full protocol entry: `SKILL_PATH/agents/report-reviewer.md`
 
 ## Tools Needed
 - terminal (bash, python scripts for independent verification)

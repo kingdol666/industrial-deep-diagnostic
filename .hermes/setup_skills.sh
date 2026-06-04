@@ -1,66 +1,51 @@
 #!/bin/bash
-# Industrial Deep Diagnostic — Hermes Skill Setup
-# 
-# 用法: bash setup_skills.sh
-# 
-# 此脚本将项目 skill 目录通过 symlink 链接到 ~/.hermes/skills/，让 Hermes 能够自动发现它们。
-# 无需在 config.yaml 中写死外部路径 — symlink 是零配置、零依赖的方案。
+# Industrial Deep Diagnostic — Hermes Profile Helper
+#
+# 用法: bash .hermes/setup_skills.sh
+#
+# 本项目不推荐把 skill 链接到全局 ~/.hermes/skills/。
+# 推荐做法是创建一个项目专用 Hermes profile，并通过 skills.external_dirs
+# 指向当前仓库的 .hermes/skills/，这样只有在使用该 profile 时这两个 skill 才可见。
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_SKILLS="$SCRIPT_DIR/skills"
-HERMES_SKILLS="$HOME/.hermes/skills"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROFILE_DIR="$HOME/.hermes/profiles/ind-diag"
+PROFILE_FILE="$PROFILE_DIR/config.yaml"
 
-echo "=== Industrial Deep Diagnostic — Skill Setup ==="
+mkdir -p "$PROFILE_DIR"
+
+cat > "$PROFILE_FILE" <<EOF
+skills:
+  external_dirs:
+    - $PROJECT_ROOT/.hermes/skills
+
+delegation:
+  orchestrator_enabled: true
+  max_spawn_depth: 2
+  model: deepseek-v4-flash
+  provider: deepseek
+  base_url: https://api.deepseek.com
+  max_iterations: 80
+  reasoning_effort: high
+
+auxiliary:
+  vision:
+    provider: deepseek
+    model: deepseek-v4-flash
+    timeout: 300
+    download_timeout: 60
+
+  web_extract:
+    provider: deepseek
+    model: deepseek-v4-flash
+    timeout: 360
+EOF
+
+echo "Wrote project-local Hermes profile:"
+echo "  $PROFILE_FILE"
 echo ""
-
-if [ ! -d "$PROJECT_SKILLS" ]; then
-    echo "ERROR: Project skills directory not found: $PROJECT_SKILLS"
-    exit 1
-fi
-
-if [ ! -d "$HERMES_SKILLS" ]; then
-    echo "Creating $HERMES_SKILLS ..."
-    mkdir -p "$HERMES_SKILLS"
-fi
-
-linked=0
-skipped=0
-
-for skill_dir in "$PROJECT_SKILLS"/*/; do
-    skill_name=$(basename "$skill_dir")
-    
-    # Skip non-skill dirs (no SKILL.md)
-    if [ ! -f "$skill_dir/SKILL.md" ]; then
-        continue
-    fi
-    
-    target="$HERMES_SKILLS/$skill_name"
-    
-    if [ -L "$target" ]; then
-        # Already a symlink — check if it points to the right place
-        current_target=$(readlink "$target")
-        if [ "$current_target" = "$skill_dir" ]; then
-            echo "  [SKIP] $skill_name — already linked correctly"
-            skipped=$((skipped + 1))
-            continue
-        else
-            echo "  [FIX]  $skill_name — updating symlink"
-            rm "$target"
-        fi
-    elif [ -e "$target" ]; then
-        echo "  [SKIP] $skill_name — target exists (not a symlink), manual check needed"
-        skipped=$((skipped + 1))
-        continue
-    fi
-    
-    ln -sf "$skill_dir" "$target"
-    echo "  [LINK] $skill_name -> $skill_dir"
-    linked=$((linked + 1))
-done
-
-echo ""
-echo "=== Done: $linked linked, $skipped skipped ==="
-echo ""
-echo "Verify with: hermes skills list | grep -E 'industrial-deep-diagnostic|rag-knowledge-builder'"
+echo "This does NOT register project skills into ~/.hermes/skills/."
+echo "Use them only for this project with:"
+echo "  hermes -p ind-diag"
