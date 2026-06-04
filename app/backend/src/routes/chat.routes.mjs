@@ -1,6 +1,6 @@
 // Chat Routes — direct Claude Agent SDK chat with streaming SSE
 import { Router } from 'express';
-import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter, getChatHistory, getChatSession, renameChatSession, deleteChatSession } from '../services/chat.service.mjs';
+import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter, getChatHistory, getChatSession, renameChatSession, deleteChatSession, getChatReplay } from '../services/chat.service.mjs';
 
 const router = Router();
 
@@ -27,17 +27,26 @@ router.get('/stream/:chatId', (req, res) => {
   const { chatId } = req.params;
   const emitter = getChatEmitter(chatId);
 
-  if (!emitter) {
-    res.status(404).json({ success: false, error: 'Chat not found or already ended' });
-    return;
-  }
-
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
     'X-Accel-Buffering': 'no',
   });
+
+  if (!emitter) {
+    const replay = getChatReplay(chatId);
+    if (!replay) {
+      res.status(404).json({ success: false, error: 'Chat not found or already ended' });
+      return;
+    }
+
+    for (const evt of replay.events) {
+      res.write(`event: ${evt.eventType}\ndata: ${JSON.stringify(evt.data)}\n\n`);
+    }
+    res.end();
+    return;
+  }
 
   const handler = (eventType, data) => {
     if (res.destroyed) { emitter.off('event', handler); return; }

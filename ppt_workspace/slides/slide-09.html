@@ -1,74 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Top red rule -->
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<!-- Section label -->
-<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">ELIMINATED · 已排除结论</p>
+<!-- Top bar -->
+<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
 
 <!-- Title -->
-<h1 style="position: absolute; top: 44px; left: 40px; font-family: Georgia, 'SimSun', serif; font-size: 26px; color: #1A1A1A; font-weight: bold;">5项已排除结论（置信度 > 90%）</h1>
+<h2 style="position:absolute;top:20pt;left:24pt;font-size:20pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">改进建议——下一步行动</h2>
+<div style="position:absolute;top:50pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
 
-<!-- Decorative number -->
-<p style="position: absolute; top: -20px; right: 80px; font-family: Georgia, serif; font-size: 160px; color: #C8000A; opacity: 0.04; font-weight: bold;">5</p>
-
-<!-- Exclusion 1 -->
-<div style="position: absolute; top: 100px; left: 40px; width: 600px; height: 95px; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 16px 12px 70px;">
-  <p style="position: absolute; top: 6px; left: 12px; font-family: Georgia, serif; font-size: 32px; color: #C8000A; opacity: 0.2; font-weight: bold;">✗1</p>
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">MD温度化学降解</p>
-  <p style="font-family: Georgia, serif; font-size: 20px; color: #C8000A; font-weight: bold; display: inline;">99%</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.5;">MD段84°C vs 挤出段280°C — 降解速率差10^9倍（Arrhenius定律），MD段不可能产生化学降解</p>
+<!-- P0 Card: Full width, highest priority -->
+<div style="position:absolute;top:72pt;left:24pt;width:912pt;height:115pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #E85D3A;border-radius:4pt;padding:0;">
+<div style="display:flex;height:100%;">
+<div style="width:90pt;background:#E85D3A;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8pt;">
+<p style="color:#FFFFFF;font-size:18pt;font-weight:700;">P0</p>
+<p style="color:#FFFFFF;font-size:9pt;text-align:center;margin-top:4pt;">高优先级</p>
+</div>
+<div style="flex:1;padding:14pt 18pt;display:flex;">
+<div style="flex:1;">
+<p style="font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">产品型号规范管理</p>
+<p style="font-size:9pt;color:#2D3436;line-height:1.6;">为高频伤型号（PG32D、FP21）制定专项 SOP，统一速度设定与扭矩监控标准。目标是将 PG32D 的划伤率降至 PG22C 水平（预计降低 50%+）。</p>
+</div>
+<div style="width:140pt;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-left:14pt;">
+<p style="font-size:20pt;font-weight:700;color:#27AE60;">低</p>
+<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
+</div>
+</div>
+</div>
 </div>
 
-<!-- Exclusion 2 -->
-<div style="position: absolute; top: 100px; left: 660px; width: 580px; height: 95px; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 16px 12px 70px;">
-  <p style="position: absolute; top: 6px; left: 12px; font-family: Georgia, serif; font-size: 32px; color: #C8000A; opacity: 0.2; font-weight: bold;">✗2</p>
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">STD波动参数→膜点因果</p>
-  <p style="font-family: Georgia, serif; font-size: 20px; color: #C8000A; font-weight: bold; display: inline;">92%</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.5;">离群+Simpson+Spearman三重证伪 — Pearson=0.52 vs Spearman=-0.13</p>
+<!-- P1 Card: Centered, medium priority -->
+<div style="position:absolute;top:202pt;left:72pt;width:816pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #F39C12;border-radius:4pt;padding:0;">
+<div style="display:flex;height:100%;">
+<div style="width:80pt;background:#F39C12;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6pt;">
+<p style="color:#FFFFFF;font-size:16pt;font-weight:700;">P1</p>
+<p style="color:#FFFFFF;font-size:8pt;text-align:center;margin-top:3pt;">中优先级</p>
+</div>
+<div style="flex:1;padding:12pt 16pt;display:flex;">
+<div style="flex:1;">
+<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-bottom:6pt;">增采样——FP21 / PG22C 型号至 n ge; 30</p>
+<p style="font-size:9pt;color:#2D3436;line-height:1.6;">当前 FP21(n=9) 和 PG22C(n=10) 样本量不足以评估扭矩-划伤方向稳定性。延长数据采集周期至 30+ 批次，确认 5号/6号/11号辊扭矩与划伤的真实关联方向。</p>
+</div>
+<div style="width:120pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+<p style="font-size:18pt;font-weight:700;color:#27AE60;">低</p>
+<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
+</div>
+</div>
+</div>
 </div>
 
-<!-- Exclusion 3 -->
-<div style="position: absolute; top: 210px; left: 40px; width: 600px; height: 95px; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 16px 12px 70px;">
-  <p style="position: absolute; top: 6px; left: 12px; font-family: Georgia, serif; font-size: 32px; color: #C8000A; opacity: 0.2; font-weight: bold;">✗3</p>
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">熔体斑参数因果</p>
-  <p style="font-family: Georgia, serif; font-size: 20px; color: #C8000A; font-weight: bold; display: inline;">95%</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.5;">7对去趋势衰减59-100% — 全部由共享时间趋势驱动，无真实参数关联</p>
+<!-- P2 Card: Centered, lower priority -->
+<div style="position:absolute;top:324pt;left:120pt;width:720pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #636E72;border-radius:4pt;padding:0;">
+<div style="display:flex;height:100%;">
+<div style="width:70pt;background:#636E72;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6pt;">
+<p style="color:#FFFFFF;font-size:14pt;font-weight:700;">P2</p>
+<p style="color:#FFFFFF;font-size:8pt;text-align:center;margin-top:3px;">建议</p>
+</div>
+<div style="flex:1;padding:12pt 16pt;display:flex;">
+<div style="flex:1;">
+<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-bottom:6pt;">关键辊秒级高频监测</p>
+<p style="font-size:9pt;color:#2D3436;line-height:1.6;">在 5号、6号、11号辊安装高频采集（>10Hz）扭矩传感器。秒级监测可捕获划伤发生瞬间的扭矩异常信号，为 H2 扭矩残留假说提供直接验证。</p>
+</div>
+<div style="width:120pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+<p style="font-size:18pt;font-weight:700;color:#F39C12;">中</p>
+<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
+</div>
+</div>
+</div>
 </div>
 
-<!-- Exclusion 4 -->
-<div style="position: absolute; top: 210px; left: 660px; width: 580px; height: 95px; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 16px 12px 70px;">
-  <p style="position: absolute; top: 6px; left: 12px; font-family: Georgia, serif; font-size: 32px; color: #C8000A; opacity: 0.2; font-weight: bold;">✗4</p>
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">灰尘MD参数关联</p>
-  <p style="font-family: Georgia, serif; font-size: 20px; color: #C8000A; font-weight: bold; display: inline;">95%</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.5;">FP41(3批)dust均值1277为极端离群 — 删掉后所有灰尘相关消失</p>
+<!-- Footer -->
+<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
+<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">9 / 10</p>
 </div>
 
-<!-- Exclusion 5 (centered bottom) -->
-<div style="position: absolute; top: 320px; left: 40px; width: 1200px; height: 90px; background: #FFF5F5; border-top: 2px solid #C8000A; padding: 12px 16px 12px 70px;">
-  <p style="position: absolute; top: 6px; left: 12px; font-family: Georgia, serif; font-size: 32px; color: #C8000A; opacity: 0.2; font-weight: bold;">✗5</p>
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">拉伸比→缺陷因果</p>
-  <p style="font-family: Georgia, serif; font-size: 20px; color: #C8000A; font-weight: bold; display: inline;">90%</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.5;">拉伸比CV < 1%（几乎恒定3.08:1） — 变化量不足以解释缺陷波动，统计上无法建立因果</p>
-</div>
-
-<!-- Summary box -->
-<div style="position: absolute; top: 440px; left: 40px; width: 1200px; background: #F0F0EC; border-top: 2px solid #666666; padding: 16px 20px;">
-  <p style="font-size: 14px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">排除结论意味着什么？</p>
-  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">这5项意味着：<b>MD段温度波动不会导致膜点</b>（99%确定）、<b>参数波动不会导致膜点</b>（92%确定）、<b>熔体斑和时间趋势有关而非参数</b>（95%确定）、<b>灰尘和MD参数无关</b>（95%确定）、<b>拉伸比不是原因</b>（90%确定）。</p>
-  <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7; margin-top: 6px;">这帮助我们<b>缩小了排查范围</b>：问题主要不在MD段参数本身，而在上游挤出段（膜点/低聚物）和过滤器/脱气系统（气泡）。</p>
-</div>
-
-<!-- Bottom rule + page number -->
-<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
-<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">9</p>
 </body>
 </html>

@@ -1,70 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Top red rule -->
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<!-- Section label -->
-<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">EXECUTIVE SUMMARY</p>
+<!-- Top bar -->
+<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
 
 <!-- Title -->
-<h1 style="position: absolute; top: 44px; left: 40px; font-family: Georgia, 'SimSun', serif; font-size: 28px; color: #1A1A1A; font-weight: bold;">诊断结论总览</h1>
+<h2 style="position:absolute;top:26pt;left:24pt;font-size:24pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">汇报结构</h2>
+<div style="position:absolute;top:62pt;left:24pt;width:55pt;height:3pt;background:#E85D3A;"></div>
 
-<!-- Decorative background number -->
-<p style="position: absolute; top: -20px; left: 860px; font-family: Georgia, serif; font-size: 180px; color: #C8000A; opacity: 0.04; font-weight: bold;">3</p>
-
-<!-- Left column: Confirmed (50% = 600px) -->
-<div style="position: absolute; top: 100px; left: 40px; width: 580px; height: 500px; background: #F0F8F4; border-top: 3px solid #1A6B45; padding: 24px;">
-  <p style="font-size: 12px; color: #1A6B45; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 10px;">✓ 已确认 · CS2 DISCRIMINATED</p>
-  <h2 style="font-family: Georgia, serif; font-size: 24px; color: #1A1A1A; font-weight: bold; margin-bottom: 10px;">气泡根因已锁定</h2>
-  <p style="font-family: Georgia, serif; font-size: 56px; color: #1A6B45; font-weight: bold; line-height: 1;">61</p>
-  <p style="font-size: 13px; color: #666666; margin-bottom: 16px;">置信度 MEDIUM — 最高存活假设</p>
-  <p style="font-size: 14px; color: #1A1A1A; line-height: 1.8;">过滤器压差↑ → 背压↑ → 脱气效率↑ → 气泡↓</p>
-  <p style="font-size: 13px; color: #666666; line-height: 1.7; margin-top: 12px;">r = -0.36, Sp = -0.44</p>
-  <p style="font-size: 13px; color: #666666; line-height: 1.7;">偏相关控制线速后 = -0.366（比零阶更强）</p>
-  <p style="font-size: 13px; color: #666666; line-height: 1.7;">FP21内 r = -0.78, PG32M内 r = -0.69</p>
+<!-- 5 Section cards arranged horizontally -->
+<div style="position:absolute;top:108pt;left:57pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
+<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
+<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">01</p>
+</div>
+<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">数据来源与工艺背景</p>
+<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">了解诊断数据来源及BOPET纵拉工艺全过程</p>
 </div>
 
-<!-- Middle column: Pending (25% = 300px) -->
-<div style="position: absolute; top: 100px; left: 640px; width: 290px; height: 240px; background: #F0F0EC; border-top: 3px solid #666666; padding: 20px;">
-  <p style="font-size: 11px; color: #666666; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px;">? 待定 · CS1 INDISTINGUISHABLE</p>
-  <h2 style="font-family: Georgia, serif; font-size: 18px; color: #1A1A1A; font-weight: bold; margin-bottom: 8px;">膜点+低聚物</h2>
-  <p style="font-family: Georgia, serif; font-size: 40px; color: #666666; font-weight: bold; line-height: 1;">50</p>
-  <p style="font-size: 12px; color: #999999; margin-bottom: 8px;">置信度上限</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">3个假设不可区分</p>
-  <p style="font-size: 11px; color: #999999; line-height: 1.5;">膜点-低聚物层内共现 r=0.84</p>
+<div style="position:absolute;top:108pt;left:229pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
+<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
+<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">02</p>
+</div>
+<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">参数本体解读</p>
+<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">18辊温度·扭矩·速度·挤出参数的物理意义</p>
 </div>
 
-<!-- Right column: Excluded (25% = 300px) -->
-<div style="position: absolute; top: 100px; left: 950px; width: 290px; height: 240px; background: #FFF5F5; border-top: 3px solid #C8000A; padding: 20px;">
-  <p style="font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px;">✗ 已排除 · 5项(>90%)</p>
-  <p style="font-family: Georgia, serif; font-size: 40px; color: #C8000A; font-weight: bold; line-height: 1;">5</p>
-  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">MD温度降解 99%</p>
-  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">STD参数因果 92%</p>
-  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">熔体斑伪相关 95%</p>
-  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">灰尘MD关联 95%</p>
-  <p style="font-size: 11px; color: #1A1A1A; line-height: 1.6;">拉伸比因果 90%</p>
+<div style="position:absolute;top:108pt;left:401pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
+<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
+<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">03</p>
+</div>
+<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">专业名词解释</p>
+<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">Simpson悖论·Pearson相关·竞争假说等核心概念</p>
 </div>
 
-<!-- Bottom: Data gaps -->
-<div style="position: absolute; top: 360px; left: 640px; width: 600px; height: 240px; background: #F0F0EC; border-top: 2px solid #C8000A; padding: 18px;">
-  <p style="font-size: 12px; color: #C8000A; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 10px;">关键数据缺口</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">① 挤出段熔体粘度数据 — 解决CS1不可区分性</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">② 滤网更换日志 — 直接验证H4气泡机制</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">③ 原料PET IV/水分数据 — 分离产品vs过程效应</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">④ 真空脱气系统压力 — 完善H4物理链</p>
-  <p style="font-size: 11px; color: #999999; margin-top: 12px;">整体置信度：45 (LOW) — 受CS1不可区分性上限50严格制约</p>
+<div style="position:absolute;top:108pt;left:573pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
+<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
+<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">04</p>
+</div>
+<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">核心发现——Simpson悖论</p>
+<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">全局强相关在型号分组后反转或衰减</p>
 </div>
 
-<!-- Bottom rule + page number -->
-<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
-<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">2</p>
+<div style="position:absolute;top:108pt;left:745pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
+<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
+<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">05</p>
+</div>
+<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">诊断结论与建议</p>
+<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">竞争假说评估·置信度判断及改进行动方案</p>
+</div>
+
+<!-- Footer -->
+<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
+<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">2 / 10</p>
+</div>
+
 </body>
 </html>

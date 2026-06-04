@@ -361,6 +361,160 @@ export function getChatHistory(chatId) {
   };
 }
 
+export function getChatReplay(chatId) {
+  const history = getChatHistory(chatId);
+  if (!history) return null;
+
+  const { session, messages } = history;
+  const events = [];
+
+  events.push({
+    eventType: 'chat_init',
+    data: {
+      chatId: session.chatId,
+      sessionId: session.sessionId,
+      title: session.title,
+      timestamp: session.createdAt,
+    },
+  });
+
+  for (const msg of messages) {
+    const mapped = mapStoredMessageToSSE(msg);
+    if (mapped) events.push(mapped);
+  }
+
+  if (session.status === 'failed') {
+    events.push({
+      eventType: 'chat_error',
+      data: {
+        chatId: session.chatId,
+        error: 'Stored chat ended with failure',
+        sessionId: session.sessionId,
+      },
+    });
+  } else {
+    events.push({
+      eventType: 'chat_complete',
+      data: {
+        chatId: session.chatId,
+        sessionId: session.sessionId,
+      },
+    });
+  }
+
+  return { session, events };
+}
+
+function mapStoredMessageToSSE(row) {
+  const eventType = row.event_type;
+  if (eventType === 'user_message') return null;
+
+  if (eventType === 'message') {
+    return {
+      eventType: 'message',
+      data: { role: 'assistant', content: row.content || '' },
+    };
+  }
+
+  if (eventType === 'thinking') {
+    return {
+      eventType: 'thinking',
+      data: { content: row.content || '' },
+    };
+  }
+
+  if (eventType === 'tool_use') {
+    try {
+      return {
+        eventType: 'tool_use',
+        data: JSON.parse(row.content || '{}'),
+      };
+    } catch {
+      return {
+        eventType: 'tool_use',
+        data: { name: row.event_subtype || 'Tool', input: { raw: row.content || '' } },
+      };
+    }
+  }
+
+  if (eventType === 'tool_result') {
+    return {
+      eventType: 'tool_result',
+      data: {
+        toolUseId: '',
+        summary: row.content || '',
+        isError: row.event_subtype === 'error',
+      },
+    };
+  }
+
+  if (eventType === 'system') {
+    try {
+      const parsed = JSON.parse(row.content || '{}');
+      return {
+        eventType: 'system',
+        data: { subtype: parsed.subtype || row.event_subtype || 'system', ...parsed },
+      };
+    } catch {
+      return {
+        eventType: 'system',
+        data: { subtype: row.event_subtype || 'system', content: row.content || '' },
+      };
+    }
+  }
+
+  if (eventType === 'stream_event') {
+    try {
+      return {
+        eventType: 'stream_event',
+        data: JSON.parse(row.content || '{}'),
+      };
+    } catch {
+      return {
+        eventType: 'stream_event',
+        data: { type: row.event_subtype || 'stream_event', raw: row.content || '' },
+      };
+    }
+  }
+
+  if (eventType === 'result') {
+    try {
+      return {
+        eventType: 'result',
+        data: JSON.parse(row.content || '{}'),
+      };
+    } catch {
+      return {
+        eventType: 'result',
+        data: { subtype: row.event_subtype || 'completed' },
+      };
+    }
+  }
+
+  if (eventType === 'error') {
+    return {
+      eventType: 'chat_error',
+      data: { error: row.content || 'Stored chat error' },
+    };
+  }
+
+  if (eventType === 'raw') {
+    try {
+      return {
+        eventType: 'raw',
+        data: JSON.parse(row.content || '{}'),
+      };
+    } catch {
+      return {
+        eventType: 'raw',
+        data: { raw: row.content || '' },
+      };
+    }
+  }
+
+  return null;
+}
+
 export function renameChatSession(chatId, title) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return null;

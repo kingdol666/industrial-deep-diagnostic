@@ -1,73 +1,53 @@
 const pptxgen = require('pptxgenjs');
+const html2pptx = require(`${process.env.HOME}/.claude/skills/huashu-slides/scripts/html2pptx.js`);
 const path = require('path');
 const fs = require('fs');
-const html2pptx = require('/Users/haozhengzhang/.claude/skills/huashu-slides/scripts/html2pptx.js');
 
-const SLIDES_DIR = '/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/ppt_workspace/slides';
-const IMAGE_DIR = '/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/workspace/diagnostic-runs/202605280810048_lekai_diagnostic/03_figures';
-const OUTPUT = '/Volumes/laxer/codes/skills/ industrial-deep-diagnostic/ppt_workspace/BOPET_MD_Diagnosis_Report.pptx';
+const SLIDES_DIR = __dirname + '/slides';
+const IMG_DIR = __dirname + '/garden-gpt-image-2/image';
 
-const SLIDE_IMAGE_MAP = {
-  'slide-03.html': { 'img-scatter': 'fig_08_key_scatter_by_product.png' },
-  'slide-05.html': { 'img-robustness': 'fig_11_spearman_vs_pearson.png' },
-  'slide-06.html': { 'img-timeseries': 'fig_03_defect_timeseries_by_product.png' },
-  'slide-07.html': { 'img-simpson': 'fig_09_simpson_paradox.png' },
-  'slide-08.html': { 'img-cooccurrence': 'fig_06_defect_cooccurrence.png' },
+const IMAGE_MAP = {
+  'img-hero': path.join(IMG_DIR, 'p01_cover.png'),
+  'img-stretcher': path.join(IMG_DIR, 'fig7_md_stretcher_layout.png'),
+  'img-simpson-explain': path.join(IMG_DIR, 'p05_simpson_explain.png'),
+  'img-simpson-torque': path.join(IMG_DIR, 'fig_vlm_simpson_torque.png'),
+  'img-speed-scratch': path.join(IMG_DIR, 'fig3_speed_scratch_by_model.png'),
+  'img-torque-profile': path.join(IMG_DIR, 'fig6_torque_profile_high_vs_low.png'),
 };
 
-async function main() {
-  const pres = new pptxgen();
-  pres.layout = 'LAYOUT_WIDE';
+(async () => {
+  const pptx = new pptxgen();
+  pptx.layout = 'LAYOUT_WIDE';
 
-  const files = fs.readdirSync(SLIDES_DIR)
-    .filter(f => f.match(/^slide-\d+\.html$/))
-    .sort((a, b) => {
-      const na = parseInt(a.match(/\d+/)[0]);
-      const nb = parseInt(b.match(/\d+/)[0]);
-      return na - nb;
-    });
+  const slideFiles = fs.readdirSync(SLIDES_DIR)
+    .filter(f => f.startsWith('slide-') && f.endsWith('.html'))
+    .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
 
-  console.log(`Found ${files.length} slides: ${files.join(', ')}`);
+  console.log(`Processing ${slideFiles.length} slides...`);
 
-  for (const file of files) {
-    const htmlPath = path.join(SLIDES_DIR, file);
-    console.log(`\nProcessing ${file}...`);
-
+  for (const htmlFile of slideFiles) {
+    const htmlPath = path.join(SLIDES_DIR, htmlFile);
     try {
-      const { slide, placeholders } = await html2pptx(htmlPath, pres);
-
-      const slideMap = SLIDE_IMAGE_MAP[file] || {};
-
-      for (const ph of placeholders) {
-        const imgFile = slideMap[ph.id];
-        if (imgFile) {
-          const imgPath = path.join(IMAGE_DIR, imgFile);
-          if (fs.existsSync(imgPath)) {
-            slide.addImage({ path: imgPath, x: ph.x, y: ph.y, w: ph.w, h: ph.h });
-            console.log(`  ✓ Inserted ${imgFile} at (${ph.x.toFixed(2)}, ${ph.y.toFixed(2)}) ${ph.w.toFixed(2)}×${ph.h.toFixed(2)}`);
-          } else {
-            console.warn(`  ✗ Image not found: ${imgPath}`);
-          }
-        } else {
-          console.warn(`  ✗ No mapping for placeholder "${ph.id}" in ${file}`);
+      const result = await html2pptx(htmlPath, pptx);
+      const slide = result.slide;
+      const placeholders = result.placeholders;
+      for (const p of placeholders) {
+        const imgPath = IMAGE_MAP[p.id];
+        if (imgPath && fs.existsSync(imgPath)) {
+          slide.addImage({ path: imgPath, x: p.x, y: p.y, w: p.w, h: p.h });
+          console.log(`  Added ${p.id} -> ${path.basename(imgPath)}`);
+        } else if (p.id) {
+          console.log(`  MISSING: ${p.id}`);
         }
       }
-
-      if (Object.keys(slideMap).length === 0) {
-        console.log('  (text-only slide, no images)');
-      }
     } catch (err) {
-      console.error(`  ✗ Error processing ${file}: ${err.message}`);
+      console.error(`  ERROR ${htmlFile}: ${err.message}`);
     }
   }
 
-  await pres.writeFile({ fileName: OUTPUT });
-  const stats = fs.statSync(OUTPUT);
-  console.log(`\n✅ SUCCESS: ${pres.slides.length} slides, ${(stats.size / 1024).toFixed(1)} KB`);
-  console.log(`Output: ${OUTPUT}`);
-}
-
-main().catch(err => {
-  console.error('COMPILATION FAILED:', err);
-  process.exit(1);
-});
+  const outPath = path.join(__dirname, 'BOPET_诊断汇报.pptx');
+  await pptx.writeFile({ fileName: outPath });
+  const stat = fs.statSync(outPath);
+  console.log(`\n✅ ${outPath}`);
+  console.log(`   ${(stat.size/1024).toFixed(0)} KB, ${slideFiles.length} pages`);
+})();

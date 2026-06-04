@@ -1,57 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Top red rule -->
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<!-- Section label -->
-<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #1A6B45; font-weight: 700; letter-spacing: 0.15em;">CO-OCCURRENCE · 共现分析</p>
+<!-- Top bar -->
+<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
 
 <!-- Title -->
-<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold;">膜点与低聚物高度共现：来自上游挤出段的共同根因</h1>
+<h2 style="position:absolute;top:24pt;left:24pt;font-size:22pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">诊断结论与置信度评估</h2>
+<div style="position:absolute;top:58pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
 
-<!-- Left: co-occurrence figure (45%) -->
-<div class="placeholder" id="img-cooccurrence" style="position: absolute; top: 80px; left: 40px; width: 520px; height: 480px; background: #f5f5f5;"></div>
-<p style="position: absolute; top: 558px; left: 40px; width: 520px; font-size: 10px; color: #999999;">图：5种缺陷间Spearman相关矩阵 — 膜点-低聚物共现最亮</p>
+<!-- Center row: left diagnosis card + right confidence number -->
 
-<!-- Right: evidence (55%) -->
-<div style="position: absolute; top: 80px; left: 580px; width: 660px;">
-  <h2 style="font-family: Georgia, serif; font-size: 20px; color: #1A1A1A; font-weight: bold; margin-bottom: 16px;">共同根因证据</h2>
-
-  <!-- Evidence card -->
-  <div style="background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 16px 18px; margin-bottom: 14px;">
-    <p style="font-size: 14px; color: #1A6B45; font-weight: bold; margin-bottom: 8px;">膜点-低聚物共现：可信度最高观测</p>
-    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">整体 Spearman r = 0.61（Pearson r = 0.86）</p>
-    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">PG31DS层内 r = <b style="color: #1A6B45;">0.84</b> — 共现不是产品混杂造成的</p>
-    <p style="font-size: 12px; color: #666666; margin-top: 6px;">两者在物理上可能共享同一上游来源</p>
-  </div>
-
-  <!-- Physical mechanism -->
-  <div style="background: #F0F0EC; border-top: 2px solid #C8000A; padding: 16px 18px; margin-bottom: 14px;">
-    <p style="font-size: 13px; color: #C8000A; font-weight: 700; margin-bottom: 8px;">物理推断：指向挤出段降解</p>
-    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">环状三聚体形成需 T > 200°C — 仅挤出段满足</p>
-    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">低聚物在MD段是迁移/结晶，不是生成</p>
-    <p style="font-size: 13px; color: #1A1A1A; line-height: 1.7;">MD拉伸比3.08倍 — 上游微小缺陷被放大至可见</p>
-  </div>
-
-  <!-- Data gaps -->
-  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
-    <p style="font-size: 13px; color: #666666; font-weight: 700; margin-bottom: 6px;">需要的数据 — 解决不可区分性</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">① 挤出段熔体粘度数据 — 直接验证降解假说</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">② 滤网更换日志 — 验证降解累积假设</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.7;">③ 原料PET IV/水分数据 — 分离产品vs过程效应</p>
-  </div>
+<!-- Left: Diagnosis type card -->
+<div style="position:absolute;top:82pt;left:24pt;width:540pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:6pt;padding:20pt 24pt;">
+<div style="display:inline-block;background:#1B3A5C;border-radius:3pt;padding:4pt 14pt;margin-bottom:14pt;">
+<p style="color:#FFFFFF;font-size:11pt;font-weight:700;">诊断类型：COMPETING_SET</p>
 </div>
 
-<!-- Bottom rule + page number -->
-<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
-<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">8</p>
+<div style="margin-bottom:14pt;">
+<div style="background:#E8F8F0;border-left:3pt solid #27AE60;padding:8pt 12pt;margin-bottom:8pt;">
+<div style="display:flex;justify-content:space-between;">
+<p style="font-size:11pt;font-weight:700;color:#1B3A5C;">H1：型号主导</p>
+<p style="font-size:11pt;font-weight:700;color:#27AE60;">置信度上限 65%</p>
+</div>
+<p style="font-size:9pt;color:#636E72;margin-top:4pt;">推测型号差异通过速度设定 → 摩擦功率路径决定划伤基线。PG32D vs PG22C 划伤率差15倍，速度设定差2倍，膜厚差2.6倍。但 PG31DS 内 0-36 的残留变异未被完全解释。</p>
+</div>
+</div>
+
+<div>
+<div style="background:#FEF5E7;border-left:3pt solid #F39C12;padding:8pt 12pt;">
+<div style="display:flex;justify-content:space-between;">
+<p style="font-size:11pt;font-weight:700;color:#1B3A5C;">H2：扭矩残留</p>
+<p style="font-size:11pt;font-weight:700;color:#F39C12;">置信度 35%</p>
+</div>
+<p style="font-size:9pt;color:#636E72;margin-top:4pt;">FP21 内5号辊 r=0.442 提示扭矩波动可能对划伤有微弱影响，但方向不一致且小样本(n le; 10) 限制结论可靠性。</p>
+</div>
+</div>
+</div>
+
+<!-- Right: Confidence number display -->
+<div style="position:absolute;top:82pt;left:588pt;width:348pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:6pt;padding:20pt 24pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+<p style="font-size:64pt;font-weight:700;color:#E85D3A;text-align:center;">65</p>
+<p style="font-size:11pt;color:#636E72;margin-top:4pt;text-align:center;">当前最高置信度（分）</p>
+<div style="height:3pt;width:200pt;background:#DFE6E9;border-radius:2pt;margin-top:12pt;">
+<div style="height:3pt;width:130pt;background:#E85D3A;border-radius:2pt;"></div>
+</div>
+<p style="font-size:9pt;color:#636E72;margin-top:8pt;text-align:center;">受 COMPETING_SET 场景约束，置信度上限受限。H1(65%) 与 H2(35%) 合计 100%，无法进一步区分。</p>
+</div>
+
+<!-- Bottom row: 3 limitation items -->
+<div style="position:absolute;top:310pt;left:24pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 1</p>
+<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
+<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>批次级数据丢失秒级信息</b></p>
+<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">当前数据是批次级别聚合统计（均值/标准差）。划伤事件发生在秒级时间尺度，批次级聚合可能平滑掉了关键的瞬态信号。</p>
+</div>
+</div>
+
+<div style="position:absolute;top:310pt;left:336pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 2</p>
+<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
+<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>型号共线无法完全拆解</b></p>
+<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">型号与工艺设定高度共线：不同型号有专门的速度、温度设定。无法通过统计方法完全分离"型号本身"与"型号的工艺设定"效应。</p>
+</div>
+</div>
+
+<div style="position:absolute;top:310pt;left:648pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 3</p>
+<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
+<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>小样本型号结论受限</b></p>
+<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">FP21(n=9)、PG22C(n=10) 等型号样本量不足。2-3 个极端批次即可主导相关方向，无法可靠评估参数-划伤关系。</p>
+</div>
+</div>
+
+<!-- Footer -->
+<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
+<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">8 / 10</p>
+</div>
+
 </body>
 </html>

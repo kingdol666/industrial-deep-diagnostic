@@ -1,61 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+.placeholder{background:#E8ECF0;border:1px dashed #B2BEC3;border-radius:4pt;display:flex;align-items:center;justify-content:center;color:#636E72;font-size:11pt;overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Top red rule -->
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<!-- Section label -->
-<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #666666; font-weight: 700; letter-spacing: 0.15em;">? CS1 INDISTINGUISHABLE</p>
+<!-- Top bar -->
+<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
 
 <!-- Title -->
-<h1 style="position: absolute; top: 44px; left: 40px; width: 440px; font-family: Georgia, 'SimSun', serif; font-size: 22px; color: #1A1A1A; font-weight: bold; line-height: 1.3;">膜点+低聚物：3个假设预测相同结果，数据无法区分</h1>
+<h2 style="position:absolute;top:14pt;left:24pt;font-size:18pt;font-weight:700;color:#1B3A5C;letter-spacing:1pt;">Simpson悖论确认——全局相关性是型号混杂假象</h2>
+<div style="position:absolute;top:40pt;left:24pt;width:45pt;height:3pt;background:#E85D3A;"></div>
 
-<!-- Left column: 3 hypotheses (40%) -->
-<div style="position: absolute; top: 120px; left: 40px; width: 440px;">
-  <!-- H1 -->
-  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
-    <p style="font-size: 11px; color: #666666; font-weight: 700; margin-bottom: 4px;">H1 · 置信度 45</p>
-    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">上游挤出段热降解</p>
-    <p style="font-size: 12px; color: #666666; line-height: 1.5;">PET在280°C降解→交联凝胶+环状三聚体</p>
-  </div>
-  <!-- H2 -->
-  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
-    <p style="font-size: 11px; color: #666666; font-weight: 700; margin-bottom: 4px;">H2 · 置信度 50（上限）</p>
-    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">产品等级基线差异</p>
-    <p style="font-size: 12px; color: #666666; line-height: 1.5;">不同产品不同工艺设定和缺陷基线</p>
-  </div>
-  <!-- H3 -->
-  <div style="background: #F0F0EC; border-top: 2px solid #666666; padding: 12px 16px; margin-bottom: 10px;">
-    <p style="font-size: 11px; color: #C8000A; font-weight: 700; margin-bottom: 4px;">H3 · 置信度 25 · 方向矛盾</p>
-    <p style="font-size: 14px; color: #1A1A1A; font-weight: bold;">急冷温度影响</p>
-    <p style="font-size: 12px; color: #666666; line-height: 1.5;">急冷段31-36°C远低于Tg(75°C)，低聚物扩散冻结</p>
-  </div>
-  <!-- Co-occurrence note -->
-  <div style="background: #F0F8F4; border-top: 2px solid #1A6B45; padding: 10px 16px;">
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.5;"><b>共现证据：</b>膜点-低聚物PG31DS层内 r=<b style="color: #1A6B45;">0.84</b> — 共现非产品混杂，指向共同根因</p>
-  </div>
+<!-- LEFT: Data comparison table -->
+<div style="position:absolute;top:58pt;left:24pt;width:400pt;height:295pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:12pt 14pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">全局相关 vs 型号内相关对比</p>
+
+<!-- Table header -->
+<div style="display:flex;background:#1B3A5C;border-radius:2pt;padding:5pt 6pt;margin-bottom:4pt;">
+<p style="flex:1;font-size:8pt;font-weight:700;color:#FFFFFF;">参数</p>
+<p style="width:72pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">全局 r</p>
+<p style="width:78pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">型号内 r</p>
+<p style="width:60pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">变化</p>
 </div>
 
-<!-- Right column: timeseries (60%) -->
-<div class="placeholder" id="img-timeseries" style="position: absolute; top: 22px; left: 500px; width: 740px; height: 440px; background: #f5f5f5;"></div>
-<p style="position: absolute; top: 460px; left: 500px; width: 740px; font-size: 10px; color: #999999;">图：5种缺陷时间趋势按产品着色 — 产品切换时缺陷跳变，FG22/FP41极端高值</p>
-
-<!-- Bottom explanation -->
-<div style="position: absolute; top: 490px; left: 500px; width: 740px; background: #F0F0EC; border-top: 2px solid #666666; padding: 14px 18px;">
-  <p style="font-size: 13px; color: #1A1A1A; font-weight: bold; margin-bottom: 6px;">为什么不可区分？</p>
-  <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">三个假设预测完全相同的观测模式：产品切换时缺陷跳变 + 层内相关弱 + 膜点-低聚物高度共现</p>
-  <p style="font-size: 12px; color: #666666; line-height: 1.6; margin-top: 4px;">区分条件：获取挤出段熔体粘度数据 + 滤网更换日志 + 原料PET IV/水分</p>
+<!-- Row 1 -->
+<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
+<p style="flex:1;font-size:9pt;color:#2D3436;">W1C86 温度 std</p>
+<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.487</p>
+<p style="width:78pt;font-size:9pt;color:#E85D3A;text-align:center;">+0.044</p>
+<p style="width:60pt;font-size:9pt;color:#E85D3A;text-align:center;">衰减91%</p>
 </div>
 
-<!-- Bottom rule + page number -->
-<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
-<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">6</p>
+<!-- Row 2 -->
+<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
+<p style="flex:1;font-size:9pt;color:#2D3436;">W1C80 速度 std</p>
+<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.469</p>
+<p style="width:78pt;font-size:9pt;color:#C0392B;text-align:center;">-0.364</p>
+<p style="width:60pt;font-size:9pt;color:#C0392B;text-align:center;font-weight:700;">反转!</p>
+</div>
+
+<!-- Row 3 -->
+<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
+<p style="flex:1;font-size:9pt;color:#2D3436;">W1C81 速度 std</p>
+<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.468</p>
+<p style="width:78pt;font-size:9pt;color:#C0392B;text-align:center;">-0.278</p>
+<p style="width:60pt;font-size:9pt;color:#C0392B;text-align:center;font-weight:700;">反转!</p>
+</div>
+
+<!-- Row 4 -->
+<div style="display:flex;padding:5pt 6pt;">
+<p style="flex:1;font-size:9pt;color:#2D3436;">速度波动</p>
+<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">8.9x</p>
+<p style="width:78pt;font-size:9pt;color:#636E72;text-align:center;">0.16-0.19</p>
+<p style="width:60pt;font-size:9pt;color:#E85D3A;text-align:center;">归零</p>
+</div>
+
+<!-- Annotation -->
+<p style="font-size:8pt;color:#636E72;margin-top:8pt;line-height:1.5;">※ 上表数据以 PG31DS 型号内计算。W1C80_std 和 W1C81_std 出现了方向反转——从全局正相关变为型号内负相关，是典型的 Simpson 悖论特征。</p>
+</div>
+
+<!-- RIGHT TOP: fig_vlm_simpson_torque -->
+<div class="placeholder" id="img-simpson-torque" style="position:absolute;top:58pt;left:442pt;width:248pt;height:186pt;"></div>
+
+<!-- RIGHT BOTTOM: fig3_speed_scratch_by_model -->
+<div class="placeholder" id="img-speed-scratch" style="position:absolute;top:258pt;left:442pt;width:248pt;height:186pt;"></div>
+
+<!-- Additional data column on far right -->
+<div style="position:absolute;top:58pt;left:706pt;width:230pt;height:386pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:12pt 12pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">关键数据速览</p>
+
+<div style="background:#F8F9FA;border-left:2pt solid #E85D3A;padding:6pt 8pt;margin-bottom:6pt;">
+<p style="font-size:9pt;color:#2D3436;line-height:1.4;"><b>8.9x</b> 高划伤 vs 零划伤批次的速度波动差异</p>
+</div>
+
+<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
+<p style="font-size:9pt;color:#2D3436;line-height:1.4;">型号内平均 r 仅 <b>0.16-0.19</b>，接近零相关</p>
+</div>
+
+<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
+<p style="font-size:9pt;color:#2D3436;line-height:1.4;">PG32D 划伤率是 PG22C 的 <b>15 倍</b></p>
+</div>
+
+<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
+<p style="font-size:9pt;color:#2D3436;line-height:1.4;">不同型号速度设定差异约 <b>2 倍</b>，膜厚差异约 <b>2.6 倍</b></p>
+</div>
+
+<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;">
+<p style="font-size:9pt;color:#2D3436;line-height:1.4;">扭矩波动中位数差异约 <b>6%</b>，最大值差异约 <b>30%</b></p>
+</div>
+</div>
+
+<!-- BOTTOM: Conclusion strip -->
+<div style="position:absolute;top:456pt;left:24pt;width:912pt;height:52pt;background:#1B3A5C;border-radius:4pt;padding:8pt 18pt;display:flex;align-items:center;">
+<p style="font-size:10pt;color:#FFFFFF;line-height:1.5;text-align:center;"><b style="color:#E85D3A;">结论：</b>所有聚合相关是型号间差异假象。型号 → 速度设定 → 摩擦功率决定划伤基线。系统本身未出故障，参数差异是产品规格的自然反映。</p>
+</div>
+
+<!-- Footer -->
+<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
+<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">6 / 10</p>
+</div>
+
 </body>
 </html>

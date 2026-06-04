@@ -1,60 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1280px; height: 720px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #FEFEF9; position: relative; overflow: hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+.placeholder{background:#E8ECF0;border:1px dashed #B2BEC3;border-radius:4pt;display:flex;align-items:center;justify-content:center;color:#636E72;font-size:11pt;overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Top red rule -->
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #C8000A;"></div>
 
-<!-- Section label -->
-<p style="position: absolute; top: 18px; left: 40px; font-size: 11px; color: #C8000A; font-weight: 700; letter-spacing: 0.15em;">VALIDATION RESULTS · 验证结果</p>
+<!-- Top bar -->
+<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
 
 <!-- Title -->
-<h1 style="position: absolute; top: 44px; left: 40px; right: 40px; font-family: Georgia, 'SimSun', serif; font-size: 24px; color: #1A1A1A; font-weight: bold;">三重验证结果：绝大多数"强相关"是假的</h1>
+<h2 style="position:absolute;top:20pt;left:24pt;font-size:20pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">看懂诊断报告的关键概念</h2>
+<div style="position:absolute;top:50pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
 
-<!-- Left: Pearson vs Spearman figure (55%) -->
-<div class="placeholder" id="img-robustness" style="position: absolute; top: 80px; left: 40px; width: 660px; height: 530px; background: #f5f5f5;"></div>
-<p style="position: absolute; top: 608px; left: 40px; width: 660px; font-size: 10px; color: #999999;">图：Pearson vs Spearman对比 — 偏离对角线=不可靠。气泡-压差方向一致。</p>
+<!-- Top row: Two columns of concept explanations -->
+<div style="position:absolute;top:70pt;left:24pt;width:444pt;">
 
-<!-- Right: results (45%) -->
-<div style="position: absolute; top: 80px; left: 720px; width: 520px;">
-  <h2 style="font-family: Georgia, serif; font-size: 18px; color: #1A1A1A; font-weight: bold; margin-bottom: 16px;">验证打击结果</h2>
-
-  <!-- Falsified 1 -->
-  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
-    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 离群驱动：15个伪相关被揭穿</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">W1C80→膜点：删掉26个极端值后</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">r 从 <b>0.52</b> → <b style="color: #C8000A;">-0.08</b>（方向反转）</p>
-  </div>
-
-  <!-- Falsified 2 -->
-  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
-    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ Simpson分层：873个方向反转</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">膜点STD参数</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">Pearson = <b>0.52</b> vs Spearman = <b style="color: #C8000A;">-0.13</b></p>
-  </div>
-
-  <!-- Falsified 3 -->
-  <div style="background: #FFF5F5; border-top: 2px solid #C8000A; padding: 14px 16px; margin-bottom: 10px;">
-    <p style="font-size: 13px; color: #C8000A; font-weight: bold; margin-bottom: 4px;">✗ 趋势混杂：熔体斑全为时间伪相关</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">7对去趋势后衰减59-100%</p>
-  </div>
-
-  <!-- Survivor -->
-  <div style="background: #F0F8F4; border-top: 3px solid #1A6B45; padding: 16px;">
-    <p style="font-size: 14px; color: #1A6B45; font-weight: bold; margin-bottom: 6px;">✓ 唯一幸存：压差 → 气泡</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">Pearson = -0.36 / Spearman = -0.44</p>
-    <p style="font-size: 12px; color: #1A1A1A; line-height: 1.6;">方向一致 ✓  离群稳健 ✓  偏相关更强 ✓</p>
-  </div>
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Simpson悖论</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">全局趋势在按型号分组后消失或反转。如 W1C80_std 全局 r= +0.469 变成 PG31DS 型号内 r= -0.364——方向完全反转。</p>
 </div>
 
-<!-- Bottom rule + page number -->
-<div style="position: absolute; bottom: 28px; left: 40px; width: 1200px; height: 1px; background: #CCCCCC;"></div>
-<p style="position: absolute; bottom: 10px; right: 40px; font-family: Georgia, serif; font-size: 11px; color: #BBBBBB;">5</p>
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Pearson r</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">线性相关系数，取值范围 -1 到 +1。绝对值大于 0.5 为强相关，0.3-0.5 为中等相关。正值代表同向变化，负值代表反向变化。</p>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">COMPETING_SET</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">竞争假说集。当多个假说都无法被现有数据排除时，将它们并列列出并分配各自置信度上限。诊断管线最终判定为 DETERMINED（唯一确定）、COMPETING_SET（多个竞争）或 NEEDS_DATA（数据不足）。</p>
+</div>
+
+</div>
+
+<div style="position:absolute;top:70pt;left:492pt;width:444pt;">
+
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">聚合 vs 分层相关</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">全体数据计算的相关性（聚合）与按型号分组后分别计算（分层）。差异揭示是否存在混杂变量。本项目中聚合与分层差异是核心发现。</p>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Tg (~75 C)</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">PET 的玻璃化转变温度（Glass Transition Temp），从玻璃态硬脆变为高弹态的临界点。纵拉预加热需达到此温度才能进行拉伸取向。低于 Tg 拉伸会导致薄膜断裂。</p>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;">
+<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">CCF 交叉相关</p>
+<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">Cross-Correlation Function，分析两个时间序列之间的滞后相关关系。可识别一个变量的变化是否在时间上领先于另一个变量，推断因果方向。</p>
+</div>
+
+</div>
+
+<!-- Bottom: Simpson paradox illustration -->
+<div class="placeholder" id="img-simpson-explain" style="position:absolute;top:300pt;left:120pt;width:720pt;height:200pt;"></div>
+
+<!-- Footer -->
+<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
+<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">5 / 10</p>
+</div>
+
 </body>
 </html>
