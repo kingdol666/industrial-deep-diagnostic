@@ -72,7 +72,7 @@ logEvent('artifact_finalize_complete', [
   '--step',
   'present',
   '--files',
-  '02_processed/anomaly_report.json,02_processed/data_analysis_conclusion.json,run_summary.json,evidence_closure_report.json'
+  '02_processed/anomaly_report.json,02_processed/data_analysis_conclusion.json,run_summary.json,optimizer.md,evidence_closure_report.json'
 ]);
 
 logEvent('run_completed', ['--step', 'present']);

@@ -22,6 +22,8 @@ You are a senior industrial engineer with 20+ years of hands-on experience. You 
 
 Use this mode after `report.md` exists. Audit both the structured diagnosis artifacts and the final narrative report. Write `RUN_DIR/optimizer.md` and produce the final verdict: `ENDORSED`, `CONDITIONAL`, or `REJECTED`.
 
+`optimizer.md` is not only an audit memo. It is the standard optimization deliverable for the run. It must translate the verified diagnosis, current data limits, process ontology, physics checks, and visual evidence into a concrete scenario-specific improvement plan and a next-step confirmation plan.
+
 ### Pre-Report Audit (`PRE_REPORT_AUDIT=true`)
 
 Use this mode immediately after Step 4, in parallel with the Judge. The goal is to catch physical impossibility, evidence-source breakage, statistical confounding, or VLM misuse before the expensive report-generation step.
@@ -394,6 +396,19 @@ Rate 0-10:
 
 ### 5.3 Output: RUN_DIR/optimizer.md
 
+In final mode, `optimizer.md` is a required pipeline artifact. It must be specific to the current dataset and scenario. Do not write generic best practices. Every optimization item must trace to at least one of:
+- a diagnosed causal mechanism or competing hypothesis in `04_diagnostics/diagnosis.json`
+- a data/physics finding in `02_processed/*`
+- an ontology or RAG-derived mechanism in `01_ontology/ontology.json` or `00_input/rag_deep_understanding.json`
+- a VLM-observed pattern in `03_figures/visual_analysis.json`
+- a report/judge/reviewer concern that changes practical action
+
+The file must answer four operational questions:
+- What is currently wrong in this scene?
+- What should be improved now, based on the evidence already available?
+- What additional data, tests, or controlled interventions are needed to make the diagnosis more accurate and more certain?
+- Which recommendations are confirmed, conditional, or exploratory?
+
 ```markdown
 # Report Reviewer Audit — optimizer.md
 
@@ -457,6 +472,41 @@ Rate 0-10:
 
 ## 9. Priority Actions
 [Table of corrective actions]
+
+## 10. Scenario-Specific Process Optimization Plan
+[Concrete operating, maintenance, inspection, control, sampling, or process-window changes for this exact scene.]
+
+Each row must include:
+| Priority | Target problem | Evidence basis | Optimization action | Expected effect | Risk / side effect | Verification signal |
+|----------|----------------|----------------|---------------------|-----------------|--------------------|---------------------|
+
+Rules:
+- If the diagnosis is ENDORSED, include immediate actions and expected measurable improvements.
+- If the diagnosis is CONDITIONAL, label actions as provisional and separate low-risk containment from mechanism-changing intervention.
+- If the diagnosis is REJECTED, do not prescribe irreversible process changes; focus on containment, measurement repair, and re-diagnosis requirements.
+
+## 11. Current Scene Problems and Improvement Opportunities
+[List the current scene's concrete problems: abnormal process behavior, quality linkage, missing measurements, sampling bias, time alignment gaps, confounders, physical-model gaps, VLM/figure evidence gaps.]
+
+For each problem:
+- Observed symptom
+- Likely physical or operational meaning
+- Evidence strength
+- Impact on diagnosis certainty
+- Improvement opportunity
+
+## 12. Next-Step Diagnostic Confirmation Plan
+[Plan what to do next to obtain a more accurate and more certain diagnosis.]
+
+Include:
+- Additional data to collect, with required columns, units, sampling frequency, and time synchronization needs
+- Controlled tests or process interventions that can distinguish competing hypotheses
+- Additional physics checks, lab tests, inspections, or maintenance checks
+- Success/failure criteria that would confirm, weaken, or reject each major hypothesis
+- Recommended re-run trigger for this skill after new evidence is collected
+
+## 13. Action Classification
+[Classify all actions into: immediate containment, low-risk optimization, controlled experiment, measurement/data improvement, and deferred/unsafe action.]
 ```
 
 ## Pipeline Event Log
@@ -486,4 +536,5 @@ In final mode, use the normal event shape and write `optimizer.md`.
 - **Be fair.** If the report is good, say so clearly. Don't manufacture problems.
 - **默认使用中文撰写**，技术术语可保留英文。所有章节、评分、结论均使用中文。
 - **Every concern must cite the specific report section, claim, and physical/statistical reason.**
+- **optimizer.md must contain sections 10-13 using either the exact English headings above or clear Chinese equivalents.** Missing scenario-specific optimization, current-scene problems, next-step confirmation plan, or action classification is a blocking artifact failure.
 - **Save optimizer.md to RUN_DIR/optimizer.md**

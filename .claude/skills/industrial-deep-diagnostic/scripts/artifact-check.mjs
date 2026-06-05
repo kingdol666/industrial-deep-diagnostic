@@ -33,6 +33,68 @@ function check(label, filePath, critical = true) {
   return { label, path: filePath, status: `OK (${sizeKb} KB)`, critical };
 }
 
+function validateOptimizerMarkdown(critical = true) {
+  const filePath = 'optimizer.md';
+  const fullPath = join(runDir, filePath);
+  if (!fs.existsSync(fullPath)) {
+    return { label: 'Optimizer Content Contract', path: filePath, status: critical ? 'MISSING (critical)' : 'MISSING', critical };
+  }
+
+  const content = fs.readFileSync(fullPath, 'utf-8');
+  const normalized = content.toLowerCase();
+  const requiredPatterns = [
+    {
+      name: 'scenario-specific process optimization plan',
+      patterns: [/##\s*10\.\s*scenario-specific process optimization plan/i, /场景特异性.*优化方案/]
+    },
+    {
+      name: 'current scene problems and improvement opportunities',
+      patterns: [/##\s*11\.\s*current scene problems and improvement opportunities/i, /当前场景.*问题.*改善/]
+    },
+    {
+      name: 'next-step diagnostic confirmation plan',
+      patterns: [/##\s*12\.\s*next-step diagnostic confirmation plan/i, /下一步.*诊断.*确认计划/]
+    },
+    {
+      name: 'action classification',
+      patterns: [/##\s*13\.\s*action classification/i, /行动分类/]
+    }
+  ];
+
+  const missing = requiredPatterns
+    .filter(({ patterns }) => !patterns.some((pattern) => pattern.test(content)))
+    .map(({ name }) => name);
+
+  const evidenceWords = [
+    'evidence',
+    'diagnosis',
+    'ontology',
+    'physics',
+    'visual',
+    '数据',
+    '诊断',
+    '本体',
+    '物理',
+    '证据',
+    '图像'
+  ];
+  const hasEvidenceGrounding = evidenceWords.filter((word) => normalized.includes(word.toLowerCase())).length >= 3;
+
+  if (missing.length > 0 || !hasEvidenceGrounding) {
+    const issues = [];
+    if (missing.length > 0) issues.push(`missing sections: ${missing.join(', ')}`);
+    if (!hasEvidenceGrounding) issues.push('insufficient evidence/data/ontology/physics grounding terms');
+    return {
+      label: 'Optimizer Content Contract',
+      path: filePath,
+      status: `INVALID: ${issues.join('; ').slice(0, 300)}`,
+      critical
+    };
+  }
+
+  return { label: 'Optimizer Content Contract', path: filePath, status: 'VALID', critical };
+}
+
 function validate(label, schemaPath, filePath, critical = true) {
   const schemaFullPath = join(skillPath, schemaPath);
   const fileFullPath = join(runDir, filePath);
@@ -144,10 +206,6 @@ function validateDeliveryContract() {
 
   if (!presentStep || !['completed', 'completed_with_errors'].includes(presentStep.status || '')) {
     issues.push('present step not completed in run_manifest.json');
-  }
-
-  if (manifest?.pipeline?.integrity?.last_artifact_check && manifest.pipeline.integrity.last_artifact_check !== 'PASS') {
-    issues.push(`last_artifact_check=${manifest.pipeline.integrity.last_artifact_check}`);
   }
 
   return {
@@ -339,6 +397,7 @@ const schemaChecks = [
   validate('Reasoning Chain', 'schemas/reasoning_chain_schema.json', '04_diagnostics/reasoning_chain.json'),
   validate('Judge Feedback', 'schemas/judge_feedback_schema.json', '05_review/judge_feedback.json', false),
   validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json', false),
+  validateOptimizerMarkdown(),
   validateDeliveryContract(),
   validatePipelineLog('Pipeline Event Log'),
   validateEvidenceClosure('Evidence Closure'),

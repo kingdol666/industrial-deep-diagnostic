@@ -330,6 +330,12 @@ Output: `report.md` (791+ lines, 20 sections), `run_summary.json`
 
 Launch `report-reviewer` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`; tell it to read `agents/report-reviewer.md`, reuse `optimizer_preflight.md` if present, independently verify physics/statistics against raw artifacts, and write `optimizer.md`.
 
+`optimizer.md` is a mandatory final optimization deliverable, not just an audit note. It must include:
+- scene-specific process optimization actions grounded in this run's data, ontology, physics checks, diagnosis, and VLM figure evidence
+- current scene problems and improvement opportunities
+- next-step diagnostic confirmation plan for making the diagnosis more accurate and more certain
+- action classification separating immediate containment, low-risk optimization, controlled experiment, measurement/data improvement, and deferred/unsafe action
+
 **Verdict**: ENDORSED → Step 8 | CONDITIONAL / REJECTED → re-spawn diagnostician (max 2 cycles, global cap ≤ 5)
 
 Output: `optimizer.md`
@@ -341,9 +347,11 @@ node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-Show: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight CONDITIONAL/REJECTED concerns.
+Show: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path. Highlight CONDITIONAL/REJECTED concerns.
 
 `finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats execution proof, evidence closure, VLM execution proof, and the diagnostic quality contract as final gate items.
+
+Before presenting completion, `artifact-check.mjs` must also verify that `optimizer.md` exists and contains the standard optimization sections: scenario-specific optimization plan, current scene problems, next-step diagnostic confirmation plan, and action classification.
 
 ---
 
