@@ -87,11 +87,25 @@ def _rolling_window(values, window):
 
 
 def _choose_target_cols(rows, numeric_cols):
-    target_keywords = ['thickness', 'spot', 'scratch', 'point', 'tension', 'band', 'defect', 'rate', 'quality', 'yield', 'ppm']
-    target_cols = [c for c in numeric_cols if any(kw in c.lower() for kw in target_keywords)]
-    if not target_cols:
-        target_cols = numeric_cols[-4:]
-    return target_cols
+    scored = []
+    for c in numeric_cols:
+        values = [_safe_float(r.get(c)) for r in rows]
+        vals = [v for v in values if v is not None]
+        if len(vals) < 5:
+            continue
+        mu = mean(vals)
+        sigma = stdev(vals) if len(vals) > 1 else 0
+        baseline = abs(mean(vals[: min(10, len(vals))])) + 1e-9
+        trend = abs(vals[-1] - vals[0]) / baseline
+        cv = sigma / (abs(mu) + 1e-9)
+        q1 = sorted(vals)[len(vals) // 4]
+        q3 = sorted(vals)[(len(vals) * 3) // 4]
+        iqr = q3 - q1
+        outlier_ratio = 0 if iqr == 0 else sum(v < q1 - 1.5 * iqr or v > q3 + 1.5 * iqr for v in vals) / len(vals)
+        scored.append((trend * 0.45 + cv * 0.35 + outlier_ratio * 0.20, c))
+    if scored:
+        return [c for _, c in sorted(scored, reverse=True)[: min(4, len(scored))]]
+    return numeric_cols[-4:]
 
 
 def _choose_process_cols(numeric_cols, target_cols):
@@ -157,7 +171,17 @@ def cmd_preprocess(args):
         try:
             baselines[c] = mean([float(r[c]) for r in rows[:baseline_n]])
         except: pass
-    for c in [cc for cc in numeric_cols if '_th' in cc or 'temp' in cc.lower()]:
+    for c in numeric_cols:
+        vals = [_safe_float(r.get(c)) for r in rows[: min(200, len(rows))]]
+        vals = [v for v in vals if v is not None]
+        if len(vals) < 5:
+            continue
+        try:
+            drift_ratio = abs(vals[-1] - vals[0]) / (abs(baselines[c]) + 1e-9)
+        except Exception:
+            drift_ratio = 0
+        if drift_ratio < 0.02:
+            continue
         col_name = f"{c}_dev"
         for r in rows:
             try:
@@ -640,7 +664,7 @@ if __name__ == '__main__':
     p3.add_argument('output_dir')
     p3.add_argument('--target-cols', default='')
     p3.add_argument('--key-params', default='')
-    p3.add_argument('--group-col', default='product_grade')
+    p3.add_argument('--group-col', default=None)
 
     a = parser.parse_args()
     {'preprocess': cmd_preprocess, 'anomaly': cmd_anomaly, 'visualize': cmd_visualize}[a.command](a)

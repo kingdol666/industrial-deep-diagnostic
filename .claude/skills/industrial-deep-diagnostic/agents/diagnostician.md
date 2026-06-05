@@ -365,39 +365,39 @@ For each shortlisted parameter, document the proof in `evidence.json`:
 
 ```json
 {
-  "parameter": "spindle_vibration_mm_s",
+  "parameter": "process_param_A",
   "ontology_data_physics_proof": {
     "ontology_prediction": {
-      "physical_meaning": "振动速度 RMS (mm/s)",
-      "governing_law": "ISO 10816-1 + forced oscillator: mẍ + cẋ + kx = F(t)",
-      "predicted_functional_form": "linear (roughness ∝ vibration amplitude)",
-      "time_lag": "0 (instantaneous mechanical coupling)",
-      "predicted_direction": "positive (vibration↑ → roughness↑)",
+      "physical_meaning": "从 ontology.json 读取的真实物理量、单位和测点位置",
+      "governing_law": "从 ontology/RAG/first-principles 推导出的真实控制方程或物理关系",
+      "predicted_functional_form": "linear | monotonic | threshold | inverse | delayed_response | other_actual_form",
+      "time_lag": "由物理机制预测的实际时滞或 NOT_APPLICABLE",
+      "predicted_direction": "positive | negative | nonmonotonic | threshold-dependent",
       "behavior_match_precheck": "CONSISTENT"
     },
     "proof_elements": {
       "functional_form": {
         "predicted": "linear",
-        "observed": "linear — Pearson r=0.993, Spearman ρ=0.991, R²=0.986",
+        "observed": "用 feature_summary.json / validate_report.json / 图像观察描述真实函数形式",
         "result": "MATCH",
         "evidence_source": "feature_summary.json + fig_03 scatter"
       },
       "lag": {
         "predicted": "0",
-        "observed": "CCF max at lag=0, onset PRECURSOR (d=3.2)",
+        "observed": "用 CCF、异常起点和时间对齐图描述真实时滞",
         "result": "MATCH",
         "evidence_source": "feature_summary.json CCF + anomaly_report.anomaly_onset_coincidence"
       },
       "magnitude": {
-        "predicted_equation": "ΔRa = A_vib × C_tool × K_material = 2.5 × 0.012 × 1.0 = 0.030 μm per mm/s",
-        "observed_slope": "0.028 μm per mm/s",
-        "ratio_observed_to_predicted": 0.93,
-        "result": "STRONG (within 2×)",
-        "evidence_source": "physics_check.json vibration_threshold check"
+        "predicted_equation": "用实际物理量写出的量级估算或守恒关系",
+        "observed_slope": "真实数据中的观测量级",
+        "ratio_observed_to_predicted": "真实观测/预测比值；不可计算时写明原因",
+        "result": "STRONG | PLAUSIBLE | BORDERLINE | IMPLAUSIBLE | UNTESTED",
+        "evidence_source": "physics_check.json or first_principles_L1_L5"
       },
       "direction": {
         "predicted": "positive",
-        "observed": "r = +0.993",
+        "observed": "真实相关方向、趋势方向或阈值方向",
         "result": "MATCH",
         "evidence_source": "feature_summary.json"
       }

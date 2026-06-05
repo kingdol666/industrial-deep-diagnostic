@@ -407,13 +407,23 @@ def main():
                 if name in df.columns:
                     key_params.append(name)
 
-    # Fallback: if ontology didn't provide targets, infer from column names
+    # Fallback: if ontology didn't provide targets, infer from data behavior.
     if not targets:
-        target_keywords = ['quality', 'defect', 'yield', 'conversion', 'selectivity', 'thickness',
-                          'roughness', 'purity', 'grade', 'score', 'index']
+        scored = []
         for col in df.columns:
-            if any(kw in col.lower() for kw in target_keywords):
-                targets.append(col)
+            if col in ('timestamp', 'time', 'index') or df[col].dtype not in ('float64', 'int64'):
+                continue
+            values = df[col].dropna().astype(float).to_numpy()
+            if len(values) < 5:
+                continue
+            baseline = abs(np.mean(values[: min(10, len(values))])) + 1e-9
+            trend = abs(values[-1] - values[0]) / baseline
+            cv = float(np.std(values)) / (abs(float(np.mean(values))) + 1e-9)
+            q1, q3 = np.percentile(values, [25, 75])
+            iqr = q3 - q1
+            outlier_ratio = 0 if iqr == 0 else float(np.mean((values < q1 - 1.5 * iqr) | (values > q3 + 1.5 * iqr)))
+            scored.append((trend * 0.45 + cv * 0.35 + outlier_ratio * 0.20, col))
+        targets = [col for _, col in sorted(scored, reverse=True)[:2]]
     if not targets:
         # Last resort: use first numeric column
         for col in df.columns:

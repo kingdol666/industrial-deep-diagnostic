@@ -103,7 +103,7 @@ These events are mandatory because the final pipeline proof now checks that the 
 3. 图中涉及的产品分组列是什么？不同型号是否有不同的基线？
 4. 统计上哪些参数与质量目标的相关性已经被验证/被排除/被混杂？
 
-**示例**: 当你看到 `W1C86@PV1_std` 出现在图中，你从 ontology.json 知道它是"11#纵拉辊扭矩 std（拉伸完成点）"，单位 N·m，物理含义是薄膜拉伸末端的扭矩波动，属于拉伸段。你知道它在 feature_summary.json 中与划伤的 r=0.487。**这些知识让你在看图时能判断：W1C86 的波动是真的工艺异常还是型号切换导致。**
+**示例**: 当你看到 `process_param_A` 出现在图中，先从 ontology.json 读取它的真实 `physical_meaning`、单位、测点位置和 `stage_ref`，再结合 feature_summary.json / validate_report.json 判断它与 `quality_target_A` 的关系是否稳定、混杂或仅为视觉共现。**这些知识让你在看图时能判断：图中模式是真实工艺异常、分组切换效应，还是统计/视觉伪相关。**
 
 ### 1. 必看图像优先级
 
@@ -227,8 +227,8 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
             "validation_note": "Pearson-Spearman不一致，需视觉独立判断"
           },
           "ontology_context": {
-            "parameter_physical_meanings": {"W1C86@PV1_std": "11#纵拉辊扭矩std（拉伸完成点）"},
-            "process_stage": "md_stretch"
+            "parameter_physical_meanings": {"process_param_A": "来自 ontology.json 的真实物理含义"},
+            "process_stage": "来自 ontology.json 的真实工艺阶段"
           }
         }
       ]
@@ -236,22 +236,22 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
   ],
   "process_fluctuation_visual_findings": [
     {
-      "parameter": "W1C86@PV1_std",
+      "parameter": "process_param_A",
       "pattern_type": "variance_burst | drift | jump | oscillation | stable | outlier_driven",
-      "time_window_or_group": "PG32D批次",
+      "time_window_or_group": "group_A",
       "visual_basis": "VLM观察到...",
-      "diagnostic_implication": "工艺侧该参数存在异常波动，是划伤的潜在工艺驱动因素",
+      "diagnostic_implication": "工艺侧该参数存在异常波动，是质量异常的潜在工艺驱动因素",
       "statistical_cross_reference": {"correlation": 0.487, "p_value": 0.0002, "source_file": "02_processed/feature_summary.json"}
     }
   ],
   "dual_drive_visual_findings": [
     {
-      "process_parameter": "W1C86@PV1_std",
-      "quality_indicator": "scratch_count",
+      "process_parameter": "process_param_A",
+      "quality_indicator": "quality_target_B",
       "relationship_type": "synchronous | process_leads_quality | grouped_cooccurrence | visually_independent",
-      "group_scope": "FP21",
+      "group_scope": "group_B",
       "visual_basis": "VLM观察到...",
-      "diagnostic_implication": "在FP21中，扭矩波动与划伤同窗出现，符合双驱动诊断条件"
+      "diagnostic_implication": "在group_B中，过程参数波动与质量异常同窗出现，符合双驱动诊断条件"
     }
   ],
   "per_product_visual_findings": [],
@@ -261,7 +261,7 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
     {
       "for_agent": "diagnostician",
       "primary_sections_to_read": ["visual_observations", "cross_parameter_temporal_alignment", "process_fluctuation_visual_findings"],
-      "key_insights": ["扭矩波动与划伤视觉同步", "温度控制极度稳定无视觉波动"]
+      "key_insights": ["process_param_A 与 quality_target_A 视觉同步", "process_param_B 与质量异常视觉独立"]
     }
   ]
 }
@@ -276,10 +276,10 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
   "fig_vlm_temporal_overlay.png": {
     "description": "主时间对齐叠加图，展示...",
     "key_observations": [
-      "W1C86@PV1_std与scratch_count的Pearson r=0.487(p=0.0002)",
-      "划伤爆发集中在5/7-5/8窗口(>40次)"
+      "process_param_A与quality_target_B的Pearson r=0.487(p=0.0002)",
+      "质量异常爆发集中在5/7-5/8窗口(>40次)"
     ],
-    "diagnostic_implication": "扭矩波动是最强的视觉同步参数，划伤爆发与扭矩std峰值完全重合",
+    "diagnostic_implication": "process_param_A 是最强的视觉同步参数，quality_target_B 异常爆发与其峰值窗口重合",
     "chart_type": "overlay",
     "axes": {"x": "批次顺序", "y": "z-score归一化值"},
     "validation_issues": ["Pearson-Spearman严重不一致 — Spearman r=-0.037"],

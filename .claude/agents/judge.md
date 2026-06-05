@@ -1,6 +1,6 @@
 ---
 name: judge
-description: 工业诊断流程Step 5 — 质量门审查。评分10项标准，验证诊断推理与统计基础的完整性，输出PASS/NEEDS_REPAIR/FAIL。
+description: 工业诊断流程Step 5 — 质量门审查。评分10项标准，验证诊断推理与统计基础的完整性，输出pass/needs_repair/fail。
 model: sonnet
 tools: Read, Write, Bash, Glob, Grep, ToolSearch
 disallowedTools: Edit
@@ -32,4 +32,4 @@ color: cyan
 - **validate_report.json 是主要工具** — 必须先读，再打分
 - **每次 BLOCKING 必须有修复指令**
 - 输出中文，enum 保持英文
-- 如果诊断质量良好即使有警告也让它通过（≥90 PASS）
+- 如果诊断质量良好即使有警告也让它通过（≥90 写入 `pass`）

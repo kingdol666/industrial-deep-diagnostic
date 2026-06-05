@@ -1,0 +1,95 @@
+{
+  "run_id": "2026-06-03T120000_industrial_case",
+  "generated_at": "2026-06-03T12:30:00Z",
+  "analysis_mode": "baseline_plus_custom",
+  "baseline_script_results": {
+    "scripts_run": [
+      "convert.mjs",
+      "dp_toolkit.py preprocess",
+      "stats.mjs or stats_analysis.py",
+      "stats_validate.mjs",
+      "dp_toolkit.py anomaly",
+      "physics_check.py"
+    ],
+    "key_findings": [
+      {
+        "finding": "Key process parameter shows product-specific volatility and survives validation within the dominant product group.",
+        "source": "02_processed/feature_summary.json + 02_processed/validate_report.json",
+        "evidence_rank": 3
+      }
+    ],
+    "limitations": [
+      "Lag claims are limited if time sorting is unavailable or irregular.",
+      "Aggregate correlations are not treated as causal unless subgroup validation passes."
+    ]
+  },
+  "expert_custom_analysis": {
+    "custom_scripts_written": true,
+    "script_inventory": [
+      {
+        "script": "06_scripts/expert_analysis.py",
+        "purpose": "Validate scenario-specific product-group trends and process-to-quality timing.",
+        "inputs": [
+          "02_processed/cleaned_data.csv",
+          "01_ontology/ontology.json"
+        ],
+        "outputs": [
+          "02_processed/product_group_trend_analysis.json",
+          "03_figures/fig_product_group_trends.png"
+        ]
+      }
+    ],
+    "analysis_questions": [
+      "Does process instability happen within product groups or only between products?",
+      "Does the ontology-predicted physical mechanism appear in the measured data?"
+    ],
+    "custom_outputs": [
+      "02_processed/product_group_trend_analysis.json",
+      "03_figures/fig_product_group_trends.png"
+    ],
+    "why_needed": "The fixed scripts identify candidate correlations, but scenario-specific grouped timing and ontology-predicted mechanism checks require a focused custom analysis."
+  },
+  "ontology_industry_interpretation": [
+    {
+      "parameter_or_pattern": "process_parameter_x",
+      "ontology_role": "process_parameter in the critical process stage",
+      "industry_knowledge": "Domain knowledge says this parameter affects quality through a known physical mechanism.",
+      "interpretation": "The observed fluctuation is diagnostically meaningful because it occurs in the stage where the ontology predicts quality sensitivity.",
+      "confidence": "medium"
+    }
+  ],
+  "data_supported_conclusions": [
+    {
+      "conclusion": "Process-side instability exists in the dominant product group and is not explained by aggregate product mix alone.",
+      "supporting_sources": [
+        "02_processed/validate_report.json",
+        "02_processed/product_group_trend_analysis.json",
+        "03_figures/fig_product_group_trends.png"
+      ],
+      "evidence_strength": "moderate",
+      "diagnostic_relevance": "This conclusion should be tested as a root-cause candidate by the Diagnostician using physics and competing-hypothesis checks.",
+      "known_caveats": [
+        "Requires confirmation that the time column is valid and sorted within each product group."
+      ]
+    }
+  ],
+  "handoff_to_diagnostician": {
+    "priority_hypothesis_inputs": [
+      {
+        "candidate": "process_parameter_x instability",
+        "why_prioritized": "It is supported by baseline validation, custom grouped timing analysis, and ontology interpretation.",
+        "supporting_artifacts": [
+          "02_processed/data_analysis_conclusion.json",
+          "02_processed/product_group_trend_analysis.json"
+        ]
+      }
+    ],
+    "evidence_gaps": [
+      "Need direct maintenance/event record or independent sensor confirmation for final root-cause determination."
+    ],
+    "recommended_diagnostic_focus": [
+      "Test whether process_parameter_x has a physically plausible mechanism and falsification condition.",
+      "Check competing product-mix and measurement-artifact hypotheses."
+    ]
+  }
+}

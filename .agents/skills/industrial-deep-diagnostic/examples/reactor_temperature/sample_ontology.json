@@ -1,0 +1,67 @@
+{
+  "scene": {
+    "name": "CSTR Reactor Temperature Runaway",
+    "process_type": "continuous_stirred_tank_reactor",
+    "production_goal": "Maintain reactor temperature within 85-95°C for consistent product quality",
+    "equipment": [
+      {"id": "RXT-101", "name": "Main Reactor", "type": "CSTR", "location": "Building A"},
+      {"id": "AGT-101", "name": "Agitator", "type": "variable_speed_stirrer"},
+      {"id": "HX-101", "name": "Cooling Heat Exchanger", "type": "shell_tube"},
+      {"id": "CV-101", "name": "Cooling Water Valve", "type": "control_valve"},
+      {"id": "PUMP-101", "name": "Feed Pump", "type": "metering_pump"}
+    ],
+    "stages": [
+      {"id": "S1", "name": "Startup", "sequence": 1, "entry_criteria": "All systems checked", "exit_criteria": "Temperature at setpoint"},
+      {"id": "S2", "name": "Steady State", "sequence": 2, "entry_criteria": "Temperature stabilized", "exit_criteria": "Product specifications met"},
+      {"id": "S3", "name": "Excursion", "sequence": 3, "entry_criteria": "Temperature exceeds alarm limit", "exit_criteria": "Temperature returns to normal"},
+      {"id": "S4", "name": "Recovery", "sequence": 4, "entry_criteria": "Emergency cooling activated", "exit_criteria": "Stable operation resumed"}
+    ],
+    "objectives": [
+      "Identify the initiating cause of the temperature excursion",
+      "Trace the cascade of events",
+      "Assess product quality impact",
+      "Recommend preventive measures"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {"name": "product_purity", "column": "purity_pct", "unit": "%", "description": "Product purity measured by online analyzer", "target": 99.5, "tolerance": 0.3}
+    ],
+    "process_parameters": [
+      {"name": "reactor_temp", "column": "reactor_temp_c", "unit": "°C", "description": "Reactor internal temperature", "normal_range": [85, 95]},
+      {"name": "reactor_pressure", "column": "reactor_pressure_kpa", "unit": "kPa", "description": "Reactor head pressure", "normal_range": [101, 115]},
+      {"name": "cooling_water_inlet_temp", "column": "cw_inlet_c", "unit": "°C", "description": "Cooling water inlet temperature", "normal_range": [15, 22]},
+      {"name": "cooling_water_outlet_temp", "column": "cw_outlet_c", "unit": "°C", "description": "Cooling water outlet temperature", "normal_range": [25, 35]},
+      {"name": "feed_rate", "column": "feed_rate_kgh", "unit": "kg/h", "description": "Reactant feed rate", "normal_range": [500, 600]},
+      {"name": "feed_temp", "column": "feed_temp_c", "unit": "°C", "description": "Reactant feed temperature", "normal_range": [25, 30]},
+      {"name": "product_flow", "column": "product_flow_kgh", "unit": "kg/h", "description": "Product outlet flow rate", "normal_range": [480, 580]}
+    ],
+    "control_variables": [
+      {"name": "cooling_valve_pos", "column": "cv_pos_pct", "unit": "%", "description": "Cooling water valve position", "setpoint": 50, "controlled_by": "PID_temp_controller"},
+      {"name": "agitator_speed", "column": "agitator_rpm", "unit": "RPM", "description": "Agitator speed", "setpoint": 120, "controlled_by": "VFD"},
+      {"name": "feed_setpoint", "column": "feed_sp_kgh", "unit": "kg/h", "description": "Feed rate setpoint", "setpoint": 550, "controlled_by": "operator"}
+    ],
+    "events": [
+      {"name": "temp_alarm", "column": "temp_alarm", "description": "Temperature alarm status", "event_values": ["NORMAL", "HIGH_WARN", "HIGH_ALARM", "CRITICAL"], "event_meanings": {"NORMAL": "Within range", "HIGH_WARN": "Approaching limit", "HIGH_ALARM": "Exceeded limit", "CRITICAL": "Emergency threshold"}},
+      {"name": "trip_status", "column": "trip_status", "description": "Safety trip status", "event_values": ["ACTIVE", "TRIPPED"]}
+    ],
+    "metadata_columns": [
+      {"name": "batch_id", "column": "batch_id", "description": "Production batch identifier"},
+      {"name": "operator", "column": "operator_id", "description": "Shift operator identifier"}
+    ]
+  },
+  "relationships": [
+    {"from": "cooling_valve_pos", "to": "reactor_temp", "type": "control", "direction": "forward", "strength": "strong", "description": "PID controller opens cooling valve to reduce temperature"},
+    {"from": "feed_rate", "to": "reactor_temp", "type": "causal", "direction": "forward", "strength": "strong", "description": "Increased feed rate increases exothermic reaction heat generation"},
+    {"from": "agitator_speed", "to": "reactor_temp", "type": "physical", "direction": "forward", "strength": "moderate", "description": "Agitator speed affects mixing and heat transfer coefficient"},
+    {"from": "feed_temp", "to": "reactor_temp", "type": "causal", "direction": "forward", "strength": "moderate", "description": "Higher feed temperature adds sensible heat to reactor"},
+    {"from": "reactor_temp", "to": "product_purity", "type": "causal", "direction": "forward", "strength": "strong", "description": "Temperature excursions cause side reactions reducing purity"},
+    {"from": "reactor_temp", "to": "reactor_pressure", "type": "physical", "direction": "forward", "strength": "strong", "description": "Higher temperature increases vapor pressure"}
+  ],
+  "metadata": {
+    "units": {"temperature": "°C", "pressure": "kPa", "flow": "kg/h"},
+    "sampling_rate": "5s",
+    "batch_id": "RXT-2024-0422-B",
+    "timezone": "UTC"
+  }
+}

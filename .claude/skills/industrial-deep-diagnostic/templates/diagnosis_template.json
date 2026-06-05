@@ -1,303 +1,118 @@
 {
-  "run_id": "2025-01-15T103000_bopet-thickness-anomaly",
-  "diagnosis_time": "2025-01-15T12:45:00Z",
+  "run_id": "<RUN_ID_FROM_RUN_MANIFEST>",
+  "diagnosis_time": "2026-01-01T00:00:00Z",
   "diagnosis_type": "COMPETING_SET",
-  "primary_finding": "BOPET 膜厚偏差由 TDO zone-3 加热器退化和/或树脂熔融指数批次变化共同导致 — 当前数据无法区分这两种假设",
+  "primary_finding": "根据当前数据、本体语义和物理校验，process_param_A 与 quality_target_A 之间存在可解释的异常关联；若多个机制无法由现有数据区分，应保留为 COMPETING_SET。",
   "process_fluctuation_analysis": {
     "analysis_performed": true,
-    "scope": "process_with_grouping",
-    "grouping_basis": "product_grade",
-    "time_order_basis": "timestamp within each product group",
+    "scope": "process_with_time",
+    "grouping_basis": "<actual_group_column_or_not_applicable>",
+    "time_order_basis": "<actual_time_column_or_row_order>",
     "key_process_findings": [
       {
-        "parameter": "TDO_zone3_temp",
+        "parameter": "process_param_A",
         "behavior_type": "drift",
-        "affected_group": "PET_23um",
-        "evidence": "组内时序上 zone3 温度持续下降约 8°C，CV 低但存在持续负斜率",
-        "ontology_interpretation": "ontology 将其归类为关键热区过程参数，直接影响横向拉伸热历史",
-        "physics_mechanism": "热输出下降 → 膜面温度下降 → 拉伸均匀性变差",
-        "diagnostic_implication": "即使暂不看缺陷数据，仅从工艺侧也提示 zone3 存在持续退化"
+        "affected_group": "group_A",
+        "evidence": "描述该参数在真实数据中的漂移、波动、台阶、阈值或稳定性证据。",
+        "ontology_interpretation": "说明 ontology.json 如何定义该参数的物理含义、位置和工艺角色。",
+        "physics_mechanism": "说明该过程波动可由哪类守恒律、传递关系、控制逻辑或构成关系解释。",
+        "diagnostic_implication": "说明纯工艺侧是否已构成异常信号。"
       }
     ],
     "ontology_physics_reasoning": [
       {
-        "parameter": "TDO_zone3_temp",
+        "parameter": "process_param_A",
         "ontology_role": "process_parameter",
-        "governing_law": "Energy balance + heat transfer",
-        "reasoning_summary": "温度漂移与本体定义的热致厚度均匀性机理一致，且量级上可解释下游质量变化",
-        "proof_strength": "STRONG_EVIDENCE"
+        "governing_law": "<actual_governing_law_or_first_principles_reasoning>",
+        "reasoning_summary": "概述本体预测、数据行为和物理机理是否一致。",
+        "proof_strength": "SUPPORTIVE"
       }
     ],
-    "conclusion": "纯工艺数据视角表明，关键热区存在持续退化信号，属于优先诊断对象。"
+    "conclusion": "纯工艺波动诊断结论必须来自真实数据和本体物理解释。"
   },
   "integrated_dual_drive_analysis": {
     "analysis_performed": true,
     "has_quality_or_inspection_targets": true,
-    "linked_groups": ["PET_23um", "PET_50um"],
+    "linked_groups": ["group_A"],
     "process_to_quality_links": [
       {
-        "group": "PET_23um",
-        "process_parameter": "TDO_zone3_temp",
-        "quality_target": "thickness_deviation",
+        "group": "group_A",
+        "process_parameter": "process_param_A",
+        "quality_target": "quality_target_A",
         "link_type": "process_precedes_quality",
-        "statistical_evidence": "组内 detrended r=-0.71，方向稳定",
-        "anomaly_evidence": "温度下降先于厚度异常窗口约 30min，视觉上同步退化",
-        "ontology_physics_reasoning": "本体和热传递机理均支持温度先变、厚度后变",
-        "diagnostic_weight": "strong"
+        "statistical_evidence": "引用 feature_summary.json / validate_report.json 中的真实统计证据。",
+        "anomaly_evidence": "引用 anomaly_report.json 和 visual_analysis.json 中的真实异常窗口或图像观察。",
+        "ontology_physics_reasoning": "说明过程异常如何通过本体中的物理链路进入质量异常。",
+        "diagnostic_weight": "moderate"
       }
     ],
-    "integrated_conclusion": "工艺参数退化与质量异常在产品组内可闭环对应，支持双驱动根因判断。"
+    "integrated_conclusion": "双驱动诊断结论必须同时说明过程侧异常和质量/检测侧异常是否闭环。"
   },
-
   "product_stratified_analysis": {
-    "has_product_column": true,
-    "products_found": ["PET_12um", "PET_23um", "PET_50um"],
-    "overall_vs_per_product_comparison": [
-      {
-        "parameter": "TDO_zone3_temp",
-        "overall_r": -0.72,
-        "per_product_r": {
-          "PET_12um": -0.68,
-          "PET_23um": -0.71,
-          "PET_50um": -0.70
-        },
-        "consistency_class": "UNIVERSAL",
-        "conclusion": "TDO zone-3 温度与膜厚偏差的相关在各产品中一致成立"
-      },
-      {
-        "parameter": "extruder_pressure",
-        "overall_r": 0.45,
-        "per_product_r": {
-          "PET_12um": 0.12,
-          "PET_23um": 0.08,
-          "PET_50um": 0.95
-        },
-        "consistency_class": "PRODUCT_SPECIFIC",
-        "conclusion": "挤出机压力仅在 PET_50um 中与膜厚偏差相关 — 整体 r=0.45 主要由此产品驱动"
-      }
-    ],
-    "analysis_scope": "overall_and_per_product"
+    "has_product_column": false,
+    "products_found": [],
+    "overall_vs_per_product_comparison": [],
+    "analysis_scope": "overall_only"
   },
-
   "hypotheses": {
     "surviving": [
       {
         "id": "H1",
-        "name": "TDO zone-3 加热器性能退化",
-        "mechanism_class": "WEAR",
-        "root_physical_cause": "加热元件老化导致 zone-3 辐射热通量下降 15-20%，横向拉伸不均匀",
+        "name": "process_param_A 相关的物理机制假说",
+        "mechanism_class": "DRIFT",
+        "root_physical_cause": "用真实数据和本体推断出的根物理原因；无法确认时明确标注为假说。",
         "physical_logic_chain": [
           {
-            "link": "加热元件电阻随时间上升 → 实际热输出低于设定值",
+            "link": "process_param_A 的异常变化 → 中间物理状态变化 → quality_target_A 异常。",
             "evidence_status": "INFERRED",
-            "quantification": "正常热通量约 8.5 kW/m² → 退化后约 6.8-7.2 kW/m² (降低 15-20%)"
-          },
-          {
-            "link": "zone-3 实际膜面温度下降约 8°C → 横向拉伸比分布改变",
-            "evidence_status": "OBSERVED",
-            "quantification": "zone-3 热电偶读数从 215°C 降至 207°C (测量值)"
-          },
-          {
-            "link": "非均匀横向拉伸 → M 形横截面厚度轮廓 (边缘厚 +0.6μm, 中心薄 -0.4μm)",
-            "evidence_status": "OBSERVED",
-            "quantification": "CD 轮廓偏差 ±0.6μm (相对 23μm 目标)"
+            "quantification": "写入真实量级校验；没有可用量级时说明 UNTESTED 原因。"
           }
         ],
         "ontology_data_physics_proof": {
-          "functional_form_match": "MATCH",
-          "lag_match": "MATCH",
+          "functional_form_match": "UNTESTED",
+          "lag_match": "UNTESTED",
           "magnitude_ratio": {
-            "status": "PLAUSIBLE",
-            "observed_over_predicted": "observed effect is within one order of magnitude of physics estimate",
-            "evidence_source": "02_processed/physics_check.json or 02_processed/physics_manual_verification.md"
+            "status": "UNTESTED",
+            "observed_over_predicted": "no quantitative law available yet",
+            "evidence_source": "02_processed/physics_check.json or first_principles_L1_L5"
           },
-          "direction_match": "MATCH",
-          "overall_proof_strength": "STRONG_EVIDENCE",
-          "proof_summary": "Ontology role, observed data behavior, and governing physics all support this hypothesis; unresolved ambiguity is documented in competing_sets.",
+          "direction_match": "UNTESTED",
+          "overall_proof_strength": "SUPPORTIVE",
+          "proof_summary": "必须说明 ontology 语义、数据行为和物理机制是否匹配；不匹配也是诊断信号。",
           "data_sources": ["02_processed/feature_summary.json", "02_processed/anomaly_report.json"],
           "physics_sources": ["02_processed/physics_check.json"],
           "ontology_sources": ["01_ontology/ontology.json"]
         },
-        "chain_quality": "ACTIONABLE_HYPOTHESIS",
-        "confidence": 52,
-        "confidence_adjustments": [
-          {
-            "reason": "H2 预测的观测数据与 H1 相同 — COMPETING_SET 置信度上限 65",
-            "adjustment": -13,
-            "source": "discriminability_matrix"
-          },
-          {
-            "reason": "缺少直接热成像数据验证加热器表面温度分布",
-            "adjustment": -10,
-            "source": "data_gaps"
-          }
-        ],
-        "supporting_evidence": [
-          {
-            "rank": 1,
-            "source": "02_processed/feature_summary.json",
-            "detail": "TDO_zone3_temp 均值下降 8°C，方差稳定 — 与加热器输出损失一致"
-          },
-          {
-            "rank": 4,
-            "source": "03_figures/02_thickness_cd_profile.png",
-            "detail": "M 形 CD 轮廓与 zone-3 温度下降时序对齐"
-          }
-        ],
-        "contradicting_evidence": [
-          {
-            "detail": "无 zone-3 加热器功率/电流直接测量数据",
-            "significance": "无法确认退化速率是否符合加热元件典型寿命曲线"
-          }
-        ],
-        "predicted_observables": [
-          "zone-3 温度逐步下降 (非突变)",
-          "M 形 CD 厚度轮廓",
-          "边缘区域膜厚增加"
-        ],
-        "falsification_conditions": [
-          "更换 zone-3 加热器后 CD 轮廓应在 30 分钟内恢复正常",
-          "如果红外热像未显示 zone-3 冷点，则排除 H1"
-        ],
-        "consistency_across_products": "UNIVERSAL",
-        "product_specific_notes": {
-          "PET_12um": "温度-膜厚 r=-0.68 (强)",
-          "PET_23um": "温度-膜厚 r=-0.71 (强)",
-          "PET_50um": "温度-膜厚 r=-0.70 (强)"
-        }
-      },
-      {
-        "id": "H2",
-        "name": "树脂熔融指数批次波动",
-        "mechanism_class": "CONTAMINATION",
-        "root_physical_cause": "原料批次间熔融指数 (MFI) 差异 (±1.5 g/10min) 改变挤出模头膨胀行为，影响拉伸前膜片厚度均匀性",
-        "physical_logic_chain": [
-          {
-            "link": "树脂 MFI 批次差异 → 挤出机内熔体黏度变化",
-            "evidence_status": "KNOWN_PHYSICS",
-            "quantification": "MFI ±1.5 g/10min 对应熔体黏度变化约 8-12% (Carreau 模型估算)"
-          },
-          {
-            "link": "熔体黏度变化 → 模头出口膜片厚度分布改变",
-            "evidence_status": "INFERRED",
-            "quantification": "模头膨胀比变化约 3-5% (Tanner 模型)"
-          },
-          {
-            "link": "膜片初始厚度分布变化 → 拉伸后 CD 轮廓偏差",
-            "evidence_status": "INFERRED",
-            "quantification": "拉伸比 3.5× → 初始 ±2% 偏差放大至约 ±5-7%"
-          }
-        ],
-        "ontology_data_physics_proof": {
-          "functional_form_match": "PARTIAL",
-          "lag_match": "PARTIAL",
-          "magnitude_ratio": {
-            "status": "BORDERLINE",
-            "observed_over_predicted": "batch timing matches the observed step change, but no direct MFI measurement is available",
-            "evidence_source": "02_processed/validate_report.json + first-principles viscosity estimate"
-          },
-          "direction_match": "MATCH",
-          "overall_proof_strength": "SUPPORTIVE",
-          "proof_summary": "Ontology and polymer rheology support MFI-driven thickness variation, but the data lacks direct batch MFI measurements, so this remains a competing hypothesis rather than a determined root cause.",
-          "data_sources": ["02_processed/validate_report.json", "02_processed/anomaly_report.json"],
-          "physics_sources": ["first_principles_L1_L5", "02_processed/physics_manual_verification.md"],
-          "ontology_sources": ["01_ontology/ontology.json"]
-        },
         "chain_quality": "PLAUSIBLE_HYPOTHESIS",
-        "confidence": 48,
-        "confidence_adjustments": [
-          {
-            "reason": "与 H1 的观测预测无法区分 — COMPETING_SET 置信度上限 65",
-            "adjustment": -17,
-            "source": "discriminability_matrix"
-          }
-        ],
-        "supporting_evidence": [
-          {
-            "rank": 3,
-            "source": "02_processed/validate_report.json",
-            "detail": "膜厚偏差在树脂批次切换边界出现台阶变化"
-          },
-          {
-            "rank": 6,
-            "source": "EXTERNAL KNOWLEDGE",
-            "detail": "熔融指数批次变化是 BOPET 膜厚均匀性的已知影响因子"
-          }
-        ],
-        "contradicting_evidence": [
-          {
-            "detail": "无直接 MFI 批次测量数据",
-            "significance": "仅能间接推断 — 批次切换时间与膜厚变化关联"
-          }
-        ],
-        "predicted_observables": [
-          "膜厚偏差在批次切换点出现台阶变化",
-          "挤出机压力和熔体温度可能同步变化",
-          "CD 轮廓形状与拉伸参数设定相关但与加热器状态无关"
-        ],
-        "falsification_conditions": [
-          "如果在同一批次内也观察到同等的膜厚波动 → H2 被削弱",
-          "如果在另一批次的相同 MFI 范围内未出现类似偏差 → H2 被排除"
-        ],
+        "confidence": 50,
+        "confidence_adjustments": [],
+        "supporting_evidence": [],
+        "contradicting_evidence": [],
+        "predicted_observables": ["写入该假说必须预测到的可观测现象"],
+        "falsification_conditions": ["写入能推翻该假说的新增数据、实验或现场验证条件"],
         "consistency_across_products": "CONSISTENT_WEAK",
-        "product_specific_notes": {
-          "PET_12um": "批次切换仅 3 次，统计功效不足",
-          "PET_50um": "批次切换时厚度变化不明显 (0.2μm)"
-        }
+        "product_specific_notes": {}
       }
     ],
-
     "competing_sets": [
       {
         "set_id": "CS1",
-        "hypotheses": ["H1", "H2"],
+        "hypotheses": ["H1"],
         "discriminability": "INDISTINGUISHABLE",
-        "cross_product_discriminability": "PARTIALLY_DISCRIMINABLE",
-        "reason": "H1 (温度变化) 和 H2 (批次变化) 在时间上共线 — 温度下降恰好与树脂批次切换时间重合。两种假设预测相同的 M 形 CD 轮廓。当前数据传感器集无法区分。",
-        "discriminating_data_needed": "需以下之一: (a) TDO zone-3 加热器功率/电流直接测量数据, (b) 每批次树脂 MFI 实测值, (c) 红外热像确认加热器表面温度分布",
+        "cross_product_discriminability": "REMAINS_INDISTINGUISHABLE",
+        "reason": "如果多个假说预测相同观测，说明当前数据无法区分，而不是强行给出单一根因。",
+        "discriminating_data_needed": "列出能区分假说的额外传感器、现场试验、物料/维护记录或独立测量。",
         "confidence_ceiling": 65
       }
     ],
-
-    "eliminated": [
-      {
-        "hypothesis_id": "H3",
-        "exclusion_type": "STATISTICAL",
-        "specific_evidence": "线速变化 < 0.1% (σ=0.03 m/min) 在整个异常窗口内 — 不足以产生 ±0.6μm 的 CD 偏差",
-        "exclusion_confidence": 98,
-        "revival_condition": "如果有证据表明线速编码器故障导致虚假稳定读数"
-      }
-    ]
+    "eliminated": []
   },
-
   "evidence_summary": {
-    "visual_evidence_count": 8,
-    "numerical_evidence_count": 15,
-    "physical_evidence_count": 4,
-    "validation_evidence_count": 3
+    "visual_evidence_count": 0,
+    "numerical_evidence_count": 0,
+    "physical_evidence_count": 0,
+    "validation_evidence_count": 0
   },
-
-  "data_gaps": [
-    "缺少 TDO 各 zone 加热器功率/电流数据 — 无法确认加热器退化速率",
-    "缺少每批次树脂 MFI 实测值 — 仅能推断批次-质量关联",
-    "缺少红外热像或膜面温度分布数据 — 温度-膜厚关系仅为点测量",
-    "产品 PET_12um 仅 3 次批次切换 — 批次效应统计功效不足"
-  ],
-
-  "discriminability_matrix": [
-    {
-      "pair": ["H1", "H2"],
-      "classification": "INDISTINGUISHABLE",
-      "discriminating_signal": "加热器功率/电流 vs 树脂 MFI 实测值",
-      "discriminating_signal_available": false,
-      "cross_product_finding": "PET_50um 中温度-膜厚 r=-0.70 强于 PET_12um 的 r=-0.68 → 弱偏向 H1，但不构成决定性区分"
-    },
-    {
-      "pair": ["H1", "H3"],
-      "classification": "ONE_SIDE_EXCLUDED",
-      "discriminating_signal": "线速方差 — H3 预测线速变化，实际 σ=0.03 m/min",
-      "discriminating_signal_available": true,
-      "cross_product_finding": "线速假设在各产品组中均缺少足够方差，未形成可解释质量异常的跨产品证据。"
-    }
-  ]
+  "data_gaps": ["列出真实数据缺口"],
+  "discriminability_matrix": []
 }

@@ -221,8 +221,15 @@ fi
 Choose the right path based on data size:
 
 ```bash
-# Count numeric columns
-COL_COUNT=$("$PYTHON" -c "import json; d=json.load(open('$RUN_DIR/02_processed/cleaned_data.json')); cols=[k for k in d[0] if k not in ('timestamp','product_grade','reel_id','batch_id')]; print(len(cols))" 2>/dev/null || echo "0")
+# Count numeric columns dynamically; do not rely on fixed metadata names.
+COL_COUNT=$("$PYTHON" -c "import json, math; d=json.load(open('$RUN_DIR/02_processed/cleaned_data.json')); rows=d if isinstance(d,list) else d.get('data', d.get('rows', [])); cols=0
+for k in (rows[0].keys() if rows else []):
+    vals=[]
+    for r in rows[:50]:
+        try: vals.append(float(r.get(k)))
+        except Exception: pass
+    if len(vals) >= max(3, min(len(rows),50)//3): cols += 1
+print(cols)" 2>/dev/null || echo "0")
 
 if [ -s "$RUN_DIR/02_processed/feature_summary.json" ] && [ ! "$RUN_DIR/02_processed/cleaned_data.json" -nt "$RUN_DIR/02_processed/feature_summary.json" ]; then
   echo "feature_summary.json exists — reuse it"
