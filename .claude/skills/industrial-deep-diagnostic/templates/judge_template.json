@@ -1,10 +1,10 @@
 {
   "overall_score": 0,
-  "verdict": "NEEDS_REPAIR",
+  "verdict": "needs_repair",
   "criteria_scores": {
-    "data_quality": {"score": 0, "weight": 0.15, "notes": ""},
+    "data_quality_awareness": {"score": 0, "weight": 0.15, "notes": ""},
     "variable_classification": {"score": 0, "weight": 0.10, "notes": ""},
-    "time_alignment": {"score": 0, "weight": 0.10, "notes": ""},
+    "time_alignment_and_sorting": {"score": 0, "weight": 0.10, "notes": ""},
     "visualization_quality": {"score": 0, "weight": 0.10, "notes": ""},
     "evidence_based_conclusions": {"score": 0, "weight": 0.20, "notes": ""},
     "correlation_vs_causation": {"score": 0, "weight": 0.10, "notes": ""},

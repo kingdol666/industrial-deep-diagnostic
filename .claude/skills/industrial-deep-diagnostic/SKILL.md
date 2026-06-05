@@ -111,34 +111,37 @@ This skill uses **7 specialized sub-agents** defined in `.claude/skills/industri
 
 | Pipeline Step | Agent Name | Subagent Type | Model | Purpose |
 |:-------------:|------------|:-------------:|:-----:|---------|
-| Step 2 | Context Builder | `context-builder` | opus | RAG检索 + 本体ontology构建 |
-| Step 3 | Data Processor | `data-processor` | opus | 数据分析 + 可视化 |
-| Step 3.5 (internal) | VLM Visual Analyzer | `vlm-visual-analyzer` | opus | 本体感知的VLM视觉图像分析 — 由图+统计+知识联合提取结构化视觉证据 |
-| Step 4 | Diagnostician | `diagnostician` | opus | 竞争假说根因诊断 |
-| Step 5 | Judge | `judge` | opus | 10项标准质量门审查 |
-| Step 6 | Reporter | `reporter` | opus | 20节中文诊断报告生成 |
-| Step 7 | Report Reviewer | `report-reviewer` | opus | 独立物理真实审计 |
+| Step 2 | Context Builder | `context-builder` | sonnet | RAG检索 + 本体ontology构建 |
+| Step 3 | Data Processor | `data-processor` | sonnet | 数据分析 + 可视化 |
+| Step 3.5 (internal) | VLM Visual Analyzer | `vlm-visual-analyzer` | haiku | 本体感知的VLM视觉图像分析 — 由图+统计+知识联合提取结构化视觉证据 |
+| Step 4 | Diagnostician | `diagnostician` | sonnet | 竞争假说根因诊断 |
+| Step 5 | Judge | `judge` | sonnet | 10项标准质量门审查 |
+| Step 6 | Reporter | `reporter` | sonnet | 20节中文诊断报告生成 |
+| Step 7 | Report Reviewer | `report-reviewer` | sonnet | 独立物理真实审计 |
 
 > **vlm-visual-analyzer 是内部子智能体** — 它由 data-processor 在其 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为一个 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
 
 ## Execution Flow
 
 ```
-Step 0: Setup ──► Step 1: Inspect ──► Step 2: context-builder (RAG + Ontology + Deep Mapping)
-                                          │
-                                          ▼
-                                     Step 2.5: Clarify ──┐
-                                          │               │
-                                          ▼               │
-                                     Step 3: data-processor (Data+Viz+VLM Analysis)
+Step 0: Setup ──► Step 1: Inspect
+                         │
+                         ├──► Step 2: context-builder (RAG + Ontology + Deep Mapping)
+                         │          │
+                         │          ▼
+                         │     Step 2.5: Clarify
+                         │          │
+                         ▼          ▼
+                 Step 3 warm-start: data-processor baseline waits for ontology, then finishes
                                           │               │
                                           ▼               │
                                      Step 4: diagnostician (Physics-Based Competing Hypotheses)
                                           │               │
-                                    ┌─────▼─────┐         │
-                                    │ Step 5:   │◄── repair max 3 ─┐
-                                    │ judge     │                    │
-                                    └─────┬─────┘                    │
+                              ┌──────────▼──────────┐      │
+                              │ Step 5a: judge       │◄── repair max 3 ─┐
+                              │ Step 5b: pre-audit   │                   │
+                              │ run in parallel      │                   │
+                              └──────────┬──────────┘                   │
                                           │ pass                     │
                                           ▼                         │
                                     Step 6: reporter (Report Generation)
@@ -153,7 +156,15 @@ Step 0: Setup ──► Step 1: Inspect ──► Step 2: context-builder (RAG +
                                     Step 8: Present
 ```
 
-**Sequence**: Steps 2→2.5→3 are strictly sequential. Steps 4→5→6→7 are sequential with quality gates between each.
+**Default execution mode: `fast_safe`.** Preserve every diagnostic evidence gate, but overlap independent work:
+
+1. After Step 1, launch `context-builder` and `data-processor` together. `data-processor` runs deterministic baseline work that only needs `input_manifest.json` / `user_context.json`, then waits for `01_ontology/ontology.json` before ontology-dependent expert analysis, physics checks, VLM grounding, and final handoff.
+2. After Step 4, launch `judge` and `report-reviewer` in `PRE_REPORT_AUDIT=true` mode together. Both consume the same structured diagnosis artifacts. If either reports blocking issues, repair before generating the final report.
+3. Step 6 and the final Step 7 audit remain gated by a passing Step 5. The final audit may reuse `05_review/optimizer_preflight.md` and focus on report-diagnosis drift plus any unresolved physical issues.
+
+**Fallback execution mode: `strict_serial`.** Use strict serial order only when the runtime cannot run background agents reliably, when the dataset is tiny and launch overhead dominates, or when debugging event-log/order failures. In strict serial mode, execute Step 2 → Step 2.5 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7.
+
+**Dependency rule**: Parallelism is allowed only across steps whose required input artifacts already exist. It must never bypass validation, evidence closure, ontology grounding, VLM provenance, judge review, or physical truth audit.
 
 **Pipeline discipline rule**: When executing this skill, the agent MUST follow the pipeline step-by-step and **must not skip, reorder, or silently omit steps** just to save time or tokens. Every step must be explicitly checked and executed according to the pipeline contract unless the pipeline itself defines a documented skip condition (for example, no valid time column for temporal alignment, or no clarification needed in `auto` mode). If a step is not applicable, the agent must say so in the relevant artifact and continue with the next defined step — not silently bypass it.
 
@@ -253,6 +264,8 @@ INTERACTION_MODE=auto
 
 **Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
+**Fast-safe parallel note**: In default mode, start Step 3 `data-processor` immediately after launching `context-builder`. The data processor may run only its input-manifest-driven baseline preparation until ontology files exist; it must wait before ontology-dependent analysis, physics checks, VLM grounding, and final conclusion writing.
+
 ### Step 2.5: Clarification Gate (Main Agent)
 
 Check `clarification_needed.json`. Auto mode skips all questions and applies physics inference. Interactive/minimal modes ask per their respective rules. See `pipeline-execution.md` §Step 2.5 for detailed protocol.
@@ -277,6 +290,7 @@ SKILL_PATH=${SKILL_PATH}
 
 执行 data-processor 完整流程（Phase 0-6）：
 - Phase 0 (MANDATORY): 数据探索 — 理解工艺、识别数据结构、写 analysis_plan.md
+- Phase 0.5 (FAST-SAFE): 如果 ontology 尚未完成，先运行 convert/preprocess/lightweight baseline；到 ontology-dependent 阶段必须等待 01_ontology/ontology.json
 - Phase 1: 场景分类 → scenario_classification.json
 - Phase 2: 通用基线分析（convert, preprocess, stats, anomaly detection）
 - Phase 2.5: 如存在产品分组列 → group-aware analysis 强制执行
@@ -293,6 +307,12 @@ SKILL_PATH=${SKILL_PATH}
 ```
 
 **Sub-agent loads**: Its own system prompt from `.claude/skills/industrial-deep-diagnostic/agents/data-processor.md` (no need to manually load). The agent knows full Phase 0-6 structure, group-aware rules, visualization protocol, and internally delegates image reading to `.claude/skills/industrial-deep-diagnostic/agents/vlm-visual-analyzer.md`.
+
+**Fast-safe warm start**:
+- May run before `context-builder` completes: file conversion, preprocessing, data quality report, initial target/process column inference from `input_manifest.json`, and provisional `analysis_plan.md`.
+- Must wait for `01_ontology/ontology.json`: scenario classification finalization, ontology-aware expert gap analysis, automated/manual physics checks, RAG Stage 2 validation, visual-analysis VLM delegation, `data_analysis_conclusion.json`.
+- Must record any wait as a `dependency_wait` event and any resume as `dependency_ready` in `.pipeline_events.jsonl`.
+- Must not mark Step 3 complete until all normal Step 3 outputs exist and validate.
 
 **Stabilization rule**: Before Step 4, run:
 ```bash
@@ -336,7 +356,8 @@ ${REPAIR_INSTRUCTIONS ? 'REPAIR_INSTRUCTIONS=' + REPAIR_INSTRUCTIONS : ''}
 - Phase 7: 验证全部4个输出文件
 
 CRITICAL: 按 schema-first 规则 — 每写一个 JSON 前先读对应 schema + template。
-必须输出两个诊断视图：纯工艺波动诊断 + 工艺检测双驱动诊断`,
+必须输出两个诊断视图：纯工艺波动诊断 + 工艺检测双驱动诊断。
+每个 surviving hypothesis 必须包含 ontology_data_physics_proof；缺失会导致 diagnosis schema 和最终 diagnostic-quality-check 失败。`,
   run_in_background: true
 })
 ```
@@ -351,6 +372,7 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.js
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
+node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
 ```
 
 Outputs: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
@@ -390,6 +412,35 @@ Validate:
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_schema.json" "$RUN_DIR/05_review/judge_feedback.json"
 ```
 Output: `05_review/judge_feedback.json`
+
+### Step 5b: Pre-Report Physical Audit (Sub-Agent: `report-reviewer`, parallel with Judge)
+
+Run this in parallel with Step 5 when `diagnosis.json`, `evidence.json`, `confidence.json`, and `reasoning_chain.json` exist. This catches physics mistakes before the expensive report is written.
+
+```javascript
+Agent({
+  subagent_type: "report-reviewer",
+  description: "Step 5b: 预审物理真实性 — 诊断结构化产物审计",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+DATA_PATH=${DATA_PATH}
+PRE_REPORT_AUDIT=true
+
+执行 report-reviewer 预审模式：
+- 不要求 report.md 已存在
+- 审计 diagnosis/evidence/confidence/reasoning_chain 与原始数据、ontology、validate_report、physics_check、visual_analysis 的一致性
+- 输出 RUN_DIR/05_review/optimizer_preflight.md
+- 记录 pipeline 事件时必须带 --data '{"audit_mode":"pre_report"}'
+- 如果发现物理不可行、证据源断裂、统计混杂未处理、VLM证据误用，给出 blocking_issue 和 repair_instruction
+- 不生成最终 ENDORSED；最终背书仍由 Step 7 对 report.md 执行`,
+  run_in_background: true
+})
+```
+
+Before Step 6, require both:
+- `judge_feedback.json.verdict == "PASS"`
+- `optimizer_preflight.md` has no blocking physical issue; if it does, repair via Step 4 before reporting.
 
 ### Step 6: Report Generation (Sub-Agent: `reporter`)
 
@@ -441,6 +492,7 @@ DATA_PATH=${DATA_PATH}
 你是拥有20+年经验的高级工程师。**默认立场是怀疑。** 独立验证诊断报告。
 
 执行完整审计流程：
+- 若存在 05_review/optimizer_preflight.md，先读取并复用其中已验证结论，重点审计 report.md 是否忠实承接结构化诊断、是否新增未验证物理声明
 - Step 0: 加载 py 环境 + 所有工件（report.md/diagnosis/evidence/confidence/reasoning_chain/validate_report/rag...）
 - Step 1: 物理机制验证（核心）— 物理可行性/量级匹配/时间尺度匹配/症状完整性/缺失症状检查
 - Step 1.1b: RAG知识交叉检查
@@ -469,7 +521,7 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 Show: executive summary, key findings, diagnosis type, confidence, recommendations, workspace path. Highlight CONDITIONAL/REJECTED concerns.
 
-`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats both execution proof and evidence closure as final gate items.
+`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats execution proof, evidence closure, VLM execution proof, and the diagnostic quality contract as final gate items.
 
 ---
 

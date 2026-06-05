@@ -34,6 +34,29 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_co
 
 These events are mandatory because the final pipeline proof now checks that the internal visual-analysis sub-agent truly ran when VLM artifacts exist.
 
+## 强约束 / Hard Constraints
+
+1. **禁止直接沿用 skeleton 输出收工。**
+   - `visual_analysis.py` 生成的 `03_figures/visual_analysis.json` 只是 `observation_mode: "skeleton_pre_vlm"` 的预骨架。
+   - 你必须把它覆盖/增强为最终版本，并把 `analysis_provenance.stage` 改为 `final_vlm_output`。
+   - 若最终文件仍为 `skeleton_pre_vlm`，则视为 Phase 5.5 执行失败。
+
+2. **必须留下“真的读过图”的结构化证据。**
+   - 最终 `analysis_provenance.source_agent` 必须为 `vlm-visual-analyzer`
+   - `analysis_provenance.context_files_read` 必须列出你先读取的上下文文件
+   - `analysis_provenance.figure_inputs_attempted` 必须列出你尝试读取的 PNG 文件
+   - 若为 `direct_image_reading`，`analysis_provenance.figure_inputs_read_successfully` 至少包含 1 张图
+   - 若宿主不支持直接读图，必须写明 `observation_mode: "metadata_backed_inference"`，并在 `chart_inventory[].read_failure_reason` 中说明为什么无法直接读图
+
+3. **必须体现 ontology / physics grounding。**
+   - 至少 2 条关键 `visual_observations[].observations[]` 必须包含非空 `ontology_context`
+   - `analysis_provenance.grounding_sources` 必须至少包含 `01_ontology/ontology.json` 与 1 个统计/物理证据文件
+   - `analysis_provenance.grounding_summary` 必须明确说明你如何把本体物理含义、统计验证、异常/事件信息带入图像理解
+
+4. **主时间对齐图存在时，必须优先处理。**
+   - 如果 `fig_master_time_aligned_overlay.png` 存在，它必须出现在 `analysis_provenance.figure_inputs_attempted[0]` 或 `chart_inventory` 的最高优先级位置
+   - 且最终 `visual_observations` 中必须至少有 1 条来自该图或 `fig_vlm_temporal_overlay.png` 的同步/先后/事件响应观察
+
 ## 使命定位
 
 你不是做统计计算的人，也不是最终诊断的人。你的职责是：
@@ -99,6 +122,22 @@ These events are mandatory because the final pipeline proof now checks that the 
 - 如果宿主环境不支持直接读图，则根据 `plot_manifest.json`、图名、已有 caption 草稿进行结构化理解，但必须在输出中标记为 `observation_mode: "metadata_backed_inference"`
 - 如果既能读图也有元数据，优先给出“图像直接观察”，再用统计/元数据辅助解释
 
+### 2.5 最终文件必须覆盖这些字段
+
+无论采用 `direct_image_reading` 还是 `metadata_backed_inference`，最终 `visual_analysis.json` 都必须包含并正确覆盖：
+
+- `observation_mode`
+- `analysis_provenance.source_agent = "vlm-visual-analyzer"`
+- `analysis_provenance.stage = "final_vlm_output"`
+- `analysis_provenance.skeleton_overwritten = true`
+- `analysis_provenance.context_files_read`
+- `analysis_provenance.figure_inputs_attempted`
+- `analysis_provenance.figure_inputs_read_successfully`
+- `analysis_provenance.grounding_summary`
+- `analysis_provenance.grounding_sources`
+- `chart_inventory[].read_status`
+- `chart_inventory[].read_failure_reason`（如果不是 READ_SUCCESS）
+
 ## 输出要求
 
 ⚠️ **Schema-First 写入规则: 与所有管线 agent 一致，写 JSON 前必须先读 schema！**
@@ -125,6 +164,26 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
   "time_alignment_applicable": true,
   "time_alignment_not_applicable_reason": null,
   "primary_grouping_dimension": "product_code | null",
+  "analysis_provenance": {
+    "source_agent": "vlm-visual-analyzer",
+    "stage": "final_vlm_output",
+    "skeleton_overwritten": true,
+    "context_files_read": [
+      "01_ontology/ontology.json",
+      "02_processed/scenario_classification.json",
+      "03_figures/plot_manifest.json",
+      "02_processed/feature_summary.json"
+    ],
+    "figure_inputs_attempted": ["fig_master_time_aligned_overlay.png", "fig_vlm_temporal_overlay.png"],
+    "figure_inputs_read_successfully": ["fig_master_time_aligned_overlay.png"],
+    "grounding_summary": "先用 ontology.json 确定参数物理含义和工艺阶段，再结合 feature_summary / validate_report / anomaly_report 判断图中的同步、分层和事件响应是否具有物理意义。",
+    "grounding_sources": [
+      "01_ontology/ontology.json",
+      "02_processed/feature_summary.json",
+      "02_processed/validate_report.json",
+      "02_processed/anomaly_report.json"
+    ]
+  },
   "chart_inventory": [
     {
       "figure": "fig_vlm_temporal_overlay.png",
@@ -239,6 +298,19 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
 - `cross_parameter_temporal_alignment.synchronous_groups[].group_id` → diagnostician 做 `visual_evidence.temporal_alignment_group`
 - `process_fluctuation_visual_findings` → diagnostician 做 纯工艺波动诊断 视图
 - `dual_drive_visual_findings` → diagnostician 做 双驱动诊断 视图
+
+## 完成判定 / Done Criteria
+
+只有同时满足以下条件，Phase 5.5 才算真正完成：
+
+1. `.pipeline_events.jsonl` 中存在 `vlm-visual-analyzer` 的 `agent_start` 和 `agent_complete`
+2. `03_figures/visual_analysis.json` 通过 schema 校验
+3. `03_figures/image_captions.json` 通过 schema 校验
+4. `visual_analysis.json.observation_mode != "skeleton_pre_vlm"`
+5. `visual_analysis.json.analysis_provenance.source_agent == "vlm-visual-analyzer"`
+6. `visual_analysis.json.analysis_provenance.skeleton_overwritten == true`
+7. `visual_analysis.json.analysis_provenance.figure_inputs_attempted` 非空
+8. `visual_analysis.json.visual_observations` 非空，且至少 2 条观察带 `ontology_context`
 
 ## 核心判断框架
 

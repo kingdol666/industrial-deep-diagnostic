@@ -127,7 +127,7 @@
           "description": "Hypotheses that survived elimination (DETERMINED case: single entry)",
           "items": {
             "type": "object",
-            "required": ["id", "name", "mechanism_class", "confidence"],
+            "required": ["id", "name", "mechanism_class", "confidence", "physical_logic_chain", "ontology_data_physics_proof", "falsification_conditions"],
             "properties": {
               "id": {"type": "string", "pattern": "^H[0-9]+$"},
               "name": {"type": "string"},
@@ -138,6 +138,7 @@
               "root_physical_cause": {"type": "string"},
               "physical_logic_chain": {
                 "type": "array",
+                "minItems": 1,
                 "items": {
                   "type": "object",
                   "properties": {
@@ -189,6 +190,57 @@
                   "temporal_alignment_group": {"type": "string", "description": "Which synchronous group this parameter belongs to, from visual_analysis.json"}
                 }
               },
+              "ontology_data_physics_proof": {
+                "type": "object",
+                "description": "Per-hypothesis proof that ontology semantics, observed data behavior, and physical mechanism agree or explicitly contradict.",
+                "required": ["functional_form_match", "lag_match", "magnitude_ratio", "direction_match", "overall_proof_strength", "proof_summary"],
+                "properties": {
+                  "functional_form_match": {
+                    "type": "string",
+                    "enum": ["MATCH", "PARTIAL", "MISMATCH", "UNTESTED"]
+                  },
+                  "lag_match": {
+                    "type": "string",
+                    "enum": ["MATCH", "PARTIAL", "MISMATCH", "NOT_APPLICABLE", "UNTESTED"]
+                  },
+                  "magnitude_ratio": {
+                    "type": "object",
+                    "required": ["status", "observed_over_predicted"],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": ["PLAUSIBLE", "BORDERLINE", "IMPLAUSIBLE", "UNTESTED"]
+                      },
+                      "observed_over_predicted": {
+                        "type": ["number", "string", "null"],
+                        "description": "Numeric ratio when available, otherwise a short reason such as no quantitative law available."
+                      },
+                      "evidence_source": {"type": "string"}
+                    }
+                  },
+                  "direction_match": {
+                    "type": "string",
+                    "enum": ["MATCH", "MISMATCH", "NOT_APPLICABLE", "UNTESTED"]
+                  },
+                  "overall_proof_strength": {
+                    "type": "string",
+                    "enum": ["PROVEN", "STRONG_EVIDENCE", "SUPPORTIVE", "WEAK", "CONTRADICTED"]
+                  },
+                  "proof_summary": {"type": "string"},
+                  "data_sources": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "physics_sources": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "ontology_sources": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  }
+                }
+              },
               "contradicting_evidence": {
                 "type": "array",
                 "items": {
@@ -205,6 +257,7 @@
               },
               "falsification_conditions": {
                 "type": "array",
+                "minItems": 1,
                 "items": {"type": "string"}
               },
               "consistency_across_products": {

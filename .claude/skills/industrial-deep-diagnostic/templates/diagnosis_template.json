@@ -103,6 +103,21 @@
             "quantification": "CD 轮廓偏差 ±0.6μm (相对 23μm 目标)"
           }
         ],
+        "ontology_data_physics_proof": {
+          "functional_form_match": "MATCH",
+          "lag_match": "MATCH",
+          "magnitude_ratio": {
+            "status": "PLAUSIBLE",
+            "observed_over_predicted": "observed effect is within one order of magnitude of physics estimate",
+            "evidence_source": "02_processed/physics_check.json or 02_processed/physics_manual_verification.md"
+          },
+          "direction_match": "MATCH",
+          "overall_proof_strength": "STRONG_EVIDENCE",
+          "proof_summary": "Ontology role, observed data behavior, and governing physics all support this hypothesis; unresolved ambiguity is documented in competing_sets.",
+          "data_sources": ["02_processed/feature_summary.json", "02_processed/anomaly_report.json"],
+          "physics_sources": ["02_processed/physics_check.json"],
+          "ontology_sources": ["01_ontology/ontology.json"]
+        },
         "chain_quality": "ACTIONABLE_HYPOTHESIS",
         "confidence": 52,
         "confidence_adjustments": [
@@ -173,6 +188,21 @@
             "quantification": "拉伸比 3.5× → 初始 ±2% 偏差放大至约 ±5-7%"
           }
         ],
+        "ontology_data_physics_proof": {
+          "functional_form_match": "PARTIAL",
+          "lag_match": "PARTIAL",
+          "magnitude_ratio": {
+            "status": "BORDERLINE",
+            "observed_over_predicted": "batch timing matches the observed step change, but no direct MFI measurement is available",
+            "evidence_source": "02_processed/validate_report.json + first-principles viscosity estimate"
+          },
+          "direction_match": "MATCH",
+          "overall_proof_strength": "SUPPORTIVE",
+          "proof_summary": "Ontology and polymer rheology support MFI-driven thickness variation, but the data lacks direct batch MFI measurements, so this remains a competing hypothesis rather than a determined root cause.",
+          "data_sources": ["02_processed/validate_report.json", "02_processed/anomaly_report.json"],
+          "physics_sources": ["first_principles_L1_L5", "02_processed/physics_manual_verification.md"],
+          "ontology_sources": ["01_ontology/ontology.json"]
+        },
         "chain_quality": "PLAUSIBLE_HYPOTHESIS",
         "confidence": 48,
         "confidence_adjustments": [
@@ -231,7 +261,7 @@
 
     "eliminated": [
       {
-        "hypothesis_id": "H3_line_speed",
+        "hypothesis_id": "H3",
         "exclusion_type": "STATISTICAL",
         "specific_evidence": "线速变化 < 0.1% (σ=0.03 m/min) 在整个异常窗口内 — 不足以产生 ±0.6μm 的 CD 偏差",
         "exclusion_confidence": 98,
@@ -263,11 +293,11 @@
       "cross_product_finding": "PET_50um 中温度-膜厚 r=-0.70 强于 PET_12um 的 r=-0.68 → 弱偏向 H1，但不构成决定性区分"
     },
     {
-      "pair": ["H1", "H3_line_speed"],
+      "pair": ["H1", "H3"],
       "classification": "ONE_SIDE_EXCLUDED",
       "discriminating_signal": "线速方差 — H3 预测线速变化，实际 σ=0.03 m/min",
       "discriminating_signal_available": true,
-      "cross_product_finding": null
+      "cross_product_finding": "线速假设在各产品组中均缺少足够方差，未形成可解释质量异常的跨产品证据。"
     }
   ]
 }

@@ -814,7 +814,10 @@ node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/diagnosis_schema.json 
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/evidence_schema.json $RUN_DIR/04_diagnostics/evidence.json
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/confidence_schema.json $RUN_DIR/04_diagnostics/confidence.json
 node $SKILL_PATH/scripts/validate.mjs $SKILL_PATH/schemas/reasoning_chain_schema.json $RUN_DIR/04_diagnostics/reasoning_chain.json
+node $SKILL_PATH/scripts/diagnostic-quality-check.mjs $RUN_DIR
 ```
+
+The diagnostic quality check is a completion gate, not an optional audit. If it fails, repair the diagnosis before declaring Step 4 complete.
 
 ---
 

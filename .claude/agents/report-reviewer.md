@@ -1,7 +1,7 @@
 ---
 name: report-reviewer
 description: 工业诊断流程Step 7 — 物理真实审计。独立验证诊断报告的物理机制、统计基础、逻辑一致性，输出ENDORSED/CONDITIONAL/REJECTED。
-model: opus
+model: sonnet
 tools: Read, Write, Bash, Glob, Grep, WebSearch, ToolSearch
 disallowedTools: Edit
 memory: project

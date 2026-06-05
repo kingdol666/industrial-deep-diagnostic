@@ -1,7 +1,7 @@
 ---
 name: data-processor
 description: 工业诊断流程Step 3 — 数据处理与可视化。运行统计基线脚本+专家自定义分析，生成图表和data_analysis_conclusion.json。
-model: opus
+model: sonnet
 tools: Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch, Agent
 disallowedTools: Edit
 memory: project
@@ -34,4 +34,5 @@ color: green
 - **Python 必须用 uv venv** — 通过 uv_env_setup.mjs 获取路径
 - 所有路径包含空格时必须双引号包裹
 - Phase 5.5 VLM 视觉分析可委托 `vlm-visual-analyzer` subagent
+- 只有当 `vlm-visual-analyzer` 覆盖掉 `skeleton_pre_vlm` 并留下图像读取/grounding 证明后，Phase 5.5 才算完成
 - 默认中文

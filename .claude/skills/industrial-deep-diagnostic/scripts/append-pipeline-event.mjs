@@ -19,6 +19,8 @@ const VALID_EVENTS = new Set([
   'step_complete',
   'agent_start',
   'agent_complete',
+  'dependency_wait',
+  'dependency_ready',
   'clarification_auto_inferred',
   'clarification_user_confirmed',
   'repair_spawn',
@@ -44,7 +46,7 @@ const STEP_PREREQUISITES = {
   inspect: ['setup'],
   context_builder: ['inspect'],
   clarification_gate: ['context_builder'],
-  data_processor: ['context_builder'],
+  data_processor: ['inspect'],
   diagnostician: ['data_processor'],
   judge: ['diagnostician'],
   reporter: ['judge'],
@@ -111,9 +113,21 @@ function stepStatus(manifest, step) {
   return record?.status || 'missing';
 }
 
-function enforceStepPrerequisites(manifest, step, eventName, agent) {
+function isPreReportAudit(step, agent, extraData) {
+  if (step !== 'audit' || agent !== 'report-reviewer') return false;
+  return extraData.audit_mode === 'pre_report' || extraData.PRE_REPORT_AUDIT === true;
+}
+
+function prerequisitesFor(step, agent, extraData) {
+  if (isPreReportAudit(step, agent, extraData)) {
+    return ['diagnostician'];
+  }
+  return STEP_PREREQUISITES[step] || [];
+}
+
+function enforceStepPrerequisites(manifest, step, eventName, agent, extraData) {
   if (!step || !['step_start', 'agent_start'].includes(eventName)) return;
-  const prerequisites = STEP_PREREQUISITES[step] || [];
+  const prerequisites = prerequisitesFor(step, agent, extraData);
   const incomplete = prerequisites.filter((requiredStep) => stepStatus(manifest, requiredStep) !== 'completed');
   if (incomplete.length > 0) {
     console.error(
@@ -191,7 +205,7 @@ if (status) {
   event.status = status;
 }
 
-enforceStepPrerequisites(manifest, inferredStep, eventName, agent);
+enforceStepPrerequisites(manifest, inferredStep, eventName, agent, extraData);
 
 if (filesWritten.length > 0 && ['agent_complete', 'step_complete', 'artifact_finalize_complete'].includes(eventName) && !allowMissingFiles) {
   const missingFiles = filesWritten.filter((filePath) => !fs.existsSync(join(runDir, filePath)));
@@ -212,9 +226,18 @@ if (filesWritten.length > 0 && ['agent_complete', 'step_complete', 'artifact_fin
   }
 }
 
-const stepRecord = inferredStep ? getStepRecord(manifest, inferredStep) : null;
+const shouldUpdateStepRecord = !isPreReportAudit(inferredStep, agent, extraData);
+const stepRecord = inferredStep && shouldUpdateStepRecord ? getStepRecord(manifest, inferredStep) : null;
 
 if (stepRecord) {
+  if (eventName === 'dependency_wait') {
+    upsertNote(stepRecord, `dependency_wait:${extraData.waiting_for || 'unknown'}`);
+  }
+
+  if (eventName === 'dependency_ready') {
+    upsertNote(stepRecord, `dependency_ready:${extraData.dependency || extraData.waiting_for || 'unknown'}`);
+  }
+
   if (['step_start', 'agent_start'].includes(eventName)) {
     stepRecord.status = 'in_progress';
     stepRecord.started_at = stepRecord.started_at || event.timestamp;

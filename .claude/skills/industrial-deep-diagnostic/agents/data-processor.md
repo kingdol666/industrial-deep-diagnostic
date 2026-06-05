@@ -15,6 +15,23 @@ You process industrial time-series data. Your job is to understand what kind of 
 
 **Before starting, verify:** `DATA_PATH` file exists and `RUN_DIR` directory exists. If either missing, output error JSON to stdout and stop.
 
+## Fast-Safe Execution Mode
+
+The main pipeline may launch you before `context-builder` finishes. Use the available artifacts immediately, but respect dependency boundaries:
+
+| Work package | May run before ontology exists? | Required inputs |
+|--------------|----------------------------------|-----------------|
+| Convert raw data to JSON/CSV | Yes | `DATA_PATH` |
+| Preprocess, data quality report, row/column profiling | Yes | `DATA_PATH`, `00_input/input_manifest.json` if available |
+| Initial target/process/group inference | Yes, provisional | `input_manifest.json`, column names, value ranges |
+| Scenario classification finalization | No | `01_ontology/ontology.json` |
+| Expert gap analysis and custom ontology validation | No | `ontology.json`, `rag_deep_understanding.json` when present |
+| Physics checks and manual L1-L5 verification | No | `ontology.json`, `feature_summary.json`, `anomaly_report.json` |
+| VLM visual analysis | No | figures + `ontology.json` + validation artifacts |
+| `data_analysis_conclusion.json` final handoff | No | all Step 3 evidence artifacts |
+
+If `01_ontology/ontology.json` is not ready, do not idle. Run the safe baseline package, write a provisional `02_processed/analysis_plan.md`, then append a `dependency_wait` event and wait until ontology exists. When it appears, append `dependency_ready` and continue from the ontology-dependent phase. Do not mark Step 3 complete from provisional outputs.
+
 ## Mandatory Delivery Contract
 
 Before declaring Step 3 complete, you must ensure all of the following are true:
@@ -46,6 +63,8 @@ Read these files to build a complete picture of the data:
 | `00_input/user_context.json` | User's stated process type, known issues, target columns — if absent, infer everything from data |
 | `01_ontology/ontology.json` | Process stages, equipment, parameter physical meanings, `behavior_match` signals, discrepancy_signals — if absent, build understanding from column patterns |
 | `00_input/rag_deep_understanding.json` | Physics principles, known failure modes, confounders — if absent, rely on data self-description |
+
+In fast-safe mode, ontology and RAG files may be missing at first. Treat the initial Phase 0 answers as provisional and explicitly label them `PROVISIONAL_UNTIL_ONTOLOGY_READY` in `analysis_plan.md`. Revisit and finalize them after ontology appears.
 
 ### 0.2 Ask These Questions About the Data
 
@@ -164,14 +183,18 @@ These steps run for ANY industrial dataset. Use the pre-built scripts to establi
 ### 2.1 Convert Data
 
 ```bash
-node "$SKILL_PATH/scripts/convert.mjs" "$DATA_PATH" --output "$RUN_DIR/02_processed/data.json"
+if [ ! -s "$RUN_DIR/02_processed/data.json" ] || [ "$DATA_PATH" -nt "$RUN_DIR/02_processed/data.json" ]; then
+  node "$SKILL_PATH/scripts/convert.mjs" "$DATA_PATH" --output "$RUN_DIR/02_processed/data.json"
+fi
 ```
 
 ### 2.2 Preprocess
 
 ```bash
 PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const j=JSON.parse(d.trim().split('\\n').pop());process.stdout.write(j.python||'')}catch(e){process.stdout.write('')}})")
-"$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" preprocess "$DATA_PATH" "$RUN_DIR/02_processed" --group-col <primary_group_col>
+if [ ! -s "$RUN_DIR/02_processed/cleaned_data.csv" ] || [ "$DATA_PATH" -nt "$RUN_DIR/02_processed/cleaned_data.csv" ]; then
+  "$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" preprocess "$DATA_PATH" "$RUN_DIR/02_processed" --group-col <primary_group_col>
+fi
 ```
 
 Then add scenario-specific derived features based on your Phase 1.2 `data_shape` findings:
@@ -188,7 +211,9 @@ Then add scenario-specific derived features based on your Phase 1.2 `data_shape`
 **Important**: Add these derived features by extending the cleaned CSV with Python — don't write a new script, just run a few lines of pandas inline.
 
 ```bash
-node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/cleaned_data.json"
+if [ ! -s "$RUN_DIR/02_processed/cleaned_data.json" ] || [ "$RUN_DIR/02_processed/cleaned_data.csv" -nt "$RUN_DIR/02_processed/cleaned_data.json" ]; then
+  node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/cleaned_data.json"
+fi
 ```
 
 ### 2.3 Statistical Analysis
@@ -197,9 +222,11 @@ Choose the right path based on data size:
 
 ```bash
 # Count numeric columns
-COL_COUNT=$(python3 -c "import json; d=json.load(open('$RUN_DIR/02_processed/cleaned_data.json')); cols=[k for k in d[0] if k not in ('timestamp','product_grade','reel_id','batch_id')]; print(len(cols))" 2>/dev/null || echo "0")
+COL_COUNT=$("$PYTHON" -c "import json; d=json.load(open('$RUN_DIR/02_processed/cleaned_data.json')); cols=[k for k in d[0] if k not in ('timestamp','product_grade','reel_id','batch_id')]; print(len(cols))" 2>/dev/null || echo "0")
 
-if [ "$COL_COUNT" -gt 30 ]; then
+if [ -s "$RUN_DIR/02_processed/feature_summary.json" ] && [ ! "$RUN_DIR/02_processed/cleaned_data.json" -nt "$RUN_DIR/02_processed/feature_summary.json" ]; then
+  echo "feature_summary.json exists — reuse it"
+elif [ "$COL_COUNT" -gt 30 ]; then
   # Large dataset: use Python lightweight stats
   "$PYTHON" "$SKILL_PATH/scripts/stats_analysis.py" "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed" \
     --target-cols <quality_cols> --predictor-cols <process_cols> \
@@ -215,16 +242,20 @@ fi
 ### 2.4 Validation
 
 ```bash
-node "$SKILL_PATH/scripts/stats_validate.mjs" \
-  "$RUN_DIR/02_processed/feature_summary.json" "$RUN_DIR/02_processed/cleaned_data.json" \
-  --group-col <group_col> --time-col <time_col> \
-  --output "$RUN_DIR/02_processed/validate_report.json"
+if [ ! -s "$RUN_DIR/02_processed/validate_report.json" ] || [ "$RUN_DIR/02_processed/feature_summary.json" -nt "$RUN_DIR/02_processed/validate_report.json" ] || [ "$RUN_DIR/02_processed/cleaned_data.json" -nt "$RUN_DIR/02_processed/validate_report.json" ]; then
+  node "$SKILL_PATH/scripts/stats_validate.mjs" \
+    "$RUN_DIR/02_processed/feature_summary.json" "$RUN_DIR/02_processed/cleaned_data.json" \
+    --group-col <group_col> --time-col <time_col> \
+    --output "$RUN_DIR/02_processed/validate_report.json"
+fi
 ```
 
 ### 2.5 Anomaly Detection
 
 ```bash
-"$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" anomaly "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed"
+if [ ! -s "$RUN_DIR/02_processed/anomaly_report.json" ] || [ "$RUN_DIR/02_processed/cleaned_data.json" -nt "$RUN_DIR/02_processed/anomaly_report.json" ]; then
+  "$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" anomaly "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed"
+fi
 ```
 
 ### 2.6 Baseline Result Review
@@ -596,6 +627,18 @@ Then run it:
 
 Before delegating, ensure the `visual_analysis.py` script (Phase 5.2) has run and produced the skeleton `visual_analysis.json` containing `chart_inventory`, `cross_parameter_temporal_alignment` (from statistics), and `reading_guide`. The VLM analyzer reads this skeleton and enriches it.
 
+**Pre-delegation hard gate:**
+
+Before launching the sub-agent, explicitly verify:
+
+1. `03_figures/visual_analysis.json` exists
+2. `visual_analysis.json.observation_mode == "skeleton_pre_vlm"`
+3. `visual_analysis.json.analysis_provenance.stage == "skeleton_pre_vlm"`
+4. `03_figures/plot_manifest.json` exists
+5. `03_figures/` contains at least one PNG figure
+
+If any of the above is false, stop and repair the visualization stage first. **Do not launch `vlm-visual-analyzer` on an incomplete figure set.**
+
 ### 5.5.2 Delegate to vlm-visual-analyzer Sub-Agent
 
 Launch the **vlm-visual-analyzer** sub-agent with bypass permissions:
@@ -630,6 +673,14 @@ DATA_PATH=${DATA_PATH}
 1. 写 RUN_DIR/03_figures/visual_analysis.json — 结构化视觉证据（必须包含 ontology-informed observations）
 2. 写 RUN_DIR/03_figures/image_captions.json — 兼容层（具体数字+诊断含义）
 
+关键约束:
+- 必须覆盖 skeleton 输出，不能保留 `observation_mode: "skeleton_pre_vlm"`
+- 必须写入 `analysis_provenance.source_agent = "vlm-visual-analyzer"`
+- 必须写入 `analysis_provenance.stage = "final_vlm_output"`
+- 必须写入 `analysis_provenance.figure_inputs_attempted`
+- 若直接读图成功，必须写入 `analysis_provenance.figure_inputs_read_successfully`
+- 必须在至少 2 条关键 visual observations 中体现 `ontology_context`
+
 验证输出: 确认两个文件都存在且有内容。`,
   run_in_background: true
 })
@@ -646,9 +697,25 @@ After the vlm-visual-analyzer completes:
 
 1. Verify `03_figures/visual_analysis.json` exists and contains `visual_observations[]` with non-empty entries
 2. Verify `03_figures/image_captions.json` exists and each entry has `key_observations` and `diagnostic_implication`
-3. If the sub-agent output is empty or obviously wrong (e.g., visually describes parameters that don't exist in the data), flag it as `pipeline_warning` in the anomaly report and fall back to generating `image_captions.json` from chart metadata
+3. Verify `visual_analysis.json.observation_mode` is NOT `skeleton_pre_vlm`
+4. Verify `visual_analysis.json.analysis_provenance.source_agent == "vlm-visual-analyzer"`
+5. Verify `visual_analysis.json.analysis_provenance.stage == "final_vlm_output"`
+6. Verify `visual_analysis.json.analysis_provenance.skeleton_overwritten == true`
+7. Verify `visual_analysis.json.analysis_provenance.figure_inputs_attempted[]` is non-empty and includes the highest-priority figure that exists
+8. If `observation_mode == "direct_image_reading"`, verify `analysis_provenance.figure_inputs_read_successfully[]` is non-empty
+9. Verify at least 2 observations contain non-empty `ontology_context`
+10. If the sub-agent output is empty or obviously wrong (e.g., visually describes parameters that don't exist in the data), flag it as `pipeline_warning` in the anomaly report and fall back to generating `image_captions.json` from chart metadata, but DO NOT claim VLM direct reading succeeded
 
 **The sub-agent's output does NOT need further editing by data-processor.** It is consumed directly by the Diagnostician in Step 4.
+
+**Completion rule for Phase 5.5:**
+
+Phase 5.5 is not complete merely because `visual_analysis.json` exists. It is complete only when the file proves one of the following:
+
+- `direct_image_reading`: the VLM actually inspected PNG inputs and recorded successful reads
+- `metadata_backed_inference`: direct image reading was not available, and the file explicitly records that limitation plus the fallback grounding path
+
+Any leftover `skeleton_pre_vlm` state means the delegation failed or was skipped.
 
 ### 5.5.4 Core Principle (for context)
 
@@ -657,10 +724,14 @@ A VLM agent can see things in images that pure statistics cannot express. Two pa
 ## Phase 6: Write Plot Manifest and Generate Captions
 
 ```bash
-node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR" 2>&1 || echo "Captions generation skipped — writing manually"
+if [ ! -s "$RUN_DIR/03_figures/image_captions.json" ]; then
+  node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR" 2>&1 || echo "Captions generation skipped — writing manually"
+else
+  echo "image_captions.json already exists — preserve VLM-generated captions"
+fi
 ```
 
-If the script fails, write `03_figures/image_captions.json` manually. Each entry MUST include:
+If `image_captions.json` already exists from `vlm-visual-analyzer`, preserve it and only validate that each entry has the required fields. If it is missing or invalid, use `generate_captions.mjs` as a metadata-backed fallback. If the script fails, write `03_figures/image_captions.json` manually. Each entry MUST include:
 - `key_observations`: 3-5 bullets with ACTUAL NUMBERS (r values, threshold values, anomaly counts, drift rates)
 - `diagnostic_implication`: one sentence explaining what this plot tells the Diagnostician about root cause
 

@@ -1,7 +1,7 @@
 ---
 name: reporter
 description: 工业诊断流程Step 6 — 生成最终诊断报告。20节结构、嵌入所有图表、透明披露统计验证发现。
-model: opus
+model: sonnet
 tools: Read, Write, Bash, Glob, Grep, ToolSearch
 disallowedTools: Edit
 memory: project

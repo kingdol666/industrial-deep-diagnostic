@@ -510,49 +510,102 @@ def main():
     visual_analysis = {
         "generated_at": pd.Timestamp.now().isoformat(),
         "vlm_chart_count": 1 + (1 if event_path else 0) + len(simpson_paths) + (1 if sync_path else 0),
+        "observation_mode": "skeleton_pre_vlm",
         "chart_design_purpose": "VLM-readable charts with time-aligned overlays, event markers, and direction-reversed parameters",
+        "time_alignment_applicable": "timestamp" in df.columns,
+        "analysis_provenance": {
+            "source_agent": "visual_analysis.py",
+            "stage": "skeleton_pre_vlm",
+            "skeleton_overwritten": False,
+            "context_files_read": [
+                "02_processed/cleaned_data.csv",
+                "02_processed/feature_summary.json",
+                "02_processed/validate_report.json",
+                "01_ontology/ontology.json"
+            ],
+            "figure_inputs_attempted": [],
+            "figure_inputs_read_successfully": [],
+            "grounding_summary": "Pre-VLM skeleton generated from statistical outputs and chart design intent only. This file MUST be enriched or replaced by vlm-visual-analyzer before Step 3 can be considered complete.",
+            "grounding_sources": [
+                "02_processed/feature_summary.json",
+                "02_processed/validate_report.json",
+                "01_ontology/ontology.json"
+            ]
+        },
         "cross_parameter_temporal_alignment": sync_analysis,
         "chart_inventory": [
             {
                 "figure": "fig_vlm_temporal_overlay.png",
+                "read_status": "READ_FAILED",
+                "read_failure_reason": "Pre-VLM skeleton only; no image-reading agent has inspected this figure yet",
                 "purpose": "PRIMARY VLM INPUT — All parameters normalized and direction-aligned on shared time axis",
                 "visual_questions": [
                     "Which parameters move together? (synchronous groups)",
                     "At event markers, which parameters jump? Which don't respond?",
                     "Is the degradation linear or accelerating?",
                     "Do any parameters show independent (random) behavior?"
-                ]
+                ],
+                "read_order": 1,
+                "diagnostic_weight": "CRITICAL"
             },
             {
                 "figure": "fig_vlm_event_response.png",
+                "read_status": "READ_FAILED" if event_path else "NOT_GENERATED",
+                "read_failure_reason": "Pre-VLM skeleton only; no image-reading agent has inspected this figure yet" if event_path else "Figure not generated for this dataset",
                 "purpose": "Event impact visualization — quality before/after event transition",
                 "visual_questions": [
                     "Is there a visible quality change at the transition line?",
                     "How big is the jump compared to normal variation?",
                     "Does quality recover to initial levels or only partially?"
-                ]
+                ],
+                "read_order": 2,
+                "diagnostic_weight": "STRONG"
             },
             {
                 "figure": "fig_vlm_synchronization.png",
+                "read_status": "READ_FAILED" if sync_path else "NOT_GENERATED",
+                "read_failure_reason": "Pre-VLM skeleton only; no image-reading agent has inspected this figure yet" if sync_path else "Figure not generated for this dataset",
                 "purpose": "Rolling correlation stability — which correlations are consistent over time",
                 "visual_questions": [
                     "Which parameters maintain stable correlation with quality?",
                     "Are there periods where correlations break down?",
                     "Does any parameter switch from positive to negative correlation?"
+                ],
+                "read_order": 3,
+                "diagnostic_weight": "MODERATE"
+            }
+        ],
+        "visual_observations": [
+            {
+                "figure": "fig_vlm_temporal_overlay.png",
+                "observations": [
+                    {
+                        "type": "trend_morphology",
+                        "description": "Placeholder only — script-generated skeleton. No direct image observation has been made yet.",
+                        "parameters_involved": [p for p in (targets + key_params) if p in df.columns][:4],
+                        "estimated_lag": "unclear",
+                        "confidence": "low",
+                        "diagnostic_implication": "Do not treat this as final visual evidence until vlm-visual-analyzer overwrites the skeleton with grounded observations.",
+                        "statistical_cross_reference": {
+                            "source_file": "02_processed/feature_summary.json",
+                            "validation_note": "Skeleton placeholder — VLM sub-agent must replace"
+                        },
+                        "ontology_context": {
+                            "parameter_physical_meanings": {},
+                            "process_stage": "unknown"
+                        }
+                    }
                 ]
             }
         ],
-        "reading_guide": {
-            "for_vlm_agent": [
-                "1. Read fig_vlm_temporal_overlay.png FIRST — it shows the complete picture",
-                "2. All lines moving in the same direction = correlated parameters",
-                "3. Lines labeled '(reversed)' had their direction flipped to align with quality decline",
-                "4. Red dashed vertical lines = events — check if lines jump at these points",
-                "5. After reading the overlay, read fig_vlm_event_response.png for event detail",
-                "6. Then read Simpson charts to check for confounding",
-                "7. Use fig_vlm_synchronization.png to check correlation stability over time"
-            ]
-        }
+        "synthesis": "Pre-VLM scaffold only. Statistical synchronization structures and VLM-targeted chart inventory are prepared, but no grounded image interpretation has been completed yet.",
+        "reading_guide": [
+            {
+                "for_agent": "diagnostician",
+                "primary_sections_to_read": ["analysis_provenance"],
+                "key_insights": ["This file is a pre-VLM skeleton and must not be treated as final visual evidence."]
+            }
+        ]
     }
 
     output_path = os.path.join(fig_dir, 'visual_analysis.json')

@@ -71,6 +71,10 @@ function readJson(pathLike, fallback = null) {
   }
 }
 
+function nonEmptyArray(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
 function requiredAgentsForObservedArtifacts() {
   return knownAgents.filter((agent) => {
     const hints = agentArtifactHints[agent] || [];
@@ -171,6 +175,25 @@ for (const event of events) {
   }
 }
 
+function isPreReportAuditEvent(event) {
+  return event?.agent === 'report-reviewer' && event?.step === 'audit' &&
+    (event?.audit_mode === 'pre_report' || event?.PRE_REPORT_AUDIT === true);
+}
+
+function requiredPreviousStepsForAgent(agent, startEvent) {
+  if (agent === 'data-processor') {
+    return ['inspect'];
+  }
+  if (agent === 'report-reviewer' && isPreReportAuditEvent(startEvent)) {
+    return ['diagnostician'];
+  }
+  const stepName = agentToStep[agent];
+  if (!stepName) return [];
+  return orderedSteps
+    .slice(0, orderedSteps.indexOf(stepName))
+    .filter((step) => Object.values(agentToStep).includes(step));
+}
+
 if (!runInitializedSeen) {
   issues.push({
     severity: 'critical',
@@ -178,6 +201,8 @@ if (!runInitializedSeen) {
     message: 'run_initialized event missing; run bootstrap is not proven.'
   });
 }
+
+const visualAnalysis = readJson(join(runDir, '03_figures', 'visual_analysis.json'), null);
 
 for (const agent of requiredAgents) {
   const bucket = agentState.get(agent);
@@ -223,8 +248,7 @@ for (const agent of requiredAgents) {
     }
     const stepName = agentToStep[agent];
     if (stepName) {
-      const previousSteps = orderedSteps.slice(0, orderedSteps.indexOf(stepName));
-      const previousAgentSteps = previousSteps.filter((step) => Object.values(agentToStep).includes(step));
+      const previousAgentSteps = requiredPreviousStepsForAgent(agent, firstStart);
       const missingPrereqs = previousAgentSteps.filter((step) => {
         const prereqAgent = Object.keys(agentToStep).find((key) => agentToStep[key] === step);
         return prereqAgent && agentState.get(prereqAgent)?.completes?.length === 0;
@@ -250,6 +274,82 @@ for (const agent of requiredAgents) {
           });
         }
       }
+    }
+  }
+}
+
+if (exists('03_figures/visual_analysis.json')) {
+  if (!visualAnalysis || typeof visualAnalysis !== 'object') {
+    issues.push({
+      severity: 'critical',
+      code: 'VISUAL_ANALYSIS_UNREADABLE',
+      message: 'visual_analysis.json exists but is unreadable or not valid JSON.'
+    });
+  } else {
+    if (visualAnalysis.observation_mode === 'skeleton_pre_vlm') {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_SKELETON_NOT_OVERWRITTEN',
+        message: 'visual_analysis.json is still in skeleton_pre_vlm mode; vlm-visual-analyzer did not complete final enrichment.'
+      });
+    }
+
+    const provenance = visualAnalysis.analysis_provenance || {};
+    if (provenance.source_agent !== 'vlm-visual-analyzer') {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_SOURCE_AGENT_MISSING',
+        message: 'visual_analysis.json does not identify vlm-visual-analyzer as the source agent.'
+      });
+    }
+    if (provenance.stage !== 'final_vlm_output') {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_STAGE_INVALID',
+        message: 'visual_analysis.json analysis_provenance.stage must be final_vlm_output.'
+      });
+    }
+    if (provenance.skeleton_overwritten !== true) {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_SKELETON_OVERWRITE_NOT_PROVEN',
+        message: 'visual_analysis.json does not prove that the pre-VLM skeleton was overwritten.'
+      });
+    }
+    if (!nonEmptyArray(provenance.context_files_read)) {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_CONTEXT_LOAD_NOT_PROVEN',
+        message: 'visual_analysis.json is missing analysis_provenance.context_files_read.'
+      });
+    }
+    if (!nonEmptyArray(provenance.figure_inputs_attempted)) {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_IMAGE_INPUT_NOT_PROVEN',
+        message: 'visual_analysis.json is missing analysis_provenance.figure_inputs_attempted, so no figure-reading attempt is proven.'
+      });
+    }
+    if (visualAnalysis.observation_mode === 'direct_image_reading' && !nonEmptyArray(provenance.figure_inputs_read_successfully)) {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_DIRECT_READ_NOT_PROVEN',
+        message: 'observation_mode is direct_image_reading but no successfully read figures were recorded.'
+      });
+    }
+
+    const allObservations = (visualAnalysis.visual_observations || []).flatMap((item) => item?.observations || []);
+    const groundedObservations = allObservations.filter((item) => {
+      const meanings = item?.ontology_context?.parameter_physical_meanings;
+      const stage = item?.ontology_context?.process_stage;
+      return (meanings && Object.keys(meanings).length > 0) || stage;
+    });
+    if (groundedObservations.length < 2) {
+      issues.push({
+        severity: 'critical',
+        code: 'VLM_ONTOLOGY_GROUNDING_WEAK',
+        message: 'Fewer than two visual observations contain ontology grounding context.'
+      });
     }
   }
 }

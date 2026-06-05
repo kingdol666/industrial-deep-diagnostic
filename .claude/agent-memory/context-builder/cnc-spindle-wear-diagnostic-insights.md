@@ -1,35 +1,40 @@
 ---
 name: cnc-spindle-wear-diagnostic-insights
-description: Key diagnostic patterns from CNC spindle wear evaluation — tool_age vs vibration dominance, thermal expansion confirmation, Simpson's paradox in feed/speed
+description: Key discrepancy patterns discovered in CNC spindle wear diagnosis: tool_age not dominant, vibration is, thermal no-equilibrium, Simpson's paradox candidates
 metadata:
-  type: project
+  type: reference
 ---
 
-# CNC Spindle Wear Evaluation — Key Diagnostic Patterns
+## CNC Spindle Wear Diagnostic Insights
 
-**Run:** `202606031625563_eval_cnc_spindle_wear`
-**Date analyzed:** 2026-06-04
+### Run: 202606041451221_simulateData_full (2026-06-04)
 
-## Five Discrepancy Signals Found
+### Key Discrepancy Signals Found
 
-1. **TOOL_AGE_WEAK** — tool_age_parts correlates weakly with surface roughness (r=0.216 vs expected >0.7). Vibration is the dominant driver (r=0.969). T001 vs T005 at same tool_age (0-149) yield 3.5x Ra difference (0.78 vs 2.70 um). This is the most counterintuitive and diagnostically valuable finding.
+1. **VIBRATION_DOMINANCE** — `spindle_vibration_mm_s` vs `surface_roughness_Ra_um` r=0.993, almost perfectly linear. Grade A parts all have vibration <1.34mm/s, Grade C all >2.52mm/s. This is by far the strongest signal in the data.
 
-2. **VIBRATION_DOMINANCE** — Spindle vibration (not tool wear) is the primary driver of surface roughness degradation. Second-half mean vibration 5.36 mm/s is in ISO 10816 Zone C (unsatisfactory).
+2. **TOOL_AGE_WEAK (Simpson's paradox candidate)** — Global `tool_age_parts` → `roughness` r=0.14 (weak), but within-tool r=0.63-0.88 (strong). The contradiction is caused by time/tool_id confounding: later tools operate with a degraded spindle, masking the within-tool wear effect.
 
-3. **NO_THERMAL_EQUILIBRIUM** — Spindle temperature rises monotonically 31->55 degC over the day with no thermal plateau. Bearing friction heat exceeds cooling capacity.
+3. **NO_THERMAL_EQUILIBRIUM** — `spindle_temp_C` never plateaus: 36.8 C day1 to 71.3 C day30. Normal CNC spindles achieve thermal equilibrium within 1-2 hours. The continuous rise indicates a thermal runaway cycle (coolant temp up -> less heat removal -> bearing temp up -> lubrication degradation -> friction up -> more heat).
 
-4. **SIMPSONS_PARADOX_CANDIDATE** — Both spindle_speed_rpm and feed_rate_mm_min show strong negative correlations with Ra (r=-0.94, r=-0.90), contradicting physics predictions. Likely reversed by material confounding (SS304 low speed/feed + high Ra vs Al alloys high speed/feed + low Ra).
+4. **NEW_TOOLS_DONT_FIX** — T013-T019 start at age=0 but produce Grade C parts immediately. This is the most important diagnostic signal: the root cause is NOT the cutting tools but the spindle/cooling system degradation.
 
-5. **OBSERVED_SLOPE_BIAS** — Measured Delta_thermal_deviation / Delta_temp = 0.0017 mm/degC vs theoretical 0.00345 mm/degC (assuming 300mm steel spindle). Possible spindle length mismatch or partial thermal compensation.
+5. **COOLANT_SYSTEM_DEGRADATION** — `coolant_temp_C` rose from 24.5 C to 29.6 C over 30 days (r=0.851 with day), uncorrelated with ambient temp. System-level degradation, not environmental.
 
-## Stage 2 Validation Queue (9 items for Data Processor)
+6. **CUTTING_PARAMS_IRRELEVANT** — spindle_speed, feed_rate, depth_of_cut all show near-zero correlation with roughness (|r|<0.05). In a degraded spindle state, parameter adjustments cannot compensate.
 
-Priority HIGH items: tool_age stratified by tool_id, Simpson's paradox test for feed/speed, vibration-temperature Granger causality, thermal expansion slope verification, T001 vs T005 root cause, time confound detrending.
+### Causal Chain Hypothesis
+```
+Cooling system degradation → coolant temp ↑ → spindle temp ↑ (no equilibrium)
+→ bearing lubrication failure → bearing wear progress → vibration ↑↑
+→ surface_roughness ↑ (r=0.993) → defect grade B/C
+```
 
-**Why:** tool_age effects are real but MASKED by vibration. Stratification by tool_id will reveal the within-tool wear trend. The vibration-temperature co-variation (r=0.954) needs directional testing.
+### Stage 2 Validation Queue
+- Stratified analysis by tool_id (Simpson's paradox confirmation)
+- Change-point detection on spindle_temp (Day15 acceleration threshold)
+- Detrended analysis to extract tool_age effect after removing time trend
+- Lag analysis on coolant_temp to spindle_temp coupling
 
-## Ontology Reference
-
-- Ontology file: `01_ontology/ontology.json` (schema-validated, 0 errors)
-- Knowledge extracted from: `parameter_to_physics.json` (CNC/rotating machinery coverage) + 5 web searches
-- RAG was unavailable (engine not running) — fallback to first-principles + built-in pattern library
+### Previous Run Comparison (202606031625563_eval_cnc_spindle_wear)
+Consistent pattern: vibration dominance (prev r=0.969, current r=0.993), no thermal equilibrium, Simpson's paradox candidates. New finding: explicit defect grade thresholds (Grade A vib<1.3, Grade C vib>2.5 mm/s) and confirmation that new tools cannot restore quality under degraded spindle.

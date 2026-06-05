@@ -189,6 +189,93 @@ function validateEvidenceClosure(label, critical = true) {
   }
 }
 
+function validateDiagnosticQuality(label, critical = true) {
+  try {
+    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'diagnostic-quality-check.mjs'), runDir], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    return {
+      label,
+      path: '04_diagnostics/diagnosis.json',
+      status: 'VALID',
+      critical,
+      detail: JSON.parse(String(stdout))
+    };
+  } catch (error) {
+    const stdout = error.stdout ? String(error.stdout).trim() : '';
+    const stderr = error.stderr ? String(error.stderr).trim() : '';
+    let detail = null;
+    if (stdout) {
+      try {
+        detail = JSON.parse(stdout);
+      } catch (_) {}
+    }
+    return {
+      label,
+      path: '04_diagnostics/diagnosis.json',
+      status: `INVALID${stderr ? `: ${stderr.slice(0, 300)}` : ''}`,
+      critical,
+      detail
+    };
+  }
+}
+
+function validateVisualExecutionProof() {
+  const visual = readJsonIfExists('03_figures/visual_analysis.json');
+  if (!visual) {
+    return {
+      label: 'Visual Execution Proof',
+      path: '03_figures/visual_analysis.json',
+      status: 'MISSING (critical)',
+      critical: true
+    };
+  }
+
+  const provenance = visual.analysis_provenance || {};
+  const issues = [];
+
+  if (visual.observation_mode === 'skeleton_pre_vlm') {
+    issues.push('observation_mode is still skeleton_pre_vlm');
+  }
+  if (provenance.source_agent !== 'vlm-visual-analyzer') {
+    issues.push('source_agent is not vlm-visual-analyzer');
+  }
+  if (provenance.stage !== 'final_vlm_output') {
+    issues.push('analysis_provenance.stage is not final_vlm_output');
+  }
+  if (provenance.skeleton_overwritten !== true) {
+    issues.push('skeleton_overwritten is not true');
+  }
+  if (!Array.isArray(provenance.context_files_read) || provenance.context_files_read.length === 0) {
+    issues.push('context_files_read is empty');
+  }
+  if (!Array.isArray(provenance.figure_inputs_attempted) || provenance.figure_inputs_attempted.length === 0) {
+    issues.push('figure_inputs_attempted is empty');
+  }
+  if (visual.observation_mode === 'direct_image_reading' && (!Array.isArray(provenance.figure_inputs_read_successfully) || provenance.figure_inputs_read_successfully.length === 0)) {
+    issues.push('direct_image_reading claimed without successful figure reads');
+  }
+
+  const allObservations = Array.isArray(visual.visual_observations)
+    ? visual.visual_observations.flatMap((item) => Array.isArray(item?.observations) ? item.observations : [])
+    : [];
+  const groundedObservationCount = allObservations.filter((item) => {
+    const meanings = item?.ontology_context?.parameter_physical_meanings;
+    const stage = item?.ontology_context?.process_stage;
+    return (meanings && Object.keys(meanings).length > 0) || typeof stage === 'string';
+  }).length;
+  if (groundedObservationCount < 2) {
+    issues.push('fewer than 2 observations contain ontology grounding');
+  }
+
+  return {
+    label: 'Visual Execution Proof',
+    path: '03_figures/visual_analysis.json',
+    status: issues.length === 0 ? 'VALID' : `INVALID: ${issues.join('; ').slice(0, 300)}`,
+    critical: true
+  };
+}
+
 // Define required artifacts per pipeline stage
 const checks = [
   check('Run Manifest', 'run_manifest.json'),
@@ -245,6 +332,7 @@ const schemaChecks = [
   validate('Data Analysis Conclusion', 'schemas/data_analysis_conclusion_schema.json', '02_processed/data_analysis_conclusion.json'),
   validate('Visual Analysis (VLM)', 'schemas/visual_analysis_schema.json', '03_figures/visual_analysis.json'),
   validate('Image Captions (VLM)', 'schemas/image_captions_schema.json', '03_figures/image_captions.json', false),
+  validateVisualExecutionProof(),
   validate('Diagnosis', 'schemas/diagnosis_schema.json', '04_diagnostics/diagnosis.json'),
   validate('Evidence', 'schemas/evidence_schema.json', '04_diagnostics/evidence.json'),
   validate('Confidence', 'schemas/confidence_schema.json', '04_diagnostics/confidence.json'),
@@ -253,7 +341,8 @@ const schemaChecks = [
   validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json', false),
   validateDeliveryContract(),
   validatePipelineLog('Pipeline Event Log'),
-  validateEvidenceClosure('Evidence Closure')
+  validateEvidenceClosure('Evidence Closure'),
+  validateDiagnosticQuality('Diagnostic Quality Contract')
 ];
 
 // Count figures

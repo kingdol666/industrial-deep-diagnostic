@@ -8,6 +8,7 @@
     "generated_at",
     "observation_mode",
     "time_alignment_applicable",
+    "analysis_provenance",
     "chart_inventory",
     "visual_observations",
     "cross_parameter_temporal_alignment",
@@ -26,8 +27,8 @@
     },
     "observation_mode": {
       "type": "string",
-      "enum": ["direct_image_reading", "metadata_backed_inference"],
-      "description": "direct_image_reading = VLM actually viewed PNG; metadata_backed_inference = chart captions + statistical data only"
+      "enum": ["direct_image_reading", "metadata_backed_inference", "skeleton_pre_vlm"],
+      "description": "direct_image_reading = VLM actually viewed PNG; metadata_backed_inference = chart captions + statistical data only; skeleton_pre_vlm = pre-VLM scaffold emitted by visual_analysis.py and MUST be overwritten by vlm-visual-analyzer before Step 3 completes"
     },
     "chart_design_purpose": {
       "type": "string",
@@ -72,6 +73,49 @@
             "enum": ["CRITICAL", "STRONG", "MODERATE", "WEAK", "SUPPLEMENTARY"],
             "description": "How important this chart is for the diagnosis"
           }
+        }
+      }
+    },
+
+    "analysis_provenance": {
+      "type": "object",
+      "description": "Execution proof for whether the VLM sub-agent actually ran, what context it loaded, and whether PNG figures were directly read or only inferred from metadata.",
+      "properties": {
+        "source_agent": {
+          "type": "string",
+          "description": "Expected to be 'vlm-visual-analyzer' for final outputs"
+        },
+        "stage": {
+          "type": "string",
+          "enum": ["skeleton_pre_vlm", "final_vlm_output"]
+        },
+        "skeleton_overwritten": {
+          "type": "boolean",
+          "description": "Whether the script-generated skeleton was replaced/enriched by the VLM sub-agent"
+        },
+        "context_files_read": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Files loaded before image reading, e.g. ontology.json, feature_summary.json"
+        },
+        "figure_inputs_attempted": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "PNG figures the VLM attempted to inspect"
+        },
+        "figure_inputs_read_successfully": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Subset of figures directly read successfully as images"
+        },
+        "grounding_summary": {
+          "type": "string",
+          "description": "Short explanation of how ontology/statistics/physics were used to ground visual interpretation"
+        },
+        "grounding_sources": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Evidence sources used for grounding, e.g. ontology.json, rag_deep_understanding.json, anomaly_report.json"
         }
       }
     },
