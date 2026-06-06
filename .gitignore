@@ -51,3 +51,6 @@ rag-retrieval-engine/storage/retrieval_engine.db
 
 # Diagnostic run directories
 runs/
+
+# Generated images / prompts cache
+garden-gpt-image-2/
