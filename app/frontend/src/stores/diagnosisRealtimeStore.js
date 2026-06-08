@@ -5,12 +5,16 @@ import { isActiveRunStatus, isTerminalRunStatus, normalizeRunSummary } from '../
 const MAX_EVENTS = 3000;
 const RECONNECT_BASE_MS = 1500;
 const RECONNECT_MAX_MS = 10000;
+const HEARTBEAT_INTERVAL_MS = 25000;   // Client sends ping every 25s
+const HEARTBEAT_TIMEOUT_MS = 90000;    // Generous timeout — tab throttling can delay timers significantly
 
 const state = reactive({
   wsConnected: false,
   wsStatus: 'idle',
   lastError: '',
   reconnectAttempts: 0,
+  lastHeartbeatAt: null,
+  wsLatency: null,
   catalogRuns: [],
   activeRunId: null,
   runSnapshots: {},
@@ -18,7 +22,10 @@ const state = reactive({
 
 let socket = null;
 let reconnectTimer = null;
+let heartbeatTimer = null;
+let heartbeatCheckTimer = null;
 let manualClose = false;
+let _visibilityHandler = null;  // for cleanup
 
 function ensureRunSnapshot(runId) {
   if (!runId) return null;
@@ -260,9 +267,116 @@ function handleSocketMessage(message) {
     case 'error':
       state.lastError = message.data?.message || 'WebSocket error';
       break;
+    case 'ping':
+      // Server-initiated heartbeat — reply immediately
+      state.lastHeartbeatAt = Date.now();
+      send({ type: 'pong', data: { ts: message.data?.ts } });
+      break;
+    case 'pong':
+      // Our ping was acknowledged
+      state.lastHeartbeatAt = Date.now();
+      if (message.data?.ts) {
+        state.wsLatency = Date.now() - message.data.ts;
+      }
+      // Resolve pending health check if any
+      if (_healthCheckResolve) _healthCheckResolve(message);
+      break;
     default:
       break;
   }
+}
+
+function startHeartbeat() {
+  stopHeartbeat();
+  state.lastHeartbeatAt = Date.now();
+  state.wsLatency = null;
+
+  // Client-initiated heartbeat: send ping every 25s
+  heartbeatTimer = window.setInterval(() => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    send({ type: 'ping', data: { ts: Date.now() } });
+  }, HEARTBEAT_INTERVAL_MS);
+
+  // Check for heartbeat timeout
+  heartbeatCheckTimer = window.setInterval(() => {
+    if (!state.lastHeartbeatAt) return;
+    const elapsed = Date.now() - state.lastHeartbeatAt;
+    if (elapsed > HEARTBEAT_TIMEOUT_MS) {
+      // No response for too long — force close to trigger reconnect
+      state.lastError = 'Heartbeat timeout — connection stale';
+      if (socket) socket.close();
+    }
+  }, HEARTBEAT_INTERVAL_MS);
+}
+
+function stopHeartbeat() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+  if (heartbeatCheckTimer) {
+    clearInterval(heartbeatCheckTimer);
+    heartbeatCheckTimer = null;
+  }
+}
+
+/**
+ * Health check — send a ping and verify the connection is alive.
+ * If the socket is dead or closed, triggers reconnect.
+ * Call this on visibility change or before any page-sensitive operation.
+ * Returns a Promise that resolves to true (connected) or false (failed).
+ */
+let _healthCheckResolve = null;
+
+export function healthCheck(timeoutMs = 3000) {
+  return new Promise((resolve) => {
+    // Case 1: Socket doesn't exist or isn't open — reconnect
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      state.wsStatus = 'connecting';
+      connect();
+      // Wait briefly for connection
+      const wait = setTimeout(() => {
+        const ok = socket && socket.readyState === WebSocket.OPEN;
+        resolve(ok);
+      }, timeoutMs);
+      return;
+    }
+
+    // Case 2: Socket is open — send a ping and wait for pong
+    const pingTs = Date.now();
+    let settled = false;
+
+    const finish = (ok) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadline);
+      _healthCheckResolve = null;
+      resolve(ok);
+    };
+
+    // Deadline: if no pong within timeoutMs, consider it dead
+    const deadline = setTimeout(() => {
+      if (!settled) {
+        // Connection is stale — close and reconnect
+        state.lastError = 'Health check failed — no pong received';
+        if (socket) socket.close();
+        finish(false);
+      }
+    }, timeoutMs);
+
+    // Intercept the next pong to resolve this health check
+    _healthCheckResolve = (message) => {
+      if (message.type === 'pong') {
+        state.lastHeartbeatAt = Date.now();
+        state.wsLatency = Date.now() - pingTs;
+        finish(true);
+        return true; // consumed
+      }
+      return false; // not ours
+    };
+
+    send({ type: 'ping', data: { ts: pingTs } });
+  });
 }
 
 function send(message) {
@@ -293,6 +407,7 @@ export function connect() {
     state.wsConnected = true;
     state.wsStatus = 'connected';
     state.reconnectAttempts = 0;
+    startHeartbeat();
     send({ type: 'watch_catalog', enabled: true });
     if (state.activeRunId) {
       send({ type: 'subscribe_run', runId: state.activeRunId });
@@ -313,6 +428,7 @@ export function connect() {
   };
 
   socket.onclose = () => {
+    stopHeartbeat();
     state.wsConnected = false;
     state.wsStatus = manualClose ? 'closed' : 'disconnected';
     socket = null;
@@ -325,6 +441,7 @@ export function connect() {
 
 export function disconnect() {
   manualClose = true;
+  stopHeartbeat();
   if (reconnectTimer) {
     clearTimeout(reconnectTimer);
     reconnectTimer = null;
@@ -335,6 +452,39 @@ export function disconnect() {
   }
   state.wsConnected = false;
   state.wsStatus = 'closed';
+  state.lastHeartbeatAt = null;
+  state.wsLatency = null;
+}
+
+/**
+ * init() — Call once on app mount. Connects WS, starts heartbeat,
+ * and registers visibilitychange for silent background health checks.
+ * The connection is fully managed by the store — no page-level logic needed.
+ */
+export function init() {
+  connect();
+
+  // Browser tab goes background → comes back: silent health check
+  if (_visibilityHandler) {
+    document.removeEventListener('visibilitychange', _visibilityHandler);
+  }
+  _visibilityHandler = () => {
+    if (document.visibilityState === 'visible') {
+      healthCheck();
+    }
+  };
+  document.addEventListener('visibilitychange', _visibilityHandler);
+}
+
+/**
+ * teardown() — Call once on app unmount. Cleans up everything.
+ */
+export function teardown() {
+  if (_visibilityHandler) {
+    document.removeEventListener('visibilitychange', _visibilityHandler);
+    _visibilityHandler = null;
+  }
+  disconnect();
 }
 
 export function subscribeRun(runId) {
@@ -422,8 +572,11 @@ export function useDiagnosisRealtimeStore() {
     activeSnapshot,
     runningRuns,
     pastRuns,
+    init,
+    teardown,
     connect,
     disconnect,
+    healthCheck,
     subscribeRun,
     unsubscribeRun,
     hydrateRun,

@@ -108,7 +108,7 @@ function verdictColor(v) {
 }
 
 onMounted(() => {
-  connect();
+  // connect is managed centrally by App.vue
   refreshCatalog();
 });
 </script>

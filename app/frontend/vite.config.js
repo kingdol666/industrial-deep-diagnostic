@@ -14,6 +14,19 @@ export default defineConfig({
       '/ws': {
         target: frontend.ws_url,
         ws: true,
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            // Suppress EPIPE / ECONNRESET when backend is down or restarting
+            if (err.code === 'EPIPE' || err.code === 'ECONNRESET' || err.code === 'ECONNREFUSED') {
+              return;
+            }
+            console.error('[ws proxy]', err.message);
+          });
+          proxy.on('close', () => {
+            // Proxy socket closed — expected during backend restart
+          });
+        },
       },
     },
   },

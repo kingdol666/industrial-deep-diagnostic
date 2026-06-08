@@ -125,6 +125,7 @@
 
             <MessageStream
               v-else
+              :key="activePanel.localId"
               :events="activePanel.events"
               :isRunning="activePanelRunning"
               :connected="wsConnected"

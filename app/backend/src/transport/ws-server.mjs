@@ -21,6 +21,7 @@ import {
   stopChat,
   subscribeChatEvents,
 } from '../services/chat.service.mjs';
+import { websocket as wsConfig } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 
 let wss = null;
@@ -38,6 +39,9 @@ function getOrCreateState(ws) {
       subscriptions: new Map(),
       chatSubscriptions: new Map(),
       watchCatalog: false,
+      lastPongAt: Date.now(),
+      heartbeatTimer: null,
+      clientId: `client_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     };
     clientState.set(ws, state);
   }
@@ -58,6 +62,10 @@ function clearAllSubscriptions(state) {
     const entry = state.chatSubscriptions.get(chatId);
     if (entry?.unsubscribe) entry.unsubscribe();
     state.chatSubscriptions.delete(chatId);
+  }
+  if (state.heartbeatTimer) {
+    clearInterval(state.heartbeatTimer);
+    state.heartbeatTimer = null;
   }
 }
 
@@ -435,8 +443,26 @@ export function initWebSocket(httpServer) {
     broadcastCatalogUpdate();
   });
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, req) => {
     const state = getOrCreateState(ws);
+    const clientIp = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || 'unknown';
+    logger.info(`Client connected: ${state.clientId} (IP: ${clientIp}, total: ${wss.clients.size})`, { context: 'WS' });
+
+    // --- Server-side heartbeat ---
+    const hbInterval = wsConfig?.heartbeat_interval_ms || 30000;
+    const hbTimeout = wsConfig?.heartbeat_timeout_ms || 60000;
+    state.lastPongAt = Date.now();
+
+    state.heartbeatTimer = setInterval(() => {
+      if (ws.readyState !== ws.OPEN) return;
+      const elapsed = Date.now() - state.lastPongAt;
+      if (elapsed > hbTimeout) {
+        logger.warn(`Heartbeat timeout (${elapsed}ms) — terminating ${state.clientId}`, { context: 'WS' });
+        ws.terminate();
+        return;
+      }
+      safeSend(ws, { type: 'ping', data: { ts: Date.now() } });
+    }, hbInterval);
 
     ws.on('message', (raw) => {
       try {
@@ -590,7 +616,13 @@ export function initWebSocket(httpServer) {
           }
 
           case 'ping': {
-            safeSend(ws, { type: 'pong', data: {} });
+            state.lastPongAt = Date.now();
+            safeSend(ws, { type: 'pong', data: { ts: Date.now() } });
+            break;
+          }
+
+          case 'pong': {
+            state.lastPongAt = Date.now();
             break;
           }
 
@@ -628,6 +660,11 @@ export function initWebSocket(httpServer) {
     });
 
     ws.on('close', () => {
+      logger.info(`Client disconnected: ${state.clientId} (remaining: ${wss ? wss.clients.size : 0})`, { context: 'WS' });
+      if (state.heartbeatTimer) {
+        clearInterval(state.heartbeatTimer);
+        state.heartbeatTimer = null;
+      }
       clearAllSubscriptions(state);
     });
 

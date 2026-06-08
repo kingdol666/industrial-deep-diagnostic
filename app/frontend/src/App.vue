@@ -3,6 +3,10 @@
     <header class="app-header">
       <div class="header-left">
         <h1 class="logo">Industrial Deep Diagnostic</h1>
+        <span :class="['ws-indicator', wsStatusClass]" :title="wsTitle">
+          <span class="ws-dot"></span>
+          <span class="ws-label">{{ wsStatusText }}</span>
+        </span>
         <span class="version">v4.2</span>
       </div>
       <nav class="header-nav">
@@ -13,7 +17,7 @@
         >{{ tab.label }}</button>
       </nav>
     </header>
-    <main :class="['app-main', { 'app-main-chat': currentTab === 'chat' }]">
+    <main :class="['app-main', { 'app-main-chat': currentTab === 'chat', 'app-main-diagnose': currentTab === 'diagnose' }]">
       <DataBrowser
         v-if="currentTab === 'data'"
         @select-file="onSelectFile"
@@ -46,17 +50,45 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import DataBrowser from './components/data/DataBrowser.vue';
 import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
 import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
+import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 
 const currentTab = ref('data');
 const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
+
+const { state: rtState, init, teardown } = useDiagnosisRealtimeStore();
+
+const wsStatusClass = computed(() => {
+  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return 'ws-ok';
+  if (rtState.wsStatus === 'connecting') return 'ws-connecting';
+  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return 'ws-reconnecting';
+  return 'ws-offline';
+});
+
+const wsStatusText = computed(() => {
+  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return 'Connected';
+  if (rtState.wsStatus === 'connecting') return 'Connecting...';
+  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return 'Reconnecting...';
+  if (rtState.wsStatus === 'idle') return 'Not connected';
+  return 'Disconnected';
+});
+
+const wsTitle = computed(() => {
+  const parts = [`WebSocket: ${wsStatusText.value}`];
+  if (rtState.wsLatency != null) parts.push(`Latency: ${rtState.wsLatency}ms`);
+  if (rtState.lastHeartbeatAt) {
+    const ago = Math.round((Date.now() - rtState.lastHeartbeatAt) / 1000);
+    parts.push(`Last heartbeat: ${ago}s ago`);
+  }
+  return parts.join(' | ');
+});
 
 const tabs = [
   { key: 'data', label: 'Data' },
@@ -105,6 +137,10 @@ function onOpenReport(reportPath) {
   }
   currentTab.value = 'reports';
 }
+
+// --- WS connection is fully managed by the store (silent heartbeat + auto-reconnect) ---
+onMounted(() => init());
+onUnmounted(() => teardown());
 </script>
 
 <style>

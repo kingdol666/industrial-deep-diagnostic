@@ -4,3 +4,4 @@
 - [Cross-Model Consistency Is Not Causal](cross-model-consistency-is-not-causal.md) — H2's cross-model sign consistency is same between-model pattern as H1's BETWEEN_PRODUCT_ONLY false alarm
 - [Diagnosis Consistency Across Artifacts](diagnosis-consistency-across-artifacts.md) — diagnosis.json/reasoning_chain.json/run_summary.json type+confidence must match; found COMPETING_SET vs DETERMINED mismatch
 - [CCF Lag Artifact With Unsorted Data](ccf-lag-artifact-time-sorted-check.md) — systematic isolated lag=-5 spike across all torque_std params when time_sorted=null
+- [Tool Age Effect Masked By Dominant Vibration](tool-age-effect-masked-by-dominant-vibration.md) — CNC diagnosis: tool_age global r=0.145 but low-vibration quartile r=0.574; weaker physical effects must be checked by dominant-parameter stratification

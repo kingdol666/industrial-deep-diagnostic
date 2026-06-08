@@ -1,2 +1,4 @@
 - [CNC Spindle Wear — Simpson Paradox Rejected](cnc-simpson-paradox-rejected.md) — Material-based Simpson Paradox hypothesis was NOT confirmed: time confounding was the true mechanism
 - [cleaned_data.json String Type Gotcha](string-type-gotcha.md) — dp_toolkit.py preprocess outputs string-typed numerics that crash physics_check.py
+- [CNC Spindle Bearing Primary Hypothesis 2026-06-08](cnc-spindle-bearing-primary-hypothesis.json) — 30天CNC加工数据: 主轴轴承磨损为首要假说(振动+729%、温度+135%、热差+267%均不恢复)排除刀具磨损和材料混杂的Simpson Paradox
+- [Paper Machine Headbox — Grade-Driven Simpson Confounding](paper-machine-grade-driven-simpson-confounding.md) — All process-quality correlations are between-grade artifacts, not causal: within-grade correlations near-zero, detrended r drops 30-56%, scatter_grid shows 3 grade clusters

@@ -1,0 +1,2 @@
+- [FP21 Spearman Correction](fp21-spearman-correction.md) — Spearman rho corrected outlier-driven Pearson artifact in BOPET scratch diagnosis
+- [Quality Check Resolution](quality-check-resolution.md) — How to resolve DUAL_DRIVE, PHYSICS_ZERO, and VLM_SOURCE quality-check issues

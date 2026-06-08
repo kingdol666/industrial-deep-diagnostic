@@ -73,6 +73,11 @@ engine:
   max_event_buffer: 500
   close_run_delay_seconds: 60
 
+# --- WebSocket ---
+websocket:
+  heartbeat_interval_ms: 30000          # Server sends ping every 30s
+  heartbeat_timeout_ms: 60000           # 60s without pong → terminate connection
+
 # --- Security ---
 security:
   hitl_auto_deny_seconds: 120

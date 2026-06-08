@@ -151,6 +151,8 @@ export const security = merged.security;
 export const frontend = merged.frontend;
 export const pipeline = merged.pipeline;
 
+export const websocket = merged.websocket;
+
 export { getKey, setKey, removeKey, saveLocalYaml, loadLocalYaml };
 
 export default merged;

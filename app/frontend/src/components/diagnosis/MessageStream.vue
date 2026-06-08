@@ -1,5 +1,12 @@
 <template>
-  <div class="message-stream" ref="streamEl" @scroll="handleScroll">
+  <div
+    class="message-stream"
+    ref="streamEl"
+    @scroll="handleScroll"
+    @wheel.passive="handleUserScrollIntent"
+    @touchstart.passive="handleUserScrollIntent"
+    @pointerdown.passive="handleUserScrollIntent"
+  >
     <div v-if="!connected && isRunning" class="ms-connecting">
       <div class="spinner-sm"></div>
       <span>正在连接诊断引擎...</span>
@@ -204,7 +211,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, onBeforeUpdate, onMounted, onUpdated } from 'vue';
+import { ref, computed, onBeforeUnmount, onBeforeUpdate, onMounted, onUpdated, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../../utils/markdown.js';
 
 const props = defineProps({
@@ -217,10 +224,15 @@ const expandedThinking = ref(new Set());
 const streamEl = ref(null);
 const bottomSentinel = ref(null);
 const MAX_ITEMS = 300;
+const BOTTOM_THRESHOLD_PX = 56;
 const autoScrollPinned = ref(true);
 const pendingAutoScroll = ref(true);
+const userScrollPriority = ref(false);
+const autoScrolling = ref(false);
 let resizeObserver = null;
 let scrollFrame = null;
+let autoScrollReleaseFrame = null;
+let userScrollPriorityTimer = null;
 
 const renderedItems = computed(() => {
   const items = [];
@@ -890,54 +902,107 @@ function progressText(progress) {
 function isPinnedToBottom() {
   const el = streamEl.value;
   if (!el) return true;
-  return el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+  return el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_THRESHOLD_PX;
 }
 
-function scrollToLatest(behavior = 'auto') {
+function clearUserScrollPriorityTimer() {
+  if (userScrollPriorityTimer) {
+    clearTimeout(userScrollPriorityTimer);
+    userScrollPriorityTimer = null;
+  }
+}
+
+function releaseAutoScrolling() {
+  if (autoScrollReleaseFrame) cancelAnimationFrame(autoScrollReleaseFrame);
+  autoScrollReleaseFrame = requestAnimationFrame(() => {
+    autoScrolling.value = false;
+    autoScrollPinned.value = isPinnedToBottom();
+    autoScrollReleaseFrame = null;
+  });
+}
+
+function cancelScheduledAutoScroll() {
+  if (scrollFrame) {
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = null;
+  }
+  if (autoScrollReleaseFrame) {
+    cancelAnimationFrame(autoScrollReleaseFrame);
+    autoScrollReleaseFrame = null;
+  }
+  autoScrolling.value = false;
+}
+
+function handleUserScrollIntent() {
+  userScrollPriority.value = true;
+  pendingAutoScroll.value = false;
+  cancelScheduledAutoScroll();
+  clearUserScrollPriorityTimer();
+  userScrollPriorityTimer = setTimeout(() => {
+    userScrollPriority.value = false;
+  }, 180);
+}
+
+function scrollToLatest(behavior = 'auto', { force = false } = {}) {
   const el = streamEl.value;
   if (!el) return;
-  if (scrollFrame) cancelAnimationFrame(scrollFrame);
+  if (!force && (!autoScrollPinned.value || userScrollPriority.value)) return;
+  cancelScheduledAutoScroll();
+  autoScrolling.value = true;
   scrollFrame = requestAnimationFrame(() => {
-    const sentinel = bottomSentinel.value;
-    if (sentinel?.scrollIntoView) {
-      sentinel.scrollIntoView({ block: 'end', behavior });
-    } else {
-      el.scrollTo({ top: el.scrollHeight, behavior });
-    }
+    el.scrollTo({ top: el.scrollHeight, behavior });
     scrollFrame = null;
+    releaseAutoScrolling();
   });
 }
 
 function handleScroll() {
+  if (autoScrolling.value) return;
   autoScrollPinned.value = isPinnedToBottom();
+  if (autoScrollPinned.value) {
+    userScrollPriority.value = false;
+    clearUserScrollPriorityTimer();
+  }
 }
 
 onBeforeUpdate(() => {
-  pendingAutoScroll.value = isPinnedToBottom();
+  pendingAutoScroll.value = autoScrollPinned.value && !userScrollPriority.value;
 });
 
 onUpdated(() => {
   if (!pendingAutoScroll.value) return;
   scrollToLatest('auto');
-  autoScrollPinned.value = true;
 });
 
 onMounted(() => {
-  scrollToLatest('auto');
+  nextTick(() => {
+    scrollToLatest('auto', { force: true });
+  });
   if (typeof ResizeObserver !== 'undefined' && streamEl.value) {
     resizeObserver = new ResizeObserver(() => {
-      if (!autoScrollPinned.value && !isPinnedToBottom()) return;
+      if (!autoScrollPinned.value || userScrollPriority.value) return;
       scrollToLatest('auto');
     });
     resizeObserver.observe(streamEl.value);
   }
 });
 
+watch(
+  () => props.events?.length || 0,
+  (nextCount, prevCount) => {
+    if (!nextCount) return;
+    const shouldForceToBottom = prevCount === 0;
+    if (!shouldForceToBottom && (!autoScrollPinned.value || userScrollPriority.value)) return;
+    nextTick(() => {
+      scrollToLatest('auto', { force: shouldForceToBottom });
+    });
+  },
+  { flush: 'post' },
+);
+
 onBeforeUnmount(() => {
-  if (scrollFrame) {
-    cancelAnimationFrame(scrollFrame);
-    scrollFrame = null;
-  }
+  clearUserScrollPriorityTimer();
+  cancelScheduledAutoScroll();
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
@@ -955,7 +1020,6 @@ onBeforeUnmount(() => {
   padding: 18px clamp(14px, 3vw, 34px);
   flex: 1;
   overflow-y: auto;
-  scroll-behavior: smooth;
   min-height: 200px;
 }
 .ms-bottom-sentinel {

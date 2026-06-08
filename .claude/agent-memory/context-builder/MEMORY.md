@@ -3,3 +3,4 @@
 - [BOPET Scratch Model Confounds All](bopet-scratch-model-confounds-all.md) — Product model (grade) is the dominant confounder — 8 models with different speed setpoints and scratch baselines cause Simpson's Paradox
 - [BOPET Quench Zone Variability](bopet-quench-zone-variability.md) — Quench zone (TH013-015) shows 5-17x higher batch-to-batch temperature variability vs stretch zone, with one clear outlier batch
 - [BOPET Filter Pressure Sign Reversal](bopet-filter-pressure-sign-reversal.md) — Filter pressure vs scratch shows r≈-0.19 (negative), contradicting physics expectation
+- [Paper Machine Headbox Time-Trend Confounding](paper-machine-headbox-time-trend-confounding.md) — 8 parameters co-trend over 3 months driving spurious |r|>0.8 correlations; fan_pump speed violates pump affinity law

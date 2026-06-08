@@ -16,14 +16,27 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
+  overflow: hidden;
 }
 
-.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
 .app-header {
   background: var(--surface);
@@ -55,6 +68,82 @@ body {
 }
 
 .header-nav { display: flex; gap: 4px; }
+
+/* WebSocket connection status indicator */
+.ws-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.ws-indicator .ws-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+}
+
+.ws-indicator .ws-label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Status: Connected */
+.ws-indicator.ws-ok {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+}
+.ws-indicator.ws-ok .ws-dot {
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(63, 185, 80, 0.6);
+  animation: ws-pulse 2s ease-in-out infinite;
+}
+
+/* Status: Connecting */
+.ws-indicator.ws-connecting {
+  background: rgba(210, 153, 34, 0.12);
+  color: var(--yellow);
+}
+.ws-indicator.ws-connecting .ws-dot {
+  background: var(--yellow);
+  animation: ws-blink 1s ease-in-out infinite;
+}
+
+/* Status: Reconnecting */
+.ws-indicator.ws-reconnecting {
+  background: rgba(210, 153, 34, 0.12);
+  color: var(--yellow);
+}
+.ws-indicator.ws-reconnecting .ws-dot {
+  background: var(--yellow);
+  animation: ws-blink 1.2s ease-in-out infinite;
+}
+
+/* Status: Offline / Disconnected */
+.ws-indicator.ws-offline {
+  background: rgba(248, 81, 73, 0.12);
+  color: var(--red);
+}
+.ws-indicator.ws-offline .ws-dot {
+  background: var(--red);
+}
+
+@keyframes ws-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes ws-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
 
 .nav-btn {
   background: transparent;
@@ -88,6 +177,16 @@ body {
   max-width: none;
   padding: 0;
   overflow: hidden;
+}
+
+.app-main-diagnose {
+  height: calc(100vh - 56px);
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Shared component styles */

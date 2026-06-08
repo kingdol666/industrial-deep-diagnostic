@@ -1,5 +1,5 @@
 <template>
-  <div class="diagnosis-view">
+  <div :class="['diagnosis-view', { 'diagnosis-view-run': viewingRun }]">
     <!-- Back button (when viewing a specific run) -->
     <div class="dv-nav" v-if="viewingRun">
       <button class="btn btn-sm" @click="goBack">← 返回任务列表</button>
@@ -72,110 +72,123 @@
 
     <!-- ============ LIVE RUN MODE ============ -->
     <template v-if="viewingRun">
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <div class="status-left">
-          <div class="status-dot" :class="statusDotClass"></div>
-          <span class="status-label">{{ statusLabel }}</span>
-          <span class="status-run-id">#{{ runId }}</span>
-        </div>
-        <div class="status-metrics">
-          <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">轮次</span></div>
-          <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">工具</span></div>
-          <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">消息</span></div>
-          <div class="smetric sm-time"><span class="sm-val">{{ elapsed }}</span></div>
-        </div>
-        <button v-if="canStop" class="stop-btn" @click="stop">停止</button>
-      </div>
-
-      <!-- Phase Indicator -->
-      <div class="phase-bar" v-if="currentPhase">
-        <div class="phase-icon">{{ phaseIcon }}</div>
-        <span class="phase-text">{{ currentPhase }}</span>
-        <div class="phase-progress-track">
-          <div class="phase-progress-fill" :style="{ width: progressPct + '%' }"></div>
-        </div>
-      </div>
-
-      <!-- Message Stream -->
-      <MessageStream
-        :events="events"
-        :isRunning="isRunning"
-        :connected="connected"
-      />
-
-      <!-- Answer Bar -->
-      <AnswerBar
-        :questionData="currentQuestion"
-        :runId="runId"
-        @answer="onAnswer"
-        @skip="onSkipQuestion"
-      />
-
-      <!-- Chat Input — always visible when viewing a run, enables follow-up messages -->
-      <ChatInput
-        v-if="viewingRun"
-        ref="chatInputRef"
-        :isRunning="isRunning"
-        :terminalStatus="completed ? 'completed' : (failed ? liveStatus : '')"
-        :runId="runId"
-        @send-message="onSendMessage"
-        @resume-with-message="onResumeWithMessage"
-      />
-
-      <!-- Completion Banner -->
-      <div v-if="completed || failed" :class="['result-banner', verdictClass]">
-        <div class="rb-icon">{{ resultBannerIcon }}</div>
-        <div class="rb-info">
-          <div class="rb-title">{{ resultBannerTitle }}</div>
-          <div class="rb-meta">
-            <span v-if="score != null" class="rb-score">评分: {{ score }}/100</span>
-            <span v-if="verdict" class="rb-verdict">{{ verdict }}</span>
-            <span v-if="errorMsg" class="rb-error">{{ errorMsg }}</span>
+      <div class="run-layout">
+        <div class="run-header">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <div class="status-left">
+              <div class="status-dot" :class="statusDotClass"></div>
+              <span class="status-label">{{ statusLabel }}</span>
+              <span class="status-run-id">#{{ runId }}</span>
+            </div>
+            <div class="status-metrics">
+              <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">轮次</span></div>
+              <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">工具</span></div>
+              <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">消息</span></div>
+              <div class="smetric sm-time"><span class="sm-val">{{ elapsed }}</span></div>
+            </div>
+            <button v-if="canStop" class="stop-btn" @click="stop">停止</button>
           </div>
-          <div class="rb-actions">
-            <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">查看完整报告</button>
-            <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">下载 Markdown</button>
-            <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">继续诊断</button>
-          </div>
-          <div class="rb-hint" v-if="failed">
-            可在下方输入补充指令，并基于本次上下文继续诊断。
+
+          <!-- Phase Indicator -->
+          <div class="phase-bar" v-if="currentPhase">
+            <div class="phase-icon">{{ phaseIcon }}</div>
+            <span class="phase-text">{{ currentPhase }}</span>
+            <div class="phase-progress-track">
+              <div class="phase-progress-fill" :style="{ width: progressPct + '%' }"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Chart Dashboard -->
-      <div v-if="completed" class="card chart-dashboard">
-        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
-          <span>📊 诊断数据可视化</span>
-          <div style="display:flex;gap:6px;">
-            <button v-if="chartData === null" class="btn btn-sm" @click="loadCharts" :disabled="chartLoading">加载图表</button>
-            <button v-if="chartData" class="btn btn-sm" @click="toggleCharts">
-              {{ showCharts ? '收起' : '展开' }}
-            </button>
-          </div>
-        </div>
-        <div v-if="chartLoading" style="padding:12px;text-align:center;color:var(--text2)">加载图表数据中...</div>
-        <div v-if="chartData && !chartData.heatmap && !chartData.confidence && !chartData.runSummary" style="padding:12px;text-align:center;color:var(--text2)">
-          该诊断运行没有可用的图表数据。
-        </div>
-        <div v-if="showCharts && chartData" class="chart-grid">
-          <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
-            <div class="card-title" style="font-size:13px">变量相关性矩阵</div>
-            <HeatmapChart
-              :data="chartData.heatmap.data"
-              :x-labels="chartData.heatmap.xLabels"
-              :y-labels="chartData.heatmap.yLabels"
-              title="Correlation Matrix"
+        <div class="run-body">
+          <div class="run-message-region">
+            <MessageStream
+              :key="runId || 'diagnosis-run'"
+              :events="events"
+              :isRunning="isRunning"
+              :connected="connected"
             />
           </div>
-          <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
-            <GaugeChart
-              :value="chartData.confidence.overall"
-              title="诊断置信度"
-              unit="%"
-            />
+
+          <div v-if="completed || failed" class="run-support-stack">
+            <!-- Completion Banner -->
+            <div :class="['result-banner', verdictClass]">
+              <div class="rb-icon">{{ resultBannerIcon }}</div>
+              <div class="rb-info">
+                <div class="rb-title">{{ resultBannerTitle }}</div>
+                <div class="rb-meta">
+                  <span v-if="score != null" class="rb-score">评分: {{ score }}/100</span>
+                  <span v-if="verdict" class="rb-verdict">{{ verdict }}</span>
+                  <span v-if="errorMsg" class="rb-error">{{ errorMsg }}</span>
+                </div>
+                <div class="rb-actions">
+                  <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">查看完整报告</button>
+                  <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">下载 Markdown</button>
+                  <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">继续诊断</button>
+                </div>
+                <div class="rb-hint" v-if="failed">
+                  可在下方输入补充指令，并基于本次上下文继续诊断。
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart Dashboard -->
+            <div v-if="completed" class="card chart-dashboard">
+              <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+                <span>📊 诊断数据可视化</span>
+                <div style="display:flex;gap:6px;">
+                  <button v-if="chartData === null" class="btn btn-sm" @click="loadCharts" :disabled="chartLoading">加载图表</button>
+                  <button v-if="chartData" class="btn btn-sm" @click="toggleCharts">
+                    {{ showCharts ? '收起' : '展开' }}
+                  </button>
+                </div>
+              </div>
+              <div v-if="chartLoading" style="padding:12px;text-align:center;color:var(--text2)">加载图表数据中...</div>
+              <div v-if="chartData && !chartData.heatmap && !chartData.confidence && !chartData.runSummary" style="padding:12px;text-align:center;color:var(--text2)">
+                该诊断运行没有可用的图表数据。
+              </div>
+              <div v-if="showCharts && chartData" class="chart-grid">
+                <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
+                  <div class="card-title" style="font-size:13px">变量相关性矩阵</div>
+                  <HeatmapChart
+                    :data="chartData.heatmap.data"
+                    :x-labels="chartData.heatmap.xLabels"
+                    :y-labels="chartData.heatmap.yLabels"
+                    title="Correlation Matrix"
+                  />
+                </div>
+                <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
+                  <GaugeChart
+                    :value="chartData.confidence.overall"
+                    title="诊断置信度"
+                    unit="%"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div class="run-footer">
+          <!-- Answer Bar -->
+          <AnswerBar
+            :questionData="currentQuestion"
+            :runId="runId"
+            @answer="onAnswer"
+            @skip="onSkipQuestion"
+          />
+
+          <!-- Chat Input — fixed at the bottom of the live run layout -->
+          <ChatInput
+            v-if="viewingRun"
+            ref="chatInputRef"
+            class="run-input-dock"
+            :isRunning="isRunning"
+            :terminalStatus="completed ? 'completed' : (failed ? liveStatus : '')"
+            :runId="runId"
+            @send-message="onSendMessage"
+            @resume-with-message="onResumeWithMessage"
+          />
         </div>
       </div>
     </template>
@@ -414,6 +427,7 @@ function loadCharts() {
 async function start() {
   if (!props.analysisTarget) return;
 
+  window.scrollTo({ top: 0, behavior: 'auto' });
   viewingRun.value = true;
   started.value = true;
   chartData.value = null;
@@ -533,6 +547,7 @@ function markRunContinuing() {
 }
 
 async function openRun(rid) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   viewingRun.value = true;
   started.value = true;
   chartData.value = null;
@@ -638,18 +653,87 @@ watch([isRunning, isAwaitingInput, () => run.value?.created_at], ([running, awai
 }, { immediate: true });
 
 onMounted(() => {
-  connect();
+  // connect/disconnect is managed centrally by App.vue
+  // Only refresh catalog data when entering this page
   refreshCatalog();
 });
 
 onUnmounted(() => {
   stopElapsed();
-  disconnect();
 });
 </script>
 
 <style scoped>
-.diagnosis-view { display: flex; flex-direction: column; gap: 8px; }
+.diagnosis-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.diagnosis-view-run {
+  height: calc(100vh - 56px);
+  flex: 1;
+  overflow: hidden;
+  padding: 0 18px;
+}
+
+.run-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.run-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.run-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.run-message-region {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.run-message-region :deep(.message-stream) {
+  flex: 1;
+  min-height: 0;
+}
+
+.run-support-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.run-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-bottom: 12px;
+}
+
+.run-input-dock {
+  margin-top: 0;
+  flex-shrink: 0;
+}
 
 /* Nav */
 .dv-nav {
@@ -828,4 +912,39 @@ onUnmounted(() => {
 .chart-cell { min-height: 300px; }
 .chart-cell-full { grid-column: 1 / -1; }
 .chart-cell-half { grid-column: span 1; }
+
+@media (max-width: 900px) {
+  .diagnosis-view-run {
+    padding: 0 10px;
+  }
+
+  .status-bar {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .status-metrics {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .phase-bar {
+    flex-wrap: wrap;
+  }
+
+  .phase-text {
+    white-space: normal;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-cell-half {
+    grid-column: 1 / -1;
+  }
+}
 </style>
