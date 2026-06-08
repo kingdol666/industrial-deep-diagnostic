@@ -30,6 +30,14 @@ const executingRuns = new Set();
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped']);
 const PAUSED_STATUSES = new Set(['awaiting_input']);
+const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
+
+function formatResumeError(err, runId, sessionId) {
+  if (MISSING_CONVERSATION_RE.test(err?.message || '')) {
+    return `选中的诊断 Claude session 已不可恢复：${sessionId || 'unknown'}。runId=${runId} 只是本系统运行编号，不会作为 Claude session 传入。请重新启动一次诊断或选择仍可恢复的会话。`;
+  }
+  return err?.message || 'Diagnosis failed';
+}
 
 // Validate that a resolved data path is safe (contained within project root)
 export async function validateDataPath(dataPath) {
@@ -417,11 +425,13 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
   let shouldCloseRun = true;
   let pausedForQuestion = false;
+  let resumeSessionId = null;
 
   try {
     const meta = getMeta(runId);
     const followUpMessage = meta.followUpMessage || null;
     const sessionId = meta.sessionId || null;
+    resumeSessionId = sessionId;
 
     // Snapshot workspace dirs BEFORE spawning to detect new dirs
     const preExistingDirs = snapshotWorkspaceDirs();
@@ -617,14 +627,15 @@ async function executeDiagnosis(runId, run, isRetry = false) {
             });
           }
         } catch (err) {
+          const errorMessage = formatResumeError(err, runId, sessionId);
           questionSessions.delete(runId);
           updateStatus(runId, 'failed');
-          stmts.failRun.run({ runId, error: err.message });
+          stmts.failRun.run({ runId, error: errorMessage });
           emit(runId, {
             type: 'status',
-            data: { status: 'failed', runId, error: err.message },
+            data: { status: 'failed', runId, error: errorMessage },
           });
-          emit(runId, { type: 'error', data: { status: 'failed', runId, error: err.message } });
+          emit(runId, { type: 'error', data: { status: 'failed', runId, error: errorMessage } });
         }
       } else if (parsed.type === 'stream_event') {
         const ev = parsed.event;
@@ -649,13 +660,14 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     }
 
   } catch (err) {
+    const errorMessage = formatResumeError(err, runId, resumeSessionId);
     executingRuns.delete(runId);
     questionSessions.delete(runId);
     updateStatus(runId, 'failed');
-    stmts.failRun.run({ runId, error: err.message });
+    stmts.failRun.run({ runId, error: errorMessage });
     logger.error(`Diagnosis execution error for run ${runId}: ${err.message}`, { context: 'Diagnosis', runId });
-    emit(runId, { type: 'status', data: { status: 'failed', runId, error: err.message } });
-    emit(runId, { type: 'error', data: { status: 'failed', runId, error: err.message } });
+    emit(runId, { type: 'status', data: { status: 'failed', runId, error: errorMessage } });
+    emit(runId, { type: 'error', data: { status: 'failed', runId, error: errorMessage } });
     setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }

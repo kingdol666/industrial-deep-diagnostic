@@ -199,7 +199,11 @@ const stmts = {
         session_id = COALESCE(@sessionId, session_id),
         status = COALESCE(@status, status),
         updated_at = datetime('now'),
-        completed_at = CASE WHEN @status IN ('completed', 'failed', 'stopped') THEN datetime('now') ELSE completed_at END
+        completed_at = CASE
+          WHEN @status = 'active' THEN NULL
+          WHEN @status IN ('completed', 'failed', 'stopped') THEN datetime('now')
+          ELSE completed_at
+        END
     WHERE chat_id = @chatId
   `),
   getChatSessionByChatId: db.prepare('SELECT * FROM chat_sessions WHERE chat_id = ?'),

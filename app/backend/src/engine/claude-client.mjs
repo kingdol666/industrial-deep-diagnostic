@@ -26,9 +26,16 @@ const DATA_DIR = join(PROJECT_ROOT, config.data.dir);
 const WORKSPACE_DIR = join(PROJECT_ROOT, config.data.workspace_dir);
 const SKILL_DIR = join(PROJECT_ROOT, config.claude.skill_dir);
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md');
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function sanitize(str) {
   return str.replace(/[\x00-\x08\x0A-\x1F]/g, '').trim();
+}
+
+function normalizeClaudeSessionId(value) {
+  if (!value || typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return UUID_RE.test(trimmed) ? trimmed : null;
 }
 
 function buildRuntimeProtocol(sceneName, reportLanguage) {
@@ -229,7 +236,9 @@ export function startDiagnosis({
 
   const systemPrompt = buildSystemPrompt(sceneName, lang, skillContent);
 
-  const prompt = sessionId
+  const resumeSessionId = normalizeClaudeSessionId(sessionId);
+
+  const prompt = resumeSessionId
     ? buildResumePrompt(followUpMessage)
     : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage);
 
@@ -244,8 +253,8 @@ export function startDiagnosis({
     maxTurns: maxTurns > 0 ? maxTurns : undefined,
   };
 
-  if (sessionId) {
-    options.resume = sessionId;
+  if (resumeSessionId) {
+    options.resume = resumeSessionId;
   }
 
   options.systemPrompt = systemPrompt;

@@ -4,6 +4,7 @@ export function normalizeRunSummary(run) {
   return {
     ...run,
     run_id: run.run_id || run.runId || null,
+    session_id: run.session_id || run.sessionId || null,
     scene_name: run.scene_name || run.sceneName || '',
     judge_verdict: run.judge_verdict || run.verdict || null,
     report_path: run.report_path || run.reportPath || null,

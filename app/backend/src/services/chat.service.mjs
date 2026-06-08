@@ -4,6 +4,7 @@
 import { EventEmitter } from 'events';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
+import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 
 let queryFn = null;
 try {
@@ -15,6 +16,14 @@ try {
 
 // Active chat sessions: chatId -> { query, emitter }
 const activeChats = new Map();
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
+
+function normalizeClaudeSessionId(value) {
+  if (!value || typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return UUID_RE.test(trimmed) ? trimmed : null;
+}
 
 /**
  * Start a chat session with full streaming support.
@@ -24,12 +33,13 @@ export async function startChat(params = {}) {
   if (!queryFn) throw new Error('Claude Agent SDK not available');
 
   const {
+    chatId: requestedChatId,
     prompt,
     model,
     permissionMode = 'bypassPermissions',
     maxTurns,
     cwd,
-    sessionId,      // resume existing session
+    sessionId: rawSessionId, // resume existing Claude session UUID
     extraArgs,      // additional CLI args
     systemPrompt,   // system prompt override
     tools,          // allowed tools list
@@ -44,7 +54,8 @@ export async function startChat(params = {}) {
     throw new Error('prompt is required');
   }
 
-  const chatId = `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const chatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const sessionId = normalizeClaudeSessionId(rawSessionId);
   const emitter = new EventEmitter();
 
   // Build SDK options
@@ -54,7 +65,7 @@ export async function startChat(params = {}) {
     includePartialMessages: true,
     forwardSubagentText: true,
     model: model || undefined,
-    cwd: cwd || undefined,
+    cwd: cwd || PROJECT_ROOT,
     maxTurns: maxTurns || undefined,
     effort: effort || undefined,
     thinking: thinking || undefined,
@@ -74,14 +85,24 @@ export async function startChat(params = {}) {
   activeChats.set(chatId, { query, emitter });
   const sdkSessionId = query.sessionId || null;
 
-  stmts.insertChatSession.run({
-    chatId,
-    title: title || prompt.slice(0, 60),
-    sessionId: sdkSessionId,
-    status: 'active',
-    model: model || 'default',
-    permissionMode,
-  });
+  const existingSession = stmts.getChatSessionByChatId.get(chatId);
+  if (existingSession) {
+    stmts.updateChatSession.run({
+      chatId,
+      title: title || null,
+      sessionId: sdkSessionId,
+      status: 'active',
+    });
+  } else {
+    stmts.insertChatSession.run({
+      chatId,
+      title: title || prompt.slice(0, 60),
+      sessionId: sdkSessionId,
+      status: 'active',
+      model: model || 'default',
+      permissionMode,
+    });
+  }
   stmts.insertChatMessage.run({
     chatId,
     role: 'user',
@@ -231,12 +252,15 @@ export async function startChat(params = {}) {
       emitter.emit('event', 'chat_complete', { chatId, sessionId: sdkSessionId });
       stmts.updateChatSession.run({ chatId, title: null, sessionId: sdkSessionId, status: 'completed' });
     } catch (err) {
-      emitter.emit('event', 'chat_error', { chatId, error: err.message });
+      const message = MISSING_CONVERSATION_RE.test(err.message || '')
+        ? `选中的 Claude session 已不可恢复：${sessionId || 'unknown'}。请新建 Chat，或选择仍存在 session_id 的历史对话。`
+        : err.message;
+      emitter.emit('event', 'chat_error', { chatId, error: message });
       logger.error(`Chat error [${chatId}]: ${err.message}`, { context: 'Chat' });
       stmts.insertChatMessage.run({
         chatId,
         role: 'system',
-        content: err.message,
+        content: message,
         eventType: 'error',
         eventSubtype: 'chat_error',
       });
@@ -301,26 +325,27 @@ export function listActiveChats() {
  */
 export async function sendChatMessage(chatId, followUpMessage, params = {}) {
   const entry = activeChats.get(chatId);
-  let sessionId = params.sessionId;
+  let sessionId = normalizeClaudeSessionId(params.sessionId);
   const stored = stmts.getChatSessionByChatId.get(chatId);
 
   if (entry) {
     // Extract from stored entry first, then from query object
-    if (!sessionId && entry.sessionId) sessionId = entry.sessionId;
-    if (!sessionId && entry.query?.sessionId) sessionId = entry.query.sessionId;
+    if (!sessionId && entry.sessionId) sessionId = normalizeClaudeSessionId(entry.sessionId);
+    if (!sessionId && entry.query?.sessionId) sessionId = normalizeClaudeSessionId(entry.query.sessionId);
     try { entry.query.close(); } catch {}
     activeChats.delete(chatId);
   }
 
-  if (!sessionId && stored?.session_id) sessionId = stored.session_id;
+  if (!sessionId && stored?.session_id) sessionId = normalizeClaudeSessionId(stored.session_id);
 
   if (!sessionId) throw new Error('No active session to continue — provide sessionId parameter or use /start first');
 
   return startChat({
+    ...params,
+    chatId,
     prompt: followUpMessage,
     sessionId,
     title: stored?.title || followUpMessage.slice(0, 60),
-    ...params,
   });
 }
 

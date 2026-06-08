@@ -70,6 +70,7 @@ function clearChatSubscription(state, chatId) {
 function makeRunSummary(run) {
   return {
     runId: run.run_id,
+    sessionId: run.session_id || null,
     name: run.name,
     sceneName: run.scene_name,
     status: run.status,

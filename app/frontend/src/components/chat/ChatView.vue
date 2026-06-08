@@ -294,11 +294,13 @@ function ensureDiagnosePanel(run) {
   if (!panel) {
     panel = createBasePanel('diagnose', buildDiagnoseTitle(normalized));
     panel.runId = normalized.run_id;
+    panel.sessionId = normalized.session_id || normalized.sessionId || null;
     panel.status = normalized.engineStatus || normalized.status || 'pending';
     panel.metadata.run = normalized;
     panels.value.push(panel);
   } else {
     panel.title = buildDiagnoseTitle(normalized);
+    panel.sessionId = normalized.session_id || normalized.sessionId || panel.sessionId;
     panel.status = normalized.engineStatus || normalized.status || panel.status;
     panel.metadata.run = normalized;
   }
@@ -423,6 +425,7 @@ function setChatSnapshot(panel, payload) {
 function setDiagnoseSnapshot(panel, payload) {
   panel.status = payload.liveStatus || payload.run?.engineStatus || payload.run?.status || panel.status;
   panel.metadata.run = normalizeRunSummary(payload.run || panel.metadata.run || {});
+  panel.sessionId = payload.run?.session_id || payload.run?.sessionId || panel.metadata.run?.session_id || panel.metadata.run?.sessionId || panel.sessionId;
   if (!panel.title || panel.title === 'Diagnose Session') {
     panel.title = buildDiagnoseTitle(payload.run || panel.metadata.run);
   }
