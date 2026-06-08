@@ -10,6 +10,8 @@
     "baseline_script_results",
     "expert_custom_analysis",
     "ontology_industry_interpretation",
+    "adaptive_decision_audit",
+    "analysis_coverage_matrix",
     "data_supported_conclusions",
     "handoff_to_diagnostician"
   ],
@@ -87,6 +89,62 @@
           "interpretation": {"type": "string"},
           "confidence": {"type": "string", "enum": ["high", "medium", "low"]}
         }
+      }
+    },
+    "adaptive_decision_audit": {
+      "type": "object",
+      "description": "Machine-readable proof that Data Processor selected analyses from the actual data shape instead of only running a fixed checklist.",
+      "required": ["data_view_mode", "mode_justification", "data_shapes_detected", "selected_analyses", "skipped_or_not_applicable", "custom_analysis_required", "expert_review_summary"],
+      "properties": {
+        "data_view_mode": {
+          "type": "string",
+          "enum": ["process_plus_inspection", "process_only", "inspection_only", "unknown"]
+        },
+        "mode_justification": {"type": "string"},
+        "data_shapes_detected": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "selected_analyses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["analysis", "reason", "evidence_artifacts"],
+            "properties": {
+              "analysis": {"type": "string"},
+              "reason": {"type": "string"},
+              "evidence_artifacts": {"type": "array", "items": {"type": "string"}},
+              "coverage_status": {"type": "string", "enum": ["covered", "partial", "planned"]}
+            }
+          }
+        },
+        "skipped_or_not_applicable": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["analysis", "status", "reason"],
+            "properties": {
+              "analysis": {"type": "string"},
+              "status": {"type": "string", "enum": ["skipped", "not_applicable"]},
+              "reason": {"type": "string"}
+            }
+          }
+        },
+        "custom_analysis_required": {"type": "boolean"},
+        "custom_analysis_reason": {"type": "string"},
+        "expert_review_summary": {"type": "string"}
+      }
+    },
+    "analysis_coverage_matrix": {
+      "type": "object",
+      "description": "Coverage status for expert industrial data-analysis dimensions.",
+      "required": ["pure_process_analysis", "process_inspection_dual_drive", "grouping_confounding", "temporal_regime_event", "scenario_specific"],
+      "properties": {
+        "pure_process_analysis": {"type": "object", "required": ["status", "evidence_artifacts", "summary"], "properties": {"status": {"type": "string", "enum": ["covered", "partial", "not_applicable", "missing"]}, "evidence_artifacts": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string"}, "gaps": {"type": "array", "items": {"type": "string"}}}},
+        "process_inspection_dual_drive": {"type": "object", "required": ["status", "evidence_artifacts", "summary"], "properties": {"status": {"type": "string", "enum": ["covered", "partial", "not_applicable", "missing"]}, "evidence_artifacts": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string"}, "gaps": {"type": "array", "items": {"type": "string"}}}},
+        "grouping_confounding": {"type": "object", "required": ["status", "evidence_artifacts", "summary"], "properties": {"status": {"type": "string", "enum": ["covered", "partial", "not_applicable", "missing"]}, "evidence_artifacts": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string"}, "gaps": {"type": "array", "items": {"type": "string"}}}},
+        "temporal_regime_event": {"type": "object", "required": ["status", "evidence_artifacts", "summary"], "properties": {"status": {"type": "string", "enum": ["covered", "partial", "not_applicable", "missing"]}, "evidence_artifacts": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string"}, "gaps": {"type": "array", "items": {"type": "string"}}}},
+        "scenario_specific": {"type": "object", "required": ["status", "evidence_artifacts", "summary"], "properties": {"status": {"type": "string", "enum": ["covered", "partial", "not_applicable", "missing"]}, "evidence_artifacts": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string"}, "gaps": {"type": "array", "items": {"type": "string"}}}}
       }
     },
     "data_supported_conclusions": {

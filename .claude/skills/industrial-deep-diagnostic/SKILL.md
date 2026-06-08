@@ -273,7 +273,7 @@ node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
 node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
 ```
 
-**Key outputs**: `02_processed/` (17+ files), `03_figures/*.png` (9+ plots), `03_figures/visual_analysis.json`, `analysis_plan.md`, `06_scripts/`
+**Key outputs**: `02_processed/` validated analysis artifacts, `03_figures/*.png` generated according to the detected data mode, `03_figures/plot_manifest.json`, `03_figures/visual_analysis.json`, `analysis_plan.md`, and optional `06_scripts/` custom analysis scripts. Do not force a fixed plot count; prove coverage through `data_analysis_conclusion.json.analysis_coverage_matrix` and `plot_manifest.json`.
 
 ### Step 3.5: VLM Visual Analysis (Embedded in Step 3)
 
@@ -281,7 +281,7 @@ The `data-processor` agent's Phase 5.5 delegates VLM image reading to the `vlm-v
 
 Outputs: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`
 
-If a valid time column exists, Step 3 is only considered complete when a master shared-time-axis figure such as `03_figures/fig_master_time_aligned_overlay.png` exists. If no valid time column exists, Step 3 must explicitly record the not-applicable reason in `visual_analysis.json` and `analysis_plan.md`.
+If a valid time column exists, Step 3 is only considered complete when `plot_manifest.json` contains at least one temporal / aligned / process-health timeline figure applicable to the detected data mode. If no valid time column exists, Step 3 must explicitly record the not-applicable reason in `analysis_plan.md`, `data_analysis_conclusion.json.analysis_coverage_matrix.temporal_regime_event`, and `visual_analysis.json`.
 
 ### Step 4: Diagnostician (Sub-Agent: `diagnostician`)
 
@@ -402,9 +402,6 @@ flowchart LR
 | Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
 | Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
 | Step 3 | `data_analysis_conclusion.json` | `schemas/data_analysis_conclusion_schema.json` + `templates/data_analysis_conclusion_template.json` |
-| Step 3 | `scenario_classification.json` | `schemas/scenario_classification_schema.json` |
-| Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
-| Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
 | Step 3.5 | `visual_analysis.json` | `schemas/visual_analysis_schema.json` |
 | Step 3.5 | `image_captions.json` | `schemas/image_captions_schema.json` |
 | Step 4 | `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |

@@ -95,6 +95,54 @@ function validateOptimizerMarkdown(critical = true) {
   return { label: 'Optimizer Content Contract', path: filePath, status: 'VALID', critical };
 }
 
+function validateReportContentContract(critical = true) {
+  const filePath = 'report.md';
+  const fullPath = join(runDir, filePath);
+  if (!fs.existsSync(fullPath)) {
+    return { label: 'Report Content Contract', path: filePath, status: critical ? 'MISSING (critical)' : 'MISSING', critical };
+  }
+
+  const content = fs.readFileSync(fullPath, 'utf-8');
+  const trimmed = content.trim();
+  const lines = trimmed.length === 0 ? [] : trimmed.split('\n');
+  const nonEmptyLines = lines.filter((line) => line.trim().length > 0);
+  const level2Sections = nonEmptyLines.filter((line) => /^##\s+/.test(line.trim()));
+  const requiredPatterns = [
+    { name: 'title', pattern: /^#\s+Industrial Diagnostic Report/m },
+    { name: 'executive summary', pattern: /^##\s+1\.\s*执行摘要/m },
+    { name: 'visual evidence section', pattern: /^##\s+11\.\s*可视化证据/m },
+    { name: 'diagnostic findings section', pattern: /^##\s+12\.\s*诊断结果/m },
+    { name: 'confidence section', pattern: /^##\s+14\.\s*统计验证与置信度评估/m }
+  ];
+
+  const missingPatterns = requiredPatterns
+    .filter(({ pattern }) => !pattern.test(content))
+    .map(({ name }) => name);
+  const issues = [];
+  if (trimmed.length === 0) issues.push('report.md is empty');
+  if (nonEmptyLines.length < 40) issues.push(`too few non-empty lines: ${nonEmptyLines.length} < 40`);
+  if (level2Sections.length < 8) issues.push(`too few level-2 sections: ${level2Sections.length} < 8`);
+  if (missingPatterns.length > 0) issues.push(`missing required sections: ${missingPatterns.join(', ')}`);
+
+  const summary = readJsonIfExists('run_summary.json');
+  if (summary?.report_stats) {
+    const stats = summary.report_stats;
+    if (Number.isFinite(stats.total_lines) && stats.total_lines > 0 && nonEmptyLines.length === 0) {
+      issues.push('run_summary reports report lines but report.md is empty');
+    }
+    if (Number.isFinite(stats.sections_count) && stats.sections_count > 0 && level2Sections.length === 0) {
+      issues.push('run_summary reports sections_count > 0 but report.md has no sections');
+    }
+  }
+
+  return {
+    label: 'Report Content Contract',
+    path: filePath,
+    status: issues.length === 0 ? 'VALID' : `INVALID: ${issues.join('; ').slice(0, 300)}`,
+    critical
+  };
+}
+
 function validate(label, schemaPath, filePath, critical = true) {
   const schemaFullPath = join(skillPath, schemaPath);
   const fileFullPath = join(runDir, filePath);
@@ -165,11 +213,42 @@ function readJsonIfExists(filePath) {
 function conditionalFigureCheck() {
   const inputManifest = readJsonIfExists('00_input/input_manifest.json');
   const visualAnalysis = readJsonIfExists('03_figures/visual_analysis.json');
+  const plotManifest = readJsonIfExists('03_figures/plot_manifest.json');
   const hasTimeColumn = Boolean(inputManifest && inputManifest.time_column);
-  const masterFigurePath = '03_figures/fig_master_time_aligned_overlay.png';
+  const temporalPlot = Array.isArray(plotManifest?.plots)
+    ? plotManifest.plots.find((plot) => {
+      const haystack = [
+        plot.file,
+        plot.filename,
+        plot.title,
+        plot.plot_type,
+        plot.description
+      ].filter(Boolean).join(' ').toLowerCase();
+      return /temporal|time|timeline|aligned|process_health|时序|时间|对齐|工艺健康/.test(haystack);
+    })
+    : null;
+  const temporalPath = temporalPlot
+    ? (temporalPlot.file || temporalPlot.filename || temporalPlot.path || '')
+    : '';
+  const normalizedTemporalPath = temporalPath && temporalPath.startsWith('03_figures/')
+    ? temporalPath
+    : (temporalPath ? `03_figures/${temporalPath}` : '03_figures/<temporal-or-process-health-plot>');
 
   if (hasTimeColumn) {
-    return check('Master Time Aligned Overlay', masterFigurePath, true);
+    if (temporalPath && exists(normalizedTemporalPath)) {
+      return {
+        label: 'Temporal / Process-Health Figure',
+        path: normalizedTemporalPath,
+        status: 'VALID',
+        critical: true
+      };
+    }
+    return {
+      label: 'Temporal / Process-Health Figure',
+      path: normalizedTemporalPath,
+      status: 'MISSING (time column exists but plot_manifest has no existing temporal/aligned/process-health figure)',
+      critical: true
+    };
   }
 
   const notApplicable = visualAnalysis && visualAnalysis.time_alignment_applicable === false;
@@ -177,16 +256,16 @@ function conditionalFigureCheck() {
 
   if (notApplicable && reason) {
     return {
-      label: 'Master Time Aligned Overlay',
-      path: masterFigurePath,
+      label: 'Temporal / Process-Health Figure',
+      path: normalizedTemporalPath,
       status: `NOT_APPLICABLE (${String(reason).slice(0, 160)})`,
       critical: false
     };
   }
 
   return {
-    label: 'Master Time Aligned Overlay',
-    path: masterFigurePath,
+    label: 'Temporal / Process-Health Figure',
+    path: normalizedTemporalPath,
     status: 'MISSING (expected explicit NA proof or figure)',
     critical: true
   };
@@ -334,6 +413,86 @@ function validateVisualExecutionProof() {
   };
 }
 
+function validateDataProcessorExpertContract() {
+  const conclusion = readJsonIfExists('02_processed/data_analysis_conclusion.json');
+  const planPath = join(runDir, '02_processed', 'analysis_plan.md');
+  const planText = fs.existsSync(planPath) ? fs.readFileSync(planPath, 'utf-8') : '';
+  const issues = [];
+
+  if (!conclusion) {
+    return {
+      label: 'Data Processor Expert Contract',
+      path: '02_processed/data_analysis_conclusion.json',
+      status: 'MISSING (critical)',
+      critical: true
+    };
+  }
+
+  const audit = conclusion.adaptive_decision_audit || {};
+  const coverage = conclusion.analysis_coverage_matrix || {};
+  const selectedAnalyses = Array.isArray(audit.selected_analyses) ? audit.selected_analyses : [];
+  const skippedAnalyses = Array.isArray(audit.skipped_or_not_applicable) ? audit.skipped_or_not_applicable : [];
+  const custom = conclusion.expert_custom_analysis || {};
+  const scriptInventory = Array.isArray(custom.script_inventory) ? custom.script_inventory : [];
+
+  if (!['process_plus_inspection', 'process_only', 'inspection_only', 'unknown'].includes(audit.data_view_mode)) {
+    issues.push('adaptive_decision_audit.data_view_mode is missing or invalid');
+  }
+  if (selectedAnalyses.length === 0) {
+    issues.push('adaptive_decision_audit.selected_analyses is empty');
+  }
+  if (selectedAnalyses.length + skippedAnalyses.length < 3) {
+    issues.push('too few adaptive analysis decisions recorded');
+  }
+
+  for (const key of ['pure_process_analysis', 'process_inspection_dual_drive', 'grouping_confounding', 'temporal_regime_event', 'scenario_specific']) {
+    if (!coverage[key]?.status || !coverage[key]?.summary) {
+      issues.push(`analysis_coverage_matrix.${key} missing status or summary`);
+    }
+  }
+
+  if (!planText.trim()) {
+    issues.push('analysis_plan.md is missing or empty');
+  } else {
+    if (!/Adaptive Decision Audit/i.test(planText) && !/自适应.*决策/.test(planText)) {
+      issues.push('analysis_plan.md lacks Adaptive Decision Audit section');
+    }
+    if (!/Analysis Coverage Matrix/i.test(planText) && !/覆盖矩阵/.test(planText)) {
+      issues.push('analysis_plan.md lacks Analysis Coverage Matrix section');
+    }
+  }
+
+  const referencedArtifacts = new Set();
+  for (const item of selectedAnalyses) {
+    for (const relPath of item.evidence_artifacts || []) referencedArtifacts.add(relPath);
+  }
+  for (const item of Object.values(coverage)) {
+    for (const relPath of item?.evidence_artifacts || []) referencedArtifacts.add(relPath);
+  }
+  const missingArtifacts = Array.from(referencedArtifacts)
+    .filter((relPath) => relPath && !relPath.includes('*') && !exists(relPath));
+  if (missingArtifacts.length > 0) {
+    issues.push(`referenced evidence artifacts missing: ${missingArtifacts.slice(0, 6).join(', ')}`);
+  }
+
+  const missingScripts = scriptInventory
+    .map((item) => item.script)
+    .filter((relPath) => relPath && !exists(relPath));
+  if (missingScripts.length > 0) {
+    issues.push(`declared custom scripts missing: ${missingScripts.slice(0, 6).join(', ')}`);
+  }
+  if (custom.custom_scripts_written === true && scriptInventory.length === 0) {
+    issues.push('custom_scripts_written=true but script_inventory is empty');
+  }
+
+  return {
+    label: 'Data Processor Expert Contract',
+    path: '02_processed/data_analysis_conclusion.json',
+    status: issues.length === 0 ? 'VALID' : `INVALID: ${issues.join('; ').slice(0, 300)}`,
+    critical: true
+  };
+}
+
 // Define required artifacts per pipeline stage
 const checks = [
   check('Run Manifest', 'run_manifest.json'),
@@ -391,11 +550,13 @@ const schemaChecks = [
   validate('Visual Analysis (VLM)', 'schemas/visual_analysis_schema.json', '03_figures/visual_analysis.json'),
   validate('Image Captions (VLM)', 'schemas/image_captions_schema.json', '03_figures/image_captions.json', false),
   validateVisualExecutionProof(),
+  validateDataProcessorExpertContract(),
   validate('Diagnosis', 'schemas/diagnosis_schema.json', '04_diagnostics/diagnosis.json'),
   validate('Evidence', 'schemas/evidence_schema.json', '04_diagnostics/evidence.json'),
   validate('Confidence', 'schemas/confidence_schema.json', '04_diagnostics/confidence.json'),
   validate('Reasoning Chain', 'schemas/reasoning_chain_schema.json', '04_diagnostics/reasoning_chain.json'),
   validate('Judge Feedback', 'schemas/judge_feedback_schema.json', '05_review/judge_feedback.json', false),
+  validateReportContentContract(),
   validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json', false),
   validateOptimizerMarkdown(),
   validateDeliveryContract(),

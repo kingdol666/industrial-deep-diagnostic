@@ -42,6 +42,7 @@ function addIssue(issues, severity, code, message, detail = undefined) {
 const diagnosis = readJson('04_diagnostics/diagnosis.json', {});
 const evidence = readJson('04_diagnostics/evidence.json', {});
 const anomaly = readJson('02_processed/anomaly_report.json', {});
+const dataConclusion = readJson('02_processed/data_analysis_conclusion.json', {});
 const physics = readJson('02_processed/physics_check.json', {});
 const visual = readJson('03_figures/visual_analysis.json', {});
 const judge = readJson('05_review/judge_feedback.json', {});
@@ -93,8 +94,15 @@ for (const hyp of surviving) {
 
 const dualDriveInputs = anomaly.dual_drive_analysis?.cross_domain_links || [];
 const dualDriveOutputs = diagnosis.integrated_dual_drive_analysis?.process_to_quality_links || [];
+const dataViewMode =
+  dataConclusion.adaptive_decision_audit?.data_view_mode ||
+  anomaly.summary?.data_view_mode ||
+  anomaly.dual_drive_analysis?.data_view_mode ||
+  'unknown';
+const dualDriveApplicable = dataViewMode === 'process_plus_inspection' ||
+  diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === true;
 
-if (diagnosis.integrated_dual_drive_analysis?.analysis_performed === true) {
+if (diagnosis.integrated_dual_drive_analysis?.analysis_performed === true && dualDriveApplicable) {
   if (!nonEmptyArray(dualDriveInputs)) {
     addIssue(
       issues,
@@ -109,6 +117,20 @@ if (diagnosis.integrated_dual_drive_analysis?.analysis_performed === true) {
       'critical',
       'DUAL_DRIVE_LINKS_MISSING',
       'integrated_dual_drive_analysis.process_to_quality_links 为空，无法证明工艺异常进入质量链。'
+    );
+  }
+}
+
+if (!dualDriveApplicable) {
+  const markedNotApplicable =
+    diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === false ||
+    dataConclusion.analysis_coverage_matrix?.process_inspection_dual_drive?.status === 'not_applicable';
+  if (!markedNotApplicable) {
+    addIssue(
+      issues,
+      'critical',
+      'DUAL_DRIVE_NA_NOT_RECORDED',
+      '当前数据模式不适用双驱动诊断，但 diagnosis 或 data_analysis_conclusion 没有明确记录不适用。'
     );
   }
 }
@@ -157,6 +179,8 @@ const report = {
     critical_issues: criticalIssues.length,
     warnings: issues.length - criticalIssues.length,
     surviving_hypotheses: surviving.length,
+    data_view_mode: dataViewMode,
+    dual_drive_applicable: dualDriveApplicable,
     dual_drive_inputs: dualDriveInputs.length,
     dual_drive_outputs: dualDriveOutputs.length,
     physics_checks_performed: checksPerformed ?? null

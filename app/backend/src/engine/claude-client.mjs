@@ -31,6 +31,35 @@ function sanitize(str) {
   return str.replace(/[\x00-\x08\x0A-\x1F]/g, '').trim();
 }
 
+function buildRuntimeProtocol(sceneName, reportLanguage) {
+  const safeScene = sanitize(sceneName || config.diagnosis.default_scene_name);
+  const languageRule = reportLanguage === 'zh'
+    ? '所有 narrative、标题、分析说明、建议、summary markdown 与 report.md 必须使用中文；变量名、列名、JSON enum、代码保持英文。'
+    : 'All narrative output, headings, analysis descriptions, recommendations, summary markdown, and report.md content must be written in English.';
+
+  return `You are executing the industrial deep diagnostic skill for scene "${safeScene}".
+
+Runtime-critical rules:
+1. Treat the skill protocol as binding. Follow the full pipeline contract and do not skip, reorder, or silently omit steps.
+2. Main agent orchestrates only. Sub-agent work MUST be delegated to the required specialized agents instead of being completed directly by the main agent.
+3. Context building must produce ontology-grounded understanding before final diagnosis. Data analysis, diagnosis, review, report, and audit must stay aligned to the same ontology semantics.
+4. Diagnosis must use competing hypotheses, temporal precedence, statistical evidence, physical mechanism, and contradiction checks. If evidence cannot discriminate, output COMPETING_SET or NEEDS_DATA instead of guessing.
+5. Validate required structured artifacts and honor repair / review gates before considering the run complete.
+6. Use exact absolute data paths provided by the runtime. Do not reinterpret them relative to the skill directory.
+7. ${languageRule}
+8. If the user provides follow-up answers or continuation instructions, continue from the existing session state while preserving the same pipeline discipline.`;
+}
+
+function buildSystemPrompt(sceneName, reportLanguage, skillContent) {
+  const runtimeProtocol = buildRuntimeProtocol(sceneName, reportLanguage);
+  if (!skillContent) return runtimeProtocol;
+
+  return `${runtimeProtocol}
+
+Authoritative skill reference excerpt:
+${skillContent}`;
+}
+
 function discoverDataFiles(folderPath) {
   const absolutePath = folderPath.startsWith('/')
     ? folderPath
@@ -92,6 +121,16 @@ Please address the follow-up instruction above and continue the analysis.`;
   }
 
   return basePrompt;
+}
+
+function buildResumePrompt(followUpMessage) {
+  const safeFollowUp = sanitize(followUpMessage || 'Continue the current diagnostic run.');
+  return `${safeFollowUp}
+
+Resume rules:
+- Continue the same industrial deep diagnostic pipeline; do not restart with a generic analysis.
+- Preserve ontology alignment, structured artifacts, review gates, and the existing session context.
+- Do not repeat already-answered questions unless genuinely new critical information is missing.`;
 }
 
 // ── Dangerous Command Detection ──
@@ -188,8 +227,10 @@ export function startDiagnosis({
     } catch { /* ignore */ }
   }
 
+  const systemPrompt = buildSystemPrompt(sceneName, lang, skillContent);
+
   const prompt = sessionId
-    ? (followUpMessage || 'Continue the analysis.')
+    ? buildResumePrompt(followUpMessage)
     : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage);
 
   // Build SDK options
@@ -206,6 +247,8 @@ export function startDiagnosis({
   if (sessionId) {
     options.resume = sessionId;
   }
+
+  options.systemPrompt = systemPrompt;
 
   // Start the SDK query
   const query = queryFn({ prompt, options });

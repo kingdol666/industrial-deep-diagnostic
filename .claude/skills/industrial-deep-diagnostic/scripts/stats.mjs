@@ -3,7 +3,7 @@
 // Computes: Pearson, Spearman, detrended correlations, stratified analysis,
 //           full lag CCF, multiple testing correction, sorting validation.
 // Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C]
-//        [--max-lag N] [--group-col G] [--alpha 0.05]
+//        [--max-lag N] [--group-col G] [--alpha 0.05] [--data-view-mode MODE]
 
 import fs from 'fs';
 
@@ -743,8 +743,15 @@ function interactionAnalysis(colData, targetCols, numericCols) {
 const args = process.argv.slice(2);
 const filePath = args[0];
 if (!filePath) {
-  console.error('Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C] [--max-lag N] [--group-col G] [--alpha 0.05]');
+  console.error('Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C] [--max-lag N] [--group-col G] [--alpha 0.05] [--data-view-mode MODE]');
   process.exit(1);
+}
+
+function getArgValue(flag, fallback = null) {
+  const idx = args.indexOf(flag);
+  if (idx === -1 || idx + 1 >= args.length) return fallback;
+  const value = args[idx + 1];
+  return value && !value.startsWith('--') ? value : fallback;
 }
 
 const { data: rows, note } = loadData(filePath);
@@ -754,12 +761,13 @@ if (!Array.isArray(rows) || rows.length === 0) {
   process.exit(1);
 }
 
-const timeCol = (args[args.indexOf('--time-col') + 1]) || null;
-const targetColsStr = (args[args.indexOf('--target-cols') + 1]) || '';
+const timeCol = getArgValue('--time-col', null);
+const targetColsStr = getArgValue('--target-cols', '');
 const targetCols = targetColsStr ? targetColsStr.split(',').map(s => s.trim()) : [];
-const maxLag = parseInt(args[args.indexOf('--max-lag') + 1]) || 20;
-const groupCol = (args[args.indexOf('--group-col') + 1]) || null;
-const alpha = parseFloat(args[args.indexOf('--alpha') + 1]) || 0.05;
+const maxLag = parseInt(getArgValue('--max-lag', '20')) || 20;
+const groupCol = getArgValue('--group-col', null);
+const alpha = parseFloat(getArgValue('--alpha', '0.05')) || 0.05;
+const dataViewMode = getArgValue('--data-view-mode', 'unknown');
 
 // Validate time sorting (critical for lag analysis)
 const sortingValidation = validateTimeSorting(rows, timeCol);
@@ -797,7 +805,7 @@ for (const c1 of numericCols) {
 }
 
 // Per-target detailed analysis
-const effectiveTargets = targetCols.length ? targetCols : numericCols.slice(0, 5);
+const effectiveTargets = dataViewMode === 'process_only' ? [] : (targetCols.length ? targetCols : numericCols.slice(0, 5));
 const targetAnalysis = {};
 
 for (const target of effectiveTargets) {
@@ -896,6 +904,7 @@ const interactionResults = interactionAnalysis(colData, effectiveTargets, numeri
 // Build output
 const result = {
   data_summary: {
+    data_view_mode: dataViewMode,
     total_rows: rows.length,
     numeric_columns: numericCols.length,
     target_columns: effectiveTargets,

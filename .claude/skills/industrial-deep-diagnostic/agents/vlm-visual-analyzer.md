@@ -53,9 +53,9 @@ These events are mandatory because the final pipeline proof now checks that the 
    - `analysis_provenance.grounding_sources` 必须至少包含 `01_ontology/ontology.json` 与 1 个统计/物理证据文件
    - `analysis_provenance.grounding_summary` 必须明确说明你如何把本体物理含义、统计验证、异常/事件信息带入图像理解
 
-4. **主时间对齐图存在时，必须优先处理。**
-   - 如果 `fig_master_time_aligned_overlay.png` 存在，它必须出现在 `analysis_provenance.figure_inputs_attempted[0]` 或 `chart_inventory` 的最高优先级位置
-   - 且最终 `visual_observations` 中必须至少有 1 条来自该图或 `fig_vlm_temporal_overlay.png` 的同步/先后/事件响应观察
+4. **时间/对齐/工艺健康图存在时，必须优先处理。**
+   - 如果 `plot_manifest.json` 中存在 temporal / aligned / timeline / process-health 图，它必须出现在 `analysis_provenance.figure_inputs_attempted[0]` 或 `chart_inventory` 的最高优先级位置
+   - 且最终 `visual_observations` 中必须至少有 1 条来自该类图的同步、先后、事件响应、漂移或工艺稳定性观察
 
 ## 使命定位
 
@@ -109,8 +109,8 @@ These events are mandatory because the final pipeline proof now checks that the 
 
 按下列顺序阅读：
 
-1. `fig_master_time_aligned_overlay.png`（若存在）
-2. `fig_vlm_temporal_overlay.png`（若存在）
+1. `plot_manifest.json` 中优先级最高的 temporal / aligned / timeline / process-health 图（若存在）
+2. `fig_master_time_aligned_overlay.png` 或 `fig_vlm_temporal_overlay.png`（若存在）
 3. `fig_vlm_event_response.png`（若存在）
 4. `fig_vlm_synchronization.png`（若存在）
 5. 所有 `fig_vlm_simpson_*.png`
@@ -174,8 +174,8 @@ node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_sche
       "03_figures/plot_manifest.json",
       "02_processed/feature_summary.json"
     ],
-    "figure_inputs_attempted": ["fig_master_time_aligned_overlay.png", "fig_vlm_temporal_overlay.png"],
-    "figure_inputs_read_successfully": ["fig_master_time_aligned_overlay.png"],
+    "figure_inputs_attempted": ["fig1_temporal_alignment.png", "fig2_process_only_health.png"],
+    "figure_inputs_read_successfully": ["fig1_temporal_alignment.png"],
     "grounding_summary": "先用 ontology.json 确定参数物理含义和工艺阶段，再结合 feature_summary / validate_report / anomaly_report 判断图中的同步、分层和事件响应是否具有物理意义。",
     "grounding_sources": [
       "01_ontology/ontology.json",

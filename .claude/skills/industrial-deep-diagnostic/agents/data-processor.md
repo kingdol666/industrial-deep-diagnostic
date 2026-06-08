@@ -39,10 +39,12 @@ Before declaring Step 3 complete, you must ensure all of the following are true:
 - `02_processed/scenario_classification.json` exists and is schema-valid
 - `02_processed/anomaly_report.json` exists and contains pure-process + dual-drive entries
 - `02_processed/data_analysis_conclusion.json` exists and summarizes baseline + custom + ontology interpretation
+- `data_analysis_conclusion.json.adaptive_decision_audit` records the detected data mode, data shapes, selected analyses, skipped/not-applicable analyses, and custom-analysis decision
+- `data_analysis_conclusion.json.analysis_coverage_matrix` proves coverage of pure-process, process-inspection dual-drive, grouping/confounding, temporal/regime, and scenario-specific analysis dimensions
 - `03_figures/plot_manifest.json` exists
 - `03_figures/visual_analysis.json` exists
 - `03_figures/image_captions.json` exists
-- if there is a valid time column, `03_figures/fig_master_time_aligned_overlay.png` exists
+- if there is a valid time column, `plot_manifest.json` contains at least one existing temporal / aligned / process-health timeline figure appropriate for the detected data mode
 - if there is no valid time column, `visual_analysis.json` must explicitly record `time_alignment_applicable=false` and a `not_applicable_reason`
 
 You are not allowed to mark your work complete with partial outputs.
@@ -73,6 +75,8 @@ Before touching any script, answer these questions in your own words:
 1. **What physical process is this?** Not just "industrial" — be specific. Is it a continuous film line? A batch reactor? A rotating machine? A heat exchanger? A coating line? Use column name patterns, value ranges, and the ontology to form your answer.
 
 2. **What are the quality targets?** Which columns represent "things we care about" — defects, deviations, yields, dimensions? These are the dependent variables. List them explicitly.
+   - If there is no true inspection / quality / test column, classify the run as `process_only`. Do not pretend that the most variable process column is a quality target.
+   - For `process_only` data, analyze process stability, drift, regime switching, group-specific fluctuation, sensor consistency, and process-health evidence. Treat process-to-quality linkage as an evidence gap.
 
 3. **What are the candidate causes?** Which columns could explain changes in the quality targets? Group them by physical type (temperatures, pressures, speeds, gaps, etc.).
 
@@ -92,12 +96,18 @@ Before touching any script, answer these questions in your own words:
 
 Based on your answers, write a **scenario-specific analysis plan**. This is a narrative — not a JSON schema. It should cover:
 
+- The detected data view mode: `process_plus_inspection`, `process_only`, `inspection_only`, or `unknown`, with justification
 - What specific statistical tests make sense for THIS data
 - What derived features would be diagnostically useful (temperature differentials? rolling variances? rate-of-change? cumulative deviations?)
 - What visualizations would reveal the causal structure
 - If a product grouping column exists: **how you will group by product, preserve within-product time order, and separate within-product behavior from between-product confounding**
 - How you will combine **process-side evidence** (parameter fluctuation, drift, transition, threshold crossing) with **inspection-side evidence** (defect, quality, abnormal intervals)
+- If the data is `process_only`: how you will analyze process health without making quality-causality claims
 - What you will NOT do (because it doesn't apply)
+
+Add a section named `Adaptive Decision Audit` with a candidate-analysis table. For each candidate, record `EXECUTE`, `SKIP`, or `NOT_APPLICABLE`, why that decision follows from the actual data, and the expected artifact or no-artifact reason.
+
+Add a section named `Analysis Coverage Matrix` covering: pure process analysis, process + inspection dual-drive analysis, product/lot/batch grouping and confounding, temporal/regime/event analysis, and scenario-specific analysis such as zones, paired sensors, profiles, nonlinear thresholds, cycles, or cascades.
 
 Save this plan as `RUN_DIR/02_processed/analysis_plan.md`. It documents your reasoning for the Diagnostician.
 
@@ -179,6 +189,7 @@ These steps run for ANY industrial dataset. Use the pre-built scripts to establi
 | **Single numeric column** | Only 1 numeric column besides time/group | Skip correlation matrix. Run only trend and anomaly detection. |
 | **All columns numeric** | No categorical/metadata columns | Grouping unavailable. Stratification limited to value-based binning (quartile splits). |
 | **< 50 rows** | `input_manifest.json.rows` < 50 | Statistical tests unreliable. Use only visual inspection and simple trend detection. Flag as "low data confidence" in all outputs. |
+| **Process-only data** | No true quality/inspection/test target columns after ontology + user context review | Do not force dual-drive causality. Pass `--data-view-mode process_only`, leave `--target-cols` empty, and mark process-inspection linkage as not applicable with an evidence gap. |
 
 ### 2.1 Convert Data
 
@@ -237,14 +248,19 @@ elif [ "$COL_COUNT" -gt 30 ]; then
   # Large dataset: use Python lightweight stats
   "$PYTHON" "$SKILL_PATH/scripts/stats_analysis.py" "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed" \
     --target-cols <quality_cols> --predictor-cols <process_cols> \
-    --group-col <group_col> --time-col <time_col> --exclude-cols <derived_cols>
+    --group-col <group_col> --time-col <time_col> --exclude-cols <derived_cols> \
+    --data-view-mode <process_plus_inspection|process_only|inspection_only|unknown>
 else
   # Small dataset: full stats.mjs is fast enough
   node "$SKILL_PATH/scripts/stats.mjs" "$RUN_DIR/02_processed/cleaned_data.json" \
     --time-col <time_col> --target-cols <quality_cols> --group-col <group_col> \
-    --max-lag 20 --alpha 0.05 > "$RUN_DIR/02_processed/feature_summary.json"
+    --max-lag 20 --alpha 0.05 \
+    --data-view-mode <process_plus_inspection|process_only|inspection_only|unknown> \
+    > "$RUN_DIR/02_processed/feature_summary.json"
 fi
 ```
+
+For `process_only` data, pass `--data-view-mode process_only` and leave `--target-cols` empty. The scripts must not infer pseudo-quality targets from the most variable process columns.
 
 ### 2.4 Validation
 
@@ -261,7 +277,11 @@ fi
 
 ```bash
 if [ ! -s "$RUN_DIR/02_processed/anomaly_report.json" ] || [ "$RUN_DIR/02_processed/cleaned_data.json" -nt "$RUN_DIR/02_processed/anomaly_report.json" ]; then
-  "$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" anomaly "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed"
+  "$PYTHON" "$SKILL_PATH/scripts/dp_toolkit.py" anomaly "$RUN_DIR/02_processed/cleaned_data.json" "$RUN_DIR/02_processed" \
+    --data-view-mode <process_plus_inspection|process_only|inspection_only|unknown> \
+    --target-cols <quality_cols_comma_separated> \
+    --process-cols <process_cols_comma_separated> \
+    --group-col <group_col>
 fi
 ```
 
@@ -292,6 +312,7 @@ After fixed scripts run, ask:
 3. Which ontology-predicted mechanism has not been tested yet?
 4. Which industry-knowledge claim from RAG needs a custom validation?
 5. Which data structure demands a scenario-specific script: product grouping, multi-zone profile, paired sensors, process stage alignment, scanner/profile data, event windows, nonlinear threshold, cycle phase, or equipment cascade?
+6. If this is `process_only` data, which process-health questions remain unanswered: stability, drift, oscillation, zone imbalance, cascade location, controller saturation, setpoint tracking, product/regime switching, or sensor consistency?
 
 If the fixed scripts already answer the diagnostic questions, you may set `custom_scripts_written=false`, but you must justify why. Otherwise, write one or more focused Python scripts under `RUN_DIR/06_scripts/`.
 
@@ -416,6 +437,25 @@ This is common for non-standard processes. You must perform manual quantitative 
 2. **Run the magnitude check**: Plug actual data values into the equation. Does the predicted effect size match the observed within an order of magnitude? If not, the correlation may be spurious.
 3. **Document findings** in `RUN_DIR/02_processed/physics_manual_verification.md`. This becomes critical evidence for the Diagnostician.
 
+#### H. If data is PROCESS-ONLY (no true quality / inspection target)
+
+**Key question**: What does the process data itself say about stability, degradation, localization, and operating regimes?
+
+Do not invent quality targets. The output should help the Diagnostician form `NEEDS_DATA` or process-health hypotheses, not unsupported quality-causality claims.
+
+**Analysis to run**:
+1. **Process stability ranking**: For every important process parameter, compute CV, p05-p95 span, rolling volatility, drift slope, and abrupt-change indicators.
+2. **Regime and event segmentation**: Identify step changes, product/lot/batch switches, setpoint changes, and long drift segments.
+3. **Spatial / cascade localization**: If zone or paired/cascaded sensors exist, identify where drift or volatility concentrates.
+4. **Control behavior checks**: If setpoint / actual / output / power / valve / current style columns exist, analyze tracking error, saturation, oscillation, and delayed response.
+5. **Sensor consistency checks**: Flag flatlined sensors, duplicated channels, implausible jumps, and sensors whose behavior contradicts neighboring stages.
+
+**Required output content**:
+- `anomaly_report.json.process_parameter_fluctuation` is primary evidence
+- `data_analysis_conclusion.json.adaptive_decision_audit.data_view_mode = "process_only"`
+- `analysis_coverage_matrix.process_inspection_dual_drive.status = "not_applicable"` with the evidence gap stated
+- Optional but recommended: `02_processed/process_health_analysis.json` when fixed scripts are not enough
+
 ### 3.2 Run Automated Physics Checks (Always)
 
 Even if custom analysis covers some physics, always run the automated checks as a baseline:
@@ -460,6 +500,8 @@ fi
 
 This is required whenever both process parameters and inspection/quality signals exist.
 
+If the data is `process_only`, write a short `process_only` note into `anomaly_report.json.dual_drive_analysis.summary` and `data_analysis_conclusion.json`: process health can be analyzed, but process-to-quality linkage is an evidence gap until inspection/quality data is supplied.
+
 **Goal**: Do not stop at “parameter X correlates with defect Y”. Build a two-sided diagnostic statement:
 - **Process side**: Did process parameters show abnormal fluctuation, drift, regime switch, threshold crossing, or event response?
 - **Inspection side**: Did defect/quality metrics show anomaly intervals, reset behavior, excursions, or product-specific deterioration?
@@ -484,6 +526,8 @@ It must summarize:
 - which custom scripts were written and why
 - what custom artifacts/figures were generated
 - how ontology and industry knowledge change the interpretation of raw statistical results
+- the adaptive decision audit: data mode, data shapes detected, analyses selected, analyses skipped/not applicable, and why
+- the analysis coverage matrix: pure-process, dual-drive, grouping/confounding, temporal/regime, and scenario-specific coverage
 - data-supported conclusions, with caveats
 - priority hypothesis inputs for the Diagnostician
 
@@ -535,7 +579,7 @@ These apply to ANY industrial dataset:
 - Include **at least**: primary quality targets, top candidate causes, and major event markers
 - Use normalization so amplitude differences do not hide temporal relationships
 - If too many series would make the chart unreadable, keep the full master overlay for the top 8-12 most diagnostic series and create secondary focused overlays for subsets
-- Name it clearly in the manifest as a master aligned chart, e.g. `fig_master_time_aligned_overlay.png` or equivalent
+- Name it clearly in the manifest as a temporal / aligned / process-health chart, e.g. `fig_master_time_aligned_overlay.png`, `fig1_temporal_alignment.png`, `fig2_process_only_health.png`, or another explicit equivalent
 - If there is **no valid time column**, explicitly state that this requirement is not applicable and choose the best non-temporal global view instead
 
 ### 5.2 VLM-Specific Charts (Always Generate)
@@ -604,7 +648,8 @@ For universal plots and causal map:
   "$RUN_DIR/02_processed/feature_summary.json" \
   "$RUN_DIR/02_processed/anomaly_report.json" \
   "$RUN_DIR/03_figures" \
-  --target-cols <quality_cols> --key-params <top_params> --group-col <group_col>
+  --target-cols <quality_cols> --key-params <top_params> --group-col <group_col> \
+  --data-view-mode <process_plus_inspection|process_only|inspection_only|unknown>
 ```
 
 For scenario-specific plots: Write a focused `RUN_DIR/06_scripts/scenario_plots.py` that generates ONLY the plots that apply to your data. Use the decision table in 5.2. Don't write generic matplotlib boilerplate — write the specific plots this scenario needs.
@@ -672,8 +717,8 @@ DATA_PATH=${DATA_PATH}
 6. Read RUN_DIR/02_processed/anomaly_report.json — 获取异常检测和重置分析
 
 第二步 — 按优先级顺序逐图阅读（读每张图时结合本体知识回答诊断问题）:
-1. fig_master_time_aligned_overlay.png（若存在）
-2. fig_vlm_temporal_overlay.png（若存在）
+1. `plot_manifest.json` 中优先级最高的 temporal / aligned / process-health 图（若存在）
+2. `fig_master_time_aligned_overlay.png` 或 `fig_vlm_temporal_overlay.png`（若存在）
 3. 其余 VLM 特化图和场景特化图
 
 第三步 — 输出:

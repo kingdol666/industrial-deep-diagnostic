@@ -28,6 +28,7 @@ parser.add_argument("--group-col", nargs="+", default=[], help="Group/stratifica
 parser.add_argument("--time-col", default=None, help="Timestamp column to exclude from numerics")
 parser.add_argument("--exclude-cols", nargs="+", default=[], help="Additional columns to exclude from analysis")
 parser.add_argument("--max-lag", type=int, default=20, help="Max CCF lag")
+parser.add_argument("--data-view-mode", choices=["process_plus_inspection", "process_only", "inspection_only", "unknown"], default="unknown", help="Controls whether target columns are required or inferred")
 args = parser.parse_args()
 
 DATA_PATH = args.data_json
@@ -88,7 +89,9 @@ for c in all_col_names:
         continue
 
 # ── Target detection (no keyword guessing) ──
-if args.target_cols:
+if args.data_view_mode == "process_only":
+    target_cols = []
+elif args.target_cols:
     target_cols = [c for c in args.target_cols if c in all_col_names]
 else:
     # Infer targets from statistical signatures: columns with strongest trends
@@ -169,7 +172,7 @@ def ccf(x, y, max_lag=20):
 values = {c: [float(r[c]) for r in rows] for c in numeric_cols}
 
 result = {
-    "metadata": {"n_rows": n, "n_columns": len(numeric_cols), "target_columns": target_cols},
+    "metadata": {"n_rows": n, "n_columns": len(numeric_cols), "target_columns": target_cols, "data_view_mode": args.data_view_mode},
     "trends": {},
     "correlations": {},
     "detrended_correlations": {},

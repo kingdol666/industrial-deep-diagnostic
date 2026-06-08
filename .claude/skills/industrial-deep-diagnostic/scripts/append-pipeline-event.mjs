@@ -6,6 +6,7 @@
 //   node append-pipeline-event.mjs <run_dir> --event agent_start --agent data-processor
 //   node append-pipeline-event.mjs <run_dir> --event agent_complete --agent reporter --files report.md,run_summary.json
 //   node append-pipeline-event.mjs <run_dir> --event repair_spawn --agent main-agent --step diagnostician --data '{"source":"judge","diag_iters_total":1}'
+//   node append-pipeline-event.mjs <run_dir> --event artifact_check_complete --agent main-agent --step present --status PASS
 
 import fs from 'fs';
 import { join } from 'path';
@@ -148,7 +149,7 @@ function enforceStepPrerequisites(manifest, step, eventName, agent, extraData) {
 }
 
 if (!runDir) {
-  console.error('Usage: node append-pipeline-event.mjs <run_dir> --event <event> [--agent <agent>] [--step <pipeline_step>] [--files a,b] [--data <json>] [--errors <text>]');
+  console.error('Usage: node append-pipeline-event.mjs <run_dir> --event <event> [--agent <agent>] [--step <pipeline_step>] [--files a,b] [--data <json>] [--errors <text>] [--status <status>]');
   process.exit(1);
 }
 

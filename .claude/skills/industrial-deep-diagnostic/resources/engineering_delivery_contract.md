@@ -41,7 +41,7 @@
 - `evidence_closure_report.json`
 
 若存在有效时间列，还必须交付：
-- `03_figures/fig_master_time_aligned_overlay.png`
+- `03_figures/plot_manifest.json` 中记录的至少一张 temporal / aligned / timeline / process-health 图，并且该图文件真实存在
 
 ## 3. 证据闭环
 
