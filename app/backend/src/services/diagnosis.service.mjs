@@ -258,7 +258,15 @@ export function sendChatMessage(runId, message) {
   closeQuery(runId);
   executingRuns.delete(runId);
   try {
-    continueDiagnosis(runId, message);
+    emit(runId, {
+      type: 'user_message',
+      data: {
+        role: 'user',
+        content: message,
+        source: 'chat',
+      },
+    });
+    continueDiagnosis(runId, message, { emitUserMessage: false });
     return true;
   } catch {
     return false;
@@ -266,7 +274,7 @@ export function sendChatMessage(runId, message) {
 }
 
 // Continue / retry a failed or stopped run
-export function continueDiagnosis(runId, followUpMessage) {
+export function continueDiagnosis(runId, followUpMessage, options = {}) {
   const run = stmts.getRunById.get(runId);
   if (!run) {
     const err = new Error('Run not found');
@@ -292,6 +300,26 @@ export function continueDiagnosis(runId, followUpMessage) {
     followUpMessage: followUpMessage || null,
     sessionId: run.session_id || null,
   });
+
+  if (followUpMessage) {
+    if (options.emitUserMessage !== false) {
+      emit(runId, {
+        type: 'user_message',
+        data: {
+          role: 'user',
+          content: followUpMessage,
+          source: 'continue',
+        },
+      });
+    }
+    emit(runId, {
+      type: 'system',
+      subtype: 'continue',
+      data: {
+        message: '已收到补充说明，继续当前诊断会话。',
+      },
+    });
+  }
 
   executeDiagnosis(runId, run, true);
   return { runId, status: 'running', continued: true };
@@ -319,13 +347,23 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
     data: { questionId, answers, timestamp: new Date().toISOString() },
   });
 
+  emit(runId, {
+    type: 'user_message',
+    data: {
+      role: 'user',
+      content: answerText,
+      source: 'question_answer',
+      questionId,
+    },
+  });
+
   const followUpMessage = [
     '以下是对你上一轮结构化问题的正式回答，请基于这些答案继续当前诊断，不要再次重复提问，除非确有新的关键缺失信息：',
     answerText,
   ].join('\n\n');
 
   try {
-    continueDiagnosis(runId, followUpMessage);
+    continueDiagnosis(runId, followUpMessage, { emitUserMessage: false });
     return true;
   } catch (err) {
     logger.error(`Failed to resume run ${runId} after answer: ${err.message}`, {
@@ -355,6 +393,16 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   updateStatus(runId, 'running');
   stmts.updateRunStatus.run({ runId, status: 'running' });
   emit(runId, { type: 'status', data: { status: 'running', runId, isRetry } });
+  if (!isRetry && run.user_question) {
+    emit(runId, {
+      type: 'user_message',
+      data: {
+        role: 'user',
+        content: run.user_question,
+        source: 'initial_question',
+      },
+    });
+  }
 
   let analysisTarget;
   const dp = run.data_path;
@@ -729,6 +777,17 @@ export async function getSessionContent(runId) {
       const content = userMsg.content || [];
 
       for (const block of content) {
+        if (block.type === 'text') {
+          events.push({
+            type: 'user_message',
+            data: {
+              role: 'user',
+              content: block.text || '',
+              source: 'session',
+            },
+            _seq: seq,
+          });
+        }
         if (block.type === 'tool_result') {
           const resultContent = block.content;
           const summary = typeof resultContent === 'string'

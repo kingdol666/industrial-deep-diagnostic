@@ -331,6 +331,22 @@ export function getChatEmitter(chatId) {
   return activeChats.get(chatId)?.emitter || null;
 }
 
+export function subscribeChatEvents(chatId, callback) {
+  const emitter = getChatEmitter(chatId);
+  if (!emitter || typeof callback !== 'function') {
+    return () => {};
+  }
+
+  const handler = (eventType, data) => {
+    callback(eventType, data);
+  };
+
+  emitter.on('event', handler);
+  return () => {
+    emitter.off('event', handler);
+  };
+}
+
 export function getChatSession(chatId) {
   const row = stmts.getChatSessionByChatId.get(chatId);
   if (!row) return null;

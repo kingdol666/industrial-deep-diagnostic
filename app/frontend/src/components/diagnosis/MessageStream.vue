@@ -33,6 +33,19 @@
         </div>
       </div>
 
+      <div v-else-if="item.kind === 'user'" class="ms-item ms-user">
+        <div class="ms-rail"><div class="ms-dot dot-green"></div></div>
+        <div class="ms-body">
+          <div class="ms-card card-user">
+            <div class="ms-card-header">
+              <span class="ms-card-icon">👤</span>
+              <span class="ms-card-title">用户</span>
+            </div>
+            <div class="msg-content" v-html="renderMd(item.content)"></div>
+          </div>
+        </div>
+      </div>
+
       <div v-else-if="item.kind === 'tool'" class="ms-item ms-tool">
         <div class="ms-rail"><div class="ms-dot" :class="toolDotClass(item.name)"></div></div>
         <div class="ms-body">
@@ -223,6 +236,15 @@ const renderedItems = computed(() => {
           content: ev.data.content,
         });
       }
+      continue;
+    }
+
+    if (ev.type === 'user_message' && ev.data?.content) {
+      items.push({
+        kind: 'user',
+        key: `user:${ev._seq}`,
+        content: ev.data.content,
+      });
       continue;
     }
 
@@ -973,6 +995,11 @@ watch(() => props.events.length, () => {
   overflow-y: auto;
 }
 .card-msg { background: transparent; border: none; }
+.card-user {
+  background: rgba(63, 185, 80, 0.08);
+  border: 1px solid rgba(63, 185, 80, 0.18);
+  border-radius: 10px;
+}
 .msg-content { font-size: 13px; line-height: 1.8; color: var(--text); }
 .msg-content :deep(p) { margin: 4px 0; }
 .msg-content :deep(code) {

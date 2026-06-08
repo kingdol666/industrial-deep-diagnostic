@@ -9,8 +9,18 @@ import engine, {
 import {
   listRuns,
   getRunRealtimeSnapshot,
+  continueDiagnosis,
+  sendChatMessage as sendDiagnosisChatMessage,
 } from '../services/diagnosis.service.mjs';
 import { hitlRequests } from '../services/diagnosis.service.mjs';
+import {
+  listActiveChats,
+  getChatHistory,
+  startChat,
+  sendChatMessage,
+  stopChat,
+  subscribeChatEvents,
+} from '../services/chat.service.mjs';
 import logger from '../utils/logger.mjs';
 
 let wss = null;
@@ -26,6 +36,7 @@ function getOrCreateState(ws) {
   if (!state) {
     state = {
       subscriptions: new Map(),
+      chatSubscriptions: new Map(),
       watchCatalog: false,
     };
     clientState.set(ws, state);
@@ -43,6 +54,17 @@ function clearAllSubscriptions(state) {
   for (const runId of state.subscriptions.keys()) {
     clearRunSubscription(state, runId);
   }
+  for (const chatId of state.chatSubscriptions.keys()) {
+    const entry = state.chatSubscriptions.get(chatId);
+    if (entry?.unsubscribe) entry.unsubscribe();
+    state.chatSubscriptions.delete(chatId);
+  }
+}
+
+function clearChatSubscription(state, chatId) {
+  const entry = state.chatSubscriptions.get(chatId);
+  if (entry?.unsubscribe) entry.unsubscribe();
+  state.chatSubscriptions.delete(chatId);
 }
 
 function makeRunSummary(run) {
@@ -70,6 +92,238 @@ function sendCatalogSnapshot(ws) {
       activeRuns: getActiveRuns(),
       sentAt: new Date().toISOString(),
     },
+  });
+}
+
+function makeChatSummary(session) {
+  return {
+    chatId: session.chatId,
+    sessionId: session.sessionId || null,
+    title: session.title || '',
+    status: session.status || 'unknown',
+    createdAt: session.createdAt || null,
+    updatedAt: session.updatedAt || null,
+  };
+}
+
+function sendChatCatalogSnapshot(ws) {
+  const chats = listActiveChats().map(makeChatSummary);
+  safeSend(ws, {
+    type: 'chat_catalog_snapshot',
+    data: {
+      chats,
+      sentAt: new Date().toISOString(),
+    },
+  });
+}
+
+function mapChatEventForWS(eventType, data) {
+  if (eventType === 'message') return { type: 'message', data };
+  if (eventType === 'thinking') return { type: 'thinking', data };
+  if (eventType === 'tool_use') return { type: 'tool_use', data };
+  if (eventType === 'tool_result') return { type: 'tool_result', data };
+  if (eventType === 'system') return { type: 'system', subtype: data?.subtype || 'system', data };
+  if (eventType === 'result') return { type: 'stats', data };
+  if (eventType === 'stream_event') {
+    return {
+      type: 'stream_event',
+      subtype: data?.type || 'stream_event',
+      data,
+    };
+  }
+  if (eventType === 'raw') {
+    return {
+      type: 'stream_event',
+      subtype: data?.type || 'raw',
+      data,
+    };
+  }
+  if (eventType === 'chat_error') {
+    return { type: 'error', data: { error: data?.error || 'Chat failed' } };
+  }
+  if (eventType === 'chat_complete') {
+    return { type: 'complete', data: { status: 'completed' } };
+  }
+  if (eventType === 'chat_init') {
+    return { type: 'system', subtype: 'init', data };
+  }
+  return { type: 'stream_event', subtype: eventType, data };
+}
+
+function mapChatMessageRowToWS(row, seq) {
+  const subtype = row.event_subtype || null;
+  if (row.event_type === 'user_message') {
+    return {
+      type: 'user_message',
+      data: { role: 'user', content: row.content || '' },
+      _seq: seq,
+    };
+  }
+  if (row.event_type === 'message') {
+    return {
+      type: 'message',
+      data: { role: 'assistant', content: row.content || '' },
+      _seq: seq,
+    };
+  }
+  if (row.event_type === 'thinking') {
+    return {
+      type: 'thinking',
+      data: { content: row.content || '' },
+      _seq: seq,
+    };
+  }
+  if (row.event_type === 'tool_use') {
+    try {
+      return {
+        type: 'tool_use',
+        data: JSON.parse(row.content || '{}'),
+        _seq: seq,
+      };
+    } catch {
+      return {
+        type: 'tool_use',
+        data: { name: subtype || 'Tool', input: { raw: row.content || '' } },
+        _seq: seq,
+      };
+    }
+  }
+  if (row.event_type === 'tool_result') {
+    return {
+      type: 'tool_result',
+      data: {
+        toolUseId: '',
+        summary: row.content || '',
+        isError: subtype === 'error',
+      },
+      _seq: seq,
+    };
+  }
+  if (row.event_type === 'result') {
+    try {
+      return {
+        type: 'stats',
+        data: JSON.parse(row.content || '{}'),
+        _seq: seq,
+      };
+    } catch {
+      return {
+        type: 'stats',
+        data: { subtype: subtype || 'completed' },
+        _seq: seq,
+      };
+    }
+  }
+  if (row.event_type === 'error') {
+    return {
+      type: 'error',
+      data: { error: row.content || 'Chat error' },
+      _seq: seq,
+    };
+  }
+  if (row.event_type === 'system') {
+    try {
+      const parsed = JSON.parse(row.content || '{}');
+      return {
+        type: 'system',
+        subtype: parsed.subtype || subtype || 'system',
+        data: parsed,
+        _seq: seq,
+      };
+    } catch {
+      return {
+        type: 'system',
+        subtype: subtype || 'system',
+        data: { content: row.content || '' },
+        _seq: seq,
+      };
+    }
+  }
+  if (row.event_type === 'stream_event' || row.event_type === 'raw') {
+    try {
+      return {
+        type: 'stream_event',
+        subtype: subtype || row.event_type || 'stream_event',
+        data: JSON.parse(row.content || '{}'),
+        _seq: seq,
+      };
+    } catch {
+      return {
+        type: 'stream_event',
+        subtype: subtype || row.event_type || 'stream_event',
+        data: { raw: row.content || '' },
+        _seq: seq,
+      };
+    }
+  }
+  return {
+    type: 'stream_event',
+    subtype: row.event_type || 'unknown',
+    data: { raw: row.content || '' },
+    _seq: seq,
+  };
+}
+
+function buildChatSnapshot(chatId) {
+  const history = getChatHistory(chatId);
+  if (history) {
+    return {
+      chatId,
+      session: {
+        chatId: history.session.chatId,
+        sessionId: history.session.sessionId || null,
+        title: history.session.title || '',
+        status: history.session.status || 'unknown',
+        createdAt: history.session.createdAt || null,
+        updatedAt: history.session.updatedAt || null,
+      },
+      events: (history.messages || []).map((row, index) => mapChatMessageRowToWS(row, index + 1)),
+    };
+  }
+
+  return null;
+}
+
+function sendChatSnapshot(ws, chatId) {
+  const snapshot = buildChatSnapshot(chatId);
+  if (!snapshot) {
+    safeSend(ws, {
+      type: 'error',
+      data: { message: `Chat not found: ${chatId}`, chatId },
+    });
+    return false;
+  }
+
+  safeSend(ws, {
+    type: 'chat_snapshot',
+    data: {
+      ...snapshot,
+      sentAt: new Date().toISOString(),
+    },
+  });
+  return true;
+}
+
+function subscribeChat(ws, state, chatId) {
+  clearChatSubscription(state, chatId);
+
+  const snapshotExists = sendChatSnapshot(ws, chatId);
+  if (!snapshotExists) return;
+
+  const unsubscribe = subscribeChatEvents(chatId, (eventType, data) => {
+    safeSend(ws, {
+      type: 'chat_event',
+      data: {
+        chatId,
+        event: mapChatEventForWS(eventType, data),
+      },
+    });
+  });
+
+  state.chatSubscriptions.set(chatId, { unsubscribe });
+  safeSend(ws, {
+    type: 'chat_subscribed',
+    data: { chatId },
   });
 }
 
@@ -220,6 +474,118 @@ export function initWebSocket(httpServer) {
             break;
           }
 
+          case 'watch_chats': {
+            sendChatCatalogSnapshot(ws);
+            break;
+          }
+
+          case 'get_chat_catalog': {
+            sendChatCatalogSnapshot(ws);
+            break;
+          }
+
+          case 'subscribe_chat': {
+            subscribeChat(ws, state, msg.chatId);
+            break;
+          }
+
+          case 'unsubscribe_chat': {
+            if (msg.chatId) clearChatSubscription(state, msg.chatId);
+            safeSend(ws, { type: 'chat_unsubscribed', data: { chatId: msg.chatId || null } });
+            break;
+          }
+
+          case 'get_chat_snapshot': {
+            sendChatSnapshot(ws, msg.chatId);
+            break;
+          }
+
+          case 'chat_start': {
+            startChat(msg.payload || {})
+              .then((result) => {
+                safeSend(ws, {
+                  type: 'chat_started',
+                  data: {
+                    chatId: result.chatId,
+                    sessionId: result.sessionId || null,
+                  },
+                });
+                sendChatCatalogSnapshot(ws);
+                subscribeChat(ws, state, result.chatId);
+              })
+              .catch((err) => {
+                safeSend(ws, {
+                  type: 'error',
+                  data: { message: err.message || 'Failed to start chat' },
+                });
+              });
+            break;
+          }
+
+          case 'chat_send': {
+            sendChatMessage(msg.chatId, msg.message, msg.payload || {})
+              .then((result) => {
+                safeSend(ws, {
+                  type: 'chat_sent',
+                  data: {
+                    chatId: result.chatId,
+                    sessionId: result.sessionId || null,
+                  },
+                });
+                sendChatCatalogSnapshot(ws);
+                subscribeChat(ws, state, result.chatId);
+              })
+              .catch((err) => {
+                safeSend(ws, {
+                  type: 'error',
+                  data: { message: err.message || 'Failed to send chat message', chatId: msg.chatId || null },
+                });
+              });
+            break;
+          }
+
+          case 'chat_stop': {
+            const stopped = stopChat(msg.chatId);
+            safeSend(ws, {
+              type: 'chat_stopped',
+              data: { chatId: msg.chatId, stopped },
+            });
+            sendChatCatalogSnapshot(ws);
+            if (msg.chatId) sendChatSnapshot(ws, msg.chatId);
+            break;
+          }
+
+          case 'run_chat': {
+            const sent = sendDiagnosisChatMessage(msg.runId, msg.message || '');
+            safeSend(ws, {
+              type: 'run_chat_ack',
+              data: { runId: msg.runId, resumed: !!sent },
+            });
+            if (!sent) {
+              safeSend(ws, {
+                type: 'error',
+                data: { message: `Failed to send diagnosis chat message for run ${msg.runId}`, runId: msg.runId },
+              });
+            }
+            break;
+          }
+
+          case 'run_continue': {
+            try {
+              const result = continueDiagnosis(msg.runId, msg.followUpMessage || null);
+              safeSend(ws, {
+                type: 'run_continue_ack',
+                data: result,
+              });
+            } catch (err) {
+              safeSend(ws, {
+                type: 'error',
+                data: { message: err.message || 'Failed to continue run', runId: msg.runId },
+              });
+            }
+            break;
+          }
+
           case 'ping': {
             safeSend(ws, { type: 'pong', data: {} });
             break;
@@ -271,7 +637,7 @@ export function initWebSocket(httpServer) {
       data: {
         version: '2.0',
         activeRuns: getActiveRuns(),
-        capabilities: ['catalog_snapshot', 'run_snapshot', 'run_event', 'run_updated'],
+        capabilities: ['catalog_snapshot', 'run_snapshot', 'run_event', 'run_updated', 'chat_catalog_snapshot', 'chat_snapshot', 'chat_event'],
       },
     });
   });

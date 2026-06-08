@@ -3,67 +3,71 @@
     <section class="chat-main">
       <div class="chat-topbar">
         <div class="chat-title-group">
-          <h2 class="chat-title">{{ activeSession?.title || 'New Chat' }}</h2>
+          <h2 class="chat-title">{{ activePanelTitle }}</h2>
           <div class="chat-subtitle">
-            <span class="chat-session-chip" v-if="activeSession?.sessionId">session: {{ shortId(activeSession.sessionId) }}</span>
-            <span class="chat-session-chip" v-if="activeSession?.chatId">chat: {{ shortId(activeSession.chatId) }}</span>
-            <span class="chat-status" :class="connected ? 'chat-status-online' : 'chat-status-offline'">
-              {{ connected ? (isRunning ? 'Streaming' : 'Ready') : 'Disconnected' }}
+            <span class="chat-session-chip" v-if="activePanel?.sessionId">session: {{ shortId(activePanel.sessionId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.chatId">chat: {{ shortId(activePanel.chatId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.runId">run: {{ shortId(activePanel.runId) }}</span>
+            <span class="chat-status" :class="wsConnected ? 'chat-status-online' : 'chat-status-offline'">
+              {{ wsConnected ? (activePanelRunning ? 'Streaming' : 'Ready') : 'Disconnected' }}
             </span>
           </div>
         </div>
         <div class="chat-topbar-actions">
-          <button class="btn" @click="createChat" :disabled="loading">New Chat</button>
-          <button class="btn btn-danger" @click="stopActiveChat" :disabled="!canStop">Stop</button>
+          <button class="btn" @click="createChatPanel" :disabled="loading">New Chat</button>
+          <button class="btn btn-danger" @click="stopActivePanel" :disabled="!canStop">Stop</button>
         </div>
       </div>
 
-      <div class="chat-stage" v-if="!activeSession">
+      <div class="chat-stage" v-if="!activePanel">
         <div class="chat-empty">
           <div class="chat-empty-icon">💬</div>
-          <h3>Start a normal conversation</h3>
-          <p>Use the same Claude backend, but in a plain chat mode.</p>
+          <h3>Start a conversation</h3>
+          <p>Chat and diagnose sessions both stream through the same WebSocket transport.</p>
         </div>
       </div>
 
       <div v-else class="chat-stage">
+        <div class="chat-stage-banner" v-if="activePanel.kind === 'diagnose'">
+          <div class="chat-stage-banner-title">Diagnose Session</div>
+          <div class="chat-stage-banner-text">这里展示诊断会话的真实对话内容，并可在同一处继续补充说明。</div>
+        </div>
+
         <div class="chat-scroll">
-          <div class="chat-welcome" v-if="activeSession.userMessages.length === 0 && renderedEvents.length === 0">
+          <div class="chat-welcome" v-if="activePanel.events.length === 0">
             <div class="chat-empty-icon">✨</div>
-            <h3>What would you like to ask?</h3>
-            <p>This mode supports the same streaming, tools, and semantic rendering as diagnosis.</p>
+            <h3>{{ activePanel.kind === 'diagnose' ? '诊断会话已连接' : 'What would you like to ask?' }}</h3>
+            <p>{{ activePanel.kind === 'diagnose' ? '诊断对话会在这里持续同步。' : 'This mode supports the same tools and semantic rendering as diagnosis.' }}</p>
           </div>
 
-          <div v-for="message in chatTimeline" :key="message.key" class="chat-row" :class="message.role === 'user' ? 'chat-row-user' : 'chat-row-assistant'">
-            <template v-if="message.role === 'user'">
-              <div class="chat-bubble chat-bubble-user">{{ message.content }}</div>
-            </template>
-            <template v-else>
-              <div class="chat-avatar">C</div>
-              <div class="chat-assistant-panel">
-                <MessageStream
-                  :events="message.events"
-                  :isRunning="message.isRunning"
-                  :connected="connected"
-                />
-              </div>
-            </template>
-          </div>
+          <MessageStream
+            v-else
+            :events="activePanel.events"
+            :isRunning="activePanelRunning"
+            :connected="wsConnected"
+          />
         </div>
 
         <div class="chat-composer">
           <textarea
             v-model="draft"
             class="chat-input"
-            placeholder="Message Claude..."
+            :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : 'Message Claude...'"
             :disabled="loading"
             @keydown.enter.exact.prevent="submitMessage"
             @keydown.enter.shift.exact.stop
           />
           <div class="chat-composer-actions">
-            <div class="chat-hint">Enter to send · Shift+Enter for newline</div>
+            <div class="chat-hint">
+              <template v-if="activePanel.kind === 'diagnose'">
+                运行中会直接注入当前诊断会话；已完成/失败/停止时会以 continue 方式恢复
+              </template>
+              <template v-else>
+                Enter to send · Shift+Enter for newline
+              </template>
+            </div>
             <button class="btn btn-primary" @click="submitMessage" :disabled="!draft.trim() || loading">
-              {{ activeSession ? 'Send' : 'Start Chat' }}
+              {{ activePanel.kind === 'diagnose' ? '继续诊断' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
             </button>
           </div>
         </div>
@@ -71,459 +75,580 @@
     </section>
 
     <aside class="chat-sidebar">
-      <div class="chat-sidebar-header">
-        <h3>Sessions</h3>
-        <button class="btn btn-sm" @click="refreshSessions">Refresh</button>
-      </div>
-      <div class="chat-sidebar-list">
-        <button
-          v-for="session in sessions"
-          :key="session.localId"
-          class="chat-session-item"
-          :class="{ active: activeSession?.localId === session.localId }"
-          @click="selectSession(session.localId)"
-        >
-          <div class="chat-session-head">
-            <div class="chat-session-name">{{ session.title }}</div>
-            <div v-if="session.chatId" class="chat-session-actions" @click.stop>
-              <button class="session-icon-btn" @click="renameSession(session)">✎</button>
-              <button class="session-icon-btn danger" @click="removeSession(session)">✕</button>
+      <div class="chat-sidebar-section">
+        <div class="chat-sidebar-header">
+          <h3>Chat</h3>
+          <button class="btn btn-sm" @click="refreshChats">Refresh</button>
+        </div>
+        <div class="chat-sidebar-list">
+          <button
+            v-for="panel in chatPanels"
+            :key="panel.localId"
+            class="chat-session-item"
+            :class="{ active: activePanel?.localId === panel.localId }"
+            @click="selectPanel(panel.localId)"
+          >
+            <div class="chat-session-head">
+              <div class="chat-session-name">{{ panel.title }}</div>
+              <div v-if="panel.chatId" class="chat-session-actions" @click.stop>
+                <button class="session-icon-btn" @click="renameChatPanel(panel)">✎</button>
+                <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
+              </div>
             </div>
-          </div>
-          <div class="chat-session-meta">
-            <span>{{ shortId(session.sessionId || session.chatId || session.localId) }}</span>
-            <span :class="['badge', session.active ? 'badge-green' : 'badge-blue']">{{ session.active ? 'active' : 'saved' }}</span>
-          </div>
-        </button>
-        <div v-if="sessions.length === 0" class="chat-sidebar-empty">No chat sessions yet.</div>
+            <div class="chat-session-meta">
+              <span>{{ shortId(panel.sessionId || panel.chatId || panel.localId) }}</span>
+              <span :class="['badge', panel.status === 'active' ? 'badge-green' : 'badge-blue']">{{ panel.status === 'active' ? 'active' : 'saved' }}</span>
+            </div>
+          </button>
+          <div v-if="chatPanels.length === 0" class="chat-sidebar-empty">No chat sessions yet.</div>
+        </div>
+      </div>
+
+      <div class="chat-sidebar-section diagnose-section">
+        <div class="chat-sidebar-header">
+          <h3>Diagnose Sessions</h3>
+          <button class="btn btn-sm" @click="refreshDiagnosePanels">Refresh</button>
+        </div>
+        <div class="chat-sidebar-list">
+          <button
+            v-for="panel in diagnosePanels"
+            :key="panel.localId"
+            class="chat-session-item diagnose-item"
+            :class="{ active: activePanel?.localId === panel.localId }"
+            @click="selectPanel(panel.localId)"
+          >
+            <div class="chat-session-head">
+              <div class="chat-session-name">{{ panel.title }}</div>
+            </div>
+            <div class="chat-session-meta">
+              <span>{{ shortId(panel.runId) }}</span>
+              <span :class="['badge', runBadgeClass(panel.status)]">{{ runStatusLabel(panel.status) }}</span>
+            </div>
+          </button>
+          <div v-if="diagnosePanels.length === 0" class="chat-sidebar-empty">No diagnosis sessions found.</div>
+        </div>
       </div>
     </aside>
   </div>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { api } from '../../api/index.js';
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { api, wsUrl } from '../../api/index.js';
 import MessageStream from '../diagnosis/MessageStream.vue';
+import { getRunStatusBadgeClass, getRunStatusLabel, normalizeRunSummary } from '../../utils/diagnosisRun.js';
 
-const sessions = ref([]);
-const activeSessionId = ref(null);
+const panels = ref([]);
+const activePanelId = ref(null);
 const draft = ref('');
 const loading = ref(false);
-const connected = ref(false);
-const isRunning = ref(false);
+const wsConnected = ref(false);
 
-let eventSource = null;
+const chatCatalog = ref([]);
+const runCatalog = ref([]);
+
+let socket = null;
+let reconnectTimer = null;
+let manualClose = false;
 let localSeq = 0;
 
-const activeSession = computed(() => sessions.value.find(s => s.localId === activeSessionId.value) || null);
-
-const renderedEvents = computed(() => activeSession.value?.events || []);
-const canStop = computed(() => !!activeSession.value?.chatId && isRunning.value === true);
-
-const chatTimeline = computed(() => {
-  const session = activeSession.value;
-  if (!session) return [];
-  const items = [];
-  for (const userMsg of session.userMessages) {
-    items.push({
-      key: `user:${userMsg.id}`,
-      role: 'user',
-      content: userMsg.content,
-    });
-    items.push({
-      key: `assistant:${userMsg.id}`,
-      role: 'assistant',
-      events: session.assistantStreams[userMsg.id] || [],
-      isRunning: session.pendingMessageId === userMsg.id && isRunning.value,
-    });
-  }
-  return items;
+const activePanel = computed(() => panels.value.find(item => item.localId === activePanelId.value) || null);
+const chatPanels = computed(() => panels.value.filter(item => item.kind === 'chat'));
+const diagnosePanels = computed(() => panels.value.filter(item => item.kind === 'diagnose'));
+const activePanelTitle = computed(() => activePanel.value?.title || 'New Chat');
+const activePanelRunning = computed(() => {
+  const panel = activePanel.value;
+  if (!panel) return false;
+  if (panel.kind === 'chat') return panel.status === 'active';
+  return ['running', 'awaiting_input'].includes(panel.status);
+});
+const canStop = computed(() => {
+  const panel = activePanel.value;
+  if (!panel) return false;
+  if (panel.kind === 'chat') return !!panel.chatId && panel.status === 'active';
+  return !!panel.runId && ['running', 'awaiting_input'].includes(panel.status);
 });
 
-function createSessionShell(title = 'New Chat') {
-  const id = `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  return {
-    localId: id,
-    title,
-    chatId: null,
-    sessionId: null,
-    active: false,
-    userMessages: [],
-    assistantStreams: {},
-    pendingMessageId: null,
-    events: [],
-  };
-}
-
-function hydrateSessionFromHistory(history) {
-  const base = createSessionShell(history?.session?.title || 'Saved Chat');
-  base.chatId = history?.session?.chatId || null;
-  base.sessionId = history?.session?.sessionId || null;
-  base.title = history?.session?.title || 'Saved Chat';
-  base.active = history?.session?.status === 'active';
-  const messages = history?.messages || [];
-
-  let lastUserId = null;
-  for (const msg of messages) {
-    if (msg.role === 'user' && msg.event_type === 'user_message') {
-      const userId = `hist_user_${msg.id}`;
-      base.userMessages.push({ id: userId, content: msg.content || '' });
-      base.assistantStreams[userId] = [];
-      lastUserId = userId;
-      continue;
-    }
-
-    if (!lastUserId) {
-      lastUserId = `hist_bootstrap_${msg.id}`;
-      base.userMessages.push({ id: lastUserId, content: '[Conversation restored]' });
-      base.assistantStreams[lastUserId] = [];
-    }
-
-    const ev = restoreEventFromMessageRow(msg);
-    base.events.push(ev);
-    base.assistantStreams[lastUserId].push(ev);
-  }
-
-  return base;
-}
-
-function restoreEventFromMessageRow(row) {
-  const seq = ++localSeq;
-  const subtype = row.event_subtype || null;
-  if (row.event_type === 'message') return { type: 'message', data: { role: 'assistant', content: row.content || '' }, _seq: seq };
-  if (row.event_type === 'thinking') return { type: 'thinking', data: { content: row.content || '' }, _seq: seq };
-  if (row.event_type === 'tool_use') {
-    try {
-      const parsed = JSON.parse(row.content || '{}');
-      return { type: 'tool_use', data: parsed, _seq: seq };
-    } catch {
-      return { type: 'tool_use', data: { name: subtype || 'Tool', input: { raw: row.content || '' } }, _seq: seq };
-    }
-  }
-  if (row.event_type === 'tool_result') {
-    return { type: 'tool_result', data: { toolUseId: '', summary: row.content || '', isError: subtype === 'error' }, _seq: seq };
-  }
-  if (row.event_type === 'result') {
-    try {
-      const parsed = JSON.parse(row.content || '{}');
-      return { type: 'stats', data: parsed, _seq: seq };
-    } catch {
-      return { type: 'stats', data: {}, _seq: seq };
-    }
-  }
-  if (row.event_type === 'error') {
-    return { type: 'error', data: { error: row.content || 'Chat error' }, _seq: seq };
-  }
-  if (row.event_type === 'stream_event' || row.event_type === 'raw') {
-    try {
-      return { type: 'stream_event', subtype: subtype || 'stream_event', data: JSON.parse(row.content || '{}'), _seq: seq };
-    } catch {
-      return { type: 'unknown', subtype: subtype || row.event_type, data: row.content || '', _seq: seq };
-    }
-  }
-  if (row.event_type === 'system') {
-    try {
-      const parsed = JSON.parse(row.content || '{}');
-      return { type: 'system', subtype: parsed.subtype || subtype || 'system', data: parsed, _seq: seq };
-    } catch {
-      return { type: 'system', subtype: subtype || 'system', data: { content: row.content || '' }, _seq: seq };
-    }
-  }
-  return { type: 'unknown', subtype: row.event_type || 'unknown', data: row.content || '', _seq: seq };
-}
-
-function createChat() {
-  const session = createSessionShell();
-  sessions.value.unshift(session);
-  activeSessionId.value = session.localId;
-  draft.value = '';
-  closeStream();
-  connected.value = false;
-  isRunning.value = false;
-}
-
-function selectSession(localId) {
-  activeSessionId.value = localId;
-  closeStream();
-  connected.value = false;
-  isRunning.value = false;
+function nextSeq() {
+  localSeq += 1;
+  return localSeq;
 }
 
 function shortId(value) {
   return value ? String(value).slice(0, 8) : '--';
 }
 
-function ensureActiveSession() {
-  if (!activeSession.value) createChat();
-  return activeSession.value;
+function runStatusLabel(status) {
+  return getRunStatusLabel(status);
 }
 
-function pushSessionEvent(session, userMessageId, ev) {
-  session.events.push(ev);
-  if (!session.assistantStreams[userMessageId]) session.assistantStreams[userMessageId] = [];
-  session.assistantStreams[userMessageId].push(ev);
+function runBadgeClass(status) {
+  return getRunStatusBadgeClass(status);
 }
 
-function openChatStream(session, userMessageId, chatId) {
-  closeStream();
-  connected.value = false;
-  isRunning.value = true;
-  eventSource = new EventSource(api.chatStreamUrl(chatId));
+function createBasePanel(kind, title) {
+  return reactive({
+    localId: `${kind}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    kind,
+    title,
+    chatId: null,
+    runId: null,
+    sessionId: null,
+    status: kind === 'chat' ? 'draft' : 'pending',
+    events: [],
+    subscribed: false,
+    hydrated: false,
+    metadata: {},
+  });
+}
 
-  const push = (type, data, subtype = null) => {
-    const event = { type, data, subtype, _seq: ++localSeq };
-    pushSessionEvent(session, userMessageId, event);
+function createChatPanel() {
+  const panel = createBasePanel('chat', 'New Chat');
+  panels.value.unshift(panel);
+  activePanelId.value = panel.localId;
+  draft.value = '';
+  return panel;
+}
+
+function buildDiagnoseTitle(run) {
+  const normalized = normalizeRunSummary(run);
+  const scene = normalized?.scene_name || normalized?.name || normalized?.run_id || 'Diagnose Session';
+  return `${scene}`;
+}
+
+function ensureDiagnosePanel(run) {
+  const normalized = normalizeRunSummary(run);
+  if (!normalized?.run_id) return null;
+  let panel = panels.value.find(item => item.kind === 'diagnose' && item.runId === normalized.run_id);
+  if (!panel) {
+    panel = createBasePanel('diagnose', buildDiagnoseTitle(normalized));
+    panel.runId = normalized.run_id;
+    panel.status = normalized.engineStatus || normalized.status || 'pending';
+    panel.metadata.run = normalized;
+    panels.value.push(panel);
+  } else {
+    panel.title = buildDiagnoseTitle(normalized);
+    panel.status = normalized.engineStatus || normalized.status || panel.status;
+    panel.metadata.run = normalized;
+  }
+  return panel;
+}
+
+function selectPanel(localId) {
+  activePanelId.value = localId;
+  const panel = activePanel.value;
+  if (!panel) return;
+  if (panel.kind === 'chat' && panel.chatId) subscribeChatPanel(panel);
+  if (panel.kind === 'diagnose' && panel.runId) subscribeDiagnosePanel(panel);
+}
+
+function ensureSocket() {
+  if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
+  manualClose = false;
+  socket = new WebSocket(wsUrl());
+
+  socket.onopen = () => {
+    wsConnected.value = true;
+    sendWS({ type: 'watch_catalog', enabled: true });
+    sendWS({ type: 'watch_chats', enabled: true });
+    for (const panel of panels.value) {
+      if (panel.kind === 'chat' && panel.chatId) {
+        sendWS({ type: 'subscribe_chat', chatId: panel.chatId });
+        sendWS({ type: 'get_chat_snapshot', chatId: panel.chatId });
+      }
+      if (panel.kind === 'diagnose' && panel.runId) {
+        sendWS({ type: 'subscribe_run', runId: panel.runId });
+        sendWS({ type: 'get_run_snapshot', runId: panel.runId });
+      }
+    }
   };
 
-  eventSource.addEventListener('chat_init', (e) => {
+  socket.onmessage = (event) => {
     try {
-      const d = JSON.parse(e.data);
-      session.chatId = d.chatId || session.chatId;
-      session.sessionId = d.sessionId || session.sessionId;
-      session.active = true;
-      session.title = session.title === 'New Chat'
-        ? (session.userMessages[0]?.content?.slice(0, 28) || 'New Chat')
-        : session.title;
-    } catch {}
-  });
+      handleWSMessage(JSON.parse(event.data));
+    } catch (err) {
+      console.error('Failed to parse websocket payload', err);
+    }
+  };
 
-  eventSource.addEventListener('system', (e) => {
-    try { push('system', JSON.parse(e.data), JSON.parse(e.data)?.subtype || 'system'); } catch {}
-  });
-  eventSource.addEventListener('result', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      push('stats', d);
-      push('complete', { status: d?.subtype === 'success' ? 'completed' : 'failed', error: d?.stopReason || '', score: null, verdict: d?.subtype || '' });
-    } catch {}
-  });
-  eventSource.addEventListener('message', (e) => {
-    try { push('message', JSON.parse(e.data)); } catch {}
-  });
-  eventSource.addEventListener('thinking', (e) => {
-    try { push('thinking', JSON.parse(e.data)); } catch {}
-  });
-  eventSource.addEventListener('tool_use', (e) => {
-    try { push('tool_use', JSON.parse(e.data)); } catch {}
-  });
-  eventSource.addEventListener('tool_result', (e) => {
-    try { push('tool_result', JSON.parse(e.data)); } catch {}
-  });
-  eventSource.addEventListener('stream_event', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      const normalized = normalizeChatStreamEvent(d);
-      push(normalized.type, normalized.data, normalized.subtype);
-    } catch {}
-  });
-  eventSource.addEventListener('raw', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      push('unknown', d, d?.type || 'raw');
-    } catch {}
-  });
-  eventSource.addEventListener('chat_complete', () => {
-    connected.value = false;
-    isRunning.value = false;
-    session.pendingMessageId = null;
-    closeStream();
-  });
-  eventSource.addEventListener('chat_error', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      push('error', { error: d.error || 'Chat failed' });
-    } catch {}
-    connected.value = false;
-    isRunning.value = false;
-    session.pendingMessageId = null;
-    closeStream();
-  });
-  eventSource.onopen = () => {
-    connected.value = true;
+  socket.onerror = () => {
+    wsConnected.value = false;
   };
-  eventSource.onerror = () => {
-    connected.value = false;
+
+  socket.onclose = () => {
+    wsConnected.value = false;
+    socket = null;
+    if (!manualClose) {
+      reconnectTimer = window.setTimeout(() => {
+        reconnectTimer = null;
+        ensureSocket();
+      }, 1500);
+    }
   };
+}
+
+function disconnectSocket() {
+  manualClose = true;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
+  wsConnected.value = false;
+}
+
+function sendWS(payload) {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return false;
+  socket.send(JSON.stringify(payload));
+  return true;
+}
+
+function subscribeChatPanel(panel) {
+  if (!panel?.chatId) return;
+  ensureSocket();
+  if (wsConnected.value) {
+    sendWS({ type: 'subscribe_chat', chatId: panel.chatId });
+    sendWS({ type: 'get_chat_snapshot', chatId: panel.chatId });
+  }
+}
+
+function subscribeDiagnosePanel(panel) {
+  if (!panel?.runId) return;
+  ensureSocket();
+  if (wsConnected.value) {
+    sendWS({ type: 'subscribe_run', runId: panel.runId });
+    sendWS({ type: 'get_run_snapshot', runId: panel.runId });
+  }
+}
+
+function restoreChatEvent(row) {
+  const seq = nextSeq();
+  if (row.type === 'user_message') return { ...row, _seq: seq };
+  if (row.type === 'message') return { ...row, _seq: seq };
+  if (row.type === 'thinking') return { ...row, _seq: seq };
+  if (row.type === 'tool_use') return { ...row, _seq: seq };
+  if (row.type === 'tool_result') return { ...row, _seq: seq };
+  if (row.type === 'stats') return { ...row, _seq: seq };
+  if (row.type === 'error') return { ...row, _seq: seq };
+  if (row.type === 'complete') return { ...row, _seq: seq };
+  if (row.type === 'system') return { ...row, _seq: seq };
+  return { ...row, _seq: seq };
+}
+
+function setChatSnapshot(panel, payload) {
+  panel.chatId = payload.session?.chatId || payload.chatId || panel.chatId;
+  panel.sessionId = payload.session?.sessionId || panel.sessionId;
+  panel.title = payload.session?.title || panel.title;
+  panel.status = payload.session?.status || panel.status;
+  panel.events = (payload.events || []).map(item => restoreChatEvent(item));
+  panel.hydrated = true;
+}
+
+function setDiagnoseSnapshot(panel, payload) {
+  panel.status = payload.liveStatus || payload.run?.engineStatus || payload.run?.status || panel.status;
+  panel.metadata.run = normalizeRunSummary(payload.run || panel.metadata.run || {});
+  if (!panel.title || panel.title === 'Diagnose Session') {
+    panel.title = buildDiagnoseTitle(payload.run || panel.metadata.run);
+  }
+  panel.events = normalizeDiagnoseEvents(panel, payload.events || []);
+  panel.hydrated = true;
+}
+
+function normalizeDiagnoseEvents(panel, events) {
+  const list = [];
+  for (const ev of events || []) {
+    if (!ev) continue;
+    if (ev.type === 'user_message' && shouldHideDiagnoseUserMessage(ev)) {
+      continue;
+    }
+    list.push({
+      ...ev,
+      _seq: typeof ev._seq === 'number' ? ev._seq : nextSeq(),
+    });
+  }
+  return list;
+}
+
+function shouldHideDiagnoseUserMessage(ev) {
+  const text = String(ev?.data?.content || '');
+  return text.includes('以下是对你上一轮结构化问题的正式回答，请基于这些答案继续当前诊断');
+}
+
+function appendPanelEvent(panel, event) {
+  if (!panel || !event) return;
+  const next = {
+    ...event,
+    _seq: typeof event._seq === 'number' ? event._seq : nextSeq(),
+  };
+  if (panel.kind === 'diagnose' && next.type === 'user_message' && shouldHideDiagnoseUserMessage(next)) {
+    return;
+  }
+  panel.events.push(next);
+  if (panel.events.length > 3000) panel.events.splice(0, panel.events.length - 3000);
+}
+
+function handleWSMessage(message) {
+  switch (message.type) {
+    case 'catalog_snapshot':
+    case 'catalog_update':
+      runCatalog.value = message.data?.runs || [];
+      refreshDiagnosePanelsFromCatalog();
+      break;
+    case 'chat_catalog_snapshot':
+      chatCatalog.value = message.data?.chats || [];
+      mergeChatPanelsFromCatalog();
+      break;
+    case 'chat_snapshot': {
+      const chatId = message.data?.chatId || message.data?.session?.chatId;
+      const panel = panels.value.find(item => item.kind === 'chat' && item.chatId === chatId);
+      if (panel) setChatSnapshot(panel, message.data);
+      break;
+    }
+    case 'chat_event': {
+      const panel = panels.value.find(item => item.kind === 'chat' && item.chatId === message.data?.chatId);
+      if (panel) {
+        appendPanelEvent(panel, message.data.event);
+        if (message.data.event?.type === 'complete') panel.status = 'completed';
+        if (message.data.event?.type === 'error') panel.status = 'failed';
+      }
+      break;
+    }
+    case 'chat_started':
+    case 'chat_sent': {
+      const panel = activePanel.value;
+      if (panel?.kind === 'chat') {
+        panel.chatId = message.data?.chatId || panel.chatId;
+        panel.sessionId = message.data?.sessionId || panel.sessionId;
+        panel.status = 'active';
+      }
+      break;
+    }
+    case 'chat_stopped': {
+      const panel = panels.value.find(item => item.kind === 'chat' && item.chatId === message.data?.chatId);
+      if (panel) panel.status = message.data?.stopped ? 'stopped' : panel.status;
+      break;
+    }
+    case 'run_snapshot': {
+      const panel = panels.value.find(item => item.kind === 'diagnose' && item.runId === message.data?.runId);
+      if (panel) setDiagnoseSnapshot(panel, message.data);
+      break;
+    }
+    case 'run_event': {
+      const panel = panels.value.find(item => item.kind === 'diagnose' && item.runId === message.data?.runId);
+      if (panel) {
+        appendPanelEvent(panel, message.data.event);
+        if (message.data.event?.type === 'status' && message.data.event?.data?.status) {
+          panel.status = message.data.event.data.status;
+        }
+        if (message.data.event?.type === 'complete' && message.data.event?.data?.status) {
+          panel.status = message.data.event.data.status;
+        }
+        if (message.data.event?.type === 'error') {
+          panel.status = message.data.event?.data?.status || 'failed';
+        }
+      }
+      break;
+    }
+    case 'run_updated': {
+      const panel = panels.value.find(item => item.kind === 'diagnose' && item.runId === message.data?.runId);
+      if (panel) {
+        panel.status = message.data?.liveStatus || panel.status;
+        panel.metadata.run = normalizeRunSummary(message.data.run || panel.metadata.run || {});
+      }
+      refreshDiagnosePanelsFromCatalog();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function mergeChatPanelsFromCatalog() {
+  for (const entry of chatCatalog.value) {
+    let panel = panels.value.find(item => item.kind === 'chat' && item.chatId === entry.chatId);
+    if (!panel && entry.sessionId) {
+      panel = panels.value.find(item => item.kind === 'chat' && item.sessionId === entry.sessionId);
+    }
+    if (!panel) {
+      panel = createBasePanel('chat', entry.title || `Chat ${shortId(entry.chatId)}`);
+      panels.value.unshift(panel);
+    }
+    panel.chatId = entry.chatId || panel.chatId;
+    panel.sessionId = entry.sessionId || panel.sessionId;
+    panel.title = entry.title || panel.title;
+    panel.status = entry.status || panel.status;
+    if (!panel.hydrated && panel.chatId) subscribeChatPanel(panel);
+  }
+}
+
+function refreshDiagnosePanelsFromCatalog() {
+  for (const run of runCatalog.value) {
+    const panel = ensureDiagnosePanel(run);
+    if (panel && !panel.hydrated) subscribeDiagnosePanel(panel);
+  }
+}
+
+async function refreshChats() {
+  try {
+    const remote = await api.listChats();
+    chatCatalog.value = remote || [];
+    mergeChatPanelsFromCatalog();
+  } catch (err) {
+    console.error('Failed to refresh chats', err);
+  }
+}
+
+async function refreshDiagnosePanels() {
+  try {
+    const runs = await api.listRuns();
+    runCatalog.value = runs || [];
+    refreshDiagnosePanelsFromCatalog();
+  } catch (err) {
+    console.error('Failed to refresh diagnose sessions', err);
+  }
+}
+
+async function renameChatPanel(panel) {
+  if (!panel?.chatId) return;
+  const title = window.prompt('Rename session', panel.title || '');
+  if (!title || !title.trim()) return;
+  const updated = await api.renameChatSession(panel.chatId, title.trim());
+  panel.title = updated.title || title.trim();
+}
+
+async function removeChatPanel(panel) {
+  if (!panel) return;
+  const ok = window.confirm(`Delete session "${panel.title}"? This will remove its history.`);
+  if (!ok) return;
+  if (panel.chatId) {
+    await api.deleteChatSession(panel.chatId);
+  }
+  panels.value = panels.value.filter(item => item.localId !== panel.localId);
+  if (activePanelId.value === panel.localId) {
+    activePanelId.value = panels.value[0]?.localId || null;
+    if (!activePanelId.value) createChatPanel();
+  }
+}
+
+async function stopActivePanel() {
+  const panel = activePanel.value;
+  if (!panel) return;
+  if (panel.kind === 'chat' && panel.chatId) {
+    if (!sendWS({ type: 'chat_stop', chatId: panel.chatId })) {
+      await api.stopChat(panel.chatId).catch(() => {});
+    }
+    panel.status = 'stopped';
+    return;
+  }
+  if (panel.kind === 'diagnose' && panel.runId) {
+    await api.stopDiagnosis(panel.runId).catch(() => {});
+    panel.status = 'stopped';
+  }
 }
 
 async function submitMessage() {
   const text = draft.value.trim();
   if (!text) return;
+  let panel = activePanel.value;
+  if (!panel) panel = createChatPanel();
 
-  const session = ensureActiveSession();
-  const userMessageId = `um_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  session.userMessages.push({ id: userMessageId, content: text });
-  session.pendingMessageId = userMessageId;
-  if (!session.assistantStreams[userMessageId]) session.assistantStreams[userMessageId] = [];
-  draft.value = '';
   loading.value = true;
-
   try {
-    let result;
-    if (!session.chatId || !session.sessionId) {
-      result = await api.startChat({
-        prompt: text,
-        permissionMode: 'bypassPermissions',
+    if (panel.kind === 'chat') {
+      panel.events.push({ type: 'user_message', data: { role: 'user', content: text }, _seq: nextSeq() });
+      if (!panel.chatId) {
+        const sent = sendWS({
+          type: 'chat_start',
+          payload: {
+            prompt: text,
+            permissionMode: 'bypassPermissions',
+          },
+        });
+        if (!sent) {
+          const result = await api.startChat({ prompt: text, permissionMode: 'bypassPermissions' });
+          panel.chatId = result.chatId;
+          panel.sessionId = result.sessionId || null;
+          subscribeChatPanel(panel);
+        }
+      } else {
+        const sent = sendWS({
+          type: 'chat_send',
+          chatId: panel.chatId,
+          message: text,
+          payload: {
+            message: text,
+            sessionId: panel.sessionId,
+            permissionMode: 'bypassPermissions',
+          },
+        });
+        if (!sent) {
+          const result = await api.sendChatMessage(panel.chatId, {
+            message: text,
+            sessionId: panel.sessionId,
+            permissionMode: 'bypassPermissions',
+          });
+          panel.chatId = result.chatId;
+          panel.sessionId = result.sessionId || panel.sessionId;
+          subscribeChatPanel(panel);
+        }
+      }
+      panel.status = 'active';
+      if (panel.title === 'New Chat') panel.title = text.slice(0, 28);
+    } else if (panel.kind === 'diagnose' && panel.runId) {
+      const running = ['running', 'awaiting_input'].includes(panel.status);
+      const sent = running
+        ? sendWS({ type: 'run_chat', runId: panel.runId, message: text })
+        : sendWS({ type: 'run_continue', runId: panel.runId, followUpMessage: text });
+
+      if (!sent) {
+        if (running) {
+          await api.sendChat(panel.runId, text);
+        } else {
+          await api.continueDiagnosis(panel.runId, text);
+        }
+      }
+      panel.status = 'running';
+      appendPanelEvent(panel, {
+        type: 'user_message',
+        data: { role: 'user', content: text, source: 'chat_ui' },
       });
-    } else {
-      result = await api.sendChatMessage(session.chatId, {
-        message: text,
-        sessionId: session.sessionId,
-        permissionMode: 'bypassPermissions',
+      subscribeDiagnosePanel(panel);
+    }
+    draft.value = '';
+  } catch (err) {
+    const target = activePanel.value;
+    if (target) {
+      appendPanelEvent(target, {
+        type: 'error',
+        data: { error: err.message || 'Send failed' },
       });
     }
-
-    session.chatId = result.chatId;
-    session.sessionId = result.sessionId || session.sessionId;
-    session.active = true;
-    if (session.title === 'New Chat') session.title = text.slice(0, 28);
-    openChatStream(session, userMessageId, result.chatId);
-  } catch (err) {
-    pushSessionEvent(session, userMessageId, { type: 'error', data: { error: err.message }, _seq: ++localSeq });
-    session.pendingMessageId = null;
   } finally {
     loading.value = false;
   }
 }
 
-async function stopActiveChat() {
-  if (!activeSession.value?.chatId) return;
-  try {
-    await api.stopChat(activeSession.value.chatId);
-  } catch {}
-  isRunning.value = false;
-  connected.value = false;
-  activeSession.value.active = false;
-  activeSession.value.pendingMessageId = null;
-  closeStream();
-}
-
-async function refreshSessions() {
-  const remote = await api.listChats().catch(() => []);
-  const merged = [];
-  for (const item of remote || []) {
-    const existing = sessions.value.find(s => s.chatId === item.chatId);
-    if (existing) {
-      existing.sessionId = item.sessionId || existing.sessionId;
-      existing.title = item.title || existing.title;
-      existing.active = item.status === 'active';
-      merged.push(existing);
-      continue;
-    }
-    try {
-      const history = await api.getChatHistory(item.chatId);
-      merged.push(hydrateSessionFromHistory(history));
-    } catch {
-      merged.push({
-        ...createSessionShell(item.title || `Chat ${shortId(item.chatId)}`),
-        chatId: item.chatId,
-        sessionId: item.sessionId || null,
-        title: item.title || `Chat ${shortId(item.chatId)}`,
-        active: item.status === 'active',
-      });
-    }
+onMounted(async () => {
+  ensureSocket();
+  createChatPanel();
+  await Promise.all([refreshChats(), refreshDiagnosePanels()]);
+  if (!activePanelId.value && panels.value[0]) {
+    activePanelId.value = panels.value[0].localId;
   }
-  if (merged.length) {
-    sessions.value = [...merged, ...sessions.value.filter(local => !local.chatId)];
-    if (!activeSession.value && sessions.value[0]) activeSessionId.value = sessions.value[0].localId;
-  }
-}
-
-async function renameSession(session) {
-  if (!session.chatId) return;
-  const title = window.prompt('Rename session', session.title || '');
-  if (!title || !title.trim()) return;
-  const updated = await api.renameChatSession(session.chatId, title.trim());
-  session.title = updated.title || title.trim();
-}
-
-async function removeSession(session) {
-  const ok = window.confirm(`Delete session "${session.title}"? This will remove its history.`);
-  if (!ok) return;
-
-  if (session.chatId) {
-    await api.deleteChatSession(session.chatId);
-  }
-
-  sessions.value = sessions.value.filter(s => s.localId !== session.localId);
-
-  if (activeSessionId.value === session.localId) {
-    if (sessions.value.length > 0) {
-      activeSessionId.value = sessions.value[0].localId;
-    } else {
-      createChat();
-    }
-  }
-}
-
-function closeStream() {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-}
-
-function normalizeChatStreamEvent(payload) {
-  const raw = payload?.event || payload;
-  if (raw?.type === 'task_progress') {
-    return {
-      type: 'task_progress',
-      subtype: 'task_progress',
-      data: {
-        taskId: raw.task?.id || raw.task_id || raw.id || '',
-        agentName: raw.task?.name || raw.name || 'Sub-agent',
-        status: raw.task?.status || raw.status || 'running',
-        currentStep: raw.message || raw.current_step || '',
-        progress: raw.progress || null,
-        events: (raw.events || raw.task?.events || []).slice(0, 50),
-      },
-    };
-  }
-  if (raw?.type === 'assistant' || raw?.type === 'message' || raw?.type === 'text') {
-    return { type: 'stream_event', subtype: raw.type || 'message', data: raw };
-  }
-  if (raw?.type === 'tool_use') {
-    return { type: 'tool_use', subtype: 'tool_use', data: { name: raw.name, input: raw.input, id: raw.id } };
-  }
-  if (raw?.type === 'tool_result') {
-    return {
-      type: 'tool_result',
-      subtype: 'tool_result',
-      data: {
-        toolUseId: raw.tool_use_id || raw.toolUseId || raw.id || '',
-        summary: typeof raw.content === 'string' ? raw.content.slice(0, 300) : (raw.summary || ''),
-        isError: !!raw.is_error || !!raw.isError,
-      },
-    };
-  }
-  if (raw?.type === 'thinking') {
-    return { type: 'thinking', subtype: 'thinking', data: { content: raw.thinking || raw.content || '' } };
-  }
-  if (raw?.type === 'system') {
-    return { type: 'system', subtype: raw.subtype || 'system', data: raw };
-  }
-  return {
-    type: 'stream_event',
-    subtype: raw?.type || payload?.type || 'stream_event',
-    data: raw,
-  };
-}
-
-onMounted(() => {
-  createChat();
-  refreshSessions();
 });
 
 onBeforeUnmount(() => {
-  closeStream();
+  disconnectSocket();
 });
 </script>
 
 <style scoped>
 .chat-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 18px;
   height: calc(100vh - 120px);
 }
@@ -592,59 +717,45 @@ onBeforeUnmount(() => {
     radial-gradient(circle at 20% 0%, rgba(124,58,237,.06), transparent 25%),
     radial-gradient(circle at 85% 15%, rgba(34,211,238,.05), transparent 24%);
 }
+.chat-stage-banner {
+  margin: 16px 20px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(88,166,255,.18);
+  background: rgba(88,166,255,.08);
+}
+.chat-stage-banner-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.chat-stage-banner-text {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text2);
+}
 .chat-scroll {
   flex: 1;
   overflow: auto;
-  padding: 28px 28px 10px;
+  padding: 20px 22px 8px;
 }
-.chat-row {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 22px;
+.chat-scroll :deep(.message-stream) {
+  min-height: 100%;
 }
-.chat-row-user {
-  justify-content: flex-end;
+.chat-welcome,
+.chat-empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  color: var(--text2);
+  text-align: center;
 }
-.chat-bubble {
-  max-width: min(860px, 78%);
-  padding: 14px 16px;
-  border-radius: 20px;
-  line-height: 1.65;
-  white-space: pre-wrap;
-}
-.chat-bubble-user {
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  color: #fff;
-  border-bottom-right-radius: 6px;
-  box-shadow: 0 10px 24px rgba(31,111,235,.22);
-}
-.chat-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #3b82f6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  color: #fff;
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-.chat-assistant-panel {
-  flex: 1;
-  min-width: 0;
-  background: rgba(255,255,255,.02);
-  border: 1px solid rgba(255,255,255,.04);
-  border-radius: 18px;
-  padding: 14px 14px 0;
-  backdrop-filter: blur(4px);
-}
-.chat-assistant-panel :deep(.message-stream) {
-  background: transparent;
-  border: none;
-  padding: 0;
-  min-height: auto;
+.chat-empty-icon {
+  font-size: 32px;
 }
 .chat-composer {
   border-top: 1px solid var(--border);
@@ -652,10 +763,12 @@ onBeforeUnmount(() => {
   background: linear-gradient(180deg, rgba(13,17,23,0) 0%, rgba(22,27,34,0.95) 14%);
 }
 .chat-input {
-  min-height: 108px;
+  width: 100%;
+  min-height: 110px;
   border-radius: 18px;
   padding: 16px 18px;
   font-size: 15px;
+  resize: vertical;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
 }
 .chat-composer-actions {
@@ -675,11 +788,20 @@ onBeforeUnmount(() => {
   overflow: hidden;
   box-shadow: 0 18px 50px rgba(0,0,0,.16);
 }
+.chat-sidebar-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.diagnose-section {
+  border-top: 1px solid var(--border);
+}
 .chat-sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 18px 14px;
+  padding: 16px 18px 12px;
   border-bottom: 1px solid var(--border);
 }
 .chat-sidebar-list {
@@ -714,6 +836,10 @@ onBeforeUnmount(() => {
   background: rgba(88,166,255,.08);
   border-color: rgba(88,166,255,.25);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+.diagnose-item.active {
+  background: rgba(34,211,238,.10);
+  border-color: rgba(34,211,238,.22);
 }
 .chat-session-name {
   font-size: 13px;
@@ -759,30 +885,22 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text2);
 }
-.chat-sidebar-empty,
-.chat-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+.chat-sidebar-empty {
+  padding: 10px 4px;
   color: var(--text2);
-  height: 100%;
+  font-size: 12px;
 }
-.chat-empty-icon {
-  font-size: 36px;
-  margin-bottom: 12px;
-}
+
 @media (max-width: 1100px) {
   .chat-shell {
     grid-template-columns: 1fr;
     height: auto;
   }
   .chat-sidebar {
-    min-height: 260px;
+    min-height: 420px;
   }
 }
 </style>
