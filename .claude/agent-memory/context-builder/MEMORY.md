@@ -2,3 +2,4 @@
 - [Parameter to Physics CNC Coverage](parameter-to-physics-cnc-coverage.md) — parameter_to_physics.json covers CNC spindle/machining parameters directly; check before RAG fallback
 - [BOPET Scratch Model Confounds All](bopet-scratch-model-confounds-all.md) — Product model (grade) is the dominant confounder — 8 models with different speed setpoints and scratch baselines cause Simpson's Paradox
 - [BOPET Quench Zone Variability](bopet-quench-zone-variability.md) — Quench zone (TH013-015) shows 5-17x higher batch-to-batch temperature variability vs stretch zone, with one clear outlier batch
+- [BOPET Filter Pressure Sign Reversal](bopet-filter-pressure-sign-reversal.md) — Filter pressure vs scratch shows r≈-0.19 (negative), contradicting physics expectation

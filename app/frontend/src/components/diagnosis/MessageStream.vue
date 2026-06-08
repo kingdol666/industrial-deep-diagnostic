@@ -198,11 +198,13 @@
         <div class="typing-indicator"><span></span><span></span><span></span></div>
       </div>
     </div>
+
+    <div ref="bottomSentinel" class="ms-bottom-sentinel" aria-hidden="true"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, onBeforeUnmount, onBeforeUpdate, onMounted, onUpdated } from 'vue';
 import { renderMarkdown } from '../../utils/markdown.js';
 
 const props = defineProps({
@@ -213,8 +215,12 @@ const props = defineProps({
 
 const expandedThinking = ref(new Set());
 const streamEl = ref(null);
+const bottomSentinel = ref(null);
 const MAX_ITEMS = 300;
 const autoScrollPinned = ref(true);
+const pendingAutoScroll = ref(true);
+let resizeObserver = null;
+let scrollFrame = null;
 
 const renderedItems = computed(() => {
   const items = [];
@@ -877,16 +883,55 @@ function isPinnedToBottom() {
   return el.scrollHeight - el.scrollTop - el.clientHeight < 48;
 }
 
+function scrollToLatest(behavior = 'auto') {
+  const el = streamEl.value;
+  if (!el) return;
+  if (scrollFrame) cancelAnimationFrame(scrollFrame);
+  scrollFrame = requestAnimationFrame(() => {
+    const sentinel = bottomSentinel.value;
+    if (sentinel?.scrollIntoView) {
+      sentinel.scrollIntoView({ block: 'end', behavior });
+    } else {
+      el.scrollTo({ top: el.scrollHeight, behavior });
+    }
+    scrollFrame = null;
+  });
+}
+
 function handleScroll() {
   autoScrollPinned.value = isPinnedToBottom();
 }
 
-watch(() => props.events.length, () => {
-  nextTick(() => {
-    if (streamEl.value && autoScrollPinned.value) {
-      streamEl.value.scrollTo({ top: streamEl.value.scrollHeight, behavior: 'smooth' });
-    }
-  });
+onBeforeUpdate(() => {
+  pendingAutoScroll.value = isPinnedToBottom();
+});
+
+onUpdated(() => {
+  if (!pendingAutoScroll.value) return;
+  scrollToLatest('auto');
+  autoScrollPinned.value = true;
+});
+
+onMounted(() => {
+  scrollToLatest('auto');
+  if (typeof ResizeObserver !== 'undefined' && streamEl.value) {
+    resizeObserver = new ResizeObserver(() => {
+      if (!autoScrollPinned.value && !isPinnedToBottom()) return;
+      scrollToLatest('auto');
+    });
+    resizeObserver.observe(streamEl.value);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (scrollFrame) {
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = null;
+  }
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
 });
 </script>
 
@@ -900,6 +945,10 @@ watch(() => props.events.length, () => {
   overflow-y: auto;
   scroll-behavior: smooth;
   min-height: 200px;
+}
+.ms-bottom-sentinel {
+  width: 100%;
+  height: 1px;
 }
 .ms-connecting {
   display: flex;

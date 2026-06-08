@@ -1,21 +1,91 @@
 <template>
   <div class="chat-shell">
-    <section class="chat-main">
-      <div class="chat-topbar">
-        <div class="chat-title-group">
-          <h2 class="chat-title">{{ activePanelTitle }}</h2>
-          <div class="chat-subtitle">
-            <span class="chat-session-chip" v-if="activePanel?.sessionId">session: {{ shortId(activePanel.sessionId) }}</span>
-            <span class="chat-session-chip" v-if="activePanel?.chatId">chat: {{ shortId(activePanel.chatId) }}</span>
-            <span class="chat-session-chip" v-if="activePanel?.runId">run: {{ shortId(activePanel.runId) }}</span>
-            <span class="chat-status" :class="wsConnected ? 'chat-status-online' : 'chat-status-offline'">
-              {{ wsConnected ? (activePanelRunning ? 'Streaming' : 'Ready') : 'Disconnected' }}
-            </span>
+    <aside class="chat-sidebar">
+      <div class="chat-sidebar-top">
+        <div class="chat-sidebar-brand">
+          <div class="chat-sidebar-kicker">Workspace Chat</div>
+          <div class="chat-sidebar-heading">Conversations</div>
+        </div>
+        <button class="btn btn-primary chat-sidebar-new" @click="createChatPanel" :disabled="loading">New Chat</button>
+      </div>
+
+      <div class="chat-sidebar-groups">
+        <div class="chat-sidebar-group">
+          <div class="chat-sidebar-header">
+            <h3>Chat</h3>
+            <button class="btn btn-sm" @click="refreshChats">Refresh</button>
+          </div>
+          <div class="chat-sidebar-list">
+            <button
+              v-for="panel in chatPanels"
+              :key="panel.localId"
+              class="chat-session-item"
+              :class="{ active: activePanel?.localId === panel.localId }"
+              @click="selectPanel(panel.localId)"
+            >
+              <div class="chat-session-head">
+                <span class="chat-session-type">Chat</span>
+                <div v-if="panel.chatId" class="chat-session-actions" @click.stop>
+                  <button class="session-icon-btn" @click="renameChatPanel(panel)">✎</button>
+                  <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
+                </div>
+              </div>
+              <div class="chat-session-name">{{ panel.title }}</div>
+              <div class="chat-session-meta">
+                <span>{{ shortId(panel.sessionId || panel.chatId || panel.localId) }}</span>
+                <span :class="['badge', panel.status === 'active' ? 'badge-green' : 'badge-blue']">
+                  {{ panel.status === 'active' ? 'active' : 'saved' }}
+                </span>
+              </div>
+            </button>
+            <div v-if="chatPanels.length === 0" class="chat-sidebar-empty">No chat sessions yet.</div>
           </div>
         </div>
-        <div class="chat-topbar-actions">
-          <button class="btn" @click="createChatPanel" :disabled="loading">New Chat</button>
-          <button class="btn btn-danger" @click="stopActivePanel" :disabled="!canStop">Stop</button>
+
+        <div class="chat-sidebar-group diagnose-group">
+          <div class="chat-sidebar-header">
+            <h3>Diagnose Sessions</h3>
+            <button class="btn btn-sm" @click="refreshDiagnosePanels">Refresh</button>
+          </div>
+          <div class="chat-sidebar-list">
+            <button
+              v-for="panel in diagnosePanels"
+              :key="panel.localId"
+              class="chat-session-item diagnose-item"
+              :class="{ active: activePanel?.localId === panel.localId }"
+              @click="selectPanel(panel.localId)"
+            >
+              <div class="chat-session-head">
+                <span class="chat-session-type diagnose-type">Diagnose</span>
+              </div>
+              <div class="chat-session-name">{{ panel.title }}</div>
+              <div class="chat-session-meta">
+                <span>{{ shortId(panel.runId) }}</span>
+                <span :class="['badge', runBadgeClass(panel.status)]">{{ runStatusLabel(panel.status) }}</span>
+              </div>
+            </button>
+            <div v-if="diagnosePanels.length === 0" class="chat-sidebar-empty">No diagnosis sessions found.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-sidebar-footer">
+        <span class="chat-connection-dot" :class="wsConnected ? 'online' : 'offline'"></span>
+        <span>{{ wsConnected ? 'WebSocket connected' : 'WebSocket disconnected' }}</span>
+      </div>
+    </aside>
+
+    <section class="chat-main">
+      <div class="chat-main-header">
+        <button class="chat-model-btn" type="button">
+          {{ activePanel?.kind === 'diagnose' ? 'Diagnose' : 'Chat' }}
+          <span class="chat-model-chevron">⌄</span>
+        </button>
+        <div class="chat-header-actions">
+          <span class="chat-status" :class="wsConnected ? 'chat-status-online' : 'chat-status-offline'">
+            {{ wsConnected ? (activePanelRunning ? 'Streaming' : 'Ready') : 'Disconnected' }}
+          </span>
+          <button class="btn btn-danger btn-sm" @click="stopActivePanel" :disabled="!canStop">Stop</button>
         </div>
       </div>
 
@@ -28,36 +98,42 @@
       </div>
 
       <div v-else class="chat-stage">
-        <div class="chat-stage-banner" v-if="activePanel.kind === 'diagnose'">
-          <div class="chat-stage-banner-title">Diagnose Session</div>
-          <div class="chat-stage-banner-text">这里展示诊断会话的真实对话内容，并可在同一处继续补充说明。</div>
+        <div class="chat-session-title">
+          <div class="chat-main-badges">
+            <span class="chat-main-kind" :class="activePanel.kind === 'diagnose' ? 'kind-diagnose' : 'kind-chat'">
+              {{ activePanel.kind === 'diagnose' ? 'Diagnose Session' : 'Chat Session' }}
+            </span>
+            <span class="chat-session-chip" v-if="activePanel?.sessionId">session: {{ shortId(activePanel.sessionId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.chatId">chat: {{ shortId(activePanel.chatId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.runId">run: {{ shortId(activePanel.runId) }}</span>
+          </div>
+          <h2 class="chat-title">{{ activePanelTitle }}</h2>
         </div>
 
-        <div class="chat-scroll">
-          <div class="chat-welcome" v-if="activePanel.events.length === 0">
-            <div class="chat-empty-icon">✨</div>
-            <h3>{{ activePanel.kind === 'diagnose' ? '诊断会话已连接' : 'What would you like to ask?' }}</h3>
-            <p>{{ activePanel.kind === 'diagnose' ? '诊断对话会在这里持续同步。' : 'This mode supports the same tools and semantic rendering as diagnosis.' }}</p>
+        <div class="chat-thread-shell">
+          <div class="chat-stage-banner" v-if="activePanel.kind === 'diagnose'">
+            <div class="chat-stage-banner-title">Diagnose Session</div>
+            <div class="chat-stage-banner-text">这里展示诊断会话的真实对话内容，并可在同一处继续补充说明。</div>
           </div>
 
-          <MessageStream
-            v-else
-            :events="activePanel.events"
-            :isRunning="activePanelRunning"
-            :connected="wsConnected"
-          />
+          <div class="chat-thread">
+            <div class="chat-welcome" v-if="activePanel.events.length === 0">
+              <div class="chat-empty-icon">✨</div>
+              <h3>{{ activePanel.kind === 'diagnose' ? '诊断会话已连接' : 'What would you like to ask?' }}</h3>
+              <p>{{ activePanel.kind === 'diagnose' ? '诊断对话会在这里持续同步。' : 'This mode supports the same tools and semantic rendering as diagnosis.' }}</p>
+            </div>
+
+            <MessageStream
+              v-else
+              :events="activePanel.events"
+              :isRunning="activePanelRunning"
+              :connected="wsConnected"
+            />
+          </div>
         </div>
 
-        <div class="chat-composer">
-          <textarea
-            v-model="draft"
-            class="chat-input"
-            :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : 'Message Claude...'"
-            :disabled="loading"
-            @keydown.enter.exact.prevent="submitMessage"
-            @keydown.enter.shift.exact.stop
-          />
-          <div class="chat-composer-actions">
+        <div class="chat-composer-shell">
+          <div class="chat-composer-wrap">
             <div class="chat-hint">
               <template v-if="activePanel.kind === 'diagnose'">
                 运行中会直接注入当前诊断会话；已完成/失败/停止时会以 continue 方式恢复
@@ -66,69 +142,25 @@
                 Enter to send · Shift+Enter for newline
               </template>
             </div>
-            <button class="btn btn-primary" @click="submitMessage" :disabled="!draft.trim() || loading">
-              {{ activePanel.kind === 'diagnose' ? '继续诊断' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
-            </button>
+            <div class="chat-composer">
+              <textarea
+                v-model="draft"
+                class="chat-input"
+                :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : 'Message Claude...'"
+                :disabled="loading"
+                @keydown.enter.exact.prevent="submitMessage"
+                @keydown.enter.shift.exact.stop
+              />
+              <div class="chat-composer-actions">
+                <button class="btn btn-primary chat-send-btn" @click="submitMessage" :disabled="!draft.trim() || loading">
+                  {{ activePanel.kind === 'diagnose' ? '继续诊断' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
-
-    <aside class="chat-sidebar">
-      <div class="chat-sidebar-section">
-        <div class="chat-sidebar-header">
-          <h3>Chat</h3>
-          <button class="btn btn-sm" @click="refreshChats">Refresh</button>
-        </div>
-        <div class="chat-sidebar-list">
-          <button
-            v-for="panel in chatPanels"
-            :key="panel.localId"
-            class="chat-session-item"
-            :class="{ active: activePanel?.localId === panel.localId }"
-            @click="selectPanel(panel.localId)"
-          >
-            <div class="chat-session-head">
-              <div class="chat-session-name">{{ panel.title }}</div>
-              <div v-if="panel.chatId" class="chat-session-actions" @click.stop>
-                <button class="session-icon-btn" @click="renameChatPanel(panel)">✎</button>
-                <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
-              </div>
-            </div>
-            <div class="chat-session-meta">
-              <span>{{ shortId(panel.sessionId || panel.chatId || panel.localId) }}</span>
-              <span :class="['badge', panel.status === 'active' ? 'badge-green' : 'badge-blue']">{{ panel.status === 'active' ? 'active' : 'saved' }}</span>
-            </div>
-          </button>
-          <div v-if="chatPanels.length === 0" class="chat-sidebar-empty">No chat sessions yet.</div>
-        </div>
-      </div>
-
-      <div class="chat-sidebar-section diagnose-section">
-        <div class="chat-sidebar-header">
-          <h3>Diagnose Sessions</h3>
-          <button class="btn btn-sm" @click="refreshDiagnosePanels">Refresh</button>
-        </div>
-        <div class="chat-sidebar-list">
-          <button
-            v-for="panel in diagnosePanels"
-            :key="panel.localId"
-            class="chat-session-item diagnose-item"
-            :class="{ active: activePanel?.localId === panel.localId }"
-            @click="selectPanel(panel.localId)"
-          >
-            <div class="chat-session-head">
-              <div class="chat-session-name">{{ panel.title }}</div>
-            </div>
-            <div class="chat-session-meta">
-              <span>{{ shortId(panel.runId) }}</span>
-              <span :class="['badge', runBadgeClass(panel.status)]">{{ runStatusLabel(panel.status) }}</span>
-            </div>
-          </button>
-          <div v-if="diagnosePanels.length === 0" class="chat-sidebar-empty">No diagnosis sessions found.</div>
-        </div>
-      </div>
-    </aside>
   </div>
 </template>
 
@@ -143,6 +175,7 @@ const activePanelId = ref(null);
 const draft = ref('');
 const loading = ref(false);
 const wsConnected = ref(false);
+const currentSession = ref(null);
 
 const chatCatalog = ref([]);
 const runCatalog = ref([]);
@@ -151,6 +184,8 @@ let socket = null;
 let reconnectTimer = null;
 let manualClose = false;
 let localSeq = 0;
+let requestSeq = 0;
+const pendingChatRequests = new Map();
 
 const activePanel = computed(() => panels.value.find(item => item.localId === activePanelId.value) || null);
 const chatPanels = computed(() => panels.value.filter(item => item.kind === 'chat'));
@@ -172,6 +207,11 @@ const canStop = computed(() => {
 function nextSeq() {
   localSeq += 1;
   return localSeq;
+}
+
+function nextRequestId(prefix = 'req') {
+  requestSeq += 1;
+  return `${prefix}_${Date.now()}_${requestSeq}`;
 }
 
 function shortId(value) {
@@ -206,8 +246,39 @@ function createChatPanel() {
   const panel = createBasePanel('chat', 'New Chat');
   panels.value.unshift(panel);
   activePanelId.value = panel.localId;
+  syncCurrentSession(panel);
   draft.value = '';
   return panel;
+}
+
+function buildSessionFromPanel(panel) {
+  if (!panel) return null;
+  return {
+    localId: panel.localId,
+    kind: panel.kind,
+    chatId: panel.chatId || null,
+    runId: panel.runId || null,
+    sessionId: panel.sessionId || null,
+    title: panel.title || null,
+    status: panel.status || null,
+  };
+}
+
+function syncCurrentSession(panel = activePanel.value) {
+  currentSession.value = buildSessionFromPanel(panel);
+  return currentSession.value;
+}
+
+function syncCurrentSessionIfActive(panel) {
+  if (panel?.localId && panel.localId === activePanelId.value) syncCurrentSession(panel);
+}
+
+function findPanelForSession(session) {
+  if (!session) return null;
+  return panels.value.find(item => item.localId === session.localId)
+    || (session.chatId ? panels.value.find(item => item.kind === 'chat' && item.chatId === session.chatId) : null)
+    || (session.runId ? panels.value.find(item => item.kind === 'diagnose' && item.runId === session.runId) : null)
+    || null;
 }
 
 function buildDiagnoseTitle(run) {
@@ -238,6 +309,7 @@ function selectPanel(localId) {
   activePanelId.value = localId;
   const panel = activePanel.value;
   if (!panel) return;
+  syncCurrentSession(panel);
   if (panel.kind === 'chat' && panel.chatId) subscribeChatPanel(panel);
   if (panel.kind === 'diagnose' && panel.runId) subscribeDiagnosePanel(panel);
 }
@@ -345,6 +417,7 @@ function setChatSnapshot(panel, payload) {
   panel.status = payload.session?.status || panel.status;
   panel.events = (payload.events || []).map(item => restoreChatEvent(item));
   panel.hydrated = true;
+  syncCurrentSessionIfActive(panel);
 }
 
 function setDiagnoseSnapshot(panel, payload) {
@@ -353,17 +426,16 @@ function setDiagnoseSnapshot(panel, payload) {
   if (!panel.title || panel.title === 'Diagnose Session') {
     panel.title = buildDiagnoseTitle(payload.run || panel.metadata.run);
   }
-  panel.events = normalizeDiagnoseEvents(panel, payload.events || []);
+  panel.events = normalizeDiagnoseEvents(payload.events || []);
   panel.hydrated = true;
+  syncCurrentSessionIfActive(panel);
 }
 
-function normalizeDiagnoseEvents(panel, events) {
+function normalizeDiagnoseEvents(events) {
   const list = [];
   for (const ev of events || []) {
     if (!ev) continue;
-    if (ev.type === 'user_message' && shouldHideDiagnoseUserMessage(ev)) {
-      continue;
-    }
+    if (ev.type === 'user_message' && shouldHideDiagnoseUserMessage(ev)) continue;
     list.push({
       ...ev,
       _seq: typeof ev._seq === 'number' ? ev._seq : nextSeq(),
@@ -383,9 +455,7 @@ function appendPanelEvent(panel, event) {
     ...event,
     _seq: typeof event._seq === 'number' ? event._seq : nextSeq(),
   };
-  if (panel.kind === 'diagnose' && next.type === 'user_message' && shouldHideDiagnoseUserMessage(next)) {
-    return;
-  }
+  if (panel.kind === 'diagnose' && next.type === 'user_message' && shouldHideDiagnoseUserMessage(next)) return;
   panel.events.push(next);
   if (panel.events.length > 3000) panel.events.splice(0, panel.events.length - 3000);
 }
@@ -413,22 +483,34 @@ function handleWSMessage(message) {
         appendPanelEvent(panel, message.data.event);
         if (message.data.event?.type === 'complete') panel.status = 'completed';
         if (message.data.event?.type === 'error') panel.status = 'failed';
+        syncCurrentSessionIfActive(panel);
       }
       break;
     }
     case 'chat_started':
     case 'chat_sent': {
-      const panel = activePanel.value;
+      const requestId = message.data?.clientRequestId || null;
+      const pending = requestId ? pendingChatRequests.get(requestId) : null;
+      const panel = pending
+        ? findPanelForSession(pending)
+        : panels.value.find(item => item.kind === 'chat' && item.chatId === message.data?.chatId)
+          || (activePanel.value?.kind === 'chat' ? activePanel.value : null);
       if (panel?.kind === 'chat') {
         panel.chatId = message.data?.chatId || panel.chatId;
         panel.sessionId = message.data?.sessionId || panel.sessionId;
         panel.status = 'active';
+        subscribeChatPanel(panel);
+        syncCurrentSessionIfActive(panel);
       }
+      if (requestId) pendingChatRequests.delete(requestId);
       break;
     }
     case 'chat_stopped': {
       const panel = panels.value.find(item => item.kind === 'chat' && item.chatId === message.data?.chatId);
-      if (panel) panel.status = message.data?.stopped ? 'stopped' : panel.status;
+      if (panel) {
+        panel.status = message.data?.stopped ? 'stopped' : panel.status;
+        syncCurrentSessionIfActive(panel);
+      }
       break;
     }
     case 'run_snapshot': {
@@ -449,6 +531,7 @@ function handleWSMessage(message) {
         if (message.data.event?.type === 'error') {
           panel.status = message.data.event?.data?.status || 'failed';
         }
+        syncCurrentSessionIfActive(panel);
       }
       break;
     }
@@ -457,8 +540,28 @@ function handleWSMessage(message) {
       if (panel) {
         panel.status = message.data?.liveStatus || panel.status;
         panel.metadata.run = normalizeRunSummary(message.data.run || panel.metadata.run || {});
+        syncCurrentSessionIfActive(panel);
       }
       refreshDiagnosePanelsFromCatalog();
+      break;
+    }
+    case 'error': {
+      const requestId = message.data?.clientRequestId || null;
+      const pending = requestId ? pendingChatRequests.get(requestId) : null;
+      const panel = pending
+        ? findPanelForSession(pending)
+        : (message.data?.chatId
+          ? panels.value.find(item => item.kind === 'chat' && item.chatId === message.data.chatId)
+          : activePanel.value);
+      if (panel) {
+        appendPanelEvent(panel, {
+          type: 'error',
+          data: { error: message.data?.message || message.data?.error || 'WebSocket request failed' },
+        });
+        if (panel.kind === 'chat') panel.status = 'failed';
+        syncCurrentSessionIfActive(panel);
+      }
+      if (requestId) pendingChatRequests.delete(requestId);
       break;
     }
     default:
@@ -480,6 +583,7 @@ function mergeChatPanelsFromCatalog() {
     panel.sessionId = entry.sessionId || panel.sessionId;
     panel.title = entry.title || panel.title;
     panel.status = entry.status || panel.status;
+    syncCurrentSessionIfActive(panel);
     if (!panel.hydrated && panel.chatId) subscribeChatPanel(panel);
   }
 }
@@ -517,6 +621,7 @@ async function renameChatPanel(panel) {
   if (!title || !title.trim()) return;
   const updated = await api.renameChatSession(panel.chatId, title.trim());
   panel.title = updated.title || title.trim();
+  syncCurrentSessionIfActive(panel);
 }
 
 async function removeChatPanel(panel) {
@@ -530,84 +635,103 @@ async function removeChatPanel(panel) {
   if (activePanelId.value === panel.localId) {
     activePanelId.value = panels.value[0]?.localId || null;
     if (!activePanelId.value) createChatPanel();
+    else syncCurrentSession(activePanel.value);
   }
 }
 
 async function stopActivePanel() {
-  const panel = activePanel.value;
+  const panel = findPanelForSession(currentSession.value) || activePanel.value;
   if (!panel) return;
   if (panel.kind === 'chat' && panel.chatId) {
     if (!sendWS({ type: 'chat_stop', chatId: panel.chatId })) {
       await api.stopChat(panel.chatId).catch(() => {});
     }
     panel.status = 'stopped';
+    syncCurrentSessionIfActive(panel);
     return;
   }
   if (panel.kind === 'diagnose' && panel.runId) {
     await api.stopDiagnosis(panel.runId).catch(() => {});
     panel.status = 'stopped';
+    syncCurrentSessionIfActive(panel);
   }
 }
 
 async function submitMessage() {
   const text = draft.value.trim();
   if (!text) return;
-  let panel = activePanel.value;
-  if (!panel) panel = createChatPanel();
+  let session = currentSession.value || syncCurrentSession(activePanel.value);
+  let panel = findPanelForSession(session);
+  if (!panel) {
+    panel = createChatPanel();
+    session = syncCurrentSession(panel);
+  }
+  if (!session) session = syncCurrentSession(panel);
 
   loading.value = true;
   try {
-    if (panel.kind === 'chat') {
+    if (session.kind === 'chat') {
       panel.events.push({ type: 'user_message', data: { role: 'user', content: text }, _seq: nextSeq() });
-      if (!panel.chatId) {
+      if (!session.chatId) {
+        const clientRequestId = nextRequestId('chat_start');
+        pendingChatRequests.set(clientRequestId, buildSessionFromPanel(panel));
         const sent = sendWS({
           type: 'chat_start',
+          clientRequestId,
           payload: {
             prompt: text,
             permissionMode: 'bypassPermissions',
           },
         });
         if (!sent) {
+          pendingChatRequests.delete(clientRequestId);
           const result = await api.startChat({ prompt: text, permissionMode: 'bypassPermissions' });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
           subscribeChatPanel(panel);
+          syncCurrentSessionIfActive(panel);
         }
       } else {
+        const clientRequestId = nextRequestId('chat_send');
+        pendingChatRequests.set(clientRequestId, buildSessionFromPanel(panel));
         const sent = sendWS({
           type: 'chat_send',
-          chatId: panel.chatId,
+          clientRequestId,
+          chatId: session.chatId,
           message: text,
           payload: {
             message: text,
-            sessionId: panel.sessionId,
+            sessionId: session.sessionId,
             permissionMode: 'bypassPermissions',
           },
         });
         if (!sent) {
-          const result = await api.sendChatMessage(panel.chatId, {
+          pendingChatRequests.delete(clientRequestId);
+          const result = await api.sendChatMessage(session.chatId, {
             message: text,
-            sessionId: panel.sessionId,
+            sessionId: session.sessionId,
             permissionMode: 'bypassPermissions',
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || panel.sessionId;
           subscribeChatPanel(panel);
+          syncCurrentSessionIfActive(panel);
         }
       }
       panel.status = 'active';
       if (panel.title === 'New Chat') panel.title = text.slice(0, 28);
-    } else if (panel.kind === 'diagnose' && panel.runId) {
+      syncCurrentSessionIfActive(panel);
+    } else if (session.kind === 'diagnose' && session.runId) {
       const running = ['running', 'awaiting_input'].includes(panel.status);
       const sent = running
-        ? sendWS({ type: 'run_chat', runId: panel.runId, message: text })
-        : sendWS({ type: 'run_continue', runId: panel.runId, followUpMessage: text });
+        ? sendWS({ type: 'run_chat', runId: session.runId, message: text })
+        : sendWS({ type: 'run_continue', runId: session.runId, followUpMessage: text });
 
       if (!sent) {
         if (running) {
-          await api.sendChat(panel.runId, text);
+          await api.sendChat(session.runId, text);
         } else {
-          await api.continueDiagnosis(panel.runId, text);
+          await api.continueDiagnosis(session.runId, text);
         }
       }
       panel.status = 'running';
@@ -616,10 +740,11 @@ async function submitMessage() {
         data: { role: 'user', content: text, source: 'chat_ui' },
       });
       subscribeDiagnosePanel(panel);
+      syncCurrentSessionIfActive(panel);
     }
     draft.value = '';
   } catch (err) {
-    const target = activePanel.value;
+    const target = panel || activePanel.value;
     if (target) {
       appendPanelEvent(target, {
         type: 'error',
@@ -633,10 +758,15 @@ async function submitMessage() {
 
 onMounted(async () => {
   ensureSocket();
-  createChatPanel();
   await Promise.all([refreshChats(), refreshDiagnosePanels()]);
-  if (!activePanelId.value && panels.value[0]) {
-    activePanelId.value = panels.value[0].localId;
+  if (diagnosePanels.value[0]) {
+    activePanelId.value = diagnosePanels.value[0].localId;
+    syncCurrentSession(diagnosePanels.value[0]);
+  } else if (chatPanels.value[0]) {
+    activePanelId.value = chatPanels.value[0].localId;
+    syncCurrentSession(chatPanels.value[0]);
+  } else {
+    createChatPanel();
   }
 });
 
@@ -648,214 +778,172 @@ onBeforeUnmount(() => {
 <style scoped>
 .chat-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 18px;
-  height: calc(100vh - 120px);
-}
-.chat-main,
-.chat-sidebar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 0;
+  height: calc(100vh - 56px);
   min-height: 0;
-}
-.chat-main {
-  display: flex;
-  flex-direction: column;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+  background: #050505;
+  box-shadow: none;
 }
-.chat-topbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border);
-  background:
-    radial-gradient(circle at top left, rgba(88,166,255,.10), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-}
-.chat-title {
-  font-size: 18px;
-  font-weight: 700;
-}
-.chat-subtitle {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
-}
-.chat-session-chip,
-.chat-status {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--surface2);
-  color: var(--text2);
-  font-size: 11px;
-}
-.chat-status-online {
-  color: var(--green);
-  background: rgba(63, 185, 80, 0.1);
-}
-.chat-status-offline {
-  color: var(--yellow);
-  background: rgba(210, 153, 34, 0.12);
-}
-.chat-topbar-actions {
-  display: flex;
-  gap: 10px;
-}
-.chat-stage {
-  flex: 1;
+
+.chat-sidebar,
+.chat-main {
   min-height: 0;
+}
+
+.chat-sidebar {
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(124,58,237,.06), transparent 25%),
-    radial-gradient(circle at 85% 15%, rgba(34,211,238,.05), transparent 24%);
+  background: #050505;
+  border-right: 1px solid #272727;
 }
-.chat-stage-banner {
-  margin: 16px 20px 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(88,166,255,.18);
-  background: rgba(88,166,255,.08);
-}
-.chat-stage-banner-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-.chat-stage-banner-text {
-  margin-top: 4px;
-  font-size: 13px;
-  color: var(--text2);
-}
-.chat-scroll {
-  flex: 1;
-  overflow: auto;
-  padding: 20px 22px 8px;
-}
-.chat-scroll :deep(.message-stream) {
-  min-height: 100%;
-}
-.chat-welcome,
-.chat-empty {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 12px;
-  color: var(--text2);
-  text-align: center;
-}
-.chat-empty-icon {
-  font-size: 32px;
-}
-.chat-composer {
-  border-top: 1px solid var(--border);
-  padding: 18px 20px 20px;
-  background: linear-gradient(180deg, rgba(13,17,23,0) 0%, rgba(22,27,34,0.95) 14%);
-}
-.chat-input {
-  width: 100%;
-  min-height: 110px;
-  border-radius: 18px;
-  padding: 16px 18px;
-  font-size: 15px;
-  resize: vertical;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
-}
-.chat-composer-actions {
+
+.chat-sidebar-top {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
+  padding: 12px 10px 10px;
+  border-bottom: none;
+}
+
+.chat-sidebar-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-sidebar-kicker {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.chat-sidebar-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chat-sidebar-new {
+  width: 100%;
+  justify-content: center;
+}
+
+.chat-sidebar-groups {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 6px 16px;
+}
+
+.chat-sidebar-group + .chat-sidebar-group {
   margin-top: 12px;
 }
-.chat-hint {
-  font-size: 12px;
-  color: var(--text2);
-}
-.chat-sidebar {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 18px 50px rgba(0,0,0,.16);
-}
-.chat-sidebar-section {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  flex: 1;
-}
-.diagnose-section {
-  border-top: 1px solid var(--border);
-}
+
 .chat-sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px 12px;
-  border-bottom: 1px solid var(--border);
+  padding: 8px 8px 10px;
 }
+
+.chat-sidebar-header h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
 .chat-sidebar-list {
-  flex: 1;
-  overflow: auto;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
+
 .chat-session-item {
   width: 100%;
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
   color: var(--text);
-  border-radius: 14px;
-  padding: 12px;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  padding: 10px 10px 9px;
   cursor: pointer;
-  transition: .16s ease;
+  transition: 0.16s ease;
 }
+
+.chat-session-item:hover {
+  background: #1f1f1f;
+  border-color: transparent;
+}
+
+.chat-session-item.active {
+  background: #2f2f2f;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.diagnose-item.active {
+  background: #2f2f2f;
+  border-color: transparent;
+}
+
 .chat-session-head {
   display: flex;
   align-items: center;
-  gap: 8px;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 8px;
 }
-.chat-session-item:hover {
-  background: var(--surface2);
-  border-color: rgba(88,166,255,.16);
+
+.chat-session-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(88,166,255,.10);
 }
-.chat-session-item.active {
-  background: rgba(88,166,255,.08);
-  border-color: rgba(88,166,255,.25);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
-}
-.diagnose-item.active {
+
+.diagnose-type {
+  color: #22d3ee;
   background: rgba(34,211,238,.10);
-  border-color: rgba(34,211,238,.22);
 }
+
 .chat-session-name {
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
   min-width: 0;
-  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.chat-session-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
 .chat-session-actions {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .session-icon-btn {
   width: 24px;
   height: 24px;
@@ -870,37 +958,337 @@ onBeforeUnmount(() => {
   justify-content: center;
   font-size: 12px;
 }
+
 .session-icon-btn:hover {
   color: var(--text);
   border-color: rgba(88,166,255,.18);
   background: rgba(88,166,255,.08);
 }
+
 .session-icon-btn.danger:hover {
   color: var(--red);
   border-color: rgba(248,81,73,.18);
   background: rgba(248,81,73,.08);
 }
-.chat-session-meta {
+
+.chat-sidebar-empty {
+  padding: 8px;
+  color: var(--text2);
+  font-size: 12px;
+}
+
+.chat-sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid #272727;
+  color: var(--text2);
+  font-size: 12px;
+}
+
+.chat-connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--yellow);
+  box-shadow: 0 0 0 4px rgba(210,153,34,.10);
+}
+
+.chat-connection-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(63,185,80,.10);
+}
+
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #050505;
+}
+
+.chat-main-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  height: 52px;
+  padding: 0 18px;
+  border-bottom: 1px solid #111;
+  background: #050505;
+  flex-shrink: 0;
+}
+
+.chat-model-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #f5f5f5;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 6px;
+}
+
+.chat-model-btn:hover {
+  background: #1f1f1f;
+  border-radius: 8px;
+}
+
+.chat-model-chevron {
+  color: #b4b4b4;
+  font-size: 16px;
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-main-badges {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.chat-main-kind,
+.chat-session-chip,
+.chat-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,.05);
   color: var(--text2);
 }
-.chat-sidebar-empty {
-  padding: 10px 4px;
-  color: var(--text2);
+
+.kind-chat {
+  color: var(--accent);
+  background: rgba(88,166,255,.10);
+}
+
+.kind-diagnose {
+  color: #22d3ee;
+  background: rgba(34,211,238,.10);
+}
+
+.chat-title {
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #f4f7fb;
+  margin-bottom: 0;
+}
+
+.chat-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chat-status-online {
+  color: var(--green);
+  background: rgba(63,185,80,.12);
+}
+
+.chat-status-offline {
+  color: var(--yellow);
+  background: rgba(210,153,34,.12);
+}
+
+.chat-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.chat-thread-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.chat-session-title {
+  width: min(920px, calc(100% - 40px));
+  margin: 16px auto 8px;
+  flex-shrink: 0;
+}
+
+.chat-stage-banner {
+  margin: 0 auto 12px;
+  width: min(920px, calc(100% - 40px));
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(88,166,255,.18);
+  background: rgba(88,166,255,.07);
+}
+
+.chat-stage-banner-title {
   font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.chat-stage-banner-text {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.chat-thread {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chat-thread :deep(.message-stream) {
+  width: min(920px, calc(100% - 40px));
+  height: 100%;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 16px 0 24px;
+  overflow-y: auto;
+}
+
+.chat-empty,
+.chat-welcome {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text2);
+  text-align: center;
+  padding: 48px 16px;
+}
+
+.chat-empty-icon {
+  font-size: 36px;
+}
+
+.chat-composer-shell {
+  padding: 12px 18px 12px;
+  border-top: none;
+  background: #050505;
+  flex-shrink: 0;
+}
+
+.chat-composer-wrap {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.chat-hint {
+  font-size: 12px;
+  color: #8f8f8f;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.chat-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 10px;
+  border-radius: 24px;
+  border: 1px solid #3a3a3a;
+  background: #252525;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 10px 30px rgba(0,0,0,0.22);
+}
+
+.chat-input {
+  width: 100%;
+  min-height: 50px;
+  max-height: 180px;
+  border-radius: 18px;
+  padding: 13px 14px;
+  font-size: 15px;
+  resize: vertical;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.chat-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.chat-send-btn {
+  min-width: 92px;
+  height: 44px;
+  justify-content: center;
+  border-radius: 22px;
 }
 
 @media (max-width: 1100px) {
   .chat-shell {
     grid-template-columns: 1fr;
     height: auto;
+    min-height: 0;
   }
+
   .chat-sidebar {
-    min-height: 420px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .chat-main-header {
+    padding: 16px 18px 14px;
+  }
+
+  .chat-thread-shell,
+  .chat-composer-shell {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  .chat-shell {
+    border-radius: 16px;
+  }
+
+  .chat-main-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chat-title {
+    font-size: 22px;
+  }
+
+  .chat-composer {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-send-btn {
+    width: 100%;
   }
 }
 </style>

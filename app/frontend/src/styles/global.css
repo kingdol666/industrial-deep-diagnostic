@@ -84,6 +84,12 @@ body {
   margin: 0 auto;
 }
 
+.app-main-chat {
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+
 /* Shared component styles */
 .card {
   background: var(--surface);

@@ -13,7 +13,7 @@
         >{{ tab.label }}</button>
       </nav>
     </header>
-    <main class="app-main">
+    <main :class="['app-main', { 'app-main-chat': currentTab === 'chat' }]">
       <DataBrowser
         v-if="currentTab === 'data'"
         @select-file="onSelectFile"

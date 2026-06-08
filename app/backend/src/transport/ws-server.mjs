@@ -508,6 +508,7 @@ export function initWebSocket(httpServer) {
                   data: {
                     chatId: result.chatId,
                     sessionId: result.sessionId || null,
+                    clientRequestId: msg.clientRequestId || null,
                   },
                 });
                 sendChatCatalogSnapshot(ws);
@@ -516,7 +517,7 @@ export function initWebSocket(httpServer) {
               .catch((err) => {
                 safeSend(ws, {
                   type: 'error',
-                  data: { message: err.message || 'Failed to start chat' },
+                  data: { message: err.message || 'Failed to start chat', clientRequestId: msg.clientRequestId || null },
                 });
               });
             break;
@@ -530,6 +531,7 @@ export function initWebSocket(httpServer) {
                   data: {
                     chatId: result.chatId,
                     sessionId: result.sessionId || null,
+                    clientRequestId: msg.clientRequestId || null,
                   },
                 });
                 sendChatCatalogSnapshot(ws);
@@ -538,7 +540,7 @@ export function initWebSocket(httpServer) {
               .catch((err) => {
                 safeSend(ws, {
                   type: 'error',
-                  data: { message: err.message || 'Failed to send chat message', chatId: msg.chatId || null },
+                  data: { message: err.message || 'Failed to send chat message', chatId: msg.chatId || null, clientRequestId: msg.clientRequestId || null },
                 });
               });
             break;
