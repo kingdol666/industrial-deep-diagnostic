@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;position:relative;overflow:hidden;background:#FAF9F6;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;color:#1F1F1F}
+.topline{position:absolute;top:0;left:0;width:960pt;height:6pt;background:#16324F}
+.topline.crisp{background:#0E2A47}
+.title-left{position:absolute;left:42pt;top:42pt;width:874pt;font-size:24pt;line-height:1.35;font-weight:700;color:#16324F}
+.title-center{position:absolute;left:60pt;width:840pt;text-align:center;line-height:1.35;font-weight:700;color:#16324F}
+.subtitle-center{position:absolute;left:90pt;width:780pt;text-align:center;font-size:12pt;color:#6C6A66}
+.rule{position:absolute;height:4pt;background:#C7772B;border-radius:3pt}
+.rule.crisp{background:#B42318}
+.card,.focus-box,.stack-card,.metric-box,.logic-card,.note-card,.hypothesis-card,.road-step,.decision-card,.center-card,.mini-panel,.pill-card,.bar-note,.bottom-chain{position:absolute;border-radius:14pt}
+.card-title,.mini-title,.hyp-title{position:absolute;left:18pt;top:16pt;width:calc(100% - 36pt);font-size:16pt;line-height:1.3;font-weight:700;color:#16324F}
+.bullet{position:absolute;left:22pt;width:488pt;font-size:13pt;line-height:1.55;color:#1F1F1F}
+.focus-box{background:#16324F;color:#FFFFFF;padding:18pt}
+.focus-label{position:absolute;left:18pt;top:18pt;font-size:11pt;letter-spacing:1pt;color:#D9E5F2}
+.focus-copy{position:absolute;left:18pt;width:238pt;font-size:18pt;line-height:1.45;font-weight:700}
+.focus-copy.strong{font-size:22pt;color:#FFD39A}
+.focus-note{position:absolute;left:18pt;bottom:18pt;width:238pt;font-size:10.5pt;line-height:1.5;color:#D7DFE8}
+.footer-left{position:absolute;left:22pt;bottom:24pt;font-size:9.5pt;color:#6C6A66}
+.footer-bar{position:absolute;left:0;bottom:0;width:960pt;height:20pt;border-top:1px solid #DDD3C7}
+.footer-bar p{position:absolute;right:22pt;bottom:2pt;font-size:9pt;color:#6C6A66}
+.grid2{position:absolute}
+.pill-card{position:absolute;width:422pt;height:148pt;background:#EEF4FA;border-left:6pt solid #0E2A47}
+.pill-card.warn{background:#FFF4F2;border-left-color:#B42318}
+.pill-card p{position:absolute;left:18pt;top:48pt;width:378pt;font-size:12pt;line-height:1.6;color:#222}
+.pill-card:nth-child(1){left:0;top:0}
+.pill-card:nth-child(2){left:452pt;top:0}
+.pill-card:nth-child(3){left:0;top:172pt}
+.pill-card:nth-child(4){left:452pt;top:172pt}
+.bar-note{height:48pt;background:#16324F;border-radius:12pt}
+.bar-note p{position:absolute;left:20pt;top:12pt;width:828pt;font-size:12pt;line-height:1.55;color:#FFF}
+.left-stack,.metric-panel,.right-logic,.annotation-column,.explain-left,.bottom-triple,.roadmap,.decision-grid{position:absolute}
+.stack-card,.logic-card,.note-card,.mini-panel{left:0;width:100%;height:94pt;background:#F2EEE7}
+.stack-card p,.logic-card p,.note-card p,.mini-panel p{position:absolute;left:18pt;top:46pt;width:calc(100% - 36pt);font-size:12pt;line-height:1.6}
+.stack-card.accent,.logic-card.accent,.note-card.accent,.pill-card.accent{background:#FFF6EA}
+.stack-card.warn{background:#FFF4F2}
+.metric-box{width:180pt;height:128pt;background:#F2EEE7;padding:16pt}
+.metric-box.warn{background:#FFF4F2}
+.metric-num{position:absolute;left:18pt;top:20pt;width:144pt;font-size:38pt;font-weight:700;color:#16324F;text-align:center}
+.metric-label{position:absolute;left:18pt;top:78pt;width:144pt;font-size:11pt;text-align:center;line-height:1.5;color:#444}
+.callout{position:absolute;left:58pt;top:452pt;width:844pt;font-size:12pt;line-height:1.6;color:#16324F;font-weight:700}
+.placeholder{background:#E8ECF0;border:1.5pt dashed #A7B7C7;border-radius:8pt;display:flex;align-items:center;justify-content:center;color:#5B6B7C;font-size:10pt}
+.hypothesis-card{background:#F2EEE7;padding:18pt}
+.hypothesis-card.alt{background:#EEF4FA}
+.hyp-tag{position:absolute;left:18pt;top:14pt;font-size:11pt;font-weight:700;color:#B42318}
+.hyp-title{top:38pt;font-size:16pt}
+.hyp-body,.hyp-evidence{position:absolute;left:18pt;width:374pt;font-size:12pt;line-height:1.6}
+.hyp-body{top:118pt}
+.hyp-evidence{top:180pt;color:#444}
+.bottom-chain{background:#16324F}
+.bottom-chain p{position:absolute;left:20pt;top:14pt;width:826pt;font-size:12pt;line-height:1.55;color:#FFF}
+.road-step{top:132pt;width:252pt;height:248pt;background:#F2EEE7;padding:18pt}
+.step-no{position:absolute;left:20pt;top:16pt;font-size:28pt;font-weight:700;color:#C7772B}
+.road-step p:not(.step-no){position:absolute;left:18pt;top:82pt;width:216pt;font-size:12pt;line-height:1.65}
+.decision-card{top:300pt;width:272pt;height:120pt;background:#EEF4FA;border-top:6pt solid #0E2A47}
+.decision-card p{position:absolute;left:18pt;top:50pt;width:236pt;font-size:12pt;line-height:1.6}
+.center-card{background:#FFF6EA;border:1pt solid #F1D7B0}
+.summary-line{position:absolute;left:24pt;top:22pt;width:624pt;font-size:15pt;line-height:1.65;color:#16324F;text-align:center}
+</style>
+</head>
+<body>
+<div class="topline"></div>
+<h1 class="title-left">我们分析的不是“某个坏批次”，而是55批次持续出现的划伤波动</h1>
+
+<div class="left-stack" style="left:46pt;top:108pt;width:418pt;height:310pt;">
+  <div class="stack-card">
+    <h2 class="mini-title">分析对象</h2>
+    <p>BOPET薄膜双拉加工挤出到纵拉段，目标缺陷是 <b>scratch_count</b>。</p>
+  </div>
+  <div class="stack-card" style="top:104pt;">
+    <h2 class="mini-title">数据覆盖</h2>
+    <p>55批次、242个工艺参数、8个产品型号，覆盖预热段、拉伸段、急冷段以及挤出与过滤参数。</p>
+  </div>
+  <div class="stack-card" style="top:208pt;">
+    <h2 class="mini-title">异常形态</h2>
+    <p>划伤均值9.5、最大76、偏态2.38，说明少数高缺陷批次会强烈拉高总体风险。</p>
+  </div>
+</div>
+
+<div class="metric-panel" style="left:506pt;top:108pt;width:408pt;height:310pt;">
+  <div class="metric-box">
+    <p class="metric-num">55</p>
+    <p class="metric-label">分析批次</p>
+  </div>
+  <div class="metric-box" style="left:208pt;">
+    <p class="metric-num">8</p>
+    <p class="metric-label">产品型号</p>
+  </div>
+  <div class="metric-box" style="top:154pt;">
+    <p class="metric-num">242</p>
+    <p class="metric-label">工艺参数</p>
+  </div>
+  <div class="metric-box warn" style="left:208pt;top:154pt;">
+    <p class="metric-num">76</p>
+    <p class="metric-label">单批最高划伤</p>
+  </div>
+</div>
+
+<p class="callout">这意味着：管理层不能只看平均值，必须盯住“高缺陷尖峰是如何被过程波动放大的”。</p>
+<div class="footer-bar"><p>3 / 12</p></div></body></html>
