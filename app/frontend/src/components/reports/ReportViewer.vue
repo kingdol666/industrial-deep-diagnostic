@@ -2,7 +2,7 @@
   <div class="report-viewer">
     <div class="toolbar">
       <div class="toolbar-left">
-        <a class="breadcrumb-root" @click="goToList">Reports</a>
+        <a class="breadcrumb-root" @click="goToList">报告</a>
         <template v-if="selectedRun">
           <span class="breadcrumb-sep">/</span>
           <a class="breadcrumb-path breadcrumb-active" v-if="reportContent || optimizerContent" @click="goToFiles">
@@ -11,31 +11,31 @@
           <span class="breadcrumb-current" v-else>{{ formatRunName(selectedRun) }}</span>
           <template v-if="reportContent || optimizerContent">
             <span class="breadcrumb-sep">/</span>
-            <span class="breadcrumb-current">{{ activeTab === 'optimizer' ? 'Optimizer' : 'Report' }}</span>
+            <span class="breadcrumb-current">{{ activeTab === 'optimizer' ? '审计' : '报告' }}</span>
           </template>
         </template>
       </div>
       <div class="toolbar-right">
         <button class="btn" @click="loadRuns" :disabled="loadingRuns">
-          {{ loadingRuns ? 'Loading...' : 'Refresh' }}
+          {{ loadingRuns ? '加载中...' : '刷新' }}
         </button>
         <button
           v-if="selectedRun && reportContent"
           class="btn btn-primary"
           @click="downloadReport"
-        >Download Report</button>
+        >下载报告</button>
       </div>
     </div>
 
     <!-- Run selector -->
     <div class="card" v-if="!selectedRun">
-      <div class="card-title">Available Diagnostic Reports</div>
+      <div class="card-title">诊断报告与产物</div>
       <div v-if="loadingRuns" class="empty-state">
         <div class="spinner" style="width:24px;height:24px;border-width:2px;"></div>
-        <p>Loading runs...</p>
+        <p>正在加载运行记录...</p>
       </div>
       <div v-else-if="runs.length === 0" class="empty-state">
-        <p>No diagnostic reports found. Run a diagnosis first from the Diagnose tab.</p>
+        <p>暂未发现诊断产物。请先在诊断页发起一次诊断。</p>
       </div>
       <div v-else class="run-list">
         <div
@@ -51,19 +51,20 @@
           <div class="run-info">
             <div class="run-name">{{ formatRunName(run.name) }}</div>
             <div class="run-meta">
-              <span>{{ formatDate(run.created) }}</span>
-              <span v-if="run.hasReport" class="badge badge-green">Report</span>
-              <span v-if="run.hasOptimizer" class="badge badge-purple">Optimizer</span>
-              <span v-if="!run.hasReport && !run.hasOptimizer" class="badge badge-yellow">No Output</span>
+              <span>{{ formatDate(run.created_at || run.created) }}</span>
+              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
+              <span v-if="run.hasReport" class="badge badge-green">报告</span>
+              <span v-if="run.hasOptimizer" class="badge badge-purple">审计</span>
+              <span v-if="!run.hasReport && !run.hasOptimizer" class="badge badge-yellow">无产物</span>
             </div>
           </div>
           <div class="run-actions">
-            <button class="btn btn-sm" @click.stop="openRun(run)">View</button>
+            <button class="btn btn-sm" @click.stop="openRun(run)">查看</button>
             <button
               v-if="run.hasReport"
               class="btn btn-sm btn-primary"
               @click.stop="openRun(run)"
-            >Read Report</button>
+            >阅读报告</button>
           </div>
         </div>
       </div>
@@ -72,17 +73,17 @@
     <!-- Run workspace files -->
     <div class="card" v-if="selectedRun && !reportContent">
       <div class="card-title">
-        <span>Workspace Files</span>
+        <span>运行工作区文件</span>
         <button class="btn btn-sm btn-primary" @click="loadReport(selectedRun)" :disabled="loadingReport" style="margin-left:auto">
-          {{ loadingReport ? 'Loading...' : 'Load Report' }}
+          {{ loadingReport ? '加载中...' : '加载报告' }}
         </button>
       </div>
       <div v-if="loadingFiles" class="empty-state">
         <div class="spinner"></div>
-        <p>Loading files...</p>
+        <p>正在加载文件...</p>
       </div>
       <div v-else-if="runFiles.length === 0" class="empty-state">
-        <p>No files in this run workspace.</p>
+        <p>当前运行目录下没有可展示文件。</p>
       </div>
       <div v-else class="file-tree">
         <div v-for="file in runFiles" :key="file.path" class="file-tree-item">
@@ -96,25 +97,25 @@
     <!-- Report content -->
     <div class="card report-card" v-if="reportContent || optimizerContent">
       <div class="card-title">
-        <span>{{ activeTab === 'optimizer' ? 'Optimizer Suggestions' : 'Diagnostic Report' }}</span>
+        <span>{{ activeTab === 'optimizer' ? '审计与优化建议' : '诊断报告' }}</span>
         <div style="margin-left:auto;display:flex;gap:6px;">
-          <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? 'View Rendered' : 'View Raw' }}</button>
-          <button class="btn btn-sm" @click="copyReport">Copy</button>
+          <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? '查看渲染结果' : '查看原文' }}</button>
+          <button class="btn btn-sm" @click="copyReport">复制</button>
           <button
             class="btn btn-sm"
             @click="showChartPanel = !showChartPanel"
-          >{{ showChartPanel ? '📊 Hide' : '📊 Charts' }}</button>
+          >{{ showChartPanel ? '📊 收起图表' : '📊 查看图表' }}</button>
         </div>
       </div>
       <div class="report-tabs" v-if="hasOptimizer">
         <button
           :class="['tab-btn', { active: activeTab === 'report' }]"
           @click="activeTab = 'report'"
-        >Report</button>
+        >报告</button>
         <button
           :class="['tab-btn', { active: activeTab === 'optimizer' }]"
           @click="activeTab = 'optimizer'"
-        >Optimizer</button>
+        >审计</button>
       </div>
       <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
       <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
@@ -125,12 +126,12 @@
     <!-- Chart panel -->
     <div v-if="showChartPanel && chartData" class="card" style="margin-top:12px">
       <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
-        <span>📊 Interactive Charts</span>
-        <button class="btn btn-sm" @click="showChartPanel = false">Close</button>
+        <span>📊 交互图表</span>
+        <button class="btn btn-sm" @click="showChartPanel = false">关闭</button>
       </div>
       <div class="chart-grid">
         <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
-          <div class="card-title" style="font-size:13px">Correlation Matrix</div>
+          <div class="card-title" style="font-size:13px">相关性矩阵</div>
           <HeatmapChart
             :data="chartData.heatmap.data"
             :x-labels="chartData.heatmap.xLabels"
@@ -141,7 +142,7 @@
         <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
           <GaugeChart
             :value="chartData.confidence.overall"
-            title="Confidence Score"
+            title="诊断置信度"
             unit="%"
           />
         </div>
@@ -156,6 +157,12 @@ import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
+import {
+  getRunStatusBadgeClass,
+  getRunStatusLabel,
+  getRunWorkspaceName,
+  normalizeRunSummary,
+} from '../../utils/diagnosisRun.js';
 
 const props = defineProps({
   autoRunId: { type: String, default: null },
@@ -165,6 +172,7 @@ const props = defineProps({
 const runs = ref([]);
 const loadingRuns = ref(false);
 const selectedRun = ref(null);
+const selectedRunSummary = ref(null);
 const reportContent = ref(null);
 const optimizerContent = ref(null);
 const hasOptimizer = ref(false);
@@ -194,6 +202,7 @@ watch(() => props.targetRunName, (name) => {
   if (name) {
     const requestedName = name;
     selectedRun.value = name;
+    selectedRunSummary.value = runs.value.find(run => run.name === requestedName) || null;
     reportContent.value = null;
     optimizerContent.value = null;
     hasOptimizer.value = false;
@@ -213,7 +222,7 @@ watch(() => props.targetRunName, (name) => {
         fetchChartData(`workspace/diagnostic-runs/${requestedName}`);
       }
     }).catch(() => {
-      if (selectedRun.value === requestedName) reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
+      if (selectedRun.value === requestedName) reportContent.value = '# 未找到报告\n\n报告文件加载失败。';
     }).finally(() => {
       if (selectedRun.value === requestedName) loadingReport.value = false;
     });
@@ -231,7 +240,32 @@ watch(() => props.targetRunName, (name) => {
 async function loadRuns() {
   loadingRuns.value = true;
   try {
-    runs.value = await api.listWorkspace();
+    const [workspaceRuns, historyRuns] = await Promise.all([
+      api.listWorkspace(),
+      api.getRuns().catch(() => []),
+    ]);
+
+    const normalizedHistoryRuns = historyRuns
+      .map(normalizeRunSummary)
+      .filter(Boolean);
+
+    const historyByWorkspace = new Map(
+      normalizedHistoryRuns.map(run => [getRunWorkspaceName(run), run]),
+    );
+
+    runs.value = workspaceRuns.map((workspaceRun) => {
+      const historyRun = findHistoryRunForWorkspace(workspaceRun, normalizedHistoryRuns, historyByWorkspace);
+      const fallbackStatus = !historyRun && (workspaceRun.hasReport || workspaceRun.hasOptimizer)
+        ? { status: 'completed', engineStatus: 'completed', liveStatus: 'completed' }
+        : {};
+      return normalizeRunSummary({
+        ...workspaceRun,
+        ...fallbackStatus,
+        ...(historyRun || {}),
+        name: workspaceRun.name,
+        created: workspaceRun.created,
+      });
+    });
   } catch (err) {
     console.error('Failed to load runs:', err);
   } finally {
@@ -241,6 +275,7 @@ async function loadRuns() {
 
 function goToList() {
   selectedRun.value = null;
+  selectedRunSummary.value = null;
   reportContent.value = null;
   optimizerContent.value = null;
   hasOptimizer.value = false;
@@ -258,6 +293,7 @@ function goToFiles() {
 async function openRun(run) {
   const requestedName = run.name;
   selectedRun.value = run.name;
+  selectedRunSummary.value = run;
   reportContent.value = null;
   optimizerContent.value = null;
   hasOptimizer.value = false;
@@ -289,7 +325,7 @@ async function loadReport(runName) {
     if (selectedRun.value === requestedName) reportContent.value = data.content;
   } catch (err) {
     console.error('Failed to load report:', err);
-    if (selectedRun.value === requestedName) reportContent.value = '# Report Not Found\n\nThe report file could not be loaded.';
+    if (selectedRun.value === requestedName) reportContent.value = '# 未找到报告\n\n报告文件加载失败。';
   } finally {
     if (selectedRun.value === requestedName) loadingReport.value = false;
   }
@@ -391,7 +427,62 @@ function formatRunName(name) {
   return name.replace(/_/g, ' ');
 }
 
+function findHistoryRunForWorkspace(workspaceRun, historyRuns, historyByWorkspace) {
+  const exact = historyByWorkspace.get(workspaceRun.name);
+  if (exact) return exact;
+
+  const workspaceScene = normalizeSceneKey(parseWorkspaceRunName(workspaceRun.name).sceneName);
+  if (!workspaceScene) return null;
+
+  const workspaceTime = parseWorkspaceRunName(workspaceRun.name).createdAtMs ?? parseDateMs(workspaceRun.created);
+  const candidates = historyRuns.filter((run) => normalizeSceneKey(run.scene_name || run.name || '') === workspaceScene);
+  if (!candidates.length) return null;
+  if (workspaceTime == null) return candidates[0];
+
+  const ranked = candidates
+    .map((run) => ({
+      run,
+      distance: Math.abs((parseDateMs(run.created_at) ?? Number.POSITIVE_INFINITY) - workspaceTime),
+    }))
+    .sort((a, b) => a.distance - b.distance);
+
+  return ranked[0]?.distance <= 15 * 60 * 1000 ? ranked[0].run : null;
+}
+
+function parseWorkspaceRunName(name) {
+  const match = String(name || '').match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\d*_(.+)$/);
+  if (!match) {
+    return { sceneName: name || '', createdAtMs: null };
+  }
+
+  const [, year, month, day, hour, minute, second, sceneName] = match;
+  const createdAtMs = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second),
+  ).getTime();
+
+  return { sceneName, createdAtMs };
+}
+
+function normalizeSceneKey(value) {
+  return String(value || '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function parseDateMs(value) {
+  const ms = Date.parse(value || '');
+  return Number.isNaN(ms) ? null : ms;
+}
+
 function formatDate(dateStr) {
+  if (!dateStr) return '--';
   try {
     return new Date(dateStr).toLocaleString();
   } catch {

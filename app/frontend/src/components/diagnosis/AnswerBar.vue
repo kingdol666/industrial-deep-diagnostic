@@ -4,13 +4,13 @@
     <div class="ab-header">
       <div class="ab-header-left">
         <span class="ab-icon">❓</span>
-        <span class="ab-title">Claude needs your input</span>
+        <span class="ab-title">需要你的输入</span>
         <span class="ab-count" v-if="totalQuestions > 1">
-          {{ answeredCount }}/{{ totalQuestions }} answered
+          已回答 {{ answeredCount }}/{{ totalQuestions }}
         </span>
       </div>
       <button class="ab-skip-all" @click="$emit('skip', currentQuestion.questionId)">
-        Skip All
+        全部跳过
       </button>
     </div>
 
@@ -27,7 +27,7 @@
             <span class="ab-q-chip">{{ q.header }}</span>
           </template>
           <span class="ab-q-text">{{ q.question }}</span>
-          <span class="ab-q-type" v-if="q.multiSelect">(select all that apply)</span>
+          <span class="ab-q-type" v-if="q.multiSelect">（可多选）</span>
         </div>
 
         <!-- Options grid -->
@@ -56,7 +56,7 @@
             </div>
           </div>
 
-          <!-- Custom "Other" input -->
+          <!-- 自定义“其他”输入 -->
           <div class="ab-option-card ab-option-other" :class="{ selected: customAnswers[qi] }">
             <div class="ab-option-main">
               <div class="ab-option-radio">
@@ -64,11 +64,11 @@
                 <span v-else class="radio-dot other-dot">●</span>
               </div>
               <div class="ab-option-content">
-                <div class="ab-option-label other-label">Other</div>
+                <div class="ab-option-label other-label">其他</div>
                 <input
                   v-model="customAnswers[qi]"
                   type="text"
-                  placeholder="Type your own answer..."
+                  placeholder="输入你的自定义回答..."
                   class="ab-other-input"
                   @click.stop
                   @focus="focusOther(qi)"
@@ -98,7 +98,7 @@
     <div v-if="activePreview" class="ab-preview-panel">
       <div class="ab-preview-header">
         <span class="ab-preview-icon">👁</span>
-        <span class="ab-preview-title">Preview — {{ activePreviewLabel }}</span>
+        <span class="ab-preview-title">预览 - {{ activePreviewLabel }}</span>
         <button class="ab-preview-close" @click="closePreview">×</button>
       </div>
       <div class="ab-preview-content" v-html="renderPreviewMd(activePreview)"></div>
@@ -108,19 +108,19 @@
     <div class="ab-actions">
       <div class="ab-actions-left">
         <span class="ab-hint" v-if="!hasAllAnswered && totalQuestions > 1">
-          Answer all questions to submit, or use chat below to continue instead
+          你可以先回答全部问题再提交，也可以用下方消息框补充说明
         </span>
       </div>
       <div class="ab-actions-right">
         <button class="ab-btn-skip" @click="skipCurrent">
-          Skip
+          跳过
         </button>
         <button
           class="ab-btn-submit"
           :disabled="!hasAnyAnswer"
           @click="submitAnswers"
         >
-          Submit &amp; Continue
+          提交并继续
         </button>
       </div>
     </div>
@@ -296,7 +296,7 @@ function skipCurrent() {
     const placeholder = {};
     const questions = currentQuestion.value.questions || [];
     for (let qi = 0; qi < questions.length; qi++) {
-      placeholder[questions[qi].question] = '(skipped)';
+      placeholder[questions[qi].question] = '（已跳过）';
     }
     emit('answer', {
       questionId: currentQuestion.value.questionId,

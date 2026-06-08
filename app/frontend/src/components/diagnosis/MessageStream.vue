@@ -1,8 +1,8 @@
 <template>
-  <div class="message-stream" ref="streamEl">
+  <div class="message-stream" ref="streamEl" @scroll="handleScroll">
     <div v-if="!connected && isRunning" class="ms-connecting">
       <div class="spinner-sm"></div>
-      <span>Connecting to engine...</span>
+      <span>正在连接诊断引擎...</span>
     </div>
 
     <template v-for="(item, i) in renderedItems" :key="item.key || i">
@@ -12,7 +12,7 @@
           <div class="ms-card card-thinking" @click="toggleThinking(item)">
             <div class="ms-card-header">
               <span class="ms-card-icon">🧠</span>
-              <span class="ms-card-title">Claude Thinking</span>
+              <span class="ms-card-title">Claude 思考中</span>
               <span class="ms-card-toggle" :class="{ open: expandedThinking.has(item.key) }">▶</span>
             </div>
             <div v-if="expandedThinking.has(item.key)" class="ms-thinking-content">{{ item.content }}</div>
@@ -41,7 +41,7 @@
               <span class="ms-tool-badge">{{ item.title }}</span>
               <span class="ms-tool-id" v-if="item.shortId">{{ item.shortId }}</span>
               <span class="tool-state" :class="item.result?.isError ? 'tool-state-error' : 'tool-state-ok'">
-                {{ item.result ? (item.result.isError ? 'Failed' : 'Done') : 'Running' }}
+                {{ item.result ? (item.result.isError ? '失败' : '完成') : '执行中' }}
               </span>
             </div>
             <div class="tool-summary">{{ item.summary }}</div>
@@ -92,8 +92,8 @@
           <div class="ms-card card-question">
             <div class="ms-card-header">
               <span class="ms-card-icon">❓</span>
-              <span class="ms-card-title">Claude needs your input</span>
-              <span class="ms-question-count" v-if="item.questions?.length">{{ item.questions.length }} question{{ item.questions.length > 1 ? 's' : '' }}</span>
+              <span class="ms-card-title">需要你的回答</span>
+              <span class="ms-question-count" v-if="item.questions?.length">共 {{ item.questions.length }} 题</span>
             </div>
             <div class="question-list">
               <div v-for="(q, qi) in item.questions" :key="qi" class="question-block">
@@ -106,17 +106,17 @@
                       <span class="option-label">{{ opt.label }}</span>
                       <span class="option-desc" v-if="opt.description">{{ opt.description }}</span>
                       <div class="option-preview" v-if="opt.preview">
-                        <div class="option-preview-chip">👁 preview</div>
+                        <div class="option-preview-chip">👁 预览</div>
                         <div class="option-preview-content" v-html="renderMd(opt.preview)"></div>
                       </div>
                     </div>
                   </div>
                   <div v-if="!q.options || q.options.length === 0" class="question-option question-option-empty">
                     <span class="option-marker">—</span>
-                    <span class="option-label">Free text input</span>
+                    <span class="option-label">自由文本输入</span>
                   </div>
                 </div>
-                <div class="question-type-badge" v-if="q.multiSelect">Multi-select</div>
+                <div class="question-type-badge" v-if="q.multiSelect">多选</div>
               </div>
             </div>
           </div>
@@ -140,10 +140,10 @@
         <div class="ms-rail"><div class="ms-dot dot-yellow"></div></div>
         <div class="ms-body">
           <div class="ms-stats-card">
-            <div class="stat-item"><span class="stat-val">{{ item.numTurns }}</span><span class="stat-lbl">Turns</span></div>
-            <div class="stat-item"><span class="stat-val">{{ formatDuration(item.durationMs) }}</span><span class="stat-lbl">Duration</span></div>
-            <div class="stat-item"><span class="stat-val">${{ (item.totalCost || 0).toFixed(4) }}</span><span class="stat-lbl">Cost</span></div>
-            <div class="stat-item" v-if="item.stopReason"><span class="stat-val">{{ item.stopReason }}</span><span class="stat-lbl">Reason</span></div>
+            <div class="stat-item"><span class="stat-val">{{ item.numTurns }}</span><span class="stat-lbl">轮次</span></div>
+            <div class="stat-item"><span class="stat-val">{{ formatDuration(item.durationMs) }}</span><span class="stat-lbl">耗时</span></div>
+            <div class="stat-item"><span class="stat-val">${{ (item.totalCost || 0).toFixed(4) }}</span><span class="stat-lbl">成本</span></div>
+            <div class="stat-item" v-if="item.stopReason"><span class="stat-val">{{ item.stopReason }}</span><span class="stat-lbl">原因</span></div>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@
         <div class="ms-rail"><div class="ms-dot dot-red"></div></div>
         <div class="ms-body">
           <div class="ms-card card-hitl">
-            <div class="hitl-warn">⚠ Runtime error</div>
+            <div class="hitl-warn">⚠ 运行时错误</div>
             <code class="hitl-cmd">{{ item.text }}</code>
           </div>
         </div>
@@ -172,7 +172,7 @@
         <div class="ms-rail"><div class="ms-dot dot-red pulse"></div></div>
         <div class="ms-body">
           <div class="ms-card card-hitl">
-            <div class="hitl-warn">⚠ Dangerous command: {{ item.riskDesc }}</div>
+            <div class="hitl-warn">⚠ 高风险命令：{{ item.riskDesc }}</div>
             <code class="hitl-cmd">{{ item.command }}</code>
           </div>
         </div>
@@ -201,6 +201,7 @@ const props = defineProps({
 const expandedThinking = ref(new Set());
 const streamEl = ref(null);
 const MAX_ITEMS = 300;
+const autoScrollPinned = ref(true);
 
 const renderedItems = computed(() => {
   const items = [];
@@ -259,16 +260,21 @@ const renderedItems = computed(() => {
     if (ev.type === 'tool_result') {
       const matched = toolMap.get(ev.data?.toolUseId);
       if (matched) {
-        matched.result = { summary: ev.data?.summary || '', isError: !!ev.data?.isError };
+        const isQuestionTool = matched.name === 'AskUserQuestion';
+        const rawSummary = ev.data?.summary || '';
+        const looksLikeQuestionAck = isQuestionTool && /answer questions\??/i.test(rawSummary);
+        matched.result = looksLikeQuestionAck
+          ? { summary: '问题已发出，等待回答。', isError: false }
+          : { summary: rawSummary, isError: !!ev.data?.isError };
       } else {
         items.push({
           kind: 'tool',
           key: `tool-result:${ev._seq}`,
           toolId: ev.data?.toolUseId || null,
           name: 'Tool Result',
-          title: 'Tool Result',
+          title: '工具结果',
           shortId: ev.data?.toolUseId?.slice?.(0, 8) || '',
-          summary: 'Tool execution finished',
+          summary: '工具执行已结束',
           preview: '',
           result: { summary: ev.data?.summary || '', isError: !!ev.data?.isError },
         });
@@ -340,8 +346,10 @@ const renderedItems = computed(() => {
         key: `complete:${ev._seq}`,
         status: ev.data?.status || 'completed',
         text: ev.data?.status === 'failed'
-          ? `Diagnosis failed: ${ev.data?.error || ''}`
-          : `Diagnosis completed${ev.data?.verdict ? ` · Verdict: ${ev.data.verdict}` : ''}${ev.data?.score != null ? ` · Score: ${ev.data.score}` : ''}`,
+          ? `诊断失败：${ev.data?.error || ''}`
+          : ev.data?.status === 'stopped'
+            ? '诊断已停止'
+            : `诊断已完成${ev.data?.verdict ? ` · 结论：${ev.data.verdict}` : ''}${ev.data?.score != null ? ` · 评分：${ev.data.score}` : ''}`,
       });
       continue;
     }
@@ -385,15 +393,14 @@ function toolCategory(name) {
   if (['Write', 'Edit', 'NotebookEdit'].includes(name)) return 'write';
   if (name === 'Bash') return 'bash';
   if (['WebSearch', 'WebFetch'].includes(name)) return 'web';
-  if (name === 'Skill') return 'skill';
-  if (name === 'AskUserQuestion') return 'skill';
+  if (['Skill', 'Agent', 'AskUserQuestion'].includes(name)) return 'skill';
   return 'default';
 }
 
 function toolDotClass(name) {
   const map = {
     Read: 'dot-blue', Glob: 'dot-blue', Bash: 'dot-yellow', Write: 'dot-green',
-    Edit: 'dot-green', Skill: 'dot-purple', WebSearch: 'dot-cyan', WebFetch: 'dot-cyan',
+    Edit: 'dot-green', Skill: 'dot-purple', Agent: 'dot-purple', WebSearch: 'dot-cyan', WebFetch: 'dot-cyan',
     AskUserQuestion: 'dot-purple',
   };
   return map[name] || 'dot-blue';
@@ -401,34 +408,36 @@ function toolDotClass(name) {
 
 function toolTitle(name) {
   const map = {
-    Read: 'Reading file',
-    Glob: 'Searching files',
-    Write: 'Writing file',
-    Edit: 'Editing file',
-    NotebookEdit: 'Editing notebook',
-    Bash: 'Running command',
-    WebSearch: 'Searching web',
-    WebFetch: 'Fetching web content',
-    Skill: 'Invoking skill',
-    AskUserQuestion: 'Preparing questions',
+    Read: '读取文件',
+    Glob: '搜索文件',
+    Write: '写入文件',
+    Edit: '编辑文件',
+    NotebookEdit: '编辑 notebook',
+    Bash: '执行命令',
+    WebSearch: '搜索网络',
+    WebFetch: '抓取网页',
+    Skill: '调用技能',
+    Agent: '启动子代理',
+    AskUserQuestion: '准备提问',
   };
-  return map[name] || (name || 'Using tool');
+  return map[name] || (name || '执行工具');
 }
 
 function toolSummary(name) {
   const map = {
-    Read: 'Claude is inspecting source or data content.',
-    Glob: 'Claude is locating matching files or patterns.',
-    Write: 'Claude is creating or replacing file content.',
-    Edit: 'Claude is patching existing content.',
-    NotebookEdit: 'Claude is updating a notebook cell or file.',
-    Bash: 'Claude is executing a shell command.',
-    WebSearch: 'Claude is gathering external information.',
-    WebFetch: 'Claude is opening a remote page.',
-    Skill: 'Claude is delegating work to a specialized skill.',
-    AskUserQuestion: 'Claude is pausing for structured user input.',
+    Read: '正在检查源码或数据内容。',
+    Glob: '正在定位匹配的文件或模式。',
+    Write: '正在创建或覆盖文件内容。',
+    Edit: '正在修补已有内容。',
+    NotebookEdit: '正在更新 notebook 单元或文件。',
+    Bash: '正在执行 shell 命令。',
+    WebSearch: '正在收集外部信息。',
+    WebFetch: '正在打开远程页面。',
+    Skill: '正在委托专业技能执行。',
+    Agent: '正在启动并跟踪后台子任务。',
+    AskUserQuestion: '正在暂停并等待结构化用户输入。',
   };
-  return map[name] || 'Claude is using an external tool.';
+  return map[name] || '正在调用外部工具。';
 }
 
 function toolPreview(name, input) {
@@ -439,7 +448,8 @@ function toolPreview(name, input) {
   if (name === 'WebSearch') return input.query || '';
   if (name === 'WebFetch') return input.url || input.query || '';
   if (name === 'Skill') return input.skill || input.args || '';
-  if (name === 'AskUserQuestion') return `${input.questions?.length || 0} question(s) prepared`;
+  if (name === 'Agent') return input.description || input.name || input.subagent_type || '';
+  if (name === 'AskUserQuestion') return `已准备 ${input.questions?.length || 0} 个问题`;
   try {
     return JSON.stringify(input).slice(0, 200);
   } catch {
@@ -449,7 +459,10 @@ function toolPreview(name, input) {
 
 function normalizeSubagentEvent(ev) {
   const data = ev.data || {};
-  const baseTitle = data.agentName || data.name || data.task?.name || inferSubagentTitleFromStream(data) || 'Sub-agent';
+  if (ev.type === 'stream_event' && shouldHideRawStreamEvent(ev)) {
+    return null;
+  }
+  const baseTitle = data.agentName || data.name || data.task?.name || inferSubagentTitleFromStream(data) || '子代理';
   const status = data.status || data.task?.status || inferStatusFromStream(data) || 'running';
   const highlights = extractHighlights(data.events || [data]);
   const stage = inferSubagentStage(baseTitle, data, highlights);
@@ -469,25 +482,62 @@ function normalizeSubagentEvent(ev) {
 
 function normalizeSystemEvent(ev) {
   const subtype = ev.subtype || ev.data?.subtype || 'system';
+  if (subtype === 'status') return null;
   if (subtype === 'init') {
     return {
       kind: 'system',
       key: `system:${ev._seq}`,
       aggregateKey: 'system:init',
-      title: 'Engine initialized',
-      text: `Model ${ev.data?.model || 'unknown'} · ${ev.data?.tools?.length || 0} tools · ${ev.data?.permissionMode || 'default'} permissions`,
+      title: '诊断引擎已初始化',
+      text: `模型 ${ev.data?.model || 'unknown'} · ${ev.data?.tools?.length || 0} 个工具 · 权限 ${ev.data?.permissionMode || 'default'}`,
       level: 'important',
       details: [],
     };
   }
   if (subtype === 'continue') {
-    return { kind: 'system', key: `system:${ev._seq}`, title: 'Continuing session', text: ev.data?.message || 'Claude resumed the run.', level: 'important', details: [] };
+    return { kind: 'system', key: `system:${ev._seq}`, title: '继续当前运行', text: ev.data?.message || '诊断流程已恢复。', level: 'important', details: [] };
   }
   if (subtype === 'chat_sent') {
-    return { kind: 'system', key: `system:${ev._seq}`, title: 'Follow-up sent', text: (ev.data?.message || '').slice(0, 200), level: 'normal', details: [] };
+    return { kind: 'system', key: `system:${ev._seq}`, title: '已发送补充说明', text: (ev.data?.message || '').slice(0, 200), level: 'normal', details: [] };
   }
   if (subtype === 'chat_error') {
-    return { kind: 'system', key: `system:${ev._seq}`, title: 'Chat error', text: ev.data?.error || 'Unknown chat error', level: 'warning', details: [] };
+    return { kind: 'system', key: `system:${ev._seq}`, title: '补充说明发送失败', text: ev.data?.error || '未知聊天错误', level: 'warning', details: [] };
+  }
+  if (subtype === 'task_started') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey: `task:${ev.data?.task_id || ev._seq}`,
+      title: '后台任务已启动',
+      text: ev.data?.description || ev.data?.task_id || '',
+      level: 'important',
+      details: [ev.data?.subagent_type || ev.data?.task_type || ''].filter(Boolean),
+    };
+  }
+  if (subtype === 'task_updated') {
+    return null;
+  }
+  if (subtype === 'task_progress') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey: `task:${ev.data?.task_id || ev._seq}`,
+      title: '后台任务进行中',
+      text: ev.data?.description || ev.data?.summary || '',
+      level: 'normal',
+      details: [ev.data?.subagent_type || ev.data?.task_type || ''].filter(Boolean),
+    };
+  }
+  if (subtype === 'task_notification') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey: `task-note:${ev.data?.task_id || ev._seq}`,
+      title: ev.data?.status === 'completed' ? '后台任务已完成' : '后台任务通知',
+      text: ev.data?.summary || ev.data?.description || '',
+      level: ev.data?.status === 'completed' ? 'important' : 'normal',
+      details: [ev.data?.subagent_type || ev.data?.task_type || ''].filter(Boolean),
+    };
   }
   if (subtype.startsWith('hook_')) {
     return normalizeHookSystemEvent(ev, subtype);
@@ -511,7 +561,7 @@ function normalizeHookSystemEvent(ev, subtype) {
       kind: 'system',
       key: `system:${ev._seq}`,
       aggregateKey,
-      title: 'Running system hook',
+      title: '系统钩子执行中',
       text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
       hookState: 'running',
       level: 'normal',
@@ -523,7 +573,7 @@ function normalizeHookSystemEvent(ev, subtype) {
       kind: 'system',
       key: `system:${ev._seq}`,
       aggregateKey,
-      title: 'Running system hook',
+      title: '系统钩子执行中',
       text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
       hookState: 'running',
       level: 'normal',
@@ -536,7 +586,7 @@ function normalizeHookSystemEvent(ev, subtype) {
       kind: 'system',
       key: `system:${ev._seq}`,
       aggregateKey,
-      title: outcome === 'success' ? 'System hook completed' : 'System hook finished',
+      title: outcome === 'success' ? '系统钩子已完成' : '系统钩子已结束',
       text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
       hookState: outcome,
       level: outcome === 'success' ? 'normal' : 'important',
@@ -547,7 +597,7 @@ function normalizeHookSystemEvent(ev, subtype) {
     kind: 'system',
     key: `system:${ev._seq}`,
     aggregateKey,
-    title: 'System hook',
+    title: '系统钩子',
     text: `${hookName}${hookEvent ? ` · ${hookEvent}` : ''}`,
     hookState: 'running',
     level: 'normal',
@@ -578,11 +628,11 @@ function extractHookMetrics(data) {
   if (match) {
     if (raw.includes('sdk_bootstrap_ms')) {
       const ms = raw.match(/sdk_bootstrap_ms\":\s*(\d+)/)?.[1];
-      return ms ? `Bootstrap ${ms}ms` : '';
+      return ms ? `引导 ${ms}ms` : '';
     }
     if (raw.includes('"pv"')) {
       const pv = raw.match(/\"pv\":\s*(\d+)/)?.[1];
-      return pv ? `Context ${pv}` : '';
+      return pv ? `上下文 ${pv}` : '';
     }
   }
   return '';
@@ -590,8 +640,21 @@ function extractHookMetrics(data) {
 
 function extractHookOutcome(data) {
   if (data?.outcome) return humanizeLabel(data.outcome);
-  if (typeof data?.exit_code === 'number') return `Exit ${data.exit_code}`;
+  if (typeof data?.exit_code === 'number') return `退出码 ${data.exit_code}`;
   return '';
+}
+
+function shouldHideRawStreamEvent(ev) {
+  const subtype = ev?.subtype || ev?.data?.type || '';
+  return [
+    'content_block_delta',
+    'content_block_start',
+    'content_block_stop',
+    'message_delta',
+    'message_start',
+    'message_stop',
+    'signature_delta',
+  ].includes(subtype);
 }
 
 function dedupeTextList(list) {
@@ -658,11 +721,14 @@ function systemDotClass(level) {
 function extractHighlights(events) {
   return dedupeHighlights((events || []).map((entry) => {
     if (!entry) return null;
-    if (entry.type === 'thinking') return { icon: '🧠', label: 'Thinking', text: summarizeAny(entry.thinking || entry.content) };
-    if (entry.type === 'message' || entry.type === 'text') return { icon: '💬', label: 'Message', text: summarizeAny(entry.content || entry.text) };
+    if (['content_block_delta', 'content_block_start', 'content_block_stop', 'message_delta', 'message_start', 'message_stop', 'signature_delta'].includes(entry.type)) {
+      return null;
+    }
+    if (entry.type === 'thinking') return { icon: '🧠', label: '思考', text: summarizeAny(entry.thinking || entry.content) };
+    if (entry.type === 'message' || entry.type === 'text') return { icon: '💬', label: '消息', text: summarizeAny(entry.content || entry.text) };
     if (entry.type === 'tool_use') return { icon: '⚙️', label: entry.name || 'Tool', text: toolPreview(entry.name, entry.input) };
-    if (entry.type === 'tool_result') return { icon: entry.is_error ? '✗' : '✓', label: 'Result', text: summarizeAny(entry.summary || entry.content || entry.text) };
-    if (entry.type === 'task_progress') return { icon: '🔄', label: entry.name || entry.task?.name || 'Task', text: entry.message || entry.current_step || entry.status || '' };
+    if (entry.type === 'tool_result') return { icon: entry.is_error ? '✗' : '✓', label: '结果', text: summarizeAny(entry.summary || entry.content || entry.text) };
+    if (entry.type === 'task_progress') return { icon: '🔄', label: entry.name || entry.task?.name || '任务', text: entry.message || entry.current_step || entry.status || '' };
     return { icon: '📡', label: humanizeLabel(entry.type || 'event'), text: summarizeAny(entry) };
   }).filter(Boolean)).slice(-6);
 }
@@ -678,10 +744,10 @@ function dedupeHighlights(entries) {
 }
 
 function inferSubagentTitleFromStream(data) {
-  if (data?.type === 'tool_use') return 'Sub-agent tool action';
-  if (data?.type === 'tool_result') return 'Sub-agent tool result';
-  if (data?.type === 'thinking') return 'Sub-agent reasoning';
-  if (data?.type === 'message' || data?.type === 'text') return 'Sub-agent update';
+  if (data?.type === 'tool_use') return '子代理工具动作';
+  if (data?.type === 'tool_result') return '子代理工具结果';
+  if (data?.type === 'thinking') return '子代理推理';
+  if (data?.type === 'message' || data?.type === 'text') return '子代理更新';
   return '';
 }
 
@@ -691,10 +757,10 @@ function inferStatusFromStream(data) {
 }
 
 function inferStepFromStream(data) {
-  if (data?.type === 'tool_use') return `${data.name || 'Tool'} in progress`;
-  if (data?.type === 'tool_result') return `${data.is_error ? 'Tool failed' : 'Tool finished'}`;
+  if (data?.type === 'tool_use') return `${data.name || '工具'} 执行中`;
+  if (data?.type === 'tool_result') return `${data.is_error ? '工具失败' : '工具完成'}`;
   if (data?.type === 'message' || data?.type === 'text') return summarizeAny(data.content || data.text);
-  if (data?.type === 'thinking') return 'Reasoning about next step';
+  if (data?.type === 'thinking') return '正在推理下一步';
   return '';
 }
 
@@ -718,20 +784,32 @@ function summarizeAny(value) {
 
 function humanizeStatus(status) {
   const map = {
-    running: 'Running',
-    in_progress: 'Running',
-    completed: 'Completed',
-    failed: 'Failed',
-    pending: 'Pending',
-    stopped: 'Stopped',
+    running: '运行中',
+    in_progress: '运行中',
+    awaiting_input: '等待回答',
+    completed: '已完成',
+    failed: '失败',
+    pending: '待执行',
+    stopped: '已停止',
   };
-  return map[status] || 'Running';
+  return map[status] || '运行中';
 }
 
 function humanizeLabel(text) {
-  return String(text || 'event')
+  const label = String(text || 'event')
     .replace(/[_-]+/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
+  const map = {
+    Success: '成功',
+    Error: '错误',
+    Finished: '结束',
+    Event: '事件',
+    Requesting: '请求中',
+    Status: '状态',
+    'Task Progress': '任务进展',
+    'Task Started': '任务启动',
+  };
+  return map[label] || label;
 }
 
 function formatDuration(ms) {
@@ -744,7 +822,7 @@ function formatDuration(ms) {
 function statusIcon(status) {
   const map = {
     running: '🔄', in_progress: '🔄', completed: '✅', failed: '❌',
-    pending: '⏳', stopped: '⏹',
+    pending: '⏳', stopped: '⏹', awaiting_input: '❓',
   };
   return map[status] || '📌';
 }
@@ -752,7 +830,7 @@ function statusIcon(status) {
 function statusBadgeClass(status) {
   const map = {
     running: 'blue', in_progress: 'blue', completed: 'green',
-    failed: 'red', pending: 'yellow', stopped: 'yellow',
+    failed: 'red', pending: 'yellow', stopped: 'yellow', awaiting_input: 'purple',
   };
   return map[status] || 'blue';
 }
@@ -771,9 +849,21 @@ function progressText(progress) {
   return '';
 }
 
+function isPinnedToBottom() {
+  const el = streamEl.value;
+  if (!el) return true;
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+}
+
+function handleScroll() {
+  autoScrollPinned.value = isPinnedToBottom();
+}
+
 watch(() => props.events.length, () => {
   nextTick(() => {
-    if (streamEl.value) streamEl.value.scrollTo({ top: streamEl.value.scrollHeight, behavior: 'smooth' });
+    if (streamEl.value && autoScrollPinned.value) {
+      streamEl.value.scrollTo({ top: streamEl.value.scrollHeight, behavior: 'smooth' });
+    }
   });
 });
 </script>

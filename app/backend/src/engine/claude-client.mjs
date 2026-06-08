@@ -54,9 +54,9 @@ function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMe
   } else if (target.mode === 'folder') {
     const safeFolder = sanitize(target.folderPath);
     const fileList = target.dataFiles.map(f => sanitize(basename(f))).join(', ');
-    dataDescription = `Folder: ${safeFolder}\n  Files (${target.dataFiles.length}): ${fileList}`;
+    dataDescription = `Folder (absolute path): ${safeFolder}\n  Files (${target.dataFiles.length}): ${fileList}`;
   } else {
-    dataDescription = `File: ${sanitize(target.dataPath)}`;
+    dataDescription = `File (absolute path): ${sanitize(target.dataPath)}`;
   }
 
   const langRule = reportLanguage === 'zh'
@@ -68,6 +68,8 @@ function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMe
 ## Data
 
 ${dataDescription}
+
+Use the exact absolute path(s) above when reading data files. Do not reinterpret them relative to any skill directory.
 
 ## Analysis Question
 
@@ -128,6 +130,7 @@ export function startDiagnosis({
   const lang = reportLanguage || config.diagnosis.default_language;
   const timeout = timeoutMinutes || config.claude.timeout_minutes;
   let dataPaths = [];
+  const promptTarget = { ...analysisTarget };
 
   // Resolve data paths
   function resolveDataPath(p) {
@@ -140,6 +143,7 @@ export function startDiagnosis({
   }
 
   if (analysisTarget.mode === 'multi') {
+    promptTarget.files = [];
     for (const dp of analysisTarget.files) {
       const abs = resolveDataPath(dp);
       if (!existsSync(abs)) {
@@ -148,6 +152,7 @@ export function startDiagnosis({
         throw err;
       }
       dataPaths.push(abs);
+      promptTarget.files.push(abs);
     }
   } else if (analysisTarget.mode === 'folder') {
     const absFolder = resolveDataPath(analysisTarget.folderPath);
@@ -162,7 +167,8 @@ export function startDiagnosis({
       err.code = 'NO_DATA_FOUND';
       throw err;
     }
-    analysisTarget.dataFiles = dataPaths;
+    promptTarget.folderPath = absFolder;
+    promptTarget.dataFiles = dataPaths;
   } else {
     const abs = resolveDataPath(analysisTarget.dataPath);
     if (!existsSync(abs)) {
@@ -171,6 +177,7 @@ export function startDiagnosis({
       throw err;
     }
     dataPaths = [abs];
+    promptTarget.dataPath = abs;
   }
 
   // Read skill content for system prompt enrichment
@@ -183,7 +190,7 @@ export function startDiagnosis({
 
   const prompt = sessionId
     ? (followUpMessage || 'Continue the analysis.')
-    : buildPrompt(sceneName, userQuestion, analysisTarget, lang, followUpMessage);
+    : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage);
 
   // Build SDK options
   const options = {

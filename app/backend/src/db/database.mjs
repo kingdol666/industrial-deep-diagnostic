@@ -53,9 +53,21 @@ export function initDB() {
       FOREIGN KEY (run_id) REFERENCES diagnostic_runs(run_id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS diagnosis_event_stream (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      run_id TEXT NOT NULL,
+      seq INTEGER NOT NULL,
+      event_type TEXT NOT NULL,
+      event_subtype TEXT,
+      payload_json TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (run_id) REFERENCES diagnostic_runs(run_id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_runs_status ON diagnostic_runs(status);
     CREATE INDEX IF NOT EXISTS idx_runs_created ON diagnostic_runs(created_at);
     CREATE INDEX IF NOT EXISTS idx_logs_run_id ON diagnosis_logs(run_id);
+    CREATE INDEX IF NOT EXISTS idx_event_stream_run_seq ON diagnosis_event_stream(run_id, seq);
 
     CREATE TABLE IF NOT EXISTS data_folders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -150,13 +162,24 @@ const stmts = {
     INSERT INTO diagnosis_logs (run_id, role, content, message_type, tool_name)
     VALUES (@runId, @role, @content, @messageType, @toolName)
   `),
+  insertEventStream: db.prepare(`
+    INSERT INTO diagnosis_event_stream (run_id, seq, event_type, event_subtype, payload_json)
+    VALUES (@runId, @seq, @eventType, @eventSubtype, @payloadJson)
+  `),
   getAllRuns: db.prepare(`
     SELECT id, run_id, name, scene_name, data_path, data_folder, user_question, status,
-           session_id, score, judge_verdict, created_at, completed_at, error_message
+           session_id, workspace_path, report_path, score, judge_verdict,
+           created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
   `),
   getRunById: db.prepare('SELECT * FROM diagnostic_runs WHERE run_id = ?'),
   getLogsByRunId: db.prepare('SELECT * FROM diagnosis_logs WHERE run_id = ? ORDER BY created_at ASC'),
+  getEventStreamByRunId: db.prepare(`
+    SELECT run_id, seq, event_type, event_subtype, payload_json, created_at
+    FROM diagnosis_event_stream
+    WHERE run_id = ?
+    ORDER BY seq ASC, id ASC
+  `),
   getActiveRuns: db.prepare("SELECT run_id FROM diagnostic_runs WHERE status = 'running'"),
   insertFolder: db.prepare(`
     INSERT INTO data_folders (name, path, description, file_count) VALUES (@name, @path, @description, @fileCount)
@@ -199,6 +222,7 @@ const stmts = {
   getChatMessagesByChatId: db.prepare(`
     SELECT * FROM chat_messages WHERE chat_id = ? ORDER BY id ASC
   `),
+  deleteEventStreamByRunId: db.prepare('DELETE FROM diagnosis_event_stream WHERE run_id = ?'),
 };
 
 export { db, stmts };

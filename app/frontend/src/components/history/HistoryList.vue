@@ -2,46 +2,46 @@
   <div class="history-list">
     <div class="toolbar">
       <div class="toolbar-left">
-        <h3>Diagnosis History</h3>
-        <span class="count-badge" v-if="runs.length">{{ runs.length }} runs</span>
+        <h3>诊断历史</h3>
+        <span class="count-badge" v-if="runs.length">{{ runs.length }} 条</span>
       </div>
       <div class="toolbar-right">
-        <button class="btn" @click="loadHistory" :disabled="loading">Refresh</button>
+        <button class="btn" @click="loadHistory" :disabled="loading">刷新</button>
         <button class="btn btn-danger btn-sm" @click="clearHistory" :disabled="!runs.length || loading">
-          Clear All
+          清空记录
         </button>
       </div>
     </div>
 
     <div v-if="loading" class="empty-state">
       <div class="spinner" style="width:24px;height:24px;border-width:2px;"></div>
-      <p>Loading history...</p>
+      <p>正在加载历史记录...</p>
     </div>
 
     <div v-else-if="runs.length === 0" class="empty-state">
-      <p>No diagnosis runs yet. Upload data and start an analysis from the Diagnose tab.</p>
+      <p>当前还没有诊断记录。请先在诊断页发起一次分析。</p>
     </div>
 
     <div v-else class="history-table-wrapper">
       <table class="history-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Scene</th>
-            <th>Data File</th>
-            <th>Question</th>
-            <th>Status</th>
-            <th>Score</th>
-            <th>Verdict</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th>任务名</th>
+            <th>场景</th>
+            <th>数据文件</th>
+            <th>问题</th>
+            <th>状态</th>
+            <th>评分</th>
+            <th>结论</th>
+            <th>创建时间</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="run in runs"
             :key="run.run_id"
-            :class="['history-row', `row-${run.status}`]"
+            :class="['history-row', `row-${getEffectiveRunStatus(run)}`]"
             @click="toggleDetail(run.run_id)"
           >
             <td class="cell-name">{{ run.name }}</td>
@@ -54,7 +54,7 @@
               <span v-else class="text-muted">--</span>
             </td>
             <td>
-              <span :class="['badge', statusBadge(run.status)]">{{ run.status }}</span>
+              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
             </td>
             <td>
               <span v-if="run.score != null" :class="['score', scoreClass(run.score)]">
@@ -74,32 +74,32 @@
                 v-if="run.session_id"
                 class="btn btn-sm btn-session"
                 @click="viewSession(run)"
-              >Session</button>
+              >会话</button>
               <button
-                v-if="run.status === 'completed' && run.report_path"
+                v-if="getEffectiveRunStatus(run) === 'completed' && run.report_path"
                 class="btn btn-sm btn-primary"
                 @click="viewReport(run)"
-              >Report</button>
+              >报告</button>
               <button
-                v-if="run.status === 'failed' || run.status === 'stopped'"
+                v-if="getEffectiveRunStatus(run) === 'failed' || getEffectiveRunStatus(run) === 'stopped'"
                 class="btn btn-sm btn-continue"
                 @click="continueRun(run)"
                 :disabled="continuingRun === run.run_id"
               >
                 <template v-if="continuingRun === run.run_id">
-                  <span class="spinner-sm"></span> Retrying...
+                  <span class="spinner-sm"></span> 继续中...
                 </template>
                 <template v-else>
-                  Continue
+                  继续诊断
                 </template>
               </button>
               <button class="btn btn-sm" @click="toggleDetail(run.run_id)">
-                {{ expandedRun === run.run_id ? 'Hide' : 'Details' }}
+                {{ expandedRun === run.run_id ? '收起' : '详情' }}
               </button>
               <button
                 class="btn btn-sm btn-danger"
                 @click="deleteRun(run.run_id)"
-              >Del</button>
+              >删除</button>
             </td>
           </tr>
         </tbody>
@@ -109,55 +109,55 @@
     <!-- Expanded detail panel -->
     <div v-if="expandedRun && detailRun" class="card detail-panel">
       <div class="card-title">
-        Run Detail: {{ detailRun.name }}
-        <button class="btn btn-sm" @click="expandedRun = null" style="margin-left:auto">Close</button>
+        运行详情：{{ detailRun.name }}
+        <button class="btn btn-sm" @click="expandedRun = null" style="margin-left:auto">关闭</button>
       </div>
       <div class="detail-grid">
         <div class="detail-item">
-          <span class="detail-label">Run ID</span>
+          <span class="detail-label">运行 ID</span>
           <span class="detail-value">{{ detailRun.run_id }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Status</span>
-          <span :class="['badge', statusBadge(detailRun.status)]">{{ detailRun.status }}</span>
+          <span class="detail-label">状态</span>
+          <span :class="['badge', getRunStatusBadgeClass(detailRun)]">{{ getRunStatusLabel(detailRun) }}</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">Model</span>
           <span class="detail-value">{{ detailRun.model }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Max Turns</span>
+          <span class="detail-label">最大轮次</span>
           <span class="detail-value">{{ detailRun.max_turns }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Data Path</span>
+          <span class="detail-label">数据路径</span>
           <span class="detail-value path">{{ detailRun.data_path }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Workspace</span>
+          <span class="detail-label">工作区</span>
           <span class="detail-value path">{{ detailRun.workspace_path || '--' }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Created</span>
+          <span class="detail-label">创建时间</span>
           <span class="detail-value">{{ formatDate(detailRun.created_at) }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Completed</span>
+          <span class="detail-label">完成时间</span>
           <span class="detail-value">{{ detailRun.completed_at ? formatDate(detailRun.completed_at) : '--' }}</span>
         </div>
         <div class="detail-item" v-if="detailRun.user_question">
-          <span class="detail-label">Question</span>
+          <span class="detail-label">诊断问题</span>
           <span class="detail-value">{{ detailRun.user_question }}</span>
         </div>
         <div class="detail-item" v-if="detailRun.error_message">
-          <span class="detail-label">Error</span>
+          <span class="detail-label">错误</span>
           <span class="detail-value error-text">{{ detailRun.error_message }}</span>
         </div>
       </div>
 
       <!-- Logs -->
       <div v-if="logs.length > 0" class="logs-section">
-        <div class="card-title" style="margin-top:16px">Diagnosis Logs ({{ logs.length }} entries)</div>
+        <div class="card-title" style="margin-top:16px">诊断日志（{{ logs.length }} 条）</div>
         <div class="log-stream">
           <div
             v-for="(log, i) in paginatedLogs"
@@ -172,9 +172,9 @@
           </div>
         </div>
         <div v-if="logs.length > 50" class="log-pagination">
-          <button class="btn btn-sm" @click="logPage--" :disabled="logPage <= 1">Prev</button>
+          <button class="btn btn-sm" @click="logPage--" :disabled="logPage <= 1">上一页</button>
           <span class="page-info">{{ logPage }} / {{ maxLogPage }}</span>
-          <button class="btn btn-sm" @click="logPage++" :disabled="logPage >= maxLogPage">Next</button>
+          <button class="btn btn-sm" @click="logPage++" :disabled="logPage >= maxLogPage">下一页</button>
         </div>
       </div>
     </div>
@@ -184,6 +184,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { api } from '../../api/index.js';
+import {
+  getEffectiveRunStatus,
+  getRunStatusBadgeClass,
+  getRunStatusLabel,
+  normalizeRunSummary,
+} from '../../utils/diagnosisRun.js';
 
 const emit = defineEmits(['open-report', 'continue-run']);
 
@@ -201,7 +207,7 @@ onMounted(() => loadHistory());
 async function loadHistory() {
   loading.value = true;
   try {
-    runs.value = await api.getRuns();
+    runs.value = (await api.getRuns()).map(normalizeRunSummary);
   } catch (err) {
     console.error('Failed to load history:', err);
   } finally {
@@ -221,7 +227,7 @@ async function toggleDetail(runId) {
   logPage.value = 1;
   try {
     const data = await api.getRunWithLogs(runId);
-    detailRun.value = data;
+    detailRun.value = normalizeRunSummary(data);
     logs.value = data.logs || [];
   } catch {
     detailRun.value = runs.value.find(r => r.run_id === runId);
@@ -245,14 +251,14 @@ async function continueRun(run) {
     emit('continue-run', run.run_id);
     await loadHistory();
   } catch (err) {
-    alert('Failed to continue: ' + err.message);
+    alert('继续诊断失败：' + err.message);
   } finally {
     continuingRun.value = null;
   }
 }
 
 async function deleteRun(runId) {
-  if (!confirm(`Delete run ${runId}? This only deletes the database record, not the workspace files.`)) return;
+  if (!confirm(`确认删除运行 ${runId} 吗？这只会删除数据库记录，不会删除工作区文件。`)) return;
   try {
     await api.deleteRun(runId);
     if (expandedRun.value === runId) {
@@ -262,12 +268,12 @@ async function deleteRun(runId) {
     }
     await loadHistory();
   } catch (err) {
-    alert('Failed to delete run: ' + err.message);
+    alert('删除运行失败：' + err.message);
   }
 }
 
 async function clearHistory() {
-  if (!confirm('Delete ALL history records? Workspace files will NOT be affected.')) return;
+  if (!confirm('确认清空全部历史记录吗？工作区文件不会被删除。')) return;
   for (const run of runs.value) {
     try { await api.deleteRun(run.run_id); } catch {}
   }
@@ -289,17 +295,6 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleString();
   } catch {
     return dateStr;
-  }
-}
-
-function statusBadge(status) {
-  switch (status) {
-    case 'completed': return 'badge-green';
-    case 'running': return 'badge-blue';
-    case 'pending': return 'badge-yellow';
-    case 'failed': return 'badge-red';
-    case 'stopped': return 'badge-purple';
-    default: return '';
   }
 }
 

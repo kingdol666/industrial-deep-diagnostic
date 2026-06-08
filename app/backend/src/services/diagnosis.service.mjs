@@ -7,7 +7,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, basename, relative } from 'path';
 import {
   startDiagnosis, parseStreamEvent, isDangerousCommand,
-  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, writeAnswer, closeQuery,
+  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, closeQuery,
   getSessionMessages, getSessionInfo,
 } from '../engine/claude-client.mjs';
 import {
@@ -27,6 +27,9 @@ let hitlSeq = 0;
 
 // Guard: prevent double execution of the same run
 const executingRuns = new Set();
+
+const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped']);
+const PAUSED_STATUSES = new Set(['awaiting_input']);
 
 // Validate that a resolved data path is safe (contained within project root)
 export async function validateDataPath(dataPath) {
@@ -148,12 +151,86 @@ export function getRunStatus(runId) {
   return { ...run, engineStatus: engineStatus || run.status };
 }
 
+function parseEventStreamRow(row) {
+  if (!row) return null;
+  try {
+    const payload = row.payload_json ? JSON.parse(row.payload_json) : {};
+    return {
+      type: payload.type || row.event_type || 'unknown',
+      subtype: payload.subtype || row.event_subtype || null,
+      data: payload.data ?? null,
+      _seq: payload.seq ?? row.seq ?? 0,
+      _ts: payload.ts ?? row.created_at ?? null,
+    };
+  } catch {
+    return {
+      type: row.event_type || 'unknown',
+      subtype: row.event_subtype || null,
+      data: null,
+      _seq: row.seq ?? 0,
+      _ts: row.created_at ?? null,
+    };
+  }
+}
+
+export function getRunEventStream(runId) {
+  return stmts.getEventStreamByRunId.all(runId).map(parseEventStreamRow).filter(Boolean);
+}
+
+function derivePendingQuestionFromEvents(events) {
+  let latestQuestion = null;
+  for (const event of events) {
+    if (!event) continue;
+    if (event.type === 'question' && event.data?.questionId) {
+      latestQuestion = event.data;
+    } else if (event.type === 'question_result') {
+      latestQuestion = null;
+    } else if ((event.type === 'status' || event.type === 'complete') && TERMINAL_STATUSES.has(event.data?.status)) {
+      latestQuestion = null;
+    }
+  }
+  return latestQuestion;
+}
+
+export function getRunRealtimeSnapshot(runId) {
+  const run = getRunStatus(runId);
+  if (!run) return null;
+  const liveStatus = getStatus(runId) || run.status;
+  const hasActiveEngineRun = !TERMINAL_STATUSES.has(liveStatus)
+    && !PAUSED_STATUSES.has(liveStatus)
+    && hasRun(runId);
+  const events = getRunEventStream(runId);
+  const pendingQuestion = questionSessions.get(runId) || derivePendingQuestionFromEvents(events);
+  return {
+    run,
+    events,
+    liveStatus,
+    hasActiveEngineRun,
+    currentQuestion: pendingQuestion ? {
+      questionId: pendingQuestion.questionId,
+      toolUseId: pendingQuestion.toolUseId,
+      questions: (pendingQuestion.questions || []).map(q => ({
+        question: q.question || '',
+        header: q.header || '',
+        options: (q.options || []).map(o => ({
+          label: o.label || '',
+          description: o.description || '',
+          preview: o.preview || '',
+        })),
+        multiSelect: q.multiSelect || false,
+      })),
+    } : null,
+  };
+}
+
 // Stop a running diagnosis
 export function stopDiagnosis(runId) {
   closeQuery(runId);
+  questionSessions.delete(runId);
   updateStatus(runId, 'stopped');
   stmts.updateRunStatus.run({ runId, status: 'stopped' });
-  emit(runId, { type: 'status', data: { status: 'stopped' } });
+  emit(runId, { type: 'status', data: { status: 'stopped', runId } });
+  emit(runId, { type: 'complete', data: { status: 'stopped', runId } });
 }
 
 // Resolve a HITL request
@@ -225,33 +302,15 @@ const questionSessions = new Map();
 
 // Submit answer to AskUserQuestion — write tool_result to stdin + SIGCONT the paused child
 export function answerQuestion(runId, questionId, toolUseId, answers) {
+  const entry = questionSessions.get(runId);
+  if (!entry) return false;
+
   const answerText = Object.entries(answers)
-    .map(([q, a]) => `Q: ${q}\nA: ${a}`)
-    .join('\n\n');
-
-  const responseMessage = {
-    type: 'user',
-    message: {
-      role: 'user',
-      content: [{
-        type: 'tool_result',
-        tool_use_id: toolUseId,
-        content: [{ type: 'text', text: answerText }],
-      }],
-    },
-  };
-
-  const wrote = writeAnswer(runId, responseMessage);
-  if (!wrote) {
-    logger.error(`Failed to write answer for run ${runId}`, { context: 'Diagnosis', runId });
-    return false;
-  }
-
-  // SIGCONT the paused child so Claude reads the real tool_result and continues naturally
-  const child = getChild(runId);
-  if (child && child.pid) {
-    try { process.kill(child.pid, 'SIGCONT'); } catch (e) { /* ignore */ }
-  }
+    .map(([q, a]) => {
+      const value = Array.isArray(a) ? a.join(', ') : a;
+      return `- ${q}: ${value}`;
+    })
+    .join('\n');
 
   questionSessions.delete(runId);
 
@@ -260,7 +319,21 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
     data: { questionId, answers, timestamp: new Date().toISOString() },
   });
 
-  return true;
+  const followUpMessage = [
+    '以下是对你上一轮结构化问题的正式回答，请基于这些答案继续当前诊断，不要再次重复提问，除非确有新的关键缺失信息：',
+    answerText,
+  ].join('\n\n');
+
+  try {
+    continueDiagnosis(runId, followUpMessage);
+    return true;
+  } catch (err) {
+    logger.error(`Failed to resume run ${runId} after answer: ${err.message}`, {
+      context: 'Diagnosis',
+      runId,
+    });
+    return false;
+  }
 }
 
 // Core diagnosis execution — spawns Claude, streams events, handles HITL
@@ -294,6 +367,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   }
 
   const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
+  let shouldCloseRun = true;
+  let pausedForQuestion = false;
 
   try {
     const meta = getMeta(runId);
@@ -369,7 +444,22 @@ async function executeDiagnosis(runId, run, isRetry = false) {
             // AskUserQuestion detection
             if (block.name === 'AskUserQuestion' && block.input?.questions) {
               const questionId = `q_${runId}_${Date.now()}`;
-              questionSessions.set(runId, { questionId, toolUseId: block.id });
+              questionSessions.set(runId, {
+                questionId,
+                toolUseId: block.id,
+                questions: block.input.questions,
+              });
+              updateStatus(runId, 'awaiting_input');
+              stmts.updateRunStatus.run({ runId, status: 'awaiting_input' });
+              emit(runId, {
+                type: 'status',
+                data: {
+                  status: 'awaiting_input',
+                  runId,
+                  questionId,
+                  toolUseId: block.id,
+                },
+              });
               emit(runId, {
                 type: 'question',
                 data: {
@@ -386,12 +476,19 @@ async function executeDiagnosis(runId, run, isRetry = false) {
                   })),
                 },
               });
+              pausedForQuestion = true;
+              shouldCloseRun = false;
             }
 
             emit(runId, { type: 'tool_use', data: { name: block.name, input: block.input, id: block.id } });
+            if (pausedForQuestion) break;
           } else if (block.type === 'thinking') {
             emit(runId, { type: 'thinking', data: { content: block.thinking?.slice(0, 500) || '' } });
           }
+        }
+        if (pausedForQuestion) {
+          closeQuery(runId);
+          break;
         }
       } else if (parsed.type === 'user') {
         const userContent = parsed.message?.content || [];
@@ -407,34 +504,79 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         }
       } else if (parsed.type === 'result') {
         emit(runId, { type: 'stats', data: { subtype: parsed.subtype, durationMs: parsed.duration_ms, numTurns: parsed.num_turns, totalCost: parsed.total_cost_usd, stopReason: parsed.stop_reason } });
+        const pendingQuestion = questionSessions.get(runId);
+        if (pendingQuestion && parsed.subtype === 'success') {
+          shouldCloseRun = false;
+          updateStatus(runId, 'awaiting_input');
+          stmts.updateRunStatus.run({ runId, status: 'awaiting_input' });
+          emit(runId, {
+            type: 'status',
+            data: {
+              status: 'awaiting_input',
+              runId,
+              questionId: pendingQuestion.questionId,
+              toolUseId: pendingQuestion.toolUseId,
+            },
+          });
+          continue;
+        }
         // Handle completion
         try {
           const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
-          let reportPath = null, score = null, verdict = null;
+          let workspacePath = null, reportPath = null, score = null, verdict = null;
           if (runDir) {
-            reportPath = join(runDir, 'report.md');
-            if (existsSync(reportPath)) {
-              const reportContent = readFileSync(reportPath, 'utf-8');
+            workspacePath = relative(PROJECT_ROOT, runDir);
+            const absReportPath = join(runDir, 'report.md');
+            if (existsSync(absReportPath)) {
+              reportPath = relative(PROJECT_ROOT, absReportPath);
+              const reportContent = readFileSync(absReportPath, 'utf-8');
               const scoreMatch = reportContent.match(/Judge Score:\s*(\d+)\/100/);
               if (scoreMatch) score = parseInt(scoreMatch[1]);
               const verdictMatch = reportContent.match(/Judge Score:.*?\((\w+)/);
               if (verdictMatch) verdict = verdictMatch[1];
-              stmts.updateRunWorkspace.run({ runId, workspacePath: relative(PROJECT_ROOT, runDir) });
-              stmts.updateRunReport.run({ runId, reportPath: relative(PROJECT_ROOT, reportPath) });
             }
           }
           if (parsed.subtype === 'success') {
+            questionSessions.delete(runId);
             updateStatus(runId, 'completed');
-            stmts.updateRunCompleted.run({ runId, status: 'completed', score: score ?? null, verdict: verdict ?? null, reportPath: reportPath ? relative(PROJECT_ROOT, reportPath) : null });
-            emit(runId, { type: 'complete', data: { status: 'completed', reportPath, score, verdict } });
+            stmts.completeRun.run({
+              runId,
+              workspacePath,
+              reportPath,
+              score: score ?? null,
+              judgeVerdict: verdict ?? null,
+            });
+            emit(runId, {
+              type: 'status',
+              data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+            });
+            emit(runId, {
+              type: 'complete',
+              data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+            });
           } else {
+            questionSessions.delete(runId);
+            const error = `Query stopped: ${parsed.stop_reason || parsed.subtype}`;
             updateStatus(runId, 'failed');
-            stmts.failRun.run({ runId, error: `Query stopped: ${parsed.stop_reason || parsed.subtype}` });
-            emit(runId, { type: 'complete', data: { status: 'failed', error: `Query stopped: ${parsed.stop_reason || parsed.subtype}` } });
+            stmts.failRun.run({ runId, error });
+            emit(runId, {
+              type: 'status',
+              data: { status: 'failed', runId, error },
+            });
+            emit(runId, {
+              type: 'complete',
+              data: { status: 'failed', runId, error },
+            });
           }
         } catch (err) {
+          questionSessions.delete(runId);
           updateStatus(runId, 'failed');
-          emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
+          stmts.failRun.run({ runId, error: err.message });
+          emit(runId, {
+            type: 'status',
+            data: { status: 'failed', runId, error: err.message },
+          });
+          emit(runId, { type: 'error', data: { status: 'failed', runId, error: err.message } });
         }
       } else if (parsed.type === 'stream_event') {
         const ev = parsed.event;
@@ -454,13 +596,18 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
     // Stream ended
     executingRuns.delete(runId);
-    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+    if (shouldCloseRun) {
+      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+    }
 
   } catch (err) {
     executingRuns.delete(runId);
+    questionSessions.delete(runId);
     updateStatus(runId, 'failed');
+    stmts.failRun.run({ runId, error: err.message });
     logger.error(`Diagnosis execution error for run ${runId}: ${err.message}`, { context: 'Diagnosis', runId });
-    emit(runId, { type: 'error', data: { status: 'failed', error: err.message } });
+    emit(runId, { type: 'status', data: { status: 'failed', runId, error: err.message } });
+    emit(runId, { type: 'error', data: { status: 'failed', runId, error: err.message } });
     setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }
@@ -544,7 +691,7 @@ export function startStream(runId) {
   const run = stmts.getRunById.get(runId);
   if (!run) return null;
   const currentStatus = getStatus(runId) || run.status;
-  if ((currentStatus === 'completed' || currentStatus === 'failed') && !hasRun(runId)) {
+  if ((currentStatus === 'completed' || currentStatus === 'failed' || currentStatus === 'stopped') && !hasRun(runId)) {
     return { run, currentStatus, isFinished: true };
   }
   return { run, currentStatus, isFinished: false };

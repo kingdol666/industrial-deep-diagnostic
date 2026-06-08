@@ -2,22 +2,22 @@
   <div class="task-list">
     <!-- New Task Button -->
     <div class="tl-toolbar">
-      <span class="tl-title">All Diagnosis Tasks</span>
-      <button class="btn btn-sm" @click="$emit('new-task')">+ New Task</button>
+      <span class="tl-title">全部诊断任务</span>
+      <button class="btn btn-sm" @click="$emit('new-task')">+ 新建任务</button>
     </div>
 
     <!-- Loading -->
     <div v-if="loading && runs.length === 0" class="empty-state">
       <div class="spinner" style="margin:0 auto 8px"></div>
-      <p>Loading tasks...</p>
+      <p>正在加载任务...</p>
     </div>
 
     <!-- Empty -->
     <div v-else-if="!loading && runs.length === 0" class="empty-state">
       <p style="font-size:28px;margin-bottom:12px;">🔬</p>
-      <p>No diagnosis tasks yet</p>
+      <p>当前还没有诊断任务</p>
       <p style="font-size:12px;color:var(--text2);margin-top:4px;">
-        Select a data file from the Data tab to start a new diagnosis
+        请先在数据页选择文件，再发起新的诊断
       </p>
     </div>
 
@@ -27,7 +27,7 @@
       <template v-if="runningRuns.length > 0">
         <div class="tl-group-label">
           <span class="status-dot dot-blue pulse" style="display:inline-block;width:6px;height:6px;margin-right:6px;"></span>
-          Running ({{ runningRuns.length }})
+          活跃任务 ({{ runningRuns.length }})
         </div>
         <div
           v-for="run in runningRuns" :key="run.run_id"
@@ -37,12 +37,13 @@
           <div class="run-main">
             <div class="run-header">
               <span class="run-scene">{{ run.scene_name }}</span>
-              <span class="badge badge-blue">running</span>
+              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
             </div>
             <div class="run-id">#{{ run.run_id }}</div>
             <div class="run-meta">
               <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="run.engineStatus === 'running'">In progress...</span>
+              <span v-if="getEffectiveRunStatus(run) === 'running'">诊断执行中...</span>
+              <span v-else-if="getEffectiveRunStatus(run) === 'awaiting_input'">等待你的回答...</span>
             </div>
             <div class="run-question" v-if="run.user_question">{{ run.user_question.slice(0, 120) }}{{ run.user_question.length > 120 ? '...' : '' }}</div>
           </div>
@@ -53,7 +54,7 @@
       <!-- Past Tasks -->
       <template v-if="pastRuns.length > 0">
         <div class="tl-group-label">
-          Past Tasks ({{ pastRuns.length }})
+          历史任务 ({{ pastRuns.length }})
         </div>
         <div
           v-for="run in pastRuns" :key="run.run_id"
@@ -63,12 +64,12 @@
           <div class="run-main">
             <div class="run-header">
               <span class="run-scene">{{ run.scene_name }}</span>
-              <span :class="['badge', statusBadge(run.status)]">{{ run.status }}</span>
+              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
             </div>
             <div class="run-id">#{{ run.run_id }}</div>
             <div class="run-meta">
               <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="run.score != null">Score: {{ run.score }}/100</span>
+              <span v-if="run.score != null">评分: {{ run.score }}/100</span>
               <span v-if="run.judge_verdict" :class="verdictColor(run.judge_verdict)">{{ run.judge_verdict }}</span>
               <span v-if="run.error_message" class="run-error-msg">{{ run.error_message.slice(0, 80) }}</span>
             </div>
@@ -81,33 +82,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue';
-import { api } from '../../api/index.js';
+import { computed, onMounted } from 'vue';
+import { useDiagnosisRealtimeStore } from '../../stores/diagnosisRealtimeStore.js';
 import { formatTime } from '../../utils/time.js';
+import { getEffectiveRunStatus, getRunStatusBadgeClass, getRunStatusLabel } from '../../utils/diagnosisRun.js';
 
 const emit = defineEmits(['view-run', 'view-report', 'new-task']);
-const runs = ref([]);
-const loading = ref(true);
-let pollTimer = null;
-
-async function fetchRuns() {
-  try {
-    const data = await api.listRuns();
-    runs.value = data || [];
-  } catch {
-    // keep existing data on error
-  } finally {
-    loading.value = false;
-  }
-}
-
-const runningRuns = computed(() =>
-  runs.value.filter(r => r.status === 'running' || r.engineStatus === 'running')
-);
-
-const pastRuns = computed(() =>
-  runs.value.filter(r => r.status !== 'running' && r.engineStatus !== 'running')
-);
+const { state, runningRuns, pastRuns, refreshCatalog, connect } = useDiagnosisRealtimeStore();
+const loading = computed(() => state.wsStatus === 'connecting' && state.catalogRuns.length === 0);
+const runs = computed(() => state.catalogRuns);
 
 function onPastRunClick(run) {
   if (run.report_path) {
@@ -118,27 +101,15 @@ function onPastRunClick(run) {
   }
 }
 
-function statusBadge(status) {
-  if (status === 'completed') return 'badge-green';
-  if (status === 'failed') return 'badge-red';
-  if (status === 'stopped') return 'badge-yellow';
-  return 'badge-blue';
-}
-
 function verdictColor(v) {
   if (v === 'PASS' || v === 'ENDORSED') return 'text-green';
   if (v === 'CONDITIONAL' || v === 'NEEDS_REPAIR') return 'text-yellow';
   return 'text-red';
 }
 
-// Initial fetch
-fetchRuns();
-
-// Poll every 10s
-pollTimer = setInterval(fetchRuns, 10000);
-
-onUnmounted(() => {
-  clearInterval(pollTimer);
+onMounted(() => {
+  connect();
+  refreshCatalog();
 });
 </script>
 

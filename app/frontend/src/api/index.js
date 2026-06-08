@@ -43,6 +43,7 @@ export const api = {
   executeDiagnosis: (runId) =>
     request(`/diagnosis/execute/${runId}`, { method: 'POST' }),
   getRunStatus: (runId) => request(`/diagnosis/status/${runId}`),
+  getRunSnapshot: (runId) => request(`/diagnosis/snapshot/${runId}`),
   stopDiagnosis: (runId) =>
     request(`/diagnosis/stop/${runId}`, { method: 'POST' }),
   continueDiagnosis: (runId, followUpMessage) =>

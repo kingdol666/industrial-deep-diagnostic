@@ -2,7 +2,7 @@
   <div class="diagnosis-view">
     <!-- Back button (when viewing a specific run) -->
     <div class="dv-nav" v-if="viewingRun">
-      <button class="btn btn-sm" @click="goBack">← Back to Tasks</button>
+      <button class="btn btn-sm" @click="goBack">← 返回任务列表</button>
       <span class="dv-nav-title" v-if="runName">{{ runName }}</span>
       <span class="dv-nav-id" v-if="runId">#{{ runId }}</span>
     </div>
@@ -16,16 +16,16 @@
             {{ analysisTarget.mode === 'folder' ? '📁' : analysisTarget.mode === 'multi' ? '📊' : '📄' }}
           </div>
           <div class="ds-info">
-            <div class="ds-title">
+          <div class="ds-title">
               <template v-if="analysisTarget.mode === 'file'">{{ analysisTarget.file.name }}</template>
               <template v-else-if="analysisTarget.mode === 'folder'">{{ analysisTarget.name }}</template>
-              <template v-else>{{ analysisTarget.files.length }} selected files</template>
+              <template v-else>已选择 {{ analysisTarget.files.length }} 个文件</template>
             </div>
             <div class="ds-sub" v-if="analysisTarget.mode === 'file'">
               {{ formatSize(analysisTarget.file.size) }} · {{ analysisTarget.file.path }}
             </div>
             <div class="ds-sub" v-else-if="analysisTarget.mode === 'folder'">
-              {{ analysisTarget.csvCount || 0 }} data files
+              {{ analysisTarget.csvCount || 0 }} 个数据文件
             </div>
           </div>
         </div>
@@ -34,13 +34,13 @@
       <!-- Control Panel -->
       <div class="ctrl-bar" v-if="analysisTarget && !started">
         <div class="ctrl-form">
-          <input v-model="sceneName" placeholder="Scene name (optional)" class="ctrl-input" />
-          <textarea v-model="userQuestion" placeholder="What do you want to diagnose?" rows="3" class="ctrl-textarea"></textarea>
+          <input v-model="sceneName" placeholder="场景名称（可选）" class="ctrl-input" />
+          <textarea v-model="userQuestion" placeholder="请输入你希望系统诊断的问题" rows="3" class="ctrl-textarea"></textarea>
           <div class="ctrl-row">
             <div class="turns-control">
-              <label class="turns-label">Max Turns</label>
+              <label class="turns-label">最大轮次</label>
               <select v-model.number="maxTurns" class="ctrl-input ctrl-select">
-                <option :value="0">Unlimited</option>
+                <option :value="0">不限</option>
                 <option :value="50">50</option>
                 <option :value="100">100</option>
                 <option :value="200">200</option>
@@ -49,14 +49,14 @@
               </select>
             </div>
             <div class="turns-control">
-              <label class="turns-label">Report Language</label>
+              <label class="turns-label">报告语言</label>
               <select v-model="reportLanguage" class="ctrl-input ctrl-select">
                 <option value="zh">中文</option>
                 <option value="en">English</option>
               </select>
             </div>
             <button class="ctrl-btn ctrl-btn-go" @click="start" :disabled="!analysisTarget">
-              Start Analysis
+              开始诊断
             </button>
           </div>
         </div>
@@ -80,12 +80,12 @@
           <span class="status-run-id">#{{ runId }}</span>
         </div>
         <div class="status-metrics">
-          <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">Turns</span></div>
-          <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">Tools</span></div>
-          <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">Msgs</span></div>
+          <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">轮次</span></div>
+          <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">工具</span></div>
+          <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">消息</span></div>
           <div class="smetric sm-time"><span class="sm-val">{{ elapsed }}</span></div>
         </div>
-        <button v-if="isRunning" class="stop-btn" @click="stop">Stop</button>
+        <button v-if="canStop" class="stop-btn" @click="stop">停止</button>
       </div>
 
       <!-- Phase Indicator -->
@@ -117,7 +117,7 @@
         v-if="viewingRun"
         ref="chatInputRef"
         :isRunning="isRunning"
-        :isFailed="failed || completed"
+        :terminalStatus="completed ? 'completed' : (failed ? liveStatus : '')"
         :runId="runId"
         @send-message="onSendMessage"
         @resume-with-message="onResumeWithMessage"
@@ -125,21 +125,21 @@
 
       <!-- Completion Banner -->
       <div v-if="completed || failed" :class="['result-banner', verdictClass]">
-        <div class="rb-icon">{{ completed ? '✓' : '✗' }}</div>
+        <div class="rb-icon">{{ resultBannerIcon }}</div>
         <div class="rb-info">
-          <div class="rb-title">{{ completed ? 'Diagnosis Complete' : 'Diagnosis Failed' }}</div>
+          <div class="rb-title">{{ resultBannerTitle }}</div>
           <div class="rb-meta">
-            <span v-if="score != null" class="rb-score">Score: {{ score }}/100</span>
+            <span v-if="score != null" class="rb-score">评分: {{ score }}/100</span>
             <span v-if="verdict" class="rb-verdict">{{ verdict }}</span>
             <span v-if="errorMsg" class="rb-error">{{ errorMsg }}</span>
           </div>
           <div class="rb-actions">
-            <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">View Full Report</button>
-            <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">Download MD</button>
-            <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">Retry (Same Parameters)</button>
+            <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">查看完整报告</button>
+            <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">下载 Markdown</button>
+            <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">继续诊断</button>
           </div>
           <div class="rb-hint" v-if="failed">
-            To debug the failure, type a follow-up instruction in the chat input below and click "Send & Resume".
+            可在下方输入补充指令，并基于本次上下文继续诊断。
           </div>
         </div>
       </div>
@@ -186,14 +186,14 @@
         <div class="hitl-dialog">
           <div class="hitl-header">
             <span class="hitl-icon">⚠️</span>
-            <span class="hitl-title">Dangerous Command Detected</span>
+            <span class="hitl-title">检测到高风险命令</span>
           </div>
-          <div class="hitl-risk" :class="'risk-' + (hitlRisk || 'high')">{{ hitlRisk || 'HIGH' }} RISK</div>
+          <div class="hitl-risk" :class="'risk-' + (hitlRisk || 'high')">{{ hitlRisk || 'HIGH' }} 风险</div>
           <div class="hitl-desc">{{ hitlDesc }}</div>
           <pre class="hitl-command">{{ hitlCommand }}</pre>
           <div class="hitl-actions">
-            <button class="hitl-btn hitl-deny" @click="respondHITL(false)">Deny & Stop</button>
-            <button class="hitl-btn hitl-approve" @click="respondHITL(true)">Approve & Continue</button>
+            <button class="hitl-btn hitl-deny" @click="respondHITL(false)">拒绝并停止</button>
+            <button class="hitl-btn hitl-approve" @click="respondHITL(true)">批准并继续</button>
           </div>
         </div>
       </div>
@@ -202,8 +202,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { api } from '../../api/index.js';
+import { useDiagnosisRealtimeStore } from '../../stores/diagnosisRealtimeStore.js';
+import { getEffectiveRunStatus, getRunStatusLabel } from '../../utils/diagnosisRun.js';
 import TaskList from './TaskList.vue';
 import MessageStream from './MessageStream.vue';
 import AnswerBar from './AnswerBar.vue';
@@ -217,81 +219,112 @@ const props = defineProps({
 
 const emit = defineEmits(['started', 'view-report', 'go-data']);
 
-// --- State ---
+const {
+  state: realtimeState,
+  activeSnapshot,
+  connect,
+  disconnect,
+  subscribeRun,
+  hydrateRun,
+  refreshCatalog,
+  clearActiveRun,
+  setRunStatusLocally,
+} = useDiagnosisRealtimeStore();
+
 const viewingRun = ref(false);
 const sceneName = ref('');
 const userQuestion = ref('');
 const maxTurns = ref(0);
 const reportLanguage = ref('zh');
 const started = ref(false);
-const isRunning = ref(false);
-const completed = ref(false);
-const failed = ref(false);
-const runId = ref(null);
-const runName = ref('');
-const connected = ref(false);
-const events = ref([]);
-const MAX_EVENTS = 1500;
-let _seqCounter = 0;
-let _sseClosed = false;
-
-let _seenEventKeys = new Set();
-let _hybridPhase = 'idle';
-let _catchUpTimer = null;
-
-const score = ref(null);
-const verdict = ref(null);
-const reportPath = ref(null);
-const turnCount = ref(0);
-const toolCount = ref(0);
-const msgCount = ref(0);
-const startTime = ref(null);
 const elapsed = ref('0:00');
 const currentPhase = ref('');
 const progressPct = ref(0);
-const errorMsg = ref('');
-const currentQuestion = ref(null);
-const chatInputRef = ref(null);
-
-const hitlPending = ref(false);
-const hitlId = ref(null);
-const hitlCommand = ref('');
-const hitlRisk = ref('');
-const hitlDesc = ref('');
-
 const chartData = ref(null);
 const chartLoading = ref(false);
 const showCharts = ref(true);
+const chatInputRef = ref(null);
+const dismissedQuestionId = ref(null);
 
-let eventSource = null;
 let elapsedTimer = null;
 
-// --- Computed ---
+const snapshot = computed(() => activeSnapshot.value);
+const run = computed(() => snapshot.value?.run || null);
+const runId = computed(() => run.value?.run_id || props.autoRunId || null);
+const runName = computed(() => run.value?.name || '');
+const liveStatus = computed(() => getEffectiveRunStatus({
+  ...run.value,
+  engineStatus: snapshot.value?.liveStatus || run.value?.engineStatus || run.value?.status || 'pending',
+}));
+const connected = computed(() => realtimeState.wsConnected);
+const isHydrating = computed(() => !!snapshot.value?.isHydrating);
+const events = computed(() => snapshot.value?.events || []);
+const isRunning = computed(() => liveStatus.value === 'running');
+const isAwaitingInput = computed(() => liveStatus.value === 'awaiting_input');
+const canStop = computed(() => isRunning.value || isAwaitingInput.value);
+const completed = computed(() => liveStatus.value === 'completed');
+const failed = computed(() => liveStatus.value === 'failed' || liveStatus.value === 'stopped');
+const score = computed(() => run.value?.score ?? null);
+const verdict = computed(() => run.value?.judge_verdict ?? null);
+const reportPath = computed(() => run.value?.report_path ?? null);
+const errorMsg = computed(() => run.value?.error_message || '');
+const currentQuestion = computed(() => {
+  const question = snapshot.value?.currentQuestion || null;
+  if (!question) return null;
+  return dismissedQuestionId.value === question.questionId ? null : question;
+});
+const hitlRequest = computed(() => snapshot.value?.hitlRequest || null);
+const hitlPending = computed(() => !!hitlRequest.value);
+const hitlId = computed(() => hitlRequest.value?.hitlId || null);
+const hitlCommand = computed(() => hitlRequest.value?.command || '');
+const hitlRisk = computed(() => hitlRequest.value?.riskLevel || '');
+const hitlDesc = computed(() => hitlRequest.value?.riskDesc || '');
+
+const turnCount = computed(() => {
+  const latest = [...events.value].reverse().find(ev => ev.type === 'stats');
+  return latest?.data?.numTurns || 0;
+});
+
+const toolCount = computed(() => events.value.filter(ev => ev.type === 'tool_use').length);
+const msgCount = computed(() => events.value.filter(ev => ev.type === 'message').length);
+
+const latestToolName = computed(() => {
+  const latest = [...events.value].reverse().find(ev => ev.type === 'tool_use');
+  return latest?.data?.name || '';
+});
+
+const latestTaskStep = computed(() => {
+  const latest = [...events.value].reverse().find(ev => ev.type === 'task_progress');
+  return latest?.data?.currentStep || latest?.data?.status || '';
+});
+
 const statusDotClass = computed(() => {
   if (completed.value) return 'dot-green';
   if (failed.value) return 'dot-red';
+  if (isAwaitingInput.value) return 'dot-purple pulse';
   if (isRunning.value) return 'dot-blue pulse';
   return 'dot-gray';
 });
 
 const statusLabel = computed(() => {
-  if (completed.value) return 'Complete';
-  if (failed.value) return 'Failed';
-  if (!connected.value) return 'Connecting...';
-  if (isRunning.value) return 'Analyzing';
-  return 'Ready';
+  if (isHydrating.value) return '同步中';
+  if (isRunning.value) return connected.value ? '诊断中' : '重连中';
+  if (isAwaitingInput.value) return '等待回答';
+  if (liveStatus.value === 'pending') return '待执行';
+  return getRunStatusLabel(liveStatus.value);
 });
 
 const phaseIcon = computed(() => {
   const p = currentPhase.value;
-  if (p.includes('Reading') || p.includes('Data')) return '📂';
-  if (p.includes('Executing') || p.includes('Analysis')) return '⚙️';
-  if (p.includes('Generating') || p.includes('Output')) return '📝';
-  if (p.includes('Planning')) return '📋';
-  if (p.includes('Diagnostic') || p.includes('Skill')) return '🔬';
-  if (p.includes('Exploring')) return '🔍';
-  if (p.includes('Consult') || p.includes('Fetch')) return '🌐';
-  if (p.includes('Visualization')) return '📊';
+  if (p.includes('等待用户') || p.includes('等待回答')) return '❓';
+  if (p.includes('读取') || p.includes('数据')) return '📂';
+  if (p.includes('执行') || p.includes('分析')) return '⚙️';
+  if (p.includes('生成') || p.includes('输出')) return '📝';
+  if (p.includes('规划')) return '📋';
+  if (p.includes('诊断') || p.includes('技能')) return '🔬';
+  if (p.includes('探索')) return '🔍';
+  if (p.includes('检索') || p.includes('网页')) return '🌐';
+  if (p.includes('图') || p.includes('可视化')) return '📊';
   return '⚙️';
 });
 
@@ -302,518 +335,58 @@ const verdictClass = computed(() => {
   return 'banner-pass';
 });
 
+const resultBannerTitle = computed(() => {
+  if (completed.value) return '诊断已完成';
+  if (liveStatus.value === 'stopped') return '诊断已停止';
+  return '诊断失败';
+});
 
-function eventFingerprint(ev) {
-  switch (ev.type) {
-    case 'tool_use': return ev.data?.id ? `tu:${ev.data.id}` : null;
-    case 'tool_result': return ev.data?.toolUseId ? `tr:${ev.data.toolUseId}` : null;
-    case 'message': return ev.data?.content ? `msg:${ev.data.content.slice(0, 80)}` : null;
-    case 'thinking': return ev.data?.content ? `th:${ev.data.content.slice(0, 80)}` : null;
-    case 'question': return (ev.data?.questionId || ev.data?.toolUseId) ? `q:${ev.data.questionId || ev.data.toolUseId}` : null;
-    case 'system': return ev.data?.message?.uuid ? `sys:${ev.data.message.uuid}` : null;
-    case 'stream_event':
-      return ev.data?.uuid
-        ? `se:${ev.data.uuid}`
-        : (ev.subtype && ev.data?.type
-          ? `se:${ev.subtype}:${ev.data.type}:${JSON.stringify(ev.data).slice(0, 120)}`
-          : null);
-    case 'error':
-      return ev.data?.error ? `err:${ev.data.error}` : null;
-    case 'complete':
-      return ev.data?.status ? `done:${ev.data.status}:${ev.data.reportPath || ''}` : null;
-    default: return null;
-  }
-}
-
-function pushEvent(e) {
-  if (_hybridPhase === 'catching_up') {
-    const fp = eventFingerprint(e);
-    if (fp && _seenEventKeys.has(fp)) return;
-    if (fp) _seenEventKeys.add(fp);
-  }
-
-  if (_hybridPhase === 'live' || _hybridPhase === 'done' || _hybridPhase === 'idle') {
-    if (e.type === 'tool_use') toolCount.value++;
-    if (e.type === 'message') msgCount.value++;
-  }
-
-  const arr = events.value;
-  if (arr.length >= 1500) arr.splice(0, 100);
-  arr.push(e);
-}
-
-// --- SSE Connection ---
-function connectSSE(rid) {
-  closeSSE();
-
-  eventSource = new EventSource(api.streamUrl(rid));
-
-  eventSource.addEventListener('status', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      if (d.status === 'running') {
-        isRunning.value = true;
-        started.value = true;
-        if (!startTime.value) { startTime.value = Date.now(); startElapsed(); }
-      }
-    } catch {}
-  });
-
-  eventSource.addEventListener('message', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'message', data: d, _seq: ++_seqCounter });
-      tickProgress(2);
-    } catch {}
-  });
-
-  eventSource.addEventListener('tool_use', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'tool_use', data: d, _seq: ++_seqCounter });
-      tickProgress(3);
-      detectPhase(d.name);
-    } catch {}
-  });
-
-  eventSource.addEventListener('tool_result', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'tool_result', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('thinking', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'thinking', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('system', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'system', subtype: d?.subtype || 'system', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('stats', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      turnCount.value = d.numTurns || 0;
-      pushEvent({ type: 'stats', data: d, _seq: ++_seqCounter });
-      progressPct.value = Math.min(95, Math.max(progressPct.value, turnCount.value * 0.3));
-    } catch {}
-  });
-
-  eventSource.addEventListener('log', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'system', subtype: 'log', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('question', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      currentQuestion.value = d;
-      pushEvent({
-        type: 'question',
-        data: d,
-        _seq: ++_seqCounter,
-      });
-    } catch {}
-  });
-
-  eventSource.addEventListener('task_progress', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'task_progress', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('stream_event', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({
-        type: 'stream_event',
-        subtype: d?.subtype || d?.type || 'stream_event',
-        data: d?.data ?? d,
-        _seq: ++_seqCounter,
-      });
-    } catch {}
-  });
-
-  eventSource.addEventListener('unknown', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'unknown', subtype: d?.subtype || 'unknown', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('hitl_request', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      hitlId.value = d.hitlId;
-      hitlCommand.value = d.command;
-      hitlRisk.value = d.riskLevel;
-      hitlDesc.value = d.riskDesc;
-      hitlPending.value = true;
-      pushEvent({ type: 'hitl_request', data: d, _seq: ++_seqCounter });
-    } catch {}
-  });
-
-  eventSource.addEventListener('hitl_result', () => {
-    hitlPending.value = false;
-  });
-
-  eventSource.addEventListener('complete', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      pushEvent({ type: 'complete', data: d, _seq: ++_seqCounter });
-      if (d.status === 'failed') {
-        failed.value = true;
-        completed.value = false;
-        isRunning.value = false;
-        errorMsg.value = d.error || 'Diagnosis failed';
-      } else {
-        completed.value = true;
-        failed.value = false;
-        isRunning.value = false;
-        score.value = d.score;
-        verdict.value = d.verdict;
-        reportPath.value = d.reportPath;
-        if (d.reportPath) {
-          const runDir = d.reportPath.split('/').slice(0, -1).join('/');
-          fetchChartData(runDir);
-        }
-        errorMsg.value = '';
-      }
-      progressPct.value = 100;
-      hitlPending.value = false;
-      currentQuestion.value = null;
-      emit('started', runId.value);
-      stopElapsed();
-    } catch {}
-  });
-
-  eventSource.addEventListener('error', (e) => {
-    try {
-      const d = JSON.parse(e.data);
-      failed.value = true;
-      isRunning.value = false;
-      errorMsg.value = d.error || 'Unknown error';
-      pushEvent({ type: 'error', data: d, _seq: ++_seqCounter });
-      stopElapsed();
-    } catch {}
-  });
-
-  eventSource.onopen = () => {
-    connected.value = true;
-  };
-
-  eventSource.onerror = () => {
-    connected.value = false;
-    if (isRunning.value && !_sseClosed) {
-      setTimeout(() => {
-        if (isRunning.value && runId.value && !_sseClosed) connectSSE(runId.value);
-      }, 3000);
-    }
-  };
-}
-
-function closeSSE() {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-}
-
-// --- Actions ---
-async function start() {
-  if (!props.analysisTarget) return;
-
-  viewingRun.value = true;
-  started.value = true;
-  isRunning.value = true;
-  completed.value = false;
-  failed.value = false;
-  events.value = [];
-  turnCount.value = 0;
-  toolCount.value = 0;
-  msgCount.value = 0;
-  progressPct.value = 0;
-  startTime.value = Date.now();
-  currentPhase.value = 'Initializing...';
-  score.value = null;
-  verdict.value = null;
-  reportPath.value = null;
-  errorMsg.value = '';
-  hitlPending.value = false;
-  currentQuestion.value = null;
-
-  const target = props.analysisTarget;
-  const payload = {
-    userQuestion: userQuestion.value,
-    sceneName: sceneName.value || undefined,
-    reportLanguage: reportLanguage.value,
-  };
-  if (maxTurns.value > 0) payload.maxTurns = maxTurns.value;
-
-  if (target.mode === 'multi') {
-    payload.dataPaths = target.files.map(f => typeof f === 'string' ? f : f.path);
-  } else if (target.mode === 'folder') {
-    payload.folderPath = target.path;
-  } else {
-    payload.dataPath = target.file.path;
-  }
-
-  try {
-    const data = await api.startDiagnosis(payload);
-    runId.value = data.runId;
-    runName.value = data.name;
-    emit('started', data.runId);
-
-    connectSSE(data.runId);
-    startElapsed();
-
-    await api.executeDiagnosis(data.runId);
-  } catch (err) {
-    failed.value = true;
-    isRunning.value = false;
-    errorMsg.value = err.message;
-  }
-}
-
-async function stop() {
-  if (runId.value) await api.stopDiagnosis(runId.value);
-  isRunning.value = false;
-  closeSSE();
-  stopElapsed();
-}
-
-async function retryDiagnosis() {
-  if (!runId.value) return;
-  try {
-    await api.continueDiagnosis(runId.value);
-    completed.value = false;
-    failed.value = false;
-    isRunning.value = true;
-    startTime.value = Date.now();
-    currentPhase.value = 'Continuing analysis...';
-    errorMsg.value = '';
-    score.value = null;
-    verdict.value = null;
-    reportPath.value = null;
-    hitlPending.value = false;
-    currentQuestion.value = null;
-    // Append separator so user sees continuation, not restart
-    pushEvent({
-      type: 'system',
-      subtype: 'continue',
-      data: { message: 'Continuing from previous state...' },
-      _seq: ++_seqCounter,
-    });
-    connectSSE(runId.value);
-    startElapsed();
-  } catch (err) { errorMsg.value = err.message; }
-}
-
-function respondHITL(approved) {
-  if (hitlId.value) {
-    api.respondHITL(hitlId.value, approved).catch(() => {});
-  }
-  if (!approved) hitlPending.value = false;
-}
-
-function openReport() {
-  if (reportPath.value) emit('view-report', reportPath.value);
-}
-
-async function downloadReportMD() {
-  if (!reportPath.value) return;
-  const parts = reportPath.value.split('/');
-  const runName = parts[parts.length - 2] || '';
-  if (!runName) return;
-  try {
-    const data = await api.getReport(runName);
-    if (!data || !data.content) return;
-    const blob = new Blob([data.content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `diagnostic-report-${runName}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error('Failed to download report:', err);
-  }
-}
-
-async function onAnswer({ questionId, toolUseId, answers }) {
-  if (!runId.value) return;
-  try {
-    await api.submitAnswer(runId.value, questionId, toolUseId, answers);
-    currentQuestion.value = null;
-  } catch (err) {
-    console.error('Failed to submit answer:', err);
-  }
-}
-
-function onSkipQuestion() {
-  currentQuestion.value = null;
-}
-
-async function onSendMessage(message) {
-  if (!runId.value) return;
-  try {
-    await api.sendChat(runId.value, message);
-    pushEvent({
-      type: 'system',
-      subtype: 'chat_sent',
-      data: { message },
-      _seq: ++_seqCounter,
-    });
-  } catch (err) {
-    pushEvent({
-      type: 'system',
-      subtype: 'chat_error',
-      data: { error: err.message },
-      _seq: ++_seqCounter,
-    });
-  }
-}
-
-async function onResumeWithMessage(message) {
-  if (!runId.value) return;
-  try {
-    await api.continueDiagnosis(runId.value, message);
-    failed.value = false;
-    completed.value = false;
-    isRunning.value = true;
-    startTime.value = Date.now();
-    currentPhase.value = 'Resuming with follow-up...';
-    errorMsg.value = '';
-    score.value = null;
-    verdict.value = null;
-    reportPath.value = null;
-    hitlPending.value = false;
-    currentQuestion.value = null;
-    // Append separator — preserve history so user sees continuation
-    pushEvent({
-      type: 'system',
-      subtype: 'continue',
-      data: { message: `User: ${message}` },
-      _seq: ++_seqCounter,
-    });
-    connectSSE(runId.value);
-    startElapsed();
-  } catch (err) {
-    errorMsg.value = err.message;
-  }
-}
-
-function openRun(rid) {
-  viewingRun.value = true;
-  runId.value = rid;
-  connectSSE(rid);
-  startElapsed();
-  isRunning.value = true;
-  started.value = true;
-
-  // Check current status (used when SSE doesn't settle quickly)
-  api.getRunStatus(rid).then(status => {
-    runName.value = status.name || '';
-    // Only apply if SSE hasn't already resolved
-    if (!completed.value && !failed.value) {
-      if (status.status === 'completed') {
-        completed.value = true;
-        isRunning.value = false;
-        reportPath.value = status.report_path;
-        if (status.report_path) {
-          const runDir = status.report_path.split('/').slice(0, -1).join('/');
-          fetchChartData(runDir);
-        }
-        score.value = status.score;
-        verdict.value = status.judge_verdict;
-        progressPct.value = 100;
-        stopElapsed();
-      } else if (status.status === 'failed' || status.status === 'stopped') {
-        failed.value = true;
-        isRunning.value = false;
-        errorMsg.value = status.error_message || 'Run ' + status.status;
-        stopElapsed();
-      }
-    }
-  }).catch(() => {});
-}
-
-function goBack() {
-  closeSSE();
-  viewingRun.value = false;
-  started.value = false;
-  isRunning.value = false;
-  completed.value = false;
-  failed.value = false;
-  runId.value = null;
-  events.value = [];
-  stopElapsed();
-}
-
-function onViewReport(reportPath) {
-  emit('view-report', reportPath);
-}
-
-function goToData() {
-  emit('go-data');
-}
-
-function tickProgress(amount) {
-  if (progressPct.value < 90) {
-    progressPct.value = Math.min(90, progressPct.value + amount);
-  }
-}
+const resultBannerIcon = computed(() => {
+  if (completed.value) return '✓';
+  if (liveStatus.value === 'stopped') return '■';
+  return '✗';
+});
 
 function detectPhase(toolName) {
   const phases = {
-    Read: 'Reading Data Files', Bash: 'Executing Analysis', Write: 'Generating Output',
-    Edit: 'Refining Report', TodoWrite: 'Planning Steps', Task: 'Creating Tasks',
-    Skill: 'Invoking Diagnostic Pipeline', Glob: 'Exploring Directory',
-    WebSearch: 'Searching References', WebFetch: 'Fetching Documentation',
-    NotebookEdit: 'Creating Visualizations',
+    Read: '读取文件',
+    Bash: '执行分析命令',
+    Write: '生成输出',
+    Edit: '修订报告',
+    TodoWrite: '规划步骤',
+    Task: '创建任务',
+    Skill: '调用诊断技能',
+    Glob: '探索目录',
+    WebSearch: '检索参考资料',
+    WebFetch: '抓取参考资料',
+    NotebookEdit: '生成可视化',
   };
-  currentPhase.value = phases[toolName] || `Executing: ${toolName}`;
+  return phases[toolName] || (toolName ? `执行工具：${toolName}` : '');
 }
 
 function startElapsed() {
   stopElapsed();
-  startTime.value = Date.now();
   elapsedTimer = setInterval(() => {
-    if (!startTime.value) return;
-    const diff = Math.floor((Date.now() - startTime.value) / 1000);
+    const start = run.value?.created_at ? new Date(run.value.created_at).getTime() : Date.now();
+    const diff = Math.max(0, Math.floor((Date.now() - start) / 1000));
     elapsed.value = `${Math.floor(diff / 60)}:${String(diff % 60).padStart(2, '0')}`;
   }, 1000);
 }
 
 function stopElapsed() {
   if (elapsedTimer) clearInterval(elapsedTimer);
+  elapsedTimer = null;
 }
 
 function formatSize(bytes) {
   if (!bytes) return '0 B';
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function toggleCharts() { showCharts.value = !showCharts.value; }
-
-function loadCharts() {
-  if (chartLoading.value) return;
-  // Derive runDir from the current report path
-  if (!reportPath.value) return;
-  const runDir = reportPath.value.split('/').slice(0, -1).join('/');
-  fetchChartData(runDir);
+function toggleCharts() {
+  showCharts.value = !showCharts.value;
 }
 
 async function fetchChartData(runDir) {
@@ -823,141 +396,259 @@ async function fetchChartData(runDir) {
     const dirName = runDir.replace('workspace/diagnostic-runs/', '');
     const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
     const json = await res.json();
-    if (json.success && json.data) {
-      chartData.value = json.data;
-      showCharts.value = true;
-    } else {
-      chartData.value = {}; // Set to empty object to show "no data" state
-    }
+    chartData.value = json.success && json.data ? json.data : {};
   } catch (err) {
     console.error('Failed to fetch chart data:', err);
-    chartData.value = {}; // Prevent loading state from sticking
+    chartData.value = {};
   } finally {
     chartLoading.value = false;
   }
 }
 
-// --- Watchers ---
-watch(() => props.analysisTarget, (target) => {
-  closeSSE();
+function loadCharts() {
+  if (chartLoading.value || !reportPath.value) return;
+  const runDir = reportPath.value.split('/').slice(0, -1).join('/');
+  fetchChartData(runDir);
+}
+
+async function start() {
+  if (!props.analysisTarget) return;
+
+  viewingRun.value = true;
+  started.value = true;
+  chartData.value = null;
+  showCharts.value = true;
+  currentPhase.value = 'Initializing...';
+  progressPct.value = 5;
+
+  const target = props.analysisTarget;
+  const payload = {
+    userQuestion: userQuestion.value,
+    sceneName: sceneName.value || undefined,
+    reportLanguage: reportLanguage.value,
+  };
+
+  if (maxTurns.value > 0) payload.maxTurns = maxTurns.value;
+  if (target.mode === 'multi') {
+    payload.dataPaths = target.files.map(f => (typeof f === 'string' ? f : f.path));
+  } else if (target.mode === 'folder') {
+    payload.folderPath = target.path;
+  } else {
+    payload.dataPath = target.file.path;
+  }
+
+  try {
+    const data = await api.startDiagnosis(payload);
+    emit('started', data.runId);
+    setRunStatusLocally(data.runId, {
+      name: data.name,
+      scene_name: data.name,
+      status: 'pending',
+      engineStatus: 'pending',
+      score: null,
+      judge_verdict: null,
+      report_path: null,
+      error_message: '',
+    });
+    subscribeRun(data.runId);
+    await hydrateRun(data.runId);
+    await api.executeDiagnosis(data.runId);
+  } catch (err) {
+    console.error('Failed to start diagnosis:', err);
+  }
+}
+
+async function stop() {
+  if (!runId.value) return;
+  await api.stopDiagnosis(runId.value);
+  setRunStatusLocally(runId.value, { status: 'stopped', engineStatus: 'stopped' });
+}
+
+async function retryDiagnosis() {
+  if (!runId.value) return;
+  await api.continueDiagnosis(runId.value);
+  setRunStatusLocally(runId.value, {
+    status: 'running',
+    engineStatus: 'running',
+    score: null,
+    judge_verdict: null,
+    report_path: null,
+    error_message: '',
+  });
+  subscribeRun(runId.value);
+}
+
+function respondHITL(approved) {
+  if (hitlId.value) api.respondHITL(hitlId.value, approved).catch(() => {});
+}
+
+function openReport() {
+  if (reportPath.value) emit('view-report', reportPath.value);
+}
+
+async function downloadReportMD() {
+  if (!reportPath.value) return;
+  const parts = reportPath.value.split('/');
+  const currentRunName = parts[parts.length - 2] || '';
+  if (!currentRunName) return;
+  try {
+    const data = await api.getReport(currentRunName);
+    if (!data?.content) return;
+    const blob = new Blob([data.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `diagnostic-report-${currentRunName}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Failed to download report:', err);
+  }
+}
+
+async function onAnswer({ questionId, toolUseId, answers }) {
+  if (!runId.value) return;
+  dismissedQuestionId.value = questionId || currentQuestion.value?.questionId || null;
+  await api.submitAnswer(runId.value, questionId, toolUseId, answers);
+}
+
+function onSkipQuestion() {
+  dismissedQuestionId.value = currentQuestion.value?.questionId || null;
+}
+
+async function onSendMessage(message) {
+  if (!runId.value) return;
+  await api.sendChat(runId.value, message);
+}
+
+async function onResumeWithMessage(message) {
+  if (!runId.value) return;
+  await api.continueDiagnosis(runId.value, message);
+  setRunStatusLocally(runId.value, {
+    status: 'running',
+    engineStatus: 'running',
+    score: null,
+    judge_verdict: null,
+    report_path: null,
+    error_message: '',
+  });
+  subscribeRun(runId.value);
+}
+
+async function openRun(rid) {
+  viewingRun.value = true;
+  started.value = true;
+  chartData.value = null;
+  showCharts.value = true;
+  await hydrateRun(rid);
+  subscribeRun(rid);
+}
+
+function goBack() {
+  clearActiveRun();
   viewingRun.value = false;
   started.value = false;
-  isRunning.value = false;
-  completed.value = false;
-  failed.value = false;
-  events.value = [];
-  runId.value = null;
+  currentPhase.value = '';
   progressPct.value = 0;
+  chartData.value = null;
   stopElapsed();
-  currentQuestion.value = null;
+}
+
+function onViewReport(path) {
+  emit('view-report', path);
+}
+
+function goToData() {
+  emit('go-data');
+}
+
+watch(() => props.analysisTarget, (target) => {
+  viewingRun.value = false;
+  started.value = false;
+  chartData.value = null;
+  currentPhase.value = '';
+  progressPct.value = 0;
+  clearActiveRun();
   if (target?.mode === 'file' && !sceneName.value) {
     sceneName.value = target.file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
   } else if (target?.mode === 'folder' && !sceneName.value) {
     sceneName.value = target.name || '';
   }
-});
+}, { immediate: true });
 
-// Watch autoRunId — connects to an already-running/continued diagnosis
 watch(() => props.autoRunId, async (newRunId) => {
   if (!newRunId) return;
-
   viewingRun.value = true;
   started.value = true;
-  isRunning.value = true;
-  completed.value = false;
-  failed.value = false;
-  events.value = [];
-  runId.value = newRunId;
-  turnCount.value = 0;
-  toolCount.value = 0;
-  msgCount.value = 0;
-  progressPct.value = 0;
-  startTime.value = Date.now();
-  currentPhase.value = 'Loading session history...';
-  score.value = null;
-  verdict.value = null;
-  reportPath.value = null;
-  errorMsg.value = '';
-  hitlPending.value = false;
-  currentQuestion.value = null;
+  await hydrateRun(newRunId);
+  subscribeRun(newRunId);
+}, { immediate: true });
 
-  _seenEventKeys = new Set();
-  _hybridPhase = 'history_loading';
-  if (_catchUpTimer) { clearTimeout(_catchUpTimer); _catchUpTimer = null; }
+watch(events, (nextEvents) => {
+  const latestQuestion = [...nextEvents].reverse().find(ev => ev.type === 'question');
+  const latestQuestionResult = [...nextEvents].reverse().find(ev => ev.type === 'question_result');
+  const latestComplete = [...nextEvents].reverse().find(ev => ev.type === 'complete');
+  const latestError = [...nextEvents].reverse().find(ev => ev.type === 'error');
+  const phaseFromStep = latestTaskStep.value;
+  const phaseFromTool = detectPhase(latestToolName.value);
 
-  closeSSE();
-
-  let historyEvents = [];
-  try {
-    const result = await api.getSessionContent(newRunId);
-    historyEvents = result.messages || [];
-    for (const ev of historyEvents) {
-      const fp = eventFingerprint(ev);
-      if (fp) _seenEventKeys.add(fp);
-    }
-    events.value = historyEvents;
-    toolCount.value = historyEvents.filter(e => e.type === 'tool_use').length;
-    msgCount.value = historyEvents.length;
-  } catch (err) {
-    console.error('Failed to load session history:', err);
+  if (latestQuestion && latestQuestion.data?.questionId !== dismissedQuestionId.value) {
+    dismissedQuestionId.value = null;
+  }
+  if (latestQuestionResult) {
+    dismissedQuestionId.value = null;
   }
 
-  try {
-    const status = await api.getRunStatus(newRunId);
-    runName.value = status.name || '';
-
-    if (status.status === 'running') {
-      _hybridPhase = 'catching_up';
-      currentPhase.value = 'Syncing live updates...';
-      connectSSE(newRunId);
-      startElapsed();
-
-      _catchUpTimer = setTimeout(() => {
-        _hybridPhase = 'live';
-        _catchUpTimer = null;
-      }, 3000);
-    } else {
-      _hybridPhase = 'done';
-      applyFinishState(status);
-    }
-  } catch {
-    _hybridPhase = 'catching_up';
-    currentPhase.value = 'Connecting...';
-    connectSSE(newRunId);
-    startElapsed();
-    _catchUpTimer = setTimeout(() => {
-      _hybridPhase = 'live';
-      _catchUpTimer = null;
-    }, 3000);
-  }
-});
-
-function applyFinishState(status) {
-  isRunning.value = false;
-  if (status.status === 'completed') {
-    completed.value = true;
-    reportPath.value = status.report_path;
-    if (status.report_path) {
-      const runDir = status.report_path.split('/').slice(0, -1).join('/');
+  if (latestComplete || latestError) {
+    currentPhase.value = '';
+    progressPct.value = 100;
+    if (reportPath.value && chartData.value === null) {
+      const runDir = reportPath.value.split('/').slice(0, -1).join('/');
       fetchChartData(runDir);
     }
-    score.value = status.score;
-    verdict.value = status.judge_verdict;
-  } else {
-    failed.value = true;
-    errorMsg.value = status.error_message || 'Run ' + status.status;
+  } else if (phaseFromStep) {
+    currentPhase.value = phaseFromStep;
+    progressPct.value = Math.min(92, Math.max(progressPct.value, 65));
+  } else if (phaseFromTool) {
+    currentPhase.value = phaseFromTool;
+    progressPct.value = Math.min(90, progressPct.value + 3);
+  } else if (isAwaitingInput.value) {
+    currentPhase.value = '等待用户回答...';
+    progressPct.value = Math.max(progressPct.value, 75);
+  } else if (isHydrating.value) {
+    currentPhase.value = '同步实时状态中...';
+    progressPct.value = Math.max(progressPct.value, 15);
+  } else if (isRunning.value) {
+    currentPhase.value = '等待下一步分析执行...';
+    progressPct.value = Math.min(88, Math.max(progressPct.value, 20));
   }
-  progressPct.value = 100;
-  currentPhase.value = '';
-  stopElapsed();
-}
 
-onUnmounted(() => {
-  closeSSE();
-  stopElapsed();
+  const questionStillPending = latestQuestion
+    && (!latestQuestionResult || (latestQuestionResult._seq ?? -1) < (latestQuestion._seq ?? -1))
+    && !latestComplete
+    && !latestError
+    && isAwaitingInput.value;
+
+  if (questionStillPending) {
+    currentPhase.value = '等待用户回答...';
+    progressPct.value = Math.max(progressPct.value, 75);
+  }
+}, { deep: true, immediate: true });
+
+watch([isRunning, isAwaitingInput, () => run.value?.created_at], ([running, awaiting]) => {
+  if (running || awaiting) startElapsed();
+  else stopElapsed();
+}, { immediate: true });
+
+onMounted(() => {
+  connect();
+  refreshCatalog();
 });
 
-
+onUnmounted(() => {
+  stopElapsed();
+  disconnect();
+});
 </script>
 
 <style scoped>

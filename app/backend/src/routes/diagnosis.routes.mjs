@@ -6,7 +6,7 @@ import {
   stopDiagnosis, resolveHITLRequest, getPendingHITL,
   sendChatMessage, continueDiagnosis, answerQuestion,
   triggerDiagnosis, startStream, subscribeSSE,
-  getSessionContent,
+  getSessionContent, getRunRealtimeSnapshot,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -206,6 +206,13 @@ router.get('/status/:runId', (req, res) => {
   const run = getRunStatus(req.params.runId);
   if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
   res.json({ success: true, data: run });
+});
+
+// Get run realtime snapshot from DB event stream + current status
+router.get('/snapshot/:runId', (req, res) => {
+  const snapshot = getRunRealtimeSnapshot(req.params.runId);
+  if (!snapshot) return res.status(404).json({ success: false, error: 'Run not found' });
+  res.json({ success: true, data: snapshot });
 });
 
 // Check pending HITL requests for a run
