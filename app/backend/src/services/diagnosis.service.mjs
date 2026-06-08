@@ -6,7 +6,7 @@ import { readdir, stat, realpath } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, basename, relative } from 'path';
 import {
-  startDiagnosis, parseStreamEvent, isDangerousCommand,
+  startDiagnosis, startSessionChat, parseStreamEvent, isDangerousCommand,
   PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, closeQuery,
   getSessionMessages, getSessionInfo,
 } from '../engine/claude-client.mjs';
@@ -263,9 +263,20 @@ export function getPendingHITL(runId) {
 
 // Send a chat message — close current query and resume session with message
 export function sendChatMessage(runId, message) {
+  const run = stmts.getRunById.get(runId);
+  if (!run) return false;
   closeQuery(runId);
   executingRuns.delete(runId);
   try {
+    if (!hasRun(runId)) createRun(runId);
+    updateStatus(runId, run.status);
+    stmts.insertLog.run({
+      runId,
+      role: 'user',
+      content: message,
+      messageType: 'text',
+      toolName: null,
+    });
     emit(runId, {
       type: 'user_message',
       data: {
@@ -274,10 +285,87 @@ export function sendChatMessage(runId, message) {
         source: 'chat',
       },
     });
-    continueDiagnosis(runId, message, { emitUserMessage: false });
+    emit(runId, {
+      type: 'system',
+      subtype: 'session_chat',
+      data: { message: '已发送到当前 Claude session，不重新启动诊断流程。' },
+    });
+
+    const result = startSessionChat({
+      runId,
+      sessionId: run.session_id,
+      message,
+      maxTurns: 1,
+    });
+    setChild(runId, result.query);
+    registerChild(runId, result.query);
+    consumeSessionChat(runId, result.query, run.session_id);
     return true;
-  } catch {
+  } catch (err) {
+    const errorMessage = formatResumeError(err, runId, run.session_id);
+    emit(runId, { type: 'error', data: { status: run.status, runId, error: errorMessage } });
     return false;
+  }
+}
+
+async function consumeSessionChat(runId, query, sessionId) {
+  try {
+    for await (const msg of query) {
+      const parsed = parseStreamEvent(msg);
+      if (!parsed) continue;
+
+      if (parsed.type === 'system') {
+        const subtype = parsed.subtype || 'system';
+        emit(runId, { type: 'system', subtype, data: parsed });
+        if (parsed.subtype === 'init' && parsed.session_id) {
+          stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
+          setMeta(runId, { sessionId: parsed.session_id });
+        }
+      } else if (parsed.type === 'assistant') {
+        const content = parsed.message?.content || [];
+        for (const block of content) {
+          if (block.type === 'text') {
+            stmts.insertLog.run({ runId, role: 'assistant', content: block.text, messageType: 'text', toolName: null });
+            emit(runId, { type: 'message', data: { role: 'assistant', content: block.text, source: 'session_chat' } });
+          } else if (block.type === 'tool_use') {
+            emit(runId, { type: 'tool_use', data: { name: block.name, input: block.input, id: block.id, source: 'session_chat' } });
+          } else if (block.type === 'thinking') {
+            emit(runId, { type: 'thinking', data: { content: block.thinking?.slice(0, 500) || '' } });
+          }
+        }
+      } else if (parsed.type === 'user') {
+        const userContent = parsed.message?.content || [];
+        for (const block of userContent) {
+          if (block.type === 'tool_result') {
+            const summary = typeof block.content === 'string'
+              ? block.content.slice(0, 300)
+              : (block.content?.map?.(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300) || '');
+            emit(runId, { type: 'tool_result', data: { toolUseId: block.tool_use_id, summary, isError: block.is_error || false } });
+          }
+        }
+      } else if (parsed.type === 'result') {
+        emit(runId, {
+          type: 'stats',
+          data: {
+            subtype: 'session_chat',
+            durationMs: parsed.duration_ms,
+            numTurns: parsed.num_turns,
+            totalCost: parsed.total_cost_usd,
+            stopReason: parsed.stop_reason,
+          },
+        });
+      } else if (parsed.type === 'stream_event') {
+        emit(runId, { type: 'stream_event', subtype: parsed.event?.type || 'event', data: parsed.event });
+      }
+    }
+  } catch (err) {
+    emit(runId, {
+      type: 'error',
+      data: { runId, error: formatResumeError(err, runId, sessionId) },
+    });
+  } finally {
+    closeQuery(runId);
+    setChild(runId, null);
   }
 }
 
@@ -401,6 +489,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   updateStatus(runId, 'running');
   stmts.updateRunStatus.run({ runId, status: 'running' });
   emit(runId, { type: 'status', data: { status: 'running', runId, isRetry } });
+  const meta = getMeta(runId);
+  const isSessionResume = isRetry && !!meta.sessionId;
   if (!isRetry && run.user_question) {
     emit(runId, {
       type: 'user_message',
@@ -413,13 +503,17 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   }
 
   let analysisTarget;
-  const dp = run.data_path;
-  if (dp && dp.startsWith('[')) {
-    analysisTarget = { mode: 'multi', files: JSON.parse(dp) };
-  } else if (run.data_folder && dp === run.data_folder) {
-    analysisTarget = { mode: 'folder', folderPath: dp };
+  if (isSessionResume) {
+    analysisTarget = { mode: 'resume' };
   } else {
-    analysisTarget = { mode: 'file', dataPath: dp };
+    const dp = run.data_path;
+    if (dp && dp.startsWith('[')) {
+      analysisTarget = { mode: 'multi', files: JSON.parse(dp) };
+    } else if (run.data_folder && dp === run.data_folder) {
+      analysisTarget = { mode: 'folder', folderPath: dp };
+    } else {
+      analysisTarget = { mode: 'file', dataPath: dp };
+    }
   }
 
   const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
@@ -428,7 +522,6 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   let resumeSessionId = null;
 
   try {
-    const meta = getMeta(runId);
     const followUpMessage = meta.followUpMessage || null;
     const sessionId = meta.sessionId || null;
     resumeSessionId = sessionId;

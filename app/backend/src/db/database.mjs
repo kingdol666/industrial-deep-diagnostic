@@ -178,7 +178,7 @@ const stmts = {
     SELECT run_id, seq, event_type, event_subtype, payload_json, created_at
     FROM diagnosis_event_stream
     WHERE run_id = ?
-    ORDER BY seq ASC, id ASC
+    ORDER BY id ASC
   `),
   getActiveRuns: db.prepare("SELECT run_id FROM diagnostic_runs WHERE status = 'running'"),
   insertFolder: db.prepare(`

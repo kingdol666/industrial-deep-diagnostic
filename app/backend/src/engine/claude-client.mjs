@@ -131,13 +131,7 @@ Please address the follow-up instruction above and continue the analysis.`;
 }
 
 function buildResumePrompt(followUpMessage) {
-  const safeFollowUp = sanitize(followUpMessage || 'Continue the current diagnostic run.');
-  return `${safeFollowUp}
-
-Resume rules:
-- Continue the same industrial deep diagnostic pipeline; do not restart with a generic analysis.
-- Preserve ontology alignment, structured artifacts, review gates, and the existing session context.
-- Do not repeat already-answered questions unless genuinely new critical information is missing.`;
+  return sanitize(followUpMessage || 'Continue.');
 }
 
 // ── Dangerous Command Detection ──
@@ -188,7 +182,10 @@ export function startDiagnosis({
     return fromRoot;
   }
 
-  if (analysisTarget.mode === 'multi') {
+  if (analysisTarget.mode === 'resume') {
+    // The existing Claude session already has the diagnostic data context.
+    dataPaths = [];
+  } else if (analysisTarget.mode === 'multi') {
     promptTarget.files = [];
     for (const dp of analysisTarget.files) {
       const abs = resolveDataPath(dp);
@@ -226,17 +223,20 @@ export function startDiagnosis({
     promptTarget.dataPath = abs;
   }
 
-  // Read skill content for system prompt enrichment
-  let skillContent = '';
-  if (existsSync(SKILL_MD)) {
-    try {
-      skillContent = readFileSync(SKILL_MD, 'utf-8').slice(0, 8000);
-    } catch { /* ignore */ }
-  }
-
-  const systemPrompt = buildSystemPrompt(sceneName, lang, skillContent);
-
   const resumeSessionId = normalizeClaudeSessionId(sessionId);
+
+  // Resume must be a clean continuation: do not re-inject the diagnostic
+  // system prompt, skill text, or original data context after the first turn.
+  let systemPrompt;
+  if (!resumeSessionId) {
+    let skillContent = '';
+    if (existsSync(SKILL_MD)) {
+      try {
+        skillContent = readFileSync(SKILL_MD, 'utf-8').slice(0, 8000);
+      } catch { /* ignore */ }
+    }
+    systemPrompt = buildSystemPrompt(sceneName, lang, skillContent);
+  }
 
   const prompt = resumeSessionId
     ? buildResumePrompt(followUpMessage)
@@ -257,7 +257,7 @@ export function startDiagnosis({
     options.resume = resumeSessionId;
   }
 
-  options.systemPrompt = systemPrompt;
+  if (systemPrompt) options.systemPrompt = systemPrompt;
 
   // Start the SDK query
   const query = queryFn({ prompt, options });
@@ -267,7 +267,36 @@ export function startDiagnosis({
 
   const getSessionId = () => query.sessionId || null;
 
-  return { query, dataPaths, prompt, getSessionId, runId };
+  return { query, dataPaths, prompt, getSessionId, runId, isResume: !!resumeSessionId };
+}
+
+export function startSessionChat({ runId, sessionId, message, maxTurns = 1 }) {
+  if (!sdkAvailable || !queryFn) {
+    throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
+  }
+  const resumeSessionId = normalizeClaudeSessionId(sessionId);
+  if (!resumeSessionId) {
+    const err = new Error('No valid Claude session ID for selected diagnosis session');
+    err.status = 400;
+    throw err;
+  }
+
+  const query = queryFn({
+    prompt: sanitize(message || ''),
+    options: {
+      cwd: PROJECT_ROOT,
+      model: config.claude.model,
+      permissionMode: 'bypassPermissions',
+      allowDangerouslySkipPermissions: true,
+      includePartialMessages: true,
+      forwardSubagentText: true,
+      maxTurns,
+      resume: resumeSessionId,
+    },
+  });
+
+  activeQueries.set(runId, query);
+  return { query, runId, sessionId: resumeSessionId };
 }
 
 // ── Write tool_result to the query (for AskUserQuestion answers) ──

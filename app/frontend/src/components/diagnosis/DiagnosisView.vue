@@ -467,15 +467,7 @@ async function stop() {
 async function retryDiagnosis() {
   if (!runId.value) return;
   await api.continueDiagnosis(runId.value);
-  setRunStatusLocally(runId.value, {
-    status: 'running',
-    engineStatus: 'running',
-    score: null,
-    judge_verdict: null,
-    report_path: null,
-    error_message: '',
-  });
-  subscribeRun(runId.value);
+  markRunContinuing();
 }
 
 function respondHITL(approved) {
@@ -523,7 +515,12 @@ async function onSendMessage(message) {
 
 async function onResumeWithMessage(message) {
   if (!runId.value) return;
-  await api.continueDiagnosis(runId.value, message);
+  await api.sendChat(runId.value, message);
+  subscribeRun(runId.value);
+}
+
+function markRunContinuing() {
+  if (!runId.value) return;
   setRunStatusLocally(runId.value, {
     status: 'running',
     engineStatus: 'running',

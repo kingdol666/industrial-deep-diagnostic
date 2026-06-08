@@ -20,28 +20,28 @@
         </div>
       </div>
 
-      <div v-else-if="item.kind === 'assistant'" class="ms-item ms-msg">
+      <div v-else-if="item.kind === 'assistant'" class="ms-item ms-msg chat-row assistant-row">
         <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
         <div class="ms-body">
-          <div class="ms-card card-msg">
-            <div class="ms-card-header">
-              <span class="ms-card-icon">🤖</span>
-              <span class="ms-card-title">Claude</span>
+          <div class="chat-message-wrap">
+            <div class="chat-avatar assistant-avatar">C</div>
+            <div class="chat-bubble assistant-bubble">
+              <div class="chat-name">Claude</div>
+              <div class="msg-content" v-html="renderMd(item.content)"></div>
             </div>
-            <div class="msg-content" v-html="renderMd(item.content)"></div>
           </div>
         </div>
       </div>
 
-      <div v-else-if="item.kind === 'user'" class="ms-item ms-user">
+      <div v-else-if="item.kind === 'user'" class="ms-item ms-user chat-row user-row">
         <div class="ms-rail"><div class="ms-dot dot-green"></div></div>
         <div class="ms-body">
-          <div class="ms-card card-user">
-            <div class="ms-card-header">
-              <span class="ms-card-icon">👤</span>
-              <span class="ms-card-title">用户</span>
+          <div class="chat-message-wrap">
+            <div class="chat-bubble user-bubble">
+              <div class="chat-name">你</div>
+              <div class="msg-content" v-html="renderMd(item.content)"></div>
             </div>
-            <div class="msg-content" v-html="renderMd(item.content)"></div>
+            <div class="chat-avatar user-avatar">你</div>
           </div>
         </div>
       </div>
@@ -531,6 +531,16 @@ function normalizeSystemEvent(ev) {
   if (subtype === 'chat_error') {
     return { kind: 'system', key: `system:${ev._seq}`, title: '补充说明发送失败', text: ev.data?.error || '未知聊天错误', level: 'warning', details: [] };
   }
+  if (subtype === 'session_chat') {
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      title: '会话消息已发送',
+      text: ev.data?.message || '已发送到当前 Claude session。',
+      level: 'normal',
+      details: [],
+    };
+  }
   if (subtype === 'task_started') {
     return {
       kind: 'system',
@@ -937,10 +947,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .message-stream {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 16px;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(88, 166, 255, .06), transparent 32%),
+    linear-gradient(180deg, rgba(13, 17, 23, .88), rgba(13, 17, 23, .96));
+  border: 1px solid rgba(139, 148, 158, .14);
+  border-radius: 18px;
+  padding: 18px clamp(14px, 3vw, 34px);
   flex: 1;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -962,7 +974,7 @@ onBeforeUnmount(() => {
 .ms-item {
   display: flex;
   gap: 12px;
-  padding: 4px 0;
+  padding: 6px 0;
   animation: fadeSlideIn .25s ease;
 }
 @keyframes fadeSlideIn {
@@ -1013,6 +1025,80 @@ onBeforeUnmount(() => {
 .dot-blue.pulse { color: var(--accent); }
 .dot-red.pulse { color: var(--red); }
 .ms-body { flex: 1; min-width: 0; padding-right: 4px; }
+.chat-row {
+  gap: 0;
+  padding: 16px 0;
+}
+.chat-row .ms-rail {
+  display: none;
+}
+.chat-row .ms-body {
+  display: flex;
+  padding: 0;
+}
+.assistant-row .ms-body {
+  justify-content: flex-start;
+}
+.user-row .ms-body {
+  justify-content: flex-end;
+}
+.chat-message-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(100%, 900px);
+}
+.user-row .chat-message-wrap {
+  justify-content: flex-end;
+}
+.chat-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+}
+.assistant-avatar {
+  color: #dbeafe;
+  background: linear-gradient(135deg, rgba(31, 111, 235, .92), rgba(88, 166, 255, .72));
+}
+.user-avatar {
+  color: #dcfce7;
+  background: linear-gradient(135deg, rgba(35, 134, 54, .92), rgba(63, 185, 80, .72));
+}
+.chat-bubble {
+  min-width: 0;
+  max-width: min(820px, calc(100% - 42px));
+}
+.assistant-bubble {
+  color: var(--text);
+  padding-top: 2px;
+}
+.user-bubble {
+  background: linear-gradient(180deg, rgba(28, 35, 51, .96), rgba(22, 27, 34, .96));
+  border: 1px solid rgba(139, 148, 158, .2);
+  border-radius: 18px 18px 6px 18px;
+  padding: 12px 15px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .16);
+}
+.chat-name {
+  margin-bottom: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.user-bubble .chat-name {
+  text-align: right;
+  color: rgba(230, 237, 243, .66);
+}
 .ms-card { border-radius: 8px; overflow: hidden; }
 .card-thinking {
   background: rgba(188,140,255,.05);
@@ -1044,13 +1130,13 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 .card-msg { background: transparent; border: none; }
-.card-user {
-  background: rgba(63, 185, 80, 0.08);
-  border: 1px solid rgba(63, 185, 80, 0.18);
-  border-radius: 10px;
-}
-.msg-content { font-size: 13px; line-height: 1.8; color: var(--text); }
+.card-user { background: transparent; border: none; }
+.msg-content { font-size: 14px; line-height: 1.78; color: var(--text); }
+.assistant-bubble .msg-content { font-size: 15px; }
+.user-bubble .msg-content { font-size: 14px; line-height: 1.65; }
 .msg-content :deep(p) { margin: 4px 0; }
+.msg-content :deep(p:first-child) { margin-top: 0; }
+.msg-content :deep(p:last-child) { margin-bottom: 0; }
 .msg-content :deep(code) {
   background: var(--surface2);
   padding: 2px 6px;
@@ -1074,7 +1160,30 @@ onBeforeUnmount(() => {
 .msg-content :deep(table) { border-collapse: collapse; margin: 8px 0; width: 100%; }
 .msg-content :deep(th), .msg-content :deep(td) { border: 1px solid var(--border); padding: 6px 10px; font-size: 12px; }
 .msg-content :deep(th) { background: var(--surface2); font-weight: 600; }
-.card-tool { border-radius: 8px; padding: 10px 14px; }
+.ms-tool,
+.ms-progress,
+.ms-sys,
+.ms-stats,
+.ms-complete,
+.ms-thinking,
+.ms-error,
+.ms-hitl {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.ms-tool .ms-rail,
+.ms-progress .ms-rail,
+.ms-sys .ms-rail,
+.ms-stats .ms-rail,
+.ms-complete .ms-rail,
+.ms-thinking .ms-rail {
+  opacity: .45;
+}
+.card-tool {
+  border-radius: 12px;
+  padding: 8px 10px;
+  opacity: .88;
+}
 .tool-read { background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.12); }
 .tool-write { background: rgba(63,185,80,.05); border: 1px solid rgba(63,185,80,.12); }
 .tool-bash { background: rgba(210,153,34,.05); border: 1px solid rgba(210,153,34,.12); }
@@ -1104,7 +1213,7 @@ onBeforeUnmount(() => {
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
-  background: rgba(255,255,255,.06);
+  background: rgba(255,255,255,.04);
   color: var(--text);
   letter-spacing: .3px;
 }
@@ -1120,13 +1229,13 @@ onBeforeUnmount(() => {
 .tool-state-ok { background: rgba(63,185,80,.1); color: var(--green); }
 .tool-state-error { background: rgba(248,81,73,.1); color: var(--red); }
 .tool-summary {
-  padding: 0 12px 8px;
-  font-size: 12px;
+  padding: 0 8px 6px;
+  font-size: 11px;
   color: var(--text2);
   line-height: 1.5;
 }
 .ms-tool-input {
-  margin: 0 12px 8px;
+  margin: 0 8px 6px;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -1140,7 +1249,7 @@ onBeforeUnmount(() => {
   word-break: break-all;
   display: block;
 }
-.tool-result-inline { margin: 0 12px 4px; }
+.tool-result-inline { margin: 0 8px 2px; }
 .ms-result-card {
   display: flex;
   align-items: flex-start;
@@ -1164,9 +1273,9 @@ onBeforeUnmount(() => {
 .ms-sys-card {
   font-size: 12px;
   color: var(--text2);
-  padding: 6px 12px;
-  background: rgba(139,148,158,.04);
-  border-radius: 6px;
+  padding: 6px 10px;
+  background: rgba(139,148,158,.035);
+  border-radius: 999px;
 }
 .ms-sys-card.sys-normal {
   border-left: 3px solid rgba(139,148,158,.35);
@@ -1201,10 +1310,10 @@ onBeforeUnmount(() => {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: rgba(210,153,34,.04);
   border: 1px solid rgba(210,153,34,.1);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 .stat-item { display: flex; flex-direction: column; gap: 2px; }
 .stat-val { font-size: 14px; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
@@ -1217,7 +1326,12 @@ onBeforeUnmount(() => {
 }
 .hitl-warn { font-size: 12px; color: var(--red); font-weight: 600; margin-bottom: 6px; }
 .hitl-cmd { font-size: 11px; color: var(--text2); font-family: monospace; word-break: break-all; }
-.typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
+.ms-typing .ms-rail { display: none; }
+.ms-typing .ms-body {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.typing-indicator { display: flex; gap: 4px; padding: 8px 42px; }
 .typing-indicator span {
   width: 6px;
   height: 6px;
@@ -1347,7 +1461,11 @@ onBeforeUnmount(() => {
   background: rgba(88, 166, 255, .1);
   color: var(--accent);
 }
-.card-progress { border-left: 3px solid var(--accent); }
+.card-progress {
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(22, 27, 34, .54);
+}
 .card-progress.progress-completed { border-left-color: var(--green); }
 .card-progress.progress-failed { border-left-color: var(--red); }
 .progress-badge { margin-left: auto; }
@@ -1430,5 +1548,31 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .message-stream {
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+  .chat-row {
+    padding: 13px 0;
+  }
+  .chat-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+  }
+  .chat-message-wrap {
+    gap: 9px;
+  }
+  .chat-bubble {
+    max-width: calc(100% - 37px);
+  }
+  .user-bubble {
+    padding: 10px 12px;
+  }
+  .assistant-bubble .msg-content {
+    font-size: 14px;
+  }
 }
 </style>

@@ -136,7 +136,7 @@
           <div class="chat-composer-wrap">
             <div class="chat-hint">
               <template v-if="activePanel.kind === 'diagnose'">
-                运行中会直接注入当前诊断会话；已完成/失败/停止时会以 continue 方式恢复
+                消息只发送到已选诊断的 Claude session，不会重新启动诊断流程
               </template>
               <template v-else>
                 Enter to send · Shift+Enter for newline
@@ -153,7 +153,7 @@
               />
               <div class="chat-composer-actions">
                 <button class="btn btn-primary chat-send-btn" @click="submitMessage" :disabled="!draft.trim() || loading">
-                  {{ activePanel.kind === 'diagnose' ? '继续诊断' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
+                  {{ activePanel.kind === 'diagnose' ? '发送到会话' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
                 </button>
               </div>
             </div>
@@ -548,6 +548,17 @@ function handleWSMessage(message) {
       refreshDiagnosePanelsFromCatalog();
       break;
     }
+    case 'run_chat_ack':
+    case 'run_continue_ack': {
+      const panel = panels.value.find(item => item.kind === 'diagnose' && item.runId === message.data?.runId);
+      if (panel) {
+        if (message.type === 'run_continue_ack') {
+          panel.status = message.data?.status || 'running';
+        }
+        syncCurrentSessionIfActive(panel);
+      }
+      break;
+    }
     case 'error': {
       const requestId = message.data?.clientRequestId || null;
       const pending = requestId ? pendingChatRequests.get(requestId) : null;
@@ -725,23 +736,15 @@ async function submitMessage() {
       if (panel.title === 'New Chat') panel.title = text.slice(0, 28);
       syncCurrentSessionIfActive(panel);
     } else if (session.kind === 'diagnose' && session.runId) {
-      const running = ['running', 'awaiting_input'].includes(panel.status);
-      const sent = running
-        ? sendWS({ type: 'run_chat', runId: session.runId, message: text })
-        : sendWS({ type: 'run_continue', runId: session.runId, followUpMessage: text });
+      const sent = sendWS({ type: 'run_chat', runId: session.runId, message: text });
 
       if (!sent) {
-        if (running) {
-          await api.sendChat(session.runId, text);
-        } else {
-          await api.continueDiagnosis(session.runId, text);
-        }
+        await api.sendChat(session.runId, text);
       }
-      panel.status = 'running';
-      appendPanelEvent(panel, {
-        type: 'user_message',
-        data: { role: 'user', content: text, source: 'chat_ui' },
-      });
+      panel.metadata.run = {
+        ...(panel.metadata.run || {}),
+        error_message: '',
+      };
       subscribeDiagnosePanel(panel);
       syncCurrentSessionIfActive(panel);
     }
