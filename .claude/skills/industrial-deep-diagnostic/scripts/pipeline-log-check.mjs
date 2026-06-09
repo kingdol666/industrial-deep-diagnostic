@@ -76,10 +76,22 @@ function nonEmptyArray(value) {
 }
 
 function requiredAgentsForObservedArtifacts() {
-  return knownAgents.filter((agent) => {
+  const required = new Set(knownAgents.filter((agent) => {
     const hints = agentArtifactHints[agent] || [];
     return hints.some((hint) => exists(hint));
-  });
+  }));
+
+  if (exists('report.md') || exists('run_summary.json')) {
+    required.add('judge');
+    required.add('reporter');
+  }
+  if (exists('optimizer.md')) {
+    required.add('judge');
+    required.add('reporter');
+    required.add('report-reviewer');
+  }
+
+  return Array.from(required);
 }
 
 function buildMissingLogReport(requiredAgents, critical = true) {

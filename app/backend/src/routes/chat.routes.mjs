@@ -13,6 +13,8 @@ router.post('/start', async (req, res) => {
       data: {
         chatId: result.chatId,
         sessionId: result.sessionId,
+        originSessionId: result.originSessionId || result.sessionId || null,
+        currentSessionId: result.currentSessionId || null,
         streamUrl: `/api/chat/stream/${result.chatId}`,
       },
     });
@@ -80,6 +82,8 @@ router.post('/send/:chatId', async (req, res) => {
       data: {
         chatId: result.chatId,
         sessionId: result.sessionId,
+        originSessionId: result.originSessionId || result.sessionId || null,
+        currentSessionId: result.currentSessionId || null,
         streamUrl: `/api/chat/stream/${result.chatId}`,
       },
     });
@@ -127,12 +131,19 @@ router.patch('/session/:chatId', (req, res) => {
 });
 
 // DELETE /api/chat/session/:chatId — delete chat session + history
-router.delete('/session/:chatId', (req, res) => {
-  const deleted = deleteChatSession(req.params.chatId);
+router.delete('/session/:chatId', async (req, res) => {
+  const deleted = await deleteChatSession(req.params.chatId);
   if (!deleted) {
     return res.status(404).json({ success: false, error: 'Chat session not found' });
   }
-  res.json({ success: true, data: { chatId: req.params.chatId, deleted: true } });
+  res.json({
+    success: true,
+    data: {
+      chatId: req.params.chatId,
+      deleted: true,
+      removedClaudeArtifacts: deleted.removedClaudeArtifacts || [],
+    },
+  });
 });
 
 // GET /api/chat/list — list persisted chat sessions

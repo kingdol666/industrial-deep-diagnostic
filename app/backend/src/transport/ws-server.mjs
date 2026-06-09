@@ -108,6 +108,8 @@ function makeChatSummary(session) {
   return {
     chatId: session.chatId,
     sessionId: session.sessionId || null,
+    originSessionId: session.originSessionId || session.sessionId || null,
+    currentSessionId: session.currentSessionId || null,
     title: session.title || '',
     status: session.status || 'unknown',
     createdAt: session.createdAt || null,
@@ -281,6 +283,8 @@ function buildChatSnapshot(chatId) {
       session: {
         chatId: history.session.chatId,
         sessionId: history.session.sessionId || null,
+        originSessionId: history.session.originSessionId || history.session.sessionId || null,
+        currentSessionId: history.session.currentSessionId || null,
         title: history.session.title || '',
         status: history.session.status || 'unknown',
         createdAt: history.session.createdAt || null,
@@ -535,6 +539,8 @@ export function initWebSocket(httpServer) {
                   data: {
                     chatId: result.chatId,
                     sessionId: result.sessionId || null,
+                    originSessionId: result.originSessionId || result.sessionId || null,
+                    currentSessionId: result.currentSessionId || null,
                     clientRequestId: msg.clientRequestId || null,
                   },
                 });
@@ -558,6 +564,8 @@ export function initWebSocket(httpServer) {
                   data: {
                     chatId: result.chatId,
                     sessionId: result.sessionId || null,
+                    originSessionId: result.originSessionId || result.sessionId || null,
+                    currentSessionId: result.currentSessionId || null,
                     clientRequestId: msg.clientRequestId || null,
                   },
                 });

@@ -23,6 +23,12 @@ function run(scriptName) {
   }).toString();
 }
 
+function runWithArgs(scriptName, extraArgs = []) {
+  return execFileSync('node', [join(skillPath, 'scripts', scriptName), runDir, ...extraArgs], {
+    stdio: ['ignore', 'pipe', 'pipe']
+  }).toString();
+}
+
 function logEvent(event, extraArgs = []) {
   try {
     execFileSync('node', [join(skillPath, 'scripts', 'append-pipeline-event.mjs'), runDir, '--event', event, '--agent', 'main-agent', ...extraArgs], {
@@ -48,9 +54,51 @@ try {
 }
 
 try {
+  results.judge_gate_before_summary = JSON.parse(runWithArgs('judge-gate-check.mjs', ['--skip-summary']));
+} catch (error) {
+  const stdout = error.stdout ? String(error.stdout) : '';
+  try {
+    results.judge_gate_before_summary = JSON.parse(stdout);
+  } catch (_) {
+    results.judge_gate_before_summary = { ok: false, error: String(error.stderr || error.stdout || error.message) };
+  }
+  logEvent('run_failed', [
+    '--step',
+    'present',
+    '--status',
+    'JUDGE_GATE_NOT_PASSED',
+    '--errors',
+    'Judge gate failed before run finalization'
+  ]);
+  console.error(JSON.stringify({ ok: false, error: 'JUDGE_GATE_NOT_PASSED', run_dir: runDir, results }, null, 2));
+  process.exit(1);
+}
+
+try {
   results.synthesize_run_summary = JSON.parse(run('synthesize-run-summary.mjs'));
 } catch (error) {
   results.synthesize_run_summary = { ok: false, error: String(error.stderr || error.stdout || error.message) };
+}
+
+try {
+  results.judge_gate_after_summary = JSON.parse(runWithArgs('judge-gate-check.mjs'));
+} catch (error) {
+  const stdout = error.stdout ? String(error.stdout) : '';
+  try {
+    results.judge_gate_after_summary = JSON.parse(stdout);
+  } catch (_) {
+    results.judge_gate_after_summary = { ok: false, error: String(error.stderr || error.stdout || error.message) };
+  }
+  logEvent('run_failed', [
+    '--step',
+    'present',
+    '--status',
+    'JUDGE_GATE_NOT_PASSED',
+    '--errors',
+    'Judge gate failed after run summary synthesis'
+  ]);
+  console.error(JSON.stringify({ ok: false, error: 'JUDGE_GATE_NOT_PASSED', run_dir: runDir, results }, null, 2));
+  process.exit(1);
 }
 
 try {

@@ -235,6 +235,8 @@ function createBasePanel(kind, title) {
     chatId: null,
     runId: null,
     sessionId: null,
+    originSessionId: null,
+    currentSessionId: null,
     status: kind === 'chat' ? 'draft' : 'pending',
     events: [],
     subscribed: false,
@@ -260,6 +262,8 @@ function buildSessionFromPanel(panel) {
     chatId: panel.chatId || null,
     runId: panel.runId || null,
     sessionId: panel.sessionId || null,
+    originSessionId: panel.originSessionId || null,
+    currentSessionId: panel.currentSessionId || null,
     title: panel.title || null,
     status: panel.status || null,
   };
@@ -296,12 +300,16 @@ function ensureDiagnosePanel(run) {
     panel = createBasePanel('diagnose', buildDiagnoseTitle(normalized));
     panel.runId = normalized.run_id;
     panel.sessionId = normalized.session_id || normalized.sessionId || null;
+    panel.originSessionId = normalized.session_id || normalized.sessionId || panel.originSessionId || null;
+    panel.currentSessionId = normalized.session_id || normalized.sessionId || panel.currentSessionId || null;
     panel.status = normalized.engineStatus || normalized.status || 'pending';
     panel.metadata.run = normalized;
     panels.value.push(panel);
   } else {
     panel.title = buildDiagnoseTitle(normalized);
     panel.sessionId = normalized.session_id || normalized.sessionId || panel.sessionId;
+    panel.originSessionId = normalized.session_id || normalized.sessionId || panel.originSessionId || panel.sessionId;
+    panel.currentSessionId = normalized.session_id || normalized.sessionId || panel.currentSessionId || panel.sessionId;
     panel.status = normalized.engineStatus || normalized.status || panel.status;
     panel.metadata.run = normalized;
   }
@@ -416,6 +424,8 @@ function restoreChatEvent(row) {
 function setChatSnapshot(panel, payload) {
   panel.chatId = payload.session?.chatId || payload.chatId || panel.chatId;
   panel.sessionId = payload.session?.sessionId || panel.sessionId;
+  panel.originSessionId = payload.session?.originSessionId || payload.session?.sessionId || panel.originSessionId || panel.sessionId;
+  panel.currentSessionId = payload.session?.currentSessionId || panel.currentSessionId || panel.sessionId;
   panel.title = payload.session?.title || panel.title;
   panel.status = payload.session?.status || panel.status;
   panel.events = (payload.events || []).map(item => restoreChatEvent(item));
@@ -427,6 +437,8 @@ function setDiagnoseSnapshot(panel, payload) {
   panel.status = payload.liveStatus || payload.run?.engineStatus || payload.run?.status || panel.status;
   panel.metadata.run = normalizeRunSummary(payload.run || panel.metadata.run || {});
   panel.sessionId = payload.run?.session_id || payload.run?.sessionId || panel.metadata.run?.session_id || panel.metadata.run?.sessionId || panel.sessionId;
+  panel.originSessionId = panel.sessionId || panel.originSessionId;
+  panel.currentSessionId = panel.sessionId || panel.currentSessionId;
   if (!panel.title || panel.title === 'Diagnose Session') {
     panel.title = buildDiagnoseTitle(payload.run || panel.metadata.run);
   }
@@ -502,6 +514,8 @@ function handleWSMessage(message) {
       if (panel?.kind === 'chat') {
         panel.chatId = message.data?.chatId || panel.chatId;
         panel.sessionId = message.data?.sessionId || panel.sessionId;
+        panel.originSessionId = message.data?.originSessionId || message.data?.sessionId || panel.originSessionId || panel.sessionId;
+        panel.currentSessionId = message.data?.currentSessionId || panel.currentSessionId || panel.sessionId;
         panel.status = 'active';
         subscribeChatPanel(panel);
         syncCurrentSessionIfActive(panel);
@@ -596,6 +610,8 @@ function mergeChatPanelsFromCatalog() {
     }
     panel.chatId = entry.chatId || panel.chatId;
     panel.sessionId = entry.sessionId || panel.sessionId;
+    panel.originSessionId = entry.originSessionId || entry.sessionId || panel.originSessionId || panel.sessionId;
+    panel.currentSessionId = entry.currentSessionId || panel.currentSessionId || panel.sessionId;
     panel.title = entry.title || panel.title;
     panel.status = entry.status || panel.status;
     syncCurrentSessionIfActive(panel);
@@ -703,6 +719,8 @@ async function submitMessage() {
           const result = await api.startChat({ prompt: text, permissionMode: 'bypassPermissions' });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
+          panel.originSessionId = result.originSessionId || result.sessionId || null;
+          panel.currentSessionId = result.currentSessionId || result.sessionId || null;
           subscribeChatPanel(panel);
           syncCurrentSessionIfActive(panel);
         }
@@ -717,6 +735,7 @@ async function submitMessage() {
           payload: {
             message: text,
             sessionId: session.sessionId,
+            originSessionId: session.originSessionId || session.sessionId,
             permissionMode: 'bypassPermissions',
           },
         });
@@ -725,10 +744,13 @@ async function submitMessage() {
           const result = await api.sendChatMessage(session.chatId, {
             message: text,
             sessionId: session.sessionId,
+            originSessionId: session.originSessionId || session.sessionId,
             permissionMode: 'bypassPermissions',
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || panel.sessionId;
+          panel.originSessionId = result.originSessionId || result.sessionId || panel.originSessionId || panel.sessionId;
+          panel.currentSessionId = result.currentSessionId || panel.currentSessionId || panel.sessionId;
           subscribeChatPanel(panel);
           syncCurrentSessionIfActive(panel);
         }

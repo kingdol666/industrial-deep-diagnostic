@@ -115,8 +115,8 @@ const dataSources = normalizeDataSources(inputManifest);
 const judgeVerdict = typeof judgeFeedback.verdict === 'object'
   ? judgeFeedback.verdict
   : {
-      score: judgeFeedback.score || judgeFeedback.judge_score || 0,
-      verdict: judgeFeedback.verdict || (judgeFeedback.score >= 90 ? 'pass' : 'needs_repair')
+      score: judgeFeedback.overall_score ?? judgeFeedback.score ?? judgeFeedback.judge_score ?? 0,
+      verdict: judgeFeedback.verdict || ((judgeFeedback.overall_score ?? judgeFeedback.score ?? judgeFeedback.judge_score ?? 0) >= 90 ? 'pass' : 'needs_repair')
     };
 
 const auditVerdict = optimizerExists

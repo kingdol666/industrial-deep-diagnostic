@@ -83,6 +83,7 @@ export function initDB() {
       chat_id TEXT NOT NULL UNIQUE,
       title TEXT,
       session_id TEXT,
+      origin_session_id TEXT,
       status TEXT DEFAULT 'active',
       model TEXT DEFAULT '${sqlQuote(config.claude.model)}',
       permission_mode TEXT DEFAULT 'bypassPermissions',
@@ -111,6 +112,17 @@ export function initDB() {
   const hasReportLang = cols.some(c => c.name === 'report_language');
   if (!hasReportLang) {
     db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN report_language TEXT DEFAULT '${sqlQuote(config.diagnosis.default_language)}'`);
+  }
+
+  const chatCols = db.prepare('PRAGMA table_info(chat_sessions)').all();
+  const hasOriginSessionId = chatCols.some(c => c.name === 'origin_session_id');
+  if (!hasOriginSessionId) {
+    db.exec('ALTER TABLE chat_sessions ADD COLUMN origin_session_id TEXT');
+    db.exec(`
+      UPDATE chat_sessions
+      SET origin_session_id = session_id
+      WHERE origin_session_id IS NULL AND session_id IS NOT NULL
+    `);
   }
 
   // Migration: rebuild diagnosis_logs with ON DELETE CASCADE if missing
@@ -190,13 +202,14 @@ const stmts = {
   getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
   updateRunSession: db.prepare('UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime(\'now\') WHERE run_id = @runId'),
   insertChatSession: db.prepare(`
-    INSERT INTO chat_sessions (chat_id, title, session_id, status, model, permission_mode)
-    VALUES (@chatId, @title, @sessionId, @status, @model, @permissionMode)
+    INSERT INTO chat_sessions (chat_id, title, session_id, origin_session_id, status, model, permission_mode)
+    VALUES (@chatId, @title, @sessionId, @originSessionId, @status, @model, @permissionMode)
   `),
   updateChatSession: db.prepare(`
     UPDATE chat_sessions
     SET title = COALESCE(@title, title),
         session_id = COALESCE(@sessionId, session_id),
+        origin_session_id = COALESCE(origin_session_id, @originSessionId, session_id),
         status = COALESCE(@status, status),
         updated_at = datetime('now'),
         completed_at = CASE

@@ -148,6 +148,89 @@ function enforceStepPrerequisites(manifest, step, eventName, agent, extraData) {
   }
 }
 
+function judgeGateIssues() {
+  const judgePath = join(runDir, '05_review', 'judge_feedback.json');
+  if (!fs.existsSync(judgePath)) {
+    return ['05_review/judge_feedback.json is missing'];
+  }
+
+  const judge = readJson(judgePath, null);
+  if (!judge || typeof judge !== 'object') {
+    return ['05_review/judge_feedback.json is unreadable'];
+  }
+
+  const score = Number(judge.overall_score ?? judge.score ?? judge.judge_score ?? 0);
+  const verdict = typeof judge.verdict === 'object' ? judge.verdict?.verdict : judge.verdict;
+  const blockingIssues = Array.isArray(judge.blocking_issues) ? judge.blocking_issues.length : 0;
+  const reasoningBlocking = Array.isArray(judge.reasoning_chain_audit?.blocking_issues)
+    ? judge.reasoning_chain_audit.blocking_issues.length
+    : 0;
+  const noOverClaimingValue = judge.criteria_scores?.no_over_claiming?.blocking_issues;
+  const noOverClaimingBlocking = Array.isArray(noOverClaimingValue)
+    ? noOverClaimingValue.length
+    : Number(noOverClaimingValue ?? 0);
+  const issues = [];
+
+  if (!Number.isFinite(score) || score < 90) issues.push(`judge overall_score ${Number.isFinite(score) ? score : 'missing'} < 90`);
+  if (verdict !== 'pass') issues.push(`judge verdict is ${verdict || 'missing'}, not pass`);
+  if (blockingIssues > 0 || reasoningBlocking > 0 || noOverClaimingBlocking > 0) {
+    issues.push(`judge blocking issues present (${blockingIssues + reasoningBlocking + noOverClaimingBlocking})`);
+  }
+
+  return issues;
+}
+
+function enforceReporterJudgeGate(step, eventName, agent) {
+  if (!['step_start', 'agent_start'].includes(eventName)) return;
+  if (step !== 'reporter' && agent !== 'reporter') return;
+
+  const issues = judgeGateIssues();
+  if (issues.length > 0) {
+    console.error(
+      JSON.stringify(
+        {
+          ok: false,
+          error: 'JUDGE_GATE_NOT_PASSED',
+          step,
+          agent,
+          issues
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
+}
+
+function enforceCompletionJudgeGate(step, eventName, status) {
+  const claimsFinalCompletion =
+    eventName === 'run_completed' ||
+    eventName === 'artifact_finalize_complete' ||
+    (eventName === 'step_complete' && step === 'present') ||
+    (eventName === 'artifact_check_complete' && (status === 'PASS' || extraData.integrity_check === 'PASS'));
+
+  if (!claimsFinalCompletion) return;
+
+  const issues = judgeGateIssues();
+  if (issues.length > 0) {
+    console.error(
+      JSON.stringify(
+        {
+          ok: false,
+          error: 'JUDGE_GATE_NOT_PASSED',
+          event: eventName,
+          step,
+          issues
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
+}
+
 if (!runDir) {
   console.error('Usage: node append-pipeline-event.mjs <run_dir> --event <event> [--agent <agent>] [--step <pipeline_step>] [--files a,b] [--data <json>] [--errors <text>] [--status <status>]');
   process.exit(1);
@@ -207,6 +290,8 @@ if (status) {
 }
 
 enforceStepPrerequisites(manifest, inferredStep, eventName, agent, extraData);
+enforceReporterJudgeGate(inferredStep, eventName, agent);
+enforceCompletionJudgeGate(inferredStep, eventName, status);
 
 if (filesWritten.length > 0 && ['agent_complete', 'step_complete', 'artifact_finalize_complete'].includes(eventName) && !allowMissingFiles) {
   const missingFiles = filesWritten.filter((filePath) => !fs.existsSync(join(runDir, filePath)));

@@ -243,6 +243,38 @@ For EACH key correlation claim in the diagnosis (|r| > 0.5 or used as primary ev
 
 If ANY key claim fails sampling verification → **WARNING** (not automatically a BLOCKING issue, but reduces evidence score).
 
+## Step 0.8: Stability / Reproducibility Audit (MANDATORY FINAL-GATE CHECK)
+
+The Judge must verify that the diagnosis is stable for the same data and objective, instead of being a narrative-only reinterpretation.
+
+1. **Canonical artifact traceability**
+   - Confirm the primary finding and confidence are traceable to `data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, and `reasoning_chain.json`.
+   - Confirm `confidence.overall_confidence.score` and each hypothesis score can be reconstructed from `confidence.adjustment_log`, evidence ranks, and any `confidence_ceilings_applied`.
+   - If confidence changes are asserted without an adjustment log source → **BLOCKING ISSUE**.
+
+2. **Repeat-run comparison when available**
+   - If the prompt, `run_config.json`, or workspace provides a prior comparable `run_summary.json`, `diagnosis.json`, or `confidence.json`, compare primary finding, `diagnosis_type`, top hypotheses, and `overall_confidence.score`.
+   - If the same data/objective produces a different primary finding or a confidence shift >10 points, require a concrete evidence delta: new data, changed ontology, changed preprocessing, changed target column, or corrected validation issue.
+   - If no concrete evidence delta exists → **BLOCKING ISSUE**.
+
+3. **No forced high diagnostic confidence**
+   - Do not require `confidence.overall_confidence.score >= 90` when the data is genuinely ambiguous. `COMPETING_SET` and `NEEDS_DATA` may have honest lower diagnostic confidence.
+   - The final completion gate is the Judge quality score (`overall_score >= 90`) plus transparent uncertainty, not artificial inflation of diagnostic confidence.
+
+Document this under `stability_reproducibility_audit` in `judge_feedback.json` with:
+```json
+{
+  "stability_reproducibility_audit": {
+    "canonical_artifacts_traceable": true,
+    "confidence_reconstructable_from_adjustment_log": true,
+    "prior_run_compared": false,
+    "confidence_delta_points": 0,
+    "finding_drift": "none",
+    "issues": []
+  }
+}
+```
+
 ## Step 1: Evaluate 10 Criteria
 
 Score each 0-10:
@@ -317,6 +349,14 @@ Thresholds (write the lowercase enum value to JSON):
 **Score ceilings:**
 - Score cannot exceed 85 if `sorting_validation.time_sorted == false` AND lag correlations are used as primary evidence.
 - Score cannot exceed 65 if the diagnosis assigns >65 confidence to a single hypothesis that is INDISTINGUISHABLE from competing alternatives (v6.0 discriminability rule).
+- Score cannot exceed 89 if confidence is not reconstructable from `confidence.adjustment_log` and evidence ceilings.
+- Score cannot exceed 89 if an available prior same-data run has unexplained primary-finding drift or confidence drift >10 points.
+
+**Final pass invariant (HARD):**
+- `verdict` may be `"pass"` only if `overall_score >= 90`.
+- `verdict` may be `"pass"` only if `blocking_issues`, `reasoning_chain_audit.blocking_issues`, and `criteria_scores.no_over_claiming.blocking_issues` are all empty/zero.
+- If any blocking issue exists, force `verdict` to `needs_repair`, `major_issues`, or `fail` according to severity even if the weighted numeric score would otherwise be high.
+- A passed Judge gate means the report is credible and uncertainty is honest; it does **not** mean the diagnostic confidence must be artificially raised to 90 when evidence is insufficient.
 
 ## Step 3: Generate Feedback
 

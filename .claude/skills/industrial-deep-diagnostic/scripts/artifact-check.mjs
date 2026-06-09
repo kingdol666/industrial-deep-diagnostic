@@ -357,6 +357,37 @@ function validateDiagnosticQuality(label, critical = true) {
   }
 }
 
+function validateJudgeGate(label, critical = true) {
+  try {
+    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'judge-gate-check.mjs'), runDir], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    return {
+      label,
+      path: '05_review/judge_feedback.json',
+      status: 'VALID',
+      critical,
+      detail: JSON.parse(String(stdout))
+    };
+  } catch (error) {
+    const stdout = error.stdout ? String(error.stdout).trim() : '';
+    const stderr = error.stderr ? String(error.stderr).trim() : '';
+    let detail = null;
+    if (stdout) {
+      try {
+        detail = JSON.parse(stdout);
+      } catch (_) {}
+    }
+    return {
+      label,
+      path: '05_review/judge_feedback.json',
+      status: `INVALID${stderr ? `: ${stderr.slice(0, 300)}` : ''}`,
+      critical,
+      detail
+    };
+  }
+}
+
 function validateVisualExecutionProof() {
   const visual = readJsonIfExists('03_figures/visual_analysis.json');
   if (!visual) {
@@ -530,11 +561,11 @@ const checks = [
   check('Reasoning Chain', '04_diagnostics/reasoning_chain.json'),
 
   // Stage 5: Judge
-  check('Judge Feedback', '05_review/judge_feedback.json', false),
+  check('Judge Feedback', '05_review/judge_feedback.json'),
 
   // Stage 6: Report
   check('Report', 'report.md', false),
-  check('Run Summary', 'run_summary.json', false),
+  check('Run Summary', 'run_summary.json'),
 
   // Stage 7: Optimizer
   check('Optimizer', 'optimizer.md', false),
@@ -555,9 +586,10 @@ const schemaChecks = [
   validate('Evidence', 'schemas/evidence_schema.json', '04_diagnostics/evidence.json'),
   validate('Confidence', 'schemas/confidence_schema.json', '04_diagnostics/confidence.json'),
   validate('Reasoning Chain', 'schemas/reasoning_chain_schema.json', '04_diagnostics/reasoning_chain.json'),
-  validate('Judge Feedback', 'schemas/judge_feedback_schema.json', '05_review/judge_feedback.json', false),
+  validate('Judge Feedback', 'schemas/judge_feedback_schema.json', '05_review/judge_feedback.json'),
+  validateJudgeGate('Judge Final Report Gate'),
   validateReportContentContract(),
-  validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json', false),
+  validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json'),
   validateOptimizerMarkdown(),
   validateDeliveryContract(),
   validatePipelineLog('Pipeline Event Log'),

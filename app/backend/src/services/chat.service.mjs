@@ -2,6 +2,9 @@
 // Supports custom config: model, permissionMode, maxTurns, tools, session resume
 
 import { EventEmitter } from 'events';
+import { existsSync, readdirSync, rmSync } from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
@@ -23,6 +26,65 @@ function normalizeClaudeSessionId(value) {
   if (!value || typeof value !== 'string') return null;
   const trimmed = value.trim();
   return UUID_RE.test(trimmed) ? trimmed : null;
+}
+
+function getOriginSessionId(source) {
+  if (!source) return null;
+  return normalizeClaudeSessionId(source.origin_session_id || source.originSessionId || null);
+}
+
+function getEffectiveResumeSessionId(source) {
+  if (!source) return null;
+  return getOriginSessionId(source)
+    || normalizeClaudeSessionId(source.session_id || source.sessionId || null)
+    || null;
+}
+
+function safeRemovePath(targetPath, removedPaths) {
+  if (!targetPath || !existsSync(targetPath)) return;
+  rmSync(targetPath, { recursive: true, force: true });
+  removedPaths.push(targetPath);
+}
+
+function collectClaudeSessionArtifactPaths(sessionId) {
+  const normalized = normalizeClaudeSessionId(sessionId);
+  if (!normalized) return [];
+
+  const claudeRoot = join(homedir(), '.claude');
+  const candidates = [
+    join(claudeRoot, 'security', `security_warnings_state_${normalized}.json`),
+    join(claudeRoot, 'security', `security_warnings_state_${normalized}.lock`),
+    join(claudeRoot, 'session-env', normalized),
+    join(claudeRoot, 'hud', 'cache', `stdin.${normalized}.json`),
+    join(claudeRoot, 'hud', 'cache', `statusline.${normalized}.txt`),
+  ];
+
+  const projectsRoot = join(claudeRoot, 'projects');
+  if (existsSync(projectsRoot)) {
+    for (const workspaceName of readdirSync(projectsRoot)) {
+      const workspaceDir = join(projectsRoot, workspaceName);
+      candidates.push(join(workspaceDir, `${normalized}.jsonl`));
+      candidates.push(join(workspaceDir, normalized));
+    }
+  }
+
+  return candidates;
+}
+
+function deleteClaudeSessionArtifacts(sessionIds = []) {
+  const removedPaths = [];
+  const seen = new Set();
+
+  for (const rawSessionId of sessionIds) {
+    const sessionId = normalizeClaudeSessionId(rawSessionId);
+    if (!sessionId || seen.has(sessionId)) continue;
+    seen.add(sessionId);
+    for (const targetPath of collectClaudeSessionArtifactPaths(sessionId)) {
+      safeRemovePath(targetPath, removedPaths);
+    }
+  }
+
+  return removedPaths;
 }
 
 /**
@@ -82,8 +144,13 @@ export async function startChat(params = {}) {
 
   // Start SDK query
   const query = queryFn({ prompt, options });
-  activeChats.set(chatId, { query, emitter });
   const sdkSessionId = query.sessionId || null;
+  activeChats.set(chatId, {
+    query,
+    emitter,
+    sessionId: sdkSessionId || null,
+    originSessionId: sessionId || null,
+  });
 
   const existingSession = stmts.getChatSessionByChatId.get(chatId);
   if (existingSession) {
@@ -91,6 +158,7 @@ export async function startChat(params = {}) {
       chatId,
       title: title || null,
       sessionId: sdkSessionId,
+      originSessionId: getOriginSessionId(existingSession) || sdkSessionId,
       status: 'active',
     });
   } else {
@@ -98,6 +166,7 @@ export async function startChat(params = {}) {
       chatId,
       title: title || prompt.slice(0, 60),
       sessionId: sdkSessionId,
+      originSessionId: sdkSessionId,
       status: 'active',
       model: model || 'default',
       permissionMode,
@@ -135,6 +204,7 @@ export async function startChat(params = {}) {
             const entry = activeChats.get(chatId);
             if (entry) {
               entry.sessionId = msg.session_id;
+              if (!entry.originSessionId) entry.originSessionId = msg.session_id;
               // Re-emit chat_init now that we have the sessionId
               emitter.emit('event', 'chat_init', {
                 chatId,
@@ -147,6 +217,7 @@ export async function startChat(params = {}) {
                 chatId,
                 title: null,
                 sessionId: msg.session_id,
+                originSessionId: msg.session_id,
                 status: 'active',
               });
             }
@@ -250,7 +321,13 @@ export async function startChat(params = {}) {
         }
       }
       emitter.emit('event', 'chat_complete', { chatId, sessionId: sdkSessionId });
-      stmts.updateChatSession.run({ chatId, title: null, sessionId: sdkSessionId, status: 'completed' });
+      stmts.updateChatSession.run({
+        chatId,
+        title: null,
+        sessionId: sdkSessionId,
+        originSessionId: sdkSessionId,
+        status: 'completed',
+      });
     } catch (err) {
       const message = MISSING_CONVERSATION_RE.test(err.message || '')
         ? `选中的 Claude session 已不可恢复：${sessionId || 'unknown'}。请新建 Chat，或选择仍存在 session_id 的历史对话。`
@@ -264,7 +341,13 @@ export async function startChat(params = {}) {
         eventType: 'error',
         eventSubtype: 'chat_error',
       });
-      stmts.updateChatSession.run({ chatId, title: null, sessionId: sdkSessionId, status: 'failed' });
+      stmts.updateChatSession.run({
+        chatId,
+        title: null,
+        sessionId: sdkSessionId,
+        originSessionId: sdkSessionId || sessionId,
+        status: 'failed',
+      });
     } finally {
       activeChats.delete(chatId);
     }
@@ -272,10 +355,20 @@ export async function startChat(params = {}) {
 
   // Store sessionId for later follow-ups
   if (sdkSessionId) {
-    activeChats.get(chatId).sessionId = sdkSessionId;
+    const activeEntry = activeChats.get(chatId);
+    if (activeEntry) {
+      activeEntry.sessionId = sdkSessionId;
+      if (!activeEntry.originSessionId) activeEntry.originSessionId = sdkSessionId;
+    }
   }
 
-  return { chatId, emitter, sessionId: sdkSessionId };
+  return {
+    chatId,
+    emitter,
+    sessionId: sessionId || sdkSessionId,
+    currentSessionId: sdkSessionId || null,
+    originSessionId: sessionId || sdkSessionId || null,
+  };
 }
 
 /**
@@ -286,7 +379,13 @@ export function stopChat(chatId) {
   if (!entry) return false;
   try { entry.query.close(); } catch {}
   activeChats.delete(chatId);
-  stmts.updateChatSession.run({ chatId, title: null, sessionId: entry.sessionId || entry.query?.sessionId || null, status: 'stopped' });
+  stmts.updateChatSession.run({
+    chatId,
+    title: null,
+    sessionId: entry.sessionId || entry.query?.sessionId || null,
+    originSessionId: entry.originSessionId || entry.sessionId || entry.query?.sessionId || null,
+    status: 'stopped',
+  });
   return true;
 }
 
@@ -300,7 +399,9 @@ export function getChatInfo(chatId) {
   return {
     chatId,
     active: !!entry,
-    sessionId: entry?.sessionId || entry?.query?.sessionId || stored?.session_id || null,
+    sessionId: getEffectiveResumeSessionId(entry) || getEffectiveResumeSessionId(stored),
+    currentSessionId: entry?.sessionId || entry?.query?.sessionId || stored?.session_id || null,
+    originSessionId: getOriginSessionId(entry) || getOriginSessionId(stored),
     title: stored?.title || null,
     status: stored?.status || (entry ? 'active' : 'unknown'),
   };
@@ -312,7 +413,9 @@ export function getChatInfo(chatId) {
 export function listActiveChats() {
   return stmts.getAllChatSessions.all().map(row => ({
     chatId: row.chat_id,
-    sessionId: row.session_id,
+    sessionId: getEffectiveResumeSessionId(row),
+    currentSessionId: row.session_id,
+    originSessionId: getOriginSessionId(row),
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     createdAt: row.created_at,
@@ -325,17 +428,20 @@ export function listActiveChats() {
  */
 export async function sendChatMessage(chatId, followUpMessage, params = {}) {
   const entry = activeChats.get(chatId);
-  let sessionId = normalizeClaudeSessionId(params.sessionId);
+  let sessionId = normalizeClaudeSessionId(params.originSessionId)
+    || normalizeClaudeSessionId(params.sessionId);
   const stored = stmts.getChatSessionByChatId.get(chatId);
 
   if (entry) {
     // Extract from stored entry first, then from query object
+    if (!sessionId && getOriginSessionId(entry)) sessionId = getOriginSessionId(entry);
     if (!sessionId && entry.sessionId) sessionId = normalizeClaudeSessionId(entry.sessionId);
     if (!sessionId && entry.query?.sessionId) sessionId = normalizeClaudeSessionId(entry.query.sessionId);
     try { entry.query.close(); } catch {}
     activeChats.delete(chatId);
   }
 
+  if (!sessionId && getOriginSessionId(stored)) sessionId = getOriginSessionId(stored);
   if (!sessionId && stored?.session_id) sessionId = normalizeClaudeSessionId(stored.session_id);
 
   if (!sessionId) throw new Error('No active session to continue — provide sessionId parameter or use /start first');
@@ -377,7 +483,9 @@ export function getChatSession(chatId) {
   if (!row) return null;
   return {
     chatId: row.chat_id,
-    sessionId: row.session_id,
+    sessionId: getEffectiveResumeSessionId(row),
+    currentSessionId: row.session_id,
+    originSessionId: getOriginSessionId(row),
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     createdAt: row.created_at,
@@ -392,7 +500,9 @@ export function getChatHistory(chatId) {
   return {
     session: {
       chatId: session.chat_id,
-      sessionId: session.session_id,
+      sessionId: getEffectiveResumeSessionId(session),
+      currentSessionId: session.session_id,
+      originSessionId: getOriginSessionId(session),
       title: session.title,
       status: activeChats.has(session.chat_id) ? 'active' : session.status,
       createdAt: session.created_at,
@@ -563,7 +673,7 @@ export function renameChatSession(chatId, title) {
   return getChatSession(chatId);
 }
 
-export function deleteChatSession(chatId) {
+export async function deleteChatSession(chatId) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return false;
   const entry = activeChats.get(chatId);
@@ -571,6 +681,21 @@ export function deleteChatSession(chatId) {
     try { entry.query.close(); } catch {}
     activeChats.delete(chatId);
   }
+  const removedClaudeArtifacts = deleteClaudeSessionArtifacts([
+    session.origin_session_id,
+    session.session_id,
+    entry?.originSessionId,
+    entry?.sessionId,
+    entry?.query?.sessionId,
+  ]);
   stmts.deleteChatSession.run(chatId);
-  return true;
+  logger.info(`Deleted chat session ${chatId} and ${removedClaudeArtifacts.length} Claude artifact(s)`, {
+    context: 'Chat',
+    chatId,
+    removedClaudeArtifacts,
+  });
+  return {
+    deleted: true,
+    removedClaudeArtifacts,
+  };
 }

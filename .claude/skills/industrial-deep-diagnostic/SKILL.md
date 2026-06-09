@@ -176,6 +176,10 @@ Step 0: Setup ──► Step 1: Inspect
 
 **Evidence-closure rule**: A run is not considered diagnostically complete unless the final checks also confirm the evidence loop is closed: process-side abnormality entry → dual-drive linkage entry → ontology/physics interpretation → diagnosis outputs → review/report handoff. The machine-readable proof is `evidence_closure_report.json`.
 
+**Judge-gated reporting rule**: A final report is invalid unless `05_review/judge_feedback.json` is schema-valid, `verdict == "pass"`, `overall_score >= 90`, and there are no blocking issues. This is a hard orchestration gate, not a recommendation: `reporter` must not start, `finalize-run-artifacts.mjs` must not record `run_completed`, and `artifact-check.mjs` must fail if the Judge gate is missing or not passed.
+
+**Stability/reproducibility rule**: For the same input data and same user objective, final diagnosis must be derived from deterministic artifacts (`data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`) rather than narrative drift. If a repeated run or prior summary is available, materially different primary findings or confidence shifts greater than 10 points require an explicit explanation and evidence delta; unexplained drift is a Judge blocking issue. If no prior run exists, confidence must still be reproducible from `confidence.adjustment_log`, evidence ranks, and documented confidence ceilings.
+
 ---
 
 ## Step-by-Step Protocol
@@ -302,7 +306,19 @@ Outputs: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `r
 
 Launch `judge` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`; tell it to read `agents/judge.md`, run the full quality gate, and write lowercase schema enum values only: `pass`, `needs_repair`, `major_issues`, `fail`.
 
-**Verdict**: `pass` (≥90) → Step 6 | `needs_repair` (70-89) or `major_issues` (50-69) → re-spawn diagnostician within repair caps | `fail` (<50) → halt
+**Verdict**: `pass` (≥90, no blocking issues) → Step 6 | `needs_repair` (70-89) or `major_issues` (50-69) → re-spawn diagnostician within repair caps | `fail` (<50) → halt
+
+**Hard pass invariant**: `verdict="pass"` is valid only when all of these are true:
+- `overall_score >= 90`
+- `blocking_issues.length == 0`
+- `reasoning_chain_audit.blocking_issues.length == 0`
+- `criteria_scores.no_over_claiming.blocking_issues == 0`
+
+After schema validation, also run:
+```bash
+node "$SKILL_PATH/scripts/judge-gate-check.mjs" "$RUN_DIR" --skip-summary
+```
+If this gate fails, do not launch `reporter`; repair Step 4 instead.
 
 Validate:
 ```bash
@@ -318,11 +334,14 @@ Launch `report-reviewer` with `PRE_REPORT_AUDIT=true`; it must not require `repo
 
 Before Step 6, require both:
 - `judge_feedback.json.verdict == "pass"`
+- `judge_feedback.json.overall_score >= 90` and no blocking issues
 - `optimizer_preflight.md` has no blocking physical issue; if it does, repair via Step 4 before reporting.
 
 ### Step 6: Report Generation (Sub-Agent: `reporter`)
 
 Launch `reporter` with `RUN_DIR` and `SKILL_PATH`; tell it to read `agents/reporter.md`, use `visual_analysis.json` as primary figure evidence, and generate `report.md` plus schema-valid `run_summary.json`.
+
+Reporter launch is illegal unless the Judge gate has already passed. `append-pipeline-event.mjs` enforces this at `agent_start reporter`; if it returns `JUDGE_GATE_NOT_PASSED`, the only valid next action is repair/rejudge, not manual report writing.
 
 Output: `report.md` (791+ lines, 20 sections), `run_summary.json`
 
@@ -352,6 +371,8 @@ Show: executive summary, key findings, diagnosis type, confidence, recommendatio
 `finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats execution proof, evidence closure, VLM execution proof, and the diagnostic quality contract as final gate items.
 
 Before presenting completion, `artifact-check.mjs` must also verify that `optimizer.md` exists and contains the standard optimization sections: scenario-specific optimization plan, current scene problems, next-step diagnostic confirmation plan, and action classification.
+
+If `finalize-run-artifacts.mjs` or `artifact-check.mjs` reports `JUDGE_GATE_NOT_PASSED`, `Judge Final Report Gate`, `PIPELINE_LOG_MISSING`, or any critical gap, the run is not complete. Do not summarize it as a final diagnosis; summarize it as a blocked/repair-needed run and restart from the earliest failed gated step.
 
 ---
 
