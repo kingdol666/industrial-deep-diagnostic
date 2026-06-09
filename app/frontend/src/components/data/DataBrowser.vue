@@ -277,11 +277,23 @@ function formatSize(bytes) {
 </script>
 
 <style scoped>
+.data-browser {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+  box-shadow: var(--shadow-sm);
 }
 
 .toolbar-left { display: flex; align-items: center; gap: 6px; }
@@ -312,6 +324,7 @@ function formatSize(bytes) {
 
 .new-folder-form .form-row {
   display: flex; gap: 8px; align-items: center;
+  flex-wrap: wrap;
 }
 .new-folder-form input { max-width: 240px; }
 
@@ -336,13 +349,14 @@ function formatSize(bytes) {
   gap: 12px;
   cursor: pointer;
   transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
 
-.file-card:hover { border-color: var(--accent); }
+.file-card:hover { border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); transform: translateY(-1px); }
 
 .file-card.selected {
-  border-color: var(--accent2);
-  background: rgba(31, 111, 235, 0.05);
+  border-color: color-mix(in srgb, var(--accent2) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
 
 .file-icon { font-size: 24px; flex-shrink: 0; }
@@ -372,7 +386,7 @@ function formatSize(bytes) {
 .preview-card { margin-top: 16px; }
 
 .preview-content {
-  background: var(--surface2);
+  background: var(--surface-soft);
   padding: 16px;
   border-radius: var(--radius);
   font-size: 12px;
@@ -400,9 +414,10 @@ function formatSize(bytes) {
   display: flex;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--surface2);
+  background: var(--surface-soft);
   border-radius: var(--radius);
   margin-bottom: 12px;
   align-items: center;
+  border: 1px solid var(--border);
 }
 </style>

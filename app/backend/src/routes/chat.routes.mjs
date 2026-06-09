@@ -1,6 +1,7 @@
 // Chat Routes — direct Claude Agent SDK chat with streaming SSE
 import { Router } from 'express';
-import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter, getChatHistory, getChatSession, renameChatSession, deleteChatSession, getChatReplay } from '../services/chat.service.mjs';
+import { startChat, stopChat, getChatInfo, listActiveChats, sendChatMessage, getChatEmitter, getChatHistory, getChatSession, renameChatSession, deleteChatSession, getChatReplay, updateChatSessionConfig } from '../services/chat.service.mjs';
+import { listChatDirectories, pickChatDirectory } from '../services/files.service.mjs';
 
 const router = Router();
 
@@ -15,6 +16,8 @@ router.post('/start', async (req, res) => {
         sessionId: result.sessionId,
         originSessionId: result.originSessionId || result.sessionId || null,
         currentSessionId: result.currentSessionId || null,
+        permissionMode: result.permissionMode || 'default',
+        cwd: result.cwd || null,
         streamUrl: `/api/chat/stream/${result.chatId}`,
       },
     });
@@ -84,6 +87,8 @@ router.post('/send/:chatId', async (req, res) => {
         sessionId: result.sessionId,
         originSessionId: result.originSessionId || result.sessionId || null,
         currentSessionId: result.currentSessionId || null,
+        permissionMode: result.permissionMode || 'default',
+        cwd: result.cwd || null,
         streamUrl: `/api/chat/stream/${result.chatId}`,
       },
     });
@@ -117,6 +122,20 @@ router.get('/session/:chatId', (req, res) => {
   res.json({ success: true, data: session });
 });
 
+// PATCH /api/chat/session/:chatId/config — update per-chat cwd / permissions / title
+router.patch('/session/:chatId/config', (req, res) => {
+  try {
+    const updated = updateChatSessionConfig(req.params.chatId, req.body || {});
+    if (!updated) {
+      return res.status(404).json({ success: false, error: 'Chat session not found' });
+    }
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
+  }
+});
+
 // PATCH /api/chat/session/:chatId — rename chat session
 router.patch('/session/:chatId', (req, res) => {
   const { title } = req.body || {};
@@ -144,6 +163,28 @@ router.delete('/session/:chatId', async (req, res) => {
       removedClaudeArtifacts: deleted.removedClaudeArtifacts || [],
     },
   });
+});
+
+// GET /api/chat/directories?path=... — browse server-side directories for chat cwd selection
+router.get('/directories', async (req, res) => {
+  try {
+    const data = await listChatDirectories(req.query.path || undefined);
+    res.json({ success: true, data });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/chat/directories/pick — open native folder picker for chat cwd selection
+router.post('/directories/pick', async (req, res) => {
+  try {
+    const data = await pickChatDirectory(req.body?.path || undefined);
+    res.json({ success: true, data });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
+  }
 });
 
 // GET /api/chat/list — list persisted chat sessions

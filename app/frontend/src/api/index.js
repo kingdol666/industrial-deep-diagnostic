@@ -83,10 +83,18 @@ export const api = {
   getChatSession: (chatId) => request(`/chat/session/${chatId}`),
   renameChatSession: (chatId, title) =>
     request(`/chat/session/${chatId}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
+  updateChatSessionConfig: (chatId, params) =>
+    request(`/chat/session/${chatId}/config`, { method: 'PATCH', body: JSON.stringify(params) }),
   deleteChatSession: (chatId) =>
     request(`/chat/session/${chatId}`, { method: 'DELETE' }),
   getChatHistory: (chatId) => request(`/chat/history/${chatId}`),
   listChats: () => request('/chat/list'),
+  listChatDirectories: (path) => request(path ? `/chat/directories?path=${encodeURIComponent(path)}` : '/chat/directories'),
+  pickChatDirectory: (path) =>
+    request('/chat/directories/pick', {
+      method: 'POST',
+      body: JSON.stringify(path ? { path } : {}),
+    }),
   chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}`,
 
   // SSE stream

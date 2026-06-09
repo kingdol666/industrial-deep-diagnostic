@@ -4,7 +4,7 @@
 import { EventEmitter } from 'events';
 import { existsSync, readdirSync, rmSync } from 'fs';
 import { homedir } from 'os';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
@@ -21,6 +21,14 @@ try {
 const activeChats = new Map();
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
+const ALLOWED_PERMISSION_MODES = new Set([
+  'default',
+  'acceptEdits',
+  'bypassPermissions',
+  'plan',
+  'dontAsk',
+  'auto',
+]);
 
 function normalizeClaudeSessionId(value) {
   if (!value || typeof value !== 'string') return null;
@@ -38,6 +46,36 @@ function getEffectiveResumeSessionId(source) {
   return getOriginSessionId(source)
     || normalizeClaudeSessionId(source.session_id || source.sessionId || null)
     || null;
+}
+
+function getLiveSessionId(source) {
+  if (!source) return null;
+  return normalizeClaudeSessionId(source.sessionId)
+    || normalizeClaudeSessionId(source.query?.sessionId)
+    || getEffectiveResumeSessionId(source)
+    || null;
+}
+
+function normalizePermissionMode(value, fallback = 'default') {
+  if (typeof value !== 'string') return fallback;
+  const trimmed = value.trim();
+  return ALLOWED_PERMISSION_MODES.has(trimmed) ? trimmed : fallback;
+}
+
+function normalizeChatCwd(value, fallback = PROJECT_ROOT) {
+  const raw = typeof value === 'string' && value.trim() ? value.trim() : fallback;
+  const resolved = resolve(raw);
+  if (!existsSync(resolved)) {
+    const err = new Error(`Working directory not found: ${resolved}`);
+    err.status = 400;
+    throw err;
+  }
+  return resolved;
+}
+
+function isStartedChatSession(source) {
+  if (!source) return false;
+  return Boolean(source.chat_id || source.chatId || source.status === 'active' || source.status === 'completed' || source.status === 'failed' || source.status === 'stopped');
 }
 
 function safeRemovePath(targetPath, removedPaths) {
@@ -98,7 +136,7 @@ export async function startChat(params = {}) {
     chatId: requestedChatId,
     prompt,
     model,
-    permissionMode = 'bypassPermissions',
+    permissionMode = 'default',
     maxTurns,
     cwd,
     sessionId: rawSessionId, // resume existing Claude session UUID
@@ -119,15 +157,17 @@ export async function startChat(params = {}) {
   const chatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const sessionId = normalizeClaudeSessionId(rawSessionId);
   const emitter = new EventEmitter();
+  const normalizedPermissionMode = normalizePermissionMode(permissionMode, 'default');
+  const normalizedCwd = normalizeChatCwd(cwd, PROJECT_ROOT);
 
   // Build SDK options
   const options = {
-    permissionMode,
-    allowDangerouslySkipPermissions: permissionMode === 'bypassPermissions',
+    permissionMode: normalizedPermissionMode,
+    allowDangerouslySkipPermissions: normalizedPermissionMode === 'bypassPermissions',
     includePartialMessages: true,
     forwardSubagentText: true,
     model: model || undefined,
-    cwd: cwd || PROJECT_ROOT,
+    cwd: normalizedCwd,
     maxTurns: maxTurns || undefined,
     effort: effort || undefined,
     thinking: thinking || undefined,
@@ -153,12 +193,23 @@ export async function startChat(params = {}) {
   });
 
   const existingSession = stmts.getChatSessionByChatId.get(chatId);
+  if (sessionId && existingSession) {
+    const existingResumeSessionId = getEffectiveResumeSessionId(existingSession);
+    const existingCwd = normalizeChatCwd(existingSession.cwd || PROJECT_ROOT, PROJECT_ROOT);
+    if ((existingResumeSessionId || isStartedChatSession(existingSession)) && normalizedCwd !== existingCwd) {
+      const err = new Error('当前聊天已经绑定到既有 Claude session，不能在续聊时切换工作目录。请新建 Chat 后再选择新的工作目录。');
+      err.status = 400;
+      throw err;
+    }
+  }
   if (existingSession) {
     stmts.updateChatSession.run({
       chatId,
       title: title || null,
       sessionId: sdkSessionId,
       originSessionId: getOriginSessionId(existingSession) || sdkSessionId,
+      permissionMode: normalizedPermissionMode,
+      cwd: normalizedCwd,
       status: 'active',
     });
   } else {
@@ -169,7 +220,8 @@ export async function startChat(params = {}) {
       originSessionId: sdkSessionId,
       status: 'active',
       model: model || 'default',
-      permissionMode,
+      permissionMode: normalizedPermissionMode,
+      cwd: normalizedCwd,
     });
   }
   stmts.insertChatMessage.run({
@@ -185,7 +237,8 @@ export async function startChat(params = {}) {
     chatId,
     sessionId: sdkSessionId,
     model: model || 'default',
-    permissionMode,
+    permissionMode: normalizedPermissionMode,
+    cwd: normalizedCwd,
     timestamp: new Date().toISOString(),
   });
 
@@ -194,6 +247,15 @@ export async function startChat(params = {}) {
     try {
       for await (const msg of query) {
         if (!msg || typeof msg !== 'object') continue;
+
+        const liveSessionId = normalizeClaudeSessionId(msg.session_id) || normalizeClaudeSessionId(query.sessionId);
+        if (liveSessionId) {
+          const entry = activeChats.get(chatId);
+          if (entry) {
+            entry.sessionId = liveSessionId;
+            if (!entry.originSessionId) entry.originSessionId = liveSessionId;
+          }
+        }
 
         const type = msg.type;
 
@@ -208,16 +270,19 @@ export async function startChat(params = {}) {
               // Re-emit chat_init now that we have the sessionId
               emitter.emit('event', 'chat_init', {
                 chatId,
-                sessionId: msg.session_id,
+                sessionId: liveSessionId,
                 model: msg.model || 'unknown',
-                permissionMode,
+                permissionMode: normalizedPermissionMode,
+                cwd: normalizedCwd,
                 timestamp: new Date().toISOString(),
               });
               stmts.updateChatSession.run({
                 chatId,
                 title: null,
-                sessionId: msg.session_id,
-                originSessionId: msg.session_id,
+                sessionId: liveSessionId,
+                originSessionId: liveSessionId,
+                permissionMode: normalizedPermissionMode,
+                cwd: normalizedCwd,
                 status: 'active',
               });
             }
@@ -279,13 +344,14 @@ export async function startChat(params = {}) {
             }
           }
         } else if (type === 'result') {
+          const latestSessionId = getLiveSessionId(activeChats.get(chatId)) || liveSessionId || sessionId || sdkSessionId;
           emitter.emit('event', 'result', {
             subtype: msg.subtype,
             durationMs: msg.duration_ms,
             numTurns: msg.num_turns,
             totalCost: msg.total_cost_usd,
             stopReason: msg.stop_reason,
-            sessionId: sdkSessionId,
+            sessionId: latestSessionId,
           });
           stmts.insertChatMessage.run({
             chatId,
@@ -320,15 +386,19 @@ export async function startChat(params = {}) {
           });
         }
       }
-      emitter.emit('event', 'chat_complete', { chatId, sessionId: sdkSessionId });
+      const latestSessionId = getLiveSessionId(activeChats.get(chatId)) || sessionId || sdkSessionId;
+      emitter.emit('event', 'chat_complete', { chatId, sessionId: latestSessionId });
       stmts.updateChatSession.run({
         chatId,
         title: null,
-        sessionId: sdkSessionId,
-        originSessionId: sdkSessionId,
+        sessionId: latestSessionId,
+        originSessionId: latestSessionId,
+        permissionMode: normalizedPermissionMode,
+        cwd: normalizedCwd,
         status: 'completed',
       });
     } catch (err) {
+      const latestSessionId = getLiveSessionId(activeChats.get(chatId)) || sessionId || sdkSessionId;
       const message = MISSING_CONVERSATION_RE.test(err.message || '')
         ? `选中的 Claude session 已不可恢复：${sessionId || 'unknown'}。请新建 Chat，或选择仍存在 session_id 的历史对话。`
         : err.message;
@@ -344,8 +414,10 @@ export async function startChat(params = {}) {
       stmts.updateChatSession.run({
         chatId,
         title: null,
-        sessionId: sdkSessionId,
-        originSessionId: sdkSessionId || sessionId,
+        sessionId: latestSessionId,
+        originSessionId: latestSessionId || sessionId,
+        permissionMode: normalizedPermissionMode,
+        cwd: normalizedCwd,
         status: 'failed',
       });
     } finally {
@@ -368,6 +440,8 @@ export async function startChat(params = {}) {
     sessionId: sessionId || sdkSessionId,
     currentSessionId: sdkSessionId || null,
     originSessionId: sessionId || sdkSessionId || null,
+    permissionMode: normalizedPermissionMode,
+    cwd: normalizedCwd,
   };
 }
 
@@ -384,6 +458,8 @@ export function stopChat(chatId) {
     title: null,
     sessionId: entry.sessionId || entry.query?.sessionId || null,
     originSessionId: entry.originSessionId || entry.sessionId || entry.query?.sessionId || null,
+    permissionMode: null,
+    cwd: null,
     status: 'stopped',
   });
   return true;
@@ -404,6 +480,8 @@ export function getChatInfo(chatId) {
     originSessionId: getOriginSessionId(entry) || getOriginSessionId(stored),
     title: stored?.title || null,
     status: stored?.status || (entry ? 'active' : 'unknown'),
+    permissionMode: stored?.permission_mode || 'default',
+    cwd: stored?.cwd || PROJECT_ROOT,
   };
 }
 
@@ -418,6 +496,8 @@ export function listActiveChats() {
     originSessionId: getOriginSessionId(row),
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
+    permissionMode: row.permission_mode || 'default',
+    cwd: row.cwd || PROJECT_ROOT,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
@@ -446,11 +526,25 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
 
   if (!sessionId) throw new Error('No active session to continue — provide sessionId parameter or use /start first');
 
+  const inheritedPermissionMode = normalizePermissionMode(
+    params.permissionMode,
+    normalizePermissionMode(stored?.permission_mode, 'default'),
+  );
+  const inheritedCwd = normalizeChatCwd(params.cwd, stored?.cwd || PROJECT_ROOT);
+  const storedCwd = normalizeChatCwd(stored?.cwd || PROJECT_ROOT, PROJECT_ROOT);
+  if (stored && (getEffectiveResumeSessionId(stored) || isStartedChatSession(stored)) && inheritedCwd !== storedCwd) {
+    const err = new Error('当前聊天已经绑定到既有 Claude session，不能在续聊时切换工作目录。请新建 Chat 后再选择新的工作目录。');
+    err.status = 400;
+    throw err;
+  }
+
   return startChat({
     ...params,
     chatId,
     prompt: followUpMessage,
     sessionId,
+    permissionMode: inheritedPermissionMode,
+    cwd: inheritedCwd,
     title: stored?.title || followUpMessage.slice(0, 60),
   });
 }
@@ -488,6 +582,8 @@ export function getChatSession(chatId) {
     originSessionId: getOriginSessionId(row),
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
+    permissionMode: row.permission_mode || 'default',
+    cwd: row.cwd || PROJECT_ROOT,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -505,6 +601,8 @@ export function getChatHistory(chatId) {
       originSessionId: getOriginSessionId(session),
       title: session.title,
       status: activeChats.has(session.chat_id) ? 'active' : session.status,
+      permissionMode: session.permission_mode || 'default',
+      cwd: session.cwd || PROJECT_ROOT,
       createdAt: session.created_at,
       updatedAt: session.updated_at,
     },
@@ -526,6 +624,8 @@ export function getChatReplay(chatId) {
       sessionId: session.sessionId,
       title: session.title,
       timestamp: session.createdAt,
+      permissionMode: session.permissionMode || 'default',
+      cwd: session.cwd || PROJECT_ROOT,
     },
   });
 
@@ -670,6 +770,28 @@ export function renameChatSession(chatId, title) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return null;
   stmts.renameChatSession.run({ chatId, title });
+  return getChatSession(chatId);
+}
+
+export function updateChatSessionConfig(chatId, { title = null, permissionMode, cwd } = {}) {
+  const session = stmts.getChatSessionByChatId.get(chatId);
+  if (!session) return null;
+  const nextPermissionMode = permissionMode == null
+    ? null
+    : normalizePermissionMode(permissionMode, normalizePermissionMode(session.permission_mode, 'default'));
+  const nextCwd = cwd == null ? null : normalizeChatCwd(cwd, session.cwd || PROJECT_ROOT);
+  const currentCwd = normalizeChatCwd(session.cwd || PROJECT_ROOT, PROJECT_ROOT);
+  if (nextCwd && nextCwd !== currentCwd && (getEffectiveResumeSessionId(session) || isStartedChatSession(session))) {
+    const err = new Error('当前聊天已经绑定到 Claude session，工作目录不能再修改。请新建 Chat 后选择新的工作目录。');
+    err.status = 400;
+    throw err;
+  }
+  stmts.patchChatSessionConfig.run({
+    chatId,
+    title,
+    permissionMode: nextPermissionMode,
+    cwd: nextCwd,
+  });
   return getChatSession(chatId);
 }
 

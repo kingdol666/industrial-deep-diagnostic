@@ -508,11 +508,23 @@ function formatSize(bytes) {
 </script>
 
 <style scoped>
+.report-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+  box-shadow: var(--shadow-sm);
 }
 
 .toolbar-left { display: flex; align-items: center; gap: 6px; }
@@ -560,14 +572,15 @@ function formatSize(bytes) {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--surface2);
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
 
-.run-item:hover { border-color: var(--accent); }
+.run-item:hover { border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); transform: translateY(-1px); }
 
 .run-icon { font-size: 20px; flex-shrink: 0; }
 
@@ -599,7 +612,7 @@ function formatSize(bytes) {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: var(--surface2);
+  background: var(--surface-soft);
   border-radius: 4px;
   font-size: 13px;
 }
@@ -624,7 +637,7 @@ function formatSize(bytes) {
 .report-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
   margin-bottom: 16px;
 }
 
@@ -633,7 +646,7 @@ function formatSize(bytes) {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -1px;
   cursor: pointer;
   color: var(--text2);
   font-size: 13px;
@@ -663,7 +676,7 @@ function formatSize(bytes) {
   margin: 32px 0 16px;
   padding-bottom: 10px;
   border-bottom: 2px solid var(--border);
-  color: #fff;
+  color: var(--text);
   letter-spacing: -0.3px;
 }
 
@@ -672,7 +685,7 @@ function formatSize(bytes) {
   font-weight: 700;
   margin: 28px 0 12px;
   padding-bottom: 6px;
-  border-bottom: 1px solid rgba(48, 54, 61, 0.6);
+  border-bottom: 1px solid var(--border);
   color: var(--text);
   letter-spacing: -0.2px;
 }
@@ -716,13 +729,13 @@ function formatSize(bytes) {
 
 /* Inline code */
 .report-body :deep(code) {
-  background: rgba(88, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   padding: 2px 8px;
   border-radius: 4px;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 13px;
   color: var(--accent);
-  border: 1px solid rgba(88, 166, 255, 0.15);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 /* Code blocks */
@@ -750,7 +763,7 @@ function formatSize(bytes) {
   margin: 14px 0;
   padding: 10px 20px;
   color: var(--text2);
-  background: rgba(88, 166, 255, 0.04);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
   border-radius: 0 var(--radius) var(--radius) 0;
   font-style: italic;
 }
@@ -780,12 +793,12 @@ function formatSize(bytes) {
 
 .report-body :deep(td) {
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+  border-bottom: 1px solid var(--border);
   color: var(--text);
 }
 
 .report-body :deep(tr:hover td) {
-  background: rgba(88, 166, 255, 0.04);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
 .report-body :deep(tr:last-child td) {
@@ -795,7 +808,7 @@ function formatSize(bytes) {
 /* Strong */
 .report-body :deep(strong) {
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
 }
 
 /* Em */
@@ -871,7 +884,7 @@ function formatSize(bytes) {
 }
 
 .report-body :deep(summary:hover) {
-  background: rgba(88, 166, 255, 0.06);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .report-body :deep(details > *:not(summary)) {

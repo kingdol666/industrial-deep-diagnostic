@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  width:960pt;height:540pt;position:relative;overflow:hidden;
+  background:#FBFAF7;color:#1F2430;
+  font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif
+}
+.topline{position:absolute;left:0;top:0;width:960pt;height:5pt;background:#1C3144}
+.topline.crisp{background:#B44A2E}
+.bottomline{position:absolute;left:34pt;bottom:28pt;width:892pt;height:1.2pt;background:#D7D2CA}
+.page{position:absolute;right:38pt;bottom:10pt;font-size:9pt;color:#6E6A64}
+.eyebrow{position:absolute;left:42pt;top:26pt;font-size:9.5pt;letter-spacing:1.4pt;color:#8A5A3B}
+.title{position:absolute;left:42pt;top:48pt;width:876pt;font-size:25pt;line-height:1.32;font-weight:700;color:#1C3144}
+.title.small{font-size:23pt}
+.subtitle{position:absolute;left:42pt;top:112pt;width:876pt;font-size:12pt;line-height:1.65;color:#6A6762}
+.rule{position:absolute;left:42pt;top:102pt;width:110pt;height:3pt;background:#B44A2E;border-radius:2pt}
+.card{position:absolute;border:1.1pt solid #D9D4CC;border-radius:14pt;background:#FFFFFF}
+.card.soft{background:#F4F1EA}
+.card.accent{background:#FFF5EE;border-color:#E7C8B9}
+.card.blue{background:#F1F6FA;border-color:#C8D7E3}
+.card.dark{background:#1C3144;border-color:#1C3144}
+.card.warn{background:#FFF7F2;border-color:#E9B8A8}
+.card h2{
+  position:absolute;left:18pt;top:14pt;width:calc(100% - 36pt);
+  font-size:15pt;line-height:1.35;font-weight:700;color:#1C3144
+}
+.card.dark h2,.card.dark p,.card.dark li{color:#FFFFFF}
+.card p{
+  position:absolute;left:18pt;width:calc(100% - 36pt);
+  font-size:11.2pt;line-height:1.62;color:#20242B
+}
+.card ul{
+  position:absolute;left:28pt;top:50pt;width:calc(100% - 52pt);
+  font-size:11.2pt;line-height:1.62;color:#20242B;padding-left:16pt
+}
+.card.dark ul{color:#FFFFFF}
+.node{position:absolute;border:1.2pt solid #1C3144;border-radius:12pt;background:#FFFFFF}
+.node h3{
+  position:absolute;left:12pt;top:12pt;width:calc(100% - 24pt);
+  font-size:13pt;line-height:1.35;font-weight:700;color:#1C3144;text-align:center
+}
+.node p{
+  position:absolute;left:12pt;width:calc(100% - 24pt);
+  font-size:10.4pt;line-height:1.55;color:#27303B;text-align:center
+}
+.term{position:absolute;border:1.1pt solid #D9D4CC;border-radius:12pt;background:#FFFFFF}
+.term h3{
+  position:absolute;left:16pt;top:14pt;width:calc(100% - 32pt);
+  font-size:14pt;line-height:1.35;font-weight:700;color:#1C3144
+}
+.term p{
+  position:absolute;left:16pt;width:calc(100% - 32pt);
+  font-size:11pt;line-height:1.62;color:#232831
+}
+.placeholder{
+  position:absolute;border:1.2pt dashed #B7C3CE;border-radius:12pt;background:#F7F9FB
+}
+.kpi{position:absolute;border:1.1pt solid #D9D4CC;border-radius:14pt;background:#FFFFFF}
+.kpi-num{
+  position:absolute;left:14pt;top:16pt;width:calc(100% - 28pt);
+  font-size:28pt;line-height:1.2;font-weight:700;text-align:center;color:#1C3144
+}
+.kpi-label{
+  position:absolute;left:14pt;top:60pt;width:calc(100% - 28pt);
+  font-size:10pt;line-height:1.55;text-align:center;color:#5E5A54
+}
+.arrow{position:absolute;font-size:20pt;line-height:1;color:#1C3144}
+</style>
+</head>
+<body>
+
+<div class="topline"></div>
+<p class="eyebrow">GLOSSARY AND LIMITS</p>
+<h1 class="title small">听懂这四个词，就能明白为什么这次结论要讲得“坚定，但克制”</h1>
+<div class="rule"></div>
+
+<div class="term" style="left:42pt;top:148pt;width:418pt;height:128pt;">
+  <h3>Pearson相关</h3>
+  <p style="top:48pt;">看两个量是不是沿着“直线关系”一起变。优点是直观，缺点是很容易被极端大值拉歪。</p>
+</div>
+
+<div class="term" style="left:500pt;top:148pt;width:418pt;height:128pt;">
+  <h3>Spearman相关</h3>
+  <p style="top:48pt;">不看绝对大小，只看大小规律是不是一致。对极端值多、分布偏的数据更稳。</p>
+</div>
+
+<div class="term" style="left:42pt;top:294pt;width:418pt;height:128pt;">
+  <h3>Kruskal-Wallis</h3>
+  <p style="top:48pt;">适合比较多组分布差异。比“把产品型号这样的分类变量直接拿去做相关”更合适。</p>
+</div>
+
+<div class="term" style="left:500pt;top:294pt;width:418pt;height:128pt;">
+  <h3>COMPETING_SET</h3>
+  <p style="top:48pt;">不是没方向，而是还有多个合理解释同时活着。管理层现在最有价值的动作是支持验证，而不是提前指定答案。</p>
+</div>
+
+<div class="card dark" style="left:42pt;top:440pt;width:876pt;height:56pt;">
+  <h2>一句话总结</h2>
+  <p style="top:22pt;">这次最确定的不是“根因是谁”，而是“哪些方向已经不值得继续重投资源”。</p>
+</div>
+
+<div class="bottomline"></div>
+<p class="page">10 / 12</p>
+</body>
+</html>

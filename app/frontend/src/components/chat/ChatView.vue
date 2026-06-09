@@ -1,12 +1,25 @@
 <template>
-  <div class="chat-shell">
+  <div :class="['chat-shell', { 'chat-shell-collapsed': chatSidebarCollapsed }]">
     <aside class="chat-sidebar">
       <div class="chat-sidebar-top">
-        <div class="chat-sidebar-brand">
-          <div class="chat-sidebar-kicker">Workspace Chat</div>
-          <div class="chat-sidebar-heading">Conversations</div>
+        <div class="chat-sidebar-brand-row">
+          <div class="chat-sidebar-brand">
+            <div class="chat-sidebar-kicker">Workspace Chat</div>
+            <div class="chat-sidebar-heading">Conversations</div>
+          </div>
+          <button
+            class="chat-sidebar-toggle"
+            type="button"
+            :title="chatSidebarCollapsed ? '展开会话栏' : '折叠会话栏'"
+            @click="toggleChatSidebar"
+          >
+            {{ chatSidebarCollapsed ? '›' : '‹' }}
+          </button>
         </div>
-        <button class="btn btn-primary chat-sidebar-new" @click="createChatPanel" :disabled="loading">New Chat</button>
+        <button class="btn btn-primary chat-sidebar-new" :title="chatSidebarCollapsed ? '新建 Chat' : ''" @click="createChatPanel" :disabled="loading">
+          <span class="chat-sidebar-new-icon">+</span>
+          <span class="chat-sidebar-new-label">New Chat</span>
+        </button>
       </div>
 
       <div class="chat-sidebar-groups">
@@ -21,6 +34,7 @@
               :key="panel.localId"
               class="chat-session-item"
               :class="{ active: activePanel?.localId === panel.localId }"
+              :title="panel.title"
               @click="selectPanel(panel.localId)"
             >
               <div class="chat-session-head">
@@ -30,6 +44,7 @@
                   <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
                 </div>
               </div>
+              <div class="chat-session-avatar">{{ sessionAvatar(panel.title, 'C') }}</div>
               <div class="chat-session-name">{{ panel.title }}</div>
               <div class="chat-session-meta">
                 <span>{{ shortId(panel.sessionId || panel.chatId || panel.localId) }}</span>
@@ -53,11 +68,13 @@
               :key="panel.localId"
               class="chat-session-item diagnose-item"
               :class="{ active: activePanel?.localId === panel.localId }"
+              :title="panel.title"
               @click="selectPanel(panel.localId)"
             >
               <div class="chat-session-head">
                 <span class="chat-session-type diagnose-type">Diagnose</span>
               </div>
+              <div class="chat-session-avatar diagnose-avatar">{{ sessionAvatar(panel.title, 'D') }}</div>
               <div class="chat-session-name">{{ panel.title }}</div>
               <div class="chat-session-meta">
                 <span>{{ shortId(panel.runId) }}</span>
@@ -135,28 +152,54 @@
 
         <div class="chat-composer-shell">
           <div class="chat-composer-wrap">
-            <div class="chat-hint">
-              <template v-if="activePanel.kind === 'diagnose'">
-                消息只发送到已选诊断的 Claude session，不会重新启动诊断流程
-              </template>
-              <template v-else>
-                Enter to send · Shift+Enter for newline
-              </template>
-            </div>
             <div class="chat-composer">
               <textarea
                 v-model="draft"
                 class="chat-input"
-                :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : 'Message Claude...'"
+                :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : '输入消息，回车发送，Shift+Enter 换行'"
                 :disabled="loading"
                 @keydown.enter.exact.prevent="submitMessage"
                 @keydown.enter.shift.exact.stop
               />
-              <div class="chat-composer-actions">
+              <div class="chat-composer-footer">
+                <div class="chat-composer-runtime">
+                  <template v-if="activePanel.kind === 'chat'">
+                    <button
+                      class="chat-inline-control chat-inline-path"
+                      type="button"
+                      :disabled="runtimeConfigSaving || directoryPickerLoading || isChatCwdLocked(activePanel)"
+                      :title="chatCwdControlTitle(activePanel)"
+                      @click="pickDirectoryFromSystem()"
+                    >
+                      <span class="chat-inline-icon">+</span>
+                      <span class="chat-inline-text">{{ displayChatCwd(activePanel) }}</span>
+                    </button>
+                    <label class="chat-inline-select-wrap">
+                      <span class="chat-inline-select-icon">!</span>
+                      <select
+                        class="chat-inline-select"
+                        :value="getChatPermissionMode(activePanel)"
+                        :disabled="runtimeConfigSaving || directoryPickerLoading"
+                        @change="onPermissionModeChange($event.target.value)"
+                      >
+                        <option v-for="option in permissionModeOptions" :key="option.value" :value="option.value">
+                          {{ option.shortLabel }}
+                        </option>
+                      </select>
+                    </label>
+                  </template>
+                  <span v-else class="chat-inline-note">消息只发送到已选诊断 session，不会重新启动诊断流程</span>
+                </div>
                 <button class="btn btn-primary chat-send-btn" @click="submitMessage" :disabled="!draft.trim() || loading">
                   {{ activePanel.kind === 'diagnose' ? '发送到会话' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
                 </button>
               </div>
+            </div>
+            <div v-if="activePanel.kind === 'chat' && (runtimeConfigSaving || directoryPickerLoading || runtimeConfigError || isChatCwdLocked(activePanel))" class="chat-runtime-feedback">
+              <span v-if="runtimeConfigSaving">正在保存聊天运行配置…</span>
+              <span v-else-if="directoryPickerLoading">正在打开文件管理器选择工作目录…</span>
+              <span v-else-if="!runtimeConfigError && isChatCwdLocked(activePanel)">当前 Chat 已绑定 Claude session。要切换工作目录，请新建 Chat。</span>
+              <span v-else>{{ runtimeConfigError }}</span>
             </div>
           </div>
         </div>
@@ -177,9 +220,23 @@ const draft = ref('');
 const loading = ref(false);
 const wsConnected = ref(false);
 const currentSession = ref(null);
+const runtimeConfigSaving = ref(false);
+const runtimeConfigError = ref('');
+const directoryPickerLoading = ref(false);
+const chatSidebarCollapsed = ref(false);
 
 const chatCatalog = ref([]);
 const runCatalog = ref([]);
+
+const DEFAULT_CHAT_CWD = '/Volumes/laxer/codes/skills/industrial-deep-diagnostic';
+const permissionModeOptions = [
+  { value: 'default', label: 'default · 标准询问', shortLabel: '标准询问' },
+  { value: 'acceptEdits', label: 'acceptEdits · 自动接受编辑', shortLabel: '自动编辑' },
+  { value: 'dontAsk', label: 'dontAsk · 不询问直接拒绝', shortLabel: '不询问' },
+  { value: 'auto', label: 'auto · 自动判定', shortLabel: '自动判定' },
+  { value: 'plan', label: 'plan · 仅规划不执行', shortLabel: '仅规划' },
+  { value: 'bypassPermissions', label: 'bypassPermissions · 完全访问', shortLabel: '完全访问' },
+];
 
 let socket = null;
 let reconnectTimer = null;
@@ -205,6 +262,19 @@ const canStop = computed(() => {
   return !!panel.runId && ['running', 'awaiting_input'].includes(panel.status);
 });
 
+function loadChatSidebarState() {
+  try {
+    chatSidebarCollapsed.value = localStorage.getItem('idd.chatSidebarCollapsed') === '1';
+  } catch {}
+}
+
+function toggleChatSidebar() {
+  chatSidebarCollapsed.value = !chatSidebarCollapsed.value;
+  try {
+    localStorage.setItem('idd.chatSidebarCollapsed', chatSidebarCollapsed.value ? '1' : '0');
+  } catch {}
+}
+
 function nextSeq() {
   localSeq += 1;
   return localSeq;
@@ -217,6 +287,11 @@ function nextRequestId(prefix = 'req') {
 
 function shortId(value) {
   return value ? String(value).slice(0, 8) : '--';
+}
+
+function sessionAvatar(value, fallback = '?') {
+  const text = String(value || '').trim();
+  return text ? text.charAt(0).toUpperCase() : fallback;
 }
 
 function runStatusLabel(status) {
@@ -237,6 +312,8 @@ function createBasePanel(kind, title) {
     sessionId: null,
     originSessionId: null,
     currentSessionId: null,
+    cwd: kind === 'chat' ? DEFAULT_CHAT_CWD : null,
+    permissionMode: kind === 'chat' ? 'default' : null,
     status: kind === 'chat' ? 'draft' : 'pending',
     events: [],
     subscribed: false,
@@ -264,9 +341,41 @@ function buildSessionFromPanel(panel) {
     sessionId: panel.sessionId || null,
     originSessionId: panel.originSessionId || null,
     currentSessionId: panel.currentSessionId || null,
+    cwd: panel.cwd || null,
+    permissionMode: panel.permissionMode || null,
     title: panel.title || null,
     status: panel.status || null,
   };
+}
+
+function getChatPermissionMode(panel) {
+  return panel?.permissionMode || 'default';
+}
+
+function getChatCwd(panel) {
+  return panel?.cwd || DEFAULT_CHAT_CWD;
+}
+
+function isChatCwdLocked(panel) {
+  if (!panel || panel.kind !== 'chat') return true;
+  return !!panel.chatId || ['active', 'completed', 'failed', 'stopped'].includes(panel.status);
+}
+
+function chatCwdControlTitle(panel) {
+  return isChatCwdLocked(panel)
+    ? '当前 Chat 已绑定 Claude session；如需切换工作目录，请新建 Chat。'
+    : '选择这个 Chat 的工作目录';
+}
+
+function displayChatCwd(panel) {
+  return shortPath(getChatCwd(panel));
+}
+
+function shortPath(value) {
+  if (!value) return '未设置';
+  const str = String(value);
+  if (str.length <= 42) return str;
+  return `...${str.slice(-39)}`;
 }
 
 function syncCurrentSession(panel = activePanel.value) {
@@ -426,6 +535,8 @@ function setChatSnapshot(panel, payload) {
   panel.sessionId = payload.session?.sessionId || panel.sessionId;
   panel.originSessionId = payload.session?.originSessionId || payload.session?.sessionId || panel.originSessionId || panel.sessionId;
   panel.currentSessionId = payload.session?.currentSessionId || panel.currentSessionId || panel.sessionId;
+  panel.permissionMode = payload.session?.permissionMode || panel.permissionMode || 'default';
+  panel.cwd = payload.session?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
   panel.title = payload.session?.title || panel.title;
   panel.status = payload.session?.status || panel.status;
   panel.events = (payload.events || []).map(item => restoreChatEvent(item));
@@ -516,6 +627,8 @@ function handleWSMessage(message) {
         panel.sessionId = message.data?.sessionId || panel.sessionId;
         panel.originSessionId = message.data?.originSessionId || message.data?.sessionId || panel.originSessionId || panel.sessionId;
         panel.currentSessionId = message.data?.currentSessionId || panel.currentSessionId || panel.sessionId;
+        panel.permissionMode = message.data?.permissionMode || panel.permissionMode || 'default';
+        panel.cwd = message.data?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
         panel.status = 'active';
         subscribeChatPanel(panel);
         syncCurrentSessionIfActive(panel);
@@ -612,6 +725,8 @@ function mergeChatPanelsFromCatalog() {
     panel.sessionId = entry.sessionId || panel.sessionId;
     panel.originSessionId = entry.originSessionId || entry.sessionId || panel.originSessionId || panel.sessionId;
     panel.currentSessionId = entry.currentSessionId || panel.currentSessionId || panel.sessionId;
+    panel.permissionMode = entry.permissionMode || panel.permissionMode || 'default';
+    panel.cwd = entry.cwd || panel.cwd || DEFAULT_CHAT_CWD;
     panel.title = entry.title || panel.title;
     panel.status = entry.status || panel.status;
     syncCurrentSessionIfActive(panel);
@@ -643,6 +758,62 @@ async function refreshDiagnosePanels() {
     refreshDiagnosePanelsFromCatalog();
   } catch (err) {
     console.error('Failed to refresh diagnose sessions', err);
+  }
+}
+
+async function persistChatConfig(panel, patch = {}) {
+  if (!panel || panel.kind !== 'chat') return;
+  const previousPermissionMode = panel.permissionMode || 'default';
+  const previousCwd = panel.cwd || DEFAULT_CHAT_CWD;
+  runtimeConfigError.value = '';
+
+  if (patch.permissionMode != null) panel.permissionMode = patch.permissionMode;
+  if (patch.cwd != null) panel.cwd = patch.cwd;
+  syncCurrentSessionIfActive(panel);
+
+  if (!panel.chatId) return;
+
+  runtimeConfigSaving.value = true;
+  try {
+    const updated = await api.updateChatSessionConfig(panel.chatId, patch);
+    panel.permissionMode = updated.permissionMode || panel.permissionMode || 'default';
+    panel.cwd = updated.cwd || panel.cwd || DEFAULT_CHAT_CWD;
+    syncCurrentSessionIfActive(panel);
+  } catch (err) {
+    panel.permissionMode = previousPermissionMode;
+    panel.cwd = previousCwd;
+    runtimeConfigError.value = err.message || '聊天运行配置保存失败';
+    syncCurrentSessionIfActive(panel);
+    throw err;
+  } finally {
+    runtimeConfigSaving.value = false;
+  }
+}
+
+async function onPermissionModeChange(value) {
+  const panel = activePanel.value;
+  if (!panel || panel.kind !== 'chat') return;
+  try {
+    await persistChatConfig(panel, { permissionMode: value });
+  } catch {}
+}
+
+async function pickDirectoryFromSystem() {
+  const panel = activePanel.value;
+  if (!panel || panel.kind !== 'chat') return;
+  if (isChatCwdLocked(panel)) {
+    runtimeConfigError.value = '当前 Chat 已绑定 Claude session。要切换工作目录，请新建 Chat。';
+    return;
+  }
+  runtimeConfigError.value = '';
+  directoryPickerLoading.value = true;
+  try {
+    const result = await api.pickChatDirectory(getChatCwd(panel));
+    if (result?.canceled || !result?.path) return;
+    await persistChatConfig(panel, { cwd: result.path });
+  } catch {}
+  finally {
+    directoryPickerLoading.value = false;
   }
 }
 
@@ -711,12 +882,17 @@ async function submitMessage() {
           clientRequestId,
           payload: {
             prompt: text,
-            permissionMode: 'bypassPermissions',
+            permissionMode: getChatPermissionMode(panel),
+            cwd: getChatCwd(panel),
           },
         });
         if (!sent) {
           pendingChatRequests.delete(clientRequestId);
-          const result = await api.startChat({ prompt: text, permissionMode: 'bypassPermissions' });
+          const result = await api.startChat({
+            prompt: text,
+            permissionMode: getChatPermissionMode(panel),
+            cwd: getChatCwd(panel),
+          });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
           panel.originSessionId = result.originSessionId || result.sessionId || null;
@@ -736,7 +912,8 @@ async function submitMessage() {
             message: text,
             sessionId: session.sessionId,
             originSessionId: session.originSessionId || session.sessionId,
-            permissionMode: 'bypassPermissions',
+            permissionMode: getChatPermissionMode(panel),
+            cwd: getChatCwd(panel),
           },
         });
         if (!sent) {
@@ -745,7 +922,8 @@ async function submitMessage() {
             message: text,
             sessionId: session.sessionId,
             originSessionId: session.originSessionId || session.sessionId,
-            permissionMode: 'bypassPermissions',
+            permissionMode: getChatPermissionMode(panel),
+            cwd: getChatCwd(panel),
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || panel.sessionId;
@@ -786,6 +964,7 @@ async function submitMessage() {
 }
 
 onMounted(async () => {
+  loadChatSidebarState();
   ensureSocket();
   await Promise.all([refreshChats(), refreshDiagnosePanels()]);
   if (diagnosePanels.value[0]) {
@@ -807,15 +986,23 @@ onBeforeUnmount(() => {
 <style scoped>
 .chat-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 216px minmax(0, 1fr);
   gap: 0;
-  height: calc(100vh - 56px);
+  height: 100%;
   min-height: 0;
   border: none;
-  border-radius: 0;
+  border-radius: 24px;
   overflow: hidden;
-  background: #050505;
-  box-shadow: none;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 24%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--purple) 12%, transparent), transparent 22%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 92%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.chat-shell.chat-shell-collapsed {
+  grid-template-columns: 78px minmax(0, 1fr);
 }
 
 .chat-sidebar,
@@ -826,29 +1013,38 @@ onBeforeUnmount(() => {
 .chat-sidebar {
   display: flex;
   flex-direction: column;
-  background: #050505;
-  border-right: 1px solid #272727;
+  background: color-mix(in srgb, var(--bg-sidebar) 96%, transparent);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(14px);
 }
 
 .chat-sidebar-top {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   padding: 12px 10px 10px;
   border-bottom: none;
+}
+
+.chat-sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .chat-sidebar-brand {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .chat-sidebar-kicker {
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--text3);
 }
 
 .chat-sidebar-heading {
@@ -857,69 +1053,101 @@ onBeforeUnmount(() => {
   color: var(--text);
 }
 
+.chat-sidebar-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
+  color: var(--text2);
+  cursor: pointer;
+  transition: 0.16s ease;
+  flex: 0 0 auto;
+}
+
+.chat-sidebar-toggle:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface-strong) 92%, transparent);
+}
+
 .chat-sidebar-new {
   width: 100%;
   justify-content: center;
+  min-height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(31, 111, 235, 0.96), rgba(20, 91, 201, 0.96));
+  box-shadow: 0 12px 32px rgba(12, 33, 75, 0.35);
+  padding: 0 12px;
+}
+
+.chat-sidebar-new-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.chat-sidebar-new-label {
+  white-space: nowrap;
 }
 
 .chat-sidebar-groups {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 8px 6px 16px;
+  padding: 4px 6px 10px;
 }
 
 .chat-sidebar-group + .chat-sidebar-group {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .chat-sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 8px 10px;
+  padding: 8px 6px 8px;
 }
 
 .chat-sidebar-header h3 {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--text3);
 }
 
 .chat-sidebar-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .chat-session-item {
   width: 100%;
   text-align: left;
-  background: transparent;
-  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
   color: var(--text);
-  border-radius: 10px;
-  padding: 10px 10px 9px;
+  border-radius: 13px;
+  padding: 9px 9px 9px;
   cursor: pointer;
-  transition: 0.16s ease;
+  transition: 0.18s ease;
 }
 
 .chat-session-item:hover {
-  background: #1f1f1f;
-  border-color: transparent;
+  background: color-mix(in srgb, var(--surface-soft) 92%, transparent);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .chat-session-item.active {
-  background: #2f2f2f;
-  border-color: transparent;
-  box-shadow: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 94%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+  border-color: color-mix(in srgb, var(--accent) 26%, var(--border));
+  box-shadow: var(--shadow-sm);
 }
 
 .diagnose-item.active {
-  background: #2f2f2f;
-  border-color: transparent;
+  border-color: color-mix(in srgb, var(--cyan) 28%, var(--border));
 }
 
 .chat-session-head {
@@ -927,7 +1155,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 
 .chat-session-type {
@@ -940,16 +1168,39 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--accent);
-  background: rgba(88,166,255,.10);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.chat-session-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diagnose-avatar {
+  background: color-mix(in srgb, var(--cyan) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cyan) 18%, transparent);
+  color: var(--cyan);
 }
 
 .diagnose-type {
-  color: #22d3ee;
-  background: rgba(34,211,238,.10);
+  color: var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cyan) 18%, transparent);
 }
 
 .chat-session-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text);
   min-width: 0;
@@ -963,8 +1214,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 12px;
-  color: var(--text2);
+  font-size: 10px;
+  color: var(--text3);
 }
 
 .chat-session-actions {
@@ -977,8 +1228,8 @@ onBeforeUnmount(() => {
   width: 24px;
   height: 24px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--surface-soft) 85%, transparent);
   color: var(--text2);
   cursor: pointer;
   transition: .15s ease;
@@ -990,30 +1241,32 @@ onBeforeUnmount(() => {
 
 .session-icon-btn:hover {
   color: var(--text);
-  border-color: rgba(88,166,255,.18);
-  background: rgba(88,166,255,.08);
+  border-color: color-mix(in srgb, var(--accent) 24%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .session-icon-btn.danger:hover {
   color: var(--red);
-  border-color: rgba(248,81,73,.18);
-  background: rgba(248,81,73,.08);
+  border-color: color-mix(in srgb, var(--red) 24%, transparent);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
 }
 
 .chat-sidebar-empty {
-  padding: 8px;
-  color: var(--text2);
+  padding: 10px 8px;
+  color: var(--text3);
   font-size: 12px;
+  line-height: 1.5;
 }
 
 .chat-sidebar-footer {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px;
-  border-top: 1px solid #272727;
+  padding: 9px 12px 10px;
+  border-top: 1px solid var(--border);
   color: var(--text2);
-  font-size: 12px;
+  font-size: 11px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg-sidebar) 96%, transparent));
 }
 
 .chat-connection-dot {
@@ -1033,7 +1286,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: #050505;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 82%, transparent), color-mix(in srgb, var(--surface) 96%, transparent)),
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 10%, transparent), transparent 32%);
 }
 
 .chat-main-header {
@@ -1041,10 +1296,11 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  height: 52px;
-  padding: 0 18px;
-  border-bottom: 1px solid #111;
-  background: #050505;
+  height: 44px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px);
   flex-shrink: 0;
 }
 
@@ -1054,34 +1310,34 @@ onBeforeUnmount(() => {
   gap: 6px;
   border: none;
   background: transparent;
-  color: #f5f5f5;
-  font-size: 20px;
+  color: var(--text);
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  padding: 8px 6px;
+  padding: 8px 8px;
+  border-radius: 12px;
 }
 
 .chat-model-btn:hover {
-  background: #1f1f1f;
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
 }
 
 .chat-model-chevron {
-  color: #b4b4b4;
-  font-size: 16px;
+  color: var(--text2);
+  font-size: 15px;
 }
 
 .chat-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .chat-main-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .chat-main-kind,
@@ -1091,28 +1347,30 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  background: rgba(255,255,255,.05);
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
   color: var(--text2);
+  border: 1px solid var(--border);
 }
 
 .kind-chat {
   color: var(--accent);
-  background: rgba(88,166,255,.10);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .kind-diagnose {
-  color: #22d3ee;
-  background: rgba(34,211,238,.10);
+  color: var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 12%, transparent);
 }
 
 .chat-title {
-  font-size: 18px;
-  line-height: 1.2;
+  font-size: 22px;
+  line-height: 1.1;
   font-weight: 700;
-  color: #f4f7fb;
+  color: var(--text);
   margin-bottom: 0;
+  letter-spacing: -0.02em;
 }
 
 .chat-subtitle {
@@ -1123,12 +1381,12 @@ onBeforeUnmount(() => {
 
 .chat-status-online {
   color: var(--green);
-  background: rgba(63,185,80,.12);
+  background: color-mix(in srgb, var(--green) 14%, transparent);
 }
 
 .chat-status-offline {
   color: var(--yellow);
-  background: rgba(210,153,34,.12);
+  background: color-mix(in srgb, var(--yellow) 14%, transparent);
 }
 
 .chat-stage {
@@ -1137,6 +1395,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   position: relative;
+  background: radial-gradient(circle at top center, color-mix(in srgb, var(--accent) 7%, transparent), transparent 28%);
 }
 
 .chat-thread-shell {
@@ -1149,22 +1408,23 @@ onBeforeUnmount(() => {
 }
 
 .chat-session-title {
-  width: min(920px, calc(100% - 40px));
-  margin: 16px auto 8px;
+  width: min(1180px, calc(100% - 18px));
+  margin: 10px auto 6px;
   flex-shrink: 0;
 }
 
 .chat-stage-banner {
-  margin: 0 auto 12px;
-  width: min(920px, calc(100% - 40px));
-  padding: 13px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(88,166,255,.18);
-  background: rgba(88,166,255,.07);
+  margin: 0 auto 6px;
+  width: min(1180px, calc(100% - 18px));
+  padding: 8px 12px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 96%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-stage-banner-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
@@ -1173,7 +1433,7 @@ onBeforeUnmount(() => {
 
 .chat-stage-banner-text {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text2);
 }
 
@@ -1184,17 +1444,19 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   overflow: hidden;
+  padding: 0 4px;
 }
 
 .chat-thread :deep(.message-stream) {
-  width: min(920px, calc(100% - 40px));
+  width: min(1180px, 100%);
   height: 100%;
   min-height: 0;
   background: transparent;
   border: none;
   border-radius: 0;
-  padding: 16px 0 24px;
+  padding: 6px 0 14px;
   overflow-y: auto;
+  scroll-padding-bottom: 28px;
 }
 
 .chat-empty,
@@ -1211,68 +1473,255 @@ onBeforeUnmount(() => {
 }
 
 .chat-empty-icon {
-  font-size: 36px;
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--purple) 10%, transparent));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-composer-shell {
-  padding: 12px 18px 12px;
+  padding: 6px 12px 8px;
   border-top: none;
-  background: #050505;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--surface) 84%, transparent) 34%, color-mix(in srgb, var(--surface) 96%, transparent) 100%);
   flex-shrink: 0;
 }
 
 .chat-composer-wrap {
   width: 100%;
-  max-width: 860px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 
-.chat-hint {
-  font-size: 12px;
-  color: #8f8f8f;
-  margin-bottom: 8px;
-  padding: 0 4px;
-}
-
 .chat-composer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: end;
-  padding: 10px;
-  border-radius: 24px;
-  border: 1px solid #3a3a3a;
-  background: #252525;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    0 10px 30px rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 96%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
 }
 
 .chat-input {
   width: 100%;
-  min-height: 50px;
-  max-height: 180px;
-  border-radius: 18px;
-  padding: 13px 14px;
+  min-height: 72px;
+  max-height: 160px;
+  border-radius: 16px;
+  padding: 3px 5px;
   font-size: 15px;
   resize: vertical;
   background: transparent;
   border: none;
   box-shadow: none;
+  line-height: 1.6;
 }
 
-.chat-composer-actions {
+.chat-input::placeholder {
+  color: var(--text3);
+}
+
+.chat-composer-footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+}
+
+.chat-composer-runtime {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.chat-inline-control,
+.chat-inline-select-wrap,
+.chat-inline-note {
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-soft) 90%, transparent);
+  color: var(--text);
+}
+
+.chat-inline-control,
+.chat-inline-select-wrap {
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.chat-inline-control:hover,
+.chat-inline-select-wrap:hover {
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  background: color-mix(in srgb, var(--surface-strong) 92%, transparent);
+}
+
+.chat-inline-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.chat-inline-control:disabled,
+.chat-inline-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.chat-inline-icon,
+.chat-inline-select-icon {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  align-self: stretch;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chat-inline-text,
+.chat-inline-note {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-inline-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.chat-inline-select {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 88px;
+  padding-right: 18px;
+  box-shadow: none;
+}
+
+.chat-inline-select:focus {
+  box-shadow: none;
+}
+
+.chat-inline-note {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--text2);
 }
 
 .chat-send-btn {
-  min-width: 92px;
-  height: 44px;
+  min-width: 96px;
+  height: 36px;
   justify-content: center;
-  border-radius: 22px;
+  border-radius: 18px;
+  font-weight: 700;
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.chat-runtime-feedback {
+  margin-top: 6px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar {
+  align-items: stretch;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-top {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-brand {
+  display: none;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-brand-row {
+  justify-content: center;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-new {
+  min-width: 0;
+  padding: 0;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-new-label,
+.chat-shell.chat-shell-collapsed .chat-sidebar-header h3,
+.chat-shell.chat-shell-collapsed .chat-sidebar-header .btn,
+.chat-shell.chat-shell-collapsed .chat-session-name,
+.chat-shell.chat-shell-collapsed .chat-session-meta,
+.chat-shell.chat-shell-collapsed .chat-sidebar-empty,
+.chat-shell.chat-shell-collapsed .chat-sidebar-footer span:last-child {
+  display: none;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-groups {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-header {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.chat-shell.chat-shell-collapsed .chat-session-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 6px;
+  border-radius: 14px;
+}
+
+.chat-shell.chat-shell-collapsed .chat-session-head {
+  margin-bottom: 6px;
+}
+
+.chat-shell.chat-shell-collapsed .chat-session-type {
+  padding: 3px 6px;
+  font-size: 9px;
+}
+
+.chat-shell.chat-shell-collapsed .chat-session-actions {
+  display: none;
+}
+
+.chat-shell.chat-shell-collapsed .chat-session-avatar {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 0;
+}
+
+.chat-shell.chat-shell-collapsed .chat-sidebar-footer {
+  justify-content: center;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 @media (max-width: 1100px) {
@@ -1284,36 +1733,61 @@ onBeforeUnmount(() => {
 
   .chat-sidebar {
     border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid var(--border);
   }
 
   .chat-main-header {
-    padding: 16px 18px 14px;
+    padding: 0 12px;
   }
 
-  .chat-thread-shell,
-  .chat-composer-shell {
-    padding-left: 14px;
-    padding-right: 14px;
+  .chat-session-title,
+  .chat-stage-banner {
+    width: min(1180px, calc(100% - 12px));
   }
 }
 
 @media (max-width: 760px) {
-  .chat-shell {
-    border-radius: 16px;
+  .chat-sidebar-top {
+    padding: 16px 12px 12px;
   }
 
   .chat-main-header {
     flex-direction: column;
     align-items: stretch;
+    justify-content: center;
+    height: auto;
+    padding: 14px 16px;
   }
 
   .chat-title {
     font-size: 22px;
   }
 
+  .chat-thread {
+    padding: 0 8px;
+  }
+
+  .chat-composer-shell {
+    padding: 14px 12px 16px;
+  }
+
   .chat-composer {
-    grid-template-columns: 1fr;
+    border-radius: 22px;
+  }
+
+  .chat-composer-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chat-composer-runtime {
+    flex-wrap: wrap;
+  }
+
+  .chat-inline-control,
+  .chat-inline-select-wrap,
+  .chat-inline-note {
+    width: 100%;
   }
 
   .chat-send-btn {

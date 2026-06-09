@@ -87,6 +87,7 @@ export function initDB() {
       status TEXT DEFAULT 'active',
       model TEXT DEFAULT '${sqlQuote(config.claude.model)}',
       permission_mode TEXT DEFAULT 'bypassPermissions',
+      cwd TEXT DEFAULT '${sqlQuote(PROJECT_ROOT)}',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
       completed_at TEXT
@@ -122,6 +123,26 @@ export function initDB() {
       UPDATE chat_sessions
       SET origin_session_id = session_id
       WHERE origin_session_id IS NULL AND session_id IS NOT NULL
+    `);
+  }
+
+  const hasPermissionMode = chatCols.some(c => c.name === 'permission_mode');
+  if (!hasPermissionMode) {
+    db.exec(`ALTER TABLE chat_sessions ADD COLUMN permission_mode TEXT DEFAULT 'bypassPermissions'`);
+    db.exec(`
+      UPDATE chat_sessions
+      SET permission_mode = 'bypassPermissions'
+      WHERE permission_mode IS NULL OR permission_mode = ''
+    `);
+  }
+
+  const hasCwd = chatCols.some(c => c.name === 'cwd');
+  if (!hasCwd) {
+    db.exec(`ALTER TABLE chat_sessions ADD COLUMN cwd TEXT DEFAULT '${sqlQuote(PROJECT_ROOT)}'`);
+    db.exec(`
+      UPDATE chat_sessions
+      SET cwd = '${sqlQuote(PROJECT_ROOT)}'
+      WHERE cwd IS NULL OR cwd = ''
     `);
   }
 
@@ -202,14 +223,16 @@ const stmts = {
   getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
   updateRunSession: db.prepare('UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime(\'now\') WHERE run_id = @runId'),
   insertChatSession: db.prepare(`
-    INSERT INTO chat_sessions (chat_id, title, session_id, origin_session_id, status, model, permission_mode)
-    VALUES (@chatId, @title, @sessionId, @originSessionId, @status, @model, @permissionMode)
+    INSERT INTO chat_sessions (chat_id, title, session_id, origin_session_id, status, model, permission_mode, cwd)
+    VALUES (@chatId, @title, @sessionId, @originSessionId, @status, @model, @permissionMode, @cwd)
   `),
   updateChatSession: db.prepare(`
     UPDATE chat_sessions
     SET title = COALESCE(@title, title),
         session_id = COALESCE(@sessionId, session_id),
         origin_session_id = COALESCE(origin_session_id, @originSessionId, session_id),
+        permission_mode = COALESCE(@permissionMode, permission_mode),
+        cwd = COALESCE(@cwd, cwd),
         status = COALESCE(@status, status),
         updated_at = datetime('now'),
         completed_at = CASE
@@ -217,6 +240,14 @@ const stmts = {
           WHEN @status IN ('completed', 'failed', 'stopped') THEN datetime('now')
           ELSE completed_at
         END
+    WHERE chat_id = @chatId
+  `),
+  patchChatSessionConfig: db.prepare(`
+    UPDATE chat_sessions
+    SET title = COALESCE(@title, title),
+        permission_mode = COALESCE(@permissionMode, permission_mode),
+        cwd = COALESCE(@cwd, cwd),
+        updated_at = datetime('now')
     WHERE chat_id = @chatId
   `),
   getChatSessionByChatId: db.prepare('SELECT * FROM chat_sessions WHERE chat_id = ?'),

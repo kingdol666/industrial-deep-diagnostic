@@ -319,11 +319,23 @@ const paginatedLogs = computed(() => {
 </script>
 
 <style scoped>
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+  box-shadow: var(--shadow-sm);
 }
 
 .toolbar-left { display: flex; align-items: center; gap: 8px; }
@@ -332,9 +344,10 @@ const paginatedLogs = computed(() => {
 .count-badge {
   font-size: 12px;
   color: var(--text2);
-  background: var(--surface2);
+  background: var(--surface-soft);
   padding: 2px 10px;
   border-radius: 10px;
+  border: 1px solid var(--border);
 }
 
 .toolbar-right { display: flex; gap: 8px; }
@@ -343,6 +356,8 @@ const paginatedLogs = computed(() => {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  box-shadow: var(--shadow-sm);
 }
 
 .history-table {
@@ -383,8 +398,8 @@ const paginatedLogs = computed(() => {
 
 .history-row:hover { background: rgba(88, 166, 255, 0.03); }
 
-.row-running { background: rgba(88, 166, 255, 0.04); }
-.row-failed { background: rgba(248, 81, 73, 0.03); }
+.row-running { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.row-failed { background: color-mix(in srgb, var(--red) 5%, transparent); }
 
 .cell-name { font-weight: 600; font-size: 12px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cell-path { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--accent); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -436,7 +451,7 @@ const paginatedLogs = computed(() => {
 .logs-section { margin-top: 8px; }
 
 .log-stream {
-  background: var(--surface2);
+  background: var(--surface-soft);
   border-radius: var(--radius);
   padding: 8px;
   max-height: 400px;
@@ -453,7 +468,7 @@ const paginatedLogs = computed(() => {
   align-items: flex-start;
 }
 
-.log-line:hover { background: rgba(88, 166, 255, 0.05); border-radius: 2px; }
+.log-line:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 6px; }
 
 .log-time {
   color: var(--text2);
@@ -471,8 +486,8 @@ const paginatedLogs = computed(() => {
   line-height: 16px;
 }
 
-.tag-text { background: rgba(188, 140, 255, 0.15); color: var(--purple); }
-.tag-tool_use { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
+.tag-text { background: color-mix(in srgb, var(--purple) 14%, transparent); color: var(--purple); }
+.tag-tool_use { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 
 .log-content {
   color: var(--text);
@@ -481,7 +496,7 @@ const paginatedLogs = computed(() => {
 }
 
 .btn-continue {
-  background: rgba(88, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   border-color: var(--accent);
   color: var(--accent);
   display: inline-flex;
@@ -489,16 +504,16 @@ const paginatedLogs = computed(() => {
   gap: 4px;
 }
 .btn-continue:hover {
-  background: rgba(88, 166, 255, 0.2);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .btn-session {
-  background: rgba(163, 113, 247, 0.1);
-  border-color: #a371f7;
-  color: #a371f7;
+  background: color-mix(in srgb, var(--purple) 10%, transparent);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 .btn-session:hover {
-  background: rgba(163, 113, 247, 0.2);
+  background: color-mix(in srgb, var(--purple) 18%, transparent);
 }
 
 .spinner-sm {

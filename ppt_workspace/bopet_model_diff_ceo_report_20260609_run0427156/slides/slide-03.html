@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  width:960pt;height:540pt;position:relative;overflow:hidden;
+  background:#FBFAF7;color:#1F2430;
+  font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif
+}
+.topline{position:absolute;left:0;top:0;width:960pt;height:5pt;background:#1C3144}
+.topline.crisp{background:#B44A2E}
+.bottomline{position:absolute;left:34pt;bottom:28pt;width:892pt;height:1.2pt;background:#D7D2CA}
+.page{position:absolute;right:38pt;bottom:10pt;font-size:9pt;color:#6E6A64}
+.eyebrow{position:absolute;left:42pt;top:26pt;font-size:9.5pt;letter-spacing:1.4pt;color:#8A5A3B}
+.title{position:absolute;left:42pt;top:48pt;width:876pt;font-size:25pt;line-height:1.32;font-weight:700;color:#1C3144}
+.title.small{font-size:23pt}
+.subtitle{position:absolute;left:42pt;top:112pt;width:876pt;font-size:12pt;line-height:1.65;color:#6A6762}
+.rule{position:absolute;left:42pt;top:102pt;width:110pt;height:3pt;background:#B44A2E;border-radius:2pt}
+.card{position:absolute;border:1.1pt solid #D9D4CC;border-radius:14pt;background:#FFFFFF}
+.card.soft{background:#F4F1EA}
+.card.accent{background:#FFF5EE;border-color:#E7C8B9}
+.card.blue{background:#F1F6FA;border-color:#C8D7E3}
+.card.dark{background:#1C3144;border-color:#1C3144}
+.card.warn{background:#FFF7F2;border-color:#E9B8A8}
+.card h2{
+  position:absolute;left:18pt;top:14pt;width:calc(100% - 36pt);
+  font-size:15pt;line-height:1.35;font-weight:700;color:#1C3144
+}
+.card.dark h2,.card.dark p,.card.dark li{color:#FFFFFF}
+.card p{
+  position:absolute;left:18pt;width:calc(100% - 36pt);
+  font-size:11.2pt;line-height:1.62;color:#20242B
+}
+.card ul{
+  position:absolute;left:28pt;top:50pt;width:calc(100% - 52pt);
+  font-size:11.2pt;line-height:1.62;color:#20242B;padding-left:16pt
+}
+.card.dark ul{color:#FFFFFF}
+.node{position:absolute;border:1.2pt solid #1C3144;border-radius:12pt;background:#FFFFFF}
+.node h3{
+  position:absolute;left:12pt;top:12pt;width:calc(100% - 24pt);
+  font-size:13pt;line-height:1.35;font-weight:700;color:#1C3144;text-align:center
+}
+.node p{
+  position:absolute;left:12pt;width:calc(100% - 24pt);
+  font-size:10.4pt;line-height:1.55;color:#27303B;text-align:center
+}
+.term{position:absolute;border:1.1pt solid #D9D4CC;border-radius:12pt;background:#FFFFFF}
+.term h3{
+  position:absolute;left:16pt;top:14pt;width:calc(100% - 32pt);
+  font-size:14pt;line-height:1.35;font-weight:700;color:#1C3144
+}
+.term p{
+  position:absolute;left:16pt;width:calc(100% - 32pt);
+  font-size:11pt;line-height:1.62;color:#232831
+}
+.placeholder{
+  position:absolute;border:1.2pt dashed #B7C3CE;border-radius:12pt;background:#F7F9FB
+}
+.kpi{position:absolute;border:1.1pt solid #D9D4CC;border-radius:14pt;background:#FFFFFF}
+.kpi-num{
+  position:absolute;left:14pt;top:16pt;width:calc(100% - 28pt);
+  font-size:28pt;line-height:1.2;font-weight:700;text-align:center;color:#1C3144
+}
+.kpi-label{
+  position:absolute;left:14pt;top:60pt;width:calc(100% - 28pt);
+  font-size:10pt;line-height:1.55;text-align:center;color:#5E5A54
+}
+.arrow{position:absolute;font-size:20pt;line-height:1;color:#1C3144}
+</style>
+</head>
+<body>
+
+<div class="topline"></div>
+<p class="eyebrow">PROCESS AND TERMS</p>
+<h1 class="title small">这次报告分析的是 MD 纵拉加工段，但最终结论指向“问题未必发生在这一段”</h1>
+<div class="rule"></div>
+
+<div class="card soft" style="left:42pt;top:140pt;width:252pt;height:322pt;">
+  <h2>先把几个术语翻成老板能听懂的话</h2>
+  <p style="top:56pt;"><b>MD</b>：薄膜在纵向被拉开的工段，是本次已有数据最完整的段。</p>
+  <p style="top:120pt;"><b>TD</b>：后续横向拉伸工段。虽然这次没采到数据，但划伤也可能在那一段发生。</p>
+  <p style="top:198pt;"><b>Tg</b>：材料从“偏硬”转向“可以被拉伸”的温度门槛，PET 大约在 75C 左右。</p>
+  <p style="top:274pt;"><b>双拉</b>：先纵向拉，再横向拉，所以“MD出口检测到划伤”不等于“划伤一定发生在MD”。</p>
+</div>
+
+<div class="card" style="left:312pt;top:140pt;width:606pt;height:154pt;">
+  <h2>可以把产线理解成四段</h2>
+  <div class="card blue" style="left:18pt;top:56pt;width:128pt;height:76pt;">
+    <h2 style="font-size:13pt;">挤出 / 过滤</h2>
+    <p style="top:36pt;font-size:10.3pt;">原料熔融、过滤杂质。</p>
+  </div>
+  <div class="card soft" style="left:164pt;top:56pt;width:128pt;height:76pt;">
+    <h2 style="font-size:13pt;">MD预热 / 纵拉</h2>
+    <p style="top:36pt;font-size:10.3pt;">这次已有最完整参数。</p>
+  </div>
+  <div class="card accent" style="left:310pt;top:56pt;width:128pt;height:76pt;">
+    <h2 style="font-size:13pt;">TD横拉</h2>
+    <p style="top:36pt;font-size:10.3pt;">当前数据缺失，但可能产伤。</p>
+  </div>
+  <div class="card warn" style="left:456pt;top:56pt;width:132pt;height:76pt;">
+    <h2 style="font-size:13pt;">收卷 / 后处理</h2>
+    <p style="top:36pt;font-size:10.3pt;">也可能放大划伤表现。</p>
+  </div>
+</div>
+
+<div class="card accent" style="left:312pt;top:312pt;width:606pt;height:62pt;">
+  <p style="top:18pt;font-size:10.8pt;line-height:1.5;">老板翻译：这次能确认的是“MD参数不是主要矛盾”，但不能因此误解成“问题一定发生在MD”。相反，真正该追的很可能在材料、规格或下游环节。</p>
+</div>
+
+<div class="card blue" style="left:312pt;top:392pt;width:606pt;height:70pt;">
+  <h2>这次数据覆盖了什么</h2>
+  <p style="top:40pt;">149批次、184列数据、18根纵拉辊参数、产品型号信息和划伤计数。数据对 MD 段很丰富，但对原材料、厚度和 TD 段仍然缺口明显。</p>
+</div>
+
+<div class="bottomline"></div>
+<p class="page">3 / 12</p>
+</body>
+</html>

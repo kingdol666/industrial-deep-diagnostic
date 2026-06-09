@@ -1,51 +1,107 @@
 <template>
-  <div class="app">
-    <header class="app-header">
-      <div class="header-left">
-        <h1 class="logo">Industrial Deep Diagnostic</h1>
-        <span :class="['ws-indicator', wsStatusClass]" :title="wsTitle">
-          <span class="ws-dot"></span>
-          <span class="ws-label">{{ wsStatusText }}</span>
-        </span>
-        <span class="version">v4.2</span>
-      </div>
-      <nav class="header-nav">
+  <div :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed }]">
+    <aside class="app-sidebar">
+      <div class="app-brand">
+        <div class="app-brand-mark">ID</div>
+        <div class="app-brand-copy">
+          <div class="app-brand-kicker">Enterprise Workspace</div>
+          <div class="app-brand-title">Industrial Deep Diagnostic</div>
+          <div class="app-brand-subtitle">工业数据诊断与知识协同工作台</div>
+        </div>
         <button
-          v-for="tab in tabs" :key="tab.key"
-          :class="['nav-btn', { active: currentTab === tab.key }]"
+          class="app-sidebar-toggle"
+          type="button"
+          :title="sidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'"
+          @click="toggleSidebar"
+        >
+          {{ sidebarCollapsed ? '›' : '‹' }}
+        </button>
+      </div>
+
+      <nav class="app-nav" aria-label="Primary">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          :class="['app-nav-item', { active: currentTab === tab.key }]"
+          :title="tab.label"
           @click="currentTab = tab.key"
-        >{{ tab.label }}</button>
+        >
+          <span class="app-nav-icon">{{ tab.icon }}</span>
+          <span class="app-nav-copy">
+            <span class="app-nav-label">{{ tab.label }}</span>
+            <span class="app-nav-caption">{{ tab.caption }}</span>
+          </span>
+        </button>
       </nav>
-    </header>
-    <main :class="['app-main', { 'app-main-chat': currentTab === 'chat', 'app-main-diagnose': currentTab === 'diagnose' }]">
-      <DataBrowser
-        v-if="currentTab === 'data'"
-        @select-file="onSelectFile"
-        @select-folder="onSelectFolder"
-        @select-files="onSelectFiles"
-      />
-      <DiagnosisView
-        v-if="currentTab === 'diagnose'"
-        :analysisTarget="analysisTarget"
-        :autoRunId="autoOpenRunId"
-        @started="onDiagnosisStarted"
-        @view-report="onViewReport"
-        @go-data="currentTab = 'data'"
-      />
-      <ChatView
-        v-if="currentTab === 'chat'"
-      />
-      <ReportViewer
-        v-if="currentTab === 'reports'"
-        :auto-run-id="autoOpenRunId"
-        :target-run-name="openReportPath"
-      />
-      <HistoryList
-        v-if="currentTab === 'history'"
-        @open-report="onOpenReport"
-        @continue-run="onContinueRun"
-      />
-    </main>
+
+      <div class="app-sidebar-footer">
+        <div class="app-presence" :class="wsStatusClass">
+          <span class="app-presence-dot"></span>
+          <span>{{ wsStatusText }}</span>
+        </div>
+        <div class="app-sidebar-note">
+          <span class="app-sidebar-note-label">Theme</span>
+          <span class="app-sidebar-note-value">Follow System</span>
+        </div>
+        <div class="app-sidebar-note" v-if="analysisTargetLabel">
+          <span class="app-sidebar-note-label">Selection</span>
+          <span class="app-sidebar-note-value">{{ analysisTargetLabel }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="app-body">
+      <header class="app-topbar">
+        <div class="app-topbar-copy">
+          <div class="app-topbar-kicker">{{ activeTabMeta.kicker }}</div>
+          <h1 class="app-topbar-title">{{ activeTabMeta.title }}</h1>
+          <p class="app-topbar-subtitle">{{ activeTabMeta.description }}</p>
+        </div>
+
+        <div class="app-topbar-meta">
+          <span class="app-pill">
+            <span class="app-pill-dot" :class="wsStatusClass"></span>
+            {{ wsStatusText }}
+          </span>
+          <span class="app-pill app-pill-soft">v4.2</span>
+        </div>
+      </header>
+
+      <main :class="['app-content', contentClass]">
+        <div v-if="currentTab === 'data'" class="app-view-frame">
+          <DataBrowser
+            @select-file="onSelectFile"
+            @select-folder="onSelectFolder"
+            @select-files="onSelectFiles"
+          />
+        </div>
+
+        <DiagnosisView
+          v-else-if="currentTab === 'diagnose'"
+          :analysisTarget="analysisTarget"
+          :autoRunId="autoOpenRunId"
+          @started="onDiagnosisStarted"
+          @view-report="onViewReport"
+          @go-data="currentTab = 'data'"
+        />
+
+        <ChatView v-else-if="currentTab === 'chat'" />
+
+        <div v-else-if="currentTab === 'reports'" class="app-view-frame">
+          <ReportViewer
+            :auto-run-id="autoOpenRunId"
+            :target-run-name="openReportPath"
+          />
+        </div>
+
+        <div v-else-if="currentTab === 'history'" class="app-view-frame">
+          <HistoryList
+            @open-report="onOpenReport"
+            @continue-run="onContinueRun"
+          />
+        </div>
+      </main>
+    </section>
   </div>
 </template>
 
@@ -62,6 +118,7 @@ const currentTab = ref('data');
 const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
+const sidebarCollapsed = ref(false);
 
 const { state: rtState, init, teardown } = useDiagnosisRealtimeStore();
 
@@ -73,30 +130,49 @@ const wsStatusClass = computed(() => {
 });
 
 const wsStatusText = computed(() => {
-  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return 'Connected';
-  if (rtState.wsStatus === 'connecting') return 'Connecting...';
-  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return 'Reconnecting...';
-  if (rtState.wsStatus === 'idle') return 'Not connected';
+  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return 'Realtime Connected';
+  if (rtState.wsStatus === 'connecting') return 'Connecting';
+  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return 'Reconnecting';
+  if (rtState.wsStatus === 'idle') return 'Waiting';
   return 'Disconnected';
 });
 
-const wsTitle = computed(() => {
-  const parts = [`WebSocket: ${wsStatusText.value}`];
-  if (rtState.wsLatency != null) parts.push(`Latency: ${rtState.wsLatency}ms`);
-  if (rtState.lastHeartbeatAt) {
-    const ago = Math.round((Date.now() - rtState.lastHeartbeatAt) / 1000);
-    parts.push(`Last heartbeat: ${ago}s ago`);
-  }
-  return parts.join(' | ');
+const tabs = [
+  { key: 'data', label: 'Data', icon: '◫', kicker: 'Data Workspace', title: '数据接入与选择', description: '上传工业数据、组织目录，并将目标数据送入后续诊断流程。', caption: 'Upload and select industrial datasets' },
+  { key: 'diagnose', label: 'Diagnose', icon: '◎', kicker: 'Diagnostic Run', title: '实时诊断工作台', description: '查看诊断阶段、证据链、图表和交互式追问，像操作一个实时分析会话一样工作。', caption: 'Live root-cause analysis and recovery' },
+  { key: 'chat', label: 'Chat', icon: '⌘', kicker: 'Conversation Studio', title: '会话与诊断协同聊天', description: '统一承载普通 Chat 与 Diagnose session，对话、续聊、配置和上下文在同一工作区内完成。', caption: 'Resume chats and diagnose sessions' },
+  { key: 'reports', label: 'Reports', icon: '▣', kicker: 'Artifact Review', title: '报告与审计产物', description: '阅读 Markdown 报告、图表和优化审计结果，快速定位结论和关键证据。', caption: 'Read reports and review artifacts' },
+  { key: 'history', label: 'History', icon: '◌', kicker: 'Execution Ledger', title: '历史运行记录', description: '按运行状态回看诊断历史、日志与会话，并继续失败或暂停的任务。', caption: 'Track historical runs and outcomes' },
+];
+
+const activeTabMeta = computed(() => tabs.find(tab => tab.key === currentTab.value) || tabs[0]);
+
+const contentClass = computed(() => ({
+  'app-content-chat': currentTab.value === 'chat',
+  'app-content-diagnose': currentTab.value === 'diagnose',
+}));
+
+const analysisTargetLabel = computed(() => {
+  const target = analysisTarget.value;
+  if (!target) return '';
+  if (target.mode === 'file') return target.file?.name || '1 file selected';
+  if (target.mode === 'folder') return target.name || 'Folder selected';
+  if (target.mode === 'multi') return `${target.files?.length || 0} files selected`;
+  return 'Selection ready';
 });
 
-const tabs = [
-  { key: 'data', label: 'Data' },
-  { key: 'diagnose', label: 'Diagnose' },
-  { key: 'chat', label: 'Chat' },
-  { key: 'reports', label: 'Reports' },
-  { key: 'history', label: 'History' },
-];
+function loadSidebarState() {
+  try {
+    sidebarCollapsed.value = localStorage.getItem('idd.sidebarCollapsed') === '1';
+  } catch {}
+}
+
+function toggleSidebar() {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  try {
+    localStorage.setItem('idd.sidebarCollapsed', sidebarCollapsed.value ? '1' : '0');
+  } catch {}
+}
 
 function onSelectFile(file) {
   analysisTarget.value = { mode: 'file', file };
@@ -138,8 +214,10 @@ function onOpenReport(reportPath) {
   currentTab.value = 'reports';
 }
 
-// --- WS connection is fully managed by the store (silent heartbeat + auto-reconnect) ---
-onMounted(() => init());
+onMounted(() => {
+  loadSidebarState();
+  init();
+});
 onUnmounted(() => teardown());
 </script>
 
