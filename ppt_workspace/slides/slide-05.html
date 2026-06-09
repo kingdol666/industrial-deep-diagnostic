@@ -4,65 +4,103 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
-.placeholder{background:#E8ECF0;border:1px dashed #B2BEC3;border-radius:4pt;display:flex;align-items:center;justify-content:center;color:#636E72;font-size:11pt;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:20pt;left:24pt;font-size:20pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">看懂诊断报告的关键概念</h2>
-<div style="position:absolute;top:50pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:20pt;color:#000000;font-weight:bold;">诊断不是确认，是排除 — 竞争性假设协议</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:62pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- Top row: Two columns of concept explanations -->
-<div style="position:absolute;top:70pt;left:24pt;width:444pt;">
+  <!-- LEFT column 55%: Four conditions checklist -->
+  <div style="position:absolute;left:40pt;top:85pt;width:460pt;">
 
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Simpson悖论</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">全局趋势在按型号分组后消失或反转。如 W1C80_std 全局 r= +0.469 变成 PG31DS 型号内 r= -0.364——方向完全反转。</p>
+    <p style="font-size:12pt;color:#000000;font-weight:bold;margin-bottom:10pt;">四条反推测条件（全部满足才能确立因果）</p>
+
+    <!-- Condition 1 -->
+    <div style="margin-bottom:10pt;display:flex;align-items:flex-start;">
+      <div style="width:20pt;height:20pt;border:2pt solid #4488FF;border-radius:2pt;flex-shrink:0;margin-right:10pt;margin-top:2pt;"></div>
+      <div>
+        <p style="font-size:11pt;color:#000000;font-weight:bold;">时间先后</p>
+        <p style="font-size:9pt;color:#333333;margin-top:2pt;">原因必须发生在结果之前，建立时间方向性</p>
+      </div>
+    </div>
+
+    <!-- Condition 2 -->
+    <div style="margin-bottom:10pt;display:flex;align-items:flex-start;">
+      <div style="width:20pt;height:20pt;border:2pt solid #4488FF;border-radius:2pt;flex-shrink:0;margin-right:10pt;margin-top:2pt;"></div>
+      <div>
+        <p style="font-size:11pt;color:#000000;font-weight:bold;">统计显著</p>
+        <p style="font-size:9pt;color:#333333;margin-top:2pt;">相关性不能是偶然，需要通过多重检验校正</p>
+      </div>
+    </div>
+
+    <!-- Condition 3 -->
+    <div style="margin-bottom:10pt;display:flex;align-items:flex-start;">
+      <div style="width:20pt;height:20pt;border:2pt solid #4488FF;border-radius:2pt;flex-shrink:0;margin-right:10pt;margin-top:2pt;"></div>
+      <div>
+        <p style="font-size:11pt;color:#000000;font-weight:bold;">物理机制</p>
+        <p style="font-size:9pt;color:#333333;margin-top:2pt;">必须存在可解释的物理传导路径，非统计巧合</p>
+      </div>
+    </div>
+
+    <!-- Condition 4 -->
+    <div style="margin-bottom:10pt;display:flex;align-items:flex-start;">
+      <div style="width:20pt;height:20pt;border:2pt solid #4488FF;border-radius:2pt;flex-shrink:0;margin-right:10pt;margin-top:2pt;"></div>
+      <div>
+        <p style="font-size:11pt;color:#000000;font-weight:bold;">无矛盾</p>
+        <p style="font-size:9pt;color:#333333;margin-top:2pt;">假设不能与其他已确认的事实产生冲突</p>
+      </div>
+    </div>
+
+    <!-- Evidence levels -->
+    <div style="margin-top:6pt;">
+      <p style="font-size:9pt;color:#333333;line-height:1.5;">证据等级 1-7：从直接测量值（最高）到无支持假设（最低），结论受限最低证据等级。双驱动分析 = 纯工艺波动诊断 + 工艺-检测双驱动诊断。</p>
+    </div>
+  </div>
+
+  <!-- RIGHT column 45%: Three outcome types as different-sized sticky notes -->
+  <!-- DETERMINED - large -->
+  <div style="position:absolute;left:530pt;top:85pt;width:210pt;height:110pt;background:#F5F5F5;border:2pt solid #4488FF;border-radius:3pt;padding:12pt 14pt;">
+    <p style="font-size:16pt;color:#4488FF;font-weight:bold;margin-bottom:6pt;">DETERMINED</p>
+    <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">已确定根因</p>
+    <p style="font-size:9pt;color:#333333;">数据充分排除所有竞争假设，唯一根因确立</p>
+  </div>
+
+  <!-- COMPETING_SET - medium -->
+  <div style="position:absolute;left:530pt;top:215pt;width:190pt;height:100pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:12pt 14pt;">
+    <p style="font-size:14pt;color:#FF4444;font-weight:bold;margin-bottom:4pt;">COMPETING_SET</p>
+    <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">多个假设不可区分</p>
+    <p style="font-size:9pt;color:#333333;">置信度上限受约束（INDISTINGUISHABLE设为65%）</p>
+  </div>
+
+  <!-- NEEDS_DATA - small -->
+  <div style="position:absolute;left:750pt;top:160pt;width:170pt;height:90pt;background:#F5F5F5;border:2pt solid #FF4444;border-radius:3pt;padding:10pt 12pt;">
+    <p style="font-size:12pt;color:#FF4444;font-weight:bold;margin-bottom:4pt;">NEEDS_DATA</p>
+    <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:3pt;">数据不足</p>
+    <p style="font-size:9pt;color:#333333;">需补充数据后重新诊断</p>
+  </div>
+
+  <!-- Annotation arrow doodle -->
+  <div style="position:absolute;left:530pt;top:340pt;width:120pt;height:2pt;background:#000000;opacity:0.3;"></div>
+  <div style="position:absolute;left:530pt;top:350pt;">
+    <p style="font-size:8pt;color:#333333;">源自情报分析方法论 ACH，防止LLM确认偏误</p>
+  </div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">5</p>
+  </div>
+
 </div>
-
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Pearson r</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">线性相关系数，取值范围 -1 到 +1。绝对值大于 0.5 为强相关，0.3-0.5 为中等相关。正值代表同向变化，负值代表反向变化。</p>
-</div>
-
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">COMPETING_SET</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">竞争假说集。当多个假说都无法被现有数据排除时，将它们并列列出并分配各自置信度上限。诊断管线最终判定为 DETERMINED（唯一确定）、COMPETING_SET（多个竞争）或 NEEDS_DATA（数据不足）。</p>
-</div>
-
-</div>
-
-<div style="position:absolute;top:70pt;left:492pt;width:444pt;">
-
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">聚合 vs 分层相关</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">全体数据计算的相关性（聚合）与按型号分组后分别计算（分层）。差异揭示是否存在混杂变量。本项目中聚合与分层差异是核心发现。</p>
-</div>
-
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;margin-bottom:8pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">Tg (~75 C)</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">PET 的玻璃化转变温度（Glass Transition Temp），从玻璃态硬脆变为高弹态的临界点。纵拉预加热需达到此温度才能进行拉伸取向。低于 Tg 拉伸会导致薄膜断裂。</p>
-</div>
-
-<div style="background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 12pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;">CCF 交叉相关</p>
-<p style="font-size:9pt;color:#636E72;margin-top:3pt;line-height:1.5;">Cross-Correlation Function，分析两个时间序列之间的滞后相关关系。可识别一个变量的变化是否在时间上领先于另一个变量，推断因果方向。</p>
-</div>
-
-</div>
-
-<!-- Bottom: Simpson paradox illustration -->
-<div class="placeholder" id="img-simpson-explain" style="position:absolute;top:300pt;left:120pt;width:720pt;height:200pt;"></div>
-
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">5 / 10</p>
-</div>
-
 </body>
 </html>

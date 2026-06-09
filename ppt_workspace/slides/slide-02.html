@@ -4,63 +4,77 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:26pt;left:24pt;font-size:24pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">汇报结构</h2>
-<div style="position:absolute;top:62pt;left:24pt;width:55pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:35pt;">
+    <h1 style="font-size:24pt;color:#000000;font-weight:bold;">这次分享你会看到什么？</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:70pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- 5 Section cards arranged horizontally -->
-<div style="position:absolute;top:108pt;left:57pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
-<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">01</p>
-</div>
-<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">数据来源与工艺背景</p>
-<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">了解诊断数据来源及BOPET纵拉工艺全过程</p>
-</div>
+  <!-- Left column: 3 large sticky notes -->
+  <!-- Sticky 1 -->
+  <div style="position:absolute;left:40pt;top:100pt;width:270pt;height:120pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:14pt;">
+    <p style="font-size:36pt;color:#4488FF;font-weight:bold;margin-bottom:6pt;">1</p>
+    <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:6pt;">诊断管线架构</p>
+    <p style="font-size:10pt;color:#333333;">8步6智能体的根因分析流水线</p>
+  </div>
 
-<div style="position:absolute;top:108pt;left:229pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
-<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">02</p>
-</div>
-<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">参数本体解读</p>
-<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">18辊温度·扭矩·速度·挤出参数的物理意义</p>
-</div>
+  <!-- Sticky 2 -->
+  <div style="position:absolute;left:40pt;top:240pt;width:270pt;height:120pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:14pt;">
+    <p style="font-size:36pt;color:#4488FF;font-weight:bold;margin-bottom:6pt;">2</p>
+    <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:6pt;">RAG知识引擎</p>
+    <p style="font-size:10pt;color:#333333;">FastAPI+ChromaDB的领域知识检索</p>
+  </div>
 
-<div style="position:absolute;top:108pt;left:401pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
-<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">03</p>
-</div>
-<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">专业名词解释</p>
-<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">Simpson悖论·Pearson相关·竞争假说等核心概念</p>
-</div>
+  <!-- Sticky 3 -->
+  <div style="position:absolute;left:40pt;top:380pt;width:270pt;height:120pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:14pt;">
+    <p style="font-size:36pt;color:#4488FF;font-weight:bold;margin-bottom:6pt;">3</p>
+    <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:6pt;">整体集成架构</p>
+    <p style="font-size:10pt;color:#333333;">三大模块如何协同工作</p>
+  </div>
 
-<div style="position:absolute;top:108pt;left:573pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
-<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">04</p>
-</div>
-<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">核心发现——Simpson悖论</p>
-<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">全局强相关在型号分组后反转或衰减</p>
-</div>
+  <!-- Hand-drawn arrow connecting left to right column -->
+  <div style="position:absolute;left:320pt;top:260pt;width:80pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
+  <div style="position:absolute;left:393pt;top:254pt;width:0;height:0;border-top:9pt solid transparent;border-bottom:9pt solid transparent;border-left:14pt solid #4488FF;"></div>
 
-<div style="position:absolute;top:108pt;left:745pt;width:158pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:16pt 10pt;">
-<div style="width:32pt;height:32pt;background:#E85D3A;border-radius:50%;margin:0 auto 12pt;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:15pt;font-weight:700;text-align:center;">05</p>
-</div>
-<p style="text-align:center;font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:10pt;">诊断结论与建议</p>
-<p style="text-align:center;font-size:9pt;color:#636E72;line-height:1.6;">竞争假说评估·置信度判断及改进行动方案</p>
-</div>
+  <!-- Right column: 2 smaller sticky notes, shifted right to fill space -->
+  <!-- Sticky 4 -->
+  <div style="position:absolute;left:540pt;top:130pt;width:280pt;height:120pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:14pt;">
+    <p style="font-size:30pt;color:#4488FF;font-weight:bold;margin-bottom:4pt;">4</p>
+    <p style="font-size:12pt;color:#000000;font-weight:bold;margin-bottom:4pt;">关键技术决策</p>
+    <p style="font-size:10pt;color:#333333;">工程亮点与设计哲学</p>
+  </div>
 
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">2 / 10</p>
-</div>
+  <!-- Sticky 5 -->
+  <div style="position:absolute;left:540pt;top:280pt;width:280pt;height:120pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:14pt;">
+    <p style="font-size:30pt;color:#4488FF;font-weight:bold;margin-bottom:4pt;">5</p>
+    <p style="font-size:12pt;color:#000000;font-weight:bold;margin-bottom:4pt;">总结</p>
+    <p style="font-size:10pt;color:#333333;">系统核心价值</p>
+  </div>
 
+  <!-- Decorative doodles: scattered whiteboard elements -->
+  <div style="position:absolute;left:380pt;top:420pt;width:60pt;height:2pt;background:#000000;transform:rotate(-15deg);"></div>
+  <div style="position:absolute;left:440pt;top:445pt;width:40pt;height:2pt;background:#4488FF;transform:rotate(10deg);"></div>
+  <div style="position:absolute;left:700pt;top:120pt;width:14pt;height:14pt;border:2pt solid #4488FF;border-radius:50%;"></div>
+  <div style="position:absolute;left:860pt;top:260pt;width:10pt;height:10pt;border:2pt solid #000000;border-radius:50%;"></div>
+  <div style="position:absolute;left:880pt;top:400pt;width:8pt;height:8pt;border:1pt solid #4488FF;border-radius:50%;"></div>
+  <div style="position:absolute;left:500pt;top:85pt;width:45pt;height:2pt;background:#000000;transform:rotate(-5deg);"></div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">2</p>
+  </div>
+
+</div>
 </body>
 </html>

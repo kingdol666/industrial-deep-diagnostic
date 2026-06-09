@@ -4,82 +4,75 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:20pt;left:24pt;font-size:20pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">改进建议——下一步行动</h2>
-<div style="position:absolute;top:50pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:20pt;color:#000000;font-weight:bold;">不是黑盒 — 实时可视化让诊断过程透明可控</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:62pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- P0 Card: Full width, highest priority -->
-<div style="position:absolute;top:72pt;left:24pt;width:912pt;height:115pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #E85D3A;border-radius:4pt;padding:0;">
-<div style="display:flex;height:100%;">
-<div style="width:90pt;background:#E85D3A;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8pt;">
-<p style="color:#FFFFFF;font-size:18pt;font-weight:700;">P0</p>
-<p style="color:#FFFFFF;font-size:9pt;text-align:center;margin-top:4pt;">高优先级</p>
-</div>
-<div style="flex:1;padding:14pt 18pt;display:flex;">
-<div style="flex:1;">
-<p style="font-size:12pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">产品型号规范管理</p>
-<p style="font-size:9pt;color:#2D3436;line-height:1.6;">为高频伤型号（PG32D、FP21）制定专项 SOP，统一速度设定与扭矩监控标准。目标是将 PG32D 的划伤率降至 PG22C 水平（预计降低 50%+）。</p>
-</div>
-<div style="width:140pt;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-left:14pt;">
-<p style="font-size:20pt;font-weight:700;color:#27AE60;">低</p>
-<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
-</div>
-</div>
-</div>
-</div>
+  <!-- Three-layer architecture: top, middle, bottom -->
 
-<!-- P1 Card: Centered, medium priority -->
-<div style="position:absolute;top:202pt;left:72pt;width:816pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #F39C12;border-radius:4pt;padding:0;">
-<div style="display:flex;height:100%;">
-<div style="width:80pt;background:#F39C12;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6pt;">
-<p style="color:#FFFFFF;font-size:16pt;font-weight:700;">P1</p>
-<p style="color:#FFFFFF;font-size:8pt;text-align:center;margin-top:3pt;">中优先级</p>
-</div>
-<div style="flex:1;padding:12pt 16pt;display:flex;">
-<div style="flex:1;">
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-bottom:6pt;">增采样——FP21 / PG22C 型号至 n ge; 30</p>
-<p style="font-size:9pt;color:#2D3436;line-height:1.6;">当前 FP21(n=9) 和 PG22C(n=10) 样本量不足以评估扭矩-划伤方向稳定性。延长数据采集周期至 30+ 批次，确认 5号/6号/11号辊扭矩与划伤的真实关联方向。</p>
-</div>
-<div style="width:120pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-<p style="font-size:18pt;font-weight:700;color:#27AE60;">低</p>
-<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
-</div>
-</div>
-</div>
-</div>
+  <!-- Layer 1: Frontend -->
+  <div style="position:absolute;left:40pt;top:85pt;width:880pt;height:110pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:12pt 18pt;">
+    <div style="display:inline-block;background:#4488FF;border-radius:3pt;padding:3pt 10pt;margin-bottom:8pt;">
+      <p style="font-size:10pt;color:#FFFFFF;font-weight:bold;">Frontend — 用户界面层</p>
+    </div>
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-bottom:4pt;">Vue 3 + Vite + ECharts &nbsp;(port 5180)</p>
+    <p style="font-size:9pt;color:#333333;line-height:1.5;">5个标签页完整覆盖用户旅程：Data（文件浏览） / Diagnose（诊断主视图+实时消息流+任务进度） / Chat（自由对话） / Reports（报告查看器） / History（历史记录）。SSE实时流 + WebSocket推送，诊断过程可视化。4种ECharts图表组件：折线 / 散点 / 热力 / 仪表盘。</p>
+  </div>
 
-<!-- P2 Card: Centered, lower priority -->
-<div style="position:absolute;top:324pt;left:120pt;width:720pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #636E72;border-radius:4pt;padding:0;">
-<div style="display:flex;height:100%;">
-<div style="width:70pt;background:#636E72;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6pt;">
-<p style="color:#FFFFFF;font-size:14pt;font-weight:700;">P2</p>
-<p style="color:#FFFFFF;font-size:8pt;text-align:center;margin-top:3px;">建议</p>
-</div>
-<div style="flex:1;padding:12pt 16pt;display:flex;">
-<div style="flex:1;">
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-bottom:6pt;">关键辊秒级高频监测</p>
-<p style="font-size:9pt;color:#2D3436;line-height:1.6;">在 5号、6号、11号辊安装高频采集（>10Hz）扭矩传感器。秒级监测可捕获划伤发生瞬间的扭矩异常信号，为 H2 扭矩残留假说提供直接验证。</p>
-</div>
-<div style="width:120pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-<p style="font-size:18pt;font-weight:700;color:#F39C12;">中</p>
-<p style="font-size:9pt;color:#636E72;margin-top:2pt;">成本估计</p>
-</div>
-</div>
-</div>
-</div>
+  <!-- Bidirectional arrow: Frontend <-> Backend -->
+  <div style="position:absolute;left:470pt;top:198pt;width:20pt;height:16pt;text-align:center;">
+    <p style="font-size:12pt;color:#4488FF;">&#8597;</p>
+  </div>
+  <div style="position:absolute;left:500pt;top:203pt;">
+    <p style="font-size:8pt;color:#333333;">WebSocket + HTTP</p>
+  </div>
 
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">9 / 10</p>
-</div>
+  <!-- Layer 2: Backend -->
+  <div style="position:absolute;left:40pt;top:218pt;width:880pt;height:120pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:12pt 18pt;">
+    <div style="display:inline-block;background:#000000;border-radius:3pt;padding:3pt 10pt;margin-bottom:8pt;">
+      <p style="font-size:10pt;color:#FFFFFF;font-weight:bold;">Backend — 事件总线层</p>
+    </div>
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-bottom:4pt;">Express.js + SQLite WAL + WebSocket &nbsp;(port 3210)</p>
+    <p style="font-size:9pt;color:#333333;line-height:1.5;">核心设计：EventEmitter事件总线解耦Claude CLI进程与WS/SSE传输。Per-run状态管理 + 双持久化（内存buffer快速replay + SQLite持久化） + 自动清理。5个路由（files/diagnosis/history/analysis/chat） + 5个服务层。Claude CLI子进程管理 + JSON streaming解析 + 错误恢复。</p>
+  </div>
 
+  <!-- Bidirectional arrow: Backend <-> Data -->
+  <div style="position:absolute;left:470pt;top:342pt;width:20pt;height:16pt;text-align:center;">
+    <p style="font-size:12pt;color:#4488FF;">&#8597;</p>
+  </div>
+  <div style="position:absolute;left:500pt;top:347pt;">
+    <p style="font-size:8pt;color:#333333;">SQLite + 文件系统</p>
+  </div>
+
+  <!-- Layer 3: Data -->
+  <div style="position:absolute;left:40pt;top:360pt;width:880pt;height:90pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:12pt 18pt;">
+    <div style="display:inline-block;background:#4488FF;border-radius:3pt;padding:3pt 10pt;margin-bottom:8pt;">
+      <p style="font-size:10pt;color:#FFFFFF;font-weight:bold;">Data — 持久化层</p>
+    </div>
+    <p style="font-size:9pt;color:#333333;line-height:1.5;">SQLite WAL模式（并发读写 + Prepared statements）+ 诊断运行目录（workspace/diagnostic-runs/）。4张核心表：diagnosis_runs / diagnosis_events / chat_sessions / chat_messages。CLI工具 ind-diag 统一管理启停和配置。</p>
+  </div>
+
+  <!-- Doodle: small star decoration -->
+  <div style="position:absolute;left:895pt;top:460pt;width:14pt;height:14pt;border:2pt solid #4488FF;border-radius:50%;"></div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">9</p>
+  </div>
+
+</div>
 </body>
 </html>

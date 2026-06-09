@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
+
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:18pt;color:#000000;font-weight:bold;">5个让这个系统能用而不只是能跑的工程决策</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:58pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
+
+  <!-- Vertical 5 segments, each with left number + right content -->
+
+  <!-- Item 1 -->
+  <div style="position:absolute;left:40pt;top:75pt;width:880pt;height:72pt;">
+    <div style="position:absolute;left:0;top:0;">
+      <p style="font-size:48pt;color:#4488FF;font-weight:bold;">1</p>
+    </div>
+    <div style="position:absolute;left:60pt;top:6pt;width:820pt;">
+      <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:4pt;">事件总线解耦</p>
+      <p style="font-size:10pt;color:#333333;line-height:1.4;">EventEmitter将Claude CLI进程与WS/SSE传输完全分离。Per-run状态管理 + 双持久化（内存buffer + SQLite），支持断线重连和历史回放。</p>
+    </div>
+  </div>
+
+  <!-- Separator doodle line -->
+  <div style="position:absolute;left:100pt;top:150pt;width:780pt;height:1pt;background:#000000;opacity:0.15;"></div>
+
+  <!-- Item 2 -->
+  <div style="position:absolute;left:40pt;top:158pt;width:880pt;height:72pt;">
+    <div style="position:absolute;left:0;top:0;">
+      <p style="font-size:48pt;color:#4488FF;font-weight:bold;">2</p>
+    </div>
+    <div style="position:absolute;left:60pt;top:6pt;width:820pt;">
+      <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:4pt;">Agent文件解耦</p>
+      <p style="font-size:10pt;color:#333333;line-height:1.4;">7个子智能体仅通过workspace文件通信，不共享主agent context。pipeline纪律规则禁止主agent代劳子智能体工作，确保独立性。</p>
+    </div>
+  </div>
+
+  <!-- Separator doodle line -->
+  <div style="position:absolute;left:100pt;top:233pt;width:780pt;height:1pt;background:#000000;opacity:0.15;"></div>
+
+  <!-- Item 3 - HIGHLIGHTED with yellow sticky note -->
+  <div style="position:absolute;left:30pt;top:240pt;width:900pt;height:80pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:6pt 10pt;">
+    <div style="position:absolute;left:10pt;top:8pt;">
+      <p style="font-size:48pt;color:#4488FF;font-weight:bold;">3</p>
+    </div>
+    <div style="position:absolute;left:70pt;top:14pt;width:810pt;">
+      <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:4pt;">Schema-First写入协议</p>
+      <p style="font-size:10pt;color:#333333;line-height:1.4;">14个JSON Schema覆盖所有结构化产出。写入前读schema → 一次写入 → 立即验证（validate.mjs）。Token经济性的关键设计——防止重写浪费。</p>
+    </div>
+  </div>
+
+  <!-- Separator doodle line -->
+  <div style="position:absolute;left:100pt;top:325pt;width:780pt;height:1pt;background:#000000;opacity:0.15;"></div>
+
+  <!-- Item 4 -->
+  <div style="position:absolute;left:40pt;top:333pt;width:880pt;height:72pt;">
+    <div style="position:absolute;left:0;top:0;">
+      <p style="font-size:48pt;color:#4488FF;font-weight:bold;">4</p>
+    </div>
+    <div style="position:absolute;left:60pt;top:6pt;width:820pt;">
+      <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:4pt;">三重执行证明</p>
+      <p style="font-size:10pt;color:#333333;line-height:1.4;">.pipeline_events.jsonl（事件日志） + 产物文件（diagnosis.json等） + artifact-check.mjs校验。只有三者齐全并通过审计才算完整执行。</p>
+    </div>
+  </div>
+
+  <!-- Separator doodle line -->
+  <div style="position:absolute;left:100pt;top:408pt;width:780pt;height:1pt;background:#000000;opacity:0.15;"></div>
+
+  <!-- Item 5 -->
+  <div style="position:absolute;left:40pt;top:416pt;width:880pt;height:72pt;">
+    <div style="position:absolute;left:0;top:0;">
+      <p style="font-size:48pt;color:#4488FF;font-weight:bold;">5</p>
+    </div>
+    <div style="position:absolute;left:60pt;top:6pt;width:820pt;">
+      <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:4pt;">Agent Memory跨会话</p>
+      <p style="font-size:10pt;color:#333333;line-height:1.4;">4个子智能体有独立记忆目录（.claude/agent-memory/），记录领域知识沉淀。从单次诊断到经验积累——系统越用越好。</p>
+    </div>
+  </div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">11</p>
+  </div>
+
+</div>
+</body>
+</html>

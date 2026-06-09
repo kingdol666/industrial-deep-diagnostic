@@ -4,86 +4,111 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:24pt;left:24pt;font-size:22pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">诊断结论与置信度评估</h2>
-<div style="position:absolute;top:58pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:20pt;color:#000000;font-weight:bold;">不是所有知识都值得信赖 — 5维评分+Tier分级</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:62pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- Center row: left diagnosis card + right confidence number -->
+  <!-- LEFT 50%: 5 scoring dimensions with slider bars -->
+  <div style="position:absolute;left:40pt;top:85pt;width:420pt;">
 
-<!-- Left: Diagnosis type card -->
-<div style="position:absolute;top:82pt;left:24pt;width:540pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:6pt;padding:20pt 24pt;">
-<div style="display:inline-block;background:#1B3A5C;border-radius:3pt;padding:4pt 14pt;margin-bottom:14pt;">
-<p style="color:#FFFFFF;font-size:11pt;font-weight:700;">诊断类型：COMPETING_SET</p>
-</div>
+    <p style="font-size:12pt;color:#000000;font-weight:bold;margin-bottom:14pt;">5维相关度评分</p>
 
-<div style="margin-bottom:14pt;">
-<div style="background:#E8F8F0;border-left:3pt solid #27AE60;padding:8pt 12pt;margin-bottom:8pt;">
-<div style="display:flex;justify-content:space-between;">
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;">H1：型号主导</p>
-<p style="font-size:11pt;font-weight:700;color:#27AE60;">置信度上限 65%</p>
-</div>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;">推测型号差异通过速度设定 → 摩擦功率路径决定划伤基线。PG32D vs PG22C 划伤率差15倍，速度设定差2倍，膜厚差2.6倍。但 PG31DS 内 0-36 的残留变异未被完全解释。</p>
-</div>
-</div>
+    <!-- Dimension 1 -->
+    <div style="margin-bottom:14pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">领域相关性</p>
+      <div style="width:380pt;height:10pt;background:#F5F5F5;border:1pt solid #000000;border-radius:5pt;position:relative;">
+        <div style="width:340pt;height:10pt;background:#4488FF;border-radius:5pt;"></div>
+      </div>
+      <p style="font-size:8pt;color:#333333;margin-top:2pt;">检索内容与诊断场景的领域匹配程度</p>
+    </div>
 
-<div>
-<div style="background:#FEF5E7;border-left:3pt solid #F39C12;padding:8pt 12pt;">
-<div style="display:flex;justify-content:space-between;">
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;">H2：扭矩残留</p>
-<p style="font-size:11pt;font-weight:700;color:#F39C12;">置信度 35%</p>
-</div>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;">FP21 内5号辊 r=0.442 提示扭矩波动可能对划伤有微弱影响，但方向不一致且小样本(n le; 10) 限制结论可靠性。</p>
-</div>
-</div>
-</div>
+    <!-- Dimension 2 -->
+    <div style="margin-bottom:14pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">技术深度</p>
+      <div style="width:380pt;height:10pt;background:#F5F5F5;border:1pt solid #000000;border-radius:5pt;position:relative;">
+        <div style="width:300pt;height:10pt;background:#4488FF;border-radius:5pt;"></div>
+      </div>
+      <p style="font-size:8pt;color:#333333;margin-top:2pt;">内容是否包含可操作的工程细节，而非泛泛而谈</p>
+    </div>
 
-<!-- Right: Confidence number display -->
-<div style="position:absolute;top:82pt;left:588pt;width:348pt;height:210pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:6pt;padding:20pt 24pt;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-<p style="font-size:64pt;font-weight:700;color:#E85D3A;text-align:center;">65</p>
-<p style="font-size:11pt;color:#636E72;margin-top:4pt;text-align:center;">当前最高置信度（分）</p>
-<div style="height:3pt;width:200pt;background:#DFE6E9;border-radius:2pt;margin-top:12pt;">
-<div style="height:3pt;width:130pt;background:#E85D3A;border-radius:2pt;"></div>
-</div>
-<p style="font-size:9pt;color:#636E72;margin-top:8pt;text-align:center;">受 COMPETING_SET 场景约束，置信度上限受限。H1(65%) 与 H2(35%) 合计 100%，无法进一步区分。</p>
-</div>
+    <!-- Dimension 3 -->
+    <div style="margin-bottom:14pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">时效性</p>
+      <div style="width:380pt;height:10pt;background:#F5F5F5;border:1pt solid #000000;border-radius:5pt;position:relative;">
+        <div style="width:260pt;height:10pt;background:#4488FF;border-radius:5pt;"></div>
+      </div>
+      <p style="font-size:8pt;color:#333333;margin-top:2pt;">知识是否反映当前工艺标准和设备状态</p>
+    </div>
 
-<!-- Bottom row: 3 limitation items -->
-<div style="position:absolute;top:310pt;left:24pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 1</p>
-<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
-<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>批次级数据丢失秒级信息</b></p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">当前数据是批次级别聚合统计（均值/标准差）。划伤事件发生在秒级时间尺度，批次级聚合可能平滑掉了关键的瞬态信号。</p>
-</div>
-</div>
+    <!-- Dimension 4 -->
+    <div style="margin-bottom:14pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">来源权威性</p>
+      <div style="width:380pt;height:10pt;background:#F5F5F5;border:1pt solid #000000;border-radius:5pt;position:relative;">
+        <div style="width:320pt;height:10pt;background:#4488FF;border-radius:5pt;"></div>
+      </div>
+      <p style="font-size:8pt;color:#333333;margin-top:2pt;">SOP手册 > 内部文档 > 网络来源，权重递减</p>
+    </div>
 
-<div style="position:absolute;top:310pt;left:336pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 2</p>
-<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
-<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>型号共线无法完全拆解</b></p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">型号与工艺设定高度共线：不同型号有专门的速度、温度设定。无法通过统计方法完全分离"型号本身"与"型号的工艺设定"效应。</p>
-</div>
-</div>
+    <!-- Dimension 5 -->
+    <div style="margin-bottom:10pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">诊断场景匹配度</p>
+      <div style="width:380pt;height:10pt;background:#F5F5F5;border:1pt solid #000000;border-radius:5pt;position:relative;">
+        <div style="width:280pt;height:10pt;background:#4488FF;border-radius:5pt;"></div>
+      </div>
+      <p style="font-size:8pt;color:#333333;margin-top:2pt;">知识能否直接服务于当前诊断推理链</p>
+    </div>
+  </div>
 
-<div style="position:absolute;top:310pt;left:648pt;width:288pt;height:185pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;border-top:3pt solid #1B3A5C;padding:14pt 14pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">数据限制 3</p>
-<div style="background:#F8F9FA;border-radius:3pt;padding:8pt 10pt;">
-<p style="font-size:10pt;color:#2D3436;line-height:1.6;"><b>小样本型号结论受限</b></p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">FP21(n=9)、PG22C(n=10) 等型号样本量不足。2-3 个极端批次即可主导相关方向，无法可靠评估参数-划伤关系。</p>
-</div>
-</div>
+  <!-- RIGHT 50%: Tier pyramid + persistence note -->
+  <div style="position:absolute;left:500pt;top:85pt;width:420pt;">
 
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">8 / 10</p>
-</div>
+    <p style="font-size:12pt;color:#000000;font-weight:bold;margin-bottom:14pt;">Tier分级金字塔</p>
 
+    <!-- Tier 1 - widest -->
+    <div style="position:absolute;left:60pt;top:45pt;width:300pt;height:38pt;background:#4488FF;border:2pt solid #000000;border-radius:3pt;text-align:center;display:flex;align-items:center;justify-content:center;">
+      <p style="font-size:11pt;color:#FFFFFF;font-weight:bold;">Tier 1 — 精选高质量</p>
+    </div>
+
+    <!-- Tier 2 -->
+    <div style="position:absolute;left:85pt;top:90pt;width:250pt;height:38pt;background:#4488FF;opacity:0.75;border:2pt solid #000000;border-radius:3pt;text-align:center;display:flex;align-items:center;justify-content:center;">
+      <p style="font-size:11pt;color:#FFFFFF;font-weight:bold;">Tier 2 — 良好</p>
+    </div>
+
+    <!-- Tier 3 -->
+    <div style="position:absolute;left:110pt;top:135pt;width:200pt;height:38pt;background:#4488FF;opacity:0.5;border:2pt solid #000000;border-radius:3pt;text-align:center;display:flex;align-items:center;justify-content:center;">
+      <p style="font-size:11pt;color:#000000;font-weight:bold;">Tier 3 — 可用</p>
+    </div>
+
+    <!-- Tier 4 - narrowest -->
+    <div style="position:absolute;left:135pt;top:180pt;width:150pt;height:38pt;background:#4488FF;opacity:0.3;border:2pt solid #000000;border-radius:3pt;text-align:center;display:flex;align-items:center;justify-content:center;">
+      <p style="font-size:11pt;color:#000000;font-weight:bold;">Tier 4 — 宽松</p>
+    </div>
+
+    <!-- Persistence note -->
+    <div style="position:absolute;left:0pt;top:250pt;width:400pt;height:70pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:10pt 14pt;">
+      <p style="font-size:10pt;color:#000000;font-weight:bold;margin-bottom:4pt;">运行持久化</p>
+      <p style="font-size:9pt;color:#333333;line-height:1.4;">每次检索运行记录到SQLite，状态跟踪：created → retrieved → scored → injected。12+个API端点覆盖索引、检索、评分、注入、积累、查询增强全流程。</p>
+    </div>
+  </div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">8</p>
+  </div>
+
+</div>
 </body>
 </html>

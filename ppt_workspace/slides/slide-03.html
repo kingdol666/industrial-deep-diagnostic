@@ -4,56 +4,63 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
-.placeholder{background:#E8ECF0;border:1px dashed #B2BEC3;border-radius:4pt;display:flex;align-items:center;justify-content:center;color:#636E72;font-size:11pt;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:24pt;left:24pt;font-size:22pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">数据来源与BOPET纵拉工艺</h2>
-<div style="position:absolute;top:58pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:35pt;">
+    <h1 style="font-size:22pt;color:#000000;font-weight:bold;">给它传感器数据，它还你根因结论 — 全自动</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:70pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- Left column: 3 data source cards -->
-<div style="position:absolute;top:84pt;left:24pt;width:340pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:12pt 14pt;">
-<div style="position:absolute;top:-10pt;left:-2pt;width:24pt;height:24pt;background:#E85D3A;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:12pt;font-weight:700;text-align:center;">1</p>
+  <!-- Three columns: non-equal widths 3:4:3 -->
+  <!-- Column 1 -->
+  <div style="position:absolute;left:50pt;top:110pt;width:240pt;text-align:center;">
+    <p style="font-size:60pt;color:#4488FF;font-weight:bold;">8</p>
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-top:4pt;">阶段</p>
+    <p style="font-size:10pt;color:#333333;margin-top:8pt;line-height:1.5;">从数据输入到最终报告的完整自动化管线，全程无人工干预。Setup → Inspect → Context → Process → Diagnose → Judge → Report → Review</p>
+  </div>
+
+  <!-- Column 2 (wider) -->
+  <div style="position:absolute;left:340pt;top:110pt;width:280pt;text-align:center;">
+    <p style="font-size:60pt;color:#4488FF;font-weight:bold;">6</p>
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-top:4pt;">智能体</p>
+    <p style="font-size:10pt;color:#333333;margin-top:8pt;line-height:1.5;">各司其职：本体构建(context-builder) → 统计分析(data-processor) → 诊断(diagnostician) → 评审(judge) → 报告(reporter) → 审计(review-reviewer)</p>
+  </div>
+
+  <!-- Column 3 -->
+  <div style="position:absolute;left:680pt;top:110pt;width:240pt;text-align:center;">
+    <p style="font-size:60pt;color:#4488FF;font-weight:bold;">3</p>
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-top:4pt;">种结论</p>
+    <p style="font-size:10pt;color:#333333;margin-top:8pt;line-height:1.5;">DETERMINED / COMPETING_SET / NEEDS_DATA，从不假装确定，也不逃避结论</p>
+  </div>
+
+  <!-- Hand-drawn separator -->
+  <div style="position:absolute;left:60pt;top:310pt;width:840pt;height:1pt;background:#000000;opacity:0.15;"></div>
+
+  <!-- Bottom sticky note: core positioning -->
+  <div style="position:absolute;left:160pt;top:335pt;width:640pt;height:120pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:18pt 24pt;text-align:center;">
+    <p style="font-size:14pt;color:#000000;font-weight:bold;margin-bottom:8pt;">核心定位：场景自适应</p>
+    <p style="font-size:11pt;color:#333333;line-height:1.6;">不绑定特定工业场景 — 数据自描述 + RAG领域知识 + 物理第一性原理 = 通用诊断引擎。无论BOPET薄膜、换热器还是反应器，同一个管线都能跑。</p>
+  </div>
+
+  <!-- Decorative doodle circles -->
+  <div style="position:absolute;left:880pt;top:350pt;width:16pt;height:16pt;border:2pt solid #4488FF;border-radius:50%;"></div>
+  <div style="position:absolute;left:70pt;top:475pt;width:10pt;height:10pt;border:2pt solid #000000;border-radius:50%;"></div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">3</p>
+  </div>
+
 </div>
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-top:8pt;">aligned_scratch_process.csv</p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">55批次 x 182列过程参数，含完整产品型号标签。是诊断分析的核心数据集，覆盖全部8种产品型号的运行窗口。</p>
-</div>
-
-<div style="position:absolute;top:204pt;left:24pt;width:340pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:12pt 14pt;">
-<div style="position:absolute;top:-10pt;left:-2pt;width:24pt;height:24pt;background:#E85D3A;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:12pt;font-weight:700;text-align:center;">2</p>
-</div>
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-top:8pt;">scratch_defects.csv</p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">1729条划伤缺陷记录，按批次统计的缺陷计数。逐批划伤率差异高达15倍（PG32D vs PG22C），是诊断的因变量。</p>
-</div>
-
-<div style="position:absolute;top:324pt;left:24pt;width:340pt;height:108pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:3pt solid #1B3A5C;border-radius:4pt;padding:12pt 14pt;">
-<div style="position:absolute;top:-10pt;left:-2pt;width:24pt;height:24pt;background:#E85D3A;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-<p style="color:#FFFFFF;font-size:12pt;font-weight:700;text-align:center;">3</p>
-</div>
-<p style="font-size:11pt;font-weight:700;color:#1B3A5C;margin-top:8pt;">merged_process_data + mapping</p>
-<p style="font-size:9pt;color:#636E72;margin-top:4pt;line-height:1.5;">8640行30秒间隔时序数据，配parameter_mapping.json解释每个参数含义，确保数据解读的物理准确性。</p>
-</div>
-
-<!-- Right column: process diagram -->
-<p style="position:absolute;top:80pt;left:392pt;font-size:11pt;font-weight:700;color:#1B3A5C;">纵拉工艺示意图</p>
-<div class="placeholder" id="img-stretcher" style="position:absolute;top:100pt;left:392pt;width:530pt;height:265pt;"></div>
-
-<div style="position:absolute;top:380pt;left:392pt;width:530pt;height:72pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:10pt 14pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.7;"><b style="color:#1B3A5C;">BOPET纵拉三温区工艺：</b>挤出基材 → 预加热区(75-76 C, near Tg)使PET软化 → 拉伸区(82-84 C)沿MD方向拉伸约3倍 → 急冷区(30-36 C)冻结分子取向。全程18辊系统，各辊独立温控。</p>
-</div>
-
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">3 / 10</p>
-</div>
-
 </body>
 </html>

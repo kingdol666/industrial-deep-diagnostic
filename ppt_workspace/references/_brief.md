@@ -1,21 +1,52 @@
-# 知识搜索需求摘要 — BOPET薄膜CCD表面缺陷根因诊断
+# Industrial Deep Diagnostic — PPT 架构介绍
 
-## PPT基本信息
-- **主题**: BOPET薄膜CCD表面缺陷与工艺参数匹配分析 — 根因诊断报告
-- **副标题**: 挤出段热降解假说与产品等级混杂效应的统计验证
-- **目标受众**: 外部客户（兼顾专业性和可读性）
-- **预估页数**: 10页（标准技术汇报）
-- **语言**: 中文
+## 主题
+Industrial Deep Diagnostic 项目架构介绍
+
+## 副标题
+工业深度诊断系统 — 多智能体诊断 Skill + RAG 知识引擎 + Web 应用
+
+## 目标受众
+技术团队 / 架构师 / AI 工程师 / 潜在用户
+
+## 预估页数
+12 页
+
+## 语言
+中文
 
 ## 需要搜索的知识维度
 
-1. **BOPET薄膜生产工艺概览** — 挤出→MD纵拉→TD横拉→收卷的全流程概述，关键温度/压力参数
-2. **PET热降解化学机理** — 280°C下PET降解产物（环状三聚体、交联凝胶粒子）的形成机理
-3. **CCD在线检测技术** — 薄膜表面缺陷的CCD检测原理，膜点/低聚物/熔斑等缺陷的定义
-4. **Simpson悖论在工业数据分析中的应用** — 分层分析对排除混杂因子的重要性
-5. **Arrhenius动力学在聚合物降解分析中的应用** — 温度对反应速率影响的定量估算方法
-6. **MD纵拉工艺说明** — 18辊三区段（预加热/拉伸/急冷）的作用和工艺参数
+### 维度1: 诊断 Skill 管线架构
+- 8 步管线流程 (Step 0-8)
+- 7 个子智能体角色与职责
+- 竞争性假设协议 (ACH)
+- 修复循环机制 (Judge→Diagnostician max 3, Reviewer max 2)
+- Schema-First 写入协议
+- 双驱动诊断 (纯工艺 + 工艺-检测)
 
-## 材料来源
-用户已提供完整的诊断报告（report.md）和优化器评审（optimizer.md），位于 `_user_materials.md`。
-需要补充的材料应作为行业背景知识的验证和补充，而非替代报告中的核心结论。
+### 维度2: RAG Knowledge Builder 架构
+- 三阶段管线: Retrieve → Score → Inject
+- ChromaDB 向量检索 + sentence-transformers
+- 5 维相关度评分系统
+- 多源知识索引 (Markdown/JSON/PDF/CSV/Web)
+- FastAPI 微服务端点设计
+
+### 维度3: 整体系统架构
+- Express.js 后端 + SQLite WAL + WebSocket 事件总线
+- Vue 3 + Vite + ECharts 前端
+- RAG 引擎与诊断 Skill 的集成点
+- CLI 工具 ind-diag
+- Docker + nginx 部署方案
+
+### 维度4: 技术栈与工程实践
+- 多智能体解耦设计 (workspace 文件通信)
+- 渐进式加载架构 (3级)
+- JSON Schema 验证体系 (14个schema)
+- Agent Memory 跨会话记忆
+- 执行证明 (.pipeline_events.jsonl)
+
+### 维度5: 行业价值与对比
+- 场景自适应 vs 固定模板诊断
+- 物理第一性原理 vs 纯统计相关
+- 证据等级体系 (7级)

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
+
+  <!-- Central large sticky note: core belief -->
+  <div style="position:absolute;left:155pt;top:60pt;width:650pt;height:170pt;background:#FFF8E1;border:3pt solid #000000;border-radius:4pt;padding:24pt 30pt;text-align:center;">
+    <p style="font-size:20pt;color:#000000;font-weight:bold;line-height:1.4;">数据驱动不等于黑盒</p>
+    <p style="font-size:14pt;color:#4488FF;font-weight:bold;margin-top:12pt;line-height:1.4;">竞争性假设 + 物理第一性原理 = 可解释的AI诊断</p>
+    <p style="font-size:10pt;color:#333333;margin-top:12pt;line-height:1.4;">不假装确定，也不逃避结论。三种输出类型诚实表达诊断置信度。</p>
+  </div>
+
+  <!-- Left small sticky note -->
+  <div style="position:absolute;left:60pt;top:270pt;width:360pt;height:130pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:16pt 20pt;">
+    <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:8pt;">6智能体协同</p>
+    <p style="font-size:10pt;color:#333333;line-height:1.5;">每个智能体专注一件事。context-builder构建本体、data-processor做统计、diagnostician竞争假设诊断、judge质量门评审、reporter生成报告、reviewer独立审计。修复循环保证质量。</p>
+  </div>
+
+  <!-- Right small sticky note -->
+  <div style="position:absolute;left:540pt;top:270pt;width:360pt;height:130pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:16pt 20pt;">
+    <p style="font-size:13pt;color:#000000;font-weight:bold;margin-bottom:8pt;">RAG + Memory</p>
+    <p style="font-size:10pt;color:#333333;line-height:1.5;">FastAPI+ChromaDB三阶段管线（Retrieve/Score/Inject）为诊断注入领域知识。Agent Memory跨会话积累经验——BOPET薄膜、CNC主轴磨损……诊断越做越好。</p>
+  </div>
+
+  <!-- Hand-drawn connecting doodle lines -->
+  <div style="position:absolute;left:350pt;top:230pt;width:2pt;height:40pt;background:#4488FF;opacity:0.5;"></div>
+  <div style="position:absolute;left:610pt;top:230pt;width:2pt;height:40pt;background:#4488FF;opacity:0.5;"></div>
+
+  <!-- Bottom thank you -->
+  <div style="position:absolute;left:0;top:440pt;width:960pt;text-align:center;">
+    <p style="font-size:16pt;color:#4488FF;font-weight:bold;">谢谢！</p>
+  </div>
+
+  <!-- Decorative doodle circles -->
+  <div style="position:absolute;left:890pt;top:80pt;width:16pt;height:16pt;border:2pt solid #4488FF;border-radius:50%;"></div>
+  <div style="position:absolute;left:50pt;top:440pt;width:10pt;height:10pt;border:2pt solid #000000;border-radius:50%;"></div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">12</p>
+  </div>
+
+</div>
+</body>
+</html>

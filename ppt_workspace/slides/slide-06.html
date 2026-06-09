@@ -4,107 +4,37 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
-.placeholder{background:#E8ECF0;border:1px dashed #B2BEC3;border-radius:4pt;display:flex;align-items:center;justify-content:center;color:#636E72;font-size:11pt;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:14pt;left:24pt;font-size:18pt;font-weight:700;color:#1B3A5C;letter-spacing:1pt;">Simpson悖论确认——全局相关性是型号混杂假象</h2>
-<div style="position:absolute;top:40pt;left:24pt;width:45pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:20pt;color:#000000;font-weight:bold;">不通过？重跑！三层审查闭环保证诊断质量</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:62pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- LEFT: Data comparison table -->
-<div style="position:absolute;top:58pt;left:24pt;width:400pt;height:295pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:12pt 14pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">全局相关 vs 型号内相关对比</p>
+  <!-- Repair loop illustration placeholder -->
+  <div class="placeholder" id="img-repair-loop" style="position:absolute;left:40pt;top:80pt;width:880pt;height:300pt;"></div>
 
-<!-- Table header -->
-<div style="display:flex;background:#1B3A5C;border-radius:2pt;padding:5pt 6pt;margin-bottom:4pt;">
-<p style="flex:1;font-size:8pt;font-weight:700;color:#FFFFFF;">参数</p>
-<p style="width:72pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">全局 r</p>
-<p style="width:78pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">型号内 r</p>
-<p style="width:60pt;font-size:8pt;font-weight:700;color:#FFFFFF;text-align:center;">变化</p>
+  <!-- Bottom annotation sticky note -->
+  <div style="position:absolute;left:60pt;top:400pt;width:840pt;height:100pt;background:#FFF8E1;border:2pt solid #000000;border-radius:3pt;padding:12pt 18pt;">
+    <p style="font-size:11pt;color:#000000;font-weight:bold;margin-bottom:6pt;">四套独立编号体系，各管各的，不可混用</p>
+    <p style="font-size:10pt;color:#333333;line-height:1.5;">Pipeline Step 0-8（编排层面） / Agent Phase 0-7（Diagnostician内部流程） / Reasoning Segment R1-R8（reasoning_chain.json） / Method Stage 1-6（diagnosis_method.md）。计数器持久化在 <b>.pipeline_events.jsonl</b> 中，只有通过 <b>pipeline-log-check.mjs</b> 审计才算完整执行。</p>
+  </div>
+
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">6</p>
+  </div>
+
 </div>
-
-<!-- Row 1 -->
-<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
-<p style="flex:1;font-size:9pt;color:#2D3436;">W1C86 温度 std</p>
-<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.487</p>
-<p style="width:78pt;font-size:9pt;color:#E85D3A;text-align:center;">+0.044</p>
-<p style="width:60pt;font-size:9pt;color:#E85D3A;text-align:center;">衰减91%</p>
-</div>
-
-<!-- Row 2 -->
-<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
-<p style="flex:1;font-size:9pt;color:#2D3436;">W1C80 速度 std</p>
-<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.469</p>
-<p style="width:78pt;font-size:9pt;color:#C0392B;text-align:center;">-0.364</p>
-<p style="width:60pt;font-size:9pt;color:#C0392B;text-align:center;font-weight:700;">反转!</p>
-</div>
-
-<!-- Row 3 -->
-<div style="display:flex;padding:5pt 6pt;border-bottom:1px solid #DFE6E9;">
-<p style="flex:1;font-size:9pt;color:#2D3436;">W1C81 速度 std</p>
-<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">+0.468</p>
-<p style="width:78pt;font-size:9pt;color:#C0392B;text-align:center;">-0.278</p>
-<p style="width:60pt;font-size:9pt;color:#C0392B;text-align:center;font-weight:700;">反转!</p>
-</div>
-
-<!-- Row 4 -->
-<div style="display:flex;padding:5pt 6pt;">
-<p style="flex:1;font-size:9pt;color:#2D3436;">速度波动</p>
-<p style="width:72pt;font-size:9pt;color:#2D3436;text-align:center;">8.9x</p>
-<p style="width:78pt;font-size:9pt;color:#636E72;text-align:center;">0.16-0.19</p>
-<p style="width:60pt;font-size:9pt;color:#E85D3A;text-align:center;">归零</p>
-</div>
-
-<!-- Annotation -->
-<p style="font-size:8pt;color:#636E72;margin-top:8pt;line-height:1.5;">※ 上表数据以 PG31DS 型号内计算。W1C80_std 和 W1C81_std 出现了方向反转——从全局正相关变为型号内负相关，是典型的 Simpson 悖论特征。</p>
-</div>
-
-<!-- RIGHT TOP: fig_vlm_simpson_torque -->
-<div class="placeholder" id="img-simpson-torque" style="position:absolute;top:58pt;left:442pt;width:248pt;height:186pt;"></div>
-
-<!-- RIGHT BOTTOM: fig3_speed_scratch_by_model -->
-<div class="placeholder" id="img-speed-scratch" style="position:absolute;top:258pt;left:442pt;width:248pt;height:186pt;"></div>
-
-<!-- Additional data column on far right -->
-<div style="position:absolute;top:58pt;left:706pt;width:230pt;height:386pt;background:#FFFFFF;border:1px solid #DFE6E9;border-radius:4pt;padding:12pt 12pt;">
-<p style="font-size:10pt;font-weight:700;color:#1B3A5C;margin-bottom:8pt;">关键数据速览</p>
-
-<div style="background:#F8F9FA;border-left:2pt solid #E85D3A;padding:6pt 8pt;margin-bottom:6pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.4;"><b>8.9x</b> 高划伤 vs 零划伤批次的速度波动差异</p>
-</div>
-
-<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.4;">型号内平均 r 仅 <b>0.16-0.19</b>，接近零相关</p>
-</div>
-
-<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.4;">PG32D 划伤率是 PG22C 的 <b>15 倍</b></p>
-</div>
-
-<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;margin-bottom:6pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.4;">不同型号速度设定差异约 <b>2 倍</b>，膜厚差异约 <b>2.6 倍</b></p>
-</div>
-
-<div style="background:#F8F9FA;border-left:2pt solid #1B3A5C;padding:6pt 8pt;">
-<p style="font-size:9pt;color:#2D3436;line-height:1.4;">扭矩波动中位数差异约 <b>6%</b>，最大值差异约 <b>30%</b></p>
-</div>
-</div>
-
-<!-- BOTTOM: Conclusion strip -->
-<div style="position:absolute;top:456pt;left:24pt;width:912pt;height:52pt;background:#1B3A5C;border-radius:4pt;padding:8pt 18pt;display:flex;align-items:center;">
-<p style="font-size:10pt;color:#FFFFFF;line-height:1.5;text-align:center;"><b style="color:#E85D3A;">结论：</b>所有聚合相关是型号间差异假象。型号 → 速度设定 → 摩擦功率决定划伤基线。系统本身未出故障，参数差异是产品规格的自然反映。</p>
-</div>
-
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">6 / 10</p>
-</div>
-
 </body>
 </html>

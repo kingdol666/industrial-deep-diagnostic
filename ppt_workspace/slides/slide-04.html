@@ -4,60 +4,36 @@
 <meta charset="UTF-8">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{width:960pt;height:540pt;background:#F8F9FA;font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;position:relative;overflow:hidden}
+body{width:960pt;height:540pt;overflow:hidden}
+.slide{width:960pt;height:540pt;position:relative;background:#FFFFFF;font-family:'Comic Sans MS','Segoe Print',cursive}
 </style>
 </head>
 <body>
+<div class="slide">
 
-<!-- Top bar -->
-<div style="position:absolute;top:0;left:0;width:960pt;height:6pt;background:#1B3A5C;"></div>
+  <!-- Decorative top-left -->
+  <div style="position:absolute;left:28pt;top:12pt;width:55pt;height:2pt;background:#000000;"></div>
+  <div style="position:absolute;left:28pt;top:18pt;width:35pt;height:2pt;background:#4488FF;"></div>
 
-<!-- Title -->
-<h2 style="position:absolute;top:24pt;left:24pt;font-size:22pt;font-weight:700;color:#1B3A5C;letter-spacing:1.5pt;">参数本体——每个数据的物理含义</h2>
-<div style="position:absolute;top:58pt;left:24pt;width:50pt;height:3pt;background:#E85D3A;"></div>
+  <!-- Title -->
+  <div style="position:absolute;left:40pt;top:30pt;">
+    <h1 style="font-size:20pt;color:#000000;font-weight:bold;">8步管线 x 6智能体：从原始数据到可信诊断</h1>
+  </div>
+  <div style="position:absolute;left:40pt;top:60pt;width:90pt;height:3pt;background:#4488FF;border-radius:2pt;"></div>
 
-<!-- Card 1: Temperature -->
-<div style="position:absolute;top:82pt;left:24pt;width:444pt;height:205pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #1B3A5C;border-radius:4pt;padding:14pt 16pt;">
-<div style="display:inline-block;background:#1B3A5C;border-radius:3pt;padding:3pt 10pt;margin-bottom:10pt;">
-<p style="color:#FFFFFF;font-size:10pt;font-weight:700;">温度 · TEMP</p>
-</div>
-<p style="font-size:10pt;color:#2D3436;line-height:1.7;">18组传感器 (MD_TH001-018) 监测每根纵拉辊表面温度。18辊分为三个温区：1-6号辊预热区维持在 75-76 C (接近 PET 玻璃化转变温度 Tg，使非晶区分子链段获得运动能力)；7-12号辊拉伸区加热至 82-84 C (在 Tg 以上约 10 C 实现分子链沿 MD 方向取向)；13-18号辊急冷区快速冷却至 30-36 C (冻结取向结构防止收缩)。</p>
-<p style="font-size:10pt;color:#636E72;line-height:1.7;margin-top:4pt;">各型号温度设定差异小于 1 C，所有辊的跨批次波动 stdev &lt; 0.1 C。如此极端的稳定性意味着温度波动几乎不可能解释划伤率的显著差异——18辊的极低变异是排除 H4 的第一证据。</p>
-<p style="font-size:9pt;color:#E85D3A;margin-top:6pt;">参数前缀：MD_TH（温度），物理范围：30-85 C，采样：批次均值+标准差</p>
-</div>
+  <!-- Full-width pipeline architecture illustration -->
+  <div class="placeholder" id="img-pipeline" style="position:absolute;left:40pt;top:80pt;width:880pt;height:340pt;"></div>
 
-<!-- Card 2: Torque -->
-<div style="position:absolute;top:82pt;left:492pt;width:444pt;height:205pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #E85D3A;border-radius:4pt;padding:14pt 16pt;">
-<div style="display:inline-block;background:#E85D3A;border-radius:3pt;padding:3pt 10pt;margin-bottom:10pt;">
-<p style="color:#FFFFFF;font-size:10pt;font-weight:700;">扭矩 · TORQUE</p>
-</div>
-<p style="font-size:10pt;color:#2D3436;line-height:1.7;">18组传感器 (W1C7C-8D 系列) 监测每根纵拉辊的驱动扭矩，直接反映薄膜与辊面之间的接触力和摩擦力状态。正值表示该辊处于电机牵引状态（主动驱动薄膜），负值表示该辊处于制动状态（被薄膜拖动旋转）。</p>
-<p style="font-size:10pt;color:#636E72;line-height:1.7;margin-top:4pt;">关键发现：11号辊扭矩均值约 -67%（强制动状态），而在高划伤批次中 5号、6号、11号辊的扭矩偏离基线幅度最大。高划伤 vs 零划伤批次的扭矩波动中位数差异约 6%，最大值差异约 30%，提示薄膜-辊面接触力的异常变化可能触发划伤。</p>
-<p style="font-size:9pt;color:#E85D3A;margin-top:6pt;">参数前缀：W1C7C-8D，量纲：%，正值=牵引 / 负值=制动</p>
-</div>
+  <!-- Bottom annotation strip -->
+  <div style="position:absolute;left:40pt;top:435pt;width:880pt;height:55pt;background:#F5F5F5;border:2pt solid #000000;border-radius:3pt;padding:10pt 16pt;">
+    <p style="font-size:10pt;color:#000000;line-height:1.5;">修复循环：Judge评分 &lt; 90 重跑Diagnostician（最多3次）；Reviewer未通过则完整重跑D→J→R→R（全局上限5次）。计数器持久化在 <b>.pipeline_events.jsonl</b> 中，断电不丢失。</p>
+  </div>
 
-<!-- Card 3: Speed -->
-<div style="position:absolute;top:305pt;left:24pt;width:444pt;height:195pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #1B3A5C;border-radius:4pt;padding:14pt 16pt;">
-<div style="display:inline-block;background:#1B3A5C;border-radius:3pt;padding:3pt 10pt;margin-bottom:10pt;">
-<p style="color:#FFFFFF;font-size:10pt;font-weight:700;">速度 · SPEED</p>
-</div>
-<p style="font-size:10pt;color:#2D3436;line-height:1.7;">慢辊 W1C40 / 快辊 W1C4B 两个关键线速度传感器。MD 拉伸比由快辊线速度除以慢辊线速度计算。拉伸比恒定在约 3.0 倍（变异系数 CV 约 1%），但不同产品型号的绝对速度基准值差异显著——PG32D 等高划伤型号的运行速度约为低划伤型号的 2 倍。较高的运行速度意味着更高的摩擦功率密度，可能增大薄膜表面剪切应力。</p>
-<p style="font-size:10pt;color:#636E72;line-height:1.7;margin-top:4pt;">型号之间的速度基准差异是后续所有聚合相关假象的根本驱动力——这是 Simpson 悖论的核心机制。</p>
-</div>
+  <!-- Page number -->
+  <div style="position:absolute;right:30pt;bottom:15pt;">
+    <p style="font-size:10pt;color:#4488FF;">4</p>
+  </div>
 
-<!-- Card 4: Extrusion -->
-<div style="position:absolute;top:305pt;left:492pt;width:444pt;height:195pt;background:#FFFFFF;border:1px solid #DFE6E9;border-left:4pt solid #636E72;border-radius:4pt;padding:14pt 16pt;">
-<div style="display:inline-block;background:#636E72;border-radius:3pt;padding:3pt 10pt;margin-bottom:10pt;">
-<p style="color:#FFFFFF;font-size:10pt;font-weight:700;">挤出 · EXTRUSION</p>
 </div>
-<p style="font-size:10pt;color:#2D3436;line-height:1.7;">上游挤出段参数，包括螺杆转速（决定挤出量）和熔体压力（反映熔体粘度和滤网状态）。这些参数位于纵拉段之前，不直接参与纵拉划伤的物理过程。挤出参数通过影响基材膜厚（高划伤型号膜厚约 2.6 倍于低划伤型号）间接影响纵拉段划伤行为——基材越厚，纵拉时局部应力集中越明显，越容易触发划伤。</p>
-<p style="font-size:10pt;color:#636E72;line-height:1.7;margin-top:4pt;">与纵拉段划伤为间接关系而非直接因果路径，但其与产品型号的高度共线增加了统计拆解的难度。</p>
-</div>
-
-<!-- Footer -->
-<div style="position:absolute;bottom:0;left:0;width:960pt;height:20pt;background:#F8F9FA;border-top:1px solid #DFE6E9;">
-<p style="position:absolute;right:24pt;bottom:2pt;font-size:9pt;color:#636E72;">4 / 10</p>
-</div>
-
 </body>
 </html>
