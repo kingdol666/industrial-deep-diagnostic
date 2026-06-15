@@ -469,7 +469,7 @@ def cmd_visualize(args):
     numeric_cols = _numeric_columns(rows, excluded={time_col, group_col})
     data_view_mode = args.data_view_mode or anomaly.get("summary", {}).get("data_view_mode") or anomaly.get("dual_drive_analysis", {}).get("data_view_mode") or "unknown"
     targets = [] if data_view_mode == 'process_only' else (args.target_cols.split(',') if args.target_cols else _choose_target_cols(rows, numeric_cols))
-    key_params = args.key_params.split(',') if args.key_params else _choose_process_cols(numeric_cols, targets)[:6]
+    key_params = args.key_params.split(',') if args.key_params else _choose_process_cols(numeric_cols, targets)
     is_process_only = data_view_mode == 'process_only' or not targets
 
     try:
@@ -522,7 +522,7 @@ def cmd_visualize(args):
         # Process-only adaptive view: normalized multi-parameter drift + rolling volatility.
         if is_process_only and key_params:
             fig, axes = plt.subplots(2, 1, figsize=(14, 9), sharex=True)
-            for col in key_params[:6]:
+            for col in key_params:
                 if col not in rows[0]:
                     continue
                 vals = [_safe_float(r.get(col)) for r in rows]
@@ -624,7 +624,7 @@ def cmd_visualize(args):
                     for target in targets[:2]:
                         gy = [_safe_float(r.get(target)) for _, r in grp_rows]
                         ax.plot(gx, gy, lw=0.9, label=target)
-                    for param in key_params[:2]:
+                    for param in key_params:
                         gy = [_safe_float(r.get(param)) for _, r in grp_rows]
                         ax.plot(gx, gy, lw=0.8, linestyle='--', alpha=0.8, label=param)
                     ax.set_title(f'{group_col}={grp}')
@@ -645,7 +645,7 @@ def cmd_visualize(args):
         # Fig 4: Process fluctuation severity by product
         if group_col:
             groups = _product_groups(rows, group_col)
-            process_candidates = key_params[:4]
+            process_candidates = key_params
             if groups and process_candidates:
                 fig, ax = plt.subplots(figsize=(12, 6))
                 group_names = []
@@ -710,6 +710,72 @@ def cmd_visualize(args):
     print(f"Visualizations: {len(plot_records)} plots → {args.output_dir}")
 
 
+# ── REGIME FILTER (v6.5 MANDATORY) ──
+def cmd_regime_filter(args):
+    """Invoke production_regime_detector.py and return results.
+
+    This filters out startup/shutdown/abnormal periods so downstream analysis
+    only sees steady-state data. When a product grouping column exists, it
+    also computes per-product anomaly rates and identifies the focus product
+    for mandatory within-product analysis.
+    """
+    import subprocess, sys as _sys
+
+    detector_script = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'production_regime_detector.py'
+    )
+    if not os.path.exists(detector_script):
+        # If not found in same directory, try running it from the same working env
+        # as a sibling script
+        detector_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '.claude', 'skills', 'industrial-deep-diagnostic',
+            'scripts', 'production_regime_detector.py'
+        )
+
+    cmd = [
+        _sys.executable, detector_script,
+        args.data_csv, args.output_dir,
+        '--variance-threshold', str(args.variance_threshold),
+        '--min-steady-ratio', str(args.min_steady_ratio),
+    ]
+    if args.group_col:
+        cmd += ['--group-col', args.group_col]
+    if args.time_col:
+        cmd += ['--time-col', args.time_col]
+    if args.window_minutes:
+        cmd += ['--window-minutes', str(args.window_minutes)]
+
+    print(f"[regime-filter] Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr, file=_sys.stderr)
+    if result.returncode != 0:
+        print(f"[regime-filter] WARNING: production_regime_detector exited with code {result.returncode}", file=_sys.stderr)
+        # Non-fatal — downstream analysis can still proceed without filtering
+
+    # Read the output for pipeline integration
+    out_path = os.path.join(args.output_dir, 'production_regime_filter.json')
+    if os.path.exists(out_path):
+        with open(out_path) as f:
+            regime_data = json.load(f)
+        steady_rows = regime_data.get('steady_row_indices', [])
+        steady_ratio = regime_data.get('steady_state_ratio', 0)
+        print(f"[regime-filter] Steady-state: {len(steady_rows)}/{regime_data.get('total_rows', '?')} rows ({steady_ratio:.1%})")
+
+        # Per-product focus
+        per_prod = regime_data.get('per_product_anomaly_analysis', {})
+        if per_prod.get('applicable') and per_prod.get('focus_product'):
+            print(f"[regime-filter] Focus product: '{per_prod['focus_product']}' "
+                  f"(anomaly score: {per_prod.get('focus_product_stats', {}).get('overall_anomaly_score', 'N/A')}")
+            print(f"[regime-filter] MANDATORY: per-product within-time-window analysis required for '{per_prod['focus_product']}'")
+    else:
+        print("[regime-filter] WARNING: production_regime_filter.json not produced", file=_sys.stderr)
+
+
 # ── MAIN ──
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Data Processor Toolkit")
@@ -739,5 +805,15 @@ if __name__ == '__main__':
     p3.add_argument('--group-col', default=None)
     p3.add_argument('--data-view-mode', choices=['process_plus_inspection', 'process_only', 'inspection_only', 'unknown'], default='unknown')
 
+    # v6.5 NEW: Production regime filter
+    p4 = sub.add_parser('regime-filter')
+    p4.add_argument('data_csv')
+    p4.add_argument('output_dir')
+    p4.add_argument('--group-col', default=None)
+    p4.add_argument('--time-col', default=None)
+    p4.add_argument('--window-minutes', type=float, default=10)
+    p4.add_argument('--variance-threshold', type=float, default=3.0)
+    p4.add_argument('--min-steady-ratio', type=float, default=0.4)
+
     a = parser.parse_args()
-    {'preprocess': cmd_preprocess, 'anomaly': cmd_anomaly, 'visualize': cmd_visualize}[a.command](a)
+    {'preprocess': cmd_preprocess, 'anomaly': cmd_anomaly, 'visualize': cmd_visualize, 'regime-filter': cmd_regime_filter}[a.command](a)

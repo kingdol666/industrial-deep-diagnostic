@@ -31,6 +31,7 @@ function writeJson(pathLike, data) {
 const runManifest = readJson(join(runDir, 'run_manifest.json'), {});
 const inputManifest = readJson(join(runDir, '00_input', 'input_manifest.json'), {});
 const ontology = readJson(join(runDir, '01_ontology', 'ontology.json'), {});
+const analysisParameterSelection = readJson(join(runDir, '02_processed', 'analysis_parameter_selection.json'), null);
 const featureSummary = readJson(join(runDir, '02_processed', 'feature_summary.json'), {});
 const validateReport = readJson(join(runDir, '02_processed', 'validate_report.json'), {});
 const anomalyReport = readJson(join(runDir, '02_processed', 'anomaly_report.json'), {});
@@ -404,7 +405,9 @@ const customScriptInventory = customScripts.map((file) => ({
 const handoff = {
   run_id: runManifest.run_id || basename(runDir),
   generated_at: new Date().toISOString(),
-  analysis_mode: customScripts.length > 0 ? 'baseline_plus_custom' : 'baseline_only_with_justification',
+  analysis_mode: analysisParameterSelection
+    ? (customScripts.length > 0 ? 'ontology_guided_plus_custom' : 'ontology_guided_baseline')
+    : (customScripts.length > 0 ? 'baseline_plus_custom' : 'baseline_only_with_justification'),
   baseline_script_results: {
     scripts_run: [
       'convert.mjs',
@@ -435,6 +438,13 @@ const handoff = {
   ontology_industry_interpretation: ontologyInterpretation,
   adaptive_decision_audit: adaptiveDecisionAudit,
   analysis_coverage_matrix: analysisCoverageMatrix,
+  analysis_boundary: analysisParameterSelection ? {
+    tiers: analysisParameterSelection.analysis_tiers,
+    pruned_pairs: analysisParameterSelection.pruned,
+    predictor_cols: analysisParameterSelection.predictor_cols,
+    exclude_cols: analysisParameterSelection.exclude_cols,
+    derived_features: analysisParameterSelection.derived_features_to_compute || []
+  } : { missing: 'Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering' },
   data_supported_conclusions: conclusions,
   handoff_to_diagnostician: {
     priority_hypothesis_inputs: conclusions.slice(0, 3).map((item, index) => ({

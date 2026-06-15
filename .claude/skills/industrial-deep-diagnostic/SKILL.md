@@ -1,6 +1,6 @@
 ---
 name: industrial-deep-diagnostic
-description: "Industrial time-series diagnostic engine for manufacturing process root cause analysis. Use this skill when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial or manufacturing process. Also trigger on 诊断, 故障分析, 异常检测, 根因分析, 质量缺陷, 过程异常, 设备故障, 传感器数据分析, 工艺参数优化, 生产过程诊断. Runs a multi-agent pipeline: ontology-building, statistical validation (Simpson's Paradox, trend confounding, change-point detection), multi-hypothesis diagnosis with physical quantitative verification, quality-gate review, and adversarial physical-truth audit. Features auto/interactive/minimal interaction modes. Do NOT trigger for: non-industrial data, simple charting, financial analysis, or general statistics homework."
+description: "Multi-agent industrial diagnostic engine for manufacturing root cause analysis. Use when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial process. Also triggers on: 诊断, 故障分析, 异常检测, 根因分析, 质量缺陷, 过程异常, 设备故障, 传感器数据分析, 工艺参数优化, 生产过程诊断. Pipeline: ontology construction → statistical validation (Simpson's Paradox, trend confounding, change-point detection) → multi-hypothesis physics-based diagnosis → quality-gate review → adversarial physical-truth audit. Three interaction modes: auto/interactive/minimal. Do NOT trigger for non-industrial data, simple charting, financial analysis, or statistics homework."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
@@ -11,37 +11,35 @@ compatibility: |
   Requires Node.js 18+ for pipeline orchestration scripts (setup.mjs, inspect.mjs, stats.mjs, stats_validate.mjs, validate.mjs).
   Python 3.9+ managed via uv venv for adaptive analysis (matplotlib, numpy, pandas, scipy, seaborn, openpyxl).
   uv auto-installed if missing. Run `node scripts/uv_env_setup.mjs` before any Python use.
-  Optional: rag-retrieval-engine running on localhost:8765 for runtime knowledge retrieval. If unavailable, the skill falls back to local-only ontology building.
+  Optional: rag-retrieval-engine running on localhost:8765 for runtime knowledge retrieval. Falls back to local-only ontology building if unavailable.
 ---
 
 # Industrial Deep Diagnostic
 
 ## Language Default
 
-**默认输出语言为中文。** 报告、诊断结论、审计文档使用中文。JSON enum字段保持英文。
+**默认输出语言为中文。** 报告、诊断结论、审计文档使用中文。JSON enum 字段保持英文。
 
 ---
 
 ## What This Skill Does
 
-This is a **scenario-adaptive diagnostic engine** — it diagnoses ANY industrial process by combining three sources of knowledge:
+This is a **scenario-adaptive diagnostic engine** — it diagnoses ANY industrial process by combining three knowledge sources:
 
-1. **Data self-describes** — column names, value ranges, and statistical signatures reveal what kind of process this is, without matching against a fixed taxonomy
-2. **RAG provides domain context** — retrieved physics principles, causal mechanisms, known failure modes, and parameter semantics for whatever domain the data represents
-3. **First-principles physics** — every statistical correlation must trace to a governing equation; for unknown parameters, physics is derived from conservation laws, dimensional analysis, and constitutive relations
+1. **Data self-describes** — column names, value ranges, and statistical signatures reveal the process type without a fixed taxonomy
+2. **RAG provides domain context** — retrieved physics principles, causal mechanisms, known failure modes, and parameter semantics for the data's domain
+3. **First-principles physics** — every statistical correlation must trace to a governing equation; unknown parameters derived from conservation laws, dimensional analysis, and constitutive relations
 
-In the final diagnosis, this skill must always support **two complementary reasoning views**:
+Every diagnosis must support **two complementary views**:
 
-1. **纯工艺波动诊断 / Process-Fluctuation Diagnosis** — from the process data alone, identify whether parameters show physically meaningful abnormal drift, instability, threshold behavior, or regime switching
-2. **工艺+检测双驱动诊断 / Integrated Dual-Drive Diagnosis** — combine process abnormalities with inspection/quality anomalies to determine whether the process-side abnormality actually enters the defect / quality causal chain
+1. **纯工艺波动诊断 / Process-Fluctuation Diagnosis** — from process data alone, identify physically meaningful abnormal drift, instability, threshold behavior, or regime switching
+2. **工艺+检测双驱动诊断 / Integrated Dual-Drive Diagnosis** — combine process abnormalities with inspection/quality anomalies to determine whether the process-side abnormality enters the defect causal chain
 
 **Both views must be grounded in ontology semantics and physical reasoning, not just statistics.**
 
 ## Core Principle
 
-Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradictions. Missing any → label as `[HYPOTHESIS]`. When data cannot discriminate between competing hypotheses → output `COMPETING_SET`, not a guess.
-
-**Four pillars** that make this work across any industry:
+Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal precedence, (2) statistical evidence, (3) physical mechanism, (4) no contradictions. Missing any → label as `[HYPOTHESIS]`. When data cannot discriminate between competing hypotheses → `COMPETING_SET`, not a guess.
 
 | Pillar | Principle | Anti-Pattern |
 |--------|-----------|--------------|
@@ -52,133 +50,225 @@ Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal
 
 ---
 
+## Truth-Seeking Mandate — 实事求是（最高优先级）
+
+**这是整个 Skill 执行的最基本、最优先的约束。所有 Agent 必须遵守，任何输出不能与此冲突。**
+
+### 三条铁律
+
+**铁律 1: 只讲数据真话，不讲假结论。**
+
+- 如果证据不足以确定根因，必须明确说"现有数据无法确定"，并呈现竞争假设
+- 如果统计相关性存在但物理机制不清，必须标注 `[PHYSICS_UNVERIFIED]`
+- 如果物理机制合理但统计上不显著，必须标注 `[STATISTICALLY_UNVERIFIED]`
+- 不得为了"给出一个答案"而选择性地忽略反面证据
+- 不得用"可能"、"或许"、"大概"等模糊词掩盖证据不足
+- **结论必须归因于具体的数据来源**：`[OBSERVED: feature_summary.json §X]`、`[MEASURED: row 847, col Z3_temp]`、`[VLM_OBSERVED: fig_vlm_temporal_overlay_focus_PG31DS.png]`
+
+**铁律 2: 对齐图是诊断的核心证据，不是装饰。**
+
+- 每个产品的 per-product time-aligned overlay 图必须嵌入报告
+- 每张对齐图必须配有一段独立的波动解读：哪些参数同步、哪些先变后变、哪些异常窗口
+- 对齐图的解读必须直接回答："哪个工艺参数的波动导致检测数据异常？"
+- 如果对齐图中看不出任何关联，必须明确写"该产品数据中未观察到工艺参数与检测指标的清晰时间对齐模式"
+- 对齐图的解读必须结合 ontology 中的物理含义（"为什么这个参数可能会影响这个检测指标"）
+- 对齐图不能只是"贴图"——每张图要有"图上看到了什么 → 统计怎么说 → 物理上说得通吗"三段式解读
+
+**铁律 3: 推理链必须透明可追溯。**
+
+- 每个结论必须能从 `reasoning_chain.json` 中追溯完整的 R1→R8 推理路径
+- 每个证据引用必须标明证据等级（L1-L7）和来源文件
+- 如果推理链中存在"跳跃"（从统计相关直接跳到因果结论），必须标注 `[INFERENCE_GAP]`
+- 证伪条件必须具体、可执行——不能说"需要更多数据"，要说"需要下一批次在 Z3 温度 82°C 条件下的缺陷密度数据"
+
+### 证据不足时的标准输出
+
+当无法确定根因时，以下是**应当输出的内容**，而非编造结论：
+
+```markdown
+## 诊断结论: 证据不足以确定单一根因
+
+### 当前可以确定的
+- [列出有统计+物理双重支持的发现]
+
+### 当前无法区分的竞争假设
+| 假设 | 支持的证据 | 反对的证据 | 需要什么才能区分 |
+|------|----------|-----------|----------------|
+| H1: ... | ... | ... | ... |
+| H2: ... | ... | ... | ... |
+
+### 为什么无法确定
+[诚实说明: 数据缺失/物理机制不清/统计不显著/时间对齐不可靠]
+
+### 建议的下一步
+[具体、可操作的后续诊断步骤]
+```
+
+### 禁止的虚假表述清单
+
+以下表述在任何 Agent 的输出中均被禁止：
+
+| 禁止表述 | 原因 | 替代做法 |
+|---------|------|---------|
+| "可以确定X是根因"（当置信度<70或证据等级<L3时） | 过度声称 | "X是最可能的根因，置信度XX/100，最大不确定性是..." |
+| "经全面分析..." | 无法验证是否"全面" | 列出具体分析步骤和覆盖范围 |
+| "数据显示明显相关"（不给出具体r值和p值） | 模糊不可验证 | "Spearman ρ=0.73, p<0.001" |
+| "物理机制支持这一结论"（不给出具体机制） | 空洞 | "Z3温度↑ → PET结晶速率↑（Arrhenius方程，Ea≈150kJ/mol）→ 薄膜雾度↑" |
+| "建议优化工艺参数"（不给出具体参数和目标值） | 无法执行 | "将Z3温度从89°C调回82°C±1.5°C" |
+| "可能存在一定影响" | 逃避判断 | 给出具体数字或明确说"无法判断" |
+| 把统计相关直接等同因果 | 逻辑跳跃 | 必须经过物理机制和时间先后验证 |
+
+---
+
 ## Loading Guide — Progressive Disclosure
 
-This skill uses **three levels** of loading. Only read what the current step needs:
+This skill uses **three levels**. Only load what the current step needs.
 
 ### Level 1: Always Loaded (this file)
-The orchestration protocol — step sequence, commands, evidence rules, anti-speculation checks.
 
-For any production-style execution, also treat `resources/engineering_delivery_contract.md` as binding acceptance criteria.
+The orchestration protocol — step sequence, agent launch templates, governance rules, evidence/anti-speculation checks.
+
+For production-style execution, also treat `resources/engineering_delivery_contract.md` as binding acceptance criteria.
 
 ### Level 2: Launched Per Step (agents/)
 
-> ⚠️ **禁止主 agent 执行子智能体工作！** 表格中的 **Launch sub-agent** 行意味着：直接启动子智能体，**不是**主 agent 读协议自己干。子智能体启动后自己 Read 自己的协议并执行，主 agent 只负责传参和等待。曾经发生过主 agent 读了 context-builder 的 500+ 行协议后忍不住自己执行了全部工作，这是违反管线纪律的。
+> **禁止主 agent 执行子智能体工作！** 表格中的 **Launch sub-agent** 行意味着直接启动子智能体 — **不是**主 agent 读协议自己干。子智能体自行 Read 自己的协议并执行，主 agent 只负责传参和等待。曾经发生过主 agent 读了 context-builder 的 500+ 行协议后自己执行了全部工作，这是违反管线纪律的。
 
 | When | Action | Why |
 |------|--------|-----|
 | Before Step 0 | Read `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
-| Before Step 2 | **Launch sub-agent** `Agent({subagent_type: "context-builder", ...})` — 子智能体自行加载协议 | RAG retrieval + ontology construction + deep mapping |
-| Before Step 3 | **Launch sub-agent** `Agent({subagent_type: "data-processor", ...})` — 子智能体自行加载协议。**data-processor 内部会委托 `vlm-visual-analyzer` 子智能体做图像分析** | Statistical analysis + physics checks + scenario-adaptive visualization |
-| Before Step 3 | `resources/visual_analysis_framework.md` | VLM chart design principles + Phase 5.5 visual analysis protocol |
-| Before Step 4 | **Launch sub-agent** `Agent({subagent_type: "diagnostician", ...})` — 子智能体自行加载协议 | Physics-based competing hypotheses diagnosis |
-| Before Step 5 | **Launch sub-agent** `Agent({subagent_type: "judge", ...})` — 子智能体自行加载协议 | Quality gate (10 criteria + physics source audit) |
-| Before Step 6 | **Launch sub-agent** `Agent({subagent_type: "reporter", ...})` — 子智能体自行加载协议 | Report generation from structured artifacts |
-| Before Step 7 | **Launch sub-agent** `Agent({subagent_type: "report-reviewer", ...})` — 子智能体自行加载协议 | Independent physical truth audit |
+| Before Step 2 | **Launch sub-agent** `Agent({subagent_type: "context-builder", ...})` | RAG retrieval + ontology construction + deep mapping |
+| Before Step 3 | **Launch sub-agent** `Agent({subagent_type: "data-processor", ...})` | Statistical analysis + physics checks + visualization. data-processor internally delegates to `vlm-visual-analyzer` |
+| Before Step 3 | Read `resources/visual_analysis_framework.md` | VLM chart design principles + Phase 5.5 visual analysis protocol |
+| Before Step 4 | **Launch sub-agent** `Agent({subagent_type: "diagnostician", ...})` | Physics-based competing hypotheses diagnosis |
+| Before Step 5 | **Launch sub-agent** `Agent({subagent_type: "judge", ...})` | Quality gate (10 criteria + physics source audit) |
+| Before Step 6 | **Launch sub-agent** `Agent({subagent_type: "reporter", ...})` | Report generation from structured artifacts |
+| Before Step 7 | **Launch sub-agent** `Agent({subagent_type: "report-reviewer", ...})` | Independent physical truth audit |
 | During repair loops | Read `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
 
 ### Level 3: Loaded On-Demand (resources/)
-Detailed frameworks — load only when the agent's instructions tell you to.
+
+Detailed frameworks — load only when an agent's instructions tell you to.
 
 | When | Read | Content |
 |------|------|---------|
 | context-builder needs RAG deep understanding protocol | `resources/rag_deep_understanding_protocol.md` | R1-R4: semantic comprehension, knowledge-data alignment, physics extraction, gap identification |
 | context-builder builds ontology; data-processor updates it | `resources/data_ontology_mapping_framework.md` | Three mapping directions: prediction→validation, discovery→refinement, discrepancy→diagnostic signal |
+| data-processor needs scenario-specific analysis patterns | `resources/scenario_patterns.md` | Patterns A-I: multi-zone, paired sensors, grouping, events, nonlinear, cyclic, manual physics, process-only, regime detection |
+| data-processor needs VLM chart design principles | `resources/visual_analysis_framework.md` | Chart design principles + Phase 5.5 visual analysis protocol |
 | diagnostician encounters novel parameters | `resources/physics_inference_framework.md` | L1-L5 ladder: physical quantity → governing law → causal chain → magnitude → competing mechanisms |
-| troubleshooting pipeline integration | `resources/pipeline_coherence_and_synergy.md` | Step synergy rules, cross-step verification checklist, RAG two-stage protocol, artifact completeness |
-| diagnostician needs evidence definitions | `resources/evidence_rules.md` | 7-rank evidence hierarchy and causation criteria |
+| diagnostician needs evidence definitions | `resources/evidence_rules.md` | 7-rank evidence hierarchy and 5-condition causation criteria |
 | diagnostician needs methodology | `resources/diagnosis_method.md` | 6-stage diagnostic methodology with statistical thresholds |
-| diagnostician reads pre-computed checks | `resources/diagnostician_dual_drive_reference.md` | Quality reset analysis tables, onset-coincidence classification, physical check conclusions |
-| any agent needs physics pattern examples | `resources/parameter_to_physics.json` | Pattern library — structural examples for building physics arguments, NOT a lookup table |
+| diagnostician reads pre-computed checks | `resources/diagnostician_dual_drive_reference.md` | Quality reset analysis, onset-coincidence classification, physical check conclusions |
+| any agent needs physics pattern examples | `resources/parameter_to_physics.json` | Pattern library — structural examples, NOT a lookup table |
 | report-reviewer needs cross-industry physics | `resources/process_knowledge_base.md` | 16 universal physics principles, quantitative relationships, degradation patterns |
+| troubleshooting pipeline integration | `resources/pipeline_coherence_and_synergy.md` | Step synergy rules, cross-step verification, RAG two-stage protocol |
 | developer reference | `resources/script_and_toolkit_reference.md` | Complete catalog of scripts, schemas, and templates |
 | engineering delivery contract | `resources/engineering_delivery_contract.md` | Mandatory execution, artifact, and completion contract for deployable runs |
 
-**After each agent produces output**, validate with the matching schema:
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/<schema>.json" "$RUN_DIR/<path>/<output>.json"
-```
+**After each agent produces output**, validate with the matching schema. See `pipeline-execution.md` §Step Command Reference for full validation commands.
 
-**Do NOT load everything upfront.** The detailed frameworks (Level 3) are only needed when an agent explicitly needs them. The agents (Level 2) are self-contained instructions.
-
-**RAG dependency**: Step 2 delegates to the `rag-knowledge-builder` skill via `Skill` tool. If unavailable, context-builder falls back to building the ontology from scratch. See `resources/rag_integration_guide.md`.
+**Do NOT load everything upfront.** Detailed frameworks (Level 3) are only needed when an agent explicitly references them. Agents (Level 2) are self-contained.
 
 ---
 
 ## Multi-Agent Pipeline Architecture
 
-This skill uses **7 specialized sub-agents** defined in `.claude/skills/industrial-deep-diagnostic/agents/`. Each agent is launched via the `Agent` tool with `permissionMode: "bypassPermissions"` for zero-interruption execution.
+This skill uses **7 specialized sub-agents** defined in `agents/`. Each is launched via the `Agent` tool with `permissionMode: "bypassPermissions"`.
 
-| Pipeline Step | Agent Name | Subagent Type | Model | Purpose |
-|:-------------:|------------|:-------------:|:-----:|---------|
-| Step 2 | Context Builder | `context-builder` | sonnet | RAG检索 + 本体ontology构建 |
-| Step 3 | Data Processor | `data-processor` | sonnet | 数据分析 + 可视化 |
-| Step 3.5 (internal) | VLM Visual Analyzer | `vlm-visual-analyzer` | haiku | 本体感知的VLM视觉图像分析 — 由图+统计+知识联合提取结构化视觉证据 |
-| Step 4 | Diagnostician | `diagnostician` | sonnet | 竞争假说根因诊断 |
-| Step 5 | Judge | `judge` | sonnet | 10项标准质量门审查 |
-| Step 6 | Reporter | `reporter` | sonnet | 20节中文诊断报告生成 |
-| Step 7 | Report Reviewer | `report-reviewer` | sonnet | 独立物理真实审计 |
+| Pipeline Step | Agent | Persona | Subagent Type | Purpose |
+|:-------------:|-------|--------|:-------------:|---------|
+| Step 2 | Context Builder | **王教授** — 化工/材料领域知识专家，25年失效分析经验 | `context-builder` | RAG检索 + 本体ontology构建（物理语义深度理解） |
+| Step 3 | Data Processor | **张工** — 高级过程数据科学家，16年流程制造数据分析经验 | `data-processor` | 数据分析 + 可视化（反幻觉、数据真实、专业图表标准） |
+| Step 3.5 (internal) | VLM Visual Analyzer | **老孙（目视）** — 设备状态监测工程师，20年目视巡检经验 | `vlm-visual-analyzer` | 本体感知的VLM视觉图像分析，由图+统计+知识联合提取结构化视觉证据 |
+| Step 4 | Diagnostician | **刘总工** — 首席根因分析工程师，28年产线诊断经验 | `diagnostician` | 竞争假说根因诊断（物理机制+定量验证+五条件反推测） |
+| Step 5 | Judge | **陈主任** — 国家工业产品质检中心高级审核员，15年质量审计经验 | `judge` | 10项标准质量门审查 |
+| Step 6 | Reporter | **周工** — 技术报告撰写专家，15年产线技术报告经验，近5年面向企业高管 | `reporter` | 面向决策者的9节诊断报告（金字塔结构: 结论优先、白话解释、证据链路清晰） |
+| Step 7 | Report Reviewer | **孙审计** — 过程安全与质量审计专家，32年跨国工业审计经验 | `report-reviewer` | 独立物理真实审计 |
 
-> **vlm-visual-analyzer 是内部子智能体** — 它由 data-processor 在其 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为一个 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
+> **vlm-visual-analyzer 是 data-processor 的内部子智能体** — 它在 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
 
 ## Execution Flow
 
 ```
 Step 0: Setup ──► Step 1: Inspect
                          │
-                         ├──► Step 2: context-builder (RAG + Ontology + Deep Mapping)
-                         │          │
-                         │          ▼
-                         │     Step 2.5: Clarify
-                         │          │
-                         ▼          ▼
-                 Step 3 warm-start: data-processor baseline waits for ontology, then finishes
-                                          │               │
-                                          ▼               │
-                                     Step 4: diagnostician (Physics-Based Competing Hypotheses)
-                                          │               │
-                              ┌──────────▼──────────┐      │
-                              │ Step 5a: judge       │◄── repair max 3 ─┐
-                              │ Step 5b: pre-audit   │                   │
-                              │ run in parallel      │                   │
-                              └──────────┬──────────┘                   │
-                                          │ pass                     │
-                                          ▼                         │
-                                    Step 6: reporter (Report Generation)
-                                          │                         │
-                                          ▼                         │
-                                    ┌─────▼──────┐                  │
-                                    │ Step 7:    │── re-diagnose ───┘
-                                    │ report-reviewer (Audit)│
-                                    └─────┬──────┘
-                                          │ ENDORSED
-                                          ▼
-                                    Step 8: Present
+                         ▼
+                    Step 2: context-builder (RAG + Ontology + Deep Mapping)
+                         │
+                         ▼
+                    Step 2.5: Clarify
+                         │
+                         ▼
+                    Step 3: data-processor (Ontology-Guided Analysis)
+                         │
+                         ▼
+                    Step 4: diagnostician (Physics-Based Competing Hypotheses)
+                         │
+              ┌──────────▼──────────┐
+              │ Step 5a: judge       │◄── repair max 3 ─┐
+              │ Step 5b: pre-audit   │                   │
+              │ run in parallel      │                   │
+              └──────────┬──────────┘                   │
+                         │ pass                         │
+                         ▼                              │
+                   Step 6: reporter                     │
+                         │                              │
+                         ▼                              │
+                   ┌─────▼──────┐                       │
+                   │ Step 7:    │── re-diagnose ────────┘
+                   │ report-reviewer
+                   └─────┬──────┘
+                         │ ENDORSED
+                         ▼
+                   Step 8: Present
 ```
 
-**Default execution mode: `fast_safe`.** Preserve every diagnostic evidence gate, but overlap independent work:
+**Default execution mode: `ontology_first`.** Step 2 completes before Step 3's Phase 0.4 — the ontology model tells you which parameter groups are physically meaningful, which pairs to test, and which to prune before statistics wastes degrees of freedom on meaningless pairs.
 
-1. After Step 1, launch `context-builder` and `data-processor` together. `data-processor` runs deterministic baseline work that only needs `input_manifest.json` / `user_context.json`, then waits for `01_ontology/ontology.json` before ontology-dependent expert analysis, physics checks, VLM grounding, and final handoff.
-2. After Step 4, launch `judge` and `report-reviewer` in `PRE_REPORT_AUDIT=true` mode together. Both consume the same structured diagnosis artifacts. If either reports blocking issues, repair before generating the final report.
-3. Step 6 and the final Step 7 audit remain gated by a passing Step 5. The final audit may reuse `05_review/optimizer_preflight.md` and focus on report-diagnosis drift plus any unresolved physical issues.
+---
 
-**Fallback execution mode: `strict_serial`.** Use strict serial order only when the runtime cannot run background agents reliably, when the dataset is tiny and launch overhead dominates, or when debugging event-log/order failures. In strict serial mode, execute Step 2 → Step 2.5 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7.
+## Pipeline Governance
 
-**Dependency rule**: Parallelism is allowed only across steps whose required input artifacts already exist. It must never bypass validation, evidence closure, ontology grounding, VLM provenance, judge review, or physical truth audit.
+These rules ensure every run produces trustworthy, auditable diagnoses. Full implementation details in `pipeline-execution.md`.
 
-**Pipeline discipline rule**: When executing this skill, the agent MUST follow the pipeline step-by-step and **must not skip, reorder, or silently omit steps** just to save time or tokens. Every step must be explicitly checked and executed according to the pipeline contract unless the pipeline itself defines a documented skip condition (for example, no valid time column for temporal alignment, or no clarification needed in `auto` mode). If a step is not applicable, the agent must say so in the relevant artifact and continue with the next defined step — not silently bypass it.
+### Execution Discipline
 
-**Repair loops**: Judge→Diagnostician max 3 iterations. Reviewer→Diagnostician max 2 cycles. **Global cap: total re-diagnosis ≤ 5**. Counter persists in `.pipeline_events.jsonl`. See `pipeline-execution.md` §Repair Loop Protocol.
+- Execute steps in order. Never skip, reorder, or silently omit a step.
+- If a step does not apply, record `not_applicable_reason` in the relevant artifact — never silently bypass.
+- **`ontology_first` mode**: Step 2 completes before Step 3's Phase 0.4 runs. Pre-ontology work is limited to data conversion, preprocessing, and quality profiling.
+- Steps 5a (judge) and 5b (pre-audit) are the only parallel steps — both consume the same diagnosis artifacts. All other steps are serial.
 
-**Execution proof rule**: A run is not considered fully valid unless the final artifact check confirms both the output artifacts and the `.pipeline_events.jsonl` execution log. Producing files without a coherent event log is treated as an execution-integrity failure.
+### Repair Loops
 
-**Engineering acceptance rule**: A run is not considered deployable unless it also satisfies `resources/engineering_delivery_contract.md`, including standardized `run_config`, mandatory sub-agent deliverables, present-step completion, and final gate checks.
+- Judge → Diagnostician: max 3 iterations. Reviewer → Diagnostician (full D→J→R→R cycle): max 2 cycles.
+- **Global cap: total re-diagnosis ≤ 5.** Counter persists in `.pipeline_events.jsonl` via `repair_spawn` events.
+- See `pipeline-execution.md` §Repair Loop Protocol for full procedures.
 
-**Evidence-closure rule**: A run is not considered diagnostically complete unless the final checks also confirm the evidence loop is closed: process-side abnormality entry → dual-drive linkage entry → ontology/physics interpretation → diagnosis outputs → review/report handoff. The machine-readable proof is `evidence_closure_report.json`.
+### Anti-Oscillation Rule
 
-**Judge-gated reporting rule**: A final report is invalid unless `05_review/judge_feedback.json` is schema-valid, `verdict == "pass"`, `overall_score >= 90`, and there are no blocking issues. This is a hard orchestration gate, not a recommendation: `reporter` must not start, `finalize-run-artifacts.mjs` must not record `run_completed`, and `artifact-check.mjs` must fail if the Judge gate is missing or not passed.
+Before re-spawning the diagnostician, compute the repair delta:
 
-**Stability/reproducibility rule**: For the same input data and same user objective, final diagnosis must be derived from deterministic artifacts (`data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`) rather than narrative drift. If a repeated run or prior summary is available, materially different primary findings or confidence shifts greater than 10 points require an explicit explanation and evidence delta; unexplained drift is a Judge blocking issue. If no prior run exists, confidence must still be reproducible from `confidence.adjustment_log`, evidence ranks, and documented confidence ceilings.
+1. Compare repair instructions against the previous round: if substantively identical (>70% issue-type overlap in `.pipeline_events.jsonl`) → repair oscillation.
+2. On second oscillation (third repair with same issues): **halt repairs**, mark `COMPETING_SET — repair oscillation`, confidence ceiling ≤ 50. Document in `reasoning_chain.json` R8.
+
+### Quality Gates
+
+All must pass for a run to be considered complete:
+
+| Gate | Requirement | Enforced By |
+|------|-------------|-------------|
+| **Judge Gate** | `verdict == "pass"`, `overall_score >= 90`, no blocking issues | `reporter` launch blocked; `artifact-check.mjs` |
+| **Execution Proof** | `.pipeline_events.jsonl` valid per `pipeline-log-check.mjs` | `artifact-check.mjs` |
+| **Evidence Closure** | Process + dual-drive + ontology interpretation all present | `evidence-closure-check.mjs` |
+| **Engineering Acceptance** | All mandatory artifacts + `run_completed` event | `artifact-check.mjs` per `engineering_delivery_contract.md` |
+| **Optimizer Completeness** | `optimizer.md` with all 4 standard sections | `artifact-check.mjs` |
+
+**Judge-gated reporting rule**: Reporter launch is illegal unless `judge_feedback.json` is schema-valid, `verdict == "pass"`, `overall_score >= 90`, and there are no blocking issues. If `append-pipeline-event.mjs` returns `JUDGE_GATE_NOT_PASSED` at `agent_start reporter`, the only valid next action is repair/rejudge — not manual report writing.
+
+### Stability & Reproducibility
+
+Final diagnosis must derive from deterministic artifacts (`data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`). Unexplained primary-finding drift or confidence shifts >10 points between repeated runs is a Judge blocking issue. Confidence must be reproducible from `confidence.adjustment_log`, evidence ranks, and documented ceilings.
 
 ---
 
@@ -189,17 +279,11 @@ Step 0: Setup ──► Step 1: Inspect
 ```bash
 SKILL_PATH="<path-to-this-skill>"
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
-
-# Create run directory: <timestamp>_<name>/ with 00_input/ through 06_scripts/
 node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
-
-# Ensure Python venv ready (auto-installs uv + deps)
 node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 ```
 
-`setup.mjs` now bootstraps both `run_manifest.json` and `.pipeline_events.jsonl` with a `run_initialized` event. Treat this as the start of execution proof.
-
-Copy input data files into `00_input/`. All Python invocations MUST use `scripts/.venv/bin/python` — never system `python3`.
+Copy input data files into `00_input/`. Update `00_input/run_config.json` with the real `data_path` and user objective/constraints. All Python invocations MUST use `scripts/.venv/bin/python`.
 
 ### Step 1: Inspect Data (Main Agent)
 
@@ -207,28 +291,19 @@ Copy input data files into `00_input/`. All Python invocations MUST use `scripts
 node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
 ```
 
-Recommended main-agent execution log:
-```bash
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_start --agent main-agent --step inspect --data '{"data_path":"<data_path>"}'
-# run inspect + write 00_input/input_manifest.json / user_context.json
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_complete --agent main-agent --step inspect --files 00_input/input_manifest.json,00_input/user_context.json
-```
-
-`setup.mjs` now creates a default `00_input/run_config.json`. Main agent must update it with the real `data_path` and any user-provided objective/constraints before Step 2.
-
 | Mode | Behavior |
 |------|----------|
-| **auto** | Zero user questions. Infer process characteristics, quality targets, parameter meanings from column patterns and value ranges. |
+| **auto** | Zero user questions. Infer everything from column patterns and value ranges. |
 | **interactive** | Ask up to 5 clarification questions. |
 | **minimal** | Ask 1-2 essential questions only. |
 
-Produce process-agnostic characterization: column name patterns → physical quantity hypotheses, value range confirmation, statistical signature classification (trending/cyclic/step-change/stationary), categorical columns for stratification, time column detection.
+Produce process-agnostic characterization: column patterns → physical quantity hypotheses, value range confirmation, statistical signature classification (trending/cyclic/step-change/stationary), categorical columns for stratification, time column detection.
 
 Save `input_manifest.json` and `user_context.json` to `00_input/`.
 
 ### Step 2: Context Build (Sub-Agent: `context-builder`)
 
-**Delegation guard**: launch the sub-agent. Do not read its full protocol in the main agent and perform its work manually.
+Launch the sub-agent. Do NOT read its full protocol in the main agent.
 
 ```javascript
 Agent({
@@ -250,114 +325,85 @@ Read "$SKILL_PATH/agents/context-builder.md" and execute the complete protocol. 
 
 **Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
-**Fast-safe parallel note**: In default mode, start Step 3 `data-processor` immediately after launching `context-builder`. The data processor may run only its input-manifest-driven baseline preparation until ontology files exist; it must wait before ontology-dependent analysis, physics checks, VLM grounding, and final conclusion writing.
-
 ### Step 2.5: Clarification Gate (Main Agent)
 
-Check `clarification_needed.json`. Auto mode skips all questions and applies physics inference. Interactive/minimal modes ask per their respective rules. See `pipeline-execution.md` §Step 2.5 for detailed protocol.
+Check `clarification_needed.json`. Behavior depends on `interaction_mode` (defaults to `auto`):
 
-Record the gate outcome explicitly:
-```bash
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event clarification_auto_inferred --agent main-agent --step clarification_gate
-```
+- **auto**: Infer all unknown parameters using `resources/physics_inference_framework.md` L1-L5. Mark `"auto_inferred": true`. Do NOT ask the user.
+- **interactive**: Group related parameters, ask up to 4 questions per round with best-guess suggestions.
+- **minimal**: Ask only CRITICAL parameters (max 2). Auto-infer the rest.
+
+See `pipeline-execution.md` §Step 2.5 for full protocol including skip conditions and event logging.
 
 ### Step 3: Data Processing + Visualization (Sub-Agent: `data-processor`)
 
-Launch `data-processor` with `DATA_PATH`, `RUN_DIR`, and `SKILL_PATH`; tell it to read `agents/data-processor.md`, execute Phase 0-6, use only the uv-managed Python path, and delegate Phase 5.5 to `vlm-visual-analyzer`.
+Launch `data-processor` **after** `01_ontology/ontology.json` exists. Tell it to read `agents/data-processor.md`, execute Phase 0-6, use only the uv-managed Python path, and delegate Phase 5.5 to `vlm-visual-analyzer`.
 
-**Fast-safe warm start**:
-- May run before `context-builder` completes: file conversion, preprocessing, data quality report, initial target/process column inference from `input_manifest.json`, and provisional `analysis_plan.md`.
-- Must wait for `01_ontology/ontology.json`: scenario classification finalization, ontology-aware expert gap analysis, automated/manual physics checks, RAG Stage 2 validation, visual-analysis VLM delegation, `data_analysis_conclusion.json`.
-- Must record any wait as a `dependency_wait` event and any resume as `dependency_ready` in `.pipeline_events.jsonl`.
-- Must not mark Step 3 complete until all normal Step 3 outputs exist and validate.
+Key orchestration constraints to communicate:
+- **Phase 0.4 gates all analysis** — read ontology before any statistical work
+- **v6.5: Production regime detection runs BEFORE stats** — auto-detect startup/shutdown/steady states via three-algorithm fusion; filter to steady-state only
+- **v6.4: Time-lag compensation runs after feature_summary** — CCF-based optimal lag per parameter pair; raw zero-lag correlations are systematically biased when process→quality has a physical delay
+- **v6.5: Per-product mandatory analysis** — when multi-product data: identify worst product by anomaly rate, isolate steady-state rows, compare within-product vs cross-product correlations (Simpson's Paradox is the #1 threat)
 
-**Stabilization rule**: Before Step 4, run:
+**Before Step 4**, stabilize outputs:
 ```bash
 node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
 node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
 ```
 
-**Key outputs**: `02_processed/` validated analysis artifacts, `03_figures/*.png` generated according to the detected data mode, `03_figures/plot_manifest.json`, `03_figures/visual_analysis.json`, `analysis_plan.md`, and optional `06_scripts/` custom analysis scripts. Do not force a fixed plot count; prove coverage through `data_analysis_conclusion.json.analysis_coverage_matrix` and `plot_manifest.json`.
+**Key outputs**: `02_processed/` validated artifacts (including `production_regime_filter.json`, `time_lag_analysis.json`, `data_analysis_conclusion.json`), `03_figures/*.png` + `plot_manifest.json` + `visual_analysis.json`, `analysis_plan.md`
 
 ### Step 3.5: VLM Visual Analysis (Embedded in Step 3)
 
-The `data-processor` agent's Phase 5.5 delegates VLM image reading to the `vlm-visual-analyzer` sub-agent internally. No separate main-agent call needed, but the VLM sub-agent contract must still be honored and it must emit its own `agent_start` / `agent_complete` events as part of Step 3 execution proof.
+`data-processor`'s Phase 5.5 delegates VLM image reading to `vlm-visual-analyzer` internally. No separate main-agent call needed. Outputs: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`.
 
-Outputs: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`
-
-If a valid time column exists, Step 3 is only considered complete when `plot_manifest.json` contains at least one temporal / aligned / process-health timeline figure applicable to the detected data mode. If no valid time column exists, Step 3 must explicitly record the not-applicable reason in `analysis_plan.md`, `data_analysis_conclusion.json.analysis_coverage_matrix.temporal_regime_event`, and `visual_analysis.json`.
+If a valid time column exists, Step 3 is only complete when `plot_manifest.json` contains at least one temporal/aligned/process-health figure. If no valid time column exists, record the reason in `analysis_plan.md` and `data_analysis_conclusion.json`.
 
 ### Step 4: Diagnostician (Sub-Agent: `diagnostician`)
 
-Launch `diagnostician` with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, and optional `REPAIR_INSTRUCTIONS`; tell it to read `agents/diagnostician.md`, execute Phase 0-7, fuse data + ontology + physics + VLM evidence, and output both pure-process and integrated dual-drive diagnoses. Every surviving hypothesis must include `ontology_data_physics_proof`, `physical_logic_chain`, and `falsification_conditions`.
+Launch `diagnostician` with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, and optional `REPAIR_INSTRUCTIONS`. Tell it to read `agents/diagnostician.md`, execute Phase 0-7, and fuse data + ontology + physics + VLM evidence + time-lag analysis.
 
-Validate (×4):
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
-node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
-```
+The diagnostician MUST read `02_processed/time_lag_analysis.json` before forming causal hypotheses. Every surviving hypothesis must include `ontology_data_physics_proof`, `physical_logic_chain`, and `falsification_conditions`.
 
-Outputs: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
+**Outputs**: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
+
+Validate all four against their schemas + run `diagnostic-quality-check.mjs`. See `pipeline-execution.md` §Step Command Reference for full validation commands.
 
 ### Step 5: Judge Review (Sub-Agent: `judge`)
 
-Launch `judge` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`; tell it to read `agents/judge.md`, run the full quality gate, and write lowercase schema enum values only: `pass`, `needs_repair`, `major_issues`, `fail`.
+Launch `judge` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it to read `agents/judge.md`, run the full quality gate, use lowercase schema enum values only.
 
-**Verdict**: `pass` (≥90, no blocking issues) → Step 6 | `needs_repair` (70-89) or `major_issues` (50-69) → re-spawn diagnostician within repair caps | `fail` (<50) → halt
+| Verdict | Score | Action |
+|---------|:-----:|--------|
+| `pass` | ≥90, no blocking issues | Proceed to Step 6 |
+| `needs_repair` | 70-89 | Re-spawn diagnostician (within caps) |
+| `major_issues` | 50-69 | Re-spawn diagnostician (within caps) |
+| `fail` | <50 | Halt — present as blocked run |
 
-**Hard pass invariant**: `verdict="pass"` is valid only when all of these are true:
-- `overall_score >= 90`
-- `blocking_issues.length == 0`
-- `reasoning_chain_audit.blocking_issues.length == 0`
-- `criteria_scores.no_over_claiming.blocking_issues == 0`
+**Hard pass invariant**: `verdict="pass"` is valid only when ALL of these are true: `overall_score >= 90`, `blocking_issues.length == 0`, `reasoning_chain_audit.blocking_issues.length == 0`, `criteria_scores.no_over_claiming.blocking_issues == 0`.
 
-After schema validation, also run:
-```bash
-node "$SKILL_PATH/scripts/judge-gate-check.mjs" "$RUN_DIR" --skip-summary
-```
-If this gate fails, do not launch `reporter`; repair Step 4 instead.
+After schema validation, also run `judge-gate-check.mjs`. If it fails, repair Step 4. **Output**: `05_review/judge_feedback.json`
 
-Validate:
-```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_schema.json" "$RUN_DIR/05_review/judge_feedback.json"
-```
-Output: `05_review/judge_feedback.json`
+### Step 5b: Pre-Report Physical Audit (Parallel with Judge)
 
-### Step 5b: Pre-Report Physical Audit (Sub-Agent: `report-reviewer`, parallel with Judge)
-
-Run this in parallel with Step 5 when `diagnosis.json`, `evidence.json`, `confidence.json`, and `reasoning_chain.json` exist. This catches physics mistakes before the expensive report is written.
-
-Launch `report-reviewer` with `PRE_REPORT_AUDIT=true`; it must not require `report.md`, must write `05_review/optimizer_preflight.md`, and must log `audit_mode=pre_report`.
-
-Before Step 6, require both:
-- `judge_feedback.json.verdict == "pass"`
-- `judge_feedback.json.overall_score >= 90` and no blocking issues
-- `optimizer_preflight.md` has no blocking physical issue; if it does, repair via Step 4 before reporting.
+Launch `report-reviewer` with `PRE_REPORT_AUDIT=true` in parallel with Step 5. Must not require `report.md`; writes `05_review/optimizer_preflight.md`. Before Step 6, require both the Judge gate and no blocking physical issues in `optimizer_preflight.md`.
 
 ### Step 6: Report Generation (Sub-Agent: `reporter`)
 
-Launch `reporter` with `RUN_DIR` and `SKILL_PATH`; tell it to read `agents/reporter.md`, use `visual_analysis.json` as primary figure evidence, and generate `report.md` plus schema-valid `run_summary.json`.
+Launch `reporter` with `RUN_DIR` and `SKILL_PATH`. Tell it to read `agents/reporter.md`, use `visual_analysis.json` as primary figure evidence, and generate `report.md` plus schema-valid `run_summary.json`.
 
-Reporter launch is illegal unless the Judge gate has already passed. `append-pipeline-event.mjs` enforces this at `agent_start reporter`; if it returns `JUDGE_GATE_NOT_PASSED`, the only valid next action is repair/rejudge, not manual report writing.
-
-Output: `report.md` (791+ lines, 20 sections), `run_summary.json`
+Reporter launch is illegal unless the Judge gate has already passed. **Output**: `report.md` (9 节面向决策者的诊断报告 — 金字塔结构: 执行摘要→对齐图核心证据→诊断结论→证据全景→详细推导→推理过程→数据统计→行动方案→局限性), `run_summary.json`
 
 ### Step 7: Physical Truth Audit (Sub-Agent: `report-reviewer`)
 
-Launch `report-reviewer` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`; tell it to read `agents/report-reviewer.md`, reuse `optimizer_preflight.md` if present, independently verify physics/statistics against raw artifacts, and write `optimizer.md`.
+Launch `report-reviewer` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it to read `agents/report-reviewer.md`, verify physics/statistics against raw artifacts, reuse `optimizer_preflight.md` if present, and write `optimizer.md`.
 
-`optimizer.md` is a mandatory final optimization deliverable, not just an audit note. It must include:
-- scene-specific process optimization actions grounded in this run's data, ontology, physics checks, diagnosis, and VLM figure evidence
-- current scene problems and improvement opportunities
-- next-step diagnostic confirmation plan for making the diagnosis more accurate and more certain
-- action classification separating immediate containment, low-risk optimization, controlled experiment, measurement/data improvement, and deferred/unsafe action
+`optimizer.md` must include: scene-specific optimization plan, current problems and opportunities, next-step diagnostic confirmation plan, and action classification (immediate containment / low-risk optimization / controlled experiment / measurement improvement / deferred or unsafe).
 
-**Verdict**: ENDORSED → Step 8 | CONDITIONAL / REJECTED → re-spawn diagnostician (max 2 cycles, global cap ≤ 5)
-
-Output: `optimizer.md`
+| Verdict | Action |
+|---------|--------|
+| ENDORSED | Proceed to Step 8 |
+| CONDITIONAL / REJECTED | Re-spawn diagnostician (max 2 cycles, global cap ≤ 5) |
 
 ### Step 8: Present Results (Main Agent)
 
@@ -366,13 +412,9 @@ node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-Show: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path. Highlight CONDITIONAL/REJECTED concerns.
+If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run.
 
-`finalize-run-artifacts.mjs` now also refreshes `evidence_closure_report.json` and records `run_completed`; `artifact-check.mjs` now treats execution proof, evidence closure, VLM execution proof, and the diagnostic quality contract as final gate items.
-
-Before presenting completion, `artifact-check.mjs` must also verify that `optimizer.md` exists and contains the standard optimization sections: scenario-specific optimization plan, current scene problems, next-step diagnostic confirmation plan, and action classification.
-
-If `finalize-run-artifacts.mjs` or `artifact-check.mjs` reports `JUDGE_GATE_NOT_PASSED`, `Judge Final Report Gate`, `PIPELINE_LOG_MISSING`, or any critical gap, the run is not complete. Do not summarize it as a final diagnosis; summarize it as a blocked/repair-needed run and restart from the earliest failed gated step.
+Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path. Highlight CONDITIONAL/REJECTED concerns.
 
 ---
 
@@ -382,17 +424,14 @@ Agents communicate ONLY through workspace files — never through the main agent
 
 ```
 Context Builder ──► 01_ontology/ontology.json, schema.json
-                ──► 00_input/extracted_knowledge.json, clarification_needed.json, web_findings.md
+                ──► 00_input/extracted_knowledge.json, clarification_needed.json
                 ──► 00_input/rag_deep_understanding.json
-                ──► 00_input/rag_ontology_draft.json, rag_structured_data.json, rag_audit_log.json (from RAG skill)
-User Clarification ──► Updated ontology.json, schema.json
-Data Processor  ──► 02_processed/ (universal + scenario-specific analysis files)
-                ──► 02_processed/data_analysis_conclusion.json (expert data-analysis handoff)
+Data Processor  ──► 02_processed/ (universal + scenario-specific analysis)
+                ──► 02_processed/data_analysis_conclusion.json (mandatory handoff)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
-                ──► 03_figures/visual_analysis.json (VLM visual insights from vlm-visual-analyzer sub-agent)
-                ──► analysis_plan.md, 06_scripts/scenario_plots.py, 06_scripts/expert_analysis.py when needed
+                ──► 03_figures/visual_analysis.json (VLM evidence)
+                ──► analysis_plan.md
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
-                ── (consumes visual_analysis.json for visual evidence fusion)
 Judge           ──► 05_review/judge_feedback.json
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
@@ -400,64 +439,44 @@ Report Reviewer ──► optimizer.md
 
 ---
 
-## 全局规则: Schema-First Writing Protocol（防止重写浪费）
+## Schema-First Writing Protocol
 
-**这是最重要的规则。本节的所有重写和修复都源于违反此规则。**
+**Before writing any structured file**, read the matching schema first — construct content to the schema, write once, validate immediately. This prevents expensive rewrite cycles.
 
-在向 `RUN_DIR` **写入任何结构化文件**之前，必须先读取对应的 schema 文件（`schemas/*.json`）和模板（`templates/*.json`）—— 这样一次写入就能通过验证。
+| Step | File | Schema(s) to Read First |
+|------|------|-------------------------|
+| Step 2 | `ontology.json` | `ontology_schema.json` |
+| Step 3 | `scenario_classification.json`, `anomaly_report.json`, `data_analysis_conclusion.json` | `scenario_classification_schema.json`, `anomaly_report_schema.json`, `data_analysis_conclusion_schema.json` |
+| Step 3.5 | `visual_analysis.json`, `image_captions.json` | `visual_analysis_schema.json`, `image_captions_schema.json` |
+| Step 4 | `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json` | `diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json` |
+| Step 5 | `judge_feedback.json` | `judge_feedback_schema.json` |
+| Step 6 | `run_summary.json` | `run_summary_schema.json` |
 
-```mermaid
-flowchart LR
-    A[读取 schema] --> B[按 schema 字段构造]
-    B --> C[一次写入]
-    C --> D[立即验证]
-    D -->|通过| E[继续下一步]
-    D -->|失败| F[停止! 检查 schema 字段定义]
-    F --> B
-```
+**Rule**: Read schema → construct content → write once → validate. Never write first and validate after.
 
-| 步骤 | 写入文件 | 写入前必须读取 |
-|------|---------|---------------|
-| Step 2 | `ontology.json` | `schemas/ontology_schema.json` |
-| Step 3 | `scenario_classification.json` | `schemas/scenario_classification_schema.json` |
-| Step 3 | `causal_evidence_map.json` | `schemas/causal_evidence_map_schema.json` |
-| Step 3 | `anomaly_report.json` | `schemas/anomaly_report_schema.json` |
-| Step 3 | `data_analysis_conclusion.json` | `schemas/data_analysis_conclusion_schema.json` + `templates/data_analysis_conclusion_template.json` |
-| Step 3.5 | `visual_analysis.json` | `schemas/visual_analysis_schema.json` |
-| Step 3.5 | `image_captions.json` | `schemas/image_captions_schema.json` |
-| Step 4 | `diagnosis.json` | `schemas/diagnosis_schema.json` + `templates/diagnosis_template.json` |
-| Step 4 | `evidence.json` | `schemas/evidence_schema.json` |
-| Step 4 | `confidence.json` | `schemas/confidence_schema.json` |
-| Step 4 | `reasoning_chain.json` | `schemas/reasoning_chain_schema.json` |
-| Step 5 | `judge_feedback.json` | `schemas/judge_feedback_schema.json` + `templates/judge_template.json` |
-| Step 6 | `run_summary.json` | `schemas/run_summary_schema.json` + `templates/run_summary_template.json` |
-
-**规则**: 先读 schema，再构造内容，一次写入，立即验证。**不要**先写再验证 → 这是 token 浪费的主要原因。
-
-## JSON 转义与路径引号规则
-
-1. **JSON 中的引号嵌套**: 在 JSON 字符串中写入中文文本时，如果文本包含双引号（如「"根因竞争"」），必须转义为 `\"根因竞争\"`，或改写为无引号的表达方式。未转义的嵌套引号会导致 JSON 解析失败。
-2. **路径引号**: 当 `SKILL_PATH` 或 `DATA_PATH` 包含空格时，Bash 命令必须对所有路径变量使用双引号包裹：`"$SKILL_PATH/..."`。
+---
 
 ## Evidence Hierarchy
+
+Every non-observation statement must cite its evidence rank. Conclusions are limited by their weakest rank.
 
 | Rank | Source | Label |
 |------|--------|-------|
 | 1 | Direct measurements in data | `[Evidence Rank 1]` |
-| 2 | User-provided documentation | `[Evidence Rank 2]` |
+| 2 | User-provided documentation (SOPs, manuals) | `[Evidence Rank 2]` |
 | 3 | Statistical analysis (incl. validation report) | `[Evidence Rank 3]` |
 | 4 | Visual evidence from charts | `[Evidence Rank 4]` |
 | 5 | Established process logic / domain knowledge | `[Evidence Rank 5]` |
 | 6 | External web references | `[Evidence Rank 6] [EXTERNAL]` |
 | 7 | Hypotheses (unsupported) | `[Evidence Rank 7]` |
 
-Every conclusion limited by its weakest evidence rank.
+Full causation criteria (5 conditions), confidence scoring, language templates, and validation-adjusted evidence rules: `resources/evidence_rules.md`.
 
 ---
 
-## Anti-Speculation Rules
+## Anti-Speculation Checks
 
-Apply these checks before writing any finding:
+Apply before writing any diagnostic finding:
 
 - **Lag correlations** require time-sorted data — check `sorting_validation.time_sorted` first
 - **Aggregate correlations** can reverse within subgroups — always check stratified correlations
@@ -465,7 +484,7 @@ Apply these checks before writing any finding:
 - **Unknown parameter meanings** → `[PARAM_AMBIGUITY]` — correlation to a label is not correlation to a physical cause
 - **Competing hypotheses** with identical observables are INDISTINGUISHABLE → `COMPETING_SET`, confidence ceiling 65
 - **Physics-free correlations** are not diagnoses — `STATISTICAL_ONLY` is not a root cause
-- **RAG knowledge is suggestive, not authoritative** — every RAG claim must be validated against actual data
+- **RAG knowledge is suggestive, not authoritative** — validate every RAG claim against actual data
 - **Confidence, evidence gaps, and assumptions** must always be disclosed
 - **Falsification conditions** must be specified for every conclusion
 
@@ -485,6 +504,4 @@ Apply these checks before writing any finding:
 
 ## Developer QA
 
-For implementation details not needed during normal execution, use `CLAUDE.md`. For repair-loop details, use `pipeline-execution.md`.
-
-For `skill-creator` style evaluation loops, use `evals/evals.json.expectations[]` for reviewer expectations, `evals/evals.json.assertions[]` for executable artifact checks, and `scripts/eval-assertions.mjs` to produce `grading.json`.
+For implementation details not needed during normal execution, use `CLAUDE.md`. For repair-loop details and full bash command reference, use `pipeline-execution.md`.
