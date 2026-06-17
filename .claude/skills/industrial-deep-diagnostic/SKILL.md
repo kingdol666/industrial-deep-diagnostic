@@ -144,6 +144,8 @@ For production-style execution, also treat `resources/engineering_delivery_contr
 | Before Step 5 | **Launch sub-agent** `Agent({subagent_type: "judge", ...})` | Quality gate (10 criteria + physics source audit) |
 | Before Step 6 | **Launch sub-agent** `Agent({subagent_type: "reporter", ...})` | Report generation from structured artifacts |
 | Before Step 7 | **Launch sub-agent** `Agent({subagent_type: "report-reviewer", ...})` | Independent physical truth audit |
+| Before Step 8 | **Launch sub-agent** `Agent({subagent_type: "html-visualizer", ...})` | Post-audit HTML explanation page generation (四段叙事 + ECharts + Three.js 3D产线) |
+| After Step 8 | **Launch sub-agent** `Agent({subagent_type: "html-reviewer", ...})` | HTML readability / evidence-completeness review (pass/warn/fail) |
 | During repair loops | Read `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
 
 ### Level 3: Loaded On-Demand (resources/)
@@ -185,6 +187,8 @@ This skill uses **7 specialized sub-agents** defined in `agents/`. Each is launc
 | Step 5 | Judge | **陈主任** — 国家工业产品质检中心高级审核员，15年质量审计经验 | `judge` | 10项标准质量门审查 |
 | Step 6 | Reporter | **周工** — 技术报告撰写专家，15年产线技术报告经验，近5年面向企业高管 | `reporter` | 面向决策者的9节诊断报告（金字塔结构: 结论优先、白话解释、证据链路清晰） |
 | Step 7 | Report Reviewer | **孙审计** — 过程安全与质量审计专家，32年跨国工业审计经验 | `report-reviewer` | 独立物理真实审计 |
+| Step 8 | HTML Visualizer | **林工** — 工业前端可视化工程师，14年HMI/SCADA+工业Web可视化经验，把复杂诊断结论转成一眼能看懂的讲解页面 | `html-visualizer` | 生成讲解式 HTML 可视化页面（ECharts + Three.js + 证据链） |
+| Step 8.5 | HTML Reviewer | **赵审阅** — 工业信息可视化审校，15年技术文档审校经验，检查页面是否真的能让非算法用户看懂 | `html-reviewer` | 审核 HTML 是否清楚、完整、能支撑结论 |
 
 > **vlm-visual-analyzer 是 data-processor 的内部子智能体** — 它在 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
 
@@ -221,8 +225,57 @@ Step 0: Setup ──► Step 1: Inspect
                    └─────┬──────┘
                          │ ENDORSED
                          ▼
-                   Step 8: Present
+                   Step 8: html-visualizer
+                         │
+                         ▼
+                   Step 8.5: html-reviewer
+                         │ PASS
+                         ▼
+                   Step 9: Finalize
 ```
+
+### Default Post-Audit HTML Visualization
+
+当诊断流程完成到 Step 7 且 `report-reviewer` 给出 `ENDORSED` 后，主诊断 skill 默认继续执行 HTML 可视化构建，除非用户明确要求跳过前端产出。**这一步必须通过专用子 Agent `html-visualizer` 实现，不允许主诊断 agent 在主上下文中直接拼页面。**
+
+推荐调用形式：
+
+```javascript
+// Step 8: HTML 可视化构建
+Agent({
+  subagent_type: "html-visualizer",
+  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+VISUAL_MODE=story
+
+Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol.`,
+  run_in_background: true
+})
+```
+
+`html-visualizer` 完成后，再启动 `html-reviewer` 审校页面：
+
+```javascript
+// Step 8.5: HTML 页面审校
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核 HTML 可视化页面是否清楚、完整、能支撑结论",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+
+Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review protocol.`,
+  run_in_background: true
+})
+```
+
+只有当 `diagnostic-report.html` 生成完成，且 `html-reviewer` 给出 `pass`，且页面内对 ECharts / Three.js / OrbitControls 的加载状态与初始化状态有明确自检与降级说明时，Step 8 才算完整。
 
 **Default execution mode: `ontology_first`.** Step 2 completes before Step 3's Phase 0.4 — the ontology model tells you which parameter groups are physically meaningful, which pairs to test, and which to prune before statistics wastes degrees of freedom on meaningless pairs.
 
@@ -238,6 +291,8 @@ These rules ensure every run produces trustworthy, auditable diagnoses. Full imp
 - If a step does not apply, record `not_applicable_reason` in the relevant artifact — never silently bypass.
 - **`ontology_first` mode**: Step 2 completes before Step 3's Phase 0.4 runs. Pre-ontology work is limited to data conversion, preprocessing, and quality profiling.
 - Steps 5a (judge) and 5b (pre-audit) are the only parallel steps — both consume the same diagnosis artifacts. All other steps are serial.
+- 在 Step 7 获得 `ENDORSED` 后，默认进入 HTML 可视化构建（Step 8 + Step 8.5 html-reviewer）；只有用户明确 opt-out 时才允许跳过。
+- HTML 构建必须由专用子 Agent `html-visualizer` 完成，审核必须由 `html-reviewer` 完成，主 agent 不得在主上下文中直接实现或自审页面。
 
 ### Repair Loops
 
@@ -263,6 +318,7 @@ All must pass for a run to be considered complete:
 | **Evidence Closure** | Process + dual-drive + ontology interpretation all present | `evidence-closure-check.mjs` |
 | **Engineering Acceptance** | All mandatory artifacts + `run_completed` event | `artifact-check.mjs` per `engineering_delivery_contract.md` |
 | **Optimizer Completeness** | `optimizer.md` with all 4 standard sections | `artifact-check.mjs` |
+| **HTML Delivery** | `diagnostic-report.html` present + `html-reviewer` passed | `artifact-check.mjs` |
 
 **Judge-gated reporting rule**: Reporter launch is illegal unless `judge_feedback.json` is schema-valid, `verdict == "pass"`, `overall_score >= 90`, and there are no blocking issues. If `append-pipeline-event.mjs` returns `JUDGE_GATE_NOT_PASSED` at `agent_start reporter`, the only valid next action is repair/rejudge — not manual report writing.
 
@@ -414,7 +470,50 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run.
 
-Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path. Highlight CONDITIONAL/REJECTED concerns.
+在上述检查通过后，默认继续启动 `html-visualizer` 子 Agent：
+
+```javascript
+Agent({
+  subagent_type: "html-visualizer",
+  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+VISUAL_MODE=story
+
+Read "$SKILL_PATH/agents/html-visualizer.md" and execute the complete protocol. Do not ask the main agent to produce the page in its own context.`,
+  run_in_background: true
+})
+```
+
+如果用户没有明确要求跳过 HTML，可视化构建是 Step 8 的默认组成部分，而且必须由专用子 Agent 完成。
+
+**最终交付要求**：本 skill 的正常完成结果必须同时包含 `report.md` 和 `diagnostic-report.html`。其中 HTML 只能由独立的 `html-visualizer` 子 Agent 生成，且该子 Agent 必须复用 `diagnostic-html-visualizer` skill，不允许主 agent 在主上下文中直接编写 HTML。
+
+### HTML Review Gate
+
+页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核。只有审核通过，页面才算最终交付。
+
+```javascript
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核诊断 HTML 可视化页面的可读性、证据完整性和逻辑链",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+SKILL_PATH=${SKILL_PATH}
+AUDIENCE=mixed
+
+Read "$SKILL_PATH/agents/html-reviewer.md" and review the generated page against clarity, evidence completeness, logic chain strength, and chart/3D coverage. Write a machine-readable review artifact and report pass/fail clearly.`,
+  run_in_background: true
+})
+```
+
+如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+
+Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
 
 ---
 
@@ -435,6 +534,7 @@ Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confiden
 Judge           ──► 05_review/judge_feedback.json
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
+HTML Visualizer ──► diagnostic-report.html
 ```
 
 ---

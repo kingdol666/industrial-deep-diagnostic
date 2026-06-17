@@ -5,3 +5,9 @@
 - [Diagnosis Consistency Across Artifacts](diagnosis-consistency-across-artifacts.md) — diagnosis.json/reasoning_chain.json/run_summary.json type+confidence must match; found COMPETING_SET vs DETERMINED mismatch
 - [CCF Lag Artifact With Unsorted Data](ccf-lag-artifact-time-sorted-check.md) — systematic isolated lag=-5 spike across all torque_std params when time_sorted=null
 - [Tool Age Effect Masked By Dominant Vibration](tool-age-effect-masked-by-dominant-vibration.md) — CNC diagnosis: tool_age global r=0.145 but low-vibration quartile r=0.574; weaker physical effects must be checked by dominant-parameter stratification
+- [Within-Product Trend Confounding](within-product-trend-confounding.md) — PG31DS H1/H2 collapsed after within-product detrending: 86.5% attenuation for TH005, validate_report marked 0 trend-confounded correlations
+- [Partial Correlation Independence Check](partial-correlation-independence-check.md) — H6-H7 claimed as "independent corroboration" but detrended r=0.615, partial correlations both non-significant (p>0.2)
+- [FP21 Pearson-Spearman Divergence](fp21-double-detrend-pearson-spearman-divergence.md) — FP21 W1C8B_std detrended Pearson≈0 vs Spearman≈+0.406; metric-dependent claims with 80% transitional batches
+- [Bonferroni Multiple Testing in Small Samples](bonferroni-multiple-testing-in-small-sample.md) — 176 params, 2 "significant" = expected chance rate; physical consistency reduces but doesn't eliminate concern
+- [H6-H7 Collinearity Audit Pattern](h6-h7-collinearity-audit-pattern.md) — BOPET Round 2 audit: W1C8B_std and W1C89_std shared 37.8% detrended variance, partial correlations both non-significant; "independent corroboration" is over-claiming when sensors share drive system
+- [F_PS005 Product Confusion](visual_analysis-f_ps005-product-confusion.md) — VLM metadata_backed_inference模式下，跨产品F_PS005异常值错误分配给PG31DS，H3核心证据为事实错误

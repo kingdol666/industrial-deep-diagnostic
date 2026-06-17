@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "diagnostic-flow",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "const http=require('http');const fs=require('fs');const path=require('path');const port=process.env.PORT||8899;const base=process.argv[1];http.createServer((req,res)=>{let file=path.join(base,req.url==='/'?'industrial-deep-diagnostic-flow-animation.html':req.url);fs.readFile(file,(err,data)=>{if(err){res.writeHead(404);res.end('Not found');return;}const ext=path.extname(file);const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json'};res.writeHead(200,{'Content-Type':types[ext]||'text/plain'});res.end(data);});}).listen(port,()=>console.log('Server on',port));", "ppt_workspace"],
+      "port": 8899,
+      "autoPort": true
+    }
+  ]
+}

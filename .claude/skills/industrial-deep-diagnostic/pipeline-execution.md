@@ -125,13 +125,84 @@ Launch with `RUN_DIR`, `SKILL_PATH`. Tell it to read `agents/reporter.md`, use `
 
 Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/report-reviewer.md`.
 
-### Step 8: Present
+### Step 8: HTML Visualizer
+
+```javascript
+Agent({
+  subagent_type: "html-visualizer",
+  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+VISUAL_MODE=story
+
+Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol.`,
+  run_in_background: true
+})
+```
+
+### Step 8.5: HTML Reviewer
+
+```javascript
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核 HTML 可视化页面是否清楚、完整、能支撑结论",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+
+Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review protocol.`,
+  run_in_background: true
+})
+```
+
+### Step 9: Finalize
 
 ```bash
 node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
 ```
+
+After Step 7 returns `ENDORSED`, the default next action is to launch the html-visualizer subagent (Step 8), then html-reviewer on the output (Step 8.5).
+
+Treat this HTML generation as part of the normal completion path unless the user explicitly opts out.
+The main agent may summarize the result, but it must not directly produce the HTML in the main context. See `agents/html-visualizer.md` and `agents/html-reviewer.md` for the full agent definition and protocol.
+
+The generated page must include runtime readiness checks for:
+
+- `window.echarts`
+- `window.THREE`
+- `OrbitControls` when used
+- at least one successfully initialized chart
+- at least one successfully initialized 3D scene
+
+If interactive libraries fail to load, the page must surface a visible degraded-mode notice and keep the static explanation usable.
+
+### Step 8.5: HTML Review Gate
+
+页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核。只有审核通过，页面才算最终交付。
+
+```javascript
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核诊断 HTML 可视化页面的可读性、证据完整性和逻辑链",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+SKILL_PATH=${SKILL_PATH}
+AUDIENCE=mixed
+
+Read "$SKILL_PATH/agents/html-reviewer.md" and review the generated page against clarity, evidence completeness, logic chain strength, and chart/3D coverage. Write a machine-readable review artifact and report pass/fail clearly.`,
+  run_in_background: true
+})
+```
+
+如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
 
 ---
 

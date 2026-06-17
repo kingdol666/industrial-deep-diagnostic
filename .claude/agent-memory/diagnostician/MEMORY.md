@@ -1,2 +1,3 @@
 - [FP21 Spearman Correction](fp21-spearman-correction.md) — Spearman rho corrected outlier-driven Pearson artifact in BOPET scratch diagnosis
 - [Quality Check Resolution](quality-check-resolution.md) — How to resolve DUAL_DRIVE, PHYSICS_ZERO, and VLM_SOURCE quality-check issues
+- [PG31DS Detrending Revolution](pg31ds-detrending-revolution.md) — Product-internal detrending collapsed H1/H2 and revealed torque variability (W1C8B/W1C89 std) as strongest signals
