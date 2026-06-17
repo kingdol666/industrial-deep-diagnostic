@@ -303,17 +303,17 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 
 以下检查点是诊断管线的强制暂停点。在到达每个检查点时，必须显式验证条件满足后才能继续。
 
-| 🛑 Checkpoint | 位置 | 验证条件 | 不满足时 |
+| 🛑 Checkpoint | 位置 | 验证命令 | 不满足时 |
 |:------------|------|---------|---------|
-| **CP-1: Data Readiness** | Step 1→2 | `input_manifest.json` 存在, `run_config.json` 中 data_path 可达, `user_context.json` 存在 | 回 Step 0 补全 |
-| **CP-2: Ontology Gate** | Step 2→2.5 | `ontology.json` 存在且通过 schema 验证 | 重新启动 context-builder Agent |
-| **CP-3: Clarification Gate** | Step 2.5→3 | `clarification_needed.json` 中 `clarification_status` 为 `AUTO_RESOLVED` 或 `USER_CONFIRMED` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
-| **CP-4: Data Processor Handoff** | Step 3→4 | `data_analysis_conclusion.json` 存在, `plot_manifest.json` 至少含 1 张图 | 重新启动 data-processor Agent |
-| **CP-5: Diagnostician Quality** | Step 4→5 | 所有 4 份产物 (diagnosis/evidence/confidence/reasoning) schema 验证通过 + diagnostic-quality-check PASS | 修复诊断产物 |
-| **CP-6: Dual Gate** | Step 5→6 | `judge.verdict == "pass"` AND `optimizer_preflight.md` 无 FATAL 问题 | 启动修复循环 |
-| **CP-7: Report Gate** | Step 6→7 | `report.md` + `run_summary.json` 存在 | 重新启动 reporter Agent |
-| **CP-8: Audit Gate** | Step 7→8 | `optimizer.md` 存在, verdict 为 ENDORSED 或 CONDITIONAL | CONDITIONAL→评估是否可继续; REJECTED→修复循环 |
-| **CP-9: HTML Delivery** | Step 8.5 | `diagnostic-report.html` 存在, `html-reviewer` 给出 pass | 回到 html-visualizer 修订 |
+| **CP-1: Data Readiness** | Step 1→2 | `test -f "$RUN_DIR/00_input/input_manifest.json" && test -f "$RUN_DIR/00_input/user_context.json" && test -f "$RUN_DIR/00_input/run_config.json"` | 回 Step 0 补全 |
+| **CP-2: Ontology Gate** | Step 2→2.5 | `node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/01_ontology/ontology.json" "$SKILL_PATH/schemas/ontology_schema.json" && test "$(wc -c < "$RUN_DIR/01_ontology/ontology.json")" -ge 1024` | 重新启动 context-builder Agent |
+| **CP-3: Clarification Gate** | Step 2.5→3 | `grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' "$RUN_DIR/01_ontology/clarification_needed.json"` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
+| **CP-4: Data Processor Handoff** | Step 3→4 | `test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && node -e "JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); var p=JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); process.exit(p.plots&&p.plots.length>0?0:1)"` | 重新启动 data-processor Agent |
+| **CP-5: Diagnostician Quality** | Step 4→5 | `for f in diagnosis evidence confidence reasoning_chain; do node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/04_diagnostics/${f}.json" "$SKILL_PATH/schemas/${f}_schema.json" || exit 1; done && node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"` | 修复诊断产物 |
+| **CP-6: Dual Gate** | Step 5→6 | `node -e "var j=require('$RUN_DIR/05_review/judge_feedback.json'); process.exit(j.verdict==='pass'&&j.overall_score>=90?0:1)" && grep -qv 'FATAL' "$RUN_DIR/05_review/optimizer_preflight.md"` | 启动修复循环 |
+| **CP-7: Report Gate** | Step 6→7 | `test -f "$RUN_DIR/report.md" && test -f "$RUN_DIR/run_summary.json"` | 重新启动 reporter Agent |
+| **CP-8: Audit Gate** | Step 7→8 | `test -f "$RUN_DIR/optimizer.md" && grep -qE 'ENDORSED|CONDITIONAL' "$RUN_DIR/optimizer.md"` | CONDITIONAL→评估是否可继续; REJECTED→修复循环 |
+| **CP-9: HTML Delivery** | Step 8.5 | `test -f "$RUN_DIR/diagnostic-report.html" && test "$(wc -c < "$RUN_DIR/diagnostic-report.html")" -ge 5120 && test -f "$RUN_DIR/05_review/html_review.json" && grep -q '"verdict" *: *"pass"' "$RUN_DIR/05_review/html_review.json"` | 回到 html-visualizer 修订 |
 
 ---
 
