@@ -279,6 +279,22 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 
 **Default execution mode: `ontology_first`.** Step 2 completes before Step 3's Phase 0.4 — the ontology model tells you which parameter groups are physically meaningful, which pairs to test, and which to prune before statistics wastes degrees of freedom on meaningless pairs.
 
+### 🛑 Formal Checkpoints
+
+以下检查点是诊断管线的强制暂停点。在到达每个检查点时，必须显式验证条件满足后才能继续。
+
+| 🛑 Checkpoint | 位置 | 验证条件 | 不满足时 |
+|:------------|------|---------|---------|
+| **CP-1: Data Readiness** | Step 1→2 | `input_manifest.json` 存在, `run_config.json` 中 data_path 可达, `user_context.json` 存在 | 回 Step 0 补全 |
+| **CP-2: Ontology Gate** | Step 2→2.5 | `ontology.json` 存在且通过 schema 验证 | 重新启动 context-builder Agent |
+| **CP-3: Clarification Gate** | Step 2.5→3 | `clarification_needed.json` 中 `clarification_status` 为 `AUTO_RESOLVED` 或 `USER_CONFIRMED` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
+| **CP-4: Data Processor Handoff** | Step 3→4 | `data_analysis_conclusion.json` 存在, `plot_manifest.json` 至少含 1 张图 | 重新启动 data-processor Agent |
+| **CP-5: Diagnostician Quality** | Step 4→5 | 所有 4 份产物 (diagnosis/evidence/confidence/reasoning) schema 验证通过 + diagnostic-quality-check PASS | 修复诊断产物 |
+| **CP-6: Dual Gate** | Step 5→6 | `judge.verdict == "pass"` AND `optimizer_preflight.md` 无 FATAL 问题 | 启动修复循环 |
+| **CP-7: Report Gate** | Step 6→7 | `report.md` + `run_summary.json` 存在 | 重新启动 reporter Agent |
+| **CP-8: Audit Gate** | Step 7→8 | `optimizer.md` 存在, verdict 为 ENDORSED 或 CONDITIONAL | CONDITIONAL→评估是否可继续; REJECTED→修复循环 |
+| **CP-9: HTML Delivery** | Step 8.5 | `diagnostic-report.html` 存在, `html-reviewer` 给出 pass | 回到 html-visualizer 修订 |
+
 ---
 
 ## Pipeline Governance
@@ -299,6 +315,19 @@ These rules ensure every run produces trustworthy, auditable diagnoses. Full imp
 - Judge → Diagnostician: max 3 iterations. Reviewer → Diagnostician (full D→J→R→R cycle): max 2 cycles.
 - **Global cap: total re-diagnosis ≤ 5.** Counter persists in `.pipeline_events.jsonl` via `repair_spawn` events.
 - See `pipeline-execution.md` §Repair Loop Protocol for full procedures.
+
+### 🛑 Agent Runtime Failure Recovery
+
+Agent execution 失败不是异常——是管线运行中的常态。每次启动子 Agent 后必须对以下场景做显式恢复：
+
+| 触发条件 | 检测方式 | 恢复动作 |
+|---------|---------|---------|
+| Agent 超时 (stall > 600s) | 系统返回 `Agent stalled` 通知 | 检查产物文件是否部分生成。若有可用输出→继续下一步。若无任何输出→等待 60s 后重试 1 次；仍失败→标记 `[AGENT_TIMEOUT]` 并跳过该步骤 |
+| API 连接断开 (`socket connection closed`) | 系统返回 `API Error` 通知 | 等待 30s 后重启同一 Agent，传递相同的 prompt。连续 2 次失败→标记 `[API_ERROR]` 并降级到本地脚本执行 |
+| 产物文件缺失 | 每步完成后检查 Step 表格中的 expected outputs | 若 ontology.json 缺失→主 agent 用 `resources/parameter_to_physics.json` 构建最小有效本体。若 diagnosis.json 缺失→标记 `[DIAGNOSIS_FAILED]` 并写入失败报告 |
+| Schema 验证失败 | 运行 `validate.mjs` 返回错误 | 将 schema 错误列表追加到 Agent 提示词中，重新启动 1 次。仍失败→标记 `[SCHEMA_FAIL]` 并记录到 `.pipeline_events.jsonl` |
+| 图片生成失败 (PNG 缺失) | plot_manifest.json 中 plots 数组为空或不存在 | 运行 `generate_captions.mjs` 生成 `image_captions.json` 作为回退。诊断可继续，但 VLM 视觉证据降为 L3+ |
+| HTML 可视化失败 | `diagnostic-report.html` 不存在或 html-reviewer 未通过 | 运行 `diagnostic-html-visualizer` skill 重新生成。连续 2 次失败→降级到主 agent 生成简化版报告页面 |
 
 ### Anti-Oscillation Rule
 
