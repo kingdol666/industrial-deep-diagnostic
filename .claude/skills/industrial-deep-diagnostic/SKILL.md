@@ -19,22 +19,21 @@ compatibility: |
 ## TL;DR Quick Reference
 
 ```
-用户上传数据 → 自动 8 步诊断 → report.md + diagnostic-report.html
+用户上传数据 → 8 步诊断 → report.md + diagnostic-report.html
 
 输入: CSV/XLSX/Parquet 工业传感器/工艺数据
 输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
-核心: 去趋势分析 → Simpson悖论检测 → 竞争假说协议 → 物理验证 → Judge审查 → HTML可视化
-
-关键命令:
-  /industrial-deep-diagnostic              # 完整管线
-  /industrial-deep-diagnostic analyze      # 从 Step 2 开始
-  /industrial-deep-diagnostic review       # 仅重审
-  /industrial-deep-diagnostic report       # 仅重生成报告
+核心: 本体构建 → 去趋势/分层/Simpson检测 → 竞争假说 → 物理验证 → Judge审查 → HTML可视化
 
 最易出错的 3 个地方:
   1. 全局相关 ≠ 因果 → 必须先做产品内去趋势 + Simpson检测
-  2. Agent 执行失败是常态 → 按 Recovery Table 恢复, 不要手动接管
+  2. Agent 执行失败是常态 → 按 Recovery Table 恢复 (10 场景), 不要手动接管
   3. HTML 必须由 html-visualizer 子 Agent 生成 → 禁止主 agent 自己拼 HTML
+
+🔴 红灯动作 (命中任一条 → Judge 直接判 fail):
+  - 主 agent 自己写 HTML  /  读子 Agent 协议后自行执行  /  跳过数据分析直接做诊断
+  - Judge gate 未通过就启动 Reporter  /  对 COMPETING_SET 强行挑一个当结论
+  - 3D 模型画通用工厂  /  结论缺证据等级标注  /  用模糊词逃避判断
 ```
 
 ## Language Default
@@ -139,6 +138,23 @@ Diagnosis is elimination, not confirmation. Every conclusion needs: (1) temporal
 | "可能存在一定影响" | 逃避判断 | 给出具体数字或明确说"无法判断" |
 | 把统计相关直接等同因果 | 逻辑跳跃 | 必须经过物理机制和时间先后验证 |
 
+### 🔴 红灯动作黑名单（任何 Agent 不准做的事）
+
+以下动作在任何 Pipeline Step 均被禁止。命中任一条 → Judge 可直接判 `fail`。
+
+| # | 🚫 禁止动作 | 为什么禁止 | 允许的替代动作 |
+|---|-----------|----------|-------------|
+| 1 | **主 agent 直接编写 HTML 页面** | 违反 Agent 分工纪律；页面质量无保证；无法通过 html-reviewer 审计 | 启动 `html-visualizer` 子 Agent (Step 8)；启动 `html-reviewer` 审校 (Step 8.5) |
+| 2 | **主 agent 读取子 Agent 协议后自行执行** | 违反管线纪律；主 agent 上下文会被 500+ 行协议撑爆；输出质量远低于专用 Agent | 使用 `Agent({subagent_type: "xxx"})` 启动子 Agent，只传参数不执行 |
+| 3 | **跳过数据分析直接做诊断** | 缺失统计验证会导致假相关伪装成因果 | Step 3 data-processor → Step 4 diagnostician（严格执行 ontology_first） |
+| 4 | **Judge gate 未通过就启动 Reporter** | 质量未经验证的诊断进入报告，结论可能有根本性错误 | 检查 `judge_feedback.json` verdict==pass + score≥90 + 无 blocking issues |
+| 5 | **对 COMPETING_SET 强行挑一个当结论** | 数据无法区分竞争假说时挑一个 = 制造假结论 | 诚实输出竞争假说表，标记 `COMPETING_SET`，confidence ceiling≤65 |
+| 6 | **全局相关系数直接当做因果证据** | Simpson 悖论会逆转产品内相关方向；趋势混淆会产生虚假高相关 | 必须做 per-product 分层 + 去趋势后相关 + Simpson 检测 |
+| 7 | **HTML 页面只挂 CDN script 标签不做初始化检测** | 远程脚本加载失败时页面白屏，用户看到空白页 | 多源加载 + runtime 检测 + 失败降级静态内容 + 显式状态面板 |
+| 8 | **3D 模型画通用工厂/抽象流水线** | 与当前诊断场景无关的 3D = 装饰垃圾，误导用户 | 从 ontology + report + diagnosis 恢复真实工段 → 按工艺顺序建模 → 异常点精确落位 |
+| 9 | **结论缺少证据等级标注** | 用户无法判断结论可信度 | 每个结论必须标注 `[Evidence Rank L1-L7]`，受最低证据等级约束 |
+| 10 | **用模糊词逃避判断**（"可能""或许""大概""有一定影响"） | 给用户虚假安全感；实则未做判断 | 给出具体数字 + 置信度；或明确说"当前证据无法判断" |
+
 ---
 
 ## Loading Guide — Progressive Disclosure
@@ -151,23 +167,24 @@ The orchestration protocol — step sequence, agent launch templates, governance
 
 For production-style execution, also treat `resources/engineering_delivery_contract.md` as binding acceptance criteria.
 
-### Level 2: Launched Per Step (agents/)
+### Level 2: Launched Per Step (8 sub-agents)
 
-> **禁止主 agent 执行子智能体工作！** 表格中的 **Launch sub-agent** 行意味着直接启动子智能体 — **不是**主 agent 读协议自己干。子智能体自行 Read 自己的协议并执行，主 agent 只负责传参和等待。曾经发生过主 agent 读了 context-builder 的 500+ 行协议后自己执行了全部工作，这是违反管线纪律的。
+> **禁止主 agent 执行子智能体工作！** 表格中的 **Launch sub-agent** 行意味着直接启动子智能体 — **不是**主 agent 读协议自己干。子智能体自行 Read 自己的协议并执行，主 agent 只负责传参和等待。
 
-| When | Action | Why |
-|------|--------|-----|
-| Before Step 0 | Read `resources/rag_integration_guide.md` | RAG engine setup and one-time indexing |
-| Before Step 2 | **Launch sub-agent** `Agent({subagent_type: "context-builder", ...})` | RAG retrieval + ontology construction + deep mapping |
-| Before Step 3 | **Launch sub-agent** `Agent({subagent_type: "data-processor", ...})` | Statistical analysis + physics checks + visualization. data-processor internally delegates to `vlm-visual-analyzer` |
-| Before Step 3 | Read `resources/visual_analysis_framework.md` | VLM chart design principles + Phase 5.5 visual analysis protocol |
-| Before Step 4 | **Launch sub-agent** `Agent({subagent_type: "diagnostician", ...})` | Physics-based competing hypotheses diagnosis |
-| Before Step 5 | **Launch sub-agent** `Agent({subagent_type: "judge", ...})` | Quality gate (10 criteria + physics source audit) |
-| Before Step 6 | **Launch sub-agent** `Agent({subagent_type: "reporter", ...})` | Report generation from structured artifacts |
-| Before Step 7 | **Launch sub-agent** `Agent({subagent_type: "report-reviewer", ...})` | Independent physical truth audit |
-| Before Step 8 | **Launch sub-agent** `Agent({subagent_type: "html-visualizer", ...})` | Post-audit HTML explanation page generation (四段叙事 + ECharts + Three.js 3D产线) |
-| After Step 8 | **Launch sub-agent** `Agent({subagent_type: "html-reviewer", ...})` | HTML readability / evidence-completeness review (pass/warn/fail) |
-| During repair loops | Read `pipeline-execution.md` | Repair counter protocol and detailed validation rules |
+| Step | Agent (Persona) | Subagent Type | Action | Why |
+|:----:|----------------|:-------------:|--------|-----|
+| 2 | **王教授** — 化工/材料专家，25年失效分析经验 | `context-builder` | **Launch sub-agent** | RAG检索 + 本体ontology构建（物理语义深度理解） |
+| 3 | **张工** — 高级过程数据科学家，16年流程制造分析 | `data-processor` | **Launch sub-agent** | 统计分析 + 可视化（内部委托 vlm-visual-analyzer） |
+| 3.5 | **老孙（目视）** — 设备状态监测工程师，20年目视巡检经验 | `vlm-visual-analyzer` | data-processor 内部启动 | 本体感知的VLM视觉图像分析 |
+| 4 | **刘总工** — 首席根因分析工程师，28年产线诊断经验 | `diagnostician` | **Launch sub-agent** | 物理约束的竞争假说根因诊断 |
+| 5a | **陈主任** — 国家工业产品质检中心高级审核员，15年质量审计 | `judge` | **Launch sub-agent** | 10项标准质量门审查 |
+| 5b | **孙审计** — 过程安全与质量审计专家，32年跨国工业审计 | `report-reviewer` | **Launch sub-agent** (PRE_REPORT_AUDIT=true) | 预报告物理审计（与Judge并行） |
+| 6 | **周工** — 技术报告撰写专家，15年产线技术报告经验 | `reporter` | **Launch sub-agent** | 9节金字塔结构诊断报告（结论优先、白话解释） |
+| 7 | **孙审计** — 同上 | `report-reviewer` | **Launch sub-agent** | 独立物理真实审计 |
+| 8 | **林工** — 工业前端可视化工程师，14年HMI/SCADA+工业Web | `html-visualizer` | **Launch sub-agent** | 生成讲解式 HTML 可视化页面（ECharts + Three.js + 证据链） |
+| 8.5 | **赵审阅** — 工业信息可视化审校，15年技术文档审校经验 | `html-reviewer` | **Launch sub-agent** | 审核 HTML 是否清楚、完整、能支撑结论 |
+
+> **vlm-visual-analyzer** 是 data-processor 的内部子智能体 — 不是独立的管线步骤。**Step 5a (judge) 和 Step 5b (pre-audit) 是唯一可并行的步骤。**
 
 ### Level 3: Loaded On-Demand (resources/)
 
@@ -194,24 +211,6 @@ Detailed frameworks — load only when an agent's instructions tell you to.
 **Do NOT load everything upfront.** Detailed frameworks (Level 3) are only needed when an agent explicitly references them. Agents (Level 2) are self-contained.
 
 ---
-
-## Multi-Agent Pipeline Architecture
-
-This skill uses **7 specialized sub-agents** defined in `agents/`. Each is launched via the `Agent` tool with `permissionMode: "bypassPermissions"`.
-
-| Pipeline Step | Agent | Persona | Subagent Type | Purpose |
-|:-------------:|-------|--------|:-------------:|---------|
-| Step 2 | Context Builder | **王教授** — 化工/材料领域知识专家，25年失效分析经验 | `context-builder` | RAG检索 + 本体ontology构建（物理语义深度理解） |
-| Step 3 | Data Processor | **张工** — 高级过程数据科学家，16年流程制造数据分析经验 | `data-processor` | 数据分析 + 可视化（反幻觉、数据真实、专业图表标准） |
-| Step 3.5 (internal) | VLM Visual Analyzer | **老孙（目视）** — 设备状态监测工程师，20年目视巡检经验 | `vlm-visual-analyzer` | 本体感知的VLM视觉图像分析，由图+统计+知识联合提取结构化视觉证据 |
-| Step 4 | Diagnostician | **刘总工** — 首席根因分析工程师，28年产线诊断经验 | `diagnostician` | 竞争假说根因诊断（物理机制+定量验证+五条件反推测） |
-| Step 5 | Judge | **陈主任** — 国家工业产品质检中心高级审核员，15年质量审计经验 | `judge` | 10项标准质量门审查 |
-| Step 6 | Reporter | **周工** — 技术报告撰写专家，15年产线技术报告经验，近5年面向企业高管 | `reporter` | 面向决策者的9节诊断报告（金字塔结构: 结论优先、白话解释、证据链路清晰） |
-| Step 7 | Report Reviewer | **孙审计** — 过程安全与质量审计专家，32年跨国工业审计经验 | `report-reviewer` | 独立物理真实审计 |
-| Step 8 | HTML Visualizer | **林工** — 工业前端可视化工程师，14年HMI/SCADA+工业Web可视化经验，把复杂诊断结论转成一眼能看懂的讲解页面 | `html-visualizer` | 生成讲解式 HTML 可视化页面（ECharts + Three.js + 证据链） |
-| Step 8.5 | HTML Reviewer | **赵审阅** — 工业信息可视化审校，15年技术文档审校经验，检查页面是否真的能让非算法用户看懂 | `html-reviewer` | 审核 HTML 是否清楚、完整、能支撑结论 |
-
-> **vlm-visual-analyzer 是 data-processor 的内部子智能体** — 它在 Phase 5.5 内部启动，不是独立的管线步骤。它被独立定义为 agent 因为它需要专门的 context-aware 图像读取能力（先读 ontology 理解参数物理含义，再带有知识地看 PNG 图）。
 
 ## Execution Flow
 
@@ -343,12 +342,16 @@ Agent execution 失败不是异常——是管线运行中的常态。每次启�
 
 | 触发条件 | 检测方式 | 恢复动作 |
 |---------|---------|---------|
+| RAG 引擎不可用 (localhost:8765 无响应) | `curl -s http://localhost:8765/docs` 失败或 Step 2 context-builder 报告 `RAG_UNAVAILABLE` | 继续执行——context-builder 使用 `resources/parameter_to_physics.json` + 网络搜索作为知识源。ontology.json 仍然可以构建完整，只是缺少特定产线的检索知识 |
+| uv Python venv 创建失败 | `uv_env_setup.mjs` 返回非零退出码或 venv 目录不存在 | 检查系统是否已安装 uv (`which uv`)。若无→安装 uv (`curl -LsSf https://astral.sh/uv/install.sh \| sh`)。若已安装 uv 但失败→降级使用系统 Python 并 pip install requirements.txt |
+| 输入数据超大 (>500MB CSV/XLSX) | `inspect.mjs` 超时 > 300s 或系统内存不足 | 运行 `file_inspect.py` 做采样解析: `python scripts/file_inspect.py --sample 50000 <data_path>`。对超大文件只读取前 5 万行 + 均匀采样 5 万行做特征分析。内存不足时加 `--low-memory` 标识 |
 | Agent 超时 (stall > 600s) | 系统返回 `Agent stalled` 通知 | 检查产物文件是否部分生成。若有可用输出→继续下一步。若无任何输出→等待 60s 后重试 1 次；仍失败→标记 `[AGENT_TIMEOUT]` 并跳过该步骤 |
 | API 连接断开 (`socket connection closed`) | 系统返回 `API Error` 通知 | 等待 30s 后重启同一 Agent，传递相同的 prompt。连续 2 次失败→标记 `[API_ERROR]` 并降级到本地脚本执行 |
 | 产物文件缺失 | 每步完成后检查 Step 表格中的 expected outputs | 若 ontology.json 缺失→主 agent 用 `resources/parameter_to_physics.json` 构建最小有效本体。若 diagnosis.json 缺失→标记 `[DIAGNOSIS_FAILED]` 并写入失败报告 |
 | Schema 验证失败 | 运行 `validate.mjs` 返回错误 | 将 schema 错误列表追加到 Agent 提示词中，重新启动 1 次。仍失败→标记 `[SCHEMA_FAIL]` 并记录到 `.pipeline_events.jsonl` |
 | 图片生成失败 (PNG 缺失) | plot_manifest.json 中 plots 数组为空或不存在 | 运行 `generate_captions.mjs` 生成 `image_captions.json` 作为回退。诊断可继续，但 VLM 视觉证据降为 L3+ |
 | HTML 可视化失败 | `diagnostic-report.html` 不存在或 html-reviewer 未通过 | 运行 `diagnostic-html-visualizer` skill 重新生成。连续 2 次失败→降级到主 agent 生成简化版报告页面 |
+| uv venv 中 Python 模块导入失败 (`ModuleNotFoundError`) | data-processor 报告 Python 脚本执行错误 | 运行 `node "$SKILL_PATH/scripts/uv_env_setup.mjs"` 重建 venv。仍失败→检查 `pyproject.toml` 依赖声明是否完整，缺失依赖追加后重装 |
 
 ### Anti-Oscillation Rule
 
