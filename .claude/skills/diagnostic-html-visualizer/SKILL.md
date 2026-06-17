@@ -395,10 +395,118 @@ Skill({
 
 默认采用“工业科技叙事风格”：
 
-- 综合色彩：蓝灰、冷白、橙红告警、冷暖渐变温区
-- 版式：大结论先行，向下逐步解释
-- 背景：轻网格、流程线、分区氛围，不喧宾夺主
-- 气质：可信、稳重、清晰，不做炫技式大屏
+### 色彩系统（CSS 变量强制规范）
+
+页面必须使用 CSS 自定义属性定义色彩，不得硬编码颜色值。推荐变量体系：
+
+```css
+:root {
+  /* 背景层 */
+  --bg-primary: #080d14;        /* 最深底 */
+  --bg-secondary: #0f1620;      /* 次级底 */
+  --bg-card: rgba(15, 22, 32, 0.92);  /* 卡片底 */
+  --bg-glass: rgba(10, 16, 26, 0.75); /* 玻璃态底 */
+  
+  /* 边框 */
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-card: rgba(255,255,255,0.10);
+  --border-accent: rgba(77,159,255,0.25);
+  
+  /* 文字层级 */
+  --text-primary: #e4e9f0;
+  --text-secondary: #99a3b0;
+  --text-muted: #5c6670;
+  
+  /* 功能色 */
+  --accent-blue: #4d9fff;       /* 信息/链接/主色 */
+  --accent-green: #3dd68c;       /* 成功/通过/证据强 */
+  --accent-orange: #ff7b42;      /* 警告/异常/需要关注 */
+  --accent-red: #ff4d6a;         /* 危险/失败/排除的根因 */
+  --accent-yellow: #ffb347;      /* 中等置信度/条件性 */
+  --accent-purple: #b57bee;      /* 行动建议/下一步 */
+  
+  /* 排版 */
+  --font-sans: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
+  --shadow-glow: 0 0 30px rgba(77,159,255,0.12);
+}
+```
+
+### 版式规则
+
+- **英雄区 (Hero)**: 垂直居中，主结论字号 ≥ 2rem，渐变色文字（蓝→橙），关键标签 badge 组，4 张摘要卡 (grid: `repeat(auto-fit, minmax(260px, 1fr))`)
+- **章节标题**: 左侧彩色竖线装饰 + 章节编号，字号 1.6-1.8rem
+- **卡片**: 暗色半透明底 + 细边框 + 圆角 12px + 顶部渐变装饰线 (4px)
+- **表格**: 暗色斑马纹 + 圆角边框 + 表头 sticky
+- **代码/数据**: 等宽字体 + 内边距 + 暗底
+
+### 移动端适配（强制）
+
+```css
+@media (max-width: 768px) {
+  .app-container { padding: 0 16px; }
+  .hero h1 { font-size: 1.5rem; }
+  .hero .hero-badges { gap: 8px; }
+  .hero .hero-badges .badge { padding: 6px 12px; font-size: 0.78rem; }
+  .hero-stats { gap: 12px; }
+  .hero-stat { min-width: 90px; padding: 12px 16px; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .process-cards { grid-template-columns: repeat(2, 1fr); }
+  .section { margin: 40px 0; }
+  #threejs-container { height: 320px; }
+  .section-header h2 { font-size: 1.4rem; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: 1.3rem; }
+  .process-cards { grid-template-columns: 1fr; }
+  #threejs-container { height: 260px; }
+}
+```
+
+### 3D 容器规范
+
+- 最小高度: 420px (桌面) / 320px (平板) / 260px (手机)
+- 背景: `--bg-secondary`
+- 悬停交互: `cursor: grab` / `cursor: grabbing`
+- overlay 标注区: 左上角标签 + 右下角色例
+- 相机初始角度: 让异常工段位于视口中心 (±30° 偏移)
+
+### 图表容器规范
+
+- 每个 ECharts 图表最小高度: 380px
+- 图表周围留白: padding ≥ 16px
+- 图表标题 + 三行解读（看到什么 / 说明什么 / 为什么重要）：必须紧跟图表，不能分离
+- tooltip 使用中文 label，字体 `--font-sans`
+- 全局色板: `['#4d9fff', '#3dd68c', '#ff7b42', '#ff4d6a', '#ffb347', '#b57bee']`
+
+### 不要做成的风格
+
+| 禁止 | 原因 |
+|------|------|
+| 通用后台管理面板 (白色底、左侧菜单栏、表格堆砌) | 诊断页面不是后台系统，是讲解页面 |
+| 大屏炫技式 dashboard (满屏 KPI 数字跳动、无解释) | 用户不是来监控的，是来理解诊断结论的 |
+| 只有卡片没有推理链 | 卡片总结 = 信息摘要 ≠ 因果解释 |
+| 图片墙式平铺 (十几张图无优先级) | 选择比堆砌更重要——最多 5 张核心图 |
+| 花哨动画 (粒子、转场、滚动视差) | 干扰理解，增加加载时间 |
+
+## 🔴 红线黑名单（命中任一条 → html-reviewer 直接判 fail）
+
+| # | 🚫 禁止动作 | 为什么 | 正确做法 |
+|---|-----------|--------|---------|
+| 1 | **只挂 CDN script 标签不验证初始化** | 远程脚本可能加载失败，页面白屏而不知 | 多源 loader + 初始化状态检测 + 降级提示 |
+| 2 | **3D 模型画通用抽象工厂** | 与真实工艺无关的 3D = 装饰垃圾 | 从 ontology 恢复工段顺序 → 真实角色 → 异常落位 |
+| 3 | **图旁边没有解释文字** | 用户看不懂数据图要表达什么 | 每张图必须配三行：看到什么 / 说明什么 / 为什么重要 |
+| 4 | **首屏没有结论** | 用户需要滚动才能知道结论 → 失去耐心 | Hero 区一句话结论在最顶部 |
+| 5 | **超过 5 张核心图平铺在主内容区** | 信息过载 → 用户不知道该看哪张 | 主区 ≤5 张，其余进折叠/扩展证据区 |
+| 6 | **统计术语不解释** | 非算法用户看不懂 | "Spearman ρ=0.73" 后面跟上 "意味着两个变量方向几乎一致" |
+| 7 | **隐藏证据缺口** | 用户以为结论是确定的，实际数据不足 | 缺失证据显式标注 "[当前缺少该层证据]" |
+| 8 | **页面不测试移动端** | 手机打开排版崩坏 | 必须内嵌 @media 断点 (768px / 480px) |
+| 9 | **捏造不存在的统计结果/图表数据** | 数据造假，违背实事求是铁律 | 只用 run_dir 中真实存在的 JSON 数据 |
+| 10 | **完工不跑 html-reviewer 就直接交付** | 页面可能存在逻辑断层、图表缺陷 | 必须先通过 html-reviewer 审校 |
 
 ## Deliverable Closeout
 
