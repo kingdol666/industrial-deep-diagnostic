@@ -16,6 +16,27 @@ compatibility: |
 
 # Industrial Deep Diagnostic
 
+## TL;DR Quick Reference
+
+```
+用户上传数据 → 自动 8 步诊断 → report.md + diagnostic-report.html
+
+输入: CSV/XLSX/Parquet 工业传感器/工艺数据
+输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
+核心: 去趋势分析 → Simpson悖论检测 → 竞争假说协议 → 物理验证 → Judge审查 → HTML可视化
+
+关键命令:
+  /industrial-deep-diagnostic              # 完整管线
+  /industrial-deep-diagnostic analyze      # 从 Step 2 开始
+  /industrial-deep-diagnostic review       # 仅重审
+  /industrial-deep-diagnostic report       # 仅重生成报告
+
+最易出错的 3 个地方:
+  1. 全局相关 ≠ 因果 → 必须先做产品内去趋势 + Simpson检测
+  2. Agent 执行失败是常态 → 按 Recovery Table 恢复, 不要手动接管
+  3. HTML 必须由 html-visualizer 子 Agent 生成 → 禁止主 agent 自己拼 HTML
+```
+
 ## Language Default
 
 **默认输出语言为中文。** 报告、诊断结论、审计文档使用中文。JSON enum 字段保持英文。
@@ -407,6 +428,13 @@ Read "$SKILL_PATH/agents/context-builder.md" and execute the complete protocol. 
   run_in_background: true
 })
 ```
+
+**Completion Verification Checklist (🛑 CP-2)**:
+- [ ] `01_ontology/ontology.json` ≥ 1KB
+- [ ] `01_ontology/ontology.json` passes schema validation: `node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/01_ontology/ontology.json" "$SKILL_PATH/schemas/ontology_schema.json"`
+- [ ] `00_input/rag_deep_understanding.json` exists
+- [ ] `00_input/extracted_knowledge.json` exists
+- [ ] If any missing → re-launch context-builder Agent (not main agent manual build)
 
 **Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
