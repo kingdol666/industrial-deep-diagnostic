@@ -1,6 +1,6 @@
 ---
 name: industrial-deep-diagnostic
-description: "Multi-agent industrial diagnostic engine for manufacturing root cause analysis. Use when the user provides sensor/process data (CSV, XLSX, Parquet) and asks about anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial process. Also triggers on: 诊断, 故障分析, 异常检测, 根因分析, 质量缺陷, 过程异常, 设备故障, 传感器数据分析, 工艺参数优化, 生产过程诊断. Pipeline: ontology construction → statistical validation (Simpson's Paradox, trend confounding, change-point detection) → multi-hypothesis physics-based diagnosis → quality-gate review → adversarial physical-truth audit. Three interaction modes: auto/interactive/minimal. Do NOT trigger for non-industrial data, simple charting, financial analysis, or statistics homework."
+description: "Multi-agent industrial diagnostic engine for manufacturing root cause analysis. Use with sensor/process data (CSV, XLSX, Parquet) and anomalies, quality defects, equipment faults, SPC excursions, or root cause analysis — applies to ANY industrial process. Triggers on: 诊断, 故障分析, 异常检测, 根因分析, 质量缺陷, 过程异常, 设备故障, 传感器数据分析, 工艺参数优化, 生产过程诊断. Pipeline: ontology → statistical validation (Simpson, trend confounding, change-point) → multi-hypothesis physics diagnosis → quality-gate → adversarial physical-truth audit. 3 modes: auto/interactive/minimal. Do NOT trigger for non-industrial data, charting, financial analysis, or statistics homework."
 commands:
   - industrial-deep-diagnostic
   - industrial-deep-diagnostic analyze
