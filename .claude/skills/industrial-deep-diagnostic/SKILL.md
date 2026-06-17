@@ -379,20 +379,59 @@ All must pass for a run to be considered complete:
 
 Final diagnosis must derive from deterministic artifacts (`data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`). Unexplained primary-finding drift or confidence shifts >10 points between repeated runs is a Judge blocking issue. Confidence must be reproducible from `confidence.adjustment_log`, evidence ranks, and documented ceilings.
 
+### 🛑 Path Stability Rules (跨环境安全)
+
+路径不一致是管线失败的最常见根因。以下规则必须在每一步强制执行：
+
+| 规则 | 说明 |
+|------|------|
+| **绝对路径强制** | 所有传给子 Agent 的路径变量 (`SKILL_PATH`, `RUN_DIR`, `DATA_PATH`, `OUTPUT_HTML`) 必须使用绝对路径，不得使用 `./` 或 `~/` 相对路径 |
+| **Worktree 安全** | 子 Agent 启动在 worktree 中时，`SKILL_PATH` 必须指向**主仓库的 skill 目录**而非 worktree 的副本 — worktree 可能不含 `.claude/skills/` 子目录 |
+| **空格安全** | 所有路径变量在 bash 中使用时必须加双引号: `"$SKILL_PATH/scripts/..."` |
+| **Python 路径锁定** | 所有 Python 脚本通过 `"$PYTHON_BIN"` 执行（Step 0 锁定），不允许裸 `python3` 调用 |
+| **产物路径一致性** | 子 Agent 的 `RUN_DIR` 必须与主管线创建的 `RUN_DIR` 完全一致 — 用 `RUN_DIR` 而非硬编码路径读写产物 |
+
 ---
 
 ## Step-by-Step Protocol
 
 ### Step 0: Setup (Main Agent)
 
+**路径解析规则（跨平台安全）**：所有路径变量必须使用**绝对路径**。若在 git worktree 中运行，`SKILL_PATH` 必须指向主仓库的 skill 目录而非 worktree 符号链接。
+
 ```bash
-SKILL_PATH="<path-to-this-skill>"
+# 1. Resolve SKILL_PATH to absolute (cross-platform safe)
+SKILL_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # 或用已知绝对路径
+
+# 2. Resolve project root
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
-node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+
+# 3. Validate paths exist
+if [ ! -f "$SKILL_PATH/scripts/setup.mjs" ]; then
+  echo "❌ setup.mjs not found at SKILL_PATH=$SKILL_PATH" >&2
+  echo "Verify SKILL_PATH points to the .claude/skills/industrial-deep-diagnostic/ directory"
+  exit 1
+fi
+
+# 4. Create run directory
+RUN_DIR=$(node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs" 2>&1 || echo "")
+if [ -z "$RUN_DIR" ] || [ ! -d "$RUN_DIR" ]; then
+  echo "❌ setup.mjs failed to create run directory" >&2
+  exit 1
+fi
+echo "✅ Run directory: $RUN_DIR"
+
+# 5. Setup Python venv
 node "$SKILL_PATH/scripts/uv_env_setup.mjs"
+PYTHON_BIN="$SKILL_PATH/scripts/.venv/bin/python"
+if [ ! -f "$PYTHON_BIN" ]; then
+  echo "⚠️ Python venv not found — falling back to system python3" >&2
+  PYTHON_BIN="python3"
+fi
+echo "✅ Python: $PYTHON_BIN"
 ```
 
-Copy input data files into `00_input/`. Update `00_input/run_config.json` with the real `data_path` and user objective/constraints. All Python invocations MUST use `scripts/.venv/bin/python`.
+Copy input data files into `00_input/`. Update `00_input/run_config.json` with `data_path` (absolute path), user objective, and constraints. Store `SKILL_PATH`, `RUN_DIR`, and `PYTHON_BIN` as session variables — every subsequent step references them. **All Python invocations MUST use `"$PYTHON_BIN"`, never bare `python3`.**
 
 ### Step 1: Inspect Data (Main Agent)
 
