@@ -219,9 +219,13 @@ Skill({
 
 先读 `agents/html-builder.md`，把它当作执行协议。
 
+🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，在内部确认三件事：(a) 我理解了四段式叙事架构；(b) 我理解了模板继承规则；(c) 我理解了 8 条 fallback 的分支逻辑。确认后再进入 Step 2。
+
 ### Step 2: Load the page template
 
 再读 `references/report-template.html`。这是 HTML 结构骨架和 CSS 样式基准。理解其四段式叙事架构、CSS 变量体系、排版节奏后，替换占位数据。
+
+🛑 **CHECKPOINT 2 · 模板可读**: 确认模板文件存在且可完整读取。如果模板不可用，执行 Fallback 1 的分支逻辑。不要跳过这步直接手写 HTML。
 
 ### Step 3: Build the artifact inventory
 
@@ -233,6 +237,8 @@ Skill({
 - 哪些图必须用 ECharts 重绘
 - 是否存在 `3d_model_data.json` / `viz_model_data.json` 可直接用于 3D 建模
 - 当前真实工艺路径是什么，工段先后顺序是什么，异常点落在哪个设备/辊位/区域
+
+🔴 **CHECKPOINT 3 · 产物清单**: 把以上识别结果整理成一个简短的 artifact checklist（5-8 项），内部确认「P0 文件存在 / 3D 数据可用 / PNG 可用 / ECharts 数据可用」。如果 P0 文件全部缺失，执行 Fallback 3 的分支逻辑，不要继续写页面。
 
 ### Step 4: Write the page
 
@@ -259,7 +265,15 @@ Skill({
 - 主结论、关键证据、排除逻辑、行动建议、局限性是否齐全
 - 用户是否能不依赖统计术语理解「为什么得出这个结论」
 
+🔴 **CHECKPOINT 4 · 自检验证**: 跑完上面 8 项检查，把结果写成简短 checklist（每项 PASS/FAIL）。任何 FAIL 项必须修复后再往下。修复超过 3 项 → 回到 Step 4 重新审视页面结构。
+
 如果环境允许预览页面，必须实际打开页面验证加载状态；不要只靠静态阅读 HTML 源码判断成功。
+
+### Step 6: Run html-reviewer
+
+将生成的页面提交给 `html-reviewer` agent 进行独立审校。
+
+🛑 **CHECKPOINT 5 · 审校通过**: 只有当 `html-reviewer` 输出 `verdict: pass` 时，页面才能交付。若 `warn`——修 warning 后重新提交审校。若 `fail`——把 blocker 列表反馈给 builder agent 修订，最多 3 次修订循环；3 次后仍 fail → 终止并向调用者报告 blocker 列表。
 
 ## Visual Standards
 
