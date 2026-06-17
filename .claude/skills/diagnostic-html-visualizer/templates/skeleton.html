@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诊断报告 — [产线名称] · [目标缺陷]</title>
+
+<!-- ============================================================
+  Diagnostic HTML Skeleton — 工业诊断可视化讲解页面模板
+  为 diagnostic-html-visualizer skill 设计的骨架
+  子 Agent (林工) 填充内容即可，不需要从零写结构
+============================================================ -->
+
+<!-- === Three.js Import Map (ES module 路径) === -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+/* ==========================================================
+   CSS 变量系统 — 工业科技叙事风格 (Dark + Precise)
+   所有颜色通过变量引用，禁止硬编码
+========================================================== */
+:root {
+  /* 背景层级 */
+  --bg-primary: #080d14;
+  --bg-secondary: #0f1620;
+  --bg-card: rgba(15, 22, 32, 0.92);
+  --bg-glass: rgba(10, 16, 26, 0.75);
+  --bg-elevated: rgba(18, 26, 40, 0.95);
+
+  /* 边框 */
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-card: rgba(255,255,255,0.10);
+  --border-accent: rgba(77,159,255,0.25);
+
+  /* 文字 */
+  --text-primary: #e4e9f0;
+  --text-secondary: #99a3b0;
+  --text-muted: #5c6670;
+
+  /* 功能色 */
+  --accent-blue: #4d9fff;
+  --accent-green: #3dd68c;
+  --accent-orange: #ff7b42;
+  --accent-red: #ff4d6a;
+  --accent-yellow: #ffb347;
+  --accent-purple: #b57bee;
+
+  /* 排版 */
+  --font-sans: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
+  --shadow-glow-blue: 0 0 30px rgba(77,159,255,0.12);
+  --shadow-glow-orange: 0 0 24px rgba(255,123,66,0.10);
+
+  /* 间距 (8pt grid) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+}
+
+/* ==========================================================
+   RESET + BASE
+========================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;text-wrap:pretty}
+body{
+  font-family:var(--font-sans);
+  background:var(--bg-primary);
+  color:var(--text-primary);
+  line-height:1.65;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(77,159,255,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 55%, rgba(255,123,66,0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 90%, rgba(61,214,140,0.03) 0%, transparent 45%);
+}
+.app-container{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 var(--space-lg)}
+
+/* ==========================================================
+   LOADER 状态面板
+========================================================== */
+.loader-panel{
+  position:fixed;top:12px;right:12px;z-index:9999;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-card);
+  border-radius:var(--radius-md);
+  padding:var(--space-md);
+  font-size:0.78rem;
+  font-family:var(--font-mono);
+  display:flex;flex-direction:column;gap:6px;
+  min-width:210px;
+  opacity:0.85;
+  transition:opacity 0.3s;
+}
+.loader-panel:hover{opacity:1}
+.loader-panel .status-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.loader-panel .status-label{color:var(--text-muted);font-size:0.72rem}
+.loader-panel .status-value{font-weight:600;font-size:0.72rem}
+.loader-panel .status-value.ok{color:var(--accent-green)}
+.loader-panel .status-value.warn{color:var(--accent-yellow)}
+.loader-panel .status-value.fail{color:var(--accent-red)}
+.loader-panel .status-value.loading{color:var(--accent-blue)}
+.loader-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.loader-indicator.ok{background:var(--accent-green);box-shadow:0 0 6px var(--accent-green)}
+.loader-indicator.warn{background:var(--accent-yellow);box-shadow:0 0 6px var(--accent-yellow)}
+.loader-indicator.fail{background:var(--accent-red);box-shadow:0 0 6px var(--accent-red)}
+
+/* ==========================================================
+   HERO — 首屏结论先行
+========================================================== */
+.hero{
+  position:relative;padding:var(--space-3xl) 0 var(--space-2xl);
+  text-align:center;
+  background:linear-gradient(160deg, #0b1a2f 0%, var(--bg-primary) 35%, #1a1220 100%);
+  border-bottom:1px solid var(--border-subtle);
+}
+.hero::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent-orange),var(--accent-blue),transparent);
+  opacity:0.45;
+}
+.hero h1{
+  font-size:clamp(1.6rem, 3vw, 2.4rem);
+  font-weight:800;line-height:1.3;
+  max-width:900px;margin:0 auto var(--space-md);
+  background:linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 45%, var(--accent-orange) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero .subtitle{
+  color:var(--text-secondary);font-size:1.05rem;
+  max-width:700px;margin:0 auto var(--space-xl);
+}
+.hero .badges{
+  display:flex;flex-wrap:wrap;gap:var(--space-sm);justify-content:center;
+  margin-bottom:var(--space-lg);
+}
+.hero .badges .badge{
+  padding:7px 16px;border-radius:20px;
+  font-size:0.82rem;font-weight:600;
+  backdrop-filter:blur(12px);
+}
+.badge-type{background:rgba(255,179,71,0.12);color:var(--accent-yellow);border:1px solid rgba(255,179,71,0.25)}
+.badge-score{background:rgba(61,214,140,0.10);color:var(--accent-green);border:1px solid rgba(61,214,140,0.22)}
+.badge-confidence{background:rgba(255,123,66,0.10);color:var(--accent-orange);border:1px solid rgba(255,123,66,0.22)}
+.badge-focus{background:rgba(77,159,255,0.10);color:var(--accent-blue);border:1px solid rgba(77,159,255,0.22)}
+
+.hero .stats-row{
+  display:flex;flex-wrap:wrap;gap:var(--space-md);justify-content:center;
+  margin-bottom:var(--space-xl);
+}
+.hero .stat{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-md);padding:14px 22px;min-width:110px;
+}
+.hero .stat .val{font-size:1.4rem;font-weight:700;color:var(--accent-blue)}
+.hero .stat .lbl{font-size:0.76rem;color:var(--text-muted);margin-top:2px}
+
+/* 摘要卡网格 */
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+  gap:var(--space-md);
+  margin:var(--space-xl) auto 0;
+  max-width:1200px;
+  text-align:left;
+}
+.summary-card{
+  background:linear-gradient(160deg, rgba(22,28,42,0.88), rgba(16,22,36,0.94));
+  border:1px solid var(--border-card);
+  border-radius:var(--radius-lg);
+  padding:var(--space-lg);
+  position:relative;overflow:hidden;
+}
+.summary-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.summary-card.signal::before{background:var(--accent-green)}
+.summary-card.evidence::before{background:var(--accent-blue)}
+.summary-card.excluded::before{background:var(--accent-orange)}
+.summary-card.action::before{background:var(--accent-purple)}
+.summary-card .card-icon{font-size:1.1rem;margin-bottom:var(--space-sm)}
+.summary-card h3{font-size:0.92rem;font-weight:700;margin-bottom:var(--space-sm)}
+.summary-card p{font-size:0.85rem;color:var(--text-secondary);line-height:1.6}
+
+/* 阅读引导 */
+.read-guide{
+  margin-top:var(--space-lg);
+  font-size:0.8rem;color:var(--text-muted);
+  text-align:center;
+}
+.read-guide span{color:var(--accent-blue)}
+
+/* ==========================================================
+   SECTIONS 通用
+========================================================== */
+.section{margin:var(--space-3xl) 0}
+.section-header{margin-bottom:var(--space-xl)}
+.section-header .step-num{
+  font-size:0.78rem;font-weight:700;color:var(--accent-blue);
+  letter-spacing:0.08em;margin-bottom:var(--space-xs);
+}
+.section-header h2{
+  font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;
+  border-left:4px solid var(--accent-blue);
+  padding-left:var(--space-md);
+}
+.section-header .subtitle{color:var(--text-secondary);font-size:0.95rem;margin-top:var(--space-sm)}
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border-card),transparent);
+  margin:var(--space-2xl) 0;
+}
+
+/* ==========================================================
+   SECTION 1 — 背景 + 3D 产线模型
+========================================================== */
+.bg-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--space-lg);
+  align-items:start;
+}
+.bg-info h3{
+  font-size:1.1rem;font-weight:700;margin-bottom:var(--space-md);color:var(--accent-blue);
+}
+.bg-info p{font-size:0.92rem;color:var(--text-secondary);line-height:1.7;margin-bottom:var(--space-md)}
+.bg-info ul{
+  list-style:none;padding:0;
+  display:flex;flex-direction:column;gap:var(--space-sm);
+}
+.bg-info ul li{
+  font-size:0.88rem;color:var(--text-secondary);
+  padding-left:var(--space-lg);position:relative;
+}
+.bg-info ul li::before{
+  content:'';position:absolute;left:0;top:10px;
+  width:6px;height:6px;background:var(--accent-blue);
+  border-radius:50%;
+}
+
+/* 3D 容器 */
+#threejs-container{
+  width:100%;height:480px;
+  background:var(--bg-secondary);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border-card);
+  position:relative;overflow:hidden;
+  cursor:grab;
+}
+#threejs-container:active{cursor:grabbing}
+#threejs-container .overlay-top{
+  position:absolute;top:var(--space-md);left:var(--space-lg);
+  font-size:0.82rem;color:var(--text-muted);
+  background:rgba(8,13,20,0.7);padding:4px 12px;border-radius:var(--radius-sm);
+  pointer-events:none;z-index:2;
+}
+#threejs-container .overlay-legend{
+  position:absolute;bottom:var(--space-md);right:var(--space-lg);
+  display:flex;gap:var(--space-md);font-size:0.76rem;
+  background:rgba(8,13,20,0.7);padding:6px 14px;border-radius:var(--radius-sm);
+  pointer-events:none;z-index:2;
+}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.legend-dot.anomaly{background:var(--accent-red);box-shadow:0 0 8px var(--accent-red)}
+.legend-dot.normal{background:var(--accent-blue)}
+.legend-dot.warning{background:var(--accent-orange);box-shadow:0 0 6px var(--accent-orange)}
+
+/* 3D 降级占位 */
+.threejs-fallback{
+  display:none;width:100%;height:100%;
+  justify-content:center;align-items:center;flex-direction:column;gap:var(--space-md);
+}
+.threejs-fallback.active{display:flex}
+.threejs-fallback .fallback-icon{font-size:2.5rem;opacity:0.3}
+.threejs-fallback .fallback-text{color:var(--text-muted);font-size:0.9rem}
+
+/* ==========================================================
+   SECTION 2 — 诊断流程收敛
+========================================================== */
+.process-flow{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:var(--space-md);
+  margin:var(--space-lg) 0;
+}
+.process-card{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-md);padding:var(--space-lg);
+  text-align:center;
+  transition:border-color 0.2s,transform 0.2s;
+}
+.process-card:hover{transform:translateY(-2px);border-color:var(--accent-blue)}
+.process-card .step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(77,159,255,0.12);color:var(--accent-blue);
+  font-weight:800;font-size:1rem;margin-bottom:var(--space-sm);
+}
+.process-card h4{font-size:0.95rem;font-weight:700;margin-bottom:var(--space-xs)}
+.process-card p{font-size:0.82rem;color:var(--text-secondary);line-height:1.5}
+.process-card .human-note{
+  margin-top:var(--space-sm);padding-top:var(--space-sm);
+  border-top:1px solid var(--border-subtle);
+  font-size:0.76rem;color:var(--accent-purple);
+}
+
+/* 收敛图 */
+.convergence-viz{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-lg);padding:var(--space-lg);
+  margin-top:var(--space-xl);
+}
+.convergence-viz h4{font-size:0.95rem;font-weight:700;margin-bottom:var(--space-md)}
+.convergence-bar{display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-sm)}
+.convergence-bar .label{font-size:0.82rem;color:var(--text-secondary);width:120px;text-align:right;flex-shrink:0}
+.convergence-bar .bar-track{
+  flex:1;height:22px;background:var(--bg-primary);border-radius:var(--radius-sm);overflow:hidden;
+}
+.convergence-bar .bar-fill{
+  height:100%;border-radius:var(--radius-sm);
+  transition:width 0.6s ease-out;
+}
+.convergence-bar .bar-fill.initial{background:var(--accent-orange)}
+.convergence-bar .bar-fill.verified{background:var(--accent-blue)}
+.convergence-bar .bar-fill.survived{background:var(--accent-green)}
+.convergence-bar .count{font-size:0.82rem;color:var(--text-primary);width:40px;text-align:left;flex-shrink:0;font-weight:600}
+
+/* ==========================================================
+   SECTION 3 — 数据图表解释
+========================================================== */
+.chart-grid{
+  display:flex;flex-direction:column;gap:var(--space-2xl);
+}
+.chart-block{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-lg);padding:var(--space-lg);
+}
+.chart-block .chart-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:var(--space-md);flex-wrap:wrap;gap:var(--space-sm);
+}
+.chart-block .chart-title{
+  font-size:1rem;font-weight:700;color:var(--text-primary);
+}
+.chart-block .chart-priority{
+  font-size:0.72rem;padding:3px 10px;border-radius:var(--radius-sm);
+  font-weight:600;
+}
+.chart-block .chart-priority.core{background:rgba(77,159,255,0.12);color:var(--accent-blue)}
+.chart-block .chart-priority.support{background:rgba(153,163,176,0.10);color:var(--text-secondary)}
+.chart-container{width:100%;height:380px;position:relative}
+.chart-container .echarts-placeholder{
+  width:100%;height:100%;
+  display:flex;justify-content:center;align-items:center;
+  color:var(--text-muted);font-size:0.9rem;
+  background:var(--bg-secondary);border-radius:var(--radius-sm);
+  border:1px dashed var(--border-card);
+}
+
+.chart-interpretation{
+  margin-top:var(--space-md);
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:var(--space-md);
+}
+.chart-interpretation .interp-item{
+  background:var(--bg-secondary);border-radius:var(--radius-sm);
+  padding:var(--space-md);
+}
+.chart-interpretation .interp-label{
+  font-size:0.72rem;font-weight:700;color:var(--accent-blue);
+  text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;
+}
+.chart-interpretation .interp-text{
+  font-size:0.85rem;color:var(--text-secondary);line-height:1.5;
+}
+
+/* 扩展证据区 */
+.expand-toggle{
+  display:inline-flex;align-items:center;gap:var(--space-sm);
+  color:var(--accent-blue);font-size:0.88rem;font-weight:600;
+  cursor:pointer;margin-top:var(--space-lg);
+  background:none;border:none;padding:var(--space-sm) var(--space-md);
+  border-radius:var(--radius-sm);
+  transition:background 0.2s;
+}
+.expand-toggle:hover{background:rgba(77,159,255,0.08)}
+.expand-toggle .arrow{transition:transform 0.2s}
+.expand-toggle.open .arrow{transform:rotate(180deg)}
+.extended-evidence{display:none;margin-top:var(--space-lg)}
+.extended-evidence.open{display:block}
+
+/* ==========================================================
+   SECTION 4 — 证据链 + 因果溯源
+========================================================== */
+.conclusion-grid{
+  display:flex;flex-direction:column;gap:var(--space-lg);
+}
+.conclusion-card{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-lg);padding:var(--space-lg);
+  position:relative;overflow:hidden;
+}
+.conclusion-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.conclusion-card.primary::before{background:var(--accent-green)}
+.conclusion-card.diminished::before{background:var(--accent-orange)}
+.conclusion-card.excluded::before{background:var(--accent-red)}
+.conclusion-card .conclusion-header{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-md);
+}
+.conclusion-card .conclusion-label{
+  font-weight:800;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;
+}
+.conclusion-card.primary .conclusion-label{color:var(--accent-green)}
+.conclusion-card.diminished .conclusion-label{color:var(--accent-orange)}
+.conclusion-card.excluded .conclusion-label{color:var(--accent-red)}
+.conclusion-card .confidence-tag{
+  font-size:0.76rem;font-weight:600;padding:3px 10px;border-radius:var(--radius-sm);
+}
+.confidence-tag.high{background:rgba(61,214,140,0.10);color:var(--accent-green)}
+.confidence-tag.mid{background:rgba(255,179,71,0.10);color:var(--accent-yellow)}
+.confidence-tag.low{background:rgba(255,77,106,0.10);color:var(--accent-red)}
+.conclusion-card h3{font-size:1.1rem;font-weight:700;margin-bottom:var(--space-md)}
+.conclusion-card .evidence-pair{
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);
+  margin-bottom:var(--space-md);
+}
+.evidence-pair .viz-evidence, .evidence-pair .reason-evidence{
+  background:var(--bg-secondary);border-radius:var(--radius-sm);padding:var(--space-md);
+}
+.evidence-pair h5{font-size:0.78rem;font-weight:700;color:var(--accent-blue);margin-bottom:4px}
+.evidence-pair p{font-size:0.84rem;color:var(--text-secondary)}
+.conclusion-card .human-summary{
+  background:rgba(181,123,238,0.06);border-left:3px solid var(--accent-purple);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:var(--space-sm) var(--space-md);
+  font-size:0.84rem;color:var(--accent-purple);
+  margin-bottom:var(--space-md);
+}
+.conclusion-card .exclude-reason{
+  font-size:0.84rem;color:var(--text-secondary);
+  border-top:1px solid var(--border-subtle);padding-top:var(--space-md);
+}
+.conclusion-card .exclude-reason strong{color:var(--accent-orange)}
+
+/* 证据链总览 (Sankey 容器) */
+.evidence-chain-overview{
+  background:var(--bg-glass);border:1px solid var(--border-card);
+  border-radius:var(--radius-lg);padding:var(--space-lg);margin-bottom:var(--space-xl);
+}
+.evidence-chain-overview h3{font-size:1.05rem;font-weight:700;margin-bottom:var(--space-md)}
+#sankey-container{width:100%;height:360px}
+
+/* 行动建议 */
+.action-section{
+  background:linear-gradient(135deg, rgba(181,123,238,0.06), rgba(77,159,255,0.04));
+  border:1px solid var(--border-accent);
+  border-radius:var(--radius-lg);padding:var(--space-xl);
+}
+.action-section h3{font-size:1.05rem;font-weight:700;margin-bottom:var(--space-md);color:var(--accent-purple)}
+.action-section ol{
+  padding-left:var(--space-lg);display:flex;flex-direction:column;gap:var(--space-sm);
+}
+.action-section ol li{font-size:0.9rem;color:var(--text-secondary);line-height:1.6}
+.action-section ol li strong{color:var(--text-primary)}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+.footer{
+  margin-top:var(--space-3xl);padding:var(--space-2xl) 0;
+  border-top:1px solid var(--border-subtle);
+}
+.footer .footer-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:var(--space-lg);
+}
+.footer h4{font-size:0.82rem;font-weight:700;color:var(--text-muted);margin-bottom:var(--space-sm);text-transform:uppercase;letter-spacing:0.05em}
+.footer p,.footer ul{font-size:0.82rem;color:var(--text-secondary);line-height:1.6}
+.footer ul{list-style:none;padding:0}
+.footer ul li{margin-bottom:4px}
+.footer .limitations{color:var(--accent-orange)}
+
+/* ==========================================================
+   MOBILE 响应式
+========================================================== */
+@media (max-width: 768px) {
+  .app-container{padding:0 var(--space-md)}
+  .loader-panel{top:auto;bottom:8px;right:8px;font-size:0.7rem;padding:var(--space-sm);min-width:180px}
+  .hero{padding:var(--space-2xl) 0 var(--space-xl)}
+  .hero h1{font-size:1.5rem}
+  .hero .subtitle{font-size:0.92rem}
+  .hero .stats-row{gap:var(--space-sm)}
+  .hero .stat{padding:10px 16px;min-width:90px}
+  .hero .stat .val{font-size:1.1rem}
+  .summary-grid{grid-template-columns:1fr}
+  .bg-grid{grid-template-columns:1fr}
+  #threejs-container{height:320px}
+  .section-header h2{font-size:1.4rem}
+  .process-flow{grid-template-columns:repeat(2, 1fr)}
+  .chart-interpretation{grid-template-columns:1fr}
+  .conclusion-card .evidence-pair{grid-template-columns:1fr}
+  .section{margin:var(--space-2xl) 0}
+}
+@media (max-width: 480px) {
+  .hero h1{font-size:1.3rem}
+  .hero .badges{gap:6px}
+  .hero .badges .badge{padding:5px 10px;font-size:0.74rem}
+  .process-flow{grid-template-columns:1fr}
+  #threejs-container{height:260px}
+  .chart-container{height:280px}
+  .footer .footer-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ==========================================================
+  LOADER 状态面板
+  子 Agent: 替换 status 文本 + 切换 CSS 类 (ok/fail/loading)
+========================================================== -->
+<div class="loader-panel" id="loader-panel">
+  <div class="status-row">
+    <span class="status-label">ECharts</span>
+    <span class="status-value loading" id="status-echarts"><span class="loader-indicator loading"></span>loading</span>
+  </div>
+  <div class="status-row">
+    <span class="status-label">Three.js</span>
+    <span class="status-value loading" id="status-three"><span class="loader-indicator loading"></span>loading</span>
+  </div>
+  <div class="status-row">
+    <span class="status-label">OrbitControls</span>
+    <span class="status-value loading" id="status-orbit"><span class="loader-indicator loading"></span>loading</span>
+  </div>
+  <div class="status-row">
+    <span class="status-label">Charts Init</span>
+    <span class="status-value loading" id="status-charts-init">pending</span>
+  </div>
+  <div class="status-row">
+    <span class="status-label">3D Scene</span>
+    <span class="status-value loading" id="status-scene-init">pending</span>
+  </div>
+</div>
+
+<!-- ==========================================================
+  HERO — 首屏结论先行
+  子 Agent: 替换 [占位符] 内容
+========================================================== -->
+<div class="app-container">
+<header class="hero">
+  <h1>[主结论一句话: 例如 — BOPET产线PG31DS急冷段辊14粘滑振动是划伤根因，置信度81/100]</h1>
+  <p class="subtitle">[场景副标题: 产线 · 目标缺陷 · 焦点产品 · 样本日期]</p>
+
+  <div class="badges">
+    <span class="badge badge-type">[诊断类型: COMPETING_SET / DETERMINED / NEEDS_DATA]</span>
+    <span class="badge badge-score">Judge [XX]/100</span>
+    <span class="badge badge-confidence">置信度 [XX]/100</span>
+    <span class="badge badge-focus">焦点产品: [产品编号]</span>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="val">[N]</div><div class="lbl">样本量</div></div>
+    <div class="stat"><div class="val">[N]</div><div class="lbl">工段数</div></div>
+    <div class="stat"><div class="val">[N]</div><div class="lbl">异常窗口</div></div>
+    <div class="stat"><div class="val">[N]%</div><div class="lbl">异常率</div></div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card signal">
+      <div class="card-icon">📡</div>
+      <h3>最强信号</h3>
+      <p>[描述最强的统计/物理证据，一行]</p>
+    </div>
+    <div class="summary-card evidence">
+      <div class="card-icon">🔬</div>
+      <h3>核心证据</h3>
+      <p>[描述最关键的因果关系，一行]</p>
+    </div>
+    <div class="summary-card excluded">
+      <div class="card-icon">✕</div>
+      <h3>已排除</h3>
+      <p>[为什么排除了看起来相关的其他原因]</p>
+    </div>
+    <div class="summary-card action">
+      <div class="card-icon">→</div>
+      <h3>立即建议</h3>
+      <p>[下一步最该做的 1 件事]</p>
+    </div>
+  </div>
+
+  <p class="read-guide">
+    📖 <span>怎么读这页</span> — 往下滚动，你会依次看到：问题在哪 → 怎么诊断的 → 数据图说明什么 → 为什么相信这个结论
+  </p>
+</header>
+
+<!-- ==========================================================
+  SECTION 1 — 背景与 3D 产线模型
+========================================================== -->
+<section class="section" id="sec-background">
+  <div class="section-header">
+    <div class="step-num">SECTION 01</div>
+    <h2>背景与产线模型</h2>
+    <p class="subtitle">[工艺简介 — 产线类型 · 关键工段 · 产品 · 目标缺陷]</p>
+  </div>
+
+  <div class="bg-grid">
+    <div class="bg-info">
+      <h3>诊断场景</h3>
+      <p>[自由文本说明: 什么产线、什么产品、什么缺陷、为什么触发这次诊断、样本量多少]</p>
+
+      <h3>关键参数</h3>
+      <ul>
+        <li><strong>[参数1]</strong>: [物理含义] — [异常摘要]</li>
+        <li><strong>[参数2]</strong>: [物理含义] — [异常摘要]</li>
+        <li><strong>[参数3]</strong>: [物理含义] — [异常摘要]</li>
+        <li><strong>[参数4]</strong>: [物理含义] — [异常摘要]</li>
+      </ul>
+    </div>
+
+    <div>
+      <div id="threejs-container">
+        <div class="overlay-top">[产线名称] · 3D 产线模型</div>
+        <div class="overlay-legend">
+          <span><span class="legend-dot normal"></span>正常工段</span>
+          <span><span class="legend-dot warning"></span>关注区域</span>
+          <span><span class="legend-dot anomaly"></span>异常位置</span>
+        </div>
+        <!-- 3D 降级占位 -->
+        <div class="threejs-fallback" id="threejs-fallback">
+          <div class="fallback-icon">🏭</div>
+          <div class="fallback-text">3D 产线模型加载中...</div>
+        </div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:var(--space-sm);text-align:center;">
+        拖拽旋转 · 滚轮缩放 · 右键平移
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==========================================================
+  SECTION 2 — 诊断流程收敛
+========================================================== -->
+<section class="section" id="sec-flow">
+  <div class="section-header">
+    <div class="step-num">SECTION 02</div>
+    <h2>诊断流程</h2>
+    <p class="subtitle">为什么不是看一眼相关系数就下结论 — 五步验证层层收敛</p>
+  </div>
+
+  <div class="process-flow">
+    <div class="process-card">
+      <div class="step-num">1</div>
+      <h4>本体构建</h4>
+      <p>从数据+工艺知识识别参数物理含义、工段结构、已知失效模式</p>
+      <div class="human-note">💬 白话: 先搞清楚数据里每列到底在测什么</div>
+    </div>
+    <div class="process-card">
+      <div class="step-num">2</div>
+      <h4>去趋势 + 分层</h4>
+      <p>剔除时间共趋势 + 按产品分层 + Simpson悖论检测</p>
+      <div class="human-note">💬 白话: 把时间带来的假相关和产品间差异先扣掉</div>
+    </div>
+    <div class="process-card">
+      <div class="step-num">3</div>
+      <h4>竞争假说</h4>
+      <p>多候选根因并行验证，每条假说必须有物理机制支撑</p>
+      <div class="human-note">💬 白话: 不是找一个看起来相关的就下结论，而是让多个候选互相竞争排除</div>
+    </div>
+    <div class="process-card">
+      <div class="step-num">4</div>
+      <h4>物理验证</h4>
+      <p>时间先后 + 统计显著 + 物理机制 + 无矛盾 — 四条件反推测</p>
+      <div class="human-note">💬 白话: 数据说相关还不够，必须物理上说得通</div>
+    </div>
+    <div class="process-card">
+      <div class="step-num">5</div>
+      <h4>独立审计</h4>
+      <p>Judge 质量门 + Report Reviewer 物理真实审计 → 双门通过才算完成</p>
+      <div class="human-note">💬 白话: 换一个人独立审一遍，确认逻辑链没有断</div>
+    </div>
+  </div>
+
+  <!-- 收敛图 -->
+  <div class="convergence-viz">
+    <h4>信号收敛路径</h4>
+    <div class="convergence-bar">
+      <span class="label">初始相关</span>
+      <div class="bar-track"><div class="bar-fill initial" style="width:100%"></div></div>
+      <span class="count">[N] 对</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="label">去趋势后存活</span>
+      <div class="bar-track"><div class="bar-fill initial" style="width:[X]%"></div></div>
+      <span class="count">[N] 对</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="label">分层校验通过</span>
+      <div class="bar-track"><div class="bar-fill verified" style="width:[X]%"></div></div>
+      <span class="count">[N] 对</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="label">物理机制支撑</span>
+      <div class="bar-track"><div class="bar-fill survived" style="width:[X]%"></div></div>
+      <span class="count">[N] 对</span>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:var(--space-sm)">
+      💬 白话: 一开始看起来有很多相关，但一层层筛选后，真正有物理意义的关系只剩几个
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==========================================================
+  SECTION 3 — 数据图表解释
+========================================================== -->
+<section class="section" id="sec-charts">
+  <div class="section-header">
+    <div class="step-num">SECTION 03</div>
+    <h2>关键数据证据</h2>
+    <p class="subtitle">每张图回答三件事 — 看到什么 · 说明什么 · 为什么重要</p>
+  </div>
+
+  <div class="chart-grid">
+
+    <!-- 图表 1: 核心 (时序对齐图) -->
+    <div class="chart-block">
+      <div class="chart-header">
+        <span class="chart-title">📈 [图表1标题: 如 — 产品PG31DS时序对齐图]</span>
+        <span class="chart-priority core">核心证据</span>
+      </div>
+      <div class="chart-container">
+        <div class="echarts-placeholder" id="chart1-container">
+          ECharts 图表加载中...
+        </div>
+      </div>
+      <div class="chart-interpretation">
+        <div class="interp-item">
+          <div class="interp-label">看到什么</div>
+          <div class="interp-text">[描述图中可见的波形、趋势、异常点]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">说明什么</div>
+          <div class="interp-text">[从数据角度解读这个模式的含义]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">为什么重要</div>
+          <div class="interp-text">[这个观察与最终结论之间的因果关系]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图表 2: 核心 (全局 vs 产品内 vs 去趋势后) -->
+    <div class="chart-block">
+      <div class="chart-header">
+        <span class="chart-title">📊 [图表2标题: 如 — 相关性对比: 全局 vs 产品内 vs 去趋势后]</span>
+        <span class="chart-priority core">核心证据</span>
+      </div>
+      <div class="chart-container">
+        <div class="echarts-placeholder" id="chart2-container">
+          ECharts 图表加载中...
+        </div>
+      </div>
+      <div class="chart-interpretation">
+        <div class="interp-item">
+          <div class="interp-label">看到什么</div>
+          <div class="interp-text">[描述图中可见的数据]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">说明什么</div>
+          <div class="interp-text">[统计意义]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">为什么重要</div>
+          <div class="interp-text">[因果意义]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图表 3: 核心 (温区/扭矩剖面) -->
+    <div class="chart-block">
+      <div class="chart-header">
+        <span class="chart-title">🌡️ [图表3标题: 如 — 急冷段18辊温度剖面]</span>
+        <span class="chart-priority core">核心证据</span>
+      </div>
+      <div class="chart-container">
+        <div class="echarts-placeholder" id="chart3-container">
+          ECharts 图表加载中...
+        </div>
+      </div>
+      <div class="chart-interpretation">
+        <div class="interp-item">
+          <div class="interp-label">看到什么</div>
+          <div class="interp-text">[描述图中可见的数据]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">说明什么</div>
+          <div class="interp-text">[统计意义]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">为什么重要</div>
+          <div class="interp-text">[因果意义]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 扩展证据区 -->
+  <button class="expand-toggle" id="expand-toggle" onclick="toggleExtended()">
+    <span>展开更多证据</span>
+    <span class="arrow">▾</span>
+  </button>
+  <div class="extended-evidence" id="extended-evidence">
+    <!-- 子 Agent: 这里放次要图表，每张同样配三行解读 -->
+    <div class="chart-block" style="margin-bottom:var(--space-lg)">
+      <div class="chart-header">
+        <span class="chart-title">[次要图表标题]</span>
+        <span class="chart-priority support">补充证据</span>
+      </div>
+      <div class="chart-container">
+        <div class="echarts-placeholder" id="chart-ext-container">
+          补充图表加载中...
+        </div>
+      </div>
+      <div class="chart-interpretation">
+        <div class="interp-item">
+          <div class="interp-label">看到什么</div>
+          <div class="interp-text">[描述]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">说明什么</div>
+          <div class="interp-text">[说明]</div>
+        </div>
+        <div class="interp-item">
+          <div class="interp-label">为什么重要</div>
+          <div class="interp-text">[因果]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==========================================================
+  SECTION 4 — 证据链与因果溯源
+========================================================== -->
+<section class="section" id="sec-evidence">
+  <div class="section-header">
+    <div class="step-num">SECTION 04</div>
+    <h2>证据链与结论</h2>
+    <p class="subtitle">为什么是这个结论而不是别的 — 假说竞争、排除逻辑、证据支撑</p>
+  </div>
+
+  <!-- 证据链总览 Sankey -->
+  <div class="evidence-chain-overview">
+    <h3>证据链总览</h3>
+    <div id="sankey-container">
+      <div class="echarts-placeholder" style="width:100%;height:360px;display:flex;justify-content:center;align-items:center;">
+        证据链图加载中...
+      </div>
+    </div>
+  </div>
+
+  <!-- 结论卡 -->
+  <div class="conclusion-grid">
+    <!-- 主导结论 -->
+    <div class="conclusion-card primary">
+      <div class="conclusion-header">
+        <span class="conclusion-label">🏆 主导结论</span>
+        <span class="confidence-tag high">置信度 [XX]/100</span>
+      </div>
+      <h3>[主导假说语句]</h3>
+
+      <div class="human-summary">
+        💬 <strong>一句话版</strong>: [用最简单的中文说这个结论——假设听你说话的人没看过数据]
+      </div>
+
+      <div class="evidence-pair">
+        <div class="viz-evidence">
+          <h5>📊 可视化证据</h5>
+          <p>[引用具体图表: 如图X中，参数A在异常窗口内从值X漂移到值Y，与缺陷上升同步]</p>
+        </div>
+        <div class="reason-evidence">
+          <h5>🧠 推理证据</h5>
+          <p>[物理机制: 参数A↑ → 物理过程B → 缺陷C。统计: Spearman ρ=0.73, p<0.001, Evidence Rank L3]</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 被削弱假说 -->
+    <div class="conclusion-card diminished">
+      <div class="conclusion-header">
+        <span class="conclusion-label">⚠ 被削弱假说</span>
+        <span class="confidence-tag mid">置信度 [XX]/100</span>
+      </div>
+      <h3>[假说语句]</h3>
+      <div class="human-summary">
+        💬 <strong>一句话版</strong>: [为什么这个假说看起来有道理但实际被降级了]
+      </div>
+      <div class="exclude-reason">
+        <strong>降级原因:</strong> [去趋势后相关消失 / 产品内分层反转 / 物理机制矛盾 / 时间不对]
+      </div>
+    </div>
+
+    <!-- 被排除假说 -->
+    <div class="conclusion-card excluded">
+      <div class="conclusion-header">
+        <span class="conclusion-label">✕ 已排除</span>
+        <span class="confidence-tag low">不成立</span>
+      </div>
+      <h3>[假说语句]</h3>
+      <div class="human-summary">
+        💬 <strong>一句话版</strong>: [为什么这个看起来也相关的原因被彻底排除了]
+      </div>
+      <div class="exclude-reason">
+        <strong>排除原因:</strong> [具体证据 — 不要用"不相关"这种模糊词]
+      </div>
+    </div>
+  </div>
+
+  <!-- 行动建议 -->
+  <div class="action-section" style="margin-top:var(--space-xl)">
+    <h3>→ 行动建议与下一步</h3>
+    <ol>
+      <li><strong>[立即行动]</strong>: [具体操作 — 调哪个参数、调到多少、什么条件]</li>
+      <li><strong>[短期验证]</strong>: [下一批次应该测什么、收集什么数据]</li>
+      <li><strong>[长期优化]</strong>: [系统性问题需要什么工程方案]</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ==========================================================
+  FOOTER — 运行信息 + 局限性
+========================================================== -->
+<div class="divider"></div>
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <h4>诊断信息</h4>
+      <p>
+        运行目录: [RUN_DIR]<br>
+        分析时间: [timestamp]<br>
+        诊断引擎: industrial-deep-diagnostic<br>
+        Judge 评分: [XX]/100 · [pass/needs_repair]
+      </p>
+    </div>
+    <div>
+      <h4>证据等级</h4>
+      <p>
+        最高证据: [L1-L7]<br>
+        最低证据: [L1-L7]<br>
+        结论受限于最弱一级
+      </p>
+    </div>
+    <div>
+      <h4>局限性</h4>
+      <p class="limitations">
+        [如: 仅分析稳态数据 / 样本量有限 / 缺少独立验证批次 / 物理机制未通过独立实验确认]
+      </p>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.app-container -->
+
+<!-- ==========================================================
+  ECharts 加载器 (主源 + 备用源 + 状态检测)
+========================================================== -->
+<script>
+(function(){
+  var statusEl = document.getElementById('status-echarts');
+  function setStatus(cls, text){
+    statusEl.className = 'status-value ' + cls;
+    statusEl.innerHTML = '<span class="loader-indicator '+cls+'"></span>'+text;
+  }
+  function loadScript(src, fallback){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = function(){ resolve(true); };
+      s.onerror = function(){
+        if (fallback) { loadScript(fallback, null).then(resolve).catch(reject); }
+        else { reject(new Error('all sources failed')); }
+      };
+      document.head.appendChild(s);
+    });
+  }
+  loadScript(
+    'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js',
+    'https://unpkg.com/echarts@5/dist/echarts.min.js'
+  ).then(function(){
+    if (typeof echarts !== 'undefined') {
+      setStatus('ok', 'loaded');
+      document.getElementById('status-charts-init').className = 'status-value loading';
+      document.getElementById('status-charts-init').textContent = 'pending';
+      // 触发图表初始化事件 — 子 Agent 在此处绑定图表
+      window.dispatchEvent(new CustomEvent('echarts-ready'));
+    } else {
+      setStatus('fail', 'failed');
+    }
+  }).catch(function(){
+    setStatus('fail', 'failed');
+  });
+})();
+</script>
+
+<!-- ==========================================================
+  Three.js 加载器 (importmap 已预声明, 运行时 import 检测)
+========================================================== -->
+<script type="module">
+(function(){
+  var statusEl = document.getElementById('status-three');
+  var orbitEl = document.getElementById('status-orbit');
+  function setStatus(el, cls, text){
+    el.className = 'status-value ' + cls;
+    el.innerHTML = '<span class="loader-indicator '+cls+'"></span>'+text;
+  }
+
+  // 备用 importmap: 如果 jsdelivr 失败, 尝试 unpkg
+  var mainLoaded = false;
+
+  import('three').then(function(THREE){
+    window.THREE = THREE;
+    setStatus(statusEl, 'ok', 'loaded');
+    mainLoaded = true;
+
+    return import('three/addons/controls/OrbitControls.js');
+  }).then(function(OrbitModule){
+    if (OrbitModule && OrbitModule.OrbitControls) {
+      window.OrbitControls = OrbitModule.OrbitControls;
+      setStatus(orbitEl, 'ok', 'loaded');
+    } else {
+      setStatus(orbitEl, 'warn', 'missing');
+    }
+  }).catch(function(err){
+    if (!mainLoaded) {
+      // jsdelivr 失败 → 尝试 unpkg fallback
+      var fallbackImportmap = {
+        imports: {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      };
+      var script = document.createElement('script');
+      script.type = 'importmap';
+      script.textContent = JSON.stringify(fallbackImportmap);
+      document.head.appendChild(script);
+
+      import('three').then(function(THREE){
+        window.THREE = THREE;
+        setStatus(statusEl, 'ok', 'fallback');
+        return import('three/addons/controls/OrbitControls.js');
+      }).then(function(OrbitModule){
+        if (OrbitModule && OrbitModule.OrbitControls) {
+          window.OrbitControls = OrbitModule.OrbitControls;
+          setStatus(orbitEl, 'ok', 'fallback');
+        } else {
+          setStatus(orbitEl, 'warn', 'missing');
+        }
+      }).catch(function(){
+        setStatus(statusEl, 'fail', 'failed');
+        setStatus(orbitEl, 'fail', 'failed');
+        show3DFallback();
+      });
+    } else {
+      // Three.js OK but OrbitControls failed
+      setStatus(orbitEl, 'warn', 'missing');
+    }
+  });
+
+  function show3DFallback(){
+    var fallback = document.getElementById('threejs-fallback');
+    if (fallback) fallback.classList.add('active');
+  }
+})();
+</script>
+
+<!-- ==========================================================
+  图表初始化占位函数 — 子 Agent 替换为真实 ECharts 图表
+  模板保留结构, 子 Agent 只需调用 initChart1/2/3 等函数
+========================================================== -->
+<script>
+// 子 Agent: 在 'echarts-ready' 事件触发后, 替换以下函数体
+
+function initChart1(){
+  var dom = document.getElementById('chart1-container');
+  if (!dom || typeof echarts === 'undefined') return;
+  var chart = echarts.init(dom);
+  // 子 Agent: 在此处 setOption({...})
+  // chart.setOption({ title:{...}, xAxis:{...}, yAxis:{...}, series:[...] });
+  dom.innerHTML = '<!-- ECharts 已就绪, 等待数据注入 -->';
+  return chart;
+}
+
+function initChart2(){
+  var dom = document.getElementById('chart2-container');
+  if (!dom || typeof echarts === 'undefined') return;
+  var chart = echarts.init(dom);
+  return chart;
+}
+
+function initChart3(){
+  var dom = document.getElementById('chart3-container');
+  if (!dom || typeof echarts === 'undefined') return;
+  var chart = echarts.init(dom);
+  return chart;
+}
+
+function initSankey(){
+  var dom = document.getElementById('sankey-container');
+  if (!dom || typeof echarts === 'undefined') return;
+  var chart = echarts.init(dom);
+  return chart;
+}
+
+// ECharts 就绪后自动初始化
+window.addEventListener('echarts-ready', function(){
+  var c1 = initChart1();
+  var c2 = initChart2();
+  var c3 = initChart3();
+  var sk = initSankey();
+
+  var anyOk = c1 || c2 || c3 || sk;
+  var si = document.getElementById('status-charts-init');
+  if (anyOk){
+    si.className = 'status-value ok';
+    si.textContent = 'yes';
+  } else {
+    si.className = 'status-value fail';
+    si.textContent = 'no';
+  }
+});
+</script>
+
+<!-- ==========================================================
+  3D 场景初始化 — 子 Agent 在此处创建 Three.js 场景
+========================================================== -->
+<script type="module">
+// 等待 Three.js 加载完成后初始化 3D 场景
+function waitForThree(maxWait, interval){
+  return new Promise(function(resolve){
+    var waited = 0;
+    var check = setInterval(function(){
+      if (window.THREE && window.OrbitControls){
+        clearInterval(check);
+        resolve(true);
+      } else if (waited >= maxWait){
+        clearInterval(check);
+        resolve(false);
+      }
+      waited += interval;
+    }, interval);
+  });
+}
+
+waitForThree(10000, 500).then(function(ready){
+  var si = document.getElementById('status-scene-init');
+  if (!ready){
+    si.className = 'status-value fail';
+    si.textContent = 'no';
+    var fb = document.getElementById('threejs-fallback');
+    if (fb) fb.classList.add('active');
+    return;
+  }
+
+  try {
+    // 子 Agent: 在此处创建 Three.js 场景
+    var container = document.getElementById('threejs-container');
+    var scene = new THREE.Scene();
+    // ... 子 Agent 填充完整 3D 场景 ...
+    // 模板仅提供最简脚手架
+    scene.background = new THREE.Color(0x0f1620);
+
+    var camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(5, 3, 8);
+    camera.lookAt(0, 0, 0);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    // 灯光
+    scene.add(new THREE.AmbientLight(0x404060, 1.5));
+    var dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(5, 8, 5);
+    scene.add(dirLight);
+
+    // 添加地面网格 (辅助定位)
+    var gridHelper = new THREE.GridHelper(10, 20, 0x333344, 0x1a1a2a);
+    scene.add(gridHelper);
+
+    function animate(){
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 响应窗口大小变化
+    window.addEventListener('resize', function(){
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    si.className = 'status-value ok';
+    si.textContent = 'yes';
+
+    // 隐藏降级占位
+    var fb = document.getElementById('threejs-fallback');
+    if (fb) fb.classList.remove('active');
+  } catch(e){
+    si.className = 'status-value fail';
+    si.textContent = 'no';
+    var fb = document.getElementById('threejs-fallback');
+    if (fb) fb.classList.add('active');
+    console.error('3D scene init error:', e);
+  }
+});
+</script>
+
+<!-- ==========================================================
+  辅助功能
+========================================================== -->
+<script>
+// 扩展证据区切换
+function toggleExtended(){
+  var toggle = document.getElementById('expand-toggle');
+  var panel = document.getElementById('extended-evidence');
+  toggle.classList.toggle('open');
+  panel.classList.toggle('open');
+  var span = toggle.querySelector('span:first-child');
+  span.textContent = panel.classList.contains('open') ? '收起更多证据' : '展开更多证据';
+}
+</script>
+
+</body>
+</html>
