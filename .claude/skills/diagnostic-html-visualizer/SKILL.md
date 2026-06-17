@@ -241,17 +241,43 @@ Skill({
 
 🔴 **CHECKPOINT 3 · 产物清单**: 把以上识别结果整理成一个简短的 artifact checklist（5-8 项），内部确认「P0 文件存在 / 3D 数据可用 / PNG 可用 / ECharts 数据可用」。如果 P0 文件全部缺失，执行 Fallback 3 的分支逻辑，不要继续写页面。
 
-### Step 4: Write the page
+### Step 4: Write the page — Template-Substitution Protocol
 
-优先生成一个白底叙事页面，按四段组织：
+**模板是唯一权威基准**。`references/report-template.html` 定义了 CSS 变量、排版、四段式结构和移动端断点。Builder agent 必须遵守以下替换规则：
 
-1. **Hero 结论先行** — 10 秒回答「结论是什么」
-2. **背景与产线建模** — 30 秒回答「发生在哪里」（含 3D 模型）
-3. **诊断推理过程** — 1 分钟回答「怎么得出来的」（含统计表格 + ECharts 图 + 方法解释）
-4. **证据链三层架构** — 2 分钟回答「为什么相信」和「为什么不是别的」
-   - 第一层：统计证据（真实 PNG + ECharts 重建图 + 统计强度条）
-   - 第二层：物理机制（因果链可视化 + 剖面图 + 物理方程）
-   - 第三层：排除逻辑（逐假说排除文章 + 判决矩阵 + 行动建议 + 局限性）
+**保留不动的内容（直接复用模板原样）**:
+- 全部 `<style>` 块（CSS 变量 + 排版系统 + 组件样式 + @media）
+- Loader 状态栏结构 (`#loaderStrip` + 5 个 `.ls-dot`)
+- Three.js importmap 脚本
+- Three.js 场景初始化脚手架（scene/camera/renderer/controls/lights/grid）
+- ECharts 加载器逻辑（主源→备用源→失败上报）
+- 页面整体结构骨架（`.page > .hero > .section × 4 > .footer`）
+
+**必须替换的占位内容**（按优先级排序）:
+| 优先级 | 占位/区域 | 数据来源 | 替换方式 |
+|:--:|------|------|---------|
+| P0 | 页面 `<title>` | `report.md` 标题行 | 直接替换为 "[产线] [缺陷] 诊断报告 — [结论关键词]" |
+| P0 | Hero `.display` h1 | `diagnosis.json` `primary_finding` | 一句中文结论, `<em>` 强调关键词 |
+| P0 | Hero `.hero-lede` p | `report.md` 执行摘要 | 3-4 句白话解释，≤640px |
+| P0 | Hero `.hero-meta` 5 项 | `diagnosis.json` + `report.md` | 诊断类型/Judge评分/置信度/焦点产品/异常工段 |
+| P0 | Hero `.key-findings` 4 格 | `diagnosis.json` + `evidence.json` | 最强信号/已排除/物理机制/推荐动作 |
+| P0 | 证据链 Chapter 03 内容 | `diagnosis.json` + `evidence.json` + PNG | 每个假说的证据文章（原始vs去趋势+排除理由） |
+| P1 | 图表内嵌 JSON 数据 | `viz_compact.json` 或 `02_processed/*.json` | 替换 x/y/名称为真实数组 |
+| P1 | 3D 场景建模参数 | `ontology.json` + `3d_model_data.json` | 替换 18 辊位置/半径/温度/异常索引 |
+| P1 | Section 01 bg-info 正文 | `ontology.json` + `report.md` | 背景说明 + 工段顺序 + 参数列表 |
+| P2 | 局限性文案 | `report.md` | 替换为真实局限性（天花板原因） |
+
+**模板继承检查清单（写页面之前逐项确认）**:
+- [ ] `<style>` 块完整保留，未添加新颜色变量或修改现有 token 值
+- [ ] Loader 状态栏未删除
+- [ ] 四段式叙事结构（Hero → 01背景 → 02诊断 → 03证据链 → Footer）未打乱顺序
+- [ ] 所有替换的数据来自真实 run_dir JSON 文件
+- [ ] `img src` 路径使用相对路径（从 output HTML 指向 run_dir `03_figures/`）
+- [ ] 每个 `img` 带 `onerror` 优雅降级
+- [ ] 证据链包含三层（统计 Ⅰ / 物理 Ⅱ / 排除 Ⅲ）且每层有真实图像或数据
+- [ ] `@media` 断点未被删除或修改
+
+**模板不可用时的 Fallback**: 执行 Fallback 1 分支（见 §Fallback Rules），回退到 `templates/page_blueprint.md` + `templates/render_prompt_template.md` 从零构建。
 
 ### Step 5: Validate the page
 
@@ -491,65 +517,48 @@ Skill({
 
 > **Builder agent 必须先读本节再写页面。** 这里定义的不是”参考建议”，而是页面设计的强制视觉语法。Fallback 规则在下一节，出错时查阅。
 
-### Default: Light Minimal Narrative（白底极简叙事）
+### Default: 白底极简叙事（Light Minimal Narrative）
 
-页面传达的不是”技术系统感”，而是”清晰的诊断说服力”。
+**`references/report-template.html` 是本 Skill 的唯一样式基准。** 页面传达的不是”技术系统感”，而是”清晰的诊断说服力”。
 
-### 设计原则（v2）
+### 设计原则
 
 1. **白底暖调** — `#fafaf8` + `#f4f3f0` 次级底
-2. **单墨色贯穿** — `#1e3a54` 唯一强调色
+2. **单墨色贯穿** — `#1e3a54` 唯一强调色（墨蓝）
 3. **衬线标题 + 无衬线正文** — 排版层次替代装饰
-4. **大留白 + hairline** — 1px分割线替代卡片阴影
+4. **大留白 + hairline** — 1px 分割线替代卡片阴影
 5. **正文 ≤640px** — 控制阅读节奏
+6. **暖橙标注异常** — `#c2673a` 仅用于告警/异常/物理机制
 
-### 色彩系统（CSS 变量强制）
+### 色彩系统（CSS 变量 — 来自 report-template.html）
 
-页面必须使用 CSS 自定义属性，不得硬编码颜色值。当前变量体系：
-
-```css
-:root {
-  /* 背景层 — 暖白阶梯 */
-  --bg: #fafaf8;
-  --bg-alt: #f4f3f0;
-  --bg-card: #ffffff;
-
-  /* 边框 — hairline 体系 */
-  --hairline: rgba(0,0,0,0.06);
-  --rule: rgba(0,0,0,0.10);
-  --em: rgba(0,0,0,0.16);
-
-  /* 文字层级 — 高对比 */
-  --t1: #111111;
-  --t2: #4a4a4a;
-  --t3: #888888;
-
-  /* 功能色 — 低饱和度 */
-  --ink: #1e3a54;       /* 蓝灰墨色 — 主强调/信息/统计 */
-  --warm: #c2673a;      /* 暖橙 — 异常/警告/物理 */
-  --green: #2d7d4f;     /* 深绿 — 成功/通过/证据强 */
-  --red: #c4433b;       /* 暗红 — 排除/危险/统计死亡 */
-  --gold: #8a6d3b;      /* 暗金 — 中等置信度/过渡 */
-
-  /* 排版 */
-  --serif: 'Source Serif 4', 'Noto Serif SC', 'Songti SC', Georgia, serif;
-  --sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --mono: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
-}
+```
+--bg: #fafaf8        主底 — 暖白
+--bg-alt: #f4f3f0    次级底
+--bg-card: #ffffff   卡片底
+--hairline: rgba(0,0,0,0.06)  最细分割
+--rule: rgba(0,0,0,0.10)      区段分割
+--t1: #111           正文黑
+--t2: #4a4a4a        次级文
+--t3: #888           辅助文
+--ink: #1e3a54       墨蓝 — 主强调
+--warm: #c2673a      暖橙 — 异常
+--green: #2d7d4f     深绿 — 通过
+--red: #c4433b       暗红 — 排除
+--gold: #8a6d3b      暗金 — 中等
 ```
 
-### 排版系统
+### 排版层级
 
-| 层级 | 字体 | 大小 | 用途 |
+| 类名 | 字体 | 大小 | 用途 |
 |------|------|------|------|
-| `.display` | var(--serif) | 2.8rem / 600 / -0.025em | Hero 主结论 |
-| `h1` | var(--serif) | 1.9rem / 600 / -0.015em | 主标题 |
-| `h2` | var(--serif) | 1.45rem / 600 | Section 标题 |
-| `h4` | var(--serif) | 1.08rem / 600 | 证据文章标题 |
-| `.body-l` | var(--sans) | 1.08rem | 引导段落 |
-| `.body` | var(--sans) | 0.9rem | 正文 |
-| `.caption` | var(--sans) | 0.76rem | 图表说明、元数据 |
-| `.mono` | var(--mono) | 0.78rem | 统计数值、代码 |
+| `.display` | serif | 2.8rem/600/-0.025em | Hero 结论 |
+| `h1` | serif | 1.9rem/600 | 主标题 |
+| `h2` | serif | 1.45rem/600 | Section 标题 |
+| `.body-l` | sans | 1.08rem | 引导段 |
+| `.body` | sans | 0.9rem | 正文 |
+| `.caption` | sans | 0.76rem | 图注 |
+| `.mono` | mono | 0.78rem | 统计值
 
 ### Hero 区规范
 

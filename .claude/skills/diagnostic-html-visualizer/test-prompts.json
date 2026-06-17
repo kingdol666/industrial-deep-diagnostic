@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "典型场景 · 完整诊断产物",
+    "prompt": "请使用 diagnostic-html-visualizer 生成可视化报告。\n\nrun_dir=\"/Volumes/laxer/codes/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202606151602359_bopet_scratch_lekai\"\naudience=\"mixed\"\nvisual_mode=\"story\"\n\n要求：生成一个能让人一眼看懂诊断结论的 HTML 页面。",
+    "expected": "生成一个完整的 HTML 诊断报告页面，包含：Hero 首屏结论先行、3D 产线模型、诊断推理过程（含统计表格和 ECharts 图表）、三层证据链（统计+物理+排除逻辑）、行动建议。页面使用白底极简叙事风格，可以双击打开。"
+  },
+  {
+    "id": 2,
+    "name": "边界场景 · 部分产物缺失",
+    "prompt": "请运行 diagnostic-html-visualizer 生成报告。\n\nrun_dir=\"/tmp/test-minimal-run\"\naudience=\"engineer\"\n\n这个目录下只有 report.md 和 diagnosis.json 两个文件，没有 ontology.json、没有 03_figures 图片、没有 3d_model_data.json。",
+    "expected": "生成降级的 HTML 报告页面，Hero 区仍有主结论，但 3D 模块和 PNG 图像标记为降级或不可用。证据链中标注「当前缺少该层证据」。页面仍然可读，不给用户报错/白屏。"
+  },
+  {
+    "id": 3,
+    "name": "复杂场景 · 竞争假说集场景",
+    "prompt": "用 diagnostic-html-visualizer 生成诊断报告。\n\nrun_dir=\"/Volumes/laxer/codes/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202606151602359_bopet_scratch_lekai\"\naudience=\"manager\"\nvisual_mode=\"executive\"\n\n注意：这个诊断是 COMPETING_SET 类型（不是 DETERMINED），置信度天花板只有 55，4 个假说中有 2 个在去趋势后统计崩溃。请确保报告正确传达不确定性。",
+    "expected": "生成报告正确表达 COMPETING_SET 的不确定性。证据链中明确展示：H6 是去趋势后唯一存活信号但置信度受限 (ρ=+0.554, p=0.014, n=19)。H1 (TH005) 去趋势后 ρ=-0.004 (p=0.989) 被明确标注统计死亡。排除逻辑完整。行动建议有 P0/P1/P2 优先级。局限性说明置信度天花板 55 的原因。"
+  }
+]
