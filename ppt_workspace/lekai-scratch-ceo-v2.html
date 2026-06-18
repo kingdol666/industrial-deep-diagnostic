@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BOPET纵拉划伤诊断 · LekaiData</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#050b18;--card:rgba(255,255,255,0.04);--cardh:rgba(255,255,255,0.07);--bd:rgba(255,255,255,0.07);--t:#e6edf6;--t2:#8896ab;--cy:#22d3ee;--bl:#3b82f6;--ind:#6366f1;--vi:#a855f7;--am:#f59e0b;--gr:#34d399;--rd:#fb7185;--r:14px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--t);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;-webkit-font-smoothing:antialiased;}
+
+/* Particles */
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 38% at 50% 28%,rgba(99,102,241,0.06),transparent 70%),radial-gradient(ellipse 40% 28% at 78% 78%,rgba(34,211,238,0.035),transparent 70%)}
+
+/* Deck */
+.deck{position:fixed;inset:0;z-index:1}
+
+/* Top bar */
+.tb{position:fixed;top:0;left:0;right:0;z-index:20;padding:10px 24px 0;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(5,11,24,.88),transparent);pointer-events:none;}
+.tb>*{pointer-events:auto}
+.prg{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.05);overflow:hidden}
+.prg-b{height:100%;width:0%;border-radius:2px;transition:width .5s cubic-bezier(.2,.7,.2,1);background:linear-gradient(90deg,var(--cy),var(--ind),var(--vi))}
+.tb-r{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)}
+.badge-s{font-size:9px;font-weight:600;letter-spacing:1.2px;background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.15);padding:2px 10px;border-radius:8px;color:var(--cy)}
+
+/* Nav */
+.nv{position:fixed;top:50%;z-index:15;transform:translateY(-50%);background:rgba(255,255,255,.03);border:1px solid var(--bd);color:var(--t2);width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .3s;backdrop-filter:blur(8px);opacity:0;pointer-events:none}
+.nv.ac{opacity:1;pointer-events:auto}
+.nv:hover{background:rgba(255,255,255,.08);color:var(--t)}
+.nv.l{left:12px}.nv.r{right:12px}
+.btm{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:15;font-size:10px;color:rgba(255,255,255,.13);letter-spacing:1px}
+.btm kbd{display:inline-block;padding:1px 5px;margin:0 2px;border:1px solid rgba(255,255,255,.07);border-radius:3px;font-size:8px;font-family:inherit;background:rgba(255,255,255,.02)}
+
+/* Slide */
+.sl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:58px 36px 50px;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .45s cubic-bezier(.2,.7,.2,1),transform .45s;overflow-y:auto}
+.sl.ac{opacity:1;pointer-events:auto;transform:none}
+.in{max-width:1040px;width:100%}
+
+/* Reveal */
+.r{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s}
+.r.v{opacity:1;transform:none}
+.d0{transition-delay:.06s}.d1{transition-delay:.12s}.d2{transition-delay:.18s}.d3{transition-delay:.24s}.d4{transition-delay:.30s}.d5{transition-delay:.36s}.d6{transition-delay:.42s}.d7{transition-delay:.48s}
+
+/* Typography */
+h1{font-size:clamp(26px,3.8vw,44px);font-weight:700;letter-spacing:-.5px;line-height:1.15;background:linear-gradient(135deg,#e6edf6 30%,var(--cy),var(--ind));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:clamp(19px,2.6vw,28px);font-weight:700;letter-spacing:-.3px;line-height:1.2;margin-bottom:3px}
+h2.gr{background:linear-gradient(135deg,var(--cy),var(--ind));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(12px,1.1vw,14px);color:var(--t2);line-height:1.6;margin-bottom:12px}
+.tg{display:inline-block;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cy);margin-bottom:6px}
+
+/* Cards */
+.cg{display:grid;gap:10px}.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.cd{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;backdrop-filter:blur(4px);transition:all .3s}
+.cd:hover{background:var(--cardh);border-color:rgba(255,255,255,.12);transform:translateY(-1px)}
+.ct{font-weight:600;font-size:13px;margin-bottom:2px}.cs{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* Charts */
+.cb{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px 8px}
+.cb canvas{width:100%!important;}
+.clb{font-size:10px;color:var(--t2);text-align:center;padding:2px 0 4px;margin-top:4px}
+
+/* Metrics */
+.mt{text-align:center;padding:10px 14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r)}
+.mn{font-size:clamp(22px,3vw,34px);font-weight:700;letter-spacing:-1px}
+.ml{font-size:10px;color:var(--t2);margin-top:2px}.ms{font-size:9px;color:rgba(255,255,255,.12);margin-top:1px}
+
+/* Verdict */
+.vt{display:inline-flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.vt span{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid}
+.vp{border-color:rgba(52,211,153,.15);background:rgba(52,211,153,.07);color:var(--gr)}
+.vw{border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.07);color:var(--am)}
+.vm{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.03);color:var(--t2)}
+
+/* Badge */
+.bdge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:9px;font-weight:500}
+.bc{background:rgba(34,211,238,.1);color:var(--cy)}.bv{background:rgba(168,85,247,.1);color:var(--vi)}
+.ba{background:rgba(245,158,11,.1);color:var(--am)}.bg{background:rgba(52,211,153,.1);color:var(--gr)}.br{background:rgba(251,113,133,.1);color:var(--rd)}
+
+/* Table */
+.ht{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}
+.ht th{text-align:left;padding:5px 8px;font-weight:600;font-size:9px;letter-spacing:1px;color:var(--t2);border-bottom:1px solid var(--bd);text-transform:uppercase}
+.ht td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top}
+.ht tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Bullet */
+ul.cl{list-style:none;padding:0}
+ul.cl li{padding:2px 0;font-size:12px;line-height:1.5;color:var(--t2)}
+ul.cl li::before{content:'\25B8';color:var(--cy);margin-right:6px;font-size:10px}
+
+/* Evidence bar */
+.eb{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px}
+.ek{min-width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.el{flex:1}.ex{color:var(--t2);text-align:right;font-size:10px;min-width:32px}
+
+/* Section dots */
+.sd{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:12;display:flex;gap:5px}
+.sd-d{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.05);transition:all .3s}
+.sd-d.on{background:var(--cy);box-shadow:0 0 6px rgba(34,211,238,.3);width:16px;border-radius:3px}
+
+/* Scroll */
+.sl::-webkit-scrollbar{width:3px}.sl::-webkit-scrollbar-track{background:transparent}.sl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:3px}
+
+/* Highlight card */
+.hl{background:rgba(34,211,238,.03);border-color:rgba(34,211,238,.1)}
+
+@media(max-width:860px){.sl{padding:58px 16px 48px}.c2,.c3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="deck">
+
+<div class="tb"><div class="prg"><div class="prg-b" id="prog"></div></div><div class="tb-r"><span class="badge-s" id="sBadge">开篇</span><span id="cur">01</span>/<span id="tot">14</span></div></div>
+<button class="nv l" id="pb">&#8592;</button>
+<button class="nv r" id="nb">&#8594;</button>
+<div class="sd" id="sDots"></div>
+<div class="btm"><kbd>&#8592;</kbd><kbd>&#8594;</kbd> 翻页 &middot; <kbd>F</kbd> 全屏</div>
+
+<!-- ====================== SLIDE 1: COVER ====================== -->
+<section class="sl ac" data-sec="开篇" data-t="封面"><div class="in" style="text-align:center">
+<div class="r d0"><span class="tg">LekaiData — Latest Diagnosis</span></div>
+<h1 class="r d1" style="margin-bottom:2px">BOPET薄膜纵拉段</h1>
+<h1 class="r d1" style="background:linear-gradient(135deg,var(--cy),var(--ind));-webkit-background-clip:text;font-size:clamp(22px,2.8vw,34px);margin-bottom:8px">划伤缺陷根因诊断报告</h1>
+<p class="sub r d2" style="max-width:580px;margin:0 auto 6px">149批次 &middot; 9种产品型号 &middot; 40+工艺参数 &middot; 18根纵拉辊 &middot; 2026-06-15</p>
+<div class="vt r d3" style="justify-content:center"><span class="vm">诊断类型：COMPETING_SET</span><span class="vp">Judge评分：95/100</span><span class="vw">审计判决：CONDITIONAL</span></div>
+<div class="r d4" style="margin:24px auto 0"><span class="cd" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;font-size:14px;border-color:rgba(245,158,11,.2)">&#128269; 核心发现：产品型号是压倒性混杂因子—90%+工艺方差在型号之间</span></div>
+<div class="r d5" style="margin-top:24px;font-size:11px;color:rgba(255,255,255,.12)">按 <kbd style="font-size:9px;padding:2px 6px;border:1px solid rgba(255,255,255,.07);border-radius:3px">&#8594;</kbd> 浏览完整诊断逻辑</div>
+</div></section>
+
+<!-- ====================== SLIDE 2: EXECUTIVE SUMMARY ====================== -->
+<section class="sl" data-sec="开篇" data-t="执行摘要"><div class="in">
+<div class="tg r d0">Executive Summary</div>
+<h2 class="gr r d1">一句话结论：所有已测量工艺参数都不是根因</h2>
+<p class="sub r d2">经过对<strong>149批次×40+参数</strong>的系统检验和7个竞争假设的排除，诊断明确：<strong>BOPET纵拉划伤的根本原因不在已测量的工艺参数中</strong>。产品型号（model）是压倒性混杂因子 — 90%+参数方差在型号间。唯一具有弱关联的急冷扭矩W1C88在<strong>Bonferroni多重检验+趋势混淆检测+型号内验证</strong>后失效。</p>
+<div class="cg c2 r d3" style="gap:8px">
+<div class="cd" style="border-color:rgba(52,211,153,.12)"><div class="ct" style="color:var(--gr);font-size:13px">&#10003; 已确认</div><div class="cs" style="font-size:11px;margin-top:2px;line-height:1.65">&#8226; 产品型号是90%+工艺方差的主导因子<br>&#8226; 拉伸段温度全局r=0.52完全由型号混杂驱动（型号内r均不显著）<br>&#8226; 所有型号内工艺参数与划伤无显著关系<br>&#8226; W1C88趋势混淆：去趋势Spearman衰减-113%</div></div>
+<div class="cd" style="border-color:rgba(245,158,11,.12)"><div class="ct" style="color:var(--am);font-size:13px">&#9888; 待确认(COMPETING_SET)</div><div class="cs" style="font-size:11px;margin-top:2px;line-height:1.65">&#8226; 3个竞争假说并存且不可区分<br>&#8226; H1急冷扭矩28分 / H2张力滑移30分 / H3未测量因素42分<br>&#8226; 诊断置信度34/100（LOW，受上限65约束）<br>&#8226; 最可能的根因方向：原料批次 / 辊面状态 / 环境因素</div></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center;margin-top:2px"><div style="font-size:12px;color:var(--t)"><strong style="color:var(--cy)">&#9654; 管理层核心决策建议：</strong>停止在已测参数上投入资源调整。最高优先级：调取各批次PET切片原料数据（批次号/IV值/SiO2含量）</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 3: KEY METRICS ====================== -->
+<section class="sl" data-sec="开篇" data-t="诊断速览"><div class="in">
+<div class="tg r d0">Diagnosis At A Glance</div>
+<h2 class="gr r d1">本次诊断关键数据</h2>
+<div class="cg c3 r d3" style="gap:8px;margin-bottom:8px">
+<div class="mt"><div class="mn" style="color:var(--cy);font-size:28px">149 批次</div><div class="ml">分析范围</div><div class="ms">2026-05-04 ~ 05-13</div></div>
+<div class="mt"><div class="mn" style="color:var(--vi);font-size:28px">7 个假说</div><div class="ml">竞争性假设检验</div><div class="ms">4个排除，3个存活</div></div>
+<div class="mt"><div class="mn" style="color:var(--am);font-size:28px">34 / 100</div><div class="ml">诊断置信度</div><div class="ms">LOW — 受INDISTINGUISHABLE上限65约束</div></div></div>
+<div class="cg c2 r d4" style="gap:8px;margin-bottom:8px">
+<div class="mt"><div class="mn" style="font-size:clamp(17px,2vw,24px);color:var(--gr)">COMPETING_SET</div><div class="ml">诊断类型</div><div class="ms">3个假设在数据层面不可区分</div></div>
+<div class="mt"><div class="mn" style="font-size:clamp(17px,2vw,24px);color:var(--cy)">90%+</div><div class="ml">型号间方差占比</div><div class="ms">方差分解为决定性证据</div></div></div>
+<div class="cd r d5" style="padding:8px 14px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;text-align:center">
+<span class="bdge bc">Schema-First验证通过</span>
+<span class="bdge bv">独立审计CONDITIONAL</span>
+<span class="bdge ba">10项数据缺口</span>
+<span class="bdge bc">3轮修复循环</span></div>
+</div></section>
+
+<!-- ====================== SLIDE 4: VARIANCE DECOMPOSITION ====================== -->
+<section class="sl" data-sec="核心证据" data-t="型号混杂" data-chart="cVariance"><div class="in">
+<div class="tg r d0">Evidence #1 — DECISIVE</div>
+<h2 class="gr r d1">型号混杂：90%+工艺方差在型号之间</h2>
+<p class="sub r d2">方差分解图揭示：所有温度和扭矩参数的<strong style="color:var(--am)">90-111%方差来自型号间差异</strong>，型号内方差几乎为零。这是诊断中最具决定性的证据——它说明：<strong>全局相关全都是型号标签的artifact</strong>，不是真实物理关系。</p>
+<div class="cg c2 r d3" style="gap:8px">
+<div class="cb"><canvas id="cVariance"></canvas><div class="clb">方差分解：型号间方差占比 vs 型号内（数据来自 evidence.json & visual_analysis.json）</div></div>
+<div class="cd" style="padding:12px 14px;display:flex;flex-direction:column;justify-content:center"><div class="ct" style="color:var(--am);font-size:13px">&#9888; 为什么这是决定性证据？</div><div class="cs" style="font-size:11px;margin-top:4px;line-height:1.7">如果90%+的参数变化来自<strong>产品型号切换</strong>——不同型号有各自温度、速度、原料配方——那么所有工艺参数与划伤的全局相关，都是<strong>"型号A设高温+用A原料→划伤多"vs"型号B设低温+用B原料→划伤少"</strong>这样的标签效应。<br><br><strong style="color:var(--t)">温度不是原因——型号标签才是。</strong>这意味着调整温度设定=调整型号=用B原料——这不是温度调整的效果，是原料差异的效果。</div></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center"><div class="cs" style="font-size:11px"><strong style="color:var(--cy)">&#9654; 推论：</strong>此后的全部证据分析，必须放在"型号内"的框架下检验。任何"全局相关"在未经过型号分层验证前不可信。</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 5: W1C88 TRIPLE VALIDATION ====================== -->
+<section class="sl" data-sec="核心证据" data-t="W1C88失效" data-chart="cW1C88"><div class="in">
+<div class="tg r d0">Evidence #2</div>
+<h2 class="gr r d1">W1C88急冷扭矩：唯一"显著"的候选，三重验证失效</h2>
+<p class="sub r d2">急冷段13#辊扭矩W1C88是<strong>唯一p&lt;0.05的参数</strong>（Spearman rho=-0.162, p=0.048）。物理方向一致：扭矩高→冷却好→划伤少。但经三重严格验证后全部失效。</p>
+<div class="cg c2 r d3" style="gap:8px;margin-bottom:6px">
+<div class="cb"><canvas id="cW1C88"></canvas><div class="clb">Spearman方向5/5负（一致性好），但各型号内均不显著（所有p&gt;0.10）</div></div>
+<div class="cd" style="padding:12px 14px"><div class="ct" style="font-size:13px;color:var(--am)">&#9888; 三重验证结论</div>
+<div class="cs" style="font-size:11px;margin-top:4px;line-height:1.75">
+<strong>① Bonferroni多重检验校正：</strong>原始p=0.048，但327个测试下需p&lt;0.000153—不通过。<br>
+<strong>② Spearman趋势混淆检测：</strong>去趋势rho=+0.0212（衰减-113%）。原始相关由时间趋势artifact驱动。<br>
+<strong>③ PG31DS型号内（67批）验证：</strong>W1C88有30Nm变异，但划伤不相关(rho=-0.11, p=0.37)。</div>
+<div class="cs" style="font-size:10px;margin-top:6px;color:var(--t2)">&#9888; 系统Pearson去趋势检测因scratch极端右偏(skew=8.8)而漏报（衰减仅-9.8%），由修复3的Spearman检测发现</div></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center"><div class="cs" style="font-size:11px"><strong style="color:var(--gr)">&#9654; Spearman在5个主要型号中均负</strong>（方向一致）但<strong style="color:var(--am)">每个型号内都不显著</strong>+趋势混淆消除全局证据。H1置信度：28/100</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 6: PG31DS ====================== -->
+<section class="sl" data-sec="核心证据" data-t="PG31DS核心问题" data-chart="cPG31DS"><div class="in">
+<div class="tg r d0">Evidence #3 — CRITICAL</div>
+<h2 class="gr r d1">PG31DS（67批次）暴露出核心问题</h2>
+<p class="sub r d2">PG31DS是数据中样本数最多的型号（n=67）。速度恒定11.6m/min，预加热温度75-77°C稳定。在工艺参数基本一致的条件下，划伤范围<strong style="color:var(--am)">0-1833（CV=187%）</strong>。40+个已测量工艺参数——<strong style="color:var(--rd)">全部无法解释此变异</strong>。</p>
+<div class="cg c2 r d3" style="gap:8px">
+<div class="cb"><canvas id="cPG31DS"></canvas><div class="clb">PG31DS型号内关键参数 vs 划伤变异对比</div></div>
+<div class="cd" style="padding:12px 14px"><div class="ct" style="font-size:13px;color:var(--vi)">&#9881; PG31DS内的关键矛盾信号</div>
+<div class="cs" style="font-size:11px;margin-top:4px;line-height:1.75">
+<strong style="color:var(--rd)">W1C87（12辊/急冷始端/纯热收缩应力）：</strong>PG31DS内正相关rho=+0.2085（去极端批后rho=+0.2835, p=0.024）。方向与H1热收缩预测<strong style="color:var(--rd)">直接矛盾</strong>。<br><br>
+<strong>W1C88 vs W1C87：</strong>PG31DS内仅弱相关(rho=+0.42, R²≈18%)——远非共线。两者测量不同物理过程：W1C87=热收缩应力，W1C88=摩擦+热收缩混合。W1C88负方向可能由<strong>膜-辊摩擦</strong>驱动，非热收缩。</div></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center"><div class="cs" style="font-size:11px"><strong style="color:var(--vi)">&#9654; 核心结论：</strong>在条件最理想的测试型号中，已测参数完全无法解释划伤变异——根因在测量范围之外</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 7: MODELS SCRATCH ====================== -->
+<section class="sl" data-sec="核心证据" data-t="型号间对比" data-chart="cModels,cTemp"><div class="in">
+<div class="tg r d0">Evidence #4</div>
+<h2 class="gr r d1">型号是划伤基线的主导因子</h2>
+<p class="sub r d2">9种型号划伤基线差89倍（FP21=375.5 vs PG32B=4.2）。注意：<strong style="color:var(--am)">均值差异由极端批次驱动</strong>——中位数FP21=5 vs PG32B=2.5仅差2倍。拉伸段全局r=0.52是型号标签效应：FP21高温高划伤 vs PG31DS中温低划伤。</p>
+<div class="cg c2 r d3" style="gap:8px"><div class="cb"><canvas id="cModels"></canvas><div class="clb">各型号划伤均值 vs 中位数对比（&#9632;=均值, &#9679;=中位数）</div></div><div class="cb"><canvas id="cTemp"></canvas><div class="clb">拉伸段温度全局r=0.52 vs 各型号内r（全局为王、型号内消失）</div></div></div>
+</div></section>
+
+<!-- ====================== SLIDE 8: TREND CONFOUND ====================== -->
+<section class="sl" data-sec="核心证据" data-t="趋势混淆" data-chart="cTrend"><div class="in">
+<div class="tg r d0">Evidence #5</div>
+<h2 class="gr r d1">趋势混淆：时间趋势伪装成物理相关</h2>
+<p class="sub r d2">修复第3轮发现的关键问题：W1C88全局Spearman rho=-0.1625，去除双方时间趋势后变为<strong style="color:var(--rd)">+0.0212</strong>（衰减-113%）。原始相关完全由时间共变驱动——不是真实的物理协动。</p>
+<div class="cg c2 r d3" style="gap:8px">
+<div class="cb"><canvas id="cTrend"></canvas><div class="clb">W1C88-scratch：原始Spearman vs 去趋势后对比</div></div>
+<div class="cd" style="padding:12px 14px"><div class="ct" style="font-size:13px;color:var(--am)">&#9888; 为什么系统的Pearson检测漏报？</div><div class="cs" style="font-size:11px;margin-top:4px;line-height:1.75">
+系统的validate_report使用<strong>Pearson去趋势</strong>检测W1C88——但scratch_count极度右偏（skew=8.8, 均值/中位数=34.5），Pearson对此偏态不敏感。<br><br>
+<strong>pearson去趋势：</strong>仅衰减-9.8%，判定"通过"。<br>
+<strong>spearman去趋势（修复3）：</strong>衰减-113%，发现artifact。<br><br>
+<span style="color:var(--t2)">此发现将H1置信度从~45直接拉低至28。</span></div></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center;margin-top:4px"><div class="cs" style="font-size:11px"><strong style="color:var(--am)">&#9654; 学习价值：</strong>当目标变量极度偏态时，必须用Spearman而非Pearson做趋势混淆检测</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 9: EVIDENCE INVENTORY ====================== -->
+<section class="sl" data-sec="核心证据" data-t="证据盘点"><div class="in">
+<div class="tg r d0">Evidence Inventory</div>
+<h2 class="gr r d1">五类证据全景盘点</h2>
+<p class="sub r d2">支撑本次诊断的全部证据按7级体系分类。结论受限于最弱证据等级。</p>
+<div class="cg c2 r d3" style="gap:8px">
+<div class="cd" style="padding:10px 12px"><div class="ct" style="font-size:12px;color:var(--gr)">&#128202; 视觉证据（×5 等级4）</div>
+<div class="eb"><span class="ek" style="background:rgba(34,211,238,.12);color:var(--cy);font-size:8px">4</span><span class="el">方差分解图—90%+方差型号间 <strong style="color:var(--gr)">[DECISIVE]</strong></span></div>
+<div class="eb"><span class="ek" style="background:rgba(34,211,238,.12);color:var(--cy);font-size:8px">4</span><span class="el">TH013 Simpson散点图—型号内斜率近零</span></div>
+<div class="eb"><span class="ek" style="background:rgba(34,211,238,.12);color:var(--cy);font-size:8px">4</span><span class="el">急冷温度时间序列锯齿形—产品排产决定设定值</span></div>
+<div class="eb"><span class="ek" style="background:rgba(34,211,238,.12);color:var(--cy);font-size:8px">4</span><span class="el">事件响应图—7/7次产品切换无质量重置</span></div>
+<div class="eb"><span class="ek" style="background:rgba(34,211,238,.12);color:var(--cy);font-size:8px">4</span><span class="el">VLM时间叠加图—无单调退化趋势</span></div></div>
+<div class="cd" style="padding:10px 12px"><div class="ct" style="font-size:12px;color:var(--cy)">&#128202; 数值证据（×9 等级3）</div>
+<div class="eb"><span class="ek" style="background:rgba(52,211,153,.12);color:var(--gr);font-size:8px">3</span><span class="el">W1C88 Spearman rho=-0.162 p=0.048</span></div>
+<div class="eb"><span class="ek" style="background:rgba(52,211,153,.12);color:var(--gr);font-size:8px">3</span><span class="el">Bonferroni 327测试阈值p&lt;0.000153</span></div>
+<div class="eb"><span class="ek" style="background:rgba(52,211,153,.12);color:var(--gr);font-size:8px">3</span><span class="el">W1C88去趋势Spearman=+0.0212 衰减-113%</span></div>
+<div class="eb"><span class="ek" style="background:rgba(52,211,153,.12);color:var(--gr);font-size:8px">3</span><span class="el">PG31DS内划伤CV=187% 工艺参数无关</span></div>
+<div class="eb"><span class="ek" style="background:rgba(52,211,153,.12);color:var(--gr);font-size:8px">3</span><span class="el">W1C87 PG31DS内rho=+0.21（方向矛盾H1）</span></div></div>
+<div class="cd" style="padding:10px 12px"><div class="ct" style="font-size:12px;color:var(--vi)">&#9881; 物理证据（×5 等级5）</div>
+<div class="eb"><span class="ek" style="background:rgba(168,85,247,.12);color:var(--vi);font-size:8px">5</span><span class="el">热收缩→后拉伸→划伤机制合理</span></div>
+<div class="eb"><span class="ek" style="background:rgba(168,85,247,.12);color:var(--vi);font-size:8px">5</span><span class="el">magnitude BORDERLINE：预测&lt;100% vs 观测 &gt;10000%</span></div>
+<div class="eb"><span class="ek" style="background:rgba(168,85,247,.12);color:var(--vi);font-size:8px">5</span><span class="el">W1C87方向矛盾—纯热收缩与H1预测相反</span></div></div>
+<div class="cd" style="padding:10px 12px"><div class="ct" style="font-size:12px;color:var(--am)">&#128270; 验证证据（×6 等级3）</div>
+<div class="eb"><span class="ek" style="background:rgba(245,158,11,.12);color:var(--am);font-size:8px">3</span><span class="el">趋势混淆检测：-113%衰减确认artifact</span></div>
+<div class="eb"><span class="ek" style="background:rgba(245,158,11,.12);color:var(--am);font-size:8px">3</span><span class="el">时间排序未验证—所有lag分析不可靠</span></div>
+<div class="eb"><span class="ek" style="background:rgba(245,158,11,.12);color:var(--am);font-size:8px">3</span><span class="el">PG31DS划伤CV=187% vs W1C88 CV=16.3%—力度差一个量级</span></div></div></div>
+</div></section>
+
+<!-- ====================== SLIDE 10: HYPOTHESES TABLE ====================== -->
+<section class="sl" data-sec="假说" data-t="假设判决"><div class="in">
+<div class="tg r d0">Hypotheses Verdict</div>
+<h2 class="gr r d1">7个竞争假设的最终判决</h2>
+<p class="sub r d2">竞争性假设协议对所有候选假说执行了系统性验证、物理量级校验和可分辨性评估。</p>
+<div class="r d3" style="overflow-x:auto;margin-bottom:6px">
+<table class="ht"><thead><tr><th>假说</th><th>判决</th><th>置信度</th><th>排除确定性</th><th>核心依据</th></tr></thead>
+<tbody>
+<tr><td><span class="bdge ba">H1 急冷扭矩热收缩制</span></td><td><span class="bdge ba">存活</span></td><td>28</td><td>—</td><td style="font-size:11px">W1C88不通过Bonferroni+趋势混淆+PG31DS无关+W1C87方向矛盾</td></tr>
+<tr><td><span class="bdge ba">H2 预加热张力滑移</span></td><td><span class="bdge ba">存活</span></td><td>30</td><td>—</td><td style="font-size:11px">W1C7C p=0.057 borderline，型号内方向不一致</td></tr>
+<tr><td><span class="bdge bc">H3 未测量因素（原料/辊面/环境）</span></td><td><span class="bdge bc">存活</span></td><td>42</td><td>—</td><td style="font-size:11px">排除法存活：PG31DS划伤变异全部无法用已测参数解释</td></tr>
+<tr><td><span class="bdge br">H4 拉伸段温度驱动</span></td><td><span class="bdge br">已排除</span></td><td>—</td><td>95%</td><td style="font-size:11px">全局r=0.52→型号内不显著。96%方差型号间。BETWEEN_PRODUCT_ONLY</td></tr>
+<tr><td><span class="bdge br">H5 挤出/过滤驱动</span></td><td><span class="bdge br">已排除</span></td><td>—</td><td>95%</td><td style="font-size:11px">螺杆CV=0.9%近乎恒定。Spearman全部不显著。划伤非渐进退化</td></tr>
+<tr><td><span class="bdge br">H6 设备老化退化</span></td><td><span class="bdge br">已排除</span></td><td>—</td><td>95%</td><td style="font-size:11px">VLM确认10天窗口无单调退化。同一型号返回划伤相似</td></tr>
+<tr><td><span class="bdge br">H7 急冷温度TH013驱动</span></td><td><span class="bdge br">已排除</span></td><td>—</td><td>90%</td><td style="font-size:11px">全局p=0.32不显著。PG31DS内5°C变异与划伤无关(rho=-0.10)</td></tr></tbody></table></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center"><div class="cs" style="font-size:11px"><strong style="color:var(--vi)">&#9654; COMPETING_SET&#8594;DETERMINED升级条件：</strong>获取各批次原料数据后，如同一配方批次的划伤CV从187%降至&lt;30%→H3确认，置信度可升至65+</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 11: CONFIDENCE ====================== -->
+<section class="sl" data-sec="假说" data-t="置信度分解"><div class="in">
+<div class="tg r d0">Confidence Breakdown</div>
+<h2 class="gr r d1">置信度五因子分解</h2>
+<p class="sub r d2">三个存活假说的置信度按统计、物理、时序、混淆、症状五个维度独立评分。H3得分最高——因为它不依赖统计相关，而是基于排除法逻辑。</p>
+<div class="cg c3 r d3" style="gap:8px">
+<div class="cd" style="text-align:center;padding:12px 10px"><div class="ct" style="color:var(--am);font-size:12px">H1 急冷扭矩</div><div style="font-size:32px;font-weight:700;color:var(--am);margin:4px 0">28</div><div style="font-size:9px;color:var(--t2);line-height:1.6">统计 7/25 — p=0.048但多重检验不通过<br>物理 10/25 — 机制合理但magnitude不匹配<br>时序 0/20 — 数据未排序lag不可用<br>混淆 8/20 — 趋势混淆消除全局证据<br>症状 5/10 — W1C87方向矛盾</div></div>
+<div class="cd" style="text-align:center;padding:12px 10px"><div class="ct" style="color:var(--am);font-size:12px">H2 张力滑移</div><div style="font-size:32px;font-weight:700;color:var(--am);margin:4px 0">30</div><div style="font-size:9px;color:var(--t2);line-height:1.6">统计 8/25 — p=0.057 borderline<br>物理 10/25 — 摩擦力学合理<br>时序 0/20 — 同上限制<br>混淆 5/20 — 分层后方向不一致<br>症状 7/10 — 预測可观测</div></div>
+<div class="cd" style="text-align:center;padding:12px 10px"><div class="ct" style="color:var(--cy);font-size:12px">H3 已测之外</div><div style="font-size:32px;font-weight:700;color:var(--cy);margin:4px 0">42</div><div style="font-size:9px;color:var(--t2);line-height:1.6">统计 20/25 — PG31DS参数全不显著<br>物理 10/25 — 排除逻辑确实成立<br>时序 0/20 — 同上限制<br>混淆 5/20 — 无法完全排除隐藏混淆<br>症状 7/10 — 排除设备老化和残留效应</div></div></div>
+<div class="cd r d4" style="padding:10px 14px;margin-top:6px"><div class="cs" style="font-size:11px;text-align:center"><strong style="color:var(--am)">三个假说都拿到了0/20的时序分</strong>——数据未按时间戳排序是所有分析的共性限制。这也是最优先被消除的数据缺口之一。</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 12: ACTIONS ====================== -->
+<section class="sl" data-sec="行动" data-t="行动计划"><div class="in">
+<div class="tg r d0">Recommended Actions</div>
+<h2 class="gr r d1">三阶段行动计划</h2>
+<p class="sub r d2">获得以下数据后可将诊断从COMPETING_SET升级为DETERMINED。</p>
+<div class="cg c2 r d3" style="gap:8px;margin-bottom:6px">
+<div class="cd" style="border-color:rgba(34,211,238,.2);padding:12px 14px"><div class="ct" style="color:var(--cy);font-size:13px">&#128204; P0—紧急（1-2周）：获取材料数据</div><ul class="cl" style="margin-top:4px"><li>各批次对应的<strong>PET切片批次号、IV值、SiO2含量、配方代码</strong></li><li>各产品型号的<strong>薄膜厚度规格</strong>数据</li><li>各批次对应的<strong>材料来源</strong>和切换记录</li></ul><div class="cs" style="font-size:10px;margin-top:4px;color:var(--gr)">&#10003; 最强鉴别器：同原料批次划伤CV从187%降至&lt;30%→直接确认H3</div></div>
+<div class="cd" style="border-color:rgba(168,85,247,.2);padding:12px 14px"><div class="ct" style="color:var(--vi);font-size:13px">&#128204; P1—重要（3-4周）：扩展数据维度</div><ul class="cl" style="margin-top:4px"><li><strong>急冷段冷却水流量和温度</strong>直接测量</li><li><strong>各辊表面状态记录</strong>（磨损/划痕/清洁）</li><li>部署<strong>TD横拉段出口划伤独立检测</strong></li><li>收集<strong>环境温湿度传感器</strong>数据</li></ul><div class="cs" style="font-size:10px;margin-top:4px;color:var(--vi)">可直接验证H1物理机制和辊面假说</div></div></div>
+<div class="cg c2 r d4" style="gap:8px"><div class="cd" style="border-color:rgba(52,211,153,.2);padding:12px 14px"><div class="ct" style="color:var(--gr);font-size:13px">&#128204; P2—受控实验（5-8周）</div><ul class="cl" style="margin-top:4px"><li>FP21急冷温度调高2-3°C，可控环境下试产5-10批</li><li>同一型号不同原料批次对比分析</li><li>重新触发诊断：<code>/industrial-deep-diagnostic analyze</code></li></ul></div>
+<div class="cd" style="border-color:rgba(245,158,11,.2);padding:12px 14px"><div class="ct" style="color:var(--am);font-size:13px">&#9888; 维护：急冷段独立异常</div><ul class="cl" style="margin-top:4px"><li>MD_TH013-015 急冷辊温度跨度14.8°C（CV=10%）— 独立工艺异常</li><li>建议检查冷却回路阀门/传感器</li><li>不影响划伤（已排除），但是独立维护项</li></ul></div></div>
+</div></section>
+
+<!-- ====================== SLIDE 13: COST-BENEFIT ====================== -->
+<section class="sl" data-sec="行动" data-t="投入产出"><div class="in">
+<div class="tg r d0">Cost-Benefit</div>
+<h2 class="gr r d1">诊断的核心价值：防止在错误方向投入</h2>
+<p class="sub r d2">正确的诊断定义了资源投向——<strong>在无效方向上投入的成本</strong>远超诊断本身的成本。</p>
+<div class="cg c2 r d3" style="gap:8px;margin-bottom:6px">
+<div class="cd" style="border-color:rgba(52,211,153,.15);padding:12px 14px"><div class="ct" style="color:var(--gr);font-size:13px">&#10003; 明确不需做的（节省）</div><ul class="cl" style="margin-top:4px"><li>调整MD纵拉段温度设定值—温差太小效应可忽略</li><li>排查扭矩控制系统故障—与划伤无关</li><li>更换或升级过滤器—挤出系统极稳定</li><li>排查设备老化和磨损—VLM确认无退化</li><li>在MD段增加检测探头—已知参数已全部排查</li></ul></div>
+<div class="cd" style="border-color:rgba(34,211,238,.15);padding:12px 14px"><div class="ct" style="color:var(--cy);font-size:13px">&#9654; 需要聚焦的</div><ul class="cl" style="margin-top:4px"><li>从MES系统调取PET切片批次配方数据—P0</li><li>确认各型号厚度/配方规格差异—P0</li><li>部署冷却水流量计和辊面检查记录—P1</li><li>对PG31DS号内不同运行块的数据分析—P2</li><li>对FP21极端批次的独立多参数表征—P2</li></ul></div></div>
+<div class="cd hl r d4" style="padding:8px 14px;text-align:center"><div class="cs" style="font-size:11px"><strong style="color:var(--cy)">关键数字：</strong>PG31DS（67批）划伤0-1833而工艺参数全部不显著。如果<strong>原料批次</strong>能解释50%+的此变异，调整原料采购策略比调整工艺参数有效得多——一个管理决策可影响整个型号的基线划伤水平。</div></div>
+</div></section>
+
+<!-- ====================== SLIDE 14: CLOSING ====================== -->
+<section class="sl" data-sec="总结" data-t="总结"><div class="in" style="text-align:center">
+<div class="tg r d0">Summary</div>
+<h2 class="gr r d1">诊断总结</h2>
+<div class="cd hl r d2" style="max-width:660px;margin:0 auto 12px;padding:16px 24px">
+<div style="font-size:16px;font-weight:600;letter-spacing:1px;margin-bottom:8px;background:linear-gradient(135deg,var(--cy),var(--ind),var(--vi));-webkit-background-clip:text;-webkit-text-fill-color:transparent">已测量工艺参数不是根因 → 型号是压倒性混杂 → 原料/辊面/环境为关键未知因素</div>
+<div class="cs" style="font-size:12px;line-height:1.8">7个假说 · 4个排除 · 3个竞争存活 · 置信度34/100 · Judge评分95/100<br>90%+工艺方差在型号间 · 趋势混淆消除唯一显著信号 · 10项数据缺口记录</div></div>
+<div class="cg c3 r d3" style="gap:8px;max-width:620px;margin:0 auto 14px">
+<div class="mt"><div class="mn" style="font-size:18px;color:var(--gr)">&#10003; 已排除 4/7</div><div class="ml">温度/挤出/老化假说</div><div class="ms">统计+物理排除</div></div>
+<div class="mt"><div class="mn" style="font-size:18px;color:var(--am)">&#9888; 竞争 3个</div><div class="ml">扭矩/张力/未知</div><div class="ms">INDISTINGUISHABLE</div></div>
+<div class="mt"><div class="mn" style="font-size:18px;color:var(--cy)">&#9654; 行动</div><div class="ml">聚焦原料数据采集</div><div class="ms">P0材料数据优先</div></div></div>
+<div class="cd r d4" style="max-width:480px;margin:0 auto;padding:10px 16px"><div class="cs" style="font-size:11px;text-align:center">获取原料批次数据后重新触发<br><code style="font-size:10px;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:3px">/industrial-deep-diagnostic analyze</code></div></div>
+<div class="r d5" style="margin-top:16px;font-size:10px;color:rgba(255,255,255,.08)">LekaiData Scratch Diagnosis · 20260615RUN · Judge 95/100 · Auditor CONDITIONAL</div>
+</div></section>
+
+</div>
+
+<script>
+/* ===== Particles ===== */
+(function(){const c=document.getElementById('bg'),x=c.getContext('2d');let W,H,p=[],mx=-9999,my=-9999,f;function rs(){W=c.width=innerWidth;H=c.height=innerHeight;const n=Math.min(60,Math.max(25,~~(Math.sqrt(W*H)*.025)));if(p.length!==n){p=[];for(let i=0;i<n;i++)p.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:1+Math.random()*1.6})}}function up(){for(let o of p){const dx=o.x-mx,dy=o.y-my,ds=Math.sqrt(dx*dx+dy*dy);if(ds<130&&ds>0){const f=(130-ds)/130*.3;o.vx+=dx/ds*f;o.vy+=dy/ds*f}o.vx*=.995;o.vy*=.995;o.x+=o.vx;o.y+=o.vy;if(o.x<-8)o.x=W+8;if(o.x>W+8)o.x=-8;if(o.y<-8)o.y=H+8;if(o.y>H+8)o.y=-8}}function dr(){x.clearRect(0,0,W,H);for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<140){x.strokeStyle=`rgba(255,255,255,${(1-ds/140)*.1})`;x.lineWidth=.4;x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);x.stroke()}}for(let o of p){x.beginPath();x.arc(o.x,o.y,o.r,0,Math.PI*2);x.fillStyle=`rgba(255,255,255,${.2+o.r*.05})`;x.fill()}}function lp(){up();dr();f=requestAnimationFrame(lp)}rs();addEventListener('resize',rs);addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});c.addEventListener('mouseleave',()=>{mx=-9999;my=-9999});lp();document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(f);else lp()})})();
+
+/* ===== Chart registry (lazy init) ===== */
+const chartInstances={};
+function initChart(id, options){
+  if(chartInstances[id]) return chartInstances[id];
+  const canvas=document.getElementById(id);
+  if(!canvas) return null;
+  const ctx=canvas.getContext('2d');
+  const ch=new Chart(ctx,options);
+  chartInstances[id]=ch;
+  return ch;
+}
+function resizeAllCharts(){
+  Object.values(chartInstances).forEach(c=>{try{c.resize()}catch(e){}});
+}
+
+/* ===== Chart definitions (factory functions) ===== */
+function makeVarianceChart(){
+  return initChart('cVariance',{type:'bar',data:{labels:['预加热段温度','拉伸段温度','急冷段温度','急冷段扭矩','挤出参数'],datasets:[{label:'型号间方差%',data:[96,96,90,92,95],backgroundColor:'rgba(34,211,238,0.45)',borderColor:'rgba(34,211,238,0.6)',borderRadius:3},{label:'型号内方差%',data:[4,4,10,8,5],backgroundColor:'rgba(245,158,11,0.3)',borderColor:'rgba(245,158,11,0.4)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,font:{size:9},color:'#8896ab',padding:12}}},scales:{y:{max:100,title:{display:true,text:'方差占比%',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}});
+}
+
+function makeW1C88Chart(){
+  return initChart('cW1C88',{type:'bar',data:{labels:['全局','FP21\nn=19','PG31DS\nn=67','PG32B\nn=10','PG32D\nn=16','PG32M\nn=13'],datasets:[{label:'W1C88 Spearman rho vs 划伤',data:[-0.162,-0.325,-0.112,-0.337,-0.191,-0.444],backgroundColor:['rgba(245,158,11,0.5)','rgba(34,211,238,0.45)','rgba(34,211,238,0.4)','rgba(34,211,238,0.45)','rgba(34,211,238,0.4)','rgba(34,211,238,0.45)'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,font:{size:9},color:'#8896ab',padding:12}}},scales:{y:{min:-0.5,max:0.1,title:{display:true,text:'Spearman rho',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:8}},grid:{display:false}}}}});
+}
+
+function makePG31DSChart(){
+  return initChart('cPG31DS',{type:'bar',data:{labels:['W1C88\nCV=16.3%','Scratch\nCV=187%','W1C87 rho\n=+0.209','TH013 rho\n=-0.10','W1C7C rho\n=-0.02'],datasets:[{label:'数值',data:[16.3,187,0.209,-0.1,-0.02],backgroundColor:['rgba(34,211,238,0.45)','rgba(251,113,133,0.5)','rgba(245,158,11,0.5)','rgba(34,211,238,0.3)','rgba(34,211,238,0.3)'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'值',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:8}},grid:{display:false}}}}});
+}
+
+function makeModelsChart(){
+  return initChart('cModels',{type:'bar',data:{labels:['FP21','FG22','FP41','PG32D','PG31DS','PG32M','PG32DS','PG32B','PG22C'],datasets:[{label:'均值',data:[375.5,460.7,395.7,156.5,60.9,9.1,8.2,4.2,0.8],backgroundColor:'rgba(34,211,238,0.45)',borderColor:'rgba(34,211,238,0.6)',borderRadius:3,order:1},{label:'中位数',data:[5,2,9,7,3,4,2,2.5,0.5],type:'scatter',borderColor:'#f59e0b',backgroundColor:'#f59e0b',pointRadius:5,pointStyle:'circle',order:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,font:{size:9},color:'#8896ab',padding:12,usePointStyle:true}}},scales:{y:{beginAtZero:true,title:{display:true,text:'划伤数',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}});
+}
+
+function makeTempChart(){
+  return initChart('cTemp',{type:'bar',data:{labels:['全局','FP21','PG31DS','PG32B','PG32D','PG32M'],datasets:[{label:'拉伸段温度Pearson r',data:[0.52,0.08,0.05,0.11,0.13,0.09],backgroundColor:function(){return this.dataIndex===0?'rgba(251,113,133,0.5)':'rgba(34,211,238,0.35)'},borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.05,max:0.6,title:{display:true,text:'Pearson r',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}});
+}
+
+function makeTrendChart(){
+  return initChart('cTrend',{type:'bar',data:{labels:['W1C88原始Spearman','W1C88去趋势(Pearson)','W1C88去趋势(Spearman)'],datasets:[{label:'Spearman rho',data:[-0.1625,-0.1476,0.0212],backgroundColor:['rgba(251,113,133,0.55)','rgba(245,158,11,0.45)','rgba(52,211,153,0.45)'],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.25,max:0.1,title:{display:true,text:'Spearman rho',font:{size:9},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}});
+}
+
+// Map slide indices to their charts
+const chartMap={
+  3:'makeVarianceChart',
+  4:'makeW1C88Chart',
+  5:'makePG31DSChart',
+  6:'makeModelsChart',
+  6.1:'makeTempChart', // note: this means SI=6 runs both
+  7:'makeTrendChart'
+};
+
+/* ===== Navigation ===== */
+(function(){
+  const ss=document.querySelectorAll('.sl'),t=ss.length;
+  let c=0;
+  const pb=document.getElementById('prog'),cn=document.getElementById('cur'),tn=document.getElementById('tot');
+  const sb=document.getElementById('sBadge'),pr=document.getElementById('pb'),nx=document.getElementById('nb'),sd=document.getElementById('sDots');
+  tn.textContent=String(t).padStart(2,'0');
+  const secs=[{s:0,e:2},{s:3,e:8},{s:9,e:10},{s:11,e:12},{s:13,e:13}];
+  secs.forEach((_,i)=>{const d=document.createElement('div');d.className='sd-d';d.dataset.ci=i;sd.appendChild(d)});
+  const initDone=new Set();
+
+  function show(i){
+    i=Math.max(0,Math.min(t-1,i));
+    if(i===c) return;
+    ss[c].classList.remove('ac');
+    c=i;
+    ss[c].classList.add('ac');
+    updateUI();
+    // Lazy chart init for this slide
+    if(!initDone.has(c)){
+      initDone.add(c);
+      initChartsForSlide(c);
+    }
+    resizeAllCharts();
+    reveal(c);
+  }
+
+  function initChartsForSlide(si){
+    const slide=ss[si];
+    const names=(slide.dataset.chart||'').split(',');
+    names.forEach(n=>{
+      n=n.trim();
+      if(!n) return;
+      switch(n){
+        case'cVariance':makeVarianceChart();break;
+        case'cW1C88':makeW1C88Chart();break;
+        case'cPG31DS':makePG31DSChart();break;
+        case'cModels':makeModelsChart();break;
+        case'cTemp':makeTempChart();break;
+        case'cTrend':makeTrendChart();break;
+      }
+    });
+  }
+
+  function updateUI(){
+    pb.style.width=`${((c+1)/t)*100}%`;
+    cn.textContent=String(c+1).padStart(2,'0');
+    sb.textContent=ss[c].dataset.sec||'';
+    pr.classList.toggle('ac',c>0);pr.style.opacity=c>0?'1':'0';pr.style.pointerEvents=c>0?'auto':'none';
+    nx.classList.toggle('ac',c<t-1);nx.style.opacity=c<t-1?'1':'0';nx.style.pointerEvents=c<t-1?'auto':'none';
+    document.querySelectorAll('.sd-d').forEach((d,i)=>{const m=secs[i];d.classList.toggle('on',c>=m.s&&c<=m.e)});
+  }
+
+  function reveal(si){
+    const sl=ss[si];
+    sl.querySelectorAll('.r').forEach((el,i)=>{
+      el.classList.remove('v');
+      void el.offsetWidth;
+      setTimeout(()=>el.classList.add('v'),i*50);
+    });
+  }
+
+  function nxt(){if(c<t-1)show(c+1)}
+  function prv(){if(c>0)show(c-1)}
+
+  document.addEventListener('keydown',e=>{
+    switch(e.key){
+      case'ArrowRight':case'ArrowDown':case' ':
+      case'n':case'N':e.preventDefault();nxt();break;
+      case'ArrowLeft':case'ArrowUp':case'p':case'P':e.preventDefault();prv();break;
+      case'Home':e.preventDefault();show(0);break;
+      case'End':e.preventDefault();show(t-1);break;
+      case'f':case'F':e.preventDefault();
+        if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen().catch(()=>{});break;
+    }
+  });
+  pr.addEventListener('click',prv);
+  nx.addEventListener('click',nxt);
+
+  // Touch
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-tx,dy=e.changedTouches[0].screenY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*.7){if(dx<0)nxt();else prv()}},{passive:true});
+
+  // Wheel
+  let wl=false;
+  document.addEventListener('wheel',e=>{
+    if(wl)return;
+    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){if(e.deltaY>40){nxt();wl=true}else if(e.deltaY<-40){prv();wl=true}}
+    else{if(e.deltaX>20){nxt();wl=true}else if(e.deltaX<-20){prv();wl=true}}
+    if(wl)setTimeout(()=>wl=false,500);
+  },{passive:true});
+
+  // Init first slide charts
+  makeVarianceChart();
+  makeW1C88Chart();
+  initDone.add(0);
+  initChartsForSlide(0);
+
+  // Ensure first slide reveal fires
+  setTimeout(()=>{reveal(0)},50);
+
+  // Resize on window resize
+  addEventListener('resize',()=>{setTimeout(resizeAllCharts,100)});
+
+  show(0);
+})();
+</script>
+</body>
+</html>

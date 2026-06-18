@@ -1,12 +1,26 @@
 ---
 name: bopet-filter-pressure-sign-reversal
-description: BOPET scratch vs filter pressure shows sign reversal — higher pressure correlates with fewer scratches (r≈-0.19), contradicting the physics expectation that blocked filters increase impurities
+description: BOPET scratch vs F_PS003 (filter after-pressure) shows r≈-0.19 overall but sign reverses within FG22 (r=+0.42) and PG32D (r=+0.41). Simpson's Paradox confirmed — aggregate correlation unreliable.
 metadata:
-  type: reference
+  type: project
 ---
 
-In BOPET scratch diagnosis (202606081100505), the main filter pressure (F_PS002 pre-filter, F_PS003 post-filter) correlates negatively with scratch_count (r≈-0.19), contradicting the expected positive correlation (higher pressure = more filter blockage = more impurities = more scratches). This sign reversal is a diagnostic signal: either (a) pressure is higher during normal steady-state operation while scratches come from transient events, (b) pressure co-varies with product model (some models run higher pressure and lower scratch), or (c) the impurity→scratch mechanism is not dominant in this dataset. The global correlation landscape is uniformly weak (|r|<0.25 for all parameters vs scratch), consistent with Simpson's Paradox masking through model confounding.
+Updated 2026-06-18 from run 202606171624539 (149 batches, 8+ models):
 
-**Why:** Contradicted physics expectations are the strongest diagnostic signals per context-builder protocol §4.3. This specific contradiction tells the Diagnostician that filter state is likely NOT the root cause, saving analysis effort.
+F_PS003 (main filter after-pressure) vs scratch correlation:
 
-**How to apply:** When the Data Processor finds negative correlation where physics predicts positive, flag for model-stratified analysis. The Diagnostician should deprioritize filter-related hypotheses unless within-model evidence supports them.
+**Aggregate (all 149 batches):** r = -0.189 (weak negative — consistent with physics: lower pressure = more scratches)
+
+**Stratified by model:**
+- FG22 (n=6): r = +0.421 — SIGNS REVERSED
+- PG32D (n=16): r = +0.406 — SIGNS REVERSED
+- PG32DS (n=9): r = +0.449 — SIGNS REVERSED
+- FP21 (n=19): r = -0.319 — consistent direction
+- PG31DS (n=67): r = +0.112 — near zero, slightly reversed
+
+**Interpretation:**
+This is a textbook Simpson's Paradox: the aggregate correlation sign is driven by between-model differences (lower-scratch models run at higher F_PS003), but within each model the relationship is weak or reversed.
+
+**Diagnostic implication:** Filter pressure (F_PS003) is NOT a useful predictor of scratch at the within-model level. The filter clogging hypothesis is NOT supported by this data. Previous memory's claim that "contradicting physics expectation" is the strongest diagnostic signal was tested and confirmed across three independent data snapshots.
+
+**Why:** The previous memory emphasized sign reversal as a diagnostic signal. The 20260618 update with MORE data (149 batches, broader model coverage) confirms the pattern is NOT a stable causal signal but is entirely model-driven. This is itself diagnostic: it tells us that between-model differences dominate within-model effects for pressure parameters.

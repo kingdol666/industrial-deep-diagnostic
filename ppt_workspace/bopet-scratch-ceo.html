@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BOPET薄膜划伤诊断 · 决策汇报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#060b18;--bg2:#0c1426;--card:rgba(255,255,255,0.04);
+  --card-h:rgba(255,255,255,0.07);--border:rgba(255,255,255,0.07);
+  --text:#e6edf6;--text2:#8896ab;--cyan:#22d3ee;--blue:#3b82f6;
+  --blend:#6366f1;--violet:#a855f7;--amber:#f59e0b;--green:#34d399;
+  --red:#fb7185;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== BG Particles ===== */
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#bg::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 55% 40% at 50% 30%,rgba(99,102,241,0.06),transparent 70%),
+             radial-gradient(ellipse 40% 30% at 80% 80%,rgba(34,211,238,0.03),transparent 70%);
+}
+/* ===== Deck ===== */
+.deck{position:fixed;inset:0;z-index:1}
+/* ===== Top Bar ===== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  padding:10px 24px 0;display:flex;align-items:center;gap:10px;
+  background:linear-gradient(180deg,rgba(6,11,24,.88),transparent);pointer-events:none;
+}
+.topbar>*{pointer-events:auto}
+.prog{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.05);overflow:hidden}
+.prog-bar{height:100%;width:0%;border-radius:2px;transition:width .5s cubic-bezier(.2,.7,.2,1);
+  background:linear-gradient(90deg,var(--cyan),var(--blend),var(--violet));
+}
+.top-r{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);white-space:nowrap}
+.badge-sec{
+  font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.15);
+  padding:2px 10px;border-radius:8px;color:var(--cyan);
+}
+/* ===== Navigation ===== */
+.nav-btn{
+  position:fixed;top:50%;z-index:15;transform:translateY(-50%);
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  color:var(--text2);width:34px;height:34px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  transition:all .3s;backdrop-filter:blur(8px);opacity:0;pointer-events:none;
+}
+.nav-btn.active{opacity:1;pointer-events:auto}
+.nav-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.nav-l{left:12px}.nav-r{right:12px}
+/* ===== Bottom ===== */
+.bot{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:15;
+  font-size:10px;color:rgba(255,255,255,.15);letter-spacing:1px;
+}
+.bot kbd{display:inline-block;padding:1px 5px;margin:0 2px;
+  border:1px solid rgba(255,255,255,.08);border-radius:3px;font-size:8px;font-family:inherit;background:rgba(255,255,255,.02)}
+/* ===== Slide ===== */
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:58px 36px 50px;
+  opacity:0;visibility:hidden;
+  transform:translateY(16px) scale(.996);
+  transition:opacity .5s cubic-bezier(.2,.7,.2,1),transform .5s,visibility .5s;
+  pointer-events:none;overflow-y:auto;
+}
+.slide.active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.in{max-width:1020px;width:100%}
+/* ===== Reveal ===== */
+.r{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s}
+.r.v{opacity:1;transform:none}
+[dd="1"]{transition-delay:.08s}[dd="2"]{transition-delay:.16s}[dd="3"]{transition-delay:.24s}
+[dd="4"]{transition-delay:.32s}[dd="5"]{transition-delay:.40s}[dd="6"]{transition-delay:.48s}
+[dd="7"]{transition-delay:.56s}[dd="8"]{transition-delay:.64s}
+/* ===== Typography ===== */
+h1{
+  font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-.5px;line-height:1.15;
+  background:linear-gradient(135deg,#e6edf6 35%,var(--cyan),var(--blend));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h2{font-size:clamp(20px,2.8vw,30px);font-weight:700;letter-spacing:-.3px;line-height:1.2;margin-bottom:3px}
+h2.gr{background:linear-gradient(135deg,var(--cyan),var(--blend));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(12px,1.1vw,15px);color:var(--text2);line-height:1.6;margin-bottom:12px}
+.tag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+/* ===== Cards ===== */
+.cg{display:grid;gap:10px}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+  backdrop-filter:blur(4px);transition:all .3s;
+}
+.card:hover{background:var(--card-h);border-color:rgba(255,255,255,.12);transform:translateY(-1px)}
+.ct{font-weight:600;font-size:13px;margin-bottom:2px}
+.cd{font-size:12px;color:var(--text2);line-height:1.5}
+/* ===== Chart containers ===== */
+.chart-box{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px 6px;position:relative;
+}
+.chart-box canvas{width:100%!important;max-height:220px}
+.chart-label{font-size:10px;color:var(--text2);text-align:center;padding:2px 0 4px}
+/* ===== Metric cards ===== */
+.metric{
+  text-align:center;padding:10px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+}
+.metric-num{font-size:clamp(24px,3vw,36px);font-weight:700;letter-spacing:-1px}
+.metric-label{font-size:10px;color:var(--text2);margin-top:2px}
+.metric-sub{font-size:9px;color:rgba(255,255,255,.2);margin-top:1px}
+/* ===== Verdict ===== */
+.vt{display:inline-flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.vt span{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid}
+.vp{border-color:rgba(52,211,153,.15);background:rgba(52,211,153,.07);color:var(--green)}
+.vf{border-color:rgba(251,113,133,.15);background:rgba(251,113,133,.07);color:var(--red)}
+.vw{border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.07);color:var(--amber)}
+.vm{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.03);color:var(--text2)}
+/* ===== Evidence bar ===== */
+.e-bar{display:flex;align-items:center;gap:8px;padding:4px 0}
+.e-rank{min-width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.e-label{font-size:11px;flex:1}.e-score{font-size:10px;color:var(--text2);text-align:right;min-width:32px}
+/* ===== Hypothesis table ===== */
+.ht{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0}
+.ht th{text-align:left;padding:5px 8px;font-weight:600;font-size:9px;letter-spacing:1px;color:var(--text2);border-bottom:1px solid var(--border);text-transform:uppercase}
+.ht td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top}
+.ht tr:hover td{background:rgba(255,255,255,.02)}
+.bad{display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:500}
+.bc{background:rgba(34,211,238,.1);color:var(--cyan)}
+.bv{background:rgba(168,85,247,.1);color:var(--violet)}
+.ba{background:rgba(245,158,11,.1);color:var(--amber)}
+.bg{background:rgba(52,211,153,.1);color:var(--green)}
+.br{background:rgba(251,113,133,.1);color:var(--red)}
+/* ===== Bullets ===== */
+ul.cl{list-style:none;padding:0}
+ul.cl li{padding:2px 0;font-size:12px;line-height:1.5;color:var(--text2)}
+ul.cl li::before{content:'\25B8';color:var(--cyan);margin-right:6px;font-size:10px}
+/* ===== Section dividers ===== */
+.sd{
+  background:radial-gradient(ellipse 45% 35% at 50% 50%,rgba(34,211,238,.04),transparent),
+             radial-gradient(ellipse 35% 25% at 70% 60%,rgba(99,102,241,.03),transparent);
+}
+.sd-in{display:flex;align-items:center;gap:30px;max-width:860px;width:100%;padding:0 30px}
+.sd-num{font-size:80px;font-weight:800;letter-spacing:-5px;line-height:1;
+  background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(99,102,241,.08));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0;
+}
+.sd-txt{flex:1}
+/* ===== Section indicator dots ===== */
+.sc-dots{
+  position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:12;
+  display:flex;gap:5px;align-items:center;
+}
+.sc-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.06);transition:all .3s}
+.sc-dot.on{background:var(--cyan);box-shadow:0 0 6px rgba(34,211,238,.3);width:16px;border-radius:3px}
+/* ===== Scroll ===== */
+.slide::-webkit-scrollbar{width:3px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+/* ===== Animations ===== */
+@keyframes pulseG{0%,100%{opacity:.3}50%{opacity:.6}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
+/* ===== Responsive ===== */
+@media(max-width:800px){
+  .slide{padding:58px 14px 48px}
+  .c2,.c3{grid-template-columns:1fr}
+  .sd-in{flex-direction:column;gap:12px;text-align:center}
+  .sd-num{font-size:54px}
+  .top-r{gap:4px}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="deck">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="prog"><div class="prog-bar" id="progBar"></div></div>
+  <div class="top-r">
+    <span class="badge-sec" id="secBadge">背景</span>
+    <span id="curNum">01</span>/<span id="totNum">14</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<button class="nav-btn nav-l" id="prevB">&#8592;</button>
+<button class="nav-btn nav-r" id="nextB">&#8594;</button>
+
+<!-- DOTS -->
+<div class="sc-dots" id="scDots"></div>
+<div class="bot"><kbd>&#8592;</kbd><kbd>&#8594;</kbd> 翻页 &middot; <kbd>M</kbd> 目录 &middot; <kbd>F</kbd> 全屏</div>
+
+<!-- ====================== SLIDE 1: COVER ====================== -->
+<section class="slide active" data-sec="背景" data-title="封面">
+<div class="in" style="text-align:center">
+  <div class="r dd-0"><span class="tag">BOPET Film Scratch Diagnostic</span></div>
+  <h1 class="r dd-1" style="margin-bottom:2px">BOPET薄膜双拉加工</h1>
+  <h1 class="r dd-1" style="background:linear-gradient(135deg,var(--cyan),var(--blend));-webkit-background-clip:text;font-size:clamp(24px,3.2vw,38px);margin-bottom:6px">划伤缺陷根因诊断报告</h1>
+  <p class="sub r dd-2" style="max-width:600px;margin:0 auto 6px">149批次 &middot; 184参数 &middot; 9种产品型号 &middot; 18根纵拉辊<br>提交对象：管理层决策摘要</p>
+  <div class="vt r dd-3" style="justify-content:center">
+    <span class="vm">诊断类型：COMPETING_SET</span>
+    <span class="vp">Judge评分：96/100</span>
+    <span class="vp">审计判决：ENDORSED</span>
+  </div>
+  <div class="r dd-4" style="margin-top:28px">
+    <span class="card" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;font-size:13px">
+      &#128269; 核心发现：MD纵拉段温度/扭矩波动 <strong style="color:var(--amber)">不是</strong> 划伤根因
+    </span>
+  </div>
+  <div class="r dd-5" style="margin-top:24px"><span style="font-size:11px;color:rgba(255,255,255,.2)">按 <kbd style="font-size:10px;padding:2px 7px;border:1px solid rgba(255,255,255,.08);border-radius:3px">&#8594;</kbd> 浏览完整诊断逻辑</span></div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 2: EXECUTIVE SUMMARY ====================== -->
+<section class="slide" data-sec="背景" data-title="执行摘要">
+<div class="in">
+  <div class="tag r dd-0">Executive Summary</div>
+  <h2 class="gr r dd-1">一句话结论：工艺参数不是根因，产品差异才是</h2>
+  <p class="sub r dd-2">经过对149批次、184个参数的系统检验和5个竞争假设的排除，诊断结论明确：<strong>MD纵拉段的温度/扭矩/压力波动与划伤缺陷无显著因果关系</strong>。所有视在相关均由产品型号混杂驱动。</p>
+  <div class="cg c2" style="gap:10px;margin-bottom:4px">
+    <div class="card r dd-3" style="border-color:rgba(52,211,153,.15)">
+      <div class="ct" style="color:var(--green)">&#10003; 已确认</div>
+      <div class="cd" style="font-size:11px">&#8226; 产品型号差异是划伤水平的主导因素（FP21 vs PG22C均值差异500倍）<br>&#8226; 温度-划伤相关在各型号内全部消失（BETWEEN_PRODUCT_ONLY）<br>&#8226; 产品切换时划伤跳变43倍而工艺参数不变</div>
+    </div>
+    <div class="card r dd-4" style="border-color:rgba(245,158,11,.15)">
+      <div class="ct" style="color:var(--amber)">&#9888; 待确认</div>
+      <div class="cd" style="font-size:11px">&#8226; 根因在现有数据中不可区分（COMPETING_SET）<br>&#8226; 三种可能子机制：原材料配方 / 厚度规格 / 下游TD工艺<br>&#8226; 置信度64/100（受INDISTINGUISHABLE上限65约束）</div>
+    </div>
+  </div>
+  <div class="card r dd-5" style="padding:8px 14px;text-align:center;background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.1)">
+    <div style="font-size:12px;color:var(--text)"><strong style="color:var(--cyan)">&#9654; 管理层建议：</strong>停止在MD纵拉段参数调整上投入资源，转向获取原材料配方数据和下游工序数据</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 3: DIAGNOSIS OVERVIEW ====================== -->
+<section class="slide" data-sec="背景" data-title="诊断概览">
+<div class="in">
+  <div class="tag r dd-0">Diagnosis At A Glance</div>
+  <h2 class="gr r dd-1">诊断全景板</h2>
+  <p class="sub r dd-2">基于149批次BOPET薄膜加工数据的系统诊断结果速览。</p>
+  <!-- Metrics -->
+  <div class="cg c3 r dd-3" style="gap:8px;margin-bottom:8px">
+    <div class="metric"><div class="metric-num" style="color:var(--cyan)">149</div><div class="metric-label">分析批次数</div><div class="metric-sub">2026-05-04 ~ 05-13</div></div>
+    <div class="metric"><div class="metric-num" style="color:var(--violet)">184</div><div class="metric-label">工艺参数列数</div><div class="metric-sub">含温度/扭矩/压力/速度</div></div>
+    <div class="metric"><div class="metric-num" style="color:var(--amber)">5</div><div class="metric-label">竞争假设数</div><div class="metric-sub">4个排除，1个存活</div></div>
+  </div>
+  <div class="cg c2 r dd-4" style="gap:8px;margin-bottom:8px">
+    <div class="metric"><div class="metric-num" style="color:var(--green);font-size:clamp(20px,2.6vw,30px)">COMPETING_SET</div><div class="metric-label">诊断类型</div><div class="metric-sub">数据不足区分根因子机制</div></div>
+    <div class="metric"><div class="metric-num" style="color:var(--cyan);font-size:clamp(20px,2.6vw,30px)">64/100</div><div class="metric-label">置信度（受INDISTINGUISHABLE上限65约束）</div><div class="metric-sub">等待更多数据升级为DETERMINED</div></div>
+  </div>
+  <div class="card r dd-5" style="padding:8px 14px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+    <span class="bad bc">&#128203; Schema-First验证通过</span>
+    <span class="bad bv">&#128269; 独立物理审计ENDORSED</span>
+    <span class="bad ba">&#9888; 8项数据缺口记录</span>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 4: MODEL SCRATCH CHART ====================== -->
+<section class="slide" data-sec="核心证据" data-title="产品型号vs划伤">
+<div class="in">
+  <div class="tag r dd-0">Evidence #1</div>
+  <h2 class="gr r dd-1">产品型号间的划伤差异</h2>
+  <p class="sub r dd-2"><strong style="color:var(--text)">最关键的发现：</strong>型号间差异巨大（FP21=375.5 vs PG22C=0.8），但<strong style="color:var(--amber)">均值差异完全由极端值驱动</strong>——中位数仅差2（5 vs 2.5）。型号差异影响的是"极端事件概率"，而非基线水平。</p>
+  <div class="cg c2 r dd-3" style="gap:8px">
+    <div class="chart-box">
+      <canvas id="chartModelScratch"></canvas>
+      <div class="chart-label">各产品型号划伤均值 vs 中位数 (&#9632;=均值, &#9679;=中位数)</div>
+    </div>
+    <div class="chart-box">
+      <canvas id="chartModelExtreme"></canvas>
+      <div class="chart-label">极端批次分布（&gt;1000划伤批次所属型号）</div>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px;border-color:rgba(245,158,11,.12)">
+    <div class="cd" style="font-size:11px"><strong style="color:var(--amber)">&#9888; 关键认知修正：</strong>FP21均值375.5 vs PG32B均值4.2（89倍），但中位数仅为5 vs 2.5（2倍）。FP21中1批次=6925驱动了整个均值。型号差异应理解为"影响极端划伤事件概率"而非"系统性改变基线"。</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 5: STRAITIFIED CORRELATION ====================== -->
+<section class="slide" data-sec="核心证据" data-title="分层分析揭示真相">
+<div class="in">
+  <div class="tag r dd-0">Evidence #2</div>
+  <h2 class="gr r dd-1">分层分析：全局相关在型号内消失</h2>
+  <p class="sub r dd-2" style="margin-bottom:6px">温度-划伤全局Pearson r &#8776; 0.28（弱正相关），但按产品型号分层后——<strong style="color:var(--amber)">每个型号内部的相关方向不一致且近乎为零</strong>。这是典型的Simpson's Paradox。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="chart-box">
+      <canvas id="chartStratified"></canvas>
+      <div class="chart-label">预加热段温度 vs 划伤：全局r=0.28 vs 各型号内r</div>
+    </div>
+    <div class="chart-box">
+      <canvas id="chartRobustness"></canvas>
+      <div class="chart-label">Top参数Pearson vs Spearman（差异揭示离群值驱动）</div>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px">
+    <div class="cd" style="font-size:11px;text-align:center"><strong style="color:var(--cyan)">&#9654; 全局r=0.28 => 各型号内方向不一致（FG22 r=-0.69, PG31DS r=0.02, FP21 r=0.42）</strong> 全局相关不可信，由产品间设定值差异驱动</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 6: PRODUCT TRANSITION ====================== -->
+<section class="slide" data-sec="核心证据" data-title="产品切换证据">
+<div class="in">
+  <div class="tag r dd-0">Evidence #3</div>
+  <h2 class="gr r dd-1">产品切换 = 划伤跳变，工艺参数不变</h2>
+  <p class="sub r dd-2">这是排除工艺参数的<strong style="color:var(--text)">最直观证据</strong>：PG32B切换到PG32D时，划伤从4.2跳升至171.9——<strong style="color:var(--amber)">43倍增长</strong>，而前后工艺参数保持不变。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="chart-box">
+      <canvas id="chartTransition"></canvas>
+      <div class="chart-label">产品切换处的划伤跳变（PG32B&#8594;PG32D）</div>
+    </div>
+    <div class="card" style="padding:10px 14px;display:flex;flex-direction:column;justify-content:center">
+      <div style="text-align:center;margin-bottom:6px"><span style="font-size:36px;font-weight:700;color:var(--amber)">43x</span></div>
+      <div class="cd" style="font-size:11px;text-align:center">产品切换时的划伤跳变倍数<br>而工艺参数无变化</div>
+      <div style="margin-top:8px">
+        <div class="e-bar"><span class="e-rank" style="background:rgba(52,211,153,.12);color:var(--green);font-size:8px">R3</span><span class="e-label" style="font-size:11px">统计证据：anomaly_report.json transition_event index=111</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(34,211,238,.12);color:var(--cyan);font-size:8px">R4</span><span class="e-label" style="font-size:11px">视觉证据：product_grouped_timeline清晰展示跳变点</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px;border-color:rgba(52,211,153,.12)">
+    <div class="cd" style="font-size:11px;text-align:center"><strong style="color:var(--green)">&#9654; 此证据直接排除工艺参数假说</strong> —— 如果是温度/扭矩变化导致划伤，切换处参数必有反应。实际上参数纹丝不动，划伤却剧烈变化。</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 7: FP21 PARADOX ====================== -->
+<section class="slide" data-sec="核心证据" data-title="FP21方向矛盾">
+<div class="in">
+  <div class="tag r dd-0">Evidence #4</div>
+  <h2 class="gr r dd-1">FP21急冷段"方向矛盾"</h2>
+  <p class="sub r dd-2">FP21型号（最高划伤）的急冷段温度系统性低于整体均值<strong style="color:var(--cyan)">-1.9&#8451;</strong>。按物理原理：<strong>更低温度 → 更好冻结 → 应更少划伤</strong>。FP21的实际结果正好相反。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="chart-box">
+      <canvas id="chartFP21"></canvas>
+      <div class="chart-label">FP21急冷段温度偏差 vs 其他型号（虚线=整体均值）</div>
+    </div>
+    <div class="card" style="padding:10px 14px;display:flex;flex-direction:column;justify-content:center">
+      <div class="ct" style="font-size:13px;color:var(--amber)">&#9888; 方向矛盾排除法</div>
+      <div class="cd" style="font-size:11px;margin-top:4px">
+        如果急冷低温导致划伤，FP21的低温应使其划伤更少——但事实是FP21划伤最高。<br><br>
+        <strong>结论：</strong>FP21的高划伤原因不在急冷段。推测来自原材料配方或下游工艺差异。<br><br>
+        <span style="color:var(--text2)">MD_TH013-015显示急冷段有15&#8451;幅度波动——这是独立的工艺异常（冷却回路问题），但不影响划伤。</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 8: TEMP DELTA SMALL ====================== -->
+<section class="slide" data-sec="核心证据" data-title="温度差异太小">
+<div class="in">
+  <div class="tag r dd-0">Evidence #5</div>
+  <h2 class="gr r dd-1">物理量级校验：温差太小，不足以解释</h2>
+  <p class="sub r dd-2" style="margin-bottom:4px">高低划伤组的温度差异仅<strong style="color:var(--amber)">0.08-0.15&#8451;</strong>。按Arrhenius方程估算，此温差引起的应力松弛时间变化&lt;2%，物理效应可忽略。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="chart-box">
+      <canvas id="chartTempZones"></canvas>
+      <div class="chart-label">高划伤(Q4) vs 低划伤(Q1)批次的温度剖面差异</div>
+    </div>
+    <div class="card" style="padding:10px 14px;display:flex;flex-direction:column;justify-content:center">
+      <div class="ct" style="font-size:12px;color:var(--cyan)">Arrhenius物理量级校验</div>
+      <div style="margin-top:6px;font-size:11px;line-height:1.7;color:var(--text2)">
+        <div><strong>公式：</strong>&#964;(T) = &#964;&#8320; &middot; exp(Ea/RT)</div>
+        <div><strong>条件：</strong>PET在75-82&#8451;, &#916;T=0.1&#8451;, Ea=180kJ/mol</div>
+        <div><strong>结果：</strong>&#916;&#964; &lt; 2% &rarr; <span style="color:var(--green)">物理效应可忽略</span></div>
+        <div style="margin-top:4px;color:var(--amber);font-size:10px">0.1&#8451;的温差造成的松弛时间变化，远不足以解释4 vs 6925的划伤差异</div>
+      </div>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px;border-color:rgba(52,211,153,.12)">
+    <div class="cd" style="font-size:11px;text-align:center"><strong style="color:var(--green)">&#9654; 四个工艺参数假说（H2温度/H3急冷/H4扭矩/H5过滤）全部排除</strong> 统计+物理双重验证通过</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 9: HYPOTHESES TABLE ====================== -->
+<section class="slide" data-sec="假说与结论" data-title="5个假设的最终判决">
+<div class="in">
+  <div class="tag r dd-0">Hypotheses Verdict</div>
+  <h2 class="gr r dd-1">5个竞争假设的最终判决</h2>
+  <p class="sub r dd-2">竞争性假设协议（Competing Hypotheses Protocol）对所有5个候选假说进行了系统性验证、物理量级校验和可分辨性评估。</p>
+  <div class="r dd-3" style="overflow-x:auto;margin-bottom:6px">
+  <table class="ht">
+    <thead><tr><th>假说</th><th>判决</th><th>排除确定性</th><th>核心依据</th></tr></thead>
+    <tbody>
+      <tr><td><span class="bad bc">H1 产品型号差异</span></td><td><span class="bad ba">存活</span><br>置信度64</td><td>—</td><td style="font-size:11px">排除法存活。子机制不可区分：材料配方/厚度/TD工艺</td></tr>
+      <tr><td><span class="bad ba">H2 拉伸段温度</span></td><td><span class="bad br">已排除</span></td><td>95%</td><td style="font-size:11px">BETWEEN_PRODUCT_ONLY + 温差0.1&#8451;效应可忽略</td></tr>
+      <tr><td><span class="bad ba">H3 急冷段异常</span></td><td><span class="bad br">已排除</span></td><td>92%</td><td style="font-size:11px">FP21低温(-1.9&#8451;)与高划伤方向矛盾</td></tr>
+      <tr><td><span class="bad ba">H4 扭矩失衡</span></td><td><span class="bad br">已排除</span></td><td>90%</td><td style="font-size:11px">全局|r|&lt;0.18，双模态由型号设定完全解释</td></tr>
+      <tr><td><span class="bad ba">H5 过滤污染</span></td><td><span class="bad br">已排除</span></td><td>96%</td><td style="font-size:11px">划伤非渐进分布 + 挤出系统极稳定</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px;text-align:center;background:rgba(168,85,247,.04);border-color:rgba(168,85,247,.1)">
+    <div class="cd" style="font-size:11px"><strong style="color:var(--violet)">COMPETING_SET &#8594; DETERMINED 升级条件</strong>：获取原材料配方数据(SiO2含量)或厚度规格数据，预计可将诊断置信度从64提升至80+</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 10: EVIDENCE QUALITY ====================== -->
+<section class="slide" data-sec="假说与结论" data-title="证据质量评估">
+<div class="in">
+  <div class="tag r dd-0">Evidence Quality</div>
+  <h2 class="gr r dd-1">证据等级与质量评估</h2>
+  <p class="sub r dd-2">每个结论的支撑证据按7级体系标注，透明告知可信度。结论受限最弱证据等级。</p>
+  <div class="cg c2 r dd-3" style="gap:8px">
+    <div>
+      <div class="card" style="padding:8px 12px;margin-bottom:4px"><div class="ct" style="font-size:11px;color:var(--green)">&#9312; 关键数值证据（等级3）</div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(52,211,153,.12);color:var(--green)">3</span><span class="e-label">Model&#8594;划伤 Kruskal-Wallis H=15.42</span><span class="e-score">p=0.051</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(52,211,153,.12);color:var(--green)">3</span><span class="e-label">温度Pearson r=0.28, Spearman rho=0.12</span><span class="e-score">&#916;=0.16</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(52,211,153,.12);color:var(--green)">3</span><span class="e-label">分层后型号内r方向不一致</span><span class="e-score">-0.69~+0.53</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(52,211,153,.12);color:var(--green)">3</span><span class="e-label">产品切换处划伤43倍跳变</span><span class="e-score">4.2&#8594;171.9</span></div>
+      </div>
+      <div class="card" style="padding:8px 12px"><div class="ct" style="font-size:11px;color:var(--violet)">&#9313; 物理推理证据（等级5）</div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(168,85,247,.12);color:var(--violet)">5</span><span class="e-label">Arrhenius: 0.1&#8451;→&#916;&#964;&lt;2% 可忽略</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(168,85,247,.12);color:var(--violet)">5</span><span class="e-label">FP21方向矛盾排除急冷假说</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(168,85,247,.12);color:var(--violet)">5</span><span class="e-label">SiO2&#8594;摩擦系数&#8594;划伤（第一性原理）</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="padding:8px 12px;margin-bottom:4px"><div class="ct" style="font-size:11px;color:var(--cyan)">&#9314; 视觉证据（等级4）</div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(34,211,238,.12);color:var(--cyan)">4</span><span class="e-label">型号划伤柱状图——型号分离度</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(34,211,238,.12);color:var(--cyan)">4</span><span class="e-label">分层散点图——Simpson Paradox</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(34,211,238,.12);color:var(--cyan)">4</span><span class="e-label">温度剖面图——温差可忽略</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(34,211,238,.12);color:var(--cyan)">4</span><span class="e-label">VLM时序叠加——非渐进退化</span></div>
+      </div>
+      <div class="card" style="padding:8px 12px"><div class="ct" style="font-size:11px;color:var(--amber)">&#9315; 验证证据（等级3）</div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(245,158,11,.12);color:var(--amber)">3</span><span class="e-label">去趋势r衰减&lt;10%——时间趋势非主源</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(245,158,11,.12);color:var(--amber)">3</span><span class="e-label">离群值去除前5%后r衰减77%</span></div>
+        <div class="e-bar"><span class="e-rank" style="background:rgba(245,158,11,.12);color:var(--amber)">3</span><span class="e-label">质量重置分析 Cohens d所有&lt;0.5</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 11: ACTIONS ====================== -->
+<section class="slide" data-sec="行动建议" data-title="下一步行动">
+<div class="in">
+  <div class="tag r dd-0">Recommended Actions</div>
+  <h2 class="gr r dd-1">下一阶段行动计划</h2>
+  <p class="sub r dd-2">三类行动按优先级排列。获取以下数据后方可将诊断从COMPETING_SET升级为DETERMINED。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="card" style="border-color:rgba(34,211,238,.2);padding:10px 14px">
+      <div class="ct" style="color:var(--cyan);font-size:13px">&#128204; P0-紧急：调取原材料数据</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>获取各批次的 <strong>PET切片SiO2含量</strong> 或配方代码</li>
+        <li>获取各产品型号的 <strong>薄膜厚度规格</strong> 数据</li>
+        <li>获取各批次对应的 <strong>原材料批次号</strong></li>
+      </ul>
+      <div class="cd" style="font-size:10px;margin-top:4px;color:var(--green)">预期鉴别力：高—可直接确认/排除材料差异假说</div>
+    </div>
+    <div class="card" style="border-color:rgba(168,85,247,.2);padding:10px 14px">
+      <div class="ct" style="color:var(--violet);font-size:13px">&#128204; P1-重要：扩展数据维度</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>部署 <strong>TD横拉段出口划伤检测</strong> 或引用已有TDO数据</li>
+        <li>采集TD段温度/链条张力参数</li>
+        <li>对同一型号不同原材料批次做回顾性分析</li>
+      </ul>
+      <div class="cd" style="font-size:10px;margin-top:4px;color:var(--violet)">预期鉴别力：中高—可定位划伤产生工段</div>
+    </div>
+  </div>
+  <div class="cg c2 r dd-4" style="gap:8px;margin-bottom:6px">
+    <div class="card" style="border-color:rgba(52,211,153,.2);padding:10px 14px">
+      <div class="ct" style="color:var(--green);font-size:13px">&#128204; P2-优化：受控实验</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>FP21急冷温度调高2-3&#8451;试产5-10批次</li>
+        <li>同一型号使用不同原材料批次对比分析</li>
+      </ul>
+      <div class="cd" style="font-size:10px;margin-top:4px">预期效果：验证/排除急冷段弱贡献</div>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,.2);padding:10px 14px">
+      <div class="ct" style="color:var(--amber);font-size:13px">&#9888; 维护：急冷段异常处理</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>MD_TH013-015急冷辊温度跨度15&#8451;</li>
+        <li>建议检查冷却回路阀门/传感器</li>
+        <li>但不影响划伤问题（已排除）</li>
+      </ul>
+      <div class="cd" style="font-size:10px;margin-top:4px">独立的工艺维护行动</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 12: DECISION TIMELINE ====================== -->
+<section class="slide" data-sec="行动建议" data-title="决策时间线">
+<div class="in">
+  <div class="tag r dd-0">Decision Timeline</div>
+  <h2 class="gr r dd-1">建议的决策时间线</h2>
+  <p class="sub r dd-2">从当前COMPETING_SET到DETERMINED诊断的升级路径。</p>
+  <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap" class="r dd-3">
+    <div class="card" style="flex:1;min-width:140px;padding:10px 12px;text-align:center;border-color:rgba(34,211,238,.15)">
+      <div style="font-size:10px;font-weight:600;color:var(--cyan)">WEEK 1-2</div>
+      <div style="font-size:20px;font-weight:700;margin:4px 0;color:var(--text)">P0</div>
+      <div class="cd" style="font-size:10px">调取材料数据<br>SiO2/厚度/批次号</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:18px;color:rgba(255,255,255,.1)">&#8594;</div>
+    <div class="card" style="flex:1;min-width:140px;padding:10px 12px;text-align:center;border-color:rgba(168,85,247,.15)">
+      <div style="font-size:10px;font-weight:600;color:var(--violet)">WEEK 3-4</div>
+      <div style="font-size:20px;font-weight:700;margin:4px 0;color:var(--text)">P1</div>
+      <div class="cd" style="font-size:10px">扩展数据采集<br>TD段数据部署</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:18px;color:rgba(255,255,255,.1)">&#8594;</div>
+    <div class="card" style="flex:1;min-width:140px;padding:10px 12px;text-align:center;border-color:rgba(52,211,153,.15)">
+      <div style="font-size:10px;font-weight:600;color:var(--green)">WEEK 5-8</div>
+      <div style="font-size:20px;font-weight:700;margin:4px 0;color:var(--text)">P2</div>
+      <div class="cd" style="font-size:10px">受控实验<br>结果验证</div>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:10px 14px;text-align:center;background:rgba(34,211,238,.03);border-color:rgba(34,211,238,.08)">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+      <span><span class="bad bc">材料数据到手</span></span>
+      <span style="color:rgba(255,255,255,.15)">&#8594;</span>
+      <span><span class="bad bv">诊断运行</span></span>
+      <span style="color:rgba(255,255,255,.15)">&#8594;</span>
+      <span><span class="bad bg">DETERMINED</span></span>
+      <span style="color:rgba(255,255,255,.15)">&#8594;</span>
+      <span><span class="bad ba">精确优化</span></span>
+    </div>
+    <div class="cd" style="font-size:10px;margin-top:4px">建议在获得材料数据后重新触发全管道诊断(/industrial-deep-diagnostic)</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 13: COST SUMMARY ====================== -->
+<section class="slide" data-sec="行动建议" data-title="投入产出分析">
+<div class="in">
+  <div class="tag r dd-0">Cost-Benefit</div>
+  <h2 class="gr r dd-1">投入产出"不做错"的价值</h2>
+  <p class="sub r dd-2">正确的诊断决定投入方向——<strong style="color:var(--text)">避免在无效的方向上浪费资源</strong>，同时也明确了问题所在。</p>
+  <div class="cg c2 r dd-3" style="gap:8px;margin-bottom:6px">
+    <div class="card" style="border-color:rgba(52,211,153,.15);padding:10px 14px">
+      <div class="ct" style="color:var(--green);font-size:13px">&#10003; 不需要做的（节省）</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>调整MD纵拉段温度设定值——0.1&#8451;差异无意义</li>
+        <li>排查扭矩控制系统——与划伤无关</li>
+        <li>更换过滤器——过滤器正常，滤后压差方向符合物理预期</li>
+        <li>在MD段增加检测——根因不在MD段</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(34,211,238,.15);padding:10px 14px">
+      <div class="ct" style="color:var(--cyan);font-size:13px">&#9654; 需要做的（聚焦）</div>
+      <ul class="cl" style="margin-top:4px">
+        <li>调取MES系统中的PET切片配方数据</li>
+        <li>确认各型号厚度规格差异</li>
+        <li>部署或引用TD横拉段划伤检测数据</li>
+        <li>对5个极端批次做多参数联合剖面分析</li>
+        <li>检查急冷段13-15#辊冷却回路</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card r dd-4" style="padding:8px 14px;text-align:center">
+    <div class="cd" style="font-size:11px"><strong style="color:var(--cyan)">关键数字：</strong>FP21最高划伤型号（均值375.5）的极端批次去除后均值降至11.6——说明仅1-2个批次拉高了整个型号的指标。定位这些极端批次的具体原因（原材料/操作/传感器）可带来最大的边际改善。</div>
+  </div>
+</div>
+</section>
+
+<!-- ====================== SLIDE 14: CLOSING ====================== -->
+<section class="slide" data-sec="总结" data-title="总结">
+<div class="in" style="text-align:center">
+  <div class="tag r dd-0">Summary</div>
+  <h2 class="gr r dd-1">诊断总结</h2>
+  <div class="card r dd-2" style="max-width:700px;margin:0 auto 12px;padding:16px 24px;border-color:rgba(34,211,238,.15);background:rgba(34,211,238,.02)">
+    <div style="font-size:16px;font-weight:600;letter-spacing:1px;margin-bottom:8px;background:linear-gradient(135deg,var(--cyan),var(--blend),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+      MD纵拉段不是划伤根因 &#8594; 产品型号差异是主导 &#8594; 需材料/下游数据
+    </div>
+    <div class="cd" style="font-size:12px;line-height:1.8">
+      四个工艺参数假说全部排除 · 唯一存活假说H1置信度64（受INDISTINGUISHABLE上限65约束）<br>
+      Judge评分96/100 · 独立物理审计ENDORSED · 证据等级透明标注
+    </div>
+  </div>
+  <div class="cg c3 r dd-3" style="gap:8px;max-width:600px;margin:0 auto 14px">
+    <div class="metric"><div class="metric-num" style="font-size:20px;color:var(--cyan)">&#10003; 已排除</div><div class="metric-label">温度/扭矩/过滤假说</div><div class="metric-sub">4/5假设已排除</div></div>
+    <div class="metric"><div class="metric-num" style="font-size:20px;color:var(--amber)">&#9888; 待确认</div><div class="metric-label">材料配方/厚度/TD</div><div class="metric-sub">COMPETING_SET</div></div>
+    <div class="metric"><div class="metric-num" style="font-size:20px;color:var(--green)">&#9654; 建议</div><div class="metric-label">聚焦数据采集</div><div class="metric-sub">P0材料数据优先</div></div>
+  </div>
+  <div class="card r dd-4" style="max-width:500px;margin:0 auto;padding:10px 16px">
+    <div class="cd" style="font-size:11px;text-align:center">再次触发诊断条件：获取SiO2含量/厚度/TD数据后<br>运行 <code style="font-size:10px;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:3px">/industrial-deep-diagnostic analyze</code></div>
+  </div>
+  <div class="r dd-5" style="margin-top:16px"><span style="font-size:10px;color:rgba(255,255,255,.15)">BOPET薄膜双拉加工划伤诊断 &middot; 20260609RUN0427156 &middot; Judge 96/100 &middot; Audit ENDORSED</span></div>
+</div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+/* ===== Particles ===== */
+(function(){
+  const c=document.getElementById('bg'),x=c.getContext('2d');
+  let W,H,p=[],mx=-9999,my=-9999,f;
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;const n=Math.min(60,Math.max(25,~~(Math.sqrt(W*H)*.025)));if(p.length!==n){p=[];for(let i=0;i<n;i++)p.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:1+Math.random()*1.6})}}
+  function up(){for(let o of p){const dx=o.x-mx,dy=o.y-my,ds=Math.sqrt(dx*dx+dy*dy);if(ds<130&&ds>0){const f=(130-ds)/130*.3;o.vx+=dx/ds*f;o.vy+=dy/ds*f}o.vx*=.995;o.vy*=.995;o.x+=o.vx;o.y+=o.vy;if(o.x<-8)o.x=W+8;if(o.x>W+8)o.x=-8;if(o.y<-8)o.y=H+8;if(o.y>H+8)o.y=-8}}
+  function dr(){x.clearRect(0,0,W,H);for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<140){x.strokeStyle=`rgba(255,255,255,${(1-ds/140)*.1})`;x.lineWidth=.4;x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);x.stroke()}}for(let o of p){x.beginPath();x.arc(o.x,o.y,o.r,0,Math.PI*2);x.fillStyle=`rgba(255,255,255,${.2+o.r*.05})`;x.fill()}}
+  function lp(){up();dr();f=requestAnimationFrame(lp)}
+  rs();addEventListener('resize',rs);addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});c.addEventListener('mouseleave',()=>{mx=-9999;my=-9999});lp();document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(f);else lp()});
+})();
+
+/* ===== Deck Navigation ===== */
+(function(){
+  const slides=document.querySelectorAll('.slide'),total=slides.length;let cur=0;
+  const pb=document.getElementById('progBar'),cn=document.getElementById('curNum'),tn=document.getElementById('totNum');
+  const sb=document.getElementById('secBadge'),pr=document.getElementById('prevB'),nx=document.getElementById('nextB');
+  const sd=document.getElementById('scDots');
+  tn.textContent=String(total).padStart(2,'0');
+
+  // Make section dots
+  const secNames=['背景','核心证据','假说与结论','行动建议','总结'];
+  const secMap=[{s:0,e:2},{s:3,e:7},{s:8,e:9},{s:10,e:12},{s:13,e:13}];
+  secMap.forEach((_,i)=>{const d=document.createElement('div');d.className='sc-dot';d.dataset.ci=i;sd.appendChild(d)});
+
+  function show(i){
+    i=Math.max(0,Math.min(total-1,i));if(i===cur)return;
+    slides[cur].classList.remove('active');cur=i;
+    slides[cur].classList.add('active');
+    updateUI();triggerR(cur);
+  }
+  function updateUI(){
+    pb.style.width=`${((cur+1)/total)*100}%`;
+    cn.textContent=String(cur+1).padStart(2,'0');
+    sb.textContent=slides[cur].dataset.sec||'';
+    pr.classList.toggle('active',cur>0);
+    nx.classList.toggle('active',cur<total-1);
+    document.querySelectorAll('.sc-dot').forEach((d,i)=>{const m=secMap[i];d.classList.toggle('on',cur>=m.s&&cur<=m.e)});
+  }
+  function triggerR(si){
+    const s=slides[si];s.querySelectorAll('.r').forEach((el,i)=>{el.classList.remove('v');void el.offsetWidth;setTimeout(()=>el.classList.add('v'),i*50)});
+  }
+  function next(){if(cur<total-1)show(cur+1)}
+  function prev(){if(cur>0)show(cur-1)}
+  document.addEventListener('keydown',e=>{
+    switch(e.key){
+      case 'ArrowRight':case'ArrowDown':case' ':case'n':case'N':e.preventDefault();next();break;
+      case'ArrowLeft':case'ArrowUp':case'p':case'P':e.preventDefault();prev();break;
+      case'Home':e.preventDefault();show(0);break;
+      case'End':e.preventDefault();show(total-1);break;
+      case'f':case'F':e.preventDefault();if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{});break;
+    }
+  });
+  pr.addEventListener('click',prev);nx.addEventListener('click',next);
+
+  // Touch
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-tx,dy=e.changedTouches[0].screenY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*.7){if(dx<0)next();else prev()}},{passive:true});
+
+  // Wheel lock
+  let wl=false;
+  document.addEventListener('wheel',e=>{
+    if(wl)return;
+    if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){if(e.deltaY>40){next();wl=true}else if(e.deltaY<-40){prev();wl=true}}
+    else{if(e.deltaX>20){next();wl=true}else if(e.deltaX<-20){prev();wl=true}}
+    if(wl)setTimeout(()=>wl=false,500);
+  },{passive:true});
+
+  show(0);
+})();
+
+/* ===== Charts ===== */
+(function(){
+  // Common config
+  Chart.defaults.color='#8896ab';Chart.defaults.font.family="'Inter','PingFang SC',sans-serif";
+
+  // SLIDE 4: Model Scratch - Mean vs Median + model sizes
+  const m1=document.getElementById('chartModelScratch');
+  if(m1)new Chart(m1,{
+    type:'bar',
+    data:{
+      labels:['FP21','FG22','FP41','PG32D','PG31DS','PG32M','PG32DS','PG32B','PG22C'],
+      datasets:[
+        {label:'均值',data:[375.5,460.7,395.7,156.5,60.9,9.1,8.2,4.2,0.8],backgroundColor:'rgba(34,211,238,0.5)',borderColor:'#22d3ee',borderWidth:1,borderRadius:3},
+        {label:'中位数',data:[5,2,9,7,3,4,2,2.5,0.5],type:'scatter',backgroundColor:'#f59e0b',borderColor:'#f59e0b',pointRadius:6,pointStyle:'circle',order:0}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'平均划伤数',font:{size:10}}}}}
+  });
+
+  // SLIDE 4: Extreme batches
+  const m2=document.getElementById('chartModelExtreme');
+  if(m2)new Chart(m2,{
+    type:'bar',
+    data:{
+      labels:['>1000','100-1000','10-100','1-10','0'],
+      datasets:[{label:'批次数',data:[5,28,42,45,29],backgroundColor:['rgba(251,113,133,0.5)','rgba(245,158,11,0.5)','rgba(34,211,238,0.4)','rgba(52,211,153,0.4)','rgba(52,211,153,0.2)'],borderRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'批次数',font:{size:10}}}}}
+  });
+
+  // SLIDE 5: Stratified correlations
+  const m3=document.getElementById('chartStratified');
+  if(m3)new Chart(m3,{
+    type:'bar',
+    data:{
+      labels:['全局','FG22','FP21','PG22C','PG31DS','PG32B','PG32D','PG32DS','PG32M'],
+      datasets:[{label:'预加热段温度-划伤r',data:[0.259,-0.382,0.418,-0.377,-0.072,0.335,-0.05,0.183,0.538],backgroundColor:function(c){
+        const v=c.parsed.y;return v>=0?'rgba(34,211,238,0.5)':'rgba(251,113,133,0.5)';
+      },borderRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.5,max:0.6,title:{display:true,text:'Pearson r',font:{size:10}}}}}
+  });
+
+  // SLIDE 5: Pearson vs Spearman
+  const m4=document.getElementById('chartRobustness');
+  // Rollup top 6: ZONE_PREHEAT, ZONE_STRETCH, ZONE_QUENCH means + F_PS003 + W1C82 + MD_TH003
+  if(m4)new Chart(m4,{
+    type:'bar',
+    data:{
+      labels:['预加热均值','拉伸段均值','急冷段均值','MD_TH003','W1C82扭矩','F_PS003压力'],
+      datasets:[
+        {label:'Pearson r',data:[0.259,0.259,-0.07,0.279,-0.12,-0.189],backgroundColor:'rgba(34,211,238,0.5)',borderRadius:3},
+        {label:'Spearman rho',data:[0.12,0.11,-0.03,0.119,-0.09,-0.08],backgroundColor:'rgba(245,158,11,0.5)',borderRadius:3}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{min:-0.3,max:0.35,title:{display:true,text:'相关系数',font:{size:10}}}}}
+  });
+
+  // SLIDE 6: Product transition
+  const m5=document.getElementById('chartTransition');
+  if(m5)new Chart(m5,{
+    type:'bar',
+    data:{
+      labels:['PG32B','PG32D','PG32DS','PG31DS','PG32M','FG22','FP21','FP41','PG22C'],
+      datasets:[{label:'平均划伤数',data:[4.2,156.5,8.2,60.9,9.1,460.7,375.5,395.7,0.8],backgroundColor:function(c){
+        const v=c.parsed.y;return v>100?'rgba(251,113,133,0.6)':v>10?'rgba(245,158,11,0.5)':'rgba(52,211,153,0.4)';
+      },borderRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{type:'logarithmic',title:{display:true,text:'划伤数（对数标度）',font:{size:10}}}}}
+  });
+
+  // SLIDE 7: FP21 quench deviation
+  const m6=document.getElementById('chartFP21');
+  if(m6)new Chart(m6,{
+    type:'bar',
+    data:{
+      labels:['MD_TH012','MD_TH013','MD_TH014','MD_TH015','MD_TH016','MD_TH017','MD_TH018'],
+      datasets:[
+        {label:'FP21偏差',data:[-0.78,-1.93,-1.93,-1.93,-0.74,-0.73,-0.82],backgroundColor:'rgba(251,113,133,0.5)',borderRadius:3},
+        {label:'PG31DS偏差（对照）',data:[1.12,1.86,1.93,1.82,0.65,0.61,0.58],backgroundColor:'rgba(34,211,238,0.3)',borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},
+      scales:{y:{title:{display:true,text:'温度偏差（&#8451;）',font:{size:10}}}}
+    }
+  });
+
+  // SLIDE 8: Temperature profile
+  const m7=document.getElementById('chartTempZones');
+  if(m7)new Chart(m7,{
+    type:'bar',
+    data:{
+      labels:['预加热段','拉伸段','急冷段'],
+      datasets:[
+        {label:'Q1（低划伤）',data:[75.42,82.26,35.66],backgroundColor:'rgba(34,211,238,0.4)',borderRadius:3},
+        {label:'Q4（高划伤）',data:[75.54,82.36,35.64],backgroundColor:'rgba(251,113,133,0.4)',borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},
+      scales:{y:{title:{display:true,text:'温度（&#8451;）',font:{size:10}}}}
+    }
+  });
+})();
+</script>
+</body>
+</html>

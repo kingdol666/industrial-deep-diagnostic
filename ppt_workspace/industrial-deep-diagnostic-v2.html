@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>工业深度诊断系统 · 全景拆解</title>
+<style>
+/* ===== CSS Variables ===== */
+:root{
+  --bg:#060a16;--bg2:#0b1124;--surface:rgba(255,255,255,0.04);
+  --surface-h:rgba(255,255,255,0.08);--border:rgba(255,255,255,0.07);
+  --text:#e4edf8;--text2:#8896ab;--cyan:#22d3ee;--blue:#3b82f6;
+  --blend:#6366f1;--violet:#a855f7;--amber:#f59e0b;--green:#34d399;
+  --red:#fb7185;--radius:12px;--ease:cubic-bezier(.2,.7,.2,1);
+  --char-size:72px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  user-select:none;
+}
+/* ===== BG Canvas ===== */
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#bg::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 45% at 50% 35%,rgba(99,102,241,0.06),transparent 70%),
+             radial-gradient(ellipse 45% 35% at 80% 80%,rgba(34,211,238,0.04),transparent 70%);
+}
+/* ===== Deck ===== */
+.deck{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column}
+/* ===== TOP BAR ===== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  padding:12px 28px 0;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(180deg,rgba(6,10,22,.85),transparent);
+  pointer-events:none;
+}
+.topbar>*{pointer-events:auto}
+.progress-track{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.progress-bar{height:100%;width:0%;border-radius:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--blend),var(--violet));
+  transition:width .5s var(--ease);
+}
+.topbar-right{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2);white-space:nowrap}
+.counter{font-variant-numeric:tabular-nums;letter-spacing:.5px;min-width:44px;text-align:right}
+.section-badge{
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.15);
+  padding:2px 10px;border-radius:10px;color:var(--cyan);
+}
+/* ===== Navigation ===== */
+.nav-arrow{
+  position:fixed;top:50%;z-index:15;transform:translateY(-50%);
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:all .3s var(--ease);backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;
+}
+.nav-arrow.active{opacity:1;pointer-events:auto}
+.nav-arrow:hover{background:rgba(255,255,255,0.1);color:var(--text);border-color:rgba(255,255,255,0.15)}
+.nav-prev{left:14px}.nav-next{right:14px}
+/* ===== Bottom Hint ===== */
+.bottom-info{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:15;
+  font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:1px;
+}
+.bottom-info kbd{
+  display:inline-block;padding:1px 6px;margin:0 2px;
+  border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-size:9px;font-family:inherit;
+  background:rgba(255,255,255,0.03);
+}
+/* ===== TOC ===== */
+.toc-overlay{
+  position:fixed;inset:0;z-index:30;
+  background:rgba(6,10,22,.93);backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s;
+}
+.toc-overlay.open{opacity:1;visibility:visible}
+.toc-overlay h2{font-size:22px;font-weight:600;margin-bottom:24px;letter-spacing:2px}
+.toc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 20px;max-width:720px;width:90%}
+.toc-item{
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:var(--radius);padding:9px 14px;cursor:pointer;
+  transition:all .25s var(--ease);font-size:13px;display:flex;align-items:center;gap:8px;
+}
+.toc-item:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15)}
+.toc-num{
+  min-width:20px;height:20px;border-radius:5px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;color:var(--text2);flex-shrink:0;
+}
+.toc-close{margin-top:22px;padding:7px 24px;border-radius:8px;
+  background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  color:var(--text2);cursor:pointer;font-size:12px;transition:all .25s var(--ease);
+}
+.toc-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+
+/* ===== Slide ===== */
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:64px 48px 70px;
+  opacity:0;visibility:hidden;
+  transform:translateY(20px) scale(.996);
+  transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s;
+  pointer-events:none;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.slide.active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.slide-inner{max-width:960px;width:100%;position:relative;z-index:2}
+
+/* ===== Reveal ===== */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.revealed{opacity:1;transform:none}
+[data-d="1"]{transition-delay:.07s!important}[data-d="2"]{transition-delay:.14s!important}
+[data-d="3"]{transition-delay:.21s!important}[data-d="4"]{transition-delay:.28s!important}
+[data-d="5"]{transition-delay:.35s!important}[data-d="6"]{transition-delay:.42s!important}
+[data-d="7"]{transition-delay:.49s!important}[data-d="8"]{transition-delay:.56s!important}
+
+/* ===== Typography ===== */
+h1{
+  font-size:clamp(32px,4.8vw,52px);font-weight:700;letter-spacing:-.5px;line-height:1.2;
+  background:linear-gradient(135deg,#e4edf8 35%,var(--cyan),var(--blend));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h2{
+  font-size:clamp(22px,3.2vw,34px);font-weight:700;letter-spacing:-.3px;margin-bottom:4px;line-height:1.25;
+}
+h2.grad{
+  background:linear-gradient(135deg,var(--cyan),var(--blend));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h3{font-size:clamp(15px,1.5vw,20px);font-weight:600;margin-bottom:2px}
+.subtitle{font-size:clamp(13px,1.2vw,16px);color:var(--text2);line-height:1.65;margin-bottom:18px}
+.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.text-sm{font-size:clamp(11px,1vw,14px);line-height:1.6;color:var(--text2)}
+.text-xs{font-size:clamp(10px,.85vw,12px);line-height:1.5;color:var(--text2)}
+/* ===== Cards ===== */
+.cg{display:grid;gap:14px}
+.cg2{grid-template-columns:1fr 1fr}.cg3{grid-template-columns:1fr 1fr 1fr}.cg4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+  backdrop-filter:blur(4px);transition:all .3s var(--ease);
+}
+.card:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);transform:translateY(-2px)}
+.card-ht{border-color:rgba(34,211,238,0.15)}
+.card-ht:hover{border-color:rgba(34,211,238,0.3);box-shadow:0 0 24px rgba(34,211,238,0.06);transform:translateY(-2px)}
+.card-v{border-color:rgba(168,85,247,0.15)}
+.card-v:hover{border-color:rgba(168,85,247,0.3);box-shadow:0 0 24px rgba(168,85,247,0.06);transform:translateY(-2px)}
+.card-title{font-weight:600;font-size:14px;margin-bottom:3px}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.55}
+/* ===== Section Divider ===== */
+.section-divider{
+  background:radial-gradient(ellipse 50% 40% at 50% 50%,rgba(34,211,238,0.04),transparent),
+             radial-gradient(ellipse 40% 30% at 70% 60%,rgba(99,102,241,0.03),transparent);
+}
+.divider-content{
+  display:flex;align-items:center;justify-content:center;gap:40px;
+  max-width:900px;width:100%;padding:0 40px;
+}
+.divider-num{
+  font-size:100px;font-weight:800;letter-spacing:-6px;line-height:1;
+  background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(99,102,241,0.1));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  flex-shrink:0;
+}
+.divider-text{flex:1}
+.divider-text h2{font-size:clamp(28px,4vw,44px);margin-bottom:2px}
+.divider-text .subtitle{font-size:clamp(14px,1.5vw,18px);margin-bottom:4px}
+.divider-text .tag{margin-bottom:4px}
+/* ===== Character (Virtual Presenter) ===== */
+.char-area{
+  position:fixed;right:20px;bottom:70px;z-index:12;
+  display:flex;flex-direction:column;align-items:flex-end;
+  pointer-events:none;
+}
+.char-container{
+  display:flex;flex-direction:column;align-items:flex-end;
+  gap:4px;transition:opacity .4s;
+}
+.char-avatar{
+  width:var(--char-size);height:var(--char-size);flex-shrink:0;
+  filter:drop-shadow(0 4px 20px rgba(34,211,238,0.15));
+  animation:charFloat 3s ease-in-out infinite;
+}
+.char-avatar svg{width:100%;height:100%;display:block}
+@keyframes charFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+.speech-bubble{
+  position:relative;background:rgba(15,23,48,0.85);
+  backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:10px 16px;margin-bottom:6px;
+  max-width:380px;min-width:100px;margin-right:6px;
+  transition:opacity .4s,transform .4s var(--ease);
+  transform-origin:bottom right;
+}
+.speech-bubble::after{
+  content:'';position:absolute;bottom:-6px;right:18px;
+  width:10px;height:10px;
+  background:rgba(15,23,48,0.85);
+  border-right:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  transform:rotate(45deg);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+}
+.speech-text{
+  font-size:13px;line-height:1.55;color:var(--text);
+  min-height:1.5em;
+}
+.speech-text .cursor{
+  display:inline-block;width:2px;height:15px;
+  background:var(--cyan);margin-left:2px;vertical-align:-2px;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0}}
+.speech-enter{opacity:0;transform:translateY(8px) scale(.95)}
+.speech-enter.show{opacity:1;transform:none}
+
+/* Section divider: character centered */
+.section-char-mode .char-area{
+  position:static;
+}
+.section-char-mode .speech-bubble{
+  max-width:500px;margin-right:0;
+}
+
+/* ===== Pipeline Flow ===== */
+.flow-grid{display:flex;align-items:center;justify-content:center;gap:0;margin:8px 0}
+.f-node{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px}
+.f-dot{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text2);transition:all .3s;
+}
+.f-line{
+  width:20px;height:2px;background:rgba(255,255,255,0.07);position:relative;overflow:hidden;
+  flex-shrink:1;min-width:8px;
+}
+.f-pulse{position:absolute;top:-2px;left:-6px;width:6px;height:6px;border-radius:50%;background:var(--cyan);
+  animation:fPulse 2.4s ease-in-out infinite;opacity:0;
+}
+.f-pulse:nth-child(1){animation-delay:0s}
+.f-pulse:nth-child(2){animation-delay:.8s;opacity:.4}
+.f-pulse:nth-child(3){animation-delay:1.6s;opacity:.2}
+@keyframes fPulse{
+  0%{left:-6px;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% + 4px);opacity:0}
+}
+.f-label{font-size:9px;color:var(--text2);text-align:center;white-space:nowrap}
+.f-sub{font-size:7px;color:rgba(255,255,255,.2);text-align:center}
+/* ===== Verdict Tags ===== */
+.vt{display:inline-flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.vt span{
+  padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;
+  border:1px solid;
+}
+.vt-pass{border-color:rgba(52,211,153,.15);background:rgba(52,211,153,.07);color:var(--green)}
+.vt-fail{border-color:rgba(251,113,133,.15);background:rgba(251,113,133,.07);color:var(--red)}
+.vt-warn{border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.07);color:var(--amber)}
+.vt-mute{border-color:rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--text2)}
+/* ===== Evidence Bars ===== */
+.eb{display:flex;flex-direction:column;gap:5px;margin:6px 0}
+.er{display:flex;align-items:center;gap:10px}
+.er-num{min-width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.er-lbl{font-size:12px;flex:1}.er-cf{font-size:10px;color:var(--text2);min-width:32px;text-align:right}
+.er-bar{height:3px;border-radius:2px;flex:1}
+/* ===== Agent Table ===== */
+.at{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0}
+.at th{text-align:left;padding:6px 10px;font-weight:600;font-size:10px;letter-spacing:1px;color:var(--text2);border-bottom:1px solid var(--border);text-transform:uppercase}
+.at td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top}
+.at tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:500}
+.b-cyan{background:rgba(34,211,238,.1);color:var(--cyan)}
+.b-v{background:rgba(168,85,247,.1);color:var(--violet)}
+.b-am{background:rgba(245,158,11,.1);color:var(--amber)}
+/* ===== Repair Loop Diagram ===== */
+.repair-flow{display:flex;align-items:center;justify-content:center;gap:0;margin:10px 0}
+.rp{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700}
+.rp-arrow{
+  width:28px;height:2px;background:rgba(255,255,255,.08);position:relative;flex-shrink:0;
+}
+.rp-arrow::after{content:'';position:absolute;right:-4px;top:-4px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid rgba(255,255,255,.1)}
+.rp-label{font-size:9px;color:var(--text2);text-align:center;margin-top:2px}
+/* ===== Lists ===== */
+ul.cl{list-style:none;padding:0}
+ul.cl li{padding:3px 0;font-size:13px;line-height:1.5;color:var(--text2)}
+ul.cl li::before{content:'\25B8';color:var(--cyan);margin-right:8px;font-size:11px}
+/* ===== Chapter Indicator ===== */
+.chapter-indicator{
+  position:fixed;bottom:52px;left:50%;transform:translateX(-50%);z-index:12;
+  display:flex;gap:6px;align-items:center;
+}
+.chapter-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.08);transition:all .3s;
+}
+.chapter-dot.active{background:var(--cyan);box-shadow:0 0 6px rgba(34,211,238,.3);width:20px;border-radius:3px}
+/* ===== Cover title animation ===== */
+.cover-ring{
+  position:absolute;top:50%;left:50%;width:360px;height:360px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(34,211,238,0.06);border-radius:50%;
+  animation:ringSpin 20s linear infinite;
+  pointer-events:none;
+}
+.cover-ring:nth-child(2){width:280px;height:280px;animation-duration:16s;animation-direction:reverse}
+.cover-ring:nth-child(3){width:200px;height:200px;animation-duration:12s}
+@keyframes ringSpin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+.cover-ring-dot{
+  position:absolute;top:-3px;left:50%;width:6px;height:6px;
+  border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 10px rgba(34,211,238,.4);
+}
+/* ===== Scroll ===== */
+.slide::-webkit-scrollbar{width:3px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+/* ===== Responsive ===== */
+@media(max-width:860px){
+  .slide{padding:64px 20px 70px}
+  .cg2,.cg3,.cg4{grid-template-columns:1fr}
+  .char-area{right:10px;bottom:60px}
+  .speech-bubble{max-width:280px;min-width:80px;padding:8px 12px;font-size:12px}
+  .speech-bubble::after{right:12px}
+  .divider-content{flex-direction:column;gap:16px;text-align:center}
+  .divider-num{font-size:64px}
+  .toc-grid{grid-template-columns:repeat(2,1fr)}
+  .flow-grid{flex-wrap:wrap;gap:2px}
+  .f-line{width:10px;min-width:4px}
+}
+@media(max-width:500px){
+  .slide{padding:64px 10px 64px}
+  .char-area{bottom:54px;right:4px}
+  .speech-bubble{max-width:200px;padding:6px 10px;font-size:11px}
+  .speech-text{font-size:11px}
+  .toc-grid{grid-template-columns:1fr}
+  .at{font-size:11px}.at td,.at th{padding:4px 6px}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="deck">
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="topbar-right">
+    <span class="section-badge" id="sectionBadge">引子</span>
+    <span class="counter" id="slideCounter"><span id="currentNum">01</span>/<span id="totalNum">18</span></span>
+  </div>
+</div>
+
+<!-- ===== NAV ===== -->
+<button class="nav-arrow nav-prev" id="prevBtn">&#8592;</button>
+<button class="nav-arrow nav-next" id="nextBtn">&#8594;</button>
+
+<!-- ===== BOTTOM INFO ===== -->
+<div class="bottom-info"><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> 翻页 &middot; <kbd>M</kbd> 目录 &middot; <kbd>F</kbd> 全屏</div>
+
+<!-- ===== CHAPTER DOTS ===== -->
+<div class="chapter-indicator" id="chapterDots"></div>
+
+<!-- ===== TOC ===== -->
+<div class="toc-overlay" id="tocOverlay">
+  <h2>目录导航</h2>
+  <div class="toc-grid" id="tocGrid"></div>
+  <div class="toc-close" id="tocCloseBtn">关 闭</div>
+</div>
+
+<!-- ===== CHARACTER (Virtual Presenter) ===== -->
+<div class="char-area" id="charArea">
+  <div class="char-container" id="charContainer">
+    <div class="speech-bubble speech-enter" id="speechBubble">
+      <div class="speech-text" id="speechText"><span class="cursor"></span></div>
+    </div>
+    <div class="char-avatar" id="charAvatar">
+      <svg viewBox="0 0 80 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cg1" x1="0" y1="0" x2="80" y2="80">
+            <stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+          <linearGradient id="cg2" x1="0" y1="0" x2="80" y2="80">
+            <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <!-- glow -->
+        <circle cx="40" cy="38" r="32" fill="url(#cg1)" opacity="0.08"/>
+        <circle cx="40" cy="38" r="28" fill="url(#cg1)" opacity="0.06"/>
+        <!-- body -->
+        <rect x="26" y="57" width="28" height="22" rx="10" fill="url(#cg2)" opacity=".85"/>
+        <!-- head -->
+        <circle cx="40" cy="35" r="24" fill="url(#cg1)" opacity=".92"/>
+        <circle cx="40" cy="35" r="24" fill="url(#cg1)" opacity=".15" stroke="rgba(255,255,255,.08)" stroke-width=".5"/>
+        <!-- eyes -->
+        <circle cx="32" cy="32" r="3.5" fill="white" opacity=".9"/>
+        <circle cx="48" cy="32" r="3.5" fill="white" opacity=".9"/>
+        <circle cx="33" cy="31.5" r="2" fill="#0a1628"/>
+        <circle cx="49" cy="31.5" r="2" fill="#0a1628"/>
+        <!-- smile -->
+        <path d="M31 41 Q40 49 49 41" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+        <!-- ear dots -->
+        <circle cx="17" cy="35" r="3" fill="url(#cg2)" opacity=".4"/>
+        <circle cx="63" cy="35" r="3" fill="url(#cg2)" opacity=".4"/>
+        <!-- eyelid blink blink -->
+        <ellipse cx="32" cy="32" rx="3.5" ry=".5" fill="#0a1628" opacity="0" class="blink-l">
+          <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1;0;0" dur="4s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="48" cy="32" rx="3.5" ry=".5" fill="#0a1628" opacity="0" class="blink-r">
+          <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;1;0;0" dur="4s" repeatCount="indefinite"/>
+        </ellipse>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     ACT 1: 开场与引出问题
+     ================================================================ -->
+
+<!-- SLIDE 1: Cover -->
+<section class="slide active" data-title="封面" data-section="引子" data-speech='["你好，我是诊断小D。接下来由我带你完整拆解这个工业深度诊断系统——从设计哲学到执行细节，说说它为什么这样设计。"]'>
+  <div class="slide-inner" style="text-align:center;position:relative">
+    <div class="cover-ring"><div class="cover-ring-dot"></div></div>
+    <div class="cover-ring"><div class="cover-ring-dot"></div></div>
+    <div class="cover-ring"><div class="cover-ring-dot"></div></div>
+    <div class="reveal" data-d="0"><span class="tag">Industrial Deep Diagnostic</span></div>
+    <h1 class="reveal" data-d="1" style="margin-bottom:4px">工业深度诊断系统</h1>
+    <p class="subtitle reveal" data-d="2" style="font-size:clamp(15px,1.6vw,20px);margin-bottom:2px">多智能体 &middot; 8步管线 &middot; 物理约束根因诊断引擎</p>
+    <p class="text-sm reveal" data-d="3" style="max-width:580px;margin:0 auto">将传感器与工艺数据转化为可执行的根因诊断——结合<strong>数据自描述</strong>、<strong>RAG领域知识</strong>与<strong>第一性原理物理推理</strong></p>
+    <div class="vt reveal" data-d="4" style="justify-content:center;margin-top:12px">
+      <span class="vt-mute">7个子智能体</span>
+      <span class="vt-mute">竞争性假设协议</span>
+      <span class="vt-mute">证据等级体系</span>
+      <span class="vt-mute">自动修复循环</span>
+    </div>
+    <div class="reveal" data-d="5" style="margin-top:28px"><span style="font-size:12px;color:rgba(255,255,255,.25)">按 <kbd style="font-size:11px;padding:2px 8px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:rgba(255,255,255,.03);color:var(--text2)">&#8594;</kbd> 开始浏览</span></div>
+  </div>
+</section>
+
+<!-- SLIDE 2: 工业诊断的挑战 -->
+<section class="slide" data-title="工业诊断的挑战" data-section="引子" data-speech='["想象一下这个场景：流水线突然出现批量质量缺陷。几十台设备、上千个传感器参数摆在面前——传统手工排查根本来不及。","更麻烦的是：数据是分散的、领域知识只在老师傅脑子里、物理原理没人有时间查。这三大孤岛才是诊断低效的根源。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Why This System Exists</div>
+    <h2 class="grad reveal" data-d="1">工业诊断的核心挑战</h2>
+    <p class="subtitle reveal" data-d="2">质量异常发生时，工程师面临的是三个互相孤立的困境——这也是这套系统诞生的原点。</p>
+    <div class="cg cg2">
+      <div class="card card-ht reveal" data-d="3">
+        <div class="card-title" style="font-size:15px;color:var(--cyan)">&#128200; 数据孤岛</div>
+        <div class="card-desc">传感器数据、工艺参数、质检记录分属不同系统。工程师需要手工导出、对齐、交叉分析——这个过程可能花掉一整天。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.2)">缺少统一的数据视图</div>
+      </div>
+      <div class="card card-v reveal" data-d="4">
+        <div class="card-title" style="font-size:15px;color:var(--violet)">&#128218; 知识孤岛</div>
+        <div class="card-desc">工艺经验=老师傅的直觉。SOP和手册"存在那里但没人读得及"。诊断结论依赖个人的经验运气，无法系统化。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.2)">领域知识被固化在个体经验中</div>
+      </div>
+      <div class="card card-ht reveal" data-d="5">
+        <div class="card-title" style="font-size:15px;color:var(--cyan)">&#9881; 机理孤岛</div>
+        <div class="card-desc">统计相关≠物理因果。很多诊断系统找到相关就交差，但工程师真正需要的是——哪个参数改变导致了什么问题，以及背后的物理原因。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.2)">统计信号需要物理验证</div>
+      </div>
+      <div class="card card-v reveal" data-d="6">
+        <div class="card-title" style="font-size:15px;color:var(--violet)">&#9888;&#65039; 结果孤岛</div>
+        <div class="card-desc">诊断结果难以审计。"你凭什么说这个问题是A原因？"——没有证据链、没有置信度标注、没有备选假设分析。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.2)">结论不可追溯不可验证</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: 三重知识融合 -->
+<section class="slide" data-title="三重知识融合" data-section="引子" data-speech='["我们的核心思路很清晰：把三个源头知识融合。让数据自己说话，让RAG去读懂领域文献，让物理定律做最终裁判。","三个知识源缺一不可——数据告诉你发生了什么，文献告诉你原理是什么，物理告诉你能不能成立。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Solution</div>
+    <h2 class="grad reveal" data-d="1">三重知识融合定位</h2>
+    <p class="subtitle reveal" data-d="2">系统的独特之处在于三个知识源必须协同工作——任何一个单独使用都会产生不可靠的诊断。</p>
+    <div class="cg cg3" style="margin-bottom:14px">
+      <div class="card card-ht reveal" data-d="3" style="text-align:center;padding:20px 16px">
+        <div style="font-size:32px;margin-bottom:6px;opacity:.8">&#9312;</div>
+        <div class="card-title" style="color:var(--cyan);font-size:15px">数据自描述</div>
+        <div class="text-sm" style="margin-top:4px">列名模式、数值范围、统计特征揭示工艺类型。系统不做预设——从数据中发现场景。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">输入 &#8594; 特征感知</div>
+      </div>
+      <div class="card card-v reveal" data-d="4" style="text-align:center;padding:20px 16px">
+        <div style="font-size:32px;margin-bottom:6px;opacity:.8">&#9313;</div>
+        <div class="card-title" style="color:var(--violet);font-size:15px">RAG 领域知识</div>
+        <div class="text-sm" style="margin-top:4px">从工艺手册、SOP、论文中检索物理原理与失效模式。知识被"理解"而非机械复制。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">检索 &#8594; 深度理解</div>
+      </div>
+      <div class="card card-ht reveal" data-d="5" style="text-align:center;padding:20px 16px">
+        <div style="font-size:32px;margin-bottom:6px;opacity:.8">&#9314;</div>
+        <div class="card-title" style="color:var(--cyan);font-size:15px">第一性原理物理</div>
+        <div class="text-sm" style="margin-top:4px">每个统计相关必须追溯到控制方程。面对未知参数——从守恒律和量纲分析推导。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">相关 &#8594; 因果验证</div>
+      </div>
+    </div>
+    <div class="card reveal" data-d="6" style="padding:10px 18px;text-align:center;border-color:rgba(34,211,238,.12)">
+      <div style="font-size:13px;font-weight:600;margin-bottom:2px;color:var(--cyan)">&#9881; 双视角输出 — 每条诊断结论的两个必要视图</div>
+      <div class="text-xs text-muted"><strong style="color:var(--text)">纯工艺波动诊断：</strong>从过程数据识别异常漂移、失稳、阈值行为  &middot;  <strong style="color:var(--text)">工艺+检测双驱动诊断：</strong>过程异常是否确实进入了缺陷因果链</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     ACT 2: 设计哲学
+     ================================================================ -->
+
+<!-- SECTION DIVIDER 1: 设计哲学 -->
+<section class="slide section-divider" data-title="设计哲学" data-section="设计哲学" data-speech='["在深入具体步骤之前，我想先聊聊这套系统的设计哲学。理解了这些原则，后面每一步你都会明白——为什么这么设计。"]' data-divider="I">
+  <div class="divider-content">
+    <div class="reveal" data-d="0"><div class="divider-num">I</div></div>
+    <div class="divider-text reveal" data-d="1">
+      <div class="tag">Design Philosophy</div>
+      <h2>设计哲学</h2>
+      <p class="subtitle">诊断是排除，不是确认 &middot; 四个条件缺一不可 &middot; 竞争假设驱动</p>
+      <p class="text-sm" style="color:var(--text2)">整套系统的底层逻辑：如何思考一个问题，比用什么工具解决更重要</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: 诊断是排除不是确认 -->
+<section class="slide" data-title="诊断是排除不是确认" data-section="设计哲学" data-speech='["大多数诊断工具犯的错误：跑个相关性热力图，发现A和B相关，就断定A是B的原因。","我们要求四个条件全部满足，缺一个就只是假设，不是结论。这不是保守——这是对工厂负责。错误的诊断比不诊断更昂贵。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">First Principle</div>
+    <h2 class="grad reveal" data-d="1">诊断是排除，不是确认</h2>
+    <p class="subtitle reveal" data-d="2">每个结论必须同时通过四道验证。缺失任意一项，自动标记为 <code style="color:var(--amber)">[HYPOTHESIS]</code>——不进入最终结论。</p>
+    <div class="cg cg2" style="gap:12px">
+      <div class="card card-ht reveal" data-d="3">
+        <div class="card-title" style="color:var(--cyan);font-size:15px">&#9200; ① 时间先后</div>
+        <div class="card-desc">潜在原因必须发生在效果之前。用时间戳或变化点确认序列。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：相关≠因果，忽略时序</div>
+      </div>
+      <div class="card card-ht reveal" data-d="4">
+        <div class="card-title" style="color:var(--cyan);font-size:15px">&#9881; ② 统计显著</div>
+        <div class="card-desc">相关性/差异经统计验证——含分层分析排除混杂因子。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：聚合相关可能被子组分逆转</div>
+      </div>
+      <div class="card card-v reveal" data-d="5">
+        <div class="card-title" style="color:var(--violet);font-size:15px">&#9881; ③ 物理机制</div>
+        <div class="card-desc">存在可追溯的控制方程或守恒律解释。不支持则无效。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：STATISTICAL_ONLY ≠ 根因</div>
+      </div>
+      <div class="card card-v reveal" data-d="6">
+        <div class="card-title" style="color:var(--violet);font-size:15px">&#10003; ④ 无矛盾</div>
+        <div class="card-desc">不与已知事实和物理约束冲突。否定证据直接排除假设。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：选择性呈现支持性数据</div>
+      </div>
+    </div>
+    <div class="reveal" data-d="7" style="text-align:center;margin-top:10px">
+      <span class="vt"><span class="vt-mute">结论类型：DETERMINED</span><span class="vt-warn">COMPETING_SET</span><span class="vt-mute">NEEDS_DATA</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: 四大支柱 -->
+<section class="slide" data-title="四大设计支柱" data-section="设计哲学" data-speech='["这四条原则是系统的骨架。它们保证这套系统能真正跨行业工作——不论你面对的是CNC机床还是薄膜拉伸产线。","为什么能做到？因为系统不预设你的工艺类型。数据特征自己会决定怎么分析。这是场景自适应的本质。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Four Pillars</div>
+    <h2 class="grad reveal" data-d="1">支撑跨行业的四大设计支柱</h2>
+    <p class="subtitle reveal" data-d="2">系统的核心不是针对某个行业的模板，而是四个能够适应任意工业场景的通用设计原则。</p>
+    <div class="cg cg2" style="gap:12px">
+      <div class="card card-ht reveal" data-d="3">
+        <div class="card-title" style="font-size:15px">&#9312; 场景自适应 <span class="text-xs" style="font-weight:400;color:var(--text2)">Scenario-Adaptive</span></div>
+        <div class="card-desc">从数据特征出发——列名、值域、统计模式自动决定分析策略。没有一个固定分类树，只有持续适配的分析路径。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：对CNC数据硬套"CNC模板"于非CNC场景</div>
+      </div>
+      <div class="card card-v reveal" data-d="4">
+        <div class="card-title" style="font-size:15px">&#9313; RAG深度理解 <span class="text-xs" style="font-weight:400;color:var(--text2)">Deep Understanding</span></div>
+        <div class="card-desc">RAG知识被"读懂"而非机械复制。语义理解后与数据结构化对齐——提取物理原理与因果链路。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：逐字段从RAG输出复制到本体</div>
+      </div>
+      <div class="card card-ht reveal" data-d="5">
+        <div class="card-title" style="font-size:15px">&#9314; 数据&#8646;本体双向 <span class="text-xs" style="font-weight:400;color:var(--text2)">Bidirectional</span></div>
+        <div class="card-desc">本体预测→数据验证；数据揭示→本体解释。差异本身就是诊断信号——不匹配的地方往往藏着根因。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：独立建本体和分析数据，不做交叉验证</div>
+      </div>
+      <div class="card card-v reveal" data-d="6">
+        <div class="card-title" style="font-size:15px">&#9315; 物理驱动推理 <span class="text-xs" style="font-weight:400;color:var(--text2)">Physics-Based</span></div>
+        <div class="card-desc">每个统计相关必须追溯到控制方程。第一性原理推导超越已知故障库的局限。</div>
+        <div class="text-xs" style="margin-top:4px;color:rgba(255,255,255,.15)">反模式：「参数X与质量相关，因此X是原因」</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: 竞争性假设协议 -->
+<section class="slide" data-title="竞争性假设协议" data-section="设计哲学" data-speech='["当数据无法区分几个可能的原因时——系统不会硬猜。它会诚实地告诉你「现有数据无法区分这些可能性」","在工业领域，坦诚承认不确定性，比给出一个虚假的确定答案更有价值。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Competing Hypotheses Protocol</div>
+    <h2 class="grad reveal" data-d="1">竞争性假设协议</h2>
+    <p class="subtitle reveal" data-d="2">假设生成 &#8594; 数据区分性评估 &#8594; 排除 &#8594; 结论。每一步都记录了为什么保留或排除某个原因。</p>
+    <div class="cg cg3" style="gap:10px;margin-bottom:12px">
+      <div class="card card-ht reveal" data-d="3" style="text-align:center;padding:14px 12px">
+        <div style="font-size:28px;color:var(--green);margin-bottom:4px">&#10003;</div>
+        <div class="card-title" style="color:var(--green);font-size:14px">DETERMINED</div>
+        <div class="text-xs">单一假设排除所有竞争项。四个条件全部满足，证据充分。</div>
+        <div class="text-xs" style="margin-top:4px;color:var(--text2)">置信度上限：85</div>
+      </div>
+      <div class="card card-v reveal" data-d="4" style="text-align:center;padding:14px 12px">
+        <div style="font-size:28px;color:var(--amber);margin-bottom:4px">&#9888;</div>
+        <div class="card-title" style="color:var(--amber);font-size:14px">COMPETING_SET</div>
+        <div class="text-xs">多个假设在现有数据中不可区分。明确标注无法排除的选项。</div>
+        <div class="text-xs" style="margin-top:4px;color:var(--text2)">置信度上限：65</div>
+      </div>
+      <div class="card card-ht reveal" data-d="5" style="text-align:center;padding:14px 12px">
+        <div style="font-size:28px;color:var(--violet);margin-bottom:4px">&#128270;</div>
+        <div class="card-title" style="color:var(--violet);font-size:14px">NEEDS_DATA</div>
+        <div class="text-xs">现有数据不足以判定。指明需要哪些额外数据。</div>
+        <div class="text-xs" style="margin-top:4px;color:var(--text2)">等待新数据</div>
+      </div>
+    </div>
+    <div class="card reveal" data-d="6" style="padding:10px 16px">
+      <div class="text-sm" style="text-align:center;color:var(--text2)"><strong style="color:var(--cyan)">反推测四条件：</strong> 时间先后 &#8594; 统计显著 &#8594; 物理机制 &#8594; 无矛盾 &nbsp;&nbsp;|&nbsp;&nbsp; 结论受限最弱证据等级 &nbsp;&nbsp;|&nbsp;&nbsp; 每个假设需具 <span class="b-cyan badge">falsification_conditions</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     ACT 3: 执行体系
+     ================================================================ -->
+
+<!-- SECTION DIVIDER 2: 执行体系 -->
+<section class="slide section-divider" data-title="执行体系" data-section="执行体系" data-speech='["设计哲学我讲完了。现在看看这些理念怎么落地成一套可运行的多智能体管线。","这是整个系统的工程实现——每个智能体专职于一个阶段，通过文件系统异步协作。"]' data-divider="II">
+  <div class="divider-content">
+    <div class="reveal" data-d="0"><div class="divider-num">II</div></div>
+    <div class="divider-text reveal" data-d="1">
+      <div class="tag">Execution Architecture</div>
+      <h2>执行体系</h2>
+      <p class="subtitle">8步管线 &middot; 7个专业子智能体 &middot; 并行加速 &middot; 修复循环</p>
+      <p class="text-sm" style="color:var(--text2)">设计哲学如何落地为可执行、可审计的多智能体协作管线</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: 8步管线全景 -->
+<section class="slide" data-title="8步管线全景" data-section="执行体系" data-speech='["整个管线从数据接入到报告交付一共八步。但关键的设计在这里——2和3可以并行，4和5也可以部分并行。","只有质量门是串行的硬关卡。这意味着速度和质量不冲突——该快的快，该严的严。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Pipeline Overview</div>
+    <h2 class="grad reveal" data-d="1">8步多智能体诊断管线</h2>
+    <p class="subtitle reveal" data-d="2" style="margin-bottom:8px">每个步骤及其负责的子智能体。实线=串行门控，虚线=可并行。</p>
+    <!-- Flow -->
+    <div class="reveal" data-d="3">
+    <div class="flow-grid">
+      <div class="f-node"><div class="f-dot" style="background:rgba(34,211,238,.1);border-color:var(--cyan);color:var(--cyan)">0</div><div class="f-label">Setup</div><div class="f-sub">环境</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot" style="background:rgba(34,211,238,.08);border-color:var(--cyan);color:var(--cyan)">1</div><div class="f-label">Inspect</div><div class="f-sub">勘探</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot">2</div><div class="f-label">Context</div><div class="f-sub" style="color:var(--cyan)">builder</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot">3</div><div class="f-label">Process</div><div class="f-sub" style="color:var(--cyan)">processor</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot" style="background:rgba(168,85,247,.1);border-color:var(--violet);color:var(--violet)">4</div><div class="f-label">Diagnose</div><div class="f-sub" style="color:var(--violet)">istician</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot">5</div><div class="f-label">Judge</div><div class="f-sub">评审</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot">6</div><div class="f-label">Report</div><div class="f-sub">报告</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot">7</div><div class="f-label">Audit</div><div class="f-sub">审计</div></div>
+      <div class="f-line"><div class="f-pulse"></div><div class="f-pulse"></div><div class="f-pulse"></div></div>
+      <div class="f-node"><div class="f-dot" style="background:rgba(52,211,153,.1);border-color:var(--green);color:var(--green)">8</div><div class="f-label">Present</div><div class="f-sub">交付</div></div>
+    </div>
+    </div>
+    <!-- Execution modes -->
+    <div class="cg cg3 reveal" data-d="5" style="margin-top:10px;gap:8px">
+      <div class="card" style="padding:10px 14px">
+        <div class="card-title" style="font-size:12px;color:var(--cyan)">&#9881; fast_safe（默认）</div>
+        <div class="text-xs text-muted">Steps 2+3并行启动；Steps 4+5+5b半并行启动。质量门不跳过。</div>
+      </div>
+      <div class="card" style="padding:10px 14px">
+        <div class="card-title" style="font-size:12px;color:var(--violet)">&#9881; strict_serial</div>
+        <div class="text-xs text-muted">严格0→1→2→2.5→3→4→5→6→7→8。调试/小数据场景使用。</div>
+      </div>
+      <div class="card" style="padding:10px 14px">
+        <div class="card-title" style="font-size:12px;color:var(--amber)">&#9888; 修复循环</div>
+        <div class="text-xs text-muted">Judge→Diagnostician ≤3次 &middot; Reviewer→Diagnostician ≤2次 &middot; 全局≤5</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: 7个子智能体 -->
+<section class="slide" data-title="7个子智能体" data-section="执行体系" data-speech='["每个步骤由一个专用的子智能体负责。它们之间不直接对话——只通过标准化的文件交换信息。","这样做的好处是每一步都可以独立审计。谁做了什么事、输出了什么文件，清清楚楚。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Sub-Agents</div>
+    <h2 class="grad reveal" data-d="1">7个专业子智能体</h2>
+    <p class="subtitle reveal" data-d="2">每个Agent专职于一个阶段，通过结构化文件异步协作。模型统一为Sonnet（VLM为Haiku）。</p>
+    <div class="reveal" data-d="3" style="overflow-x:auto">
+    <table class="at">
+      <thead><tr><th>智能体</th><th>步骤</th><th>模型</th><th>核心职责</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-cyan">context-builder</span></td><td>Step 2</td><td>Sonnet</td><td>RAG检索 + 本体构建 + R1-R4深度物理映射</td></tr>
+        <tr><td><span class="badge b-cyan">data-processor</span></td><td>Step 3</td><td>Sonnet</td><td>统计分析 + 场景可视化 + 异常检测 + 物理检查</td></tr>
+        <tr><td><span class="badge b-v">vlm-visual-analyzer</span></td><td>Step 3.5</td><td>Haiku</td><td>本体感知的VLM图像分析（data-processor内部委托）</td></tr>
+        <tr><td><span class="badge b-cyan">diagnostician</span></td><td>Step 4</td><td>Sonnet</td><td>竞争性假设根因诊断 — 系统的大脑</td></tr>
+        <tr><td><span class="badge b-am">judge</span></td><td>Step 5</td><td>Sonnet</td><td>10项质量门审查 + 物理源审计</td></tr>
+        <tr><td><span class="badge b-cyan">reporter</span></td><td>Step 6</td><td>Sonnet</td><td>20节中文诊断报告生成</td></tr>
+        <tr><td><span class="badge b-v">report-reviewer</span></td><td>Step 7</td><td>Sonnet</td><td>独立物理真实审计 + 优化建议</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="card reveal" data-d="4" style="padding:8px 14px">
+      <div class="text-xs text-muted" style="text-align:center"><strong style="color:var(--cyan)">Agent解耦原则：</strong> 仅通过workspace文件通信 &nbsp;·&nbsp; <strong style="color:var(--cyan)">Schema优先：</strong> 先读schema再写 &nbsp;·&nbsp; <strong style="color:var(--cyan)">执行证明：</strong> `.pipeline_events.jsonl` 不可缺失</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: 数据到知识 (Steps 0-3) -->
+<section class="slide" data-title="数据到知识" data-section="执行体系" data-speech='["前四步的目标是把原始数据转化为结构化知识。","最巧妙的设计是context-builder和data-processor可以并行工作——一个在创建本体，一个在做数据分析，最后在诊断环节汇合。这大幅缩短了等待时间。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Steps 0 &rarr; 3</div>
+    <h2 class="grad reveal" data-d="1">数据到知识：前半程管线</h2>
+    <p class="subtitle reveal" data-d="2">从原始数据文件到结构化领域知识的转化过程——这是诊断的基础设施建设。</p>
+    <div class="cg cg2" style="gap:12px">
+      <div class="card card-ht reveal" data-d="3">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#9881; Step 0-1: 初始化与勘探</div>
+        <ul class="cl">
+          <li><code>setup.mjs</code> 创建运行目录 + <code>.pipeline_events.jsonl</code> 执行证明</li>
+          <li><code>inspect.mjs</code> 流式解析 CSV/JSON/TSV（超大文件友好）</li>
+          <li>产出：<code>input_manifest.json</code> + <code>user_context.json</code></li>
+          <li>三种交互模式：auto / interactive / minimal</li>
+        </ul>
+      </div>
+      <div class="card card-v reveal" data-d="4">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#128214; Step 2: 领域本体（context-builder）</div>
+        <ul class="cl">
+          <li>RAG检索 + R1-R4深度理解协议：语义理解→知识对齐→物理提取→差距识别</li>
+          <li>产出：<code>ontology.json</code> + <code>schema.json</code> + <code>extracted_knowledge.json</code></li>
+          <li>支持ChromaDB向量检索 + 本地回退</li>
+        </ul>
+      </div>
+      <div class="card card-ht reveal" data-d="5">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#128200; Step 3: 数据分析（data-processor）</div>
+        <ul class="cl">
+          <li>高级统计引擎：Pearson/Spearman/分层/去趋势/变点/延迟CCF</li>
+          <li>Simpson's Paradox 检测 + 趋势混淆分析</li>
+          <li>场景自适应可视化 + VLM视觉分析委托</li>
+          <li>强制交接文件：<code>data_analysis_conclusion.json</code> → diagnostician</li>
+        </ul>
+      </div>
+      <div class="card card-v reveal" data-d="6">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#128065; Step 3.5 VLM视觉分析（内部委托）</div>
+        <ul class="cl">
+          <li>由data-processor在Phase 5.5内部委托vlm-visual-analyzer</li>
+          <li>先读ontology理解参数含义 → 再带知识看图</li>
+          <li>产出：<code>visual_analysis.json</code> + <code>image_captions.json</code></li>
+          <li>本体感知的图+统计+知识联合提取</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal" data-d="7" style="margin-top:8px;text-align:center">
+      <span class="vt"><span class="vt-mute">预热并行：本体未就绪前 data-processor 可先做基线分析</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: 诊断到交付 (Steps 4-8) -->
+<section class="slide" data-title="诊断到交付" data-section="执行体系" data-speech='["Step 4是整个系统的心脏——竞争性假设推理引擎。它融合了数据、本体、物理机制和VLM图像证据。","但诊断之后不是直接出报告——还有法官评分、预审计、正式审计三层把关。每一层都可能打回去重做。这不是低效，是质量保证。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Steps 4 &rarr; 8</div>
+    <h2 class="grad reveal" data-d="1">诊断到交付：后半程管线</h2>
+    <p class="subtitle reveal" data-d="2">从竞争性假设推理到最终报告交付——这是系统的价值生成阶段。</p>
+    <div class="cg cg2" style="gap:12px">
+      <div class="card card-v reveal" data-d="3" style="border-color:rgba(168,85,247,.2)">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#129504; Step 4: Diagnostician（核心引擎）</div>
+        <ul class="cl">
+          <li>Phase 0-7 内部流程：数据探测→假设生成→区分性评估→排除→判定→置信度校准</li>
+          <li>融合数据 + 本体 + 物理 + VLM 四类证据</li>
+          <li>每个结论含：ontology_data_physics_proof + physical_logic_chain + falsification_conditions</li>
+          <li>产出：<code>diagnosis.json</code> <code>evidence.json</code> <code>confidence.json</code> <code>reasoning_chain.json</code>（×4 Schema验证）</li>
+        </ul>
+      </div>
+      <div class="card card-ht reveal" data-d="4">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#9881; Step 5-5b: 质量门预审（并行关卡）</div>
+        <ul class="cl">
+          <li><strong>Judge：</strong>10项评分 + 物理源审计。Verdict: pass(≥90) / needs_repair / major_issues / fail</li>
+          <li><strong>Pre-audit：</strong>report-reviewer在PRE_REPORT_AUDIT模式下并行审计物理表述</li>
+          <li>硬门：blocking_issues=0 + score≥90 才允许进入报告生成</li>
+        </ul>
+      </div>
+      <div class="card card-ht reveal" data-d="5">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#128221; Step 6-7: 报告与审计</div>
+        <ul class="cl">
+          <li>Reporter：生成791+行/20节中文诊断报告 + <code>run_summary.json</code></li>
+          <li>Report-reviewer：独立物理真实审计 → <code>optimizer.md</code></li>
+          <li>ENDORSED → 交付 | CONDITIONAL/REJECTED → 修复循环</li>
+        </ul>
+      </div>
+      <div class="card card-v reveal" data-d="6">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#9881; Step 8: 最终校验交付</div>
+        <ul class="cl">
+          <li><code>finalize-run-artifacts.mjs</code> → 刷新证据闭合报告 + 记录run_completed</li>
+          <li><code>artifact-check.mjs</code> → 最终门禁验证</li>
+          <li>校验执行证明、证据闭合、VLM执行记录、诊断质量契约</li>
+          <li>任何门禁未通过 → 标记为blocked run而非完成</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: 修复循环 -->
+<section class="slide" data-title="修复循环" data-section="执行体系" data-speech='["质量门发现问题→自动回诊断环节重做→再审。物理审计发现问题→完整走一遍→再审。","但全局上限5次，防止无限空转。这个计数器是持久化在事件日志里的——重启也能接上。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Repair Loops</div>
+    <h2 class="grad reveal" data-d="1">自动修复循环</h2>
+    <p class="subtitle reveal" data-d="2">质量门和审计发现问题自动触发诊断修复，无需人工介入。计数器持久化在 <code>.pipeline_events.jsonl</code>。</p>
+    <!-- Diagram -->
+    <div class="reveal" data-d="3" style="display:flex;align-items:center;justify-content:center;gap:0;margin:8px 0 14px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div class="rp" style="background:rgba(168,85,247,.1);border:1.5px solid var(--violet);color:var(--violet)">D</div>
+        <div class="rp-label">Diagnostician</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;position:relative;padding:0 6px">
+        <div class="rp-arrow"></div>
+        <div style="font-size:8px;color:var(--text2);margin:1px 0">&#8593; 修复 &#8595;</div>
+        <div class="rp-arrow" style="transform:rotate(180deg);"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div class="rp" style="background:rgba(245,158,11,.1);border:1.5px solid var(--amber);color:var(--amber)">J</div>
+        <div class="rp-label">Judge</div>
+      </div>
+      <div class="rp-arrow" style="margin:0 4px"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div class="rp" style="background:rgba(34,211,238,.1);border:1.5px solid var(--cyan);color:var(--cyan)">R</div>
+        <div class="rp-label">Reporter</div>
+      </div>
+      <div class="rp-arrow" style="margin:0 4px"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div class="rp" style="background:rgba(52,211,153,.1);border:1.5px solid var(--green);color:var(--green)">A</div>
+        <div class="rp-label">Auditor</div>
+      </div>
+    </div>
+    <div class="cg cg3" style="gap:8px" class="reveal" data-d="4">
+      <div class="card" style="padding:10px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--amber)">&#9888; Loop 1: Judge→Diagnostician</div>
+        <div class="text-xs text-muted">最多3次修复。评分＜90或blocking issue时触发。完成后重新Judge。</div>
+      </div>
+      <div class="card" style="padding:10px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--violet)">&#9888; Loop 2: Reviewer→Diagnostician</div>
+        <div class="text-xs text-muted">最多2次完整D→J→R→A迭代。审计发现问题时触发。</div>
+      </div>
+      <div class="card card-ht" style="padding:10px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--cyan)">&#9881; 全局上限 ≤ 5</div>
+        <div class="text-xs text-muted">重诊断总次数上限5。计数器由<code>.pipeline_events.jsonl</code>中的<code>repair_spawn</code>事件持久化维护。</div>
+      </div>
+    </div>
+    <div class="reveal" data-d="5" style="margin-top:8px;text-align:center">
+      <span class="vt"><span class="vt-mute">状态无丢失：重启可接续修复计数器</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     ACT 4: 信任体系
+     ================================================================ -->
+
+<!-- SECTION DIVIDER 3: 信任体系 -->
+<section class="slide section-divider" data-title="信任体系" data-section="信任体系" data-speech='["诊断结论必须经得起质疑——在工业现场，错误的诊断可能导致千万级别的损失。","来看看我们通过哪些机制，让系统的每一次输出都可信、可追溯。"]' data-divider="III">
+  <div class="divider-content">
+    <div class="reveal" data-d="0"><div class="divider-num">III</div></div>
+    <div class="divider-text reveal" data-d="1">
+      <div class="tag">Trust System</div>
+      <h2>信任体系</h2>
+      <p class="subtitle">7级证据等级 &middot; 10项质量门 &middot; 独立物理审计 &middot; Schema优先 &middot; 执行证明</p>
+      <p class="text-sm" style="color:var(--text2)">每一项设计都为了让输出经得起专家、同行和自己的反复审视</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12: 证据等级 -->
+<section class="slide" data-title="证据等级体系" data-section="信任体系" data-speech='["每个结论都带一个「证据标签」。等级1是直接测量——最可信。等级7是无支持假设——本质上是猜。","为什么透明标注这么重要？因为在工厂里，知道一个结论有多可靠，有时候比结论本身还重要。你可以根据置信度决定下一步行动。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Evidence Hierarchy</div>
+    <h2 class="grad reveal" data-d="1">7级证据等级体系</h2>
+    <p class="subtitle reveal" data-d="2">每个结论受限于其最弱证据等级。透明标注来源等级，让使用者自行判断可信度。</p>
+    <div class="eb reveal" data-d="3">
+      <div class="er">
+        <div class="er-num" style="background:rgba(52,211,153,.15);color:var(--green)">1</div>
+        <div class="er-lbl">直接测量值</div>
+        <div class="er-bar" style="background:rgba(52,211,153,.2);max-width:280px"></div>
+        <div class="er-cf">最高</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(34,211,238,.15);color:var(--cyan)">2</div>
+        <div class="er-lbl">用户文档（SOP/手册）</div>
+        <div class="er-bar" style="background:rgba(34,211,238,.18);max-width:220px"></div>
+        <div class="er-cf">高</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(59,130,246,.15);color:var(--blue)">3</div>
+        <div class="er-lbl">统计分析（含验证报告）</div>
+        <div class="er-bar" style="background:rgba(59,130,246,.18);max-width:190px"></div>
+        <div class="er-cf">中高</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(99,102,241,.15);color:var(--blend)">4</div>
+        <div class="er-lbl">图表视觉证据（含VLM分析）</div>
+        <div class="er-bar" style="background:rgba(99,102,241,.18);max-width:160px"></div>
+        <div class="er-cf">中</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(168,85,247,.15);color:var(--violet)">5</div>
+        <div class="er-lbl">领域知识/工艺逻辑</div>
+        <div class="er-bar" style="background:rgba(168,85,247,.18);max-width:130px"></div>
+        <div class="er-cf">中</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(245,158,11,.15);color:var(--amber)">6</div>
+        <div class="er-lbl">外部网络引用 [EXTERNAL]</div>
+        <div class="er-bar" style="background:rgba(245,158,11,.18);max-width:90px"></div>
+        <div class="er-cf">低</div>
+      </div>
+      <div class="er">
+        <div class="er-num" style="background:rgba(251,113,133,.15);color:var(--red)">7</div>
+        <div class="er-lbl">无支持假设</div>
+        <div class="er-bar" style="background:rgba(251,113,133,.18);max-width:45px"></div>
+        <div class="er-cf">最低</div>
+      </div>
+    </div>
+    <div class="card reveal" data-d="4" style="padding:8px 14px;margin-top:4px">
+      <div class="text-xs text-muted" style="text-align:center"><strong style="color:var(--text)">置信度上限：</strong>COMPETING_SET场景受上限约束（INDISTINGUISHABLE设为65） &middot; <strong style="color:var(--text)">证据闭合：</strong>每个结论必须连锁到数据源头</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 13: 质量门与审计 -->
+<section class="slide" data-title="质量门与审计" data-section="信任体系" data-speech='["Judge评审+独立审计，双重保障。Judge评的是诊断过程的完整性——有没有遗漏假设？证据支撑是否充分？","审计官查的是物理表述的正确性——这个物理机制在这里真的成立吗？两个关卡并行进行，但逻辑上是双保险。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Quality Gates</div>
+    <h2 class="grad reveal" data-d="1">双重质量保障：Judge + 独立审计</h2>
+    <p class="subtitle reveal" data-d="2">两个独立的审查关卡并行执行，从不同角度确保诊断质量。</p>
+    <div class="cg cg2" style="gap:12px">
+      <div class="card card-ht reveal" data-d="3">
+        <div class="card-title" style="font-size:14px;color:var(--amber)">&#9881; Judge：10项质量门审查</div>
+        <ul class="cl">
+          <li>评分覆盖：问题定义完整性、假设充分性、证据支撑、物理推理、反推测检查、置信度校准、过claim控制、推理链审计、阻断问题检查</li>
+          <li>Hard pass不变量：<code>overall_score ≥ 90</code> + <code>blocking_issues.length === 0</code> + 推理链无问题</li>
+          <li><code>judge-gate-check.mjs</code> 门禁：未通过则 reporter 不合法</li>
+        </ul>
+      </div>
+      <div class="card card-v reveal" data-d="4">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#128269; 独立物理审计（report-reviewer）</div>
+        <ul class="cl">
+          <li><strong>预审计模式：</strong>Step 5b在PRE_REPORT_AUDIT=true下并行运行，产出<code>optimizer_preflight.md</code></li>
+          <li><strong>正式审计：</strong>Step 7独立验证所有物理表述，不依赖reporter推导过程</li>
+          <li><strong style="color:var(--green)">ENDORSED</strong> → 交付 &nbsp;|&nbsp; <strong style="color:var(--amber)">CONDITIONAL / REJECTED</strong> → 修复</li>
+          <li><code>optimizer.md</code>包含：场景优化计划 + 问题 + 验证方案 + 动作分类</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal" data-d="5" style="text-align:center;margin-top:8px">
+      <span class="vt"><span class="vt-mute"><strong>报告门禁：</strong>Judge未pass → reporter不能启动</span> <span class="vt-mute"><strong>审计门禁：</strong>审计未通过 → 自动修复循环</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 14: 工程契约 -->
+<section class="slide" data-title="工程契约" data-section="信任体系" data-speech='["还有三层看不见但极其重要的工程保障。这些不是过度设计——工业现场一个错误诊断可能造成数千万损失。","Schema优先写入、执行事件日志、证据闭合检查——每一层都是防止「看起来像对了但其实错了」的情况发生。"]'>
+  <div class="slide-inner">
+    <div class="tag reveal" data-d="0">Engineering Contract</div>
+    <h2 class="grad reveal" data-d="1">三层工程契约保障</h2>
+    <p class="subtitle reveal" data-d="2">除了算法和逻辑之外，工程实现层面还有三层契约确保系统可靠运行。</p>
+    <div class="cg cg3" style="gap:10px">
+      <div class="card card-ht reveal" data-d="3" style="padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">&#128203;</div>
+        <div class="card-title" style="color:var(--cyan);font-size:14px">Schema-First 写入协议</div>
+        <div class="text-xs text-muted" style="margin-top:4px">写入任何结构化文件前必须读取对应Schema：先读→构造→一次写入→立即验证。失败则检查字段定义后重写，防止token浪费。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">所有结构文件均受此约束</div>
+      </div>
+      <div class="card card-v reveal" data-d="4" style="padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">&#128220;</div>
+        <div class="card-title" style="color:var(--violet);font-size:14px">执行证明日志</div>
+        <div class="text-xs text-muted" style="margin-top:4px"><code>.pipeline_events.jsonl</code>记录每个步骤的开始/完成/依赖等待/修复事件。仅产出文件但日志不完整→判定为执行完整性失败。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">日志即证据</div>
+      </div>
+      <div class="card card-ht reveal" data-d="5" style="padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">&#128208;</div>
+        <div class="card-title" style="color:var(--cyan);font-size:14px">证据闭合检查</div>
+        <div class="text-xs text-muted" style="margin-top:4px">每个诊断结论必须闭合到数据源头：过程异常入口→双驱动入口→本体/物理解释→诊断输出→审查/报告交接。<code>evidence_closure_report.json</code>为机器可读证明。</div>
+        <div class="text-xs" style="margin-top:6px;color:rgba(255,255,255,.15)">从数据到结论可追溯</div>
+      </div>
+    </div>
+    <div class="card reveal" data-d="6" style="padding:8px 16px;margin-top:8px">
+      <div class="text-xs text-muted" style="text-align:center"><strong style="color:var(--cyan)">工程交付契约：</strong><code>run_config</code>标准化 + 强制子Agent交付物 + 当前步骤完整性 + 最终门禁 &nbsp;|&nbsp; <strong style="color:var(--text)">不满足则标记为不可交付</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     ACT 5: 总结
+     ================================================================ -->
+
+<!-- SECTION DIVIDER 4: 总结 -->
+<section class="slide section-divider" data-title="总结" data-section="总结" data-speech='["好了，让我用几句话把整个系统的核心价值串起来。"]' data-divider="IV">
+  <div class="divider-content">
+    <div class="reveal" data-d="0"><div class="divider-num">IV</div></div>
+    <div class="divider-text reveal" data-d="1">
+      <div class="tag">Summary</div>
+      <h2>总结与行动</h2>
+      <p class="subtitle">物理约束 + 竞争假设 + 多智能体协作 = 可信的根因诊断</p>
+      <p class="text-sm" style="color:var(--text2)">这不是一套工具——这是一种诊断哲学</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 15: 全景回顾与命令 -->
+<section class="slide" data-title="全景回顾与命令" data-section="总结" data-speech='["来回顾一下要点。诊断是排除不是确认——这是第一性原理。三重知识源融合——这是能力基础。四支柱+竞争假设——这是方法论。","7个智能体、8步管线、三重质量保障、修复循环——这是工程实现。最后，记住这个公式就够了：物理约束 + 竞争假设 + 多智能体协作 = 可信的根因诊断。"]'>
+  <div class="slide-inner" style="text-align:center">
+    <div class="tag reveal" data-d="0">Takeaway</div>
+    <h2 class="grad reveal" data-d="1">全景回顾</h2>
+    <p class="subtitle reveal" data-d="2" style="max-width:700px;margin:0 auto 14px">从设计哲学到工程实现，这套系统试图回答一个问题：<strong>如何让机器像最优秀的工程师一样思考根因？</strong></p>
+
+    <div class="cg cg2 reveal" data-d="3" style="gap:10px;max-width:700px;margin:0 auto 14px">
+      <div class="card card-ht" style="padding:10px 14px;text-align:left">
+        <div class="card-title" style="font-size:13px;color:var(--cyan)">&#9312; 设计哲学</div>
+        <div class="text-xs text-muted">诊断是排除不是确认 · 四条件缺一不可 · 竞争假设 · 三重知识融合</div>
+      </div>
+      <div class="card card-v" style="padding:10px 14px;text-align:left">
+        <div class="card-title" style="font-size:13px;color:var(--violet)">&#9313; 四支柱</div>
+        <div class="text-xs text-muted">场景自适应 · RAG深度理解 · 数据⇔本体双向 · 物理驱动推理</div>
+      </div>
+      <div class="card card-ht" style="padding:10px 14px;text-align:left">
+        <div class="card-title" style="font-size:13px;color:var(--cyan)">&#9314; 执行体系</div>
+        <div class="text-xs text-muted">7个智能体 · 8步管线 · 并行加速 · 修复循环（上限≤5）</div>
+      </div>
+      <div class="card card-v" style="padding:10px 14px;text-align:left">
+        <div class="card-title" style="font-size:13px;color:var(--violet)">&#9315; 信任体系</div>
+        <div class="text-xs text-muted">7级证据 · 10项质量门 · 独立审计 · Schema优先 · 证据闭合</div>
+      </div>
+    </div>
+
+    <!-- Commands -->
+    <div class="card reveal" data-d="4" style="max-width:600px;margin:0 auto 14px;padding:10px 20px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tbody>
+          <tr><td style="padding:5px 8px;text-align:left;font-weight:600;color:var(--cyan);white-space:nowrap">/industrial-deep-diagnostic</td><td style="padding:5px 8px;text-align:left;color:var(--text2)">全管线（Step 0-8）</td></tr>
+          <tr><td style="padding:5px 8px;text-align:left;font-weight:600;color:var(--cyan)">&hellip; analyze</td><td style="padding:5px 8px;text-align:left;color:var(--text2)">从Step 2开始（跳过导入）</td></tr>
+          <tr><td style="padding:5px 8px;text-align:left;font-weight:600;color:var(--cyan)">&hellip; review</td><td style="padding:5px 8px;text-align:left;color:var(--text2)">重新评审已有结果</td></tr>
+          <tr><td style="padding:5px 8px;text-align:left;font-weight:600;color:var(--cyan)">&hellip; report</td><td style="padding:5px 8px;text-align:left;color:var(--text2)">重新生成报告</td></tr>
+          <tr><td style="padding:5px 8px;text-align:left;font-weight:600;color:var(--cyan)">&hellip; audit</td><td style="padding:5px 8px;text-align:left;color:var(--text2)">仅运行审计</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card card-ht reveal" data-d="5" style="max-width:650px;margin:0 auto 6px;padding:14px 20px;border-color:rgba(34,211,238,.2)">
+      <div style="font-size:17px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,var(--cyan),var(--blend),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+        物理约束 + 竞争假设 + 多智能体协作 = 可信的根因诊断
+      </div>
+      <div class="text-sm" style="margin-top:4px;color:var(--text2)">场景自适应 · RAG深度理解 · 数据⇔本体双向 · 物理驱动推理</div>
+    </div>
+
+    <div class="reveal" data-d="6" style="margin-top:14px">
+      <span style="font-size:11px;color:rgba(255,255,255,.2)">Industrial Deep Diagnostic · 2026</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+/* ===============================================
+   Particle Physics Engine
+   =============================================== */
+(function(){
+  const cv = document.getElementById('bg');
+  if(!cv) return;
+  const cx = cv.getContext('2d');
+  let W, H, pts=[], mx=-9999, my=-9999, fr;
+  const CD=155, MR=130, MF=.35;
+
+  function rs(){
+    W=cv.width=window.innerWidth;
+    H=cv.height=window.innerHeight;
+    const n=Math.min(75,Math.max(30,Math.floor(Math.sqrt(W*H)*.028)));
+    if(pts.length!==n){pts=[];for(let i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.55,vy:(Math.random()-.5)*.55,r:1+Math.random()*1.8})}
+  }
+  function up(){
+    for(let p of pts){
+      const dx=p.x-mx,dy=p.y-my,ds=Math.sqrt(dx*dx+dy*dy);
+      if(ds<MR&&ds>0){const f=(MR-ds)/MR*MF;p.vx+=dx/ds*f;p.vy+=dy/ds*f}
+      p.vx*=.995;p.vy*=.995;p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
+      if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+    }
+  }
+  function dr(){
+    cx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,ds=Math.sqrt(dx*dx+dy*dy);
+      if(ds<CD){cx.strokeStyle=`rgba(255,255,255,${(1-ds/CD)*.12})`;cx.lineWidth=.5;cx.beginPath();cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.stroke()}
+    }
+    for(let p of pts){cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(255,255,255,${.25+p.r*.06})`;cx.fill()}
+  }
+  function lp(){up();dr();fr=requestAnimationFrame(lp)}
+  rs();window.addEventListener('resize',rs);
+  window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+  cv.addEventListener('mouseleave',()=>{mx=-9999;my=-9999});
+  lp();
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(fr);else lp()});
+})();
+
+/* ===============================================
+   Deck Navigation + Character Speech
+   =============================================== */
+(function(){
+  const slides=document.querySelectorAll('.slide'),total=slides.length;
+  let cur=0,tocOpen=false;
+
+  // DOM
+  const pb=document.getElementById('progressBar'),cn=document.getElementById('currentNum'),tn=document.getElementById('totalNum');
+  const sb=document.getElementById('sectionBadge'),sp=document.getElementById('speechText'),sbub=document.getElementById('speechBubble');
+  const prev=document.getElementById('prevBtn'),next=document.getElementById('nextBtn');
+  const tocO=document.getElementById('tocOverlay'),tocG=document.getElementById('tocGrid'),tocC=document.getElementById('tocCloseBtn');
+  const chap=document.getElementById('chapterDots'),ca=document.getElementById('charArea');
+
+  tn.textContent=String(total).padStart(2,'0');
+
+  // Chapter groupings for dots
+  const chapterMap=[
+    {s:0,e:2,name:'引子'},{s:3,e:6,name:'设计哲学'},{s:7,e:10,name:'执行体系'},{s:11,e:13,name:'信任体系'},{s:14,e:15,name:'总结'}
+  ];
+  chapterMap.forEach((ch,i)=>{
+    const d=document.createElement('div');d.className='chapter-dot';d.dataset.idx=i;chap.appendChild(d);
+  });
+
+  // TOC
+  const sTitles=[];
+  slides.forEach((s,i)=>{
+    const t=s.dataset.title||`页面${i+1}`;
+    sTitles.push(t);
+    const it=document.createElement('div');it.className='toc-item';
+    it.innerHTML=`<span class="toc-num">${String(i+1).padStart(2,'0')}</span><span>${t}</span>`;
+    it.addEventListener('click',()=>{show(i);toggleToc()});
+    tocG.appendChild(it);
+  });
+
+  // Speech data: per-slide character lines
+  const speechData={};
+  slides.forEach((s,i)=>{
+    try{
+      const raw=s.dataset.speech;
+      if(raw){speechData[i]=JSON.parse(raw.replace(/'/g,'"'));}
+      else speechData[i]=null;
+    }catch(e){speechData[i]=null}
+  });
+
+  let typeTimer=null;
+  function typeText(el,lines,cb){
+    if(typeTimer){clearInterval(typeTimer);typeTimer=null}
+    el.textContent='';
+    if(!lines||lines.length===0){if(cb)cb();return}
+    let li=0,ci=0,line='';
+    const type=()=>{
+      if(li>=lines.length){if(cb)cb();return}
+      if(ci===0){line=lines[li];el.textContent='';ci=0}
+      if(ci<line.length){
+        el.textContent+=line.charAt(ci);ci++;
+        typeTimer=setTimeout(type,28+Math.random()*16);
+      }else{
+        el.textContent+='\n';li++;ci=0;
+        typeTimer=setTimeout(type,300);
+      }
+    };
+    type();
+  }
+
+  function stopType(){
+    if(typeTimer){clearInterval(typeTimer);typeTimer=null}
+  }
+
+  function show(idx){
+    idx=Math.max(0,Math.min(total-1,idx));
+    if(idx===cur)return;
+    stopType();
+    slides[cur].classList.remove('active');
+    cur=idx;
+    slides[cur].classList.add('active');
+    updateUI();
+    triggerReveal(cur);
+    // Character speech
+    const lines=speechData[cur];
+    if(lines&&lines.length>0){
+      sbub.classList.remove('show');
+      sbub.style.opacity='0';sbub.style.transform='translateY(8px) scale(.95)';
+      setTimeout(()=>{
+        sbub.style.opacity='1';sbub.style.transform='none';sbub.classList.add('show');
+        typeText(sp,lines);
+      },400);
+    }else{
+      sbub.style.opacity='0';sbub.style.transform='translateY(8px) scale(.95)';sbub.classList.remove('show');
+      sp.textContent='';
+    }
+    // Section divider mode
+    ca.classList.toggle('section-char-mode',slides[cur].classList.contains('section-divider'));
+  }
+
+  function updateUI(){
+    pb.style.width=`${((cur+1)/total)*100}%`;
+    cn.textContent=String(cur+1).padStart(2,'0');
+    sb.textContent=slides[cur].dataset.section||'';
+    prev.classList.toggle('active',cur>0);
+    next.classList.toggle('active',cur<total-1);
+    // Chapter dots
+    document.querySelectorAll('.chapter-dot').forEach((d,i)=>{
+      const ch=chapterMap[i];
+      d.classList.toggle('active',cur>=ch.s&&cur<=ch.e);
+    });
+  }
+
+  function triggerReveal(si){
+    const s=slides[si];
+    const rvs=s.querySelectorAll('.reveal');
+    rvs.forEach((el,i)=>{
+      el.classList.remove('revealed');void el.offsetWidth;
+      el.style.transitionDelay=Math.min(i*.06,.5)+'s';
+      el.classList.add('revealed');
+    });
+  }
+
+  function toggleToc(){tocOpen=!tocOpen;tocO.classList.toggle('open',tocOpen)}
+  function nxt(){if(cur<total-1)show(cur+1)}
+  function prv(){if(cur>0)show(cur-1)}
+
+  // Keyboard
+  document.addEventListener('keydown',e=>{
+    if(tocOpen){if(e.key==='Escape'||e.key==='m'||e.key==='M'){toggleToc();e.preventDefault()}return}
+    switch(e.key){
+      case 'ArrowRight':case 'ArrowDown':case ' ':case 'n':case'N':e.preventDefault();nxt();break;
+      case 'ArrowLeft':case 'ArrowUp':case 'p':case'P':e.preventDefault();prv();break;
+      case 'Home':e.preventDefault();show(0);break;
+      case 'End':e.preventDefault();show(total-1);break;
+      case 'm':case'M':e.preventDefault();toggleToc();break;
+      case 'f':case'F':e.preventDefault();
+        if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen().catch(()=>{});
+        break;
+      case 'Escape':if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});break;
+    }
+  });
+
+  prev.addEventListener('click',prv);next.addEventListener('click',nxt);
+  tocC.addEventListener('click',toggleToc);
+
+  // Touch swipe
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].screenX-tx,dy=e.changedTouches[0].screenY-ty;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*.7){if(dx<0)nxt();else prv()}
+  },{passive:true});
+
+  // Wheel
+  let wl=false;
+  document.addEventListener('wheel',e=>{
+    if(wl)return;
+    if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){if(e.deltaX>20){nxt();wl=true}else if(e.deltaX<-20){prv();wl=true}}
+    else{if(e.deltaY>40){nxt();wl=true}else if(e.deltaY<-40){prv();wl=true}}
+    if(wl)setTimeout(()=>wl=false,500);
+  },{passive:true});
+
+  show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工业深度诊断 Skill · 动效流程图</title>
+  <style>
+    :root {
+      --bg: #f5f3ec;
+      --paper: #fffdf8;
+      --ink: #16202f;
+      --line: #314155;
+      --muted: #66758a;
+      --blue: #2f6db2;
+      --green: #2f855a;
+      --orange: #c26b20;
+      --red: #bb4d2f;
+      --yellow: #aa7a15;
+      --shadow: 0 18px 50px rgba(27, 39, 54, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(47,109,178,0.08), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(47,133,90,0.08), transparent 24%),
+        linear-gradient(180deg, #f7f5ef 0%, #f2efe7 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .shell {
+      max-width: 1680px;
+      margin: 0 auto;
+      background: rgba(255, 253, 248, 0.76);
+      border: 1px solid rgba(49, 65, 85, 0.12);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 28px 34px 18px;
+      border-bottom: 1px solid rgba(49, 65, 85, 0.1);
+      background:
+        linear-gradient(120deg, rgba(255,255,255,0.85), rgba(255,253,248,0.65)),
+        linear-gradient(90deg, rgba(47,109,178,0.04), rgba(47,133,90,0.04));
+    }
+
+    .title {
+      font-size: 34px;
+      line-height: 1.18;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--muted);
+      margin: 0;
+      max-width: 1180px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid rgba(49, 65, 85, 0.12);
+      background: rgba(255,255,255,0.86);
+      color: var(--line);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(960px, 1.7fr) minmax(320px, 0.72fr);
+      gap: 0;
+      min-height: 820px;
+    }
+
+    .chart-panel {
+      position: relative;
+      padding: 22px 20px 18px 20px;
+      border-right: 1px solid rgba(49, 65, 85, 0.1);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,253,248,0.9)),
+        linear-gradient(90deg, rgba(47,109,178,0.025), transparent 55%);
+    }
+
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 0 12px 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .legend-line {
+      width: 36px;
+      height: 0;
+      border-top: 3px solid var(--line);
+      position: relative;
+    }
+
+    .legend-line.dashed { border-top-style: dashed; }
+    .legend-line.red { border-top-color: var(--red); }
+    .legend-line.blue { border-top-color: var(--blue); }
+
+    .legend-line::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -6px;
+      border-left: 8px solid currentColor;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      color: inherit;
+    }
+
+    .legend-line.blue { color: var(--blue); }
+    .legend-line.red { color: var(--red); }
+    .legend-line.dashed { color: var(--line); }
+    .legend-line.solid { color: var(--line); }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .lane-label {
+      font-size: 14px;
+      font-weight: 700;
+      fill: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .lane-box {
+      fill: rgba(255,255,255,0.56);
+      stroke: rgba(49, 65, 85, 0.12);
+      stroke-width: 1.2;
+      stroke-dasharray: 6 8;
+    }
+
+    .node {
+      cursor: pointer;
+      transition: transform 220ms ease;
+    }
+
+    .node .card {
+      fill: rgba(255, 253, 248, 0.98);
+      stroke: var(--line);
+      stroke-width: 2;
+      rx: 18;
+      ry: 18;
+      transition: fill 220ms ease, stroke 220ms ease, filter 220ms ease;
+    }
+
+    .node.step-main .card { stroke: var(--blue); }
+    .node.step-analysis .card { stroke: var(--green); }
+    .node.step-diagnose .card { stroke: var(--orange); }
+    .node.step-review .card { stroke: var(--red); }
+    .node.step-gate .card { stroke: var(--yellow); }
+
+    .node .title {
+      font-size: 18px;
+      font-weight: 700;
+      fill: var(--ink);
+    }
+
+    .node .role {
+      font-size: 13px;
+      fill: var(--muted);
+      font-weight: 600;
+    }
+
+    .node .desc {
+      font-size: 12.5px;
+      fill: var(--line);
+    }
+
+    .node .chip {
+      font-size: 11px;
+      fill: var(--muted);
+    }
+
+    .mini-tag {
+      fill: rgba(47, 109, 178, 0.1);
+      stroke: rgba(47, 109, 178, 0.25);
+      stroke-width: 1;
+    }
+
+    .node.active .card,
+    .node:hover .card {
+      fill: #ffffff;
+      filter: drop-shadow(0 12px 18px rgba(47,109,178,0.14));
+    }
+
+    .node.active .card {
+      stroke-width: 3;
+    }
+
+    .node.active.step-main .card { stroke: var(--blue); }
+    .node.active.step-analysis .card { stroke: var(--green); }
+    .node.active.step-diagnose .card { stroke: var(--orange); }
+    .node.active.step-review .card { stroke: var(--red); }
+    .node.active.step-gate .card { stroke: var(--yellow); }
+
+    .node.active .pulse-ring {
+      opacity: 1;
+      animation: pulseRing 2s ease-out infinite;
+    }
+
+    .pulse-ring {
+      fill: none;
+      stroke: rgba(47, 109, 178, 0.2);
+      stroke-width: 10;
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    @keyframes pulseRing {
+      0% { opacity: 0.45; stroke-width: 8; }
+      100% { opacity: 0; stroke-width: 34; }
+    }
+
+    .flow {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 3;
+      stroke-linecap: round;
+      marker-end: url(#arrow);
+      stroke-dasharray: 12 10;
+      animation: moveLine 9s linear infinite;
+      opacity: 0.85;
+      transition: stroke 220ms ease, opacity 220ms ease, stroke-width 220ms ease;
+    }
+
+    .flow.async {
+      stroke: var(--blue);
+      marker-end: url(#arrowBlue);
+      stroke-dasharray: 10 9;
+    }
+
+    .flow.internal {
+      stroke: var(--muted);
+      stroke-dasharray: 5 8;
+      marker-end: url(#arrowGray);
+    }
+
+    .flow.repair {
+      stroke: var(--red);
+      marker-end: url(#arrowRed);
+      stroke-dasharray: 11 8;
+      animation-duration: 6.5s;
+    }
+
+    .flow.active {
+      opacity: 1;
+      stroke-width: 4.8;
+    }
+
+    .flow-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      fill: var(--muted);
+    }
+
+    .flow-label.accent { fill: var(--blue); }
+    .flow-label.repair { fill: var(--red); }
+
+    @keyframes moveLine {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -120; }
+    }
+
+    .info-panel {
+      padding: 24px 22px 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,253,248,0.98)),
+        linear-gradient(180deg, rgba(47,109,178,0.02), transparent 44%);
+    }
+
+    .info-card,
+    .mode-card,
+    .explain-card {
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(49, 65, 85, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 10px 24px rgba(27, 39, 54, 0.05);
+    }
+
+    .info-card {
+      padding: 18px 18px 16px;
+      min-height: 392px;
+    }
+
+    .info-step {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .info-title {
+      font-size: 24px;
+      line-height: 1.32;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .info-role {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .info-summary {
+      font-size: 14px;
+      line-height: 1.78;
+      color: var(--line);
+      margin-bottom: 16px;
+    }
+
+    .info-block-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 14px 0 8px;
+    }
+
+    .info-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--line);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .info-list li { margin: 4px 0; }
+
+    .mode-card {
+      margin-top: 16px;
+      padding: 16px 16px 14px;
+    }
+
+    .mode-card h3,
+    .explain-card h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .mode-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mode-item {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(245, 243, 236, 0.84);
+      border: 1px solid rgba(49, 65, 85, 0.08);
+    }
+
+    .mode-item strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .mode-item span {
+      display: block;
+      font-size: 12px;
+      line-height: 1.62;
+      color: var(--muted);
+    }
+
+    .explain-card {
+      margin-top: 16px;
+      padding: 16px;
+    }
+
+    .explain-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--line);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .footer-note {
+      padding: 14px 18px 2px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1420px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(49, 65, 85, 0.1);
+      }
+    }
+
+    @media (max-width: 960px) {
+      .page { padding: 10px; }
+      .header { padding: 20px 18px 16px; }
+      .title { font-size: 28px; }
+      .chart-caption { flex-direction: column; align-items: flex-start; }
+      .layout { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <div class="header">
+        <h1 class="title">工业深度诊断 Skill · 单页动效流程图</h1>
+        <p class="subtitle">
+          这张图把当前 pipeline 的真实工作方式画成一页可演示流程图：哪些 step 串行、哪些地方并行、质量门在哪里、返修回路如何触发、每个 Agent 分别在做什么，都能直接看到。
+        </p>
+        <div class="meta">
+          <span class="pill">主路径：Step 0 → Step 8</span>
+          <span class="pill">默认模式：ontology_first</span>
+          <span class="pill">双重审查：Judge + Report Reviewer</span>
+          <span class="pill">返修上限：Judge≤3，Reviewer≤2，全局≤5</span>
+          <span class="pill">图像分析：Step 3 内部调用 VLM 子 Agent</span>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="chart-panel">
+          <div class="chart-caption">
+            <div>动效说明：页面会自动轮播高亮每个 step；也可以直接点击任意节点查看该 step 的职责、输入输出和与上下游的关系。</div>
+            <div class="legend">
+              <span class="legend-item"><span class="legend-line solid"></span> 主流程</span>
+              <span class="legend-item"><span class="legend-line blue"></span> 并行 / 条件门</span>
+              <span class="legend-item"><span class="legend-line dashed"></span> 内部委托</span>
+              <span class="legend-item"><span class="legend-line red"></span> 返修回路</span>
+            </div>
+          </div>
+
+          <svg viewBox="0 0 1440 760" aria-label="工业深度诊断流程图">
+            <defs>
+              <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M0,0 L14,7 L0,14 z" fill="#314155"></path>
+              </marker>
+              <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M0,0 L14,7 L0,14 z" fill="#2f6db2"></path>
+              </marker>
+              <marker id="arrowRed" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M0,0 L14,7 L0,14 z" fill="#bb4d2f"></path>
+              </marker>
+              <marker id="arrowGray" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M0,0 L14,7 L0,14 z" fill="#66758a"></path>
+              </marker>
+            </defs>
+
+            <rect x="28" y="58" width="720" height="300" rx="26" class="lane-box"></rect>
+            <rect x="765" y="58" width="315" height="300" rx="26" class="lane-box"></rect>
+            <rect x="1088" y="58" width="324" height="644" rx="26" class="lane-box"></rect>
+            <text x="48" y="48" class="lane-label">知识准备与数据理解</text>
+            <text x="785" y="48" class="lane-label">分析与根因判断</text>
+            <text x="1108" y="48" class="lane-label">质量门、报告与终审</text>
+
+            <path id="e-s0-s1" class="flow active" d="M170 150 C193 150, 203 150, 226 150"></path>
+            <path id="e-s1-s2" class="flow active" d="M356 150 C378 150, 390 150, 412 150"></path>
+            <path id="e-s2-s25" class="flow async" d="M527 188 C527 208, 527 220, 527 236"></path>
+            <path id="e-s25-s3" class="flow active" d="M642 286 C694 286, 694 150, 746 150"></path>
+            <path id="e-s3-s35" class="flow internal" d="M860 188 C860 205, 860 214, 860 232"></path>
+            <path id="e-s3-s4" class="flow active" d="M974 150 C996 150, 1008 150, 1030 150"></path>
+            <path id="e-s4-s5" class="flow async" d="M1144 134 C1176 134, 1184 118, 1218 118"></path>
+            <path id="e-s4-s5b" class="flow async" d="M1144 168 C1176 168, 1184 274, 1218 274"></path>
+            <path id="e-s5-gate" class="flow async" d="M1328 118 C1360 118, 1360 208, 1360 242"></path>
+            <path id="e-s5b-gate" class="flow async" d="M1328 274 C1342 274, 1348 260, 1360 252"></path>
+            <path id="e-gate-s6" class="flow active" d="M1360 320 C1360 352, 1360 374, 1360 398"></path>
+            <path id="e-s6-s7" class="flow active" d="M1330 498 C1350 498, 1366 498, 1386 498"></path>
+            <path id="e-s7-s8" class="flow active" d="M1390 578 C1390 607, 1390 624, 1390 648"></path>
+
+            <path id="e-repair-judge" class="flow repair" d="M1218 132 C1168 52, 1000 24, 925 78 C900 96, 896 110, 890 124"></path>
+            <path id="e-repair-review" class="flow repair" d="M1388 514 C1320 694, 1046 730, 923 605 C865 545, 866 342, 1092 184"></path>
+
+            <text x="534" y="228" class="flow-label accent">未知参数澄清 / 自动物理推断</text>
+            <text x="876" y="228" class="flow-label">Step 3 内部委托</text>
+            <text x="1182" y="86" class="flow-label accent">Step 4 后并行启动</text>
+            <text x="1314" y="228" class="flow-label accent">双门都通过，才允许写报告</text>
+            <text x="950" y="38" class="flow-label repair">Judge 返修：只回到 Diagnostician，最多 3 次</text>
+            <text x="980" y="736" class="flow-label repair">Reviewer 返修：触发 D→J→R→Review 重跑，最多 2 轮</text>
+
+            <g id="node-s0" class="node step-main active" transform="translate(56 92)">
+              <circle class="pulse-ring" cx="56" cy="56" r="34"></circle>
+              <rect class="card" width="114" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 0</text>
+              <text x="16" y="57" class="role">Setup</text>
+              <text x="16" y="80" class="desc">建 run 目录</text>
+              <text x="16" y="98" class="chip">venv / manifest</text>
+            </g>
+
+            <g id="node-s1" class="node step-main" transform="translate(226 92)">
+              <circle class="pulse-ring" cx="64" cy="56" r="34"></circle>
+              <rect class="card" width="130" height="116" rx="18"></rect>
+              <text x="18" y="34" class="title">Step 1</text>
+              <text x="18" y="57" class="role">Inspect</text>
+              <text x="18" y="80" class="desc">识别列、类型、目标</text>
+              <text x="18" y="98" class="chip">input_manifest</text>
+            </g>
+
+            <g id="node-s2" class="node step-main" transform="translate(412 92)">
+              <circle class="pulse-ring" cx="58" cy="56" r="34"></circle>
+              <rect class="card" width="115" height="116" rx="18"></rect>
+              <text x="18" y="34" class="title">Step 2</text>
+              <text x="18" y="57" class="role">Context</text>
+              <text x="18" y="80" class="desc">RAG + 本体构建</text>
+              <text x="18" y="98" class="chip">ontology</text>
+            </g>
+
+            <g id="node-s25" class="node step-gate" transform="translate(414 236)">
+              <circle class="pulse-ring" cx="114" cy="50" r="32"></circle>
+              <rect class="card" width="228" height="100" rx="18"></rect>
+              <text x="18" y="32" class="title">Step 2.5</text>
+              <text x="18" y="55" class="role">Clarification Gate</text>
+              <text x="18" y="77" class="desc">未知参数确认 / 自动物理推断</text>
+            </g>
+
+            <g id="node-s3" class="node step-analysis" transform="translate(746 92)">
+              <circle class="pulse-ring" cx="114" cy="56" r="36"></circle>
+              <rect class="card" width="228" height="116" rx="18"></rect>
+              <text x="18" y="34" class="title">Step 3</text>
+              <text x="18" y="57" class="role">Data Processor</text>
+              <text x="18" y="80" class="desc">统计、异常、验证、可视化</text>
+              <text x="18" y="98" class="chip">data_analysis_conclusion</text>
+            </g>
+
+            <g id="node-s35" class="node step-analysis" transform="translate(772 232)">
+              <circle class="pulse-ring" cx="88" cy="42" r="28"></circle>
+              <rect class="card" width="176" height="84" rx="18"></rect>
+              <text x="16" y="31" class="title">内部 Step 3.5</text>
+              <text x="16" y="53" class="role">VLM 读图子 Agent</text>
+              <text x="16" y="71" class="chip">visual_analysis</text>
+            </g>
+
+            <g id="node-s4" class="node step-diagnose" transform="translate(1030 92)">
+              <circle class="pulse-ring" cx="58" cy="56" r="34"></circle>
+              <rect class="card" width="114" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 4</text>
+              <text x="16" y="57" class="role">Diagnose</text>
+              <text x="16" y="80" class="desc">竞争性假设</text>
+              <text x="16" y="98" class="chip">diagnosis</text>
+            </g>
+
+            <g id="node-s5" class="node step-review" transform="translate(1218 60)">
+              <circle class="pulse-ring" cx="55" cy="58" r="34"></circle>
+              <rect class="card" width="110" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 5</text>
+              <text x="16" y="57" class="role">Judge</text>
+              <text x="16" y="80" class="desc">10项质量门</text>
+              <text x="16" y="98" class="chip">score ≥ 90</text>
+            </g>
+
+            <g id="node-s5b" class="node step-review" transform="translate(1218 216)">
+              <circle class="pulse-ring" cx="78" cy="58" r="34"></circle>
+              <rect class="card" width="110" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">预审</text>
+              <text x="16" y="57" class="role">Pre-Audit</text>
+              <text x="16" y="80" class="desc">物理真相拦截</text>
+              <text x="16" y="98" class="chip">并行跑</text>
+            </g>
+
+            <g id="node-gate" class="node step-gate" transform="translate(1298 360)">
+              <circle class="pulse-ring" cx="62" cy="60" r="34"></circle>
+              <path class="card" d="M62 0 L124 60 L62 120 L0 60 Z"></path>
+              <text x="26" y="53" class="role">双门</text>
+              <text x="20" y="74" class="role">通过</text>
+            </g>
+
+            <g id="node-s6" class="node step-main" transform="translate(1210 440)">
+              <circle class="pulse-ring" cx="60" cy="58" r="34"></circle>
+              <rect class="card" width="120" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 6</text>
+              <text x="16" y="57" class="role">Reporter</text>
+              <text x="16" y="80" class="desc">生成报告</text>
+              <text x="16" y="98" class="chip">report.md</text>
+            </g>
+
+            <g id="node-s7" class="node step-review" transform="translate(1386 440)">
+              <circle class="pulse-ring" cx="58" cy="58" r="34"></circle>
+              <rect class="card" width="116" height="116" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 7</text>
+              <text x="16" y="57" class="role">Final Audit</text>
+              <text x="16" y="80" class="desc">终审与优化建议</text>
+              <text x="16" y="98" class="chip">optimizer</text>
+            </g>
+
+            <g id="node-s8" class="node step-main" transform="translate(1330 640)">
+              <circle class="pulse-ring" cx="60" cy="44" r="30"></circle>
+              <rect class="card" width="120" height="88" rx="18"></rect>
+              <text x="16" y="34" class="title">Step 8</text>
+              <text x="16" y="58" class="role">Present / Finalize</text>
+              <rect x="18" y="67" width="84" height="16" rx="8" class="mini-tag"></rect>
+              <text x="25" y="79" class="chip">run_summary / closure</text>
+            </g>
+
+            <text x="64" y="382" class="flow-label">模式 1：ontology_first</text>
+            <text x="64" y="402" class="flow-label">Step 3 的完整分析必须等待 Step 2 的 ontology 就绪。</text>
+            <text x="64" y="452" class="flow-label">模式 2：pre-report parallel</text>
+            <text x="64" y="472" class="flow-label">Step 4 之后，Judge 与 Report Reviewer 预审并行，先拦截错误结论，再允许写报告。</text>
+            <text x="64" y="522" class="flow-label">模式 3：evidence closure</text>
+            <text x="64" y="542" class="flow-label">最终不是“文件齐了就算完成”，而要证据闭环、事件日志闭环、质量门闭环同时成立。</text>
+          </svg>
+
+          <div class="footer-note">
+            页面自动轮播顺序：Setup → Inspect → Context → Clarification Gate → Data Processor → VLM 子 Agent → Diagnostician → Judge → Pre-Audit → Reporter → Final Audit → Present。
+          </div>
+        </section>
+
+        <aside class="info-panel">
+          <div class="info-card">
+            <div id="info-step" class="info-step">STEP 0</div>
+            <div id="info-title" class="info-title">Setup</div>
+            <div id="info-role" class="info-role">主编排 Agent · 初始化运行环境</div>
+            <div id="info-summary" class="info-summary">创建本次诊断的 run 目录、初始化 Python 环境、写入执行证明的起点。它不做业务判断，但决定后面的所有产物是否能被规范地落盘和追溯。</div>
+
+            <div class="info-block-title">这一环节在做什么</div>
+            <ul id="info-points" class="info-list"></ul>
+
+            <div class="info-block-title">关键输入 / 输出</div>
+            <ul id="info-io" class="info-list"></ul>
+
+            <div class="info-block-title">和上下游的关系</div>
+            <ul id="info-links" class="info-list"></ul>
+          </div>
+
+          <div class="mode-card">
+            <h3>工作模式速记</h3>
+            <div class="mode-grid">
+              <div class="mode-item">
+                <strong>ontology_first</strong>
+                <span>不是先统计后解释，而是先知道参数在工艺里代表什么，再决定哪些关系值得分析。</span>
+              </div>
+              <div class="mode-item">
+                <strong>并行只发生在可并行处</strong>
+                <span>Step 4 后的 Judge 与预审可以并行，但不会绕开 Judge 门直接写报告。</span>
+              </div>
+              <div class="mode-item">
+                <strong>返修不是重头来过</strong>
+                <span>Judge 返修主要回到 Diagnostician；Reviewer 返修会触发更完整的 D→J→R→Review 再跑。</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="explain-card">
+            <h3>怎么看这张图</h3>
+            <ul>
+              <li>左到右是主链路，蓝色箭头表示条件门或并行启动，灰色虚线表示内部委托，红色是返修回路。</li>
+              <li>Step 3 下方单独画出 VLM 子 Agent，是为了强调“图像”在这个 skill 里是证据输入，不是展示附件。</li>
+              <li>Judge 和 Final Audit 都在右侧质量门区域，是为了说明结论不是一次性生成，而是要经过两轮不同角度的约束。</li>
+              <li>点击任意节点，右侧会切换成该 step 的职责、输入输出和与上下游的真实配合方式。</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stepData = {
+      s0: {
+        step: "STEP 0",
+        title: "Setup",
+        role: "主编排 Agent · 初始化运行环境",
+        summary: "创建本次诊断的 run 目录、初始化 Python 环境、写入执行证明的起点。它不做业务判断，但决定后面的所有产物是否能被规范地落盘和追溯。",
+        points: [
+          "创建 00_input 到 06_scripts 等目录结构。",
+          "启动受管控的 Python venv，避免系统环境污染统计和物理脚本。",
+          "写入 run_initialized 事件，作为执行证明链的开始。"
+        ],
+        io: [
+          "输入：场景名、项目根目录、skill 路径。",
+          "输出：run_manifest.json、.pipeline_events.jsonl、基础目录结构。"
+        ],
+        links: [
+          "Step 1 会在这个工作目录中写 input_manifest 和 user_context。",
+          "如果这一步没做好，后面即使生成了文件，也不能证明 pipeline 是按协议跑出来的。"
+        ],
+        activeNodes: ["node-s0"],
+        activeEdges: ["e-s0-s1"]
+      },
+      s1: {
+        step: "STEP 1",
+        title: "Inspect",
+        role: "主编排 Agent · 数据初查与上下文整理",
+        summary: "先识别列名、类型、时间列、可能的目标列和分组列，把原始数据整理成后续 Agent 能共同理解的输入清单。",
+        points: [
+          "检查列名、数据类型、取值范围、缺失情况。",
+          "识别时间、批次、机台、产品型号等关键分层字段。",
+          "把用户补充的工艺背景、目标和约束写入 user_context。"
+        ],
+        io: [
+          "输入：原始 CSV / XLSX / JSON 与用户目标。",
+          "输出：00_input/input_manifest.json、00_input/user_context.json。"
+        ],
+        links: [
+          "Step 2 用这些输入推断参数的物理含义和工艺位置。",
+          "Step 3 也会读 input_manifest 决定分析计划和可行方法。"
+        ],
+        activeNodes: ["node-s1"],
+        activeEdges: ["e-s0-s1", "e-s1-s2"]
+      },
+      s2: {
+        step: "STEP 2",
+        title: "Context Builder",
+        role: "context-builder 子 Agent · RAG、本体、工艺语义建模",
+        summary: "这一步先回答“这些参数在工艺里到底是什么”。它会把参考资料、RAG 知识、数据线索和一级原理拼起来，构成可诊断的工业本体。",
+        points: [
+          "构建 ontology.json：参数角色、工艺阶段、设备、物理含义、约束。",
+          "输出 rag_deep_understanding.json：验证队列、物理原则、混杂风险、已知失效模式。",
+          "把不清楚的参数收敛成 clarification_needed.json，而不是把猜测直接带入诊断。"
+        ],
+        io: [
+          "输入：input_manifest、user_context、参考文档、RAG 检索结果。",
+          "输出：01_ontology/ontology.json、rag_deep_understanding.json、clarification_needed.json。"
+        ],
+        links: [
+          "Step 3 的完整统计分析和图像理解必须以 ontology 为前提。",
+          "Step 4 也会读取这一步抽取的物理原则来约束竞争性假设。"
+        ],
+        activeNodes: ["node-s2"],
+        activeEdges: ["e-s1-s2", "e-s2-s25"]
+      },
+      s25: {
+        step: "STEP 2.5",
+        title: "Clarification Gate",
+        role: "主编排 Agent · 参数澄清门",
+        summary: "这是把‘不知道的东西’拦在统计分析之前的一个门。能自动推断的就标记为推断，不能推断的才真正问人。",
+        points: [
+          "auto 模式下优先自动物理推断，不打断用户。",
+          "interactive / minimal 模式下只针对关键未知项提问。",
+          "把确认后的物理含义回写到 ontology 和 schema。"
+        ],
+        io: [
+          "输入：clarification_needed.json。",
+          "输出：更新后的 ontology.json / schema.json，以及日志事件。"
+        ],
+        links: [
+          "它的作用是降低错误语义进入 Step 3 的风险。",
+          "如果没有关键未知项，这一步会快速放行到 Step 3。"
+        ],
+        activeNodes: ["node-s25"],
+        activeEdges: ["e-s2-s25", "e-s25-s3"]
+      },
+      s3: {
+        step: "STEP 3",
+        title: "Data Processor",
+        role: "data-processor 子 Agent · 统计、异常、验证、可视化核心层",
+        summary: "这一步不是固定跑一套分析脚本，而是先判断当前数据是什么形态，再自适应选择该做哪些统计、物理检查和图像设计。",
+        points: [
+          "先写 analysis_plan，再做场景分类：分层、事件、时序、分区、多机台等。",
+          "完成通用统计、鲁棒性验证、异常检测、RAG 第二阶段验证。",
+          "形成 data_analysis_conclusion.json，作为 Diagnostician 的数据专家交接单。"
+        ],
+        io: [
+          "输入：input_manifest、ontology、rag_deep_understanding、原始数据。",
+          "输出：validate_report、anomaly_report、plot_manifest、data_analysis_conclusion。"
+        ],
+        links: [
+          "Step 4 不直接从原始图上猜根因，而是要消费这里已经结构化好的证据包。",
+          "Step 3 还会在内部调用 VLM 子 Agent，把图像变成可推理的视觉证据。"
+        ],
+        activeNodes: ["node-s3"],
+        activeEdges: ["e-s25-s3", "e-s3-s35", "e-s3-s4"]
+      },
+      s35: {
+        step: "STEP 3.5（内部）",
+        title: "VLM Visual Analyzer",
+        role: "Step 3 内部子 Agent · 读图而不是只存图",
+        summary: "这个子 Agent 专门负责先读 ontology 再读 PNG，把时间同步、先后关系、分组模式和视觉异常写成结构化证据。",
+        points: [
+          "逐图读取，不能只根据文件名或 caption 猜图意。",
+          "输出 visual_analysis.json 和 image_captions.json。",
+          "把‘这张图说明了什么、不能说明什么’都写清楚。"
+        ],
+        io: [
+          "输入：03_figures/*.png、ontology、统计骨架结果。",
+          "输出：visual_analysis.json、image_captions.json。"
+        ],
+        links: [
+          "Diagnostician 会把 VLM 视觉洞察和统计证据放在一起判断。",
+          "Judge 与 Reporter 也会检查视觉证据有没有被正确使用。"
+        ],
+        activeNodes: ["node-s35"],
+        activeEdges: ["e-s3-s35", "e-s3-s4"]
+      },
+      s4: {
+        step: "STEP 4",
+        title: "Diagnostician",
+        role: "diagnostician 子 Agent · 竞争性假设根因诊断",
+        summary: "这一步才是真正下诊断的地方，但它不是把最高相关项直接判成根因，而是走竞争性假设协议，比较哪些解释真的能区分开。",
+        points: [
+          "先建立本体-数据-物理证明：方向、量级、滞后、函数形态是否一致。",
+          "形成纯工艺视角和工艺+检测双驱动视角两套判断。",
+          "执行 5 步协议：造假设、交叉验证、可区分性评估、排除、结论。"
+        ],
+        io: [
+          "输入：ontology、data_analysis_conclusion、visual_analysis、validate_report。",
+          "输出：diagnosis.json、evidence.json、confidence.json、reasoning_chain.json。"
+        ],
+        links: [
+          "Step 5 和预审会同时检查这里的输出是否过度宣称或物理上站不住。",
+          "如果被打回，返修通常直接回到这里，而不是整条链重跑。"
+        ],
+        activeNodes: ["node-s4"],
+        activeEdges: ["e-s3-s4", "e-s4-s5", "e-s4-s5b"]
+      },
+      s5: {
+        step: "STEP 5",
+        title: "Judge",
+        role: "judge 子 Agent · 硬质量门",
+        summary: "Judge 的职责不是给一个新答案，而是阻止低质量答案越过交付线。只要证据、逻辑、稳定性或不确定性披露不合格，就不能继续到写报告。",
+        points: [
+          "检查 10 项标准：数据质量、变量分类、时间对齐、证据支撑、因果区分、过度宣称等。",
+          "额外审计：推理链质量、物理来源、RAG 使用质量、可复现性。",
+          "硬门槛：judge_feedback.json 必须 verdict=pass 且 overall_score≥90。"
+        ],
+        io: [
+          "输入：Step 4 全量诊断产物，以及验证报告和上游证据。",
+          "输出：05_review/judge_feedback.json。"
+        ],
+        links: [
+          "Judge 通过前，Reporter 不能启动。",
+          "Judge 打回时，通常只要求 Diagnostician 按修复指令重做结论与证据组织。"
+        ],
+        activeNodes: ["node-s5"],
+        activeEdges: ["e-s4-s5", "e-s5-gate", "e-repair-judge"]
+      },
+      s5b: {
+        step: "PRE-REPORT AUDIT",
+        title: "Report Reviewer 预审",
+        role: "report-reviewer 子 Agent · 报告前物理拦截",
+        summary: "它和 Judge 并行，但视角不同：Judge 更像流程质量门，预审更像独立物理审计，专门抓‘统计上像样、物理上却不成立’的问题。",
+        points: [
+          "检查物理机制链、混杂变量、排序伪因果、VLM 误读等。",
+          "在报告生成前就拦截严重问题，避免先写出一个错误叙事。",
+          "若存在阻断问题，直接要求回 Step 4 修复。"
+        ],
+        io: [
+          "输入：Step 4 全量诊断产物与上游验证结果。",
+          "输出：optimizer_preflight 或等价预审意见。"
+        ],
+        links: [
+          "它与 Judge 是并行关系，不是替代关系。",
+          "只有 Judge 和预审都通过，才能汇合到‘双门通过’继续写报告。"
+        ],
+        activeNodes: ["node-s5b"],
+        activeEdges: ["e-s4-s5b", "e-s5b-gate"]
+      },
+      gate: {
+        step: "QUALITY GATE",
+        title: "双门通过",
+        role: "编排层控制点 · 不是独立 Agent",
+        summary: "这个菱形节点代表一条很重要的运行纪律：不是 Step 4 一结束就能写报告，而是 Judge 与预审都确认没有阻断问题后，Reporter 才能启动。",
+        points: [
+          "Judge 负责流程和证据质量门。",
+          "预审负责物理与统计真相拦截。",
+          "两者缺一不可。"
+        ],
+        io: [
+          "输入：Judge 通过信号 + 预审通过信号。",
+          "输出：允许 Step 6 启动。"
+        ],
+        links: [
+          "它把‘诊断生成’和‘报告生成’中间硬切开，避免结论未经审查就进入成文阶段。"
+        ],
+        activeNodes: ["node-gate"],
+        activeEdges: ["e-s5-gate", "e-s5b-gate", "e-gate-s6"]
+      },
+      s6: {
+        step: "STEP 6",
+        title: "Reporter",
+        role: "reporter 子 Agent · 把结构化证据写成业务可读报告",
+        summary: "Reporter 的价值不只是排版，而是把结构化诊断结果翻译成一条管理层能理解的证据叙事：发现了什么、排除了什么、还剩什么不确定性、下一步该做什么。",
+        points: [
+          "逐图阅读 figure，不允许只转述文件名。",
+          "把双驱动诊断、证据链、局限性和建议行动都写明。",
+          "同步生成 run_summary 供后续系统和界面消费。"
+        ],
+        io: [
+          "输入：全量诊断产物、visual_analysis、judge_feedback。",
+          "输出：report.md、run_summary.json。"
+        ],
+        links: [
+          "Step 7 会检查报告文字是否偏离 Step 4 的真实结论。",
+          "也就是说，报告不是最终真相，报告本身还要再被审一次。"
+        ],
+        activeNodes: ["node-s6"],
+        activeEdges: ["e-gate-s6", "e-s6-s7"]
+      },
+      s7: {
+        step: "STEP 7",
+        title: "Final Audit",
+        role: "report-reviewer 子 Agent · 报告终审与优化建议",
+        summary: "终审关注的是：成文后的报告有没有把诊断讲歪，是否跨过了证据边界，是否把统计相关说成了物理根因，以及下一步企业应如何验证。",
+        points: [
+          "输出 ENDORSED / CONDITIONAL / REJECTED 三种结论。",
+          "如果未通过，会触发更完整的 D→J→R→Review 返修链。",
+          "生成 optimizer.md，把下一步优化和验证计划落成可执行建议。"
+        ],
+        io: [
+          "输入：report.md、diagnosis.json、evidence.json、confidence.json 等。",
+          "输出：optimizer.md。"
+        ],
+        links: [
+          "这是最终交付前的最后一道审计。",
+          "如果这里打回，返修范围通常比 Judge 打回更广。"
+        ],
+        activeNodes: ["node-s7"],
+        activeEdges: ["e-s6-s7", "e-s7-s8", "e-repair-review"]
+      },
+      s8: {
+        step: "STEP 8",
+        title: "Present / Finalize",
+        role: "主编排 Agent · 收口与最终交付",
+        summary: "最后一步不是简单结束，而是把报告、审计意见、运行摘要、证据闭环检查和事件日志状态一起收口，确认这次诊断既有结论，也有过程证明。",
+        points: [
+          "写 run_summary、evidence_closure_report 等收口工件。",
+          "执行 artifact-check、pipeline-log-check、evidence-closure-check。",
+          "只有全部闭环通过，这次 run 才算工程上真正完成。"
+        ],
+        io: [
+          "输入：report、optimizer、judge_feedback、事件日志。",
+          "输出：最终交付状态与可追溯诊断 run。"
+        ],
+        links: [
+          "它把‘业务可读结果’和‘工程可验证过程’合并成一个可交付对象。",
+          "这也是为什么这个 skill 比普通数据分析更适合严肃工业场景。"
+        ],
+        activeNodes: ["node-s8"],
+        activeEdges: ["e-s7-s8"]
+      }
+    };
+
+    const sequence = ["s0", "s1", "s2", "s25", "s3", "s35", "s4", "s5", "s5b", "gate", "s6", "s7", "s8"];
+    let index = 0;
+    let timer = null;
+    let manualPause = null;
+
+    const infoStep = document.getElementById("info-step");
+    const infoTitle = document.getElementById("info-title");
+    const infoRole = document.getElementById("info-role");
+    const infoSummary = document.getElementById("info-summary");
+    const infoPoints = document.getElementById("info-points");
+    const infoIo = document.getElementById("info-io");
+    const infoLinks = document.getElementById("info-links");
+
+    function fillList(el, items) {
+      el.innerHTML = "";
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function clearActive() {
+      document.querySelectorAll(".node").forEach(node => node.classList.remove("active"));
+      document.querySelectorAll(".flow").forEach(edge => edge.classList.remove("active"));
+    }
+
+    function activateStep(key) {
+      const data = stepData[key];
+      if (!data) return;
+
+      clearActive();
+      data.activeNodes.forEach(id => {
+        const node = document.getElementById(id);
+        if (node) node.classList.add("active");
+      });
+      data.activeEdges.forEach(id => {
+        const edge = document.getElementById(id);
+        if (edge) edge.classList.add("active");
+      });
+
+      infoStep.textContent = data.step;
+      infoTitle.textContent = data.title;
+      infoRole.textContent = data.role;
+      infoSummary.textContent = data.summary;
+      fillList(infoPoints, data.points);
+      fillList(infoIo, data.io);
+      fillList(infoLinks, data.links);
+    }
+
+    function startLoop() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        index = (index + 1) % sequence.length;
+        activateStep(sequence[index]);
+      }, 2600);
+    }
+
+    function pauseAndFocus(key) {
+      if (manualPause) clearTimeout(manualPause);
+      const pos = sequence.indexOf(key);
+      if (pos >= 0) index = pos;
+      activateStep(key);
+      if (timer) clearInterval(timer);
+      manualPause = setTimeout(() => startLoop(), 12000);
+    }
+
+    sequence.forEach(key => {
+      const nodeIds = (stepData[key] && stepData[key].activeNodes) || [];
+      nodeIds.forEach(id => {
+        const node = document.getElementById(id);
+        if (node) {
+          node.addEventListener("click", () => pauseAndFocus(key));
+        }
+      });
+    });
+
+    activateStep(sequence[0]);
+    startLoop();
+  </script>
+</body>
+</html>

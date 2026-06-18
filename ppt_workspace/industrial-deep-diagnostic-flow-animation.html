@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Industrial Deep Diagnostic — Pipeline Flowchart</title>
+<style>
+:root {
+  --bg: #050a14;
+  --cyan: #22d3ee;   --blue: #3b82f6;   --indigo: #6366f1;
+  --violet: #a855f7;  --amber: #f59e0b;  --green: #34d399;
+  --red: #fb7185;     --pink: #f472b6;   --orange: #f97316;
+  --text: #e2e8f0;    --text2: #94a3b8;  --border: rgba(255,255,255,0.06);
+  --ease: cubic-bezier(0.2,0.7,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
+body{
+  font-family:'Inter',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  user-select:none;
+}
+
+/* Canvas layers */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+#flowCanvas{position:fixed;inset:0;z-index:1}
+
+/* UI Layer */
+.ui{position:fixed;inset:0;z-index:2;pointer-events:none;display:flex;flex-direction:column}
+.ui>*{pointer-events:auto}
+
+/* Header */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px 8px;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo));
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:#fff;
+  animation:logoHue 6s linear infinite;
+}
+@keyframes logoHue{to{filter:hue-rotate(360deg)}}
+.header h1{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.2px}
+.header p{font-size:11px;color:var(--text2);margin-top:1px}
+
+.badges{display:flex;gap:8px}
+.badge{
+  font-size:10px;padding:4px 12px;border-radius:20px;
+  border:1px solid rgba(34,211,238,0.18);background:rgba(34,211,238,0.05);
+  color:var(--cyan);font-weight:600;letter-spacing:0.5px;
+}
+.badge.warn{border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.05);color:var(--amber)}
+
+/* Tour bar */
+.tour-bar{
+  display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 0;
+}
+.tour-pulse{
+  width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  animation:tourPulse 1.4s ease-in-out infinite;
+}
+@keyframes tourPulse{0%,100%{box-shadow:0 0 4px var(--cyan)}50%{box-shadow:0 0 18px var(--cyan),0 0 30px var(--blue)}}
+.tour-label{font-size:11px;color:var(--text2)}
+.tour-label strong{color:var(--cyan)}
+.tour-track{width:180px;height:2px;border-radius:1px;background:rgba(255,255,255,0.06);overflow:hidden}
+.tour-fill{height:100%;width:0%;border-radius:1px;background:linear-gradient(90deg,var(--cyan),var(--indigo),var(--violet));transition:width 0.6s var(--ease)}
+
+/* Bottom panels */
+.bottom{
+  margin-top:auto;padding:0 28px 16px;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:8px;
+}
+.panel{
+  border-radius:12px;border:1px solid var(--border);
+  background:rgba(10,15,30,0.7);backdrop-filter:blur(8px);
+  padding:11px 14px;display:flex;flex-direction:column;gap:4px;
+  transition:border-color 0.3s;
+}
+.panel:first-child{grid-column:1/-1}
+.panel:hover{border-color:rgba(255,255,255,0.1)}
+.panel-title{font-size:10px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.panel-dot{width:5px;height:5px;border-radius:50%}
+.panel p{font-size:8.5px;color:var(--text2);line-height:1.5}
+.c{color:var(--cyan);font-weight:600}.a{color:var(--amber);font-weight:600}
+.g{color:var(--green);font-weight:600}.v{color:var(--violet);font-weight:600}
+.r{color:var(--red);font-weight:600}
+
+/* Node tooltip */
+.tooltip{
+  position:fixed;z-index:10;pointer-events:none;opacity:0;
+  background:rgba(15,23,42,0.97);border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px;padding:16px 20px;max-width:260px;
+  box-shadow:0 20px 50px -10px rgba(0,0,0,0.5);
+  transition:opacity 0.2s;
+  transform:translate(-50%,-120%);
+}
+.tooltip.visible{opacity:1}
+.tooltip h3{font-size:13px;font-weight:700;color:var(--text)}
+.tooltip .role{font-size:10px;color:var(--text2);margin-top:2px}
+.tooltip .desc{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.5}
+.tooltip .outputs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.tooltip .outputs span{font-size:9px;padding:2px 7px;border-radius:5px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);color:var(--blue)}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="flowCanvas"></canvas>
+
+<div class="ui">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">◈</div>
+      <div>
+        <h1>Industrial Deep Diagnostic Pipeline</h1>
+        <p>8-Stage Multi-Agent Root Cause Analysis Flow</p>
+      </div>
+    </div>
+    <div class="badges">
+      <div class="badge">v6.3</div>
+      <div class="badge warn">Ontology-First</div>
+      <div class="badge">7 Agents</div>
+    </div>
+  </div>
+
+  <div class="tour-bar">
+    <div class="tour-pulse"></div>
+    <div class="tour-label" id="tourLabel"><strong>Step 0</strong> — Setup · 初始化运行环境</div>
+    <div class="tour-track"><div class="tour-fill" id="tourFill"></div></div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel">
+      <div class="panel-title"><span class="panel-dot" style="background:var(--cyan)"></span>Evidence Hierarchy &amp; Anti-Speculation</div>
+      <p>R1 <span class="c">Measured</span> → R2 SOP → R3 <span class="c">Statistics</span> → R4 <span class="a">VLM Vision</span> → R5 Domain → R6 External → R7 Hypothesis &nbsp;|&nbsp; Simpson check · Detrended r · <span class="r">[PARAM_AMBIGUITY]</span> cap 50</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="panel-dot" style="background:var(--amber)"></span>Quality Gates &amp; Repair Loops</div>
+      <p><span class="c">Judge</span> ≥90+0 blocks → pass &nbsp;|&nbsp; <span class="a">Pre-Audit</span> parallel &nbsp;|&nbsp; Judge ≤3 · Reviewer ≤2 · <span class="r">Global ≤5</span> &nbsp;|&nbsp; <span class="a">Anti-oscillation</span>: 70% overlap → halt, cap 50</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="panel-dot" style="background:var(--violet)"></span>Core Architecture Rules</div>
+      <p>Agent file-only communication &nbsp;|&nbsp; <span class="c">Ontology-First</span> execution &nbsp;|&nbsp; Schema-First writing &nbsp;|&nbsp; <span class="g">CHP</span> 5-step protocol &nbsp;|&nbsp; Dual-drive diagnosis &nbsp;|&nbsp; <span class="v">VLM</span> primary visual evidence</p>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ===================== THREE.JS 3D BACKGROUND =====================
+const bgCanvas = document.getElementById('bgCanvas');
+const renderer = new THREE.WebGLRenderer({canvas:bgCanvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 20);
+camera.position.z = 8;
+
+// Particle field
+const N = 400;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(N*3);
+const pCol = new Float32Array(N*3);
+const c1=new THREE.Color('#22d3ee'),c2=new THREE.Color('#6366f1'),c3=new THREE.Color('#a855f7');
+for(let i=0;i<N;i++){
+  pPos[i*3]=(Math.random()-0.5)*18;
+  pPos[i*3+1]=(Math.random()-0.5)*10;
+  pPos[i*3+2]=(Math.random()-0.5)*5;
+  const m=Math.random(),col=m<0.33?c1:m<0.66?c2:c3;
+  pCol[i*3]=col.r;pCol[i*3+1]=col.g;pCol[i*3+2]=col.b;
+}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+pGeo.setAttribute('color',new THREE.BufferAttribute(pCol,3));
+const pMat=new THREE.PointsMaterial({size:0.02,vertexColors:true,transparent:true,opacity:0.45,blending:THREE.AdditiveBlending,depthWrite:false});
+const field=new THREE.Points(pGeo,pMat);
+scene.add(field);
+
+// Rings
+const rings=[];
+for(let r=0;r<5;r++){
+  const g=new THREE.TorusGeometry(0.7+r*0.6,0.0015,16,100);
+  const m=new THREE.MeshBasicMaterial({color:r%2===0?0x22d3ee:0x6366f1,transparent:true,opacity:0.06+r*0.015,blending:THREE.AdditiveBlending,depthWrite:false});
+  const ring=new THREE.Mesh(g,m);
+  ring.position.set((Math.random()-0.5)*3,(Math.random()-0.5)*1.5,-2-Math.random()*2);
+  ring.rotation.x=Math.random()*Math.PI;ring.rotation.y=Math.random()*Math.PI;
+  ring.userData={ry:ring.rotation.y,speed:0.2+Math.random()*0.4,amp:0.2+Math.random()*0.3,baseY:ring.position.y};
+  scene.add(ring);rings.push(ring);
+}
+
+// Orbit dots
+const dotsG=new THREE.Group();
+for(let i=0;i<30;i++){
+  const dg=new THREE.SphereGeometry(0.01,6,6);
+  const dm=new THREE.MeshBasicMaterial({color:i%3===0?0x22d3ee:0xa855f7,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  const d=new THREE.Mesh(dg,dm);
+  const a=(i/30)*Math.PI*2,r=1.3+Math.random()*0.9;
+  d.position.set(Math.cos(a)*r,Math.sin(a)*r*0.5,(Math.random()-0.5)*0.5);
+  d.userData={angle:a,radius:r,speed:0.1+Math.random()*0.3};
+  dotsG.add(d);
+}
+scene.add(dotsG);
+
+const clock=new THREE.Clock();
+function animateBg(){
+  requestAnimationFrame(animateBg);
+  const t=clock.getElapsedTime();
+  field.rotation.y+=0.00015;field.rotation.x+=0.00008;
+  rings.forEach(r=>{
+    r.rotation.y+=0.002;r.rotation.x+=0.001;
+    r.position.y=r.userData.baseY+Math.sin(t*r.userData.speed)*r.userData.amp;
+  });
+  dotsG.children.forEach(d=>{
+    d.userData.angle+=d.userData.speed*0.003;
+    const a=d.userData.angle;
+    d.position.x=Math.cos(a)*d.userData.radius;
+    d.position.y=Math.sin(a)*d.userData.radius*0.5;
+  });
+  dotsG.rotation.z+=0.0002;
+  camera.position.x=Math.sin(t*0.12)*0.3;
+  camera.position.y=Math.cos(t*0.18)*0.15;
+  camera.lookAt(0,-0.05,-2);
+  renderer.render(scene,camera);
+}
+animateBg();
+
+// ===================== FLOWCHART CANVAS =====================
+const flowCanvas = document.getElementById('flowCanvas');
+const fctx = flowCanvas.getContext('2d');
+
+// Pipeline steps definition
+const steps = [
+  {id:'s0',num:'0',name:'Setup',agent:'Main',type:'main',
+   desc:'Create run directory structure, init manifest & pipeline event log, setup Python uv venv, copy input data.',
+   outputs:['run_manifest.json','pipeline_events.jsonl','00_input/']},
+  {id:'s1',num:'1',name:'Inspect',agent:'Main',type:'main',
+   desc:'Stream-parse data files, auto-detect column patterns, time column, categorical columns. Generate input manifest.',
+   outputs:['input_manifest.json','user_context.json']},
+  {id:'s2',num:'2',name:'Context',agent:'Prof. Wang',type:'ctx',
+   desc:'Sub-agent launch: RAG vector search + web search, build ontology.json, bidirectional data↔physics mapping with v6.3 diagnostic enrichment fields.',
+   outputs:['ontology.json','schema.json','rag_deep_understanding.json','clarification_needed.json']},
+  {id:'s2_5',num:'2.5',name:'Clarify',agent:'Main',type:'main',
+   desc:'Check clarification_needed.json. Auto mode skips questions, applies physics inference defaults.',
+   outputs:['clarification_auto_inferred (event)']},
+  {id:'s3',num:'3',name:'Data',agent:'Zhang',type:'dp',
+   desc:'Phase 0.4 ontology-guided analysis selection → stats (Simpson/detrend/CCF) → scenario patterns A-H → adaptive viz → delegate VLM Analyzer for ontology-aware image reading.',
+   outputs:['validate_report.json','feature_summary.json','anomaly_report.json','visual_analysis.json','03_figures/*.png']},
+  {id:'s4',num:'4',name:'Diagnose',agent:'Chief Liu',type:'diag',
+   desc:'Phase 0.4a UNKNOWN param gate → 5-step CHP (generate→discriminate→eliminate→residual→decide). Dual-drive: process-only + process-inspection integrated.',
+   outputs:['diagnosis.json','evidence.json','confidence.json','reasoning_chain.json']},
+  {id:'s5a',num:'5a',name:'Judge',agent:'Director Chen',type:'judge',
+   desc:'10-criteria quality gate: no_over_claiming, reasoning_chain_audit, physical_source_audit. ≥90+0 blocks → pass.',
+   outputs:['judge_feedback.json']},
+  {id:'s5b',num:'5b',name:'PreAudit',agent:'Auditor Sun',type:'audit',
+   desc:'Parallel pre-report physics audit. Catches physics errors before expensive report generation.',
+   outputs:['optimizer_preflight.md']},
+  {id:'s6',num:'6',name:'Report',agent:'Zhou',type:'report',
+   desc:'Judge-gated. Step 1.0 visual-statistical cross-validation → 17-section report. Core §2: 6-step derivation per conclusion.',
+   outputs:['report.md','run_summary.json']},
+  {id:'s7',num:'7',name:'Review',agent:'Auditor Sun',type:'audit',
+   desc:'Independent physical truth audit. Reuses preflight. ENDORSED/CONDITIONAL/REJECTED. Must include scene optimization plan.',
+   outputs:['optimizer.md']},
+  {id:'s8',num:'8',name:'Present',agent:'Main',type:'main',
+   desc:'Dual validation: finalize-run-artifacts + artifact-check. Refresh evidence_closure_report. Present executive summary.',
+   outputs:['evidence_closure_report.json','final summary']},
+];
+
+// Type colors
+const typeColors = {
+  main:   {fill:'rgba(59,130,246,0.10)',stroke:'rgba(59,130,246,0.30)',glow:'rgba(59,130,246,0.4)',text:'#93c5fd'},
+  ctx:    {fill:'rgba(6,182,212,0.10)',stroke:'rgba(6,182,212,0.30)',glow:'rgba(6,182,212,0.4)',text:'#67e8f9'},
+  dp:     {fill:'rgba(52,211,153,0.10)',stroke:'rgba(52,211,153,0.30)',glow:'rgba(52,211,153,0.4)',text:'#6ee7b7'},
+  diag:   {fill:'rgba(245,158,11,0.10)',stroke:'rgba(245,158,11,0.30)',glow:'rgba(245,158,11,0.4)',text:'#fcd34d'},
+  judge:  {fill:'rgba(251,113,133,0.10)',stroke:'rgba(251,113,133,0.30)',glow:'rgba(251,113,133,0.4)',text:'#fda4af'},
+  audit:  {fill:'rgba(249,115,22,0.10)',stroke:'rgba(249,115,22,0.30)',glow:'rgba(249,115,22,0.4)',text:'#fdba74'},
+  report: {fill:'rgba(168,85,247,0.10)',stroke:'rgba(168,85,247,0.30)',glow:'rgba(168,85,247,0.4)',text:'#d8b4fe'},
+};
+
+// Node layout calculation
+let nodePositions = [];
+let edgePaths = []; // array of {from, to, controlPoints, color}
+
+function computeLayout(){
+  const W = flowCanvas.width;
+  const H = flowCanvas.height;
+  const padX = W * 0.055;
+  const padY = H * 0.20;
+  const bottomPad = H * 0.22;
+  const availW = W - padX*2;
+  const availH = H - padY - bottomPad;
+
+  // Main horizontal row: 8 positions
+  const mainRowY = padY + availH * 0.38;
+  // Branch row for 5a/5b
+  const branchY1 = mainRowY + availH * 0.27;
+  const branchY2 = mainRowY + availH * 0.55;
+
+  // Positions: 0,1,2,2.5,3,4 are on main row
+  // 5a on branchY1, 5b on branchY2
+  // 6,7,8 back on main row
+
+  // Map step indices to x positions
+  // We have 10 effective x-positions (0..8 plus 2.5)
+  const xPositions = [0,1,2,2.5,3,4,5,6,7,8]; // 10 positions
+
+  // But 5a goes to branchY1 and 5b goes to branchY2
+  // Actually: steps[0..5] are 0,1,2,2.5,3,4 → x slots 0-5
+  // steps[6] is 5a → branchY1 at x slot 5.5
+  // steps[7] is 5b → branchY2 at x slot 5.5
+  // steps[8] is 6 → x slot 6
+  // steps[9] is 7 → x slot 7
+  // steps[10] is 8 → x slot 8
+
+  const totalSlots = 9; // 0,1,2,2.5,3,4,(5a/5b share),6,7,8
+  const slotWidth = availW / (totalSlots - 1);
+  const nodeW = Math.min(90, slotWidth * 0.7);
+  const nodeH = nodeW * 1.15;
+
+  nodePositions = [];
+  edgePaths = [];
+
+  // Helper to get x for a step index
+  const slotMap = [0,1,2,3,4,5,5.5,5.5,6,7,8];
+
+  steps.forEach((step,i)=>{
+    const slot = slotMap[i];
+    let x = padX + slot * slotWidth;
+    let y;
+
+    if (i===6) y = branchY1;      // Judge
+    else if (i===7) y = branchY2; // PreAudit
+    else y = mainRowY;
+
+    nodePositions.push({x,y,w:nodeW,h:nodeH,step,i});
+  });
+
+  // Define edges
+  const edges = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],  // linear chain 0→4
+    [5,6],  // 4→Judge (branch up)
+    [5,7],  // 4→PreAudit (branch down)
+    [6,8],  // Judge→Report
+    [7,8],  // PreAudit→Report
+    [8,9],[9,10],  // Report→Review→Present
+  ];
+
+  edges.forEach(([from,to])=>{
+    const fn = nodePositions[from];
+    const tn = nodePositions[to];
+    const isBranch = (from===5 && (to===6 || to===7));
+    const isMerge = (to===8 && (from===6 || from===7));
+    edgePaths.push({
+      from, to,
+      fx: fn.x + fn.w/2, fy: fn.y + fn.h,
+      tx: tn.x - tn.w/2, ty: tn.y + tn.h/2,
+      isBranch, isMerge,
+      color: typeColors[steps[to].type]?.stroke || 'rgba(255,255,255,0.15)',
+    });
+  });
+}
+
+function resize(){
+  flowCanvas.width = window.innerWidth;
+  flowCanvas.height = window.innerHeight;
+  computeLayout();
+}
+window.addEventListener('resize',()=>{resize();renderer.setSize(window.innerWidth,window.innerHeight);camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();});
+resize();
+
+// ===================== DRAW FLOWCHART =====================
+const flowParticles = []; // {edge, progress, speed}
+
+// Initialize flow particles for each edge
+function initParticles(){
+  flowParticles.length = 0;
+  edgePaths.forEach((edge,i)=>{
+    const count = edge.isBranch || edge.isMerge ? 2 : 3;
+    for(let j=0;j<count;j++){
+      flowParticles.push({
+        edgeIdx: i,
+        progress: Math.random(),
+        speed: 0.003 + Math.random() * 0.006,
+      });
+    }
+  });
+}
+initParticles();
+
+// Get point along edge path at t in [0,1]
+function computeEdgePoint(edge, t, cb){
+  const {fx,fy,tx,ty,isBranch,isMerge} = edge;
+  let px, py;
+  if(isBranch){
+    const midY = (fy+ty)/2;
+    if(t<0.33){px=fx;py=fy+(ty-fy)*t*3;}
+    else if(t<0.66){const lt=(t-0.33)*3;px=fx+(tx-fx)*lt;py=(fy+ty)/2;}
+    else{const lt=(t-0.66)*3;px=tx;py=midY+(ty-midY)*lt;}
+  } else if(isMerge){
+    const midY = (fy+ty)/2;
+    if(t<0.33){px=fx;py=fy+(midY-fy)*t*3;}
+    else if(t<0.66){const lt=(t-0.33)*3;px=fx+(tx-fx)*lt;py=midY;}
+    else{const lt=(t-0.66)*3;px=tx;py=midY+(ty-midY)*lt;}
+  } else {
+    const cp1x=fx+(tx-fx)*0.4, cp2x=fx+(tx-fx)*0.6;
+    const u=1-t;
+    px=u*u*u*fx + 3*u*u*t*cp1x + 3*u*t*t*cp2x + t*t*t*tx;
+    py=u*u*u*fy + 3*u*u*t*fy + 3*u*t*t*ty + t*t*t*ty;
+  }
+  cb(px, py);
+}
+
+function drawEdgeLabels(){
+  // Phase labels for key edges
+  const labels = [
+    {from:0, to:1, text:'Setup → Inspect', color:'rgba(148,163,184,0.35)'},
+    {from:1, to:2, text:'→ Ontology', color:'rgba(6,182,212,0.40)'},
+    {from:3, to:4, text:'Ontology ↵', color:'rgba(6,182,212,0.40)'},
+    {from:4, to:5, text:'CHP Protocol', color:'rgba(245,158,11,0.40)'},
+  ];
+
+  labels.forEach(lbl => {
+    const edge = edgePaths.find(e => e.from === lbl.from && e.to === lbl.to);
+    if(!edge) return;
+    let mx, my;
+    computeEdgePoint(edge, 0.5, (x,y)=>{mx=x;my=y;});
+    fctx.fillStyle = lbl.color;
+    fctx.font = '8px "Inter",sans-serif';
+    fctx.textAlign = 'center';
+    fctx.fillText(lbl.text, mx, my - 8);
+  });
+}
+
+function drawRepairLoop(){
+  // Draw a dashed feedback arc from Judge (node 6) back to Diagnose (node 5)
+  const nJudge = nodePositions[6];  // Judge
+  const nDiag = nodePositions[5];   // Diagnose
+
+  const sx = nJudge.x + nJudge.w/2;
+  const sy = nJudge.y;               // top of Judge node
+  const ex = nDiag.x + nDiag.w/2;
+  const ey = nDiag.y;                // top of Diagnose node
+
+  // Curved feedback loop going above
+  const loopHeight = 40;
+  const cpx1 = sx - 30, cpy1 = sy - loopHeight;
+  const cpx2 = ex + 30, cpy2 = ey - loopHeight;
+
+  fctx.strokeStyle = 'rgba(239,68,68,0.2)';
+  fctx.lineWidth = 1;
+  fctx.setLineDash([4, 4]);
+  fctx.beginPath();
+  fctx.moveTo(sx, sy);
+  fctx.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, ex, ey);
+  fctx.stroke();
+  fctx.setLineDash([]);
+
+  // Label
+  const lx = (sx + ex) / 2;
+  const ly = Math.min(cpy1, cpy2) - 6;
+  fctx.fillStyle = 'rgba(239,68,68,0.35)';
+  fctx.font = '7px "Inter",sans-serif';
+  fctx.textAlign = 'center';
+  fctx.fillText('repair (≤3)', lx, ly);
+}
+
+function drawEdgePath(edge){
+  const {fx,fy,tx,ty,isBranch,isMerge} = edge;
+  fctx.beginPath();
+
+  if(isBranch){
+    // From main row down to branch
+    const midY = (fy + ty) / 2;
+    fctx.moveTo(fx, fy);
+    fctx.lineTo(fx, midY);
+    fctx.lineTo(tx, midY);
+    fctx.lineTo(tx, ty);
+  } else if(isMerge){
+    // From branch up to main row (reverse of branch)
+    const midY = (fy + ty) / 2;
+    fctx.moveTo(fx, fy);
+    fctx.lineTo(fx, midY);
+    fctx.lineTo(tx, midY);
+    fctx.lineTo(tx, ty);
+  } else {
+    // Direct horizontal with slight curve
+    const cp1x = fx + (tx-fx)*0.4;
+    const cp2x = fx + (tx-fx)*0.6;
+    fctx.moveTo(fx, fy);
+    fctx.bezierCurveTo(cp1x, fy, cp2x, ty, tx, ty);
+  }
+
+  fctx.strokeStyle = edge.color;
+  fctx.lineWidth = 1.5;
+  fctx.stroke();
+}
+
+function drawNode(node, isTouring){
+  const {x,y,w,h} = node;
+  const step = node.step;
+  const tc = typeColors[step.type] || typeColors.main;
+  const cx = x + w/2, cy = y + h/2;
+
+  // Card shadow (3D lift effect)
+  fctx.fillStyle = 'rgba(0,0,0,0.25)';
+  fctx.beginPath();fctx.roundRect(x+2, y+3, w, h, 12);fctx.fill();
+
+  // Glow ring (touring only)
+  if(isTouring){
+    const glowGrad = fctx.createRadialGradient(cx, cy, w*0.3, cx, cy, w*0.8);
+    glowGrad.addColorStop(0, tc.glow);
+    glowGrad.addColorStop(1, 'transparent');
+    fctx.fillStyle = glowGrad;
+    fctx.beginPath();fctx.roundRect(x-w*0.15, y-h*0.1, w*1.3, h*1.2, 16);fctx.fill();
+
+    // Pulse ring
+    const t = (Date.now()/1000)%2;
+    const pulseR = w*0.6 + t*8;
+    fctx.strokeStyle = tc.glow.replace('0.4','0.2');
+    fctx.lineWidth = 1;
+    fctx.beginPath();fctx.arc(cx, cy, pulseR, 0, Math.PI*2);fctx.stroke();
+  }
+
+  // Card background
+  const cardGrad = fctx.createLinearGradient(x, y, x, y+h);
+  cardGrad.addColorStop(0, tc.fill);
+  cardGrad.addColorStop(1, 'rgba(10,15,30,0.8)');
+  fctx.fillStyle = cardGrad;
+  fctx.beginPath();fctx.roundRect(x, y, w, h, 12);fctx.fill();
+
+  // Top gradient accent bar
+  const topGrad = fctx.createLinearGradient(x, 0, x+w, 0);
+  topGrad.addColorStop(0, 'transparent');
+  topGrad.addColorStop(0.5, tc.text);
+  topGrad.addColorStop(1, 'transparent');
+  fctx.strokeStyle = topGrad;
+  fctx.lineWidth = 1.5;
+  fctx.beginPath();fctx.moveTo(x+w*0.25, y+0.5);fctx.lineTo(x+w*0.75, y+0.5);fctx.stroke();
+
+  // Border
+  fctx.strokeStyle = isTouring ? tc.stroke : 'rgba(255,255,255,0.08)';
+  fctx.lineWidth = isTouring ? 1.8 : 1;
+  fctx.beginPath();fctx.roundRect(x, y, w, h, 12);fctx.stroke();
+
+  // Bottom accent line
+  const accentGrad = fctx.createLinearGradient(x+w*0.25, 0, x+w*0.75, 0);
+  accentGrad.addColorStop(0, 'transparent');
+  accentGrad.addColorStop(0.5, tc.text);
+  accentGrad.addColorStop(1, 'transparent');
+  fctx.strokeStyle = accentGrad;
+  fctx.lineWidth = 2;
+  fctx.beginPath();fctx.moveTo(x+w*0.25, y+h-0.5);fctx.lineTo(x+w*0.75, y+h-0.5);fctx.stroke();
+
+  // Step number in circle
+  const r = Math.max(9, w*0.16);
+  const cy2 = y + h*0.32;
+  fctx.fillStyle = tc.text;
+  fctx.globalAlpha = 0.15;
+  fctx.beginPath();fctx.arc(cx, cy2, r, 0, Math.PI*2);fctx.fill();
+  fctx.globalAlpha = 1;
+  fctx.strokeStyle = tc.text;
+  fctx.lineWidth = 1;
+  fctx.globalAlpha = 0.35;
+  fctx.beginPath();fctx.arc(cx, cy2, r, 0, Math.PI*2);fctx.stroke();
+  fctx.globalAlpha = 1;
+
+  fctx.fillStyle = tc.text;
+  fctx.font = `bold ${Math.max(11,w*0.2)}px "JetBrains Mono",monospace`;
+  fctx.textAlign = 'center';
+  fctx.textBaseline = 'middle';
+  fctx.fillText(step.num, cx, cy2);
+
+  // Step name
+  fctx.fillStyle = '#e2e8f0';
+  fctx.font = `${Math.max(10,w*0.12)}px "Inter",sans-serif`;
+  fctx.fontWeight = '700';
+  fctx.textBaseline = 'alphabetic';
+  fctx.fillText(step.name, cx, y + h*0.7);
+
+  // Agent name
+  fctx.fillStyle = '#94a3b8';
+  fctx.font = `${Math.max(8,w*0.09)}px "Inter",sans-serif`;
+  fctx.fillText(step.agent, cx, y + h*0.87);
+}
+
+function drawFlowParticle(particle){
+  const edge = edgePaths[particle.edgeIdx];
+  const t = particle.progress;
+  const {fx,fy,tx,ty,isBranch,isMerge} = edge;
+
+  let px, py;
+  if(isBranch){
+    const midY = (fy+ty)/2;
+    if(t<0.33){px=fx;py=fy+(ty-fy)*t*3;}
+    else if(t<0.66){const lt=(t-0.33)*3;px=fx+(tx-fx)*lt;py=(fy+ty)/2;}
+    else{const lt=(t-0.66)*3;px=tx;py=midY+(ty-midY)*lt;}
+  } else if(isMerge){
+    const midY = (fy+ty)/2;
+    if(t<0.33){px=fx;py=fy+(midY-fy)*t*3;}
+    else if(t<0.66){const lt=(t-0.33)*3;px=fx+(tx-fx)*lt;py=midY;}
+    else{const lt=(t-0.66)*3;px=tx;py=midY+(ty-midY)*lt;}
+  } else {
+    // Bezier curve
+    const cp1x=fx+(tx-fx)*0.4, cp2x=fx+(tx-fx)*0.6;
+    const u=1-t;
+    px=u*u*u*fx + 3*u*u*t*cp1x + 3*u*t*t*cp2x + t*t*t*tx;
+    py=u*u*u*fy + 3*u*u*t*fy + 3*u*t*t*ty + t*t*t*ty;
+  }
+
+  // Glow
+  const glowGrad = fctx.createRadialGradient(px, py, 0, px, py, 6);
+  glowGrad.addColorStop(0, edge.color.replace('0.30','0.8'));
+  glowGrad.addColorStop(1, 'transparent');
+  fctx.fillStyle = glowGrad;
+  fctx.beginPath();fctx.arc(px, py, 6, 0, Math.PI*2);fctx.fill();
+
+  // Core
+  fctx.fillStyle = edge.color.replace('0.30','1');
+  fctx.beginPath();fctx.arc(px, py, 2.5, 0, Math.PI*2);fctx.fill();
+}
+
+// Parallel label
+function drawParallelLabel(){
+  const n4 = nodePositions[5]; // Diagnose node
+  const n5a = nodePositions[6]; // Judge
+  const n5b = nodePositions[7]; // PreAudit
+
+  const lx = n4.x + n4.w + 15;
+  const ly = (n5a.y + n5a.h/2 + n5b.y + n5b.h/2) / 2;
+
+  fctx.fillStyle = 'rgba(245,158,11,0.6)';
+  fctx.font = '9px "Inter",sans-serif';
+  fctx.fontWeight = '600';
+  fctx.textAlign = 'left';
+  fctx.fillText('parallel', lx, ly+3);
+}
+
+// Judge gate indicator
+function drawJudgeGate(){
+  const n5a = nodePositions[6]; // Judge
+  const n5b = nodePositions[7]; // PreAudit
+  const n6 = nodePositions[8]; // Report
+
+  const gx = (n5a.x + n5b.x) / 2 + 30;
+  const gy = (n5a.y + n5a.h/2 + n6.y + n6.h/2) / 2;
+
+  // Small diamond
+  const ds = 8;
+  fctx.fillStyle = 'rgba(239,68,68,0.08)';
+  fctx.beginPath();fctx.moveTo(gx,gy-ds);fctx.lineTo(gx+ds,gy);fctx.lineTo(gx,gy+ds);fctx.lineTo(gx-ds,gy);fctx.closePath();fctx.fill();
+  fctx.strokeStyle = 'rgba(239,68,68,0.3)';
+  fctx.lineWidth = 1;
+  fctx.beginPath();fctx.moveTo(gx,gy-ds);fctx.lineTo(gx+ds,gy);fctx.lineTo(gx,gy+ds);fctx.lineTo(gx-ds,gy);fctx.closePath();fctx.stroke();
+
+  fctx.fillStyle = 'rgba(239,68,68,0.6)';
+  fctx.font = '8px "Inter",sans-serif';fctx.fontWeight='600';fctx.textAlign='left';
+  fctx.fillText('gate', gx+ds+4, gy+3);
+}
+
+function drawFlowchart(){
+  fctx.clearRect(0, 0, flowCanvas.width, flowCanvas.height);
+
+  // Subtle tech grid background
+  fctx.strokeStyle = 'rgba(255,255,255,0.015)';
+  fctx.lineWidth = 0.5;
+  const gs = 40;
+  for(let gx = gs; gx < flowCanvas.width; gx += gs){
+    fctx.beginPath(); fctx.moveTo(gx,0); fctx.lineTo(gx,flowCanvas.height); fctx.stroke();
+  }
+  for(let gy = gs; gy < flowCanvas.height; gy += gs){
+    fctx.beginPath(); fctx.moveTo(0,gy); fctx.lineTo(flowCanvas.width,gy); fctx.stroke();
+  }
+
+  // Draw edges
+  edgePaths.forEach(e=>drawEdgePath(e));
+
+  // Draw edge labels
+  drawEdgeLabels();
+
+  // Draw parallel label
+  drawParallelLabel();
+  drawJudgeGate();
+
+  // Draw nodes
+  nodePositions.forEach((np,i)=>{
+    drawNode(np, i===tourIndex);
+  });
+
+  // Draw repair loop
+  drawRepairLoop();
+
+  // Draw flow particles
+  flowParticles.forEach(p=>{
+    // Trail
+    const tp = Math.max(0, p.progress - 0.025);
+    if(tp > 0){
+      const edge = edgePaths[p.edgeIdx];
+      let tpx, tpy;
+      computeEdgePoint(edge, tp, (xx,yy)=>{tpx=xx;tpy=yy;});
+      const trailGrad = fctx.createRadialGradient(tpx, tpy, 0, tpx, tpy, 4);
+      trailGrad.addColorStop(0, edge.color.replace('0.30','0.3'));
+      trailGrad.addColorStop(1, 'transparent');
+      fctx.fillStyle = trailGrad;
+      fctx.beginPath(); fctx.arc(tpx, tpy, 4, 0, Math.PI*2); fctx.fill();
+    }
+    drawFlowParticle(p);
+    p.progress += p.speed;
+    if(p.progress>1) p.progress=0;
+  });
+}
+
+// ===================== TOUR / INTERACTION =====================
+let tourIndex = 0;
+const tourLabel = document.getElementById('tourLabel');
+const tourFill = document.getElementById('tourFill');
+const tooltip = document.getElementById('tooltip');
+
+function updateTour(){
+  const s = steps[tourIndex];
+  tourLabel.innerHTML = `<strong>Step ${s.num}</strong> — ${s.name} · ${s.agent==='Main'?'主 Agent Orchestration':s.agent+' — 子智能体'}`;
+  tourFill.style.width = ((tourIndex+1)/steps.length*100)+'%';
+}
+
+function nextTour(){
+  tourIndex = (tourIndex+1)%steps.length;
+  updateTour();
+}
+setInterval(nextTour, 2800);
+updateTour();
+
+// Mouse interaction
+flowCanvas.addEventListener('mousemove',(e)=>{
+  const mx=e.clientX, my=e.clientY;
+  let hit=null;
+  nodePositions.forEach((np,i)=>{
+    if(mx>=np.x && mx<=np.x+np.w && my>=np.y && my<=np.y+np.h) hit={np,i};
+  });
+
+  if(hit){
+    flowCanvas.style.cursor='pointer';
+    const s=steps[hit.i];
+    tooltip.innerHTML=`
+      <h3>Step ${s.num}: ${s.name}</h3>
+      <div class="role">${s.agent==='Main'?'主 Agent 编排步骤':s.agent+' — 子智能体 · model: sonnet'}</div>
+      <div class="desc">${s.desc}</div>
+      <div class="outputs">${s.outputs.map(o=>'<span>'+o+'</span>').join('')}</div>
+    `;
+    tooltip.classList.add('visible');
+    tooltip.style.left=(hit.np.x+hit.np.w/2)+'px';
+    tooltip.style.top=(hit.np.y-12)+'px';
+  } else {
+    flowCanvas.style.cursor='default';
+    tooltip.classList.remove('visible');
+  }
+});
+
+flowCanvas.addEventListener('click',(e)=>{
+  const mx=e.clientX, my=e.clientY;
+  nodePositions.forEach((np,i)=>{
+    if(mx>=np.x && mx<=np.x+np.w && my>=np.y && my<=np.y+np.h){
+      tourIndex=i;updateTour();
+    }
+  });
+});
+
+// Keyboard
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){tourIndex=Math.min(tourIndex+1,steps.length-1);updateTour();}
+  if(e.key==='ArrowLeft'){tourIndex=Math.max(tourIndex-1,0);updateTour();}
+});
+
+// ===================== RENDER LOOP =====================
+function renderFlow(){
+  drawFlowchart();
+  requestAnimationFrame(renderFlow);
+}
+renderFlow();
+</script>
+</body>
+</html>

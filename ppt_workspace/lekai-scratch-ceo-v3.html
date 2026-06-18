@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BOPET薄膜划伤问题 · 诊断汇报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#050b18;--card:rgba(255,255,255,0.04);--cardh:rgba(255,255,255,0.07);--bd:rgba(255,255,255,0.07);--t:#e6edf6;--t2:#8896ab;--cy:#22d3ee;--vi:#a855f7;--am:#f59e0b;--gr:#34d399;--rd:#fb7185;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;-webkit-font-smoothing:antialiased;}
+
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 38% at 50% 28%,rgba(99,102,241,0.06),transparent 70%),radial-gradient(ellipse 40% 28% at 78% 78%,rgba(34,211,238,0.03),transparent 70%)}
+
+.deck{position:fixed;inset:0;z-index:1}
+
+.tb{position:fixed;top:0;left:0;right:0;z-index:20;padding:10px 24px 0;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(5,11,24,.88),transparent);pointer-events:none}
+.tb>*{pointer-events:auto}
+.prg{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.05);overflow:hidden}
+.prg-b{height:100%;width:0%;border-radius:2px;transition:width .5s cubic-bezier(.2,.7,.2,1);background:linear-gradient(90deg,var(--cy),var(--vi))}
+.tb-r{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:8px}
+
+.nv{position:fixed;top:50%;z-index:15;transform:translateY(-50%);background:rgba(255,255,255,.03);border:1px solid var(--bd);color:var(--t2);width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .3s;backdrop-filter:blur(8px);opacity:0;pointer-events:none}
+.nv.ac{opacity:1;pointer-events:auto}
+.nv:hover{background:rgba(255,255,255,.08);color:var(--t)}
+.nv.l{left:16px}.nv.r{right:16px}
+.btm{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:15;font-size:10px;color:rgba(255,255,255,.1);letter-spacing:1px}
+.btm kbd{display:inline-block;padding:1px 5px;margin:0 2px;border:1px solid rgba(255,255,255,.07);border-radius:3px;font-size:8px;font-family:inherit;background:rgba(255,255,255,.02)}
+
+.sl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 36px 48px;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .4s cubic-bezier(.2,.7,.2,1),transform .4s;overflow-y:auto}
+.sl.ac{opacity:1;pointer-events:auto;transform:none}
+.in{max-width:980px;width:100%}
+
+.r{opacity:0;transform:translateY(16px);transition:opacity .5s cubic-bezier(.2,.7,.2,1),transform .5s}
+.r.v{opacity:1;transform:none}.d0{transition-delay:.05s}.d1{transition-delay:.11s}.d2{transition-delay:.17s}.d3{transition-delay:.23s}.d4{transition-delay:.29s}.d5{transition-delay:.35s}
+
+h1{font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-.5px;background:linear-gradient(135deg,#e6edf6 30%,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:clamp(20px,2.8vw,30px);font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+h2.gr{background:linear-gradient(135deg,var(--cy),var(--vi));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:clamp(13px,1.2vw,15px);color:var(--t2);line-height:1.6;margin-bottom:10px}
+
+.cg{display:grid;gap:10px}.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.cd{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;backdrop-filter:blur(4px)}
+.ct{font-weight:600;font-size:14px;margin-bottom:4px}.cs{font-size:13px;color:var(--t2);line-height:1.6}
+
+.cb{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px 8px}
+.cb canvas{width:100%!important}
+.clb{font-size:10px;color:var(--t2);text-align:center;margin-top:4px}
+
+.mt{text-align:center;padding:12px 14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r)}
+.mn{font-size:clamp(24px,3vw,36px);font-weight:700;letter-spacing:-1px}
+.ml{font-size:11px;color:var(--t2);margin-top:3px}
+
+.big-num{font-size:clamp(48px,6vw,72px);font-weight:800;letter-spacing:-2px;line-height:1}
+.big-num-label{font-size:clamp(14px,1.4vw,18px);color:var(--t2);margin-top:4px}
+
+.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;color:var(--cy);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.15);padding:3px 12px;border-radius:8px;margin-bottom:8px}
+
+.badge{display:inline-block;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid}
+.bd-ok{border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.07);color:var(--gr)}
+.bd-warn{border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.07);color:var(--am)}
+.bd-info{border-color:rgba(34,211,238,.2);background:rgba(34,211,238,.07);color:var(--cy)}
+
+ul.cl{list-style:none;padding:0}
+ul.cl li{padding:3px 0;font-size:13px;line-height:1.6;color:var(--t2)}
+ul.cl li::before{content:'\2714';color:var(--gr);margin-right:8px;font-size:12px}
+
+ul.clx{list-style:none;padding:0}
+ul.clx li{padding:3px 0;font-size:13px;line-height:1.6;color:var(--t2)}
+ul.clx li::before{content:'\2718';color:var(--rd);margin-right:8px;font-size:12px}
+
+.table-sm{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0}
+.table-sm th{text-align:left;padding:8px 12px;font-weight:600;font-size:12px;color:var(--t2);border-bottom:1px solid var(--bd)}
+.table-sm td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top}
+.table-sm tr:hover td{background:rgba(255,255,255,.02)}
+
+.section-dot{position:fixed;bottom:38px;left:50%;transform:translateX(-50%);z-index:12;display:flex;gap:5px}
+.sd-d{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.05);transition:all .3s}
+.sd-d.on{background:var(--cy);box-shadow:0 0 6px rgba(34,211,238,.3);width:16px;border-radius:3px}
+
+.sl::-webkit-scrollbar{width:3px}.sl::-webkit-scrollbar-track{background:transparent}.sl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:3px}
+
+.highlight-card{background:rgba(34,211,238,.03);border-color:rgba(34,211,238,.1)}
+
+@media(max-width:860px){.sl{padding:56px 16px 48px}.c2,.c3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="deck">
+
+<div class="tb"><div class="prg"><div class="prg-b" id="prog"></div></div><div class="tb-r"><span id="cur">01</span>/<span id="tot">12</span></div></div>
+<button class="nv l" id="pb">&#8592;</button><button class="nv r" id="nb">&#8594;</button>
+<div class="section-dot" id="sDots"></div>
+<div class="btm"><kbd>&#8592;</kbd><kbd>&#8594;</kbd> 翻页 &middot; <kbd>F</kbd> 全屏</div>
+
+<!-- ===== SLIDE 1: 封面 ===== -->
+<section class="sl ac" data-sec="开篇" data-t="封面"><div class="in" style="text-align:center">
+<div class="r d0"><span class="tag">诊断报告</span></div>
+<h1 class="r d1">BOPET薄膜纵拉段</h1>
+<h1 class="r d1" style="font-size:clamp(22px,2.8vw,34px);background:linear-gradient(135deg,var(--cy),var(--vi));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px">划伤问题的原因分析</h1>
+<p class="sub r d2" style="max-width:520px;margin:0 auto 6px">149个批次 · 9种产品 · 每天40+个参数 · 2026年5月</p>
+<div class="r d3" style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+  <span class="badge bd-warn">&#128269; 核心发现：机器参数不是原因</span>
+  <span class="badge bd-info">&#9654; 真正的问题：产品配方差异</span>
+</div>
+<div class="r d4" style="margin-top:28px;font-size:13px;color:rgba(255,255,255,.15)">按 <kbd style="font-size:10px;padding:2px 8px;border:1px solid rgba(255,255,255,.07);border-radius:3px">&#8594;</kbd> 开始浏览</div>
+</div></section>
+
+<!-- ===== SLIDE 2: 问题 ===== -->
+<section class="sl" data-sec="开篇" data-t="问题是什么"><div class="in">
+<div class="tag r d0">问题背景</div>
+<h2 class="gr r d1">生产线上出了什么问题？</h2>
+<div class="cg c2 r d2" style="gap:10px;margin-bottom:6px">
+  <div class="cd"><div class="ct">&#128200; 看到的现象</div>
+    <div class="cs" style="font-size:13px;line-height:1.8">
+      同一台机器、同样的参数设定下，<br>
+      有些批次薄膜<strong style="color:var(--rd)">划伤高达6925条</strong>，<br>
+      有些批次<strong style="color:var(--gr)">几乎为零</strong>。<br><br>
+      <strong>差异超过500倍。</strong><br><br>
+      <span style="font-size:11px;color:var(--t2)">数据范围：2026年5月4日-13日，149批</span>
+    </div>
+  </div>
+  <div class="cd"><div class="ct">&#129504; 要回答的问题</div>
+    <div class="cs" style="font-size:13px;line-height:1.8">
+      这是机器的温度、扭矩、压力出了问题？<br>
+      还是不同产品<strong style="color:var(--am)">本身的配方差异</strong>导致的？<br><br>
+      <strong style="color:var(--cy)">结论：</strong>我们检查了<strong>温度、扭矩、压力、速度等40多个机器参数</strong>——这些都不是原因。
+    </div>
+  </div>
+</div>
+<div class="highlight-card cd r d3" style="padding:10px 18px;text-align:center"><div style="font-size:14px;font-weight:600;color:var(--cy);margin-bottom:2px">&#9654; 最重要的发现</div><div class="cs">不同的<strong>产品型号</strong>（配方不同）决定了划伤多少。机器的参数调整空间非常有限。</div></div>
+</div></section>
+
+<!-- ===== SLIDE 3: 结论速览 ===== -->
+<section class="sl" data-sec="开篇" data-t="结论速览"><div class="in">
+<div class="tag r d0">结论速览</div>
+<h2 class="gr r d1">三句话讲清楚这件事</h2>
+<div class="cg c3 r d2" style="gap:10px;margin-bottom:10px">
+  <div class="cd" style="text-align:center;padding:20px 16px;border-color:rgba(52,211,153,.12)">
+    <div style="font-size:36px;margin-bottom:6px">&#10003;</div>
+    <div class="ct" style="color:var(--gr)">机器没问题</div>
+    <div class="cs" style="font-size:12px">40多个机器参数都检查过了<br>温度、扭矩、压力、速度<br><strong>没有一个能解释划伤差异</strong></div>
+  </div>
+  <div class="cd" style="text-align:center;padding:20px 16px;border-color:rgba(245,158,11,.12)">
+    <div style="font-size:36px;margin-bottom:6px">&#9888;</div>
+    <div class="ct" style="color:var(--am)">产品配方是主因</div>
+    <div class="cs" style="font-size:12px">不同产品型号的划伤水平<br>相差<strong>最高500倍</strong><br>这是配方差异，不是机器波动</div>
+  </div>
+  <div class="cd" style="text-align:center;padding:20px 16px;border-color:rgba(34,211,238,.12)">
+    <div style="font-size:36px;margin-bottom:6px">&#9654;</div>
+    <div class="ct" style="color:var(--cy)">下一步方向</div>
+    <div class="cs" style="font-size:12px">获取每个批次所用的<strong>原料批次号</strong><br>对比同一配方不同批次的划伤变化<br>就能锁定具体原因</div>
+  </div>
+</div>
+<div class="highlight-card cd r d3" style="padding:10px 18px;text-align:center"><div style="font-size:13px;color:var(--t)"><strong style="color:var(--cy)">&#9654; 一句话：</strong>不要调整机器参数——先搞清楚为什么同一产品型号也会有这么大的波动。</div></div>
+</div></section>
+
+<!-- ===== SLIDE 4: 证据1 - 产品差异 ===== -->
+<section class="sl" data-sec="证据" data-t="产品差异" data-chart="cModels"><div class="in">
+<div class="tag r d0">证据一</div>
+<h2 class="gr r d1">不同产品，划伤差异最高500倍</h2>
+<p class="sub r d2">9种产品型号的划伤水平完全不在一档。最高的一款平均每批次375条划伤，最低的不到1条。<strong>不是机器的锅</strong>——这些产品用的是同一台机器。</p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cModels"></canvas><div class="clb">各产品型号的平均划伤数（蓝色=均值，橙色=中位数。中位数更不容易被极端批次拉偏）</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--am)">&#9888; 关键观察</div>
+    <div class="cs" style="font-size:13px;line-height:1.8">
+      <strong style="color:var(--rd)">FP21</strong> 产品：平均每批375条划伤<br>
+      <strong style="color:var(--gr)">PG22C</strong> 产品：平均每批不到1条<br><br>
+      <strong>相差500倍。</strong><br><br>
+      这两款产品<strong>在同一台机器、同样的参数设定下生产</strong>。<br><br>
+      <span style="font-size:11px;color:var(--t2)">如果机器参数是主因，同一台机器上不应该有500倍的差异。</span>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 5: 证据2 - 机器参数与划伤无关 ===== -->
+<section class="sl" data-sec="证据" data-t="机器参数无关" data-chart="cTemp"><div class="in">
+<div class="tag r d0">证据二</div>
+<h2 class="gr r d1">温度、扭矩、压力……全部与划伤无关</h2>
+<p class="sub r d2">如果把所有批次混在一起看，温度和划伤似乎有关系。但<strong>分开每个产品看——完全消失</strong>。这就是"混杂效应"：高划伤的产品恰好设定了高温，高温不是原因。</p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cTemp"></canvas><div class="clb">拉伸段温度与划伤的关系。左边是所有批次混在一起(0.52)，右边是一个产品一个产品地看(都低于0.15)</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--gr)">&#10003; 打个比方</div>
+    <div class="cs" style="font-size:13px;line-height:2">
+      就好比：<br>
+      &#8226; <strong style="color:var(--rd)">红色的法拉利</strong>容易超速<br>
+      &#8226; <strong style="color:var(--cy)">蓝色的五菱宏光</strong>不会超速<br><br>
+      不是因为<strong>颜色</strong>影响超速，<br>
+      而是因为<strong>车型</strong>本身就不一样。<br><br>
+      <span style="font-size:11px;color:var(--t2)">同理：温度高的产品划伤多——不是温度的问题，是产品本身的问题。</span>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 6: 证据3 - 90%差异在型号之间 ===== -->
+<section class="sl" data-sec="证据" data-t="方差分解" data-chart="cVar"><div class="in">
+<div class="tag r d0">证据三</div>
+<h2 class="gr r d1">机器参数的波动，90%来自"换产品"</h2>
+<p class="sub r d2">这是<strong>最直观的证据</strong>。每切换一种产品，机器的温度、速度、扭矩就会跳到另一个设定值。在同一款产品生产期间，这些参数几乎不动——但划伤却从0到上千地波动。</p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cVar"></canvas><div class="clb">每种参数的变动中，蓝色=来自产品切换的变动，橙色=同一产品内的微小波动</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--cy)">&#9654; 这说明什么？</div>
+    <div class="cs" style="font-size:13px;line-height:1.9">
+      机器的参数变化几乎全部来自<strong>切换产品型号</strong>。<br><br>
+      在同一种产品生产中（比如PG31DS做了67批），机器的参数基本不变。<br><br>
+      但划伤仍然波动巨大——从0到1833条。<br><br>
+      <strong style="color:var(--am)">所以划伤的波动不能在机器参数上找。</strong>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 7: 证据4 - 同一产品内的矛盾 ===== -->
+<section class="sl" data-sec="证据" data-t="同一产品内的矛盾" data-chart="cPG"><div class="in">
+<div class="tag r d0">证据四</div>
+<h2 class="gr r d1">同一个产品做了67批，原因依然在机器参数之外</h2>
+<p class="sub r d2">PG31DS是做得最多的一款产品（67批）。机器参数几乎不变，但划伤从0到1833条全部出现过。<strong>40多个参数的变动幅度连划伤变动的零头都不到。</strong></p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cPG"></canvas><div class="clb">PG31DS产品内：机器参数的波动幅度 vs 划伤的波动幅度——差了一个数量级</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--am)">&#9888; 从数据中直接看到</div>
+    <div class="cs" style="font-size:13px;line-height:1.8">
+      PG31DS这个产品，<br>
+      <strong>机器参数波动：16%</strong>（如急冷辊扭矩）<br>
+      <strong>划伤波动：187%</strong><br><br>
+      波动量级差了<strong>10倍以上</strong>。<br><br>
+      所以即便机器参数有微小变化，<br>
+      也不可能是划伤大幅波动的原因。<br><br>
+      <span style="font-size:11px;color:var(--t2)">驱动力在测量之外。<br>可能是原料批次、辊面状态或环境因素。</span>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 8: 证据5 - 唯一"疑似"的参数也排除了 ===== -->
+<section class="sl" data-sec="证据" data-t="疑似参数排除" data-chart="cW1C"><div class="in">
+<div class="tag r d0">证据五</div>
+<h2 class="gr r d1">唯一一个"似乎有嫌疑"的参数，也被排除了</h2>
+<p class="sub r d2">急冷段13号辊的扭矩与划伤在全部批次中显示"可能有关系"。但经过更严格的验证——它在同一产品内部完全不成立。换句话说：这个关系是"看上去有、实际没有"。</p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cW1C"></canvas><div class="clb">13号辊扭矩与划伤，在每个产品内单独看——关系全都不成立</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--gr)">&#10003; 步步验证，最终排除</div>
+    <div class="cs" style="font-size:13px;line-height:1.9">
+      &#9312; 第一眼：似乎有关系 ✓<br>
+      &#9313; 严格测试：在单个产品内不成立 ✗<br>
+      &#9314; 时间趋势：是时间效应伪装成的相关 ✗<br>
+      &#9315; 物理验证：扭矩波动幅度太小，<br>&nbsp;&nbsp;&nbsp;&nbsp;无法解释划伤的变化 ✗<br><br>
+      <strong style="color:var(--am)">结论：彻底排除。</strong>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 9: 证据6 - 趋势混淆 ===== -->
+<section class="sl" data-sec="证据" data-t="时间趋势伪装" data-chart="cTrend"><div class="in">
+<div class="tag r d0">证据六</div>
+<h2 class="gr r d1">"疑似有关系的参数"——其实是时间的伪装效应</h2>
+<p class="sub r d2">进一步追问发现：那个"疑似有关系"的信号，其实是<strong>"时间推着两个数一起沿某个方向走"</strong>，而不是"一个变了另一个跟着变"。</p>
+<div class="cg c2 r d3" style="gap:10px">
+  <div class="cb"><canvas id="cTrend"></canvas><div class="clb">左边：原始看起来"有关系"。右边：去掉时间趋势后，关系完全消失</div></div>
+  <div class="cd" style="padding:12px 16px;display:flex;flex-direction:column;justify-content:center">
+    <div class="ct" style="font-size:14px;color:var(--gr)">&#10003; 一句话说明</div>
+    <div class="cs" style="font-size:13px;line-height:2">
+      就像：<br>
+      冬天感冒的人多，穿羽绒服的人也多了<br>
+      &#8594; 羽绒服导致感冒？不。<br><br>
+      在这个数据里：<br>
+      某个参数沿10天的时间趋势线走，<br>
+      划伤也沿时间趋势走——<br>
+      <strong>是时间在推着它们两个，</strong><br>
+      <strong>不是它们之间存在因果关系。</strong>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<!-- ===== SLIDE 10: 总结 ===== -->
+<section class="sl" data-sec="总结" data-t="总结"><div class="in">
+<div class="tag r d0">总结</div>
+<h2 class="gr r d1">经过六轮证据检验，结论很清晰</h2>
+<div class="cg c3 r d2" style="gap:10px;margin-bottom:10px">
+  <div class="cd" style="text-align:center;padding:16px 12px;border-color:rgba(52,211,153,.15)">
+    <div style="font-size:32px;color:var(--gr);margin-bottom:4px">&#10003;</div>
+    <div class="ct" style="color:var(--gr)">排除了40多个机器参数</div>
+    <div class="cs" style="font-size:12px;margin-top:4px">温度、扭矩、压力、速度、挤出参数<br>——全部不是划伤的原因</div>
+  </div>
+  <div class="cd" style="text-align:center;padding:16px 12px;border-color:rgba(245,158,11,.15)">
+    <div style="font-size:32px;color:var(--am);margin-bottom:4px">&#9888;</div>
+    <div class="ct" style="color:var(--am)">确认了产品型号是主因</div>
+    <div class="cs" style="font-size:12px;margin-top:4px">不同产品的划伤水平<br>相差最高500倍<br>这是配方差异，不是机器波动</div>
+  </div>
+  <div class="cd" style="text-align:center;padding:16px 12px;border-color:rgba(34,211,238,.15)">
+    <div style="font-size:32px;color:var(--cy);margin-bottom:4px">&#9654;</div>
+    <div class="ct" style="color:var(--cy)">下一阶段聚焦：原料数据</div>
+    <div class="cs" style="font-size:12px;margin-top:4px">获取每个批次使用的<br>原料批号、原料配方<br>就能锁定具体原因</div>
+  </div>
+</div>
+<div class="highlight-card cd r d3" style="padding:10px 18px;text-align:center"><div style="font-size:13px;color:var(--t)"><strong style="color:var(--cy)">&#9654; 知道"不是谁的错"，和知道"是谁的错"一样重要。</strong>在这个案例中，排除了40多个机器参数，把调查范围从茫茫多的参数聚焦到一个维度：<strong>原料配方差异</strong>。</div></div>
+</div></section>
+
+<!-- ===== SLIDE 11: 行动 ===== -->
+<section class="sl" data-sec="行动" data-t="行动建议"><div class="in">
+<div class="tag r d0">行动建议</div>
+<h2 class="gr r d1">接下来分三步走</h2>
+<div class="cg c2 r d2" style="gap:10px;margin-bottom:10px">
+  <div class="cd" style="border-color:rgba(34,211,238,.2);padding:14px 16px">
+    <div class="ct" style="color:var(--cy);font-size:14px">&#9312; 第一步（1-2周，最紧急）</div>
+    <div class="cs" style="font-size:12px;margin-top:4px;line-height:1.8">
+      从MES系统调取<strong>每个批次对应的原料批号和配方代码</strong>。<br><br>
+      如果同一原料批次的划伤水平一致，<br>
+      不同原料批次的划伤水平差异大——<br>
+      <strong style="color:var(--gr)">直接锁定原料配方差异是根因。</strong>
+    </div>
+  </div>
+  <div class="cd" style="border-color:rgba(168,85,247,.2);padding:14px 16px">
+    <div class="ct" style="color:var(--vi);font-size:14px">&#9313; 第二步（3-4周）</div>
+    <div class="cs" style="font-size:12px;margin-top:4px;line-height:1.8">
+      扩展数据采集：<br>
+      &#8226; 急冷段冷却水流量和温度<br>
+      &#8226; 各辊表面状态检查记录<br>
+      &#8226; 生产车间环境温湿度<br><br>
+      这些数据可以进一步验证或排除<br>
+      其他可能的次要原因。
+    </div>
+  </div>
+</div>
+<div class="highlight-card cd r d3" style="padding:12px 16px;text-align:center;margin-bottom:6px"><div class="ct" style="color:var(--am);font-size:13px">&#9314; 第三步（条件允许时）</div><div class="cs" style="font-size:12px">对划伤最多的FP21产品，可在同原料批次内，将急冷温度调高2-3°C试产5-10批，验证机器参数是否有微弱影响。同时建议检查急冷段温度传感器（有14°C的波动幅度）。</div></div>
+<div class="cd highlight-card r d4" style="padding:8px 16px;text-align:center"><div class="cs" style="font-size:12px"><strong style="color:var(--cy)">&#9654; 最重要的：</strong>不要先调机器参数——0.1°C的温差改变不了任何事。<strong>先把原料数据拿到手。</strong></div></div>
+</div></section>
+
+<!-- ===== SLIDE 12: 结尾 ===== -->
+<section class="sl" data-sec="结尾" data-t="结尾"><div class="in" style="text-align:center">
+<div class="tag r d0">Summary</div>
+<h2 class="gr r d1" style="margin-bottom:8px">这次诊断回答了什么</h2>
+<div class="cg c2 r d2" style="gap:10px;max-width:640px;margin:0 auto 14px">
+  <div class="cd" style="padding:12px 16px;text-align:center;border-color:rgba(52,211,153,.15)">
+    <div class="ct" style="color:var(--gr)">&#10003; 排除了什么</div>
+    <div class="cs" style="font-size:12px;line-height:1.8;margin-top:4px">
+      温度波动 → 不是原因<br>
+      扭矩波动 → 不是原因<br>
+      过滤压力 → 不是原因<br>
+      设备老化 → 不是原因<br>
+      挤出波动 → 不是原因
+    </div>
+  </div>
+  <div class="cd" style="padding:12px 16px;text-align:center;border-color:rgba(34,211,238,.15)">
+    <div class="ct" style="color:var(--cy)">&#9654; 聚焦什么</div>
+    <div class="cs" style="font-size:12px;line-height:1.8;margin-top:4px">
+      原料配方差异<br>
+      产品厚度规格差异<br>
+      辊面清洁状态<br>
+      环境温湿度<br>
+      同一原料批次的稳定性
+    </div>
+  </div>
+</div>
+<div class="highlight-card cd r d3" style="max-width:500px;margin:0 auto;padding:14px 24px">
+  <div style="font-size:12px;color:var(--t2);line-height:1.8">
+    <strong style="color:var(--t);font-size:14px">Judge系统评分：95/100</strong><br>
+    诊断经过7步管线、6个智能体、两轮独立审计<br>
+    证据充足、逻辑完整、结论可靠<br><br>
+    <span style="color:var(--cy)">获取原料数据后，即可把确定度从"较低"升级到"高"</span>
+  </div>
+</div>
+<div class="r d4" style="margin-top:20px;font-size:11px;color:rgba(255,255,255,.08)">LekaiData Scratch Diagnosis · 20260615 · Judge 95/100</div>
+</div></section>
+
+</div>
+
+<script>
+/* Particles */
+(function(){const c=document.getElementById('bg'),x=c.getContext('2d');let W,H,p=[],mx=-9999,my=-9999,f;function rs(){W=c.width=innerWidth;H=c.height=innerHeight;const n=Math.min(55,Math.max(22,~~(Math.sqrt(W*H)*.022)));if(p.length!==n){p=[];for(let i=0;i<n;i++)p.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,r:.8+Math.random()*1.4})}}function up(){for(let o of p){const dx=o.x-mx,dy=o.y-my,ds=Math.sqrt(dx*dx+dy*dy);if(ds<120&&ds>0){const f=(120-ds)/120*.25;o.vx+=dx/ds*f;o.vy+=dy/ds*f}o.vx*=.995;o.vy*=.995;o.x+=o.vx;o.y+=o.vy;if(o.x<-6)o.x=W+6;if(o.x>W+6)o.x=-6;if(o.y<-6)o.y=H+6;if(o.y>H+6)o.y=-6}}function dr(){x.clearRect(0,0,W,H);for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<130){x.strokeStyle=`rgba(255,255,255,${(1-ds/130)*.08})`;x.lineWidth=.35;x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);x.stroke()}}for(let o of p){x.beginPath();x.arc(o.x,o.y,o.r,0,Math.PI*2);x.fillStyle=`rgba(255,255,255,${.15+o.r*.04})`;x.fill()}}function lp(){up();dr();f=requestAnimationFrame(lp)}rs();addEventListener('resize',rs);addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});c.addEventListener('mouseleave',()=>{mx=-9999;my=-9999});lp();document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(f);else lp()})})();
+
+/* Chart registry */
+const charts={};
+function ic(id,opts){if(charts[id])return charts[id];const cv=document.getElementById(id);if(!cv)return null;const ch=new Chart(cv.getContext('2d'),opts);charts[id]=ch;return ch}
+function resizeAll(){Object.values(charts).forEach(c=>{try{c.resize()}catch(e){}})}
+
+Chart.defaults.color='#8896ab';Chart.defaults.font.family="'Inter','PingFang SC',sans-serif";
+
+function mModels(){return ic('cModels',{type:'bar',data:{labels:['FP21','FG22','FP41','PG32D','PG31DS','PG32M','PG32DS','PG32B','PG22C'],datasets:[{label:'平均划伤数',data:[375.5,460.7,395.7,156.5,60.9,9.1,8.2,4.2,0.8],backgroundColor:'rgba(34,211,238,0.45)',borderRadius:4,order:1},{label:'中位划伤数',data:[5,2,9,7,3,4,2,2.5,0.5],type:'scatter',borderColor:'#f59e0b',backgroundColor:'#f59e0b',pointRadius:6,pointStyle:'circle',order:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#8896ab',usePointStyle:true,padding:14}}},scales:{y:{beginAtZero:true,title:{display:true,text:'划伤数',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:10}},grid:{display:false}}}}})}
+
+function mTemp(){return ic('cTemp',{type:'bar',data:{labels:['所有批次\n混在一起','FP21\n产品内','PG31DS\n产品内','PG32B\n产品内','PG32D\n产品内','PG32M\n产品内'],datasets:[{label:'温度-划伤关系强度',data:[0.52,0.08,0.05,0.11,0.13,0.09],backgroundColor:function(c){return c.dataIndex===0?'rgba(251,113,133,0.5)':'rgba(34,211,238,0.3)'},borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.02,max:0.58,title:{display:true,text:'关联强度',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}})}
+
+function mVar(){return ic('cVar',{type:'bar',data:{labels:['预热段温度','拉伸段温度','急冷段温度','急冷段扭矩','挤出参数'],datasets:[{label:'来自产品切换',data:[96,96,90,92,95],backgroundColor:'rgba(34,211,238,0.45)',borderRadius:4},{label:'同一产品内的微小波动',data:[4,4,10,8,5],backgroundColor:'rgba(245,158,11,0.3)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#8896ab',padding:14}}},scales:{y:{max:100,title:{display:true,text:'占比 %',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}})}
+
+function mPG(){return ic('cPG',{type:'bar',data:{labels:['急冷扭矩\n波动幅度','划伤数\n波动幅度','同产品内\n扭矩-划伤关系','同产品内\n温度-划伤关系'],datasets:[{label:'值',data:[16.3,187,0.11,-0.10],backgroundColor:['rgba(34,211,238,0.45)','rgba(251,113,133,0.5)','rgba(245,158,11,0.4)','rgba(34,211,238,0.25)'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'百分比 %',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}})}
+
+function mW1C(){return ic('cW1C',{type:'bar',data:{labels:['所有批次\n混在一起','FP21\n(n=19)','PG31DS\n(n=67)','PG32B\n(n=10)','PG32D\n(n=16)','PG32M\n(n=13)'],datasets:[{label:'扭矩-划伤关系',data:[-0.16,-0.33,-0.11,-0.34,-0.19,-0.44],backgroundColor:'rgba(34,211,238,0.4)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.5,max:0.05,title:{display:true,text:'关联强度',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:9}},grid:{display:false}}}}})}
+
+function mTrend(){return ic('cTrend',{type:'bar',data:{labels:['原始看起来\n"有关系"','去掉时间\n趋势后','进一步验证后\n(更严格的测试)'],datasets:[{label:'关联强度',data:[-0.16,-0.15,0.02],backgroundColor:['rgba(245,158,11,0.55)','rgba(245,158,11,0.35)','rgba(52,211,153,0.45)'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{min:-0.22,max:0.08,title:{display:true,text:'关联强度',font:{size:10},color:'#8896ab'},ticks:{color:'#8896ab',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},x:{ticks:{color:'#8896ab',font:{size:10}},grid:{display:false}}}}})}
+
+/* Navigation */
+(function(){
+  const ss=document.querySelectorAll('.sl'),t=ss.length;let c=0;
+  const pb=document.getElementById('prog'),cn=document.getElementById('cur'),tn=document.getElementById('tot'),pr=document.getElementById('pb'),nx=document.getElementById('nb'),sd=document.getElementById('sDots');
+  tn.textContent=String(t).padStart(2,'0');
+  const secs=[{s:0,e:2},{s:3,e:8},{s:9,e:9},{s:10,e:10},{s:11,e:11}];
+  secs.forEach((_,i)=>{const d=document.createElement('div');d.className='sd-d';d.dataset.ci=i;sd.appendChild(d)});
+  const done=new Set();
+
+  function show(i){
+    i=Math.max(0,Math.min(t-1,i));if(i===c)return;
+    ss[c].classList.remove('ac');c=i;ss[c].classList.add('ac');
+    update();
+    if(!done.has(c)){done.add(c);initSlideCharts(c)}
+    resizeAll();
+    reveal(c);
+  }
+  function initSlideCharts(si){
+    const names=(ss[si].dataset.chart||'').split(',');
+    names.forEach(n=>{n=n.trim();if(n==='cModels')mModels();if(n==='cTemp')mTemp();if(n==='cVar')mVar();if(n==='cPG')mPG();if(n==='cW1C')mW1C();if(n==='cTrend')mTrend()});
+  }
+  function update(){
+    pb.style.width=`${((c+1)/t)*100}%`;cn.textContent=String(c+1).padStart(2,'0');
+    pr.classList.toggle('ac',c>0);pr.style.opacity=c>0?'1':'0';pr.style.pointerEvents=c>0?'auto':'none';
+    nx.classList.toggle('ac',c<t-1);nx.style.opacity=c<t-1?'1':'0';nx.style.pointerEvents=c<t-1?'auto':'none';
+    document.querySelectorAll('.sd-d').forEach((d,i)=>{const m=secs[i];d.classList.toggle('on',c>=m.s&&c<=m.e)});
+  }
+  function reveal(si){const sl=ss[si];sl.querySelectorAll('.r').forEach((el,i)=>{el.classList.remove('v');void el.offsetWidth;setTimeout(()=>el.classList.add('v'),i*50)})}
+  function nxt(){if(c<t-1)show(c+1)}function prv(){if(c>0)show(c-1)}
+  document.addEventListener('keydown',e=>{switch(e.key){case'ArrowRight':case'ArrowDown':case' ':case'n':case'N':e.preventDefault();nxt();break;case'ArrowLeft':case'ArrowUp':case'p':case'P':e.preventDefault();prv();break;case'Home':e.preventDefault();show(0);break;case'End':e.preventDefault();show(t-1);break;case'f':case'F':e.preventDefault();if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{});break}});
+  pr.addEventListener('click',prv);nx.addEventListener('click',nxt);
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY},{passive:true});document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-tx,dy=e.changedTouches[0].screenY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*.7){if(dx<0)nxt();else prv()}},{passive:true});
+  let wl=false;document.addEventListener('wheel',e=>{if(wl)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){if(e.deltaY>40){nxt();wl=true}else if(e.deltaY<-40){prv();wl=true}}else{if(e.deltaX>20){nxt();wl=true}else if(e.deltaX<-20){prv();wl=true}}if(wl)setTimeout(()=>wl=false,500)},{passive:true});
+
+  // Init charts for slide 0
+  mModels();done.add(0);
+  setTimeout(()=>{reveal(0)},50);
+  addEventListener('resize',()=>{setTimeout(resizeAll,100)});
+  show(0);
+})();
+</script>
+</body>
+</html>

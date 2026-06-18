@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>工业深度诊断系统 · Skill 全景拆解</title>
+<style>
+/* ============================
+   CSS Variables & Reset
+   ============================ */
+:root{
+  --bg:#070b14;
+  --bg2:#0f1428;
+  --surface:rgba(255,255,255,0.04);
+  --surface-hover:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.07);
+  --text:#e6eef7;
+  --text2:#8a97ab;
+  --cyan:#22d3ee;
+  --blue:#3b82f6;
+  --blend:#6366f1;
+  --violet:#a855f7;
+  --amber:#f59e0b;
+  --green:#34d399;
+  --red:#fb7185;
+  --radius:12px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  user-select:none;
+}
+
+/* ============================
+   Canvas Background
+   ============================ */
+#bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;
+  pointer-events:none;
+}
+#bg::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(99,102,241,0.06),transparent 70%),
+             radial-gradient(ellipse 50% 40% at 80% 80%,rgba(34,211,238,0.04),transparent 70%);
+  pointer-events:none;
+}
+
+/* ============================
+   Deck Container
+   ============================ */
+.deck{position:fixed;inset:0;z-index:1}
+
+/* ============================
+   Top Bar
+   ============================ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  padding:14px 32px 0;
+  display:flex;align-items:center;gap:16px;
+  background:linear-gradient(180deg,rgba(7,11,20,0.85) 50%,transparent);
+  pointer-events:none;
+}
+.topbar>*{pointer-events:auto}
+.progress-track{
+  flex:1;height:2px;border-radius:2px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--cyan),var(--blend),var(--violet));
+  border-radius:2px;
+  transition:width .5s var(--ease);
+}
+.topbar-right{
+  display:flex;align-items:center;gap:14px;
+  font-size:13px;color:var(--text2);
+  white-space:nowrap;
+}
+.counter{font-variant-numeric:tabular-nums;letter-spacing:.5px;min-width:48px;text-align:right}
+.slide-title{
+  font-size:13px;color:var(--text2);
+  max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* ============================
+   Navigation Arrows
+   ============================ */
+.nav-arrow{
+  position:fixed;top:50%;z-index:15;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--text2);
+  width:40px;height:40px;border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  transition:all .3s var(--ease);
+  backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;
+}
+.nav-arrow.active{opacity:1;pointer-events:auto}
+.nav-arrow:hover{background:rgba(255,255,255,0.1);color:var(--text);border-color:rgba(255,255,255,0.15)}
+.nav-prev{left:16px}
+.nav-next{right:16px}
+
+/* ============================
+   Bottom Info
+   ============================ */
+.bottom-info{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:15;
+  font-size:12px;color:rgba(255,255,255,0.25);
+  letter-spacing:1px;
+}
+.bottom-info kbd{
+  display:inline-block;padding:1px 7px;margin:0 2px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:4px;font-size:10px;font-family:inherit;
+  background:rgba(255,255,255,0.04);
+}
+
+/* ============================
+   TOC Overlay
+   ============================ */
+.toc-overlay{
+  position:fixed;inset:0;z-index:30;
+  background:rgba(7,11,20,0.92);
+  backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;
+  transition:opacity .4s,visibility .4s;
+}
+.toc-overlay.open{opacity:1;visibility:visible}
+.toc-overlay h2{font-size:24px;font-weight:600;margin-bottom:28px;letter-spacing:2px;color:var(--text)}
+.toc-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px 24px;
+  max-width:760px;width:90%;
+}
+.toc-item{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:10px 16px;
+  cursor:pointer;
+  transition:all .25s var(--ease);
+  font-size:13px;
+  display:flex;align-items:center;gap:10px;
+}
+.toc-item:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15)}
+.toc-num{
+  min-width:22px;height:22px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;color:var(--text2);
+}
+.toc-close{
+  margin-top:24px;padding:8px 28px;border-radius:8px;
+  background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  color:var(--text2);cursor:pointer;font-size:13px;
+  transition:all .25s var(--ease);
+}
+.toc-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+
+/* ============================
+   Slides
+   ============================ */
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:70px 48px 50px;
+  opacity:0;visibility:hidden;
+  transform:translateY(16px) scale(.995);
+  transition:opacity .55s var(--ease),transform .55s var(--ease),visibility .55s;
+  pointer-events:none;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.slide.active{
+  opacity:1;visibility:visible;
+  transform:none;
+  pointer-events:auto;
+}
+.slide-inner{
+  max-width:1040px;width:100%;
+}
+
+/* ============================
+   Reveal Animations
+   ============================ */
+.reveal{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease);
+}
+.reveal.revealed{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.07s!important}
+.reveal-delay-2{transition-delay:.14s!important}
+.reveal-delay-3{transition-delay:.21s!important}
+.reveal-delay-4{transition-delay:.28s!important}
+.reveal-delay-5{transition-delay:.35s!important}
+.reveal-delay-6{transition-delay:.42s!important}
+.reveal-delay-7{transition-delay:.49s!important}
+.reveal-delay-8{transition-delay:.56s!important}
+
+/* ============================
+   Typography
+   ============================ */
+h1{
+  font-size:clamp(32px,5vw,52px);font-weight:700;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#e6eef7 40%,var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1.2;
+}
+h2{
+  font-size:clamp(24px,3.6vw,38px);font-weight:700;letter-spacing:-.3px;
+  margin-bottom:6px;
+}
+h2.gradient{
+  background:linear-gradient(135deg,var(--cyan),var(--blend));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h3{
+  font-size:clamp(16px,1.8vw,22px);font-weight:600;color:var(--text);
+  margin-bottom:4px;
+}
+.subtitle{
+  font-size:clamp(14px,1.4vw,18px);color:var(--text2);line-height:1.6;
+  margin-bottom:24px;
+}
+.section-tag{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:3px;
+  text-transform:uppercase;color:var(--cyan);
+  margin-bottom:10px;
+}
+.text-muted{color:var(--text2)}
+.text-sm{font-size:clamp(12px,1.1vw,14px);line-height:1.65}
+.text-xs{font-size:clamp(11px,.95vw,13px)}
+
+/* ============================
+   Cards
+   ============================ */
+.card-grid{
+  display:grid;gap:16px;
+}
+.card-grid-2{grid-template-columns:1fr 1fr}
+.card-grid-3{grid-template-columns:1fr 1fr 1fr}
+.card-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  backdrop-filter:blur(4px);
+  transition:all .3s var(--ease);
+}
+.card:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);transform:translateY(-2px)}
+.card-icon{font-size:22px;margin-bottom:6px;display:block}
+.card-title{font-weight:600;font-size:15px;margin-bottom:4px}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.55}
+.highlight{border-color:rgba(34,211,238,0.2)}
+.highlight:hover{border-color:rgba(34,211,238,0.35);box-shadow:0 0 20px rgba(34,211,238,0.06)}
+.highlight-v{border-color:rgba(168,85,247,0.2)}
+.highlight-v:hover{border-color:rgba(168,85,247,0.35);box-shadow:0 0 20px rgba(168,85,247,0.06)}
+
+/* ============================
+   Pipeline Flow Diagram
+   ============================ */
+.pipeline-flow{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:16px 0;flex-wrap:nowrap;
+}
+.p-step{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  min-width:72px;
+}
+.p-step-num{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text2);
+  transition:all .3s var(--ease);
+}
+.p-step.active .p-step-num{
+  background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(99,102,241,0.15));
+  border-color:var(--cyan);color:var(--cyan);
+  box-shadow:0 0 16px rgba(34,211,238,0.12);
+}
+.p-step-label{font-size:10px;color:var(--text2);text-align:center;white-space:nowrap}
+.p-step .agent-label{font-size:8px;color:rgba(255,255,255,0.25);text-align:center}
+.p-arrow{
+  width:0;height:0;
+  border-top:6px solid transparent;
+  border-bottom:6px solid transparent;
+  border-left:10px solid rgba(255,255,255,0.10);
+  flex-shrink:0;
+}
+
+/* ============================
+   Flow Lines (CSS pulse dots)
+   ============================ */
+.flow-line-wrap{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:18px 0;padding:0 20px;
+  position:relative;
+}
+.flow-node{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  position:relative;z-index:2;
+  width:72px;
+}
+.flow-node-circle{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text2);transition:all .3s;
+}
+.flow-line{
+  flex:1;height:2px;
+  background:linear-gradient(90deg,var(--border),var(--border));
+  position:relative;margin:0 2px;min-width:20px;
+  overflow:hidden;
+}
+.flow-dot{
+  position:absolute;top:50%;left:-8px;width:6px;height:6px;
+  border-radius:50%;background:var(--cyan);
+  animation:flowPulse 2.4s ease-in-out infinite;
+  transform:translateY(-50%);
+}
+.flow-dot:nth-child(1){animation-delay:0s}
+.flow-dot:nth-child(2){animation-delay:.8s;width:4px;height:4px;opacity:.5}
+.flow-dot:nth-child(3){animation-delay:1.6s;width:3px;height:3px;opacity:.3}
+@keyframes flowPulse{
+  0%{left:-8px;opacity:0}
+  15%{opacity:1}
+  85%{opacity:1}
+  100%{left:calc(100% + 4px);opacity:0}
+}
+
+/* ============================
+   Table
+   ============================ */
+.agent-table{
+  width:100%;border-collapse:collapse;
+  font-size:13px;margin:10px 0;
+}
+.agent-table th{
+  text-align:left;padding:8px 12px;
+  font-weight:600;font-size:11px;letter-spacing:1px;
+  color:var(--text2);border-bottom:1px solid var(--border);
+  text-transform:uppercase;
+}
+.agent-table td{
+  padding:8px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  vertical-align:top;
+}
+.agent-table tr:hover td{background:rgba(255,255,255,0.03)}
+.agent-table td:first-child{font-weight:600;white-space:nowrap}
+.badge{
+  display:inline-block;padding:1px 8px;border-radius:10px;
+  font-size:11px;font-weight:500;
+}
+.badge-cyan{background:rgba(34,211,238,0.12);color:var(--cyan)}
+.badge-violet{background:rgba(168,85,247,0.12);color:var(--violet)}
+.badge-amber{background:rgba(245,158,11,0.12);color:var(--amber)}
+
+/* ============================
+   Verdict display
+   ============================ */
+.verdict-row{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
+.verdict-tag{
+  padding:6px 14px;border-radius:8px;
+  font-size:12px;font-weight:600;
+  border:1px solid;text-align:center;
+}
+.verdict-pass{border-color:rgba(52,211,153,0.2);background:rgba(52,211,153,0.08);color:var(--green)}
+.verdict-fail{border-color:rgba(251,113,133,0.2);background:rgba(251,113,133,0.08);color:var(--red)}
+.verdict-warn{border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);color:var(--amber)}
+.verdict-mute{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text2)}
+
+/* ============================
+   Evidence Hierarchy
+   ============================ */
+.evidence-bar{
+  display:flex;flex-direction:column;gap:6px;margin:12px 0;
+}
+.evidence-row{
+  display:flex;align-items:center;gap:12px;
+}
+.evidence-rank{
+  min-width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+}
+.evidence-label{font-size:13px;flex:1}
+.evidence-conf{
+  font-size:11px;color:var(--text2);
+  min-width:40px;text-align:right;
+}
+.evidence-bar-inner{
+  height:4px;border-radius:2px;
+  min-width:36px;flex:1;
+}
+
+/* ============================
+   Anti-Speculation / 4 Pillars
+   ============================ */
+.pillar-card{
+  position:relative;padding-left:14px;
+  border-left:2px solid var(--border);
+}
+.pillar-card .card-title{font-size:14px}
+.pillar-card .anti-pattern{
+  font-size:11px;color:rgba(251,113,133,0.55);
+  margin-top:2px;
+}
+
+/* ============================
+   Numbering Systems
+   ============================ */
+.num-sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.num-sys-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+}
+.num-sys-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;margin-bottom:2px}
+.num-sys-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* ============================
+   Tag / Info highlight
+   ============================ */
+.info-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:6px;
+  font-size:12px;font-weight:500;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  color:var(--text2);
+}
+.info-tag strong{color:var(--text);font-weight:600}
+ul.clean{list-style:none;padding:0}
+ul.clean li{padding:4px 0;font-size:13px;line-height:1.55;color:var(--text2)}
+ul.clean li::before{content:'\25B8';color:var(--cyan);margin-right:8px;font-size:12px}
+
+/* ============================
+   Output tree
+   ============================ */
+.out-tree{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:13px;line-height:1.7;color:var(--text2)}
+.out-tree .dir{cursor:default}
+.out-tree .folder{color:var(--amber)}
+.out-tree .file{color:var(--cyan)}
+.out-tree .indent{margin-left:18px}
+
+/* ============================
+   Scroll
+   ============================ */
+.slide::-webkit-scrollbar{width:4px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+
+/* ============================
+   Responsive
+   ============================ */
+@media(max-width:900px){
+  .slide{padding:68px 24px 50px}
+  .card-grid-2,.card-grid-3,.card-grid-4{grid-template-columns:1fr}
+  .pipeline-flow{flex-wrap:wrap;justify-content:center;gap:4px}
+  .p-arrow{display:none}
+  .num-sys-grid{grid-template-columns:1fr}
+  .toc-grid{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:10px 16px 0}
+  .slide-title{display:none}
+}
+@media(max-width:600px){
+  .slide{padding:68px 14px 50px}
+  .nav-arrow{width:32px;height:32px;font-size:14px}
+  .nav-prev{left:6px}
+  .nav-next{right:6px}
+  .toc-grid{grid-template-columns:1fr}
+  .agent-table{font-size:12px}
+  .agent-table th,.agent-table td{padding:5px 8px}
+}
+
+/* ============================
+   Cover-specific
+   ============================ */
+.cover-highlight{
+  display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  margin:18px 0;
+}
+.cover-highlight .badge{font-size:12px;padding:4px 12px}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="deck" role="presentation">
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="topbar-right">
+    <span class="slide-title" id="slideTitle">封面</span>
+    <span class="counter" id="slideCounter"><span id="currentNum">01</span> / <span id="totalNum">18</span></span>
+  </div>
+</div>
+
+<!-- ============ NAV ============ -->
+<button class="nav-arrow nav-prev" id="prevBtn" aria-label="上一页">&#8592;</button>
+<button class="nav-arrow nav-next" id="nextBtn" aria-label="下一页">&#8594;</button>
+
+<!-- ============ BOTTOM HINT ============ -->
+<div class="bottom-info"><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> 切换 &nbsp;|&nbsp; <kbd>M</kbd> 目录 &nbsp;|&nbsp; <kbd>F</kbd> 全屏</div>
+
+<!-- ============ TOC ============ -->
+<div class="toc-overlay" id="tocOverlay">
+  <h2>目录导航</h2>
+  <div class="toc-grid" id="tocGrid"></div>
+  <div class="toc-close" id="tocCloseBtn">关 闭</div>
+</div>
+
+<!-- ======================================== -->
+<!-- SLIDE 1 — COVER                         -->
+<!-- ======================================== -->
+<section class="slide active" data-title="封面">
+  <div class="slide-inner" style="text-align:center">
+    <div class="reveal" style="margin-bottom:12px">
+      <span class="section-tag">Industrial Deep Diagnostic</span>
+    </div>
+    <h1 class="reveal reveal-delay-1" style="font-size:clamp(36px,5.4vw,58px);margin-bottom:8px">
+      工业深度诊断系统
+    </h1>
+    <p class="subtitle reveal reveal-delay-2" style="font-size:clamp(16px,1.8vw,22px);margin-bottom:4px">
+      多智能体 · 8 步管线 · 物理约束根因诊断引擎
+    </p>
+    <p class="text-sm text-muted reveal reveal-delay-3" style="font-size:clamp(12px,1.2vw,15px);max-width:640px;margin:0 auto">
+      将传感器与工艺数据转化为可执行的根因诊断结论&mdash;&mdash;<br>
+      结合数据自描述、RAG 领域知识与第一性原理物理推理
+    </p>
+    <div class="cover-highlight reveal reveal-delay-4">
+      <span class="badge badge-cyan">7 个子智能体</span>
+      <span class="badge badge-violet">竞争性假设协议</span>
+      <span class="badge badge-amber">证据等级体系</span>
+      <span class="badge badge-cyan">修复循环</span>
+    </div>
+    <div class="reveal reveal-delay-5" style="margin-top:36px">
+      <span class="info-tag"><strong>&#8618;</strong> 按 <kbd style="font-size:11px;padding:2px 8px">Space</kbd> 或 <kbd style="font-size:11px;padding:2px 8px">&#8594;</kbd> 开始浏览</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 2 — 核心价值 / What It Does       -->
+<!-- ======================================== -->
+<section class="slide" data-title="核心价值">
+  <div class="slide-inner">
+    <span class="section-tag reveal">What It Does</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:8px">把数据转化为可执行的诊断</h2>
+    <p class="subtitle reveal reveal-delay-2">工业深度诊断系统是一个 <strong>场景自适应</strong> 的诊断引擎&mdash;&mdash;无需预设工艺类型，从数据特征出发结合三重知识源完成推理。</p>
+    <div class="card-grid card-grid-3" style="margin-top:8px">
+      <div class="card highlight reveal reveal-delay-3">
+        <span class="card-icon">&#9312;</span>
+        <div class="card-title">数据自描述</div>
+        <div class="card-desc">列名模式、数值范围、统计特征揭示工艺类型。无需匹配固定分类树。</div>
+      </div>
+      <div class="card highlight reveal reveal-delay-4">
+        <span class="card-icon">&#9313;</span>
+        <div class="card-title">RAG 领域知识</div>
+        <div class="card-desc">从工艺手册、SOP、论文中检索物理原理、因果机制与已知失效模式。</div>
+      </div>
+      <div class="card highlight reveal reveal-delay-5">
+        <span class="card-icon">&#9314;</span>
+        <div class="card-title">第一性原理物理</div>
+        <div class="card-desc">每个统计相关性必须追溯到控制方程；未知参数从守恒律和量纲分析导出。</div>
+      </div>
+    </div>
+    <div class="verdict-row reveal reveal-delay-6" style="margin-top:12px;justify-content:center">
+      <span class="verdict-tag verdict-mute">&#9881; 双观点输出</span>
+      <span class="verdict-tag verdict-mute">纯工艺波动诊断</span>
+      <span class="verdict-tag verdict-mute">工艺+检测双驱动诊断</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 3 — 核心理念 / Core Principle     -->
+<!-- ======================================== -->
+<section class="slide" data-title="核心理念">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Core Principle</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">诊断是排除，不是确认</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:20px">每个结论必须同时满足四个条件，缺一不可&mdash;&mdash;缺失任一即标为 <code style="color:var(--amber)">[HYPOTHESIS]</code>。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card pillar-card reveal reveal-delay-3">
+        <div class="card-title" style="color:var(--cyan)">&#9200; 时间先后</div>
+        <div class="card-desc">潜在原因必须发生在效果之前。用时间戳或变化点定位序列。</div>
+        <div class="anti-pattern">反模式：相关≠因果，忽略了时间顺序</div>
+      </div>
+      <div class="card pillar-card reveal reveal-delay-4">
+        <div class="card-title" style="color:var(--cyan)">&#9881; 统计显著</div>
+        <div class="card-desc">相关性/差异必须经统计验证（含分层分析排除混杂）。</div>
+        <div class="anti-pattern">反模式：聚合相关可能被子组分逆转（Simpson's Paradox）</div>
+      </div>
+      <div class="card pillar-card reveal reveal-delay-5">
+        <div class="card-title" style="color:var(--cyan)">&#9881; 物理机制</div>
+        <div class="card-desc">必须存在可追溯的控制方程、守恒律或物性关系解释相关性。</div>
+        <div class="anti-pattern">反模式：STATISTICAL_ONLY ≠ 根因</div>
+      </div>
+      <div class="card pillar-card reveal reveal-delay-6">
+        <div class="card-title" style="color:var(--cyan)">&#10003; 无矛盾</div>
+        <div class="card-desc">与其他已知事实和物理约束不冲突。否定的证据直接排除假设。</div>
+        <div class="anti-pattern">反模式：忽略反证据，仅选择性呈现支持性数据</div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-7" style="margin-top:14px;text-align:center">
+      <span class="info-tag"><strong>结论类型：</strong>DETERMINED / COMPETING_SET / NEEDS_DATA</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 4 — 四大支柱 / Four Pillars       -->
+<!-- ======================================== -->
+<section class="slide" data-title="四大支柱">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Four Pillars</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:8px">支撑跨行业诊断的四大原则</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:12px">这套引擎的核心不是模板匹配，而是 <strong>数据特征驱动</strong> + <strong>物理约束验证</strong>。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card highlight reveal reveal-delay-3">
+        <div class="card-title">&#9312; 场景自适应 <span class="text-xs text-muted" style="font-weight:400">Scenario-Adaptive</span></div>
+        <div class="card-desc">分析始终从数据特征出发&mdash;&mdash;没有硬编码的工艺类型。列名、值域、统计特征决定了如何分析。</div>
+        <div class="anti-pattern">反模式：对 CNC 数据硬套 "CNC 模板" 于非 CNC 场景</div>
+      </div>
+      <div class="card highlight-v reveal reveal-delay-4">
+        <div class="card-title">&#9313; RAG 深度理解 <span class="text-xs text-muted" style="font-weight:400">RAG Deep Understanding</span></div>
+        <div class="card-desc">RAG 知识被语义理解而非机械映射。领域知识被"读懂"后与数据结构化对齐。</div>
+        <div class="anti-pattern">反模式：逐字段从 RAG 输出复制到本体</div>
+      </div>
+      <div class="card highlight reveal reveal-delay-5">
+        <div class="card-title">&#9314; 数据⇔本体双向 <span class="text-xs text-muted" style="font-weight:400">Data&#8646;Ontology</span></div>
+        <div class="card-desc">本体预测→数据验证；数据揭示→本体解释；差异本身就是诊断信号。</div>
+        <div class="anti-pattern">反模式：独立构建本体和分析数据，不做交叉验证</div>
+      </div>
+      <div class="card highlight-v reveal reveal-delay-6">
+        <div class="card-title">&#9315; 物理驱动推理 <span class="text-xs text-muted" style="font-weight:400">Physics-Based Inference</span></div>
+        <div class="card-desc">所有相关性必须追溯到控制方程。第一性原理推导超越已知故障模式库。</div>
+        <div class="anti-pattern">反模式：「参数X与质量相关，因此X是原因」</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 5 — 8 步管线全景 / Pipeline       -->
+<!-- ======================================== -->
+<section class="slide" data-title="8 步管线全景">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Pipeline Overview</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">8 步多智能体诊断管线</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:20px">从数据接入到报告交付，<strong>7 个专业子智能体</strong>通过结构化文件异步协作。</p>
+
+    <!-- Pipeline flow diagram -->
+    <div class="reveal reveal-delay-3">
+    <div class="flow-line-wrap">
+      <div class="flow-node"><div class="flow-node-circle" style="background:rgba(34,211,238,0.12);border-color:var(--cyan);color:var(--cyan)">0</div><span style="font-size:10px;color:var(--text2)">Setup</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle" style="background:rgba(34,211,238,0.12);border-color:var(--cyan);color:var(--cyan)">1</div><span style="font-size:10px;color:var(--text2)">Inspect</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle">2</div><span style="font-size:10px;color:var(--text2)">Context</span><span style="font-size:8px;color:rgba(255,255,255,.25)">context-builder</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle">3</div><span style="font-size:10px;color:var(--text2)">Process</span><span style="font-size:8px;color:rgba(255,255,255,.25)">data-processor</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle" style="background:rgba(168,85,247,0.12);border-color:var(--violet);color:var(--violet)">4</div><span style="font-size:10px;color:var(--text2)">Diagnose</span><span style="font-size:8px;color:rgba(255,255,255,.25)">diagnostician</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle">5</div><span style="font-size:10px;color:var(--text2)">Judge</span><span style="font-size:8px;color:rgba(255,255,255,.25)">judge</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle">6</div><span style="font-size:10px;color:var(--text2)">Report</span><span style="font-size:8px;color:rgba(255,255,255,.25)">reporter</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle">7</div><span style="font-size:10px;color:var(--text2)">Audit</span><span style="font-size:8px;color:rgba(255,255,255,.25)">reviewer</span></div>
+      <div class="flow-line"><div class="flow-dot"></div><div class="flow-dot"></div><div class="flow-dot"></div></div>
+      <div class="flow-node"><div class="flow-node-circle" style="background:rgba(52,211,153,0.12);border-color:var(--green);color:var(--green)">8</div><span style="font-size:10px;color:var(--text2)">Present</span></div>
+    </div>
+    </div>
+
+    <!-- Modes -->
+    <div class="card-grid card-grid-3 reveal reveal-delay-5" style="margin-top:14px;gap:10px">
+      <div class="card" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px"><span class="badge badge-cyan" style="margin-right:6px">fast_safe</span>并行模式</div>
+        <div class="text-xs text-muted">Step 2+3 并行启动；Step 4+5+5b 半并行；质量门不跳过</div>
+      </div>
+      <div class="card" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px"><span class="badge badge-violet" style="margin-right:6px">strict_serial</span>串行模式</div>
+        <div class="text-xs text-muted">严格按 0&#8594;1&#8594;2&#8594;2.5&#8594;3&#8594;4&#8594;5&#8594;6&#8594;7&#8594;8 顺序执行</div>
+      </div>
+      <div class="card" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px"><span class="badge badge-amber" style="margin-right:6px">strict_serial</span>修复循环</div>
+        <div class="text-xs text-muted">Judge&#8594;Diagnostician 最多3次, Reviewer&#8594;Diagnostician 最多2次, 全局上限5次</div>
+      </div>
+    </div>
+
+    <div class="text-xs text-muted reveal reveal-delay-6" style="margin-top:10px;text-align:center">
+      &#9881; Agent 间仅通过结构化文件通信，不依赖主 agent 上下文传递
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 6 — Step 0-1: Setup & Inspect     -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 0-1: 初始化与数据勘探">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 0 &amp; 1</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">初始化与数据勘探 <span class="text-sm text-muted" style="font-weight:400">Main Agent</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:16px">搭建运行环境、创建目录结构、流式解析数据文件、感知数据特征。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card highlight reveal reveal-delay-3">
+        <div class="card-icon" style="font-size:18px;margin-bottom:4px">&#9881; Step 0: Setup</div>
+        <ul class="clean">
+          <li><code>setup.mjs</code> 创建 <code>&lt;timestamp&gt;_&lt;scene&gt;/</code> 运行目录 + <code>00_input/</code> ~ <code>06_scripts/</code></li>
+          <li>启动 <code>run_manifest.json</code> &amp; <code>.pipeline_events.jsonl</code> 执行证明</li>
+          <li><code>uv_env_setup.mjs</code> 自动装 Python 虚拟环境</li>
+          <li>交互模式：<span class="badge badge-cyan">auto</span> <span class="badge badge-violet">interactive</span> <span class="badge badge-amber">minimal</span></li>
+        </ul>
+      </div>
+      <div class="card highlight reveal reveal-delay-4">
+        <div class="card-icon" style="font-size:18px;margin-bottom:4px">&#9881; Step 1: Inspect</div>
+        <ul class="clean">
+          <li><code>inspect.mjs</code> 流式解析 CSV / JSON / TSV（超大文件友好）</li>
+          <li>生成 <code>input_manifest.json</code>: 列名、类型、统计概览</li>
+          <li>生成 <code>user_context.json</code>: 用户目标、质量定义、已知约束</li>
+          <li>工艺无关描述：趋势/周期/阶跃/平稳分类 + 时间列检测</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-5" style="margin-top:14px;text-align:center">
+      <span class="info-tag"><strong>产出：</strong>00_input/input_manifest.json &middot; 00_input/user_context.json &middot; 00_input/run_config.json</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 7 — Step 2: Context Builder       -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 2: 领域本体构建">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 2 &middot; context-builder</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">领域本体构建 <span class="text-sm text-muted" style="font-weight:400">Sub-Agent (Sonnet)</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:16px">RAG 检索 + 网络搜索 + 本体构建 + 深度物理映射 — 子智能体完全自主执行协议。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card reveal reveal-delay-3">
+        <div class="card-title" style="font-size:14px">&#128214; R1-R4 深度理解协议</div>
+        <ul class="clean">
+          <li><strong>R1 语义理解：</strong>读懂工艺描述/SOP的物理本质</li>
+          <li><strong>R2 知识-数据对齐：</strong>将RAG知识与实际列名/量纲对应</li>
+          <li><strong>R3 物理提取：</strong>提取控制方程、因果链路、故障模式</li>
+          <li><strong>R4 差距识别：</strong>标记数据中存在但未覆盖的域</li>
+        </ul>
+      </div>
+      <div class="card reveal reveal-delay-4">
+        <div class="card-title" style="font-size:14px">&#128451; 核心产出</div>
+        <ul class="clean">
+          <li><code>01_ontology/ontology.json</code> — 领域本体（Schema验证）</li>
+          <li><code>01_ontology/schema.json</code> — 列-物理量映射</li>
+          <li><code>00_input/extracted_knowledge.json</code> — RAG提取知识</li>
+          <li><code>rag_deep_understanding.json</code> — 深度理解产物</li>
+          <li><code>clarification_needed.json</code> — 澄清门输入</li>
+          <li>RAG 回退：ChromaDB 不可用时完全本地构建</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-5" style="margin-top:12px;text-align:center">
+      <span class="info-tag"><strong style="color:var(--amber)">&#9888; 委托规则：</strong>禁止主 agent 执行子智能体工作！直接启动 Agent 并传递参数</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 8 — Step 3: Data Processor + VLM  -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 3: 数据处理与可视化">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 3 &middot; data-processor</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">数据处理与可视化 <span class="text-sm text-muted" style="font-weight:400">Sub-Agent (Sonnet)</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:16px">统计分析 + 物理约束验证 + 场景自适应可视化 + VLM 视觉分析。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card reveal reveal-delay-3">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#9881; 高级统计引擎</div>
+        <ul class="clean">
+          <li>Pearson / Spearman / 分层相关性（防 Simpson's Paradox）</li>
+          <li>趋势混淆检测 &amp; 去趋势后残差r</li>
+          <li>变点检测（CUSUM/贝叶斯）+ 延迟CCF</li>
+          <li>多重检验校正 &amp; 鲁棒性验证</li>
+        </ul>
+      </div>
+      <div class="card reveal reveal-delay-4">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#128202; 核心产出</div>
+        <ul class="clean">
+          <li><code>02_processed/</code> 清洗/验证/异常报告</li>
+          <li><code>03_figures/*.png</code> 场景自适应可视化</li>
+          <li><code>plot_manifest.json</code> + <code>visual_analysis.json</code></li>
+          <li><code>data_analysis_conclusion.json</code> — 强制交接文件 &#8594; diagnostician</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card highlight reveal reveal-delay-5" style="padding:12px 16px">
+      <div class="card-title" style="font-size:14px">&#128065; Step 3.5 VLM 视觉分析 <span class="text-xs text-muted" style="font-weight:400">vlm-visual-analyzer (Haiku)</span></div>
+      <div class="text-sm text-muted">由 data-processor 在 Phase 5.5 内部委托。先读 ontology 理解参数物理含义，再带有知识地看 PNG 图表。
+      <span style="color:var(--cyan)">本体感知的 VLM 图像分析&mdash;&mdash;图 + 统计 + 知识联合提取结构化视觉证据。</span></div>
+    </div>
+    <div class="reveal reveal-delay-6" style="margin-top:10px;text-align:center">
+      <span class="info-tag"><strong>预热并行：</strong>data-processor 可在 ontology 就绪前启动基线分析</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 9 — Step 4: Diagnostician         -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 4: 诊断推理">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 4 &middot; diagnostician</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">竞争性假设诊断 <span class="text-sm text-muted" style="font-weight:400">Sub-Agent (Sonnet)</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:14px">融合数据、本体、物理机制和 VLM 视觉证据，执行物理约束的根因推理。</p>
+    <div class="card-grid card-grid-2" style="gap:12px">
+      <div class="card reveal reveal-delay-3">
+        <div class="card-title" style="font-size:14px;color:var(--cyan)">&#9881; 推理流程（Phase 0-7）</div>
+        <ul class="clean">
+          <li>Phase 1: Data Probing — 数据特征再验证</li>
+          <li>Phase 2: 竞争性假设生成 — 至少3个物理可区分假设</li>
+          <li>Phase 3: 数据区分性评估 — 每个假设的预期可观测信号</li>
+          <li>Phase 4-5: 排除与判定</li>
+          <li>Phase 6: 置信度校准 + 反推测检查</li>
+        </ul>
+      </div>
+      <div class="card reveal reveal-delay-4">
+        <div class="card-title" style="font-size:14px;color:var(--violet)">&#128220; 结构化产出（×4）</div>
+        <ul class="clean">
+          <li><code>diagnosis.json</code> — 结论 + 假说排名 + Schema验证</li>
+          <li><code>evidence.json</code> — 每个证据等级标注</li>
+          <li><code>confidence.json</code> — 置信度 + 调整日志</li>
+          <li><code>reasoning_chain.json</code> — R1-R8推理链</li>
+          <li>每个结论含 falsification_conditions</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-5" style="margin-top:10px;text-align:center">
+      <span class="verdict-tag verdict-mute">纯工艺波动诊断</span>
+      <span class="verdict-tag verdict-mute">工艺+检测双驱动诊断</span>
+      <span class="info-tag"><strong>必须输出：</strong>两种互补推理视图</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 10 — 方法论 / Competing Hyp.      -->
+<!-- ======================================== -->
+<section class="slide" data-title="诊断方法论">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Methodology</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">竞争性假设协议</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:14px">假设&#8594;数据区分性评估&#8594;排除&#8594;结论。当数据无法区分时输出 COMPETING_SET，而非猜一个。</p>
+    <div class="card-grid card-grid-3" style="gap:12px;margin-bottom:14px">
+      <div class="card highlight reveal reveal-delay-3">
+        <div class="card-title" style="font-size:15px;color:var(--green)">DETERMINED</div>
+        <div class="card-desc">单一假设排除所有竞争项。所有4个反推测条件满足，证据充分。</div>
+        <div class="text-xs text-muted" style="margin-top:4px">置信度上限：85（有严格限制）</div>
+      </div>
+      <div class="card highlight-v reveal reveal-delay-4">
+        <div class="card-title" style="font-size:15px;color:var(--amber)">COMPETING_SET</div>
+        <div class="card-desc">多个假设在现有数据中不可区分。必须明确标注 INDISTINGUISHABLE。</div>
+        <div class="text-xs text-muted" style="margin-top:4px">置信度上限：65（受严格上限约束）</div>
+      </div>
+      <div class="card highlight reveal reveal-delay-5">
+        <div class="card-title" style="font-size:15px;color:var(--violet)">NEEDS_DATA</div>
+        <div class="card-desc">现有数据不足以判定。需要额外测量/实验数据才能进展。</div>
+        <div class="text-xs text-muted" style="margin-top:4px">置信度：不适用 — 等待数据</div>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-6" style="padding:12px 16px;border-color:rgba(245,158,11,0.2)">
+      <div class="card-title" style="font-size:14px;color:var(--amber)">&#9888; 反推测四大条件</div>
+      <div class="text-sm text-muted" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+        <span style="color:var(--cyan)">时间先后</span>
+        <span>&#8594;</span>
+        <span style="color:var(--cyan)">统计显著</span>
+        <span>&#8594;</span>
+        <span style="color:var(--cyan)">物理机制</span>
+        <span>&#8594;</span>
+        <span style="color:var(--cyan)">无矛盾</span>
+        <span style="margin-left:8px">结论受限最弱证据等级</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 11 — 7 个子智能体 / Agents       -->
+<!-- ======================================== -->
+<section class="slide" data-title="7 个子智能体">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Sub-Agents</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">7 个专业子智能体</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:10px">每个智能体专职于诊断管线的一个阶段，通过结构化文件异步协作、互不干扰。</p>
+    <div style="overflow-x:auto" class="reveal reveal-delay-3">
+    <table class="agent-table">
+      <thead><tr>
+        <th>Agent</th><th>模型</th><th>管线步骤</th><th>核心职责</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-cyan">context-builder</span></td><td>Sonnet</td><td>Step 2</td><td>RAG检索 + 本体构建 + 物理映射（R1-R4）</td></tr>
+        <tr><td><span class="badge badge-cyan">data-processor</span></td><td>Sonnet</td><td>Step 3</td><td>统计分析 + 场景可视化 + 异常检测 + 物理检查</td></tr>
+        <tr><td><span class="badge badge-violet">vlm-visual-analyzer</span></td><td>Haiku</td><td>Step 3.5</td><td>本体感知的 VLM 图分析（内部委托）</td></tr>
+        <tr><td><span class="badge badge-cyan">diagnostician</span></td><td>Sonnet</td><td>Step 4</td><td>竞争假设根因诊断（双视图输出）</td></tr>
+        <tr><td><span class="badge badge-amber">judge</span></td><td>Sonnet</td><td>Step 5</td><td>10项质量门审查 + 物理源审计</td></tr>
+        <tr><td><span class="badge badge-cyan">reporter</span></td><td>Sonnet</td><td>Step 6</td><td>20节中文诊断报告生成</td></tr>
+        <tr><td><span class="badge badge-violet">report-reviewer</span></td><td>Sonnet</td><td>Step 7</td><td>独立物理真实审计 + 优化建议</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="card reveal reveal-delay-4" style="padding:10px 16px">
+      <div class="text-sm text-muted" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
+        <span><strong style="color:var(--text)">Agent 解耦：</strong>仅通过 workspace 文件通信</span>
+        <span><strong style="color:var(--text)">Schema 优先：</strong>先读 schema 再写，一次通过验证</span>
+        <span><strong style="color:var(--text)">执行证明：</strong>`.pipeline_events.jsonl` 不可缺失</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 12 — Step 5: Judge               -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 5: 质量门审查">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 5 &middot; judge</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">质量门审查 <span class="text-sm text-muted" style="font-weight:400">Sub-Agent (Sonnet)</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:12px">10 项评分标准 + 物理源审计，确保诊断可靠后方可生成报告。</p>
+    <div class="card-grid card-grid-2" style="gap:12px">
+      <div class="card reveal reveal-delay-3">
+        <div class="card-title" style="font-size:14px;color:var(--amber)">&#9881; Verdict 逻辑</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+          <span class="verdict-tag verdict-pass" style="font-size:11px;padding:4px 10px">pass &#8805;90</span>
+          <span class="verdict-tag verdict-warn" style="font-size:11px;padding:4px 10px">needs_repair 70-89</span>
+          <span class="verdict-tag verdict-warn" style="font-size:11px;padding:4px 10px">major_issues 50-69</span>
+          <span class="verdict-tag verdict-fail" style="font-size:11px;padding:4px 10px">fail &lt;50</span>
+        </div>
+        <div class="text-xs text-muted" style="margin-top:8px">blocking_issues.length=0 是 pass 的必要条件</div>
+      </div>
+      <div class="card reveal reveal-delay-4">
+        <div class="card-title" style="font-size:14px">&#9881; 产出与硬门</div>
+        <ul class="clean">
+          <li><code>05_review/judge_feedback.json</code> — Schema验证</li>
+          <li><code>judge-gate-check.mjs</code> — 硬门，不通过则禁止 reporter</li>
+          <li>Hard pass 不变量：score&#8805;90 + 无 blocking + reasoning chain 无问题</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-5" style="padding:10px 16px;margin-top:8px">
+      <div class="card-title" style="font-size:13px;color:var(--cyan)">&#9881; Step 5b: 预报告物理审计 (并行)</div>
+      <div class="text-sm text-muted">report-reviewer 在 PRE_REPORT_AUDIT=true 模式下并行运行，产出 <code>optimizer_preflight.md</code>。在 Step 6 之前必须确保无 blocking 物理问题。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 13 — Step 6-7: Report & Audit     -->
+<!-- ======================================== -->
+<section class="slide" data-title="Step 6-7: 报告与审计">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Step 6 &amp; 7</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">报告生成与物理审计 <span class="text-sm text-muted" style="font-weight:400">Reporter &amp; Report-Reviewer</span></h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:14px">从结构化诊断产物生成专业报告，再由独立的物理真实审计检查每一个结论。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="card highlight reveal reveal-delay-3">
+        <div class="card-title" style="font-size:15px;color:var(--cyan)">&#128221; Step 6: Reporter</div>
+        <ul class="clean">
+          <li>产出 <code>report.md</code> — 791+ 行，20 节中文诊断报告</li>
+          <li>以 <code>visual_analysis.json</code> 为主要图表证据源</li>
+          <li>同时生成 <code>run_summary.json</code>（Schema验证）</li>
+          <li><strong style="color:var(--amber)">Judge 门禁：</strong>必须先通过 Judge gate，否则 reporter 启动非法</li>
+        </ul>
+      </div>
+      <div class="card highlight-v reveal reveal-delay-4">
+        <div class="card-title" style="font-size:15px;color:var(--violet)">&#128269; Step 7: Report-Reviewer</div>
+        <ul class="clean">
+          <li>独立物理真实审计，不依赖 reporter 的推导过程</li>
+          <li>产出 <code>optimizer.md</code> — 场景优化计划 + 问题 + 验证方案</li>
+          <li><strong style="color:var(--green)">ENDORSED</strong> &#8594; 完成 | <strong style="color:var(--amber)">CONDITIONAL / REJECTED</strong> &#8594; 修复</li>
+          <li>包含：即时处理 / 低风险优化 / 受控实验 / 测量改进 / 延期处理</li>
+        </ul>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-5" style="margin-top:12px;text-align:center">
+      <span class="info-tag"><strong>Step 8: Present —</strong> finalize-run-artifacts.mjs + artifact-check.mjs 最终校验</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 14 — 修复循环 / Repair Loops      -->
+<!-- ======================================== -->
+<section class="slide" data-title="修复循环">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Repair Loops</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">自动修复循环</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:16px">质量门和审计发现的问题自动触发诊断修复，无需人工介入。计数器持久化在 <code>.pipeline_events.jsonl</code>。</p>
+
+    <!-- Repair loop diagram -->
+    <div class="reveal reveal-delay-3" style="display:flex;align-items:center;justify-content:center;gap:0;margin:4px 0 14px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px">
+        <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:rgba(168,85,247,0.12);border:1.5px solid var(--violet);color:var(--violet)">D</div>
+        <span style="font-size:10px;color:var(--text2)">Diagnostician</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;padding:0 8px">
+        <div style="width:40px;height:2px;background:var(--border);position:relative">
+          <div style="position:absolute;right:-6px;top:-4px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid rgba(255,255,255,0.15)"></div>
+        </div>
+        <div style="font-size:9px;color:var(--text2)">&#8593; 修复 &#8595;</div>
+        <div style="width:40px;height:2px;background:var(--border);position:relative">
+          <div style="position:absolute;left:-6px;top:-4px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:8px solid rgba(255,255,255,0.15)"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px">
+        <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:rgba(245,158,11,0.12);border:1.5px solid var(--amber);color:var(--amber)">J</div>
+        <span style="font-size:10px;color:var(--text2)">Judge</span>
+      </div>
+      <div style="width:20px;height:2px;background:var(--border);position:relative">
+        <div style="position:absolute;right:-6px;top:-4px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid rgba(255,255,255,0.15)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px">
+        <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:rgba(34,211,238,0.12);border:1.5px solid var(--cyan);color:var(--cyan)">R</div>
+        <span style="font-size:10px;color:var(--text2)">Reporter</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;padding:0 8px">
+        <div style="width:24px;height:2px;background:var(--border);position:relative">
+          <div style="position:absolute;right:-6px;top:-4px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid rgba(255,255,255,0.15)"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px">
+        <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:rgba(52,211,153,0.12);border:1.5px solid var(--green);color:var(--green)">A</div>
+        <span style="font-size:10px;color:var(--text2)">Auditor</span>
+      </div>
+    </div>
+
+    <div class="card-grid card-grid-3" style="gap:10px" class="reveal reveal-delay-4">
+      <div class="card" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--amber)">&#9888; Loop 1: Judge&#8594;Diagnostician</div>
+        <div class="text-xs text-muted">最多 3 次修复迭代。judge 评分 &lt; 90 或 blocking issue 时触发。</div>
+      </div>
+      <div class="card" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--violet)">&#9888; Loop 2: Reviewer&#8594;Diagnostician</div>
+        <div class="text-xs text-muted">最多 2 次完整迭代。审计发现问题时触发 D&#8594;J&#8594;R&#8594;A。</div>
+      </div>
+      <div class="card highlight" style="padding:12px 14px">
+        <div class="card-title" style="font-size:13px;color:var(--cyan)">&#9881; 全局上限 &#8804; 5</div>
+        <div class="text-xs text-muted">重诊断总次数上限 5。计数器持久化在 <code>.pipeline_events.jsonl</code> 中的 repair_spawn 事件。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 15 — 证据等级 / Evidence          -->
+<!-- ======================================== -->
+<section class="slide" data-title="证据等级体系">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Evidence Hierarchy</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">7 级证据等级体系</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:14px">每个结论受限于其最弱证据等级。等级 1 最高（直接测量），等级 7 最低（无支持假设）。</p>
+    <div class="evidence-bar reveal reveal-delay-3">
+      <!-- Rank 1 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(52,211,153,0.15);color:var(--green)">1</div>
+        <div class="evidence-label">直接测量值</div>
+        <div class="evidence-bar-inner" style="background:rgba(52,211,153,0.2);width:100%"></div>
+        <div class="evidence-conf">最高</div>
+      </div>
+      <!-- Rank 2 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(34,211,238,0.15);color:var(--cyan)">2</div>
+        <div class="evidence-label">用户文档 (SOP / 手册)</div>
+        <div class="evidence-bar-inner" style="background:rgba(34,211,238,0.18);width:80%"></div>
+        <div class="evidence-conf">高</div>
+      </div>
+      <!-- Rank 3 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(59,130,246,0.15);color:var(--blue)">3</div>
+        <div class="evidence-label">统计分析（含验证报告）</div>
+        <div class="evidence-bar-inner" style="background:rgba(59,130,246,0.18);width:70%"></div>
+        <div class="evidence-conf">中高</div>
+      </div>
+      <!-- Rank 4 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(99,102,241,0.15);color:var(--blend)">4</div>
+        <div class="evidence-label">图表视觉证据（含 VLM）</div>
+        <div class="evidence-bar-inner" style="background:rgba(99,102,241,0.18);width:60%"></div>
+        <div class="evidence-conf">中</div>
+      </div>
+      <!-- Rank 5 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(168,85,247,0.15);color:var(--violet)">5</div>
+        <div class="evidence-label">领域知识 / 工艺逻辑</div>
+        <div class="evidence-bar-inner" style="background:rgba(168,85,247,0.18);width:50%"></div>
+        <div class="evidence-conf">中</div>
+      </div>
+      <!-- Rank 6 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(245,158,11,0.15);color:var(--amber)">6</div>
+        <div class="evidence-label">外部网络引用 [EXTERNAL]</div>
+        <div class="evidence-bar-inner" style="background:rgba(245,158,11,0.18);width:35%"></div>
+        <div class="evidence-conf">低</div>
+      </div>
+      <!-- Rank 7 -->
+      <div class="evidence-row">
+        <div class="evidence-rank" style="background:rgba(251,113,133,0.15);color:var(--red)">7</div>
+        <div class="evidence-label">无支持假设</div>
+        <div class="evidence-bar-inner" style="background:rgba(251,113,133,0.18);width:18%"></div>
+        <div class="evidence-conf">最低</div>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-4" style="padding:10px 16px;margin-top:6px">
+      <div style="text-align:center;font-size:13px;color:var(--text2)">
+        <strong style="color:var(--text)">置信度上限：</strong>COMPETING_SET 场景受上限约束（INDISTINGUISHABLE 设为 65）
+        <span style="margin:0 8px">|</span>
+        <strong style="color:var(--text)">证据闭合：</strong>每个结论必须连锁到数据源头
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 16 — 四套编号体系 / Numbering     -->
+<!-- ======================================== -->
+<section class="slide" data-title="四套编号体系">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Gotcha</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">四套独立编号体系</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:14px">这是项目中最容易混淆的点——四个编号范围各自独立，不可混用。</p>
+    <div class="num-sys-grid">
+      <div class="num-sys-card reveal reveal-delay-3">
+        <div class="num-sys-label">Pipeline Step 0-8</div>
+        <div class="num-sys-desc"><strong>编排层面</strong> &mdash; 主 agent 管理步骤流程。<br>示例：「Step 4: Diagnostician」<br><span class="text-xs text-muted">0: Setup &rarr; 1: Inspect &rarr; 2: Context &rarr; 3: Process &rarr; 4: Diagnose &rarr; 5: Judge &rarr; 6: Report &rarr; 7: Audit &rarr; 8: Present</span></div>
+      </div>
+      <div class="num-sys-card reveal reveal-delay-4">
+        <div class="num-sys-label">Agent Phase 0-7</div>
+        <div class="num-sys-desc"><strong>Diagnostician 内部流程</strong> &mdash; 子智能体执行阶段。<br>示例：「Phase 1: Data Probing」<br><span class="text-xs text-muted">子智能体内部执行协议，不是管线步骤</span></div>
+      </div>
+      <div class="num-sys-card reveal reveal-delay-5">
+        <div class="num-sys-label">Reasoning Segment R1-R8</div>
+        <div class="num-sys-desc"><strong>reasoning_chain.json</strong> &mdash; 推理链分段。<br>示例：「R4: Hypothesis Generation」<br><span class="text-xs text-muted">记录诊断推理的每一步逻辑链路</span></div>
+      </div>
+      <div class="num-sys-card reveal reveal-delay-6">
+        <div class="num-sys-label">Method Stage 1-6</div>
+        <div class="num-sys-desc"><strong>diagnosis_method.md</strong> &mdash; 方法论步骤。<br>示例：「Stage 3: Temporal Analysis」<br><span class="text-xs text-muted">诊断方法论的阶段划分</span></div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-7" style="text-align:center;margin-top:6px">
+      <span class="info-tag"><strong style="color:var(--amber)">&#9888; 关键：</strong>四套编号各划各的，引用时必须明确体系前缀</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 17 — 产出目录结构 / Output Tree   -->
+<!-- ======================================== -->
+<section class="slide" data-title="产出目录结构">
+  <div class="slide-inner">
+    <span class="section-tag reveal">Artifacts</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:4px">诊断产出目录结构</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:12px">所有 Agent 通过文件系统协作，每个目录有明确的交付物定义。</p>
+    <div class="card-grid card-grid-2" style="gap:14px">
+      <div class="reveal reveal-delay-3">
+        <div class="card" style="margin-bottom:6px;padding:12px 16px">
+          <div class="out-tree">
+            <div class="folder">workspace/diagnostic-runs/</div>
+            <div class="indent"><span class="folder">00_input/</span> <span class="text-xs text-muted">输入数据 + 用户上下文</span></div>
+            <div class="indent"><span class="folder">01_ontology/</span> <span class="text-xs text-muted">本体含RAG深度理解</span></div>
+            <div class="indent"><span class="folder">02_processed/</span> <span class="text-xs text-muted">清洗/验证/异常报告</span></div>
+            <div class="indent"><span class="folder">03_figures/</span> <span class="text-xs text-muted">可视化 + VLM分析</span></div>
+            <div class="indent"><span class="folder">04_diagnostics/</span> <span class="text-xs text-muted">诊断/证据/置信度</span></div>
+            <div class="indent"><span class="folder">05_review/</span> <span class="text-xs text-muted">Judge评审反馈</span></div>
+            <div class="indent"><span class="folder">06_scripts/</span> <span class="text-xs text-muted">自定义分析脚本</span></div>
+            <div class="indent"><span class="file">report.md</span></div>
+            <div class="indent"><span class="file">optimizer.md</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-4">
+        <div class="card highlight" style="padding:12px 16px;margin-bottom:6px">
+          <div class="card-title" style="font-size:14px;color:var(--cyan)">Schema-First 写入协议</div>
+          <div class="text-xs text-muted">最重要的规则。写入任何结构化文件前必须先读 schema 和模板：</div>
+          <div class="text-xs" style="margin-top:4px;font-family:'SF Mono','Fira Code','Consolas',monospace;color:var(--text2)">
+            1. 读取 schema<br>
+            2. 按 schema 字段构造<br>
+            3. 一次写入<br>
+            4. 立即验证<br>
+            <span style="color:var(--cyan)">&#8594; 失败：检查字段定义后重写</span>
+          </div>
+        </div>
+        <div class="card" style="padding:10px 14px">
+          <div class="text-xs text-muted">
+            <strong style="color:var(--text)">证据闭合报告：</strong><code>evidence_closure_report.json</code><br>
+            <strong style="color:var(--text)">工程交付契约：</strong><code>run_config</code> + 强制子交付物
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================== -->
+<!-- SLIDE 18 — 指令与总结 / Closing         -->
+<!-- ======================================== -->
+<section class="slide" data-title="指令与总结">
+  <div class="slide-inner" style="text-align:center">
+    <span class="section-tag reveal">Commands &amp; Summary</span>
+    <h2 class="gradient reveal reveal-delay-1" style="margin-bottom:8px">立即使用与快速参考</h2>
+    <p class="subtitle reveal reveal-delay-2" style="margin-bottom:16px">在 Claude Code 对话中通过斜杠命令调用完整管线或单项功能。</p>
+
+    <div class="card reveal reveal-delay-3" style="max-width:600px;margin:0 auto 14px;padding:12px 20px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tbody>
+          <tr><td style="padding:6px 8px;text-align:left;font-weight:600;color:var(--cyan)">/industrial-deep-diagnostic</td><td style="padding:6px 8px;text-align:left;color:var(--text2)">全管线（Step 0-8）</td></tr>
+          <tr><td style="padding:6px 8px;text-align:left;font-weight:600;color:var(--cyan)">/industrial-deep-diagnostic analyze</td><td style="padding:6px 8px;text-align:left;color:var(--text2)">从 Step 2 开始（跳过导入）</td></tr>
+          <tr><td style="padding:6px 8px;text-align:left;font-weight:600;color:var(--cyan)">/industrial-deep-diagnostic review</td><td style="padding:6px 8px;text-align:left;color:var(--text2)">重新评审已有结果</td></tr>
+          <tr><td style="padding:6px 8px;text-align:left;font-weight:600;color:var(--cyan)">/industrial-deep-diagnostic report</td><td style="padding:6px 8px;text-align:left;color:var(--text2)">从现有产物重新生成报告</td></tr>
+          <tr><td style="padding:6px 8px;text-align:left;font-weight:600;color:var(--cyan)">/industrial-deep-diagnostic audit</td><td style="padding:6px 8px;text-align:left;color:var(--text2)">仅运行报告评审（optimizer.md）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card highlight reveal reveal-delay-4" style="max-width:700px;margin:0 auto 14px;padding:16px 24px">
+      <div style="font-size:18px;font-weight:700;letter-spacing:1px;margin-bottom:6px;background:linear-gradient(135deg,var(--cyan),var(--blend),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+        物理约束 + 竞争假设 + 多智能体协作 = 可信根因诊断
+      </div>
+      <div class="text-sm text-muted" style="line-height:1.8">
+        场景自适应 &middot; RAG 深度理解 &middot; 数据&#8646;本体双向 &middot; 物理驱动推理
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-5" style="margin-top:12px">
+      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        <span class="info-tag"><strong>&#8592;</strong> 重新浏览</span>
+        <span class="info-tag"><strong>M</strong> 目录导航</span>
+        <span class="info-tag"><strong>F</strong> 全屏</span>
+        <span class="info-tag"><strong>Esc</strong> 退出</span>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-6" style="margin-top:28px">
+      <span class="text-xs text-muted">Industrial Deep Diagnostic &middot; 2026</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+/* ===============================================
+   Particle Physics Engine (Canvas 2D)
+   =============================================== */
+(function(){
+  const canvas = document.getElementById('bg');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], mouseX = -9999, mouseY = -9999, frameID;
+  const PT_COUNT_FACTOR = 0.45;
+  const CONNECT_DIST = 150;
+  const MOUSE_RADIUS = 120;
+  const MOUSE_FORCE = 0.3;
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    const count = Math.min(80, Math.max(35, Math.floor(Math.sqrt(W * H) * PT_COUNT_FACTOR * 0.06)));
+    if(particles.length !== count){
+      particles = [];
+      for(let i=0; i<count; i++) particles.push(createParticle());
+    }
+  }
+
+  function createParticle(){
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.max(1.2, Math.random() * 2.5)
+    };
+  }
+
+  function update(){
+    for(let p of particles){
+      // Mouse repulsion
+      const dx = p.x - mouseX, dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if(dist < MOUSE_RADIUS && dist > 0){
+        const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS * MOUSE_FORCE;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
+      // Damping
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+      // Move
+      p.x += p.vx;
+      p.y += p.vy;
+      // Wrap
+      if(p.x < -10) p.x = W + 10;
+      if(p.x > W + 10) p.x = -10;
+      if(p.y < -10) p.y = H + 10;
+      if(p.y > H + 10) p.y = -10;
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Draw connections
+    for(let i=0; i<particles.length; i++){
+      for(let j=i+1; j<particles.length; j++){
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if(dist < CONNECT_DIST){
+          const alpha = (1 - dist / CONNECT_DIST) * 0.15;
+          ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // Draw particles
+    for(let p of particles){
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.3 + p.r * 0.08})`;
+      ctx.fill();
+    }
+  }
+
+  function loop(){
+    update();
+    draw();
+    frameID = requestAnimationFrame(loop);
+  }
+
+  function onMouse(e){
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+  }
+  function onLeave(){ mouseX = -9999; mouseY = -9999; }
+
+  resize();
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', onMouse);
+  canvas.addEventListener('mouseleave', onLeave);
+  loop();
+
+  // Tab visibility: pause when hidden
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){
+      cancelAnimationFrame(frameID);
+    } else {
+      loop();
+    }
+  });
+})();
+
+/* ===============================================
+   Deck Navigation
+   =============================================== */
+(function(){
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let tocOpen = false;
+  let navLocked = false;
+
+  // DOM refs
+  const progressBar = document.getElementById('progressBar');
+  const currentNum = document.getElementById('currentNum');
+  const totalNum = document.getElementById('totalNum');
+  const slideTitle = document.getElementById('slideTitle');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const tocOverlay = document.getElementById('tocOverlay');
+  const tocGrid = document.getElementById('tocGrid');
+  const tocCloseBtn = document.getElementById('tocCloseBtn');
+
+  totalNum.textContent = String(total).padStart(2,'0');
+
+  // Build TOC
+  const slideTitles = [];
+  slides.forEach((s, i) => {
+    const title = s.dataset.title || `页面 ${i+1}`;
+    slideTitles.push(title);
+    const item = document.createElement('div');
+    item.className = 'toc-item';
+    item.innerHTML = `<span class="toc-num">${String(i+1).padStart(2,'0')}</span><span>${title}</span>`;
+    item.addEventListener('click', ()=>{ show(i); toggleToc(); });
+    tocGrid.appendChild(item);
+  });
+
+  function show(index){
+    index = Math.max(0, Math.min(total - 1, index));
+    if(index === current) return;
+    slides[current].classList.remove('active');
+    current = index;
+    slides[current].classList.add('active');
+    updateUI();
+    triggerReveal(current);
+  }
+
+  function updateUI(){
+    progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    currentNum.textContent = String(current + 1).padStart(2, '0');
+    slideTitle.textContent = slideTitles[current] || '';
+    prevBtn.classList.toggle('active', current > 0);
+    nextBtn.classList.toggle('active', current < total - 1);
+  }
+
+  function triggerReveal(slideIndex){
+    const slide = slides[slideIndex];
+    const reveals = slide.querySelectorAll('.reveal');
+    reveals.forEach((el, i) => {
+      el.classList.remove('revealed');
+      void el.offsetWidth; // force reflow
+      const delay = Math.min(i * 0.065, 0.56);
+      el.style.transitionDelay = delay + 's';
+      el.classList.add('revealed');
+    });
+  }
+
+  function toggleToc(){
+    tocOpen = !tocOpen;
+    tocOverlay.classList.toggle('open', tocOpen);
+  }
+
+  function next(){ if(current < total - 1) show(current + 1); }
+  function prev(){ if(current > 0) show(current - 1); }
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if(tocOpen){
+      if(e.key === 'Escape' || e.key === 'm' || e.key === 'M') { toggleToc(); e.preventDefault(); }
+      return;
+    }
+    switch(e.key){
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'n': case 'N': e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'p': case 'P': e.preventDefault(); prev(); break;
+      case 'Home': e.preventDefault(); show(0); break;
+      case 'End': e.preventDefault(); show(total - 1); break;
+      case 'm': case 'M': e.preventDefault(); toggleToc(); break;
+      case 'f': case 'F': e.preventDefault();
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen().catch(()=>{});
+        break;
+      case 'Escape': if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); break;
+    }
+  });
+
+  // Buttons
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  tocCloseBtn.addEventListener('click', toggleToc);
+
+  // Touch swipe
+  let touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, {passive: true});
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    const dy = e.changedTouches[0].screenY - touchStartY;
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 0.7){
+      if(dx < 0) next();
+      else prev();
+    }
+  }, {passive: true});
+
+  // Wheel (with lock to avoid accidental skips)
+  let wheelCooldown = false;
+  document.addEventListener('wheel', (e) => {
+    if(wheelCooldown) return;
+    if(Math.abs(e.deltaX) > Math.abs(e.deltaY)){
+      if(e.deltaX > 20) { next(); wheelCooldown = true; }
+      else if(e.deltaX < -20) { prev(); wheelCooldown = true; }
+    } else {
+      if(e.deltaY > 40) { next(); wheelCooldown = true; }
+      else if(e.deltaY < -40) { prev(); wheelCooldown = true; }
+    }
+    if(wheelCooldown) setTimeout(() => { wheelCooldown = false; }, 500);
+  }, {passive: true});
+
+  // Init
+  show(0);
+})();
+</script>
+</body>
+</html>

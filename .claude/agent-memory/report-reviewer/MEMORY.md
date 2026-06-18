@@ -11,3 +11,4 @@
 - [Bonferroni Multiple Testing in Small Samples](bonferroni-multiple-testing-in-small-sample.md) — 176 params, 2 "significant" = expected chance rate; physical consistency reduces but doesn't eliminate concern
 - [H6-H7 Collinearity Audit Pattern](h6-h7-collinearity-audit-pattern.md) — BOPET Round 2 audit: W1C8B_std and W1C89_std shared 37.8% detrended variance, partial correlations both non-significant; "independent corroboration" is over-claiming when sensors share drive system
 - [F_PS005 Product Confusion](visual_analysis-f_ps005-product-confusion.md) — VLM metadata_backed_inference模式下，跨产品F_PS005异常值错误分配给PG31DS，H3核心证据为事实错误
+- [PG32D W1C81 Regime Shift Hidden](pg32d-w1c81-regime-shift-hidden-from-torque-collapse-narrative.md) — PG32D R6 torque "15-20 to 5.85 collapse" was false; actual range 9.73-50.20 pre-5/12; regime-shift to -5.30 from 5/12; H2652721 was first batch of new regime

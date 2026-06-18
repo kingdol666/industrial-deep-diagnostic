@@ -1,0 +1,438 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2200" font-family="Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity="0.12" flood-color="#0f172a"/>
+    </filter>
+    <filter id="shadow-light" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-opacity="0.08" flood-color="#0f172a"/>
+    </filter>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="agent-ctx" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="agent-dp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="agent-diag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+    <linearGradient id="agent-judge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef2f2"/>
+      <stop offset="100%" stop-color="#fecaca"/>
+    </linearGradient>
+    <linearGradient id="agent-reporter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="100%" stop-color="#f3e8ff"/>
+    </linearGradient>
+    <linearGradient id="agent-auditor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#fed7aa"/>
+    </linearGradient>
+    <linearGradient id="output-box" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="2200" fill="#ffffff"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="1600" height="72" fill="url(#header)"/>
+  <text x="800" y="44" text-anchor="middle" fill="#ffffff" font-size="26" font-weight="700">Industrial Deep Diagnostic — 多智能体诊断管线架构图</text>
+
+  <!-- Legend -->
+  <rect x="28" y="90" width="440" height="130" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="44" y="112" font-size="13" font-weight="700" fill="#334155">图例 / Legend</text>
+  <rect x="44" y="122" width="32" height="16" rx="3" fill="#3b82f6" opacity="0.25"/>
+  <text x="84" y="135" font-size="11" fill="#475569">主 Agent 步骤 (Step 0-8)</text>
+  <rect x="44" y="144" width="32" height="16" rx="3" fill="url(#agent-ctx)"/>
+  <text x="84" y="157" font-size="11" fill="#475569">子智能体 (7 个，串行执行)</text>
+  <rect x="44" y="166" width="32" height="16" rx="3" fill="url(#output-box)"/>
+  <text x="84" y="179" font-size="11" fill="#475569">文件产物 (Agent 仅通过文件通信)</text>
+  <text x="44" y="208" font-size="11" fill="#94a3b8">红色虚线 = 修复回路 (Repair Loop) | ▸ 绿色 = 通过 | ▸ 红色 = 驳回</text>
+
+  <!-- ============================================ -->
+  <!-- STEP 0: Setup -->
+  <!-- ============================================ -->
+  <rect x="48" y="240" width="232" height="50" rx="8" fill="#3b82f6" opacity="0.12" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="80" y="264" font-size="13" font-weight="700" fill="#1e40af">Step 0: Setup</text>
+  <text x="80" y="281" font-size="11" fill="#475569">setup.mjs → run_manifest.json</text>
+
+  <rect x="48" y="295" width="232" height="34" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="64" y="316" font-size="10" fill="#64748b">📁 workspace/diagnostic-runs/{ts}_{scene}/</text>
+
+  <line x1="164" y1="290" x2="164" y2="295" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- STEP 1: Inspect -->
+  <!-- ============================================ -->
+  <rect x="48" y="356" width="232" height="50" rx="8" fill="#3b82f6" opacity="0.12" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="80" y="380" font-size="13" font-weight="700" fill="#1e40af">Step 1: Inspect</text>
+  <text x="80" y="397" font-size="11" fill="#475569">inspect.mjs → 数据探察</text>
+
+  <rect x="48" y="411" width="232" height="34" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="64" y="432" font-size="10" fill="#64748b">📄 input_manifest.json, user_context.json</text>
+
+  <line x1="164" y1="240" x2="164" y2="356" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="164" y1="406" x2="164" y2="411" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- STEP 2: Context Builder Agent -->
+  <!-- ============================================ -->
+  <rect x="48" y="472" width="550" height="90" rx="10" fill="url(#agent-ctx)" stroke="#3b82f6" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="76" y="496" font-size="14" font-weight="700" fill="#1e40af">Step 2: Context Builder — 王教授（化工/材料领域专家）</text>
+  <text x="76" y="514" font-size="11" fill="#475569">subagent_type: "context-builder" | model: sonnet | 6 个 Phase</text>
+  <text x="76" y="532" font-size="10" fill="#64748b">P0: 加载上下文 → P1: 搜索参考目录 → P2: 可选网络搜索 → P3: RAG 深度理解 (R1-R4)</text>
+  <text x="76" y="548" font-size="10" fill="#64748b">→ P4: 数据↔本体双向映射 (含 v6.3 诊断富化字段) → P5: 识别知识缺口</text>
+
+  <line x1="280" y1="445" x2="48" y2="517" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Context Builder Outputs -->
+  <rect x="48" y="567" width="550" height="52" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="64" y="584" font-size="10" font-weight="600" fill="#334155">📦 01_ontology/ontology.json · schema.json · extracted_knowledge.json · rag_deep_understanding.json</text>
+  <text x="64" y="600" font-size="10" fill="#64748b">📦 clarification_needed.json · rag_ontology_draft.json · rag_structured_data.json · web_findings.md</text>
+
+  <line x1="323" y1="562" x2="323" y2="567" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- STEP 2.5: Clarification Gate -->
+  <!-- ============================================ -->
+  <rect x="48" y="646" width="550" height="36" rx="8" fill="#8b5cf6" opacity="0.10" stroke="#8b5cf6" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="76" y="668" font-size="12" font-weight="700" fill="#7c3aed">Step 2.5: Clarification Gate — auto 模式跳过所有问题，应用物理推断</text>
+
+  <line x1="323" y1="619" x2="323" y2="646" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- STEP 3: Data Processor Agent -->
+  <!-- ============================================ -->
+  <rect x="48" y="709" width="550" height="105" rx="10" fill="url(#agent-dp)" stroke="#22c55e" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="76" y="734" font-size="14" font-weight="700" fill="#166534">Step 3: Data Processor — 张工（高级过程数据科学家）</text>
+  <text x="76" y="752" font-size="11" fill="#475569">subagent_type: "data-processor" | model: sonnet | 10 个 Phase | 串行依赖 ontology</text>
+  <text x="76" y="770" font-size="10" fill="#64748b">P0: 数据探索 → P1: 场景分类 → P2: Phase 0.4 本体引导分析选参 (物理分组+剪枝) → P2.7: 专家差距分析</text>
+  <text x="76" y="786" font-size="10" fill="#64748b">→ P3: 场景自适应深度分析 (resource/scenario_patterns.md, Pattern A-H+C1 必选)</text>
+  <text x="76" y="802" font-size="10" fill="#64748b">→ P4: RAG 知识验证 → P5: 自适应可视化 → P5.5: VLM 视觉分析 (委托 VLM Analyzer) → P6: 图表清单</text>
+
+  <line x1="323" y1="682" x2="323" y2="709" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- VLM Sub-Agent box -->
+  <rect x="620" y="720" width="380" height="60" rx="8" fill="url(#agent-ctx)" stroke="#6366f1" stroke-width="1.3" stroke-dasharray="5,3" filter="url(#shadow-light)"/>
+  <text x="644" y="742" font-size="11" font-weight="700" fill="#4338ca">🔬 内部委托: VLM Visual Analyzer（老孙）</text>
+  <text x="644" y="758" font-size="10" fill="#64748b">model: sonnet | 本体感知的 VLM 图像分析</text>
+  <text x="644" y="773" font-size="10" fill="#64748b">→ visual_analysis.json (主) + image_captions.json (备)</text>
+
+  <!-- Arrow from data-processor to VLM -->
+  <line x1="598" y1="745" x2="620" y2="745" stroke="#6366f1" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+
+  <!-- Data Processor Outputs -->
+  <rect x="48" y="819" width="550" height="52" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="64" y="836" font-size="10" font-weight="600" fill="#334155">📦 02_processed/*.json (validate_report, feature_summary, anomaly_report, data_analysis_conclusion, ...)</text>
+  <text x="64" y="853" font-size="10" fill="#64748b">📦 03_figures/*.png · plot_manifest.json · visual_analysis.json · image_captions.json · analysis_plan.md</text>
+
+  <line x1="323" y1="814" x2="323" y2="819" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- STEP 4: Diagnostician Agent -->
+  <!-- ============================================ -->
+  <rect x="48" y="898" width="550" height="105" rx="10" fill="url(#agent-diag)" stroke="#eab308" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="76" y="923" font-size="14" font-weight="700" fill="#854d0e">Step 4: Diagnostician — 刘总工（首席根因分析工程师）</text>
+  <text x="76" y="941" font-size="11" fill="#475569">subagent_type: "diagnostician" | model: sonnet | 9 个 Phase | 竞争假说协议</text>
+  <text x="76" y="959" font-size="10" fill="#64748b">P0: 加载全部证据 (含 VLM + clarification_needed) → P0.4a: UNKNOWN 参数门 → P1: 物理推断新参数</text>
+  <text x="76" y="975" font-size="10" fill="#64748b">→ P1.5: 本体-数据-物理证明 → P2: 预计算证据融合 → P3: 候选参数短名单</text>
+  <text x="76" y="991" font-size="10" fill="#64748b">→ P4: 5 步竞争假说协议 → P5: 推理链 → P6: 输出文件 → P7: Schema 验证</text>
+
+  <line x1="323" y1="871" x2="323" y2="898" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Diagnostician Outputs -->
+  <rect x="48" y="1008" width="550" height="36" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="64" y="1030" font-size="10" font-weight="600" fill="#334155">📦 04_diagnostics/diagnosis.json · evidence.json · confidence.json · reasoning_chain.json</text>
+
+  <line x1="323" y1="1003" x2="323" y2="1008" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- CHP Detail Box -->
+  <rect x="630" y="910" width="360" height="130" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="650" y="932" font-size="11" font-weight="700" fill="#92400e">🧬 5 步竞争假说协议 (CHP)</text>
+  <text x="650" y="952" font-size="10" fill="#78716c">1️⃣ 假说生成 — 每假说含因果链+物理机制+定量验证</text>
+  <text x="650" y="968" font-size="10" fill="#78716c">2️⃣ 数据可分辨性评估 — 相似可观测项→INDISTINGUISHABLE (cap 65)</text>
+  <text x="650" y="984" font-size="10" fill="#78716c">3️⃣ 排除验证 — 时间先后+统计显著+物理机制+无矛盾+症状完整性</text>
+  <text x="650" y="1000" font-size="10" fill="#78716c">4️⃣ 残差分析 — 排除假说后剩余未解释变异</text>
+  <text x="650" y="1016" font-size="10" fill="#78716c">5️⃣ 最终判定 — DETERMINED / COMPETING_SET / NEEDS_DATA</text>
+  <text x="650" y="1035" font-size="10" fill="#94a3b8">双驱动: 纯工艺波动 + 工艺-检测双驱动 (两者都要)</text>
+
+  <!-- ============================================ -->
+  <!-- STEP 5: Judge + Pre-Audit (Parallel) -->
+  <!-- ============================================ -->
+  <rect x="30" y="1084" width="110" height="28" rx="14" fill="#64748b"/>
+  <text x="85" y="1103" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">并行 / Parallel</text>
+
+  <!-- Judge -->
+  <rect x="160" y="1071" width="470" height="65" rx="10" fill="url(#agent-judge)" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="188" y="1095" font-size="13" font-weight="700" fill="#991b1b">Step 5a: Judge（陈主任 — 高级质量审核员）</text>
+  <text x="188" y="1113" font-size="11" fill="#475569">10 项标准质量门审查 (含 no_over_claiming, reasoning_chain_audit) | model: sonnet</text>
+  <text x="188" y="1129" font-size="10" fill="#64748b">≥90 + 无阻断问题 → pass | 70-89 → needs_repair | 50-69 → major_issues | &lt;50 → fail</text>
+
+  <!-- Pre-Audit -->
+  <rect x="160" y="1146" width="470" height="55" rx="10" fill="url(#agent-auditor)" stroke="#f97316" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="188" y="1170" font-size="13" font-weight="700" fill="#9a3412">Step 5b: 报前物理审计（孙审计 — PRE_REPORT_AUDIT）</text>
+  <text x="188" y="1188" font-size="11" fill="#475569">写入 optimizer_preflight.md · 报告前阻止物理错误 · model: sonnet</text>
+
+  <!-- Step 4 → Step 5 arrows -->
+  <line x1="323" y1="1044" x2="323" y2="1060" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="323" y1="1060" x2="160" y2="1095" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="323" y1="1060" x2="160" y2="1170" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Judge Output -->
+  <rect x="160" y="1206" width="470" height="30" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="180" y="1225" font-size="10" fill="#64748b">📄 05_review/judge_feedback.json · optimizer_preflight.md</text>
+
+  <line x1="395" y1="1136" x2="395" y2="1146" stroke="#64748b" stroke-width="1"/>
+  <line x1="395" y1="1201" x2="395" y2="1206" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- JUDGE GATE DIAMOND -->
+  <!-- ============================================ -->
+  <polygon points="395,1260 510,1295 395,1330 280,1295" fill="#fef2f2" stroke="#ef4444" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="395" y="1291" text-anchor="middle" font-size="12" font-weight="700" fill="#991b1b">Judge Gate</text>
+  <text x="395" y="1305" text-anchor="middle" font-size="9" fill="#dc2626">≥90 无阻断?</text>
+
+  <line x1="395" y1="1236" x2="395" y2="1260" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- PASS branch (green) -->
+  <line x1="510" y1="1295" x2="560" y2="1295" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="535" y="1288" font-size="10" font-weight="700" fill="#16a34a">pass</text>
+
+  <!-- FAIL branch (red, loops back to Step 4) -->
+  <path d="M 280 1295 L 30 1295 L 30 950 L 48 950" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-dasharray="8,4" marker-end="url(#arrow-red)"/>
+  <text x="22" y="1130" font-size="10" font-weight="600" fill="#dc2626" transform="rotate(-90, 22, 1130)">repair → re-diagnose (max 3)</text>
+
+  <!-- ============================================ -->
+  <!-- STEP 6: Reporter Agent -->
+  <!-- ============================================ -->
+  <rect x="560" y="1340" width="500" height="90" rx="10" fill="url(#agent-reporter)" stroke="#a855f7" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="588" y="1365" font-size="14" font-weight="700" fill="#6b21a8">Step 6: Reporter — 周工（技术报告撰写专家）</text>
+  <text x="588" y="1383" font-size="11" fill="#475569">subagent_type: "reporter" | model: sonnet | Judge Gate 硬门控</text>
+  <text x="588" y="1401" font-size="10" fill="#64748b">S0: 加载全部证据产物 → S1: 视觉-统计交叉验证 (1.0 新规则) → S2: 生成报告 (17 节)</text>
+  <text x="588" y="1417" font-size="10" fill="#64748b">核心: §2 证据链详解 (每结论 6 步推导: 观测→统计→物理→图像→排除→判定)</text>
+
+  <line x1="560" y1="1295" x2="570" y2="1380" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+  <!-- Reporter outputs -->
+  <rect x="560" y="1435" width="500" height="30" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="580" y="1454" font-size="10" fill="#64748b">📄 report.md (17 节正文 + 6 附录) · run_summary.json</text>
+
+  <line x1="810" y1="1430" x2="810" y2="1435" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Reporter Detail Box -->
+  <rect x="1090" y="1340" width="320" height="130" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1110" y="1362" font-size="11" font-weight="700" fill="#6b21a8">📝 Reporter 写作强制要求</text>
+  <text x="1110" y="1382" font-size="10" fill="#78716c">• 每结论前面必须有推导过程 (观测→分析→推理→结论)</text>
+  <text x="1110" y="1398" font-size="10" fill="#78716c">• 每个关键结论必须附支撑证据清单</text>
+  <text x="1110" y="1414" font-size="10" fill="#78716c">• 数字必须有上下文 (不是 "r=0.73") → ρ+CI+n</text>
+  <text x="1110" y="1430" font-size="10" fill="#78716c">• 图表必须在结论中被引用，不是装饰</text>
+  <text x="1110" y="1446" font-size="10" fill="#78716c">• 严禁 AI 腔 ("基于分析我们认为"、"综上所述" 等)</text>
+  <text x="1110" y="1462" font-size="10" fill="#ef4444">• 两个新披露标签: [VISUAL_STATISTICAL_DISCREPANCY] / [VISUAL_EVIDENCE_OVERCLAIM]</text>
+
+  <!-- ============================================ -->
+  <!-- STEP 7: Report Reviewer Agent -->
+  <!-- ============================================ -->
+  <rect x="560" y="1500" width="500" height="70" rx="10" fill="url(#agent-auditor)" stroke="#f97316" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="588" y="1525" font-size="14" font-weight="700" fill="#9a3412">Step 7: Report Reviewer — 孙审计（物理真实独立审计）</text>
+  <text x="588" y="1543" font-size="11" fill="#475569">subagent_type: "report-reviewer" | model: sonnet | 复用 optimizer_preflight.md</text>
+  <text x="588" y="1559" font-size="10" fill="#64748b">独立验证: 物理机制 + 统计基础 + 逻辑一致性 → ENDORSED / CONDITIONAL / REJECTED</text>
+
+  <line x1="810" y1="1465" x2="810" y2="1500" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Reviewer Output -->
+  <rect x="560" y="1575" width="500" height="30" rx="6" fill="url(#output-box)" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="580" y="1594" font-size="10" fill="#64748b">📄 optimizer.md (必须含场景优化计划 + 当前问题 + 下一步确认计划 + 行动分类)</text>
+
+  <line x1="810" y1="1570" x2="810" y2="1575" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- REVIEW GATE DIAMOND -->
+  <!-- ============================================ -->
+  <polygon points="810,1629 925,1664 810,1699 695,1664" fill="#fff7ed" stroke="#f97316" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="810" y="1660" text-anchor="middle" font-size="12" font-weight="700" fill="#9a3412">Review Gate</text>
+  <text x="810" y="1674" text-anchor="middle" font-size="9" fill="#ea580c">ENDORSED?</text>
+
+  <line x1="810" y1="1605" x2="810" y2="1629" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- PASS branch (green) -->
+  <line x1="925" y1="1664" x2="1000" y2="1664" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="960" y="1656" font-size="10" font-weight="700" fill="#16a34a">ENDORSED</text>
+
+  <!-- FAIL loop back (complex path) -->
+  <path d="M 695 1664 L 20 1664 L 20 950 L 48 950" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-dasharray="8,4" marker-end="url(#arrow-red)"/>
+  <text x="14" y="1330" font-size="10" font-weight="600" fill="#dc2626" transform="rotate(-90, 14, 1330)">re-diagnose (max 2 cycles, global cap ≤ 5)</text>
+
+  <!-- ============================================ -->
+  <!-- STEP 8: Present -->
+  <!-- ============================================ -->
+  <rect x="1000" y="1630" width="260" height="68" rx="8" fill="#3b82f6" opacity="0.12" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="1030" y="1655" font-size="13" font-weight="700" fill="#1e40af">Step 8: Present</text>
+  <text x="1030" y="1674" font-size="11" fill="#475569">finalize-run-artifacts.mjs</text>
+  <text x="1030" y="1690" font-size="11" fill="#475569">artifact-check.mjs → 输出摘要</text>
+
+  <!-- ============================================ -->
+  <!-- Evidence Hierarchy Panel (right side) -->
+  <!-- ============================================ -->
+  <rect x="1320" y="90" width="260" height="210" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="1340" y="114" font-size="13" font-weight="700" fill="#334155">📊 证据等级体系 / Evidence</text>
+  <rect x="1340" y="126" width="220" height="22" rx="4" fill="#166534" opacity="0.18"/>
+  <text x="1350" y="142" font-size="10" font-weight="600" fill="#166534">R1 直接测量值 · 最高</text>
+  <rect x="1340" y="152" width="220" height="22" rx="4" fill="#15803d" opacity="0.14"/>
+  <text x="1350" y="168" font-size="10" fill="#166534">R2 用户文档 (SOP/手册)</text>
+  <rect x="1340" y="178" width="220" height="22" rx="4" fill="#ca8a04" opacity="0.14"/>
+  <text x="1350" y="194" font-size="10" fill="#854d0e">R3 统计分析 (含验证报告)</text>
+  <rect x="1340" y="204" width="220" height="22" rx="4" fill="#ea580c" opacity="0.10"/>
+  <text x="1350" y="220" font-size="10" fill="#9a3412">R4 图表视觉证据 — VLM + captions</text>
+  <rect x="1340" y="230" width="220" height="22" rx="4" fill="#2563eb" opacity="0.10"/>
+  <text x="1350" y="246" font-size="10" fill="#1e40af">R5 领域知识/工艺逻辑</text>
+  <rect x="1340" y="256" width="220" height="22" rx="4" fill="#7c3aed" opacity="0.08"/>
+  <text x="1350" y="272" font-size="10" fill="#6b21a8">R6 外部网络引用</text>
+  <rect x="1340" y="282" width="220" height="22" rx="4" fill="#475569" opacity="0.08"/>
+  <text x="1350" y="298" font-size="10" fill="#475569">R7 无支持假设 · 最低</text>
+
+  <!-- ============================================ -->
+  <!-- Anti-Speculation Rules Panel -->
+  <!-- ============================================ -->
+  <rect x="1320" y="315" width="260" height="185" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="1340" y="338" font-size="13" font-weight="700" fill="#334155">🛡️ 反推测规则 / Anti-Speculation</text>
+  <text x="1340" y="358" font-size="10" fill="#ef4444">• Lag 相关 → 检查 time_sorted 先</text>
+  <text x="1340" y="376" font-size="10" fill="#ef4444">• 聚合 r → 必须检查分层相关 (Simpson)</text>
+  <text x="1340" y="394" font-size="10" fill="#ef4444">• 趋势变量 → 必须去趋势检查 r_detrended</text>
+  <text x="1340" y="412" font-size="10" fill="#ef4444">• 未知参数含义 → 必须标记 [PARAM_AMBIGUITY]</text>
+  <text x="1340" y="430" font-size="10" fill="#ef4444">• INDISTINGUISHABLE → 输出 COMPETING_SET (cap 65)</text>
+  <text x="1340" y="448" font-size="10" fill="#ef4444">• 纯统计相关 → 不是根因，是 STATISTICAL_ONLY</text>
+  <text x="1340" y="466" font-size="10" fill="#ef4444">• RAG 知识 → 必须以实际数据验证后才可使用</text>
+  <text x="1340" y="484" font-size="10" fill="#ef4444">• 每个结论 → 必须给出具体可验证的证伪条件</text>
+
+  <!-- ============================================ -->
+  <!-- Repair Loop Protocol Panel -->
+  <!-- ============================================ -->
+  <rect x="1320" y="515" width="260" height="150" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-light)"/>
+  <text x="1340" y="538" font-size="13" font-weight="700" fill="#334155">🔁 修复回路 / Repair Loop</text>
+  <text x="1340" y="560" font-size="10" fill="#475569">Judge → Diagnostician: max 3 次</text>
+  <text x="1340" y="578" font-size="10" fill="#475569">Reviewer → Diagnostician: max 2 次</text>
+  <text x="1340" y="600" font-size="10" font-weight="600" fill="#ef4444">全局上限: 总重诊 ≤ 5 次</text>
+  <text x="1340" y="622" font-size="10" font-weight="600" fill="#f59e0b">抗振荡: >70% 问题重叠 → 检测振荡</text>
+  <text x="1340" y="642" font-size="10" font-weight="600" fill="#f59e0b">第 3 次相同问题 → COMPETING_SET (cap 50)</text>
+  <text x="1340" y="660" font-size="10" fill="#94a3b8">计数器: .pipeline_events.jsonl</text>
+
+  <!-- ============================================ -->
+  <!-- Data Flow Diagram at Bottom -->
+  <!-- ============================================ -->
+  <rect x="30" y="1740" width="1270" height="100" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow-light)"/>
+  <text x="52" y="1768" font-size="13" font-weight="700" fill="#334155">📁 Agent → 文件 → Agent 数据流 (File-Only Communication)</text>
+
+  <!-- Agent icons in a row -->
+  <rect x="42" y="1785" width="115" height="30" rx="6" fill="url(#agent-ctx)"/>
+  <text x="99" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#1e40af">Context Builder</text>
+  <text x="172" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="188" y="1785" width="84" height="30" rx="6" fill="#e2e8f0"/>
+  <text x="230" y="1805" text-anchor="middle" font-size="8" fill="#64748b">ontology / schema</text>
+  <text x="285" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="300" y="1785" width="115" height="30" rx="6" fill="url(#agent-dp)"/>
+  <text x="357" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Data Processor</text>
+  <text x="430" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="446" y="1785" width="90" height="30" rx="6" fill="#e2e8f0"/>
+  <text x="491" y="1805" text-anchor="middle" font-size="8" fill="#64748b">stats + figures</text>
+  <text x="550" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="566" y="1785" width="115" height="30" rx="6" fill="url(#agent-diag)"/>
+  <text x="623" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#854d0e">Diagnostician</text>
+  <text x="696" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="712" y="1785" width="100" height="30" rx="6" fill="#e2e8f0"/>
+  <text x="762" y="1805" text-anchor="middle" font-size="8" fill="#64748b">diagnosis + ...</text>
+  <text x="828" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="846" y="1785" width="56" height="30" rx="6" fill="url(#agent-judge)"/>
+  <text x="874" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#991b1b">Judge</text>
+  <text x="915" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="930" y="1785" width="56" height="30" rx="6" fill="#e2e8f0"/>
+  <text x="958" y="1805" text-anchor="middle" font-size="8" fill="#64748b">pass ✓</text>
+  <text x="1002" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="1018" y="1785" width="110" height="30" rx="6" fill="url(#agent-reporter)"/>
+  <text x="1073" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#6b21a8">Reporter</text>
+  <text x="1144" y="1805" font-size="14" fill="#64748b">→</text>
+  <rect x="1160" y="1785" width="104" height="30" rx="6" fill="url(#agent-auditor)"/>
+  <text x="1212" y="1805" text-anchor="middle" font-size="9" font-weight="600" fill="#9a3412">Reviewer</text>
+
+  <!-- ============================================ -->
+  <!-- Architecture Principles -->
+  <!-- ============================================ -->
+  <rect x="30" y="1855" width="1270" height="75" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow-light)"/>
+  <text x="52" y="1882" font-size="13" font-weight="700" fill="#1e293b">🏗️ 核心架构原则</text>
+
+  <rect x="52" y="1895" width="280" height="25" rx="5" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="62" y="1913" font-size="10" font-weight="600" fill="#1e40af">1. Agent 解耦 — 仅通过文件通信</text>
+  <rect x="342" y="1895" width="300" height="25" rx="5" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="352" y="1913" font-size="10" font-weight="600" fill="#1e40af">2. Ontology-First — 数据分析前必须有本体</text>
+  <rect x="652" y="1895" width="290" height="25" rx="5" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="662" y="1913" font-size="10" font-weight="600" fill="#1e40af">3. Schema-First — 先读 Schema 再写入, 一次到位</text>
+  <rect x="952" y="1895" width="330" height="25" rx="5" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="962" y="1913" font-size="10" font-weight="600" fill="#1e40af">4. 执行证明 — pipeline-log-check + artifact-check</text>
+
+  <!-- ============================================ -->
+  <!-- Confidence Ceilings -->
+  <!-- ============================================ -->
+  <rect x="30" y="1945" width="1270" height="65" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="52" y="1968" font-size="13" font-weight="700" fill="#334155">🔒 置信度上限规则</text>
+  <text x="60" y="1990" font-size="10" fill="#475569">• INDISTINGUISHABLE → COMPETING_SET, cap 65</text>
+  <text x="390" y="1990" font-size="10" fill="#475569">• [PARAM_AMBIGUITY] 物理含义 UNKNOWN → cap 50</text>
+  <text x="720" y="1990" font-size="10" fill="#475569">• 修复振荡 (第3次) → COMPETING_SET, cap 50</text>
+  <text x="60" y="2005" font-size="10" fill="#475569">• 数据缺少时间列 → 时序因子 0/20 · 数据缺少分组列 → 无混淆因子缩减</text>
+  <text x="720" y="2005" font-size="10" fill="#475569">• 结论等级 ≤ 其依赖的最低证据等级</text>
+
+  <!-- ============================================ -->
+  <!-- Judge Gate Invariant -->
+  <!-- ============================================ -->
+  <rect x="1320" y="1740" width="260" height="80" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.2" filter="url(#shadow-light)"/>
+  <text x="1340" y="1764" font-size="12" font-weight="700" fill="#991b1b">🧪 硬 pass 不变式 (Invariant)</text>
+  <text x="1340" y="1784" font-size="10" fill="#dc2626">overall_score ≥ 90</text>
+  <text x="1340" y="1800" font-size="10" fill="#dc2626">+ blocking_issues.length == 0</text>
+  <text x="1340" y="1816" font-size="10" fill="#dc2626">+ reasoning_chain_audit 无阻断</text>
+  <text x="1340" y="1832" font-size="10" fill="#dc2626">+ no_over_claiming == 0</text>
+
+  <!-- ============================================ -->
+  <!-- Commands Panel -->
+  <!-- ============================================ -->
+  <rect x="1320" y="1835" width="260" height="90" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1340" y="1858" font-size="12" font-weight="700" fill="#334155">⚡ CLI 命令 / Commands</text>
+  <text x="1340" y="1880" font-size="10" fill="#475569">/industrial-deep-diagnostic → 全管线</text>
+  <text x="1340" y="1898" font-size="10" fill="#475569">/industrial-deep-diagnostic analyze → Step 2 起</text>
+  <text x="1340" y="1916" font-size="10" fill="#475569">/industrial-deep-diagnostic review → 重评审</text>
+  <text x="1340" y="1934" font-size="10" fill="#475569">/industrial-deep-diagnostic report → 重生成报告</text>
+  <text x="1340" y="1952" font-size="10" fill="#475569">/industrial-deep-diagnostic audit → 仅审计</text>
+
+  <!-- ============================================ -->
+  <!-- RAG Engine Box -->
+  <!-- ============================================ -->
+  <rect x="1320" y="680" width="260" height="95" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1340" y="704" font-size="12" font-weight="700" fill="#334155">🔍 RAG 检索引擎</text>
+  <text x="1340" y="724" font-size="10" fill="#475569">FastAPI + ChromaDB (port 8765)</text>
+  <text x="1340" y="742" font-size="10" fill="#64748b">端点: /retrieve, /score (5维), /inject, /pipeline/full</text>
+  <text x="1340" y="758" font-size="10" fill="#64748b">Step 2 调用 · 不可用则回退本地本体构建</text>
+  <text x="1340" y="774" font-size="10" fill="#94a3b8">非强制依赖 · 可选增强</text>
+
+  <!-- ============================================ -->
+  <!-- Version / Footer -->
+  <!-- ============================================ -->
+  <text x="1570" y="2185" text-anchor="end" font-size="10" fill="#94a3b8">v6.3 · Schema-Validated · Ontology-First · Anti-Oscillation · 2026-06-15</text>
+</svg>
