@@ -34,6 +34,29 @@ def load_data(run_dir):
     if 'timestamp' in df.columns:
         df['timestamp'] = pd.to_datetime(df['timestamp'])
 
+    # Coerce candidate numeric columns: cleaned_data.csv stores numbers as
+    # strings (CSV→JSON conversion does no type coercion — the string-type-gotcha).
+    # A single stray token in a column (<0.05, N/A, "89.5°C", 100±2, 缺失) makes
+    # pandas infer object/string dtype, after which the strict dtype filters
+    # below silently drop that parameter from EVERY plot → no PNG → VLM gate
+    # fails → metadata_backed_inference fallback. pd.to_numeric turns stray
+    # tokens into NaN (already handled by downstream .dropna()) instead of
+    # forcing the whole column to string. A column is only adopted as numeric
+    # when ≥50% of its non-null values parse as numbers, so genuine categorical
+    # columns (product_id, machine_id) stay object and remain usable as groups.
+    _time_cols = {'timestamp', 'time', 'index'}
+    for col in df.columns:
+        if col in _time_cols:
+            continue
+        if df[col].dtype not in ('object', 'string'):
+            continue
+        coerced = pd.to_numeric(df[col], errors='coerce')
+        non_null = df[col].notna().sum()
+        if non_null == 0:
+            continue
+        if coerced.notna().sum() >= non_null / 2:
+            df[col] = coerced
+
     feature_path = os.path.join(run_dir, '02_processed', 'feature_summary.json')
     features = json.load(open(feature_path)) if os.path.exists(feature_path) else {}
 
@@ -538,9 +561,14 @@ def generate_simpson_visual(df, target, param, group_col, fig_dir):
         ax.scatter(grp[param], grp[target], s=10, alpha=0.5, color=color)
 
         if grp[param].std() > 0:
-            z = np.polyfit(grp[param].dropna(), grp[target].dropna(), 1)
-            x_range = np.linspace(grp[param].min(), grp[param].max(), 100)
-            ax.plot(x_range, np.polyval(z, x_range), color=color, linewidth=3, alpha=0.8)
+            # Joint dropna on the pair so x and y stay aligned + same length.
+            # Independent .dropna() breaks when one column has NaN (stray tokens
+            # coerced to NaN) and the other doesn't → mismatched lengths crash polyfit.
+            pair = grp[[param, target]].dropna()
+            if len(pair) >= 2:
+                z = np.polyfit(pair[param], pair[target], 1)
+                x_range = np.linspace(pair[param].min(), pair[param].max(), 100)
+                ax.plot(x_range, np.polyval(z, x_range), color=color, linewidth=3, alpha=0.8)
 
         direction_text = "↗ POSITIVE" if r >= 0 else "↘ NEGATIVE"
         ax.set_title(f'{grp_name}\nr = {r:.3f}  {direction_text}',
@@ -674,6 +702,21 @@ def main():
 
     print("Loading data...")
     df, features, validate, ontology, regime, anomaly = load_data(run_dir)
+
+    # Loud-failure guard: if after coercion NO numeric column survived, plotting
+    # would silently emit zero PNGs and a metadata_backed_inference skeleton,
+    # leaving the VLM with nothing to read (the failure mode this guard exists
+    # to prevent). Abort loudly instead.
+    _numeric_cols = [c for c in df.columns if df[c].dtype in ('float64', 'int64')]
+    if not _numeric_cols:
+        sys.exit(
+            "[visual_analysis] ABORT: zero numeric columns after type coercion of "
+            f"{run_dir}/02_processed/cleaned_data.csv. Columns seen: {list(df.columns)}. "
+            "This means cleaned_data.csv is entirely string/object-typed "
+            "(string-type-gotcha: CSV→JSON conversion emitted no numeric typing, "
+            "and no column reached the ≥50% numeric-parse threshold). Fix the "
+            "preprocess step (dp_toolkit.py) or verify the source CSV is not corrupted."
+        )
 
     # --- Dynamic defaults from ontology / scenario_classification ---
     targets = []

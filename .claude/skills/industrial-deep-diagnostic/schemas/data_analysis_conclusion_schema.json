@@ -15,7 +15,8 @@
     "data_supported_conclusions",
     "handoff_to_diagnostician",
     "time_lag_analysis",
-    "analysis_boundary"
+    "analysis_boundary",
+    "data_cleaning_provenance"
   ],
   "properties": {
     "run_id": {"type": "string"},
@@ -283,6 +284,38 @@
           }
         }
       ]
+    },
+    "data_cleaning_provenance": {
+      "type": "object",
+      "description": "Audit trail of data cleaning — what was cleaned, why, and which data source (cleaned vs raw_fallback) every downstream consumer used. Propagated from Phase 2.2.5 cleaning_integrity so Diagnostician, Reporter, and HTML disclose one consistent provenance (留痕).",
+      "required": ["data_source", "integrity_checks", "cleaning_operations"],
+      "properties": {
+        "data_source": {"type": "string", "enum": ["cleaned", "raw_fallback"]},
+        "data_source_reason": {"type": "string"},
+        "integrity_checks": {
+          "type": "object",
+          "properties": {
+            "row_count": {"type": "object"},
+            "type_integrity": {"type": "object"},
+            "range_fidelity": {"type": "object"}
+          }
+        },
+        "cleaning_operations": {
+          "type": "array",
+          "description": "Each cleaning action taken: what, how many rows affected, and WHY. Non-empty required — every cleaning step must be explainable (Data Truth Mandate rule 7).",
+          "items": {
+            "type": "object",
+            "required": ["operation", "target", "rows_affected", "rationale"],
+            "properties": {
+              "operation": {"type": "string", "enum": ["dedup", "sort", "type_coerce", "missing_handle", "outlier", "derived_feature", "other"]},
+              "target": {"type": "string"},
+              "rows_affected": {"type": "integer"},
+              "rationale": {"type": "string"}
+            }
+          }
+        },
+        "repair_attempts": {"type": "array", "items": {"type": "string"}}
+      }
     }
   }
 }
