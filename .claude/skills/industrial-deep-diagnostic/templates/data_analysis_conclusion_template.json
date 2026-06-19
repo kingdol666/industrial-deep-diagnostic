@@ -177,5 +177,31 @@
       "Test whether process_parameter_x has a physically plausible mechanism and falsification condition.",
       "Check competing product-mix and measurement-artifact hypotheses."
     ]
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity). Replace with the actual decision; if raw_fallback was triggered, record the failing check and fallback reason here.",
+    "integrity_checks": {
+      "row_count": {"raw_rows": 0, "cleaned_rows": 0, "dropped": 0, "drop_rate": 0.0},
+      "type_integrity": {},
+      "range_fidelity": {}
+    },
+    "cleaning_operations": [
+      {"operation": "type_coerce", "target": "<column_leaked_to_string>", "rows_affected": 0, "rationale": "One entry per cleaning step (dedup/sort/type_coerce/missing_handle/outlier/derived_feature). Never leave empty — every cleaning action must be auditable (留痕)."}
+    ],
+    "repair_attempts": []
+  },
+  "time_lag_analysis": {
+    "applicable": false,
+    "not_applicable_reason": "Set applicable=true and populate pairs_analyzed / significant_lags_found / key_recommendations when a time column exists AND both process + inspection data are present.",
+    "pairs_analyzed": 0,
+    "significant_lags_found": 0,
+    "key_recommendations": []
+  },
+  "analysis_boundary": {
+    "tiers": {},
+    "pruned_pairs": [],
+    "predictor_cols": [],
+    "exclude_cols": []
   }
 }

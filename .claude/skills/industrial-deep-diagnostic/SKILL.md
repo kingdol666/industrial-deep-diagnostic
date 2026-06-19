@@ -569,23 +569,7 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run.
 
-在上述检查通过后，默认继续启动 `html-visualizer` 子 Agent：
-
-```javascript
-Agent({
-  subagent_type: "html-visualizer",
-  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
-  permissionMode: "bypassPermissions",
-  prompt: `RUN_DIR=${RUN_DIR}
-SKILL_PATH=${SKILL_PATH}
-OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
-AUDIENCE=mixed
-VISUAL_MODE=story
-
-Read "$SKILL_PATH/agents/html-visualizer.md" and execute the complete protocol. Do not ask the main agent to produce the page in its own context.`,
-  run_in_background: true
-})
-```
+在上述检查通过后，默认继续启动 `html-visualizer` 子 Agent——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-visualizer` 启动模板。
 
 如果用户没有明确要求跳过 HTML，可视化构建是 Step 8 的默认组成部分，而且必须由专用子 Agent 完成。
 
@@ -593,22 +577,7 @@ Read "$SKILL_PATH/agents/html-visualizer.md" and execute the complete protocol. 
 
 ### HTML Review Gate
 
-页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核。只有审核通过，页面才算最终交付。
-
-```javascript
-Agent({
-  subagent_type: "html-reviewer",
-  description: "Step 8.5: 审核诊断 HTML 可视化页面的可读性、证据完整性和逻辑链",
-  permissionMode: "bypassPermissions",
-  prompt: `RUN_DIR=${RUN_DIR}
-OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
-SKILL_PATH=${SKILL_PATH}
-AUDIENCE=mixed
-
-Read "$SKILL_PATH/agents/html-reviewer.md" and review the generated page against clarity, evidence completeness, logic chain strength, and chart/3D coverage. Write a machine-readable review artifact and report pass/fail clearly.`,
-  run_in_background: true
-})
-```
+页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过，页面才算最终交付。
 
 如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
 

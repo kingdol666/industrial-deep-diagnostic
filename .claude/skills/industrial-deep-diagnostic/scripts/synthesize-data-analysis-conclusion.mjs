@@ -402,6 +402,32 @@ const customScriptInventory = customScripts.map((file) => ({
   outputs: plotFiles.filter((plot) => plot.includes(basename(file, '.' + file.split('.').pop()))).slice(0, 3)
 }));
 
+// Data cleaning provenance (留痕) — propagate Phase 2.2.5 cleaning_integrity so the
+// Diagnostician, Reporter, and HTML all disclose the same data source & cleaning actions.
+const cleaningIntegrity = (dataQualityReport && dataQualityReport.cleaning_integrity) || null;
+const dataCleaningProvenance = cleaningIntegrity
+  ? {
+      data_source: cleaningIntegrity.data_source || 'cleaned',
+      data_source_reason: cleaningIntegrity.fallback_reason
+        || (cleaningIntegrity.data_source === 'raw_fallback'
+          ? 'cleaned_data failed integrity checks beyond in-place repair; fell back to raw DATA_PATH'
+          : 'cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity)'),
+      integrity_checks: {
+        row_count: cleaningIntegrity.row_count_check || {},
+        type_integrity: cleaningIntegrity.type_integrity || {},
+        range_fidelity: cleaningIntegrity.range_fidelity || {}
+      },
+      cleaning_operations: cleaningIntegrity.cleaning_operations || [],
+      repair_attempts: cleaningIntegrity.repair_attempts || []
+    }
+  : {
+      data_source: 'cleaned',
+      data_source_reason: 'cleaning_integrity not recorded (Phase 2.2.5 did not run or pre-dates the gate) — provenance incomplete, data-processor must enrich',
+      integrity_checks: {},
+      cleaning_operations: [],
+      repair_attempts: []
+    };
+
 const handoff = {
   run_id: runManifest.run_id || basename(runDir),
   generated_at: new Date().toISOString(),
@@ -445,6 +471,7 @@ const handoff = {
     exclude_cols: analysisParameterSelection.exclude_cols,
     derived_features: analysisParameterSelection.derived_features_to_compute || []
   } : { missing: 'Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering' },
+  data_cleaning_provenance: dataCleaningProvenance,
   data_supported_conclusions: conclusions,
   handoff_to_diagnostician: {
     priority_hypothesis_inputs: conclusions.slice(0, 3).map((item, index) => ({

@@ -24,8 +24,9 @@
 
 **先读 manifest（它是页面模型的基准，页面必须与之相符）：**
 
-1. `RUN_DIR/render_manifest.json` ← builder 的中间产物，本审校的对照基准
-2. `OUTPUT_HTML`
+1. `RUN_DIR/render_manifest.json` ← builder 的中间产物，本审校的对照基准（含 `_meta.protocol_ack`，三项必须全 true，否则 builder 未过协议关 → 直接 fail）
+2. `RUN_DIR/html_selfcheck.json` ← builder Step 5 自检产物（8 项 PASS/FAIL），作为审校起点
+3. `OUTPUT_HTML`
 
 **再读诊断产物（校验 manifest 是否忠实于数据）：**
 
@@ -124,25 +125,26 @@
 - 页面和 manifest 中**不得出现本次 run 数据无法解释的具体数值、设备编号、假说名**
 - 重点排查：是否残留了其他 run（如 BOPET 划伤）的标志性数据（粘滑/急冷/特定 ρ 值）却无本次数据支撑
 
-## Red Line Blacklist (v2)
+## Red Line Blacklist（单一权威源 = SKILL.md）
 
-命中任一条 → 直接判 fail：
+**红线清单以 `SKILL.md` §🔴 红线黑名单（15 条）为单一权威源**——本文件不另行复制，避免跨文档 drift。命中任一条 → 直接判 `fail`。
 
-| # | 🚫 禁止 | 正确做法 |
-|---|--------|---------|
-| 1 | 证据链是平铺卡片堆，无三层架构 | 统计 → 物理 → 排除三层独立展开 |
-| 2 | 证据链无真实诊断 PNG 图像 | 03_figures 中的图必须嵌入证据链对应区块 |
-| 3 | 只有统计相关，无物理因果推导 | 必须有物理因果链流程图 + 每步物理方程 |
-| 4 | 只说"A 是根因"，不说"为什么不是 B/C/D" | 被排除假说必须逐一列出排除理由 |
-| 5 | 3D 模型画通用抽象工厂 / 硬编码设备数温区异常位置 | 工段顺序/温区/异常位置必须来自 manifest.process_flow（源头 ontology + 3d_model_data） |
-| 6 | 图旁边没有三行解读 | 每张图配：看到什么 / 说明什么 / 为什么重要 |
-| 7 | 首屏没有结论 | Hero 区一句话结论在最顶部 |
-| 8 | 统计术语不解释 | Spearman ρ 后面跟白话翻译 |
-| 9 | img src 指向的文件存在却 404 | 路径必须相对 output HTML 位置正确 |
-| 10 | 完工不跑 reviewer 就交付 | 必须先通过 html-reviewer 审校 |
-| 11 | 未产出 render_manifest.json / manifest 字段编造 | manifest 必须先产出且所有数值可溯源到 run_dir 真实 JSON |
-| 12 | 页面结构与 manifest 不符（假说数/图表数/证据层不一致） | 段数/卡片数/图表数必须与 manifest 逐一对齐 |
-| 13 | 残留其他 run 的标志性数据（如粘滑/急冷/特定 ρ 值）却无本次数据支撑 | 所有具体数值/设备/假说必须由本次 run 数据可解释 |
+reviewer 实际执行时，通过下文 `html_review.json` 的 checks 数组逐项核对，其覆盖全部 15 条红线：
+
+| reviewer check | 对应 SKILL.md 红线 |
+|---|---|
+| `evidence_layer_1/2/3` | #1 #2 #3（三层架构 + 真实 PNG + 物理推导）|
+| `image_usage_from_03_figures` | #2 #9（真实 PNG + 路径不 404）|
+| `three_d_fidelity` | #5（3D 忠实工艺，不硬编码）|
+| `chart_initialization` + 图旁三行解读 | #6（每图三行解读）|
+| `hero_clarity` | #7 #8（首屏结论 + 术语翻译）|
+| `dual_evidence_per_conclusion` | #4（双证据 + 排除逻辑）|
+| `render_manifest_produced` | #11（manifest 产出 + 可溯源）|
+| `manifest_page_consistency` | #12（页面↔manifest 一致）|
+| `no_cross_run_pollution` | #13（跨-run 污染）|
+| `action_and_limitations` | 行动建议 + 局限性（对应红线 #行动闭环类）|
+
+> 若 SKILL.md 红线新增/调整，更新本映射表；**不要在 reviewer 内重建独立红线表**（drift 来源）。
 
 ## Pass Standard
 

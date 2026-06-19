@@ -410,7 +410,12 @@ var grid=new THREE.PolarGridHelper(6,32,22,64,'#c4c0b8','#c4c0b8');grid.position
 /* ───────────────────────────────────────────────────────────
    BUILDER (build time): build scene from render_manifest.process_flow
      stages[]         → one platform (.BoxGeometry) per stage, positioned along z
-     equipment_count  → render N cylinders (radius scaled by real std/magnitude if available)
+     equipment[]      → render N equipment, GEOMETRY BY ROLE (见 SKILL.md 铁律 4):
+                          辊/卷 → CylinderGeometry (radius 可按真实 std/量级缩放)
+                          箱体类(流浆箱/反应釜/罐) → BoxGeometry
+                          平面连续体(网部/传送带/幅) → 薄板 PlaneGeometry
+                          管道/流向 → TubeGeometry
+                        设备 role/type 从 ontology/3d_model_data 推断, 不默认"辊/圆柱"(BOPET 辊组是特例)
      zones[]          → color equipment by THIS run's real zones (names from ontology)
      anomaly_indices  → highlight those cylinders red + torus ring + label sprite
      flow             → CatmullRomCurve3 tube through equipment centers
