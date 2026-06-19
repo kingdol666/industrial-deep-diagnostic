@@ -31,18 +31,18 @@ compatibility: |
 
 如果目录中已有图像、图表、3D 数据、可视化摘要，就优先复用；如果没有，就根据真实诊断 JSON 重新组织出最关键的 ECharts 图，并在必要时用 Three.js 画简化 3D 产线模型。
 
-**页面模板**: `references/report-template.html` 是 HTML 结构骨架和 CSS 样式基准。builder agent 必须以此模板为基础，替换占位数据为真实诊断数据。
+**设计系统参考**: `references/report-template.html` 是视觉语法基准（CSS 变量 + 排版 + 组件类 + loader 接线 + ECharts/Three.js 多源加载模式）。它**不是填空模板**——builder agent 先扫描 run_dir 真实数据产出 `render_manifest.json`（数据驱动的页面模型），再按 manifest 从设计系统参考取组件组装页面。页面结构（假说数 / 图表数 / 证据层数 / 工段结构）由本次 run 真实数据决定，不由固定模板决定。
 
-## Truth Rules（6 条铁律 + 模板继承规则）
+## Truth Rules（6 条铁律 + 数据驱动组装规则）
 
-Builder agent 必须遵守以下 6 条铁律。其中铁律 3-5 已在 §Style Direction 的 Hero 8 元素 + 证据链三层视觉标识 + 模板替换协议中有精确的结构化落地，不在此处重复约束。
+Builder agent 必须遵守以下 6 条铁律。其中铁律 3-5 已在 §Style Direction 的 Hero 8 元素 + 证据链三层视觉标识 + 数据驱动渲染协议中有精确的结构化落地，不在此处重复约束。
 
 ### 铁律 1: 页面必须忠实于诊断产物
 
 - 只使用 run directory 中真实存在的诊断结论、证据、图像、统计结果和本体信息
 - 不允许凭空补造”更好看”的结论
 - 如果某个证据缺失，要明确标出”当前缺少该层证据”，而不是假装存在
-- **所有替换数据来自真实 JSON 文件** — 模板中的 `[占位符]` 必须在 run_dir 中有对应的真实值
+- **所有页面数据来自真实 JSON 文件** — `render_manifest.json` 的每个字段必须可溯源到 run_dir 真实产物，禁止编造数值或假说
 
 ### 铁律 2: 每条主结论都要有双支撑 + 白话版
 
@@ -52,17 +52,18 @@ Builder agent 必须遵守以下 6 条铁律。其中铁律 3-5 已在 §Style D
 2. **推理证据**: 统计结论、物理机制、排除逻辑、竞争假说比较中的至少一种
 3. **白话版**: 一句不含统计术语的中文解释（让非算法用户能复述）
 
-### 铁律 3: 页面交付 = 模板继承 + 真实数据填充
+### 铁律 3: 页面交付 = 数据驱动组装 + 视觉语法继承
 
-**模板是唯一基准。** `references/report-template.html` 定义了完整的 CSS 变量、排版层级、四段式版面、Loader 面板、ECharts/Three.js 脚手架。
+**先建模型，再渲染。** Builder agent 必须先扫描 run_dir 真实 JSON，产出 `render_manifest.json`（页面模型，schema 见 `agents/html-builder.md`），再按 manifest 组装页面。`references/report-template.html` 是视觉语法基准，不是填空骨架——它提供 CSS 变量、排版、组件类、loader、ECharts/Three.js 加载模式。
 
 Builder agent 的工作是:
-1. **保留** — `<style>` 全部 CSS、Loader 结构、importmap、ECharts/Three.js 加载器逻辑、`@media` 断点
-2. **替换** — `[占位符]` 文本 → 真实诊断数据（来自 diagnosis.json / report.md / evidence.json / ontology.json）
-3. **填充** — ECharts `setOption({...})` 数据数组 → 来自 `viz_compact.json` 或 `02_processed/*.json`
-4. **建模** — Three.js 3D 场景物体 → 来自 `ontology.json` + `3d_model_data.json`
+1. **理解** — 扫描 run_dir 全部诊断 JSON + report.md + plot_manifest
+2. **建模** — 产出 `render_manifest.json`：本次 run 的结论类型、假说列表、三层证据可用性、图表清单、工艺流程、异常落位（数量随真实数据变化）
+3. **组装** — 按 manifest 选组件：Hero 恒有；3D 仅当工艺流程可恢复；图表数 = 真实信号数；证据文章数 = 真实假说数；证据层按可用性渲染或标 `.evidence-missing`
+4. **继承语法** — 从设计系统参考取 CSS/组件类/loader 接线（保留 `<style>`、Loader、importmap、加载逻辑、`@media`）
+5. **绑定** — 所有数值/文案/路径来自 manifest（源头 run_dir 真实 JSON）
 
-**不允许**: 修改 CSS token 值、删除 Loader 面板、改四段顺序、用 `<div>` 替代 `.evidence-layer` 结构、从零手写完全不同的 HTML 结构。
+**不允许**: 修改 CSS token 值、删除 Loader 面板、改四段顺序、用 `<div>` 替代 `.evidence-layer` 结构、硬编码设备数/假说数/图表数、把其他 run 的残留数据带进本次报告。
 
 ### 铁律 4: 3D 建模 = 真实场景简化 × 几何可简 × 工艺不可错
 
@@ -125,6 +126,7 @@ Builder agent 的工作是:
 默认输出：
 
 - `<run_dir>/diagnostic-report.html`
+- `<run_dir>/render_manifest.json`（数据驱动的页面模型，builder 强制中间产物，reviewer 审校基准）
 
 页面必须满足：
 
@@ -139,6 +141,7 @@ Builder agent 的工作是:
 9. 页面必须控制信息密度，优先突出 3-5 个最关键证据，不得把所有图一股脑平铺为主内容
 10. 页面生成后必须经过 `html-reviewer` 质检子 Agent 审核，不通过则返回修订（最多 3 次修订循环）
 11. 证据链必须三层完整且各有真实图像/数据/物理推理支撑，缺任一层 → 页面不合格
+12. 必须先产出 `render_manifest.json`；页面段数 / 卡片数 / 图表数 / 证据层数与 manifest 逐一对齐，且 manifest 数值可溯源到 run_dir（无跨 run 污染）
 
 ## Invocation Protocol
 
@@ -175,64 +178,63 @@ Skill({
 
 先读 `agents/html-builder.md`，把它当作执行协议。
 
-🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，在内部确认三件事：(a) 我理解了四段式叙事架构；(b) 我理解了模板继承规则；(c) 我理解了 8 条 fallback 的分支逻辑。确认后再进入 Step 2。
+🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，在内部确认三件事：(a) 我理解了四段式叙事架构；(b) 我理解了数据驱动渲染协议 + render_manifest 建模流程；(c) 我理解了 8 条 fallback 的分支逻辑。确认后再进入 Step 2。
 
-### Step 2: Load the page template
+### Step 2: Load the design system reference
 
-再读 `references/report-template.html`。这是 HTML 结构骨架和 CSS 样式基准。理解其四段式叙事架构、CSS 变量体系、排版节奏后，替换占位数据。
+再读 `references/report-template.html`。这是**视觉语法基准**（CSS 变量 + 排版 + 组件类 + loader + ECharts/Three.js 多源加载模式），不是填空模板。理解其组件契约与组合规则——body 内 HTML 注释标明每个区块由 manifest 哪个字段驱动、数量如何随数据变化。
 
-🛑 **CHECKPOINT 2 · 模板可读**: 确认模板文件存在且可完整读取。如果模板不可用，执行 Fallback 1 的分支逻辑。不要跳过这步直接手写 HTML。
+🛑 **CHECKPOINT 2 · 设计系统可读**: 确认文件存在且可完整读取。如果不可用，执行 Fallback 1 的分支逻辑。不要跳过这步直接手写 HTML。
 
-### Step 3: Build the artifact inventory
+### Step 3: Build render_manifest（数据驱动建模）
 
-快速识别：
+按 `agents/html-builder.md` §Data-Driven Rendering Protocol 阶段 1-2：扫描 run_dir 全部 JSON，产出 `run_dir/render_manifest.json`。manifest 必须如实反映本次 run 的结构：
 
-- 这次 run 的主题、产线、目标缺陷、焦点产品
-- 哪些 JSON 可以直接抽取结论
-- **`03_figures/` 下有哪些 PNG 可直接嵌入证据链**（查 `plot_manifest.json`）
-- 哪些图必须用 ECharts 重绘
-- 是否存在 `3d_model_data.json` / `viz_model_data.json` 可直接用于 3D 建模
-- 当前真实工艺路径是什么，工段先后顺序是什么，异常点落在哪个设备/辊位/区域
+- 结论类型（DETERMINED / COMPETING_SET / NEEDS_DATA）+ 主结论 + 置信度天花板
+- `hypotheses[]` 真实假说列表（数量随数据，非固定）
+- `evidence_layers` 三层各自的 `available` 真实状态（缺层标 false）
+- `charts[]` 真实可呈现信号清单（数量随数据，非固定 5）
+- `process_flow`（工段 / 设备数 / 异常落位，仅当可恢复）
+- `available_pngs[]` 每张 PNG 的 `suggested_layer`
 
-🔴 **CHECKPOINT 3 · 产物清单**: 把以上识别结果整理成一个简短的 artifact checklist（5-8 项），内部确认「P0 文件存在 / 3D 数据可用 / PNG 可用 / ECharts 数据可用」。如果 P0 文件全部缺失，执行 Fallback 3 的分支逻辑，不要继续写页面。
+🔴 **CHECKPOINT 3 · manifest 建模**: manifest 字段全部来自真实 JSON（无编造）。假说数 / 图表数 / 证据层如实反映数据，不硬编码固定值。如果 P0 文件全部缺失，执行 Fallback 3 的分支逻辑。manifest 产出后才能进入 Step 4。
 
-### Step 4: Write the page — Template-Substitution Protocol
+### Step 4: Write the page — Data-Driven Rendering Protocol
 
-**模板是唯一权威基准**。`references/report-template.html` 定义了 CSS 变量、排版、四段式结构和移动端断点。Builder agent 必须遵守以下替换规则：
+**按 manifest 组装页面，套设计系统参考的视觉语法。** 详见 `agents/html-builder.md` §Data-Driven Rendering Protocol 阶段 3。
 
-**保留不动的内容（直接复用模板原样）**:
+**直接复用（从设计系统参考原样搬运）**:
 - 全部 `<style>` 块（CSS 变量 + 排版系统 + 组件样式 + @media）
 - Loader 状态栏结构 (`#loaderStrip` + 5 个 `.ls-dot`)
-- Three.js importmap 脚本
-- Three.js 场景初始化脚手架（scene/camera/renderer/controls/lights/grid）
+- Three.js importmap + 场景初始化脚手架（scene/camera/renderer/controls/lights/grid）
 - ECharts 加载器逻辑（主源→备用源→失败上报）
-- 页面整体结构骨架（`.page > .hero > .section × 4 > .footer`）
 
-**必须替换的占位内容**（按优先级排序）:
-| 优先级 | 占位/区域 | 数据来源 | 替换方式 |
-|:--:|------|------|---------|
-| P0 | 页面 `<title>` | `report.md` 标题行 | 直接替换为 "[产线] [缺陷] 诊断报告 — [结论关键词]" |
-| P0 | Hero `.display` h1 | `diagnosis.json` `primary_finding` | 一句中文结论, `<em>` 强调关键词 |
-| P0 | Hero `.hero-lede` p | `report.md` 执行摘要 | 3-4 句白话解释，≤640px |
-| P0 | Hero `.hero-meta` 5 项 | `diagnosis.json` + `report.md` | 诊断类型/Judge评分/置信度/焦点产品/异常工段 |
-| P0 | Hero `.key-findings` 4 格 | `diagnosis.json` + `evidence.json` | 最强信号/已排除/物理机制/推荐动作 |
-| P0 | 证据链 Chapter 03 内容 | `diagnosis.json` + `evidence.json` + PNG | 每个假说的证据文章（原始vs去趋势+排除理由） |
-| P1 | 图表内嵌 JSON 数据 | `viz_compact.json` 或 `02_processed/*.json` | 替换 x/y/名称为真实数组 |
-| P1 | 3D 场景建模参数 | `ontology.json` + `3d_model_data.json` | 替换 18 辊位置/半径/温度/异常索引 |
-| P1 | Section 01 bg-info 正文 | `ontology.json` + `report.md` | 背景说明 + 工段顺序 + 参数列表 |
-| P2 | 局限性文案 | `report.md` | 替换为真实局限性（天花板原因） |
+**按 manifest 选组件（数量由数据决定，不是固定值）**:
+| 区块 | 渲染条件 | manifest 驱动字段 |
+|------|---------|-----------------|
+| Hero | 恒有 | `conclusion` + `scope`（8 元素；`.hero-meta` 字段数随 scope 真实可用项）|
+| 3D 模块 | `process_flow.recoverable=true` | `process_flow`（工段 / 设备数 / 异常落位随真实数据）|
+| 统计表格 | 有去趋势统计 | `hypotheses[].stats` |
+| 图表 | `charts[]` 每项一张 | `charts[]`（数量随真实信号，非固定 5）|
+| 证据层 Ⅰ/Ⅱ/Ⅲ | 各层 `available=true` | `evidence_layers.*`（缺层 → `.evidence-missing` 诚实标记）|
+| 证据文章 | `hypotheses[]` 每个一篇 | `hypotheses[]`（数量随真实假说，非固定 3）|
+| 行动建议 | `actions[]` 每条一行 | `actions[]` |
 
-**模板继承检查清单（写页面之前逐项确认）**:
-- [ ] `<style>` 块完整保留，未添加新颜色变量或修改现有 token 值
-- [ ] Loader 状态栏未删除
-- [ ] 四段式叙事结构（Hero → 01背景 → 02诊断 → 03证据链 → Footer）未打乱顺序
-- [ ] 所有替换的数据来自真实 run_dir JSON 文件
-- [ ] `img src` 路径使用相对路径（从 output HTML 指向 run_dir `03_figures/`）
-- [ ] 每个 `img` 带 `onerror` 优雅降级
-- [ ] 证据链包含三层（统计 Ⅰ / 物理 Ⅱ / 排除 Ⅲ）且每层有真实图像或数据
-- [ ] `@media` 断点未被删除或修改
+**结论类型分支**:
+- `DETERMINED` → Hero 断言单一根因
+- `COMPETING_SET` → Hero 显式呈现不确定性 + 置信度天花板
+- `NEEDS_DATA` → Hero 说明结论尚未收敛 + 缺什么数据
 
-**模板不可用时的 Fallback**: 执行 Fallback 1 分支（见 §Fallback Rules），回退到 `templates/page_blueprint.md` + `templates/render_prompt_template.md` 从零构建。
+**数据驱动组装检查清单（写页面前逐项确认）**:
+- [ ] 页面段数 / 卡片数 / 图表数 / 证据层数与 `render_manifest.json` 一致
+- [ ] 没有硬编码设备数（如"18 辊"）、假说数、图表数
+- [ ] 所有数值 / 文案 / 路径来自 manifest（源头 run_dir 真实 JSON）
+- [ ] 缺失证据层有 `.evidence-missing` 诚实标记，不假装存在
+- [ ] `<style>` / Loader / importmap / 加载逻辑 / @media 原样复用，无臆造 token
+- [ ] `img src` 相对路径 + `onerror` 降级
+- [ ] 每张图配 `.chart-reading` 三行解读（看到什么 / 说明什么 / 为什么重要）
+
+**设计系统参考不可用时的 Fallback**: 执行 Fallback 1 分支（见 §Fallback Rules），回退到 `templates/page_blueprint.md` + `templates/render_prompt_template.md` 从零构建（仍按 manifest 选组件）。
 
 ### Step 5: Validate the page
 
@@ -414,11 +416,11 @@ Skill({
 
 以下覆盖 8 个常见失败场景的完整 fallback 链。每条规则格式：**触发条件 → 一线修复 → 仍失败兜底**。Builder agent 必须在遇到对应场景时执行对应分支，不得静默继续。
 
-### Fallback 1: `references/report-template.html` 文件不存在
+### Fallback 1: `references/report-template.html`（设计系统参考）不可用
 
-**触发条件**: builder agent 在 Step 2 无法读取模板文件
-**一线修复**: 回退到 `templates/page_blueprint.md` 的四段叙事结构 + `templates/render_prompt_template.md` 的构建规范，从零手写 HTML（内联模板中关键 CSS 变量和排版规则）
-**仍失败兜底**: 终止生成，向调用者报告「标准模板和回退蓝图均不可用，无法生成高质量报告。请检查 skill 安装是否完整。」
+**触发条件**: builder agent 在 Step 2 无法读取设计系统参考文件
+**一线修复**: 回退到 `templates/page_blueprint.md` 的四段叙事结构 + `templates/render_prompt_template.md` 的构建规范，**仍按 `render_manifest.json` 选组件**，从零手写 HTML（内联关键 CSS 变量和排版规则）
+**仍失败兜底**: 终止生成，向调用者报告「设计系统参考和回退蓝图均不可用，无法生成高质量报告。请检查 skill 安装是否完整。」
 
 ### Fallback 2: `run_dir` 路径无效或不存在
 
@@ -639,6 +641,8 @@ Skill({
 | 11 | **捏造数据** | 造假 | 仅用run_dir真实JSON |
 | 12 | **不跑reviewer** | 逻辑断层 | 3次修订循环上限 |
 | 13 | **暗色工业风** | 与v2模板不兼容 | 白底极简；除非用户明确指定暗色 |
+| 14 | **未产出 render_manifest / 页面结构与 manifest 不符** | 结构无法审计 | manifest 先产出且与页面段数/卡片数/图表数/证据层逐项对齐 |
+| 15 | **跨 run 污染**（残留其他 run 标志性数据如粘滑/急冷/特定ρ值） | 数据造假 | 所有数值/设备/假说由本次 run 数据可解释 |
 
 ## Deliverable Closeout
 
@@ -661,4 +665,4 @@ Skill({
 
 | 文件 | 用途 |
 |------|------|
-| `report-template.html` | **HTML 结构骨架和 CSS 样式基准**。builder agent 以此为基础替换占位数据。包含四段式叙事架构、CSS 变量体系、排版节奏、移动端断点、ECharts/Three.js 多源 loader、三层证据链结构。 |
+| `report-template.html` | **设计系统参考 + loader 脚手架**（非填空模板）。提供 CSS 变量、排版层级、全部组件类、loader 状态条、ECharts/Three.js 多源加载模式、@media 断点。body 内 HTML 注释是组件组合契约，标明每个区块由 `render_manifest.json` 哪个字段驱动、数量如何随数据变化。builder 先产 manifest，再按 manifest 从此处取组件组装。 |

@@ -1,23 +1,35 @@
-# Universal Render Prompt Template v2
+# Universal Render Prompt Template v3
 
-在需要把任务转交给另一个实现 agent 时，可以把下面这段作为基础提示词，再替换占位符：
+在需要把任务转交给另一个实现 agent 时，可以把下面这段作为基础提示词（替换 `{RUN_DIR}` / `{OUTPUT_HTML}` 占位为真实路径）：
 
 ```text
 请读取诊断工作目录 `{RUN_DIR}` 下的诊断产物，并生成一个完整的 HTML 可视化讲解页面，输出到 `{OUTPUT_HTML}`。
 
 目标是让非算法背景的工业用户也能一眼读懂诊断结论、异常位置、推理路径和证据链。
 
-## 模板文件
+## 执行流程（数据驱动，三阶段）
 
-你必须以 `references/report-template.html` 为 HTML 结构骨架和 CSS 样式基准。
-读取该文件，理解其四段式叙事架构、CSS 变量体系、排版节奏和组件规范，然后按以下要求替换内容：
+1. **理解** — 扫描 `{RUN_DIR}` 下全部诊断 JSON + report.md + plot_manifest.json
+2. **建模** — 先产出 `{RUN_DIR}/render_manifest.json`（页面模型，schema 见 agents/html-builder.md）。
+   manifest 必须如实反映本次 run：结论类型、假说列表（数量随数据）、三层证据可用性、
+   图表清单（数量随数据）、工艺流程、异常落位。字段全部可溯源到真实 JSON，不编造。
+3. **渲染** — 按 manifest 选组件组装页面，套设计系统参考的视觉语法。
 
-1. **保留 CSS 变量体系和排版框架**（字体、色彩、间距、留白、移动端断点）
-2. **保留导航圆点、loader 状态条、footer 结构**
-3. **替换所有占位数据为真实诊断数据**（结论文案、统计值、假说描述）
-4. **根据真实数据调整 ECharts 图表**（数据系列、标注点、坐标范围）
-5. **根据真实产线结构调整 Three.js 3D 场景**（工段数、辊数、异常位置、温区颜色）
-6. **替换图片 src 指向真实 PNG 文件**（带 onerror 优雅降级）
+## 设计系统参考
+
+`references/report-template.html` 是**视觉语法基准**（CSS 变量 + 排版 + 组件类 + loader +
+ECharts/Three.js 多源加载模式），不是填空模板。body 内 HTML 注释标明每个区块由 manifest
+哪个字段驱动、数量如何随数据变化。读取它后：
+
+1. **原样复用** — `<style>` 全部 CSS、loader 状态条、importmap、ECharts/Three.js 加载逻辑、@media 断点
+2. **按 manifest 选组件**（数量由数据决定，不固定）:
+   - Hero 恒有（conclusion + scope 填 8 元素，meta 字段数随 scope 真实可用项）
+   - 3D 仅当 `process_flow.recoverable=true`（工段/设备数/异常落位随真实数据）
+   - 图表数 = `charts[]` 数（非固定 5）
+   - 证据文章数 = `hypotheses[]` 数（非固定 3）
+   - 证据层按 `evidence_layers.*.available` 渲染，缺层放 `.evidence-missing`
+3. **绑定真实数据** — 所有数值/文案/路径来自 manifest（源头 run_dir 真实 JSON）
+4. **图片 src 用相对路径 + onerror 降级**
 
 ## 必须包含四大部分
 
