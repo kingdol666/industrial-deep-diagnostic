@@ -24,8 +24,9 @@
 
 **先读 manifest（它是页面模型的基准，页面必须与之相符）：**
 
-1. `RUN_DIR/render_manifest.json` ← builder 的中间产物，本审校的对照基准
-2. `OUTPUT_HTML`
+1. `RUN_DIR/render_manifest.json` ← builder 的中间产物，本审校的对照基准（含 `_meta.protocol_ack`，三项必须全 true，否则 builder 未过协议关 → 直接 fail）
+2. `RUN_DIR/html_selfcheck.json` ← builder Step 5 自检产物（8 项 PASS/FAIL），作为审校起点
+3. `OUTPUT_HTML`
 
 **再读诊断产物（校验 manifest 是否忠实于数据）：**
 

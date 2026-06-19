@@ -126,7 +126,8 @@ Builder agent 的工作是:
 默认输出：
 
 - `<run_dir>/diagnostic-report.html`
-- `<run_dir>/render_manifest.json`（数据驱动的页面模型，builder 强制中间产物，reviewer 审校基准）
+- `<run_dir>/render_manifest.json`（数据驱动的页面模型，含 `_meta.protocol_ack` 协议确认，builder 强制中间产物，reviewer 审校基准）
+- `<run_dir>/html_selfcheck.json`（Step 5 自检 8 项 PASS/FAIL + evidence，reviewer 强制审计输入）
 
 页面必须满足：
 
@@ -178,7 +179,7 @@ Skill({
 
 先读 `agents/html-builder.md`，把它当作执行协议。
 
-🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，在内部确认三件事：(a) 我理解了四段式叙事架构；(b) 我理解了数据驱动渲染协议 + render_manifest 建模流程；(c) 我理解了 8 条 fallback 的分支逻辑。确认后再进入 Step 2。
+🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，确认三件事：(a) 理解四段式叙事架构；(b) 理解数据驱动渲染协议 + render_manifest 建模流程；(c) 理解 8 条 fallback 的分支逻辑。**确认结果在 Step 3 产出的 `render_manifest.json` 的 `_meta.protocol_ack` 字段记录**（三项 boolean，全 true）。reviewer 据此审计 builder 是否真的过了协议关。未确认不得进入 Step 2。
 
 ### Step 2: Load the design system reference
 
@@ -249,7 +250,7 @@ Skill({
 - 主结论、关键证据、排除逻辑、行动建议、局限性是否齐全
 - 用户是否能不依赖统计术语理解「为什么得出这个结论」
 
-🔴 **CHECKPOINT 4 · 自检验证**: 跑完上面 8 项检查，把结果写成简短 checklist（每项 PASS/FAIL）。任何 FAIL 项必须修复后再往下。修复超过 3 项 → 回到 Step 4 重新审视页面结构。
+🔴 **CHECKPOINT 4 · 自检验证**: 跑完上面 8 项检查，产出 `<run_dir>/html_selfcheck.json`（8 项每项 `{name, status: "PASS"|"FAIL", evidence}`）。任何 FAIL 项必须修复后重写 selfcheck。修复超过 3 项 → 回到 Step 4 重新审视页面结构。该 json 是 reviewer 的强制审计输入。
 
 如果环境允许预览页面，必须实际打开页面验证加载状态；不要只靠静态阅读 HTML 源码判断成功。
 

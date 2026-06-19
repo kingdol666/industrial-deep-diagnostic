@@ -55,6 +55,9 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
 {
   "run_id": "<timestamp>_<scene>",
   "generated_from": ["report.md", "diagnosis.json", "..."],
+  "_meta": {
+    "protocol_ack": {"narrative_arch": true, "data_driven_protocol": true, "fallbacks": true}
+  },
   "conclusion": {
     "type": "DETERMINED | COMPETING_SET | NEEDS_DATA",
     "primary_finding": "一句话主结论（含关键词，供 Hero display 加 em）",
@@ -125,6 +128,7 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
 ```
 
 **manifest 建模铁律：**
+- `_meta.protocol_ack` 三项必须 true（证明 builder 在 Step 1 已过协议关；任一 false → 等同未读协议，reviewer 判 fail）
 - `hypotheses[]` 数量 = 本次 run 真实假说数（可能 2 个，可能 6 个），不是固定 4 个
 - `charts[]` 数量 = 真实可呈现信号数（可能 1 张，可能 6 张），不是固定 5 张
 - `evidence_layers.*.available` 如实反映：某层证据缺失就标 `false`，页面渲染对应 `.evidence-missing` 标记
@@ -276,4 +280,6 @@ ECharts/Three.js 必须多源加载（主 CDN + 备用 CDN）+ 加载成功检�
 - [ ] 所有数值/路径来自 run_dir 真实产物
 - [ ] 10 秒/1 分钟/2 分钟三层理解门槛满足
 - [ ] 行动建议 + 局限性齐全
+- [ ] `render_manifest.json` 含 `_meta.protocol_ack` 三项 true
 - [ ] 输出到 `<run_dir>/diagnostic-report.html`
+- [ ] 输出 `<run_dir>/html_selfcheck.json`（8 项 PASS/FAIL + evidence，Step 5 CHECKPOINT 4 产物）
