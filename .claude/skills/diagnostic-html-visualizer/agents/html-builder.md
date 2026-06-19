@@ -82,7 +82,7 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
       "confidence": 45,
       "stats": {"metric": "...", "spearman_rho": 0.554, "p_value": 0.014, "decay_rate": "15.2%", "raw_correlation": "+0.58"},
       "exclusion_reason": "为什么被排除/削弱（surviving 则 null）",
-      "physics_chain": ["因果步骤1", "步骤2", "..."]
+      "physics_chain": ["因果步骤字符串 或 {title, detail, equation} 对象（匹配 diagnosis.json 原始结构）"]
     }
   ],
   "evidence_layers": {
