@@ -581,11 +581,7 @@ touch "$RUN_DIR/00_input/html_opt_out"
 
 **最终交付要求**：本 skill 的正常完成结果必须同时包含 `report.md` 和 `diagnostic-report.html`。其中 HTML 只能由独立的 `html-visualizer` 子 Agent 生成，且该子 Agent 必须复用 `diagnostic-html-visualizer` skill，不允许主 agent 在主上下文中直接编写 HTML。
 
-### HTML Review Gate
-
-页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过，页面才算最终交付。
-
-如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+`html-visualizer` 完成后，立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过（`verdict: "pass"`），页面才算最终交付。如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
 
 Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
 
