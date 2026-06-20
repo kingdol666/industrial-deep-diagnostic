@@ -7,6 +7,7 @@
 
 import { execFileSync } from 'child_process';
 import { join } from 'path';
+import fs from 'fs';
 
 const args = process.argv.slice(2);
 const runDir = args[0];
@@ -101,6 +102,50 @@ try {
   process.exit(1);
 }
 
+/**
+ * Validate HTML delivery: check diagnostic-report.html exists, >= 5KB,
+ * and 05_review/html_review.json exists with verdict "pass".
+ * If user explicitly opted out of HTML (HTML_OPT_OUT marker file exists),
+ * skip validation and return empty issues.
+ */
+function validateHTMLDelivery() {
+  const htmlPath = join(runDir, 'diagnostic-report.html');
+  const reviewPath = join(runDir, '05_review', 'html_review.json');
+  const optOutPath = join(runDir, '00_input', 'html_opt_out');
+
+  // User explicitly opted out of HTML generation → skip validation
+  if (fs.existsSync(optOutPath)) {
+    return [];
+  }
+
+  const issues = [];
+
+  if (!fs.existsSync(htmlPath)) {
+    issues.push('diagnostic-report.html missing');
+  } else {
+    const stat = fs.statSync(htmlPath);
+    const sizeBytes = stat.size;
+    if (sizeBytes < 5120) {
+      issues.push(`diagnostic-report.html too small: ${sizeBytes} bytes (min 5120)`);
+    }
+  }
+
+  if (!fs.existsSync(reviewPath)) {
+    issues.push('05_review/html_review.json missing');
+  } else {
+    try {
+      const review = JSON.parse(fs.readFileSync(reviewPath, 'utf-8'));
+      if (review.verdict !== 'pass') {
+        issues.push(`html_review verdict is "${review.verdict}", expected "pass"`);
+      }
+    } catch (e) {
+      issues.push(`05_review/html_review.json failed to parse: ${e.message}`);
+    }
+  }
+
+  return issues;
+}
+
 try {
   results.evidence_closure = JSON.parse(
     execFileSync('node', [join(skillPath, 'scripts', 'evidence-closure-check.mjs'), runDir, '--write'], {
@@ -114,6 +159,21 @@ try {
   } catch (_) {
     results.evidence_closure = { ok: false, error: String(error.stderr || error.stdout || error.message) };
   }
+}
+
+// Validate HTML delivery after evidence closure check
+const htmlIssues = validateHTMLDelivery();
+if (htmlIssues.length > 0) {
+  logEvent('run_failed', [
+    '--step',
+    'present',
+    '--status',
+    'HTML_DELIVERY_FAILED',
+    '--errors',
+    htmlIssues.join('; ')
+  ]);
+  console.error(JSON.stringify({ ok: false, error: 'HTML_DELIVERY_FAILED', html_issues: htmlIssues, run_dir: runDir, results }, null, 2));
+  process.exit(1);
 }
 
 logEvent('artifact_finalize_complete', [

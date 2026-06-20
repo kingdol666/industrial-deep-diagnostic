@@ -306,10 +306,10 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 | 🛑 Checkpoint | 位置 | 验证命令 | 不满足时 |
 |:------------|------|---------|---------|
 | **CP-1: Data Readiness** | Step 1→2 | `test -f "$RUN_DIR/00_input/input_manifest.json" && test -f "$RUN_DIR/00_input/user_context.json" && test -f "$RUN_DIR/00_input/run_config.json"` | 回 Step 0 补全 |
-| **CP-2: Ontology Gate** | Step 2→2.5 | `node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/01_ontology/ontology.json" "$SKILL_PATH/schemas/ontology_schema.json" && test "$(wc -c < "$RUN_DIR/01_ontology/ontology.json")" -ge 1024` | 重新启动 context-builder Agent |
+| **CP-2: Ontology Gate** | Step 2→2.5 | `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json" && test "$(wc -c < "$RUN_DIR/01_ontology/ontology.json")" -ge 1024` | 重新启动 context-builder Agent |
 | **CP-3: Clarification Gate** | Step 2.5→3 | `grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' "$RUN_DIR/01_ontology/clarification_needed.json"` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
 | **CP-4: Data Processor Handoff** | Step 3→4 | `test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && node -e "JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); var p=JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); process.exit(p.plots&&p.plots.length>0?0:1)"` | 重新启动 data-processor Agent |
-| **CP-5: Diagnostician Quality** | Step 4→5 | `for f in diagnosis evidence confidence reasoning_chain; do node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/04_diagnostics/${f}.json" "$SKILL_PATH/schemas/${f}_schema.json" || exit 1; done && node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"` | 修复诊断产物 |
+| **CP-5: Diagnostician Quality** | Step 4→5 | `for f in diagnosis evidence confidence reasoning_chain; do node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/${f}_schema.json" "$RUN_DIR/04_diagnostics/${f}.json" || exit 1; done && node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"` | 修复诊断产物 |
 | **CP-6: Dual Gate** | Step 5→6 | `node -e "var j=require('$RUN_DIR/05_review/judge_feedback.json'); process.exit(j.verdict==='pass'&&j.overall_score>=90?0:1)" && grep -qv 'FATAL' "$RUN_DIR/05_review/optimizer_preflight.md"` | 启动修复循环 |
 | **CP-7: Report Gate** | Step 6→7 | `test -f "$RUN_DIR/report.md" && test -f "$RUN_DIR/run_summary.json"` | 重新启动 reporter Agent |
 | **CP-8: Audit Gate** | Step 7→8 | `test -f "$RUN_DIR/optimizer.md" && grep -qE 'ENDORSED|CONDITIONAL' "$RUN_DIR/optimizer.md"` | CONDITIONAL→评估是否可继续; REJECTED→修复循环 |
@@ -352,6 +352,13 @@ Agent execution 失败不是异常——是管线运行中的常态。每次启�
 | 图片生成失败 (PNG 缺失) | plot_manifest.json 中 plots 数组为空或不存在 | 运行 `generate_captions.mjs` 生成 `image_captions.json` 作为回退。诊断可继续，但 VLM 视觉证据降为 L3+ |
 | HTML 可视化失败 | `diagnostic-report.html` 不存在或 html-reviewer 未通过 | 运行 `diagnostic-html-visualizer` skill 重新生成。连续 2 次失败→降级到主 agent 生成简化版报告页面 |
 | uv venv 中 Python 模块导入失败 (`ModuleNotFoundError`) | data-processor 报告 Python 脚本执行错误 | 运行 `node "$SKILL_PATH/scripts/uv_env_setup.mjs"` 重建 venv。仍失败→检查 `pyproject.toml` 依赖声明是否完整，缺失依赖追加后重装 |
+
+**深层兜底协议**：上表中任一"恢复动作"执行后若**仍失败**，必须执行以下收口流程，不得静默继续或无限重试：
+1. 记录 `[RECOVERY_FAILED]` 事件到 `.pipeline_events.jsonl`
+2. 将当前可用产物（即使是部分产物）写入对应目录，标注 `_partial` 后缀
+3. 向用户显式报告：哪个 Agent、哪个场景、一线修复是什么、为什么失败、已有哪些产出、缺失哪些产出
+4. 用户可以决定「跳过该步骤继续」或「终止运行」
+5. 若用户选择跳过，后续步骤在该产物缺失的情况下运行，相关 Agent 按各自 fallback 规则处理缺失输入
 
 ### Anti-Oscillation Rule
 
@@ -473,7 +480,7 @@ Read "$SKILL_PATH/agents/context-builder.md" and execute the complete protocol. 
 
 **Completion Verification Checklist (🛑 CP-2)**:
 - [ ] `01_ontology/ontology.json` ≥ 1KB
-- [ ] `01_ontology/ontology.json` passes schema validation: `node "$SKILL_PATH/scripts/validate.mjs" "$RUN_DIR/01_ontology/ontology.json" "$SKILL_PATH/schemas/ontology_schema.json"`
+- [ ] `01_ontology/ontology.json` passes schema validation: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
 - [ ] `00_input/rag_deep_understanding.json` exists
 - [ ] `00_input/extracted_knowledge.json` exists
 - [ ] If any missing → re-launch context-builder Agent (not main agent manual build)
@@ -573,13 +580,15 @@ If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critic
 
 如果用户没有明确要求跳过 HTML，可视化构建是 Step 8 的默认组成部分，而且必须由专用子 Agent 完成。
 
+**HTML Opt-Out**: 如果用户明确说"不要 HTML 页面"、"只要 report.md"、"跳过可视化"等，主 agent 必须在 Step 8 开始前执行:
+```bash
+touch "$RUN_DIR/00_input/html_opt_out"
+```
+该标记文件会告诉 `finalize-run-artifacts.mjs` 跳过 HTML 交付验证，防止 opt-out 场景下被阻断。
+
 **最终交付要求**：本 skill 的正常完成结果必须同时包含 `report.md` 和 `diagnostic-report.html`。其中 HTML 只能由独立的 `html-visualizer` 子 Agent 生成，且该子 Agent 必须复用 `diagnostic-html-visualizer` skill，不允许主 agent 在主上下文中直接编写 HTML。
 
-### HTML Review Gate
-
-页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过，页面才算最终交付。
-
-如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+`html-visualizer` 完成后，立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过（`verdict: "pass"`），页面才算最终交付。如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
 
 Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
 
@@ -597,12 +606,14 @@ Data Processor  ──► 02_processed/ (universal + scenario-specific analysis)
                 ──► 02_processed/data_analysis_conclusion.json (mandatory handoff)
                 ──► 03_figures/*.png + plot_manifest.json + image_captions.json
                 ──► 03_figures/visual_analysis.json (VLM evidence)
-                ──► analysis_plan.md
+                ──► 02_processed/analysis_plan.md
 Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
 Judge           ──► 05_review/judge_feedback.json
+Pre-Audit       ──► 05_review/optimizer_preflight.md
 Reporter        ──► report.md, run_summary.json
 Report Reviewer ──► optimizer.md
 HTML Visualizer ──► diagnostic-report.html
+HTML Reviewer   ──► 05_review/html_review.json
 ```
 
 ---
@@ -617,6 +628,7 @@ HTML Visualizer ──► diagnostic-report.html
 | Step 3 | `scenario_classification.json`, `anomaly_report.json`, `data_analysis_conclusion.json` | `scenario_classification_schema.json`, `anomaly_report_schema.json`, `data_analysis_conclusion_schema.json` |
 | Step 3.5 | `visual_analysis.json`, `image_captions.json` | `visual_analysis_schema.json`, `image_captions_schema.json` |
 | Step 4 | `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json` | `diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json` |
+| Step 8.5 | `html_review.json` | `html_review_schema.json` |
 | Step 5 | `judge_feedback.json` | `judge_feedback_schema.json` |
 | Step 6 | `run_summary.json` | `run_summary_schema.json` |
 
