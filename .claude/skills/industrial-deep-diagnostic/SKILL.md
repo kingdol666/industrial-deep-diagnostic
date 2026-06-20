@@ -353,6 +353,13 @@ Agent execution 失败不是异常——是管线运行中的常态。每次启�
 | HTML 可视化失败 | `diagnostic-report.html` 不存在或 html-reviewer 未通过 | 运行 `diagnostic-html-visualizer` skill 重新生成。连续 2 次失败→降级到主 agent 生成简化版报告页面 |
 | uv venv 中 Python 模块导入失败 (`ModuleNotFoundError`) | data-processor 报告 Python 脚本执行错误 | 运行 `node "$SKILL_PATH/scripts/uv_env_setup.mjs"` 重建 venv。仍失败→检查 `pyproject.toml` 依赖声明是否完整，缺失依赖追加后重装 |
 
+**深层兜底协议**：上表中任一"恢复动作"执行后若**仍失败**，必须执行以下收口流程，不得静默继续或无限重试：
+1. 记录 `[RECOVERY_FAILED]` 事件到 `.pipeline_events.jsonl`
+2. 将当前可用产物（即使是部分产物）写入对应目录，标注 `_partial` 后缀
+3. 向用户显式报告：哪个 Agent、哪个场景、一线修复是什么、为什么失败、已有哪些产出、缺失哪些产出
+4. 用户可以决定「跳过该步骤继续」或「终止运行」
+5. 若用户选择跳过，后续步骤在该产物缺失的情况下运行，相关 Agent 按各自 fallback 规则处理缺失输入
+
 ### Anti-Oscillation Rule
 
 Before re-spawning the diagnostician, compute the repair delta:
