@@ -524,6 +524,74 @@ function validateDataProcessorExpertContract() {
   };
 }
 
+function validateHTMLDeliveryContract() {
+  const htmlPath = join(runDir, 'diagnostic-report.html');
+  const reviewPath = join(runDir, '05_review', 'html_review.json');
+  const optOutPath = join(runDir, '00_input', 'html_opt_out');
+
+  // User explicitly opted out of HTML generation → skip validation gracefully
+  if (fs.existsSync(optOutPath)) {
+    return {
+      label: 'HTML Delivery Contract',
+      path: 'diagnostic-report.html + 05_review/html_review.json (opt-out)',
+      status: 'SKIPPED (user opted out of HTML visualization)',
+      critical: false
+    };
+  }
+
+  const issues = [];
+
+  // 1. Validate diagnostic-report.html exists and >= 5KB
+  if (!fs.existsSync(htmlPath)) {
+    issues.push('diagnostic-report.html missing');
+  } else {
+    const stat = fs.statSync(htmlPath);
+    const sizeBytes = stat.size;
+    if (sizeBytes < 5120) {
+      issues.push(`diagnostic-report.html too small: ${sizeBytes} bytes (min 5120)`);
+    }
+    // Check for essential structural markers
+    try {
+      const snippet = fs.readFileSync(htmlPath, 'utf-8').slice(0, 8192);
+      if (!snippet.includes('<html')) issues.push('diagnostic-report.html missing <html> tag');
+      if (!snippet.includes('echarts')) issues.push('diagnostic-report.html missing ECharts reference');
+    } catch (e) {
+      issues.push(`diagnostic-report.html unreadable: ${e.message}`);
+    }
+  }
+
+  // 2. Validate 05_review/html_review.json exists, has verdict "pass", and schema validates
+  if (!fs.existsSync(reviewPath)) {
+    issues.push('05_review/html_review.json missing');
+  } else {
+    try {
+      const review = JSON.parse(fs.readFileSync(reviewPath, 'utf-8'));
+      if (review.verdict !== 'pass') {
+        issues.push(`html_review verdict is "${review.verdict}", expected "pass"`);
+      }
+      if (typeof review.overall_score !== 'number' || review.overall_score < 0 || review.overall_score > 100) {
+        issues.push(`html_review overall_score invalid: ${review.overall_score}`);
+      }
+      if (!Array.isArray(review.checks) || review.checks.length < 5) {
+        issues.push(`html_review checks insufficient: ${Array.isArray(review.checks) ? review.checks.length : 0} items (min 5)`);
+      }
+      // Verify no blocking issues remain
+      if (Array.isArray(review.blocking_issues) && review.blocking_issues.length > 0) {
+        issues.push(`html_review has unresolved blocking issues: ${review.blocking_issues.slice(0, 3).join('; ')}`);
+      }
+    } catch (e) {
+      issues.push(`05_review/html_review.json failed to parse: ${e.message}`);
+    }
+  }
+
+  return {
+    label: 'HTML Delivery Contract',
+    path: 'diagnostic-report.html + 05_review/html_review.json',
+    status: issues.length === 0 ? 'VALID' : `INVALID: ${issues.join('; ').slice(0, 300)}`,
+    critical: true
+  };
+}
+
 // Define required artifacts per pipeline stage
 const checks = [
   check('Run Manifest', 'run_manifest.json'),
@@ -535,6 +603,9 @@ const checks = [
   // Stage 2: Context
   check('Ontology', '01_ontology/ontology.json'),
   check('Schema', '01_ontology/schema.json'),
+  check('Extracted Knowledge', '00_input/extracted_knowledge.json', false),
+  check('Clarification Needed', '01_ontology/clarification_needed.json', false),
+  check('RAG Deep Understanding', '00_input/rag_deep_understanding.json', false),
 
   // Stage 3: Data Processing
   check('Data JSON', '02_processed/data.json', false),
@@ -565,6 +636,7 @@ const checks = [
 
   // Stage 5: Judge
   check('Judge Feedback', '05_review/judge_feedback.json'),
+  check('Pre-Audit Report', '05_review/optimizer_preflight.md', false),
 
   // Stage 6: Report
   check('Report', 'report.md', false),
@@ -573,6 +645,10 @@ const checks = [
   // Stage 7: Optimizer
   check('Optimizer', 'optimizer.md', false),
   check('Evidence Closure Report', 'evidence_closure_report.json', false),
+
+  // Stage 8: HTML Visualization Delivery
+  check('Diagnostic HTML Report', 'diagnostic-report.html'),
+  check('HTML Review', '05_review/html_review.json'),
 ];
 
 const schemaChecks = [
@@ -595,6 +671,7 @@ const schemaChecks = [
   validateReportContentContract(),
   validate('Run Summary', 'schemas/run_summary_schema.json', 'run_summary.json'),
   validateOptimizerMarkdown(),
+  validateHTMLDeliveryContract(),
   validateDeliveryContract(),
   validatePipelineLog('Pipeline Event Log'),
   validateEvidenceClosure('Evidence Closure'),
