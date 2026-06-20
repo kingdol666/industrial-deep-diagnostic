@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Deep Diagnostic · 完整流程解析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #fafaf8;
+  --bg-alt: #f4f3f0;
+  --bg-card: #ffffff;
+  --hairline: rgba(0,0,0,0.06);
+  --rule: rgba(0,0,0,0.10);
+  --t1: #111;
+  --t2: #4a4a4a;
+  --t3: #888;
+  --ink: #1e3a54;
+  --ink-soft: #34506e;
+  --warm: #c2673a;
+  --green: #2d7d4f;
+  --red: #c4433b;
+  --gold: #8a6d3b;
+  --serif: 'Source Serif 4', 'Songti SC', Georgia, serif;
+  --sans: 'Inter', -apple-system, 'PingFang SC', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ===== HERO ===== */
+.hero {
+  padding: 80px 0 56px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0;
+}
+.hero-bar {
+  width: 48px;
+  height: 3px;
+  background: var(--ink);
+  margin-bottom: 28px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--t3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.display {
+  font-family: var(--serif);
+  font-size: 3.1rem;
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin-bottom: 24px;
+  color: var(--t1);
+}
+.display em {
+  font-style: italic;
+  color: var(--warm);
+  font-weight: 600;
+}
+.hero-lede {
+  font-size: 1.12rem;
+  color: var(--t2);
+  max-width: 720px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin-bottom: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+}
+.hero-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hero-meta-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hero-meta-value {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ===== SECTION ===== */
+.section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.section:last-child { border-bottom: none; }
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--t3);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 1.95rem;
+  font-weight: 600;
+  color: var(--t1);
+  margin-bottom: 14px;
+  letter-spacing: -0.015em;
+}
+.section-lede {
+  font-size: 1.05rem;
+  color: var(--t2);
+  max-width: 760px;
+  margin-bottom: 36px;
+}
+
+/* ===== 三大支柱 ===== */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.pillar {
+  background: var(--bg-card);
+  padding: 32px 28px;
+}
+.pillar-icon {
+  font-family: var(--serif);
+  font-size: 2rem;
+  color: var(--ink);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.pillar-title {
+  font-family: var(--serif);
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--t1);
+}
+.pillar-body {
+  font-size: 0.92rem;
+  color: var(--t2);
+  line-height: 1.6;
+}
+
+/* ===== 流程图 ===== */
+.flowchart-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 32px 24px;
+  overflow-x: auto;
+}
+.flowchart {
+  min-width: 980px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+/* step row */
+.step-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  justify-content: center;
+  position: relative;
+}
+.step-node {
+  width: 220px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--ink);
+  padding: 14px 16px;
+  position: relative;
+  z-index: 2;
+}
+.step-node.main-agent {
+  border-style: dashed;
+  border-color: var(--ink-soft);
+  background: var(--bg-alt);
+}
+.step-node.sub-agent {
+  border-color: var(--ink);
+}
+.step-node.gate {
+  border-color: var(--warm);
+  background: #fdf6f0;
+}
+.step-node.parallel {
+  border-color: var(--green);
+  background: #f0f7f2;
+}
+.step-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--t3);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.step-name {
+  font-family: var(--serif);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--t1);
+  margin-bottom: 4px;
+}
+.step-agent {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+}
+.step-agent .persona {
+  color: var(--t2);
+  font-family: var(--sans);
+}
+
+/* connector */
+.conn {
+  width: 2px;
+  height: 28px;
+  background: var(--ink);
+  margin: 0 auto;
+}
+.conn-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--t3);
+  background: var(--bg-card);
+  padding: 0 8px;
+  position: relative;
+  top: 10px;
+  z-index: 3;
+}
+
+/* parallel branch */
+.parallel-branch {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  width: 100%;
+  padding: 0 60px;
+}
+.parallel-branch .step-node { width: 200px; }
+
+/* checkpoint badge */
+.cp-badge {
+  position: absolute;
+  right: -8px;
+  top: -10px;
+  background: var(--warm);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 3px 7px;
+  letter-spacing: 0.05em;
+  z-index: 4;
+}
+
+/* repair loop arrow */
+.repair-loop {
+  position: absolute;
+  right: 80px;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  pointer-events: none;
+}
+
+/* legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--t2);
+}
+.legend-swatch {
+  width: 18px;
+  height: 14px;
+  border: 1.5px solid;
+}
+
+/* ===== 架构图 ===== */
+.arch-diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 36px 28px;
+}
+.arch-layer {
+  margin-bottom: 28px;
+}
+.arch-layer:last-child { margin-bottom: 0; }
+.arch-layer-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+.arch-agents {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.arch-agent {
+  background: var(--bg-alt);
+  border-left: 3px solid var(--ink);
+  padding: 14px 14px;
+}
+.arch-agent-name {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--t1);
+  margin-bottom: 2px;
+}
+.arch-agent-persona {
+  font-size: 11px;
+  color: var(--t2);
+  margin-bottom: 8px;
+}
+.arch-agent-output {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.arch-flow {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  padding: 10px 0;
+  letter-spacing: 0.1em;
+}
+.arch-store {
+  background: var(--bg-alt);
+  border: 1px solid var(--rule);
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t2);
+  line-height: 1.9;
+}
+.arch-store-dir {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ===== step detail cards ===== */
+.step-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  overflow: hidden;
+}
+.step-card-rail {
+  background: var(--ink);
+  color: #fff;
+  padding: 22px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.step-card-rail.warm { background: var(--warm); }
+.step-card-rail.green { background: var(--green); }
+.step-card-rail.gold { background: var(--gold); }
+.step-card-num {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.step-card-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+.step-card-body {
+  padding: 24px 28px;
+}
+.step-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.step-card-title {
+  font-family: var(--serif);
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: var(--t1);
+}
+.step-card-persona {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  background: var(--bg-alt);
+  padding: 4px 10px;
+}
+.step-card-desc {
+  font-size: 0.94rem;
+  color: var(--t2);
+  margin-bottom: 16px;
+  line-height: 1.65;
+}
+.step-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.step-card-block-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--t3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.step-card-block-content {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t1);
+  line-height: 1.7;
+}
+.step-card-cp {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--warm);
+  background: #fdf6f0;
+  padding: 3px 8px;
+  border: 1px solid #f0d9c5;
+  margin-top: 4px;
+}
+
+/* ===== quality gates ===== */
+.gates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.gate {
+  background: var(--bg-card);
+  padding: 22px 24px;
+}
+.gate-name {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: var(--t1);
+  margin-bottom: 8px;
+}
+.gate-req {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  background: var(--bg-alt);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.gate-enforcer {
+  font-size: 12px;
+  color: var(--t3);
+}
+
+/* ===== repair loop detail ===== */
+.repair-detail {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 32px;
+}
+.repair-flow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.repair-box {
+  background: var(--bg-alt);
+  border: 1.5px solid var(--ink);
+  padding: 12px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+}
+.repair-box.warm { border-color: var(--warm); background: #fdf6f0; color: var(--warm); }
+.repair-arrow {
+  font-family: var(--mono);
+  color: var(--t3);
+  font-size: 14px;
+}
+.repair-caps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+}
+.repair-cap-num {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.repair-cap-label {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.5;
+}
+
+/* ===== callout ===== */
+.callout {
+  background: #fdf6f0;
+  border-left: 3px solid var(--warm);
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.callout-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--warm);
+  margin-bottom: 6px;
+}
+.callout-body {
+  font-size: 0.92rem;
+  color: var(--t2);
+}
+
+/* footer */
+.footer {
+  padding: 48px 0 64px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  letter-spacing: 0.1em;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .page { padding: 0 24px; }
+  .display { font-size: 2.2rem; }
+  .pillars, .arch-agents, .gates-grid { grid-template-columns: 1fr; }
+  .step-card { grid-template-columns: 60px 1fr; }
+  .step-card-grid { grid-template-columns: 1fr; }
+  .repair-caps { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bar"></div>
+  <div class="eyebrow">Skill Architecture Review · 2026.06.20</div>
+  <h1 class="display">Industrial Deep Diagnostic<br><em>端到端工业深度诊断管线</em></h1>
+  <p class="hero-lede">
+    一个面向任意工业流程的多智能体根因诊断引擎。从传感器/工艺数据输入，经过 10 步管线
+    （本体构建 → 统计验证 → 竞争假说 → 物理验证 → 质量审查 → HTML 可视化），
+    产出可信、可审计、可追溯的中文诊断报告与交互式可视化页面。
+  </p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Pipeline Steps</span>
+      <span class="hero-meta-value">10</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Sub-Agents</span>
+      <span class="hero-meta-value">9</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Checkpoints</span>
+      <span class="hero-meta-value">9</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Quality Gates</span>
+      <span class="hero-meta-value">6</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">JSON Schemas</span>
+      <span class="hero-meta-value">16</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 三大支柱 ===== -->
+<section class="section">
+  <div class="section-num">01 · CORE PHILOSOPHY</div>
+  <h2 class="section-title">诊断是排除，不是确认</h2>
+  <p class="section-lede">
+    每个结论都必须满足四条件：<strong>时间先后 + 统计显著 + 物理机制 + 无矛盾</strong>。
+    缺任一项 → 标注 <code style="font-family:var(--mono);color:var(--warm);">[HYPOTHESIS]</code>。
+    数据无法区分竞争假说时 → 输出 <code style="font-family:var(--mono);color:var(--warm);">COMPETING_SET</code>，不猜测。
+  </p>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">①</div>
+      <div class="pillar-title">数据自描述</div>
+      <div class="pillar-body">
+        列名、值域、统计签名揭示工艺类型——无固定 taxonomy。不会把「CNC 模板」套到非 CNC 数据上。
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">②</div>
+      <div class="pillar-title">RAG 语义理解</div>
+      <div class="pillar-body">
+        RAG 知识被语义 comprehend，不是机械 field-by-field 映射。提取物理原理、因果机制、失效模式。
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">③</div>
+      <div class="pillar-title">第一性原理物理</div>
+      <div class="pillar-body">
+        每个统计相关必须追溯到主导方程；未知参数从守恒律、量纲分析、本构关系推导。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 完整流程图 ===== -->
+<section class="section">
+  <div class="section-num">02 · EXECUTION FLOW</div>
+  <h2 class="section-title">完整执行流程图</h2>
+  <p class="section-lede">
+    从数据上传到 HTML 交付，10 步串行管线 + 2 处并行 + 2 处修复循环。🛑 标记为强制检查点（CP-1 到 CP-9）。
+  </p>
+
+  <div class="flowchart-wrap">
+    <div class="flowchart">
+
+      <!-- Step 0 -->
+      <div class="step-row">
+        <div class="step-node main-agent" style="position:relative;">
+          <div class="step-num">STEP 0</div>
+          <div class="step-name">Setup</div>
+          <div class="step-agent">main-agent<br><span class="persona">路径解析 · run_dir · venv</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 1 -->
+      <div class="step-row">
+        <div class="step-node main-agent" style="position:relative;">
+          <span class="cp-badge">CP-1</span>
+          <div class="step-num">STEP 1</div>
+          <div class="step-name">Inspect Data</div>
+          <div class="step-agent">main-agent<br><span class="persona">inspect.mjs · schema 检测</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 2 -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative;">
+          <span class="cp-badge">CP-2</span>
+          <div class="step-num">STEP 2</div>
+          <div class="step-name">Context Build</div>
+          <div class="step-agent">context-builder<br><span class="persona">王教授 · RAG + 本体</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 2.5 -->
+      <div class="step-row">
+        <div class="step-node main-agent" style="position:relative;">
+          <span class="cp-badge">CP-3</span>
+          <div class="step-num">STEP 2.5</div>
+          <div class="step-name">Clarify Gate</div>
+          <div class="step-agent">main-agent<br><span class="persona">auto / interactive / minimal</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 3 -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative;">
+          <span class="cp-badge">CP-4</span>
+          <div class="step-num">STEP 3</div>
+          <div class="step-name">Data Processing</div>
+          <div class="step-agent">data-processor<br><span class="persona">张工 · 统计 + 可视化</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 3.5 embedded -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative; border-style:dashed;">
+          <div class="step-num">STEP 3.5 · EMBEDDED</div>
+          <div class="step-name">VLM Visual Analysis</div>
+          <div class="step-agent">vlm-visual-analyzer<br><span class="persona">老孙 · 目视巡检（内部委托）</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 4 -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative;">
+          <span class="cp-badge">CP-5</span>
+          <div class="step-num">STEP 4</div>
+          <div class="step-name">Diagnostician</div>
+          <div class="step-agent">diagnostician<br><span class="persona">刘总工 · 竞争假说根因</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 5 parallel -->
+      <div style="width:100%; position:relative;">
+        <div style="text-align:center; font-family:var(--mono); font-size:10px; color:var(--green); margin-bottom:10px; letter-spacing:0.1em;">▼ 并行执行（唯一可并行步骤）</div>
+        <div class="parallel-branch">
+          <div class="step-node parallel" style="position:relative;">
+            <span class="cp-badge">CP-6</span>
+            <div class="step-num">STEP 5a</div>
+            <div class="step-name">Judge Review</div>
+            <div class="step-agent">judge<br><span class="persona">陈主任 · 10项质量门</span></div>
+          </div>
+          <div class="step-node parallel">
+            <div class="step-num">STEP 5b</div>
+            <div class="step-name">Pre-Audit</div>
+            <div class="step-agent">report-reviewer<br><span class="persona">孙审计 · 物理预审</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- repair loop indicator -->
+      <div style="width:100%; text-align:center; margin:14px 0; position:relative;">
+        <span style="font-family:var(--mono); font-size:10px; color:var(--warm); background:var(--bg-card); padding:4px 12px; border:1px dashed var(--warm);">⟲ 失败 → 修复 Diagnostician（Judge max 3 / 全局 cap 5）</span>
+      </div>
+
+      <div class="conn"></div>
+
+      <!-- Step 6 -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative;">
+          <span class="cp-badge">CP-7</span>
+          <div class="step-num">STEP 6</div>
+          <div class="step-name">Reporter</div>
+          <div class="step-agent">reporter<br><span class="persona">周工 · 9节金字塔报告</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 7 -->
+      <div class="step-row">
+        <div class="step-node sub-agent" style="position:relative;">
+          <span class="cp-badge">CP-8</span>
+          <div class="step-num">STEP 7</div>
+          <div class="step-name">Physical Truth Audit</div>
+          <div class="step-agent">report-reviewer<br><span class="persona">孙审计 · ENDORSED / REJECTED</span></div>
+        </div>
+      </div>
+
+      <!-- repair loop 2 -->
+      <div style="width:100%; text-align:center; margin:14px 0;">
+        <span style="font-family:var(--mono); font-size:10px; color:var(--warm); background:var(--bg-card); padding:4px 12px; border:1px dashed var(--warm);">⟲ REJECTED → 重诊断（Reviewer cycle max 2 / 全局 cap 5）</span>
+      </div>
+
+      <div class="conn"></div>
+
+      <!-- Step 8 -->
+      <div class="step-row">
+        <div class="step-node sub-agent">
+          <div class="step-num">STEP 8</div>
+          <div class="step-name">HTML Visualizer</div>
+          <div class="step-agent">html-visualizer<br><span class="persona">林工 · ECharts + Three.js</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 8.5 -->
+      <div class="step-row">
+        <div class="step-node gate" style="position:relative;">
+          <span class="cp-badge">CP-9</span>
+          <div class="step-num">STEP 8.5</div>
+          <div class="step-name">HTML Reviewer</div>
+          <div class="step-agent">html-reviewer<br><span class="persona">赵审阅 · 页面审校门</span></div>
+        </div>
+      </div>
+      <div class="conn"></div>
+
+      <!-- Step 9 -->
+      <div class="step-row">
+        <div class="step-node main-agent">
+          <div class="step-num">STEP 9</div>
+          <div class="step-name">Finalize</div>
+          <div class="step-agent">main-agent<br><span class="persona">artifact-check · 交付</span></div>
+        </div>
+      </div>
+
+      <!-- deliverable -->
+      <div style="margin-top:24px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <div style="background:var(--ink); color:#fff; padding:12px 20px; font-family:var(--mono); font-size:12px;">📄 report.md</div>
+        <div style="background:var(--ink); color:#fff; padding:12px 20px; font-family:var(--mono); font-size:12px;">🌐 diagnostic-report.html</div>
+        <div style="background:var(--green); color:#fff; padding:12px 20px; font-family:var(--mono); font-size:12px;">✓ DELIVERED</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="border-style:dashed; border-color:var(--ink-soft); background:var(--bg-alt);"></div>主 Agent（编排）</div>
+      <div class="legend-item"><div class="legend-swatch" style="border-color:var(--ink); background:var(--bg-card);"></div>子 Agent（专用）</div>
+      <div class="legend-item"><div class="legend-swatch" style="border-color:var(--green); background:#f0f7f2;"></div>并行步骤</div>
+      <div class="legend-item"><div class="legend-swatch" style="border-color:var(--warm); background:#fdf6f0;"></div>审校门</div>
+      <div class="legend-item"><span style="color:var(--warm); font-family:var(--mono); font-size:11px;">🛑 CP-N</span> 强制检查点</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 架构图 ===== -->
+<section class="section">
+  <div class="section-num">03 · MULTI-AGENT ARCHITECTURE</div>
+  <h2 class="section-title">多智能体架构 · 文件解耦通信</h2>
+  <p class="section-lede">
+    所有 Agent <strong>只通过工作目录文件通信</strong>，从不通过主 Agent 上下文。
+    每个产出经过 JSON Schema 验证后才能流向下一步——这是「诚实诊断」的工程基础。
+  </p>
+
+  <div class="arch-diagram">
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">Layer 1 · 编排层（Main Agent · 只传参不执行子 Agent 工作）</div>
+      <div style="background:var(--bg-alt); border:1.5px dashed var(--ink-soft); padding:18px 24px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-family:var(--serif); font-size:1.1rem; font-weight:600;">main-agent</div>
+          <div style="font-size:12px; color:var(--t2); margin-top:4px;">解析路径 · 启动子 Agent · 验证检查点 · 汇总交付</div>
+        </div>
+        <div style="font-family:var(--mono); font-size:11px; color:var(--t3); text-align:right;">
+          禁止：自己写 HTML<br>禁止：读子 Agent 协议后自行执行<br>禁止：跳过数据分析直接诊断
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-flow">▼ 启动（只传 RUN_DIR / SKILL_PATH / DATA_PATH）</div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">Layer 2 · 子 Agent 层（9 个专用 Agent · 各自有协议文件）</div>
+      <div class="arch-agents">
+        <div class="arch-agent">
+          <div class="arch-agent-name">context-builder</div>
+          <div class="arch-agent-persona">王教授 · 化工/材料 25年</div>
+          <div class="arch-agent-output">→ 01_ontology/<br>&nbsp;&nbsp;&nbsp;ontology.json<br>→ rag_deep_understanding</div>
+        </div>
+        <div class="arch-agent">
+          <div class="arch-agent-name">data-processor</div>
+          <div class="arch-agent-persona">张工 · 数据科学 16年</div>
+          <div class="arch-agent-output">→ 02_processed/*<br>→ 03_figures/*.png<br>→ data_analysis_conclusion</div>
+        </div>
+        <div class="arch-agent" style="border-left-color:var(--gold);">
+          <div class="arch-agent-name">vlm-visual-analyzer</div>
+          <div class="arch-agent-persona">老孙 · 目视巡检 20年</div>
+          <div class="arch-agent-output">→ visual_analysis.json<br>→ image_captions.json<br><em style="color:var(--gold);">（data-processor 内部委托）</em></div>
+        </div>
+        <div class="arch-agent">
+          <div class="arch-agent-name">diagnostician</div>
+          <div class="arch-agent-persona">刘总工 · 根因分析 28年</div>
+          <div class="arch-agent-output">→ 04_diagnostics/<br>&nbsp;&nbsp;diagnosis / evidence /<br>&nbsp;&nbsp;confidence / reasoning_chain</div>
+        </div>
+        <div class="arch-agent">
+          <div class="arch-agent-name">judge</div>
+          <div class="arch-agent-persona">陈主任 · 质量审计 15年</div>
+          <div class="arch-agent-output">→ 05_review/<br>&nbsp;&nbsp;judge_feedback.json<br><em style="color:var(--warm);">（10项评分 + 阻断问题）</em></div>
+        </div>
+        <div class="arch-agent">
+          <div class="arch-agent-name">report-reviewer</div>
+          <div class="arch-agent-persona">孙审计 · 工业审计 32年</div>
+          <div class="arch-agent-output">→ optimizer.md<br>→ optimizer_preflight.md<br><em style="color:var(--warm);">（预审 + 终审双角色）</em></div>
+        </div>
+        <div class="arch-agent">
+          <div class="arch-agent-name">reporter</div>
+          <div class="arch-agent-persona">周工 · 技术报告 15年</div>
+          <div class="arch-agent-output">→ report.md<br>→ run_summary.json<br><em>（9节金字塔结构）</em></div>
+        </div>
+        <div class="arch-agent" style="border-left-color:var(--warm);">
+          <div class="arch-agent-name">html-visualizer</div>
+          <div class="arch-agent-persona">林工 · 前端可视化 14年</div>
+          <div class="arch-agent-output">→ diagnostic-report.html<br>→ render_manifest.json<br><em style="color:var(--warm);">（委托 diagnostic-html-visualizer skill）</em></div>
+        </div>
+      </div>
+      <div class="arch-agents" style="margin-top:12px; grid-template-columns:repeat(4,1fr);">
+        <div class="arch-agent" style="border-left-color:var(--warm);">
+          <div class="arch-agent-name">html-reviewer</div>
+          <div class="arch-agent-persona">赵审阅 · 可视化审校 15年</div>
+          <div class="arch-agent-output">→ 05_review/<br>&nbsp;&nbsp;html_review.json<br><em style="color:var(--warm);">（verdict: pass/warn/fail）</em></div>
+        </div>
+        <div style="grid-column: span 3; display:flex; align-items:center; padding:14px 18px; background:var(--bg-alt); border-left:3px solid var(--t3);">
+          <div style="font-size:12px; color:var(--t2); line-height:1.6;">
+            <strong>Agent 通信纪律：</strong>每个 Agent 自行 Read 自己的协议（agents/*.md）并执行。
+            主 Agent 只负责 <code style="font-family:var(--mono);">Agent(&#123;subagent_type&#125;)</code> 调度、传参、等待、验证产出。
+            违反 → Judge 直接判 fail。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-flow">▼ 所有产出落入工作目录</div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">Layer 3 · 工作目录（文件即合约 · Schema 即守门员）</div>
+      <div class="arch-store">
+        <span class="arch-store-dir">00_input/</span> &nbsp;&nbsp; input_manifest · user_context · run_config · rag_deep_understanding · extracted_knowledge<br>
+        <span class="arch-store-dir">01_ontology/</span> &nbsp; ontology.json · schema.json · clarification_needed.json<br>
+        <span class="arch-store-dir">02_processed/</span> feature_summary · validate_report · anomaly_report · scenario_classification · data_analysis_conclusion · time_lag_analysis · production_regime_filter<br>
+        <span class="arch-store-dir">03_figures/</span> &nbsp;&nbsp;&nbsp;&nbsp; *.png · plot_manifest.json · visual_analysis.json · image_captions.json<br>
+        <span class="arch-store-dir">04_diagnostics/</span> diagnosis.json · evidence.json · confidence.json · reasoning_chain.json<br>
+        <span class="arch-store-dir">05_review/</span> &nbsp;&nbsp;&nbsp; judge_feedback.json · optimizer_preflight.md · optimizer.md · html_review.json<br>
+        <span class="arch-store-dir">root</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; report.md · run_summary.json · diagnostic-report.html · render_manifest.json · .pipeline_events.jsonl
+      </div>
+    </div>
+
+    <div class="arch-flow">▼ 验证层</div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">Layer 4 · 验证脚本层（26 个 Node.js + Python 脚本）</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+        <div style="background:var(--bg-alt); padding:12px 14px; font-family:var(--mono); font-size:11px; line-height:1.8;">
+          <strong style="color:var(--ink);">Schema 验证</strong><br>
+          validate.mjs · 16 个 JSON Schema
+        </div>
+        <div style="background:var(--bg-alt); padding:12px 14px; font-family:var(--mono); font-size:11px; line-height:1.8;">
+          <strong style="color:var(--ink);">质量门脚本</strong><br>
+          judge-gate-check · diagnostic-quality-check · evidence-closure-check
+        </div>
+        <div style="background:var(--bg-alt); padding:12px 14px; font-family:var(--mono); font-size:11px; line-height:1.8;">
+          <strong style="color:var(--ink);">完整性 / 交付</strong><br>
+          artifact-check · finalize-run-artifacts · pipeline-log-check
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">🔴 红灯黑名单 · 命中任一条 → Judge 直接判 fail</div>
+    <div class="callout-body">
+      主 agent 自己写 HTML / 读子 Agent 协议后自行执行 / 跳过数据分析直接诊断 / Judge gate 未通过就启动 Reporter /
+      对 COMPETING_SET 强行挑一个当结论 / 全局相关系数直接当因果 / HTML 不做初始化检测 /
+      3D 画通用工厂 / 结论缺证据等级标注 / 用模糊词逃避判断
+    </div>
+  </div>
+</section>
+
+<!-- ===== 每一步详解 ===== -->
+<section class="section">
+  <div class="section-num">04 · STEP-BY-STEP</div>
+  <h2 class="section-title">每一步详解</h2>
+  <p class="section-lede">
+    10 步管线 + 9 个检查点。每步有明确的 Agent 人格、输入、产出、验证条件。
+  </p>
+
+  <div class="step-cards">
+
+    <!-- Step 0 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">0</div>
+        <div class="step-card-tag">SETUP</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">环境与目录初始化</div>
+          <div class="step-card-persona">main-agent · 编排</div>
+        </div>
+        <div class="step-card-desc">
+          解析 <code style="font-family:var(--mono);">SKILL_PATH</code> 为绝对路径（跨平台安全），
+          验证 <code style="font-family:var(--mono);">setup.mjs</code> 存在，
+          创建 <code style="font-family:var(--mono);">RUN_DIR</code>（含完整子目录结构），
+          设置 uv 管理的 Python venv。所有后续步骤引用这三个会话变量。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">执行</div>
+            <div class="step-card-block-content">setup.mjs --name &lt;scene&gt;<br>uv_env_setup.mjs<br>PYTHON_BIN=.venv/bin/python</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">RUN_DIR/<br>&nbsp;&nbsp;00_input/run_config.json<br>&nbsp;&nbsp;run_manifest.json<br>&nbsp;&nbsp;.pipeline_events.jsonl</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">1</div>
+        <div class="step-card-tag">INSPECT</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">数据检测与特征化</div>
+          <div class="step-card-persona">main-agent · 编排</div>
+        </div>
+        <div class="step-card-desc">
+          流式解析 CSV/JSON/TSV/XLSX，产出 process-agnostic 特征描述：
+          列模式 → 物理量假设、值域确认、统计签名分类（趋势/周期/阶跃/平稳）、
+          分类列识别（用于分层）、时间列检测。三种交互模式：auto（零提问）/ interactive（≤5问）/ minimal（≤2问）。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">执行</div>
+            <div class="step-card-block-content">inspect.mjs &lt;data_path&gt;</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">00_input/input_manifest.json<br>00_input/user_context.json</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-1 · Data Readiness · 三文件齐备才能进 Step 2</div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">2</div>
+        <div class="step-card-tag">CONTEXT</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">本体构建 + RAG 深度理解</div>
+          <div class="step-card-persona">王教授 · context-builder</div>
+        </div>
+        <div class="step-card-desc">
+          RAG 检索（localhost:8765 不可用时降级到 <code style="font-family:var(--mono);">parameter_to_physics.json</code> + 网络搜索）
+          + 本体构建。关键：<strong>RAG 知识被语义 comprehend，不是机械 field-by-field 映射</strong>。
+          提取物理原理、因果机制、参数语义，产出可被后续步骤消费的结构化本体。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">01_ontology/ontology.json<br>01_ontology/schema.json<br>00_input/extracted_knowledge.json<br>00_input/rag_deep_understanding.json<br>01_ontology/clarification_needed.json</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">验证</div>
+            <div class="step-card-block-content">ontology_schema.json<br>≥ 1024 bytes<br>RAG_UNAVAILABLE → 降级继续</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-2 · Ontology Gate · schema 有效 + ≥1KB</div>
+      </div>
+    </div>
+
+    <!-- Step 2.5 -->
+    <div class="step-card">
+      <div class="step-card-rail gold">
+        <div class="step-card-num">2.5</div>
+        <div class="step-card-tag">CLARIFY</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">未知参数澄清门</div>
+          <div class="step-card-persona">main-agent · 按 interaction_mode</div>
+        </div>
+        <div class="step-card-desc">
+          检查 <code style="font-family:var(--mono);">clarification_needed.json</code>。
+          <strong>auto 模式</strong>：用 physics_inference_framework L1-L5 推断所有未知参数，标 <code style="font-family:var(--mono);">auto_inferred: true</code>，不打扰用户。
+          <strong>interactive</strong>：分组问 ≤4 题/轮。<strong>minimal</strong>：只问 CRITICAL ≤2 题。
+        </div>
+        <div class="step-card-cp">🛑 CP-3 · Clarification Gate · AUTO_RESOLVED 或 USER_CONFIRMED 才能进 Step 3</div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">3</div>
+        <div class="step-card-tag">PROCESS</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">统计分析 + 可视化</div>
+          <div class="step-card-persona">张工 · data-processor</div>
+        </div>
+        <div class="step-card-desc">
+          <strong>ontology_first 模式</strong>：Phase 0.4 先读本体再决定测哪些参数对。
+          v6.5 三算法融合检测生产工况（启动/停机/稳态）→ 只分析稳态行。
+          v6.4 CCF 时滞补偿（process→quality 有物理延迟时零滞后相关系统性偏差）。
+          v6.5 强制 per-product 分析（Simpson 悖论是 #1 威胁）。内部委托 VLM 给老孙。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">核心统计</div>
+            <div class="step-card-block-content">Pearson / Spearman<br>分层相关（防 Simpson）<br>去趋势后相关（防趋势混淆）<br>变点检测 · 多重检验校正</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">02_processed/* (10+ 文件)<br>03_figures/*.png<br>plot_manifest.json<br>data_analysis_conclusion.json<br>analysis_plan.md</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-4 · Data Processor Handoff · conclusion 存在 + plot_manifest 有图</div>
+      </div>
+    </div>
+
+    <!-- Step 3.5 -->
+    <div class="step-card">
+      <div class="step-card-rail gold">
+        <div class="step-card-num">3.5</div>
+        <div class="step-card-tag">VLM</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">VLM 视觉图像分析（嵌入 Step 3）</div>
+          <div class="step-card-persona">老孙 · vlm-visual-analyzer</div>
+        </div>
+        <div class="step-card-desc">
+          data-processor 的 Phase 5.5 内部委托——<strong>不是独立管线步骤</strong>。
+          本体感知的 VLM 读图：每张图结合 ontology 物理含义推断诊断意义。
+          PNG 不可用时降级到 <code style="font-family:var(--mono);">generate_captions.mjs</code> 生成文字 caption。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">03_figures/visual_analysis.json<br>03_figures/image_captions.json</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">证据等级</div>
+            <div class="step-card-block-content">正常：L4（图表视觉）<br>PNG 缺失降级：L3+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">4</div>
+        <div class="step-card-tag">DIAGNOSE</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">物理约束的竞争假说根因诊断</div>
+          <div class="step-card-persona">刘总工 · diagnostician</div>
+        </div>
+        <div class="step-card-desc">
+          融合 data + ontology + physics + VLM + time-lag 五源证据。<strong>必须先读 time_lag_analysis.json 再形成因果假说</strong>。
+          每个存活假说必须含三件套：<code style="font-family:var(--mono);">ontology_data_physics_proof</code> +
+          <code style="font-family:var(--mono);">physical_logic_chain</code> +
+          <code style="font-family:var(--mono);">falsification_conditions</code>。
+          输出三种结论类型：DETERMINED / COMPETING_SET / NEEDS_DATA。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">产出（4 文件）</div>
+            <div class="step-card-block-content">04_diagnostics/diagnosis.json<br>04_diagnostics/evidence.json<br>04_diagnostics/confidence.json<br>04_diagnostics/reasoning_chain.json</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">置信度约束</div>
+            <div class="step-card-block-content">DETERMINED: 自由<br>COMPETING_SET: ≤65<br>repair 振荡: ≤50<br>NEEDS_DATA: 明确缺口</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-5 · Diagnostician Quality · 4 schema 验证 + diagnostic-quality-check.mjs</div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card">
+      <div class="step-card-rail green">
+        <div class="step-card-num">5</div>
+        <div class="step-card-tag">JUDGE × 2</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">双门审查（唯一并行步骤）</div>
+          <div class="step-card-persona">陈主任 + 孙审计 · 并行</div>
+        </div>
+        <div class="step-card-desc">
+          <strong>Step 5a · Judge</strong>（judge）：10 项质量门审查。Hard pass 不变量：verdict=pass 当且仅当
+          score≥90 + blocking_issues=0 + reasoning_chain 无阻断 + no_over_claiming 无阻断。
+          <strong>Step 5b · Pre-Audit</strong>（report-reviewer with PRE_REPORT_AUDIT=true）：
+          不需要 report.md，写 optimizer_preflight.md，与 Judge 并行跑物理预审。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">Verdict 分级</div>
+            <div class="step-card-block-content">pass ≥90 → Step 6<br>needs_repair 70-89 → 修复<br>major_issues 50-69 → 修复<br>fail &lt;50 → 阻断</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">05_review/judge_feedback.json<br>05_review/optimizer_preflight.md</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-6 · Dual Gate · Judge pass + preflight 无 FATAL</div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">6</div>
+        <div class="step-card-tag">REPORT</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">诊断报告生成</div>
+          <div class="step-card-persona">周工 · reporter</div>
+        </div>
+        <div class="step-card-desc">
+          <strong>Reporter 启动是非法的，除非 Judge gate 已通过</strong>。
+          以 visual_analysis.json 为主要图表证据，生成 9 节金字塔结构中文报告：
+          执行摘要 → 对齐图核心证据 → 诊断结论 → 证据全景 → 详细推导 → 推理过程 →
+          数据统计 → 行动方案 → 局限性。结论优先、白话解释。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">report.md（9 节）<br>run_summary.json</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">反幻觉规则</div>
+            <div class="step-card-block-content">只能引用已验证证据源<br>PHYSICS_UNVERIFIED 必须标注<br>禁止编造统计值</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-7 · Report Gate · report.md + run_summary.json 存在</div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">7</div>
+        <div class="step-card-tag">AUDIT</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">物理真相独立审计</div>
+          <div class="step-card-persona">孙审计 · report-reviewer（终审角色）</div>
+        </div>
+        <div class="step-card-desc">
+          读 agents/report-reviewer.md，对原始产物手动复核物理/统计。
+          复用 optimizer_preflight.md（如有）。写 optimizer.md，必须含 4 节：
+          场景特异优化方案 / 当前问题与机会 / 下一步诊断确认计划 / 行动分类
+          （立即遏制 / 低风险优化 / 受控实验 / 测量改进 / 延后或不安全）。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">Verdict</div>
+            <div class="step-card-block-content">ENDORSED → Step 8<br>CONDITIONAL → 评估可否继续<br>REJECTED → 修复循环</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">optimizer.md（4 标准节）</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-8 · Audit Gate · optimizer.md 含 ENDORSED 或 CONDITIONAL</div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step-card">
+      <div class="step-card-rail warm">
+        <div class="step-card-num">8</div>
+        <div class="step-card-tag">HTML BUILD</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">HTML 可视化页面构建</div>
+          <div class="step-card-persona">林工 · html-visualizer</div>
+        </div>
+        <div class="step-card-desc">
+          <strong>必须由专用子 Agent 生成，主 agent 不准自己拼 HTML</strong>。
+          委托 <code style="font-family:var(--mono);">diagnostic-html-visualizer</code> skill：
+          先产 render_manifest.json（数据驱动页面模型），再按 manifest 组装四段叙事页面
+          （Hero 结论 → 背景产线 → 诊断推理 → 证据链三层）。
+          ECharts + Three.js 多源加载 + 运行时检测 + 降级。
+          用户明确 opt-out 时创建 <code style="font-family:var(--mono);">html_opt_out</code> 标记文件跳过。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">diagnostic-report.html<br>render_manifest.json<br>html_selfcheck.json</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">3D 忠实规则</div>
+            <div class="step-card-block-content">从 ontology + 3d_model_data 恢复<br>真实工段顺序<br>禁止通用工厂装饰</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8.5 -->
+    <div class="step-card">
+      <div class="step-card-rail warm">
+        <div class="step-card-num">8.5</div>
+        <div class="step-card-tag">HTML REVIEW</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">HTML 页面审校门</div>
+          <div class="step-card-persona">赵审阅 · html-reviewer</div>
+        </div>
+        <div class="step-card-desc">
+          独立审校页面是否能让非算法用户看懂。校验：render_manifest ↔ page 一致性 +
+          data ↔ manifest 一致性（防编造）+ 跨 run 污染检测。
+          只有 verdict=pass 才算交付。blocking issues → 回 html-visualizer 修订，最多 3 次循环。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">审校维度</div>
+            <div class="step-card-block-content">可读性 / 证据完整性 / 逻辑链<br>3D 与图表覆盖 / 三层闭合<br>manifest 一致性</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">产出</div>
+            <div class="step-card-block-content">05_review/html_review.json<br>verdict: pass/warn/fail</div>
+          </div>
+        </div>
+        <div class="step-card-cp">🛑 CP-9 · HTML Delivery · html ≥5KB + review verdict=pass</div>
+      </div>
+    </div>
+
+    <!-- Step 9 -->
+    <div class="step-card">
+      <div class="step-card-rail">
+        <div class="step-card-num">9</div>
+        <div class="step-card-tag">FINALIZE</div>
+      </div>
+      <div class="step-card-body">
+        <div class="step-card-header">
+          <div class="step-card-title">最终化与完整性验证</div>
+          <div class="step-card-persona">main-agent · 编排</div>
+        </div>
+        <div class="step-card-desc">
+          finalize-run-artifacts.mjs：normalize anomaly report → synthesize data analysis conclusion →
+          judge gate 检查（前后两次）→ synthesize run summary → evidence closure →
+          <strong>HTML 交付验证（opt-out 时跳过）</strong>。
+          然后 artifact-check.mjs 跑全部检查：16 schema 验证 + 6 质量门 + delivery contract + pipeline log。
+          任一 critical gap → 报告为 blocked/repair-needed run。
+        </div>
+        <div class="step-card-grid">
+          <div>
+            <div class="step-card-block-label">执行</div>
+            <div class="step-card-block-content">finalize-run-artifacts.mjs<br>artifact-check.mjs</div>
+          </div>
+          <div>
+            <div class="step-card-block-label">最终交付</div>
+            <div class="step-card-block-content">📄 report.md<br>🌐 diagnostic-report.html<br>✓ run_completed event</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 修复循环 ===== -->
+<section class="section">
+  <div class="section-num">05 · REPAIR LOOPS</div>
+  <h2 class="section-title">修复循环机制</h2>
+  <p class="section-lede">
+    两处修复循环 + 全局上限 + 反振荡规则。防止无限重试和修复震荡。
+  </p>
+
+  <div class="repair-detail">
+    <div class="repair-flow">
+      <div class="repair-box">Step 4<br>Diagnostician</div>
+      <div class="repair-arrow">→</div>
+      <div class="repair-box">Step 5<br>Judge + Pre-Audit</div>
+      <div class="repair-arrow">⟲ fail</div>
+      <div class="repair-box warm">修复指令<br>REPAIR_INSTRUCTIONS</div>
+      <div class="repair-arrow">→</div>
+      <div class="repair-box">重跑 Step 4</div>
+    </div>
+
+    <div class="repair-caps">
+      <div>
+        <div class="repair-cap-num">3</div>
+        <div class="repair-cap-label">
+          <strong>Judge → Diagnostician</strong><br>
+          最大修复迭代次数。每次修复指令必须具体（哪个假说 / 哪个证据 / 怎么改）。
+        </div>
+      </div>
+      <div>
+        <div class="repair-cap-num">2</div>
+        <div class="repair-cap-label">
+          <strong>Reviewer 全循环</strong><br>
+          Step 7 REJECTED → 完整 D→J→R→R 重跑。最多 2 个完整循环。
+        </div>
+      </div>
+      <div>
+        <div class="repair-cap-num">5</div>
+        <div class="repair-cap-label">
+          <strong>全局重诊断上限</strong><br>
+          计数器持久化在 .pipeline_events.jsonl 的 repair_spawn 事件中，不依赖内存。
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:24px;">
+      <div class="callout-title">🛑 Anti-Oscillation Rule · 反振荡</div>
+      <div class="callout-body">
+        重启 diagnostician 前，计算修复 delta：若与上一轮实质相同（&gt;70% issue-type 重叠）→ 修复振荡。
+        第二次振荡（第三次同问题修复）→ <strong>停止修复</strong>，标 COMPETING_SET — repair oscillation，
+        confidence ceiling ≤ 50，记入 reasoning_chain.json R8。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 质量门 ===== -->
+<section class="section">
+  <div class="section-num">06 · QUALITY GATES</div>
+  <h2 class="section-title">6 道质量门 · 全部通过才算完成</h2>
+  <p class="section-lede">
+    每道门有明确的通过条件、执行脚本、失败后果。不是建议，是硬约束。
+  </p>
+
+  <div class="gates-grid">
+    <div class="gate">
+      <div class="gate-name">Judge Gate</div>
+      <div class="gate-req">verdict == "pass"<br>overall_score &gt;= 90<br>blocking_issues.length == 0</div>
+      <div class="gate-enforcer">reporter 启动被阻断 · artifact-check.mjs</div>
+    </div>
+    <div class="gate">
+      <div class="gate-name">Execution Proof</div>
+      <div class="gate-req">.pipeline_events.jsonl 有效<br>按 pipeline-log-check.mjs</div>
+      <div class="gate-enforcer">artifact-check.mjs</div>
+    </div>
+    <div class="gate">
+      <div class="gate-name">Evidence Closure</div>
+      <div class="gate-req">纯工艺 + 双驱动 + 本体解释<br>三者全在</div>
+      <div class="gate-enforcer">evidence-closure-check.mjs</div>
+    </div>
+    <div class="gate">
+      <div class="gate-name">Engineering Acceptance</div>
+      <div class="gate-req">所有强制产物齐备<br>run_completed 事件已记录</div>
+      <div class="gate-enforcer">artifact-check.mjs · engineering_delivery_contract.md</div>
+    </div>
+    <div class="gate">
+      <div class="gate-name">Optimizer Completeness</div>
+      <div class="gate-req">optimizer.md 含 4 标准节<br>场景优化 / 问题机会 / 确认计划 / 行动分类</div>
+      <div class="gate-enforcer">artifact-check.mjs</div>
+    </div>
+    <div class="gate">
+      <div class="gate-name">HTML Delivery</div>
+      <div class="gate-req">diagnostic-report.html 存在<br>html-reviewer verdict == pass</div>
+      <div class="gate-enforcer">artifact-check.mjs · CP-9</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 失败恢复 ===== -->
+<section class="section">
+  <div class="section-num">07 · FAILURE RECOVERY</div>
+  <h2 class="section-title">10 场景失败恢复表 + 深层兜底</h2>
+  <p class="section-lede">
+    Agent 执行失败不是异常——是管线常态。每个失败场景都有显式恢复路径，不静默跳过。
+  </p>
+
+  <div style="background:var(--bg-card); border:1px solid var(--rule); overflow:hidden;">
+    <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; font-family:var(--mono); font-size:11px; background:var(--bg-alt); border-bottom:1px solid var(--rule);">
+      <div style="padding:12px 16px; font-weight:600; color:var(--ink); letter-spacing:0.05em;">触发条件</div>
+      <div style="padding:12px 16px; font-weight:600; color:var(--ink); letter-spacing:0.05em; border-left:1px solid var(--hairline);">检测方式</div>
+      <div style="padding:12px 16px; font-weight:600; color:var(--ink); letter-spacing:0.05em; border-left:1px solid var(--hairline);">恢复动作</div>
+    </div>
+
+    <div style="font-family:var(--mono); font-size:11px; line-height:1.7;">
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline);">
+        <div style="padding:14px 16px;">RAG 引擎不可用</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">curl localhost:8765/docs 失败</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">降级 parameter_to_physics.json + 网络搜索</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline); background:var(--bg-alt);">
+        <div style="padding:14px 16px;">uv venv 创建失败</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">非零退出码</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">装 uv → 失败降级系统 python3 + pip</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline);">
+        <div style="padding:14px 16px;">输入数据 &gt;500MB</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">inspect.mjs 超时 &gt;300s</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">file_inspect.py 采样 5万行 + --low-memory</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline); background:var(--bg-alt);">
+        <div style="padding:14px 16px;">Agent 超时 stall</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">stall &gt; 600s</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">查部分产物 → 有则继续，无则等60s重试1次</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline);">
+        <div style="padding:14px 16px;">API 连接断开</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">socket connection closed</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">等30s重启同 prompt · 连续2次→降级本地脚本</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline); background:var(--bg-alt);">
+        <div style="padding:14px 16px;">产物缺失</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">每步 expected outputs 检查</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">ontology缺→最小构建 · diagnosis缺→失败报告</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline);">
+        <div style="padding:14px 16px;">Schema 验证失败</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">validate.mjs 返回错误</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">错误列表追加 prompt 重启1次 → 标 SCHEMA_FAIL</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr; border-bottom:1px solid var(--hairline); background:var(--bg-alt);">
+        <div style="padding:14px 16px;">PNG 缺失</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">plot_manifest plots 为空</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">generate_captions.mjs · VLM 降为 L3+</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 2fr 2fr;">
+        <div style="padding:14px 16px;">HTML 可视化失败</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">html 不存在 / reviewer 未过</div>
+        <div style="padding:14px 16px; border-left:1px solid var(--hairline);">重跑 diagnostic-html-visualizer · 连续2次→降级</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">深层兜底协议 · 恢复动作仍失败时</div>
+    <div class="callout-body">
+      记录 [RECOVERY_FAILED] 事件 → 写部分产物（标 _partial）→ 显式向用户报告（哪个 Agent、什么场景、
+      一线修复是什么、为什么失败、已有/缺失产出）→ 用户决定「跳过继续」或「终止」。
+      <strong>绝不静默继续，绝不无限重试。</strong>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  INDUSTRIAL DEEP DIAGNOSTIC · SKILL ARCHITECTURE REVIEW · 2026.06.20<br>
+  诊断是排除，不是确认 · Diagnosis is elimination, not confirmation
+</div>
+
+</div>
+</body>
+</html>
