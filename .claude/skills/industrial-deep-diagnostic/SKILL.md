@@ -686,6 +686,7 @@ Apply before writing any diagnostic finding:
 - **Lag correlations** require time-sorted data — check `sorting_validation.time_sorted` first
 - **Aggregate correlations** can reverse within subgroups — always check stratified correlations
 - **Trending variables** share time as hidden confounder — check detrended r
+- **Single-batch leverage** — any correlation with |r|≥0.3 cited as evidence MUST pass leave-one-out: recompute r dropping each observation/batch; if |Δr|>0.2 the correlation is `leverage_driven` and CANNOT be cited as causal evidence without the robust subsample. Real failure: r=0.40 cited as root cause was driven entirely by one extreme batch (scratch=454); removing it → r=-0.128.
 - **Unknown parameter meanings** → `[PARAM_AMBIGUITY]` — correlation to a label is not correlation to a physical cause
 - **Competing hypotheses** with identical observables are INDISTINGUISHABLE → `COMPETING_SET`, confidence ceiling 65
 - **Physics-free correlations** are not diagnoses — `STATISTICAL_ONLY` is not a root cause

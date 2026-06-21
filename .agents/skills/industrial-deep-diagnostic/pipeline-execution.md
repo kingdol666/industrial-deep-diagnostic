@@ -378,7 +378,7 @@ If NOT → both types of segmentation should be checked.
 | Data sorting validation | `stats.mjs` | Lag analysis on batch-sorted data → spurious correlations |
 | Simpson's Paradox | `stats.mjs` + `stats_validate.mjs` | Aggregate correlations that reverse within subgroups |
 | Time-trend confounding | `stats.mjs` | Correlations driven by shared time drifts |
-| Outlier sensitivity | `stats_validate.mjs` | Correlations dominated by few extreme points |
+| Outlier sensitivity / leave-one-out | `stats_validate.mjs` | Correlations dominated by few extreme points; recomputes r dropping each observation/batch, flags `leverage_driven` when |Δr|>0.2 (v6.7 explicit contract) |
 | Spearman-Pearson divergence | `stats.mjs` | Outlier or non-linear influence |
 | Lag window consistency | `stats.mjs` | Isolated spikes in CCF (artifact indicators) |
 | Multiple testing correction | `stats.mjs` | Chance "significant" results from many comparisons |
@@ -395,7 +395,7 @@ If NOT → both types of segmentation should be checked.
 | Simpson's Paradox (direction reversal) | -20 to -30 |
 | Simpson's Paradox (moderate attenuation) | -10 to -15 |
 | Trend confounding (attenuation > 50%) | -15 to -20 |
-| Outlier-driven correlation | -10 to -15 |
+| Outlier-driven correlation (|Δr|>0.2 on leave-one-out) | -10 to -15; EXCLUDE if direction reverses (e.g. r=+0.40 → -0.128) |
 | Spearman-Pearson divergence > 0.15 | -5 to -10 |
 | Isolated lag spike | Treat as concurrent only |
 | Parameter physical meaning unknown | -15 to -25 |
