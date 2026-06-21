@@ -9,7 +9,7 @@ This skill uses FOUR distinct numbering systems. Do not conflate them.
 
 | System | Scope | Used In | Example |
 |--------|-------|---------|---------|
-| **Pipeline Step 0-8** | Orchestration-level workflow | SKILL.md | "Step 4: Diagnostician" |
+| **Pipeline Step 0-9** | Orchestration-level workflow | SKILL.md | "Step 4: Diagnostician" |
 | **Agent Phase 0-7** | Diagnostician's internal workflow | agents/diagnostician.md | "Phase 1: Data Probing" |
 | **Reasoning Segment R1-R8** | Structured reasoning trace output | reasoning_chain.json | "R4: Hypothesis Generation" |
 | **Method Stage 1-6** | Generic diagnostic methodology | resources/diagnosis_method.md | "Stage 3: Temporal Analysis" |
@@ -160,6 +160,8 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 })
 ```
 
+只有审核通过（`verdict: "pass"`），页面才算最终交付。如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+
 ### Step 9: Finalize
 
 ```bash
@@ -183,26 +185,7 @@ The generated page must include runtime readiness checks for:
 
 If interactive libraries fail to load, the page must surface a visible degraded-mode notice and keep the static explanation usable.
 
-### Step 8.5: HTML Review Gate
-
-页面生成完成后，必须立即启动 `html-reviewer` 子 Agent 审核。只有审核通过，页面才算最终交付。
-
-```javascript
-Agent({
-  subagent_type: "html-reviewer",
-  description: "Step 8.5: 审核诊断 HTML 可视化页面的可读性、证据完整性和逻辑链",
-  permissionMode: "bypassPermissions",
-  prompt: `RUN_DIR=${RUN_DIR}
-OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
-SKILL_PATH=${SKILL_PATH}
-AUDIENCE=mixed
-
-Read "$SKILL_PATH/agents/html-reviewer.md" and review the generated page against clarity, evidence completeness, logic chain strength, and chart/3D coverage. Write a machine-readable review artifact and report pass/fail clearly.`,
-  run_in_background: true
-})
-```
-
-如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+---
 
 ---
 

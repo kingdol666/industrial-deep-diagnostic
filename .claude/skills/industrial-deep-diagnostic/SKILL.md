@@ -19,7 +19,7 @@ compatibility: |
 ## TL;DR Quick Reference
 
 ```
-用户上传数据 → 8 步诊断 → report.md + diagnostic-report.html
+用户上传数据 → 9 步诊断 → report.md + diagnostic-report.html
 
 输入: CSV/XLSX/Parquet 工业传感器/工艺数据
 输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
@@ -567,18 +567,17 @@ Launch `report-reviewer` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it 
 | ENDORSED | Proceed to Step 8 |
 | CONDITIONAL / REJECTED | Re-spawn diagnostician (max 2 cycles, global cap ≤ 5) |
 
-### Step 8: Present Results (Main Agent)
+### Step 8: HTML Visualization (Sub-Agent: `html-visualizer`)
 
+**Pre-HTML artifact verification** — 确认 report 阶段产物完整后再投入 HTML 生成:
 ```bash
 node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run.
+If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run; do not proceed to HTML.
 
-在上述检查通过后，默认继续启动 `html-visualizer` 子 Agent——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-visualizer` 启动模板。
-
-如果用户没有明确要求跳过 HTML，可视化构建是 Step 8 的默认组成部分，而且必须由专用子 Agent 完成。
+启动 `html-visualizer` 子 Agent——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-visualizer` 启动模板。HTML 可视化是 Step 7 `ENDORSED` 后的默认路径，必须由专用子 Agent 完成（主 agent 不在主上下文拼页面）。
 
 **HTML Opt-Out**: 如果用户明确说"不要 HTML 页面"、"只要 report.md"、"跳过可视化"等，主 agent 必须在 Step 8 开始前执行:
 ```bash
@@ -588,9 +587,25 @@ touch "$RUN_DIR/00_input/html_opt_out"
 
 **最终交付要求**：本 skill 的正常完成结果必须同时包含 `report.md` 和 `diagnostic-report.html`。其中 HTML 只能由独立的 `html-visualizer` 子 Agent 生成，且该子 Agent 必须复用 `diagnostic-html-visualizer` skill，不允许主 agent 在主上下文中直接编写 HTML。
 
-`html-visualizer` 完成后，立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过（`verdict: "pass"`），页面才算最终交付。如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+### Step 8.5: HTML Review Gate (Sub-Agent: `html-reviewer`)
 
-Present: executive summary, key findings, diagnosis type, confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
+`html-visualizer` 完成后，立即启动 `html-reviewer` 子 Agent 审核——使用与上方「Default Post-Audit HTML Visualization」中完全相同的 `html-reviewer` 启动模板。只有审核通过（`verdict: "pass"`），页面才算最终交付。
+
+如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+
+🛑 见 **CP-9: HTML Delivery**（Checkpoints 表）：`diagnostic-report.html` 存在且 ≥5120 字节 + `html_review.json` verdict=pass。
+
+### Step 9: Finalize (Main Agent)
+
+Step 8.5 通过后，执行最终证据闭环与权威结束门:
+```bash
+node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
+node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
+```
+
+`evidence-closure-check.mjs` 验证纯工艺波动 + 双驱动 + 本体解释三类证据闭环；`artifact-check.mjs` 作为权威结束门，此时必须包含 HTML 交付（除非 opt-out）。任一报告 critical gap → 标记为 blocked/repair-needed run。
+
+**Present to user**: executive summary, key findings, diagnosis type (`DETERMINED` / `COMPETING_SET` / `NEEDS_DATA`), confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
 
 ---
 
@@ -674,7 +689,7 @@ Apply before writing any diagnostic finding:
 
 | Command | Action |
 |---------|--------|
-| `/industrial-deep-diagnostic` | Full pipeline (Steps 0-8) |
+| `/industrial-deep-diagnostic` | Full pipeline (Steps 0-9) |
 | `/industrial-deep-diagnostic analyze` | Skip intake, run from Step 2 |
 | `/industrial-deep-diagnostic review` | Re-run judge on existing results |
 | `/industrial-deep-diagnostic report` | Regenerate report from existing artifacts |

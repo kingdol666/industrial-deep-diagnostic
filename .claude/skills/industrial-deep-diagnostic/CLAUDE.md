@@ -30,7 +30,7 @@ This skill uses **four separate numbering systems by design**. Do not conflate t
 
 | System | Scope | Example |
 |--------|-------|---------|
-| Pipeline Step 0-8 | Orchestration | "Step 4: Diagnostician" |
+| Pipeline Step 0-9 | Orchestration | "Step 4: Diagnostician" |
 | Agent Phase 0-7 | Diagnostician internal | "Phase 1.5: Ontology-Data-Physics Proof" |
 | Reasoning Segment R1-R8 | Reasoning_chain.json | "R4: Hypothesis Generation" |
 | Method Stage 1-6 | diagnosis_method.md | "Stage 3: Temporal Analysis" |
@@ -50,7 +50,7 @@ Each numbering system is scoped to its own context (orchestration / agent logic 
 Add an `assets/` directory only when templates or reports actually reference shared binary/media resources. Do not keep an empty placeholder directory.
 
 ## CLI Commands
-- `/industrial-deep-diagnostic` — Full pipeline (Steps 0-8)
+- `/industrial-deep-diagnostic` — Full pipeline (Steps 0-9)
 - `/industrial-deep-diagnostic analyze` — Skip intake, run from Step 2
 - `/industrial-deep-diagnostic review` — Re-run judge on existing results
 - `/industrial-deep-diagnostic report` — Regenerate report

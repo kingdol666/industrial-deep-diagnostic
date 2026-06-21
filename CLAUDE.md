@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Industrial Deep Diagnostic — 一个端到端工业深度诊断系统，对传感器/工艺数据进行 8 阶段根因分析。核心架构包含三大部分：
+Industrial Deep Diagnostic — 一个端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构包含三大部分：
 
 1. **Claude Code Skill** (`.claude/skills/industrial-deep-diagnostic/`) — 多智能体诊断管线，含 6 个子智能体 + JSON Schema 验证 + 脚本工具链
 2. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
@@ -48,7 +48,7 @@ npm link             # = ind-diag 全局可用
 ```
 
 ### Skill 命令（在 Claude Code 对话中调用）
-- `/industrial-deep-diagnostic` — 全管线（Step 0-8）
+- `/industrial-deep-diagnostic` — 全管线（Step 0-9）
 - `/industrial-deep-diagnostic analyze` — 跳过数据导入，从 Step 2 开始
 - `/industrial-deep-diagnostic review` — 重新评审已有结果
 - `/industrial-deep-diagnostic report` — 重新生成报告
@@ -74,7 +74,7 @@ ind-diag webfrp      # Cloudflare Tunnel 暴露公网
 
 ## Architecture
 
-### 诊断管线（8 步）
+### 诊断管线（9 步）
 
 | Steps | Agent | 产出 |
 |-------|-------|------|
@@ -86,13 +86,16 @@ ind-diag webfrp      # Cloudflare Tunnel 暴露公网
 | Step 5: Judge | **judge** | `05_review/judge_feedback.json` (10 项评分 + 阻断问题) |
 | Step 6: Report | **reporter** | `report.md` |
 | Step 7: Review | **report-reviewer** | `optimizer.md` |
+| Step 8: HTML Viz | **html-visualizer** | `diagnostic-report.html` |
+| Step 8.5: HTML Review | **html-reviewer** | `05_review/html_review.json` |
+| Step 9: Finalize | main-agent | `evidence_closure_report.json`, 最终交付校验 |
 
 **修复循环**: Judge 评分 < 90 → 重跑 Diagnostician（最多 3 次）；Reviewer 未通过 → 完整重跑 D→J→R→R（全局上限 5 次）。
 
 ### 四个独立的编号体系
 | 体系 | 范围 | 示例 |
 |------|------|------|
-| Pipeline Step 0-8 | 编排层面 | "Step 4: Diagnostician" |
+| Pipeline Step 0-9 | 编排层面 | "Step 4: Diagnostician" |
 | Agent Phase 0-7 | Diagnostician 内部流程 | "Phase 1: Data Probing" |
 | Reasoning Segment R1-R8 | reasoning_chain.json | "R4: Hypothesis Generation" |
 | Method Stage 1-6 | diagnosis_method.md | "Stage 3: Temporal Analysis" |
