@@ -1,0 +1,82 @@
+{
+  "total_rows": 1200,
+  "total_columns": 9,
+  "missing_values": {
+    "total_missing": 0
+  },
+  "outliers_iqr": {
+    "Z3_Temp": {
+      "count": 165,
+      "pct": 13.75
+    },
+    "Extruder_Speed": {
+      "count": 13,
+      "pct": 1.08
+    },
+    "Melt_Pressure": {
+      "count": 1,
+      "pct": 0.08
+    },
+    "Haze": {
+      "count": 5,
+      "pct": 0.42
+    },
+    "Defect_Density": {
+      "count": 140,
+      "pct": 11.67
+    }
+  },
+  "time_sorted": true,
+  "sorted_strategy": "group_then_time:product+timestamp",
+  "time_sorted_after_preprocess": true,
+  "time_column": "timestamp",
+  "primary_group_column": "product",
+  "derived_features": [
+    "Melt_Pressure_dev",
+    "Haze_dev",
+    "Defect_Density_dev",
+    "time_hours"
+  ],
+  "grouping_summary": {
+    "group_column": "product",
+    "n_groups": 2,
+    "groups": {
+      "Product_A": {
+        "rows": 600,
+        "start_time": "2026-06-15 08:00:00",
+        "end_time": "2026-06-16 03:58:00"
+      },
+      "Product_B": {
+        "rows": 600,
+        "start_time": "2026-06-16 04:00:00",
+        "end_time": "2026-06-16 23:58:00"
+      }
+    }
+  },
+  "cleaning_integrity": {
+    "row_count_check": {
+      "raw_rows": 1200,
+      "cleaned_rows": 1200,
+      "dropped": 0,
+      "drop_rate": 0.0
+    },
+    "type_integrity": {},
+    "range_fidelity": {},
+    "data_source": "cleaned",
+    "repair_attempts": [],
+    "cleaning_operations": [
+      {
+        "operation": "sort",
+        "target": "all",
+        "rows_affected": 1200,
+        "rationale": "Sorted by product then timestamp for temporal integrity"
+      },
+      {
+        "operation": "type_coerce",
+        "target": "Z3_Temp",
+        "rows_affected": 0,
+        "rationale": "CSV DictReader produces str values; downstream scripts handle coercion at read boundary (visual_analysis.py _safe_float, physics_check _safe_float, stats_analysis _safe_float)"
+      }
+    ]
+  }
+}

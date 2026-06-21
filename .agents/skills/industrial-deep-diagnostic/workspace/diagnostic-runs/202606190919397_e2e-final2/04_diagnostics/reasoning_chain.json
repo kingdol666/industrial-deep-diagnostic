@@ -1,0 +1,19 @@
+{
+  "segments": [
+    {
+      "id": "R1",
+      "phase": "Data Probing",
+      "finding": "Z3_Temp drift +7\u00b0C in rows 800-1000, Product A affected more severely"
+    },
+    {
+      "id": "R5",
+      "phase": "Hypothesis Generation",
+      "finding": "Z3_Temp is the leading candidate \u2014 highest r, physics-consistent, temporally precedes defect spike"
+    },
+    {
+      "id": "R8",
+      "phase": "Conclusion",
+      "finding": "DETERMINED: Z3 temp drift \u2192 crystallization rate increase \u2192 defect density increase. Falsification condition: if next batch at 82\u00b0C Z3 reduces defects to baseline."
+    }
+  ]
+}

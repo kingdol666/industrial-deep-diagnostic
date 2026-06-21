@@ -9,18 +9,20 @@ Industrial time-series diagnostic skill. Lives in `.claude/skills/industrial-dee
 ## Language Default
 默认中文输出。报告、诊断结论、审计文档使用中文。Schema enum字段保持英文。
 
-## Key Gotchas (not in SKILL.md)
+## Key Gotchas
 
 | Gotcha | Details |
 |--------|---------|
 | `time_col` detection | `inspect.mjs` auto-detects by keyword + type. Can fail on non-standard names — verify. |
 | Python path in worktrees | If running in a worktree, all paths must be absolute. `uv_env_setup.mjs` resolves correctly. |
 | Repair counter persistence | `diag_iters` tracked in `.pipeline_events.jsonl` via `repair_spawn` events — DO NOT rely on in-memory state |
-| Execution proof | A run is only considered fully valid when `.pipeline_events.jsonl` passes `scripts/pipeline-log-check.mjs`, not merely when output files exist. |
+| Execution proof | A run is only fully valid when `.pipeline_events.jsonl` passes `scripts/pipeline-log-check.mjs`, not merely when output files exist. |
 | Image captions fallback | `image_captions.json` is the fallback when PNG rendering fails. Never write "*Image unavailable*" if captions exist. |
 | Expert data handoff | `02_processed/data_analysis_conclusion.json` is mandatory. It summarizes baseline scripts, custom expert scripts, ontology interpretation, and caveats for the Diagnostician. |
 | Custom script boundary | Custom scripts belong under `06_scripts/`; they must write deterministic JSON/PNG evidence and be summarized in `data_analysis_conclusion.json`. |
 | CLAUDE.md vs SKILL.md | SKILL.md is the entry point for pipeline execution. This file is developer reference only. |
+| JSON quote escaping | When writing Chinese text with embedded double quotes inside JSON strings (e.g., 「"根因竞争"」), escape as `\"根因竞争\"` or rewrite without quotes. Unescaped nested quotes break JSON parsing. |
+| Path quoting | When `SKILL_PATH` or `DATA_PATH` contains spaces, always quote path variables in bash: `"$SKILL_PATH/..."`. |
 
 ## Numbering Systems (four distinct schemes)
 
@@ -28,7 +30,7 @@ This skill uses **four separate numbering systems by design**. Do not conflate t
 
 | System | Scope | Example |
 |--------|-------|---------|
-| Pipeline Step 0-8 | Orchestration | "Step 4: Diagnostician" |
+| Pipeline Step 0-9 | Orchestration | "Step 4: Diagnostician" |
 | Agent Phase 0-7 | Diagnostician internal | "Phase 1.5: Ontology-Data-Physics Proof" |
 | Reasoning Segment R1-R8 | Reasoning_chain.json | "R4: Hypothesis Generation" |
 | Method Stage 1-6 | diagnosis_method.md | "Stage 3: Temporal Analysis" |
@@ -48,7 +50,7 @@ Each numbering system is scoped to its own context (orchestration / agent logic 
 Add an `assets/` directory only when templates or reports actually reference shared binary/media resources. Do not keep an empty placeholder directory.
 
 ## CLI Commands
-- `/industrial-deep-diagnostic` — Full pipeline (Steps 0-8)
+- `/industrial-deep-diagnostic` — Full pipeline (Steps 0-9)
 - `/industrial-deep-diagnostic analyze` — Skip intake, run from Step 2
 - `/industrial-deep-diagnostic review` — Re-run judge on existing results
 - `/industrial-deep-diagnostic report` — Regenerate report

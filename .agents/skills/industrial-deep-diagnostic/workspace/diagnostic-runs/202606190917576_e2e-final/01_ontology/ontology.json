@@ -1,0 +1,112 @@
+{
+  "ontology_version": "1.0",
+  "process_type": "film_extrusion",
+  "created_at": "2026-06-19T09:00:00Z",
+  "parameters": [
+    {
+      "name": "Z1_Temp",
+      "role": "process_parameter",
+      "stage_ref": "preheat",
+      "physical_meaning": "Pre-heat zone temperature",
+      "unit": "°C"
+    },
+    {
+      "name": "Z2_Temp",
+      "role": "process_parameter",
+      "stage_ref": "stretch",
+      "physical_meaning": "Mid-stretch zone temperature",
+      "unit": "°C"
+    },
+    {
+      "name": "Z3_Temp",
+      "role": "process_parameter",
+      "stage_ref": "stretch_final",
+      "physical_meaning": "Final stretch zone temperature - Arrhenius-governed crystallization, strongest influence on haze and defects",
+      "unit": "°C",
+      "expected_lag": "100-200min"
+    },
+    {
+      "name": "Extruder_Speed",
+      "role": "process_parameter",
+      "stage_ref": "extrusion",
+      "physical_meaning": "Extruder screw speed",
+      "unit": "rpm"
+    },
+    {
+      "name": "Melt_Pressure",
+      "role": "process_parameter",
+      "stage_ref": "extrusion",
+      "physical_meaning": "Melt pressure at die",
+      "unit": "bar"
+    },
+    {
+      "name": "Haze",
+      "role": "quality_target",
+      "stage_ref": "inspection",
+      "physical_meaning": "Film haze",
+      "unit": "%",
+      "direction": "lower_is_better"
+    },
+    {
+      "name": "Defect_Density",
+      "role": "quality_target",
+      "stage_ref": "inspection",
+      "physical_meaning": "Surface defect density",
+      "unit": "counts/m²",
+      "direction": "lower_is_better"
+    },
+    {
+      "name": "product",
+      "role": "grouping",
+      "stage_ref": "production",
+      "physical_meaning": "Product code"
+    }
+  ],
+  "equipment": [
+    {
+      "name": "Extruder",
+      "stage_ref": "extrusion"
+    },
+    {
+      "name": "Stretch_Oven",
+      "stage_ref": "stretch"
+    }
+  ],
+  "quality_target_causal_map": {
+    "Defect_Density": [
+      "Z3_Temp",
+      "Z2_Temp",
+      "Z1_Temp",
+      "Melt_Pressure"
+    ],
+    "Haze": [
+      "Z3_Temp",
+      "Z2_Temp",
+      "Extruder_Speed"
+    ]
+  },
+  "physical_principles": [
+    {
+      "principle": "Arrhenius crystallization",
+      "equation": "k = A * exp(-Ea/(R*T))",
+      "parameters": [
+        "Z3_Temp"
+      ],
+      "direction": "T↑ → k↑ → crystallization rate increases → haze and defects increase"
+    }
+  ],
+  "known_failure_modes": [
+    {
+      "mode": "Z3 temperature drift",
+      "mechanism": "Z3 elevation increases PET crystallization rate (Arrhenius), causing higher haze and defect density",
+      "parameters": [
+        "Z3_Temp"
+      ],
+      "quality_impact": [
+        "Haze",
+        "Defect_Density"
+      ]
+    }
+  ],
+  "discrepancy_signals": []
+}

@@ -1,0 +1,239 @@
+{
+  "file": "/Volumes/laxer/codes/skills/industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202606190917099_e2e-test/00_input/raw_data.csv",
+  "format": "csv",
+  "rows": 1200,
+  "columns": 9,
+  "time_column": "timestamp",
+  "column_details": [
+    {
+      "name": "timestamp",
+      "index": 0,
+      "type": "datetime",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "unique": 1200,
+        "top_values": [
+          [
+            "2026-06-15 08:00:00",
+            1
+          ],
+          [
+            "2026-06-15 08:02:00",
+            1
+          ],
+          [
+            "2026-06-15 08:04:00",
+            1
+          ],
+          [
+            "2026-06-15 08:06:00",
+            1
+          ],
+          [
+            "2026-06-15 08:08:00",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "name": "product",
+      "index": 1,
+      "type": "string",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "unique": 2,
+        "top_values": [
+          [
+            "Product_A",
+            600
+          ],
+          [
+            "Product_B",
+            600
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Z1_Temp",
+      "index": 2,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 180.0589,
+        "std": 2.2215,
+        "min": 175.55218445725885,
+        "max": 184.5310094956642,
+        "p25": 177.94181025703747,
+        "p50": 180.17968632266476,
+        "p75": 182.155718645869
+      }
+    },
+    {
+      "name": "Z2_Temp",
+      "index": 3,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 165.3612,
+        "std": 1.4875,
+        "min": 161.4131553989518,
+        "max": 168.44753303234745,
+        "p25": 164.07167531202347,
+        "p50": 165.60395010229212,
+        "p75": 166.61616894909264
+      }
+    },
+    {
+      "name": "Z3_Temp",
+      "index": 4,
+      "type": "number",
+      "stats": {
+        "count": 1199,
+        "missing": 1,
+        "missing_pct": 0.08,
+        "mean": 82.5882,
+        "std": 1.5785,
+        "min": 81.1,
+        "max": 89.5,
+        "p25": 81.84,
+        "p50": 82.08,
+        "p75": 82.38
+      }
+    },
+    {
+      "name": "Extruder_Speed",
+      "index": 5,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 44.9795,
+        "std": 0.3979,
+        "min": 43.7293184747216,
+        "max": 46.26082269380483,
+        "p25": 44.71810862575565,
+        "p50": 44.99107988651278,
+        "p75": 45.253464409909625
+      }
+    },
+    {
+      "name": "Melt_Pressure",
+      "index": 6,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 120.133,
+        "std": 1.8959,
+        "min": 114.53301925673107,
+        "max": 125.40451101853978,
+        "p25": 118.79735231937921,
+        "p50": 120.29877913967535,
+        "p75": 121.53471459422407
+      }
+    },
+    {
+      "name": "Haze",
+      "index": 7,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 3.1481,
+        "std": 0.2104,
+        "min": 2.522833898864063,
+        "max": 3.8503693112870017,
+        "p25": 3.0032680622930714,
+        "p50": 3.1446973372176577,
+        "p75": 3.29910409184331
+      }
+    },
+    {
+      "name": "Defect_Density",
+      "index": 8,
+      "type": "number",
+      "stats": {
+        "count": 1200,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 0.65,
+        "std": 0.4235,
+        "min": 0,
+        "max": 2.773255457737741,
+        "p25": 0.41670708460984457,
+        "p50": 0.5293104831924981,
+        "p75": 0.6813845970835907
+      }
+    }
+  ],
+  "preview": [
+    {
+      "timestamp": "2026-06-15 08:00:00",
+      "product": "Product_A",
+      "Z1_Temp": "180.2483570765056",
+      "Z2_Temp": "166.03398577879716",
+      "Z3_Temp": "81.78",
+      "Extruder_Speed": "44.444582978467515",
+      "Melt_Pressure": "119.49148838157275",
+      "Haze": "3.0252173242574547",
+      "Defect_Density": "0.40547857547864796"
+    },
+    {
+      "timestamp": "2026-06-15 08:02:00",
+      "product": "Product_A",
+      "Z1_Temp": "179.9608673494169",
+      "Z2_Temp": "165.71521824067906",
+      "Z3_Temp": "82.05",
+      "Extruder_Speed": "44.35989155819851",
+      "Melt_Pressure": "119.47990249394353",
+      "Haze": "2.921632195307074",
+      "Defect_Density": "0.5861062896326045"
+    },
+    {
+      "timestamp": "2026-06-15 08:04:00",
+      "product": "Product_A",
+      "Z1_Temp": "180.38384026913033",
+      "Z2_Temp": "166.0601882925113",
+      "Z3_Temp": "81.84",
+      "Extruder_Speed": "44.51308692311181",
+      "Melt_Pressure": "117.89322358497668",
+      "Haze": "3.595102172856214",
+      "Defect_Density": "0.48352038153470966"
+    },
+    {
+      "timestamp": "2026-06-15 08:06:00",
+      "product": "Product_A",
+      "Z1_Temp": "180.8515014288115",
+      "Z2_Temp": "166.32667367796165",
+      "Z3_Temp": "81.92",
+      "Extruder_Speed": "45.06378500272165",
+      "Melt_Pressure": "119.67587621896602",
+      "Haze": "3.511862470170314",
+      "Defect_Density": "0.4723869699476121"
+    },
+    {
+      "timestamp": "2026-06-15 08:08:00",
+      "product": "Product_A",
+      "Z1_Temp": "180.00289131519824",
+      "Z2_Temp": "166.04383192845367",
+      "Z3_Temp": "82.50",
+      "Extruder_Speed": "44.64288499380325",
+      "Melt_Pressure": "120.97535803843259",
+      "Haze": "2.9176275484905343",
+      "Defect_Density": "0.3841711418293431"
+    }
+  ]
+}

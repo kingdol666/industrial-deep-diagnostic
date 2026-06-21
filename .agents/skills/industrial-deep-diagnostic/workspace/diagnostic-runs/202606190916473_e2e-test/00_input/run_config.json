@@ -1,0 +1,13 @@
+{
+  "data_path": "",
+  "interaction_mode": "auto",
+  "process_description": "",
+  "user_objective": "",
+  "analysis_constraints": {
+    "max_web_research_queries": 5,
+    "judge_score_threshold": 90,
+    "max_judge_iterations": 3,
+    "max_reviewer_iterations": 2,
+    "global_max_iterations": 5
+  }
+}

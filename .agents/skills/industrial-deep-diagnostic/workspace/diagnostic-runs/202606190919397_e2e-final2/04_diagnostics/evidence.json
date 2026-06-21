@@ -1,0 +1,37 @@
+{
+  "evidence_items": [
+    {
+      "rank": 3,
+      "source": "stats_analysis",
+      "claim": "Z3_Temp vs Defect_Density r=0.545, detrended=0.471 \u2014 strongest among all process parameters"
+    },
+    {
+      "rank": 4,
+      "source": "visual_analysis",
+      "claim": "Per-product temporal overlay shows Z3 drift and defect spike are temporally synchronized with ~50-min lag in Product A"
+    },
+    {
+      "rank": 5,
+      "source": "ontology",
+      "claim": "Z3 is in the stretch final stage, Arrhenius-governed \u2014 elevated temperature accelerates crystallization rate, directly causing surface defects"
+    }
+  ],
+  "physical_evidence": [
+    {
+      "parameter": "Z3_Temp",
+      "mechanism": "Arrhenius crystallization",
+      "governing_equation": "k = A * exp(-Ea/RT)",
+      "quantitative_check": "7\u00b0C \u0394T \u2192 ~23% rate increase (Ea\u2248150 kJ/mol at 355K \u2192 each +1\u00b0C \u2248 +3.3% rate)"
+    }
+  ],
+  "visual_evidence_inventory": [
+    {
+      "figure": "fig_vlm_temporal_overlay_focus_Product_A.png",
+      "observation": "Z3_Temp drift temporally precedes Defect_Density spike by ~50 min"
+    },
+    {
+      "figure": "fig_vlm_simpson_Z3_Temp.png",
+      "observation": "Z3-Defect correlation consistent within Product A, not reversed across strata"
+    }
+  ]
+}

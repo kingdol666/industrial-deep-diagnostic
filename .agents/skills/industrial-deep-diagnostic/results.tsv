@@ -1,0 +1,4 @@
+timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
+2026-06-20T11:25	2acc74a	industrial-deep-diagnostic	123.0	127.0	keep	实测表现	P0-fix-HTML-opt-out-finalize-blocking	full_test
+2026-06-20T11:27	94ecaea	industrial-deep-diagnostic	127.0	128.5	keep	整体架构	P1-merge-HTML-review-gate-redundancy	full_test
+2026-06-20T11:29	cadc144	industrial-deep-diagnostic	128.5	129.0	keep	失败模式编码	P2-add-deep-fallback-protocol	full_test

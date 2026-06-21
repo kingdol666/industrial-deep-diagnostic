@@ -402,6 +402,13 @@ if (!statsPath || !dataPath) {
   process.exit(1);
 }
 
+function getArgValue(flag, fallback = null) {
+  const idx = args.indexOf(flag);
+  if (idx === -1 || idx + 1 >= args.length) return fallback;
+  const value = args[idx + 1];
+  return value && !value.startsWith('--') ? value : fallback;
+}
+
 const statsRaw = fs.readFileSync(statsPath, 'utf-8');
 const stats = JSON.parse(statsRaw);
 
@@ -409,9 +416,9 @@ const dataRaw = fs.readFileSync(dataPath, 'utf-8');
 const dataParsed = JSON.parse(dataRaw);
 const rows = Array.isArray(dataParsed) ? dataParsed : dataParsed.data || [dataParsed];
 
-const groupCol = args[args.indexOf('--group-col') + 1] || null;
-const timeCol = args[args.indexOf('--time-col') + 1] || null;
-const outputPath = args[args.indexOf('--output') + 1] || null;
+const groupCol = getArgValue('--group-col', null);
+const timeCol = getArgValue('--time-col', null);
+const outputPath = getArgValue('--output', null);
 
 // Extract numeric columns from data
 const numericCols = [];

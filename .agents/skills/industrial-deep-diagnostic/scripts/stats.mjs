@@ -3,7 +3,8 @@
 // Computes: Pearson, Spearman, detrended correlations, stratified analysis,
 //           full lag CCF, multiple testing correction, sorting validation.
 // Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C]
-//        [--max-lag N] [--group-col G] [--alpha 0.05]
+//        [--predictor-cols A,B,C] [--exclude-cols A,B,C]
+//        [--max-lag N] [--group-col G] [--alpha 0.05] [--data-view-mode MODE]
 
 import fs from 'fs';
 
@@ -743,8 +744,15 @@ function interactionAnalysis(colData, targetCols, numericCols) {
 const args = process.argv.slice(2);
 const filePath = args[0];
 if (!filePath) {
-  console.error('Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C] [--max-lag N] [--group-col G] [--alpha 0.05]');
+  console.error('Usage: node stats.mjs <data.json> [--time-col X] [--target-cols A,B,C] [--predictor-cols A,B,C] [--exclude-cols A,B,C] [--max-lag N] [--group-col G] [--alpha 0.05] [--data-view-mode MODE]');
   process.exit(1);
+}
+
+function getArgValue(flag, fallback = null) {
+  const idx = args.indexOf(flag);
+  if (idx === -1 || idx + 1 >= args.length) return fallback;
+  const value = args[idx + 1];
+  return value && !value.startsWith('--') ? value : fallback;
 }
 
 const { data: rows, note } = loadData(filePath);
@@ -754,22 +762,45 @@ if (!Array.isArray(rows) || rows.length === 0) {
   process.exit(1);
 }
 
-const timeCol = (args[args.indexOf('--time-col') + 1]) || null;
-const targetColsStr = (args[args.indexOf('--target-cols') + 1]) || '';
+const timeCol = getArgValue('--time-col', null);
+const targetColsStr = getArgValue('--target-cols', '');
 const targetCols = targetColsStr ? targetColsStr.split(',').map(s => s.trim()) : [];
-const maxLag = parseInt(args[args.indexOf('--max-lag') + 1]) || 20;
-const groupCol = (args[args.indexOf('--group-col') + 1]) || null;
-const alpha = parseFloat(args[args.indexOf('--alpha') + 1]) || 0.05;
+const predictorColsStr = getArgValue('--predictor-cols', '');
+const predictorCols = predictorColsStr ? predictorColsStr.split(',').map(s => s.trim()) : [];
+const excludeColsStr = getArgValue('--exclude-cols', '');
+const excludeCols = new Set(excludeColsStr ? excludeColsStr.split(',').map(s => s.trim()) : []);
+const maxLag = parseInt(getArgValue('--max-lag', '20')) || 20;
+const groupCol = getArgValue('--group-col', null);
+const alpha = parseFloat(getArgValue('--alpha', '0.05')) || 0.05;
+const dataViewMode = getArgValue('--data-view-mode', 'unknown');
 
 // Validate time sorting (critical for lag analysis)
 const sortingValidation = validateTimeSorting(rows, timeCol);
 
 // Get all numeric columns
-const numericCols = [];
+const allNumericCols = [];
 for (const key of Object.keys(rows[0])) {
   if (key === timeCol) continue;
   const vals = rows.map(r => Number(r[key])).filter(v => !isNaN(v));
-  if (vals.length > rows.length * 0.5) numericCols.push(key);
+  if (vals.length > rows.length * 0.5) allNumericCols.push(key);
+}
+
+// Apply exclude filter — Phase 0.4 pruned columns
+const numericCols = allNumericCols.filter(c => !excludeCols.has(c));
+const excludedFromAnalysis = allNumericCols.filter(c => excludeCols.has(c));
+
+// Determine effective predictor set:
+// If --predictor-cols specified, use only those (Tier 1+2 from Phase 0.4)
+// Otherwise use all non-target numeric columns (legacy fallback)
+const effectivePredictors = predictorCols.length
+  ? predictorCols.filter(c => numericCols.includes(c))
+  : null; // null = use all numeric non-target columns
+
+if (excludedFromAnalysis.length > 0) {
+  console.error(`[stats.mjs] Excluded ${excludedFromAnalysis.length} columns from analysis: ${excludedFromAnalysis.join(', ')}`);
+}
+if (effectivePredictors) {
+  console.error(`[stats.mjs] Using ${effectivePredictors.length} predictor columns from --predictor-cols`);
 }
 
 // Extract numeric arrays
@@ -797,7 +828,8 @@ for (const c1 of numericCols) {
 }
 
 // Per-target detailed analysis
-const effectiveTargets = targetCols.length ? targetCols : numericCols.slice(0, 5);
+const effectiveTargets = dataViewMode === 'process_only' ? [] : (targetCols.length ? targetCols : numericCols.slice(0, 5));
+const analysisPredictors = effectivePredictors || numericCols.filter(c => !effectiveTargets.includes(c));
 const targetAnalysis = {};
 
 for (const target of effectiveTargets) {
@@ -811,7 +843,7 @@ for (const target of effectiveTargets) {
     lag_window_consistency: {}
   };
 
-  for (const col of numericCols) {
+  for (const col of analysisPredictors) {
     if (col === target) continue;
 
     // Pearson
@@ -882,7 +914,7 @@ if (sortingValidation.time_sorted && timeCol) {
   for (const target of effectiveTargets) {
     if (!colData[target]) continue;
     grangerResults[target] = {};
-    for (const col of numericCols) {
+    for (const col of analysisPredictors) {
       if (col === target) continue;
       const gc = grangerCausality(colData[col], colData[target], Math.min(maxLag, 5));
       grangerResults[target][col] = gc;
@@ -891,14 +923,18 @@ if (sortingValidation.time_sorted && timeCol) {
 }
 
 // Interaction effect analysis
-const interactionResults = interactionAnalysis(colData, effectiveTargets, numericCols);
+const interactionResults = interactionAnalysis(colData, effectiveTargets, analysisPredictors);
 
 // Build output
 const result = {
   data_summary: {
+    data_view_mode: dataViewMode,
     total_rows: rows.length,
-    numeric_columns: numericCols.length,
+    numeric_columns_total: allNumericCols.length,
+    numeric_columns_analyzed: numericCols.length,
+    excluded_columns: excludedFromAnalysis,
     target_columns: effectiveTargets,
+    predictor_columns: analysisPredictors,
     time_column: timeCol,
     group_column: groupCol,
     group_values: groupValues,

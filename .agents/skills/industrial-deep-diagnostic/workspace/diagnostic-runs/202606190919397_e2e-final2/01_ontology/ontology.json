@@ -1,0 +1,114 @@
+{
+  "ontology_version": "1.0",
+  "process_type": "film_extrusion",
+  "created_at": "2026-06-19T09:00:00Z",
+  "parameters": [
+    {
+      "name": "Z1_Temp",
+      "role": "process_parameter",
+      "stage_ref": "preheat",
+      "physical_meaning": "Pre-heat zone temperature, governs film entering temperature for stretch zone",
+      "unit": "°C"
+    },
+    {
+      "name": "Z2_Temp",
+      "role": "process_parameter",
+      "stage_ref": "stretch",
+      "physical_meaning": "Mid-stretch zone temperature, influences MD stretch uniformity",
+      "unit": "°C"
+    },
+    {
+      "name": "Z3_Temp",
+      "role": "process_parameter",
+      "stage_ref": "stretch_final",
+      "physical_meaning": "Final stretch zone temperature - Arrhenius-governed crystallization rate, strongest influence on haze and surface defects",
+      "unit": "°C",
+      "expected_lag": "process_to_quality: ~100-200 minutes after Z3 change"
+    },
+    {
+      "name": "Extruder_Speed",
+      "role": "process_parameter",
+      "stage_ref": "extrusion",
+      "physical_meaning": "Extruder screw speed, governs melt throughput and residence time",
+      "unit": "rpm"
+    },
+    {
+      "name": "Melt_Pressure",
+      "role": "process_parameter",
+      "stage_ref": "extrusion",
+      "physical_meaning": "Melt pressure at die, coupled with Extruder_Speed via pump curve",
+      "unit": "bar"
+    },
+    {
+      "name": "Haze",
+      "role": "quality_target",
+      "stage_ref": "inspection",
+      "physical_meaning": "Film optical haze",
+      "unit": "%",
+      "direction": "lower_is_better"
+    },
+    {
+      "name": "Defect_Density",
+      "role": "quality_target",
+      "stage_ref": "inspection",
+      "physical_meaning": "Surface defect count per square meter",
+      "unit": "counts/m²",
+      "direction": "lower_is_better"
+    },
+    {
+      "name": "product",
+      "role": "grouping",
+      "stage_ref": "production",
+      "physical_meaning": "Product code - two grades run on this line"
+    }
+  ],
+  "equipment": [
+    {
+      "name": "Extruder",
+      "stage_ref": "extrusion",
+      "function": "Melts and pumps polymer through die"
+    },
+    {
+      "name": "Stretch_Oven",
+      "stage_ref": "stretch",
+      "function": "Multi-zone stretching oven with temperature control per zone"
+    }
+  ],
+  "quality_target_causal_map": {
+    "Defect_Density": [
+      "Z3_Temp",
+      "Z2_Temp",
+      "Z1_Temp",
+      "Melt_Pressure"
+    ],
+    "Haze": [
+      "Z3_Temp",
+      "Z2_Temp",
+      "Extruder_Speed"
+    ]
+  },
+  "physical_principles": [
+    {
+      "principle": "Arrhenius crystallization kinetics",
+      "equation": "k = A * exp(-Ea/(R*T))",
+      "parameters": [
+        "Z3_Temp"
+      ],
+      "direction": "T↑ → k↑ → crystallization rate increases → haze and surface defects increase"
+    }
+  ],
+  "known_failure_modes": [
+    {
+      "mode": "Stretch zone temperature drift",
+      "mechanism": "Z3 temperature elevation increases PET crystallization rate exponentially (Arrhenius), causing higher haze and surface defect density",
+      "parameters": [
+        "Z3_Temp"
+      ],
+      "quality_impact": [
+        "Haze",
+        "Defect_Density"
+      ]
+    }
+  ],
+  "discrepancy_signals": []
+}

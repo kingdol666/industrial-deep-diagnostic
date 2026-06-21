@@ -90,7 +90,12 @@ const manifest = {
       '04_diagnostics/diagnosis.json',
       '04_diagnostics/evidence.json',
       '04_diagnostics/confidence.json',
-      '04_diagnostics/reasoning_chain.json'
+      '04_diagnostics/reasoning_chain.json',
+      '05_review/judge_feedback.json',
+      'report.md',
+      'run_summary.json',
+      'optimizer.md',
+      'evidence_closure_report.json'
     ]
   },
   pipeline: {

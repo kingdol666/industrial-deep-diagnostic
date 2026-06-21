@@ -28,7 +28,22 @@ parser.add_argument("--group-col", nargs="+", default=[], help="Group/stratifica
 parser.add_argument("--time-col", default=None, help="Timestamp column to exclude from numerics")
 parser.add_argument("--exclude-cols", nargs="+", default=[], help="Additional columns to exclude from analysis")
 parser.add_argument("--max-lag", type=int, default=20, help="Max CCF lag")
+parser.add_argument("--data-view-mode", choices=["process_plus_inspection", "process_only", "inspection_only", "unknown"], default="unknown", help="Controls whether target columns are required or inferred")
 args = parser.parse_args()
+
+# ── Safe float coercion ──
+# cleaned_data.json carries numeric values as strings (CSV→JSON does no type
+# coercion — the string-type-gotcha). A stray token like "<0.05" in an
+# otherwise-numeric column will crash plain float(r[c]) at line ~172.
+def _safe_float(v):
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
 
 DATA_PATH = args.data_json
 OUTPUT_DIR = args.output_dir
@@ -88,7 +103,9 @@ for c in all_col_names:
         continue
 
 # ── Target detection (no keyword guessing) ──
-if args.target_cols:
+if args.data_view_mode == "process_only":
+    target_cols = []
+elif args.target_cols:
     target_cols = [c for c in args.target_cols if c in all_col_names]
 else:
     # Infer targets from statistical signatures: columns with strongest trends
@@ -166,10 +183,17 @@ def ccf(x, y, max_lag=20):
     return lags
 
 # Extract
-values = {c: [float(r[c]) for r in rows] for c in numeric_cols}
+values = {}
+for c in numeric_cols:
+    vals = []
+    for r in rows:
+        fv = _safe_float(r[c])
+        if fv is not None:
+            vals.append(fv)
+    values[c] = vals
 
 result = {
-    "metadata": {"n_rows": n, "n_columns": len(numeric_cols), "target_columns": target_cols},
+    "metadata": {"n_rows": n, "n_columns": len(numeric_cols), "target_columns": target_cols, "data_view_mode": args.data_view_mode},
     "trends": {},
     "correlations": {},
     "detrended_correlations": {},

@@ -1,0 +1,5 @@
+{"event":"run_initialized","step":"setup","agent":"main-agent","timestamp":"2026-06-19T09:19:39.793Z","run_id":"202606190919397_e2e-final2","run_dir":"/Volumes/laxer/codes/skills/industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202606190919397_e2e-final2","files_written":["run_manifest.json","00_input/run_config.json"],"status":"completed"}
+{"event":"artifact_check_complete","agent":"main-agent","timestamp":"2026-06-19T09:20:13.434Z","summary":{"total_checks":57,"ok":20,"missing_critical":11,"invalid_critical":17,"missing_optional":9,"invalid_optional":0,"figures_generated":10},"step":"present","status":"FAIL"}
+{"event":"artifact_finalize_start","agent":"main-agent","timestamp":"2026-06-19T09:20:13.533Z","step":"present"}
+{"event":"run_completed","agent":"main-agent","timestamp":"2026-06-19T09:20:13.799Z","step":"present"}
+{"event":"artifact_check_complete","agent":"main-agent","timestamp":"2026-06-19T09:20:42.583Z","summary":{"total_checks":57,"ok":24,"missing_critical":10,"invalid_critical":16,"missing_optional":7,"invalid_optional":0,"figures_generated":10},"step":"present","status":"FAIL"}

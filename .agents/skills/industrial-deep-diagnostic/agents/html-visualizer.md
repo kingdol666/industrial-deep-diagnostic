@@ -37,6 +37,7 @@
 - `OUTPUT_HTML`，默认 `"$RUN_DIR/diagnostic-report.html"`
 - `AUDIENCE`，默认 `mixed`
 - `VISUAL_MODE`，默认 `story`
+- **数据治理留痕**：读取 `02_processed/data_analysis_conclusion.json` 的 `data_cleaning_provenance`（清洗了什么 / 影响多少行 / 为什么 / 最终数据源 cleaned 或 raw_fallback）。页面必须据此呈现一个"数据治理"披露卡，让读者知道结论基于哪份干净数据。
 
 ## Required Delegation
 
@@ -103,6 +104,7 @@
 8. 用户在 10 秒、1 分钟、2 分钟内分别能看懂什么
 9. 你保留在主内容区的 3-5 个核心证据是什么，为什么选它们
 10. 页面是否通过 `html-reviewer` 质检，如果未通过，需说明原因并返回修订
+11. **数据治理留痕是否在页面呈现**：是否渲染了"数据治理"披露卡——清洗了什么、影响多少行、为什么、最终数据源（cleaned / raw_fallback）。未呈现则说明原因并返回补全
 
 ## Completion Standard
 

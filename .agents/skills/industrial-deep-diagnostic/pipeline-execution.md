@@ -1,7 +1,7 @@
 # Pipeline Execution Reference
 
 > **Load this file only during repair loops or when detailed validation rules are needed.**
-> SKILL.md contains the main step-by-step protocol. This file covers: numbering systems, repair loop protocol, pipeline event logging, statistical validation framework, and common mistakes.
+> SKILL.md contains the main step-by-step protocol. This file covers: numbering systems, step command reference, repair loop protocol, pipeline event logging, statistical validation framework, and common mistakes.
 
 ## Numbering Systems — Four Separate Schemes
 
@@ -9,10 +9,183 @@ This skill uses FOUR distinct numbering systems. Do not conflate them.
 
 | System | Scope | Used In | Example |
 |--------|-------|---------|---------|
-| **Pipeline Step 0-8** | Orchestration-level workflow | SKILL.md | "Step 4: Diagnostician" |
+| **Pipeline Step 0-9** | Orchestration-level workflow | SKILL.md | "Step 4: Diagnostician" |
 | **Agent Phase 0-7** | Diagnostician's internal workflow | agents/diagnostician.md | "Phase 1: Data Probing" |
 | **Reasoning Segment R1-R8** | Structured reasoning trace output | reasoning_chain.json | "R4: Hypothesis Generation" |
 | **Method Stage 1-6** | Generic diagnostic methodology | resources/diagnosis_method.md | "Stage 3: Temporal Analysis" |
+
+---
+
+## Step Command Reference
+
+Full validation and event-logging commands for each pipeline step.
+
+### Step 0: Setup
+
+```bash
+SKILL_PATH="<path-to-this-skill>"
+PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
+node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+node "$SKILL_PATH/scripts/uv_env_setup.mjs"
+```
+
+`setup.mjs` bootstraps both `run_manifest.json` and `.pipeline_events.jsonl` with a `run_initialized` event.
+
+### Step 1: Inspect
+
+```bash
+node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
+```
+
+Recommended event logging:
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_start --agent main-agent --step inspect --data '{"data_path":"<data_path>"}'
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event step_complete --agent main-agent --step inspect --files 00_input/input_manifest.json,00_input/user_context.json
+```
+
+### Step 2: Context Build (context-builder agent)
+
+```javascript
+Agent({
+  subagent_type: "context-builder",
+  description: "Step 2: 构建领域本体 — RAG检索+网络搜索+本体构建",
+  permissionMode: "bypassPermissions",
+  prompt: `DATA_PATH=${DATA_PATH}
+RUN_DIR=${RUN_DIR}
+REFERENCE_DIR=${REFERENCE_DIR}
+PROCESS_DESCRIPTION=${PROCESS_DESCRIPTION}
+USER_OBJECTIVE=${USER_OBJECTIVE}
+SKILL_PATH=${SKILL_PATH}
+INTERACTION_MODE=auto
+
+Read "$SKILL_PATH/agents/context-builder.md" and execute the complete protocol. Validate ontology_schema before completion.`,
+  run_in_background: true
+})
+```
+
+Validate ontology:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"
+```
+
+### Step 2.5: Clarification Gate
+
+Record the gate outcome:
+```bash
+node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event clarification_auto_inferred --agent main-agent --step clarification_gate
+```
+
+### Step 3: Data Processing (data-processor agent)
+
+Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/data-processor.md`, execute Phase 0-6, use the uv-managed Python path, and delegate Phase 5.5 to `vlm-visual-analyzer`.
+
+Stabilization before Step 4:
+```bash
+node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+```
+
+Key validation commands:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"
+```
+
+### Step 4: Diagnostician
+
+Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, and optional `REPAIR_INSTRUCTIONS`. Tell it to read `agents/diagnostician.md`, execute Phase 0-7.
+
+Validate all four outputs:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
+node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
+```
+
+### Step 5: Judge
+
+Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/judge.md`, run full quality gate, use lowercase enum values only.
+
+Validate + gate check:
+```bash
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/judge_feedback_schema.json" "$RUN_DIR/05_review/judge_feedback.json"
+node "$SKILL_PATH/scripts/judge-gate-check.mjs" "$RUN_DIR" --skip-summary
+```
+
+### Step 6: Reporter
+
+Launch with `RUN_DIR`, `SKILL_PATH`. Tell it to read `agents/reporter.md`, use `visual_analysis.json` as primary figure evidence.
+
+### Step 7: Report Reviewer
+
+Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/report-reviewer.md`.
+
+### Step 8: HTML Visualizer
+
+```javascript
+Agent({
+  subagent_type: "html-visualizer",
+  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+VISUAL_MODE=story
+
+Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol.`,
+  run_in_background: true
+})
+```
+
+### Step 8.5: HTML Reviewer
+
+```javascript
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核 HTML 可视化页面是否清楚、完整、能支撑结论",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+
+Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review protocol.`,
+  run_in_background: true
+})
+```
+
+只有审核通过（`verdict: "pass"`），页面才算最终交付。如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
+
+### Step 9: Finalize
+
+```bash
+node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
+node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
+node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
+```
+
+After Step 7 returns `ENDORSED`, the default next action is to launch the html-visualizer subagent (Step 8), then html-reviewer on the output (Step 8.5).
+
+Treat this HTML generation as part of the normal completion path unless the user explicitly opts out.
+The main agent may summarize the result, but it must not directly produce the HTML in the main context. See `agents/html-visualizer.md` and `agents/html-reviewer.md` for the full agent definition and protocol.
+
+The generated page must include runtime readiness checks for:
+
+- `window.echarts`
+- `window.THREE`
+- `OrbitControls` when used
+- at least one successfully initialized chart
+- at least one successfully initialized 3D scene
+
+If interactive libraries fail to load, the page must surface a visible degraded-mode notice and keep the static explanation usable.
+
+---
 
 ---
 

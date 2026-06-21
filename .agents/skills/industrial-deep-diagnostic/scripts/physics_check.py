@@ -35,6 +35,26 @@ def load_json(path: str) -> dict:
         return json.load(f)
 
 
+def _safe_float(v: Any) -> float | None:
+    """Coerce a value to float, returning None if not possible.
+
+    cleaned_data.json carries numeric values as strings (CSV→JSON conversion
+    performs no type coercion — the string-type-gotcha). Raw
+    ``isinstance(v, (int, float))`` gates therefore silently drop every value
+    and produce empty before/after windows. This helper parses the string
+    instead. Booleans are excluded (bool subclasses int in Python but is not a
+    measurement).
+    """
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 # ──────────────────────────────────────────────
 # Physical Check Implementations
 # ──────────────────────────────────────────────
@@ -556,14 +576,14 @@ def analyze_quality_resets(
             after_vals = []
             for i in range(max(0, idx - N_CONTEXT), idx):
                 if i < len(cleaned_data) and isinstance(cleaned_data[i], dict) and q in cleaned_data[i]:
-                    v = cleaned_data[i][q]
-                    if isinstance(v, (int, float)):
-                        before_vals.append(v)
+                    fv = _safe_float(cleaned_data[i][q])
+                    if fv is not None:
+                        before_vals.append(fv)
             for i in range(idx, min(idx + N_CONTEXT, len(cleaned_data))):
                 if i < len(cleaned_data) and isinstance(cleaned_data[i], dict) and q in cleaned_data[i]:
-                    v = cleaned_data[i][q]
-                    if isinstance(v, (int, float)):
-                        after_vals.append(v)
+                    fv = _safe_float(cleaned_data[i][q])
+                    if fv is not None:
+                        after_vals.append(fv)
 
             if not before_vals or not after_vals:
                 continue
@@ -669,8 +689,8 @@ def analyze_anomaly_onset(
 
         for param in candidate_params:
             # Check pre-anomaly values
-            pre_vals = [r[param] for r in pre_window if param in r and isinstance(r.get(param), (int, float))]
-            anomaly_vals = [r[param] for r in anomaly_window if param in r and isinstance(r.get(param), (int, float))]
+            pre_vals = [s for r in pre_window if (s := _safe_float(r.get(param))) is not None]
+            anomaly_vals = [s for r in anomaly_window if (s := _safe_float(r.get(param))) is not None]
 
             if not pre_vals or not anomaly_vals:
                 continue

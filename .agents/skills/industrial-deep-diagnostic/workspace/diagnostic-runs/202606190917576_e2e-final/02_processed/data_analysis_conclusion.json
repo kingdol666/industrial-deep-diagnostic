@@ -1,0 +1,196 @@
+{
+  "run_id": "202606190917576_e2e-final",
+  "generated_at": "2026-06-19T09:18:53.883Z",
+  "analysis_mode": "baseline_only_with_justification",
+  "baseline_script_results": {
+    "scripts_run": [
+      "convert.mjs",
+      "dp_toolkit.py preprocess",
+      "stats.mjs / stats_analysis.py",
+      "stats_validate.mjs",
+      "dp_toolkit.py anomaly",
+      "physics_check.py"
+    ],
+    "key_findings": [
+      {
+        "finding": "Baseline statistical scripts completed, but no high-confidence correlation summary was automatically extracted.",
+        "source": "02_processed/feature_summary.json",
+        "evidence_rank": 3
+      }
+    ],
+    "limitations": [
+      "Aggregate patterns should not be treated as causal without subgroup and physics confirmation.",
+      "Temporal reasoning depends on the detected time column remaining valid after preprocessing."
+    ]
+  },
+  "expert_custom_analysis": {
+    "custom_scripts_written": false,
+    "script_inventory": [],
+    "analysis_questions": [
+      "Which process-side abnormalities remain after validation and grouping checks?",
+      "Do inspection anomalies align with process-side instability in the same product or time context?"
+    ],
+    "custom_outputs": [],
+    "why_needed": "No custom script artifacts were found; baseline sufficiency must be justified by the Data Processor."
+  },
+  "ontology_industry_interpretation": [
+    {
+      "parameter_or_pattern": "timestamp",
+      "ontology_role": "process-context anchor",
+      "industry_knowledge": "Process interpretation depends on the mapping between measured signals and process stages.",
+      "interpretation": "The ontology did not expose explicit discrepancy signals, so downstream diagnosis should rely on validated data evidence and first-principles checks.",
+      "confidence": "low"
+    }
+  ],
+  "adaptive_decision_audit": {
+    "data_view_mode": "unknown",
+    "mode_justification": "Could not reliably distinguish process parameters from inspection/quality targets from the available Step 3 artifacts.",
+    "data_shapes_detected": [
+      "time_series",
+      "product_or_batch_grouping"
+    ],
+    "selected_analyses": [
+      {
+        "analysis": "grouping_and_confounding_checks",
+        "reason": "Detected grouping column product, so aggregate relationships must be compared with within-group behavior.",
+        "evidence_artifacts": [],
+        "coverage_status": "partial"
+      },
+      {
+        "analysis": "temporal_regime_event_analysis",
+        "reason": "Detected time column timestamp; time-aligned overlays, lag/sequence review, and transition analysis are applicable.",
+        "evidence_artifacts": [],
+        "coverage_status": "partial"
+      }
+    ],
+    "skipped_or_not_applicable": [
+      {
+        "analysis": "pure_process_fluctuation_and_drift",
+        "status": "not_applicable",
+        "reason": "No process-parameter fluctuation block was available in anomaly_report.json."
+      },
+      {
+        "analysis": "process_inspection_dual_drive",
+        "status": "not_applicable",
+        "reason": "The available artifacts do not contain both process-side and inspection-side evidence."
+      },
+      {
+        "analysis": "scenario_specific_expert_analysis",
+        "status": "skipped",
+        "reason": "No scenario-specific artifact or custom script was present; the run should justify why the baseline was sufficient."
+      }
+    ],
+    "custom_analysis_required": false,
+    "custom_analysis_reason": "No custom script artifacts were found; baseline sufficiency must be justified by the Data Processor.",
+    "expert_review_summary": "Adaptive review classified the run as unknown, detected time_series, product_or_batch_grouping, and selected 2 analysis families with 3 skipped/not-applicable decisions."
+  },
+  "analysis_coverage_matrix": {
+    "pure_process_analysis": {
+      "status": "missing",
+      "evidence_artifacts": [],
+      "summary": "No process-parameter fluctuation evidence was available.",
+      "gaps": [
+        "Provide process parameter columns or repair anomaly detection."
+      ]
+    },
+    "process_inspection_dual_drive": {
+      "status": "not_applicable",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "No true dual-drive linkage can be claimed because the data does not contain both process and inspection/quality evidence.",
+      "gaps": [
+        "Add inspection/quality/test data to evaluate process-to-quality linkage."
+      ]
+    },
+    "grouping_confounding": {
+      "status": "partial",
+      "evidence_artifacts": [],
+      "summary": "Grouping/confounding analysis used primary grouping column product.",
+      "gaps": [
+        "Product group artifact missing; verify grouped analysis ran."
+      ]
+    },
+    "temporal_regime_event": {
+      "status": "partial",
+      "evidence_artifacts": [],
+      "summary": "Temporal/regime analysis is applicable through time column timestamp.",
+      "gaps": [
+        "A time-aligned or temporal plot is missing from plot_manifest.json."
+      ]
+    },
+    "scenario_specific": {
+      "status": "partial",
+      "evidence_artifacts": [],
+      "summary": "No scenario-specific artifact was generated; baseline-only sufficiency needs explicit justification.",
+      "gaps": [
+        "Consider zone, paired-sensor, event, nonlinear, cyclic, or process-health custom analysis if data shape supports it."
+      ]
+    }
+  },
+  "analysis_boundary": {
+    "missing": "Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering"
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity)",
+    "integrity_checks": {
+      "row_count": {
+        "raw_rows": 1200,
+        "cleaned_rows": 1200,
+        "dropped": 0,
+        "drop_rate": 0
+      },
+      "type_integrity": {
+        "Z3_Temp": {
+          "leaked": true,
+          "repaired": true,
+          "stray_tokens": 1
+        }
+      },
+      "range_fidelity": {}
+    },
+    "cleaning_operations": [
+      {
+        "operation": "type_coerce",
+        "target": "Z3_Temp",
+        "rows_affected": 1,
+        "rationale": "Row 500 contained <0.05 (detection limit notation) which leaked column to object/string dtype — coerced to NaN to enable numeric plotting"
+      }
+    ],
+    "repair_attempts": [
+      "pd.to_numeric on Z3_Temp — stray <0.05 token at row 500 repaired"
+    ]
+  },
+  "data_supported_conclusions": [
+    {
+      "conclusion": "Processed data artifacts exist, but the diagnostic handoff should explicitly test whether observed parameter changes survive subgroup and physics checks.",
+      "supporting_sources": [
+        "02_processed/feature_summary.json"
+      ],
+      "evidence_strength": "weak",
+      "diagnostic_relevance": "Treat this as a starting point rather than a root-cause conclusion.",
+      "known_caveats": [
+        "No richer structured conclusion was available at synthesis time."
+      ]
+    }
+  ],
+  "handoff_to_diagnostician": {
+    "priority_hypothesis_inputs": [
+      {
+        "candidate": "candidate_1",
+        "why_prioritized": "Processed data artifacts exist, but the diagnostic handoff should explicitly test whether observed parameter changes survive subgroup and physics checks.",
+        "supporting_artifacts": [
+          "02_processed/feature_summary.json"
+        ]
+      }
+    ],
+    "evidence_gaps": [
+      "Need final competing-hypothesis testing before turning data patterns into root-cause claims."
+    ],
+    "recommended_diagnostic_focus": [
+      "Cross-check statistical patterns against physics plausibility and ontology roles.",
+      "Verify whether product-group differences or event transitions explain the anomaly better than a universal process drift."
+    ]
+  }
+}

@@ -46,6 +46,16 @@
       "type": "string",
       "description": "If product/grade grouping exists, name the primary grouping column. Null if no grouping."
     },
+    "n_products": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of distinct products detected in the data (1 if single-product)"
+    },
+    "n_per_product_overlays": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of per-product time-aligned overlay charts generated (0 if single product = use global overlay)"
+    },
 
     "chart_inventory": {
       "type": "array",

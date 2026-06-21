@@ -1,0 +1,51 @@
+{
+  "run_dir": "/Volumes/laxer/codes/skills/industrial-deep-diagnostic/.claude/skills/industrial-deep-diagnostic/workspace/diagnostic-runs/202606190919397_e2e-final2",
+  "checked_at": "2026-06-19T09:20:42.623Z",
+  "status": "FAIL",
+  "summary": {
+    "critical_issues": 4,
+    "warnings": 2,
+    "process_fluctuation_entry_present": false,
+    "process_fluctuation_diagnosed": false,
+    "data_view_mode": "unknown",
+    "dual_drive_applicable": false,
+    "dual_drive_entry_present": false,
+    "dual_drive_diagnosed": false,
+    "ontology_bridge_present": false,
+    "validation_carried_forward": false,
+    "visual_evidence_carried_forward": false,
+    "report_sections_present": false
+  },
+  "issues": [
+    {
+      "severity": "critical",
+      "code": "PROCESS_FLUCTUATION_INPUT_MISSING",
+      "message": "anomaly_report.json 缺少 process_parameter_fluctuation，无法证明纯工艺波动分析入口存在。"
+    },
+    {
+      "severity": "critical",
+      "code": "PROCESS_FLUCTUATION_DIAG_MISSING",
+      "message": "diagnosis.json 缺少有效的 process_fluctuation_analysis，纯工艺波动诊断未闭环。"
+    },
+    {
+      "severity": "critical",
+      "code": "ONTOLOGY_PHYSICS_BRIDGE_MISSING",
+      "message": "本体/行业知识到诊断物理链条的桥接不足，无法证明统计发现被物理语义正确消化。"
+    },
+    {
+      "severity": "critical",
+      "code": "VALIDATION_CARRY_FORWARD_MISSING",
+      "message": "validate_report 的关键约束没有被 evidence.json 或 judge_feedback.json 明确承接。"
+    },
+    {
+      "severity": "warning",
+      "code": "VISUAL_EVIDENCE_CARRY_FORWARD_WEAK",
+      "message": "visual_analysis 的观察未充分闭环到 evidence.json 或 surviving hypotheses.visual_evidence。"
+    },
+    {
+      "severity": "warning",
+      "code": "REPORT_CLOSURE_SECTION_WEAK",
+      "message": "report.md 没有明确呈现纯工艺波动诊断、双驱动分析、数据分析专家结论三类闭环章节。"
+    }
+  ]
+}

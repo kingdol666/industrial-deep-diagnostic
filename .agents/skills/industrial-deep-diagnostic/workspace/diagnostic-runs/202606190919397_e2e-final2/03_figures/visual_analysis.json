@@ -1,0 +1,245 @@
+{
+  "generated_at": "2026-06-19T17:20:12.773115",
+  "vlm_chart_count": 10,
+  "observation_mode": "skeleton_pre_vlm",
+  "chart_design_purpose": "Per-product time-aligned overlays with ALL process parameters + quality metrics on shared time axis. When multiple products exist, each product gets its own overlay; focus product (highest anomaly rate) is analyzed first.",
+  "time_alignment_applicable": true,
+  "primary_grouping_dimension": "product",
+  "n_products": 2,
+  "n_per_product_overlays": 2,
+  "analysis_provenance": {
+    "source_agent": "visual_analysis.py",
+    "stage": "skeleton_pre_vlm",
+    "skeleton_overwritten": false,
+    "context_files_read": [
+      "02_processed/cleaned_data.csv",
+      "02_processed/feature_summary.json",
+      "02_processed/validate_report.json",
+      "01_ontology/ontology.json",
+      "02_processed/production_regime_filter.json",
+      "02_processed/anomaly_report.json"
+    ],
+    "figure_inputs_attempted": [],
+    "figure_inputs_read_successfully": [],
+    "grounding_summary": "Pre-VLM skeleton. Per-product time-aligned overlays generated with ALL process parameters. MUST be enhanced by vlm-visual-analyzer with ontology-grounded observations.",
+    "grounding_sources": [
+      "02_processed/feature_summary.json",
+      "02_processed/validate_report.json",
+      "01_ontology/ontology.json"
+    ]
+  },
+  "cross_parameter_temporal_alignment": {
+    "synchronous_groups": [],
+    "precedence_signals": [],
+    "independent_parameters": [
+      {
+        "parameters": [
+          "Defect_Density"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      },
+      {
+        "parameters": [
+          "Z3_Temp"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      },
+      {
+        "parameters": [
+          "Z2_Temp"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      },
+      {
+        "parameters": [
+          "Z1_Temp"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      },
+      {
+        "parameters": [
+          "Extruder_Speed"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      },
+      {
+        "parameters": [
+          "Melt_Pressure"
+        ],
+        "description": "Weak correlation (|r|<0.2) with Haze — visually independent"
+      }
+    ]
+  },
+  "chart_inventory": [
+    {
+      "figure": "fig_vlm_temporal_overlay_focus_Product_A.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only; awaiting vlm-visual-analyzer",
+      "purpose": "【重点产品】Per-product time-aligned overlay — ALL process parameters + quality metrics on shared time axis for ONE product. VLM reads this to identify: synchronous groups, temporal precedence, event responses, drift patterns within a single homogeneous product.",
+      "visual_questions": [
+        "Which process parameters move together with quality targets?",
+        "Which parameters change FIRST (precedence signals)?",
+        "Are there visible anomaly windows where process+quality diverge?",
+        "Is degradation linear or accelerating?",
+        "Do any parameters show sudden jumps (event response)?"
+      ],
+      "read_order": 1,
+      "diagnostic_weight": "CRITICAL"
+    },
+    {
+      "figure": "fig_vlm_temporal_overlay_prod_Product_B.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only; awaiting vlm-visual-analyzer",
+      "purpose": "Per-product time-aligned overlay — ALL process parameters + quality metrics on shared time axis for ONE product. VLM reads this to identify: synchronous groups, temporal precedence, event responses, drift patterns within a single homogeneous product.",
+      "visual_questions": [
+        "Which process parameters move together with quality targets?",
+        "Which parameters change FIRST (precedence signals)?",
+        "Are there visible anomaly windows where process+quality diverge?",
+        "Is degradation linear or accelerating?",
+        "Do any parameters show sudden jumps (event response)?"
+      ],
+      "read_order": 2,
+      "diagnostic_weight": "CRITICAL"
+    },
+    {
+      "figure": "fig_vlm_temporal_overlay.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only; awaiting vlm-visual-analyzer",
+      "purpose": "Global all-data overlay (for cross-product comparison reference). Prefer per-product overlays for detailed analysis.",
+      "visual_questions": [
+        "Which parameters move together? (synchronous groups)",
+        "At event markers, which parameters jump? Which don't respond?",
+        "Is the degradation linear or accelerating?"
+      ],
+      "read_order": 3,
+      "diagnostic_weight": "STRONG"
+    },
+    {
+      "figure": "fig_vlm_event_response.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Event impact visualization — quality before/after transition",
+      "visual_questions": [
+        "Is there a visible quality change at the transition line?",
+        "How big is the jump compared to normal variation?",
+        "Does quality recover or only partially?"
+      ],
+      "read_order": 4,
+      "diagnostic_weight": "STRONG"
+    },
+    {
+      "figure": "fig_vlm_synchronization.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Rolling correlation stability over time",
+      "visual_questions": [
+        "Which parameters maintain stable correlation with quality?",
+        "Are there periods where correlations break down?",
+        "Does any parameter switch from positive to negative correlation?"
+      ],
+      "read_order": 5,
+      "diagnostic_weight": "MODERATE"
+    },
+    {
+      "figure": "fig_vlm_simpson_Z3_Temp.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Simpson's Paradox check — correlation direction per stratum",
+      "visual_questions": [
+        "Does correlation direction reverse across strata?",
+        "Are within-stratum correlations consistent?"
+      ],
+      "read_order": 6,
+      "diagnostic_weight": "MODERATE"
+    },
+    {
+      "figure": "fig_vlm_simpson_Z2_Temp.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Simpson's Paradox check — correlation direction per stratum",
+      "visual_questions": [
+        "Does correlation direction reverse across strata?",
+        "Are within-stratum correlations consistent?"
+      ],
+      "read_order": 6,
+      "diagnostic_weight": "MODERATE"
+    },
+    {
+      "figure": "fig_vlm_simpson_Z1_Temp.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Simpson's Paradox check — correlation direction per stratum",
+      "visual_questions": [
+        "Does correlation direction reverse across strata?",
+        "Are within-stratum correlations consistent?"
+      ],
+      "read_order": 6,
+      "diagnostic_weight": "MODERATE"
+    },
+    {
+      "figure": "fig_vlm_simpson_Extruder_Speed.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Simpson's Paradox check — correlation direction per stratum",
+      "visual_questions": [
+        "Does correlation direction reverse across strata?",
+        "Are within-stratum correlations consistent?"
+      ],
+      "read_order": 6,
+      "diagnostic_weight": "MODERATE"
+    },
+    {
+      "figure": "fig_vlm_simpson_Melt_Pressure.png",
+      "read_status": "READ_FAILED",
+      "read_failure_reason": "Pre-VLM skeleton only",
+      "purpose": "Simpson's Paradox check — correlation direction per stratum",
+      "visual_questions": [
+        "Does correlation direction reverse across strata?",
+        "Are within-stratum correlations consistent?"
+      ],
+      "read_order": 6,
+      "diagnostic_weight": "MODERATE"
+    }
+  ],
+  "visual_observations": [
+    {
+      "figure": "fig_vlm_temporal_overlay_focus_Product_A.png",
+      "observations": [
+        {
+          "type": "trend_morphology",
+          "description": "Placeholder — script-generated skeleton only. vlm-visual-analyzer MUST replace with grounded observations from actual image reading.",
+          "parameters_involved": [
+            "Haze",
+            "Defect_Density",
+            "Z3_Temp",
+            "Z2_Temp",
+            "Z1_Temp"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "low",
+          "diagnostic_implication": "Do not treat as final visual evidence until vlm-visual-analyzer overwrites this skeleton.",
+          "statistical_cross_reference": {
+            "source_file": "02_processed/feature_summary.json",
+            "validation_note": "Skeleton placeholder — VLM sub-agent must replace"
+          },
+          "ontology_context": {
+            "parameter_physical_meanings": {},
+            "process_stage": "unknown"
+          }
+        }
+      ]
+    }
+  ],
+  "synthesis": "Pre-VLM scaffold. Per-product time-aligned overlays generated. Structured observations are placeholders only — vlm-visual-analyzer must provide grounded visual evidence.",
+  "reading_guide": [
+    {
+      "for_agent": "diagnostician",
+      "primary_sections_to_read": [
+        "analysis_provenance"
+      ],
+      "key_insights": [
+        "This file is pre-VLM skeleton. Trust only final_vlm_output from vlm-visual-analyzer."
+      ]
+    }
+  ]
+}

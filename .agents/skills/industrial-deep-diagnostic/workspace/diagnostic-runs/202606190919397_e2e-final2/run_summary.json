@@ -1,0 +1,30 @@
+{
+  "run_id": "202606190919397_e2e-final2",
+  "scene_name": "202606190919397_e2e-final2",
+  "timestamp": "2026-06-19T09:19:39.793Z",
+  "pipeline_steps_completed": [
+    "setup",
+    "inspect",
+    "context_builder",
+    "clarification_gate",
+    "data_processor",
+    "diagnostician",
+    "judge",
+    "reporter"
+  ],
+  "diagnosis_type": "DETERMINED",
+  "primary_finding": "",
+  "judge_verdict": {
+    "score": 92,
+    "verdict": "pass"
+  },
+  "data_sources": [],
+  "figure_count": 0,
+  "report_stats": {
+    "total_lines": 16,
+    "sections_count": 3,
+    "figures_referenced": 0,
+    "file_size_bytes": 790
+  },
+  "diagnostic_iterations": 1
+}

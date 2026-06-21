@@ -65,6 +65,13 @@ const runSummary = readJson(paths.summary, {});
 const reportText = exists(paths.report) ? fs.readFileSync(paths.report, 'utf8') : '';
 
 const issues = [];
+const dataViewMode =
+  dataConclusion.adaptive_decision_audit?.data_view_mode ||
+  anomaly.summary?.data_view_mode ||
+  anomaly.dual_drive_analysis?.data_view_mode ||
+  'unknown';
+const dualDriveApplicable = dataViewMode === 'process_plus_inspection' ||
+  diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === true;
 
 const processFluctuationPresent = nonEmptyObject(anomaly.process_parameter_fluctuation);
 const diagnosisProcessPresent =
@@ -94,7 +101,7 @@ const diagnosisDualDrivePresent =
   diagnosis.integrated_dual_drive_analysis?.analysis_performed === true &&
   nonEmptyArray(diagnosis.integrated_dual_drive_analysis?.process_to_quality_links);
 
-if (!dualDriveLinksPresent) {
+if (dualDriveApplicable && !dualDriveLinksPresent) {
   addIssue(
     issues,
     'critical',
@@ -103,13 +110,27 @@ if (!dualDriveLinksPresent) {
   );
 }
 
-if (!diagnosisDualDrivePresent) {
+if (dualDriveApplicable && !diagnosisDualDrivePresent) {
   addIssue(
     issues,
     'critical',
     'DUAL_DRIVE_DIAG_MISSING',
     'diagnosis.json 缺少 integrated_dual_drive_analysis 或其关键链路为空，双驱动诊断未闭环。'
   );
+}
+
+if (!dualDriveApplicable) {
+  const dualDriveMarkedNotApplicable =
+    diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === false ||
+    dataConclusion.analysis_coverage_matrix?.process_inspection_dual_drive?.status === 'not_applicable';
+  if (!dualDriveMarkedNotApplicable) {
+    addIssue(
+      issues,
+      'critical',
+      'DUAL_DRIVE_NA_PROOF_MISSING',
+      '当前数据模式不适用双驱动分析，但 diagnosis 或 data_analysis_conclusion 未明确记录不适用原因。'
+    );
+  }
 }
 
 const ontologyBridgePresent =
@@ -215,8 +236,10 @@ const report = {
     warnings: warnings.length,
     process_fluctuation_entry_present: processFluctuationPresent,
     process_fluctuation_diagnosed: diagnosisProcessPresent,
+    data_view_mode: dataViewMode,
+    dual_drive_applicable: dualDriveApplicable,
     dual_drive_entry_present: dualDriveLinksPresent,
-    dual_drive_diagnosed: diagnosisDualDrivePresent,
+    dual_drive_diagnosed: dualDriveApplicable ? diagnosisDualDrivePresent : false,
     ontology_bridge_present: ontologyBridgePresent,
     validation_carried_forward: validationCarryForwardPresent,
     visual_evidence_carried_forward: visualCarryForwardPresent,

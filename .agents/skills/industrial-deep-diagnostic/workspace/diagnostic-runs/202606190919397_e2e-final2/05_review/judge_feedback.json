@@ -1,0 +1,24 @@
+{
+  "verdict": "pass",
+  "overall_score": 92,
+  "blocking_issues": [],
+  "criteria_scores": {
+    "data_quality": 9,
+    "variable_classification": 9,
+    "time_alignment": 9,
+    "dual_drive": 9,
+    "physics_evidence": 10,
+    "competing_hypotheses": 9,
+    "confidence_breakdown": 9,
+    "reasoning_chain": 9,
+    "over_claiming": 9,
+    "reproducibility": 10
+  },
+  "reasoning_chain_audit": {
+    "blocking_issues": []
+  },
+  "caveats": [
+    "Stats r moderate (0.545) \u2014 outlier-sensitivity check recommended",
+    "50-point lag needs CCF confirmation"
+  ]
+}
