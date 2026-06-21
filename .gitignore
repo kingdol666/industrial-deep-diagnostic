@@ -57,3 +57,6 @@ garden-gpt-image-2/
 
 # RAG knowledge submodule (has its own repo)
 rag-knowledge/
+
+# Runtime-generated ChromaDB vector store (regenerable binary)
+knowledge_base/

@@ -5,3 +5,4 @@
 - [BOPET Filter Pressure Sign Reversal](bopet-filter-pressure-sign-reversal.md) — Filter pressure vs scratch shows r≈-0.19 (negative), contradicting physics expectation
 - [Paper Machine Headbox Time-Trend Confounding](paper-machine-headbox-time-trend-confounding.md) — 8 parameters co-trend over 3 months driving spurious |r|>0.8 correlations; fan_pump speed violates pump affinity law
 - [BOPET Parameter Mapping Coverage](bopet-parameter-mapping-coverage.md) — parameter_mapping.json covers all 44 BOPET MD stretch parameters; torque/events misclassification fix
+- [Lekai BOPET Seven Torque Worlds](lekai-bopet-seven-torque-worlds.md) — 9 models/55 batches: torque distribution shaped by model confound; FP21 vs PG series have non-overlapping torque ranges on ALL 18 rolls; quench zone std outliers in PG32M; scratch=76 in PG32D not explained by extreme parameters
