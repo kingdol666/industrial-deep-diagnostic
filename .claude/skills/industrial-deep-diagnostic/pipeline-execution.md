@@ -143,6 +143,8 @@ Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol
 })
 ```
 
+**HTML Opt-Out** (align with SKILL.md §Step 8): if the user explicitly declines HTML ("不要 HTML 页面" / "只要 report.md" / "跳过可视化"), the main agent MUST run `touch "$RUN_DIR/00_input/html_opt_out"` **before** Step 8. `finalize-run-artifacts.mjs` checks this marker and skips the HTML-delivery gate so opt-out runs aren't blocked. Without this marker, HTML delivery is mandatory (CP-9).
+
 ### Step 8.5: HTML Reviewer
 
 ```javascript
@@ -277,7 +279,7 @@ After Context Builder completes, check `00_input/clarification_needed.json`. Beh
 1. Read `clarification_needed.json` to understand unknown parameters
 2. **Do NOT ask the user.** Apply auto-inference (resources/physics_inference_framework.md L1-L5) to assign best-guess physical meanings
 3. Update `01_ontology/ontology.json` and `schema.json` with inferred meanings
-4. Mark all parameters with `"physical_meaning_confidence": "inferred"` and `"auto_inferred": true`
+4. Mark all parameters with `"physical_meaning_confidence": "INFERRED"` (uppercase, matches ontology schema enum `KNOWN | INFERRED | UNKNOWN`) and `"auto_inferred": true`. Also write `"clarification_status": "AUTO_RESOLVED"` (or `USER_CONFIRMED` after interactive answers) — CP-3 greps this field.
 5. Log auto-inference event to `.pipeline_events.jsonl`
 6. Proceed directly to Step 3
 
