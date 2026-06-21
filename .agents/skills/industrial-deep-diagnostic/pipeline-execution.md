@@ -174,7 +174,7 @@ node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
 
 After Step 7 returns `ENDORSED`, the default next action is to launch the html-visualizer subagent (Step 8), then html-reviewer on the output (Step 8.5).
 
-Treat this HTML generation as part of the normal completion path unless the user explicitly opts out.
+Treat this HTML generation as part of the normal completion path unless the user explicitly opts out. **This step is non-interactive and automatic** — after CP-8 `ENDORSED`, do NOT pause to ask the user "shall I continue to build the HTML?"; immediately launch `html-visualizer` → `html-reviewer` → Step 9 finalize in sequence.
 The main agent may summarize the result, but it must not directly produce the HTML in the main context. See `agents/html-visualizer.md` and `agents/html-reviewer.md` for the full agent definition and protocol.
 
 The generated page must include runtime readiness checks for:
