@@ -457,13 +457,14 @@ fi
 
 **清洗可能损坏数据**——这是 string-type-gotcha 的协议层根因：CSV→JSON 不强转类型，数值列可能以字符串透传；preprocess 可能误删行或改值。**清洗产物在用于任何分析 / 画图之前，必须通过完整性校验。** 本相位镜像 `report-reviewer.md` 的 cleaned-vs-raw 对账模式，并在损坏时**自适应回退到 raw `DATA_PATH`**。
 
-**校验三项**（用 inline pandas 跑，结果写入 `data_quality_report.json.cleaning_integrity`）：
+**校验四项**（用 inline pandas 跑，结果写入 `data_quality_report.json.cleaning_integrity`）：
 
 | 检查 | 通过条件 | 不满足时的处理 |
 |------|---------|---------------|
 | **行数保真** `row_count_check` | `len(cleaned) ≤ len(raw)`，且丢弃率 `dropped/len(raw) < 0.05` | 5%-20%：记录 `dropped_rows` + 原因继续；**>20%：触发 raw 回退** |
 | **类型完整性** `type_integrity` | ontology / input_manifest 标为数值的列，`pd.to_numeric(errors='coerce')` 成功率 ≥50% | string-type 泄漏 → 对该列 `pd.to_numeric(errors='coerce')` 重定型，记录 stray tokens（如 `<0.05`/`N/A`/`89.5°C`）；**重定型后仍 <50% 成功 → 触发 raw 回退** |
 | **值域保真** `range_fidelity` | 关键参数 cleaned 的 min/max/mean 与 raw 偏差 < 阈值（均值相对偏差 <10%） | 偏差大 → 清洗损坏值，**触发 raw 回退** |
+| **批次标识完整性** `batch_identity_integrity`（v6.6） | 若存在 batch/lot id 列：检测同一 batch_id 跨多行的 split/duplicate 记录。同一批次被拆成多行会让"批内累积"被误读为"孤立事件"，或虚增表观离散度（真实失误：极端批次被拆成 scratch=0 与 scratch=2757 两行，误诊为孤立事件） | 检测到 split/duplicate batch → 合并同 batch_id 记录（按该批时间窗聚合检测值），写 `duplicate_batch_report.json`（dup batch_id / split 行数 / 合并前后对比），在 `data_analysis_conclusion.json` 标注；**不得把同一批次的多行当作独立批次**。此为数据质量修复，不触发 raw 回退 |
 
 **参考实现（inline pandas，写到 06_scripts/cleaning_integrity_check.py 或直接内联）**：
 
@@ -500,12 +501,28 @@ for c in numeric_cols:
         rel = abs(cleaned[c].mean() - raw_n.mean()) / (abs(raw_n.mean()) + 1e-9)
         range_drift[c] = round(float(rel), 4)
 
-# decide data source
+# 4. batch identity integrity (v6.6) — detect split/duplicate batch records
+batch_dup = {"applicable": False, "id_col": None, "duplicate_batches": [],
+             "split_record_count": 0, "action": "none"}
+batch_cols = [c for c in cleaned.columns if str(c).lower() in ("batch_id","batch","lot","lot_id","batchno","批次")]
+if batch_cols:
+    bid = batch_cols[0]
+    vc = cleaned[bid].astype(str).value_counts()
+    dups = vc[vc > 1].index.tolist()
+    batch_dup = {"applicable": True, "id_col": bid, "duplicate_batches": dups,
+                 "split_record_count": int(vc[vc > 1].sum() - len(dups)),
+                 "action": "merge_or_flag" if dups else "none"}
+    if dups:  # write report + merge same-batch rows by time-window aggregation
+        dup_rows = cleaned[cleaned[bid].astype(str).isin(dups)].sort_values(bid)
+        dup_rows.to_csv(f"{RUN_DIR}/02_processed/duplicate_batch_report.csv", index=False)
+
+# decide data source (batch dup is a data-quality FIX, not a cleaning-damage fallback trigger)
 trigger_fallback = (row_check["drop_rate"] > 0.20 or
                     any(v["leaked"] and not v["repaired"] for v in type_issues.values()) or
                     any(v > 0.10 for v in range_drift.values()))
 result = {"row_count_check": row_check, "type_integrity": type_issues,
           "range_fidelity": range_drift,
+          "batch_identity_integrity": batch_dup,
           "data_source": "raw_fallback" if trigger_fallback else "cleaned",
           "repair_attempts": [],  # append each attempt
           "fallback_reason": None}

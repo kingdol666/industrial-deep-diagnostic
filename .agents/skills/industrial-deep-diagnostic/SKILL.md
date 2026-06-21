@@ -515,6 +515,7 @@ Key orchestration constraints to communicate:
 - **v6.5: Production regime detection runs BEFORE stats** — auto-detect startup/shutdown/steady states via three-algorithm fusion; filter to steady-state only
 - **v6.4: Time-lag compensation runs after feature_summary** — CCF-based optimal lag per parameter pair; raw zero-lag correlations are systematically biased when process→quality has a physical delay
 - **v6.5: Per-product mandatory analysis** — when multi-product data: identify worst product by anomaly rate, isolate steady-state rows, compare within-product vs cross-product correlations (Simpson's Paradox is the #1 threat)
+- **v6.6: Batch identity integrity** — when a batch/lot id column exists, MUST verify batch_id uniqueness before analysis; split or duplicate batch records (same batch_id across multiple rows) MUST be merged or explicitly flagged in `duplicate_batch_report.json`. Real failure: an extreme batch split into 2 records (scratch=0 and scratch=2757) was misdiagnosed as an "isolated event" — it was actually within-batch accumulation. Never cite an "isolated batch" pattern without confirming the batch is a single record.
 
 **Before Step 4**, stabilize outputs:
 ```bash
@@ -688,6 +689,7 @@ Apply before writing any diagnostic finding:
 - **Unknown parameter meanings** → `[PARAM_AMBIGUITY]` — correlation to a label is not correlation to a physical cause
 - **Competing hypotheses** with identical observables are INDISTINGUISHABLE → `COMPETING_SET`, confidence ceiling 65
 - **Physics-free correlations** are not diagnoses — `STATISTICAL_ONLY` is not a root cause
+- **Duplicate / split batch records** can make one batch's within-batch accumulation look like an isolated event or inflate apparent dispersion — verify batch_id uniqueness in cleaning (Phase 2.2.5 `batch_identity_integrity`); never cite an "isolated batch" pattern without confirming the batch resolves to a single record
 - **RAG knowledge is suggestive, not authoritative** — validate every RAG claim against actual data
 - **Confidence, evidence gaps, and assumptions** must always be disclosed
 - **Falsification conditions** must be specified for every conclusion

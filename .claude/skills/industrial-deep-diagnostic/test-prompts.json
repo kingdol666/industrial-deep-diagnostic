@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "prompt": "这是我们 BOPET 薄膜划伤产线的传感器+检测数据(CSV,约2000行)，最近划伤不良率上升，帮我诊断根因",
+    "expected": "应触发完整9步管线：本体构建→统计验证(含分层/Simpson/去趋势)→竞争假说诊断→Judge门→report.md+HTML",
+    "category": "happy_path"
+  },
+  {
+    "id": 2,
+    "prompt": "这批工艺数据我不太确定哪个列是质量/检测指标，有些批次好像重复了，还有几个极端值，帮我做异常根因分析",
+    "expected": "应触发澄清门(Step 2.5)+数据质量校验(batch唯一性/离群杠杆)+不强行双驱动因果",
+    "category": "ambiguous_edge"
+  },
+  {
+    "id": 3,
+    "prompt": "某个型号内某参数与缺陷相关 r=0.40 看起来是根因，帮我确认并出报告",
+    "expected": "应触发反假相关强制：离群leave-one-out验证+趋势混淆检查+Simpson分层，而非直接采信r=0.40",
+    "category": "anti_speculation"
+  }
+]
