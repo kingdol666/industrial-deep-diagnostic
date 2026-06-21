@@ -54,25 +54,29 @@ ECharts/Three.js 多源加载模式），不是填空模板。body 内 HTML 注�
 
 ### 3. 证据链（三层架构）⚠️ 这是用户信任建立的核心区块
 
+**证据嵌入铁律**：每张嵌入 PNG 必须是「图 + 数据 + 解读」三件套——(1) 真实 PNG from `03_figures/`，按 `plot_manifest.json.suggested_layer` 匹配证据层；(2) 图旁标真实统计/物理值 + 来源文件；(3) 三行白话解读。缺一 reviewer 判不通过。统计/物理结论若无对应 figure 或溯源数值 → 标 `.evidence-missing`，不假装。
+
 #### 第一层 · 统计证据（Ⅰ）
-- 复用诊断生成的散点图、相关性图 PNG（from 03_figures/）
-- 至少 1 张 ECharts 重建的分析图（去趋势散点、相关性鲁棒性对比等）
+- 嵌入 `fig_vlm_simpson_*.png` + `fig_vlm_synchronization.png`（from `03_figures/`，按 suggested_layer=statistical 选取）
+- 图下标注真实值：Spearman ρ / p / n（源 `feature_summary.json`）+ 去趋势 r + Simpson 检测结果（源 `validate_report.json`）
+- 至少 1 张 ECharts 重建分析图（去趋势散点 / 相关性鲁棒性对比）
 - 统计证据强度评分条
-- 证据文章：明确指出最强存活信号，附完整 Spearman ρ + p 值 + 衰减率
+- 证据文章：明确指出**去趋势后最强存活信号**，附完整 ρ + p + 衰减率 + 来源
 
 #### 第二层 · 物理机制（Ⅱ）
-- HTML/CSS 物理因果链流程图（每个步骤节点有标题 + 物理细节）
-- 复用温度分区剖面图 + 扭矩分区剖面图 PNG
-- 每步附物理量级估算或物理方程
+- 嵌入 `fig_vlm_temporal_overlay_focus_*.png`（参数→质量时序对齐）+ `fig_vlm_event_response.png`
+- 图下标注：时滞 N 分钟（源 `time_lag_analysis.json`）+ 参数先变质量后变的时间先后证据
+- HTML/CSS 物理因果链流程图（每步来自 `diagnosis.json.physical_logic_chain`）
+- 每步附**真实物理方程或量级估算**（源 `physics_check.json`，如 Arrhenius k=A·exp(-Ea/RT)，ΔT→速率变化%）
 - 解释异常位置与物理机制的空间一致性
 - 物理证据强度评分条
 
 #### 第三层 · 排除逻辑（Ⅲ）
-- 复用因果证据图 PNG
-- 对被排除和被削弱的假说逐一撰文：
+- 嵌入 `fig_causal_map.png`（存活边 vs 排除边，每条标 r）
+- 对被排除和被削弱的假说逐一撰文（假说数 = `render_manifest.json` hypothesis count，不硬编码）：
   - 假说名称 + 排除/削弱置信度
-  - 原始证据 vs 去趋势后真相
-  - 物理矛盾或内部不一致
+  - **原始证据 vs 去趋势后真相**对比（具体 r 值变化，源 `validate_report.json`）
+  - 物理矛盾或内部不一致（源 `physics_check.json` / `diagnosis.json`）
   - 「为什么被排除」的解释块
 - 证据链综合判决矩阵表（全部假说 × 三层证据）
 - 行动建议优先级表（P0/P1/P2）

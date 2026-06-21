@@ -185,9 +185,14 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
 
 页面必须严格包含：**0. Hero 结论先行 / 1. 背景与产线建模 / 2. 诊断推理过程 / 3. 证据链三层架构**。详见 `templates/page_blueprint.md`。
 
-### 4. 每条主结论双支撑 + 白话版
+### 4. 每条主结论双支撑 + 白话版 + 证据链真实 figure
 
 每条主结论必须含：(a) 可视化证据（真实 PNG 或 ECharts 图）；(b) 推理证据（统计/物理/排除）；(c) 一句不含统计术语的白话。证据缺失要明确标注，不假装存在。
+
+**证据链三层（统计/物理/排除）figure 嵌入强制**（page_blueprint.md §3 细化）：
+- 证据链每一层**必须嵌入至少一张真实 PNG**（从 `03_figures/` 按 `plot_manifest.json.suggested_layer` 选取），不得只用 ECharts 卡片或文字代替。统计层→`fig_vlm_simpson_*.png` / `fig_vlm_synchronization.png`；物理层→`fig_vlm_temporal_overlay_*` / `fig_vlm_event_response.png`；排除层→`fig_causal_map.png`。
+- 每张嵌入的 PNG 是「图 + 数据 + 解读」三件套：图旁标注**真实统计值或物理量 + 来源文件**（`feature_summary.json` 的 r/ρ/p/n、`physics_check.json` 的方程/量级、`validate_report.json` 的 Simpson/去趋势结果），配三行白话解读。
+- **禁止**：嵌了图不标数据、标了数据不标来源、用"显著相关"代替具体 r 值。无对应 figure 或溯源数值的结论 → 标 `.evidence-missing`，绝不编造。违反任一条 `html-reviewer` 判 fail。
 
 ### 5. 单文件优先
 

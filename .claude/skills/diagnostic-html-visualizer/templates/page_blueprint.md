@@ -94,28 +94,48 @@
 
 **这是页面的核心说服区块，必须包含真实的诊断产线图像、数据分析和物理逻辑推理。**
 
+#### 证据嵌入铁律（三层通用）
+
+每张嵌入的 PNG 必须是**「图 + 数据 + 解读」三件套**，缺一即 reviewer 判不通过：
+
+1. **图**：从 `03_figures/` 嵌入真实 PNG（`<img src>` 用相对路径），按 `plot_manifest.json` 的 `suggested_layer` 字段匹配到对应证据层；**禁止**用占位图/ECharts 代替本该有的真实 PNG
+2. **数据**：图旁/图下必须标注**真实统计值或物理量**（r / Spearman ρ / p / n / ΔT / 量级估算），每个数字标注来源文件（`feature_summary.json` / `validate_report.json` / `physics_check.json` / `diagnosis.json`）
+3. **解读**：三行白话——「图上看到什么 → 统计/物理怎么说 → 对结论的支持或反对」
+
+**禁止**：嵌了图不标数据 / 标了数据不标来源 / 只有图没有解读 / 用"显著相关"等模糊词代替具体 r 值。统计或物理结论若无对应 figure 或具体溯源数值，必须显式标注 `.evidence-missing`，不假装存在。
+
+#### figure → 证据层映射（数据驱动，从 plot_manifest.json 的 suggested_layer 读取）
+
+| 证据层 | 应嵌入的真实 PNG（plot_manifest 角色） | 数据来源（图旁必标） |
+|--------|--------------------------------------|---------------------|
+| **统计证据** | `fig_vlm_simpson_*.png`（分层相关方向）、`fig_vlm_synchronization.png`（滚动相关稳定性）、散点 / 相关性鲁棒性图 | `feature_summary.json`（r / ρ / p / n）、`validate_report.json`（Simpson / 离群 / 趋势混杂检测结果） |
+| **物理机制** | `fig_vlm_temporal_overlay_focus_*.png` / `fig_vlm_temporal_overlay_prod_*.png`（参数→质量时序对齐）、`fig_vlm_event_response.png`（事件响应） | `diagnosis.json`（physical_logic_chain）、`physics_check.json`（方程 + 量级）、`time_lag_analysis.json`（时滞） |
+| **排除逻辑** | `fig_causal_map.png`（因果证据图：存活边 vs 排除边） | `causal_evidence_map.json`、`evidence.json`（证据等级）、`diagnosis.json`（falsification_conditions） |
+
 #### 第一层 · 统计证据
 
-- 复用诊断生成的散点图、相关性图、分布图等 PNG
-- ECharts 重建的去趋势散点图 + 相关性鲁棒性图
+- 嵌入 `fig_vlm_simpson_*.png`：图下标注「Spearman ρ=X.XX, p<X.XX, n=X（源：feature_summary.json）；去趋势后 r=X.XX；Simpson 检测：未反转 / 反转（源：validate_report.json）」
+- 嵌入 `fig_vlm_synchronization.png`：标注「滚动相关稳定性，X% 时段 |r|>0.5」
+- 至少 1 张 ECharts 重建分析图（去趋势散点 / 相关性鲁棒性对比，raw r vs detrended r）
 - 统计证据强度评分条
-- 证据文章：明确指出哪个参数是去趋势后最强存活信号，附完整统计值
+- 证据文章：明确指出哪个参数是**去趋势后最强存活信号**，附完整统计值 + 来源文件
 
 #### 第二层 · 物理机制
 
-- 物理因果链可视化（HTML/CSS 步骤链：μ不均匀 → 粘滑 → 扭矩补偿 → 摩擦 → 划伤）
-- 复用温度分区剖面图 + 扭矩分区剖面图 PNG
-- 每步附物理方程或量级估算（ΔL、Δτ、Hertz 应力）
+- 嵌入 `fig_vlm_temporal_overlay_focus_<重点产品>.png`：标注「参数 X 与质量 Y 共享时间轴，时滞约 N 分钟（源：time_lag_analysis.json）—— 参数先变、质量后变，满足因果时间先后」
+- 嵌入 `fig_vlm_event_response.png`：标注事件后质量是否复位、复位幅度
+- 物理因果链可视化（HTML/CSS 步骤链，每步来自 `diagnosis.json.physical_logic_chain`）
+- 每步附**真实物理方程或量级估算**（源：`physics_check.json`，如 Arrhenius `k = A·exp(-Ea/RT)`，ΔT=7°C → 结晶速率↑~23%）
 - 解释异常位置与物理机制的空间一致性
 - 物理证据强度评分条
 
 #### 第三层 · 排除逻辑
 
-- 复用因果证据图 PNG
-- 逐假说证据文章，每篇包含：
+- 嵌入 `fig_causal_map.png`：标注存活边（绿）与排除边（红/灰），每条边标 r 值
+- 逐假说证据文章（假说数 = `render_manifest.json` 的 hypothesis count，**不得硬编码**），每篇含：
   - 假说名称 + 排除/削弱置信度
-  - 原始证据 vs 去趋势后真相的对比
-  - 物理边界检验或内部矛盾说明
+  - **原始证据 vs 去趋势后真相**对比（具体 r 值变化，源：`validate_report.json`）
+  - 物理边界检验或内部矛盾（源：`physics_check.json` / `diagnosis.json`）
   - 「为什么被排除」的蓝色左边框解释块
 
 #### 证据链综合判决
