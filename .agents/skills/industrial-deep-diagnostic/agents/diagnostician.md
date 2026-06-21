@@ -935,6 +935,8 @@ Append to `RUN_DIR/.pipeline_events.jsonl`:
 
 ### Confidence Integrity
 - Confidence ceiling 65 for INDISTINGUISHABLE competing hypotheses
+- Confidence ceiling 50 for hypotheses using a `[PARAM_AMBIGUITY]` / UNKNOWN-meaning parameter as primary predictor
+- **Tiebreaker (when both conditions hit)**: the **stricter (lower) ceiling wins**. A hypothesis that is both INDISTINGUISHABLE AND relies on a PARAM_AMBIGUITY predictor is ceilinged at 50, not 65. Record which ceilings applied in `confidence.adjustment_log`.
 - **Proof strength adjustments (from Phase 1.5):** PROVEN (+15), STRONG_EVIDENCE (+10), SUPPORTIVE (+5), WEAK (−10), CONTRADICTED (−20 or eliminate)
 - Pre-cached physics: baseline
 - RAG-extracted physics: -5

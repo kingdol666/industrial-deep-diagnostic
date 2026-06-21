@@ -244,10 +244,23 @@ import pandas as pd
 import numpy as np
 import os, json
 
-# Try cleaned data first (pipeline's authoritative dataset), fall back to raw DATA_PATH
+# First read data-processor's cleaning decision — do NOT independently re-decide cleaned vs raw
+import json as _json
+_dqr_path = os.path.join(RUN_DIR, "02_processed", "data_quality_report.json")
+_authoritative_source = "cleaned"  # default
+if os.path.exists(_dqr_path):
+    _ci = _json.load(open(_dqr_path)).get("cleaning_integrity", {})
+    _authoritative_source = _ci.get("data_source", "cleaned")
+    if _authoritative_source == "raw_fallback":
+        print(f"NOTE: data-processor flagged raw_fallback ({_ci.get('fallback_reason','unknown')}) — use RAW as authoritative; cleaned_data was corrupted by preprocessing")
+
+# Use the authoritative source (cleaned unless data-processor fell back to raw)
 cleaned_csv = os.path.join(RUN_DIR, "02_processed", "cleaned_data.csv")
-if os.path.exists(cleaned_csv):
-    df = pd.read_csv(cleaned_csv)
+if _authoritative_source == "raw_fallback":
+    df = pd.read_csv(DATA_PATH)          # raw is authoritative when cleaning failed
+    df_raw = df
+elif os.path.exists(cleaned_csv):
+    df = pd.read_csv(cleaned_csv)        # cleaned is authoritative (normal path)
     df_raw = pd.read_csv(DATA_PATH)
 else:
     df = pd.read_csv(DATA_PATH)

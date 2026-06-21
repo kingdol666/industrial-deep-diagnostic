@@ -710,9 +710,9 @@ Execute ALL patterns that apply to your data (typically 2-4). If fixed scripts a
 
 For product/lot/grade grouping (Pattern C1): **this is MANDATORY when such a column exists.** Data-processor must explicitly connect process-side abnormality with inspection-side abnormality per product group.
 
-### 3.2 Run Automated Physics Checks (Always)
+### 3.2 Run Automated Physics Checks (Always run; process_only may legitimately yield 0 applicable checks)
 
-Even if custom analysis covers some physics, always run the automated checks as a baseline:
+Always run the script (it produces a `physics_check.json` baseline). Note: for `process_only` data (no inspection/quality targets) or when no temperature/vibration/pressure columns match the applicable checks, `checks_performed` may legitimately be 0 — that is valid, not a failure. If 0, document the reason in `physics_check.json` and proceed to manual L1-L5 verification (Phase 3G). Even if custom analysis covers some physics, always run the automated checks as a baseline:
 
 ```bash
 PHYSICS_OUTPUT="$RUN_DIR/02_processed/physics_check.json"
@@ -1205,7 +1205,7 @@ Must exist when done:
 02_processed/physics_manual_verification.md   ← if physics_check ran 0 checks (Phase 3G)
 02_processed/*_analysis.json                  ← if custom expert scripts generate scenario-specific data artifacts
 03_figures/*.png                              ← universal + scenario-specific + VLM charts
-03_figures/fig_vlm_temporal_overlay.png      ← REQUIRED only when a valid time column exists: all key parameters aligned on the same time axis in one figure
+03_figures/fig_vlm_temporal_overlay.png      ← global overlay (legacy reference). When multi-product: ALSO produce `fig_vlm_temporal_overlay_focus_<product>.png` + `fig_vlm_temporal_overlay_prod_<product>.png` (Phase 5.1). At least one temporal overlay (global OR per-product) REQUIRED when a valid time column exists.
 03_figures/plot_manifest.json
 03_figures/visual_analysis.json               ← VLM visual image analysis (Phase 5.5)
 03_figures/image_captions.json                ← compatibility layer from visual_analysis.json
