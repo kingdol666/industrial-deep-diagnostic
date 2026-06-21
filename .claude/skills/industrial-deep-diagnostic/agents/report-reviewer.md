@@ -398,7 +398,7 @@ Rate 0-10:
 
 ### 5.2 Verdict
 
-- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors, RAG knowledge cross-check passed → proceed to Step 8 (Present)
+- **ENDORSED**: All dimensions ≥ 7, no critical physical or statistical errors, RAG knowledge cross-check passed → proceed to Step 8 (HTML Visualization)
 - **CONDITIONAL**: 1-2 dimensions < 7, or significant concerns exist, or RAG knowledge partially contradicted. Diagnosis direction may be correct but evidence is insufficient → re-spawn Step 4 (Diagnostician) with physical critique from this audit, max 2 cycles, global cap 5 re-diagnoses total (see `pipeline-execution.md` §Repair Loop Protocol)
 - **REJECTED**: 3+ dimensions < 7, or fundamental mechanism is physically impossible, or fatal statistical errors (sorting artifact, Simpson's Paradox), or diagnosis relies on CONTRADICTED RAG claims → re-spawn Step 4 with full repair instructions, max 2 cycles, global cap 5
 
