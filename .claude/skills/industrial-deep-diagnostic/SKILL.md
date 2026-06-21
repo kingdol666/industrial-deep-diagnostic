@@ -421,9 +421,12 @@ if [ ! -f "$SKILL_PATH/scripts/setup.mjs" ]; then
 fi
 
 # 4. Create run directory
-RUN_DIR=$(node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs" 2>&1 || echo "")
+#    setup.mjs prints a JSON object {"run_dir": "...", "manifest": {...}}; parse out run_dir.
+SETUP_OUT=$(node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs")
+RUN_DIR=$(echo "$SETUP_OUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).run_dir||"")}catch(e){}})')
 if [ -z "$RUN_DIR" ] || [ ! -d "$RUN_DIR" ]; then
   echo "❌ setup.mjs failed to create run directory" >&2
+  echo "$SETUP_OUT" >&2
   exit 1
 fi
 echo "✅ Run directory: $RUN_DIR"
