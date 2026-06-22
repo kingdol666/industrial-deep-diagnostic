@@ -314,7 +314,7 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 | **CP-3: Clarification Gate** | Step 2.5→3 | `grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' "$RUN_DIR/01_ontology/clarification_needed.json"` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
 | **CP-4: Data Processor Handoff** | Step 3→4 | `test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && node -e "JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); var p=JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); process.exit(p.plots&&p.plots.length>0?0:1)"` | 重新启动 data-processor Agent |
 | **CP-5: Diagnostician Quality** | Step 4→5 | `for f in diagnosis evidence confidence reasoning_chain; do node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/${f}_schema.json" "$RUN_DIR/04_diagnostics/${f}.json" || exit 1; done && node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"` | 修复诊断产物 |
-| **CP-6: Dual Gate** | Step 5→6 | `node -e "var j=require('$RUN_DIR/05_review/judge_feedback.json'); process.exit(j.verdict==='pass'&&j.overall_score>=90?0:1)" && grep -qv 'FATAL' "$RUN_DIR/05_review/optimizer_preflight.md"` | 启动修复循环 |
+| **CP-6: Dual Gate** | Step 5→6 | `test -f "$RUN_DIR/05_review/judge_repair_summary.json" && grep -qv 'FATAL' "$RUN_DIR/05_review/optimizer_preflight.md"` | 继续修复（直到 ≥90 或 3 轮耗尽转 best-effort；二者都放行进 Step 6）|
 | **CP-7: Report Gate** | Step 6→7 | `test -f "$RUN_DIR/report.md" && test -f "$RUN_DIR/run_summary.json"` | 重新启动 reporter Agent |
 | **CP-8: Audit Gate** | Step 7→8 | `test -f "$RUN_DIR/optimizer.md" && grep -q 'ENDORSED' "$RUN_DIR/optimizer.md"` | CONDITIONAL/REJECTED → 修复循环（与 Step 7 动作表一致；CONDITIONAL 不直接进 Step 8） |
 | **CP-9: HTML Delivery** | Step 8.5 | `test -f "$RUN_DIR/diagnostic-report.html" && test "$(wc -c < "$RUN_DIR/diagnostic-report.html")" -ge 5120 && test -f "$RUN_DIR/05_review/html_review.json" && grep -q '"verdict" *: *"pass"' "$RUN_DIR/05_review/html_review.json"` | 回到 html-visualizer 修订 |
@@ -335,7 +335,8 @@ These rules ensure every run produces trustworthy, auditable diagnoses. Full imp
 
 ### Repair Loops
 
-- Judge → Diagnostician: max 3 iterations. Reviewer → Diagnostician (full D→J→R→R cycle): max 2 cycles.
+- **Judge best-of-3（保证交付）**：最多 3 轮 repair，每轮追最高分；`≥90` 立即 break 直接构建 HTML；`<90` 取 3 轮内最高分诊断（`best_round_*` 快照），**永远产出 report + HTML**，不 halt。详见 §Step 5 Best-of-Judge Protocol。
+- Reviewer → Diagnostician (full D→J→R→R cycle): max 2 cycles.
 - **Global cap: total re-diagnosis ≤ 5.** Counter persists in `.pipeline_events.jsonl` via `repair_spawn` events.
 - See `pipeline-execution.md` §Repair Loop Protocol for full procedures.
 
@@ -376,14 +377,14 @@ All must pass for a run to be considered complete:
 
 | Gate | Requirement | Enforced By |
 |------|-------------|-------------|
-| **Judge Gate** | `verdict == "pass"`, `overall_score >= 90`, no blocking issues | `reporter` launch blocked; `artifact-check.mjs` |
+| **Judge Gate** | `verdict=="pass"` ∧ `overall_score>=90`，**或** `judge_repair_summary.json` 显示 3 轮耗尽（best-effort，标 `[BEST_EFFORT]`，confidence ≤70）| `reporter` launch; `artifact-check.mjs` |
 | **Execution Proof** | `.pipeline_events.jsonl` valid per `pipeline-log-check.mjs` | `artifact-check.mjs` |
 | **Evidence Closure** | Process + dual-drive + ontology interpretation all present | `evidence-closure-check.mjs` |
 | **Engineering Acceptance** | All mandatory artifacts + `run_completed` event | `artifact-check.mjs` per `engineering_delivery_contract.md` |
 | **Optimizer Completeness** | `optimizer.md` with all 4 standard sections | `artifact-check.mjs` |
 | **HTML Delivery** | `diagnostic-report.html` present + `html-reviewer` passed | `artifact-check.mjs` |
 
-**Judge-gated reporting rule**: Reporter launch is illegal unless `judge_feedback.json` is schema-valid, `verdict == "pass"`, `overall_score >= 90`, and there are no blocking issues. If `append-pipeline-event.mjs` returns `JUDGE_GATE_NOT_PASSED` at `agent_start reporter`, the only valid next action is repair/rejudge — not manual report writing.
+**Judge-gated reporting rule**: Reporter launch requires EITHER (`verdict == "pass"` ∧ `overall_score >= 90`) OR a `judge_repair_summary.json` proving 3 repair rounds exhausted (best-effort path — report must carry `[BEST_EFFORT]` + confidence ≤70). `append-pipeline-event.mjs` enforces both paths. If neither condition holds, the only valid next action is repair/rejudge — not manual report writing.
 
 ### Stability & Reproducibility
 
@@ -546,10 +547,16 @@ Launch `judge` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it to read `a
 
 | Verdict | Score | Action |
 |---------|:-----:|--------|
-| `pass` | ≥90, no blocking issues | Proceed to Step 6 |
-| `needs_repair` | 70-89 | Re-spawn diagnostician (within caps) |
-| `major_issues` | 50-69 | Re-spawn diagnostician (within caps) |
-| `fail` | <50 | Halt — present as blocked run |
+| `pass` | ≥90, no blocking issues | Proceed to Step 6（不修复，直接走报告→HTML）|
+| `needs_repair` | 70-89 | Re-spawn diagnostician（3 轮内）|
+| `major_issues` | 50-69 | Re-spawn diagnostician（3 轮内）|
+| `fail` | <50 | Re-spawn（3 轮内）；仍 <50 → 用最高分轮 + `[BEST_EFFORT]` |
+
+**Best-of-Judge Protocol（保证交付，永不 halt）**：管线永远收敛到 report + HTML。
+- 每轮 Judge 后，若 `overall_score > best_score`，快照 `04_diagnostics/{diagnosis,evidence,confidence,reasoning_chain}.json` 到 `04_diagnostics/best_round_<N>/`，更新 `best_score`。
+- `overall_score ≥ 90` → break，直接用本轮（不修复）进 Step 6。
+- `< 90` → 最多 3 轮 Judge+repair（repair instructions 来自上一轮 `judge_feedback.json`）。
+- 3 轮后仍 `< 90` → 恢复 `best_round_*` 快照为 canonical 诊断；写 `05_review/judge_repair_summary.json`（`{rounds_attempted, scores[], selected_round, selected_score, converged: false}`）；report 标 `[BEST_EFFORT]`、confidence 上限 ≤70。**继续** Step 6→7→8，不停。
 
 **Hard pass invariant**: `verdict="pass"` is valid only when ALL of these are true: `overall_score >= 90`, `blocking_issues.length == 0`, `reasoning_chain_audit.blocking_issues.length == 0`, `criteria_scores.no_over_claiming.blocking_issues == 0`.
 

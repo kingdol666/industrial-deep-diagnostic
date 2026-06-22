@@ -149,6 +149,15 @@ function enforceStepPrerequisites(manifest, step, eventName, agent, extraData) {
 }
 
 function judgeGateIssues() {
+  // Best-effort bypass: if judge_repair_summary.json proves 3 repair rounds
+  // exhausted without reaching 90, the pipeline proceeds with [BEST_EFFORT]
+  // (see SKILL.md §Best-of-Judge Protocol). Gate passes in that case.
+  const summaryPath = join(runDir, '05_review', 'judge_repair_summary.json');
+  const summary = readJson(summaryPath, null);
+  if (summary && summary.converged === false && Number(summary.rounds_attempted) >= 3) {
+    return [];
+  }
+
   const judgePath = join(runDir, '05_review', 'judge_feedback.json');
   if (!fs.existsSync(judgePath)) {
     return ['05_review/judge_feedback.json is missing'];

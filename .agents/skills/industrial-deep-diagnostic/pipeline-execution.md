@@ -230,16 +230,26 @@ The helper now also synchronizes `run_manifest.json`, enforces prerequisite orde
 
 ## Repair Loop Protocol
 
-### Judge Repair (Step 5)
+### Judge Repair (Step 5) — Best-of-3 with Guaranteed Delivery
 
 ```
+best_score = -1; best_round = 0
 for iter in 1..3:
-  if score >= 90 → break (PASS)
-  if diag_iters >= 5 → break (GLOBAL_CAP)
-  diag_iters++
-  log repair_spawn event
-  re-spawn Diagnostician with REPAIR_INSTRUCTIONS from judge_feedback.json
+  spawn Diagnostician (iter 1 fresh; iter 2-3 with REPAIR_INSTRUCTIONS from prev judge_feedback.json)
+  spawn Judge → score, verdict
+  if score > best_score:
+    best_score = score; best_round = iter
+    snapshot 04_diagnostics/{diagnosis,evidence,confidence,reasoning_chain}.json → best_round_{iter}/
+  if score >= 90: break                  # PASS — use this round directly
+  if diag_iters >= 5: break              # GLOBAL_CAP
+  diag_iters++; log repair_spawn event
+# after loop: restore best_round_{best_round}/* → 04_diagnostics/ (canonical)
+write 05_review/judge_repair_summary.json {rounds_attempted: iter, scores[], selected_round: best_round, selected_score: best_score, converged: best_score>=90}
+if best_score < 90: mark [BEST_EFFORT] in report + confidence ceiling ≤70
+proceed to Step 6 → Step 7 → Step 8 regardless   # NEVER halt — always deliver report + HTML
 ```
+
+**Invariant**: the pipeline always converges to report.md + diagnostic-report.html. No Judge score triggers a halt; `<90` after 3 rounds yields best-effort delivery with a `[BEST_EFFORT]` caveat. The `append-pipeline-event.mjs` reporter/completion gate honors `judge_repair_summary.json {converged:false, rounds_attempted>=3}` as a valid pass.
 
 ### Reviewer Repair (Step 7.5)
 
