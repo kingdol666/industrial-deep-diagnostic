@@ -258,7 +258,7 @@ Step 0: Setup ──► Step 1: Inspect
 
 当 Step 7 `report-reviewer` 给出 `ENDORSED`（CP-8 通过）后，主 agent **必须立即、自动、连续地**执行 Step 8 → Step 8.5 → Step 9，**全程不得向用户发出"是否继续构建 HTML？"之类的确认提问**。HTML 可视化是管线的强制收尾环节，与 Step 0–7 一样属于自动执行，不是需要用户逐节点点头的可选步骤。
 
-**唯一允许跳过 HTML 的方式**（必须前置声明，不得临时询问）：①会话开始时用户已明确声明"不要 HTML"/"只要 report.md"；②或 `00_input/html_opt_out` 标记文件在 Step 8 启动前已存在。二者均不满足时 → **无条件自动构建**。
+**唯一允许跳过 HTML 的方式**（必须前置声明，不得临时询问）：①会话开始时用户已明确声明"不要 HTML"/"只要 report.md"；②或 `00_input/html_opt_out` 标记文件在 Step 8 启动前已存在——落实方式 `touch "$RUN_DIR/00_input/html_opt_out"`（该标记会告诉 `finalize-run-artifacts.mjs` 跳过 HTML 交付验证）。二者均不满足时 → **无条件自动构建**。
 
 **这一步必须通过专用子 Agent `html-visualizer` 实现，不允许主诊断 agent 在主上下文中直接拼页面。**
 
@@ -331,8 +331,7 @@ These rules ensure every run produces trustworthy, auditable diagnoses. Full imp
 - If a step does not apply, record `not_applicable_reason` in the relevant artifact — never silently bypass.
 - **`ontology_first` mode**: Step 2 completes before Step 3's Phase 0.4 runs. Pre-ontology work is limited to data conversion, preprocessing, and quality profiling.
 - Steps 5a (judge) and 5b (pre-audit) are the only parallel steps — both consume the same diagnosis artifacts. All other steps are serial.
-- 🔴 **HTML 自动构建（非交互）**：CP-8 `ENDORSED` 通过后，主 agent 必须立即自动启动 `html-visualizer` → `html-reviewer` → Step 9 收尾，**禁止发出"是否继续？"确认提问**。HTML 是强制交付物——除非会话开始时已前置 opt-out（`00_input/html_opt_out` 标记或用户明确声明），否则无条件自动构建。
-- HTML 构建必须由专用子 Agent `html-visualizer` 完成，审核必须由 `html-reviewer` 完成，主 agent 不得在主上下文中直接实现或自审页面。
+- 🔴 **HTML 自动构建（非交互）**：见 §Auto-Build HTML —— CP-8 `ENDORSED` 后无条件自动执行 Step 8→8.5→9，禁止临时询问；仅前置 `00_input/html_opt_out` 可跳过。
 
 ### Repair Loops
 
@@ -587,23 +586,11 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run; do not proceed to HTML.
 
-CP-8 `ENDORSED` 通过后，**立即自动启动** `html-visualizer` 子 Agent——使用与上方「Auto-Build HTML」中完全相同的启动模板，**不要询问用户是否继续**。HTML 可视化是强制收尾步骤，必须由专用子 Agent 完成（主 agent 不在主上下文拼页面）。
-
-**HTML Opt-Out（仅前置声明生效，禁止临时询问）**：只有当会话开始时用户已明确说"不要 HTML 页面"/"只要 report.md"/"跳过可视化"，或 `00_input/html_opt_out` 标记文件在 Step 8 启动前已存在时，才跳过 HTML 构建。opt-out 必须在 Step 8 启动前落实为标记文件:
-```bash
-touch "$RUN_DIR/00_input/html_opt_out"
-```
-该标记文件会告诉 `finalize-run-artifacts.mjs` 跳过 HTML 交付验证。**禁止在 Step 7→8 衔接处临时询问用户"要不要 HTML"——要么前置声明 opt-out，要么无条件自动构建。**
-
-**最终交付要求**：本 skill 的正常完成结果必须同时包含 `report.md` 和 `diagnostic-report.html`。其中 HTML 只能由独立的 `html-visualizer` 子 Agent 生成，且该子 Agent 必须复用 `diagnostic-html-visualizer` skill，不允许主 agent 在主上下文中直接编写 HTML。
+启动 `html-visualizer`（Step 8）与 `html-reviewer`（Step 8.5）的启动模板、opt-out 规则、最终交付要求**统一见 §Auto-Build HTML**——无条件自动构建，禁止临时询问用户。
 
 ### Step 8.5: HTML Review Gate (Sub-Agent: `html-reviewer`)
 
-`html-visualizer` 完成后，**立即自动启动** `html-reviewer` 子 Agent 审核——使用与上方「Auto-Build HTML」中完全相同的 `html-reviewer` 启动模板，**无需询问用户**。只有审核通过（`verdict: "pass"`），页面才算最终交付。
-
-如果 `html-reviewer` 给出 blocking issues，必须回到 `html-visualizer` 修订页面，再次审核。
-
-🛑 见 **CP-9: HTML Delivery**（Checkpoints 表）：`diagnostic-report.html` 存在且 ≥5120 字节 + `html_review.json` verdict=pass。
+`html-reviewer` 启动模板见 §Auto-Build HTML（自动执行，无需询问）。若给出 blocking issues → 回到 `html-visualizer` 修订后再次审核。🛑 **CP-9: HTML Delivery**：`diagnostic-report.html` 存在且 ≥5120 字节 + `html_review.json` verdict=pass。
 
 ### Step 9: Finalize (Main Agent)
 
