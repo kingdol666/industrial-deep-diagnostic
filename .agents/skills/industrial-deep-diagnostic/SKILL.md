@@ -25,6 +25,8 @@ compatibility: |
 输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
 核心: 本体构建 → 去趋势/分层/Simpson检测 → 竞争假说 → 物理验证 → Judge审查 → HTML可视化
 
+🔴 默认执行: FULL-AUTO — 9 步连续跑完、零人工干预、强制产出全部文件 (report.md + diagnostic-report.html + evidence_closure_report.json + optimizer.md)。仅当用户显式声明 (interactive 模式 / 跳过某步 / 不要 HTML) 才偏离。
+
 最易出错的 3 个地方:
   1. 全局相关 ≠ 因果 → 必须先做产品内去趋势 + Simpson检测
   2. Agent 执行失败是常态 → 按 Recovery Table 恢复 (10 场景), 不要手动接管
@@ -305,7 +307,7 @@ Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review pro
 
 ### 🛑 Formal Checkpoints
 
-以下检查点是诊断管线的强制暂停点。在到达每个检查点时，必须显式验证条件满足后才能继续。
+以下检查点是诊断管线的**机器验证门**（非人工暂停点）——条件满足即自动放行进入下一步，条件不满足则触发自动修复或回退，**全程不需人工干预**。每个 CP 都有精确 bash 验证命令。
 
 | 🛑 Checkpoint | 位置 | 验证命令 | 不满足时 |
 |:------------|------|---------|---------|
@@ -327,6 +329,7 @@ These rules ensure every run produces trustworthy, auditable diagnoses. Full imp
 
 ### Execution Discipline
 
+- 🔴 **默认全自动 (FULL-AUTO)**：`interaction_mode` 默认 `auto`（`setup.mjs` 已内置 + schema 默认值），9 步连续执行到 `report.md` + `diagnostic-report.html` + 证据闭环报告全部产出，**中间零人工干预**。所有 CP 门机器自动验证；Judge best-of-3（§Step 5）保证收敛；HTML 自动构建（§Auto-Build HTML）保证交付。**仅用户显式指令**（interactive 模式 / 指定跳过某步 / `00_input/html_opt_out`）才偏离。
 - Execute steps in order. Never skip, reorder, or silently omit a step.
 - If a step does not apply, record `not_applicable_reason` in the relevant artifact — never silently bypass.
 - **`ontology_first` mode**: Step 2 completes before Step 3's Phase 0.4 runs. Pre-ontology work is limited to data conversion, preprocessing, and quality profiling.
