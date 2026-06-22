@@ -1,0 +1,1 @@
+- [Lekai Scratch COMPETING_SET](lekai-scratch-competing-set.md) — 55 batch / 3 day / no time sort; product confounding dominates; only W1C8C mean shows consistent cross-product sign
