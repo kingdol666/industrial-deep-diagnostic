@@ -8,6 +8,9 @@
   },
   "scripts": {
     "start": "node commands/cli.mjs all",
+    "start:all": "node commands/start.mjs all",
+    "start:backend": "node commands/start.mjs backend",
+    "start:frontend": "node commands/start.mjs frontend",
     "backend": "node commands/cli.mjs backend",
     "frontend": "node commands/cli.mjs frontend",
     "build": "node commands/cli.mjs build",

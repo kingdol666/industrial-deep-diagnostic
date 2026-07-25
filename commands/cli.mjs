@@ -7,6 +7,10 @@ import {
   getKey, setKey, removeKey, saveLocalYaml, loadLocalYaml,
   server as serverConfig, frontend as frontendConfig
 } from '../config/loader.mjs';
+import {
+  npxCmd, nodeCmd, npmCmd, isWindows,
+  killProcess, gracefulKill, onShutdown,
+} from './cross-platform.mjs';
 
 const BACKEND_DIR = join(PROJECT_ROOT, 'app', 'backend');
 const FRONTEND_DIR = join(PROJECT_ROOT, 'app', 'frontend');
@@ -52,7 +56,7 @@ function printUsage() {
 
 async function runCommand(cmd, args, cwd) {
   return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd, stdio: 'inherit' });
+    const child = spawn(cmd, args, { cwd, stdio: 'inherit', shell: isWindows });
     child.on('close', (code) => {
       if (code === 0) resolve();
       else reject(new Error(`${cmd} exited with code ${code}`));
@@ -64,7 +68,7 @@ async function runCommand(cmd, args, cwd) {
 function checkDeps(dir, name) {
   if (!existsSync(join(dir, 'node_modules'))) {
     console.log(`\n  [INSTALL] Installing ${name} dependencies...`);
-    return runCommand('npm', ['install'], dir);
+    return runCommand(npmCmd(), ['install'], dir);
   }
   console.log(`  [OK] ${name} dependencies found`);
   return Promise.resolve();
@@ -166,7 +170,7 @@ async function cmdBackend() {
   console.log(`  Backend: http://localhost:${BACKEND_PORT}`);
   console.log(`  Project root: ${PROJECT_ROOT}`);
   console.log('');
-  return runCommand('node', ['src/index.mjs'], BACKEND_DIR);
+  return runCommand(nodeCmd(), ['src/index.mjs'], BACKEND_DIR);
 }
 
 async function cmdFrontend() {
@@ -174,7 +178,7 @@ async function cmdFrontend() {
   await checkDeps(FRONTEND_DIR, 'frontend');
   console.log(`  Frontend: http://localhost:${FRONTEND_PORT}`);
   console.log('');
-  return runCommand('npx', ['vite', '--host'], FRONTEND_DIR);
+  return runCommand(npxCmd(), ['vite', '--host'], FRONTEND_DIR);
 }
 
 async function cmdAll() {
@@ -187,25 +191,28 @@ async function cmdAll() {
   await checkDeps(BACKEND_DIR, 'backend');
   await checkDeps(FRONTEND_DIR, 'frontend');
 
-  const backend = spawn('node', ['src/index.mjs'], { cwd: BACKEND_DIR, stdio: 'inherit' });
+  const backend = spawn(nodeCmd(), ['src/index.mjs'], { cwd: BACKEND_DIR, stdio: 'inherit', shell: isWindows });
   await new Promise(r => setTimeout(r, 1500));
 
-  const frontend = spawn('npx', ['vite', '--host'], { cwd: FRONTEND_DIR, stdio: 'inherit' });
+  const frontend = spawn(npxCmd(), ['vite', '--host'], { cwd: FRONTEND_DIR, stdio: 'inherit', shell: isWindows });
 
-  const cleanup = () => { backend.kill('SIGTERM'); frontend.kill('SIGTERM'); process.exit(0); };
-  process.on('SIGINT', cleanup);
-  process.on('SIGTERM', cleanup);
+  onShutdown(() => {
+    console.log('\n  Shutting down...');
+    killProcess(backend);
+    killProcess(frontend);
+    console.log('  All processes stopped.');
+  });
 
   await new Promise((resolve) => {
-    backend.on('close', () => { frontend.kill(); resolve(); });
-    frontend.on('close', () => { backend.kill(); resolve(); });
+    backend.on('close', () => { killProcess(frontend); resolve(); });
+    frontend.on('close', () => { killProcess(backend); resolve(); });
   });
 }
 
 async function cmdBuild() {
   console.log('\n  Building frontend for production...');
   await checkDeps(FRONTEND_DIR, 'frontend');
-  return runCommand('npx', ['vite', 'build'], FRONTEND_DIR);
+  return runCommand(npxCmd(), ['vite', 'build'], FRONTEND_DIR);
 }
 
 async function cmdWebfrp() {
@@ -215,9 +222,10 @@ async function cmdWebfrp() {
     process.exit(1);
   }
   return new Promise((resolve, reject) => {
-    const child = spawn('node', [webfrpScript], {
+    const child = spawn(nodeCmd(), [webfrpScript], {
       cwd: PROJECT_ROOT,
       stdio: 'inherit',
+      shell: isWindows,
     });
     child.on('close', (code) => {
       if (code === 0) resolve();

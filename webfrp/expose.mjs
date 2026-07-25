@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 // webfrp/expose.mjs — Cloudflare Tunnel quick exposure script
 // Exposes local Industrial Diagnostic service to the public internet
+// Cross-platform: Windows, Linux, macOS
 
 import { spawn, execSync } from 'child_process';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
+import {
+  npxCmd, nodeCmd, npmCmd, isWindows,
+  isPortFree, killPortProcess, killProcess, gracefulKill, onShutdown,
+  commandExists, printBanner,
+} from '../commands/cross-platform.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,30 +24,8 @@ const PORT = process.env.SERVER_PORT || 3210;
 
 // ─── Helpers ──────────────────────────────────────────────
 
-function isPortFree(port) {
-  try {
-    const result = execSync(`lsof -ti:${port}`, { encoding: 'utf-8', timeout: 3000 }).trim();
-    return result.length === 0;
-  } catch {
-    return true; // lsof returns non-zero when nothing found
-  }
-}
-
-function killPort(port) {
-  try {
-    execSync(`lsof -ti:${port} | xargs kill -9`, { encoding: 'utf-8', timeout: 3000 });
-  } catch {}
-}
-
-// ─── Pre-flight checks ────────────────────────────────────
-
 function checkCloudflared() {
-  try {
-    execSync('which cloudflared', { encoding: 'utf-8', timeout: 3000 });
-    return true;
-  } catch {
-    return false;
-  }
+  return commandExists('cloudflared');
 }
 
 function checkFrontendBuilt() {
@@ -51,9 +35,10 @@ function checkFrontendBuilt() {
 async function buildFrontend() {
   console.log('  [BUILD] Building frontend...');
   return new Promise((resolve, reject) => {
-    const child = spawn('npx', ['vite', 'build'], {
+    const child = spawn(npxCmd(), ['vite', 'build'], {
       cwd: FRONTEND_DIR,
       stdio: 'inherit',
+      shell: isWindows,
     });
     child.on('close', (code) => {
       if (code === 0) resolve();
@@ -66,10 +51,11 @@ async function buildFrontend() {
 // ─── Start backend ────────────────────────────────────────
 
 function startBackend() {
-  const child = spawn('node', ['src/index.mjs'], {
+  const child = spawn(nodeCmd(), ['src/index.mjs'], {
     cwd: BACKEND_DIR,
     stdio: ['pipe', 'pipe', 'pipe'],
     env: { ...process.env, PORT: String(PORT) },
+    shell: isWindows,
   });
 
   child.stdout.on('data', (data) => {
@@ -100,6 +86,7 @@ function startTunnel() {
   return new Promise((resolve, reject) => {
     const child = spawn('cloudflared', ['tunnel', '--url', `http://localhost:${PORT}`], {
       stdio: ['pipe', 'pipe', 'pipe'],
+      shell: isWindows,
     });
 
     let resolved = false;
@@ -145,7 +132,7 @@ function startTunnel() {
     // Timeout: if no URL in 30s, fail
     setTimeout(() => {
       if (!resolved) {
-        child.kill('SIGTERM');
+        killProcess(child);
         reject(new Error('cloudflared timed out (30s). Check your network connection.'));
       }
     }, 30000);
@@ -188,15 +175,16 @@ async function main() {
   if (!existsSync(join(BACKEND_DIR, 'node_modules'))) {
     console.log('  [INSTALL] Installing backend dependencies...');
     await new Promise((resolve, reject) => {
-      const child = spawn('npm', ['install'], { cwd: BACKEND_DIR, stdio: 'inherit' });
+      const child = spawn(npmCmd(), ['install'], { cwd: BACKEND_DIR, stdio: 'inherit', shell: isWindows });
       child.on('close', (code) => code === 0 ? resolve() : reject(new Error('npm install failed')));
     });
   }
 
   // 4. Ensure port is free
-  if (!isPortFree(PORT)) {
+  const portFree = await isPortFree(PORT);
+  if (!portFree) {
     console.log('  [WARN] Port ' + PORT + ' is in use, killing existing process...');
-    killPort(PORT);
+    killPortProcess(PORT);
     await new Promise(r => setTimeout(r, 1000));
   }
 
@@ -232,7 +220,7 @@ async function main() {
     tunnel = await startTunnel();
   } catch (err) {
     console.error('  [ERROR] Tunnel failed: ' + err.message);
-    backend.kill('SIGTERM');
+    killProcess(backend);
     process.exit(1);
   }
 
@@ -253,22 +241,17 @@ async function main() {
   console.log('');
 
   // 8. Cleanup on exit
-  const cleanup = () => {
-    console.log('');
-    console.log('  Shutting down...');
-    tunnel.child.kill('SIGTERM');
-    backend.kill('SIGTERM');
+  onShutdown(() => {
+    console.log('\n  Shutting down...');
+    killProcess(tunnel.child);
+    killProcess(backend);
     console.log('  All services stopped.');
-    process.exit(0);
-  };
-
-  process.on('SIGINT', cleanup);
-  process.on('SIGTERM', cleanup);
+  });
 
   // Keep alive
   await new Promise((resolve) => {
-    backend.on('close', () => { tunnel.child.kill(); resolve(); });
-    tunnel.child.on('close', () => { backend.kill(); resolve(); });
+    backend.on('close', () => { killProcess(tunnel.child); resolve(); });
+    tunnel.child.on('close', () => { killProcess(backend); resolve(); });
   });
 }
 

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#161b22;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gear1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#58a6ff" />
+      <stop offset="100%" style="stop-color:#3fb950" />
+    </linearGradient>
+    <linearGradient id="gear2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0883e" />
+      <stop offset="100%" style="stop-color:#da3633" />
+    </linearGradient>
+    <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff" />
+      <stop offset="50%" style="stop-color:#bc8cff" />
+      <stop offset="100%" style="stop-color:#3fb950" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="200" rx="12" fill="url(#bg)" />
+
+  <!-- Left gear icon -->
+  <g transform="translate(80,100)" filter="url(#glow)">
+    <circle r="38" fill="none" stroke="url(#gear1)" stroke-width="6" />
+    <circle r="12" fill="url(#gear1)" />
+    <!-- Gear teeth -->
+    <rect x="-6" y="-46" width="12" height="12" rx="2" fill="url(#gear1)" />
+    <rect x="-6" y="34" width="12" height="12" rx="2" fill="url(#gear1)" />
+    <rect x="-46" y="-6" width="12" height="12" rx="2" fill="url(#gear1)" />
+    <rect x="34" y="-6" width="12" height="12" rx="2" fill="url(#gear1)" />
+    <rect x="22" y="-38" width="12" height="12" rx="2" fill="url(#gear1)" transform="rotate(45,28,-32)" />
+    <rect x="-34" y="-38" width="12" height="12" rx="2" fill="url(#gear1)" transform="rotate(-45,-28,-32)" />
+    <rect x="22" y="26" width="12" height="12" rx="2" fill="url(#gear1)" transform="rotate(-45,28,32)" />
+    <rect x="-34" y="26" width="12" height="12" rx="2" fill="url(#gear1)" transform="rotate(45,-28,32)" />
+    <!-- Magnifying glass overlay -->
+    <circle r="18" cx="10" cy="-10" fill="none" stroke="url(#gear2)" stroke-width="4" />
+    <line x1="22" y1="-22" x2="30" y2="-30" stroke="url(#gear2)" stroke-width="4" stroke-linecap="round" />
+  </g>
+
+  <!-- Pulse/analysis lines -->
+  <g transform="translate(145,75)" filter="url(#glow)">
+    <rect x="0" y="0" width="4" height="40" rx="2" fill="#3fb950" opacity="0.9">
+      <animate attributeName="height" values="40;20;40" dur="2s" repeatCount="indefinite" />
+    </rect>
+    <rect x="12" y="5" width="4" height="35" rx="2" fill="#58a6ff" opacity="0.8">
+      <animate attributeName="height" values="35;15;35" dur="1.8s" repeatCount="indefinite" />
+    </rect>
+    <rect x="24" y="2" width="4" height="42" rx="2" fill="#bc8cff" opacity="0.9">
+      <animate attributeName="height" values="42;25;42" dur="2.2s" repeatCount="indefinite" />
+    </rect>
+    <rect x="36" y="8" width="4" height="30" rx="2" fill="#f0883e" opacity="0.7">
+      <animate attributeName="height" values="30;10;30" dur="1.5s" repeatCount="indefinite" />
+    </rect>
+    <rect x="48" y="3" width="4" height="38" rx="2" fill="#58a6ff" opacity="0.85">
+      <animate attributeName="height" values="38;18;38" dur="1.9s" repeatCount="indefinite" />
+    </rect>
+  </g>
+
+  <!-- Title text -->
+  <text x="310" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="28" font-weight="700" fill="url(#text)" text-anchor="middle" filter="url(#glow)">Industrial Deep</text>
+  <text x="310" y="120" font-family="'Segoe UI', Arial, sans-serif" font-size="28" font-weight="700" fill="url(#text)" text-anchor="middle" filter="url(#glow)">Diagnostic</text>
+
+  <!-- Subtitle -->
+  <text x="310" y="155" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#8b949e" text-anchor="middle" letter-spacing="3">MULTI-AGENT ROOT CAUSE ANALYSIS ENGINE</text>
+
+  <!-- Bottom line accent -->
+  <rect x="150" y="172" width="320" height="2" rx="1" fill="url(#text)" opacity="0.6" />
+</svg>

@@ -2,7 +2,7 @@
 // Replaces the old child_process-based Claude CLI execution.
 
 import { existsSync, readdirSync, readFileSync } from 'fs';
-import { join, extname, basename } from 'path';
+import { join, extname, basename, isAbsolute } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -68,7 +68,7 @@ ${skillContent}`;
 }
 
 function discoverDataFiles(folderPath) {
-  const absolutePath = folderPath.startsWith('/')
+  const absolutePath = isAbsolute(folderPath)
     ? folderPath
     : join(PROJECT_ROOT, folderPath);
   const entries = readdirSync(absolutePath);
@@ -174,7 +174,7 @@ export function startDiagnosis({
 
   // Resolve data paths
   function resolveDataPath(p) {
-    if (p.startsWith('/')) return p;
+    if (isAbsolute(p)) return p;
     const fromRoot = join(PROJECT_ROOT, p);
     if (existsSync(fromRoot)) return fromRoot;
     const fromData = join(DATA_DIR, p);

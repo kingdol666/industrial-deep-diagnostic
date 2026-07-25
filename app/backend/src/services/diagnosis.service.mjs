@@ -4,7 +4,7 @@
 import { v4 as uuid } from 'uuid';
 import { readdir, stat, realpath } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { join, basename, relative } from 'path';
+import { join, basename, relative, isAbsolute } from 'path';
 import {
   startDiagnosis, startSessionChat, parseStreamEvent, isDangerousCommand,
   PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, closeQuery,
@@ -41,7 +41,7 @@ function formatResumeError(err, runId, sessionId) {
 
 // Validate that a resolved data path is safe (contained within project root)
 export async function validateDataPath(dataPath) {
-  if (dataPath.startsWith('/')) {
+  if (isAbsolute(dataPath)) {
     if (!existsSync(dataPath)) {
       const err = new Error(`Data not found: ${dataPath}`);
       err.code = 'DATA_NOT_FOUND';
@@ -100,7 +100,7 @@ export function createDiagnosisRun(params) {
     scene = sceneName || basename(first).replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
   } else if (folderPath) {
     mode = 'folder';
-    const relPath = folderPath.startsWith('/')
+    const relPath = isAbsolute(folderPath)
       ? relative(PROJECT_ROOT, folderPath)
       : folderPath;
     dataPathForDb = relPath;
@@ -108,7 +108,7 @@ export function createDiagnosisRun(params) {
     scene = sceneName || basename(relPath).replace(/[^a-zA-Z0-9]/g, '_');
   } else if (dataPath) {
     mode = 'file';
-    const relPath = dataPath.startsWith('/')
+    const relPath = isAbsolute(dataPath)
       ? relative(PROJECT_ROOT, dataPath)
       : dataPath;
     dataPathForDb = relPath;
