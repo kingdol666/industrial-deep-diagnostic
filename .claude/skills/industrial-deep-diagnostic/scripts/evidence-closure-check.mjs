@@ -122,7 +122,11 @@ if (dualDriveApplicable && !diagnosisDualDrivePresent) {
 if (!dualDriveApplicable) {
   const dualDriveMarkedNotApplicable =
     diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === false ||
-    dataConclusion.analysis_coverage_matrix?.process_inspection_dual_drive?.status === 'not_applicable';
+    dataConclusion.analysis_coverage_matrix?.process_inspection_dual_drive?.status === 'not_applicable' ||
+    // V2: data_view_mode not process_plus_inspection means dual-drive not applicable
+    (dataConclusion.schema_version === '2.0' &&
+     dataConclusion.adaptive_decision_audit?.data_view_mode &&
+     dataConclusion.adaptive_decision_audit.data_view_mode !== 'process_plus_inspection');
   if (!dualDriveMarkedNotApplicable) {
     addIssue(
       issues,
@@ -133,8 +137,13 @@ if (!dualDriveApplicable) {
   }
 }
 
+// Ontology-physics bridge: V1 used ontology_industry_interpretation; V2 uses
+// validated_correlations.pairs[].physics (behavior_match/governing_law merged from ontology)
+const v2OntologyBridge = dataConclusion.schema_version === '2.0' &&
+  nonEmptyArray(dataConclusion.validated_correlations?.pairs) &&
+  dataConclusion.validated_correlations.pairs.some((p) => p?.physics?.behavior_match || p?.physics?.governing_law);
 const ontologyBridgePresent =
-  nonEmptyArray(dataConclusion.ontology_industry_interpretation) &&
+  (v2OntologyBridge || nonEmptyArray(dataConclusion.ontology_industry_interpretation)) &&
   (nonEmptyArray(diagnosis.process_fluctuation_analysis?.ontology_physics_reasoning) ||
     (Array.isArray(diagnosis.hypotheses?.surviving) &&
       diagnosis.hypotheses.surviving.some((item) => nonEmptyArray(item?.physical_logic_chain))));

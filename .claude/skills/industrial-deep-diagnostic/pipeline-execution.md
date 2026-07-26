@@ -103,7 +103,7 @@ Key validation commands:
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_v2_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"
 ```
