@@ -215,7 +215,7 @@ Detailed frameworks — load only when an agent's instructions tell you to.
 
 ---
 
-## Execution Flow (V3 — 5 Phases)
+## Execution Flow (5 Phases)
 
 ```
 Phase 1: BOOTSTRAP (主 Agent, ~2 min)
@@ -267,7 +267,7 @@ Phase 5: DELIVER + AUDIT (3 子 Agent 并行, ~8 min)
 - Execute phases in order. Never skip, reorder, or silently omit. If a step does not apply, record `not_applicable_reason` in the relevant artifact.
 - **Phase 2 并行**：context-builder 和 data-preprocessor 互不依赖，并行启动；主 Agent 等两者完成后做 ontology-guided analysis selection。
 - **Phase 5 并行**：judge / reporter / html-visualizer 并行启动（消费同一份 Phase 4 产物）；report-reviewer 必须等 judge 完成后启动。
-- **Agent 自治 (V3)**：每个子 Agent 对自己的输出验证负责（schema validate + quality check）。**删除了原 9 个 CP 检查点** — 主 Agent 不再逐项核查子 Agent 输出，而是依赖 `artifact-check.mjs` 作为权威结束门。
+- **Agent 自治 **：每个子 Agent 对自己的输出验证负责（schema validate + quality check）。**删除了原 9 个 CP 检查点** — 主 Agent 不再逐项核查子 Agent 输出，而是依赖 `artifact-check.mjs` 作为权威结束门。
 
 ### Repair Loops
 
@@ -438,7 +438,7 @@ MUST write data_analysis_conclusion.json (schema) including param_ambiguity bloc
 **Before Phase 4**, stabilize outputs:
 ```bash
 node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"  # 合并 V2 字段
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"  # 合并交接字段
 ```
 
 **Outputs**: `02_processed/` (feature_summary, validate_report, anomaly_report, time_lag_analysis, physics_check, data_analysis_conclusion_v2), `03_figures/*.png` + `plot_manifest.json` + `visual_analysis.json`.
@@ -455,12 +455,12 @@ Agent({
 RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
 REPAIR_INSTRUCTIONS=${REPAIR_INSTRUCTIONS:-}
-Read "${SKILL_PATH}/agents/diagnostician.md" (V2) and execute Phase 0-4.
-Trust data_analysis_conclusion.json (V2) as primary handoff — read only 3 core files + conditional 3.`
+Read "${SKILL_PATH}/agents/diagnostician.md" and execute Phase 0-4.
+Trust data_analysis_conclusion.json as primary handoff — read only 3 core files + conditional 3.`
 })
 ```
 
-**V2 信任交接**：diagnostician 必读只 3 个文件 — `data_analysis_conclusion.json`, `ontology.json`, `visual_analysis.json`。条件必读 3 个 — `validate_report.json`, `time_lag_analysis.json`, `anomaly_report.json`（仅当 handoff 中某结论需要深入验证时）。
+**信任交接**：diagnostician 必读只 3 个文件 — `data_analysis_conclusion.json`, `ontology.json`, `visual_analysis.json`。条件必读 3 个 — `validate_report.json`, `time_lag_analysis.json`, `anomaly_report.json`（仅当 handoff 中某结论需要深入验证时）。
 
 **Outputs**: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`. Agent 自验证 schema + 运行 `diagnostic-quality-check.mjs`。
 
@@ -472,7 +472,7 @@ Trust data_analysis_conclusion.json (V2) as primary handoff — read only 3 core
 // 5a: judge (7 项评分, 从 10 项精简)
 Agent({subagent_type: "judge", run_in_background: true,
   prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH} DATA_PATH=${DATA_PATH}
-Read "${SKILL_PATH}/agents/judge.md" (V2). Cross-reference audit (4 checks) + 7 criteria scoring.`})
+Read "${SKILL_PATH}/agents/judge.md" . Cross-reference audit (4 checks) + 7 criteria scoring.`})
 
 // 5b: reporter
 Agent({subagent_type: "reporter", run_in_background: true,
@@ -498,7 +498,7 @@ Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol
 // 5d (after judge): report-reviewer — 物理真相审计 + raw data spot-check
 Agent({subagent_type: "report-reviewer", run_in_background: true,
   prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH} DATA_PATH=${DATA_PATH}
-Read "${SKILL_PATH}/agents/report-reviewer.md" (V2). Step 1: raw data spot-check.
+Read "${SKILL_PATH}/agents/report-reviewer.md" . Step 1: raw data spot-check.
 Step 2: physical truth audit. Step 3: cross-agent consistency.`})
 
 // 5e (after html-visualizer): html-reviewer

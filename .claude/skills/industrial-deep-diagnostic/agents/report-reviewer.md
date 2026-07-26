@@ -58,9 +58,9 @@ PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let 
 
 ---
 
-## Step 1: Raw Data Spot-Check (V2 新增, ~40 行)
+## Step 1: Raw Data Spot-Check (新增, ~40 行)
 
-**这是 V2 最重要的新增 — 直接用原始数据验证最终结论。** 之前的 reviewer 只检查 artifacts 之间的一致性，从未回到原始 CSV 验证。
+**这是 最重要的新增 — 直接用原始数据验证最终结论。** 之前的 reviewer 只检查 artifacts 之间的一致性，从未回到原始 CSV 验证。
 
 ### 1.1 提取 diagnosis 中置信度最高的结论
 
@@ -162,13 +162,13 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", []):
 
 ---
 
-## Step 3: Cross-Agent Consistency (V2 新增, ~30 行)
+## Step 3: Cross-Agent Consistency (新增, ~30 行)
 
 **集中审查 judge 未覆盖的跨文件矛盾。** judge 检查 diagnosis 内部一致性，reviewer 检查 diagnosis 与上游/下游的一致性。
 
 ### 3.1 data-processor handoff vs diagnostician 引用
 
-对比 `data_analysis_conclusion.json` (V2) 与 `diagnosis.json`:
+对比 `data_analysis_conclusion.json` 与 `diagnosis.json`:
 - diagnostician 引用的 `validated_correlations.pairs[N]` 是否真的存在?
 - 引用的 finding 是否被断章取义? (handoff 标 simpson_safe=false 但 diagnosis 当 strong evidence)
 - diagnostician 是否忽略了 handoff 的 `evidence_gaps`?
@@ -230,7 +230,7 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_co
 ## Rules
 
 - **物理不可能 = 一票否决。** 不论格式多漂亮、措辞多专业。
-- **回原始数据验证。** (V2 新增) 不要只在 artifacts 之间打转。
+- **回原始数据验证。** (新增) 不要只在 artifacts 之间打转。
 - **trust handoff 但 spot-check**。handoff 是确定性产物，但最终结论必须回原始数据复核。
 - **跨 Agent 一致性是审查重点。** 内部一致 ≠ 真实世界成立。
 - **optimizer.md 必须可执行。** 具体、量化、有费用和时间估计。

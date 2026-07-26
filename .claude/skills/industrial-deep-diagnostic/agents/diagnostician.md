@@ -52,13 +52,13 @@
 
 ## Phase 0: Load Core Evidence (~50 行)
 
-**V2 信任交接 — 必读只 3 个文件。**
+**信任交接 — 必读只 3 个文件。**
 
 ### 必读 (3 个)
 
 | File | 角色 |
 |------|------|
-| `02_processed/data_analysis_conclusion.json` | **专家交接文件 (V2)** — 含全部统计发现（validated_correlations）、异常窗口、双驱动关联、视觉证据、优先假说输入、**param_ambiguity（PARAM_AMBIGUITY ceiling 来源）**。每条 finding 有稳定引用 ID（如 `validated_correlations.pairs[0]`）|
+| `02_processed/data_analysis_conclusion.json` | **专家交接文件** — 含全部统计发现（validated_correlations）、异常窗口、双驱动关联、视觉证据、优先假说输入、**param_ambiguity（PARAM_AMBIGUITY ceiling 来源）**。每条 finding 有稳定引用 ID（如 `validated_correlations.pairs[0]`）|
 | `01_ontology/ontology.json` | 本体 — 参数物理含义、因果结构、`behavior_match`、`discrepancy_signals` |
 | `03_figures/visual_analysis.json` | VLM 视觉证据 — synchronous_groups / event_responses / trend_morphology |
 
@@ -80,7 +80,7 @@
 
 > **PARAM_AMBIGUITY ceiling 不需要读 clarification_needed.json** — handoff 的 `param_ambiguity.ambiguous_params[]` 已包含此信息。若某参数在此列表中且用作主要预测器 → ceiling 50。
 
-### 0.1 Extract from V2 Handoff
+### 0.1 Extract from Handoff
 
 从 `data_analysis_conclusion.json` 提取：
 1. `validated_correlations.pairs[]` — 每个 pair 已含 validation + time_lag + physics 评估
@@ -234,7 +234,7 @@ coolant_pressure↓ → [Darcy-Weisbach: 低 ΔP → 低 v] → coolant_flow↓ 
 
 ### 2.3 Build Two Diagnostic Views (MANDATORY)
 
-**View A — Pure Process-Fluctuation Diagnosis** (从 V2 `process_health`):
+**View A — Pure Process-Fluctuation Diagnosis** (从 `process_health`):
 - 哪些工艺参数显示 drift / high_variability / step_change / threshold_crossing / regime_switch / cyclic
 - 在哪个产品/批次组
 - 哪个本体角色 + 控制方程
@@ -242,7 +242,7 @@ coolant_pressure↓ → [Darcy-Weisbach: 低 ΔP → 低 v] → coolant_flow↓ 
 
 回答: "**从纯工艺数据波动角度,系统本身出了什么问题?**"
 
-**View B — Integrated Dual-Drive Diagnosis** (从 V2 `dual_drive_linkages`):
+**View B — Integrated Dual-Drive Diagnosis** (从 `dual_drive_linkages`):
 - 每个 process-quality 对: 组 / 工艺参数 / 质量目标 / temporal_order / 统计+异常+本体+物理+VLM 是否一致
 
 回答: "**从工艺+质量结合角度,哪条链更像真正根因?**"
@@ -262,12 +262,12 @@ coolant_pressure↓ → [Darcy-Weisbach: 低 ΔP → 低 v] → coolant_flow↓ 
 
 对每个 shortlisted 参数，组合:
 1. Causal chain (handoff physics + Phase 1 first-principles)
-2. Quantitative verification (V2 physics_check 结论 或 first-principles magnitude)
-3. Evidence fusion (V2 dual_drive_linkages + anomaly_highlights)
-4. VLM visual evidence (V2 visual_evidence_summary)
+2. Quantitative verification (physics_check 结论 或 first-principles magnitude)
+3. Evidence fusion (dual_drive_linkages + anomaly_highlights)
+4. VLM visual evidence (visual_evidence_summary)
 5. RAG context (handoff 已合并)
-6. Process-only 异常 (V2 process_health)
-7. Expert data handoff (V2 priority_hypothesis_inputs)
+6. Process-only 异常 (process_health)
+7. Expert data handoff (priority_hypothesis_inputs)
 
 **Hypothesis 文档模板**:
 ```
@@ -282,7 +282,7 @@ Data Evidence:
   - Quality reset: [RESET/NO_RESET]
   - Onset coincidence: [PRECURSOR/CONCURRENT]
 Visual Alignment:
-  - VLM observation: [从 V2 visual_evidence_summary 引用]
+  - VLM observation: [从 visual_evidence_summary 引用]
 Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_QUESTION]
 ```
 
@@ -322,7 +322,7 @@ Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_
 
 ### STEP D: Exclusion Verification
 
-- **Physics exclusion**: V2 physics_check 或 Phase 1 magnitude → IMPLAUSIBLE → 排除
+- **Physics exclusion**: physics_check 或 Phase 1 magnitude → IMPLAUSIBLE → 排除
 - **Quality reset exclusion**: NO_RESET for 该组件 → 该组件 ELIMINATED (最强排除测试)
 - **Statistical exclusion**: handoff validation 全 fail 或方向矛盾
 - **Ontology discrepancy exclusion**: `behavior_match: CONTRADICTED` + 强物理 → 排除
@@ -342,7 +342,7 @@ Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_
 2. 数据证据（cite handoff `validated_correlations.pairs[N]` 具体数字）
 3. Pre-computed physics 证据（cite `physics_check.json` 结论）
 4. Quality reset / onset coincidence 证据
-5. Visual 证据（cite V2 `visual_evidence_summary`）
+5. Visual 证据（cite `visual_evidence_summary`）
 6. **可证伪条件**: "若 [specific data] 显示 [specific pattern], 结论错误"
 
 ---
@@ -366,8 +366,8 @@ Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_
 
 | Segment | Content |
 |---------|---------|
-| **R1** | 数据表征 + 场景描述 (from V2 adaptive_decision_audit) |
-| **R2** | 统计发现 + fusion 证据 + **VLM visual observations** (from V2 validated_correlations + visual_evidence_summary) |
+| **R1** | 数据表征 + 场景描述 (from adaptive_decision_audit) |
+| **R2** | 统计发现 + fusion 证据 + **VLM visual observations** (from validated_correlations + visual_evidence_summary) |
 | **R3** | Validation filter (Simpson/trend/outlier) + anomaly 标注 (from handoff validation blocks) |
 | **R4** | Hypothesis generation — 每个: causal chain + **ontology-data-physics proof** (Phase 1.3) + VLM visual evidence |
 | **R5** | Discriminability assessment |
@@ -382,7 +382,7 @@ Chain Quality: [X]% OBSERVED + KNOWN_PHYSICS → [ACTIONABLE/PLAUSIBLE/RESEARCH_
 - `physics_mechanism`: causal chain + 控制方程 + source
 - `quantitative_verification`: physics check 结果 或 first-principles magnitude
 - `quality_reset_evidence`
-- `visual_evidence`: VLM 观察（from V2 visual_evidence_summary）
+- `visual_evidence`: VLM 观察（from visual_evidence_summary）
 - `process_fluctuation_analysis`: View A 独立结论（不依赖缺陷证据存在）
 - `integrated_dual_drive_analysis`: View B 独立结论（显式连接 process↔quality）
 - **若 COMPETING_SET**: `competing_hypotheses[].discriminating_experiment` (强制)

@@ -54,7 +54,7 @@
 Phase 3 完成前必须确保：
 - `02_processed/analysis_plan.md` 存在（含 Ontology-Guided Analysis Architecture 段）
 - `02_processed/analysis_parameter_selection.json` 存在（Phase 0.4 输出）
-- `02_processed/data_analysis_conclusion.json` 存在且 **V2 schema valid**
+- `02_processed/data_analysis_conclusion.json` 存在且 **(schema) valid**
 - `02_processed/data_quality_report.json` 含 `cleaning_integrity` block
 - `03_figures/plot_manifest.json` 存在且 `plot_verification.py` 通过
 - `03_figures/visual_analysis.json` 存在（VLM 输出）
@@ -194,7 +194,7 @@ node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" 
 - 分层验证：组内相关是否成立
 - 去趋势验证：raw r vs detrended r（衰减 >50% flag）
 - 函数形式验证：数据是否跟随声称的方程形状
-- 输出：直接更新到 `rag_deep_understanding.json`（V2 不再独立 `rag_validation_report.json`）
+- 输出：直接更新到 `rag_deep_understanding.json`（不再独立 `rag_validation_report.json`）
 
 ---
 
@@ -273,11 +273,11 @@ DATA_PATH=${DATA_PATH}
 
 ## Phase 4: Expert Handoff (~80 行)
 
-### 4.1 Write data_analysis_conclusion.json (V2 schema)
+### 4.1 Write data_analysis_conclusion.json ((schema))
 
 读 `schemas/data_analysis_conclusion_schema.json` + `templates/data_analysis_conclusion_template.json` 后填写。
 
-**V2 必填字段**:
+**必填字段**:
 - `adaptive_decision_audit`: data_view_mode + shapes + selected/skipped analyses
 - `validated_correlations.pairs[]`: 每个 |r|≥0.3 对，含 `validation`（simpson_safe, trend_confounded, outlier_driven, leave_one_out_safe, time_sorted, regime_filtered）+ `time_lag`（lag_compensated_r 等）+ `physics`（behavior_match, governing_law, proof_strength 等）
 - `anomaly_highlights.anomaly_windows[]`: 按产品的异常窗口
@@ -295,7 +295,7 @@ DATA_PATH=${DATA_PATH}
 
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"  # 合并 V2 字段
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"  # 合并 字段
 node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
 ```
 
@@ -314,7 +314,7 @@ Phase 3 (`PHASE_LIMIT=analyze`) 完成时必须存在:
 ```
 02_processed/analysis_plan.md
 02_processed/analysis_parameter_selection.json
-02_processed/data_analysis_conclusion.json  ← V2 schema valid (单一交接面)
+02_processed/data_analysis_conclusion.json  ← schema valid (单一交接面)
 02_processed/cleaned_data.csv / cleaned_data.json
 02_processed/data_quality_report.json  ← 含 cleaning_integrity block
 02_processed/feature_summary.json
@@ -331,7 +331,7 @@ Phase 3 (`PHASE_LIMIT=analyze`) 完成时必须存在:
 06_scripts/*.py  ← 若写了自定义脚本
 ```
 
-## Rules (V3 精简)
+## Rules (精简)
 
 1. **Scenario-first, not pipeline-first.** Phase 0 探索驱动一切。
 2. **Every plot answers a diagnostic question.** 不能说出根因洞察就别画。

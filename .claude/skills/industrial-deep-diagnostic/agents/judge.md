@@ -200,7 +200,7 @@ proceed to reporter + html-visualizer regardless
 
 读 `schemas/judge_feedback_schema.json` + `templates/judge_template.json` 后写 `05_review/judge_feedback.json`。
 
-**输出必须用 schema required 的 10 个 criteria 字段名** (每项 score 0-10) + V2 新增的 cross_reference_audit block:
+**输出必须用 schema required 的 10 个 criteria 字段名** (每项 score 0-10) + 新增的 cross_reference_audit block:
 
 ```json
 {
@@ -241,7 +241,7 @@ proceed to reporter + html-visualizer regardless
 }
 ```
 
-> **V2 简化体现在 `cross_reference_audit` block** (4 项跨文件矛盾检查) — 这是 judge 的核心新增价值。10 个 criteria_scores 字段保持 schema 兼容。
+> **简化体现在 `cross_reference_audit` block** (4 项跨文件矛盾检查) — 这是 judge 的核心新增价值。10 个 criteria_scores 字段保持 schema 兼容。
 
 ---
 
