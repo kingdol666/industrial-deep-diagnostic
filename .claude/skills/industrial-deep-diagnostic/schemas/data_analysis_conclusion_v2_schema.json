@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "data_analysis_conclusion_v2_schema.json",
+  "title": "Data Analysis Conclusion Schema V2",
+  "description": "Deterministic expert handoff. Single source of truth downstream agents trust — Diagnostician reads ONLY this file (+ ontology + visual_analysis) instead of 20+ raw artifacts. Every finding has a stable reference id for citation. Supersedes v1.0.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "generated_at",
+    "adaptive_decision_audit",
+    "validated_correlations",
+    "anomaly_highlights",
+    "process_health",
+    "dual_drive_linkages",
+    "visual_evidence_summary",
+    "expert_gap_analysis",
+    "diagnostician_handoff",
+    "data_cleaning_provenance"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "2.0"},
+    "run_id": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "data_view_mode": {
+      "type": "string",
+      "enum": ["process_plus_inspection", "process_only", "inspection_only", "unknown"]
+    },
+
+    "adaptive_decision_audit": {
+      "type": "object",
+      "description": "Machine-readable proof that analyses were selected from actual data shape, not a fixed checklist.",
+      "required": ["data_view_mode", "data_shapes_detected", "selected_analyses", "skipped_analyses"],
+      "properties": {
+        "data_view_mode": {"type": "string", "enum": ["process_plus_inspection", "process_only", "inspection_only", "unknown"]},
+        "mode_justification": {"type": "string"},
+        "data_shapes_detected": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "e.g. multi_zone, product_grouping, paired_sensors, event_markers, profile_data"
+        },
+        "selected_analyses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["analysis", "why"],
+            "properties": {
+              "analysis": {"type": "string"},
+              "why": {"type": "string"},
+              "evidence_artifacts": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "skipped_analyses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["analysis", "why"],
+            "properties": {
+              "analysis": {"type": "string"},
+              "why": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+
+    "validated_correlations": {
+      "type": "object",
+      "description": "All |r|>=0.3 pairs surviving validation. Merged from feature_summary.json + validate_report.json + time_lag_analysis.json + physics_check.json. Downstream agents cite pairs[N] instead of re-reading raw files.",
+      "required": ["pairs"],
+      "properties": {
+        "description": {"type": "string"},
+        "pairs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["predictor", "target", "pearson_r", "sample_n", "validation"],
+            "properties": {
+              "predictor": {"type": "string"},
+              "target": {"type": "string"},
+              "pearson_r": {"type": "number"},
+              "pearson_p": {"type": "number"},
+              "spearman_rho": {"type": "number"},
+              "detrended_r": {"type": "number"},
+              "mi_score": {"type": "number"},
+              "sample_n": {"type": "integer"},
+              "validation": {
+                "type": "object",
+                "required": ["simpson_safe", "trend_confounded", "outlier_driven", "leave_one_out_safe", "time_sorted", "regime_filtered"],
+                "properties": {
+                  "simpson_safe": {"type": "boolean"},
+                  "trend_confounded": {"type": "boolean"},
+                  "outlier_driven": {"type": "boolean"},
+                  "leave_one_out_safe": {"type": "boolean"},
+                  "leave_one_out_delta_r": {"type": "number", "description": "|Δr| when worst leverage point removed; flag leverage_driven if > 0.2"},
+                  "time_sorted": {"type": "boolean"},
+                  "regime_filtered": {"type": "boolean"},
+                  "findings": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Plain-text validation findings, e.g. 'Simpson reversal in Product_B subgroup'"
+                  }
+                }
+              },
+              "time_lag": {
+                "type": "object",
+                "properties": {
+                  "optimal_lag_steps": {"type": ["integer", "null"]},
+                  "optimal_lag_seconds": {"type": ["number", "null"]},
+                  "lag_compensated_r": {"type": ["number", "null"]},
+                  "raw_r": {"type": "number"},
+                  "r_improvement_pct": {"type": "number"},
+                  "confidence": {"type": "string", "enum": ["high", "moderate", "low", "not_applicable"]},
+                  "physics_agreement": {"type": "string", "enum": ["consistent", "shorter_than_expected", "longer_than_expected", "no_physics_prior", "not_applicable"]}
+                }
+              },
+              "physics": {
+                "type": "object",
+                "description": "Phase 1.5 Ontology-Data-Physics Proof summary, pre-computed by data-processor when possible.",
+                "properties": {
+                  "behavior_match": {"type": "string", "enum": ["CONSISTENT", "CONTRADICTED", "UNVERIFIED"]},
+                  "governing_law": {"type": "string"},
+                  "predicted_functional_form": {"type": "string", "enum": ["linear", "monotonic", "exponential", "polynomial", "inverse", "threshold", "delayed_response", "other"]},
+                  "functional_form_match": {"type": "boolean"},
+                  "direction_match": {"type": "boolean"},
+                  "magnitude_ratio": {"type": ["number", "null"], "description": "observed / predicted"},
+                  "magnitude_verdict": {"type": "string", "enum": ["STRONG", "PLAUSIBLE", "BORDERLINE", "IMPLAUSIBLE", "UNTESTED"]},
+                  "proof_strength": {"type": "string", "enum": ["PROVEN", "STRONG_EVIDENCE", "SUPPORTIVE", "WEAK", "CONTRADICTED"]}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "anomaly_highlights": {
+      "type": "object",
+      "description": "Key anomaly findings extracted from anomaly_report.json, grouped by product.",
+      "required": ["anomaly_windows"],
+      "properties": {
+        "anomaly_windows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "product": {"type": ["string", "null"]},
+              "time_range": {"type": "string"},
+              "quality_target": {"type": ["string", "null"]},
+              "process_params_involved": {"type": "array", "items": {"type": "string"}},
+              "onset_pattern": {"type": "string"},
+              "quality_reset": {"type": "string", "enum": ["RESET", "NO_RESET", "WORSENED", "INCONCLUSIVE", "NOT_APPLICABLE"]}
+            }
+          }
+        }
+      }
+    },
+
+    "process_health": {
+      "type": "object",
+      "description": "Pure process-fluctuation analysis (independent of quality targets).",
+      "required": ["abnormal_params", "steady_state_ratio"],
+      "properties": {
+        "abnormal_params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "param": {"type": "string"},
+              "pattern": {"type": "string", "enum": ["drift", "high_variability", "step_change", "threshold_crossing", "regime_switch", "cyclic"]},
+              "rate": {"type": "string"},
+              "duration": {"type": "string"}
+            }
+          }
+        },
+        "regime_shifts_detected": {"type": "boolean"},
+        "steady_state_ratio": {"type": "number"}
+      }
+    },
+
+    "dual_drive_linkages": {
+      "type": "object",
+      "description": "Concrete process-anomaly ↔ quality-anomaly linkages.",
+      "required": ["linkages"],
+      "properties": {
+        "linkages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["process_anomaly", "quality_anomaly"],
+            "properties": {
+              "product": {"type": ["string", "null"]},
+              "process_anomaly": {"type": "string"},
+              "quality_anomaly": {"type": "string"},
+              "temporal_order": {"type": "string", "enum": ["PROCESS_FIRST", "QUALITY_FIRST", "CONCURRENT", "BETWEEN_GROUP_ONLY", "UNKNOWN"]},
+              "lead_time": {"type": "string"},
+              "cross_validated_by": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      }
+    },
+
+    "visual_evidence_summary": {
+      "type": "object",
+      "description": "Key visual findings extracted from visual_analysis.json.",
+      "properties": {
+        "synchronous_groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {"type": "array", "items": {"type": "string"}},
+              "product": {"type": ["string", "null"]},
+              "vlm_confidence": {"type": "string", "enum": ["high", "medium", "low"]}
+            }
+          }
+        },
+        "precedence_signals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "precursor": {"type": "string"},
+              "follower": {"type": "string"},
+              "evidence": {"type": "string"}
+            }
+          }
+        },
+        "event_responses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {"type": "string"},
+              "params_responded": {"type": "array", "items": {"type": "string"}},
+              "quality_reset": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+
+    "expert_gap_analysis": {
+      "type": "object",
+      "description": "Custom scripts and remaining gaps.",
+      "properties": {
+        "custom_scripts_run": {"type": "array", "items": {"type": "string"}},
+        "custom_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finding": {"type": "string"},
+              "source_script": {"type": "string"}
+            }
+          }
+        },
+        "remaining_gaps": {"type": "array", "items": {"type": "string"}},
+        "recommended_extra_data": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+
+    "diagnostician_handoff": {
+      "type": "object",
+      "description": "Priority hypothesis inputs — candidates for Diagnostician to test, NOT final diagnosis.",
+      "required": ["priority_hypothesis_inputs"],
+      "properties": {
+        "priority_hypothesis_inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["hypothesis", "confidence_from_data_side"],
+            "properties": {
+              "hypothesis": {"type": "string"},
+              "confidence_from_data_side": {"type": "string", "enum": ["high", "medium", "low"]},
+              "key_evidence_refs": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Cite this file's own paths: validated_correlations.pairs[0], anomaly_highlights.anomaly_windows[0], dual_drive_linkages.linkages[0]"
+              },
+              "caveats": {"type": "array", "items": {"type": "string"}},
+              "falsification_condition": {"type": "string"}
+            }
+          }
+        },
+        "evidence_gaps": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+
+    "data_cleaning_provenance": {
+      "type": "object",
+      "description": "Audit trail of cleaning — propagated from cleaning_integrity_check.py output.",
+      "required": ["data_source", "integrity_checks", "cleaning_operations"],
+      "properties": {
+        "data_source": {"type": "string", "enum": ["cleaned", "raw_fallback"]},
+        "data_source_reason": {"type": "string"},
+        "integrity_checks": {
+          "type": "object",
+          "properties": {
+            "row_count": {"type": "object"},
+            "type_integrity": {"type": "object"},
+            "range_fidelity": {"type": "object"},
+            "batch_identity": {"type": "object"}
+          }
+        },
+        "cleaning_operations": {
+          "type": "array",
+          "description": "Each cleaning action: what, rows affected, why. Non-empty required (Data Truth Mandate rule 7).",
+          "items": {
+            "type": "object",
+            "required": ["operation", "target", "rows_affected", "rationale"],
+            "properties": {
+              "operation": {"type": "string", "enum": ["dedup", "sort", "type_coerce", "missing_handle", "outlier", "derived_feature", "other"]},
+              "target": {"type": "string"},
+              "rows_affected": {"type": "integer"},
+              "rationale": {"type": "string"}
+            }
+          }
+        },
+        "repair_attempts": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

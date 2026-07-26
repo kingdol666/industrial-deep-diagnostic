@@ -1,0 +1,148 @@
+{
+  "schema_version": "2.0",
+  "run_id": "REPLACE_WITH_RUN_ID",
+  "generated_at": "2026-01-01T00:00:00Z",
+  "data_view_mode": "process_plus_inspection",
+
+  "adaptive_decision_audit": {
+    "data_view_mode": "process_plus_inspection",
+    "mode_justification": "Both process parameters and true inspection/quality target columns were detected.",
+    "data_shapes_detected": ["time_series", "process_parameters", "inspection_or_quality_targets", "product_grouping"],
+    "selected_analyses": [
+      {"analysis": "product_stratified_correlation", "why": "product_code column detected → Simpson's Paradox risk", "evidence_artifacts": ["02_processed/validate_report.json"]}
+    ],
+    "skipped_analyses": [
+      {"analysis": "zone_spatial_profile", "why": "no multi-zone sensors detected"}
+    ]
+  },
+
+  "validated_correlations": {
+    "description": "All |r|>=0.3 correlations surviving validation. Cite as validated_correlations.pairs[N] downstream.",
+    "pairs": [
+      {
+        "predictor": "Z3_Temp",
+        "target": "Haze",
+        "pearson_r": 0.0,
+        "pearson_p": 0.0,
+        "spearman_rho": 0.0,
+        "detrended_r": 0.0,
+        "mi_score": 0.0,
+        "sample_n": 0,
+        "validation": {
+          "simpson_safe": true,
+          "trend_confounded": false,
+          "outlier_driven": false,
+          "leave_one_out_safe": true,
+          "leave_one_out_delta_r": 0.0,
+          "time_sorted": true,
+          "regime_filtered": true,
+          "findings": []
+        },
+        "time_lag": {
+          "optimal_lag_steps": null,
+          "optimal_lag_seconds": null,
+          "lag_compensated_r": null,
+          "raw_r": 0.0,
+          "r_improvement_pct": 0,
+          "confidence": "not_applicable",
+          "physics_agreement": "not_applicable"
+        },
+        "physics": {
+          "behavior_match": "CONSISTENT",
+          "governing_law": "Arrhenius: k ∝ exp(-Ea/RT)",
+          "predicted_functional_form": "exponential",
+          "functional_form_match": true,
+          "direction_match": true,
+          "magnitude_ratio": null,
+          "magnitude_verdict": "UNTESTED",
+          "proof_strength": "SUPPORTIVE"
+        }
+      }
+    ]
+  },
+
+  "anomaly_highlights": {
+    "anomaly_windows": [
+      {
+        "product": null,
+        "time_range": "REPLACE_WITH_ISO_RANGE",
+        "quality_target": null,
+        "process_params_involved": [],
+        "onset_pattern": "REPLACE: drift|step|threshold|regime_switch",
+        "quality_reset": "NOT_APPLICABLE"
+      }
+    ]
+  },
+
+  "process_health": {
+    "abnormal_params": [
+      {"param": "Z3_Temp", "pattern": "drift", "rate": "+0.3°C/day", "duration": "9 days"}
+    ],
+    "regime_shifts_detected": false,
+    "steady_state_ratio": 0.85
+  },
+
+  "dual_drive_linkages": {
+    "linkages": [
+      {
+        "product": null,
+        "process_anomaly": "Z3_Temp drift",
+        "quality_anomaly": "Haze increased +12%",
+        "temporal_order": "PROCESS_FIRST",
+        "lead_time": "3 days",
+        "cross_validated_by": ["validated_correlations.pairs[0]", "visual_evidence_summary.synchronous_groups[0]"]
+      }
+    ]
+  },
+
+  "visual_evidence_summary": {
+    "synchronous_groups": [
+      {"group": ["Z3_Temp", "Z2_Temp", "Haze"], "product": null, "vlm_confidence": "high"}
+    ],
+    "precedence_signals": [
+      {"precursor": "Z3_Temp", "follower": "Haze", "evidence": "fig_vlm_temporal_overlay_focus_*.png shows 3-day lead"}
+    ],
+    "event_responses": [
+      {"event": "operator_intervention", "params_responded": ["Z3_Temp"], "quality_reset": true}
+    ]
+  },
+
+  "expert_gap_analysis": {
+    "custom_scripts_run": [],
+    "custom_findings": [],
+    "remaining_gaps": ["No direct measurement of PET crystallinity at Z3 outlet"],
+    "recommended_extra_data": ["Crystallinity measurement at Z3 exit point"]
+  },
+
+  "diagnostician_handoff": {
+    "priority_hypothesis_inputs": [
+      {
+        "hypothesis": "REPLACE: Z3 temperature drift → PET crystallization rate change → Haze increase",
+        "confidence_from_data_side": "high",
+        "key_evidence_refs": [
+          "validated_correlations.pairs[0]",
+          "anomaly_highlights.anomaly_windows[0]",
+          "dual_drive_linkages.linkages[0]"
+        ],
+        "caveats": ["Arrhenius magnitude at 80°C range needs quantitative verification"],
+        "falsification_condition": "REPLACE: If Z3_Temp returns to 82°C and Haze does not decrease within 4h, hypothesis is falsified"
+      }
+    ],
+    "evidence_gaps": ["Need direct maintenance/event record for final root-cause determination"]
+  },
+
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "passed Phase 2.2.5 integrity checks",
+    "integrity_checks": {
+      "row_count": {"raw_rows": 0, "cleaned_rows": 0, "dropped": 0, "drop_rate": 0.0},
+      "type_integrity": {},
+      "range_fidelity": {},
+      "batch_identity": {}
+    },
+    "cleaning_operations": [
+      {"operation": "type_coerce", "target": "REPLACE_WITH_COLUMN", "rows_affected": 0, "rationale": "REPLACE: one entry per cleaning step — never empty (留痕)"}
+    ],
+    "repair_attempts": []
+  }
+}

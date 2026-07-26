@@ -31,7 +31,7 @@ from typing import Any
 
 
 def load_json(path: str) -> dict:
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -355,8 +355,10 @@ def check_flow_restriction(
     Checks if pressure drop scales quadratically with flow rate,
     which is the physical expectation for unrestricted flow.
     """
-    flows = [row[flow_col] for row in data if flow_col in row]
-    pressures = [row[pressure_drop_col] for row in data if pressure_drop_col in row]
+    flows = [_safe_float(row.get(flow_col)) for row in data if flow_col in row]
+    pressures = [_safe_float(row.get(pressure_drop_col)) for row in data if pressure_drop_col in row]
+    flows = [v for v in flows if v is not None]
+    pressures = [v for v in pressures if v is not None]
     if not flows or not pressures:
         return {"check": "flow_restriction", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
@@ -540,6 +542,317 @@ def check_corrosion_rate(
     }
 
     return result
+
+
+def check_pump_affinity(
+    flow_col: str,
+    speed_col: str,
+    power_col: str,
+    data: list[dict],
+) -> dict:
+    """
+    Pump affinity laws:
+        Q ∝ N,  ΔP ∝ N²,  P ∝ N³
+
+    For a centrifugal pump, flow should scale linearly with speed; power
+    cubically. Deviations indicate pump degradation, cavitation, or wrong
+    pump curve. Useful for verifying pump-speed-flow causality.
+    """
+    flows = [_safe_float(r.get(flow_col)) for r in data if flow_col in r]
+    speeds = [_safe_float(r.get(speed_col)) for r in data if speed_col in r]
+    powers = [_safe_float(r.get(power_col)) for r in data if power_col in r]
+    flows = [v for v in flows if v is not None]
+    speeds = [v for v in speeds if v is not None]
+    powers = [v for v in powers if v is not None]
+    if not flows or not speeds or len(flows) != len(speeds):
+        return {"check": "pump_affinity", "status": "INCONCLUSIVE", "reason": "Missing/mismatched flow and speed data"}
+
+    from statistics import mean, stdev
+
+    # Q/N should be ~constant for healthy pump
+    qn_ratios = [q / n for q, n in zip(flows, speeds) if n and n > 0]
+    qn_mean = mean(qn_ratios) if qn_ratios else 0
+    qn_cv = stdev(qn_ratios) / qn_mean if qn_ratios and qn_mean > 0 else 0
+
+    result = {
+        "check": "pump_affinity",
+        "Q_per_N_mean": round(qn_mean, 6),
+        "Q_per_N_cv": round(qn_cv, 4),
+    }
+
+    # P/N³ should be ~constant (if power available)
+    pn_ratios = []
+    if powers and len(powers) == len(speeds):
+        pn_ratios = [p / (n ** 3) for p, n in zip(powers, speeds) if n and n > 0]
+    if pn_ratios:
+        pn_mean = mean(pn_ratios)
+        pn_cv = stdev(pn_ratios) / pn_mean if pn_mean > 0 else 0
+        result["P_per_N_cubed_mean"] = round(pn_mean, 8)
+        result["P_per_N_cubed_cv"] = round(pn_cv, 4)
+
+    if qn_cv < 0.15:
+        result["conclusion"] = "PUMP_AFFINITY_CONSISTENT"
+        result["explanation"] = f"Q/N ratio stable (CV={qn_cv:.2%}) — flow follows pump affinity law; speed→flow causality is physical"
+    elif qn_cv >= 0.30:
+        result["conclusion"] = "PUMP_DEGRADATION_SUSPECTED"
+        result["explanation"] = f"Q/N ratio highly variable (CV={qn_cv:.2%}) — pump may be cavitating, worn, or off-curve; investigate"
+    else:
+        result["conclusion"] = "PUMP_AFFINITY_PARTIAL"
+        result["explanation"] = f"Q/N ratio moderately variable (CV={qn_cv:.2%}) — partially consistent with affinity law; system effects may be present"
+    return result
+
+
+def check_darcy_weisbach(
+    flow_col: str,
+    pressure_drop_col: str,
+    length_m: float = 10.0,
+    diameter_m: float = 0.05,
+    roughness_mm: float = 0.045,
+    density_kg_m3: float = 1000.0,
+    data: list[dict] = None,
+) -> dict:
+    """
+    ΔP = f · (L/D) · (ρv²/2)
+
+    Darcy-Weisbach pressure drop. For turbulent flow, ΔP ∝ Q². This check
+    extracts the effective friction factor f from observed (Q, ΔP) pairs and
+    compares against expected range (0.015-0.04 for smooth commercial pipes).
+    Rising f over time → fouling/scaling.
+    """
+    if data is None:
+        data = []
+    flows = [_safe_float(r.get(flow_col)) for r in data if flow_col in r]
+    drops = [_safe_float(r.get(pressure_drop_col)) for r in data if pressure_drop_col in r]
+    flows = [v for v in flows if v is not None]
+    drops = [v for v in drops if v is not None]
+    if not flows or not drops or len(flows) != len(drops):
+        return {"check": "darcy_weisbach", "status": "INCONCLUSIVE", "reason": "Missing/mismatched flow and pressure data"}
+
+    from statistics import mean, stdev
+
+    area = math.pi * (diameter_m / 2) ** 2
+    # f = ΔP · 2 · D / (L · ρ · v²), where v = Q / A
+    frictions = []
+    for q, dp in zip(flows, drops):
+        # Convert Q (assume m³/s if value small, else L/min → m³/s)
+        q_m3s = q / 60000.0 if q > 1.0 else q  # heuristic: >1 → L/min
+        v = q_m3s / area if area > 0 else 0
+        if v <= 0:
+            continue
+        f = dp * 2 * diameter_m / (length_m * density_kg_m3 * v ** 2)
+        frictions.append(f)
+
+    if not frictions:
+        return {"check": "darcy_weisbach", "status": "INCONCLUSIVE", "reason": "Could not compute velocities"}
+
+    f_mean = mean(frictions)
+    f_cv = stdev(frictions) / f_mean if f_mean > 0 else 0
+
+    result = {
+        "check": "darcy_weisbach",
+        "assumed_L_m": length_m,
+        "assumed_D_m": diameter_m,
+        "assumed_roughness_mm": roughness_mm,
+        "effective_friction_factor": round(f_mean, 5),
+        "friction_cv": round(f_cv, 4),
+    }
+
+    if f_cv > 0.3:
+        # Check trend
+        n = len(frictions)
+        first_half = mean(frictions[: n // 2]) if n > 2 else f_mean
+        second_half = mean(frictions[n // 2 :]) if n > 2 else f_mean
+        if second_half > first_half * 1.2:
+            result["conclusion"] = "FOULING_PROGRESSIVE"
+            result["explanation"] = f"Effective friction factor rose {(second_half/first_half - 1)*100:.0f}% — pipe scaling/fouling probable"
+            return result
+
+    if 0.012 <= f_mean <= 0.05:
+        result["conclusion"] = "DARCY_PLAUSIBLE"
+        result["explanation"] = f"Effective f={f_mean:.4f} within typical turbulent range (0.012-0.05) — pressure drop is physically explained"
+    elif f_mean < 0.012:
+        result["conclusion"] = "DARCY_F_TOO_LOW"
+        result["explanation"] = f"Effective f={f_mean:.4f} below typical — possible laminar regime or oversized pipe assumption"
+    else:
+        result["conclusion"] = "DARCY_F_TOO_HIGH"
+        result["explanation"] = f"Effective f={f_mean:.4f} above typical — pipe fouling, restrictions, or wrong geometry assumptions"
+    return result
+
+
+def check_forced_oscillator(
+    vib_col: str,
+    speed_col: str,
+    quality_col: str,
+    data: list[dict],
+) -> dict:
+    """
+    Forced-oscillator (ISO 10816) + speed-coupling check.
+
+    Vibration in rotating equipment is governed by m·ẍ + c·ẋ + kx = F(t).
+    F(t) typically scales with N² (unbalance) or N (misalignment). This check
+    verifies whether vibration scales with speed as physics predicts and
+    whether vibration→quality threshold is physical.
+    """
+    vibs = [_safe_float(r.get(vib_col)) for r in data if vib_col in r]
+    speeds = [_safe_float(r.get(speed_col)) for r in data if speed_col in r]
+    quals = [_safe_float(r.get(quality_col)) for r in data if quality_col in r]
+    vibs = [v for v in vibs if v is not None]
+    speeds = [s for s in speeds if s is not None]
+    quals = [q for q in quals if q is not None]
+    if not vibs or not speeds or len(vibs) != len(speeds):
+        return {"check": "forced_oscillator", "status": "INCONCLUSIVE", "reason": "Missing/mismatched vibration and speed data"}
+
+    from statistics import mean, stdev
+
+    # Vib / N (unbalance ~N², misalignment ~N — try both)
+    v_over_n = [v / n for v, n in zip(vibs, speeds) if n > 0]
+    v_over_n2 = [v / (n ** 2) for v, n in zip(vibs, speeds) if n > 0]
+    cv_n = stdev(v_over_n) / mean(v_over_n) if v_over_n and mean(v_over_n) > 0 else 1
+    cv_n2 = stdev(v_over_n2) / mean(v_over_n2) if v_over_n2 and mean(v_over_n2) > 0 else 1
+
+    result = {
+        "check": "forced_oscillator",
+        "vib_per_N_cv": round(cv_n, 4),
+        "vib_per_N_sq_cv": round(cv_n2, 4),
+    }
+
+    if cv_n < 0.2:
+        result["conclusion"] = "MISALIGNMENT_PATTERN"
+        result["explanation"] = f"Vibration ∝ N (CV={cv_n:.2%}) — consistent with misalignment or gear-mesh forcing"
+    elif cv_n2 < 0.2:
+        result["conclusion"] = "UNBALANCE_PATTERN"
+        result["explanation"] = f"Vibration ∝ N² (CV={cv_n2:.2%}) — consistent with rotating unbalance; balance correction needed"
+    else:
+        result["conclusion"] = "VIBRATION_NOT_SPEED_COUPLED"
+        result["explanation"] = "Vibration does not scale cleanly with N or N² — bearing fault, resonance, or external forcing likely"
+
+    # Quality-vibration threshold check
+    if quals and len(quals) == len(vibs):
+        paired = sorted(zip(vibs, quals))
+        n = len(paired)
+        low_vib_q = mean([q for _, q in paired[: n // 4]])
+        high_vib_q = mean([q for _, q in paired[-(n // 4):]])
+        if low_vib_q > 0:
+            result["quality_ratio_high_to_low_vib"] = round(high_vib_q / low_vib_q, 3)
+            if high_vib_q / low_vib_q > 2.0:
+                result["cliff_detected"] = True
+                result["cliff_explanation"] = f"Quality at high-vibration quartile is {high_vib_q/low_vib_q:.1f}× low-vibration quartile — strong vib→quality coupling"
+    return result
+
+
+def check_preston_cmp(
+    pressure_col: str,
+    velocity_col: str,
+    removal_rate_col: str,
+    data: list[dict],
+    K_p: float = 1.0,
+) -> dict:
+    """
+    Chemical Mechanical Polishing (CMP) Preston equation:
+        RR = K_p · P · v
+
+    Removal rate ∝ pressure × relative velocity. Useful for wafer polishing,
+    lapping, or grinding processes. Deviations indicate pad wear, slurry
+    depletion, or non-Preston regime.
+    """
+    pressures = [_safe_float(r.get(pressure_col)) for r in data if pressure_col in r]
+    velocities = [_safe_float(r.get(velocity_col)) for r in data if velocity_col in r]
+    removals = [_safe_float(r.get(removal_rate_col)) for r in data if removal_rate_col in r]
+    pressures = [p for p in pressures if p is not None]
+    velocities = [v for v in velocities if v is not None]
+    removals = [r for r in removals if r is not None]
+    if not (pressures and velocities and removals and len(pressures) == len(velocities) == len(removals)):
+        return {"check": "preston_cmp", "status": "INCONCLUSIVE", "reason": "Missing/mismatched pressure, velocity, removal rate"}
+
+    from statistics import mean, stdev
+
+    # RR / (P·v) should be ~constant
+    pv_ratios = [rr / (p * v) for rr, p, v in zip(removals, pressures, velocities) if p > 0 and v > 0]
+    if not pv_ratios:
+        return {"check": "preston_cmp", "status": "INCONCLUSIVE", "reason": "Zero pressure or velocity"}
+    k_mean = mean(pv_ratios)
+    k_cv = stdev(pv_ratios) / k_mean if k_mean > 0 else 0
+
+    result = {
+        "check": "preston_cmp",
+        "effective_K_p": round(k_mean, 6),
+        "K_p_cv": round(k_cv, 4),
+    }
+    if k_cv < 0.15:
+        result["conclusion"] = "PRESTON_CONSISTENT"
+        result["explanation"] = f"RR = K_p·P·v holds (CV={k_cv:.2%}, K_p={k_mean:.4f}) — mechanical polishing regime confirmed"
+    elif k_cv < 0.35:
+        result["conclusion"] = "PRESTON_PARTIAL"
+        result["explanation"] = f"Moderate deviation from Preston (CV={k_cv:.2%}) — chemical contribution or pad conditioning effects"
+    else:
+        result["conclusion"] = "PRESTON_VIOLATED"
+        result["explanation"] = f"Large deviation (CV={k_cv:.2%}) — non-Preston regime; possible pad wear, slurry starvation, or end-of-life"
+    return result
+
+
+def check_taylor_tool_life(
+    speed_col: str,
+    wear_col: str,
+    data: list[dict],
+    n_taylor: float = 3.0,
+) -> dict:
+    """
+    Taylor tool life:  V·T^n = C  (extended to wear rate: dw/dt ∝ V^(1/n))
+
+    Tool wear rate should scale with cutting speed per Taylor. Useful for CNC,
+    machining, drilling. Observed wear-rate vs predicted scaling indicates
+    whether speed is the dominant wear driver.
+    """
+    speeds = [_safe_float(r.get(speed_col)) for r in data if speed_col in r]
+    wears = [_safe_float(r.get(wear_col)) for r in data if wear_col in r]
+    speeds = [s for s in speeds if s is not None]
+    wears = [w for w in wears if w is not None]
+    if not speeds or not wears or len(speeds) != len(wears):
+        return {"check": "taylor_tool_life", "status": "INCONCLUSIVE", "reason": "Missing/mismatched speed and wear data"}
+
+    from statistics import mean, stdev
+
+    # Group speeds into bins, compute mean wear per bin
+    paired = sorted(zip(speeds, wears))
+    n_bins = min(5, len(paired))
+    if n_bins < 2:
+        return {"check": "taylor_tool_life", "status": "INCONCLUSIVE", "reason": "Insufficient data range"}
+    bin_size = len(paired) // n_bins
+    bin_means = []
+    for i in range(n_bins):
+        chunk = paired[i * bin_size : (i + 1) * bin_size if i < n_bins - 1 else len(paired)]
+        if chunk:
+            bin_means.append((mean([s for s, _ in chunk]), mean([w for _, w in chunk])))
+
+    # Taylor predicts wear ∝ V^(1/n) — check log-log slope
+    if len(bin_means) >= 2:
+        import math as _m
+        v_min, w_min = bin_means[0]
+        v_max, w_max = bin_means[-1]
+        if v_min > 0 and v_max > 0 and w_min > 0 and w_max > 0:
+            observed_exp = (_m.log(w_max) - _m.log(w_min)) / (_m.log(v_max) - _m.log(v_min))
+            predicted_exp = 1.0 / n_taylor
+            ratio = observed_exp / predicted_exp if predicted_exp else 0
+
+            result = {
+                "check": "taylor_tool_life",
+                "assumed_n_taylor": n_taylor,
+                "predicted_wear_exponent": round(predicted_exp, 3),
+                "observed_wear_exponent": round(observed_exp, 3),
+                "observed_to_predicted_ratio": round(ratio, 3),
+            }
+            if 0.5 <= ratio <= 2.0:
+                result["conclusion"] = "TAYLOR_CONSISTENT"
+                result["explanation"] = f"Observed wear exponent ({observed_exp:.2f}) within 2× of Taylor prediction ({predicted_exp:.2f}) — speed-driven wear"
+            elif ratio < 0.5:
+                result["conclusion"] = "TAYLOR_UNDEREXPONENT"
+                result["explanation"] = f"Observed wear exponent ({observed_exp:.2f}) << Taylor prediction — wear dominated by non-speed factors (abrasion, adhesive, thermal)"
+            else:
+                result["conclusion"] = "TAYLOR_OVEREXPONENT"
+                result["explanation"] = f"Observed wear exponent ({observed_exp:.2f}) >> Taylor prediction — severe speed-driven regime or thermal softening"
+            return result
+
+    return {"check": "taylor_tool_life", "status": "INCONCLUSIVE", "reason": "Insufficient speed variation to estimate exponent"}
 
 
 # ──────────────────────────────────────────────
@@ -847,6 +1160,30 @@ def main():
     if args.ph_col and args.temp_col and args.corrosion_col and cleaned_data:
         checks["corrosion_rate"] = check_corrosion_rate(args.ph_col, args.temp_col, args.corrosion_col, cleaned_data)
 
+    # ── Extended physics checks (Phase B3) ──
+    speed_col = args.speed_col or (find_cols(["speed", "rpm", "n_speed", "spindle"])[:1] or [None])[0]
+
+    # Pump affinity: needs flow + speed [+ power optional]
+    if flow_col and speed_col and cleaned_data:
+        checks["pump_affinity"] = check_pump_affinity(flow_col, speed_col, power_col or "_none_", cleaned_data)
+
+    # Darcy-Weisbach: needs flow + pressure_drop
+    if flow_col and pressure_col and cleaned_data:
+        checks["darcy_weisbach"] = check_darcy_weisbach(flow_col, pressure_col, data=cleaned_data)
+
+    # Forced oscillator: vib + speed + quality_target
+    if vib_col and speed_col and quality_targets and cleaned_data:
+        checks["forced_oscillator"] = check_forced_oscillator(vib_col, speed_col, quality_targets[0], cleaned_data)
+
+    # Preston CMP: pressure + velocity + removal_rate
+    if pressure_col and speed_col and quality_targets and cleaned_data:
+        checks["preston_cmp"] = check_preston_cmp(pressure_col, speed_col, quality_targets[0], cleaned_data)
+
+    # Taylor tool life: speed + wear (use a quality target as wear proxy if no wear col)
+    wear_col = (find_cols(["wear", "tool_wear"])[:1] or [None])[0]
+    if speed_col and wear_col and cleaned_data:
+        checks["taylor_tool_life"] = check_taylor_tool_life(speed_col, wear_col, cleaned_data)
+
     transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
     if transition_results:
         checks["quality_reset_analysis"] = {
@@ -869,7 +1206,7 @@ def main():
     }
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w") as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     print(f"Physics checks written to {args.output}")
