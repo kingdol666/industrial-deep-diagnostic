@@ -71,27 +71,36 @@ PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let 
 
 ### 1.2 回原始数据验证
 
-读 `DATA_PATH` 原始 CSV + `cleaned_data.csv`:
+读 `DATA_PATH` 原始 CSV + `cleaned_data.csv` + V2 handoff `data_analysis_conclusion.json`:
 
 ```python
-import pandas as pd
+import pandas as pd, json
 raw = pd.read_csv(DATA_PATH)
 cleaned = pd.read_csv(f"{RUN_DIR}/02_processed/cleaned_data.csv")
+handoff = json.load(open(f"{RUN_DIR}/02_processed/data_analysis_conclusion.json", encoding="utf-8"))
 
-# 1. 异常窗口内确实有声称的模式?
-for window in diagnosis['anomaly_windows']:
-    mask = (raw[time_col] >= window['start']) & (raw[time_col] <= window['end'])
-    window_data = raw[mask]
-    # 验证: claimed 参数在该窗口确实偏离 baseline?
+# 1. 异常窗口内确实有声称的模式? (V2 handoff anomaly_highlights.anomaly_windows)
+for window in handoff.get("anomaly_highlights", {}).get("anomaly_windows", []):
+    # window 含 time_range (string), process_params_involved, onset_pattern
+    # 验证: claimed 参数在该时间窗口确实偏离 baseline (需解析 time_range)
+    pass
 
-# 2. 清洗是否改变了关键统计量?
-for pair in top_correlations:
-    raw_r = raw[pair['predictor']].corr(raw[pair['target']])
-    cleaned_r = cleaned[pair['predictor']].corr(cleaned[pair['target']])
-    if abs(raw_r - cleaned_r) > 0.1:
-        # 清洗影响了关键相关 — 检查 cleaning_integrity 留痕
+# 2. 清洗是否改变了关键统计量? (V2 handoff validated_correlations.pairs)
+for pair in handoff.get("validated_correlations", {}).get("pairs", [])[:5]:  # top 5
+    predictor, target = pair["predictor"], pair["target"]
+    if predictor in raw.columns and target in raw.columns:
+        raw_r = pd.to_numeric(raw[predictor], errors="coerce").corr(pd.to_numeric(raw[target], errors="coerce"))
+        cleaned_r = pd.to_numeric(cleaned[predictor], errors="coerce").corr(pd.to_numeric(cleaned[target], errors="coerce"))
+        if abs(raw_r - cleaned_r) > 0.1:
+            # 清洗影响了关键相关 — 检查 cleaning_integrity 留痕
+            pass
 
-# 3. 随机抽查 3 个关键相关 in raw vs cleaned
+# 3. 物理量级复核: V2 handoff validated_correlations.pairs[].physics.magnitude_ratio
+for pair in handoff.get("validated_correlations", {}).get("pairs", []):
+    phys = pair.get("physics", {})
+    if phys.get("magnitude_verdict") == "IMPLAUSIBLE":
+        # diagnosis 不应基于此 pair 作因果结论
+        pass
 ```
 
 ### 1.3 Findings

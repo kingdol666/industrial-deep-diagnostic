@@ -114,6 +114,13 @@
     "recommended_extra_data": ["Crystallinity measurement at Z3 exit point"]
   },
 
+  "param_ambiguity": {
+    "ambiguous_params": [],
+    "resolved_count": 0,
+    "unresolved_count": 0,
+    "_comment_ambiguous_params": "List params with physical_meaning_confidence=UNKNOWN after auto-inference. Each: {param, reason, best_guess, confidence_ceiling_applies:true}. Diagnostician applies ceiling 50 to hypotheses using these as primary predictor."
+  },
+
   "diagnostician_handoff": {
     "priority_hypothesis_inputs": [
       {

@@ -52,13 +52,13 @@
 
 ## Phase 0: Load Core Evidence (~50 行)
 
-**V3 信任交接 — 必读只 3 个文件。**
+**V2 信任交接 — 必读只 3 个文件。**
 
 ### 必读 (3 个)
 
 | File | 角色 |
 |------|------|
-| `02_processed/data_analysis_conclusion.json` | **专家交接文件 (V2)** — 含全部统计发现（validated_correlations）、异常窗口、双驱动关联、视觉证据、优先假说输入。每条 finding 有稳定引用 ID（如 `validated_correlations.pairs[0]`）|
+| `02_processed/data_analysis_conclusion.json` | **专家交接文件 (V2)** — 含全部统计发现（validated_correlations）、异常窗口、双驱动关联、视觉证据、优先假说输入、**param_ambiguity（PARAM_AMBIGUITY ceiling 来源）**。每条 finding 有稳定引用 ID（如 `validated_correlations.pairs[0]`）|
 | `01_ontology/ontology.json` | 本体 — 参数物理含义、因果结构、`behavior_match`、`discrepancy_signals` |
 | `03_figures/visual_analysis.json` | VLM 视觉证据 — synchronous_groups / event_responses / trend_morphology |
 
@@ -75,9 +75,10 @@
 - `$SKILL_PATH/resources/parameter_to_physics.json` — pattern library 结构参考
 - `$SKILL_PATH/resources/evidence_rules.md` — 证据等级 + 因果条件
 - `00_input/rag_deep_understanding.json` — 领域知识按需查阅
-- `00_input/clarification_needed.json` — 参数歧义检查
 - `02_processed/analysis_plan.md` — data-processor 推理
 - `02_processed/production_regime_filter.json` — 稳态过滤状态
+
+> **PARAM_AMBIGUITY ceiling 不需要读 clarification_needed.json** — V2 handoff 的 `param_ambiguity.ambiguous_params[]` 已包含此信息。若某参数在此列表中且用作主要预测器 → ceiling 50。
 
 ### 0.1 Extract from V2 Handoff
 
@@ -87,7 +88,8 @@
 3. `process_health.abnormal_params[]` — 纯工艺波动
 4. `dual_drive_linkages.linkages[]` — 工艺↔质量关联（含 temporal_order）
 5. `visual_evidence_summary` — 同步组、事件响应
-6. `diagnostician_handoff.priority_hypothesis_inputs[]` — 候选假说 + `key_evidence_refs` + `falsification_condition`
+6. `param_ambiguity.ambiguous_params[]` — **物理含义未解析参数列表（ceiling 50 来源）**
+7. `diagnostician_handoff.priority_hypothesis_inputs[]` — 候选假说 + `key_evidence_refs` + `falsification_condition`
 
 **这是你的诊断输入。** 不要重新读 raw 统计文件——V2 handoff 已经合并好了。
 
@@ -168,14 +170,16 @@ coolant_pressure↓ → [Darcy-Weisbach: 低 ΔP → 低 v] → coolant_flow↓ 
 
 ### 1.3 Ontology-Data-Physics Proof (5-element)
 
-**对每个候选参数,构建可证伪证明。** 从 V2 handoff 的 `validated_correlations.pairs[].physics` 提取或自己构建。
+**对每个候选参数,构建可证伪证明。** 优先从 V2 handoff 的 `validated_correlations.pairs[].physics` 提取（data-processor 已预算）；handoff 未覆盖的参数自己构建。
 
-| Proof Element | Data Source | Validation | Result |
+| Proof Element | V2 handoff 来源 (优先) / 自构来源 | Validation | Result |
 |:---|:---|:---|:---|
-| Functional form | feature_summary 相关 + scatter | 形状匹配预测? | MATCH/MISMATCH/UNTESTABLE |
-| Lag τ | CCF + onset_coincidence | max\|CCF\| 在预测 lag? onset 是 PRECURSOR? | MATCH/MISMATCH/UNTESTABLE |
-| Magnitude | physics_check.py 或 first-principles | 观测 within 10× of 预测? | STRONG/PLAUSIBLE/IMPLAUSIBLE |
-| Direction | 相关符号 + physics | 符号匹配物理? | MATCH/MISMATCH |
+| Functional form | `pairs[].physics.predicted_functional_form` + `functional_form_match` | 形状匹配预测? | MATCH/MISMATCH/UNTESTABLE |
+| Lag τ | `pairs[].time_lag.optimal_lag_*` + `physics_agreement` + `dual_drive_linkages[].temporal_order` | max\|CCF\| 在预测 lag? onset 是 PRECURSOR? | MATCH/MISMATCH/UNTESTABLE |
+| Magnitude | `pairs[].physics.magnitude_ratio` + `magnitude_verdict` | 观测 within 10× of 预测? | STRONG/PLAUSIBLE/IMPLAUSIBLE |
+| Direction | `pairs[].physics.direction_match` + `behavior_match` | 符号匹配物理? | MATCH/MISMATCH |
+
+> **自构证明** (V2 handoff 未覆盖的参数): 用 Phase 1 first-principles 推理结果 + 条件必读的 `validate_report.json` / `physics_check.json` 补全。仅在必要时回查 raw 文件。
 
 | Proof Strength | Conditions | Confidence |
 |:---|:---|:---|
@@ -211,11 +215,16 @@ coolant_pressure↓ → [Darcy-Weisbach: 低 ΔP → 低 v] → coolant_flow↓ 
 3. V2 handoff `dual_drive_linkages[].temporal_order` 是 PROCESS_FIRST 或 CONCURRENT
 4. (optional strengthening) `visual_evidence_summary` 报告同步组或事件响应
 
-**REMOVE if**:
-- V2 handoff validation 标记为 BETWEEN_PRODUCT_ONLY / OUTLIER_ARTIFACT / trend-confounded >50%
+**REMOVE if** (引用 V2 handoff `validated_correlations.pairs[].validation` 的实际 boolean 字段):
+- `simpson_safe == false` (Simpson 反转 — 组间相关不成立)
+- `outlier_driven == true` (离群杠杆驱动)
+- `trend_confounded == true` 且 `findings` 提及衰减 >50%
+- `leave_one_out_safe == false` 且 `leave_one_out_delta_r > 0.2` (留一法杠杆)
+- `time_sorted == false` 且用时滞相关作证据
 - 无物理（pre-cached/RAG/first-principles 全失败）→ `[UNKNOWN_PHYSICS]`
 - quality_reset 是 NO_RESET for 该组件
 - 仅 CONCURRENT 不 PRECURSOR
+- 参数在 V2 handoff `param_ambiguity.ambiguous_params[]` 中且用作唯一主要预测器 → 标 `[PARAM_AMBIGUITY]`，ceiling 50（但仍可作为辅助证据）
 
 **Adaptive scoring**: 数据无时间列 → 时序因子 0/20；无分组列 → Simpson 不适用，置信度可能虚高。**不得伪造时间/分组证据。**
 

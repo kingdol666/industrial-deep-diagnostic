@@ -15,6 +15,7 @@
     "dual_drive_linkages",
     "visual_evidence_summary",
     "expert_gap_analysis",
+    "param_ambiguity",
     "diagnostician_handoff",
     "data_cleaning_provenance"
   ],
@@ -259,6 +260,29 @@
         },
         "remaining_gaps": {"type": "array", "items": {"type": "string"}},
         "recommended_extra_data": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+
+    "param_ambiguity": {
+      "type": "object",
+      "description": "Parameters whose physical meaning could NOT be resolved (UNKNOWN). Diagnostician applies confidence ceiling 50 to any hypothesis using these as primary predictor. Propagated from clarification_needed.json so diagnostician need not read that file directly.",
+      "required": ["ambiguous_params"],
+      "properties": {
+        "ambiguous_params": {
+          "type": "array",
+          "description": "List of column names with physical_meaning_confidence = UNKNOWN after auto-inference (Phase 2.5). Empty array when all params resolved.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "param": {"type": "string"},
+              "reason": {"type": "string", "description": "Why physical meaning is unknown (opaque name + ambiguous value range, etc.)"},
+              "best_guess": {"type": ["string", "null"], "description": "Auto-inferred best guess if any, else null"},
+              "confidence_ceiling_applies": {"type": "boolean", "description": "true — ceiling 50 if used as primary predictor"}
+            }
+          }
+        },
+        "resolved_count": {"type": "integer", "description": "Number of params successfully resolved (for audit)"},
+        "unresolved_count": {"type": "integer"}
       }
     },
 

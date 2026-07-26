@@ -118,54 +118,41 @@
 
 ---
 
-## Step 2: Score 7 Criteria (从 10 项精简)
+## Step 2: Score 10 Criteria (schema-compatible, 0-10 each)
 
-每项 0-100 分。计算加权总分。
+**输出必须用 V1 schema 的 10 个 criteria 字段名**（`judge_feedback_schema.json` required）— 但**评估时可合并思考**为 7 维度。每项 0-10 分（schema 要求 0-10），加权后 overall_score 0-100。
 
-### C1: Ontology Completeness (15%)
-本体完整、参数物理含义清楚、`behavior_match` 处理、discrepancy_signals 在诊断中体现。CONTRADICTED 参数作证据未解释 → 扣分。
+### 评估维度 → schema 字段映射
 
-### C2: Statistical Methodology + Anti-Spurious (20%) — 合并了原 C2+C3
-- V2 handoff validation 是否被信任并正确引用?
-- 用了 V2 handoff 机器验证结果（simpson/trend/outlier/leave-one_out）?
-- 是否避免引用会反转的相关?
-- detrended r 是否报告当 attenuation >30%?
-- PRUNED 参数对（Phase 0.4）是否被尊重? diagnosis cite pruned pair 无 justification → 扣 3 分
+| 评估维度 (内部) | schema 字段 (输出) | 权重提示 |
+|:---|:---|:---|
+| Ontology completeness | `completeness` + `variable_classification` | 本体完整、参数物理含义清楚、`behavior_match` 处理、discrepancy_signals 体现 |
+| Statistical methodology + Anti-spurious | `evidence_based_conclusions` + `correlation_vs_causation` | V2 handoff validation 信任+正确引用、避免反转相关、detrended r 报告、PRUNED 对尊重 |
+| Data discriminability | `no_over_claiming` (部分) | COMPETING_SET/INDISTINGUISHABLE 标记、区分实验、ceiling 应用 |
+| Physics grounding + temporal | `evidence_based_conclusions` (physics 部分) + `time_alignment_and_sorting` | 物理机制+控制方程 source、proof strength 匹配、physics_check 尊重、temporal_order=PROCESS_FIRST |
+| Evidence level | `uncertainty_disclosure` | evidence rank cite、最低 rank 约束、PARAM_AMBIGUITY 标记 |
+| Conclusion proportionality | `no_over_claiming` | 不过度声称、V2 handoff `priority_hypothesis_inputs` 未被过度升级、View A+B 存在 |
+| Reasoning transparency | `report_quality` + `data_quality_awareness` | R1-R8 完整、证据源 cite、counterfactual 可能、falsification 可测试、confidence 可重构 |
+| Visualization | `visualization_quality` | VLM 图表质量、visual_analysis.json 引用 |
 
-### C3: Data Discriminability (10%)
-- COMPETING_SET / INDISTINGUISHABLE 正确标记?
-- 区分性实验方案具体可操作?
-- confidence ceiling 正确应用?
+### 评分细则 (每项 0-10)
 
-### C4: Physics Grounding + Temporal Precedence (25%) — 合并了原 C5+C6
-- 每个 hypothesis 有物理机制 + 控制方程 source?
-- proof strength 与 confidence 匹配?
-- physics_check.json 结果被尊重?
-- 时序证据: V2 handoff `dual_drive_linkages[].temporal_order` 是 PROCESS_FIRST?
-- CCF lag 与物理预期一致?
-
-### C5: Evidence Level Assignment (10%)
-每个结论 cite evidence rank? 结论受最低 rank 约束? [PARAM_AMBIGUITY] 标记应用了?
-
-### C6: Conclusion Proportionality (10%)
-- 不过度声称（confidence 与证据强度匹配）?
-- V2 handoff `data_supported_conclusions` 未被过度升级为 final root cause?
-- View A (process-only) 和 View B (dual-drive) 都存在且独立?
-
-### C7: Reasoning Transparency (10%)
-- R1-R8 完整?
-- 每段引用具体证据源?
-- counterfactual 真正可能?
-- falsification 可测试?
-- confidence 可重构 from adjustment_log?
-
-**[删除了 C10: Report Readiness]** — 那是 reporter 的事。
+- **`data_quality_awareness`** (10%): 数据加载正确? 缺失值处理? 离群点文档? 排序验证? 无静默数据丢失?
+- **`variable_classification`** (10%): 全变量分类? 与本体一致? 不确定者标记? 分类/分组列识别供分层?
+- **`time_alignment_and_sorting`** (10%): 对齐方法合适? 无伪影? 统计保留验证? 时滞前确认 time-sorted? V2 handoff `dual_drive_linkages[].temporal_order` 是 PROCESS_FIRST?
+- **`visualization_quality`** (5%): 图匹配数据? 标签/单位/图例? VLM 图表生成? visual_analysis.json 有结构化观察?
+- **`evidence_based_conclusions`** (20%): 每结论 cite 证据源? 等级尊重? V2 handoff validation 发现纳入? 物理源 tracking (pre_cached/rag/first_principles)? View A (process-only) + View B (dual-drive) 都存在? first-principles 含 L1-L5? physics_check 结论尊重?
+- **`correlation_vs_causation`** (10%): 相关≠因果? 时序分析? Simpson 排除? 趋势混杂检查? V2 handoff validation 信任? PRUNED 对尊重 (cite pruned pair 无 justification → −3)?
+- **`uncertainty_disclosure`** (10%): 置信度分配? 证据缺口识别? sorting/stratification/trend caveats 声明? PARAM_AMBIGUITY 标记 (从 V2 handoff param_ambiguity 检查)?
+- **`report_quality`** (5%): 语言模板正确? 自包含? 无内部矛盾? R1-R8 完整引用证据?
+- **`no_over_claiming`** (BLOCKING — 每违规 −20): 无证据的根因? 无支持因果? INDISTINGUISHABLE 当单一根因? confidence >65 未检查 discriminability? time-colinear 当独立? VLM 矛盾未解释? 视觉说独立但 diagnosis 当因果? COMPETING_SET 未给区分实验?
+- **`completeness`** (5%): 全部 required outputs? validate_report consulted? analysis_parameter_selection.json 尊重? V2 handoff `priority_hypothesis_inputs` caveats 携带?
 
 ### Score Calculation
 
-加权总分。每 blocking issue −20。每 warning −5。
+加权总分 (overall_score 0-100)。每 blocking issue −20。每 warning −5。
 
-| Score | Verdict |
+| overall_score | verdict |
 |-------|---------|
 | 90-100 | `pass` |
 | 70-89 | `needs_repair` |
@@ -180,7 +167,7 @@
 
 **Final pass invariant (HARD)**:
 - `verdict="pass"` only if `overall_score >= 90`
-- `verdict="pass"` only if `blocking_issues` + `reasoning_chain_audit.blocking_issues` + `criteria.no_over_claiming.blocking_issues` 全空
+- `verdict="pass"` only if `blocking_issues` + `reasoning_chain_audit.blocking_issues` + `criteria_scores.no_over_claiming.blocking_issues` 全空
 - 任一 blocking → force `needs_repair` / `major_issues` / `fail`
 - passed judge gate = 报告可信 + 不确定性诚实，**不**要求 diagnostic confidence 人为抬到 90
 
@@ -213,25 +200,34 @@ proceed to reporter + html-visualizer regardless
 
 读 `schemas/judge_feedback_schema.json` + `templates/judge_template.json` 后写 `05_review/judge_feedback.json`。
 
-**V2 简化字段**:
+**输出必须用 schema required 的 10 个 criteria 字段名** (每项 score 0-10) + V2 新增的 cross_reference_audit block:
+
 ```json
 {
   "overall_score": 0,
   "verdict": "pass|needs_repair|major_issues|fail",
   "criteria_scores": {
-    "ontology_completeness": {"score": 0, "notes": "..."},
-    "statistical_methodology_anti_spurious": {"score": 0, "notes": "...", "validation_report_trusted": true},
-    "data_discriminability": {"score": 0, "notes": "...", "competing_set_experiment_given": true},
-    "physics_grounding_temporal_precedence": {"score": 0, "notes": "...", "proof_strength_matched_confidence": true},
-    "evidence_level_assignment": {"score": 0, "notes": "..."},
-    "conclusion_proportionality": {"score": 0, "notes": "...", "view_a_and_b_present": true},
-    "reasoning_transparency": {"score": 0, "notes": "...", "r1_r8_complete": true}
+    "data_quality_awareness": {"score": 0, "notes": "..."},
+    "variable_classification": {"score": 0, "notes": "..."},
+    "time_alignment_and_sorting": {"score": 0, "notes": "...", "sorting_validated": true},
+    "visualization_quality": {"score": 0, "notes": "..."},
+    "evidence_based_conclusions": {"score": 0, "notes": "...", "validation_report_trusted": true, "view_a_and_b_present": true},
+    "correlation_vs_causation": {"score": 0, "notes": "...", "simpson_checked": true, "trend_checked": true},
+    "uncertainty_disclosure": {"score": 0, "notes": "...", "param_ambiguity_ceiling_applied": true},
+    "report_quality": {"score": 0, "notes": "..."},
+    "no_over_claiming": {"score": 0, "blocking_issues": 0, "violations": [], "notes": "..."},
+    "completeness": {"score": 0, "notes": "..."}
   },
   "cross_reference_audit": {
     "statistical_validation_findings_addressed": true,
     "physics_magnitude_feasible": true,
     "competing_hypotheses_discriminated": true,
     "reasoning_chain_complete": true
+  },
+  "reasoning_chain_audit": {
+    "score": 0,
+    "blocking_issues": [],
+    "warnings": []
   },
   "blocking_issues": [
     {"description": "...", "repair_instruction": "...", "affected_steps": ["phase_4"], "check_number": 1}
@@ -244,6 +240,8 @@ proceed to reporter + html-visualizer regardless
   "max_iterations": 3
 }
 ```
+
+> **V2 简化体现在 `cross_reference_audit` block** (4 项跨文件矛盾检查) — 这是 judge 的核心新增价值。10 个 criteria_scores 字段保持 schema 兼容。
 
 ---
 

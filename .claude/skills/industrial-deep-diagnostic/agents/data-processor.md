@@ -38,14 +38,16 @@
 
 **统计分析 (Phase 2+) 必须等待 `01_ontology/ontology.json` 存在才能开始。** 盲分析（对全部列跑相关矩阵、不知道参数代表什么）被禁止。
 
-| Work package | 需 ontology? |
-|--------------|:---:|
-| 转换/预处理/质量画像 | 否（Phase 2b 可与 context-builder 并行）|
-| 统计分析/CCF/异常检测/可视化/VLM | **是**（Phase 3 必须等 ontology）|
-| data_analysis_conclusion.json V2 handoff | **是** |
+| Work package | 需 ontology? | 何时运行 |
+|--------------|:---:|------|
+| 转换/预处理/清洗/稳态检测/特征摘要 | 否 | **Phase 2b 并行** (PHASE_LIMIT=preprocess) |
+| 数据理解 (Phase 0) + 统计分析/CCF/异常/可视化/VLM | **是** | **Phase 3 串行** (PHASE_LIMIT=analyze, 等 ontology 存在) |
+| data_analysis_conclusion.json V2 handoff | **是** | Phase 3 末尾 |
 
-`PHASE_LIMIT=preprocess`: 执行 Phase 0-1 后停止。
-`PHASE_LIMIT=analyze`: 从 Phase 2 开始执行（假设 Phase 0-1 已完成）。
+**PHASE_LIMIT 分工 (关键 — 避免 Phase 2 并行死锁)**:
+- `PHASE_LIMIT=preprocess` (Phase 2b, 与 context-builder 并行): **仅执行 Phase 1** (转换+预处理+清洗完整性+稳态检测+feature_summary)。**不执行 Phase 0**（Phase 0 需 ontology，并行时不存在）。
+- `PHASE_LIMIT=analyze` (Phase 3, ontology 存在后): **执行 Phase 0 + Phase 2 + Phase 3 + Phase 4**（数据理解→统计→可视化→handoff）。假设 Phase 1 产物已存在。
+- 空 (传统串行模式): 执行全部 Phase 0-4。
 
 ## Mandatory Delivery Contract
 
@@ -121,7 +123,7 @@ PYTHON_BIN="$SKILL_PATH/scripts/.venv/bin/python"
 node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/cleaned_data.json"
 ```
 
-### 1.2 Cleaning Integrity Verification (run standalone script — V3 提取)
+### 1.2 Cleaning Integrity Verification (run standalone script — V2 提取)
 
 **Phase 2.2.5 的 200 行 Python 已提取为独立脚本**：
 
@@ -187,12 +189,12 @@ node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" 
 
 **自定义脚本要求**：读 `cleaned_data.csv` + `ontology.json`；写 `02_processed/*.json` + `03_figures/*.png`；只用 pandas/numpy/matplotlib；不硬编码列名。
 
-**Phase 4: RAG Knowledge Validation (Stage 2)** — 若 `rag_deep_understanding.json` 有 `validation_queue`：
+**Phase 2.5: RAG Knowledge Validation (Stage 2)** — 若 `rag_deep_understanding.json` 有 `validation_queue`：
 - 时序验证：用 CCF 检查 X 是否先于 Y
 - 分层验证：组内相关是否成立
 - 去趋势验证：raw r vs detrended r（衰减 >50% flag）
 - 函数形式验证：数据是否跟随声称的方程形状
-- 输出：直接更新到 `rag_deep_understanding.json`（V3 不再独立 `rag_validation_report.json`）
+- 输出：直接更新到 `rag_deep_understanding.json`（V2 不再独立 `rag_validation_report.json`）
 
 ---
 
@@ -237,7 +239,7 @@ node "$SKILL_PATH/scripts/convert.mjs" "$RUN_DIR/02_processed/cleaned_data.csv" 
 
 **Causal Evidence Map (总是生成)**: 有向图，validated 相关为边（颜色=强度，标签=r），root cause 候选（连多个质量目标的节点）。输出 `02_processed/causal_evidence_map.json` + `03_figures/fig_causal_map.png`。
 
-### 3.3 Plot Verification Gate (V3 提取 — run before VLM)
+### 3.3 Plot Verification Gate (V2 提取 — run before VLM)
 
 **Phase 5.9 的 100 行 Python 已提取为独立脚本**：
 
@@ -259,7 +261,7 @@ Agent({
   prompt: `RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
 DATA_PATH=${DATA_PATH}
-你是 VLM Visual Analyzer。先加载 ontology.json + scenario + plot_manifest + feature_summary + validate_report + anomaly_report + production_regime_filter（读图前必做），再按优先级逐图阅读（focus product temporal overlay 优先），最后输出 visual_analysis.json + image_captions.json。
+你是 VLM Visual Analyzer。先加载 ontology.json + scenario_classification.json + plot_manifest.json + feature_summary.json + validate_report.json + anomaly_report.json + production_regime_filter.json（读图前必做），再按优先级逐图阅读（focus product temporal overlay 优先），最后输出 visual_analysis.json + image_captions.json。
 
 必须覆盖 skeleton；observation_mode != "skeleton_pre_vlm"；source_agent="vlm-visual-analyzer"；stage="final_vlm_output"；至少 2 条关键观察含 ontology_context；per_product_visual_findings[] 非空。`
 })
@@ -283,6 +285,7 @@ DATA_PATH=${DATA_PATH}
 - `dual_drive_linkages.linkages[]`: 工艺异常 ↔ 质量异常关联（含 temporal_order）
 - `visual_evidence_summary`: 从 visual_analysis.json 提取 synchronous_groups + event_responses
 - `expert_gap_analysis`: 自定义脚本 + 残留缺口
+- `param_ambiguity`: 参数物理含义未解析列表（UNKNOWN-meaning params，从 clarification_needed.json 搬运）— diagnostician 据此对使用这些参数作主要预测器的假说应用 ceiling 50
 - `diagnostician_handoff.priority_hypothesis_inputs[]`: 候选假说 + `key_evidence_refs`（引用本文件路径如 `validated_correlations.pairs[0]`）+ `falsification_condition`
 - `data_cleaning_provenance`: 从 `cleaning_integrity` 搬运 + 补全 `cleaning_operations`（每步清洗留痕）
 
@@ -321,7 +324,7 @@ Phase 3 (`PHASE_LIMIT=analyze`) 完成时必须存在:
 02_processed/time_lag_analysis.json  ← 仅当 time col + process+inspection
 02_processed/causal_evidence_map.json
 02_processed/production_regime_filter.json
-02_processed/cleaning_integrity.json  ← V3 新增 (cleaning_integrity_check.py 输出)
+02_processed/cleaning_integrity.json  ← V2 新增 (cleaning_integrity_check.py 输出)
 03_figures/*.png  ← universal + scenario + VLM charts
 03_figures/plot_manifest.json
 03_figures/visual_analysis.json  ← VLM 输出

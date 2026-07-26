@@ -381,7 +381,7 @@ INTERACTION_MODE=auto
 Read "${SKILL_PATH}/agents/context-builder.md" and execute the complete protocol.`
 })
 
-// 2b: data-preprocessor (Phase 0 + Phase 1 of data-processor.md)
+// 2b: data-preprocessor (Phase 1 ONLY — preprocessing, no ontology needed)
 Agent({
   subagent_type: "data-processor",
   description: "Phase 2b: 数据预处理 — 清洗+特征摘要+稳态检测",
@@ -391,9 +391,11 @@ Agent({
 RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
 PHASE_LIMIT=preprocess
-Execute ONLY Phase 0 (data understanding) + Phase 1 (data preprocessing) of agents/data-processor.md.
-Run cleaning_integrity_check.py + production_regime_detector.py. Stop after feature_summary.json is written.
-Do NOT run statistical analysis, visualization, or VLM yet.`
+Execute ONLY Phase 1 (data preprocessing) of agents/data-processor.md:
+  convert raw→JSON, dp_toolkit preprocess, cleaning_integrity_check.py, production_regime_detector.py, feature_summary (basic stats only).
+Do NOT execute Phase 0 (data understanding — needs ontology which is being built in parallel).
+Do NOT run statistical analysis, visualization, VLM, or V2 handoff yet.
+Stop after feature_summary.json + production_regime_filter.json + cleaning_integrity are written.`
 })
 ```
 
@@ -418,10 +420,11 @@ Agent({
 RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
 PHASE_LIMIT=analyze
-Continue from Phase 2 (statistical pipeline) onward. Read agents/data-processor.md Phase 2-4.
-ontology.json + analysis_parameter_selection.json already exist.
+Execute Phase 0 (data understanding — ontology.json now exists) + Phase 2 (statistical pipeline) + Phase 3 (visualization) + Phase 4 (V2 handoff) of agents/data-processor.md.
+ontology.json + analysis_parameter_selection.json already exist (Phase 2 main-agent merge wrote selection).
+Phase 1 products (cleaned_data, feature_summary, production_regime_filter, cleaning_integrity) already exist from Phase 2b.
 MUST run plot_verification.py before VLM delegation.
-MUST write data_analysis_conclusion.json (V2 schema).`
+MUST write data_analysis_conclusion.json (V2 schema) including param_ambiguity block.`
 })
 ```
 
