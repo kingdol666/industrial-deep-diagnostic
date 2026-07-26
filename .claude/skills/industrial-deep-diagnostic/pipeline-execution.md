@@ -10,7 +10,7 @@
 > - V1 Step 7+8.5 → V3 Phase 5 审计层 (report-reviewer + html-reviewer)
 > - V1 Step 9 → V3 Phase 6 Finalize
 >
-> **V3 关键变化**: (1) 9 个 CP 检查点已删除，agent 自治 + `artifact-check.mjs` 作为权威结束门; (2) `data_analysis_conclusion.json` 升级到 V2 schema（确定性交接面，每条 finding 有稳定引用 ID）; (3) Diagnostician 必读只 3 个文件（V2 handoff + ontology + visual_analysis）; (4) Judge 检查从 9 项缩减为 4 项（聚焦跨文件矛盾，信任确定性脚本）; (5) 内联 Python 提取为 `cleaning_integrity_check.py` + `plot_verification.py`; (6) physics_check.py 扩展到 10+ 种检查。
+> **V3 关键变化**: (1) 9 个 CP 检查点已删除，agent 自治 + `artifact-check.mjs` 作为权威结束门; (2) `data_analysis_conclusion.json` 升级到 schema（确定性交接面，每条 finding 有稳定引用 ID）; (3) Diagnostician 必读只 3 个文件（V2 handoff + ontology + visual_analysis）; (4) Judge 检查从 9 项缩减为 4 项（聚焦跨文件矛盾，信任确定性脚本）; (5) 内联 Python 提取为 `cleaning_integrity_check.py` + `plot_verification.py`; (6) physics_check.py 扩展到 10+ 种检查。
 >
 > 本文件 §Repair Loop Protocol、§Statistical Validation Framework、§Common Mistakes 仍然适用。§Step Command Reference 中的 bash 命令仍然有效（每个 agent 协议也包含其所需命令）。
 
@@ -103,7 +103,7 @@ Key validation commands:
 ```bash
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/scenario_classification_schema.json" "$RUN_DIR/02_processed/scenario_classification.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/anomaly_report_schema.json" "$RUN_DIR/02_processed/anomaly_report.json"
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_v2_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
+node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"
 node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"
 ```

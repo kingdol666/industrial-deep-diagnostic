@@ -459,10 +459,8 @@ function validateDataProcessorExpertContract() {
     };
   }
 
-  // V2 schema fields (schema_version === '2.0')
-  const isV2 = conclusion.schema_version === '2.0';
+  // Unified schema fields
   const audit = conclusion.adaptive_decision_audit || {};
-  // V2 uses selected_analyses/skipped_analyses; V1 used selected_analyses/skipped_or_not_applicable
   const selectedAnalyses = Array.isArray(audit.selected_analyses) ? audit.selected_analyses : [];
   const skippedAnalyses = Array.isArray(audit.skipped_analyses) ? audit.skipped_analyses
     : (Array.isArray(audit.skipped_or_not_applicable) ? audit.skipped_or_not_applicable : []);
@@ -477,30 +475,20 @@ function validateDataProcessorExpertContract() {
     issues.push('too few adaptive analysis decisions recorded');
   }
 
-  if (isV2) {
-    // V2 checks: validated_correlations + diagnostician_handoff + cleaning provenance
-    const pairs = conclusion.validated_correlations?.pairs;
-    if (!Array.isArray(pairs)) {
-      issues.push('validated_correlations.pairs missing (V2 core field)');
-    } else if (pairs.length === 0 && audit.data_view_mode === 'process_plus_inspection') {
-      issues.push('validated_correlations.pairs empty despite process+inspection data');
-    }
-    const handoff = conclusion.diagnostician_handoff || {};
-    if (!Array.isArray(handoff.priority_hypothesis_inputs) || handoff.priority_hypothesis_inputs.length === 0) {
-      issues.push('diagnostician_handoff.priority_hypothesis_inputs empty (no candidates for diagnostician)');
-    }
-    const provenance = conclusion.data_cleaning_provenance || {};
-    if (!provenance.cleaning_operations || !Array.isArray(provenance.cleaning_operations)) {
-      issues.push('data_cleaning_provenance.cleaning_operations missing (留痕 required)');
-    }
-  } else {
-    // V1 legacy checks (backward compat for pre-V2 runs)
-    const coverage = conclusion.analysis_coverage_matrix || {};
-    for (const key of ['pure_process_analysis', 'process_inspection_dual_drive', 'grouping_confounding', 'temporal_regime_event', 'scenario_specific']) {
-      if (!coverage[key]?.status || !coverage[key]?.summary) {
-        issues.push(`analysis_coverage_matrix.${key} missing status or summary`);
-      }
-    }
+  // Unified checks: validated_correlations + diagnostician_handoff + cleaning provenance
+  const pairs = conclusion.validated_correlations?.pairs;
+  if (!Array.isArray(pairs)) {
+    issues.push('validated_correlations.pairs missing');
+  } else if (pairs.length === 0 && audit.data_view_mode === 'process_plus_inspection') {
+    issues.push('validated_correlations.pairs empty despite process+inspection data');
+  }
+  const handoff = conclusion.diagnostician_handoff || {};
+  if (!Array.isArray(handoff.priority_hypothesis_inputs) || handoff.priority_hypothesis_inputs.length === 0) {
+    issues.push('diagnostician_handoff.priority_hypothesis_inputs empty');
+  }
+  const provenance = conclusion.data_cleaning_provenance || {};
+  if (!provenance.cleaning_operations || !Array.isArray(provenance.cleaning_operations)) {
+    issues.push('data_cleaning_provenance.cleaning_operations missing');
   }
 
   if (!planText.trim()) {
@@ -518,10 +506,8 @@ function validateDataProcessorExpertContract() {
   for (const item of selectedAnalyses) {
     for (const relPath of item.evidence_artifacts || []) referencedArtifacts.add(relPath);
   }
-  // V2 pairs also reference evidence via key_evidence_refs (textual refs, skip file check)
-  // V1 coverage matrix references evidence artifacts
-  const coverageForRefs = isV2 ? {} : (conclusion.analysis_coverage_matrix || {});
-  for (const item of Object.values(coverageForRefs)) {
+  // V1 coverage matrix not used in unified schema; evidence artifacts come from selected_analyses above
+  for (const item of Object.values({})) {
     for (const relPath of item?.evidence_artifacts || []) referencedArtifacts.add(relPath);
   }
   const missingArtifacts = Array.from(referencedArtifacts)
@@ -530,10 +516,8 @@ function validateDataProcessorExpertContract() {
     issues.push(`referenced evidence artifacts missing: ${missingArtifacts.slice(0, 6).join(', ')}`);
   }
 
-  // Custom scripts check (V1: expert_custom_analysis.script_inventory; V2: expert_gap_analysis.custom_scripts_run)
-  const customScriptsDeclared = isV2
-    ? (conclusion.expert_gap_analysis?.custom_scripts_run || [])
-    : (conclusion.expert_custom_analysis?.script_inventory || []).map((i) => i.script);
+  // Custom scripts check (expert_gap_analysis.custom_scripts_run)
+  const customScriptsDeclared = conclusion.expert_gap_analysis?.custom_scripts_run || [];
   const missingScripts = customScriptsDeclared
     .filter((relPath) => relPath && !exists(relPath));
   if (missingScripts.length > 0) {
@@ -681,7 +665,7 @@ const schemaChecks = [
   validate('Feature Evidence Map', 'schemas/causal_evidence_map_schema.json', '02_processed/causal_evidence_map.json', false),
   validate('Anomaly Report', 'schemas/anomaly_report_schema.json', '02_processed/anomaly_report.json'),
   validate('Analysis Parameter Selection', 'schemas/analysis_parameter_selection_schema.json', '02_processed/analysis_parameter_selection.json'),
-  validate('Data Analysis Conclusion V2', 'schemas/data_analysis_conclusion_v2_schema.json', '02_processed/data_analysis_conclusion.json'),
+  validate('Data Analysis Conclusion V2', 'schemas/data_analysis_conclusion_schema.json', '02_processed/data_analysis_conclusion.json'),
   validate('Visual Analysis (VLM)', 'schemas/visual_analysis_schema.json', '03_figures/visual_analysis.json'),
   validate('Image Captions (VLM)', 'schemas/image_captions_schema.json', '03_figures/image_captions.json', false),
   validateVisualExecutionProof(),

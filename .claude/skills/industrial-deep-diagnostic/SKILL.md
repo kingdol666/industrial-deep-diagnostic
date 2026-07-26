@@ -229,11 +229,11 @@ Phase 2: UNDERSTAND (并行 2 子 Agent, ~5 min)
        (主 Agent 汇合: ontology-guided analysis selection)
        ▼
 Phase 3: ANALYZE (data-processor, ~8 min)
-  └─ 统计分析 + 可视化 + VLM 视觉分析 + data_analysis_conclusion.json (V2 handoff)
+  └─ 统计分析 + 可视化 + VLM 视觉分析 + data_analysis_conclusion.json (handoff)
        │
        ▼
 Phase 4: DIAGNOSE (diagnostician, ~7 min)
-  └─ 信任 V2 handoff; 竞争假说 + 物理推理 + 证据融合
+  └─ 信任 handoff; 竞争假说 + 物理推理 + 证据融合
        │
        ▼
 Phase 5: DELIVER + AUDIT (3 子 Agent 并行, ~8 min)
@@ -394,7 +394,7 @@ PHASE_LIMIT=preprocess
 Execute ONLY Phase 1 (data preprocessing) of agents/data-processor.md:
   convert raw→JSON, dp_toolkit preprocess, cleaning_integrity_check.py, production_regime_detector.py, feature_summary (basic stats only).
 Do NOT execute Phase 0 (data understanding — needs ontology which is being built in parallel).
-Do NOT run statistical analysis, visualization, VLM, or V2 handoff yet.
+Do NOT run statistical analysis, visualization, VLM, or handoff yet.
 Stop after feature_summary.json + production_regime_filter.json + cleaning_integrity are written.`
 })
 ```
@@ -420,11 +420,11 @@ Agent({
 RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
 PHASE_LIMIT=analyze
-Execute Phase 0 (data understanding — ontology.json now exists) + Phase 2 (statistical pipeline) + Phase 3 (visualization) + Phase 4 (V2 handoff) of agents/data-processor.md.
+Execute Phase 0 (data understanding — ontology.json now exists) + Phase 2 (statistical pipeline) + Phase 3 (visualization) + Phase 4 (handoff) of agents/data-processor.md.
 ontology.json + analysis_parameter_selection.json already exist (Phase 2 main-agent merge wrote selection).
 Phase 1 products (cleaned_data, feature_summary, production_regime_filter, cleaning_integrity) already exist from Phase 2b.
 MUST run plot_verification.py before VLM delegation.
-MUST write data_analysis_conclusion.json (V2 schema) including param_ambiguity block.`
+MUST write data_analysis_conclusion.json (schema) including param_ambiguity block.`
 })
 ```
 
@@ -433,7 +433,7 @@ MUST write data_analysis_conclusion.json (V2 schema) including param_ambiguity b
 - **v6.4 时滞补偿**：process→quality 有物理延迟时跑 `time_lag_compensator.mjs`
 - **v6.6 批次完整性**：batch_id 列存在时跑 `cleaning_integrity_check.py` 检测 split/duplicate
 - **v6.7 留一法**：|r|≥0.3 相关必须过 leave-one-out
-- **V2 handoff**：data_analysis_conclusion.json 必须用 V2 schema（每条 finding 有稳定引用 ID，下游诊断直接读此文件不再重读原始文件）
+- **handoff**：data_analysis_conclusion.json 必须用 schema（每条 finding 有稳定引用 ID，下游诊断直接读此文件不再重读原始文件）
 
 **Before Phase 4**, stabilize outputs:
 ```bash
@@ -460,7 +460,7 @@ Trust data_analysis_conclusion.json (V2) as primary handoff — read only 3 core
 })
 ```
 
-**V2 信任交接**：diagnostician 必读只 3 个文件 — `data_analysis_conclusion.json`, `ontology.json`, `visual_analysis.json`。条件必读 3 个 — `validate_report.json`, `time_lag_analysis.json`, `anomaly_report.json`（仅当 V2 handoff 中某结论需要深入验证时）。
+**V2 信任交接**：diagnostician 必读只 3 个文件 — `data_analysis_conclusion.json`, `ontology.json`, `visual_analysis.json`。条件必读 3 个 — `validate_report.json`, `time_lag_analysis.json`, `anomaly_report.json`（仅当 handoff 中某结论需要深入验证时）。
 
 **Outputs**: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`. Agent 自验证 schema + 运行 `diagnostic-quality-check.mjs`。
 
@@ -529,7 +529,7 @@ Agents communicate ONLY through workspace files — never through the main agent
 Context Builder    ──► 01_ontology/ontology.json, schema.json, rag_deep_understanding.json
 Data Preprocessor  ──► 02_processed/cleaned_data.{csv,json}, feature_summary.json,
                        production_regime_filter.json, data_quality_report.json (cleaning_integrity)
-Data Processor     ──► 02_processed/data_analysis_conclusion.json (V2 handoff — 单一交接面)
+Data Processor     ──► 02_processed/data_analysis_conclusion.json (handoff — 单一交接面)
                    ──► 02_processed/{validate_report, anomaly_report, time_lag_analysis, physics_check}.json
                    ──► 03_figures/*.png + plot_manifest.json + visual_analysis.json
 Diagnostician      ──► 04_diagnostics/{diagnosis, evidence, confidence, reasoning_chain}.json
@@ -552,7 +552,7 @@ HTML Reviewer      ──► 05_review/html_review.json
 |------|------|-------------------------|
 | Phase 1 | `input_manifest.json`, `run_config.json` | `run_config_schema.json` |
 | Phase 2 | `ontology.json` | `ontology_schema.json` |
-| Phase 3 | `data_analysis_conclusion.json` | **`data_analysis_conclusion_v2_schema.json`** |
+| Phase 3 | `data_analysis_conclusion.json` | **`data_analysis_conclusion_schema.json`** |
 | Phase 3 | `visual_analysis.json` | `visual_analysis_schema.json` |
 | Phase 4 | `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json` | matching schemas |
 | Phase 5 | `judge_feedback.json`, `run_summary.json`, `html_review.json` | matching schemas |

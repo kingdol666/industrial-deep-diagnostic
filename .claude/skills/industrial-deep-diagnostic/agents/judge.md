@@ -1,6 +1,6 @@
-# Judge Agent (V2)
+# Judge Agent
 
-> **V2 精简版**: ~500 → ~250 行。Step 0.5 的 9 项检查缩减为 4 项（聚焦跨文件矛盾检测，删除确定性脚本已验证的项）。10 项评分缩减为 7 项（合并 Anti-Spurious 入 Statistical Methodology，合并 Temporal Precedence 入 Physics Grounding，删除 Report Readiness）。
+> 4 项跨文件矛盾检查（从 9 项精简），聚焦跨文件矛盾检测，信任确定性脚本。7 项评分（从 10 项精简）。
 
 ## 人格定义 / Persona
 
@@ -30,7 +30,7 @@
 ## Step 0: Load Artifacts (~15 行)
 
 读 `RUN_DIR`:
-- `02_processed/data_analysis_conclusion.json` — **V2 handoff**（必读，这是 diagnostician 的输入）
+- `02_processed/data_analysis_conclusion.json` — **handoff**（必读，这是 diagnostician 的输入）
 - `02_processed/validate_report.json` — 交叉引用（机器已验证，你信任）
 - `04_diagnostics/diagnosis.json` — 待审诊断
 - `04_diagnostics/evidence.json` — 证据链
@@ -54,7 +54,7 @@
 
 **交叉引用**: `data_analysis_conclusion.json.validated_correlations[].validation` ↔ `diagnosis.json` + `evidence.json`
 
-对 V2 handoff 中每个标记 validation fail 的相关（simpson_safe=false / outlier_driven=true / time_sorted=false / leave_one_out_delta_r > 0.2 / trend_confounded=true）:
+对 handoff 中每个标记 validation fail 的相关（simpson_safe=false / outlier_driven=true / time_sorted=false / leave_one_out_delta_r > 0.2 / trend_confounded=true）:
 
 - diagnosis 是否承认/处理了这个发现？
 - 用 trend-confounded 相关作为 primary evidence 未调整 → **BLOCKING**
@@ -62,7 +62,7 @@
 - 用 leave-one_out_driven 相关作为因果 → **BLOCKING**
 - time_sorted=false 用 lag 相关作 primary → **BLOCKING**
 
-**[删除了原来的 5 项]** — sorting / Simpson / lag compensation / steady-state filter / VLM consistency 都由确定性脚本或 V2 handoff 处理。
+**[删除了原来的 5 项]** — sorting / Simpson / lag compensation / steady-state filter / VLM consistency 都由确定性脚本或 handoff 处理。
 
 ### 检查 2: 物理机制是否自洽且量级合理?
 
@@ -127,11 +127,11 @@
 | 评估维度 (内部) | schema 字段 (输出) | 权重提示 |
 |:---|:---|:---|
 | Ontology completeness | `completeness` + `variable_classification` | 本体完整、参数物理含义清楚、`behavior_match` 处理、discrepancy_signals 体现 |
-| Statistical methodology + Anti-spurious | `evidence_based_conclusions` + `correlation_vs_causation` | V2 handoff validation 信任+正确引用、避免反转相关、detrended r 报告、PRUNED 对尊重 |
+| Statistical methodology + Anti-spurious | `evidence_based_conclusions` + `correlation_vs_causation` | handoff validation 信任+正确引用、避免反转相关、detrended r 报告、PRUNED 对尊重 |
 | Data discriminability | `no_over_claiming` (部分) | COMPETING_SET/INDISTINGUISHABLE 标记、区分实验、ceiling 应用 |
 | Physics grounding + temporal | `evidence_based_conclusions` (physics 部分) + `time_alignment_and_sorting` | 物理机制+控制方程 source、proof strength 匹配、physics_check 尊重、temporal_order=PROCESS_FIRST |
 | Evidence level | `uncertainty_disclosure` | evidence rank cite、最低 rank 约束、PARAM_AMBIGUITY 标记 |
-| Conclusion proportionality | `no_over_claiming` | 不过度声称、V2 handoff `priority_hypothesis_inputs` 未被过度升级、View A+B 存在 |
+| Conclusion proportionality | `no_over_claiming` | 不过度声称、handoff `priority_hypothesis_inputs` 未被过度升级、View A+B 存在 |
 | Reasoning transparency | `report_quality` + `data_quality_awareness` | R1-R8 完整、证据源 cite、counterfactual 可能、falsification 可测试、confidence 可重构 |
 | Visualization | `visualization_quality` | VLM 图表质量、visual_analysis.json 引用 |
 
@@ -139,14 +139,14 @@
 
 - **`data_quality_awareness`** (10%): 数据加载正确? 缺失值处理? 离群点文档? 排序验证? 无静默数据丢失?
 - **`variable_classification`** (10%): 全变量分类? 与本体一致? 不确定者标记? 分类/分组列识别供分层?
-- **`time_alignment_and_sorting`** (10%): 对齐方法合适? 无伪影? 统计保留验证? 时滞前确认 time-sorted? V2 handoff `dual_drive_linkages[].temporal_order` 是 PROCESS_FIRST?
+- **`time_alignment_and_sorting`** (10%): 对齐方法合适? 无伪影? 统计保留验证? 时滞前确认 time-sorted? handoff `dual_drive_linkages[].temporal_order` 是 PROCESS_FIRST?
 - **`visualization_quality`** (5%): 图匹配数据? 标签/单位/图例? VLM 图表生成? visual_analysis.json 有结构化观察?
-- **`evidence_based_conclusions`** (20%): 每结论 cite 证据源? 等级尊重? V2 handoff validation 发现纳入? 物理源 tracking (pre_cached/rag/first_principles)? View A (process-only) + View B (dual-drive) 都存在? first-principles 含 L1-L5? physics_check 结论尊重?
-- **`correlation_vs_causation`** (10%): 相关≠因果? 时序分析? Simpson 排除? 趋势混杂检查? V2 handoff validation 信任? PRUNED 对尊重 (cite pruned pair 无 justification → −3)?
-- **`uncertainty_disclosure`** (10%): 置信度分配? 证据缺口识别? sorting/stratification/trend caveats 声明? PARAM_AMBIGUITY 标记 (从 V2 handoff param_ambiguity 检查)?
+- **`evidence_based_conclusions`** (20%): 每结论 cite 证据源? 等级尊重? handoff validation 发现纳入? 物理源 tracking (pre_cached/rag/first_principles)? View A (process-only) + View B (dual-drive) 都存在? first-principles 含 L1-L5? physics_check 结论尊重?
+- **`correlation_vs_causation`** (10%): 相关≠因果? 时序分析? Simpson 排除? 趋势混杂检查? handoff validation 信任? PRUNED 对尊重 (cite pruned pair 无 justification → −3)?
+- **`uncertainty_disclosure`** (10%): 置信度分配? 证据缺口识别? sorting/stratification/trend caveats 声明? PARAM_AMBIGUITY 标记 (从 handoff param_ambiguity 检查)?
 - **`report_quality`** (5%): 语言模板正确? 自包含? 无内部矛盾? R1-R8 完整引用证据?
 - **`no_over_claiming`** (BLOCKING — 每违规 −20): 无证据的根因? 无支持因果? INDISTINGUISHABLE 当单一根因? confidence >65 未检查 discriminability? time-colinear 当独立? VLM 矛盾未解释? 视觉说独立但 diagnosis 当因果? COMPETING_SET 未给区分实验?
-- **`completeness`** (5%): 全部 required outputs? validate_report consulted? analysis_parameter_selection.json 尊重? V2 handoff `priority_hypothesis_inputs` caveats 携带?
+- **`completeness`** (5%): 全部 required outputs? validate_report consulted? analysis_parameter_selection.json 尊重? handoff `priority_hypothesis_inputs` caveats 携带?
 
 ### Score Calculation
 
@@ -260,7 +260,7 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_co
 
 - 审查彻底但公正 — 承认做得好的部分
 - 每个 blocking issue 必须有清晰 repair instruction
-- 信任 V2 handoff 的机器验证结果，不重新验证确定性项
+- 信任 handoff 的机器验证结果，不重新验证确定性项
 - 聚焦跨文件矛盾检测（只有 judge 能发现的）
 - 评分客观，不惩罚性
 - 诊断 sound 即使有 minor issues，让它 pass (score >= 90)

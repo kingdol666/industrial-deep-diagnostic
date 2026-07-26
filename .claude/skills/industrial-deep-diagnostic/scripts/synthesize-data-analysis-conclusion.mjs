@@ -49,13 +49,12 @@ const visualAnalysis = readJson('03_figures/visual_analysis.json', null);
 const clarificationNeeded = readJson('01_ontology/clarification_needed.json', null);
 const existing = readJson('02_processed/data_analysis_conclusion.json', null);
 
-// ── V2 merge: preserve LLM judgment fields if existing is V2 ──
-const isExistingV2 = existing && existing.schema_version === '2.0';
-const preserved = isExistingV2 ? {
+// Preserve LLM-written judgment fields if existing handoff has them
+const preserved = existing ? {
   expert_gap_analysis: existing.expert_gap_analysis || { custom_scripts_run: [], custom_findings: [], remaining_gaps: [], recommended_extra_data: [] },
   param_ambiguity: existing.param_ambiguity || { ambiguous_params: [], resolved_count: 0, unresolved_count: 0 },
   diagnostician_handoff: existing.diagnostician_handoff || { priority_hypothesis_inputs: [], evidence_gaps: [] },
-  visual_evidence_summary: existing.visual_evidence_summary || null,  // prefer LLM version; fall back to mechanical below
+  visual_evidence_summary: existing.visual_evidence_summary || null,
 } : {};
 
 // ── Helper: flatten feature_summary.correlations[target][predictor] → pairs ──
@@ -322,7 +321,6 @@ if (!diagnostician_handoff || !Array.isArray(diagnostician_handoff.priority_hypo
 
 // ── Assemble V2 handoff ──
 const handoff = {
-  schema_version: '2.0',
   run_id: runManifest.run_id || basename(runDir),
   generated_at: new Date().toISOString(),
   data_view_mode: dataViewMode,
@@ -341,9 +339,8 @@ const handoff = {
 writeJson('02_processed/data_analysis_conclusion.json', handoff);
 console.log(JSON.stringify({
   ok: true,
-  schema_version: '2.0',
   output: '02_processed/data_analysis_conclusion.json',
-  mode: isExistingV2 ? 'merged_into_existing_v2' : 'generated_full_v2',
+  mode: existing ? 'merged_into_existing' : 'generated_full',
   validated_pairs: pairs.length,
-  preserved_llm_fields: isExistingV2 ? Object.keys(preserved) : [],
+  preserved_llm_fields: existing ? Object.keys(preserved) : [],
 }, null, 2));

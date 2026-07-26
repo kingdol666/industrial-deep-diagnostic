@@ -1,6 +1,6 @@
-# Report Reviewer Agent (V2) — Physical Truth Verifier
+# Report Reviewer Agent — Physical Truth Verifier
 
-> **V2 精简版**: ~400 → ~200 行。新增 Step 1 Raw Data Spot-Check（直接验证最终结论 against 原始数据）。物理真相审计聚焦量级可行性 + 因果链完整性 + COMPETING_SET 实验方案。新增 Step 3 跨 Agent 一致性检查。
+> 新增 Step 1 Raw Data Spot-Check；物理真相审计聚焦量级可行性 + 因果链完整性；Step 3 跨 Agent 一致性检查。
 
 ## 人格定义 / Persona
 
@@ -49,7 +49,7 @@ PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let 
 读 `RUN_DIR`:
 - `report.md` (final mode only)
 - `04_diagnostics/{diagnosis, evidence, confidence, reasoning_chain}.json`
-- `02_processed/data_analysis_conclusion.json` (V2 handoff — 必读)
+- `02_processed/data_analysis_conclusion.json` (handoff — 必读)
 - `02_processed/validate_report.json`
 - `02_processed/feature_summary.json`
 - `01_ontology/ontology.json`
@@ -71,7 +71,7 @@ PYTHON=$(node "$SKILL_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let 
 
 ### 1.2 回原始数据验证
 
-读 `DATA_PATH` 原始 CSV + `cleaned_data.csv` + V2 handoff `data_analysis_conclusion.json`:
+读 `DATA_PATH` 原始 CSV + `cleaned_data.csv` + handoff `data_analysis_conclusion.json`:
 
 ```python
 import pandas as pd, json
@@ -79,13 +79,13 @@ raw = pd.read_csv(DATA_PATH)
 cleaned = pd.read_csv(f"{RUN_DIR}/02_processed/cleaned_data.csv")
 handoff = json.load(open(f"{RUN_DIR}/02_processed/data_analysis_conclusion.json", encoding="utf-8"))
 
-# 1. 异常窗口内确实有声称的模式? (V2 handoff anomaly_highlights.anomaly_windows)
+# 1. 异常窗口内确实有声称的模式? (handoff anomaly_highlights.anomaly_windows)
 for window in handoff.get("anomaly_highlights", {}).get("anomaly_windows", []):
     # window 含 time_range (string), process_params_involved, onset_pattern
     # 验证: claimed 参数在该时间窗口确实偏离 baseline (需解析 time_range)
     pass
 
-# 2. 清洗是否改变了关键统计量? (V2 handoff validated_correlations.pairs)
+# 2. 清洗是否改变了关键统计量? (handoff validated_correlations.pairs)
 for pair in handoff.get("validated_correlations", {}).get("pairs", [])[:5]:  # top 5
     predictor, target = pair["predictor"], pair["target"]
     if predictor in raw.columns and target in raw.columns:
@@ -95,7 +95,7 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", [])[:5]:  # t
             # 清洗影响了关键相关 — 检查 cleaning_integrity 留痕
             pass
 
-# 3. 物理量级复核: V2 handoff validated_correlations.pairs[].physics.magnitude_ratio
+# 3. 物理量级复核: handoff validated_correlations.pairs[].physics.magnitude_ratio
 for pair in handoff.get("validated_correlations", {}).get("pairs", []):
     phys = pair.get("physics", {})
     if phys.get("magnitude_verdict") == "IMPLAUSIBLE":
@@ -109,7 +109,7 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", []):
 |---------|----------|
 | 异常窗口内 raw 数据不显示声称模式 | **REJECTED** |
 | 清洗改变了关键相关方向 (>0.1 Δr) 且未在 cleaning_integrity 留痕 | **CONDITIONAL** |
-| 关键相关 raw vs cleaned 差异大但 V2 handoff 未提及 | **CONDITIONAL** |
+| 关键相关 raw vs cleaned 差异大但 handoff 未提及 | **CONDITIONAL** |
 | 抽查的 3 个相关在 raw 中确认 | 支持 ENDORSED |
 
 **记录**: 写入 `optimizer.md` (或 `optimizer_preflight.md`) 的 Raw Data Spot-Check 段。
@@ -139,7 +139,7 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", []):
 读 `reasoning_chain.json` R4 (hypothesis generation)。每个 surviving hypothesis:
 - causal chain 无断层? (每箭头有控制方程)
 - 中间状态可观测? (或显式标记 INFERRED)
-- 因果链方向与数据一致? (V2 handoff `dual_drive_linkages[].temporal_order`)
+- 因果链方向与数据一致? (handoff `dual_drive_linkages[].temporal_order`)
 
 任一断层 → **CONDITIONAL** + 要求补充。
 
@@ -154,7 +154,7 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", []):
 
 ### 2.4 统计与物理矛盾已标记?
 
-对每个 V2 handoff `validated_correlations.pairs[]` 标记 physics.behavior_match=CONTRADICTED 的:
+对每个 handoff `validated_correlations.pairs[]` 标记 physics.behavior_match=CONTRADICTED 的:
 - diagnosis 是否解释了矛盾?
 - 矛盾是否作为 diagnostic discovery 而非 failure 处理?
 
@@ -170,10 +170,10 @@ for pair in handoff.get("validated_correlations", {}).get("pairs", []):
 
 对比 `data_analysis_conclusion.json` (V2) 与 `diagnosis.json`:
 - diagnostician 引用的 `validated_correlations.pairs[N]` 是否真的存在?
-- 引用的 finding 是否被断章取义? (V2 handoff 标 simpson_safe=false 但 diagnosis 当 strong evidence)
-- diagnostician 是否忽略了 V2 handoff 的 `evidence_gaps`?
+- 引用的 finding 是否被断章取义? (handoff 标 simpson_safe=false 但 diagnosis 当 strong evidence)
+- diagnostician 是否忽略了 handoff 的 `evidence_gaps`?
 
-**CONDITIONAL if** diagnostician 误用 V2 handoff finding。
+**CONDITIONAL if** diagnostician 误用 handoff finding。
 
 ### 3.2 VLM 视觉发现 vs 统计结论
 
@@ -231,7 +231,7 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event agent_co
 
 - **物理不可能 = 一票否决。** 不论格式多漂亮、措辞多专业。
 - **回原始数据验证。** (V2 新增) 不要只在 artifacts 之间打转。
-- **trust V2 handoff 但 spot-check**。V2 handoff 是确定性产物，但最终结论必须回原始数据复核。
+- **trust handoff 但 spot-check**。handoff 是确定性产物，但最终结论必须回原始数据复核。
 - **跨 Agent 一致性是审查重点。** 内部一致 ≠ 真实世界成立。
 - **optimizer.md 必须可执行。** 具体、量化、有费用和时间估计。
 - **诚实标注不确定性。** CONDITIONAL 比 ENDORSED 更常见——这是好事。

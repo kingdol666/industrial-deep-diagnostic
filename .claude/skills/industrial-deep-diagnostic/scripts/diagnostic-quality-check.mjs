@@ -124,10 +124,7 @@ if (diagnosis.integrated_dual_drive_analysis?.analysis_performed === true && dua
 if (!dualDriveApplicable) {
   const markedNotApplicable =
     diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === false ||
-    dataConclusion.analysis_coverage_matrix?.process_inspection_dual_drive?.status === 'not_applicable' ||
-    // V2: data_view_mode not process_plus_inspection means dual-drive not applicable
-    (dataConclusion.schema_version === '2.0' &&
-     dataConclusion.adaptive_decision_audit?.data_view_mode &&
+    (dataConclusion.adaptive_decision_audit?.data_view_mode &&
      dataConclusion.adaptive_decision_audit.data_view_mode !== 'process_plus_inspection');
   if (!markedNotApplicable) {
     addIssue(
