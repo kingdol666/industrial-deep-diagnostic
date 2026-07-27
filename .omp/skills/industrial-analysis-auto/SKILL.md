@@ -125,7 +125,7 @@ Read `skill://industrial-data-processor` and execute. **ontology_first** — rea
 
 Post-processing after agent completes:
 ```bash
-SKILL_PATH_DATA_PROCESSOR="<path-to-industrial-data-processor>"
+SKILL_PATH_DATA_PROCESSOR="$PROJECT_ROOT/.claude/skills/industrial-data-processor"
 node "$SKILL_PATH_DATA_PROCESSOR/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
 node "$SKILL_PATH_DATA_PROCESSOR/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
 ```
