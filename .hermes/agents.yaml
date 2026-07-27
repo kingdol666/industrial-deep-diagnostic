@@ -104,21 +104,21 @@ agents:
     reasoning_effort: high
 
   # === Step 3.5 (internal): VLM Visual Analyzer ===
-  # ⚠️ 专属模型配置: 此 Agent 需要视觉能力
-  # DeepSeek V4 Pro 已支持视觉，如果不可用，切换为支持 vision 的模型
+  # ⚠️ 专属模型配置: 此 Agent 需要视觉能力 (vision-capable model required)
+  # 必须使用支持视觉的模型。DeepSeek V4 Pro 支持视觉；如不可用回退到 vision-native 模型。
   vlm-visual-analyzer:
     description: "VLM视觉图像分析 — 本体感知读图"
     spawn_method: terminal_spawn  # 独立进程，可使用独立模型
     role: leaf
     toolsets: [terminal, file, vision]
     model:
-      # 首选: DeepSeek V4 Pro (支持视觉)
-      # 备选: 任何支持 vision 的模型，如:
-      #   - openrouter: google/gemini-2.5-flash (vision-native)
-      #   - openrouter: anthropic/claude-sonnet-4 (vision-native)
-      #   - openrouter: openai/gpt-4o (vision-native)
+      # vision-capable 模型：DeepSeek V4 Pro 支持视觉输入
+      # 备选 vision-native 模型:
+      #   - openrouter: google/gemini-2.5-flash
+      #   - openrouter: anthropic/claude-sonnet-4
+      #   - openrouter: openai/gpt-4o
       provider: deepseek
-      model: deepseek-v4-flash
+      model: deepseek-v4-pro     # ← vision-capable: 支持 PNG 图表视觉分析
     max_iterations: 40
     reasoning_effort: medium
     # terminal_spawn 模式下的额外参数

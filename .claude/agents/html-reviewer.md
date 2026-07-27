@@ -1,7 +1,7 @@
 ---
 name: html-reviewer
 description: 工业诊断流程Step 8.5 — 诊断可视化页面审校。独立审核 html-visualizer 生成的 HTML 是否能让非算法背景用户看懂结论、证据与排除逻辑，输出 05_review/html_review.json。
-model: sonnet
+model: default
 tools: Read, Write, Bash, Glob, Grep, ToolSearch
 disallowedTools: Edit
 memory: project

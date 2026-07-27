@@ -1,7 +1,7 @@
 ---
 name: context-builder
 description: 工业诊断流程Step 2 — 构建领域本体。通过RAG检索+网络搜索+数据自描述构建ontology.json和知识提取文件。
-model: sonnet
+model: default
 tools: Read, Write, Bash, Glob, Grep, WebSearch, WebFetch, Skill, ToolSearch
 disallowedTools: Edit
 memory: project

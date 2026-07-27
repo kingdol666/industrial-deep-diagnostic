@@ -30,8 +30,9 @@ delegation:
 # === Vision 辅助模型配置 (vlm-visual-analyzer 依赖) ===
 auxiliary:
   vision:
+    # vision-capable 模型: 必须支持图像输入 (PNG 图表视觉分析)
     provider: deepseek
-    model: deepseek-v4-flash  
+    model: deepseek-v4-pro     # ← vision-capable
     timeout: 300
     download_timeout: 60
 

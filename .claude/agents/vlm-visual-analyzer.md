@@ -1,7 +1,7 @@
 ---
 name: vlm-visual-analyzer
 description: 工业诊断流程Phase 5.5 — VLM视觉图像分析。读取data-processor生成的PNG图表，结合本体模型和结构化知识，输出visual_analysis.json和image_captions.json。
-model: sonnet
+model: vision
 tools: Read, Write, Bash, Glob, Grep, ToolSearch
 disallowedTools: Edit
 memory: project
