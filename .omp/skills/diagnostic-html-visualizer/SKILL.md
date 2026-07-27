@@ -14,6 +14,20 @@ compatibility: |
 
 # Diagnostic HTML Visualizer
 
+
+## Path Convention (OMP Harness)
+
+When loaded from `.omp/skills/diagnostic-html-visualizer/`, all resource paths
+(`agents/`, `references/`, `templates/`) resolve via:
+
+```
+<this-skill-directory>/../../../.claude/skills/diagnostic-html-visualizer
+```
+
+This ensures the full design system (html-builder.md, report-template.html, 
+page_blueprint.md, render_prompt_template.md) is accessible regardless of which 
+harness loads this skill.
+
 ## Language Default
 
 默认输出语言为中文。页面文案、图表说明、证据链解释、行动建议都使用中文。结构化字段名、代码变量名、JSON enum 保持英文。
