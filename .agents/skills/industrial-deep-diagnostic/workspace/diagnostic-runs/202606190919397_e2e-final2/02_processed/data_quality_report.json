@@ -54,29 +54,35 @@
     }
   },
   "cleaning_integrity": {
-    "row_count_check": {
-      "raw_rows": 1200,
-      "cleaned_rows": 1200,
-      "dropped": 0,
-      "drop_rate": 0.0
-    },
-    "type_integrity": {},
-    "range_fidelity": {},
     "data_source": "cleaned",
-    "repair_attempts": [],
-    "cleaning_operations": [
-      {
-        "operation": "sort",
-        "target": "all",
-        "rows_affected": 1200,
-        "rationale": "Sorted by product then timestamp for temporal integrity"
+    "data_source_reason": "passed Phase 2.2.5 integrity checks",
+    "integrity_checks": {
+      "row_count_check": {
+        "raw_rows": 1200,
+        "cleaned_rows": 1200,
+        "dropped": 0,
+        "drop_rate": 0.0,
+        "threshold_exceeded": false
       },
-      {
-        "operation": "type_coerce",
-        "target": "Z3_Temp",
-        "rows_affected": 0,
-        "rationale": "CSV DictReader produces str values; downstream scripts handle coercion at read boundary (visual_analysis.py _safe_float, physics_check _safe_float, stats_analysis _safe_float)"
+      "type_integrity": {},
+      "range_fidelity": {
+        "Z1_Temp": 0.0,
+        "Z2_Temp": 0.0,
+        "Z3_Temp": 0.0,
+        "Extruder_Speed": 0.0,
+        "Melt_Pressure": 0.0,
+        "Haze": 0.0,
+        "Defect_Density": 0.0
+      },
+      "batch_identity_integrity": {
+        "applicable": false,
+        "id_col": null,
+        "duplicate_batches": [],
+        "split_record_count": 0,
+        "action": "none"
       }
-    ]
+    },
+    "cleaning_operations": [],
+    "repair_attempts": []
   }
 }

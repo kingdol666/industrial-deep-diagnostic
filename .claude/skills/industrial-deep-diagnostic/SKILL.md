@@ -176,8 +176,8 @@ For production-style execution, also treat `resources/engineering_delivery_contr
 | Step | Agent (Persona) | Subagent Type | Action | Why |
 |:----:|----------------|:-------------:|--------|-----|
 | 2 | **王教授** — 化工/材料专家，25年失效分析经验 | `context-builder` | **Launch sub-agent** | RAG检索 + 本体ontology构建（物理语义深度理解） |
-| 3 | **张工** — 高级过程数据科学家，16年流程制造分析 | `data-processor` | **Launch sub-agent** | 统计分析 + 可视化（内部委托 vlm-visual-analyzer） |
-| 3.5 | **老孙（目视）** — 设备状态监测工程师，20年目视巡检经验 | `vlm-visual-analyzer` | data-processor 内部启动 | 本体感知的VLM视觉图像分析 |
+| 3 | **张工** — 高级过程数据科学家，16年流程制造分析 | `data-processor` | **Launch sub-agent** | 统计分析 + 可视化 |
+| 3.5 | **老孙（目视）** — 设备状态监测工程师，20年目视巡检经验 | `vlm-visual-analyzer` | **Launch sub-agent**（独立 Step 3.5）| 本体感知的VLM视觉图像分析 |
 | 4 | **刘总工** — 首席根因分析工程师，28年产线诊断经验 | `diagnostician` | **Launch sub-agent** | 物理约束的竞争假说根因诊断 |
 | 5a | **陈主任** — 国家工业产品质检中心高级审核员，15年质量审计 | `judge` | **Launch sub-agent** | 10项标准质量门审查 |
 | 5b | **孙审计** — 过程安全与质量审计专家，32年跨国工业审计 | `report-reviewer` | **Launch sub-agent** (PRE_REPORT_AUDIT=true) | 预报告物理审计（与Judge并行） |
@@ -186,7 +186,7 @@ For production-style execution, also treat `resources/engineering_delivery_contr
 | 8 | **林工** — 工业前端可视化工程师，14年HMI/SCADA+工业Web | `html-visualizer` | **Launch sub-agent** | 生成讲解式 HTML 可视化页面（ECharts + Three.js + 证据链） |
 | 8.5 | **赵审阅** — 工业信息可视化审校，15年技术文档审校经验 | `html-reviewer` | **Launch sub-agent** | 审核 HTML 是否清楚、完整、能支撑结论 |
 
-> **vlm-visual-analyzer** 是 data-processor 的内部子智能体 — 不是独立的管线步骤。**Step 5a (judge) 和 Step 5b (pre-audit) 是唯一可并行的步骤。**
+> **vlm-visual-analyzer** 现在是 Step 3.5 的独立子智能体，不再嵌入 data-processor 内部。**Step 5a (judge) 和 Step 5b (pre-audit) 是唯一可并行的步骤。**
 
 ### Level 3: Loaded On-Demand (resources/)
 
@@ -197,7 +197,7 @@ Detailed frameworks — load only when an agent's instructions tell you to.
 | context-builder needs RAG deep understanding protocol | `resources/rag_deep_understanding_protocol.md` | R1-R4: semantic comprehension, knowledge-data alignment, physics extraction, gap identification |
 | context-builder builds ontology; data-processor updates it | `resources/data_ontology_mapping_framework.md` | Three mapping directions: prediction→validation, discovery→refinement, discrepancy→diagnostic signal |
 | data-processor needs scenario-specific analysis patterns | `resources/scenario_patterns.md` | Patterns A-I: multi-zone, paired sensors, grouping, events, nonlinear, cyclic, manual physics, process-only, regime detection |
-| data-processor needs VLM chart design principles | `resources/visual_analysis_framework.md` | Chart design principles + Phase 5.5 visual analysis protocol |
+| data-processor needs VLM chart design principles | `resources/visual_analysis_framework.md` | Chart design principles + Step 3.5 VLM visual analysis protocol |
 | diagnostician encounters novel parameters | `resources/physics_inference_framework.md` | L1-L5 ladder: physical quantity → governing law → causal chain → magnitude → competing mechanisms |
 | diagnostician needs evidence definitions | `resources/evidence_rules.md` | 7-rank evidence hierarchy and 5-condition causation criteria |
 | diagnostician needs methodology | `resources/diagnosis_method.md` | 6-stage diagnostic methodology with statistical thresholds |
@@ -212,312 +212,472 @@ Detailed frameworks — load only when an agent's instructions tell you to.
 
 **Do NOT load everything upfront.** Detailed frameworks (Level 3) are only needed when an agent explicitly references them. Agents (Level 2) are self-contained.
 
-
 ---
 
-## Execution Flow (5 Phases)
+## Execution Flow
 
 ```
-Phase 1: BOOTSTRAP (主 Agent, ~2 min)
-  └─ Setup + Inspect + Clarify merged
-       │
-       ▼
-Phase 2: UNDERSTAND (并行 2 子 Agent, ~5 min)
-  ├─ context-builder   → ontology + RAG + 知识
-  └─ data-preprocessor → 清洗 + 特征 + 稳态
-       │
-       (主 Agent 汇合: ontology-guided analysis selection)
-       ▼
-Phase 3: ANALYZE (data-processor, ~8 min)
-  └─ 统计分析 + 可视化 + VLM 视觉分析 + data_analysis_conclusion.json (handoff)
-       │
-       ▼
-Phase 4: DIAGNOSE (diagnostician, ~7 min)
-  └─ 信任 handoff; 竞争假说 + 物理推理 + 证据融合
-       │
-       ▼
-Phase 5: DELIVER + AUDIT (3 子 Agent 并行, ~8 min)
-  ├─ judge (7 项评分)
-  ├─ reporter (report.md)
-  └─ html-visualizer (HTML)
-       │ [judge 完成]
-       ▼
-       report-reviewer (物理真相审计 + raw data spot-check)
-       html-reviewer (HTML 审校)
-       │
-       ▼
-       Finalize: evidence closure + artifact check
+Step 0: Setup ──► Step 1: Inspect
+                         │
+                         ▼
+                    Step 2: context-builder (RAG + Ontology + Deep Mapping)
+                         │
+                         ▼
+                    Step 2.5: Clarify
+                         │
+                         ▼
+                    Step 3: data-processor (Ontology-Guided Analysis)
+                         │
+                         ▼
+                    Step 4: diagnostician (Physics-Based Competing Hypotheses)
+                         │
+              ┌──────────▼──────────┐
+              │ Step 5a: judge       │◄── repair max 3 ─┐
+              │ Step 5b: pre-audit   │                   │
+              │ run in parallel      │                   │
+              └──────────┬──────────┘                   │
+                         │ pass                         │
+                         ▼                              │
+                   Step 6: reporter                     │
+                         │                              │
+                         ▼                              │
+                   ┌─────▼──────┐                       │
+                   │ Step 7:    │── re-diagnose ────────┘
+                   │ report-reviewer
+                   └─────┬──────┘
+                         │ ENDORSED
+                         ▼
+                   Step 8: html-visualizer
+                         │
+                         ▼
+                   Step 8.5: html-reviewer
+                         │ PASS
+                         ▼
+                   Step 9: Finalize
 ```
 
 ### 🔴 Auto-Build HTML（非交互强制执行）
 
-当 Phase 4 完成（4 个诊断产物 schema-valid）后，主 Agent **必须立即、自动、连续地**并行启动 judge + reporter + html-visualizer，**全程不得向用户发出"是否继续？"之类的确认提问**。
+当 Step 7 `report-reviewer` 给出 `ENDORSED`（CP-8 通过）后，主 agent **必须立即、自动、连续地**执行 Step 8 → Step 8.5 → Step 9，**全程不得向用户发出"是否继续构建 HTML？"之类的确认提问**。HTML 可视化是管线的强制收尾环节，与 Step 0–7 一样属于自动执行，不是需要用户逐节点点头的可选步骤。
 
-**唯一允许跳过 HTML 的方式**（必须前置声明，不得临时询问）：①会话开始时用户已明确声明"不要 HTML"/"只要 report.md"；②或 `00_input/html_opt_out` 标记文件在 HTML 启动前已存在 — `touch "$RUN_DIR/00_input/html_opt_out"`。二者均不满足 → **无条件自动构建**。
+**唯一允许跳过 HTML 的方式**（必须前置声明，不得临时询问）：①会话开始时用户已明确声明"不要 HTML"/"只要 report.md"；②或 `00_input/html_opt_out` 标记文件在 Step 8 启动前已存在——落实方式 `touch "$RUN_DIR/00_input/html_opt_out"`（该标记会告诉 `finalize-run-artifacts.mjs` 跳过 HTML 交付验证）。二者均不满足时 → **无条件自动构建**。
 
-**HTML 必须由 `html-visualizer` 子 Agent 生成，禁止主 Agent 在主上下文中拼页面（红灯动作 #1）。**
+**这一步必须通过专用子 Agent `html-visualizer` 实现，不允许主诊断 agent 在主上下文中直接拼页面。**
+
+推荐调用形式：
+
+```javascript
+// Step 8: HTML 可视化构建
+Agent({
+  subagent_type: "html-visualizer",
+  description: "Step 8: 生成诊断结果的前端 HTML 可视化讲解页面",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+VISUAL_MODE=story
+
+Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol.`,
+  run_in_background: true
+})
+```
+
+`html-visualizer` 完成后，再启动 `html-reviewer` 审校页面：
+
+```javascript
+// Step 8.5: HTML 页面审校
+Agent({
+  subagent_type: "html-reviewer",
+  description: "Step 8.5: 审核 HTML 可视化页面是否清楚、完整、能支撑结论",
+  permissionMode: "bypassPermissions",
+  prompt: `RUN_DIR=${RUN_DIR}
+SKILL_PATH=${SKILL_PATH}
+OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
+AUDIENCE=mixed
+
+Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the complete review protocol.`,
+  run_in_background: true
+})
+```
+
+只有当 `diagnostic-report.html` 生成完成，且 `html-reviewer` 给出 `pass`，且页面内对 ECharts / Three.js / OrbitControls 的加载状态与初始化状态有明确自检与降级说明时，Step 8 才算完整。
+
+**Default execution mode: `ontology_first`.** Step 2 completes before Step 3's Phase 0.4 — the ontology model tells you which parameter groups are physically meaningful, which pairs to test, and which to prune before statistics wastes degrees of freedom on meaningless pairs.
+
+### 🛑 Formal Checkpoints
+
+以下检查点是诊断管线的**机器验证门**（非人工暂停点）——条件满足即自动放行进入下一步，条件不满足则触发自动修复或回退，**全程不需人工干预**。每个 CP 都有精确 bash 验证命令。
+
+| 🛑 Checkpoint | 位置 | 验证命令 | 不满足时 |
+|:------------|------|---------|---------|
+| **CP-1: Data Readiness** | Step 1→2 | `test -f "$RUN_DIR/00_input/input_manifest.json" && test -f "$RUN_DIR/00_input/user_context.json" && test -f "$RUN_DIR/00_input/run_config.json"` | 回 Step 0 补全 |
+| **CP-2: Ontology Gate** | Step 2→2.5 | `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json" && test "$(wc -c < "$RUN_DIR/01_ontology/ontology.json")" -ge 1024` | 重新启动 context-builder Agent |
+| **CP-3: Clarification Gate** | Step 2.5→3 | `grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' "$RUN_DIR/01_ontology/clarification_needed.json"` | 如有 unresolved→按 interaction_mode 处理 (auto=自行推断, interactive=向用户提问) |
+| **CP-4: Data Processor Handoff** | Step 3→4 | `test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && node -e "JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); var p=JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); process.exit(p.plots&&p.plots.length>0?0:1)"` | 重新启动 data-processor Agent |
+| **CP-5: Diagnostician Quality** | Step 4→5 | `for f in diagnosis evidence confidence reasoning_chain; do node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/${f}_schema.json" "$RUN_DIR/04_diagnostics/${f}.json" || exit 1; done && node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"` | 修复诊断产物 |
+| **CP-6: Dual Gate** | Step 5→6 | `test -f "$RUN_DIR/05_review/judge_repair_summary.json" && grep -qv 'FATAL' "$RUN_DIR/05_review/optimizer_preflight.md"` | 继续修复（直到 ≥90 或 3 轮耗尽转 best-effort；二者都放行进 Step 6）|
+| **CP-7: Report Gate** | Step 6→7 | `test -f "$RUN_DIR/report.md" && test -f "$RUN_DIR/run_summary.json"` | 重新启动 reporter Agent |
+| **CP-8: Audit Gate** | Step 7→8 | `test -f "$RUN_DIR/optimizer.md" && grep -q 'ENDORSED' "$RUN_DIR/optimizer.md"` | CONDITIONAL/REJECTED → 修复循环（与 Step 7 动作表一致；CONDITIONAL 不直接进 Step 8） |
+| **CP-9: HTML Delivery** | Step 8.5 | `test -f "$RUN_DIR/diagnostic-report.html" && test "$(wc -c < "$RUN_DIR/diagnostic-report.html")" -ge 5120 && test -f "$RUN_DIR/05_review/html_review.json" && grep -q '"verdict" *: *"pass"' "$RUN_DIR/05_review/html_review.json"` | 回到 html-visualizer 修订 |
 
 ---
 
 ## Pipeline Governance
 
+These rules ensure every run produces trustworthy, auditable diagnoses. Full implementation details in `pipeline-execution.md`.
+
 ### Execution Discipline
 
-- 🔴 **默认全自动 (FULL-AUTO)**：`interaction_mode` 默认 `auto`，5 阶段连续执行到 `report.md` + `diagnostic-report.html` + `evidence_closure_report.json` 全部产出，**中间零人工干预**。**仅用户显式指令**（interactive 模式 / 指定跳过某步 / `00_input/html_opt_out`）才偏离。
-- Execute phases in order. Never skip, reorder, or silently omit. If a step does not apply, record `not_applicable_reason` in the relevant artifact.
-- **Phase 2 并行**：context-builder 和 data-preprocessor 互不依赖，并行启动；主 Agent 等两者完成后做 ontology-guided analysis selection。
-- **Phase 5 并行**：judge / reporter / html-visualizer 并行启动（消费同一份 Phase 4 产物）；report-reviewer 必须等 judge 完成后启动。
-- **Agent 自治 **：每个子 Agent 对自己的输出验证负责（schema validate + quality check）。**删除了原 9 个 CP 检查点** — 主 Agent 不再逐项核查子 Agent 输出，而是依赖 `artifact-check.mjs` 作为权威结束门。
+- 🔴 **默认全自动 (FULL-AUTO)**：`interaction_mode` 默认 `auto`（`setup.mjs` 已内置 + schema 默认值），9 步连续执行到 `report.md` + `diagnostic-report.html` + 证据闭环报告全部产出，**中间零人工干预**。所有 CP 门机器自动验证；Judge best-of-3（§Step 5）保证收敛；HTML 自动构建（§Auto-Build HTML）保证交付。**仅用户显式指令**（interactive 模式 / 指定跳过某步 / `00_input/html_opt_out`）才偏离。
+- Execute steps in order. Never skip, reorder, or silently omit a step.
+- If a step does not apply, record `not_applicable_reason` in the relevant artifact — never silently bypass.
+- **`ontology_first` mode**: Step 2 completes before Step 3's Phase 0.4 runs. Pre-ontology work is limited to data conversion, preprocessing, and quality profiling.
+- Steps 5a (judge) and 5b (pre-audit) are the only parallel steps — both consume the same diagnosis artifacts. All other steps are serial.
+- 🔴 **HTML 自动构建（非交互）**：见 §Auto-Build HTML —— CP-8 `ENDORSED` 后无条件自动执行 Step 8→8.5→9，禁止临时询问；仅前置 `00_input/html_opt_out` 可跳过。
 
 ### Repair Loops
 
-- **Judge best-of-3（保证交付）**：最多 3 轮 repair，每轮追最高分；`≥90` 立即 break；`<90` 取 3 轮内最高分诊断（`best_round_*` 快照），**永远产出 report + HTML**，不 halt。
+- **Judge best-of-3（保证交付）**：最多 3 轮 repair，每轮追最高分；`≥90` 立即 break 直接构建 HTML；`<90` 取 3 轮内最高分诊断（`best_round_*` 快照），**永远产出 report + HTML**，不 halt。详见 §Step 5 Best-of-Judge Protocol。
 - Reviewer → Diagnostician (full D→J→R→R cycle): max 2 cycles.
-- **Global cap: total re-diagnosis ≤ 5.** Counter persists in `.pipeline_events.jsonl` via `repair_spawn` events. Before any repair loop, count existing `repair_spawn` entries to restore counter — do not rely on in-memory state.
+- **Global cap: total re-diagnosis ≤ 5.** Counter persists in `.pipeline_events.jsonl` via `repair_spawn` events.
+- See `pipeline-execution.md` §Repair Loop Protocol for full procedures.
+
+### 🛑 Agent Runtime Failure Recovery
+
+Agent execution 失败不是异常——是管线运行中的常态。每次启动子 Agent 后必须对以下场景做显式恢复：
+
+| 触发条件 | 检测方式 | 恢复动作 |
+|---------|---------|---------|
+| RAG 引擎不可用 (localhost:8765 无响应) | `curl -s http://localhost:8765/docs` 失败或 Step 2 context-builder 报告 `RAG_UNAVAILABLE` | 继续执行——context-builder 使用 `resources/parameter_to_physics.json` + 网络搜索作为知识源。ontology.json 仍然可以构建完整，只是缺少特定产线的检索知识 |
+| uv Python venv 创建失败 | `uv_env_setup.mjs` 返回非零退出码或 venv 目录不存在 | 检查系统是否已安装 uv (`which uv`)。若无→安装 uv (`curl -LsSf https://astral.sh/uv/install.sh \| sh`)。若已安装 uv 但失败→降级使用系统 Python 并 pip install requirements.txt |
+| 输入数据超大 (>500MB CSV/XLSX) | `inspect.mjs` 超时 > 300s 或系统内存不足 | 运行 `file_inspect.py` 做采样解析: `python scripts/file_inspect.py --sample 50000 <data_path>`。对超大文件只读取前 5 万行 + 均匀采样 5 万行做特征分析。内存不足时加 `--low-memory` 标识 |
+| Agent 超时 (stall > 600s) | 系统返回 `Agent stalled` 通知 | 检查产物文件是否部分生成。若有可用输出→继续下一步。若无任何输出→等待 60s 后重试 1 次；仍失败→标记 `[AGENT_TIMEOUT]` 并跳过该步骤 |
+| API 连接断开 (`socket connection closed`) | 系统返回 `API Error` 通知 | 等待 30s 后重启同一 Agent，传递相同的 prompt。连续 2 次失败→标记 `[API_ERROR]` 并降级到本地脚本执行 |
+| 产物文件缺失 | 每步完成后检查 Step 表格中的 expected outputs | 若 ontology.json 缺失→主 agent 用 `resources/parameter_to_physics.json` 构建最小有效本体。若 diagnosis.json 缺失→标记 `[DIAGNOSIS_FAILED]` 并写入失败报告 |
+| Schema 验证失败 | 运行 `validate.mjs` 返回错误 | 将 schema 错误列表追加到 Agent 提示词中，重新启动 1 次。仍失败→标记 `[SCHEMA_FAIL]` 并记录到 `.pipeline_events.jsonl` |
+| 图片生成失败 (PNG 缺失) | plot_manifest.json 中 plots 数组为空或不存在 | **先按 Phase 2.2.5 + Phase 5.9 修数据重画**（string-type 重定型 / raw 回退）。仍失败→`image_captions.json` 作为 L4 文本回退（非 VLM 直读），`visual_analysis.json` 标 `observation_mode=metadata_backed_inference` + 记录 `repair_attempts`（须满足三准入条件，非静默跳过） |
+| HTML 可视化失败 | `diagnostic-report.html` 不存在或 html-reviewer 未通过 | 运行 `diagnostic-html-visualizer` skill 重新生成。连续 2 次失败→**仅交付 `report.md` + 在 `evidence_closure_report.json` 标注 `HTML_DELIVERY_FAILED`**（禁止主 agent 自己拼 HTML —— 那是红灯动作 #1） |
+| uv venv 中 Python 模块导入失败 (`ModuleNotFoundError`) | data-processor 报告 Python 脚本执行错误 | 运行 `node "$SKILL_PATH/scripts/uv_env_setup.mjs"` 重建 venv。仍失败→检查 `pyproject.toml` 依赖声明是否完整，缺失依赖追加后重装 |
+
+**深层兜底协议**：上表中任一"恢复动作"执行后若**仍失败**，必须执行以下收口流程，不得静默继续或无限重试：
+1. 记录 `[RECOVERY_FAILED]` 事件到 `.pipeline_events.jsonl`
+2. 将当前可用产物（即使是部分产物）写入对应目录，标注 `_partial` 后缀
+3. 向用户显式报告：哪个 Agent、哪个场景、一线修复是什么、为什么失败、已有哪些产出、缺失哪些产出
+4. 用户可以决定「跳过该步骤继续」或「终止运行」
+5. 若用户选择跳过，后续步骤在该产物缺失的情况下运行，相关 Agent 按各自 fallback 规则处理缺失输入
 
 ### Anti-Oscillation Rule
 
 Before re-spawning the diagnostician, compute the repair delta:
-1. Compare repair instructions against the previous round: if substantively identical (>70% issue-type overlap) → repair oscillation.
+
+1. Compare repair instructions against the previous round: if substantively identical (>70% issue-type overlap in `.pipeline_events.jsonl`) → repair oscillation.
 2. On second oscillation (third repair with same issues): **halt repairs**, mark `COMPETING_SET — repair oscillation`, confidence ceiling ≤ 50. Document in `reasoning_chain.json` R8.
 
-### Quality Gates (权威结束门 — 4 项)
+### Quality Gates
+
+All must pass for a run to be considered complete:
 
 | Gate | Requirement | Enforced By |
 |------|-------------|-------------|
-| **Judge Gate** | `verdict=="pass"` ∧ `overall_score>=90`，**或** `judge_repair_summary.json` 显示 3 轮耗尽（best-effort，标 `[BEST_EFFORT]`，confidence ≤70）| `artifact-check.mjs` |
+| **Judge Gate** | `verdict=="pass"` ∧ `overall_score>=90`，**或** `judge_repair_summary.json` 显示 3 轮耗尽（best-effort，标 `[BEST_EFFORT]`，confidence ≤70）| `reporter` launch; `artifact-check.mjs` |
 | **Execution Proof** | `.pipeline_events.jsonl` valid per `pipeline-log-check.mjs` | `artifact-check.mjs` |
 | **Evidence Closure** | Process + dual-drive + ontology interpretation all present | `evidence-closure-check.mjs` |
-| **HTML Delivery** | `diagnostic-report.html` ≥ 5120 bytes ∧ `html_review.json` verdict=pass (除非 opt-out) | `artifact-check.mjs` |
+| **Engineering Acceptance** | All mandatory artifacts + `run_completed` event | `artifact-check.mjs` per `engineering_delivery_contract.md` |
+| **Optimizer Completeness** | `optimizer.md` with all 4 standard sections | `artifact-check.mjs` |
+| **HTML Delivery** | `diagnostic-report.html` present + `html-reviewer` passed | `artifact-check.mjs` |
 
-**Judge-gated reporting rule**: Reporter launch requires EITHER (`verdict == "pass"` ∧ `overall_score >= 90`) OR a `judge_repair_summary.json` proving 3 repair rounds exhausted.
+**Judge-gated reporting rule**: Reporter launch requires EITHER (`verdict == "pass"` ∧ `overall_score >= 90`) OR a `judge_repair_summary.json` proving 3 repair rounds exhausted (best-effort path — report must carry `[BEST_EFFORT]` + confidence ≤70). `append-pipeline-event.mjs` enforces both paths. If neither condition holds, the only valid next action is repair/rejudge — not manual report writing.
 
 ### Stability & Reproducibility
 
-Final diagnosis must derive from deterministic artifacts. Unexplained primary-finding drift or confidence shifts >10 points between repeated runs is a Judge blocking issue. Confidence must be reproducible from `confidence.adjustment_log`, evidence ranks, and documented ceilings.
+Final diagnosis must derive from deterministic artifacts (`data_analysis_conclusion.json`, `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`). Unexplained primary-finding drift or confidence shifts >10 points between repeated runs is a Judge blocking issue. Confidence must be reproducible from `confidence.adjustment_log`, evidence ranks, and documented ceilings.
 
 ### 🛑 Path Stability Rules (跨环境安全)
 
+路径不一致是管线失败的最常见根因。以下规则必须在每一步强制执行：
+
 | 规则 | 说明 |
 |------|------|
-| **绝对路径强制** | 所有传给子 Agent 的路径变量 (`SKILL_PATH`, `RUN_DIR`, `DATA_PATH`, `OUTPUT_HTML`) 必须使用绝对路径 |
-| **Worktree 安全** | worktree 中 `SKILL_PATH` 必须指向主仓库的 skill 目录，而非 worktree 副本 |
-| **空格安全** | 所有路径变量在 bash 中加双引号: `"$SKILL_PATH/scripts/..."` |
-| **Python 路径锁定** | 所有 Python 脚本通过 `"$PYTHON_BIN"` 执行（Phase 1 锁定）|
-| **产物路径一致性** | 子 Agent 的 `RUN_DIR` 必须与主管线创建的 `RUN_DIR` 完全一致 |
-
-### 🛑 Agent Runtime Failure Recovery
-
-Agent 执行失败是常态。每次启动子 Agent 后必须对以下场景做显式恢复：
-
-| 触发条件 | 检测方式 | 恢复动作 |
-|---------|---------|---------|
-| RAG 引擎不可用 (localhost:8765 无响应) | `curl -s http://localhost:8765/docs` 失败或 context-builder 报告 `RAG_UNAVAILABLE` | 继续执行 — context-builder 用 `resources/parameter_to_physics.json` + 网络搜索。ontology.json 仍可构建 |
-| uv Python venv 创建失败 | `uv_env_setup.mjs` 返回非零退出码 | 检查 `which uv`；无→安装 uv；已安装但失败→降级到系统 Python + `pip install requirements.txt` |
-| 输入数据超大 (>500MB) | `inspect.mjs` 超时 > 300s | 运行 `file_inspect.py --sample 50000 <data_path>`，前 5 万行 + 均匀采样 5 万行做特征分析 |
-| Agent 超时 (stall > 600s) | 系统返回 `Agent stalled` | 检查部分产物；有可用输出→继续；无→等待 60s 后重试 1 次；仍失败→标记 `[AGENT_TIMEOUT]` |
-| API 连接断开 | 系统返回 `API Error` | 等待 30s 后重启同一 Agent；连续 2 次失败→标记 `[API_ERROR]` 并降级到本地脚本 |
-| 产物文件缺失 | 每阶段完成后检查 expected outputs | ontology.json 缺失→主 Agent 用 `parameter_to_physics.json` 构建最小有效本体；diagnosis.json 缺失→标记 `[DIAGNOSIS_FAILED]` |
-| Schema 验证失败 | `validate.mjs` 返回错误 | 将 schema 错误列表追加到 Agent 提示词，重启 1 次；仍失败→标记 `[SCHEMA_FAIL]` |
-| 图片生成失败 (PNG 缺失) | `plot_verification.py` 失败 | **先按 cleaning_integrity_check.py + 修数据重画**（string-type 重定型 / raw 回退）；仍失败→`metadata_backed_inference` 须满足三准入条件（genuine 无数值结构 + 显式 reason + 非空 repair_attempts 链） |
-| HTML 可视化失败 | HTML 不存在或 html-reviewer 未通过 | 重跑 `html-visualizer`；连续 2 次失败→仅交付 `report.md` + 标注 `HTML_DELIVERY_FAILED`（**禁止主 Agent 自己拼 HTML**）|
-| Python 模块导入失败 | data-processor 报告 ModuleNotFoundError | 重跑 `uv_env_setup.mjs`；仍失败→检查 `pyproject.toml` 依赖完整性 |
-
-**深层兜底**：上表恢复后仍失败 → 记录 `[RECOVERY_FAILED]` 事件 + 写部分产物（`_partial` 后缀）+ 向用户显式报告 + 用户决定跳过/终止。
+| **绝对路径强制** | 所有传给子 Agent 的路径变量 (`SKILL_PATH`, `RUN_DIR`, `DATA_PATH`, `OUTPUT_HTML`) 必须使用绝对路径，不得使用 `./` 或 `~/` 相对路径 |
+| **Worktree 安全** | 子 Agent 启动在 worktree 中时，`SKILL_PATH` 必须指向**主仓库的 skill 目录**而非 worktree 的副本 — worktree 可能不含 `.claude/skills/` 子目录 |
+| **空格安全** | 所有路径变量在 bash 中使用时必须加双引号: `"$SKILL_PATH/scripts/..."` |
+| **Python 路径锁定** | 所有 Python 脚本通过 `"$PYTHON_BIN"` 执行（Step 0 锁定），不允许裸 `python3` 调用 |
+| **产物路径一致性** | 子 Agent 的 `RUN_DIR` 必须与主管线创建的 `RUN_DIR` 完全一致 — 用 `RUN_DIR` 而非硬编码路径读写产物 |
 
 ---
 
-## Phase-by-Phase Protocol
+## Step-by-Step Protocol
 
-### Phase 1: Bootstrap (Main Agent, ~2 min)
+### Step 0: Setup (Main Agent)
 
-合并原 Step 0 + Step 1 + Step 2.5。所有路径变量使用**绝对路径**。
+**路径解析规则（跨平台安全）**：所有路径变量必须使用**绝对路径**。若在 git worktree 中运行，`SKILL_PATH` 必须指向主仓库的 skill 目录而非 worktree 符号链接。
 
 ```bash
-# 1. Resolve SKILL_PATH (absolute, cross-platform safe)
-SKILL_PATH="<absolute path to .claude/skills/industrial-deep-diagnostic>"
+# 1. Resolve SKILL_PATH to absolute (cross-platform safe)
+SKILL_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # 或用已知绝对路径
+
+# 2. Resolve project root
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 
-# 2. Validate paths
-[ -f "$SKILL_PATH/scripts/setup.mjs" ] || { echo "❌ setup.mjs not found" >&2; exit 1; }
+# 3. Validate paths exist
+if [ ! -f "$SKILL_PATH/scripts/setup.mjs" ]; then
+  echo "❌ setup.mjs not found at SKILL_PATH=$SKILL_PATH" >&2
+  echo "Verify SKILL_PATH points to the .claude/skills/industrial-deep-diagnostic/ directory"
+  exit 1
+fi
 
-# 3. Create run directory
+# 4. Create run directory
+#    setup.mjs prints a JSON object {"run_dir": "...", "manifest": {...}}; parse out run_dir.
 SETUP_OUT=$(node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs")
 RUN_DIR=$(echo "$SETUP_OUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).run_dir||"")}catch(e){}})')
-[ -d "$RUN_DIR" ] || { echo "❌ setup failed" >&2; echo "$SETUP_OUT" >&2; exit 1; }
+if [ -z "$RUN_DIR" ] || [ ! -d "$RUN_DIR" ]; then
+  echo "❌ setup.mjs failed to create run directory" >&2
+  echo "$SETUP_OUT" >&2
+  exit 1
+fi
+echo "✅ Run directory: $RUN_DIR"
 
-# 4. Setup Python venv
+# 5. Setup Python venv
 node "$SKILL_PATH/scripts/uv_env_setup.mjs"
 PYTHON_BIN="$SKILL_PATH/scripts/.venv/bin/python"
-[ -f "$PYTHON_BIN" ] || PYTHON_BIN="python3"
-
-# 5. Inspect data (merged Step 1)
-node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
-# → produces 00_input/input_manifest.json, 00_input/user_context.json, 00_input/run_config.json
-
-# 6. Copy input data into 00_input/ and resolve clarification in auto mode (merged Step 2.5)
-#    auto mode: infer unknown params via resources/physics_inference_framework.md L1-L5
-#    Mark "clarification_status": "AUTO_RESOLVED" in 01_ontology/clarification_needed.json
-#    (interactive mode: ask up to 4 questions; minimal: ask ≤2 critical only)
+if [ ! -f "$PYTHON_BIN" ]; then
+  echo "⚠️ Python venv not found — falling back to system python3" >&2
+  PYTHON_BIN="python3"
+fi
+echo "✅ Python: $PYTHON_BIN"
 ```
 
-**Outputs**: `00_input/input_manifest.json`, `user_context.json`, `run_config.json`, `01_ontology/clarification_needed.json`. Store `SKILL_PATH`, `RUN_DIR`, `PYTHON_BIN` as session variables.
+Copy input data files into `00_input/`. Update `00_input/run_config.json` with `data_path` (absolute path), user objective, and constraints. Store `SKILL_PATH`, `RUN_DIR`, and `PYTHON_BIN` as session variables — every subsequent step references them. **All Python invocations MUST use `"$PYTHON_BIN"`, never bare `python3`.**
 
-### Phase 2: Understand (Parallel 2 Sub-Agents, ~5 min)
+### Step 1: Inspect Data (Main Agent)
 
-并行启动两个子 Agent — 互不依赖：
+```bash
+node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
+```
+
+| Mode | Behavior |
+|------|----------|
+| **auto** | Zero user questions. Infer everything from column patterns and value ranges. |
+| **interactive** | Ask up to 4 clarification questions (aligned with Step 2.5 gate: max 4 per round). |
+| **minimal** | Ask 1-2 essential questions only. |
+
+Produce process-agnostic characterization: column patterns → physical quantity hypotheses, value range confirmation, statistical signature classification (trending/cyclic/step-change/stationary), categorical columns for stratification, time column detection.
+
+Save `input_manifest.json` and `user_context.json` to `00_input/`.
+
+### Step 2: Context Build (Sub-Agent: `context-builder`)
+
+Launch the sub-agent. Do NOT read its full protocol in the main agent.
 
 ```javascript
-// 2a: context-builder
 Agent({
   subagent_type: "context-builder",
-  description: "Phase 2a: 构建领域本体 — RAG检索+本体+知识提取",
+  description: "Step 2: 构建领域本体 — RAG检索+网络搜索+本体构建",
   permissionMode: "bypassPermissions",
-  run_in_background: true,
   prompt: `DATA_PATH=${DATA_PATH}
 RUN_DIR=${RUN_DIR}
+REFERENCE_DIR=${REFERENCE_DIR}
+PROCESS_DESCRIPTION=${PROCESS_DESCRIPTION}
+USER_OBJECTIVE=${USER_OBJECTIVE}
 SKILL_PATH=${SKILL_PATH}
 INTERACTION_MODE=auto
-Read "${SKILL_PATH}/agents/context-builder.md" and execute the complete protocol.`
-})
 
-// 2b: data-preprocessor (Phase 1 ONLY — preprocessing, no ontology needed)
-Agent({
-  subagent_type: "data-processor",
-  description: "Phase 2b: 数据预处理 — 清洗+特征摘要+稳态检测",
-  permissionMode: "bypassPermissions",
-  run_in_background: true,
-  prompt: `DATA_PATH=${DATA_PATH}
-RUN_DIR=${RUN_DIR}
-SKILL_PATH=${SKILL_PATH}
-PHASE_LIMIT=preprocess
-Execute ONLY Phase 1 (data preprocessing) of agents/data-processor.md:
-  convert raw→JSON, dp_toolkit preprocess, cleaning_integrity_check.py, production_regime_detector.py, feature_summary (basic stats only).
-Do NOT execute Phase 0 (data understanding — needs ontology which is being built in parallel).
-Do NOT run statistical analysis, visualization, VLM, or handoff yet.
-Stop after feature_summary.json + production_regime_filter.json + cleaning_integrity are written.`
+Read "$SKILL_PATH/agents/context-builder.md" and execute the complete protocol. Validate ontology_schema before completion.`,
+  run_in_background: true
 })
 ```
 
-**等待**: 两个 Agent 都完成。
+**Completion Verification Checklist (🛑 CP-2)**:
+- [ ] `01_ontology/ontology.json` ≥ 1KB
+- [ ] `01_ontology/ontology.json` passes schema validation: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
+- [ ] `00_input/rag_deep_understanding.json` exists
+- [ ] `00_input/extracted_knowledge.json` exists
+- [ ] If any missing → re-launch context-builder Agent (not main agent manual build)
 
-**主 Agent 汇合** (ontology-guided analysis selection):
-1. Read `01_ontology/ontology.json` → 确定参数物理分组
-2. Read `02_processed/feature_summary.json` → 确定哪些参数值得分析
-3. Write `02_processed/analysis_parameter_selection.json` (Phase 0.4 tier assignments)
+**Outputs**: `01_ontology/ontology.json`, `schema.json`, `00_input/extracted_knowledge.json`, `rag_deep_understanding.json`, `clarification_needed.json`
 
-### Phase 3: Analyze (Sub-Agent: `data-processor`, ~8 min)
+### Step 2.5: Clarification Gate (Main Agent)
 
-启动 data-processor（执行剩余 phase — 统计分析 + 可视化 + VLM）：
+Check `clarification_needed.json`. Behavior depends on `interaction_mode` (defaults to `auto`):
 
-```javascript
-Agent({
-  subagent_type: "data-processor",
-  description: "Phase 3: 统计分析 + 可视化 + VLM 视觉分析",
-  permissionMode: "bypassPermissions",
-  run_in_background: true,
-  prompt: `DATA_PATH=${DATA_PATH}
-RUN_DIR=${RUN_DIR}
-SKILL_PATH=${SKILL_PATH}
-PHASE_LIMIT=analyze
-Execute Phase 0 (data understanding — ontology.json now exists) + Phase 2 (statistical pipeline) + Phase 3 (visualization) + Phase 4 (handoff) of agents/data-processor.md.
-ontology.json + analysis_parameter_selection.json already exist (Phase 2 main-agent merge wrote selection).
-Phase 1 products (cleaned_data, feature_summary, production_regime_filter, cleaning_integrity) already exist from Phase 2b.
-MUST run plot_verification.py before VLM delegation.
-MUST write data_analysis_conclusion.json (schema) including param_ambiguity block.`
-})
-```
+- **auto**: Infer all unknown parameters using `resources/physics_inference_framework.md` L1-L5. Mark `"auto_inferred": true`. Do NOT ask the user.
+- **interactive**: Group related parameters, ask up to 4 questions per round with best-guess suggestions.
+- **minimal**: Ask only CRITICAL parameters (max 2). Auto-infer the rest.
 
-**关键编排约束**：
-- **v6.5 稳态过滤**：Phase 2 统计分析前用 `production_regime_filter.json` 过滤 startup/shutdown/transition
-- **v6.4 时滞补偿**：process→quality 有物理延迟时跑 `time_lag_compensator.mjs`
-- **v6.6 批次完整性**：batch_id 列存在时跑 `cleaning_integrity_check.py` 检测 split/duplicate
-- **v6.7 留一法**：|r|≥0.3 相关必须过 leave-one-out
-- **handoff**：data_analysis_conclusion.json 必须用 schema（每条 finding 有稳定引用 ID，下游诊断直接读此文件不再重读原始文件）
+**Gate output (MANDATORY for CP-3)**: after resolving, write `"clarification_status": "AUTO_RESOLVED"` (auto mode, or minimal/interactive with all auto-inferred) or `"USER_CONFIRMED"` (interactive/minimal after user answers) into `01_ontology/clarification_needed.json`. CP-3 greps this field — without it the gate fails.
 
-**Before Phase 4**, stabilize outputs:
+See `pipeline-execution.md` §Step 2.5 for full protocol including skip conditions and event logging.
+
+### Step 3: Data Processing + Visualization (Sub-Agent: `data-processor`)
+
+Launch `data-processor` **after** `01_ontology/ontology.json` exists. Tell it to read `agents/data-processor.md`, execute Phase 0-6, use only the uv-managed Python path, and output validated artifacts and charts. VLM visual analysis is now handled by Step 3.5 (independent agent), not by data-processor.
+
+Key orchestration constraints to communicate:
+- **Phase 0.4 gates all analysis** — read ontology before any statistical work
+- **v6.5: Production regime detection runs BEFORE stats** — auto-detect startup/shutdown/steady states via three-algorithm fusion; filter to steady-state only
+- **v6.4: Time-lag compensation runs after feature_summary** — CCF-based optimal lag per parameter pair; raw zero-lag correlations are systematically biased when process→quality has a physical delay
+- **v6.5: Per-product mandatory analysis** — when multi-product data: identify worst product by anomaly rate, isolate steady-state rows, compare within-product vs cross-product correlations (Simpson's Paradox is the #1 threat)
+- **v6.6: Batch identity integrity** — when a batch/lot id column exists, MUST verify batch_id uniqueness before analysis; split or duplicate batch records (same batch_id across multiple rows) MUST be merged or explicitly flagged in `duplicate_batch_report.json`. Real failure: an extreme batch split into 2 records (scratch=0 and scratch=2757) was misdiagnosed as an "isolated event" — it was actually within-batch accumulation. Never cite an "isolated batch" pattern without confirming the batch is a single record.
+
+**Before Step 4**, stabilize outputs:
 ```bash
 node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"  # 合并交接字段
+node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
 ```
 
-**Outputs**: `02_processed/` (feature_summary, validate_report, anomaly_report, time_lag_analysis, physics_check, data_analysis_conclusion_v2), `03_figures/*.png` + `plot_manifest.json` + `visual_analysis.json`.
+**Key outputs**: `02_processed/` validated artifacts (including `production_regime_filter.json`, `time_lag_analysis.json`, `data_analysis_conclusion.json`), `03_figures/*.png` + `plot_manifest.json` + `visual_analysis.json`, `analysis_plan.md`
 
-### Phase 4: Diagnose (Sub-Agent: `diagnostician`, ~7 min)
+### Step 3.3: Artifact Integrity Restoration
+
+data-processor 完成后，检查关键文件是否存在。缺失的文件自动生成最小有效版本：
+
+```bash
+node "$SKILL_PATH/scripts/file-integrity-restorer.mjs" "$RUN_DIR" "$SKILL_PATH"
+```
+
+| 缺失文件 | 恢复方式 |
+|---------|---------|
+| scenario_classification.json | 从 ontology.json + feature_summary.json 推断 |
+| anomaly_report.json | 从 validate_report + data_analysis_conclusion 推断 |
+| plot_manifest.json | 从 03_figures/*.png 反推 |
+| image_captions.json | 从 plot_manifest 生成回退 caption |
+
+如果关键文件恢复成功 → 继续 Step 3.5。如果恢复失败 → 记录 `[ARTIFACT_REPAIR_FAILED]` 并继续（不阻塞管线）。
+
+### Step 3.5: VLM Visual Analysis (独立步骤)
+
+VLM 从 Step 3 内部分离为独立步骤。data-processor 不再负责启动 vlm-visual-analyzer。
+
+启动 `vlm-visual-analyzer` 子 Agent：
 
 ```javascript
 Agent({
-  subagent_type: "diagnostician",
-  description: "Phase 4: 物理约束的竞争假说根因诊断",
+  subagent_type: "vlm-visual-analyzer",
+  description: "Step 3.5: VLM 视觉图像分析 — 读取图表 PNG 并覆盖 skeleton",
   permissionMode: "bypassPermissions",
   run_in_background: true,
-  prompt: `DATA_PATH=${DATA_PATH}
-RUN_DIR=${RUN_DIR}
+  prompt: `RUN_DIR=${RUN_DIR}
 SKILL_PATH=${SKILL_PATH}
-REPAIR_INSTRUCTIONS=${REPAIR_INSTRUCTIONS:-}
-Read "${SKILL_PATH}/agents/diagnostician.md" and execute Phase 0-4.
-Trust data_analysis_conclusion.json as primary handoff — read only 3 core files + conditional 3.`
+Read "${SKILL_PATH}/agents/vlm-visual-analyzer.md" and execute the complete protocol.
+MANDATORY: overwrite visual_analysis.json with observation_mode=final_vlm_output and skeleton_overwritten=true.`
 })
 ```
 
-**信任交接**：diagnostician 必读只 3 个文件 — `data_analysis_conclusion.json`, `ontology.json`, `visual_analysis.json`。条件必读 3 个 — `validate_report.json`, `time_lag_analysis.json`, `anomaly_report.json`（仅当 handoff 中某结论需要深入验证时）。
+**等待 VLM 完成后再继续 Step 4**。
 
-**Outputs**: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`. Agent 自验证 schema + 运行 `diagnostic-quality-check.mjs`。
+**VLM 验证门**：
+验证 visual_analysis.json 不再处于 skeleton_pre_vlm：
+```bash
+node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
+```
+| 条件 | 动作 |
+|------|------|
+| skeleton_overwritten=true | 通过 → 进 Step 4 |
+| skeleton_overwritten=false | 重新启动 vlm-visual-analyzer（最多 2 次）|
+| 2 次重试仍 failure | 标记 `[VLM_FAILED]`，继续 Step 4（visual_analysis.json 用 skeleton，不引用 VLM 证据）|
 
-### Phase 5: Deliver + Audit (Parallel 3 Sub-Agents, ~8 min)
+**Outputs**: `03_figures/visual_analysis.json`, `03_figures/image_captions.json`
 
-并行启动 3 个子 Agent — 消费同一份 Phase 4 产物：
+If a valid time column exists, Step 3 is only complete when `plot_manifest.json` contains at least one temporal/aligned/process-health figure. If no valid time column exists, record the reason in `analysis_plan.md` and `data_analysis_conclusion.json`.
 
-```javascript
-// 5a: judge (7 项评分, 从 10 项精简)
-Agent({subagent_type: "judge", run_in_background: true,
-  prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH} DATA_PATH=${DATA_PATH}
-Read "${SKILL_PATH}/agents/judge.md" . Cross-reference audit (4 checks) + 7 criteria scoring.`})
+### Step 4: Diagnostician (Sub-Agent: `diagnostician`)
 
-// 5b: reporter
-Agent({subagent_type: "reporter", run_in_background: true,
-  prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH}
-Read "${SKILL_PATH}/agents/reporter.md". Use visual_analysis.json as primary figure evidence.
-Generate report.md (9-section pyramid) + run_summary.json.`})
+Launch `diagnostician` with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`, and optional `REPAIR_INSTRUCTIONS`. Tell it to read `agents/diagnostician.md`, execute Phase 0-7, and fuse data + ontology + physics + VLM evidence + time-lag analysis.
 
-// 5c: html-visualizer
-Agent({subagent_type: "html-visualizer", run_in_background: true,
-  prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH}
-OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html
-AUDIENCE=mixed VISUAL_MODE=story
-Read "${SKILL_PATH}/agents/html-visualizer.md" and execute the complete protocol.`})
+The diagnostician MUST read `02_processed/time_lag_analysis.json` **if it exists** (produced by Step 3 Phase 2.6 only when a time column exists AND process+inspection data are both present — `time_lag_analysis.applicable` reports this). Every surviving hypothesis must include `ontology_data_physics_proof`, `physical_logic_chain`, and `falsification_conditions`.
+
+**Outputs**: `04_diagnostics/diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json`
+
+### Schema Validation Loop（强制回环验证）
+
+每个诊断产物写入后必须立即验证，不通过自动重跑：
+
+```bash
+# 收集 schema 验证结果
+VALIDATION_RESULT=$(node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" diagnostician)
+VALIDATION_STATUS=$(echo "$VALIDATION_RESULT" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).status)}catch(e){console.log('FAIL')}})")
+if [ "$VALIDATION_STATUS" != "PASS" ]; then
+  echo "❌ Schema validation failed for diagnostician outputs"
+  echo "$VALIDATION_RESULT" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',d=>{const r=JSON.parse(s);r.checks.filter(c=>!c.valid).forEach(c=>console.log(c.file+': '+c.errors))})"
+  # 重跑 diagnostician（带 REPAIR_INSTRUCTIONS）
+fi
+
+# 运行诊断质量检查
+node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
 ```
 
-**协调规则**：
-- judge 完成 → 若 `pass` → reporter 的 report.md 直接发布
-- judge 完成 → 若 `fail` → best-of-3 修复（回到 Phase 4）
-- html-visualizer 不受 judge 阻塞（report 最终确认前可生成草稿 HTML）
-- **judge 完成后串行启动**：report-reviewer + html-reviewer
+**Schema-First Writing Protocol** 仍然适用：写前读 schema，一次写入，立即验证。此回环确保任何 schema 不匹配在源头修复。
 
-```javascript
-// 5d (after judge): report-reviewer — 物理真相审计 + raw data spot-check
-Agent({subagent_type: "report-reviewer", run_in_background: true,
-  prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH} DATA_PATH=${DATA_PATH}
-Read "${SKILL_PATH}/agents/report-reviewer.md" . Step 1: raw data spot-check.
-Step 2: physical truth audit. Step 3: cross-agent consistency.`})
+### Step 5: Judge Review (Sub-Agent: `judge`)
 
-// 5e (after html-visualizer): html-reviewer
-Agent({subagent_type: "html-reviewer", run_in_background: true,
-  prompt: `RUN_DIR=${RUN_DIR} SKILL_PATH=${SKILL_PATH}
-OUTPUT_HTML=${RUN_DIR}/diagnostic-report.html AUDIENCE=mixed
-Read "${SKILL_PATH}/agents/html-reviewer.md" and execute the review protocol.`})
+Launch `judge` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it to read `agents/judge.md`, run the full quality gate, use lowercase schema enum values only.
+
+| Verdict | Score | Action |
+|---------|:-----:|--------|
+| `pass` | ≥90, no blocking issues | Proceed to Step 6（不修复，直接走报告→HTML）|
+| `needs_repair` | 70-89 | Re-spawn diagnostician（3 轮内）|
+| `major_issues` | 50-69 | Re-spawn diagnostician（3 轮内）|
+| `fail` | <50 | Re-spawn（3 轮内）；仍 <50 → 用最高分轮 + `[BEST_EFFORT]` |
+
+**Best-of-Judge Protocol（保证交付，永不 halt）**：管线永远收敛到 report + HTML。
+- 每轮 Judge 后，若 `overall_score > best_score`，快照 `04_diagnostics/{diagnosis,evidence,confidence,reasoning_chain}.json` 到 `04_diagnostics/best_round_<N>/`，更新 `best_score`。
+- `overall_score ≥ 90` → break，直接用本轮（不修复）进 Step 6。
+- `< 90` → 最多 3 轮 Judge+repair（repair instructions 来自上一轮 `judge_feedback.json`）。
+- 3 轮后仍 `< 90` → 恢复 `best_round_*` 快照为 canonical 诊断；写 `05_review/judge_repair_summary.json`（`{rounds_attempted, scores[], selected_round, selected_score, converged: false}`）；report 标 `[BEST_EFFORT]`、confidence 上限 ≤70。**继续** Step 6→7→8，不停。
+
+**Hard pass invariant**: `verdict="pass"` is valid only when ALL of these are true: `overall_score >= 90`, `blocking_issues.length == 0`, `reasoning_chain_audit.blocking_issues.length == 0`, `criteria_scores.no_over_claiming.blocking_issues == 0`.
+
+After schema validation, also run `judge-gate-check.mjs`. If it fails, repair Step 4. **Output**: `05_review/judge_feedback.json`
+
+### Step 5b: Pre-Report Physical Audit (Parallel with Judge)
+
+Launch `report-reviewer` with `PRE_REPORT_AUDIT=true` in parallel with Step 5. Must not require `report.md`; writes `05_review/optimizer_preflight.md`. Before Step 6, require both the Judge gate and no blocking physical issues in `optimizer_preflight.md`.
+
+### Step 6: Report Generation (Sub-Agent: `reporter`)
+
+Launch `reporter` with `RUN_DIR` and `SKILL_PATH`. Tell it to read `agents/reporter.md`, use `visual_analysis.json` as primary figure evidence, and generate `report.md` plus schema-valid `run_summary.json`.
+
+Reporter launch is illegal unless the Judge gate has already passed. **Output**: `report.md` (9 节面向决策者的诊断报告 — 金字塔结构: 执行摘要→对齐图核心证据→诊断结论→证据全景→详细推导→推理过程→数据统计→行动方案→局限性), `run_summary.json`
+
+### Step 7: Physical Truth Audit (Sub-Agent: `report-reviewer`)
+
+Launch `report-reviewer` with `RUN_DIR`, `SKILL_PATH`, and `DATA_PATH`. Tell it to read `agents/report-reviewer.md`, verify physics/statistics against raw artifacts, reuse `optimizer_preflight.md` if present, and write `optimizer.md`.
+
+`optimizer.md` must include: scene-specific optimization plan, current problems and opportunities, next-step diagnostic confirmation plan, and action classification (immediate containment / low-risk optimization / controlled experiment / measurement improvement / deferred or unsafe).
+
+| Verdict | Action |
+|---------|--------|
+| ENDORSED | Proceed to Step 8 |
+| CONDITIONAL / REJECTED | Re-spawn diagnostician (max 2 cycles, global cap ≤ 5) |
+
+### Step 8: HTML Visualization (Sub-Agent: `html-visualizer`)
+
+**Pre-HTML artifact verification** — 确认 report 阶段产物完整后再投入 HTML 生成:
+```bash
+node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
+node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-### Phase 6: Finalize (Main Agent, ~1 min)
+If either reports `JUDGE_GATE_NOT_PASSED`, `PIPELINE_LOG_MISSING`, or any critical gap → summarize as blocked/repair-needed run; do not proceed to HTML.
 
+启动 `html-visualizer`（Step 8）与 `html-reviewer`（Step 8.5）的启动模板、opt-out 规则、最终交付要求**统一见 §Auto-Build HTML**——无条件自动构建，禁止临时询问用户。
+
+### Step 8.5: HTML Review Gate (Sub-Agent: `html-reviewer`)
+
+`html-reviewer` 启动模板见 §Auto-Build HTML（自动执行，无需询问）。若给出 blocking issues → 回到 `html-visualizer` 修订后再次审核。🛑 **CP-9: HTML Delivery**：`diagnostic-report.html` 存在且 ≥5120 字节 + `html_review.json` verdict=pass。
+
+### Step 9: Finalize (Main Agent)
+
+Step 8.5 通过后，执行最终证据闭环与权威结束门:
 ```bash
 node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
 node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
-`artifact-check.mjs` 是权威结束门（替代原 9 个 CP）。任一 critical gap → 标记为 blocked/repair-needed run。
+`evidence-closure-check.mjs` 验证纯工艺波动 + 双驱动 + 本体解释三类证据闭环；`artifact-check.mjs` 作为权威结束门，此时必须包含 HTML 交付（除非 opt-out）。任一报告 critical gap → 标记为 blocked/repair-needed run。
 
-**Present to user**: executive summary, diagnosis type (`DETERMINED` / `COMPETING_SET` / `NEEDS_DATA`), confidence, recommendations, optimizer highlights, workspace path, HTML path.
+**Present to user**: executive summary, key findings, diagnosis type (`DETERMINED` / `COMPETING_SET` / `NEEDS_DATA`), confidence, recommendations, optimizer highlights, workspace path, and generated HTML path. Highlight CONDITIONAL/REJECTED concerns.
 
 ---
 
@@ -526,66 +686,76 @@ node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
 Agents communicate ONLY through workspace files — never through the main agent's context:
 
 ```
-Context Builder    ──► 01_ontology/ontology.json, schema.json, rag_deep_understanding.json
-Data Preprocessor  ──► 02_processed/cleaned_data.{csv,json}, feature_summary.json,
-                       production_regime_filter.json, data_quality_report.json (cleaning_integrity)
-Data Processor     ──► 02_processed/data_analysis_conclusion.json (handoff — 单一交接面)
-                   ──► 02_processed/{validate_report, anomaly_report, time_lag_analysis, physics_check}.json
-                   ──► 03_figures/*.png + plot_manifest.json + visual_analysis.json
-Diagnostician      ──► 04_diagnostics/{diagnosis, evidence, confidence, reasoning_chain}.json
-Judge              ──► 05_review/judge_feedback.json (+ best_round snapshots)
-Reporter           ──► report.md, run_summary.json
-Report Reviewer    ──► optimizer.md
-HTML Visualizer    ──► diagnostic-report.html
-HTML Reviewer      ──► 05_review/html_review.json
+Context Builder ──► 01_ontology/ontology.json, schema.json
+                ──► 00_input/extracted_knowledge.json, clarification_needed.json
+                ──► 00_input/rag_deep_understanding.json
+Data Processor  ──► 02_processed/ (universal + scenario-specific analysis)
+                ──► 02_processed/data_analysis_conclusion.json (mandatory handoff)
+                ──► 03_figures/*.png + plot_manifest.json + image_captions.json
+                ──► 03_figures/visual_analysis.json (VLM evidence)
+                ──► 02_processed/analysis_plan.md
+Diagnostician   ──► 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
+Judge           ──► 05_review/judge_feedback.json
+Pre-Audit       ──► 05_review/optimizer_preflight.md
+Reporter        ──► report.md, run_summary.json
+Report Reviewer ──► optimizer.md
+HTML Visualizer ──► diagnostic-report.html
+HTML Reviewer   ──► 05_review/html_review.json
 ```
-
-**Phase 2 + Phase 5 并行** — agent 解耦机制（仅通过文件通信）天然防竞争。
 
 ---
 
 ## Schema-First Writing Protocol
 
-**Before writing any structured file**, read the matching schema first — construct content to the schema, write once, validate immediately.
+**Before writing any structured file**, read the matching schema first — construct content to the schema, write once, validate immediately. This prevents expensive rewrite cycles.
 
-| Phase | File | Schema(s) to Read First |
+| Step | File | Schema(s) to Read First |
 |------|------|-------------------------|
-| Phase 1 | `input_manifest.json`, `run_config.json` | `run_config_schema.json` |
-| Phase 2 | `ontology.json` | `ontology_schema.json` |
-| Phase 3 | `data_analysis_conclusion.json` | **`data_analysis_conclusion_schema.json`** |
-| Phase 3 | `visual_analysis.json` | `visual_analysis_schema.json` |
-| Phase 4 | `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json` | matching schemas |
-| Phase 5 | `judge_feedback.json`, `run_summary.json`, `html_review.json` | matching schemas |
+| Step 2 | `ontology.json` | `ontology_schema.json` |
+| Step 3 | `scenario_classification.json`, `anomaly_report.json`, `data_analysis_conclusion.json` | `scenario_classification_schema.json`, `anomaly_report_schema.json`, `data_analysis_conclusion_schema.json` |
+| Step 3.5 | `visual_analysis.json`, `image_captions.json` | `visual_analysis_schema.json`, `image_captions_schema.json` |
+| Step 4 | `diagnosis.json`, `evidence.json`, `confidence.json`, `reasoning_chain.json` | `diagnosis_schema.json`, `evidence_schema.json`, `confidence_schema.json`, `reasoning_chain_schema.json` |
+| Step 8.5 | `html_review.json` | `html_review_schema.json` |
+| Step 5 | `judge_feedback.json` | `judge_feedback_schema.json` |
+| Step 6 | `run_summary.json` | `run_summary_schema.json` |
 
-**Rule**: Read schema → construct → write once → validate. Never write first and validate after.
+**Rule**: Read schema → construct content → write once → validate. Never write first and validate after.
 
 ---
 
-## Evidence Hierarchy & Anti-Speculation
+## Evidence Hierarchy
 
-(See `resources/evidence_rules.md` for full rules, causation criteria, and language templates.)
+Every non-observation statement must cite its evidence rank. Conclusions are limited by their weakest rank.
 
 | Rank | Source | Label |
 |------|--------|-------|
 | 1 | Direct measurements in data | `[Evidence Rank 1]` |
-| 2 | User-provided documentation | `[Evidence Rank 2]` |
-| 3 | Statistical analysis (validated) | `[Evidence Rank 3]` |
-| 4 | Visual evidence (VLM-extracted) | `[Evidence Rank 4]` |
-| 5 | Established process logic | `[Evidence Rank 5]` |
+| 2 | User-provided documentation (SOPs, manuals) | `[Evidence Rank 2]` |
+| 3 | Statistical analysis (incl. validation report) | `[Evidence Rank 3]` |
+| 4 | Visual evidence from charts | `[Evidence Rank 4]` |
+| 5 | Established process logic / domain knowledge | `[Evidence Rank 5]` |
 | 6 | External web references | `[Evidence Rank 6] [EXTERNAL]` |
 | 7 | Hypotheses (unsupported) | `[Evidence Rank 7]` |
 
-**核心反假相关检查（机器确定性执行，下游信任）：**
-- Lag correlations require time-sorted data
-- Aggregate correlations reverse within subgroups (Simpson) — always check stratified
-- Trending variables share time as confounder — check detrended r
-- Single-batch leverage — |r|≥0.3 MUST pass leave-one-out (|Δr|>0.2 → `leverage_driven`)
-- Unknown parameter meanings → `[PARAM_AMBIGUITY]`
-- Competing hypotheses with identical observables → `COMPETING_SET`, ceiling 65
-- Physics-free correlations → `STATISTICAL_ONLY`, not a diagnosis
-- Duplicate/split batch records — verify batch_id uniqueness
-- RAG knowledge is suggestive, not authoritative
-- Every conclusion needs a falsification condition
+Full causation criteria (5 conditions), confidence scoring, language templates, and validation-adjusted evidence rules: `resources/evidence_rules.md`.
+
+---
+
+## Anti-Speculation Checks
+
+Apply before writing any diagnostic finding:
+
+- **Lag correlations** require time-sorted data — check `sorting_validation.time_sorted` first
+- **Aggregate correlations** can reverse within subgroups — always check stratified correlations
+- **Trending variables** share time as hidden confounder — check detrended r
+- **Single-batch leverage** — any correlation with |r|≥0.3 cited as evidence MUST pass leave-one-out: recompute r dropping each observation/batch; if |Δr|>0.2 the correlation is `leverage_driven` and CANNOT be cited as causal evidence without the robust subsample. Real failure: r=0.40 cited as root cause was driven entirely by one extreme batch (scratch=454); removing it → r=-0.128.
+- **Unknown parameter meanings** → `[PARAM_AMBIGUITY]` — correlation to a label is not correlation to a physical cause
+- **Competing hypotheses** with identical observables are INDISTINGUISHABLE → `COMPETING_SET`, confidence ceiling 65
+- **Physics-free correlations** are not diagnoses — `STATISTICAL_ONLY` is not a root cause
+- **Duplicate / split batch records** can make one batch's within-batch accumulation look like an isolated event or inflate apparent dispersion — verify batch_id uniqueness in cleaning (Phase 2.2.5 `batch_identity_integrity`); never cite an "isolated batch" pattern without confirming the batch resolves to a single record
+- **RAG knowledge is suggestive, not authoritative** — validate every RAG claim against actual data
+- **Confidence, evidence gaps, and assumptions** must always be disclosed
+- **Falsification conditions** must be specified for every conclusion
 
 ---
 
@@ -593,14 +763,14 @@ HTML Reviewer      ──► 05_review/html_review.json
 
 | Command | Action |
 |---------|--------|
-| `/industrial-deep-diagnostic` | Full pipeline (Phases 1-6) |
-| `/industrial-deep-diagnostic analyze` | Skip intake, run from Phase 2 |
+| `/industrial-deep-diagnostic` | Full pipeline (Steps 0-9) |
+| `/industrial-deep-diagnostic analyze` | Skip intake, run from Step 2 |
 | `/industrial-deep-diagnostic review` | Re-run judge on existing results |
 | `/industrial-deep-diagnostic report` | Regenerate report from existing artifacts |
-| `/industrial-deep-diagnostic audit` | Run report-reviewer only |
+| `/industrial-deep-diagnostic audit` | Run report-reviewer only (generates optimizer.md) |
 
 ---
 
 ## Developer QA
 
-For full bash command reference and statistical validation framework, see `pipeline-execution.md`. For implementation details not needed during execution, see project-level `CLAUDE.md`.
+For implementation details not needed during normal execution, use `CLAUDE.md`. For repair-loop details and full bash command reference, use `pipeline-execution.md`.

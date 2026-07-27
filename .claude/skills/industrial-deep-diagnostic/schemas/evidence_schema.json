@@ -8,7 +8,7 @@
     "run_id": {"type": "string"},
     "evidence_inventory": {
       "type": "object",
-      "required": ["visual_evidence", "numerical_evidence"],
+      "required": ["visual_evidence", "numerical_evidence", "validation_evidence"],
       "properties": {
         "visual_evidence": {
           "type": "array",
@@ -81,6 +81,7 @@
               "finding": {"type": "string"},
               "affected_hypotheses": {
                 "type": "array",
+                "minItems": 1,
                 "items": {"type": "string", "pattern": "^H[0-9]+$"}
               }
             }

@@ -1,21 +1,7 @@
 # Pipeline Execution Reference
 
-> ⚠️ **V3 UPDATE NOTICE (2026-07-26)**: SKILL.md 已重写为 5-phase 管线（Phase 1 Bootstrap → Phase 2 Understand → Phase 3 Analyze → Phase 4 Diagnose → Phase 5 Deliver+Audit）。本文件保留作为 **repair loop、statistical validation framework、common mistakes 的详细参考**，但其中的 "Step 0-9" 命名是 V1/V2 遗留——映射关系：
-> - V1 Step 0+1+2.5 → V3 Phase 1 Bootstrap
-> - V1 Step 2 → V3 Phase 2a (context-builder, 并行)
-> - V1 Step 3 Phase 0-1 → V3 Phase 2b (data-preprocessor, 并行)
-> - V1 Step 3 Phase 2-6 → V3 Phase 3 Analyze
-> - V1 Step 4 → V3 Phase 4 Diagnose
-> - V1 Step 5+6+8 → V3 Phase 5 (judge + reporter + html-visualizer 并行)
-> - V1 Step 7+8.5 → V3 Phase 5 审计层 (report-reviewer + html-reviewer)
-> - V1 Step 9 → V3 Phase 6 Finalize
->
-> **V3 关键变化**: (1) 9 个 CP 检查点已删除，agent 自治 + `artifact-check.mjs` 作为权威结束门; (2) `data_analysis_conclusion.json` 升级到 schema（确定性交接面，每条 finding 有稳定引用 ID）; (3) Diagnostician 必读只 3 个文件（V2 handoff + ontology + visual_analysis）; (4) Judge 检查从 9 项缩减为 4 项（聚焦跨文件矛盾，信任确定性脚本）; (5) 内联 Python 提取为 `cleaning_integrity_check.py` + `plot_verification.py`; (6) physics_check.py 扩展到 10+ 种检查。
->
-> 本文件 §Repair Loop Protocol、§Statistical Validation Framework、§Common Mistakes 仍然适用。§Step Command Reference 中的 bash 命令仍然有效（每个 agent 协议也包含其所需命令）。
-
 > **Load this file only during repair loops or when detailed validation rules are needed.**
-> SKILL.md contains the main 5-phase protocol. This file covers: numbering systems (legacy + V3 mapping), repair loop protocol, pipeline event logging, statistical validation framework, and common mistakes.
+> SKILL.md contains the main step-by-step protocol. This file covers: numbering systems, step command reference, repair loop protocol, pipeline event logging, statistical validation framework, and common mistakes.
 
 ## Numbering Systems — Four Separate Schemes
 
@@ -91,7 +77,7 @@ node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" --event clarific
 
 ### Step 3: Data Processing (data-processor agent)
 
-Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/data-processor.md`, execute Phase 0-6, use the uv-managed Python path, and delegate Phase 5.5 to `vlm-visual-analyzer`.
+Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/data-processor.md`, execute Phase 0-6, use the uv-managed Python path, and VLM visual analysis is handled by Step 3.5 (independent agent), not by data-processor.
 
 Stabilization before Step 4:
 ```bash

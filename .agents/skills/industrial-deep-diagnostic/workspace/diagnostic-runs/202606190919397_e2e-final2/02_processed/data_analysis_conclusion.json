@@ -1,196 +1,231 @@
 {
+  "schema_version": "2.0",
   "run_id": "202606190919397_e2e-final2",
-  "generated_at": "2026-06-19T09:20:13.602Z",
-  "analysis_mode": "baseline_only_with_justification",
-  "baseline_script_results": {
-    "scripts_run": [
-      "convert.mjs",
-      "dp_toolkit.py preprocess",
-      "stats.mjs / stats_analysis.py",
-      "stats_validate.mjs",
-      "dp_toolkit.py anomaly",
-      "physics_check.py"
-    ],
-    "key_findings": [
-      {
-        "finding": "Baseline statistical scripts completed, but no high-confidence correlation summary was automatically extracted.",
-        "source": "02_processed/feature_summary.json",
-        "evidence_rank": 3
-      }
-    ],
-    "limitations": [
-      "Aggregate patterns should not be treated as causal without subgroup and physics confirmation.",
-      "Temporal reasoning depends on the detected time column remaining valid after preprocessing."
-    ]
-  },
-  "expert_custom_analysis": {
-    "custom_scripts_written": false,
-    "script_inventory": [],
-    "analysis_questions": [
-      "Which process-side abnormalities remain after validation and grouping checks?",
-      "Do inspection anomalies align with process-side instability in the same product or time context?"
-    ],
-    "custom_outputs": [],
-    "why_needed": "No custom script artifacts were found; baseline sufficiency must be justified by the Data Processor."
-  },
-  "ontology_industry_interpretation": [
-    {
-      "parameter_or_pattern": "timestamp",
-      "ontology_role": "process-context anchor",
-      "industry_knowledge": "Process interpretation depends on the mapping between measured signals and process stages.",
-      "interpretation": "The ontology did not expose explicit discrepancy signals, so downstream diagnosis should rely on validated data evidence and first-principles checks.",
-      "confidence": "low"
-    }
-  ],
+  "generated_at": "2026-07-26T06:01:48.552Z",
+  "data_view_mode": "unknown",
   "adaptive_decision_audit": {
     "data_view_mode": "unknown",
-    "mode_justification": "Could not reliably distinguish process parameters from inspection/quality targets from the available Step 3 artifacts.",
+    "mode_justification": "Detected 0 process params, 0 targets. View mode: unknown.",
     "data_shapes_detected": [
-      "time_series",
-      "product_or_batch_grouping"
+      "time_series"
     ],
     "selected_analyses": [
       {
-        "analysis": "grouping_and_confounding_checks",
-        "reason": "Detected grouping column product, so aggregate relationships must be compared with within-group behavior.",
+        "analysis": "pure_process_fluctuation",
+        "why": "process params available",
         "evidence_artifacts": [
-          "02_processed/validate_report.json"
-        ],
-        "coverage_status": "partial"
-      },
-      {
-        "analysis": "temporal_regime_event_analysis",
-        "reason": "Detected time column timestamp; time-aligned overlays, lag/sequence review, and transition analysis are applicable.",
-        "evidence_artifacts": [],
-        "coverage_status": "partial"
-      }
-    ],
-    "skipped_or_not_applicable": [
-      {
-        "analysis": "pure_process_fluctuation_and_drift",
-        "status": "not_applicable",
-        "reason": "No process-parameter fluctuation block was available in anomaly_report.json."
-      },
-      {
-        "analysis": "process_inspection_dual_drive",
-        "status": "not_applicable",
-        "reason": "The available artifacts do not contain both process-side and inspection-side evidence."
-      },
-      {
-        "analysis": "scenario_specific_expert_analysis",
-        "status": "skipped",
-        "reason": "No scenario-specific artifact or custom script was present; the run should justify why the baseline was sufficient."
-      }
-    ],
-    "custom_analysis_required": false,
-    "custom_analysis_reason": "No custom script artifacts were found; baseline sufficiency must be justified by the Data Processor.",
-    "expert_review_summary": "Adaptive review classified the run as unknown, detected time_series, product_or_batch_grouping, and selected 2 analysis families with 3 skipped/not-applicable decisions."
-  },
-  "analysis_coverage_matrix": {
-    "pure_process_analysis": {
-      "status": "missing",
-      "evidence_artifacts": [],
-      "summary": "No process-parameter fluctuation evidence was available.",
-      "gaps": [
-        "Provide process parameter columns or repair anomaly detection."
-      ]
-    },
-    "process_inspection_dual_drive": {
-      "status": "not_applicable",
-      "evidence_artifacts": [
-        "02_processed/anomaly_report.json"
-      ],
-      "summary": "No true dual-drive linkage can be claimed because the data does not contain both process and inspection/quality evidence.",
-      "gaps": [
-        "Add inspection/quality/test data to evaluate process-to-quality linkage."
-      ]
-    },
-    "grouping_confounding": {
-      "status": "partial",
-      "evidence_artifacts": [
-        "02_processed/validate_report.json"
-      ],
-      "summary": "Grouping/confounding analysis used primary grouping column product.",
-      "gaps": [
-        "Product group artifact missing; verify grouped analysis ran."
-      ]
-    },
-    "temporal_regime_event": {
-      "status": "partial",
-      "evidence_artifacts": [],
-      "summary": "Temporal/regime analysis is applicable through time column timestamp.",
-      "gaps": [
-        "A time-aligned or temporal plot is missing from plot_manifest.json."
-      ]
-    },
-    "scenario_specific": {
-      "status": "partial",
-      "evidence_artifacts": [],
-      "summary": "No scenario-specific artifact was generated; baseline-only sufficiency needs explicit justification.",
-      "gaps": [
-        "Consider zone, paired-sensor, event, nonlinear, cyclic, or process-health custom analysis if data shape supports it."
-      ]
-    }
-  },
-  "analysis_boundary": {
-    "missing": "Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering"
-  },
-  "data_cleaning_provenance": {
-    "data_source": "cleaned",
-    "data_source_reason": "cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity)",
-    "integrity_checks": {
-      "row_count": {
-        "raw_rows": 1200,
-        "cleaned_rows": 1200,
-        "dropped": 0,
-        "drop_rate": 0
-      },
-      "type_integrity": {},
-      "range_fidelity": {}
-    },
-    "cleaning_operations": [
-      {
-        "operation": "sort",
-        "target": "all",
-        "rows_affected": 1200,
-        "rationale": "Sorted by product then timestamp for temporal integrity"
-      },
-      {
-        "operation": "type_coerce",
-        "target": "Z3_Temp",
-        "rows_affected": 0,
-        "rationale": "CSV DictReader produces str values; downstream scripts handle coercion at read boundary (visual_analysis.py _safe_float, physics_check _safe_float, stats_analysis _safe_float)"
-      }
-    ],
-    "repair_attempts": []
-  },
-  "data_supported_conclusions": [
-    {
-      "conclusion": "Statistical validation completed and should bound confidence for any causal claim.",
-      "supporting_sources": [
-        "02_processed/validate_report.json"
-      ],
-      "evidence_strength": "strong",
-      "diagnostic_relevance": "Validated findings should be prioritized over raw correlations.",
-      "known_caveats": []
-    }
-  ],
-  "handoff_to_diagnostician": {
-    "priority_hypothesis_inputs": [
-      {
-        "candidate": "candidate_1",
-        "why_prioritized": "Statistical validation completed and should bound confidence for any causal claim.",
-        "supporting_artifacts": [
-          "02_processed/validate_report.json"
+          "02_processed/anomaly_report.json"
         ]
       }
     ],
-    "evidence_gaps": [
-      "Need final competing-hypothesis testing before turning data patterns into root-cause claims."
-    ],
-    "recommended_diagnostic_focus": [
-      "Cross-check statistical patterns against physics plausibility and ontology roles.",
-      "Verify whether product-group differences or event transitions explain the anomaly better than a universal process drift."
+    "skipped_analyses": []
+  },
+  "validated_correlations": {
+    "description": "Top 4 correlations with |r|>=0.3, merged from feature_summary + validate_report + time_lag_analysis + physics_check. Cite as validated_correlations.pairs[N] downstream.",
+    "pairs": [
+      {
+        "predictor": "Haze_dev",
+        "target": "Haze",
+        "pearson_r": 1,
+        "spearman_rho": 1,
+        "detrended_r": 1,
+        "sample_n": 1200,
+        "validation": {
+          "simpson_safe": true,
+          "trend_confounded": false,
+          "outlier_driven": false,
+          "leave_one_out_safe": true,
+          "leave_one_out_delta_r": 0,
+          "time_sorted": true,
+          "regime_filtered": false,
+          "findings": []
+        },
+        "time_lag": {
+          "r_improvement_pct": 0,
+          "confidence": "not_applicable",
+          "physics_agreement": "not_applicable"
+        },
+        "physics": {
+          "behavior_match": "UNVERIFIED",
+          "magnitude_verdict": "UNTESTED",
+          "proof_strength": "WEAK"
+        }
+      },
+      {
+        "predictor": "Z3_Temp",
+        "target": "Defect_Density",
+        "pearson_r": 0.5451,
+        "spearman_rho": 0.3994,
+        "detrended_r": 0.4712,
+        "sample_n": 1200,
+        "validation": {
+          "simpson_safe": true,
+          "trend_confounded": false,
+          "outlier_driven": false,
+          "leave_one_out_safe": true,
+          "leave_one_out_delta_r": 0,
+          "time_sorted": true,
+          "regime_filtered": false,
+          "findings": []
+        },
+        "time_lag": {
+          "r_improvement_pct": 0,
+          "confidence": "not_applicable",
+          "physics_agreement": "not_applicable"
+        },
+        "physics": {
+          "behavior_match": "UNVERIFIED",
+          "magnitude_verdict": "UNTESTED",
+          "proof_strength": "WEAK"
+        }
+      },
+      {
+        "predictor": "Defect_Density_dev",
+        "target": "Defect_Density",
+        "pearson_r": 1,
+        "spearman_rho": 1,
+        "detrended_r": 1,
+        "sample_n": 1200,
+        "validation": {
+          "simpson_safe": true,
+          "trend_confounded": false,
+          "outlier_driven": false,
+          "leave_one_out_safe": true,
+          "leave_one_out_delta_r": 0,
+          "time_sorted": true,
+          "regime_filtered": false,
+          "findings": []
+        },
+        "time_lag": {
+          "r_improvement_pct": 0,
+          "confidence": "not_applicable",
+          "physics_agreement": "not_applicable"
+        },
+        "physics": {
+          "behavior_match": "UNVERIFIED",
+          "magnitude_verdict": "UNTESTED",
+          "proof_strength": "WEAK"
+        }
+      },
+      {
+        "predictor": "time_hours",
+        "target": "Defect_Density",
+        "pearson_r": 0.3971,
+        "spearman_rho": 0.2894,
+        "detrended_r": -0.0198,
+        "sample_n": 1200,
+        "validation": {
+          "simpson_safe": true,
+          "trend_confounded": false,
+          "outlier_driven": false,
+          "leave_one_out_safe": true,
+          "leave_one_out_delta_r": 0,
+          "time_sorted": true,
+          "regime_filtered": false,
+          "findings": []
+        },
+        "time_lag": {
+          "r_improvement_pct": 0,
+          "confidence": "not_applicable",
+          "physics_agreement": "not_applicable"
+        },
+        "physics": {
+          "behavior_match": "UNVERIFIED",
+          "magnitude_verdict": "UNTESTED",
+          "proof_strength": "WEAK"
+        }
+      }
     ]
+  },
+  "anomaly_highlights": {
+    "anomaly_windows": []
+  },
+  "process_health": {
+    "abnormal_params": [],
+    "regime_shifts_detected": false,
+    "steady_state_ratio": 1
+  },
+  "dual_drive_linkages": {
+    "linkages": []
+  },
+  "visual_evidence_summary": {
+    "synchronous_groups": [],
+    "precedence_signals": [],
+    "event_responses": []
+  },
+  "expert_gap_analysis": {
+    "custom_scripts_run": [],
+    "custom_findings": [],
+    "remaining_gaps": [],
+    "recommended_extra_data": []
+  },
+  "param_ambiguity": {
+    "ambiguous_params": [],
+    "resolved_count": 0,
+    "unresolved_count": 0
+  },
+  "diagnostician_handoff": {
+    "priority_hypothesis_inputs": [
+      {
+        "hypothesis": "Haze_dev affects Haze (r=1.00, validation passed)",
+        "confidence_from_data_side": "high",
+        "key_evidence_refs": [
+          "validated_correlations.pairs[0]"
+        ],
+        "caveats": [],
+        "falsification_condition": "If Haze_dev returns to baseline and Haze does not improve, hypothesis falsified"
+      },
+      {
+        "hypothesis": "Z3_Temp affects Defect_Density (r=0.55, validation passed)",
+        "confidence_from_data_side": "medium",
+        "key_evidence_refs": [
+          "validated_correlations.pairs[1]"
+        ],
+        "caveats": [],
+        "falsification_condition": "If Z3_Temp returns to baseline and Defect_Density does not improve, hypothesis falsified"
+      },
+      {
+        "hypothesis": "Defect_Density_dev affects Defect_Density (r=1.00, validation passed)",
+        "confidence_from_data_side": "high",
+        "key_evidence_refs": [
+          "validated_correlations.pairs[2]"
+        ],
+        "caveats": [],
+        "falsification_condition": "If Defect_Density_dev returns to baseline and Defect_Density does not improve, hypothesis falsified"
+      }
+    ],
+    "evidence_gaps": []
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "passed Phase 2.2.5 integrity checks",
+    "integrity_checks": {
+      "row_count_check": {
+        "raw_rows": 1200,
+        "cleaned_rows": 1200,
+        "dropped": 0,
+        "drop_rate": 0,
+        "threshold_exceeded": false
+      },
+      "type_integrity": {},
+      "range_fidelity": {
+        "Z1_Temp": 0,
+        "Z2_Temp": 0,
+        "Z3_Temp": 0,
+        "Extruder_Speed": 0,
+        "Melt_Pressure": 0,
+        "Haze": 0,
+        "Defect_Density": 0
+      },
+      "batch_identity_integrity": {
+        "applicable": false,
+        "id_col": null,
+        "duplicate_batches": [],
+        "split_record_count": 0,
+        "action": "none"
+      }
+    },
+    "cleaning_operations": [],
+    "repair_attempts": []
   }
 }

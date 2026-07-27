@@ -39,7 +39,7 @@ Before presenting results to the user, verify pipeline coherence:
 - [ ] Does the judge verify that physics sources are properly tracked and confidence-adjusted? If not → overconfidence risk
 - [ ] Does the report-reviewer cross-check the diagnosis against rag_deep_understanding.json? If not → RAG-contradicted claims may survive
 - [ ] Are ontology discrepancy signals from ALL steps visible in the final diagnosis? If not → diagnostic signals were lost
-- [ ] Does visual_analysis.json exist with structured VLM observations? If not → data-processor Phase 5.5 was skipped
+- [ ] Does visual_analysis.json exist with structured VLM observations? If not → Step 3.5 VLM visual analysis was skipped
 - [ ] Does the diagnostician reference visual_analysis.json observations in evidence.json? If not → visual insights were ignored
 - [ ] Does the report Section 11 include VLM visual insights per figure? If not → reporter didn't consume visual_analysis.json
 - [ ] Are visual observations (from VLM) and statistical correlations consistent? If not → flag as discrepancy for investigation
