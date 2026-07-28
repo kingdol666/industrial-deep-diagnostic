@@ -307,8 +307,7 @@ delegate_task(
 
 **Stabilization rule**: Before Step 4, run:
 ```bash
-node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
 **Key outputs**: `02_processed/` (17+ files), `03_figures/*.png` (9+ plots), `03_figures/visual_analysis.json`, `analysis_plan.md`, `06_scripts/`

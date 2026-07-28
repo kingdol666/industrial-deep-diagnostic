@@ -36,15 +36,9 @@ const results = {};
 logEvent('artifact_finalize_start', ['--step', 'present']);
 
 try {
-  results.normalize_anomaly_report = JSON.parse(run('normalize-anomaly-report.mjs'));
+  results.data_processor_finalize = JSON.parse(run('data-processor-finalize.mjs'));
 } catch (error) {
-  results.normalize_anomaly_report = { ok: false, error: String(error.stderr || error.stdout || error.message) };
-}
-
-try {
-  results.synthesize_data_analysis_conclusion = JSON.parse(run('synthesize-data-analysis-conclusion.mjs'));
-} catch (error) {
-  results.synthesize_data_analysis_conclusion = { ok: false, error: String(error.stderr || error.stdout || error.message) };
+  results.data_processor_finalize = { ok: false, error: String(error.stderr || error.stdout || error.message) };
 }
 
 try {

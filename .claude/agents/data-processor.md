@@ -63,14 +63,14 @@ color: green
 - [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/cleaning_integrity_check.py" "$RUN_DIR/02_processed/cleaned_data.csv"`
 - [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/production_regime_detector.py" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/production_regime_filter.json"`
 
-## Phase 2: Statistical Pipeline（统计管线）
+## Phase 2: Statistical Pipeline（统计管线 — v7.0 统一入口）
 
-- [ ] Run: `node "$SKILL_PATH/scripts/stats.mjs" "$RUN_DIR/02_processed/cleaned_data.json" --output "$RUN_DIR/02_processed/"`
-- [ ] Run: `node "$SKILL_PATH/scripts/stats_validate.mjs" "$RUN_DIR/02_processed/cleaned_data.json" --validate-report "$RUN_DIR/02_processed/validate_report.json" --output-dir "$RUN_DIR/02_processed/"`
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats_analysis.py" --input "$RUN_DIR/02_processed/cleaned_data.csv" --output-dir "$RUN_DIR/02_processed/" --ontology "$RUN_DIR/01_ontology/ontology.json"`
+- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full --target-cols "$QUALITY_COLS" --predictor-cols "$PREDICTOR_COLS" --exclude-cols "$EXCLUDE_COLS" --group-col <group_col> --time-col <time_col>`
+  - This single command replaces the old stats.mjs + stats_validate.mjs + stats_analysis.py trio
+  - Produces `validate_report.json` with correlation analysis AND anti-spurious validation AND batch integrity
 - [ ] 如果有时滞物理延迟 → Run: `node "$SKILL_PATH/scripts/time_lag_compensator.mjs" "$RUN_DIR/02_processed/cleaned_data.json" --output "$RUN_DIR/02_processed/time_lag_analysis.json" --ontology "$RUN_DIR/01_ontology/ontology.json"`
-- [ ] **验证 v6.7 留一法**：stats_validate.mjs 已内建
-- [ ] Write: `RUN_DIR/02_processed/validate_report.json`
+- [ ] **验证 v6.7 留一法**：已集成在 stats/anti_spurious.py 中
+- [ ] Verify: `RUN_DIR/02_processed/validate_report.json` 已生成
 
 ## Phase 3: Visualization（可视化）
 
@@ -109,8 +109,8 @@ color: green
 
 ## Phase 6: Stabilize（稳定化）
 
-- [ ] Run: `node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"`
-- [ ] Run: `node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"`
+- [ ] Run: `node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"`
+  → Step 1: Normalizes anomaly_report.json; Step 2: Synthesizes data_analysis_conclusion.json
 - [ ] Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"`
 
 ---

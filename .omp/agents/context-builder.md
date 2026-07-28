@@ -13,7 +13,7 @@ readSummarize: false
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取：
--   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-5 执行协议
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-5 执行协议
    - `Read("${SKILL_PATH}/resources/data_ontology_mapping_framework.md")` — 数据-本体映射框架
 
 ## 参数
@@ -25,6 +25,7 @@ readSummarize: false
 - PROCESS_DESCRIPTION — 工艺描述
 - USER_OBJECTIVE — 用户诊断目标
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - INTERACTION_MODE — 交互模式
 
 ## 核心规则
@@ -41,7 +42,7 @@ readSummarize: false
 - [ ] Read: `RUN_DIR/00_input/user_context.json` — 用户上下文
 - [ ] Read: `RUN_DIR/00_input/run_config.json` — 运行配置
 - [ ] 如果存在：Read `RUN_DIR/00_input/extracted_knowledge.json`
-- [ ] 运行数据探测：`node "$SKILL_PATH/scripts/inspect.mjs" "$DATA_PATH"`
+- [ ] 直接读取数据文件前100行进行探测：`Read("$DATA_PATH")` 或使用 head 命令
 - [ ] 确定：列数、行数、数据类型分布、可能的工艺类型
 
 ## Phase 1: 搜索参考目录
@@ -78,8 +79,8 @@ readSummarize: false
 
 ## Phase 5: Schema 生成 + 验证
 
-- [ ] Read: `"$SKILL_PATH/schemas/ontology_schema.json"`
-- [ ] Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
+- [ ] Read: `"$SHARED_PATH/schemas/ontology_schema.json"`
+- [ ] Validate: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
 - [ ] CP-2 验证：ontology.json ≥ 1KB + schema-valid
 - [ ] CP-3 验证：clarification_needed.json contains AUTO_RESOLVED or USER_CONFIRMED
 - [ ] Write: `RUN_DIR/00_input/clarification_needed.json`

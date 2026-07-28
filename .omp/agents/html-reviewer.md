@@ -28,6 +28,7 @@ readSummarize: false
 ## Required Inputs
 
 - RUN_DIR, OUTPUT_HTML, SKILL_PATH, AUDIENCE（默认 mixed）
+- SHARED_PATH — 共享脚本和schema目录
 
 ## Required Reading
 

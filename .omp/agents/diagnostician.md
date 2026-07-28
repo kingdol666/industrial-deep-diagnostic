@@ -18,12 +18,16 @@ readSummarize: false
    - `Read("${SKILL_PATH}/resources/evidence_rules.md")` — 证据层次+反推测规则
    - `Read("${SKILL_PATH}/resources/diagnosis_method.md")` — 6 阶段诊断方法论
 
-2. 严格按 Phase 顺序执行。**每个 [ ] 必须打勾完成后再进入下一项。**
+2. 严格按 Phase 顺序执行。
+
+**按需阅读**：检查清单底部的 On-Demand References 表列出了遇到特定场景时应读取的详细参考文件。不要一开始就加载所有参考材料。
+
 
 ## 参数
 
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - DATA_PATH — 数据文件路径
 - REPAIR_INSTRUCTIONS — 修复指令（可选）
 
@@ -119,8 +123,11 @@ readSummarize: false
 - [ ] Write: `RUN_DIR/04_diagnostics/reasoning_chain.json`
 
 ### 7.5 Schema 验证
-- [ ] Validate all 4 outputs with validate.mjs
-- [ ] **Schema 验证通过后才算完成。如果失败，修复后重新写。**
+- [ ] Validate diagnosis.json: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"`
+- [ ] Validate evidence.json: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"`
+- [ ] Validate confidence.json: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"`
+- [ ] Validate reasoning_chain.json: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"`
+- [ ] **Schema 验证通过后才算完成。如果任一文件失败，修复后重新写所有四个。**
 
 ## 补充指导
 

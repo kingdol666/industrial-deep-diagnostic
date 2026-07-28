@@ -1,11 +1,11 @@
 ---
 name: industrial-analysis-auto
-description: "工业深度诊断全自动编排器 — 集成 9 个标准化子 skill 实现端到端诊断管线。从原始传感器/工艺数据到中文诊断报告+HTML可视化页面，零人工干预。Trigger: 工业诊断, 根因分析, 故障诊断, 生产过程异常, 质量缺陷分析, 传感器数据分析, 工艺参数优化, industrial diagnosis, root cause analysis, SPC excursion, manufacturing diagnostics. 3 modes: auto/interactive/minimal."
+description: "工业深度诊断全自动编排器 — 集成 8 个标准化子 skill 实现端到端诊断管线。从原始传感器/工艺数据到中文诊断报告+HTML可视化页面，零人工干预。Trigger: 工业诊断, 根因分析, 故障诊断, 生产过程异常, 质量缺陷分析, 传感器数据分析, 工艺参数优化, industrial diagnosis, root cause analysis, SPC excursion, manufacturing diagnostics. 3 modes: auto/interactive/minimal."
 ---
 
 # Industrial Analysis Auto — Full Pipeline Orchestrator
 
-端到端工业深度诊断自动编排器。上传传感器/工艺数据 → 9 步全自动诊断 → `report.md` + `diagnostic-report.html`。
+端到端工业深度诊断自动编排器。上传传感器/工艺数据 → 8 步全自动诊断 → `report.md` + `diagnostic-report.html`。
 
 ## TL;DR
 
@@ -13,7 +13,7 @@ description: "工业深度诊断全自动编排器 — 集成 9 个标准化子 
 输入: CSV/XLSX/Parquet 工业传感器/工艺数据
 输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
 核心: 本体构建 → 去趋势/分层/Simpson检测 → 竞争假说 → 物理验证 → Judge审查 → HTML可视化
-默认: FULL-AUTO — 9 步连续跑完、零人工干预
+默认: FULL-AUTO — 8 步连续跑完、零人工干预
 ```
 
 ## Core Principle
@@ -34,9 +34,7 @@ Step 0-1: Setup + Inspect (main agent)
     ↓
 Step 2+2.5: [industrial-ontology-builder] → CP-2, CP-3
     ↓
-Step 3+3.3: [industrial-data-processor] → CP-4
-    ↓
-Step 3.5: [industrial-vlm-analyzer]
+Step 3+3.3: [industrial-data-processor] → CP-4（含 VLM 视觉分析）
     ↓
 Step 4: [industrial-diagnostician] → CP-5
     ↓       ┌── repair max 3 ──┐
@@ -64,7 +62,6 @@ Step 5a:   Step 5b:            │
 |:----:|-----------|-------|:-------:|
 | 2+2.5 | `industrial-ontology-builder` | context-builder | CP-2, CP-3 |
 | 3+3.3 | `industrial-data-processor` | data-processor | CP-4 |
-| 3.5 | `industrial-vlm-analyzer` | vlm-visual-analyzer | — |
 | 4 | `industrial-diagnostician` | diagnostician | CP-5 |
 | 5a | `industrial-judge` | judge | CP-6 |
 | 5b | `industrial-physical-auditor` (PRE_REPORT_AUDIT=true) | report-reviewer | CP-6 |
@@ -87,7 +84,7 @@ PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 
 # Setup Python venv
-node "$SKILL_PATH/scripts/uv_env_setup.mjs"
+node "$SHARED_PATH/scripts/uv_env_setup.mjs"
 ```
 
 `setup.mjs` bootstraps `run_manifest.json` + `.pipeline_events.jsonl` with `run_initialized` event.
@@ -100,11 +97,11 @@ node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
 
 Log pipeline events:
 ```bash
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --event step_start --agent main-agent --step inspect \
   --data '{"data_path":"<data_path>"}'
 
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --event step_complete --agent main-agent --step inspect \
   --files 00_input/input_manifest.json,00_input/user_context.json
 ```
@@ -125,16 +122,11 @@ Read `skill://industrial-data-processor` and execute. **ontology_first** — rea
 
 Post-processing after agent completes:
 ```bash
-SKILL_PATH_DATA_PROCESSOR="<path-to-industrial-data-processor>"
-node "$SKILL_PATH_DATA_PROCESSOR/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH_DATA_PROCESSOR/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
-```
+SKILL_PATH_DATA_PROCESSOR="$PROJECT_ROOT/.claude/skills/industrial-data-processor"
+node "$SKILL_PATH_DATA_PROCESSOR/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 
 **CP-4**: `data_analysis_conclusion.json` exists + `plot_manifest.json` has plots > 0
 
-### Step 3.5: VLM Analyzer
-
-Read `skill://industrial-vlm-analyzer` and execute. Reads chart PNGs, enriches `visual_analysis.json` with VLM observations. Self-check + anti-forgery protocol.
 
 ### Step 4: Diagnostician
 
@@ -198,9 +190,7 @@ Read `skill://industrial-html-reviewer` and execute. Review → pass/needs_revis
 
 ```bash
 SKILL_PATH="<this-skill-directory>"
-node "$SKILL_PATH/scripts/evidence-closure-check.mjs" "$RUN_DIR" --write
-node "$SKILL_PATH/scripts/artifact-check.mjs" "$RUN_DIR" "$SKILL_PATH"
-node "$SKILL_PATH/scripts/finalize-run-artifacts.mjs" "$RUN_DIR" "$SKILL_PATH"
+node "$SKILL_PATH/scripts/pipeline-finalize.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
 Present: executive summary + key findings + diagnosis type + confidence + recommendations + optimizer highlights + workspace/HTML paths.
@@ -225,7 +215,7 @@ Present: executive summary + key findings + diagnosis type + confidence + recomm
 
 ## Execution Discipline
 
-- **Default FULL-AUTO**: `interaction_mode=auto`, 9 steps continuous, zero human intervention. CP gates are machine-validated.
+- **Default FULL-AUTO**: `interaction_mode=auto`, 8 steps continuous, zero human intervention. CP gates are machine-validated.
 - **Strictly sequential** — never skip, reorder, or silently omit steps. If not applicable, record `not_applicable_reason`.
 - **Ontology first**: Step 2 complete before Step 3 Phase 0.4. Pre-ontology work limited to data conversion/preprocessing.
 - **Step 5a + 5b** are the ONLY parallel steps. Everything else is serial.
@@ -256,8 +246,7 @@ Sub-agents communicate ONLY through workspace files, never through main-agent co
 
 ```
 Ontology Builder  → 01_ontology/ontology.json, clarification_needed.json, rag_deep_understanding.json
-Data Processor    → 02_processed/*, data_analysis_conclusion.json, 03_figures/*
-VLM Analyzer      → 03_figures/visual_analysis.json (skeleton_overwritten=true)
+Data Processor    → 02_processed/*, data_analysis_conclusion.json, 03_figures/* (含 visual_analysis.json)
 Diagnostician     → 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
 Judge             → 05_review/judge_feedback.json
 Pre-Audit         → 05_review/optimizer_preflight.md
@@ -286,7 +275,7 @@ HTML Reviewer     → 05_review/html_review.json
 Every step logs to `RUN_DIR/.pipeline_events.jsonl`:
 
 ```bash
-node "$SKILL_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --event <event_type> --agent <agent_name> --step <step_name> \
   [--files <comma,separated,paths>] [--data '<json>']
 ```

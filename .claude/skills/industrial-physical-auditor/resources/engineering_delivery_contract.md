@@ -72,8 +72,7 @@
 
 一次运行仅在以下条件全部满足时才算工程完成：
 - `pipeline-log-check.mjs` 通过
-- `evidence-closure-check.mjs` 通过
-- `artifact-check.mjs` 通过
+- `pipeline-finalize.mjs` 通过
 - `optimizer.md` 存在并通过标准章节完整性检查
 - `run_manifest.json` 中 `present` 步骤完成
 - `.pipeline_events.jsonl` 中存在最终 `run_completed` 事件

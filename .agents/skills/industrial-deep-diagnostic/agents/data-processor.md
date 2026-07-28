@@ -808,8 +808,7 @@ Do not make final root-cause claims here. Make **data-supported expert conclusio
 **Deployable workflow helper**: after writing or updating `anomaly_report.json`, run:
 
 ```bash
-node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
 If you already produced a richer hand-written `data_analysis_conclusion.json`, the synthesized file should be used as a structural baseline and then overwritten only if your richer version still passes schema validation.

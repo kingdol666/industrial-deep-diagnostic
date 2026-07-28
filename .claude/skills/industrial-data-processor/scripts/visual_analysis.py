@@ -300,6 +300,9 @@ def _plot_time_aligned_overlay(df, targets, process_params, product_label, fig_d
     for idx, col in enumerate(all_to_plot):
         if col not in df.columns:
             continue
+        # Skip non-numeric columns (e.g. string-typed quality grades)
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            continue
         series = df[col].dropna()
         if series.std() == 0 or len(series) < 2:
             continue

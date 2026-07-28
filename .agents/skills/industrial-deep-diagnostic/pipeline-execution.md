@@ -81,8 +81,7 @@ Launch with `RUN_DIR`, `SKILL_PATH`, `DATA_PATH`. Tell it to read `agents/data-p
 
 Stabilization before Step 4:
 ```bash
-node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
 Key validation commands:

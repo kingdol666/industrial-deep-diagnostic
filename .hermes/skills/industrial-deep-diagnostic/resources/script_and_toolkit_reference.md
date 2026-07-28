@@ -15,8 +15,7 @@
 | `eval-assertions.mjs` | Execute eval `assertions[]` against a completed run and optionally emit skill-creator-compatible `grading.json` | `node eval-assertions.mjs <evals.json> <eval-id-or-name> <RUN_DIR> [--write-grading]` |
 | `append-pipeline-event.mjs` | Append a structured `agent_start` / `agent_complete` event to `.pipeline_events.jsonl` | `node append-pipeline-event.mjs <RUN_DIR> --event agent_start --agent data-processor` |
 | `evidence-closure-check.mjs` | Verify the evidence loop is closed from process fluctuation evidence → dual-drive evidence → ontology/physics interpretation → diagnosis → final report | `node evidence-closure-check.mjs <RUN_DIR> --write` |
-| `normalize-anomaly-report.mjs` | Repair legacy or custom `anomaly_report.json` into the current schema shape | `node normalize-anomaly-report.mjs <RUN_DIR>` |
-| `synthesize-data-analysis-conclusion.mjs` | Generate `02_processed/data_analysis_conclusion.json` from processed artifacts and custom script inventory | `node synthesize-data-analysis-conclusion.mjs <RUN_DIR>` |
+| `data-processor-finalize.mjs` | Normalize `anomaly_report.json` + synthesize `data_analysis_conclusion.json` from processed artifacts | `node data-processor-finalize.mjs <RUN_DIR>` |
 | `synthesize-run-summary.mjs` | Generate schema-aligned `run_summary.json` from run artifacts | `node synthesize-run-summary.mjs <RUN_DIR>` |
 | `finalize-run-artifacts.mjs` | Run the anomaly normalization + data-analysis conclusion synthesis + run summary synthesis + evidence closure refresh sequence before final validation | `node finalize-run-artifacts.mjs <RUN_DIR> <SKILL_PATH>` |
 | `generate_captions.mjs` | Generate `image_captions.json` from existing figures and plot manifest | `node generate_captions.mjs <RUN_DIR>` |

@@ -110,8 +110,7 @@ Web Search"]
 | `judge-gate-check.mjs` | Judge 门校验 |
 | `time_lag_compensator.mjs` | 时滞补偿分析 |
 | `production_regime_detector.py` | 生产工况检测 |
-| `normalize-anomaly-report.mjs` | 异常报告稳定化 |
-| `synthesize-data-analysis-conclusion.mjs` | 数据结论合成 |
+| `data-processor-finalize.mjs` | 异常报告稳定化 + 数据结论合成 |
 
 ---
 

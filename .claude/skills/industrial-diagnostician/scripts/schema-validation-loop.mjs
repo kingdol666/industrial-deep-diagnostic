@@ -19,7 +19,7 @@ if (!runDir || !skillPath || !agentName) {
   process.exit(2);
 }
 
-const SCHEMAS_DIR = join(skillPath, 'schemas');
+const SCHEMAS_DIR = join(skillPath, '../../shared/schemas');
 const AGENT_MAP = {
   'context-builder': ['ontology_schema.json'],
   'data-processor': ['data_analysis_conclusion_schema.json'],
@@ -72,7 +72,7 @@ for (const schemaFile of schemas) {
     continue;
   }
 
-  const validateScript = join(skillPath, 'scripts', 'validate.mjs');
+  const validateScript = join(skillPath, '../../shared/scripts', 'validate.mjs');
   if (!fs.existsSync(validateScript)) {
     checks.push({
       agent: agentName,

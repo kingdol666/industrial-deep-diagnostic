@@ -22,6 +22,7 @@ readSummarize: false
 
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - DATA_PATH — 数据文件路径
 
 ## 核心规则

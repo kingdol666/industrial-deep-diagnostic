@@ -31,6 +31,7 @@ readSummarize: false
 ## Required Inputs
 
 - RUN_DIR, SKILL_PATH
+- SHARED_PATH — 共享脚本和schema目录
 - OUTPUT_HTML（默认 `"$RUN_DIR/diagnostic-report.html"`）
 - AUDIENCE（默认 `mixed`）
 - VISUAL_MODE（默认 `story`）

@@ -63,6 +63,7 @@ compatibility: |
 When loaded from OMP harness (`.omp/skills/rag-knowledge-builder/`), resources resolve via:
 ```
 SKILL_PATH   = <this-skill-directory>/../../../.claude/skills/rag-knowledge-builder
+SHARED_PATH  = <this-skill-directory>/../../../.claude/shared
 PROJECT_ROOT = cd $SKILL_PATH/../../.. && pwd
 ```
 In standalone/Claude harness mode, SKILL_PATH is the deployment directory directly.
@@ -75,6 +76,7 @@ In standalone/Claude harness mode, SKILL_PATH is the deployment directory direct
 
 ```bash
 SKILL_PATH="<path-to-this-skill>"
+SHARED_PATH="<path-to-this-skill>/shared"
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 WORKSPACE="$PROJECT_ROOT/workspace/rag-outputs"
 RUN_DIR="$WORKSPACE/$(date +%Y%m%d%H%M%S)_$(echo "$domain" | tr ' ' '_' | tr -cd '[:alnum:]_-' | cut -c1-40)"

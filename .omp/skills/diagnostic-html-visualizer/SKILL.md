@@ -23,6 +23,7 @@ When loaded from `.omp/skills/diagnostic-html-visualizer/`, all resource paths
 ```
 <this-skill-directory>/../../../.claude/skills/diagnostic-html-visualizer
 ```
+SHARED_PATH = <this-skill-directory>/../../../.claude/shared
 
 This ensures the full design system (html-builder.md, report-template.html, 
 page_blueprint.md, render_prompt_template.md) is accessible regardless of which 

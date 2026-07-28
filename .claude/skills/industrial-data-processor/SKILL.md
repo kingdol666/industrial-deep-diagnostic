@@ -5,9 +5,11 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 
 # Industrial Data Processor
 
-在本体引导下对工业传感器/工艺数据执行全链路统计分析——场景分类、数据清洗、生产状态识别、多维度统计验证（Simpson/去趋势/变点/时滞CCF/批次唯一性/离群杠杆）、可视化图表生成。产出 `data_analysis_conclusion.json` 作为诊断专家的强制交接文件。
+在本体引导下对工业传感器/工艺数据执行全链路统计分析——场景分类、数据清洗、生产状态识别、多维度统计验证、可视化图表生成。产出 `data_analysis_conclusion.json` 作为诊断专家的强制交接文件。
 
-## Inputs (expected in `RUN_DIR`)
+## Inputs / Outputs
+
+### Inputs (in `RUN_DIR`)
 
 | File | Description |
 |------|-------------|
@@ -17,7 +19,7 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 | `00_input/rag_deep_understanding.json` | RAG 验证队列（如有） |
 | 原始数据文件 | CSV/XLSX/Parquet（DATA_PATH 指向） |
 
-## Outputs
+### Outputs
 
 | File | Description |
 |------|-------------|
@@ -32,12 +34,12 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 | `02_processed/analysis_plan.md` | 分析计划 |
 | `03_figures/plot_manifest.json` | 图表清单 |
 | `03_figures/image_captions.json` | 图表说明 |
-| `03_figures/visual_analysis.json` | VLM pre-skeleton |
+| `03_figures/visual_analysis.json` | VLM 视觉分析输出 |
 | `03_figures/*.png` | 可视化图表 |
 
-## Execution
+## Dispatch
 
-启动 `data-processor` 子Agent，**ontology_first** 模式——在任何统计工作前先读取本体：
+启动 `data-processor` 子Agent（**ontology_first** 模式——统计前先读本体）：
 
 ```javascript
 Agent({
@@ -58,8 +60,7 @@ Key constraints:
 - v6.6: Batch identity integrity — verify batch_id uniqueness; split/duplicate batch records MUST be merged or flagged
 - v6.7: Leave-one-out leverage check — any |r|≥0.3 cited as evidence must pass leave-one-out
 - Python venv: "<this-skill-directory>/scripts/.venv/bin/python" (run uv_env_setup.mjs first if missing)
-- VLM visual analysis is handled by Step 3.5 (industrial-vlm-analyzer), NOT by data-processor
-- Write visual_analysis.json as pre-VLM skeleton only`,
+- VLM 视觉分析已合并至 Phase 5.5（metadata-first，VLM_ENABLED=true 时调用 API，含防伪造验证）
   run_in_background: true
 })
 ```
@@ -69,76 +70,69 @@ Key constraints:
 ```bash
 SKILL_PATH="<this-skill-directory>"
 
-# Normalize anomaly report (补全缺失字段)
-node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-
-# Synthesize data analysis conclusion (聚合所有分析产物)
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+# Normalize anomaly report + synthesize data analysis conclusion
+node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
-### Key Analysis Phases
+## Execution Flow (Phase 0-6)
 
-| Phase | Content | Key Validation |
-|-------|---------|----------------|
-| 0 | 数据探索 + 本体读取 (ontology_first) | 列类型推断、缺失率、值域 |
-| 0.4 | 本体引导分析计划 | 从 ontology 确定分析参数和分层维度 |
-| 1 | 场景分类 | scenario_classification.json |
-| 2 | 数据转换 + 预处理 + 清洗完整性 | cleaning_integrity_check.py |
-| 2.5 | 生产状态识别 (v6.5) | 三算法融合：稳态/过渡/启停 |
-| 3 | 统计分析 | Simpson/去趋势/变点/时滞CCF/批次唯一性/离群杠杆 |
-| 4 | 专家缺口分析 | 对比 RAG 验证队列 |
-| 5 | 物理检查 + 可视化 + 结论合成 | per-product overlay 图表 |
+Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, data truth mandate, gates). On-demand references at `resources/execution_reference.md` (bash commands), `resources/anti_spurious_rules.md` (v6 rules), `resources/scenario_patterns.md` (scenario-specific analysis patterns), and `resources/visual_analysis_framework.md` (chart design).
+
+| Phase | Purpose | Gate |
+|-------|---------|------|
+| 0 | Data exploration + ontology-first analysis plan | `analysis_parameter_selection.json` + plan section |
+| 1 | Scenario classification + production state detection | Schema-valid `scenario_classification.json`; stats input source determined |
+| 2 | Universal analysis (stats, anomaly, time-lag, batch integrity) | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
+| 3 | Scenario-specific deep analysis + dual-drive | Schema-valid `data_analysis_conclusion.json`; coverage matrix complete |
+| 4 | RAG knowledge validation | All claims validated or marked untestable |
+| 5 | Visualization — per-product time-aligned overlays | `plot_manifest.json` has ≥1 verified real plot |
+| 5.5 | VLM visual analysis (optional, auto-degrade) | `visual_analysis.json` exists (metadata or VLM-enriched) |
+| 6 | Stabilize + verify output contract | All mandatory files exist and non-empty |
 
 ## Verification
 
 ```bash
 SKILL_PATH="<this-skill-directory>"
+SHARED_PATH="<omc-shared-directory>"
 
 # Schema validations
-node "$SKILL_PATH/scripts/validate.mjs" \
-  "$SKILL_PATH/schemas/scenario_classification_schema.json" \
+node "$SHARED_PATH/scripts/validate.mjs" \
+  "$SHARED_PATH/schemas/scenario_classification_schema.json" \
   "$RUN_DIR/02_processed/scenario_classification.json"
 
-node "$SKILL_PATH/scripts/validate.mjs" \
-  "$SKILL_PATH/schemas/anomaly_report_schema.json" \
+node "$SHARED_PATH/scripts/validate.mjs" \
+  "$SHARED_PATH/schemas/anomaly_report_schema.json" \
   "$RUN_DIR/02_processed/anomaly_report.json"
 
-node "$SKILL_PATH/scripts/validate.mjs" \
-  "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" \
+node "$SHARED_PATH/scripts/validate.mjs" \
+  "$SHARED_PATH/schemas/data_analysis_conclusion_schema.json" \
   "$RUN_DIR/02_processed/data_analysis_conclusion.json"
 
-node "$SKILL_PATH/scripts/validate.mjs" \
-  "$SKILL_PATH/schemas/image_captions_schema.json" \
+node "$SHARED_PATH/scripts/validate.mjs" \
+  "$SHARED_PATH/schemas/image_captions_schema.json" \
   "$RUN_DIR/03_figures/image_captions.json"
 
-# CP-4 Handoff
+# CP-4 Handoff: verify plot_manifest has plots
 test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && \
   node -e "var p=JSON.parse(require('fs').readFileSync('$RUN_DIR/03_figures/plot_manifest.json','utf8')); process.exit(p.plots&&p.plots.length>0?0:1)"
 ```
 
-## Artifact Integrity (Step 3.3)
+## Artifact Integrity Recovery
 
-缺失产物的自动恢复——使用 `scripts/` 下的恢复脚本：
+Missing outputs auto-restored by scripts in `<SKILL_PATH>/scripts/`:
 
-| 缺失文件 | 恢复方式 |
-|---------|---------|
-| scenario_classification.json | 从 ontology.json + feature_summary.json 推断 |
-| anomaly_report.json | 从 validate_report + data_analysis_conclusion 推断 |
-| plot_manifest.json | 从 03_figures/*.png 反推 |
-| image_captions.json | 从 plot_manifest 生成回退 caption |
+| Missing | Recovery |
+|---------|----------|
+| `scenario_classification.json` | Infer from ontology.json + feature_summary.json |
+| `anomaly_report.json` | Infer from validate_report + data_analysis_conclusion |
+| `plot_manifest.json` | Reverse from 03_figures/*.png |
+| `image_captions.json` | Generate fallback from plot_manifest |
 
 ## Failure Recovery
 
-| 场景 | 恢复 |
-|------|------|
-| Python venv 缺失 | `node scripts/uv_env_setup.mjs` 重建（uv 管理） |
-| 超大文件 (>500MB) | `python scripts/file_inspect.py --sample 50000` 采样 |
-| 图片生成失败 | Phase 2.2.5 + Phase 5.9 修数据重画 → 仍失败则 `image_captions.json` L4 文本回退 |
-| 无可用时间列 | 记录原因到 `analysis_plan.md` + `data_analysis_conclusion.json` |
-
-## References
-
-- `references/agent-protocol.md` — 完整的 data-processor 执行协议（Phase 0-6, 1139 lines）
-- `schemas/` — 5 个输出 JSON Schema
-- `scripts/` — 统计分析 + 可视化 + 后处理脚本（stats.mjs, dp_toolkit.py, time_lag_compensator.mjs 等）
-- `resources/visual_analysis_framework.md` — 图表视觉分析框架
+| Scenario | Recovery |
+|----------|----------|
+| Python venv missing | `node scripts/uv_env_setup.mjs` |
+| Files >500MB | `python scripts/file_inspect.py --sample 50000` |
+| Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
+| No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |

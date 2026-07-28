@@ -1,0 +1,21 @@
+{
+  "_description": "Schema → consuming skills mapping. All schemas are authoritative in this directory.",
+  "schemas": {
+    "analysis_parameter_selection_schema.json": ["data-processor"],
+    "anomaly_report_schema.json": ["data-processor", "diagnostician"],
+    "causal_evidence_map_schema.json": ["diagnostician"],
+    "confidence_schema.json": ["diagnostician", "judge", "reporter"],
+    "data_analysis_conclusion_schema.json": ["data-processor", "diagnostician", "judge"],
+    "diagnosis_schema.json": ["diagnostician", "judge", "reporter", "html-visualizer"],
+    "evidence_schema.json": ["diagnostician", "judge", "reporter", "html-visualizer"],
+    "html_review_schema.json": ["html-reviewer"],
+    "image_captions_schema.json": ["data-processor", "vlm-analyzer"],
+    "judge_feedback_schema.json": ["judge"],
+    "ontology_schema.json": ["ontology-builder", "data-processor", "diagnostician"],
+    "reasoning_chain_schema.json": ["diagnostician", "judge", "reporter"],
+    "run_config_schema.json": ["analysis-auto"],
+    "run_summary_schema.json": ["reporter"],
+    "scenario_classification_schema.json": ["data-processor"],
+    "visual_analysis_schema.json": ["data-processor", "vlm-analyzer", "diagnostician"]
+  }
+}

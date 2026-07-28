@@ -17,7 +17,9 @@ readSummarize: false
    - `Read("${SKILL_PATH}/resources/data_ontology_mapping_framework.md")` — 本体更新协议
    - `Read("${SKILL_PATH}/resources/scenario_patterns.md")` — 场景分析模式 A-I
 
-2. 严格按 Phase 顺序执行。**每个 [ ] 必须打勾完成后再进入下一项。**
+2. 严格按 Phase 顺序执行。
+
+
 
 ## 参数
 
@@ -25,6 +27,7 @@ readSummarize: false
 - DATA_PATH — 数据文件路径
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - PHASE_LIMIT — 如果为 "preprocess" 只执行 Phase 0-1；如果为 "analyze" 只执行 Phase 2-6
 
 ## 核心规则
@@ -36,7 +39,7 @@ readSummarize: false
 - **v6.5 稳态过滤**：统计分析前用 production_regime_filter.json 过滤 startup/shutdown
 - **v6.6 批次完整性**：batch_id 列存在时跑 cleaning_integrity_check.py
 - **v6.7 留一法**：|r|≥0.3 相关必须过 leave-one-out
-- **VLM 视觉分析由独立 Step 3.5 负责** — data-processor 不启动 vlm-visual-analyzer
+- **VLM 视觉分析** — Phase 5.5 内执行（metadata-first，VLM_ENABLED=true 时调用 API）
 
 ## Phase 0: Data Understanding（数据理解）
 
@@ -59,11 +62,8 @@ readSummarize: false
 
 ## Phase 2: Statistical Pipeline（统计管线）
 
-- [ ] Run: `node "$SKILL_PATH/scripts/stats.mjs" "$RUN_DIR/02_processed/cleaned_data.json"`
-- [ ] Run: `node "$SKILL_PATH/scripts/stats_validate.mjs"` — Simpson/去趋势/留一法/CCF
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats_analysis.py"`
+- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full`
 - [ ] 如果有时滞物理延迟 → Run: `node "$SKILL_PATH/scripts/time_lag_compensator.mjs"`
-- [ ] **验证 v6.7 留一法**：stats_validate.mjs 已内建
 - [ ] Write: `RUN_DIR/02_processed/validate_report.json`
 
 ## Phase 3: Visualization（可视化）
@@ -86,7 +86,7 @@ readSummarize: false
 
 > **核心产出**: data_analysis_conclusion.json — 是 diagnostician 的唯一交接面
 
-- [ ] Read schema: `"$SKILL_PATH/schemas/data_analysis_conclusion_schema.json"`
+- [ ] Read schema: `"$SHARED_PATH/schemas/data_analysis_conclusion_schema.json"`
 - [ ] 构造 data_analysis_conclusion.json：
   - baseline_script_results, expert_custom_analysis, ontology_industry_interpretation
   - adaptive_decision_audit, analysis_coverage_matrix
@@ -96,9 +96,9 @@ readSummarize: false
 
 ## Phase 6: Stabilize（稳定化）
 
-- [ ] Run: `node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"`
-- [ ] Run: `node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"`
-- [ ] Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json"`
+- [ ] Run: `node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"`
+  → Step 1: Normalizes anomaly_report.json; Step 2: Synthesizes data_analysis_conclusion.json
+- [ ] Validate: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/data_analysis_conclusion_schema.json"`
 
 ## 补充指导
 

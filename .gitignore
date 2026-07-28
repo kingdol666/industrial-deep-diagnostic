@@ -60,3 +60,5 @@ rag-knowledge/
 
 # Runtime-generated ChromaDB vector store (regenerable binary)
 knowledge_base/
+.claude/worktrees/
+workspace/diagnostic-runs/

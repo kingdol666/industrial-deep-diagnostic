@@ -522,8 +522,7 @@ Key orchestration constraints to communicate:
 
 **Before Step 4**, stabilize outputs:
 ```bash
-node "$SKILL_PATH/scripts/normalize-anomaly-report.mjs" "$RUN_DIR"
-node "$SKILL_PATH/scripts/synthesize-data-analysis-conclusion.mjs" "$RUN_DIR"
+node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
 **Key outputs**: `02_processed/` validated artifacts (including `production_regime_filter.json`, `time_lag_analysis.json`, `data_analysis_conclusion.json`), `03_figures/*.png` + `plot_manifest.json` + `visual_analysis.json`, `analysis_plan.md`

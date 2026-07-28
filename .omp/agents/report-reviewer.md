@@ -21,6 +21,7 @@ readSummarize: false
 
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - DATA_PATH — 数据文件路径
 - PRE_REPORT_AUDIT — 如果为 true，执行预报告审计
 

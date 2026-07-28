@@ -22,6 +22,7 @@ readSummarize: false
 
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 
 ## 核心规则
 
@@ -64,7 +65,7 @@ readSummarize: false
 
 ## Step 2: 生成结构化摘要
 
-- [ ] Read: `"$SKILL_PATH/schemas/run_summary_schema.json"`
+- [ ] Read: `"$SHARED_PATH/schemas/run_summary_schema.json"`
 - [ ] Read: `"$SKILL_PATH/templates/run_summary_template.json"`
 - [ ] Write: `RUN_DIR/run_summary.json`
 
@@ -76,6 +77,6 @@ readSummarize: false
 ## Step 4: 验证
 
 ```bash
-node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"
+node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/run_summary_schema.json" "$RUN_DIR/run_summary.json"
 test -f "$RUN_DIR/report.md" && test -f "$RUN_DIR/run_summary.json"
 ```
