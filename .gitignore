@@ -62,3 +62,7 @@ rag-knowledge/
 knowledge_base/
 .claude/worktrees/
 workspace/diagnostic-runs/
+
+# Runtime state
+.runtime/pids/*.pid
+.runtime/*.log
