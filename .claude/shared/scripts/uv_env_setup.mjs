@@ -25,7 +25,7 @@ function run(cmd) {
 function detectPython() {
   // Try uv venv first
   const uv = run('uv --version 2>&1');
-  if (uv) return { type: 'uv', bin: 'uv', python: path.join(VENV_DIR, 'bin', 'python') };
+  if (py) return { type: 'uv', bin: 'uv', python: getVenvPython() };
 
   // Try system Python on Windows (pip installed packages)
   for (const py of ['python3', 'python']) {
@@ -35,12 +35,21 @@ function detectPython() {
   return null;
 }
 
+function getVenvPython() {
+  // Cross-platform venv Python path
+  return process.platform === 'win32'
+    ? path.join(VENV_DIR, 'Scripts', 'python.exe')
+    : path.join(VENV_DIR, 'bin', 'python');
+}
+
 function ensureVenv(py) {
   if (py.type === 'uv') {
-    if (!fs.existsSync(path.join(VENV_DIR, 'bin', 'python'))) {
-      run('uv venv');
+    const venvPython = getVenvPython();
+    if (!fs.existsSync(venvPython)) {
+      run(`uv venv "${VENV_DIR}"`);
       run(`uv pip install -r "${REQ_FILE}"`);
     }
+    py.python = venvPython;
   }
   return py.python;
 }

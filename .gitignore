@@ -63,6 +63,9 @@ knowledge_base/
 .claude/worktrees/
 workspace/diagnostic-runs/
 
+# Nested git repos (standalone projects)
+claude-talk-to-figma-mcp/
+
 # Runtime state
 .runtime/pids/*.pid
 .runtime/*.log

@@ -107,6 +107,16 @@ const server = createServer(app);
 initWebSocket(server);
 
 initialize().then(() => {
+  // Handle port conflict gracefully (EADDRINUSE) instead of crashing
+  server.once('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.error(`Port ${PORT} is already in use. Is another instance running?`, { context: 'Server' });
+      logger.error(`Stop the existing process or use a different port via SERVER_PORT env.`, { context: 'Server' });
+      process.exit(1);
+    }
+    logger.error(`Server error: ${err.message}`, { context: 'Server' });
+    process.exit(1);
+  });
   server.listen(PORT, () => {
     logger.info(`HTTP + WebSocket server on http://localhost:${PORT}`, { context: 'Server' });
     logger.info(`WebSocket endpoint: ws://localhost:${PORT}/ws`, { context: 'Server' });

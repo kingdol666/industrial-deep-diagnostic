@@ -64,8 +64,8 @@ const SERVICES = {
     port: 8765,
     color: '\x1b[33m',  // yellow
     dir: join(PROJECT_ROOT, 'rag-retrieval-engine'),
-    startCmd: 'python',
-    startArgs: ['server.py'],
+    startCmd: 'node',
+    startArgs: ['start.mjs'],
     env: { RAG_PORT: '8765', RAG_HOST: '0.0.0.0' },
     healthPath: '/health',
     pidFile: join(RUNTIME_DIR, 'rag.pid'),
@@ -172,7 +172,7 @@ async function startService(key, { detach = false } = {}) {
     if (stillBlocked) return { service: key, status: 'port_blocked', port: svc.port };
   }
 
-  // Ensure node_modules exist
+  // Ensure node_modules exist (skip RAG which has its own venv via start.mjs)
   if (key !== 'rag' && !existsSync(join(svc.dir, 'node_modules'))) {
     const { execSync } = await import('child_process');
     try {
@@ -180,24 +180,6 @@ async function startService(key, { detach = false } = {}) {
       execSync('npm install --no-audit --no-fund', { cwd: svc.dir, stdio: 'ignore' });
     } catch (e) {
       return { service: key, status: 'deps_failed', error: e.message };
-    }
-  }
-
-  // Ensure RAG venv (quick check)
-  if (key === 'rag') {
-    const venvDir = IS_WIN
-      ? join(svc.dir, '.venv', 'Scripts', 'python.exe')
-      : join(svc.dir, '.venv', 'bin', 'python');
-    if (!existsSync(venvDir)) {
-      try {
-        console.log(`  ${svc.color}[${svc.name}]${'\x1b[0m'} Creating Python venv...`);
-        const { execSync } = await import('child_process');
-        execSync(`${IS_WIN ? 'python' : 'python3'} -m venv "${join(svc.dir, '.venv')}"`, { cwd: svc.dir });
-        const pip = IS_WIN ? join(svc.dir, '.venv', 'Scripts', 'pip.exe') : join(svc.dir, '.venv', 'bin', 'pip');
-        execSync(`"${pip}" install -r requirements.txt --quiet`, { cwd: svc.dir, stdio: 'ignore' });
-      } catch (e) {
-        return { service: key, status: 'venv_failed', error: e.message };
-      }
     }
   }
 
@@ -218,13 +200,18 @@ async function startService(key, { detach = false } = {}) {
 
   if (detach) child.unref();
 
-  // Wait for port to become active
+  // Wait for port to become active (longer timeout for RAG = heavy deps)
+  const maxWait = key === 'rag' ? 600 : 30; // RAG may need to download torch etc.
   let healthy = false;
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < maxWait; i++) {
     await new Promise(r => setTimeout(r, 1000));
     if (!(await checkPort(svc.port))) {
       healthy = true;
       break;
+    }
+    // Report progress for long waits
+    if (i > 0 && i % 30 === 0) {
+      console.log(`  ${svc.color}[${svc.name}]${'\x1b[0m'} Still waiting for port ${svc.port}... (${i}s)`);
     }
   }
 
@@ -232,7 +219,7 @@ async function startService(key, { detach = false } = {}) {
     // Kill and report failure
     try { process.kill(child.pid, 'SIGTERM'); } catch { }
     removePid(svc.pidFile);
-    return { service: key, status: 'start_timeout', port: svc.port };
+    return { service: key, status: 'start_timeout', port: svc.port, message: `Port ${svc.port} not ready after ${maxWait}s. Check logs for details.` };
   }
 
   const health = healthy ? await checkHealth(svc.port, svc.healthPath) : 'starting';

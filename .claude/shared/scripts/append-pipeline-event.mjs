@@ -47,7 +47,7 @@ const STEP_PREREQUISITES = {
   inspect: ['setup'],
   context_builder: ['inspect'],
   clarification_gate: ['context_builder'],
-  data_processor: ['inspect'],
+  data_processor: ['context_builder'],
   diagnostician: ['data_processor'],
   judge: ['diagnostician'],
   reporter: ['judge'],
