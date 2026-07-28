@@ -14,6 +14,23 @@ const args = process.argv.slice(2);
 const runDir = args[0];
 const skillPath = args[1] || '.';
 
+
+// Cross-skill script resolution: scripts referenced by the orchestrator
+// may live in dependent skill directories, not the orchestrator's own scripts/.
+const parentSkillsDir = join(skillPath, '..');
+const SCRIPT_TO_SKILL = {
+  'judge-gate-check.mjs': 'industrial-judge',
+  'diagnostic-quality-check.mjs': 'industrial-diagnostician',
+  'normalize-anomaly-report.mjs': 'industrial-data-processor',
+  'synthesize-data-analysis-conclusion.mjs': 'industrial-data-processor',
+  'synthesize-run-summary.mjs': 'industrial-reporter',
+};
+function resolveScript(scriptName) {
+  const owner = SCRIPT_TO_SKILL[scriptName];
+  if (owner) return join(parentSkillsDir, owner, 'scripts', scriptName);
+  return join(skillPath, 'scripts', scriptName);
+}
+
 if (!runDir) {
   console.error('Usage: node artifact-check.mjs <run_dir> [skill_path]');
   process.exit(1);
@@ -153,7 +170,7 @@ function validate(label, schemaPath, filePath, critical = true) {
     return { label: `${label} Schema Validation`, path: schemaPath, status: 'SCHEMA MISSING', critical };
   }
   try {
-    execFileSync('node', [join(skillPath, 'scripts', 'validate.mjs'), schemaFullPath, fileFullPath], {
+    execFileSync('node', [resolveScript('validate.mjs'), schemaFullPath, fileFullPath], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     return { label: `${label} Schema Validation`, path: filePath, status: 'VALID', critical };
@@ -171,7 +188,7 @@ function validate(label, schemaPath, filePath, critical = true) {
 
 function validatePipelineLog(label, critical = true) {
   try {
-    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'pipeline-log-check.mjs'), runDir], {
+    const stdout = execFileSync('node', [resolveScript('pipeline-log-check.mjs'), runDir], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     return {
@@ -297,7 +314,7 @@ function validateDeliveryContract() {
 
 function validateEvidenceClosure(label, critical = true) {
   try {
-    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'evidence-closure-check.mjs'), runDir], {
+    const stdout = execFileSync('node', [resolveScript('evidence-closure-check.mjs'), runDir], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     return {
@@ -328,7 +345,7 @@ function validateEvidenceClosure(label, critical = true) {
 
 function validateDiagnosticQuality(label, critical = true) {
   try {
-    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'diagnostic-quality-check.mjs'), runDir], {
+    const stdout = execFileSync('node', [resolveScript('diagnostic-quality-check.mjs'), runDir], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     return {
@@ -359,7 +376,7 @@ function validateDiagnosticQuality(label, critical = true) {
 
 function validateJudgeGate(label, critical = true) {
   try {
-    const stdout = execFileSync('node', [join(skillPath, 'scripts', 'judge-gate-check.mjs'), runDir], {
+    const stdout = execFileSync('node', [resolveScript('judge-gate-check.mjs'), runDir], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     return {
@@ -716,7 +733,7 @@ const report = {
 
 try {
   execFileSync('node', [
-    join(skillPath, 'scripts', 'append-pipeline-event.mjs'),
+    resolveScript('append-pipeline-event.mjs'),
     runDir,
     '--event',
     'artifact_check_complete',

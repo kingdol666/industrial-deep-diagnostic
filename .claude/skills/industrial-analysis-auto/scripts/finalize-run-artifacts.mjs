@@ -13,26 +13,42 @@ const args = process.argv.slice(2);
 const runDir = args[0];
 const skillPath = args[1] || '.';
 
+// Cross-skill script resolution: scripts referenced by the orchestrator
+// may live in dependent skill directories, not the orchestrator's own scripts/.
+const parentSkillsDir = join(skillPath, '..');
+const SCRIPT_TO_SKILL = {
+  'judge-gate-check.mjs': 'industrial-judge',
+  'diagnostic-quality-check.mjs': 'industrial-diagnostician',
+  'normalize-anomaly-report.mjs': 'industrial-data-processor',
+  'synthesize-data-analysis-conclusion.mjs': 'industrial-data-processor',
+  'synthesize-run-summary.mjs': 'industrial-reporter',
+};
+function resolveScript(scriptName) {
+  const owner = SCRIPT_TO_SKILL[scriptName];
+  if (owner) return join(parentSkillsDir, owner, 'scripts', scriptName);
+  return join(skillPath, 'scripts', scriptName);
+}
+
 if (!runDir) {
   console.error('Usage: node finalize-run-artifacts.mjs <run_dir> <skill_path>');
   process.exit(1);
 }
 
 function run(scriptName) {
-  return execFileSync('node', [join(skillPath, 'scripts', scriptName), runDir], {
+  return execFileSync('node', [resolveScript(scriptName), runDir], {
     stdio: ['ignore', 'pipe', 'pipe']
   }).toString();
 }
 
 function runWithArgs(scriptName, extraArgs = []) {
-  return execFileSync('node', [join(skillPath, 'scripts', scriptName), runDir, ...extraArgs], {
+  return execFileSync('node', [resolveScript(scriptName), runDir, ...extraArgs], {
     stdio: ['ignore', 'pipe', 'pipe']
   }).toString();
 }
 
 function logEvent(event, extraArgs = []) {
   try {
-    execFileSync('node', [join(skillPath, 'scripts', 'append-pipeline-event.mjs'), runDir, '--event', event, '--agent', 'main-agent', ...extraArgs], {
+    execFileSync('node', [resolveScript('append-pipeline-event.mjs'), runDir, '--event', event, '--agent', 'main-agent', ...extraArgs], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
   } catch (_) {}
