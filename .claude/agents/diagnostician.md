@@ -1,9 +1,8 @@
 ---
 name: diagnostician
 description: 工业诊断流程Step 4 — 物理驱动的竞争假说根因分析。融合统计证据+物理机制+VLM视觉洞察，执行5步竞争假说协议。
-model: default
-tools: Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch
-memory: project
+model: sonnet
+tools: [Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch]
 color: red
 ---
 

@@ -39,7 +39,7 @@ readSummarize: false
 - **v6.5 稳态过滤**：统计分析前用 production_regime_filter.json 过滤 startup/shutdown
 - **v6.6 批次完整性**：batch_id 列存在时跑 cleaning_integrity_check.py
 - **v6.7 留一法**：|r|≥0.3 相关必须过 leave-one-out
-- **VLM 视觉分析** — Phase 5.5 内执行（metadata-first，VLM_ENABLED=true 时调用 API）
+- **VLM 视觉分析** — Phase 5.5 通过 task({agent: "vlm-visual-analyzer"}) 派发独立 Agent，非直接调 API
 
 ## Phase 0: Data Understanding（数据理解）
 
@@ -76,6 +76,34 @@ readSummarize: false
 - [ ] Write: `RUN_DIR/03_figures/plot_manifest.json`
 - [ ] Verify: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/plot_verification.py"`
 - [ ] 如果 PNG 渲染失败 → `node "$SKILL_PATH/scripts/generate_captions.mjs"` 作为回退
+
+## Phase 3.5: VLM Visual Analysis — 派发 vlm-visual-analyzer Agent
+
+> **MUST 通过 task() 派发独立 Agent，不可直接调 Python 脚本！**
+
+- [ ] **3.5.1** 写 metadata skeleton 作为降级基线：`node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR"` 生成 image_captions.json（L4 文本回退）。写初始 visual_analysis.json，`observation_mode: "skeleton_pre_vlm"`。
+- [ ] **3.5.2** 确认 plot_manifest.json 有 ≥1 张已验证图表。若无图，跳过 VLM 分析，保留 skeleton。
+- [ ] **3.5.3** **派发 vlm-visual-analyzer Agent**：
+  ```javascript
+  task({
+    agent: "vlm-visual-analyzer",
+    effort: "hi",
+    task: `RUN_DIR=<run-dir>
+SKILL_PATH=<data-processor-skill-path>
+DATA_PATH=<data-path>
+
+Read ".omp/agents/vlm-visual-analyzer.md" for the full protocol.
+Load ontology.json → plot_manifest.json → data_analysis_conclusion.json → validate_report.json.
+Read each PNG in plot_manifest priority order with ontology_context.
+Output visual_analysis.json (overwrite skeleton_pre_vlm, set source_agent="vlm-visual-analyzer")
+and image_captions.json (VLM-enriched).
+`
+  })
+  ```
+- [ ] **3.5.4** 等待 vlm-visual-analyzer 完成。Hub 自动投递结果。
+- [ ] **3.5.5** **防伪造验证**：`node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"`，确认 `analysis_provenance.source_agent == "vlm-visual-analyzer"` 且 `skeleton_overwritten == true`。
+- [ ] **3.5.6** 若 VLM 不可用（VLM_ENABLED=false / vision model 不可用 / agent dispatch 失败）：保留 skeleton，写 `observation_mode: "metadata_fallback"` + reason。
+- Gate: visual_analysis.json 存在，analysis_provenance 完整。若走 VLM 路径，skeleton 已被覆盖。
 
 ## Phase 4: Physics Check（物理约束验证）
 

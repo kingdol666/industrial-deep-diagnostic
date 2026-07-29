@@ -21,7 +21,7 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 |Step 1: Inspect|main-agent|schema, feature_summary|
 |Step 2: Context|**context-builder**|`01_ontology/ontology.json`, rag_deep_understanding|
 |Step 3: Process|**data-processor**|`02_processed/validate_report.json`, `03_figures/*.png`, visual_analysis|
-|Step 4: Diagnose|**diagnostician**|`04_diagnostics/diagnosis.json`, evidence.json, confidence.json, reasoning_chain.json|
+|Step 4: Diagnose|**diagnostician**|`04_diagnostics/diagnosis.json`, evidence.json, confidence.json, reasoning_chain.json`|
 |Step 5: Judge|**judge**|`05_review/judge_feedback.json` (10 项评分 + 阻断问题)|
 |Step 6: Report|**reporter**|`report.md`|
 |Step 7: Review|**report-reviewer**|`optimizer.md`|
@@ -49,8 +49,7 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 
 | Directory | Purpose |
 |-----------|---------|
-| `.omp/skills/<name>/SKILL.md` | OMP-discovered skill entry point |
-| `.claude/skills/<name>/` | Legacy skill directory (schemas, scripts, references, resources) |
+| `.omp/skills/<name>/SKILL.md` | OMP-discovered skill entry point (self-contained — scripts, schemas, references, resources all under `.omp/skills/`) |
 | `templates/` | Output format templates |
 | `schemas/` | JSON Schema (draft-07), validated with `validate.mjs` |
 | `scripts/` | Pipeline executables (Node.js + Python/uv) |

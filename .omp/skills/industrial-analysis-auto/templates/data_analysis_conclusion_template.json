@@ -1,0 +1,207 @@
+{
+  "run_id": "2026-06-03T120000_industrial_case",
+  "generated_at": "2026-06-03T12:30:00Z",
+  "analysis_mode": "baseline_plus_custom",
+  "baseline_script_results": {
+    "scripts_run": [
+      "convert.mjs",
+      "dp_toolkit.py preprocess",
+      "stats.mjs or stats_analysis.py",
+      "stats_validate.mjs",
+      "dp_toolkit.py anomaly",
+      "physics_check.py"
+    ],
+    "key_findings": [
+      {
+        "finding": "Key process parameter shows product-specific volatility and survives validation within the dominant product group.",
+        "source": "02_processed/feature_summary.json + 02_processed/validate_report.json",
+        "evidence_rank": 3
+      }
+    ],
+    "limitations": [
+      "Lag claims are limited if time sorting is unavailable or irregular.",
+      "Aggregate correlations are not treated as causal unless subgroup validation passes."
+    ]
+  },
+  "expert_custom_analysis": {
+    "custom_scripts_written": true,
+    "script_inventory": [
+      {
+        "script": "06_scripts/expert_analysis.py",
+        "purpose": "Validate scenario-specific product-group trends and process-to-quality timing.",
+        "inputs": [
+          "02_processed/cleaned_data.csv",
+          "01_ontology/ontology.json"
+        ],
+        "outputs": [
+          "02_processed/product_group_trend_analysis.json",
+          "03_figures/fig_product_group_trends.png"
+        ]
+      }
+    ],
+    "analysis_questions": [
+      "Does process instability happen within product groups or only between products?",
+      "Does the ontology-predicted physical mechanism appear in the measured data?"
+    ],
+    "custom_outputs": [
+      "02_processed/product_group_trend_analysis.json",
+      "03_figures/fig_product_group_trends.png"
+    ],
+    "why_needed": "The fixed scripts identify candidate correlations, but scenario-specific grouped timing and ontology-predicted mechanism checks require a focused custom analysis."
+  },
+  "ontology_industry_interpretation": [
+    {
+      "parameter_or_pattern": "process_parameter_x",
+      "ontology_role": "process_parameter in the critical process stage",
+      "industry_knowledge": "Domain knowledge says this parameter affects quality through a known physical mechanism.",
+      "interpretation": "The observed fluctuation is diagnostically meaningful because it occurs in the stage where the ontology predicts quality sensitivity.",
+      "confidence": "medium"
+    }
+  ],
+  "adaptive_decision_audit": {
+    "data_view_mode": "process_plus_inspection",
+    "mode_justification": "Both process parameters and true inspection / quality target columns were detected. If no true quality / inspection / test column exists, set this to process_only and do not infer pseudo-targets.",
+    "data_shapes_detected": [
+      "time_series",
+      "process_parameters",
+      "inspection_or_quality_targets",
+      "product_or_batch_grouping"
+    ],
+    "selected_analyses": [
+      {
+        "analysis": "pure_process_fluctuation_and_drift",
+        "reason": "Process parameters are available, so independent process stability, drift, volatility, and regime behavior must be analyzed before causal claims.",
+        "evidence_artifacts": [
+          "02_processed/anomaly_report.json",
+          "02_processed/feature_summary.json"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "process_inspection_dual_drive",
+        "reason": "True quality / inspection signals are present, so process-side abnormalities must be checked against inspection-side anomaly timing and grouping.",
+        "evidence_artifacts": [
+          "02_processed/anomaly_report.json"
+        ],
+        "coverage_status": "covered"
+      }
+    ],
+    "skipped_or_not_applicable": [
+      {
+        "analysis": "zone_profile_analysis",
+        "status": "not_applicable",
+        "reason": "No multi-zone or spatial profile sensor structure was detected in this dataset."
+      }
+    ],
+    "custom_analysis_required": true,
+    "custom_analysis_reason": "The actual data shape contains grouping / timing / scenario-specific structures that require focused scripts beyond the fixed baseline.",
+    "expert_review_summary": "Data Processor classified the run from observed data structure, selected applicable analyses, skipped non-applicable dimensions with reasons, and recorded the evidence artifacts for each decision."
+  },
+  "analysis_coverage_matrix": {
+    "pure_process_analysis": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json",
+        "02_processed/feature_summary.json"
+      ],
+      "summary": "Process parameters were screened for drift, volatility, abrupt changes, stability, and regime behavior.",
+      "gaps": []
+    },
+    "process_inspection_dual_drive": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "Process-side abnormalities were linked to inspection / quality-side evidence when true target columns existed.",
+      "gaps": []
+    },
+    "grouping_confounding": {
+      "status": "partial",
+      "evidence_artifacts": [
+        "02_processed/validate_report.json"
+      ],
+      "summary": "Product / lot / batch grouping was considered where detected; aggregate conclusions must be bounded by within-group validation.",
+      "gaps": [
+        "If grouping columns are unavailable, product-mix confounding cannot be fully excluded."
+      ]
+    },
+    "temporal_regime_event": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "03_figures/fig1_temporal_alignment.png"
+      ],
+      "summary": "Temporal order, lag, transition, and regime behavior were analyzed when a reliable time column or event structure was present.",
+      "gaps": []
+    },
+    "scenario_specific": {
+      "status": "partial",
+      "evidence_artifacts": [
+        "06_scripts/expert_analysis.py"
+      ],
+      "summary": "Scenario-specific analyses are generated from the actual data shape, such as zone balance, paired sensors, nonlinear thresholds, cyclic behavior, or process-health screening.",
+      "gaps": [
+        "If no custom script is written, Data Processor must explicitly justify why baseline analysis is sufficient."
+      ]
+    }
+  },
+  "data_supported_conclusions": [
+    {
+      "conclusion": "Process-side instability exists in the dominant product group and is not explained by aggregate product mix alone.",
+      "supporting_sources": [
+        "02_processed/validate_report.json",
+        "02_processed/product_group_trend_analysis.json",
+        "03_figures/fig_product_group_trends.png"
+      ],
+      "evidence_strength": "moderate",
+      "diagnostic_relevance": "This conclusion should be tested as a root-cause candidate by the Diagnostician using physics and competing-hypothesis checks.",
+      "known_caveats": [
+        "Requires confirmation that the time column is valid and sorted within each product group."
+      ]
+    }
+  ],
+  "handoff_to_diagnostician": {
+    "priority_hypothesis_inputs": [
+      {
+        "candidate": "process_parameter_x instability",
+        "why_prioritized": "It is supported by baseline validation, custom grouped timing analysis, and ontology interpretation.",
+        "supporting_artifacts": [
+          "02_processed/data_analysis_conclusion.json",
+          "02_processed/product_group_trend_analysis.json"
+        ]
+      }
+    ],
+    "evidence_gaps": [
+      "Need direct maintenance/event record or independent sensor confirmation for final root-cause determination."
+    ],
+    "recommended_diagnostic_focus": [
+      "Test whether process_parameter_x has a physically plausible mechanism and falsification condition.",
+      "Check competing product-mix and measurement-artifact hypotheses."
+    ]
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity). Replace with the actual decision; if raw_fallback was triggered, record the failing check and fallback reason here.",
+    "integrity_checks": {
+      "row_count": {"raw_rows": 0, "cleaned_rows": 0, "dropped": 0, "drop_rate": 0.0},
+      "type_integrity": {},
+      "range_fidelity": {}
+    },
+    "cleaning_operations": [
+      {"operation": "type_coerce", "target": "<column_leaked_to_string>", "rows_affected": 0, "rationale": "One entry per cleaning step (dedup/sort/type_coerce/missing_handle/outlier/derived_feature). Never leave empty — every cleaning action must be auditable (留痕)."}
+    ],
+    "repair_attempts": []
+  },
+  "time_lag_analysis": {
+    "applicable": false,
+    "not_applicable_reason": "Set applicable=true and populate pairs_analyzed / significant_lags_found / key_recommendations when a time column exists AND both process + inspection data are present.",
+    "pairs_analyzed": 0,
+    "significant_lags_found": 0,
+    "key_recommendations": []
+  },
+  "analysis_boundary": {
+    "tiers": {},
+    "pruned_pairs": [],
+    "predictor_cols": [],
+    "exclude_cols": []
+  }
+}

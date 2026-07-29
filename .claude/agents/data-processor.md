@@ -1,10 +1,9 @@
 ---
 name: data-processor
 description: 工业诊断流程Step 3 — 数据处理与可视化。运行统计基线脚本+专家自定义分析，生成图表和data_analysis_conclusion.json。
-model: default
-tools: Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch, Agent
-disallowedTools: Edit
-memory: project
+model: sonnet
+tools: [Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch, Task]
+disallowedTools: [Edit]
 color: green
 ---
 

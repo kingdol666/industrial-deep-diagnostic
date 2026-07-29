@@ -2,7 +2,7 @@
 name: html-visualizer
 description: 工业诊断流程Step 8 — 诊断结果前端可视化构建。复用diagnostic-html-visualizer skill生成ECharts+Three.js讲解式HTML页面。结论必须在首屏，图表是证据不是装饰，3D模型必须讲真话（从ontology恢复真实工艺），网络不可靠要优雅降级。
 model: default
-tools: read, write, bash, glob, grep, skill
+tools: read, write, bash, glob, grep
 spawns: ""
 thinkingLevel: medium
 readSummarize: false

@@ -69,3 +69,6 @@ claude-talk-to-figma-mcp/
 # Runtime state
 .runtime/pids/*.pid
 .runtime/*.log
+
+# Test artifacts (generated during validation)
+test_vlm/

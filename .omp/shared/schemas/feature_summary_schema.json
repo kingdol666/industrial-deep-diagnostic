@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "feature_summary_schema.json",
+  "title": "Feature Summary Schema",
+  "description": "Schema for feature_summary.json — statistical profile of every column in the dataset. Consumed by diagnostician (Phase 0), judge (Step 0), context-builder (Phase 0), and html-visualizer.",
+  "type": "object",
+  "required": ["columns", "dataset_profile", "metadata"],
+  "properties": {
+    "columns": {
+      "type": "object",
+      "description": "Per-column statistical summaries",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["dtype", "count", "missing", "role"],
+        "properties": {
+          "dtype": { "type": "string" },
+          "count": { "type": "integer" },
+          "missing": { "type": "integer" },
+          "missing_pct": { "type": "number" },
+          "role": { "enum": ["process_parameter", "quality_target", "grouping", "time_index", "metadata"] },
+          "mean": { "type": "number" },
+          "std": { "type": "number" },
+          "min": { "type": "number" },
+          "max": { "type": "number" },
+          "q25": { "type": "number" },
+          "q50": { "type": "number" },
+          "q75": { "type": "number" },
+          "skewness": { "type": "number" },
+          "kurtosis": { "type": "number" },
+          "unique_values": { "type": "integer" },
+          "outlier_count": { "type": "integer" },
+          "outlier_pct": { "type": "number" }
+        }
+      }
+    },
+    "dataset_profile": {
+      "type": "object",
+      "required": ["row_count", "column_count"],
+      "properties": {
+        "row_count": { "type": "integer" },
+        "column_count": { "type": "integer" },
+        "time_range": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "number" },
+            "end": { "type": "number" },
+            "duration": { "type": "number" }
+          }
+        },
+        "product_groups": { "type": "array", "items": { "type": "string" } },
+        "group_sizes": { "type": "object" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["generated_by"],
+      "properties": {
+        "generated_by": { "type": "string" },
+        "data_source": { "enum": ["cleaned", "raw_fallback"] },
+        "timestamp": { "type": "string" }
+      }
+    }
+  }
+}

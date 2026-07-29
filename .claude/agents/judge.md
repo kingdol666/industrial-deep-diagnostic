@@ -1,10 +1,9 @@
 ---
 name: judge
 description: 工业诊断流程Step 5 — 质量门审查。评分10项标准，验证诊断推理与统计基础的完整性，输出pass/needs_repair/fail。
-model: default
-tools: Read, Write, Bash, Glob, Grep, ToolSearch
-disallowedTools: Edit
-memory: project
+model: sonnet
+tools: [Read, Write, Bash, Glob, Grep, ToolSearch]
+disallowedTools: [Edit]
 color: cyan
 ---
 

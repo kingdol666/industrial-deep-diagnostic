@@ -1,10 +1,9 @@
 ---
 name: html-visualizer
 description: 工业诊断流程Step 8 — 诊断结果前端可视化构建。基于已完成审计的诊断工作目录，复用 diagnostic-html-visualizer skill 生成 ECharts+Three.js 讲解式 HTML 页面。
-model: default
-tools: Read, Write, Bash, Glob, Grep, Skill, ToolSearch
-disallowedTools: Edit
-memory: project
+model: sonnet
+tools: [Read, Write, Bash, Glob, Grep, ToolSearch]
+disallowedTools: [Edit]
 color: green
 ---
 

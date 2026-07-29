@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "validate_report_schema.json",
+  "title": "Statistical Validation Report Schema",
+  "description": "Schema for validate_report.json — output of Phase 2 statistical pipeline. Records anti-spurious correlation checks (Simpson, detrend, Spearman, change-point, leave-one-out) for every parameter-quality-target pair. Consumed by diagnostician (Phase 1), judge (Step 1), and reporter (Section 4).",
+  "type": "object",
+  "required": ["validations", "summary", "metadata"],
+  "properties": {
+    "validations": {
+      "type": "array",
+      "description": "Per-pair validation records",
+      "items": {
+        "type": "object",
+        "required": ["parameter", "target", "pearson_r", "p_value"],
+        "properties": {
+          "parameter": { "type": "string" },
+          "target": { "type": "string" },
+          "pearson_r": { "type": "number", "minimum": -1, "maximum": 1 },
+          "spearman_rho": { "type": "number", "minimum": -1, "maximum": 1 },
+          "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+          "detrended_r": { "type": "number", "minimum": -1, "maximum": 1 },
+          "detrended_p_value": { "type": "number" },
+          "simpson_check": {
+            "type": "object",
+            "properties": {
+              "safe": { "type": "boolean" },
+              "strata_count": { "type": "integer" },
+              "strata_correlations": { "type": "object" },
+              "direction_reversals": { "type": "integer" }
+            }
+          },
+          "change_point_detected": { "type": "boolean" },
+          "leave_one_out_stable": { "type": "boolean" },
+          "outlier_leverage": { "type": "number" },
+          "significance": { "enum": ["significant", "marginal", "not_significant"] },
+          "evidence_grade": { "enum": ["STRONG", "MODERATE", "WEAK", "NONE"] },
+          "warnings": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_pairs_analyzed", "significant_pairs", "simpson_safe_pairs"],
+      "properties": {
+        "total_pairs_analyzed": { "type": "integer" },
+        "significant_pairs": { "type": "integer" },
+        "simpson_safe_pairs": { "type": "integer" },
+        "detrended_robust_pairs": { "type": "integer" },
+        "leave_one_out_passed_pairs": { "type": "integer" },
+        "top_correlations": { "type": "array" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["generated_by", "pipeline_phase"],
+      "properties": {
+        "generated_by": { "type": "string" },
+        "pipeline_phase": { "type": "string" },
+        "data_source": { "enum": ["cleaned", "raw_fallback"] },
+        "sample_size": { "type": "integer" },
+        "anti_spurious_rules_applied": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
