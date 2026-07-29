@@ -730,7 +730,7 @@ def cmd_regime_filter(args):
         # as a sibling script
         detector_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '..', '..', '.claude', 'skills', 'industrial-deep-diagnostic',
+            '..', '..', '.omp', 'skills', 'industrial-data-processor',
             'scripts', 'production_regime_detector.py'
         )
 

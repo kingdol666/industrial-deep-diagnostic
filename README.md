@@ -793,9 +793,9 @@ node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
 
 添加新的诊断 Skill：
 
-1. 在 `.omp/skills/<name>/SKILL.md` 定义技能入口
-2. 在 `.omp/agents/<name>.md` 定义 Agent
-3. 在 `.claude/skills/<name>/` 实现脚本 + Schema
+1. 在 `.claude/skills/<name>/SKILL.md` 定义技能入口（含全部脚本 + Schema + 协议）
+2. 在 `.omp/agents/<name>.md` 定义 Agent（OMP task-agent 契约：name + description + tools + spawns + model）
+3. （可选）在 `.claude/agents/<name>.md` 添加 Claude Code 原生格式 agent
 4. 在 `industrial-analysis-auto/SKILL.md` 注册步骤
 
 ---

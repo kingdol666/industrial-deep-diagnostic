@@ -40,7 +40,7 @@ readSummarize: false
 
 复用 `diagnostic-html-visualizer` skill：
 1. `Read("skill://diagnostic-html-visualizer")`
-2. `Read("skill://diagnostic-html-visualizer/agents/html-builder.md")`
+2. `Read("skill://diagnostic-html-visualizer/references/html-builder-protocol.md")`
 3. `Read("skill://diagnostic-html-visualizer/templates/page_blueprint.md")`
 4. `Read("skill://diagnostic-html-visualizer/templates/render_prompt_template.md")`
 

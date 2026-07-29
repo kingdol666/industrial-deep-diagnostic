@@ -1,8 +1,8 @@
 ---
 name: data-processor
-description: 工业诊断流程Step 3 — 数据处理与可视化。运行统计基线脚本+专家自定义分析，生成图表和data_analysis_conclusion.json。
+description: 工业诊断流程Step 3 — 数据处理与可视化。运行统计基线脚本+专家自定义分析，生成图表和data_analysis_conclusion.json。ontology_first模式，先读本体再做统计。
 model: sonnet
-tools: [Read, Write, Bash, Glob, Grep, TodoWrite, ToolSearch, Task]
+tools: [Read, Write, Bash, Glob, Grep, Task, TodoWrite, ToolSearch]
 disallowedTools: [Edit]
 color: green
 ---
@@ -12,12 +12,13 @@ color: green
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取：
-   - `Read("${SKILL_PATH}/agents/data-processor.md")` — 本协议（执行清单）
-   - `Read("${SKILL_PATH}/resources/visual_analysis_framework.md")` — 图表设计+分析协议
-   - `Read(".omp/skills/industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-6 执行协议
+   - `Read("skill://industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
    - `Read("${SKILL_PATH}/resources/scenario_patterns.md")` — 场景分析模式 A-I
 
-2. 严格按 Phase 顺序执行。**每个 [ ] 必须打勾完成后再进入下一项。**
+2. 严格按 Phase 顺序执行。
+
+
 
 ## 参数
 
@@ -25,6 +26,7 @@ color: green
 - DATA_PATH — 数据文件路径
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和schema目录
 - PHASE_LIMIT — 如果为 "preprocess" 只执行 Phase 0-1；如果为 "analyze" 只执行 Phase 2-6
 
 ## 核心规则
@@ -36,40 +38,32 @@ color: green
 - **v6.5 稳态过滤**：统计分析前用 production_regime_filter.json 过滤 startup/shutdown
 - **v6.6 批次完整性**：batch_id 列存在时跑 cleaning_integrity_check.py
 - **v6.7 留一法**：|r|≥0.3 相关必须过 leave-one-out
-- **VLM 视觉分析由独立 Step 3.5 负责** — data-processor 不启动 vlm-visual-analyzer
-
----
+- **VLM 视觉分析** — Phase 5.5 通过 Agent({subagent_type: "vlm-visual-analyzer"}) 派发独立 Agent，非直接调 API
 
 ## Phase 0: Data Understanding（数据理解）
 
 - [ ] Read: `RUN_DIR/01_ontology/ontology.json` — **最重要的文件**：参数物理含义、设备归属、工艺阶段
 - [ ] Read: `RUN_DIR/02_processed/feature_summary.json` — 基本统计特征
-- [ ] Write: `RUN_DIR/02_processed/data_view_mode.json` — 确定 data_view_mode（process_plus_inspection / process_only / inspection_only / unknown）
-- [ ] Write: `RUN_DIR/02_processed/scenario_classification.json` — 场景分类（使用 schema 验证）
-- [ ] **确定分析范围**：哪些参数分析了、哪些被剪枝了、为什么
-- [ ] 如果存在 product 列 → 确定 focus_product（异常率最高那个）
+- [ ] Write: `RUN_DIR/02_processed/data_view_mode.json` — 确定 data_view_mode
+- [ ] Write: `RUN_DIR/02_processed/scenario_classification.json` — 场景分类
+- [ ] **确定分析范围**：哪些参数分析、哪些剪枝、为什么
+- [ ] 如果存在 product 列 → 确定 focus_product
 - [ ] Write: `RUN_DIR/02_processed/analysis_parameter_selection.json`
 
 ## Phase 1: Preprocessing（数据预处理）
 
-> 如果 PHASE_LIMIT=preprocess，执行此 Phase 后停止；否则检查文件是否存在后继续
+- [ ] Read: 确认 Phase 2b 已完成（cleaned_data.csv/json、feature_summary）
+- [ ] Read: `RUN_DIR/02_processed/production_regime_filter.json`（如果存在）
+- [ ] Read: `RUN_DIR/02_processed/cleaning_integrity.json`（如果存在）
+- [ ] 如果 Phase 2b 产物缺失 → 运行 dp_toolkit preprocess
+- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/cleaning_integrity_check.py"`
+- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/production_regime_detector.py"`
 
-- [ ] Read: 确认 Phase 2b 已完成（cleaned_data.csv/json、feature_summary 已存在）
-- [ ] Read: `RUN_DIR/02_processed/production_regime_filter.json`（如果存在）— 稳态数据
-- [ ] Read: `RUN_DIR/02_processed/cleaning_integrity.json`（如果存在）— 清洗痕迹
-- [ ] 如果 Phase 2b 产物缺失 → 运行 dp_toolkit preprocess：
-  - `python "$PYTHON_BIN" "$SKILL_PATH/scripts/dp_toolkit.py" preprocess --input "$DATA_PATH" --output "$RUN_DIR/02_processed/cleaned_data.csv"`
-- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/cleaning_integrity_check.py" "$RUN_DIR/02_processed/cleaned_data.csv"`
-- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/production_regime_detector.py" "$RUN_DIR/02_processed/cleaned_data.csv" --output "$RUN_DIR/02_processed/production_regime_filter.json"`
+## Phase 2: Statistical Pipeline（统计管线）
 
-## Phase 2: Statistical Pipeline（统计管线 — v7.0 统一入口）
-
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full --target-cols "$QUALITY_COLS" --predictor-cols "$PREDICTOR_COLS" --exclude-cols "$EXCLUDE_COLS" --group-col <group_col> --time-col <time_col>`
-  - This single command replaces the old stats.mjs + stats_validate.mjs + stats_analysis.py trio
-  - Produces `validate_report.json` with correlation analysis AND anti-spurious validation AND batch integrity
-- [ ] 如果有时滞物理延迟 → Run: `node "$SKILL_PATH/scripts/time_lag_compensator.mjs" "$RUN_DIR/02_processed/cleaned_data.json" --output "$RUN_DIR/02_processed/time_lag_analysis.json" --ontology "$RUN_DIR/01_ontology/ontology.json"`
-- [ ] **验证 v6.7 留一法**：已集成在 stats/anti_spurious.py 中
-- [ ] Verify: `RUN_DIR/02_processed/validate_report.json` 已生成
+- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full`
+- [ ] 如果有时滞物理延迟 → Run: `node "$SKILL_PATH/scripts/time_lag_compensator.mjs"`
+- [ ] Write: `RUN_DIR/02_processed/validate_report.json`
 
 ## Phase 3: Visualization（可视化）
 
@@ -78,47 +72,64 @@ color: green
 - [ ] 如果有多产品 → focus product 的 per-product 图优先级最高
 - [ ] 生成 Simpson 分层图（每个参数 vs 每个目标）
 - [ ] 生成时滞 CCF 图（计算了时滞时）
-- [ ] 生成同步分析图
-- [ ] 生成事件响应图
 - [ ] Write: `RUN_DIR/03_figures/plot_manifest.json`
-- [ ] Verify: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/plot_verification.py" --manifest "$RUN_DIR/03_figures/plot_manifest.json" --output "$RUN_DIR/03_figures/plot_verification.json"`
-- [ ] 如果 PNG 渲染失败 → `node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR"` 作为回退
+- [ ] Verify: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/plot_verification.py"`
+- [ ] 如果 PNG 渲染失败 → `node "$SKILL_PATH/scripts/generate_captions.mjs"` 作为回退
+
+## Phase 3.5: VLM Visual Analysis — 派发 vlm-visual-analyzer Agent
+
+> **MUST 通过 task() 派发独立 Agent，不可直接调 Python 脚本！**
+
+- [ ] **3.5.1** 写 metadata skeleton 作为降级基线：`node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR"` 生成 image_captions.json（L4 文本回退）。写初始 visual_analysis.json，`observation_mode: "skeleton_pre_vlm"`。
+- [ ] **3.5.2** 确认 plot_manifest.json 有 ≥1 张已验证图表。若无图，跳过 VLM 分析，保留 skeleton。
+- [ ] **3.5.3** **派发 vlm-visual-analyzer Agent**：
+  ```javascript
+  Agent({
+    subagent_type: "vlm-visual-analyzer",
+    prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<data-processor-skill-path>
+DATA_PATH=<data-path>
+
+Read "${SKILL_PATH}/resources/visual_analysis_framework.md" for the VLM protocol.
+Load ontology.json → plot_manifest.json → data_analysis_conclusion.json → validate_report.json.
+Read each PNG in plot_manifest priority order with ontology_context.
+Output visual_analysis.json (overwrite skeleton_pre_vlm, set source_agent="vlm-visual-analyzer")
+and image_captions.json (VLM-enriched).
+`
+  })
+  ```
+- [ ] **3.5.4** 等待 vlm-visual-analyzer 完成。Hub 自动投递结果。
+- [ ] **3.5.5** **防伪造验证**：`node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"`，确认 `analysis_provenance.source_agent == "vlm-visual-analyzer"` 且 `skeleton_overwritten == true`。
+- [ ] **3.5.6** 若 VLM 不可用（VLM_ENABLED=false / vision model 不可用 / agent dispatch 失败）：保留 skeleton，写 `observation_mode: "metadata_fallback"` + reason。
+- Gate: visual_analysis.json 存在，analysis_provenance 完整。若走 VLM 路径，skeleton 已被覆盖。
 
 ## Phase 4: Physics Check（物理约束验证）
 
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/physics_check.py" --input "$RUN_DIR/02_processed/validate_report.json" --ontology "$RUN_DIR/01_ontology/ontology.json" --output "$RUN_DIR/02_processed/physics_check.json"`
+- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/physics_check.py"`
 - [ ] Write: `RUN_DIR/02_processed/physics_check.json`
 
 ## Phase 5: Handoff（交接准备）
 
 > **核心产出**: data_analysis_conclusion.json — 是 diagnostician 的唯一交接面
 
-- [ ] Read schema: `"$SKILL_PATH/schemas/data_analysis_conclusion_schema.json"`
-- [ ] Read template: `"$SKILL_PATH/templates/data_analysis_conclusion_template.json"`
+- [ ] Read schema: `"$SHARED_PATH/schemas/data_analysis_conclusion_schema.json"`
 - [ ] 构造 data_analysis_conclusion.json：
-  - baseline_script_results：运行过的脚本和关键发现
-  - expert_custom_analysis：自定义脚本（如有）
-  - ontology_industry_interpretation：每个参数的物理含义解读
-  - adaptive_decision_audit：证明分析覆盖了数据中所有信号类型
-  - analysis_coverage_matrix：5 个维度覆盖情况
-  - handoff_to_diagnostician：priority_hypothesis_inputs
-  - time_lag_analysis：时滞分析结果
-  - data_cleaning_provenance：清洗留痕
+  - baseline_script_results, expert_custom_analysis, ontology_industry_interpretation
+  - adaptive_decision_audit, analysis_coverage_matrix
+  - handoff_to_diagnostician: priority_hypothesis_inputs
+  - time_lag_analysis, data_cleaning_provenance
 - [ ] Write: `RUN_DIR/02_processed/data_analysis_conclusion.json`
 
 ## Phase 6: Stabilize（稳定化）
 
 - [ ] Run: `node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"`
   → Step 1: Normalizes anomaly_report.json; Step 2: Synthesizes data_analysis_conclusion.json
-- [ ] Validate: `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/data_analysis_conclusion_schema.json" "$RUN_DIR/02_processed/data_analysis_conclusion.json"`
-
----
+- [ ] Validate: `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/data_analysis_conclusion_schema.json"`
 
 ## 补充指导
-- **场景优先**：不同数据不同分析——BOPET 薄膜做分层+Arrhenius，热交换器做 Fouling 模型，CNC 做振动频谱
+
+- **场景优先**：不同数据不同分析
 - **不要生成毫无意义的图表**——每一张图必须有诊断目的
 - Python 路径：`"$PYTHON_BIN"`（从主 Agent 获取），不要裸 `python3`
 - 所有路径包含空格时必须双引号包裹
 - 默认中文
-
-> **VLM 注意**: vlm-visual-analyzer 现在是独立 Step 3.5。data-processor **不**负责启动它。Step 3 完成后主 Agent 会自动启动 VLM。

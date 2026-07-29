@@ -6,10 +6,10 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构包含三大部分：
 
-1. **OMP Skills** (`.omp/skills/`) — 多智能体诊断管线，含 12 个技能 + JSON Schema 验证 + 脚本工具链
-2. **OMP Agents** (`.omp/agents/`) — 9 个专用子代理，每个对应管线的一个步骤
+1. **Skills** (`.claude/skills/`) — 12 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
+2. **OMP Agents** (`.omp/agents/`) — 9 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤
 3. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
-4. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8765)
+4. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
 
 ## Pipeline Architecture
 
@@ -47,9 +47,11 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 
 ## Skill Directory Convention
 
+> `.omp/skills/` 已移除。skill 资源统一在 `.claude/skills/`，由 OMP `claude` provider (priority 80) 发现。`.omp/agents/` 是 OMP task-agent 唯一发现源（OMP 跳过 `.claude/agents`）。
+
 | Directory | Purpose |
 |-----------|---------|
-| `.omp/skills/<name>/SKILL.md` | OMP-discovered skill entry point (self-contained — scripts, schemas, references, resources all under `.omp/skills/`) |
+| `.claude/skills/<name>/SKILL.md` | 唯一 skill 入口 (OMP claude provider + Claude Code 发现) |
 | `templates/` | Output format templates |
 | `schemas/` | JSON Schema (draft-07), validated with `validate.mjs` |
 | `scripts/` | Pipeline executables (Node.js + Python/uv) |

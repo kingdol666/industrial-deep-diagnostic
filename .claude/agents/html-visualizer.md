@@ -54,7 +54,7 @@ color: green
 按以下顺序读取：
 
 1. `"$SKILL_PATH/../diagnostic-html-visualizer/SKILL.md"`
-2. `"$SKILL_PATH/../diagnostic-html-visualizer/agents/html-builder.md"`
+2. `"$SKILL_PATH/../diagnostic-html-visualizer/references/html-builder-protocol.md"`
 3. `"$SKILL_PATH/../diagnostic-html-visualizer/templates/page_blueprint.md"`
 4. `"$SKILL_PATH/../diagnostic-html-visualizer/templates/render_prompt_template.md"`
 

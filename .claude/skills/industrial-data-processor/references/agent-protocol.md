@@ -161,12 +161,86 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 
 ---
 
-## Phase 5.5: VLM Visual Analysis (optional, auto-degrade)
+## Phase 5.5: VLM Visual Analysis — Dispatch vlm-visual-analyzer Agent
 
-- [ ] If VLM_ENABLED=true: run `python "$PYTHON_BIN" "$SKILL_PATH/scripts/visual_analysis.py"`
-- [ ] Else: write visual_analysis.json as metadata-only skeleton (from plot_manifest + image_captions)
-- [ ] If VLM was used: run `node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"`
-- Gate: visual_analysis.json exists (metadata or VLM-enriched)
+> **MUST dispatch via task() — do NOT run Python scripts directly for VLM analysis.**
+
+### Step 0: Generate VLM-Specialized Temporal Overlay Charts
+
+Before dispatching VLM, generate VLM-optimized temporal overlay charts. These charts are specifically designed for VLM reading — all parameters z-score normalized, direction-aligned (negatively correlated params reversed), shared time axis, event markers.
+
+```bash
+PYTHON=$(node "$SHARED_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const j=JSON.parse(d.trim().split('\\n').pop());process.stdout.write(j.python||'')}catch(e){process.stdout.write('')}})")
+"$PYTHON" "$SKILL_PATH/scripts/generate_vlm_charts.py" "$RUN_DIR" \
+  --target-cols <quality_cols> \
+  --key-params <process_params> \
+  --group-col <group_col> \
+  --time-col <time_col> \
+  --events <events_json>
+```
+
+**Chart design specs** (详 `resources/visual_analysis_framework.md`):
+- All params z-score normalized
+- Negative correlations reversed (quality-degradation direction aligned)
+- Shared x-axis (time) — ONLY when valid time column exists
+- Event markers: red dashed lines + annotations
+- Font >= 12pt, high contrast, English axis labels (compatible with matplotlib rendering)
+- Title in English: "Cement Ball Mill — VLM Temporal Alignment"
+
+### Step 1: Build VLM Input Filter Manifest
+
+**Not all images go to VLM. Only spatio-temporally aligned images carry diagnostic value for VLM.**
+
+```bash
+# Generate vlm_input_manifest.json — selects which images VLM reads
+"$PYTHON" "$SKILL_PATH/scripts/generate_vlm_manifest.py" "$RUN_DIR"
+```
+
+| Priority | Criteria | Example | VLM Value |
+|----------|----------|---------|-----------|
+| **MANDATORY** | Multi-param temporal overlay, shared time axis, z-score normalized | `fig_vlm_temporal_overlay.png` | Synchrony, precedence, event response, trend morphology |
+| **MANDATORY** | Per-group temporal overlay (when product grouping exists) | `fig_vlm_per_product_overlay.png` | Group-specific degradation patterns |
+| **SUPPLEMENTARY** | Scatter colored by confounder (for Simpson Paradox check) | `separator_vs_residue.png` | Cluster separation, within-group slope consistency |
+| **NOT_FOR_VLM** | Single-param trend, bar chart, dual-axis without normalization | All others | No cross-parameter insight — exclude |
+
+### Step 2: Write Metadata Skeleton (Fallback Base)
+
+- [ ] **5.5.1** Determine VLM availability: check `VLM_ENABLED` env/context.
+- [ ] **5.5.2** Write metadata skeleton as fallback base: `node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR"` creates image_captions.json with L4 text fallback. Write initial visual_analysis.json with `observation_mode: "skeleton_pre_vlm"`.
+
+### Step 3: Dispatch vlm-visual-analyzer Agent (with filtered images)
+
+- [ ] **5.5.3** **Dispatch vlm-visual-analyzer Agent** via Agent(). **CRITICAL: VLM MUST read vlm_input_manifest.json first, NOT plot_manifest.json directly.** Only images listed in vlm_input_manifest with priority MANDATORY or SUPPLEMENTARY should be read.
+
+  ```javascript
+  Agent({
+    subagent_type: "vlm-visual-analyzer",
+    prompt: `RUN_DIR=<run-dir>
+  SKILL_PATH=<data-processor-skill-path>
+  DATA_PATH=<data-path>
+
+  ## IMAGE SELECTION (MANDATORY — DO NOT READ ALL PNGs)
+  - FIRST read "vlm_input_manifest.json" from RUN_DIR/03_figures/
+  - ONLY read images listed in vlm_input_manifest.json with priority MANDATORY or SUPPLEMENTARY
+  - DO NOT read images listed as NOT_FOR_VLM — they have no cross-parameter temporal alignment
+  - Read MANDATORY images FIRST (temporal overlays), then SUPPLEMENTARY (scatter for Simpson check)
+  
+  Read ".claude/agents/vlm-visual-analyzer.md" for the full protocol.
+  Load ontology.json, data_analysis_conclusion.json, validate_report.json.
+  Read each selected PNG in priority order. Extract structured visual observations.
+  Output visual_analysis.json (overwriting skeleton_pre_vlm) and image_captions.json.
+  `
+  })
+  ```
+- [ ] **5.5.4** Wait for vlm-visual-analyzer to complete (agent result delivered via hub).
+- [ ] **5.5.5** **Anti-forgery verification**:
+  ```bash
+  node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
+  # Additional check: verify only selected images were read
+  python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files and not i.get('filename','').startswith('skeleton')]; print(f'Clean: {len(excluded_read)==0}, read={len(read)}/{len(vlm_files)}')"
+  ```
+- [ ] **5.5.6** If VLM_ENABLED=false or agent dispatch fails: fall back to metadata-only skeleton. Write `observation_mode: "metadata_fallback"` with reason.
+- Gate: visual_analysis.json exists with valid analysis_provenance. chart_inventory only contains images from vlm_input_manifest.json. If VLM was used, skeleton was overwritten.
 
 ---
 

@@ -54,7 +54,7 @@ Builder agent 必须遵守以下 6 条铁律。其中铁律 3-5 已在 §Style D
 
 ### 铁律 3: 页面交付 = 数据驱动组装 + 视觉语法继承
 
-**先建模型，再渲染。** Builder agent 必须先扫描 run_dir 真实 JSON，产出 `render_manifest.json`（页面模型，schema 见 `agents/html-builder.md`），再按 manifest 组装页面。`references/report-template.html` 是视觉语法基准，不是填空骨架——它提供 CSS 变量、排版、组件类、loader、ECharts/Three.js 加载模式。
+**先建模型，再渲染。** Builder agent 必须先扫描 run_dir 真实 JSON，产出 `render_manifest.json`（页面模型，schema 见 `references/html-builder-protocol.md`），再按 manifest 组装页面。`references/report-template.html` 是视觉语法基准，不是填空骨架——它提供 CSS 变量、排版、组件类、loader、ECharts/Three.js 加载模式。
 
 Builder agent 的工作是:
 1. **理解** — 扫描 run_dir 全部诊断 JSON + report.md + plot_manifest
@@ -154,7 +154,7 @@ Builder agent 的工作是:
 示例：
 
 ```text
-/diagnostic-html-visualizer build run_dir="/abs/path/to/workspace/diagnostic-runs/202606151602359_bopet_scratch_lekai"
+/diagnostic-html-visualizer build run_dir="<absolute-path-to-your-run-dir>"
 ```
 
 ### Consumer-Call from industrial-deep-diagnostic
@@ -178,7 +178,7 @@ Skill({
 
 ### Step 1: Read the builder protocol
 
-先读 `agents/html-builder.md`，把它当作执行协议。
+先读 `references/html-builder-protocol.md`，把它当作执行协议。
 
 🔴 **CHECKPOINT 1 · 协议确认**: builder agent 读完 html-builder.md 后，确认三件事：(a) 理解四段式叙事架构；(b) 理解数据驱动渲染协议 + render_manifest 建模流程；(c) 理解 8 条 fallback 的分支逻辑。**确认结果在 Step 3 产出的 `render_manifest.json` 的 `_meta.protocol_ack` 字段记录**（三项 boolean，全 true）。reviewer 据此审计 builder 是否真的过了协议关。未确认不得进入 Step 2。
 
@@ -190,7 +190,7 @@ Skill({
 
 ### Step 3: Build render_manifest（数据驱动建模）
 
-按 `agents/html-builder.md` §Data-Driven Rendering Protocol 阶段 1-2：扫描 run_dir 全部 JSON，产出 `run_dir/render_manifest.json`。manifest 必须如实反映本次 run 的结构：
+按 `references/html-builder-protocol.md` §Data-Driven Rendering Protocol 阶段 1-2：扫描 run_dir 全部 JSON，产出 `run_dir/render_manifest.json`。manifest 必须如实反映本次 run 的结构：
 
 - 结论类型（DETERMINED / COMPETING_SET / NEEDS_DATA）+ 主结论 + 置信度天花板
 - `hypotheses[]` 真实假说列表（数量随数据，非固定）
@@ -203,7 +203,7 @@ Skill({
 
 ### Step 4: Write the page — Data-Driven Rendering Protocol
 
-**按 manifest 组装页面，套设计系统参考的视觉语法。** 详见 `agents/html-builder.md` §Data-Driven Rendering Protocol 阶段 3。
+**按 manifest 组装页面，套设计系统参考的视觉语法。** 详见 `references/html-builder-protocol.md` §Data-Driven Rendering Protocol 阶段 3。
 
 **直接复用（从设计系统参考原样搬运）**:
 - 全部 `<style>` 块（CSS 变量 + 排版系统 + 组件样式 + @media）
@@ -628,7 +628,7 @@ Skill({
 
 ## 🔴 红线黑名单（命中任一条 → html-reviewer 直接判 fail）
 
-> **本表是红线的单一权威源。** `agents/html-reviewer.md` 引用本表（不另行复制，避免跨文档 drift）；红线增删只改这里，reviewer 映射表同步。
+> **本表是红线的单一权威源。** `references/html-reviewer-protocol.md` 引用本表（不另行复制，避免跨文档 drift）；红线增删只改这里，reviewer 映射表同步。
 
 | # | 🚫 禁止 | 为什么 | 正确 |
 |---|--------|--------|------|

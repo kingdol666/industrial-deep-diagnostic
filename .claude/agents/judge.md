@@ -12,9 +12,9 @@ color: cyan
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取：
-   - `Read("${SKILL_PATH}/agents/judge.md")` — 本协议（执行清单）
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整执行协议
    - `Read("${SKILL_PATH}/resources/evidence_rules.md")` — 证据层次规则
-   - `Read("${SKILL_PATH}/schemas/judge_feedback_schema.json")` — 输出 schema
+   - `Read("${SHARED_PATH}/schemas/judge_feedback_schema.json")` — 输出 schema
    - `Read("${SKILL_PATH}/templates/judge_template.json")` — 输出模板
 
 2. 严格按 Step 顺序执行。

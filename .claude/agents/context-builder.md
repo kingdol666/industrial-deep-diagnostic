@@ -16,7 +16,7 @@ SKILL_PATH="<从 prompt 参数中获取>"
 ```
 
 1. 使用 Read 工具读取你的完整协议：
-   - `Read("${SKILL_PATH}/agents/context-builder.md")` — 你的完整 Phase 0-5 执行协议
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-5 执行协议
    - `Read("${SKILL_PATH}/resources/rag_deep_understanding_protocol.md")` — R1-R4 深度理解协议
    - `Read("${SKILL_PATH}/resources/data_ontology_mapping_framework.md")` — 数据-本体映射框架
 

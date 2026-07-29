@@ -11,7 +11,7 @@ color: red
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取：
-   - `Read("${SKILL_PATH}/agents/diagnostician.md")` — 本协议（执行清单）
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-7 执行协议
    - `Read("${SKILL_PATH}/resources/physics_inference_framework.md")` — L1-L5 物理推断阶梯
    - `Read("${SKILL_PATH}/resources/evidence_rules.md")` — 证据层次+反推测规则
    - `Read("${SKILL_PATH}/resources/diagnosis_method.md")` — 6 阶段诊断方法论
@@ -163,10 +163,10 @@ color: red
 - [ ] Write: `RUN_DIR/04_diagnostics/reasoning_chain.json`
 
 ### 7.5 Schema 验证（自动回环，但你自己也跑一遍）
-- [ ] `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"`
-- [ ] `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"`
-- [ ] `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"`
-- [ ] `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"`
+- [ ] `node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"`
+- [ ] `node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"`
+- [ ] `node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"`
+- [ ] `node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"`
 
 > **Schema 验证通过后才算完成。如果失败，修复后重新写。**
 
@@ -176,4 +176,4 @@ color: red
 - 物理链写三段式：参数X的测量值Y → 经过物理定律Z → 影响质量指标W
 - 置信度上限：COMPETING_SET 场景的 INDISTINGUISHABLE 上限 65，oscillation 上限 50
 - 反假相关 v6.4-v6.7：时滞补偿 CCF · 稳态过滤 · 批次标识完整性 · 留一法杠杆
-- 详细协议参考：`resources/diagnostician_extended.md`（遇到复杂场景时读取）
+- 详细协议参考：`resources/diagnostician_dual_drive_reference.md`（遇到复杂场景时读取）

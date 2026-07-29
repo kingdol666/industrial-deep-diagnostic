@@ -70,7 +70,7 @@ Behavior depends on `INTERACTION_MODE`:
 - **`interactive`**: Group related parameters, max 4 questions per round.
 - **`minimal`**: Only CRITICAL parameters (max 2 questions).
 - [ ] Set `clarification_status`: AUTO_RESOLVED (auto/minimal) or USER_CONFIRMED (interactive)
-- [ ] If RAG engine unreachable (localhost:8765): skip Phase 3, continue with `parameter_to_physics.json` + web research
+- [ ] If RAG engine unreachable (localhost:8764): skip Phase 3, continue with `parameter_to_physics.json` + web research
 
 ## Phase 4: Build Ontology from Data + Knowledge
 
@@ -96,7 +96,7 @@ Behavior depends on `INTERACTION_MODE`:
 
 | 场景 | 恢复 |
 |------|------|
-| RAG引擎不可用 (localhost:8765) | 继续 — 使用 `resources/parameter_to_physics.json` + 网络搜索 |
+| RAG引擎不可用 (localhost:8764) | 继续 — 使用 `resources/parameter_to_physics.json` + 网络搜索 |
 | ontology.json 缺失或 <1KB | 重新启动 context-builder |
 | Schema 验证失败 | 重新启动 context-builder |
 | 完全无输出 | 主agent用 `parameter_to_physics.json` 构建最小有效本体 |

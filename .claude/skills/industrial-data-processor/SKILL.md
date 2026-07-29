@@ -44,35 +44,122 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 ```javascript
 Agent({
   subagent_type: "data-processor",
-  description: "ontologically-guided 统计分析 + 可视化",
-  permissionMode: "bypassPermissions",
   prompt: `DATA_PATH=<data-file-path>
 RUN_DIR=<run-dir-path>
-SKILL_PATH=<this-skill-directory>
+SKILL_PATH=<path-to-.claude/skills/industrial-data-processor>
 
-Read "<this-skill-directory>/references/agent-protocol.md" and execute Phase 0-6.
+Read "$SKILL_PATH/references/agent-protocol.md" and execute Phase 0-6.
 
 Key constraints:
 - Phase 0.4 gates all analysis — read ontology before any statistical work
 - v6.5: Production regime detection (three-algorithm fusion) runs BEFORE stats; filter to steady-state only
 - v6.4: Time-lag compensation (CCF-based optimal lag per parameter pair)
 - v6.5: Per-product mandatory analysis — worst product by anomaly rate, steady-state compare, Simpson detection
-- v6.6: Batch identity integrity — verify batch_id uniqueness; split/duplicate batch records MUST be merged or flagged
-- v6.7: Leave-one-out leverage check — any |r|≥0.3 cited as evidence must pass leave-one-out
-- Python venv: "<this-skill-directory>/scripts/.venv/bin/python" (run uv_env_setup.mjs first if missing)
-- VLM 视觉分析已合并至 Phase 5.5（metadata-first，VLM_ENABLED=true 时调用 API，含防伪造验证）
-  run_in_background: true
+- VLM 视觉分析通过独立 Agent() 派发 vlm-visual-analyzer Agent — 参见下方 VLM Visual Analysis Dispatch 节
+`
 })
 ```
 
-### Post-Processing (after agent completes)
+### VLM Visual Analysis Dispatch (Phase 5.5)
+
+#### Step 0: Generate VLM-Specialized Temporal Overlay Charts
+
+Before dispatching VLM, generate VLM-optimized temporal overlay charts following `visual_analysis_framework.md` design specs:
 
 ```bash
-SKILL_PATH="<this-skill-directory>"
+# Generate fig_vlm_temporal_overlay.png (all parameters, z-score normalized, direction-aligned)
+# Generate fig_vlm_per_product_overlay.png (per-group temporal alignment)
+python "$SKILL_PATH/scripts/generate_vlm_charts.py" "$RUN_DIR" \
+  --target-cols <quality_cols> \
+  --key-params <process_params> \
+  --group-col <group_col> \
+  --time-col <time_col> \
+  --events <events_json>
+```
+
+Key design specs for VLM chart（参考 `resources/visual_analysis_framework.md` §设计原则）:
+- 所有参数 z-score 归一化到同一尺度
+- 负相关参数反转方向（使所有线同向变化）
+- 共享 x 轴（时间）— 仅当存在有效时间列时
+- 事件标记为红色虚线 + 文字标注
+- 字体 >= 12pt，高对比度
+- 标题用英文（兼容 matplotlib 渲染）
+
+#### Step 1: Build VLM Input Filter Manifest
+
+**Not all images go to VLM.** Only images with true spatio-temporal alignment carry diagnostic value for VLM. Generate `vlm_input_manifest.json` to filter:
+
+| Priority | Image Type | VLM Value | Example |
+|----------|-----------|-----------|---------|
+| **MANDATORY** | Temporal overlay (multi-param, shared time axis, normalized) | VLM reads synchrony, precedence, event response, trend morphology | `fig_vlm_temporal_overlay.png` |
+| **MANDATORY** | Per-product temporal overlay | VLM reads group-specific degradation patterns | `fig_vlm_per_product_overlay.png` |
+| **SUPPLEMENTARY** | Scatter with confounder coloring | VLM checks Simpson Paradox (cluster separation) | `separator_vs_residue.png` |
+| **NOT_FOR_VLM** | Single-param trend, bar chart, basic plot | No cross-parameter insight for VLM | `correlation_robustness.png`, `mill_power_trend.png` |
+
+```bash
+# Generate vlm_input_manifest.json (selects which images VLM reads)
+python "$SKILL_PATH/scripts/generate_vlm_manifest.py" "$RUN_DIR" --plot-manifest "$RUN_DIR/03_figures/plot_manifest.json"
+```
+
+#### Step 2: Write Skeleton (Fallback Base)
+
+```bash
+node "$SKILL_PATH/scripts/generate_captions.mjs" "$RUN_DIR"
+# Write visual_analysis.json with observation_mode: "skeleton_pre_vlm"
+```
+
+#### Step 3: Dispatch vlm-visual-analyzer Agent
+
+**Only images in `vlm_input_manifest.json` are sent to VLM.** VLM MUST read `vlm_input_manifest.json` first to know which images to read and in what order.
+
+```javascript
+Agent({
+  subagent_type: "vlm-visual-analyzer",
+  prompt: `RUN_DIR=<run-dir-path>
+SKILL_PATH=<path-to-.claude/skills/industrial-data-processor>
+SHARED_PATH=.claude/shared/
+DATA_PATH=<data-file-path>
+
+Read ".claude/agents/vlm-visual-analyzer.md" and follow the complete VLM visual analysis protocol.
+
+## IMAGE SELECTION (MANDATORY — DO NOT READ ALL PNGs)
+- FIRST read "vlm_input_manifest.json" from RUN_DIR/03_figures/
+- ONLY read images listed in vlm_input_manifest.json with priority MANDATORY or SUPPLEMENTARY
+- DO NOT read images excluded from vlm_input_manifest — they have no cross-parameter temporal alignment
+- Read MANDATORY images first (temporal overlays), then SUPPLEMENTARY (scatter for Simpson check)
+- MANDATORY images have z-score normalization + direction reversal — understand this before interpretation
+
+Key constraints:
+- Read ontology.json BEFORE reading any image — blind image reading is prohibited
+- Read vlm_input_manifest.json for image priority ordering (NOT plot_manifest.json directly)
+- Read data_analysis_conclusion.json and validate_report.json for statistical context
+- Read each selected PNG in priority order, extracting structured visual observations
+- Focus on: temporal synchrony, precedence signals, event response, trend morphology, group separation
+- Overwrite skeleton_pre_vlm if present — final output MUST have analysis_provenance.source_agent = "vlm-visual-analyzer"
+- Output visual_analysis.json and image_captions.json to RUN_DIR/03_figures/
+- At least 2 key visual observations MUST contain non-empty ontology_context
+- Fallback: if VLM_ENABLED=false or API unavailable, write metadata-only skeleton with observation_mode: "metadata_fallback"
+`
+})
+```
+
+VLM 分析完成后进行防伪造验证：
+
+```bash
+# Verify source_agent, skeleton_overwritten, and that only vlm_input_manifest images were read
+node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
+# Verify that excluded images were NOT read
+python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files]; print(f'VLM read {len(read)}/{len(vlm_files)} selected images, excluded reads: {excluded_read if excluded_read else "NONE (clean)"}')"
+
+### Post-Processing (after both agents complete)
+
+```bash
+SKILL_PATH="<path-to-.claude/skills/industrial-data-processor>"
 
 # Normalize anomaly report + synthesize data analysis conclusion
 node "$SKILL_PATH/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
+
 
 ## Execution Flow (Phase 0-6)
 
@@ -92,8 +179,8 @@ Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, d
 ## Verification
 
 ```bash
-SKILL_PATH="<this-skill-directory>"
-SHARED_PATH="<omc-shared-directory>"
+SKILL_PATH="<path-to-.claude/skills/industrial-data-processor>"
+SHARED_PATH=".claude/shared/"
 
 # Schema validations
 node "$SHARED_PATH/scripts/validate.mjs" \
@@ -119,7 +206,7 @@ test -f "$RUN_DIR/02_processed/data_analysis_conclusion.json" && \
 
 ## Artifact Integrity Recovery
 
-Missing outputs auto-restored by scripts in `<SKILL_PATH>/scripts/`:
+Missing outputs auto-restored by scripts in `.claude/skills/industrial-data-processor/scripts/`:
 
 | Missing | Recovery |
 |---------|----------|
@@ -132,7 +219,7 @@ Missing outputs auto-restored by scripts in `<SKILL_PATH>/scripts/`:
 
 | Scenario | Recovery |
 |----------|----------|
-| Python venv missing | `node scripts/uv_env_setup.mjs` |
-| Files >500MB | `python scripts/file_inspect.py --sample 50000` |
+| Python venv missing | `node .claude/shared/scripts/uv_env_setup.mjs` |
+| Files >500MB | `python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
 | Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
 | No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |

@@ -10,7 +10,7 @@
 ## 执行流程（数据驱动，三阶段）
 
 1. **理解** — 扫描 `{RUN_DIR}` 下全部诊断 JSON + report.md + plot_manifest.json
-2. **建模** — 先产出 `{RUN_DIR}/render_manifest.json`（页面模型，schema 见 agents/html-builder.md）。
+2. **建模** — 先产出 `{RUN_DIR}/render_manifest.json`（页面模型，schema 见 references/html-builder-protocol.md）。
    manifest 必须如实反映本次 run：结论类型、假说列表（数量随数据）、三层证据可用性、
    图表清单（数量随数据）、工艺流程、异常落位。字段全部可溯源到真实 JSON，不编造。
 3. **渲染** — 按 manifest 选组件组装页面，套设计系统参考的视觉语法。

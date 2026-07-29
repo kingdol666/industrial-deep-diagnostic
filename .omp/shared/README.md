@@ -35,4 +35,4 @@ shared/
 
 - 每个文件只有一份。修改一处，全局生效。
 - 不在此目录存放 skill 特有脚本。
-- Schema 以 `.omp/skills/industrial-analysis-auto/schemas/` 为权威源。
+- Schema 以 `.claude/skills/industrial-analysis-auto/schemas/` 为权威源。

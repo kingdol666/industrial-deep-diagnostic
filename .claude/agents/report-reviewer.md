@@ -12,7 +12,7 @@ color: magenta
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取你的完整协议：
-   - `Read("${SKILL_PATH}/agents/report-reviewer.md")` — 你的完整 Step 0-5 审计协议
+   - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Step 0-5 审计协议
    - `Read("${SKILL_PATH}/resources/process_knowledge_base.md")` — 跨行业物理原理知识库
    - `Read("${SKILL_PATH}/resources/evidence_rules.md")` — 证据层次规则
 

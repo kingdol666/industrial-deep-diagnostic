@@ -13,7 +13,7 @@ readSummarize: false
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取你的完整协议和输出 schema（**Schema-First 规则 — 写前必读 schema**）：
-   - `Read(".omp/agents/vlm-visual-analyzer.md")` — 你的完整图像读取协议 + 核心判断框架（已在 .omp/agents/ 下）
+   - `Read("${SKILL_PATH}/resources/visual_analysis_framework.md")` — VLM 视觉分析完整协议 + 核心判断框架
    - `Read("${SHARED_PATH}/schemas/visual_analysis_schema.json")` — visual_analysis.json 的 12 个 required 字段定义
    - `Read("${SHARED_PATH}/schemas/image_captions_schema.json")` — image_captions.json 的字段定义
 
@@ -29,7 +29,16 @@ readSummarize: false
    - `Read("${RUN_DIR}/00_input/rag_deep_understanding.json")` — 领域物理知识和已知失效模式
    - `Read("${RUN_DIR}/02_processed/validate_report.json")` — Simpson/趋势混杂/Pearson-Spearman 等验证结果
 
-4. 按 plot_manifest.json 的优先级顺序逐图用 Read 工具读取 PNG 图像文件。**读每张图前检查 ontology 中对应参数的 physical_meaning。**
+4. 按 plot_manifest.json 的优先级顺序逐图分析 PNG 图像文件。**读每张图前检查 ontology 中对应参数的 physical_meaning。**
+   - **图像读取方式**：OMP Read 工具对部分 vision 模型存在能力检测限制。使用专用脚本直接调用 vision API：
+     ```bash
+     python "$SHARED_PATH/scripts/vlm_image_reader.py" "$RUN_DIR/03_figures/<filename>.png" "Your context-specific question about this chart" --json
+     ```
+   - 每张图的问题必须基于 ontology 上下文定制，例如：
+     - 时序叠加图：`"Analyze temporal alignment between parameters. Do they move synchronously? Any precedence signals?"`
+     - 散点图：`"Check for Simpson's paradox. Are there distinct clusters? Does within-group trend differ from overall?"`
+     - 趋势图：`"What is the trend direction and magnitude? Any change points or anomalies?"`
+   - 解析 `--json` 输出中的 `content` 字段作为视觉观察
    - 如果 `03_figures/visual_analysis.json` 还是 `observation_mode: "skeleton_pre_vlm"`，你必须覆盖它，不能直接沿用 skeleton 结果交差
    - 最终输出必须写明：
      - `analysis_provenance.source_agent = "vlm-visual-analyzer"`
@@ -44,11 +53,9 @@ readSummarize: false
    `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"`
    `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"`
 
-## 参数
-
-从主 agent 的 prompt 中提取：
 - RUN_DIR — 运行目录
 - SKILL_PATH — skill 路径
+- SHARED_PATH — 共享脚本和 schema 路径（通常为 .claude/shared/）
 - DATA_PATH — 数据文件路径（如有）
 
 ## 核心规则

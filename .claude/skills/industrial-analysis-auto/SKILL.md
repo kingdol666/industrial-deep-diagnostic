@@ -1,6 +1,6 @@
 ---
 name: industrial-analysis-auto
-description: "工业深度诊断全自动编排器 — 集成 8 个标准化子 skill 实现端到端诊断管线。从原始传感器/工艺数据到中文诊断报告+HTML可视化页面，零人工干预。Trigger: 工业诊断, 根因分析, 故障诊断, 生产过程异常, 质量缺陷分析, 传感器数据分析, 工艺参数优化, industrial diagnosis, root cause analysis, SPC excursion, manufacturing diagnostics. 3 modes: auto/interactive/minimal."
+description: "工业深度诊断全自动编排器 — 集成 8 个标准化子 skill 实现端到端诊断管线。从原始传感器/工艺数据到中文诊断报告+HTML可视化页面，零人工干预。Trigger: 工业诊断, 根因分析, 故障诊断, 生产过程异常, 质量缺陷分析, 传感器数据分析, 工艺参数优化, SPC excursion, root cause analysis, manufacturing diagnostics, 上传CSV/XLSX/Parquet数据后全自动执行8步诊断管线。3 modes: auto/interactive/minimal. 输出: report.md + diagnostic-report.html"
 ---
 
 # Industrial Analysis Auto — Full Pipeline Orchestrator
@@ -70,6 +70,117 @@ Step 5a:   Step 5b:            │
 | 8 | `industrial-html-visualizer` | html-visualizer | — |
 | 8.5 | `industrial-html-reviewer` | html-reviewer | CP-9 |
 
+## Dispatch
+
+每个子步骤使用 Claude Code `Agent` 工具调度对应的 sub-agent：
+
+```javascript
+// Step 2+2.5: Ontology Builder
+Agent({
+  subagent_type: "context-builder",
+  prompt: `DATA_PATH=<data-path>
+RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-ontology-builder>
+SHARED_PATH=<path-to-.claude/shared>
+INTERACTION_MODE=auto
+
+Read skill://industrial-ontology-builder and execute the ontology construction protocol.
+`
+})
+
+// Step 3+3.3: Data Processor
+Agent({
+  subagent_type: "data-processor",
+  prompt: `DATA_PATH=<data-path>
+RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-data-processor>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-data-processor and execute. ontology_first — read ontology before any statistical work.
+`
+})
+
+// Step 4: Diagnostician
+Agent({
+  subagent_type: "diagnostician",
+  prompt: `DATA_PATH=<data-path>
+RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-diagnostician>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-diagnostician and execute. Fuses data + ontology + physics + VLM + time-lag.
+For repair loops, pass REPAIR_INSTRUCTIONS=<instructions>.
+`
+})
+
+// Step 5a: Judge + Step 5b: Physical Auditor (parallel)
+Agent({
+  subagent_type: "judge",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-judge>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-judge and execute. 10-item quality gate → judge_feedback.json.
+`
+})
+Agent({
+  subagent_type: "report-reviewer",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-physical-auditor>
+SHARED_PATH=<path-to-.claude/shared>
+PRE_REPORT_AUDIT=true
+
+Read skill://industrial-physical-auditor and execute pre-report audit.
+`
+})
+
+// Step 6: Reporter
+Agent({
+  subagent_type: "reporter",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-reporter>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-reporter and execute. Judge-gated.
+`
+})
+
+// Step 7: Physical Auditor (Final)
+Agent({
+  subagent_type: "report-reviewer",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-physical-auditor>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-physical-auditor (final mode). Audit report.md → optimizer.md.
+`
+})
+
+// Step 8: HTML Visualizer (AUTO)
+Agent({
+  subagent_type: "html-visualizer",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-html-visualizer>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-html-visualizer and execute. Non-interactive — after CP-8 ENDORSED, immediately launch.
+`
+})
+
+// Step 8.5: HTML Reviewer
+Agent({
+  subagent_type: "html-reviewer",
+  prompt: `RUN_DIR=<run-dir>
+SKILL_PATH=<path-to-.claude/skills/industrial-html-reviewer>
+SHARED_PATH=<path-to-.claude/shared>
+
+Read skill://industrial-html-reviewer and execute. Review → pass/needs_revision.
+`
+})
+```
+
+子 agent 通过文件系统通信，不经过主 agent context。
+
 ---
 
 ## Main-Agent Steps
@@ -108,8 +219,8 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
 
 ### Step 2 + 2.5: Ontology Builder
 
-Read `skill://industrial-ontology-builder` and execute the dispatch protocol. Key:
-- `DATA_PATH`, `RUN_DIR`, `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE` must be absolute paths
+Read `skill://industrial-ontology-builder` and dispatch via `Agent({subagent_type: "context-builder", ...})`. Key:
+- `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`, `SHARED_PATH` must be absolute paths
 - `SKILL_PATH` = path to `industrial-ontology-builder` skill directory
 - `INTERACTION_MODE` = `auto` (default for FULL-AUTO)
 
@@ -118,19 +229,19 @@ Read `skill://industrial-ontology-builder` and execute the dispatch protocol. Ke
 
 ### Step 3 + 3.3: Data Processor
 
-Read `skill://industrial-data-processor` and execute. **ontology_first** — read ontology before any statistical work.
+Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work.
 
 Post-processing after agent completes:
 ```bash
 SKILL_PATH_DATA_PROCESSOR="$PROJECT_ROOT/.claude/skills/industrial-data-processor"
 node "$SKILL_PATH_DATA_PROCESSOR/scripts/data-processor-finalize.mjs" "$RUN_DIR"
+```
 
 **CP-4**: `data_analysis_conclusion.json` exists + `plot_manifest.json` has plots > 0
 
-
 ### Step 4: Diagnostician
 
-Read `skill://industrial-diagnostician` and execute. Fuses data + ontology + physics + VLM + time-lag → diagnosis/evidence/confidence/reasoning_chain.
+Read `skill://industrial-diagnostician` and dispatch via `Agent({subagent_type: "diagnostician", ...})`. Fuses data + ontology + physics + VLM + time-lag → diagnosis/evidence/confidence/reasoning_chain.
 
 For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`.
 
@@ -138,11 +249,11 @@ For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`.
 
 ### Step 5a: Judge
 
-Read `skill://industrial-judge` and execute. 10-item quality gate → `judge_feedback.json`.
+Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`.
 
 ### Step 5b: Physical Auditor (Pre-Report)
 
-Read `skill://industrial-physical-auditor` with `PRE_REPORT_AUDIT=true`. Runs **parallel** with Judge. Outputs `optimizer_preflight.md`.
+Read `skill://industrial-physical-auditor` with `PRE_REPORT_AUDIT=true`. Dispatch via `Agent({subagent_type: "report-reviewer", ...})`. Runs **parallel** with Judge. Outputs `optimizer_preflight.md`.
 
 ### Repair Loop (Best-of-3)
 
@@ -166,23 +277,23 @@ proceed to Step 6 regardless  # NEVER halt
 
 ### Step 6: Reporter
 
-Read `skill://industrial-reporter` and execute. **Judge-gated**: only proceed if verdict==pass ∧ score≥90 OR `judge_repair_summary` proves 3 rounds exhausted.
+Read `skill://industrial-reporter` and dispatch via `Agent({subagent_type: "reporter", ...})`. **Judge-gated**: only proceed if verdict==pass ∧ score≥90 OR `judge_repair_summary` proves 3 rounds exhausted.
 
 **CP-7**: `report.md` + `run_summary.json` exist
 
 ### Step 7: Physical Auditor (Final)
 
-Read `skill://industrial-physical-auditor` (final mode). Audits `report.md` → `optimizer.md`.
+Read `skill://industrial-physical-auditor` (final mode) and dispatch via `Agent({subagent_type: "report-reviewer", ...})`. Audits `report.md` → `optimizer.md`.
 
 **CP-8**: `optimizer.md` contains `ENDORSED`
 
 ### Step 8: HTML Visualizer (AUTO)
 
-Read `skill://industrial-html-visualizer` and execute. **Non-interactive** — after CP-8 ENDORSED, immediately launch without asking. Only skip if `00_input/html_opt_out` exists.
+Read `skill://industrial-html-visualizer` and dispatch via `Agent({subagent_type: "html-visualizer", ...})`. **Non-interactive** — after CP-8 ENDORSED, immediately launch without asking. Only skip if `00_input/html_opt_out` exists.
 
 ### Step 8.5: HTML Reviewer
 
-Read `skill://industrial-html-reviewer` and execute. Review → pass/needs_revision.
+Read `skill://industrial-html-reviewer` and dispatch via `Agent({subagent_type: "html-reviewer", ...})`. Review → pass/needs_revision.
 
 **CP-9**: `diagnostic-report.html` ≥5120B + `html_review.json` verdict=pass
 
@@ -217,7 +328,7 @@ Present: executive summary + key findings + diagnosis type + confidence + recomm
 
 - **Default FULL-AUTO**: `interaction_mode=auto`, 8 steps continuous, zero human intervention. CP gates are machine-validated.
 - **Strictly sequential** — never skip, reorder, or silently omit steps. If not applicable, record `not_applicable_reason`.
-- **Ontology first**: Step 2 complete before Step 3 Phase 0.4. Pre-ontology work limited to data conversion/preprocessing.
+- **Ontology first**: Step 2 complete before Step 3. Pre-ontology work limited to data conversion/preprocessing.
 - **Step 5a + 5b** are the ONLY parallel steps. Everything else is serial.
 - **HTML auto-build**: CP-8 ENDORSED → immediately launch Steps 8→8.5→9, no user prompts.
 
@@ -256,11 +367,28 @@ HTML Visualizer   → diagnostic-report.html
 HTML Reviewer     → 05_review/html_review.json
 ```
 
-## Failure Recovery (Quick Reference)
+## Verification
+
+```bash
+SKILL_PATH="<path-to-.claude/skills/industrial-analysis-auto>"
+SHARED_PATH="<path-to-.claude/shared>"
+
+# Step 0 setup validation
+node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+node "$SHARED_PATH/scripts/uv_env_setup.mjs"
+
+# Step 1 inspect
+node "$SKILL_PATH/scripts/inspect.mjs" <data_path>
+
+# Step 9 finalize
+node "$SKILL_PATH/scripts/pipeline-finalize.mjs" "$RUN_DIR" "$SKILL_PATH"
+```
+
+## Failure Recovery
 
 | Trigger | Detection | Recovery |
 |---------|-----------|----------|
-| RAG engine down | `localhost:8765` unresponsive | Continue — ontology-builder uses `parameter_to_physics.json` + web search |
+| RAG engine down | `localhost:8764` unresponsive | Continue — ontology-builder uses `parameter_to_physics.json` + web search |
 | uv venv creation fails | `uv_env_setup.mjs` non-zero exit | Install uv → retry; still fail → system Python + pip |
 | Input data oversized | inspect timeout >300s | `file_inspect.py --sample 50000` |
 | Agent timeout/stall | >600s no output | Check partial outputs → continue if usable; retry 1x → mark `[AGENT_TIMEOUT]` |
@@ -289,7 +417,7 @@ Any agent that violates these → Judge must flag:
 | # | Forbidden | Alternative |
 |---|-----------|-------------|
 | 1 | Main agent writes HTML directly | Launch html-visualizer sub-agent (Step 8) |
-| 2 | Main agent reads sub-agent protocol then executes itself | Use `Agent({subagent_type: ...})` |
+| 2 | Main agent reads sub-agent protocol then executes itself | Use `Agent({subagent_type: "...", prompt: `...`})` |
 | 3 | Skip data analysis, go straight to diagnosis | Step 3 → Step 4 strict `ontology_first` |
 | 4 | Launch Reporter before Judge gate passes | Check verdict+score; only legal action is repair |
 | 5 | Force-pick one from COMPETING_SET | Output competing hypotheses table, confidence ≤65 |
@@ -298,12 +426,3 @@ Any agent that violates these → Judge must flag:
 | 8 | 3D model as generic factory | Recover real process stages from ontology+report+diagnosis |
 | 9 | Conclusion without evidence rank | Every conclusion tagged `[Evidence Rank L1-L7]` |
 | 10 | Vague language to avoid judgment | Give specific numbers + confidence, or explicitly state insufficient evidence |
-
-## References
-
-- `resources/pipeline_coherence_and_synergy.md` — Pipeline coherence and synergy rules
-- `resources/engineering_delivery_contract.md` — Engineering delivery standards
-- `resources/scenario_patterns.md` — Common scenario patterns
-- `scripts/` — Pipeline orchestration scripts (setup, inspect, validate, event logging, verification)
-- `schemas/` — All JSON Schemas (reference copy)
-- `examples/` — Example configurations for reactor, BOPET film, heat exchanger

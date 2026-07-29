@@ -6,22 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构：
 
-1. **OMP Skills** (`.omp/skills/`) + **Claude Skills** (`.claude/skills/`) — 12 个标准化 Skill × 9 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
+1. **Skills** (`.claude/skills/`) — 12 个标准化 Skill（OMP 经 `claude` provider 发现）× 9 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
 2. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8765)
 
-### 双 Harness 架构
+### Harness 发现架构
 
 ```
-.omp/skills/<name>/SKILL.md    ← OMP 发现入口 (thin wrapper, 仅 SKILL.md)
-    ↓ SKILL_PATH 自动重定向 (<this-skill-directory>/../../../.claude/skills/<name>)
-.claude/skills/<name>/         ← 完整资源 (scripts/ schemas/ references/ resources/ templates/)
-    ↓ 启动 Agent
-.omp/agents/<name>.md          ← Agent 定义 (model + tools + thinkingLevel)
-.claude/agents/<name>.md       ← Agent 定义 (.claude 格式, model + tools + color)
+.claude/skills/<name>/         ← 唯一 skill 源 (OMP claude provider priority-80 发现 + Claude Code 原生发现)
+    │  scripts/ schemas/ references/ resources/ templates/ 全在此处
+    ↓ skill://<name> 解析到此处；Agent dispatch 传 SKILL_PATH 指向此处
+.omp/agents/<name>.md          ← OMP task-agent 唯一发现源 (OMP 跳过 .claude/agents)
+    │  OMP frontmatter: name + description + tools + spawns + model + thinkingLevel
     ↓ 读取协议
-references/agent-protocol.md   ← Phase 0-N 完整执行清单
+.claude/skills/<name>/references/agent-protocol.md  ← Phase 0-N 完整执行清单
 ```
+
+> **架构要点**: skill 资源统一在 `.claude/skills/`（OMP 与 Claude Code 共用）；agent 定义在 `.omp/agents/`（满足 OMP task-agent 契约，是 task 创建的唯一来源）。
 
 ## Commands
 
@@ -115,10 +116,10 @@ python server.py      # FastAPI → http://localhost:8765
 ### Skill 目录约定
 | 目录 | 用途 |
 |------|------|
-| `.omp/skills/<name>/SKILL.md` | OMP 发现入口 (thin wrapper) |
-| `.claude/skills/<name>/` | 完整资源 (scripts, schemas, references, resources, templates) |
-| `.omp/agents/<name>.md` | Agent 定义 (model + thinkingLevel + protocol ref) |
-| `.claude/agents/<name>.md` | Agent 定义 (.claude 格式) |
+| `.claude/skills/<name>/SKILL.md` | 唯一 skill 入口 (OMP claude provider + Claude Code 发现) |
+| `.claude/skills/<name>/{scripts,schemas,references,resources,templates}/` | 完整资源 |
+| `.omp/agents/<name>.md` | OMP task-agent 定义 (model + tools + thinkingLevel + protocol ref) — task 创建唯一来源 |
+| `.claude/agents/<name>.md` | Claude Code 格式 agent 定义 (OMP 不加载，仅 Claude Code 原生用) |
 
 ### 诊断产出目录
 ```

@@ -1,55 +1,89 @@
 ---
 name: industrial-physical-auditor
-description: "工业诊断管线 — 物理真相独立审计。PRE_REPORT_AUDIT 模式与 Judge 并行运行输出 optimizer_preflight.md；终审模式审计 report.md 输出 optimizer.md (ENDORSED/CONDITIONAL/REJECTED)。Trigger: physical audit, 物理审计, 预报告审计, pre-audit, optimizer, 审核, physical truth, 独立审计, report-reviewer. Do NOT use without upstream diagnosis or report."
+description: "工业诊断管线Step 5b/7 — 物理真相独立审计。PRE_REPORT_AUDIT模式与Judge并行输出optimizer_preflight.md；FINAL_AUDIT模式终审report.md输出optimizer.md(ENDORSED/CONDITIONAL/REJECTED)。独立验证物理机制、统计基础、逻辑一致性。Trigger: physical audit, 物理审计, 预报告审计, pre-audit, optimizer, 审核, physical truth, 独立审计, report-reviewer."
 ---
 
 # Industrial Physical Auditor
 
-独立物理真相审计，两种模式共享 `report-reviewer` 子Agent，通过 `PRE_REPORT_AUDIT` 环境变量区分。
+独立物理真相审计引擎。两种模式共享 `report-reviewer` Agent，通过 `PRE_REPORT_AUDIT` 参数切换：预报告审计（与 Judge 并行）验证诊断产物物理合理性；终审审计 report.md 追溯每条因果链到控制方程。输出 `optimizer.md` 含 ENDORSED / CONDITIONAL / REJECTED 判定。
 
-## Inputs
+## Inputs / Outputs
 
-| Mode | File | Description |
-|------|------|-------------|
-| BOTH | `04_diagnostics/diagnosis.json` | 诊断结论 |
-| BOTH | `04_diagnostics/evidence.json` | 证据清单 |
-| BOTH | `04_diagnostics/reasoning_chain.json` | 推理链 |
-| BOTH | `01_ontology/ontology.json` | 领域本体 |
-| BOTH | `02_processed/data_analysis_conclusion.json` | 统计分析结论 |
-| BOTH | 原始/清洗数据 | 直接验证用 |
-| FINAL | `report.md` | 诊断报告 |
-| FINAL | `05_review/optimizer_preflight.md` | 预报告审计结果（如存在，复用已验证发现） |
+### Inputs (in `RUN_DIR`)
 
-## Outputs
+| File | Description |
+|------|-------------|
+| `04_diagnostics/diagnosis.json` | 诊断结论 |
+| `04_diagnostics/evidence.json` | 证据清单 |
+| `04_diagnostics/reasoning_chain.json` | 推理链 |
+| `01_ontology/ontology.json` | 领域本体 |
+| `02_processed/data_analysis_conclusion.json` | 统计分析结论 |
+| 原始/清洗数据 | 直接统计验证用 |
+| `report.md` *(FINAL only)* | 诊断报告 |
+| `05_review/optimizer_preflight.md` *(FINAL, optional)* | 预报告审计结果（复用已验证发现） |
+
+### Outputs
 
 | Mode | File | Verdict |
 |------|------|---------|
 | PRE_REPORT | `05_review/optimizer_preflight.md` | PREFLIGHT_PASS / PREFLIGHT_NEEDS_REPAIR / PREFLIGHT_BLOCKED |
 | FINAL | `optimizer.md` | ENDORSED / CONDITIONAL / REJECTED |
 
-## Execution
+## Dispatch
 
-启动 `report-reviewer` 子Agent。两种模式共享同一 agent 类型，通过 `PRE_REPORT_AUDIT` 环境变量切换：
+启动 `report-reviewer` Agent：
 
 ```javascript
+// PRE_REPORT_AUDIT mode (Step 5b) — 与 Judge 并行
 Agent({
   subagent_type: "report-reviewer",
-  description: "物理真相审计（PRE_REPORT_AUDIT=true=预报告, absent=终审）",
-  permissionMode: "bypassPermissions",
-  prompt: `RUN_DIR=<run-dir-path>
-SKILL_PATH=<this-skill-directory>
+  task: `RUN_DIR=<run-dir-path>
+SKILL_PATH=<path-to-.claude/skills/industrial-physical-auditor>
+SHARED_PATH=<path-to-.claude/shared>
 DATA_PATH=<data-file-path>
-PRE_REPORT_AUDIT=<true|false>
+PRE_REPORT_AUDIT=true
 
-Read "<this-skill-directory>/references/agent-protocol.md" and execute the ${"${PRE_REPORT_AUDIT}"} protocol.
-${"${PRE_REPORT_AUDIT}"}:
-  true  → pre-report audit: check diagnosis artifacts for physical plausibility before report generation
-  false → final audit: audit report.md against diagnosis artifacts, output optimizer.md with verdict`,
-  run_in_background: true
+Read the agent protocol at $SKILL_PATH/references/agent-protocol.md and execute the PRE_REPORT_AUDIT protocol.
+
+Pre-report audit scope:
+- Physical plausibility: 每条因果链是否可追溯到控制方程？
+- Falsifiability: falsification_condition 是否具体、可执行？
+- Competing hypotheses: 排除逻辑是否基于物理而非纯统计？
+- Confidence: 上限约束是否合理？
+- Confounding variables: 独立统计验算
+
+Output: optimizer_preflight.md with PREFLIGHT_PASS / PREFLIGHT_NEEDS_REPAIR / PREFLIGHT_BLOCKED verdict.
+`,
+  effort: "hi"
+})
+
+// FINAL_AUDIT mode (Step 7) — 报告生成后终审
+Agent({
+  subagent_type: "report-reviewer",
+  task: `RUN_DIR=<run-dir-path>
+SKILL_PATH=<path-to-.claude/skills/industrial-physical-auditor>
+SHARED_PATH=<path-to-.claude/shared>
+DATA_PATH=<data-file-path>
+PRE_REPORT_AUDIT=false
+
+Read the agent protocol at $SKILL_PATH/references/agent-protocol.md and execute the FINAL_AUDIT protocol.
+
+Final audit scope:
+- Physical truthfulness: report.md 每条因果链追溯到 governing equation
+- No over-claiming: 置信度是否合理，证据等级分配正确
+- Evidence completeness: 证据等级分配正确
+- Falsifiability: 证伪条件具体且可执行
+- Statistical foundation: 相关是否通过全量反假相关验证
+
+Output: optimizer.md with ENDORSED / CONDITIONAL / REJECTED verdict.
+`,
+  effort: "hi"
 })
 ```
 
-### Audit Scopes
+## Audit Scopes
+
+Full protocol in `references/agent-protocol.md`. On-demand references at `resources/evidence_rules.md`, `resources/process_knowledge_base.md`.
 
 | Scope | PRE_REPORT_AUDIT | FINAL_AUDIT |
 |-------|-----------------|-------------|
@@ -76,16 +110,24 @@ ${"${PRE_REPORT_AUDIT}"}:
 ## Verification
 
 ```bash
+SKILL_PATH="<path-to-.claude/skills/industrial-physical-auditor>"
+SHARED_PATH="<path-to-.claude/shared>"
+
 # PRE_REPORT_AUDIT
 test -f "$RUN_DIR/05_review/optimizer_preflight.md"
+grep -Eq "PREFLIGHT_PASS|PREFLIGHT_NEEDS_REPAIR|PREFLIGHT_BLOCKED" "$RUN_DIR/05_review/optimizer_preflight.md"
 
 # FINAL_AUDIT
-test -f "$RUN_DIR/optimizer.md" && grep -Eq "ENDORSED|CONDITIONAL|REJECTED" "$RUN_DIR/optimizer.md"
+test -f "$RUN_DIR/optimizer.md"
+grep -Eq "ENDORSED|CONDITIONAL|REJECTED" "$RUN_DIR/optimizer.md"
 ```
 
-## References
+## Failure Recovery
 
-- `references/agent-protocol.md` — 完整的 Auditor 执行协议（双模式，Persona→Step 0-5→Verdict）
-- `references/resources/execution_reference.md` — 详细 bash 命令、Python 验证脚本、物理验证框架
-- `resources/evidence_rules.md` — 证据等级规则
-- `resources/engineering_delivery_contract.md` — 工程交付标准
+| Scenario | Recovery |
+|----------|----------|
+| Missing diagnosis artifacts | 报告缺失 → 标记 PREFLIGHT_BLOCKED / REJECTED |
+| report.md 不存在 (FINAL) | 等待 Reporter 完成 → 重新触发 FINAL_AUDIT |
+| 物理机制无法验证 | 降低置信度 → 标记 CONDITIONAL 并附带限制说明 |
+| 统计验算与声明矛盾 | 标记 REJECTED → 触发 D→J→R→R 修复循环 |
+| Auditor 超时 | 检查部分产物 → 可用则继续，否则重试 |

@@ -21,10 +21,10 @@
 
 ## Required Delegation
 
-- [ ] Read: `"$SKILL_PATH/../diagnostic-html-visualizer/SKILL.md"`
-- [ ] Read: `"$SKILL_PATH/../diagnostic-html-visualizer/agents/html-builder.md"`
-- [ ] Read: `"$SKILL_PATH/../diagnostic-html-visualizer/templates/page_blueprint.md"`
-- [ ] Read: `"$SKILL_PATH/../diagnostic-html-visualizer/templates/render_prompt_template.md"`
+- [ ] Read: `"skill://diagnostic-html-visualizer"`
+- [ ] Read: `"skill://diagnostic-html-visualizer/references/html-builder-protocol.md"`
+- [ ] Read: `"skill://diagnostic-html-visualizer/templates/page_blueprint.md"`
+- [ ] Read: `"skill://diagnostic-html-visualizer/templates/render_prompt_template.md"`
 - [ ] Read ALL diagnostic artifacts from RUN_DIR (diagnosis, evidence, confidence, reasoning_chain, ontology, plot_manifest, visual_analysis, image_captions, data_analysis_conclusion, report.md, 3d_model_data)
 
 ## Phase 1: Data Governance Card
@@ -82,7 +82,7 @@
 
 | Scenario | Read |
 |----------|------|
-| Full delegation reading order | delegated skill files (SKILL.md → html-builder.md → page_blueprint.md → render_prompt_template.md) |
+| Full delegation reading order | delegated skill files (SKILL.md → html-builder-protocol.md → page_blueprint.md → render_prompt_template.md) |
 | Data governance provenance fields | `02_processed/data_analysis_conclusion.json` → `data_cleaning_provenance` |
 | 3D model data structure | `RUN_DIR/3d_model_data.json` |
 | Evidence hierarchy for chart selection | Not available in this skill; use evidence hierarchy from `RUN_DIR/04_diagnostics/evidence.json` |

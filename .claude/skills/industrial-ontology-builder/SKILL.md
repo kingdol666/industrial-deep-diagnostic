@@ -5,55 +5,81 @@ description: "工业诊断管线 — 领域本体构建引擎。RAG检索+网络
 
 # Industrial Ontology Builder
 
-从传感器列名推断物理含义、从RAG知识库提取工艺原理、从数据自描述确认参数角色。`ontology.json` 是整个诊断管线的地基。
+从传感器列名推断物理含义、从RAG知识库提取工艺原理、从数据自描述确认参数角色。`ontology.json` 是整个诊断管线的地基 — 不是模板填充器，让数据自己揭示工艺类型。
 
-## Inputs (`RUN_DIR/00_input/`)
+## Inputs / Outputs
 
-| File | Required | Contents |
-|------|----------|----------|
+### Inputs (in `RUN_DIR/00_input/`)
+
+| File | Required | Description |
+|------|----------|-------------|
 | `input_manifest.json` | ✓ | 数据列描述 |
 | `user_context.json` | ✓ | 工艺类型、已知问题、目标列 |
 | `run_config.json` | ✓ | 运行配置（含 `interaction_mode`） |
 | `extracted_knowledge.json` | - | 参考文档知识提取（可选） |
 
-## Outputs (`RUN_DIR/`)
+### Outputs
 
-| File | Contents |
-|------|----------|
+| File | Description |
+|------|-------------|
 | `01_ontology/ontology.json` | 领域本体（≥1KB, schema-valid） |
 | `01_ontology/schema.json` | 归一化变量分类 |
 | `00_input/rag_deep_understanding.json` | RAG深度理解 + 验证队列 |
 | `00_input/clarification_needed.json` | 澄清需求 + `clarification_status` |
 
-## Agent Dispatch
+## Dispatch
+
+启动 `context-builder` 子Agent：
 
 ```javascript
+// Claude Code dispatch via Agent tool:
 Agent({
-  subagent_type: "context-builder",
-  description: "构建领域本体 — RAG检索+网络搜索+本体构建",
-  permissionMode: "bypassPermissions",
-  prompt: `DATA_PATH=<data-file-path>
+  agent: "context-builder",
+  task: `DATA_PATH=<data-file-path>
 RUN_DIR=<run-dir-path>
 REFERENCE_DIR=<reference-dir-or-empty>
 PROCESS_DESCRIPTION=<user-provided-description>
 USER_OBJECTIVE=<user-objective>
-SKILL_PATH=<this-skill-directory>
+SKILL_PATH=<path-to-.claude/skills/industrial-ontology-builder>
+SHARED_PATH=.claude/shared
 INTERACTION_MODE=auto  # auto | interactive | minimal
 
-Read "\${SKILL_PATH}/references/agent-protocol.md" and execute the complete protocol.
-Phase 0-5: data inspection → reference search → web research → RAG retrieval → ontology build → validation`,
-  run_in_background: true
+Read "$SKILL_PATH/references/agent-protocol.md" and execute the complete protocol.
+
+Key constraints:
+- 不是模板填充器 — 让数据自己揭示工艺类型
+- R2 只做 Stage 1 预检查，不做完整统计分析（Data Processor 的工作）
+- 不一致即诊断信号 — ontology 预测 vs 数据观察的差异是最强诊断线索
+- 所有输出写入 RUN_DIR
+- 默认中文
+`,
+  effort: "hi"
 })
 ```
+
+## Execution Flow
+
+Full protocol in `references/agent-protocol.md`. On-demand references at `resources/physics_inference_framework.md` (物理推断) and `resources/data_ontology_mapping_framework.md` (数据本体映射).
+
+| Phase | Purpose |
+|-------|---------|
+| 0 | 加载用户上下文与数据探测 — 读取 input_manifest/user_context/run_config，直接探测数据文件前100行 |
+| 1 | 搜索参考目录 — 扫描 REFERENCE_DIR 提取工艺关键词、参数名称、已知失效模式 |
+| 2 | 可选 Web 研究 — 最多 5 次定向搜索（工艺类型 + 关键参数 + 已知关系） |
+| 3 | RAG 知识检索 + 深度理解 — 执行 R1-R4 协议（语义理解/知识-数据对齐/物理原理提取/缺口识别） |
+| 4 | 数据-本体双向映射 — 构建 ontology.json，每个参数含 physical_meaning/unit/role/设备归属/物理关系/不一致信号 |
+| 5 | Schema 生成 + 验证 — schema.json 归一化分类 + CP-2/CP-3 质量门 |
+| 2.5 | 澄清门 — auto 模式用 physics_inference_framework L1-L5 推断；interactive 分组提问；minimal 仅关键参数 |
 
 ## Verification
 
 ```bash
-SKILL_PATH="<this-skill-directory>" SHARED_PATH="<shared-scripts-directory>"
+SKILL_PATH="<path-to-.claude/skills/industrial-ontology-builder>"
+SHARED_PATH=".claude/shared"
 
 # CP-2: Ontology schema gate
 node "$SHARED_PATH/scripts/validate.mjs" \
-  "$SHARED_PATH/schemas/ontology_schema.json" \
+  "$SKILL_PATH/schemas/ontology_schema.json" \
   "$RUN_DIR/01_ontology/ontology.json" && \
   test "$(wc -c < "$RUN_DIR/01_ontology/ontology.json")" -ge 1024
 
@@ -62,12 +88,12 @@ grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' \
   "$RUN_DIR/00_input/clarification_needed.json"
 ```
 
-## References
+## Failure Recovery
 
-| Resource | When |
-|----------|------|
-| `references/agent-protocol.md` | context-builder 完整执行协议（Phase 0-5 + 澄清门 + 故障恢复） |
-| `schemas/ontology_schema.json` | 本体 JSON Schema |
-| `resources/physics_inference_framework.md` | 物理推断不确定时 |
-| `resources/parameter_to_physics.json` | 参数→物理量映射知识库 |
-| `resources/data_ontology_mapping_framework.md` | 数据↔本体映射 |
+| Scenario | Recovery |
+|----------|----------|
+| Schema validation fail | 修复 JSON → 重写 ontology.json → 重新验证 |
+| Missing input files | 报告缺失 → 标记 input_manifest/user_context/run_config 中哪个缺失 |
+| RAG 检索无结果 | 标记 rag_deep_understanding.json 缺口 → 用 Web 研究 + physics_inference_framework 补充 |
+| 澄清门阻塞 | auto 模式用 L1-L5 推断所有未知参数；interactive/minimal 输出明确问题到 clarification_needed.json |
+| ontology.json < 1KB | 扩展参数条目 → 补全 physical_meaning/unit/role/物理关系 → 重新验证 |

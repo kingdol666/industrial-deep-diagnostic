@@ -1,13 +1,15 @@
 ---
 name: industrial-judge
-description: "10-point quality gate for industrial diagnosis artifacts. Verifies physical traceability, evidence sufficiency, reasoning chain integrity, anti-spurious validation carry-forward, and no overclaiming. Outputs judge_feedback.json with verdict+score+blocking_issues. Trigger: quality gate, quality review, judge gate, audit quality, verdict check, blocking issues. Do NOT use without diagnosis artifacts."
+description: "工业诊断管线 — 质量门审查。10项评分验证诊断推理与统计基础的完整性，跨文件交叉验证审计。Trigger: quality gate, 质量审查, judge, 诊断评审, 质量门, 交叉验证, 审计, quality review, diagnosis audit, verdict check, blocking issues."
 ---
 
 # Industrial Judge
 
-评审 6 个诊断产物 → `05_review/judge_feedback.json`（verdict + score + blocking_issues）。
+质量门审查引擎。10 项标准评分，验证诊断推理与统计基础的完整性，执行跨文件交叉验证审计。输出 `judge_feedback.json` 含 pass/needs_repair/major_issues/fail 判定。
 
-## Inputs
+## Inputs / Outputs
+
+### Inputs (in `RUN_DIR`)
 
 | File | Description |
 |------|-------------|
@@ -17,10 +19,15 @@ description: "10-point quality gate for industrial diagnosis artifacts. Verifies
 | `04_diagnostics/reasoning_chain.json` | R1-R8 推理链 |
 | `02_processed/validate_report.json` | 统计验证报告（Simpson/去趋势/变点/离群） |
 | `02_processed/data_analysis_conclusion.json` | 数据分析结论 |
+| `03_figures/visual_analysis.json` | VLM 视觉分析 |
+| `01_ontology/ontology.json` | 领域本体 |
+| `02_processed/feature_summary.json` | 特征摘要 |
 
-## Output
+### Outputs
 
-`05_review/judge_feedback.json` — verdict + overall_score + dimension_scores[0-10] + blocking_issues + repair_instructions
+| File | Description |
+|------|-------------|
+| `05_review/judge_feedback.json` | verdict + overall_score + dimension_scores[0-10] + blocking_issues + repair_instructions |
 
 ## 10-Point Gate
 
@@ -46,28 +53,68 @@ description: "10-point quality gate for industrial diagnosis artifacts. Verifies
 | `major_issues` | 50-69 | Moderate | Fix (best-of-3 loop) |
 | `fail` | <50 | Blocking | Must fix |
 
-## Execution
+## Dispatch
+
+启动 `judge` 子Agent：
 
 ```javascript
+// Claude Code dispatch via Agent tool:
 Agent({
-  subagent_type: "judge",
-  description: "10-point quality gate review",
-  permissionMode: "bypassPermissions",
-  run_in_background: true,
-  prompt: `RUN_DIR=<...> SKILL_PATH=<...> SHARED_PATH=<...>
-Read "$SKILL_PATH/references/agent-protocol.md" and execute the full gate.`
+  agent: "judge",
+  task: `RUN_DIR=<run-dir-path>
+SKILL_PATH=<path-to-.claude/skills/industrial-judge>
+SHARED_PATH=<path-to-.claude/shared>
+DATA_PATH=<data-file-path>
+
+Read the agent protocol at <SKILL_PATH>/references/agent-protocol.md and execute the full quality gate review.
+
+Key constraints:
+- validate_report.json 是主要验证工具 — 必须先读再打分
+- 每次 BLOCKING 必须有修复指令
+- reasoning_chain < 8 段 → blocking issue
+- diagnosis.hypotheses.surviving 为空 → blocking issue
+- 结论缺少 falsification_conditions → blocking issue
+- evidence.validation_evidence 为空 → warning
+- 输出中文，enum 保持英文
+`,
+  effort: "hi"
 })
 ```
+
+## Execution Flow
+
+Full protocol in `references/agent-protocol.md`. On-demand references at `resources/evidence_rules.md` and `resources/execution_reference.md`.
+
+| Step | Purpose |
+|------|---------|
+| 0 | 读取所有诊断产物 (diagnosis/evidence/confidence/reasoning_chain/validate_report/data_analysis_conclusion/visual_analysis/ontology/feature_summary) |
+| 0.5 | 交叉验证：validate_report 发现与 diagnosis 一致性审计 |
+| 0.6 | 推理链质量审计 (R1-R8 完整性/证据基础/反事实/可证伪性/幻觉审计) |
+| 0.65 | 物理来源质量审计 (pre_cached/rag_extracted/first_principles 溯源) |
+| 0.7 | 独立数据采样：关键相关声明抽样验证 |
+| 0.8 | 稳定性/可复现性审计 |
+| 1 | 10 项评分 (0-10 每项) — 综合 Steps 0.5-0.8 所有发现 |
+| 2 | Cross-Reference Audit (5 项跨文件交叉验证) |
+| 3 | 输出 judge_feedback.json |
 
 ## Verification
 
 ```bash
+SKILL_PATH="<path-to-.claude/skills/industrial-judge>"
+SHARED_PATH="<path-to-.claude/shared>"
+
 node "$SHARED_PATH/scripts/validate.mjs" \
   "$SHARED_PATH/schemas/judge_feedback_schema.json" \
   "$RUN_DIR/05_review/judge_feedback.json"
+
 node "$SKILL_PATH/scripts/judge-gate-check.mjs" "$RUN_DIR" --skip-summary
 ```
 
-## References
+## Failure Recovery
 
-`references/agent-protocol.md` | `schemas/judge_feedback_schema.json` | `templates/judge_template.json`
+| Scenario | Recovery |
+|----------|----------|
+| Schema validation fail | 修复 JSON → 重写 → 重新验证 |
+| Missing input files | 报告缺失 → verdict=fail, score=0, blocking issues listed |
+| Gate check fail | 使用 blocking_issues 中的修复指令 → 回退 Diagnostician 修复 |
+| Judge timeout | 检查部分产物 → 可用则继续 |

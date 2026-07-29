@@ -1,12 +1,17 @@
 ---
 name: industrial-diagnostician
-description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎。融合 data+ontology+physics+VLM+time-lag 信息，输出 diagnosis/evidence/confidence/reasoning_chain。Trigger: 诊断, diagnoze, root cause, 根因, 竞争假设, competing hypotheses, physics diagnosis, 物理推断, diagnostician, 根因诊断, 假设排除, hypothesis elimination, 因果推断, causal inference, 物理约束诊断, 竞争假设分析. Do NOT use without upstream data_analysis_conclusion.json."
+description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎。融合数据分析结论+领域本体+物理机制+VLM视觉证据+时滞分析，通过排除而非确认输出结论。Trigger: 诊断, diagnoze, root cause, 根因, 竞争假设, competing hypotheses, physics diagnosis, 物理推断, diagnostician, 根因诊断, 假设排除, hypothesis elimination, 因果推断, causal inference, 物理约束诊断, 竞争假设分析. Do NOT use without upstream data_analysis_conclusion.json."
 ---
+
 # Industrial Diagnostician
+
 物理约束的竞争性假设根因诊断引擎。融合数据分析结论、领域本体、物理第一原理、VLM 视觉证据和时滞分析，通过排除而非确认输出结论。
 
 核心规则：**诊断 = 排除**。每条结论满足四条件——时间先后 + 统计显著 + 物理机制 + 无矛盾。至少 3 条竞争假设，至少 2 条被排除。
-## Inputs (expected in `RUN_DIR`)
+
+## Inputs / Outputs
+
+### Inputs (in `RUN_DIR`)
 
 | File | Role |
 |------|------|
@@ -17,8 +22,9 @@ description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎�
 | `02_processed/anomaly_report.json` | 异常报告 |
 | `02_processed/validate_report.json` | 统计验证报告 |
 | `02_processed/feature_summary.json` | 特征摘要 |
+| `02_processed/scenario_classification.json` | 场景/产品分层分类 |
 
-## Outputs
+### Outputs
 
 | File | Description |
 |------|-------------|
@@ -27,56 +33,99 @@ description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎�
 | `04_diagnostics/confidence.json` | 5 因子置信度评估 + adjustment_log |
 | `04_diagnostics/reasoning_chain.json` | R1-R8 完整推理链 |
 
+## Dispatch
+
+启动 `diagnostician` 子Agent：
+
+```javascript
+// Claude Code dispatch via Agent tool:
+Agent({
+  agent: "diagnostician",
+  task: `DATA_PATH=<data-file-path>
+RUN_DIR=<run-dir-path>
+SKILL_PATH=<path-to-.claude/skills/industrial-diagnostician>
+SHARED_PATH=<path-to-.claude/shared>
+${REPAIR_INSTRUCTIONS ? 'REPAIR_INSTRUCTIONS=' + REPAIR_INSTRUCTIONS : ''}
+
+Read "<SKILL_PATH>/references/agent-protocol.md"
+and execute Phase 0-7. Fuse data+ontology+physics+VLM+time-lag.
+
+Key constraints:
+- 三驱动：物理主导 + 数据验证 + 视觉补充
+- 每个假说必须有物理机制 — governing equation 和因果链
+- 至少 3 个竞争假设（H1, H2, H3），至少排除 2 个
+- COMPETING_SET 不能只有一个假设
+- 推理链必须 R1-R8 完整
+- 如果 time_lag_analysis.json 存在，必须读取
+- Every hypothesis includes ontology_data_physics_proof, physical_logic_chain, and falsification_conditions
+- 输出中文，enum 保持英文
+`,
+  effort: "hi"
+})
+```
+
+## Execution Flow
+
+Full protocol in `references/agent-protocol.md`. On-demand references at `resources/physics_inference_framework.md`, `resources/evidence_rules.md`, `resources/diagnosis_method.md`.
+
+| Phase | Purpose |
+|-------|---------|
+| 0 | 数据探测 — 读取所有输入文件 + 4 个输出 schema |
+| 1 | 统计基础 — 校验 validate_report（Simpson/去趋势/留一法/CCF），记录通过验证的相关性 |
+| 2 | 产品分层 — 读取 scenario_classification，确定 focus_product，检测 Simpson 反转 |
+| 3 | 假说生成 — 3+ 竞争假设，每个含物理链（governing equation）+ 支持证据 + 反对证据 + 证伪条件 |
+| 4 | 数据区分性 — 逐对评估 discriminability_matrix，INDISTINGUISHABLE → confidence_ceiling ≤ 65 |
+| 5 | 假设排除 — 至少排除 2 个，exclusion_confidence ≥ 90，记录 revival_condition |
+| 6 | 置信度评估 — 5 因素分解（statistical/physical/temporal/confounds/symptom）+ adjustment_log + ceilings |
+| 7 | 写输出 + Schema 验证 — 4 JSON 文件 + validate.mjs 逐个验证，全部通过才算完成 |
+
 ## Core Rules
 
 - **3+ hypotheses** — each with falsification conditions + causal chain (governing equation)
 - **2+ EXCLUDED** — via NO_RESET, IMPOSSIBLE physics, IMPLAUSIBLE magnitude, CONTRADICTED ontology
 - **Conclusion types**: `DETERMINED` / `COMPETING_SET` / `NEEDS_DATA`
 - **COMPETING_SET honesty**: never force to DETERMINED; ambiguity is truth
-- **Anti-spurious**: every |r|>=0.3 reference passes Simpson/detrend/lag/leave-one-out
-- **Confidence ceilings**: INDISTINGUISHABLE<=65, COMPETING_SET<=70, [PARAM_AMBIGUITY]<=50
-- **Schema-First**: read schema -> construct -> write -> validate, one shot per file
-## Execution
+- **Anti-spurious**: every |r|≥0.3 reference passes Simpson/detrend/lag/leave-one-out
+- **Confidence ceilings**: INDISTINGUISHABLE ≤ 65, COMPETING_SET ≤ 70, [PARAM_AMBIGUITY] ≤ 50
+- **Schema-First**: read schema → construct → write → validate, one shot per file
+- **Physics chain format**: 参数X的测量值Y → 经过物理定律Z → 影响质量指标W（三段式）
 
-```javascript
-Agent({
-  subagent_type: "diagnostician",
-  description: "物理约束的竞争假说根因诊断",
-  permissionMode: "bypassPermissions",
-  prompt: `DATA_PATH=<data-file-path>
-RUN_DIR=<run-dir-path>
-SKILL_PATH=.claude/skills/industrial-diagnostician
-${REPAIR_INSTRUCTIONS ? 'REPAIR_INSTRUCTIONS=' + REPAIR_INSTRUCTIONS : ''}
-
-Read ".claude/skills/industrial-diagnostician/references/agent-protocol.md"
-and execute Phase 0-7. Fuse data+ontology+physics+VLM+time-lag.
-If time_lag_analysis.json exists, MUST read it.
-Every hypothesis includes ontology_data_physics_proof,
-physical_logic_chain, and falsification_conditions.`,
-  run_in_background: true
-})
-```
 ## Verification
+
 ```bash
-SKILL_PATH=".claude/skills/industrial-diagnostician"
+SKILL_PATH="<path-to-.claude/skills/industrial-diagnostician>"
+SHARED_PATH="<path-to-.claude/shared>"
 
 for f in diagnosis evidence confidence reasoning_chain; do
   node "$SHARED_PATH/scripts/validate.mjs" \
-    "$SHARED_PATH/schemas/${f}_schema.json" \
+    "$SKILL_PATH/schemas/${f}_schema.json" \
     "$RUN_DIR/04_diagnostics/${f}.json" || exit 1
 done
 
 node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
 node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" diagnostician
 ```
+
+## Failure Recovery
+
+| Scenario | Recovery |
+|----------|----------|
+| Schema validation fail | 修复 JSON → 重写 → 重新验证（schema-validation-loop） |
+| Missing data_analysis_conclusion.json | 不可继续 — upstream 未完成 |
+| Missing time_lag_analysis.json | 非强制 — 标记无时滞证据，降级 temporal_evidence |
+| No hypothesis resolvable | COMPETING_SET + 诚实披露 ambiguity |
+| Correlation confounded (Simpson/detrend) | 降级证据等级，标记 confound_detected: true |
+| VLM 视觉分析不可用 | 降级 temporal_evidence，不阻塞诊断 |
+
 ## References
 
 - `references/agent-protocol.md` — Phase 0-7 执行协议（假设排比/物理推断/证据融合/写入验证）
-- `references/resources/execution_reference.md` — 文件列表/筛选规则/控制方程/hallucination prevention
+- `resources/execution_reference.md` — 文件列表/筛选规则/控制方程/hallucination prevention
 - `resources/evidence_rules.md` — 证据等级体系/因果五条件/反推测
-- `resources/physics_inference_framework.md` — L1-L5 物理推断
+- `resources/physics_inference_framework.md` — L1-L5 物理推断阶梯
 - `resources/diagnosis_method.md` — 置信度上限/诊断方法论
 - `resources/diagnostician_dual_drive_reference.md` — View A/B 双驱动分析
 - `resources/parameter_to_physics.json` — 参数物理量映射
-- `schemas/` — 4 个输出 JSON Schema
-- `scripts/` — schema-validation-loop.mjs, diagnostic-quality-check.mjs, physics_check.py
+- `schemas/` — 5 个输出 JSON Schema（diagnosis/evidence/confidence/reasoning_chain/causal_evidence_map）
+- `scripts/` — schema-validation-loop.mjs, diagnostic-quality-check.mjs, physics_check.py, confidence-completeness-check.mjs
+- `templates/` — diagnosis_template.json

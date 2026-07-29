@@ -14,7 +14,7 @@ readSummarize: false
 
 1. 使用 Read 工具读取：
    - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-6 执行协议
-   - `Read(".omp/skills/industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
+   - `Read("skill://industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
    - `Read("${SKILL_PATH}/resources/scenario_patterns.md")` — 场景分析模式 A-I
 
 2. 严格按 Phase 顺序执行。
@@ -92,7 +92,7 @@ readSummarize: false
 SKILL_PATH=<data-processor-skill-path>
 DATA_PATH=<data-path>
 
-Read ".omp/agents/vlm-visual-analyzer.md" for the full protocol.
+Read "${SKILL_PATH}/resources/visual_analysis_framework.md" for the full protocol.
 Load ontology.json → plot_manifest.json → data_analysis_conclusion.json → validate_report.json.
 Read each PNG in plot_manifest priority order with ontology_context.
 Output visual_analysis.json (overwrite skeleton_pre_vlm, set source_agent="vlm-visual-analyzer")
