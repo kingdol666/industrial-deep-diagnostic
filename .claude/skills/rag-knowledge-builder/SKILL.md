@@ -150,7 +150,7 @@ Phase 0: Engine Startup
 
 Phase 1: Knowledge Collection (engine + LLM triage)
   ┌─────────────────────────────────────────────────────────────────┐
-  │  Read: agents/retrieval-agent.md + agents/scoring-agent.md     │
+  │  Read: references/retrieval-agent.md + references/scoring-agent.md     │
   │  ① 4-perspective query × (ChromaDB + Web)                     │
   │  ② 5-dim score (D1 semantic, D2 concept, D3 domain,           │
   │     D4 source, D5 crossref) + quality gates                    │
@@ -161,7 +161,7 @@ Phase 1: Knowledge Collection (engine + LLM triage)
 
 Phase 2: Ontology Construction ★★★ CORE ★★★
   ┌─────────────────────────────────────────────────────────────────┐
-  │  Read: agents/ontology-construction-agent.md                    │
+  │  Read: references/ontology-construction-agent.md                    │
   │  Read: resources/ontology-design-principles.md                  │
   │                                                                 │
   │  ① 领域理解 → 领域定义 + 边界 + 核心实体                       │
@@ -177,14 +177,14 @@ Phase 2: Ontology Construction ★★★ CORE ★★★
 
 Phase 3: Structured Data Generation
   ┌─────────────────────────────────────────────────────────────────┐
-  │  Read: agents/structured-data-generator.md                     │
+  │  Read: references/structured-data-generator.md                     │
   │  示例数据 / 验证规则（来自约束）/ 查询模板 / 测试场景          │
   └─────────────────────────────────────────────────────────────────┘
   Output: rag_structured_data.json
 
 Phase 4: Quality Verification (gate)
   ┌─────────────────────────────────────────────────────────────────┐
-  │  Read: agents/quality-verification-agent.md                    │
+  │  Read: references/quality-verification-agent.md                    │
   │  6-dim: schema + NL quality + semantic completeness            │
   │  + logical consistency + cross-source + downstream             │
   └─────────────────────────────────────────────────────────────────┘
@@ -238,12 +238,12 @@ Phase 4: Quality Verification (gate)
 | When | Read | Why |
 |------|------|-----|
 | Invoked | This file (SKILL.md) | Invocation contract + execution flow |
-| Phase 1 | `agents/retrieval-agent.md` | 4-perspective queries + LLM triaging |
-| Phase 1 | `agents/scoring-agent.md` | 5-dim scoring rubric + quality gates |
-| Phase 2 | **`agents/ontology-construction-agent.md`** | **本体构建方法论（核心 agent）** |
+| Phase 1 | `references/retrieval-agent.md` | 4-perspective queries + LLM triaging |
+| Phase 1 | `references/scoring-agent.md` | 5-dim scoring rubric + quality gates |
+| Phase 2 | **`references/ontology-construction-agent.md`** | **本体构建方法论（核心 agent）** |
 | Phase 2 | **`resources/ontology-design-principles.md`** | **本体设计原则（必读）** |
-| Phase 3 | `agents/structured-data-generator.md` | 本体 → 结构化数据 |
-| Phase 4 | `agents/quality-verification-agent.md` | 6-dim 质量验证 |
+| Phase 3 | `references/structured-data-generator.md` | 本体 → 结构化数据 |
+| Phase 4 | `references/quality-verification-agent.md` | 6-dim 质量验证 |
 | Integration | `resources/integration_guide.md` | 消费者 skill 集成方式 |
 | Pattern library | `resources/parameter_pattern_library.md` | 物理量通用模式 |
 | Scoring detail | `resources/scoring_rubric.md` | 评分详细示例 |
@@ -312,12 +312,12 @@ Skill({
 
 | File | When to Read | Content |
 |------|-------------|---------|
-| `agents/retrieval-agent.md` | Phase 1 | 多视角检索 + LLM 内容分类 |
-| `agents/scoring-agent.md` | Phase 1 | 5 维评分 + 质量门 |
-| **`agents/ontology-construction-agent.md`** | **Phase 2** | **LLM 本体构建方法论** |
+| `references/retrieval-agent.md` | Phase 1 | 多视角检索 + LLM 内容分类 |
+| `references/scoring-agent.md` | Phase 1 | 5 维评分 + 质量门 |
+| **`references/ontology-construction-agent.md`** | **Phase 2** | **LLM 本体构建方法论** |
 | **`resources/ontology-design-principles.md`** | **Phase 2** | **本体设计原则** |
-| `agents/structured-data-generator.md` | Phase 3 | 本体 → 结构化数据 |
-| `agents/quality-verification-agent.md` | Phase 4 | 6 维质量验证 |
+| `references/structured-data-generator.md` | Phase 3 | 本体 → 结构化数据 |
+| `references/quality-verification-agent.md` | Phase 4 | 6 维质量验证 |
 | `resources/parameter_pattern_library.md` | Phase 2 | 物理量通用模式 |
 | `resources/ontology_templates.md` | Phase 2 | 本体输出模板 |
 | `resources/integration_guide.md` | Integration | 消费者 skill 集成 |
