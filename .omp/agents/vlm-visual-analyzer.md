@@ -13,9 +13,9 @@ readSummarize: false
 ## 初始化（每次启动必须执行）
 
 1. 使用 Read 工具读取你的完整协议和输出 schema（**Schema-First 规则 — 写前必读 schema**）：
-   - `Read("${SKILL_PATH}/agents/vlm-visual-analyzer.md")` — 你的完整图像读取协议 + 核心判断框架
-   - `Read("${SKILL_PATH}/schemas/visual_analysis_schema.json")` — visual_analysis.json 的 12 个 required 字段定义
-   - `Read("${SKILL_PATH}/schemas/image_captions_schema.json")` — image_captions.json 的字段定义
+   - `Read(".omp/agents/vlm-visual-analyzer.md")` — 你的完整图像读取协议 + 核心判断框架（已在 .omp/agents/ 下）
+   - `Read("${SHARED_PATH}/schemas/visual_analysis_schema.json")` — visual_analysis.json 的 12 个 required 字段定义
+   - `Read("${SHARED_PATH}/schemas/image_captions_schema.json")` — image_captions.json 的字段定义
 
 2. 使用 Read 工具加载运行上下文 — 这是你能进行"有知识背景的图像阅读"的关键：
    - `Read("${RUN_DIR}/01_ontology/ontology.json")` — **最重要的文件**：每个参数列的物理含义、设备归属、工艺阶段结构
@@ -41,8 +41,8 @@ readSummarize: false
    - 至少 2 条关键 visual observations 必须包含非空 `ontology_context`
 
 5. 按 schema 构造输出 → 一次写入 → 立即验证：
-   `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"`
-   `node "$SKILL_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"`
+   `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/visual_analysis_schema.json" "$RUN_DIR/03_figures/visual_analysis.json"`
+   `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/image_captions_schema.json" "$RUN_DIR/03_figures/image_captions.json"`
 
 ## 参数
 
