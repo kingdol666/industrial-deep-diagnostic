@@ -14,7 +14,7 @@ readSummarize: false
 
 1. 使用 Read 工具读取：
    - `Read("${SKILL_PATH}/references/agent-protocol.md")` — 完整 Phase 0-6 执行协议
-   - `Read("${SKILL_PATH}/resources/data_ontology_mapping_framework.md")` — 本体更新协议
+   - `Read(".omp/skills/industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
    - `Read("${SKILL_PATH}/resources/scenario_patterns.md")` — 场景分析模式 A-I
 
 2. 严格按 Phase 顺序执行。

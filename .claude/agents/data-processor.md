@@ -14,7 +14,7 @@ color: green
 1. 使用 Read 工具读取：
    - `Read("${SKILL_PATH}/agents/data-processor.md")` — 本协议（执行清单）
    - `Read("${SKILL_PATH}/resources/visual_analysis_framework.md")` — 图表设计+分析协议
-   - `Read("${SKILL_PATH}/resources/data_ontology_mapping_framework.md")` — 本体更新协议
+   - `Read(".omp/skills/industrial-ontology-builder/resources/data_ontology_mapping_framework.md")` — 本体更新协议（位于 ontology-builder skill）
    - `Read("${SKILL_PATH}/resources/scenario_patterns.md")` — 场景分析模式 A-I
 
 2. 严格按 Phase 顺序执行。**每个 [ ] 必须打勾完成后再进入下一项。**

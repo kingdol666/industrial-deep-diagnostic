@@ -162,7 +162,7 @@ Missing outputs auto-restored by scripts in `.omp/skills/industrial-data-process
 
 | Scenario | Recovery |
 |----------|----------|
-| Python venv missing | `node .omp/skills/industrial-data-processor/scripts/uv_env_setup.mjs` |
+| Python venv missing | `node .omp/shared/scripts/uv_env_setup.mjs` |
 | Files >500MB | `python .omp/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
 | Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
 | No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |

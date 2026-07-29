@@ -83,7 +83,7 @@ Key constraints:
 
 ## Execution Flow
 
-Full protocol in `references/agent-protocol.md`. On-demand references at `resources/evidence_rules.md` and `resources/execution_reference.md`.
+Full protocol in `references/agent-protocol.md`. On-demand references at `resources/evidence_rules.md` and `references/resources/execution_reference.md`.
 
 | Step | Purpose |
 |------|---------|

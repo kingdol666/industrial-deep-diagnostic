@@ -16,6 +16,9 @@
     "run_config_schema.json": ["analysis-auto"],
     "run_summary_schema.json": ["reporter"],
     "scenario_classification_schema.json": ["data-processor"],
+    "validate_report_schema.json": ["data-processor", "diagnostician", "judge", "reporter", "html-visualizer"],
+    "feature_summary_schema.json": ["data-processor", "diagnostician", "judge", "html-visualizer"],
+    "plot_manifest_schema.json": ["data-processor", "vlm-visual-analyzer", "diagnostician", "reporter", "html-visualizer", "html-reviewer"],
     "visual_analysis_schema.json": ["data-processor", "vlm-analyzer", "diagnostician"]
   }
 }
