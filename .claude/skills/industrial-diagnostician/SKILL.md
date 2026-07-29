@@ -72,7 +72,7 @@ node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" d
 ## References
 
 - `references/agent-protocol.md` — Phase 0-7 执行协议（假设排比/物理推断/证据融合/写入验证）
-- `resources/execution_reference.md` — 文件列表/筛选规则/控制方程/hallucination prevention
+- `references/resources/execution_reference.md` — 文件列表/筛选规则/控制方程/hallucination prevention
 - `resources/evidence_rules.md` — 证据等级体系/因果五条件/反推测
 - `resources/physics_inference_framework.md` — L1-L5 物理推断
 - `resources/diagnosis_method.md` — 置信度上限/诊断方法论
