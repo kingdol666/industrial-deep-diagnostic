@@ -1,0 +1,82 @@
+{
+  "agent": "ScriptRunner",
+  "summary": {
+    "mjs_total": 21,
+    "mjs_pass": 21,
+    "mjs_fail": 0,
+    "py_deps_ok": true,
+    "py_total": 13,
+    "py_pass": 13,
+    "py_fail": 0,
+    "smoke_result": "PASS: loaded process_parameters.csv (1500 rows, 16 cols) with pandas; no standalone stats.mjs entrypoint found — data-processor scripts are pipeline-orchestrated, not standalone"
+  },
+  "runtime_load_tests": {
+    "description": "Central/shared scripts invoked with --help or no args to verify import resolution",
+    "total": 8,
+    "pass": 7,
+    "fail": 1,
+    "failures": [
+      {
+        "file": ".claude/shared/scripts/uv_env_setup.mjs",
+        "error": "ReferenceError: Cannot access 'py' before initialization at line 28 — TDZ bug in detectPython()"
+      }
+    ]
+  },
+  "scripts": [
+    {"file": ".claude/skills/industrial-reporter/scripts/report-section-check.mjs", "skill": "industrial-reporter", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-reporter/scripts/synthesize-run-summary.mjs", "skill": "industrial-reporter", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-judge/scripts/judge-gate-check.mjs", "skill": "industrial-judge", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-diagnostician/scripts/schema-validation-loop.mjs", "skill": "industrial-diagnostician", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-diagnostician/scripts/diagnostic-quality-check.mjs", "skill": "industrial-diagnostician", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-diagnostician/scripts/confidence-completeness-check.mjs", "skill": "industrial-diagnostician", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/vlm-verification-check.mjs", "skill": "industrial-data-processor", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/time_lag_compensator.mjs", "skill": "industrial-data-processor", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/generate_captions.mjs", "skill": "industrial-data-processor", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/data-processor-finalize.mjs", "skill": "industrial-data-processor", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/setup.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/pipeline-finalize.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/inspect.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/eval-assertions.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/file-integrity-restorer.mjs", "skill": "industrial-analysis-auto", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/shared/scripts/validate.mjs", "skill": "shared", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/shared/scripts/log-agent-event.mjs", "skill": "shared", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/shared/scripts/uv_env_setup.mjs", "skill": "shared", "type": "mjs", "status": "WARN", "error": "Syntax OK, runtime FAIL: ReferenceError at line 28 — Cannot access 'py' before initialization (TDZ). .omp copy of same file works."},
+    {"file": ".claude/shared/scripts/append-pipeline-event.mjs", "skill": "shared", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/shared/scripts/convert.mjs", "skill": "shared", "type": "mjs", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/dp_toolkit.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/generate_vlm_manifest.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/generate_vlm_charts.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/visual_analysis.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/plot_verification.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/production_regime_detector.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/physics_check.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/file_inspect.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-data-processor/scripts/cleaning_integrity_check.py", "skill": "industrial-data-processor", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/rag-knowledge-builder/scripts/rag_client.py", "skill": "rag-knowledge-builder", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-diagnostician/scripts/physics_check.py", "skill": "industrial-diagnostician", "type": "py", "status": "PASS", "error": ""},
+    {"file": ".claude/skills/industrial-analysis-auto/scripts/file_inspect.py", "skill": "industrial-analysis-auto", "type": "py", "status": "PASS", "error": ""}
+  ],
+  "omp_side_verification": {
+    "description": ".omp/skills and .omp/shared/scripts mirrors were also checked; all 23 .mjs files pass syntax.",
+    "unique_omp_scripts": [
+      {"file": ".omp/shared/scripts/verify-agents.mjs", "runtime": "PASS", "note": "Agent frontmatter validator loads correctly"},
+      {"file": ".omp/shared/scripts/master-validate.mjs", "runtime": "PASS", "note": "128 tests, 127 passed, 99% score"},
+      {"file": ".omp/shared/scripts/smoke-test-agents.mjs", "runtime": "PASS", "note": "9 agents, 12 skills verified"}
+    ],
+    "omp_uv_env_setup": "PASS (unlike .claude copy which has TDZ bug)"
+  },
+  "artifact_check": {
+    "file": ".hermes/skills/industrial-deep-diagnostic/scripts/artifact-check.mjs",
+    "syntax": "PASS",
+    "runtime": "PASS (prints usage, loads correctly)",
+    "note": "Not in .claude/shared/scripts; found in .hermes/ and .agents/ only"
+  },
+  "smoke_test_detail": {
+    "dataset": "data/simulateData/process_parameters.csv",
+    "rows": 1500,
+    "columns": 16,
+    "columns_list": ["timestamp", "part_id", "day", "shift", "material", "tool_id", "tool_age_parts", "spindle_speed_rpm", "feed_rate_mm_min", "depth_of_cut_mm", "cutting_force_N", "vibration_mm_s", "temperature_C", "surface_roughness_um", "quality_pass", "output_part_id"],
+    "standalone_issue": "No stats.mjs entrypoint exists — data-processor scripts are pipeline-orchestrated (need RUN_DIR + ontology.json + run_config.json) and cannot run standalone"
+  }
+}

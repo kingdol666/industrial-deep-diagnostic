@@ -4,7 +4,7 @@
 // Manages start/stop/status/health of three services:
 //   - backend  (Express, port 3210)
 //   - frontend (Vite,    port 5180)
-//   - rag      (FastAPI, port 8765)
+//   - rag      (FastAPI, port 8764)
 //
 // Stores runtime state in .runtime/ (PID files + status JSON).
 // Uses cross-platform.mjs utilities for port and process ops.
@@ -61,12 +61,12 @@ const SERVICES = {
   },
   rag: {
     name: 'RAG Engine',
-    port: 8765,
+    port: 8764,
     color: '\x1b[33m',  // yellow
     dir: join(PROJECT_ROOT, 'rag-retrieval-engine'),
     startCmd: 'node',
     startArgs: ['start.mjs'],
-    env: { RAG_PORT: '8765', RAG_HOST: '0.0.0.0' },
+    env: { RAG_PORT: '8764', RAG_HOST: '0.0.0.0' },
     healthPath: '/health',
     pidFile: join(RUNTIME_DIR, 'rag.pid'),
     logFile: join(PROJECT_ROOT, '.runtime', 'rag.log'),

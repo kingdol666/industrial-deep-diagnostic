@@ -13,13 +13,14 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, '..', '..');
-const AGENTS_DIR = join(PROJECT_ROOT, 'agents');
-const SKILLS_DIR = join(PROJECT_ROOT, 'skills');
+const PROJECT_ROOT = resolve(join(__dirname, '..', '..', '..'));  // always project root from any shared/scripts/ location
+const SHARED_DIR = join(PROJECT_ROOT, '.claude', 'shared');
+const SKILLS_DIR = join(PROJECT_ROOT, '.claude', 'skills');
+const AGENTS_DIR = join(PROJECT_ROOT, '.omp', 'agents');
 
 function parseFM(content) {
   const n = content.replace(/\r\n/g, '\n');

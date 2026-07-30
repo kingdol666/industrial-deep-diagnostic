@@ -25,7 +25,7 @@ function run(cmd) {
 function detectPython() {
   // Try uv venv first
   const uv = run('uv --version 2>&1');
-  if (py) return { type: 'uv', bin: 'uv', python: getVenvPython() };
+  if (uv) return { type: 'uv', bin: 'uv', python: getVenvPython() };
 
   // Try system Python on Windows (pip installed packages)
   for (const py of ['python3', 'python']) {

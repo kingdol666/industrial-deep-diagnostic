@@ -401,6 +401,7 @@ def cmd_health(_args):
 def cmd_start(args):
     """Check RAG engine, auto-start if not running."""
     import subprocess
+    import tempfile
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.realpath(os.path.join(script_dir, "..", "..", "..", ".."))
@@ -422,7 +423,6 @@ def cmd_start(args):
     engine = subprocess.Popen(
         ["uv", "run", "python", "server.py"],
         cwd=ENGINE_DIR,
-        import tempfile
         stdout=open(os.path.join(tempfile.gettempdir(), "rag_engine.log"), "w"),
         stderr=subprocess.STDOUT,
         env={**os.environ, "VIRTUAL_ENV": "", "http_proxy": "", "https_proxy": "",

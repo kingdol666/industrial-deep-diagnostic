@@ -4,8 +4,8 @@
     {
       "name": "template-preview",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765"],
-      "port": 8765
+      "runtimeArgs": ["-m", "http.server", "8764"],
+      "port": 8764
     }
   ]
 }

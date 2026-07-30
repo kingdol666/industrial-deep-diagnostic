@@ -27,6 +27,25 @@ description: "工业诊断管线 — 领域本体构建引擎。RAG检索+网络
 | `00_input/rag_deep_understanding.json` | RAG深度理解 + 验证队列 |
 | `00_input/clarification_needed.json` | 澄清需求 + `clarification_status` |
 
+
+
+## Pipeline Event Logging
+
+**MANDATORY** — log lifecycle events for pipeline-finalize.mjs execution proof verification:
+
+```bash
+# On start (before any work)
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event agent_start --agent context-builder --step context_builder
+
+# On completion (after ALL outputs written)
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event agent_complete --agent context-builder --step context_builder \
+  --files 01_ontology/ontology.json,01_ontology/schema.json,00_input/rag_deep_understanding.json,00_input/clarification_needed.json
+```
+
+These events are required by `pipeline-log-check.mjs` and `pipeline-finalize.mjs` to prove disciplined sequential execution.
+
 ## Dispatch
 
 启动 `context-builder` 子Agent：
@@ -70,6 +89,43 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 | 4 | 数据-本体双向映射 — 构建 ontology.json，每个参数含 physical_meaning/unit/role/设备归属/物理关系/不一致信号 |
 | 5 | Schema 生成 + 验证 — schema.json 归一化分类 + CP-2/CP-3 质量门 |
 | 2.5 | 澄清门 — auto 模式用 physics_inference_framework L1-L5 推断；interactive 分组提问；minimal 仅关键参数 |
+
+## Data Truth Mandate
+
+**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+
+| 规则 | 要求 |
+|------|------|
+| 数字可追溯性 | 每个数字必须标注数据源(cleaned/raw)、行范围、计算方法 |
+| 派生值标记 | 推断/派生值必须显式 `"derived": true` 或 `"inferred": true` |
+| 清洗留痕 | cleaning_integrity 记录全部清洗操作 |
+| 可视化可追溯 | 每张图的每个数据点可追溯到数据集的具体行 |
+| 不可用标记 | 无法从数据计算的 → 写 NOT_APPLICABLE + 原因 |
+
+## Counterfactual Reasoning — 排除约束
+
+| 约束 | 说明 |
+|------|------|
+| 四条件 | 时间先后 + 统计显著 + 物理机制 + 无矛盾 |
+| 排除标准 | 任一条件不满足 → 标记为排除候选项并提供量化依据 |
+| 物理边界 | 排除必须有第一性原理或控制方程支撑 |
+| 置信阈值 | 排除置信度 <80 时标记 `[WEAK_EXCLUSION]` |
+
+## Assumptions & Limitations
+
+| 类别 | 要求 |
+|------|------|
+| 数据限制 | 采样率/噪声/缺失最值/范围限制 |
+| 模型假设 | 线性近似/稳态假设/分布假设 |
+| 未控制混淆 | 明确列出无法控制的潜在混淆变量 |
+| 结论可信区间 | 每个结论标注置信度 ± 误差范围 |
+
+## Efficiency — Parallel Execution
+
+- 与上下游 agent 无数据依赖时 → 主动并行
+- 对可预测结果使用确定性脚本而非 LLM 推理
+- 大文件采样策略: >100K 行时系统抽样
+- Agent stall >600s → 检查已有产物, 部分可用的继续推进
 
 ## Verification
 

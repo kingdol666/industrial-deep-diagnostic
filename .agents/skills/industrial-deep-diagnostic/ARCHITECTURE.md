@@ -52,7 +52,7 @@ setup / inspect / stats / validate
     end
 
     subgraph L5["L5: 外部依赖层"]
-        DEPS["RAG Engine (localhost:8765)
+        DEPS ["RAG Engine (localhost:8764)
 uv / Python venv
 Web Search"]
     end

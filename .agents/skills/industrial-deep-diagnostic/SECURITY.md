@@ -18,7 +18,7 @@
 |------|---------|
 | 数据文件 | 本地存储于 `workspace/diagnostic-runs/`，不自动上传 |
 | Python venv | 本地创建 `scripts/.venv/`，依赖本地安装 |
-| RAG 检索 | 默认连接本地 `localhost:8765`，不强制外网 |
+| RAG 检索 | 默认连接本地 `localhost:8764`，不强制外网 |
 | 网络搜索 | 仅在知识缺口明显且用户未禁止时执行，最多 5 次 |
 | VLM 图像分析 | 本地 PNG 文件由本地 Python 脚本处理 |
 

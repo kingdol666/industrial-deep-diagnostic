@@ -1,0 +1,13 @@
+{"context":"DB","level":"info","message":"Initializing database...","timestamp":"2026-07-29T11:09:52.634Z"}
+{"context":"DB","level":"info","message":"Path: D:\\codes\\myskills\\industrial-deep-diagnostic\\data\\diagnostic.db","timestamp":"2026-07-29T11:09:52.635Z"}
+{"context":"DB","level":"info","message":"Database initialized successfully.","timestamp":"2026-07-29T11:09:52.636Z"}
+{"context":"ClaudeClient","level":"error","message":"SDK not available: Cannot find package '@anthropic-ai/claude-agent-sdk' imported from D:\\codes\\myskills\\industrial-deep-diagnostic\\app\\backend\\src\\engine\\claude-client.mjs","timestamp":"2026-07-29T11:09:52.646Z"}
+{"context":"Chat","level":"error","message":"Chat SDK init failed: Cannot find package '@anthropic-ai/claude-agent-sdk' imported from D:\\codes\\myskills\\industrial-deep-diagnostic\\app\\backend\\src\\services\\chat.service.mjs","timestamp":"2026-07-29T11:09:52.647Z"}
+{"context":"WebSocket","level":"info","message":"Server ready on path /ws","timestamp":"2026-07-29T11:09:52.649Z"}
+{"context":"Init","level":"info","message":"Checking project configuration...","timestamp":"2026-07-29T11:09:52.649Z"}
+{"context":"Init","level":"info","message":"Config loaded successfully","timestamp":"2026-07-29T11:09:52.649Z"}
+{"context":"Init","level":"info","message":"Initialization complete.","timestamp":"2026-07-29T11:09:52.649Z"}
+{"context":"Server","level":"info","message":"HTTP + WebSocket server on http://localhost:3210","timestamp":"2026-07-29T11:09:52.652Z"}
+{"context":"Server","level":"info","message":"WebSocket endpoint: ws://localhost:3210/ws","timestamp":"2026-07-29T11:09:52.652Z"}
+{"context":"Server","level":"info","message":"Project root: D:\\codes\\myskills\\industrial-deep-diagnostic","timestamp":"2026-07-29T11:09:52.652Z"}
+{"context":"Server","level":"info","message":"Data dir: D:\\codes\\myskills\\industrial-deep-diagnostic\\data","timestamp":"2026-07-29T11:09:52.652Z"}

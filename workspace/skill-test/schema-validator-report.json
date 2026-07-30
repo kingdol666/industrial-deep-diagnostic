@@ -1,0 +1,557 @@
+{
+  "agent": "SchemaValidator",
+  "summary": {
+    "pass": 60,
+    "warn": 0,
+    "fail": 0,
+    "total": 60,
+    "ajv_available": false,
+    "cross_check": {
+      "schemas_on_disk": 16,
+      "referenced_in_code": 16,
+      "missing_references": []
+    }
+  },
+  "schemas": [
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/analysis_parameter_selection_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/anomaly_report_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/causal_evidence_map_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/confidence_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/data_analysis_conclusion_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/diagnosis_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/evidence_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/html_review_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/image_captions_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/judge_feedback_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/ontology_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/reasoning_chain_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/run_config_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/run_summary_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/scenario_classification_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-analysis-auto/schemas/visual_analysis_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-data-processor/schemas/analysis_parameter_selection_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-data-processor/schemas/anomaly_report_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-data-processor/schemas/data_analysis_conclusion_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-data-processor/schemas/image_captions_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-data-processor/schemas/scenario_classification_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-diagnostician/schemas/causal_evidence_map_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-diagnostician/schemas/confidence_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-diagnostician/schemas/diagnosis_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-diagnostician/schemas/evidence_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-diagnostician/schemas/reasoning_chain_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-html-reviewer/schemas/html_review_schema.json",
+      "skill": "industrial-html-reviewer",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-judge/schemas/judge_feedback_schema.json",
+      "skill": "industrial-judge",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-ontology-builder/schemas/ontology_schema.json",
+      "skill": "industrial-ontology-builder",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".claude/skills/industrial-reporter/schemas/run_summary_schema.json",
+      "skill": "industrial-reporter",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/analysis_parameter_selection_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/anomaly_report_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/causal_evidence_map_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/confidence_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/data_analysis_conclusion_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/diagnosis_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/evidence_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/html_review_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/image_captions_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/judge_feedback_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/ontology_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/reasoning_chain_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/run_config_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/run_summary_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/scenario_classification_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-analysis-auto/schemas/visual_analysis_schema.json",
+      "skill": "industrial-analysis-auto",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-data-processor/schemas/analysis_parameter_selection_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-data-processor/schemas/anomaly_report_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-data-processor/schemas/data_analysis_conclusion_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-data-processor/schemas/image_captions_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-data-processor/schemas/scenario_classification_schema.json",
+      "skill": "industrial-data-processor",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-diagnostician/schemas/causal_evidence_map_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-diagnostician/schemas/confidence_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-diagnostician/schemas/diagnosis_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-diagnostician/schemas/evidence_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-diagnostician/schemas/reasoning_chain_schema.json",
+      "skill": "industrial-diagnostician",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-html-reviewer/schemas/html_review_schema.json",
+      "skill": "industrial-html-reviewer",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-judge/schemas/judge_feedback_schema.json",
+      "skill": "industrial-judge",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-ontology-builder/schemas/ontology_schema.json",
+      "skill": "industrial-ontology-builder",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    },
+    {
+      "file": ".omp/skills/industrial-reporter/schemas/run_summary_schema.json",
+      "skill": "industrial-reporter",
+      "parse_ok": true,
+      "shape_ok": true,
+      "compile": "skipped",
+      "error": null,
+      "status": "PASS"
+    }
+  ]
+}

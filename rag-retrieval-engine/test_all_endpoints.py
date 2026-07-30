@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import httpx
 
-BASE = "http://localhost:8765"
+BASE = "http://localhost:8764"
 # Bypass system proxy for localhost testing
 client = httpx.Client(base_url=BASE, timeout=30, proxy=None)
 results = []

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE="http://localhost:8765"
+BASE="http://localhost:8764"
 PASS=0
 FAIL=0
 ERROR=0

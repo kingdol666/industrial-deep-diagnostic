@@ -76,7 +76,7 @@ function cmdInit() {
   try { ok(`Python: ${execSync(`${pyCmd} --version 2>&1`, { encoding: 'utf-8' }).trim()}`); } catch { fail('Python not found'); }
   info('Checking ports…');
   import('./cross-platform.mjs').then(async ({ isPortFree }) => {
-    for (const [name, port] of Object.entries({ Backend: 3210, Frontend: 5180, 'RAG Engine': 8765 })) {
+    for (const [name, port] of Object.entries({ Backend: 3210, Frontend: 5180, 'RAG Engine': 8764 })) {
       const free = await isPortFree(port);
       (free ? ok : fail)(`${name} port ${port}: ${free ? 'free' : 'IN USE'}`);
     }

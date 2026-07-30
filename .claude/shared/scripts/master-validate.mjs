@@ -18,10 +18,10 @@ import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = resolve(join(__dirname, '..', '..'));
-const SHARED_DIR = join(PROJECT_ROOT, 'shared');
-const SKILLS_DIR = join(PROJECT_ROOT, 'skills');
-const AGENTS_DIR = join(PROJECT_ROOT, 'agents');
+const PROJECT_ROOT = resolve(join(__dirname, '..', '..', '..'));  // always project root from any shared/scripts/ location
+const SHARED_DIR = join(PROJECT_ROOT, '.claude', 'shared');
+const SKILLS_DIR = join(PROJECT_ROOT, '.claude', 'skills');
+const AGENTS_DIR = join(PROJECT_ROOT, '.omp', 'agents');
 
 let total = 0, passed = 0, failed = 0, skipped = 0;
 

@@ -87,7 +87,7 @@ async function main() {
 
   // 5. Start server
   console.log('  Starting RAG Retrieval Engine...');
-  console.log('  API: http://localhost:8765');
+  console.log('  API: http://localhost:8764');
   console.log('  Press Ctrl+C to stop');
   console.log('');
 

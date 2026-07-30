@@ -8,7 +8,7 @@
 
 - Node.js 18+
 - Python 3.9+（脚本会自动通过 `uv` 管理 venv）
-- 可选：RAG 检索引擎运行在 `localhost:8765`（不可用时会降级到本地本体构建）
+- 可选：RAG 检索引擎运行在 `localhost:8764`（不可用时会降级到本地本体构建）
 
 ---
 
@@ -121,7 +121,7 @@ Skill 会创建 `00_input/html_opt_out` 标记文件并跳过 HTML 构建。
 
 | 现象 | 原因 | 解决 |
 |------|------|------|
-| RAG 引擎连不上 | `localhost:8765` 未启动 | Skill 会自动降级到本地本体构建，无需处理 |
+| RAG 引擎连不上 | `localhost:8764` 未启动 | Skill 会自动降级到本地本体构建，无需处理 |
 | Python 依赖缺失 | venv 未创建 | 主 Agent 自动调用 `uv_env_setup.mjs` |
 | Agent 超时 | 数据量大或网络慢 | 等待重试，或见 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) |
 | Judge 评分 <90 | 诊断质量不达标 | 自动进入修复循环，最多 3 次 |

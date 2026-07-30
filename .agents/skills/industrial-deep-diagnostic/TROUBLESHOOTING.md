@@ -48,7 +48,7 @@ node scripts/pipeline-log-check.mjs <RUN_DIR>
 **检测**：
 
 ```bash
-curl -s http://localhost:8765/docs
+curl -s http://localhost:8764/docs
 ```
 
 **现象**：context-builder 报告 `RAG_UNAVAILABLE`。

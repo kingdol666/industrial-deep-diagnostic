@@ -9,10 +9,10 @@
 cd rag-retrieval-engine
 uv sync                            # One-time: install all deps into uv venv
 uv run python server.py            # Start the engine
-# → http://localhost:8765 (API docs at /docs)
+# → http://localhost:8764 (API docs at /docs)
 
 # Build initial knowledge index (one-time)
-curl -X POST http://localhost:8765/index -H "Content-Type: application/json" -d '{"rebuild": false}'
+curl -X POST http://localhost:8764/index -H "Content-Type: application/json" -d '{"rebuild": false}'
 ```
 
 ## How the diagnostic skill uses it
@@ -38,7 +38,7 @@ Step 2:  context-builder agent
 
 ```bash
 # Check if engine is running
-curl -s http://localhost:8765/health | python3 -m json.tool
+curl -s http://localhost:8764/health | python3 -m json.tool
 
 # Expected output:
 # {

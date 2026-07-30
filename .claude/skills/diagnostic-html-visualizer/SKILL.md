@@ -648,6 +648,65 @@ Skill({
 | 14 | **未产出 render_manifest / 页面结构与 manifest 不符** | 结构无法审计 | manifest 先产出且与页面段数/卡片数/图表数/证据层逐项对齐 |
 | 15 | **跨 run 污染**（残留其他 run 标志性数据如粘滑/急冷/特定ρ值） | 数据造假 | 所有数值/设备/假说由本次 run 数据可解释 |
 
+## Data Truth Mandate
+
+**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+|规则|要求|
+|---|---|
+|数字可追溯性|每个数字必须标注数据源(cleaned/raw)、行范围、计算方法|
+|派生值标记|推断/派生值必须显式 `"derived": true` 或 `"inferred": true`|
+|清洗留痕|cleaning_integrity 记录全部清洗操作|
+|可视化可追溯|每张图的每个数据点可追溯到数据集的具体行|
+|不可用标记|无法从数据计算的 → 写 NOT_APPLICABLE + 原因|
+
+## Counterfactual Reasoning — 排除约束
+
+|约束|说明|
+|---|---|
+|四条件|时间先后 + 统计显著 + 物理机制 + 无矛盾|
+|排除标准|任一条件不满足 → 标记为排除候选项并提供量化依据|
+|物理边界|排除必须有第一性原理或控制方程支撑|
+|置信阈值|排除置信度 <80 时标记 `[WEAK_EXCLUSION]`|
+
+## Assumptions & Limitations
+
+|类别|要求|
+|---|---|
+|数据限制|采样率/噪声/缺失最值/范围限制|
+|模型假设|线性近似/稳态假设/分布假设|
+|未控制混淆|明确列出无法控制的潜在混淆变量|
+|结论可信区间|每个结论标注置信度 ± 误差范围|
+
+## Efficiency — Parallel Execution
+
+- 与上下游 agent 无数据依赖时 → 主动并行
+- 对可预测结果使用确定性脚本而非 LLM 推理
+- 大文件采样策略: >100K 行时系统抽样
+- Agent stall >600s → 检查已有产物, 部分可用的继续推进
+
+## Verification
+
+```bash
+SHARED_PATH="<path-to-.claude/shared>"
+
+# Check output exists and minimum size
+test "$(wc -c < "$RUN_DIR/diagnostic-report.html")" -ge 5120
+
+# Validate html_review.json if present
+test -f "$RUN_DIR/05_review/html_review.json" && \
+  node "$SHARED_PATH/scripts/validate.mjs" \
+    "$SHARED_PATH/schemas/html_review_schema.json" \
+    "$RUN_DIR/05_review/html_review.json"
+```
+
+## Pipeline Event Logging
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event agent_complete --agent html-visualizer --step present \
+  --files diagnostic-report.html
+```
+
 ## Deliverable Closeout
 
 完成后必须告诉调用者：

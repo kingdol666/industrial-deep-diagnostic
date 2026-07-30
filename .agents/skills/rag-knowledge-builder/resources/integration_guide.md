@@ -114,11 +114,11 @@ RAG 是加速器，不是硬依赖。
 ```bash
 # Terminal 1: Start RAG engine
 cd rag-retrieval-engine && uv sync && uv run python server.py &
-# → http://localhost:8765
+# → http://localhost:8764
 
 # One-time: Build initial knowledge index
-curl -X POST http://localhost:8765/index -H "Content-Type: application/json" -d '{"rebuild": false}'
+curl -X POST http://localhost:8764/index -H "Content-Type: application/json" -d '{"rebuild": false}'
 
 # Verify
-curl -s http://localhost:8765/health
+curl -s http://localhost:8764/health
 ```

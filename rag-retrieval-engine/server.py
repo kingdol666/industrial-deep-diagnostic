@@ -6,7 +6,7 @@ Provides RESTful endpoints for knowledge retrieval, scoring, and ontology inject
 Designed as a standalone microservice that the industrial-diagnostic skill calls via HTTP.
 
 Start:  python server.py
-        uvicorn server:app --host 0.0.0.0 --port 8765 --reload
+        uvicorn server:app --host 0.0.0.0 --port 8764 --reload
 """
 
 import sys, os, time, yaml, hashlib, shutil, json
@@ -957,7 +957,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "server:app",
         host=server_cfg.get("host", "0.0.0.0"),
-        port=server_cfg.get("port", 8765),
+        port=server_cfg.get("port", 8764),
         reload=server_cfg.get("reload", False),
         workers=server_cfg.get("workers", 1),
     )

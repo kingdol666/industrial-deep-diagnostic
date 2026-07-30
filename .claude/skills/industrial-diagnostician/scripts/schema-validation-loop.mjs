@@ -44,7 +44,7 @@ function resolveOutput(schemaFile) {
     run_summary_schema_json: 'run_summary.json',
     html_review_schema_json: '05_review/html_review.json',
   };
-  const key = schemaFile.replace(/\.json$/, '').replace(/\./g, '_');
+  const key = schemaFile.replace(/\./g, '_');  // diagnosis_schema.json -> diagnosis_schema_json (match map keys; was stripping .json so map never matched)
   return map[key] || schemaFile.replace('_schema', '');
 }
 

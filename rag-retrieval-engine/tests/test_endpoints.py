@@ -3,7 +3,7 @@
 
 import json, sys, urllib.request
 
-BASE = "http://localhost:8765"
+BASE = "http://localhost:8764"
 
 def req(method, path, data=None):
     url = f"{BASE}{path}"

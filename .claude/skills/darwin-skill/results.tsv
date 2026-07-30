@@ -1,2 +1,257 @@
 timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-06-19T00:00	baseline	industrial-deep-diagnostic	-	84	baseline	-	初始9维评估; dim3/8/9 因3个真实失误未编码略扣; runtime中立无红灯	dry_run
+# Darwin Skill Evolution Tracking — Phase 2: optimized
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	statistical	post-darwin: 44/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	evidence	post-darwin: 48/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	diagnostic	post-darwin: 42/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	protocol	post-darwin: 40/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	scripts	post-darwin: 30/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	uncertainty	post-darwin: 48/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	darwin-skill	-	43	optimized	overall	post-opt darwin Fitness: 43/100	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	physical	post-darwin: 48/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	statistical	post-darwin: 48/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	evidence	post-darwin: 52/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	diagnostic	post-darwin: 50/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	counterfactual	post-darwin: 52/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	protocol	post-darwin: 46/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	scripts	post-darwin: 30/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	uncertainty	post-darwin: 52/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	efficiency	post-darwin: 50/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	diagnostic-html-visualizer	-	47	optimized	overall	post-opt darwin Fitness: 47/100	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	statistical	post-darwin: 50/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	evidence	post-darwin: 48/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	diagnostic	post-darwin: 48/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	counterfactual	post-darwin: 52/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	protocol	post-darwin: 48/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	scripts	post-darwin: 100/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	uncertainty	post-darwin: 50/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	efficiency	post-darwin: 50/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-analysis-auto	-	54	optimized	overall	post-opt darwin Fitness: 54/100	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	statistical	post-darwin: 50/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	evidence	post-darwin: 50/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	diagnostic	post-darwin: 46/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	protocol	post-darwin: 52/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	scripts	post-darwin: 100/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	uncertainty	post-darwin: 48/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-data-processor	-	54	optimized	overall	post-opt darwin Fitness: 54/100	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	physical	post-darwin: 48/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	statistical	post-darwin: 54/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	evidence	post-darwin: 52/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	diagnostic	post-darwin: 52/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	counterfactual	post-darwin: 56/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	protocol	post-darwin: 44/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	scripts	post-darwin: 100/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	uncertainty	post-darwin: 50/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-diagnostician	-	56	optimized	overall	post-opt darwin Fitness: 56/100	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	statistical	post-darwin: 44/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	evidence	post-darwin: 50/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	diagnostic	post-darwin: 44/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	protocol	post-darwin: 42/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	scripts	post-darwin: 45/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	uncertainty	post-darwin: 48/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	efficiency	post-darwin: 50/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-reviewer	-	46	optimized	overall	post-opt darwin Fitness: 46/100	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	statistical	post-darwin: 46/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	evidence	post-darwin: 50/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	diagnostic	post-darwin: 44/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	protocol	post-darwin: 50/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	scripts	post-darwin: 30/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	uncertainty	post-darwin: 50/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-html-visualizer	-	45	optimized	overall	post-opt darwin Fitness: 45/100	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	statistical	post-darwin: 48/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	evidence	post-darwin: 50/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	diagnostic	post-darwin: 46/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	counterfactual	post-darwin: 56/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	protocol	post-darwin: 46/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	scripts	post-darwin: 60/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	uncertainty	post-darwin: 52/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-judge	-	50	optimized	overall	post-opt darwin Fitness: 50/100	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	statistical	post-darwin: 44/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	evidence	post-darwin: 48/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	diagnostic	post-darwin: 46/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	protocol	post-darwin: 50/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	scripts	post-darwin: 45/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	uncertainty	post-darwin: 48/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-ontology-builder	-	47	optimized	overall	post-opt darwin Fitness: 47/100	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	physical	post-darwin: 48/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	statistical	post-darwin: 46/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	evidence	post-darwin: 50/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	diagnostic	post-darwin: 46/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	counterfactual	post-darwin: 56/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	protocol	post-darwin: 42/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	scripts	post-darwin: 30/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	uncertainty	post-darwin: 50/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-physical-auditor	-	46	optimized	overall	post-opt darwin Fitness: 46/100	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	statistical	post-darwin: 46/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	evidence	post-darwin: 52/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	diagnostic	post-darwin: 46/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	counterfactual	post-darwin: 52/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	protocol	post-darwin: 46/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	scripts	post-darwin: 75/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	uncertainty	post-darwin: 50/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	industrial-reporter	-	51	optimized	overall	post-opt darwin Fitness: 51/100	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	physical	post-darwin: 46/100 (dim=physical)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	statistical	post-darwin: 44/100 (dim=statistical)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	evidence	post-darwin: 52/100 (dim=evidence)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	diagnostic	post-darwin: 42/100 (dim=diagnostic)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	counterfactual	post-darwin: 48/100 (dim=counterfactual)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	protocol	post-darwin: 48/100 (dim=protocol)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	scripts	post-darwin: 45/100 (dim=scripts)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	uncertainty	post-darwin: 48/100 (dim=uncertainty)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	efficiency	post-darwin: 48/100 (dim=efficiency)	live
+2026-07-30T14:13:09	59cf28b	rag-knowledge-builder	-	46	optimized	overall	post-opt darwin Fitness: 46/100	live
+# Phase 3: ecosystem integration fix — schema parity, event logging, path resolution
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	statistical	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	evidence	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	diagnostic	phase3: 42/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	protocol	phase3: 40/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	scripts	phase3: 30/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	uncertainty	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	darwin-skill	43	43	ecosystem_fix	overall	phase3 darwin Fitness: 43/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	physical	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	statistical	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	diagnostic	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	counterfactual	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	protocol	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	scripts	phase3: 30/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	uncertainty	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	efficiency	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	diagnostic-html-visualizer	47	47	ecosystem_fix	overall	phase3 darwin Fitness: 47/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	statistical	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	evidence	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	diagnostic	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	counterfactual	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	protocol	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	scripts	phase3: 100/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	uncertainty	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	efficiency	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-analysis-auto	54	55	ecosystem_fix	overall	phase3 darwin Fitness: 55/100 (Δ+1)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	statistical	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	diagnostic	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	protocol	phase3: 56/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	scripts	phase3: 100/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	uncertainty	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-data-processor	54	54	ecosystem_fix	overall	phase3 darwin Fitness: 54/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	physical	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	statistical	phase3: 54/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	evidence	phase3: 54/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	diagnostic	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	counterfactual	phase3: 56/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	protocol	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	scripts	phase3: 100/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	uncertainty	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-diagnostician	56	56	ecosystem_fix	overall	phase3 darwin Fitness: 56/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	statistical	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	diagnostic	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	protocol	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	scripts	phase3: 45/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	uncertainty	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	efficiency	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-reviewer	46	47	ecosystem_fix	overall	phase3 darwin Fitness: 47/100 (Δ+1)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	statistical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	diagnostic	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	protocol	phase3: 54/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	scripts	phase3: 30/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	uncertainty	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-html-visualizer	45	46	ecosystem_fix	overall	phase3 darwin Fitness: 46/100 (Δ+1)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	statistical	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	diagnostic	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	counterfactual	phase3: 56/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	protocol	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	scripts	phase3: 60/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	uncertainty	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-judge	50	50	ecosystem_fix	overall	phase3 darwin Fitness: 50/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	statistical	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	evidence	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	diagnostic	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	protocol	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	scripts	phase3: 45/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	uncertainty	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-ontology-builder	47	47	ecosystem_fix	overall	phase3 darwin Fitness: 47/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	physical	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	statistical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	diagnostic	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	counterfactual	phase3: 56/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	protocol	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	scripts	phase3: 30/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	uncertainty	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-physical-auditor	46	46	ecosystem_fix	overall	phase3 darwin Fitness: 46/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	statistical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	evidence	phase3: 54/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	diagnostic	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	counterfactual	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	protocol	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	scripts	phase3: 75/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	uncertainty	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	industrial-reporter	51	51	ecosystem_fix	overall	phase3 darwin Fitness: 51/100 (Δ+0)	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	physical	phase3: 46/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	statistical	phase3: 44/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	evidence	phase3: 52/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	diagnostic	phase3: 42/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	counterfactual	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	protocol	phase3: 50/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	scripts	phase3: 45/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	uncertainty	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	efficiency	phase3: 48/100	dry_run
+2026-07-30T14:28:50	59cf28b	rag-knowledge-builder	46	47	ecosystem_fix	overall	phase3 darwin Fitness: 47/100 (Δ+1)	dry_run
+# Phase 4: independence audit — all 12 skills standalone-ready (7-pillar ≥85%)
+2026-07-30T16:05:50	59cf28b	darwin-skill	43	43	independence_audit	overall	independence score: 43/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	diagnostic-html-visualizer	47	48	independence_audit	overall	independence score: 48/100 (Δ+1)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-analysis-auto	55	55	independence_audit	overall	independence score: 55/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-data-processor	54	54	independence_audit	overall	independence score: 54/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-diagnostician	56	56	independence_audit	overall	independence score: 56/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-html-reviewer	47	47	independence_audit	overall	independence score: 47/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-html-visualizer	46	46	independence_audit	overall	independence score: 46/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-judge	50	50	independence_audit	overall	independence score: 50/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-ontology-builder	47	47	independence_audit	overall	independence score: 47/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-physical-auditor	46	46	independence_audit	overall	independence score: 46/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	industrial-reporter	51	51	independence_audit	overall	independence score: 51/100 (Δ+0)	dry_run
+2026-07-30T16:05:50	59cf28b	rag-knowledge-builder	47	47	independence_audit	overall	independence score: 47/100 (Δ+0)	dry_run

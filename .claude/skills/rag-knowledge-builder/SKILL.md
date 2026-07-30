@@ -326,6 +326,106 @@ Skill({
 
 ---
 
+
+## Inputs / Outputs
+
+### Inputs
+
+| Input | Required | Description |
+|------|----------|-------------|
+| Domain query / keywords | ✓ | 领域查询词，驱动检索 |
+| run_dir (consumer mode) | - | 消费者 skill 的输出目录 |
+| Reference documents | - | 本地参考文档 |
+| RAG engine (localhost:8764) | - | ChromaDB 检索引擎 |
+
+### Outputs
+
+| Output | Description |
+|--------|-------------|
+| 00_input/rag_deep_understanding.json | RAG 深度理解结果 |
+| 00_input/extracted_knowledge.json | 提取的知识条目 |
+| ontology.json | 领域本体模型 (schema-valid) |
+
+---
+
+## Dispatch
+
+被 context-builder 或独立调用:
+
+```bash
+SKILL_PATH="<path-to-.claude/skills/rag-knowledge-builder>"
+SHARED_PATH="<path-to-.claude/shared>"
+python "$SKILL_PATH/scripts/rag_client.py" --query "<domain>" --run-dir "$RUN_DIR"
+```
+
+---
+
+## Verification
+
+```bash
+# Check ontology output exists
+test -f "$RUN_DIR/ontology.json"
+# RAG engine health (optional)
+python "$SKILL_PATH/scripts/rag_client.py" health || echo "RAG offline — fallback used"
+```
+
+## Pipeline Event Logging
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event agent_complete --agent context-builder --step context_builder \
+  --files 00_input/rag_deep_understanding.json
+```
+
+---
+
+## Failure Recovery
+
+| Scenario | Recovery |
+|----------|----------|
+| RAG engine down | 降级到 web_search + physics_inference_framework |
+| No results from KB | 标记 evidence_gap → 用 Web 研究 + LLM 推断 |
+| Ontology build fail | 重试 1x → 仍失败则输出 minimal ontology + 警告 |
+
+---
+## Data Truth Mandate
+
+**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+|规则|要求|
+|---|---|
+|数字可追溯性|每个数字必须标注数据源(cleaned/raw)、行范围、计算方法|
+|派生值标记|推断/派生值必须显式 `"derived": true` 或 `"inferred": true`|
+|清洗留痕|cleaning_integrity 记录全部清洗操作|
+|可视化可追溯|每张图的每个数据点可追溯到数据集的具体行|
+|不可用标记|无法从数据计算的 → 写 NOT_APPLICABLE + 原因|
+
+## Counterfactual Reasoning — 排除约束
+
+|约束|说明|
+|---|---|
+|四条件|时间先后 + 统计显著 + 物理机制 + 无矛盾|
+|排除标准|任一条件不满足 → 标记为排除候选项并提供量化依据|
+|物理边界|排除必须有第一性原理或控制方程支撑|
+|置信阈值|排除置信度 <80 时标记 `[WEAK_EXCLUSION]`|
+
+## Assumptions & Limitations
+
+|类别|要求|
+|---|---|
+|数据限制|采样率/噪声/缺失最值/范围限制|
+|模型假设|线性近似/稳态假设/分布假设|
+|未控制混淆|明确列出无法控制的潜在混淆变量|
+|结论可信区间|每个结论标注置信度 ± 误差范围|
+
+## Efficiency — Parallel Execution
+
+- 与上下游 agent 无数据依赖时 → 主动并行
+- 对可预测结果使用确定性脚本而非 LLM 推理
+- 大文件采样策略: >100K 行时系统抽样
+- Agent stall >600s → 检查已有产物, 部分可用的继续推进
+
+---
+
 ## Anti-Patterns (DO NOT)
 
 - ❌ **DO NOT** 关键词匹配分类概念。LLM 必须阅读完整内容。

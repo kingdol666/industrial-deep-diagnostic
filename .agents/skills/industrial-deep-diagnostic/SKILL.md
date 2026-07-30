@@ -11,7 +11,7 @@ compatibility: |
   Requires Node.js 18+ for pipeline orchestration scripts (setup.mjs, inspect.mjs, stats.mjs, stats_validate.mjs, validate.mjs).
   Python 3.9+ managed via uv venv for adaptive analysis (matplotlib, numpy, pandas, scipy, seaborn, openpyxl).
   uv auto-installed if missing. Run `node scripts/uv_env_setup.mjs` before any Python use.
-  Optional: rag-retrieval-engine running on localhost:8765 for runtime knowledge retrieval. Falls back to local-only ontology building if unavailable.
+  Optional: rag-retrieval-engine running on localhost:8764 for runtime knowledge retrieval. Falls back to local-only ontology building if unavailable.
 ---
 
 # Industrial Deep Diagnostic
@@ -349,7 +349,7 @@ Agent execution 失败不是异常——是管线运行中的常态。每次启�
 
 | 触发条件 | 检测方式 | 恢复动作 |
 |---------|---------|---------|
-| RAG 引擎不可用 (localhost:8765 无响应) | `curl -s http://localhost:8765/docs` 失败或 Step 2 context-builder 报告 `RAG_UNAVAILABLE` | 继续执行——context-builder 使用 `resources/parameter_to_physics.json` + 网络搜索作为知识源。ontology.json 仍然可以构建完整，只是缺少特定产线的检索知识 |
+| RAG 引擎不可用 (localhost:8764 无响应) | `curl -s http://localhost:8764/docs` 失败或 Step 2 context-builder 报告 `RAG_UNAVAILABLE` | 继续执行——context-builder 使用 `resources/parameter_to_physics.json` + 网络搜索作为知识源。ontology.json 仍然可以构建完整，只是缺少特定产线的检索知识 |
 | uv Python venv 创建失败 | `uv_env_setup.mjs` 返回非零退出码或 venv 目录不存在 | 检查系统是否已安装 uv (`which uv`)。若无→安装 uv (`curl -LsSf https://astral.sh/uv/install.sh \| sh`)。若已安装 uv 但失败→降级使用系统 Python 并 pip install requirements.txt |
 | 输入数据超大 (>500MB CSV/XLSX) | `inspect.mjs` 超时 > 300s 或系统内存不足 | 运行 `file_inspect.py` 做采样解析: `python scripts/file_inspect.py --sample 50000 <data_path>`。对超大文件只读取前 5 万行 + 均匀采样 5 万行做特征分析。内存不足时加 `--low-memory` 标识 |
 | Agent 超时 (stall > 600s) | 系统返回 `Agent stalled` 通知 | 检查产物文件是否部分生成。若有可用输出→继续下一步。若无任何输出→等待 60s 后重试 1 次；仍失败→标记 `[AGENT_TIMEOUT]` 并跳过该步骤 |

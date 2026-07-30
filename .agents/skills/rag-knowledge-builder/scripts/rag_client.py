@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
 # Default engine endpoint
-ENGINE_URL = os.environ.get("RAG_ENGINE_URL", "http://localhost:8765")
+ENGINE_URL = os.environ.get("RAG_ENGINE_URL", "http://localhost:8764")
 
 # Skill root (rag_client.py is at .claude/skills/rag-knowledge-builder/scripts/)
 SKILL_ROOT = str(Path(__file__).resolve().parent.parent)

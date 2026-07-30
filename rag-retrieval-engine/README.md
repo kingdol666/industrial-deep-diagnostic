@@ -71,18 +71,18 @@ uv sync
 uv run python server.py
 ```
 
-默认监听：`http://0.0.0.0:8765`
+默认监听：`http://0.0.0.0:8764`
 
 ### 3. 健康检查
 
 ```bash
-curl http://localhost:8765/health
+curl http://localhost:8764/health
 ```
 
 ### 4. 首次建立索引
 
 ```bash
-curl -X POST http://localhost:8765/index \
+curl -X POST http://localhost:8764/index \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
