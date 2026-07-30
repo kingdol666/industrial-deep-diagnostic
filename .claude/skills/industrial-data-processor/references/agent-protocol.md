@@ -78,6 +78,8 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **0.4** **MANDATORY GATE — Ontology-Guided Analysis Selection.** Read `ontology.json` thoroughly. Extract: physical roles, meaningful parameter groups (by stage/domain/causal chain), pairs that MUST be analyzed, pairs to PRUNE, quality target causal maps, and analysis priority tiers (Tier 1/2/3/PRUNED). Write `analysis_parameter_selection.json` with `predictor_cols`, `exclude_cols`, `quality_targets`, tier assignments with physical justification.
   → Detailed commands: `resources/execution_reference.md#phase-0`
 - Gate: `analysis_parameter_selection.json` exists AND `analysis_plan.md` contains `Ontology-Guided Analysis Architecture` section. **Blocks all Phase 2+ work.**
+  ⚠️ SCHEMA COMPLIANCE (analysis_parameter_selection.json per analysis_parameter_selection_schema.json):
+     - Required: "source", "ontology_file", "parameter_physical_groups", "quality_targets", "analysis_tiers", "pruned", "predictor_cols", "exclude_cols"
 
 ---
 
@@ -87,6 +89,7 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **1.2** Determine data shape: multi-zone sensors, paired sensors, hierarchical grouping, product/lot grouping, profile data, event markers, derived columns
   → Detection table: `resources/execution_reference.md#phase-1`
 - [ ] **1.3** Write `scenario_classification.json` per `schemas/scenario_classification_schema.json` — data-derived `scene_type`, `process_category`, `confidence`, `adaptive_visualization_plan`
+  ⚠️ SCHEMA COMPLIANCE: classification_basis MUST be an array of strings (NOT a single string). expected_physics MUST be an array of strings (NOT array of objects). Run validate.mjs against scenario_classification_schema.json after writing.
 - Gate: `scenario_classification.json` is schema-valid and `confidence` is not "unknown"
 
 ---
@@ -121,6 +124,9 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **2.7** Baseline review: document findings in `analysis_plan.md` "Baseline Script Findings and Gaps". Ask what a human process engineer would still need. If gaps remain, write focused custom scripts under `06_scripts/`.
   → Custom script template: `resources/execution_reference.md#custom-script-template`
 - Gate: `feature_summary.json` and `validate_report.json` exist and `cleaning_integrity.data_source` is determined.
+  ⚠️ SCHEMA COMPLIANCE (validate_report.json per validate_report_schema.json):
+     - Required: "validations" (array), "summary" (object), "metadata" (object)
+     - stats/run.py outputs {correlation, anti_spurious, batch}. POST-PROCESS: wrap into {validations: [...], summary: {correlation: ..., anti_spurious: ..., batch: ...}, metadata: {...}}
 
 ---
 
@@ -158,6 +164,9 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **5.9** **MANDATORY GATE — Post-Generation Verification.** Verify: plot_manifest non-empty, each PNG >5KB, claimed parameters are numeric in data_source, no ABORT from visual_analysis.py. Fix and rerun if any check fails. NEVER skip plotting.
   → Gate check script: `resources/execution_reference.md#phase-5.9`
 - Gate: `plot_manifest.json` contains ≥1 verified real plot. If time column exists, ≥1 temporal overlay present. All claimed parameters confirmed numeric.
+  ⚠️ SCHEMA COMPLIANCE (plot_manifest.json per plot_manifest_schema.json):
+     - Required at top level: "plots" (array) + "metadata" (object)
+     - Each plot item MUST have: "filename" (string), "figure_type" (string), "priority" (string)
 
 ---
 
@@ -241,6 +250,9 @@ PYTHON=$(node "$SHARED_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let
   ```
 - [ ] **5.5.6** If VLM_ENABLED=false or agent dispatch fails: fall back to metadata-only skeleton. Write `observation_mode: "metadata_fallback"` with reason.
 - Gate: visual_analysis.json exists with valid analysis_provenance. chart_inventory only contains images from vlm_input_manifest.json. If VLM was used, skeleton was overwritten.
+  ⚠️ SCHEMA COMPLIANCE (visual_analysis.json per visual_analysis_schema.json):
+     - Required: "generated_at", "observation_mode", "time_alignment_applicable", "analysis_provenance", "chart_inventory", "visual_observations", "cross_parameter_temporal_alignment", "synthesis"
+     - For metadata_fallback mode: still fill all required fields with appropriate values/notes
 
 ---
 

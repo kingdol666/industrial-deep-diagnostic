@@ -27,7 +27,7 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 | `02_processed/anomaly_report.json` | 异常报告 |
 | `02_processed/data_analysis_conclusion.json` | 数据分析结论（强制交接文件） |
 | `02_processed/validate_report.json` | 统计验证报告 |
-| `02_processed/feature_summary.json` | 特征摘要 |
+| `02_processed/feature_summary.json` | 特征摘要 — 必须包含 columns(object)/dataset_profile(object)/metadata(object) 三个顶层字段 (feature_summary_schema required) |
 | `02_processed/production_regime_filter.json` | 生产状态过滤（如适用） |
 | `02_processed/time_lag_analysis.json` | 时滞分析结果（如适用） |
 | `02_processed/duplicate_batch_report.json` | 批次重复报告（如适用） |
@@ -242,6 +242,9 @@ SHARED_PATH=".claude/shared/"
 node "$SHARED_PATH/scripts/validate.mjs" \
   "$SHARED_PATH/schemas/scenario_classification_schema.json" \
   "$RUN_DIR/02_processed/scenario_classification.json"
+
+# Feature summary schema compliance (MUST include columns/dataset_profile/metadata)
+node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/feature_summary_schema.json" "$RUN_DIR/02_processed/feature_summary.json"
 
 node "$SHARED_PATH/scripts/validate.mjs" \
   "$SHARED_PATH/schemas/anomaly_report_schema.json" \

@@ -76,7 +76,7 @@
 - [ ] Write: `RUN_DIR/05_review/html_review.json`
 - [ ] `verdict`: `pass` | `warn` | `fail`
 - [ ] `overall_score`: 0-100
-- [ ] `blocking_issues`: []
+- [ ] `blocking_issues`: []  # MUST be array of STRINGS, not array of objects. Each blocking issue = brief string sentence.
 - [ ] `warnings`: []
 - [ ] `checks`: per-dimension status + evidence
 
