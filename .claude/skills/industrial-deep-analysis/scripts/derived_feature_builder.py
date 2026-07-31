@@ -276,14 +276,48 @@ def build_derived_features(run_dir: Path) -> tuple:
     time_col = "timestamp"
     features: List[dict] = []
 
-    # 1. Cumulative poisoning exposure (feed_sulfur_ppm)
-    poison_col = "feed_sulfur_ppm"
-    poison_unit = onto_units.get(poison_col, "ppm")
-    features.append(_build_cumulative_exposure(df, poison_col, poison_unit, time_col))
+    # 1. Cumulative exposure — auto-detect the poisoning/fouling driver from ontology
+    #    parameter groups (e.g. poisoning_driver for CSTR sulfur, fouling driver for
+    #    heat exchangers), falling back to any numeric feed/impurity-style column.
+    param_groups = ontology.get("parameter_groups", {}) or {}
+    poison_candidates: List[str] = []
+    for group_key in ("poisoning_driver", "fouling_driver", "impurity_driver", "deactivation_driver"):
+        poison_candidates.extend(param_groups.get(group_key, []) or [])
+    poison_col = None
+    for cand in poison_candidates:
+        if cand in df.columns and df[cand].dtype.kind in "fi":
+            poison_col = cand
+            break
+    if poison_col is None:
+        # Heuristic: a numeric column whose name suggests feed/impurity/sulfur/poison
+        # (deliberately excludes generic 'feed_rate' style columns — a flow rate is
+        # not a concentration/impurity to accumulate)
+        for cand in df.columns:
+            low = cand.lower()
+            if any(k in low for k in ("sulfur", "sulphur", "poison", "impurity", "fouling", "moisture", "contaminant", "cl_", "chloride", "hardness")) \
+                    and df[cand].dtype.kind in "fi":
+                poison_col = cand
+                break
+    if poison_col:
+        poison_unit = onto_units.get(poison_col, "dimensionless")
+        features.append(_build_cumulative_exposure(df, poison_col, poison_unit, time_col))
+    else:
+        features.append(_not_applicable(
+            "cumulative_exposure",
+            "∫ C dt over sorted time",
+            "No poisoning/fouling/impurity driver column detected in ontology parameter groups or column names",
+            unit="dimensionless*time",
+        ))
 
-    # 2. Time since catalyst_bed_id transition
-    event_col = selection.get("grouping_strategy", {}).get("primary_group", "catalyst_bed_id")
-    features.append(_build_time_since_event(df, event_col, time_col))
+    # 2. Time since primary-group transition (regeneration / grade switch / lot change)
+    event_col = selection.get("grouping_strategy", {}).get("primary_group", "")
+    if not event_col or event_col not in df.columns:
+        # Heuristic: prefer a categorical column with few values (group/regime marker)
+        for cand in df.columns:
+            if df[cand].dtype.kind == "O" and df[cand].nunique() <= 8:
+                event_col = cand
+                break
+    features.append(_build_time_since_event(df, event_col or "__none__", time_col))
 
     # 3. Regime indicators
     features.extend(_build_regime_indicators(df, regime_filter))

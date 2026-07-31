@@ -342,10 +342,11 @@ def _collect_relationship_evidence(
     if form:
         refs.append(f"deep_data.{predictor}_to_{target}.form_match: {form[:100]}")
 
-    # From diagnosis (Arrhenius contradiction for CSTR)
+    # From diagnosis (generic physics-contradiction evidence: any relationship whose
+    # observed direction contradicts the physics story in the primary finding)
     primary = diagnosis.get("primary_finding", "")
-    if "Arrhenius" in primary and predictor == "reactor_temp_C" and target == "conversion_pct":
-        refs.append("diagnosis.primary_finding: Arrhenius contradiction — temperature rise is consequence, not cause")
+    if primary and any(kw in primary for kw in ("contradict", "consequence", "compensat", "反", "补偿", "矛盾", "果非因")):
+        refs.append(f"diagnosis.primary_finding: {primary[:120]}")
 
     # From evidence
     ev_inv = evidence.get("evidence_inventory", {})
@@ -583,11 +584,11 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
             dd_rel, onto_rel,
         )
 
-        # CSTR contract: reactor_temp_C→conversion_pct direction is MISMATCH
-        # (verified by data_direction_validated=false in ontology)
-        assert not (predictor == "reactor_temp_C" and target == "conversion_pct"
-                    and direction != "MISMATCH"), \
-            "CSTR AC-2: reactor_temp_C→conversion_pct must be MISMATCH"
+        # Contract: when ontology marks data_direction_validated=false, direction MUST be
+        # reported as MISMATCH (data contradicts the physics prior). This is the CSTR
+        # AC-2 case generalized to any scene with a direction-validated=false relationship.
+        assert not (direction == "MATCH" and onto_rel.get("data_direction_validated") is False), \
+            f"AC-2 violation: {predictor}→{target} ontology data_direction_validated=false but direction=MATCH"
 
         evidence_refs = _collect_relationship_evidence(
             predictor, target, onto_rel, dd_rel, diagnosis, evidence, confidence,
