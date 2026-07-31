@@ -49,6 +49,16 @@ def _load_json(path: Path) -> dict:
 
 
 def _load_df(run_dir: Path) -> pd.DataFrame:
+    # Prefer the E2-derived data file so computed derived features are available
+    derived_csv = run_dir / "enhancement" / "derived_data.csv"
+    if derived_csv.is_file():
+        df = pd.read_csv(derived_csv)
+        if "timestamp" in df.columns:
+            try:
+                df["timestamp"] = pd.to_datetime(df["timestamp"])
+            except Exception:
+                pass
+        return df
     csv = run_dir / "02_processed" / "cleaned_data.csv"
     if csv.is_file():
         df = pd.read_csv(csv)
@@ -145,11 +155,14 @@ def _build_candidate_pairs(
     ontology: dict,
     selection: dict,
     df_columns: Optional[List[str]] = None,
+    derived_features: Optional[List[dict]] = None,
 ) -> List[Tuple[str, str]]:
     """Build deduplicated (predictor, target) candidate pairs.
 
     Resolves ontology/tier names against the actual DataFrame columns so
     suffix drift (e.g. '_mean' in cleaned columns) cannot silently drop pairs.
+    Also adds computed derived features (E2 output) as candidate predictors
+    against every quality target — e.g. cumulative_sulfur exposure vs conversion.
     """
     pairs: Set[Tuple[str, str]] = set()
     targets = set(selection.get("quality_targets", []))
@@ -197,6 +210,19 @@ def _build_candidate_pairs(
             resolved_tgt = _resolve_tgt(tgt)
             if resolved_tgt in targets:
                 pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
+
+    # Add computed derived features (E2) as candidate predictors against all targets
+    for feat in derived_features or []:
+        if feat.get("status") != "computed":
+            continue
+        fname = feat.get("name", "")
+        if not fname:
+            continue
+        resolved = _resolve_col(fname, df_cols) or fname
+        for tgt in targets:
+            resolved_tgt = _resolve_tgt(tgt)
+            if resolved_tgt in targets:
+                pairs.add((resolved, resolved_tgt))
 
     # Exclude: target == predictor, metadata, control outputs, pruned (resolved names)
     metadata_cols = {_resolve_col(c, df_cols) or c for c in selection.get("metadata_cols", [])}
@@ -501,7 +527,9 @@ def main() -> None:
             feature_metadata = json.load(fh).get("features", None)
 
     # Build candidate pairs
-    candidate_pairs = _build_candidate_pairs(ontology, selection, df_columns=list(df.columns))
+    candidate_pairs = _build_candidate_pairs(
+        ontology, selection, df_columns=list(df.columns), derived_features=feature_metadata
+    )
     print(f"[conditional_analysis] {len(candidate_pairs)} candidate pairs")
 
     # Compute relationships

@@ -8,14 +8,8 @@ description: >
   verification, mechanism chains, competing explanations, and evidence gaps.
   Never modifies baseline diagnostic files.
 model: sonnet
-tools:
-  - Read
-  - Write
-  - Bash
-  - Grep
-  - Glob
-  - Edit
-spawns: []
+tools: read, write, bash, glob, grep
+spawns: ""
 thinkingLevel: medium
 ---
 

@@ -115,9 +115,11 @@ def _build_cumulative_exposure(df: pd.DataFrame, col: str, unit: str,
         vals[finite] * np.gradient(times_h[finite])
     )  # simple trapezoid approximation
 
-    # Store as new column in df
+    # Store as new column in df — sorted indices map back to original order
     col_name = f"cumulative_{col}_exposure"
-    df_sorted[col_name] = cum
+    if col_name not in df.columns:
+        df[col_name] = np.nan
+    df.loc[df_sorted.index, col_name] = cum
     return _computed(
         f"cumulative_{col}_exposure",
         f"cumulative_sum({col} * Δt) over sorted {time_col}",
@@ -235,7 +237,10 @@ def _build_lag_aligned_feature(df: pd.DataFrame,
         df_sorted = df.copy()
 
     shifted = df_sorted[predictor].shift(lag_steps)
-    df[name] = shifted.values if hasattr(shifted, 'values') else shifted
+    # Map sorted-frame shifted values back to original row order
+    if name not in df.columns:
+        df[name] = np.nan
+    df.loc[df_sorted.index, name] = shifted.values
 
     return _computed(
         name,
@@ -252,10 +257,12 @@ def _build_lag_aligned_feature(df: pd.DataFrame,
 # Main builder
 # ---------------------------------------------------------------------------
 
-def build_derived_features(run_dir: Path) -> List[dict]:
-    """Build derived feature records for the run directory.
+def build_derived_features(run_dir: Path) -> tuple:
+    """Build derived feature records and return (features, df_with_derived_columns).
 
-    Returns the list for ``features`` in ``derived_features.json``.
+    The second element is the DataFrame with computed feature columns added, so
+    downstream phases (E3 conditional analysis) can consume the derived values
+    directly. Returns (features, None) when the source data cannot be loaded.
     """
     df = _load_df(run_dir)
     ontology = _load_json(run_dir / "01_ontology" / "ontology.json")
@@ -302,8 +309,8 @@ def build_derived_features(run_dir: Path) -> List[dict]:
             unit="same_as_source",
         ))
 
-    # Write back columns to df for downstream use? No — downstream reads CSV fresh.
-    return features
+    # Write back columns to df for downstream use (E3 conditional analysis)
+    return features, df
 
 
 def main() -> None:
@@ -320,7 +327,7 @@ def main() -> None:
     output = Path(args.output) if args.output else run_dir / "enhancement" / "derived_features.json"
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    features = build_derived_features(run_dir)
+    features, df = build_derived_features(run_dir)
     result = {
         "run_id": "enhancement-derived",
         "features": features,
@@ -328,6 +335,14 @@ def main() -> None:
 
     with open(output, "w", encoding="utf-8") as fh:
         json.dump(result, fh, indent=2, ensure_ascii=False, default=str)
+
+    # Persist the DataFrame with derived columns so E3 can consume the actual values
+    if df is not None:
+        derived_csv = run_dir / "enhancement" / "derived_data.csv"
+        try:
+            df.to_csv(derived_csv, index=False)
+        except Exception as exc:
+            print(f"[derived_feature_builder] WARN: could not write {derived_csv}: {exc}", file=sys.stderr)
 
     n_computed = sum(1 for f in features if f.get("status") == "computed")
     n_na = sum(1 for f in features if f.get("status") == "not_applicable")

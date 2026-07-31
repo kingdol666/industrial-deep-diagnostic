@@ -7,16 +7,8 @@ description: >
   Consumes existing diagnostic RUN_DIR; writes only to RUN_DIR/enhancement/.
   Never modifies baseline diagnostic files.
 model: sonnet
-tools:
-  - Read
-  - Write
-  - Bash
-  - Grep
-  - Glob
-  - Edit
-spawns:
-  - deep-analyst
-  - physics-bridge
+tools: read, write, bash, glob, grep, task
+spawns: "*"
 thinkingLevel: medium
 ---
 
