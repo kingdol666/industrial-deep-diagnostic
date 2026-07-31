@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+"""E1: Analysis coverage builder for industrial deep-analysis.
+
+Reads ontology, selection, regime filter, data analysis conclusion, and
+cleaned data; emits ``analysis_coverage.json`` with one ``columns[]``
+entry per cleaned-data column.
+
+CLI::
+
+    python coverage_builder.py --run-dir PATH [--output PATH]
+
+Default output: ``RUN_DIR/enhancement/analysis_coverage.json``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+
+# Reuse Task-2 utilities.
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+from stat_utils import support_domain as _support_domain  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Finite-value sentinel helpers
+# ---------------------------------------------------------------------------
+
+_NONNUMERIC_SENTINEL = {
+    "p5": 0.0,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p95": 0.0,
+    "n": 1,
+    "current_median": 0.0,
+}
+
+
+def _load_json(path: Path) -> dict:
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _load_data(run_dir: Path) -> pd.DataFrame:
+    """Load cleaned numeric data, CSV first then JSON fallback."""
+    csv = run_dir / "02_processed" / "cleaned_data.csv"
+    if csv.is_file():
+        return pd.read_csv(csv, parse_dates=["timestamp"] if "timestamp" in open(csv).readline() else False)
+    json_path = run_dir / "02_processed" / "cleaned_data.json"
+    if json_path.is_file():
+        return pd.read_json(json_path)
+    raise FileNotFoundError(
+        "Neither cleaned_data.csv nor cleaned_data.json found in 02_processed"
+    )
+
+
+def _coerce_n(n_val: Any) -> float:
+    """Return finite numeric value from any n-like input."""
+    try:
+        v = float(n_val)
+        return v if np.isfinite(v) else 0.0
+    except (TypeError, ValueError):
+        return 0.0
+
+
+# ---------------------------------------------------------------------------
+# Ontology signal index
+# ---------------------------------------------------------------------------
+
+def _build_signal_index(ontology: dict) -> Dict[str, dict]:
+    """Map every ontology signal column -> signal record."""
+    idx: Dict[str, dict] = {}
+    for section in ["inspection_signals", "process_parameters", "control_variables"]:
+        for sig in ontology.get("signals", {}).get(section, []):
+            col = sig.get("column")
+            if col:
+                idx[col] = sig
+    for sig in ontology.get("signals", {}).get("metadata_columns", []):
+        col = sig.get("column")
+        if col:
+            idx[col] = sig
+    # events column (e.g. catalyst_bed_id)
+    for evt in ontology.get("signals", {}).get("events", []):
+        col = evt.get("column")
+        if col:
+            idx[col] = evt
+    return idx
+
+
+def _role_from_ontology(col: str, signal_idx: Dict[str, dict], selection: dict) -> str:
+    """Return a role string from ontology or selection fallback."""
+    if col in signal_idx:
+        r = signal_idx[col].get("role", "")
+        if r:
+            return r
+    # Fallback to selection
+    if col in selection.get("quality_targets", []):
+        return "target"
+    if col in selection.get("predictor_cols", []):
+        return "predictor"
+    if col in selection.get("confounder_cols", []):
+        return "confounder"
+    if col in selection.get("control_cols", []):
+        return "control"
+    if col in selection.get("group_cols", []):
+        return "group"
+    if col in selection.get("metadata_cols", []):
+        return "metadata"
+    return "unknown"
+
+
+def _coverage_status(
+    col: str,
+    role: str,
+    selection: dict,
+    is_numeric: bool,
+    has_data: bool,
+) -> str:
+    """Determine coverage_status enum value."""
+    if col in selection.get("metadata_cols", []) or role == "timestamp":
+        return "not_applicable"
+
+    if not has_data and col in selection.get("exclude_cols", []):
+        return "not_applicable"
+
+    if not is_numeric:
+        # Non-numeric columns like product_lot, shift, catalyst_bed_id
+        if role in ("group", "product_code", "operator"):
+            return "not_applicable"
+        return "not_applicable"
+
+    if not has_data:
+        return "insufficient_data"
+
+    # Determine tier
+    tiers = selection.get("analysis_tiers", {})
+    tier1_cols = tiers.get("tier1_primary_kinetic_drivers", {}).get("columns", [])
+    tier2_cols = tiers.get("tier2_feed_residence_pressure", {}).get("columns", [])
+    tier3_cols = tiers.get("tier3_confounders_caution", {}).get("columns", [])
+    tier4_cols = tiers.get("tier4_control_outputs_effect_not_cause", {}).get("columns", [])
+    target_cols = tiers.get("targets", {}).get("columns", [])
+    pruned_cols = set()
+    for pp in selection.get("pruned_pairs", []):
+        for part in pp.get("pair", "").replace("<->", "->").split("->"):
+            pruned_cols.add(part.strip().split(" ")[0])
+
+    if col in target_cols:
+        return "covered_primary"
+    if col in tier1_cols or col in tier2_cols:
+        return "covered_primary"
+    if col in tier3_cols:
+        return "covered_conditional"
+    if col in tier4_cols:
+        return "pruned_physics"
+
+    # Check confounders - if only used for stratification
+    confounders = selection.get("confounder_cols", [])
+    if col in confounders:
+        if col in tier3_cols:
+            return "covered_conditional"
+        return "covered_conditional"  # default confounders are conditional
+
+    if col in pruned_cols:
+        return "pruned_confounded"
+
+    return "covered_primary"  # default for unrecognized numerics
+
+
+def _physics_ref(col: str, signal_idx: Dict[str, dict]) -> str:
+    """Extract physics reference from ontology signal."""
+    sig = signal_idx.get(col, {})
+    gl = sig.get("governing_law", "")
+    pm = sig.get("physical_meaning", "")
+    if gl:
+        return gl.split("。")[0][:200]
+    if pm:
+        return pm.split("。")[0][:200]
+    return "NOT_APPLICABLE"
+
+
+# ---------------------------------------------------------------------------
+# Main builder
+# ---------------------------------------------------------------------------
+
+def build_coverage(run_dir: Path) -> List[dict]:
+    """Build analysis coverage records for every cleaned-data column.
+
+    Returns the list suitable for ``columns`` in the output JSON.
+    """
+    ontology = _load_json(run_dir / "01_ontology" / "ontology.json")
+    feature_summary = _load_json(run_dir / "02_processed" / "feature_summary.json")
+    selection = _load_json(run_dir / "02_processed" / "analysis_parameter_selection.json")
+    conclusion = _load_json(run_dir / "02_processed" / "data_analysis_conclusion.json")
+
+    # Regime filter (optional)
+    regime_path = run_dir / "02_processed" / "production_regime_filter.json"
+    regime_filter: Optional[dict] = None
+    if regime_path.is_file():
+        regime_filter = _load_json(regime_path)
+
+    df = _load_data(run_dir)
+    signal_idx = _build_signal_index(ontology)
+
+    # Determine numeric columns
+    numeric_cols = set(feature_summary.get("numeric_columns", []))
+    # Build column list from CSV
+    all_cols = list(df.columns)
+    exclude_cols = set(selection.get("exclude_cols", []))
+    metadata_cols = set(selection.get("metadata_cols", []))
+    group_cols = set(selection.get("group_cols", []))
+
+    # Steady indices
+    steady_indices: Optional[List[int]] = None
+    if regime_filter:
+        steady_indices = regime_filter.get("steady_row_indices", None)
+
+    # Ontology metadata units
+    onto_units = ontology.get("metadata", {}).get("units", {})
+
+    columns_out: List[dict] = []
+    for col in all_cols:
+        if col in exclude_cols and col not in metadata_cols:
+            continue
+
+        is_numeric = col in numeric_cols
+        role = _role_from_ontology(col, signal_idx, selection)
+
+        # Coerce n_total and n_steady
+        series = df[col] if col in df.columns else None
+        has_data = series is not None and len(series) > 0
+        n_total = int(len(series)) if has_data else 0
+        n_steady = 0
+        if has_data and steady_indices is not None and is_numeric:
+            valid_steady = [i for i in steady_indices if i < len(series)]
+            n_steady = len(valid_steady)
+        elif has_data:
+            n_steady = n_total
+
+        status = _coverage_status(col, role, selection, is_numeric, has_data)
+
+        # Unit resolution
+        unit = onto_units.get(col, "")
+        if not unit:
+            sig = signal_idx.get(col, {})
+            unit = sig.get("unit", "")
+        if not unit and is_numeric:
+            unit = "dimensionless"
+        elif not unit:
+            unit = "metadata"
+
+        # Support domain
+        if is_numeric and has_data:
+            try:
+                sd = _support_domain(series)
+                support_domain_entry = {
+                    "p5": float(sd["p5"]),
+                    "p25": float(sd["p25"]),
+                    "p50": float(sd["p50"]),
+                    "p75": float(sd["p75"]),
+                    "p95": float(sd["p95"]),
+                    "n": int(sd["n"]),
+                    "current_median": float(sd["current_median"]),
+                }
+            except Exception:
+                support_domain_entry = {**_NONNUMERIC_SENTINEL}
+        else:
+            support_domain_entry = {**_NONNUMERIC_SENTINEL}
+
+        physics_ref = _physics_ref(col, signal_idx)
+
+        # Build reason
+        reason_parts = []
+        if status == "not_applicable":
+            if col in metadata_cols or role in ("timestamp", "group", "product_code", "operator"):
+                reason_parts.append(f"Column '{col}' is metadata/group (role={role}), not a quantitative process signal.")
+            else:
+                reason_parts.append(f"Column '{col}' excluded from quantitative analysis.")
+        elif status == "pruned_physics":
+            reason_parts.append(f"Column '{col}' is a control output or physically pruned; not independent causal driver.")
+            sig = signal_idx.get(col, {})
+            if sig.get("role") == "control":
+                reason_parts.append("It is a control output amount (effect, not cause).")
+            if sig.get("discrepancy_signal"):
+                reason_parts.append(sig["discrepancy_signal"][:150])
+        elif status == "pruned_confounded":
+            reason_parts.append(f"Column '{col}' is explicit confounded-only; excluded from primary causal analysis.")
+        elif status == "covered_conditional":
+            if col in selection.get("confounder_cols", []):
+                reason_parts.append(f"Confounder '{col}': used for stratification/control, not primary identification.")
+            else:
+                reason_parts.append(f"Column '{col}' has conditional coverage due to data limitations or confounding.")
+        elif status == "covered_primary":
+            if role == "target":
+                reason_parts.append(f"Quality target '{col}' with full coverage for diagnostic analysis.")
+            else:
+                reason_parts.append(f"Primary predictor/kinetic driver '{col}' with full coverage.")
+        elif status == "insufficient_data":
+            reason_parts.append(f"Column '{col}' has insufficient or unusable data.")
+
+        # If non-numeric with support domain filled with sentinels, add reason
+        if not is_numeric:
+            reason_parts.append(f"Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain.")
+
+        reason = " ".join(reason_parts) if reason_parts else f"Column '{col}' assessed."
+
+        columns_out.append({
+            "column": col,
+            "role": role,
+            "coverage_status": status,
+            "unit": unit,
+            "n_total": n_total,
+            "n_steady": n_steady,
+            "support_domain": support_domain_entry,
+            "physics_ref": physics_ref,
+            "reason": reason,
+        })
+
+    return columns_out
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="E1: Build analysis coverage JSON")
+    ap.add_argument("--run-dir", required=True, help="Path to diagnostic RUN_DIR")
+    ap.add_argument("--output", default=None, help="Output JSON path (default: RUN_DIR/enhancement/analysis_coverage.json)")
+    args = ap.parse_args()
+
+    run_dir = Path(args.run_dir)
+    if not run_dir.is_dir():
+        print(f"ERROR: run-dir does not exist: {run_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    output = Path(args.output) if args.output else run_dir / "enhancement" / "analysis_coverage.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    columns = build_coverage(run_dir)
+    result = {
+        "run_id": "enhancement-coverage",
+        "generated_at": pd.Timestamp.now().isoformat(),
+        "source_run_dir": str(run_dir),
+        "columns": columns,
+    }
+
+    with open(output, "w", encoding="utf-8") as fh:
+        json.dump(result, fh, indent=2, ensure_ascii=False, default=str)
+
+    print(f"[coverage_builder] Wrote {len(columns)} column entries → {output}")
+
+
+if __name__ == "__main__":
+    main()
