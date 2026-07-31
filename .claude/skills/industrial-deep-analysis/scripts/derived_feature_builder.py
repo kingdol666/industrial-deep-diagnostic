@@ -345,6 +345,7 @@ def build_derived_features(run_dir: Path) -> tuple:
             "∫ C dt over sorted time",
             "No poisoning/fouling/impurity driver column detected in ontology parameter groups or column names",
             unit="dimensionless*time",
+            source_columns=["(none — no driver column detected)"],
         ))
 
     # 2. Time since primary-group transition (regeneration / grade switch / lot change)

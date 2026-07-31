@@ -56,11 +56,12 @@ def _classify_operability(
     if onto_rel and onto_rel.get("data_direction_validated") == "false":
         return "ENDOGENOUS_RESPONSE"
 
-    # Check if predictor is endogenous / control response in selection
+    # Check if predictor is endogenous / control response in selection — scan ALL
+    # tier keys dynamically (any tier whose columns include the predictor counts)
     tiers = selection.get("analysis_tiers", {})
-    t4 = tiers.get("tier4_control_outputs_effect_not_cause", {})
-    if predictor in t4.get("columns", []):
-        return "ENDOGENOUS_RESPONSE"
+    for _tk, tier in (tiers or {}).items():
+        if isinstance(tier, dict) and predictor in (tier.get("columns", []) or []):
+            return "ENDOGENOUS_RESPONSE"
 
     # Check if control_cols
     if predictor in selection.get("control_cols", []):

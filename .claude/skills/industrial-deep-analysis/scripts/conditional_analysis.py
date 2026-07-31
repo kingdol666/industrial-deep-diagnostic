@@ -185,16 +185,31 @@ def _build_candidate_pairs(
             continue
         pairs.add((_resolve_col(frm, df_cols) or frm, tgt))
 
-    # From selection tiers — scan ALL tier keys dynamically (no hardcoded key names)
+    # From selection tiers — scan ALL tier keys dynamically, supporting three shapes:
+    #   A) {key: {columns: [...], must_analyze_vs_targets: [...]}}  (CSTR/BOPET style)
+    #   B) {key: {columns: [...]}}                                   (thin style)
+    #   C) {key: [{target, predictor, ...}, ...]}                    (pair-object style)
     tiers = selection.get("analysis_tiers", {})
     for tier_key, tier in (tiers or {}).items():
-        preds = tier.get("columns", []) or []
-        must_vs = tier.get("must_analyze_vs_targets", []) or []
-        if not must_vs:
-            # Fallback: target every quality target when the tier declares no explicit list
-            must_vs = list(targets)
-        for pred in preds:
-            for tgt in must_vs:
+        if isinstance(tier, dict):
+            preds = tier.get("columns", []) or []
+            must_vs = tier.get("must_analyze_vs_targets", []) or []
+            if not must_vs:
+                must_vs = list(targets)
+            for pred in preds:
+                for tgt in must_vs:
+                    resolved_tgt = _resolve_tgt(tgt)
+                    if targets and resolved_tgt not in targets:
+                        continue
+                    pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
+        elif isinstance(tier, list):
+            for item in tier:
+                if not isinstance(item, dict):
+                    continue
+                pred = item.get("predictor", "")
+                tgt = item.get("target", "")
+                if not pred or not tgt:
+                    continue
                 resolved_tgt = _resolve_tgt(tgt)
                 if targets and resolved_tgt not in targets:
                     continue
