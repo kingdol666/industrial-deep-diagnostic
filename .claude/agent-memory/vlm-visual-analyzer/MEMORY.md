@@ -1,1 +1,0 @@
-- [Image Reading Limitation](image-reading-limitation.md) — Haiku 4.5 不支持直接 PNG 图像读取，需使用 metadata_backed_inference 模式
