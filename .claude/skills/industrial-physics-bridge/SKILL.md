@@ -101,13 +101,14 @@ Default output: `<RUN_DIR>/enhancement/physics_bridge.json`
 
 严重程度分级：`critical` / `major` / `minor` / `cosmetic`
 
-## CSTR Contract (AC-2)
+## AC-2 Contract (scene-agnostic)
 
-对于 CSTR 催化加氢运行，`reactor_temp_C → conversion_pct` 必须满足：
-- `direction` = `MISMATCH`
-- `overall_status` = `inconsistent`
-- `evidence_refs` 包含 diagnosis Arrhenius 矛盾引用
-- mechanism_chain 包含存活的硫中毒假说
+对任意场景，当某关系满足以下条件时，必须满足对应断言：
+- ontology 标记 `data_direction_validated=false` 的关系 → `direction` = `MISMATCH`、`overall_status` = `inconsistent`
+- diagnosis primary_finding 描述物理矛盾/补偿响应 → 该关系 `evidence_refs` 包含 diagnosis 引用
+- 诊断存活的假说 → 每条 surviving hypothesis 生成一条 mechanism_chain
+
+（CSTR 催化加氢是验证该契约的代表性场景：`reactor_temp_C → conversion_pct` 因 ontology 标记方向未验证而必须为 MISMATCH/inconsistent，机制链含硫中毒假说。）
 
 ## References
 

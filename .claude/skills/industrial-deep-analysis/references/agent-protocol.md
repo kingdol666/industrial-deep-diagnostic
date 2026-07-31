@@ -18,16 +18,17 @@
 ### Phase 3: Run E2 — Derived Feature Builder
 - [ ] Execute `derived_feature_builder.py --run-dir <RUN_DIR>`
 - [ ] Verify `enhancement/derived_features.json` is created
-- [ ] Check cumulative exposure feature is computed if `feed_sulfur_ppm` exists
-- [ ] Check time_since transition feature is computed if event column exists
+- [ ] Check cumulative exposure feature is computed when an ontology-identified or name-heuristic poison/impurity/fouling column exists; otherwise it must be `not_applicable`
+- [ ] Check time_since transition feature is computed if a primary-group/event column exists
 - [ ] Check regime indicators are computed if `production_regime_filter.json` exists
 - [ ] Check lag-aligned feature is computed only when nonzero optimal lag exists
+- [ ] Verify `enhancement/derived_data.csv` exists and contains every `computed` feature column
 
 ### Phase 4: Run E3+E4 — Conditional Analysis + Tradeoffs
 - [ ] Execute `conditional_analysis.py --run-dir <RUN_DIR>`
 - [ ] Verify `enhancement/deep_data_analysis.json` is created
-- [ ] Check `reactor_temp_C → conversion_pct` relationship exists
-- [ ] Verify `reactor_temp_C → conversion_pct` has `operability=ENDOGENOUS_RESPONSE`
+- [ ] Verify at least one relationship exists for every ontology relationship that resolves to actual columns
+- [ ] For any relationship whose ontology marks `data_direction_validated=false`, verify `operability=ENDOGENOUS_RESPONSE` (compensation response, not cause)
 - [ ] Verify BH-corrected q-values are in [0, 1] range
 - [ ] Verify all seven validity flags are present per relationship
 - [ ] Verify `tradeoff_and_operability[]` is non-empty
