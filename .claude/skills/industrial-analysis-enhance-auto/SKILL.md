@@ -5,7 +5,7 @@ description: >
   Trigger: enhance auto, 增强自动, 增强编排, enhancement orchestration, E1-E8 pipeline,
   全自动增强, auto enhance, enhance pipeline.
   Orchestrates E0 readiness check through E8 finalization: launches E1-E4 deep analysis scripts,
-  E5 physics bridge, E6 knowledge fusion, E7a markdown publishing.
+  E5 physics bridge, E6 knowledge fusion, E7a markdown publishing, E7b HTML visualization, E7c HTML review.
   Reads existing diagnostic RUN_DIR; writes only to RUN_DIR/enhancement/.
   CLI entry point for the full enhancement pipeline.
 ---
@@ -23,6 +23,8 @@ description: >
 | E5 | `physics_bridge_builder.py` (physics-bridge) | 物理机理桥接 → `physics_bridge.json` |
 | E6 | `knowledge_fusion.py` | 知识融合 → `enhanced_knowledge.json` |
 | E7a | `markdown_publisher.py` | Markdown 发布 → `enhanced_analysis.md` |
+| E7b | `html_builder.py` (enhanced-html-visualizer) | ECharts HTML 可视化 → `enhanced-analysis.html` |
+| E7c | `html_reviewer.py` (enhanced-html-reviewer) | HTML 审校 → `enhancement_html_review.json` |
 | E8 | `enhance_orchestrator.mjs` (finalize) | 状态写入、摘要输出 |
 
 ## Inputs (read-only)
@@ -56,6 +58,9 @@ description: >
 | `physics_bridge.json` | E5 | 物理桥接 |
 | `enhanced_knowledge.json` | E6 | 增强知识整合 |
 | `enhanced_analysis.md` | E7a | Markdown 报告 |
+| `enhanced-analysis.html` | E7b | ECharts 可视化页面 |
+| `html_selfcheck.json` | E7b | 页面运行时自检 |
+| `enhancement_html_review.json` | E7c | HTML 审校结果 |
 | `enhancement_status.json` | E8 | 最终状态 |
 
 ## Usage
