@@ -65,19 +65,30 @@ description: >
 
 ## Usage
 
-### 双入口（Two Entry Points）
+### 双模式（Two Modes）
 
-| 入口 | 调用方式 | 行为 |
+| 模式 | 调用方式 | 行为 |
 |------|---------|------|
-| **A: 新数据全流程** | 向 `enhance-orchestrator` Agent 传 `DATA_PATH=<data>` | Agent 先按 `skill://industrial-analysis-auto` 完整执行 Step 0-9（setup→inspect→ontology→data-processor→diagnostician→judge→audit→reporter→HTML），再执行 E0-E8 增强 |
-| **B: 已有 RUN_DIR 仅增强** | `--run-dir <RUN_DIR>` | 跳过基线，直接 E0-E8（E0 校验基线产物，缺失则 BLOCKED） |
+| **模式 A: 集成 auto 全流程（新数据）** | `--data-path <data> --name <run_name>` 或向 agent 传 `DATA_PATH` | ① 自动初始化 RUN_DIR（setup+inspect+清单）→ ② 执行 auto Step 0-9 基线（agent 编排）→ ③ E0-E8 深度增强。一次调用完成全流程 |
+| **模式 B: 基于已有 RUN_DIR（深度分析）** | `--run-dir <RUN_DIR>` | 跳过基线，直接 E0-E8（E0 校验基线产物，缺失则 BLOCKED） |
 
-**入口 A 的基线调度由 enhance-orchestrator Agent 负责**（CLI 是纯增强执行器，不内嵌 LLM 基线步骤）。Agent 收到 `DATA_PATH` 时：
-1. 用 `industrial-analysis-auto` 的 `setup.mjs`/`inspect.mjs` 建 RUN_DIR
-2. 按 auto SKILL 顺序派发 context-builder → data-processor → diagnostician → judge/pre-audit → reporter → final audit → html-visualizer → html-reviewer
-3. 基线完成（optimizer.md 含 ENDORSED）后再执行本 Skill 的 E0-E8
+**模式 A 是完整闭环**：CLI 完成确定性初始化（`entry_a_init.mjs`）；LLM 基线步骤（本体构建/数据处理/竞争假说诊断/报告/HTML）由 enhance-orchestrator agent 按 `skill://industrial-analysis-auto` 的 Step 0-9 顺序派发执行；基线 `optimizer.md` 含 ENDORSED 后自动进入 E0-E8。
 
-### 入口 B: 增强管线（已有基线）
+### 模式 A: 新数据全流程（CLI 初始化 + agent 基线 + 增强）
+
+```bash
+# CLI 初始化（确定性部分：setup + inspect + 清单 + 基线检测）
+node .claude/skills/industrial-analysis-enhance-auto/scripts/entry_a_init.mjs \
+  --data-path data/<file>.csv --name <run_name>
+
+# 或直接通过编排器触发（等价）
+node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
+  --data-path data/<file>.csv --name <run_name>
+```
+
+初始化后若基线未完成，输出 `BASELINE_PENDING` + 缺失清单 + 需派发的 agent 顺序。**完整自动化**请向 enhance-orchestrator agent 传 `DATA_PATH`：agent 依次派发 context-builder → data-processor → diagnostician → judge/pre-audit → reporter → final-audit → html-visualizer → html-reviewer，再执行 E0-E8。
+
+### 模式 B: 已有 RUN_DIR 深度分析
 
 ```bash
 node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
@@ -86,22 +97,14 @@ node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrato
 
 Prints status JSON to stdout. Exit code 0 on success, 1 if BLOCKED or FAILED.
 
-### 入口 B 带数据路径提示（可选）
-
-```bash
-node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
-  --run-dir workspace/diagnostic-runs/<RUN_DIR> --data-path data/<file>.csv
-```
-
-`--data-path` 仅用于在清单中记录数据源；基线缺失时输出指引而非静默继续。
-
 ## Enhancement Status Logic
 
 | 条件 | 状态 |
 |------|------|
 | 所有关系均可操作，无>30%混杂 | `READY` |
 | >30% 关系为 CONFOUNDED 或 NOT_IDENTIFIABLE | `READY_WITH_WARNINGS` |
-| P0 基线文件缺失 | `BLOCKED` |
+| P0 基线文件缺失（模式 B） | `BLOCKED` |
+| 模式 A 基线未完成 | `BASELINE_PENDING` |
 | 任何增强脚本返回非零退出码 | `FAILED` |
 
 ## Operability Enum Values

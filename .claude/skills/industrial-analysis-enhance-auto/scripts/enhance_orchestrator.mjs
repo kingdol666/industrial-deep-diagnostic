@@ -380,14 +380,59 @@ async function main() {
   const args = process.argv.slice(2);
   let runDir = null;
   let dataPath = null;
+  let name = null;
+  let baseDir = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--run-dir' && i + 1 < args.length) runDir = args[++i];
     if (args[i] === '--data-path' && i + 1 < args.length) dataPath = args[++i];
+    if (args[i] === '--name' && i + 1 < args.length) name = args[++i];
+    if (args[i] === '--base-dir' && i + 1 < args.length) baseDir = args[++i];
+  }
+
+  // Mode A: no --run-dir but --data-path given → initialize the run dir first
+  if (!runDir && dataPath) {
+    if (!name) {
+      console.error('Usage (entry A): node enhance_orchestrator.mjs --data-path <data> --name <run_name> [--base-dir <dir>]');
+      process.exit(1);
+    }
+    const initArgs = ['--data-path', dataPath, '--name', name];
+    if (baseDir) initArgs.push('--base-dir', baseDir);
+    const initScript = path.join(__dirname, 'entry_a_init.mjs');
+    const initResult = await runCmd(process.execPath, [initScript, ...initArgs], process.cwd(), 120000);
+    if (!initResult.ok) {
+      console.error('ERROR: entry-A initialization failed:', initResult.stderr || initResult.code);
+      process.exit(1);
+    }
+    let initOut = null;
+    try {
+      initOut = JSON.parse(initResult.stdout.trim());
+    } catch (_) {
+      console.error('ERROR: entry-a-init output not parseable:', initResult.stdout);
+      process.exit(1);
+    }
+    runDir = initOut.run_dir;
+    if (!initOut.baseline_complete) {
+      // Baseline LLM steps still missing — enhancement cannot proceed yet.
+      console.log(JSON.stringify({
+        phase: 'A0',
+        status: 'BASELINE_PENDING',
+        run_dir: runDir,
+        missing_baseline: initOut.missing_baseline,
+        next_steps: initOut.next_steps,
+        message: 'Entry-A init done. Run the auto baseline Step 2-9 on this RUN_DIR, or dispatch the enhance-orchestrator agent with DATA_PATH for fully automatic baseline+enhancement.',
+      }, null, 2));
+      process.exit(1);
+    }
+    console.log(JSON.stringify({
+      phase: 'A0',
+      status: 'BASELINE_READY',
+      run_dir: runDir,
+    }, null, 2));
   }
 
   if (!runDir) {
-    console.error('Usage: node enhance_orchestrator.mjs --run-dir PATH [--data-path PATH]');
+    console.error('Usage: node enhance_orchestrator.mjs --run-dir PATH | --data-path <data> --name <run_name>');
     process.exit(1);
   }
 
