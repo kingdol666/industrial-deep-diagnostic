@@ -95,3 +95,58 @@ Data: 1200 rows. Results:
 5. Report/verification scripts live under the gitignored `.superpowers/sdd/` tree; the
    report was force-added to match the Task 1 commit pattern. Verification scripts are
    left as local working artifacts.
+
+---
+
+## Fix Round (post 3a607c5) — reviewer edge-case hardening
+
+Three edge cases in `stat_utils.py` hardened:
+
+1. **slope_at_current x0 coercion** — `x0=None` raised `TypeError` in the n>=3 code
+   path but was guarded only in the insufficient-data branch. x0 is now coerced
+   upfront via try/except; invalid x0 (None, NaN, ±∞, non-numeric) returns
+   `status="invalid_x0"` uniformly, with linear/quadratic/slope_at_current all set
+   to None. Valid x0 continues to `status="ok"` as before.
+
+2. **partial_correlation eff≤0 boundary** — When `n == k+3` (eff=0), Fisher-z cannot
+   compute a p-value but the function previously returned `status="ok"` with p=None.
+   Now emits `status="insufficient_dof"` when `eff <= 0`, preserving r (which is
+   computable) but setting p=None. Downstream status-ok consumers never encounter
+   a None p-value.
+
+3. **ols_centered rank deficiency** — Collinear design matrices (rank < n_cols)
+   previously passed through to se/t/p computed via pinv, yielding spuriously
+   significant individual p-values under `status="ok"`. Now a rank-deficiency gate
+   after the df check sets `status="rank_deficient"`, nulls se/t/p, and preserves
+   beta (minimum-norm solution) and rank.
+
+### Exact commands & results
+
+**Core regression (28 checks):**
+```
+python .superpowers/sdd/doe-enhance-plan/verify_stat_utils.py
+→ ALL_CHECKS_PASS
+```
+
+**Reviewer-targeted edge cases (20 checks):**
+```
+python .superpowers/sdd/doe-enhance-plan/verify_reviewer_edges.py
+→ REVIEWER_CHECKS_PASS
+```
+Key observations:
+- `slope_at_current(x,y,None)` → `status="invalid_x0"`, `slope_at_current=None`
+- `slope_at_current(x,y,NaN)` → `status="invalid_x0"`
+- `slope_at_current(x,y,±∞)` → `status="invalid_x0"`
+- `slope_at_current(x,y,"bad")` → `status="invalid_x0"`
+- `slope_at_current(x,y,5.0)` → `status="ok"`, derivative=0.5, curvature=-0.2
+- `partial_correlation(n=6,k=3)` (eff=0) → `status="insufficient_dof"`, p=None, r≠None
+- `partial_correlation(n=6,k=4)` → `status="insufficient_data"`
+- `partial_correlation(n=200,k=2)` → `status="ok"`, p finite
+- `ols_centered` [x, 2x, x+1] → `status="rank_deficient"`, rank=2<4, se=None, p=None, beta≠None
+- `ols_centered` [x, x²] → `status="ok"`, se≠None
+
+**CSTR smoke (no regression):**
+```
+python .superpowers/sdd/doe-enhance-plan/smoke_cstr_stat_utils.py
+→ support_domain + block_bootstrap_ci both status=ok, values unchanged
+```

@@ -200,7 +200,23 @@ def ols_centered(X, y):
             "columns": col_labels,
             "status": "insufficient_dof",
         }
+    # ---- Rank-deficiency gate: individual coefficients not uniquely identifiable.
+    n_cols = len(col_labels)
+    if rank < n_cols:
+        return {
+            "beta": beta,
+            "se": None,
+            "t": None,
+            "p": None,
+            "r2": r2,
+            "resid": resid,
+            "n": n,
+            "rank": rank,
+            "columns": col_labels,
+            "status": "rank_deficient",
+        }
 
+    # ---- Well-conditioned: compute se / t / p.
     sigma2 = ssr / df
     # Covariance via pinv(X'X): stable under (near) collinearity.
     cov = sigma2 * np.linalg.pinv(D.T @ D)
@@ -247,6 +263,14 @@ def slope_at_current(x, y, x0):
     yvec = yvec[mask]
     n = int(xvec.shape[0])
 
+    # Coerce x0 before any branch so None / non-numeric is handled uniformly.
+    try:
+        x0f = float(x0)
+        if not math.isfinite(x0f):
+            x0f = None
+    except (TypeError, ValueError):
+        x0f = None
+
     if n < 3:
         return {
             "linear": None,
@@ -254,9 +278,21 @@ def slope_at_current(x, y, x0):
             "slope_at_current": None,
             "curvature": None,
             "x_mean": None,
-            "x0": float(x0) if x0 is not None and math.isfinite(float(x0)) else None,
+            "x0": x0f,
             "n": n,
             "status": "insufficient_data",
+        }
+
+    if x0f is None:
+        return {
+            "linear": None,
+            "quadratic": None,
+            "slope_at_current": None,
+            "curvature": None,
+            "x_mean": None,
+            "x0": None,
+            "n": n,
+            "status": "invalid_x0",
         }
 
     x_mean = float(xvec.mean())
@@ -265,7 +301,6 @@ def slope_at_current(x, y, x0):
     pinv_D = np.linalg.pinv(D)
     beta = pinv_D @ yvec
     b0, b1, b2 = float(beta[0]), float(beta[1]), float(beta[2])
-    x0f = float(x0)
     slope = b1 + 2.0 * b2 * (x0f - x_mean)
 
     return {
@@ -335,8 +370,9 @@ def partial_correlation(df, x, y, controls):
     # Fisher-z normal approximation (effective df adjusted for k controls).
     eff = n - k - 3
     if eff <= 0:
-        p = None
-    elif abs(r) >= 1.0:
+        result.update({"r": r, "p": None, "status": "insufficient_dof"})
+        return result
+    if abs(r) >= 1.0:
         p = 0.0
     else:
         z = 0.5 * math.log((1.0 + r) / (1.0 - r)) * math.sqrt(eff)
