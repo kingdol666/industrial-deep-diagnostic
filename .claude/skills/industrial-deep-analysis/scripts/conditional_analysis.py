@@ -286,6 +286,43 @@ def _detect_time_col(df: pd.DataFrame, ontology: dict, selection: dict) -> Optio
     return None
 
 
+def _detect_group_col(df: pd.DataFrame, selection: dict, regime_filter: Optional[dict] = None) -> str:
+    """Detect the grouping/stratification column for any scene, in priority order:
+    1. selection.grouping_strategy.primary_group (CSTR-style contract)
+    2. regime_filter.group_column (regime detector output contract)
+    3. low-cardinality categorical columns (grade/lot/bed/shift style markers)
+    Returns '' when no plausible grouping column exists (fully cross-sectional).
+    """
+    gs = selection.get("grouping_strategy", {}) or {}
+    cand = gs.get("primary_group", "")
+    if cand and cand in df.columns:
+        return cand
+    if regime_filter:
+        cand = regime_filter.get("group_column", "")
+        if cand and cand in df.columns:
+            return cand
+    for col in df.columns:
+        if df[col].dtype.kind == "O":
+            try:
+                nun = df[col].nunique(dropna=True)
+            except Exception:
+                continue
+            if 2 <= nun <= 8:
+                low = col.lower()
+                if any(k in low for k in ("grade", "lot", "bed", "product", "shift", "group", "batch", "unit", "material", "zone")):
+                    return col
+    # fallback: any low-cardinality categorical column
+    for col in df.columns:
+        if df[col].dtype.kind == "O":
+            try:
+                nun = df[col].nunique(dropna=True)
+            except Exception:
+                continue
+            if 2 <= nun <= 8:
+                return col
+    return ""
+
+
 def _compute_relationship(
     df: pd.DataFrame,
     pred: str,
@@ -341,7 +378,7 @@ def _compute_relationship(
             pass
 
     # --- per_group ---
-    primary_group = selection.get("grouping_strategy", {}).get("primary_group", "")
+    primary_group = _detect_group_col(df, selection, regime_filter)
     per_group: List[float] = []
     if primary_group and primary_group in df.columns:
         per_group = _per_group_r(df, pred, tgt, primary_group)
