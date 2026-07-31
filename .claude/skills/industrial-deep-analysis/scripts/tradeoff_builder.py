@@ -44,6 +44,12 @@ def _classify_operability(
     selection: dict,
 ) -> str:
     """Classify operability using the six-enum rules from the brief."""
+    # Build ontology signal index once (used by endogenous/constraint checks)
+    signal_idx = {}
+    for section in ["inspection_signals", "process_parameters", "control_variables"]:
+        for sig in ontology.get("signals", {}).get(section, []):
+            signal_idx[sig.get("column", "")] = sig
+
     # Gather ontology relationship for this predictor
     onto_rels = ontology.get("relationships", [])
     onto_rel = None
@@ -52,15 +58,36 @@ def _classify_operability(
             onto_rel = rel
             break
 
-    # Check: ENDOGENOUS_RESPONSE
-    if onto_rel and onto_rel.get("data_direction_validated") == "false":
+    # Check: ENDOGENOUS_RESPONSE — when the ontology relationship from this
+    # predictor TOWARD one of its analyzed targets is direction-validated=false,
+    # or the signal semantics mark it as a control/compensation response.
+    analyzed_targets = {r.get("target") for r in relationships_for_predictor}
+    for rel in onto_rels:
+        if rel.get("from") != predictor:
+            continue
+        if rel.get("to") in analyzed_targets and rel.get("data_direction_validated") == "false":
+            return "ENDOGENOUS_RESPONSE"
+
+    # Signal-level endogenous marker: controlled_by describes adaptive control /
+    # load-shedding / operator compensation — the variable RESPONDS to degradation.
+    # Exclude state indicators (controlled_by names a monitored degradation state
+    # as the PRIMARY source) — those are observable symptoms, not control outputs.
+    sig = signal_idx.get(predictor, {})
+    cb = str(sig.get("controlled_by", "")).lower()
+    is_state_indicator = any(k in cb for k in ("状态", "磨损", "反映", "监测", "指示", "degradation state", "indicator", "monitor"))
+    if not is_state_indicator and any(k in cb for k in ("控制", "降载", "自适应", "补偿", "操作员", "adaptive control", "load shedding", "compensat")):
         return "ENDOGENOUS_RESPONSE"
 
-    # Check if predictor is endogenous / control response in selection — scan ALL
-    # tier keys dynamically (any tier whose columns include the predictor counts)
+    # Check if predictor is endogenous / control response — only tiers whose KEY
+    # carries control/endogenous/compensation semantics, plus explicit control_cols
+    # and ontology control roles. (Scanning every tier over-marks confounders.)
     tiers = selection.get("analysis_tiers", {})
     for _tk, tier in (tiers or {}).items():
-        if isinstance(tier, dict) and predictor in (tier.get("columns", []) or []):
+        if not isinstance(tier, dict):
+            continue
+        tk_low = _tk.lower()
+        if any(k in tk_low for k in ("control", "endogenous", "response", "compensat", "output")) \
+                and predictor in (tier.get("columns", []) or []):
             return "ENDOGENOUS_RESPONSE"
 
     # Check if control_cols
@@ -68,10 +95,6 @@ def _classify_operability(
         return "ENDOGENOUS_RESPONSE"
 
     # Check: CONSTRAINT_UNCONTROLLABLE
-    signal_idx = {}
-    for section in ["inspection_signals", "process_parameters", "control_variables"]:
-        for sig in ontology.get("signals", {}).get(section, []):
-            signal_idx[sig.get("column", "")] = sig
     sig = signal_idx.get(predictor, {})
     if sig.get("role") == "control":
         return "CONSTRAINT_UNCONTROLLABLE"
@@ -130,7 +153,21 @@ def _classify_operability(
     if sig.get("control_type") == "output":
         controllable = False
 
-    if physics_ok and q_ok and direction_stable and not best.get("validity_flags", {}).get("confounding_checked", False) is False and controllable:
+    # Indicator downgrade: a predictor whose ontology semantics describe it as a
+    # monitored state / symptom / indicator of an upstream degradation process
+    # (e.g. bearing vibration or temperature reflecting wear) is observable but
+    # NOT a directly adjustable operating lever — downgrade to OBSERVATIONAL.
+    sig_desc = " ".join([
+        str(sig.get("physical_meaning", "")),
+        str(sig.get("controlled_by", "")),
+        str(sig.get("role", "")),
+    ]).lower()
+    is_indicator = any(k in sig_desc for k in (
+        "状态", "磨损", "反映", "指示", "监测", "症状", "indicator", "monitor",
+        "reflect", "symptom", "状态指示", "承载", "degradation state",
+    ))
+
+    if physics_ok and q_ok and direction_stable and not best.get("validity_flags", {}).get("confounding_checked", False) is False and controllable and not is_indicator:
         return "LEVER_IDENTIFIED"
 
     return "LEVER_OBSERVATIONAL"

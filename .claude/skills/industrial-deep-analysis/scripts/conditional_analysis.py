@@ -262,12 +262,21 @@ def _build_candidate_pairs(
             pruned_set.add((b, a))
 
     filtered: Set[Tuple[str, str]] = set()
+    # Stratification/grouping columns from ontology parameter groups (e.g. material,
+    # grade, lot) must never serve as numeric predictors — they are grouping keys.
+    strat_cols: Set[str] = set()
+    for gk, cols in (ontology.get("parameter_groups", {}) or {}).items():
+        if any(k in gk.lower() for k in ("strat", "group", "class", "segment")):
+            strat_cols.update(cols or [])
+    strat_cols = {_resolve_col(c, df_cols) or c for c in strat_cols}
     for pred, tgt in pairs:
         if pred == tgt:
             continue
         if pred in metadata_cols:
             continue
         if pred in control_cols:
+            continue
+        if pred in strat_cols:
             continue
         if (pred, tgt) in pruned_set:
             continue
