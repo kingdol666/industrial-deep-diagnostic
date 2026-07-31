@@ -36,7 +36,13 @@ description: >
 ## Usage
 
 ```bash
-python physics_bridge_builder.py --run-dir <RUN_DIR> [--output <OUTPUT_PATH>]
+# 独立执行（推荐）
+python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py \
+  --run-dir <RUN_DIR> [--output <OUTPUT_PATH>]
+
+# 或通过编排器自动调用（E5 阶段）
+node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
+  --run-dir <RUN_DIR>
 ```
 
 Default output: `<RUN_DIR>/enhancement/physics_bridge.json`

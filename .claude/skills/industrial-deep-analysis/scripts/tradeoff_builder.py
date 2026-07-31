@@ -284,27 +284,36 @@ def build_tradeoff_and_operability(
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="E4: Build/rewrite tradeoff & operability")
-    ap.add_argument("--deep-analysis", required=True, help="Path to deep_data_analysis.json")
+    ap.add_argument("--run-dir", default=None, help="Path to diagnostic RUN_DIR (preferred)")
+    ap.add_argument("--deep-analysis", default=None, help="Path to deep_data_analysis.json")
     ap.add_argument("--output", default=None, help="Output path (default: overwrite input)")
     args = ap.parse_args()
 
-    da_path = Path(args.deep_analysis)
-    if not da_path.is_file():
-        print(f"ERROR: deep-analysis file not found: {da_path}", file=sys.stderr)
+    if not args.run_dir and not args.deep_analysis:
+        print("ERROR: must provide --run-dir or --deep-analysis", file=sys.stderr)
         sys.exit(1)
+
+    if args.run_dir:
+        run_dir = Path(args.run_dir)
+        if not run_dir.is_dir():
+            print(f"ERROR: run-dir does not exist: {run_dir}", file=sys.stderr)
+            sys.exit(1)
+        da_path = run_dir / "enhancement" / "deep_data_analysis.json"
+        if not da_path.is_file():
+            print(f"ERROR: deep_data_analysis.json not found: {da_path}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        da_path = Path(args.deep_analysis)
+        if not da_path.is_file():
+            print(f"ERROR: deep-analysis file not found: {da_path}", file=sys.stderr)
+            sys.exit(1)
 
     with open(da_path, encoding="utf-8") as fh:
         deep = json.load(fh)
 
-    # Deep analysis JSON may already contain a run_dir reference — but CLI mode
-    # can't load df without it.  Store tradeoffs as-is from existing relationships
-    # using only the ontology/selections embedded in the task-3 context.
-    # For full recomputation the conditional_analysis pipeline must be re-run.
-
-    # Minimal: read the run_dir from the deep analysis JSON if present
-    run_dir_str = deep.get("source_run_dir", "")
-    if run_dir_str:
-        run_dir = Path(run_dir_str)
+    # Load df/ontology/selection from run-dir when available
+    if args.run_dir:
+        run_dir = Path(args.run_dir)
         ontology = json.loads((run_dir / "01_ontology" / "ontology.json").read_text(encoding="utf-8"))
         selection = json.loads((run_dir / "02_processed" / "analysis_parameter_selection.json").read_text(encoding="utf-8"))
         csv = run_dir / "02_processed" / "cleaned_data.csv"
@@ -313,8 +322,8 @@ def main() -> None:
         else:
             df = pd.read_json(run_dir / "02_processed" / "cleaned_data.json")
     else:
-        # Can't load df — emit empty tradeoffs
-        print("[tradeoff_builder] No source_run_dir in deep analysis JSON; writing empty tradeoffs")
+        # Can't load df without run-dir — emit empty tradeoffs
+        print("[tradeoff_builder] No run-dir provided; writing empty tradeoffs")
         df = pd.DataFrame()
         ontology = {"relationships": [], "signals": {}, "metadata": {"units": {}}}
         selection = {"quality_targets": [], "analysis_tiers": {}}

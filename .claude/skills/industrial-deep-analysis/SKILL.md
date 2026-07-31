@@ -1,3 +1,11 @@
+---
+name: industrial-deep-analysis
+description: >
+  确定性深层数据分析层（增强管线 E1-E4）。消费现有诊断 RUN_DIR，产出全列覆盖矩阵、
+  物理派生特征、条件关系分析与多目标权衡，只写 RUN_DIR/enhancement/，绝不修改基线诊断产物。
+  Trigger: deep analysis, 深层分析, coverage builder, derived feature, conditional analysis, tradeoff.
+---
+
 # industrial-deep-analysis
 
 ## Description
