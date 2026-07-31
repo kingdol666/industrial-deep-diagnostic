@@ -173,36 +173,32 @@ def _build_candidate_pairs(
             return _resolve_col(name, df_cols)
         return name
 
-    # From ontology relationships
+    # From ontology relationships (always included; for process-only scenes the
+    # relationship target may itself be a process parameter — that is valid)
     for rel in ontology.get("relationships", []):
         frm = rel.get("from", "")
         to = rel.get("to", "")
         tgt = _resolve_tgt(to)
-        if frm and tgt and tgt in targets:
-            pairs.add((_resolve_col(frm, df_cols) or frm, tgt))
+        if not frm or not tgt:
+            continue
+        if targets and tgt not in targets:
+            continue
+        pairs.add((_resolve_col(frm, df_cols) or frm, tgt))
 
-    # From selection tiers (both naming conventions: CSTR-style and generic tier_N_*)
+    # From selection tiers — scan ALL tier keys dynamically (no hardcoded key names)
     tiers = selection.get("analysis_tiers", {})
-    candidate_tier_keys = [
-        "tier1_primary_kinetic_drivers",
-        "tier2_feed_residence_pressure",
-        "tier3_confounders_caution",
-        "tier_1_primary_hypothesis",
-        "tier_2_secondary_hypothesis",
-        "tier_3_variability",
-    ]
-    for tier_key in candidate_tier_keys:
-        tier = tiers.get(tier_key, {})
-        preds = tier.get("columns", [])
-        must_vs = tier.get("must_analyze_vs_targets", [])
+    for tier_key, tier in (tiers or {}).items():
+        preds = tier.get("columns", []) or []
+        must_vs = tier.get("must_analyze_vs_targets", []) or []
         if not must_vs:
             # Fallback: target every quality target when the tier declares no explicit list
             must_vs = list(targets)
         for pred in preds:
             for tgt in must_vs:
                 resolved_tgt = _resolve_tgt(tgt)
-                if resolved_tgt in targets:
-                    pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
+                if targets and resolved_tgt not in targets:
+                    continue
+                pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
 
     # Also add direct selection predictor_cols -> quality_targets when tier info is thin
     for pred in selection.get("predictor_cols", []):
@@ -223,6 +219,16 @@ def _build_candidate_pairs(
             resolved_tgt = _resolve_tgt(tgt)
             if resolved_tgt in targets:
                 pairs.add((resolved, resolved_tgt))
+
+    # Process-only fallback: when the scene declares no quality targets, analyze
+    # relationships among process parameters themselves (physics-driven pairs only)
+    if not targets:
+        proc_cols = [c for c in selection.get("predictor_cols", []) if _resolve_col(c, df_cols)]
+        proc_cols = [(_resolve_col(c, df_cols) or c) for c in proc_cols]
+        for i, pa in enumerate(proc_cols):
+            for pb in proc_cols[i + 1:]:
+                pairs.add((pa, pb))
+        # ontology relationships already added above cover process-to-process edges
 
     # Exclude: target == predictor, metadata, control outputs, pruned (resolved names)
     metadata_cols = {_resolve_col(c, df_cols) or c for c in selection.get("metadata_cols", [])}
@@ -250,6 +256,17 @@ def _build_candidate_pairs(
             continue
         if (pred, tgt) in pruned_set:
             continue
+        # Quality targets are response variables, not adjustable predictors —
+        # exclude target-as-predictor pairs unless the ontology explicitly declares
+        # the relationship (e.g. a composite index derived from its components).
+        if targets and pred in targets:
+            declared = any(
+                (r.get("from") == pred or _strip_suffix(r.get("from", "")) == _strip_suffix(pred))
+                and (r.get("to") == tgt or _strip_suffix(r.get("to", "")) == _strip_suffix(tgt))
+                for r in ontology.get("relationships", [])
+            )
+            if not declared:
+                continue
         filtered.add((pred, tgt))
 
     return sorted(filtered)

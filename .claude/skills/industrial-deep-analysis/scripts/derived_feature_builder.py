@@ -311,13 +311,16 @@ def build_derived_features(run_dir: Path) -> tuple:
     time_col = _detect_time_col(df, ontology, selection)
     features: List[dict] = []
 
-    # 1. Cumulative exposure — auto-detect the poisoning/fouling driver from ontology
-    #    parameter groups (e.g. poisoning_driver for CSTR sulfur, fouling driver for
-    #    heat exchangers), falling back to any numeric feed/impurity-style column.
+    # 1. Cumulative exposure — auto-detect the poisoning/fouling/impurity driver by
+    #    scanning ALL ontology parameter groups whose GROUP NAME carries degradation
+    #    semantics (poison/foul/impur/deactiv/contamin/scal), falling back to
+    #    column-name heuristics. No hardcoded group-key list.
     param_groups = ontology.get("parameter_groups", {}) or {}
     poison_candidates: List[str] = []
-    for group_key in ("poisoning_driver", "fouling_driver", "impurity_driver", "deactivation_driver"):
-        poison_candidates.extend(param_groups.get(group_key, []) or [])
+    for group_key, cols in (param_groups or {}).items():
+        low_key = group_key.lower()
+        if any(k in low_key for k in ("poison", "foul", "impur", "deactiv", "contamin", "scal", "degrad")):
+            poison_candidates.extend(cols or [])
     poison_col = None
     for cand in poison_candidates:
         if cand in df.columns and df[cand].dtype.kind in "fi":
