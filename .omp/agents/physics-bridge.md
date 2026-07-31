@@ -31,7 +31,7 @@ You are the physics-bridge specialist for the industrial diagnostic enhancement 
    node .claude/shared/scripts/validate.mjs .claude/shared/schemas/physics_bridge_schema.json <RUN_DIR>/enhancement/physics_bridge.json
    ```
 
-4. **Verify CSTR contract (if applicable).** For CSTR catalytic hydrogenation runs, confirm that `reactor_temp_C → conversion_pct` has `direction=MISMATCH` and `overall_status=inconsistent`.
+4. **Verify AC-2 (scene-agnostic).** For every relationship whose ontology marks `data_direction_validated=false`, confirm the output has `direction=MISMATCH` and `overall_status=inconsistent`.
 
 5. **Verify quantity checks.**
    - ≥1 mechanism_chain referencing a surviving hypothesis
