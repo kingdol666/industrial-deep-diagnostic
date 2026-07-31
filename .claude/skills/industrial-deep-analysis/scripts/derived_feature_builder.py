@@ -175,7 +175,7 @@ def _build_time_since_event(df: pd.DataFrame,
         return _not_applicable(
             name,
             f"time since {event_col} transition",
-            "Time since catalyst regeneration or bed switch event",
+            "Time since a group/state transition (regeneration, grade switch, lot change, unit restart, etc.)",
             unit="hours",
             source_columns=[event_col, time_col],
         )
@@ -212,7 +212,7 @@ def _build_time_since_event(df: pd.DataFrame,
     return _computed(
         name,
         f"time since {event_col} group transition (hours)",
-        f"Time since catalyst bed / regeneration event; captures deactivation drift within each bed regime",
+        f"Time since the most recent {event_col} group transition; captures state-dependent drift within each segment",
         unit="hours",
         source_columns=[event_col, time_col],
         row_range=f"rows 0-{len(df) - 1}",

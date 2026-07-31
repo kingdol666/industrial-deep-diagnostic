@@ -499,7 +499,7 @@ def _build_evidence_gaps(
                 "gap": f"[{hyp_key}] {gap_text}",
                 "severity": "major",
                 "impact_on_conclusions": "Limits precision of mechanism attribution",
-                "mitigation": "Requires offline catalyst characterization or sulfur speciation analysis",
+                "mitigation": "Requires targeted offline characterization or speciation analysis for the implicated species",
             })
 
     # From reasoning_chain uncertainty_summary
@@ -532,11 +532,10 @@ def _build_evidence_gaps(
             seen.add(gap_key)
             unique_gaps.append(g)
 
-    # Ensure severity "critical" for key gaps
+    # Ensure severity "critical" for key gaps: generic severity escalation for
+    # gaps tied to offline characterization / speciation / material analysis
     for g in unique_gaps:
-        if "无催化剂离线活性" in g["gap"]:
-            g["severity"] = "critical"
-        if "硫物种" in g["gap"]:
+        if any(kw in g["gap"] for kw in ("离线活性", "离线表征", "speciation", "characterization", "离线分析")):
             g["severity"] = "critical"
 
     return unique_gaps

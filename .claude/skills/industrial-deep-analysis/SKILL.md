@@ -89,24 +89,24 @@ Library function `build_tradeoff_and_operability(df, relationships, ontology, se
 # Compile check
 python -m py_compile .claude/skills/industrial-deep-analysis/scripts/*.py
 
-# Run on real CSTR data
+# Run on any real diagnostic run (example: CSTR catalyst run)
 python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
+  --run-dir <RUN_DIR>
 
 python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
+  --run-dir <RUN_DIR>
 
 python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
+  --run-dir <RUN_DIR>
 
 # Validate with schemas
 python -c "
 import json
-with open('workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/enhancement/analysis_coverage.json') as f:
+with open('<RUN_DIR>/enhancement/analysis_coverage.json') as f:
     c = json.load(f)
 print(f'Columns: {len(c[\"columns\"])}')
 # Check every cleaned-data column is present
-with open('workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/02_processed/cleaned_data.csv') as f:
+with open('<RUN_DIR>/02_processed/cleaned_data.csv') as f:
     csv_cols = f.readline().strip().split(',')
 covered = {col['column'] for col in c['columns']}
 missing = [col for col in csv_cols if col not in covered]

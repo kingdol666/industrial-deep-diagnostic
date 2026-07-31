@@ -30,7 +30,7 @@
 - [ ] Run `physics_bridge_builder.py --run-dir <RUN_DIR>`
 - [ ] Verify `physics_bridge.json` exists and validates
 - [ ] Assert per-relationship verifications cover all deep_data relationships
-- [ ] For CSTR: assert reactor_temp_C→conversion_pct direction=MISMATCH
+- [ ] For any relationship with ontology `data_direction_validated=false`: assert `direction=MISMATCH` in the verification
 
 ### E6: Knowledge Fusion
 - [ ] Run `knowledge_fusion.py --run-dir <RUN_DIR> --output <OUTPUT>`

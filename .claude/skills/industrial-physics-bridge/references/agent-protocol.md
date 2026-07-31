@@ -21,7 +21,7 @@ All files must exist in the RUN_DIR:
 1. **Load SKILL.md.** Read `.claude/skills/industrial-physics-bridge/SKILL.md`.
 2. **Run the script.** Execute `python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py --run-dir <RUN_DIR>`.
 3. **Validate output.** Run `node .claude/shared/scripts/validate.mjs .claude/shared/schemas/physics_bridge_schema.json <RUN_DIR>/enhancement/physics_bridge.json`.
-4. **Check AC-2 (CSTR only).** For CSTR runs, verify `reactor_temp_C → conversion_pct` has `direction=MISMATCH` and `overall_status=inconsistent`.
+4. **Check AC-2 (scene-agnostic).** For every relationship whose ontology marks `data_direction_validated=false`, verify `direction=MISMATCH` and `overall_status=inconsistent` in the output.
 5. **Verify counts.** Assert ≥1 mechanism_chain, ≥1 competing_explanation, ≥2 evidence_gaps.
 6. **Write report.** Record results to `.superpowers/sdd/doe-enhance-plan/task-4-report.md`.
 

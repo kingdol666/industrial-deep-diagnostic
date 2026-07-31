@@ -120,26 +120,26 @@ python .claude/skills/industrial-analysis-enhance-auto/scripts/markdown_publishe
 ## Verification
 
 ```bash
-# Full pipeline on CSTR
+# Full pipeline on any RUN_DIR (example: CSTR catalyst run)
 node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
+  --run-dir <RUN_DIR>
 
 # Validate enhanced_knowledge.json
 node .claude/shared/scripts/validate.mjs \
   .claude/shared/schemas/enhanced_knowledge_schema.json \
-  workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/enhancement/enhanced_knowledge.json
+  <RUN_DIR>/enhancement/enhanced_knowledge.json
 
 # Reproduce markdown standalone
 python .claude/skills/industrial-analysis-enhance-auto/scripts/markdown_publisher.py \
-  --knowledge workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/enhancement/enhanced_knowledge.json \
+  --knowledge <RUN_DIR>/enhancement/enhanced_knowledge.json \
   --template .claude/skills/industrial-analysis-enhance-auto/templates/enhanced_analysis.md.tmpl \
-  --output workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/enhancement/enhanced_analysis_v2.md
+  --output <RUN_DIR>/enhancement/enhanced_analysis_v2.md
 
 # Check for hardcoded numbers, raw field names, section count
 python -c "
 import json, re
 # Section count
-with open('workspace/diagnostic-runs/202607300458012_cstr_catalyst_real/enhancement/enhanced_analysis.md') as f:
+with open('<RUN_DIR>/enhancement/enhanced_analysis.md') as f:
     md = f.read()
 sections = re.findall(r'^## \d+\.', md, re.MULTILINE)
 print(f'## sections: {len(sections)}')
