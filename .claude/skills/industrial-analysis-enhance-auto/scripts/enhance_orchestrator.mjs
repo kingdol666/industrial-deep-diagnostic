@@ -183,6 +183,8 @@ async function launchScripts(runDir) {
         path.join(runDir, '01_ontology', 'ontology.json'),
         path.join(runDir, '02_processed', 'feature_summary.json'),
         path.join(runDir, '02_processed', 'cleaned_data.csv'),
+        path.join(runDir, '02_processed', 'analysis_parameter_selection.json'),
+        path.join(runDir, '02_processed', 'data_analysis_conclusion.json'),
       ],
     },
     {
@@ -212,6 +214,7 @@ async function launchScripts(runDir) {
         path.join(runDir, '02_processed', 'cleaned_data.csv'),
         path.join(enhanceDir, 'analysis_coverage.json'),
         path.join(enhanceDir, 'derived_features.json'),
+        path.join(runDir, '02_processed', 'data_analysis_conclusion.json'),
       ],
     },
     {
@@ -225,6 +228,10 @@ async function launchScripts(runDir) {
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
         path.join(runDir, '04_diagnostics', 'diagnosis.json'),
+        path.join(runDir, '04_diagnostics', 'evidence.json'),
+        path.join(runDir, '04_diagnostics', 'confidence.json'),
+        path.join(runDir, '04_diagnostics', 'reasoning_chain.json'),
+        path.join(runDir, '03_figures', 'visual_analysis.json'),
         path.join(enhanceDir, 'deep_data_analysis.json'),
       ],
     },

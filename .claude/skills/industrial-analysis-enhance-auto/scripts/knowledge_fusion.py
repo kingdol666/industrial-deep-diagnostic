@@ -131,7 +131,7 @@ def build_edges(
             },
             "physics_verification": {},
             "operability": rel.get("operability", "NOT_IDENTIFIABLE"),
-            "evidence_refs": [],
+            "evidence_ref": "",
             "validity_flags": rel.get("validity_flags", {}),
         }
 
@@ -147,7 +147,7 @@ def build_edges(
                 "state_dependence": pv.get("state_dependence", ""),
                 "overall_status": pv.get("overall_status", ""),
             }
-            edge["evidence_refs"] = pv.get("evidence_refs", [])
+            edge["evidence_ref"] = ", ".join(pv.get("evidence_refs", []))
 
         # Determine relationship type
         phys_status = edge.get("physics_verification", {}).get("overall_status", "")
@@ -214,18 +214,18 @@ def build_operability_summary(deep_data: dict) -> str:
     parts = []
     if levers:
         lever_names = [l.get("parameter", "?") for l in levers]
-        parts.append(f"identified levers: {', '.join(lever_names)}")
+        parts.append(f"已确认可操作杠杆: {', '.join(lever_names)}")
     if endogenous:
-        parts.append(f"{endogenous} predictor(s) are endogenous responses (data direction contradicts physics)")
+        parts.append(f"{endogenous} 个预测变量为内生响应（数据方向与物理预测矛盾）")
     if confounded:
-        parts.append(f"{confounded} relationship(s) are confounded (Simpson/group reversal or unresolved time effects)")
+        parts.append(f"{confounded} 个关系受混杂因素影响（Simpson/群组逆转或未解决的时间混淆）")
     if not_id:
-        parts.append(f"{not_id} relationship(s) are not identifiable from available data")
+        parts.append(f"{not_id} 个关系在当前数据下不可识别")
 
     if not parts:
-        return "No reliable operability assessments could be made from the available data."
+        return "根据现有数据无法得出可靠的可操作性评估。"
 
-    return ". ".join(parts) + "."
+    return "。".join(parts) + "。"
 
 
 def build_open_questions(
@@ -324,12 +324,14 @@ def build_evidence_gaps(
 def determine_status(deep_data: dict) -> str:
     """Determine enhancement_status from relationship operability distribution."""
     relationships = deep_data.get("relationships", [])
-    if not relationships:
+    # Filter consistently with build_edges: skip empty predictor/target
+    valid_rels = [r for r in relationships if r.get("predictor") and r.get("target")]
+    if not valid_rels:
         return "FAILED"
 
-    total = len(relationships)
+    total = len(valid_rels)
     confounded_or_not_id = sum(
-        1 for r in relationships
+        1 for r in valid_rels
         if r.get("operability") in ("CONFOUNDED", "NOT_IDENTIFIABLE")
     )
 
