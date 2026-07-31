@@ -4,12 +4,12 @@
     {
       "predictor": "catalyst_bed_id",
       "target": "conversion_pct",
-      "direction": "UNTESTED",
+      "direction": "MATCH",
       "functional_form": "UNTESTED",
       "time_lag": "MATCH",
       "magnitude": "PLAUSIBLE",
       "state_dependence": "UNTESTED",
-      "overall_status": "inconsistent",
+      "overall_status": "plausible",
       "evidence_refs": [
         "ontology.catalyst_bed_id_to_conversion_pct.mechanism",
         "ontology.catalyst_bed_id_to_conversion_pct.governing_equation: a_post_regen = a_reversible_recovered + a_irreversible_residual",
@@ -40,7 +40,7 @@
       "time_lag": "MATCH",
       "magnitude": "IMPLAUSIBLE",
       "state_dependence": "REVERSES",
-      "overall_status": "inconsistent",
+      "overall_status": "rejected",
       "evidence_refs": [
         "ontology.feed_rate_kg_hr_to_conversion_pct.mechanism",
         "ontology.feed_rate_kg_hr_to_conversion_pct.governing_equation: X=kτ/(1+kτ), τ=ρV/ṁ",
@@ -86,7 +86,7 @@
       "time_lag": "MISMATCH",
       "magnitude": "PLAUSIBLE",
       "state_dependence": "STATE_DEPENDENT",
-      "overall_status": "inconsistent",
+      "overall_status": "plausible",
       "evidence_refs": [
         "ontology.h2_partial_pressure_bar_to_conversion_pct.mechanism",
         "ontology.h2_partial_pressure_bar_to_conversion_pct.governing_equation: r = k·C_reactant·C_H2, C_H2=k_H·P_H2",
@@ -127,12 +127,12 @@
     {
       "predictor": "reactor_temp_C",
       "target": "byproduct_ppm",
-      "direction": "MISMATCH",
+      "direction": "MATCH",
       "functional_form": "MATCH",
       "time_lag": "MATCH",
       "magnitude": "PLAUSIBLE",
       "state_dependence": "REVERSES",
-      "overall_status": "inconsistent",
+      "overall_status": "plausible",
       "evidence_refs": [
         "ontology.reactor_temp_C_to_byproduct_ppm.mechanism",
         "ontology.reactor_temp_C_to_byproduct_ppm.governing_equation: r_side=A_s·exp(-Ea_side/RT)·C_reactant",
@@ -161,12 +161,12 @@
     {
       "predictor": "reactor_temp_C",
       "target": "selectivity_pct",
-      "direction": "MISMATCH",
+      "direction": "MATCH",
       "functional_form": "MATCH",
       "time_lag": "MATCH",
       "magnitude": "PLAUSIBLE",
       "state_dependence": "REVERSES",
-      "overall_status": "inconsistent",
+      "overall_status": "plausible",
       "evidence_refs": [
         "ontology.reactor_temp_C_to_selectivity_pct.mechanism",
         "ontology.reactor_temp_C_to_selectivity_pct.governing_equation: S = r_main/(r_main+r_side), r_side=A_s·exp(-Ea_side/RT)",

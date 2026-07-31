@@ -56,62 +56,28 @@ def _build_ontology_index(ontology: dict) -> Dict[Tuple[str, str], dict]:
 def _direction_verification(
     dd_rel: dict, onto_rel: Optional[dict]
 ) -> Tuple[str, str]:
-    """Compare statistical slope sign vs ontology physics prediction.
+    """Return direction match verdict using ontology data_direction_validated.
 
-    Returns (enum, narrative).
+    data_direction_validated is the ontology-authoritative comparison result:
+      "true"  -> data direction matches physics prediction -> MATCH
+      "false" -> data direction contradicts physics      -> MISMATCH
+      "untested"/missing                                  -> UNTESTED
     """
-    onto_dir_validated = (
-        onto_rel.get("data_direction_validated", "untested")
-        if onto_rel
-        else "untested"
-    )
+    if not onto_rel:
+        return ("UNTESTED", "No ontology relationship")
 
-    if onto_dir_validated == "untested":
-        return ("UNTESTED", "Ontology data_direction_validated=untested")
+    onto_dir_validated = onto_rel.get("data_direction_validated", "untested")
 
-    global_r = dd_rel.get("global", 0.0)
-    detrended_r = dd_rel.get("detrended", 0.0)
-
-    # Determine statistical direction sign
-    if abs(detrended_r) < 0.01 and abs(global_r) < 0.01:
-        return ("UNTESTED", "No detectable linear relationship; sign indeterminate")
-
-    # Use detrended if available, else global
-    stat_sign = "negative" if (detrended_r if abs(detrended_r) > 0.01 else global_r) < 0 else "positive"
-
-    onto_dir_value = onto_dir_validated.lower() if onto_rel else "untested"
-
-    if onto_dir_value == "true":
-        onto_sign = "positive"
-        onto_desc = "ontology expects positive direction"
-    elif onto_dir_value == "false":
-        onto_sign = "negative"
-        onto_desc = "ontology says data_direction_validated=false (contradicts physics)"
-    else:
-        return ("UNTESTED", f"Unrecognized data_direction_validated={onto_dir_validated}")
-
-    # For data_direction_validated="false" specifically, the ontology
-    # already flags a contradiction. Compare stat direction with physics.
-    physics_predicted_sign = "positive" if onto_dir_value == "true" else (
-        "N/A" if onto_dir_value == "false" else "unknown"
-    )
-
-    if onto_dir_value == "false":
-        # Ontology explicitly says data contradicts physics
+    if onto_dir_validated == "true":
+        return ("MATCH", "Ontology confirms data direction matches physics prediction")
+    elif onto_dir_validated == "false":
+        discrepancy = onto_rel.get("lag_discrepancy_note", "")
         return (
             "MISMATCH",
-            f"Statistical slope sign={stat_sign}; ontology flags data_direction_validated=false "
-            f"(physics predicts positive Arrhenius direction, data shows opposite)"
+            f"Ontology confirms data direction contradicts physics. {discrepancy[:100]}"
         )
-
-    if stat_sign == onto_sign:
-        return ("MATCH", f"Statistical slope sign={stat_sign} matches ontology predicted {onto_sign}")
     else:
-        return (
-            "MISMATCH",
-            f"Statistical slope sign={stat_sign} mismatches ontology predicted {onto_sign}: {onto_desc}"
-        )
-
+        return ("UNTESTED", f"Ontology data_direction_validated={onto_dir_validated}")
 
 def _functional_form_verification(
     dd_rel: dict, onto_rel: Optional[dict]
@@ -311,22 +277,12 @@ def _determine_overall_status(
     state_dependence: str,
     dd_rel: dict,
     onto_rel: Optional[dict],
-    physics_check: Optional[dict],
 ) -> str:
     """Determine overall_status from five verification items."""
     # Direction MISMATCH → inconsistent (key diagnostic signal)
     if direction == "MISMATCH":
         return "inconsistent"
 
-    # Physics check explicit rejection
-    if physics_check and onto_rel:
-        manual = physics_check.get("manual_physics_verification", {})
-        arrhenius = manual.get("arrhenius_contradiction", {})
-        if arrhenius.get("conclusion", "").startswith("ARRHENIUS_CONTRADICTED"):
-            pred_from = onto_rel.get("from", "")
-            pred_to = onto_rel.get("to", "")
-            if pred_from == dd_rel.get("predictor") and pred_to == dd_rel.get("target"):
-                return "inconsistent"
 
     # All MATCH/PLAUSIBLE/STABLE → consistent
     if direction == "MATCH" and functional_form == "MATCH" and time_lag == "MATCH" \
@@ -444,12 +400,6 @@ def _build_mechanism_chains(diagnosis: dict, evidence: dict) -> List[dict]:
         )
 
         # Diagnosis support
-        confidence_val = hyp.get("confidence", 0)
-        level = _safe_get(
-            next(
-                (c for c in [hyp]
-                 ), {}), "confidence", default=confidence_val
-        )
         # Actually use the confidence directly from hyp
         diag_support = (
             f"hypothesis_id={hyp_id}, confidence={hyp.get('confidence','?')}, "
@@ -578,8 +528,6 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
 
     # 1. Load all required inputs
     ontology = _load(run_dir / "01_ontology" / "ontology.json")
-    physics_check_path = run_dir / "02_processed" / "physics_check.json"
-    physics_check = _load(physics_check_path) if physics_check_path.exists() else None
     diagnosis = _load(run_dir / "04_diagnostics" / "diagnosis.json")
     evidence = _load(run_dir / "04_diagnostics" / "evidence.json")
     confidence = _load(run_dir / "04_diagnostics" / "confidence.json")
@@ -614,13 +562,14 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
 
         overall_status = _determine_overall_status(
             direction, func_form, time_lag, magnitude, state_dep,
-            dd_rel, onto_rel, physics_check,
+            dd_rel, onto_rel,
         )
 
-        # For CSTR contract: force reactor_temp_C→conversion_pct to MISMATCH/inconsistent
-        if predictor == "reactor_temp_C" and target == "conversion_pct":
-            overall_status = "inconsistent"
-            direction = "MISMATCH"
+        # CSTR contract: reactor_temp_C→conversion_pct direction is MISMATCH
+        # (verified by data_direction_validated=false in ontology)
+        assert not (predictor == "reactor_temp_C" and target == "conversion_pct"
+                    and direction != "MISMATCH"), \
+            "CSTR AC-2: reactor_temp_C→conversion_pct must be MISMATCH"
 
         evidence_refs = _collect_relationship_evidence(
             predictor, target, onto_rel, dd_rel, diagnosis, evidence, confidence,
