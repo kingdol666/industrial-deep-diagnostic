@@ -79,9 +79,44 @@ def _computed(name: str, formula: str, physics_basis: str, unit: str,
 # Feature builders
 # ---------------------------------------------------------------------------
 
+def _detect_time_col(df: pd.DataFrame, ontology: dict, selection: dict) -> Optional[str]:
+    """Detect the time column for any scene, in priority order:
+    1. ontology signals metadata_columns with role=timestamp
+    2. selection.metadata_cols whose name carries time/date/ts semantics
+    3. column-name heuristics (timestamp/time/datetime/date/ts_*)
+    4. datetime64 dtype detection
+    Returns None when no time column is found (batch/cross-sectional scene).
+    """
+    for sig in ontology.get("signals", {}).get("metadata_columns", []):
+        if sig.get("role") == "timestamp":
+            col = sig.get("column")
+            if col and col in df.columns:
+                return col
+    for col in selection.get("metadata_cols", []) or []:
+        low = col.lower()
+        if any(k in low for k in ("time", "date", "ts")) and col in df.columns:
+            return col
+    for col in df.columns:
+        low = col.lower()
+        if low in ("timestamp", "time", "datetime", "date") or low.startswith("ts_"):
+            return col
+    for col in df.columns:
+        if str(df[col].dtype).startswith("datetime64"):
+            return col
+    return None
+
+
 def _build_cumulative_exposure(df: pd.DataFrame, col: str, unit: str,
-                               time_col: str = "timestamp") -> dict:
+                               time_col: Optional[str] = None) -> dict:
     """Cumulative poisoning exposure via trapezoidal integration over sorted time."""
+    if time_col is None or time_col not in df.columns:
+        return _not_applicable(
+            f"cumulative_{col}_exposure",
+            f"∫ {col} dt (trapezoidal sum over sorted time)",
+            "Cumulative poison exposure requires a time column; none detected",
+            unit=f"{unit}*time",
+            source_columns=[col],
+        )
     if col not in df.columns:
         return _not_applicable(
             f"cumulative_{col}_exposure",
@@ -133,7 +168,7 @@ def _build_cumulative_exposure(df: pd.DataFrame, col: str, unit: str,
 
 def _build_time_since_event(df: pd.DataFrame,
                             event_col: str,
-                            time_col: str = "timestamp") -> dict:
+                            time_col: Optional[str] = None) -> dict:
     """Time since a group/event transition."""
     name = f"time_since_{event_col}_transition"
     if event_col not in df.columns or time_col not in df.columns:
@@ -219,7 +254,7 @@ def _build_lag_aligned_feature(df: pd.DataFrame,
                                predictor: str,
                                target: str,
                                lag_steps: int,
-                               time_col: str = "timestamp") -> dict:
+                               time_col: Optional[str] = None) -> dict:
     """Create a lag-aligned predictor column."""
     name = f"{predictor}_lag{lag_steps}"
     if predictor not in df.columns:
@@ -273,7 +308,7 @@ def build_derived_features(run_dir: Path) -> tuple:
     regime_filter = _load_json(regime_path) if regime_path.is_file() else None
 
     onto_units = ontology.get("metadata", {}).get("units", {})
-    time_col = "timestamp"
+    time_col = _detect_time_col(df, ontology, selection)
     features: List[dict] = []
 
     # 1. Cumulative exposure — auto-detect the poisoning/fouling driver from ontology

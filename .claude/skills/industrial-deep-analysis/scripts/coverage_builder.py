@@ -50,7 +50,12 @@ def _load_json(path: Path) -> dict:
 
 
 def _load_data(run_dir: Path) -> pd.DataFrame:
-    """Load cleaned numeric data, CSV first then JSON fallback."""
+    """Load numeric data for coverage: prefer E2-derived data (includes derived
+    feature columns) so the coverage matrix truly covers every analyzable column.
+    Falls back to cleaned data, CSV first then JSON."""
+    derived_csv = run_dir / "enhancement" / "derived_data.csv"
+    if derived_csv.is_file():
+        return pd.read_csv(derived_csv, parse_dates=["timestamp"] if "timestamp" in open(derived_csv).readline() else False)
     csv = run_dir / "02_processed" / "cleaned_data.csv"
     if csv.is_file():
         return pd.read_csv(csv, parse_dates=["timestamp"] if "timestamp" in open(csv).readline() else False)
@@ -58,7 +63,7 @@ def _load_data(run_dir: Path) -> pd.DataFrame:
     if json_path.is_file():
         return pd.read_json(json_path)
     raise FileNotFoundError(
-        "Neither cleaned_data.csv nor cleaned_data.json found in 02_processed"
+        "Neither derived_data.csv, cleaned_data.csv nor cleaned_data.json found"
     )
 
 

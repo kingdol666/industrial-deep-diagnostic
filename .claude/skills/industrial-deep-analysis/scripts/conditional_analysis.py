@@ -259,6 +259,33 @@ def _build_candidate_pairs(
 # Per-pair computation
 # ---------------------------------------------------------------------------
 
+def _detect_time_col(df: pd.DataFrame, ontology: dict, selection: dict) -> Optional[str]:
+    """Detect the time column for a given scene, in priority order:
+    1. ontology signals metadata_columns with role=timestamp
+    2. selection.metadata_cols whose name carries time/date/ts semantics
+    3. column-name heuristics (timestamp/time/datetime/date/ts_*)
+    4. datetime64 dtype detection
+    Returns None when no time column is found (scene is batch/cross-sectional).
+    """
+    for sig in ontology.get("signals", {}).get("metadata_columns", []):
+        if sig.get("role") == "timestamp":
+            col = sig.get("column")
+            if col and col in df.columns:
+                return col
+    for col in selection.get("metadata_cols", []) or []:
+        low = col.lower()
+        if any(k in low for k in ("time", "date", "ts")) and col in df.columns:
+            return col
+    for col in df.columns:
+        low = col.lower()
+        if low in ("timestamp", "time", "datetime", "date") or low.startswith("ts_"):
+            return col
+    for col in df.columns:
+        if str(df[col].dtype).startswith("datetime64"):
+            return col
+    return None
+
+
 def _compute_relationship(
     df: pd.DataFrame,
     pred: str,
@@ -267,8 +294,11 @@ def _compute_relationship(
     selection: dict,
     conclusion: dict,
     regime_filter: Optional[dict],
+    time_col: Optional[str] = None,
 ) -> dict:
     """Compute all relationship metrics for a single predictor→target pair."""
+    if time_col is None:
+        time_col = _detect_time_col(df, ontology, selection)
     x_raw = _coerce_numeric(df[pred])
     y_raw = _coerce_numeric(df[tgt])
 
@@ -295,8 +325,7 @@ def _compute_relationship(
     # --- detrended ---
     detrended_r = global_r
     detrend_flag = False
-    time_col = "timestamp"
-    if time_col in df.columns and n_finite >= 10:
+    if time_col and time_col in df.columns and n_finite >= 10:
         try:
             df_finite = df.iloc[finite].copy()
             df_sorted = df_finite.sort_values(time_col)

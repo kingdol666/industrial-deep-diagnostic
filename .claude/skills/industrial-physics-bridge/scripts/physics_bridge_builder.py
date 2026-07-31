@@ -191,7 +191,9 @@ def _magnitude_verification(
     global_r = dd_rel.get("global", 0.0)
     operability = dd_rel.get("operability", "")
 
-    # For CSTR: if direction contradicts, magnitude is IMPLAUSIBLE
+    # Generic rule: when ontology marks data direction as validated-false, the
+    # magnitude assessment is IMPLAUSIBLE under the standard governing equation
+    # (the contradiction itself is the diagnostic signal).
     onto_dir_validated = onto_rel.get("data_direction_validated", "untested")
     if onto_dir_validated == "false":
         return (
