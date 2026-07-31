@@ -73,8 +73,10 @@ def check_thermal_expansion(
     Verifies whether dimensional deviation is consistent with thermal expansion.
     For steel: α ≈ 12×10⁻⁶ /°C
     """
-    temps = [row[temp_col] for row in data if temp_col in row]
-    devs = [row[dev_col] for row in data if dev_col in row]
+    temps = [_safe_float(row[temp_col]) for row in data if temp_col in row]
+    devs = [_safe_float(row[dev_col]) for row in data if dev_col in row]
+    temps = [t for t in temps if t is not None]
+    devs = [d for d in devs if d is not None]
     if not temps or not devs:
         return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
@@ -222,8 +224,10 @@ def check_vibration_threshold(
     if iso_zone_boundaries is None:
         iso_zone_boundaries = [1.8, 4.5, 11.2]
 
-    vibs = [row[vibration_col] for row in data if vibration_col in row]
-    quals = [row[quality_col] for row in data if quality_col in row]
+    vibs = [_safe_float(row[vibration_col]) for row in data if vibration_col in row]
+    quals = [_safe_float(row[quality_col]) for row in data if quality_col in row]
+    vibs = [v for v in vibs if v is not None]
+    quals = [q for q in quals if q is not None]
     if not vibs or not quals:
         return {"check": "vibration_threshold", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
@@ -875,7 +879,10 @@ def main():
     print(f"Physics checks written to {args.output}")
     print(f"  Checks performed: {len(checks)}")
     for k, v in checks.items():
-        conclusion = v.get("conclusion", v.get("status", "UNKNOWN"))
+        if isinstance(v, dict):
+            conclusion = v.get("conclusion", v.get("status", "UNKNOWN"))
+        else:
+            conclusion = f"list[{len(v)}]"
         print(f"  [{conclusion}] {k}")
 
 
