@@ -65,7 +65,19 @@ description: >
 
 ## Usage
 
-### Full pipeline (recommended)
+### 双入口（Two Entry Points）
+
+| 入口 | 调用方式 | 行为 |
+|------|---------|------|
+| **A: 新数据全流程** | 向 `enhance-orchestrator` Agent 传 `DATA_PATH=<data>` | Agent 先按 `skill://industrial-analysis-auto` 完整执行 Step 0-9（setup→inspect→ontology→data-processor→diagnostician→judge→audit→reporter→HTML），再执行 E0-E8 增强 |
+| **B: 已有 RUN_DIR 仅增强** | `--run-dir <RUN_DIR>` | 跳过基线，直接 E0-E8（E0 校验基线产物，缺失则 BLOCKED） |
+
+**入口 A 的基线调度由 enhance-orchestrator Agent 负责**（CLI 是纯增强执行器，不内嵌 LLM 基线步骤）。Agent 收到 `DATA_PATH` 时：
+1. 用 `industrial-analysis-auto` 的 `setup.mjs`/`inspect.mjs` 建 RUN_DIR
+2. 按 auto SKILL 顺序派发 context-builder → data-processor → diagnostician → judge/pre-audit → reporter → final audit → html-visualizer → html-reviewer
+3. 基线完成（optimizer.md 含 ENDORSED）后再执行本 Skill 的 E0-E8
+
+### 入口 B: 增强管线（已有基线）
 
 ```bash
 node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
@@ -74,19 +86,14 @@ node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrato
 
 Prints status JSON to stdout. Exit code 0 on success, 1 if BLOCKED or FAILED.
 
-### Individual steps
+### 入口 B 带数据路径提示（可选）
 
 ```bash
-# E6: knowledge fusion only
-python .claude/skills/industrial-analysis-enhance-auto/scripts/knowledge_fusion.py \
-  --run-dir <RUN_DIR> --output <OUTPUT_PATH>
-
-# E7a: markdown publish only
-python .claude/skills/industrial-analysis-enhance-auto/scripts/markdown_publisher.py \
-  --knowledge <ENHANCED_KNOWLEDGE.json> \
-  --template .claude/skills/industrial-analysis-enhance-auto/templates/enhanced_analysis.md.tmpl \
-  --output <OUTPUT.md>
+node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
+  --run-dir workspace/diagnostic-runs/<RUN_DIR> --data-path data/<file>.csv
 ```
+
+`--data-path` 仅用于在清单中记录数据源；基线缺失时输出指引而非静默继续。
 
 ## Enhancement Status Logic
 

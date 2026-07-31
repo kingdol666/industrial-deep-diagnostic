@@ -85,7 +85,7 @@ const BASELINE_CHECKS = [
   { file: '03_figures/visual_analysis.json', required: true, label: 'visual_analysis' },
 ];
 
-function readinessCheck(runDir) {
+function readinessCheck(runDir, dataPath = null) {
   const missing = [];
   const present = {};
   for (const check of BASELINE_CHECKS) {
@@ -104,6 +104,7 @@ function readinessCheck(runDir) {
       status: 'BLOCKED',
       missing,
       created_at: new Date().toISOString(),
+      guidance: 'Baseline diagnostic artifacts are missing. Run the baseline first via industrial-analysis-auto (Step 0-9), or dispatch the enhance-orchestrator agent with DATA_PATH for entry-A full flow (auto baseline + enhancement).',
     };
     fs.writeFileSync(
       path.join(enhanceDir, 'enhancement_status.json'),
@@ -134,6 +135,7 @@ function readinessCheck(runDir) {
     input_mode: 'B_existing_run',
     data_source: {
       file: 'cleaned_data.csv',
+      original_path: dataPath || null,
       sha256: csvHash,
       rows,
       cols,
@@ -392,7 +394,7 @@ async function main() {
   runDir = path.resolve(runDir);
 
   // E0: readiness check
-  const ready = readinessCheck(runDir);
+  const ready = readinessCheck(runDir, dataPath);
   if (!ready.ok) {
     console.log(JSON.stringify({
       phase: 'E0',
