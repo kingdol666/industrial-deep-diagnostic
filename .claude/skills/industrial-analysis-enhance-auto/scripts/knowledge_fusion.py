@@ -1,0 +1,474 @@
+#!/usr/bin/env python3
+"""knowledge_fusion.py — Task 5 / E6: Knowledge Fusion Engine
+
+Reads E1-E5 enhancement artifacts plus ontology and diagnosis from RUN_DIR,
+builds a schema-valid enhanced_knowledge.json.
+
+CLI: python knowledge_fusion.py --run-dir PATH --output PATH
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+
+# ── helpers ────────────────────────────────────────────────────────────
+
+def _load(path: Path) -> dict:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _safe_get(d: dict, *keys: str, default: Any = None) -> Any:
+    for k in keys:
+        if isinstance(d, dict):
+            d = d.get(k, default)
+        else:
+            return default
+    return d
+
+
+def _ensure_dir(p: Path) -> None:
+    p.mkdir(parents=True, exist_ok=True)
+
+
+# ── E6: knowledge fusion ───────────────────────────────────────────────
+
+def build_nodes(
+    coverage: dict,
+    ontology: dict,
+    derived_features: Optional[dict],
+) -> List[dict]:
+    """Build relationship_graph.nodes from coverage columns and ontology signals."""
+    nodes: List[dict] = []
+    seen_ids: set = set()
+
+    # From analysis_coverage columns
+    for col in coverage.get("columns", []):
+        col_name = col.get("column", "")
+        if not col_name or col_name in seen_ids:
+            continue
+        seen_ids.add(col_name)
+
+        node_type = "parameter"
+        role = col.get("role", "")
+        if role in ("target", "quality_target"):
+            node_type = "target"
+        elif role in ("derived",):
+            node_type = "derived"
+
+        node = {
+            "id": col_name,
+            "label": col.get("column", ""),
+            "type": node_type,
+            "unit": col.get("unit", "dimensionless"),
+            "role": role,
+            "coverage_status": col.get("coverage_status", ""),
+            "support_domain": col.get("support_domain", {}),
+            "physics_ref": col.get("physics_ref", "NOT_APPLICABLE"),
+        }
+        nodes.append(node)
+
+    # Add derived features as nodes
+    if derived_features:
+        for feat in derived_features.get("features", []):
+            name = feat.get("name", "")
+            if not name or name in seen_ids:
+                continue
+            seen_ids.add(name)
+            nodes.append({
+                "id": name,
+                "label": name,
+                "type": "derived",
+                "unit": feat.get("unit", "dimensionless"),
+                "role": "derived_feature",
+                "formula": feat.get("formula", ""),
+                "source_columns": feat.get("source_columns", []),
+                "status": feat.get("status", ""),
+            })
+
+    return nodes
+
+
+def build_edges(
+    deep_data: dict,
+    physics_bridge: Optional[dict],
+) -> List[dict]:
+    """Build relationship_graph.edges from deep_data_analysis.relationships."""
+    edges: List[dict] = []
+    phys_index: Dict[Tuple[str, str], dict] = {}
+
+    if physics_bridge:
+        for pv in physics_bridge.get("relationship_verifications", []):
+            key = (pv.get("predictor", ""), pv.get("target", ""))
+            phys_index[key] = pv
+
+    for i, rel in enumerate(deep_data.get("relationships", [])):
+        pred = rel.get("predictor", "")
+        targ = rel.get("target", "")
+        if not pred or not targ:
+            continue
+
+        edge = {
+            "source": pred,
+            "target": targ,
+            "relationship": "correlates",
+            "strength": rel.get("global", 0.0),
+            "statistical_evidence": {
+                "global_r": rel.get("global", 0.0),
+                "detrended_r": rel.get("detrended", 0.0),
+                "partial_r": rel.get("partial", 0.0),
+                "slope_at_current": rel.get("slope_at_current", 0.0),
+                "lag_aligned_r": rel.get("lag_aligned", 0.0),
+                "q_value": rel.get("q_value", 1.0),
+                "n_effective": rel.get("n_effective", 0),
+                "form_match": rel.get("form_match", ""),
+            },
+            "physics_verification": {},
+            "operability": rel.get("operability", "NOT_IDENTIFIABLE"),
+            "evidence_refs": [],
+            "validity_flags": rel.get("validity_flags", {}),
+        }
+
+        # Attach physics verification
+        pk = (pred, targ)
+        if pk in phys_index:
+            pv = phys_index[pk]
+            edge["physics_verification"] = {
+                "direction": pv.get("direction", ""),
+                "functional_form": pv.get("functional_form", ""),
+                "time_lag": pv.get("time_lag", ""),
+                "magnitude": pv.get("magnitude", ""),
+                "state_dependence": pv.get("state_dependence", ""),
+                "overall_status": pv.get("overall_status", ""),
+            }
+            edge["evidence_refs"] = pv.get("evidence_refs", [])
+
+        # Determine relationship type
+        phys_status = edge.get("physics_verification", {}).get("overall_status", "")
+        operability = rel.get("operability", "")
+        if operability == "ENDOGENOUS_RESPONSE":
+            edge["relationship"] = "correlates"
+        elif phys_status == "confirmed":
+            edge["relationship"] = "causes"
+        elif phys_status == "inconsistent" or phys_status == "rejected":
+            edge["relationship"] = "contradicts"
+        elif phys_status == "plausible":
+            edge["relationship"] = "supports"
+        else:
+            edge["relationship"] = "correlates"
+
+        edges.append(edge)
+
+    return edges
+
+
+def build_mechanism_chains(physics_bridge: dict) -> List[dict]:
+    """Extract mechanism_chains from physics_bridge.json."""
+    chains = physics_bridge.get("mechanism_chains", [])
+    result = []
+    for mc in chains:
+        result.append({
+            "chain_id": mc.get("chain_id", ""),
+            "claim": mc.get("claim", ""),
+            "confidence": mc.get("data_support", "medium"),
+            "evidence_refs": mc.get("evidence_refs", []),
+        })
+    return result
+
+
+def build_tradeoff_matrix(deep_data: dict) -> List[dict]:
+    """Extract tradeoff_matrix from deep_data_analysis.tradeoff_and_operability."""
+    tradeoffs = deep_data.get("tradeoff_and_operability", [])
+    result = []
+    for t in tradeoffs:
+        result.append({
+            "parameter": t.get("parameter", ""),
+            "controllability": t.get("controllability", ""),
+            "operability": t.get("operability_assessment", "NOT_IDENTIFIABLE"),
+            "effects": {t.get("parameter", ""): t.get("effects_on_targets", "")},
+            "support_domain": t.get("support_domain", ""),
+        })
+    return result
+
+
+def build_operability_summary(deep_data: dict) -> str:
+    """Build a natural-language operability summary from the deep data analysis."""
+    tradeoffs = deep_data.get("tradeoff_and_operability", [])
+    relationships = deep_data.get("relationships", [])
+
+    # Count operability classes
+    from collections import Counter
+    op_counts = Counter(r.get("operability", "") for r in relationships)
+
+    levers = [t for t in tradeoffs if t.get("operability_assessment") == "LEVER_IDENTIFIED"]
+    endogenous = op_counts.get("ENDOGENOUS_RESPONSE", 0)
+    confounded = op_counts.get("CONFOUNDED", 0)
+    not_id = op_counts.get("NOT_IDENTIFIABLE", 0)
+
+    parts = []
+    if levers:
+        lever_names = [l.get("parameter", "?") for l in levers]
+        parts.append(f"identified levers: {', '.join(lever_names)}")
+    if endogenous:
+        parts.append(f"{endogenous} predictor(s) are endogenous responses (data direction contradicts physics)")
+    if confounded:
+        parts.append(f"{confounded} relationship(s) are confounded (Simpson/group reversal or unresolved time effects)")
+    if not_id:
+        parts.append(f"{not_id} relationship(s) are not identifiable from available data")
+
+    if not parts:
+        return "No reliable operability assessments could be made from the available data."
+
+    return ". ".join(parts) + "."
+
+
+def build_open_questions(
+    deep_data: dict,
+    physics_bridge: Optional[dict],
+    confidence: Optional[dict],
+) -> List[dict]:
+    """Aggregate open questions from deep_data tradeoffs and physics bridge evidence gaps."""
+    questions: List[dict] = []
+    seen: set = set()
+
+    # From tradeoff open questions
+    for t in deep_data.get("tradeoff_and_operability", []):
+        for q in t.get("open_questions", []):
+            if q and q not in seen:
+                seen.add(q)
+                questions.append({
+                    "question": q,
+                    "severity": "minor",
+                    "potential_impact": "Informs parameter optimization strategy",
+                })
+
+    # From physics bridge evidence gaps
+    if physics_bridge:
+        for gap in physics_bridge.get("evidence_gaps", []):
+            q_text = gap.get("gap", "")
+            if q_text and q_text not in seen:
+                seen.add(q_text)
+                questions.append({
+                    "question": q_text,
+                    "severity": gap.get("severity", "minor"),
+                    "potential_impact": gap.get("impact_on_conclusions", ""),
+                })
+
+    # From confidence breakdown gaps
+    if confidence:
+        breakdown = confidence.get("confidence_breakdown", {})
+        if isinstance(breakdown, dict):
+            for hyp_id, hyp_data in breakdown.items():
+                if isinstance(hyp_data, dict):
+                    factors = hyp_data.get("five_factor_breakdown", {})
+                    if isinstance(factors, dict):
+                        for factor_name, factor_data in factors.items():
+                            if isinstance(factor_data, dict):
+                                gaps = factor_data.get("evidence_gaps", [])
+                                for g in gaps:
+                                    if g and g not in seen:
+                                        seen.add(g)
+                                        questions.append({
+                                            "question": g,
+                                            "severity": "major",
+                                            "potential_impact": "Affects confidence in diagnostic conclusions",
+                                        })
+
+    return questions
+
+
+def build_evidence_gaps(
+    physics_bridge: Optional[dict],
+    confidence: Optional[dict],
+) -> List[dict]:
+    """Aggregate evidence gaps from physics bridge and confidence."""
+    gaps: List[dict] = []
+    seen: set = set()
+
+    # From physics bridge evidence_gaps
+    if physics_bridge:
+        for gap in physics_bridge.get("evidence_gaps", []):
+            g_text = gap.get("gap", "")
+            if g_text and g_text not in seen:
+                seen.add(g_text)
+                gaps.append({
+                    "gap": g_text,
+                    "severity": gap.get("severity", "minor"),
+                    "impact": gap.get("impact_on_conclusions", ""),
+                })
+
+    # From confidence what_would_change
+    if confidence:
+        breakdown = confidence.get("confidence_breakdown", {})
+        if isinstance(breakdown, dict):
+            for hyp_id, hyp_data in breakdown.items():
+                if isinstance(hyp_data, dict):
+                    wwc = hyp_data.get("what_would_change_conclusion", "")
+                    if wwc and isinstance(wwc, str) and wwc not in seen:
+                        seen.add(wwc)
+                        gaps.append({
+                            "gap": wwc,
+                            "severity": "major",
+                            "impact": "Could modify primary diagnostic conclusion",
+                        })
+
+    return gaps
+
+
+def determine_status(deep_data: dict) -> str:
+    """Determine enhancement_status from relationship operability distribution."""
+    relationships = deep_data.get("relationships", [])
+    if not relationships:
+        return "FAILED"
+
+    total = len(relationships)
+    confounded_or_not_id = sum(
+        1 for r in relationships
+        if r.get("operability") in ("CONFOUNDED", "NOT_IDENTIFIABLE")
+    )
+
+    if confounded_or_not_id / total > 0.3:
+        return "READY_WITH_WARNINGS"
+
+    return "READY"
+
+
+def fuse(
+    run_dir: Path,
+    output_path: Path,
+) -> dict:
+    """Main fusion logic: read all artifacts, build enhanced_knowledge.json."""
+    enhance_dir = run_dir / "enhancement"
+
+    # Load artifacts
+    coverage_path = enhance_dir / "analysis_coverage.json"
+    derived_path = enhance_dir / "derived_features.json"
+    deep_data_path = enhance_dir / "deep_data_analysis.json"
+    physics_path = enhance_dir / "physics_bridge.json"
+    ontology_path = run_dir / "01_ontology" / "ontology.json"
+    diagnosis_path = run_dir / "04_diagnostics" / "diagnosis.json"
+    confidence_path = run_dir / "04_diagnostics" / "confidence.json"
+
+    # Required artifacts
+    coverage = _load(coverage_path) if coverage_path.exists() else None
+    deep_data = _load(deep_data_path) if deep_data_path.exists() else None
+    ontology = _load(ontology_path) if ontology_path.exists() else None
+    diagnosis = _load(diagnosis_path) if diagnosis_path.exists() else None
+
+    if not coverage:
+        raise FileNotFoundError(f"Missing required artifact: {coverage_path}")
+    if not deep_data:
+        raise FileNotFoundError(f"Missing required artifact: {deep_data_path}")
+
+    # Optional artifacts
+    derived = _load(derived_path) if derived_path.exists() else None
+    physics = _load(physics_path) if physics_path.exists() else None
+    confidence = _load(confidence_path) if confidence_path.exists() else None
+
+    # Compute CSV hash
+    csv_path = run_dir / "02_processed" / "cleaned_data.csv"
+    import hashlib
+    if csv_path.exists():
+        sha = hashlib.sha256()
+        with open(csv_path, "rb") as f:
+            sha.update(f.read())
+        csv_hash = sha.hexdigest()
+    else:
+        csv_hash = ""
+
+    # Count CSV rows/cols
+    csv_rows = 0
+    csv_cols = 0
+    if csv_path.exists():
+        with open(csv_path, "r", encoding="utf-8") as f:
+            header = f.readline()
+            csv_cols = len(header.strip().split(","))
+            csv_rows = sum(1 for _ in f)
+
+    # Determine status
+    status = determine_status(deep_data)
+
+    # Build enhanced_knowledge
+    nodes = build_nodes(coverage, ontology or {}, derived)
+    edges = build_edges(deep_data, physics)
+
+    run_id = deep_data.get("run_id", "unknown")
+
+    enhanced = {
+        "run_id": run_id,
+        "enhancement_status": status,
+        "relationship_graph": {
+            "nodes": nodes,
+            "edges": edges,
+        },
+        "mechanism_chains": build_mechanism_chains(physics) if physics else [],
+        "tradeoff_matrix": build_tradeoff_matrix(deep_data),
+        "operability_summary": build_operability_summary(deep_data),
+        "open_questions": build_open_questions(deep_data, physics, confidence),
+        "evidence_gaps": build_evidence_gaps(physics, confidence),
+        "provenance": {
+            "source_artifacts": {
+                "analysis_coverage": str(coverage_path),
+                "derived_features": str(derived_path) if derived else "",
+                "deep_data_analysis": str(deep_data_path),
+                "physics_bridge": str(physics_path) if physics else "",
+                "ontology": str(ontology_path) if ontology else "",
+                "diagnosis": str(diagnosis_path) if diagnosis else "",
+            },
+            "data_source": {
+                "file": "cleaned_data.csv",
+                "sha256": csv_hash,
+                "rows": csv_rows,
+                "cols": csv_cols,
+            },
+        },
+    }
+
+    # Write output
+    _ensure_dir(output_path.parent)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(enhanced, f, ensure_ascii=False, indent=2)
+
+    return enhanced
+
+
+# ── CLI ─────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Knowledge Fusion Engine — merge E1-E5 artifacts into enhanced_knowledge.json"
+    )
+    parser.add_argument("--run-dir", required=True, help="Path to diagnostic RUN_DIR")
+    parser.add_argument("--output", required=True, help="Output path for enhanced_knowledge.json")
+    args = parser.parse_args()
+
+    run_dir = Path(args.run_dir).resolve()
+    output_path = Path(args.output).resolve()
+
+    if not run_dir.is_dir():
+        print(f"ERROR: RUN_DIR not found: {run_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        enhanced = fuse(run_dir, output_path)
+        print(json.dumps({
+            "status": "ok",
+            "enhancement_status": enhanced["enhancement_status"],
+            "nodes": len(enhanced["relationship_graph"]["nodes"]),
+            "edges": len(enhanced["relationship_graph"]["edges"]),
+            "mechanism_chains": len(enhanced["mechanism_chains"]),
+            "output": str(output_path),
+        }, indent=2))
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

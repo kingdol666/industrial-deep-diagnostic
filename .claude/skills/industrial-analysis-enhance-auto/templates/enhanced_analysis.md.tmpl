@@ -1,0 +1,112 @@
+# 增强诊断分析报告
+
+> 自动生成于 ${generated_at}  
+> 运行标识: ${run_id}  
+> 管线状态: ${enhancement_status_zh} (`${enhancement_status}`)
+
+---
+
+## 1. 执行摘要
+
+本报告由工业诊断增强管线自动生成，基于对原始诊断运行的深层数据分析、衍生特征构建、条件关系分析和物理机理桥接的综合结果。
+
+### 数据源
+
+| 属性 | 值 |
+|------|----|
+| 数据文件 | `${data_file}` |
+| 行数 | ${data_rows} |
+| 列数 | ${data_cols} |
+| SHA256 | `${data_sha256}` |
+
+### 增强管线状态
+
+管线状态为 **${enhancement_status_zh}**。
+
+${warnings_block}
+
+### 上游产物
+
+${source_artifacts_list}
+
+---
+
+## 2. 管线溯源与覆盖范围
+
+### 输入产物清单
+
+本增强管线消费了以下基线诊断产物：
+
+${source_artifacts_list}
+
+### 变量覆盖
+
+分析覆盖 ${n_nodes} 个变量，构建 ${n_edges} 条统计关系。
+
+${nodes_table}
+
+---
+
+## 3. 关系图谱与统计证据
+
+以下各节展示每条预测变量与目标变量之间的关系、统计证据和可操作性评估。每条核心结论附带机器可读的 JSON 证据块。
+
+### 可操作性分布
+
+${operability_distribution_table}
+
+---
+
+${edges_sections}
+
+---
+
+## 4. 物理机理链
+
+从诊断推理中提取并通过物理桥接验证的机理链，共 ${n_mech_chains} 条。
+
+${mechanism_chain_sections}
+
+---
+
+## 5. 参数权衡矩阵
+
+共 ${n_tradeoffs} 个参数在多目标间的权衡关系。
+
+${tradeoff_sections}
+
+---
+
+## 6. 可操作性综合评估
+
+${operability_summary_text}
+
+### 详细分布
+
+${operability_distribution_table}
+
+---
+
+## 7. 待解决问题
+
+当前分析阶段未解决的关键问题，共 ${n_open_questions} 项。
+
+${open_questions_list}
+
+---
+
+## 8. 证据缺口
+
+当前证据体系中识别出的缺口，共 ${n_evidence_gaps} 项。
+
+${evidence_gaps_list}
+
+---
+
+## 9. 附录：增强知识概要
+
+以下为 `enhanced_knowledge.json` 的压缩视图，包含本文档中所有数据的机器可读表示。
+
+```json
+${appendix_json}
+```
