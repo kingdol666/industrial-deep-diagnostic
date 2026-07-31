@@ -260,13 +260,13 @@ def build_tradeoff_and_operability(
         open_qs: List[str] = []
         sig_disc = sig.get("discrepancy_signal", "")
         if sig_disc:
-            open_qs.append(f"Discrepancy: {sig_disc[:120]}")
+            open_qs.append(f"数据矛盾点：{sig_disc[:120]}")
         if operability == "ENDOGENOUS_RESPONSE":
-            open_qs.append("Endogenous response: observed correlation direction may be consequence, not cause — requires instrumental variable or de-trending analysis.")
+            open_qs.append("内生响应：观测相关方向可能是结果而非原因，需工具变量或去趋势分析进一步确认。")
         if operability == "CONFOUNDED":
-            open_qs.append("Confounding detected; causal identification requires stratification or controlled experiment.")
+            open_qs.append("存在混杂：因果识别需分层分析或受控实验。")
         if not open_qs:
-            open_qs.append("Further mechanistic validation recommended before operational use.")
+            open_qs.append("建议在投入运行前做进一步机制验证。")
 
         tradeoffs.append({
             "parameter": predictor,

@@ -391,12 +391,30 @@ def _build_mechanism_chains(diagnosis: dict, evidence: dict) -> List[dict]:
                 physics_laws.append(link_text[:150])
         physics_law = " | ".join(physics_laws) if physics_laws else "Unknown"
 
-        # Data support
+        # Data support (localized to Chinese for downstream markdown)
         proof = hyp.get("ontology_data_physics_proof", {})
+        _STRENGTH_ZH = {
+            "STRONG_EVIDENCE": "强证据",
+            "MODERATE_EVIDENCE": "中等证据",
+            "WEAK_EVIDENCE": "弱证据",
+        }
+        _FORM_ZH = {
+            "MATCH": "一致",
+            "PARTIAL": "部分一致",
+            "MISMATCH": "不一致",
+            "UNTESTED": "未测试",
+            "UNTESTABLE": "不可测试",
+        }
+        _DIR_ZH = {
+            "MATCH": "方向一致",
+            "MISMATCH": "方向矛盾",
+            "UNTESTED": "未测试",
+            "UNTESTABLE": "不可测试",
+        }
         data_support = (
-            f"proof_strength={proof.get('overall_proof_strength','')}, "
-            f"functional_form_match={proof.get('functional_form_match','')}, "
-            f"direction_match={proof.get('direction_match','')}"
+            f"证据强度={_STRENGTH_ZH.get(proof.get('overall_proof_strength',''), proof.get('overall_proof_strength','') or '未知')}, "
+            f"函数形态验证={_FORM_ZH.get(proof.get('functional_form_match',''), proof.get('functional_form_match','') or '未知')}, "
+            f"方向验证={_DIR_ZH.get(proof.get('direction_match',''), proof.get('direction_match','') or '未知')}"
         )
 
         # Diagnosis support
