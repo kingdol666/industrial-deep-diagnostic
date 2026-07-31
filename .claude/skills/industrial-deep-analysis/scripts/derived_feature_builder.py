@@ -323,8 +323,6 @@ def main() -> None:
     features = build_derived_features(run_dir)
     result = {
         "run_id": "enhancement-derived",
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "source_run_dir": str(run_dir),
         "features": features,
     }
 

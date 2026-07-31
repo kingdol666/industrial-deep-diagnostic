@@ -101,6 +101,15 @@ def _role_from_ontology(col: str, signal_idx: Dict[str, dict], selection: dict) 
         r = signal_idx[col].get("role", "")
         if r:
             return r
+    # _dev columns: strip suffix and look up parent
+    if col.endswith("_dev"):
+        parent = col[:-4]
+        parent_role = _role_from_ontology(parent, signal_idx, selection)
+        if parent_role != "unknown":
+            return "derived_deviation"
+        return "derived_deviation"
+    if col == "time_hours":
+        return "derived_time"
     # Fallback to selection
     if col in selection.get("quality_targets", []):
         return "target"
@@ -125,9 +134,12 @@ def _coverage_status(
     has_data: bool,
 ) -> str:
     """Determine coverage_status enum value."""
+    if col.endswith("_dev"):
+        return "derived_and_used"
+    if col == "time_hours":
+        return "not_applicable"
     if col in selection.get("metadata_cols", []) or role == "timestamp":
         return "not_applicable"
-
     if not has_data and col in selection.get("exclude_cols", []):
         return "not_applicable"
 
@@ -227,11 +239,9 @@ def build_coverage(run_dir: Path) -> List[dict]:
 
     columns_out: List[dict] = []
     for col in all_cols:
-        if col in exclude_cols and col not in metadata_cols:
-            continue
-
         is_numeric = col in numeric_cols
         role = _role_from_ontology(col, signal_idx, selection)
+
 
         # Coerce n_total and n_steady
         series = df[col] if col in df.columns else None
@@ -278,9 +288,14 @@ def build_coverage(run_dir: Path) -> List[dict]:
 
         # Build reason
         reason_parts = []
-        if status == "not_applicable":
-            if col in metadata_cols or role in ("timestamp", "group", "product_code", "operator"):
-                reason_parts.append(f"Column '{col}' is metadata/group (role={role}), not a quantitative process signal.")
+        if status == "derived_and_used":
+            parent = col[:-4]
+            reason_parts.append(f"Derived deviation column '{col}' (parent '{parent}'); used in pipeline computations but not a raw process signal.")
+        elif status == "not_applicable":
+            if col == "time_hours":
+                reason_parts.append(f"Derived time index column '{col}'; not a quantitative process signal.")
+            elif col in metadata_cols or role in ("timestamp", "group", "product_code", "operator", "derived_time"):
+                reason_parts.append(f"Column '{col}' is metadata/group/derived (role={role}), not a quantitative process signal.")
             else:
                 reason_parts.append(f"Column '{col}' excluded from quantitative analysis.")
         elif status == "pruned_physics":
@@ -304,7 +319,6 @@ def build_coverage(run_dir: Path) -> List[dict]:
                 reason_parts.append(f"Primary predictor/kinetic driver '{col}' with full coverage.")
         elif status == "insufficient_data":
             reason_parts.append(f"Column '{col}' has insufficient or unusable data.")
-
         # If non-numeric with support domain filled with sentinels, add reason
         if not is_numeric:
             reason_parts.append(f"Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain.")
@@ -343,8 +357,6 @@ def main() -> None:
     columns = build_coverage(run_dir)
     result = {
         "run_id": "enhancement-coverage",
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "source_run_dir": str(run_dir),
         "columns": columns,
     }
 

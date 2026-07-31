@@ -1,8 +1,8 @@
 # Task 3 Report: industrial-deep-analysis Skill + deep-analyst Agent
 
-## Status: DONE
+## Status: DONE (review fixes applied)
 
-## Commit: (pending)
+## Commit: (pending, will amend after fixes)
 
 ## Files Created
 
@@ -30,11 +30,11 @@ All four scripts compile cleanly.
 ```
 python coverage_builder.py --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
 ```
-- Output: 16 column entries in `analysis_coverage.json`
-- All 16 core columns (12 numeric + 4 metadata/group) covered
-- 9 `_dev` suffixed derived columns + `time_hours` correctly excluded per `exclude_cols`
-- Coverage statuses: 8 `covered_primary`, 2 `covered_conditional`, 2 `pruned_physics`, 4 `not_applicable`
-- Non-numeric columns (product_lot, catalyst_bed_id, shift, timestamp) have sentinel support_domain values (0.0) with explicit reason
+- Output: 25 column entries in `analysis_coverage.json` (all 25 CSV columns)
+- All 25 columns covered: 12 numeric process columns + 4 metadata/group + 9 `_dev` derived deviation columns + `time_hours`
+- `_dev` columns: status=`derived_and_used`, role=`derived_deviation`
+- `time_hours`: status=`not_applicable`, role=`derived_time`
+- Coverage statuses: 8 `covered_primary`, 2 `covered_conditional`, 2 `pruned_physics`, 4 `not_applicable`, 9 `derived_and_used`
 
 **E2 — Derived Feature Builder:**
 ```
@@ -69,6 +69,41 @@ All three output JSONs match the structure defined by the fixtures (`valid_cover
 - `analysis_coverage.json`: `run_id`, `columns[]` with `column`, `role`, `coverage_status`, `unit`, `n_total`, `n_steady`, `support_domain`, `physics_ref`, `reason`
 - `derived_features.json`: `run_id`, `features[]` with `name`, `status`, `formula`, `physics_basis`, `unit`, `source_columns`, `row_range`, `mask`, `derived`
 - `deep_data_analysis.json`: `run_id`, `relationships[]` with all 17 fields, `tradeoff_and_operability[]` with all 8 fields
+
+## Review Fixes (Round 1)
+
+Three blocking issues from Task 3 review were fixed:
+
+### Fix 1: Schema compliance — removed extra top-level keys
+All three output JSONs emitted `generated_at` and `source_run_dir` top-level keys,
+but the schemas use `additionalProperties:false` and only allow `run_id` plus their
+array fields. Fixed by removing these extra keys from all three scripts:
+- `coverage_builder.py`: output dict now only has `run_id` + `columns`
+- `derived_feature_builder.py`: output dict now only has `run_id` + `features`
+- `conditional_analysis.py`: output dict now only has `run_id` + `relationships` + `tradeoff_and_operability`
+
+### Fix 2: Complete column coverage — all 25 CSV columns
+Coverage previously skipped 9 `_dev` columns and `time_hours` via an early-continue
+on `exclude_cols`. The brief mandates "For every cleaned-data column, emit one
+columns[] entry." Fixed by:
+- Removing the exclude_cols skip in the build_coverage loop
+- Adding `_dev` suffix detection in `_role_from_ontology` → role=`derived_deviation`
+- Adding `_dev` suffix and `time_hours` early-return in `_coverage_status`:
+  `_dev` → `derived_and_used`, `time_hours` → `not_applicable`
+- Adding `derived_and_used` and `derived_time` reason branches
+
+### Fix 3: conditional_analysis reads derived_features.json
+The brief CLI contract requires reading `derived_features.json` if present and
+passing feature_metadata to `build_tradeoff_and_operability`. Fixed by adding
+derived_features.json loading before the tradeoff builder invocation, and
+passing it as the `feature_metadata` argument.
+
+### Verification After Fixes
+```
+python -c "import json; ..."  # 25 coverage entries, 0 missing, 0 extra keys
+python -c "import json; ..."  # reactor_temp_C->conversion_pct = ENDOGENOUS_RESPONSE
+```
+All checks pass: 25/25 columns covered, 3/3 outputs schema-compliant, operability contract satisfied.
 
 ## Concerns
 

@@ -441,6 +441,12 @@ def main() -> None:
     regime_filter = _load_json(regime_path) if regime_path.is_file() else None
 
     df = _load_df(run_dir)
+    # Read derived_features.json if present (E2 output)
+    derived_path = run_dir / "enhancement" / "derived_features.json"
+    feature_metadata: Optional[List[dict]] = None
+    if derived_path.is_file():
+        with open(derived_path, encoding="utf-8") as fh:
+            feature_metadata = json.load(fh).get("features", None)
 
     # Build candidate pairs
     candidate_pairs = _build_candidate_pairs(ontology, selection)
@@ -449,8 +455,8 @@ def main() -> None:
     # Compute relationships
     relationships = build_relationships(df, candidate_pairs, ontology, selection, conclusion, regime_filter)
 
-    # Build tradeoff_and_operability
-    tradeoffs = build_tradeoff_and_operability(df, relationships, ontology, selection)
+    # Build tradeoff_and_operability, passing feature_metadata
+    tradeoffs = build_tradeoff_and_operability(df, relationships, ontology, selection, feature_metadata)
 
     # Assign operability to each relationship
     by_pred: Dict[str, List[dict]] = {}
@@ -465,8 +471,6 @@ def main() -> None:
 
     result = {
         "run_id": "enhancement-deep-analysis",
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "source_run_dir": str(run_dir),
         "relationships": relationships,
         "tradeoff_and_operability": tradeoffs,
     }
@@ -475,7 +479,6 @@ def main() -> None:
         json.dump(result, fh, indent=2, ensure_ascii=False, default=str)
 
     print(f"[conditional_analysis] {len(relationships)} relationships, {len(tradeoffs)} tradeoffs → {output}")
-
 
 if __name__ == "__main__":
     main()
