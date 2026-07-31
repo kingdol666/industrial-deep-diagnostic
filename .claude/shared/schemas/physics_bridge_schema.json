@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Physics Bridge Schema v1.0",
+  "description": "物理机理桥接——将统计关系验证为物理因果链，记录证据缺口。由 physics-bridge 生成，enhance-orchestrator 消费。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "relationship_verifications",
+    "mechanism_chains",
+    "competing_explanations",
+    "evidence_gaps"
+  ],
+  "properties": {
+    "run_id": {
+      "description": "增强运行唯一标识",
+      "type": "string",
+      "minLength": 1
+    },
+    "relationship_verifications": {
+      "description": "关系物理验证条目",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "predictor",
+          "target",
+          "direction",
+          "functional_form",
+          "time_lag",
+          "magnitude",
+          "state_dependence",
+          "overall_status",
+          "evidence_refs"
+        ],
+        "properties": {
+          "predictor": {
+            "description": "预测变量",
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "description": "目标变量",
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "description": "因果关系方向",
+            "type": "string"
+          },
+          "functional_form": {
+            "description": "函数形式（线性/非线性/阈值等）",
+            "type": "string"
+          },
+          "time_lag": {
+            "description": "时滞特征描述",
+            "type": "string"
+          },
+          "magnitude": {
+            "description": "效应量级描述",
+            "type": "string"
+          },
+          "state_dependence": {
+            "description": "状态依赖性描述",
+            "type": "string"
+          },
+          "overall_status": {
+            "description": "物理验证总体状态",
+            "type": "string",
+            "enum": ["confirmed", "consistent", "plausible", "inconsistent", "rejected", "untestable"]
+          },
+          "evidence_refs": {
+            "description": "证据引用列表（指向 evidence.json 条目或文献）",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "mechanism_chains": {
+      "description": "物理机理链",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "chain_id",
+          "claim",
+          "evidence_refs",
+          "physics_law",
+          "data_support",
+          "diagnosis_support",
+          "competing_explanations",
+          "what_would_change_conclusion"
+        ],
+        "properties": {
+          "chain_id": {
+            "description": "机理链唯一标识",
+            "type": "string",
+            "minLength": 1
+          },
+          "claim": {
+            "description": "机理主张",
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "description": "支持证据引用",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "physics_law": {
+            "description": "所依据的物理定律或原理",
+            "type": "string"
+          },
+          "data_support": {
+            "description": "数据支持强度评估",
+            "type": "string"
+          },
+          "diagnosis_support": {
+            "description": "与诊断结论的一致性评估",
+            "type": "string"
+          },
+          "competing_explanations": {
+            "description": "竞争性解释",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "what_would_change_conclusion": {
+            "description": "什么观察会推翻此机理",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "competing_explanations": {
+      "description": "竞争性解释",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["explanation", "support_level", "against", "resolution"],
+        "properties": {
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "support_level": {
+            "type": "string"
+          },
+          "against": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "resolution": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence_gaps": {
+      "description": "当前证据体系中的缺口",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gap", "severity", "impact_on_conclusions", "mitigation"],
+        "properties": {
+          "gap": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor", "cosmetic"]
+          },
+          "impact_on_conclusions": {
+            "type": "string"
+          },
+          "mitigation": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

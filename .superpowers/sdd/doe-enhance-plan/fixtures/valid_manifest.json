@@ -1,0 +1,21 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "baseline_run_dir": "/data/runs/diag-2026-07-30-042",
+  "input_mode": "B_existing_run",
+  "data_source": {
+    "file": "process_data.csv",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rows": 15000,
+    "cols": 24
+  },
+  "baseline_artifacts": {
+    "ontology": true,
+    "diagnosis": true,
+    "report": true,
+    "evidence": true,
+    "reasoning_chain": true,
+    "data_analysis_conclusion": true
+  },
+  "enhancement_version": "1.0.0",
+  "created_at": "2026-07-31T10:30:00Z"
+}

@@ -1,0 +1,66 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "enhancement_status": "READY",
+  "relationship_graph": {
+    "nodes": [
+      { "id": "temp", "label": "Temperature", "type": "parameter", "unit": "°C", "role": "predictor" },
+      { "id": "yield", "label": "Yield", "type": "target", "unit": "%" },
+      { "id": "rate_ratio", "label": "Reaction Rate Ratio", "type": "derived", "unit": "s^-1" }
+    ],
+    "edges": [
+      { "source": "temp", "target": "yield", "relationship": "causes", "strength": 0.72, "evidence_ref": "ev_deep_corr_001" },
+      { "source": "temp", "target": "rate_ratio", "relationship": "derives_from", "strength": 1.0 }
+    ]
+  },
+  "mechanism_chains": [
+    {
+      "chain_id": "MC-001",
+      "claim": "Temperature accelerates rate-limiting step",
+      "confidence": "high",
+      "evidence_refs": ["ev_deep_corr_001", "ev_physics_arrhenius_002"]
+    }
+  ],
+  "tradeoff_matrix": [
+    {
+      "parameter": "temperature_celsius",
+      "controllability": "Directly controllable via heater PID setpoint",
+      "operability": "LEVER_IDENTIFIED",
+      "effects": {
+        "yield_percent": "positive until saturation",
+        "selectivity_percent": "negative above ~165°C"
+      },
+      "support_domain": "145-172°C"
+    }
+  ],
+  "operability_summary": "Temperature is a confirmed LEVER with a yield-selectivity tradeoff above 165°C. Pressure is a secondary lever. Feedstock quality is constant and not a current lever.",
+  "open_questions": [
+    {
+      "question": "What is the catalyst degradation onset temperature?",
+      "severity": "major",
+      "potential_impact": "Operating above degradation T would cause irreversible yield loss"
+    }
+  ],
+  "evidence_gaps": [
+    {
+      "gap": "No independent activation energy measurement",
+      "severity": "major",
+      "impact": "Cannot confirm Arrhenius mechanism independently"
+    }
+  ],
+  "provenance": {
+    "source_artifacts": {
+      "analysis_coverage": "analysis_coverage.json",
+      "derived_features": "derived_features.json",
+      "deep_data_analysis": "deep_data_analysis.json",
+      "physics_bridge": "physics_bridge.json",
+      "ontology": "ontology.json",
+      "diagnosis": "diagnosis.json"
+    },
+    "data_source": {
+      "file": "process_data.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 15000,
+      "cols": 24
+    }
+  }
+}

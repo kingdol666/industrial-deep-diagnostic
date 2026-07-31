@@ -1,0 +1,42 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "relationships": [
+    {
+      "predictor": "temperature_celsius",
+      "target": "yield_percent",
+      "global": 0.72,
+      "detrended": 0.68,
+      "per_group": [0.71, 0.73, 0.69],
+      "steady": 0.65,
+      "lag_aligned": 0.74,
+      "per_regime": [0.70, 0.75],
+      "slope_at_current": 0.45,
+      "partial": 0.61,
+      "form_match": "linear with saturation above 165°C",
+      "q_value": 0.002,
+      "n_effective": 12000,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": false,
+        "outlier_influence_checked": true
+      },
+      "operability": "LEVER_IDENTIFIED"
+    }
+  ],
+  "tradeoff_and_operability": [
+    {
+      "parameter": "temperature_celsius",
+      "controllability": "Directly controllable via heater PID setpoint",
+      "effects_on_targets": "Strong positive effect on yield; negative effect on selectivity above 165°C",
+      "tradeoff_summary": "Yield-selectivity tradeoff past 165°C inflection point",
+      "operability_assessment": "LEVER_IDENTIFIED",
+      "support_domain": "145-172°C observed; extrapolation beyond untested",
+      "extrapolation_warning": "No data above 172°C; Arrhenius extrapolation risks thermal degradation",
+      "open_questions": ["What is the degradation onset temperature?", "Is catalyst deactivation rate temperature-dependent?"]
+    }
+  ]
+}

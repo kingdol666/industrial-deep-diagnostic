@@ -1,0 +1,62 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "columns": [
+    {
+      "column": "temperature_celsius",
+      "role": "predictor",
+      "coverage_status": "covered_primary",
+      "unit": "°C",
+      "n_total": 15000,
+      "n_steady": 8200,
+      "support_domain": {
+        "p5": 145.2,
+        "p25": 152.0,
+        "p50": 158.5,
+        "p75": 164.1,
+        "p95": 172.8,
+        "n": 15000,
+        "current_median": 159.0
+      },
+      "physics_ref": "Reaction temperature per Arrhenius kinetics",
+      "reason": "Primary lever with strong physics grounding"
+    },
+    {
+      "column": "pressure_bar",
+      "role": "predictor",
+      "coverage_status": "covered_conditional",
+      "unit": "bar",
+      "n_total": 15000,
+      "n_steady": 8200,
+      "support_domain": {
+        "p5": 2.8,
+        "p25": 3.1,
+        "p50": 3.4,
+        "p75": 3.7,
+        "p95": 4.2,
+        "n": 15000,
+        "current_median": 3.5
+      },
+      "physics_ref": "Le Chatelier pressure effect",
+      "reason": "Covered but confounded with temperature"
+    },
+    {
+      "column": "noise_sensor",
+      "role": "excluded",
+      "coverage_status": "pruned_physics",
+      "unit": "dimensionless",
+      "n_total": 15000,
+      "n_steady": 8200,
+      "support_domain": {
+        "p5": 0.01,
+        "p25": 0.03,
+        "p50": 0.05,
+        "p75": 0.08,
+        "p95": 0.12,
+        "n": 15000,
+        "current_median": 0.05
+      },
+      "physics_ref": "No known physical mechanism",
+      "reason": "No physical model links this sensor to the target"
+    }
+  ]
+}

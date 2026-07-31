@@ -16,6 +16,13 @@
     "run_config_schema.json": ["analysis-auto"],
     "run_summary_schema.json": ["reporter"],
     "scenario_classification_schema.json": ["data-processor"],
-    "visual_analysis_schema.json": ["data-processor", "vlm-analyzer", "diagnostician"]
+    "visual_analysis_schema.json": ["data-processor", "vlm-analyzer", "diagnostician"],
+    "enhancement_manifest_schema.json": ["enhance-orchestrator"],
+    "analysis_coverage_schema.json": ["deep-analyst", "enhance-orchestrator"],
+    "derived_features_schema.json": ["deep-analyst"],
+    "deep_data_analysis_schema.json": ["deep-analyst", "physics-bridge", "enhance-orchestrator"],
+    "physics_bridge_schema.json": ["physics-bridge", "enhance-orchestrator"],
+    "enhanced_knowledge_schema.json": ["enhance-orchestrator", "enhanced-visualizer", "enhanced-html-reviewer"],
+    "enhancement_html_review_schema.json": ["enhanced-html-reviewer"]
   }
 }

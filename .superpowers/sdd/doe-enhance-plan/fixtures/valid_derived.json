@@ -1,0 +1,27 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "features": [
+    {
+      "name": "reaction_rate_ratio",
+      "status": "computed",
+      "formula": "ln(product_conc / reactant_conc) / residence_time",
+      "physics_basis": "First-order reaction kinetics",
+      "unit": "s^-1",
+      "source_columns": ["product_conc", "reactant_conc", "residence_time"],
+      "row_range": "rows 0-14999",
+      "mask": "residence_time > 0 AND reactant_conc > 0",
+      "derived": true
+    },
+    {
+      "name": "heat_transfer_coeff",
+      "status": "not_applicable",
+      "formula": "delta_T / Q_in",
+      "physics_basis": "Newton's law of cooling",
+      "unit": "K/W",
+      "source_columns": ["delta_T", "Q_in"],
+      "row_range": "N/A",
+      "mask": "N/A",
+      "derived": false
+    }
+  ]
+}

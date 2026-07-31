@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Derived Features Schema v1.0",
+  "description": "衍生特征定义与计算状态——记录物理驱动的衍生变量。由 deep-analyst 生成。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "features"],
+  "properties": {
+    "run_id": {
+      "description": "增强运行唯一标识",
+      "type": "string",
+      "minLength": 1
+    },
+    "features": {
+      "description": "衍生特征列表",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "status",
+          "formula",
+          "physics_basis",
+          "unit",
+          "source_columns",
+          "row_range",
+          "mask",
+          "derived"
+        ],
+        "properties": {
+          "name": {
+            "description": "衍生特征名称",
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "description": "计算状态",
+            "type": "string",
+            "enum": ["computed", "not_applicable", "failed"]
+          },
+          "formula": {
+            "description": "计算公式（可读形式）",
+            "type": "string",
+            "minLength": 1
+          },
+          "physics_basis": {
+            "description": "物理依据（引用原理或定律）",
+            "type": "string"
+          },
+          "unit": {
+            "description": "物理单位",
+            "type": "string",
+            "minLength": 1
+          },
+          "source_columns": {
+            "description": "源列名列表",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "row_range": {
+            "description": "计算应用的行范围描述",
+            "type": "string"
+          },
+          "mask": {
+            "description": "应用的过滤条件",
+            "type": "string"
+          },
+          "derived": {
+            "description": "是否成功衍生并纳入分析（computed 时必须为 true）",
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

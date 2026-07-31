@@ -1,0 +1,30 @@
+{
+  "verdict": "pass",
+  "overall_score": 87,
+  "blocking_issues": [],
+  "warnings": [
+    "Consider adding a mechanism-chain drill-down section for non-expert readers"
+  ],
+  "checks": [
+    {
+      "name": "hero_clarity",
+      "status": "pass",
+      "evidence": "Primary finding and operability summary visible above the fold with clear language"
+    },
+    {
+      "name": "evidence_layer_1_statistical",
+      "status": "pass",
+      "evidence": "Correlation charts present with error bars and q-values annotated"
+    },
+    {
+      "name": "evidence_layer_2_physics",
+      "status": "warn",
+      "evidence": "Arrhenius plot shown but activation energy confidence interval not displayed"
+    },
+    {
+      "name": "three_d_fidelity",
+      "status": "pass",
+      "evidence": "3D mechanism chain visualization matches enhanced_knowledge.json structure"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "run_id": "enhance-2026-07-31-001",
+  "relationship_verifications": [
+    {
+      "predictor": "temperature_celsius",
+      "target": "yield_percent",
+      "direction": "positive until 165°C saturation",
+      "functional_form": "Arrhenius-like with linear regime 145-165°C",
+      "time_lag": "minimal (< 30s) consistent with CSTR residence time",
+      "magnitude": "~0.45% yield per °C in linear regime",
+      "state_dependence": "Pressure moderates slope at p < 3.0 bar",
+      "overall_status": "confirmed",
+      "evidence_refs": ["ev_deep_corr_001", "ev_physics_arrhenius_002"]
+    }
+  ],
+  "mechanism_chains": [
+    {
+      "chain_id": "MC-001",
+      "claim": "Temperature increase accelerates the rate-limiting step of the main reaction pathway",
+      "evidence_refs": ["ev_deep_corr_001", "ev_physics_arrhenius_002", "ev_lag_003"],
+      "physics_law": "Arrhenius equation k = A * exp(-Ea/RT)",
+      "data_support": "Strong: global r=0.72, detrended r=0.68, effect persists after confound control",
+      "diagnosis_support": "Consistent with baseline diagnosis of activation energy barrier limitation",
+      "competing_explanations": ["Temperature artifact from sensor drift (excluded by change-point test)", "Batch-level confounding (excluded by per-group analysis)"],
+      "what_would_change_conclusion": "Evidence that temperature effect vanishes under controlled randomization OR evidence that the measured correlation is entirely sensor artifact"
+    }
+  ],
+  "competing_explanations": [
+    {
+      "explanation": "Temperature-yield correlation is an artifact of co-varying feedstock quality",
+      "support_level": "Weak - feedstock quality was constant during observation window",
+      "against": ["Feedstock assay data shows <0.5% variation", "Partial correlation controlling for feedstock remains significant"],
+      "resolution": "Ruled out by available evidence"
+    }
+  ],
+  "evidence_gaps": [
+    {
+      "gap": "No direct measurement of activation energy from independent experiments",
+      "severity": "major",
+      "impact_on_conclusions": "Cannot independently confirm the Arrhenius mechanism beyond correlation",
+      "mitigation": "Recommend lab-scale kinetic study at 3 temperature levels"
+    }
+  ]
+}

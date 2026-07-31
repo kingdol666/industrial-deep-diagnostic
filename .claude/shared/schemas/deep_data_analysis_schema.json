@@ -1,0 +1,201 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Deep Data Analysis Schema v1.0",
+  "description": "深层数据分析——多维度关系量化与可操作性评估。由 deep-analyst 生成，physics-bridge 和 enhance-orchestrator 消费。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "relationships", "tradeoff_and_operability"],
+  "properties": {
+    "run_id": {
+      "description": "增强运行唯一标识",
+      "type": "string",
+      "minLength": 1
+    },
+    "relationships": {
+      "description": "变量间关系分析条目",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "predictor",
+          "target",
+          "global",
+          "detrended",
+          "per_group",
+          "steady",
+          "lag_aligned",
+          "per_regime",
+          "slope_at_current",
+          "partial",
+          "form_match",
+          "q_value",
+          "n_effective",
+          "validity_flags",
+          "operability"
+        ],
+        "properties": {
+          "predictor": {
+            "description": "预测变量列名",
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "description": "目标变量列名",
+            "type": "string",
+            "minLength": 1
+          },
+          "global": {
+            "description": "全局相关系数",
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "detrended": {
+            "description": "去趋势后相关系数",
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "per_group": {
+            "description": "按分组（如批次/产品）的相关系数列表",
+            "type": "array",
+            "items": { "type": "number", "minimum": -1, "maximum": 1 }
+          },
+          "steady": {
+            "description": "稳态子集相关系数",
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "lag_aligned": {
+            "description": "时滞对齐后相关系数",
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "per_regime": {
+            "description": "按运行工况分组的相关系数列表",
+            "type": "array",
+            "items": { "type": "number", "minimum": -1, "maximum": 1 }
+          },
+          "slope_at_current": {
+            "description": "当前操作点的局部斜率（数值导数）",
+            "type": "number"
+          },
+          "partial": {
+            "description": "偏相关系数（控制其他变量后）",
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "form_match": {
+            "description": "函数形式匹配度评估",
+            "type": "string"
+          },
+          "q_value": {
+            "description": "多重比较校正后的 q 值",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "n_effective": {
+            "description": "有效样本量（去自相关后）",
+            "type": "integer",
+            "minimum": 0
+          },
+          "validity_flags": {
+            "description": "有效性标记集合",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "simpson_paradox_checked": { "type": "boolean" },
+              "confounding_checked": { "type": "boolean" },
+              "trend_confounding_checked": { "type": "boolean" },
+              "change_point_tested": { "type": "boolean" },
+              "batch_effect_tested": { "type": "boolean" },
+              "lag_significant": { "type": "boolean" },
+              "outlier_influence_checked": { "type": "boolean" }
+            }
+          },
+          "operability": {
+            "description": "可操作性分类",
+            "type": "string",
+            "enum": [
+              "LEVER_IDENTIFIED",
+              "LEVER_OBSERVATIONAL",
+              "ENDOGENOUS_RESPONSE",
+              "CONFOUNDED",
+              "NOT_IDENTIFIABLE",
+              "CONSTRAINT_UNCONTROLLABLE"
+            ]
+          }
+        }
+      }
+    },
+    "tradeoff_and_operability": {
+      "description": "参数权衡与可操作性综合评估",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "parameter",
+          "controllability",
+          "effects_on_targets",
+          "tradeoff_summary",
+          "operability_assessment",
+          "support_domain",
+          "extrapolation_warning",
+          "open_questions"
+        ],
+        "properties": {
+          "parameter": {
+            "description": "参数名",
+            "type": "string",
+            "minLength": 1
+          },
+          "controllability": {
+            "description": "可控性评估",
+            "type": "string"
+          },
+          "effects_on_targets": {
+            "description": "对各目标的影响描述",
+            "type": "string"
+          },
+          "tradeoff_summary": {
+            "description": "权衡总结",
+            "type": "string"
+          },
+          "operability_assessment": {
+            "description": "可操作性评估",
+            "type": "string",
+            "enum": [
+              "LEVER_IDENTIFIED",
+              "LEVER_OBSERVATIONAL",
+              "ENDOGENOUS_RESPONSE",
+              "CONFOUNDED",
+              "NOT_IDENTIFIABLE",
+              "CONSTRAINT_UNCONTROLLABLE"
+            ]
+          },
+          "support_domain": {
+            "description": "支持域描述",
+            "type": "string"
+          },
+          "extrapolation_warning": {
+            "description": "外推风险警告",
+            "type": "string"
+          },
+          "open_questions": {
+            "description": "待解决问题列表",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

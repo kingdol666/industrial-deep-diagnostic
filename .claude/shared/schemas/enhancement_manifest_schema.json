@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Enhancement Manifest Schema v1.0",
+  "description": "运行时清单——记录增强管线输入模式、数据源和基线产物快照。由 enhance-orchestrator 生成。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "baseline_run_dir",
+    "input_mode",
+    "data_source",
+    "baseline_artifacts",
+    "enhancement_version",
+    "created_at"
+  ],
+  "properties": {
+    "run_id": {
+      "description": "增强运行唯一标识",
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline_run_dir": {
+      "description": "基线诊断运行目录路径",
+      "type": "string",
+      "minLength": 1
+    },
+    "input_mode": {
+      "description": "A_new_data: 全新数据独立分析; B_existing_run: 基于已有诊断运行增强",
+      "type": "string",
+      "enum": ["A_new_data", "B_existing_run"]
+    },
+    "data_source": {
+      "description": "输入数据源描述",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "rows", "cols"],
+      "properties": {
+        "file": {
+          "description": "数据文件路径",
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "description": "文件 SHA-256 哈希值",
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "rows": {
+          "description": "总行数",
+          "type": "integer",
+          "minimum": 1
+        },
+        "cols": {
+          "description": "总列数",
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "baseline_artifacts": {
+      "description": "基线诊断产物清单及状态",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ontology", "diagnosis", "report"],
+      "properties": {
+        "ontology": {
+          "description": "ontology.json 是否存在",
+          "type": "boolean"
+        },
+        "diagnosis": {
+          "description": "diagnosis.json 是否存在",
+          "type": "boolean"
+        },
+        "report": {
+          "description": "report.md 是否存在",
+          "type": "boolean"
+        },
+        "evidence": {
+          "description": "evidence.json 是否存在",
+          "type": "boolean"
+        },
+        "reasoning_chain": {
+          "description": "reasoning_chain.json 是否存在",
+          "type": "boolean"
+        },
+        "data_analysis_conclusion": {
+          "description": "data_analysis_conclusion.json 是否存在",
+          "type": "boolean"
+        }
+      }
+    },
+    "enhancement_version": {
+      "description": "增强管线版本号，semver",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.]+)?(\\+[a-zA-Z0-9.]+)?$"
+    },
+    "created_at": {
+      "description": "清单创建时间，ISO 8601",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

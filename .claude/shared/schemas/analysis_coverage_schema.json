@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analysis Coverage Schema v1.0",
+  "description": "全列覆盖分析——逐列判定在增强管线中的角色、覆盖状态及支持域。由 deep-analyst 生成，enhance-orchestrator 消费。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "columns"],
+  "properties": {
+    "run_id": {
+      "description": "增强运行唯一标识",
+      "type": "string",
+      "minLength": 1
+    },
+    "columns": {
+      "description": "各列覆盖分析条目",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "column",
+          "role",
+          "coverage_status",
+          "unit",
+          "n_total",
+          "n_steady",
+          "support_domain",
+          "physics_ref",
+          "reason"
+        ],
+        "properties": {
+          "column": {
+            "description": "列名",
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "description": "列在增强管线中的角色（predictor / target / context / derived / excluded）",
+            "type": "string",
+            "minLength": 1
+          },
+          "coverage_status": {
+            "description": "覆盖状态",
+            "type": "string",
+            "enum": [
+              "covered_primary",
+              "covered_conditional",
+              "derived_and_used",
+              "pruned_physics",
+              "pruned_confounded",
+              "insufficient_data",
+              "not_applicable"
+            ]
+          },
+          "unit": {
+            "description": "物理单位（无量纲用 dimensionless）",
+            "type": "string",
+            "minLength": 1
+          },
+          "n_total": {
+            "description": "该列有效样本总数",
+            "type": "integer",
+            "minimum": 0
+          },
+          "n_steady": {
+            "description": "稳态子集样本数",
+            "type": "integer",
+            "minimum": 0
+          },
+          "support_domain": {
+            "description": "数值支持域统计",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["p5", "p25", "p50", "p75", "p95", "n", "current_median"],
+            "properties": {
+              "p5": { "type": "number" },
+              "p25": { "type": "number" },
+              "p50": { "type": "number" },
+              "p75": { "type": "number" },
+              "p95": { "type": "number" },
+              "n": {
+                "description": "用于计算分位数的样本量",
+                "type": "integer",
+                "minimum": 1
+              },
+              "current_median": {
+                "description": "当前运行窗口的中位数",
+                "type": "number"
+              }
+            }
+          },
+          "physics_ref": {
+            "description": "物理含义引用（来自 ontology 或领域知识）",
+            "type": "string"
+          },
+          "reason": {
+            "description": "覆盖状态判定理由",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
