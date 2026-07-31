@@ -119,36 +119,88 @@ def _per_regime_r(df: pd.DataFrame, x_col: str, y_col: str,
 # Candidate pair builder
 # ---------------------------------------------------------------------------
 
+def _strip_suffix(name: str) -> str:
+    """Strip common aggregation suffixes so ontology/selection names match actual columns.
+
+    E.g. 'F_PS002@PV1_mean' -> 'F_PS002@PV1', 'reactor_temp_C_dev' -> 'reactor_temp_C'.
+    """
+    for suffix in ("_mean", "_median", "_std", "_dev", "_avg", "_max", "_min"):
+        if name.endswith(suffix) and len(name) > len(suffix):
+            return name[: -len(suffix)]
+    return name
+
+
+def _resolve_col(name: str, df_cols: set) -> Optional[str]:
+    """Resolve a possibly-suffixed name to an actual DataFrame column."""
+    if name in df_cols:
+        return name
+    stripped = _strip_suffix(name)
+    for col in df_cols:
+        if _strip_suffix(col) == stripped:
+            return col
+    return None
+
+
 def _build_candidate_pairs(
     ontology: dict,
     selection: dict,
+    df_columns: Optional[List[str]] = None,
 ) -> List[Tuple[str, str]]:
-    """Build deduplicated (predictor, target) candidate pairs."""
+    """Build deduplicated (predictor, target) candidate pairs.
+
+    Resolves ontology/tier names against the actual DataFrame columns so
+    suffix drift (e.g. '_mean' in cleaned columns) cannot silently drop pairs.
+    """
     pairs: Set[Tuple[str, str]] = set()
     targets = set(selection.get("quality_targets", []))
+    df_cols = set(df_columns or [])
+
+    def _resolve_tgt(name: str) -> Optional[str]:
+        if df_cols:
+            return _resolve_col(name, df_cols)
+        return name
 
     # From ontology relationships
     for rel in ontology.get("relationships", []):
         frm = rel.get("from", "")
         to = rel.get("to", "")
-        if frm and to and to in targets:
-            pairs.add((frm, to))
+        tgt = _resolve_tgt(to)
+        if frm and tgt and tgt in targets:
+            pairs.add((_resolve_col(frm, df_cols) or frm, tgt))
 
-    # From selection tiers
+    # From selection tiers (both naming conventions: CSTR-style and generic tier_N_*)
     tiers = selection.get("analysis_tiers", {})
-    for tier_key in ["tier1_primary_kinetic_drivers", "tier2_feed_residence_pressure",
-                     "tier3_confounders_caution"]:
+    candidate_tier_keys = [
+        "tier1_primary_kinetic_drivers",
+        "tier2_feed_residence_pressure",
+        "tier3_confounders_caution",
+        "tier_1_primary_hypothesis",
+        "tier_2_secondary_hypothesis",
+        "tier_3_variability",
+    ]
+    for tier_key in candidate_tier_keys:
         tier = tiers.get(tier_key, {})
         preds = tier.get("columns", [])
         must_vs = tier.get("must_analyze_vs_targets", [])
+        if not must_vs:
+            # Fallback: target every quality target when the tier declares no explicit list
+            must_vs = list(targets)
         for pred in preds:
             for tgt in must_vs:
-                if tgt in targets:
-                    pairs.add((pred, tgt))
+                resolved_tgt = _resolve_tgt(tgt)
+                if resolved_tgt in targets:
+                    pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
 
-    # Exclude: target == predictor, metadata, control outputs, pruned
-    metadata_cols = set(selection.get("metadata_cols", []))
-    control_cols = set(selection.get("control_cols", []))
+    # Also add direct selection predictor_cols -> quality_targets when tier info is thin
+    for pred in selection.get("predictor_cols", []):
+        for tgt in targets:
+            resolved_tgt = _resolve_tgt(tgt)
+            if resolved_tgt in targets:
+                pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
+
+    # Exclude: target == predictor, metadata, control outputs, pruned (resolved names)
+    metadata_cols = {_resolve_col(c, df_cols) or c for c in selection.get("metadata_cols", [])}
+    control_cols = {_resolve_col(c, df_cols) or c for c in selection.get("control_cols", [])}
     pruned_pairs = selection.get("pruned_pairs", [])
 
     pruned_set: Set[Tuple[str, str]] = set()
@@ -157,8 +209,8 @@ def _build_candidate_pairs(
         # Parse "A <-> B" or "A -> B"
         parts = pair_str.replace("<->", "->").split("->")
         if len(parts) >= 2:
-            a = parts[0].strip().split(" ")[0]
-            b = parts[1].strip().split(" ")[0]
+            a = _resolve_col(parts[0].strip().split(" ")[0], df_cols) or parts[0].strip().split(" ")[0]
+            b = _resolve_col(parts[1].strip().split(" ")[0], df_cols) or parts[1].strip().split(" ")[0]
             pruned_set.add((a, b))
             pruned_set.add((b, a))
 
@@ -449,7 +501,7 @@ def main() -> None:
             feature_metadata = json.load(fh).get("features", None)
 
     # Build candidate pairs
-    candidate_pairs = _build_candidate_pairs(ontology, selection)
+    candidate_pairs = _build_candidate_pairs(ontology, selection, df_columns=list(df.columns))
     print(f"[conditional_analysis] {len(candidate_pairs)} candidate pairs")
 
     # Compute relationships

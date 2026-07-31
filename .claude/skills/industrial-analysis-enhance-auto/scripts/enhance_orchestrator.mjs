@@ -283,11 +283,37 @@ async function launchScripts(runDir) {
     code: pubResult.code,
     stderr: pubResult.stderr ? pubResult.stderr.slice(0, 500) : '',
   });
+
+  // E7b: enhanced HTML visualizer
+  const htmlOutput = path.join(enhanceDir, 'enhanced-analysis.html');
+  const htmlBuilderScript = path.join(skillRoot, 'industrial-enhanced-html-visualizer', 'scripts', 'html_builder.py');
+  const htmlResult = await runCmd('python', [htmlBuilderScript, '--knowledge', fusionOutput, '--output', htmlOutput], runDir);
+  results.push({
+    phase: 'E7b',
+    status: htmlResult.ok ? 'ok' : 'failed',
+    code: htmlResult.code,
+    stderr: htmlResult.stderr ? htmlResult.stderr.slice(0, 500) : '',
+  });
+
+  // E7c: enhanced HTML reviewer
+  const reviewOutput = path.join(enhanceDir, 'enhancement_html_review.json');
+  const selfcheckPath = path.join(enhanceDir, 'html_selfcheck.json');
+  const reviewerScript = path.join(skillRoot, 'industrial-enhanced-html-reviewer', 'scripts', 'html_reviewer.py');
+  const reviewResult = await runCmd('python', [reviewerScript, '--knowledge', fusionOutput, '--html', htmlOutput, '--output', reviewOutput, '--selfcheck', selfcheckPath], runDir);
+  results.push({
+    phase: 'E7c',
+    status: reviewResult.ok ? 'ok' : 'failed',
+    code: reviewResult.code,
+    stderr: reviewResult.stderr ? reviewResult.stderr.slice(0, 500) : '',
+  });
+
   return {
-    ok: fusionResult.ok && pubResult.ok,
+    ok: fusionResult.ok && pubResult.ok && htmlResult.ok && reviewResult.ok,
     results,
     fusionOutput,
     markdownOutput: mdOutput,
+    htmlOutput,
+    reviewOutput,
   };
 }
 
@@ -331,6 +357,9 @@ function finalize(runDir, manifest, launchResults) {
       manifest: path.join(enhanceDir, 'enhancement_manifest.json'),
       enhanced_knowledge: path.join(enhanceDir, 'enhanced_knowledge.json'),
       markdown: path.join(enhanceDir, 'enhanced_analysis.md'),
+      html: path.join(enhanceDir, 'enhanced-analysis.html'),
+      html_review: path.join(enhanceDir, 'enhancement_html_review.json'),
+      html_selfcheck: path.join(enhanceDir, 'html_selfcheck.json'),
     },
     launch_results: launchResults.results || [],
   };
