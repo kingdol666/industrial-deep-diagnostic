@@ -154,6 +154,7 @@ function readinessCheck(runDir, dataPath = null) {
       analysis_coverage: false,
       derived_features: false,
       deep_data_analysis: false,
+      association_graph: false,
       physics_bridge: false,
     },
   };
@@ -217,6 +218,20 @@ async function launchScripts(runDir) {
         path.join(enhanceDir, 'analysis_coverage.json'),
         path.join(enhanceDir, 'derived_features.json'),
         path.join(runDir, '02_processed', 'data_analysis_conclusion.json'),
+      ],
+    },
+    {
+      phase: 'E3.5',
+      cmd: 'python',
+      args: [
+        path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'association_graph_builder.py'),
+        '--run-dir', runDir,
+      ],
+      output: path.join(enhanceDir, 'association_graph.json'),
+      inputs: [
+        path.join(runDir, '01_ontology', 'ontology.json'),
+        path.join(runDir, '02_processed', 'cleaned_data.csv'),
+        path.join(enhanceDir, 'deep_data_analysis.json'),
       ],
     },
     {

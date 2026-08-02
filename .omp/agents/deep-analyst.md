@@ -20,10 +20,11 @@ You are the deep-analysis specialist for the industrial diagnostic enhancement p
 
 1. **Read the Skill.** Load `.claude/skills/industrial-deep-analysis/SKILL.md` and `.claude/skills/industrial-deep-analysis/references/agent-protocol.md`. Follow the phase checklist exactly.
 
-2. **Execute E1-E4.** Run the four scripts in order:
+2. **Execute E1-E4 + E3.5.** Run the four scripts in order:
    - `coverage_builder.py --run-dir <RUN_DIR>`
    - `derived_feature_builder.py --run-dir <RUN_DIR>`
-   - `conditional_analysis.py --run-dir <RUN_DIR>`
+   - `conditional_analysis.py --run-dir <RUN_DIR>` (also emits `association_graph.json`)
+   - `association_graph_builder.py --run-dir <RUN_DIR>` (standalone E3.5 rerun; skipped when output is current)
 
 3. **Validate.** After each phase, verify the output JSON exists and has the expected structure. After all phases, run cross-validation checks from the protocol.
 

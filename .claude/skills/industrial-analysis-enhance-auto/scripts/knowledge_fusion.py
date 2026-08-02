@@ -98,8 +98,17 @@ def build_nodes(
 def build_edges(
     deep_data: dict,
     physics_bridge: Optional[dict],
+    association_graph: Optional[dict] = None,
 ) -> List[dict]:
-    """Build relationship_graph.edges from deep_data_analysis.relationships."""
+    """Build relationship_graph.edges.
+
+    When ``association_graph.json`` (E3.5) is present it is the primary source:
+    it covers the full pairwise network with inference evidence (sign,
+    confidence, causal ceiling, temporal direction, mediation channels).
+    Deep-data relationships absent from the graph (e.g. below-threshold but
+    physics-relevant) are appended with legacy semantics, so no prior
+    information is ever lost.
+    """
     edges: List[dict] = []
     phys_index: Dict[Tuple[str, str], dict] = {}
 
@@ -108,34 +117,7 @@ def build_edges(
             key = (pv.get("predictor", ""), pv.get("target", ""))
             phys_index[key] = pv
 
-    for i, rel in enumerate(deep_data.get("relationships", [])):
-        pred = rel.get("predictor", "")
-        targ = rel.get("target", "")
-        if not pred or not targ:
-            continue
-
-        edge = {
-            "source": pred,
-            "target": targ,
-            "relationship": "correlates",
-            "strength": rel.get("global", 0.0),
-            "statistical_evidence": {
-                "global_r": rel.get("global", 0.0),
-                "detrended_r": rel.get("detrended", 0.0),
-                "partial_r": rel.get("partial", 0.0),
-                "slope_at_current": rel.get("slope_at_current", 0.0),
-                "lag_aligned_r": rel.get("lag_aligned", 0.0),
-                "q_value": rel.get("q_value", 1.0),
-                "n_effective": rel.get("n_effective", 0),
-                "form_match": rel.get("form_match", ""),
-            },
-            "physics_verification": {},
-            "operability": rel.get("operability", "NOT_IDENTIFIABLE"),
-            "evidence_ref": "",
-            "validity_flags": rel.get("validity_flags", {}),
-        }
-
-        # Attach physics verification
+    def _attach_physics(edge: dict, pred: str, targ: str) -> None:
         pk = (pred, targ)
         if pk in phys_index:
             pv = phys_index[pk]
@@ -149,10 +131,117 @@ def build_edges(
             }
             edge["evidence_ref"] = ", ".join(pv.get("evidence_refs", []))
 
-        # Determine relationship type
+    graph_keys: Set[Tuple[str, str]] = set()
+
+    if association_graph:
+        for g_edge in association_graph.get("edges", []):
+            src = g_edge.get("source", "")
+            tgt = g_edge.get("target", "")
+            if not src or not tgt:
+                continue
+            graph_keys.add((src, tgt))
+            sev = g_edge.get("statistical_evidence", {}) or {}
+            edge = {
+                "source": src,
+                "target": tgt,
+                "relationship": g_edge.get("relationship", "supports"),
+                "strength": g_edge.get("strength", 0.0),
+                "sign": g_edge.get("sign", 1 if g_edge.get("strength", 0) >= 0 else -1),
+                "confidence": g_edge.get("confidence", 0.3),
+                "causal_ceiling": g_edge.get("causal_ceiling", "contemporaneous_correlation"),
+                "ontology_contradiction": bool(g_edge.get("ontology_contradiction", False)),
+                "statistical_evidence": {
+                    "global_r": sev.get("global_r", g_edge.get("strength", 0.0)),
+                    "p_value": sev.get("p_value", 1.0),
+                    "p_floor_hit": sev.get("p_floor_hit", False),
+                    "detrended_r": sev.get("detrended_r", 0.0),
+                    "partial_r": sev.get("partial_r", 0.0),
+                    "partial_method": sev.get("partial_method", ""),
+                    "temporal_direction": sev.get("temporal_direction", "concurrent"),
+                    "optimal_lag_steps": sev.get("optimal_lag_steps", 0),
+                    "ccf_peak_r": sev.get("ccf_peak_r", 0.0),
+                    "lag_aligned_r": sev.get("lag_aligned_r", 0.0),
+                    "direct_association": sev.get("direct_association", False),
+                    "indirect_association": sev.get("indirect_association", False),
+                    "mediator_candidates": sev.get("mediator_candidates", []),
+                    "change_point_co_movement": sev.get("change_point_co_movement", 0.0),
+                    "loo_stability": sev.get("loo_stability", 0.0),
+                    "interaction_flagged": sev.get("interaction_flagged", False),
+                    "slope_at_current": sev.get("slope_at_current", 0.0),
+                    "form_match": sev.get("form_match", ""),
+                    "q_value": sev.get("q_value", 1.0),
+                    "n_effective": sev.get("n_effective", 0),
+                },
+                "physics_verification": {},
+                "operability": "NOT_IDENTIFIABLE",
+                "evidence_ref": "",
+                "validity_flags": {},
+            }
+            # Physics verification + operability from deep-data records
+            for rel in deep_data.get("relationships", []):
+                if rel.get("predictor") == src and rel.get("target") == tgt:
+                    edge["operability"] = rel.get("operability", "NOT_IDENTIFIABLE")
+                    edge["validity_flags"] = rel.get("validity_flags", {})
+                    break
+            _attach_physics(edge, src, tgt)
+            phys_status = edge.get("physics_verification", {}).get("overall_status", "")
+            if phys_status == "confirmed" and edge["relationship"] != "contradicts":
+                edge["relationship"] = "causes"
+            edges.append(edge)
+
+    for rel in deep_data.get("relationships", []):
+        pred = rel.get("predictor", "")
+        targ = rel.get("target", "")
+        if not pred or not targ:
+            continue
+        if (pred, targ) in graph_keys:
+            continue
+
+        edge = {
+            "source": pred,
+            "target": targ,
+            "relationship": "correlates",
+            "strength": rel.get("global", 0.0),
+            "sign": 1 if rel.get("global", 0.0) >= 0 else -1,
+            "confidence": round(float(rel.get("q_value", 1.0) <= 0.05) * 0.6 + 0.2, 3),
+            "causal_ceiling": rel.get("causality_ceiling", "contemporaneous_correlation"),
+            "ontology_contradiction": bool(rel.get("ontology_contradiction", False)),
+            "statistical_evidence": {
+                "global_r": rel.get("global", 0.0),
+                "p_value": rel.get("p_value", 1.0),
+                "p_floor_hit": rel.get("p_floor_hit", False),
+                "detrended_r": rel.get("detrended", 0.0),
+                "partial_r": rel.get("partial", 0.0),
+                "partial_method": (rel.get("partial_full") or {}).get("method", ""),
+                "temporal_direction": rel.get("temporal_direction", "concurrent"),
+                "optimal_lag_steps": rel.get("optimal_lag_steps", 0),
+                "ccf_peak_r": (rel.get("temporal") or {}).get("ccf_peak_r", 0.0),
+                "lag_aligned_r": rel.get("lag_aligned", 0.0),
+                "direct_association": rel.get("direct_association", False),
+                "indirect_association": rel.get("indirect_association", False),
+                "mediator_candidates": [m.get("mediator", "") for m in rel.get("mediator_candidates", [])],
+                "change_point_co_movement": (rel.get("change_point_co_movement") or {}).get("score", 0.0),
+                "loo_stability": (rel.get("loo_stability") or {}).get("stability", 0.0),
+                "interaction_flagged": (rel.get("interaction") or {}).get("flagged", False),
+                "slope_at_current": rel.get("slope_at_current", 0.0),
+                "form_match": rel.get("form_match", ""),
+                "q_value": rel.get("q_value", 1.0),
+                "n_effective": rel.get("n_effective", 0),
+            },
+            "physics_verification": {},
+            "operability": rel.get("operability", "NOT_IDENTIFIABLE"),
+            "evidence_ref": "",
+            "validity_flags": rel.get("validity_flags", {}),
+        }
+
+        _attach_physics(edge, pred, targ)
+
+        # Determine relationship type (legacy path)
         phys_status = edge.get("physics_verification", {}).get("overall_status", "")
         operability = rel.get("operability", "")
-        if operability == "ENDOGENOUS_RESPONSE":
+        if edge.get("ontology_contradiction"):
+            edge["relationship"] = "contradicts"
+        elif operability == "ENDOGENOUS_RESPONSE":
             edge["relationship"] = "correlates"
         elif phys_status == "confirmed":
             edge["relationship"] = "causes"
@@ -161,7 +250,7 @@ def build_edges(
         elif phys_status == "plausible":
             edge["relationship"] = "supports"
         else:
-            edge["relationship"] = "correlates"
+            edge["relationship"] = "supports" if edge["sign"] > 0 else "inhibits"
 
         edges.append(edge)
 
@@ -372,6 +461,8 @@ def fuse(
     derived = _load(derived_path) if derived_path.exists() else None
     physics = _load(physics_path) if physics_path.exists() else None
     confidence = _load(confidence_path) if confidence_path.exists() else None
+    graph_path = enhance_dir / "association_graph.json"
+    association_graph = _load(graph_path) if graph_path.exists() else None
 
     # Compute CSV hash
     csv_path = run_dir / "02_processed" / "cleaned_data.csv"
@@ -398,7 +489,7 @@ def fuse(
 
     # Build enhanced_knowledge
     nodes = build_nodes(coverage, ontology or {}, derived)
-    edges = build_edges(deep_data, physics)
+    edges = build_edges(deep_data, physics, association_graph)
 
     run_id = deep_data.get("run_id", "unknown")
 
@@ -419,6 +510,7 @@ def fuse(
                 "analysis_coverage": str(coverage_path),
                 "derived_features": str(derived_path) if derived else "",
                 "deep_data_analysis": str(deep_data_path),
+                "association_graph": str(graph_path) if association_graph else "",
                 "physics_bridge": str(physics_path) if physics else "",
                 "ontology": str(ontology_path) if ontology else "",
                 "diagnosis": str(diagnosis_path) if diagnosis else "",

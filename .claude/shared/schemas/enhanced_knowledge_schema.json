@@ -1,197 +1,424 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Enhanced Knowledge Schema v1.0",
-  "description": "增强知识整合——汇总关系图谱、机理链、权衡矩阵和可操作性总结。由 enhance-orchestrator 生成，enhanced-visualizer 和 enhanced-html-reviewer 消费。",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "run_id",
-    "enhancement_status",
-    "relationship_graph",
-    "mechanism_chains",
-    "tradeoff_matrix",
-    "operability_summary",
-    "open_questions",
-    "evidence_gaps",
-    "provenance"
-  ],
-  "properties": {
-    "run_id": {
-      "description": "增强运行唯一标识",
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Enhanced Knowledge Schema v1.0",
+ "description": "增强知识整合——汇总关系图谱、机理链、权衡矩阵和可操作性总结。由 enhance-orchestrator 生成，enhanced-visualizer 和 enhanced-html-reviewer 消费。",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "run_id",
+  "enhancement_status",
+  "relationship_graph",
+  "mechanism_chains",
+  "tradeoff_matrix",
+  "operability_summary",
+  "open_questions",
+  "evidence_gaps",
+  "provenance"
+ ],
+ "properties": {
+  "run_id": {
+   "description": "增强运行唯一标识",
+   "type": "string",
+   "minLength": 1
+  },
+  "enhancement_status": {
+   "description": "增强管线整体状态",
+   "type": "string",
+   "enum": [
+    "READY",
+    "READY_WITH_WARNINGS",
+    "BLOCKED",
+    "FAILED"
+   ]
+  },
+  "relationship_graph": {
+   "description": "增强关系图谱",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "nodes",
+    "edges"
+   ],
+   "properties": {
+    "nodes": {
+     "description": "图谱节点",
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "id",
+       "label",
+       "type"
+      ],
+      "properties": {
+       "id": {
+        "type": "string",
+        "minLength": 1
+       },
+       "label": {
+        "type": "string"
+       },
+       "type": {
+        "description": "节点类型：parameter / target / derived / mechanism / evidence",
+        "type": "string"
+       },
+       "unit": {
+        "type": "string"
+       },
+       "role": {
+        "type": "string"
+       },
+       "controlled_by": {
+        "type": "string"
+       },
+       "coverage_status": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       },
+       "support_domain": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       },
+       "physics_ref": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       },
+       "formula": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       },
+       "source_columns": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       },
+       "status": {
+        "type": [
+         "string",
+         "object",
+         "array",
+         "null",
+         "number",
+         "boolean"
+        ],
+        "description": "coverage metadata (optional)"
+       }
+      }
+     }
+    },
+    "edges": {
+     "description": "图谱边",
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "source",
+       "target",
+       "relationship"
+      ],
+      "properties": {
+       "source": {
+        "type": "string",
+        "minLength": 1
+       },
+       "target": {
+        "type": "string",
+        "minLength": 1
+       },
+       "relationship": {
+        "description": "关系类型：causes / correlates / derives_from / supports / contradicts",
+        "type": "string"
+       },
+       "strength": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "evidence_ref": {
+        "type": "string"
+       },
+       "sign": {
+        "type": "integer",
+        "enum": [
+         -1,
+         1
+        ]
+       },
+       "confidence": {
+        "description": "0..1 证据置信度",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "causal_ceiling": {
+        "type": "string",
+        "enum": [
+         "insufficient_evidence",
+         "contemporaneous_correlation",
+         "temporal_precedence",
+         "conditional_independence_supported",
+         "ontology_consistent"
+        ]
+       },
+       "ontology_contradiction": {
+        "type": "boolean"
+       },
+       "statistical_evidence": {
+        "type": "object",
+        "additionalProperties": true
+       },
+       "physics_verification": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "physics bridge verification (optional)"
+       },
+       "operability": {
+        "type": "string",
+        "description": "operability enum from deep data analysis (optional)"
+       },
+       "validity_flags": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "validity flags from deep data analysis (optional)"
+       }
+      }
+     }
+    }
+   }
+  },
+  "mechanism_chains": {
+   "description": "确认的机理链摘要",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "chain_id",
+     "claim",
+     "confidence"
+    ],
+    "properties": {
+     "chain_id": {
       "type": "string",
       "minLength": 1
-    },
-    "enhancement_status": {
-      "description": "增强管线整体状态",
-      "type": "string",
-      "enum": ["READY", "READY_WITH_WARNINGS", "BLOCKED", "FAILED"]
-    },
-    "relationship_graph": {
-      "description": "增强关系图谱",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["nodes", "edges"],
-      "properties": {
-        "nodes": {
-          "description": "图谱节点",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "label", "type"],
-            "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "label": { "type": "string" },
-              "type": {
-                "description": "节点类型：parameter / target / derived / mechanism / evidence",
-                "type": "string"
-              },
-              "unit": { "type": "string" },
-              "role": { "type": "string" }
-            }
-          }
-        },
-        "edges": {
-          "description": "图谱边",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["source", "target", "relationship"],
-            "properties": {
-              "source": { "type": "string", "minLength": 1 },
-              "target": { "type": "string", "minLength": 1 },
-              "relationship": {
-                "description": "关系类型：causes / correlates / derives_from / supports / contradicts",
-                "type": "string"
-              },
-              "strength": { "type": "number", "minimum": -1, "maximum": 1 },
-              "evidence_ref": { "type": "string" }
-            }
-          }
-        }
-      }
-    },
-    "mechanism_chains": {
-      "description": "确认的机理链摘要",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["chain_id", "claim", "confidence"],
-        "properties": {
-          "chain_id": { "type": "string", "minLength": 1 },
-          "claim": { "type": "string" },
-          "confidence": { "type": "string" },
-          "evidence_refs": {
-            "type": "array",
-            "items": { "type": "string" }
-          }
-        }
-      }
-    },
-    "tradeoff_matrix": {
-      "description": "参数权衡矩阵",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["parameter", "controllability", "operability"],
-        "properties": {
-          "parameter": { "type": "string", "minLength": 1 },
-          "controllability": { "type": "string" },
-          "operability": {
-            "type": "string",
-            "enum": [
-              "LEVER_IDENTIFIED",
-              "LEVER_OBSERVATIONAL",
-              "ENDOGENOUS_RESPONSE",
-              "CONFOUNDED",
-              "NOT_IDENTIFIABLE",
-              "CONSTRAINT_UNCONTROLLABLE"
-            ]
-          },
-          "effects": {
-            "description": "对各目标的影响，permissive nested object",
-            "type": "object"
-          },
-          "support_domain": { "type": "string" }
-        }
-      }
-    },
-    "operability_summary": {
-      "description": "可操作性总体评估",
+     },
+     "claim": {
       "type": "string"
-    },
-    "open_questions": {
-      "description": "当前阶段未解决的问题",
+     },
+     "confidence": {
+      "type": "string"
+     },
+     "evidence_refs": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["question", "severity"],
-        "properties": {
-          "question": { "type": "string", "minLength": 1 },
-          "severity": { "type": "string" },
-          "potential_impact": { "type": "string" }
-        }
+       "type": "string"
       }
-    },
-    "evidence_gaps": {
-      "description": "证据缺口摘要",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["gap", "severity"],
-        "properties": {
-          "gap": { "type": "string", "minLength": 1 },
-          "severity": { "type": "string" },
-          "impact": { "type": "string" }
-        }
-      }
-    },
-    "provenance": {
-      "description": "数据溯源",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["source_artifacts", "data_source"],
-      "properties": {
-        "source_artifacts": {
-          "description": "上游产物来源",
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "analysis_coverage",
-            "derived_features",
-            "deep_data_analysis",
-            "physics_bridge"
-          ],
-          "properties": {
-            "analysis_coverage": { "type": "string" },
-            "derived_features": { "type": "string" },
-            "deep_data_analysis": { "type": "string" },
-            "physics_bridge": { "type": "string" },
-            "ontology": { "type": "string" },
-            "diagnosis": { "type": "string" }
-          }
-        },
-        "data_source": {
-          "description": "数据源信息",
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["file", "rows", "cols"],
-          "properties": {
-            "file": { "type": "string", "minLength": 1 },
-            "sha256": { "type": "string" },
-            "rows": { "type": "integer", "minimum": 1 },
-            "cols": { "type": "integer", "minimum": 1 }
-          }
-        }
-      }
+     }
     }
+   }
+  },
+  "tradeoff_matrix": {
+   "description": "参数权衡矩阵",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "parameter",
+     "controllability",
+     "operability"
+    ],
+    "properties": {
+     "parameter": {
+      "type": "string",
+      "minLength": 1
+     },
+     "controllability": {
+      "type": "string"
+     },
+     "operability": {
+      "type": "string",
+      "enum": [
+       "LEVER_IDENTIFIED",
+       "LEVER_OBSERVATIONAL",
+       "ENDOGENOUS_RESPONSE",
+       "CONFOUNDED",
+       "NOT_IDENTIFIABLE",
+       "CONSTRAINT_UNCONTROLLABLE"
+      ]
+     },
+     "effects": {
+      "description": "对各目标的影响，permissive nested object",
+      "type": "object"
+     },
+     "support_domain": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "operability_summary": {
+   "description": "可操作性总体评估",
+   "type": "string"
+  },
+  "open_questions": {
+   "description": "当前阶段未解决的问题",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "question",
+     "severity"
+    ],
+    "properties": {
+     "question": {
+      "type": "string",
+      "minLength": 1
+     },
+     "severity": {
+      "type": "string"
+     },
+     "potential_impact": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "evidence_gaps": {
+   "description": "证据缺口摘要",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "gap",
+     "severity"
+    ],
+    "properties": {
+     "gap": {
+      "type": "string",
+      "minLength": 1
+     },
+     "severity": {
+      "type": "string"
+     },
+     "impact": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "provenance": {
+   "description": "数据溯源",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "source_artifacts",
+    "data_source"
+   ],
+   "properties": {
+    "source_artifacts": {
+     "description": "上游产物来源",
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "analysis_coverage",
+      "derived_features",
+      "deep_data_analysis",
+      "physics_bridge"
+     ],
+     "properties": {
+      "analysis_coverage": {
+       "type": "string"
+      },
+      "derived_features": {
+       "type": "string"
+      },
+      "deep_data_analysis": {
+       "type": "string"
+      },
+      "physics_bridge": {
+       "type": "string"
+      },
+      "ontology": {
+       "type": "string"
+      },
+      "diagnosis": {
+       "type": "string"
+      },
+      "association_graph": {
+       "type": "string"
+      }
+     }
+    },
+    "data_source": {
+     "description": "数据源信息",
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "file",
+      "rows",
+      "cols"
+     ],
+     "properties": {
+      "file": {
+       "type": "string",
+       "minLength": 1
+      },
+      "sha256": {
+       "type": "string"
+      },
+      "rows": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "cols": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    }
+   }
   }
+ }
 }

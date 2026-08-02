@@ -3,7 +3,7 @@
 ## Phase Checklist
 
 ### E0: Readiness Check
-- [ ] Verify all 13 baseline files exist and are non-empty
+- [ ] Verify all 12 baseline files exist and are non-empty
 - [ ] Compute sha256 of `02_processed/cleaned_data.csv`
 - [ ] Count rows and columns of cleaned data
 - [ ] Create `enhancement/` and `enhancement/figures/` directories

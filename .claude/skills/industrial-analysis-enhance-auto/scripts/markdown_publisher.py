@@ -97,6 +97,9 @@ def build_variables(kb: dict) -> Dict[str, str]:
     v["n_edges"] = str(len(edges))
     v["nodes_table"] = _build_nodes_table(nodes)
     v["edges_sections"] = _build_edges_sections(edges)
+    v["network_summary"] = _build_network_summary(edges)
+    v["contradiction_list"] = _build_contradiction_list(edges)
+    v["mediation_list"] = _build_mediation_list(edges)
 
     # ── mechanism chains ──
     v["n_mech_chains"] = str(len(kb.get("mechanism_chains", [])))
@@ -218,10 +221,29 @@ def _build_edges_sections(edges: List[dict]) -> str:
         parts.append(f"| 指标 | 值 |")
         parts.append(f"|------|----|")
         parts.append(f"| 全局相关系数 r | {_fmt_r(global_r)} |")
-        parts.append(f"| 偏相关系数 | {_fmt_r(partial_r)} |")
+        parts.append(f"| 偏相关系数（全阶条件独立） | {_fmt_r(partial_r)} |")
         parts.append(f"| 有效样本量 n | {n_eff} |")
         parts.append(f"| q 值 (BH校正) | {_fmt_q(q_val)} |")
         parts.append(f"| 函数形式匹配 | {form} |")
+        ceiling = e.get("causal_ceiling", "")
+        if ceiling:
+            parts.append(f"| 因果上限 | {_ceiling_zh(ceiling)} (`{ceiling}`) |")
+        if e.get("ontology_contradiction"):
+            parts.append(f"| **本体矛盾** | 数据方向与本体校验方向相反 |")
+        parts.append(f"| 证据置信度 | {e.get('confidence', 0.0):.2f}/1.00 |")
+        tdir = stats.get("temporal_direction", "")
+        if tdir and tdir not in ("concurrent", "insufficient", ""):
+            parts.append(f"| 时序方向 | {_direction_zh(tdir)}（最优时滞 {stats.get('optimal_lag_steps', 0)} 步, CCF r={_fmt_r(stats.get('ccf_peak_r', 0.0))}） |")
+        if stats.get("indirect_association"):
+            meds = stats.get("mediator_candidates", []) or []
+            med_str = " → ".join(f"`{m}`" for m in meds[:2]) if meds else "（未识别出具体中介）"
+            parts.append(f"| 间接关联 | 关联经中介通道 {med_str} 传导，非直接作用 |")
+        if stats.get("change_point_co_movement", 0.0) >= 0.5:
+            parts.append(f"| 变点同步 | 两变量变点对齐评分 {stats.get('change_point_co_movement', 0.0):.2f} |")
+        if stats.get("loo_stability", 0.0) > 0:
+            parts.append(f"| LOO 稳定性 | {stats.get('loo_stability', 0.0):.2f} |")
+        if stats.get("interaction_flagged"):
+            parts.append(f"| 调节效应 | 关联在分组/工况间方向或强度分歧，不可外推为全局杠杆 |")
 
         if phys:
             parts.append(f"| 方向验证 | {phys.get('direction','?')} |")
@@ -235,14 +257,21 @@ def _build_edges_sections(edges: List[dict]) -> str:
             "source": f"{source}->{target}",
             "mask": f"finite + steady (n_eff={n_eff})",
             "n": n_eff,
-            "method": "Pearson r (global; detrended; partial; lag-aligned), q-value BH-corrected",
+            "method": "Pearson r (global; detrended; partial; lag-aligned), q-value BH-corrected; inference: lag-CCF precedence, full-order conditional independence, change-point co-movement, LOO leverage",
             "effect": {
                 "global_r": global_r,
                 "partial_r": partial_r,
                 "slope_at_current": stats.get("slope_at_current", 0.0),
                 "lag_aligned_r": stats.get("lag_aligned_r", 0.0),
             },
-            "causal_ceiling": f"operability={operability}",
+            "causal_ceiling": e.get("causal_ceiling", "contemporaneous_correlation"),
+            "confidence": e.get("confidence", 0.0),
+            "temporal_direction": stats.get("temporal_direction", "concurrent"),
+            "optimal_lag_steps": stats.get("optimal_lag_steps", 0),
+            "direct_association": stats.get("direct_association", False),
+            "indirect_association": stats.get("indirect_association", False),
+            "mediator_candidates": stats.get("mediator_candidates", []),
+            "ontology_contradiction": e.get("ontology_contradiction", False),
             "not_for": "直接因果推断（无随机对照实验）",
         }, ensure_ascii=False, indent=2)
         parts.append("```json")
@@ -253,6 +282,83 @@ def _build_edges_sections(edges: List[dict]) -> str:
         sections.append("\n".join(parts))
 
     return "\n".join(sections)
+
+
+def _build_network_summary(edges: List[dict]) -> str:
+    """Compact association-network summary: direction, ceiling, contradiction counts."""
+    if not edges:
+        return "无关系数据。"
+    from collections import Counter
+    rel_counts = Counter(e.get("relationship", "") for e in edges)
+    ceiling_counts = Counter(e.get("causal_ceiling", "") for e in edges)
+    direct = sum(1 for e in edges if e.get("statistical_evidence", {}).get("direct_association"))
+    indirect = sum(1 for e in edges if e.get("statistical_evidence", {}).get("indirect_association"))
+    contrad = sum(1 for e in edges if e.get("ontology_contradiction"))
+
+    rows = [
+        "| 维度 | 统计 |",
+        "|------|------|",
+        f"| 边总数 | {len(edges)} |",
+        f"| 正关联 (supports) | {rel_counts.get('supports', 0)} |",
+        f"| 负关联 (inhibits) | {rel_counts.get('inhibits', 0)} |",
+        f"| 因果边 (causes) | {rel_counts.get('causes', 0)} |",
+        f"| 矛盾边 (contradicts) | {rel_counts.get('contradicts', 0)} |",
+        f"| 直接关联（条件独立成立） | {direct} |",
+        f"| 间接关联（经中介传导） | {indirect} |",
+        f"| 本体方向矛盾 | {contrad} |",
+        f"| 时序领先 (temporal_precedence) | {ceiling_counts.get('temporal_precedence', 0)} |",
+        f"| 条件独立支持 (conditional_independence_supported) | {ceiling_counts.get('conditional_independence_supported', 0)} |",
+        f"| 本体一致 (ontology_consistent) | {ceiling_counts.get('ontology_consistent', 0)} |",
+    ]
+    return "\n".join(rows)
+
+
+def _build_contradiction_list(edges: List[dict]) -> str:
+    """List ontology contradictions as warnings."""
+    contrad = [e for e in edges if e.get("ontology_contradiction")]
+    if not contrad:
+        return "无。数据方向与本体校验方向一致。"
+    lines = []
+    for e in contrad:
+        stats = e.get("statistical_evidence", {})
+        lines.append(
+            f"- `{e.get('source','?')}` → `{e.get('target','?')}`：数据 r="
+            f"{_fmt_r(stats.get('global_r', 0.0))}，与本体校验方向相反，可能为内生控制掩盖或本体方向标注错误"
+        )
+    return "\n".join(lines)
+
+
+def _build_mediation_list(edges: List[dict]) -> str:
+    """List indirect/mediation channels."""
+    ind = [e for e in edges if e.get("statistical_evidence", {}).get("indirect_association")]
+    if not ind:
+        return "未识别出间接传导通道。"
+    lines = []
+    for e in ind:
+        stats = e.get("statistical_evidence", {})
+        meds = stats.get("mediator_candidates", []) or []
+        med_str = " → ".join(f"`{m}`" for m in meds[:2]) if meds else "未识别"
+        lines.append(f"- `{e.get('source','?')}` → `{e.get('target','?')}` 经 {med_str} 间接传导")
+    return "\n".join(lines)
+
+
+def _ceiling_zh(ceiling: str) -> str:
+    return {
+        "insufficient_evidence": "证据不足",
+        "contemporaneous_correlation": "同期相关",
+        "temporal_precedence": "时序领先",
+        "conditional_independence_supported": "条件独立支持（直接关联）",
+        "ontology_consistent": "本体一致（物理方向吻合）",
+    }.get(ceiling, ceiling)
+
+
+def _direction_zh(direction: str) -> str:
+    return {
+        "x_leads_y": "预测变量领先目标变量",
+        "y_leads_x": "目标变量领先预测变量",
+        "concurrent": "同步变化",
+        "insufficient": "数据不足",
+    }.get(direction, direction)
 
 
 def _build_mechanism_sections(chains: List[dict]) -> str:

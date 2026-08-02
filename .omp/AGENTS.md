@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构包含三大部分：
 
-1. **Skills** (`.claude/skills/`) — 12 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
+1. **Skills** (`.claude/skills/`) — 13 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
 2. **OMP Agents** (`.omp/agents/`) — 9 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤
 3. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
 4. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
@@ -17,8 +17,9 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 
 |Steps|Agent|产出|
 |---|---|---|
-|Step 0: Setup|main-agent|`00_input/input_manifest.json`, `user_context.json`|
-|Step 1: Inspect|main-agent|schema, feature_summary|
+| Step 0: Setup|main-agent|`00_input/input_manifest.json`, `user_context.json`|
+| Step 0.5: Preprocess|main-agent / entry_a_init|`00_input/preprocessed_data.csv`, `preprocessing_report.json`, `context/`（任意格式 → 标准表）|
+| Step 1: Inspect|main-agent|schema, feature_summary|
 |Step 2: Context|**context-builder**|`01_ontology/ontology.json`, rag_deep_understanding|
 |Step 3: Process|**data-processor**|`02_processed/validate_report.json`, `03_figures/*.png`, visual_analysis|
 |Step 4: Diagnose|**diagnostician**|`04_diagnostics/diagnosis.json`, evidence.json, confidence.json, reasoning_chain.json`|

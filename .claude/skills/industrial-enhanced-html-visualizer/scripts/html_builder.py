@@ -32,6 +32,7 @@ OPER_LABELS_ZH = {
 
 REL_COLORS = {
     "supports": "#2d7d4f",
+    "inhibits": "#c2673a",
     "contradicts": "#c4433b",
     "correlates": "#1e3a54",
     "causes": "#c2673a",
@@ -131,6 +132,26 @@ def build_network_data(knowledge: dict) -> dict:
     echarts_edges = []
     for e in filtered_edges:
         if e["source"] in edge_node_ids and e["target"] in edge_node_ids:
+            se = e.get("statistical_evidence", {}) or {}
+            ceiling_zh = {
+                "insufficient_evidence": "证据不足",
+                "contemporaneous_correlation": "同期相关",
+                "temporal_precedence": "时序领先",
+                "conditional_independence_supported": "条件独立支持",
+                "ontology_consistent": "本体一致",
+            }.get(e.get("causal_ceiling", ""), e.get("causal_ceiling", ""))
+            tdir_zh = {
+                "x_leads_y": "领先",
+                "y_leads_x": "滞后",
+                "concurrent": "同步",
+                "insufficient": "未测",
+            }.get(se.get("temporal_direction", ""), se.get("temporal_direction", ""))
+            tooltip = (
+                f"{e.get('source','')} → {e.get('target','')}<br/>"
+                f"关系: {e.get('relationship','')} (r={e.get('strength',0):.3f})<br/>"
+                f"置信度: {e.get('confidence',0):.2f} | 因果上限: {ceiling_zh}<br/>"
+                f"时序: {tdir_zh} | 直接关联: {'是' if se.get('direct_association') else '否'}"
+            )
             echarts_edges.append({
                 "source": e["source"],
                 "target": e["target"],
@@ -143,6 +164,7 @@ def build_network_data(knowledge: dict) -> dict:
                     "formatter": f"{{@relationship}}",
                     "fontSize": 9,
                 },
+                "tooltip": {"formatter": tooltip},
             })
 
     return {

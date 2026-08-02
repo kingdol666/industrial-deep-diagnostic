@@ -24,15 +24,19 @@
 - [ ] Check lag-aligned feature is computed only when nonzero optimal lag exists
 - [ ] Verify `enhancement/derived_data.csv` exists and contains every `computed` feature column
 
-### Phase 4: Run E3+E4 — Conditional Analysis + Tradeoffs
-- [ ] Execute `conditional_analysis.py --run-dir <RUN_DIR>`
+### Phase 4: Run E3+E4+E3.5 — Conditional Analysis + Tradeoffs + Association Graph
+- [ ] Execute `conditional_analysis.py --run-dir <RUN_DIR>` (writes `deep_data_analysis.json` AND `association_graph.json`)
 - [ ] Verify `enhancement/deep_data_analysis.json` is created
-- [ ] Verify at least one relationship exists for every ontology relationship that resolves to actual columns
+- [ ] Verify at least one relationship exists for every ontology relationship that resolves to actual columns (INCLUDING process→process edges)
 - [ ] For any relationship whose ontology marks `data_direction_validated=false`, verify `operability=ENDOGENOUS_RESPONSE` (compensation response, not cause)
-- [ ] Verify BH-corrected q-values are in [0, 1] range
-- [ ] Verify all seven validity flags are present per relationship
+- [ ] Verify BH-corrected q-values are in [0, 1] range and NOT exact 0.0 (floor values ≤1e-8 stay un-rounded; `p_floor_hit` must be true then)
+- [ ] Verify validity flags are present per relationship, with `change_point_tested`/`outlier_influence_checked` reflecting real computations
+- [ ] Verify `partial_full.method` is `full_order_ridge` or `stepwise_topk` (not `insufficient`) when n > p
 - [ ] Verify `tradeoff_and_operability[]` is non-empty
 - [ ] Check each tradeoff has `parameter`, `controllability`, `effects_on_targets`, `tradeoff_summary`, `operability_assessment`, `support_domain`, `extrapolation_warning`, `open_questions`
+- [ ] Verify `enhancement/association_graph.json` is created with nodes/edges and edge semantics {supports, inhibits, contradicts}
+- [ ] Verify graph edges carry `sign`, `confidence`, `causal_ceiling`, `ontology_contradiction`
+- [ ] Standalone rerun possible: `association_graph_builder.py --run-dir <RUN_DIR>` rebuilds only the graph
 
 ### Phase 5: Cross-Validation
 - [ ] All columns in `analysis_coverage.columns[]` have distinct `column` names

@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Association Graph Schema v1.0",
+  "description": "关联网络——全变量两两扫描 + 推理证据（方向/置信度/因果上限/本体矛盾/中介/变点同步/杠杆稳定性）的最终图结构。由 conditional_analysis (E3) / association_graph_builder (E3.5) 生成，knowledge_fusion (E6) 消费。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "n_nodes",
+    "n_edges",
+    "nodes",
+    "edges",
+    "metadata"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "n_nodes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_edges": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "controlled_by": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "target",
+          "relationship",
+          "strength",
+          "sign",
+          "confidence",
+          "causal_ceiling",
+          "statistical_evidence"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "relationship": {
+            "description": "supports=正关联；inhibits=负关联；contradicts=数据方向与本体校验冲突",
+            "type": "string",
+            "enum": [
+              "supports",
+              "inhibits",
+              "contradicts"
+            ]
+          },
+          "strength": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "sign": {
+            "type": "integer",
+            "enum": [
+              -1,
+              1
+            ]
+          },
+          "confidence": {
+            "description": "0..1 证据置信度（q 值 + LOO 稳定性 + 条件独立一致性）",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "causal_ceiling": {
+            "type": "string",
+            "enum": [
+              "insufficient_evidence",
+              "contemporaneous_correlation",
+              "temporal_precedence",
+              "conditional_independence_supported",
+              "ontology_consistent"
+            ]
+          },
+          "ontology_contradiction": {
+            "type": "boolean"
+          },
+          "statistical_evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "global_r": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "p_value": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "p_floor_hit": {
+                "type": "boolean"
+              },
+              "q_value": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "n_effective": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "partial_r": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "partial_method": {
+                "type": "string"
+              },
+              "temporal_direction": {
+                "type": "string"
+              },
+              "optimal_lag_steps": {
+                "type": "integer"
+              },
+              "ccf_peak_r": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "lag_aligned_r": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "direct_association": {
+                "type": "boolean"
+              },
+              "indirect_association": {
+                "type": "boolean"
+              },
+              "mediator_candidates": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "change_point_co_movement": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "loo_stability": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "interaction_flagged": {
+                "type": "boolean"
+              }
+            }
+          },
+          "evidence_ref": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_abs_r": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "q_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "min_pair_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ccf_max_lag_abs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cp_min_seg": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "generated_at": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}

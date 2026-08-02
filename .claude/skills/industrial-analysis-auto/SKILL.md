@@ -220,6 +220,28 @@ node "$SHARED_PATH/scripts/uv_env_setup.mjs"
 
 `setup.mjs` bootstraps `run_manifest.json` + `.pipeline_events.jsonl` with `run_initialized` event.
 
+### Step 0.5: Adaptive Data Preprocessing (data-source agnosticism gate)
+
+Before inspecting, normalize ANY user data source into the canonical pipeline
+input. Run the E-1 stage when the data is a directory, an Excel workbook
+(xlsx/xlsm with multiple sheets), a JSON dump, Markdown/HTML tables, or a
+mix of formats:
+
+```bash
+python "$SKILL_PATH/../../industrial-data-preprocessor/scripts/data_preprocessor.py" \
+  --data-path <data_file_or_dir> --output "$RUN_DIR/00_input" --name <scene_name>
+```
+
+It writes `00_input/preprocessed_data.csv` (canonical table), a
+`preprocessing_report.json` audit (per-source disposition, encoding/delimiter/
+sheet adaptation, merge keys), and preserves non-tabular docs in
+`00_input/context/`. `DATA_PATH` for all downstream steps = the canonical
+`preprocessed_data.csv`; `raw_data_path` + the preprocessing block remain in
+`input_manifest.json` for provenance. If the report says `no_tabular_data`,
+stop and report the audit to the user instead of proceeding.
+
+Read `skill://industrial-data-preprocessor` for the full adaptation matrix.
+
 ### Step 1: Inspect
 
 ```bash

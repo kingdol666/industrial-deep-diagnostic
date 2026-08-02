@@ -141,10 +141,21 @@ def _classify_operability(
 
     physics_ok = (onto_rel and onto_rel.get("data_direction_validated") == "true")
     q_ok = best.get("q_value", 1.0) <= 0.05
-    direction_stable = True  # Simplification
-    no_confounding = not best.get("validity_flags", {}).get("confounding_checked", False) or \
-        (best.get("validity_flags", {}).get("confounding_checked") and not
-         best.get("validity_flags", {}).get("simpson_paradox_checked", False))
+
+    # Direction stability from real evidence (LOO jackknife + per-regime spread)
+    loo = best.get("loo_stability", {}) or {}
+    loo_stable = bool(not loo.get("valid") or (not loo.get("sign_flip") and loo.get("stability", 1.0) >= 0.6))
+    per_regime = best.get("per_regime", [])
+    regime_stable = True
+    if len(per_regime) >= 2:
+        signs = {1 if v > 0 else -1 for v in per_regime if v != 0}
+        regime_stable = len(signs) <= 1
+    direction_stable = loo_stable and regime_stable
+
+    no_confounding = not best.get("validity_flags", {}).get("simpson_paradox_checked", False)
+    ceiling_ok = best.get("causality_ceiling", "contemporaneous_correlation") in (
+        "conditional_independence_supported", "ontology_consistent", "temporal_precedence")
+    not_contradicted = best.get("ontology_contradiction", False) is not True
 
     # Check directly controllable
     controllable = True
@@ -167,7 +178,7 @@ def _classify_operability(
         "reflect", "symptom", "状态指示", "承载", "degradation state",
     ))
 
-    if physics_ok and q_ok and direction_stable and not best.get("validity_flags", {}).get("confounding_checked", False) is False and controllable and not is_indicator:
+    if physics_ok and q_ok and direction_stable and no_confounding and controllable and not is_indicator and ceiling_ok and not_contradicted:
         return "LEVER_IDENTIFIED"
 
     return "LEVER_OBSERVATIONAL"
@@ -303,6 +314,24 @@ def build_tradeoff_and_operability(
             open_qs.append("内生响应：观测相关方向可能是结果而非原因，需工具变量或去趋势分析进一步确认。")
         if operability == "CONFOUNDED":
             open_qs.append("存在混杂：因果识别需分层分析或受控实验。")
+        # Evidence-driven extras from the inference layer
+        for rel in pred_rels:
+            if rel.get("ontology_contradiction"):
+                open_qs.append(
+                    f"本体矛盾：{rel['target']} 方向与本体校验方向相反，数据驱动方向与物理预期冲突，"
+                    "需复核本体 direction 标注或排查内生控制掩盖。")
+            inter = rel.get("interaction") or {}
+            if inter.get("flagged"):
+                open_qs.append(
+                    f"调节效应：{rel['target']} 关联在 {inter.get('moderator', '分组')} 分组间"
+                    + ("方向相反" if inter.get("sign_divergence") else "强度差异显著")
+                    + "，关联随工况/分组改变，不可外推为全局杠杆。")
+            if rel.get("indirect_association"):
+                meds = [m.get("mediator", "") for m in rel.get("mediator_candidates", [])]
+                if meds:
+                    open_qs.append(
+                        f"间接关联：{rel['target']} 关联在控制其他变量后大幅衰减，"
+                        f"疑似经中介通道 {' → '.join(meds[:2])} 传导。")
         if not open_qs:
             open_qs.append("建议在投入运行前做进一步机制验证。")
 

@@ -25,8 +25,9 @@ Deterministic deep-analysis layer (Task 3 of DOE enhancement plan). Consumes an 
 - `enhancement/analysis_coverage.json` — per-column coverage assessment (E1)
 - `enhancement/derived_features.json` — physically justified derived features (E2)
 - `enhancement/deep_data_analysis.json` — relationships + tradeoff_and_operability (E3+E4)
+- `enhancement/association_graph.json` — full pairwise association network with inference evidence (E3.5)
 
-## Phase Protocol (E1 → E4)
+## Phase Protocol (E1 → E4 + E3.5)
 
 ### E1: Coverage Builder
 ```
@@ -48,7 +49,7 @@ python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.p
 Physically justified derived features (only when source columns and ontology conditions exist):
 1. `cumulative_<poisoning_column>_exposure` — trapezoidal sum over sorted timestamp
 2. `time_since_<event_or_group_transition>` — hours since group transition
-3. `regime_<name>` — one-hot indicators from `production_regime_filter.json`
+3. `regime_<name>` — one-hot indicators from `production_regime_filter.json` (used as moderators only; never fed as linear predictors)
 4. Lag-aligned feature from `time_lag_analysis.key_findings` with nonzero optimal lag
 
 No invented constants (reactor volume, heat capacity, etc.). Status `not_applicable` for skipped candidates with nonempty formula/reason.
@@ -58,30 +59,40 @@ No invented constants (reactor volume, heat capacity, etc.). Status `not_applica
 python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py --run-dir <RUN_DIR>
 ```
 Builds candidate pairs from:
-1. `ontology.relationships[]` from/to names
-2. Selection Tier 1/2 predictor columns → quality targets
-3. Deduplicated; excludes target=predictor, metadata, control-output, pruned pairs
+1. `ontology.relationships[]` from/to names — INCLUDING process→process edges (vibration→temperature dual-channel evidence etc.)
+2. Selection tiers (all shapes) — pair targets declared by the analyst are kept even when they are process parameters (control-endogenous checks)
+3. `predictor_cols` → quality targets fallback
+4. Computed derived features (E2) → quality targets; `regime_*` one-hots excluded
 
-Per pair computes: `global`, `detrended`, `per_group`, `steady`, `lag_aligned`, `per_regime`, `slope_at_current`, `partial`, `form_match`, `q_value` (BH-corrected), `n_effective`, all seven validity flags. Invokes `tradeoff_builder.build_tradeoff_and_operability` for the final `tradeoff_and_operability[]`.
+Deduplicated; excludes target=predictor, metadata, control-output-as-predictor, pruned pairs.
+
+Per pair computes: `global` (erfc-safe p-value with scientific floor — never 0.0 underflow), `detrended`, `per_group`, `steady`, fresh `lag-CCF temporal causality` (direction + optimal lag, no reliance on baseline findings), `per_regime`, `slope_at_current`, `partial`, `partial_full` (full-order conditional independence), `form_match`, `q_value` (BH-corrected), `n_effective`, all validity flags (change-point and outlier checks now real), plus inference evidence: `direct_association`, `indirect_association`, `mediator_candidates`, `change_point_co_movement`, `loo_stability`, `interaction`, `causality_ceiling`, `ontology_contradiction`. Invokes `tradeoff_builder.build_tradeoff_and_operability` for the final `tradeoff_and_operability[]`.
+
+### E3.5: Association Graph
+```
+python .claude/skills/industrial-deep-analysis/scripts/association_graph_builder.py --run-dir <RUN_DIR>
+```
+Full pairwise scan over all numeric columns (metadata/time/`_dev`/`regime_*` excluded) → `association_graph.json`: nodes (role/unit) + edges with `relationship` ∈ {supports, inhibits, contradicts}, `sign`, `confidence` (q + LOO stability + CI consistency), `causal_ceiling`, `ontology_contradiction`, and full `statistical_evidence` (temporal direction, partial, mediation channels, change-point alignment, interaction).
 
 ### E4: Tradeoff Builder
 ```
 python .claude/skills/industrial-deep-analysis/scripts/tradeoff_builder.py --deep-analysis <DEEP_JSON> [--output <OUT>]
 ```
-Library function `build_tradeoff_and_operability(df, relationships, ontology, selection, feature_metadata=None) -> list[dict]`. CLI can rewrite `tradeoff_and_operability` in an existing deep analysis JSON deterministically.
+Library function `build_tradeoff_and_operability(df, relationships, ontology, selection, feature_metadata=None) -> list[dict]`. CLI can rewrite `tradeoff_and_operability` in an existing deep analysis JSON deterministically. Operability now uses real direction-stability evidence (LOO jackknife + per-regime sign consistency), the live `insufficient_data` flag, `causality_ceiling` (must reach at least temporal/CI/ontology level for LEVER_IDENTIFIED), and reports mediator/interaction/contradiction findings in open questions.
 
 ## Operability Enum Values
 1. `ENDOGENOUS_RESPONSE` — data_direction_validated=false, predictor is endogenous/control response, or observed direction contradicts governing physics while data shows compensation
 2. `CONFOUNDED` — Simpson/group reversal or unresolved time confounding
 3. `CONSTRAINT_UNCONTROLLABLE` — ontology role is constraint/uncontrollable
 4. `NOT_IDENTIFIABLE` — insufficient effective n, no usable numeric variation, competing state estimates indistinguishable
-5. `LEVER_IDENTIFIED` — physics direction/form match, q ≤ 0.05, group/steady direction stable, no confounding, predictor directly controllable
+5. `LEVER_IDENTIFIED` — physics direction/form match, q ≤ 0.05, direction stable (LOO + regime), no confounding, causality ceiling ≥ temporal_precedence, no ontology contradiction, predictor directly controllable
 6. `LEVER_OBSERVATIONAL` — fallback when none of the above apply
 
 ## Numeric Truth Mandate
-- Every numeric schema field that cannot be estimated must use finite neutral values (0.0, q=1.0, slope=0.0) together with explicit validity flags (`insufficient_data=true` etc.)
+- Every numeric schema field that cannot be estimated must use finite neutral values (0.0, q=1.0, slope=0.0) together with explicit validity flags (`insufficient_data=true`, `slope_valid=false`, `partial_valid=false`)
 - Never interpret neutral values as evidence
 - Never call a relationship causal merely because a p-value is small
+- p-values never reported as exact 0.0: below 1e-300 they are floored with `p_floor_hit=true`
 - Never invent physical constants absent from ontology/user context
 
 ## Verification Commands

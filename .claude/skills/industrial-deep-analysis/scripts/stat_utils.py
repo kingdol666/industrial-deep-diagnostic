@@ -33,7 +33,41 @@ __all__ = [
     "durbin_watson",
     "stationarity_check",
     "support_domain",
+    "safe_p_value",
+    "pearson_r",
 ]
+
+# Scientific floor for two-sided p-values: below this, double-precision arithmetic
+# can no longer distinguish tail probabilities, so we report the floor and a flag
+# instead of an exact 0.0 (which would corrupt BH correction and significance logic).
+P_VALUE_FLOOR = 1e-300
+
+
+def safe_p_value(t_stat: float, floor: float = P_VALUE_FLOOR) -> "tuple[float, bool]":
+    """Two-sided p-value for a normal-statistic ``t_stat``, computed via ``erfc``.
+
+    The naive ``2 * (1 - cdf(|t|))`` form underflows to 0.0 once |t| exceeds ~38,
+    silently destroying significance ranking. ``math.erfc`` stays accurate for
+    |t| up to ~10**5, and beyond that we clamp to ``floor`` and report
+    ``floor_hit=True`` so callers can disclose the bound.
+
+    Returns ``(p_value, floor_hit)``. Degenerate (non-finite) input returns
+    ``(1.0, False)`` so the association is treated as untested, never as zero.
+    """
+    if not math.isfinite(t_stat):
+        return 1.0, False
+    x = abs(float(t_stat)) / math.sqrt(2.0)
+    p = math.erfc(x)
+    if p <= 0.0 or not math.isfinite(p):
+        return float(floor), True
+    if p < floor:
+        return float(floor), True
+    return float(p), False
+
+
+def pearson_r(a: np.ndarray, b: np.ndarray) -> Optional[float]:
+    """Public alias for the internal Pearson helper (finite-safe, degenerate-safe)."""
+    return _pearson_r(a, b)
 
 
 # --------------------------------------------------------------------------- #
@@ -92,9 +126,8 @@ def _normal_cdf(z: float) -> float:
 
 def _two_sided_normal_p(z: float) -> float:
     """Two-sided tail probability of a standard-normal statistic."""
-    if not math.isfinite(z):
-        return 0.0 if math.isinf(z) else float("nan")
-    return 2.0 * (1.0 - _normal_cdf(abs(z)))
+    p, _ = safe_p_value(z)
+    return p
 
 
 def _pearson_r(a: np.ndarray, b: np.ndarray) -> Optional[float]:
@@ -224,14 +257,23 @@ def ols_centered(X, y):
     se = np.sqrt(var_diag)
     with np.errstate(divide="ignore", invalid="ignore"):
         t_stat = np.where(se > 0, beta / se, np.nan)
-    p_vals = np.array([_two_sided_normal_p(float(t)) if math.isfinite(float(t)) else None
-                       for t in t_stat])
+    p_vals: List[Optional[float]] = []
+    p_floor_hit: List[bool] = []
+    for t in t_stat:
+        if not math.isfinite(float(t)):
+            p_vals.append(None)
+            p_floor_hit.append(False)
+        else:
+            p, hit = safe_p_value(float(t))
+            p_vals.append(p)
+            p_floor_hit.append(hit)
 
     return {
         "beta": beta,
         "se": se,
         "t": t_stat,
         "p": p_vals,
+        "p_floor_hit": p_floor_hit,
         "r2": r2,
         "resid": resid,
         "n": n,

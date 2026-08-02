@@ -157,13 +157,50 @@ def _coverage_status(
     if not has_data:
         return "insufficient_data"
 
-    # Determine tier
+    # Determine tier (scan ALL tier shapes — dict-of-columns and pair-object
+    # lists; hardcoded tier keys silently empty for pair-object selections)
     tiers = selection.get("analysis_tiers", {})
-    tier1_cols = tiers.get("tier1_primary_kinetic_drivers", {}).get("columns", [])
-    tier2_cols = tiers.get("tier2_feed_residence_pressure", {}).get("columns", [])
-    tier3_cols = tiers.get("tier3_confounders_caution", {}).get("columns", [])
-    tier4_cols = tiers.get("tier4_control_outputs_effect_not_cause", {}).get("columns", [])
-    target_cols = tiers.get("targets", {}).get("columns", [])
+    tier1_cols: List[str] = []
+    tier2_cols: List[str] = []
+    tier3_cols: List[str] = []
+    tier4_cols: List[str] = []
+    target_cols: List[str] = []
+    for tier_key, tier in (tiers or {}).items():
+        if isinstance(tier, dict):
+            cols = tier.get("columns", []) or []
+            tk_low = tier_key.lower()
+            if "confound" in tk_low or "caution" in tk_low:
+                tier3_cols.extend(cols)
+            elif "control" in tk_low or "output" in tk_low or "endogen" in tk_low:
+                tier4_cols.extend(cols)
+            elif "target" in tk_low:
+                target_cols.extend(cols)
+            elif "tier1" in tk_low or "tier_1" in tk_low or "primary" in tk_low:
+                tier1_cols.extend(cols)
+            else:
+                tier2_cols.extend(cols)
+        elif isinstance(tier, list):
+            for item in tier:
+                if not isinstance(item, dict):
+                    continue
+                tk_low = tier_key.lower()
+                pred = item.get("predictor", "")
+                tgt = item.get("target", "")
+                if "confound" in tk_low or "caution" in tk_low:
+                    tier3_cols.extend([pred, tgt])
+                elif "control" in tk_low or "output" in tk_low or "endogen" in tk_low:
+                    tier4_cols.extend([pred, tgt])
+                elif "target" in tk_low:
+                    target_cols.extend([pred, tgt])
+                elif "tier1" in tk_low or "tier_1" in tk_low or "primary" in tk_low:
+                    tier1_cols.extend([pred, tgt])
+                else:
+                    tier2_cols.extend([pred, tgt])
+    tier1_cols = list(dict.fromkeys(tier1_cols))
+    tier2_cols = list(dict.fromkeys(tier2_cols))
+    tier3_cols = list(dict.fromkeys(tier3_cols))
+    tier4_cols = list(dict.fromkeys(tier4_cols))
+    target_cols = list(dict.fromkeys(target_cols))
     pruned_cols = set()
     for pp in selection.get("pruned_pairs", []):
         for part in pp.get("pair", "").replace("<->", "->").split("->"):

@@ -61,14 +61,53 @@ try {
   process.exit(1);
 }
 
+// Step 1.5: adaptive preprocessing — any file/directory/mixed-format input is
+// normalized to 00_input/preprocessed_data.csv (+ report + context/).
+// This is what makes the pipeline data-source agnostic: raw data may be a
+// directory, CSV/TSV/delimited text (any encoding), xlsx/xlsm multi-sheet
+// workbooks, JSON records, markdown/HTML tables, or free-text notes.
+let inspectedPath = dataAbs;
+let prepReport = null;
+const prepScript = path.join(projectRoot, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+try {
+  const prepOut = execFileSync('python', ['-W', 'ignore', prepScript, '--data-path', dataAbs, '--output', path.join(runDir, '00_input'), '--name', name], {
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const prepJson = JSON.parse(prepOut.trim());
+  prepReport = prepJson;
+  const preprocessed = path.join(runDir, '00_input', 'preprocessed_data.csv');
+  if (prepJson.status === 'ok' && fs.existsSync(preprocessed)) {
+    inspectedPath = preprocessed;
+  } else if (prepJson.status === 'no_tabular_data') {
+    console.error('ERROR: preprocessing found no tabular data in input. Report:');
+    console.error(fs.readFileSync(path.join(runDir, '00_input', 'preprocessing_report.json'), 'utf8'));
+    process.exit(1);
+  }
+} catch (e) {
+  console.error('ERROR: data preprocessing failed:', e.message);
+  process.exit(1);
+}
+
 // Step 2: inspect data → write input_manifest / user_context / run_config
 try {
-  const inspectOut = runScript(path.join(autoSkill, 'scripts', 'inspect.mjs'), [dataAbs]);
+  const inspectOut = runScript(path.join(autoSkill, 'scripts', 'inspect.mjs'), [inspectedPath]);
   const insp = JSON.parse(inspectOut);
   const manifest = {
     run_id: name,
-    data_path: dataPath,
+    data_path: inspectedPath,
+    raw_data_path: dataPath,
     reference_dir: 'data/references',
+    preprocessing: prepReport
+      ? {
+          status: prepReport.status,
+          selected: prepReport.selected || null,
+          tables_found: prepReport.tables_found || 0,
+          context_files: prepReport.context_files || 0,
+          skipped_files: prepReport.skipped_files || 0,
+          report: path.join(runDir, '00_input', 'preprocessing_report.json'),
+        }
+      : null,
     data_profile: {
       rows: insp.rows,
       columns: insp.columns,
@@ -89,7 +128,8 @@ try {
     path.join(runDir, '00_input', 'run_config.json'),
     JSON.stringify(
       {
-        data_path: dataPath,
+        data_path: inspectedPath,
+        raw_data_path: dataPath,
         interaction_mode: 'auto',
         process_description: processDesc,
         user_objective: objective,
@@ -113,7 +153,7 @@ try {
 try {
   runScript(path.join(sharedPath, 'scripts', 'append-pipeline-event.mjs'), [
     runDir, '--event', 'step_start', '--agent', 'main-agent', '--step', 'inspect',
-    '--data', JSON.stringify({ data_path: dataPath }),
+    '--data', JSON.stringify({ data_path: inspectedPath, raw_data_path: dataPath }),
   ]);
   runScript(path.join(sharedPath, 'scripts', 'append-pipeline-event.mjs'), [
     runDir, '--event', 'step_complete', '--agent', 'main-agent', '--step', 'inspect',

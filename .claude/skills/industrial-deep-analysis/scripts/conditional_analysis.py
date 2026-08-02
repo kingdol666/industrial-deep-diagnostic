@@ -34,9 +34,29 @@ from stat_utils import (  # noqa: E402
     slope_at_current,
     partial_correlation,
     benjamini_hochberg,
+    safe_p_value,
     stationarity_check,
 )
+from inference_engine import (  # noqa: E402
+    temporal_causality,
+    change_point_co_movement,
+    conditional_independence,
+    leverage_stability,
+    moderator_check,
+    mediation_scan,
+    causality_ceiling,
+    build_association_graph,
+    pairwise_scan,
+    MIN_ABS_R,
+    Q_THRESHOLD,
+    MIN_PAIR_N,
+    DIRECT_MIN_PARTIAL,
+    INDIRECT_MAX_PARTIAL,
+)
 from tradeoff_builder import build_tradeoff_and_operability  # noqa: E402
+
+# Cache of change-point positions per column (df fixed per run)
+_CP_CACHE: Dict[str, List[int]] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -173,15 +193,14 @@ def _build_candidate_pairs(
             return _resolve_col(name, df_cols)
         return name
 
-    # From ontology relationships (always included; for process-only scenes the
-    # relationship target may itself be a process parameter — that is valid)
+    # From ontology relationships (always included; the relationship target may
+    # be a process parameter — process→process edges are the backbone of the
+    # association logic, e.g. vibration→temperature dual-channel wear evidence)
     for rel in ontology.get("relationships", []):
         frm = rel.get("from", "")
         to = rel.get("to", "")
         tgt = _resolve_tgt(to)
         if not frm or not tgt:
-            continue
-        if targets and tgt not in targets:
             continue
         pairs.add((_resolve_col(frm, df_cols) or frm, tgt))
 
@@ -210,10 +229,9 @@ def _build_candidate_pairs(
                 tgt = item.get("target", "")
                 if not pred or not tgt:
                     continue
-                resolved_tgt = _resolve_tgt(tgt)
-                if targets and resolved_tgt not in targets:
-                    continue
-                pairs.add((_resolve_col(pred, df_cols) or pred, resolved_tgt))
+                # Tier pairs are declared analysis targets (may be process
+                # parameters, e.g. control-endogenous checks) — keep as declared.
+                pairs.add((_resolve_col(pred, df_cols) or pred, _resolve_tgt(tgt) or tgt))
 
     # Also add direct selection predictor_cols -> quality_targets when tier info is thin
     for pred in selection.get("predictor_cols", []):
@@ -228,6 +246,11 @@ def _build_candidate_pairs(
             continue
         fname = feat.get("name", "")
         if not fname:
+            continue
+        # Regime one-hot partitions are moderators, not numeric drivers — they
+        # are covered by per_regime analysis; feeding them as linear predictors
+        # produces meaningless binary-vs-continuous correlations.
+        if fname.startswith("regime_"):
             continue
         resolved = _resolve_col(fname, df_cols) or fname
         for tgt in targets:
@@ -364,6 +387,71 @@ def _detect_group_col(df: pd.DataFrame, selection: dict, regime_filter: Optional
     return ""
 
 
+def _collect_tier_predictors(selection: dict) -> List[str]:
+    """Collect all predictor columns named across every analysis tier, in any
+    supported tier shape (dict-of-columns or list-of-pair-objects)."""
+    preds: List[str] = []
+    for _tk, tier in (selection.get("analysis_tiers", {}) or {}).items():
+        if isinstance(tier, dict):
+            preds.extend(tier.get("columns", []) or [])
+        elif isinstance(tier, list):
+            for item in tier:
+                if isinstance(item, dict) and item.get("predictor"):
+                    preds.append(item["predictor"])
+    # de-dup preserving order
+    seen: Set[str] = set()
+    out: List[str] = []
+    for p in preds:
+        if p not in seen:
+            seen.add(p)
+            out.append(p)
+    return out
+
+
+def _cached_cp_movement(df: pd.DataFrame, pred: str, tgt: str) -> dict:
+    """Change-point co-movement with a per-column cache (CP positions are
+    pair-independent, so caching avoids recomputing CUSUM per pair)."""
+    try:
+        from inference_engine import _cusum_change_points, CP_ALIGN_WINDOW_FRACTION
+
+        n = len(df)
+
+        def _cps(col: str) -> List[int]:
+            if col not in _CP_CACHE:
+                vals = pd.to_numeric(df[col], errors="coerce").to_numpy(dtype=float)
+                mask = _finite_mask(vals)
+                idx = np.where(mask)[0]
+                positions = [int(idx[p]) for p in _cusum_change_points(vals[mask])]
+                _CP_CACHE[col] = positions
+            return _CP_CACHE[col]
+
+        cpa, cpb = _cps(pred), _cps(tgt)
+        if not cpa or not cpb:
+            return {"valid": True, "cp_a": cpa, "cp_b": cpb, "matched": 0,
+                    "score": 0.0, "flagged": False,
+                    "window_steps": max(3, int(n * CP_ALIGN_WINDOW_FRACTION))}
+        window = max(3, int(n * CP_ALIGN_WINDOW_FRACTION))
+        smaller, larger = (cpa, cpb) if len(cpa) <= len(cpb) else (cpb, cpa)
+        matched, used = 0, []
+        for p in smaller:
+            for q in larger:
+                if q in used:
+                    continue
+                if abs(p - q) <= window:
+                    matched += 1
+                    used.append(q)
+                    break
+        score = matched / min(len(cpa), len(cpb))
+        single_shift = matched == 1 and score == 1.0 and len(cpa) == 1 and len(cpb) == 1
+        return {"valid": True, "cp_a": cpa, "cp_b": cpb, "matched": matched,
+                "score": round(float(score), 4),
+                "flagged": bool((score >= 0.5 and matched >= 2) or single_shift),
+                "window_steps": window}
+    except Exception:
+        return {"valid": False, "cp_a": [], "cp_b": [], "matched": 0,
+                "score": 0.0, "flagged": False, "window_steps": 0}
+
+
 def _compute_relationship(
     df: pd.DataFrame,
     pred: str,
@@ -391,13 +479,14 @@ def _compute_relationship(
     # --- global ---
     global_r = 0.0
     global_p = 1.0
-    if n_finite >= 10:
+    p_floor_hit = False
+    if n_finite >= MIN_PAIR_N:
         global_r = _pearson_r(x, y) or 0.0
-        # Approximate p-value from r and n
         if abs(global_r) < 1.0 and n_finite > 2:
             t_stat = global_r * np.sqrt((n_finite - 2) / (1 - global_r ** 2))
-            from math import erf
-            global_p = float(2 * (1 - 0.5 * (1 + erf(abs(t_stat) / np.sqrt(2)))))
+            global_p, p_floor_hit = safe_p_value(float(t_stat))
+        elif abs(global_r) >= 1.0:
+            global_p, p_floor_hit = safe_p_value(float("inf"))
         all_p_values.append(global_p)
 
     # --- detrended ---
@@ -437,30 +526,48 @@ def _compute_relationship(
                 if fm.sum() >= 10:
                     steady_r = _pearson_r(xs[fm], ys[fm]) or global_r
 
-    # --- lag_aligned ---
+    # --- lag_aligned + temporal causality (fresh per pair) ---
     tla = conclusion.get("time_lag_analysis", {})
     key_findings = tla.get("key_findings", [])
     lag_r = steady_r
     lag_significant = False
     best_lag_steps = 0
-    for kf in key_findings:
-        if kf.get("predictor") == pred and kf.get("target") == tgt:
-            lag_steps = kf.get("optimal_lag_steps", 0)
-            best_lag_steps = lag_steps or 0
-            if lag_steps is not None and lag_steps != 0 and abs(lag_steps) > 0:
-                if time_col in df.columns and n_finite >= 10:
-                    try:
-                        df_sorted = df.sort_values(time_col)
-                        shifted = df_sorted[pred].shift(lag_steps)
-                        xs = _coerce_numeric(shifted)
-                        ys = _coerce_numeric(df_sorted[tgt])
-                        mask = _finite_mask(xs, ys)
-                        if mask.sum() >= 10:
-                            lag_r = _pearson_r(xs[mask], ys[mask]) or steady_r
-                    except Exception:
-                        pass
-            lag_significant = True if (lag_steps is not None and abs(lag_steps) > 0) else False
-            break
+    temporal = {"valid": False, "direction": "insufficient", "optimal_lag_steps": 0,
+                "ccf_peak_r": 0.0, "p_value": 1.0, "p_floor_hit": False,
+                "lag_aligned_r": 0.0, "n_used": 0}
+
+    # Fresh lag-CCF precedence test on the actual time series
+    if time_col and time_col in df.columns and n_finite >= MIN_PAIR_N:
+        try:
+            tvals = pd.to_datetime(df[time_col]).astype("int64").to_numpy(dtype=float)
+        except Exception:
+            tvals = df[time_col].to_numpy(dtype=float)
+        temporal = temporal_causality(x_raw, y_raw, tvals)
+        if temporal.get("valid") and temporal.get("direction") != "concurrent":
+            best_lag_steps = int(temporal.get("optimal_lag_steps", 0))
+            lag_r = float(temporal.get("lag_aligned_r", steady_r))
+            lag_significant = bool(temporal.get("p_value", 1.0) <= Q_THRESHOLD)
+
+    # Fallback to baseline key_findings when the fresh test found no precedence
+    if not lag_significant:
+        for kf in key_findings:
+            if kf.get("predictor") == pred and kf.get("target") == tgt:
+                lag_steps = kf.get("optimal_lag_steps", 0)
+                best_lag_steps = lag_steps or 0
+                if lag_steps is not None and lag_steps != 0 and abs(lag_steps) > 0:
+                    if time_col in df.columns and n_finite >= 10:
+                        try:
+                            df_sorted = df.sort_values(time_col)
+                            shifted = df_sorted[pred].shift(lag_steps)
+                            xs = _coerce_numeric(shifted)
+                            ys = _coerce_numeric(df_sorted[tgt])
+                            mask = _finite_mask(xs, ys)
+                            if mask.sum() >= 10:
+                                lag_r = _pearson_r(xs[mask], ys[mask]) or steady_r
+                        except Exception:
+                            pass
+                lag_significant = True if (lag_steps is not None and abs(lag_steps) > 0) else False
+                break
 
     # --- per_regime ---
     regime_labels = None
@@ -483,22 +590,45 @@ def _compute_relationship(
         except Exception:
             pass
 
-    # --- partial correlation ---
+    # --- partial correlation (controls from ALL tier shapes, not hardcoded keys) ---
     partial_r = 0.0
     partial_valid = False
-    tiers = selection.get("analysis_tiers", {})
-    all_tier_preds: List[str] = []
-    for tk in ["tier1_primary_kinetic_drivers", "tier2_feed_residence_pressure",
-               "tier3_confounders_caution"]:
-        all_tier_preds.extend(tiers.get(tk, {}).get("columns", []))
+    all_tier_preds = _collect_tier_predictors(selection)
     controls = [c for c in all_tier_preds if c != pred and c in df.columns]
-    if controls and n_finite >= 10:
+    if controls and n_finite >= MIN_PAIR_N:
         try:
             result = partial_correlation(df.iloc[finite], pred, tgt, controls)
             partial_r = float(result.get("partial_r", 0.0))
             partial_valid = bool(result.get("valid", False))
         except Exception:
             pass
+
+    # --- full-order conditional independence (direct vs indirect) ---
+    # Conditioning set = primary numeric signals only. Object metadata coerce
+    # to all-NaN, and derived aggregates (_dev rolling stats, regime_* one-hots)
+    # are near-duplicates of the parent signal — conditioning on them would
+    # trivially collapse every correlation and fake mediation channels.
+    others = []
+    for c in df.columns:
+        if c in (pred, tgt):
+            continue
+        if c.lower() in ("timestamp", "time", "datetime", "date", "time_hours") or c.lower().startswith("ts_"):
+            continue
+        if c.endswith("_dev") or c.startswith("regime_"):
+            continue
+        try:
+            nun = pd.to_numeric(df[c], errors="coerce").nunique(dropna=True)
+        except Exception:
+            continue
+        if nun > 1:
+            others.append(c)
+    partial_full = conditional_independence(df, pred, tgt, others)
+    partial_full_r = float(partial_full.get("partial_r", 0.0))
+    partial_full_valid = bool(partial_full.get("valid", False))
+    direct_association = bool(partial_full_valid and abs(partial_full_r) >= DIRECT_MIN_PARTIAL
+                              and (partial_full_r > 0) == (global_r > 0))
+    indirect_association = bool(partial_full_valid and abs(global_r) >= MIN_ABS_R
+                                and abs(partial_full_r) < INDIRECT_MAX_PARTIAL)
 
     # --- form_match ---
     onto_rels = ontology.get("relationships", [])
@@ -541,28 +671,66 @@ def _compute_relationship(
         if n_groups > 1:
             n_eff = int(n_finite / n_groups) * n_groups  # groups * avg per group
 
-    # --- validity_flags ---
+    # --- change-point co-movement + leverage stability + moderator ---
+    cp_movement = _cached_cp_movement(df, pred, tgt)
+    loo = leverage_stability(x, y)
+    primary_group = _detect_group_col(df, selection, regime_filter)
+    interaction = moderator_check(df, pred, tgt, primary_group or None, per_group,
+                                  partition_name=primary_group)
+
+    # --- mediation scan (indirect channels) ---
+    mediation = mediation_scan(df, pred, tgt, others,
+                               global_r, partial_full_r, partial_full_valid)
+
+    # --- causality ceiling + ontology contradiction ---
+    onto_rels = ontology.get("relationships", [])
+    onto_rel = None
+    for rel in onto_rels:
+        if rel.get("from") == pred and rel.get("to") == tgt:
+            onto_rel = rel
+            break
+    ceiling = causality_ceiling(temporal, partial_full, onto_rel, global_r, n_finite)
+
+    # --- validity_flags (all now actually computed) ---
+    insufficient = bool(n_finite < MIN_PAIR_N or (abs(global_r) < 0.05 and n_finite < 30))
     validity_flags = {
         "simpson_paradox_checked": bool(primary_group and len(per_group) >= 2),
         "confounding_checked": bool(primary_group),
         "trend_confounding_checked": detrend_flag,
-        "change_point_tested": False,  # Requires dedicated change-point detection
+        "change_point_tested": bool(cp_movement.get("valid", False)),
         "batch_effect_tested": bool(primary_group and len(per_group) >= 2),
         "lag_significant": lag_significant,
-        "outlier_influence_checked": False,
+        "outlier_influence_checked": bool(loo.get("valid", False)),
+        "insufficient_data": insufficient,
     }
 
     return {
         "predictor": pred,
         "target": tgt,
         "global": round(global_r, 6),
+        "p_value": float(global_p),
+        "p_floor_hit": p_floor_hit,
         "detrended": round(detrended_r, 6),
         "per_group": per_group,
         "steady": round(steady_r, 6),
         "lag_aligned": round(lag_r, 6),
         "per_regime": per_regime,
         "slope_at_current": round(slope_cur, 6),
+        "slope_valid": slope_valid,
         "partial": round(partial_r, 6),
+        "partial_valid": partial_valid,
+        "partial_full": partial_full,
+        "direct_association": direct_association,
+        "indirect_association": indirect_association,
+        "mediator_candidates": mediation.get("candidates", []),
+        "temporal": temporal,
+        "temporal_direction": temporal.get("direction", "insufficient"),
+        "optimal_lag_steps": int(temporal.get("optimal_lag_steps", 0) or best_lag_steps or 0),
+        "change_point_co_movement": cp_movement,
+        "loo_stability": loo,
+        "interaction": interaction,
+        "causality_ceiling": ceiling.get("ceiling", "insufficient_evidence"),
+        "ontology_contradiction": bool(ceiling.get("ontology_contradiction", False)),
         "form_match": form_match,
         "q_value": round(q_value, 6),  # placeholder, BH-corrected later
         "n_effective": n_eff,
@@ -592,13 +760,16 @@ def build_relationships(
             continue
         rel = _compute_relationship(df, pred, tgt, ontology, selection, conclusion, regime_filter)
         relationships.append(rel)
-        primary_p_values.append(rel["q_value"])
+        primary_p_values.append(rel["p_value"])
 
-    # BH correction across all pairs
+    # BH correction across all pairs (on the safe erfc p-values)
     if primary_p_values:
         q_values = benjamini_hochberg(primary_p_values)
         for i, qv in enumerate(q_values):
-            relationships[i]["q_value"] = round(float(qv), 6)
+            qv = float(qv)
+            # Rounding to 6 decimals would collapse floored p-values (1e-300) to
+            # exact 0.0 — keep tiny q values un-rounded so they stay truthful.
+            relationships[i]["q_value"] = round(qv, 6) if qv >= 1e-8 else qv
 
     return relationships
 
@@ -666,6 +837,27 @@ def main() -> None:
         json.dump(result, fh, indent=2, ensure_ascii=False, default=str)
 
     print(f"[conditional_analysis] {len(relationships)} relationships, {len(tradeoffs)} tradeoffs → {output}")
+
+    # ---- E3.5: association graph (full pairwise network + inference evidence) ----
+    graph_output = run_dir / "enhancement" / "association_graph.json"
+    try:
+        meta = set(selection.get("metadata_cols", []) or [])
+        exclude = {c for c in df.columns if c.lower() in
+                   ("timestamp", "time", "datetime", "date", "time_hours") or c.lower().startswith("ts_")}
+        exclude |= meta
+        exclude |= {c for c in df.columns if c.endswith("_dev") or c.startswith("regime_")}
+        numeric_cols = [c for c in df.columns
+                        if c not in exclude
+                        and pd.to_numeric(df[c], errors="coerce").nunique(dropna=True) > 1]
+        pairwise = pairwise_scan(df, numeric_cols)
+        graph = build_association_graph(df, numeric_cols, ontology, selection,
+                                        relationships, pairwise)
+        with open(graph_output, "w", encoding="utf-8") as fh:
+            json.dump(graph, fh, indent=2, ensure_ascii=False, default=str)
+        print(f"[association_graph] {len(graph['nodes'])} nodes, {len(graph['edges'])} edges → {graph_output}")
+    except Exception as exc:  # pragma: no cover — graph must never break E3
+        print(f"[association_graph] WARNING: graph build failed: {exc}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()

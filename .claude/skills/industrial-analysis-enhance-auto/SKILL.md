@@ -16,10 +16,12 @@ description: >
 
 | 阶段 | 脚本 | 功能 |
 |------|------|------|
+| E-1 | `data_preprocessor.py` (data-preprocessor) | 自适应数据前处理：任意格式/目录 → `00_input/preprocessed_data.csv` + 报告 |
 | E0 | `enhance_orchestrator.mjs` | 基线就绪检查、sha256 校验、清单生成 |
 | E1 | `coverage_builder.py` (deep-analysis) | 全列覆盖分析 → `analysis_coverage.json` |
 | E2 | `derived_feature_builder.py` (deep-analysis) | 物理衍生特征构建 → `derived_features.json` |
-| E3 | `conditional_analysis.py` (deep-analysis) | 条件关系分析 + 可操作性 → `deep_data_analysis.json` |
+| E3 | `conditional_analysis.py` (deep-analysis) | 条件关系分析 + 可操作性 + 推理证据 → `deep_data_analysis.json` |
+| E3.5 | `association_graph_builder.py` (deep-analysis) | 全变量关联网络 + 时序/条件独立/中介/变点/杠杆推理 → `association_graph.json` |
 | E5 | `physics_bridge_builder.py` (physics-bridge) | 物理机理桥接 → `physics_bridge.json` |
 | E6 | `knowledge_fusion.py` | 知识融合 → `enhanced_knowledge.json` |
 | E7a | `markdown_publisher.py` | Markdown 发布 → `enhanced_analysis.md` |
@@ -156,13 +158,16 @@ print(f'## sections: {len(sections)}')
 # Embedded JSON blocks
 json_blocks = re.findall(r'\x60\x60\x60json\n(.*?)\n\x60\x60\x60', md, re.DOTALL)
 print(f'JSON claim blocks: {len(json_blocks)}')
-# No raw field names
+# No raw field names in PROSE (machine-readable regions — the embedded ```json
+# claim blocks and the §9 appendix — intentionally contain raw JSON by contract)
+md_prose = md.split('## 9.')[0]
+md_prose = re.sub(r'```json\n.*?\n```', '', md_prose, flags=re.DOTALL)
 bad = ['dY_dX_linear', 'partial_r', 'detrended_r']
 for b in bad:
-    if b in md:
-        print(f'WARN: raw field name {b!r} found')
+    if b in md_prose:
+        print(f'WARN: raw field name {b!r} found in prose')
     else:
-        print(f'OK: no {b!r}')
+        print(f'OK: no {b!r} in prose')
 # No hardcoded numbers (check in non-code non-table context)
 # Status check
 print('Status:', 'READY_WITH_WARNINGS' in md)
