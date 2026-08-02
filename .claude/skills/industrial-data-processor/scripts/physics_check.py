@@ -238,6 +238,9 @@ def check_vibration_threshold(
     Zone D (unacceptable): > 11.2 mm/s
     """
     if iso_zone_boundaries is None:
+        # ISO 10816 reference zones for ROTATING machinery (mm/s, velocity).
+        # They are a relative severity ladder, not a physics law: pass explicit
+        # boundaries from the ontology when the equipment class differs.
         iso_zone_boundaries = [1.8, 4.5, 11.2]
 
     vibs = [_safe_float(row[vibration_col]) for row in data if vibration_col in row]
@@ -305,7 +308,10 @@ def check_vibration_threshold(
         result["conclusion"] = "VIBRATION_ELEVATED"
         result[
             "explanation"
-        ] = f"Vibration reaches {max(vibs):.1f}mm/s (Zone C/D per ISO 10816) — bearing wear or imbalance probable"
+        ] = (f"Vibration reaches {max(vibs):.1f}mm/s — above the upper reference zone "
+             f"(ISO 10816 ladder for rotating machinery, if applicable to this equipment). "
+             f"Mechanical degradation/wear/imbalance are candidate mechanisms — confirm the "
+             f"exact mode against the equipment ontology before concluding.")
     else:
         result["conclusion"] = "VIBRATION_ACCEPTABLE"
         result["explanation"] = f"Vibration within acceptable range (max={max(vibs):.1f}mm/s) — not the primary root cause"
