@@ -1,384 +1,580 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "VLM Visual Analysis Schema v1.0",
-  "description": "Schema for structured VLM visual observations extracted from diagnostic charts. Output by vlm-visual-analyzer sub-agent, consumed by diagnostician (visual_evidence), judge (Score 8: 可视化), and reporter (Section 11: 可视化证据).",
-
-  "type": "object",
-  "required": [
-    "generated_at",
-    "observation_mode",
-    "time_alignment_applicable",
-    "analysis_provenance",
-    "chart_inventory",
-    "visual_observations",
-    "cross_parameter_temporal_alignment",
-    "synthesis"
-  ],
-
-  "properties": {
-    "generated_at": {
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "VLM Visual Analysis Schema v1.0",
+ "description": "Schema for structured VLM visual observations extracted from diagnostic charts. Output by vlm-visual-analyzer sub-agent, consumed by diagnostician (visual_evidence), judge (Score 8: 可视化), and reporter (Section 11: 可视化证据).",
+ "type": "object",
+ "required": [
+  "generated_at",
+  "observation_mode",
+  "time_alignment_applicable",
+  "analysis_provenance",
+  "chart_inventory",
+  "visual_observations",
+  "cross_parameter_temporal_alignment",
+  "synthesis"
+ ],
+ "properties": {
+  "generated_at": {
+   "type": "string",
+   "description": "ISO 8601 timestamp of generation"
+  },
+  "vlm_chart_count": {
+   "type": "integer",
+   "minimum": 0,
+   "description": "Number of charts VLM actually read and analyzed"
+  },
+  "observation_mode": {
+   "type": "string",
+   "enum": [
+    "direct_image_reading",
+    "metadata_backed_inference",
+    "skeleton_pre_vlm"
+   ],
+   "description": "direct_image_reading = VLM actually viewed PNG; metadata_backed_inference = chart captions + statistical data only; skeleton_pre_vlm = pre-VLM scaffold emitted by visual_analysis.py and MUST be overwritten by vlm-visual-analyzer before Step 3 completes"
+  },
+  "chart_design_purpose": {
+   "type": "string",
+   "description": "One-line summary of what diagnostic questions these charts were designed to answer"
+  },
+  "time_alignment_applicable": {
+   "type": "boolean",
+   "description": "Whether the data has a valid time column enabling temporal alignment analysis"
+  },
+  "time_alignment_not_applicable_reason": {
+   "type": "string",
+   "description": "If time_alignment_applicable is false, explain why — e.g. no valid time column, batch-level-only data"
+  },
+  "primary_grouping_dimension": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "description": "If product/grade grouping exists, name the primary grouping column. Null if no grouping."
+  },
+  "n_products": {
+   "type": "integer",
+   "minimum": 1,
+   "description": "Number of distinct products detected in the data (1 if single-product)"
+  },
+  "n_per_product_overlays": {
+   "type": "integer",
+   "minimum": 0,
+   "description": "Number of per-product time-aligned overlay charts generated (0 if single product = use global overlay)"
+  },
+  "chart_inventory": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "figure",
+     "read_status",
+     "purpose"
+    ],
+    "properties": {
+     "figure": {
       "type": "string",
-      "description": "ISO 8601 timestamp of generation"
-    },
-    "vlm_chart_count": {
+      "description": "Filename, e.g. fig_vlm_temporal_overlay.png"
+     },
+     "read_status": {
+      "type": "string",
+      "enum": [
+       "READ_SUCCESS",
+       "READ_FAILED",
+       "NOT_GENERATED"
+      ],
+      "description": "Whether VLM successfully read this image"
+     },
+     "read_failure_reason": {
+      "type": "string"
+     },
+     "purpose": {
+      "type": "string",
+      "description": "What diagnostic question this chart answers"
+     },
+     "visual_questions": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Specific questions VLM asked while reading this chart"
+     },
+     "read_order": {
       "type": "integer",
-      "minimum": 0,
-      "description": "Number of charts VLM actually read and analyzed"
-    },
-    "observation_mode": {
+      "minimum": 1
+     },
+     "diagnostic_weight": {
       "type": "string",
-      "enum": ["direct_image_reading", "metadata_backed_inference", "skeleton_pre_vlm"],
-      "description": "direct_image_reading = VLM actually viewed PNG; metadata_backed_inference = chart captions + statistical data only; skeleton_pre_vlm = pre-VLM scaffold emitted by visual_analysis.py and MUST be overwritten by vlm-visual-analyzer before Step 3 completes"
-    },
-    "chart_design_purpose": {
-      "type": "string",
-      "description": "One-line summary of what diagnostic questions these charts were designed to answer"
-    },
-    "time_alignment_applicable": {
-      "type": "boolean",
-      "description": "Whether the data has a valid time column enabling temporal alignment analysis"
-    },
-    "time_alignment_not_applicable_reason": {
-      "type": "string",
-      "description": "If time_alignment_applicable is false, explain why — e.g. no valid time column, batch-level-only data"
-    },
-    "primary_grouping_dimension": {
-      "type": "string",
-      "description": "If product/grade grouping exists, name the primary grouping column. Null if no grouping."
-    },
-    "n_products": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "Number of distinct products detected in the data (1 if single-product)"
-    },
-    "n_per_product_overlays": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Number of per-product time-aligned overlay charts generated (0 if single product = use global overlay)"
-    },
-
-    "chart_inventory": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "required": ["figure", "read_status", "purpose"],
-        "properties": {
-          "figure": {"type": "string", "description": "Filename, e.g. fig_vlm_temporal_overlay.png"},
-          "read_status": {
-            "type": "string",
-            "enum": ["READ_SUCCESS", "READ_FAILED", "NOT_GENERATED"],
-            "description": "Whether VLM successfully read this image"
-          },
-          "read_failure_reason": {"type": "string"},
-          "purpose": {"type": "string", "description": "What diagnostic question this chart answers"},
-          "visual_questions": {
-            "type": "array",
-            "items": {"type": "string"},
-            "description": "Specific questions VLM asked while reading this chart"
-          },
-          "read_order": {"type": "integer", "minimum": 1},
-          "diagnostic_weight": {
-            "type": "string",
-            "enum": ["CRITICAL", "STRONG", "MODERATE", "WEAK", "SUPPLEMENTARY"],
-            "description": "How important this chart is for the diagnosis"
-          }
-        }
-      }
-    },
-
-    "analysis_provenance": {
-      "type": "object",
-      "description": "Execution proof for whether the VLM sub-agent actually ran, what context it loaded, and whether PNG figures were directly read or only inferred from metadata.",
-      "properties": {
-        "source_agent": {
-          "type": "string",
-          "description": "Expected to be 'vlm-visual-analyzer' for final outputs"
-        },
-        "stage": {
-          "type": "string",
-          "enum": ["skeleton_pre_vlm", "final_vlm_output"]
-        },
-        "skeleton_overwritten": {
-          "type": "boolean",
-          "description": "Whether the script-generated skeleton was replaced/enriched by the VLM sub-agent"
-        },
-        "context_files_read": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Files loaded before image reading, e.g. ontology.json, feature_summary.json"
-        },
-        "figure_inputs_attempted": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "PNG figures the VLM attempted to inspect"
-        },
-        "figure_inputs_read_successfully": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Subset of figures directly read successfully as images"
-        },
-        "grounding_summary": {
-          "type": "string",
-          "description": "Short explanation of how ontology/statistics/physics were used to ground visual interpretation"
-        },
-        "grounding_sources": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "Evidence sources used for grounding, e.g. ontology.json, rag_deep_understanding.json, anomaly_report.json"
-        }
-      }
-    },
-
-    "visual_observations": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "required": ["figure", "observations"],
-        "properties": {
-          "figure": {"type": "string"},
-          "observations": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "object",
-              "required": ["type", "description", "parameters_involved", "confidence", "diagnostic_implication"],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "temporal_synchronization",
-                    "event_response",
-                    "trend_morphology",
-                    "clustering",
-                    "nonlinear",
-                    "anomaly_clustering",
-                    "direction_consistency",
-                    "profile_shape",
-                    "outlier_detection"
-                  ]
-                },
-                "description": {
-                  "type": "string",
-                  "description": "Specific, concrete description of what VLM SEES — not a statistical summary. Cite specific time points, values, parameter names."
-                },
-                "parameters_involved": {
-                  "type": "array",
-                  "items": {"type": "string"},
-                  "description": "Data column names of the parameters involved in this observation"
-                },
-                "estimated_lag": {
-                  "type": "string",
-                  "description": "If temporal: '0 (synchronous)' | 'N time units' | 'unclear' | 'N/A — cross-sectional'"
-                },
-                "confidence": {
-                  "type": "string",
-                  "enum": ["high", "medium", "low"]
-                },
-                "diagnostic_implication": {
-                  "type": "string",
-                  "description": "One sentence: WHY this visual observation matters for root cause diagnosis. Must be directly citable by the diagnostician."
-                },
-                "statistical_cross_reference": {
-                  "type": "object",
-                  "description": "Link this visual observation to statistical evidence for cross-validation",
-                  "properties": {
-                    "correlation": {"type": "number"},
-                    "p_value": {"type": "number"},
-                    "source_file": {"type": "string"},
-                    "validation_note": {"type": "string"}
-                  }
-                },
-                "ontology_context": {
-                  "type": "object",
-                  "description": "Physical meaning of the involved parameters from ontology.json, used by the VLM to ground its observation",
-                  "properties": {
-                    "parameter_physical_meanings": {
-                      "type": "object",
-                      "additionalProperties": {"type": "string"}
-                    },
-                    "process_stage": {"type": "string"}
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-
-    "cross_parameter_temporal_alignment": {
-      "type": "object",
-      "required": ["summary", "synchronous_groups", "independent_parameters"],
-      "properties": {
-        "summary": {
-          "type": "string",
-          "description": "2-3 sentence synthesis of the temporal alignment picture"
-        },
-        "synchronous_groups": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["group_id", "parameters", "description"],
-            "properties": {
-              "group_id": {"type": "string"},
-              "parameters": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Data column names of parameters that move together"
-              },
-              "description": {
-                "type": "string",
-                "description": "What VLM sees that makes these parameters a synchronous group"
-              },
-              "estimated_group_lag": {"type": "string"},
-              "synchronous_with_quality": {
-                "type": "boolean",
-                "description": "KEY FIELD for diagnostician: does this group include quality/defect metrics?"
-              },
-              "group_diagnostic_implication": {"type": "string"}
-            }
-          }
-        },
-        "precedence_signals": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["earlier", "later", "description"],
-            "properties": {
-              "earlier": {"type": "string"},
-              "later": {"type": "string"},
-              "description": {"type": "string"},
-              "visual_confidence": {
-                "type": "string",
-                "enum": ["HIGH", "MEDIUM", "LOW"]
-              },
-              "diagnostic_implication": {"type": "string"}
-            }
-          }
-        },
-        "independent_parameters": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["parameters", "description"],
-            "properties": {
-              "parameters": {
-                "type": "array",
-                "items": {"type": "string"}
-              },
-              "description": {"type": "string"},
-              "diagnostic_weight": {"type": "string"}
-            }
-          }
-        }
-      }
-    },
-
-    "process_fluctuation_visual_findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["parameter", "pattern_type", "visual_basis", "diagnostic_implication"],
-        "properties": {
-          "parameter": {"type": "string"},
-          "pattern_type": {
-            "type": "string",
-            "enum": ["drift", "jump", "oscillation", "variance_burst", "threshold_regime_change", "stable", "outlier_driven"]
-          },
-          "time_window_or_group": {"type": "string"},
-          "visual_basis": {"type": "string"},
-          "diagnostic_implication": {"type": "string"},
-          "statistical_cross_reference": {
-            "type": "object",
-            "properties": {
-              "correlation": {"type": "number"},
-              "p_value": {"type": "number"},
-              "source_file": {"type": "string"}
-            }
-          }
-        }
-      }
-    },
-
-    "dual_drive_visual_findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["process_parameter", "quality_indicator", "relationship_type", "visual_basis", "diagnostic_implication"],
-        "properties": {
-          "process_parameter": {"type": "string"},
-          "quality_indicator": {"type": "string"},
-          "relationship_type": {
-            "type": "string",
-            "enum": ["synchronous", "process_leads_quality", "quality_leads_process", "grouped_cooccurrence", "visually_independent"]
-          },
-          "group_scope": {"type": "string"},
-          "visual_basis": {"type": "string"},
-          "diagnostic_implication": {"type": "string"},
-          "statistical_cross_reference": {
-            "type": "object",
-            "properties": {
-              "correlation": {"type": "number"},
-              "p_value": {"type": "number"},
-              "source_file": {"type": "string"}
-            }
-          }
-        }
-      }
-    },
-
-    "per_product_visual_findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["product", "finding", "visual_basis"],
-        "properties": {
-          "product": {"type": "string"},
-          "finding": {"type": "string"},
-          "parameters_involved": {
-            "type": "array",
-            "items": {"type": "string"}
-          },
-          "visual_basis": {"type": "string"},
-          "diagnostic_implication": {"type": "string"}
-        }
-      }
-    },
-
-    "pipeline_warnings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "warning": {"type": "string"},
-          "severity": {"type": "string", "enum": ["CRITICAL", "WARNING", "INFO"]}
-        }
-      }
-    },
-
-    "synthesis": {
-      "type": "string",
-      "description": "3-5 sentence overall visual conclusion — the 'story' the images tell. Must be specific and directly citable."
-    },
-
-    "reading_guide": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "for_agent": {"type": "string", "enum": ["diagnostician", "judge", "reporter"]},
-          "primary_sections_to_read": {
-            "type": "array",
-            "items": {"type": "string"}
-          },
-          "key_insights": {
-            "type": "array",
-            "items": {"type": "string"}
-          }
-        }
-      }
+      "enum": [
+       "CRITICAL",
+       "STRONG",
+       "MODERATE",
+       "WEAK",
+       "SUPPLEMENTARY"
+      ],
+      "description": "How important this chart is for the diagnosis"
+     }
     }
+   }
+  },
+  "analysis_provenance": {
+   "type": "object",
+   "description": "Execution proof for whether the VLM sub-agent actually ran, what context it loaded, and whether PNG figures were directly read or only inferred from metadata.",
+   "properties": {
+    "source_agent": {
+     "type": "string",
+     "description": "Expected to be 'vlm-visual-analyzer' for final outputs"
+    },
+    "stage": {
+     "type": "string",
+     "enum": [
+      "skeleton_pre_vlm",
+      "final_vlm_output",
+      "metadata_backed_inference"
+     ]
+    },
+    "skeleton_overwritten": {
+     "type": "boolean",
+     "description": "Whether the script-generated skeleton was replaced/enriched by the VLM sub-agent"
+    },
+    "context_files_read": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Files loaded before image reading, e.g. ontology.json, feature_summary.json"
+    },
+    "figure_inputs_attempted": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "PNG figures the VLM attempted to inspect"
+    },
+    "figure_inputs_read_successfully": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Subset of figures directly read successfully as images"
+    },
+    "grounding_summary": {
+     "type": "string",
+     "description": "Short explanation of how ontology/statistics/physics were used to ground visual interpretation"
+    },
+    "grounding_sources": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Evidence sources used for grounding, e.g. ontology.json, rag_deep_understanding.json, anomaly_report.json"
+    }
+   }
+  },
+  "visual_observations": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "figure",
+     "observations"
+    ],
+    "properties": {
+     "figure": {
+      "type": "string"
+     },
+     "observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "object",
+       "required": [
+        "type",
+        "description",
+        "parameters_involved",
+        "confidence",
+        "diagnostic_implication"
+       ],
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "temporal_synchronization",
+          "event_response",
+          "trend_morphology",
+          "clustering",
+          "nonlinear",
+          "anomaly_clustering",
+          "direction_consistency",
+          "profile_shape",
+          "outlier_detection"
+         ]
+        },
+        "description": {
+         "type": "string",
+         "description": "Specific, concrete description of what VLM SEES — not a statistical summary. Cite specific time points, values, parameter names."
+        },
+        "parameters_involved": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "Data column names of the parameters involved in this observation"
+        },
+        "estimated_lag": {
+         "type": "string",
+         "description": "If temporal: '0 (synchronous)' | 'N time units' | 'unclear' | 'N/A — cross-sectional'"
+        },
+        "confidence": {
+         "type": "string",
+         "enum": [
+          "high",
+          "medium",
+          "low"
+         ]
+        },
+        "diagnostic_implication": {
+         "type": "string",
+         "description": "One sentence: WHY this visual observation matters for root cause diagnosis. Must be directly citable by the diagnostician."
+        },
+        "statistical_cross_reference": {
+         "type": "object",
+         "description": "Link this visual observation to statistical evidence for cross-validation",
+         "properties": {
+          "correlation": {
+           "type": "number"
+          },
+          "p_value": {
+           "type": "number"
+          },
+          "source_file": {
+           "type": "string"
+          },
+          "validation_note": {
+           "type": "string"
+          }
+         }
+        },
+        "ontology_context": {
+         "type": "object",
+         "description": "Physical meaning of the involved parameters from ontology.json, used by the VLM to ground its observation",
+         "properties": {
+          "parameter_physical_meanings": {
+           "type": "object",
+           "additionalProperties": {
+            "type": "string"
+           }
+          },
+          "process_stage": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "cross_parameter_temporal_alignment": {
+   "type": "object",
+   "required": [
+    "summary",
+    "synchronous_groups",
+    "independent_parameters"
+   ],
+   "properties": {
+    "summary": {
+     "type": "string",
+     "description": "2-3 sentence synthesis of the temporal alignment picture"
+    },
+    "synchronous_groups": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "group_id",
+       "parameters",
+       "description"
+      ],
+      "properties": {
+       "group_id": {
+        "type": "string"
+       },
+       "parameters": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "description": "Data column names of parameters that move together"
+       },
+       "description": {
+        "type": "string",
+        "description": "What VLM sees that makes these parameters a synchronous group"
+       },
+       "estimated_group_lag": {
+        "type": "string"
+       },
+       "synchronous_with_quality": {
+        "type": "boolean",
+        "description": "KEY FIELD for diagnostician: does this group include quality/defect metrics?"
+       },
+       "group_diagnostic_implication": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "precedence_signals": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "earlier",
+       "later",
+       "description"
+      ],
+      "properties": {
+       "earlier": {
+        "type": "string"
+       },
+       "later": {
+        "type": "string"
+       },
+       "description": {
+        "type": "string"
+       },
+       "visual_confidence": {
+        "type": "string",
+        "enum": [
+         "HIGH",
+         "MEDIUM",
+         "LOW"
+        ]
+       },
+       "diagnostic_implication": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "independent_parameters": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "parameters",
+       "description"
+      ],
+      "properties": {
+       "parameters": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       },
+       "description": {
+        "type": "string"
+       },
+       "diagnostic_weight": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   }
+  },
+  "process_fluctuation_visual_findings": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "parameter",
+     "pattern_type",
+     "visual_basis",
+     "diagnostic_implication"
+    ],
+    "properties": {
+     "parameter": {
+      "type": "string"
+     },
+     "pattern_type": {
+      "type": "string",
+      "enum": [
+       "drift",
+       "jump",
+       "oscillation",
+       "variance_burst",
+       "threshold_regime_change",
+       "stable",
+       "outlier_driven"
+      ]
+     },
+     "time_window_or_group": {
+      "type": "string"
+     },
+     "visual_basis": {
+      "type": "string"
+     },
+     "diagnostic_implication": {
+      "type": "string"
+     },
+     "statistical_cross_reference": {
+      "type": "object",
+      "properties": {
+       "correlation": {
+        "type": "number"
+       },
+       "p_value": {
+        "type": "number"
+       },
+       "source_file": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   }
+  },
+  "dual_drive_visual_findings": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "process_parameter",
+     "quality_indicator",
+     "relationship_type",
+     "visual_basis",
+     "diagnostic_implication"
+    ],
+    "properties": {
+     "process_parameter": {
+      "type": "string"
+     },
+     "quality_indicator": {
+      "type": "string"
+     },
+     "relationship_type": {
+      "type": "string",
+      "enum": [
+       "synchronous",
+       "process_leads_quality",
+       "quality_leads_process",
+       "grouped_cooccurrence",
+       "visually_independent"
+      ]
+     },
+     "group_scope": {
+      "type": "string"
+     },
+     "visual_basis": {
+      "type": "string"
+     },
+     "diagnostic_implication": {
+      "type": "string"
+     },
+     "statistical_cross_reference": {
+      "type": "object",
+      "properties": {
+       "correlation": {
+        "type": "number"
+       },
+       "p_value": {
+        "type": "number"
+       },
+       "source_file": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   }
+  },
+  "per_product_visual_findings": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "product",
+     "finding",
+     "visual_basis"
+    ],
+    "properties": {
+     "product": {
+      "type": "string"
+     },
+     "finding": {
+      "type": "string"
+     },
+     "parameters_involved": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "visual_basis": {
+      "type": "string"
+     },
+     "diagnostic_implication": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "pipeline_warnings": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "warning": {
+      "type": "string"
+     },
+     "severity": {
+      "type": "string",
+      "enum": [
+       "CRITICAL",
+       "WARNING",
+       "INFO"
+      ]
+     }
+    }
+   }
+  },
+  "synthesis": {
+   "type": [
+    "string",
+    "object"
+   ],
+   "description": "3-5 sentence overall visual conclusion — the 'story' the images tell. Must be specific and directly citable."
+  },
+  "reading_guide": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "for_agent": {
+      "type": "string",
+      "enum": [
+       "diagnostician",
+       "judge",
+       "reporter"
+      ]
+     },
+     "primary_sections_to_read": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "key_insights": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   }
   }
+ }
 }

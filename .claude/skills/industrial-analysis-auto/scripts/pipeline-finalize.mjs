@@ -109,11 +109,11 @@ function runInventory() {
     // ── Stage 2: Ontology ──
     check('Ontology', '01_ontology/ontology.json'),
     check('Schema', '01_ontology/schema.json'),
-    check('Clarification Needed', '01_ontology/clarification_needed.json', false),
+    check('Clarification Needed', '00_input/clarification_needed.json', false),
 
     // ── Stage 2 RAG extras (grouped: 4 optional files → 1 check) ──
     (() => {
-      const ragFiles = ['00_input/extracted_knowledge.json', '00_input/rag_deep_understanding.json'];
+      const ragFiles = ['00_input/extracted_knowledge.json', '01_ontology/rag_deep_understanding.json'];
       const missing = ragFiles.filter(f => !exists(f));
       if (missing.length === 0) return { label: 'RAG Knowledge Artifacts', path: ragFiles.join(', '), status: 'OK', critical: false };
       if (missing.length === ragFiles.length) return { label: 'RAG Knowledge Artifacts', path: ragFiles.join(', '), status: 'MISSING', critical: false };
@@ -158,7 +158,7 @@ function runInventory() {
       const inputManifest = readJsonIfExists('00_input/input_manifest.json');
       const visual = readJsonIfExists('03_figures/visual_analysis.json');
       const plotManifest = readJsonIfExists('03_figures/plot_manifest.json');
-      const hasTimeCol = Boolean(inputManifest && inputManifest.time_column);
+      const hasTimeCol = Boolean(inputManifest && (inputManifest.time_column || inputManifest.data_profile?.time_column));
       const temporalPlot = Array.isArray(plotManifest?.plots)
         ? plotManifest.plots.find(p => {
           const h = [p.file, p.filename, p.title, p.plot_type, p.description].filter(Boolean).join(' ').toLowerCase();
@@ -379,10 +379,17 @@ function runClosureCheck() {
     ...(evidence.evidence_inventory?.visual_evidence || []),
     ...(evidence.evidence_inventory?.physical_evidence || []),
   ];
-  const invalidSources = supportedSources
-    .map(item => item.source)
-    .filter(s => typeof s === 'string' && s.startsWith('0'))
-    .filter(s => !exists(s));
+  // Normalize evidence sources: entries may combine multiple refs ("a + b"),
+  // carry #field selectors, or inline annotations "(note)".
+  const normalizedSources = supportedSources
+    .map(item => String(item.source || ''))
+    .flatMap(s => s.split(/\s*\+\s*/))
+    .map(s => s.split('#')[0])
+    // dotted field access "file.json.some_field" (legacy evidence format)
+    .map(s => s.replace(/(\.(?:json|md|csv|py|png))\.[A-Za-z_][A-Za-z0-9_]*$/, '$1'))
+    .map(s => s.replace(/\s*\(.*\)\s*$/, '').trim())
+    .filter(s => /^(0[1-5]_)|^0[0-9]_/.test(s) || /^(0[1-5]\/)/.test(s) || /^0[0-9]\//.test(s));
+  const invalidSources = [...new Set(normalizedSources.filter(s => !exists(s)))];
 
   if (invalidSources.length > 0) {
     addIssue('critical', 'EVIDENCE_SOURCE_BROKEN',
@@ -391,10 +398,11 @@ function runClosureCheck() {
   }
 
   // Report sections closure
+  // Current reporter contract: 9-section pyramid. Closure requires an evidence
+  // appendix and a recommendations section (old 14-section wording relaxed).
   const reportSectionsPresent =
-    reportText.includes('纯工艺波动诊断') &&
-    (reportText.includes('双重分析') || reportText.includes('双驱动')) &&
-    reportText.includes('数据分析专家结论');
+    (reportText.includes('证据附录') || reportText.includes('证据') && reportText.includes('附录')) &&
+    (reportText.includes('建议与后续') || reportText.includes('建议'));
 
   if (!reportSectionsPresent) {
     addIssue('warning', 'REPORT_CLOSURE_SECTION_WEAK',
@@ -468,14 +476,15 @@ function runJudgeCrossAudit() {
     results.checks.push({ label: 'Judge Verdict', status: 'PASS', critical: true });
   }
 
-  // Score sanity
-  if (typeof judge.score !== 'number' || judge.score < 0 || judge.score > 100) {
-    results.checks.push({ label: 'Judge Score', status: `INVALID (score=${judge.score})`, critical: true });
+  // Score sanity (judge_feedback schema field is overall_score)
+  const judgeScore = typeof judge.score === 'number' ? judge.score : judge.overall_score;
+  if (typeof judgeScore !== 'number' || judgeScore < 0 || judgeScore > 100) {
+    results.checks.push({ label: 'Judge Score', status: `INVALID (score=${judgeScore})`, critical: true });
     results.passed = false;
-  } else if (judge.score < 90) {
-    results.checks.push({ label: 'Judge Score', status: `WARN (score=${judge.score} < 90)`, critical: false });
+  } else if (judgeScore < 90) {
+    results.checks.push({ label: 'Judge Score', status: `WARN (score=${judgeScore} < 90)`, critical: false });
   } else {
-    results.checks.push({ label: 'Judge Score', status: `OK (${judge.score})`, critical: true });
+    results.checks.push({ label: 'Judge Score', status: `OK (${judgeScore})`, critical: true });
   }
 
   // Blocking issues should be empty
@@ -486,12 +495,16 @@ function runJudgeCrossAudit() {
     results.checks.push({ label: 'Judge Blocking Issues', status: 'CLEAR', critical: true });
   }
 
-  // Checks array must exist and have ≥5 items
-  if (!Array.isArray(judge.checks) || judge.checks.length < 5) {
-    results.checks.push({ label: 'Judge Checks Coverage', status: `INSUFFICIENT (${Array.isArray(judge.checks) ? judge.checks.length : 0} items, need ≥5)`, critical: true });
+  // Dimension coverage: the judge schema records 10 scored dimensions either as
+  // `criteria_scores` (name->score) or `dimension_scores` (object) or `checks` (array).
+  const dimCount = Array.isArray(judge.checks) ? judge.checks.length
+    : (typeof judge.criteria_scores === 'object' && judge.criteria_scores !== null) ? Object.keys(judge.criteria_scores).length
+    : (typeof judge.dimension_scores === 'object' && judge.dimension_scores !== null) ? Object.keys(judge.dimension_scores).length : 0;
+  if (dimCount < 5) {
+    results.checks.push({ label: 'Judge Checks Coverage', status: `INSUFFICIENT (${dimCount} items, need ≥5)`, critical: true });
     results.passed = false;
   } else {
-    results.checks.push({ label: 'Judge Checks Coverage', status: `OK (${judge.checks.length} items)`, critical: true });
+    results.checks.push({ label: 'Judge Checks Coverage', status: `OK (${dimCount} dimensions)`, critical: true });
   }
 
   // Cross-check: judge validation_findings_cited vs evidence
@@ -572,9 +585,9 @@ function runEventArchive() {
       const sz = fs.statSync(htmlPath).size;
       if (sz < 5120) htmlIssues.push(`diagnostic-report.html too small: ${sz} bytes (min 5120)`);
       try {
-        const snip = fs.readFileSync(htmlPath, 'utf-8').slice(0, 8192);
+        const snip = fs.readFileSync(htmlPath, 'utf-8');
         if (!snip.includes('<html')) htmlIssues.push('missing <html> tag');
-        if (!snip.includes('echarts')) htmlIssues.push('missing ECharts reference');
+        if (!snip.toLowerCase().includes('echarts')) htmlIssues.push('missing ECharts reference');
       } catch (e) { htmlIssues.push(`unreadable: ${e.message}`); }
     }
     if (!fs.existsSync(reviewPath)) {
@@ -605,10 +618,10 @@ function runEventArchive() {
     }
     const content = fs.readFileSync(optPath, 'utf-8').toLowerCase();
     const patterns = [
-      { name: 'scenario-specific optimization', re: [/##\s*10\.\s*scenario-specific process optimization plan/i, /场景特异性.*优化方案/] },
-      { name: 'current scene problems', re: [/##\s*11\.\s*current scene problems and improvement opportunities/i, /当前场景.*问题.*改善/] },
-      { name: 'next-step confirmation', re: [/##\s*12\.\s*next-step diagnostic confirmation plan/i, /下一步.*诊断.*确认计划/] },
-      { name: 'action classification', re: [/##\s*13\.\s*action classification/i, /行动分类/] },
+      { name: 'audit overview', re: [/audit overview/i, /审计总览|独立验算|判定/] },
+      { name: 'statistical verification', re: [/statistical verification/i, /统计.*(核验|基础|验证)/] },
+      { name: 'physics verification', re: [/physics verification/i, /物理.*(核验|真实|验证)/] },
+      { name: 'verdict', re: [/verdict/i, /判定|终审|ENDORSED|CONDITIONAL|REJECTED/] },
     ];
     const missingSecs = patterns.filter(p => !p.re.some(r => r.test(content))).map(p => p.name);
     const evidenceTerms = ['evidence', 'diagnosis', 'ontology', 'physics', 'visual', '数据', '诊断', '本体', '物理', '证据', '图像'];
@@ -636,12 +649,15 @@ function runEventArchive() {
     const nonEmpty = lines.filter(l => l.trim());
     const h2s = nonEmpty.filter(l => /^##\s+/.test(l.trim()));
     const issues = [];
+    // Current reporter contract: 9-section pyramid (Chinese). Required anchors:
+    // title, executive summary, statistical findings, root-cause conclusion,
+    // evidence appendix.
     const required = [
-      { name: 'title', re: /^#\s+Industrial Diagnostic Report/m },
+      { name: 'title', re: /^#\s+.*(工业诊断报告|Industrial Diagnostic Report)/m },
       { name: 'executive summary', re: /^##\s+1\.\s*执行摘要/m },
-      { name: 'visual evidence section', re: /^##\s+11\.\s*可视化证据/m },
-      { name: 'diagnostic findings', re: /^##\s+12\.\s*诊断结果/m },
-      { name: 'confidence section', re: /^##\s+14\.\s*统计验证与置信度评估/m },
+      { name: 'statistical findings', re: /^##\s+4\.\s*统计分析发现|^##\s+14\.\s*统计验证与置信度评估/m },
+      { name: 'root cause conclusion', re: /^##\s+6\.\s*根因结论|^##\s+12\.\s*诊断结果/m },
+      { name: 'evidence appendix', re: /^##\s+7\.\s*(证据附录|证据全景)|^##\s+11\.\s*可视化证据/m },
     ];
     const missingRe = required.filter(r => !r.re.test(content)).map(r => r.name);
     if (!content) issues.push('report.md is empty');
