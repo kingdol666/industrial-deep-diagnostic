@@ -154,11 +154,14 @@ def test_markdown() -> None:
 | 2025-01-01 00:00:00 | 200 | 8 |
 | 2025-01-01 00:01:00 | 201 | 8.1 |
 | 2025-01-01 00:02:00 | 202 | 8.2 |
+| 2025-01-01 00:03:00 | 203 | 8.3 |
+| 2025-01-01 00:04:00 | 204 | 8.4 |
+| 2025-01-01 00:05:00 | 205 | 8.5 |
 """
     (d / "process_table.md").write_text(md, encoding="utf-8")
     rep = run_case(d / "process_table.md", out)
     df = pd.read_csv(out / "preprocessed_data.csv")
-    check("t6-md-shape", df.shape == (3, 3), str(df.shape))
+    check("t6-md-shape", df.shape == (6, 3), str(df.shape))
 
     # free-text md → context, no_tabular
     out2 = d / "out2"
@@ -166,6 +169,13 @@ def test_markdown() -> None:
     rep2 = run_case(d / "notes.md", out2)
     check("t6-md-context", rep2["status"] == "no_tabular_data"
           and len(rep2["context_files"]) == 1, str(rep2["status"]))
+
+    # tiny md table (<5 rows) → context, not data
+    out3 = d / "out3"
+    (d / "snippet.md").write_text("| a | b |\n|---|---|\n| 1 | 2 |\n| 3 | 4 |\n", encoding="utf-8")
+    rep3 = run_case(d / "snippet.md", out3)
+    check("t6-md-tiny-context", rep3["status"] == "no_tabular_data"
+          and len(rep3["context_files"]) == 1, str(rep3["status"]))
 
 
 def test_mixed_directory() -> None:
