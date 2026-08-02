@@ -31,8 +31,17 @@ except ImportError:
 def load_file(file_path):
     """Load CSV/Excel/Parquet/Feather/JSON into a DataFrame."""
     suffix = Path(file_path).suffix.lower()
-    if suffix in ('.xlsx', '.xls'):
-        return pd.read_excel(file_path)
+    if suffix in ('.xlsx', '.xls', '.xlsm', '.xlsb'):
+        # Multi-sheet workbooks: pick the LARGEST sheet (first sheet is often a
+        # 1x1 junk stub in YAMATAKE-style exports). Never assume sheet order.
+        excel = pd.read_excel(file_path, sheet_name=None)
+        if len(excel) == 1:
+            return next(iter(excel.values()))
+        best_sheet, best_df = None, None
+        for name, df in excel.items():
+            if best_df is None or df.shape[0] * df.shape[1] > best_df.shape[0] * best_df.shape[1]:
+                best_sheet, best_df = name, df
+        return best_df
     elif suffix == '.parquet':
         return pd.read_parquet(file_path)
     elif suffix in ('.feather', '.ipc', '.arrow'):
@@ -139,7 +148,7 @@ def main():
             }, indent=2))
             sys.exit(1)
 
-    if suffix in ('.xlsx', '.xls'):
+    if suffix in ('.xlsx', '.xls', '.xlsm', '.xlsb'):
         try:
             import openpyxl
         except ImportError:

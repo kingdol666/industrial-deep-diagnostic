@@ -17,7 +17,7 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 | `00_input/input_manifest.json` | 数据源信息 |
 | `00_input/run_config.json` | 运行配置 |
 | `00_input/rag_deep_understanding.json` | RAG 验证队列（如有） |
-| 原始数据文件 | CSV/XLSX/Parquet（DATA_PATH 指向） |
+| 原始数据文件 | CSV/TSV/分隔符文本/XLSX/XLSM/JSON/Parquet 或经 E-1 前处理的 `00_input/preprocessed_data.csv`（DATA_PATH 指向） |
 
 ### Outputs
 

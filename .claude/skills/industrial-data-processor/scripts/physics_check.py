@@ -64,14 +64,26 @@ def check_thermal_expansion(
     temp_col: str,
     dev_col: str,
     data: list[dict],
-    coefficient_alpha: float = 12e-6,
-    reference_length_m: float = 1.0,
+    coefficient_alpha: float = None,
+    reference_length_m: float = None,
 ) -> dict:
     """
-    ΔL = α × L₀ × ΔT
+    ΔL = α × L₀ × ΔT — WITHOUT invented constants.
 
-    Verifies whether dimensional deviation is consistent with thermal expansion.
-    For steel: α ≈ 12×10⁻⁶ /°C
+    The expansion coefficient α and reference length are MATERIAL/PROCESS
+    SPECIFIC. Inventing them (steel α=12e-6, L=1m) would produce misleading
+    "PLAUSIBLE" verdicts for non-steel scenes (film, concrete, water, ...).
+    So this check is DATA-DRIVEN: it verifies the coupling itself — does the
+    dimensional deviation co-vary with temperature as thermal physics demands?
+
+    * strong positive coupling (|r| >= 0.3, same sign)  → THERMAL_COUPLING_DETECTED
+      (quantitative confirmation needs the real α·L₀ from the ontology)
+    * strong negative coupling                       → THERMAL_ANTI_CORRELATED
+      (compensation/endogenous control, not passive expansion)
+    * otherwise                                      → INCONCLUSIVE
+
+    When the ontology supplies coefficient_alpha and reference_length_m, a
+    quantitative predicted-vs-actual ratio is ADDED but never decides alone.
     """
     temps = [_safe_float(row[temp_col]) for row in data if temp_col in row]
     devs = [_safe_float(row[dev_col]) for row in data if dev_col in row]
@@ -79,48 +91,52 @@ def check_thermal_expansion(
     devs = [d for d in devs if d is not None]
     if not temps or not devs:
         return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
+    if len(temps) < 10 or len(devs) < 10:
+        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Insufficient rows for coupling test"}
 
-    T_ref = min(temps) if temps else 20.0
-    predicted_devs = [coefficient_alpha * reference_length_m * (t - T_ref) for t in temps]
-
+    n = min(len(temps), len(devs))
+    tx, dy = temps[:n], devs[:n]
     from statistics import mean, stdev
+    try:
+        mx, my = mean(tx), mean(dy)
+        sx, sy = stdev(tx), stdev(dy)
+        r = sum((a - mx) * (b - my) for a, b in zip(tx, dy)) / (sx * sy * (n - 1))
+    except (ZeroDivisionError, ValueError):
+        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Degenerate input"}
 
-    actual_mean = mean(devs)
-    predicted_mean = mean(predicted_devs)
-    if actual_mean == 0:
-        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Actual deviation is zero"}
-
-    ratio = predicted_mean / actual_mean if actual_mean != 0 else 0
-    ratio_mag = abs(predicted_mean / actual_mean) if actual_mean != 0 else 0
-
-    # Physical check: is the predicted thermal expansion close to observed deviation?
     checks = {
-        "reference_length_m": reference_length_m,
-        "alpha_per_C": coefficient_alpha,
         "T_range_C": [min(temps), max(temps)],
-        "deviation_range_mm": [min(devs), max(devs)],
-        "predicted_deviation_mm": predicted_mean,
-        "actual_deviation_mm": actual_mean,
-        "ratio_predicted_to_actual": round(ratio, 4),
-        "max_predicted_mm": max(predicted_devs) if predicted_devs else 0,
-        "max_actual_mm": max(devs) if devs else 0,
+        "deviation_range": [min(devs), max(devs)],
+        "coupling_r": round(r, 4),
+        "coupling_n": n,
+        "note": "quantitative ΔL=α·L₀·ΔT requires material coefficient from ontology",
     }
 
-    if 0.5 <= ratio_mag <= 2.0:
-        checks["conclusion"] = "THERMAL_EXPANSION_PLAUSIBLE"
+    if coefficient_alpha and reference_length_m:
+        T_ref = min(temps)
+        predicted_mean = mean([coefficient_alpha * reference_length_m * (t - T_ref) for t in temps])
+        actual_mean = mean(devs)
+        checks["alpha_per_C"] = coefficient_alpha
+        checks["reference_length_m"] = reference_length_m
+        checks["ratio_predicted_to_actual"] = round(predicted_mean / actual_mean, 4) if actual_mean else None
+        checks["quantitative"] = True
+
+    if abs(r) >= 0.3 and r > 0:
+        checks["conclusion"] = "THERMAL_COUPLING_DETECTED"
         checks[
             "explanation"
-        ] = f"Observed deviation ({actual_mean:.4f}mm) is within 2× of thermal expansion prediction ({predicted_mean:.4f}mm) — thermal effect is physically plausible"
-    elif ratio_mag < 0.5:
-        checks["conclusion"] = "THERMAL_EXPANSION_INSUFFICIENT"
+        ] = f"Deviation co-varies positively with temperature (r={r:.3f}) — thermal expansion is a plausible channel; quantify with the real α·L₀ from the ontology"
+    elif abs(r) >= 0.3 and r < 0:
+        checks["conclusion"] = "THERMAL_ANTI_CORRELATED"
         checks[
             "explanation"
-        ] = f"Thermal expansion ({predicted_mean:.4f}mm) explains <50% of observed deviation ({actual_mean:.4f}mm) — other mechanisms dominate"
+        ] = f"Deviation moves AGAINST temperature (r={r:.3f}) — compensation/control, not passive expansion"
     else:
-        checks["conclusion"] = "THERMAL_EXPANSION_EXCEEDS"
-        checks[
-            "explanation"
-        ] = f"Thermal expansion ({predicted_mean:.4f}mm) exceeds observed deviation ({actual_mean:.4f}mm) by >2× — material constraint or compensating mechanism present"
+        checks["conclusion"] = "THERMAL_COUPLING_NOT_DETECTED"
+        checks["explanation"] = (
+            f"Deviation shows no material coupling with temperature (r={r:.3f}) — "
+            "thermal expansion is not the dominant channel for this deviation"
+        )
 
     return checks
 
@@ -300,49 +316,80 @@ def check_vibration_threshold(
 def check_energy_balance(
     power_col: str,
     temp_rise_col: str,
-    mass_kg: float,
-    cp_J_per_kgK: float,
-    data: list[dict],
+    mass_kg: float = None,
+    cp_J_per_kgK: float = None,
+    data: list[dict] = None,
 ) -> dict:
     """
-    ΔT = P × t / (m × Cp)
+    ΔT = P × t / (m × Cp) — WITHOUT invented constants.
 
-    Checks if observed temperature rise is consistent with power input.
-    For water: Cp ≈ 4186 J/(kg·K)
-    For steel: Cp ≈ 500 J/(kg·K)
-    For oil: Cp ≈ 2000 J/(kg·K)
+    Mass and heat capacity are PROCESS SPECIFIC; fabricating m=100kg/Cp=500
+    would brand any scene "ENERGY_PLAUSIBLE". This check therefore verifies the
+    COUPLING that energy balance demands of the data itself: does temperature
+    rise with power?
+
+    * strong positive coupling (|r| >= 0.3) → ENERGY_COUPLED
+    * strong negative coupling              → ENERGY_ANTI_CORRELATED
+      (power cuts in when temperature rises = endogenous control)
+    * otherwise                             → ENERGY_DECOUPLED
+
+    When the ontology supplies mass_kg and cp_J_per_kgK, a quantitative
+    ΔT = P·t/(m·Cp) estimate is ADDED but never decides alone.
     """
-    powers = [row[power_col] for row in data if power_col in row]
-    temp_rises = [row[temp_rise_col] for row in data if temp_rise_col in row]
+    if data is None:
+        data = []
+    powers = [_safe_float(row[power_col]) for row in data if power_col in row]
+    temp_rises = [_safe_float(row[temp_rise_col]) for row in data if temp_rise_col in row]
+    powers = [v for v in powers if v is not None]
+    temp_rises = [v for v in temp_rises if v is not None]
     if not powers or not temp_rises:
         return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
+    n = min(len(powers), len(temp_rises))
+    if n < 10:
+        return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Insufficient rows for coupling test"}
 
-    P_avg = sum(powers) / len(powers)
-    dT_avg = sum(temp_rises) / len(temp_rises)
-
-    # Predicted ΔT per second (assuming continuous power input)
-    predicted_dT_per_s = P_avg / (mass_kg * cp_J_per_kgK)
+    from statistics import mean, stdev
+    px, ty = powers[:n], temp_rises[:n]
+    try:
+        mx, my = mean(px), mean(ty)
+        sx, sy = stdev(px), stdev(ty)
+        r = sum((a - mx) * (b - my) for a, b in zip(px, ty)) / (sx * sy * (n - 1))
+    except (ZeroDivisionError, ValueError):
+        return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Degenerate input"}
 
     result = {
         "check": "energy_balance",
-        "mass_kg": mass_kg,
-        "cp_J_per_kgK": cp_J_per_kgK,
-        "average_power_W": round(P_avg, 2),
-        "observed_dT": round(dT_avg, 4),
-        "predicted_dT_per_s": f"{predicted_dT_per_s:.6f}",
-        "thermal_time_constant_s": "Requires transient data for precise calculation",
+        "power_temperature_coupling_r": round(r, 4),
+        "coupling_n": n,
+        "average_power": round(mean(px), 2),
+        "note": "quantitative ΔT=P·t/(m·Cp) requires mass & heat capacity from ontology",
     }
 
-    if abs(predicted_dT_per_s) < 1e-6:
-        result["conclusion"] = "ENERGY_NEGLIGIBLE"
+    if mass_kg and cp_J_per_kgK:
+        P_avg = mean(px)
+        dT_avg = mean(ty)
+        predicted_dT_per_s = P_avg / (mass_kg * cp_J_per_kgK)
+        result["mass_kg"] = mass_kg
+        result["cp_J_per_kgK"] = cp_J_per_kgK
+        result["observed_dT"] = round(dT_avg, 4)
+        result["predicted_dT_per_s"] = round(predicted_dT_per_s, 8)
+        result["quantitative"] = True
+
+    if abs(r) >= 0.3 and r > 0:
+        result["conclusion"] = "ENERGY_COUPLED"
         result[
             "explanation"
-        ] = f"Power input ({P_avg:.1f}W) is insufficient to cause detectable temperature rise in {mass_kg}kg mass — thermal effect negligible"
+        ] = f"Temperature co-varies positively with power (r={r:.3f}) — power input is a plausible heat source; quantify with the real m·Cp from the ontology"
+    elif abs(r) >= 0.3 and r < 0:
+        result["conclusion"] = "ENERGY_ANTI_CORRELATED"
+        result[
+            "explanation"
+        ] = f"Temperature moves AGAINST power (r={r:.3f}) — load-shedding/endogenous control masks the thermal link"
     else:
-        result["conclusion"] = "ENERGY_PLAUSIBLE"
+        result["conclusion"] = "ENERGY_DECOUPLED"
         result[
             "explanation"
-        ] = f"Power input ({P_avg:.1f}W) can produce ~{predicted_dT_per_s:.4f}°C/s temperature rise — persistent power input over time explains observed temperature"
+        ] = f"No material coupling between power and temperature (r={r:.3f}) — thermal inertia or missing heat path"
 
     return result
 
@@ -839,7 +886,7 @@ def main():
         checks["vibration_threshold"] = check_vibration_threshold(vib_col, quality_targets[0], cleaned_data)
 
     if power_col and temp_col and cleaned_data:
-        checks["energy_balance"] = check_energy_balance(power_col, temp_col, mass_kg=100.0, cp_J_per_kgK=500.0, data=cleaned_data)
+        checks["energy_balance"] = check_energy_balance(power_col, temp_col, data=cleaned_data)
 
     if flow_col and pressure_col and cleaned_data:
         checks["flow_restriction"] = check_flow_restriction(flow_col, pressure_col, cleaned_data)

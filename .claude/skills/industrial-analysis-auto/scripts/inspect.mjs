@@ -6,6 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
 function parseCSV(text, delimiter = ',') {
@@ -119,34 +120,36 @@ function countRowsCSV(filePath) {
 }
 
 // --- File format dispatch ---
-const BINARY_FORMATS = new Set(['.xlsx', '.xls', '.parquet', '.feather', '.ipc', '.arrow']);
+const BINARY_FORMATS = new Set(['.xlsx', '.xls', '.xlsm', '.xlsb', '.parquet', '.feather', '.ipc', '.arrow']);
 
 function delegateToPython(filePath, previewRows) {
-  const scriptDir = path.dirname(new URL(import.meta.url).pathname);
+  const scriptDir = path.dirname(fileURLToPath(import.meta.url));
   const pyScript = path.join(scriptDir, 'file_inspect.py');
 
-  // Resolve Python from uv venv (preferred) or fallback to system python
-  const venvPython = path.join(scriptDir, '.venv', 'bin', 'python');
-  const pythonBin = fs.existsSync(venvPython) ? venvPython : 'python3';
-  const cmd = `"${pythonBin}" "${pyScript}" "${filePath}" --rows ${previewRows}`;
-  try {
-    const result = execSync(cmd, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
-    return result;
-  } catch (e) {
-    // Fallback: try system python3 if venv failed
-    if (pythonBin !== 'python3') {
-      try {
-        const cmd2 = `python3 "${pyScript}" "${filePath}" --rows ${previewRows}`;
-        return execSync(cmd2, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
-      } catch (e2) {
-        // ignore, report original error below
-      }
+  // Resolve Python robustly across platforms: shared uv venv (repo convention),
+  // then `python3` (POSIX), then `python` (Windows / Anaconda). Never assume a
+  // single interpreter name.
+  const candidates = [
+    path.join(scriptDir, '..', '..', 'shared', 'scripts', '.venv', 'Scripts', 'python.exe'),
+    path.join(scriptDir, '..', '..', 'shared', 'scripts', '.venv', 'bin', 'python'),
+    'python3',
+    'python',
+  ].filter((c, i, arr) => !c.includes(path.sep) || fs.existsSync(c) || arr.indexOf(c) === i);
+
+  let lastErr = null;
+  for (const pythonBin of candidates) {
+    const cmd = `"${pythonBin}" "${pyScript}" "${filePath}" --rows ${previewRows}`;
+    try {
+      const result = execSync(cmd, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, timeout: 120000 });
+      return result;
+    } catch (e) {
+      lastErr = e;
     }
-    return JSON.stringify({
-      error: `Python inspection failed. Run: node ${path.join(scriptDir, 'uv_env_setup.mjs')}\n  ${e.stderr || e.message}`,
-      file: filePath,
-    });
   }
+  return JSON.stringify({
+    error: `Python inspection failed. Run: node ${path.join(scriptDir, 'uv_env_setup.mjs')}\n  ${(lastErr && (lastErr.stderr || lastErr.message)) || 'no python found'}`,
+    file: filePath,
+  });
 }
 
 // Main
