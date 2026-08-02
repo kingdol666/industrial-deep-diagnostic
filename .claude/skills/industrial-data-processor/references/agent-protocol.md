@@ -219,7 +219,7 @@ PYTHON=$(node "$SHARED_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let
 
 ### Step 3: Dispatch vlm-visual-analyzer Agent (with filtered images)
 
-- [ ] **5.5.3** **Dispatch vlm-visual-analyzer Agent** via Agent(). **CRITICAL: VLM MUST read vlm_input_manifest.json first, NOT plot_manifest.json directly.** Only images listed in vlm_input_manifest with priority MANDATORY or SUPPLEMENTARY should be read.
+- [ ] **5.5.3** **Dispatch vlm-visual-analyzer Agent**（OMP 语法：`task({agent: "vlm-visual-analyzer", ...})`，等价于旧 `Agent({subagent_type: "vlm-visual-analyzer"})`）。**CRITICAL: VLM MUST read vlm_input_manifest.json first, NOT plot_manifest.json directly.** Only images listed in vlm_input_manifest with priority MANDATORY or SUPPLEMENTARY should be read.
 
   ```javascript
   Agent({

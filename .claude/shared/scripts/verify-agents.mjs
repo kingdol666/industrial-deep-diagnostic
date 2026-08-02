@@ -15,13 +15,23 @@ import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = resolve(process.argv.includes('--project-root') 
+// Script lives at <root>/.claude/shared/scripts → root is 3 levels up.
+const PROJECT_ROOT = resolve(process.argv.includes('--project-root')
   ? process.argv[process.argv.indexOf('--project-root') + 1]
-  : join(__dirname, '..', '..'));
+  : join(__dirname, '..', '..', '..'));
 
-const AGENTS_DIR = join(PROJECT_ROOT, 'agents');
-const SKILLS_DIR = join(PROJECT_ROOT, 'skills');
-const AGENTS_MD = join(PROJECT_ROOT, 'AGENTS.md');
+// OMP layout: agents live in .omp/agents (task-agent discovery source), skills
+// in .claude/skills, registry in .omp/AGENTS.md. Legacy root layout is the
+// fallback for plugin-style checkouts.
+const AGENTS_DIR = existsSync(join(PROJECT_ROOT, '.omp', 'agents'))
+  ? join(PROJECT_ROOT, '.omp', 'agents')
+  : join(PROJECT_ROOT, 'agents');
+const SKILLS_DIR = existsSync(join(PROJECT_ROOT, '.claude', 'skills'))
+  ? join(PROJECT_ROOT, '.claude', 'skills')
+  : join(PROJECT_ROOT, 'skills');
+const AGENTS_MD = existsSync(join(PROJECT_ROOT, '.omp', 'AGENTS.md'))
+  ? join(PROJECT_ROOT, '.omp', 'AGENTS.md')
+  : join(PROJECT_ROOT, 'AGENTS.md');
 
 const REQUIRED_AGENT_FIELDS = ['name', 'description', 'model', 'tools', 'spawns', 'thinkingLevel', 'readSummarize'];
 const VALID_MODELS = ['default', 'vision', 'opus', 'sonnet', 'haiku', 'smol'];
@@ -108,11 +118,13 @@ console.log('\n=== AGENTS.md Registry Validation ===\n');
 if (existsSync(AGENTS_MD)) {
   const agentsMd = readFileSync(AGENTS_MD, 'utf-8');
   // Parse only the "OMP Agent Summary" table (between "## OMP Agent Summary" and "## Skill Directory")
-  const agentTable = agentsMd.match(/## OMP Agent Summary\n\n[\s\S]*?(?=\n##|\n\Z)/);
+  // CRLF-tolerant: files may use \r\n line endings on Windows.
+  const agentTable = agentsMd.match(/## OMP Agent Summary\r?\n\r?\n[\s\S]*?(?=\r?\n##|\r?\n\Z)/);
   const tableAgents = [];
   
   if (agentTable) {
-    for (const line of agentTable[0].split('\n')) {
+    for (const rawLine of agentTable[0].split(/\r?\n/)) {
+      const line = rawLine.trimEnd();
       const match = line.match(/^\|\s*([\w-]+)\s*\|/);
       if (match && match[1] !== 'Agent' && !match[1].startsWith('-')) {
         tableAgents.push(match[1].trim());

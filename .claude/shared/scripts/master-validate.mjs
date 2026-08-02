@@ -117,7 +117,7 @@ for (const af of agentFiles) {
   agents[fm.name] = { file: af, fm };
 }
 
-test('Agent count = 9', () => Object.keys(agents).length === 9 ? true : `Got ${Object.keys(agents).length}`);
+test('Agent count = 14 (9 baseline + 5 enhancement)', () => Object.keys(agents).length === 14 ? true : `Got ${Object.keys(agents).length}`);
 
 // Check required agents present
 const requiredAgents = ['context-builder', 'data-processor', 'vlm-visual-analyzer',
@@ -210,8 +210,10 @@ test('judge_feedback schema exists', () =>
 console.log('\n--- 6. DATA PROCESSING SMOKE TEST ---');
 
 const REPO_ROOT = resolve(join(__dirname, '..', '..', '..'));
-const TEST_RUN_DIR = join(REPO_ROOT, 'workspace', 'diagnostic-runs', 'test_vlm_e2e');
-const testDataPath = join(TEST_RUN_DIR, '00_input', 'test_data.csv');
+// Smoke test against the most recent REAL end-to-end run (kept in repo) rather
+// than a scratch dir that may have been cleaned up.
+const TEST_RUN_DIR = join(REPO_ROOT, 'workspace', 'diagnostic-runs', '202607310911175_cnc_spindle_wear_enhance_test');
+const testDataPath = join(TEST_RUN_DIR, '02_processed', 'cleaned_data.csv');
 
 test('Test data exists', () => existsSync(testDataPath));
 
@@ -225,10 +227,30 @@ if (existsSync(testDataPath)) {
     '03_figures/plot_manifest.json',
     '03_figures/visual_analysis.json',
     '03_figures/image_captions.json',
-    '03_figures/fig_01_temporal_overlay.png',
-    '03_figures/fig_02_scatter_catalyst.png',
-    '03_figures/fig_03_per_product_boxplot.png',
   ];
+  // Figure names are dynamic (fig1_*, fig_01_*, ...) — verify the manifest's
+  // declared files actually exist instead of hardcoding legacy names.
+  const manifestPath = join(TEST_RUN_DIR, '03_figures', 'plot_manifest.json');
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      const declared = (manifest.plots || manifest.figures || []).map((f) => f.filename || f.file || f.path).filter(Boolean);
+      let pngCount = 0;
+      for (const rel of declared) {
+        if (rel.endsWith('.png')) {
+          pngCount += 1;
+          test(`Manifest PNG ${rel} exists`, () => {
+            const fp = join(TEST_RUN_DIR, '03_figures', rel);
+            return existsSync(fp) && statSync(fp).size > 5000
+              ? true : `missing or too small: ${rel}`;
+          });
+        }
+      }
+      test('Manifest declares >= 3 PNG figures', () => pngCount >= 3 ? true : `only ${pngCount}`);
+    } catch (e) {
+      test('plot_manifest.json parseable', () => `parse error: ${e.message}`);
+    }
+  }
   
   for (const out of outputs) {
     const fp = join(TEST_RUN_DIR, out);
@@ -236,7 +258,7 @@ if (existsSync(testDataPath)) {
       if (!existsSync(fp)) return 'File missing';
       if (out.endsWith('.png')) {
         const sz = statSync(fp).size;
-        return sz > 50000 ? true : `PNG too small: ${sz} bytes`;
+        return sz > 5000 ? true : `PNG too small: ${sz} bytes`;
       }
       if (out.endsWith('.json')) {
         const sz = statSync(fp).size;

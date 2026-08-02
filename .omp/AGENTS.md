@@ -45,6 +45,11 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 | report-reviewer | 物理审计 (Step 5b/7) | leaf | read, write, bash, glob, grep, web_search |
 | html-visualizer | HTML可视化 (Step 8) | leaf | read, write, bash, glob, grep, skill |
 | html-reviewer | HTML审校 (Step 8.5) | leaf | read, write, bash, glob, grep |
+| deep-analyst | 深层数据分析 (E1-E4) | leaf | read, write, bash, glob, grep |
+| physics-bridge | 物理机理桥接 (E5) | leaf | read, write, bash, glob, grep |
+| enhance-orchestrator | 增强管线编排 (E0-E8) | * | read, write, bash, glob, grep, task |
+| enhanced-visualizer | 增强 HTML 可视化 (E7b) | leaf | read, write, bash, glob, grep |
+| enhanced-html-reviewer | 增强 HTML 审校 (E7c) | leaf | read, write, bash, glob, grep |
 
 ## Skill Directory Convention
 

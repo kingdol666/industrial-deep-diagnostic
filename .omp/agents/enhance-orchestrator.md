@@ -10,6 +10,7 @@ model: sonnet
 tools: read, write, bash, glob, grep, task
 spawns: "*"
 thinkingLevel: medium
+readSummarize: false
 ---
 
 # enhance-orchestrator

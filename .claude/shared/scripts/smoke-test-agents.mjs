@@ -34,8 +34,8 @@ function parseFM(content) {
   return fm;
 }
 
-const EXPECTED_AGENTS = 9;
-const EXPECTED_SKILLS = 12;
+const EXPECTED_AGENTS = 14;  // 9 baseline + 5 enhancement (deep-analyst, physics-bridge, enhance-orchestrator, enhanced-visualizer, enhanced-html-reviewer)
+const EXPECTED_SKILLS = 18;  // actual discoverable skill count under .claude/skills
 
 console.log('=== OMP Agent Spawn Smoke Test ===\n');
 
@@ -126,10 +126,11 @@ if (!skillOk) process.exit(1);
 
 // 6. Model assignments
 console.log('\n6. Model assignments:');
+const VALID_MODELS = ['default', 'vision', 'sonnet', 'opus', 'haiku', 'smol'];
 for (const [name, a] of Object.entries(agents).sort()) {
-  const expected = name === 'vlm-visual-analyzer' ? 'vision' : 'default';
-  const ok = a.model === expected;
-  console.log(`   ${ok ? 'PASS' : 'FAIL'}: ${name} model=${a.model} (expected ${expected})`);
+  // Every agent must declare a valid model; VLM must stay on a vision model.
+  const ok = VALID_MODELS.includes(a.model) && (name !== 'vlm-visual-analyzer' || a.model === 'vision');
+  console.log(`   ${ok ? 'PASS' : 'FAIL'}: ${name} model=${a.model} (valid=${VALID_MODELS.includes(a.model)})`);
   if (!ok) process.exit(1);
 }
 

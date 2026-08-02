@@ -11,6 +11,7 @@ model: sonnet
 tools: read, write, bash, glob, grep
 spawns: ""
 thinkingLevel: medium
+readSummarize: false
 ---
 
 # physics-bridge
