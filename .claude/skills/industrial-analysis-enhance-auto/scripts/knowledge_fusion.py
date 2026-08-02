@@ -173,7 +173,7 @@ def build_edges(
                     "n_effective": sev.get("n_effective", 0),
                 },
                 "physics_verification": {},
-                "operability": "NOT_IDENTIFIABLE",
+                "operability": "UNCLASSIFIED",
                 "evidence_ref": "",
                 "validity_flags": {},
             }

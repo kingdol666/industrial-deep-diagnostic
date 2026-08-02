@@ -1,55 +1,146 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "plot_manifest_schema.json",
-  "title": "Plot Manifest Schema",
-  "description": "Schema for plot_manifest.json — inventory of all generated PNG charts with metadata. Consumed by vlm-visual-analyzer, diagnostician, reporter, html-visualizer, and html-reviewer.",
-  "type": "object",
-  "required": ["plots", "metadata"],
-  "properties": {
-    "plots": {
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "$id": "plot_manifest_schema.json",
+ "title": "Plot Manifest Schema",
+ "description": "Schema for plot_manifest.json — inventory of all generated PNG charts with metadata. Consumed by vlm-visual-analyzer, diagnostician, reporter, html-visualizer, and html-reviewer.",
+ "type": "object",
+ "required": [
+  "plots",
+  "metadata"
+ ],
+ "properties": {
+  "plots": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "filename",
+     "figure_type",
+     "priority"
+    ],
+    "properties": {
+     "filename": {
+      "type": "string",
+      "pattern": "\\.png$"
+     },
+     "figure_type": {
+      "enum": [
+       "temporal_overlay",
+       "scatter",
+       "boxplot",
+       "heatmap",
+       "event_response",
+       "simpson_stratified",
+       "correlation_bar",
+       "causal_evidence_map",
+       "time_lag_ccf",
+       "distribution",
+       "trend",
+       "other"
+      ]
+     },
+     "priority": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "title": {
+      "type": "string"
+     },
+     "description": {
+      "type": "string"
+     },
+     "parameters_shown": {
       "type": "array",
-      "minItems": 1,
       "items": {
-        "type": "object",
-        "required": ["filename", "figure_type", "priority"],
-        "properties": {
-          "filename": { "type": "string", "pattern": "\\.png$" },
-          "figure_type": {
-            "enum": ["temporal_overlay", "scatter", "boxplot", "heatmap", "event_response",
-                     "simpson_stratified", "correlation_bar", "causal_evidence_map", "time_lag_ccf",
-                     "distribution", "trend", "other"]
-          },
-          "priority": { "type": "integer", "minimum": 1 },
-          "title": { "type": "string" },
-          "description": { "type": "string" },
-          "parameters_shown": { "type": "array", "items": { "type": "string" } },
-          "diagnostic_question": { "type": "string" },
-          "vlm_priority": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
-          "width_px": { "type": "integer" },
-          "height_px": { "type": "integer" },
-          "dpi": { "type": "integer" },
-          "file_size_kb": { "type": "number" },
-          "generation_status": { "enum": ["success", "degraded", "failed"] },
-          "time_aligned": { "type": "boolean" },
-          "has_event_markers": { "type": "boolean" },
-          "per_product": { "type": "boolean" }
-        }
+       "type": "string"
       }
-    },
-    "metadata": {
-      "type": "object",
-      "required": ["generated_by", "total_plots", "generation_timestamp"],
-      "properties": {
-        "generated_by": { "type": "string" },
-        "total_plots": { "type": "integer" },
-        "successful_plots": { "type": "integer" },
-        "degraded_plots": { "type": "integer" },
-        "failed_plots": { "type": "integer" },
-        "generation_timestamp": { "type": "string" },
-        "data_source": { "enum": ["cleaned", "raw_fallback"] },
-        "scenario_type": { "type": "string" },
-        "focus_product": { "type": "string" }
-      }
+     },
+     "diagnostic_question": {
+      "type": "string"
+     },
+     "vlm_priority": {
+      "enum": [
+       "CRITICAL",
+       "HIGH",
+       "MEDIUM",
+       "LOW"
+      ]
+     },
+     "width_px": {
+      "type": "integer"
+     },
+     "height_px": {
+      "type": "integer"
+     },
+     "dpi": {
+      "type": "integer"
+     },
+     "file_size_kb": {
+      "type": "number"
+     },
+     "generation_status": {
+      "enum": [
+       "success",
+       "degraded",
+       "failed"
+      ]
+     },
+     "time_aligned": {
+      "type": "boolean"
+     },
+     "has_event_markers": {
+      "type": "boolean"
+     },
+     "per_product": {
+      "type": "boolean"
+     }
     }
+   }
+  },
+  "metadata": {
+   "type": "object",
+   "required": [
+    "generated_by",
+    "total_plots",
+    "generation_timestamp"
+   ],
+   "properties": {
+    "generated_by": {
+     "type": "string"
+    },
+    "total_plots": {
+     "type": "integer"
+    },
+    "successful_plots": {
+     "type": "integer"
+    },
+    "degraded_plots": {
+     "type": "integer"
+    },
+    "failed_plots": {
+     "type": "integer"
+    },
+    "generation_timestamp": {
+     "type": "string"
+    },
+    "data_source": {
+     "enum": [
+      "cleaned",
+      "raw_fallback"
+     ]
+    },
+    "scenario_type": {
+     "type": "string"
+    },
+    "focus_product": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "焦点产品/物料(无产品概念的场景为 null)"
+    }
+   }
   }
+ }
 }

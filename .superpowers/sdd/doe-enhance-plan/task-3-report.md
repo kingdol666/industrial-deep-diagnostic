@@ -1,142 +1,61 @@
-# Task 3 Report: industrial-deep-analysis Skill + deep-analyst Agent
+# Task 3 Report — deep-analyst (E1-E4 + E3.5)
 
-## Status: DONE (review fixes applied)
+Date: 2026-08-02
+Agent: DeepAnalystE1E4 (industrial-deep-analysis)
 
-## Commit: (pending, will amend after fixes)
+## RUN_DIR
+`D:/codes/myskills/industrial-deep-diagnostic/workspace/diagnostic-runs/202607310911175_cnc_spindle_wear_enhance_test`
 
-## Files Created
+## Pre-flight
+- Deleted prior `RUN_DIR/enhancement/` entirely (verified gone, `shutil.rmtree`), per Main's change instruction.
+- Read `SKILL.md` and `references/agent-protocol.md`; followed phase checklist.
+- Notified peers (PhysicsBridgeE5, EnhanceOrchE0E8) of the enhancement/ reset before deleting; PhysicsBridgeE5 confirmed it had written nothing yet and would run E5 after E1-E4 outputs were fresh. EnhanceOrchE0E8 confirmed ownership of its own artifacts; coordination resolved with no overlap.
 
-| File | Purpose |
-|------|---------|
-| `.claude/skills/industrial-deep-analysis/SKILL.md` | Skill documentation: inputs/outputs, E1-E4 protocol, enum meanings, numeric truth mandate |
-| `.claude/skills/industrial-deep-analysis/references/agent-protocol.md` | Phase checklist for deep-analyst agent execution |
-| `.claude/skills/industrial-deep-analysis/scripts/coverage_builder.py` | E1: per-column coverage assessment → `analysis_coverage.json` |
-| `.claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py` | E2: physically justified derived features → `derived_features.json` |
-| `.claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py` | E3: conditional relationship analysis + tradeoff invocation → `deep_data_analysis.json` |
-| `.claude/skills/industrial-deep-analysis/scripts/tradeoff_builder.py` | E4: public `build_tradeoff_and_operability()` + CLI determinism |
-| `.omp/agents/deep-analyst.md` | Agent frontmatter (`name`, `description`, `model`, `tools`, `spawns`, `thinkingLevel`) + workflow |
+## Commands & Exit Codes
 
-## Verification Results
+| Phase | Command | Exit |
+|-------|---------|------|
+| E1 | `python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py --run-dir <RUN_DIR>` | 0 |
+| E2 | `python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py --run-dir <RUN_DIR>` | 0 |
+| E3 | `python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py --run-dir <RUN_DIR>` | 0 |
+| E3.5 | `python .claude/skills/industrial-deep-analysis/scripts/association_graph_builder.py --run-dir <RUN_DIR>` | 0 |
+| E4 | `python .claude/skills/industrial-deep-analysis/scripts/tradeoff_builder.py --run-dir <RUN_DIR>` | 0 |
 
-### Compile Check
-```
-python -m py_compile .claude/skills/industrial-deep-analysis/scripts/*.py
-```
-All four scripts compile cleanly.
+All scripts exited 0 (cwd: `D:/codes/myskills/industrial-deep-diagnostic`).
 
-### CSTR Run Verification
+## Output Files
 
-**E1 — Coverage Builder:**
-```
-python coverage_builder.py --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-```
-- Output: 25 column entries in `analysis_coverage.json` (all 25 CSV columns)
-- All 25 columns covered: 12 numeric process columns + 4 metadata/group + 9 `_dev` derived deviation columns + `time_hours`
-- `_dev` columns: status=`derived_and_used`, role=`derived_deviation`
-- `time_hours`: status=`not_applicable`, role=`derived_time`
-- Coverage statuses: 8 `covered_primary`, 2 `covered_conditional`, 2 `pruned_physics`, 4 `not_applicable`, 9 `derived_and_used`
+| File | Size (bytes) | Parses as JSON |
+|------|-------------|----------------|
+| `enhancement/analysis_coverage.json` | 15,064 | OK |
+| `enhancement/derived_features.json` | 2,413 | OK |
+| `enhancement/deep_data_analysis.json` | 68,883 | OK |
+| `enhancement/association_graph.json` | 20,535 | OK |
 
-**E2 — Derived Feature Builder:**
-```
-python derived_feature_builder.py --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-```
-- Output: 5 computed features
-  - `cumulative_feed_sulfur_ppm_exposure` — trapezoidal integration over sorted timestamp
-  - `time_since_catalyst_bed_id_transition` — hours since bed/regeneration transition
-  - `regime_steady`, `regime_transition` — one-hot indicators from production_regime_filter
-  - `reactor_temp_C_lag2` — lag-aligned feature at optimal lag 2h from time_lag_analysis
+(Plus `enhancement/derived_data.csv`, 218.8 KB, containing every computed derived-feature column.)
 
-**E3 + E4 — Conditional Analysis + Tradeoffs:**
-```
-python conditional_analysis.py --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-```
-- Output: 11 relationships, 7 tradeoff entries
-- **reactor_temp_C → conversion_pct: operability=ENDOGENOUS_RESPONSE** ✅
-- BH-corrected q-values span [0.0, 1.0]; 7 of 11 pairs have q=0.0 (strong global correlations driven by shared time trends)
-- All 11 relationships carry all 7 validity flags (all boolean)
-- Simpson paradox detected in 4 pairs via per-group sign reversal (cooling_water_temp_C, feed_rate_kg_hr, feed_sulfur_ppm, reactor_temp_C→byproduct_ppm; the last overridden by ENDOGENOUS_RESPONSE)
-- Time-confounding detected in 4 pairs with strong global |r|>0.4 but detrended |r|<0.15 and no validated physics direction
-- Operability distribution: 3 ENDOGENOUS_RESPONSE, 6 CONFOUNDED, 1 NOT_IDENTIFIABLE, 1 LEVER_OBSERVATIONAL
+## Acceptance Criteria Results
 
-### Baseline Integrity
-```
-git diff --name-only -- .claude/skills/industrial-deep-analysis/ .omp/agents/ .superpowers/
-```
-No modifications to any existing diagnostic skill, agent, schema, script, or baseline RUN_DIR file. All Task 3 files are new additions.
+- **All scripts exit 0** — PASS (see table above).
+- **4 JSON outputs exist & parse** — PASS.
+- **deep_data_analysis.json relationships**: **21** (>= 15 required).
+  - `validity_flags.insufficient_data` present on **every** relationship (0 missing).
+  - `q_value` never exactly 0.0 — **range [1.750e-300, 1.363e-10]**, exact-zero count = 0.
+  - `tradeoff_and_operability[]`: **8** entries (non-empty).
+- **association_graph.json**: **n_nodes = 8** (>= 5), **n_edges = 16** (>= 10).
+  - Edge semantics: {supports, inhibits}; every edge carries `sign`, `confidence`, `causal_ceiling`, `ontology_contradiction`.
+- **Coverage**: 22 columns, all distinct; every cleaned-data column covered.
 
-### Schema Validation
-All three output JSONs match the structure defined by the fixtures (`valid_coverage.json`, `valid_derived.json`, `valid_deep_data.json`):
-- `analysis_coverage.json`: `run_id`, `columns[]` with `column`, `role`, `coverage_status`, `unit`, `n_total`, `n_steady`, `support_domain`, `physics_ref`, `reason`
-- `derived_features.json`: `run_id`, `features[]` with `name`, `status`, `formula`, `physics_basis`, `unit`, `source_columns`, `row_range`, `mask`, `derived`
-- `deep_data_analysis.json`: `run_id`, `relationships[]` with all 17 fields, `tradeoff_and_operability[]` with all 8 fields
+## Cross-Validation (Protocol Phase 5)
 
-## Review Fixes (Round 1)
+- No relationship has `predictor == target` — PASS.
+- No predictor is a metadata/control column — PASS.
+- Derived features: 4 `computed` (derived=true), 1 `not_applicable` (derived=false, nonempty formula/physics_basis) — PASS.
+- Neutral finite values paired with explicit validity flags — PASS (`insufficient_data` flag everywhere; q-values floored per Numeric Truth Mandate).
+- `git status --porcelain` on RUN_DIR and `.claude/skills/industrial-deep-analysis/` — **no modifications to baseline files**; only `enhancement/` outputs written.
 
-Three blocking issues from Task 3 review were fixed:
-
-### Fix 1: Schema compliance — removed extra top-level keys
-All three output JSONs emitted `generated_at` and `source_run_dir` top-level keys,
-but the schemas use `additionalProperties:false` and only allow `run_id` plus their
-array fields. Fixed by removing these extra keys from all three scripts:
-- `coverage_builder.py`: output dict now only has `run_id` + `columns`
-- `derived_feature_builder.py`: output dict now only has `run_id` + `features`
-- `conditional_analysis.py`: output dict now only has `run_id` + `relationships` + `tradeoff_and_operability`
-
-### Fix 2: Complete column coverage — all 25 CSV columns
-Coverage previously skipped 9 `_dev` columns and `time_hours` via an early-continue
-on `exclude_cols`. The brief mandates "For every cleaned-data column, emit one
-columns[] entry." Fixed by:
-- Removing the exclude_cols skip in the build_coverage loop
-- Adding `_dev` suffix detection in `_role_from_ontology` → role=`derived_deviation`
-- Adding `_dev` suffix and `time_hours` early-return in `_coverage_status`:
-  `_dev` → `derived_and_used`, `time_hours` → `not_applicable`
-- Adding `derived_and_used` and `derived_time` reason branches
-
-### Fix 3: conditional_analysis reads derived_features.json
-The brief CLI contract requires reading `derived_features.json` if present and
-passing feature_metadata to `build_tradeoff_and_operability`. Fixed by adding
-derived_features.json loading before the tradeoff builder invocation, and
-passing it as the `feature_metadata` argument.
-
-### Verification After Fixes
-```
-python -c "import json; ..."  # 25 coverage entries, 0 missing, 0 extra keys
-python -c "import json; ..."  # reactor_temp_C->conversion_pct = ENDOGENOUS_RESPONSE
-```
-All checks pass: 25/25 columns covered, 3/3 outputs schema-compliant, operability contract satisfied.
-
-## Concerns
-
-1. **CONFOUNDED prevalence (6/11):** Many relationships are classified as CONFOUNDED because the 60-day catalyst degradation trend creates strong time-shared correlations that vanish after first-differencing. This is physically correct — the degradation dominates the signal — but means downstream Task 4/5 consumers must treat most global correlations as time-confounded rather than actionable. The only observational lever is `feed_rate_kg_hr` (very weak r=0.02).
-
-2. **feed_sulfur_ppm weakness:** The instantaneous `feed_sulfur_ppm` has essentially zero correlation with any target (global r≈0.004). The brief correctly identifies cumulative exposure as the relevant metric; the cumulative feature is computed in E2 but relationships use instantaneous values. Task 4 should use `cumulative_feed_sulfur_ppm_exposure` as the predictor for sulfur poisoning analysis.
-
-3. **q-value precision:** All BH-corrected q-values round to 0.0 for 7 of 11 pairs due to extremely small p-values from n=1440. This is numerically correct but masks relative effect sizes; downstream consumers should use |r| rather than q-value for effect ranking.
-
-4. **No `not_applicable` derived features:** All 5 derived feature candidates were computed successfully; no skipped features. This is acceptable since the CSTR run has all required source columns, but other runs may need the `not_applicable` path tested separately.
-
-## Commands Executed
-```bash
-# Compile check
-python -m py_compile .claude/skills/industrial-deep-analysis/scripts/*.py
-
-# E1
-python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-
-# E2
-python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-
-# E3+E4
-python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py \
-  --run-dir workspace/diagnostic-runs/202607300458012_cstr_catalyst_real
-
-# Verification
-python -c "
-import json
-with open('...enhancement/analysis_coverage.json') as f:
-    cov = json.load(f)
-# ... all validation checks passed
-"
-```
+## Notes / Concerns
+- E3's inline graph write and E3.5 standalone rerun both produced identical graph stats (8 nodes / 16 edges), confirming standalone rerun consistency.
+- q-value minimum 1.750e-300 is the scientific floor (never exact 0.0; per skill mandate p-values below 1e-300 are floored with `p_floor_hit=true`).
+- No warnings observed in any script output.
+- At time of this report, `enhancement/` contained only the five E1-E4 artifacts; E5 (physics_bridge.json) and E8 (enhancement_status.json) are owned by PhysicsBridgeE5 / EnhanceOrchE0E8 respectively and written after E1-E4 per pipeline order.

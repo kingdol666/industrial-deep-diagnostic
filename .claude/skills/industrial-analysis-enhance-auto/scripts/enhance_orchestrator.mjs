@@ -348,12 +348,17 @@ function finalize(runDir, manifest, launchResults) {
       const kb = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
       enhancementStatus = kb.enhancement_status || 'FAILED';
 
-      // Count CONFOUNDED and NOT_IDENTIFIABLE
+      // Count CONFOUNDED and NOT_IDENTIFIABLE among edges that carry a real
+      // operability verdict (UNCLASSIFIED graph edges from the full pairwise
+      // network must not drive status downgrades).
       const relationships = kb.relationship_graph?.edges || [];
-      const confoundedCount = relationships.filter(
+      const OPER_ENUM = ['LEVER_IDENTIFIED', 'LEVER_OBSERVATIONAL', 'ENDOGENOUS_RESPONSE',
+                         'CONFOUNDED', 'NOT_IDENTIFIABLE', 'CONSTRAINT_UNCONTROLLABLE'];
+      const classified = relationships.filter((e) => OPER_ENUM.includes(e.operability));
+      const confoundedCount = classified.filter(
         (e) => e.operability === 'CONFOUNDED' || e.operability === 'NOT_IDENTIFIABLE'
       ).length;
-      if (relationships.length > 0 && confoundedCount / relationships.length > 0.3) {
+      if (classified.length > 0 && confoundedCount / classified.length > 0.3) {
         if (enhancementStatus !== 'READY_WITH_WARNINGS') {
           warnings.push(
             `${confoundedCount}/${relationships.length} relationships are CONFOUNDED or NOT_IDENTIFIABLE (>30%)`

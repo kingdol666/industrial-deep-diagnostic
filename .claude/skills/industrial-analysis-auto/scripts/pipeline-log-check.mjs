@@ -91,6 +91,18 @@ function requiredAgentsForObservedArtifacts() {
     required.add('report-reviewer');
   }
 
+  // metadata_backed_inference mode = VLM intentionally not dispatched; its
+  // agent events cannot be expected when it never ran.
+  if (exists('03_figures/visual_analysis.json')) {
+    try {
+      const va = readJson(join(runDir, '03_figures', 'visual_analysis.json'), null) || {};
+      const stage = (va.analysis_provenance || {}).stage || '';
+      if (va.observation_mode === 'metadata_backed_inference' || stage === 'metadata_backed_inference') {
+        required.delete('vlm-visual-analyzer');
+      }
+    } catch (e) { /* unreadable VA handled elsewhere */ }
+  }
+
   return Array.from(required);
 }
 
@@ -307,13 +319,28 @@ if (exists('03_figures/visual_analysis.json')) {
     }
 
     const provenance = visualAnalysis.analysis_provenance || {};
-    if (provenance.source_agent !== 'vlm-visual-analyzer') {
-      issues.push({
-        severity: 'critical',
-        code: 'VLM_SOURCE_AGENT_MISSING',
-        message: 'visual_analysis.json does not identify vlm-visual-analyzer as the source agent.'
-      });
-    }
+    // metadata_backed_inference is the explicit NON-VLM mode (VLM intentionally
+    // not dispatched — no images yet). It must still prove data-processor
+    // authored it; the full VLM chain requirements do not apply.
+    const metadataBacked = visualAnalysis.observation_mode === 'metadata_backed_inference'
+      || provenance.stage === 'metadata_backed_inference';
+    if (metadataBacked) {
+      if (!String(provenance.source_agent || '').startsWith('data-processor')) {
+        issues.push({
+          severity: 'critical',
+          code: 'METADATA_BACKED_SOURCE_MISSING',
+          message: 'metadata_backed visual_analysis.json must identify data-processor as the source agent.'
+        });
+      }
+      // skip VLM-specific gates in this explicit mode
+    } else {
+      if (provenance.source_agent !== 'vlm-visual-analyzer') {
+        issues.push({
+          severity: 'critical',
+          code: 'VLM_SOURCE_AGENT_MISSING',
+          message: 'visual_analysis.json does not identify vlm-visual-analyzer as the source agent.'
+        });
+      }
     if (provenance.stage !== 'final_vlm_output') {
       issues.push({
         severity: 'critical',
@@ -341,6 +368,7 @@ if (exists('03_figures/visual_analysis.json')) {
         code: 'VLM_IMAGE_INPUT_NOT_PROVEN',
         message: 'visual_analysis.json is missing analysis_provenance.figure_inputs_attempted, so no figure-reading attempt is proven.'
       });
+    }
     }
     if (visualAnalysis.observation_mode === 'direct_image_reading' && !nonEmptyArray(provenance.figure_inputs_read_successfully)) {
       issues.push({
