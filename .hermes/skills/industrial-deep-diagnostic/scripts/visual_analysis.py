@@ -720,6 +720,9 @@ def analyze_temporal_synchronization(df, targets, key_params):
 
 
 def main():
+    if any(a in ("-h", "--help") for a in sys.argv[1:]):
+        print("Usage: python visual_analysis.py <run_dir> [--target-cols col1,col2] [--key-params p1,p2] [--group-col col] [--time-col col]")
+        sys.exit(0)
     if len(sys.argv) < 2:
         print("Usage: python visual_analysis.py <run_dir> [--target-cols col1,col2] [--key-params p1,p2] [--group-col col]")
         sys.exit(1)
