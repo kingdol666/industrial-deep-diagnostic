@@ -163,9 +163,8 @@
       }
     },
     "evidence_gaps": {
-      "description": "当前证据体系中的缺口",
+      "description": "当前证据体系中的缺口（无缺口时为空数组——空是合法状态）",
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,

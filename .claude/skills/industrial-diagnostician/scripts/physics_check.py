@@ -159,8 +159,10 @@ def check_arrhenius(
 
     # If we have actual temperature data, compute from it
     if temp_high_col in data[0] if data else False:
-        temps_high = [row[temp_high_col] for row in data if temp_high_col in row]
-        temps_low = [row[temp_low_col] for row in data if temp_low_col in row]
+        temps_high = [_safe_float(row[temp_high_col]) for row in data if temp_high_col in row]
+        temps_low = [_safe_float(row[temp_low_col]) for row in data if temp_low_col in row]
+        temps_high = [v for v in temps_high if v is not None]
+        temps_low = [v for v in temps_low if v is not None]
         if not temps_high or not temps_low:
             return {"check": "arrhenius_kinetics", "status": "INCONCLUSIVE", "reason": "Missing temperature data"}
 
@@ -176,7 +178,8 @@ def check_arrhenius(
         rate_ratio = math.exp(Ea_J_per_mol / R * (1 / T1_K - 1 / T2_K))
 
         # Also check if degradation rate correlates with temperature
-        rates = [row[degradation_rate_col] for row in data if degradation_rate_col in row]
+        rates = [_safe_float(row[degradation_rate_col]) for row in data if degradation_rate_col in row]
+        rates = [v for v in rates if v is not None]
         rate_observed_ratio = 1.0
         if rates:
             rate_observed_ratio = max(rates) / min(rates) if min(rates) > 0 else 0
@@ -439,8 +442,10 @@ def check_flow_restriction(
     Checks if pressure drop scales quadratically with flow rate,
     which is the physical expectation for unrestricted flow.
     """
-    flows = [row[flow_col] for row in data if flow_col in row]
-    pressures = [row[pressure_drop_col] for row in data if pressure_drop_col in row]
+    flows = [_safe_float(row[flow_col]) for row in data if flow_col in row]
+    pressures = [_safe_float(row[pressure_drop_col]) for row in data if pressure_drop_col in row]
+    flows = [v for v in flows if v is not None]
+    pressures = [v for v in pressures if v is not None]
     if not flows or not pressures:
         return {"check": "flow_restriction", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
@@ -519,9 +524,12 @@ def check_heat_transfer(
       volumetric, the U scale shifts by fluid density — noted, trend
       conclusions unaffected
     """
-    T_ins = [row[T_in_col] for row in data if T_in_col in row]
-    T_outs = [row[T_out_col] for row in data if T_out_col in row]
-    flows = [row[flow_col] for row in data if flow_col in row]
+    T_ins = [_safe_float(row[T_in_col]) for row in data if T_in_col in row]
+    T_outs = [_safe_float(row[T_out_col]) for row in data if T_out_col in row]
+    flows = [_safe_float(row[flow_col]) for row in data if flow_col in row]
+    T_ins = [v for v in T_ins if v is not None]
+    T_outs = [v for v in T_outs if v is not None]
+    flows = [v for v in flows if v is not None]
 
     if not T_ins or not T_outs or not flows:
         return {"check": "heat_transfer", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
@@ -603,9 +611,12 @@ def check_corrosion_rate(
     Simplified corrosion rate check based on pH-temperature effects.
     Low pH (<4) or high pH (>10) with elevated temperature → accelerated corrosion.
     """
-    pHs = [row[pH_col] for row in data if pH_col in row]
-    temps = [row[temp_col] for row in data if temp_col in row]
-    corrs = [row[corrosion_col] for row in data if corrosion_col in row]
+    pHs = [_safe_float(row[pH_col]) for row in data if pH_col in row]
+    temps = [_safe_float(row[temp_col]) for row in data if temp_col in row]
+    corrs = [_safe_float(row[corrosion_col]) for row in data if corrosion_col in row]
+    pHs = [v for v in pHs if v is not None]
+    temps = [v for v in temps if v is not None]
+    corrs = [v for v in corrs if v is not None]
 
     if not all([pHs, temps, corrs]):
         return {"check": "corrosion_rate", "status": "INCONCLUSIVE", "reason": "Missing data columns"}

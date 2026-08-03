@@ -376,11 +376,21 @@ def _collect_relationship_evidence(
 
     # From evidence
     ev_inv = evidence.get("evidence_inventory", {})
-    for ev_type in ("numerical_evidence", "physical_evidence"):
-        for item in ev_inv.get(ev_type, []):
-            detail = item.get("detail", "")
+    if not isinstance(ev_inv, dict):
+        # Tolerate a list-shaped inventory (agent output deviation): treat each
+        # item directly instead of crashing the whole bridge.
+        for item in ev_inv:
+            if not isinstance(item, dict):
+                continue
+            detail = str(item.get("detail", ""))
             if predictor in detail and target in detail:
                 refs.append(f"evidence.{item.get('type','')}: {detail[:100]}")
+    else:
+        for ev_type in ("numerical_evidence", "physical_evidence"):
+            for item in ev_inv.get(ev_type, []):
+                detail = item.get("detail", "")
+                if predictor in detail and target in detail:
+                    refs.append(f"evidence.{item.get('type','')}: {detail[:100]}")
 
     return refs
 
@@ -404,18 +414,27 @@ def _build_mechanism_chains(diagnosis: dict, evidence: dict) -> List[dict]:
         # Evidence refs
         evidence_refs: List[str] = []
         for ev in hyp.get("supporting_evidence", []):
-            ev_src = ev.get("source", "")
-            ev_detail = ev.get("detail", "")
-            if ev_src or ev_detail:
-                evidence_refs.append(f"{hyp_id}.{ev_src}: {ev_detail[:120]}")
+            if isinstance(ev, dict):
+                ev_src = ev.get("source", "")
+                ev_detail = ev.get("detail", "")
+                if ev_src or ev_detail:
+                    evidence_refs.append(f"{hyp_id}.{ev_src}: {ev_detail[:120]}")
+            elif isinstance(ev, str) and ev.strip():
+                # String-shaped evidence entries (agent output deviation): keep as-is
+                evidence_refs.append(f"{hyp_id}.{ev.strip()[:120]}")
 
         # Physics law
         phys_chain = hyp.get("physical_logic_chain", [])
         physics_laws = []
         for link in phys_chain:
-            link_text = link.get("link", "")
+            if isinstance(link, dict):
+                link_text = link.get("link", "")
+            elif isinstance(link, str):
+                link_text = link
+            else:
+                link_text = ""
             if link_text:
-                physics_laws.append(link_text[:150])
+                physics_laws.append(str(link_text)[:150])
         physics_law = " | ".join(physics_laws) if physics_laws else "Unknown"
 
         # Data support (localized to Chinese for downstream markdown)
