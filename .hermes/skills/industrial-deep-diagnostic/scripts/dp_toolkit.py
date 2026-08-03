@@ -3,9 +3,9 @@
 
 Usage:
     uv run python dp_toolkit.py preprocess <data.csv> <output_dir> [--group-col G]
-    uv run python dp_toolkit.py anomaly <cleaned_data.json> <output_dir> [--window N]
+    uv run python dp_toolkit.py anomaly <cleaned_data.json> <output_dir> [--window N] [--data-view-mode MODE]
     uv run python dp_toolkit.py visualize <cleaned_data.json> <feature_summary.json> <anomaly_report.json> <output_dir> \\
-        [--target-cols A,B] [--key-params A,B] [--group-col G]
+        [--target-cols A,B] [--key-params A,B] [--group-col G] [--data-view-mode MODE]
 
 This replaces the 3 per-scenario scripts that the data-processor previously wrote from scratch.
 All column names are passed via CLI — no hardcoded values.
@@ -87,11 +87,25 @@ def _rolling_window(values, window):
 
 
 def _choose_target_cols(rows, numeric_cols):
-    target_keywords = ['thickness', 'spot', 'scratch', 'point', 'tension', 'band', 'defect', 'rate', 'quality', 'yield', 'ppm']
-    target_cols = [c for c in numeric_cols if any(kw in c.lower() for kw in target_keywords)]
-    if not target_cols:
-        target_cols = numeric_cols[-4:]
-    return target_cols
+    scored = []
+    for c in numeric_cols:
+        values = [_safe_float(r.get(c)) for r in rows]
+        vals = [v for v in values if v is not None]
+        if len(vals) < 5:
+            continue
+        mu = mean(vals)
+        sigma = stdev(vals) if len(vals) > 1 else 0
+        baseline = abs(mean(vals[: min(10, len(vals))])) + 1e-9
+        trend = abs(vals[-1] - vals[0]) / baseline
+        cv = sigma / (abs(mu) + 1e-9)
+        q1 = sorted(vals)[len(vals) // 4]
+        q3 = sorted(vals)[(len(vals) * 3) // 4]
+        iqr = q3 - q1
+        outlier_ratio = 0 if iqr == 0 else sum(v < q1 - 1.5 * iqr or v > q3 + 1.5 * iqr for v in vals) / len(vals)
+        scored.append((trend * 0.45 + cv * 0.35 + outlier_ratio * 0.20, c))
+    if scored:
+        return [c for _, c in sorted(scored, reverse=True)[: min(4, len(scored))]]
+    return numeric_cols[-4:]
 
 
 def _choose_process_cols(numeric_cols, target_cols):
@@ -157,7 +171,17 @@ def cmd_preprocess(args):
         try:
             baselines[c] = mean([float(r[c]) for r in rows[:baseline_n]])
         except: pass
-    for c in [cc for cc in numeric_cols if '_th' in cc or 'temp' in cc.lower()]:
+    for c in numeric_cols:
+        vals = [_safe_float(r.get(c)) for r in rows[: min(200, len(rows))]]
+        vals = [v for v in vals if v is not None]
+        if len(vals) < 5:
+            continue
+        try:
+            drift_ratio = abs(vals[-1] - vals[0]) / (abs(baselines[c]) + 1e-9)
+        except Exception:
+            drift_ratio = 0
+        if drift_ratio < 0.02:
+            continue
         col_name = f"{c}_dev"
         for r in rows:
             try:
@@ -170,12 +194,29 @@ def cmd_preprocess(args):
     if time_col:
         from datetime import datetime
         try:
-            t0 = datetime.strptime(rows[0][time_col][:19], "%Y-%m-%d %H:%M:%S")
+            # Multi-format parse (stdlib): ISO, T-separator, slashes, Chinese formats
+            def _parse_t(v):
+                s = str(v).strip()
+                for fmt in ("%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M", "%Y-%m-%d", "%Y/%m/%d",
+                            "%Y年%m月%d日 %H:%M:%S", "%Y年%m月%d日"):
+                    try:
+                        return datetime.strptime(s[:19], fmt)
+                    except ValueError:
+                        continue
+                return None
+            t0 = _parse_t(rows[0][time_col])
+            if t0 is None:
+                raise ValueError(f"unparseable time value: {rows[0][time_col]!r}")
             for r in rows:
-                dt = datetime.strptime(r[time_col][:19], "%Y-%m-%d %H:%M:%S")
+                dt = _parse_t(r[time_col])
+                if dt is None:
+                    continue
                 r['time_hours'] = str(round((dt - t0).total_seconds() / 3600, 4))
-            report["derived_features"] = report.get("derived_features", []) + ["time_hours"]
-        except: pass
+            if any('time_hours' in r for r in rows):
+                report["derived_features"] = report.get("derived_features", []) + ["time_hours"]
+        except Exception:
+            pass
 
     if group_col:
         groups = _product_groups(rows, group_col)
@@ -218,14 +259,22 @@ def cmd_anomaly(args):
     time_col = _detect_time_col(list(rows[0].keys()))
     group_col = _detect_group_col(list(rows[0].keys()), args.group_col)
     numeric_cols = _numeric_columns(rows, excluded={time_col, group_col})
-    target_cols = _choose_target_cols(rows, numeric_cols)
-    process_cols = _choose_process_cols(numeric_cols, target_cols)
+    explicit_targets = [c for c in (args.target_cols.split(',') if args.target_cols else []) if c in numeric_cols]
+    explicit_process = [c for c in (args.process_cols.split(',') if args.process_cols else []) if c in numeric_cols]
+    data_view_mode = args.data_view_mode
+    if data_view_mode == 'process_only':
+        target_cols = []
+        process_cols = explicit_process or numeric_cols
+    else:
+        target_cols = explicit_targets or _choose_target_cols(rows, numeric_cols)
+        process_cols = explicit_process or _choose_process_cols(numeric_cols, target_cols)
 
     report = {
         "targets": {},
         "transition_events": [],
         "process_parameter_fluctuation": {},
         "dual_drive_analysis": {
+            "data_view_mode": data_view_mode,
             "group_column": group_col,
             "time_column": time_col,
             "per_product_analysis": {},
@@ -397,11 +446,18 @@ def cmd_anomaly(args):
                     **finding
                 })
 
-    report["dual_drive_analysis"]["summary"] = (
-        f"按{group_col or '无产品分组'}执行了工艺参数波动与检测指标异常的联合分析；"
-        f"识别到{len(report['dual_drive_analysis']['cross_domain_links'])}条工艺-检测联动线索。"
-    )
+    if data_view_mode == 'process_only' or not target_cols:
+        report["dual_drive_analysis"]["summary"] = (
+            "当前按process_only模式处理：已分析工艺参数波动、漂移、分组波动和切换候选；"
+            "由于缺少真实检测/质量目标，不声明工艺-质量因果联动。"
+        )
+    else:
+        report["dual_drive_analysis"]["summary"] = (
+            f"按{group_col or '无产品分组'}执行了工艺参数波动与检测指标异常的联合分析；"
+            f"识别到{len(report['dual_drive_analysis']['cross_domain_links'])}条工艺-检测联动线索。"
+        )
     report["summary"] = {
+        "data_view_mode": data_view_mode,
         "anomaly_intervals": sum(len(v["anomaly_intervals"]) for v in report["targets"].values()),
         "total_transitions": len(report["transition_events"]),
         "process_parameters_screened": len(report["process_parameter_fluctuation"]),
@@ -428,8 +484,10 @@ def cmd_visualize(args):
     time_col = _detect_time_col(list(rows[0].keys()))
     group_col = _detect_group_col(list(rows[0].keys()), args.group_col)
     numeric_cols = _numeric_columns(rows, excluded={time_col, group_col})
-    targets = args.target_cols.split(',') if args.target_cols else _choose_target_cols(rows, numeric_cols)
-    key_params = args.key_params.split(',') if args.key_params else _choose_process_cols(numeric_cols, targets)[:6]
+    data_view_mode = args.data_view_mode or anomaly.get("summary", {}).get("data_view_mode") or anomaly.get("dual_drive_analysis", {}).get("data_view_mode") or "unknown"
+    targets = [] if data_view_mode == 'process_only' else (args.target_cols.split(',') if args.target_cols else _choose_target_cols(rows, numeric_cols))
+    key_params = args.key_params.split(',') if args.key_params else _choose_process_cols(numeric_cols, targets)
+    is_process_only = data_view_mode == 'process_only' or not targets
 
     try:
         import matplotlib; matplotlib.use('Agg')
@@ -456,7 +514,7 @@ def cmd_visualize(args):
                 ax.set_ylabel(key_params[0])
                 ax.legend(fontsize=8)
                 ax.grid(True, alpha=0.3)
-            ax.set_title('Temporal Alignment — Parameter vs Quality Targets')
+            ax.set_title('Process Health Timeline' if is_process_only else 'Temporal Alignment — Parameter vs Quality Targets')
 
             for i, target in enumerate(targets[:3]):
                 ax = axes[i + 1]
@@ -473,9 +531,61 @@ def cmd_visualize(args):
             plot_records.append({
                 "filename": "fig1_temporal_alignment.png",
                 "file": "fig1_temporal_alignment.png",
-                "title": "参数-质量时序对齐",
-                "plot_type": "param_defect_aligned",
-                "description": "按时间顺序叠加工艺参数与检测指标，观察是否存在参数先变、缺陷后变的时序关系"
+                "title": "工艺健康时序趋势" if is_process_only else "参数-质量时序对齐",
+                "plot_type": "process_health_timeline" if is_process_only else "param_defect_aligned",
+                "description": "按时间顺序观察关键工艺参数漂移、波动和切换行为，不声明质量因果联动" if is_process_only else "按时间顺序叠加工艺参数与检测指标，观察是否存在参数先变、缺陷后变的时序关系"
+            })
+
+        # Process-only adaptive view: normalized multi-parameter drift + rolling volatility.
+        if is_process_only and key_params:
+            fig, axes = plt.subplots(2, 1, figsize=(14, 9), sharex=True)
+            for col in key_params:
+                if col not in rows[0]:
+                    continue
+                vals = [_safe_float(r.get(col)) for r in rows]
+                valid = [v for v in vals if v is not None]
+                if len(valid) < 3:
+                    continue
+                mv = mean(valid)
+                try:
+                    sd = stdev(valid) or 1.0
+                except Exception:
+                    sd = 1.0
+                z_vals = [((v - mv) / sd) if v is not None else None for v in vals]
+                axes[0].plot(x_values, z_vals, lw=0.85, label=col)
+
+                roll = []
+                window = max(5, len(vals) // 20)
+                for i in range(len(vals)):
+                    seg = [v for v in vals[max(0, i - window + 1):i + 1] if v is not None]
+                    if len(seg) >= 2:
+                        try:
+                            roll.append(stdev(seg))
+                        except Exception:
+                            roll.append(None)
+                    else:
+                        roll.append(None)
+                axes[1].plot(x_values, roll, lw=0.8, label=col)
+
+            axes[0].axhline(0, color='black', lw=0.5, alpha=0.4)
+            axes[0].set_ylabel('Normalized deviation (z)')
+            axes[0].set_title('Process-only Adaptive View — Normalized Drift')
+            axes[0].grid(True, alpha=0.25)
+            axes[0].legend(fontsize=7, ncol=3)
+            axes[1].set_ylabel('Rolling volatility')
+            axes[1].set_xlabel(x_label)
+            axes[1].set_title('Rolling Volatility / Stability')
+            axes[1].grid(True, alpha=0.25)
+            axes[1].legend(fontsize=7, ncol=3)
+            plt.tight_layout()
+            plt.savefig(os.path.join(args.output_dir, 'fig2_process_only_health.png'), dpi=110)
+            plt.close()
+            plot_records.append({
+                "filename": "fig2_process_only_health.png",
+                "file": "fig2_process_only_health.png",
+                "title": "Process-only Health and Stability",
+                "plot_type": "process_health_stability",
+                "description": "仅基于工艺数据展示多参数归一化漂移和滚动波动，用于识别工艺健康、稳定性和潜在工况切换"
             })
 
         # Fig 2: Scatter — first key param vs first target
@@ -531,7 +641,7 @@ def cmd_visualize(args):
                     for target in targets[:2]:
                         gy = [_safe_float(r.get(target)) for _, r in grp_rows]
                         ax.plot(gx, gy, lw=0.9, label=target)
-                    for param in key_params[:2]:
+                    for param in key_params:
                         gy = [_safe_float(r.get(param)) for _, r in grp_rows]
                         ax.plot(gx, gy, lw=0.8, linestyle='--', alpha=0.8, label=param)
                     ax.set_title(f'{group_col}={grp}')
@@ -552,7 +662,7 @@ def cmd_visualize(args):
         # Fig 4: Process fluctuation severity by product
         if group_col:
             groups = _product_groups(rows, group_col)
-            process_candidates = key_params[:4]
+            process_candidates = key_params
             if groups and process_candidates:
                 fig, ax = plt.subplots(figsize=(12, 6))
                 group_names = []
@@ -617,6 +727,72 @@ def cmd_visualize(args):
     print(f"Visualizations: {len(plot_records)} plots → {args.output_dir}")
 
 
+# ── REGIME FILTER (v6.5 MANDATORY) ──
+def cmd_regime_filter(args):
+    """Invoke production_regime_detector.py and return results.
+
+    This filters out startup/shutdown/abnormal periods so downstream analysis
+    only sees steady-state data. When a product grouping column exists, it
+    also computes per-product anomaly rates and identifies the focus product
+    for mandatory within-product analysis.
+    """
+    import subprocess, sys as _sys
+
+    detector_script = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'production_regime_detector.py'
+    )
+    if not os.path.exists(detector_script):
+        # If not found in same directory, try running it from the same working env
+        # as a sibling script
+        detector_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '.omp', 'skills', 'industrial-data-processor',
+            'scripts', 'production_regime_detector.py'
+        )
+
+    cmd = [
+        _sys.executable, detector_script,
+        args.data_csv, args.output_dir,
+        '--variance-threshold', str(args.variance_threshold),
+        '--min-steady-ratio', str(args.min_steady_ratio),
+    ]
+    if args.group_col:
+        cmd += ['--group-col', args.group_col]
+    if args.time_col:
+        cmd += ['--time-col', args.time_col]
+    if args.window_minutes:
+        cmd += ['--window-minutes', str(args.window_minutes)]
+
+    print(f"[regime-filter] Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr, file=_sys.stderr)
+    if result.returncode != 0:
+        print(f"[regime-filter] WARNING: production_regime_detector exited with code {result.returncode}", file=_sys.stderr)
+        # Non-fatal — downstream analysis can still proceed without filtering
+
+    # Read the output for pipeline integration
+    out_path = os.path.join(args.output_dir, 'production_regime_filter.json')
+    if os.path.exists(out_path):
+        with open(out_path) as f:
+            regime_data = json.load(f)
+        steady_rows = regime_data.get('steady_row_indices', [])
+        steady_ratio = regime_data.get('steady_state_ratio', 0)
+        print(f"[regime-filter] Steady-state: {len(steady_rows)}/{regime_data.get('total_rows', '?')} rows ({steady_ratio:.1%})")
+
+        # Per-product focus
+        per_prod = regime_data.get('per_product_anomaly_analysis', {})
+        if per_prod.get('applicable') and per_prod.get('focus_product'):
+            print(f"[regime-filter] Focus product: '{per_prod['focus_product']}' "
+                  f"(anomaly score: {per_prod.get('focus_product_stats', {}).get('overall_anomaly_score', 'N/A')}")
+            print(f"[regime-filter] MANDATORY: per-product within-time-window analysis required for '{per_prod['focus_product']}'")
+    else:
+        print("[regime-filter] WARNING: production_regime_filter.json not produced", file=_sys.stderr)
+
+
 # ── MAIN ──
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Data Processor Toolkit")
@@ -632,6 +808,9 @@ if __name__ == '__main__':
     p2.add_argument('output_dir')
     p2.add_argument('--window', type=int, default=None)
     p2.add_argument('--group-col', default=None)
+    p2.add_argument('--target-cols', default='')
+    p2.add_argument('--process-cols', default='')
+    p2.add_argument('--data-view-mode', choices=['process_plus_inspection', 'process_only', 'inspection_only', 'unknown'], default='unknown')
 
     p3 = sub.add_parser('visualize')
     p3.add_argument('data_json')
@@ -640,7 +819,18 @@ if __name__ == '__main__':
     p3.add_argument('output_dir')
     p3.add_argument('--target-cols', default='')
     p3.add_argument('--key-params', default='')
-    p3.add_argument('--group-col', default='product_grade')
+    p3.add_argument('--group-col', default=None)
+    p3.add_argument('--data-view-mode', choices=['process_plus_inspection', 'process_only', 'inspection_only', 'unknown'], default='unknown')
+
+    # v6.5 NEW: Production regime filter
+    p4 = sub.add_parser('regime-filter')
+    p4.add_argument('data_csv')
+    p4.add_argument('output_dir')
+    p4.add_argument('--group-col', default=None)
+    p4.add_argument('--time-col', default=None)
+    p4.add_argument('--window-minutes', type=float, default=10)
+    p4.add_argument('--variance-threshold', type=float, default=3.0)
+    p4.add_argument('--min-steady-ratio', type=float, default=0.4)
 
     a = parser.parse_args()
-    {'preprocess': cmd_preprocess, 'anomaly': cmd_anomaly, 'visualize': cmd_visualize}[a.command](a)
+    {'preprocess': cmd_preprocess, 'anomaly': cmd_anomaly, 'visualize': cmd_visualize, 'regime-filter': cmd_regime_filter}[a.command](a)

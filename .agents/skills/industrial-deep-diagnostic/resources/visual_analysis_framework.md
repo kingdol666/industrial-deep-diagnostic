@@ -261,7 +261,47 @@ def generate_vlm_temporal_overlay(df, targets, key_params, events, fig_dir):
 
 ---
 
-## 与 Diagnostician 的集成
+## VLM Image Dispatch Rules — Not All Images Go to VLM
+
+### Core Principle
+
+**Only spatio-temporally aligned images carry VLM diagnostic value.** VLM excels at reading cross-parameter synchrony, temporal precedence, event response, and group separation from images. Single-parameter trend charts, bar charts, and non-aligned dual-axis plots do NOT benefit from VLM analysis — the diagnostician can read the same information faster from numbers.
+
+### Image Filtering Rules
+
+| Image Type | VLM Priority | Rationale |
+|-----------|-------------|----------|
+| Multi-param temporal overlay (z-score normalized, shared time axis) | **MANDATORY** | VLM reads synchrony groups, precedence signals, event response, trend morphology |
+| Per-group temporal overlay (colored by confounder) | **MANDATORY** | VLM reads group-specific degradation patterns, Simpson check |
+| Scatter colored by confounder with regression lines | **SUPPLEMENTARY** | VLM reads cluster separation, within-group slope direction |
+| Event response overlay (before/after event) | **SUPPLEMENTARY** | VLM reads response magnitude, recovery completeness |
+| Single-parameter time series | **NOT_FOR_VLM** | No cross-parameter insight. Diagnostician reads trend from numbers |
+| Bar chart (correlation comparison) | **NOT_FOR_VLM** | VLM cannot read numerical r values from bar heights |
+| Dual-axis time series (2 params only) | **NOT_FOR_VLM** | Too few parameters for meaningful pattern detection |
+| Histogram / distribution plot | **NOT_FOR_VLM** | Statistical shape not useful for root cause visual diagnosis |
+
+### Dispatch Protocol
+
+1. Generate VLM-specialized temporal overlay chart (`fig_vlm_temporal_overlay.png`) using design specs above
+2. Generate `vlm_input_manifest.json` that lists only MANDATORY + SUPPLEMENTARY images
+3. Write skeleton_pre_vlm as fallback
+4. Dispatch vlm-visual-analyzer — it MUST read `vlm_input_manifest.json` FIRST to know which images to read
+5. After VLM completes, verify that chart_inventory only contains images from vlm_input_manifest
+
+### Post-Dispatch Verification
+
+```bash
+# Verify image selection compliance
+python -c "
+import json
+v = json.load(open('$RUN_DIR/03_figures/visual_analysis.json'))
+m = json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json'))
+vlm_files = [i['filename'] for i in m['vlm_images']]
+read = [i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]
+excluded_read = [i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files]
+print(f'VLM read {len(read)}/{len(vlm_files)} selected images, excluded reads: {excluded_read if excluded_read else \"NONE (clean)\"}')
+"
+```
 
 Diagnostician Phase 0 新增读取 `visual_analysis.json`：
 

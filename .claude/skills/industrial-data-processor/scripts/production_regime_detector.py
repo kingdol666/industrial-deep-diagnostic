@@ -399,8 +399,12 @@ def detect_abnormal_windows(regime_labels, rows, numeric_cols, min_normal_span=1
 # ── FUSION: COMBINE 3 METHODS INTO FINAL REGIME LABELS ──
 
 def fuse_regimes(variance_scores, change_points, ramp_scores, n_rows,
-                 variance_threshold=3.0, consensus_threshold=0.6, window=10):
+                 variance_threshold=3.0, consensus_threshold=0.6, window=10,
+                 ramp_threshold=0.03):
     """Fuse variance ratio, change points, and ramp scores into per-row regime labels.
+
+    ramp_threshold: normalized-slope magnitude above which a high-variance row
+    is labeled startup/shutdown — DATA-SCALE dependent, configurable via CLI.
 
     Priority (highest → lowest):
       1. Near change-point boundaries → 'transition'
@@ -431,9 +435,9 @@ def fuse_regimes(variance_scores, change_points, ramp_scores, n_rows,
 
         # High variance → abnormal
         if vs > variance_threshold:
-            if rs > 0.03:
+            if rs > ramp_threshold:
                 labels[i] = 'startup'
-            elif rs < -0.03:
+            elif rs < -ramp_threshold:
                 labels[i] = 'shutdown'
             else:
                 labels[i] = 'abnormal'
@@ -452,6 +456,7 @@ def fuse_regimes(variance_scores, change_points, ramp_scores, n_rows,
         'change_point_indices': change_points,
         'abnormal_windows': abnormal_windows,
         'variance_threshold': variance_threshold,
+        'ramp_threshold': ramp_threshold,
     }
 
     return labels, diagnosis, abnormal_windows
@@ -543,6 +548,8 @@ def main():
                         help='Minimum steady-state ratio required for analysis (default 0.4)')
     parser.add_argument('--variance-threshold', type=float, default=3.0,
                         help='Variance ratio threshold for abnormal (default 3.0)')
+    parser.add_argument('--ramp-threshold', type=float, default=0.03,
+                        help='Normalized-slope threshold for startup/shutdown labels (default 0.03)')
     parser.add_argument('--consensus-threshold', type=float, default=0.6,
                         help='Fraction of params that must agree for a change point (default 0.6)')
     args = parser.parse_args()
@@ -603,7 +610,8 @@ def main():
         variance_scores, change_points, ramp_scores, n,
         variance_threshold=args.variance_threshold,
         consensus_threshold=args.consensus_threshold,
-        window=window
+        window=window,
+        ramp_threshold=args.ramp_threshold
     )
 
     # Count regime distribution

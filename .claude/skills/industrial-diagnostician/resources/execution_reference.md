@@ -424,7 +424,7 @@ Classification: INDISTINGUISHABLE (ceiling 65), PARTIALLY_DISCRIMINABLE, DISCRIM
 
 ### STEP D: Exclusion Verification
 
-**Physical exclusion**: ARRHENIUS_NEGLIGIBLE, THERMAL_EXPANSION_INSUFFICIENT, ENERGY_NEGLIGIBLE, FORCE_EXCEEDS_MODEL, IMPLAUSIBLE magnitude check → mechanism EXCLUDED.
+**Physical exclusion**: ARRHENIUS_NEGLIGIBLE, THERMAL_COUPLING_NOT_DETECTED (or THERMAL_ANTI_CORRELATED), ENERGY_DECOUPLED (or ENERGY_ANTI_CORRELATED), FORCE_EXCEEDS_MODEL, IMPLAUSIBLE magnitude check → mechanism EXCLUDED.
 
 **Quality reset exclusion**: NO_RESET after component replacement → component ELIMINATED (single most powerful exclusion test).
 

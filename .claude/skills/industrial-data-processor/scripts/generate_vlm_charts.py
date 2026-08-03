@@ -163,6 +163,18 @@ def main():
     events = parse_events(args.events)
     
     df, ontology = load_data(run_dir)
+
+    # Direction alignment (data-driven, shared with plot_temporal_overlay):
+    # reverse a parameter ONLY when it correlates negatively (r < -0.3) with
+    # the primary quality target — never by position in the target list.
+    primary = targets[0] if targets else (key_params[0] if key_params else None)
+    reverse_params = set()
+    if primary and primary in df.columns:
+        for col in targets + key_params:
+            if col in df.columns and col != primary:
+                r = df[col].corr(df[primary])
+                if not pd.isna(r) and r < -0.3:
+                    reverse_params.add(col)
     
     # If events not provided, try to extract from user_context
     if not events:
@@ -202,11 +214,13 @@ def main():
                     if col not in sub.columns or sub[col].nunique() < 5:
                         continue
                     values = (sub[col] - sub[col].mean()) / sub[col].std()
-                    if col in targets[1:]:  # Secondary quality targets reversed
+                    label_suffix = ''
+                    if col in reverse_params:  # data-driven reversal (r < -0.3 vs primary)
                         values = -values
+                        label_suffix = ' (rev)'
                     lw = 2.0 if col in targets else 1.2
                     ax_i.plot(x_vals, values, color=colors[col] if 'colors' in dir() else '#666',
-                              linewidth=lw, label=col, alpha=0.8)
+                              linewidth=lw, label=f'{col}{label_suffix}', alpha=0.8)
                 
                 for evt in events:
                     day = evt.get('day', evt.get('time', 0))

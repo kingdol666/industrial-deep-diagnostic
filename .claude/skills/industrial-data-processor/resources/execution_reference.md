@@ -365,6 +365,14 @@ PHYSICS_OUTPUT="$RUN_DIR/02_processed/physics_check.json"
   --temp-col <best_temp_col> --dev-col <best_dev_col>
 ```
 
+**Quality direction (MANDATORY for correct RESET/WORSENED classification)**: declare which quality columns are lower-is-better vs higher-is-better (from ontology `target` semantics / user context):
+
+```bash
+  --quality-direction roughness=lower yield=higher defect_rate=lower
+```
+
+Undeclared metrics with significant post-transition changes are classified `INCONCLUSIVE` (direction-agnostic) — never assume lower-is-better. Optional process constants from the ontology (else scale-free/qualitative checks run): `--ea-kj-mol`, `--heat-exchange-area-m2`, `--fluid-cp-j-kg-k`.
+
 Check `checks_performed`. If 0 and no inspection targets exist, that is valid for process_only data — document reason. Otherwise, proceed to manual L1-L5 verification.
 
 ### 3.3 Merge Physics Results into Anomaly Report

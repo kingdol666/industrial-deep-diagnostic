@@ -29,6 +29,14 @@ def _load_json(path: Path) -> dict:
         return json.load(fh)
 
 
+def _load_optional(path: Path) -> dict:
+    """Load an optional pipeline artifact; missing → {} (graceful fallback)."""
+    try:
+        return _load_json(path)
+    except FileNotFoundError:
+        return {}
+
+
 def _load_df(run_dir: Path) -> pd.DataFrame:
     csv = run_dir / "02_processed" / "cleaned_data.csv"
     if csv.is_file():
@@ -301,8 +309,8 @@ def build_derived_features(run_dir: Path) -> tuple:
     """
     df = _load_df(run_dir)
     ontology = _load_json(run_dir / "01_ontology" / "ontology.json")
-    selection = _load_json(run_dir / "02_processed" / "analysis_parameter_selection.json")
-    conclusion = _load_json(run_dir / "02_processed" / "data_analysis_conclusion.json")
+    selection = _load_optional(run_dir / "02_processed" / "analysis_parameter_selection.json")
+    conclusion = _load_optional(run_dir / "02_processed" / "data_analysis_conclusion.json")
 
     regime_path = run_dir / "02_processed" / "production_regime_filter.json"
     regime_filter = _load_json(regime_path) if regime_path.is_file() else None

@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -25,6 +26,16 @@ from typing import Any, Dict, List, Optional, Tuple
 def _load(path: Path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _load_required(path: Path, label: str) -> dict:
+    """Load a required pipeline artifact; missing → clean error (exit 1)."""
+    if not path.is_file():
+        print(f"ERROR: required input missing: {path} ({label})"
+              f" — physics bridge (E5) requires a completed baseline diagnosis;"
+              f" run the pipeline through Step 4-9 first or check RUN_DIR.", file=sys.stderr)
+        sys.exit(1)
+    return _load(path)
 
 
 def _safe_get(d: dict, *keys: str, default: Any = None) -> Any:
@@ -163,16 +174,29 @@ def _time_lag_verification(
         return ("MISMATCH", f"Lag-aligned r ({lag_r:.3f}) > global r ({global_r:.3f}); suggests real lag")
 
     onto_time_lag_str = onto_rel.get("time_lag", "")
-    if "近实时" in onto_time_lag_str or "real-time" in onto_time_lag.lower():
+    _tlag = onto_time_lag_str.lower()
+
+    # Near real-time: explicit wording in either language
+    if any(k in _tlag for k in ("近实时", "即时", "实时", "real-time", "real time", "immediate", "同步")):
         return ("MATCH", f"Near real-time expected ({onto_time_lag_str}), data consistent")
-    if "长滞后" in onto_time_lag_str or "天至周" in onto_time_lag_str:
+
+    # Long-lag: day/week/month-scale tokens in either language
+    _LONG_LAG_TOKENS = ("天", "日", "周", "月", "day", "week", "month", "长滞后", "数日", "数周", "数月")
+    if any(k in _tlag for k in _LONG_LAG_TOKENS):
         # Long lag expected - instantaneous correlation should be weak
         if global_r < 0.1:
             return ("MATCH", f"Long lag expected ({onto_time_lag_str}), instantaneous r≈0 consistent")
         else:
             return ("MISMATCH", f"Long lag expected but instantaneous r={global_r:.3f} significant")
 
-    return ("UNTESTED", f"Insufficient data for time_lag comparison")
+    # Hour-scale (≥1h) also implies material lag
+    if re.search(r"\d+\s*(小时|h|hr|hour)", _tlag) or "数小时" in _tlag or "several hours" in _tlag:
+        if global_r < 0.1:
+            return ("MATCH", f"Hour-scale lag expected ({onto_time_lag_str}), instantaneous r≈0 consistent")
+        else:
+            return ("MISMATCH", f"Hour-scale lag expected but instantaneous r={global_r:.3f} significant")
+
+    return ("UNTESTED", f"time_lag '{onto_time_lag_str}' has no machine-readable scale (numeric+unit) — treated as untested")
 
 
 def _magnitude_verification(
@@ -547,13 +571,13 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
     """Main pipeline: read inputs, produce physics_bridge.json."""
 
     # 1. Load all required inputs
-    ontology = _load(run_dir / "01_ontology" / "ontology.json")
-    diagnosis = _load(run_dir / "04_diagnostics" / "diagnosis.json")
-    evidence = _load(run_dir / "04_diagnostics" / "evidence.json")
-    confidence = _load(run_dir / "04_diagnostics" / "confidence.json")
-    reasoning_chain = _load(run_dir / "04_diagnostics" / "reasoning_chain.json")
-    visual_analysis = _load(run_dir / "03_figures" / "visual_analysis.json")
-    deep_data = _load(run_dir / "enhancement" / "deep_data_analysis.json")
+    ontology = _load_required(run_dir / "01_ontology" / "ontology.json", "ontology")
+    diagnosis = _load_required(run_dir / "04_diagnostics" / "diagnosis.json", "diagnosis")
+    evidence = _load_required(run_dir / "04_diagnostics" / "evidence.json", "evidence")
+    confidence = _load_required(run_dir / "04_diagnostics" / "confidence.json", "confidence")
+    reasoning_chain = _load_required(run_dir / "04_diagnostics" / "reasoning_chain.json", "reasoning_chain")
+    visual_analysis = _load_required(run_dir / "03_figures" / "visual_analysis.json", "visual_analysis")
+    deep_data = _load_required(run_dir / "enhancement" / "deep_data_analysis.json", "deep_data_analysis")
 
     # Optional
     rag_path = run_dir / "00_input" / "rag_deep_understanding.json"

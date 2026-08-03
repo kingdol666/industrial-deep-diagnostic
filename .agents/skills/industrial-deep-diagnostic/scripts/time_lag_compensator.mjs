@@ -70,7 +70,8 @@ function detectSamplingInterval(timeValues) {
 // ═══════════════════════════════════════════════
 
 function parseExpectedLag(lagString) {
-  // Parse strings like "2-5s", "1-3h", "5-30min", "0s", "数分钟至数小时", "0-2h"
+  // Parse strings like "2-5s", "1-3h", "5-30min", "0s", "数分钟至数小时",
+  // "1-3天", "即时", "2-5天至周", "0-2h" — bilingual (en + zh)
   if (!lagString) return null;
 
   const lowered = lagString.toLowerCase().trim();
@@ -80,22 +81,30 @@ function parseExpectedLag(lagString) {
     return { min_seconds: null, max_seconds: null, parseable: false, raw: lagString };
   }
 
-  // Extract number ranges: "2-5s", "5-30min", "1-3h", "0.5-2h"
-  const rangeMatch = lowered.match(/([\d.]+)\s*[-–to]+\s*([\d.]+)\s*(s|sec|min|h|hour|hr|day)/);
+  const MULT = { s: 1, sec: 1, min: 60, h: 3600, hour: 3600, hr: 3600, day: 86400,
+                秒: 1, 分: 60, 分钟: 60, 时: 3600, 小时: 3600, 天: 86400, 日: 86400, 周: 604800 };
+
+  // "即时" / "immediate" → zero-lag prior
+  if (/^(即时|实时|立即|immediate|real-?time)/.test(lowered)) {
+    return { min_seconds: 0, max_seconds: 0, parseable: true, raw: lagString };
+  }
+
+  // Extract number ranges: "2-5s", "5-30min", "1-3h", "0.5-2h", "1-3天", "2至5分钟"
+  const rangeMatch = lowered.match(/([\d.]+)\s*(?:-|–|至|to)+\s*([\d.]+)\s*(s|sec|min|h|hour|hr|day|秒|分|分钟|时|小时|天|日|周)/);
   if (rangeMatch) {
     const min = parseFloat(rangeMatch[1]);
     const max = parseFloat(rangeMatch[2]);
     const unit = rangeMatch[3];
-    const mult = { s: 1, sec: 1, min: 60, h: 3600, hour: 3600, hr: 3600, day: 86400 }[unit] || 1;
+    const mult = MULT[unit] || 1;
     return { min_seconds: min * mult, max_seconds: max * mult, parseable: true, raw: lagString };
   }
 
-  // Single number: "0s", "5min", "2h"
-  const singleMatch = lowered.match(/^([\d.]+)\s*(s|sec|min|h|hour|hr|day)/);
+  // Single number: "0s", "5min", "2h", "3天", "5小时"
+  const singleMatch = lowered.match(/^([\d.]+)\s*(s|sec|min|h|hour|hr|day|秒|分|分钟|时|小时|天|日|周)/);
   if (singleMatch) {
     const val = parseFloat(singleMatch[1]);
     const unit = singleMatch[2];
-    const mult = { s: 1, sec: 1, min: 60, h: 3600, hour: 3600, hr: 3600, day: 86400 }[unit] || 1;
+    const mult = MULT[unit] || 1;
     return { min_seconds: val * mult, max_seconds: val * mult * 1.5, parseable: true, raw: lagString };
   }
 
@@ -236,7 +245,21 @@ function compareLag(expected, observed, samplingIntervalSec) {
   }
 
   const obsLagSteps = observed.optimal_lag;
-  const obsLagSec = obsLagSteps * (samplingIntervalSec || 1);
+  const base = { observed_steps: obsLagSteps };
+
+  // Without a known sampling interval, observed steps cannot be converted to
+  // seconds — comparing against a seconds-based physics prior would fabricate
+  // agreement. Report the steps and abstain instead of assuming 1 s/step.
+  if (!samplingIntervalSec || samplingIntervalSec <= 0) {
+    return {
+      ...base,
+      agreement: 'unknown_interval',
+      discrepancy: null,
+      message: `Sampling interval unknown — observed lag ${obsLagSteps} steps cannot be compared against physics prior ${expected.min_seconds}-${expected.max_seconds}s; interval must be supplied (--time-col or time_interval_seconds)`,
+    };
+  }
+
+  const obsLagSec = obsLagSteps * samplingIntervalSec;
 
   const inRange = obsLagSec >= expected.min_seconds && obsLagSec <= expected.max_seconds;
 
@@ -258,6 +281,8 @@ function compareLag(expected, observed, samplingIntervalSec) {
   }
 
   return {
+    observed_steps: obsLagSteps,
+    observed_seconds: obsLagSec,
     agreement,
     discrepancy: !inRange ? { expected_range_s: [expected.min_seconds, expected.max_seconds], observed_s: obsLagSec, ratio: obsLagSec / Math.max(expected.max_seconds || 1, 1) } : null,
     message,
@@ -307,11 +332,11 @@ function main() {
     }
   }
 
-  // Source 4: default estimate based on max_lag assumption
-  if (!samplingIntervalSec) {
-    // If no time info available, assume 1 second per step as neutral default
-    samplingIntervalSec = 1.0;
-  }
+  // NOTE: no fallback assumption. When the interval cannot be determined from
+  // any source, samplingIntervalSec stays null and second-level lag
+  // comparisons abstain (agreement='unknown_interval') instead of assuming
+  // 1 second per step — minute/hour-sampled data would otherwise be
+  // misjudged 60-3600×.
 
   // Determine max lag
   let maxLag = opts.maxLag;

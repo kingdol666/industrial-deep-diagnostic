@@ -30,25 +30,29 @@ import math
 from typing import Any
 
 
-
-def _to_float(val):
-    """Convert value to float if it's a string."""
-    if val is None:
-        return None
-    if isinstance(val, str):
-        try:
-            return float(val)
-        except ValueError:
-            return None
-    return float(val) if isinstance(val, (int, bool)) else val
-
-def _get_numeric_col(data, col_name):
-    """Extract numeric values from a column."""
-    return [_to_float(row[col_name]) for row in data if col_name in row and _to_float(row.get(col_name)) is not None]
-
 def load_json(path: str) -> dict:
     with open(path, "r") as f:
         return json.load(f)
+
+
+def _safe_float(v: Any) -> float | None:
+    """Coerce a value to float, returning None if not possible.
+
+    cleaned_data.json carries numeric values as strings (CSV→JSON conversion
+    performs no type coercion — the string-type-gotcha). Raw
+    ``isinstance(v, (int, float))`` gates therefore silently drop every value
+    and produce empty before/after windows. This helper parses the string
+    instead. Booleans are excluded (bool subclasses int in Python but is not a
+    measurement).
+    """
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
 
 
 # ──────────────────────────────────────────────
@@ -60,64 +64,79 @@ def check_thermal_expansion(
     temp_col: str,
     dev_col: str,
     data: list[dict],
-    coefficient_alpha: float = 12e-6,
-    reference_length_m: float = 1.0,
+    coefficient_alpha: float = None,
+    reference_length_m: float = None,
 ) -> dict:
     """
-    ΔL = α × L₀ × ΔT
+    ΔL = α × L₀ × ΔT — WITHOUT invented constants.
 
-    Verifies whether dimensional deviation is consistent with thermal expansion.
-    For steel: α ≈ 12×10⁻⁶ /°C
+    The expansion coefficient α and reference length are MATERIAL/PROCESS
+    SPECIFIC. Inventing them (steel α=12e-6, L=1m) would produce misleading
+    "PLAUSIBLE" verdicts for non-steel scenes (film, concrete, water, ...).
+    So this check is DATA-DRIVEN: it verifies the coupling itself — does the
+    dimensional deviation co-vary with temperature as thermal physics demands?
+
+    * strong positive coupling (|r| >= 0.3, same sign)  → THERMAL_COUPLING_DETECTED
+      (quantitative confirmation needs the real α·L₀ from the ontology)
+    * strong negative coupling                       → THERMAL_ANTI_CORRELATED
+      (compensation/endogenous control, not passive expansion)
+    * otherwise                                      → INCONCLUSIVE
+
+    When the ontology supplies coefficient_alpha and reference_length_m, a
+    quantitative predicted-vs-actual ratio is ADDED but never decides alone.
     """
-    temps_raw = [row[temp_col] for row in data if temp_col in row]
-    devs_raw = [row[dev_col] for row in data if dev_col in row]
-    # Convert to float if strings
-    temps = [float(t) if isinstance(t, str) else t for t in temps_raw if t is not None]
-    devs = [float(d) if isinstance(d, str) else d for d in devs_raw if d is not None]
+    temps = [_safe_float(row[temp_col]) for row in data if temp_col in row]
+    devs = [_safe_float(row[dev_col]) for row in data if dev_col in row]
+    temps = [t for t in temps if t is not None]
+    devs = [d for d in devs if d is not None]
     if not temps or not devs:
         return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
+    if len(temps) < 10 or len(devs) < 10:
+        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Insufficient rows for coupling test"}
 
-    T_ref = float(min(temps)) if temps else 20.0
-    predicted_devs = [coefficient_alpha * reference_length_m * (t - T_ref) for t in temps]
-
+    n = min(len(temps), len(devs))
+    tx, dy = temps[:n], devs[:n]
     from statistics import mean, stdev
+    try:
+        mx, my = mean(tx), mean(dy)
+        sx, sy = stdev(tx), stdev(dy)
+        r = sum((a - mx) * (b - my) for a, b in zip(tx, dy)) / (sx * sy * (n - 1))
+    except (ZeroDivisionError, ValueError):
+        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Degenerate input"}
 
-    actual_mean = mean(devs)
-    predicted_mean = mean(predicted_devs)
-    if actual_mean == 0:
-        return {"check": "thermal_expansion", "status": "INCONCLUSIVE", "reason": "Actual deviation is zero"}
-
-    ratio = predicted_mean / actual_mean if actual_mean != 0 else 0
-    ratio_mag = abs(predicted_mean / actual_mean) if actual_mean != 0 else 0
-
-    # Physical check: is the predicted thermal expansion close to observed deviation?
     checks = {
-        "reference_length_m": reference_length_m,
-        "alpha_per_C": coefficient_alpha,
         "T_range_C": [min(temps), max(temps)],
-        "deviation_range_mm": [min(devs), max(devs)],
-        "predicted_deviation_mm": predicted_mean,
-        "actual_deviation_mm": actual_mean,
-        "ratio_predicted_to_actual": round(ratio, 4),
-        "max_predicted_mm": max(predicted_devs) if predicted_devs else 0,
-        "max_actual_mm": max(devs) if devs else 0,
+        "deviation_range": [min(devs), max(devs)],
+        "coupling_r": round(r, 4),
+        "coupling_n": n,
+        "note": "quantitative ΔL=α·L₀·ΔT requires material coefficient from ontology",
     }
 
-    if 0.5 <= ratio_mag <= 2.0:
-        checks["conclusion"] = "THERMAL_EXPANSION_PLAUSIBLE"
+    if coefficient_alpha and reference_length_m:
+        T_ref = min(temps)
+        predicted_mean = mean([coefficient_alpha * reference_length_m * (t - T_ref) for t in temps])
+        actual_mean = mean(devs)
+        checks["alpha_per_C"] = coefficient_alpha
+        checks["reference_length_m"] = reference_length_m
+        checks["ratio_predicted_to_actual"] = round(predicted_mean / actual_mean, 4) if actual_mean else None
+        checks["quantitative"] = True
+
+    if abs(r) >= 0.3 and r > 0:
+        checks["conclusion"] = "THERMAL_COUPLING_DETECTED"
         checks[
             "explanation"
-        ] = f"Observed deviation ({actual_mean:.4f}mm) is within 2× of thermal expansion prediction ({predicted_mean:.4f}mm) — thermal effect is physically plausible"
-    elif ratio_mag < 0.5:
-        checks["conclusion"] = "THERMAL_EXPANSION_INSUFFICIENT"
+        ] = f"Deviation co-varies positively with temperature (r={r:.3f}) — thermal expansion is a plausible channel; quantify with the real α·L₀ from the ontology"
+    elif abs(r) >= 0.3 and r < 0:
+        checks["conclusion"] = "THERMAL_ANTI_CORRELATED"
         checks[
             "explanation"
-        ] = f"Thermal expansion ({predicted_mean:.4f}mm) explains <50% of observed deviation ({actual_mean:.4f}mm) — other mechanisms dominate"
+        ] = f"Deviation moves AGAINST temperature (r={r:.3f}) — compensation/control, not passive expansion"
     else:
-        checks["conclusion"] = "THERMAL_EXPANSION_EXCEEDS"
-        checks[
-            "explanation"
-        ] = f"Thermal expansion ({predicted_mean:.4f}mm) exceeds observed deviation ({actual_mean:.4f}mm) by >2× — material constraint or compensating mechanism present"
+        checks["conclusion"] = "THERMAL_COUPLING_NOT_DETECTED"
+        checks["explanation"] = (
+            f"Deviation shows no material coupling with temperature (r={r:.3f}) — "
+            "thermal expansion is not the dominant channel for this deviation"
+        )
 
     return checks
 
@@ -209,6 +228,7 @@ def check_vibration_threshold(
     quality_col: str,
     data: list[dict],
     iso_zone_boundaries: list[float] | None = None,
+    equipment_class: str = None,
 ) -> dict:
     """
     ISO 10816 vibration severity classification.
@@ -217,12 +237,33 @@ def check_vibration_threshold(
     Zone B (acceptable): 1.8-4.5 mm/s
     Zone C (unsatisfactory): 4.5-11.2 mm/s
     Zone D (unacceptable): > 11.2 mm/s
+
+    ISO 10816 applies to ROTATING machinery only. When the equipment class
+    (from ontology) is unknown or clearly non-rotating, the zone ladder is
+    reported as reference but the check returns INCONCLUSIVE instead of
+    branding the scene VIBRATION_ACCEPTABLE/ELEVATED.
     """
     if iso_zone_boundaries is None:
+        # ISO 10816 reference zones for ROTATING machinery (mm/s, velocity).
+        # They are a relative severity ladder, not a physics law: pass explicit
+        # boundaries from the ontology when the equipment class differs.
         iso_zone_boundaries = [1.8, 4.5, 11.2]
 
-    vibs = [row[vibration_col] for row in data if vibration_col in row]
-    quals = [row[quality_col] for row in data if quality_col in row]
+    _ROTATING_KEYWORDS = (
+        "pump", "motor", "fan", "blower", "compressor", "turbine", "spindle",
+        "bearing", "centrifuge", "mixer", "agitator", "mill", "rotor",
+        "gear", "extruder", "旋转", "泵", "电机", "风机", "压缩机", "主轴",
+        "轴承", "搅拌", "离心", "齿轮",
+    )
+    equipment_applicable = True
+    if equipment_class:
+        eq = str(equipment_class).lower()
+        equipment_applicable = any(kw in eq for kw in _ROTATING_KEYWORDS)
+
+    vibs = [_safe_float(row[vibration_col]) for row in data if vibration_col in row]
+    quals = [_safe_float(row[quality_col]) for row in data if quality_col in row]
+    vibs = [v for v in vibs if v is not None]
+    quals = [q for q in quals if q is not None]
     if not vibs or not quals:
         return {"check": "vibration_threshold", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
@@ -273,7 +314,17 @@ def check_vibration_threshold(
         "quality_range": [min(quals), max(quals)],
         "cliff_detected": cliff_detected,
         "cliff_threshold_mm_s": cliff_threshold,
+        "iso_10816_applicable": equipment_applicable,
+        "equipment_class": equipment_class,
+        "unit_note": "ISO 10816 zones are defined in mm/s velocity — verify the vibration column unit before zone interpretation",
     }
+
+    if not equipment_applicable:
+        result["conclusion"] = "INCONCLUSIVE"
+        result[
+            "explanation"
+        ] = f"Equipment class '{equipment_class}' is not recognized as rotating machinery — ISO 10816 zone ladder does not apply; quality-cliff signal reported in cliff_detected"
+        return result
 
     if cliff_detected:
         result["conclusion"] = "VIBRATION_CLIFF_DETECTED"
@@ -284,7 +335,10 @@ def check_vibration_threshold(
         result["conclusion"] = "VIBRATION_ELEVATED"
         result[
             "explanation"
-        ] = f"Vibration reaches {max(vibs):.1f}mm/s (Zone C/D per ISO 10816) — bearing wear or imbalance probable"
+        ] = (f"Vibration reaches {max(vibs):.1f}mm/s — above the upper reference zone "
+             f"(ISO 10816 ladder for rotating machinery, if applicable to this equipment). "
+             f"Mechanical degradation/wear/imbalance are candidate mechanisms — confirm the "
+             f"exact mode against the equipment ontology before concluding.")
     else:
         result["conclusion"] = "VIBRATION_ACCEPTABLE"
         result["explanation"] = f"Vibration within acceptable range (max={max(vibs):.1f}mm/s) — not the primary root cause"
@@ -295,49 +349,80 @@ def check_vibration_threshold(
 def check_energy_balance(
     power_col: str,
     temp_rise_col: str,
-    mass_kg: float,
-    cp_J_per_kgK: float,
-    data: list[dict],
+    mass_kg: float = None,
+    cp_J_per_kgK: float = None,
+    data: list[dict] = None,
 ) -> dict:
     """
-    ΔT = P × t / (m × Cp)
+    ΔT = P × t / (m × Cp) — WITHOUT invented constants.
 
-    Checks if observed temperature rise is consistent with power input.
-    For water: Cp ≈ 4186 J/(kg·K)
-    For steel: Cp ≈ 500 J/(kg·K)
-    For oil: Cp ≈ 2000 J/(kg·K)
+    Mass and heat capacity are PROCESS SPECIFIC; fabricating m=100kg/Cp=500
+    would brand any scene "ENERGY_PLAUSIBLE". This check therefore verifies the
+    COUPLING that energy balance demands of the data itself: does temperature
+    rise with power?
+
+    * strong positive coupling (|r| >= 0.3) → ENERGY_COUPLED
+    * strong negative coupling              → ENERGY_ANTI_CORRELATED
+      (power cuts in when temperature rises = endogenous control)
+    * otherwise                             → ENERGY_DECOUPLED
+
+    When the ontology supplies mass_kg and cp_J_per_kgK, a quantitative
+    ΔT = P·t/(m·Cp) estimate is ADDED but never decides alone.
     """
-    powers = [row[power_col] for row in data if power_col in row]
-    temp_rises = [row[temp_rise_col] for row in data if temp_rise_col in row]
+    if data is None:
+        data = []
+    powers = [_safe_float(row[power_col]) for row in data if power_col in row]
+    temp_rises = [_safe_float(row[temp_rise_col]) for row in data if temp_rise_col in row]
+    powers = [v for v in powers if v is not None]
+    temp_rises = [v for v in temp_rises if v is not None]
     if not powers or not temp_rises:
         return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
+    n = min(len(powers), len(temp_rises))
+    if n < 10:
+        return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Insufficient rows for coupling test"}
 
-    P_avg = sum(powers) / len(powers)
-    dT_avg = sum(temp_rises) / len(temp_rises)
-
-    # Predicted ΔT per second (assuming continuous power input)
-    predicted_dT_per_s = P_avg / (mass_kg * cp_J_per_kgK)
+    from statistics import mean, stdev
+    px, ty = powers[:n], temp_rises[:n]
+    try:
+        mx, my = mean(px), mean(ty)
+        sx, sy = stdev(px), stdev(ty)
+        r = sum((a - mx) * (b - my) for a, b in zip(px, ty)) / (sx * sy * (n - 1))
+    except (ZeroDivisionError, ValueError):
+        return {"check": "energy_balance", "status": "INCONCLUSIVE", "reason": "Degenerate input"}
 
     result = {
         "check": "energy_balance",
-        "mass_kg": mass_kg,
-        "cp_J_per_kgK": cp_J_per_kgK,
-        "average_power_W": round(P_avg, 2),
-        "observed_dT": round(dT_avg, 4),
-        "predicted_dT_per_s": f"{predicted_dT_per_s:.6f}",
-        "thermal_time_constant_s": "Requires transient data for precise calculation",
+        "power_temperature_coupling_r": round(r, 4),
+        "coupling_n": n,
+        "average_power": round(mean(px), 2),
+        "note": "quantitative ΔT=P·t/(m·Cp) requires mass & heat capacity from ontology",
     }
 
-    if abs(predicted_dT_per_s) < 1e-6:
-        result["conclusion"] = "ENERGY_NEGLIGIBLE"
+    if mass_kg and cp_J_per_kgK:
+        P_avg = mean(px)
+        dT_avg = mean(ty)
+        predicted_dT_per_s = P_avg / (mass_kg * cp_J_per_kgK)
+        result["mass_kg"] = mass_kg
+        result["cp_J_per_kgK"] = cp_J_per_kgK
+        result["observed_dT"] = round(dT_avg, 4)
+        result["predicted_dT_per_s"] = round(predicted_dT_per_s, 8)
+        result["quantitative"] = True
+
+    if abs(r) >= 0.3 and r > 0:
+        result["conclusion"] = "ENERGY_COUPLED"
         result[
             "explanation"
-        ] = f"Power input ({P_avg:.1f}W) is insufficient to cause detectable temperature rise in {mass_kg}kg mass — thermal effect negligible"
+        ] = f"Temperature co-varies positively with power (r={r:.3f}) — power input is a plausible heat source; quantify with the real m·Cp from the ontology"
+    elif abs(r) >= 0.3 and r < 0:
+        result["conclusion"] = "ENERGY_ANTI_CORRELATED"
+        result[
+            "explanation"
+        ] = f"Temperature moves AGAINST power (r={r:.3f}) — load-shedding/endogenous control masks the thermal link"
     else:
-        result["conclusion"] = "ENERGY_PLAUSIBLE"
+        result["conclusion"] = "ENERGY_DECOUPLED"
         result[
             "explanation"
-        ] = f"Power input ({P_avg:.1f}W) can produce ~{predicted_dT_per_s:.4f}°C/s temperature rise — persistent power input over time explains observed temperature"
+        ] = f"No material coupling between power and temperature (r={r:.3f}) — thermal inertia or missing heat path"
 
     return result
 
@@ -415,71 +500,95 @@ def check_heat_transfer(
     T_out_col: str,
     flow_col: str,
     data: list[dict],
-    heat_exchange_area_m2: float = 1.0,
-    fluid_cp_J_per_kgK: float = 4186,
+    heat_exchange_area_m2: float = None,
+    fluid_cp_J_per_kgK: float = None,
 ) -> dict:
     """
-    U = Q / (A × ΔT_LMTD)
+    U = Q / (A × ΔT_LMTD) — WITHOUT invented constants.
 
-    Calculates heat transfer coefficient to check for fouling/degradation.
-    U decreasing over time = fouling progression.
+    Heat exchange area and fluid heat capacity are PROCESS SPECIFIC; inventing
+    A=1m² / Cp=4186 (water) would fabricate U magnitudes for any other
+    geometry/fluid. The fouling signal lives in the RELATIVE trend of the
+    energy proxy (Q' = flow × ΔT), so this check is DATA-DRIVEN:
+
+    * U values are only reported when the ontology/CLI supplies
+      heat_exchange_area_m2 and fluid_cp_J_per_kgK (marked quantitative=true)
+    * otherwise a scale-free proxy (flow × ΔT) drives the CV and
+      first-half/second-half trend conclusions
+    * flow is treated as MASS flow for Q=m·cp·ΔT; when the flow column is
+      volumetric, the U scale shifts by fluid density — noted, trend
+      conclusions unaffected
     """
-    T_ins = _get_numeric_col(data, T_in_col)
-    T_outs = _get_numeric_col(data, T_out_col)
-    flows = _get_numeric_col(data, flow_col)
+    T_ins = [row[T_in_col] for row in data if T_in_col in row]
+    T_outs = [row[T_out_col] for row in data if T_out_col in row]
+    flows = [row[flow_col] for row in data if flow_col in row]
 
     if not T_ins or not T_outs or not flows:
         return {"check": "heat_transfer", "status": "INCONCLUSIVE", "reason": "Missing data columns"}
 
-    U_values = []
+    proxy_values = []
     from statistics import mean, stdev
 
     for i in range(len(T_ins)):
         dT1 = T_ins[i] - T_outs[i]
         if dT1 <= 0:
             continue
-        # Simplified LMTD for counter-flow
-        LMTD = dT1
-        Q = flows[i] * fluid_cp_J_per_kgK * dT1
-        U = Q / (heat_exchange_area_m2 * LMTD)
-        U_values.append(U)
+        # Simplified LMTD for counter-flow; energy proxy = flow × ΔT
+        # (scale-free: U = Q/(A·LMTD) needs A, Cp and MASS flow)
+        proxy_values.append(flows[i] * dT1)
 
-    if not U_values:
+    if not proxy_values:
         return {"check": "heat_transfer", "status": "INCONCLUSIVE", "reason": "All LMTD values are non-positive"}
 
-    U_mean = mean(U_values)
-    U_std = stdev(U_values) if len(U_values) > 1 else 0
-    U_cv = U_std / U_mean if U_mean > 0 else 0
+    proxy_mean = mean(proxy_values)
+    proxy_std = stdev(proxy_values) if len(proxy_values) > 1 else 0
+    proxy_cv = proxy_std / proxy_mean if proxy_mean > 0 else 0
 
-    # Check if U is decreasing over time (fouling)
-    n = len(U_values)
-    first_half = U_values[: n // 2]
-    second_half = U_values[n // 2 :]
-    U_first = mean(first_half) if first_half else 0
-    U_second = mean(second_half) if second_half else 0
-    fouling_pct = ((U_first - U_second) / U_first * 100) if U_first > 0 else 0
+    # Check if the energy proxy declines over time (fouling signature)
+    n = len(proxy_values)
+    first_half = proxy_values[: n // 2]
+    second_half = proxy_values[n // 2 :]
+    proxy_first = mean(first_half) if first_half else 0
+    proxy_second = mean(second_half) if second_half else 0
+    fouling_pct = ((proxy_first - proxy_second) / proxy_first * 100) if proxy_first > 0 else 0
 
     result = {
         "check": "heat_transfer",
-        "U_mean_W_per_m2K": round(U_mean, 2),
-        "U_std_W_per_m2K": round(U_std, 2),
-        "U_cv": round(U_cv, 4),
-        "U_first_half_mean": round(U_first, 2),
-        "U_second_half_mean": round(U_second, 2),
+        "energy_proxy_mean": round(proxy_mean, 4),
+        "energy_proxy_cv": round(proxy_cv, 4),
+        "proxy_first_half_mean": round(proxy_first, 4),
+        "proxy_second_half_mean": round(proxy_second, 4),
         "fouling_decline_pct": round(fouling_pct, 2),
+        "quantitative": bool(heat_exchange_area_m2 and fluid_cp_J_per_kgK),
+        "dimension_note": (
+            "flow treated as MASS flow for Q=m·cp·ΔT; if the flow column is volumetric, "
+            "any U scale shifts by fluid density — relative trend conclusions unaffected"
+        ),
     }
 
-    if U_cv < 0.1:
+    if heat_exchange_area_m2 and fluid_cp_J_per_kgK:
+        # U = Q/(A·LMTD); Q = ṁ·cp·ΔT; LMTD ≈ ΔT (simplified path) → U = ṁ·cp/A
+        U_values = [f * fluid_cp_J_per_kgK / heat_exchange_area_m2 for f in flows if f > 0]
+        if U_values:
+            U_mean = mean(U_values)
+            U_std = stdev(U_values) if len(U_values) > 1 else 0
+            result["U_mean_W_per_m2K"] = round(U_mean, 2)
+            result["U_std_W_per_m2K"] = round(U_std, 2)
+            result["U_cv"] = round(U_std / U_mean, 4) if U_mean > 0 else 0
+            result["heat_exchange_area_m2"] = heat_exchange_area_m2
+            result["fluid_cp_J_per_kgK"] = fluid_cp_J_per_kgK
+
+    if proxy_cv < 0.1:
         result["conclusion"] = "HEAT_TRANSFER_STABLE"
-        result["explanation"] = f"U={U_mean:.1f}±{U_std:.1f} W/m²K (CV={U_cv:.2%}) — heat transfer stable, no significant fouling"
+        result["explanation"] = f"Energy proxy CV={proxy_cv:.2%} — heat transfer stable, no significant fouling"
     elif fouling_pct > 10:
         result["conclusion"] = "FOULING_PROGRESSION"
         result[
             "explanation"
-        ] = f"U declined {fouling_pct:.1f}% from first to second half of data — consistent with progressive fouling"
+        ] = f"Energy proxy declined {fouling_pct:.1f}% from first to second half of data — consistent with progressive fouling"
     else:
         result["conclusion"] = "HEAT_TRANSFER_VARIABLE"
-        result["explanation"] = f"U varies (CV={U_cv:.2%}) but no monotonic decline — process condition changes, not long-term fouling"
+        result["explanation"] = f"Energy proxy varies (CV={proxy_cv:.2%}) but no monotonic decline — process condition changes, not long-term fouling"
 
     return result
 
@@ -550,6 +659,7 @@ def analyze_quality_resets(
     anomaly_report: dict,
     cleaned_data: list[dict],
     quality_targets: list[str],
+    quality_direction: dict[str, str] | None = None,
 ) -> list[dict]:
     """
     For each transition event in anomaly_report, compute whether quality
@@ -557,6 +667,13 @@ def analyze_quality_resets(
 
     This is the single most powerful test for distinguishing
     component-level vs system-level root causes.
+
+    The "better" direction is PROCESS SPECIFIC — defects/ppm/roughness are
+    lower-is-better, yield/efficiency/uptime are higher-is-better. It must be
+    declared via quality_direction (e.g. {"roughness": "lower", "yield":
+    "higher"}). When the direction is UNKNOWN for a metric, significant
+    changes are classified INCONCLUSIVE with the observed delta reported —
+    never silently assumed lower-is-better.
     """
     transitions = anomaly_report.get("transition_events", [])
     if not transitions:
@@ -575,14 +692,14 @@ def analyze_quality_resets(
             after_vals = []
             for i in range(max(0, idx - N_CONTEXT), idx):
                 if i < len(cleaned_data) and isinstance(cleaned_data[i], dict) and q in cleaned_data[i]:
-                    v = cleaned_data[i][q]
-                    if isinstance(v, (int, float)):
-                        before_vals.append(v)
+                    fv = _safe_float(cleaned_data[i][q])
+                    if fv is not None:
+                        before_vals.append(fv)
             for i in range(idx, min(idx + N_CONTEXT, len(cleaned_data))):
                 if i < len(cleaned_data) and isinstance(cleaned_data[i], dict) and q in cleaned_data[i]:
-                    v = cleaned_data[i][q]
-                    if isinstance(v, (int, float)):
-                        after_vals.append(v)
+                    fv = _safe_float(cleaned_data[i][q])
+                    if fv is not None:
+                        after_vals.append(fv)
 
             if not before_vals or not after_vals:
                 continue
@@ -596,26 +713,40 @@ def analyze_quality_resets(
             pooled_std = ((sigma_before**2 + sigma_after**2) / 2) ** 0.5 or 0.01
             effect_size = abs(mu_after - mu_before) / pooled_std
 
-            # Does quality IMPROVE (lower is better) after the transition?
-            # Quality metric: lower = better (roughness, deviation, defect rate)
-            # Higher = better (yield, efficiency)
-            # Here we use heuristic: if after < before, it might be a reset.
+            # Does quality IMPROVE after the transition? The "better"
+            # direction must be declared (lower-is-better for defects/ppm/
+            # roughness; higher-is-better for yield/efficiency). Unknown
+            # direction → INCONCLUSIVE, never an assumed direction.
             delta = mu_after - mu_before
+            direction = (quality_direction or {}).get(q)
             reset_detected = abs(delta) < 0.1 * abs(mu_before)  # Within 10% = no significant change
 
             # Statistical test: if means differ significantly
             significant_change = effect_size > 1.0  # Cohen's d > 1.0 = large effect
 
             interpretation = ""
-            if significant_change and delta < 0:
-                interpretation = f"Quality IMPROVED after transition (d={effect_size:.1f}) — component replacement ({from_val}→{to_val}) was effective, indicates component-level root cause"
-                reset_class = "RESET"
-            elif significant_change and delta > 0:
-                interpretation = f"Quality WORSENED after transition (d={effect_size:.1f}) — replacement introduced additional degradation"
-                reset_class = "WORSENED"
-            elif reset_detected:
+            if not significant_change and reset_detected:
                 interpretation = f"No significant quality change after transition ({from_val}→{to_val}) — degradation continues, system-level root cause (not component-specific)"
                 reset_class = "NO_RESET"
+            elif significant_change and direction is None:
+                interpretation = (
+                    f"Significant quality change after transition ({from_val}→{to_val}, "
+                    f"delta={delta:+.4f}, d={effect_size:.1f}) — direction of improvement "
+                    f"not declared for '{q}' (lower vs higher is better), cannot classify RESET/WORSENED"
+                )
+                reset_class = "INCONCLUSIVE"
+            elif significant_change and direction == "lower" and delta < 0:
+                interpretation = f"Quality IMPROVED after transition (d={effect_size:.1f}) — component replacement ({from_val}→{to_val}) was effective, indicates component-level root cause"
+                reset_class = "RESET"
+            elif significant_change and direction == "lower" and delta > 0:
+                interpretation = f"Quality WORSENED after transition (d={effect_size:.1f}) — replacement introduced additional degradation"
+                reset_class = "WORSENED"
+            elif significant_change and direction == "higher" and delta > 0:
+                interpretation = f"Quality IMPROVED after transition (d={effect_size:.1f}) — component replacement ({from_val}→{to_val}) was effective, indicates component-level root cause"
+                reset_class = "RESET"
+            elif significant_change and direction == "higher" and delta < 0:
+                interpretation = f"Quality WORSENED after transition (d={effect_size:.1f}) — replacement introduced additional degradation"
+                reset_class = "WORSENED"
             else:
                 interpretation = f"Marginal quality change (d={effect_size:.1f}) — insufficient evidence for component-level or system-level determination"
                 reset_class = "INCONCLUSIVE"
@@ -627,6 +758,7 @@ def analyze_quality_resets(
                     "from": from_val,
                     "to": to_val,
                     "quality_metric": q,
+                    "declared_direction": (quality_direction or {}).get(q),
                     "mean_before": round(mu_before, 4),
                     "mean_after": round(mu_after, 4),
                     "effect_size_cohens_d": round(effect_size, 3),
@@ -688,8 +820,8 @@ def analyze_anomaly_onset(
 
         for param in candidate_params:
             # Check pre-anomaly values
-            pre_vals = [r[param] for r in pre_window if param in r and isinstance(r.get(param), (int, float))]
-            anomaly_vals = [r[param] for r in anomaly_window if param in r and isinstance(r.get(param), (int, float))]
+            pre_vals = [s for r in pre_window if (s := _safe_float(r.get(param))) is not None]
+            anomaly_vals = [s for r in anomaly_window if (s := _safe_float(r.get(param))) is not None]
 
             if not pre_vals or not anomaly_vals:
                 continue
@@ -705,7 +837,6 @@ def analyze_anomaly_onset(
             effect = (mu_anom - mu_pre) / pooled_std
 
             if abs(effect) > 1.0:
-                timing = "PRECURSOR" if True else "DURING"  # Simplified
                 # Check if trend starts before anomaly
                 precursor = False
                 if len(pre_vals) >= 3:
@@ -758,6 +889,14 @@ def main():
     parser.add_argument("--speed-col", default=None, help="Speed/RPM column name")
     parser.add_argument("--ph-col", default=None, help="pH column name")
     parser.add_argument("--corrosion-col", default=None, help="Corrosion rate column name")
+    parser.add_argument("--quality-direction", nargs="+", default=[],
+                        help="Declared 'better' direction per quality column: COL=lower|higher (repeatable, e.g. --quality-direction roughness=lower yield=higher)")
+    parser.add_argument("--ea-kj-mol", type=float, default=None,
+                        help="Arrhenius activation energy kJ/mol (ontology value); omitted → neutral 80 kJ/mol prior, flagged as assumed")
+    parser.add_argument("--heat-exchange-area-m2", type=float, default=None,
+                        help="Heat exchanger area m² (ontology value); omitted → scale-free energy-proxy trend only")
+    parser.add_argument("--fluid-cp-j-kg-k", type=float, default=None,
+                        help="Fluid heat capacity J/(kg·K) (ontology value); omitted → scale-free energy-proxy trend only")
 
     args = parser.parse_args()
 
@@ -784,6 +923,19 @@ def main():
         p.get("column", p.get("name", ""))
         for p in signals.get("process_parameters", [])
     ]
+
+    quality_direction = {}
+    for pair in args.quality_direction:
+        if "=" in pair:
+            col, d = pair.split("=", 1)
+            if d in ("lower", "higher"):
+                quality_direction[col] = d
+
+    equipment_class = None
+    scene = ontology.get("scene", {}) or {}
+    eq_names = [e.get("name", "") for e in scene.get("equipment", [])]
+    process_type = scene.get("process_type", "") or ""
+    equipment_class = " ".join(eq_names + [process_type]).strip() or None
 
     checks = {}
 
@@ -828,25 +980,35 @@ def main():
         low_temp_cols = [c for c in all_param_names if c != temp_col and "temp" in c.lower()]
         low_temp = low_temp_cols[0] if low_temp_cols else None
         if low_temp and quality_targets:
-            checks["arrhenius_kinetics"] = check_arrhenius(temp_col, low_temp, quality_targets[0], cleaned_data)
+            checks["arrhenius_kinetics"] = check_arrhenius(
+                temp_col, low_temp, quality_targets[0], cleaned_data,
+                Ea_J_per_mol=(args.ea_kj_mol * 1000 if args.ea_kj_mol else None) or 80000,
+            )
+            if not args.ea_kj_mol:
+                checks["arrhenius_kinetics"]["Ea_assumed_default"] = True
+                checks["arrhenius_kinetics"]["Ea_note"] = "No activation energy supplied via --ea-kj-mol/ontology — 80 kJ/mol neutral prior used; conclusion is a plausibility band, not a quantitative law"
 
     if vib_col and quality_targets and cleaned_data:
-        checks["vibration_threshold"] = check_vibration_threshold(vib_col, quality_targets[0], cleaned_data)
+        checks["vibration_threshold"] = check_vibration_threshold(vib_col, quality_targets[0], cleaned_data, equipment_class=equipment_class)
 
     if power_col and temp_col and cleaned_data:
-        checks["energy_balance"] = check_energy_balance(power_col, temp_col, mass_kg=100.0, cp_J_per_kgK=500.0, data=cleaned_data)
+        checks["energy_balance"] = check_energy_balance(power_col, temp_col, data=cleaned_data)
 
     if flow_col and pressure_col and cleaned_data:
         checks["flow_restriction"] = check_flow_restriction(flow_col, pressure_col, cleaned_data)
 
     all_temps = find_cols(["temp", "temperature"])
     if len(all_temps) >= 2 and flow_col and cleaned_data:
-        checks["heat_transfer"] = check_heat_transfer(all_temps[0], all_temps[1], flow_col, cleaned_data)
+        checks["heat_transfer"] = check_heat_transfer(
+            all_temps[0], all_temps[1], flow_col, cleaned_data,
+            heat_exchange_area_m2=args.heat_exchange_area_m2,
+            fluid_cp_J_per_kgK=args.fluid_cp_j_kg_k,
+        )
 
     if args.ph_col and args.temp_col and args.corrosion_col and cleaned_data:
         checks["corrosion_rate"] = check_corrosion_rate(args.ph_col, args.temp_col, args.corrosion_col, cleaned_data)
 
-    transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets)
+    transition_results = analyze_quality_resets(anomaly_report, cleaned_data, quality_targets, quality_direction)
     if transition_results:
         checks["quality_reset_analysis"] = {
             "reset_found": any(r["reset_detected"] for r in transition_results),
@@ -874,7 +1036,10 @@ def main():
     print(f"Physics checks written to {args.output}")
     print(f"  Checks performed: {len(checks)}")
     for k, v in checks.items():
-        conclusion = v.get("conclusion", v.get("status", "UNKNOWN"))
+        if isinstance(v, dict):
+            conclusion = v.get("conclusion", v.get("status", "UNKNOWN"))
+        else:
+            conclusion = f"list[{len(v)}]"
         print(f"  [{conclusion}] {k}")
 
 

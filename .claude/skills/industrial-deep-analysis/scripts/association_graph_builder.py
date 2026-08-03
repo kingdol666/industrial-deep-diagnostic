@@ -44,8 +44,14 @@ def main() -> None:
         with open(p, encoding="utf-8") as fh:
             return json.load(fh)
 
+    def _load_optional(p: Path) -> dict:
+        try:
+            return _load(p)
+        except FileNotFoundError:
+            return {}
+
     ontology = _load(run_dir / "01_ontology" / "ontology.json")
-    selection = _load(run_dir / "02_processed" / "analysis_parameter_selection.json")
+    selection = _load_optional(run_dir / "02_processed" / "analysis_parameter_selection.json")
 
     deep_path = run_dir / "enhancement" / "deep_data_analysis.json"
     relationships = _load(deep_path).get("relationships", []) if deep_path.is_file() else []

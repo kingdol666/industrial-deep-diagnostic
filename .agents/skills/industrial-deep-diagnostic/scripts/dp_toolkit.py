@@ -194,12 +194,29 @@ def cmd_preprocess(args):
     if time_col:
         from datetime import datetime
         try:
-            t0 = datetime.strptime(rows[0][time_col][:19], "%Y-%m-%d %H:%M:%S")
+            # Multi-format parse (stdlib): ISO, T-separator, slashes, Chinese formats
+            def _parse_t(v):
+                s = str(v).strip()
+                for fmt in ("%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M", "%Y-%m-%d", "%Y/%m/%d",
+                            "%Y年%m月%d日 %H:%M:%S", "%Y年%m月%d日"):
+                    try:
+                        return datetime.strptime(s[:19], fmt)
+                    except ValueError:
+                        continue
+                return None
+            t0 = _parse_t(rows[0][time_col])
+            if t0 is None:
+                raise ValueError(f"unparseable time value: {rows[0][time_col]!r}")
             for r in rows:
-                dt = datetime.strptime(r[time_col][:19], "%Y-%m-%d %H:%M:%S")
+                dt = _parse_t(r[time_col])
+                if dt is None:
+                    continue
                 r['time_hours'] = str(round((dt - t0).total_seconds() / 3600, 4))
-            report["derived_features"] = report.get("derived_features", []) + ["time_hours"]
-        except: pass
+            if any('time_hours' in r for r in rows):
+                report["derived_features"] = report.get("derived_features", []) + ["time_hours"]
+        except Exception:
+            pass
 
     if group_col:
         groups = _product_groups(rows, group_col)
@@ -730,7 +747,7 @@ def cmd_regime_filter(args):
         # as a sibling script
         detector_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '..', '..', '.claude', 'skills', 'industrial-deep-diagnostic',
+            '..', '..', '.omp', 'skills', 'industrial-data-processor',
             'scripts', 'production_regime_detector.py'
         )
 

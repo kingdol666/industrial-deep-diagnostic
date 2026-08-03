@@ -33,10 +33,9 @@ Read `anomaly_report.json.phyiscal_checks` (or `physics_check.json` if unavailab
 ```json
 {
   "thermal_expansion": {
-    "conclusion": "THERMAL_EXPANSION_PLAUSIBLE",
-    "explanation": "Observed deviation (0.032mm) within 2× of thermal expansion prediction (0.025mm)",
-    "alpha_per_C": 12e-6,
-    "ratio_predicted_to_actual": 0.78
+    "conclusion": "THERMAL_COUPLING_DETECTED",
+    "explanation": "Deviation co-varies positively with temperature (r=0.61) — thermal expansion is a plausible channel; quantify with the real α·L₀ from the ontology",
+    "coupling_r": 0.61
   },
   "vibration_threshold": {
     "conclusion": "VIBRATION_CLIFF_DETECTED",
@@ -45,6 +44,8 @@ Read `anomaly_report.json.phyiscal_checks` (or `physics_check.json` if unavailab
   }
 }
 ```
+
+**Note**: thermal_expansion / energy_balance checks are DATA-DRIVEN coupling checks (no invented material constants). Quantitative ΔL/ΔT estimates appear only when the ontology supplies α·L₀ / m·Cp — treat their absence as a knowledge gap, not a failed check.
 
 **Rule**: Do NOT manually re-compute these. If a check is INCONCLUSIVE, note it as a knowledge gap.
 
@@ -73,8 +74,11 @@ Document in R2 as: `Anomaly at indices 450-520: spindle_vibration → PRECURSOR 
 
 | Conclusion | Meaning | Use In Diagnosis |
 |------------|---------|------------------|
-| `THERMAL_EXPANSION_PLAUSIBLE` | ΔT→ΔL prediction matches observed deviation | SUPPORT thermal hypotheses |
+| `THERMAL_COUPLING_DETECTED` | Deviation co-varies with temperature (r≥0.3) — expansion channel plausible | SUPPORT thermal hypotheses |
+| `THERMAL_ANTI_CORRELATED` | Deviation moves AGAINST temperature — compensation/control, not passive expansion | Reject passive-expansion mechanism |
+| `THERMAL_COUPLING_NOT_DETECTED` | No material coupling with temperature | Thermal expansion not the dominant channel |
+| `ENERGY_COUPLED` / `ENERGY_ANTI_CORRELATED` / `ENERGY_DECOUPLED` | Power↔temperature coupling verdict (data-driven, no invented m·Cp) | SUPPORT / reject heat-input hypotheses |
 | `VIBRATION_CLIFF_DETECTED` | Quality cliff at threshold value | Provide exact threshold in recommendations |
 | `ARRHENIUS_NEGLIGIBLE` | Temperature too low for detectable chemical degradation | EXCLUDE temperature as primary mechanism |
 | `FORCE_BALANCE_PLAUSIBLE` | Predicted force matches measured force | SUPPORT force/Wear hypotheses |
-| `INCONCLUSIVE` | Check not run (missing data columns) | List as knowledge gap |
+| `INCONCLUSIVE` | Check not run (missing data columns / unknown equipment class / unknown quality direction) | List as knowledge gap |

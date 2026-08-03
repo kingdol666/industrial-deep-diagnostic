@@ -27,12 +27,26 @@ import sys
 MAX_SERIES_PER_CHART = 12  # split into sub-charts when more than this
 
 
+_TIME_COL_HINTS = ("time", "timestamp", "datetime", "date", "zeit", "ts_",
+                    "时间", "日期", "时刻", "采样")
+
+
+def _resolve_time_col(df: pd.DataFrame):
+    """Resolve the time column by name hints — never assume 'timestamp'."""
+    for c in df.columns:
+        low = str(c).lower()
+        if any(k in low for k in _TIME_COL_HINTS):
+            return c
+    return None
+
+
 def load_data(run_dir):
     """Load cleaned data and all analysis artifacts."""
     cleaned_csv = os.path.join(run_dir, '02_processed', 'cleaned_data.csv')
     df = pd.read_csv(cleaned_csv)
-    if 'timestamp' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
+    time_col = _resolve_time_col(df)
+    if time_col:
+        df[time_col] = pd.to_datetime(df[time_col])
 
     # Coerce candidate numeric columns: cleaned_data.csv stores numbers as
     # strings (CSV→JSON conversion does no type coercion — the string-type-gotcha).
@@ -44,9 +58,9 @@ def load_data(run_dir):
     # forcing the whole column to string. A column is only adopted as numeric
     # when ≥50% of its non-null values parse as numbers, so genuine categorical
     # columns (product_id, machine_id) stay object and remain usable as groups.
-    _time_cols = {'timestamp', 'time', 'index'}
+    _time_cols = set(_TIME_COL_HINTS)
     for col in df.columns:
-        if col in _time_cols:
+        if any(k in str(col).lower() for k in _TIME_COL_HINTS):
             continue
         if df[col].dtype not in ('object', 'string'):
             continue
@@ -149,8 +163,7 @@ def generate_per_product_overlays(df, targets, key_params, group_col, fig_dir,
     If single product or no group column:
       - Generate one overlay with ALL process params + quality metrics
     """
-    has_timestamp = 'timestamp' in df.columns
-    time_col = 'timestamp' if has_timestamp else None
+    time_col = _resolve_time_col(df)
 
     paths = []
 
@@ -421,7 +434,13 @@ def generate_temporal_overlay(df, targets, key_params, events, fig_dir, features
     """
     Global time-aligned overlay chart (legacy — per-product overlays are preferred).
     Kept for backward compatibility when no product grouping exists.
+    Time axis requires a resolvable time column; without one this chart is
+    skipped (return None) rather than plotting against a fabricated axis.
     """
+    time_col = _resolve_time_col(df)
+    if not time_col:
+        return None
+
     primary_target = targets[0] if targets else None
     all_params = targets + [p for p in key_params if p not in targets]
 
@@ -442,7 +461,7 @@ def generate_temporal_overlay(df, targets, key_params, events, fig_dir, features
             z_values = -z_values
             reversed_label = " (↺reversed)"
 
-        ax.plot(df['timestamp'], z_values,
+        ax.plot(df[time_col], z_values,
                 linewidth=1.2 if col in targets else 0.9,
                 color=colors[idx],
                 linestyle=line_styles[idx % len(line_styles)],
@@ -452,7 +471,7 @@ def generate_temporal_overlay(df, targets, key_params, events, fig_dir, features
     for event_time, event_name in events:
         if isinstance(event_time, int):
             if event_time < len(df):
-                event_time = df['timestamp'].iloc[event_time]
+                event_time = df[time_col].iloc[event_time]
             else:
                 continue
         ax.axvline(event_time, color='red', linestyle='--', linewidth=2.5, alpha=0.9, zorder=10)
@@ -485,6 +504,9 @@ def generate_event_response_overlay(df, targets, event_col, event_values, fig_di
     """
     if event_col not in df.columns:
         return None
+    time_col = _resolve_time_col(df)
+    if not time_col:
+        return None
 
     fig, ax = plt.subplots(figsize=(18, 8))
     primary_target = targets[0]
@@ -498,12 +520,12 @@ def generate_event_response_overlay(df, targets, event_col, event_values, fig_di
     before = df.iloc[:transition_idx]
     after = df.iloc[transition_idx:]
 
-    ax.scatter(before['timestamp'], (before[primary_target] - df[primary_target].mean()) / df[primary_target].std(),
+    ax.scatter(before[time_col], (before[primary_target] - df[primary_target].mean()) / df[primary_target].std(),
                s=8, alpha=0.5, color=colors['before'], label=f'{event_values[0]} (before)')
-    ax.scatter(after['timestamp'], (after[primary_target] - df[primary_target].mean()) / df[primary_target].std(),
+    ax.scatter(after[time_col], (after[primary_target] - df[primary_target].mean()) / df[primary_target].std(),
                s=8, alpha=0.5, color=colors['after'], label=f'{event_values[1]} (after)')
 
-    transition_time = df['timestamp'].iloc[transition_idx]
+    transition_time = df[time_col].iloc[transition_idx]
     ax.axvline(transition_time, color='red', linestyle='--', linewidth=2.5, alpha=0.9)
     ax.text(transition_time, ax.get_ylim()[1] * 0.95, '  EVENT TRANSITION',
             rotation=90, va='top', ha='left', fontsize=13, color='red', fontweight='bold',
@@ -513,9 +535,9 @@ def generate_event_response_overlay(df, targets, event_col, event_values, fig_di
     after_mean = (after[primary_target].mean() - df[primary_target].mean()) / df[primary_target].std()
     ax.axhline(before_mean, color=colors['before'], linestyle='-', linewidth=2, alpha=0.7)
     ax.axhline(after_mean, color=colors['after'], linestyle='-', linewidth=2, alpha=0.7)
-    ax.text(df['timestamp'].iloc[5], before_mean + 0.1, f'Before μ = {before[primary_target].mean():.1f}',
+    ax.text(df[time_col].iloc[5], before_mean + 0.1, f'Before μ = {before[primary_target].mean():.1f}',
             fontsize=12, color=colors['before'], fontweight='bold')
-    ax.text(df['timestamp'].iloc[-5], after_mean + 0.1, f'After μ = {after[primary_target].mean():.1f}',
+    ax.text(df[time_col].iloc[-5], after_mean + 0.1, f'After μ = {after[primary_target].mean():.1f}',
             fontsize=12, color=colors['after'], fontweight='bold', ha='right')
 
     ax.set_xlabel('Time', fontsize=14)
@@ -604,6 +626,9 @@ def generate_synchronization_heatmap(df, targets, key_params, fig_dir):
     """
     all_cols = targets + [p for p in key_params if p not in targets]
     numeric_cols = [c for c in all_cols if c in df.columns and df[c].dtype in ('float64', 'int64')]
+    time_col = _resolve_time_col(df)
+    if not time_col:
+        return None
 
     if len(numeric_cols) < 3:
         return None
@@ -617,7 +642,7 @@ def generate_synchronization_heatmap(df, targets, key_params, fig_dir):
         if col == primary or df[col].std() == 0:
             continue
         rolling_r = df[primary].rolling(window).corr(df[col])
-        ax.plot(df['timestamp'], rolling_r, linewidth=1.0, label=col, alpha=0.8)
+        ax.plot(df[time_col], rolling_r, linewidth=1.0, label=col, alpha=0.8)
 
     ax.axhline(0, color='black', linestyle='-', linewidth=0.5, alpha=0.5)
     ax.axhline(0.5, color='green', linestyle=':', linewidth=1, alpha=0.5, label='r=0.5 threshold')
@@ -746,7 +771,7 @@ def main():
     if not targets:
         scored = []
         for col in df.columns:
-            if col in ('timestamp', 'time', 'index') or df[col].dtype not in ('float64', 'int64'):
+            if any(k in str(col).lower() for k in _TIME_COL_HINTS) or df[col].dtype not in ('float64', 'int64'):
                 continue
             values = df[col].dropna().astype(float).to_numpy()
             if len(values) < 5:
@@ -761,13 +786,13 @@ def main():
         targets = [col for _, col in sorted(scored, reverse=True)[:2]]
     if not targets:
         for col in df.columns:
-            if df[col].dtype in ('float64', 'int64') and col != 'timestamp':
+            if df[col].dtype in ('float64', 'int64') and not any(k in str(col).lower() for k in _TIME_COL_HINTS):
                 targets.append(col)
                 break
 
     # Fallback: ALL process params (not capped at 8)
     if not key_params:
-        exclude = set(targets) | {'timestamp', 'time', 'index'}
+        exclude = set(targets) | {c for c in df.columns if any(k in str(c).lower() for k in _TIME_COL_HINTS)}
         for col in df.columns:
             if col not in exclude and df[col].dtype in ('float64', 'int64'):
                 key_params.append(col)
@@ -801,8 +826,9 @@ def main():
     print(f"  Targets: {targets}")
     print(f"  Key params ({len(key_params)} total): {key_params[:5]}..." if len(key_params) > 5 else f"  Key params: {key_params}")
     print(f"  Group col: {group_col} ({n_products} products)")
-    has_time = 'timestamp' in df.columns
-    print(f"  Time column: {'timestamp' if has_time else 'NONE — temporal alignment not applicable'}")
+    resolved_time_col = _resolve_time_col(df)
+    has_time = resolved_time_col is not None
+    print(f"  Time column: {resolved_time_col or 'NONE — temporal alignment not applicable'}")
 
     # --- Dynamic event detection (for legacy global overlay) ---
     events = []

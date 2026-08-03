@@ -1,0 +1,148 @@
+<mxfile host="app.diagrams.net" modified="2026-08-03T00:00:00.000Z" agent="omc" version="24.0.0">
+  <diagram id="analytics-flow" name="数据分析 Teamwork 流程">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ═══ 基线诊断管线 swimlane ═══ -->
+        <mxCell id="analytics_group" value="数据分析 Teamwork（数据处理、分析与洞察）" style="swimlane;html=1;rounded=1;startSize=36;horizontal=1;fillColor=#E8F5E9;swimlaneFillColor=#388E3C;strokeColor=#2E7D32;fontColor=#FFFFFF;fontStyle=1;fontSize=16;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="590" y="470" width="470" height="350" as="geometry" />
+        </mxCell>
+
+        <!-- 基线节点（swimlane 内部相对坐标） -->
+        <mxCell id="stg_label1" value="基线管线：任意数据 → 标准表 → 本体 → 统计 → 诊断 → 报告 → HTML（Step 0-8）" style="text;html=1;fontSize=11;fontColor=#2E7D32;align=left;verticalAlign=middle;" vertex="1" parent="analytics_group">
+          <mxGeometry x="20" y="42" width="430" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b1" value="E-1 数据采集与清洗&#xa;（任意格式 → 标准表）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#66BB6A;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="20" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="Step 2 本体构建&#xa;（物理语义映射）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#66BB6A;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="140" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" value="Step 3 统计分析与可视化&#xa;（含 VLM 视觉分析）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#66BB6A;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="260" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" value="Step 4 根因诊断&#xa;（竞争假设排除）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=12;align=center;verticalAlign=middle;spacing=4;fontStyle=1;" vertex="1" parent="analytics_group">
+          <mxGeometry x="380" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b5" value="Step 5 质量门&#xa;（Judge ∥ 物理审计）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#66BB6A;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="140" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" value="Step 6 报告生成&#xa;（中文 9 节金字塔）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#66BB6A;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="260" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" value="Step 8 HTML 可视化&#xa;（+ 审校 CP-9）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#E3F2FD;strokeColor=#1E88E5;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="analytics_group">
+          <mxGeometry x="380" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- 基线流程边 -->
+        <mxCell id="be1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;" edge="1" parent="analytics_group" source="b1" target="b2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="be2" value="CP-2/3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;fontSize=10;fontColor=#2E7D32;" edge="1" parent="analytics_group" source="b2" target="b3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="be3" value="CP-4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;fontSize=10;fontColor=#2E7D32;" edge="1" parent="analytics_group" source="b3" target="b4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="be4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;" edge="1" parent="analytics_group" source="b4" target="b5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="be5" value="CP-6 pass" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;fontSize=10;fontColor=#2E7D32;" edge="1" parent="analytics_group" source="b5" target="b6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="be6" value="CP-7 → CP-8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;fontSize=10;fontColor=#2E7D32;" edge="1" parent="analytics_group" source="b6" target="b7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 修复循环（质量门 → 诊断） -->
+        <mxCell id="be7" value="修复循环 ≤3 轮&#xa;（全局重诊断 ≤5）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#C62828;strokeWidth=1.5;fontSize=10;fontColor=#C62828;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="analytics_group" source="b5" target="b4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ 增强分析管线 swimlane ═══ -->
+        <mxCell id="enhance_group" value="增强分析（深挖关系：覆盖率 → 衍生特征 → 条件/中介/时滞 → 物理桥接 → 知识融合 → 双格式交付）" style="swimlane;html=1;rounded=1;startSize=36;horizontal=1;fillColor=#E3F2FD;swimlaneFillColor=#1E88E5;strokeColor=#1565C0;fontColor=#FFFFFF;fontStyle=1;fontSize=16;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="590" y="860" width="470" height="350" as="geometry" />
+        </mxCell>
+
+        <mxCell id="stg_label2" value="增强管线：消费基线产物（只读），只写 enhancement/（E1-E8）" style="text;html=1;fontSize=11;fontColor=#1565C0;align=left;verticalAlign=middle;" vertex="1" parent="enhance_group">
+          <mxGeometry x="20" y="42" width="430" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="E1 覆盖率&#xa;（全列覆盖审计）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="20" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="E2 衍生特征&#xa;（物理驱动构造）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="140" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="E3 条件分析&#xa;（中介/交互/时滞）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=12;align=center;verticalAlign=middle;spacing=4;fontStyle=1;" vertex="1" parent="enhance_group">
+          <mxGeometry x="260" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="E3.5 关联图&#xa;（全变量网络）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="380" y="66" width="95" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e5" value="E5 物理桥接&#xa;（五项验证+机理链）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="20" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="E6 知识融合&#xa;（enhanced_knowledge）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="140" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="E7 双格式交付&#xa;（MD 9节 + HTML 5图）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#E3F2FD;strokeColor=#1E88E5;fontSize=12;align=center;verticalAlign=middle;spacing=4;fontStyle=1;" vertex="1" parent="enhance_group">
+          <mxGeometry x="260" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="E8 收尾&#xa;（状态+自检）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64B5F6;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="enhance_group">
+          <mxGeometry x="380" y="182" width="95" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- 增强流程边 -->
+        <mxCell id="ee1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e1" target="e2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e2" target="e3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e3" target="e4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e4" target="e5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e5" target="e6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e6" target="e7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ee7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;strokeWidth=2;" edge="1" parent="enhance_group" source="e7" target="e8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 跨泳道：基线产物 → 增强管线（消费契约） -->
+        <mxCell id="cross1" value="消费基线产物&#xa;（ontology / 统计结论 / 诊断 / 物理检查）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#6A1B9A;strokeWidth=1.5;fontSize=10;fontColor=#6A1B9A;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="b4" target="e1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 输出终端：AI 可读 / 人类可读 -->
+        <mxCell id="out_agent" value="Agent 可读&#xa;JSON schema-valid&#xa;（deep_data / graph / bridge / knowledge）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#F3E5F5;strokeColor=#8E24AA;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="650" y="1255" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_human" value="人类可读&#xa;MD 报告（9 节 + 80 claim 块）&#xa;HTML（5 类图表 + 数据治理卡）" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="1255" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="out_b7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1E88E5;strokeWidth=2;" edge="1" parent="1" source="b7" target="out_human">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="out_e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1E88E5;strokeWidth=2;" edge="1" parent="1" source="e7" target="out_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="out_e7b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1E88E5;strokeWidth=2;" edge="1" parent="1" source="e7" target="out_human">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

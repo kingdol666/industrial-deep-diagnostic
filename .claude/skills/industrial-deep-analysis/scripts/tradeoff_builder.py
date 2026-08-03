@@ -74,8 +74,17 @@ def _classify_operability(
     # as the PRIMARY source) — those are observable symptoms, not control outputs.
     sig = signal_idx.get(predictor, {})
     cb = str(sig.get("controlled_by", "")).lower()
-    is_state_indicator = any(k in cb for k in ("状态", "磨损", "反映", "监测", "指示", "degradation state", "indicator", "monitor"))
-    if not is_state_indicator and any(k in cb for k in ("控制", "降载", "自适应", "补偿", "操作员", "adaptive control", "load shedding", "compensat")):
+    is_state_indicator = any(k in cb for k in (
+        "状态", "磨损", "反映", "监测", "指示", "症状", "degradation state",
+        "indicator", "monitor", "reflect", "symptom", "wear", "status",
+        "reading", "gauge", "sensor value", "state", "signature",
+    ))
+    if not is_state_indicator and any(k in cb for k in (
+        "控制", "降载", "自适应", "补偿", "操作员", "反馈", "调节", "伺服",
+        "adaptive control", "load shedding", "compensat", "control",
+        "controller", "pid", "operator", "feedback", "servo", "regulat",
+        "closed-loop", "automatic", "调节器",
+    )):
         return "ENDOGENOUS_RESPONSE"
 
     # Check if predictor is endogenous / control response — only tiers whose KEY
@@ -174,8 +183,9 @@ def _classify_operability(
         str(sig.get("role", "")),
     ]).lower()
     is_indicator = any(k in sig_desc for k in (
-        "状态", "磨损", "反映", "指示", "监测", "症状", "indicator", "monitor",
-        "reflect", "symptom", "状态指示", "承载", "degradation state",
+        "状态", "磨损", "反映", "指示", "监测", "症状", "承载", "退化", "indicator", "monitor",
+        "reflect", "symptom", "wear", "degradation state", "state", "signature",
+        "reading", "gauge", "sensor value", "proxy", "marker",
     ))
 
     if physics_ok and q_ok and direction_stable and no_confounding and controllable and not is_indicator and ceiling_ok and not_contradicted:
