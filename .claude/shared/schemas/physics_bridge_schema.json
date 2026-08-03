@@ -137,9 +137,8 @@
       }
     },
     "competing_explanations": {
-      "description": "竞争性解释",
+      "description": "竞争性解释（无排除假设时为空数组——空是合法状态）",
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
