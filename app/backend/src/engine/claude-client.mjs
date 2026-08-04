@@ -99,7 +99,7 @@ function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMe
     ? 'IMPORTANT: Write ALL narrative text, headings, analysis descriptions, recommendations, and report.md content in Chinese (中文). Keep technical terms, variable names, column names, and code in English.'
     : 'Write all output in English.';
 
-  const basePrompt = `${config.claude.skill_command} ${safeScene}
+  const basePrompt = `Industrial deep diagnostic run for scene "${safeScene}" — follow the skill protocol provided in your system prompt.
 
 ## Data
 
