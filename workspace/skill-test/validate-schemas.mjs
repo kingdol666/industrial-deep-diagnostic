@@ -8,7 +8,24 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../..');
 
-// ---- Recursive glob for schemas/*.json under .claude/skills/ and .omp/skills/ ----
+// ---- Recursive glob for schemas/*.json under .claude/skills/, .omp/skills/ and .claude/shared/ ----
+
+function globSharedSchemas() {
+  const results = [];
+  const sharedDir = path.join(REPO_ROOT, '.claude', 'shared', 'schemas');
+  if (!fs.existsSync(sharedDir)) return results;
+  for (const f of fs.readdirSync(sharedDir)) {
+    if (f.endsWith('.json') && !f.startsWith('_')) {
+      results.push({
+        file: path.join('.claude', 'shared', 'schemas', f).replace(/\\/g, '/'),
+        skill: 'shared',
+        fullPath: path.join(sharedDir, f),
+      });
+    }
+  }
+  return results;
+}
+
 function globSchemas(baseDir) {
   const results = [];
   const skillsDir = path.join(REPO_ROOT, baseDir, 'skills');
@@ -32,6 +49,7 @@ function globSchemas(baseDir) {
 const schemas = [
   ...globSchemas('.claude'),
   ...globSchemas('.omp'),
+  ...globSharedSchemas(),
 ];
 
 // ---- Check ajv availability ----

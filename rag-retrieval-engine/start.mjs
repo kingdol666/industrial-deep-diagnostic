@@ -5,7 +5,7 @@
 // Usage:
 //   node rag-retrieval-engine/start.mjs
 
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';

@@ -99,9 +99,10 @@ app.get('/api/health', (req, res) => {
 const frontendDist = join(PROJECT_ROOT, 'app', 'frontend', 'dist');
 app.use(express.static(frontendDist));
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/') && !req.path.startsWith('/ws')) {
-    res.sendFile(join(frontendDist, 'index.html'));
+  if (req.path.startsWith('/api/') || req.path.startsWith('/ws')) {
+    return res.status(404).json({ success: false, error: 'Not found' });
   }
+  res.sendFile(join(frontendDist, 'index.html'));
 });
 
 // Create HTTP server (shared by Express + WebSocket)

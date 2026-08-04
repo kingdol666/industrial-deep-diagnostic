@@ -19,7 +19,7 @@
 import { spawn } from 'child_process';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync, createWriteStream, openSync, closeSync } from 'fs';
 import { createServer } from 'net';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -189,16 +189,32 @@ async function startService(key, { detach = false } = {}) {
   // Resolve command
   const cmd = resolveCommand(svc);
 
+  // Detached services write to their log file (stdio ignore would lose
+  // startup errors entirely — logFile was declared but never used).
+  let stdio = 'inherit';
+  let detached = false;
+  let logFd = null;
+  if (detach) {
+    logFd = openSync(svc.logFile, 'a');
+    stdio = ['ignore', logFd, logFd];
+    detached = true;
+  }
+
   // Spawn — direct binary, no shell, so child.pid is the REAL server process
   // on Windows/Linux/macOS alike (shell:true would hand back the cmd shim PID).
   const env = { ...process.env, ...svc.env };
   const child = spawn(cmd, svc.startArgs, {
     cwd: svc.dir,
     env,
-    stdio: detach ? 'ignore' : 'inherit',
-    detached: detach,
+    stdio,
+    detached,
     shell: false,
   });
+
+  // Parent-side fd copy is inherited by the child; safe to close ours now.
+  if (logFd !== null) {
+    closeSync(logFd);
+  }
 
   writePid(svc.pidFile, child.pid);
 
@@ -211,6 +227,20 @@ async function startService(key, { detach = false } = {}) {
   let healthy = false;
   for (let i = 0; i < maxWait; i++) {
     await new Promise(r => setTimeout(r, 1000));
+    // The spawned process died before becoming healthy (port conflict, bad
+    // config, missing deps...) — report the crash instead of trusting a
+    // health probe that may answer for a DIFFERENT instance.
+    if (child.exitCode !== null || child.signalCode !== null) {
+      removePid(svc.pidFile);
+      return {
+        service: key,
+        status: 'crashed',
+        pid: child.pid,
+        exitCode: child.exitCode,
+        signal: child.signalCode,
+        message: `Process exited (code ${child.exitCode ?? 'null'}, signal ${child.signalCode ?? 'none'}) before becoming healthy. Check ${svc.logFile}.`,
+      };
+    }
     const h = await checkHealth(svc.port, svc.healthPath);
     if (h !== 'not_reachable') {
       healthy = true;
@@ -315,7 +345,14 @@ async function getStatus(key) {
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
-  const targets = args.slice(1).filter(f => !f.startsWith('--'));
+  const allKeys = Object.keys(SERVICES);
+  // Accept both '--backend' and 'backend' forms; '--all' (or nothing for
+  // status) means every service.
+  const rawTargets = args.slice(1).filter(f => !f.startsWith('--') || f === '--all' || f.slice(2) in SERVICES);
+  let targets = rawTargets.map(f => f.replace(/^--/, ''));
+  if (targets.includes('all') || (targets.length === 0 && command === 'status')) {
+    targets = allKeys;
+  }
 
 
 
