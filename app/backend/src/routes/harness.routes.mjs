@@ -11,6 +11,10 @@
 //
 // Every endpoint delegates to the Harness interface — adding an engine to
 // registry.mjs makes it appear here and in the frontend automatically.
+//
+// NOTE: artifact/enhancement endpoints return 200 + null (not 404) when the
+// run exists but lacks the specific file. The frontend fetches these
+// proactively on every run open, so 404s created browser console noise.
 
 import { Router } from 'express';
 import { listHarnesses, getHarness } from '../harness/registry.mjs';
@@ -93,33 +97,50 @@ router.get('/:id/runs/:run/summary', async (req, res) => {
   }
 });
 
-/** GET /api/harness/:id/runs/:run/artifact/:kind */
+/** GET /api/harness/:id/runs/:run/artifact/:kind
+ *  Returns 200 + null when the run exists but the artifact file is absent
+ *  (frontend probes proactively; 404 would create console noise). */
 router.get('/:id/runs/:run/artifact/:kind', async (req, res) => {
   const h = resolve(res, req.params.id);
   if (!h) return;
   try {
     const art = await h.getArtifact(req.params.run, req.params.kind);
-    if (!art) return fail(res, 404, `Artifact '${req.params.kind}' not found`);
-    ok(res, art);
+    ok(res, art || null);
   } catch (e) {
     if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
 
-/** GET /api/harness/:id/runs/:run/enhancement/:kind */
+/** GET /api/harness/:id/runs/:run/enhancement/:kind
+ *  Returns 200 + null when the run exists but the enhancement file is absent. */
 router.get('/:id/runs/:run/enhancement/:kind', async (req, res) => {
   const h = resolve(res, req.params.id);
   if (!h) return;
   try {
     const art = await h.getEnhancement(req.params.run, req.params.kind);
-    if (!art) return fail(res, 404, `Enhancement artifact '${req.params.kind}' not found`);
-    ok(res, art);
+    ok(res, art || null);
   } catch (e) {
     if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
+
+/**
+ * Rewrite relative asset URLs (src/href) in an HTML document so they resolve
+ * against the workspace asset endpoint. Without this, images inside the
+ * diagnostic-report.html (e.g. `03_figures/fig_xxx.png`) would 404 because the
+ * iframe base URL is the harness html route, which has no static-file handler.
+ */
+function rewriteHtmlAssetUrls(html, runName) {
+  if (!html || !runName) return html;
+  const assetBase = `/api/files/workspace/asset/${encodeURIComponent(runName)}/`;
+  // Rewrite src="..." and href="..." that are relative (not absolute/data/protocol).
+  return html.replace(/\b(src|href)\s*=\s*"([^"]+)"/g, (match, attr, url) => {
+    if (/^(?:[a-z]+:|\/\/|\/|data:|#)/i.test(url)) return match; // absolute, protocol-relative, root, data, hash
+    return `${attr}="${assetBase}${url}"`;
+  });
+}
 
 /** GET /api/harness/:id/runs/:run/html?mode=baseline|enhanced */
 router.get('/:id/runs/:run/html', async (req, res) => {
@@ -128,7 +149,7 @@ router.get('/:id/runs/:run/html', async (req, res) => {
   try {
     const html = await h.getHtml(req.params.run, req.query.mode || 'baseline');
     if (!html) return fail(res, 404, 'HTML report not found');
-    res.type('html').send(html);
+    res.type('html').send(rewriteHtmlAssetUrls(html, req.params.run));
   } catch (e) {
     if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);

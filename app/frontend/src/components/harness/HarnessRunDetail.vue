@@ -244,6 +244,16 @@ async function openEnh(kind) {
 async function loadHtml() {
   htmlSrc.value = '';
   detailError.value = '';
+  // Guard: only set the iframe src when the run actually has the HTML artifact.
+  // The HTML tab is shown whenever the engine supports the capability, but
+  // individual runs may not have generated HTML — loading a non-existent
+  // file would 404 in the iframe and create console noise.
+  const runData = run.value;
+  if (!runData) return;
+  const hasBaseline = !!runData.baseline?.hasHtml;
+  const hasEnhanced = !!runData.enhancement?.artifacts?.['enhanced-analysis.html'];
+  const available = htmlMode.value === 'enhanced' ? hasEnhanced : hasBaseline;
+  if (!available) return;
   try {
     htmlSrc.value = api.harnessHtmlUrl(props.harnessId, props.name, htmlMode.value);
   } catch (e) {
