@@ -99,6 +99,18 @@ export const api = {
 
   // SSE stream
   streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
+
+  // ── OMP harness bridge (native OMP pipeline outputs) ──
+  ompHealth: () => request('/omp/health'),
+  listOmpRuns: () => request('/omp/runs'),
+  getOmpRun: (name) => request(`/omp/runs/${encodeURIComponent(name)}`),
+  getOmpSummary: (name) => request(`/omp/runs/${encodeURIComponent(name)}/summary`),
+  getOmpArtifact: (name, kind) =>
+    request(`/omp/runs/${encodeURIComponent(name)}/artifact/${kind}`),
+  getOmpEnhancement: (name, kind) =>
+    request(`/omp/runs/${encodeURIComponent(name)}/enhancement/${kind}`),
+  ompHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/html`,
+  ompEnhHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/enhancement/html`,
 };
 
 // WebSocket URL (same host, port determined at runtime)

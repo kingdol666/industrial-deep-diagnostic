@@ -20,7 +20,7 @@
 
       <nav class="app-nav" aria-label="Primary">
         <button
-          v-for="tab in tabs"
+          v-for="tab in visibleTabs"
           :key="tab.key"
           :class="['app-nav-item', { active: currentTab === tab.key }]"
           :title="tab.label"
@@ -35,6 +35,34 @@
       </nav>
 
       <div class="app-sidebar-footer">
+        <div class="app-harness" role="group" aria-label="Engine harness">
+          <button
+            type="button"
+            class="app-harness-btn"
+            :class="{ active: harness === 'claude' }"
+            title="使用内置 Claude Code 引擎发起实时诊断"
+            @click="selectHarness('claude')"
+          >
+            <span class="app-harness-icon">⌘</span>
+            <span class="app-harness-copy">
+              <span class="app-harness-label">Claude Code</span>
+              <span class="app-harness-sub">SDK 实时引擎</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="app-harness-btn"
+            :class="{ active: harness === 'omp' }"
+            title="浏览 OMP 代理管线原生产出的运行结果"
+            @click="selectHarness('omp')"
+          >
+            <span class="app-harness-icon">⛭</span>
+            <span class="app-harness-copy">
+              <span class="app-harness-label">OMP Engine</span>
+              <span class="app-harness-sub">RPC 原生桥接</span>
+            </span>
+          </button>
+        </div>
         <div class="app-presence" :class="wsStatusClass">
           <span class="app-presence-dot"></span>
           <span>{{ wsStatusText }}</span>
@@ -100,6 +128,10 @@
             @continue-run="onContinueRun"
           />
         </div>
+
+        <div v-else-if="currentTab === 'omp'" class="app-view-frame">
+          <OmpRunsView />
+        </div>
       </main>
     </section>
   </div>
@@ -112,6 +144,7 @@ import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
 import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
+import OmpRunsView from './components/omp/OmpRunsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 
 const currentTab = ref('data');
@@ -119,6 +152,7 @@ const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
+const harness = ref('claude'); // 'claude' | 'omp' — user-selectable engine
 
 const { state: rtState, init, teardown } = useDiagnosisRealtimeStore();
 
@@ -145,7 +179,19 @@ const tabs = [
   { key: 'history', label: 'History', icon: '◌', kicker: 'Execution Ledger', title: '历史运行记录', description: '按运行状态回看诊断历史、日志与会话，并继续失败或暂停的任务。', caption: 'Track historical runs and outcomes' },
 ];
 
-const activeTabMeta = computed(() => tabs.find(tab => tab.key === currentTab.value) || tabs[0]);
+// OMP harness tab — visible only when the OMP engine is selected
+const ompTab = {
+  key: 'omp', label: 'OMP Runs', icon: '⛭', kicker: 'OMP Harness Bridge',
+  title: 'OMP 原生运行浏览',
+  description: '通过 OMP RPC 桥读取原生管线产物：运行状态、执行证明、报告与增强深挖结果。',
+  caption: 'Browse native OMP pipeline outputs',
+};
+
+const visibleTabs = computed(() =>
+  harness.value === 'omp' ? [...tabs.slice(0, 5), ompTab] : tabs
+);
+
+const activeTabMeta = computed(() => visibleTabs.value.find(tab => tab.key === currentTab.value) || visibleTabs.value[0]);
 
 const contentClass = computed(() => ({
   'app-content-chat': currentTab.value === 'chat',
@@ -164,7 +210,24 @@ const analysisTargetLabel = computed(() => {
 function loadSidebarState() {
   try {
     sidebarCollapsed.value = localStorage.getItem('idd.sidebarCollapsed') === '1';
+    const savedHarness = localStorage.getItem('idd.harness');
+    if (savedHarness === 'omp' || savedHarness === 'claude') {
+      harness.value = savedHarness;
+      if (savedHarness === 'omp' && currentTab.value !== 'omp') currentTab.value = 'omp';
+    }
   } catch {}
+}
+
+function selectHarness(next) {
+  harness.value = next;
+  try {
+    localStorage.setItem('idd.harness', next);
+  } catch {}
+  if (next === 'omp') {
+    currentTab.value = 'omp';
+  } else if (currentTab.value === 'omp') {
+    currentTab.value = 'data';
+  }
 }
 
 function toggleSidebar() {
