@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 import json
 import os
+import re
 import sys
 
 MAX_SERIES_PER_CHART = 12  # split into sub-charts when more than this
@@ -40,13 +41,41 @@ def _resolve_time_col(df: pd.DataFrame):
     return None
 
 
+def _safe_filename(name) -> str:
+    """Sanitize a column/group name for use in a filename — column names like
+    '流量(m3/h)' or 'temp[°C]' contain path/OS-illegal characters that would
+    otherwise break figure output paths."""
+    s = re.sub(r'[\\/:*?"<>|\s]+', '_', str(name).strip())
+    return s or 'col'
+
+
+def _parse_time(values):
+    """Parse time values with CN-format normalization; returns Series (NaT for
+    unparseable entries) — never raises on exotic datetime strings."""
+    def _norm(v):
+        import re as _re
+        s = str(v).strip()
+        m = _re.match(
+            r"(\d{4})\s*[年./-]\s*(\d{1,2})\s*[月./-]\s*(\d{1,2})\s*[日]?"
+            r"(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?", s)
+        if m:
+            y, mo, d = m.group(1), int(m.group(2)), int(m.group(3))
+            hh, mm, ss = m.group(4) or "0", m.group(5) or "0", m.group(6) or "00"
+            return f"{y}-{mo:02d}-{d:02d} {hh}:{mm}:{ss}"
+        return s
+    try:
+        return pd.to_datetime(pd.Series([_norm(v) for v in values]), errors="coerce")
+    except Exception:
+        return pd.Series([pd.NaT] * len(values))
+
+
 def load_data(run_dir):
     """Load cleaned data and all analysis artifacts."""
     cleaned_csv = os.path.join(run_dir, '02_processed', 'cleaned_data.csv')
     df = pd.read_csv(cleaned_csv)
     time_col = _resolve_time_col(df)
     if time_col:
-        df[time_col] = pd.to_datetime(df[time_col])
+        df[time_col] = _parse_time(df[time_col])
 
     # Coerce candidate numeric columns: cleaned_data.csv stores numbers as
     # strings (CSV→JSON conversion does no type coercion — the string-type-gotcha).
@@ -386,7 +415,7 @@ def _plot_time_aligned_overlay(df, targets, process_params, product_label, fig_d
     ax.tick_params(axis='both', labelsize=11)
 
     fig.tight_layout()
-    filename = f'fig_vlm_temporal_overlay_{suffix}.png'
+    filename = f'fig_vlm_temporal_overlay_{_safe_filename(suffix)}.png'
     path = os.path.join(fig_dir, filename)
     fig.savefig(path, dpi=150, bbox_inches='tight')
     plt.close()
@@ -399,7 +428,7 @@ def _detect_events_in_subset(df, time_col):
     events = []
     if time_col not in df.columns:
         return events
-    times = pd.to_datetime(df[time_col])
+    times = _parse_time(df[time_col])
     gaps = times.diff().dt.total_seconds()
     median_gap = gaps.median()
     gap_threshold = median_gap * 5 if median_gap > 0 else 3600
@@ -612,7 +641,7 @@ def generate_simpson_visual(df, target, param, group_col, fig_dir):
                  color='red' if has_reversal else 'green')
     fig.tight_layout(rect=[0, 0, 1, 0.92])
 
-    path = os.path.join(fig_dir, f'fig_vlm_simpson_{param}.png')
+    path = os.path.join(fig_dir, f'fig_vlm_simpson_{_safe_filename(param)}.png')
     fig.savefig(path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"  → {path}")

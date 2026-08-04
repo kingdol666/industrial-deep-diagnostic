@@ -403,18 +403,39 @@ def _block_to_df(block: dict) -> pd.DataFrame:
     return df
 
 
+def _normalize_cn_datetime(value: str) -> str:
+    """Normalize Chinese calendar formats pandas cannot parse natively:
+    '2026年5月1日 08:00:00' -> '2026-05-01 08:00:00'. Also handles
+    '2026/5/1 8:00' and '2026.5.1 08:00' variants."""
+    s = str(value).strip()
+    m = re.match(
+        r"(\d{4})\s*[年./-]\s*(\d{1,2})\s*[月./-]\s*(\d{1,2})\s*[日]?"
+        r"(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?", s)
+    if m:
+        y, mo, d = m.group(1), int(m.group(2)), int(m.group(3))
+        hh, mm, ss = m.group(4) or "0", m.group(5) or "0", m.group(6) or "00"
+        return f"{y}-{mo:02d}-{d:02d} {hh}:{mm}:{ss}"
+    return s
+
+
+def _parses_as_time(values) -> float:
+    """Fraction of values parseable as datetime after CN-format normalization."""
+    normed = [_normalize_cn_datetime(v) for v in values]
+    try:
+        parsed = pd.to_datetime(pd.Series(normed), errors="coerce")
+        return float(parsed.notna().mean())
+    except Exception:
+        return 0.0
+
+
 def _detect_time_col(df: pd.DataFrame) -> Optional[str]:
     for c in df.columns:
         low = str(c).lower()
         if any(k in low for k in _TIME_HINTS):
             # verify it parses as datetime (at least partially)
             sample = df[c].dropna().head(50).astype(str)
-            try:
-                parsed = pd.to_datetime(sample, errors="coerce")
-                if parsed.notna().mean() > 0.5:
-                    return str(c)
-            except Exception:
-                continue
+            if _parses_as_time(sample) > 0.5:
+                return str(c)
     for c in df.columns:
         # numeric columns would parse as nanosecond-epoch datetimes — skip them
         try:
@@ -422,11 +443,8 @@ def _detect_time_col(df: pd.DataFrame) -> Optional[str]:
                 continue
         except Exception:
             continue
-        try:
-            if pd.to_datetime(df[c].dropna().head(100), errors="coerce").notna().mean() > 0.8:
-                return str(c)
-        except Exception:
-            continue
+        if _parses_as_time(df[c].dropna().head(100).astype(str)) > 0.8:
+            return str(c)
     return None
 
 
