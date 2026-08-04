@@ -996,9 +996,11 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 24%),
     radial-gradient(circle at top right, color-mix(in srgb, var(--purple) 12%, transparent), transparent 22%),
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 92%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 82%, transparent), color-mix(in srgb, var(--surface) 88%, transparent));
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
+  backdrop-filter: blur(var(--acrylic-blur-lg)) saturate(var(--acrylic-sat));
+  -webkit-backdrop-filter: blur(var(--acrylic-blur-lg)) saturate(var(--acrylic-sat));
 }
 
 .chat-shell.chat-shell-collapsed {
@@ -1013,9 +1015,11 @@ onBeforeUnmount(() => {
 .chat-sidebar {
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--bg-sidebar) 96%, transparent);
+  background: color-mix(in srgb, var(--bg-sidebar) 94%, transparent);
   border-right: 1px solid var(--border);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  box-shadow: var(--glass-highlight);
 }
 
 .chat-sidebar-top {

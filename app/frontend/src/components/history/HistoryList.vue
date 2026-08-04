@@ -334,8 +334,10 @@ const paginatedLogs = computed(() => {
   padding: 18px 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 82%, transparent), color-mix(in srgb, var(--surface) 90%, transparent));
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
 }
 
 .toolbar-left { display: flex; align-items: center; gap: 8px; }
@@ -356,8 +358,10 @@ const paginatedLogs = computed(() => {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
 }
 
 .history-table {

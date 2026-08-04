@@ -1180,12 +1180,14 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-sm);
 }
 .card-thinking {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 10%, var(--surface)), color-mix(in srgb, var(--surface) 96%, transparent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 10%, var(--surface)), color-mix(in srgb, var(--surface) 92%, transparent));
   border: 1px solid color-mix(in srgb, var(--purple) 16%, var(--border));
   border-radius: 18px;
   cursor: pointer;
+  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
 }
-.card-thinking:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 14%, var(--surface)), color-mix(in srgb, var(--surface-soft) 96%, transparent)); }
+.card-thinking:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 14%, var(--surface)), color-mix(in srgb, var(--surface-soft) 92%, transparent)); }
 .ms-card-header {
   display: flex;
   align-items: center;
