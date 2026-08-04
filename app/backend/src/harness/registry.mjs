@@ -14,6 +14,13 @@ import { ClaudeHarness } from './claude-harness.mjs';
 /** Ordered list — first entry is the default engine for the console. */
 const harnesses = [new ClaudeHarness(), new OmpHarness()];
 
+// Optional reference implementation (capability-driven UI proof) —
+// enabled explicitly via IDD_DEMO_HARNESS=1, never on in production runs.
+if (process.env.IDD_DEMO_HARNESS === '1') {
+  const { DemoHarness } = await import('./demo-harness.mjs');
+  harnesses.push(new DemoHarness());
+}
+
 /** All registered harness manifests (public metadata). */
 export function listHarnesses() {
   return harnesses.map((h) => h.manifest());

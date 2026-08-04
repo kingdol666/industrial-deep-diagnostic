@@ -119,7 +119,11 @@
         </div>
 
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
-          <OmpRunsView :harness-id="harness" :harness-name="activeHarnessMeta.name" />
+          <OmpRunsView
+            :harness-id="harness"
+            :harness-name="activeHarnessMeta.name"
+            :capabilities="activeHarnessMeta.capabilities || []"
+          />
         </div>
       </main>
     </section>
@@ -133,7 +137,7 @@ import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
 import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
-import OmpRunsView from './components/omp/OmpRunsView.vue';
+import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 import { api } from './api/index.js';
 

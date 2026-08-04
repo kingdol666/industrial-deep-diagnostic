@@ -6,7 +6,8 @@
         <div class="omp-header-kicker">Harness Bridge · {{ harnessName }}</div>
         <h2 class="omp-header-title">{{ harnessName }} 原生运行 · 只读浏览</h2>
         <p class="omp-header-sub">
-          通过 Harness 接口读取 <code>{{ runsDirLabel }}</code> 中由 {{ harnessName }} 产出的原生分析结果——基线产物、增强深挖、事件执行证明。
+          通过 Harness 接口读取 {{ harnessName }} 产出的原生分析结果——基线产物、增强深挖、事件执行证明。
+          <span v-if="runsDirLabel">目录：<code>{{ runsDirLabel }}</code></span>
         </p>
       </div>
       <div class="omp-header-meta">
@@ -15,9 +16,21 @@
         </button>
         <span class="omp-engine-pill" :class="{ off: !health.available }">
           <span class="omp-engine-dot" />
-          {{ health.available ? `${harnessName} 在线 · ${health.run_count ?? health.meta?.run_count ?? 0} 个运行` : `${harnessName} 不可用` }}
+          {{ health.available ? `${harnessName} 在线 · ${runCountLabel} 个运行` : `${harnessName} 不可用` }}
         </span>
       </div>
+    </div>
+
+    <!-- ── Capability chips ── -->
+    <div v-if="capabilities.length" class="omp-caps">
+      <span
+        v-for="c in capabilities"
+        :key="c"
+        class="omp-cap"
+        :class="{ disabled: !capabilityMap[c] }"
+      >
+        {{ capLabels[c] || c }}
+      </span>
     </div>
 
     <!-- ── Stats row ── -->
@@ -29,12 +42,12 @@
     </div>
 
     <!-- ── Run list ── -->
-    <div v-if="loading" class="empty-state"><div class="spinner" /> 正在读取 OMP 运行目录…</div>
+    <div v-if="loading" class="empty-state"><div class="spinner" /> 正在读取运行目录…</div>
 
     <div v-else-if="error" class="omp-error">{{ error }}</div>
 
     <div v-else-if="!runs.length" class="empty-state">
-      <p>未发现 OMP 运行。请先通过 <code>enhance_orchestrator.mjs</code> 或 OMP 代理管线执行一次诊断。</p>
+      <p>该引擎暂无运行记录。</p>
     </div>
 
     <div v-else class="omp-run-list">
@@ -64,7 +77,12 @@
 
         <!-- ── Detail panel ── -->
         <div v-if="selected === run.name" class="omp-run-detail" @click.stop>
-          <OmpRunDetail :name="run.name" :harness-id="harnessId" :harness-name="harnessName" />
+          <HarnessRunDetail
+            :name="run.name"
+            :harness-id="harnessId"
+            :harness-name="harnessName"
+            :capabilities="capabilities"
+          />
         </div>
       </div>
     </div>
@@ -74,22 +92,31 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { api } from '../../api/index.js';
-import OmpRunDetail from './OmpRunDetail.vue';
+import HarnessRunDetail from './HarnessRunDetail.vue';
 
 const props = defineProps({
-  harnessId: { type: String, default: 'omp' },
-  harnessName: { type: String, default: 'OMP Engine' },
+  harnessId: { type: String, required: true },
+  harnessName: { type: String, default: 'Engine' },
+  capabilities: { type: Array, default: () => [] },
 });
 
 const runs = ref([]);
 const loading = ref(false);
 const error = ref('');
 const selected = ref(null);
-const health = ref({ available: false, run_count: 0 });
+const health = ref({ available: false, meta: {} });
+
+const capLabels = {
+  live: '实时诊断', runs: '运行浏览', report: '报告', html: 'HTML 预览', enhancement: '增强产物', chat: '会话',
+};
+const capabilityMap = computed(() =>
+  Object.fromEntries(props.capabilities.map((c) => [c, true]))
+);
 const runsDirLabel = computed(() => {
   const dir = health.value.meta?.runs_dir || '';
-  return dir.includes('diagnostic-runs') ? 'workspace/diagnostic-runs/' : (dir || '运行目录');
+  return dir ? dir.replace(/\\/g, '/') : '';
 });
+const runCountLabel = computed(() => health.value.meta?.run_count ?? 0);
 
 const completedCount = computed(() => runs.value.filter((r) => r.verdict === 'ENDORSED').length);
 const enhancedCount = computed(() => runs.value.filter((r) => r.enhancement_status).length);
@@ -132,7 +159,10 @@ async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const [h, r] = await Promise.all([api.harnessHealth(props.harnessId), api.harnessRuns(props.harnessId)]);
+    const [h, r] = await Promise.all([
+      api.harnessHealth(props.harnessId),
+      api.harnessRuns(props.harnessId),
+    ]);
     health.value = h;
     runs.value = r;
   } catch (e) {

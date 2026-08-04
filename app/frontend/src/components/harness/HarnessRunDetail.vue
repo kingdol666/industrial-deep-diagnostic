@@ -1,9 +1,9 @@
 <template>
   <div class="omp-detail" v-if="run">
-    <!-- ── Tabs ── -->
+    <!-- ── Tabs (capability-driven: only what this engine supports) ── -->
     <div class="omp-detail-tabs">
       <button
-        v-for="t in tabs"
+        v-for="t in visibleTabs"
         :key="t.key"
         class="omp-tab"
         :class="{ active: activeTab === t.key }"
@@ -13,7 +13,9 @@
       </button>
     </div>
 
-    <!-- ══ Overview ══ -->
+    <div v-if="detailError" class="omp-error">{{ detailError }}</div>
+
+    <!-- ══ Overview (always available) ══ -->
     <div v-if="activeTab === 'overview'" class="omp-panel">
       <div class="omp-grid2">
         <div class="omp-card">
@@ -57,7 +59,7 @@
     <!-- ══ Events ══ -->
     <div v-if="activeTab === 'events'" class="omp-panel">
       <div class="omp-card">
-        <div class="omp-card-title">执行证明 · .pipeline_events.jsonl（{{ run.events.length }} 条）</div>
+        <div class="omp-card-title">执行证明 · 事件日志（{{ run.events.length }} 条）</div>
         <div v-if="!run.events.length" class="omp-muted">无事件记录。</div>
         <div v-else class="omp-events">
           <div v-for="(ev, i) in run.events" :key="i" class="omp-event" :class="`ev-${ev.type}`">
@@ -70,57 +72,66 @@
       </div>
     </div>
 
-    <!-- ══ Reports ══ -->
+    <!-- ══ Reports (requires 'report' capability) ══ -->
     <div v-if="activeTab === 'reports'" class="omp-panel">
-      <div class="omp-report-tools">
-        <button
-          v-for="r in ['report', 'optimizer', 'preflight']"
-          :key="r"
-          class="btn btn-sm"
-          :class="{ active: activeReport === r }"
-          @click="openReport(r)"
-        >
-          {{ { report: 'report.md', optimizer: 'optimizer.md', preflight: 'optimizer_preflight.md' }[r] }}
-        </button>
+      <div v-if="supports('report')">
+        <div class="omp-report-tools">
+          <button
+            v-for="r in reportKinds"
+            :key="r"
+            class="btn btn-sm"
+            :class="{ active: activeReport === r }"
+            @click="openReport(r)"
+          >
+            {{ { report: 'report.md', optimizer: 'optimizer.md', preflight: 'optimizer_preflight.md' }[r] }}
+          </button>
+        </div>
+        <div v-if="reportText" class="omp-markdown" v-html="renderedReport" />
+        <div v-else class="omp-muted">选择上方文档查看内容。</div>
       </div>
-      <div v-if="reportText" class="omp-markdown" v-html="renderedReport" />
-      <div v-else class="omp-muted">选择上方文档查看内容。</div>
+      <div v-else class="omp-muted">该引擎不支持报告读取（capability: report）。</div>
     </div>
 
-    <!-- ══ HTML ══ -->
+    <!-- ══ HTML (requires 'html' capability) ══ -->
     <div v-if="activeTab === 'html'" class="omp-panel">
-      <div class="omp-report-tools">
-        <button class="btn btn-sm" :class="{ active: htmlMode === 'baseline' }" @click="htmlMode = 'baseline'">基线 HTML</button>
-        <button class="btn btn-sm" :class="{ active: htmlMode === 'enhanced' }" @click="htmlMode = 'enhanced'">增强 HTML</button>
+      <div v-if="supports('html')">
+        <div class="omp-report-tools">
+          <button class="btn btn-sm" :class="{ active: htmlMode === 'baseline' }" @click="htmlMode = 'baseline'">基线 HTML</button>
+          <button class="btn btn-sm" :class="{ active: htmlMode === 'enhanced' }" @click="htmlMode = 'enhanced'">增强 HTML</button>
+        </div>
+        <iframe
+          v-if="htmlSrc"
+          :src="htmlSrc"
+          class="omp-iframe"
+          sandbox="allow-scripts allow-same-origin"
+          :title="`${harnessName} HTML 报告`"
+        />
+        <div v-else class="omp-muted">该运行没有可用的 HTML 产物。</div>
       </div>
-      <iframe
-        v-if="htmlSrc"
-        :src="htmlSrc"
-        class="omp-iframe"
-        sandbox="allow-scripts allow-same-origin"
-        title="OMP HTML 报告"
-      />
-      <div v-else class="omp-muted">该运行没有可用的 HTML 产物。</div>
+      <div v-else class="omp-muted">该引擎不支持 HTML 预览（capability: html）。</div>
     </div>
 
-    <!-- ══ Enhancement artifacts ══ -->
+    <!-- ══ Enhancement (requires 'enhancement' capability) ══ -->
     <div v-if="activeTab === 'enhancement'" class="omp-panel">
-      <div class="omp-enh-grid">
-        <button
-          v-for="a in enhArtifacts"
-          :key="a.kind"
-          class="omp-enh-card"
-          :class="{ active: activeEnh === a.kind }"
-          @click="openEnh(a.kind)"
-        >
-          <span class="omp-enh-name">{{ a.label }}</span>
-          <span class="omp-enh-file">{{ a.file }}</span>
-        </button>
+      <div v-if="supports('enhancement')">
+        <div class="omp-enh-grid">
+          <button
+            v-for="a in enhArtifacts"
+            :key="a.kind"
+            class="omp-enh-card"
+            :class="{ active: activeEnh === a.kind }"
+            @click="openEnh(a.kind)"
+          >
+            <span class="omp-enh-name">{{ a.label }}</span>
+            <span class="omp-enh-file">{{ a.file }}</span>
+          </button>
+        </div>
+        <div v-if="enhContent" class="omp-enh-content">
+          <pre v-if="isJsonView">{{ JSON.stringify(enhContent, null, 2).slice(0, 8000) }}</pre>
+          <div v-else class="omp-markdown" v-html="renderedEnh" />
+        </div>
       </div>
-      <div v-if="enhContent" class="omp-enh-content">
-        <pre v-if="isJsonView">{{ JSON.stringify(enhContent, null, 2).slice(0, 8000) }}</pre>
-        <div v-else class="omp-markdown" v-html="renderedEnh" />
-      </div>
+      <div v-else class="omp-muted">该引擎不支持增强产物读取（capability: enhancement）。</div>
     </div>
   </div>
   <div v-else class="empty-state"><div class="spinner" /> 加载运行详情…</div>
@@ -133,12 +144,14 @@ import { renderMarkdown } from '../../utils/markdown.js';
 
 const props = defineProps({
   name: { type: String, required: true },
-  harnessId: { type: String, default: 'omp' },
-  harnessName: { type: String, default: 'OMP Engine' },
+  harnessId: { type: String, required: true },
+  harnessName: { type: String, default: 'Engine' },
+  capabilities: { type: Array, default: () => [] },
 });
 
 const run = ref(null);
 const summary = ref(null);
+const detailError = ref('');
 const activeTab = ref('overview');
 const activeReport = ref('report');
 const reportText = ref('');
@@ -147,13 +160,18 @@ const htmlSrc = ref('');
 const activeEnh = ref('deep');
 const enhContent = ref(null);
 
-const tabs = [
+const reportKinds = ['report', 'optimizer', 'preflight'];
+
+const allTabs = [
   { key: 'overview', label: '概览' },
   { key: 'events', label: '执行证明' },
-  { key: 'reports', label: '报告' },
-  { key: 'html', label: 'HTML 预览' },
-  { key: 'enhancement', label: '增强产物' },
+  { key: 'reports', label: '报告', cap: 'report' },
+  { key: 'html', label: 'HTML 预览', cap: 'html' },
+  { key: 'enhancement', label: '增强产物', cap: 'enhancement' },
 ];
+
+/** Capability-driven tab filtering — engines expose only what they implement. */
+const visibleTabs = computed(() => allTabs.filter((t) => !t.cap || props.capabilities.includes(t.cap)));
 
 const enhArtifacts = [
   { kind: 'coverage', label: 'E1 覆盖率', file: 'analysis_coverage.json' },
@@ -167,10 +185,11 @@ const enhArtifacts = [
   { kind: 'status', label: 'E8 状态', file: 'enhancement_status.json' },
 ];
 
-const isJsonView = computed(() => {
-  const k = activeEnh.value;
-  return k !== 'markdown';
-});
+function supports(cap) {
+  return props.capabilities.includes(cap);
+}
+
+const isJsonView = computed(() => activeEnh.value !== 'markdown');
 
 const enhancementDone = computed(() => {
   if (!run.value?.enhancement?.artifacts) return 0;
@@ -196,33 +215,56 @@ function formatTime(iso) {
 
 async function openReport(kind) {
   activeReport.value = kind;
-  const art = await api.harnessArtifact(props.harnessId, props.name, kind);
-  reportText.value = art?.content || '';
+  detailError.value = '';
+  try {
+    const art = await api.harnessArtifact(props.harnessId, props.name, kind);
+    reportText.value = art?.content || '';
+  } catch (e) {
+    reportText.value = '';
+    detailError.value = `读取报告失败：${e.message}`;
+  }
 }
 
 async function openEnh(kind) {
   activeEnh.value = kind;
-  const art = await api.harnessEnhancement(props.harnessId, props.name, kind);
-  enhContent.value = art?.content ?? null;
+  detailError.value = '';
+  try {
+    const art = await api.harnessEnhancement(props.harnessId, props.name, kind);
+    enhContent.value = art?.content ?? null;
+  } catch (e) {
+    enhContent.value = null;
+    detailError.value = `读取增强产物失败：${e.message}`;
+  }
 }
 
 async function loadHtml() {
-  const base = api.harnessHtmlUrl(props.harnessId, props.name, htmlMode.value);
-  htmlSrc.value = base;
+  htmlSrc.value = '';
+  detailError.value = '';
+  try {
+    htmlSrc.value = api.harnessHtmlUrl(props.harnessId, props.name, htmlMode.value);
+  } catch (e) {
+    detailError.value = `HTML 加载失败：${e.message}`;
+  }
 }
 
 watch(htmlMode, loadHtml);
 
 async function load() {
-  run.value = await api.harnessRun(props.harnessId, props.name);
+  detailError.value = '';
+  try {
+    run.value = await api.harnessRun(props.harnessId, props.name);
+  } catch (e) {
+    detailError.value = `加载运行失败：${e.message}`;
+    return;
+  }
   try {
     summary.value = await api.harnessSummary(props.harnessId, props.name);
   } catch {
     summary.value = null;
   }
-  await openReport(activeReport.value);
-  await openEnh(activeEnh.value);
-  await loadHtml();
+  if (supports('report')) await openReport(activeReport.value);
+  if (supports('enhancement')) await openEnh(activeEnh.value);
+  if (supports('html')) await loadHtml();
 }
 
 watch(() => props.name, load);
