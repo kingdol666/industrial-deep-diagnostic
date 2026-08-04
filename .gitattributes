@@ -1,0 +1,33 @@
+# Force LF line endings for shell scripts — CRLF breaks bash on Linux/macOS
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Python/JS/TS/markdown: normalize to LF in the repo (no autocrlf surprises)
+*.py text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.vue text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.html text eol=lf
+*.tmpl text eol=lf
+
+# Binary / never normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.db binary
+*.sqlite binary
+*.drawio binary
+
+# Vendored / generated — keep as-is
+package-lock.json -text

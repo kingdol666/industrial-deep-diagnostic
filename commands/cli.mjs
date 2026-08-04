@@ -37,10 +37,16 @@ function parseFlags(rawFlags) {
 // ─── Service Manager Proxy (handles target resolution) ──────
 async function sm(command, flags) {
   return new Promise((resolve, reject) => {
-    const { targets } = parseFlags(flags);
+    const { targets, detach } = parseFlags(flags);
     if (targets.length === 0) { resolve(); return; }
-    
-    const child = spawn(NODE, [join(__dirname, 'service-manager.mjs'), command, ...targets], {
+
+    // Pass --detach through — parseFlags consumed it, but service-manager
+    // needs it to decide background vs foreground (lost before → services
+    // were started foreground, then killed by the 30s timeout path).
+    const smArgs = [join(__dirname, 'service-manager.mjs'), command, ...targets];
+    if (detach) smArgs.push('--detach');
+
+    const child = spawn(NODE, smArgs, {
       cwd: PROJECT_ROOT,
       stdio: 'inherit',
       shell: IS_WIN,

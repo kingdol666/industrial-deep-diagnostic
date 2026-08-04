@@ -52,8 +52,11 @@ const SERVICES = {
     port: 5180,
     color: '\x1b[35m',  // magenta
     dir: join(PROJECT_ROOT, 'app', 'frontend'),
-    startCmd: 'npx',
-    startArgs: ['vite', '--port', '5180'],
+    // Run vite directly through the Node binary (no shell/npx indirection) so
+    // the spawned PID is the real server process on every platform — npx on
+    // Windows spawns cmd.exe shims whose PID dies with the console.
+    startCmd: 'node',
+    startArgs: [join(PROJECT_ROOT, 'app', 'frontend', 'node_modules', 'vite', 'bin', 'vite.js'), '--port', '5180'],
     env: { FRONTEND_PORT: '5180' },
     healthPath: '/',
     pidFile: join(RUNTIME_DIR, 'frontend.pid'),
@@ -186,32 +189,36 @@ async function startService(key, { detach = false } = {}) {
   // Resolve command
   const cmd = resolveCommand(svc);
 
-  // Spawn
+  // Spawn — direct binary, no shell, so child.pid is the REAL server process
+  // on Windows/Linux/macOS alike (shell:true would hand back the cmd shim PID).
   const env = { ...process.env, ...svc.env };
   const child = spawn(cmd, svc.startArgs, {
     cwd: svc.dir,
     env,
     stdio: detach ? 'ignore' : 'inherit',
     detached: detach,
-    shell: IS_WIN,
+    shell: false,
   });
 
   writePid(svc.pidFile, child.pid);
 
   if (detach) child.unref();
 
-  // Wait for port to become active (longer timeout for RAG = heavy deps)
-  const maxWait = key === 'rag' ? 600 : 30; // RAG may need to download torch etc.
+  // Wait for the service to answer HTTP (health probe is the reliable
+  // cross-platform signal — raw port probes misfire on IPv6 dual-stack
+  // listeners that accept 127.0.0.1 binds while the service is running).
+  const maxWait = key === 'rag' ? 600 : 60;
   let healthy = false;
   for (let i = 0; i < maxWait; i++) {
     await new Promise(r => setTimeout(r, 1000));
-    if (!(await checkPort(svc.port))) {
+    const h = await checkHealth(svc.port, svc.healthPath);
+    if (h !== 'not_reachable') {
       healthy = true;
       break;
     }
     // Report progress for long waits
     if (i > 0 && i % 30 === 0) {
-      console.log(`  ${svc.color}[${svc.name}]${'\x1b[0m'} Still waiting for port ${svc.port}... (${i}s)`);
+      console.log(`  ${svc.color}[${svc.name}]${'\x1b[0m'} Still waiting for ${svc.healthPath} on port ${svc.port}... (${i}s)`);
     }
   }
 
@@ -283,17 +290,15 @@ async function getStatus(key) {
   const svc = SERVICES[key];
   const pid = readPid(svc.pidFile);
   const alive = pid ? isProcessAlive(pid) : false;
-  const portFree = await checkPort(svc.port);
-  const running = !portFree; // port in use = running
-  const health = running ? await checkHealth(svc.port, svc.healthPath) : 'offline';
+  // HTTP health probe decides running state (port probes misfire on
+  // dual-stack listeners); fall back to PID liveness for 'starting'.
+  const health = await checkHealth(svc.port, svc.healthPath);
+  const running = health !== 'not_reachable';
 
   let status = 'stopped';
   if (running) status = 'running';
   else if (alive) status = 'starting';
-  
   else status = 'stopped';
-
-  if (status === 'orphan') removePid(svc.pidFile);
 
   return {
     service: key,
