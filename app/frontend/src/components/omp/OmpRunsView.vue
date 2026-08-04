@@ -3,10 +3,10 @@
     <!-- ── Header ── -->
     <div class="omp-header">
       <div class="omp-header-copy">
-        <div class="omp-header-kicker">OMP Harness Bridge</div>
-        <h2 class="omp-header-title">OMP 原生运行 · 只读浏览</h2>
+        <div class="omp-header-kicker">Harness Bridge · {{ harnessName }}</div>
+        <h2 class="omp-header-title">{{ harnessName }} 原生运行 · 只读浏览</h2>
         <p class="omp-header-sub">
-          通过 OMP RPC 桥接读取 <code>workspace/diagnostic-runs/</code> 中由 OMP 代理管线产出的原生分析结果——基线产物、增强深挖、事件执行证明。
+          通过 Harness 接口读取 <code>{{ runsDirLabel }}</code> 中由 {{ harnessName }} 产出的原生分析结果——基线产物、增强深挖、事件执行证明。
         </p>
       </div>
       <div class="omp-header-meta">
@@ -15,7 +15,7 @@
         </button>
         <span class="omp-engine-pill" :class="{ off: !health.available }">
           <span class="omp-engine-dot" />
-          {{ health.available ? `OMP 引擎在线 · ${health.run_count} 个运行` : 'OMP 工作区不可用' }}
+          {{ health.available ? `${harnessName} 在线 · ${health.run_count ?? health.meta?.run_count ?? 0} 个运行` : `${harnessName} 不可用` }}
         </span>
       </div>
     </div>
@@ -64,7 +64,7 @@
 
         <!-- ── Detail panel ── -->
         <div v-if="selected === run.name" class="omp-run-detail" @click.stop>
-          <OmpRunDetail :name="run.name" />
+          <OmpRunDetail :name="run.name" :harness-id="harnessId" :harness-name="harnessName" />
         </div>
       </div>
     </div>
@@ -76,11 +76,20 @@ import { ref, computed, onMounted } from 'vue';
 import { api } from '../../api/index.js';
 import OmpRunDetail from './OmpRunDetail.vue';
 
+const props = defineProps({
+  harnessId: { type: String, default: 'omp' },
+  harnessName: { type: String, default: 'OMP Engine' },
+});
+
 const runs = ref([]);
 const loading = ref(false);
 const error = ref('');
 const selected = ref(null);
 const health = ref({ available: false, run_count: 0 });
+const runsDirLabel = computed(() => {
+  const dir = health.value.meta?.runs_dir || '';
+  return dir.includes('diagnostic-runs') ? 'workspace/diagnostic-runs/' : (dir || '运行目录');
+});
 
 const completedCount = computed(() => runs.value.filter((r) => r.verdict === 'ENDORSED').length);
 const enhancedCount = computed(() => runs.value.filter((r) => r.enhancement_status).length);
@@ -123,11 +132,11 @@ async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const [h, r] = await Promise.all([api.ompHealth(), api.listOmpRuns()]);
+    const [h, r] = await Promise.all([api.harnessHealth(props.harnessId), api.harnessRuns(props.harnessId)]);
     health.value = h;
     runs.value = r;
   } catch (e) {
-    error.value = `OMP 桥接失败：${e.message}`;
+    error.value = `${props.harnessName} 桥接失败：${e.message}`;
   } finally {
     loading.value = false;
   }

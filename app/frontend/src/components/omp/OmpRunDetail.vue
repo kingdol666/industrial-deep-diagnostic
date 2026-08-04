@@ -131,7 +131,11 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { api } from '../../api/index.js';
 import { renderMarkdown } from '../../utils/markdown.js';
 
-const props = defineProps({ name: { type: String, required: true } });
+const props = defineProps({
+  name: { type: String, required: true },
+  harnessId: { type: String, default: 'omp' },
+  harnessName: { type: String, default: 'OMP Engine' },
+});
 
 const run = ref(null);
 const summary = ref(null);
@@ -192,28 +196,27 @@ function formatTime(iso) {
 
 async function openReport(kind) {
   activeReport.value = kind;
-  const art = await api.getOmpArtifact(props.name, kind);
+  const art = await api.harnessArtifact(props.harnessId, props.name, kind);
   reportText.value = art?.content || '';
 }
 
 async function openEnh(kind) {
   activeEnh.value = kind;
-  const art = await api.getOmpEnhancement(props.name, kind);
+  const art = await api.harnessEnhancement(props.harnessId, props.name, kind);
   enhContent.value = art?.content ?? null;
 }
 
 async function loadHtml() {
-  const base = htmlMode.value === 'enhanced' ? api.ompEnhHtmlUrl(props.name) : api.ompHtmlUrl(props.name);
-  // Verify availability via HEAD-less probe: just set src; iframe shows 404 page gracefully
+  const base = api.harnessHtmlUrl(props.harnessId, props.name, htmlMode.value);
   htmlSrc.value = base;
 }
 
 watch(htmlMode, loadHtml);
 
 async function load() {
-  run.value = await api.getOmpRun(props.name);
+  run.value = await api.harnessRun(props.harnessId, props.name);
   try {
-    summary.value = await api.getOmpSummary(props.name);
+    summary.value = await api.harnessSummary(props.harnessId, props.name);
   } catch {
     summary.value = null;
   }

@@ -37,29 +37,18 @@
       <div class="app-sidebar-footer">
         <div class="app-harness" role="group" aria-label="Engine harness">
           <button
+            v-for="h in harnessList"
+            :key="h.id"
             type="button"
             class="app-harness-btn"
-            :class="{ active: harness === 'claude' }"
-            title="使用内置 Claude Code 引擎发起实时诊断"
-            @click="selectHarness('claude')"
+            :class="{ active: harness === h.id }"
+            :title="h.description"
+            @click="selectHarness(h.id)"
           >
-            <span class="app-harness-icon">⌘</span>
+            <span class="app-harness-icon">{{ h.id === 'claude' ? '⌘' : '⛭' }}</span>
             <span class="app-harness-copy">
-              <span class="app-harness-label">Claude Code</span>
-              <span class="app-harness-sub">SDK 实时引擎</span>
-            </span>
-          </button>
-          <button
-            type="button"
-            class="app-harness-btn"
-            :class="{ active: harness === 'omp' }"
-            title="浏览 OMP 代理管线原生产出的运行结果"
-            @click="selectHarness('omp')"
-          >
-            <span class="app-harness-icon">⛭</span>
-            <span class="app-harness-copy">
-              <span class="app-harness-label">OMP Engine</span>
-              <span class="app-harness-sub">RPC 原生桥接</span>
+              <span class="app-harness-label">{{ h.name }}</span>
+              <span class="app-harness-sub">{{ h.kind === 'live' ? 'SDK 实时引擎' : 'RPC 原生桥接' }}</span>
             </span>
           </button>
         </div>
@@ -130,7 +119,7 @@
         </div>
 
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
-          <OmpRunsView />
+          <OmpRunsView :harness-id="harness" :harness-name="activeHarnessMeta.name" />
         </div>
       </main>
     </section>
@@ -146,13 +135,15 @@ import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 import OmpRunsView from './components/omp/OmpRunsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
+import { api } from './api/index.js';
 
 const currentTab = ref('data');
 const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
-const harness = ref('claude'); // 'claude' | 'omp' — user-selectable engine
+const harness = ref('claude'); // default engine id; list refreshed from registry
+const harnessList = ref([]); // [{id, name, kind, description, capabilities}] from /api/harness
 
 const { state: rtState, init, teardown } = useDiagnosisRealtimeStore();
 
@@ -179,17 +170,24 @@ const tabs = [
   { key: 'history', label: 'History', icon: '◌', kicker: 'Execution Ledger', title: '历史运行记录', description: '按运行状态回看诊断历史、日志与会话，并继续失败或暂停的任务。', caption: 'Track historical runs and outcomes' },
 ];
 
-// OMP harness tab — visible only when the OMP engine is selected
-const ompTab = {
-  key: 'omp', label: 'OMP Runs', icon: '⛭', kicker: 'OMP Harness Bridge',
-  title: 'OMP 原生运行浏览',
-  description: '通过 OMP RPC 桥读取原生管线产物：运行状态、执行证明、报告与增强深挖结果。',
-  caption: 'Browse native OMP pipeline outputs',
-};
-
-const visibleTabs = computed(() =>
-  harness.value === 'omp' ? [...tabs.slice(0, 5), ompTab] : tabs
+// OMP harness tab — visible only when the selected engine supports runs
+const activeHarnessMeta = computed(() =>
+  harnessList.value.find((h) => h.id === harness.value) || { id: harness.value, name: harness.value }
 );
+
+const ompTab = computed(() => ({
+  key: 'omp', label: `${activeHarnessMeta.value.name} Runs`, icon: '⛭', kicker: 'Harness Bridge',
+  title: `${activeHarnessMeta.value.name} 原生运行浏览`,
+  description: `通过 Harness 接口读取 ${activeHarnessMeta.value.name} 原生管线产物：运行状态、执行证明、报告与增强深挖结果。`,
+  caption: `Browse ${activeHarnessMeta.value.name} pipeline outputs`,
+}));
+
+const visibleTabs = computed(() => {
+  if (harness.value !== 'claude') {
+    return [...tabs.slice(0, 5), ompTab.value];
+  }
+  return tabs;
+});
 
 const activeTabMeta = computed(() => visibleTabs.value.find(tab => tab.key === currentTab.value) || visibleTabs.value[0]);
 
@@ -211,11 +209,23 @@ function loadSidebarState() {
   try {
     sidebarCollapsed.value = localStorage.getItem('idd.sidebarCollapsed') === '1';
     const savedHarness = localStorage.getItem('idd.harness');
-    if (savedHarness === 'omp' || savedHarness === 'claude') {
-      harness.value = savedHarness;
-      if (savedHarness === 'omp' && currentTab.value !== 'omp') currentTab.value = 'omp';
-    }
+    if (savedHarness) harness.value = savedHarness;
+    if (harness.value !== 'claude' && currentTab.value !== 'omp') currentTab.value = 'omp';
   } catch {}
+}
+
+async function refreshHarnesses() {
+  try {
+    const list = await api.listHarnesses();
+    harnessList.value = list;
+    // Validate persisted selection against the registry
+    if (!list.some((h) => h.id === harness.value)) {
+      harness.value = list[0]?.id || 'claude';
+      try { localStorage.setItem('idd.harness', harness.value); } catch {}
+    }
+  } catch {
+    harnessList.value = [];
+  }
 }
 
 function selectHarness(next) {
@@ -223,7 +233,7 @@ function selectHarness(next) {
   try {
     localStorage.setItem('idd.harness', next);
   } catch {}
-  if (next === 'omp') {
+  if (next !== 'claude') {
     currentTab.value = 'omp';
   } else if (currentTab.value === 'omp') {
     currentTab.value = 'data';
@@ -279,6 +289,7 @@ function onOpenReport(reportPath) {
 
 onMounted(() => {
   loadSidebarState();
+  refreshHarnesses();
   init();
 });
 onUnmounted(() => teardown());

@@ -8,6 +8,7 @@ import historyRoutes from './routes/history.routes.mjs';
 import analysisRoutes from './routes/analysis.routes.mjs';
 import chatRoutes from './routes/chat.routes.mjs';
 import ompRoutes from './routes/omp.routes.mjs';
+import harnessRoutes from './routes/harness.routes.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
@@ -59,6 +60,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/omp', ompRoutes);
+app.use('/api/harness', harnessRoutes);
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {

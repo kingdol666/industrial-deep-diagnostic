@@ -100,7 +100,20 @@ export const api = {
   // SSE stream
   streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
 
-  // ── OMP harness bridge (native OMP pipeline outputs) ──
+  // ── Harness abstraction (engine-agnostic; Claude/OMP/Codex... all implement) ──
+  listHarnesses: () => request('/harness'),
+  harnessHealth: (id) => request(`/harness/${id}/health`),
+  harnessRuns: (id) => request(`/harness/${id}/runs`),
+  harnessRun: (id, name) => request(`/harness/${id}/runs/${encodeURIComponent(name)}`),
+  harnessSummary: (id, name) => request(`/harness/${id}/runs/${encodeURIComponent(name)}/summary`),
+  harnessArtifact: (id, name, kind) =>
+    request(`/harness/${id}/runs/${encodeURIComponent(name)}/artifact/${kind}`),
+  harnessEnhancement: (id, name, kind) =>
+    request(`/harness/${id}/runs/${encodeURIComponent(name)}/enhancement/${kind}`),
+  harnessHtmlUrl: (id, name, mode = 'baseline') =>
+    `${BASE}/harness/${id}/runs/${encodeURIComponent(name)}/html?mode=${mode}`,
+
+  // ── OMP harness bridge (legacy alias, kept for compatibility) ──
   ompHealth: () => request('/omp/health'),
   listOmpRuns: () => request('/omp/runs'),
   getOmpRun: (name) => request(`/omp/runs/${encodeURIComponent(name)}`),
