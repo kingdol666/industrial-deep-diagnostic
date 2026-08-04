@@ -2,7 +2,7 @@
   <div class="report-viewer">
     <div class="toolbar">
       <div class="toolbar-left">
-        <a class="breadcrumb-root" @click="goToList">报告</a>
+        <a class="breadcrumb-root" @click="goToList">{{ $t('report.breadcrumbRoot') }}</a>
         <template v-if="selectedRun">
           <span class="breadcrumb-sep">/</span>
           <a class="breadcrumb-path breadcrumb-active" v-if="reportContent || optimizerContent" @click="goToFiles">
@@ -11,31 +11,31 @@
           <span class="breadcrumb-current" v-else>{{ formatRunName(selectedRun) }}</span>
           <template v-if="reportContent || optimizerContent">
             <span class="breadcrumb-sep">/</span>
-            <span class="breadcrumb-current">{{ activeTab === 'optimizer' ? '审计' : '报告' }}</span>
+            <span class="breadcrumb-current">{{ activeTab === 'optimizer' ? $t('report.audit') : $t('report.report') }}</span>
           </template>
         </template>
       </div>
       <div class="toolbar-right">
         <button class="btn" @click="loadRuns" :disabled="loadingRuns">
-          {{ loadingRuns ? '加载中...' : '刷新' }}
+          {{ loadingRuns ? $t('common.loadingEllipsis') : $t('report.refresh') }}
         </button>
         <button
           v-if="selectedRun && reportContent"
           class="btn btn-primary"
           @click="downloadReport"
-        >下载报告</button>
+        >{{ $t('report.downloadReport') }}</button>
       </div>
     </div>
 
     <!-- Run selector -->
     <div class="card" v-if="!selectedRun">
-      <div class="card-title">诊断报告与产物</div>
+      <div class="card-title">{{ $t('report.title') }}</div>
       <div v-if="loadingRuns" class="empty-state">
         <div class="spinner" style="width:24px;height:24px;border-width:2px;"></div>
-        <p>正在加载运行记录...</p>
+        <p>{{ $t('report.loadingRuns') }}</p>
       </div>
       <div v-else-if="runs.length === 0" class="empty-state">
-        <p>暂未发现诊断产物。请先在诊断页发起一次诊断。</p>
+        <p>{{ $t('report.empty') }}</p>
       </div>
       <div v-else class="run-list">
         <div
@@ -53,18 +53,18 @@
             <div class="run-meta">
               <span>{{ formatDate(run.created_at || run.created) }}</span>
               <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
-              <span v-if="run.hasReport" class="badge badge-green">报告</span>
-              <span v-if="run.hasOptimizer" class="badge badge-purple">审计</span>
-              <span v-if="!run.hasReport && !run.hasOptimizer" class="badge badge-yellow">无产物</span>
+              <span v-if="run.hasReport" class="badge badge-green">{{ $t('report.hasReport') }}</span>
+              <span v-if="run.hasOptimizer" class="badge badge-purple">{{ $t('report.hasOptimizer') }}</span>
+              <span v-if="!run.hasReport && !run.hasOptimizer" class="badge badge-yellow">{{ $t('report.noArtifact') }}</span>
             </div>
           </div>
           <div class="run-actions">
-            <button class="btn btn-sm" @click.stop="openRun(run)">查看</button>
+            <button class="btn btn-sm" @click.stop="openRun(run)">{{ $t('common.view') }}</button>
             <button
               v-if="run.hasReport"
               class="btn btn-sm btn-primary"
               @click.stop="openRun(run)"
-            >阅读报告</button>
+            >{{ $t('report.readReport') }}</button>
           </div>
         </div>
       </div>
@@ -73,17 +73,17 @@
     <!-- Run workspace files -->
     <div class="card" v-if="selectedRun && !reportContent">
       <div class="card-title">
-        <span>运行工作区文件</span>
+        <span>{{ $t('report.workspaceFiles') }}</span>
         <button class="btn btn-sm btn-primary" @click="loadReport(selectedRun)" :disabled="loadingReport" style="margin-left:auto">
-          {{ loadingReport ? '加载中...' : '加载报告' }}
+          {{ loadingReport ? $t('common.loadingEllipsis') : $t('report.loadReport') }}
         </button>
       </div>
       <div v-if="loadingFiles" class="empty-state">
         <div class="spinner"></div>
-        <p>正在加载文件...</p>
+        <p>{{ $t('report.loadingFiles') }}</p>
       </div>
       <div v-else-if="runFiles.length === 0" class="empty-state">
-        <p>当前运行目录下没有可展示文件。</p>
+        <p>{{ $t('report.noFiles') }}</p>
       </div>
       <div v-else class="file-tree">
         <div v-for="file in runFiles" :key="file.path" class="file-tree-item">
@@ -97,25 +97,25 @@
     <!-- Report content -->
     <div class="card report-card" v-if="reportContent || optimizerContent">
       <div class="card-title">
-        <span>{{ activeTab === 'optimizer' ? '审计与优化建议' : '诊断报告' }}</span>
+        <span>{{ activeTab === 'optimizer' ? $t('report.auditTitle') : $t('report.reportTitle') }}</span>
         <div style="margin-left:auto;display:flex;gap:6px;">
-          <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? '查看渲染结果' : '查看原文' }}</button>
-          <button class="btn btn-sm" @click="copyReport">复制</button>
+          <button class="btn btn-sm" :class="{ 'btn-active': viewRaw }" @click="viewRaw = !viewRaw">{{ viewRaw ? $t('report.viewRendered') : $t('report.viewRaw') }}</button>
+          <button class="btn btn-sm" @click="copyReport">{{ $t('common.copy') }}</button>
           <button
             class="btn btn-sm"
             @click="showChartPanel = !showChartPanel"
-          >{{ showChartPanel ? '📊 收起图表' : '📊 查看图表' }}</button>
+          >{{ showChartPanel ? $t('report.chartCollapse') : $t('report.chartToggle') }}</button>
         </div>
       </div>
       <div class="report-tabs" v-if="hasOptimizer">
         <button
           :class="['tab-btn', { active: activeTab === 'report' }]"
           @click="activeTab = 'report'"
-        >报告</button>
+        >{{ $t('report.report') }}</button>
         <button
           :class="['tab-btn', { active: activeTab === 'optimizer' }]"
           @click="activeTab = 'optimizer'"
-        >审计</button>
+        >{{ $t('report.audit') }}</button>
       </div>
       <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
       <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
@@ -126,12 +126,12 @@
     <!-- Chart panel -->
     <div v-if="showChartPanel && chartData" class="card" style="margin-top:12px">
       <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
-        <span>📊 交互图表</span>
-        <button class="btn btn-sm" @click="showChartPanel = false">关闭</button>
+        <span>{{ $t('report.interactiveChart') }}</span>
+        <button class="btn btn-sm" @click="showChartPanel = false">{{ $t('common.close') }}</button>
       </div>
       <div class="chart-grid">
         <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
-          <div class="card-title" style="font-size:13px">相关性矩阵</div>
+          <div class="card-title" style="font-size:13px">{{ $t('report.correlationMatrix') }}</div>
           <HeatmapChart
             :data="chartData.heatmap.data"
             :x-labels="chartData.heatmap.xLabels"
@@ -142,7 +142,7 @@
         <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
           <GaugeChart
             :value="chartData.confidence.overall"
-            title="诊断置信度"
+            :title="$t('report.diagnosisConfidence')"
             unit="%"
           />
         </div>
@@ -153,6 +153,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -163,6 +164,8 @@ import {
   getRunWorkspaceName,
   normalizeRunSummary,
 } from '../../utils/diagnosisRun.js';
+
+const { t } = useI18n();
 
 const props = defineProps({
   autoRunId: { type: String, default: null },
@@ -222,7 +225,7 @@ watch(() => props.targetRunName, (name) => {
         fetchChartData(`workspace/diagnostic-runs/${requestedName}`);
       }
     }).catch(() => {
-      if (selectedRun.value === requestedName) reportContent.value = '# 未找到报告\n\n报告文件加载失败。';
+      if (selectedRun.value === requestedName) reportContent.value = t('report.notFoundReport');
     }).finally(() => {
       if (selectedRun.value === requestedName) loadingReport.value = false;
     });
@@ -325,7 +328,7 @@ async function loadReport(runName) {
     if (selectedRun.value === requestedName) reportContent.value = data.content;
   } catch (err) {
     console.error('Failed to load report:', err);
-    if (selectedRun.value === requestedName) reportContent.value = '# 未找到报告\n\n报告文件加载失败。';
+    if (selectedRun.value === requestedName) reportContent.value = t('report.notFoundReport');
   } finally {
     if (selectedRun.value === requestedName) loadingReport.value = false;
   }

@@ -2,7 +2,7 @@
   <div :class="['diagnosis-view', { 'diagnosis-view-run': viewingRun }]">
     <!-- Back button (when viewing a specific run) -->
     <div class="dv-nav" v-if="viewingRun">
-      <button class="btn btn-sm" @click="goBack">← 返回任务列表</button>
+      <button class="btn btn-sm" @click="goBack">{{ $t('diagnosis.backToTaskList') }}</button>
       <span class="dv-nav-title" v-if="runName">{{ runName }}</span>
       <span class="dv-nav-id" v-if="runId">#{{ runId }}</span>
     </div>
@@ -19,13 +19,13 @@
           <div class="ds-title">
               <template v-if="analysisTarget.mode === 'file'">{{ analysisTarget.file.name }}</template>
               <template v-else-if="analysisTarget.mode === 'folder'">{{ analysisTarget.name }}</template>
-              <template v-else>已选择 {{ analysisTarget.files.length }} 个文件</template>
+              <template v-else>{{ $t('diagnosis.selectedFiles', { count: analysisTarget.files.length }) }}</template>
             </div>
             <div class="ds-sub" v-if="analysisTarget.mode === 'file'">
               {{ formatSize(analysisTarget.file.size) }} · {{ analysisTarget.file.path }}
             </div>
             <div class="ds-sub" v-else-if="analysisTarget.mode === 'folder'">
-              {{ analysisTarget.csvCount || 0 }} 个数据文件
+              {{ $t('diagnosis.dataFiles', { count: analysisTarget.csvCount || 0 }) }}
             </div>
           </div>
         </div>
@@ -34,13 +34,13 @@
       <!-- Control Panel -->
       <div class="ctrl-bar" v-if="analysisTarget && !started">
         <div class="ctrl-form">
-          <input v-model="sceneName" placeholder="场景名称（可选）" class="ctrl-input" />
-          <textarea v-model="userQuestion" placeholder="请输入你希望系统诊断的问题" rows="3" class="ctrl-textarea"></textarea>
+          <input v-model="sceneName" :placeholder="$t('diagnosis.sceneNamePlaceholder')" class="ctrl-input" />
+          <textarea v-model="userQuestion" :placeholder="$t('diagnosis.questionPlaceholder')" rows="3" class="ctrl-textarea"></textarea>
           <div class="ctrl-row">
             <div class="turns-control">
-              <label class="turns-label">最大轮次</label>
+              <label class="turns-label">{{ $t('diagnosis.maxTurns') }}</label>
               <select v-model.number="maxTurns" class="ctrl-input ctrl-select">
-                <option :value="0">不限</option>
+                <option :value="0">{{ $t('diagnosis.unlimited') }}</option>
                 <option :value="50">50</option>
                 <option :value="100">100</option>
                 <option :value="200">200</option>
@@ -49,14 +49,14 @@
               </select>
             </div>
             <div class="turns-control">
-              <label class="turns-label">报告语言</label>
+              <label class="turns-label">{{ $t('diagnosis.reportLanguage') }}</label>
               <select v-model="reportLanguage" class="ctrl-input ctrl-select">
-                <option value="zh">中文</option>
-                <option value="en">English</option>
+                <option value="zh">{{ $t('diagnosis.chinese') }}</option>
+                <option value="en">{{ $t('diagnosis.english') }}</option>
               </select>
             </div>
             <button class="ctrl-btn ctrl-btn-go" @click="start" :disabled="!analysisTarget">
-              开始诊断
+              {{ $t('diagnosis.startDiagnosis') }}
             </button>
           </div>
         </div>
@@ -82,12 +82,12 @@
               <span class="status-run-id">#{{ runId }}</span>
             </div>
             <div class="status-metrics">
-              <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">轮次</span></div>
-              <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">工具</span></div>
-              <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">消息</span></div>
+              <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricTurns') }}</span></div>
+              <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricTools') }}</span></div>
+              <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricMessages') }}</span></div>
               <div class="smetric sm-time"><span class="sm-val">{{ elapsed }}</span></div>
             </div>
-            <button v-if="canStop" class="stop-btn" @click="stop">停止</button>
+            <button v-if="canStop" class="stop-btn" @click="stop">{{ $t('common.stop') }}</button>
           </div>
 
           <!-- Phase Indicator -->
@@ -117,17 +117,17 @@
               <div class="rb-info">
                 <div class="rb-title">{{ resultBannerTitle }}</div>
                 <div class="rb-meta">
-                  <span v-if="score != null" class="rb-score">评分: {{ score }}/100</span>
+                  <span v-if="score != null" class="rb-score">{{ $t('diagnosis.score') }}: {{ score }}/100</span>
                   <span v-if="verdict" class="rb-verdict">{{ verdict }}</span>
                   <span v-if="errorMsg" class="rb-error">{{ errorMsg }}</span>
                 </div>
                 <div class="rb-actions">
-                  <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">查看完整报告</button>
-                  <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">下载 Markdown</button>
-                  <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">继续诊断</button>
+                  <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">{{ $t('diagnosis.viewFullReport') }}</button>
+                  <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">{{ $t('diagnosis.downloadMarkdown') }}</button>
+                  <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">{{ $t('diagnosis.continueDiagnosis') }}</button>
                 </div>
                 <div class="rb-hint" v-if="failed">
-                  可在下方输入补充指令，并基于本次上下文继续诊断。
+                  {{ $t('diagnosis.failedHint') }}
                 </div>
               </div>
             </div>
@@ -135,21 +135,21 @@
             <!-- Chart Dashboard -->
             <div v-if="completed" class="card chart-dashboard">
               <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
-                <span>📊 诊断数据可视化</span>
+                <span>{{ $t('diagnosis.chartTitle') }}</span>
                 <div style="display:flex;gap:6px;">
-                  <button v-if="chartData === null" class="btn btn-sm" @click="loadCharts" :disabled="chartLoading">加载图表</button>
+                  <button v-if="chartData === null" class="btn btn-sm" @click="loadCharts" :disabled="chartLoading">{{ $t('diagnosis.loadCharts') }}</button>
                   <button v-if="chartData" class="btn btn-sm" @click="toggleCharts">
-                    {{ showCharts ? '收起' : '展开' }}
+                    {{ showCharts ? $t('common.collapse') : $t('common.expand') }}
                   </button>
                 </div>
               </div>
-              <div v-if="chartLoading" style="padding:12px;text-align:center;color:var(--text2)">加载图表数据中...</div>
+              <div v-if="chartLoading" style="padding:12px;text-align:center;color:var(--text2)">{{ $t('diagnosis.loadingCharts') }}</div>
               <div v-if="chartData && !chartData.heatmap && !chartData.confidence && !chartData.runSummary" style="padding:12px;text-align:center;color:var(--text2)">
-                该诊断运行没有可用的图表数据。
+                {{ $t('diagnosis.noChartData') }}
               </div>
               <div v-if="showCharts && chartData" class="chart-grid">
                 <div v-if="chartData.heatmap" class="chart-cell chart-cell-full">
-                  <div class="card-title" style="font-size:13px">变量相关性矩阵</div>
+                  <div class="card-title" style="font-size:13px">{{ $t('diagnosis.correlationMatrix') }}</div>
                   <HeatmapChart
                     :data="chartData.heatmap.data"
                     :x-labels="chartData.heatmap.xLabels"
@@ -160,7 +160,7 @@
                 <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
                   <GaugeChart
                     :value="chartData.confidence.overall"
-                    title="诊断置信度"
+                    :title="$t('diagnosis.diagnosisConfidence')"
                     unit="%"
                   />
                 </div>
@@ -199,14 +199,14 @@
         <div class="hitl-dialog">
           <div class="hitl-header">
             <span class="hitl-icon">⚠️</span>
-            <span class="hitl-title">检测到高风险命令</span>
+            <span class="hitl-title">{{ $t('diagnosis.highRiskCommand') }}</span>
           </div>
-          <div class="hitl-risk" :class="'risk-' + (hitlRisk || 'high')">{{ hitlRisk || 'HIGH' }} 风险</div>
+          <div class="hitl-risk" :class="'risk-' + (hitlRisk || 'high')">{{ hitlRiskLabel }}</div>
           <div class="hitl-desc">{{ hitlDesc }}</div>
           <pre class="hitl-command">{{ hitlCommand }}</pre>
           <div class="hitl-actions">
-            <button class="hitl-btn hitl-deny" @click="respondHITL(false)">拒绝并停止</button>
-            <button class="hitl-btn hitl-approve" @click="respondHITL(true)">批准并继续</button>
+            <button class="hitl-btn hitl-deny" @click="respondHITL(false)">{{ $t('diagnosis.denyStop') }}</button>
+            <button class="hitl-btn hitl-approve" @click="respondHITL(true)">{{ $t('diagnosis.approveContinue') }}</button>
           </div>
         </div>
       </div>
@@ -216,6 +216,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
 import { useDiagnosisRealtimeStore } from '../../stores/diagnosisRealtimeStore.js';
 import { getEffectiveRunStatus, getRunStatusLabel } from '../../utils/diagnosisRun.js';
@@ -224,6 +225,8 @@ import MessageStream from './MessageStream.vue';
 import AnswerBar from './AnswerBar.vue';
 import ChatInput from './ChatInput.vue';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
+
+const { t } = useI18n();
 
 const props = defineProps({
   analysisTarget: { type: Object, default: null },
@@ -291,6 +294,11 @@ const hitlPending = computed(() => !!hitlRequest.value);
 const hitlId = computed(() => hitlRequest.value?.hitlId || null);
 const hitlCommand = computed(() => hitlRequest.value?.command || '');
 const hitlRisk = computed(() => hitlRequest.value?.riskLevel || '');
+const hitlRiskLabel = computed(() => {
+  const risk = hitlRisk.value || 'HIGH';
+  const key = { HIGH: 'riskHigh', MEDIUM: 'riskMedium', SERIOUS: 'riskSerious' }[risk];
+  return key ? t(`diagnosis.${key}`) : risk;
+});
 const hitlDesc = computed(() => hitlRequest.value?.riskDesc || '');
 
 const turnCount = computed(() => {
@@ -320,24 +328,24 @@ const statusDotClass = computed(() => {
 });
 
 const statusLabel = computed(() => {
-  if (isHydrating.value) return '同步中';
-  if (isRunning.value) return connected.value ? '诊断中' : '重连中';
-  if (isAwaitingInput.value) return '等待回答';
-  if (liveStatus.value === 'pending') return '待执行';
+  if (isHydrating.value) return t('diagnosis.syncing');
+  if (isRunning.value) return connected.value ? t('diagnosis.diagnosing') : t('diagnosis.reconnecting');
+  if (isAwaitingInput.value) return t('diagnosis.waitingAnswer');
+  if (liveStatus.value === 'pending') return t('diagnosis.pending');
   return getRunStatusLabel(liveStatus.value);
 });
 
 const phaseIcon = computed(() => {
   const p = currentPhase.value;
-  if (p.includes('等待用户') || p.includes('等待回答')) return '❓';
-  if (p.includes('读取') || p.includes('数据')) return '📂';
-  if (p.includes('执行') || p.includes('分析')) return '⚙️';
-  if (p.includes('生成') || p.includes('输出')) return '📝';
-  if (p.includes('规划')) return '📋';
-  if (p.includes('诊断') || p.includes('技能')) return '🔬';
-  if (p.includes('探索')) return '🔍';
-  if (p.includes('检索') || p.includes('网页')) return '🌐';
-  if (p.includes('图') || p.includes('可视化')) return '📊';
+  if (p.includes('等待用户') || p.includes('等待回答') || /wait/i.test(p)) return '❓';
+  if (p.includes('读取') || p.includes('数据') || /read|data/i.test(p)) return '📂';
+  if (p.includes('执行') || p.includes('分析') || /exec|analy/i.test(p)) return '⚙️';
+  if (p.includes('生成') || p.includes('输出') || /generat|output/i.test(p)) return '📝';
+  if (p.includes('规划') || /plan/i.test(p)) return '📋';
+  if (p.includes('诊断') || p.includes('技能') || /diagnos|skill/i.test(p)) return '🔬';
+  if (p.includes('探索') || /explor/i.test(p)) return '🔍';
+  if (p.includes('检索') || p.includes('网页') || /search|web/i.test(p)) return '🌐';
+  if (p.includes('图') || p.includes('可视化') || /visual|chart/i.test(p)) return '📊';
   return '⚙️';
 });
 
@@ -349,9 +357,9 @@ const verdictClass = computed(() => {
 });
 
 const resultBannerTitle = computed(() => {
-  if (completed.value) return '诊断已完成';
-  if (liveStatus.value === 'stopped') return '诊断已停止';
-  return '诊断失败';
+  if (completed.value) return t('diagnosis.diagnosisComplete');
+  if (liveStatus.value === 'stopped') return t('diagnosis.diagnosisStopped');
+  return t('diagnosis.diagnosisFailed');
 });
 
 const resultBannerIcon = computed(() => {
@@ -361,20 +369,20 @@ const resultBannerIcon = computed(() => {
 });
 
 function detectPhase(toolName) {
-  const phases = {
-    Read: '读取文件',
-    Bash: '执行分析命令',
-    Write: '生成输出',
-    Edit: '修订报告',
-    TodoWrite: '规划步骤',
-    Task: '创建任务',
-    Skill: '调用诊断技能',
-    Glob: '探索目录',
-    WebSearch: '检索参考资料',
-    WebFetch: '抓取参考资料',
-    NotebookEdit: '生成可视化',
+  const map = {
+    Read: t('messageStream.phase_read'),
+    Bash: t('messageStream.phase_bash'),
+    Write: t('messageStream.phase_write'),
+    Edit: t('messageStream.phase_edit'),
+    TodoWrite: t('messageStream.phase_todo'),
+    Task: t('messageStream.phase_task'),
+    Skill: t('messageStream.phase_skill'),
+    Glob: t('messageStream.phase_glob'),
+    WebSearch: t('messageStream.phase_webSearch'),
+    WebFetch: t('messageStream.phase_webFetch'),
+    NotebookEdit: t('messageStream.phase_notebook'),
   };
-  return phases[toolName] || (toolName ? `执行工具：${toolName}` : '');
+  return map[toolName] || (toolName ? t('messageStream.phase_executeTool', { name: toolName }) : '');
 }
 
 function startElapsed() {
@@ -432,7 +440,7 @@ async function start() {
   started.value = true;
   chartData.value = null;
   showCharts.value = true;
-  currentPhase.value = 'Initializing...';
+  currentPhase.value = t('diagnosis.initializing');
   progressPct.value = 5;
 
   const target = props.analysisTarget;
@@ -625,13 +633,13 @@ watch(events, (nextEvents) => {
     currentPhase.value = phaseFromTool;
     progressPct.value = Math.min(90, progressPct.value + 3);
   } else if (isAwaitingInput.value) {
-    currentPhase.value = '等待用户回答...';
+    currentPhase.value = t('diagnosis.waitingUserAnswer');
     progressPct.value = Math.max(progressPct.value, 75);
   } else if (isHydrating.value) {
-    currentPhase.value = '同步实时状态中...';
+    currentPhase.value = t('diagnosis.syncingState');
     progressPct.value = Math.max(progressPct.value, 15);
   } else if (isRunning.value) {
-    currentPhase.value = '等待下一步分析执行...';
+    currentPhase.value = t('diagnosis.waitingNext');
     progressPct.value = Math.min(88, Math.max(progressPct.value, 20));
   }
 
@@ -642,7 +650,7 @@ watch(events, (nextEvents) => {
     && isAwaitingInput.value;
 
   if (questionStillPending) {
-    currentPhase.value = '等待用户回答...';
+    currentPhase.value = t('diagnosis.waitingUserAnswer');
     progressPct.value = Math.max(progressPct.value, 75);
   }
 }, { deep: true, immediate: true });

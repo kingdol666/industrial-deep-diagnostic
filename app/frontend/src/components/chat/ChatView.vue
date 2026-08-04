@@ -4,29 +4,29 @@
       <div class="chat-sidebar-top">
         <div class="chat-sidebar-brand-row">
           <div class="chat-sidebar-brand">
-            <div class="chat-sidebar-kicker">Workspace Chat</div>
-            <div class="chat-sidebar-heading">Conversations</div>
+            <div class="chat-sidebar-kicker">{{ $t('chat.sidebarKicker') }}</div>
+            <div class="chat-sidebar-heading">{{ $t('chat.sidebarHeading') }}</div>
           </div>
           <button
             class="chat-sidebar-toggle"
             type="button"
-            :title="chatSidebarCollapsed ? '展开会话栏' : '折叠会话栏'"
+            :title="chatSidebarCollapsed ? $t('chat.expandSidebar') : $t('chat.collapseSidebar')"
             @click="toggleChatSidebar"
           >
             {{ chatSidebarCollapsed ? '›' : '‹' }}
           </button>
         </div>
-        <button class="btn btn-primary chat-sidebar-new" :title="chatSidebarCollapsed ? '新建 Chat' : ''" @click="createChatPanel" :disabled="loading">
+        <button class="btn btn-primary chat-sidebar-new" :title="chatSidebarCollapsed ? $t('chat.newChat') : ''" @click="createChatPanel" :disabled="loading">
           <span class="chat-sidebar-new-icon">+</span>
-          <span class="chat-sidebar-new-label">New Chat</span>
+          <span class="chat-sidebar-new-label">{{ $t('chat.newChatLabel') }}</span>
         </button>
       </div>
 
       <div class="chat-sidebar-groups">
         <div class="chat-sidebar-group">
           <div class="chat-sidebar-header">
-            <h3>Chat</h3>
-            <button class="btn btn-sm" @click="refreshChats">Refresh</button>
+            <h3>{{ $t('chat.chatGroup') }}</h3>
+            <button class="btn btn-sm" @click="refreshChats">{{ $t('common.refresh') }}</button>
           </div>
           <div class="chat-sidebar-list">
             <button
@@ -38,7 +38,7 @@
               @click="selectPanel(panel.localId)"
             >
               <div class="chat-session-head">
-                <span class="chat-session-type">Chat</span>
+                <span class="chat-session-type">{{ $t('chat.chatGroup') }}</span>
                 <div v-if="panel.chatId" class="chat-session-actions" @click.stop>
                   <button class="session-icon-btn" @click="renameChatPanel(panel)">✎</button>
                   <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
@@ -49,18 +49,18 @@
               <div class="chat-session-meta">
                 <span>{{ shortId(panel.sessionId || panel.chatId || panel.localId) }}</span>
                 <span :class="['badge', panel.status === 'active' ? 'badge-green' : 'badge-blue']">
-                  {{ panel.status === 'active' ? 'active' : 'saved' }}
+                  {{ panel.status === 'active' ? $t('chat.active') : $t('chat.saved') }}
                 </span>
               </div>
             </button>
-            <div v-if="chatPanels.length === 0" class="chat-sidebar-empty">No chat sessions yet.</div>
+            <div v-if="chatPanels.length === 0" class="chat-sidebar-empty">{{ $t('chat.noChats') }}</div>
           </div>
         </div>
 
         <div class="chat-sidebar-group diagnose-group">
           <div class="chat-sidebar-header">
-            <h3>Diagnose Sessions</h3>
-            <button class="btn btn-sm" @click="refreshDiagnosePanels">Refresh</button>
+            <h3>{{ $t('chat.diagnoseGroup') }}</h3>
+            <button class="btn btn-sm" @click="refreshDiagnosePanels">{{ $t('common.refresh') }}</button>
           </div>
           <div class="chat-sidebar-list">
             <button
@@ -72,7 +72,7 @@
               @click="selectPanel(panel.localId)"
             >
               <div class="chat-session-head">
-                <span class="chat-session-type diagnose-type">Diagnose</span>
+                <span class="chat-session-type diagnose-type">{{ $t('chat.diagnoseGroup') }}</span>
               </div>
               <div class="chat-session-avatar diagnose-avatar">{{ sessionAvatar(panel.title, 'D') }}</div>
               <div class="chat-session-name">{{ panel.title }}</div>
@@ -81,36 +81,36 @@
                 <span :class="['badge', runBadgeClass(panel.status)]">{{ runStatusLabel(panel.status) }}</span>
               </div>
             </button>
-            <div v-if="diagnosePanels.length === 0" class="chat-sidebar-empty">No diagnosis sessions found.</div>
+            <div v-if="diagnosePanels.length === 0" class="chat-sidebar-empty">{{ $t('chat.noDiagnoses') }}</div>
           </div>
         </div>
       </div>
 
       <div class="chat-sidebar-footer">
         <span class="chat-connection-dot" :class="wsConnected ? 'online' : 'offline'"></span>
-        <span>{{ wsConnected ? 'WebSocket connected' : 'WebSocket disconnected' }}</span>
+        <span>{{ wsConnected ? $t('chat.wsConnected') : $t('chat.wsDisconnected') }}</span>
       </div>
     </aside>
 
     <section class="chat-main">
       <div class="chat-main-header">
         <button class="chat-model-btn" type="button">
-          {{ activePanel?.kind === 'diagnose' ? 'Diagnose' : 'Chat' }}
+          {{ activePanel?.kind === 'diagnose' ? $t('chat.diagnoseGroup') : $t('chat.chatGroup') }}
           <span class="chat-model-chevron">⌄</span>
         </button>
         <div class="chat-header-actions">
           <span class="chat-status" :class="wsConnected ? 'chat-status-online' : 'chat-status-offline'">
-            {{ wsConnected ? (activePanelRunning ? 'Streaming' : 'Ready') : 'Disconnected' }}
+            {{ wsConnected ? (activePanelRunning ? $t('ws.streaming') : $t('ws.ready')) : $t('ws.disconnected') }}
           </span>
-          <button class="btn btn-danger btn-sm" @click="stopActivePanel" :disabled="!canStop">Stop</button>
+          <button class="btn btn-danger btn-sm" @click="stopActivePanel" :disabled="!canStop">{{ $t('common.stop') }}</button>
         </div>
       </div>
 
       <div class="chat-stage" v-if="!activePanel">
         <div class="chat-empty">
           <div class="chat-empty-icon">💬</div>
-          <h3>Start a conversation</h3>
-          <p>Chat and diagnose sessions both stream through the same WebSocket transport.</p>
+          <h3>{{ $t('chat.startConversation') }}</h3>
+          <p>{{ $t('chat.startConversationDesc') }}</p>
         </div>
       </div>
 
@@ -118,26 +118,26 @@
         <div class="chat-session-title">
           <div class="chat-main-badges">
             <span class="chat-main-kind" :class="activePanel.kind === 'diagnose' ? 'kind-diagnose' : 'kind-chat'">
-              {{ activePanel.kind === 'diagnose' ? 'Diagnose Session' : 'Chat Session' }}
+              {{ activePanel.kind === 'diagnose' ? $t('chat.diagnoseSession') : $t('chat.chatSession') }}
             </span>
-            <span class="chat-session-chip" v-if="activePanel?.sessionId">session: {{ shortId(activePanel.sessionId) }}</span>
-            <span class="chat-session-chip" v-if="activePanel?.chatId">chat: {{ shortId(activePanel.chatId) }}</span>
-            <span class="chat-session-chip" v-if="activePanel?.runId">run: {{ shortId(activePanel.runId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.sessionId">{{ $t('chat.sessionChip') }}: {{ shortId(activePanel.sessionId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.chatId">{{ $t('chat.chatChip') }}: {{ shortId(activePanel.chatId) }}</span>
+            <span class="chat-session-chip" v-if="activePanel?.runId">{{ $t('chat.runChip') }}: {{ shortId(activePanel.runId) }}</span>
           </div>
           <h2 class="chat-title">{{ activePanelTitle }}</h2>
         </div>
 
         <div class="chat-thread-shell">
           <div class="chat-stage-banner" v-if="activePanel.kind === 'diagnose'">
-            <div class="chat-stage-banner-title">Diagnose Session</div>
-            <div class="chat-stage-banner-text">这里展示诊断会话的真实对话内容，并可在同一处继续补充说明。</div>
+            <div class="chat-stage-banner-title">{{ $t('chat.diagnoseBannerTitle') }}</div>
+            <div class="chat-stage-banner-text">{{ $t('chat.diagnoseBannerText') }}</div>
           </div>
 
           <div class="chat-thread">
             <div class="chat-welcome" v-if="activePanel.events.length === 0">
               <div class="chat-empty-icon">✨</div>
-              <h3>{{ activePanel.kind === 'diagnose' ? '诊断会话已连接' : 'What would you like to ask?' }}</h3>
-              <p>{{ activePanel.kind === 'diagnose' ? '诊断对话会在这里持续同步。' : 'This mode supports the same tools and semantic rendering as diagnosis.' }}</p>
+              <h3>{{ activePanel.kind === 'diagnose' ? $t('chat.welcomeDiagnose') : $t('chat.welcomeChat') }}</h3>
+              <p>{{ activePanel.kind === 'diagnose' ? $t('chat.welcomeDiagnoseDesc') : $t('chat.welcomeChatDesc') }}</p>
             </div>
 
             <MessageStream
@@ -156,7 +156,7 @@
               <textarea
                 v-model="draft"
                 class="chat-input"
-                :placeholder="activePanel.kind === 'diagnose' ? '补充诊断说明，或基于当前 session 继续对话…' : '输入消息，回车发送，Shift+Enter 换行'"
+                :placeholder="activePanel.kind === 'diagnose' ? $t('chat.placeholderDiagnose') : $t('chat.placeholderChat')"
                 :disabled="loading"
                 @keydown.enter.exact.prevent="submitMessage"
                 @keydown.enter.shift.exact.stop
@@ -188,17 +188,17 @@
                       </select>
                     </label>
                   </template>
-                  <span v-else class="chat-inline-note">消息只发送到已选诊断 session，不会重新启动诊断流程</span>
+                  <span v-else class="chat-inline-note">{{ $t('chat.msgToDiagnoseOnly') }}</span>
                 </div>
                 <button class="btn btn-primary chat-send-btn" @click="submitMessage" :disabled="!draft.trim() || loading">
-                  {{ activePanel.kind === 'diagnose' ? '发送到会话' : (activePanel.chatId ? 'Send' : 'Start Chat') }}
+                  {{ activePanel.kind === 'diagnose' ? $t('chat.sendToSession') : (activePanel.chatId ? $t('chat.send') : $t('chat.startChatBtn')) }}
                 </button>
               </div>
             </div>
             <div v-if="activePanel.kind === 'chat' && (runtimeConfigSaving || directoryPickerLoading || runtimeConfigError || isChatCwdLocked(activePanel))" class="chat-runtime-feedback">
-              <span v-if="runtimeConfigSaving">正在保存聊天运行配置…</span>
-              <span v-else-if="directoryPickerLoading">正在打开文件管理器选择工作目录…</span>
-              <span v-else-if="!runtimeConfigError && isChatCwdLocked(activePanel)">当前 Chat 已绑定 Claude session。要切换工作目录，请新建 Chat。</span>
+              <span v-if="runtimeConfigSaving">{{ $t('chat.savingConfig') }}</span>
+              <span v-else-if="directoryPickerLoading">{{ $t('chat.openingPicker') }}</span>
+              <span v-else-if="!runtimeConfigError && isChatCwdLocked(activePanel)">{{ $t('chat.cwdLockedHint') }}</span>
               <span v-else>{{ runtimeConfigError }}</span>
             </div>
           </div>
@@ -210,9 +210,12 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api, wsUrl } from '../../api/index.js';
 import MessageStream from '../diagnosis/MessageStream.vue';
 import { getRunStatusBadgeClass, getRunStatusLabel, normalizeRunSummary } from '../../utils/diagnosisRun.js';
+
+const { t } = useI18n();
 
 const panels = ref([]);
 const activePanelId = ref(null);
@@ -229,14 +232,14 @@ const chatCatalog = ref([]);
 const runCatalog = ref([]);
 
 const DEFAULT_CHAT_CWD = '/Volumes/laxer/codes/skills/industrial-deep-diagnostic';
-const permissionModeOptions = [
-  { value: 'default', label: 'default · 标准询问', shortLabel: '标准询问' },
-  { value: 'acceptEdits', label: 'acceptEdits · 自动接受编辑', shortLabel: '自动编辑' },
-  { value: 'dontAsk', label: 'dontAsk · 不询问直接拒绝', shortLabel: '不询问' },
-  { value: 'auto', label: 'auto · 自动判定', shortLabel: '自动判定' },
-  { value: 'plan', label: 'plan · 仅规划不执行', shortLabel: '仅规划' },
-  { value: 'bypassPermissions', label: 'bypassPermissions · 完全访问', shortLabel: '完全访问' },
-];
+const permissionModeOptions = computed(() => [
+  { value: 'default', shortLabel: t('chat.permission_default') },
+  { value: 'acceptEdits', shortLabel: t('chat.permission_acceptEdits') },
+  { value: 'dontAsk', shortLabel: t('chat.permission_dontAsk') },
+  { value: 'auto', shortLabel: t('chat.permission_auto') },
+  { value: 'plan', shortLabel: t('chat.permission_plan') },
+  { value: 'bypassPermissions', shortLabel: t('chat.permission_bypassPermissions') },
+]);
 
 let socket = null;
 let reconnectTimer = null;
@@ -248,7 +251,7 @@ const pendingChatRequests = new Map();
 const activePanel = computed(() => panels.value.find(item => item.localId === activePanelId.value) || null);
 const chatPanels = computed(() => panels.value.filter(item => item.kind === 'chat'));
 const diagnosePanels = computed(() => panels.value.filter(item => item.kind === 'diagnose'));
-const activePanelTitle = computed(() => activePanel.value?.title || 'New Chat');
+const activePanelTitle = computed(() => activePanel.value?.title || t('chat.newChatLabel'));
 const activePanelRunning = computed(() => {
   const panel = activePanel.value;
   if (!panel) return false;
@@ -323,7 +326,7 @@ function createBasePanel(kind, title) {
 }
 
 function createChatPanel() {
-  const panel = createBasePanel('chat', 'New Chat');
+  const panel = createBasePanel('chat', t('chat.newChatLabel'));
   panels.value.unshift(panel);
   activePanelId.value = panel.localId;
   syncCurrentSession(panel);
@@ -363,8 +366,8 @@ function isChatCwdLocked(panel) {
 
 function chatCwdControlTitle(panel) {
   return isChatCwdLocked(panel)
-    ? '当前 Chat 已绑定 Claude session；如需切换工作目录，请新建 Chat。'
-    : '选择这个 Chat 的工作目录';
+    ? t('chat.cwdLockedTitle')
+    : t('chat.cwdPickTitle');
 }
 
 function displayChatCwd(panel) {
@@ -372,7 +375,7 @@ function displayChatCwd(panel) {
 }
 
 function shortPath(value) {
-  if (!value) return '未设置';
+  if (!value) return t('common.notSet');
   const str = String(value);
   if (str.length <= 42) return str;
   return `...${str.slice(-39)}`;
@@ -397,7 +400,7 @@ function findPanelForSession(session) {
 
 function buildDiagnoseTitle(run) {
   const normalized = normalizeRunSummary(run);
-  const scene = normalized?.scene_name || normalized?.name || normalized?.run_id || 'Diagnose Session';
+  const scene = normalized?.scene_name || normalized?.name || normalized?.run_id || t('chat.diagnoseDefaultTitle');
   return `${scene}`;
 }
 
@@ -550,7 +553,7 @@ function setDiagnoseSnapshot(panel, payload) {
   panel.sessionId = payload.run?.session_id || payload.run?.sessionId || panel.metadata.run?.session_id || panel.metadata.run?.sessionId || panel.sessionId;
   panel.originSessionId = panel.sessionId || panel.originSessionId;
   panel.currentSessionId = panel.sessionId || panel.currentSessionId;
-  if (!panel.title || panel.title === 'Diagnose Session') {
+  if (!panel.title || panel.title === t('chat.diagnoseDefaultTitle')) {
     panel.title = buildDiagnoseTitle(payload.run || panel.metadata.run);
   }
   panel.events = normalizeDiagnoseEvents(payload.events || []);
@@ -698,7 +701,7 @@ function handleWSMessage(message) {
       if (panel) {
         appendPanelEvent(panel, {
           type: 'error',
-          data: { error: message.data?.message || message.data?.error || 'WebSocket request failed' },
+          data: { error: message.data?.message || message.data?.error || t('chat.wsRequestFailed') },
         });
         if (panel.kind === 'chat') panel.status = 'failed';
         syncCurrentSessionIfActive(panel);
@@ -718,7 +721,7 @@ function mergeChatPanelsFromCatalog() {
       panel = panels.value.find(item => item.kind === 'chat' && item.sessionId === entry.sessionId);
     }
     if (!panel) {
-      panel = createBasePanel('chat', entry.title || `Chat ${shortId(entry.chatId)}`);
+      panel = createBasePanel('chat', entry.title || `${t('chat.chatGroup')} ${shortId(entry.chatId)}`);
       panels.value.unshift(panel);
     }
     panel.chatId = entry.chatId || panel.chatId;
@@ -782,7 +785,7 @@ async function persistChatConfig(panel, patch = {}) {
   } catch (err) {
     panel.permissionMode = previousPermissionMode;
     panel.cwd = previousCwd;
-    runtimeConfigError.value = err.message || '聊天运行配置保存失败';
+    runtimeConfigError.value = err.message || t('chat.configSaveFailed');
     syncCurrentSessionIfActive(panel);
     throw err;
   } finally {
@@ -802,7 +805,7 @@ async function pickDirectoryFromSystem() {
   const panel = activePanel.value;
   if (!panel || panel.kind !== 'chat') return;
   if (isChatCwdLocked(panel)) {
-    runtimeConfigError.value = '当前 Chat 已绑定 Claude session。要切换工作目录，请新建 Chat。';
+    runtimeConfigError.value = t('chat.cwdLockedHint');
     return;
   }
   runtimeConfigError.value = '';
@@ -819,7 +822,7 @@ async function pickDirectoryFromSystem() {
 
 async function renameChatPanel(panel) {
   if (!panel?.chatId) return;
-  const title = window.prompt('Rename session', panel.title || '');
+  const title = window.prompt(t('chat.renameTitle'), panel.title || '');
   if (!title || !title.trim()) return;
   const updated = await api.renameChatSession(panel.chatId, title.trim());
   panel.title = updated.title || title.trim();
@@ -828,7 +831,7 @@ async function renameChatPanel(panel) {
 
 async function removeChatPanel(panel) {
   if (!panel) return;
-  const ok = window.confirm(`Delete session "${panel.title}"? This will remove its history.`);
+  const ok = window.confirm(t('chat.deleteConfirm', { title: panel.title }));
   if (!ok) return;
   if (panel.chatId) {
     await api.deleteChatSession(panel.chatId);
@@ -934,7 +937,7 @@ async function submitMessage() {
         }
       }
       panel.status = 'active';
-      if (panel.title === 'New Chat') panel.title = text.slice(0, 28);
+      if (panel.title === t('chat.newChatLabel')) panel.title = text.slice(0, 28);
       syncCurrentSessionIfActive(panel);
     } else if (session.kind === 'diagnose' && session.runId) {
       const sent = sendWS({ type: 'run_chat', runId: session.runId, message: text });
@@ -955,7 +958,7 @@ async function submitMessage() {
     if (target) {
       appendPanelEvent(target, {
         type: 'error',
-        data: { error: err.message || 'Send failed' },
+        data: { error: err.message || t('chat.sendFailed') },
       });
     }
   } finally {

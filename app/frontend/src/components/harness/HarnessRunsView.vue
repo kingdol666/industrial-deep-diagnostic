@@ -3,20 +3,20 @@
     <!-- ── Header ── -->
     <div class="omp-header">
       <div class="omp-header-copy">
-        <div class="omp-header-kicker">Harness Bridge · {{ harnessName }}</div>
-        <h2 class="omp-header-title">{{ harnessName }} 原生运行 · 只读浏览</h2>
+        <div class="omp-header-kicker">{{ $t('harness.headerKicker') }} · {{ harnessName }}</div>
+        <h2 class="omp-header-title">{{ harnessName }}{{ $t('harness.headerTitle') }}</h2>
         <p class="omp-header-sub">
-          通过 Harness 接口读取 {{ harnessName }} 产出的原生分析结果——基线产物、增强深挖、事件执行证明。
-          <span v-if="runsDirLabel">目录：<code>{{ runsDirLabel }}</code></span>
+          {{ $t('harness.descPre') }} {{ harnessName }} {{ $t('harness.descMid') }}
+          <span v-if="runsDirLabel">{{ $t('harness.dirLabel') }}<code>{{ runsDirLabel }}</code></span>
         </p>
       </div>
       <div class="omp-header-meta">
         <button class="btn btn-sm" :disabled="loading" @click="load()">
-          {{ loading ? '扫描中…' : '⟳ 刷新' }}
+          {{ loading ? $t('harness.scanning') : $t('harness.refresh') }}
         </button>
         <span class="omp-engine-pill" :class="{ off: !health.available }">
           <span class="omp-engine-dot" />
-          {{ health.available ? `${harnessName} 在线 · ${runCountLabel} 个运行` : `${harnessName} 不可用` }}
+          {{ health.available ? `${harnessName} ${$t('harness.engineOnline')} · ${runCountLabel} ${$t('harness.engineRunsSuffix')}` : `${harnessName} ${$t('harness.engineUnavailable')}` }}
         </span>
       </div>
     </div>
@@ -29,25 +29,25 @@
         class="omp-cap"
         :class="{ disabled: !capabilityMap[c] }"
       >
-        {{ capLabels[c] || c }}
+        {{ capLabel(c) }}
       </span>
     </div>
 
     <!-- ── Stats row ── -->
     <div v-if="runs.length" class="omp-stats">
-      <div class="omp-stat"><span class="omp-stat-num">{{ runs.length }}</span><span class="omp-stat-label">总运行</span></div>
-      <div class="omp-stat"><span class="omp-stat-num">{{ completedCount }}</span><span class="omp-stat-label">已完成（ENDORSED）</span></div>
-      <div class="omp-stat"><span class="omp-stat-num">{{ enhancedCount }}</span><span class="omp-stat-label">增强完成</span></div>
-      <div class="omp-stat"><span class="omp-stat-num">{{ withHtmlCount }}</span><span class="omp-stat-label">HTML 报告</span></div>
+      <div class="omp-stat"><span class="omp-stat-num">{{ runs.length }}</span><span class="omp-stat-label">{{ $t('harness.statTotal') }}</span></div>
+      <div class="omp-stat"><span class="omp-stat-num">{{ completedCount }}</span><span class="omp-stat-label">{{ $t('harness.statCompleted') }}</span></div>
+      <div class="omp-stat"><span class="omp-stat-num">{{ enhancedCount }}</span><span class="omp-stat-label">{{ $t('harness.statEnhanced') }}</span></div>
+      <div class="omp-stat"><span class="omp-stat-num">{{ withHtmlCount }}</span><span class="omp-stat-label">{{ $t('harness.statHtml') }}</span></div>
     </div>
 
     <!-- ── Run list ── -->
-    <div v-if="loading" class="empty-state"><div class="spinner" /> 正在读取运行目录…</div>
+    <div v-if="loading" class="empty-state"><div class="spinner" /> {{ $t('harness.loadingRuns') }}</div>
 
     <div v-else-if="error" class="omp-error">{{ error }}</div>
 
     <div v-else-if="!runs.length" class="empty-state">
-      <p>该引擎暂无运行记录。</p>
+      <p>{{ $t('harness.noRuns') }}</p>
     </div>
 
     <div v-else class="omp-run-list">
@@ -68,8 +68,8 @@
           </div>
           <div class="omp-run-meta">
             <span>{{ formatTime(run.created) }}</span>
-            <span>· {{ run.artifact_count }} 产物</span>
-            <span>· {{ run.agents.length || 0 }} 代理</span>
+            <span>· {{ run.artifact_count }} {{ $t('harness.artifactCount') }}</span>
+            <span>· {{ run.agents.length || 0 }} {{ $t('harness.agentCount') }}</span>
           </div>
         </div>
         <div class="omp-run-title">{{ run.display_name }}</div>
@@ -91,8 +91,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
 import HarnessRunDetail from './HarnessRunDetail.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
   harnessId: { type: String, required: true },
@@ -106,9 +109,6 @@ const error = ref('');
 const selected = ref(null);
 const health = ref({ available: false, meta: {} });
 
-const capLabels = {
-  live: '实时诊断', runs: '运行浏览', report: '报告', html: 'HTML 预览', enhancement: '增强产物', chat: '会话',
-};
 const capabilityMap = computed(() =>
   Object.fromEntries(props.capabilities.map((c) => [c, true]))
 );
@@ -122,6 +122,12 @@ const completedCount = computed(() => runs.value.filter((r) => r.verdict === 'EN
 const enhancedCount = computed(() => runs.value.filter((r) => r.enhancement_status).length);
 const withHtmlCount = computed(() => runs.value.filter((r) => r.has_html).length);
 
+function capLabel(c) {
+  const keyMap = { live: 'cap_live', runs: 'cap_runs', report: 'cap_report', html: 'cap_html', enhancement: 'cap_enhancement', chat: 'cap_chat' };
+  const key = keyMap[c];
+  return key ? t(`harness.${key}`) : c;
+}
+
 function statusClass(run) {
   if (run.baseline_status === 'completed') return 'st-completed';
   if (run.baseline_status === 'report_ready') return 'st-report';
@@ -131,11 +137,16 @@ function statusClass(run) {
 }
 
 function statusText(run) {
-  const map = {
-    completed: '完成', report_ready: '报告就绪', diagnosed: '已诊断',
-    in_progress: '执行中', initialized: '已初始化', unknown: '未知',
+  const keyMap = {
+    completed: 'status_completed',
+    report_ready: 'status_report_ready',
+    diagnosed: 'status_diagnosed',
+    in_progress: 'status_in_progress',
+    initialized: 'status_initialized',
+    unknown: 'status_unknown',
   };
-  return map[run.baseline_status] || run.baseline_status;
+  const key = keyMap[run.baseline_status];
+  return key ? t(`harness.${key}`) : run.baseline_status;
 }
 
 function verdictClass(v) {
@@ -152,7 +163,8 @@ function enhClass(s) {
 function formatTime(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const locale = t('common.appName') === 'Industrial Deep Diagnostic' ? 'zh-CN' : 'en-US';
+  return d.toLocaleString(locale, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
 async function load() {
@@ -166,7 +178,7 @@ async function load() {
     health.value = h;
     runs.value = r;
   } catch (e) {
-    error.value = `${props.harnessName} 桥接失败：${e.message}`;
+    error.value = `${props.harnessName}${t('harness.bridgeFailed')}${e.message}`;
   } finally {
     loading.value = false;
   }

@@ -2,22 +2,22 @@
   <div class="task-list">
     <!-- New Task Button -->
     <div class="tl-toolbar">
-      <span class="tl-title">全部诊断任务</span>
-      <button class="btn btn-sm" @click="$emit('new-task')">+ 新建任务</button>
+      <span class="tl-title">{{ $t('taskList.title') }}</span>
+      <button class="btn btn-sm" @click="$emit('new-task')">{{ $t('taskList.newTask') }}</button>
     </div>
 
     <!-- Loading -->
     <div v-if="loading && runs.length === 0" class="empty-state">
       <div class="spinner" style="margin:0 auto 8px"></div>
-      <p>正在加载任务...</p>
+      <p>{{ $t('taskList.loadingTasks') }}</p>
     </div>
 
     <!-- Empty -->
     <div v-else-if="!loading && runs.length === 0" class="empty-state">
       <p style="font-size:28px;margin-bottom:12px;">🔬</p>
-      <p>当前还没有诊断任务</p>
+      <p>{{ $t('taskList.empty') }}</p>
       <p style="font-size:12px;color:var(--text2);margin-top:4px;">
-        请先在数据页选择文件，再发起新的诊断
+        {{ $t('taskList.emptyHint') }}
       </p>
     </div>
 
@@ -27,7 +27,7 @@
       <template v-if="runningRuns.length > 0">
         <div class="tl-group-label">
           <span class="status-dot dot-blue pulse" style="display:inline-block;width:6px;height:6px;margin-right:6px;"></span>
-          活跃任务 ({{ runningRuns.length }})
+          {{ $t('taskList.active') }} ({{ runningRuns.length }})
         </div>
         <div
           v-for="run in runningRuns" :key="run.run_id"
@@ -42,8 +42,8 @@
             <div class="run-id">#{{ run.run_id }}</div>
             <div class="run-meta">
               <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="getEffectiveRunStatus(run) === 'running'">诊断执行中...</span>
-              <span v-else-if="getEffectiveRunStatus(run) === 'awaiting_input'">等待你的回答...</span>
+              <span v-if="getEffectiveRunStatus(run) === 'running'">{{ $t('taskList.inProgress') }}</span>
+              <span v-else-if="getEffectiveRunStatus(run) === 'awaiting_input'">{{ $t('taskList.awaitingAnswer') }}</span>
             </div>
             <div class="run-question" v-if="run.user_question">{{ run.user_question.slice(0, 120) }}{{ run.user_question.length > 120 ? '...' : '' }}</div>
           </div>
@@ -54,7 +54,7 @@
       <!-- Past Tasks -->
       <template v-if="pastRuns.length > 0">
         <div class="tl-group-label">
-          历史任务 ({{ pastRuns.length }})
+          {{ $t('taskList.history') }} ({{ pastRuns.length }})
         </div>
         <div
           v-for="run in pastRuns" :key="run.run_id"
@@ -69,7 +69,7 @@
             <div class="run-id">#{{ run.run_id }}</div>
             <div class="run-meta">
               <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="run.score != null">评分: {{ run.score }}/100</span>
+              <span v-if="run.score != null">{{ $t('taskList.score') }}: {{ run.score }}/100</span>
               <span v-if="run.judge_verdict" :class="verdictColor(run.judge_verdict)">{{ run.judge_verdict }}</span>
               <span v-if="run.error_message" class="run-error-msg">{{ run.error_message.slice(0, 80) }}</span>
             </div>

@@ -4,13 +4,13 @@
     <div class="ab-header">
       <div class="ab-header-left">
         <span class="ab-icon">❓</span>
-        <span class="ab-title">需要你的输入</span>
+        <span class="ab-title">{{ $t('answerBar.needInput') }}</span>
         <span class="ab-count" v-if="totalQuestions > 1">
-          已回答 {{ answeredCount }}/{{ totalQuestions }}
+          {{ $t('answerBar.answered', { answered: answeredCount, total: totalQuestions }) }}
         </span>
       </div>
       <button class="ab-skip-all" @click="$emit('skip', currentQuestion.questionId)">
-        全部跳过
+        {{ $t('answerBar.skipAll') }}
       </button>
     </div>
 
@@ -27,7 +27,7 @@
             <span class="ab-q-chip">{{ q.header }}</span>
           </template>
           <span class="ab-q-text">{{ q.question }}</span>
-          <span class="ab-q-type" v-if="q.multiSelect">（可多选）</span>
+          <span class="ab-q-type" v-if="q.multiSelect">{{ $t('answerBar.multiSelectParen') }}</span>
         </div>
 
         <!-- Options grid -->
@@ -56,7 +56,7 @@
             </div>
           </div>
 
-          <!-- 自定义“其他”输入 -->
+          <!-- 自定义"其他"输入 -->
           <div class="ab-option-card ab-option-other" :class="{ selected: customAnswers[qi] }">
             <div class="ab-option-main">
               <div class="ab-option-radio">
@@ -64,11 +64,11 @@
                 <span v-else class="radio-dot other-dot">●</span>
               </div>
               <div class="ab-option-content">
-                <div class="ab-option-label other-label">其他</div>
+                <div class="ab-option-label other-label">{{ $t('answerBar.other') }}</div>
                 <input
                   v-model="customAnswers[qi]"
                   type="text"
-                  placeholder="输入你的自定义回答..."
+                  :placeholder="$t('answerBar.otherPlaceholder')"
                   class="ab-other-input"
                   @click.stop
                   @focus="focusOther(qi)"
@@ -98,7 +98,7 @@
     <div v-if="activePreview" class="ab-preview-panel">
       <div class="ab-preview-header">
         <span class="ab-preview-icon">👁</span>
-        <span class="ab-preview-title">预览 - {{ activePreviewLabel }}</span>
+        <span class="ab-preview-title">{{ $t('answerBar.previewTitle', { label: activePreviewLabel }) }}</span>
         <button class="ab-preview-close" @click="closePreview">×</button>
       </div>
       <div class="ab-preview-content" v-html="renderPreviewMd(activePreview)"></div>
@@ -108,19 +108,19 @@
     <div class="ab-actions">
       <div class="ab-actions-left">
         <span class="ab-hint" v-if="!hasAllAnswered && totalQuestions > 1">
-          你可以先回答全部问题再提交，也可以用下方消息框补充说明
+          {{ $t('answerBar.hint') }}
         </span>
       </div>
       <div class="ab-actions-right">
         <button class="ab-btn-skip" @click="skipCurrent">
-          跳过
+          {{ $t('answerBar.skip') }}
         </button>
         <button
           class="ab-btn-submit"
           :disabled="!hasAnyAnswer"
           @click="submitAnswers"
         >
-          提交并继续
+          {{ $t('answerBar.submitContinue') }}
         </button>
       </div>
     </div>
@@ -129,7 +129,10 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { renderMarkdown } from '../../utils/markdown.js';
+
+const { t } = useI18n();
 
 const props = defineProps({
   questionData: { type: Object, default: null },
@@ -295,8 +298,9 @@ function skipCurrent() {
     // Build placeholder answers so Claude can continue
     const placeholder = {};
     const questions = currentQuestion.value.questions || [];
+    const skippedLabel = t('answerBar.skipped');
     for (let qi = 0; qi < questions.length; qi++) {
-      placeholder[questions[qi].question] = '（已跳过）';
+      placeholder[questions[qi].question] = skippedLabel;
     }
     emit('answer', {
       questionId: currentQuestion.value.questionId,

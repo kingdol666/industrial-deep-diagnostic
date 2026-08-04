@@ -4,14 +4,14 @@
       <div class="app-brand">
         <div class="app-brand-mark">ID</div>
         <div class="app-brand-copy">
-          <div class="app-brand-kicker">Enterprise Workspace</div>
-          <div class="app-brand-title">Industrial Deep Diagnostic</div>
-          <div class="app-brand-subtitle">工业数据诊断与知识协同工作台</div>
+          <div class="app-brand-kicker">{{ $t('common.appKicker') }}</div>
+          <div class="app-brand-title">{{ $t('common.appName') }}</div>
+          <div class="app-brand-subtitle">{{ $t('common.appSubtitle') }}</div>
         </div>
         <button
           class="app-sidebar-toggle"
           type="button"
-          :title="sidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'"
+          :title="sidebarCollapsed ? $t('sidebar.expandSidebar') : $t('sidebar.collapseSidebar')"
           @click="toggleSidebar"
         >
           {{ sidebarCollapsed ? '›' : '‹' }}
@@ -48,7 +48,7 @@
             <span class="app-harness-icon">{{ h.id === 'claude' ? '⌘' : '⛭' }}</span>
             <span class="app-harness-copy">
               <span class="app-harness-label">{{ h.name }}</span>
-              <span class="app-harness-sub">{{ h.kind === 'live' ? 'SDK 实时引擎' : 'RPC 原生桥接' }}</span>
+              <span class="app-harness-sub">{{ h.kind === 'live' ? $t('sidebar.sdkEngine') : $t('sidebar.rpcBridge') }}</span>
             </span>
           </button>
         </div>
@@ -57,13 +57,21 @@
           <span>{{ wsStatusText }}</span>
         </div>
         <div class="app-sidebar-note">
-          <span class="app-sidebar-note-label">Theme</span>
-          <span class="app-sidebar-note-value">Follow System</span>
+          <span class="app-sidebar-note-label">{{ $t('common.theme') }}</span>
+          <span class="app-sidebar-note-value">{{ $t('common.themeValue') }}</span>
         </div>
         <div class="app-sidebar-note" v-if="analysisTargetLabel">
-          <span class="app-sidebar-note-label">Selection</span>
+          <span class="app-sidebar-note-label">{{ $t('common.selection') }}</span>
           <span class="app-sidebar-note-value">{{ analysisTargetLabel }}</span>
         </div>
+        <button
+          class="app-lang-toggle"
+          type="button"
+          :title="$t('lang.switchTo')"
+          @click="onToggleLocale"
+        >
+          🌐 {{ $t('lang.switch') }}
+        </button>
       </div>
     </aside>
 
@@ -132,6 +140,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import DataBrowser from './components/data/DataBrowser.vue';
 import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
 import ChatView from './components/chat/ChatView.vue';
@@ -140,6 +149,9 @@ import HistoryList from './components/history/HistoryList.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 import { api } from './api/index.js';
+import { toggleLocale } from './i18n/index.js';
+
+const { t, tm } = useI18n();
 
 const currentTab = ref('data');
 const analysisTarget = ref(null);
@@ -159,20 +171,20 @@ const wsStatusClass = computed(() => {
 });
 
 const wsStatusText = computed(() => {
-  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return 'Realtime Connected';
-  if (rtState.wsStatus === 'connecting') return 'Connecting';
-  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return 'Reconnecting';
-  if (rtState.wsStatus === 'idle') return 'Waiting';
-  return 'Disconnected';
+  if (rtState.wsConnected && (rtState.wsStatus === 'ready' || rtState.wsStatus === 'connected')) return t('ws.realtimeConnected');
+  if (rtState.wsStatus === 'connecting') return t('ws.connecting');
+  if (rtState.reconnectAttempts > 0 && !rtState.wsConnected) return t('ws.reconnecting');
+  if (rtState.wsStatus === 'idle') return t('ws.waiting');
+  return t('ws.disconnected');
 });
 
-const tabs = [
-  { key: 'data', label: 'Data', icon: '◫', kicker: 'Data Workspace', title: '数据接入与选择', description: '上传工业数据、组织目录，并将目标数据送入后续诊断流程。', caption: 'Upload and select industrial datasets' },
-  { key: 'diagnose', label: 'Diagnose', icon: '◎', kicker: 'Diagnostic Run', title: '实时诊断工作台', description: '查看诊断阶段、证据链、图表和交互式追问，像操作一个实时分析会话一样工作。', caption: 'Live root-cause analysis and recovery' },
-  { key: 'chat', label: 'Chat', icon: '⌘', kicker: 'Conversation Studio', title: '会话与诊断协同聊天', description: '统一承载普通 Chat 与 Diagnose session，对话、续聊、配置和上下文在同一工作区内完成。', caption: 'Resume chats and diagnose sessions' },
-  { key: 'reports', label: 'Reports', icon: '▣', kicker: 'Artifact Review', title: '报告与审计产物', description: '阅读 Markdown 报告、图表和优化审计结果，快速定位结论和关键证据。', caption: 'Read reports and review artifacts' },
-  { key: 'history', label: 'History', icon: '◌', kicker: 'Execution Ledger', title: '历史运行记录', description: '按运行状态回看诊断历史、日志与会话，并继续失败或暂停的任务。', caption: 'Track historical runs and outcomes' },
-];
+const tabs = computed(() => [
+  { key: 'data', label: t('tabs.data.label'), icon: '◫', kicker: t('tabs.data.kicker'), title: t('tabs.data.title'), description: t('tabs.data.description'), caption: t('tabs.data.caption') },
+  { key: 'diagnose', label: t('tabs.diagnose.label'), icon: '◎', kicker: t('tabs.diagnose.kicker'), title: t('tabs.diagnose.title'), description: t('tabs.diagnose.description'), caption: t('tabs.diagnose.caption') },
+  { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
+  { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
+  { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
+]);
 
 // OMP harness tab — visible only when the selected engine supports runs
 const activeHarnessMeta = computed(() =>
@@ -180,17 +192,17 @@ const activeHarnessMeta = computed(() =>
 );
 
 const ompTab = computed(() => ({
-  key: 'omp', label: `${activeHarnessMeta.value.name} Runs`, icon: '⛭', kicker: 'Harness Bridge',
-  title: `${activeHarnessMeta.value.name} 原生运行浏览`,
-  description: `通过 Harness 接口读取 ${activeHarnessMeta.value.name} 原生管线产物：运行状态、执行证明、报告与增强深挖结果。`,
-  caption: `Browse ${activeHarnessMeta.value.name} pipeline outputs`,
+  key: 'omp', label: `${activeHarnessMeta.value.name} ${t('tabs.omp.runsSuffix')}`, icon: '⛭', kicker: t('tabs.omp.kicker'),
+  title: `${activeHarnessMeta.value.name}${t('tabs.omp.titleSuffix')}`,
+  description: `${t('tabs.omp.descriptionPre')} ${activeHarnessMeta.value.name} ${t('tabs.omp.descriptionMid')}`,
+  caption: `${t('tabs.omp.captionPre')} ${activeHarnessMeta.value.name} ${t('tabs.omp.captionMid')}`,
 }));
 
 const visibleTabs = computed(() => {
   if (harness.value !== 'claude') {
-    return [...tabs.slice(0, 5), ompTab.value];
+    return [...tabs.value.slice(0, 5), ompTab.value];
   }
-  return tabs;
+  return tabs.value;
 });
 
 const activeTabMeta = computed(() => visibleTabs.value.find(tab => tab.key === currentTab.value) || visibleTabs.value[0]);
@@ -203,10 +215,10 @@ const contentClass = computed(() => ({
 const analysisTargetLabel = computed(() => {
   const target = analysisTarget.value;
   if (!target) return '';
-  if (target.mode === 'file') return target.file?.name || '1 file selected';
-  if (target.mode === 'folder') return target.name || 'Folder selected';
-  if (target.mode === 'multi') return `${target.files?.length || 0} files selected`;
-  return 'Selection ready';
+  if (target.mode === 'file') return target.file?.name || t('data.fileSelected');
+  if (target.mode === 'folder') return target.name || t('data.folderSelected');
+  if (target.mode === 'multi') return t('data.filesSelected', { count: target.files?.length || 0 });
+  return t('data.selectionReady');
 });
 
 function loadSidebarState() {
@@ -249,6 +261,10 @@ function toggleSidebar() {
   try {
     localStorage.setItem('idd.sidebarCollapsed', sidebarCollapsed.value ? '1' : '0');
   } catch {}
+}
+
+function onToggleLocale() {
+  toggleLocale();
 }
 
 function onSelectFile(file) {
@@ -301,4 +317,25 @@ onUnmounted(() => teardown());
 
 <style>
 @import './styles/global.css';
+
+.app-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.app-lang-toggle:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
 </style>

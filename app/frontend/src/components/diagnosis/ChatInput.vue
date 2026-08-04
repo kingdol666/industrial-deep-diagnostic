@@ -24,6 +24,9 @@
 
 <script setup>
 import { ref, computed, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
   isRunning: { type: Boolean, default: false },
@@ -38,22 +41,22 @@ const sending = ref(false);
 const inputEl = ref(null);
 
 const placeholder = computed(() => {
-  if (props.terminalStatus === 'completed') return '输入追问，让系统基于当前结果继续分析...';
-  if (props.terminalStatus === 'failed' || props.terminalStatus === 'stopped') return '输入消息，与当前 Claude session 继续对话...';
-  if (props.isRunning) return '输入消息来引导当前诊断...';
-  return '输入消息...';
+  if (props.terminalStatus === 'completed') return t('chatInput.placeholderCompleted');
+  if (props.terminalStatus === 'failed' || props.terminalStatus === 'stopped') return t('chatInput.placeholderFailed');
+  if (props.isRunning) return t('chatInput.placeholderRunning');
+  return t('chatInput.placeholderDefault');
 });
 
 const sendLabel = computed(() => {
-  if (sending.value) return '发送中...';
-  if (props.terminalStatus) return '发送到会话';
-  return '发送';
+  if (sending.value) return t('common.sending');
+  if (props.terminalStatus) return t('chatInput.sendToSession');
+  return t('common.send');
 });
 
 const hint = computed(() => {
-  if (props.terminalStatus === 'completed') return '当前运行已结束。你的消息只会发送到已选 Claude session，不会重新启动诊断流程。';
-  if (props.terminalStatus === 'failed' || props.terminalStatus === 'stopped') return '当前运行已结束。你的消息只会与已选 Claude session 对话，不会重新启动诊断流程。';
-  if (props.isRunning) return '你的消息会发送给当前运行中的诊断流程，并在下一轮处理中生效。';
+  if (props.terminalStatus === 'completed') return t('chatInput.hintCompleted');
+  if (props.terminalStatus === 'failed' || props.terminalStatus === 'stopped') return t('chatInput.hintFailed');
+  if (props.isRunning) return t('chatInput.hintRunning');
   return '';
 });
 

@@ -2,27 +2,27 @@
   <div class="data-browser">
     <div class="toolbar">
       <div class="toolbar-left">
-        <a class="breadcrumb-root" @click="goHome">Data Files</a>
+        <a class="breadcrumb-root" @click="goHome">{{ $t('data.title') }}</a>
         <template v-if="currentFolder">
           <span class="breadcrumb-sep">/</span>
           <a class="breadcrumb-path" @click="goHome">{{ currentFolder }}</a>
         </template>
       </div>
       <div class="toolbar-right">
-        <button class="btn" @click="showNewFolder = true">+ New Folder</button>
-        <button class="btn btn-primary" @click="triggerUpload">Upload File</button>
+        <button class="btn" @click="showNewFolder = true">{{ $t('data.newFolder') }}</button>
+        <button class="btn btn-primary" @click="triggerUpload">{{ $t('data.uploadFile') }}</button>
         <input ref="fileInput" type="file" multiple @change="onUpload" style="display:none" />
-        <button class="btn" v-if="currentFolder" @click="navigateUp">.. Back</button>
+        <button class="btn" v-if="currentFolder" @click="navigateUp">{{ $t('data.back') }}</button>
       </div>
     </div>
 
     <!-- New folder dialog -->
     <div v-if="showNewFolder" class="card new-folder-form">
       <div class="form-row">
-        <input v-model="newFolderName" placeholder="Folder name (letters, numbers, _ -)" @keyup.enter="createFolder" />
-        <input v-model="newFolderDesc" placeholder="Description (optional)" />
-        <button class="btn btn-primary btn-sm" @click="createFolder" :disabled="!newFolderName">Create</button>
-        <button class="btn btn-sm" @click="showNewFolder = false">Cancel</button>
+        <input v-model="newFolderName" :placeholder="$t('data.folderNamePlaceholder')" @keyup.enter="createFolder" />
+        <input v-model="newFolderDesc" :placeholder="$t('data.folderDescPlaceholder')" />
+        <button class="btn btn-primary btn-sm" @click="createFolder" :disabled="!newFolderName">{{ $t('common.create') }}</button>
+        <button class="btn btn-sm" @click="showNewFolder = false">{{ $t('common.cancel') }}</button>
       </div>
     </div>
 
@@ -30,30 +30,30 @@
     <div v-if="uploading" class="card">
       <div class="upload-progress">
         <div class="spinner"></div>
-        <span>Uploading {{ uploadCount }} file(s)...</span>
+        <span>{{ $t('data.uploading', { count: uploadCount }) }}</span>
       </div>
     </div>
 
     <!-- File list -->
     <div v-if="loading" class="empty-state">
       <div class="spinner" style="width:32px;height:32px;border-width:3px;"></div>
-      <p>Loading...</p>
+      <p>{{ $t('common.loading') }}</p>
     </div>
 
     <div v-else-if="items.length === 0" class="empty-state">
-      <p>No files found. Upload data files or create a folder to get started.</p>
+      <p>{{ $t('data.noFiles') }}</p>
     </div>
 
     <div v-else>
       <div class="selection-toolbar" v-if="selectedFiles.size > 0">
         <button class="btn btn-primary btn-sm" @click="analyzeSelected">
-          Analyze Selected ({{ selectedFiles.size }})
+          {{ $t('data.analyzeSelected', { count: selectedFiles.size }) }}
         </button>
-        <button class="btn btn-sm" @click="clearSelection">Clear</button>
+        <button class="btn btn-sm" @click="clearSelection">{{ $t('common.clear') }}</button>
       </div>
       <div class="folder-toolbar" v-if="currentFolder">
         <button class="btn btn-primary btn-sm" @click="analyzeFolder">
-          Analyze Entire Folder
+          {{ $t('data.analyzeFolder') }}
         </button>
       </div>
       <div class="file-grid">
@@ -80,7 +80,7 @@
             <div class="file-name">{{ item.name }}</div>
             <div class="file-meta">
               <span v-if="item.type === 'file'">{{ formatSize(item.size) }}</span>
-              <span v-if="item.type === 'folder'">Folder</span>
+              <span v-if="item.type === 'folder'">{{ $t('data.folder') }}</span>
               <span class="file-ext" v-if="item.ext">{{ item.ext }}</span>
             </div>
           </div>
@@ -89,12 +89,12 @@
               v-if="item.type === 'file' && isDataFile(item.ext)"
               class="btn btn-primary btn-sm"
               @click.stop="selectForDiagnosis(item)"
-            >Analyze</button>
+            >{{ $t('data.analyze') }}</button>
             <button
               v-if="item.type === 'file' && ['.csv', '.json', '.md', '.txt', '.tsv'].includes(item.ext)"
               class="btn btn-sm"
               @click.stop="preview(item)"
-            >Preview</button>
+            >{{ $t('data.preview') }}</button>
           </div>
         </div>
       </div>
@@ -103,8 +103,8 @@
     <!-- File preview -->
     <div v-if="previewFile" class="card preview-card">
       <div class="card-title">
-        <span>Preview: {{ previewFile.name }}</span>
-        <button class="btn btn-sm" @click="previewFile = null">Close</button>
+        <span>{{ $t('data.previewColon') }}{{ previewFile.name }}</span>
+        <button class="btn btn-sm" @click="previewFile = null">{{ $t('common.close') }}</button>
       </div>
       <pre class="preview-content">{{ previewContent }}</pre>
     </div>
@@ -113,7 +113,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
+
+const { t } = useI18n();
 
 const emit = defineEmits(['select-file', 'select-folder', 'select-files']);
 
@@ -158,7 +161,7 @@ async function onUpload(e) {
     await api.uploadFiles(currentFolder.value, files);
     await loadData(currentFolder.value || undefined);
   } catch (err) {
-    alert('Upload failed: ' + err.message);
+    alert(t('data.uploadFailed') + err.message);
   } finally {
     uploading.value = false;
     e.target.value = '';
@@ -174,7 +177,7 @@ async function createFolder() {
     newFolderDesc.value = '';
     await loadData();
   } catch (err) {
-    alert('Failed to create folder: ' + err.message);
+    alert(t('data.createFolderFailed') + err.message);
   }
 }
 
@@ -257,7 +260,7 @@ async function preview(item) {
     previewFile.value = item;
     previewContent.value = data.content;
   } catch (err) {
-    alert('Failed to read file: ' + err.message);
+    alert(t('data.readFailed') + err.message);
   }
 }
 

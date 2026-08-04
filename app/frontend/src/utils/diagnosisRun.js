@@ -1,3 +1,5 @@
+import i18n from '../i18n/index.js';
+
 export function normalizeRunSummary(run) {
   if (!run) return null;
 
@@ -21,20 +23,20 @@ export function getEffectiveRunStatus(run) {
   return normalized?.engineStatus || normalized?.status || 'pending';
 }
 
+/**
+ * Map a run status to an i18n key suffix.
+ * Statuses not in the map fall back to 'unknown'.
+ */
+function statusKey(status) {
+  const keys = ['completed', 'running', 'awaiting_input', 'pending', 'failed', 'stopped', 'in_progress', 'draft', 'active'];
+  return keys.includes(status) ? status : 'unknown';
+}
+
 export function getRunStatusLabel(runOrStatus) {
   const status = typeof runOrStatus === 'string'
     ? runOrStatus
     : getEffectiveRunStatus(runOrStatus);
-
-  switch (status) {
-    case 'completed': return '已完成';
-    case 'running': return '运行中';
-    case 'awaiting_input': return '等待回答';
-    case 'pending': return '待执行';
-    case 'failed': return '失败';
-    case 'stopped': return '已停止';
-    default: return status || '未知';
-  }
+  return i18n.global.t(`status.${statusKey(status)}`);
 }
 
 export function getRunStatusBadgeClass(runOrStatus) {
