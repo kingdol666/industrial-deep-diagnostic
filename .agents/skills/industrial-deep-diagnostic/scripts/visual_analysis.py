@@ -1046,6 +1046,25 @@ def main():
     }
 
     output_path = os.path.join(fig_dir, 'visual_analysis.json')
+    # Idempotency guard: never downgrade an existing VLM-produced analysis to a
+    # pre-VLM skeleton. visual_analysis.py may be re-run (chart regeneration,
+    # repair loops) AFTER vlm-visual-analyzer completed — overwriting would
+    # silently destroy the VLM evidence and break VLM_SOURCE verification.
+    _existing = None
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, encoding='utf-8') as f:
+                _existing = json.load(f)
+        except Exception:
+            _existing = None
+    if _existing and isinstance(_existing, dict):
+        _prov = _existing.get('analysis_provenance', {}) or {}
+        _src = str(_prov.get('source_agent', '') or '')
+        _mode = str(_existing.get('observation_mode', '') or '')
+        if _src == 'vlm-visual-analyzer' or 'vlm' in _mode.lower():
+            print("  [SKIP] visual_analysis.json already contains VLM output"
+                  f" (source_agent={_src}, mode={_mode}) — skeleton not written.")
+            return
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(visual_analysis, f, ensure_ascii=False, indent=2)
     print(f"\n  → {output_path}")
