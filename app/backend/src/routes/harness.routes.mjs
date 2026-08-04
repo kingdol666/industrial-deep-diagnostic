@@ -74,6 +74,7 @@ router.get('/:id/runs/:run', async (req, res) => {
     if (!run) return fail(res, 404, `Run not found: ${req.params.run}`);
     ok(res, run);
   } catch (e) {
+    if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
@@ -101,6 +102,7 @@ router.get('/:id/runs/:run/artifact/:kind', async (req, res) => {
     if (!art) return fail(res, 404, `Artifact '${req.params.kind}' not found`);
     ok(res, art);
   } catch (e) {
+    if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
@@ -114,6 +116,7 @@ router.get('/:id/runs/:run/enhancement/:kind', async (req, res) => {
     if (!art) return fail(res, 404, `Enhancement artifact '${req.params.kind}' not found`);
     ok(res, art);
   } catch (e) {
+    if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
@@ -127,6 +130,7 @@ router.get('/:id/runs/:run/html', async (req, res) => {
     if (!html) return fail(res, 404, 'HTML report not found');
     res.type('html').send(html);
   } catch (e) {
+    if (e instanceof HarnessNotSupportedError) return fail(res, 400, e.message);
     fail(res, 500, e.message);
   }
 });
