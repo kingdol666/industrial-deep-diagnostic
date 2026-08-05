@@ -317,25 +317,4 @@ onUnmounted(() => teardown());
 
 <style>
 @import './styles/global.css';
-
-.app-lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
-  color: var(--text2);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.app-lang-toggle:hover {
-  color: var(--text);
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
-}
 </style>

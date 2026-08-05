@@ -1015,19 +1015,17 @@ onBeforeUnmount(() => {
 <style scoped>
 .message-stream {
   background:
-    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 28%),
-    radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--purple) 8%, transparent), transparent 24%),
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-soft) 96%, transparent), color-mix(in srgb, var(--surface) 98%, transparent));
+    linear-gradient(180deg, var(--surface-soft) 96%, var(--surface));
   border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 22px clamp(16px, 3vw, 34px) 28px;
+  border-radius: var(--radius);
+  padding: 22px clamp(16px, 3vw, 30px) 28px;
   flex: 1;
   overflow-y: auto;
   min-height: 200px;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   scrollbar-gutter: stable both-edges;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--inset-hi);
 }
 .ms-bottom-sentinel {
   width: 100%;
@@ -1136,12 +1134,16 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-sm);
 }
 .assistant-avatar {
-  color: #eef6ff;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent2) 88%, black 12%), var(--accent));
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--border-accent);
+  font-family: var(--font-mono);
 }
 .user-avatar {
-  color: #f1fff5;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--green) 84%, black 16%), var(--green));
+  color: var(--green);
+  background: rgba(143, 191, 106, 0.10);
+  border: 1px solid rgba(143, 191, 106, 0.22);
+  font-family: var(--font-mono);
 }
 .chat-bubble {
   min-width: 0;
@@ -1152,11 +1154,11 @@ onBeforeUnmount(() => {
   padding-top: 2px;
 }
 .user-bubble {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-muted) 92%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
-  border: 1px solid var(--border);
-  border-radius: 22px 22px 8px 22px;
-  padding: 14px 16px;
-  box-shadow: var(--shadow-sm);
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius) var(--radius) 2px var(--radius);
+  padding: 13px 15px;
+  box-shadow: var(--inset-hi);
 }
 .chat-name {
   margin-bottom: 6px;
@@ -1171,19 +1173,21 @@ onBeforeUnmount(() => {
   color: var(--text2);
 }
 .ms-card {
-  border-radius: 18px;
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--inset-hi);
 }
 .card-thinking {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 10%, var(--surface)), color-mix(in srgb, var(--surface) 92%, transparent));
-  border: 1px solid color-mix(in srgb, var(--purple) 16%, var(--border));
-  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   cursor: pointer;
-  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
-  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  transition: border-color 0.14s;
 }
-.card-thinking:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--purple) 14%, var(--surface)), color-mix(in srgb, var(--surface-soft) 92%, transparent)); }
+.card-thinking:hover {
+  border-color: var(--border-accent);
+  background: var(--surface-strong);
+}
 .ms-card-header {
   display: flex;
   align-items: center;
@@ -1257,16 +1261,17 @@ onBeforeUnmount(() => {
   opacity: .45;
 }
 .card-tool {
-  border-radius: 18px;
-  padding: 10px 12px;
-  opacity: .96;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  opacity: .97;
 }
-.tool-read { background: linear-gradient(180deg, rgba(19, 31, 48, .92), rgba(16, 24, 38, .96)); border: 1px solid rgba(88,166,255,.12); }
-.tool-write { background: linear-gradient(180deg, rgba(18, 35, 24, .92), rgba(14, 28, 20, .96)); border: 1px solid rgba(63,185,80,.12); }
-.tool-bash { background: linear-gradient(180deg, rgba(39, 31, 17, .92), rgba(28, 23, 14, .96)); border: 1px solid rgba(210,153,34,.12); }
-.tool-web { background: linear-gradient(180deg, rgba(15, 34, 38, .92), rgba(12, 24, 28, .96)); border: 1px solid rgba(34,211,238,.12); }
-.tool-skill { background: linear-gradient(180deg, rgba(31, 24, 43, .92), rgba(23, 19, 33, .96)); border: 1px solid rgba(188,140,255,.12); }
-.tool-default { background: linear-gradient(180deg, rgba(24, 29, 37, .92), rgba(18, 23, 30, .96)); border: 1px solid var(--border); }
+/* Flat instrument cards — a 2px left accent distinguishes category, no gradient fill */
+.tool-read { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--cyan); }
+.tool-write { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--green); }
+.tool-bash { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--yellow); }
+.tool-web { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--cyan); }
+.tool-skill { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--purple); }
+.tool-default { background: var(--surface); border: 1px solid var(--border); }
 .tool-running {
   position: relative;
   overflow: hidden;
@@ -1286,25 +1291,31 @@ onBeforeUnmount(() => {
 }
 .ms-tool-badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(255,255,255,.04);
-  color: var(--text);
-  letter-spacing: .3px;
+  padding: 1px 8px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--surface2);
+  color: var(--text2);
 }
-.ms-tool-id { font-size: 10px; color: var(--text2); font-family: monospace; }
+.ms-tool-id { font-size: 9.5px; color: var(--text3); font-family: var(--font-mono); }
 .tool-state {
   margin-left: auto;
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(88,166,255,.08);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-soft);
   color: var(--accent);
+  border: 1px solid var(--border-accent);
 }
-.tool-state-ok { background: rgba(63,185,80,.1); color: var(--green); }
-.tool-state-error { background: rgba(248,81,73,.1); color: var(--red); }
+.tool-state-ok { background: rgba(143, 191, 106, 0.08); color: var(--green); border-color: rgba(143, 191, 106, 0.22); }
+.tool-state-error { background: rgba(212, 93, 61, 0.08); color: var(--red); border-color: rgba(212, 93, 61, 0.22); }
 .tool-summary {
   padding: 0 8px 8px;
   font-size: 11px;
@@ -1331,16 +1342,17 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: 9px 11px;
+  border-radius: var(--radius-xs);
   font-size: 12px;
+  border: 1px solid var(--border);
 }
-.result-ok { background: rgba(63,185,80,.08); color: var(--green); }
-.result-err { background: rgba(248,81,73,.08); color: var(--red); }
+.result-ok { background: rgba(143, 191, 106, 0.06); color: var(--green); border-left: 2px solid var(--green); }
+.result-err { background: rgba(212, 93, 61, 0.06); color: var(--red); border-left: 2px solid var(--red); }
 .result-icon { font-weight: 700; flex-shrink: 0; }
 .result-text {
   color: var(--text2);
-  font-family: 'SF Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   max-height: 120px;
   overflow-y: auto;
@@ -1350,21 +1362,21 @@ onBeforeUnmount(() => {
 .ms-sys-card {
   font-size: 12px;
   color: var(--text2);
-  padding: 10px 14px;
-  background: rgba(139,148,158,.045);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, .05);
+  padding: 9px 13px;
+  background: var(--surface);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
 }
 .ms-sys-card.sys-normal {
-  border-left: 3px solid rgba(139,148,158,.35);
+  border-left: 2px solid var(--text3);
 }
 .ms-sys-card.sys-important {
-  border-left: 3px solid rgba(210,153,34,.8);
-  background: rgba(210,153,34,.05);
+  border-left: 2px solid var(--yellow);
+  background: rgba(212, 169, 61, 0.04);
 }
 .ms-sys-card.sys-warning {
-  border-left: 3px solid rgba(248,81,73,.85);
-  background: rgba(248,81,73,.06);
+  border-left: 2px solid var(--red);
+  background: rgba(212, 93, 61, 0.05);
 }
 .ms-sys-card strong { color: var(--text); }
 .sys-icon { opacity: .9; }
@@ -1389,21 +1401,23 @@ onBeforeUnmount(() => {
   gap: 20px;
   flex-wrap: wrap;
   padding: 12px 14px;
-  background: linear-gradient(180deg, rgba(39, 31, 17, .6), rgba(23, 19, 12, .65));
-  border: 1px solid rgba(210,153,34,.1);
-  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-xs);
 }
 .stat-item { display: flex; flex-direction: column; gap: 2px; }
-.stat-val { font-size: 14px; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
-.stat-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; }
+.stat-val { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.stat-lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
 .card-hitl {
-  padding: 12px 14px;
-  background: linear-gradient(180deg, rgba(56, 21, 24, .78), rgba(39, 17, 20, .88));
-  border: 1px solid rgba(248,81,73,.15);
-  border-radius: 18px;
+  padding: 11px 13px;
+  background: rgba(212, 93, 61, 0.05);
+  border: 1px solid rgba(212, 93, 61, 0.24);
+  border-left: 2px solid var(--red);
+  border-radius: var(--radius-xs);
 }
-.hitl-warn { font-size: 12px; color: var(--red); font-weight: 600; margin-bottom: 6px; }
-.hitl-cmd { font-size: 11px; color: var(--text2); font-family: monospace; word-break: break-all; }
+.hitl-warn { font-size: 12px; color: var(--red); font-weight: 600; margin-bottom: 5px; }
+.hitl-cmd { font-size: 11px; color: var(--text2); font-family: var(--font-mono); word-break: break-all; }
 .ms-typing .ms-rail { display: none; }
 .ms-typing .ms-body {
   max-width: 900px;
