@@ -430,6 +430,338 @@ def determine_status(deep_data: dict) -> str:
     return "READY"
 
 
+# ── Deep synthesis: causal pathways, centrality, control levers ──────
+
+def build_causal_pathways(
+    edges: List[dict],
+    nodes: List[dict],
+    max_depth: int = 4,
+) -> List[dict]:
+    """Find multi-hop causal pathways from process parameters to quality targets.
+
+    Uses BFS over the directed edge graph.  An edge A→B is traversable when:
+    - relationship is not "contradicts"
+    - |strength| >= 0.2
+    - confidence >= 0.2
+
+    Only paths ending at a *target* node (role == quality_target) are kept.
+    Returns pathways sorted by total_strength (product of edge |r|).
+    """
+    # Build adjacency list
+    adj: Dict[str, List[Tuple[str, dict]]] = {}
+    target_ids: set = set()
+    for n in nodes:
+        if n.get("type") == "target" or n.get("role") in ("target", "quality_target"):
+            target_ids.add(n.get("id", ""))
+    for e in edges:
+        src = e.get("source", "")
+        tgt = e.get("target", "")
+        if not src or not tgt:
+            continue
+        rel = e.get("relationship", "")
+        strength = abs(e.get("strength", 0.0))
+        conf = e.get("confidence", 0.0)
+        if rel == "contradicts" or strength < 0.2 or conf < 0.2:
+            continue
+        adj.setdefault(src, []).append((tgt, e))
+
+    if not target_ids:
+        return []
+
+    pathways: List[dict] = []
+    seen_paths: set = set()
+
+    for start_node in adj:
+        if start_node in target_ids:
+            continue  # skip targets as start nodes
+        # BFS
+        queue: List[Tuple[str, List[str], List[dict], float, float]] = [
+            (start_node, [start_node], [], 1.0, 1.0)
+        ]
+        while queue:
+            current, path, path_edges, prod_strength, min_conf = queue.pop(0)
+            if len(path) > max_depth:
+                continue
+            for next_node, edge in adj.get(current, []):
+                if next_node in path:
+                    continue  # avoid cycles
+                new_path = path + [next_node]
+                new_edges = path_edges + [edge]
+                es = abs(edge.get("strength", 0.0))
+                ec = edge.get("confidence", 0.0)
+                new_prod = prod_strength * max(es, 0.01)
+                new_min = min(min_conf, ec)
+                path_key = tuple(new_path)
+                if path_key in seen_paths:
+                    continue
+                seen_paths.add(path_key)
+
+                if next_node in target_ids:
+                    # Found a pathway to a quality target
+                    edge_summaries = []
+                    for pe in new_edges:
+                        edge_summaries.append({
+                            "from": pe.get("source", ""),
+                            "to": pe.get("target", ""),
+                            "strength": pe.get("strength", 0.0),
+                            "relationship": pe.get("relationship", ""),
+                            "confidence": pe.get("confidence", 0.0),
+                            "physics_verified": bool(pe.get("physics_verification", {}).get("overall_status") == "confirmed"),
+                        })
+                    pathways.append({
+                        "path": new_path,
+                        "start": start_node,
+                        "end": next_node,
+                        "path_length": len(new_path) - 1,
+                        "total_strength": round(new_prod, 4),
+                        "min_confidence": round(new_min, 4),
+                        "edges": edge_summaries,
+                    })
+                else:
+                    if len(new_path) <= max_depth:
+                        queue.append((next_node, new_path, new_edges, new_prod, new_min))
+
+    # Sort by total_strength descending, keep top 50
+    pathways.sort(key=lambda p: p["total_strength"], reverse=True)
+    return pathways[:50]
+
+
+def build_parameter_centrality(
+    edges: List[dict],
+    nodes: List[dict],
+) -> List[dict]:
+    """Compute network centrality for each parameter node.
+
+    Metrics:
+    - out_degree: number of outgoing edges (influence spread)
+    - in_degree: number of incoming edges (being influenced)
+    - influence_score: sum of |strength| over outgoing edges
+    - is_hub: out_degree >= 3 or influence_score >= 1.0
+    - downstream_targets: quality targets reachable within 3 hops
+    """
+    node_ids = {n.get("id", "") for n in nodes}
+    target_ids = {
+        n.get("id", "") for n in nodes
+        if n.get("type") == "target" or n.get("role") in ("target", "quality_target")
+    }
+
+    out_edges: Dict[str, List[dict]] = {}
+    in_edges: Dict[str, List[dict]] = {}
+    for e in edges:
+        src = e.get("source", "")
+        tgt = e.get("target", "")
+        if src in node_ids:
+            out_edges.setdefault(src, []).append(e)
+        if tgt in node_ids:
+            in_edges.setdefault(tgt, []).append(e)
+
+    # Build simple adjacency for BFS target reachability
+    adj: Dict[str, List[str]] = {}
+    for e in edges:
+        src = e.get("source", "")
+        tgt = e.get("target", "")
+        if e.get("relationship") != "contradicts":
+            adj.setdefault(src, []).append(tgt)
+
+    def _reachable_targets(start: str, max_hops: int = 3) -> List[str]:
+        visited = {start}
+        frontier = [start]
+        found = set()
+        for _ in range(max_hops):
+            next_frontier = []
+            for node in frontier:
+                for nxt in adj.get(node, []):
+                    if nxt not in visited:
+                        visited.add(nxt)
+                        if nxt in target_ids:
+                            found.add(nxt)
+                        next_frontier.append(nxt)
+            frontier = next_frontier
+        return sorted(found)
+
+    centrality: List[dict] = []
+    for n in nodes:
+        nid = n.get("id", "")
+        if not nid:
+            continue
+        outs = out_edges.get(nid, [])
+        ins = in_edges.get(nid, [])
+        influence = sum(abs(e.get("strength", 0.0)) for e in outs)
+        reachable = _reachable_targets(nid)
+        centrality.append({
+            "parameter": nid,
+            "role": n.get("role", ""),
+            "type": n.get("type", ""),
+            "out_degree": len(outs),
+            "in_degree": len(ins),
+            "influence_score": round(influence, 4),
+            "is_hub": len(outs) >= 3 or influence >= 1.0,
+            "downstream_targets": reachable,
+            "unit": n.get("unit", "dimensionless"),
+            "physics_ref": n.get("physics_ref", ""),
+        })
+
+    centrality.sort(key=lambda c: c["influence_score"], reverse=True)
+    return centrality
+
+
+def build_control_levers(
+    edges: List[dict],
+    nodes: List[dict],
+    ontology: Optional[dict],
+) -> List[dict]:
+    """Extract actionable control levers with expected impact on quality targets.
+
+    A control lever is any parameter with:
+    - operability in (LEVER_IDENTIFIED, LEVER_OBSERVATIONAL)
+    - at least one outgoing edge to a target node
+
+    For each lever, synthesise downstream effects with direction, magnitude,
+    confidence, physics status, and risk factors.
+    """
+    target_ids = {
+        n.get("id", "") for n in nodes
+        if n.get("type") == "target" or n.get("role") in ("target", "quality_target")
+    }
+
+    # Physical meaning lookup from ontology
+    phys_lookup: Dict[str, dict] = {}
+    if ontology:
+        for param in ontology.get("parameters", []):
+            pname = param.get("name", "")
+            if pname:
+                phys_lookup[pname] = {
+                    "physical_meaning": param.get("physical_meaning", ""),
+                    "unit": param.get("unit", ""),
+                    "role": param.get("role", ""),
+                    "controllable": param.get("controllable", None),
+                    "equipment": param.get("equipment_stage", ""),
+                }
+
+    node_lookup = {n.get("id", ""): n for n in nodes}
+
+    # Group edges by source
+    out_by_source: Dict[str, List[dict]] = {}
+    for e in edges:
+        src = e.get("source", "")
+        if src:
+            out_by_source.setdefault(src, []).append(e)
+
+    levers: List[dict] = []
+    for nid, node in node_lookup.items():
+        if nid in target_ids:
+            continue
+        outs = out_by_source.get(nid, [])
+        if not outs:
+            continue
+
+        # Check operability across all edges from this node
+        ops = {e.get("operability", "") for e in outs}
+        is_lever = bool(ops & {"LEVER_IDENTIFIED", "LEVER_OBSERVATIONAL"})
+
+        # Even non-lever parameters with edges to targets are included
+        # if they have meaningful strength (for observational reference)
+        target_edges = [e for e in outs if e.get("target", "") in target_ids]
+        if not target_edges:
+            continue
+
+        downstream_effects = []
+        risk_factors = []
+        for e in target_edges:
+            stats = e.get("statistical_evidence", {})
+            phys = e.get("physics_verification", {})
+            strength = e.get("strength", 0.0)
+            direction = "increase" if strength > 0 else "decrease"
+            conf = e.get("confidence", 0.0)
+            phys_verified = phys.get("overall_status") == "confirmed"
+            ontology_contradiction = e.get("ontology_contradiction", False)
+            operability = e.get("operability", "")
+
+            downstream_effects.append({
+                "target": e.get("target", ""),
+                "direction": direction,
+                "strength": round(strength, 4),
+                "slope_at_current": round(stats.get("slope_at_current", 0.0), 6),
+                "confidence": round(conf, 4),
+                "physics_verified": phys_verified,
+                "physics_status": phys.get("overall_status", "untested"),
+                "causal_ceiling": e.get("causal_ceiling", ""),
+                "q_value": stats.get("q_value", 1.0),
+                "n_effective": stats.get("n_effective", 0),
+                "temporal_direction": stats.get("temporal_direction", "concurrent"),
+            })
+
+            if ontology_contradiction:
+                risk_factors.append(f"Ontology contradiction on {e.get('target','')}")
+            if e.get("operability") == "CONFOUNDED":
+                risk_factors.append(f"Confounder present for {e.get('target','')}")
+            if stats.get("interaction_flagged"):
+                risk_factors.append(f"Interaction/moderation effect on {e.get('target','')}")
+            if stats.get("loo_stability", 0) < 0.5 and stats.get("loo_stability", 0) > 0:
+                risk_factors.append(f"Low leave-one-out stability ({stats.get('loo_stability',0):.2f}) on {e.get('target','')}")
+
+        phys_info = phys_lookup.get(nid, {})
+        node_info = node_lookup.get(nid, {})
+        support_domain = node_info.get("support_domain", {})
+        current_val = support_domain.get("p50", support_domain.get("current_median", None))
+
+        overall_conf = sum(d["confidence"] for d in downstream_effects) / max(len(downstream_effects), 1)
+
+        levers.append({
+            "parameter": nid,
+            "physical_meaning": phys_info.get("physical_meaning", node_info.get("physics_ref", "")),
+            "unit": phys_info.get("unit", node_info.get("unit", "dimensionless")),
+            "current_value": current_val,
+            "support_domain": support_domain,
+            "controllable": is_lever,
+            "operability": sorted(ops),
+            "downstream_effects": downstream_effects,
+            "overall_confidence": round(overall_conf, 4),
+            "risk_factors": risk_factors if risk_factors else ["None identified"],
+            "equipment_stage": phys_info.get("equipment", ""),
+        })
+
+    levers.sort(key=lambda l: (l["controllable"], l["overall_confidence"]), reverse=True)
+    return levers
+
+
+def build_physical_context(
+    ontology: Optional[dict],
+    coverage: Optional[dict],
+) -> Dict[str, dict]:
+    """Build a physical-meaning lookup table from ontology + coverage.
+
+    Returns {parameter_name: {physical_meaning, unit, role, governing_law, ...}}.
+    """
+    ctx: Dict[str, dict] = {}
+    if ontology:
+        for param in ontology.get("parameters", []):
+            pname = param.get("name", "")
+            if not pname:
+                continue
+            ctx[pname] = {
+                "physical_meaning": param.get("physical_meaning", ""),
+                "unit": param.get("unit", ""),
+                "role": param.get("role", ""),
+                "equipment_stage": param.get("equipment_stage", ""),
+                "governing_law": param.get("governing_law", ""),
+                "expected_behavior": param.get("expected_behavior", ""),
+                "controllable": param.get("controllable", None),
+            }
+    if coverage:
+        for col in coverage.get("columns", []):
+            cname = col.get("column", "")
+            if not cname or cname in ctx:
+                continue
+            ctx[cname] = {
+                "physical_meaning": col.get("physics_ref", ""),
+                "unit": col.get("unit", "dimensionless"),
+                "role": col.get("role", ""),
+                "support_domain": col.get("support_domain", {}),
+            }
+    return ctx
+
+
 def fuse(
     run_dir: Path,
     output_path: Path,
@@ -493,6 +825,12 @@ def fuse(
 
     run_id = deep_data.get("run_id", "unknown")
 
+    # Deep synthesis: causal pathways, centrality, control levers, physical context
+    causal_pathways = build_causal_pathways(edges, nodes)
+    parameter_centrality = build_parameter_centrality(edges, nodes)
+    control_levers = build_control_levers(edges, nodes, ontology)
+    physical_context = build_physical_context(ontology, coverage)
+
     enhanced = {
         "run_id": run_id,
         "enhancement_status": status,
@@ -500,6 +838,10 @@ def fuse(
             "nodes": nodes,
             "edges": edges,
         },
+        "causal_pathways": causal_pathways,
+        "parameter_centrality": parameter_centrality,
+        "control_levers": control_levers,
+        "physical_context": physical_context,
         "mechanism_chains": build_mechanism_chains(physics) if physics else [],
         "tradeoff_matrix": build_tradeoff_matrix(deep_data),
         "operability_summary": build_operability_summary(deep_data),

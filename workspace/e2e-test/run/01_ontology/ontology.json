@@ -1,0 +1,88 @@
+{
+  "run_id": "e2e_test",
+  "process_category": "chemical_reaction",
+  "scene_type": "process_plus_inspection",
+  "parameters": [
+    {
+      "name": "timestamp",
+      "physical_meaning": "时间戳",
+      "unit": "datetime",
+      "role": "metadata",
+      "controllable": false
+    },
+    {
+      "name": "reactor_temp",
+      "physical_meaning": "反应器温度",
+      "unit": "°C",
+      "role": "process_parameter",
+      "equipment_stage": "reactor",
+      "governing_law": "Arrhenius: k=A·exp(-Ea/RT)",
+      "controllable": true
+    },
+    {
+      "name": "feed_rate",
+      "physical_meaning": "进料流量",
+      "unit": "kg/h",
+      "role": "process_parameter",
+      "equipment_stage": "feed",
+      "controllable": true
+    },
+    {
+      "name": "cooling_flow",
+      "physical_meaning": "冷却水流量",
+      "unit": "L/min",
+      "role": "process_parameter",
+      "equipment_stage": "cooling",
+      "governing_law": "Q=m·c·ΔT",
+      "controllable": true
+    },
+    {
+      "name": "catalyst_age",
+      "physical_meaning": "催化剂使用时长",
+      "unit": "h",
+      "role": "process_parameter",
+      "equipment_stage": "reactor",
+      "controllable": false
+    },
+    {
+      "name": "product_purity",
+      "physical_meaning": "产品纯度",
+      "unit": "%",
+      "role": "quality_target",
+      "controllable": false
+    },
+    {
+      "name": "product_grade",
+      "physical_meaning": "产品等级",
+      "unit": "category",
+      "role": "grouping",
+      "controllable": false
+    }
+  ],
+  "relationships": [
+    {
+      "from": "reactor_temp",
+      "to": "product_purity",
+      "data_direction_validated": "true",
+      "predicted_functional_form": "positive_monotonic"
+    },
+    {
+      "from": "cooling_flow",
+      "to": "product_purity",
+      "data_direction_validated": "true",
+      "predicted_functional_form": "negative_monotonic"
+    },
+    {
+      "from": "feed_rate",
+      "to": "product_purity",
+      "data_direction_validated": "true",
+      "predicted_functional_form": "positive_monotonic"
+    },
+    {
+      "from": "catalyst_age",
+      "to": "product_purity",
+      "data_direction_validated": "true",
+      "predicted_functional_form": "negative_monotonic"
+    }
+  ]
+}

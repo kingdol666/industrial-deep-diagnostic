@@ -292,7 +292,7 @@ def generate_vlm_temporal_overlay(df, targets, key_params, events, fig_dir):
 
 ```bash
 # Verify image selection compliance
-python -c "
+uv run --project "$SHARED_PATH/scripts" python -c "
 import json
 v = json.load(open('$RUN_DIR/03_figures/visual_analysis.json'))
 m = json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json'))

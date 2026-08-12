@@ -1,0 +1,41 @@
+{
+  "run_id": "e2e_test",
+  "diagnosis_type": "DETERMINED",
+  "root_cause": {
+    "primary_hypothesis": "H1",
+    "parameter": "reactor_temp",
+    "mechanism": "Higher temperature increases reaction rate, improving conversion and purity",
+    "confidence": 82
+  },
+  "hypotheses": {
+    "surviving": [
+      {
+        "id": "H1",
+        "root_cause": "reactor_temp driving purity",
+        "falsification_conditions": [
+          "If temp-purity correlation vanishes in steady-state only"
+        ]
+      }
+    ],
+    "eliminated": [
+      {
+        "id": "H2",
+        "root_cause": "cooling_flow",
+        "exclusion_reason": "Endogenous response to temperature changes",
+        "exclusion_confidence": 92
+      },
+      {
+        "id": "H3",
+        "root_cause": "feed_rate",
+        "exclusion_reason": "Weak partial correlation after controlling for temp",
+        "exclusion_confidence": 88
+      }
+    ]
+  },
+  "falsification_conditions": [
+    {
+      "hypothesis": "H1",
+      "condition": "Remove temp-purity correlation in detrended analysis"
+    }
+  ]
+}

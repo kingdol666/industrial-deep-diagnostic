@@ -31,7 +31,7 @@ Deterministic deep-analysis layer (Task 3 of DOE enhancement plan). Consumes an 
 
 ### E1: Coverage Builder
 ```
-python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py --run-dir <RUN_DIR>
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py --run-dir <RUN_DIR>
 ```
 For every cleaned-data column, emits:
 - `role` from ontology signal / selection fallback
@@ -44,7 +44,7 @@ For every cleaned-data column, emits:
 
 ### E2: Derived Feature Builder
 ```
-python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py --run-dir <RUN_DIR>
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py --run-dir <RUN_DIR>
 ```
 Physically justified derived features (only when source columns and ontology conditions exist):
 1. `cumulative_<poisoning_column>_exposure` — trapezoidal sum over sorted timestamp
@@ -56,7 +56,7 @@ No invented constants (reactor volume, heat capacity, etc.). Status `not_applica
 
 ### E3: Conditional Analysis
 ```
-python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py --run-dir <RUN_DIR>
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py --run-dir <RUN_DIR>
 ```
 Builds candidate pairs from:
 1. `ontology.relationships[]` from/to names — INCLUDING process→process edges (vibration→temperature dual-channel evidence etc.)
@@ -70,13 +70,13 @@ Per pair computes: `global` (erfc-safe p-value with scientific floor — never 0
 
 ### E3.5: Association Graph
 ```
-python .claude/skills/industrial-deep-analysis/scripts/association_graph_builder.py --run-dir <RUN_DIR>
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/association_graph_builder.py --run-dir <RUN_DIR>
 ```
 Full pairwise scan over all numeric columns (metadata/time/`_dev`/`regime_*` excluded) → `association_graph.json`: nodes (role/unit) + edges with `relationship` ∈ {supports, inhibits, contradicts}, `sign`, `confidence` (q + LOO stability + CI consistency), `causal_ceiling`, `ontology_contradiction`, and full `statistical_evidence` (temporal direction, partial, mediation channels, change-point alignment, interaction).
 
 ### E4: Tradeoff Builder
 ```
-python .claude/skills/industrial-deep-analysis/scripts/tradeoff_builder.py --deep-analysis <DEEP_JSON> [--output <OUT>]
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/tradeoff_builder.py --deep-analysis <DEEP_JSON> [--output <OUT>]
 ```
 Library function `build_tradeoff_and_operability(df, relationships, ontology, selection, feature_metadata=None) -> list[dict]`. CLI can rewrite `tradeoff_and_operability` in an existing deep analysis JSON deterministically. Operability now uses real direction-stability evidence (LOO jackknife + per-regime sign consistency), the live `insufficient_data` flag, `causality_ceiling` (must reach at least temporal/CI/ontology level for LEVER_IDENTIFIED), and reports mediator/interaction/contradiction findings in open questions.
 
@@ -98,20 +98,20 @@ Library function `build_tradeoff_and_operability(df, relationships, ontology, se
 ## Verification Commands
 ```bash
 # Compile check
-python -m py_compile .claude/skills/industrial-deep-analysis/scripts/*.py
+uv run --project "$SHARED_PATH/scripts" python -m py_compile .claude/skills/industrial-deep-analysis/scripts/*.py
 
 # Run on any real diagnostic run (example: CSTR catalyst run)
-python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/coverage_builder.py \
   --run-dir <RUN_DIR>
 
-python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/derived_feature_builder.py \
   --run-dir <RUN_DIR>
 
-python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/conditional_analysis.py \
   --run-dir <RUN_DIR>
 
 # Validate with schemas
-python -c "
+uv run --project "$SHARED_PATH/scripts" python -c "
 import json
 with open('<RUN_DIR>/enhancement/analysis_coverage.json') as f:
     c = json.load(f)

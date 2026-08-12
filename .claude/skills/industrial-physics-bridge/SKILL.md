@@ -37,7 +37,7 @@ description: >
 
 ```bash
 # 独立执行（推荐）
-python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py \
+uv run --project .claude/shared/scripts python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py \
   --run-dir <RUN_DIR> [--output <OUTPUT_PATH>]
 
 # 或通过编排器自动调用（E5 阶段）

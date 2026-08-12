@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════════════
+# uv project 依赖管理 — Industrial Deep Diagnostic Shared Python Env
+#
+# 这是全管线 Python 脚本的唯一依赖声明文件。
+# uv 会在本目录下创建/同步 .venv（Windows: .venv\Scripts\python.exe）。
+#
+# 使用方式（所有 skill 脚本统一）:
+#   uv sync --project .claude/shared/scripts        # 安装/同步依赖
+#   uv run --project .claude/shared/scripts python <script>.py [args]
+#   # 或通过 uv_env_setup.mjs 解析 venv python 后直接执行（等价）
+#
+# 环境变量:
+#   UV_PROJECT_ENVIRONMENT  — 覆盖 venv 位置（默认 <本目录>/.venv）
+# ═══════════════════════════════════════════════════════════════════════
+
+[project]
+name = "industrial-deep-diagnostic-shared"
+version = "1.0.0"
+description = "Industrial Deep Diagnostic — shared Python environment for all pipeline scripts (baseline Step 0-9 + enhancement E0-E8)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # ── 核心数值计算（基线 + 增强管线必需）──
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+
+    # ── 可视化（data-processor 图表生成必需）──
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+
+    # ── 数据格式支持（Excel / Parquet / Feather）──
+    "openpyxl>=3.1.0",
+    "pyarrow>=12.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.uv]
+# 本目录不是可构建包，仅为脚本运行提供环境
+package = false
+# 锁定文件策略: uv.lock 由 uv sync 自动生成/更新
+# 允许直接使用系统 Python 创建 venv（无需预先安装 uv 管理的解释器）
+managed = true
+
+[tool.uv.pip]
+# 若通过 `uv pip` 安装，索引源

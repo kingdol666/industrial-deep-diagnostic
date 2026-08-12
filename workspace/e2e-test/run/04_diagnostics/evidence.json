@@ -1,0 +1,26 @@
+{
+  "run_id": "e2e_test",
+  "evidence_items": [
+    {
+      "id": "E1",
+      "rank": "L2",
+      "description": "Temperature-purity correlation r=0.65",
+      "supports": "H1",
+      "evidence_type": "statistical"
+    },
+    {
+      "id": "E2",
+      "rank": "L3",
+      "description": "Physical mechanism: Arrhenius equation",
+      "supports": "H1",
+      "evidence_type": "physical"
+    }
+  ],
+  "validation_evidence": [
+    {
+      "id": "V1",
+      "description": "Simpson check passed",
+      "result": "pass"
+    }
+  ]
+}

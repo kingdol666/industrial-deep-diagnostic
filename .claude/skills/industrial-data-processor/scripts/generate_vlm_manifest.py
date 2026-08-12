@@ -136,7 +136,7 @@ def main():
     
     # Build manifest
     vlm_manifest = {
-        'generated_at': pd.Timestamp.now().isoformat() if False else '2026-01-01T00:00:00Z',
+        'generated_at': '',  # set below
         'total_images_available': len(pm['plots']),
         'total_images_for_vlm': len(vlm_images),
         'total_images_excluded': len(pm['plots']) - len(vlm_images),

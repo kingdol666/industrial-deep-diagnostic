@@ -1,0 +1,365 @@
+{
+  "correlation": {
+    "data_summary": {
+      "data_view_mode": "unknown",
+      "total_rows": 200,
+      "numeric_columns_total": 5,
+      "numeric_columns_analyzed": 5,
+      "excluded_columns": [],
+      "target_columns": [
+        "reactor_temp",
+        "feed_rate",
+        "cooling_flow",
+        "catalyst_age",
+        "product_purity"
+      ],
+      "predictor_columns": [],
+      "time_column": null,
+      "group_column": null,
+      "group_values": [],
+      "max_lag": 20,
+      "alpha": 0.05
+    },
+    "sorting_validation": {
+      "time_sorted": null,
+      "time_column": null,
+      "message": "No time column specified or found."
+    },
+    "correlation_matrices": {
+      "pearson": {
+        "reactor_temp": {
+          "reactor_temp": 1.0,
+          "feed_rate": -0.0469,
+          "cooling_flow": -0.8509,
+          "catalyst_age": 0.9351,
+          "product_purity": 0.9476
+        },
+        "feed_rate": {
+          "reactor_temp": -0.0469,
+          "feed_rate": 1.0,
+          "cooling_flow": 0.0847,
+          "catalyst_age": -0.0802,
+          "product_purity": 0.1839
+        },
+        "cooling_flow": {
+          "reactor_temp": -0.8509,
+          "feed_rate": 0.0847,
+          "cooling_flow": 1.0,
+          "catalyst_age": -0.8991,
+          "product_purity": -0.8674
+        },
+        "catalyst_age": {
+          "reactor_temp": 0.9351,
+          "feed_rate": -0.0802,
+          "cooling_flow": -0.8991,
+          "catalyst_age": 1.0,
+          "product_purity": 0.8734
+        },
+        "product_purity": {
+          "reactor_temp": 0.9476,
+          "feed_rate": 0.1839,
+          "cooling_flow": -0.8674,
+          "catalyst_age": 0.8734,
+          "product_purity": 1.0
+        }
+      },
+      "spearman": {
+        "reactor_temp": {
+          "reactor_temp": 1.0,
+          "feed_rate": -0.0503,
+          "cooling_flow": -0.8638,
+          "catalyst_age": 0.9455,
+          "product_purity": 0.9464
+        },
+        "feed_rate": {
+          "reactor_temp": -0.0503,
+          "feed_rate": 1.0,
+          "cooling_flow": 0.0675,
+          "catalyst_age": -0.0861,
+          "product_purity": 0.1785
+        },
+        "cooling_flow": {
+          "reactor_temp": -0.8638,
+          "feed_rate": 0.0675,
+          "cooling_flow": 1.0,
+          "catalyst_age": -0.9066,
+          "product_purity": -0.873
+        },
+        "catalyst_age": {
+          "reactor_temp": 0.9455,
+          "feed_rate": -0.0861,
+          "cooling_flow": -0.9066,
+          "catalyst_age": 1.0,
+          "product_purity": 0.8804
+        },
+        "product_purity": {
+          "reactor_temp": 0.9464,
+          "feed_rate": 0.1785,
+          "cooling_flow": -0.873,
+          "catalyst_age": 0.8804,
+          "product_purity": 1.0
+        }
+      }
+    },
+    "mutual_information": {
+      "reactor_temp": {
+        "reactor_temp": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "feed_rate": {
+          "mi": 0.5058,
+          "mi_normalized": 0.1323,
+          "n": 200,
+          "k": 3
+        },
+        "cooling_flow": {
+          "mi": 1.1436,
+          "mi_normalized": 0.2992,
+          "n": 200,
+          "k": 3
+        },
+        "catalyst_age": {
+          "mi": 2.1108,
+          "mi_normalized": 0.5523,
+          "n": 200,
+          "k": 3
+        },
+        "product_purity": {
+          "mi": 1.3974,
+          "mi_normalized": 0.3656,
+          "n": 200,
+          "k": 3
+        }
+      },
+      "feed_rate": {
+        "reactor_temp": {
+          "mi": 0.5058,
+          "mi_normalized": 0.1323,
+          "n": 200,
+          "k": 3
+        },
+        "feed_rate": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "product_purity": {
+          "mi": 0.6148,
+          "mi_normalized": 0.1609,
+          "n": 200,
+          "k": 3
+        },
+        "cooling_flow": {
+          "mi": 0.8836,
+          "mi_normalized": 0.2312,
+          "n": 200,
+          "k": 3
+        },
+        "catalyst_age": {
+          "mi": 0.8669,
+          "mi_normalized": 0.2268,
+          "n": 200,
+          "k": 3
+        }
+      },
+      "product_purity": {
+        "reactor_temp": {
+          "mi": 1.3974,
+          "mi_normalized": 0.3656,
+          "n": 200,
+          "k": 3
+        },
+        "product_purity": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        }
+      },
+      "cooling_flow": {
+        "reactor_temp": {
+          "mi": 1.1436,
+          "mi_normalized": 0.2992,
+          "n": 200,
+          "k": 3
+        },
+        "feed_rate": {
+          "mi": 0.8836,
+          "mi_normalized": 0.2312,
+          "n": 200,
+          "k": 3
+        },
+        "cooling_flow": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "product_purity": {
+          "mi": 1.3822,
+          "mi_normalized": 0.3616,
+          "n": 200,
+          "k": 3
+        },
+        "catalyst_age": {
+          "mi": 1.4968,
+          "mi_normalized": 0.3916,
+          "n": 200,
+          "k": 3
+        }
+      },
+      "catalyst_age": {
+        "reactor_temp": {
+          "mi": 2.1108,
+          "mi_normalized": 0.5523,
+          "n": 200,
+          "k": 3
+        },
+        "feed_rate": {
+          "mi": 0.8669,
+          "mi_normalized": 0.2268,
+          "n": 200,
+          "k": 3
+        },
+        "cooling_flow": {
+          "mi": 1.4968,
+          "mi_normalized": 0.3916,
+          "n": 200,
+          "k": 3
+        },
+        "catalyst_age": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "product_purity": {
+          "mi": 1.9442,
+          "mi_normalized": 0.5087,
+          "n": 200,
+          "k": 3
+        }
+      }
+    },
+    "target_analysis": {
+      "reactor_temp": {
+        "pearson_correlations": {},
+        "spearman_correlations": {},
+        "detrended_correlations": {},
+        "lagged_ccf": {},
+        "best_lags": {},
+        "lag_window_consistency": {}
+      },
+      "feed_rate": {
+        "pearson_correlations": {},
+        "spearman_correlations": {},
+        "detrended_correlations": {},
+        "lagged_ccf": {},
+        "best_lags": {},
+        "lag_window_consistency": {}
+      },
+      "cooling_flow": {
+        "pearson_correlations": {},
+        "spearman_correlations": {},
+        "detrended_correlations": {},
+        "lagged_ccf": {},
+        "best_lags": {},
+        "lag_window_consistency": {}
+      },
+      "catalyst_age": {
+        "pearson_correlations": {},
+        "spearman_correlations": {},
+        "detrended_correlations": {},
+        "lagged_ccf": {},
+        "best_lags": {},
+        "lag_window_consistency": {}
+      },
+      "product_purity": {
+        "pearson_correlations": {},
+        "spearman_correlations": {},
+        "detrended_correlations": {},
+        "lagged_ccf": {},
+        "best_lags": {},
+        "lag_window_consistency": {}
+      }
+    },
+    "granger_causality": null,
+    "interaction_effects": [],
+    "multiple_testing": {
+      "total_tests": 0,
+      "nominally_significant_p0_05": 0,
+      "expected_false_positives": 0,
+      "bonferroni_threshold": 0.05,
+      "bonferroni_significant": 0
+    },
+    "stratified_analysis": null
+  },
+  "anti_spurious": {
+    "generated_at": "2026-08-12T18:33:03.054609",
+    "summary": {
+      "total_targets": 5,
+      "total_parameters": 0,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 0,
+      "fatal_issues": 0,
+      "serious_count": 0,
+      "moderate_count": 0
+    },
+    "sorting_validation": {
+      "time_sorted": null,
+      "time_column": null,
+      "message": "No time column specified or found."
+    },
+    "lag_warning": null,
+    "distribution_analysis": {
+      "reactor_temp": {
+        "skewness": 0.07,
+        "mean_median_ratio": 1.004,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "feed_rate": {
+        "skewness": 0.019,
+        "mean_median_ratio": 1.0,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "cooling_flow": {
+        "skewness": 0.104,
+        "mean_median_ratio": 0.998,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "catalyst_age": {
+        "skewness": 0.0,
+        "mean_median_ratio": 1.0,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "product_purity": {
+        "skewness": -0.008,
+        "mean_median_ratio": 1.0,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      }
+    },
+    "outlier_sensitivity": [],
+    "leave_one_out_leverage": [],
+    "time_trend_confounding": [],
+    "simpson_paradox": [],
+    "spearman_divergence": [],
+    "change_point_detection": {},
+    "multiple_testing_warning": null,
+    "overall_validity": "ROBUST — Statistical evidence passes robustness checks. Correlation findings are stable."
+  },
+  "batch": {
+    "applicable": false,
+    "id_col": null,
+    "duplicate_batches": [],
+    "split_record_count": 0,
+    "action": "none"
+  }
+}

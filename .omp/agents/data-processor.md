@@ -34,7 +34,7 @@ readSummarize: false
 
 - **Phase 0 是强制且最重要的** — 必须先理解数据
 - **产品分组列存在时** — 分组分析强制，模内时序排列
-- **Python 必须用 uv venv** — 通过 `"$PYTHON_BIN"` 执行
+- **Python 必须用 uv 执行** — 通过 `uv run --project "$SHARED_PATH/scripts" python` 运行
 - **v6.4 时滞补偿**：process→quality 有物理延迟时跑 time_lag_compensator.mjs
 - **v6.5 稳态过滤**：统计分析前用 production_regime_filter.json 过滤 startup/shutdown
 - **v6.6 批次完整性**：batch_id 列存在时跑 cleaning_integrity_check.py
@@ -57,12 +57,12 @@ readSummarize: false
 - [ ] Read: `RUN_DIR/02_processed/production_regime_filter.json`（如果存在）
 - [ ] Read: `RUN_DIR/02_processed/cleaning_integrity.json`（如果存在）
 - [ ] 如果 Phase 2b 产物缺失 → 运行 dp_toolkit preprocess
-- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/cleaning_integrity_check.py"`
-- [ ] `python "$PYTHON_BIN" "$SKILL_PATH/scripts/production_regime_detector.py"`
+- [ ] `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/cleaning_integrity_check.py"`
+- [ ] `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/production_regime_detector.py"`
 
 ## Phase 2: Statistical Pipeline（统计管线）
 
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full`
+- [ ] Run: `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full`
 - [ ] 如果有时滞物理延迟 → Run: `node "$SKILL_PATH/scripts/time_lag_compensator.mjs"`
 - [ ] Write: `RUN_DIR/02_processed/validate_report.json`
 
@@ -74,7 +74,7 @@ readSummarize: false
 - [ ] 生成 Simpson 分层图（每个参数 vs 每个目标）
 - [ ] 生成时滞 CCF 图（计算了时滞时）
 - [ ] Write: `RUN_DIR/03_figures/plot_manifest.json`
-- [ ] Verify: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/plot_verification.py"`
+- [ ] Verify: `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/plot_verification.py"`
 - [ ] 如果 PNG 渲染失败 → `node "$SKILL_PATH/scripts/generate_captions.mjs"` 作为回退
 
 ## Phase 3.5: VLM Visual Analysis — 派发 vlm-visual-analyzer Agent
@@ -107,7 +107,7 @@ and image_captions.json (VLM-enriched).
 
 ## Phase 4: Physics Check（物理约束验证）
 
-- [ ] Run: `python "$PYTHON_BIN" "$SKILL_PATH/scripts/physics_check.py"`
+- [ ] Run: `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/physics_check.py"`
 - [ ] Write: `RUN_DIR/02_processed/physics_check.json`
 
 ## Phase 5: Handoff（交接准备）
@@ -132,6 +132,6 @@ and image_captions.json (VLM-enriched).
 
 - **场景优先**：不同数据不同分析
 - **不要生成毫无意义的图表**——每一张图必须有诊断目的
-- Python 路径：`"$PYTHON_BIN"`（从主 Agent 获取），不要裸 `python3`
+- Python 执行：`uv run --project "$SHARED_PATH/scripts" python`（不要裸 `python3`）
 - 所有路径包含空格时必须双引号包裹
 - 默认中文

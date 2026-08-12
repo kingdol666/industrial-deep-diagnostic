@@ -342,9 +342,13 @@ Skill({
 
 | Output | Description |
 |--------|-------------|
-| 00_input/rag_deep_understanding.json | RAG 深度理解结果 |
-| 00_input/extracted_knowledge.json | 提取的知识条目 |
-| ontology.json | 领域本体模型 (schema-valid) |
+| 00_input/rag_ontology_draft.json | RAG 本体草案 |
+| 00_input/rag_ontology_nl_spec.md | 自然语言本体规范 |
+| 00_input/rag_structured_data.json | 结构化知识数据 |
+| 00_input/rag_scored_chunks.json | 评分后的知识块 |
+| 00_input/rag_audit_log.json | RAG 检索审计日志 |
+| 00_input/rag_clarification_needed.json | 澄清请求 |
+| 00_input/rag_deep_understanding.json | RAG 深度理解结果 (context-builder 消费) |
 
 ---
 
@@ -355,7 +359,7 @@ Skill({
 ```bash
 SKILL_PATH="<path-to-.claude/skills/rag-knowledge-builder>"
 SHARED_PATH="<path-to-.claude/shared>"
-python "$SKILL_PATH/scripts/rag_client.py" --query "<domain>" --run-dir "$RUN_DIR"
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/rag_client.py" --query "<domain>" --run-dir "$RUN_DIR"
 ```
 
 ---
@@ -366,7 +370,7 @@ python "$SKILL_PATH/scripts/rag_client.py" --query "<domain>" --run-dir "$RUN_DI
 # Check ontology output exists
 test -f "$RUN_DIR/ontology.json"
 # RAG engine health (optional)
-python "$SKILL_PATH/scripts/rag_client.py" health || echo "RAG offline — fallback used"
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/rag_client.py" health || echo "RAG offline — fallback used"
 ```
 
 ## Pipeline Event Logging

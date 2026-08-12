@@ -26,7 +26,7 @@ readSummarize: false
 ## Execution
 
 ```bash
-python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
+uv run --project .claude/shared/scripts python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
   --knowledge <ENHANCED_KNOWLEDGE> \
   --output <OUTPUT_HTML>
 ```

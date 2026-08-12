@@ -88,7 +88,7 @@ Before dispatching VLM, generate VLM-optimized temporal overlay charts following
 ```bash
 # Generate fig_vlm_temporal_overlay.png (all parameters, z-score normalized, direction-aligned)
 # Generate fig_vlm_per_product_overlay.png (per-group temporal alignment)
-python "$SKILL_PATH/scripts/generate_vlm_charts.py" "$RUN_DIR" \
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/generate_vlm_charts.py" "$RUN_DIR" \
   --target-cols <quality_cols> \
   --key-params <process_params> \
   --group-col <group_col> \
@@ -117,7 +117,7 @@ Key design specs for VLM chart（参考 `resources/visual_analysis_framework.md`
 
 ```bash
 # Generate vlm_input_manifest.json (selects which images VLM reads)
-python "$SKILL_PATH/scripts/generate_vlm_manifest.py" "$RUN_DIR" --plot-manifest "$RUN_DIR/03_figures/plot_manifest.json"
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/generate_vlm_manifest.py" "$RUN_DIR" --plot-manifest "$RUN_DIR/03_figures/plot_manifest.json"
 ```
 
 #### Step 2: Write Skeleton (Fallback Base)
@@ -168,7 +168,7 @@ VLM 分析完成后进行防伪造验证：
 # Verify source_agent, skeleton_overwritten, and that only vlm_input_manifest images were read
 node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
 # Verify that excluded images were NOT read
-python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files]; print(f'VLM read {len(read)}/{len(vlm_files)} selected images, excluded reads: {excluded_read if excluded_read else "NONE (clean)"}')"
+uv run --project "$SHARED_PATH/scripts" python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files]; print(f'VLM read {len(read)}/{len(vlm_files)} selected images, excluded reads: {excluded_read if excluded_read else "NONE (clean)"}')"
 
 ### Post-Processing (after both agents complete)
 
@@ -279,6 +279,6 @@ Missing outputs auto-restored by scripts in `.claude/skills/industrial-data-proc
 | Scenario | Recovery |
 |----------|----------|
 | Python venv missing | `node .claude/shared/scripts/uv_env_setup.mjs` |
-| Files >500MB | `python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
+|| Files >500MB | `uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
 | Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
 | No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |

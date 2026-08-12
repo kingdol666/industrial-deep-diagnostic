@@ -1,0 +1,114 @@
+{
+  "run_id": "e2e_test",
+  "relationship_verifications": [
+    {
+      "predictor": "catalyst_age",
+      "target": "product_purity",
+      "direction": "MATCH",
+      "functional_form": "MATCH",
+      "time_lag": "MATCH",
+      "magnitude": "UNTESTED",
+      "state_dependence": "STABLE",
+      "overall_status": "plausible",
+      "evidence_refs": [
+        "deep_data.catalyst_age_to_product_purity.global_r=0.8734",
+        "deep_data.catalyst_age_to_product_purity.detrended_r=0.8764",
+        "deep_data.catalyst_age_to_product_purity.form_match: consistent with linear/monotonic; expected: negative_monotonic"
+      ]
+    },
+    {
+      "predictor": "cooling_flow",
+      "target": "product_purity",
+      "direction": "MATCH",
+      "functional_form": "MATCH",
+      "time_lag": "MATCH",
+      "magnitude": "UNTESTED",
+      "state_dependence": "STABLE",
+      "overall_status": "plausible",
+      "evidence_refs": [
+        "deep_data.cooling_flow_to_product_purity.global_r=-0.8675",
+        "deep_data.cooling_flow_to_product_purity.detrended_r=-0.8791",
+        "deep_data.cooling_flow_to_product_purity.form_match: consistent with linear/monotonic; expected: negative_monotonic"
+      ]
+    },
+    {
+      "predictor": "feed_rate",
+      "target": "product_purity",
+      "direction": "MATCH",
+      "functional_form": "MATCH",
+      "time_lag": "MISMATCH",
+      "magnitude": "UNTESTED",
+      "state_dependence": "STABLE",
+      "overall_status": "plausible",
+      "evidence_refs": [
+        "deep_data.feed_rate_to_product_purity.global_r=0.1839",
+        "deep_data.feed_rate_to_product_purity.detrended_r=0.1469",
+        "deep_data.feed_rate_to_product_purity.form_match: quadratic curvature detected (R² improvement 0.055); expected: positive_monotonic"
+      ]
+    },
+    {
+      "predictor": "reactor_temp",
+      "target": "product_purity",
+      "direction": "MATCH",
+      "functional_form": "MATCH",
+      "time_lag": "MATCH",
+      "magnitude": "UNTESTED",
+      "state_dependence": "STABLE",
+      "overall_status": "plausible",
+      "evidence_refs": [
+        "deep_data.reactor_temp_to_product_purity.global_r=0.9476",
+        "deep_data.reactor_temp_to_product_purity.detrended_r=0.9495",
+        "deep_data.reactor_temp_to_product_purity.form_match: consistent with linear/monotonic; expected: positive_monotonic"
+      ]
+    },
+    {
+      "predictor": "time_since_product_grade_transition",
+      "target": "product_purity",
+      "direction": "UNTESTED",
+      "functional_form": "UNTESTED",
+      "time_lag": "UNTESTED",
+      "magnitude": "UNTESTED",
+      "state_dependence": "REVERSES",
+      "overall_status": "plausible",
+      "evidence_refs": [
+        "deep_data.time_since_product_grade_transition_to_product_purity.global_r=0.0293",
+        "deep_data.time_since_product_grade_transition_to_product_purity.detrended_r=0.0699",
+        "deep_data.time_since_product_grade_transition_to_product_purity.form_match: no detectable linear relationship; possible nonlinear or delayed_response"
+      ]
+    }
+  ],
+  "mechanism_chains": [
+    {
+      "chain_id": "MC-001",
+      "claim": ": ",
+      "evidence_refs": [],
+      "physics_law": "Unknown",
+      "data_support": "证据强度=未知, 函数形态验证=未知, 方向验证=未知",
+      "diagnosis_support": "hypothesis_id=H1, confidence=?, verdict=SURVIVING, chain_quality=",
+      "competing_explanations": [
+        "  (EXCLUDED: )",
+        "  (EXCLUDED: )"
+      ],
+      "what_would_change_conclusion": "If temp-purity correlation vanishes in steady-state only"
+    }
+  ],
+  "competing_explanations": [
+    {
+      "explanation": ": ",
+      "support_level": "Exclusion confidence: 92%",
+      "against": [
+        ""
+      ],
+      "resolution": "Excluded via UNKNOWN reasoning. Revival condition: None"
+    },
+    {
+      "explanation": ": ",
+      "support_level": "Exclusion confidence: 88%",
+      "against": [
+        ""
+      ],
+      "resolution": "Excluded via UNKNOWN reasoning. Revival condition: None"
+    }
+  ],
+  "evidence_gaps": []
+}

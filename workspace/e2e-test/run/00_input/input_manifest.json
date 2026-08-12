@@ -1,0 +1,40 @@
+{
+  "run_id": "e2e_test",
+  "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\00_input\\preprocessed_data.csv",
+  "raw_data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\synthetic_process_data.csv",
+  "data_profile": {
+    "rows": 200,
+    "columns": 7
+  },
+  "columns": [
+    {
+      "name": "timestamp",
+      "type": "datetime"
+    },
+    {
+      "name": "reactor_temp",
+      "type": "number"
+    },
+    {
+      "name": "feed_rate",
+      "type": "number"
+    },
+    {
+      "name": "cooling_flow",
+      "type": "number"
+    },
+    {
+      "name": "catalyst_age",
+      "type": "number"
+    },
+    {
+      "name": "product_purity",
+      "type": "number"
+    },
+    {
+      "name": "product_grade",
+      "type": "string"
+    }
+  ],
+  "inspected_at": "2026-08-12T10:33:00.086Z"
+}

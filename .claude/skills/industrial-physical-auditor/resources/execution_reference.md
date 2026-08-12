@@ -9,7 +9,7 @@ PYTHON=$(node "$SHARED_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "
   })
 ")
 if [ -z "$PYTHON" ] || ! "$PYTHON" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
-  VENV_PY="$SKILL_PATH/scripts/.venv/bin/python"
+  VENV_PY="$SHARED_PATH/scripts/.venv/bin/python"
   if [ -f "$VENV_PY" ] && "$VENV_PY" -c "import matplotlib, numpy, pandas" 2>/dev/null; then
     PYTHON="$VENV_PY"
   else

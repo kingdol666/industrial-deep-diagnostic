@@ -1,0 +1,69 @@
+{
+  "run_id": "enhancement-derived",
+  "features": [
+    {
+      "name": "cumulative_exposure",
+      "status": "not_applicable",
+      "formula": "∫ C dt over sorted time",
+      "physics_basis": "No poisoning/fouling/impurity driver column detected in ontology parameter groups or column names",
+      "unit": "dimensionless*time",
+      "source_columns": [
+        "(none — no driver column detected)"
+      ],
+      "row_range": "N/A",
+      "mask": "N/A",
+      "derived": false
+    },
+    {
+      "name": "time_since_product_grade_transition",
+      "status": "computed",
+      "formula": "time since product_grade group transition (hours)",
+      "physics_basis": "Time since the most recent product_grade group transition; captures state-dependent drift within each segment",
+      "unit": "hours",
+      "source_columns": [
+        "product_grade",
+        "timestamp"
+      ],
+      "row_range": "rows 0-199",
+      "mask": "timestamp IS FINITE",
+      "derived": true
+    },
+    {
+      "name": "regime_steady",
+      "status": "computed",
+      "formula": "indicator(steady) from production_regime_filter",
+      "physics_basis": "Process regime indicator for steady operating state",
+      "unit": "binary",
+      "source_columns": [
+        "production_regime_filter.per_row_labels"
+      ],
+      "row_range": "rows 0-199",
+      "mask": "per_row_labels IS DEFINED",
+      "derived": true
+    },
+    {
+      "name": "regime_transition",
+      "status": "computed",
+      "formula": "indicator(transition) from production_regime_filter",
+      "physics_basis": "Process regime indicator for transition operating state",
+      "unit": "binary",
+      "source_columns": [
+        "production_regime_filter.per_row_labels"
+      ],
+      "row_range": "rows 0-199",
+      "mask": "per_row_labels IS DEFINED",
+      "derived": true
+    },
+    {
+      "name": "lag_aligned_feature",
+      "status": "not_applicable",
+      "formula": "predictor shifted by optimal_lag_steps",
+      "physics_basis": "Lag alignment from time_lag_analysis; no nonzero lag found or source/target unavailable",
+      "unit": "same_as_source",
+      "source_columns": [],
+      "row_range": "N/A",
+      "mask": "N/A",
+      "derived": false
+    }
+  ]
+}

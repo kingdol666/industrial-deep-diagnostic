@@ -1,70 +1,82 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Enhancement HTML Review Schema v1.0",
-  "description": "增强诊断可视化页面审校——独立审核 enhanced-html-visualizer 输出的 HTML 页面质量。由 enhanced-html-reviewer 生成。与基线 html_review_schema 并行但聚焦增强层特有维度。",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "verdict",
-    "overall_score",
-    "blocking_issues",
-    "warnings",
-    "checks"
-  ],
-  "properties": {
-    "verdict": {
-      "description": "最终审校结论",
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Enhancement HTML Review Schema v1.0",
+ "description": "增强诊断可视化页面审校——独立审核 enhanced-html-visualizer 输出的 HTML 页面质量。由 enhanced-html-reviewer 生成。与基线 html_review_schema 并行但聚焦增强层特有维度。",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "verdict",
+  "overall_score",
+  "blocking_issues",
+  "warnings",
+  "checks"
+ ],
+ "properties": {
+  "verdict": {
+   "description": "最终审校结论",
+   "type": "string",
+   "enum": [
+    "pass",
+    "warn",
+    "fail"
+   ]
+  },
+  "overall_score": {
+   "description": "总体质量评分 (0-100)",
+   "type": "number",
+   "minimum": 0,
+   "maximum": 100
+  },
+  "blocking_issues": {
+   "description": "必须解决的阻塞问题",
+   "type": "array",
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "warnings": {
+   "description": "非阻塞改进建议",
+   "type": "array",
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "checks": {
+   "description": "逐项检查结果",
+   "type": "array",
+   "minItems": 0,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "status",
+     "evidence"
+    ],
+    "properties": {
+     "name": {
+      "description": "检查项标识",
       "type": "string",
-      "enum": ["pass", "warn", "fail"]
-    },
-    "overall_score": {
-      "description": "总体质量评分 (0-100)",
-      "type": "number",
-      "minimum": 0,
-      "maximum": 100
-    },
-    "blocking_issues": {
-      "description": "必须解决的阻塞问题",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "minLength": 1
-      }
-    },
-    "warnings": {
-      "description": "非阻塞改进建议",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "minLength": 1
-      }
-    },
-    "checks": {
-      "description": "逐项检查结果",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["name", "status", "evidence"],
-        "properties": {
-          "name": {
-            "description": "检查项标识",
-            "type": "string",
-            "minLength": 1
-          },
-          "status": {
-            "description": "检查项结论",
-            "type": "string",
-            "enum": ["pass", "warn", "fail"]
-          },
-          "evidence": {
-            "description": "支持证据或解释",
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      }
+      "minLength": 1
+     },
+     "status": {
+      "description": "检查项结论",
+      "type": "string",
+      "enum": [
+       "pass",
+       "warn",
+       "fail"
+      ]
+     },
+     "evidence": {
+      "description": "支持证据或解释",
+      "type": "string",
+      "minLength": 1
+     }
     }
+   }
   }
+ }
 }

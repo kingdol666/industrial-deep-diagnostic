@@ -1,0 +1,1481 @@
+{
+  "run_id": "enhancement-deep-analysis",
+  "enhancement_status": "READY",
+  "relationship_graph": {
+    "nodes": [
+      {
+        "id": "timestamp",
+        "label": "timestamp",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "unknown",
+        "coverage_status": "not_applicable",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "reactor_temp",
+        "label": "reactor_temp",
+        "type": "parameter",
+        "unit": "dimensionless",
+        "role": "predictor",
+        "coverage_status": "covered_primary",
+        "support_domain": {
+          "p5": 80.595,
+          "p25": 84.675,
+          "p50": 89.7,
+          "p75": 94.97500000000001,
+          "p95": 100.00999999999999,
+          "n": 200,
+          "current_median": 89.7
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "feed_rate",
+        "label": "feed_rate",
+        "type": "parameter",
+        "unit": "dimensionless",
+        "role": "predictor",
+        "coverage_status": "covered_primary",
+        "support_domain": {
+          "p5": 96.0,
+          "p25": 97.1,
+          "p50": 99.9,
+          "p75": 102.8,
+          "p95": 103.905,
+          "n": 200,
+          "current_median": 99.9
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "cooling_flow",
+        "label": "cooling_flow",
+        "type": "parameter",
+        "unit": "dimensionless",
+        "role": "predictor",
+        "coverage_status": "covered_primary",
+        "support_domain": {
+          "p5": 39.985,
+          "p25": 42.45,
+          "p50": 45.2,
+          "p75": 47.525,
+          "p95": 50.705,
+          "n": 200,
+          "current_median": 45.2
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "catalyst_age",
+        "label": "catalyst_age",
+        "type": "parameter",
+        "unit": "dimensionless",
+        "role": "predictor",
+        "coverage_status": "covered_primary",
+        "support_domain": {
+          "p5": 10.995000000000001,
+          "p25": 14.975,
+          "p50": 19.95,
+          "p75": 24.924999999999997,
+          "p95": 28.904999999999998,
+          "n": 200,
+          "current_median": 19.95
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "product_purity",
+        "label": "product_purity",
+        "type": "target",
+        "unit": "dimensionless",
+        "role": "target",
+        "coverage_status": "covered_primary",
+        "support_domain": {
+          "p5": 95.226,
+          "p25": 96.8925,
+          "p50": 98.98,
+          "p75": 100.9475,
+          "p95": 102.755,
+          "n": 200,
+          "current_median": 98.98
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "product_grade",
+        "label": "product_grade",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "unknown",
+        "coverage_status": "not_applicable",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "reactor_temp_dev",
+        "label": "reactor_temp_dev",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "derived_deviation",
+        "coverage_status": "derived_and_used",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "cooling_flow_dev",
+        "label": "cooling_flow_dev",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "derived_deviation",
+        "coverage_status": "derived_and_used",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "catalyst_age_dev",
+        "label": "catalyst_age_dev",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "derived_deviation",
+        "coverage_status": "derived_and_used",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "product_purity_dev",
+        "label": "product_purity_dev",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "derived_deviation",
+        "coverage_status": "derived_and_used",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "time_hours",
+        "label": "time_hours",
+        "type": "parameter",
+        "unit": "metadata",
+        "role": "derived_time",
+        "coverage_status": "not_applicable",
+        "support_domain": {
+          "p5": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "p95": 0.0,
+          "n": 1,
+          "current_median": 0.0
+        },
+        "physics_ref": "NOT_APPLICABLE"
+      },
+      {
+        "id": "cumulative_exposure",
+        "label": "cumulative_exposure",
+        "type": "derived",
+        "unit": "dimensionless*time",
+        "role": "derived_feature",
+        "formula": "∫ C dt over sorted time",
+        "source_columns": [
+          "(none — no driver column detected)"
+        ],
+        "status": "not_applicable"
+      },
+      {
+        "id": "time_since_product_grade_transition",
+        "label": "time_since_product_grade_transition",
+        "type": "derived",
+        "unit": "hours",
+        "role": "derived_feature",
+        "formula": "time since product_grade group transition (hours)",
+        "source_columns": [
+          "product_grade",
+          "timestamp"
+        ],
+        "status": "computed"
+      },
+      {
+        "id": "regime_steady",
+        "label": "regime_steady",
+        "type": "derived",
+        "unit": "binary",
+        "role": "derived_feature",
+        "formula": "indicator(steady) from production_regime_filter",
+        "source_columns": [
+          "production_regime_filter.per_row_labels"
+        ],
+        "status": "computed"
+      },
+      {
+        "id": "regime_transition",
+        "label": "regime_transition",
+        "type": "derived",
+        "unit": "binary",
+        "role": "derived_feature",
+        "formula": "indicator(transition) from production_regime_filter",
+        "source_columns": [
+          "production_regime_filter.per_row_labels"
+        ],
+        "status": "computed"
+      },
+      {
+        "id": "lag_aligned_feature",
+        "label": "lag_aligned_feature",
+        "type": "derived",
+        "unit": "same_as_source",
+        "role": "derived_feature",
+        "formula": "predictor shifted by optimal_lag_steps",
+        "source_columns": [],
+        "status": "not_applicable"
+      }
+    ],
+    "edges": [
+      {
+        "source": "reactor_temp",
+        "target": "product_purity",
+        "relationship": "supports",
+        "strength": 0.947574,
+        "sign": 1,
+        "confidence": 1.0,
+        "causal_ceiling": "ontology_consistent",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": 0.947574,
+          "p_value": 1e-300,
+          "p_floor_hit": true,
+          "detrended_r": 0.0,
+          "partial_r": 0.849403,
+          "partial_method": "full_order_ridge",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": 0.948481,
+          "lag_aligned_r": 0.944962,
+          "direct_association": true,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.998888,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {
+          "direction": "MATCH",
+          "functional_form": "MATCH",
+          "time_lag": "MATCH",
+          "magnitude": "UNTESTED",
+          "state_dependence": "STABLE",
+          "overall_status": "plausible"
+        },
+        "operability": "LEVER_OBSERVATIONAL",
+        "evidence_ref": "deep_data.reactor_temp_to_product_purity.global_r=0.9476, deep_data.reactor_temp_to_product_purity.detrended_r=0.9495, deep_data.reactor_temp_to_product_purity.form_match: consistent with linear/monotonic; expected: positive_monotonic",
+        "validity_flags": {
+          "simpson_paradox_checked": true,
+          "confounding_checked": true,
+          "trend_confounding_checked": true,
+          "change_point_tested": true,
+          "batch_effect_tested": true,
+          "lag_significant": false,
+          "outlier_influence_checked": true,
+          "insufficient_data": false
+        }
+      },
+      {
+        "source": "reactor_temp",
+        "target": "catalyst_age",
+        "relationship": "supports",
+        "strength": 0.93512,
+        "sign": 1,
+        "confidence": 0.6,
+        "causal_ceiling": "contemporaneous_correlation",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": 0.93512,
+          "p_value": 1e-300,
+          "p_floor_hit": true,
+          "detrended_r": 0.0,
+          "partial_r": 0.0,
+          "partial_method": "",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": 0.0,
+          "lag_aligned_r": 0.0,
+          "direct_association": false,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.0,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {},
+        "operability": "UNCLASSIFIED",
+        "evidence_ref": "",
+        "validity_flags": {}
+      },
+      {
+        "source": "cooling_flow",
+        "target": "catalyst_age",
+        "relationship": "inhibits",
+        "strength": -0.899113,
+        "sign": -1,
+        "confidence": 0.6,
+        "causal_ceiling": "contemporaneous_correlation",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": -0.899113,
+          "p_value": 1.0738750122918625e-183,
+          "p_floor_hit": false,
+          "detrended_r": 0.0,
+          "partial_r": 0.0,
+          "partial_method": "",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": 0.0,
+          "lag_aligned_r": 0.0,
+          "direct_association": false,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.0,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {},
+        "operability": "UNCLASSIFIED",
+        "evidence_ref": "",
+        "validity_flags": {}
+      },
+      {
+        "source": "catalyst_age",
+        "target": "product_purity",
+        "relationship": "supports",
+        "strength": 0.873427,
+        "sign": 1,
+        "confidence": 1.0,
+        "causal_ceiling": "ontology_consistent",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": 0.873427,
+          "p_value": 1.5013857780947227e-140,
+          "p_floor_hit": false,
+          "detrended_r": 0.0,
+          "partial_r": -0.363744,
+          "partial_method": "full_order_ridge",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": 0.874541,
+          "lag_aligned_r": 0.87062,
+          "direct_association": false,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.997444,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {
+          "direction": "MATCH",
+          "functional_form": "MATCH",
+          "time_lag": "MATCH",
+          "magnitude": "UNTESTED",
+          "state_dependence": "STABLE",
+          "overall_status": "plausible"
+        },
+        "operability": "LEVER_OBSERVATIONAL",
+        "evidence_ref": "deep_data.catalyst_age_to_product_purity.global_r=0.8734, deep_data.catalyst_age_to_product_purity.detrended_r=0.8764, deep_data.catalyst_age_to_product_purity.form_match: consistent with linear/monotonic; expected: negative_monotonic",
+        "validity_flags": {
+          "simpson_paradox_checked": true,
+          "confounding_checked": true,
+          "trend_confounding_checked": true,
+          "change_point_tested": true,
+          "batch_effect_tested": true,
+          "lag_significant": false,
+          "outlier_influence_checked": true,
+          "insufficient_data": false
+        }
+      },
+      {
+        "source": "cooling_flow",
+        "target": "product_purity",
+        "relationship": "inhibits",
+        "strength": -0.86745,
+        "sign": -1,
+        "confidence": 1.0,
+        "causal_ceiling": "ontology_consistent",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": -0.86745,
+          "p_value": 6.466056739280218e-133,
+          "p_floor_hit": false,
+          "detrended_r": 0.0,
+          "partial_r": -0.629726,
+          "partial_method": "full_order_ridge",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": -0.867749,
+          "lag_aligned_r": -0.863561,
+          "direct_association": true,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.997336,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {
+          "direction": "MATCH",
+          "functional_form": "MATCH",
+          "time_lag": "MATCH",
+          "magnitude": "UNTESTED",
+          "state_dependence": "STABLE",
+          "overall_status": "plausible"
+        },
+        "operability": "LEVER_OBSERVATIONAL",
+        "evidence_ref": "deep_data.cooling_flow_to_product_purity.global_r=-0.8675, deep_data.cooling_flow_to_product_purity.detrended_r=-0.8791, deep_data.cooling_flow_to_product_purity.form_match: consistent with linear/monotonic; expected: negative_monotonic",
+        "validity_flags": {
+          "simpson_paradox_checked": true,
+          "confounding_checked": true,
+          "trend_confounding_checked": true,
+          "change_point_tested": true,
+          "batch_effect_tested": true,
+          "lag_significant": false,
+          "outlier_influence_checked": true,
+          "insufficient_data": false
+        }
+      },
+      {
+        "source": "reactor_temp",
+        "target": "cooling_flow",
+        "relationship": "inhibits",
+        "strength": -0.85091,
+        "sign": -1,
+        "confidence": 0.6,
+        "causal_ceiling": "contemporaneous_correlation",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": -0.85091,
+          "p_value": 5.398129626160644e-115,
+          "p_floor_hit": false,
+          "detrended_r": 0.0,
+          "partial_r": 0.0,
+          "partial_method": "",
+          "temporal_direction": "concurrent",
+          "optimal_lag_steps": 0,
+          "ccf_peak_r": 0.0,
+          "lag_aligned_r": 0.0,
+          "direct_association": false,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.0,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "",
+          "q_value": 0.0,
+          "n_effective": 200
+        },
+        "physics_verification": {},
+        "operability": "UNCLASSIFIED",
+        "evidence_ref": "",
+        "validity_flags": {}
+      },
+      {
+        "source": "feed_rate",
+        "target": "product_purity",
+        "relationship": "supports",
+        "strength": 0.183948,
+        "sign": 1,
+        "confidence": 0.8,
+        "causal_ceiling": "insufficient_evidence",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": 0.183948,
+          "p_value": 0.008455567344463906,
+          "p_floor_hit": false,
+          "detrended_r": 0.146866,
+          "partial_r": 0.0,
+          "partial_method": "full_order_ridge",
+          "temporal_direction": "x_leads_y",
+          "optimal_lag_steps": 3,
+          "ccf_peak_r": -0.26129,
+          "lag_aligned_r": -0.250173,
+          "direct_association": true,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.98893,
+          "interaction_flagged": false,
+          "slope_at_current": 0.0,
+          "form_match": "quadratic curvature detected (R² improvement 0.055); expected: positive_monotonic",
+          "q_value": 0.010569,
+          "n_effective": 198
+        },
+        "physics_verification": {
+          "direction": "MATCH",
+          "functional_form": "MATCH",
+          "time_lag": "MISMATCH",
+          "magnitude": "UNTESTED",
+          "state_dependence": "STABLE",
+          "overall_status": "plausible"
+        },
+        "operability": "LEVER_OBSERVATIONAL",
+        "evidence_ref": "deep_data.feed_rate_to_product_purity.global_r=0.1839, deep_data.feed_rate_to_product_purity.detrended_r=0.1469, deep_data.feed_rate_to_product_purity.form_match: quadratic curvature detected (R² improvement 0.055); expected: positive_monotonic",
+        "validity_flags": {
+          "simpson_paradox_checked": true,
+          "confounding_checked": true,
+          "trend_confounding_checked": true,
+          "change_point_tested": true,
+          "batch_effect_tested": true,
+          "lag_significant": true,
+          "outlier_influence_checked": true,
+          "insufficient_data": false
+        }
+      },
+      {
+        "source": "time_since_product_grade_transition",
+        "target": "product_purity",
+        "relationship": "supports",
+        "strength": 0.02932,
+        "sign": 1,
+        "confidence": 0.2,
+        "causal_ceiling": "insufficient_evidence",
+        "ontology_contradiction": false,
+        "statistical_evidence": {
+          "global_r": 0.02932,
+          "p_value": 0.6797947973333875,
+          "p_floor_hit": false,
+          "detrended_r": 0.069859,
+          "partial_r": 0.0,
+          "partial_method": "full_order_ridge",
+          "temporal_direction": "x_leads_y",
+          "optimal_lag_steps": 1,
+          "ccf_peak_r": 0.151584,
+          "lag_aligned_r": 0.167119,
+          "direct_association": false,
+          "indirect_association": false,
+          "mediator_candidates": [],
+          "change_point_co_movement": 0.0,
+          "loo_stability": 0.988271,
+          "interaction_flagged": true,
+          "slope_at_current": 0.0,
+          "form_match": "no detectable linear relationship; possible nonlinear or delayed_response",
+          "q_value": 0.679795,
+          "n_effective": 198
+        },
+        "physics_verification": {
+          "direction": "UNTESTED",
+          "functional_form": "UNTESTED",
+          "time_lag": "UNTESTED",
+          "magnitude": "UNTESTED",
+          "state_dependence": "REVERSES",
+          "overall_status": "plausible"
+        },
+        "operability": "CONFOUNDED",
+        "evidence_ref": "deep_data.time_since_product_grade_transition_to_product_purity.global_r=0.0293, deep_data.time_since_product_grade_transition_to_product_purity.detrended_r=0.0699, deep_data.time_since_product_grade_transition_to_product_purity.form_match: no detectable linear relationship; possible nonlinear or delayed_response",
+        "validity_flags": {
+          "simpson_paradox_checked": true,
+          "confounding_checked": true,
+          "trend_confounding_checked": true,
+          "change_point_tested": true,
+          "batch_effect_tested": true,
+          "lag_significant": true,
+          "outlier_influence_checked": true,
+          "insufficient_data": false
+        }
+      }
+    ]
+  },
+  "causal_pathways": [
+    {
+      "path": [
+        "reactor_temp",
+        "product_purity"
+      ],
+      "start": "reactor_temp",
+      "end": "product_purity",
+      "path_length": 1,
+      "total_strength": 0.9476,
+      "min_confidence": 1.0,
+      "edges": [
+        {
+          "from": "reactor_temp",
+          "to": "product_purity",
+          "strength": 0.947574,
+          "relationship": "supports",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "catalyst_age",
+        "product_purity"
+      ],
+      "start": "catalyst_age",
+      "end": "product_purity",
+      "path_length": 1,
+      "total_strength": 0.8734,
+      "min_confidence": 1.0,
+      "edges": [
+        {
+          "from": "catalyst_age",
+          "to": "product_purity",
+          "strength": 0.873427,
+          "relationship": "supports",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "cooling_flow",
+        "product_purity"
+      ],
+      "start": "cooling_flow",
+      "end": "product_purity",
+      "path_length": 1,
+      "total_strength": 0.8675,
+      "min_confidence": 1.0,
+      "edges": [
+        {
+          "from": "cooling_flow",
+          "to": "product_purity",
+          "strength": -0.86745,
+          "relationship": "inhibits",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "reactor_temp",
+        "catalyst_age",
+        "product_purity"
+      ],
+      "start": "reactor_temp",
+      "end": "product_purity",
+      "path_length": 2,
+      "total_strength": 0.8168,
+      "min_confidence": 0.6,
+      "edges": [
+        {
+          "from": "reactor_temp",
+          "to": "catalyst_age",
+          "strength": 0.93512,
+          "relationship": "supports",
+          "confidence": 0.6,
+          "physics_verified": false
+        },
+        {
+          "from": "catalyst_age",
+          "to": "product_purity",
+          "strength": 0.873427,
+          "relationship": "supports",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "cooling_flow",
+        "catalyst_age",
+        "product_purity"
+      ],
+      "start": "cooling_flow",
+      "end": "product_purity",
+      "path_length": 2,
+      "total_strength": 0.7853,
+      "min_confidence": 0.6,
+      "edges": [
+        {
+          "from": "cooling_flow",
+          "to": "catalyst_age",
+          "strength": -0.899113,
+          "relationship": "inhibits",
+          "confidence": 0.6,
+          "physics_verified": false
+        },
+        {
+          "from": "catalyst_age",
+          "to": "product_purity",
+          "strength": 0.873427,
+          "relationship": "supports",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "reactor_temp",
+        "cooling_flow",
+        "product_purity"
+      ],
+      "start": "reactor_temp",
+      "end": "product_purity",
+      "path_length": 2,
+      "total_strength": 0.7381,
+      "min_confidence": 0.6,
+      "edges": [
+        {
+          "from": "reactor_temp",
+          "to": "cooling_flow",
+          "strength": -0.85091,
+          "relationship": "inhibits",
+          "confidence": 0.6,
+          "physics_verified": false
+        },
+        {
+          "from": "cooling_flow",
+          "to": "product_purity",
+          "strength": -0.86745,
+          "relationship": "inhibits",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    },
+    {
+      "path": [
+        "reactor_temp",
+        "cooling_flow",
+        "catalyst_age",
+        "product_purity"
+      ],
+      "start": "reactor_temp",
+      "end": "product_purity",
+      "path_length": 3,
+      "total_strength": 0.6682,
+      "min_confidence": 0.6,
+      "edges": [
+        {
+          "from": "reactor_temp",
+          "to": "cooling_flow",
+          "strength": -0.85091,
+          "relationship": "inhibits",
+          "confidence": 0.6,
+          "physics_verified": false
+        },
+        {
+          "from": "cooling_flow",
+          "to": "catalyst_age",
+          "strength": -0.899113,
+          "relationship": "inhibits",
+          "confidence": 0.6,
+          "physics_verified": false
+        },
+        {
+          "from": "catalyst_age",
+          "to": "product_purity",
+          "strength": 0.873427,
+          "relationship": "supports",
+          "confidence": 1.0,
+          "physics_verified": false
+        }
+      ]
+    }
+  ],
+  "parameter_centrality": [
+    {
+      "parameter": "reactor_temp",
+      "role": "predictor",
+      "type": "parameter",
+      "out_degree": 3,
+      "in_degree": 0,
+      "influence_score": 2.7336,
+      "is_hub": true,
+      "downstream_targets": [
+        "product_purity"
+      ],
+      "unit": "dimensionless",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "cooling_flow",
+      "role": "predictor",
+      "type": "parameter",
+      "out_degree": 2,
+      "in_degree": 1,
+      "influence_score": 1.7666,
+      "is_hub": true,
+      "downstream_targets": [
+        "product_purity"
+      ],
+      "unit": "dimensionless",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "catalyst_age",
+      "role": "predictor",
+      "type": "parameter",
+      "out_degree": 1,
+      "in_degree": 2,
+      "influence_score": 0.8734,
+      "is_hub": false,
+      "downstream_targets": [
+        "product_purity"
+      ],
+      "unit": "dimensionless",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "feed_rate",
+      "role": "predictor",
+      "type": "parameter",
+      "out_degree": 1,
+      "in_degree": 0,
+      "influence_score": 0.1839,
+      "is_hub": false,
+      "downstream_targets": [
+        "product_purity"
+      ],
+      "unit": "dimensionless",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "time_since_product_grade_transition",
+      "role": "derived_feature",
+      "type": "derived",
+      "out_degree": 1,
+      "in_degree": 0,
+      "influence_score": 0.0293,
+      "is_hub": false,
+      "downstream_targets": [
+        "product_purity"
+      ],
+      "unit": "hours",
+      "physics_ref": ""
+    },
+    {
+      "parameter": "timestamp",
+      "role": "unknown",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "product_purity",
+      "role": "target",
+      "type": "target",
+      "out_degree": 0,
+      "in_degree": 5,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "dimensionless",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "product_grade",
+      "role": "unknown",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "reactor_temp_dev",
+      "role": "derived_deviation",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "cooling_flow_dev",
+      "role": "derived_deviation",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "catalyst_age_dev",
+      "role": "derived_deviation",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "product_purity_dev",
+      "role": "derived_deviation",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "time_hours",
+      "role": "derived_time",
+      "type": "parameter",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "metadata",
+      "physics_ref": "NOT_APPLICABLE"
+    },
+    {
+      "parameter": "cumulative_exposure",
+      "role": "derived_feature",
+      "type": "derived",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "dimensionless*time",
+      "physics_ref": ""
+    },
+    {
+      "parameter": "regime_steady",
+      "role": "derived_feature",
+      "type": "derived",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "binary",
+      "physics_ref": ""
+    },
+    {
+      "parameter": "regime_transition",
+      "role": "derived_feature",
+      "type": "derived",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "binary",
+      "physics_ref": ""
+    },
+    {
+      "parameter": "lag_aligned_feature",
+      "role": "derived_feature",
+      "type": "derived",
+      "out_degree": 0,
+      "in_degree": 0,
+      "influence_score": 0,
+      "is_hub": false,
+      "downstream_targets": [],
+      "unit": "same_as_source",
+      "physics_ref": ""
+    }
+  ],
+  "control_levers": [
+    {
+      "parameter": "reactor_temp",
+      "physical_meaning": "反应器温度",
+      "unit": "°C",
+      "current_value": 89.7,
+      "support_domain": {
+        "p5": 80.595,
+        "p25": 84.675,
+        "p50": 89.7,
+        "p75": 94.97500000000001,
+        "p95": 100.00999999999999,
+        "n": 200,
+        "current_median": 89.7
+      },
+      "controllable": true,
+      "operability": [
+        "LEVER_OBSERVATIONAL",
+        "UNCLASSIFIED"
+      ],
+      "downstream_effects": [
+        {
+          "target": "product_purity",
+          "direction": "increase",
+          "strength": 0.9476,
+          "slope_at_current": 0.0,
+          "confidence": 1.0,
+          "physics_verified": false,
+          "physics_status": "plausible",
+          "causal_ceiling": "ontology_consistent",
+          "q_value": 0.0,
+          "n_effective": 200,
+          "temporal_direction": "concurrent"
+        }
+      ],
+      "overall_confidence": 1.0,
+      "risk_factors": [
+        "None identified"
+      ],
+      "equipment_stage": "reactor"
+    },
+    {
+      "parameter": "cooling_flow",
+      "physical_meaning": "冷却水流量",
+      "unit": "L/min",
+      "current_value": 45.2,
+      "support_domain": {
+        "p5": 39.985,
+        "p25": 42.45,
+        "p50": 45.2,
+        "p75": 47.525,
+        "p95": 50.705,
+        "n": 200,
+        "current_median": 45.2
+      },
+      "controllable": true,
+      "operability": [
+        "LEVER_OBSERVATIONAL",
+        "UNCLASSIFIED"
+      ],
+      "downstream_effects": [
+        {
+          "target": "product_purity",
+          "direction": "decrease",
+          "strength": -0.8675,
+          "slope_at_current": 0.0,
+          "confidence": 1.0,
+          "physics_verified": false,
+          "physics_status": "plausible",
+          "causal_ceiling": "ontology_consistent",
+          "q_value": 0.0,
+          "n_effective": 200,
+          "temporal_direction": "concurrent"
+        }
+      ],
+      "overall_confidence": 1.0,
+      "risk_factors": [
+        "None identified"
+      ],
+      "equipment_stage": "cooling"
+    },
+    {
+      "parameter": "catalyst_age",
+      "physical_meaning": "催化剂使用时长",
+      "unit": "h",
+      "current_value": 19.95,
+      "support_domain": {
+        "p5": 10.995000000000001,
+        "p25": 14.975,
+        "p50": 19.95,
+        "p75": 24.924999999999997,
+        "p95": 28.904999999999998,
+        "n": 200,
+        "current_median": 19.95
+      },
+      "controllable": true,
+      "operability": [
+        "LEVER_OBSERVATIONAL"
+      ],
+      "downstream_effects": [
+        {
+          "target": "product_purity",
+          "direction": "increase",
+          "strength": 0.8734,
+          "slope_at_current": 0.0,
+          "confidence": 1.0,
+          "physics_verified": false,
+          "physics_status": "plausible",
+          "causal_ceiling": "ontology_consistent",
+          "q_value": 0.0,
+          "n_effective": 200,
+          "temporal_direction": "concurrent"
+        }
+      ],
+      "overall_confidence": 1.0,
+      "risk_factors": [
+        "None identified"
+      ],
+      "equipment_stage": "reactor"
+    },
+    {
+      "parameter": "feed_rate",
+      "physical_meaning": "进料流量",
+      "unit": "kg/h",
+      "current_value": 99.9,
+      "support_domain": {
+        "p5": 96.0,
+        "p25": 97.1,
+        "p50": 99.9,
+        "p75": 102.8,
+        "p95": 103.905,
+        "n": 200,
+        "current_median": 99.9
+      },
+      "controllable": true,
+      "operability": [
+        "LEVER_OBSERVATIONAL"
+      ],
+      "downstream_effects": [
+        {
+          "target": "product_purity",
+          "direction": "increase",
+          "strength": 0.1839,
+          "slope_at_current": 0.0,
+          "confidence": 0.8,
+          "physics_verified": false,
+          "physics_status": "plausible",
+          "causal_ceiling": "insufficient_evidence",
+          "q_value": 0.010569,
+          "n_effective": 198,
+          "temporal_direction": "x_leads_y"
+        }
+      ],
+      "overall_confidence": 0.8,
+      "risk_factors": [
+        "None identified"
+      ],
+      "equipment_stage": "feed"
+    },
+    {
+      "parameter": "time_since_product_grade_transition",
+      "physical_meaning": "",
+      "unit": "hours",
+      "current_value": null,
+      "support_domain": {},
+      "controllable": false,
+      "operability": [
+        "CONFOUNDED"
+      ],
+      "downstream_effects": [
+        {
+          "target": "product_purity",
+          "direction": "increase",
+          "strength": 0.0293,
+          "slope_at_current": 0.0,
+          "confidence": 0.2,
+          "physics_verified": false,
+          "physics_status": "plausible",
+          "causal_ceiling": "insufficient_evidence",
+          "q_value": 0.679795,
+          "n_effective": 198,
+          "temporal_direction": "x_leads_y"
+        }
+      ],
+      "overall_confidence": 0.2,
+      "risk_factors": [
+        "Confounder present for product_purity",
+        "Interaction/moderation effect on product_purity"
+      ],
+      "equipment_stage": ""
+    }
+  ],
+  "physical_context": {
+    "timestamp": {
+      "physical_meaning": "时间戳",
+      "unit": "datetime",
+      "role": "metadata",
+      "equipment_stage": "",
+      "governing_law": "",
+      "expected_behavior": "",
+      "controllable": false
+    },
+    "reactor_temp": {
+      "physical_meaning": "反应器温度",
+      "unit": "°C",
+      "role": "process_parameter",
+      "equipment_stage": "reactor",
+      "governing_law": "Arrhenius: k=A·exp(-Ea/RT)",
+      "expected_behavior": "",
+      "controllable": true
+    },
+    "feed_rate": {
+      "physical_meaning": "进料流量",
+      "unit": "kg/h",
+      "role": "process_parameter",
+      "equipment_stage": "feed",
+      "governing_law": "",
+      "expected_behavior": "",
+      "controllable": true
+    },
+    "cooling_flow": {
+      "physical_meaning": "冷却水流量",
+      "unit": "L/min",
+      "role": "process_parameter",
+      "equipment_stage": "cooling",
+      "governing_law": "Q=m·c·ΔT",
+      "expected_behavior": "",
+      "controllable": true
+    },
+    "catalyst_age": {
+      "physical_meaning": "催化剂使用时长",
+      "unit": "h",
+      "role": "process_parameter",
+      "equipment_stage": "reactor",
+      "governing_law": "",
+      "expected_behavior": "",
+      "controllable": false
+    },
+    "product_purity": {
+      "physical_meaning": "产品纯度",
+      "unit": "%",
+      "role": "quality_target",
+      "equipment_stage": "",
+      "governing_law": "",
+      "expected_behavior": "",
+      "controllable": false
+    },
+    "product_grade": {
+      "physical_meaning": "产品等级",
+      "unit": "category",
+      "role": "grouping",
+      "equipment_stage": "",
+      "governing_law": "",
+      "expected_behavior": "",
+      "controllable": false
+    },
+    "reactor_temp_dev": {
+      "physical_meaning": "NOT_APPLICABLE",
+      "unit": "metadata",
+      "role": "derived_deviation",
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      }
+    },
+    "cooling_flow_dev": {
+      "physical_meaning": "NOT_APPLICABLE",
+      "unit": "metadata",
+      "role": "derived_deviation",
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      }
+    },
+    "catalyst_age_dev": {
+      "physical_meaning": "NOT_APPLICABLE",
+      "unit": "metadata",
+      "role": "derived_deviation",
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      }
+    },
+    "product_purity_dev": {
+      "physical_meaning": "NOT_APPLICABLE",
+      "unit": "metadata",
+      "role": "derived_deviation",
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      }
+    },
+    "time_hours": {
+      "physical_meaning": "NOT_APPLICABLE",
+      "unit": "metadata",
+      "role": "derived_time",
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      }
+    }
+  },
+  "mechanism_chains": [
+    {
+      "chain_id": "MC-001",
+      "claim": ": ",
+      "confidence": "证据强度=未知, 函数形态验证=未知, 方向验证=未知",
+      "evidence_refs": []
+    }
+  ],
+  "tradeoff_matrix": [
+    {
+      "parameter": "catalyst_age",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "operability": "LEVER_OBSERVATIONAL",
+      "effects": {
+        "catalyst_age": "positive effect on product_purity (r=0.873)"
+      },
+      "support_domain": "p5=11.00, p95=28.90, current=26.70, n=200"
+    },
+    {
+      "parameter": "cooling_flow",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "operability": "LEVER_OBSERVATIONAL",
+      "effects": {
+        "cooling_flow": "negative effect on product_purity (r=-0.867)"
+      },
+      "support_domain": "p5=39.98, p95=50.70, current=43.50, n=200"
+    },
+    {
+      "parameter": "feed_rate",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "operability": "LEVER_OBSERVATIONAL",
+      "effects": {
+        "feed_rate": "positive effect on product_purity (r=0.184)"
+      },
+      "support_domain": "p5=96.00, p95=103.91, current=102.80, n=200"
+    },
+    {
+      "parameter": "reactor_temp",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "operability": "LEVER_OBSERVATIONAL",
+      "effects": {
+        "reactor_temp": "positive effect on product_purity (r=0.948)"
+      },
+      "support_domain": "p5=80.59, p95=100.01, current=96.50, n=200"
+    },
+    {
+      "parameter": "time_since_product_grade_transition",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "operability": "CONFOUNDED",
+      "effects": {
+        "time_since_product_grade_transition": "positive effect on product_purity (r=0.029)"
+      },
+      "support_domain": "p5=21.00, p95=630.00, current=663.00, n=200"
+    }
+  ],
+  "operability_summary": "1 个关系受混杂因素影响（Simpson/群组逆转或未解决的时间混淆）。",
+  "open_questions": [
+    {
+      "question": "建议在投入运行前做进一步机制验证。",
+      "severity": "minor",
+      "potential_impact": "Informs parameter optimization strategy"
+    },
+    {
+      "question": "存在混杂：因果识别需分层分析或受控实验。",
+      "severity": "minor",
+      "potential_impact": "Informs parameter optimization strategy"
+    },
+    {
+      "question": "调节效应：product_purity 关联在 product_grade 分组间方向相反，关联随工况/分组改变，不可外推为全局杠杆。",
+      "severity": "minor",
+      "potential_impact": "Informs parameter optimization strategy"
+    }
+  ],
+  "evidence_gaps": [],
+  "provenance": {
+    "source_artifacts": {
+      "analysis_coverage": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\enhancement\\analysis_coverage.json",
+      "derived_features": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\enhancement\\derived_features.json",
+      "deep_data_analysis": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\enhancement\\deep_data_analysis.json",
+      "association_graph": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\enhancement\\association_graph.json",
+      "physics_bridge": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\enhancement\\physics_bridge.json",
+      "ontology": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\01_ontology\\ontology.json",
+      "diagnosis": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\04_diagnostics\\diagnosis.json"
+    },
+    "data_source": {
+      "file": "cleaned_data.csv",
+      "sha256": "1484fa4ddebc41b46699a565cc15f95270140b51274759bf8957d9031ef54f7f",
+      "rows": 200,
+      "cols": 12
+    }
+  }
+}

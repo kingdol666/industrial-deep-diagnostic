@@ -30,7 +30,7 @@ description: >
 ## Usage
 
 ```bash
-python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
   --knowledge <RUN_DIR>/enhancement/enhanced_knowledge.json \
   --output <RUN_DIR>/enhancement/enhanced-analysis.html
 ```
@@ -63,16 +63,16 @@ ECharts 从三个 CDN 源依次尝试加载，任一个可用即渲染交互式�
 
 ```bash
 # Build
-python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-enhanced-html-visualizer/scripts/html_builder.py \
   --knowledge <enhanced_knowledge.json> --output <enhanced-analysis.html>
 
 # Verify selfcheck
-python -c "import json; sc=json.load(open('<DIR>/html_selfcheck.json')); \
+uv run --project "$SHARED_PATH/scripts" python -c "import json; sc=json.load(open('<DIR>/html_selfcheck.json')); \
   assert sc['size_requirement_met']; assert sc['charts_built']==5; \
   print('OK:', sc['html_size_bytes'], 'bytes')"
 
 # Run reviewer
-python .claude/skills/industrial-enhanced-html-reviewer/scripts/html_reviewer.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-enhanced-html-reviewer/scripts/html_reviewer.py \
   --knowledge <enhanced_knowledge.json> \
   --html <enhanced-analysis.html> \
   --output <DIR>/enhancement_html_review.json

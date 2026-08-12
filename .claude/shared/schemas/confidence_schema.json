@@ -88,13 +88,20 @@
       }
     },
     "overall_confidence": {
-      "type": "object",
-      "required": ["score", "level", "summary"],
-      "properties": {
-        "score": {"type": "integer", "minimum": 0, "maximum": 100},
-        "level": {"type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "VERY_LOW"]},
-        "summary": {"type": "string"}
-      }
+      "description": "Overall confidence. Accepts either a bare integer score (0-100) or a structured object {score, level, summary}. Both are first-class; downstream check scripts enforce the five_factor_breakdown separately.",
+      "anyOf": [
+        { "type": "integer", "minimum": 0, "maximum": 100 },
+        {
+          "type": "object",
+          "required": ["score"],
+          "properties": {
+            "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "level": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "VERY_LOW"] },
+            "summary": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      ]
     },
     "adjustment_log": {
       "type": "array",

@@ -122,8 +122,9 @@ Prints status JSON to stdout. Exit code 0 on success, 1 if BLOCKED or FAILED.
 
 ## Markdown Contract
 
-- 9 节 (`## 1.` 到 `## 9.`) 中文报告
+- 15 节 (`## 0.` 到 `## 14.`) 中文报告，§0 = AI 可操作摘要（机器可读 JSON 块，下游 Agent 主要消费接口）
 - 每条核心关系结论嵌入 ```json 块（claim_id, status, source, mask, n, method, effect, causal_ceiling, not_for）
+- §2 控制杠杆、§3 影响矩阵、§4 多跳因果路径、§5 参数中心性、§6 物理上下文映射为 AI 深层分析新增节
 - 零硬编码数字 —— 全部从 `enhanced_knowledge.json` 模板替换
 - 每个数值带单位
 - JSON enum 英文，正文中文
@@ -142,13 +143,13 @@ node .claude/shared/scripts/validate.mjs \
   <RUN_DIR>/enhancement/enhanced_knowledge.json
 
 # Reproduce markdown standalone
-python .claude/skills/industrial-analysis-enhance-auto/scripts/markdown_publisher.py \
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-analysis-enhance-auto/scripts/markdown_publisher.py \
   --knowledge <RUN_DIR>/enhancement/enhanced_knowledge.json \
   --template .claude/skills/industrial-analysis-enhance-auto/templates/enhanced_analysis.md.tmpl \
   --output <RUN_DIR>/enhancement/enhanced_analysis_v2.md
 
 # Check for hardcoded numbers, raw field names, section count
-python -c "
+uv run --project "$SHARED_PATH/scripts" python -c "
 import json, re
 # Section count
 with open('<RUN_DIR>/enhancement/enhanced_analysis.md') as f:

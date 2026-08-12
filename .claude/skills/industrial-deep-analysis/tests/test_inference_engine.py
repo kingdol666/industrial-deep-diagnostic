@@ -11,7 +11,7 @@ Verifies that the deterministic inference layer genuinely recovers:
 6. leave-one-out leverage stability + influence flagging
 7. full pairwise scan correctness (r and BH q)
 
-Run:  python .claude/skills/industrial-deep-analysis/tests/test_inference_engine.py
+Run:  uv run --project .claude/shared/scripts python .claude/skills/industrial-deep-analysis/tests/test_inference_engine.py
 No third-party test runner required.
 """
 

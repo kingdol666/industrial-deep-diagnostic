@@ -114,7 +114,7 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **2.2** Preprocess: `dp_toolkit.py preprocess` → `cleaned_data.csv`, then convert to JSON
 - [ ] **2.2.5** **MANDATORY GATE — Cleaning Integrity Verification.** Run 4 checks (row count, type integrity, range fidelity, batch identity v6.6). Determine `data_source` as `"cleaned"` or `"raw_fallback"`. All downstream reads from this single source.
   → Implementation: `resources/execution_reference.md#phase-2.2.5`
-- [ ] **2.3** Statistical analysis: read `analysis_parameter_selection.json`, construct `--predictor-cols` / `--exclude-cols` from Phase 0.4 tiers. Run unified stats pipeline `python "$PYTHON_BIN" "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full` → `validate_report.json`
+- [ ] **2.3** Statistical analysis: read `analysis_parameter_selection.json`, construct `--predictor-cols` / `--exclude-cols` from Phase 0.4 tiers. Run unified stats pipeline `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full` → `validate_report.json`
   → Commands: `resources/execution_reference.md#phase-2.3`
 - [ ] **2.4** Validation: anti-spurious checks run within Step 2.3 (merged pipeline). Former standalone `stats_validate.mjs` is now integrated into `stats/anti_spurious.py`. (Simpson's Paradox, trend confounding, outlier sensitivity, Spearman divergence, change-point detection)
   → Rules: `resources/anti_spurious_rules.md#rule-v6.7`
@@ -246,7 +246,7 @@ PYTHON=$(node "$SHARED_PATH/scripts/uv_env_setup.mjs" 2>/dev/null | node -e "let
   ```bash
   node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
   # Additional check: verify only selected images were read
-  python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files and not i.get('filename','').startswith('skeleton')]; print(f'Clean: {len(excluded_read)==0}, read={len(read)}/{len(vlm_files)}')"
+  uv run --project "$SHARED_PATH/scripts" python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files and not i.get('filename','').startswith('skeleton')]; print(f'Clean: {len(excluded_read)==0}, read={len(read)}/{len(vlm_files)}')"
   ```
 - [ ] **5.5.6** If VLM_ENABLED=false or agent dispatch fails: fall back to metadata-only skeleton. Write `observation_mode: "metadata_fallback"` with reason.
 - Gate: visual_analysis.json exists with valid analysis_provenance. chart_inventory only contains images from vlm_input_manifest.json. If VLM was used, skeleton was overwritten.

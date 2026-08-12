@@ -1,0 +1,32 @@
+{
+  "run_id": "e2e_test",
+  "confidence_breakdown": {
+    "H1": {
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 20,
+          "evidence_gaps": []
+        },
+        "physical_plausibility": {
+          "score": 22,
+          "evidence_gaps": []
+        },
+        "temporal_evidence": {
+          "score": 16,
+          "evidence_gaps": []
+        },
+        "absence_of_confounds": {
+          "score": 14,
+          "evidence_gaps": []
+        },
+        "symptom_completeness": {
+          "score": 8,
+          "evidence_gaps": []
+        }
+      },
+      "overall_confidence": 80,
+      "adjustment_log": [],
+      "ceilings": {}
+    }
+  }
+}

@@ -49,16 +49,25 @@ def _load_json(path: Path) -> dict:
         return json.load(fh)
 
 
+def _has_timestamp(path: Path) -> bool:
+    """Check if a CSV file has a 'timestamp' column without leaking file handles."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return "timestamp" in fh.readline()
+    except Exception:
+        return False
+
+
 def _load_data(run_dir: Path) -> pd.DataFrame:
     """Load numeric data for coverage: prefer E2-derived data (includes derived
     feature columns) so the coverage matrix truly covers every analyzable column.
     Falls back to cleaned data, CSV first then JSON."""
     derived_csv = run_dir / "enhancement" / "derived_data.csv"
     if derived_csv.is_file():
-        return pd.read_csv(derived_csv, parse_dates=["timestamp"] if "timestamp" in open(derived_csv).readline() else False)
+        return pd.read_csv(derived_csv, parse_dates=["timestamp"] if _has_timestamp(derived_csv) else False)
     csv = run_dir / "02_processed" / "cleaned_data.csv"
     if csv.is_file():
-        return pd.read_csv(csv, parse_dates=["timestamp"] if "timestamp" in open(csv).readline() else False)
+        return pd.read_csv(csv, parse_dates=["timestamp"] if _has_timestamp(csv) else False)
     json_path = run_dir / "02_processed" / "cleaned_data.json"
     if json_path.is_file():
         return pd.read_json(json_path)

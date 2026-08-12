@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-08-12T10:33:03.824Z",
+  "source_files": {
+    "plot_manifest": "03_figures/plot_manifest.json",
+    "feature_summary": "02_processed/feature_summary.json",
+    "validate_report": "02_processed/validate_report.json"
+  },
+  "total_figures": 1,
+  "figures": {
+    "fig_01_temporal_overlay.png": {
+      "figure_id": "fig_01",
+      "title": "fig_01_temporal_overlay.png",
+      "chart_type": "temporal_overlay",
+      "axes": {},
+      "key_observations": [
+        "temporal_overlay of fig_01_temporal_overlay.png"
+      ],
+      "trend_shapes": "参见 key_observations",
+      "validation_issues": [],
+      "diagnostic_implication": "此图展示参数关联关系，用于辅助根因分析",
+      "description": "temporal_overlay of fig_01_temporal_overlay.png"
+    }
+  }
+}

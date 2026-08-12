@@ -15,7 +15,7 @@ preprocessed_data.csv + report:
 9.  multi-block delimited file  — largest block wins
 10. no-tabular directory        — graceful no_tabular_data report
 
-Run: python .claude/skills/industrial-data-preprocessor/tests/test_preprocessor.py
+Run: uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/tests/test_preprocessor.py
 """
 
 from __future__ import annotations

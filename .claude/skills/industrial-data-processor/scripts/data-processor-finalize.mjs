@@ -136,7 +136,7 @@ function normalizeAnomalyReport(runDir) {
     return { ok: false, error: `Missing anomaly report: ${anomalyPath}` };
   }
 
-  const report = readJson(anomalyPath);
+  const report = readJson(anomalyPath, {});
   const manifest = readJson(join(runDir, '00_input', 'input_manifest.json'), {});
   const featureSummary = readJson(join(runDir, '02_processed', 'feature_summary.json'), {});
 
@@ -704,6 +704,16 @@ function synthesizeDataAnalysisConclusion(runDir) {
       exclude_cols: analysisParameterSelection.exclude_cols,
       derived_features: analysisParameterSelection.derived_features_to_compute || []
     } : { missing: 'Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering' },
+    time_lag_analysis: artifactExists(runDir, '02_processed/time_lag_analysis.json')
+      ? readJson(join(runDir, '02_processed', 'time_lag_analysis.json'), {})
+      : {
+          applicable: false,
+          pairs_analyzed: 0,
+          significant_lags_found: 0,
+          key_recommendations: [{ pair: 'N/A', recommended_lag_steps: 0, recommended_lag_seconds: 0, action: 'Time-lag analysis not performed — no physical lag justification detected.' }],
+          status: 'not_computed',
+          reason: 'Time-lag analysis was not performed (no time column or physical lag justification).',
+        },
     data_cleaning_provenance: dataCleaningProvenance,
     data_supported_conclusions: conclusions,
     handoff_to_diagnostician: {

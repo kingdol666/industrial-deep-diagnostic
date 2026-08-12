@@ -146,7 +146,7 @@ ind-diag start --all
 |:----:|:----:|--------|------|
 | 🟢 **Backend** | `3210` | Express.js + SQLite (WAL) + WebSocket | REST API · 诊断编排 · 实时推送 |
 | 🟢 **Frontend** | `5180` | Vue 3 + Vite + SSE | Web UI · 数据上传 · 实时监控 |
-| 🟢 **RAG Engine** | `8765` | FastAPI + ChromaDB | 向量检索 · 领域知识增强 |
+| 🟢 **RAG Engine** | `8764` | FastAPI + ChromaDB | 向量检索 · 领域知识增强 |
 
 <details>
 <summary><b>🔍 验证服务是否启动成功</b></summary>
@@ -162,7 +162,7 @@ curl http://localhost:3210/api/health
 curl -I http://localhost:5180
 
 # RAG 引擎文档
-curl -I http://localhost:8765/docs
+curl -I http://localhost:8764/docs
 ```
 
 </details>
@@ -387,7 +387,7 @@ node scripts/uv_env_setup.mjs
 | `start --all` | 启动全部服务 | `ind-diag start --all` |
 | `start --backend` | 仅启动后端 (3210) | `ind-diag start --backend` |
 | `start --frontend` | 仅启动前端 (5180) | `ind-diag start --frontend` |
-| `start --rag` | 启动 RAG 引擎 (8765) | `ind-diag start --rag` |
+| `start --rag` | 启动 RAG 引擎 (8764) | `ind-diag start --rag` |
 | `stop --all` | 停止全部服务 | `ind-diag stop --all` |
 | `restart --all` | 重启全部服务 | `ind-diag restart --all` |
 | `status` | 查看服务状态 | `ind-diag status` |
@@ -671,7 +671,7 @@ industrial-deep-diagnostic/
 │   ├── diagnostician.md
 │   └── ...
 │
-├── rag-retrieval-engine/          # RAG 检索微服务 (port 8765)
+├── rag-retrieval-engine/          # RAG 检索微服务 (port 8764)
 │   ├── server.py                  # FastAPI 入口
 │   └── engine/                    # 检索/评分/注入引擎
 │
@@ -717,7 +717,7 @@ npm link
 </details>
 
 <details>
-<summary><b>❌ 端口被占用 (EADDRINUSE :3210 / :5180 / :8765)</b></summary>
+<summary><b>❌ 端口被占用 (EADDRINUSE :3210 / :5180 / :8764)</b></summary>
 
 ```powershell
 # Windows

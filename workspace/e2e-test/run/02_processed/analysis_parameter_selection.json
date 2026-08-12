@@ -1,0 +1,52 @@
+{
+  "source": "Phase 0.4 ontology-guided analysis selection",
+  "ontology_file": "01_ontology/ontology.json",
+  "parameter_physical_groups": {
+    "thermal": [
+      "reactor_temp",
+      "cooling_flow"
+    ]
+  },
+  "quality_targets": [
+    "product_purity"
+  ],
+  "analysis_tiers": {
+    "tier_1": [
+      {
+        "target": "product_purity",
+        "predictor": "reactor_temp",
+        "justification": "Arrhenius law"
+      },
+      {
+        "target": "product_purity",
+        "predictor": "cooling_flow",
+        "justification": "Heat removal"
+      }
+    ],
+    "tier_2": [
+      {
+        "target": "product_purity",
+        "predictor": "feed_rate",
+        "justification": "Stoichiometry"
+      },
+      {
+        "target": "product_purity",
+        "predictor": "catalyst_age",
+        "justification": "Deactivation"
+      }
+    ],
+    "tier_3": [],
+    "pruned": []
+  },
+  "pruned": [],
+  "predictor_cols": [
+    "reactor_temp",
+    "cooling_flow",
+    "feed_rate",
+    "catalyst_age"
+  ],
+  "exclude_cols": [
+    "timestamp",
+    "product_grade"
+  ]
+}

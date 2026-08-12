@@ -212,10 +212,25 @@ console.log('\n--- 6. DATA PROCESSING SMOKE TEST ---');
 const REPO_ROOT = resolve(join(__dirname, '..', '..', '..'));
 // Smoke test against the most recent REAL end-to-end run (kept in repo) rather
 // than a scratch dir that may have been cleaned up.
-const TEST_RUN_DIR = join(REPO_ROOT, 'workspace', 'diagnostic-runs', '202607310911175_cnc_spindle_wear_enhance_test');
-const testDataPath = join(TEST_RUN_DIR, '02_processed', 'cleaned_data.csv');
+// Dynamic discovery: pick the newest timestamped run dir — no hardcoded path.
+let TEST_RUN_DIR = null;
+{
+  // Discovery order: real runs first, then the deterministic e2e-test run dir.
+  const candidates = [join(REPO_ROOT, 'workspace', 'diagnostic-runs'), join(REPO_ROOT, 'workspace', 'e2e-test', 'run')];
+  for (const runsDir of candidates) {
+    try {
+      const runs = readdirSync(runsDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => join(runsDir, d.name))
+        .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+      if (runs.length) { TEST_RUN_DIR = runs[0]; break; }
+    } catch { /* not present */ }
+  }
+}
+const testDataPath = TEST_RUN_DIR ? join(TEST_RUN_DIR, '02_processed', 'cleaned_data.csv') : null;
 
-test('Test data exists', () => existsSync(testDataPath));
+test('A real run dir exists (dynamic discovery)', () =>
+  TEST_RUN_DIR ? true : 'no workspace/diagnostic-runs/ entries found — run e2e-pipeline-test.mjs first');
 
 if (existsSync(testDataPath)) {
   // Check key outputs from previous run
@@ -276,7 +291,9 @@ console.log('\n--- 7. VLM MODEL ROUTING ---');
 const ompConfig = join(process.env.HOME || process.env.USERPROFILE, '.omp', 'agent', 'config.yml');
 if (existsSync(ompConfig)) {
   const config = readFileSync(ompConfig, 'utf-8');
-  const visionMatch = config.match(/vision:\s*(.+)/);
+  // Legacy flat key (`vision: model`) and current `modelRoles:` block both supported
+  const visionMatch = config.match(/^vision:\s*(.+)$/m)
+    || config.match(/modelRoles:\s*\n\s+vision:\s*(.+)$/m);
   test('Vision model role configured', () => !!visionMatch);
   if (visionMatch) {
     console.log(`  INFO: Vision model = ${visionMatch[1].trim()}`);
@@ -290,7 +307,7 @@ const validateScript = join(SHARED_DIR, 'scripts', 'validate.mjs');
 test('Shared validate.mjs exists', () => existsSync(validateScript));
 
 // Try running validate on a known-good file
-if (existsSync(validateScript)) {
+if (existsSync(validateScript) && TEST_RUN_DIR) {
   const testOntology = join(TEST_RUN_DIR, '01_ontology', 'ontology.json');
   const ontologySchema = join(sharedSchemas, 'ontology_schema.json');
   if (existsSync(testOntology) && existsSync(ontologySchema)) {

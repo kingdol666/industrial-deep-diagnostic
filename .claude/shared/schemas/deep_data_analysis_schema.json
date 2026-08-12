@@ -1,537 +1,537 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Deep Data Analysis Schema v1.1",
-  "description": "深层数据分析——多维关系量化、推理证据（时序/条件独立/中介/变点/杠杆）与可操作性评估。由 deep-analyst 生成，physics-bridge 和 enhance-orchestrator 消费。",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "run_id",
-    "relationships",
-    "tradeoff_and_operability"
-  ],
-  "properties": {
-    "run_id": {
-      "description": "增强运行唯一标识",
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Deep Data Analysis Schema v1.1",
+ "description": "深层数据分析——多维关系量化、推理证据（时序/条件独立/中介/变点/杠杆）与可操作性评估。由 deep-analyst 生成，physics-bridge 和 enhance-orchestrator 消费。",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "run_id",
+  "relationships",
+  "tradeoff_and_operability"
+ ],
+ "properties": {
+  "run_id": {
+   "description": "增强运行唯一标识",
+   "type": "string",
+   "minLength": 1
+  },
+  "relationships": {
+   "description": "变量间关系分析条目（含数据驱动的推理证据）",
+   "type": "array",
+   "minItems": 0,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "predictor",
+     "target",
+     "global",
+     "detrended",
+     "per_group",
+     "steady",
+     "lag_aligned",
+     "per_regime",
+     "slope_at_current",
+     "partial",
+     "form_match",
+     "q_value",
+     "n_effective",
+     "validity_flags",
+     "operability"
+    ],
+    "properties": {
+     "predictor": {
+      "description": "预测变量列名",
       "type": "string",
       "minLength": 1
-    },
-    "relationships": {
-      "description": "变量间关系分析条目（含数据驱动的推理证据）",
+     },
+     "target": {
+      "description": "目标变量列名",
+      "type": "string",
+      "minLength": 1
+     },
+     "global": {
+      "description": "全局相关系数",
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+     },
+     "p_value": {
+      "description": "全局相关的双尾 p 值（erfc 安全计算，不欠冲）",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "p_floor_hit": {
+      "description": "p 值触及科学下限 1e-300 的标记（true 表示 p 实际更小）",
+      "type": "boolean"
+     },
+     "detrended": {
+      "description": "去趋势后相关系数",
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+     },
+     "per_group": {
+      "description": "按分组（如批次/产品）的相关系数列表",
       "type": "array",
-      "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "predictor",
-          "target",
-          "global",
-          "detrended",
-          "per_group",
-          "steady",
-          "lag_aligned",
-          "per_regime",
-          "slope_at_current",
-          "partial",
-          "form_match",
-          "q_value",
-          "n_effective",
-          "validity_flags",
-          "operability"
-        ],
-        "properties": {
-          "predictor": {
-            "description": "预测变量列名",
-            "type": "string",
-            "minLength": 1
-          },
-          "target": {
-            "description": "目标变量列名",
-            "type": "string",
-            "minLength": 1
-          },
-          "global": {
-            "description": "全局相关系数",
-            "type": "number",
-            "minimum": -1,
-            "maximum": 1
-          },
-          "p_value": {
-            "description": "全局相关的双尾 p 值（erfc 安全计算，不欠冲）",
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "p_floor_hit": {
-            "description": "p 值触及科学下限 1e-300 的标记（true 表示 p 实际更小）",
-            "type": "boolean"
-          },
-          "detrended": {
-            "description": "去趋势后相关系数",
-            "type": "number",
-            "minimum": -1,
-            "maximum": 1
-          },
-          "per_group": {
-            "description": "按分组（如批次/产品）的相关系数列表",
-            "type": "array",
-            "items": {
-              "type": "number",
-              "minimum": -1,
-              "maximum": 1
-            }
-          },
-          "steady": {
-            "description": "稳态子集相关系数",
-            "type": "number",
-            "minimum": -1,
-            "maximum": 1
-          },
-          "lag_aligned": {
-            "description": "时滞对齐后相关系数",
-            "type": "number",
-            "minimum": -1,
-            "maximum": 1
-          },
-          "per_regime": {
-            "description": "按运行工况分组的相关系数列表",
-            "type": "array",
-            "items": {
-              "type": "number",
-              "minimum": -1,
-              "maximum": 1
-            }
-          },
-          "slope_at_current": {
-            "description": "当前操作点的局部斜率（数值导数）",
-            "type": "number"
-          },
-          "slope_valid": {
-            "description": "当前点斜率计算是否有效（false 时 0.0 不代表真实零斜率）",
-            "type": "boolean"
-          },
-          "partial": {
-            "description": "偏相关系数（控制其他 tier 变量后）",
-            "type": "number",
-            "minimum": -1,
-            "maximum": 1
-          },
-          "partial_valid": {
-            "description": "偏相关计算是否有效（false 时 0.0 不代表真实零偏相关）",
-            "type": "boolean"
-          },
-          "partial_full": {
-            "description": "全阶条件独立检验（ridge 精度矩阵或逐步 top-k 残差化）",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "partial_r": {
-                "type": "number",
-                "minimum": -1,
-                "maximum": 1
-              },
-              "valid": {
-                "type": "boolean"
-              },
-              "method": {
-                "type": "string",
-                "enum": [
-                  "full_order_ridge",
-                  "stepwise_topk",
-                  "no_controls",
-                  "insufficient"
-                ]
-              },
-              "n_controls": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "n_used": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": [
-              "partial_r",
-              "valid",
-              "method"
-            ]
-          },
-          "direct_association": {
-            "description": "控制全部其他变量后关联仍显著且方向一致（直接关联）",
-            "type": "boolean"
-          },
-          "indirect_association": {
-            "description": "全局关联强但全阶条件相关塌缩（间接关联，经中介传导）",
-            "type": "boolean"
-          },
-          "mediator_candidates": {
-            "description": "候选中介通道（X→M→Y），按 |r_xm·r_my| 排序，最多 3 个",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "mediator",
-                "r_xm",
-                "r_my",
-                "product",
-                "partial_x_y_given_m"
-              ],
-              "properties": {
-                "mediator": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "r_xm": {
-                  "type": "number",
-                  "minimum": -1,
-                  "maximum": 1
-                },
-                "r_my": {
-                  "type": "number",
-                  "minimum": -1,
-                  "maximum": 1
-                },
-                "product": {
-                  "type": "number",
-                  "minimum": -1,
-                  "maximum": 1
-                },
-                "partial_x_y_given_m": {
-                  "type": "number",
-                  "minimum": -1,
-                  "maximum": 1
-                }
-              }
-            }
-          },
-          "temporal": {
-            "description": "滞后 CCF 时序因果检验结果",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "valid": {
-                "type": "boolean"
-              },
-              "direction": {
-                "type": "string",
-                "enum": [
-                  "x_leads_y",
-                  "y_leads_x",
-                  "concurrent",
-                  "insufficient"
-                ]
-              },
-              "optimal_lag_steps": {
-                "type": "integer"
-              },
-              "ccf_peak_r": {
-                "type": "number",
-                "minimum": -1,
-                "maximum": 1
-              },
-              "p_value": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1
-              },
-              "p_floor_hit": {
-                "type": "boolean"
-              },
-              "lag_aligned_r": {
-                "type": "number",
-                "minimum": -1,
-                "maximum": 1
-              },
-              "n_used": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": [
-              "valid",
-              "direction",
-              "optimal_lag_steps"
-            ]
-          },
-          "temporal_direction": {
-            "description": "时序方向简写：x_leads_y / y_leads_x / concurrent / insufficient",
-            "type": "string"
-          },
-          "optimal_lag_steps": {
-            "description": "最优时滞步数（正=预测变量领先）",
-            "type": "integer"
-          },
-          "change_point_co_movement": {
-            "description": "变点同步性检验（CUSUM 二分分割 + 对齐评分）",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "valid": {
-                "type": "boolean"
-              },
-              "cp_a": {
-                "type": "array",
-                "items": {
-                  "type": "integer"
-                }
-              },
-              "cp_b": {
-                "type": "array",
-                "items": {
-                  "type": "integer"
-                }
-              },
-              "matched": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "score": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1
-              },
-              "flagged": {
-                "type": "boolean"
-              },
-              "window_steps": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": [
-              "valid",
-              "matched",
-              "score",
-              "flagged"
-            ]
-          },
-          "loo_stability": {
-            "description": "逐点剔除（留一法）相关稳定性",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "valid": {
-                "type": "boolean"
-              },
-              "loo_min": {
-                "type": "number",
-                "minimum": -1,
-                "maximum": 1
-              },
-              "loo_max": {
-                "type": "number",
-                "minimum": -1,
-                "maximum": 1
-              },
-              "stability": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1
-              },
-              "sign_flip": {
-                "type": "boolean"
-              },
-              "max_influence_index": {
-                "type": "integer",
-                "minimum": -1
-              },
-              "flagged": {
-                "type": "boolean"
-              },
-              "n": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": [
-              "valid",
-              "loo_min",
-              "loo_max",
-              "stability",
-              "flagged"
-            ]
-          },
-          "interaction": {
-            "description": "调节效应检验（分组间方向/强度分歧）",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "moderator": {
-                "type": "string"
-              },
-              "n_partitions": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "per_partition_r": {
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "minimum": -1,
-                  "maximum": 1
-                }
-              },
-              "sign_divergence": {
-                "type": "boolean"
-              },
-              "magnitude_divergence": {
-                "type": "boolean"
-              },
-              "flagged": {
-                "type": "boolean"
-              },
-              "valid": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "flagged",
-              "valid"
-            ]
-          },
-          "causality_ceiling": {
-            "description": "最强可辩护因果声明等级",
-            "type": "string",
-            "enum": [
-              "insufficient_evidence",
-              "contemporaneous_correlation",
-              "temporal_precedence",
-              "conditional_independence_supported",
-              "ontology_consistent"
-            ]
-          },
-          "ontology_contradiction": {
-            "description": "数据方向与本体校验方向相反（数据驱动与物理预期冲突）",
-            "type": "boolean"
-          },
-          "form_match": {
-            "description": "函数形式匹配度评估",
-            "type": "string"
-          },
-          "q_value": {
-            "description": "多重比较校正后的 q 值",
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "n_effective": {
-            "description": "有效样本量（去自相关后）",
-            "type": "integer",
-            "minimum": 0
-          },
-          "validity_flags": {
-            "description": "有效性标记集合",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "simpson_paradox_checked": {
-                "type": "boolean"
-              },
-              "confounding_checked": {
-                "type": "boolean"
-              },
-              "trend_confounding_checked": {
-                "type": "boolean"
-              },
-              "change_point_tested": {
-                "type": "boolean"
-              },
-              "batch_effect_tested": {
-                "type": "boolean"
-              },
-              "lag_significant": {
-                "type": "boolean"
-              },
-              "outlier_influence_checked": {
-                "type": "boolean"
-              },
-              "insufficient_data": {
-                "description": "数据不足以支撑结论（n 过小或接近零相关）",
-                "type": "boolean"
-              }
-            }
-          },
-          "operability": {
-            "description": "可操作性分类",
-            "type": "string",
-            "enum": [
-              "LEVER_IDENTIFIED",
-              "LEVER_OBSERVATIONAL",
-              "ENDOGENOUS_RESPONSE",
-              "CONFOUNDED",
-              "NOT_IDENTIFIABLE",
-              "CONSTRAINT_UNCONTROLLABLE"
-            ]
-          }
-        }
+       "type": "number",
+       "minimum": -1,
+       "maximum": 1
       }
-    },
-    "tradeoff_and_operability": {
-      "description": "参数权衡与可操作性综合评估",
+     },
+     "steady": {
+      "description": "稳态子集相关系数",
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+     },
+     "lag_aligned": {
+      "description": "时滞对齐后相关系数",
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+     },
+     "per_regime": {
+      "description": "按运行工况分组的相关系数列表",
       "type": "array",
-      "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "parameter",
-          "controllability",
-          "effects_on_targets",
-          "tradeoff_summary",
-          "operability_assessment",
-          "support_domain",
-          "extrapolation_warning",
-          "open_questions"
-        ],
-        "properties": {
-          "parameter": {
-            "description": "参数名",
-            "type": "string",
-            "minLength": 1
-          },
-          "controllability": {
-            "description": "可控性评估",
-            "type": "string"
-          },
-          "effects_on_targets": {
-            "description": "对各目标的影响描述",
-            "type": "string"
-          },
-          "tradeoff_summary": {
-            "description": "权衡总结",
-            "type": "string"
-          },
-          "operability_assessment": {
-            "description": "可操作性评估",
-            "type": "string",
-            "enum": [
-              "LEVER_IDENTIFIED",
-              "LEVER_OBSERVATIONAL",
-              "ENDOGENOUS_RESPONSE",
-              "CONFOUNDED",
-              "NOT_IDENTIFIABLE",
-              "CONSTRAINT_UNCONTROLLABLE"
-            ]
-          },
-          "support_domain": {
-            "description": "支持域描述",
-            "type": "string"
-          },
-          "extrapolation_warning": {
-            "description": "外推风险警告",
-            "type": "string"
-          },
-          "open_questions": {
-            "description": "待解决问题列表",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
+       "type": "number",
+       "minimum": -1,
+       "maximum": 1
       }
+     },
+     "slope_at_current": {
+      "description": "当前操作点的局部斜率（数值导数）",
+      "type": "number"
+     },
+     "slope_valid": {
+      "description": "当前点斜率计算是否有效（false 时 0.0 不代表真实零斜率）",
+      "type": "boolean"
+     },
+     "partial": {
+      "description": "偏相关系数（控制其他 tier 变量后）",
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+     },
+     "partial_valid": {
+      "description": "偏相关计算是否有效（false 时 0.0 不代表真实零偏相关）",
+      "type": "boolean"
+     },
+     "partial_full": {
+      "description": "全阶条件独立检验（ridge 精度矩阵或逐步 top-k 残差化）",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "partial_r": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "valid": {
+        "type": "boolean"
+       },
+       "method": {
+        "type": "string",
+        "enum": [
+         "full_order_ridge",
+         "stepwise_topk",
+         "no_controls",
+         "insufficient"
+        ]
+       },
+       "n_controls": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "n_used": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "required": [
+       "partial_r",
+       "valid",
+       "method"
+      ]
+     },
+     "direct_association": {
+      "description": "控制全部其他变量后关联仍显著且方向一致（直接关联）",
+      "type": "boolean"
+     },
+     "indirect_association": {
+      "description": "全局关联强但全阶条件相关塌缩（间接关联，经中介传导）",
+      "type": "boolean"
+     },
+     "mediator_candidates": {
+      "description": "候选中介通道（X→M→Y），按 |r_xm·r_my| 排序，最多 3 个",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "mediator",
+        "r_xm",
+        "r_my",
+        "product",
+        "partial_x_y_given_m"
+       ],
+       "properties": {
+        "mediator": {
+         "type": "string",
+         "minLength": 1
+        },
+        "r_xm": {
+         "type": "number",
+         "minimum": -1,
+         "maximum": 1
+        },
+        "r_my": {
+         "type": "number",
+         "minimum": -1,
+         "maximum": 1
+        },
+        "product": {
+         "type": "number",
+         "minimum": -1,
+         "maximum": 1
+        },
+        "partial_x_y_given_m": {
+         "type": "number",
+         "minimum": -1,
+         "maximum": 1
+        }
+       }
+      }
+     },
+     "temporal": {
+      "description": "滞后 CCF 时序因果检验结果",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "valid": {
+        "type": "boolean"
+       },
+       "direction": {
+        "type": "string",
+        "enum": [
+         "x_leads_y",
+         "y_leads_x",
+         "concurrent",
+         "insufficient"
+        ]
+       },
+       "optimal_lag_steps": {
+        "type": "integer"
+       },
+       "ccf_peak_r": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "p_value": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "p_floor_hit": {
+        "type": "boolean"
+       },
+       "lag_aligned_r": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "n_used": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "required": [
+       "valid",
+       "direction",
+       "optimal_lag_steps"
+      ]
+     },
+     "temporal_direction": {
+      "description": "时序方向简写：x_leads_y / y_leads_x / concurrent / insufficient",
+      "type": "string"
+     },
+     "optimal_lag_steps": {
+      "description": "最优时滞步数（正=预测变量领先）",
+      "type": "integer"
+     },
+     "change_point_co_movement": {
+      "description": "变点同步性检验（CUSUM 二分分割 + 对齐评分）",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "valid": {
+        "type": "boolean"
+       },
+       "cp_a": {
+        "type": "array",
+        "items": {
+         "type": "integer"
+        }
+       },
+       "cp_b": {
+        "type": "array",
+        "items": {
+         "type": "integer"
+        }
+       },
+       "matched": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "score": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "flagged": {
+        "type": "boolean"
+       },
+       "window_steps": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "required": [
+       "valid",
+       "matched",
+       "score",
+       "flagged"
+      ]
+     },
+     "loo_stability": {
+      "description": "逐点剔除（留一法）相关稳定性",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "valid": {
+        "type": "boolean"
+       },
+       "loo_min": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "loo_max": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+       },
+       "stability": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "sign_flip": {
+        "type": "boolean"
+       },
+       "max_influence_index": {
+        "type": "integer",
+        "minimum": -1
+       },
+       "flagged": {
+        "type": "boolean"
+       },
+       "n": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "required": [
+       "valid",
+       "loo_min",
+       "loo_max",
+       "stability",
+       "flagged"
+      ]
+     },
+     "interaction": {
+      "description": "调节效应检验（分组间方向/强度分歧）",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "moderator": {
+        "type": "string"
+       },
+       "n_partitions": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "per_partition_r": {
+        "type": "array",
+        "items": {
+         "type": "number",
+         "minimum": -1,
+         "maximum": 1
+        }
+       },
+       "sign_divergence": {
+        "type": "boolean"
+       },
+       "magnitude_divergence": {
+        "type": "boolean"
+       },
+       "flagged": {
+        "type": "boolean"
+       },
+       "valid": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "flagged",
+       "valid"
+      ]
+     },
+     "causality_ceiling": {
+      "description": "最强可辩护因果声明等级",
+      "type": "string",
+      "enum": [
+       "insufficient_evidence",
+       "contemporaneous_correlation",
+       "temporal_precedence",
+       "conditional_independence_supported",
+       "ontology_consistent"
+      ]
+     },
+     "ontology_contradiction": {
+      "description": "数据方向与本体校验方向相反（数据驱动与物理预期冲突）",
+      "type": "boolean"
+     },
+     "form_match": {
+      "description": "函数形式匹配度评估",
+      "type": "string"
+     },
+     "q_value": {
+      "description": "多重比较校正后的 q 值",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "n_effective": {
+      "description": "有效样本量（去自相关后）",
+      "type": "integer",
+      "minimum": 0
+     },
+     "validity_flags": {
+      "description": "有效性标记集合",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "simpson_paradox_checked": {
+        "type": "boolean"
+       },
+       "confounding_checked": {
+        "type": "boolean"
+       },
+       "trend_confounding_checked": {
+        "type": "boolean"
+       },
+       "change_point_tested": {
+        "type": "boolean"
+       },
+       "batch_effect_tested": {
+        "type": "boolean"
+       },
+       "lag_significant": {
+        "type": "boolean"
+       },
+       "outlier_influence_checked": {
+        "type": "boolean"
+       },
+       "insufficient_data": {
+        "description": "数据不足以支撑结论（n 过小或接近零相关）",
+        "type": "boolean"
+       }
+      }
+     },
+     "operability": {
+      "description": "可操作性分类",
+      "type": "string",
+      "enum": [
+       "LEVER_IDENTIFIED",
+       "LEVER_OBSERVATIONAL",
+       "ENDOGENOUS_RESPONSE",
+       "CONFOUNDED",
+       "NOT_IDENTIFIABLE",
+       "CONSTRAINT_UNCONTROLLABLE"
+      ]
+     }
     }
+   }
+  },
+  "tradeoff_and_operability": {
+   "description": "参数权衡与可操作性综合评估",
+   "type": "array",
+   "minItems": 0,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "parameter",
+     "controllability",
+     "effects_on_targets",
+     "tradeoff_summary",
+     "operability_assessment",
+     "support_domain",
+     "extrapolation_warning",
+     "open_questions"
+    ],
+    "properties": {
+     "parameter": {
+      "description": "参数名",
+      "type": "string",
+      "minLength": 1
+     },
+     "controllability": {
+      "description": "可控性评估",
+      "type": "string"
+     },
+     "effects_on_targets": {
+      "description": "对各目标的影响描述",
+      "type": "string"
+     },
+     "tradeoff_summary": {
+      "description": "权衡总结",
+      "type": "string"
+     },
+     "operability_assessment": {
+      "description": "可操作性评估",
+      "type": "string",
+      "enum": [
+       "LEVER_IDENTIFIED",
+       "LEVER_OBSERVATIONAL",
+       "ENDOGENOUS_RESPONSE",
+       "CONFOUNDED",
+       "NOT_IDENTIFIABLE",
+       "CONSTRAINT_UNCONTROLLABLE"
+      ]
+     },
+     "support_domain": {
+      "description": "支持域描述",
+      "type": "string"
+     },
+     "extrapolation_warning": {
+      "description": "外推风险警告",
+      "type": "string"
+     },
+     "open_questions": {
+      "description": "待解决问题列表",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   }
   }
+ }
 }

@@ -1,6 +1,6 @@
 ---
 name: diagnostic-html-visualizer
-description: "Generate a human-friendly HTML explanation page from a diagnostic run folder. Use whenever the user asks to visualize diagnosis results, create an HTML report/page/dashboard/front-end explainer, render diagnostic conclusions with ECharts or Three.js, or turn a run directory into a page that operators, managers, and engineers can understand at a glance. Strongly prefer this skill after industrial-deep-diagnostic finishes, especially when a folder contains report.md, ontology.json, diagnosis.json, evidence.json, reasoning_chain.json, plot_manifest.json, or 3d_model_data.json. Triggers on: 诊断结果可视化, 生成HTML报告, 前端讲解页面, 可视化证据链, 诊断网页, dashboard, html explain page, render diagnosis to html, visualize run folder. Do NOT use for doing the diagnosis itself, generic marketing landing pages, or cases where no diagnostic artifacts are available."
+description: "Generate a human-friendly HTML explanation page from a diagnostic run folder. Use whenever the user asks to visualize diagnosis results, create an HTML report/page/dashboard/front-end explainer, render diagnostic conclusions with ECharts or Three.js, or turn a run directory into a page that operators, managers, and engineers can understand at a glance. Strongly prefer this skill after the industrial diagnostic pipeline (industrial-analysis-auto) finishes, especially when a folder contains report.md, ontology.json, diagnosis.json, evidence.json, reasoning_chain.json, plot_manifest.json, or 3d_model_data.json. Triggers on: 诊断结果可视化, 生成HTML报告, 前端讲解页面, 可视化证据链, 诊断网页, dashboard, html explain page, render diagnosis to html, visualize run folder. Do NOT use for doing the diagnosis itself, generic marketing landing pages, or cases where no diagnostic artifacts are available."
 commands:
   - diagnostic-html-visualizer
   - diagnostic-html-visualizer build
@@ -9,7 +9,7 @@ compatibility: |
   Works with plain HTML/CSS/JS and does not require a bundler.
   Prefer single-file HTML output with inline CSS/JS plus relative links to local PNG/JPG assets in the run directory.
   Remote CDN loading is allowed for ECharts and Three.js, but the page must implement multi-source loading, runtime readiness checks, and explicit fallback behavior if scripts fail to load.
-  Can be called standalone by the user or as a post-diagnosis consumer skill from industrial-deep-diagnostic.
+  Can be called standalone by the user or as a post-diagnosis consumer skill from the industrial diagnostic pipeline (industrial-analysis-auto).
 ---
 
 # Diagnostic HTML Visualizer

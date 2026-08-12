@@ -87,7 +87,7 @@ try {
   totalRows = null;
 }
 
-const raw = fs.readFileSync(filePath, 'utf-8');
+const raw = fs.readFileSync(filePath, 'utf-8').replace(/^\uFEFF/, ''); // strip BOM
 const delim = detectDelimiter(raw.split('\n')[0]);
 const parsed = parseCSV(raw, delim);
 

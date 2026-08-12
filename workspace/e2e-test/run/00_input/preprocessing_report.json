@@ -1,0 +1,50 @@
+{
+  "run_name": "e2e_test",
+  "input_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\synthetic_process_data.csv",
+  "input_is_directory": false,
+  "sources": [],
+  "tables": [
+    {
+      "file": "synthetic_process_data.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 200,
+      "n_cols": 7,
+      "time_column": "timestamp",
+      "score": 5.1
+    }
+  ],
+  "selected_table": {
+    "file": "synthetic_process_data.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 200,
+    "n_cols": 7,
+    "time_column": "timestamp",
+    "score": 5.1,
+    "why": "highest table score"
+  },
+  "merge": null,
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 200,
+    "cols": 7,
+    "time_column": "timestamp",
+    "numeric_columns": [
+      "reactor_temp",
+      "feed_rate",
+      "cooling_flow",
+      "catalyst_age",
+      "product_purity"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\00_input\\preprocessed_data.json",
+    "context_dir": "D:\\codes\\industrial-deep-diagnostic\\workspace\\e2e-test\\run\\00_input\\context"
+  }
+}

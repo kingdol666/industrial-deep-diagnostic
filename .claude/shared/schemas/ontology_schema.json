@@ -1,304 +1,177 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ontology_schema.json",
-  "title": "Industrial Ontology Schema v6.4",
-  "description": "Schema for industrial process ontology used in v6.4 deep diagnostic. v6.4 adds time-lag auto-detection fields (lag_detection_method, optimal_lag, lag_agreement, lag_compensated_correlation) for process-to-inspection delay compensation.",
+  "title": "Process Ontology Schema (domain-agnostic)",
+  "description": "Validates an industrial/process ontology. Domain-agnostic: enforces only the structural invariants the diagnostic pipeline needs, never any industry-specific content. Accepts TWO equivalent top-level shapes (canonical bucketed form OR flat parameter form) via anyOf — both are first-class.",
   "type": "object",
-  "required": ["scene", "signals", "relationships", "metadata"],
+  "required": ["ontology_version"],
   "properties": {
+    "ontology_version": {
+      "type": "string",
+      "description": "Version label of the ontology representation (free-form)."
+    },
+    "process_type": { "type": "string", "description": "Free-text process category (e.g. a process family). Never validated against a fixed enum — the system adapts to any process." },
+    "created_at": { "type": ["string", "null"], "format": "date-time" },
     "scene": {
       "type": "object",
-      "required": ["name", "process_type"],
+      "description": "Canonical form: process scene block.",
       "properties": {
-        "name": {"type": "string", "description": "Scene identifier name"},
-        "process_type": {"type": "string", "description": "Type of industrial process"},
-        "production_goal": {"type": "string"},
-        "equipment": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["id", "name", "type"],
-            "properties": {
-              "id": {"type": "string"},
-              "name": {"type": "string"},
-              "type": {"type": "string"},
-              "function": {"type": "string"},
-              "location": {"type": "string"},
-              "manufacturer": {"type": "string"},
-              "model": {"type": "string"}
-            }
-          }
-        },
-        "stages": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["id", "name", "sequence"],
-            "properties": {
-              "id": {"type": "string"},
-              "name": {"type": "string"},
-              "sequence": {"type": "integer", "minimum": 0},
-              "typical_duration": {"type": "string"},
-              "key_physics": {"type": "string"},
-              "key_parameters": {"type": "array", "items": {"type": "string"}}
-            }
-          }
-        },
-        "objectives": {"type": "array", "items": {"type": "string"}}
+        "name": { "type": "string" },
+        "process_type": { "type": "string" },
+        "equipment": { "type": "array", "items": { "type": "object" } },
+        "stages": { "type": "array", "items": { "type": "object" } },
+        "objectives": { "type": "array", "items": { "type": ["string", "object"] } }
       }
     },
     "signals": {
       "type": "object",
-      "required": ["inspection_signals", "process_parameters", "control_variables", "events", "metadata_columns"],
+      "description": "Canonical form: variable classification. All buckets are optional; at least one signal must be declared somewhere (enforced by the pipeline, not hard-required here to allow process-only / inspection-only / unknown modes).",
       "properties": {
-        "inspection_signals": {
-          "type": "array",
-          "items": {"$ref": "#/definitions/signal_v6_3"}
-        },
-        "process_parameters": {
-          "type": "array",
-          "items": {"$ref": "#/definitions/signal_v6_3"}
-        },
-        "control_variables": {
-          "type": "array",
-          "items": {"$ref": "#/definitions/control_signal_v6_3"}
-        },
-        "events": {
-          "type": "array",
-          "items": {"$ref": "#/definitions/event_v6"}
-        },
-        "metadata_columns": {
-          "type": "array",
-          "items": {"$ref": "#/definitions/metadata_v6"}
+        "inspection_signals": { "type": "array", "items": { "$ref": "#/definitions/signal_v6" } },
+        "process_parameters": { "type": "array", "items": { "$ref": "#/definitions/signal_v6" } },
+        "control_variables": { "type": "array", "items": { "$ref": "#/definitions/control_signal" } },
+        "events": { "type": "array", "items": { "type": "object" } },
+        "metadata_columns": { "type": "array", "items": { "type": ["string", "object"] } }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "description": "Flat form: all variables in one list, each carrying a role.",
+      "items": { "$ref": "#/definitions/parameter_flat" }
+    },
+    "equipment": { "type": "array", "items": { "type": "object" } },
+    "quality_target_causal_map": {
+      "type": "object",
+      "description": "Map from a quality/inspection target name to its candidate driver columns. Keys are target names; values are arrays of column names. Free-form — no fixed keys.",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "physical_principles": {
+      "type": "array",
+      "description": "Governing physical laws relevant to this process. Each entry names the principle and the parameters it relates.",
+      "items": {
+        "type": "object",
+        "required": ["principle"],
+        "properties": {
+          "principle": { "type": "string" },
+          "equation": { "type": "string" },
+          "parameters": { "type": "array", "items": { "type": "string" } },
+          "direction": { "type": "string" }
         }
       }
     },
-    "parameter_groups": {
-      "type": "object",
-      "description": "Parameters grouped by physical function for confounder analysis",
-      "additionalProperties": {
-        "type": "array",
-        "items": {"type": "string"}
-      }
+    "known_failure_modes": {
+      "type": "array",
+      "description": "Prior failure modes (optional, accelerates diagnosis but never required).",
+      "items": { "type": "object" }
     },
     "relationships": {
       "type": "array",
-      "items": {"$ref": "#/definitions/relationship_v6_3"}
+      "description": "Directed relationships between variables (causal / correlative / physical / control).",
+      "items": { "$ref": "#/definitions/relationship" }
     },
-    "confounders": {
+    "confounders": { "type": "array", "items": { "type": "object" } },
+    "parameter_groups": {
+      "type": "object",
+      "description": "Optional grouping of parameters by physical function for confounder analysis.",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "discrepancy_signals": {
       "type": "array",
-      "description": "Known confounders that could affect both predictors and targets",
-      "items": {
-        "type": "object",
-        "properties": {
-          "variable": {"type": "string"},
-          "why": {"type": "string"},
-          "controlled": {"type": "boolean"}
-        }
-      }
+      "description": "Data-vs-ontology discrepancies surfaced as PRIMARY diagnostic signals.",
+      "items": { "type": "object" }
+    },
+    "metadata": { "$ref": "#/definitions/metadata" }
+  },
+  "definitions": {
+    "signal_v6": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "column": { "type": "string" },
+        "unit": { "type": "string" },
+        "physical_meaning": { "type": "string" },
+        "normal_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "target": { "type": ["number", "string", "null"] },
+        "tolerance": { "type": ["number", "string", "null"] },
+        "direction": { "type": "string" },
+        "governing_law": { "type": "string" },
+        "expected_data_behavior": { "type": "string" },
+        "observed_data_behavior": { "type": "string" },
+        "behavior_match": { "type": "string", "enum": ["CONSISTENT", "CONTRADICTED", "UNVERIFIED"] },
+        "discrepancy_signal": { "type": "string" },
+        "time_lag": { "type": ["string", "number", "null"] },
+        "lag_detection_method": { "type": "string" },
+        "optimal_lag": { "type": ["integer", "null"] },
+        "lag_agreement": { "type": "string" },
+        "lag_compensated_correlation": { "type": ["number", "object", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "control_signal": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "column": { "type": "string" },
+        "type": { "type": "string" },
+        "setpoint": { "type": ["number", "string", "null"] },
+        "controller": { "type": "string" },
+        "unit": { "type": "string" },
+        "manipulated_variable": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "parameter_flat": {
+      "type": "object",
+      "required": ["name", "role"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "role": {
+          "type": "string",
+          "description": "Variable role used by the pipeline. The role vocabulary is the only domain-constrained field, because the analysis flow dispatches on it.",
+          "enum": ["process_parameter", "quality_target", "inspection_signal", "control_variable", "grouping", "event", "metadata", "time", "exclude"]
+        },
+        "column": { "type": "string" },
+        "stage_ref": { "type": "string" },
+        "physical_meaning": { "type": "string" },
+        "unit": { "type": "string" },
+        "normal_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "direction": { "type": "string" },
+        "governing_law": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["from", "to", "type"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "type": { "type": "string", "enum": ["causal", "correlative", "control", "physical", "feedback", "unknown"] },
+        "direction": { "type": "string", "enum": ["forward", "bidirectional", "reverse", "unknown"] },
+        "strength": { "type": "string", "enum": ["strong", "moderate", "weak", "unknown"] },
+        "mechanism": { "type": "string" },
+        "governing_equation": { "type": "string" },
+        "lag": { "type": ["string", "number", "null"] }
+      },
+      "additionalProperties": true
     },
     "metadata": {
       "type": "object",
       "properties": {
-        "units": {"type": "object", "additionalProperties": {"type": "string"}},
-        "sampling_rate": {"type": ["string", "number", "null"]},
-        "batch_id": {"type": ["string", "null"]},
-        "timezone": {"type": ["string", "null"]},
-        "start_time": {"type": ["string", "null"], "format": "date-time"},
-        "end_time": {"type": ["string", "null"], "format": "date-time"},
-        "product_grades": {
-          "type": "array",
-          "description": "Product grades/models for stratified analysis",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "key_parameter_differences": {"type": "object"}
-            }
-          }
-        }
-      }
+        "units": { "type": "object", "additionalProperties": { "type": "string" } },
+        "sampling_rate": { "type": "string" },
+        "timezone": { "type": "string" },
+        "data_sources": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
     }
   },
-  "definitions": {
-    "signal_v6_3": {
-      "type": "object",
-      "required": ["name", "column", "role"],
-      "properties": {
-        "name": {"type": "string"},
-        "column": {"type": "string"},
-        "unit": {"type": "string"},
-        "role": {
-          "type": "string",
-          "enum": ["target", "predictor", "confounder", "control", "metadata"]
-        },
-        "physical_meaning": {"type": "string", "description": "What this parameter physically represents"},
-        "physical_meaning_confidence": {
-          "type": "string",
-          "enum": ["KNOWN", "INFERRED", "UNKNOWN"]
-        },
-        "auto_inferred": {"type": "boolean"},
-        "inference_basis": {"type": "string"},
-        "control_type": {
-          "type": "string",
-          "enum": ["setpoint", "measurement", "output"]
-        },
-        "target": {"type": ["number", "null"]},
-        "tolerance": {"type": ["number", "null"]},
-        "normal_range": {
-          "type": "array",
-          "items": {"type": ["number", "null"]},
-          "minItems": 2,
-          "maxItems": 2
-        },
-        "setpoint": {"type": ["number", "null"]},
-        "controlled_by": {"type": "string"},
-        "equipment_ref": {"type": "string"},
-        "stage_ref": {"type": "string"},
-        "governing_law": {
-          "type": "string",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Governing equation/law (e.g. Arrhenius, Bernoulli). Populated by context-builder. Consumed by data-processor Phase 0.4 and diagnostician Phase 1.5."
-        },
-        "expected_data_behavior": {
-          "type": "string",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Qualitative description of normal behavior expected from physics"
-        },
-        "observed_data_behavior": {
-          "type": "string",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Actual behavior observed in the data"
-        },
-        "behavior_match": {
-          "type": "string",
-          "enum": ["CONSISTENT", "CONTRADICTED", "UNVERIFIED"],
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Data vs physics match. CONTRADICTED = primary diagnostic signal"
-        },
-        "discrepancy_signal": {
-          "type": "string",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: If CONTRADICTED, what the mismatch means diagnostically"
-        },
-        "knowledge_source": {
-          "type": "string",
-          "enum": ["rag_retrieval", "reference_doc", "web_research", "auto_inferred", "user_provided"]
-        }
-      }
-    },
-    "control_signal_v6_3": {
-      "type": "object",
-      "required": ["name", "column", "role"],
-      "properties": {
-        "name": {"type": "string"},
-        "column": {"type": "string"},
-        "unit": {"type": "string"},
-        "role": {"type": "string", "const": "control"},
-        "physical_meaning": {"type": "string"},
-        "physical_meaning_confidence": {
-          "type": "string",
-          "enum": ["KNOWN", "INFERRED", "UNKNOWN"]
-        },
-        "auto_inferred": {"type": "boolean"},
-        "inference_basis": {"type": "string"},
-        "control_type": {"type": "string", "enum": ["setpoint", "measurement", "output"]},
-        "setpoint": {"type": ["number", "null"]},
-        "controlled_by": {"type": "string"},
-        "equipment_ref": {"type": "string"},
-        "stage_ref": {"type": "string"},
-        "governing_law": {"type": "string"},
-        "expected_data_behavior": {"type": "string"},
-        "observed_data_behavior": {"type": "string"},
-        "behavior_match": {"type": "string", "enum": ["CONSISTENT", "CONTRADICTED", "UNVERIFIED"]},
-        "discrepancy_signal": {"type": "string"},
-        "knowledge_source": {"type": "string", "enum": ["rag_retrieval", "reference_doc", "web_research", "auto_inferred", "user_provided"]}
-      }
-    },
-    "relationship_v6_3": {
-      "type": "object",
-      "required": ["from", "to", "type"],
-      "properties": {
-        "from": {"type": "string"},
-        "to": {"type": "string"},
-        "type": {"type": "string", "enum": ["causal", "correlative", "control", "physical"]},
-        "strength": {"type": "string", "enum": ["strong", "moderate", "weak"]},
-        "mechanism": {"type": "string", "description": "Full causal chain through governing equations (schema field)"},
-        "time_lag": {"type": "string", "description": "Expected time lag based on physics (schema field)"},
-        "inferred": {"type": "boolean", "default": false},
-        "governing_equation": {
-          "type": "string",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Specific equation governing this relationship"
-        },
-        "predicted_functional_form": {
-          "type": "string",
-          "enum": ["linear", "exponential", "polynomial", "inverse", "monotonic", "threshold", "delayed_response", "unknown"],
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Expected functional form from physics"
-        },
-        "rag_validated": {
-          "type": "boolean",
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Whether RAG knowledge supports this relationship"
-        },
-        "data_direction_validated": {
-          "type": "string",
-          "enum": ["true", "false", "untested"],
-          "description": "v6.3 DIAGNOSTIC ENRICHMENT: Whether data correlation direction matches physics"
-        },
-        "lag_detection_method": {
-          "type": "string",
-          "enum": ["ccf_peak", "granger_causality", "physics_prior_only", "manual", "not_applicable"],
-          "description": "v6.4 TIME-LAG: Method used to detect/validate time lag for this relationship"
-        },
-        "optimal_lag": {
-          "type": "object",
-          "description": "v6.4 TIME-LAG: Data-driven optimal lag detected by time_lag_compensator",
-          "properties": {
-            "steps": {"type": "integer"},
-            "seconds": {"type": "number"},
-            "confidence": {"type": "string", "enum": ["high", "moderate", "low", "isolated_spike_unreliable", "negligible_correlation", "insufficient_data", "not_tested"]},
-            "consistent": {"type": "boolean"},
-            "consistency_ratio": {"type": "number", "minimum": 0, "maximum": 1}
-          }
-        },
-        "lag_agreement": {
-          "type": "string",
-          "enum": ["consistent", "shorter_than_expected", "longer_than_expected", "borderline", "no_physics_prior", "not_tested"],
-          "description": "v6.4 TIME-LAG: Agreement between physics-expected lag and data-observed optimal lag"
-        },
-        "lag_discrepancy_note": {
-          "type": "string",
-          "description": "v6.4 TIME-LAG: Human-readable explanation when physics vs data lag disagrees"
-        },
-        "lag_compensated_correlation": {
-          "type": "object",
-          "description": "v6.4 TIME-LAG: Correlation after applying optimal lag compensation",
-          "properties": {
-            "r": {"type": "number", "minimum": -1, "maximum": 1},
-            "n": {"type": "integer"},
-            "r_improvement_pct": {"type": "number"},
-            "method": {"type": "string"}
-          }
-        }
-      }
-    },
-    "event_v6": {
-      "type": "object",
-      "required": ["name", "column"],
-      "properties": {
-        "name": {"type": "string"},
-        "column": {"type": "string"},
-        "description": {"type": "string"},
-        "event_values": {"type": "array", "items": {}},
-        "event_meanings": {"type": "object", "additionalProperties": {"type": "string"}}
-      }
-    },
-    "metadata_v6": {
-      "type": "object",
-      "required": ["name", "column", "role"],
-      "properties": {
-        "name": {"type": "string"},
-        "column": {"type": "string"},
-        "role": {
-          "type": "string",
-          "enum": ["batch_id", "product_code", "timestamp", "operator"]
-        },
-        "description": {"type": "string"}
-      }
-    }
-  }
+  "anyOf": [
+    { "required": ["scene", "signals"] },
+    { "required": ["parameters"] },
+    { "required": ["process_type", "parameters"] }
+  ],
+  "additionalProperties": true
 }

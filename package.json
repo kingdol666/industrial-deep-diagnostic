@@ -1,7 +1,7 @@
 {
   "name": "industrial-deep-diagnostic",
   "version": "1.0.0",
-  "description": "端到端工业深度诊断系统 — 调用 Claude Code CLI 对工业数据进行 8 阶段根因分析",
+  "description": "端到端工业深度诊断系统 — 调用 Claude Code CLI 对工业数据进行 9 步根因分析 + E0-E8 增强分析管线",
   "type": "module",
   "bin": {
     "ind-diag": "./commands/cli.mjs"

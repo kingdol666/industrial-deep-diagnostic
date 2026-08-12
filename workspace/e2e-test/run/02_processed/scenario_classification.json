@@ -1,0 +1,13 @@
+{
+  "scene_type": "process_plus_inspection",
+  "process_category": "chemical_reaction",
+  "confidence": "high",
+  "classification_basis": [
+    "ontology",
+    "column_name_heuristics",
+    "value_range_patterns"
+  ],
+  "expected_physics": [
+    "temperature drives reaction rate"
+  ]
+}

@@ -1,0 +1,533 @@
+{
+  "run_id": "enhancement-deep-analysis",
+  "relationships": [
+    {
+      "predictor": "catalyst_age",
+      "target": "product_purity",
+      "global": 0.873427,
+      "p_value": 1.5013857780947227e-140,
+      "p_floor_hit": false,
+      "detrended": 0.876383,
+      "per_group": [
+        0.874373,
+        0.870426,
+        0.875624
+      ],
+      "steady": 0.87062,
+      "lag_aligned": 0.87062,
+      "per_regime": [
+        0.87062,
+        0.893911
+      ],
+      "slope_at_current": 0.0,
+      "slope_valid": false,
+      "partial": 0.0,
+      "partial_valid": false,
+      "partial_full": {
+        "partial_r": -0.363744,
+        "valid": true,
+        "method": "full_order_ridge",
+        "n_controls": 4,
+        "n_used": 200
+      },
+      "direct_association": false,
+      "indirect_association": false,
+      "mediator_candidates": [],
+      "temporal": {
+        "valid": true,
+        "direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.874541,
+        "p_value": 4.707103132605606e-142,
+        "p_floor_hit": false,
+        "lag_aligned_r": 0.874541,
+        "n_used": 200
+      },
+      "temporal_direction": "concurrent",
+      "optimal_lag_steps": 0,
+      "change_point_co_movement": {
+        "valid": true,
+        "cp_a": [],
+        "cp_b": [],
+        "matched": 0,
+        "score": 0.0,
+        "flagged": false,
+        "window_steps": 4
+      },
+      "loo_stability": {
+        "valid": true,
+        "loo_min": 0.871984,
+        "loo_max": 0.877096,
+        "stability": 0.997444,
+        "sign_flip": false,
+        "max_influence_index": 6,
+        "flagged": false,
+        "n": 200
+      },
+      "interaction": {
+        "moderator": "product_grade",
+        "n_partitions": 3,
+        "per_partition_r": [
+          0.874373,
+          0.870426,
+          0.875624
+        ],
+        "sign_divergence": false,
+        "magnitude_divergence": false,
+        "flagged": false,
+        "valid": true
+      },
+      "causality_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "form_match": "consistent with linear/monotonic; expected: negative_monotonic",
+      "q_value": 3.753464445236807e-140,
+      "n_effective": 198,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": false,
+        "outlier_influence_checked": true,
+        "insufficient_data": false
+      },
+      "operability": "LEVER_OBSERVATIONAL"
+    },
+    {
+      "predictor": "cooling_flow",
+      "target": "product_purity",
+      "global": -0.86745,
+      "p_value": 6.466056739280218e-133,
+      "p_floor_hit": false,
+      "detrended": -0.879142,
+      "per_group": [
+        -0.868846,
+        -0.866914,
+        -0.866577
+      ],
+      "steady": -0.863561,
+      "lag_aligned": -0.863561,
+      "per_regime": [
+        -0.863561,
+        -0.88558
+      ],
+      "slope_at_current": 0.0,
+      "slope_valid": false,
+      "partial": 0.0,
+      "partial_valid": false,
+      "partial_full": {
+        "partial_r": -0.629726,
+        "valid": true,
+        "method": "full_order_ridge",
+        "n_controls": 4,
+        "n_used": 200
+      },
+      "direct_association": true,
+      "indirect_association": false,
+      "mediator_candidates": [],
+      "temporal": {
+        "valid": true,
+        "direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": -0.867749,
+        "p_value": 2.785322214151019e-133,
+        "p_floor_hit": false,
+        "lag_aligned_r": -0.867749,
+        "n_used": 200
+      },
+      "temporal_direction": "concurrent",
+      "optimal_lag_steps": 0,
+      "change_point_co_movement": {
+        "valid": true,
+        "cp_a": [],
+        "cp_b": [],
+        "matched": 0,
+        "score": 0.0,
+        "flagged": false,
+        "window_steps": 4
+      },
+      "loo_stability": {
+        "valid": true,
+        "loo_min": -0.870203,
+        "loo_max": -0.864875,
+        "stability": 0.997336,
+        "sign_flip": false,
+        "max_influence_index": 90,
+        "flagged": false,
+        "n": 200
+      },
+      "interaction": {
+        "moderator": "product_grade",
+        "n_partitions": 3,
+        "per_partition_r": [
+          -0.868846,
+          -0.866914,
+          -0.866577
+        ],
+        "sign_divergence": false,
+        "magnitude_divergence": false,
+        "flagged": false,
+        "valid": true
+      },
+      "causality_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "form_match": "consistent with linear/monotonic; expected: negative_monotonic",
+      "q_value": 1.0776761232133697e-132,
+      "n_effective": 198,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": false,
+        "outlier_influence_checked": true,
+        "insufficient_data": false
+      },
+      "operability": "LEVER_OBSERVATIONAL"
+    },
+    {
+      "predictor": "feed_rate",
+      "target": "product_purity",
+      "global": 0.183948,
+      "p_value": 0.008455567344463906,
+      "p_floor_hit": false,
+      "detrended": 0.146866,
+      "per_group": [
+        0.173334,
+        0.179434,
+        0.199532
+      ],
+      "steady": 0.186582,
+      "lag_aligned": -0.250173,
+      "per_regime": [
+        0.186582,
+        0.170291
+      ],
+      "slope_at_current": 0.0,
+      "slope_valid": false,
+      "partial": 0.0,
+      "partial_valid": false,
+      "partial_full": {
+        "partial_r": 0.75216,
+        "valid": true,
+        "method": "full_order_ridge",
+        "n_controls": 4,
+        "n_used": 200
+      },
+      "direct_association": true,
+      "indirect_association": false,
+      "mediator_candidates": [],
+      "temporal": {
+        "valid": true,
+        "direction": "x_leads_y",
+        "optimal_lag_steps": 3,
+        "ccf_peak_r": -0.26129,
+        "p_value": 0.00013953116613242344,
+        "p_floor_hit": false,
+        "lag_aligned_r": -0.250173,
+        "n_used": 200
+      },
+      "temporal_direction": "x_leads_y",
+      "optimal_lag_steps": 3,
+      "change_point_co_movement": {
+        "valid": true,
+        "cp_a": [],
+        "cp_b": [],
+        "matched": 0,
+        "score": 0.0,
+        "flagged": false,
+        "window_steps": 4
+      },
+      "loo_stability": {
+        "valid": true,
+        "loo_min": 0.172708,
+        "loo_max": 0.194847,
+        "stability": 0.98893,
+        "sign_flip": false,
+        "max_influence_index": 21,
+        "flagged": false,
+        "n": 200
+      },
+      "interaction": {
+        "moderator": "product_grade",
+        "n_partitions": 3,
+        "per_partition_r": [
+          0.173334,
+          0.179434,
+          0.199532
+        ],
+        "sign_divergence": false,
+        "magnitude_divergence": false,
+        "flagged": false,
+        "valid": true
+      },
+      "causality_ceiling": "insufficient_evidence",
+      "ontology_contradiction": false,
+      "form_match": "quadratic curvature detected (R² improvement 0.055); expected: positive_monotonic",
+      "q_value": 0.010569,
+      "n_effective": 198,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": true,
+        "outlier_influence_checked": true,
+        "insufficient_data": false
+      },
+      "operability": "LEVER_OBSERVATIONAL"
+    },
+    {
+      "predictor": "reactor_temp",
+      "target": "product_purity",
+      "global": 0.947574,
+      "p_value": 1e-300,
+      "p_floor_hit": true,
+      "detrended": 0.949486,
+      "per_group": [
+        0.947399,
+        0.946661,
+        0.948713
+      ],
+      "steady": 0.944962,
+      "lag_aligned": 0.944962,
+      "per_regime": [
+        0.944962,
+        0.962181
+      ],
+      "slope_at_current": 0.0,
+      "slope_valid": false,
+      "partial": 0.0,
+      "partial_valid": false,
+      "partial_full": {
+        "partial_r": 0.849403,
+        "valid": true,
+        "method": "full_order_ridge",
+        "n_controls": 4,
+        "n_used": 200
+      },
+      "direct_association": true,
+      "indirect_association": false,
+      "mediator_candidates": [],
+      "temporal": {
+        "valid": true,
+        "direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.948481,
+        "p_value": 1e-300,
+        "p_floor_hit": true,
+        "lag_aligned_r": 0.948481,
+        "n_used": 200
+      },
+      "temporal_direction": "concurrent",
+      "optimal_lag_steps": 0,
+      "change_point_co_movement": {
+        "valid": true,
+        "cp_a": [],
+        "cp_b": [],
+        "matched": 0,
+        "score": 0.0,
+        "flagged": false,
+        "window_steps": 4
+      },
+      "loo_stability": {
+        "valid": true,
+        "loo_min": 0.946695,
+        "loo_max": 0.948919,
+        "stability": 0.998888,
+        "sign_flip": false,
+        "max_influence_index": 6,
+        "flagged": false,
+        "n": 200
+      },
+      "interaction": {
+        "moderator": "product_grade",
+        "n_partitions": 3,
+        "per_partition_r": [
+          0.947399,
+          0.946661,
+          0.948713
+        ],
+        "sign_divergence": false,
+        "magnitude_divergence": false,
+        "flagged": false,
+        "valid": true
+      },
+      "causality_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "form_match": "consistent with linear/monotonic; expected: positive_monotonic",
+      "q_value": 5e-300,
+      "n_effective": 198,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": false,
+        "outlier_influence_checked": true,
+        "insufficient_data": false
+      },
+      "operability": "LEVER_OBSERVATIONAL"
+    },
+    {
+      "predictor": "time_since_product_grade_transition",
+      "target": "product_purity",
+      "global": 0.02932,
+      "p_value": 0.6797947973333875,
+      "p_floor_hit": false,
+      "detrended": 0.069859,
+      "per_group": [
+        -0.006768,
+        0.069554,
+        0.025607
+      ],
+      "steady": 0.051522,
+      "lag_aligned": 0.167119,
+      "per_regime": [
+        0.051522,
+        -0.094108
+      ],
+      "slope_at_current": 0.0,
+      "slope_valid": false,
+      "partial": 0.0,
+      "partial_valid": false,
+      "partial_full": {
+        "partial_r": 0.020036,
+        "valid": true,
+        "method": "full_order_ridge",
+        "n_controls": 4,
+        "n_used": 200
+      },
+      "direct_association": false,
+      "indirect_association": false,
+      "mediator_candidates": [],
+      "temporal": {
+        "valid": true,
+        "direction": "x_leads_y",
+        "optimal_lag_steps": 1,
+        "ccf_peak_r": 0.151584,
+        "p_value": 0.0309351777991462,
+        "p_floor_hit": false,
+        "lag_aligned_r": 0.167119,
+        "n_used": 200
+      },
+      "temporal_direction": "x_leads_y",
+      "optimal_lag_steps": 1,
+      "change_point_co_movement": {
+        "valid": true,
+        "cp_a": [],
+        "cp_b": [],
+        "matched": 0,
+        "score": 0.0,
+        "flagged": false,
+        "window_steps": 4
+      },
+      "loo_stability": {
+        "valid": true,
+        "loo_min": 0.017772,
+        "loo_max": 0.04123,
+        "stability": 0.988271,
+        "sign_flip": false,
+        "max_influence_index": 64,
+        "flagged": false,
+        "n": 200
+      },
+      "interaction": {
+        "moderator": "product_grade",
+        "n_partitions": 3,
+        "per_partition_r": [
+          -0.006768,
+          0.069554,
+          0.025607
+        ],
+        "sign_divergence": true,
+        "magnitude_divergence": false,
+        "flagged": true,
+        "valid": true
+      },
+      "causality_ceiling": "insufficient_evidence",
+      "ontology_contradiction": false,
+      "form_match": "no detectable linear relationship; possible nonlinear or delayed_response",
+      "q_value": 0.679795,
+      "n_effective": 198,
+      "validity_flags": {
+        "simpson_paradox_checked": true,
+        "confounding_checked": true,
+        "trend_confounding_checked": true,
+        "change_point_tested": true,
+        "batch_effect_tested": true,
+        "lag_significant": true,
+        "outlier_influence_checked": true,
+        "insufficient_data": false
+      },
+      "operability": "CONFOUNDED"
+    }
+  ],
+  "tradeoff_and_operability": [
+    {
+      "parameter": "catalyst_age",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "effects_on_targets": "positive effect on product_purity (r=0.873)",
+      "tradeoff_summary": "Single-target effect: r=0.873",
+      "operability_assessment": "LEVER_OBSERVATIONAL",
+      "support_domain": "p5=11.00, p95=28.90, current=26.70, n=200",
+      "extrapolation_warning": "Extrapolation beyond observed operating range is not supported without additional experiments.",
+      "open_questions": [
+        "建议在投入运行前做进一步机制验证。"
+      ]
+    },
+    {
+      "parameter": "cooling_flow",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "effects_on_targets": "negative effect on product_purity (r=-0.867)",
+      "tradeoff_summary": "Single-target effect: r=-0.867",
+      "operability_assessment": "LEVER_OBSERVATIONAL",
+      "support_domain": "p5=39.98, p95=50.70, current=43.50, n=200",
+      "extrapolation_warning": "Extrapolation beyond observed operating range is not supported without additional experiments.",
+      "open_questions": [
+        "建议在投入运行前做进一步机制验证。"
+      ]
+    },
+    {
+      "parameter": "feed_rate",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "effects_on_targets": "positive effect on product_purity (r=0.184)",
+      "tradeoff_summary": "Single-target effect: r=0.184",
+      "operability_assessment": "LEVER_OBSERVATIONAL",
+      "support_domain": "p5=96.00, p95=103.91, current=102.80, n=200",
+      "extrapolation_warning": "Extrapolation beyond observed operating range is not supported without additional experiments.",
+      "open_questions": [
+        "建议在投入运行前做进一步机制验证。"
+      ]
+    },
+    {
+      "parameter": "reactor_temp",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "effects_on_targets": "positive effect on product_purity (r=0.948)",
+      "tradeoff_summary": "Single-target effect: r=0.948",
+      "operability_assessment": "LEVER_OBSERVATIONAL",
+      "support_domain": "p5=80.59, p95=100.01, current=96.50, n=200",
+      "extrapolation_warning": "Extrapolation beyond observed operating range is not supported without additional experiments.",
+      "open_questions": [
+        "建议在投入运行前做进一步机制验证。"
+      ]
+    },
+    {
+      "parameter": "time_since_product_grade_transition",
+      "controllability": "directly controllable via process setpoint adjustment",
+      "effects_on_targets": "positive effect on product_purity (r=0.029)",
+      "tradeoff_summary": "Single-target effect: r=0.029",
+      "operability_assessment": "CONFOUNDED",
+      "support_domain": "p5=21.00, p95=630.00, current=663.00, n=200",
+      "extrapolation_warning": "Extrapolation beyond observed operating range is not supported without additional experiments.",
+      "open_questions": [
+        "存在混杂：因果识别需分层分析或受控实验。",
+        "调节效应：product_purity 关联在 product_grade 分组间方向相反，关联随工况/分组改变，不可外推为全局杠杆。"
+      ]
+    }
+  ]
+}

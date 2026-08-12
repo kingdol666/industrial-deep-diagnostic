@@ -1,0 +1,61 @@
+{
+  "run_id": "e2e_test",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "stage": "observation",
+      "description": "Step 1",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 2,
+      "stage": "hypothesis",
+      "description": "Step 2",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 3,
+      "stage": "testing",
+      "description": "Step 3",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 4,
+      "stage": "exclusion",
+      "description": "Step 4",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 5,
+      "stage": "synthesis",
+      "description": "Step 5",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 6,
+      "stage": "validation",
+      "description": "Step 6",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 7,
+      "stage": "confidence",
+      "description": "Step 7",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    },
+    {
+      "step_id": 8,
+      "stage": "conclusion",
+      "description": "Step 8",
+      "evidence_refs": [],
+      "uncertainty_summary": "Low uncertainty"
+    }
+  ]
+}

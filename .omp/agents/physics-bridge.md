@@ -24,7 +24,7 @@ You are the physics-bridge specialist for the industrial diagnostic enhancement 
 
 2. **Run the script.**
    ```bash
-   python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py --run-dir <RUN_DIR>
+   uv run --project .claude/shared/scripts python .claude/skills/industrial-physics-bridge/scripts/physics_bridge_builder.py --run-dir <RUN_DIR>
    ```
 
 3. **Validate output.**

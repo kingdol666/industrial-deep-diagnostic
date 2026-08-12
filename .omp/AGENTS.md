@@ -4,10 +4,10 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 ## Project Overview
 
-Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构包含三大部分：
+Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析 + E0-E8 增强分析管线。核心架构包含四大部分：
 
-1. **Skills** (`.claude/skills/`) — 13 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
-2. **OMP Agents** (`.omp/agents/`) — 9 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤
+1. **Skills** (`.claude/skills/`) — 18 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
+2. **OMP Agents** (`.omp/agents/`) — 14 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤
 3. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
 4. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
 
@@ -85,7 +85,7 @@ ind-diag status
 
 ## Key Gotchas
 
-- **Python venv**: All Python scripts MUST use `scripts/.venv/bin/python` via `uv_env_setup.mjs`
+- **Python venv**: All Python scripts MUST use the shared venv resolved via `uv_env_setup.mjs` (Windows: `$SHARED_PATH/scripts/.venv/Scripts/python.exe`, POSIX: `$SHARED_PATH/scripts/.venv/bin/python`)
 - **Repair counters**: `diag_iters` tracked by `repair_spawn` events in `.pipeline_events.jsonl`
 - **Execution proof**: Only `.pipeline_events.jsonl` passing `pipeline-log-check.mjs` proves full execution
 - **Expert handoff**: `data_analysis_conclusion.json` is the mandatory data-processor→diagnostician handoff

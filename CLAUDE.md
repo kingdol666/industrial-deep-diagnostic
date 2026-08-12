@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构：
+Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析 + E0-E8 增强分析管线。核心架构：
 
-1. **Skills** (`.claude/skills/`) — 12 个标准化 Skill（OMP 经 `claude` provider 发现）× 9 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
+1. **Skills** (`.claude/skills/`) — 18 个标准化 Skill（OMP 经 `claude` provider 发现）× 14 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
 2. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
-3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8765)
+3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
 
 ### Harness 发现架构
 
@@ -47,15 +47,15 @@ npm run frontend      # = ind-diag frontend
 
 ### Python 环境
 ```bash
-# 所有 Python 脚本必须使用 uv 管理的 venv
-node scripts/uv_env_setup.mjs
-# 之后: scripts/.venv/bin/python
+# 所有 Python 脚本必须使用共享 venv (uv_env_setup.mjs 管理)
+node .claude/shared/scripts/uv_env_setup.mjs
+# 解析为: .claude/shared/scripts/.venv/Scripts/python.exe (Windows)
+#         .claude/shared/scripts/.venv/bin/python (POSIX)
 ```
 
 ### RAG 检索引擎
 ```bash
-cd rag-retrieval-engine
-python server.py      # FastAPI → http://localhost:8765
+python server.py      # FastAPI → http://localhost:8764
 ```
 
 ## Architecture
@@ -68,7 +68,7 @@ python server.py      # FastAPI → http://localhost:8765
 | Step 1: Inspect | main-agent | — | — | input_manifest, user_context |
 | Step 2: Context | **context-builder** | `industrial-ontology-builder` | default | ontology.json, rag_deep_understanding |
 | Step 3: Process | **data-processor** | `industrial-data-processor` | default | data_analysis_conclusion, plots |
-| Step 3.5: VLM | **vlm-visual-analyzer** | `industrial-vlm-analyzer` | **vision** | visual_analysis.json |
+| Step 3.5: VLM | **vlm-visual-analyzer** | *(data-processor Phase 5.5)* | **vision** | visual_analysis.json |
 | Step 4: Diagnose | **diagnostician** | `industrial-diagnostician` | default | diagnosis, evidence, confidence, reasoning_chain |
 | Step 5a: Judge | **judge** | `industrial-judge` | default | judge_feedback.json |
 | Step 5b: Pre-Audit | **report-reviewer** | `industrial-physical-auditor` | default | optimizer_preflight.md |
@@ -183,7 +183,7 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 ## Key Gotchas
 
 - **双 Harness**: `.omp/` 是入口，`.claude/` 是资源。`SKILL_PATH` 通过 `<this-skill-directory>/../../../.claude/skills/<name>` 重定向
-- **Python 路径**: 必须 `scripts/.venv/bin/python`，非系统 python3
+- **Python 路径**: 必须使用 `uv_env_setup.mjs` 解析的共享 venv（Windows: `.claude/shared/scripts/.venv/Scripts/python.exe`，POSIX: `.claude/shared/scripts/.venv/bin/python`）
 - **修复计数器**: `diag_iters` 由 `.pipeline_events.jsonl` 的 `repair_spawn` 持久化
 - **执行证明**: `.pipeline_events.jsonl` 通过 `pipeline-log-check.mjs` 才算完整执行
 - **交接文件**: `data_analysis_conclusion.json` 是 data-processor→diagnostician 的强制交接

@@ -120,7 +120,7 @@ def _check_file(path, label):
 # ── PREPROCESS ──
 def cmd_preprocess(args):
     _check_file(args.data_csv, "Data CSV")
-    with open(args.data_csv, newline='') as f:
+    with open(args.data_csv, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         rows = list(reader)
     col_names = reader.fieldnames or []
@@ -233,16 +233,18 @@ def cmd_preprocess(args):
             }
         }
 
-    # Write cleaned CSV
+    if not rows:
+        print("ERROR: empty dataset (0 rows). Cannot preprocess.", file=sys.stderr)
+        sys.exit(1)
     all_fields = list(rows[0].keys())
     cleaned_path = os.path.join(args.output_dir, "cleaned_data.csv")
-    with open(cleaned_path, 'w', newline='') as f:
+    with open(cleaned_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=all_fields)
         writer.writeheader()
         writer.writerows(rows)
 
     report_path = os.path.join(args.output_dir, "data_quality_report.json")
-    with open(report_path, 'w') as f:
+    with open(report_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     print(f"Preprocess: {len(rows)} rows, {len(all_fields)} cols → {cleaned_path}")
 
@@ -250,11 +252,13 @@ def cmd_preprocess(args):
 # ── ANOMALY DETECTION ──
 def cmd_anomaly(args):
     _check_file(args.data_json, "Data JSON")
-    with open(args.data_json) as f:
+    with open(args.data_json, encoding='utf-8') as f:
         rows = json.load(f)
     if isinstance(rows, dict):
         rows = rows.get('data', rows.get('rows', rows.get('records', list(rows.values()))))
-
+    if not rows:
+        print("ERROR: empty dataset (0 rows). Cannot run anomaly detection.", file=sys.stderr)
+        sys.exit(1)
     window = args.window or max(5, len(rows) // 20)
     time_col = _detect_time_col(list(rows[0].keys()))
     group_col = _detect_group_col(list(rows[0].keys()), args.group_col)
@@ -464,18 +468,24 @@ def cmd_anomaly(args):
         "integrated_links": len(report["dual_drive_analysis"]["cross_domain_links"])
     }
     out_path = os.path.join(args.output_dir, "anomaly_report.json")
-    with open(out_path, 'w') as f:
+    with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     print(f"Anomalies: {report['summary']['anomaly_intervals']} intervals → {out_path}")
 
 
 # ── VISUALIZE ──
 def cmd_visualize(args):
-    with open(args.data_json) as f: rows = json.load(f)
+    _check_file(args.data_json, "Data JSON")
+    _check_file(args.feature_summary, "Feature Summary")
+    _check_file(args.anomaly_report, "Anomaly Report")
+    with open(args.data_json, encoding='utf-8') as f: rows = json.load(f)
     if isinstance(rows, dict):
         rows = rows.get('data', rows.get('rows', rows.get('records', list(rows.values()))))
-    with open(args.feature_summary) as f: features = json.load(f)
-    with open(args.anomaly_report) as f: anomaly = json.load(f)
+    if not rows:
+        print("ERROR: empty dataset (0 rows). Cannot visualize.", file=sys.stderr)
+        sys.exit(1)
+    with open(args.feature_summary, encoding='utf-8') as f: features = json.load(f)
+    with open(args.anomaly_report, encoding='utf-8') as f: anomaly = json.load(f)
 
     os.makedirs(args.output_dir, exist_ok=True)
     plot_records = []
@@ -718,6 +728,11 @@ def cmd_visualize(args):
     except ImportError:
         print("matplotlib not available — skipping visualizations")
 
+    # plot_verification.py requires a `path` per record (relative to run_dir);
+    # output_dir in the pipeline is <run_dir>/03_figures, so basename yields
+    # "03_figures/<filename>". Works for any output_dir name.
+    for _p in plot_records:
+        _p.setdefault("path", os.path.join(os.path.basename(args.output_dir), _p["file"]))
     manifest = {"generated_at": "auto", "total_plots": len(plot_records), "plots": plot_records}
     with open(os.path.join(args.output_dir, "plot_manifest.json"), 'w') as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)

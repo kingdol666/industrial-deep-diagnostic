@@ -1,0 +1,233 @@
+{
+  "run_id": "enhancement-coverage",
+  "columns": [
+    {
+      "column": "timestamp",
+      "role": "unknown",
+      "coverage_status": "not_applicable",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Column 'timestamp' excluded from quantitative analysis. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "reactor_temp",
+      "role": "predictor",
+      "coverage_status": "covered_primary",
+      "unit": "dimensionless",
+      "n_total": 200,
+      "n_steady": 167,
+      "support_domain": {
+        "p5": 80.595,
+        "p25": 84.675,
+        "p50": 89.7,
+        "p75": 94.97500000000001,
+        "p95": 100.00999999999999,
+        "n": 200,
+        "current_median": 89.7
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Primary predictor/kinetic driver 'reactor_temp' with full coverage."
+    },
+    {
+      "column": "feed_rate",
+      "role": "predictor",
+      "coverage_status": "covered_primary",
+      "unit": "dimensionless",
+      "n_total": 200,
+      "n_steady": 167,
+      "support_domain": {
+        "p5": 96.0,
+        "p25": 97.1,
+        "p50": 99.9,
+        "p75": 102.8,
+        "p95": 103.905,
+        "n": 200,
+        "current_median": 99.9
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Primary predictor/kinetic driver 'feed_rate' with full coverage."
+    },
+    {
+      "column": "cooling_flow",
+      "role": "predictor",
+      "coverage_status": "covered_primary",
+      "unit": "dimensionless",
+      "n_total": 200,
+      "n_steady": 167,
+      "support_domain": {
+        "p5": 39.985,
+        "p25": 42.45,
+        "p50": 45.2,
+        "p75": 47.525,
+        "p95": 50.705,
+        "n": 200,
+        "current_median": 45.2
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Primary predictor/kinetic driver 'cooling_flow' with full coverage."
+    },
+    {
+      "column": "catalyst_age",
+      "role": "predictor",
+      "coverage_status": "covered_primary",
+      "unit": "dimensionless",
+      "n_total": 200,
+      "n_steady": 167,
+      "support_domain": {
+        "p5": 10.995000000000001,
+        "p25": 14.975,
+        "p50": 19.95,
+        "p75": 24.924999999999997,
+        "p95": 28.904999999999998,
+        "n": 200,
+        "current_median": 19.95
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Primary predictor/kinetic driver 'catalyst_age' with full coverage."
+    },
+    {
+      "column": "product_purity",
+      "role": "target",
+      "coverage_status": "covered_primary",
+      "unit": "dimensionless",
+      "n_total": 200,
+      "n_steady": 167,
+      "support_domain": {
+        "p5": 95.226,
+        "p25": 96.8925,
+        "p50": 98.98,
+        "p75": 100.9475,
+        "p95": 102.755,
+        "n": 200,
+        "current_median": 98.98
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Quality target 'product_purity' with full coverage for diagnostic analysis."
+    },
+    {
+      "column": "product_grade",
+      "role": "unknown",
+      "coverage_status": "not_applicable",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Column 'product_grade' excluded from quantitative analysis. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "reactor_temp_dev",
+      "role": "derived_deviation",
+      "coverage_status": "derived_and_used",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Derived deviation column 'reactor_temp_dev' (parent 'reactor_temp'); used in pipeline computations but not a raw process signal. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "cooling_flow_dev",
+      "role": "derived_deviation",
+      "coverage_status": "derived_and_used",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Derived deviation column 'cooling_flow_dev' (parent 'cooling_flow'); used in pipeline computations but not a raw process signal. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "catalyst_age_dev",
+      "role": "derived_deviation",
+      "coverage_status": "derived_and_used",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Derived deviation column 'catalyst_age_dev' (parent 'catalyst_age'); used in pipeline computations but not a raw process signal. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "product_purity_dev",
+      "role": "derived_deviation",
+      "coverage_status": "derived_and_used",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Derived deviation column 'product_purity_dev' (parent 'product_purity'); used in pipeline computations but not a raw process signal. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    },
+    {
+      "column": "time_hours",
+      "role": "derived_time",
+      "coverage_status": "not_applicable",
+      "unit": "metadata",
+      "n_total": 200,
+      "n_steady": 200,
+      "support_domain": {
+        "p5": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p95": 0.0,
+        "n": 1,
+        "current_median": 0.0
+      },
+      "physics_ref": "NOT_APPLICABLE",
+      "reason": "Derived time index column 'time_hours'; not a quantitative process signal. Non-numeric metadata column; support domain uses finite sentinel values (0.0) — not a quantitative domain."
+    }
+  ]
+}

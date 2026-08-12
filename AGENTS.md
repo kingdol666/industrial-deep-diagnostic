@@ -4,11 +4,11 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 ## Project Overview
 
-Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析。核心架构包含三大部分：
+Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析 + E0-E8 增强分析管线。核心架构：
 
-1. **Skills** (`.claude/skills/`) — 12 个标准化 Skill（OMP 经 `claude` provider 发现）× 9 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
+1. **Skills** (`.claude/skills/`) — 18 个标准化 Skill（OMP 经 `claude` provider 发现）× 14 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
 2. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
-3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8765)
+3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
 
 ### Harness 发现架构
 
@@ -38,15 +38,16 @@ ind-diag status       # Status
 
 ### Python venv
 ```bash
-# All Python scripts MUST use uv-managed venv
-node scripts/uv_env_setup.mjs
-# Then: scripts/.venv/bin/python
+# All Python scripts MUST use the shared venv via uv_env_setup.mjs
+node .claude/shared/scripts/uv_env_setup.mjs
+# Resolves to: .claude/shared/scripts/.venv/Scripts/python.exe (Windows)
+#              .claude/shared/scripts/.venv/bin/python (POSIX)
 ```
 
 ### RAG Engine
 ```bash
 cd rag-retrieval-engine
-python server.py      # → http://localhost:8765
+python server.py      # → http://localhost:8764
 ```
 
 ## Architecture
@@ -59,7 +60,7 @@ python server.py      # → http://localhost:8765
 | Step 1: Inspect | main-agent | — | — | input_manifest, user_context |
 | Step 2: Context | **context-builder** | `industrial-ontology-builder` | default | ontology.json |
 | Step 3: Process | **data-processor** | `industrial-data-processor` | default | data_analysis_conclusion, plots |
-| Step 3.5: VLM | **vlm-visual-analyzer** | `industrial-vlm-analyzer` | **vision** | visual_analysis.json |
+| Step 3.5: VLM | **vlm-visual-analyzer** | *(data-processor Phase 5.5)* | **vision** | visual_analysis.json |
 | Step 4: Diagnose | **diagnostician** | `industrial-diagnostician` | default | diagnosis, evidence, confidence, reasoning_chain |
 | Step 5a: Judge | **judge** | `industrial-judge` | default | judge_feedback.json |
 | Step 5b: Pre-Audit | **report-reviewer** | `industrial-physical-auditor` | default | optimizer_preflight.md |
@@ -92,24 +93,30 @@ python server.py      # → http://localhost:8765
 - **反假相关强制（v6.4–v6.7）**: 时滞补偿 CCF · 生产状态识别+稳态过滤 · 批次标识完整性 · 离群杠杆 leave-one-out
 - **HTML 自动构建（非交互）**: CP-8 `ENDORSED` 后默认自动连续执行 Step 8→8.5→9，不询问用户
 
-### Skill 体系 (12 Skills)
+### Skill 体系 (18 Skills)
 
 | Skill | 触发条件 | 模型 |
 |-------|---------|:----:|
 | `industrial-analysis-auto` | 工业诊断, 根因分析, 故障诊断... | default |
+| `industrial-data-preprocessor` | 数据前处理, 预处理, 多格式数据... | default |
 | `industrial-ontology-builder` | ontology构建, 本体, RAG检索... | default |
 | `industrial-data-processor` | 统计分析, 数据清洗, 数据可视化... | default |
-| `industrial-vlm-analyzer` | VLM, 视觉分析, 图像分析... | **vision** |
 | `industrial-diagnostician` | 诊断, 根因, 竞争假设... | default |
 | `industrial-judge` | quality gate, 质量评审... | default |
 | `industrial-physical-auditor` | physical audit, 物理审计... | default |
 | `industrial-reporter` | 写报告, 诊断报告... | default |
 | `industrial-html-visualizer` | HTML可视化, 生成HTML... | default |
 | `industrial-html-reviewer` | HTML审校, review HTML... | default |
+| `industrial-deep-analysis` | deep analysis, 深层分析, coverage builder... | default |
+| `industrial-physics-bridge` | physics bridge, 物理桥接, physics verification... | default |
+| `industrial-analysis-enhance-auto` | enhance auto, 增强自动, enhancement orchestration... | default |
+| `industrial-enhanced-html-visualizer` | enhanced html, 增强可视化... | default |
+| `industrial-enhanced-html-reviewer` | enhanced html review, 增强审校... | default |
 | `rag-knowledge-builder` | 知识库构建, 本体构建... | default |
 | `diagnostic-html-visualizer` | 诊断结果可视化, dashboard... | — |
+| `darwin-skill` | skill fitness, 技能评估... | — |
 
-### Agent 角色 (9 agents)
+### Agent 角色 (14 agents)
 
 | Agent | 人格 | 核心产出 |
 |-------|------|---------|
@@ -122,6 +129,11 @@ python server.py      # → http://localhost:8765
 | reporter | 周工 · 技术报告 | 金字塔报告 |
 | html-visualizer | 林工 · HMI可视化 | ECharts+Three.js |
 | html-reviewer | 赵审阅 · 页面审校 | HTML可用性审核 |
+| deep-analyst | 深层分析引擎 | E1-E4 覆盖+条件+权衡 |
+| physics-bridge | 物理机理桥接 | 五项物理验证+机理链 |
+| enhance-orchestrator | 增强管线编排 | E0-E8 全自动增强 |
+| enhanced-visualizer | 增强版前端 | 增强版 ECharts HTML |
+| enhanced-html-reviewer | 增强版审校 | 增强版 HTML 审核 |
 
 ### 诊断产出目录结构
 ```

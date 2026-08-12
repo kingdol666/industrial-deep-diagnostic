@@ -10,7 +10,7 @@ Usage:
 
 Environment variables (with defaults):
     VISION_API_URL   default: https://api.llm.ustc.edu.cn/v1/chat/completions
-    VISION_API_KEY   default: sk-izZqC-FfYHaueU9hi7iQww
+    VISION_API_KEY   REQUIRED — set via environment variable
     VISION_MODEL     default: qwen3.6-reasoner
 
 Exit codes:
@@ -71,7 +71,11 @@ def read_image(image_path, question=None, model=None):
         "VISION_API_URL",
         "https://api.llm.ustc.edu.cn/v1/chat/completions",
     )
-    api_key = os.environ.get("VISION_API_KEY", "sk-izZqC-FfYHaueU9hi7iQww")
+    api_key = os.environ.get("VISION_API_KEY")
+    if not api_key:
+        print("ERROR: VISION_API_KEY environment variable not set. Set it to your vision model API key.", file=sys.stderr)
+        print("       Example: export VISION_API_KEY=sk-your-key-here", file=sys.stderr)
+        sys.exit(2)
     model = model or os.environ.get("VISION_MODEL", "qwen3.6-reasoner")
     question = question or DEFAULT_QUESTION
 
@@ -146,9 +150,9 @@ def read_image(image_path, question=None, model=None):
         print("ERROR: no choices in API response", file=sys.stderr)
         sys.exit(2)
 
+    message = choices[0].get("message", {}) or {}
     content = message.get("content", "")
     reasoning = message.get("reasoning_content", "")
-    finish = choices[0].get("finish_reason", "")
 
     # Reasoning models (e.g. qwen3.6-reasoner) may exhaust max_tokens during
     # the reasoning phase, leaving content=None. Fall back to reasoning so the

@@ -185,7 +185,7 @@ try {
 
 const USE_SAMPLE = totalRows !== null && totalRows > 100000;
 
-const raw = fs.readFileSync(filePath, 'utf-8');
+const raw = fs.readFileSync(filePath, 'utf-8').replace(/^\uFEFF/, ''); // strip BOM
 let headers, dataRows;
 
 if (ext === '.json') {

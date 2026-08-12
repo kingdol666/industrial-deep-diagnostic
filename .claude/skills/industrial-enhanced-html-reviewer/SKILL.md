@@ -66,7 +66,7 @@ description: >
 ## Usage
 
 ```bash
-python .claude/skills/industrial-enhanced-html-reviewer/scripts/html_reviewer.py \
+uv run --project .claude/shared/scripts python .claude/skills/industrial-enhanced-html-reviewer/scripts/html_reviewer.py \
   --knowledge <enhanced_knowledge.json> \
   --html <enhanced-analysis.html> \
   --output <DIR>/enhancement_html_review.json

@@ -147,7 +147,8 @@ function main() {
   const figures = {};
 
   for (const plot of manifest.plots) {
-    const fname = plot.filename;
+    const fname = plot.filename || plot.file || '';
+    if (!fname) continue; // skip plots without filename
     const figId = fname.replace(/^fig_(\d+)_.*\.png$/, 'fig_$1');
     const plotType = plot.plot_type || 'unknown';
 

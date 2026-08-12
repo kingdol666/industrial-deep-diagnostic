@@ -1,0 +1,2961 @@
+{
+  "targets": {
+    "product_purity": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 103.99,
+        "percent_above_threshold": 1.5,
+        "threshold_crossing_index": 178
+      }
+    }
+  },
+  "transition_events": [
+    {
+      "index": 1,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.8
+      },
+      "quality_after": {
+        "product_purity": 96.322
+      },
+      "quality_jump_sigma": 0.209
+    },
+    {
+      "index": 2,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 95.97
+      },
+      "quality_after": {
+        "product_purity": 96.339
+      },
+      "quality_jump_sigma": 0.148
+    },
+    {
+      "index": 3,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.1167
+      },
+      "quality_after": {
+        "product_purity": 96.354
+      },
+      "quality_jump_sigma": 0.095
+    },
+    {
+      "index": 4,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.2325
+      },
+      "quality_after": {
+        "product_purity": 96.38
+      },
+      "quality_jump_sigma": 0.059
+    },
+    {
+      "index": 5,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.31
+      },
+      "quality_after": {
+        "product_purity": 96.425
+      },
+      "quality_jump_sigma": 0.046
+    },
+    {
+      "index": 6,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.35
+      },
+      "quality_after": {
+        "product_purity": 96.491
+      },
+      "quality_jump_sigma": 0.056
+    },
+    {
+      "index": 7,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.3571
+      },
+      "quality_after": {
+        "product_purity": 96.572
+      },
+      "quality_jump_sigma": 0.086
+    },
+    {
+      "index": 8,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.3413
+      },
+      "quality_after": {
+        "product_purity": 96.656
+      },
+      "quality_jump_sigma": 0.126
+    },
+    {
+      "index": 9,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.3144
+      },
+      "quality_after": {
+        "product_purity": 96.727
+      },
+      "quality_jump_sigma": 0.165
+    },
+    {
+      "index": 10,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.289
+      },
+      "quality_after": {
+        "product_purity": 96.769
+      },
+      "quality_jump_sigma": 0.192
+    },
+    {
+      "index": 11,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.322
+      },
+      "quality_after": {
+        "product_purity": 96.769
+      },
+      "quality_jump_sigma": 0.179
+    },
+    {
+      "index": 12,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.339
+      },
+      "quality_after": {
+        "product_purity": 96.721
+      },
+      "quality_jump_sigma": 0.153
+    },
+    {
+      "index": 13,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.354
+      },
+      "quality_after": {
+        "product_purity": 96.626
+      },
+      "quality_jump_sigma": 0.109
+    },
+    {
+      "index": 14,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.38
+      },
+      "quality_after": {
+        "product_purity": 96.492
+      },
+      "quality_jump_sigma": 0.045
+    },
+    {
+      "index": 15,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.425
+      },
+      "quality_after": {
+        "product_purity": 96.333
+      },
+      "quality_jump_sigma": 0.037
+    },
+    {
+      "index": 16,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.491
+      },
+      "quality_after": {
+        "product_purity": 96.164
+      },
+      "quality_jump_sigma": 0.131
+    },
+    {
+      "index": 17,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.572
+      },
+      "quality_after": {
+        "product_purity": 95.999
+      },
+      "quality_jump_sigma": 0.229
+    },
+    {
+      "index": 18,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.656
+      },
+      "quality_after": {
+        "product_purity": 95.847
+      },
+      "quality_jump_sigma": 0.323
+    },
+    {
+      "index": 19,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.727
+      },
+      "quality_after": {
+        "product_purity": 95.711
+      },
+      "quality_jump_sigma": 0.406
+    },
+    {
+      "index": 20,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.769
+      },
+      "quality_after": {
+        "product_purity": 95.587
+      },
+      "quality_jump_sigma": 0.473
+    },
+    {
+      "index": 21,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.769
+      },
+      "quality_after": {
+        "product_purity": 95.467
+      },
+      "quality_jump_sigma": 0.521
+    },
+    {
+      "index": 22,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.721
+      },
+      "quality_after": {
+        "product_purity": 95.34
+      },
+      "quality_jump_sigma": 0.552
+    },
+    {
+      "index": 23,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.626
+      },
+      "quality_after": {
+        "product_purity": 95.199
+      },
+      "quality_jump_sigma": 0.571
+    },
+    {
+      "index": 24,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.492
+      },
+      "quality_after": {
+        "product_purity": 95.04
+      },
+      "quality_jump_sigma": 0.581
+    },
+    {
+      "index": 25,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.333
+      },
+      "quality_after": {
+        "product_purity": 94.866
+      },
+      "quality_jump_sigma": 0.587
+    },
+    {
+      "index": 26,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.164
+      },
+      "quality_after": {
+        "product_purity": 94.687
+      },
+      "quality_jump_sigma": 0.591
+    },
+    {
+      "index": 27,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 95.999
+      },
+      "quality_after": {
+        "product_purity": 94.52
+      },
+      "quality_jump_sigma": 0.591
+    },
+    {
+      "index": 28,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.847
+      },
+      "quality_after": {
+        "product_purity": 94.383
+      },
+      "quality_jump_sigma": 0.585
+    },
+    {
+      "index": 29,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 95.711
+      },
+      "quality_after": {
+        "product_purity": 94.294
+      },
+      "quality_jump_sigma": 0.567
+    },
+    {
+      "index": 30,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 95.587
+      },
+      "quality_after": {
+        "product_purity": 94.266
+      },
+      "quality_jump_sigma": 0.528
+    },
+    {
+      "index": 31,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.467
+      },
+      "quality_after": {
+        "product_purity": 94.306
+      },
+      "quality_jump_sigma": 0.464
+    },
+    {
+      "index": 32,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 95.34
+      },
+      "quality_after": {
+        "product_purity": 94.412
+      },
+      "quality_jump_sigma": 0.371
+    },
+    {
+      "index": 33,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 95.199
+      },
+      "quality_after": {
+        "product_purity": 94.574
+      },
+      "quality_jump_sigma": 0.25
+    },
+    {
+      "index": 34,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.04
+      },
+      "quality_after": {
+        "product_purity": 94.778
+      },
+      "quality_jump_sigma": 0.105
+    },
+    {
+      "index": 35,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 94.866
+      },
+      "quality_after": {
+        "product_purity": 95.008
+      },
+      "quality_jump_sigma": 0.057
+    },
+    {
+      "index": 36,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 94.687
+      },
+      "quality_after": {
+        "product_purity": 95.248
+      },
+      "quality_jump_sigma": 0.224
+    },
+    {
+      "index": 37,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 94.52
+      },
+      "quality_after": {
+        "product_purity": 95.488
+      },
+      "quality_jump_sigma": 0.387
+    },
+    {
+      "index": 38,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 94.383
+      },
+      "quality_after": {
+        "product_purity": 95.725
+      },
+      "quality_jump_sigma": 0.537
+    },
+    {
+      "index": 39,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 94.294
+      },
+      "quality_after": {
+        "product_purity": 95.96
+      },
+      "quality_jump_sigma": 0.666
+    },
+    {
+      "index": 40,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 94.266
+      },
+      "quality_after": {
+        "product_purity": 96.201
+      },
+      "quality_jump_sigma": 0.774
+    },
+    {
+      "index": 41,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 94.306
+      },
+      "quality_after": {
+        "product_purity": 96.454
+      },
+      "quality_jump_sigma": 0.859
+    },
+    {
+      "index": 42,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 94.412
+      },
+      "quality_after": {
+        "product_purity": 96.726
+      },
+      "quality_jump_sigma": 0.925
+    },
+    {
+      "index": 43,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 94.574
+      },
+      "quality_after": {
+        "product_purity": 97.018
+      },
+      "quality_jump_sigma": 0.977
+    },
+    {
+      "index": 44,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 94.778
+      },
+      "quality_after": {
+        "product_purity": 97.322
+      },
+      "quality_jump_sigma": 1.017
+    },
+    {
+      "index": 45,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 95.008
+      },
+      "quality_after": {
+        "product_purity": 97.626
+      },
+      "quality_jump_sigma": 1.047
+    },
+    {
+      "index": 46,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.248
+      },
+      "quality_after": {
+        "product_purity": 97.914
+      },
+      "quality_jump_sigma": 1.066
+    },
+    {
+      "index": 47,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 95.488
+      },
+      "quality_after": {
+        "product_purity": 98.165
+      },
+      "quality_jump_sigma": 1.07
+    },
+    {
+      "index": 48,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 95.725
+      },
+      "quality_after": {
+        "product_purity": 98.362
+      },
+      "quality_jump_sigma": 1.054
+    },
+    {
+      "index": 49,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 95.96
+      },
+      "quality_after": {
+        "product_purity": 98.493
+      },
+      "quality_jump_sigma": 1.013
+    },
+    {
+      "index": 50,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.201
+      },
+      "quality_after": {
+        "product_purity": 98.552
+      },
+      "quality_jump_sigma": 0.94
+    },
+    {
+      "index": 51,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.454
+      },
+      "quality_after": {
+        "product_purity": 98.545
+      },
+      "quality_jump_sigma": 0.836
+    },
+    {
+      "index": 52,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.726
+      },
+      "quality_after": {
+        "product_purity": 98.483
+      },
+      "quality_jump_sigma": 0.702
+    },
+    {
+      "index": 53,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.018
+      },
+      "quality_after": {
+        "product_purity": 98.381
+      },
+      "quality_jump_sigma": 0.545
+    },
+    {
+      "index": 54,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.322
+      },
+      "quality_after": {
+        "product_purity": 98.259
+      },
+      "quality_jump_sigma": 0.375
+    },
+    {
+      "index": 55,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.626
+      },
+      "quality_after": {
+        "product_purity": 98.131
+      },
+      "quality_jump_sigma": 0.202
+    },
+    {
+      "index": 56,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.914
+      },
+      "quality_after": {
+        "product_purity": 98.008
+      },
+      "quality_jump_sigma": 0.038
+    },
+    {
+      "index": 57,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.165
+      },
+      "quality_after": {
+        "product_purity": 97.895
+      },
+      "quality_jump_sigma": 0.108
+    },
+    {
+      "index": 58,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.362
+      },
+      "quality_after": {
+        "product_purity": 97.788
+      },
+      "quality_jump_sigma": 0.229
+    },
+    {
+      "index": 59,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.493
+      },
+      "quality_after": {
+        "product_purity": 97.682
+      },
+      "quality_jump_sigma": 0.324
+    },
+    {
+      "index": 60,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.552
+      },
+      "quality_after": {
+        "product_purity": 97.57
+      },
+      "quality_jump_sigma": 0.393
+    },
+    {
+      "index": 61,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.545
+      },
+      "quality_after": {
+        "product_purity": 97.447
+      },
+      "quality_jump_sigma": 0.439
+    },
+    {
+      "index": 62,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.483
+      },
+      "quality_after": {
+        "product_purity": 97.312
+      },
+      "quality_jump_sigma": 0.468
+    },
+    {
+      "index": 63,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.381
+      },
+      "quality_after": {
+        "product_purity": 97.172
+      },
+      "quality_jump_sigma": 0.483
+    },
+    {
+      "index": 64,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.259
+      },
+      "quality_after": {
+        "product_purity": 97.039
+      },
+      "quality_jump_sigma": 0.488
+    },
+    {
+      "index": 65,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.131
+      },
+      "quality_after": {
+        "product_purity": 96.931
+      },
+      "quality_jump_sigma": 0.48
+    },
+    {
+      "index": 66,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.008
+      },
+      "quality_after": {
+        "product_purity": 96.865
+      },
+      "quality_jump_sigma": 0.457
+    },
+    {
+      "index": 67,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.895
+      },
+      "quality_after": {
+        "product_purity": 96.856
+      },
+      "quality_jump_sigma": 0.415
+    },
+    {
+      "index": 68,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.788
+      },
+      "quality_after": {
+        "product_purity": 96.914
+      },
+      "quality_jump_sigma": 0.349
+    },
+    {
+      "index": 69,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.682
+      },
+      "quality_after": {
+        "product_purity": 97.04
+      },
+      "quality_jump_sigma": 0.257
+    },
+    {
+      "index": 70,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.57
+      },
+      "quality_after": {
+        "product_purity": 97.227
+      },
+      "quality_jump_sigma": 0.137
+    },
+    {
+      "index": 71,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.447
+      },
+      "quality_after": {
+        "product_purity": 97.461
+      },
+      "quality_jump_sigma": 0.006
+    },
+    {
+      "index": 72,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.312
+      },
+      "quality_after": {
+        "product_purity": 97.723
+      },
+      "quality_jump_sigma": 0.164
+    },
+    {
+      "index": 73,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.172
+      },
+      "quality_after": {
+        "product_purity": 97.995
+      },
+      "quality_jump_sigma": 0.329
+    },
+    {
+      "index": 74,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.039
+      },
+      "quality_after": {
+        "product_purity": 98.26
+      },
+      "quality_jump_sigma": 0.488
+    },
+    {
+      "index": 75,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.931
+      },
+      "quality_after": {
+        "product_purity": 98.508
+      },
+      "quality_jump_sigma": 0.63
+    },
+    {
+      "index": 76,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 96.865
+      },
+      "quality_after": {
+        "product_purity": 98.735
+      },
+      "quality_jump_sigma": 0.748
+    },
+    {
+      "index": 77,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 96.856
+      },
+      "quality_after": {
+        "product_purity": 98.945
+      },
+      "quality_jump_sigma": 0.835
+    },
+    {
+      "index": 78,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 96.914
+      },
+      "quality_after": {
+        "product_purity": 99.145
+      },
+      "quality_jump_sigma": 0.892
+    },
+    {
+      "index": 79,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.04
+      },
+      "quality_after": {
+        "product_purity": 99.342
+      },
+      "quality_jump_sigma": 0.92
+    },
+    {
+      "index": 80,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.227
+      },
+      "quality_after": {
+        "product_purity": 99.542
+      },
+      "quality_jump_sigma": 0.926
+    },
+    {
+      "index": 81,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.461
+      },
+      "quality_after": {
+        "product_purity": 99.745
+      },
+      "quality_jump_sigma": 0.913
+    },
+    {
+      "index": 82,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.723
+      },
+      "quality_after": {
+        "product_purity": 99.946
+      },
+      "quality_jump_sigma": 0.889
+    },
+    {
+      "index": 83,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.995
+      },
+      "quality_after": {
+        "product_purity": 100.132
+      },
+      "quality_jump_sigma": 0.854
+    },
+    {
+      "index": 84,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.26
+      },
+      "quality_after": {
+        "product_purity": 100.289
+      },
+      "quality_jump_sigma": 0.811
+    },
+    {
+      "index": 85,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.508
+      },
+      "quality_after": {
+        "product_purity": 100.4
+      },
+      "quality_jump_sigma": 0.756
+    },
+    {
+      "index": 86,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.735
+      },
+      "quality_after": {
+        "product_purity": 100.453
+      },
+      "quality_jump_sigma": 0.687
+    },
+    {
+      "index": 87,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.945
+      },
+      "quality_after": {
+        "product_purity": 100.44
+      },
+      "quality_jump_sigma": 0.598
+    },
+    {
+      "index": 88,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.145
+      },
+      "quality_after": {
+        "product_purity": 100.362
+      },
+      "quality_jump_sigma": 0.487
+    },
+    {
+      "index": 89,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.342
+      },
+      "quality_after": {
+        "product_purity": 100.229
+      },
+      "quality_jump_sigma": 0.355
+    },
+    {
+      "index": 90,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 99.542
+      },
+      "quality_after": {
+        "product_purity": 100.056
+      },
+      "quality_jump_sigma": 0.206
+    },
+    {
+      "index": 91,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.745
+      },
+      "quality_after": {
+        "product_purity": 99.861
+      },
+      "quality_jump_sigma": 0.046
+    },
+    {
+      "index": 92,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.946
+      },
+      "quality_after": {
+        "product_purity": 99.664
+      },
+      "quality_jump_sigma": 0.113
+    },
+    {
+      "index": 93,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.132
+      },
+      "quality_after": {
+        "product_purity": 99.479
+      },
+      "quality_jump_sigma": 0.261
+    },
+    {
+      "index": 94,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.289
+      },
+      "quality_after": {
+        "product_purity": 99.314
+      },
+      "quality_jump_sigma": 0.39
+    },
+    {
+      "index": 95,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.4
+      },
+      "quality_after": {
+        "product_purity": 99.17
+      },
+      "quality_jump_sigma": 0.492
+    },
+    {
+      "index": 96,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.453
+      },
+      "quality_after": {
+        "product_purity": 99.041
+      },
+      "quality_jump_sigma": 0.565
+    },
+    {
+      "index": 97,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.44
+      },
+      "quality_after": {
+        "product_purity": 98.917
+      },
+      "quality_jump_sigma": 0.609
+    },
+    {
+      "index": 98,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.362
+      },
+      "quality_after": {
+        "product_purity": 98.79
+      },
+      "quality_jump_sigma": 0.628
+    },
+    {
+      "index": 99,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.229
+      },
+      "quality_after": {
+        "product_purity": 98.652
+      },
+      "quality_jump_sigma": 0.63
+    },
+    {
+      "index": 100,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.056
+      },
+      "quality_after": {
+        "product_purity": 98.501
+      },
+      "quality_jump_sigma": 0.622
+    },
+    {
+      "index": 101,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.861
+      },
+      "quality_after": {
+        "product_purity": 98.343
+      },
+      "quality_jump_sigma": 0.607
+    },
+    {
+      "index": 102,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 99.664
+      },
+      "quality_after": {
+        "product_purity": 98.188
+      },
+      "quality_jump_sigma": 0.59
+    },
+    {
+      "index": 103,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.479
+      },
+      "quality_after": {
+        "product_purity": 98.051
+      },
+      "quality_jump_sigma": 0.571
+    },
+    {
+      "index": 104,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.314
+      },
+      "quality_after": {
+        "product_purity": 97.946
+      },
+      "quality_jump_sigma": 0.547
+    },
+    {
+      "index": 105,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 99.17
+      },
+      "quality_after": {
+        "product_purity": 97.886
+      },
+      "quality_jump_sigma": 0.513
+    },
+    {
+      "index": 106,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.041
+      },
+      "quality_after": {
+        "product_purity": 97.877
+      },
+      "quality_jump_sigma": 0.465
+    },
+    {
+      "index": 107,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.917
+      },
+      "quality_after": {
+        "product_purity": 97.917
+      },
+      "quality_jump_sigma": 0.4
+    },
+    {
+      "index": 108,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.79
+      },
+      "quality_after": {
+        "product_purity": 97.997
+      },
+      "quality_jump_sigma": 0.317
+    },
+    {
+      "index": 109,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.652
+      },
+      "quality_after": {
+        "product_purity": 98.103
+      },
+      "quality_jump_sigma": 0.219
+    },
+    {
+      "index": 110,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.501
+      },
+      "quality_after": {
+        "product_purity": 98.219
+      },
+      "quality_jump_sigma": 0.113
+    },
+    {
+      "index": 111,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.343
+      },
+      "quality_after": {
+        "product_purity": 98.329
+      },
+      "quality_jump_sigma": 0.006
+    },
+    {
+      "index": 112,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.188
+      },
+      "quality_after": {
+        "product_purity": 98.422
+      },
+      "quality_jump_sigma": 0.094
+    },
+    {
+      "index": 113,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.051
+      },
+      "quality_after": {
+        "product_purity": 98.496
+      },
+      "quality_jump_sigma": 0.178
+    },
+    {
+      "index": 114,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.946
+      },
+      "quality_after": {
+        "product_purity": 98.554
+      },
+      "quality_jump_sigma": 0.243
+    },
+    {
+      "index": 115,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.886
+      },
+      "quality_after": {
+        "product_purity": 98.606
+      },
+      "quality_jump_sigma": 0.288
+    },
+    {
+      "index": 116,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 97.877
+      },
+      "quality_after": {
+        "product_purity": 98.665
+      },
+      "quality_jump_sigma": 0.315
+    },
+    {
+      "index": 117,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 97.917
+      },
+      "quality_after": {
+        "product_purity": 98.745
+      },
+      "quality_jump_sigma": 0.331
+    },
+    {
+      "index": 118,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 97.997
+      },
+      "quality_after": {
+        "product_purity": 98.855
+      },
+      "quality_jump_sigma": 0.343
+    },
+    {
+      "index": 119,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.103
+      },
+      "quality_after": {
+        "product_purity": 98.998
+      },
+      "quality_jump_sigma": 0.358
+    },
+    {
+      "index": 120,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.219
+      },
+      "quality_after": {
+        "product_purity": 99.171
+      },
+      "quality_jump_sigma": 0.381
+    },
+    {
+      "index": 121,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.329
+      },
+      "quality_after": {
+        "product_purity": 99.364
+      },
+      "quality_jump_sigma": 0.414
+    },
+    {
+      "index": 122,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.422
+      },
+      "quality_after": {
+        "product_purity": 99.564
+      },
+      "quality_jump_sigma": 0.457
+    },
+    {
+      "index": 123,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.496
+      },
+      "quality_after": {
+        "product_purity": 99.755
+      },
+      "quality_jump_sigma": 0.503
+    },
+    {
+      "index": 124,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.554
+      },
+      "quality_after": {
+        "product_purity": 99.927
+      },
+      "quality_jump_sigma": 0.549
+    },
+    {
+      "index": 125,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.606
+      },
+      "quality_after": {
+        "product_purity": 100.074
+      },
+      "quality_jump_sigma": 0.587
+    },
+    {
+      "index": 126,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.665
+      },
+      "quality_after": {
+        "product_purity": 100.196
+      },
+      "quality_jump_sigma": 0.612
+    },
+    {
+      "index": 127,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 98.745
+      },
+      "quality_after": {
+        "product_purity": 100.302
+      },
+      "quality_jump_sigma": 0.623
+    },
+    {
+      "index": 128,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 98.855
+      },
+      "quality_after": {
+        "product_purity": 100.403
+      },
+      "quality_jump_sigma": 0.619
+    },
+    {
+      "index": 129,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 98.998
+      },
+      "quality_after": {
+        "product_purity": 100.514
+      },
+      "quality_jump_sigma": 0.606
+    },
+    {
+      "index": 130,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.171
+      },
+      "quality_after": {
+        "product_purity": 100.644
+      },
+      "quality_jump_sigma": 0.589
+    },
+    {
+      "index": 131,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.364
+      },
+      "quality_after": {
+        "product_purity": 100.8
+      },
+      "quality_jump_sigma": 0.574
+    },
+    {
+      "index": 132,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 99.564
+      },
+      "quality_after": {
+        "product_purity": 100.98
+      },
+      "quality_jump_sigma": 0.566
+    },
+    {
+      "index": 133,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 99.755
+      },
+      "quality_after": {
+        "product_purity": 101.175
+      },
+      "quality_jump_sigma": 0.568
+    },
+    {
+      "index": 134,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 99.927
+      },
+      "quality_after": {
+        "product_purity": 101.371
+      },
+      "quality_jump_sigma": 0.577
+    },
+    {
+      "index": 135,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.074
+      },
+      "quality_after": {
+        "product_purity": 101.55
+      },
+      "quality_jump_sigma": 0.59
+    },
+    {
+      "index": 136,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.196
+      },
+      "quality_after": {
+        "product_purity": 101.697
+      },
+      "quality_jump_sigma": 0.6
+    },
+    {
+      "index": 137,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.302
+      },
+      "quality_after": {
+        "product_purity": 101.8
+      },
+      "quality_jump_sigma": 0.599
+    },
+    {
+      "index": 138,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.403
+      },
+      "quality_after": {
+        "product_purity": 101.854
+      },
+      "quality_jump_sigma": 0.58
+    },
+    {
+      "index": 139,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.514
+      },
+      "quality_after": {
+        "product_purity": 101.862
+      },
+      "quality_jump_sigma": 0.539
+    },
+    {
+      "index": 140,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.644
+      },
+      "quality_after": {
+        "product_purity": 101.835
+      },
+      "quality_jump_sigma": 0.476
+    },
+    {
+      "index": 141,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.8
+      },
+      "quality_after": {
+        "product_purity": 101.785
+      },
+      "quality_jump_sigma": 0.394
+    },
+    {
+      "index": 142,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.98
+      },
+      "quality_after": {
+        "product_purity": 101.727
+      },
+      "quality_jump_sigma": 0.299
+    },
+    {
+      "index": 143,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.175
+      },
+      "quality_after": {
+        "product_purity": 101.673
+      },
+      "quality_jump_sigma": 0.199
+    },
+    {
+      "index": 144,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.371
+      },
+      "quality_after": {
+        "product_purity": 101.629
+      },
+      "quality_jump_sigma": 0.103
+    },
+    {
+      "index": 145,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.55
+      },
+      "quality_after": {
+        "product_purity": 101.595
+      },
+      "quality_jump_sigma": 0.018
+    },
+    {
+      "index": 146,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.697
+      },
+      "quality_after": {
+        "product_purity": 101.565
+      },
+      "quality_jump_sigma": 0.053
+    },
+    {
+      "index": 147,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.8
+      },
+      "quality_after": {
+        "product_purity": 101.529
+      },
+      "quality_jump_sigma": 0.108
+    },
+    {
+      "index": 148,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.854
+      },
+      "quality_after": {
+        "product_purity": 101.477
+      },
+      "quality_jump_sigma": 0.151
+    },
+    {
+      "index": 149,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.862
+      },
+      "quality_after": {
+        "product_purity": 101.401
+      },
+      "quality_jump_sigma": 0.184
+    },
+    {
+      "index": 150,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.835
+      },
+      "quality_after": {
+        "product_purity": 101.299
+      },
+      "quality_jump_sigma": 0.214
+    },
+    {
+      "index": 151,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.785
+      },
+      "quality_after": {
+        "product_purity": 101.176
+      },
+      "quality_jump_sigma": 0.243
+    },
+    {
+      "index": 152,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.727
+      },
+      "quality_after": {
+        "product_purity": 101.045
+      },
+      "quality_jump_sigma": 0.273
+    },
+    {
+      "index": 153,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.673
+      },
+      "quality_after": {
+        "product_purity": 100.923
+      },
+      "quality_jump_sigma": 0.3
+    },
+    {
+      "index": 154,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.629
+      },
+      "quality_after": {
+        "product_purity": 100.828
+      },
+      "quality_jump_sigma": 0.32
+    },
+    {
+      "index": 155,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.595
+      },
+      "quality_after": {
+        "product_purity": 100.777
+      },
+      "quality_jump_sigma": 0.327
+    },
+    {
+      "index": 156,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.565
+      },
+      "quality_after": {
+        "product_purity": 100.781
+      },
+      "quality_jump_sigma": 0.313
+    },
+    {
+      "index": 157,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.529
+      },
+      "quality_after": {
+        "product_purity": 100.844
+      },
+      "quality_jump_sigma": 0.274
+    },
+    {
+      "index": 158,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.477
+      },
+      "quality_after": {
+        "product_purity": 100.961
+      },
+      "quality_jump_sigma": 0.206
+    },
+    {
+      "index": 159,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.401
+      },
+      "quality_after": {
+        "product_purity": 101.12
+      },
+      "quality_jump_sigma": 0.112
+    },
+    {
+      "index": 160,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.299
+      },
+      "quality_after": {
+        "product_purity": 101.306
+      },
+      "quality_jump_sigma": 0.003
+    },
+    {
+      "index": 161,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.176
+      },
+      "quality_after": {
+        "product_purity": 101.503
+      },
+      "quality_jump_sigma": 0.131
+    },
+    {
+      "index": 162,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.045
+      },
+      "quality_after": {
+        "product_purity": 101.697
+      },
+      "quality_jump_sigma": 0.261
+    },
+    {
+      "index": 163,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.923
+      },
+      "quality_after": {
+        "product_purity": 101.881
+      },
+      "quality_jump_sigma": 0.383
+    },
+    {
+      "index": 164,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.828
+      },
+      "quality_after": {
+        "product_purity": 102.054
+      },
+      "quality_jump_sigma": 0.49
+    },
+    {
+      "index": 165,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.777
+      },
+      "quality_after": {
+        "product_purity": 102.219
+      },
+      "quality_jump_sigma": 0.577
+    },
+    {
+      "index": 166,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.781
+      },
+      "quality_after": {
+        "product_purity": 102.385
+      },
+      "quality_jump_sigma": 0.641
+    },
+    {
+      "index": 167,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 100.844
+      },
+      "quality_after": {
+        "product_purity": 102.559
+      },
+      "quality_jump_sigma": 0.686
+    },
+    {
+      "index": 168,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 100.961
+      },
+      "quality_after": {
+        "product_purity": 102.746
+      },
+      "quality_jump_sigma": 0.714
+    },
+    {
+      "index": 169,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.12
+      },
+      "quality_after": {
+        "product_purity": 102.946
+      },
+      "quality_jump_sigma": 0.73
+    },
+    {
+      "index": 170,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.306
+      },
+      "quality_after": {
+        "product_purity": 103.15
+      },
+      "quality_jump_sigma": 0.737
+    },
+    {
+      "index": 171,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.503
+      },
+      "quality_after": {
+        "product_purity": 103.345
+      },
+      "quality_jump_sigma": 0.736
+    },
+    {
+      "index": 172,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.697
+      },
+      "quality_after": {
+        "product_purity": 103.513
+      },
+      "quality_jump_sigma": 0.726
+    },
+    {
+      "index": 173,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.881
+      },
+      "quality_after": {
+        "product_purity": 103.635
+      },
+      "quality_jump_sigma": 0.701
+    },
+    {
+      "index": 174,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 102.054
+      },
+      "quality_after": {
+        "product_purity": 103.695
+      },
+      "quality_jump_sigma": 0.656
+    },
+    {
+      "index": 175,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 102.219
+      },
+      "quality_after": {
+        "product_purity": 103.685
+      },
+      "quality_jump_sigma": 0.586
+    },
+    {
+      "index": 176,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 102.385
+      },
+      "quality_after": {
+        "product_purity": 103.603
+      },
+      "quality_jump_sigma": 0.487
+    },
+    {
+      "index": 177,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 102.559
+      },
+      "quality_after": {
+        "product_purity": 103.457
+      },
+      "quality_jump_sigma": 0.359
+    },
+    {
+      "index": 178,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 102.746
+      },
+      "quality_after": {
+        "product_purity": 103.262
+      },
+      "quality_jump_sigma": 0.206
+    },
+    {
+      "index": 179,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 102.946
+      },
+      "quality_after": {
+        "product_purity": 103.035
+      },
+      "quality_jump_sigma": 0.036
+    },
+    {
+      "index": 180,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 103.15
+      },
+      "quality_after": {
+        "product_purity": 102.795
+      },
+      "quality_jump_sigma": 0.142
+    },
+    {
+      "index": 181,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 103.345
+      },
+      "quality_after": {
+        "product_purity": 102.557
+      },
+      "quality_jump_sigma": 0.315
+    },
+    {
+      "index": 182,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 103.513
+      },
+      "quality_after": {
+        "product_purity": 102.329
+      },
+      "quality_jump_sigma": 0.473
+    },
+    {
+      "index": 183,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 103.635
+      },
+      "quality_after": {
+        "product_purity": 102.114
+      },
+      "quality_jump_sigma": 0.608
+    },
+    {
+      "index": 184,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 103.695
+      },
+      "quality_after": {
+        "product_purity": 101.91
+      },
+      "quality_jump_sigma": 0.714
+    },
+    {
+      "index": 185,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 103.685
+      },
+      "quality_after": {
+        "product_purity": 101.71
+      },
+      "quality_jump_sigma": 0.79
+    },
+    {
+      "index": 186,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 103.603
+      },
+      "quality_after": {
+        "product_purity": 101.508
+      },
+      "quality_jump_sigma": 0.838
+    },
+    {
+      "index": 187,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 103.457
+      },
+      "quality_after": {
+        "product_purity": 101.3
+      },
+      "quality_jump_sigma": 0.862
+    },
+    {
+      "index": 188,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 103.262
+      },
+      "quality_after": {
+        "product_purity": 101.089
+      },
+      "quality_jump_sigma": 0.869
+    },
+    {
+      "index": 189,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 103.035
+      },
+      "quality_after": {
+        "product_purity": 100.884
+      },
+      "quality_jump_sigma": 0.86
+    },
+    {
+      "index": 190,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 102.795
+      },
+      "quality_after": {
+        "product_purity": 100.7
+      },
+      "quality_jump_sigma": 0.838
+    },
+    {
+      "index": 191,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 102.557
+      },
+      "quality_after": {
+        "product_purity": 100.5778
+      },
+      "quality_jump_sigma": 0.791
+    },
+    {
+      "index": 192,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 102.329
+      },
+      "quality_after": {
+        "product_purity": 100.4425
+      },
+      "quality_jump_sigma": 0.754
+    },
+    {
+      "index": 193,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 102.114
+      },
+      "quality_after": {
+        "product_purity": 100.3014
+      },
+      "quality_jump_sigma": 0.725
+    },
+    {
+      "index": 194,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.91
+      },
+      "quality_after": {
+        "product_purity": 100.165
+      },
+      "quality_jump_sigma": 0.698
+    },
+    {
+      "index": 195,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.71
+      },
+      "quality_after": {
+        "product_purity": 100.048
+      },
+      "quality_jump_sigma": 0.664
+    },
+    {
+      "index": 196,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 101.508
+      },
+      "quality_after": {
+        "product_purity": 99.965
+      },
+      "quality_jump_sigma": 0.617
+    },
+    {
+      "index": 197,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "B",
+      "to": "C",
+      "quality_before": {
+        "product_purity": 101.3
+      },
+      "quality_after": {
+        "product_purity": 99.93
+      },
+      "quality_jump_sigma": 0.548
+    },
+    {
+      "index": 198,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "C",
+      "to": "A",
+      "quality_before": {
+        "product_purity": 101.089
+      },
+      "quality_after": {
+        "product_purity": 99.95
+      },
+      "quality_jump_sigma": 0.455
+    },
+    {
+      "index": 199,
+      "type": "product_change",
+      "column": "product_grade",
+      "from": "A",
+      "to": "B",
+      "quality_before": {
+        "product_purity": 100.884
+      },
+      "quality_after": {
+        "product_purity": 100.03
+      },
+      "quality_jump_sigma": 0.341
+    }
+  ],
+  "process_parameter_fluctuation": {
+    "reactor_temp": {
+      "mean": 90.04,
+      "std": 5.9795,
+      "cv": 0.0664,
+      "p05_p95_span": 19.5,
+      "abrupt_behavior": "no"
+    },
+    "cooling_flow": {
+      "mean": 45.104,
+      "std": 3.2497,
+      "cv": 0.072,
+      "p05_p95_span": 11,
+      "abrupt_behavior": "no"
+    },
+    "feed_rate": {
+      "mean": 99.9475,
+      "std": 2.8589,
+      "cv": 0.0286,
+      "p05_p95_span": 7.9,
+      "abrupt_behavior": "no"
+    },
+    "catalyst_age": {
+      "mean": 19.95,
+      "std": 5.7879,
+      "cv": 0.2901,
+      "p05_p95_span": 18,
+      "abrupt_behavior": "yes"
+    }
+  },
+  "dual_drive_analysis": {
+    "data_view_mode": "process_plus_inspection",
+    "group_column": "product_grade",
+    "time_column": "timestamp",
+    "per_product_analysis": {
+      "A": {
+        "rows": 67,
+        "process_parameter_summary": {
+          "reactor_temp": {
+            "mean": 89.9866,
+            "std": 6.038,
+            "cv": 0.0671,
+            "large_fluctuation": false
+          },
+          "cooling_flow": {
+            "mean": 45.1284,
+            "std": 3.2785,
+            "cv": 0.0726,
+            "large_fluctuation": false
+          },
+          "feed_rate": {
+            "mean": 99.9672,
+            "std": 2.884,
+            "cv": 0.0288,
+            "large_fluctuation": false
+          },
+          "catalyst_age": {
+            "mean": 19.9,
+            "std": 5.8455,
+            "cv": 0.2937,
+            "large_fluctuation": true
+          }
+        },
+        "inspection_target_summary": {
+          "product_purity": {
+            "mean": 98.9663,
+            "max": 104.18,
+            "min": 93.89,
+            "n": 67
+          }
+        },
+        "integrated_findings": []
+      },
+      "B": {
+        "rows": 67,
+        "process_parameter_summary": {
+          "reactor_temp": {
+            "mean": 90.0776,
+            "std": 6.0129,
+            "cv": 0.0668,
+            "large_fluctuation": false
+          },
+          "cooling_flow": {
+            "mean": 45.0821,
+            "std": 3.2648,
+            "cv": 0.0724,
+            "large_fluctuation": false
+          },
+          "feed_rate": {
+            "mean": 99.9299,
+            "std": 2.8772,
+            "cv": 0.0288,
+            "large_fluctuation": false
+          },
+          "catalyst_age": {
+            "mean": 20,
+            "std": 5.8455,
+            "cv": 0.2923,
+            "large_fluctuation": true
+          }
+        },
+        "inspection_target_summary": {
+          "product_purity": {
+            "mean": 98.9906,
+            "max": 104.19,
+            "min": 93.74,
+            "n": 67
+          }
+        },
+        "integrated_findings": []
+      },
+      "C": {
+        "rows": 66,
+        "process_parameter_summary": {
+          "reactor_temp": {
+            "mean": 90.0561,
+            "std": 5.9774,
+            "cv": 0.0664,
+            "large_fluctuation": false
+          },
+          "cooling_flow": {
+            "mean": 45.1015,
+            "std": 3.2547,
+            "cv": 0.0722,
+            "large_fluctuation": false
+          },
+          "feed_rate": {
+            "mean": 99.9455,
+            "std": 2.8585,
+            "cv": 0.0286,
+            "large_fluctuation": false
+          },
+          "catalyst_age": {
+            "mean": 19.95,
+            "std": 5.7589,
+            "cv": 0.2887,
+            "large_fluctuation": true
+          }
+        },
+        "inspection_target_summary": {
+          "product_purity": {
+            "mean": 98.9952,
+            "max": 104.27,
+            "min": 93.73,
+            "n": 66
+          }
+        },
+        "integrated_findings": []
+      }
+    },
+    "cross_domain_links": [],
+    "summary": "按product_grade执行了工艺参数波动与检测指标异常的联合分析；识别到0条工艺-检测联动线索。"
+  },
+  "summary": {
+    "data_view_mode": "process_plus_inspection",
+    "anomaly_intervals": 0,
+    "total_transitions": 199,
+    "process_parameters_screened": 4,
+    "integrated_links": 0,
+    "normalized_from_legacy_shape": true
+  }
+}

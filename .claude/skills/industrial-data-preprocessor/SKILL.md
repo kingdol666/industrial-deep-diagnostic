@@ -71,11 +71,11 @@ is genuinely **data-source agnostic**.
 
 ```bash
 # Directory of mixed formats (recommended: point at the whole data dir)
-python .claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py \
+uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py \
   --data-path data/lekaiData --output <RUN_DIR>/00_input --name my_run
 
 # Single file of any supported format
-python .claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py \
+uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py \
   --data-path data/eval_reactor_catalyst/data.csv --output <RUN_DIR>/00_input
 ```
 
@@ -96,7 +96,7 @@ Exit 0 with `status: ok` (table produced) or `status: no_tabular_data`
 ## Verification
 
 ```bash
-python .claude/skills/industrial-data-preprocessor/tests/test_preprocessor.py
+uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/tests/test_preprocessor.py
 ```
 
 Covers: clean CSV, GBK+semicolon+junk-header text, multi-sheet xlsx with junk,

@@ -631,7 +631,7 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
         # Contract: when ontology marks data_direction_validated=false, direction MUST be
         # reported as MISMATCH (data contradicts the physics prior). This is the CSTR
         # AC-2 case generalized to any scene with a direction-validated=false relationship.
-        assert not (direction == "MATCH" and onto_rel.get("data_direction_validated") is False), \
+        assert not (direction == "MATCH" and str(onto_rel.get("data_direction_validated", "")).lower() == "false"), \
             f"AC-2 violation: {predictor}→{target} ontology data_direction_validated=false but direction=MATCH"
 
         evidence_refs = _collect_relationship_evidence(

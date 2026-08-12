@@ -43,7 +43,7 @@
     "nodes": {
      "description": "图谱节点",
      "type": "array",
-     "minItems": 1,
+     "minItems": 0,
      "items": {
       "type": "object",
       "additionalProperties": false,
@@ -145,7 +145,7 @@
     "edges": {
      "description": "图谱边",
      "type": "array",
-     "minItems": 1,
+     "minItems": 0,
      "items": {
       "type": "object",
       "additionalProperties": false,
@@ -258,7 +258,7 @@
   "tradeoff_matrix": {
    "description": "参数权衡矩阵",
    "type": "array",
-   "minItems": 1,
+   "minItems": 0,
    "items": {
     "type": "object",
     "additionalProperties": false,
@@ -418,6 +418,160 @@
       }
      }
     }
+   }
+  },
+  "causal_pathways": {
+   "description": "多跳因果路径：从过程参数到质量目标的传导链",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "path",
+     "start",
+     "end",
+     "path_length",
+     "total_strength",
+     "min_confidence",
+     "edges"
+    ],
+    "properties": {
+     "path": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "start": {
+      "type": "string"
+     },
+     "end": {
+      "type": "string"
+     },
+     "path_length": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "total_strength": {
+      "type": "number"
+     },
+     "min_confidence": {
+      "type": "number"
+     },
+     "edges": {
+      "type": "array"
+     }
+    }
+   }
+  },
+  "parameter_centrality": {
+   "description": "参数网络中心性评分",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "parameter",
+     "out_degree",
+     "in_degree",
+     "influence_score",
+     "is_hub"
+    ],
+    "properties": {
+     "parameter": {
+      "type": "string"
+     },
+     "role": {
+      "type": "string"
+     },
+     "type": {
+      "type": "string"
+     },
+     "out_degree": {
+      "type": "integer"
+     },
+     "in_degree": {
+      "type": "integer"
+     },
+     "influence_score": {
+      "type": "number"
+     },
+     "is_hub": {
+      "type": "boolean"
+     },
+     "downstream_targets": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "unit": {
+      "type": "string"
+     },
+     "physics_ref": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "control_levers": {
+   "description": "控制杠杆：可操作参数及其对质量目标的预期影响",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "parameter",
+     "controllable",
+     "overall_confidence",
+     "downstream_effects"
+    ],
+    "properties": {
+     "parameter": {
+      "type": "string"
+     },
+     "physical_meaning": {
+      "type": "string"
+     },
+     "unit": {
+      "type": "string"
+     },
+     "current_value": {},
+     "support_domain": {
+      "type": "object"
+     },
+     "controllable": {
+      "type": "boolean"
+     },
+     "operability": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "downstream_effects": {
+      "type": "array"
+     },
+     "overall_confidence": {
+      "type": "number"
+     },
+     "risk_factors": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "equipment_stage": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "physical_context": {
+   "description": "参数物理上下文：从本体模型提取的物理含义映射",
+   "type": "object",
+   "additionalProperties": {
+    "type": "object"
    }
   }
  }

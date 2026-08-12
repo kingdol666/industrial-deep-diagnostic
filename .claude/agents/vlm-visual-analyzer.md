@@ -31,7 +31,7 @@ color: magenta
 4. 按 plot_manifest.json 的优先级顺序逐图分析 PNG 图像文件。**读每张图前检查 ontology 中对应参数的 physical_meaning。**
    - **图像读取方式**：OMP Read 工具对部分 vision 模型存在能力检测限制。使用专用脚本直接调用 vision API：
      ```bash
-     python "$SHARED_PATH/scripts/vlm_image_reader.py" "$RUN_DIR/03_figures/<filename>.png" "Your context-specific question about this chart" --json
+     uv run --project "$SHARED_PATH/scripts" python "$SHARED_PATH/scripts/vlm_image_reader.py" "$RUN_DIR/03_figures/<filename>.png" "Your context-specific question about this chart" --json
      ```
    - 每张图的问题必须基于 ontology 上下文定制，例如：
      - 时序叠加图：`"Analyze temporal alignment between parameters. Do they move synchronously? Any precedence signals?"`

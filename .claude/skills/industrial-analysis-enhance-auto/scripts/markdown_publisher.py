@@ -15,7 +15,7 @@ import math
 import sys
 from pathlib import Path
 from string import Template
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 
 # ── helpers ────────────────────────────────────────────────────────────
@@ -64,6 +64,372 @@ def _status_zh(status: str) -> str:
 
 
 # ── variable builders ───────────────────────────────────────────────────
+
+# ── AI-actionable deep synthesis sections ──────────────────────────────
+
+def _build_ai_actionable_summary(kb: dict) -> str:
+    """Build a compact machine-parseable JSON block for AI consumption.
+
+    This is THE primary interface for downstream AI agents: it encodes
+    the top control levers, strongest pathways, and key risk factors
+    in a single JSON structure that an agent can parse without reading
+    the full document.
+    """
+    levers = kb.get("control_levers", [])
+    pathways = kb.get("causal_pathways", [])
+    centrality = kb.get("parameter_centrality", [])
+    edges = kb.get("relationship_graph", {}).get("edges", [])
+
+    # Top levers (controllable, highest confidence)
+    top_levers = []
+    for lev in levers[:10]:
+        top_levers.append({
+            "parameter": lev.get("parameter", ""),
+            "physical_meaning": lev.get("physical_meaning", ""),
+            "controllable": lev.get("controllable", False),
+            "confidence": lev.get("overall_confidence", 0.0),
+            "downstream": [
+                {"target": d["target"], "direction": d["direction"],
+                 "strength": d["strength"], "physics_verified": d["physics_verified"]}
+                for d in lev.get("downstream_effects", [])[:3]
+            ],
+            "risks": lev.get("risk_factors", [])[:2],
+        })
+
+    # Top pathways (strongest multi-hop chains)
+    top_paths = []
+    for p in pathways[:5]:
+        top_paths.append({
+            "path": " → ".join(p.get("path", [])),
+            "strength": p.get("total_strength", 0.0),
+            "hops": p.get("path_length", 0),
+        })
+
+    # Hub parameters (highest influence)
+    hubs = [{"parameter": c["parameter"], "influence": c["influence_score"],
+             "targets": c.get("downstream_targets", [])[:3]}
+            for c in centrality if c.get("is_hub")][:5]
+
+    # Physics verification rate
+    phys_verified = sum(1 for e in edges if e.get("physics_verification", {}).get("overall_status") == "confirmed")
+    phys_total = sum(1 for e in edges if e.get("physics_verification", {}))
+
+    summary = {
+        "document_type": "industrial_deep_analysis",
+        "version": "2.0",
+        "run_id": kb.get("run_id", ""),
+        "status": kb.get("enhancement_status", ""),
+        "parameter_count": len(kb.get("relationship_graph", {}).get("nodes", [])),
+        "relationship_count": len(edges),
+        "physics_verification": {
+            "verified": phys_verified,
+            "total_tested": phys_total,
+            "rate": round(phys_verified / max(phys_total, 1), 3),
+        },
+        "top_control_levers": top_levers,
+        "strongest_causal_pathways": top_paths,
+        "hub_parameters": hubs,
+        "usage_instruction": (
+            "This summary encodes the analysis results for machine consumption. "
+            "Each control lever lists its downstream effects on quality targets. "
+            "'direction: increase' means raising the parameter raises the target. "
+            "'physics_verified: true' means the relationship passed 5-item physics verification. "
+            "Always check 'risk_factors' before acting. See full document for detailed evidence."
+        ),
+    }
+
+    return json.dumps(summary, ensure_ascii=False, indent=2)
+
+
+def _build_control_levers_table(kb: dict) -> str:
+    """Build a markdown table of control levers with expected impact."""
+    levers = kb.get("control_levers", [])
+    if not levers:
+        return "无可识别的控制杠杆。"
+
+    lines = [
+        "| 参数 | 物理含义 | 可控 | 置信度 | 下游目标 | 方向 | 强度 | 物理验证 | 风险 |",
+        "|------|----------|:----:|:------:|----------|------|------|:--------:|------|",
+    ]
+
+    for lev in levers:
+        param = lev.get("parameter", "?")
+        meaning = lev.get("physical_meaning", "")[:30]
+        ctrl = "✅" if lev.get("controllable") else "❌"
+        conf = f"{lev.get('overall_confidence', 0):.2f}"
+
+        effects = lev.get("downstream_effects", [])
+        if effects:
+            first = effects[0]
+            target = first.get("target", "?")
+            direction = "↑" if first.get("direction") == "increase" else "↓"
+            strength = f"{first.get('strength', 0):.3f}"
+            phys = "✅" if first.get("physics_verified") else "—"
+        else:
+            target = direction = strength = phys = "—"
+
+        risks = lev.get("risk_factors", [])
+        risk_str = risks[0][:25] if risks and risks[0] != "None identified" else "无"
+
+        lines.append(f"| `{param}` | {meaning} | {ctrl} | {conf} | `{target}` | {direction} | {strength} | {phys} | {risk_str} |")
+
+        # Additional effects on separate rows
+        for eff in effects[1:]:
+            tgt = eff.get("target", "?")
+            d = "↑" if eff.get("direction") == "increase" else "↓"
+            s = f"{eff.get('strength', 0):.3f}"
+            p = "✅" if eff.get("physics_verified") else "—"
+            lines.append(f"| | | | | `{tgt}` | {d} | {s} | {p} | |")
+
+    return "\n".join(lines)
+
+
+def _build_control_levers_detail(kb: dict) -> str:
+    """Build detailed per-lever sections with embedded JSON for AI consumption."""
+    levers = kb.get("control_levers", [])
+    if not levers:
+        return "无控制杠杆详情。"
+
+    sections = []
+    for i, lev in enumerate(levers):
+        param = lev.get("parameter", "?")
+        conf = lev.get("overall_confidence", 0.0)
+        ctrl = lev.get("controllable", False)
+
+        parts = [
+            f"### 控制杠杆 LEVER-{i+1:03d}: `{param}`",
+            "",
+            f"**物理含义**: {lev.get('physical_meaning', '未知')}",
+            f"**单位**: {lev.get('unit', 'dimensionless')}",
+            f"**当前值(中位数)**: {lev.get('current_value', 'N/A')}",
+            f"**可控性**: {'✅ 已验证可控' if ctrl else '⚠️ 观测性关联'}",
+            f"**综合置信度**: {conf:.2f}/1.00",
+            f"**设备工段**: {lev.get('equipment_stage', '未标注')}",
+            "",
+        ]
+
+        # Downstream effects table
+        effects = lev.get("downstream_effects", [])
+        if effects:
+            parts.append("| 目标参数 | 方向 | 强度(r) | 当前斜率 | 置信度 | 物理验证 | q值 | 时序方向 |")
+            parts.append("|----------|------|---------|----------|--------|:--------:|-----|----------|")
+            for eff in effects:
+                tgt = eff.get("target", "?")
+                d = "↑ 增加" if eff.get("direction") == "increase" else "↓ 减少"
+                s = f"{eff.get('strength', 0):.3f}"
+                slope = f"{eff.get('slope_at_current', 0):.4f}"
+                c = f"{eff.get('confidence', 0):.2f}"
+                pv = "✅" if eff.get("physics_verified") else "—"
+                q = f"{eff.get('q_value', 1.0):.4f}"
+                td = eff.get("temporal_direction", "concurrent")
+                parts.append(f"| `{tgt}` | {d} | {s} | {slope} | {c} | {pv} | {q} | {td} |")
+            parts.append("")
+
+        # Risk factors
+        risks = lev.get("risk_factors", [])
+        if risks and risks != ["None identified"]:
+            parts.append("**⚠️ 风险因素**:")
+            for r in risks:
+                parts.append(f"- {r}")
+            parts.append("")
+
+        # Embedded JSON for AI
+        lever_json = json.dumps({
+            "lever_id": f"LEVER-{i+1:03d}",
+            "parameter": param,
+            "controllable": ctrl,
+            "confidence": conf,
+            "downstream_effects": effects,
+            "risk_factors": risks,
+            "operability": lev.get("operability", []),
+            "support_domain": lev.get("support_domain", {}),
+        }, ensure_ascii=False, indent=2)
+        parts.append("```json")
+        parts.append(lever_json)
+        parts.append("```")
+        parts.append("")
+
+        sections.append("\n".join(parts))
+
+    return "\n".join(sections)
+
+
+def _build_influence_matrix(kb: dict) -> str:
+    """Build a compact parameter × target influence matrix.
+
+    Rows = process parameters, Columns = quality targets.
+    Each cell shows the correlation strength with sign.
+    """
+    edges = kb.get("relationship_graph", {}).get("edges", [])
+    nodes = kb.get("relationship_graph", {}).get("nodes", [])
+
+    target_ids = sorted({
+        n.get("id", "") for n in nodes
+        if n.get("type") == "target" or n.get("role") in ("target", "quality_target")
+    })
+    param_ids = sorted({
+        n.get("id", "") for n in nodes
+        if n.get("type") != "target" and n.get("role") not in ("target", "quality_target")
+        and n.get("id", "")
+    })
+
+    if not target_ids or not param_ids:
+        return "无足够数据构建影响矩阵。"
+
+    # Build lookup: (param, target) -> edge
+    edge_lookup: Dict[Tuple[str, str], dict] = {}
+    for e in edges:
+        src = e.get("source", "")
+        tgt = e.get("target", "")
+        if src and tgt:
+            edge_lookup[(src, tgt)] = e
+
+    # Header
+    col_width = max(len(t) for t in target_ids) + 2
+    col_width = min(col_width, 18)
+    header = "| 参数 |" + "|".join(f" `{t[:col_width-2]}` " for t in target_ids) + "|"
+    sep = "|------|" + "|".join("---:" for _ in target_ids) + "|"
+
+    lines = [header, sep]
+
+    for param in param_ids:
+        cells = []
+        for tgt in target_ids:
+            e = edge_lookup.get((param, tgt))
+            if e:
+                r = e.get("strength", 0.0)
+                conf = e.get("confidence", 0.0)
+                phys = e.get("physics_verification", {}).get("overall_status", "")
+                if abs(r) >= 0.5 and conf >= 0.5:
+                    symbol = "🟢" if r > 0 else "🔴"
+                elif abs(r) >= 0.3:
+                    symbol = "🟡" if r > 0 else "🟠"
+                elif abs(r) >= 0.1:
+                    symbol = "⚫"
+                else:
+                    symbol = "·"
+                cell = f"{symbol}{r:+.2f}"
+                if phys == "confirmed":
+                    cell += "✓"
+            else:
+                cell = "—"
+            cells.append(f" {cell} ")
+        lines.append(f"| `{param[:20]}` |" + "|".join(cells) + "|")
+
+    legend = "\n\n**图例**: 🟢强正相关(≥0.5) 🟡中等正相关(0.3-0.5) ⚫弱相关(0.1-0.3) · 极弱/无关 | 🔴🔴🟠 负相关同级别 | ✓ 物理验证通过"
+    return "\n".join(lines) + legend
+
+
+def _build_causal_pathways_section(kb: dict) -> str:
+    """Build multi-hop causal pathway sections."""
+    pathways = kb.get("causal_pathways", [])
+    if not pathways:
+        return "未识别出多跳因果路径。"
+
+    sections = []
+    for i, p in enumerate(pathways[:20]):
+        path = p.get("path", [])
+        path_str = " → ".join(f"`{node}`" for node in path)
+        strength = p.get("total_strength", 0.0)
+        hops = p.get("path_length", 0)
+        min_conf = p.get("min_confidence", 0.0)
+
+        parts = [
+            f"### 因果路径 PATH-{i+1:03d}: {path_str}",
+            "",
+            f"**跳数**: {hops}",
+            f"**路径强度** (边强度乘积): {strength:.4f}",
+            f"**最小置信度**: {min_conf:.2f}",
+            "",
+        ]
+
+        # Edge details
+        edges_in_path = p.get("edges", [])
+        if edges_in_path:
+            parts.append("**路径上的每条边**:")
+            parts.append("")
+            parts.append("| 起点 → 终点 | 关系类型 | 强度 | 置信度 | 物理验证 |")
+            parts.append("|-------------|----------|------|--------|:--------:|")
+            for pe in edges_in_path:
+                src = pe.get("from", "?")
+                tgt = pe.get("to", "?")
+                rel = pe.get("relationship", "?")
+                s = f"{pe.get('strength', 0):.3f}"
+                c = f"{pe.get('confidence', 0):.2f}"
+                pv = "✅" if pe.get("physics_verified") else "—"
+                parts.append(f"| `{src}` → `{tgt}` | {rel} | {s} | {c} | {pv} |")
+            parts.append("")
+
+        # Physical interpretation
+        phys_ctx = kb.get("physical_context", {})
+        interp_parts = []
+        for node in path:
+            ctx = phys_ctx.get(node, {})
+            meaning = ctx.get("physical_meaning", "")
+            if meaning:
+                interp_parts.append(f"`{node}`: {meaning}")
+        if interp_parts:
+            parts.append("**物理链条解读**:")
+            for ip in interp_parts:
+                parts.append(f"- {ip}")
+            parts.append("")
+
+        sections.append("\n".join(parts))
+
+    return "\n".join(sections)
+
+
+def _build_parameter_centrality_section(kb: dict) -> str:
+    """Build parameter centrality table."""
+    centrality = kb.get("parameter_centrality", [])
+    if not centrality:
+        return "无参数中心性数据。"
+
+    lines = [
+        "| 参数 | 角色 | 出度 | 入度 | 影响力分 | 枢纽? | 下游质量目标 | 物理参考 |",
+        "|------|------|:----:|:----:|:--------:|:-----:|-------------|----------|",
+    ]
+
+    for c in centrality:
+        param = c.get("parameter", "?")
+        role = c.get("role", "")
+        out_d = str(c.get("out_degree", 0))
+        in_d = str(c.get("in_degree", 0))
+        influence = f"{c.get('influence_score', 0):.3f}"
+        hub = "⭐" if c.get("is_hub") else ""
+        targets = c.get("downstream_targets", [])
+        tgt_str = ", ".join(f"`{t}`" for t in targets[:3]) if targets else "—"
+        phys = c.get("physics_ref", "")[:30]
+
+        lines.append(f"| `{param}` | {role} | {out_d} | {in_d} | {influence} | {hub} | {tgt_str} | {phys} |")
+
+    return "\n".join(lines)
+
+
+def _build_physical_context_section(kb: dict) -> str:
+    """Build physical context table from ontology."""
+    ctx = kb.get("physical_context", {})
+    if not ctx:
+        return "无物理上下文数据（本体模型未提供参数物理含义）。"
+
+    lines = [
+        "| 参数 | 物理含义 | 单位 | 角色 | 控制方程/预期行为 | 设备工段 |",
+        "|------|----------|------|------|-------------------|----------|",
+    ]
+
+    for param, info in sorted(ctx.items()):
+        meaning = info.get("physical_meaning", "")[:40]
+        unit = info.get("unit", "")
+        role = info.get("role", "")
+        gov = info.get("governing_law", info.get("expected_behavior", ""))[:40]
+        equip = info.get("equipment_stage", "")[:20]
+        lines.append(f"| `{param}` | {meaning} | {unit} | {role} | {gov} | {equip} |")
+
+    return "\n".join(lines)
+
+
+# ── end deep synthesis sections ────────────────────────────────────────
+
 
 def build_variables(kb: dict) -> Dict[str, str]:
     """Build the complete substitution dictionary for the template.
@@ -118,9 +484,19 @@ def build_variables(kb: dict) -> Dict[str, str]:
     v["open_questions_list"] = _build_question_list(kb.get("open_questions", []))
 
     # ── evidence gaps ──
-    v["n_evidence_gaps"] = str(len(kb.get("evidence_gaps", [])))
     v["evidence_gaps_list"] = _build_gaps_list(kb.get("evidence_gaps", []))
 
+    # ── AI-actionable deep synthesis ──
+    v["ai_actionable_summary"] = _build_ai_actionable_summary(kb)
+    v["control_levers_table"] = _build_control_levers_table(kb)
+    v["control_levers_detail"] = _build_control_levers_detail(kb)
+    v["influence_matrix"] = _build_influence_matrix(kb)
+    v["causal_pathways_section"] = _build_causal_pathways_section(kb)
+    v["parameter_centrality_table"] = _build_parameter_centrality_section(kb)
+    v["physical_context_table"] = _build_physical_context_section(kb)
+    v["n_causal_pathways"] = str(len(kb.get("causal_pathways", [])))
+    v["n_control_levers"] = str(len(kb.get("control_levers", [])))
+    v["n_hubs"] = str(sum(1 for c in kb.get("parameter_centrality", []) if c.get("is_hub")))
     # ── appendix ──
     v["appendix_json"] = json.dumps(kb, ensure_ascii=False, indent=2)
 

@@ -1,0 +1,41 @@
+{
+  "total_rows": 200,
+  "total_columns": 7,
+  "missing_values": {
+    "total_missing": 0
+  },
+  "outliers_iqr": {},
+  "time_sorted": false,
+  "sorted_strategy": "group_then_time:product_grade+﻿timestamp",
+  "time_sorted_after_preprocess": false,
+  "time_column": "﻿timestamp",
+  "primary_group_column": "product_grade",
+  "derived_features": [
+    "reactor_temp_dev",
+    "cooling_flow_dev",
+    "catalyst_age_dev",
+    "product_purity_dev",
+    "time_hours"
+  ],
+  "grouping_summary": {
+    "group_column": "product_grade",
+    "n_groups": 3,
+    "groups": {
+      "A": {
+        "rows": 67,
+        "start_time": "2024-01-01 00:00:00",
+        "end_time": "2024-01-28 15:00:00"
+      },
+      "B": {
+        "rows": 67,
+        "start_time": "2024-01-01 04:00:00",
+        "end_time": "2024-01-28 19:00:00"
+      },
+      "C": {
+        "rows": 66,
+        "start_time": "2024-01-01 08:00:00",
+        "end_time": "2024-01-28 23:00:00"
+      }
+    }
+  }
+}

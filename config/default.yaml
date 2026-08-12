@@ -25,9 +25,9 @@ database:
 claude:
   binary: "claude"                          # Preferred binary name (auto-detected from PATH)
   fallback_binary: "claude-code"
-  skill_name: "industrial-deep-diagnostic"
-  skill_command: "/industrial-deep-diagnostic"
-  skill_dir: ".claude/skills/industrial-deep-diagnostic"
+  skill_name: "industrial-analysis-auto"
+  skill_command: "/industrial-analysis-auto"
+  skill_dir: ".claude/skills/industrial-analysis-auto"
   output_format: "stream-json"
   verbose: true
   dangerously_skip_permissions: true
@@ -43,7 +43,7 @@ claude:
 # --- Diagnosis Defaults ---
 diagnosis:
   default_scene_name: "industrial_analysis"
-  default_question: "Perform a comprehensive root cause analysis following the full 8-step pipeline."
+  default_question: "Perform a comprehensive root cause analysis following the full 9-step pipeline."
   default_language: "zh"                     # "zh" (Chinese) or "en" (English)
   run_id_length: 8
   name_format: "{scene}_{run_id}"

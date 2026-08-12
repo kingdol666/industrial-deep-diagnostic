@@ -210,7 +210,7 @@ def main():
                 else:
                     x_vals = sub.index.values
                 
-                for col in targets + key_params:
+                for _ci, col in enumerate(targets + key_params):
                     if col not in sub.columns or sub[col].nunique() < 5:
                         continue
                     values = (sub[col] - sub[col].mean()) / sub[col].std()
@@ -219,7 +219,7 @@ def main():
                         values = -values
                         label_suffix = ' (rev)'
                     lw = 2.0 if col in targets else 1.2
-                    ax_i.plot(x_vals, values, color=colors[col] if 'colors' in dir() else '#666',
+                    ax_i.plot(x_vals, values, color=colors[_ci % len(colors)],
                               linewidth=lw, label=f'{col}{label_suffix}', alpha=0.8)
                 
                 for evt in events:

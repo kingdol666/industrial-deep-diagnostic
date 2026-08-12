@@ -14,7 +14,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { spawn } from 'child_process';
+import { spawn, execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,6 +41,40 @@ function ensureDir(dirPath) {
 }
 
 /** Run a command, return { ok, stdout, stderr, code } */
+/** Resolve the uv execution environment via uv_env_setup.mjs (uv-first engine).
+ *  Returns { uvCmd: ["uv","run","--project",<dir>] | null, python: <venv python> }.
+ *  When uv is available, all Python scripts run via `uv run --project <shared>`.
+ */
+function resolvePythonEnv() {
+  const sharedPath = path.resolve(__dirname, '..', '..', '..', 'shared', 'scripts');
+  try {
+    const out = execFileSync(process.execPath, [
+      path.join(sharedPath, 'uv_env_setup.mjs'),
+    ], { encoding: 'utf-8', timeout: 60000 });
+    const parsed = JSON.parse(out.trim());
+    if (parsed.uv_cmd && parsed.uv_cmd.length) {
+      return { uvCmd: parsed.uv_cmd, python: parsed.python };
+    }
+    if (parsed.python) {
+      return { uvCmd: null, python: parsed.python };
+    }
+  } catch (_) { /* fall through */ }
+  return { uvCmd: null, python: 'python' }; // last-resort fallback
+}
+
+const PY_ENV = resolvePythonEnv();
+const PYTHON_BIN = PY_ENV.python;
+
+/** Build argv for a Python script: uv run prefix when available, else venv python. */
+function pythonArgs(scriptArgs) {
+  if (PY_ENV.uvCmd) {
+    return [...PY_ENV.uvCmd.slice(1), 'python', ...scriptArgs];
+  }
+  return scriptArgs;
+}
+
+const UV_CMD = PY_ENV.uvCmd ? PY_ENV.uvCmd[0] : PYTHON_BIN;
+
 function runCmd(cmd, args, cwd, timeout = 120000) {
   return new Promise((resolve) => {
     const proc = spawn(cmd, args, { cwd, shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -61,7 +95,7 @@ function isNewerThan(f, refs) {
   if (!fileExists(f)) return false;
   const fstat = fs.statSync(f);
   for (const r of refs) {
-    if (!fileExists(r)) return true; // ref missing → consider output stale
+    if (!fileExists(r)) return false; // ref missing → re-run (output not current)
     if (fs.statSync(r).mtime > fstat.mtime) return false;
   }
   return true;
@@ -176,11 +210,11 @@ async function launchScripts(runDir) {
   const scripts = [
     {
       phase: 'E1',
-      cmd: 'python',
-      args: [
+      cmd: UV_CMD,
+      args: pythonArgs([
         path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'coverage_builder.py'),
         '--run-dir', runDir,
-      ],
+      ]),
       output: path.join(enhanceDir, 'analysis_coverage.json'),
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
@@ -192,11 +226,11 @@ async function launchScripts(runDir) {
     },
     {
       phase: 'E2',
-      cmd: 'python',
-      args: [
+      cmd: UV_CMD,
+      args: pythonArgs([
         path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'derived_feature_builder.py'),
         '--run-dir', runDir,
-      ],
+      ]),
       output: path.join(enhanceDir, 'derived_features.json'),
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
@@ -206,11 +240,11 @@ async function launchScripts(runDir) {
     },
     {
       phase: 'E3',
-      cmd: 'python',
-      args: [
+      cmd: UV_CMD,
+      args: pythonArgs([
         path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'conditional_analysis.py'),
         '--run-dir', runDir,
-      ],
+      ]),
       output: path.join(enhanceDir, 'deep_data_analysis.json'),
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
@@ -222,11 +256,11 @@ async function launchScripts(runDir) {
     },
     {
       phase: 'E3.5',
-      cmd: 'python',
-      args: [
+      cmd: UV_CMD,
+      args: pythonArgs([
         path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'association_graph_builder.py'),
         '--run-dir', runDir,
-      ],
+      ]),
       output: path.join(enhanceDir, 'association_graph.json'),
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
@@ -236,11 +270,11 @@ async function launchScripts(runDir) {
     },
     {
       phase: 'E5',
-      cmd: 'python',
-      args: [
+      cmd: UV_CMD,
+      args: pythonArgs([
         path.join(skillRoot, 'industrial-physics-bridge', 'scripts', 'physics_bridge_builder.py'),
         '--run-dir', runDir,
-      ],
+      ]),
       output: path.join(enhanceDir, 'physics_bridge.json'),
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
@@ -280,7 +314,7 @@ async function launchScripts(runDir) {
   // E6: knowledge fusion
   const fusionOutput = path.join(enhanceDir, 'enhanced_knowledge.json');
   const fusionScript = path.join(__dirname, 'knowledge_fusion.py');
-  const fusionResult = await runCmd('python', [fusionScript, '--run-dir', runDir, '--output', fusionOutput], runDir);
+  const fusionResult = await runCmd(UV_CMD, pythonArgs([fusionScript, '--run-dir', runDir, '--output', fusionOutput]), runDir);
   results.push({
     phase: 'E6',
     status: fusionResult.ok ? 'ok' : 'failed',
@@ -293,7 +327,7 @@ async function launchScripts(runDir) {
   const mdOutput = path.join(enhanceDir, 'enhanced_analysis.md');
   const tmplPath = path.join(__dirname, '..', 'templates', 'enhanced_analysis.md.tmpl');
   const pubScript = path.join(__dirname, 'markdown_publisher.py');
-  const pubResult = await runCmd('python', [pubScript, '--knowledge', fusionOutput, '--template', tmplPath, '--output', mdOutput], runDir);
+  const pubResult = await runCmd(UV_CMD, pythonArgs([pubScript, '--knowledge', fusionOutput, '--template', tmplPath, '--output', mdOutput]), runDir);
   results.push({
     phase: 'E7a',
     status: pubResult.ok ? 'ok' : 'failed',
@@ -304,7 +338,7 @@ async function launchScripts(runDir) {
   // E7b: enhanced HTML visualizer
   const htmlOutput = path.join(enhanceDir, 'enhanced-analysis.html');
   const htmlBuilderScript = path.join(skillRoot, 'industrial-enhanced-html-visualizer', 'scripts', 'html_builder.py');
-  const htmlResult = await runCmd('python', [htmlBuilderScript, '--knowledge', fusionOutput, '--output', htmlOutput], runDir);
+  const htmlResult = await runCmd(UV_CMD, pythonArgs([htmlBuilderScript, '--knowledge', fusionOutput, '--output', htmlOutput]), runDir);
   results.push({
     phase: 'E7b',
     status: htmlResult.ok ? 'ok' : 'failed',
@@ -316,7 +350,7 @@ async function launchScripts(runDir) {
   const reviewOutput = path.join(enhanceDir, 'enhancement_html_review.json');
   const selfcheckPath = path.join(enhanceDir, 'html_selfcheck.json');
   const reviewerScript = path.join(skillRoot, 'industrial-enhanced-html-reviewer', 'scripts', 'html_reviewer.py');
-  const reviewResult = await runCmd('python', [reviewerScript, '--knowledge', fusionOutput, '--html', htmlOutput, '--output', reviewOutput, '--selfcheck', selfcheckPath], runDir);
+  const reviewResult = await runCmd(UV_CMD, pythonArgs([reviewerScript, '--knowledge', fusionOutput, '--html', htmlOutput, '--output', reviewOutput, '--selfcheck', selfcheckPath]), runDir);
   results.push({
     phase: 'E7c',
     status: reviewResult.ok ? 'ok' : 'failed',

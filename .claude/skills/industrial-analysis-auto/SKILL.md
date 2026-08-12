@@ -228,7 +228,7 @@ input. Run the E-1 stage when the data is a directory, an Excel workbook
 mix of formats:
 
 ```bash
-python "$SKILL_PATH/../../industrial-data-preprocessor/scripts/data_preprocessor.py" \
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/../../industrial-data-preprocessor/scripts/data_preprocessor.py" \
   --data-path <data_file_or_dir> --output "$RUN_DIR/00_input" --name <scene_name>
 ```
 
@@ -390,7 +390,7 @@ Present: executive summary + key findings + diagnosis type + confidence + recomm
 |------|-------------|
 | Absolute paths | `SKILL_PATH`, `RUN_DIR`, `DATA_PATH` must be absolute |
 | Path quoting | All path variables quoted in bash: `"$SKILL_PATH/..."` |
-| Python path | Use uv-managed venv: `"$SKILL_PATH/scripts/.venv/bin/python"` |
+| Python path | Use shared venv via `uv_env_setup.mjs`: `$SHARED_PATH/scripts/.venv/Scripts/python.exe` (Win) or `$SHARED_PATH/scripts/.venv/bin/python` (POSIX) |
 | Artifact consistency | Sub-agents use the exact same `RUN_DIR` as the orchestrator |
 
 ## Agent Decoupling

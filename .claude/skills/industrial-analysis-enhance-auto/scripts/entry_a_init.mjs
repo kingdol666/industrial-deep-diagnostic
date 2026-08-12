@@ -69,8 +69,33 @@ try {
 let inspectedPath = dataAbs;
 let prepReport = null;
 const prepScript = path.join(projectRoot, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+// Resolve the uv execution environment via uv_env_setup.mjs (uv-first engine).
+// Returns { uvCmd, python } — when uv is available, scripts run via `uv run --project`.
+function resolvePythonEnv() {
+  const sharedPath = path.join(projectRoot, '.claude', 'shared', 'scripts');
+  try {
+    const out = execFileSync(process.execPath, [
+      path.join(sharedPath, 'uv_env_setup.mjs'),
+    ], { encoding: 'utf-8', timeout: 60000 });
+    const parsed = JSON.parse(out.trim());
+    if (parsed.uv_cmd && parsed.uv_cmd.length) {
+      return { uvCmd: parsed.uv_cmd, python: parsed.python };
+    }
+    if (parsed.python) return { uvCmd: null, python: parsed.python };
+  } catch (_) { /* fall through */ }
+  return { uvCmd: null, python: 'python' };
+}
+const PY_ENV = resolvePythonEnv();
+const UV_CMD = PY_ENV.uvCmd ? PY_ENV.uvCmd[0] : PY_ENV.python;
+
+/** Build argv for a Python script: uv run prefix when available, else venv python. */
+function pythonArgs(scriptArgs) {
+  if (PY_ENV.uvCmd) return [...PY_ENV.uvCmd.slice(1), 'python', ...scriptArgs];
+  return scriptArgs;
+}
+
 try {
-  const prepOut = execFileSync('python', ['-W', 'ignore', prepScript, '--data-path', dataAbs, '--output', path.join(runDir, '00_input'), '--name', name], {
+  const prepOut = execFileSync(UV_CMD, pythonArgs(['-W', 'ignore', prepScript, '--data-path', dataAbs, '--output', path.join(runDir, '00_input'), '--name', name]), {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   });

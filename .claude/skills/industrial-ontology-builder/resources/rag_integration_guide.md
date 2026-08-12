@@ -38,7 +38,7 @@ Step 2:  context-builder agent
 
 ```bash
 # Check if engine is running
-curl -s http://localhost:8764/health | python3 -m json.tool
+curl -s http://localhost:8764/health | uv run --project "$SHARED_PATH/scripts" python -m json.tool
 
 # Expected output:
 # {

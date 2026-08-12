@@ -1,0 +1,15 @@
+# Industrial Deep Diagnostic — Shared Python Dependencies
+# Auto-installed by uv_env_setup.mjs into .claude/shared/scripts/.venv/
+#
+# Core numerical (required by baseline + enhancement pipelines)
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Visualization (required by data-processor chart generation)
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Format support (install based on your data formats)
+openpyxl>=3.1.0     # Excel .xlsx reading
+pyarrow>=12.0.0     # Parquet / Feather reading

@@ -1,0 +1,243 @@
+{
+  "run_id": "enhancement-association-graph",
+  "n_nodes": 4,
+  "n_edges": 6,
+  "nodes": [
+    {
+      "id": "reactor_temp",
+      "label": "reactor_temp",
+      "role": "",
+      "unit": "",
+      "controlled_by": ""
+    },
+    {
+      "id": "product_purity",
+      "label": "product_purity",
+      "role": "",
+      "unit": "",
+      "controlled_by": ""
+    },
+    {
+      "id": "catalyst_age",
+      "label": "catalyst_age",
+      "role": "",
+      "unit": "",
+      "controlled_by": ""
+    },
+    {
+      "id": "cooling_flow",
+      "label": "cooling_flow",
+      "role": "",
+      "unit": "",
+      "controlled_by": ""
+    }
+  ],
+  "edges": [
+    {
+      "source": "reactor_temp",
+      "target": "product_purity",
+      "relationship": "supports",
+      "strength": 0.947574,
+      "sign": 1,
+      "confidence": 1.0,
+      "causal_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": 0.947574,
+        "p_value": 1e-300,
+        "p_floor_hit": true,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": 0.849403,
+        "partial_method": "full_order_ridge",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.948481,
+        "lag_aligned_r": 0.944962,
+        "direct_association": true,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.998888,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#reactor_temp->product_purity",
+        "association_graph.json#reactor_temp->product_purity"
+      ]
+    },
+    {
+      "source": "reactor_temp",
+      "target": "catalyst_age",
+      "relationship": "supports",
+      "strength": 0.93512,
+      "sign": 1,
+      "confidence": 0.6,
+      "causal_ceiling": "contemporaneous_correlation",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": 0.93512,
+        "p_value": 1e-300,
+        "p_floor_hit": true,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": 0.0,
+        "partial_method": "",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.0,
+        "lag_aligned_r": 0.0,
+        "direct_association": false,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.0,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#reactor_temp->catalyst_age",
+        "association_graph.json#reactor_temp->catalyst_age"
+      ]
+    },
+    {
+      "source": "cooling_flow",
+      "target": "catalyst_age",
+      "relationship": "inhibits",
+      "strength": -0.899113,
+      "sign": -1,
+      "confidence": 0.6,
+      "causal_ceiling": "contemporaneous_correlation",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": -0.899113,
+        "p_value": 1.0738750122918625e-183,
+        "p_floor_hit": false,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": 0.0,
+        "partial_method": "",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.0,
+        "lag_aligned_r": 0.0,
+        "direct_association": false,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.0,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#cooling_flow->catalyst_age",
+        "association_graph.json#cooling_flow->catalyst_age"
+      ]
+    },
+    {
+      "source": "catalyst_age",
+      "target": "product_purity",
+      "relationship": "supports",
+      "strength": 0.873427,
+      "sign": 1,
+      "confidence": 1.0,
+      "causal_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": 0.873427,
+        "p_value": 1.5013857780947227e-140,
+        "p_floor_hit": false,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": -0.363744,
+        "partial_method": "full_order_ridge",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.874541,
+        "lag_aligned_r": 0.87062,
+        "direct_association": false,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.997444,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#catalyst_age->product_purity",
+        "association_graph.json#catalyst_age->product_purity"
+      ]
+    },
+    {
+      "source": "cooling_flow",
+      "target": "product_purity",
+      "relationship": "inhibits",
+      "strength": -0.86745,
+      "sign": -1,
+      "confidence": 1.0,
+      "causal_ceiling": "ontology_consistent",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": -0.86745,
+        "p_value": 6.466056739280218e-133,
+        "p_floor_hit": false,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": -0.629726,
+        "partial_method": "full_order_ridge",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": -0.867749,
+        "lag_aligned_r": -0.863561,
+        "direct_association": true,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.997336,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#cooling_flow->product_purity",
+        "association_graph.json#cooling_flow->product_purity"
+      ]
+    },
+    {
+      "source": "reactor_temp",
+      "target": "cooling_flow",
+      "relationship": "inhibits",
+      "strength": -0.85091,
+      "sign": -1,
+      "confidence": 0.6,
+      "causal_ceiling": "contemporaneous_correlation",
+      "ontology_contradiction": false,
+      "statistical_evidence": {
+        "global_r": -0.85091,
+        "p_value": 5.398129626160644e-115,
+        "p_floor_hit": false,
+        "q_value": 0.0,
+        "n_effective": 200,
+        "partial_r": 0.0,
+        "partial_method": "",
+        "temporal_direction": "concurrent",
+        "optimal_lag_steps": 0,
+        "ccf_peak_r": 0.0,
+        "lag_aligned_r": 0.0,
+        "direct_association": false,
+        "indirect_association": false,
+        "mediator_candidates": [],
+        "change_point_co_movement": 0.0,
+        "loo_stability": 0.0,
+        "interaction_flagged": false
+      },
+      "evidence_ref": [
+        "deep_data_analysis.json#reactor_temp->cooling_flow",
+        "association_graph.json#reactor_temp->cooling_flow"
+      ]
+    }
+  ],
+  "metadata": {
+    "min_abs_r": 0.3,
+    "q_threshold": 0.05,
+    "min_pair_n": 10,
+    "ccf_max_lag_abs": 60,
+    "cp_min_seg": 20,
+    "generated_at": null
+  }
+}
