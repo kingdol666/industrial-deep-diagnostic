@@ -124,21 +124,46 @@
 
 ## 🚀 快速开始
 
-> 前提：已安装 [Node.js ≥ 18](https://nodejs.org/)（推荐 22+）与 Python ≥ 3.10
+> 通用步骤：Windows / Linux / macOS 任意主机均按此流程，无需平台特定配置。
+> 依赖全自动：服务启动时自动检查并安装——backend/frontend 缺 `node_modules` 自动执行 `npm install`，RAG 引擎自动创建 Python 虚拟环境（`uv sync`，无 uv 时回退 pip）。
+>
+> **前置条件**（缺失时启动阶段会报错，先验证）：
 
-### 两步起飞 🛫
+| 依赖 | 版本 | 验证命令 |
+|------|:----:|----------|
+| [Node.js](https://nodejs.org/) | ≥ 18（推荐 22+） | `node --version` |
+| [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
+| [Python](https://www.python.org/) | ≥ 3.10 | `python --version`（Linux/macOS：`python3 --version`） |
+| [uv](https://docs.astral.sh/uv/) | 推荐 | `uv --version`（未安装时自动回退系统 pip） |
+
+
+### 三步起飞 🛫
 
 ```bash
 # 1️⃣ 克隆 & 安装
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
-npm install && npm link
+npm install
+npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
 
-# 2️⃣ 启动全套服务（后端 + 前端 + RAG 引擎）
-ind-diag start --all
+# 2️⃣ 启动全套服务（后端 3210 + 前端 5180 + RAG 引擎 8764）
+ind-diag start --all --detach
+#    --detach = 后台守护模式，命令立即返回；日志写入 .runtime/*.log
+#    首次启动自动安装依赖（backend/frontend npm install + RAG venv），约 1-3 分钟
+
+# 3️⃣ 验证服务健康
+ind-diag status                                          # 三服务均应运行且 healthy
+curl http://localhost:3210/api/health                    # 应返回 200
 ```
 
 打开 **http://localhost:5180** → 上传数据 → 自动诊断 → 下载报告 ✅
+
+> ⚠️ 不要省略 `--detach`：前台模式（无 `--detach`）下 CLI 会阻塞并在 120 秒后报 `FATAL: Service manager timeout`（服务其实已启动，但命令不返回，易误判为失败）。
+>
+> 停止服务：`ind-diag stop --all` · 查看日志：`.runtime/backend.log`、`.runtime/frontend.log`、`.runtime/rag.log`
+>
+> 发起诊断还需要 [Claude Code CLI](https://docs.anthropic.com/) 且已登录或配置 `ANTHROPIC_API_KEY`（参考 `.env.example`）——仅启动服务不需要。
+
 
 ### 服务端口一览
 
@@ -335,10 +360,10 @@ npm link                    # 注册 ind-diag 全局命令
 ind-diag init
 
 # 启动
-ind-diag start --all
+ind-diag start --all --detach
 ```
 
-也可双击运行批处理脚本：
+也可双击运行批处理脚本（旧版，仅覆盖后端 + 前端，**不含 RAG 引擎**；完整启动请用上方 CLI 命令）：
 - `commands\start-backend.bat` — 启动后端
 - `commands\start-frontend.bat` — 启动前端
 - `commands\start-all.bat` — 同时启动
@@ -349,29 +374,37 @@ ind-diag start --all
 # 克隆并安装
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
-npm install && npm link
+npm install
+npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
 
 # 环境检查
 ind-diag init
 
 # 启动
-ind-diag start --all
+ind-diag start --all --detach
 
 # 或使用 Shell 脚本
 bash commands/start-all.sh
 ```
 
-### Python 依赖（统计分析）
+### Python 依赖（RAG 引擎 + 统计分析）
+
+**无需手动安装** —— `ind-diag start` 会自动：检查系统 Python → 若 `rag-retrieval-engine/.venv` 不存在则创建 → `uv sync`（无 uv 时回退系统 pip）安装全部依赖。
+
+只需保证存在以下任一（`python --version` 验证）：
+- Python ≥ 3.10（RAG 运行必需）
+- **uv**（推荐，RAG 依赖自动隔离安装；未安装时自动回退 pip）
+
+需要手动安装时（可选，例如国内网络加速）：
 
 ```bash
-# 方式一：pip
-pip install numpy pandas scipy matplotlib seaborn pyyaml
-
-# 方式二：uv（推荐，自动隔离）
+# 方式一：uv（推荐，自动隔离 + 镜像加速）
+export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
 
-# 方式三：项目内 venv（由脚本管理）
-node scripts/uv_env_setup.mjs
+# 方式二：pip + 镜像
+pip install -r rag-retrieval-engine/requirements.txt \
+  -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 ---
@@ -384,25 +417,31 @@ node scripts/uv_env_setup.mjs
 
 | 命令 | 用途 | 示例 |
 |------|------|------|
-| `start --all` | 启动全部服务 | `ind-diag start --all` |
-| `start --backend` | 仅启动后端 (3210) | `ind-diag start --backend` |
-| `start --frontend` | 仅启动前端 (5180) | `ind-diag start --frontend` |
-| `start --rag` | 启动 RAG 引擎 (8764) | `ind-diag start --rag` |
+| `start --all` | 启动全部服务（后台守护） | `ind-diag start --all --detach` |
+| `start --backend` | 仅启动后端 (3210) | `ind-diag start --backend --detach` |
+| `start --frontend` | 仅启动前端 (5180) | `ind-diag start --frontend --detach` |
+| `start --rag` | 启动 RAG 引擎 (8764) | `ind-diag start --rag --detach` |
 | `stop --all` | 停止全部服务 | `ind-diag stop --all` |
-| `restart --all` | 重启全部服务 | `ind-diag restart --all` |
+| `restart --all` | 重启全部服务 | `ind-diag restart --all --detach` |
 | `status` | 查看服务状态 | `ind-diag status` |
-| `init` | 环境检查 + 初始化 | `ind-diag init` |
+| `init` | 环境检查（Node/npm/Python/端口） | `ind-diag init` |
 | `build` | 前端生产构建 | `ind-diag build` |
 | `webfrp` | Cloudflare Tunnel 公网暴露 | `ind-diag webfrp` |
+
+> **`--detach` 为推荐用法**（后台守护）：命令立即返回，服务日志写入 `.runtime/*.log`。省略 `--detach` 时 CLI 会保持前台输出并最终报 `FATAL: Service manager timeout`——服务不受影响，但命令不会正常结束。
 
 ### npm 快捷脚本
 
 ```bash
-npm start              # = ind-diag start --all
-npm run backend        # = ind-diag start --backend
-npm run frontend       # = ind-diag start --frontend
+npm start              # = ind-diag start --all --detach
+npm run start:backend  # = ind-diag start --backend --detach
+npm run start:frontend # = ind-diag start --frontend --detach
+npm run start:rag      # = ind-diag start --rag --detach
 npm stop               # = ind-diag stop --all
+npm run status         # = ind-diag status
+npm run restart        # = ind-diag restart --all --detach
 npm run build          # = ind-diag build
+npm run init           # = ind-diag init
 ```
 
 ### 诊断管线脚本（高级）
@@ -445,7 +484,7 @@ node .claude/shared/scripts/uv_env_setup.mjs \
 
 ### 方式一：Web UI（推荐）🌐
 
-1. 启动服务：`ind-diag start --all`
+1. 启动服务：`ind-diag start --all --detach`
 2. 打开 **http://localhost:5180**
 3. 上传数据文件（CSV / XLSX / Parquet）
 4. 填写场景名称与分析问题
@@ -733,16 +772,53 @@ lsof -ti :3210 | xargs kill -9
 </details>
 
 <details>
-<summary><b>❌ Python 模块缺失</b></summary>
+<summary><b>❌ 启动后命令卡住 / 报 "FATAL: Service manager timeout"</b></summary>
+
+原因：使用了前台模式（省略了 `--detach`）。服务可能已经启动（`ind-diag status` 可确认），但 CLI 因前台等待而超时。
 
 ```bash
-# 方式一：pip
-pip install numpy pandas scipy matplotlib seaborn pyyaml
+# 改为后台守护模式启动
+ind-diag stop --all
+ind-diag start --all --detach
+```
+</details>
 
-# 方式二：uv（推荐）
+<details>
+<summary><b>❌ RAG 引擎启动失败（Python / venv）</b></summary>
+
+RAG 引擎依赖由一个 `rag-retrieval-engine/start.mjs` 自动管理：检测系统 Python → 创建 `.venv` → `uv sync`（或 pip）→ 启动。
+
+排查顺序：
+```bash
+# 1. 确认 Python ≥ 3.10
+python --version        # Linux/macOS: python3 --version
+
+# 2. 确认系统有 uv 或 pip（二选一即可）
+uv --version || pip --version
+
+# 3. 国内网络慢 → 用镜像手动安装后重启
+export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
+ind-diag restart --all --detach
 ```
 
+如仍失败，查看日志：`.runtime/rag.log`
+</details>
+
+<details>
+<summary><b>❌ 服务已启动但无法发起诊断（报 Claude 相关错误）</b></summary>
+
+诊断管线由 Claude Code CLI 驱动，需要：
+
+```bash
+# 1. 确认已安装 Claude Code
+claude --version
+
+# 2. 确认已登录或配置 API Key（可选：写入 .env）
+cp .env.example .env   # 然后编辑 ANTHROPIC_API_KEY
+
+# 3. 参考 config/default.yaml → claude 段（模型、binary 名可配置）
+```
 </details>
 
 <details>
@@ -837,8 +913,9 @@ style:    格式            perf:     性能优化
 ```bash
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
-npm install && npm link
-ind-diag start --all     # → http://localhost:5180
+npm install
+npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
+ind-diag start --all --detach     # → http://localhost:5180
 ```
 
 ---

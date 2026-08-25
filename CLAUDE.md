@@ -28,21 +28,27 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 
 ### CLI (`ind-diag`)
 ```bash
-ind-diag all          # 后端 + 前端
-ind-diag backend      # http://localhost:3210
-ind-diag frontend     # http://localhost:5180
-ind-diag build        # 生产构建
-ind-diag init         # 初始化
-ind-diag status       # 状态
-ind-diag webfrp       # Cloudflare Tunnel
-ind-diag config list/get/set/reset
+ind-diag start --all --detach     # 启动全部（后端 3210 + 前端 5180 + RAG 8764）
+ind-diag start --backend --detach # http://localhost:3210
+ind-diag start --frontend --detach # http://localhost:5180
+ind-diag start --rag --detach     # http://localhost:8764
+ind-diag stop --all               # 停止全部
+ind-diag restart --all --detach   # 重启全部
+ind-diag build                    # 生产构建
+ind-diag init                     # 环境检查
+ind-diag status                   # 状态
+ind-diag webfrp                   # Cloudflare Tunnel
 ```
+
+> `--detach` = 后台守护模式（推荐）：命令立即返回，日志在 `.runtime/*.log`。省略时 CLI 会等待并最终报 `FATAL: Service manager timeout`（服务实际仍启动）。
 
 ### npm scripts
 ```bash
-npm start             # = ind-diag all
-npm run backend       # = ind-diag backend
-npm run frontend      # = ind-diag frontend
+npm start             # = ind-diag start --all --detach
+npm run start:backend # = ind-diag start --backend --detach
+npm run start:frontend # = ind-diag start --frontend --detach
+npm run start:rag     # = ind-diag start --rag --detach
+npm stop              # = ind-diag stop --all
 ```
 
 ### Python 环境

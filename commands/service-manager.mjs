@@ -444,11 +444,12 @@ async function main() {
     }
 
     case 'restart': {
+      const detach = args.includes('--detach');
       for (const key of targets) {
         if (!jsonOutput) console.log(`  Restarting ${SERVICES[key].name}...`);
         await stopService(key);
         await new Promise(r => setTimeout(r, 2000));
-        const r = await startService(key);
+        const r = await startService(key, { detach });
         if (!jsonOutput) {
           console.log(`  ${SERVICES[key].name}: ${r.status}`);
         }

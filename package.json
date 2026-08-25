@@ -7,13 +7,13 @@
     "ind-diag": "./commands/cli.mjs"
   },
   "scripts": {
-    "start": "node commands/cli.mjs start --all",
+    "start": "node commands/cli.mjs start --all --detach",
     "stop": "node commands/cli.mjs stop --all",
-    "restart": "node commands/cli.mjs restart --all",
+    "restart": "node commands/cli.mjs restart --all --detach",
     "status": "node commands/cli.mjs status",
-    "start:backend": "node commands/cli.mjs start --backend",
-    "start:frontend": "node commands/cli.mjs start --frontend",
-    "start:rag": "node commands/cli.mjs start --rag",
+    "start:backend": "node commands/cli.mjs start --backend --detach",
+    "start:frontend": "node commands/cli.mjs start --frontend --detach",
+    "start:rag": "node commands/cli.mjs start --rag --detach",
     "stop:backend": "node commands/cli.mjs stop --backend",
     "stop:frontend": "node commands/cli.mjs stop --frontend",
     "stop:rag": "node commands/cli.mjs stop --rag",

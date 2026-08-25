@@ -4,6 +4,7 @@ import { readdir, stat, mkdir, rm, readFile, realpath } from 'fs/promises';
 import { existsSync } from 'fs';
 import { execFile as execFileCallback } from 'child_process';
 import { join, extname, dirname, resolve } from 'path';
+import { homedir } from 'os';
 import { promisify } from 'util';
 import { config, PROJECT_ROOT, data as dataConfig, pipeline as pipeConfig } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
@@ -77,6 +78,7 @@ export async function listWorkspaceRuns() {
         path: `workspace/diagnostic-runs/${entry}`,
         hasReport: existsSync(reportPath),
         hasOptimizer: existsSync(optimizerPath),
+        hasHtml: existsSync(join(fullPath, 'diagnostic-report.html')),
         created: s.mtime.toISOString(),
       });
     }
@@ -185,6 +187,20 @@ function normalizeDirectoryPath(rawPath) {
   return resolve(requested);
 }
 
+function platformRoots() {
+  if (process.platform === 'win32') {
+    const drives = [];
+    for (let code = 65; code <= 90; code++) {
+      const drive = `${String.fromCharCode(code)}:\\`;
+      if (existsSync(drive)) drives.push(drive);
+    }
+    const home = homedir();
+    return [home, ...drives].filter(Boolean);
+  }
+  if (process.platform === 'darwin') return ['/Users', '/Volumes'];
+  return ['/tmp', homedir() || '/root'];
+}
+
 export async function listChatDirectories(rawPath = PROJECT_ROOT) {
   const resolved = normalizeDirectoryPath(rawPath);
   if (!existsSync(resolved)) {
@@ -224,9 +240,7 @@ export async function listChatDirectories(rawPath = PROJECT_ROOT) {
     PROJECT_ROOT,
     DATA_DIR,
     join(PROJECT_ROOT, 'workspace'),
-    '/Users',
-    '/Volumes',
-    '/tmp',
+    ...platformRoots(),
   ].filter((value, index, list) => value && list.indexOf(value) === index && existsSync(value));
 
   return {
@@ -240,32 +254,48 @@ export async function listChatDirectories(rawPath = PROJECT_ROOT) {
 export async function pickChatDirectory(rawPath = PROJECT_ROOT) {
   const defaultPath = normalizeDirectoryPath(rawPath);
 
-  if (process.platform !== 'darwin') {
-    const err = new Error('Native folder picker is currently supported on macOS only');
+  let pickerBinary = 'osascript';
+  let pickerArgs = [];
+  let pickerOpts = {};
+
+  if (process.platform === 'win32') {
+    const psScript = [
+      'Add-Type -AssemblyName System.Windows.Forms',
+      '$d = New-Object System.Windows.Forms.FolderBrowserDialog',
+      `$d.SelectedPath = '${defaultPath.replace(/'/g, "''")}'`,
+      '$d.ShowNewFolderButton = $true',
+      'if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Output $d.SelectedPath }',
+    ].join('; ');
+    pickerBinary = 'powershell.exe';
+    pickerArgs = ['-NoProfile', '-STA', '-Command', psScript];
+    pickerOpts = { env: { ...process.env, CODEX_CHAT_PICKER_DEFAULT_PATH: defaultPath }, timeout: 120000 };
+  } else if (process.platform === 'darwin') {
+    const script = [
+      'set defaultFolder to POSIX file (system attribute "CODEX_CHAT_PICKER_DEFAULT_PATH")',
+      'set chosenFolder to choose folder with prompt "选择 Chat 工作目录" default location defaultFolder',
+      'POSIX path of chosenFolder',
+    ];
+    pickerArgs = script.flatMap(line => ['-e', line]);
+    pickerOpts = { env: { ...process.env, CODEX_CHAT_PICKER_DEFAULT_PATH: defaultPath }, timeout: 120000 };
+  } else {
+    const err = new Error('Native folder picker is currently supported on macOS and Windows only');
     err.status = 501;
     throw err;
   }
 
-  const script = [
-    'set defaultFolder to POSIX file (system attribute "CODEX_CHAT_PICKER_DEFAULT_PATH")',
-    'set chosenFolder to choose folder with prompt "选择 Chat 工作目录" default location defaultFolder',
-    'POSIX path of chosenFolder',
-  ];
-
   try {
     const { stdout } = await execFile(
-      'osascript',
-      script.flatMap(line => ['-e', line]),
-      {
-        env: {
-          ...process.env,
-          CODEX_CHAT_PICKER_DEFAULT_PATH: defaultPath,
-        },
-        timeout: 120000,
-      },
+      pickerBinary,
+      pickerArgs,
+      pickerOpts,
     );
 
-    const selected = normalizeDirectoryPath(stdout.trim());
+    const rawChosen = String(stdout || '').trim();
+    if (!rawChosen) {
+      return { canceled: true, path: null };
+    }
+
+    const selected = normalizeDirectoryPath(rawChosen);
     if (!existsSync(selected)) {
       const err = new Error(`Selected directory not found: ${selected}`);
       err.status = 400;

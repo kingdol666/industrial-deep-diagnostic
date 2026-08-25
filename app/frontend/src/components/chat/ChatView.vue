@@ -231,7 +231,7 @@ const chatSidebarCollapsed = ref(false);
 const chatCatalog = ref([]);
 const runCatalog = ref([]);
 
-const DEFAULT_CHAT_CWD = '/Volumes/laxer/codes/skills/industrial-deep-diagnostic';
+const DEFAULT_CHAT_CWD = ''; // 空值 = 后端默认项目根目录，不再硬编码平台专属路径
 const permissionModeOptions = computed(() => [
   { value: 'default', shortLabel: t('chat.permission_default') },
   { value: 'acceptEdits', shortLabel: t('chat.permission_acceptEdits') },
@@ -371,7 +371,8 @@ function chatCwdControlTitle(panel) {
 }
 
 function displayChatCwd(panel) {
-  return shortPath(getChatCwd(panel));
+  const cwd = getChatCwd(panel);
+  return cwd ? shortPath(cwd) : t('chat.cwdDefaultLabel');
 }
 
 function shortPath(value) {

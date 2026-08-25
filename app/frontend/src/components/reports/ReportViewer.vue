@@ -55,6 +55,7 @@
               <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
               <span v-if="run.hasReport" class="badge badge-green">{{ $t('report.hasReport') }}</span>
               <span v-if="run.hasOptimizer" class="badge badge-purple">{{ $t('report.hasOptimizer') }}</span>
+              <span v-if="run.hasHtml" class="badge badge-blue">{{ $t('report.htmlReport') }}</span>
               <span v-if="!run.hasReport && !run.hasOptimizer" class="badge badge-yellow">{{ $t('report.noArtifact') }}</span>
             </div>
           </div>
@@ -107,20 +108,34 @@
           >{{ showChartPanel ? $t('report.chartCollapse') : $t('report.chartToggle') }}</button>
         </div>
       </div>
-      <div class="report-tabs" v-if="hasOptimizer">
+      <div class="report-tabs" v-if="hasOptimizer || hasHtml">
         <button
           :class="['tab-btn', { active: activeTab === 'report' }]"
           @click="activeTab = 'report'"
         >{{ $t('report.report') }}</button>
         <button
+          v-if="hasOptimizer"
           :class="['tab-btn', { active: activeTab === 'optimizer' }]"
           @click="activeTab = 'optimizer'"
         >{{ $t('report.audit') }}</button>
+        <button
+          v-if="hasHtml"
+          :class="['tab-btn', { active: activeTab === 'html' }]"
+          @click="activeTab = 'html'"
+        >{{ $t('report.htmlReport') }}</button>
       </div>
       <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
       <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
-      <div class="report-body" v-if="activeTab !== 'report' && !viewRaw" v-html="renderedOptimizer"></div>
-      <pre class="report-raw" v-if="activeTab !== 'report' && viewRaw">{{ optimizerContent }}</pre>
+      <div class="report-body" v-if="activeTab === 'optimizer' && !viewRaw" v-html="renderedOptimizer"></div>
+      <pre class="report-raw" v-if="activeTab === 'optimizer' && viewRaw">{{ optimizerContent }}</pre>
+      <div class="report-html-wrap" v-if="activeTab === 'html'">
+        <iframe
+          :src="htmlReportSrc"
+          class="report-html-frame"
+          sandbox="allow-scripts allow-same-origin"
+          :title="$t('report.htmlReport')"
+        ></iframe>
+      </div>
     </div>
 
     <!-- Chart panel -->
@@ -179,7 +194,11 @@ const selectedRunSummary = ref(null);
 const reportContent = ref(null);
 const optimizerContent = ref(null);
 const hasOptimizer = ref(false);
+const hasHtml = ref(false);
 const activeTab = ref('report');
+const htmlReportSrc = computed(() =>
+  selectedRun.value ? `/api/files/workspace/asset/${encodeURIComponent(selectedRun.value)}/diagnostic-report.html` : '',
+);
 const viewRaw = ref(false);
 const loadingReport = ref(false);
 const runFiles = ref([]);
@@ -205,10 +224,13 @@ watch(() => props.targetRunName, (name) => {
   if (name) {
     const requestedName = name;
     selectedRun.value = name;
-    selectedRunSummary.value = runs.value.find(run => run.name === requestedName) || null;
+    const matchRun = runs.value.find(run => run.name === requestedName);
+    selectedRunSummary.value = matchRun || null;
     reportContent.value = null;
     optimizerContent.value = null;
     hasOptimizer.value = false;
+    hasHtml.value = !!matchRun?.hasHtml;
+    if (!matchRun?.hasHtml) probeHtml(requestedName);
     activeTab.value = 'report';
     loadingFiles.value = true;
     api.listWorkspaceFiles(name).then(files => {
@@ -282,8 +304,18 @@ function goToList() {
   reportContent.value = null;
   optimizerContent.value = null;
   hasOptimizer.value = false;
+  hasHtml.value = false;
   activeTab.value = 'report';
   runFiles.value = [];
+}
+
+async function probeHtml(runName) {
+  try {
+    const res = await fetch(`/api/files/workspace/asset/${encodeURIComponent(runName)}/diagnostic-report.html`, { method: 'HEAD' });
+    if (selectedRun.value === runName) hasHtml.value = res.ok;
+  } catch {
+    if (selectedRun.value === runName) hasHtml.value = false;
+  }
 }
 
 function goToFiles() {
@@ -300,6 +332,7 @@ async function openRun(run) {
   reportContent.value = null;
   optimizerContent.value = null;
   hasOptimizer.value = false;
+  hasHtml.value = !!run.hasHtml;
   activeTab.value = 'report';
 
   loadingFiles.value = true;
@@ -511,6 +544,20 @@ function formatSize(bytes) {
 </script>
 
 <style scoped>
+.report-html-wrap {
+  width: 100%;
+  height: 620px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+.report-html-frame {
+  width: 100%;
+  height: 620px;
+  border: none;
+}
+
 .report-viewer {
   display: flex;
   flex-direction: column;
