@@ -107,6 +107,7 @@
               :events="events"
               :isRunning="isRunning"
               :connected="connected"
+              :engine-label="runEngineLabel"
             />
           </div>
 
@@ -231,7 +232,13 @@ const { t } = useI18n();
 const props = defineProps({
   analysisTarget: { type: Object, default: null },
   autoRunId: { type: String, default: null },
+  harness: { type: String, default: 'claude' },
 });
+
+// The run started from this view runs on the harness selected in the sidebar;
+// runs opened from history default to the Claude engine badge.
+const startedHarness = ref(props.harness === 'omp' ? 'omp' : 'claude');
+const runEngineLabel = computed(() => (startedHarness.value === 'omp' ? 'OMP' : 'Claude'));
 
 const emit = defineEmits(['started', 'view-report', 'go-data']);
 
@@ -448,7 +455,9 @@ async function start() {
     userQuestion: userQuestion.value,
     sceneName: sceneName.value || undefined,
     reportLanguage: reportLanguage.value,
+    harness: props.harness === 'omp' ? 'omp' : 'claude',
   };
+  startedHarness.value = payload.harness;
 
   if (maxTurns.value > 0) payload.maxTurns = maxTurns.value;
   if (target.mode === 'multi') {

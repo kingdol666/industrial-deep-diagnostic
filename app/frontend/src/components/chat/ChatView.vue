@@ -146,6 +146,7 @@
               :events="activePanel.events"
               :isRunning="activePanelRunning"
               :connected="wsConnected"
+              :engine-label="activePanelEngineLabel"
             />
           </div>
         </div>
@@ -215,6 +216,10 @@ import { api, wsUrl } from '../../api/index.js';
 import MessageStream from '../diagnosis/MessageStream.vue';
 import { getRunStatusBadgeClass, getRunStatusLabel, normalizeRunSummary } from '../../utils/diagnosisRun.js';
 
+const props = defineProps({
+  harness: { type: String, default: 'claude' },
+});
+
 const { t } = useI18n();
 
 const panels = ref([]);
@@ -263,6 +268,15 @@ const canStop = computed(() => {
   if (!panel) return false;
   if (panel.kind === 'chat') return !!panel.chatId && panel.status === 'active';
   return !!panel.runId && ['running', 'awaiting_input'].includes(panel.status);
+});
+
+// Assistant bubbles carry the engine badge: OMP chats show "OMP", Claude
+// chats show "Claude". Diagnose-session panels follow the run's harness.
+const activePanelEngineLabel = computed(() => {
+  const panel = activePanel.value;
+  if (!panel) return props.harness === 'omp' ? 'OMP' : 'Claude';
+  if (panel.kind === 'chat') return props.harness === 'omp' ? 'OMP' : 'Claude';
+  return panel.metadata?.run?.harness === 'omp' ? 'OMP' : 'Claude';
 });
 
 function loadChatSidebarState() {
@@ -888,6 +902,7 @@ async function submitMessage() {
             prompt: text,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
+            harness: props.harness === 'omp' ? 'omp' : 'claude',
           },
         });
         if (!sent) {
@@ -896,6 +911,7 @@ async function submitMessage() {
             prompt: text,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
+            harness: props.harness === 'omp' ? 'omp' : 'claude',
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
@@ -918,6 +934,7 @@ async function submitMessage() {
             originSessionId: session.originSessionId || session.sessionId,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
+            harness: props.harness === 'omp' ? 'omp' : 'claude',
           },
         });
         if (!sent) {
@@ -928,6 +945,7 @@ async function submitMessage() {
             originSessionId: session.originSessionId || session.sessionId,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
+            harness: props.harness === 'omp' ? 'omp' : 'claude',
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || panel.sessionId;

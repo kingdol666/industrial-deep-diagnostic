@@ -5,6 +5,7 @@ import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, extname, basename, isAbsolute } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { loadOmpAgents, buildOmpSystemPrompt, buildOmpChatSystemPrompt } from './omp-engine.mjs';
 
 // Dynamic SDK import (ESM-only module)
 let queryFn = null;
@@ -162,6 +163,7 @@ export function startDiagnosis({
   analysisTarget, userQuestion, sceneName,
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
+  harness = 'claude',
 }) {
   if (!sdkAvailable || !queryFn) {
     throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
@@ -227,8 +229,20 @@ export function startDiagnosis({
 
   // Resume must be a clean continuation: do not re-inject the diagnostic
   // system prompt, skill text, or original data context after the first turn.
+  const isOmp = harness === 'omp';
   let systemPrompt;
-  if (!resumeSessionId) {
+  if (isOmp) {
+    // OMP harness: bind the main agent to orchestrate the OMP agent contracts.
+    // Re-inject on resume too — the OMP contract is the runtime topology, and
+    // a resumed process needs it regardless of prior conversation state.
+    let skillContent = '';
+    if (existsSync(SKILL_MD)) {
+      try {
+        skillContent = readFileSync(SKILL_MD, 'utf-8').slice(0, 8000);
+      } catch { /* ignore */ }
+    }
+    systemPrompt = buildOmpSystemPrompt({ sceneName, reportLanguage: lang, skillContent });
+  } else if (!resumeSessionId) {
     let skillContent = '';
     if (existsSync(SKILL_MD)) {
       try {
@@ -253,6 +267,13 @@ export function startDiagnosis({
     maxTurns: maxTurns > 0 ? maxTurns : undefined,
   };
 
+  if (isOmp) {
+    // Sub-agent topology comes exclusively from the OMP contract directory:
+    // .omp/agents/*.md are the only delegated sub-agents in OMP harness runs.
+    const { agents, count } = loadOmpAgents();
+    if (count > 0) options.agents = agents;
+  }
+
   if (resumeSessionId) {
     options.resume = resumeSessionId;
   }
@@ -270,7 +291,7 @@ export function startDiagnosis({
   return { query, dataPaths, prompt, getSessionId, runId, isResume: !!resumeSessionId };
 }
 
-export function startSessionChat({ runId, sessionId, message, maxTurns = 1 }) {
+export function startSessionChat({ runId, sessionId, message, maxTurns = 1, harness = 'claude' }) {
   if (!sdkAvailable || !queryFn) {
     throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
   }
@@ -281,18 +302,29 @@ export function startSessionChat({ runId, sessionId, message, maxTurns = 1 }) {
     throw err;
   }
 
+  const isOmp = harness === 'omp';
+  const options = {
+    cwd: PROJECT_ROOT,
+    model: config.claude.model,
+    permissionMode: 'bypassPermissions',
+    allowDangerouslySkipPermissions: true,
+    includePartialMessages: true,
+    forwardSubagentText: true,
+    maxTurns,
+    resume: resumeSessionId,
+  };
+
+  if (isOmp) {
+    // OMP harness continuation: keep the same OMP agent topology available
+    // in the resumed process so delegated OMP agents stay invocable.
+    const { agents, count } = loadOmpAgents();
+    if (count > 0) options.agents = agents;
+    options.systemPrompt = buildOmpChatSystemPrompt();
+  }
+
   const query = queryFn({
     prompt: sanitize(message || ''),
-    options: {
-      cwd: PROJECT_ROOT,
-      model: config.claude.model,
-      permissionMode: 'bypassPermissions',
-      allowDangerouslySkipPermissions: true,
-      includePartialMessages: true,
-      forwardSubagentText: true,
-      maxTurns,
-      resume: resumeSessionId,
-    },
+    options,
   });
 
   activeQueries.set(runId, query);

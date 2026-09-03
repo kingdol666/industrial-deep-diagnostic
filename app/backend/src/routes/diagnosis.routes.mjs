@@ -15,7 +15,7 @@ const router = Router();
 // Start a new diagnosis
 router.post('/start', async (req, res) => {
   try {
-    const { dataPath, folderPath, dataPaths, sceneName } = req.body;
+    const { dataPath, folderPath, dataPaths, sceneName, harness } = req.body;
 
     // Validate all data paths before creating the run
     if (dataPaths && Array.isArray(dataPaths) && dataPaths.length > 0) {
@@ -28,8 +28,7 @@ router.post('/start', async (req, res) => {
       await validateDataPath(dataPath);
     }
 
-    const result = createDiagnosisRun(req.body);
-    res.json({ success: true, data: result });
+    const result = createDiagnosisRun(req.body);    res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
     res.status(status).json({ success: false, error: err.message });

@@ -8,6 +8,7 @@ import { join, resolve } from 'path';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
+import { loadOmpAgents, buildOmpChatSystemPrompt } from '../engine/omp-engine.mjs';
 
 let queryFn = null;
 try {
@@ -148,9 +149,10 @@ export async function startChat(params = {}) {
     thinking,       // { type: 'adaptive' } | { type: 'enabled', budgetTokens: N }
     forkSession,    // fork on resume
     title,
+    harness,        // 'claude' | 'omp' — engine harness selection
   } = params;
 
-  if (!prompt || typeof prompt !== 'string') {
+  if (!prompt || typeof prompt === 'undefined' || typeof prompt !== 'string') {
     throw new Error('prompt is required');
   }
 
@@ -159,6 +161,7 @@ export async function startChat(params = {}) {
   const emitter = new EventEmitter();
   const normalizedPermissionMode = normalizePermissionMode(permissionMode, 'default');
   const normalizedCwd = normalizeChatCwd(cwd, PROJECT_ROOT);
+  const normalizedHarness = harness === 'omp' ? 'omp' : 'claude';
 
   // Build SDK options
   const options = {
@@ -176,6 +179,16 @@ export async function startChat(params = {}) {
   if (sessionId) {
     options.resume = sessionId;
     options.forkSession = !!forkSession;
+  }
+
+  // OMP harness: sub-agent topology comes exclusively from the OMP contract
+  // directory (.omp/agents/). Inject the parsed OMP agent contracts so Agent
+  // delegation inside the chat resolves to OMP-defined agents, and apply the
+  // OMP chat system prompt unless the caller supplied one.
+  if (normalizedHarness === 'omp') {
+    const { agents, count } = loadOmpAgents();
+    if (count > 0) options.agents = agents;
+    if (!systemPrompt) options.systemPrompt = buildOmpChatSystemPrompt();
   }
 
   if (systemPrompt) options.systemPrompt = systemPrompt;
@@ -210,6 +223,7 @@ export async function startChat(params = {}) {
       originSessionId: getOriginSessionId(existingSession) || sdkSessionId,
       permissionMode: normalizedPermissionMode,
       cwd: normalizedCwd,
+      harness: normalizedHarness,
       status: 'active',
     });
   } else {
@@ -222,6 +236,7 @@ export async function startChat(params = {}) {
       model: model || 'default',
       permissionMode: normalizedPermissionMode,
       cwd: normalizedCwd,
+      harness: normalizedHarness,
     });
   }
   stmts.insertChatMessage.run({
@@ -283,6 +298,7 @@ export async function startChat(params = {}) {
                 originSessionId: liveSessionId,
                 permissionMode: normalizedPermissionMode,
                 cwd: normalizedCwd,
+                harness: null,
                 status: 'active',
               });
             }
@@ -395,6 +411,7 @@ export async function startChat(params = {}) {
         originSessionId: latestSessionId,
         permissionMode: normalizedPermissionMode,
         cwd: normalizedCwd,
+        harness: null,
         status: 'completed',
       });
     } catch (err) {
@@ -418,6 +435,7 @@ export async function startChat(params = {}) {
         originSessionId: latestSessionId || sessionId,
         permissionMode: normalizedPermissionMode,
         cwd: normalizedCwd,
+        harness: null,
         status: 'failed',
       });
     } finally {
@@ -460,6 +478,7 @@ export function stopChat(chatId) {
     originSessionId: entry.originSessionId || entry.sessionId || entry.query?.sessionId || null,
     permissionMode: null,
     cwd: null,
+    harness: null,
     status: 'stopped',
   });
   return true;
@@ -538,6 +557,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
     throw err;
   }
 
+  const inheritedHarness = stored?.harness === 'omp' ? 'omp' : 'claude';
   return startChat({
     ...params,
     chatId,
@@ -545,6 +565,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
     sessionId,
     permissionMode: inheritedPermissionMode,
     cwd: inheritedCwd,
+    harness: params.harness === 'omp' || params.harness === 'claude' ? params.harness : inheritedHarness,
     title: stored?.title || followUpMessage.slice(0, 60),
   });
 }

@@ -195,6 +195,12 @@ export default {
   messageStream: {
     connectingEngine: '正在连接诊断引擎...',
     thinking: 'Claude 思考中',
+    thinkingTokensProgress: '思考进行中 · 累计约 {tokens} tokens',
+    sys_apiRetry: '推理网关重试',
+    sys_apiRetryProgress: '第 {attempt}/{max} 次自动重试（HTTP {status}），引擎仍在推进',
+    sys_backgroundTasks: 'OMP 后台代理任务',
+    sys_backgroundTasksActive: '{count} 个子代理任务运行中',
+    sys_backgroundTasksDone: '后台子代理任务已全部结束',
     you: '你',
     toolFailed: '失败',
     toolComplete: '完成',

@@ -87,7 +87,7 @@ export async function validateDataPath(dataPath) {
 
 // Create a new diagnosis run (DB + engine state)
 export function createDiagnosisRun(params) {
-  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage } = params;
+  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage, harness } = params;
 
   let mode, dataPathForDb, scene, dataFolder;
 
@@ -134,6 +134,7 @@ export function createDiagnosisRun(params) {
     model: config.claude.model,
     maxTurns: maxTurns ?? config.claude.max_turns,
     reportLanguage: reportLanguage || diagConfig.default_language,
+    harness: harness === 'omp' ? 'omp' : 'claude',
   });
 
   createRun(runId);
@@ -296,6 +297,7 @@ export function sendChatMessage(runId, message) {
       sessionId: run.session_id,
       message,
       maxTurns: 1,
+      harness: run.harness === 'omp' ? 'omp' : 'claude',
     });
     setChild(runId, result.query);
     registerChild(runId, result.query);
@@ -539,6 +541,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
+      harness: run.harness === 'omp' ? 'omp' : 'claude',
     });
 
     const query = result.query;

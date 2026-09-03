@@ -195,6 +195,12 @@ export default {
   messageStream: {
     connectingEngine: 'Connecting to diagnostic engine...',
     thinking: 'Claude thinking',
+    thinkingTokensProgress: 'Thinking · ~{tokens} tokens so far',
+    sys_apiRetry: 'Inference gateway retry',
+    sys_apiRetryProgress: 'Auto-retry {attempt}/{max} (HTTP {status}) — engine still progressing',
+    sys_backgroundTasks: 'OMP background agents',
+    sys_backgroundTasksActive: '{count} sub-agent task(s) running',
+    sys_backgroundTasksDone: 'All background sub-agent tasks finished',
     you: 'You',
     toolFailed: 'Failed',
     toolComplete: 'Done',

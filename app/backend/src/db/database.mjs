@@ -146,6 +146,18 @@ export function initDB() {
     `);
   }
 
+  // Migration: add harness column (engine selection: 'claude' | 'omp')
+  const hasRunHarness = cols.some(c => c.name === 'harness');
+  if (!hasRunHarness) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN harness TEXT DEFAULT 'claude'`);
+    db.exec(`UPDATE diagnostic_runs SET harness = 'claude' WHERE harness IS NULL`);
+  }
+  const hasChatHarness = chatCols.some(c => c.name === 'harness');
+  if (!hasChatHarness) {
+    db.exec(`ALTER TABLE chat_sessions ADD COLUMN harness TEXT DEFAULT 'claude'`);
+    db.exec(`UPDATE chat_sessions SET harness = 'claude' WHERE harness IS NULL`);
+  }
+
   // Migration: rebuild diagnosis_logs with ON DELETE CASCADE if missing
   const fkCols = db.prepare('PRAGMA foreign_key_list(diagnosis_logs)').all();
   const hasCascade = fkCols.some(fk => fk.on_delete === 'CASCADE');
@@ -176,8 +188,8 @@ initDB();
 // Prepared statements
 const stmts = {
   insertRun: db.prepare(`
-    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language)
-    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage)
+    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness)
+    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness)
   `),
   updateRunStatus: db.prepare(`
     UPDATE diagnostic_runs SET status = @status, updated_at = datetime('now') WHERE run_id = @runId
@@ -223,8 +235,8 @@ const stmts = {
   getClaimedWorkspacePaths: db.prepare('SELECT workspace_path FROM diagnostic_runs WHERE workspace_path IS NOT NULL'),
   updateRunSession: db.prepare('UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime(\'now\') WHERE run_id = @runId'),
   insertChatSession: db.prepare(`
-    INSERT INTO chat_sessions (chat_id, title, session_id, origin_session_id, status, model, permission_mode, cwd)
-    VALUES (@chatId, @title, @sessionId, @originSessionId, @status, @model, @permissionMode, @cwd)
+    INSERT INTO chat_sessions (chat_id, title, session_id, origin_session_id, status, model, permission_mode, cwd, harness)
+    VALUES (@chatId, @title, @sessionId, @originSessionId, @status, @model, @permissionMode, @cwd, @harness)
   `),
   updateChatSession: db.prepare(`
     UPDATE chat_sessions
@@ -233,6 +245,7 @@ const stmts = {
         origin_session_id = COALESCE(origin_session_id, @originSessionId, session_id),
         permission_mode = COALESCE(@permissionMode, permission_mode),
         cwd = COALESCE(@cwd, cwd),
+        harness = COALESCE(@harness, harness),
         status = COALESCE(@status, status),
         updated_at = datetime('now'),
         completed_at = CASE

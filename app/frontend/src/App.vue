@@ -48,7 +48,7 @@
             <span class="app-harness-icon">{{ h.id === 'claude' ? '⌘' : '⛭' }}</span>
             <span class="app-harness-copy">
               <span class="app-harness-label">{{ h.name }}</span>
-              <span class="app-harness-sub">{{ h.kind === 'live' ? $t('sidebar.sdkEngine') : $t('sidebar.rpcBridge') }}</span>
+              <span class="app-harness-sub">{{ h.capabilities?.includes('live') ? $t('sidebar.sdkEngine') : $t('sidebar.rpcBridge') }}</span>
             </span>
           </button>
         </div>
@@ -105,12 +105,13 @@
           v-else-if="currentTab === 'diagnose'"
           :analysisTarget="analysisTarget"
           :autoRunId="autoOpenRunId"
+          :harness="harness"
           @started="onDiagnosisStarted"
           @view-report="onViewReport"
           @go-data="currentTab = 'data'"
         />
 
-        <ChatView v-else-if="currentTab === 'chat'" />
+        <ChatView v-else-if="currentTab === 'chat'" :harness="harness" />
 
         <div v-else-if="currentTab === 'reports'" class="app-view-frame">
           <ReportViewer

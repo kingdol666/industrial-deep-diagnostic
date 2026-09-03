@@ -31,9 +31,9 @@
         <div class="ms-rail"><div class="ms-dot dot-blue"></div></div>
         <div class="ms-body">
           <div class="chat-message-wrap">
-            <div class="chat-avatar assistant-avatar">C</div>
+            <div class="chat-avatar assistant-avatar">{{ engineLabel.charAt(0) }}</div>
             <div class="chat-bubble assistant-bubble">
-              <div class="chat-name">Claude</div>
+              <div class="chat-name">{{ engineLabel }}</div>
               <div class="msg-content" v-html="renderMd(item.content)"></div>
             </div>
           </div>
@@ -221,6 +221,7 @@ const props = defineProps({
   events: { type: Array, default: () => [] },
   isRunning: { type: Boolean, default: false },
   connected: { type: Boolean, default: false },
+  engineLabel: { type: String, default: 'Claude' },
 });
 
 const expandedThinking = ref(new Set());
@@ -546,6 +547,52 @@ function normalizeSystemEvent(ev) {
   if (subtype === 'chat_error') {
     return { kind: 'system', key: `system:${ev._seq}`, title: t('messageStream.sys_chatError'), text: ev.data?.error || t('messageStream.sys_chatErrorDefault'), level: 'warning', details: [] };
   }
+  if (subtype === 'thinking_tokens') {
+    // High-frequency SDK telemetry — collapse every event into ONE activity
+    // block that keeps updating with the latest token estimate, instead of
+    // rendering one card per streaming event.
+    const tokens = ev.data?.estimated_tokens ?? ev.data?.estimatedTokens;
+    return {
+      kind: 'system',
+      key: 'system:thinking-activity',
+      aggregateKey: 'system:thinking-activity',
+      title: t('messageStream.thinking'),
+      text: tokens != null ? t('messageStream.thinkingTokensProgress', { tokens }) : '',
+      level: 'normal',
+      details: [],
+    };
+  }
+  if (subtype === 'api_retry') {
+    // Gateway retry storms (503/429 bursts) previously rendered one raw-JSON
+    // card per attempt — collapse into a single live retry-status block.
+    return {
+      kind: 'system',
+      key: 'system:api-retry',
+      aggregateKey: 'system:api-retry',
+      title: t('messageStream.sys_apiRetry'),
+      text: t('messageStream.sys_apiRetryProgress', {
+        attempt: ev.data?.attempt ?? '?',
+        max: ev.data?.max_retries ?? '?',
+        status: ev.data?.error_status || ev.data?.error || '',
+      }),
+      level: 'normal',
+      details: [],
+    };
+  }
+  if (subtype === 'background_tasks_changed') {
+    const tasks = Array.isArray(ev.data?.tasks) ? ev.data.tasks : [];
+    return {
+      kind: 'system',
+      key: 'system:background-tasks',
+      aggregateKey: 'system:background-tasks',
+      title: t('messageStream.sys_backgroundTasks'),
+      text: tasks.length
+        ? t('messageStream.sys_backgroundTasksActive', { count: tasks.length })
+        : t('messageStream.sys_backgroundTasksDone'),
+      level: 'normal',
+      details: tasks.map(task => task.description || task.task_type).filter(Boolean).slice(0, 3),
+    };
+  }
   if (subtype === 'session_chat') {
     return {
       kind: 'system',
@@ -595,9 +642,12 @@ function normalizeSystemEvent(ev) {
   if (subtype.startsWith('hook_')) {
     return normalizeHookSystemEvent(ev, subtype);
   }
+  // Fallback: aggregate any unknown/noisy subtype into ONE card per subtype
+  // (merged in place) so streaming bursts never spam the transcript.
   return {
     kind: 'system',
-    key: `system:${ev._seq}`,
+    key: `system:auto:${subtype}`,
+    aggregateKey: `system:auto:${subtype}`,
     title: humanizeLabel(subtype),
     text: summarizeSystemPayload(ev.data),
     level: inferSystemLevel(subtype, ev.data),
