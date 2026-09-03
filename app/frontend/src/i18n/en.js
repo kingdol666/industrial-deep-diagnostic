@@ -342,6 +342,7 @@ export default {
     collapseSidebar: 'Collapse chat sidebar',
     newChat: 'New Chat',
     newChatLabel: 'New Chat',
+    engineLabel: 'Chat engine',
     chatGroup: 'Chat',
     diagnoseGroup: 'Diagnose Sessions',
     active: 'active',

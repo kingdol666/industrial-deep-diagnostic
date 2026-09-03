@@ -16,6 +16,18 @@
             {{ chatSidebarCollapsed ? '›' : '‹' }}
           </button>
         </div>
+        <div class="chat-engine-picker" role="group" :aria-label="$t('chat.engineLabel')" :title="chatSidebarCollapsed ? $t('chat.engineLabel') : ''">
+          <button
+            class="chat-engine-opt"
+            :class="{ active: chatEngine === 'claude', 'engine-claude': chatEngine === 'claude' }"
+            @click="setChatEngine('claude')"
+          >⌘ Claude</button>
+          <button
+            class="chat-engine-opt"
+            :class="{ active: chatEngine === 'omp', 'engine-omp': chatEngine === 'omp' }"
+            @click="setChatEngine('omp')"
+          >⛭ OMP</button>
+        </div>
         <button class="btn btn-primary chat-sidebar-new" :title="chatSidebarCollapsed ? $t('chat.newChat') : ''" @click="createChatPanel" :disabled="loading">
           <span class="chat-sidebar-new-icon">+</span>
           <span class="chat-sidebar-new-label">{{ $t('chat.newChatLabel') }}</span>
@@ -270,12 +282,32 @@ const canStop = computed(() => {
   return !!panel.runId && ['running', 'awaiting_input'].includes(panel.status);
 });
 
+// ── Per-chat engine selection ──────────────────────────────────────────
+// "New Chat" always asks which engine runs the conversation: Claude Code or
+// the OMP harness (.omp/agents contract topology). The choice is stored per
+// panel, persisted in localStorage, and travels with every start request.
+const chatEngine = ref(
+  localStorage.getItem('idd.chatEngine') === 'omp' || localStorage.getItem('idd.chatEngine') === 'claude'
+    ? localStorage.getItem('idd.chatEngine')
+    : (props.harness === 'omp' ? 'omp' : 'claude'),
+);
+
+function setChatEngine(next) {
+  chatEngine.value = next === 'omp' ? 'omp' : 'claude';
+  try { localStorage.setItem('idd.chatEngine', chatEngine.value); } catch {}
+}
+
+function panelEngine(panel) {
+  const engine = panel?.engine || chatEngine.value;
+  return engine === 'omp' ? 'omp' : 'claude';
+}
+
 // Assistant bubbles carry the engine badge: OMP chats show "OMP", Claude
 // chats show "Claude". Diagnose-session panels follow the run's harness.
 const activePanelEngineLabel = computed(() => {
   const panel = activePanel.value;
-  if (!panel) return props.harness === 'omp' ? 'OMP' : 'Claude';
-  if (panel.kind === 'chat') return props.harness === 'omp' ? 'OMP' : 'Claude';
+  if (!panel) return chatEngine.value === 'omp' ? 'OMP' : 'Claude';
+  if (panel.kind === 'chat') return panelEngine(panel) === 'omp' ? 'OMP' : 'Claude';
   return panel.metadata?.run?.harness === 'omp' ? 'OMP' : 'Claude';
 });
 
@@ -331,6 +363,7 @@ function createBasePanel(kind, title) {
     currentSessionId: null,
     cwd: kind === 'chat' ? DEFAULT_CHAT_CWD : null,
     permissionMode: kind === 'chat' ? 'default' : null,
+    engine: 'claude',
     status: kind === 'chat' ? 'draft' : 'pending',
     events: [],
     subscribed: false,
@@ -341,6 +374,7 @@ function createBasePanel(kind, title) {
 
 function createChatPanel() {
   const panel = createBasePanel('chat', t('chat.newChatLabel'));
+  panel.engine = panelEngine(panel);
   panels.value.unshift(panel);
   activePanelId.value = panel.localId;
   syncCurrentSession(panel);
@@ -554,6 +588,7 @@ function setChatSnapshot(panel, payload) {
   panel.originSessionId = payload.session?.originSessionId || payload.session?.sessionId || panel.originSessionId || panel.sessionId;
   panel.currentSessionId = payload.session?.currentSessionId || panel.currentSessionId || panel.sessionId;
   panel.permissionMode = payload.session?.permissionMode || panel.permissionMode || 'default';
+  if (payload.session?.harness) panel.engine = payload.session.harness === 'omp' ? 'omp' : 'claude';
   panel.cwd = payload.session?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
   panel.title = payload.session?.title || panel.title;
   panel.status = payload.session?.status || panel.status;
@@ -902,7 +937,7 @@ async function submitMessage() {
             prompt: text,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
-            harness: props.harness === 'omp' ? 'omp' : 'claude',
+            harness: panelEngine(panel),
           },
         });
         if (!sent) {
@@ -911,7 +946,7 @@ async function submitMessage() {
             prompt: text,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
-            harness: props.harness === 'omp' ? 'omp' : 'claude',
+            harness: panelEngine(panel),
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
@@ -934,7 +969,7 @@ async function submitMessage() {
             originSessionId: session.originSessionId || session.sessionId,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
-            harness: props.harness === 'omp' ? 'omp' : 'claude',
+            harness: panelEngine(panel),
           },
         });
         if (!sent) {
@@ -945,7 +980,7 @@ async function submitMessage() {
             originSessionId: session.originSessionId || session.sessionId,
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
-            harness: props.harness === 'omp' ? 'omp' : 'claude',
+            harness: panelEngine(panel),
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || panel.sessionId;
@@ -1820,4 +1855,44 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 }
+/* ── Chat engine picker ──────────────────────────────────────────── */
+.chat-engine-picker {
+  display: flex;
+  gap: 4px;
+  margin: 0 12px 6px;
+  padding: 3px;
+  border: 1px solid var(--border-color, rgba(255,255,255,.1));
+  border-radius: 8px;
+  background: rgba(255,255,255,.03);
+}
+.chat-sidebar-collapsed .chat-engine-picker { flex-direction: column; margin: 0 8px 6px; }
+.chat-engine-opt {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--text-secondary, rgba(255,255,255,.55));
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-engine-opt:hover { color: var(--text-primary, rgba(255,255,255,.85)); background: rgba(255,255,255,.05); }
+.chat-engine-opt.active.engine-claude {
+  color: #7fb3ff;
+  background: rgba(88,140,255,.14);
+  border-color: rgba(88,140,255,.45);
+}
+.chat-engine-opt.active.engine-omp {
+  color: #ffb45e;
+  background: rgba(255,166,77,.13);
+  border-color: rgba(255,166,77,.5);
+  box-shadow: 0 0 8px rgba(255,166,77,.12);
+}
+
 </style>

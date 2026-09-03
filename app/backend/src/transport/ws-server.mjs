@@ -290,6 +290,7 @@ function buildChatSnapshot(chatId) {
         title: history.session.title || '',
         status: history.session.status || 'unknown',
         permissionMode: history.session.permissionMode || 'default',
+        harness: history.session.harness === 'omp' ? 'omp' : 'claude',
         cwd: history.session.cwd || null,
         createdAt: history.session.createdAt || null,
         updatedAt: history.session.updatedAt || null,

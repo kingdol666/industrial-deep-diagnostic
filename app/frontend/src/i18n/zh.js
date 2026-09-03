@@ -342,6 +342,7 @@ export default {
     collapseSidebar: '折叠会话栏',
     newChat: '新建 Chat',
     newChatLabel: 'New Chat',
+    engineLabel: '对话引擎',
     chatGroup: 'Chat',
     diagnoseGroup: 'Diagnose Sessions',
     active: 'active',

@@ -500,6 +500,7 @@ export function getChatInfo(chatId) {
     title: stored?.title || null,
     status: stored?.status || (entry ? 'active' : 'unknown'),
     permissionMode: stored?.permission_mode || 'default',
+    harness: stored?.harness === 'omp' ? 'omp' : 'claude',
     cwd: stored?.cwd || PROJECT_ROOT,
   };
 }
@@ -516,6 +517,7 @@ export function listActiveChats() {
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     permissionMode: row.permission_mode || 'default',
+    harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -604,6 +606,7 @@ export function getChatSession(chatId) {
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     permissionMode: row.permission_mode || 'default',
+    harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -623,6 +626,7 @@ export function getChatHistory(chatId) {
       title: session.title,
       status: activeChats.has(session.chat_id) ? 'active' : session.status,
       permissionMode: session.permission_mode || 'default',
+      harness: session.harness === 'omp' ? 'omp' : 'claude',
       cwd: session.cwd || PROJECT_ROOT,
       createdAt: session.created_at,
       updatedAt: session.updated_at,
