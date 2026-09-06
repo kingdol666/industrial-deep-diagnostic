@@ -52,7 +52,42 @@
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### ⚙ 双引擎 Harness（v6.8 新增）
+- **真正可选的执行引擎** — Claude Code SDK 与 OMP RPC 原生桥接，前端一键切换
+- **双引擎同构事件流** — 工具调用 / 思考 / 子代理编排全程实时可视
+- **会话连续性** — 两种引擎均支持跨进程续聊与诊断上下文延续
+- **运行级路由** — 每次诊断记录执行引擎，History 页 `OMP` 徽标溯源
+
+</td>
+<td width="50%" valign="top">
+
+### 🗺 本体资产化 + 深度增强（v6.8 新增）
+- **本体资产库** — 数据 schema 指纹匹配，同场景复用秒级命中，**单次诊断提速 ~70%**
+- **增量扩展** — 新增列仅做增量构建合并，版本化沉淀（`provenance` 全程溯源）
+- **意图驱动深度增强** — 用户说"深度诊断"即自动衔接 E0-E8 确定性增强链（零 LLM 成本，+3~5 分钟）
+- **知识飞轮** — 增强产物回灌 RAG 知识库，越用越准
+
+</td>
+</tr>
 </table>
+
+---
+
+## ⚡ 性能设计（优化计划 v4 落地）
+
+| 机制 | 触发条件 | 效果 |
+|------|---------|------|
+| **本体复用** | 数据列 schema 指纹命中资产库（`auto` 模式默认开启） | 本体构建 15.6 min → **≤0.5 min** |
+| **本体增量扩展** | 同场景 schema 演进（新增列） | 仅对 diff 列检索构建，省 60%+ |
+| **子代理止损** | 本体子代理 8 分钟未产出 | 主代理本地兜底，杜绝 12 分钟空转 |
+| **定向修复** | Judge 评分 70-89 触发修复轮 | 只重算受影响维度，省 40-60% |
+| **并行剖析** | 数据画像与本体构建无语义依赖 | 串行改并行，再省 2-4 min |
+| **RAG 快失败** | 3s 健康预检不通过 | 直接走本地物理先验降级，零空转 |
+
+> 详见 [docs/skill-optimization-plan-v4.md](docs/skill-optimization-plan-v4.md) — 含实测时间线证据与每项优化的验收门。
 
 ---
 
@@ -616,17 +651,21 @@ GET /api/health
 | | `/api/files/data/file/:path` | GET | 读取文件内容 |
 | | `/api/files/workspace` | GET | 列出诊断运行 |
 | | `/api/files/workspace/report/:name` | GET | 获取诊断报告 |
-| **诊断** | `/api/diagnosis/start` | POST | 启动新诊断 |
+| **诊断** | `/api/diagnosis/start` | POST | 启动新诊断（`harness` / `ontologyMode` / `enhancement` 可选） |
 | | `/api/diagnosis/execute/:runId` | POST | 执行诊断 |
 | | `/api/diagnosis/status/:runId` | GET | 查询运行状态 |
 | | `/api/diagnosis/snapshot/:runId` | GET | 获取快照 |
 | | `/api/diagnosis/stop/:runId` | POST | 停止运行 |
 | | `/api/diagnosis/list` | GET | 列出所有运行 |
 | | `/api/diagnosis/stream/:runId` | GET | SSE 事件流 |
+| | `/api/diagnosis/enhance/:runId` | POST | **一键深度增强（E0-E8）** |
+| **本体资产** | `/api/ontology/store` | GET | 本体资产库注册表（场景/版本/指纹） |
 | **聊天** | `/api/diagnosis/chat/:runId` | POST | 诊断对话 |
 | | `/api/diagnosis/hitl/:hitlId` | POST | 人工审批 |
-| | `/api/chat/start` | POST | 启动聊天会话 |
+| | `/api/chat/start` | POST | 启动聊天会话（`harness` 可选） |
 | | `/api/chat/stream/:chatId` | GET | SSE 聊天流 |
+| **Harness** | `/api/harness` | GET | 引擎注册表（claude / omp） |
+| | `/api/harness/omp/health` | GET | OMP 引擎健康探测（二进制可执行性） |
 
 ### WebSocket 实时推送
 

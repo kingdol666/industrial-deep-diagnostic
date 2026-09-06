@@ -39,7 +39,7 @@ function normalizeClaudeSessionId(value) {
   return UUID_RE.test(trimmed) ? trimmed : null;
 }
 
-function buildRuntimeProtocol(sceneName, reportLanguage) {
+export function buildRuntimeProtocol(sceneName, reportLanguage) {
   const safeScene = sanitize(sceneName || config.diagnosis.default_scene_name);
   const languageRule = reportLanguage === 'zh'
     ? '所有 narrative、标题、分析说明、建议、summary markdown 与 report.md 必须使用中文；变量名、列名、JSON enum、代码保持英文。'
@@ -53,12 +53,47 @@ Runtime-critical rules:
 3. Context building must produce ontology-grounded understanding before final diagnosis. Data analysis, diagnosis, review, report, and audit must stay aligned to the same ontology semantics.
 4. Diagnosis must use competing hypotheses, temporal precedence, statistical evidence, physical mechanism, and contradiction checks. If evidence cannot discriminate, output COMPETING_SET or NEEDS_DATA instead of guessing.
 5. Validate required structured artifacts and honor repair / review gates before considering the run complete.
-6. Use exact absolute data paths provided by the runtime. Do not reinterpret them relative to the skill directory.
+6. Use exact absolute data paths provided by the runtime. Do not reinterpret them relative to the skill directory. All sub-agent file writes MUST use the absolute run-dir path given in the dispatch prompt — never relative paths.
 7. ${languageRule}
-8. If the user provides follow-up answers or continuation instructions, continue from the existing session state while preserving the same pipeline discipline.`;
+8. If the user provides follow-up answers or continuation instructions, continue from the existing session state while preserving the same pipeline discipline.
+9. Ontology asset policy: honor the ONTOLOGY DIRECTIVE in the prompt (mode reuse/extend/full). In reuse mode, copy the given store ontology into the run dir via ontology_store.mjs and re-validate with CP-2 — never rebuild, never call RAG or web research. In extend mode, build incrementally for NEW columns only and merge into the source ontology. In full mode, follow the standard pipeline. Publish the validated ontology back to the store after CP-2 passes.
+10. Enhancement policy: honor the ENHANCEMENT DIRECTIVE. When deep enhancement is requested (policy on / intent hit), after Step 9 completes run the enhance orchestrator (E0-E8) on the SAME run dir — reuse the same ontology, never rebuild the baseline. When skipped, emit the enhance_skipped pipeline event.`;
 }
 
-function buildSystemPrompt(sceneName, reportLanguage, skillContent) {
+// ── Ontology directive — appended to the user prompt for both engines ──
+export function buildOntologyDirective(ontology) {
+  if (!ontology || typeof ontology !== 'object') return '';
+  const mode = ontology.mode || 'full';
+  const lines = ['', '## Ontology Directive', '', `- ONTOLOGY_MODE: ${mode}`];
+  if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (store asset, absolute path): ${ontology.source}`);
+  if (ontology.scene_key) lines.push(`- ONTOLOGY_SCENE: ${ontology.scene_key} (store v${ontology.version ?? '?'})`);
+  lines.push(`- Reason: ${ontology.reason || 'n/a'}`);
+  lines.push(`Execute Phase -1 of the ontology-builder protocol exactly according to this mode. CP-2 validation is mandatory in every mode; after it passes, publish the ontology to the store:`);
+  lines.push(`node .claude/shared/scripts/ontology_store.mjs publish --run-dir "<RUN_DIR>"${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''} --build-mode ${mode}`);
+  return lines.join('\n') + '\n';
+}
+
+// ── Enhancement directive — appended to the user prompt for both engines ──
+export function buildEnhancementDirective(enhancement) {
+  if (!enhancement || typeof enhancement !== 'object') return '';
+  const policy = enhancement.policy || 'auto';
+  const lines = ['', '## Enhancement Directive', '', `- ENHANCEMENT_POLICY: ${policy}`, `- ENHANCEMENT_INTENT_HIT: ${enhancement.intentHit ? 'true' : 'false'}`];
+  if (enhancement.matched?.length) lines.push(`- Matched signals: ${enhancement.matched.join(', ')}`);
+  if (policy === 'on') {
+    lines.push('The user requested deep enhanced diagnosis. After Step 9 (finalize) completes on the baseline, execute the E0-E8 enhancement chain on the SAME run dir:');
+    lines.push('node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs --run-dir "<RUN_DIR>"');
+    lines.push('If E0 reports BLOCKED (baseline artifacts incomplete), record enhancement_status.json with status=blocked and finish gracefully — do not fail the run.');
+  } else if (policy === 'off') {
+    lines.push('The user explicitly declined deep enhancement. Do not run E0-E8. Emit pipeline event: enhance_skipped (reason: policy off).');
+  } else {
+    lines.push(enhancement.intentHit
+      ? 'Deep-enhancement intent detected from the user question. After Step 9 completes, execute the E0-E8 chain on the SAME run dir (same command as policy on).'
+      : 'No deep-enhancement intent detected. Do not run E0-E8. Emit pipeline event: enhance_skipped (reason: no_intent).');
+  }
+  return lines.join('\n') + '\n';
+}
+
+export function buildSystemPrompt(sceneName, reportLanguage, skillContent) {
   const runtimeProtocol = buildRuntimeProtocol(sceneName, reportLanguage);
   if (!skillContent) return runtimeProtocol;
 
@@ -80,7 +115,7 @@ function discoverDataFiles(folderPath) {
     .sort();
 }
 
-function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMessage) {
+export function buildPrompt(sceneName, userQuestion, target, reportLanguage, followUpMessage) {
   const safeScene = sanitize(sceneName || config.diagnosis.default_scene_name);
   const safeQuestion = sanitize(userQuestion || '');
 
@@ -158,23 +193,12 @@ const disallowedTools = [];
 // ── Active query objects (for close and stdin writing) ──
 const activeQueries = new Map();
 
-// ── Start Diagnosis via SDK ──
-export function startDiagnosis({
-  analysisTarget, userQuestion, sceneName,
-  runId, maxTurns = 0, timeoutMinutes = 0,
-  reportLanguage, followUpMessage, sessionId = null,
-  harness = 'claude',
-}) {
-  if (!sdkAvailable || !queryFn) {
-    throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
-  }
-
-  const lang = reportLanguage || config.diagnosis.default_language;
-  const timeout = timeoutMinutes || config.claude.timeout_minutes;
-  let dataPaths = [];
+// ── Shared: resolve analysis target into absolute paths ──
+// Returns { dataPaths, promptTarget } — throws DATA_NOT_FOUND / NO_DATA_FOUND.
+export function resolveAnalysisTarget(analysisTarget) {
+  const dataPaths = [];
   const promptTarget = { ...analysisTarget };
 
-  // Resolve data paths
   function resolveDataPath(p) {
     if (isAbsolute(p)) return p;
     const fromRoot = join(PROJECT_ROOT, p);
@@ -185,9 +209,11 @@ export function startDiagnosis({
   }
 
   if (analysisTarget.mode === 'resume') {
-    // The existing Claude session already has the diagnostic data context.
-    dataPaths = [];
-  } else if (analysisTarget.mode === 'multi') {
+    // The existing session already has the diagnostic data context.
+    return { dataPaths, promptTarget };
+  }
+
+  if (analysisTarget.mode === 'multi') {
     promptTarget.files = [];
     for (const dp of analysisTarget.files) {
       const abs = resolveDataPath(dp);
@@ -206,14 +232,15 @@ export function startDiagnosis({
       err.code = 'DATA_NOT_FOUND';
       throw err;
     }
-    dataPaths = discoverDataFiles(absFolder);
-    if (dataPaths.length === 0) {
+    const folderFiles = discoverDataFiles(absFolder);
+    if (folderFiles.length === 0) {
       const err = new Error(`No data files found in folder: ${absFolder}`);
       err.code = 'NO_DATA_FOUND';
       throw err;
     }
+    dataPaths.push(...folderFiles);
     promptTarget.folderPath = absFolder;
-    promptTarget.dataFiles = dataPaths;
+    promptTarget.dataFiles = folderFiles;
   } else {
     const abs = resolveDataPath(analysisTarget.dataPath);
     if (!existsSync(abs)) {
@@ -221,9 +248,28 @@ export function startDiagnosis({
       err.code = 'DATA_NOT_FOUND';
       throw err;
     }
-    dataPaths = [abs];
+    dataPaths.push(abs);
     promptTarget.dataPath = abs;
   }
+
+  return { dataPaths, promptTarget };
+}
+
+// ── Start Diagnosis via SDK ──
+export function startDiagnosis({
+  analysisTarget, userQuestion, sceneName,
+  runId, maxTurns = 0, timeoutMinutes = 0,
+  reportLanguage, followUpMessage, sessionId = null,
+  ontology = null, enhancement = null,
+}) {
+  if (!sdkAvailable || !queryFn) {
+    throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
+  }
+
+  const lang = reportLanguage || config.diagnosis.default_language;
+  const timeout = timeoutMinutes || config.claude.timeout_minutes;
+
+  const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
 
   const resumeSessionId = normalizeClaudeSessionId(sessionId);
 
@@ -254,7 +300,9 @@ export function startDiagnosis({
 
   const prompt = resumeSessionId
     ? buildResumePrompt(followUpMessage)
-    : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage);
+    : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)
+      + buildOntologyDirective(ontology)
+      + buildEnhancementDirective(enhancement);
 
   // Build SDK options
   const options = {

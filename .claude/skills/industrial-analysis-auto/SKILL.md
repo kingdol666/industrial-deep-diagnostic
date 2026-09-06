@@ -220,6 +220,17 @@ node "$SHARED_PATH/scripts/uv_env_setup.mjs"
 
 `setup.mjs` bootstraps `run_manifest.json` + `.pipeline_events.jsonl` with `run_initialized` event.
 
+**Shell 兼容约定（强制）**：所有 bash 命令不得使用 cmd 内建语法（`cd /d`、`dir`、反斜杠路径）。
+跨盘/切换目录直接以绝对路径调用（`node "D:/.../setup.mjs"`）或 `cd "D:/path" && cmd`。
+（实测 `cd /d D:\...` 在 POSIX bash 下失败重试，浪费 ~1 分钟。）
+
+**RAG 可用性预检（3s 快失败）**：Step 0 结束时执行一次并记录到 run_config：
+```bash
+curl -m 3 -s http://localhost:8764/health >/dev/null 2>&1 && RAG_AVAILABLE=true || RAG_AVAILABLE=false
+```
+`RAG_AVAILABLE=false` → ontology-builder 直接走 `parameter_to_physics.json` 降级路径，跳过 Phase 2/3
+（避免执行期反复探测与不可控网络下的 web 搜索空转）。
+
 ### Step 0.5: Adaptive Data Preprocessing (data-source agnosticism gate)
 
 Before inspecting, normalize ANY user data source into the canonical pipeline
@@ -265,13 +276,26 @@ Read `skill://industrial-ontology-builder` and dispatch via `Agent({subagent_typ
 - `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`, `SHARED_PATH` must be absolute paths
 - `SKILL_PATH` = path to `industrial-ontology-builder` skill directory
 - `INTERACTION_MODE` = `auto` (default for FULL-AUTO)
+- **透传 runtime prompt 中的 `## Ontology Directive`（ONTOLOGY_MODE / ONTOLOGY_SOURCE）** 到 dispatch task — agent 据此执行 Phase -1 模式分派：
+  - `reuse` 命中：agent 30 秒内拷贝资产本体 + CP-2 校验完成本步（本管线最大时间收益，禁止重建）
+  - `extend`：仅对新增列增量构建后合并
+  - `full`：标准全流程
+- **子代理止损上限**：累计等待 `ontology.json` 产出超过 **8 分钟**仍未完成 → abort 子代理任务，主代理按兜底协议用 `parameter_to_physics.json` 本地构建最小有效本体（≤3 分钟）。禁止 3 次串行长等待（180s+240s+300s=12 分钟空转是实测最大浪费）。
+- 所有 dispatch 后的文件写入必须使用绝对路径（子代理相对路径写入是历史失败根因）。
 
-**CP-2**: `ontology.json` ≥1KB + schema-valid
+**CP-2**: `ontology.json` ≥1KB + schema-valid。**CP-2 通过后立即发布入本体资产库（所有模式必须，这是下次复用命中的前提）**：
+```bash
+node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR"
+```
 **CP-3**: `clarification_needed.json` contains `AUTO_RESOLVED` or `USER_CONFIRMED`
+
+### Step 2P (parallel with Step 2, optional): Data Profiling Pre-Pass
+
+Step 1 完成后，数据格式/质量/生产状态剖析**不依赖本体语义**，可与 Step 2 并行派发 `data-processor` 的 Phase 0-1 前置段（产出 `02_processed/pre_profile.json`）。本体 ready 后 data-processor 从 Phase 2 起接续并消费 pre_profile.json，跳过重复探查。语义分析（discrepancy / R2 校验）**必须等本体**——ontology_first 契约的语义部分不变。若当前 harness 不支持并行子代理则保持串行（向后兼容）。
 
 ### Step 3 + 3.3: Data Processor
 
-Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work.
+Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work. 若 `02_processed/pre_profile.json` 存在（Step 2P 产物），从其结论接续，跳过重复探查。
 
 Post-processing after agent completes:
 ```bash
@@ -285,13 +309,13 @@ node "$SKILL_PATH_DATA_PROCESSOR/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 
 Read `skill://industrial-diagnostician` and dispatch via `Agent({subagent_type: "diagnostician", ...})`. Fuses data + ontology + physics + VLM + time-lag → diagnosis/evidence/confidence/reasoning_chain.
 
-For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`.
+For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`；第 2/3 轮同时传递 `REPAIR_SCOPE=<files>`（来自 judge_feedback.json 的 repair_scope 映射，见 Step 5a）。scope 外文件从 best_round 快照恢复并标 `carried_over: true`，**不重算**。
 
 **CP-5**: All 4 diagnosis outputs schema-valid + quality-check passes
 
 ### Step 5a: Judge
 
-Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`.
+Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`. feedback 必须含**结构化修复范围** `repair_scope: [{dimension, files, instructions}]`（Step 4 修复轮据此定向重算，避免全量重算 4 个诊断 JSON）。第 2/3 轮 Judge 仅复审 scope 内维度 + 上轮 blocking 复核，已 pass 维度引用上轮结论。
 
 ### Step 5b: Physical Auditor (Pre-Report)
 
@@ -348,7 +372,36 @@ node "$SKILL_PATH/scripts/pipeline-finalize.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 Present: executive summary + key findings + diagnosis type + confidence + recommendations + optimizer highlights + workspace/HTML paths.
 
+### Step 10: Enhanced Diagnosis（条件步骤 — 深度增强 E0-E8）
+
+读取 runtime prompt 的 `## Enhancement Directive`（ENHANCEMENT_POLICY / ENHANCEMENT_INTENT_HIT）：
+
+| ENHANCEMENT_POLICY | 动作 |
+|--------------------|------|
+| `on`（用户显式或意图命中） | 基线 Step 9 完成后，**同一 run 目录**执行增强链：`node "$PROJECT_ROOT/.claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs" --run-dir "$RUN_DIR"`。E0-E1-E6 全为确定性脚本零 LLM；复用本体，**绝不重建基线**。E0 报 BLOCKED（基线产物不齐）→ 写 enhancement_status.json{status:blocked} 优雅收尾，**不判 run 失败**。完成后 append-pipeline-event `--event step_complete --step enhance`，并在 report.md 尾部追加一行「深度增强分析已生成：enhancement/enhanced_analysis.md」 |
+| `off` | 跳过。append-pipeline-event `--event enhance_skipped --data '{"reason":"policy_off"}'` |
+| `auto` 未命中 | 跳过。`--event enhance_skipped --data '{"reason":"no_intent"}'`；在总结尾部提示用户：「如需深度增强诊断（条件分析/物理桥接/关联图谱），可在本运行上一键启动」 |
+
+增强产物落在 `RUN_DIR/enhancement/`（enhanced_analysis.md / enhanced-analysis.html / enhancement_status.json），
+与基线产物完全隔离；E1-E6 的 mtime skip 机制使重复执行增量且廉价。
+
 ---
+
+## Step Turn Budgets（提示性治理，非硬截断）
+
+| Step | 建议轮次上限 | 超限动作 |
+|------|------------|---------|
+| Step 0-1 setup/inspect | 4 | 检查脚本调用方式（多为路径/语法重试） |
+| Step 2 本体（reuse 命中） | 2 | 直接主代理本地校验 |
+| Step 2 本体（full） | 6 | 触发 8 分钟止损上限 |
+| Step 3 数据处理 | 10 | 检查 pre_profile 是否被消费 |
+| Step 4 诊断 | 12 | 检查输入产物完整性 |
+| Step 5a/5b 评审 | 6 | 引用上轮结论 |
+| Step 6-7 报告+审计 | 8 | 精简章节 |
+| Step 8-9 HTML+收尾 | 6 | 降级静态模式 |
+| Step 10 增强 | 3 | 脚本链零 LLM，超限=异常 |
+
+连续 2 次同 Step 超预算 2 倍 → 记录 pipeline 事件 step_overbudget 并在 run_summary 汇总。
 
 ## Checkpoint Gates (Quick Reference)
 

@@ -42,6 +42,9 @@ export const api = {
     request('/diagnosis/start', { method: 'POST', body: JSON.stringify(params) }),
   executeDiagnosis: (runId) =>
     request(`/diagnosis/execute/${runId}`, { method: 'POST' }),
+  enhanceDiagnosis: (runId) =>
+    request(`/diagnosis/enhance/${runId}`, { method: 'POST' }),
+  listOntologyStore: () => request('/ontology/store'),
   getRunStatus: (runId) => request(`/diagnosis/status/${runId}`),
   getRunSnapshot: (runId) => request(`/diagnosis/snapshot/${runId}`),
   stopDiagnosis: (runId) =>

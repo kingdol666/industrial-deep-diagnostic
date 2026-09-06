@@ -12,9 +12,33 @@
 
 - `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`, `SHARED_PATH`
 - `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `INTERACTION_MODE`
+- `ONTOLOGY_MODE` (runtime 注入：`reuse|extend|full`，缺省 `full`), `ONTOLOGY_SOURCE` (store 资产绝对路径)
 
 ---
 → Gate: `DATA_PATH` exists? No → error JSON, stop.
+
+## Phase -1: Ontology Mode Dispatch (deterministic, ≤30s)
+
+先于一切构建工作。所有模式：**写文件一律使用 RUN_DIR/DATA_PATH 绝对路径**。
+
+**MODE = reuse**（资产命中，直接复用）:
+- [ ] `node "$SHARED_PATH/scripts/ontology_store.mjs" reuse --source "$ONTOLOGY_SOURCE" --run-dir "$RUN_DIR"`
+- [ ] CP-2: validate.mjs + ≥1KB（**永不跳过**）；CP-3: clarification gate（沿用本次 run 的 clarification_needed.json）
+- [ ] append-pipeline-event: `--event ontology_reused --agent context-builder --step context_builder`
+- [ ] **结束** — 禁止进入 Phase 0-4（零 RAG / 零 web / 零参考检索）。资产里已含语义，本次 run 只消费。
+
+**MODE = extend**（schema 演进，仅增量）:
+- [ ] `ontology_store.mjs fingerprint "$DATA_PATH"` 读取源本体的 signals 列集合 → diff 出**新增列**与**角色未定列**
+- [ ] 若 diff 为空 → 等价 reuse，按 reuse 分支结束
+- [ ] 仅对 diff 列执行 Phase 1-4（Phase 2/3 的检索范围限定在 diff 列）
+- [ ] 合并：新增 signals/relationships 并入源本体；已有 `role ∈ {target, confounder}` 的信号**禁止改角色**（冲突写 clarification_needed.json）；被新数据证伪的 normal_range → 更新值 + `behavior_match: CONTRADICTED`
+- [ ] Phase 5 校验 → CP-2/CP-3 → publish `--build-mode extend`
+- [ ] append-pipeline-event: `--event ontology_extended`
+
+**MODE = full**（首建或用户强制）:
+- [ ] 顺序执行 Phase 0 → 5，结束后 publish `--build-mode full`
+
+所有模式收尾：`node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR" --build-mode <mode>`（CP-2 已过为前提）。主代理兜底手写的 minimal 本体同样必须 publish。
 
 ## Phase 0: Load User Context + Data Inspection
 

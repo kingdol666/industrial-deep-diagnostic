@@ -1,12 +1,9 @@
 // OmpHarness — implements the Harness interface over the native OMP engine.
 //
-// Two halves:
-// 1. LIVE — diagnoses and chats driven through the OMP harness contract:
-//    the OMP agent definitions under .omp/agents/ are the only sub-agent
-//    source (injected into the SDK agents option by engine/omp-engine.mjs).
-// 2. RUNS — the OMP agent pipeline's filesystem contract under
-//    workspace/diagnostic-runs/: event log execution proof, optimizer verdict,
-//    enhancement status, reports and HTML.
+// Live execution: diagnosis runs and chats are dispatched to `omp --mode=rpc`
+// by engine dispatch in diagnosis.service / chat.service. This harness also
+// browses the OMP pipeline's filesystem contract under workspace/diagnostic-runs/
+// (event log execution proof, optimizer verdict, enhancement status, reports, HTML).
 
 import { BaseHarness } from './base.mjs';
 import {
@@ -17,28 +14,30 @@ import {
   getOmpEnhancement,
   getOmpSummary,
 } from '../services/omp.service.mjs';
-import { loadOmpAgents } from '../engine/omp-engine.mjs';
+import { probeOmpEngine } from '../engine/omp-client.mjs';
 
 export class OmpHarness extends BaseHarness {
   id = 'omp';
   name = 'OMP Engine';
   kind = 'runs';
-  description = 'OMP 代理管线引擎（.omp/agents 契约实时驱动 + 运行产物桥接）';
-  capabilities = ['runs', 'report', 'html', 'enhancement', 'live', 'chat'];
+  description = 'OMP 代理管线原生引擎（RPC 实时执行 + 运行浏览）';
+  capabilities = ['live', 'runs', 'report', 'html', 'enhancement'];
 
   async health() {
-    const h = ompHealth();
-    const { count } = loadOmpAgents();
+    const [h, engine] = await Promise.all([
+      Promise.resolve(ompHealth()),
+      probeOmpEngine(),
+    ]);
     return {
-      available: h.available,
+      // Available only when the omp binary actually executes (--version probe).
+      available: engine.available,
       meta: {
         runs_dir: h.runs_dir,
         run_count: h.run_count,
         engine: h.engine,
-        agent_contracts: count,
-        note: count > 0
-          ? `OMP harness ready — ${count} agent contracts loaded from .omp/agents`
-          : '未找到 .omp/agents 契约 — 实时诊断将回退为直接执行',
+        omp_binary: engine.binary,
+        omp_version: engine.version || null,
+        omp_probe_error: engine.error || null,
       },
     };
   }

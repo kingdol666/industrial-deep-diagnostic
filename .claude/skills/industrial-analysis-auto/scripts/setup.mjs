@@ -46,6 +46,8 @@ for (const sub of subdirs) {
 const defaultRunConfig = {
   data_path: '',
   interaction_mode: 'auto',
+  ontology: { mode: 'full', source: null },
+  enhancement: { policy: 'auto', intent_hit: false },
   process_description: '',
   user_objective: '',
   analysis_constraints: {

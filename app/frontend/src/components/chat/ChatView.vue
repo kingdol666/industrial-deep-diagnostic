@@ -234,6 +234,12 @@ const props = defineProps({
 
 const { t } = useI18n();
 
+// Engine harness selected in the sidebar — sent with every new chat request
+// so the backend dispatches to the matching engine (claude | omp).
+const props = defineProps({
+  harness: { type: String, default: 'claude' },
+});
+
 const panels = ref([]);
 const activePanelId = ref(null);
 const draft = ref('');
@@ -374,7 +380,10 @@ function createBasePanel(kind, title) {
 
 function createChatPanel() {
   const panel = createBasePanel('chat', t('chat.newChatLabel'));
-  panel.engine = panelEngine(panel);
+  const panelEngineChoice = panelEngine(panel);
+  panel.engine = panelEngineChoice;
+  // The engine chosen at creation time decides which harness runs this chat.
+  panel.harness = panelEngineChoice;
   panels.value.unshift(panel);
   activePanelId.value = panel.localId;
   syncCurrentSession(panel);
@@ -396,6 +405,7 @@ function buildSessionFromPanel(panel) {
     permissionMode: panel.permissionMode || null,
     title: panel.title || null,
     status: panel.status || null,
+    harness: panel.harness || null,
   };
 }
 
@@ -592,6 +602,7 @@ function setChatSnapshot(panel, payload) {
   panel.cwd = payload.session?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
   panel.title = payload.session?.title || panel.title;
   panel.status = payload.session?.status || panel.status;
+  panel.harness = payload.session?.harness || panel.harness || 'claude';
   panel.events = (payload.events || []).map(item => restoreChatEvent(item));
   panel.hydrated = true;
   syncCurrentSessionIfActive(panel);
@@ -683,6 +694,7 @@ function handleWSMessage(message) {
         panel.permissionMode = message.data?.permissionMode || panel.permissionMode || 'default';
         panel.cwd = message.data?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
         panel.status = 'active';
+        panel.harness = message.data?.harness || panel.harness || 'claude';
         subscribeChatPanel(panel);
         syncCurrentSessionIfActive(panel);
       }
@@ -782,6 +794,7 @@ function mergeChatPanelsFromCatalog() {
     panel.cwd = entry.cwd || panel.cwd || DEFAULT_CHAT_CWD;
     panel.title = entry.title || panel.title;
     panel.status = entry.status || panel.status;
+    panel.harness = entry.harness || panel.harness || 'claude';
     syncCurrentSessionIfActive(panel);
     if (!panel.hydrated && panel.chatId) subscribeChatPanel(panel);
   }

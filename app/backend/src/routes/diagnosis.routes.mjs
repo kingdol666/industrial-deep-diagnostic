@@ -6,7 +6,7 @@ import {
   stopDiagnosis, resolveHITLRequest, getPendingHITL,
   sendChatMessage, continueDiagnosis, answerQuestion,
   triggerDiagnosis, startStream, subscribeSSE,
-  getSessionContent, getRunRealtimeSnapshot,
+  getSessionContent, getRunRealtimeSnapshot, triggerEnhancement,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -218,6 +218,17 @@ router.get('/snapshot/:runId', (req, res) => {
 router.get('/hitl/:runId', (req, res) => {
   const pending = getPendingHITL(req.params.runId);
   res.json({ success: true, data: { pending } });
+});
+
+// POST /api/diagnosis/enhance/:runId — one-click deep enhancement (E0-E8) for a completed run
+router.post('/enhance/:runId', async (req, res) => {
+  try {
+    const result = await triggerEnhancement(req.params.runId);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
+  }
 });
 
 export default router;

@@ -55,6 +55,22 @@
                 <option value="en">{{ $t('diagnosis.english') }}</option>
               </select>
             </div>
+            <div class="turns-control">
+              <label class="turns-label">{{ $t('diagnosis.ontologyPolicy') }}</label>
+              <select v-model="ontologyMode" class="ctrl-input ctrl-select">
+                <option value="auto">{{ $t('diagnosis.ontologyAuto') }}</option>
+                <option value="full">{{ $t('diagnosis.ontologyFull') }}</option>
+                <option v-if="ontologyScenes.length" value="reuse">{{ $t('diagnosis.ontologyReuse') }}</option>
+              </select>
+            </div>
+            <div class="turns-control">
+              <label class="turns-label">{{ $t('diagnosis.enhancementPolicy') }}</label>
+              <select v-model="enhancement" class="ctrl-input ctrl-select">
+                <option value="auto">{{ $t('diagnosis.enhancementAuto') }}</option>
+                <option value="on">{{ $t('diagnosis.enhancementOn') }}</option>
+                <option value="off">{{ $t('diagnosis.enhancementOff') }}</option>
+              </select>
+            </div>
             <button class="ctrl-btn ctrl-btn-go" @click="start" :disabled="!analysisTarget">
               {{ $t('diagnosis.startDiagnosis') }}
             </button>
@@ -259,6 +275,9 @@ const sceneName = ref('');
 const userQuestion = ref('');
 const maxTurns = ref(0);
 const reportLanguage = ref('zh');
+const ontologyMode = ref('auto');
+const enhancement = ref('auto');
+const ontologyScenes = ref([]);
 const started = ref(false);
 const elapsed = ref('0:00');
 const currentPhase = ref('');
@@ -455,7 +474,10 @@ async function start() {
     userQuestion: userQuestion.value,
     sceneName: sceneName.value || undefined,
     reportLanguage: reportLanguage.value,
-    harness: props.harness === 'omp' ? 'omp' : 'claude',
+    harness: props.harness || 'claude',
+    ontologyMode: ontologyMode.value,
+    ontologyScene: ontologyMode.value === 'reuse' ? (sceneName.value || undefined) : undefined,
+    enhancement: enhancement.value,
   };
   startedHarness.value = payload.harness;
 
@@ -673,7 +695,15 @@ onMounted(() => {
   // connect/disconnect is managed centrally by App.vue
   // Only refresh catalog data when entering this page
   refreshCatalog();
+  refreshOntologyScenes();
 });
+
+async function refreshOntologyScenes() {
+  try {
+    const store = await api.listOntologyStore();
+    ontologyScenes.value = Object.keys(store?.scenes || {});
+  } catch { ontologyScenes.value = []; }
+}
 
 onUnmounted(() => {
   stopElapsed();

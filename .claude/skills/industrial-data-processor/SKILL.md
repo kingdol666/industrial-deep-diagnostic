@@ -282,3 +282,7 @@ Missing outputs auto-restored by scripts in `.claude/skills/industrial-data-proc
 || Files >500MB | `uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
 | Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
 | No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |
+
+## Pre-Profile Handoff（Step 2P 并行产物）
+
+`02_processed/pre_profile.json`（数据格式/质量/生产状态剖析，不依赖本体语义）若存在，Phase 0-1 直接消费其结论、跳过重复探查；Phase 2 起的语义分析仍以本体为准（ontology_first 语义契约不变）。

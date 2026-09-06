@@ -174,3 +174,18 @@ node "$SKILL_PATH/scripts/judge-gate-check.mjs" "$RUN_DIR" --skip-summary
 | Missing input files | 报告缺失 → verdict=fail, score=0, blocking issues listed |
 | Gate check fail | 使用 blocking_issues 中的修复指令 → 回退 Diagnostician 修复 |
 | Judge timeout | 检查部分产物 → 可用则继续 |
+
+## Structured Repair Scope（定向修复契约）
+
+feedback 必须包含 `repair_scope` 数组，供 Step 4 修复轮定向重算（避免全量重算 4 个诊断 JSON）：
+
+```json
+{
+  "repair_scope": [
+    { "dimension": "statistical_evidence", "files": ["04_diagnostics/evidence.json"], "instructions": "..." }
+  ]
+}
+```
+
+- 第 2/3 轮评审仅复审 scope 内维度 + 上轮 blocking 复核；已 pass 维度引用上轮结论（标注 carried_over）。
+- scope 为空数组 = 无需修复（verdict=pass 时）。

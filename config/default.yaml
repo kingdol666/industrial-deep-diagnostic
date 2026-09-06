@@ -40,6 +40,16 @@ claude:
   timeout_minutes: 120
   sigkill_grace_seconds: 5
 
+# --- OMP Engine Integration (live execution harness) ---
+omp:
+  binary: "omp"                              # Resolved to an absolute path at runtime (omp.exe / where / LOCALAPPDATA fallbacks)
+  auto_approve: true                         # Auto-approve tool calls (--auto-approve) — required for non-interactive runs
+  thinking: "medium"                         # off|minimal|low|medium|high|xhigh|max|auto
+  session_root: "workspace/.omp-sessions"    # Per-run OMP session dirs (resume via -c)
+  chat_session_root: "workspace/.omp-chats"  # Per-chat OMP session dirs
+  timeout_minutes: 120                       # Mapped to --max-time
+  health_timeout_ms: 8000                    # `omp --version` probe timeout for harness health
+
 # --- Diagnosis Defaults ---
 diagnosis:
   default_scene_name: "industrial_analysis"

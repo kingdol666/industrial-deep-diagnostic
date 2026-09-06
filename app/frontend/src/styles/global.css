@@ -677,6 +677,69 @@ a { color: inherit; }
 .badge-blue { background: var(--accent-soft); color: var(--accent); border-color: var(--border-accent); }
 .badge-purple { background: rgba(184, 137, 224, 0.10); color: var(--purple); border-color: rgba(184, 137, 224, 0.22); }
 
+/* ── Engine / provenance badges (History actions rail) ──
+   Telemetry chips in the instrument language: mono micro-caps,
+   hairline borders, semantic hue per badge kind. */
+.engine-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  border: 1px solid;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+.engine-badge:first-child { margin-left: 0; }
+
+/* OMP engine — phosphor amber signature */
+.engine-badge:not(.ont-badge):not(.enh-badge) {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--border-accent);
+}
+
+/* Ontology asset reuse — phosphor green (efficient / endorsed path) */
+.engine-badge.ont-badge {
+  background: rgba(143, 191, 106, 0.10);
+  color: var(--green);
+  border-color: rgba(143, 191, 106, 0.22);
+}
+
+/* E0-E8 enhancement — muted steel info */
+.engine-badge.enh-badge {
+  background: rgba(107, 168, 184, 0.10);
+  color: var(--cyan);
+  border-color: rgba(107, 168, 184, 0.25);
+}
+
+/* Deep-enhance action — amber outline that fills on hover,
+   distinct from btn-primary (solid) to read as an "escalation" */
+.btn-enhance {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--border-accent);
+}
+.btn-enhance:hover:not(:disabled) {
+  background: var(--accent-soft-strong);
+  border-color: var(--accent);
+}
+.btn-enhance:disabled { opacity: 0.55; }
+
+/* Cell-actions rail: chips + buttons wrap gracefully on narrow windows */
+.cell-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 340px;
+}
+
 /* Inputs — hairline, focus = amber ring */
 input, textarea, select {
   width: 100%;

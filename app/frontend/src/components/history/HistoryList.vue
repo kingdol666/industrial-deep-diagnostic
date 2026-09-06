@@ -70,6 +70,10 @@
             </td>
             <td class="cell-date">{{ formatDate(run.created_at) }}</td>
             <td class="cell-actions" @click.stop>
+              <span v-if="run.harness === 'omp'" class="engine-badge" :title="$t('history.executedByOmp')">OMP</span>
+              <span v-if="run.ontology_hit === 'reused'" class="engine-badge ont-badge" :title="$t('history.ontologyReusedTitle')">{{ $t('history.ontologyReused') }}</span>
+              <span v-else-if="run.ontology_hit === 'extended'" class="engine-badge ont-badge" :title="$t('history.ontologyExtendedTitle')">{{ $t('history.ontologyExtended') }}</span>
+              <span v-if="run.enhancement_triggered" class="engine-badge enh-badge" :title="$t('history.enhancedTitle')">E0-E8</span>
               <button
                 v-if="run.session_id"
                 class="btn btn-sm btn-session"
@@ -80,6 +84,19 @@
                 class="btn btn-sm btn-primary"
                 @click="viewReport(run)"
               >{{ $t('history.report') }}</button>
+              <button
+                v-if="getEffectiveRunStatus(run) === 'completed' && !run.enhancement_triggered"
+                class="btn btn-sm btn-enhance"
+                @click="enhanceRun(run)"
+                :disabled="enhancingRun === run.run_id"
+              >
+                <template v-if="enhancingRun === run.run_id">
+                  <span class="spinner-sm"></span> {{ $t('history.enhancing') }}
+                </template>
+                <template v-else>
+                  {{ $t('history.enhance') }}
+                </template>
+              </button>
               <button
                 v-if="getEffectiveRunStatus(run) === 'failed' || getEffectiveRunStatus(run) === 'stopped'"
                 class="btn btn-sm btn-continue"
@@ -199,6 +216,7 @@ const emit = defineEmits(['open-report', 'continue-run']);
 const runs = ref([]);
 const loading = ref(false);
 const continuingRun = ref(null);
+const enhancingRun = ref(null);
 const expandedRun = ref(null);
 const detailRun = ref(null);
 const logs = ref([]);
@@ -215,6 +233,21 @@ async function loadHistory() {
     console.error('Failed to load history:', err);
   } finally {
     loading.value = false;
+  }
+}
+
+// One-click deep enhancement (E0-E8) — deterministic scripts, baseline must be complete
+async function enhanceRun(run) {
+  enhancingRun.value = run.run_id;
+  try {
+    await api.enhanceDiagnosis(run.run_id);
+    // Poll briefly so the badge reflects the triggered state
+    setTimeout(() => loadHistory(), 1200);
+  } catch (err) {
+    console.error('Enhancement failed:', err);
+    alert(err.message || 'Enhancement failed');
+  } finally {
+    enhancingRun.value = null;
   }
 }
 

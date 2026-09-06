@@ -185,3 +185,11 @@ node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" d
 - `schemas/` — 5 个输出 JSON Schema（diagnosis/evidence/confidence/reasoning_chain/causal_evidence_map）
 - `scripts/` — schema-validation-loop.mjs, diagnostic-quality-check.mjs, physics_check.py, confidence-completeness-check.mjs
 - `templates/` — diagnosis_template.json
+
+## REPAIR_SCOPE — 定向修复协议
+
+修复轮（第 2/3 次）dispatch 可能携带 `REPAIR_SCOPE=<files>`（来自 judge_feedback.json repair_scope）：
+
+- 仅重算 scope 内的诊断文件；scope 外文件从 best_round 快照原样恢复，并在 reasoning_chain.json 对应段标注 `"carried_over": true, "carried_from": "best_round_N"`。
+- 重算时必须读取上轮 judge_feedback.json 的 repair_scope.instructions 作为修复约束。
+- 全量重算仅在 REPAIR_SCOPE 缺省时执行（向后兼容）。

@@ -6,10 +6,46 @@ import { readdir, stat, realpath } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, basename, relative, isAbsolute } from 'path';
 import {
-  startDiagnosis, startSessionChat, parseStreamEvent, isDangerousCommand,
-  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR, registerChild, closeQuery,
+  startDiagnosis as claudeStartDiagnosis, startSessionChat as claudeStartSessionChat,
+  parseStreamEvent as claudeParseStreamEvent, isDangerousCommand,
+  PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR,
+  registerChild as claudeRegisterChild, closeQuery as claudeCloseQuery,
   getSessionMessages, getSessionInfo,
 } from '../engine/claude-client.mjs';
+import {
+  startDiagnosis as ompStartDiagnosis, startSessionChat as ompStartSessionChat,
+  parseStreamEvent as ompParseStreamEvent,
+  registerChild as ompRegisterChild, closeQuery as ompCloseQuery,
+  parseOmpSessionId,
+} from '../engine/omp-client.mjs';
+
+// ── Engine dispatch: route execution by the run's harness ──
+const ENGINES = {
+  claude: {
+    startDiagnosis: claudeStartDiagnosis,
+    startSessionChat: claudeStartSessionChat,
+    parseStreamEvent: claudeParseStreamEvent,
+    registerChild: claudeRegisterChild,
+    closeQuery: claudeCloseQuery,
+  },
+  omp: {
+    startDiagnosis: ompStartDiagnosis,
+    startSessionChat: ompStartSessionChat,
+    parseStreamEvent: ompParseStreamEvent,
+    registerChild: ompRegisterChild,
+    closeQuery: ompCloseQuery,
+  },
+};
+
+export function normalizeHarness(value) {
+  const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (id === 'omp') return 'omp';
+  return 'claude'; // default + any unknown value stays on the Claude engine
+}
+
+export function resolveEngine(harnessId) {
+  return ENGINES[normalizeHarness(harnessId)] || ENGINES.claude;
+}
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
   hasRun, subscribe, setMeta, getMeta, resetRun,
@@ -20,6 +56,8 @@ import {
   pipeline as pipeConfig, engine as engConfig,
 } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { resolveEnhancementPolicy } from '../utils/enhance-intent.mjs';
+import { findMatch as ontologyFindMatch, reuse as ontologyReuse, appendPipelineEvent as ontologyAppendEvent, PROJECT_ROOT as ONTOLOGY_PROJECT_ROOT } from '../../../../.claude/shared/scripts/ontology_store.mjs';
 
 // Track HITL requests per run: hitlId -> { resolve, child }
 const hitlRequests = new Map();
@@ -85,9 +123,53 @@ export async function validateDataPath(dataPath) {
   throw err;
 }
 
+// Resolve the ontology asset policy for a run (L1 of optimization plan v4):
+//   mode 'auto'  — fingerprint the data; exact store match → reuse, scene match → extend, else full build
+//   mode 'full'  — always build from scratch (user override)
+//   mode 'reuse'/'extend' with ontologySource — explicit directive
+// Returns the directive consumed by both engines' runtime protocol AND by the skill's Phase -1.
+function resolveOntologyDirective({ ontologyMode, ontologyScene, ontologySource, dataPath, folderPath, dataPaths }) {
+  const mode = ['full', 'reuse', 'extend'].includes(ontologyMode) ? ontologyMode : 'auto';
+  const firstDataFile = Array.isArray(dataPaths) ? dataPaths[0] : (dataPath || null);
+  try {
+    if (mode === 'full') {
+      return { mode: 'full', source: null, hit: 'built', reason: 'user forced full build' };
+    }
+    if (mode === 'reuse' || mode === 'extend') {
+      return { mode, source: ontologySource || null, hit: mode === 'reuse' ? 'reused' : 'extended', reason: 'user explicit' };
+    }
+    // auto
+    const target = firstDataFile || folderPath;
+    if (!target) return { mode: 'full', source: null, hit: 'built', reason: 'no data file to fingerprint' };
+    const found = ontologyFindMatch(target, { scene: ontologyScene || undefined });
+    if (found.match === 'exact') {
+      return { mode: 'reuse', source: found.ontology_path, hit: 'reused', reason: found.reason, scene_key: found.scene_key, version: found.version };
+    }
+    if (found.match === 'extend') {
+      return { mode: 'extend', source: found.ontology_path, hit: 'extended', reason: found.reason, scene_key: found.scene_key, version: found.version };
+    }
+    return { mode: 'full', source: null, hit: 'built', reason: found.reason };
+  } catch (e) {
+    logger.warn(`Ontology directive resolution failed (falling back to full): ${e.message}`, { context: 'Ontology' });
+    return { mode: 'full', source: null, hit: 'built', reason: `fingerprint error: ${e.message}` };
+  }
+}
+
 // Create a new diagnosis run (DB + engine state)
 export function createDiagnosisRun(params) {
-  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage, harness } = params;
+  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage } = params;
+  const harness = normalizeHarness(params.harness);
+
+  // Enhancement (E0-E8) policy — Phase C of optimization plan v4
+  const enhancement = resolveEnhancementPolicy(params.enhancement, userQuestion);
+
+  // Ontology asset policy — Phase A of optimization plan v4
+  const ontology = resolveOntologyDirective({
+    ontologyMode: params.ontologyMode,
+    ontologyScene: params.ontologyScene,
+    ontologySource: params.ontologySource,
+    dataPath, folderPath, dataPaths,
+  });
 
   let mode, dataPathForDb, scene, dataFolder;
 
@@ -134,13 +216,20 @@ export function createDiagnosisRun(params) {
     model: config.claude.model,
     maxTurns: maxTurns ?? config.claude.max_turns,
     reportLanguage: reportLanguage || diagConfig.default_language,
-    harness: harness === 'omp' ? 'omp' : 'claude',
+    harness,
+    ontologyHit: ontology.hit,
+    enhancementPolicy: enhancement.policy,
+    enhancementTriggered: enhancement.intentHit ? 1 : 0,
   });
 
   createRun(runId);
-  setMeta(runId, { timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes });
+  setMeta(runId, {
+    timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes,
+    ontology,
+    enhancement,
+  });
 
-  return { runId, name, status: 'pending', mode };
+  return { runId, name, status: 'pending', mode, harness, ontologyHit: ontology.hit, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
 }
 
 // List all runs enriched with engine status
@@ -234,7 +323,11 @@ export function getRunRealtimeSnapshot(runId) {
 
 // Stop a running diagnosis
 export function stopDiagnosis(runId) {
-  closeQuery(runId);
+  const run = stmts.getRunById.get(runId);
+  // Close on both engines — each is a no-op when the runId is unknown.
+  claudeCloseQuery(runId);
+  ompCloseQuery(runId);
+  void run;
   questionSessions.delete(runId);
   updateStatus(runId, 'stopped');
   stmts.updateRunStatus.run({ runId, status: 'stopped' });
@@ -266,7 +359,9 @@ export function getPendingHITL(runId) {
 export function sendChatMessage(runId, message) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
-  closeQuery(runId);
+  const engine = resolveEngine(run.harness);
+  claudeCloseQuery(runId);
+  ompCloseQuery(runId);
   executingRuns.delete(runId);
   try {
     if (!hasRun(runId)) createRun(runId);
@@ -289,10 +384,10 @@ export function sendChatMessage(runId, message) {
     emit(runId, {
       type: 'system',
       subtype: 'session_chat',
-      data: { message: '已发送到当前 Claude session，不重新启动诊断流程。' },
+      data: { message: `已发送到当前 ${run.harness === 'omp' ? 'OMP' : 'Claude'} session，不重新启动诊断流程。` },
     });
 
-    const result = startSessionChat({
+    const result = engine.startSessionChat({
       runId,
       sessionId: run.session_id,
       message,
@@ -300,8 +395,8 @@ export function sendChatMessage(runId, message) {
       harness: run.harness === 'omp' ? 'omp' : 'claude',
     });
     setChild(runId, result.query);
-    registerChild(runId, result.query);
-    consumeSessionChat(runId, result.query, run.session_id);
+    engine.registerChild(runId, result.query);
+    consumeSessionChat(runId, result.query, run.session_id, engine);
     return true;
   } catch (err) {
     const errorMessage = formatResumeError(err, runId, run.session_id);
@@ -310,10 +405,10 @@ export function sendChatMessage(runId, message) {
   }
 }
 
-async function consumeSessionChat(runId, query, sessionId) {
+async function consumeSessionChat(runId, query, sessionId, engine) {
   try {
     for await (const msg of query) {
-      const parsed = parseStreamEvent(msg);
+      const parsed = engine.parseStreamEvent(msg);
       if (!parsed) continue;
 
       if (parsed.type === 'system') {
@@ -366,7 +461,8 @@ async function consumeSessionChat(runId, query, sessionId) {
       data: { runId, error: formatResumeError(err, runId, sessionId) },
     });
   } finally {
-    closeQuery(runId);
+    claudeCloseQuery(runId);
+    ompCloseQuery(runId);
     setChild(runId, null);
   }
 }
@@ -390,7 +486,8 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
   executingRuns.delete(runId);
 
   // Close any existing query — we're starting fresh
-  closeQuery(runId);
+  claudeCloseQuery(runId);
+  ompCloseQuery(runId);
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
@@ -531,7 +628,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     // Snapshot workspace dirs BEFORE spawning to detect new dirs
     const preExistingDirs = snapshotWorkspaceDirs();
 
-    const result = startDiagnosis({
+    const engine = resolveEngine(run.harness);
+    const result = engine.startDiagnosis({
       analysisTarget,
       userQuestion: run.user_question,
       sceneName: run.scene_name,
@@ -541,12 +639,13 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
-      harness: run.harness === 'omp' ? 'omp' : 'claude',
+      ontology: meta.ontology || null,
+      enhancement: meta.enhancement || null,
     });
 
     const query = result.query;
     setChild(runId, query);
-    registerChild(runId, query);
+    engine.registerChild(runId, query);
 
     // Store session ID from SDK
     const sdkSessionId = query.sessionId || null;
@@ -557,7 +656,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
     // ── Iterate SDK messages ──
     for await (const msg of query) {
-      const parsed = parseStreamEvent(msg);
+      const parsed = engine.parseStreamEvent(msg);
       if (!parsed) continue;
 
       if (parsed.type === 'system') {
@@ -641,7 +740,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
           }
         }
         if (pausedForQuestion) {
-          closeQuery(runId);
+          engine.closeQuery(runId);
           break;
         }
       } else if (parsed.type === 'user') {
@@ -843,6 +942,80 @@ export function triggerDiagnosis(runId) {
   return { runId, status: 'running' };
 }
 
+// ── One-click deep enhancement (E0-E8) for a completed run ──
+// Phase C of optimization plan v4: the enhancement chain is deterministic
+// scripts (no LLM), so the backend can drive it directly and stream its
+// output into the run's event stream.
+const activeEnhancements = new Set();
+
+export async function triggerEnhancement(runId) {
+  const run = stmts.getRunById.get(runId);
+  if (!run) { const err = new Error('Run not found'); err.status = 404; throw err; }
+  if (run.status !== 'completed') { const err = new Error(`Enhancement requires a completed run (status: ${run.status})`); err.status = 400; throw err; }
+  if (!run.workspace_path) { const err = new Error('Run has no workspace directory recorded'); err.status = 400; throw err; }
+  if (activeEnhancements.has(runId)) { const err = new Error('Enhancement already running for this run'); err.status = 409; throw err; }
+
+  const runDir = isAbsolute(run.workspace_path) ? run.workspace_path : join(PROJECT_ROOT, run.workspace_path);
+  if (!existsSync(join(runDir, 'report.md'))) {
+    const err = new Error('Baseline artifacts incomplete: report.md missing — the full baseline pipeline must finish before enhancement (E0 gate)');
+    err.status = 400;
+    throw err;
+  }
+
+  activeEnhancements.add(runId);
+  stmts.setRunEnhancement.run({ runId, enhancementTriggered: 1, enhancementPolicy: 'on' });
+  if (!hasRun(runId)) createRun(runId);
+  updateStatus(runId, 'running');
+  emit(runId, { type: 'status', data: { status: 'running', runId, phase: 'enhancement' } });
+  emit(runId, { type: 'system', subtype: 'enhance_start', data: { message: '深度增强诊断（E0-E8）已启动。' } });
+
+  const { spawn } = await import('child_process');
+  const scriptPath = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-analysis-enhance-auto', 'scripts', 'enhance_orchestrator.mjs');
+  const child = spawn(process.execPath, [scriptPath, '--run-dir', runDir], {
+    cwd: PROJECT_ROOT,
+    windowsHide: true,
+  });
+
+  let tail = '';
+  child.stdout.on('data', (d) => {
+    tail = (tail + d.toString()).slice(-8000);
+    const lines = d.toString().split(/\r?\n/).filter(Boolean);
+    for (const line of lines.slice(-3)) {
+      emit(runId, { type: 'tool_result', data: { toolUseId: `enhance_${runId}`, summary: line.slice(0, 300), isError: false } });
+    }
+  });
+  child.stderr.on('data', (d) => {
+    tail = (tail + d.toString()).slice(-8000);
+  });
+
+  child.on('exit', (code) => {
+    activeEnhancements.delete(runId);
+    const statusPath = join(runDir, 'enhancement', 'enhancement_status.json');
+    let enhStatus = code === 0 ? 'completed' : 'failed';
+    try {
+      if (existsSync(statusPath)) {
+        enhStatus = JSON.parse(readFileSync(statusPath, 'utf-8'))?.status || enhStatus;
+      }
+    } catch { /* ignore */ }
+    const completed = code === 0 && enhStatus !== 'blocked' && enhStatus !== 'failed';
+    stmts.setRunEnhancement.run({ runId, enhancementTriggered: completed ? 1 : 0, enhancementPolicy: 'on' });
+    updateStatus(runId, 'completed');
+    emit(runId, {
+      type: 'complete',
+      data: {
+        status: 'completed', runId, phase: 'enhancement',
+        enhancementStatus: enhStatus,
+        detail: tail.slice(-400),
+      },
+    });
+    emit(runId, { type: 'status', data: { status: 'completed', runId, phase: 'enhancement', enhancementStatus: enhStatus } });
+    logger.info(`Enhancement for ${runId} finished: code=${code} status=${enhStatus}`, { context: 'Enhancement', runId });
+    setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+  });
+
+  return { runId, status: 'running', phase: 'enhancement' };
+}
+
 export function startStream(runId) {
   const run = stmts.getRunById.get(runId);
   if (!run) return null;
@@ -858,6 +1031,11 @@ export async function getSessionContent(runId) {
   if (!run) {
     const err = new Error('Run not found');
     err.status = 404;
+    throw err;
+  }
+  if (run.harness === 'omp' || parseOmpSessionId(run.session_id)) {
+    const err = new Error('会话回放仅支持 Claude harness 运行；OMP 运行的事件请查看实时流或 run 目录内的 .pipeline_events.jsonl');
+    err.status = 400;
     throw err;
   }
   if (!run.session_id) {

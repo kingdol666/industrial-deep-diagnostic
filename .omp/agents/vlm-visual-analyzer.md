@@ -4,7 +4,7 @@ description: 工业诊断流程Phase 5.5 — VLM视觉图像分析。读取data-
 model: vision
 tools: read, write, bash, glob, grep
 spawns: ""
-thinkingLevel: high
+thinkingLevel: medium
 readSummarize: false
 ---
 

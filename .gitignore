@@ -72,3 +72,8 @@ claude-talk-to-figma-mcp/
 
 # Test artifacts (generated during validation)
 test_vlm/
+
+# Ontology asset store & OMP runtime sessions (generated)
+data/ontology_store/
+workspace/.omp-sessions/
+workspace/.omp-chats/

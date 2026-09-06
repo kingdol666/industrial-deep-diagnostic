@@ -115,6 +115,27 @@ export function initDB() {
     db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN report_language TEXT DEFAULT '${sqlQuote(config.diagnosis.default_language)}'`);
   }
 
+  // Migration: harness column — which engine executed the run ('claude' | 'omp')
+  const hasHarness = cols.some(c => c.name === 'harness');
+  if (!hasHarness) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN harness TEXT DEFAULT 'claude'`);
+    db.exec(`UPDATE diagnostic_runs SET harness = 'claude' WHERE harness IS NULL`);
+  }
+
+  // Migration: ontology asset reuse tracking ('reused' | 'extended' | 'built' | null)
+  if (!cols.some(c => c.name === 'ontology_hit')) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN ontology_hit TEXT`);
+  }
+
+  // Migration: enhancement (E0-E8) intent policy ('auto' | 'on' | 'off') + trigger flag
+  if (!cols.some(c => c.name === 'enhancement_policy')) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN enhancement_policy TEXT DEFAULT 'auto'`);
+    db.exec(`UPDATE diagnostic_runs SET enhancement_policy = 'auto' WHERE enhancement_policy IS NULL`);
+  }
+  if (!cols.some(c => c.name === 'enhancement_triggered')) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN enhancement_triggered INTEGER DEFAULT 0`);
+  }
+
   const chatCols = db.prepare('PRAGMA table_info(chat_sessions)').all();
   const hasOriginSessionId = chatCols.some(c => c.name === 'origin_session_id');
   if (!hasOriginSessionId) {
@@ -188,8 +209,18 @@ initDB();
 // Prepared statements
 const stmts = {
   insertRun: db.prepare(`
-    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness)
-    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness)
+    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered)
+    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered)
+  `),
+  setRunOntologyHit: db.prepare(`
+    UPDATE diagnostic_runs SET ontology_hit = @ontologyHit, updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  setRunEnhancement: db.prepare(`
+    UPDATE diagnostic_runs
+    SET enhancement_triggered = @enhancementTriggered,
+        enhancement_policy = COALESCE(@enhancementPolicy, enhancement_policy),
+        updated_at = datetime('now')
+    WHERE run_id = @runId
   `),
   updateRunStatus: db.prepare(`
     UPDATE diagnostic_runs SET status = @status, updated_at = datetime('now') WHERE run_id = @runId
@@ -213,7 +244,8 @@ const stmts = {
   `),
   getAllRuns: db.prepare(`
     SELECT id, run_id, name, scene_name, data_path, data_folder, user_question, status,
-           session_id, workspace_path, report_path, score, judge_verdict,
+           session_id, workspace_path, report_path, score, judge_verdict, harness,
+           ontology_hit, enhancement_policy, enhancement_triggered,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
   `),

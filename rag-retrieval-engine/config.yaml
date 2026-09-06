@@ -71,7 +71,7 @@ web_search:
   max_results: 5
 
   # Request timeout (seconds)
-  timeout: 15
+  timeout: 8
 
   # DuckDuckGo HTML mode (no API key, works in most networks)
   # Falls back to this when open-websearch daemon is unavailable

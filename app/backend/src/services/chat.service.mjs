@@ -8,7 +8,7 @@ import { join, resolve } from 'path';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
-import { loadOmpAgents, buildOmpChatSystemPrompt } from '../engine/omp-engine.mjs';
+import * as ompClient from '../engine/omp-client.mjs';
 
 let queryFn = null;
 try {
@@ -22,6 +22,21 @@ try {
 const activeChats = new Map();
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
+
+function normalizeChatHarness(value) {
+  const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (id === 'omp') return 'omp';
+  return 'claude'; // default + unknown values stay on the Claude engine
+}
+
+// A stored chat is OMP-backed when its harness column says so or its
+// session marker is an OMP opaque id (omp:chat:<chatId>).
+function storedChatIsOmp(stored) {
+  if (!stored) return false;
+  return stored.harness === 'omp'
+    || ompClient.parseOmpSessionId(stored.session_id) !== null
+    || ompClient.parseOmpSessionId(stored.origin_session_id) !== null;
+}
 const ALLOWED_PERMISSION_MODES = new Set([
   'default',
   'acceptEdits',
@@ -131,10 +146,31 @@ function deleteClaudeSessionArtifacts(sessionIds = []) {
  * Returns { chatId, emitter } — the emitter fires SSE-compatible events.
  */
 export async function startChat(params = {}) {
+  const requestedChatId = params.chatId;
+  const earlyChatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const earlyStored = stmts.getChatSessionByChatId.get(earlyChatId);
+
+  // Harness resolution: an existing chat is sticky to its original engine —
+  // the global selector only decides the engine for NEW chats.
+  const harness = storedChatIsOmp(earlyStored)
+    ? 'omp'
+    : (earlyStored ? normalizeChatHarness(earlyStored.harness || params.harness || 'claude')
+                   : normalizeChatHarness(params.harness));
+
+  if (harness === 'omp') {
+    return startOmpChat({
+      chatId: earlyChatId,
+      prompt: params.prompt,
+      stored: earlyStored,
+      title: params.title,
+    });
+  }
+
+  // ── Claude harness path ──
   if (!queryFn) throw new Error('Claude Agent SDK not available');
 
   const {
-    chatId: requestedChatId,
+    chatId: _chatIdUnused,
     prompt,
     model,
     permissionMode = 'default',
@@ -149,19 +185,17 @@ export async function startChat(params = {}) {
     thinking,       // { type: 'adaptive' } | { type: 'enabled', budgetTokens: N }
     forkSession,    // fork on resume
     title,
-    harness,        // 'claude' | 'omp' — engine harness selection
   } = params;
 
   if (!prompt || typeof prompt === 'undefined' || typeof prompt !== 'string') {
     throw new Error('prompt is required');
   }
 
-  const chatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const chatId = earlyChatId;
   const sessionId = normalizeClaudeSessionId(rawSessionId);
   const emitter = new EventEmitter();
   const normalizedPermissionMode = normalizePermissionMode(permissionMode, 'default');
   const normalizedCwd = normalizeChatCwd(cwd, PROJECT_ROOT);
-  const normalizedHarness = harness === 'omp' ? 'omp' : 'claude';
 
   // Build SDK options
   const options = {
@@ -179,16 +213,6 @@ export async function startChat(params = {}) {
   if (sessionId) {
     options.resume = sessionId;
     options.forkSession = !!forkSession;
-  }
-
-  // OMP harness: sub-agent topology comes exclusively from the OMP contract
-  // directory (.omp/agents/). Inject the parsed OMP agent contracts so Agent
-  // delegation inside the chat resolves to OMP-defined agents, and apply the
-  // OMP chat system prompt unless the caller supplied one.
-  if (normalizedHarness === 'omp') {
-    const { agents, count } = loadOmpAgents();
-    if (count > 0) options.agents = agents;
-    if (!systemPrompt) options.systemPrompt = buildOmpChatSystemPrompt();
   }
 
   if (systemPrompt) options.systemPrompt = systemPrompt;
@@ -223,8 +247,8 @@ export async function startChat(params = {}) {
       originSessionId: getOriginSessionId(existingSession) || sdkSessionId,
       permissionMode: normalizedPermissionMode,
       cwd: normalizedCwd,
-      harness: normalizedHarness,
       status: 'active',
+      harness: 'claude',
     });
   } else {
     stmts.insertChatSession.run({
@@ -236,7 +260,7 @@ export async function startChat(params = {}) {
       model: model || 'default',
       permissionMode: normalizedPermissionMode,
       cwd: normalizedCwd,
-      harness: normalizedHarness,
+      harness: 'claude',
     });
   }
   stmts.insertChatMessage.run({
@@ -300,6 +324,7 @@ export async function startChat(params = {}) {
                 cwd: normalizedCwd,
                 harness: null,
                 status: 'active',
+                harness: 'claude',
               });
             }
           }
@@ -413,6 +438,7 @@ export async function startChat(params = {}) {
         cwd: normalizedCwd,
         harness: null,
         status: 'completed',
+        harness: 'claude',
       });
     } catch (err) {
       const latestSessionId = getLiveSessionId(activeChats.get(chatId)) || sessionId || sdkSessionId;
@@ -437,6 +463,7 @@ export async function startChat(params = {}) {
         cwd: normalizedCwd,
         harness: null,
         status: 'failed',
+        harness: 'claude',
       });
     } finally {
       activeChats.delete(chatId);
@@ -460,6 +487,182 @@ export async function startChat(params = {}) {
     originSessionId: sessionId || sdkSessionId || null,
     permissionMode: normalizedPermissionMode,
     cwd: normalizedCwd,
+    harness: 'claude',
+  };
+}
+
+/**
+ * OMP harness chat — spawns omp --mode=rpc and adapts its event stream
+ * into the same SSE event names the Claude path emits.
+ */
+function startOmpChat({ chatId, prompt, stored, title }) {
+  if (!prompt || typeof prompt !== 'string') {
+    throw new Error('prompt is required');
+  }
+
+  // Continue the chat's own OMP session when one exists (per-chatId session dir).
+  const hasPriorSession = storedChatIsOmp(stored);
+  const sessionId = ompClient.ompChatSessionId(chatId);
+  const emitter = new EventEmitter();
+  const permissionMode = 'bypassPermissions'; // OMP runs with --auto-approve
+  const cwd = PROJECT_ROOT;
+
+  const query = ompClient.startChatQuery({ chatId, prompt, resume: hasPriorSession });
+  activeChats.set(chatId, {
+    query,
+    emitter,
+    sessionId,
+    originSessionId: sessionId,
+    harness: 'omp',
+  });
+
+  if (stored) {
+    stmts.updateChatSession.run({
+      chatId,
+      title: title || null,
+      sessionId,
+      originSessionId: sessionId,
+      permissionMode,
+      cwd,
+      status: 'active',
+      harness: 'omp',
+    });
+  } else {
+    stmts.insertChatSession.run({
+      chatId,
+      title: title || prompt.slice(0, 60),
+      sessionId,
+      originSessionId: sessionId,
+      status: 'active',
+      model: 'omp',
+      permissionMode,
+      cwd,
+      harness: 'omp',
+    });
+  }
+  stmts.insertChatMessage.run({
+    chatId,
+    role: 'user',
+    content: prompt,
+    eventType: 'user_message',
+    eventSubtype: null,
+  });
+
+  emitter.emit('event', 'chat_init', {
+    chatId,
+    sessionId,
+    model: 'omp',
+    permissionMode,
+    cwd,
+    harness: 'omp',
+    timestamp: new Date().toISOString(),
+  });
+
+  (async () => {
+    try {
+      for await (const msg of query) {
+        if (!msg || typeof msg !== 'object') continue;
+
+        if (msg.type === 'assistant') {
+          for (const block of msg.message?.content || []) {
+            if (block.type === 'text') {
+              emitter.emit('event', 'message', { role: 'assistant', content: block.text });
+              stmts.insertChatMessage.run({
+                chatId, role: 'assistant', content: block.text, eventType: 'message', eventSubtype: 'text',
+              });
+            } else if (block.type === 'tool_use') {
+              emitter.emit('event', 'tool_use', { name: block.name, input: block.input, id: block.id });
+              stmts.insertChatMessage.run({
+                chatId, role: 'assistant', content: JSON.stringify({ name: block.name, input: block.input, id: block.id }),
+                eventType: 'tool_use', eventSubtype: block.name,
+              });
+            } else if (block.type === 'thinking') {
+              emitter.emit('event', 'thinking', { content: (block.thinking || '').slice(0, 500) });
+              stmts.insertChatMessage.run({
+                chatId, role: 'assistant', content: (block.thinking || '').slice(0, 500),
+                eventType: 'thinking', eventSubtype: null,
+              });
+            }
+          }
+        } else if (msg.type === 'user') {
+          for (const block of msg.message?.content || []) {
+            if (block.type === 'tool_result') {
+              const summary = typeof block.content === 'string' ? block.content.slice(0, 300) : '';
+              emitter.emit('event', 'tool_result', {
+                toolUseId: block.tool_use_id, summary, isError: !!block.is_error,
+              });
+              stmts.insertChatMessage.run({
+                chatId, role: 'tool', content: summary,
+                eventType: 'tool_result', eventSubtype: block.is_error ? 'error' : 'success',
+              });
+            }
+          }
+        } else if (msg.type === 'system') {
+          emitter.emit('event', 'system', { subtype: msg.subtype || 'system', message: msg.data?.message || '' });
+          stmts.insertChatMessage.run({
+            chatId, role: 'system', content: JSON.stringify({ subtype: msg.subtype || 'system' }),
+            eventType: 'system', eventSubtype: msg.subtype || 'system',
+          });
+        } else if (msg.type === 'result') {
+          emitter.emit('event', 'result', {
+            subtype: msg.subtype,
+            durationMs: msg.duration_ms,
+            numTurns: msg.num_turns,
+            totalCost: null,
+            stopReason: msg.stop_reason,
+            sessionId,
+          });
+          stmts.insertChatMessage.run({
+            chatId, role: 'system',
+            content: JSON.stringify({
+              subtype: msg.subtype, durationMs: msg.duration_ms, numTurns: msg.num_turns, stopReason: msg.stop_reason,
+            }),
+            eventType: 'result', eventSubtype: msg.subtype,
+          });
+        }
+      }
+      emitter.emit('event', 'chat_complete', { chatId, sessionId });
+      stmts.updateChatSession.run({
+        chatId,
+        title: null,
+        sessionId,
+        originSessionId: sessionId,
+        permissionMode,
+        cwd,
+        status: 'completed',
+        harness: 'omp',
+      });
+    } catch (err) {
+      emitter.emit('event', 'chat_error', { chatId, error: err.message });
+      logger.error(`OMP chat error [${chatId}]: ${err.message}`, { context: 'Chat' });
+      stmts.insertChatMessage.run({
+        chatId, role: 'system', content: err.message, eventType: 'error', eventSubtype: 'chat_error',
+      });
+      stmts.updateChatSession.run({
+        chatId,
+        title: null,
+        sessionId,
+        originSessionId: sessionId,
+        permissionMode,
+        cwd,
+        status: 'failed',
+        harness: 'omp',
+      });
+    } finally {
+      try { query.close(); } catch { /* ignore */ }
+      activeChats.delete(chatId);
+    }
+  })();
+
+  return {
+    chatId,
+    emitter,
+    sessionId,
+    currentSessionId: sessionId,
+    originSessionId: sessionId,
+    permissionMode,
+    cwd,
+    harness: 'omp',
   };
 }
 
@@ -480,6 +683,7 @@ export function stopChat(chatId) {
     cwd: null,
     harness: null,
     status: 'stopped',
+    harness: entry.harness || 'claude',
   });
   return true;
 }
@@ -502,6 +706,7 @@ export function getChatInfo(chatId) {
     permissionMode: stored?.permission_mode || 'default',
     harness: stored?.harness === 'omp' ? 'omp' : 'claude',
     cwd: stored?.cwd || PROJECT_ROOT,
+    harness: stored?.harness || entry?.harness || 'claude',
   };
 }
 
@@ -519,6 +724,7 @@ export function listActiveChats() {
     permissionMode: row.permission_mode || 'default',
     harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
+    harness: row.harness || 'claude',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
@@ -528,10 +734,28 @@ export function listActiveChats() {
  * Send a follow-up message to an existing chat session (resume).
  */
 export async function sendChatMessage(chatId, followUpMessage, params = {}) {
+  const stored = stmts.getChatSessionByChatId.get(chatId);
+
+  // ── OMP harness: continue the chat's own OMP session ──
+  const ompRequested = storedChatIsOmp(stored)
+    || (!stored && normalizeChatHarness(params.harness) === 'omp');
+  if (ompRequested) {
+    const entry = activeChats.get(chatId);
+    if (entry) {
+      try { entry.query.close(); } catch { /* ignore */ }
+      activeChats.delete(chatId);
+    }
+    return startOmpChat({
+      chatId,
+      prompt: followUpMessage,
+      stored,
+      title: stored?.title || followUpMessage.slice(0, 60),
+    });
+  }
+
   const entry = activeChats.get(chatId);
   let sessionId = normalizeClaudeSessionId(params.originSessionId)
     || normalizeClaudeSessionId(params.sessionId);
-  const stored = stmts.getChatSessionByChatId.get(chatId);
 
   if (entry) {
     // Extract from stored entry first, then from query object
@@ -608,6 +832,7 @@ export function getChatSession(chatId) {
     permissionMode: row.permission_mode || 'default',
     harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
+    harness: row.harness || 'claude',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -628,6 +853,7 @@ export function getChatHistory(chatId) {
       permissionMode: session.permission_mode || 'default',
       harness: session.harness === 'omp' ? 'omp' : 'claude',
       cwd: session.cwd || PROJECT_ROOT,
+      harness: session.harness || 'claude',
       createdAt: session.created_at,
       updatedAt: session.updated_at,
     },
@@ -835,8 +1061,11 @@ export async function deleteChatSession(chatId) {
     entry?.sessionId,
     entry?.query?.sessionId,
   ]);
+  const removedOmpSession = storedChatIsOmp(session)
+    ? ompClient.deleteChatArtifacts(chatId)
+    : false;
   stmts.deleteChatSession.run(chatId);
-  logger.info(`Deleted chat session ${chatId} and ${removedClaudeArtifacts.length} Claude artifact(s)`, {
+  logger.info(`Deleted chat session ${chatId} (claude artifacts: ${removedClaudeArtifacts.length}, omp session removed: ${removedOmpSession})`, {
     context: 'Chat',
     chatId,
     removedClaudeArtifacts,

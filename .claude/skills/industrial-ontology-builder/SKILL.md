@@ -15,8 +15,10 @@ description: "工业诊断管线 — 领域本体构建引擎。RAG检索+网络
 |------|----------|-------------|
 | `input_manifest.json` | ✓ | 数据列描述 |
 | `user_context.json` | ✓ | 工艺类型、已知问题、目标列 |
-| `run_config.json` | ✓ | 运行配置（含 `interaction_mode`） |
+| `run_config.json` | ✓ | 运行配置（含 `interaction_mode`；runtime 可能注入 `ontology` 指令段） |
 | `extracted_knowledge.json` | - | 参考文档知识提取（可选） |
+
+> Runtime 还会在 dispatch prompt 中注入 **ONTOLOGY_DIRECTIVE**（`ONTOLOGY_MODE: reuse|extend|full` + `ONTOLOGY_SOURCE`）。这是本体资产化复用通道：reuse 命中时跳过全部构建，秒级完成。见下方「Phase -1: Ontology Mode Dispatch」。
 
 ### Outputs
 
@@ -62,14 +64,19 @@ USER_OBJECTIVE=<user-objective>
 SKILL_PATH=<path-to-.claude/skills/industrial-ontology-builder>
 SHARED_PATH=.claude/shared
 INTERACTION_MODE=auto  # auto | interactive | minimal
+ONTOLOGY_DIRECTIVE:  # from runtime prompt; omit for full build
+  ONTOLOGY_MODE=<reuse|extend|full>
+  ONTOLOGY_SOURCE=<store ontology absolute path, reuse/extend only>
 
-Read "$SKILL_PATH/references/agent-protocol.md" and execute the complete protocol.
+Read "$SKILL_PATH/references/agent-protocol.md" and execute the complete protocol starting from Phase -1.
 
 Key constraints:
 - 不是模板填充器 — 让数据自己揭示工艺类型
 - R2 只做 Stage 1 预检查，不做完整统计分析（Data Processor 的工作）
 - 不一致即诊断信号 — ontology 预测 vs 数据观察的差异是最强诊断线索
-- 所有输出写入 RUN_DIR
+- 所有输出写入 RUN_DIR — 一律使用上面的绝对路径，禁止相对路径写入
+- 先执行 Phase -1 模式分派（reuse 命中时 30 秒内完成，禁止重建）
+- CP-2 通过后必须 publish 入本体资产库
 - 默认中文
 `,
   effort: "hi"
@@ -82,12 +89,13 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 
 | Phase | Purpose |
 |-------|---------|
+| **-1** | **本体模式分派（确定性，≤30s）** — 按 ONTOLOGY_DIRECTIVE 分派：`reuse` 直接拷贝资产+CP-2 校验后结束；`extend` 仅对新增列做增量构建；`full` 走完整流程。详见 `references/agent-protocol.md` Phase -1 |
 | 0 | 加载用户上下文与数据探测 — 读取 input_manifest/user_context/run_config，直接探测数据文件前100行 |
 | 1 | 搜索参考目录 — 扫描 REFERENCE_DIR 提取工艺关键词、参数名称、已知失效模式 |
-| 2 | 可选 Web 研究 — 最多 5 次定向搜索（工艺类型 + 关键参数 + 已知关系） |
-| 3 | RAG 知识检索 + 深度理解 — 执行 R1-R4 协议（语义理解/知识-数据对齐/物理原理提取/缺口识别） |
+| 2 | 可选 Web 研究 — 最多 5 次定向搜索（工艺类型 + 关键参数 + 已知关系）；**reuse/extend 模式跳过** |
+| 3 | RAG 知识检索 + 深度理解 — 执行 R1-R4 协议（语义理解/知识-数据对齐/物理原理提取/缺口识别）；**reuse 模式跳过**；**extend 模式检索范围限定在新增列** |
 | 4 | 数据-本体双向映射 — 构建 ontology.json，每个参数含 physical_meaning/unit/role/设备归属/物理关系/不一致信号 |
-| 5 | Schema 生成 + 验证 — schema.json 归一化分类 + CP-2/CP-3 质量门 |
+| 5 | Schema 生成 + 验证 — schema.json 归一化分类 + CP-2/CP-3 质量门 + **发布入本体资产库** |
 | 2.5 | 澄清门 — auto 模式用 physics_inference_framework L1-L5 推断；interactive 分组提问；minimal 仅关键参数 |
 
 ## Data Truth Mandate
@@ -142,7 +150,23 @@ node "$SHARED_PATH/scripts/validate.mjs" \
 # CP-3: Clarification gate
 grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' \
   "$RUN_DIR/00_input/clarification_needed.json"
+
+# Publish to ontology asset store — MANDATORY in every mode after CP-2 passes.
+# 复用资产是本管线时间收益的来源：不入库 = 下次同场景全量重建。
+node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR" --build-mode <reuse|extend|full>
 ```
+
+## Phase -1: Ontology Mode Dispatch (deterministic, ≤30s)
+
+在 Phase 0 之前执行。读取 dispatch prompt 中的 ONTOLOGY_DIRECTIVE（或 run_config 的 `ontology` 段）：
+
+| ONTOLOGY_MODE | 动作 |
+|---------------|------|
+| `reuse` | ① `ontology_store.mjs reuse --source "$ONTOLOGY_SOURCE" --run-dir "$RUN_DIR"`（拷贝资产本体） ② 运行 CP-2 + CP-3（**永不跳过校验**） ③ 写 pipeline 事件 `ontology_reused` ④ 直接结束，**禁止**进入 Phase 0-4（零 RAG / 零 web / 零参考检索） |
+| `extend` | ① `ontology_store.mjs fingerprint <data>` 对比 ONTOLOGY_SOURCE 本体，diff 出新增列/角色未定列 ② 仅对 diff 列执行 Phase 1-4（检索限定 diff 列）③ 合并进源本体：新增 signals/relationships；已有 `role=target/confounder` 的信号**不允许改角色**，冲突写 clarification_needed.json 走 CP-3；被新数据证伪的 normal_range 更新并标 `behavior_match: CONTRADICTED` ④ version 语义见 provenance ⑤ CP-2/CP-3 → publish（--build-mode extend） |
+| `full` | 标准 Phase 0-5 全流程，结束后 publish（--build-mode full） |
+
+未收到 directive 时按 `full` 处理。**所有写文件操作使用 dispatch prompt 给出的绝对路径**（子代理相对路径写入是历史失败根因）。
 
 ## Failure Recovery
 
