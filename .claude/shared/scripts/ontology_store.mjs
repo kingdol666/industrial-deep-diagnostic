@@ -76,12 +76,43 @@ function inferType(values) {
 }
 
 /**
- * 计算数据文件指纹。
+ * 计算数据文件（或数据文件夹）指纹。
+ * 目录模式：取目录内最大的 CSV/TSV 做列指纹，文件名清单参与内容哈希。
  * @returns {{schema_fp, content_fp, columns: [{column,dtype,position}], row_sampled, file_size}}
  */
 export function computeFingerprint(dataPath) {
   const abs = resolve(dataPath.startsWith('.') || !dataPath.match(/^([A-Za-z]:|\/|\\)/) ? join(PROJECT_ROOT, dataPath) : dataPath);
   if (!existsSync(abs)) throw new Error(`Data file not found: ${abs}`);
+  if (statSync(abs).isDirectory()) return computeDirFingerprint(abs);
+  return fingerprintFile(abs);
+}
+
+const DATA_EXTS = ['.csv', '.tsv'];
+
+function computeDirFingerprint(dir) {
+  const files = readdirSync(dir)
+    .filter(f => DATA_EXTS.includes(extname(f).toLowerCase()))
+    .sort();
+  if (files.length === 0) throw new Error(`No csv/tsv data file inside directory: ${dir}`);
+  let best = null, bestSize = -1;
+  for (const f of files) {
+    const full = join(dir, f);
+    const size = statSync(full).size;
+    if (size > bestSize) { bestSize = size; best = full; }
+  }
+  const fp = fingerprintFile(best);
+  // 目录指纹：文件清单参与哈希（同最大文件但清单不同 → 视为不同数据集）
+  const listHash = createHash('sha256').update(files.join('|')).digest('hex');
+  fp.content_fp = 'sha256:' + createHash('sha256')
+    .update(fp.content_fp)
+    .update(listHash)
+    .digest('hex');
+  fp.fingerprinted_file = best;
+  fp.files_in_dir = files;
+  return fp;
+}
+
+function fingerprintFile(abs) {
   const stat = statSync(abs);
   const size = stat.size;
   const SAMPLE_BYTES = 2 * 1024 * 1024; // 2MB 头部采样足以取表头与类型样本

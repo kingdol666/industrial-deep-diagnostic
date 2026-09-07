@@ -275,20 +275,8 @@ export function startDiagnosis({
 
   // Resume must be a clean continuation: do not re-inject the diagnostic
   // system prompt, skill text, or original data context after the first turn.
-  const isOmp = harness === 'omp';
   let systemPrompt;
-  if (isOmp) {
-    // OMP harness: bind the main agent to orchestrate the OMP agent contracts.
-    // Re-inject on resume too — the OMP contract is the runtime topology, and
-    // a resumed process needs it regardless of prior conversation state.
-    let skillContent = '';
-    if (existsSync(SKILL_MD)) {
-      try {
-        skillContent = readFileSync(SKILL_MD, 'utf-8').slice(0, 8000);
-      } catch { /* ignore */ }
-    }
-    systemPrompt = buildOmpSystemPrompt({ sceneName, reportLanguage: lang, skillContent });
-  } else if (!resumeSessionId) {
+  if (!resumeSessionId) {
     let skillContent = '';
     if (existsSync(SKILL_MD)) {
       try {
@@ -314,13 +302,6 @@ export function startDiagnosis({
     forwardSubagentText: true,
     maxTurns: maxTurns > 0 ? maxTurns : undefined,
   };
-
-  if (isOmp) {
-    // Sub-agent topology comes exclusively from the OMP contract directory:
-    // .omp/agents/*.md are the only delegated sub-agents in OMP harness runs.
-    const { agents, count } = loadOmpAgents();
-    if (count > 0) options.agents = agents;
-  }
 
   if (resumeSessionId) {
     options.resume = resumeSessionId;

@@ -363,7 +363,9 @@ function createBasePanel(kind, title) {
     currentSessionId: null,
     cwd: kind === 'chat' ? DEFAULT_CHAT_CWD : null,
     permissionMode: kind === 'chat' ? 'default' : null,
-    engine: 'claude',
+    // engine stays unset so panelEngine() falls through to the conversation
+    // engine picker (chatEngine) — pre-seeding 'claude' here would make the
+    // picker a no-op for every new chat.
     status: kind === 'chat' ? 'draft' : 'pending',
     events: [],
     subscribed: false,
