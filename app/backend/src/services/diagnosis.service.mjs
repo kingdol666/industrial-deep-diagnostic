@@ -880,25 +880,33 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
   // Collect all matching dirs, excluding known ones (from snapshot)
   // and directories already claimed by other runs in the DB
   const claimedDirs = new Set(
-    stmts.getClaimedWorkspacePaths.all().map(r => r.workspace_path)
+    stmts.getClaimedWorkspacePaths.all().map(r => r.workspace_path),
   );
 
+  const relPath = (entry) => `workspace/diagnostic-runs/${entry}`;
   let latest = null, latestTime = 0;
+  let fallback = null, fallbackTime = 0;
   for (const entry of entries) {
-    if (!dirPattern.test(entry)) continue;
     const fullPath = join(WORKSPACE_DIR, entry);
-    const relPath = `workspace/diagnostic-runs/${entry}`;
     // Skip directories that existed before this run started or are claimed by others
-    if (knownDirs.has(entry) || claimedDirs.has(relPath)) continue;
+    if (knownDirs.has(entry) || claimedDirs.has(relPath(entry))) continue;
     try {
       const s = await stat(fullPath);
-      if (s.mtimeMs > latestTime) {
+      if (!s.isDirectory()) continue;
+      if (s.mtimeMs > latestTime && dirPattern.test(entry)) {
         latestTime = s.mtimeMs;
         latest = fullPath;
       }
+      if (s.mtimeMs > fallbackTime) {
+        fallbackTime = s.mtimeMs;
+        fallback = fullPath;
+      }
     } catch {}
   }
-  return latest;
+  // Fallback: the agent may name the run dir after its own scene key instead of
+  // the DB scene_name (e.g. "_eval_cnc_spindle_wear" vs "_data") — link the
+  // newest unclaimed dir created during this run rather than leaving null.
+  return latest || fallback;
 }
 
 export { hitlRequests, executeDiagnosis };
