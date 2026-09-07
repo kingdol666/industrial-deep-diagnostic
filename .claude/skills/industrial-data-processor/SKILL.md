@@ -71,9 +71,10 @@ Read "$SKILL_PATH/references/agent-protocol.md" and execute Phase 0-6.
 
 Key constraints:
 - Phase 0.4 gates all analysis — read ontology before any statistical work
+- **Phase 1.2 是自适应决策中枢：先提炼假设，再从 analysis_methods_catalog 选最小判别方法集；方法跟着假设走，不跑未经计划选择的全量电池**
 - v6.5: Production regime detection (three-algorithm fusion) runs BEFORE stats; filter to steady-state only
-- v6.4: Time-lag compensation (CCF-based optimal lag per parameter pair)
-- v6.5: Per-product mandatory analysis — worst product by anomaly rate, steady-state compare, Simpson detection
+- v6.4: Time-lag compensation (CCF-based optimal lag per parameter pair) — 仅当方法计划选中 M6 且数据形态满足前置
+- v6.5: Per-product mandatory analysis — worst product by anomaly rate, steady-state compare, Simpson detection — 仅当存在多产品分组
 - VLM 视觉分析通过独立 Agent() 派发 vlm-visual-analyzer Agent — 参见下方 VLM Visual Analysis Dispatch 节
 `
 })
@@ -188,8 +189,10 @@ Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, d
 |-------|---------|------|
 | 0 | Data exploration + ontology-first analysis plan | `analysis_parameter_selection.json` + plan section |
 | 1 | Scenario classification + production state detection | Schema-valid `scenario_classification.json`; stats input source determined |
-| 2 | Universal analysis (stats, anomaly, time-lag, batch integrity) | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
-| 3 | Scenario-specific deep analysis + dual-drive | Schema-valid `data_analysis_conclusion.json`; coverage matrix complete |
+| 1.2 | **Hypothesis decomposition + adaptive method plan** — skill 只给方向：从本体+场景+问题提炼 3-6 个假设，按 `resources/analysis_methods_catalog.md` 为每个假设选最小判别方法集 | `analysis_method_plan.json`：≥2 假设、每假设 ≥1 方法、跳过留痕 |
+| 1.5 | Production regime detection (three-algorithm fusion) | Stats input source determined |
+| 2 | **Plan-driven** universal analysis（按计划选中的 stats 模式执行，非全量电池）+ anomaly + time-lag（如适用）+ batch integrity（如适用） | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
+| 3 | Plan-mapped scenario deep analysis + dual-drive + **假设充分性检查** | Schema-valid `data_analysis_conclusion.json`; 每个假设有 supported/refuted/indeterminate 裁决 |
 | 4 | RAG knowledge validation | All claims validated or marked untestable |
 | 5 | Visualization — per-product time-aligned overlays | `plot_manifest.json` has ≥1 verified real plot |
 | 5.5 | VLM visual analysis (optional, auto-degrade) | `visual_analysis.json` exists (metadata or VLM-enriched) |

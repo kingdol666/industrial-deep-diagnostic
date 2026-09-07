@@ -94,6 +94,31 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 
 ---
 
+## Phase 1.2: Hypothesis Decomposition & Adaptive Method Plan（自适应核心）
+
+> 这是本 skill 的决策中枢。skill 只给方向——**方法与脚本由你根据数据实况与假设自行选择**。
+> 先看数据长什么样、再决定怎么分析，就是你入行时定下的铁律第 1 条。
+
+- [ ] **1.2.1** 从三路输入提炼 **3-6 个候选诊断假设**（H1..Hn）：本体（角色/因果链/质量目标因果映射）+ 场景分类（Phase 1）+ 用户问题（user_context / run_config）。每个假设必须写清：陈述、预期证据（若真会看到什么）、反驳证据（若假会看到什么）。
+- [ ] **1.2.2** 读 `resources/analysis_methods_catalog.md`，为每个假设选择**最小判别方法集**：能判别它的最少方法组合，并自检每个方法的 Preconditions（数据形态门槛）。
+- [ ] **1.2.3** 写 `02_processed/analysis_method_plan.json`（新产物，_informational_，不进强制输出契约；finalize 会把其摘要注入 conclusion 的 analysis_method_plan_summary）：
+  ```json
+  {
+    "hypotheses": [
+      { "id": "H1", "statement": "...", "expect_if_true": "...", "expect_if_false": "...",
+        "methods": ["M1", "M2", "M6"],
+        "invocations": [{"method": "M1", "tool": "stats/run.py --mode correlation --target-cols ... --predictor-cols ..."}] }
+    ],
+    "skipped": [ { "method": "M6", "reason": "no time column — temporal precedence untestable" } ],
+    "full_battery_justified": false
+  }
+  ```
+- [ ] **1.2.4** 更新 `analysis_plan.md`：增加 "Hypothesis-Method Map" 节（H→方法→预期判别力），并把被跳过的传统必跑方法列入 "Deviations from default battery"。
+- Gate: `analysis_method_plan.json` 存在且 ≥2 个假设、每个假设 ≥1 个方法；每个被跳过的 stats 模式有原因；`full_battery_justified=true` 仅当计划确实选择了全部三项 stats 模式。
+- 逃逸阀：Phase 2/3 执行中发现新证据需要增删方法 → **先补写 plan（新增假设/方法条目 + 原因），再执行**，并同步进 Adaptive Decision Audit。禁止脱离计划"顺手跑一把"。
+
+---
+
 ## Phase 1.5: Production State Detection & Steady-State Filtering (v6.5 MANDATORY)
 
 - [ ] **1.5.1** Run production regime detector: `production_regime_detector.py` or `dp_toolkit.py regime-filter`
@@ -114,7 +139,14 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **2.2** Preprocess: `dp_toolkit.py preprocess` → `cleaned_data.csv`, then convert to JSON
 - [ ] **2.2.5** **MANDATORY GATE — Cleaning Integrity Verification.** Run 4 checks (row count, type integrity, range fidelity, batch identity v6.6). Determine `data_source` as `"cleaned"` or `"raw_fallback"`. All downstream reads from this single source.
   → Implementation: `resources/execution_reference.md#phase-2.2.5`
-- [ ] **2.3** Statistical analysis: read `analysis_parameter_selection.json`, construct `--predictor-cols` / `--exclude-cols` from Phase 0.4 tiers. Run unified stats pipeline `uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" --mode full` → `validate_report.json`
+- [ ] **2.3** Statistical analysis — **plan-driven**（Phase 1.2 的方法计划决定跑什么）：读 `analysis_parameter_selection.json` 构造 `--predictor-cols` / `--exclude-cols`；按 plan 中被选中的 stats 模式执行，模式间用 `&&` 串联：
+  ```bash
+  # 仅当 plan 选中 correlation 模式时才跑 correlation，以此类推；
+  # 三项都被选中时可用 --mode full 等价替代。
+  uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/stats/run.py" --run-dir "$RUN_DIR" \
+    --mode correlation --target-cols <...> --predictor-cols <...> [--group-col <...>] [--time-col <...>]
+  ```
+  严禁未经 plan 选择直接 `--mode full`（`full_battery_justified=false` 时）。plan 之外的临时增补 → 先按 Phase 1.2 逃逸阀更新 plan。
   → Commands: `resources/execution_reference.md#phase-2.3`
 - [ ] **2.4** Validation: anti-spurious checks run within Step 2.3 (merged pipeline). Former standalone `stats_validate.mjs` is now integrated into `stats/anti_spurious.py`. (Simpson's Paradox, trend confounding, outlier sensitivity, Spearman divergence, change-point detection)
   → Rules: `resources/anti_spurious_rules.md#rule-v6.7`
@@ -132,13 +164,14 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 
 ## Phase 3: Scenario-Specific Deep Analysis
 
-- [ ] **3.1** Read `resources/scenario_patterns.md` — load only sections matching detected data shapes. Execute ALL applicable patterns (typically 2-4).
+- [ ] **3.1** Read `resources/scenario_patterns.md` — 只加载**方法计划映射到假设**的模式并执行（每个模式的执行必须能追溯到一个假设）；计划外模式 → 先按 Phase 1.2 逃逸阀补记。典型 2-4 个。
 - [ ] **3.2** Automated physics checks: `physics_check.py` → `physics_check.json`. If 0 checks: document reason; if process_only data, 0 is valid.
   → Command: `resources/execution_reference.md#phase-3.2`
 - [ ] **3.3** Merge physics results into `anomaly_report.json` (quality_reset_analysis, anomaly_onset_coincidence, physical_checks)
 - [ ] **3.4** **Dual-drive diagnostic layer** (when both process + inspection data exist): connect process-side abnormality with inspection-side abnormality at product group and time-window level. If process_only: write note into `anomaly_report.json` and `data_analysis_conclusion.json` — process-to-quality linkage is an evidence gap.
 - [ ] **3.5** Write `data_analysis_conclusion.json` per schema: summarize fixed + custom scripts, adaptive decision audit, analysis coverage matrix, data cleaning provenance, priority hypothesis inputs. Run `data-processor-finalize.mjs` as a deployable helper.
-- Gate: `data_analysis_conclusion.json` is schema-valid. Coverage matrix proves pure-process, dual-drive, grouping/confounding, temporal/regime, and scenario-specific analysis dimensions.
+- [ ] **3.6** **Hypothesis Adequacy Check（假设充分性检查）** — 结论定稿前的最后一道自适应门：`analysis_method_plan.json` 中每个假设必须获得三值裁决之一——`supported` / `refuted` / `indeterminate`。`indeterminate` 必须写明缺失的判别数据是什么（例：缺检测侧数据无法确认因果时序 → 建议补采集项）。裁决结果写入 `data_analysis_conclusion.json` 的 `hypothesis_verdicts` 字段，直接喂给 diagnostician 的竞争假设协议。
+- Gate: `data_analysis_conclusion.json` is schema-valid. Coverage matrix proves pure-process, dual-drive, grouping/confounding, temporal/regime, and scenario-specific analysis dimensions. **每个假设都有裁决或 indeterminate+缺数据说明。**
 
 ---
 

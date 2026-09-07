@@ -312,6 +312,9 @@ function normalizeName(value) {
 
 function synthesizeDataAnalysisConclusion(runDir) {
   const runManifest = readJson(join(runDir, 'run_manifest.json'), {});
+  // Preserve agent-authored adaptive-analysis fields across synthesis (Phase 1.2/3.6)
+  const agentConclusion = readJson(join(runDir, '02_processed', 'data_analysis_conclusion.json'), null);
+  const methodPlan = readJson(join(runDir, '02_processed', 'analysis_method_plan.json'), null);
   const inputManifest = readJson(join(runDir, '00_input', 'input_manifest.json'), {});
   const ontology = readJson(join(runDir, '01_ontology', 'ontology.json'), {});
   const analysisParameterSelection = readJson(join(runDir, '02_processed', 'analysis_parameter_selection.json'), null);
@@ -732,6 +735,20 @@ function synthesizeDataAnalysisConclusion(runDir) {
       ]
     }
   };
+
+  // Adaptive-analysis fields authored by the agent must survive synthesis.
+  if (agentConclusion) {
+    if (Array.isArray(agentConclusion.hypothesis_verdicts)) handoff.hypothesis_verdicts = agentConclusion.hypothesis_verdicts;
+    if (agentConclusion.adaptive_decision_audit) handoff.adaptive_decision_audit = agentConclusion.adaptive_decision_audit;
+    if (agentConclusion.analysis_method_plan_summary) handoff.analysis_method_plan_summary = agentConclusion.analysis_method_plan_summary;
+  }
+  if (methodPlan) {
+    handoff.analysis_method_plan_summary = handoff.analysis_method_plan_summary || {
+      hypotheses: (methodPlan.hypotheses || []).map(h => ({ id: h.id, statement: h.statement, methods: h.methods })),
+      skipped: methodPlan.skipped || [],
+      full_battery_justified: !!methodPlan.full_battery_justified,
+    };
+  }
 
   const outputPath = join(runDir, '02_processed', 'data_analysis_conclusion.json');
   writeJson(outputPath, handoff);
