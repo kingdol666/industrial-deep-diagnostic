@@ -234,12 +234,6 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-// Engine harness selected in the sidebar — sent with every new chat request
-// so the backend dispatches to the matching engine (claude | omp).
-const props = defineProps({
-  harness: { type: String, default: 'claude' },
-});
-
 const panels = ref([]);
 const activePanelId = ref(null);
 const draft = ref('');
