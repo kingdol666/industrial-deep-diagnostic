@@ -77,3 +77,6 @@ test_vlm/
 data/ontology_store/
 workspace/.omp-sessions/
 workspace/.omp-chats/
+
+# AgentWorkShop diag-bridge 快照目录(运行时数据)
+data/aw-snapshots/
