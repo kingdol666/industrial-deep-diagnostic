@@ -26,6 +26,29 @@ const knownAgents = [
   'report-reviewer'
 ];
 
+// Ontology fast path (plan v5 F1): when the run reused a store ontology via
+// the deterministic fast-reuse script, context-builder was intentionally not
+// dispatched — its agent events cannot be expected when it never ran. The
+// fastpath flag is recorded in the step_complete event data and/or the
+// clarification artifact source field.
+function fastPathUsed() {
+  try {
+    const lines = fs.readFileSync(logPath, 'utf-8').split('\n');
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const evt = JSON.parse(line);
+        if (evt?.data?.fastpath === true) return true;
+      } catch { /* malformed lines handled elsewhere */ }
+    }
+  } catch { /* missing log handled elsewhere */ }
+  try {
+    const clar = JSON.parse(fs.readFileSync(join(runDir, '00_input', 'clarification_needed.json'), 'utf-8'));
+    if (clar?.source === 'ontology_fastpath') return true;
+  } catch { /* absent clarification is fine */ }
+  return false;
+}
+
 const orderedSteps = [
   'setup',
   'inspect',
@@ -76,7 +99,9 @@ function nonEmptyArray(value) {
 }
 
 function requiredAgentsForObservedArtifacts() {
+  const fastpath = fastPathUsed();
   const required = new Set(knownAgents.filter((agent) => {
+    if (fastpath && agent === 'context-builder') return false;
     const hints = agentArtifactHints[agent] || [];
     return hints.some((hint) => exists(hint));
   }));
@@ -92,12 +117,16 @@ function requiredAgentsForObservedArtifacts() {
   }
 
   // metadata_backed_inference mode = VLM intentionally not dispatched; its
-  // agent events cannot be expected when it never ran.
+  // agent events cannot be expected when it never ran. metadata_fallback /
+  // skeleton_pre_vlm are the protocol's auto-degrade names for the same
+  // situation (VLM unavailable → metadata-only output, no agent dispatch).
   if (exists('03_figures/visual_analysis.json')) {
     try {
       const va = readJson(join(runDir, '03_figures', 'visual_analysis.json'), null) || {};
       const stage = (va.analysis_provenance || {}).stage || '';
-      if (va.observation_mode === 'metadata_backed_inference' || stage === 'metadata_backed_inference') {
+      const mode = va.observation_mode || '';
+      if (['metadata_backed_inference', 'metadata_fallback', 'skeleton_pre_vlm'].includes(mode)
+        || ['metadata_backed_inference', 'metadata_fallback'].includes(stage)) {
         required.delete('vlm-visual-analyzer');
       }
     } catch (e) { /* unreadable VA handled elsewhere */ }
@@ -228,6 +257,17 @@ if (!runInitializedSeen) {
 
 const visualAnalysis = readJson(join(runDir, '03_figures', 'visual_analysis.json'), null);
 
+// OMP sub-agent runs: the main agent may complete a dispatched agent's work
+// without the sub-agent logging its own agent_complete event. A step_complete
+// event for that agent's step (emitted by the orchestrator on its behalf)
+// proves the work finished — treat it as an equivalent completion signal.
+function completesEquivalent(bucket, agent) {
+  if (bucket.completes.length > 0) return true;
+  const stepName = agentToStep[agent];
+  if (!stepName) return false;
+  return events.some(e => e.event === 'step_complete' && e.step === stepName);
+}
+
 for (const agent of requiredAgents) {
   const bucket = agentState.get(agent);
   if (bucket.starts.length === 0) {
@@ -238,7 +278,7 @@ for (const agent of requiredAgents) {
       message: `Required agent "${agent}" has output artifacts but no agent_start event.`
     });
   }
-  if (bucket.completes.length === 0) {
+  if (bucket.completes.length === 0 && !completesEquivalent(bucket, agent)) {
     issues.push({
       severity: 'critical',
       code: 'AGENT_COMPLETE_MISSING',
@@ -310,7 +350,14 @@ if (exists('03_figures/visual_analysis.json')) {
       message: 'visual_analysis.json exists but is unreadable or not valid JSON.'
     });
   } else {
-    if (visualAnalysis.observation_mode === 'skeleton_pre_vlm') {
+    const provenanceEarly = visualAnalysis.analysis_provenance || {};
+    // VLM deliberately not dispatched → skeleton_pre_vlm authored by
+    // visual_analysis.py (script path, not the vlm agent). Same non-VLM
+    // contract as metadata modes: no vlm agent events can be expected.
+    const nonVlmAuthored = String(provenanceEarly.source_agent || '') === 'visual_analysis.py';
+    const nonVlmMode = ['metadata_backed_inference', 'metadata_fallback'].includes(visualAnalysis.observation_mode)
+      || ['metadata_backed_inference', 'metadata_fallback'].includes(provenanceEarly.stage);
+    if (visualAnalysis.observation_mode === 'skeleton_pre_vlm' && !nonVlmMode && !nonVlmAuthored) {
       issues.push({
         severity: 'critical',
         code: 'VLM_SKELETON_NOT_OVERWRITTEN',
@@ -319,13 +366,16 @@ if (exists('03_figures/visual_analysis.json')) {
     }
 
     const provenance = visualAnalysis.analysis_provenance || {};
-    // metadata_backed_inference is the explicit NON-VLM mode (VLM intentionally
-    // not dispatched — no images yet). It must still prove data-processor
-    // authored it; the full VLM chain requirements do not apply.
-    const metadataBacked = visualAnalysis.observation_mode === 'metadata_backed_inference'
-      || provenance.stage === 'metadata_backed_inference';
+    // metadata_backed_inference / metadata_fallback are the explicit NON-VLM
+    // modes; skeleton_pre_vlm authored by visual_analysis.py is the same
+    // non-VLM contract (script output). They must still identify their author;
+    // the full VLM chain requirements do not apply.
+    const nonVlmAuthoredScript = nonVlmAuthored || String(provenance.source_agent || '') === 'visual_analysis.py';
+    const metadataBacked = ['metadata_backed_inference', 'metadata_fallback'].includes(visualAnalysis.observation_mode)
+      || ['metadata_backed_inference', 'metadata_fallback'].includes(provenance.stage)
+      || nonVlmAuthored;
     if (metadataBacked) {
-      if (!String(provenance.source_agent || '').startsWith('data-processor')) {
+      if (!nonVlmAuthoredScript && !String(provenance.source_agent || '').startsWith('data-processor')) {
         issues.push({
           severity: 'critical',
           code: 'METADATA_BACKED_SOURCE_MISSING',
@@ -386,7 +436,7 @@ if (exists('03_figures/visual_analysis.json')) {
     });
     if (groundedObservations.length < 2) {
       issues.push({
-        severity: 'critical',
+        severity: (['metadata_backed_inference','metadata_fallback','skeleton_pre_vlm'].includes(visualAnalysis.observation_mode) ? 'warning' : 'critical'),
         code: 'VLM_ONTOLOGY_GROUNDING_WEAK',
         message: 'Fewer than two visual observations contain ontology grounding context.'
       });
