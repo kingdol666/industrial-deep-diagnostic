@@ -68,6 +68,13 @@ export function buildOntologyDirective(ontology) {
   if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (store asset, absolute path): ${ontology.source}`);
   if (ontology.scene_key) lines.push(`- ONTOLOGY_SCENE: ${ontology.scene_key} (store v${ontology.version ?? '?'})`);
   lines.push(`- Reason: ${ontology.reason || 'n/a'}`);
+  if (mode === 'reuse') {
+    // Fast path (plan v5 F1/F4): the orchestrator will run the deterministic
+    // fast-reuse script before dispatching any agent. Advisory only — the
+    // script still gates on CP-2; a store change after run start can flip it.
+    lines.push(`The orchestrator first attempts the deterministic fast path (ontology_store.mjs fast-reuse — copy + CP-2 + publish, ≤60s). If it reports fastPath:true, Step 2 is complete without dispatching any agent — do not re-describe or re-verify parameter semantics beyond CP-2. If fastPath:false, execute Phase -1 below.`);
+    return lines.join('\n') + '\n';
+  }
   lines.push(`Execute Phase -1 of the ontology-builder protocol exactly according to this mode. CP-2 validation is mandatory in every mode; after it passes, publish the ontology to the store:`);
   lines.push(`node .claude/shared/scripts/ontology_store.mjs publish --run-dir "<RUN_DIR>"${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''} --build-mode ${mode}`);
   return lines.join('\n') + '\n';

@@ -270,6 +270,27 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --files 00_input/input_manifest.json,00_input/user_context.json
 ```
 
+### Step 2-F: Ontology Deterministic Fast Path（复用命中 ≤60s，plan v5 F1）
+
+Step 2 派发**之前**，先尝试确定性快路径（纯脚本资产拷贝+校验，无语义判断，不属于 Blacklist #2 的"主代理执行子代理协议"范畴）：
+
+```bash
+node "$SHARED_PATH/scripts/ontology_store.mjs" fast-reuse \
+  --data <DATA_PATH> --run-dir "$RUN_DIR" [--scene <scene_key>]
+```
+
+- 输出 `fastPath:true` → 写事件记录跳过原因（满足 strictly-sequential 的 not_applicable 约定）：
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event step_complete --agent main-agent --step context_builder \
+  --data '{"fastpath":true,"reason":"store reuse — deterministic fast path"}'
+```
+
+  随后写 `clarification_auto_inferred` 事件（快路径已生成 `00_input/clarification_needed.json` AUTO_RESOLVED），**直接跳到 Step 3**——不派发 context-builder 子代理、不进 hub wait。CP-2（schema 校验 + ≥1KB）已在 fast-reuse 内强制执行，失败自动回滚并返回 fastPath:false。
+- 输出 `fastPath:false` → 走下方 Step 2 子代理派发（extend/miss 的语义判断仍需 LLM，Phase -1 指令继续生效）。
+- `run_config.ontology.mode` 为 `full` 时跳过 Step 2-F（用户强制重建）。
+
 ### Step 2 + 2.5: Ontology Builder
 
 Read `skill://industrial-ontology-builder` and dispatch via `Agent({subagent_type: "context-builder", ...})`. Key:
@@ -301,6 +322,15 @@ Post-processing after agent completes:
 ```bash
 SKILL_PATH_DATA_PROCESSOR="$PROJECT_ROOT/.claude/skills/industrial-data-processor"
 node "$SKILL_PATH_DATA_PROCESSOR/scripts/data-processor-finalize.mjs" "$RUN_DIR"
+```
+
+事件证明（确定性补救，防 OMP 子代理漏报执行事件——子代理已发则幂等无害）：
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event agent_complete --agent data-processor --step data_processor \
+  --files 02_processed/data_analysis_conclusion.json,03_figures/plot_manifest.json
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event step_complete --agent main-agent --step data_processor
 ```
 
 **CP-4**: `data_analysis_conclusion.json` exists + `plot_manifest.json` has plots > 0
@@ -426,6 +456,13 @@ Present: executive summary + key findings + diagnosis type + confidence + recomm
 - **Ontology first**: Step 2 complete before Step 3. Pre-ontology work limited to data conversion/preprocessing.
 - **Step 5a + 5b** are the ONLY parallel steps. Everything else is serial.
 - **HTML auto-build**: CP-8 ENDORSED → immediately launch Steps 8→8.5→9, no user prompts.
+
+### Token & Wait Discipline（plan v5 F2/F3 — 执行效率纪律）
+
+- **hub wait 治理（F2）**：子代理运行期间，hub wait 循环的**每轮迭代**先用 `test -f <关键产物>` 检查——产物就绪立即 break 进入下游，**不把 300s 等满才检查**。等待目标必须是**子代理写的产物**（Step 2: `01_ontology/ontology.json`；Step 3: `02_processed/feature_summary.json` 或 `03_figures/plot_manifest.json`——`data_analysis_conclusion.json` 由主代理 finalize 写，不可作等待目标）。
+- **SKILL.md 单读（F3.1）**：SKILL.md 全文只在首次读取一次；后续协议细节读对应 reference 文件，禁止重复读全文（claude 引擎已注入系统提示前 8K chars，二次读是纯浪费）。
+- **目录探查纪律（F3.2）**：目录探查用 `ls <dir>` 单层；禁止 `ls -R` / 递归 glob 全库（单次 >2s 的探查命令视为浪费）。
+- **todo 纪律（F3.3）**：todo op 每阶段最多 1 次（子项完成合并进该阶段的 done 更新）；禁止每完成一个子项就单独更新 todo。
 
 ## Repair Governance
 

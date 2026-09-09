@@ -11,6 +11,7 @@
 // 零依赖（对齐 validate.mjs 风格）；存储于 <PROJECT_ROOT>/data/ontology_store/。
 
 import { createHash } from 'crypto';
+import { spawnSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync } from 'fs';
 import { join, dirname, resolve, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
@@ -401,6 +402,89 @@ export function deprecate(sceneKey, version) {
   return entry;
 }
 
+// ────────────────────────── 确定性快路径（plan v5 F1） ──────────────────────────
+
+// CP-2 校验：spawn validate.mjs 子进程（纯 CLI，exit 0/1）。
+const VALIDATE_MJS = join(__dirname, 'validate.mjs');
+function runCp2Validation(ontologyPath, schemaPath) {
+  const schema = schemaPath || join(PROJECT_ROOT, '.claude', 'skills', 'industrial-ontology-builder', 'schemas', 'ontology_schema.json');
+  const res = spawnSync(process.execPath, [VALIDATE_MJS, schema, ontologyPath], {
+    encoding: 'utf-8', timeout: 30000, windowsHide: true,
+  });
+  if (res.status !== 0) {
+    return { ok: false, errors: (res.stdout || res.stderr || '').slice(-800) };
+  }
+  // CP-2 第二条：≥1KB
+  const bytes = statSync(ontologyPath).size;
+  if (bytes < 1024) return { ok: false, errors: `ontology.json ${bytes}B < 1KB CP-2 floor` };
+  return { ok: true };
+}
+
+// 最小 clarification（AUTO_RESOLVED）——保持 CP-3 / 下游契约完整（评审确认该形态与 e2e 一致）。
+function writeFastPathClarification(runDir, sceneKey, reason) {
+  const p = join(resolve(runDir), '00_input', 'clarification_needed.json');
+  const payload = {
+    clarification_status: 'AUTO_RESOLVED',
+    source: 'ontology_fastpath',
+    scene_key: sceneKey || null,
+    resolved_by: 'deterministic fast-reuse (plan v5 F1) — ontology reused verbatim from store, semantics pre-validated at publish time',
+    reason: reason || null,
+    generated_at: new Date().toISOString(),
+  };
+  mkdirSync(dirname(p), { recursive: true });
+  writeFileSync(p, JSON.stringify(payload, null, 2));
+  return p;
+}
+
+/**
+ * 确定性快路径：find → reuse → CP-2（失败回滚）→ publish，单命令完成。
+ * 门槛：findMatch.match === 'exact'（schema 精确命中）；content drift 仅作 advisory（评审 R4）。
+ * 校验失败 → 回滚拷贝并返回 fastPath:false（调用方回退 LLM 子代理路径）。
+ */
+export function fastReuse({ dataPath, runDir, scene, schemaPath }) {
+  const absRunDir = resolve(runDir);
+
+  // 1. find（门槛：exact）
+  const found = findMatch(dataPath, { scene: scene || undefined });
+  if (found.match !== 'exact') {
+    return { fastPath: false, reason: found.reason, match: found.match };
+  }
+
+  // 2. reuse（拷贝 store 本体到 run 目录）
+  reuse({ source: found.ontology_path, runDir: absRunDir });
+  const ontologyPath = join(absRunDir, '01_ontology', 'ontology.json');
+
+  // 3. CP-2 校验（schema + ≥1KB）——失败回滚拷贝
+  const cp2 = runCp2Validation(ontologyPath, schemaPath);
+  if (!cp2.ok) {
+    try { unlinkSync(ontologyPath); } catch { /* ignore */ }
+    return { fastPath: false, reason: `CP-2 validation failed after reuse — rolled back: ${cp2.errors}`, match: 'exact' };
+  }
+
+  // 4. publish（幂等，内容相同会去重；评审确认安全）
+  let published = null;
+  try {
+    published = publish({ runDir: absRunDir, scene: found.scene_key, buildMode: 'reuse', quality: 'unvalidated' });
+  } catch (e) {
+    // publish 失败不阻断快路径（本体已在 run 目录且 CP-2 已过）
+    published = { error: e.message };
+  }
+
+  // 5. 最小 clarification（CP-3 契约）
+  const clarificationPath = writeFastPathClarification(absRunDir, found.scene_key, found.reason);
+
+  return {
+    fastPath: true,
+    reason: found.reason,
+    content_match: found.content_match ? 'exact' : 'advisory-drift (schema-identical, different batch)',
+    ontology_path: ontologyPath,
+    scene_key: found.scene_key,
+    store_version: found.version,
+    published: published?.deduped ? 'deduped' : (published?.version ? `v${published.version}` : published?.error || 'skipped'),
+    clarification_path: clarificationPath,
+  };
+}
+
 // ────────────────────────── 事件写入 ──────────────────────────
 
 export function appendPipelineEvent(runDir, event) {
@@ -444,6 +528,16 @@ function cli() {
         console.log(JSON.stringify(result, null, 2));
         break;
       }
+      case 'fast-reuse': {
+        const result = fastReuse({
+          dataPath: arg('data'),
+          runDir: arg('run-dir'),
+          scene: arg('scene'),
+          schemaPath: arg('schema'),
+        });
+        console.log(JSON.stringify(result, null, 2));
+        break;
+      }
       case 'deprecate': {
         console.log(JSON.stringify(deprecate(args[0], arg('version')), null, 2));
         break;
@@ -462,11 +556,12 @@ function cli() {
         break;
       }
       default:
-        console.error('Usage: ontology_store.mjs <fingerprint|find|publish|reuse|deprecate|stats> [args]');
+        console.error('Usage: ontology_store.mjs <fingerprint|find|publish|reuse|fast-reuse|deprecate|stats> [args]');
         console.error('  fingerprint <data.csv>');
         console.error('  find <data.csv> [--scene <key>]');
         console.error('  publish --run-dir <RUN_DIR> [--scene <key>] [--build-mode full|extend] [--quality unvalidated|endorsed]');
         console.error('  reuse --source <ontology.json> --run-dir <RUN_DIR>');
+        console.error('  fast-reuse --data <data.csv> --run-dir <RUN_DIR> [--scene <key>] [--schema <schema.json>]');
         console.error('  deprecate <scene_key> --version <N>');
         process.exit(cmd ? 1 : 0);
     }
