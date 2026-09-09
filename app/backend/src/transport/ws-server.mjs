@@ -23,6 +23,7 @@ import {
 } from '../services/chat.service.mjs';
 import { websocket as wsConfig } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { authenticate, isAuthEnabled, AuthError } from '../services/auth.service.mjs';
 
 let wss = null;
 const clientState = new WeakMap();
@@ -453,6 +454,23 @@ export function initWebSocket(httpServer) {
   });
 
   wss.on('connection', (ws, req) => {
+    // ─── 连接鉴权：/ws?token=<登录会话或 API Token>（与 HTTP API 同一 token 体系）───
+    if (isAuthEnabled()) {
+      try {
+        const url = new URL(req?.url || '/ws', 'http://localhost');
+        const qsToken = url.searchParams.get('token') || '';
+        // WebSocket 无法自定义 header，统一以 query token 认证
+        const fakeReq = { headers: qsToken ? { authorization: `Bearer ${qsToken}` } : {} };
+        const { user } = authenticate(fakeReq);
+        ws.authUser = user;
+      } catch (err) {
+        const code = err instanceof AuthError ? err.code : 'AUTH_INTERNAL_ERROR';
+        logger.warn(`WS connection rejected: ${code}`, { context: 'WS' });
+        ws.close(4401, `unauthorized: ${code}`);
+        return;
+      }
+    }
+
     const state = getOrCreateState(ws);
     const clientIp = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || 'unknown';
     logger.info(`Client connected: ${state.clientId} (IP: ${clientIp}, total: ${wss.clients.size})`, { context: 'WS' });

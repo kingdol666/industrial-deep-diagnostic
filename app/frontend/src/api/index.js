@@ -1,16 +1,62 @@
 const BASE = '/api';
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
+
+// ─── 客户端会话管理 ───
+export function getToken() {
+  try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
+}
+export function setToken(token) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch { /* ignore */ }
+}
+export function getStoredUser() {
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+}
+export function setStoredUser(user) {
+  try {
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_KEY);
+  } catch { /* ignore */ }
+}
+
+// 全局 401 处理：清除本地会话并通知 App 回到登录页
+function handleUnauthorized() {
+  setToken('');
+  setStoredUser(null);
+  window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+}
+
+function authHeaders(extra = {}) {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
+}
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     ...options,
   });
   const data = await res.json();
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error(data.error || '认证失败，请重新登录');
+  }
   if (!data.success) throw new Error(data.error || 'Request failed');
   return data.data;
 }
 
 export const api = {
+  // ── Auth（register/login 为公开端点，其余需认证）──
+  authRegister: (params) => request('/auth/register', { method: 'POST', body: JSON.stringify(params) }),
+  authLogin: (params) => request('/auth/login', { method: 'POST', body: JSON.stringify(params) }),
+  authMe: () => request('/auth/me'),
+  listTokens: () => request('/auth/tokens'),
+  createToken: (params) => request('/auth/tokens', { method: 'POST', body: JSON.stringify(params) }),
+  revokeToken: (id) => request(`/auth/tokens/${id}`, { method: 'DELETE' }),
+
   // Data files
   listData: (folder) => request(folder ? `/files/data/${folder}` : '/files/data'),
   createFolder: (name, description) =>
@@ -23,8 +69,11 @@ export const api = {
     const query = folder ? `?folder=${encodeURIComponent(folder)}` : '';
     return fetch(`${BASE}/files/data/upload${query}`, {
       method: 'POST',
+      headers: authHeaders(),
       body: formData,
-    }).then(r => r.json()).then(d => {
+    }).then(async (r) => {
+      const d = await r.json();
+      if (r.status === 401) { handleUnauthorized(); throw new Error(d.error || '认证失败，请重新登录'); }
       if (!d.success) throw new Error(d.error);
       return d.data;
     });
@@ -98,10 +147,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(path ? { path } : {}),
     }),
-  chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}`,
+  chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}?token=${encodeURIComponent(getToken())}`,
 
   // SSE stream
-  streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
+  streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}?token=${encodeURIComponent(getToken())}`,
 
   // ── Harness abstraction (engine-agnostic; Claude/OMP/Codex... all implement) ──
   listHarnesses: () => request('/harness'),
@@ -129,8 +178,9 @@ export const api = {
   ompEnhHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/enhancement/html`,
 };
 
-// WebSocket URL (same host, port determined at runtime)
+// WebSocket URL (same host, port determined at runtime) — 连接时携带 token 鉴权
 export function wsUrl() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//${location.host}/ws`;
+  const token = encodeURIComponent(getToken());
+  return `${proto}//${location.host}/ws${token ? `?token=${token}` : ''}`;
 }

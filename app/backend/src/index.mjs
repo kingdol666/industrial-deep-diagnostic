@@ -10,6 +10,8 @@ import chatRoutes from './routes/chat.routes.mjs';
 import ompRoutes from './routes/omp.routes.mjs';
 import ontologyRoutes from './routes/ontology.routes.mjs';
 import harnessRoutes from './routes/harness.routes.mjs';
+import authRoutes from './routes/auth.routes.mjs';
+import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
@@ -49,6 +51,19 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: serverConfig.body_limit }));
+
+// ─── Auth: 全局 API 鉴权拦截 ───
+// 白名单（在 authGuard 内）：POST /api/auth/register、POST /api/auth/login、GET /api/health
+// 其余所有 /api/* 均要求 Authorization: Bearer <token>（登录会话或 API Token）。
+// 可用 env AUTH_ENABLED=0 临时关闭（仅限本机调试）。
+if (process.env.AUTH_ENABLED !== '0') {
+  app.use('/api', authGuard);
+} else {
+  logger.warn('AUTH_ENABLED=0 — API 鉴权已临时关闭（仅限本机调试）', { context: 'Auth' });
+}
+
+// Auth routes（register/login 为公开端点；/me 与 /tokens 需认证）
+app.use('/api/auth', authRoutes);
 
 // Serve uploaded data files statically (for preview/download)
 app.use('/data-files', express.static(join(PROJECT_ROOT, 'data')));

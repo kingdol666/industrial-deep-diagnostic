@@ -167,12 +167,10 @@ export function initDB() {
     `);
   }
 
-  // Migration: add harness column (engine selection: 'claude' | 'omp')
-  const hasRunHarness = cols.some(c => c.name === 'harness');
-  if (!hasRunHarness) {
-    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN harness TEXT DEFAULT 'claude'`);
-    db.exec(`UPDATE diagnostic_runs SET harness = 'claude' WHERE harness IS NULL`);
-  }
+  // NOTE: diagnostic_runs.harness is migrated above ("Migration: harness
+  // column"). `cols` was snapshotted BEFORE that ALTER, so re-checking it here
+  // would see a stale "column missing" and re-issue ALTER TABLE, crashing with
+  // "duplicate column name: harness" on every fresh database. Do not repeat it.
   const hasChatHarness = chatCols.some(c => c.name === 'harness');
   if (!hasChatHarness) {
     db.exec(`ALTER TABLE chat_sessions ADD COLUMN harness TEXT DEFAULT 'claude'`);
@@ -200,6 +198,36 @@ export function initDB() {
       CREATE INDEX IF NOT EXISTS idx_logs_run_id ON diagnosis_logs(run_id);
     `);
   }
+
+  // ─── Auth subsystem (v4): users + api_tokens ───
+  // Idempotent CREATE IF NOT EXISTS — no column-snapshot migration pitfalls here.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      email TEXT UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      last_login_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS api_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      token_prefix TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      expires_at TEXT,
+      last_used_at TEXT,
+      revoked_at TEXT,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_api_tokens_user_id ON api_tokens(user_id);
+  `);
 
   logger.info('Database initialized successfully.', { context: 'DB' });
 }
@@ -316,6 +344,39 @@ const stmts = {
     SELECT * FROM chat_messages WHERE chat_id = ? ORDER BY id ASC
   `),
   deleteEventStreamByRunId: db.prepare('DELETE FROM diagnosis_event_stream WHERE run_id = ?'),
+
+  // ─── Auth: users ───
+  insertUser: db.prepare(`
+    INSERT INTO users (username, email, password_hash, role)
+    VALUES (@username, @email, @passwordHash, @role)
+  `),
+  countUsers: db.prepare('SELECT COUNT(*) AS c FROM users'),
+  getUserById: db.prepare(`
+    SELECT id, username, email, role, created_at, last_login_at
+    FROM users WHERE id = ?
+  `),
+  getUserByUsername: db.prepare('SELECT * FROM users WHERE username = ?'),
+  getUserByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
+  touchUserLogin: db.prepare(`
+    UPDATE users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
+  `),
+
+  // ─── Auth: api tokens ───
+  insertApiToken: db.prepare(`
+    INSERT INTO api_tokens (user_id, name, token_hash, token_prefix, expires_at)
+    VALUES (@userId, @name, @tokenHash, @tokenPrefix, @expiresAt)
+  `),
+  getApiTokenByHash: db.prepare('SELECT * FROM api_tokens WHERE token_hash = ?'),
+  getApiTokenById: db.prepare('SELECT * FROM api_tokens WHERE id = ?'),
+  listApiTokensByUser: db.prepare(`
+    SELECT id, name, token_prefix, created_at, expires_at, last_used_at, revoked_at
+    FROM api_tokens WHERE user_id = ? ORDER BY created_at DESC
+  `),
+  revokeApiToken: db.prepare(`
+    UPDATE api_tokens SET revoked_at = datetime('now')
+    WHERE id = ? AND revoked_at IS NULL
+  `),
+  touchApiTokenUsed: db.prepare(`UPDATE api_tokens SET last_used_at = datetime('now') WHERE id = ?`),
 };
 
 export { db, stmts };

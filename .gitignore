@@ -80,3 +80,6 @@ workspace/.omp-chats/
 
 # AgentWorkShop diag-bridge 快照目录(运行时数据)
 data/aw-snapshots/
+
+# JWT 签名密钥(绝不能提交)
+data/.auth-jwt-secret

@@ -4,6 +4,14 @@
 > AgentWorkShop 侧插件:`.AgentWorkShop/plugins/diag-bridge/` —— 导出 DAQ 时序快照 CSV → 本服务执行 9 阶段根因分析 → 报告回流入 AgentWorkShop 知识库(rag-knowledge)。
 > 本文记录 2026-09-07 三系统集成时钉死的调用契约,本项目**零代码改动**,仅需保证以下行为不破坏。
 
+## ⚠️ 鉴权(v4 起强制)
+
+- 除 `GET /api/health`、`POST /api/auth/register`、`POST /api/auth/login` 外，**所有 `/api/*` 端点（含本表全部端点与 WS `/ws`）均要求** `Authorization: Bearer <token>`。
+- 调用方需先在系统注册账号并登录，创建一个 API Token（如 `diag-bridge-key`），之后所有请求携带该 token。
+- 失败返回 401 + `{success:false, code:'AUTH_REQUIRED'|'AUTH_INVALID'|'AUTH_TOKEN_EXPIRED'|'AUTH_TOKEN_REVOKED', error}`；WebSocket 认证失败以 close code 4401 关闭。
+- Token 规范:`idd_` 前缀 + 256bit 熵，服务端仅存 SHA-256 哈希；支持名称/创建时间/失效时间(1-365 天或永久)/吊销/最近使用时间；每个用户可创建多个。
+- 应急开关：env `AUTH_ENABLED=0` 可临时关闭鉴权（仅限本机调试）。
+
 ## 调用方(AgentWorkShop diag-bridge 插件)
 
 | 步骤 | 端点 | 关键约定 |

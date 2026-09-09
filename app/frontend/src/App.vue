@@ -1,5 +1,6 @@
 <template>
-  <div :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed }]">
+  <AuthView v-if="!authed" @authed="onAuthed" />
+  <div v-else :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed }]">
     <aside class="app-sidebar">
       <div class="app-brand">
         <div class="app-brand-mark">ID</div>
@@ -35,6 +36,13 @@
       </nav>
 
       <div class="app-sidebar-footer">
+        <div v-if="authUser" class="app-userbox">
+          <div class="app-userbox-info">
+            <span class="app-userbox-name">{{ authUser.username }}</span>
+            <span class="app-userbox-role">{{ authUser.role === 'admin' ? '管理员' : '用户' }}</span>
+          </div>
+          <button class="app-userbox-logout" type="button" title="退出登录" @click="logout">退出</button>
+        </div>
         <div class="app-harness" role="group" aria-label="Engine harness">
           <button
             v-for="h in harnessList"
@@ -149,10 +157,35 @@ import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
-import { api } from './api/index.js';
+import { api, getToken, setToken, setStoredUser, getStoredUser } from './api/index.js';
+import AuthView from './components/auth/AuthView.vue';
 import { toggleLocale } from './i18n/index.js';
 
 const { t, tm } = useI18n();
+
+// ─── 认证状态门禁 ───
+const authed = ref(!!getToken());
+const authUser = ref(getStoredUser());
+function onAuthed(user) {
+  authUser.value = user;
+  authed.value = true;
+  // 登录成功后（重）建立实时通道：携带 token 的 WS 连接
+  teardown();
+  init();
+  refreshHarnesses();
+}
+function onUnauthorized() {
+  authed.value = false;
+  authUser.value = null;
+  teardown();
+}
+function logout() {
+  setToken('');
+  setStoredUser(null);
+  authUser.value = null;
+  authed.value = false;
+  teardown();
+}
 
 const currentTab = ref('data');
 const analysisTarget = ref(null);
@@ -310,10 +343,16 @@ function onOpenReport(reportPath) {
 
 onMounted(() => {
   loadSidebarState();
-  refreshHarnesses();
-  init();
+  window.addEventListener('auth:unauthorized', onUnauthorized);
+  if (authed.value) {
+    refreshHarnesses();
+    init();
+  }
 });
-onUnmounted(() => teardown());
+onUnmounted(() => {
+  window.removeEventListener('auth:unauthorized', onUnauthorized);
+  teardown();
+});
 </script>
 
 <style>

@@ -396,6 +396,39 @@ a { color: inherit; }
 
 .app-shell.app-shell-collapsed .app-sidebar-footer { align-items: stretch; }
 
+/* ─── 用户信息 + 退出登录 ─── */
+.app-userbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel, #fff);
+}
+.app-userbox-info { display: flex; flex-direction: column; min-width: 0; }
+.app-userbox-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #16233a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-userbox-role { font-size: 10px; color: var(--text-secondary, #7b8698); }
+.app-userbox-logout {
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--text-secondary, #5b6779);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.app-userbox-logout:hover { border-color: #f3c8c8; color: #b42323; background: #fdf3f3; }
+
 .app-shell.app-shell-collapsed .app-presence {
   justify-content: center;
   padding: 0;
