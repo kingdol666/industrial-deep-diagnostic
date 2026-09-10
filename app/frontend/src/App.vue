@@ -39,9 +39,9 @@
         <div v-if="authUser" class="app-userbox">
           <div class="app-userbox-info">
             <span class="app-userbox-name">{{ authUser.username }}</span>
-            <span class="app-userbox-role">{{ authUser.role === 'admin' ? '管理员' : '用户' }}</span>
+            <span class="app-userbox-role">{{ authUser.role === 'admin' ? $t('auth.roleAdmin') : $t('auth.roleUser') }}</span>
           </div>
-          <button class="app-userbox-logout" type="button" title="退出登录" @click="logout">退出</button>
+          <button class="app-userbox-logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
         </div>
         <div class="app-harness" role="group" aria-label="Engine harness">
           <button
@@ -49,14 +49,14 @@
             :key="h.id"
             type="button"
             class="app-harness-btn"
-            :class="{ active: harness === h.id }"
-            :title="h.description"
+            :class="{ active: harness === h.id, offline: isHarnessOffline(h.id) }"
+            :title="harnessTitle(h)"
             @click="selectHarness(h.id)"
           >
-            <span class="app-harness-icon">{{ h.id === 'claude' ? '⌘' : '⛭' }}</span>
+            <span class="app-harness-icon">{{ harnessIcon(h) }}</span>
             <span class="app-harness-copy">
               <span class="app-harness-label">{{ h.name }}</span>
-              <span class="app-harness-sub">{{ h.capabilities?.includes('live') ? $t('sidebar.sdkEngine') : $t('sidebar.rpcBridge') }}</span>
+              <span class="app-harness-sub">{{ harnessSub(h) }}</span>
             </span>
           </button>
         </div>
@@ -114,6 +114,7 @@
           :analysisTarget="analysisTarget"
           :autoRunId="autoOpenRunId"
           :harness="harness"
+          :harness-name="activeHarnessMeta.name"
           @started="onDiagnosisStarted"
           @view-report="onViewReport"
           @go-data="currentTab = 'data'"
@@ -133,6 +134,10 @@
             @open-report="onOpenReport"
             @continue-run="onContinueRun"
           />
+        </div>
+
+        <div v-else-if="currentTab === 'ontology'" class="app-view-frame ontology-frame">
+          <OntologyView />
         </div>
 
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
@@ -156,6 +161,7 @@ import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
+import OntologyView from './components/ontology/OntologyView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 import { api, getToken, setToken, setStoredUser, getStoredUser } from './api/index.js';
 import AuthView from './components/auth/AuthView.vue';
@@ -194,6 +200,8 @@ const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
 const harness = ref('claude'); // default engine id; list refreshed from registry
 const harnessList = ref([]); // [{id, name, kind, description, capabilities}] from /api/harness
+const harnessAvailability = ref({}); // id -> available (from /api/harness/availability)
+const defaultHarnessId = ref(null); // server-resolved best-adapted available engine
 
 const { state: rtState, init, teardown } = useDiagnosisRealtimeStore();
 
@@ -217,6 +225,7 @@ const tabs = computed(() => [
   { key: 'diagnose', label: t('tabs.diagnose.label'), icon: '◎', kicker: t('tabs.diagnose.kicker'), title: t('tabs.diagnose.title'), description: t('tabs.diagnose.description'), caption: t('tabs.diagnose.caption') },
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
+  { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
 ]);
 
@@ -232,8 +241,12 @@ const ompTab = computed(() => ({
   caption: `${t('tabs.omp.captionPre')} ${activeHarnessMeta.value.name} ${t('tabs.omp.captionMid')}`,
 }));
 
+const activeHarnessSupportsRuns = computed(() =>
+  (activeHarnessMeta.value.capabilities || []).includes('runs')
+);
+
 const visibleTabs = computed(() => {
-  if (harness.value !== 'claude') {
+  if (activeHarnessSupportsRuns.value) {
     return [...tabs.value.slice(0, 5), ompTab.value];
   }
   return tabs.value;
@@ -244,6 +257,7 @@ const activeTabMeta = computed(() => visibleTabs.value.find(tab => tab.key === c
 const contentClass = computed(() => ({
   'app-content-chat': currentTab.value === 'chat',
   'app-content-diagnose': currentTab.value === 'diagnose',
+  'app-content-ontology': currentTab.value === 'ontology',
 }));
 
 const analysisTargetLabel = computed(() => {
@@ -260,7 +274,7 @@ function loadSidebarState() {
     sidebarCollapsed.value = localStorage.getItem('idd.sidebarCollapsed') === '1';
     const savedHarness = localStorage.getItem('idd.harness');
     if (savedHarness) harness.value = savedHarness;
-    if (harness.value !== 'claude' && currentTab.value !== 'omp') currentTab.value = 'omp';
+    if (activeHarnessSupportsRuns.value && currentTab.value !== 'omp') currentTab.value = 'omp';
   } catch {}
 }
 
@@ -273,9 +287,55 @@ async function refreshHarnesses() {
       harness.value = list[0]?.id || 'claude';
       try { localStorage.setItem('idd.harness', harness.value); } catch {}
     }
+    // 可用性探测（服务器端缓存）— 未安装的引擎灰化显示；采纳服务端默认引擎
+    try {
+      const availability = await api.harnessAvailability();
+      harnessAvailability.value = Object.fromEntries(
+        (availability || []).map((a) => [a.id, !!a.available]),
+      );
+      const defaultEntry = (availability || []).find((a) => a.default === true);
+      defaultHarnessId.value = defaultEntry?.id || null;
+      // 无本地保存的选择时 → 采用服务端解析的默认引擎（适配最好的已装引擎）
+      if (!localStorage.getItem('idd.harness') && defaultEntry) {
+        harness.value = defaultEntry.id;
+        try { localStorage.setItem('idd.harness', defaultEntry.id); } catch {}
+      }
+      // 已保存的引擎不可用 → 切到默认可用引擎，避免"选中即 409"
+      if (harnessAvailability.value[harness.value] === false && defaultEntry) {
+        harness.value = defaultEntry.id;
+        try { localStorage.setItem('idd.harness', defaultEntry.id); } catch {}
+      }
+    } catch { harnessAvailability.value = {}; }
   } catch {
     harnessList.value = [];
   }
+}
+
+// ── Harness 按钮元数据（图标 / 可用性 / 副标题）──
+const HARNESS_ICONS = {
+  claude: '⌘', omp: '⛭', mock: '▶', codex: '⌥', dsh: '◇', opencode: '◐',
+  gemini: '✦', copilot: '⎇', cursor: '▮', crush: '▚', goose: 'ƒ', qwen: '⌗',
+  pi: 'π', hermes: '☲',
+};
+
+function harnessIcon(h) {
+  return HARNESS_ICONS[h.id] || (h.name || h.id || '?').charAt(0).toUpperCase();
+}
+
+function isHarnessOffline(id) {
+  return harnessAvailability.value[id] === false;
+}
+
+function harnessSub(h) {
+  if (harnessAvailability.value[h.id] === false) return t('sidebar.engineUnavailable');
+  if (defaultHarnessId.value === h.id) return t('sidebar.defaultEngine');
+  if ((h.capabilities || []).includes('live')) return t('sidebar.sdkEngine');
+  return t('sidebar.rpcBridge');
+}
+
+function harnessTitle(h) {
+  const desc = h.description || h.name;
+  return isHarnessOffline(h.id) ? `${desc} — ${t('sidebar.engineUnavailableTitle')}` : desc;
 }
 
 function selectHarness(next) {
@@ -283,10 +343,10 @@ function selectHarness(next) {
   try {
     localStorage.setItem('idd.harness', next);
   } catch {}
-  if (next !== 'claude') {
+  if (activeHarnessSupportsRuns.value) {
     currentTab.value = 'omp';
   } else if (currentTab.value === 'omp') {
-    currentTab.value = 'data';
+    currentTab.value = 'diagnose';
   }
 }
 

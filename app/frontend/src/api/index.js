@@ -34,17 +34,37 @@ function authHeaders(extra = {}) {
   return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
 }
 
+/** API 错误：携带服务端 code / status / details，供调用方做分支处理（如 409 版本冲突）。 */
+export class ApiError extends Error {
+  constructor(message, { status, code, details } = {}) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
     headers: authHeaders({ 'Content-Type': 'application/json' }),
     ...options,
   });
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new ApiError(`服务端返回了非 JSON 响应 (HTTP ${res.status})`, { status: res.status });
+  }
   if (res.status === 401) {
     handleUnauthorized();
-    throw new Error(data.error || '认证失败，请重新登录');
+    throw new ApiError(data.error || '认证失败，请重新登录', { status: 401, code: data.code });
   }
-  if (!data.success) throw new Error(data.error || 'Request failed');
+  if (!data.success) {
+    throw new ApiError(data.error || 'Request failed', {
+      status: res.status, code: data.code, details: data.details,
+    });
+  }
   return data.data;
 }
 
@@ -94,6 +114,74 @@ export const api = {
   enhanceDiagnosis: (runId) =>
     request(`/diagnosis/enhance/${runId}`, { method: 'POST' }),
   listOntologyStore: () => request('/ontology/store'),
+
+  // ── Ontology asset control plane（本体管理页：列表 / 可视化 / 编辑 / 复用 / 采纳）──
+  ontologyAssets: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/ontology/assets${qs ? `?${qs}` : ''}`);
+  },
+  ontologyOverview: () => request('/ontology/overview'),
+  ontologySchema: () => request('/ontology/schema'),
+  ontologyAsset: (scene, version, opts = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(opts).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return request(`/ontology/assets/${encodeURIComponent(scene)}/${version}${qs ? `?${qs}` : ''}`);
+  },
+  ontologyGraph: (scene, version, layers = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(layers).filter(([, v]) => v !== undefined).map(([k, v]) => [k, v ? '1' : '0']),
+    ).toString();
+    return request(`/ontology/assets/${encodeURIComponent(scene)}/${version}/graph${qs ? `?${qs}` : ''}`);
+  },
+  ontologyMetrics: (scene, version) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}/metrics`),
+  ontologyValidateAsset: (scene, version) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}/validate`),
+  ontologyProvenance: (scene, version) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}/provenance`),
+  // 保存编辑 → 生成新版本 v(N+1)；body: { ontology, base_version, title, tags, notes, force }
+  ontologySave: (scene, version, body) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}`, {
+      method: 'PUT', body: JSON.stringify(body),
+    }),
+  ontologyCreate: (body) =>
+    request('/ontology/assets', { method: 'POST', body: JSON.stringify(body) }),
+  ontologyPatch: (scene, version, patch) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}`, {
+      method: 'PATCH', body: JSON.stringify(patch),
+    }),
+  ontologyClone: (scene, version, body) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}/clone`, {
+      method: 'POST', body: JSON.stringify(body),
+    }),
+  ontologyDeleteVersion: (scene, version) =>
+    request(`/ontology/assets/${encodeURIComponent(scene)}/${version}`, { method: 'DELETE' }),
+  ontologyDeleteScene: (scene) =>
+    request(`/ontology/scenes/${encodeURIComponent(scene)}`, { method: 'DELETE' }),
+  ontologyValidate: (ontology) =>
+    request('/ontology/validate', { method: 'POST', body: JSON.stringify({ ontology }) }),
+  ontologyProjectGraph: (ontology, layers) =>
+    request('/ontology/graph', { method: 'POST', body: JSON.stringify({ ontology, layers }) }),
+  ontologyProjectMetrics: (ontology) =>
+    request('/ontology/metrics', { method: 'POST', body: JSON.stringify({ ontology }) }),
+  ontologyDiffDraft: (before, after) =>
+    request('/ontology/diff', { method: 'POST', body: JSON.stringify({ before, after }) }),
+  ontologyDiffVersions: (scene, from, to) =>
+    request(`/ontology/diff?scene=${encodeURIComponent(scene)}&from=${from}&to=${to}`),
+  ontologyRecommend: (body) =>
+    request('/ontology/recommend', { method: 'POST', body: JSON.stringify(body) }),
+  ontologyCandidates: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/ontology/candidates${qs ? `?${qs}` : ''}`);
+  },
+  ontologyAdopt: (body) =>
+    request('/ontology/adopt', { method: 'POST', body: JSON.stringify(body) }),
+
   getRunStatus: (runId) => request(`/diagnosis/status/${runId}`),
   getRunSnapshot: (runId) => request(`/diagnosis/snapshot/${runId}`),
   stopDiagnosis: (runId) =>
@@ -154,6 +242,7 @@ export const api = {
 
   // ── Harness abstraction (engine-agnostic; Claude/OMP/Codex... all implement) ──
   listHarnesses: () => request('/harness'),
+  harnessAvailability: () => request('/harness/availability'),
   harnessHealth: (id) => request(`/harness/${id}/health`),
   harnessRuns: (id) => request(`/harness/${id}/runs`),
   harnessRun: (id, name) => request(`/harness/${id}/runs/${encodeURIComponent(name)}`),

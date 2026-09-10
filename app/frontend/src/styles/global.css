@@ -590,6 +590,20 @@ a { color: inherit; }
   min-height: 100%;
 }
 
+/* 本体管理页：整屏工作区（三栏 + 图），需满高与独立滚动 */
+.app-content-ontology {
+  overflow: hidden;
+  padding: 8px 12px 10px;
+}
+
+.app-content-ontology .app-view-frame.ontology-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    PRIMITIVES — cards, buttons, badges, inputs
    ═══════════════════════════════════════════════════════════════════════ */
@@ -956,6 +970,18 @@ select {
 }
 
 .app-harness-btn.active .app-harness-icon { color: var(--accent); }
+
+/* 引擎未安装/探测失败 — 灰化但仍可点击（作业启动时后端给 409 人话报错） */
+.app-harness-btn.offline {
+  opacity: 0.45;
+}
+.app-harness-btn.offline .app-harness-label {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+.app-harness-btn.offline.active {
+  opacity: 0.7;
+}
 
 .app-harness-icon {
   font-size: 13px;
