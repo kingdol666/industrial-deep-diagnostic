@@ -55,7 +55,7 @@
                 <span v-if="s.broken" class="onto-mini-stat bad">!</span>
               </span>
               <span v-if="s.summary" class="onto-scene-summary">
-                {{ s.summary.signals }} 信号 · {{ s.summary.relationships }} 关系
+                {{ $t('ontology.signalCount', { n: s.summary.signals }) }} · {{ $t('ontology.relCount', { n: s.summary.relationships }) }}
                 <template v-if="s.summary.process_type"> · {{ shortProcess(s.summary.process_type) }}</template>
               </span>
               <span v-if="s.tags?.length" class="onto-scene-tags">
@@ -256,7 +256,7 @@
                       <div><dt>UNVERIFIED</dt><dd class="mono">{{ metrics.consistency.behavior.UNVERIFIED }}</dd></div>
                       <div><dt>{{ $t('ontology.dangling') }}</dt><dd class="mono" :class="{ bad: metrics.consistency.dangling_relationships }">{{ metrics.consistency.dangling_relationships }}</dd></div>
                       <div><dt>{{ $t('ontology.orphanSignals') }}</dt><dd class="mono" :class="{ warn: metrics.consistency.orphan_signals }">{{ metrics.consistency.orphan_signals }}</dd></div>
-                      <div><dt>重复列</dt><dd class="mono" :class="{ bad: metrics.consistency.duplicate_columns.length }">{{ metrics.consistency.duplicate_columns.length }}</dd></div>
+                      <div><dt>{{ $t('ontology.duplicateColumns') }}</dt><dd class="mono" :class="{ bad: metrics.consistency.duplicate_columns.length }">{{ metrics.consistency.duplicate_columns.length }}</dd></div>
                     </dl>
                   </section>
 
@@ -285,8 +285,8 @@
                   >
                     <span class="onto-finding-sev">{{ severityLabel(f.severity) }}</span>
                     <span class="onto-finding-code mono">{{ f.code }}</span>
-                    <span class="onto-finding-rule mono dim">{{ f.sourceRule }}</span>
-                    <p class="onto-finding-msg">{{ f.message }}</p>
+                    <span class="onto-finding-rule mono dim">{{ findingRule(f) }}</span>
+                    <p class="onto-finding-msg">{{ findingText(f) }}</p>
                     <p v-if="f.focusNode" class="onto-finding-hint mono">{{ $t('ontology.findingFocus') }}: {{ f.focusNode }}
                       <span v-if="f.pointer" class="dim"> ({{ f.pointer }})</span></p>
                     <p v-if="f.hint" class="onto-finding-hint">{{ f.hint }}</p>
@@ -425,7 +425,7 @@
               <span class="onto-adopt-sub mono">{{ c.run_name }}</span>
               <span class="onto-adopt-scene mono">→ {{ c.proposed_scene }}</span>
               <span v-if="c.summary" class="onto-adopt-stats">
-                {{ c.summary.signals }} 信号 · {{ c.summary.relationships }} 关系
+                {{ $t('ontology.signalCount', { n: c.summary.signals }) }} · {{ $t('ontology.relCount', { n: c.summary.relationships }) }}
               </span>
               <span v-if="c.in_store" class="onto-adopt-badge ok">
                 {{ $t('ontology.adopted') }} v{{ c.in_store.version }}
@@ -945,6 +945,22 @@ onMounted(async () => {
   const first = listing.value?.assets?.[0];
   if (first) await openScene(first.scene_key, first.latest_version);
 });
+/**
+ * Server findings carry a stable `code` plus structured fields; the human
+ * sentence is rendered client-side so it follows the active locale. The
+ * server text is the fallback for codes this build does not know yet.
+ */
+function findingText(f) {
+  const key = `ontology.findingCode.${f.code}`;
+  const localised = t(key);
+  return localised === key ? f.message : localised;
+}
+
+function findingRule(f) {
+  const key = `ontology.findingRule.${f.sourceRule}`;
+  const localised = t(key);
+  return localised === key ? f.sourceRule : localised;
+}
 </script>
 
 <style scoped>

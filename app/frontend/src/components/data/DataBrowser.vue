@@ -45,6 +45,27 @@
     </div>
 
     <div v-else>
+      <!-- Readout strip — counts and total weight, so the page states its own
+           contents before you scroll. An instrument tells you its range. -->
+      <div class="ip-stats data-stats">
+        <div class="ip-stat">
+          <span class="ip-stat-value">{{ folderCount }}</span>
+          <span class="ip-stat-label">{{ $t('data.statFolders') }}</span>
+        </div>
+        <div class="ip-stat">
+          <span class="ip-stat-value">{{ dataFileCount }}</span>
+          <span class="ip-stat-label">{{ $t('data.statDataFiles') }}</span>
+        </div>
+        <div class="ip-stat">
+          <span class="ip-stat-value">{{ formatSize(totalBytes) }}</span>
+          <span class="ip-stat-label">{{ $t('data.statTotalSize') }}</span>
+        </div>
+        <div class="ip-stat">
+          <span class="ip-stat-value" :class="selectedFiles.size ? 'accent' : ''">{{ selectedFiles.size }}</span>
+          <span class="ip-stat-label">{{ $t('data.statSelected') }}</span>
+        </div>
+      </div>
+
       <div class="selection-toolbar" v-if="selectedFiles.size > 0">
         <button class="btn btn-primary btn-sm" @click="analyzeSelected">
           {{ $t('data.analyzeSelected', { count: selectedFiles.size }) }}
@@ -56,45 +77,68 @@
           {{ $t('data.analyzeFolder') }}
         </button>
       </div>
-      <div class="file-grid">
-        <div
-          v-for="item in items"
-          :key="item.name"
-          :class="['file-card', { selected: isSelected(item) }]"
-          @click="onItemClick(item)"
-          @dblclick="onItemDblClick(item)"
-        >
-          <div class="file-check-col" v-if="item.type === 'file' && isDataFile(item.ext)">
-            <input
-              type="checkbox"
-              :checked="selectedFiles.has(currentFolder ? `data/${currentFolder}/${item.name}` : `data/${item.name}`)"
-              @change.stop="toggleFileSelect(currentFolder ? `data/${currentFolder}/${item.name}` : `data/${item.name}`)"
-              class="file-checkbox"
-            />
-          </div>
-          <div class="file-icon">
-            <span v-if="item.type === 'folder'">📁</span>
-            <span v-else>{{ fileIcon(item.ext) }}</span>
-          </div>
-          <div class="file-info">
-            <div class="file-name">{{ item.name }}</div>
-            <div class="file-meta">
-              <span v-if="item.type === 'file'">{{ formatSize(item.size) }}</span>
-              <span v-if="item.type === 'folder'">{{ $t('data.folder') }}</span>
-              <span class="file-ext" v-if="item.ext">{{ item.ext }}</span>
-            </div>
-          </div>
-          <div class="file-actions">
-            <button
-              v-if="item.type === 'file' && isDataFile(item.ext)"
-              class="btn btn-primary btn-sm"
-              @click.stop="selectForDiagnosis(item)"
-            >{{ $t('data.analyze') }}</button>
-            <button
-              v-if="item.type === 'file' && ['.csv', '.json', '.md', '.txt', '.tsv'].includes(item.ext)"
-              class="btn btn-sm"
-              @click.stop="preview(item)"
-            >{{ $t('data.preview') }}</button>
+
+      <!-- Manifest — a dense readout instead of a sparse card grid. Names sit
+           in a fixed column so 40 rows can be scanned vertically; size is
+           right-aligned and tabular so magnitudes compare at a glance. -->
+      <div class="ip-table ip-panel data-manifest">
+        <div class="ip-thead manifest-cols">
+          <span class="col-check"></span>
+          <span>{{ $t('data.colName') }}</span>
+          <span>{{ $t('data.colType') }}</span>
+          <span class="ta-r">{{ $t('data.colSize') }}</span>
+          <span class="ta-r">{{ $t('data.colActions') }}</span>
+        </div>
+        <div class="manifest-body ip-scroll">
+          <div
+            v-for="item in items"
+            :key="item.name"
+            class="ip-row manifest-cols"
+            :class="{ 'is-active': isSelected(item) }"
+            @click="onItemClick(item)"
+            @dblclick="onItemDblClick(item)"
+          >
+            <span class="col-check">
+              <input
+                v-if="item.type === 'file' && isDataFile(item.ext)"
+                type="checkbox"
+                :checked="selectedFiles.has(currentFolder ? `data/${currentFolder}/${item.name}` : `data/${item.name}`)"
+                @change.stop="toggleFileSelect(currentFolder ? `data/${currentFolder}/${item.name}` : `data/${item.name}`)"
+                class="file-checkbox"
+              />
+            </span>
+
+            <span class="cell-name ip-primary" :title="item.name">
+              <svg v-if="item.type === 'folder'" class="ip-glyph ip-glyph-dir" viewBox="0 0 16 16">
+                <path d="M1.5 3.5h4l1.2 1.6h7.8v7.4h-13z" />
+                <path d="M1.5 5.1h13" />
+              </svg>
+              <svg v-else-if="isDataFile(item.ext)" class="ip-glyph ip-glyph-data" viewBox="0 0 16 16">
+                <path d="M2.5 13.5v-11h11v11z" />
+                <path d="M5 10.5v-2M8 10.5v-5M11 10.5v-3" />
+              </svg>
+              <svg v-else class="ip-glyph ip-glyph-file" viewBox="0 0 16 16">
+                <path d="M3.5 1.5h5.5l3.5 3.5v9.5h-9z" />
+                <path d="M9 1.5v3.5h3.5" />
+              </svg>
+              <span class="name-text">{{ item.name }}</span>
+            </span>
+
+            <span class="ip-sub">{{ item.type === 'folder' ? $t('data.folder') : (item.ext || '—') }}</span>
+            <span class="ta-r ip-sub">{{ item.type === 'file' ? formatSize(item.size) : '—' }}</span>
+
+            <span class="ta-r cell-actions">
+              <button
+                v-if="item.type === 'file' && isDataFile(item.ext)"
+                class="btn btn-primary btn-sm"
+                @click.stop="selectForDiagnosis(item)"
+              >{{ $t('data.analyze') }}</button>
+              <button
+                v-if="item.type === 'file' && ['.csv', '.json', '.md', '.txt', '.tsv'].includes(item.ext)"
+                class="btn btn-sm"
+                @click.stop="preview(item)"
+              >{{ $t('data.preview') }}</button>
+            </span>
           </div>
         </div>
       </div>
@@ -112,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
 
@@ -121,6 +165,13 @@ const { t } = useI18n();
 const emit = defineEmits(['select-file', 'select-folder', 'select-files']);
 
 const items = ref([]);
+
+// Readout strip derives from the loaded folder — no extra request.
+const folderCount = computed(() => items.value.filter((i) => i.type === 'folder').length);
+const dataFileCount = computed(() =>
+  items.value.filter((i) => i.type === 'file' && isDataFile(i.ext)).length);
+const totalBytes = computed(() =>
+  items.value.reduce((sum, i) => sum + (i.type === 'file' ? (i.size || 0) : 0), 0));
 const loading = ref(false);
 const currentFolder = ref('');
 const showNewFolder = ref(false);
@@ -264,15 +315,9 @@ async function preview(item) {
   }
 }
 
-function fileIcon(ext) {
-  const icons = {
-    '.csv': '📊', '.xlsx': '📊', '.xls': '📊', '.json': '📋',
-    '.tsv': '📊', '.parquet': '📦', '.py': '🐍', '.md': '📝',
-  };
-  return icons[ext] || '📄';
-}
 
 function formatSize(bytes) {
+  if (bytes === null || bytes === undefined) return '—';
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -291,21 +336,21 @@ function formatSize(bytes) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding: 18px 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 82%, transparent), color-mix(in srgb, var(--surface) 90%, transparent));
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
-  -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat));
+  background: var(--surface);
 }
 
-.toolbar-left { display: flex; align-items: center; gap: 6px; }
+.toolbar-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
 
 .breadcrumb-root {
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: var(--text);
   cursor: pointer;
   text-decoration: none;
@@ -313,19 +358,20 @@ function formatSize(bytes) {
 .breadcrumb-root:hover { color: var(--accent); }
 
 .breadcrumb-sep {
-  color: var(--text2);
-  font-size: 13px;
+  color: var(--text-dim);
+  font-size: var(--fs-body);
 }
 
 .breadcrumb-path {
-  font-size: 13px;
-  color: var(--text2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-body);
+  color: var(--accent);
   cursor: pointer;
   text-decoration: none;
 }
-.breadcrumb-path:hover { color: var(--accent); }
+.breadcrumb-path:hover { color: var(--accent-bright); }
 
-.toolbar-right { display: flex; gap: 8px; }
+.toolbar-right { display: flex; gap: 6px; }
 
 .new-folder-form .form-row {
   display: flex; gap: 8px; align-items: center;
@@ -338,77 +384,19 @@ function formatSize(bytes) {
   color: var(--accent);
 }
 
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+.data-stats { margin-bottom: 12px; }
+.data-manifest { min-height: 0; }
+.manifest-cols {
+  grid-template-columns: 26px minmax(0, 2.4fr) 96px 92px minmax(120px, auto);
 }
-
-.file-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(14px) saturate(var(--acrylic-sat));
-  -webkit-backdrop-filter: blur(14px) saturate(var(--acrylic-sat));
-}
-
-.file-card:hover { border-color: color-mix(in srgb, var(--accent) 28%, var(--border)); transform: translateY(-1px); }
-
-.file-card.selected {
-  border-color: color-mix(in srgb, var(--accent2) 42%, var(--border));
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
-}
-
-.file-icon { font-size: 24px; flex-shrink: 0; }
-
-.file-info { flex: 1; min-width: 0; }
-
-.file-name {
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-meta {
-  font-size: 11px;
-  color: var(--text2);
-  display: flex;
-  gap: 8px;
-  margin-top: 2px;
-}
-
-.file-ext { color: var(--purple); text-transform: uppercase; font-size: 10px; }
-
-.file-actions { flex-shrink: 0; }
-
-.preview-card { margin-top: 16px; }
-
-.preview-content {
-  background: var(--surface-soft);
-  padding: 16px;
-  border-radius: var(--radius);
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  max-height: 400px;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.file-check-col {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
+.manifest-body { overflow-y: auto; min-height: 0; }
+.manifest-body .ip-row { cursor: pointer; }
+.col-check { display: flex; align-items: center; }
+.cell-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cell-name .name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-actions { display: flex; gap: 5px; justify-content: flex-end; }
+.cell-actions .btn { padding: 2px 8px; font-size: var(--fs-micro); }
+.file-checkbox { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
 
 .file-checkbox {
   width: 16px;

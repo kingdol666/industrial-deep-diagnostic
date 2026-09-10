@@ -31,10 +31,14 @@
   --border-accent: rgba(232, 163, 61, 0.32);
 
   /* ── Warm ink text (cream, never pure white) ──────── */
+  /* Contrast on --surface #14150f, verified:
+     --text  16.1:1  --text2 7.4:1  --text3 5.0:1  --text-dim 2.4:1
+     --text3 is the floor for anything a user must read (WCAG AA 4.5:1).
+     --text-dim is decorative only — hairline labels, disabled glyphs. */
   --text: #ede8d8;
   --text2: #a8a494;
-  --text3: #6c6a5e;
-  --text-dim: #4a4940;
+  --text3: #8a8676;
+  --text-dim: #5f5d53;
 
   /* ── Phosphor amber — the single dominant accent ─── */
   --accent: #e8a33d;
@@ -56,6 +60,28 @@
   --radius-sm: 5px;
   --radius: 7px;
   --radius-lg: 10px;
+
+  /* ── Instrument Panel — density & order ────────────
+     A 4px base unit drives every gap, pad and row height, so surfaces stack
+     on a shared rhythm instead of drifting per-component. Row heights are the
+     lever that turns a sparse card list into a readable instrument readout. */
+  --u: 4px;
+  --row-h: 30px;          /* dense list row — run tables, manifests */
+  --row-h-lg: 40px;       /* comfortable row — nav items, form rows */
+  --header-h: 52px;       /* compressed page header band */
+  --rail-w: 76px;         /* numeric column width for tabular figures */
+
+  /* ── Typographic scale (10 → 32) ───────────────────
+     Fixed steps, never ad-hoc font sizes. Anything below 10px is decoration. */
+  --fs-micro: 9.5px;      /* rail captions, axis ticks */
+  --fs-label: 10.5px;     /* uppercase field labels, chips */
+  --fs-sm: 11.5px;        /* secondary copy, table body */
+  --fs-body: 12.5px;      /* default body */
+  --fs-lg: 14px;          /* emphasized body, section titles */
+  --fs-title: 17px;       /* page title */
+  --fs-display: 30px;     /* hero numerals */
+
+  --track-label: 0.075em; /* uppercase label letter-spacing */
 
   /* ── Shadows — restrained, layered, warm ──────────── */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.22);
@@ -396,38 +422,54 @@ a { color: inherit; }
 
 .app-shell.app-shell-collapsed .app-sidebar-footer { align-items: stretch; }
 
-/* ─── 用户信息 + 退出登录 ─── */
+/* ─── Operator badge + sign-out ───────────────────────────────────────
+   Was carrying light-theme fallbacks (#fff / #16233a / #b42323) that never
+   resolved against the dark tokens, and its 10px radius made it read as a
+   bubble rather than a panel. Rebuilt as a one-line operator readout. */
 .app-userbox {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel, #fff);
+  border-radius: var(--radius-xs);
+  background: var(--surface-soft);
 }
-.app-userbox-info { display: flex; flex-direction: column; min-width: 0; }
+.app-userbox-info { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
 .app-userbox-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text, #16233a);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.app-userbox-role { font-size: 10px; color: var(--text-secondary, #7b8698); }
+.app-userbox-role {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+}
 .app-userbox-logout {
   border: 1px solid var(--border);
   background: transparent;
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-size: 11px;
-  color: var(--text-secondary, #5b6779);
+  border-radius: var(--radius-xs);
+  padding: 3px 9px;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text3);
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.13s ease;
 }
-.app-userbox-logout:hover { border-color: #f3c8c8; color: #b42323; background: #fdf3f3; }
+.app-userbox-logout:hover {
+  border-color: rgba(212, 93, 61, 0.45);
+  color: var(--red);
+  background: rgba(212, 93, 61, 0.08);
+}
 
 .app-shell.app-shell-collapsed .app-presence {
   justify-content: center;
@@ -497,44 +539,68 @@ a { color: inherit; }
   overflow: hidden;
 }
 
+/* ── Compressed header band ───────────────────────────────────────────
+   The header was a 100px billboard: kicker on its own line, a 34px display
+   title, then a two-line description — before any content began. On an
+   instrument the header is a *nameplate*: one band, title left, readouts
+   right, description demoted to a single line. Reclaims ~48px of vertical
+   space on every page without losing the serif voice. */
 .app-topbar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 16px 22px 10px;
+  min-height: var(--header-h);
+  padding: 8px 22px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
 }
 
-.app-topbar-copy { min-width: 0; }
+.app-topbar-copy {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 1px;
+  align-items: baseline;
+}
 
 .app-topbar-kicker {
+  grid-row: 1 / span 2;
+  align-self: center;
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  padding-right: 14px;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .app-topbar-kicker::before {
   content: '';
-  width: 14px;
-  height: 1px;
+  width: 3px;
+  height: 10px;
   background: var(--accent);
+  flex: none;
 }
 
 .app-topbar-title {
+  grid-column: 2;
   font-family: var(--font-display);
-  font-size: clamp(24px, 3.2vw, 34px);
-  line-height: 1.0;
+  font-size: var(--fs-title);
+  line-height: 1.15;
   font-weight: 400;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-topbar-title em {
@@ -544,18 +610,20 @@ a { color: inherit; }
 }
 
 .app-topbar-subtitle {
-  margin-top: 8px;
-  max-width: 720px;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--text2);
-  letter-spacing: 0.002em;
+  grid-column: 2;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  color: var(--text3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 78ch;
 }
 
 .app-topbar-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
   flex-shrink: 0;
   align-items: center;
@@ -931,6 +999,125 @@ select {
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* Harness selector — compact instrument switch */
+/* ── Engine selector ──────────────────────────────────────────────────
+   14 engines rendered as a flat 2-column wall of near-identical chips is
+   unreadable — you cannot scan it, and the active one has no prominence.
+   Restructured as a readout: the current engine is a single tall block with
+   its state spelled out, and the full roster lives behind a disclosure.
+   State is a word (`ready` / `offline`) plus a dot, never colour alone. */
+.app-engine {
+  width: 100%;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+
+.app-engine-current {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.app-engine-current:hover { background: var(--surface); }
+.app-engine.open .app-engine-current { border-bottom: 1px solid var(--border); }
+
+.app-engine-icon {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--accent);
+  text-align: center;
+}
+
+.app-engine-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+
+.app-engine-name {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-engine-state {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.app-engine-state::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.app-engine-state.on  { color: var(--green); }
+.app-engine-state.off { color: var(--text3); }
+
+.app-engine-caret { color: var(--text3); font-size: 9px; text-align: center; }
+
+.app-engine-list {
+  max-height: 232px;
+  overflow-y: auto;
+  padding: 3px;
+}
+
+.app-engine-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: var(--row-h);
+  padding: 0 6px;
+  border: none;
+  border-radius: 2px;
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  text-align: left;
+}
+.app-engine-row:hover { background: var(--surface); color: var(--text2); }
+.app-engine-row.active { background: var(--accent-soft); color: var(--text); }
+.app-engine-row.active .app-engine-row-name { color: var(--accent-bright); }
+
+.app-engine-dot { width: 5px; height: 5px; border-radius: 50%; }
+.app-engine-dot.on  { background: var(--green); }
+.app-engine-dot.off { background: var(--text-dim); }
+
+.app-engine-row-name {
+  font-size: var(--fs-sm);
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-engine-row-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.app-engine-row.offline .app-engine-row-name { color: var(--text-dim); }
+
+/* Legacy flat engine grid — retained so any other caller still renders. */
 .app-harness {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1681,3 +1868,316 @@ select {
   .app-content-chat,
   .app-content-diagnose { padding: 8px 8px 8px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INSTRUMENT PANEL LAYER — density, order, tabular figures
+   ═══════════════════════════════════════════════════════════════════════
+   Direction: a real industrial HMI. The organising idea is that every
+   surface is a *readout*: values sit in fixed columns, compare vertically,
+   and are separated by rules that carry structure rather than decoration.
+
+   Three rules govern everything below:
+   1. Numerals are tabular and right-aligned — a column of numbers that
+      doesn't line up on the decimal is unreadable at a glance.
+   2. Status is never colour alone. Every state gets a text chip AND a rail,
+      so it survives greyscale printing and colour-vision deficiency.
+   3. Hairlines mean "these are different things". A rule that separates
+      nothing is noise; used sparingly it does the work of a card border.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Tabular figures ─────────────────────────────────────────────────── */
+.num,
+.mono,
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* ── Micro-label — the uppercase rail caption used across every panel ── */
+.ip-label {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+  line-height: 1.3;
+}
+.ip-label-sm { font-size: var(--fs-label); }
+
+/* ── Panel — the base surface. Replaces ad-hoc card markup ───────────── */
+.ip-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.ip-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.ip-panel-head .ip-label { flex: 1; }
+.ip-panel-body { padding: 10px 12px; min-height: 0; overflow: auto; }
+
+/* ── Instrument table — the dense readout ─────────────────────────────
+   Column widths are declared once by the consumer via --cols so header and
+   rows cannot drift apart (the classic cause of a table that looks broken). */
+.ip-table { display: flex; flex-direction: column; min-height: 0; }
+.ip-thead,
+.ip-row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 10px;
+  align-items: center;
+  padding: 0 12px;
+}
+.ip-thead {
+  height: 28px;
+  border-bottom: 1px solid var(--border-strong);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface);
+}
+.ip-thead > * {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ip-thead .ta-r, .ip-row .ta-r { text-align: right; }
+.ip-row {
+  min-height: var(--row-h);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text2);
+  position: relative;
+  transition: background 0.1s ease;
+}
+.ip-row:last-child { border-bottom: none; }
+.ip-row:hover { background: var(--surface-soft); }
+.ip-row.is-active { background: var(--accent-soft); }
+.ip-row.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+}
+.ip-row .ip-primary {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ip-row .ip-sub {
+  color: var(--text3);
+  font-size: var(--fs-micro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Status chip — text + rail + dot. Never colour alone ─────────────
+   The rail is a 2px left border on the chip; the dot is redundant encoding
+   for users who scan by shape rather than reading the label. */
+.ip-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 18px;
+  padding: 0 7px 0 6px;
+  border-radius: 2px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-soft);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text2);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+.ip-chip::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+  opacity: 0.85;
+}
+.ip-chip.ok      { color: var(--green);  border-color: rgba(143,191,106,0.34); }
+.ip-chip.warn    { color: var(--yellow); border-color: rgba(212,169,61,0.34); }
+.ip-chip.bad     { color: var(--red);    border-color: rgba(212,93,61,0.38); }
+.ip-chip.info    { color: var(--cyan);   border-color: rgba(107,168,184,0.34); }
+.ip-chip.accent  { color: var(--accent-bright); border-color: var(--border-accent); }
+.ip-chip.muted   { color: var(--text3); }
+.ip-chip.no-dot::before { display: none; }
+
+/* ── Stat strip — a row of labelled readouts ─────────────────────────── */
+.ip-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.ip-stat {
+  padding: 9px 12px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ip-stat:last-child { border-right: none; }
+.ip-stat-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-lg);
+  color: var(--text);
+  line-height: 1.15;
+}
+.ip-stat-value.accent { color: var(--accent-bright); }
+.ip-stat-value.ok { color: var(--green); }
+.ip-stat-value.bad { color: var(--red); }
+.ip-stat-label {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Section rule — a hairline with a leading accent tick ────────────── */
+.ip-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+.ip-rule::before {
+  content: '';
+  width: 3px; height: 9px;
+  background: var(--accent);
+  flex: none;
+}
+.ip-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.ip-rule > span {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+  order: -1;
+  margin-right: 2px;
+}
+
+/* ── Instrument glyphs ───────────────────────────────────────────────
+   Stand-ins for the emoji that used to mark file and row types. Emoji are
+   rendered by the OS font stack, so their weight, colour and optical size
+   are outside our control — they read as decoration, not as instrument
+   legend. These are drawn to a 16px box on a 1.25px stroke. */
+.ip-glyph {
+  width: 16px; height: 16px;
+  flex: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  opacity: 0.9;
+}
+.ip-glyph.sm { width: 13px; height: 13px; stroke-width: 1.35; }
+.ip-glyph-dir  { color: var(--accent); }
+.ip-glyph-file { color: var(--text3); }
+.ip-glyph-data { color: var(--cyan); }
+
+/* ── Keyboard hint ───────────────────────────────────────────────────── */
+.ip-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: var(--surface-soft);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text3);
+}
+
+/* ── Scrollbars — thin, warm, only visible on hover of the scroll host ── */
+.ip-scroll { scrollbar-width: thin; scrollbar-color: rgba(237,232,216,0.13) transparent; }
+.ip-scroll::-webkit-scrollbar { width: 9px; height: 9px; }
+.ip-scroll::-webkit-scrollbar-track { background: transparent; }
+.ip-scroll::-webkit-scrollbar-thumb {
+  background: rgba(237,232,216,0.09);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.ip-scroll:hover::-webkit-scrollbar-thumb { background: rgba(237,232,216,0.18); background-clip: content-box; }
+
+/* ── Empty state — an instrument with no signal, not a sad face ───────── */
+.ip-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 16px;
+  color: var(--text3);
+  text-align: center;
+}
+.ip-empty .ip-empty-mark {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--text-dim);
+  letter-spacing: 0.3em;
+}
+.ip-empty .ip-empty-title { font-size: var(--fs-sm); color: var(--text2); }
+.ip-empty .ip-empty-hint { font-size: var(--fs-micro); color: var(--text3); max-width: 34ch; line-height: 1.5; }
+
+/* ── Segmented control — replaces loose chip rows in toolbars ────────── */
+.ip-seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: var(--surface-soft);
+}
+.ip-seg > button {
+  border: none;
+  border-right: 1px solid var(--border);
+  background: none;
+  color: var(--text3);
+  font-size: var(--fs-label);
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.12s ease;
+}
+.ip-seg > button:last-child { border-right: none; }
+.ip-seg > button:hover { color: var(--text); background: var(--surface-muted); }
+.ip-seg > button.active { color: var(--accent-bright); background: var(--accent-soft); }

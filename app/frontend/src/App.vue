@@ -43,30 +43,47 @@
           </div>
           <button class="app-userbox-logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
         </div>
-        <div class="app-harness" role="group" aria-label="Engine harness">
+
+        <!-- 执行引擎选择：14 个引擎若平铺成一堵墙就无法扫读。
+             改为「当前引擎读数 + 可展开清单」：状态点、名称、副标题各自成列。 -->
+        <div class="app-engine" :class="{ open: engineListOpen }">
           <button
-            v-for="h in harnessList"
-            :key="h.id"
             type="button"
-            class="app-harness-btn"
-            :class="{ active: harness === h.id, offline: isHarnessOffline(h.id) }"
-            :title="harnessTitle(h)"
-            @click="selectHarness(h.id)"
+            class="app-engine-current"
+            :title="harnessTitle(activeHarnessMeta)"
+            @click="engineListOpen = !engineListOpen"
           >
-            <span class="app-harness-icon">{{ harnessIcon(h) }}</span>
-            <span class="app-harness-copy">
-              <span class="app-harness-label">{{ h.name }}</span>
-              <span class="app-harness-sub">{{ harnessSub(h) }}</span>
+            <span class="app-engine-icon">{{ harnessIcon(activeHarnessMeta) }}</span>
+            <span class="app-engine-copy">
+              <span class="ip-label">{{ $t('sidebar.engine') }}</span>
+              <span class="app-engine-name">{{ activeHarnessMeta.name }}</span>
             </span>
+            <span class="app-engine-state" :class="isHarnessOffline(harness) ? 'off' : 'on'">
+              {{ isHarnessOffline(harness) ? $t('sidebar.offline') : $t('sidebar.ready') }}
+            </span>
+            <span class="app-engine-caret">{{ engineListOpen ? '▾' : '▸' }}</span>
           </button>
+
+          <div v-if="engineListOpen" class="app-engine-list ip-scroll">
+            <button
+              v-for="h in harnessList"
+              :key="h.id"
+              type="button"
+              class="app-engine-row"
+              :class="{ active: harness === h.id, offline: isHarnessOffline(h.id) }"
+              :title="harnessTitle(h)"
+              @click="selectHarness(h.id)"
+            >
+              <span class="app-engine-dot" :class="isHarnessOffline(h.id) ? 'off' : 'on'"></span>
+              <span class="app-engine-row-name">{{ h.name }}</span>
+              <span class="app-engine-row-sub">{{ harnessSub(h) }}</span>
+            </button>
+          </div>
         </div>
+
         <div class="app-presence" :class="wsStatusClass">
           <span class="app-presence-dot"></span>
           <span>{{ wsStatusText }}</span>
-        </div>
-        <div class="app-sidebar-note">
-          <span class="app-sidebar-note-label">{{ $t('common.theme') }}</span>
-          <span class="app-sidebar-note-value">{{ $t('common.themeValue') }}</span>
         </div>
         <div class="app-sidebar-note" v-if="analysisTargetLabel">
           <span class="app-sidebar-note-label">{{ $t('common.selection') }}</span>
@@ -78,7 +95,7 @@
           :title="$t('lang.switchTo')"
           @click="onToggleLocale"
         >
-          🌐 {{ $t('lang.switch') }}
+          {{ $t('lang.switch') }}
         </button>
       </div>
     </aside>
@@ -198,6 +215,7 @@ const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
+const engineListOpen = ref(false);
 const harness = ref('claude'); // default engine id; list refreshed from registry
 const harnessList = ref([]); // [{id, name, kind, description, capabilities}] from /api/harness
 const harnessAvailability = ref({}); // id -> available (from /api/harness/availability)
@@ -245,12 +263,11 @@ const activeHarnessSupportsRuns = computed(() =>
   (activeHarnessMeta.value.capabilities || []).includes('runs')
 );
 
-const visibleTabs = computed(() => {
-  if (activeHarnessSupportsRuns.value) {
-    return [...tabs.value.slice(0, 5), ompTab.value];
-  }
-  return tabs.value;
-});
+// 本体页与 History 都必须常驻 —— 早先的 slice(0, 5) 在加入 Ontology 后把 History 挤出了导航栏，
+// 用户会以为历史记录被删了。引擎专属的 runs 页作为附加项追加在末尾。
+const visibleTabs = computed(() => (
+  activeHarnessSupportsRuns.value ? [...tabs.value, ompTab.value] : tabs.value
+));
 
 const activeTabMeta = computed(() => visibleTabs.value.find(tab => tab.key === currentTab.value) || visibleTabs.value[0]);
 

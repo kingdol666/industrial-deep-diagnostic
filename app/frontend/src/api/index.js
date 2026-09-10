@@ -2,6 +2,16 @@ const BASE = '/api';
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
+// The client is a plain module, so it reaches the i18n instance directly rather
+// than through a component's `useI18n()`. Locale switches are reactive: the
+// message is resolved at throw time, not at module load.
+import i18n from '../i18n/index.js';
+
+function msg(key, fallback) {
+  const v = i18n.global.t(key);
+  return v && v !== key ? v : fallback;
+}
+
 // ─── 客户端会话管理 ───
 export function getToken() {
   try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
@@ -54,11 +64,13 @@ async function request(path, options = {}) {
   try {
     data = await res.json();
   } catch {
-    throw new ApiError(`服务端返回了非 JSON 响应 (HTTP ${res.status})`, { status: res.status });
+    throw new ApiError(`${msg('ontology.badResponse', 'Server returned a non-JSON response')} (HTTP ${res.status})`,
+      { status: res.status });
   }
   if (res.status === 401) {
     handleUnauthorized();
-    throw new ApiError(data.error || '认证失败，请重新登录', { status: 401, code: data.code });
+    throw new ApiError(data.error || msg('ontology.authRequired', 'Authentication failed — please sign in again'),
+      { status: 401, code: data.code });
   }
   if (!data.success) {
     throw new ApiError(data.error || 'Request failed', {
@@ -93,7 +105,10 @@ export const api = {
       body: formData,
     }).then(async (r) => {
       const d = await r.json();
-      if (r.status === 401) { handleUnauthorized(); throw new Error(d.error || '认证失败，请重新登录'); }
+      if (r.status === 401) {
+        handleUnauthorized();
+        throw new Error(d.error || msg('ontology.authRequired', 'Authentication failed — please sign in again'));
+      }
       if (!d.success) throw new Error(d.error);
       return d.data;
     });

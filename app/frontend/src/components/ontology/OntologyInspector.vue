@@ -156,7 +156,7 @@
         <div v-for="f in relatedFindings" :key="f.code + f.message" class="onto-finding" :class="`sev-${f.severity}`">
           <span class="onto-finding-sev">{{ severityLabel(f.severity) }}</span>
           <span class="onto-finding-code mono">{{ f.code }}</span>
-          <p class="onto-finding-msg">{{ f.message }}</p>
+          <p class="onto-finding-msg">{{ findingText(f) }}</p>
           <p v-if="f.hint" class="onto-finding-hint">{{ f.hint }}</p>
         </div>
       </div>
@@ -193,7 +193,7 @@
           <div v-if="ed.predicted_functional_form"><dt>{{ $t('ontology.editor.functionalForm') }}</dt><dd class="mono">{{ ed.predicted_functional_form }}</dd></div>
           <div v-if="ed.data_direction_validated"><dt>{{ $t('ontology.dataValidated') }}</dt><dd class="mono">{{ ed.data_direction_validated }}</dd></div>
           <div v-if="ed.time_lag"><dt>{{ $t('ontology.editor.timeLag') }}</dt><dd>{{ ed.time_lag }}</dd></div>
-          <div v-if="ed.optimal_lag"><dt>optimal_lag</dt><dd class="mono">{{ ed.optimal_lag.steps }} 步 / {{ ed.optimal_lag.seconds ?? '—' }}s</dd></div>
+          <div v-if="ed.optimal_lag"><dt>optimal_lag</dt><dd class="mono">{{ ed.optimal_lag.steps }} {{ $t('ontology.steps') }} / {{ ed.optimal_lag.seconds ?? '—' }}s</dd></div>
           <div v-if="ed.lag_agreement"><dt>lag_agreement</dt><dd class="mono">{{ ed.lag_agreement }}</dd></div>
           <div v-if="ed.lag_compensated_correlation?.r !== undefined">
             <dt>lag_compensated r</dt><dd class="mono">{{ ed.lag_compensated_correlation.r }}</dd></div>
@@ -238,7 +238,7 @@
       >
         <span class="onto-finding-sev">{{ severityLabel(f.severity) }}</span>
         <span class="onto-finding-code mono">{{ f.code }}</span>
-        <p class="onto-finding-msg">{{ f.message }}</p>
+        <p class="onto-finding-msg">{{ findingText(f) }}</p>
         <p v-if="f.focusNode" class="onto-finding-hint mono">{{ $t('ontology.findingFocus') }}: {{ f.focusNode }}
           <span v-if="f.pointer" class="dim"> ({{ f.pointer }})</span>
         </p>
@@ -334,6 +334,22 @@ function originLabel(o) {
   if (o.startsWith('agent')) return t('ontology.originAgent');
   if (o.startsWith('user')) return t('ontology.originUser');
   return o;
+}
+/**
+ * Server findings carry a stable `code` plus structured fields; the human
+ * sentence is rendered client-side so it follows the active locale. The
+ * server text is the fallback for codes this build does not know yet.
+ */
+function findingText(f) {
+  const key = `ontology.findingCode.${f.code}`;
+  const localised = t(key);
+  return localised === key ? f.message : localised;
+}
+
+function findingRule(f) {
+  const key = `ontology.findingRule.${f.sourceRule}`;
+  const localised = t(key);
+  return localised === key ? f.sourceRule : localised;
 }
 </script>
 

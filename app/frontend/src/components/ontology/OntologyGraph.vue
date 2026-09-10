@@ -14,7 +14,7 @@
       />
       <div v-else class="onto-graph-empty">
         <div class="onto-graph-empty-mark">◌</div>
-        <p>{{ emptyText }}</p>
+        <p>{{ emptyText || $t('ontology.graph.empty') }}</p>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
             type="button"
             class="onto-legend-item"
             :class="{ dimmed: hiddenCategories.includes(c.name) }"
-            :title="`${c.label} — 点击隐藏/显示`"
+            :title="$t('ontology.graph.toggle')"
             @click="toggleCategory(c.name)"
           >
             <span class="onto-legend-swatch" :style="{ background: c.color, borderRadius: c.symbol === 'rect' ? '1px' : '50%' }"></span>
@@ -120,7 +120,7 @@ const props = defineProps({
   graph: { type: Object, default: () => ({ nodes: [], edges: [], categories: [] }) },
   layers: { type: Object, default: () => ({ structure: true, relationships: true, knowledge: false }) },
   selectedId: { type: String, default: '' },
-  emptyText: { type: String, default: '暂无本体图数据' },
+  emptyText: { type: String, default: '' },
 });
 const emit = defineEmits(['select', 'update:layers']);
 
@@ -131,22 +131,23 @@ const showEdgeLabels = ref(true);
 const hiddenCategories = ref([]);
 const hoveredId = ref('');
 
-const layouts = [
-  { key: 'force', label: '力导向', hint: '适合查看整体语义拓扑与聚类' },
-  { key: 'circular', label: '环形', hint: '适合查看连通性与孤立节点' },
-  { key: 'none', label: '自由', hint: '拖动后保持手工布局' },
-];
+const layouts = computed(() => [
+  { key: 'force', label: t('ontology.graph.layoutForce'), hint: t('ontology.graph.layoutForceHint') },
+  { key: 'circular', label: t('ontology.graph.layoutCircular'), hint: t('ontology.graph.layoutCircularHint') },
+  { key: 'none', label: t('ontology.graph.layoutNone'), hint: t('ontology.graph.layoutNoneHint') },
+]);
 
-const EDGE_LEGEND = [
-  { type: 'causal', label: '因果 causal', color: '#f97362', width: 3 },
-  { type: 'correlative', label: '相关 correlative', color: '#4ea8f5', width: 2 },
-  { type: 'control', label: '控制 control', color: '#31c9a8', width: 3 },
-  { type: 'physical', label: '物理 physical', color: '#c9a227', width: 3 },
+const EDGE_LEGEND_TYPES = [
+  { type: 'causal', key: 'ontology.graph.edgeCausal', color: '#f97362', width: 3 },
+  { type: 'correlative', key: 'ontology.graph.edgeCorrelative', color: '#4ea8f5', width: 2 },
+  { type: 'control', key: 'ontology.graph.edgeControl', color: '#31c9a8', width: 3 },
+  { type: 'physical', key: 'ontology.graph.edgePhysical', color: '#c9a227', width: 3 },
 ];
 const edgeLegend = computed(() => {
   const present = new Set((props.graph?.edges || []).filter((e) => e.relation === 'relationship').map((e) => e.type));
-  const known = EDGE_LEGEND.filter((e) => present.has(e.type));
-  return known.length ? known : EDGE_LEGEND;
+  const known = EDGE_LEGEND_TYPES.filter((e) => present.has(e.type));
+  const list = known.length ? known : EDGE_LEGEND_TYPES;
+  return list.map((e) => ({ ...e, label: t(e.key) }));
 });
 
 function countByCategory(name) {

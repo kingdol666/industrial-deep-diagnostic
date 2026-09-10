@@ -1,82 +1,87 @@
 <template>
   <div class="task-list">
-    <!-- New Task Button -->
-    <div class="tl-toolbar">
-      <span class="tl-title">{{ $t('taskList.title') }}</span>
+    <!-- Toolbar — title becomes a labelled rail, action stays right -->
+    <div class="ip-panel-head tl-toolbar">
+      <span class="ip-label">{{ $t('taskList.title') }}</span>
+      <span class="tl-counts">
+        <span class="ip-chip accent no-dot">{{ $t('taskList.active') }} {{ runningRuns.length }}</span>
+        <span class="ip-chip muted no-dot">{{ $t('taskList.history') }} {{ pastRuns.length }}</span>
+      </span>
       <button class="btn btn-sm" @click="$emit('new-task')">{{ $t('taskList.newTask') }}</button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading && runs.length === 0" class="empty-state">
-      <div class="spinner" style="margin:0 auto 8px"></div>
-      <p>{{ $t('taskList.loadingTasks') }}</p>
+    <div v-if="loading && runs.length === 0" class="ip-empty">
+      <div class="spinner"></div>
+      <span class="ip-empty-title">{{ $t('taskList.loadingTasks') }}</span>
     </div>
 
     <!-- Empty -->
-    <div v-else-if="!loading && runs.length === 0" class="empty-state">
-      <p style="font-size:28px;margin-bottom:12px;">🔬</p>
-      <p>{{ $t('taskList.empty') }}</p>
-      <p style="font-size:12px;color:var(--text2);margin-top:4px;">
-        {{ $t('taskList.emptyHint') }}
-      </p>
+    <div v-else-if="!loading && runs.length === 0" class="ip-empty">
+      <span class="ip-empty-mark">[ ]</span>
+      <span class="ip-empty-title">{{ $t('taskList.empty') }}</span>
+      <span class="ip-empty-hint">{{ $t('taskList.emptyHint') }}</span>
     </div>
 
-    <!-- Runs grouped: running first, then past -->
+    <!-- Runs — one dense readout, grouped by state rather than by card style -->
     <template v-else>
-      <!-- Running Tasks -->
-      <template v-if="runningRuns.length > 0">
-        <div class="tl-group-label">
-          <span class="status-dot dot-blue pulse" style="display:inline-block;width:6px;height:6px;margin-right:6px;"></span>
-          {{ $t('taskList.active') }} ({{ runningRuns.length }})
+      <div class="ip-table tl-table">
+        <div class="ip-thead tl-cols">
+          <span>{{ $t('taskList.colRun') }}</span>
+          <span>{{ $t('taskList.colState') }}</span>
+          <span>{{ $t('taskList.colVerdict') }}</span>
+          <span class="ta-r">{{ $t('taskList.colScore') }}</span>
+          <span class="ta-r">{{ $t('taskList.colTime') }}</span>
         </div>
-        <div
-          v-for="run in runningRuns" :key="run.run_id"
-          class="tl-run-card tl-run-running"
-          @click="$emit('view-run', run.run_id)"
-        >
-          <div class="run-main">
-            <div class="run-header">
-              <span class="run-scene">{{ run.scene_name }}</span>
-              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
-            </div>
-            <div class="run-id">#{{ run.run_id }}</div>
-            <div class="run-meta">
-              <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="getEffectiveRunStatus(run) === 'running'">{{ $t('taskList.inProgress') }}</span>
-              <span v-else-if="getEffectiveRunStatus(run) === 'awaiting_input'">{{ $t('taskList.awaitingAnswer') }}</span>
-            </div>
-            <div class="run-question" v-if="run.user_question">{{ run.user_question.slice(0, 120) }}{{ run.user_question.length > 120 ? '...' : '' }}</div>
-          </div>
-          <div class="run-arrow">→</div>
-        </div>
-      </template>
 
-      <!-- Past Tasks -->
-      <template v-if="pastRuns.length > 0">
-        <div class="tl-group-label">
-          {{ $t('taskList.history') }} ({{ pastRuns.length }})
-        </div>
-        <div
-          v-for="run in pastRuns" :key="run.run_id"
-          class="tl-run-card tl-run-past"
-          @click="onPastRunClick(run)"
-        >
-          <div class="run-main">
-            <div class="run-header">
-              <span class="run-scene">{{ run.scene_name }}</span>
-              <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
+        <div class="tl-body ip-scroll">
+          <template v-if="runningRuns.length > 0">
+            <div class="tl-group-label">
+              <span class="tl-pulse"></span>{{ $t('taskList.active') }}
             </div>
-            <div class="run-id">#{{ run.run_id }}</div>
-            <div class="run-meta">
-              <span>{{ formatTime(run.created_at) }}</span>
-              <span v-if="run.score != null">{{ $t('taskList.score') }}: {{ run.score }}/100</span>
-              <span v-if="run.judge_verdict" :class="verdictColor(run.judge_verdict)">{{ run.judge_verdict }}</span>
-              <span v-if="run.error_message" class="run-error-msg">{{ run.error_message.slice(0, 80) }}</span>
+            <div
+              v-for="run in runningRuns" :key="run.run_id"
+              class="ip-row tl-cols tl-row is-active"
+              @click="$emit('view-run', run.run_id)"
+            >
+              <span class="tl-name">
+                <span class="tl-scene">{{ run.scene_name }}</span>
+                <span class="tl-id mono">#{{ run.run_id }}</span>
+                <span v-if="run.user_question" class="tl-question" :title="run.user_question">
+                  {{ run.user_question }}
+                </span>
+              </span>
+              <span><span class="ip-chip accent">{{ getRunStatusLabel(run) }}</span></span>
+              <span class="tl-verdict">{{ getEffectiveRunStatus(run) === 'running' ? $t('taskList.inProgress') : $t('taskList.awaitingAnswer') }}</span>
+              <span class="ta-r tl-score">—</span>
+              <span class="ta-r tl-time">{{ formatTime(run.created_at) }}</span>
             </div>
-          </div>
-          <div class="run-arrow">→</div>
+          </template>
+
+          <template v-if="pastRuns.length > 0">
+            <div class="tl-group-label">{{ $t('taskList.history') }}</div>
+            <div
+              v-for="run in pastRuns" :key="run.run_id"
+              class="ip-row tl-cols tl-row"
+              @click="onPastRunClick(run)"
+            >
+              <span class="tl-name">
+                <span class="tl-scene">{{ run.scene_name }}</span>
+                <span class="tl-id mono">#{{ run.run_id }}</span>
+                <span v-if="run.error_message" class="tl-error" :title="run.error_message">
+                  {{ run.error_message }}
+                </span>
+              </span>
+              <span><span class="ip-chip" :class="statusTone(run)">{{ getRunStatusLabel(run) }}</span></span>
+              <span class="tl-verdict" :class="verdictColor(run.judge_verdict)">{{ run.judge_verdict || '—' }}</span>
+              <span class="ta-r tl-score" :class="scoreTone(run.score)">
+                {{ run.score != null ? run.score : '—' }}
+              </span>
+              <span class="ta-r tl-time">{{ formatTime(run.created_at) }}</span>
+            </div>
+          </template>
         </div>
-      </template>
+      </div>
     </template>
   </div>
 </template>
@@ -101,9 +106,27 @@ function onPastRunClick(run) {
   }
 }
 
+/** Map the legacy badge class onto the instrument chip tone. */
+function statusTone(run) {
+  const cls = getRunStatusBadgeClass(run) || '';
+  if (cls.includes('green')) return 'ok';
+  if (cls.includes('red')) return 'bad';
+  if (cls.includes('yellow')) return 'warn';
+  if (cls.includes('blue')) return 'info';
+  return 'muted';
+}
+
+function scoreTone(score) {
+  if (score == null) return '';
+  if (score >= 90) return 'ok';
+  if (score >= 70) return 'warn';
+  return 'bad';
+}
+
 function verdictColor(v) {
   if (v === 'PASS' || v === 'ENDORSED') return 'text-green';
   if (v === 'CONDITIONAL' || v === 'NEEDS_REPAIR') return 'text-yellow';
+  if (!v) return '';
   return 'text-red';
 }
 
@@ -114,75 +137,78 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.task-list { display: flex; flex-direction: column; gap: 8px; }
+.task-list { display: flex; flex-direction: column; gap: 10px; }
 
-.tl-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px;
-}
+.tl-toolbar { gap: 10px; }
+.tl-toolbar .ip-label { flex: 1; }
+.tl-counts { display: flex; gap: 5px; }
+.tl-counts .ip-chip { font-size: var(--fs-micro); }
 
-.tl-title {
-  font-size: 16px; font-weight: 700; color: var(--text);
+/* One shared column template so the header and every row stay aligned. */
+.tl-cols {
+  grid-template-columns: minmax(0, 2.6fr) 104px minmax(90px, 0.8fr) 54px 96px;
 }
+.tl-table { min-height: 0; }
+.tl-body { overflow-y: auto; min-height: 0; }
+.tl-row { cursor: pointer; min-height: 34px; }
 
 .tl-group-label {
-  font-size: 11px; font-weight: 700; color: var(--text2);
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 8px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 12px;
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 28px;
+  z-index: 1;
 }
 
-.tl-run-card {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 16px;
-  cursor: pointer; transition: all .15s;
+.tl-pulse {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  animation: tlPulse 1.5s ease-in-out infinite;
+}
+@keyframes tlPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,163,61,0.55); }
+  50% { box-shadow: 0 0 0 4px rgba(232,163,61,0); }
 }
 
-.tl-run-card:hover {
-  border-color: var(--accent);
-  background: var(--surface2);
+.tl-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.tl-scene {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 34ch;
 }
-
-.tl-run-running { border-left: 3px solid var(--accent); }
-
-.tl-run-past { border-left: 3px solid transparent; }
-
-.run-main { flex: 1; min-width: 0; }
-
-.run-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 4px;
+.tl-id { font-size: var(--fs-micro); color: var(--text-dim); flex: none; }
+.tl-question {
+  font-size: var(--fs-micro);
+  color: var(--text3);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
+.tl-error { font-size: var(--fs-micro); color: var(--red); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.run-scene { font-size: 14px; font-weight: 600; color: var(--text); }
-
-.run-id { font-size: 11px; color: var(--text2); font-family: monospace; margin-bottom: 4px; }
-
-.run-meta {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 11px; color: var(--text2);
-}
-
-.run-question {
-  font-size: 12px; color: var(--text2);
-  margin-top: 6px; font-style: italic; opacity: .7;
-}
-
-.run-error-msg {
-  color: var(--red); font-family: monospace; font-size: 10px;
-  max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.run-arrow { color: var(--text2); font-size: 16px; transition: transform .15s; }
-.tl-run-card:hover .run-arrow { transform: translateX(3px); color: var(--accent); }
+.tl-verdict { font-size: var(--fs-micro); font-family: var(--font-mono); color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-score { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text2); }
+.tl-score.ok { color: var(--green); }
+.tl-score.warn { color: var(--yellow); }
+.tl-score.bad { color: var(--red); }
+.tl-time { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--text3); white-space: nowrap; }
 
 .text-green { color: var(--green); }
 .text-yellow { color: var(--yellow); }
 .text-red { color: var(--red); }
-
-.status-dot.pulse { animation: dotPulse 1.5s infinite; }
-@keyframes dotPulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--accent); }
-  50% { box-shadow: 0 0 0 4px transparent; }
-}
 </style>

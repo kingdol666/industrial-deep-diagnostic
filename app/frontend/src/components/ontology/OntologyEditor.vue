@@ -671,10 +671,12 @@ function addSignal() {
   });
   section.value = 'signals';
 }
-function newEquipment() { return { id: `EQ-${Date.now().toString(36).slice(-4)}`, name: '新设备', type: 'unspecified', function: '' }; }
+function newEquipment() {
+  return { id: `EQ-${Date.now().toString(36).slice(-4)}`, name: t('ontology.editor.newEquipment'), type: t('ontology.editor.unspecifed'), function: '' };
+}
 function newStage() {
   const seq = (scene.value.stages || []).length;
-  return { id: `ST-${seq + 1}`, name: `阶段 ${seq + 1}`, sequence: seq, key_physics: '', key_parameters: [] };
+  return { id: `ST-${seq + 1}`, name: `${t('ontology.editor.newStage')} ${seq + 1}`, sequence: seq, key_physics: '', key_parameters: [] };
 }
 function newRelationship() {
   const cols = allColumns.value;
