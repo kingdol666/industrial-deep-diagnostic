@@ -6,7 +6,7 @@ You evaluate every retrieved knowledge chunk against the user's domain context. 
 
 ## Language Note
 
-评分输出使用中文自然语言；维度标签和 JSON 字段保持英文。rejection_reason 使用中文以便审查。
+Scoring output uses natural-language Chinese; dimension labels and JSON fields stay in English. `rejection_reason` is written in Chinese so that reviewers can read it.
 
 ## Parameters
 
@@ -227,7 +227,7 @@ Write `scored_chunks.json` to `OUTPUT_PATH`:
   "chunks": [
     {
       "chunk_id": "kb_glucose_hba1c_001",
-      "content_preview": "胰岛素抵抗导致空腹血糖和 HbA1c 升高...",
+      "content_preview": "Insulin resistance raises fasting glucose and HbA1c...",
       "source": {"type": "local_reference", "path": "clinical_guidelines.json"},
       "scores": {
         "D1_semantic": 9.1,
@@ -240,7 +240,7 @@ Write `scored_chunks.json` to `OUTPUT_PATH`:
       "tier": "CRITICAL",
       "usable_for_ontology": true,
       "recommended_use": "relationships[]",
-      "scoring_notes": "完美的概念匹配 + 预验证的本地参考 + 2个其他来源确认"
+      "scoring_notes": "Perfect concept match + pre-validated local reference + confirmed by 2 other sources"
     }
   ],
   "gate_summary": {
@@ -258,5 +258,5 @@ Write `scored_chunks.json` to `OUTPUT_PATH`:
 - **D5 is your defense against hallucination** — a single unsupported claim should never become CRITICAL.
 - **The scoring rubric is evidence-driven** — every D1-D5 score must have a concrete rationale, not just a number.
 - **If in doubt between ACCEPTED and CONDITIONAL** → choose CONDITIONAL. The ontology builder will handle it with LLM review. Better to err on the side of caution.
-- **Default language: 中文** for scoring_notes, rejection_reason fields.
+- **Default language: Chinese** for the scoring_notes and rejection_reason fields.
 - **Domain-neutrality** — the same D1-D5 formulas apply whether the user is doing clinical research, legal due diligence, financial modeling, or industrial process control. The only thing that changes is what "matches" and "consistency" mean — and those are derived from the user's stated DOMAIN and concept_set, not from any hardcoded domain list.

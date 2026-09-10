@@ -1,36 +1,38 @@
 # Ontology Output Templates — Universal Natural Language Templates
 
-> 本文件定义了本体输出的模板结构。适用于任何知识领域。
+> This file defines the template structure for ontology output. It applies to any knowledge domain.
+
+> **Language directive:** The fenced blocks below are emitted-output templates: the ontology document rendered from them must be written in the configured output language — default **Chinese** (see the Language Default section of `SKILL.md`). Their English field values are structural placeholders only; YAML/JSON keys and enum values (`KNOWN`/`INFERRED`/`UNKNOWN`, and so on) always remain in English.
 
 ---
 
-## Template A: 通用领域（通用模板）
+## Template A: Universal Domain (Generic Template)
 
-适用于任何没有被特殊模板覆盖的领域。
+Applies to any domain that no specialized template covers.
 
 ```yaml
 template: universal
 scene:
-  name: "{领域名}"
+  name: "{domain_name}"
   domain_type: "{specific_domain_snake_case}"
-  domain_summary: "2-3 句中文描述"
+  domain_summary: "2-3 sentence description (configured output language)"
   scope:
-    included: ["本本体覆盖的范围"]
-    excluded: ["不覆盖的范围"]
-    boundary_conditions: ["模型失效条件"]
+    included: ["scope covered by this ontology"]
+    excluded: ["scope not covered"]
+    boundary_conditions: ["conditions under which the model fails"]
 
 concepts:
   target_concept_template:
-    name: "概念标准名"
-    definition: "精确中文定义：是什么、不是什么、有效条件"
+    name: "canonical concept name"
+    definition: "precise definition (configured output language): what it is, what it is not, validity conditions"
     definition_confidence: "KNOWN|INFERRED|UNKNOWN"
     concept_type: "measurement|outcome|..."
-    unit: "SI 或领域单位"
-    expected_value_range: "合理范围及说明"
-    broader_concept: "父概念（IS-A）"
-    part_of_whole: "所属整体（PART-OF）"
+    unit: "SI or domain-specific unit"
+    expected_value_range: "plausible range with an explanation"
+    broader_concept: "parent concept (IS-A)"
+    part_of_whole: "the whole it belongs to (PART-OF)"
     terminology:
-      canonical_name: "标准名"
+      canonical_name: "canonical name"
       synonyms: []
       abbreviations: []
       cross_language: {}
@@ -40,222 +42,222 @@ concepts:
       abnormal: {value, context, inference}
 
   related_concept_template:
-    name: "概念名"
+    name: "concept name"
     definition: "..."
     concept_type: "predictor|input|control|mediator|..."
-    # ...同上结构
+    # ...same structure as above
 
   context_dimension_template:
-    name: "维度名"
-    definition: "分层什么"
+    name: "dimension name"
+    definition: "what it stratifies"
     cardinality: "low|medium|high|continuous"
     typical_values: []
 
 entity_template:
   id: "entity_id"
-  name: "领域特定实体名"
+  name: "domain-specific entity name"
   type: "agent|component|organization|system|..."
-  definition: "2-3 句中文"
-  part_of: "父实体"
+  definition: "2-3 sentences (configured output language)"
+  part_of: "parent entity"
   has_parts: []
   key_attributes: []
-  role_in_domain: "位置描述"
+  role_in_domain: "description of its position"
 
 relationship_template:
   id: "rel_NNN"
-  from: "源概念"
-  to: "目标概念"
+  from: "source concept"
+  to: "target concept"
   type: "causal|correlative|physical|control|..."
-  mechanism: "2-3 句中文"
+  mechanism: "2-3 sentences (configured output language)"
   direction: "from↑→to↑ | from↑→to↓ | ..."
-  conditions: ["前提条件"]
-  exceptions: ["例外情况"]
-  expected_lag: "时滞"
+  conditions: ["preconditions"]
+  exceptions: ["exceptional cases"]
+  expected_lag: "time lag"
   knowledge_confidence: 0.0-1.0
 
 constraint_template:
   id: "constraint_NNN"
-  statement: "自然语言约束陈述"
+  statement: "natural-language constraint statement"
   type: "hard|soft|heuristic"
   applicable_concepts: []
-  violation_consequence: "违反后果"
-  boundary_conditions: "失效条件"
+  violation_consequence: "consequence of violation"
+  boundary_conditions: "conditions under which it fails"
 
 confounder_template:
-  name: "混杂因素名"
+  name: "confounder name"
   type: "batch|category|..."
-  reasoning: "2-3 句中文"
+  reasoning: "2-3 sentences (configured output language)"
   confounded_relationships: []
   expected_impact: "high|medium|low"
 ```
 
 ---
 
-## Template B: 工业过程控制
+## Template B: Industrial Process Control
 
-适用于：制造、加工、化工、冶金等工业领域。
+Applies to: industrial domains such as manufacturing, processing, chemicals, and metallurgy.
 
-### 额外的概念类型扩展
+### Additional concept type extensions
 
 ```yaml
 concept_type_extensions:
-  - "process_parameter"  # 过程参数（可调节）
-  - "quality_indicator"  # 质量指标（目标）
-  - "equipment_state"    # 设备状态（监测）
-  - "material_property"  # 材料属性（固有）
-  - "environmental_factor" # 环境因素（不可控）
+  - "process_parameter"  # process parameter (adjustable)
+  - "quality_indicator"  # quality indicator (target)
+  - "equipment_state"    # equipment state (monitored)
+  - "material_property"  # material property (intrinsic)
+  - "environmental_factor" # environmental factor (uncontrollable)
 
 relationship_type_extensions:
-  - "physical"    # 物理定律约束
-  - "control"     # 控制回路
+  - "physical"    # constrained by physical law
+  - "control"     # control loop
 
 constraint_type_examples:
   hard:
-    - "熔体温度 >300°C 会导致 PET 热降解（不可逆）"
-    - "反应压力超过安全阀设定值时自动泄压"
+    - "Melt temperature >300°C causes thermal degradation of PET (irreversible)"
+    - "Reactor pressure above the relief valve setpoint vents automatically"
   soft:
-    - "建议 MDO 拉伸温度控制在 Tg+5~15°C 范围内"
-    - "轴承温度 >70°C 建议安排维护"
+    - "MDO stretch temperature is recommended to stay within Tg+5~15°C"
+    - "Bearing temperature >70°C suggests scheduling maintenance"
   heuristic:
-    - "温度每升高 10°C，粘度约降低 30-40%（Arrhenius 近似）"
-    - "振动速度超过 4.5 mm/s 时表面粗糙度大概率超标"
+    - "For every 10°C rise in temperature, viscosity drops by roughly 30-40% (Arrhenius approximation)"
+    - "When vibration velocity exceeds 4.5 mm/s, surface roughness is very likely out of specification"
 ```
 
-### 工业领域特有字段
+### Industrial-domain-specific fields
 
 ```yaml
 industrial_extensions:
   process_stages:
     - id: "stage_id"
-      name: "工序名"
+      name: "process stage name"
       order: 1
-      function: "该工序的作用"
+      function: "what this process stage does"
       key_equipment: ["entity_id"]
       key_parameters: ["concept_name"]
-      input_material: "上游来料"
-      output_material: "下游产出"
+      input_material: "incoming material from upstream"
+      output_material: "output passed downstream"
 
   degradation_mechanisms:
-    - name: "退化机制名"
+    - name: "degradation mechanism name"
       affected_entity: "entity_id"
-      progression: "退化如何随时间/条件发展"
+      progression: "how the degradation develops over time / with conditions"
       early_warning_signals: ["concept_name"]
-      intervention_options: ["可能的干预措施"]
+      intervention_options: ["possible interventions"]
 ```
 
 ---
 
-## Template C: 临床医学
+## Template C: Clinical Medicine
 
-适用于：疾病诊断、风险评估、治疗方案等。
+Applies to: disease diagnosis, risk assessment, treatment plans, and similar.
 
-### 额外的概念类型扩展
+### Additional concept type extensions
 
 ```yaml
 concept_type_extensions:
-  - "biomarker"        # 生物标志物
-  - "clinical_outcome" # 临床结局
-  - "risk_factor"      # 危险因素
-  - "protective_factor" # 保护因素
-  - "medication"       # 药物
-  - "comorbidity"      # 合并症
+  - "biomarker"        # biomarker
+  - "clinical_outcome" # clinical outcome
+  - "risk_factor"      # risk factor
+  - "protective_factor" # protective factor
+  - "medication"       # medication
+  - "comorbidity"      # comorbidity
 
 relationship_type_extensions:
-  - "causal"      # 生物/病理因果
-  - "statistical" # 统计模型预测
+  - "causal"      # biological / pathological causation
+  - "statistical" # statistical model prediction
 
 constraint_type_examples:
   hard:
-    - "HbA1c ≥ 6.5% 可诊断为糖尿病（ADA 标准）"
-    - "eGFR <30 mL/min 禁用二甲双胍"
+    - "HbA1c ≥ 6.5% is diagnostic of diabetes (ADA criteria)"
+    - "Metformin is contraindicated when eGFR <30 mL/min"
   soft:
-    - "BMI >25 建议进行糖耐量筛查"
+    - "BMI >25 suggests glucose tolerance screening"
   heuristic:
-    - "年龄每增加 10 岁，2 型糖尿病风险约增加 1.5 倍"
+    - "Each additional 10 years of age increases type 2 diabetes risk by roughly 1.5-fold"
 ```
 
-### 医学领域特有字段
+### Medical-domain-specific fields
 
 ```yaml
 clinical_extensions:
   diagnostic_criteria:
-    - condition: "疾病名"
+    - condition: "disease name"
       required_biomarkers: ["biomarker_name"]
       thresholds: {"biomarker": "threshold_value"}
-      reference: "指南来源"
+      reference: "guideline source"
 
   treatment_pathways:
-    - condition: "疾病状态"
-      first_line: ["治疗方案A"]
-      second_line: ["治疗方案B"]
-      contraindications: ["禁忌条件"]
+    - condition: "disease state"
+      first_line: ["treatment option A"]
+      second_line: ["treatment option B"]
+      contraindications: ["contraindicated conditions"]
 ```
 
 ---
 
-## Template D: 法律/合规
+## Template D: Legal / Compliance
 
-适用于：合同审查、合规检查、法规分析等。
+Applies to: contract review, compliance checks, regulatory analysis, and similar.
 
-### 额外的概念类型扩展
+### Additional concept type extensions
 
 ```yaml
 concept_type_extensions:
-  - "legal_concept"     # 法律概念
-  - "contract_clause"   # 合同条款
-  - "obligation"        # 义务
-  - "right"             # 权利
-  - "liability"         # 责任
-  - "compliance_requirement" # 合规要求
+  - "legal_concept"     # legal concept
+  - "contract_clause"   # contract clause
+  - "obligation"        # obligation
+  - "right"             # right
+  - "liability"         # liability
+  - "compliance_requirement" # compliance requirement
 
 relationship_type_extensions:
-  - "legal"        # 法律因果关系
-  - "precedential" # 先例关系
-  - "regulatory"   # 监管关系
+  - "legal"        # legal causation
+  - "precedential" # precedential relationship
+  - "regulatory"   # regulatory relationship
 
 constraint_type_examples:
   hard:
-    - "非竞争条款在加利福尼亚州通常不可执行"
-    - "ECOA 禁止使用种族、性别作为信贷决策因素"
+    - "Non-compete clauses are generally unenforceable in California"
+    - "ECOA prohibits the use of race or sex as factors in credit decisions"
   soft:
-    - "赔偿条款上限建议不超过合同总价值的 200%"
+    - "Indemnity caps are recommended not to exceed 200% of the total contract value"
 ```
 
 ---
 
-## Template E: 金融/风险
+## Template E: Finance / Risk
 
-适用于：信用评分、市场分析、风险评估等。
+Applies to: credit scoring, market analysis, risk assessment, and similar.
 
-### 额外的概念类型扩展
+### Additional concept type extensions
 
 ```yaml
 concept_type_extensions:
-  - "financial_metric"   # 金融指标
-  - "risk_score"         # 风险分数
-  - "market_factor"      # 市场因素
-  - "behavioral_signal"  # 行为信号
+  - "financial_metric"   # financial metric
+  - "risk_score"         # risk score
+  - "market_factor"      # market factor
+  - "behavioral_signal"  # behavioral signal
 
 relationship_type_extensions:
-  - "statistical"  # 统计模型关系
-  - "correlative"  # 相关关系
+  - "statistical"  # statistical model relationship
+  - "correlative"  # correlative relationship
 
 constraint_type_examples:
   hard:
-    - "模型不得使用受保护特征作为违约预测的直接输入（ECOA 合规）"
-    - "LTV 比率 >80% 需要 PMI 保险"
+    - "The model must not use protected attributes as direct inputs to default prediction (ECOA compliance)"
+    - "An LTV ratio >80% requires PMI insurance"
   heuristic:
-    - "债务收入比 >40% 时违约概率显著上升"
+    - "When the debt-to-income ratio exceeds 40%, default probability rises significantly"
 ```
 
 ---
 
 ## How to Use Templates (LLM Instructions)
 
-1. **不要死套模板。** 模板是起点，不是终点。根据领域特点增减字段。
-2. **优先保证核心结构完整。** concepts、relationships、constraints 是必需的。扩展字段视领域需要。
-3. **自然语言定义永远比结构化字段更重要。** 一个好的中文定义胜过 10 个空字段。
-4. **每个模板的 constraint_type_examples 都是参考。** 你必须从实际知识块中提取约束，不是复制示例。
-5. **如果领域跨模板（如医学+法律），合并多个模板的字段。**
+1. **Do not apply the templates rigidly.** A template is a starting point, not an endpoint. Add or remove fields according to the characteristics of the domain.
+2. **Keep the core structure complete first.** concepts, relationships, and constraints are mandatory. Extension fields depend on what the domain needs.
+3. **Natural-language definitions always matter more than structured fields.** One good definition in the configured output language beats 10 empty fields.
+4. **The constraint_type_examples in every template are references only.** You must extract constraints from the actual knowledge chunks, not copy the examples.
+5. **If a domain spans templates (e.g., medicine + law), merge the fields of the relevant templates.**
 
-**Anti-pattern:** 不要因为模板里有某个字段就强制填充。没有知识源支持的字段留空或标注 UNKNOWN。
+**Anti-pattern:** Do not force-fill a field just because the template contains it. Leave fields with no supporting knowledge source empty or mark them UNKNOWN.

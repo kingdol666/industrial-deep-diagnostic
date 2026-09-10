@@ -1,7 +1,7 @@
 {
  "$schema": "http://json-schema.org/draft-07/schema#",
  "title": "VLM Visual Analysis Schema v1.0",
- "description": "Schema for structured VLM visual observations extracted from diagnostic charts. Output by vlm-visual-analyzer sub-agent, consumed by diagnostician (visual_evidence), judge (Score 8: 可视化), and reporter (Section 11: 可视化证据).",
+ "description": "Schema for structured VLM visual observations extracted from diagnostic charts. Output by vlm-visual-analyzer sub-agent, consumed by diagnostician (visual_evidence), judge (Score 8: visualization), and reporter (Section 11: visual evidence).",
  "type": "object",
  "required": [
   "generated_at",

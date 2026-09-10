@@ -1,33 +1,33 @@
 # Page Blueprint v2
 
-这个模板规定页面结构，不规定具体文案。
+This template prescribes the page structure, not the specific copy.
 
 ## Page Architecture
 
-页面采用**四段式叙事**，每段回答一个核心问题：
+The page uses a **four-part narrative**, each part answering one core question:
 
-1. Hero — 结论先行：「结论是什么？」
-2. 背景与位置 — 空间定位：「问题发生在产线哪里？」
-3. 诊断推理 — 方法说明：「这个结论是怎么得出来的？」
-4. 证据链 — 三层证据闭环：「为什么相信这个结论？下一步做什么？」
+1. Hero — conclusion first: "What is the conclusion?"
+2. Background and location — spatial localization: "Where on the production line did the problem occur?"
+3. Diagnostic reasoning — method explanation: "How was this conclusion reached?"
+4. Evidence chain — three-layer closed evidence loop: "Why believe this conclusion? What do we do next?"
 
-### 叙事设计原则（binding — 决定页面是否「精彩且读得懂」）
+### Narrative design principles (binding — they decide whether the page is "compelling and comprehensible")
 
-**A. 故事脊柱 + 段落过渡（连贯性）**：四段不是独立卡片，是一条因果链。每段**结尾必须用一句话过渡**，把读者自然引向下一段的核心问题：
-- Hero 结尾 →「结论有了，但异常到底发生在产线的哪个位置？」→ 引出背景
-- 背景结尾 →「位置锁定了，凭什么这么判断？」→ 引出诊断推理
-- 推理结尾 →「推理链成立，但证据够硬吗？为什么不是别的原因？」→ 引出证据链
-- 证据链结尾 →「证据闭环了，接下来车间该做什么？」→ 行动建议
+**A. Story spine + paragraph transitions (coherence)**: the four parts are not independent cards but one causal chain. **Each part must close with a one-sentence transition** that leads the reader naturally into the next part's core question:
+- End of Hero → "We have the conclusion, but where on the production line did the anomaly actually occur?" → leads into the background
+- End of background → "The location is pinned down, but on what grounds?" → leads into the diagnostic reasoning
+- End of reasoning → "The reasoning chain holds, but is the evidence hard enough? Why not another cause?" → leads into the evidence chain
+- End of evidence chain → "The evidence loop is closed, so what should the shop floor do next?" → action recommendations
 
-**B. 外婆测试（白话强制）**：每个统计/物理术语首次出现时，**紧跟一句不含术语的白话**。如「Spearman ρ=0.55」→「（这两个参数一起涨落，中等强度）」。术语不配白话 = reviewer 判不通过。
+**B. Grandmother Test (plain language mandatory)**: at the first occurrence of every statistical/physical term, **immediately follow it with a jargon-free plain-language sentence**. E.g. "Spearman ρ=0.55" → "(these two parameters rise and fall together, of moderate strength)". A term without its plain-language gloss = the reviewer returns fail.
 
-**C. 那又怎样（业务影响强制）**：每个关键发现后必须跟一句「对生产意味着什么」——把数据翻译成业务语言（良率/停机/成本/质量风险）。只有数字没有业务含义 = 未完成。
+**C. So what? (business impact mandatory)**: every key finding must be followed by a sentence about "what this means for production" — translating the data into business language (yield / downtime / cost / quality risk). Numbers with no business meaning = unfinished.
 
-**D. 段落标题用问题句**：「问题发生在产线的哪个位置？」而非「背景与建模」。每个区块只回答一个核心问题。
+**D. Use question sentences for section headings**: "Where on the production line did the problem occur?" rather than "Background and modeling". Each block answers only one core question.
 
-**E. 自上而下信息层次**：结论 → 位置 → 方法 → 证据。任何段落不得把细节结论提前到 Hero 之前。
+**E. Top-down information hierarchy**: conclusion → location → method → evidence. No section may move a detailed conclusion ahead of the Hero.
 
-**F. 真实数据唯一来源（零编造）**：页面所有数值、参数名、设备名、假说必须来自 `run_dir` 的真实 JSON（ontology/diagnosis/feature_summary/visual_analysis/physics_check 等），通过 `render_manifest.json` 中转。**禁止**凭空生成数字、禁止"代表性"示例值、禁止把上一个 run 的残留带进来。无数据支撑的结论 → 标 `.evidence-missing`，不假装存在。
+**F. Real data is the only source (zero fabrication)**: every value, parameter name, equipment name, and hypothesis on the page must come from the real JSON in `run_dir` (ontology / diagnosis / feature_summary / visual_analysis / physics_check, etc.), routed through `render_manifest.json`. **Forbidden**: inventing numbers, using "representative" example values, or carrying residue from a previous run into this one. A conclusion without data support → mark `.evidence-missing`; do not pretend it exists.
 
 ## Recommended File Output
 
@@ -35,142 +35,142 @@
 
 ## Runtime Readiness Banner
 
-页面顶部固定轻量状态条，显示：
+A lightweight status strip fixed at the top of the page, showing:
 
-- ECharts 加载状态
-- Three.js 加载状态
-- OrbitControls 加载状态
-- 图表初始化状态
-- 3D 场景初始化状态
+- ECharts load status
+- Three.js load status
+- OrbitControls load status
+- Chart initialization status
+- 3D scene initialization status
 
-若失败，保留静态文本、摘要卡和本地图片，明确标注降级模式。
+On failure, keep the static text, summary cards, and local images, and explicitly label the degraded mode.
 
 ## Page Outline
 
 ### 0. Hero / Executive Snapshot
 
-首屏 10 秒内回答「结论是什么」：
+The first screen answers "what is the conclusion" within 10 seconds:
 
-- 工业诊断报告眼眉（eyebrow label）
-- 主结论一句话（衬线体 display，渐变色强调关键短语）
-- 主结论的 3-4 句白话解释段落（非技术用户可读懂）
-- 关键元数据标签行：诊断类型 / Judge 评分 / 置信度天花板 / 焦点产品 / 样本量 / 异常工段
-- 四格关键发现网格（1px split border frame）：
-  1. 最强证据（统计值 + 物理链路概要）
-  2. 已排除因素（排除项 + 排除依据）
-  3. 推荐动作（P0/P1 优先级）
-  4. 证据缺口（当前缺失的关键证据）
-- 一句话「阅读指引」，说明页面自上而下的阅读顺序
+- Industrial diagnostic report eyebrow label
+- The main conclusion in one sentence (serif display, with a gradient emphasizing the key phrases)
+- A 3-4 sentence plain-language explanation of the main conclusion (readable by non-technical users)
+- Key metadata tag row: diagnosis type / Judge score / confidence ceiling / focus product / sample size / anomalous section
+- Four-cell key-findings grid (1px split border frame):
+  1. Strongest evidence (statistic + a summary of the physical chain)
+  2. Excluded factors (the exclusions + the grounds for excluding them)
+  3. Recommended action (P0/P1 priority)
+  4. Evidence gap (the key evidence currently missing)
+- A one-sentence "reading guide" explaining the page's top-to-bottom reading order
 
-### 1. 背景与产线建模
+### 1. Background and production-line modeling
 
-目标：用户 30 秒内知道「问题发生在产线哪里」。
+Goal: the user knows "where on the production line the problem occurred" within 30 seconds.
 
-必须包含：
+Must contain:
 
-- 简洁场景描述：产线、产品、目标缺陷、样本结构
-- 3D 产线模型：
-  - 按 ontology.json 恢复真实工段顺序
-  - 按真实数据（温/扭矩/标准差）驱动视觉差异
-  - 异常位置红色高亮 + 编号标签
-  - 三区颜色区分（预加热/拉伸/急冷）
-  - 物料流向蓝色管道
-  - 图例：正常/异常/流向
-- 3D 容器下方标注数据来源文件
-- **数据治理卡片（留痕，必须呈现）**：从 `data_analysis_conclusion.json.data_cleaning_provenance` 生成一张紧凑的披露卡，让用户一眼知道"结论基于哪份干净数据"：
-  - **数据源徽标**：`cleaned`（绿）或 `raw_fallback`（橙，附原因）——整页所有图表的统一数据来源
-  - **清洗操作表**（折叠/紧凑）：每行一项 operation → 目标 → 影响行数 → rationale（去重/排序/类型修复/缺失/异常/派生）
-  - **完整性对账**：原始行数 vs 清洗后行数、丢弃率；类型修复的列及 stray token 样例（如 `<0.05` / `N/A`）
-  - 设计上贴合现有「讲事实、数据驱动」tone——是透明披露，不是装饰；放在背景区让读者在读结论前先建立数据信任
+- A concise scenario description: production line, product, target defect, sample structure
+- 3D production-line model:
+  - Recover the real section order from ontology.json
+  - Drive visual differences from real data (temperature / torque / standard deviation)
+  - Anomaly locations highlighted in red + numbered labels
+  - Three-zone color coding (preheat / stretch / quench)
+  - Material flow shown as a blue pipe
+  - Legend: normal / anomaly / flow direction
+- Annotate the data source files below the 3D container
+- **Data governance card (audit trail, must be present)**: generate a compact disclosure card from `data_analysis_conclusion.json.data_cleaning_provenance` so the user can see at a glance "which clean dataset the conclusion is based on":
+  - **Data-source badge**: `cleaned` (green) or `raw_fallback` (orange, with the reason) — the unified data source for every chart on the page
+  - **Cleaning-operation table** (collapsible / compact): one row per operation → target → rows affected → rationale (dedupe / sort / type repair / missing / outlier / derived)
+  - **Integrity reconciliation**: raw row count vs cleaned row count, discard rate; the columns with type repairs and examples of stray tokens (e.g. `<0.05` / `N/A`)
+  - Design it to match the existing "state the facts, data-driven" tone — it is transparent disclosure, not decoration; place it in the background section so readers build data trust before reading the conclusion
 
-### 2. 诊断推理过程
+### 2. Diagnostic reasoning process
 
-目标：用户 1 分钟内理解「结论不是一眼看出来的」。
+Goal: the user understands within 1 minute that "the conclusion was not obvious at a glance".
 
-必须包含：
+Must contain:
 
-- 关键统计表格（去趋势前后对比：ρ / p值 / 衰减率 / 判决）
-- 3-5 个 ECharts 图表，按「最关键→次关键」排列：
-  1. 去趋势前后对比图（左右分屏）
-  2. 参数分区剖面图（标注异常位置）
-  3. 假说证据雷达图
-  4. 相关性鲁棒性对比图
-  5. 去趋势散点图（标注关键数据点）
-- 每张图配三行解读：看到什么 / 说明什么 / 为什么重要
-- 关键方法白话解释（去趋势、分层分析、竞争假说）
-- 复用现有 PNG 截图（Simpson 悖论可视化等）
+- Key statistics table (before/after detrending comparison: ρ / p value / decay rate / verdict)
+- 3-5 ECharts charts, ordered from most critical to next most critical:
+  1. Before/after detrending comparison (split left/right)
+  2. Per-zone parameter profile plot (annotating the anomaly locations)
+  3. Hypothesis-evidence radar chart
+  4. Correlation robustness comparison
+  5. Detrended scatter plot (annotating the key data points)
+- A three-line reading for every chart: what is seen / what it means / why it matters
+- Plain-language explanation of the key methods (detrending, stratified analysis, competing hypotheses)
+- Reuse existing PNG screenshots (Simpson's paradox visualizations, etc.)
 
-### 3. 证据链（三层架构）
+### 3. Evidence chain (three-layer architecture)
 
-目标：用户 2 分钟内理解「为什么相信这个结论」并且「为什么不是别的原因」。
+Goal: the user understands within 2 minutes "why this conclusion should be believed" and "why it is not another cause".
 
-**这是页面的核心说服区块，必须包含真实的诊断产线图像、数据分析和物理逻辑推理。**
+**This is the page's core persuasion block; it must contain real production-line diagnostic images, data analysis, and physical-logic reasoning.**
 
-#### 证据嵌入铁律（三层通用）
+#### Figure-embedding iron rules (common to all three layers)
 
-每张嵌入的 PNG 必须是**「图 + 数据 + 解读」三件套**，缺一即 reviewer 判不通过：
+Every embedded PNG must be the **"figure + data + reading" trio**; missing any one of the three makes the reviewer return fail:
 
-1. **图**：从 `03_figures/` 嵌入真实 PNG（`<img src>` 用相对路径），按 `plot_manifest.json` 的 `suggested_layer` 字段匹配到对应证据层；**禁止**用占位图/ECharts 代替本该有的真实 PNG
-2. **数据**：图旁/图下必须标注**真实统计值或物理量**（r / Spearman ρ / p / n / ΔT / 量级估算），每个数字标注来源文件（`feature_summary.json` / `validate_report.json` / `physics_check.json` / `diagnosis.json`）
-3. **解读**：三行白话——「图上看到什么 → 统计/物理怎么说 → 对结论的支持或反对」
+1. **Figure**: embed the real PNG from `03_figures/` (`<img src>` with a relative path), matched to the correct evidence layer via the `suggested_layer` field of `plot_manifest.json`; substituting a placeholder image or ECharts for a real PNG that should exist is **forbidden**
+2. **Data**: beside or below the figure, annotate the **real statistic or physical quantity** (r / Spearman ρ / p / n / ΔT / order-of-magnitude estimate), with every number labeled with its source file (`feature_summary.json` / `validate_report.json` / `physics_check.json` / `diagnosis.json`)
+3. **Reading**: three lines of plain language — "what the chart shows → what the statistics/physics say → how it supports or contradicts the conclusion"
 
-**禁止**：嵌了图不标数据 / 标了数据不标来源 / 只有图没有解读 / 用"显著相关"等模糊词代替具体 r 值。统计或物理结论若无对应 figure 或具体溯源数值，必须显式标注 `.evidence-missing`，不假装存在。
+**Forbidden**: embedding a figure without labeling its data / labeling data without naming its source / a figure with no reading / substituting vague wording such as "significantly correlated" for a concrete r value. If a statistical or physical conclusion has no matching figure or concretely traced value, it must be explicitly marked `.evidence-missing`; do not pretend it exists.
 
-#### figure → 证据层映射（数据驱动，从 plot_manifest.json 的 suggested_layer 读取）
+#### figure → evidence-layer mapping (data-driven; read from `suggested_layer` in plot_manifest.json)
 
-| 证据层 | 应嵌入的真实 PNG（plot_manifest 角色） | 数据来源（图旁必标） |
+| Evidence layer | Real PNG that should be embedded (plot_manifest role) | Data source (must be labeled beside the figure) |
 |--------|--------------------------------------|---------------------|
-| **统计证据** | `fig_vlm_simpson_*.png`（分层相关方向）、`fig_vlm_synchronization.png`（滚动相关稳定性）、散点 / 相关性鲁棒性图 | `feature_summary.json`（r / ρ / p / n）、`validate_report.json`（Simpson / 离群 / 趋势混杂检测结果） |
-| **物理机制** | `fig_vlm_temporal_overlay_focus_*.png` / `fig_vlm_temporal_overlay_prod_*.png`（参数→质量时序对齐）、`fig_vlm_event_response.png`（事件响应） | `diagnosis.json`（physical_logic_chain）、`physics_check.json`（方程 + 量级）、`time_lag_analysis.json`（时滞） |
-| **排除逻辑** | `fig_causal_map.png`（因果证据图：存活边 vs 排除边） | `causal_evidence_map.json`、`evidence.json`（证据等级）、`diagnosis.json`（falsification_conditions） |
+| **Statistical evidence** | `fig_vlm_simpson_*.png` (stratified correlation direction), `fig_vlm_synchronization.png` (rolling-correlation stability), scatter / correlation-robustness plots | `feature_summary.json` (r / ρ / p / n), `validate_report.json` (Simpson / outlier / trend-confound detection results) |
+| **Physical mechanism** | `fig_vlm_temporal_overlay_focus_*.png` / `fig_vlm_temporal_overlay_prod_*.png` (parameter → quality temporal alignment), `fig_vlm_event_response.png` (event response) | `diagnosis.json` (physical_logic_chain), `physics_check.json` (equations + orders of magnitude), `time_lag_analysis.json` (time lag) |
+| **Exclusion logic** | `fig_causal_map.png` (causal evidence map: surviving edges vs excluded edges) | `causal_evidence_map.json`, `evidence.json` (evidence grade), `diagnosis.json` (falsification_conditions) |
 
-#### 第一层 · 统计证据
+#### Layer 1 · Statistical evidence
 
-- 嵌入 `fig_vlm_simpson_*.png`：图下标注「Spearman ρ=X.XX, p<X.XX, n=X（源：feature_summary.json）；去趋势后 r=X.XX；Simpson 检测：未反转 / 反转（源：validate_report.json）」
-- 嵌入 `fig_vlm_synchronization.png`：标注「滚动相关稳定性，X% 时段 |r|>0.5」
-- 至少 1 张 ECharts 重建分析图（去趋势散点 / 相关性鲁棒性对比，raw r vs detrended r）
-- 统计证据强度评分条
-- 证据文章：明确指出哪个参数是**去趋势后最强存活信号**，附完整统计值 + 来源文件
+- Embed `fig_vlm_simpson_*.png`: annotate below the figure "Spearman ρ=X.XX, p<X.XX, n=X (source: feature_summary.json); detrended r=X.XX; Simpson detection: not reversed / reversed (source: validate_report.json)"
+- Embed `fig_vlm_synchronization.png`: annotate "rolling-correlation stability, |r|>0.5 in X% of the time window"
+- At least 1 ECharts rebuilt analysis chart (detrended scatter / correlation-robustness comparison, raw r vs detrended r)
+- Statistical evidence strength score bar
+- Evidence article: state explicitly which parameter is the **strongest surviving signal after detrending**, with the complete statistics + source files
 
-#### 第二层 · 物理机制
+#### Layer 2 · Physical mechanism
 
-- 嵌入 `fig_vlm_temporal_overlay_focus_<重点产品>.png`：标注「参数 X 与质量 Y 共享时间轴，时滞约 N 分钟（源：time_lag_analysis.json）—— 参数先变、质量后变，满足因果时间先后」
-- 嵌入 `fig_vlm_event_response.png`：标注事件后质量是否复位、复位幅度
-- 物理因果链可视化（HTML/CSS 步骤链，每步来自 `diagnosis.json.physical_logic_chain`）
-- 每步附**真实物理方程或量级估算**（源：`physics_check.json`，如 Arrhenius `k = A·exp(-Ea/RT)`，ΔT=7°C → 结晶速率↑~23%）
-- 解释异常位置与物理机制的空间一致性
-- 物理证据强度评分条
+- Embed `fig_vlm_temporal_overlay_focus_<focus product>.png`: annotate "parameter X and quality Y share a time axis, time lag ≈ N minutes (source: time_lag_analysis.json) — the parameter changes first and the quality follows, satisfying causal temporal precedence"
+- Embed `fig_vlm_event_response.png`: annotate whether the quality recovers after the event, and by how much
+- Physical causal-chain visualization (HTML/CSS step chain, each step from `diagnosis.json.physical_logic_chain`)
+- Each step carries a **real physical equation or order-of-magnitude estimate** (source: `physics_check.json`, e.g. Arrhenius `k = A·exp(-Ea/RT)`, ΔT=7°C → crystallization rate ↑~23%)
+- Explain the spatial consistency between the anomaly location and the physical mechanism
+- Physical evidence strength score bar
 
-#### 第三层 · 排除逻辑
+#### Layer 3 · Exclusion logic
 
-- 嵌入 `fig_causal_map.png`：标注存活边（绿）与排除边（红/灰），每条边标 r 值
-- 逐假说证据文章（假说数 = `render_manifest.json` 的 hypothesis count，**不得硬编码**），每篇含：
-  - 假说名称 + 排除/削弱置信度
-  - **原始证据 vs 去趋势后真相**对比（具体 r 值变化，源：`validate_report.json`）
-  - 物理边界检验或内部矛盾（源：`physics_check.json` / `diagnosis.json`）
-  - 「为什么被排除」的蓝色左边框解释块
+- Embed `fig_causal_map.png`: annotate surviving edges (green) and excluded edges (red/gray), labeling each edge with its r value
+- Per-hypothesis evidence articles (hypothesis count = the hypothesis count in `render_manifest.json`, **must not be hardcoded**), each containing:
+  - Hypothesis name + exclusion/weakening confidence
+  - **Raw evidence vs post-detrending truth** comparison (the specific change in r, source: `validate_report.json`)
+  - Physical boundary test or internal contradiction (source: `physics_check.json` / `diagnosis.json`)
+  - A "why it was excluded" explanation block with a blue left border
 
-#### 证据链综合判决
+#### Evidence-chain comprehensive verdict
 
-- 综合评分矩阵表（统计 / 物理 / 排除逻辑 / 综合置信度）
-- 3-5 条行动建议（P0/P1/P2 优先级表）
-- 局限性说明（样本量、数据粒度、未验证步骤）
+- Comprehensive scoring matrix table (statistics / physics / exclusion logic / overall confidence)
+- 3-5 action recommendations (P0/P1/P2 priority table)
+- Limitations note (sample size, data granularity, unverified steps)
 
 ## Tone
 
-- 专业但通俗——每个统计术语后面紧跟一句白话
-- 讲事实，不渲染——数据驱动，物理支撑
-- 用户看完后应能复述「结论是什么、为什么、下一步做什么」
-- 证据链三层独立展开，让用户逐层建立信心
+- Professional but accessible — every statistical term is followed immediately by a plain-language sentence
+- State the facts, no dramatization — data-driven, physically supported
+- After reading, the user should be able to retell "what the conclusion is, why, and what to do next"
+- The three evidence-chain layers unfold independently, letting the user build confidence layer by layer
 
-## Acceptance Lens（binding — 每个阅读节奏必须能回答对应问题）
+## Acceptance Lens (binding — every reading pace must be able to answer its corresponding question)
 
-页面必须按人类阅读节奏分层设计——用户在任何一个时间点离开，都该带走对应层级的理解：
+The page must be designed in layers that follow the human reading pace — whenever the user leaves, they should walk away with the understanding of that tier:
 
-1. **10 秒（Hero）**：结论是什么？诊断类型 + 根因一句话 + 置信度。Hero 必须独立可读，不依赖下文。
-2. **30 秒（+背景）**：问题在哪里？产线哪个工段/设备异常（3D 高亮 + 数据治理卡已交代数据来源）。
-3. **1 分钟（+推理）**：最强证据是什么？哪条推理链支撑结论（参数→物理机制→质量）。
-4. **2 分钟（+证据链）**：为什么不是别的原因？三层证据 + 竞争假说为何被排除。
-5. **2 分钟（+行动）**：下一步做什么？P0/P1/P2 行动 + 证伪条件。
+1. **10 seconds (Hero)**: What is the conclusion? Diagnosis type + the root cause in one sentence + confidence. The Hero must be readable on its own, not dependent on what follows.
+2. **30 seconds (+ background)**: Where is the problem? Which section/equipment on the line is anomalous (3D highlight + the data governance card has already disclosed the data source).
+3. **1 minute (+ reasoning)**: What is the strongest evidence? Which reasoning chain supports the conclusion (parameter → physical mechanism → quality).
+4. **2 minutes (+ evidence chain)**: Why is it not another cause? Three layers of evidence + why the competing hypotheses were excluded.
+5. **2 minutes (+ action)**: What happens next? P0/P1/P2 actions + falsification conditions.
 
-任一节奏答不出对应问题 → 该段重写。这是 `html-reviewer` 的核心判据。
+If any pace cannot answer its corresponding question → rewrite that part. This is `html-reviewer`'s core criterion.

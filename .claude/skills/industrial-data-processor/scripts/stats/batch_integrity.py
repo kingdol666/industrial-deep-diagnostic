@@ -19,7 +19,7 @@ from pathlib import Path
 # ── Batch ID column name candidates (order = search priority) ──
 BATCH_ID_COL_CANDIDATES = (
     'batch_id', 'batch', 'lot', 'lot_id', 'batchno',
-    '\u6279\u6b21',  # 批次
+    '\u6279\u6b21',  # the Chinese term for "batch"
 )
 
 

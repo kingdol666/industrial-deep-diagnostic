@@ -1,10 +1,10 @@
 # Engineering Delivery Contract
 
-本 Skill 的工程化交付标准如下：
+The engineering delivery standard for this Skill is as follows:
 
-## 1. 严格流水线
+## 1. Strict Pipeline
 
-必须按以下顺序执行并留痕：
+The following order must be executed, and each step must leave an audit trail:
 - setup
 - inspect
 - context_builder
@@ -16,11 +16,11 @@
 - audit
 - present
 
-任何一步都不能静默跳过。若不适用，必须在对应工件中记录 `not_applicable_reason`。
+No step may be skipped silently. If a step does not apply, `not_applicable_reason` must be recorded in the corresponding artifact.
 
-## 2. 最低交付工件
+## 2. Minimum Delivery Artifacts
 
-一次有效运行至少要交付：
+A valid run must deliver at least:
 - `00_input/run_config.json`
 - `00_input/input_manifest.json`
 - `01_ontology/ontology.json`
@@ -40,39 +40,39 @@
 - `optimizer.md`
 - `evidence_closure_report.json`
 
-若存在有效时间列，还必须交付：
-- `03_figures/plot_manifest.json` 中记录的至少一张 temporal / aligned / timeline / process-health 图，并且该图文件真实存在
+If a valid time column exists, it must additionally deliver:
+- At least one temporal / aligned / timeline / process-health figure recorded in `03_figures/plot_manifest.json`, and that figure file must actually exist
 
-## 3. 证据闭环
+## 3. Evidence Closure
 
-必须同时具备：
-- 纯工艺波动分析
-- 工艺+检测双驱动分析
-- 本体/行业知识解释
-- 诊断结论与审查传递
+All of the following must be present at the same time:
+- Process-only fluctuation analysis
+- Process + inspection dual-drive analysis
+- Ontology / industry-knowledge interpretation
+- Diagnosis conclusion and review hand-off
 
-## 4. 子代理交付责任
+## 4. Sub-Agent Delivery Accountability
 
-- `context-builder`：对领域知识、本体、澄清需求负责
-- `data-processor`：对数据分析、图像、VLM视觉证据、专家数据结论负责
-- `diagnostician`：对竞争假说、物理推理、最终诊断结构负责
-- `judge`：对质量门审查负责
-- `reporter`：对最终报告和 run_summary 负责
-- `report-reviewer`：对物理真实性审计和 `optimizer.md` 标准优化交付物负责
+- `context-builder`: accountable for domain knowledge, the ontology, and clarification requirements
+- `data-processor`: accountable for data analysis, figures, VLM visual evidence, and the expert data conclusion
+- `diagnostician`: accountable for competing hypotheses, physical reasoning, and the final diagnosis structure
+- `judge`: accountable for the quality-gate review
+- `reporter`: accountable for the final report and run_summary
+- `report-reviewer`: accountable for the physical-truth audit and for the standard optimization deliverable `optimizer.md`
 
-## 5. optimizer.md 标准交付要求
+## 5. Standard Delivery Requirements for optimizer.md
 
-`optimizer.md` 必须是基于当前数据和具体场景的优化方案，不能只是审计意见或通用建议。它必须包含：
-- 场景特异性优化方案：说明当前数据支持哪些工艺、维护、检测、控制、采样或过程窗口改善
-- 当前场景存在的问题和改善机会：列出异常行为、质量链路、测量缺口、混杂因素、物理模型缺口和图像证据缺口
-- 下一步诊断确认计划：说明还需要采集什么数据、做什么受控试验、补什么物理验证，才能进一步提高诊断准确性和确定性
-- 行动分类：区分立即遏制、低风险优化、受控实验、测量/数据改善、暂缓或不安全行动
+`optimizer.md` must be an optimization plan grounded in the current data and the specific scenario — it cannot be merely audit opinions or generic advice. It must contain:
+- Scenario-specific optimization plan: state which process, maintenance, inspection, control, sampling, or process-window improvements the current data supports
+- Problems and improvement opportunities in the current scenario: list abnormal behaviour, quality chains, measurement gaps, confounders, physical-model gaps, and image-evidence gaps
+- Next-step diagnostic confirmation plan: state what additional data must be collected, what controlled trials must be run, and what physical verification must be added before diagnostic accuracy and certainty can be improved further
+- Action classification: distinguish immediate containment, low-risk optimization, controlled experiments, measurement/data improvement, and deferred or unsafe actions
 
-## 6. 最终通过条件
+## 6. Final Pass Conditions
 
-一次运行仅在以下条件全部满足时才算工程完成：
-- `pipeline-log-check.mjs` 通过
-- `pipeline-finalize.mjs` 通过
-- `optimizer.md` 存在并通过标准章节完整性检查
-- `run_manifest.json` 中 `present` 步骤完成
-- `.pipeline_events.jsonl` 中存在最终 `run_completed` 事件
+A run counts as engineering-complete only when all of the following conditions are satisfied:
+- `pipeline-log-check.mjs` passes
+- `pipeline-finalize.mjs` passes
+- `optimizer.md` exists and passes the standard section-completeness check
+- The `present` step in `run_manifest.json` is complete
+- A final `run_completed` event exists in `.pipeline_events.jsonl`

@@ -1,478 +1,480 @@
-# [场景名称] 工业诊断报告
+# [Scenario Name] Industrial Diagnostic Report
 
-**场景**: {{scene_name}} | **产品/批次**: {{batch_id}} | **日期**: {{date}} | **运行ID**: {{run_id}}
-**诊断评级**: {{judge_score}}/100 — {{judge_verdict}}
+**Scenario**: {{scene_name}} | **Product/Batch**: {{batch_id}} | **Date**: {{date}} | **Run ID**: {{run_id}}
+**Diagnostic Rating**: {{judge_score}}/100 — {{judge_verdict}}
 
-> **阅读指南**: 第1节是给决策者看的一页纸摘要。第2节是核心——展示所有产品的工艺参数与检测指标的对齐图和波动解读。第3-4节解释诊断结果和证据。第5-6节是详细推理和数据（给技术团队）。第7节是可执行的行动方案。
+> **Output language (binding)**: the generated `report.md` is written in **Chinese** — section headings, table headers, and reader-facing prose included. The section-heading contract is enforced against the Chinese heading strings by `industrial-reporter/scripts/report-section-check.mjs` and `scripts/pipeline-finalize.mjs`; the authoritative Chinese scaffold is `industrial-reporter/templates/report_template.md`. Emit the report in Chinese even though this structural reference is in English. Only this template's `[WRITING]` notes are English, and they are never carried into the report.
 
-> **实事求是声明**: 本报告所有结论均来源于实际测量数据、统计验证、物理机制推导和 VLM 图像观察。每个结论标注了证据等级（L1=最高，L7=最低）。标有 `[HYPOTHESIS]` 的表述尚未完全验证。标有 `[INFERENCE_GAP]` 的推理环节存在证据跳跃。如无足够证据支撑确定结论，本报告将诚实地呈现竞争假设而非编造单一根因。
+> **Reading guide**: Section 1 is the one-page summary for decision makers. Section 2 is the core — it presents the alignment charts and fluctuation interpretation of every product's process parameters against its inspection metrics. Sections 3-4 explain the diagnostic result and the evidence. Sections 5-6 hold the detailed reasoning and data (for the technical team). Section 7 is the executable action plan.
+
+> **Statement of factual honesty**: every conclusion in this report derives from actual measured data, statistical validation, physical-mechanism derivation, and VLM image observation. Each conclusion carries an evidence grade (L1 = highest, L7 = lowest). Statements tagged `[HYPOTHESIS]` are not yet fully verified. Reasoning steps tagged `[INFERENCE_GAP]` contain an evidential leap. Where the evidence is insufficient to support a definite conclusion, this report will honestly present competing hypotheses rather than fabricate a single root cause.
 
 ---
 
-## 1. 执行摘要
+## 1. Executive Summary
 
-> **这一页是写给厂长和总经理看的。2分钟读完。**
+> **This page is written for the plant director and the general manager. It reads in 2 minutes.**
 
-### 发生了什么？
+### What happened?
 
 {{what_happened}}
 
-**[写作]**: 哪条生产线、哪个产品、什么时间段、出现了什么异常？严重程度如何？用具体数字说话。
+**[WRITING]**: Which production line, which product, what time window, and what anomaly occurred? How severe is it? Speak with concrete numbers.
 
 ---
 
-### 为什么会发生？
+### Why did it happen?
 
-**最可能的原因: {{root_cause_one_liner}}**
+**Most likely cause: {{root_cause_one_liner}}**
 
 {{why_it_happened}}
 
-**[写作]**: 用最通俗的语言解释根因。如果能用一个生活类比解释物理机制最好（比如"就像夏天冰淇淋化得快一样"）。不要用专业术语。
+**[WRITING]**: Explain the root cause in the plainest possible language. If you can explain the physical mechanism with an everyday analogy, do (for example, "just like ice cream melting faster in summer"). Do not use jargon.
 
 ---
 
-### 影响有多大？
+### How large is the impact?
 
 {{business_impact}}
 
-**[写作]**: 
-- 影响范围: 影响了多少产量？哪些产品？
-- 严重程度: 缺陷率从X%上升到Y%，意味着什么？
-- 如果只用一页报告，老板最需要知道的就是这个数字。
+**[WRITING]**:
+- Scope of impact: how much output is affected? Which products?
+- Severity: the defect rate rose from X% to Y% — what does that mean?
+- If the boss reads only one page, this is the number they need most.
 
 ---
 
-### 推- 荐行动
+### Recommended Actions
 
-| 优先级 | 行动 | 预期效果 | 时间 | 大约成本 |
+| Priority | Action | Expected Effect | Timeframe | Rough Cost |
 |:------:|------|---------|------|:------:|
 | **P0** | {{action_p0}} | {{effect_p0}} | {{time_p0}} | {{cost_p0}} |
 | **P1** | {{action_p1}} | {{effect_p1}} | {{time_p1}} | {{cost_p1}} |
 | P2 | {{action_p2}} | {{effect_p2}} | {{time_p2}} | — |
 
-**[写作]**: P0 = 本周内必须执行，不停产或短暂停机。P1 = 本月计划内。P2 = 条件成熟后。
+**[WRITING]**: P0 = must be executed within this week, with no production stop or only a brief stop. P1 = planned within this month. P2 = once conditions mature.
 
 ---
 
-### 有多大把握？
+### How confident are we?
 
-**综合置信度: {{confidence_score}}/100 ({{confidence_level}})**
+**Overall confidence: {{confidence_score}}/100 ({{confidence_level}})**
 
-用通俗的话说: {{confidence_plain_language}}
+In plain words: {{confidence_plain_language}}
 
-**[写作]**: 用白话翻译置信度。比如"100次类似的诊断中，大约有78次我们的判断是正确的。最大的不确定性在于我们没有Z3区的实测温度，只有设定值。"
+**[WRITING]**: Translate the confidence score into plain language. For example: "Out of 100 similar diagnoses, our judgement was correct roughly 78 times. The biggest uncertainty is that we have no measured temperature for Zone Z3, only its setpoint."
 
 ---
 
-## 2. 工艺参数与检测指标时序对齐分析（核心证据）
+## 2. Time-Aligned Analysis of Process Parameters and Inspection Metrics (Core Evidence / Alignment Charts)
 
-> **这是整个报告最重要的证据章节。** 每张对齐图将 ALL 工艺参数和检测指标放在同一时间轴上，让读者可以直接看到"谁先变、谁后变、谁一起变"。这是判断因果方向的决定性证据。
+> **This is the single most important evidence section in the whole report.** Every alignment chart places ALL process parameters and inspection metrics on one shared time axis, so the reader can see directly "who changed first, who changed later, who changed together". This is the decisive evidence for the direction of causation.
 
-**[写作]**: 
-- 如果有多个产品，先展示重点产品（异常率最高）的对齐图，再展示其他产品
-- 每个产品的对齐图必须有独立的一小节，包含：图上看到了什么 → 统计怎么说 → 物理上说得通吗
-- 如果对齐图中找不到任何工艺参数与检测指标的清晰关联，必须明说，不要编造
+**[WRITING]**:
+- If there are several products, show the alignment chart for the key product (highest defect rate) first, then the others
+- Each product's alignment chart needs its own subsection covering: what the chart shows → what the statistics say → does it hold up physically
+- If the alignment charts reveal no clear association between any process parameter and any inspection metric, say so explicitly — do not fabricate
 
 ---
 
 {{#each product_alignment_sections}}
 
-### 2.{{index}} {{product_label}} — 工艺参数与检测指标时间对齐
+### 2.{{index}} {{product_label}} — Time Alignment of Process Parameters and Inspection Metrics
 
-![时序对齐图](03_figures/{{overlay_figure}})
+![Time-alignment chart](03_figures/{{overlay_figure}})
 
-#### 图上看到了什么（VLM 视觉观察）
+#### What the chart shows (VLM visual observation)
 
 {{vlm_observation}}
 
-**[写作]**: 
-- 描述 VLM 在图中观察到的同步波动参数组
-- 指出哪些参数先变、哪些检测指标后变
-- 标注明显的异常窗口（时间区间 + 参数名 + 变化幅度）
-- 如果没有观察到清晰的对齐模式，写"在{{product_label}}的时间对齐图中，未观察到任何工艺参数与检测指标之间的清晰同步波动模式"
+**[WRITING]**:
+- Describe the synchronously fluctuating parameter groups the VLM observed in the chart
+- Point out which parameters changed first and which inspection metrics changed later
+- Mark the evident anomaly windows (time interval + parameter name + magnitude of change)
+- If no clear alignment pattern is visible, write: "In the time-alignment chart for {{product_label}}, no clear synchronous fluctuation pattern was observed between any process parameter and any inspection metric"
 
-#### 统计怎么说
+#### What the statistics say
 
 {{statistical_story}}
 
-**[写作]**: 
-- 引用 VLM 观察到的同步参数组的统计相关性数据（r/ρ/p值/CCF lag）
-- 引用统计验证结果（去趋势后是否仍然显著？产品子组内是否一致？）
-- 如果 VLM 观察与统计结果不一致，必须显式披露
+**[WRITING]**:
+- Cite the statistical correlation figures for the synchronised parameter groups the VLM observed (r / ρ / p-value / CCF lag)
+- Cite the statistical validation results (does significance survive detrending? is it consistent within product subgroups?)
+- If the VLM observation and the statistics disagree, disclose that explicitly
 
-#### 物理上说得通吗
+#### Does it hold up physically?
 
 {{physical_story}}
 
-**[写作]**: 
-- 结合 ontology.json 中该参数的物理含义和工艺阶段归属
-- 解释为什么这个工艺参数的波动会（或不会）导致检测指标变化
-- 如果 ontology 中没有该参数的物理机制说明，标注 `[PHYSICS_UNVERIFIED]`
-- 如果物理上说不通但统计上显著，标注 `[STATISTICAL_WITHOUT_PHYSICS]`
+**[WRITING]**:
+- Draw on the physical meaning and process-stage attribution of that parameter in ontology.json
+- Explain why fluctuation in this process parameter would (or would not) cause a change in the inspection metric
+- If the ontology contains no physical mechanism for that parameter, tag it `[PHYSICS_UNVERIFIED]`
+- If it does not hold up physically but is statistically significant, tag it `[STATISTICAL_WITHOUT_PHYSICS]`
 
-#### 该产品的诊断关键发现
+#### Key diagnostic finding for this product
 
 {{product_key_finding}}
 
-**[写作]**: 一句话总结这个产品对齐图分析的核心发现，以及这个发现对整体诊断的贡献。
+**[WRITING]**: State in one sentence the core finding of this product's alignment-chart analysis, and what that finding contributes to the overall diagnosis.
 
 ---
 
 {{/each}}
 
-### 2.X 跨产品对比分析
+### 2.X Cross-Product Comparison
 
 {{cross_product_comparison}}
 
-**[写作]**:
-- 同一工艺参数在不同产品中的表现是否一致？
-- 如果某个参数只在重点产品中波动、在其他产品中稳定 → 产品级问题
-- 如果某个参数在所有产品中同时波动 → 工艺级问题
-- 产品切换时是否有明显的参数跳变？
+**[WRITING]**:
+- Is the behaviour of the same process parameter consistent across products?
+- If a parameter fluctuates only in the key product and is stable elsewhere → product-level problem
+- If a parameter fluctuates in all products at once → process-level problem
+- Is there an obvious parameter step when products are switched?
 
 ---
 
-### 2.Y 对齐图分析的总体结论
+### 2.Y Overall Conclusion of the Alignment-Chart Analysis
 
 {{alignment_overall_conclusion}}
 
-**[写作]**: 
-- 从所有对齐图中提炼出的核心发现：哪些工艺参数是质量异常的候选驱动因素
-- 哪些工艺参数在视觉上被排除（与其他参数和质量指标均无同步关系）
-- 如果所有对齐图中均未发现清晰的工艺参数-检测指标关联，写"时序对齐分析未发现任何工艺参数与检测指标之间的清晰关联模式。当前数据不支持从时间先后角度确定因果驱动因素。"
+**[WRITING]**:
+- The core finding distilled from all alignment charts: which process parameters are candidate drivers of the quality anomaly
+- Which process parameters are visually excluded (no synchronous relationship with any other parameter or quality metric)
+- If no clear process-parameter-to-inspection-metric association was found in any alignment chart, write: "The time-alignment analysis found no clear association pattern between any process parameter and any inspection metric. The current data does not support determining a causal driver from temporal precedence."
 
 ---
 
-## 3. 诊断结论
+## 3. Diagnosis
 
-> **这一节把第1节的结论展开——给技术主管看，但仍要让非技术人员能理解。**
+> **This section expands the conclusion from Section 1 — written for the technical lead, but still intelligible to non-technical readers.**
 
-### 3.1 出了什么问题
+### 3.1 What went wrong
 
 {{problem_description}}
 
-**[写作]**: 描述异常现象。配上最关键的一张趋势对照图（过程和缺陷在同一张图上）。
+**[WRITING]**: Describe the anomaly. Include the most critical trend overlay chart (process and defect on the same chart).
 
-![关键趋势](03_figures/{{key_trend_figure}})
+![Key trend](03_figures/{{key_trend_figure}})
 
-**这张图告诉我们什么**: {{figure_key_message}}
+**What this chart tells us**: {{figure_key_message}}
 
 ---
 
-### 3.2 为什么会这样
+### 3.2 Why it happened this way
 
 {{mechanism_explanation}}
 
-**[写作]**: 
-- 用白话解释物理机制。先给结论，再解释。
-- 必须包含一个生活类比："就像______一样"
-- 关键数字用粗体突出
-- 如果物理上有不确定的地方，诚实说明
+**[WRITING]**:
+- Explain the physical mechanism in plain language. Give the conclusion first, then the explanation.
+- Must include an everyday analogy: "just like ______"
+- Highlight key numbers in bold
+- Where the physics is uncertain, state that honestly
 
 ---
 
-### 3.3 我们排除了哪些可能性
+### 3.3 What we ruled out
 
-| 排除的可能原因 | 为什么排除 | 证据强度 |
+| Ruled-Out Possible Cause | Why It Was Ruled Out | Evidence Strength |
 |--------------|-----------|:------:|
 | {{eliminated_1}} | {{eliminated_1_reason}} | ★★★☆☆ |
 | {{eliminated_2}} | {{eliminated_2_reason}} | ★★★★☆ |
 
-**[写作]**: 让读者知道我们不是只盯着一个答案看，而是系统性地排查了多个可能性。这增加说服力。
+**[WRITING]**: Let the reader know we did not fixate on a single answer, but systematically worked through several possibilities. This adds persuasiveness.
 
 ---
 
-### 3.4 诊断结论总结
+### 3.4 Diagnostic Conclusion Summary
 
-- **诊断类型**: {{diagnosis_type_display}}
-- **综合置信度**: {{confidence_score}}/100 ({{confidence_level}})
-- **如果这个结论是错的，最可能是因为**: {{falsification_condition_plain}}
-- **要进一步提高把握，我们需要**: {{next_evidence_needed_plain}}
+- **Diagnosis type**: {{diagnosis_type_display}}
+- **Overall confidence**: {{confidence_score}}/100 ({{confidence_level}})
+- **If this conclusion is wrong, the most likely reason is**: {{falsification_condition_plain}}
+- **To improve our confidence we need**: {{next_evidence_needed_plain}}
 
 ---
 
-## 4. 证据全景
+## 4. Evidence Panorama
 
-> **一张图看懂: 我们的结论有多可靠？** —— 给技术主管快速评估诊断质量。
+> **One chart tells it all: how reliable is our conclusion?** — lets the technical lead assess diagnostic quality quickly.
 
-### 4.1 关键证据链
+### 4.1 Key Evidence Chain
 
 ```
-数据观测              统计分析               物理验证              结论
-─────────           ─────────             ─────────            ────
-{{obs_1}}    →     {{stat_1}}      →     {{phys_1}}     →    主结论
-{{obs_2}}    →     {{stat_2}}      →     (数据不足)    →    次要发现
+Data observation        Statistical analysis         Physical verification        Conclusion
+────────────────        ────────────────────         ─────────────────────        ──────────
+{{obs_1}}        →      {{stat_1}}            →      {{phys_1}}            →      main conclusion
+{{obs_2}}        →      {{stat_2}}            →      (insufficient data)   →      secondary finding
 ```
 
-**[写作]**: 用最简化的流程图展示"证据是怎么一步步走到结论的"。每个节点一句话。
+**[WRITING]**: Use the simplest possible flow diagram to show "how the evidence walked step by step to the conclusion". One sentence per node.
 
-### 4.2 结论可靠性总览
+### 4.2 Conclusion Reliability Overview
 
-| 结论 | 统计 | 物理 | 时序 | 无混淆 | 综合 | 信度 |
+| Conclusion | Statistical | Physical | Temporal | Confounder-Free | Overall | Confidence |
 |------|:---:|:---:|:---:|:---:|:---:|------|
 | {{h1_name}} | ★★★★☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ | **{{h1_score}}** | {{h1_level}} |
-| {{h2_name}} | ☆☆☆☆☆ | ★★☆☆☆ | ☆☆☆☆☆ | — | **已排除** | — |
+| {{h2_name}} | ☆☆☆☆☆ | ★★☆☆☆ | ☆☆☆☆☆ | — | **Ruled out** | — |
 
-**[写作]**: ★ = 弱，★★★★★ = 强。这是给技术主管快速判断"该信几成"的参考。
+**[WRITING]**: ★ = weak, ★★★★★ = strong. This is the technical lead's quick reference for "how much of this should I believe".
 
 ---
 
-## 5. 关键发现详解
+## 5. Key Findings in Detail
 
-> **每个重要发现单独一节，完整展开"观测→统计→物理→图像→排除→判断"的六步推导。**
+> **Each important finding gets its own section, fully unfolding the six-step derivation "observation → statistics → physics → image → exclusion → judgement".**
 
 {{#each key_findings}}
 
 ### 5.{{index}} {{finding_title}}
 
-#### 我们看到了什么
+#### What we saw
 
 {{observations}}
 
-**[写作]**: 
-- 写出具体的时间点、参数名、变化幅度
-- "Z3温度从82°C上升到89°C（+7°C），时间段: 1月3日至1月9日"
-- "同期Z1、Z2、Z4温度变化均小于1°C"（对比参照）
-- 配关键时序图
+**[WRITING]**:
+- Write the concrete time points, parameter names, and magnitudes of change
+- "Z3 temperature rose from 82 °C to 89 °C (+7 °C), during 3–9 January"
+- "Over the same period, the temperature changes in Z1, Z2 and Z4 were all below 1 °C" (comparison reference)
+- Include the key time-series chart
 
-![时序对照](03_figures/{{fig_timeline}})
+![Time-series comparison](03_figures/{{fig_timeline}})
 
-**图上能看到**: {{fig_timeline_observation}}
+**Visible in the chart**: {{fig_timeline_observation}}
 
 ---
 
-#### 数据怎么说
+#### What the data says
 
 {{statistical_story}}
 
-**[写作]**: 关键规则——每个统计术语配一句白话翻译。
+**[WRITING]**: Key rule — every statistical term gets a plain-language translation.
 
-| 统计指标 | 数值 | 白话翻译 |
+| Statistical Metric | Value | Plain-Language Translation |
 |---------|------|---------|
-| Spearman 相关系数 | ρ = {{r_value}} | "温度和缺陷有{{r_strength}}的正相关" |
-| p值 | {{p_value}} | "这种关联是巧合的可能性不到{{p_chance}}" |
-| CCF 滞后分析 | lag = {{best_lag}} | "温度变化约比缺陷早出现{{lag_time}}" |
-| 产品组内检查 | ρ = {{within_prod_r}} | "分开看每个产品，关联依然存在" |
-| 去趋势检查 | ρ = {{detrended_r}} | "去掉时间趋势后关联仍{{detrend_strength}}" |
+| Spearman correlation coefficient | ρ = {{r_value}} | "Temperature and defects have a {{r_strength}} positive correlation" |
+| p-value | {{p_value}} | "The chance that this association is coincidence is below {{p_chance}}" |
+| CCF lag analysis | lag = {{best_lag}} | "The temperature change appears roughly {{lag_time}} before the defect" |
+| Within-product-group check | ρ = {{within_prod_r}} | "Looking at each product separately, the association is still there" |
+| Detrend check | ρ = {{detrended_r}} | "After removing the time trend the association is still {{detrend_strength}}" |
 
-**配图**: 散点图或CCF图
+**Supporting charts**: scatter plot or CCF plot
 
-![相关性分析](03_figures/{{fig_correlation}})
+![Correlation analysis](03_figures/{{fig_correlation}})
 
 ---
 
-#### 物理上说得通吗
+#### Does it hold up physically?
 
 {{physical_story}}
 
-**[写作]**:
-- **类比解释**: "Z3温度升高 → PET分子链在拉伸时更容易结晶 → 薄膜表面变得不均匀 → 检测设备识别为缺陷。这就像______一样。"
-- **定量计算**（如有）: "7°C温升使结晶速率增加约23%，这个量级足以在薄膜表面产生可检测的变化。"
-- **不确定性诚实说明**: "这个计算基于典型的PET活化能（约150 kJ/mol），我们没有本批次原料的精确活化能数据。"
+**[WRITING]**:
+- **Analogy**: "Z3 temperature rises → PET molecular chains crystallise more readily during stretching → the film surface becomes uneven → the inspection equipment flags it as a defect. This is just like ______."
+- **Quantitative calculation** (if available): "A 7 °C temperature rise increases the crystallisation rate by roughly 23% — a magnitude sufficient to produce a detectable change on the film surface."
+- **Honest statement of uncertainty**: "This calculation uses a typical activation energy for PET (about 150 kJ/mol); we do not have the precise activation energy for this batch of raw material."
 
 ---
 
-#### 为什么不是其他原因
+#### Why it is not something else
 
 {{alternatives_excluded}}
 
-- **原料批次问题**: {{why_not_raw_material}}
-- **其他区域温度**: {{why_not_other_zones}}
-- **环境因素**: {{why_not_environment}}
+- **Raw-material batch problem**: {{why_not_raw_material}}
+- **Temperature in other zones**: {{why_not_other_zones}}
+- **Environmental factors**: {{why_not_environment}}
 
 ---
 
-#### 对这个发现，我们的把握有多大
+#### How much confidence do we have in this finding?
 
-**单个发现置信度: {{finding_confidence}}/100**
+**Individual finding confidence: {{finding_confidence}}/100**
 
-| 评估维度 | 得分 | 白话说明 |
+| Assessment Dimension | Score | Plain-Language Note |
 |---------|:---:|---------|
-| 统计证据 | {{stat_score}}/25 | "数据和缺陷的关联很可靠，经过4项检查都没有翻车" |
-| 物理合理性 | {{phys_score}}/25 | "物理上说得通，但缺少一个关键参数的精确值" |
-| 时序先后 | {{temp_score}}/20 | "温度确实在缺陷之前变化，符合'先因后果'" |
-| 排他性 | {{conf_score}}/20 | "排除了主要的替代解释，但还有一个次要因素没数据" |
-| 症状完整性 | {{symp_score}}/10 | "解释了主要的缺陷类型，但不能完全解释空间分布模式" |
+| Statistical evidence | {{stat_score}}/25 | "The association between the data and the defects is solid — it survived all 4 checks" |
+| Physical plausibility | {{phys_score}}/25 | "It holds up physically, but we lack the precise value of one key parameter" |
+| Temporal precedence | {{temp_score}}/20 | "The temperature really did change before the defects, consistent with 'cause before effect'" |
+| Exclusivity | {{conf_score}}/20 | "The main alternative explanations are ruled out, but one secondary factor still has no data" |
+| Symptom completeness | {{symp_score}}/10 | "It explains the main defect type, but not the spatial distribution pattern" |
 
-**如果这个发现是错的**: {{falsification_condition}}
+**If this finding is wrong**: {{falsification_condition}}
 
 {{/each}}
 
 ---
 
-## 6. 我们是怎么得出结论的 — 推理过程
+## 6. How We Reached the Conclusion — Detailed Derivation of the Reasoning Process
 
-> **这一节是给想了解完整推理逻辑的人看的。** 讲一个"我们如何一步步缩小嫌疑范围"的故事。
+> **This section is for anyone who wants the complete reasoning logic.** It tells the story of "how we narrowed the suspect pool step by step".
 
-### 6.1 第一步: 数据发出了什么警报？
+### 6.1 Step one: what alarms did the data raise?
 
 {{reasoning_step1}}
 
-**[写作]**: 从 `reasoning_chain.json` R1-R2 提取。最初发现了哪些异常？哪些参数触发了警报？按异常程度排名。
+**[WRITING]**: Extract from `reasoning_chain.json` R1-R2. Which anomalies were found first? Which parameters triggered alarms? Rank by degree of anomaly.
 
-### 6.2 第二步: 验证帮我们排除了哪些误导？
+### 6.2 Step two: which misleading signals did validation rule out?
 
 {{reasoning_step2}}
 
-**[写作]**: 从 R2-R3 提取。哪些最初看起来重要的信号被验证排除了？
-- 数据有没有按时间排序？（如果没有，滞后分析就不可靠）
-- 不同产品混在一起看有没有产生假关联？（Simpson's Paradox检查）
-- 参数是不是只是"跟着时间一起变"而已？（去趋势检查）
+**[WRITING]**: Extract from R2-R3. Which signals that initially looked important were ruled out by validation?
+- Is the data sorted by time? (If not, lag analysis is unreliable)
+- Does mixing products together produce spurious associations? (Simpson's Paradox check)
+- Are the parameters merely "moving along with time"? (Detrend check)
 
-### 6.3 第三步: 物理定律帮我们做了什么筛选？
+### 6.3 Step three: what did the physical laws screen out for us?
 
 {{reasoning_step3}}
 
-**[写作]**: 从 R5-R6 提取。哪些统计相关在物理上站得住脚？哪些在物理上说不通？
+**[WRITING]**: Extract from R5-R6. Which statistical correlations stand up physically? Which do not?
 
-### 6.4 最终判断: 为什么这是最可能的答案？
+### 6.4 Final judgement: why is this the most likely answer?
 
 {{reasoning_final}}
 
-**[写作]**: 总结从多个假设中选出最终答案的逻辑。如果无法确定单一根因，诚实呈现竞争假设。
+**[WRITING]**: Summarise the logic that selected the final answer out of several hypotheses. If no single root cause can be determined, present the competing hypotheses honestly.
 
 ---
 
-## 7. 数据与统计支撑
+## 7. Data and Statistical Support
 
-> **这一节是给技术团队核实用的。** 所有的统计原始数据和验证过程都在这里。
+> **This section is for the technical team to verify against.** All raw statistical data and the validation process are here.
 
-### 7.1 数据概况
+### 7.1 Data Overview
 
-| 项目 | 详情 |
+| Item | Detail |
 |------|------|
-| 数据来源 | {{data_source}} |
-| 时间范围 | {{time_range}} |
-| 数据量 | {{row_count}} 行 × {{col_count}} 列 |
-| 数据质量 | {{data_quality_summary}} |
-| 稳态数据 | {{steady_state_info}} |
+| Data source | {{data_source}} |
+| Time range | {{time_range}} |
+| Data volume | {{row_count}} rows × {{col_count}} columns |
+| Data quality | {{data_quality_summary}} |
+| Steady-state data | {{steady_state_info}} |
 
-### 7.2 核心统计结果
+### 7.2 Core Statistical Results
 
-| 参数对 | Pearson r | Spearman ρ | p值 | 最佳滞后 | 滞后CCF | 子组内ρ | 去趋势ρ | 衰减率 |
+| Parameter Pair | Pearson r | Spearman ρ | p-value | Best Lag | Lagged CCF | Within-subgroup ρ | Detrended ρ | Decay Rate |
 |--------|:--------:|:--------:|:---:|:------:|:-----:|:------:|:------:|:-----:|
 {{correlation_table}}
 
-### 7.3 统计验证详情
+### 7.3 Statistical Validation Details
 
-#### Simpson's Paradox检查
+#### Simpson's Paradox check
 
-| 参数对 | 全数据r | 主产品组r | 方向一致？ | 结论 |
+| Parameter Pair | Full-data r | Key-product-group r | Same Direction? | Conclusion |
 |--------|:-----:|:-------:|:--------:|------|
 {{simpson_table}}
 
-#### 趋势混淆检查
+#### Trend-confounding check
 
-| 参数对 | 原始r | 去趋势r | 衰减率 | 结论 |
+| Parameter Pair | Raw r | Detrended r | Decay Rate | Conclusion |
 |--------|:---:|:-----:|:-----:|------|
 {{detrend_table}}
 
-#### 相关性稳健性
+#### Correlation robustness
 
-| 参数对 | Pearson | Spearman | 差异 | 是否异常值驱动？ |
+| Parameter Pair | Pearson | Spearman | Difference | Outlier-driven? |
 |--------|:------:|:------:|:---:|:----------:|
 {{robustness_table}}
 
-### 7.4 置信度详细分解
+### 7.4 Confidence Breakdown
 
 {{#each confidence_breakdowns}}
 
 **{{hypothesis_name}}** — {{total_score}}/100 ({{level}})
 
-| 因子 | 得分 | 满分 | 为什么给这个分 |
+| Factor | Score | Max | Why This Score |
 |------|:---:|:---:|-------------|
-| 统计强度 | {{s1}} | 25 | {{n1}} |
-| 物理合理性 | {{s2}} | 25 | {{n2}} |
-| 时序证据 | {{s3}} | 20 | {{n3}} |
-| 无混淆 | {{s4}} | 20 | {{n4}} |
-| 症状完整性 | {{s5}} | 10 | {{n5}} |
+| Statistical strength | {{s1}} | 25 | {{n1}} |
+| Physical plausibility | {{s2}} | 25 | {{n2}} |
+| Temporal evidence | {{s3}} | 20 | {{n3}} |
+| Confounder-free | {{s4}} | 20 | {{n4}} |
+| Symptom completeness | {{s5}} | 10 | {{n5}} |
 
-**置信度调整记录**:
+**Confidence adjustment log**:
 {{#each adjustments}}
-- {{adjust_reason}} → {{adjust_amount}}分 (来源: {{adjust_source}})
+- {{adjust_reason}} → {{adjust_amount}} points (source: {{adjust_source}})
 {{/each}}
 
 {{/each}}
 
-### 7.5 可视化证据索引
+### 7.5 Visual Evidence Index
 
-| 编号 | 图表 | 一句话发现 | 支持哪个结论 | 诊断含义 |
+| No. | Figure | One-line Finding | Conclusion Supported | Diagnostic Implication |
 |:---:|------|----------|:----------:|---------|
 {{figure_index}}
 
 ---
 
-## 8. 行动方案
+## 8. Action Plan
 
-> **这一节是给执行团队看的。** 每一条行动都是具体的、可验证的、有成本的。
+> **This section is for the execution team.** Every action is concrete, verifiable, and costed.
 
-### 8.1 P0 — 立即执行（本周内）
+### 8.1 P0 — Immediate Action (within this week)
 
-| 行动 | 具体操作 | 预期效果 | 如何验证 | 时间 | 大约成本 |
+| Action | Concrete Steps | Expected Effect | How to Verify | Timeframe | Rough Cost |
 |------|---------|---------|---------|:--:|:------:|
 {{p0_actions}}
 
-**[写作]**: P0 = 影响安全或造成重大损失，不能等。每项必须写清具体操作、量化目标、验证方法、所需时间和成本。
+**[WRITING]**: P0 = affects safety or causes major loss; it cannot wait. Each item must state the concrete steps, the quantified target, the verification method, the time required, and the cost.
 
-### 8.2 P1 — 短期计划（本月内）
+### 8.2 P1 — Short-Term Plan (within this month)
 
-| 行动 | 具体操作 | 预期效果 | 如何验证 | 时间 |
+| Action | Concrete Steps | Expected Effect | How to Verify | Timeframe |
 |------|---------|---------|---------|:--:|
 {{p1_actions}}
 
-### 8.3 P2 — 中期计划（条件成熟时）
+### 8.3 P2 — Medium-Term Plan (once conditions mature)
 
-| 行动 | 具体操作 | 前提条件 |
+| Action | Concrete Steps | Preconditions |
 |------|---------|---------|
 {{p2_actions}}
 
-### 8.4 行动效果监控
+### 8.4 Action-Effect Monitoring
 
-| 监控指标 | 当前基线 | 目标值 | 监控频率 | 报警阈值 |
+| Monitoring Metric | Current Baseline | Target Value | Monitoring Frequency | Alarm Threshold |
 |---------|:------:|:----:|:------:|:------:|
 {{monitoring_table}}
 
 ---
 
-## 9. 我们还不知道什么 — 局限性与后续工作
+## 9. What We Still Do Not Know — Limitations and Follow-Up Work
 
-> **诚实是建立信任的最好方式。** 这一节告诉读者我们的盲区在哪里。
+> **Honesty is the best way to build trust.** This section tells the reader where our blind spots are.
 
-### 9.1 当前诊断的局限
+### 9.1 Limitations of the current diagnosis
 
-| 类型 | 具体局限 | 对结论的影响 |
+| Type | Specific Limitation | Impact on the Conclusion |
 |------|---------|:----------:|
-| 数据盲区 | {{data_blind_spot}} | {{data_blind_impact}} |
-| 方法局限 | {{method_limit}} | {{method_impact}} |
-| 物理不确定性 | {{physics_uncertainty}} | {{physics_impact}} |
+| Data blind spot | {{data_blind_spot}} | {{data_blind_impact}} |
+| Method limitation | {{method_limit}} | {{method_impact}} |
+| Physical uncertainty | {{physics_uncertainty}} | {{physics_impact}} |
 
-### 9.2 什么新证据会推翻我们的结论？
+### 9.2 What new evidence would overturn our conclusion?
 
 {{what_would_change}}
 
-**[写作]**: 从每个假设的 `falsification_conditions` 提取。必须写具体、可操作的条件。不能说"更多数据"，要说"如果下一批次Z3温度恢复到82°C但缺陷密度不降"。
+**[WRITING]**: Extract from each hypothesis's `falsification_conditions`. Must be concrete and actionable. Do not write "more data"; write "if in the next batch the Z3 temperature returns to 82 °C but the defect density does not fall".
 
-### 9.3 建议的后续诊断步骤
+### 9.3 Recommended follow-up diagnostic steps
 
 {{next_steps}}
 
-**[写作]**: 说明还需要采集什么数据、做什么受控测试、补什么物理验证，才能进一步提高诊断的准确性和把握。
+**[WRITING]**: State what additional data must be collected, what controlled tests must be run, and what physical verification must be added in order to further improve the accuracy and confidence of the diagnosis.
 
 ---
 
-## 附录
+## Appendix
 
-### A. 运行配置
+### A. Run Configuration
 {{run_config}}
 
-### B. 统计摘要
+### B. Statistical Summary
 {{statistical_summary}}
 
-### C. 竞争假设可分辨性矩阵
+### C. Competing-Hypothesis Discriminability Matrix
 {{discriminability_matrix}}
 
-### D. 文件清单
+### D. File Inventory
 {{file_inventory}}
 
-### E. 数据质量详细报告
+### E. Detailed Data Quality Report
 {{data_quality_detail}}

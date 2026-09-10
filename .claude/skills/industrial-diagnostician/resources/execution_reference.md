@@ -339,9 +339,9 @@ Identify ≥2 alternatives that could produce the SAME data pattern:
 
 ### 3.3 Two Diagnostic Views (MANDATORY)
 
-**View A — Pure Process-Fluctuation**: From `process_parameter_fluctuation` — which parameters show drift/high_variability/step_change/threshold_crossing/regime_switch/cyclic? Answers: "从纯工艺数据波动角度，系统本身出了什么问题？"
+**View A — Pure Process-Fluctuation**: From `process_parameter_fluctuation` — which parameters show drift/high_variability/step_change/threshold_crossing/regime_switch/cyclic? Answers: "From the standpoint of pure process-data fluctuation, what is wrong with the system itself?"
 
-**View B — Integrated Dual-Drive**: From `dual_drive_analysis` — linked process-quality pairs with timing. Answers: "从工艺异常与质量异常结合的角度，哪条链更像真正根因？"
+**View B — Integrated Dual-Drive**: From `dual_drive_analysis` — linked process-quality pairs with timing. Answers: "Looking at process anomalies together with quality anomalies, which chain looks more like the true root cause?"
 
 Final conclusion must state: process-side only / integrated dual-drive only / both.
 
@@ -482,8 +482,8 @@ Classification: INDISTINGUISHABLE (ceiling 65), PARTIALLY_DISCRIMINABLE, DISCRIM
 - `integrated_dual_drive_analysis`: standalone process+quality conclusion
 
 ### 6.1A Two Views Writing Rule
-1. `process_fluctuation_analysis` must NOT depend on defect evidence. Answers: "仅从工艺参数波动与工艺机理看，哪里异常？"
-2. `integrated_dual_drive_analysis` must connect process abnormality to quality. Answers: "哪些工艺异常真的进入了质量/缺陷结果链？"
+1. `process_fluctuation_analysis` must NOT depend on defect evidence. Answers: "Judging only from process-parameter fluctuation and process mechanics, where is the anomaly?"
+2. `integrated_dual_drive_analysis` must connect process abnormality to quality. Answers: "Which process anomalies actually entered the quality/defect result chain?"
 3. Both must reference ontology + physics.
 
 ### 6.2 evidence.json Required Fields

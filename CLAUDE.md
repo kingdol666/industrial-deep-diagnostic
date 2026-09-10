@@ -4,43 +4,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析 + E0-E8 增强分析管线。核心架构：
+Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 18 个标准化 Skill（OMP 经 `claude` provider 发现）× 14 个专用 Agent，含 JSON Schema 验证 + 脚本工具链
-2. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
-3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
+1. **Skills** (`.claude/skills/`) — 18 standardized skills (discovered by OMP through the `claude` provider) × 14 dedicated agents, with JSON Schema validation + a script toolchain
+2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
+3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 
-### Harness 发现架构
+### Harness Discovery Architecture
 
 ```
-.claude/skills/<name>/         ← 唯一 skill 源 (OMP claude provider priority-80 发现 + Claude Code 原生发现)
-    │  scripts/ schemas/ references/ resources/ templates/ 全在此处
-    ↓ skill://<name> 解析到此处；Agent dispatch 传 SKILL_PATH 指向此处
-.omp/agents/<name>.md          ← OMP task-agent 唯一发现源 (OMP 跳过 .claude/agents)
+.claude/skills/<name>/         ← the single skill source (OMP discovery via the `claude` provider at priority 80 + native Claude Code discovery)
+    │  scripts/ schemas/ references/ resources/ templates/ all live here
+    ↓ skill://<name> resolves here; agent dispatch passes SKILL_PATH pointing here
+.omp/agents/<name>.md          ← the single OMP task-agent discovery source (OMP skips .claude/agents)
     │  OMP frontmatter: name + description + tools + spawns + model + thinkingLevel
-    ↓ 读取协议
-.claude/skills/<name>/references/agent-protocol.md  ← Phase 0-N 完整执行清单
+    ↓ reads the protocol
+.claude/skills/<name>/references/agent-protocol.md  ← complete Phase 0-N execution checklist
 ```
 
-> **架构要点**: skill 资源统一在 `.claude/skills/`（OMP 与 Claude Code 共用）；agent 定义在 `.omp/agents/`（满足 OMP task-agent 契约，是 task 创建的唯一来源）。
+> **Architectural note**: skill resources live together under `.claude/skills/` (shared by OMP and Claude Code); agent definitions live under `.omp/agents/` (they satisfy the OMP task-agent contract and are the single source for task creation).
 
 ## Commands
 
 ### CLI (`ind-diag`)
 ```bash
-ind-diag start --all --detach     # 启动全部（后端 3210 + 前端 5180 + RAG 8764）
+ind-diag start --all --detach     # start everything (backend 3210 + frontend 5180 + RAG 8764)
 ind-diag start --backend --detach # http://localhost:3210
 ind-diag start --frontend --detach # http://localhost:5180
 ind-diag start --rag --detach     # http://localhost:8764
-ind-diag stop --all               # 停止全部
-ind-diag restart --all --detach   # 重启全部
-ind-diag build                    # 生产构建
-ind-diag init                     # 环境检查
-ind-diag status                   # 状态
+ind-diag stop --all               # stop everything
+ind-diag restart --all --detach   # restart everything
+ind-diag build                    # production build
+ind-diag init                     # environment check
+ind-diag status                   # status
 ind-diag webfrp                   # Cloudflare Tunnel
 ```
 
-> `--detach` = 后台守护模式（推荐）：命令立即返回，日志在 `.runtime/*.log`。省略时 CLI 会等待并最终报 `FATAL: Service manager timeout`（服务实际仍启动）。
+> `--detach` = background daemon mode (recommended): the command returns immediately and logs go to `.runtime/*.log`. If omitted, the CLI waits and eventually reports `FATAL: Service manager timeout` (the service does still start).
 
 ### npm scripts
 ```bash
@@ -51,24 +51,24 @@ npm run start:rag     # = ind-diag start --rag --detach
 npm stop              # = ind-diag stop --all
 ```
 
-### Python 环境
+### Python Environment
 ```bash
-# 所有 Python 脚本必须使用共享 venv (uv_env_setup.mjs 管理)
+# All Python scripts must use the shared venv (managed by uv_env_setup.mjs)
 node .claude/shared/scripts/uv_env_setup.mjs
-# 解析为: .claude/shared/scripts/.venv/Scripts/python.exe (Windows)
-#         .claude/shared/scripts/.venv/bin/python (POSIX)
+# Resolves to: .claude/shared/scripts/.venv/Scripts/python.exe (Windows)
+#              .claude/shared/scripts/.venv/bin/python (POSIX)
 ```
 
-### RAG 检索引擎
+### RAG Retrieval Engine
 ```bash
 python server.py      # FastAPI → http://localhost:8764
 ```
 
 ## Architecture
 
-### 诊断管线 (Step 0–9)
+### Diagnostic Pipeline (Step 0–9)
 
-| Steps | Agent | Skill | Model | 产出 |
+| Steps | Agent | Skill | Model | Output |
 |-------|-------|-------|:-----:|------|
 | Step 0: Setup | main-agent | `industrial-analysis-auto` | — | run_manifest, pipeline_events |
 | Step 1: Inspect | main-agent | — | — | input_manifest, user_context |
@@ -84,98 +84,98 @@ python server.py      # FastAPI → http://localhost:8764
 | Step 8.5: HTML Review | **html-reviewer** | `industrial-html-reviewer` | default | html_review.json |
 | Step 9: Finalize | main-agent | — | — | evidence_closure_report |
 
-**修复循环**: Judge 评分 < 90 → 重跑 Diagnostician (最多 3 次)；Reviewer 未通过 → D→J→R→R (最多 2 轮)；**全局上限: 总重诊断 ≤ 5**。反振荡: 同问题第 3 次 → COMPETING_SET，置信度≤50。
+**Repair loop**: Judge score < 90 → rerun the Diagnostician (at most 3 times); Reviewer not passed → D→J→R→R (at most 2 rounds); **global cap: at most 5 rediagnoses in total**. Anti-oscillation: a third attempt at the same problem → COMPETING_SET, confidence ≤50.
 
-**Step 5a/5b 并行**: Judge 与 pre-audit 是管线中唯一并行的两步。Step 3.5 VLM 由 data-processor 内部委托。
+**Step 5a/5b run in parallel**: the Judge and the pre-audit are the only two parallel steps in the pipeline. Step 3.5 VLM is delegated internally by data-processor.
 
-### 检查点门禁 (CP-1 ~ CP-9)
+### Checkpoint Gates (CP-1 ~ CP-9)
 
-| CP | 验证 | 失败→ |
+| CP | Validates | On failure → |
 |:--|------|-------|
-| CP-1 | input_manifest + user_context | 回 Step 0 |
-| CP-2 | ontology.json ≥1KB + schema-valid | 重跑 ontology |
-| CP-3 | clarification AUTO_RESOLVED | 解决 |
-| CP-4 | data_analysis_conclusion + plots>0 | 重跑 processor |
-| CP-5 | 4 诊断输出 schema-valid | 修复 |
+| CP-1 | input_manifest + user_context | back to Step 0 |
+| CP-2 | ontology.json ≥1KB + schema-valid | rerun ontology |
+| CP-3 | clarification AUTO_RESOLVED | resolve |
+| CP-4 | data_analysis_conclusion + plots>0 | rerun processor |
+| CP-5 | 4 diagnostic outputs schema-valid | repair |
 | CP-6 | judge_repair_summary | best-of-3 |
-| CP-7 | report.md + run_summary.json | 重跑 reporter |
-| CP-8 | optimizer.md ENDORSED | 修复循环 |
-| CP-9 | diagnostic-report.html ≥5KB + review pass | 重跑 visualizer |
+| CP-7 | report.md + run_summary.json | rerun reporter |
+| CP-8 | optimizer.md ENDORSED | repair loop |
+| CP-9 | diagnostic-report.html ≥5KB + review pass | rerun visualizer |
 
-### 四个独立编号体系
-| 体系 | 范围 | 示例 |
+### Four Independent Numbering Schemes
+| Scheme | Scope | Example |
 |------|------|------|
-| Pipeline Step 0-9 | 编排层面 | "Step 4: Diagnostician" |
-| Agent Phase 0-7 | Agent 内部流程 | "Phase 1: Data Probing" |
+| Pipeline Step 0-9 | Orchestration layer | "Step 4: Diagnostician" |
+| Agent Phase 0-7 | Internal agent flow | "Phase 1: Data Probing" |
 | Reasoning Segment R1-R8 | reasoning_chain.json | "R4: Hypothesis Generation" |
 | Method Stage 1-6 | diagnosis_method.md | "Stage 3: Temporal Analysis" |
 
-### 诊断方法论核心
-- **竞争假设协议**: 假设→数据区分性→排除→结论。输出: DETERMINED / COMPETING_SET / NEEDS_DATA
-- **双驱动分析**: 纯工艺波动 + 工艺-检测双驱动
-- **证据等级 L1-L7**: 结论受限最低证据等级
-- **四条件**: 时间先后 + 统计显著 + 物理机制 + 无矛盾
-- **置信度上限**: COMPETING_SET INDISTINGUISHABLE ≤65, oscillation ≤50
-- **反假相关 v6.4-v6.7**: 时滞 CCF · 稳态过滤 · 批次完整性 · leave-one-out
-- **HTML 自动构建**: CP-8 ENDORSED 后自动 Step 8→8.5→9
+### Diagnostic Methodology: Core
+- **Competing-hypotheses protocol**: hypothesis → data discriminability → elimination → conclusion. Outputs: DETERMINED / COMPETING_SET / NEEDS_DATA
+- **Dual-driver analysis**: pure process fluctuation + combined process-and-inspection dual driver
+- **Evidence levels L1-L7**: a conclusion is bounded by its lowest evidence level
+- **Four conditions**: temporal precedence + statistical significance + physical mechanism + no contradiction
+- **Confidence caps**: COMPETING_SET INDISTINGUISHABLE ≤65, oscillation ≤50
+- **Anti-spurious-correlation v6.4-v6.7**: lag CCF · steady-state filtering · batch integrity · leave-one-out
+- **Automatic HTML build**: after CP-8 ENDORSED, Steps 8→8.5→9 run automatically
 
-### Skill 目录约定
-| 目录 | 用途 |
+### Skill Directory Conventions
+| Directory | Purpose |
 |------|------|
-| `.claude/skills/<name>/SKILL.md` | 唯一 skill 入口 (OMP claude provider + Claude Code 发现) |
-| `.claude/skills/<name>/{scripts,schemas,references,resources,templates}/` | 完整资源 |
-| `.omp/agents/<name>.md` | OMP task-agent 定义 (model + tools + thinkingLevel + protocol ref) — task 创建唯一来源 |
-| `.claude/agents/<name>.md` | Claude Code 格式 agent 定义 (OMP 不加载，仅 Claude Code 原生用) |
+| `.claude/skills/<name>/SKILL.md` | the single skill entry point (OMP claude provider + Claude Code discovery) |
+| `.claude/skills/<name>/{scripts,schemas,references,resources,templates}/` | complete resources |
+| `.omp/agents/<name>.md` | OMP task-agent definition (model + tools + thinkingLevel + protocol ref) — the single source for task creation |
+| `.claude/agents/<name>.md` | Claude Code format agent definition (not loaded by OMP, used only by native Claude Code) |
 
-### 诊断产出目录
+### Diagnostic Output Directory
 ```
 workspace/diagnostic-runs/<timestamp>_<scene>/
-├── 00_input/          # 输入数据 + 用户上下文
-├── 01_ontology/       # 本体 (含 RAG 深度理解)
-├── 02_processed/      # 清洗/验证/特征/异常报告
-├── 03_figures/        # 可视化图表 + VLM 分析
-├── 04_diagnostics/    # 诊断/证据/置信度/推理链
-├── 05_review/         # Judge 评审 + HTML 审校
-├── report.md          # 最终报告
+├── 00_input/          # input data + user context
+├── 01_ontology/       # ontology (including RAG deep understanding)
+├── 02_processed/      # cleaning / validation / features / anomaly reports
+├── 03_figures/        # visualization charts + VLM analysis
+├── 04_diagnostics/    # diagnosis / evidence / confidence / reasoning chain
+├── 05_review/         # Judge review + HTML review
+├── report.md          # final report
 ├── diagnostic-report.html
 ├── optimizer.md
 └── .pipeline_events.jsonl
 ```
 
-### Web 应用
+### Web Application
 - **Backend** (`app/backend/`): Express.js + SQLite (WAL) + WebSocket
-- **Frontend** (`app/frontend/`): Vue 3 + Vite + SSE 实时流
+- **Frontend** (`app/frontend/`): Vue 3 + Vite + SSE live stream
 
-### RAG 检索引擎
-- FastAPI + ChromaDB 向量检索 + Web 搜索
-- 端点: `/retrieve`, `/score`, `/inject`, `/pipeline/full`
-- 不可用时自动降级: `parameter_to_physics.json` + 网络搜索
+### RAG Retrieval Engine
+- FastAPI + ChromaDB vector retrieval + web search
+- Endpoints: `/retrieve`, `/score`, `/inject`, `/pipeline/full`
+- Automatic degradation when unavailable: `parameter_to_physics.json` + web search
 
-### 关键脚本
-- `setup.mjs` — 创建运行目录 + pipeline_events
-- `inspect.mjs` — 数据文件检测
-- `stats.mjs` / `stats_validate.mjs` — 统计分析 + 鲁棒性验证
-- `validate.mjs` — JSON Schema 运行时验证
-- `artifact-check.mjs` — 管线产物完整性验证
-- `pipeline-log-check.mjs` — 管线事件日志审计
-- `uv_env_setup.mjs` — Python venv 管理器
+### Key Scripts
+- `setup.mjs` — creates the run directory + pipeline_events
+- `inspect.mjs` — data file inspection
+- `stats.mjs` / `stats_validate.mjs` — statistical analysis + robustness validation
+- `validate.mjs` — JSON Schema runtime validation
+- `artifact-check.mjs` — pipeline artifact completeness validation
+- `pipeline-log-check.mjs` — pipeline event log audit
+- `uv_env_setup.mjs` — Python venv manager
 
-### 证据体系
-| 等级 | 来源 | 置信度 |
+### Evidence System
+| Level | Source | Confidence |
 |------|------|--------|
-| L1 | 直接测量值 | 最高 |
-| L2 | 用户文档 (SOP/手册) | 高 |
-| L3 | 统计分析 (含验证报告) | 中高 |
-| L4 | 图表视觉证据 (VLM) | 中 |
-| L5 | 领域知识/工艺逻辑 | 中 |
-| L6 | 外部网络引用 | 低 |
-| L7 | 无支持假设 | 最低 |
+| L1 | direct measurements | highest |
+| L2 | user documents (SOP/manuals) | high |
+| L3 | statistical analysis (including validation reports) | medium-high |
+| L4 | chart-based visual evidence (VLM) | medium |
+| L5 | domain knowledge / process logic | medium |
+| L6 | external web references | low |
+| L7 | unsupported assumptions | lowest |
 
 ## Configuration
 
-配置优先级: `config/default.yaml` → `config/local.yaml` + 环境变量
+Configuration precedence: `config/default.yaml` → `config/local.yaml` + environment variables
 
-| 环境变量 | 对应配置 |
+| Environment variable | Maps to config |
 |----------|----------|
 | `SERVER_PORT` | `server.port` |
 | `CLAUDE_MODEL` | `claude.model` |
@@ -184,17 +184,17 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 
 ## Language Default
 
-默认输出**中文**。报告、诊断结论、审计文档使用中文。JSON enum 字段保持英文。
+The default output language is **Chinese**. Reports, diagnostic conclusions and audit documents are written in Chinese. JSON enum fields remain English.
 
 ## Key Gotchas
 
-- **双 Harness**: `.omp/` 是入口，`.claude/` 是资源。`SKILL_PATH` 通过 `<this-skill-directory>/../../../.claude/skills/<name>` 重定向
-- **Python 路径**: 必须使用 `uv_env_setup.mjs` 解析的共享 venv（Windows: `.claude/shared/scripts/.venv/Scripts/python.exe`，POSIX: `.claude/shared/scripts/.venv/bin/python`）
-- **修复计数器**: `diag_iters` 由 `.pipeline_events.jsonl` 的 `repair_spawn` 持久化
-- **执行证明**: `.pipeline_events.jsonl` 通过 `pipeline-log-check.mjs` 才算完整执行
-- **交接文件**: `data_analysis_conclusion.json` 是 data-processor→diagnostician 的强制交接
-- **图像回退**: `image_captions.json` 是 PNG 渲染失败时的回退
-- **HTML 自动构建**: CP-8 ENDORSED 后自动 Step 8→8.5→9；`00_input/html_opt_out` 可跳过
-- **VLM Agent**: 唯一使用 `model: vision` 的 Agent，需要 vision-capable 模型读取图表
-- **Agent 自引用已修复**: 所有 Agent 初始化读取 `references/agent-protocol.md`，不是 `agents/<self>.md`
-- **四套编号不可混用**
+- **Dual harness**: `.omp/` is the entry point, `.claude/` is the resources. `SKILL_PATH` is redirected via `<this-skill-directory>/../../../.claude/skills/<name>`
+- **Python path**: you must use the shared venv resolved by `uv_env_setup.mjs` (Windows: `.claude/shared/scripts/.venv/Scripts/python.exe`, POSIX: `.claude/shared/scripts/.venv/bin/python`)
+- **Repair counter**: `diag_iters` is persisted by `repair_spawn` in `.pipeline_events.jsonl`
+- **Execution proof**: a run counts as fully executed only once `.pipeline_events.jsonl` passes `pipeline-log-check.mjs`
+- **Handoff file**: `data_analysis_conclusion.json` is the mandatory data-processor→diagnostician handoff
+- **Image fallback**: `image_captions.json` is the fallback when PNG rendering fails
+- **Automatic HTML build**: after CP-8 ENDORSED, Steps 8→8.5→9 run automatically; `00_input/html_opt_out` can skip it
+- **VLM Agent**: the only agent that uses `model: vision`; it needs a vision-capable model to read charts
+- **Agent self-reference fixed**: every agent initializes by reading `references/agent-protocol.md`, not `agents/<self>.md`
+- **The four numbering schemes must not be mixed**

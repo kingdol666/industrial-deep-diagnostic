@@ -722,7 +722,7 @@
   },
   "data_cleaning_provenance": {
    "type": "object",
-   "description": "Audit trail of data cleaning — what was cleaned, why, and which data source (cleaned vs raw_fallback) every downstream consumer used. Propagated from Phase 2.2.5 cleaning_integrity so Diagnostician, Reporter, and HTML disclose one consistent provenance (留痕).",
+   "description": "Audit trail of data cleaning — what was cleaned, why, and which data source (cleaned vs raw_fallback) every downstream consumer used. Propagated from Phase 2.2.5 cleaning_integrity so Diagnostician, Reporter, and HTML disclose one consistent provenance (audit trail).",
    "required": [
     "data_source",
     "integrity_checks",

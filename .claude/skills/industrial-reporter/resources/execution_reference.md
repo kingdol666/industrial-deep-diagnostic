@@ -1,90 +1,94 @@
 # Reporter — Detailed Execution Reference
 
-## Step 0: 加载所有证据产物
+## Step 0: Load All Evidence Artifacts
 
-必须读取（RUN_DIR）:
-- `00_input/user_context.json` — 用户场景、已知问题
-- `01_ontology/ontology.json` — 参数物理含义、工艺阶段
-- `01_ontology/schema.json` — 变量分类schema
-- `02_processed/data_quality_report.json` — 数据质量
-- `02_processed/feature_summary.json` — 统计特征
-- `02_processed/validate_report.json` — 统计验证
-- `02_processed/scenario_classification.json` — 场景分类
-- `02_processed/anomaly_report.json` — 异常区间、双驱动
-- `02_processed/data_analysis_conclusion.json` — Data-processor专家交接
-- `02_processed/production_regime_filter.json` — 稳态过滤 (v6.5)
-- `02_processed/time_lag_analysis.json` — 时间滞后补偿 (v6.4)
-- `03_figures/plot_manifest.json` — 图表清单
-- `03_figures/visual_analysis.json` — VLM视觉分析
-- `03_figures/image_captions.json` — 图表描述
-- `04_diagnostics/diagnosis.json` — 诊断结论
-- `04_diagnostics/evidence.json` — 证据清单
-- `04_diagnostics/confidence.json` — 置信度分解
-- `04_diagnostics/reasoning_chain.json` — 完整推理链
-- `05_review/judge_feedback.json` — Judge评分
+Required reading (RUN_DIR):
+- `00_input/user_context.json` — user scenario, known issues
+- `01_ontology/ontology.json` — physical meaning of parameters, process stages
+- `01_ontology/schema.json` — variable classification schema
+- `02_processed/data_quality_report.json` — data quality
+- `02_processed/feature_summary.json` — statistical features
+- `02_processed/validate_report.json` — statistical validation
+- `02_processed/scenario_classification.json` — scenario classification
+- `02_processed/anomaly_report.json` — anomaly intervals, dual-driver
+- `02_processed/data_analysis_conclusion.json` — Data-processor expert handover
+- `02_processed/production_regime_filter.json` — steady-state filtering (v6.5)
+- `02_processed/time_lag_analysis.json` — time-lag compensation (v6.4)
+- `03_figures/plot_manifest.json` — chart inventory
+- `03_figures/visual_analysis.json` — VLM visual analysis
+- `03_figures/image_captions.json` — chart captions
+- `04_diagnostics/diagnosis.json` — diagnostic conclusion
+- `04_diagnostics/evidence.json` — evidence inventory
+- `04_diagnostics/confidence.json` — confidence decomposition
+- `04_diagnostics/reasoning_chain.json` — full reasoning chain
+- `05_review/judge_feedback.json` — Judge score
 
-可选读取:
+Optional reading:
 - `00_input/extracted_knowledge.json` / `rag_deep_understanding.json`
 - `02_processed/zone_analysis.json` / `event_analysis.json`
 - `02_processed/analysis_plan.md`
 
-从SKILL_PATH读取:
+Read from SKILL_PATH:
 - `resources/evidence_rules.md`
 - `templates/report_template.md`
 - `schemas/run_summary_schema.json` + `templates/run_summary_template.json`
 
-## Step 0.5: 对齐图优先识别
+## Step 0.5: Alignment Chart First-Pass Identification
 
-在开始写报告之前确认:
-1. 从 `production_regime_filter.json` 读取产品列表和重点产品
-2. 从 `plot_manifest.json` 和 `visual_analysis.json` 列出所有 per-product overlay 图
-3. 逐张检查 VLM 观察
-4. 确认每张对齐图的三维度解读: 同步波动参数、异常窗口、ontology判断
-5. 如果对齐图解读不完整 → 标记 `pipeline_warnings`
+Confirm the following before you start writing the report:
+1. Read the product list and the focus products from `production_regime_filter.json`
+2. List every per-product overlay chart from `plot_manifest.json` and `visual_analysis.json`
+3. Check the VLM observations chart by chart
+4. Confirm the three-dimension interpretation for every alignment chart: synchronized fluctuating parameters, anomaly windows, ontology judgement
+5. If the interpretation of an alignment chart is incomplete → flag `pipeline_warnings`
 
-## Step 0.6: 证据完整性自检
+## Step 0.6: Evidence Completeness Self-Check
 
-动笔前回答:
-1. 主结论是否有至少 L3 级以上证据支撑？
-2. 是否经过了时间先后验证（CCF 或 VLM 时间对齐）？
-3. 是否经过了物理机制验证（ontology + rag_deep_understanding）？
-4. 是否经过了统计验证（去趋势/Simpson/稳健性）？
-5. 每张对齐图是否有对应 VLM 观察？
-6. 如果 COMPETING_SET，是否保留了所有竞争假设？
+Answer these before you put pen to paper:
+1. Is the primary conclusion supported by evidence of rank L3 or above?
+2. Has temporal precedence been verified (CCF or VLM time alignment)?
+3. Has the physical mechanism been verified (ontology + rag_deep_understanding)?
+4. Has statistical validation been performed (detrending / Simpson / robustness)?
+5. Does every alignment chart have a corresponding VLM observation?
+6. In a COMPETING_SET, have all competing hypotheses been retained?
 
-## Step 1: 构建"结论→证据→业务影响"映射表
+## Step 1: Build the "Conclusion → Evidence → Business Impact" Mapping Table
 
-### 1.0 视觉-统计交叉验证
+### 1.0 Visual–Statistical Cross-Validation
 
-逐一交叉验证 `visual_analysis.json` VLM观察与 `feature_summary.json`/`diagnosis.json` 统计声称:
-1. VLM方向与统计方向是否一致？
-2. VLM报告同步但统计r很低 → `[视觉与统计不一致]` — 必须披露
-3. 统计r很高但VLM未观察 → 可能 outlier-driven 或 trend-confounded
-4. diagnosis声称视觉确认但不在 synchronous_groups → `[视觉证据过度声称]`
-5. 每个视觉引用处写一句话说明视觉-统计对齐状态
+Cross-validate every VLM observation in `visual_analysis.json` against the statistical claims in `feature_summary.json` / `diagnosis.json`, one by one:
+1. Do the VLM direction and the statistical direction agree?
+2. The VLM reports synchrony but the statistical r is very low → `[视觉与统计不一致]` (visual–statistical inconsistency) — must be disclosed
+3. The statistical r is very high but the VLM observed nothing → possibly outlier-driven or trend-confounded
+4. diagnosis claims visual confirmation but the pair is not in `synchronous_groups` → `[视觉证据过度声称]` (visual-evidence overclaim)
+5. Add one sentence at every visual citation stating the visual–statistical alignment status
 
-### 1.1 每个关键发现的证据溯源
+### 1.1 Evidence Tracing for Every Key Finding
 
-构建格式:
+Construct the following form (internal working structure, not report output):
 ```
-发现ID: F1
-├── 一句话结论
-├── 数据观测（来源: feature_summary.json, anomaly_report.json）
-├── 对齐图波动解读（来源: visual_analysis.json, plot_manifest）
-├── 统计证据（来源: feature_summary.json, validate_report.json）
-├── 物理机制（来源: ontology.json, rag_deep_understanding.json）
-├── 图像证据（来源: visual_analysis.json, 03_figures/）
-├── 排除的替代解释（来源: diagnosis.json, reasoning_chain.json）
-├── 信心评估（来源: confidence.json）
-├── 业务影响
-└── 证伪条件
+Finding ID: F1
+├── One-sentence conclusion
+├── Data observation (source: feature_summary.json, anomaly_report.json)
+├── Alignment-chart fluctuation interpretation (source: visual_analysis.json, plot_manifest)
+├── Statistical evidence (source: feature_summary.json, validate_report.json)
+├── Physical mechanism (source: ontology.json, rag_deep_understanding.json)
+├── Image evidence (source: visual_analysis.json, 03_figures/)
+├── Eliminated alternative explanations (source: diagnosis.json, reasoning_chain.json)
+├── Confidence assessment (source: confidence.json)
+├── Business impact
+└── Falsification condition
 ```
 
-### 1.2 证据不足时的证据溯源
+### 1.2 Evidence Tracing When Evidence Is Insufficient
 
-如果对齐图中看不到清晰关系，如实写出"未观察到任何工艺参数与检测指标之间的清晰同步波动模式"。
+If no clear relationship is visible in the alignment charts, state it plainly, using the literal sentence the report must carry:
+"未观察到任何工艺参数与检测指标之间的清晰同步波动模式"
+("no clear synchronous fluctuation pattern was observed between any process parameter and any inspection metric.")
 
-## Step 2: 生成报告 — 9节金字塔结构
+## Step 2: Generate the Report — 9-Section Pyramid Structure
+
+The report body is written in Chinese (see the `Language` parameter in `references/agent-protocol.md`). The fenced block below is the literal 9-section skeleton `report.md` must follow, so its section titles are retained verbatim in Chinese; the section order and numbering are fixed. The English equivalents of the nine sections are listed in `references/agent-protocol.md` → Phase 2.
 
 ```markdown
 # [场景名称] 工业诊断报告
@@ -135,36 +139,39 @@
 - 补充图表
 ```
 
-## Step 3: 生成 run_summary.json
+## Step 3: Generate run_summary.json
 
-读取 `schemas/run_summary_schema.json` 和 `templates/run_summary_template.json`，按模板生成。
+Read `schemas/run_summary_schema.json` and `templates/run_summary_template.json`, and generate according to the template.
 
-## 写作铁律
+## Hard Writing Rules
 
-| # | 铁律 |
+| # | Rule |
 |---|------|
-| 1 | 先说结论，再说理由 |
-| 2 | 每句话都能被"凭什么"挑战 — 必须有数字/图表/来源 |
-| 3 | 数字必须有业务含义 |
-| 4 | 金字塔原理组织内容 |
-| 5 | 复杂概念翻译成人话 |
-| 6 | 图表是证据，不是装饰 |
-| 7 | 拒绝"AI腔"和"工程师八股" |
-| 8 | 不知道也是一种专业 — 诚实说明数据缺口 |
+| 1 | State the conclusion first, the reasoning second |
+| 2 | Every sentence must survive the challenge "on what grounds?" — it must carry a number, a chart, or a source |
+| 3 | Every number must carry business meaning |
+| 4 | Organize the content on the pyramid principle |
+| 5 | Translate complex concepts into plain language |
+| 6 | Charts are evidence, not decoration |
+| 7 | Reject "AI-speak" and "engineer boilerplate" |
+| 8 | Not knowing is itself a mark of professionalism — state data gaps honestly |
 
-## 禁止写法
+## Forbidden Phrasings
 
-| 禁止 | 替代做法 |
-|------|----------|
-| "基于本次数据分析，我们认为..." | "数据直接显示: Z3温度从82→89°C，同期缺陷密度从3.2→8.7个/m²（+172%）。" |
-| "可能存在一定的关联性" | "Spearman ρ=0.73, p<0.001。去趋势后降到0.58。" |
-| "综上所述"/"值得注意的是" | 直接说结论 |
-| "强烈建议"/"高度重视" | "P0 行动: 校准Z3温控系统，目标82°C±1.5°C，预计2小时。" |
-| 归因于"AI分析"或"模型判断" | 归因于: 测量数据 / 统计检验 / 物理定律计算 / 图像直接观察 |
+The banned forms and their replacements are Chinese report prose, so the report-language examples below are retained verbatim; the English rendering of each is given in italics.
 
-## 证据不足时的输出模板
+| Forbidden | Instead |
+|-----------|---------|
+| "基于本次数据分析，我们认为..."<br>*("Based on this data analysis, we believe that…")* | "数据直接显示: Z3温度从82→89°C，同期缺陷密度从3.2→8.7个/m²（+172%）。"<br>*("The data shows directly: Z3 temperature rose from 82 → 89 °C, and over the same period defect density rose from 3.2 → 8.7 per m² (+172%).")* |
+| "可能存在一定的关联性"<br>*("There may be a certain correlation")* | "Spearman ρ=0.73, p<0.001。去趋势后降到0.58。"<br>*("Spearman ρ = 0.73, p < 0.001. After detrending it drops to 0.58.")* |
+| "综上所述"/"值得注意的是"<br>*("In summary" / "It is worth noting that")* | 直接说结论<br>*(State the conclusion directly)* |
+| "强烈建议"/"高度重视"<br>*("We strongly recommend" / "Attach great importance to")* | "P0 行动: 校准Z3温控系统，目标82°C±1.5°C，预计2小时。"<br>*("P0 action: recalibrate the Z3 temperature control system, target 82 °C ± 1.5 °C, estimated 2 hours.")* |
+| 归因于"AI分析"或"模型判断"<br>*(Attributing to "AI analysis" or "model judgement")* | 归因于: 测量数据 / 统计检验 / 物理定律计算 / 图像直接观察<br>*(Attribute to: measurement data / statistical tests / physics-law calculation / direct image observation)* |
 
-当诊断无法确定根因时，第2节使用:
+## Output Template for Insufficient Evidence
+
+When the diagnosis cannot determine a root cause, Section 2 uses the following literal Chinese skeleton:
+
 ```markdown
 ## 2. 诊断结论: 证据不足以确定单一根因
 ### 2.1 当前可以确定的
@@ -172,6 +179,8 @@
 ### 2.3 为什么无法确定
 ### 2.4 建议的下一步
 ```
+
+*(EN: "2. Diagnostic Conclusion: Evidence Is Insufficient to Determine a Single Root Cause" → 2.1 What Can Be Determined Now / 2.2 Competing Hypotheses That Currently Cannot Be Distinguished / 2.3 Why It Cannot Be Determined / 2.4 Recommended Next Steps)*
 
 ## Output Verification
 

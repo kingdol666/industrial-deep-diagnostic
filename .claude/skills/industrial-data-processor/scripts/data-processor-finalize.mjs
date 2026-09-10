@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // data-processor-finalize.mjs — Two-step post-processing for data-processor agent.
-// Step 1: Normalize anomaly_report.json (补全缺失字段)
-// Step 2: Synthesize data_analysis_conclusion.json (聚合分析产物)
+// Step 1: Normalize anomaly_report.json (fill in missing fields)
+// Step 2: Synthesize data_analysis_conclusion.json (aggregate the analysis artifacts)
 //
 // Usage:
 //   node data-processor-finalize.mjs <run_dir>

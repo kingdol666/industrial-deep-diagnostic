@@ -1,37 +1,39 @@
 ---
 name: industrial-analysis-enhance-auto
 description: >
-  Industrial Analysis Enhancement Auto — 全自动增强诊断管线编排。
-  Trigger: enhance auto, 增强自动, 增强编排, enhancement orchestration, E1-E8 pipeline,
-  全自动增强, auto enhance, enhance pipeline.
+  Industrial Analysis Enhancement Auto — fully automated enhanced-diagnostic pipeline orchestration.
   Orchestrates E0 readiness check through E8 finalization: launches E1-E4 deep analysis scripts,
   E5 physics bridge, E6 knowledge fusion, E7a markdown publishing, E7b HTML visualization, E7c HTML review.
-  Reads existing diagnostic RUN_DIR; writes only to RUN_DIR/enhancement/.
-  CLI entry point for the full enhancement pipeline.
+  Reads an existing diagnostic RUN_DIR; writes only to RUN_DIR/enhancement/.
+  Use as the CLI entry point for the full enhancement pipeline, whenever a completed diagnostic run
+  needs automated deep enhancement, or when new data must be taken through the baseline pipeline
+  plus the E0-E8 enhancement stages in one call.
+  Trigger: enhance auto, enhanced auto, enhancement orchestration, E1-E8 pipeline,
+  full-auto enhancement, auto enhance, enhance pipeline.
 ---
 
 # Industrial Analysis Enhancement Auto
 
-工业诊断全自动增强管线。从现有诊断 `RUN_DIR` 出发，依次执行：
+Fully automated enhancement pipeline for industrial diagnostics. Starting from an existing diagnostic `RUN_DIR`, it executes in sequence:
 
-| 阶段 | 脚本 | 功能 |
+| Stage | Script | Function |
 |------|------|------|
-| E-1 | `data_preprocessor.py` (data-preprocessor) | 自适应数据前处理：任意格式/目录 → `00_input/preprocessed_data.csv` + 报告 |
-| E0 | `enhance_orchestrator.mjs` | 基线就绪检查、sha256 校验、清单生成 |
-| E1 | `coverage_builder.py` (deep-analysis) | 全列覆盖分析 → `analysis_coverage.json` |
-| E2 | `derived_feature_builder.py` (deep-analysis) | 物理衍生特征构建 → `derived_features.json` |
-| E3 | `conditional_analysis.py` (deep-analysis) | 条件关系分析 + 可操作性 + 推理证据 → `deep_data_analysis.json` |
-| E3.5 | `association_graph_builder.py` (deep-analysis) | 全变量关联网络 + 时序/条件独立/中介/变点/杠杆推理 → `association_graph.json` |
-| E5 | `physics_bridge_builder.py` (physics-bridge) | 物理机理桥接 → `physics_bridge.json` |
-| E6 | `knowledge_fusion.py` | 知识融合 → `enhanced_knowledge.json` |
-| E7a | `markdown_publisher.py` | Markdown 发布 → `enhanced_analysis.md` |
-| E7b | `html_builder.py` (enhanced-html-visualizer) | ECharts HTML 可视化 → `enhanced-analysis.html` |
-| E7c | `html_reviewer.py` (enhanced-html-reviewer) | HTML 审校 → `enhancement_html_review.json` |
-| E8 | `enhance_orchestrator.mjs` (finalize) | 状态写入、摘要输出 |
+| E-1 | `data_preprocessor.py` (data-preprocessor) | Adaptive data preprocessing: any format/directory → `00_input/preprocessed_data.csv` + report |
+| E0 | `enhance_orchestrator.mjs` | Baseline readiness check, sha256 verification, manifest generation |
+| E1 | `coverage_builder.py` (deep-analysis) | Full-column coverage analysis → `analysis_coverage.json` |
+| E2 | `derived_feature_builder.py` (deep-analysis) | Physical derived-feature construction → `derived_features.json` |
+| E3 | `conditional_analysis.py` (deep-analysis) | Conditional relationship analysis + actionability + reasoning evidence → `deep_data_analysis.json` |
+| E3.5 | `association_graph_builder.py` (deep-analysis) | Full-variable association network + temporal/conditional-independence/mediation/change-point/leverage inference → `association_graph.json` |
+| E5 | `physics_bridge_builder.py` (physics-bridge) | Physical mechanism bridging → `physics_bridge.json` |
+| E6 | `knowledge_fusion.py` | Knowledge fusion → `enhanced_knowledge.json` |
+| E7a | `markdown_publisher.py` | Markdown publishing → `enhanced_analysis.md` |
+| E7b | `html_builder.py` (enhanced-html-visualizer) | ECharts HTML visualization → `enhanced-analysis.html` |
+| E7c | `html_reviewer.py` (enhanced-html-reviewer) | HTML review → `enhancement_html_review.json` |
+| E8 | `enhance_orchestrator.mjs` (finalize) | Status writing, summary output |
 
 ## Inputs (read-only)
 
-所有输入从 `RUN_DIR` 读取，不修改：
+All inputs are read from `RUN_DIR` and never modified:
 
 - `01_ontology/ontology.json`
 - `02_processed/cleaned_data.csv`
@@ -39,7 +41,7 @@ description: >
 - `02_processed/analysis_parameter_selection.json`
 - `02_processed/validate_report.json`
 - `02_processed/data_analysis_conclusion.json`
-- `02_processed/production_regime_filter.json` (可选)
+- `02_processed/production_regime_filter.json` (optional)
 - `04_diagnostics/diagnosis.json`
 - `04_diagnostics/evidence.json`
 - `04_diagnostics/confidence.json`
@@ -49,48 +51,48 @@ description: >
 
 ## Outputs (write only)
 
-所有输出写入 `RUN_DIR/enhancement/`：
+All outputs are written to `RUN_DIR/enhancement/`:
 
-| 文件 | 阶段 | 说明 |
+| File | Stage | Description |
 |------|------|------|
-| `enhancement_manifest.json` | E0 | 运行时清单 |
-| `analysis_coverage.json` | E1 | 列覆盖分析 |
-| `derived_features.json` | E2 | 衍生特征 |
-| `deep_data_analysis.json` | E3 | 深层数据分析 |
-| `physics_bridge.json` | E5 | 物理桥接 |
-| `enhanced_knowledge.json` | E6 | 增强知识整合 |
-| `enhanced_analysis.md` | E7a | Markdown 报告 |
-| `enhanced-analysis.html` | E7b | ECharts 可视化页面 |
-| `html_selfcheck.json` | E7b | 页面运行时自检 |
-| `enhancement_html_review.json` | E7c | HTML 审校结果 |
-| `enhancement_status.json` | E8 | 最终状态 |
+| `enhancement_manifest.json` | E0 | Runtime manifest |
+| `analysis_coverage.json` | E1 | Column coverage analysis |
+| `derived_features.json` | E2 | Derived features |
+| `deep_data_analysis.json` | E3 | Deep data analysis |
+| `physics_bridge.json` | E5 | Physics bridge |
+| `enhanced_knowledge.json` | E6 | Enhanced knowledge integration |
+| `enhanced_analysis.md` | E7a | Markdown report |
+| `enhanced-analysis.html` | E7b | ECharts visualization page |
+| `html_selfcheck.json` | E7b | Page runtime self-check |
+| `enhancement_html_review.json` | E7c | HTML review result |
+| `enhancement_status.json` | E8 | Final status |
 
 ## Usage
 
-### 双模式（Two Modes）
+### Two Modes
 
-| 模式 | 调用方式 | 行为 |
+| Mode | Invocation | Behavior |
 |------|---------|------|
-| **模式 A: 集成 auto 全流程（新数据）** | `--data-path <data> --name <run_name>` 或向 agent 传 `DATA_PATH` | ① 自动初始化 RUN_DIR（setup+inspect+清单）→ ② 执行 auto Step 0-9 基线（agent 编排）→ ③ E0-E8 深度增强。一次调用完成全流程 |
-| **模式 B: 基于已有 RUN_DIR（深度分析）** | `--run-dir <RUN_DIR>` | 跳过基线，直接 E0-E8（E0 校验基线产物，缺失则 BLOCKED） |
+| **Mode A: integrated auto full pipeline (new data)** | `--data-path <data> --name <run_name>` or pass `DATA_PATH` to the agent | (1) Automatically initialize RUN_DIR (setup + inspect + manifest) → (2) Execute the auto Step 0-9 baseline (agent orchestration) → (3) E0-E8 deep enhancement. One invocation completes the whole flow |
+| **Mode B: build on an existing RUN_DIR (deep analysis)** | `--run-dir <RUN_DIR>` | Skip the baseline and run E0-E8 directly (E0 verifies baseline artifacts; BLOCKED if missing) |
 
-**模式 A 是完整闭环**：CLI 完成确定性初始化（`entry_a_init.mjs`）；LLM 基线步骤（本体构建/数据处理/竞争假说诊断/报告/HTML）由 enhance-orchestrator agent 按 `skill://industrial-analysis-auto` 的 Step 0-9 顺序派发执行；基线 `optimizer.md` 含 ENDORSED 后自动进入 E0-E8。
+**Mode A is a complete closed loop**: the CLI performs deterministic initialization (`entry_a_init.mjs`); the LLM baseline steps (ontology building / data processing / competing-hypothesis diagnosis / report / HTML) are dispatched in sequence by the enhance-orchestrator agent following the Step 0-9 order of `skill://industrial-analysis-auto`; once the baseline `optimizer.md` contains ENDORSED, E0-E8 starts automatically.
 
-### 模式 A: 新数据全流程（CLI 初始化 + agent 基线 + 增强）
+### Mode A: new-data full pipeline (CLI initialization + agent baseline + enhancement)
 
 ```bash
-# CLI 初始化（确定性部分：setup + inspect + 清单 + 基线检测）
+# CLI initialization (deterministic parts: setup + inspect + manifest + baseline detection)
 node .claude/skills/industrial-analysis-enhance-auto/scripts/entry_a_init.mjs \
   --data-path data/<file>.csv --name <run_name>
 
-# 或直接通过编排器触发（等价）
+# Or trigger directly via the orchestrator (equivalent)
 node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
   --data-path data/<file>.csv --name <run_name>
 ```
 
-初始化后若基线未完成，输出 `BASELINE_PENDING` + 缺失清单 + 需派发的 agent 顺序。**完整自动化**请向 enhance-orchestrator agent 传 `DATA_PATH`：agent 依次派发 context-builder → data-processor → diagnostician → judge/pre-audit → reporter → final-audit → html-visualizer → html-reviewer，再执行 E0-E8。
+If the baseline is incomplete after initialization, the output contains `BASELINE_PENDING` + the list of missing items + the agent dispatch order required. For **full automation**, pass `DATA_PATH` to the enhance-orchestrator agent: the agent dispatches context-builder → data-processor → diagnostician → judge/pre-audit → reporter → final-audit → html-visualizer → html-reviewer in order, then executes E0-E8.
 
-### 模式 B: 已有 RUN_DIR 深度分析
+### Mode B: deep analysis on an existing RUN_DIR
 
 ```bash
 node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs \
@@ -101,34 +103,34 @@ Prints status JSON to stdout. Exit code 0 on success, 1 if BLOCKED or FAILED.
 
 ## Enhancement Status Logic
 
-| 条件 | 状态 |
+| Condition | Status |
 |------|------|
-| 所有关系均可操作，无>30%混杂 | `READY` |
-| >30% 关系为 CONFOUNDED 或 NOT_IDENTIFIABLE | `READY_WITH_WARNINGS` |
-| P0 基线文件缺失（模式 B） | `BLOCKED` |
-| 模式 A 基线未完成 | `BASELINE_PENDING` |
-| 任何增强脚本返回非零退出码 | `FAILED` |
+| All relationships actionable, no confounding >30% | `READY` |
+| >30% of relationships CONFOUNDED or NOT_IDENTIFIABLE | `READY_WITH_WARNINGS` |
+| P0 baseline files missing (Mode B) | `BLOCKED` |
+| Mode A baseline incomplete | `BASELINE_PENDING` |
+| Any enhancement script returns a non-zero exit code | `FAILED` |
 
 ## Operability Enum Values
 
-与 `deep_data_analysis_schema.json` 一致：
+Consistent with `deep_data_analysis_schema.json`:
 
-1. `LEVER_IDENTIFIED` — 已确认可操作杠杆
-2. `LEVER_OBSERVATIONAL` — 观察性关联（暂非杠杆）
-3. `ENDOGENOUS_RESPONSE` — 内生响应（方向与物理矛盾）
-4. `CONFOUNDED` — 混杂（Simpson/群组逆转或时间混淆）
-5. `NOT_IDENTIFIABLE` — 不可识别
-6. `CONSTRAINT_UNCONTROLLABLE` — 不可控约束条件
+1. `LEVER_IDENTIFIED` — confirmed actionable lever
+2. `LEVER_OBSERVATIONAL` — observational association (not currently a lever)
+3. `ENDOGENOUS_RESPONSE` — endogenous response (direction contradicts physics)
+4. `CONFOUNDED` — confounded (Simpson/group reversal or temporal confounding)
+5. `NOT_IDENTIFIABLE` — not identifiable
+6. `CONSTRAINT_UNCONTROLLABLE` — uncontrollable constraint condition
 
 ## Markdown Contract
 
-- 15 节 (`## 0.` 到 `## 14.`) 中文报告，§0 = AI 可操作摘要（机器可读 JSON 块，下游 Agent 主要消费接口）
-- 每条核心关系结论嵌入 ```json 块（claim_id, status, source, mask, n, method, effect, causal_ceiling, not_for）
-- §2 控制杠杆、§3 影响矩阵、§4 多跳因果路径、§5 参数中心性、§6 物理上下文映射为 AI 深层分析新增节
-- 零硬编码数字 —— 全部从 `enhanced_knowledge.json` 模板替换
-- 每个数值带单位
-- JSON enum 英文，正文中文
-- 不使用 `dY_dX_linear`、`partial_r` 等原始 JSON 字段名
+- 15 sections (`## 0.` through `## 14.`), report in Chinese; §0 = AI-actionable summary (machine-readable JSON block; the primary consumption interface for downstream agents)
+- Each core relationship conclusion embeds a ```json block (claim_id, status, source, mask, n, method, effect, causal_ceiling, not_for)
+- §2 control levers, §3 influence matrix, §4 multi-hop causal paths, §5 parameter centrality, §6 physical context mapping are new sections added for AI deep analysis
+- Zero hardcoded numbers — everything is template-substituted from `enhanced_knowledge.json`
+- Every numeric value carries a unit
+- JSON enums in English, prose in Chinese
+- Do not use raw JSON field names such as `dY_dX_linear` or `partial_r`
 
 ## Verification
 
@@ -177,4 +179,4 @@ print('Status:', 'READY_WITH_WARNINGS' in md)
 
 ## References
 
-- `references/orchestration-protocol.md` — E0-E8 阶段协议详细说明
+- `references/orchestration-protocol.md` — detailed description of the E0-E8 stage protocol

@@ -43,7 +43,7 @@ def _resolve_time_col(df: pd.DataFrame):
 
 def _safe_filename(name) -> str:
     """Sanitize a column/group name for use in a filename — column names like
-    '流量(m3/h)' or 'temp[°C]' contain path/OS-illegal characters that would
+    'flow rate(m3/h)' or 'temp[°C]' contain path/OS-illegal characters that would
     otherwise break figure output paths."""
     s = re.sub(r'[\\/:*?"<>|\s]+', '_', str(name).strip())
     return s or 'col'
@@ -79,7 +79,7 @@ def load_data(run_dir):
 
     # Coerce candidate numeric columns: cleaned_data.csv stores numbers as
     # strings (CSV→JSON conversion does no type coercion — the string-type-gotcha).
-    # A single stray token in a column (<0.05, N/A, "89.5°C", 100±2, 缺失) makes
+    # A single stray token in a column (<0.05, N/A, "89.5°C", 100±2, "missing") makes
     # pandas infer object/string dtype, after which the strict dtype filters
     # below silently drop that parameter from EVERY plot → no PNG → VLM gate
     # fails → metadata_backed_inference fallback. pd.to_numeric turns stray

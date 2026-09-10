@@ -1,11 +1,11 @@
 ---
 name: industrial-reporter
-description: "工业诊断管线Step 6 — 从诊断产物生成9节金字塔结构中文诊断报告(report.md)和结构化摘要(run_summary.json)。Trigger: 写报告, 诊断报告, report generation, generate report, 报告生成, write report. Judge-gated: 仅在Judge verdict=pass且score≥90（或3轮耗尽）后才可启动。"
+description: "Industrial diagnostic pipeline Step 6 — generates the 9-section pyramid-structure Chinese diagnostic report (report.md) and the structured summary (run_summary.json) from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score >= 90 (or all 3 rounds exhausted). Trigger: write report, diagnostic report, report generation, generate report, report writing."
 ---
 
 # Industrial Reporter
 
-从诊断产物生成9节金字塔结构中文诊断报告`report.md`和结构化摘要`run_summary.json`。Judge-gated：仅在Judge verdict=pass且score≥90（或3轮耗尽）后才可启动。
+Generates the 9-section pyramid-structure Chinese diagnostic report `report.md` and the structured summary `run_summary.json` from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score ≥ 90 (or all 3 rounds exhausted).
 
 ## Inputs / Outputs
 
@@ -13,38 +13,36 @@ description: "工业诊断管线Step 6 — 从诊断产物生成9节金字塔结
 
 | File | Description |
 |------|-------------|
-| `04_diagnostics/diagnosis.json` | 根因诊断结论 |
-| `04_diagnostics/evidence.json` | 证据清单 |
-| `04_diagnostics/confidence.json` | 置信度评估 |
-| `04_diagnostics/reasoning_chain.json` | 推理链 |
-| `03_figures/visual_analysis.json` | VLM视觉分析（主要图表证据来源） |
-| `03_figures/plot_manifest.json` | 图表清单 |
-| `01_ontology/ontology.json` | 领域本体 |
-| `02_processed/data_analysis_conclusion.json` | 数据分析结论 |
-| `05_review/judge_feedback.json` | Judge质量门反馈 |
+| `04_diagnostics/diagnosis.json` | Root-cause diagnosis conclusion |
+| `04_diagnostics/evidence.json` | Evidence inventory |
+| `04_diagnostics/confidence.json` | Confidence assessment |
+| `04_diagnostics/reasoning_chain.json` | Reasoning chain |
+| `03_figures/visual_analysis.json` | VLM visual analysis (primary source of figure evidence) |
+| `03_figures/plot_manifest.json` | Figure manifest |
+| `01_ontology/ontology.json` | Domain ontology |
+| `02_processed/data_analysis_conclusion.json` | Data analysis conclusion |
+| `05_review/judge_feedback.json` | Judge quality-gate feedback |
 
 ### Outputs
 
 | File | Description |
 |------|-------------|
-| `report.md` | 9节金字塔结构中文诊断报告 |
-| `run_summary.json` | 结构化摘要（schema-valid） |
+| `report.md` | 9-section pyramid-structure Chinese diagnostic report |
+| `run_summary.json` | Structured summary (schema-valid) |
 
 ## 9-Section Report Structure
 
 | # | Section | Content |
 |---|---------|---------|
-| 1 | 执行摘要 | 诊断类型、置信度、关键发现（≤300字） |
-| 2 | 诊断背景 | 工艺/设备描述、数据概览、用户问题 |
-| 3 | 数据质量评估 | 完整性、异常值、生产状态、批次完整性 |
-| 4 | 统计分析发现 | 关键相关、异常模式、Simpson/趋势/时滞（强制节，非附录） |
-| 5 | 假设检验 | 竞争假说表、证据支持/反对、排除理由 |
-| 6 | 根因结论 | 物理逻辑链、因果路径、置信度 |
-| 7 | 证据附录 | 证据等级总览、关键图表引用 |
-| 8 | 建议与后续 | 可执行建议 + 具体证伪条件 |
-| 9 | 方法论备注 | 分析方法、局限性、数据范围 |
-
-
+| 1 | Executive Summary | Diagnosis type, confidence, key findings (≤300 characters) |
+| 2 | Diagnostic Background | Process/equipment description, data overview, user question |
+| 3 | Data Quality Assessment | Completeness, outliers, production state, batch integrity |
+| 4 | Statistical Analysis Findings | Key correlations, anomaly patterns, Simpson/trend/time-lag (mandatory section, not an appendix) |
+| 5 | Hypothesis Testing | Competing-hypotheses table, evidence for/against, exclusion rationale |
+| 6 | Root-Cause Conclusion | Physical logic chain, causal path, confidence |
+| 7 | Evidence Appendix | Evidence level overview, key figure citations |
+| 8 | Recommendations & Follow-up | Actionable recommendations + concrete falsification conditions |
+| 9 | Methodology Notes | Analysis methods, limitations, data scope |
 
 ## Pipeline Event Logging
 
@@ -65,7 +63,7 @@ These events are required by `pipeline-log-check.mjs` and `pipeline-finalize.mjs
 
 ## Dispatch
 
-启动 `reporter` 子Agent：
+Launch the `reporter` sub-agent:
 
 ```javascript
 // Claude Code dispatch via Agent tool:
@@ -91,7 +89,7 @@ Step 0: Read all diagnostic products from RUN_DIR:
 Step 1: Generate 9-section pyramid report. Use $SKILL_PATH/templates/report_template.md as structure guide.
 - Every chart must be embedded: ![title](03_figures/filename.png)
 - visual_analysis.json is the primary source for VLM visual insights
-- Section 4 (统计分析发现) is mandatory, not an appendix
+- Section 4 (Statistical Analysis Findings) is mandatory, not an appendix
 - All web/external knowledge marked [EXTERNAL KNOWLEDGE]
 - Report in Chinese; technical terms may be in English
 - Write to RUN_DIR/report.md
@@ -116,67 +114,66 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 
 | Step | Purpose |
 |------|---------|
-| 0 | 读取所有诊断产物（diagnosis/evidence/confidence/reasoning_chain/visual_analysis/plot_manifest/ontology/data_analysis_conclusion/judge_feedback） |
-| 1 | 按9节金字塔结构生成report.md，嵌入所有图表 |
-| 2 | 按schema生成run_summary.json结构化摘要 |
-| 3 | 后处理：摘要合成 + 章节完整性检查 |
-| 4 | 验证：schema校验 + 文件存在性 |
+| 0 | Read all diagnostic artifacts (diagnosis/evidence/confidence/reasoning_chain/visual_analysis/plot_manifest/ontology/data_analysis_conclusion/judge_feedback) |
+| 1 | Generate report.md following the 9-section pyramid structure, embedding all figures |
+| 2 | Generate the run_summary.json structured summary according to the schema |
+| 3 | Post-processing: summary synthesis + section completeness check |
+| 4 | Validation: schema validation + file existence check |
 
 ## Core Rules
 
-- **每张图表必须嵌入**: `![title](03_figures/filename.png)`
-- **visual_analysis.json 是VLM视觉洞察的主要来源**
-- **Section 4 统计验证是强制节**，不是附录
-- 所有web/外部知识标记 `[EXTERNAL KNOWLEDGE]`
-- 报告用中文，技术术语可英文
-- 中文双引号必须转义
+- **Every figure must be embedded**: `![title](03_figures/filename.png)`
+- **visual_analysis.json is the primary source of VLM visual insights**
+- **Section 4 statistical validation is a mandatory section**, not an appendix
+- All web/external knowledge marked `[EXTERNAL KNOWLEDGE]`
+- Report written in Chinese; technical terms may be in English
+- Chinese double quotes must be escaped
 
 ## Data Truth Mandate
 
-**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+**Every number written into JSON/reports must be recomputable from the raw data.**
 
-| 规则 | 要求 |
+| Rule | Requirement |
 |------|------|
-| 数字可追溯性 | 每个数字必须标注数据源(cleaned/raw)、行范围、计算方法 |
-| 派生值标记 | 推断/派生值必须显式 `"derived": true` 或 `"inferred": true` |
-| 清洗留痕 | cleaning_integrity 记录全部清洗操作 |
-| 可视化可追溯 | 每张图的每个数据点可追溯到数据集的具体行 |
-| 不可用标记 | 无法从数据计算的 → 写 NOT_APPLICABLE + 原因 |
+| Number traceability | Every number must state its data source (cleaned/raw), row range, and computation method |
+| Derived-value marking | Inferred/derived values must be explicitly marked `"derived": true` or `"inferred": true` |
+| Cleaning audit trail | cleaning_integrity records all cleaning operations |
+| Visualization traceability | Every data point in every figure must be traceable to specific dataset rows |
+| Unavailable marking | Values that cannot be computed from the data → write NOT_APPLICABLE + reason |
 
-## Counterfactual Reasoning — 排除约束
+## Counterfactual Reasoning — Exclusion Constraints
 
-| 约束 | 说明 |
+| Constraint | Description |
 |------|------|
-| 四条件 | 时间先后 + 统计显著 + 物理机制 + 无矛盾 |
-| 排除标准 | 任一条件不满足 → 标记为排除候选项并提供量化依据 |
-| 物理边界 | 排除必须有第一性原理或控制方程支撑 |
-| 置信阈值 | 排除置信度 <80 时标记 `[WEAK_EXCLUSION]` |
+| Four conditions | Temporal precedence + statistical significance + physical mechanism + no contradiction |
+| Exclusion criterion | Any unmet condition → mark as an exclusion candidate with quantitative justification |
+| Physics boundary | Exclusions must be supported by first principles or governing equations |
+| Confidence threshold | Exclusion confidence < 80 → mark `[WEAK_EXCLUSION]` |
 
 ## Assumptions & Limitations
 
-| 类别 | 要求 |
+| Category | Requirement |
 |------|------|
-| 数据限制 | 采样率/噪声/缺失最值/范围限制 |
-| 模型假设 | 线性近似/稳态假设/分布假设 |
-| 未控制混淆 | 明确列出无法控制的潜在混淆变量 |
-| 结论可信区间 | 每个结论标注置信度 ± 误差范围 |
+| Data limitations | Sampling rate / noise / missing extremes / range limits |
+| Model assumptions | Linear approximation / steady-state assumption / distribution assumptions |
+| Uncontrolled confounders | Explicitly list potential confounding variables that cannot be controlled |
+| Conclusion confidence intervals | Each conclusion annotated with confidence ± error margin |
 
 ## Efficiency — Parallel Execution
 
-- 与上下游 agent 无数据依赖时 → 主动并行
-- 对可预测结果使用确定性脚本而非 LLM 推理
-- 大文件采样策略: >100K 行时系统抽样
-- Agent stall >600s → 检查已有产物, 部分可用的继续推进
-
+- No data dependency with upstream/downstream agents → parallelize proactively
+- Use deterministic scripts instead of LLM reasoning for predictable results
+- Large-file sampling strategy: systematic sampling for >100K rows
+- Agent stall >600s → inspect existing artifacts; proceed with partially usable outputs
 
 ## Failure Recovery
 
 | Scenario | Recovery |
 |----------|----------|
-| Schema validation fail | 修复 JSON → 重写产物 → 重新验证 |
-| Missing input artifacts | 报告缺失文件 → 标记 [PARTIAL_RUN] |
-| Agent stall >600s | 检查已有产物 → 部分可用则继续 |
-| Script execution error | 记录错误 → 降级到 LLM 手动产出 |
+| Schema validation fail | Fix JSON → rewrite artifacts → re-validate |
+| Missing input artifacts | Report missing files → mark [PARTIAL_RUN] |
+| Agent stall >600s | Inspect existing artifacts → continue if partially usable |
+| Script execution error | Log the error → degrade to manual LLM production |
 
 ## Verification
 

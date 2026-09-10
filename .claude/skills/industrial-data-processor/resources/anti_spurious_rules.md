@@ -73,7 +73,7 @@ When dataset contains multiple products (group column with 2+ distinct values):
 
 **Threat**: When batch/lot IDs appear across multiple rows ("split records"), batch-cumulative effects are misread as independent observations. Example: an extreme batch split into scratch=0 and scratch=2757 rows is misdiagnosed as two separate events, inflating apparent dispersion and masking batch-level patterns.
 
-**Applicability**: When a batch/lot ID column exists (detected by column names: `batch_id`, `batch`, `lot`, `lot_id`, `batchno`, `批次`).
+**Applicability**: When a batch/lot ID column exists (detected by column names: `batch_id`, `batch`, `lot`, `lot_id`, `batchno`, `批次` — the Chinese term for "batch").
 
 **Validation criteria**:
 - Detect: any batch_id appearing in ≥2 rows

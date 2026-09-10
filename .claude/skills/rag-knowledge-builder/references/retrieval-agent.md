@@ -6,7 +6,7 @@ You retrieve domain knowledge from local and web sources. You construct multiple
 
 ## Language Note
 
-检索查询使用英文（目标数据库以英文为主）。分类标签、概念名称和过滤字段保持英文。自然语言输出使用中文。
+Retrieval queries are issued in English (the target databases are predominantly English). Classification tags, concept names, and filter fields stay in English. Natural-language output is written in Chinese.
 
 ## Parameters
 
@@ -165,61 +165,61 @@ Write `retrieval_results.json` to `OUTPUT_PATH`:
 
 ## Rules
 
-- **4 queries exactly. 不要多，不要少。** 少于 4 个会遗漏维度。超过 4 个会产生噪音并降低检索质量。
-- **本地优先。** 如果本地 KB 返回了高语义得分(>0.8)的结果，减少该查询的 web 获取次数
-- **不要重试已获取的相同 URL。** 两次检索运行之间保持已获取 URL 的索引
-- **中文场景用中文的等效查询。** 如果输入概念名或领域为中文，构建中文查询
-- **如果只返回了 0 个 chunk，则在检索元数据中标记 `"RETRIEVAL_FAILED"`，但仍然继续**
-- **域无关。** 检索阶段不按领域过滤内容。例如：用户问医疗问题时不要拒绝医疗 chunk；用户问工业问题时也不要拒绝工业 chunk。让下游 LLM 决定。
+- **4 queries exactly. No more, no fewer.** Fewer than 4 misses dimensions. More than 4 adds noise and degrades retrieval quality.
+- **Local first.** If the local KB returns high-semantic-score results (>0.8), reduce the number of web fetches for that query
+- **Do not re-fetch a URL that was already retrieved.** Keep an index of fetched URLs across retrieval runs
+- **For Chinese-language scenarios, use the Chinese equivalent query.** If the input concept names or the domain are in Chinese, construct Chinese-language queries
+- **If 0 chunks are returned, mark `"RETRIEVAL_FAILED"` in the retrieval metadata — but continue anyway**
+- **Domain-agnostic.** The retrieval stage does not filter content by domain. For example: when the user asks a medical question, do not reject medical chunks; when the user asks an industrial question, do not reject industrial chunks either. Let the downstream LLM decide.
 
 ---
 
-## Step 5: LLM Content Triaging — 第三重筛选 (CRITICAL)
+## Step 5: LLM Content Triaging — The Third Filter (CRITICAL)
 
-在引擎的 5 维评分过滤之后，在送入本体构建之前，**你必须亲自逐块审阅每个知识块的内容**，做第三重也是最严格的一层筛选。
+After the engine's 5-dimension scoring filter and before the knowledge is handed to ontology construction, **you must personally review the content of every knowledge chunk, one chunk at a time**, performing the third and strictest filter.
 
 ### 5.1 Why This Matters
 
-引擎的 D1-D5 评分是统计/规则层面的过滤——它能发现语义不匹配、概念不对应、来源不可靠。**但它无法判断「这块知识是否真的适用于这个特定的知识领域」**。例如：
+The engine's D1-D5 scoring is a statistical/rule-level filter — it can detect semantic mismatch, concept misalignment, and unreliable sources. **But it cannot judge "whether this piece of knowledge genuinely applies to this particular knowledge domain".** For example:
 
-- D1 评分 8.5 的 chunk 说"胰岛素抵抗→血糖↑→HbA1c↑"——对 2 型糖尿病风险分层场景完全适用，但对债券评级场景完全不适用
-- D1 评分 7.0 的 chunk 说"温度↑→反应速率↑→加速降解"——对化工反应器场景部分适用，但不应直接套用到金融时间序列分析
+- A chunk with a D1 score of 8.5 says "insulin resistance → blood glucose↑ → HbA1c↑" — fully applicable to a type 2 diabetes risk-stratification scenario, but completely inapplicable to a bond-rating scenario
+- A chunk with a D1 score of 7.0 says "temperature↑ → reaction rate↑ → accelerated degradation" — partially applicable to a chemical reactor scenario, but it must not be applied directly to financial time-series analysis
 
-**你（LLM）的领域理解能力是补上这最后一层的关键。**
+**Your (the LLM's) domain understanding is the key that supplies this final layer.**
 
 ### 5.2 Per-Chunk Review Protocol
 
-对于每个通过引擎评分（D1-D5 pass）的 chunk，执行以下审查：
+For every chunk that passes the engine's scoring (D1-D5 pass), perform the following review:
 
-**Step A: 全文阅读**
-- 不要只看预览（preview），读完整 content
-- 理解：描述什么概念/现象？涉及哪些实体/关系？依赖机制是什么？
+**Step A: Read the full text**
+- Do not look only at the preview; read the complete content
+- Understand: what concept/phenomenon does it describe? Which entities/relationships are involved? What mechanism does it rest on?
 
-**Step B: 领域适用性判断**
+**Step B: Domain-applicability judgement**
 
-针对当前领域 `{DOMAIN}`，对每个 chunk 做出三个结论之一：
+For the current domain `{DOMAIN}`, reach one of three verdicts for each chunk:
 
-| 判断 | 条件 | 动作 |
+| Verdict | Condition | Action |
 |------|------|------|
-| ✅ **APPLICABLE** | chunk 描述的概念/过程与当前领域相同或高度相似；概念名与数据字段匹配；机制在领域语义上合理 | 保留，标记 `tag: applicable` |
-| ⚠️ **PARTIALLY** | chunk 描述的是通用原理（如因果推断、统计相关性、贝叶斯更新、迁移学习、流行病学曲线），原理正确但具体场景不匹配 | 保留但降低置信度，标记 `tag: partially_applicable` |
-| ❌ **NOT_APPLICABLE** | chunk 描述的是完全不同的领域或主题（如用临床医学知识做合同审查）；概念完全不匹配；机制不适用于此领域 | **丢弃**，记录原因 |
+| ✅ **APPLICABLE** | The concept/process the chunk describes is identical or highly similar to the current domain; concept names match the data fields; the mechanism is sensible in the domain's semantics | Keep it, tag it `tag: applicable` |
+| ⚠️ **PARTIALLY** | The chunk describes a general principle (causal inference, statistical correlation, Bayesian updating, transfer learning, epidemiological curves, etc.) that is correct but whose concrete scenario does not match | Keep it but lower its confidence, tag it `tag: partially_applicable` |
+| ❌ **NOT_APPLICABLE** | The chunk describes an entirely different domain or topic (e.g. using clinical-medicine knowledge for contract review); the concepts do not match at all; the mechanism does not apply in this domain | **Discard it**, record the reason |
 
-**Step C: 拒绝原因分类**
+**Step C: Classify the rejection reason**
 
-拒绝的 chunk 必须记录结构化原因：
+Every rejected chunk must record a structured reason:
 
-| 原因 | 含义 | 示例 |
+| Reason | Meaning | Example |
 |------|------|------|
-| `wrong_domain` | 知识来自完全不同的领域 | 在合同审查场景中拒绝心血管药理学知识 |
-| `concept_mismatch` | chunk 讨论的概念不在数据字段中 | chunk 读"生存曲线"，数据没有 survival 列 |
-| `mechanism_irrelevant` | 依赖机制在此领域不成立 | 在金融场景中拒绝"催化剂失活"机制 |
-| `too_generic` | 知识太泛泛，没有可用信息 | "X 会影响 Y"——没有量化或机制 |
-| `contradicts_other` | 与更高置信度的其他 chunk 矛盾 | 一个说温度↑→质量↑，另一个说温度↑→质量↓ |
+| `wrong_domain` | The knowledge comes from an entirely different domain | Rejecting cardiovascular pharmacology knowledge in a contract-review scenario |
+| `concept_mismatch` | The concept the chunk discusses is not among the data fields | The chunk is about "survival curves", but the data has no survival column |
+| `mechanism_irrelevant` | The underlying mechanism does not hold in this domain | Rejecting a "catalyst deactivation" mechanism in a financial scenario |
+| `too_generic` | The knowledge is too vague to carry usable information | "X affects Y" — no quantification and no mechanism |
+| `contradicts_other` | Contradicts another chunk of higher confidence | One says temperature↑ → quality↑, another says temperature↑ → quality↓ |
 
 ### 5.3 Output: Triaged Results
 
-在 `retrieval_results.json` 中对每个 chunk 添加 `triaging` 字段：
+Add a `triaging` field to every chunk in `retrieval_results.json`:
 
 ```json
 {
@@ -230,7 +230,7 @@ Write `retrieval_results.json` to `OUTPUT_PATH`:
       "source": {"type": "local_reference", "path": "clinical_guidelines.json"},
       "triaging": {
         "verdict": "APPLICABLE",
-        "rationale": "该 chunk 描述的胰岛素抵抗→血糖→HbA1c 因果链直接适用于 2 型糖尿病风险分层场景",
+        "rationale": "The insulin resistance → blood glucose → HbA1c causal chain described by this chunk applies directly to the type 2 diabetes risk-stratification scenario",
         "rejection_reason": null,
         "cross_references": ["kb_glucose_002", "kb_hba1c_001"]
       }
@@ -241,7 +241,7 @@ Write `retrieval_results.json` to `OUTPUT_PATH`:
       "source": {"type": "local_reference"},
       "triaging": {
         "verdict": "NOT_APPLICABLE",
-        "rationale": "该 chunk 描述的刀具磨损→粗糙度机制适用于机加工，但当前场景是金融信用风险评估，无关",
+        "rationale": "The tool-wear → roughness mechanism described by this chunk applies to machining, but the current scenario is financial credit-risk assessment, so it is irrelevant",
         "rejection_reason": "wrong_domain",
         "cross_references": []
       }
@@ -264,8 +264,8 @@ Write `retrieval_results.json` to `OUTPUT_PATH`:
 
 ### 5.4 Triaging Rules
 
-- **绝不保留"可能有用"的模糊 chunk** — 如果你不能明确说出这块知识如何适用于这个领域，就拒绝它
-- **APPLICABLE 块必须至少有一个数据概念可以被它解释** — 否则它可能正确但不相关
-- **PARTIALLY 块必须有明确的通用原理成分** — "温度升高→反应速率↑"是通用的，"轴承磨损→粗糙度↑"是机加工专有的；"X↑→Y↓"是通用的，"胰岛素抵抗→HbA1c↑"是医学专有的
-- **同样内容的两个 chunk，取来源信誉更高、triaging 判断更准确的那个**
-- **领域判断是基于内容，不是基于关键词** — 读懂整段话在讲什么领域
+- **Never keep a vague chunk "because it might be useful"** — if you cannot state explicitly how this piece of knowledge applies to this domain, reject it
+- **An APPLICABLE chunk must be able to explain at least one data concept** — otherwise it may be correct but irrelevant
+- **A PARTIALLY chunk must contain a clearly general principle** — "higher temperature → reaction rate↑" is general, whereas "bearing wear → roughness↑" is specific to machining; "X↑ → Y↓" is general, whereas "insulin resistance → HbA1c↑" is specific to medicine
+- **For two chunks with the same content, take the one with higher source credibility and the more accurate triaging judgement**
+- **Domain judgement is based on content, not on keywords** — understand what domain the passage as a whole is about

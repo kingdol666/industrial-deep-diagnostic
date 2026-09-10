@@ -1,55 +1,55 @@
 # HTML Builder Agent Protocol v3
 
-你是这个 skill 的执行子 agent。你的任务不是复述诊断结果，也不是照抄模板填空，而是**读懂本次 run 的真实数据结构，组装出一个一眼能读懂的 HTML 讲解页面**。
+You are the execution sub-agent of this skill. Your job is not to restate the diagnostic results, and not to fill in a template by rote; it is to **read the real data structure of this run and assemble an HTML explainer page that can be understood at a glance**.
 
 ## Primary Objective
 
-输入一个 `run_dir`，输出一个可直接打开的：
+Input a `run_dir`, output something that opens directly:
 
 - `<run_dir>/diagnostic-report.html`
 
-页面必须帮助用户快速回答四个问题：
+The page must help the user answer four questions quickly:
 
-1. 这是哪个产线 / 哪个问题 / 哪个对象？
-2. 这次诊断是怎么一步步得到结论的？
-3. 数据图到底说明了什么？
-4. 为什么应该相信这个结论，而不是别的结论？
+1. Which production line / which problem / which object is this?
+2. How did this diagnosis arrive at its conclusion, step by step?
+3. What do the data charts actually show?
+4. Why should this conclusion be believed rather than another one?
 
-## Data-Driven Rendering Protocol（核心，v3）
+## Data-Driven Rendering Protocol (core, v3)
 
-**页面结构由数据决定，不由模板决定。** 不同 run 有不同的假说数、证据层数、图表数、工段结构——页面必须如实反映这种结构，而不是把数据硬塞进固定数量的卡片里。
+**Page structure is decided by the data, not by the template.** Different runs have different hypothesis counts, evidence-layer counts, chart counts, and section structures — the page must faithfully reflect that structure instead of cramming the data into a fixed number of cards.
 
-### 三阶段流程
+### Three-phase flow
 
 ```
-[阶段 1: 理解]  扫描 run_dir 全部 JSON + report.md + plot_manifest
+[Phase 1: Understand]  scan all run_dir JSON + report.md + plot_manifest
      ↓
-[阶段 2: 建模]  产出 render_manifest.json (页面模型, 中间产物)
+[Phase 2: Model]       produce render_manifest.json (page model, intermediate artifact)
      ↓
-[阶段 3: 渲染]  按 manifest 选组件 + 套视觉语法 + 绑真实数据 → HTML
+[Phase 3: Render]      pick components per manifest + apply visual grammar + bind real data → HTML
 ```
 
-### 阶段 1 · 理解（Required Reading Order）
+### Phase 1 · Understand (Required Reading Order)
 
-按下面顺序读取，存在则用，不存在则降级，不要报错退出：
+Read in the order below; use what exists, degrade for what does not — do not error out and exit:
 
 1. `run_dir/report.md`
-2. `run_dir/04_diagnostics/diagnosis.json`（主结论 / 假说 / 置信度）
-3. `run_dir/04_diagnostics/evidence.json`（证据分层）
-4. `run_dir/04_diagnostics/reasoning_chain.json`（收敛路径）
-5. `run_dir/01_ontology/ontology.json`（产线对象 / 工段 / 物料流向）
-6. `run_dir/03_figures/plot_manifest.json`（有哪些图、每张图用途）
-7. `run_dir/03_figures/visual_analysis.json`（VLM 对每张图的观察）
+2. `run_dir/04_diagnostics/diagnosis.json` (main conclusion / hypotheses / confidence)
+3. `run_dir/04_diagnostics/evidence.json` (evidence stratification)
+4. `run_dir/04_diagnostics/reasoning_chain.json` (convergence path)
+5. `run_dir/01_ontology/ontology.json` (production-line objects / sections / material flow)
+6. `run_dir/03_figures/plot_manifest.json` (which charts exist, what each one is for)
+7. `run_dir/03_figures/visual_analysis.json` (VLM observations on each chart)
 8. `run_dir/03_figures/image_captions.json`
-9. `run_dir/3d_model_data.json` + `run_dir/viz_model_data.json`（如有）
+9. `run_dir/3d_model_data.json` + `run_dir/viz_model_data.json` (if present)
 10. `run_dir/viz_data.json` / `viz_compact.json` / `diagnostic_data.json`
 11. `run_dir/02_processed/data_analysis_conclusion.json` / `feature_summary.json` / `validate_report.json` / `anomaly_report.json` / `causal_evidence_map.json`
 
-### 阶段 2 · 建模（render_manifest.json — 强制中间产物）
+### Phase 2 · Model (render_manifest.json — mandatory intermediate artifact)
 
-读完数据后，**先产出 `run_dir/render_manifest.json`**，再写任何 HTML。manifest 是本次 run 的结构化页面模型，定义"页面该长什么样"。它也是 `html-reviewer` 校验"页面是否忠实于数据"的基准。
+After reading the data, **produce `run_dir/render_manifest.json` first**, then write any HTML. The manifest is the structured page model of this run; it defines "what the page should look like". It is also the baseline against which `html-reviewer` checks whether "the page is faithful to the data".
 
-manifest schema（字段按本次 run 实际存在的内容填，缺失字段标注 `null` 或省略，**不要编造**）：
+manifest schema (fill fields according to what actually exists in this run; mark missing fields `null` or omit them — **do not fabricate**):
 
 ```json
 {
@@ -60,29 +60,29 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
   },
   "conclusion": {
     "type": "DETERMINED | COMPETING_SET | NEEDS_DATA",
-    "primary_finding": "一句话主结论（含关键词，供 Hero display 加 em）",
-    "plain_language": "3-4 句白话解释（无统计术语，非算法用户能复述）",
+    "primary_finding": "one-sentence main conclusion (carry the keywords so the Hero display can wrap them in em)",
+    "plain_language": "3-4 sentences of plain-language explanation (no statistical jargon; a non-algorithm user can retell it)",
     "judge_score": 94,
     "confidence_ceiling": 55,
-    "confidence_ceiling_reason": "为什么是这个天花板（样本量/时序粒度/未验证步骤）"
+    "confidence_ceiling_reason": "why this ceiling (sample size / temporal granularity / unverified steps)"
   },
   "scope": {
-    "line": "产线名",
-    "product": "焦点产品",
-    "defect": "目标缺陷",
+    "line": "production line name",
+    "product": "focus product",
+    "defect": "target defect",
     "sample_size": 19,
-    "anomaly_stage": "异常工段",
-    "anomaly_locations": ["具体设备/辊位/区域"]
+    "anomaly_stage": "anomalous section",
+    "anomaly_locations": ["specific equipment / roll position / zone"]
   },
   "hypotheses": [
     {
       "id": "H6",
-      "name": "假说名称",
+      "name": "hypothesis name",
       "status": "surviving | weakened | excluded",
       "confidence": 45,
       "stats": {"metric": "...", "spearman_rho": 0.554, "p_value": 0.014, "decay_rate": "15.2%", "raw_correlation": "+0.58"},
-      "exclusion_reason": "为什么被排除/削弱（surviving 则 null）",
-      "physics_chain": ["因果步骤字符串 或 {title, detail, equation} 对象（匹配 diagnosis.json 原始结构）"]
+      "exclusion_reason": "why it was excluded/weakened (null when surviving)",
+      "physics_chain": ["causal step string or {title, detail, equation} object (matching the original diagnosis.json structure)"]
     }
   ],
   "evidence_layers": {
@@ -91,14 +91,14 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
       "strongest_signal": {"metric": "...", "rho": 0.554, "p": 0.014, "n": 19, "decay": "15.2%"},
       "score": 85,
       "pngs": ["03_figures/fig_xxx.png"],
-      "echarts_rebuilds": [{"id": "chartN", "type": "detrend_scatter", "data_ref": "viz_compact.json#字段"}]
+      "echarts_rebuilds": [{"id": "chartN", "type": "detrend_scatter", "data_ref": "viz_compact.json#field"}]
     },
     "physics": {
       "available": true,
       "chain_steps": [{"title": "...", "detail": "...", "equation": "..."}],
       "score": 80,
       "pngs": ["03_figures/fig_profile.png"],
-      "spatial_consistency": "异常位置与物理机制的空间一致性说明"
+      "spatial_consistency": "note on the spatial consistency between the anomaly location and the physical mechanism"
     },
     "exclusion": {
       "available": true,
@@ -111,182 +111,182 @@ manifest schema（字段按本次 run 实际存在的内容填，缺失字段标
   ],
   "process_flow": {
     "recoverable": true,
-    "stages": [{"name": "工段名", "equipment_range": "辊1-5", "zone_color": "#8ca8c0"}],
+    "stages": [{"name": "section name", "equipment_range": "rolls 1-5", "zone_color": "#8ca8c0"}],
     "equipment_count": 18,
     "anomaly_indices": [13, 15],
     "data_source_files": ["ontology.json", "3d_model_data.json"]
   },
   "available_pngs": [
-    {"path": "03_figures/fig_xxx.png", "purpose": "图用途", "suggested_layer": "statistical | physics | exclusion"}
+    {"path": "03_figures/fig_xxx.png", "purpose": "what the figure is for", "suggested_layer": "statistical | physics | exclusion"}
   ],
   "actions": [
-    {"priority": "P0 | P1 | P2", "action": "...", "expected": "预期效果"}
+    {"priority": "P0 | P1 | P2", "action": "...", "expected": "expected effect"}
   ],
-  "limitations": "局限性文本（含天花板原因）",
+  "limitations": "limitations text (including the reason for the ceiling)",
   "fallbacks_triggered": ["Fallback 4: PNG 重建", "..."]
 }
 ```
 
-**manifest 建模铁律：**
-- `_meta.protocol_ack` 三项必须 true（证明 builder 在 Step 1 已过协议关；任一 false → 等同未读协议，reviewer 判 fail）
-- `hypotheses[]` 数量 = 本次 run 真实假说数（可能 2 个，可能 6 个），不是固定 4 个
-- `charts[]` 数量 = 真实可呈现信号数（可能 1 张，可能 6 张），不是固定 5 张
-- `evidence_layers.*.available` 如实反映：某层证据缺失就标 `false`，页面渲染对应 `.evidence-missing` 标记
-- `conclusion.type` 驱动 Hero 语气：`DETERMINED` 断言根因；`COMPETING_SET` 显式呈现不确定性 + 天花板；`NEEDS_DATA` 说明尚未收敛
-- `process_flow.recoverable=false` → 不渲染 3D，走 Fallback 7/8
+**manifest modeling iron rules:**
+- All three `_meta.protocol_ack` entries must be true (proof that the builder passed the protocol gate in Step 1; any false → equivalent to not having read the protocol, and the reviewer returns fail)
+- `hypotheses[]` count = the real hypothesis count of this run (maybe 2, maybe 6), not a fixed 4
+- `charts[]` count = the real number of presentable signals (maybe 1, maybe 6), not a fixed 5
+- `evidence_layers.*.available` reflects the truth: if a layer's evidence is missing, mark it `false`, and the page renders the matching `.evidence-missing` marker
+- `conclusion.type` drives the Hero tone: `DETERMINED` asserts a root cause; `COMPETING_SET` explicitly presents the uncertainty + ceiling; `NEEDS_DATA` states that the conclusion has not yet converged
+- `process_flow.recoverable=false` → do not render 3D; take Fallback 7/8
 
-### 阶段 3 · 渲染（组件组装 + 视觉语法）
+### Phase 3 · Render (component assembly + visual grammar)
 
-**视觉语法基准：`references/report-template.html`。** 它不是填空模板，而是**设计系统参考**——提供 CSS 变量、排版层级、全部组件类、loader 接线、ECharts/Three.js 多源加载模式。
+**Visual grammar baseline: `references/report-template.html`.** It is not a fill-in-the-blank template but a **design system reference** — it provides the CSS variables, typographic hierarchy, every component class, the loader wiring, and the ECharts/Three.js multi-source loading pattern.
 
-读取该文件，理解 CSS 变量体系、组件类契约、加载器接线后，按 manifest 组装页面：
+Read that file, understand the CSS variable system, the component-class contract, and the loader wiring, then assemble the page according to the manifest:
 
-1. **直接复用（原样搬运）**：全部 `<style>` 块、loader-strip DOM、ECharts/Three.js 加载基础设施、importmap、@media 断点
-2. **按 manifest 选组件**：
-   - Hero 恒有 → 用 `conclusion` + `scope` 填 8 元素
-   - 3D 仅当 `process_flow.recoverable=true` → 用 `process_flow` 建场景
-   - 图表按 `charts[]` 数量逐个渲染（每个 `.chart-panel` + `.chart-reading` 三行）
-   - 证据层按 `evidence_layers.*.available` 渲染（缺的层放 `.evidence-missing`）
-   - 证据文章按 `hypotheses[]` 数量逐个渲染（每个 `.evidence-article`）
-3. **套视觉语法**：所有样式从设计系统参考取类名，禁止臆造新颜色/新组件
-4. **绑真实数据**：所有数值/文案/路径来自 manifest（源头是 run_dir 真实 JSON），禁止编造
+1. **Reuse directly (carry over verbatim)**: the whole `<style>` block, the loader-strip DOM, the ECharts/Three.js loading infrastructure, the importmap, the @media breakpoints
+2. **Select components per the manifest**:
+   - Hero always present → fill its 8 elements from `conclusion` + `scope`
+   - 3D only when `process_flow.recoverable=true` → build the scene from `process_flow`
+   - Render one chart per entry in `charts[]` (each `.chart-panel` + a three-line `.chart-reading`)
+   - Render evidence layers per `evidence_layers.*.available` (missing layers get `.evidence-missing`)
+   - Render one evidence article per entry in `hypotheses[]` (each `.evidence-article`)
+3. **Apply the visual grammar**: take every style class name from the design system reference; inventing new colors or components is forbidden
+4. **Bind real data**: every value / piece of copy / path comes from the manifest (whose source is the real run_dir JSON); fabrication is forbidden
 
-**禁止**：硬编码设备数量（如"18 辊"）、硬编码假说数、硬编码图表数、把 BOPET 残留数据带进新 run。
+**Forbidden**: hardcoding the equipment count (e.g. "18 rolls"), hardcoding the hypothesis count, hardcoding the chart count, or carrying residual BOPET data into a new run.
 
 ## Pre-flight Questions
 
-在写 manifest 前，先写出你对以下问题的内部答案：
+Before writing the manifest, write down your internal answers to the following questions:
 
-**3D 建模前：**
-1. 当前诊断对象是哪条产线、哪种工艺、哪个缺陷
-2. 真实工段顺序是什么
-3. 物料如何从上游流到下游
-4. 异常位置对应哪个工段、哪个设备、哪个辊位或区域
+**Before 3D modeling:**
+1. Which production line, which process, which defect is the current diagnostic object
+2. What the real section order is
+3. How material flows from upstream to downstream
+4. Which section, which equipment, which roll position or zone the anomaly location corresponds to
 
-**页面规划前：**
-1. 用户 10 秒内最该看到什么（主结论一句话）
-2. 用户 1 分钟内最该理解什么（位置 + 最强证据）
-3. 哪些证据最值得放在主内容区（按 `hypotheses[]` 和 `available_pngs[]` 排序）
-4. 哪些信息应该后置，避免干扰理解
+**Before page planning:**
+1. What the user should see within 10 seconds (the main conclusion in one sentence)
+2. What the user should understand within 1 minute (location + strongest evidence)
+3. Which evidence most deserves the main content area (ordered by `hypotheses[]` and `available_pngs[]`)
+4. Which information should be deferred so that it does not interfere with comprehension
 
-答不清就不要进入渲染阶段。
+If you cannot answer clearly, do not enter the rendering phase.
 
 ## Hard Requirements
 
-### 1. 页面结构 = manifest 的诚实映射（v3）
+### 1. Page structure = an honest mapping of the manifest (v3)
 
-页面的段数、卡片数、图表数、证据层数必须与 `render_manifest.json` 一致。manifest 说有 3 个假说，页面就 3 张证据文章；manifest 说统计层 `available:false`，页面该层就放 `.evidence-missing`。**不允许页面结构与 manifest 不符。**
+The page's section count, card count, chart count, and evidence-layer count must match `render_manifest.json`. If the manifest says there are 3 hypotheses, the page carries 3 evidence articles; if the manifest says the statistical layer is `available:false`, the page puts `.evidence-missing` in that layer. **A page structure that disagrees with the manifest is not allowed.**
 
-### 2. 视觉语法继承自设计系统参考
+### 2. Visual grammar is inherited from the design system reference
 
-`references/report-template.html` 是唯一样式基准。保留其 CSS 变量、排版、组件类、loader、@media。禁止添加新颜色 token、禁止删除 loader、禁止打乱四段顺序。
+`references/report-template.html` is the only style baseline. Keep its CSS variables, typography, component classes, loader, and @media. Adding new color tokens, deleting the loader, and disturbing the four-part order are forbidden.
 
-### 3. 四段叙事（v2 保留）
+### 3. Four-part narrative (retained from v2)
 
-页面必须严格包含：**0. Hero 结论先行 / 1. 背景与产线建模 / 2. 诊断推理过程 / 3. 证据链三层架构**。详见 `templates/page_blueprint.md`。
+The page must strictly contain: **0. Hero — conclusion first / 1. Background and production-line modeling / 2. Diagnostic reasoning process / 3. Evidence chain three-layer architecture**. See `templates/page_blueprint.md` for details.
 
-### 4. 每条主结论双支撑 + 白话版 + 证据链真实 figure
+### 4. Every main conclusion dual-supported + plain-language version + real figures in the evidence chain
 
-每条主结论必须含：(a) 可视化证据（真实 PNG 或 ECharts 图）；(b) 推理证据（统计/物理/排除）；(c) 一句不含统计术语的白话。证据缺失要明确标注，不假装存在。
+Every main conclusion must contain: (a) visual evidence (a real PNG or an ECharts chart); (b) reasoning evidence (statistics / physics / exclusion); (c) one plain-language sentence free of statistical jargon. Missing evidence must be explicitly marked, never pretended to exist.
 
-**证据链三层（统计/物理/排除）figure 嵌入强制**（page_blueprint.md §3 细化）：
-- 证据链每一层**必须嵌入至少一张真实 PNG**（从 `03_figures/` 按 `plot_manifest.json.suggested_layer` 选取），不得只用 ECharts 卡片或文字代替。统计层→`fig_vlm_simpson_*.png` / `fig_vlm_synchronization.png`；物理层→`fig_vlm_temporal_overlay_*` / `fig_vlm_event_response.png`；排除层→`fig_causal_map.png`。
-- 每张嵌入的 PNG 是「图 + 数据 + 解读」三件套：图旁标注**真实统计值或物理量 + 来源文件**（`feature_summary.json` 的 r/ρ/p/n、`physics_check.json` 的方程/量级、`validate_report.json` 的 Simpson/去趋势结果），配三行白话解读。
-- **禁止**：嵌了图不标数据、标了数据不标来源、用"显著相关"代替具体 r 值。无对应 figure 或溯源数值的结论 → 标 `.evidence-missing`，绝不编造。违反任一条 `html-reviewer` 判 fail。
+**Embedding a figure in each of the three evidence-chain layers (statistics / physics / exclusion) is mandatory** (detailed in page_blueprint.md §3):
+- Each evidence-chain layer **must embed at least one real PNG** (selected from `03_figures/` by `plot_manifest.json.suggested_layer`); ECharts cards or text alone may not be substituted for it. Statistical layer → `fig_vlm_simpson_*.png` / `fig_vlm_synchronization.png`; physical layer → `fig_vlm_temporal_overlay_*` / `fig_vlm_event_response.png`; exclusion layer → `fig_causal_map.png`.
+- Every embedded PNG is a "figure + data + reading" trio: annotate beside the figure the **real statistic or physical quantity + the source file** (r/ρ/p/n from `feature_summary.json`, equations/orders of magnitude from `physics_check.json`, Simpson/detrending results from `validate_report.json`), together with a three-line plain-language reading.
+- **Forbidden**: embedding a figure without labeling its data, labeling data without naming its source, or substituting vague phrases such as "significantly correlated" for a concrete r value. A conclusion with no matching figure or traceable value → mark `.evidence-missing`; never fabricate. Violating any one of these makes `html-reviewer` return fail.
 
-### 5. 单文件优先
+### 5. Single-file priority
 
-CSS/JS 内联，数据内嵌，本地图像用相对路径 + `onerror` 优雅降级。
+Inline the CSS/JS, embed the data, and use relative paths + graceful `onerror` degradation for local images.
 
-### 6. 脚本加载韧性
+### 6. Script loading resilience
 
-ECharts/Three.js 必须多源加载（主 CDN + 备用 CDN）+ 加载成功检测 + 初始化成功检测 + 5 项 loader 状态条 + 无库静态降级。加载基础设施直接从设计系统参考复用。
+ECharts/Three.js must use multi-source loading (primary CDN + backup CDN) + load-success detection + init-success detection + a 5-item loader status strip + static degradation when neither library loads. Reuse the loading infrastructure directly from the design system reference.
 
-### 7. 3D 场景忠实于工艺
+### 7. The 3D scene stays faithful to the process
 
-3D 不是"画好看的工业场景"，而是"画符合本次诊断作业逻辑的真实简化场景"。工段顺序/温区/异常落位必须来自 `process_flow`（源头 ontology + 3d_model_data），几何可简化，工艺逻辑不可错。
+3D is not "drawing a good-looking industrial scene" but "drawing a truthful simplified scene that matches the operating logic of this diagnosis". Section order / temperature zones / anomaly placement must come from `process_flow` (sourced from ontology + 3d_model_data); geometry may be simplified, but the process logic must not be wrong.
 
-### 8. 用户理解是硬指标
+### 8. User comprehension is a hard metric
 
-10 秒知结论/位置/动作；1 分钟知最强证据和排除逻辑；2 分钟知结论怎么来的。
+Know the conclusion / location / action within 10 seconds; know the strongest evidence and the exclusion logic within 1 minute; know how the conclusion was reached within 2 minutes.
 
-## Evidence Architecture（三层闭合，非平铺）
+## Evidence Architecture (three closed layers, not a flat pile)
 
-证据链是三层的，不是卡片墙：
+The evidence chain has three layers, not a wall of cards:
 
 ```
-第一层 · 统计证据（Ⅰ）        证明"相关"
-├── 真实 PNG 散点/相关性图（03_figures 已有）
-├── ECharts 重建图（按 charts[] 渲染，数量随数据）
-├── 统计证据强度评分条
-└── 证据文章：最强存活信号 + 完整统计值
+Layer 1 · Statistical evidence (Ⅰ)        proves "correlation"
+├── real PNG scatter/correlation plots (already in 03_figures)
+├── ECharts rebuilds (rendered per charts[], count follows the data)
+├── statistical evidence strength score bar
+└── evidence article: the strongest surviving signal + complete statistics
 
-第二层 · 物理机制（Ⅱ）        证明"因果"
-├── HTML/CSS 物理因果链（按 physics.chain_steps 渲染）
-├── 真实 PNG 剖面图
-├── 每步物理方程/量级估算
-├── 空间一致性说明
-└── 物理证据强度评分条
+Layer 2 · Physical mechanism (Ⅱ)           proves "causation"
+├── HTML/CSS physical causal chain (rendered per physics.chain_steps)
+├── real PNG profile plots
+├── per-step physical equation / order-of-magnitude estimate
+├── spatial consistency note
+└── physical evidence strength score bar
 
-第三层 · 排除逻辑（Ⅲ）        证明"唯一"
-├── 真实 PNG 因果证据图
-├── 逐假说证据文章（按 hypotheses[] 数量，每篇含排除理由）
-├── 综合判决矩阵表
-├── 行动建议优先级表（按 actions[]）
-└── 局限性说明
+Layer 3 · Exclusion logic (Ⅲ)              proves "uniqueness"
+├── real PNG causal evidence map
+├── per-hypothesis evidence articles (per hypotheses[] count, each with its exclusion reason)
+├── comprehensive verdict matrix table
+├── action-recommendation priority table (per actions[])
+└── limitations note
 ```
 
-**每层必须真实图像/数据/推理三者至少有其二；缺层 → `.evidence-missing` 诚实标记。**
+**Each layer must have at least two of the three: real figure / data / reasoning; a missing layer → honest `.evidence-missing` marker.**
 
 ## Evidence Selection Rules
 
-主结论排序优先级：
+Main-conclusion ranking priority:
 
-1. `report.md` 执行摘要和主结论
-2. `diagnosis.json` 中 surviving hypotheses / primary finding
-3. `evidence.json` 中 rank 3-5 的数值和物理支撑
-4. `reasoning_chain.json` 中可解释的收敛路径
+1. Executive summary and main conclusion in `report.md`
+2. surviving hypotheses / primary finding in `diagnosis.json`
+3. rank 3-5 values and physical support in `evidence.json`
+4. explicable convergence path in `reasoning_chain.json`
 
-不同文件表述不完全一致时：以 `diagnosis.json` + `report.md` 的最终结论为主，页面保持一套统一措辞。
+When different files do not phrase things identically: follow the final conclusion of `diagnosis.json` + `report.md`, and keep one consistent wording across the page.
 
-## Image Integration Rules（v2）
+## Image Integration Rules (v2)
 
-对 `03_figures/` 下的 PNG：
+For the PNGs under `03_figures/`:
 
-1. **优先复用**——这些是诊断管线生成的原始视觉证据，不是装饰
-2. **用 `plot_manifest.json` 查询**每张图用途，匹配到正确证据层（散点→统计 / 剖面→物理 / 因果→排除）
-3. **`img src` 用相对路径**（从 output HTML 到 run_dir `03_figures/`）
-4. **每个 `img` 带 `onerror`** 优雅降级（`onerror="this.parentElement.style.display='none'"`）
-5. **每个图下方配 caption**：图编号 + 内容 + 诊断意义
+1. **Reuse first** — these are the original visual evidence produced by the diagnostic pipeline, not decoration
+2. **Look up each chart's purpose with `plot_manifest.json`** and match it to the correct evidence layer (scatter → statistics / profile → physics / causal → exclusion)
+3. **Use relative paths for `img src`** (from the output HTML to the run_dir `03_figures/`)
+4. **Give every `img` an `onerror`** for graceful degradation (`onerror="this.parentElement.style.display='none'"`)
+5. **Give every figure a caption below it**: figure number + content + diagnostic meaning
 
-匹配关系写入 `manifest.available_pngs[].suggested_layer`。
+Record the matching in `manifest.available_pngs[].suggested_layer`.
 
 ## Visual Quality Bar
 
-不要做成：通用后台管理页 / 随手拼接 dashboard / 只有卡片没推理 / 只有图没讲解 / 证据链无真实 figure。
+Do not produce: a generic admin dashboard / a hastily stitched-together dashboard / cards with no reasoning / charts with no explanation / an evidence chain with no real figures.
 
-要做成：极简白底 + 衬线标题无衬线正文 / 内容密度高但阅读压力低 / 自上而下建立"结论→位置→推理→证据"理解 / 证据链三层独立展开各有视觉标识。
+Do produce: minimal white background + serif headings with sans-serif body / high content density but low reading strain / a top-to-bottom build of "conclusion → location → reasoning → evidence" / three evidence-chain layers unfolded independently, each with its own visual identity.
 
 ## Output Checklist
 
-写完 HTML 前逐项确认：
+Confirm item by item before finishing the HTML:
 
-- [ ] `render_manifest.json` 已产出且字段来自真实 JSON（无编造）
-- [ ] 页面段数/卡片数/图表数/证据层数与 manifest 一致
-- [ ] 四大部分齐全（Hero / 背景 / 推理 / 证据链三层）
-- [ ] 证据链三层按 `evidence_layers.*.available` 如实渲染，缺层有 `.evidence-missing`
-- [ ] 证据文章数 = `hypotheses[]` 数（非固定值）
-- [ ] 图表数 = `charts[]` 数（非固定 5）
-- [ ] 3D 仅当 `process_flow.recoverable`，否则降级；3D 工段顺序/异常落位来自真实数据
-- [ ] 视觉语法来自设计系统参考（无臆造 token/组件）
-- [ ] loader 状态条 5 项 + ECharts/Three.js 多源 + 失败降级
-- [ ] 每条主结论双证据 + 白话版（**外婆测试**：每个统计/物理术语首次出现紧跟一句不含术语的白话，如「Spearman ρ=0.55（两个参数一起涨落，中等强度）」）
-- [ ] 每张图配三行解读（**图+数据+解读三件套**：数据标注真实 r/ρ/p/量级 + 来源文件，禁用"显著相关"等模糊词）
-- [ ] **每个关键发现后跟「那又怎样」业务影响**（翻译成良率/停机/成本/质量风险——只有数字没有业务含义 = 未完成）
-- [ ] **四段叙事有过渡句**（Hero→背景→推理→证据链→行动，每段结尾一句话引出下一段的核心问题，形成因果链而非散落卡片）
-- [ ] 所有数值/路径来自 run_dir 真实产物
-- [ ] 10 秒/1 分钟/2 分钟三层理解门槛满足
-- [ ] 行动建议 + 局限性齐全
-- [ ] `render_manifest.json` 含 `_meta.protocol_ack` 三项 true
-- [ ] 输出到 `<run_dir>/diagnostic-report.html`
-- [ ] 输出 `<run_dir>/html_selfcheck.json`（8 项 PASS/FAIL + evidence，Step 5 CHECKPOINT 4 产物）
+- [ ] `render_manifest.json` produced and its fields come from real JSON (nothing fabricated)
+- [ ] Page section/card/chart/evidence-layer counts match the manifest
+- [ ] All four parts present (Hero / background / reasoning / three-layer evidence chain)
+- [ ] The three evidence-chain layers rendered truthfully per `evidence_layers.*.available`, with `.evidence-missing` for missing layers
+- [ ] Evidence article count = `hypotheses[]` count (not a fixed value)
+- [ ] Chart count = `charts[]` count (not a fixed 5)
+- [ ] 3D only when `process_flow.recoverable`, otherwise degrade; 3D section order / anomaly placement come from real data
+- [ ] Visual grammar comes from the design system reference (no invented tokens/components)
+- [ ] 5-item loader status strip + ECharts/Three.js multi-source + failure degradation
+- [ ] Every main conclusion dual-evidenced + a plain-language version (**Grandmother Test**: the first occurrence of every statistical/physical term is immediately followed by a jargon-free plain-language sentence, e.g. "Spearman ρ=0.55 (the two parameters rise and fall together, moderate strength)")
+- [ ] Every chart carries a three-line reading (**figure + data + reading trio**: data labels with the real r/ρ/p/magnitude + source file; vague wording such as "significantly correlated" is banned)
+- [ ] **Every key finding is followed by a "so what?" business impact** (translated into yield / downtime / cost / quality risk — numbers without business meaning = unfinished)
+- [ ] **The four-part narrative has transition sentences** (Hero→background→reasoning→evidence chain→action; each part ends with a sentence that leads into the next part's core question, forming a causal chain rather than scattered cards)
+- [ ] All values/paths come from real run_dir artifacts
+- [ ] The 10-second / 1-minute / 2-minute comprehension thresholds are met
+- [ ] Action recommendations + limitations complete
+- [ ] `render_manifest.json` contains `_meta.protocol_ack` with all three true
+- [ ] Output to `<run_dir>/diagnostic-report.html`
+- [ ] Output `<run_dir>/html_selfcheck.json` (8 PASS/FAIL items + evidence, the Step 5 CHECKPOINT 4 artifact)

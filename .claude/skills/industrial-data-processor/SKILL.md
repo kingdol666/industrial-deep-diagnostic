@@ -1,11 +1,11 @@
 ---
 name: industrial-data-processor
-description: "工业诊断管线 — ontologically-guided 统计分析 + 可视化图表 + artifact 完整性修复。运行 Simpson/去趋势/变点/时滞CCF/批次唯一性/离群杠杆等验证。Trigger: 统计分析, data processing, 数据清洗, 数据可视化, 图表生成, statistics, Simpson, correlation, CCF, 批次分析, data processor. Do NOT use for general data analysis or statistics homework."
+description: "Industrial diagnosis pipeline stage — ontologically-guided statistical analysis + visualization charts + artifact integrity recovery. Runs Simpson detection, detrending, change-point analysis, time-lag CCF, batch uniqueness, outlier leverage and related validations. Do NOT use for general data analysis or statistics homework. Trigger: statistical analysis, data processing, data cleaning, data visualization, chart generation, statistics, Simpson, correlation, CCF, batch analysis, data processor"
 ---
 
 # Industrial Data Processor
 
-在本体引导下对工业传感器/工艺数据执行全链路统计分析——场景分类、数据清洗、生产状态识别、多维度统计验证、可视化图表生成。产出 `data_analysis_conclusion.json` 作为诊断专家的强制交接文件。
+Performs full-chain statistical analysis on industrial sensor/process data under ontology guidance — scenario classification, data cleaning, production-state identification, multi-dimensional statistical validation, and visualization chart generation. Produces `data_analysis_conclusion.json` as the mandatory handoff artifact for the diagnostician.
 
 ## Inputs / Outputs
 
@@ -13,29 +13,29 @@ description: "工业诊断管线 — ontologically-guided 统计分析 + 可视�
 
 | File | Description |
 |------|-------------|
-| `01_ontology/ontology.json` | 领域本体（CP-2 已通过） |
-| `00_input/input_manifest.json` | 数据源信息 |
-| `00_input/run_config.json` | 运行配置 |
-| `00_input/rag_deep_understanding.json` | RAG 验证队列（如有） |
-| 原始数据文件 | CSV/TSV/分隔符文本/XLSX/XLSM/JSON/Parquet 或经 E-1 前处理的 `00_input/preprocessed_data.csv`（DATA_PATH 指向） |
+| `01_ontology/ontology.json` | Domain ontology (CP-2 passed) |
+| `00_input/input_manifest.json` | Data source information |
+| `00_input/run_config.json` | Run configuration |
+| `00_input/rag_deep_understanding.json` | RAG validation queue (if any) |
+| Raw data file | CSV/TSV/delimited text/XLSX/XLSM/JSON/Parquet, or the E-1-preprocessed `00_input/preprocessed_data.csv` (DATA_PATH points to it) |
 
 ### Outputs
 
 | File | Description |
 |------|-------------|
-| `02_processed/scenario_classification.json` | 场景分类 |
-| `02_processed/anomaly_report.json` | 异常报告 |
-| `02_processed/data_analysis_conclusion.json` | 数据分析结论（强制交接文件） |
-| `02_processed/validate_report.json` | 统计验证报告 |
-| `02_processed/feature_summary.json` | 特征摘要 — 必须包含 columns(object)/dataset_profile(object)/metadata(object) 三个顶层字段 (feature_summary_schema required) |
-| `02_processed/production_regime_filter.json` | 生产状态过滤（如适用） |
-| `02_processed/time_lag_analysis.json` | 时滞分析结果（如适用） |
-| `02_processed/duplicate_batch_report.json` | 批次重复报告（如适用） |
-| `02_processed/analysis_plan.md` | 分析计划 |
-| `03_figures/plot_manifest.json` | 图表清单 |
-| `03_figures/image_captions.json` | 图表说明 |
-| `03_figures/visual_analysis.json` | VLM 视觉分析输出 |
-| `03_figures/*.png` | 可视化图表 |
+| `02_processed/scenario_classification.json` | Scenario classification |
+| `02_processed/anomaly_report.json` | Anomaly report |
+| `02_processed/data_analysis_conclusion.json` | Data analysis conclusion (mandatory handoff artifact) |
+| `02_processed/validate_report.json` | Statistical validation report |
+| `02_processed/feature_summary.json` | Feature summary — must include the three top-level fields columns(object)/dataset_profile(object)/metadata(object) (feature_summary_schema required) |
+| `02_processed/production_regime_filter.json` | Production regime filter (when applicable) |
+| `02_processed/time_lag_analysis.json` | Time-lag analysis results (when applicable) |
+| `02_processed/duplicate_batch_report.json` | Duplicate batch report (when applicable) |
+| `02_processed/analysis_plan.md` | Analysis plan |
+| `03_figures/plot_manifest.json` | Plot manifest |
+| `03_figures/image_captions.json` | Plot captions |
+| `03_figures/visual_analysis.json` | VLM visual analysis output |
+| `03_figures/*.png` | Visualization charts |
 
 
 
@@ -58,7 +58,7 @@ These events are required by `pipeline-log-check.mjs` and `pipeline-finalize.mjs
 
 ## Dispatch
 
-启动 `data-processor` 子Agent（**ontology_first** 模式——统计前先读本体）：
+Launch the `data-processor` sub-agent (**ontology_first** mode — read the ontology before any statistics):
 
 ```javascript
 Agent({
@@ -71,11 +71,11 @@ Read "$SKILL_PATH/references/agent-protocol.md" and execute Phase 0-6.
 
 Key constraints:
 - Phase 0.4 gates all analysis — read ontology before any statistical work
-- **Phase 1.2 是自适应决策中枢：先提炼假设，再从 analysis_methods_catalog 选最小判别方法集；方法跟着假设走，不跑未经计划选择的全量电池**
+- **Phase 1.2 is the adaptive decision hub: distill hypotheses first, then select the minimal discriminative method set for each from the analysis_methods_catalog; methods follow hypotheses — never run the full battery without plan selection**
 - v6.5: Production regime detection (three-algorithm fusion) runs BEFORE stats; filter to steady-state only
-- v6.4: Time-lag compensation (CCF-based optimal lag per parameter pair) — 仅当方法计划选中 M6 且数据形态满足前置
-- v6.5: Per-product mandatory analysis — worst product by anomaly rate, steady-state compare, Simpson detection — 仅当存在多产品分组
-- VLM 视觉分析通过独立 Agent() 派发 vlm-visual-analyzer Agent — 参见下方 VLM Visual Analysis Dispatch 节
+- v6.4: Time-lag compensation (CCF-based optimal lag per parameter pair) — only when the method plan selects M6 and the data shape meets the prerequisites
+- v6.5: Per-product mandatory analysis — worst product by anomaly rate, steady-state compare, Simpson detection — only when multi-product grouping exists
+- VLM visual analysis is dispatched via a separate Agent() call to the vlm-visual-analyzer Agent — see the VLM Visual Analysis Dispatch section below
 `
 })
 ```
@@ -97,13 +97,13 @@ uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/generate_vlm
   --events <events_json>
 ```
 
-Key design specs for VLM chart（参考 `resources/visual_analysis_framework.md` §设计原则）:
-- 所有参数 z-score 归一化到同一尺度
-- 负相关参数反转方向（使所有线同向变化）
-- 共享 x 轴（时间）— 仅当存在有效时间列时
-- 事件标记为红色虚线 + 文字标注
-- 字体 >= 12pt，高对比度
-- 标题用英文（兼容 matplotlib 渲染）
+Key design specs for VLM chart (see `resources/visual_analysis_framework.md` §Design Principles):
+- All parameters z-score normalized onto the same scale
+- Negatively correlated parameters direction-reversed (so all lines move in the same direction)
+- Shared x-axis (time) — only when a valid time column exists
+- Events marked with red dashed lines + text annotations
+- Fonts >= 12pt, high contrast
+- Titles in English (for matplotlib rendering compatibility)
 
 #### Step 1: Build VLM Input Filter Manifest
 
@@ -163,13 +163,14 @@ Key constraints:
 })
 ```
 
-VLM 分析完成后进行防伪造验证：
+Anti-forgery verification after VLM analysis completes:
 
 ```bash
 # Verify source_agent, skeleton_overwritten, and that only vlm_input_manifest images were read
 node "$SKILL_PATH/scripts/vlm-verification-check.mjs" "$RUN_DIR"
 # Verify that excluded images were NOT read
 uv run --project "$SHARED_PATH/scripts" python -c "import json; v=json.load(open('$RUN_DIR/03_figures/visual_analysis.json')); m=json.load(open('$RUN_DIR/03_figures/vlm_input_manifest.json')); vlm_files=[i['filename'] for i in m['vlm_images']]; read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') in vlm_files]; excluded_read=[i['filename'] for i in v.get('chart_inventory',[]) if i.get('filename') not in vlm_files]; print(f'VLM read {len(read)}/{len(vlm_files)} selected images, excluded reads: {excluded_read if excluded_read else "NONE (clean)"}')"
+```
 
 ### Post-Processing (after both agents complete)
 
@@ -189,10 +190,10 @@ Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, d
 |-------|---------|------|
 | 0 | Data exploration + ontology-first analysis plan | `analysis_parameter_selection.json` + plan section |
 | 1 | Scenario classification + production state detection | Schema-valid `scenario_classification.json`; stats input source determined |
-| 1.2 | **Hypothesis decomposition + adaptive method plan** — skill 只给方向：从本体+场景+问题提炼 3-6 个假设，按 `resources/analysis_methods_catalog.md` 为每个假设选最小判别方法集 | `analysis_method_plan.json`：≥2 假设、每假设 ≥1 方法、跳过留痕 |
+| 1.2 | **Hypothesis decomposition + adaptive method plan** — the skill only provides direction: distill 3-6 hypotheses from ontology + scenario + problem, and for each hypothesis select the minimal discriminative method set from `resources/analysis_methods_catalog.md` | `analysis_method_plan.json`: ≥2 hypotheses, ≥1 method per hypothesis, skips leave an audit trail |
 | 1.5 | Production regime detection (three-algorithm fusion) | Stats input source determined |
-| 2 | **Plan-driven** universal analysis（按计划选中的 stats 模式执行，非全量电池）+ anomaly + time-lag（如适用）+ batch integrity（如适用） | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
-| 3 | Plan-mapped scenario deep analysis + dual-drive + **假设充分性检查** | Schema-valid `data_analysis_conclusion.json`; 每个假设有 supported/refuted/indeterminate 裁决 |
+| 2 | **Plan-driven** universal analysis (execute the stats modes selected by the plan, not the full battery) + anomaly + time-lag (when applicable) + batch integrity (when applicable) | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
+| 3 | Plan-mapped scenario deep analysis + dual-drive + **hypothesis sufficiency check** | Schema-valid `data_analysis_conclusion.json`; every hypothesis has a supported/refuted/indeterminate verdict |
 | 4 | RAG knowledge validation | All claims validated or marked untestable |
 | 5 | Visualization — per-product time-aligned overlays | `plot_manifest.json` has ≥1 verified real plot |
 | 5.5 | VLM visual analysis (optional, auto-degrade) | `visual_analysis.json` exists (metadata or VLM-enriched) |
@@ -200,40 +201,40 @@ Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, d
 
 ## Data Truth Mandate
 
-**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+**Every number written into JSON/reports must be recomputable from the raw data.**
 
-| 规则 | 要求 |
+| Rule | Requirement |
 |------|------|
-| 数字可追溯性 | 每个数字必须标注数据源(cleaned/raw)、行范围、计算方法 |
-| 派生值标记 | 推断/派生值必须显式 `"derived": true` 或 `"inferred": true` |
-| 清洗留痕 | cleaning_integrity 记录全部清洗操作 |
-| 可视化可追溯 | 每张图的每个数据点可追溯到数据集的具体行 |
-| 不可用标记 | 无法从数据计算的 → 写 NOT_APPLICABLE + 原因 |
+| Numeric traceability | Every number must be annotated with data source (cleaned/raw), row range, and computation method |
+| Derived value marking | Inferred/derived values must be explicitly marked `"derived": true` or `"inferred": true` |
+| Cleaning audit trail | cleaning_integrity records all cleaning operations |
+| Visualization traceability | Every data point in every plot must be traceable to specific dataset rows |
+| Unavailable marking | Values that cannot be computed from data → write NOT_APPLICABLE + reason |
 
-## Counterfactual Reasoning — 排除约束
+## Counterfactual Reasoning — Exclusion Constraints
 
-| 约束 | 说明 |
+| Constraint | Description |
 |------|------|
-| 四条件 | 时间先后 + 统计显著 + 物理机制 + 无矛盾 |
-| 排除标准 | 任一条件不满足 → 标记为排除候选项并提供量化依据 |
-| 物理边界 | 排除必须有第一性原理或控制方程支撑 |
-| 置信阈值 | 排除置信度 <80 时标记 `[WEAK_EXCLUSION]` |
+| Four conditions | Temporal precedence + statistical significance + physical mechanism + no contradiction |
+| Exclusion criterion | Any unmet condition → mark as an excluded candidate and provide quantitative justification |
+| Physics boundary | Exclusions must be supported by first principles or governing equations |
+| Confidence threshold | When exclusion confidence <80, mark `[WEAK_EXCLUSION]` |
 
 ## Assumptions & Limitations
 
-| 类别 | 要求 |
+| Category | Requirement |
 |------|------|
-| 数据限制 | 采样率/噪声/缺失最值/范围限制 |
-| 模型假设 | 线性近似/稳态假设/分布假设 |
-| 未控制混淆 | 明确列出无法控制的潜在混淆变量 |
-| 结论可信区间 | 每个结论标注置信度 ± 误差范围 |
+| Data limitations | Sampling rate / noise / missing extremes / range limits |
+| Model assumptions | Linear approximation / steady-state assumptions / distribution assumptions |
+| Uncontrolled confounders | Explicitly list potential confounding variables that cannot be controlled |
+| Conclusion confidence intervals | Annotate each conclusion with confidence ± error margin |
 
 ## Efficiency — Parallel Execution
 
-- 与上下游 agent 无数据依赖时 → 主动并行
-- 对可预测结果使用确定性脚本而非 LLM 推理
-- 大文件采样策略: >100K 行时系统抽样
-- Agent stall >600s → 检查已有产物, 部分可用的继续推进
+- No data dependency with upstream/downstream agents → parallelize proactively
+- Use deterministic scripts instead of LLM reasoning for predictable results
+- Large-file sampling strategy: systematic sampling when >100K rows
+- Agent stall >600s → check existing artifacts; if partially usable, keep moving forward
 
 ## Verification
 
@@ -282,10 +283,10 @@ Missing outputs auto-restored by scripts in `.claude/skills/industrial-data-proc
 | Scenario | Recovery |
 |----------|----------|
 | Python venv missing | `node .claude/shared/scripts/uv_env_setup.mjs` |
-|| Files >500MB | `uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
+| Files >500MB | `uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-data-processor/scripts/file_inspect.py --sample 50000` |
 | Plot generation fails | Fix data and rerun; else L4 text fallback in `image_captions.json` |
 | No time column | Document in `analysis_plan.md` + `data_analysis_conclusion.json` |
 
-## Pre-Profile Handoff（Step 2P 并行产物）
+## Pre-Profile Handoff (Step 2P parallel artifact)
 
-`02_processed/pre_profile.json`（数据格式/质量/生产状态剖析，不依赖本体语义）若存在，Phase 0-1 直接消费其结论、跳过重复探查；Phase 2 起的语义分析仍以本体为准（ontology_first 语义契约不变）。
+If `02_processed/pre_profile.json` (data format/quality/production-state profiling, independent of ontology semantics) exists, Phase 0-1 consumes its conclusions directly and skips duplicate probing; semantic analysis from Phase 2 onward still follows the ontology (the ontology_first semantic contract is unchanged).

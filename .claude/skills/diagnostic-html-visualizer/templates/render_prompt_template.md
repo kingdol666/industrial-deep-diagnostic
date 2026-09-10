@@ -1,88 +1,89 @@
 # Universal Render Prompt Template v3
 
-在需要把任务转交给另一个实现 agent 时，可以把下面这段作为基础提示词（替换 `{RUN_DIR}` / `{OUTPUT_HTML}` 占位为真实路径）：
+When the task needs to be handed off to another implementation agent, the block below can serve as the base prompt (replace the `{RUN_DIR}` / `{OUTPUT_HTML}` placeholders with real paths):
 
 ```text
-请读取诊断工作目录 `{RUN_DIR}` 下的诊断产物，并生成一个完整的 HTML 可视化讲解页面，输出到 `{OUTPUT_HTML}`。
+Read the diagnostic artifacts under the diagnostic working directory `{RUN_DIR}` and generate a complete HTML visualization explainer page, output to `{OUTPUT_HTML}`.
 
-目标是让非算法背景的工业用户也能一眼读懂诊断结论、异常位置、推理路径和证据链。
+The goal is that industrial users without an algorithm background can grasp the diagnostic conclusion, the anomaly location, the reasoning path, and the evidence chain at a glance.
 
-## 执行流程（数据驱动，三阶段）
+## Execution flow (data-driven, three phases)
 
-1. **理解** — 扫描 `{RUN_DIR}` 下全部诊断 JSON + report.md + plot_manifest.json
-2. **建模** — 先产出 `{RUN_DIR}/render_manifest.json`（页面模型，schema 见 references/html-builder-protocol.md）。
-   manifest 必须如实反映本次 run：结论类型、假说列表（数量随数据）、三层证据可用性、
-   图表清单（数量随数据）、工艺流程、异常落位。字段全部可溯源到真实 JSON，不编造。
-3. **渲染** — 按 manifest 选组件组装页面，套设计系统参考的视觉语法。
+1. **Understand** — scan all diagnostic JSON under `{RUN_DIR}` + report.md + plot_manifest.json
+2. **Model** — first produce `{RUN_DIR}/render_manifest.json` (the page model; schema in references/html-builder-protocol.md).
+   The manifest must faithfully reflect this run: conclusion type, hypothesis list (count follows the data),
+   availability of the three evidence layers, chart inventory (count follows the data), process flow,
+   anomaly placement. Every field must be traceable to real JSON; nothing fabricated.
+3. **Render** — assemble the page by selecting components per the manifest, dressed in the visual grammar of the design system reference.
 
-## 设计系统参考
+## Design system reference
 
-`references/report-template.html` 是**视觉语法基准**（CSS 变量 + 排版 + 组件类 + loader +
-ECharts/Three.js 多源加载模式），不是填空模板。body 内 HTML 注释标明每个区块由 manifest
-哪个字段驱动、数量如何随数据变化。读取它后：
+`references/report-template.html` is the **visual grammar baseline** (CSS variables + typography + component classes + loader +
+ECharts/Three.js multi-source loading pattern), not a fill-in-the-blank template. The HTML comments inside the body mark which
+manifest field drives each block and how the counts vary with the data. After reading it:
 
-1. **原样复用** — `<style>` 全部 CSS、loader 状态条、importmap、ECharts/Three.js 加载逻辑、@media 断点
-2. **按 manifest 选组件**（数量由数据决定，不固定）:
-   - Hero 恒有（conclusion + scope 填 8 元素，meta 字段数随 scope 真实可用项）
-   - 3D 仅当 `process_flow.recoverable=true`（工段/设备数/异常落位随真实数据）
-   - 图表数 = `charts[]` 数（非固定 5）
-   - 证据文章数 = `hypotheses[]` 数（非固定 3）
-   - 证据层按 `evidence_layers.*.available` 渲染，缺层放 `.evidence-missing`
-3. **绑定真实数据** — 所有数值/文案/路径来自 manifest（源头 run_dir 真实 JSON）
-4. **图片 src 用相对路径 + onerror 降级**
+1. **Reuse verbatim** — the entire `<style>` CSS, the loader status strip, the importmap, the ECharts/Three.js loading logic, the @media breakpoints
+2. **Select components per the manifest** (counts are decided by the data, not fixed):
+   - Hero always present (fill its 8 elements from conclusion + scope; the number of meta fields follows the real available scope items)
+   - 3D only when `process_flow.recoverable=true` (sections / equipment count / anomaly placement follow the real data)
+   - Chart count = `charts[]` count (not a fixed 5)
+   - Evidence article count = `hypotheses[]` count (not a fixed 3)
+   - Render evidence layers per `evidence_layers.*.available`; missing layers get `.evidence-missing`
+3. **Bind real data** — every value / piece of copy / path comes from the manifest (sourced from the real run_dir JSON)
+4. **Image src uses relative paths + onerror degradation**
 
-## 必须包含四大部分
+## Four mandatory parts
 
-### 0. Hero 结论先行
-- 主结论一句话（衬线体 display，em 强调关键词）
-- 3-4 句白话解释段落
-- 元数据标签行：诊断类型 / Judge 评分 / 置信度天花板 / 焦点产品 / 样本量 / 异常工段
-- 四格关键发现网格：最强证据 / 已排除因素 / 推荐动作 / 证据缺口
-- 阅读指引
+### 0. Hero — conclusion first
+- The main conclusion in one sentence (serif display, em emphasizing the keywords)
+- A 3-4 sentence plain-language explanation
+- Metadata tag row: diagnosis type / Judge score / confidence ceiling / focus product / sample size / anomalous section
+- Four-cell key-findings grid: strongest evidence / excluded factors / recommended action / evidence gap
+- Reading guide
 
-### 1. 背景与产线建模
-- 场景描述 + 异常定位
-- Three.js 3D 产线模型（工段平台 + 辊组 + 异常高亮 + 物料流向 + 三区颜色 + 图例）
-- 3D 场景必须从 ontology.json + 3d_model_data.json + viz_model_data.json 恢复真实结构
-- 3D 容器下方标注数据来源
+### 1. Background and production-line modeling
+- Scenario description + anomaly localization
+- Three.js 3D production-line model (section platforms + roll groups + anomaly highlight + material flow + three-zone colors + legend)
+- The 3D scene must recover the real structure from ontology.json + 3d_model_data.json + viz_model_data.json
+- Annotate the data source below the 3D container
 
-### 2. 诊断推理过程
-- 关键统计表格（去趋势前后对比：参数 / Spearman ρ / p值 / 衰减率 / 判决）
-- 3-5 张 ECharts 图表，每张配三行解读（看到什么 / 说明什么 / 为什么重要）
-- 图表数据必须来自真实 JSON 文件（viz_compact.json、diagnosis.json 等）
-- 关键方法白话解释
+### 2. Diagnostic reasoning process
+- Key statistics table (before/after detrending comparison: parameter / Spearman ρ / p value / decay rate / verdict)
+- 3-5 ECharts charts, each with a three-line reading (what is seen / what it means / why it matters)
+- Chart data must come from real JSON files (viz_compact.json, diagnosis.json, etc.)
+- Plain-language explanation of the key methods
 
-### 3. 证据链（三层架构）⚠️ 这是用户信任建立的核心区块
+### 3. Evidence chain (three-layer architecture) ⚠️ This is the core block where user trust is built
 
-**证据嵌入铁律**：每张嵌入 PNG 必须是「图 + 数据 + 解读」三件套——(1) 真实 PNG from `03_figures/`，按 `plot_manifest.json.suggested_layer` 匹配证据层；(2) 图旁标真实统计/物理值 + 来源文件；(3) 三行白话解读。缺一 reviewer 判不通过。统计/物理结论若无对应 figure 或溯源数值 → 标 `.evidence-missing`，不假装。
+**Figure-embedding iron rules**: every embedded PNG must be the "figure + data + reading" trio — (1) a real PNG from `03_figures/`, matched to an evidence layer via `plot_manifest.json.suggested_layer`; (2) the real statistical/physical value + source file labeled beside the figure; (3) a three-line plain-language reading. Missing any one of the three makes the reviewer return fail. If a statistical/physical conclusion has no matching figure or traceable value → mark `.evidence-missing`; do not pretend.
 
-#### 第一层 · 统计证据（Ⅰ）
-- 嵌入 `fig_vlm_simpson_*.png` + `fig_vlm_synchronization.png`（from `03_figures/`，按 suggested_layer=statistical 选取）
-- 图下标注真实值：Spearman ρ / p / n（源 `feature_summary.json`）+ 去趋势 r + Simpson 检测结果（源 `validate_report.json`）
-- 至少 1 张 ECharts 重建分析图（去趋势散点 / 相关性鲁棒性对比）
-- 统计证据强度评分条
-- 证据文章：明确指出**去趋势后最强存活信号**，附完整 ρ + p + 衰减率 + 来源
+#### Layer 1 · Statistical evidence (Ⅰ)
+- Embed `fig_vlm_simpson_*.png` + `fig_vlm_synchronization.png` (from `03_figures/`, selected by suggested_layer=statistical)
+- Annotate the real values below the figures: Spearman ρ / p / n (source `feature_summary.json`) + detrended r + Simpson detection result (source `validate_report.json`)
+- At least 1 ECharts rebuilt analysis chart (detrended scatter / correlation-robustness comparison)
+- Statistical evidence strength score bar
+- Evidence article: state explicitly the **strongest surviving signal after detrending**, with the complete ρ + p + decay rate + source
 
-#### 第二层 · 物理机制（Ⅱ）
-- 嵌入 `fig_vlm_temporal_overlay_focus_*.png`（参数→质量时序对齐）+ `fig_vlm_event_response.png`
-- 图下标注：时滞 N 分钟（源 `time_lag_analysis.json`）+ 参数先变质量后变的时间先后证据
-- HTML/CSS 物理因果链流程图（每步来自 `diagnosis.json.physical_logic_chain`）
-- 每步附**真实物理方程或量级估算**（源 `physics_check.json`，如 Arrhenius k=A·exp(-Ea/RT)，ΔT→速率变化%）
-- 解释异常位置与物理机制的空间一致性
-- 物理证据强度评分条
+#### Layer 2 · Physical mechanism (Ⅱ)
+- Embed `fig_vlm_temporal_overlay_focus_*.png` (parameter → quality temporal alignment) + `fig_vlm_event_response.png`
+- Annotate below the figures: time lag N minutes (source `time_lag_analysis.json`) + the temporal-precedence evidence that the parameter changes first and the quality follows
+- HTML/CSS physical causal-chain flow diagram (each step from `diagnosis.json.physical_logic_chain`)
+- Each step carries a **real physical equation or order-of-magnitude estimate** (source `physics_check.json`, e.g. Arrhenius k=A·exp(-Ea/RT), ΔT → % change in rate)
+- Explain the spatial consistency between the anomaly location and the physical mechanism
+- Physical evidence strength score bar
 
-#### 第三层 · 排除逻辑（Ⅲ）
-- 嵌入 `fig_causal_map.png`（存活边 vs 排除边，每条标 r）
-- 对被排除和被削弱的假说逐一撰文（假说数 = `render_manifest.json` hypothesis count，不硬编码）：
-  - 假说名称 + 排除/削弱置信度
-  - **原始证据 vs 去趋势后真相**对比（具体 r 值变化，源 `validate_report.json`）
-  - 物理矛盾或内部不一致（源 `physics_check.json` / `diagnosis.json`）
-  - 「为什么被排除」的解释块
-- 证据链综合判决矩阵表（全部假说 × 三层证据）
-- 行动建议优先级表（P0/P1/P2）
-- 局限性说明
+#### Layer 3 · Exclusion logic (Ⅲ)
+- Embed `fig_causal_map.png` (surviving edges vs excluded edges, each labeled with r)
+- Write one article per excluded or weakened hypothesis (hypothesis count = the `render_manifest.json` hypothesis count, not hardcoded):
+  - Hypothesis name + exclusion/weakening confidence
+  - **Raw evidence vs post-detrending truth** comparison (the specific change in r, source `validate_report.json`)
+  - Physical contradiction or internal inconsistency (source `physics_check.json` / `diagnosis.json`)
+  - A "why it was excluded" explanation block
+- Evidence-chain comprehensive verdict matrix table (all hypotheses × three evidence layers)
+- Action-recommendation priority table (P0/P1/P2)
+- Limitations note
 
-## 优先读取这些文件（存在则使用）
+## Read these files first (use them where they exist)
 
 - `report.md`
 - `04_diagnostics/diagnosis.json`
@@ -95,43 +96,43 @@ ECharts/Three.js 多源加载模式），不是填空模板。body 内 HTML 注�
 - `02_processed/feature_summary.json`
 - `02_processed/validate_report.json`
 - `02_processed/anomaly_report.json`
-- `03_figures/plot_manifest.json`（获取图表清单与用途描述）
-- `03_figures/visual_analysis.json`（获取 VLM 推断的图表观察）
+- `03_figures/plot_manifest.json` (to obtain the chart inventory and each chart's purpose)
+- `03_figures/visual_analysis.json` (to obtain the VLM-inferred chart observations)
 - `03_figures/image_captions.json`
-- `03_figures/*.png` / `*.jpg`（本地图像证据——优先复用！）
+- `03_figures/*.png` / `*.jpg` (local image evidence — reuse these first!)
 - `3d_model_data.json`
 - `viz_model_data.json`
 - `viz_data.json` / `viz_compact.json`
 - `diagnostic_data.json`
 
-## 图表与图像使用优先顺序
+## Priority order for using charts and images
 
-1. **优先复用 03_figures/ 下的已有 PNG**——这些是诊断管线生成的原始视觉证据
-2. **没有对应 PNG 时用 ECharts 重绘**——直接读取 viz_compact.json 或 diagnosis.json 中的数组数据
-3. **缺失数据时标注诚实 placeholder**——写 "[当前缺少该层证据]" 而非编造
+1. **Reuse the existing PNGs under 03_figures/ first** — these are the original visual evidence produced by the diagnostic pipeline
+2. **Redraw with ECharts when no matching PNG exists** — read the array data directly from viz_compact.json or diagnosis.json
+3. **Mark an honest placeholder when data is missing** — write "[当前缺少该层证据]" rather than fabricating
 
-## 页面要求
+## Page requirements
 
-- 中文讲解（统计术语后紧跟白话解释）
-- 单文件 HTML（CSS/JS 内联）
-- ECharts 主源 + 备用源 + 运行时检测 + 状态展示 + 失败降级
-- Three.js importmap ES module + OrbitControls 动态 import + 备用源
-- 重点结论必须有「可视化证据 + 推理证据」
-- 异常工段或异常辊位必须在 3D 模块中高亮
-- 3D 建模必须符合当前诊断场景的真实工艺流程
-- 页面加载状态面板展示 5 项状态指标
-- 移动端双断点适配（768px / 480px）
+- Chinese-language explanation (each statistical term followed immediately by a plain-language gloss)
+- Single-file HTML (CSS/JS inlined)
+- ECharts primary source + backup source + runtime detection + status display + failure degradation
+- Three.js importmap ES module + dynamic OrbitControls import + backup source
+- Key conclusions must have "visual evidence + reasoning evidence"
+- The anomalous section or anomalous roll position must be highlighted in the 3D module
+- 3D modeling must match the real process flow of the current diagnostic scenario
+- The page's load-status panel shows 5 status indicators
+- Mobile dual-breakpoint adaptation (768px / 480px)
 
-## 在开始 3D 建模前，先遵循这段增强提示
+## Before starting 3D modeling, follow this reinforcement prompt
 
-"我要创建的不是通用工业示意图，而是一个真正符合当前诊断流程作业逻辑的简化工业场景模型。先从 ontology、诊断结论、证据链、3d_model_data 和报告中恢复真实产线结构、工段顺序、物料流向、关键设备和异常位置；再用准确但简化的几何体表达这些实体。任何视觉简化都不能破坏真实工艺逻辑，任何异常标记都必须落在当前诊断真正指向的位置上。"
+"I am not creating a generic industrial schematic, but a simplified industrial scene model that genuinely matches the operating logic of the current diagnostic workflow. First recover the real production-line structure, section order, material flow, key equipment, and anomaly locations from the ontology, the diagnostic conclusion, the evidence chain, 3d_model_data, and the report; then express those entities with accurate but simplified geometry. No visual simplification may break the real process logic, and every anomaly marker must land on the position this diagnosis actually points to."
 
-## 完成后说明
+## Closing report
 
-- 你读取了哪些关键文件
-- 页面输出到了哪里
-- 哪些图是复用 03_figures PNG，哪些是 ECharts 重绘
-- 3D 场景依据了哪些文件恢复真实工艺顺序
-- 异常位置是如何映射到具体设备/辊位/区域的
-- 证据链三层各用了哪些数据源
+- Which key files you read
+- Where the page was output
+- Which figures reuse 03_figures PNGs and which were redrawn with ECharts
+- Which files the 3D scene relied on to recover the real process order
+- How the anomaly locations were mapped to specific equipment / roll positions / zones
+- Which data sources each of the three evidence-chain layers used
 ```

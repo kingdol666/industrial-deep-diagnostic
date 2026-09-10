@@ -1,13 +1,13 @@
 ---
 name: industrial-diagnostician
-description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎。融合数据分析结论+领域本体+物理机制+VLM视觉证据+时滞分析，通过排除而非确认输出结论。Trigger: 诊断, diagnoze, root cause, 根因, 竞争假设, competing hypotheses, physics diagnosis, 物理推断, diagnostician, 根因诊断, 假设排除, hypothesis elimination, 因果推断, causal inference, 物理约束诊断, 竞争假设分析. Do NOT use without upstream data_analysis_conclusion.json."
+description: "Industrial diagnostic pipeline — physics-constrained competing-hypotheses root-cause diagnostic engine. Fuses the data analysis conclusion, domain ontology, physical mechanisms, VLM visual evidence, and time-lag analysis, and outputs conclusions by elimination rather than confirmation. Use in pipeline Step 4 once upstream data processing is complete. Trigger: diagnosis, diagnoze, root cause, competing hypotheses, physics diagnosis, physical inference, diagnostician, root cause diagnosis, hypothesis elimination, causal inference, physics-constrained diagnosis, competing hypothesis analysis. Do NOT use without upstream data_analysis_conclusion.json."
 ---
 
 # Industrial Diagnostician
 
-物理约束的竞争性假设根因诊断引擎。融合数据分析结论、领域本体、物理第一原理、VLM 视觉证据和时滞分析，通过排除而非确认输出结论。
+Physics-constrained competing-hypotheses root-cause diagnostic engine. Fuses the data analysis conclusion, the domain ontology, physical first principles, VLM visual evidence, and time-lag analysis, and outputs conclusions by elimination rather than confirmation.
 
-核心规则：**诊断 = 排除**。每条结论满足四条件——时间先后 + 统计显著 + 物理机制 + 无矛盾。至少 3 条竞争假设，至少 2 条被排除。
+Core rule: **diagnosis = elimination**. Every conclusion satisfies the four conditions — temporal precedence + statistical significance + physical mechanism + no contradiction. At least 3 competing hypotheses, at least 2 of them eliminated.
 
 ## Inputs / Outputs
 
@@ -15,25 +15,23 @@ description: "工业诊断管线 — 物理约束的竞争性假设诊断引擎�
 
 | File | Role |
 |------|------|
-| `02_processed/data_analysis_conclusion.json` | 强制交接文件——统计分析结论 |
-| `01_ontology/ontology.json` | 物理语义本体 |
-| `03_figures/visual_analysis.json` | VLM 视觉证据 |
-| `02_processed/time_lag_analysis.json` | 时滞分析（存在则必须读取） |
-| `02_processed/anomaly_report.json` | 异常报告 |
-| `02_processed/validate_report.json` | 统计验证报告 |
-| `02_processed/feature_summary.json` | 特征摘要 |
-| `02_processed/scenario_classification.json` | 场景/产品分层分类 |
+| `02_processed/data_analysis_conclusion.json` | Mandatory handoff file — statistical analysis conclusion |
+| `01_ontology/ontology.json` | Physical-semantic ontology |
+| `03_figures/visual_analysis.json` | VLM visual evidence |
+| `02_processed/time_lag_analysis.json` | Time-lag analysis (must be read if present) |
+| `02_processed/anomaly_report.json` | Anomaly report |
+| `02_processed/validate_report.json` | Statistical validation report |
+| `02_processed/feature_summary.json` | Feature summary |
+| `02_processed/scenario_classification.json` | Scenario/product stratification classification |
 
 ### Outputs
 
 | File | Description |
 |------|-------------|
-| `04_diagnostics/diagnosis.json` | 结论（process_fluctuation + integrated_dual_drive） |
-| `04_diagnostics/evidence.json` | 证据清单（L1-L7 等级，含 ontology_data_physics_proof） |
-| `04_diagnostics/confidence.json` | 5 因子置信度评估 + adjustment_log |
-| `04_diagnostics/reasoning_chain.json` | R1-R8 完整推理链 |
-
-
+| `04_diagnostics/diagnosis.json` | Conclusion (process_fluctuation + integrated_dual_drive) |
+| `04_diagnostics/evidence.json` | Evidence inventory (L1-L7 levels, incl. ontology_data_physics_proof) |
+| `04_diagnostics/confidence.json` | 5-factor confidence assessment + adjustment_log |
+| `04_diagnostics/reasoning_chain.json` | R1-R8 complete reasoning chain |
 
 ## Pipeline Event Logging
 
@@ -54,7 +52,7 @@ These events are required by `pipeline-log-check.mjs` and `pipeline-finalize.mjs
 
 ## Dispatch
 
-启动 `diagnostician` 子Agent：
+Launch the `diagnostician` sub-agent:
 
 ```javascript
 // Claude Code dispatch via Agent tool:
@@ -70,14 +68,14 @@ Read "<SKILL_PATH>/references/agent-protocol.md"
 and execute Phase 0-7. Fuse data+ontology+physics+VLM+time-lag.
 
 Key constraints:
-- 三驱动：物理主导 + 数据验证 + 视觉补充
-- 每个假说必须有物理机制 — governing equation 和因果链
-- 至少 3 个竞争假设（H1, H2, H3），至少排除 2 个
-- COMPETING_SET 不能只有一个假设
-- 推理链必须 R1-R8 完整
-- 如果 time_lag_analysis.json 存在，必须读取
+- Three drivers: physics-led + data-verified + visually-supplemented
+- Every hypothesis must have a physical mechanism — governing equation and causal chain
+- At least 3 competing hypotheses (H1, H2, H3), at least 2 eliminated
+- A COMPETING_SET must not contain only one hypothesis
+- The reasoning chain must be complete R1-R8
+- If time_lag_analysis.json exists, it must be read
 - Every hypothesis includes ontology_data_physics_proof, physical_logic_chain, and falsification_conditions
-- 输出中文，enum 保持英文
+- Output in Chinese; keep enums in English
 `,
   effort: "hi"
 })
@@ -89,14 +87,14 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 
 | Phase | Purpose |
 |-------|---------|
-| 0 | 数据探测 — 读取所有输入文件 + 4 个输出 schema |
-| 1 | 统计基础 — 校验 validate_report（Simpson/去趋势/留一法/CCF），记录通过验证的相关性 |
-| 2 | 产品分层 — 读取 scenario_classification，确定 focus_product，检测 Simpson 反转 |
-| 3 | 假说生成 — 3+ 竞争假设，每个含物理链（governing equation）+ 支持证据 + 反对证据 + 证伪条件 |
-| 4 | 数据区分性 — 逐对评估 discriminability_matrix，INDISTINGUISHABLE → confidence_ceiling ≤ 65 |
-| 5 | 假设排除 — 至少排除 2 个，exclusion_confidence ≥ 90，记录 revival_condition |
-| 6 | 置信度评估 — 5 因素分解（statistical/physical/temporal/confounds/symptom）+ adjustment_log + ceilings |
-| 7 | 写输出 + Schema 验证 — 4 JSON 文件 + validate.mjs 逐个验证，全部通过才算完成 |
+| 0 | Data probing — read all input files + the 4 output schemas |
+| 1 | Statistical foundation — verify validate_report (Simpson/detrending/leave-one-out/CCF); record correlations that pass validation |
+| 2 | Product stratification — read scenario_classification, determine focus_product, detect Simpson inversions |
+| 3 | Hypothesis generation — 3+ competing hypotheses, each with a physical chain (governing equation) + supporting evidence + opposing evidence + falsification conditions |
+| 4 | Data discriminability — evaluate the discriminability_matrix pairwise; INDISTINGUISHABLE → confidence_ceiling ≤ 65 |
+| 5 | Hypothesis elimination — eliminate at least 2, exclusion_confidence ≥ 90, record revival_condition |
+| 6 | Confidence assessment — 5-factor decomposition (statistical/physical/temporal/confounds/symptom) + adjustment_log + ceilings |
+| 7 | Write outputs + Schema validation — 4 JSON files, each validated by validate.mjs; done only when all pass |
 
 ## Core Rules
 
@@ -107,44 +105,44 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 - **Anti-spurious**: every |r|≥0.3 reference passes Simpson/detrend/lag/leave-one-out
 - **Confidence ceilings**: INDISTINGUISHABLE ≤ 65, COMPETING_SET ≤ 70, [PARAM_AMBIGUITY] ≤ 50
 - **Schema-First**: read schema → construct → write → validate, one shot per file
-- **Physics chain format**: 参数X的测量值Y → 经过物理定律Z → 影响质量指标W（三段式）
+- **Physics chain format**: measured value Y of parameter X → passes through physical law Z → affects quality indicator W (three-part form)
 
 ## Data Truth Mandate
 
-**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+**Every number written into JSON/reports must be recomputable from the raw data.**
 
-| 规则 | 要求 |
+| Rule | Requirement |
 |------|------|
-| 数字可追溯性 | 每个数字必须标注数据源(cleaned/raw)、行范围、计算方法 |
-| 派生值标记 | 推断/派生值必须显式 `"derived": true` 或 `"inferred": true` |
-| 清洗留痕 | cleaning_integrity 记录全部清洗操作 |
-| 可视化可追溯 | 每张图的每个数据点可追溯到数据集的具体行 |
-| 不可用标记 | 无法从数据计算的 → 写 NOT_APPLICABLE + 原因 |
+| Number traceability | Every number must state its data source (cleaned/raw), row range, and computation method |
+| Derived-value marking | Inferred/derived values must be explicitly marked `"derived": true` or `"inferred": true` |
+| Cleaning audit trail | cleaning_integrity records all cleaning operations |
+| Visualization traceability | Every data point in every figure must be traceable to specific dataset rows |
+| Unavailable marking | Values that cannot be computed from the data → write NOT_APPLICABLE + reason |
 
-## Counterfactual Reasoning — 排除约束
+## Counterfactual Reasoning — Exclusion Constraints
 
-| 约束 | 说明 |
+| Constraint | Description |
 |------|------|
-| 四条件 | 时间先后 + 统计显著 + 物理机制 + 无矛盾 |
-| 排除标准 | 任一条件不满足 → 标记为排除候选项并提供量化依据 |
-| 物理边界 | 排除必须有第一性原理或控制方程支撑 |
-| 置信阈值 | 排除置信度 <80 时标记 `[WEAK_EXCLUSION]` |
+| Four conditions | Temporal precedence + statistical significance + physical mechanism + no contradiction |
+| Exclusion criterion | Any unmet condition → mark as an exclusion candidate with quantitative justification |
+| Physics boundary | Exclusions must be supported by first principles or governing equations |
+| Confidence threshold | Exclusion confidence < 80 → mark `[WEAK_EXCLUSION]` |
 
 ## Assumptions & Limitations
 
-| 类别 | 要求 |
+| Category | Requirement |
 |------|------|
-| 数据限制 | 采样率/噪声/缺失最值/范围限制 |
-| 模型假设 | 线性近似/稳态假设/分布假设 |
-| 未控制混淆 | 明确列出无法控制的潜在混淆变量 |
-| 结论可信区间 | 每个结论标注置信度 ± 误差范围 |
+| Data limitations | Sampling rate / noise / missing extremes / range limits |
+| Model assumptions | Linear approximation / steady-state assumption / distribution assumptions |
+| Uncontrolled confounders | Explicitly list potential confounding variables that cannot be controlled |
+| Conclusion confidence intervals | Each conclusion annotated with confidence ± error margin |
 
 ## Efficiency — Parallel Execution
 
-- 与上下游 agent 无数据依赖时 → 主动并行
-- 对可预测结果使用确定性脚本而非 LLM 推理
-- 大文件采样策略: >100K 行时系统抽样
-- Agent stall >600s → 检查已有产物, 部分可用的继续推进
+- No data dependency with upstream/downstream agents → parallelize proactively
+- Use deterministic scripts instead of LLM reasoning for predictable results
+- Large-file sampling strategy: systematic sampling for >100K rows
+- Agent stall >600s → inspect existing artifacts; proceed with partially usable outputs
 
 ## Verification
 
@@ -166,30 +164,30 @@ node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" d
 
 | Scenario | Recovery |
 |----------|----------|
-| Schema validation fail | 修复 JSON → 重写 → 重新验证（schema-validation-loop） |
-| Missing data_analysis_conclusion.json | 不可继续 — upstream 未完成 |
-| Missing time_lag_analysis.json | 非强制 — 标记无时滞证据，降级 temporal_evidence |
-| No hypothesis resolvable | COMPETING_SET + 诚实披露 ambiguity |
-| Correlation confounded (Simpson/detrend) | 降级证据等级，标记 confound_detected: true |
-| VLM 视觉分析不可用 | 降级 temporal_evidence，不阻塞诊断 |
+| Schema validation fail | Fix JSON → rewrite → re-validate (schema-validation-loop) |
+| Missing data_analysis_conclusion.json | Cannot proceed — upstream incomplete |
+| Missing time_lag_analysis.json | Not mandatory — mark no time-lag evidence, degrade temporal_evidence |
+| No hypothesis resolvable | COMPETING_SET + honest disclosure of ambiguity |
+| Correlation confounded (Simpson/detrend) | Degrade evidence level, mark confound_detected: true |
+| VLM visual analysis unavailable | Degrade temporal_evidence, do not block diagnosis |
 
 ## References
 
-- `references/agent-protocol.md` — Phase 0-7 执行协议（假设排比/物理推断/证据融合/写入验证）
-- `resources/execution_reference.md` — 文件列表/筛选规则/控制方程/hallucination prevention
-- `resources/evidence_rules.md` — 证据等级体系/因果五条件/反推测
-- `resources/physics_inference_framework.md` — L1-L5 物理推断阶梯
-- `resources/diagnosis_method.md` — 置信度上限/诊断方法论
-- `resources/diagnostician_dual_drive_reference.md` — View A/B 双驱动分析
-- `resources/parameter_to_physics.json` — 参数物理量映射
-- `schemas/` — 5 个输出 JSON Schema（diagnosis/evidence/confidence/reasoning_chain/causal_evidence_map）
+- `references/agent-protocol.md` — Phase 0-7 execution protocol (hypothesis comparison / physical inference / evidence fusion / write-and-validate)
+- `resources/execution_reference.md` — file inventory / filtering rules / governing equations / hallucination prevention
+- `resources/evidence_rules.md` — evidence level system / causal five conditions / anti-speculation
+- `resources/physics_inference_framework.md` — L1-L5 physical inference ladder
+- `resources/diagnosis_method.md` — confidence ceilings / diagnostic methodology
+- `resources/diagnostician_dual_drive_reference.md` — View A/B dual-drive analysis
+- `resources/parameter_to_physics.json` — parameter-to-physics-quantity mapping
+- `schemas/` — 5 output JSON Schemas (diagnosis/evidence/confidence/reasoning_chain/causal_evidence_map)
 - `scripts/` — schema-validation-loop.mjs, diagnostic-quality-check.mjs, physics_check.py, confidence-completeness-check.mjs
 - `templates/` — diagnosis_template.json
 
-## REPAIR_SCOPE — 定向修复协议
+## REPAIR_SCOPE — Targeted Repair Protocol
 
-修复轮（第 2/3 次）dispatch 可能携带 `REPAIR_SCOPE=<files>`（来自 judge_feedback.json repair_scope）：
+A repair-round dispatch (2nd/3rd round) may carry `REPAIR_SCOPE=<files>` (from judge_feedback.json repair_scope):
 
-- 仅重算 scope 内的诊断文件；scope 外文件从 best_round 快照原样恢复，并在 reasoning_chain.json 对应段标注 `"carried_over": true, "carried_from": "best_round_N"`。
-- 重算时必须读取上轮 judge_feedback.json 的 repair_scope.instructions 作为修复约束。
-- 全量重算仅在 REPAIR_SCOPE 缺省时执行（向后兼容）。
+- Recompute only the diagnostic files within scope; files outside scope are restored verbatim from the best_round snapshot, and the corresponding segments in reasoning_chain.json are annotated `"carried_over": true, "carried_from": "best_round_N"`.
+- When recomputing, repair_scope.instructions from the previous round's judge_feedback.json must be read and applied as repair constraints.
+- Full recomputation is performed only when REPAIR_SCOPE is absent (backward compatible).

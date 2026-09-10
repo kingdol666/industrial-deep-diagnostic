@@ -5,70 +5,70 @@
 <h1 align="center">Industrial Deep Diagnostic</h1>
 
 <p align="center">
-  <strong>端到端工业深度诊断系统 · 9 步全自动根因分析管线</strong><br>
+  <strong>End-to-end industrial deep-diagnosis system · 9-step fully automated root-cause pipeline</strong><br>
   <sub>From sensor time-series to root-cause report — zero human intervention</sub>
 </p>
 
 <p align="center">
-  <a href="#-快速开始"><img src="https://img.shields.io/badge/Quick%20Start-2%20Steps-brightgreen?style=flat-square" alt="Quick Start"></a>
-  <a href="#-系统架构"><img src="https://img.shields.io/badge/Pipeline-9%20Steps-blue?style=flat-square" alt="Pipeline"></a>
-  <a href="#-使用场景"><img src="https://img.shields.io/badge/Platform-Win%20%7C%20Linux%20%7C%20Mac-lightgrey?style=flat-square" alt="Platform"></a>
+  <a href="#-quick-start"><img src="https://img.shields.io/badge/Quick%20Start-2%20Steps-brightgreen?style=flat-square" alt="Quick Start"></a>
+  <a href="#-system-architecture"><img src="https://img.shields.io/badge/Pipeline-9%20Steps-blue?style=flat-square" alt="Pipeline"></a>
+  <a href="#-use-cases"><img src="https://img.shields.io/badge/Platform-Win%20%7C%20Linux%20%7C%20Mac-lightgrey?style=flat-square" alt="Platform"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node"></a>
-  <a href="#-docker-部署"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"></a>
+  <a href="#-docker-deployment"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"></a>
   <a href="https://github.com/kingdol666/industrial-deep-diagnostic"><img src="https://img.shields.io/badge/Version-6.7-blueviolet?style=flat-square" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <b>中文</b> · <a href="#-english-overview">English</a>
+  <b>English</b> · <a href="#-english-overview">Overview</a>
 </p>
 
 ---
 
-> 💡 **核心思想**: 诊断 = **排除** 而非确认。每个结论必须同时满足 **物理机制 + 统计验证 + 时序对齐 + 无反证**，缺一不可。系统不为取悦用户而编造结论 —— 它会诚实地告诉你 `DETERMINED`（已定论）、`COMPETING_SET`（竞争假说不可区分）或 `NEEDS_DATA`（数据不足）。
+> 💡 **Core idea**: diagnosis = **elimination**, not confirmation. Every conclusion must satisfy **physical mechanism + statistical validation + temporal alignment + no counter-evidence** — all four, no exceptions. The system never fabricates a conclusion to please the user: it will honestly tell you `DETERMINED` (settled), `COMPETING_SET` (competing hypotheses are indistinguishable) or `NEEDS_DATA` (insufficient data).
 
-## ✨ 核心能力
+## ✨ Core Capabilities
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🧠 智能诊断引擎
-- **9 步全自动管线** — 从原始数据到中文报告零干预
-- **18 个专业 Skill** × **14 个专用 Agent** 协同
-- **竞争假设协议** — 排除法而非确认偏误
-- **9 道质量门控** (CP-1 ~ CP-9) 逐级把关
-- **反假相关统计** v6.4–v6.7（时滞 CCF / 稳态过滤 / 批次完整性 / 留一法）
+### 🧠 Intelligent Diagnostic Engine
+- **9-step fully automated pipeline** — zero intervention from raw data to Chinese report
+- **18 specialized skills** × **14 dedicated agents** working in concert
+- **Competing-hypotheses protocol** — elimination instead of confirmation bias
+- **9 quality gates** (CP-1 ~ CP-9) enforced stage by stage
+- **Anti-spurious-correlation statistics** v6.4–v6.7 (lag CCF / steady-state filtering / batch integrity / leave-one-out)
 
 </td>
 <td width="50%" valign="top">
 
-### 🛡 工业级可靠性
-- **证据等级 L1–L7** — 结论受限最低证据等级
-- **双驱动分析** — 纯工艺波动 + 工艺-检测双驱动
-- **VLM 视觉验证** — Vision 模型独立审读图表
-- **物理真实审计** — 双模式（预审 + 终审）ENDORSED 门禁
-- **修复反振荡** — 同问题第 3 次自动降级，全局上限 5 次重诊断
+### 🛡 Industrial-Grade Reliability
+- **Evidence levels L1–L7** — a conclusion is bounded by its lowest evidence level
+- **Dual-driver analysis** — pure process fluctuation + combined process-and-inspection drivers
+- **VLM visual verification** — a vision model independently reads the charts
+- **Physical-truth audit** — dual mode (pre-audit + final audit) with an ENDORSED gate
+- **Repair anti-oscillation** — the third attempt at the same problem is downgraded automatically; global cap of 5 rediagnoses
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-### ⚙ 双引擎 Harness（v6.8 新增）
-- **真正可选的执行引擎** — Claude Code SDK 与 OMP RPC 原生桥接，前端一键切换
-- **双引擎同构事件流** — 工具调用 / 思考 / 子代理编排全程实时可视
-- **会话连续性** — 两种引擎均支持跨进程续聊与诊断上下文延续
-- **运行级路由** — 每次诊断记录执行引擎，History 页 `OMP` 徽标溯源
+### ⚙ Dual-Engine Harness (new in v6.8)
+- **Genuinely swappable execution engines** — native bridges to the Claude Code SDK and OMP RPC, switched with one click in the frontend
+- **Isomorphic event streams across both engines** — tool calls / thinking / subagent orchestration stay visible in real time throughout
+- **Session continuity** — both engines support resuming a conversation across processes and carrying diagnostic context forward
+- **Per-run routing** — every diagnosis records its execution engine, and the History page shows an `OMP` badge for traceability
 
 </td>
 <td width="50%" valign="top">
 
-### 🗺 本体资产化 + 深度增强（v6.8 新增）
-- **本体资产库** — 数据 schema 指纹匹配，同场景复用秒级命中，**单次诊断提速 ~70%**
-- **增量扩展** — 新增列仅做增量构建合并，版本化沉淀（`provenance` 全程溯源）
-- **意图驱动深度增强** — 用户说"深度诊断"即自动衔接 E0-E8 确定性增强链（零 LLM 成本，+3~5 分钟）
-- **知识飞轮** — 增强产物回灌 RAG 知识库，越用越准
+### 🗺 Ontology Assetization + Deep Enhancement (new in v6.8)
+- **Ontology asset library** — data-schema fingerprint matching; same-scenario reuse hits in seconds and **cuts a single diagnosis by ~70%**
+- **Incremental extension** — newly added columns trigger only an incremental build and merge, versioned over time (`provenance` traceable end to end)
+- **Intent-driven deep enhancement** — saying "deep diagnosis" automatically chains the deterministic E0-E8 enhancement pipeline (zero LLM cost, +3–5 minutes)
+- **Knowledge flywheel** — enhancement artifacts feed back into the RAG knowledge base, so it gets more accurate the more you use it
 
 </td>
 </tr>
@@ -76,396 +76,396 @@
 
 ---
 
-## ⚡ 性能设计（优化计划 v4 落地）
+## ⚡ Performance Design (optimization plan v4 shipped)
 
-| 机制 | 触发条件 | 效果 |
+| Mechanism | Trigger | Effect |
 |------|---------|------|
-| **本体复用** | 数据列 schema 指纹命中资产库（`auto` 模式默认开启） | 本体构建 15.6 min → **≤0.5 min** |
-| **本体增量扩展** | 同场景 schema 演进（新增列） | 仅对 diff 列检索构建，省 60%+ |
-| **子代理止损** | 本体子代理 8 分钟未产出 | 主代理本地兜底，杜绝 12 分钟空转 |
-| **定向修复** | Judge 评分 70-89 触发修复轮 | 只重算受影响维度，省 40-60% |
-| **并行剖析** | 数据画像与本体构建无语义依赖 | 串行改并行，再省 2-4 min |
-| **RAG 快失败** | 3s 健康预检不通过 | 直接走本地物理先验降级，零空转 |
+| **Ontology reuse** | data-column schema fingerprint hits the asset library (on by default in `auto` mode) | ontology build 15.6 min → **≤0.5 min** |
+| **Incremental ontology extension** | same-scenario schema evolution (new columns) | only the diff columns are retrieved and built, saving 60%+ |
+| **Subagent stop-loss** | the ontology subagent produces nothing for 8 minutes | the main agent falls back locally, avoiding a 12-minute idle spin |
+| **Targeted repair** | a Judge score of 70-89 triggers a repair round | only the affected dimensions are recomputed, saving 40-60% |
+| **Parallel profiling** | data profiling and ontology building have no semantic dependency | serial becomes parallel, saving another 2-4 min |
+| **RAG fast-fail** | the 3s health pre-check fails | falls straight back to local physical priors, zero idle spin |
 
-> 详见 [docs/skill-optimization-plan-v4.md](docs/skill-optimization-plan-v4.md) — 含实测时间线证据与每项优化的验收门。
+> See [docs/skill-optimization-plan-v4.md](docs/skill-optimization-plan-v4.md) for measured timeline evidence and the acceptance gate of each optimization.
 
 ---
 
-## 📑 目录
+## 📑 Table of Contents
 
-- [✨ 核心能力](#-核心能力)
-- [🎯 使用场景](#-使用场景)
-- [🚀 快速开始](#-快速开始)
-- [🖥 系统架构](#-系统架构)
-- [📦 安装](#-安装)
-- [⌨️ CLI 命令手册](#️-cli-命令手册)
-- [📊 使用方式](#-使用方式)
-- [🔧 配置](#-配置)
-- [🔌 API 文档](#-api-文档)
-- [🐳 Docker 部署](#-docker-部署)
-- [🗂 项目结构](#-项目结构)
-- [🐛 故障排查](#-故障排查)
-- [🤝 贡献](#-贡献)
+- [✨ Core Capabilities](#-core-capabilities)
+- [🎯 Use Cases](#-use-cases)
+- [🚀 Quick Start](#-quick-start)
+- [🖥 System Architecture](#-system-architecture)
+- [📦 Installation](#-installation)
+- [⌨️ CLI Reference](#️-cli-reference)
+- [📊 Usage](#-usage)
+- [🔧 Configuration](#-configuration)
+- [🔌 API Reference](#-api-reference)
+- [🐳 Docker Deployment](#-docker-deployment)
+- [🗂 Project Structure](#-project-structure)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🤝 Contributing](#-contributing)
 - [📄 English Overview](#-english-overview)
 
 ---
 
-## 🎯 使用场景
+## 🎯 Use Cases
 
-> 适用于任何 **"有数据、找根因"** 的工业分析场景。只要你能提供传感器时序数据或工艺参数记录，系统就能给出可追溯的诊断结论。
+> Applies to any industrial analysis scenario where you **have data and need the root cause**. As long as you can supply sensor time series or process-parameter records, the system will produce a traceable diagnostic conclusion.
 
 <table>
 <tr>
 <td width="33%" valign="top" align="center">
 
-#### 🏭 制造过程异常
+#### 🏭 Manufacturing Process Anomalies
 
-<b>质量缺陷 / 良率下降</b><br>
-<sub>薄膜厚度漂移 · 钢板缺陷 · 纸张定量波动</sub>
-
-</td>
-<td width="33%" valign="top" align="center">
-
-#### ⚙️ 设备状态诊断
-
-<b>性能衰退 / 渐进故障</b><br>
-<sub>CNC 主轴磨损 · 换热器结垢 · 催化剂失活</sub>
+<b>Quality defects / yield loss</b><br>
+<sub>Film thickness drift · steel plate defects · paper basis-weight fluctuation</sub>
 
 </td>
 <td width="33%" valign="top" align="center">
 
-#### 📈 工艺参数优化
+#### ⚙️ Equipment Condition Diagnosis
 
-<b>SPC Excursion / 相关性分析</b><br>
-<sub>压力-厚度关联 · 温度-粘度因果 · 多变量权衡</sub>
+<b>Performance degradation / progressive faults</b><br>
+<sub>CNC spindle wear · heat-exchanger fouling · catalyst deactivation</sub>
+
+</td>
+<td width="33%" valign="top" align="center">
+
+#### 📈 Process Parameter Optimization
+
+<b>SPC excursion / correlation analysis</b><br>
+<sub>pressure-thickness association · temperature-viscosity causality · multivariate tradeoffs</sub>
 
 </td>
 </tr>
 </table>
 
-### 内置样本数据（开箱即用）
+### Bundled Sample Data (works out of the box)
 
-| 场景 | 路径 | 说明 |
+| Scenario | Path | Notes |
 |------|------|------|
-| 🔄 **造纸机流浆箱** | `data/paper_machine_headbox/` | 已生成完整诊断报告（76 分置信度） |
-| ⚙️ **CNC 主轴磨损** | `data/eval_cnc_spindle_wear/` | 含 ground truth 标注 |
-| 🔥 **换热器结垢** | `data/eval_heat_exchanger_scaling/` | 渐进性退化经典案例 |
-| 🎞 **BOPET 薄膜漂移** | `data/eval_bopet_film_drift/` | 多变量厚度分析 |
-| ⚗️ **反应器催化剂失活** | `data/eval_reactor_catalyst/` | 化工过程诊断 |
-| 🥶 **冷轧钢板缺陷** | `data/eval_steel_cold_rolling/` | 冶金质量分析 |
-| 📊 **模拟过程数据** | `data/simulateData/merged_process_inspection.csv` | 综合工艺数据集 |
+| 🔄 **Paper machine headbox** | `data/paper_machine_headbox/` | full diagnostic report already generated (76-point confidence) |
+| ⚙️ **CNC spindle wear** | `data/eval_cnc_spindle_wear/` | includes ground-truth labels |
+| 🔥 **Heat-exchanger fouling** | `data/eval_heat_exchanger_scaling/` | classic progressive-degradation case |
+| 🎞 **BOPET film drift** | `data/eval_bopet_film_drift/` | multivariate thickness analysis |
+| ⚗️ **Reactor catalyst deactivation** | `data/eval_reactor_catalyst/` | chemical-process diagnosis |
+| 🥶 **Cold-rolled steel defects** | `data/eval_steel_cold_rolling/` | metallurgical quality analysis |
+| 📊 **Simulated process data** | `data/simulateData/merged_process_inspection.csv` | composite process dataset |
 
 ---
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-> 通用步骤：Windows / Linux / macOS 任意主机均按此流程，无需平台特定配置。
-> 依赖全自动：服务启动时自动检查并安装——backend/frontend 缺 `node_modules` 自动执行 `npm install`，RAG 引擎自动创建 Python 虚拟环境（`uv sync`，无 uv 时回退 pip）。
+> The same steps apply on any Windows / Linux / macOS host; no platform-specific configuration is required.
+> Dependencies are fully automatic: the service checks and installs them at startup — if backend/frontend lack `node_modules` it runs `npm install`, and the RAG engine creates its own Python virtual environment (`uv sync`, falling back to pip when uv is absent).
 >
-> **前置条件**（缺失时启动阶段会报错，先验证）：
+> **Prerequisites** (startup fails if they are missing, so verify first):
 
-| 依赖 | 版本 | 验证命令 |
+| Dependency | Version | Verification command |
 |------|:----:|----------|
-| [Node.js](https://nodejs.org/) | ≥ 18（推荐 22+） | `node --version` |
+| [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
-| [Python](https://www.python.org/) | ≥ 3.10 | `python --version`（Linux/macOS：`python3 --version`） |
-| [uv](https://docs.astral.sh/uv/) | 推荐 | `uv --version`（未安装时自动回退系统 pip） |
+| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` (Linux/macOS: `python3 --version`) |
+| [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to system pip when not installed) |
 
 
-### 三步起飞 🛫
+### Three Steps to Take Off 🛫
 
 ```bash
-# 1️⃣ 克隆 & 安装
+# 1️⃣ Clone & install
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
 npm install
-npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
+npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
 
-# 2️⃣ 启动全套服务（后端 3210 + 前端 5180 + RAG 引擎 8764）
+# 2️⃣ Start all services (backend 3210 + frontend 5180 + RAG engine 8764)
 ind-diag start --all --detach
-#    --detach = 后台守护模式，命令立即返回；日志写入 .runtime/*.log
-#    首次启动自动安装依赖（backend/frontend npm install + RAG venv），约 1-3 分钟
+#    --detach = background daemon mode, the command returns immediately; logs go to .runtime/*.log
+#    The first start installs dependencies automatically (backend/frontend npm install + RAG venv), about 1-3 minutes
 
-# 3️⃣ 验证服务健康
-ind-diag status                                          # 三服务均应运行且 healthy
-curl http://localhost:3210/api/health                    # 应返回 200
+# 3️⃣ Verify service health
+ind-diag status                                          # all three services should be running and healthy
+curl http://localhost:3210/api/health                    # should return 200
 ```
 
-打开 **http://localhost:5180** → 上传数据 → 自动诊断 → 下载报告 ✅
+Open **http://localhost:5180** → upload data → automatic diagnosis → download the report ✅
 
-> ⚠️ 不要省略 `--detach`：前台模式（无 `--detach`）下 CLI 会阻塞并在 120 秒后报 `FATAL: Service manager timeout`（服务其实已启动，但命令不返回，易误判为失败）。
+> ⚠️ Do not omit `--detach`: in foreground mode (no `--detach`) the CLI blocks and after 120 seconds reports `FATAL: Service manager timeout` (the services have actually started, but the command never returns, which is easily mistaken for a failure).
 >
-> 停止服务：`ind-diag stop --all` · 查看日志：`.runtime/backend.log`、`.runtime/frontend.log`、`.runtime/rag.log`
+> Stop the services: `ind-diag stop --all` · logs: `.runtime/backend.log`, `.runtime/frontend.log`, `.runtime/rag.log`
 >
-> 发起诊断还需要 [Claude Code CLI](https://docs.anthropic.com/) 且已登录或配置 `ANTHROPIC_API_KEY`（参考 `.env.example`）——仅启动服务不需要。
+> Starting a diagnosis additionally requires the [Claude Code CLI](https://docs.anthropic.com/) to be logged in or `ANTHROPIC_API_KEY` to be configured (see `.env.example`) — merely starting the services does not.
 
 
-### 服务端口一览
+### Service Ports at a Glance
 
-| 服务 | 端口 | 技术栈 | 用途 |
+| Service | Port | Stack | Purpose |
 |:----:|:----:|--------|------|
-| 🟢 **Backend** | `3210` | Express.js + SQLite (WAL) + WebSocket | REST API · 诊断编排 · 实时推送 |
-| 🟢 **Frontend** | `5180` | Vue 3 + Vite + SSE | Web UI · 数据上传 · 实时监控 |
-| 🟢 **RAG Engine** | `8764` | FastAPI + ChromaDB | 向量检索 · 领域知识增强 |
+| 🟢 **Backend** | `3210` | Express.js + SQLite (WAL) + WebSocket | REST API · diagnosis orchestration · real-time push |
+| 🟢 **Frontend** | `5180` | Vue 3 + Vite + SSE | Web UI · data upload · live monitoring |
+| 🟢 **RAG Engine** | `8764` | FastAPI + ChromaDB | vector retrieval · domain knowledge augmentation |
 
 <details>
-<summary><b>🔍 验证服务是否启动成功</b></summary>
+<summary><b>🔍 Verify that the services started successfully</b></summary>
 
 ```bash
-# 查看服务状态
+# check service status
 ind-diag status
 
-# 后端健康检查（应返回 200）
+# backend health check (should return 200)
 curl http://localhost:3210/api/health
 
-# 前端可访问
+# frontend is reachable
 curl -I http://localhost:5180
 
-# RAG 引擎文档
+# RAG engine docs
 curl -I http://localhost:8764/docs
 ```
 
 </details>
 
 <details>
-<summary><b>⚡ 不启动前端，纯命令行跑一次诊断</b></summary>
+<summary><b>⚡ Run one diagnosis from the command line, without starting the frontend</b></summary>
 
 ```bash
-# 使用 industrial-analysis-auto 编排器全自动执行
+# drive the industrial-analysis-auto orchestrator fully automatically
 node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
   --name my-diagnosis --base-dir ./workspace/diagnostic-runs
 
-# 产出位置：workspace/diagnostic-runs/<timestamp>_my-diagnosis/
-# ├── report.md                    ← 中文诊断报告
-# ├── diagnostic-report.html       ← HTML 可视化页面
-# └── optimizer.md                 ← 物理审计结论
+# output location: workspace/diagnostic-runs/<timestamp>_my-diagnosis/
+# ├── report.md                    ← Chinese diagnostic report
+# ├── diagnostic-report.html       ← HTML visualization page
+# └── optimizer.md                 ← physical audit verdict
 ```
 
 </details>
 
 ---
 
-## 🖥 系统架构
+## 🖥 System Architecture
 
-### 9 步诊断管线全景
+### The 9-Step Diagnostic Pipeline at a Glance
 
 ```
                          ┌─────────────────────────────────────┐
-                         │        原始工业数据 (CSV/XLSX/...)     │
+                         │  Raw industrial data (CSV/XLSX/...) │
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                Step 0–1 │  Setup & Inspect  ·  数据探查 + 清单   │  ◄── CP-1
+                Step 0–1 │  Setup & Inspect · probe & manifest │  ◄── CP-1
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                  Step 2 │  context-builder  ·  本体构建 + RAG    │  ◄── CP-2, CP-3
+                  Step 2 │  context-builder · ontology + RAG   │  ◄── CP-2, CP-3
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                  Step 3 │  data-processor  ·  统计分析 + 图表    │  ◄── CP-4
-                         │   └─ Step 3.5: VLM 视觉分析            │
+                  Step 3 │  data-processor · stats + charts    │  ◄── CP-4
+                         │   └─ Step 3.5: VLM visual analysis  │
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                  Step 4 │  diagnostician  ·  竞争假设根因分析    │  ◄── CP-5
+                  Step 4 │  diagnostician · competing causes   │  ◄── CP-5
                          └──────────────────┬──────────────────┘
                                             │
                 ┌───────────────────────────┴───────────────────────────┐
-                │  Step 5a: judge (质量评分)   │   Step 5b: pre-audit     │  ◄── CP-6
-                │           ↑ 修复循环 ↓                    (并行)        │
+                │  Step 5a: judge (score)   │   Step 5b: pre-audit      │  ◄── CP-6
+                │      ↑ repair loop ↓      │        (parallel)         │
                 └───────────────────────────┬───────────────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                  Step 6 │  reporter  ·  生成 20 节中文报告       │  ◄── CP-7
+                  Step 6 │  reporter · 20-section zh report    │  ◄── CP-7
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                  Step 7 │  report-reviewer  ·  物理终审         │  ◄── CP-8
-                         │           ↑ 修复循环 ↓ (ENDORSED?)    │
+                  Step 7 │  report-reviewer · physical audit   │  ◄── CP-8
+                         │      ↑ repair loop ↓ (ENDORSED?)    │
                          └──────────────────┬──────────────────┘
                                             │
                          ┌──────────────────▼──────────────────┐
-                Step 8–9 │  html-visualizer → html-reviewer     │  ◄── CP-9
-                         │  → Finalize  ·  交付诊断报告 + HTML    │
+                Step 8–9 │  html-visualizer → html-reviewer    │  ◄── CP-9
+                         │  → Finalize · deliver report + HTML │
                          └─────────────────────────────────────┘
 ```
 
-### 一个真实诊断的推导过程
+### How a Real Diagnosis Was Derived
 
-以 **造纸机流浆箱工段** 为例（[查看完整报告](workspace/diagnostic-runs/202607271128116_paper_machine_headbox/report.md)）:
+Taking the **paper machine headbox section** as an example ([view the full report](workspace/diagnostic-runs/202607271128116_paper_machine_headbox/report.md)):
 
-| 步骤 | 发现 |
+| Step | Finding |
 |:----:|------|
-| 1️⃣ **数据发现** | 流浆箱压力 90 天从 15kPa → 29kPa（**+93%**）；CD 定量 CV 从 0.5% → 2.8%（**+460%**） |
-| 2️⃣ **统计验证** | pressure~cdcv Pearson r=0.87，去趋势后 r=0.57；留一法通过；三个纸种内 r=0.92~0.93 |
-| 3️⃣ **物理机制** | 风扇泵转速仅 +4.1%，按泵相似定律预期 +8.4%，实际 +93% → **11 倍超额 → 流阻增大** |
-| 4️⃣ **排除竞争** | ❌ 温度假说（98.6% 衰减）· ❌ 真空系统（r<0.03）· ❌ 转速驱动（11 倍超额） |
-| 5️⃣ **根因结论** | 流浆箱内部渐进性结垢/堵塞 — `DETERMINED`，置信度 **76/100** |
-| 6️⃣ **行动方案** | P0 停机酸洗 · P1 校验传感器 · P2 安装 CD 压力分布传感器 |
+| 1️⃣ **Data discovery** | headbox pressure went from 15kPa → 29kPa over 90 days (**+93%**); CD basis-weight CV went from 0.5% → 2.8% (**+460%**) |
+| 2️⃣ **Statistical validation** | pressure~cdcv Pearson r=0.87, r=0.57 after detrending; leave-one-out passed; r=0.92~0.93 within each of the three paper grades |
+| 3️⃣ **Physical mechanism** | fan pump speed rose only +4.1%, while the pump affinity laws predict +8.4% — actual +93% → **11× excess → increased flow resistance** |
+| 4️⃣ **Eliminating competitors** | ❌ temperature hypothesis (98.6% decayed) · ❌ vacuum system (r<0.03) · ❌ speed-driven (11× excess) |
+| 5️⃣ **Root-cause conclusion** | progressive scaling/blockage inside the headbox — `DETERMINED`, confidence **76/100** |
+| 6️⃣ **Action plan** | P0 acid cleaning during shutdown · P1 verify the sensor · P2 install CD pressure-profile sensors |
 
-> 每个结论均标注 **证据等级（L1–L7）**，推理链可追溯至具体数据行。
+> Every conclusion carries an **evidence level (L1–L7)**, and the reasoning chain is traceable back to individual data rows.
 
-### 18 个专业 Skill
+### 18 Specialized Skills
 
 <details>
-<summary><b>展开查看完整 Skill 清单</b></summary>
+<summary><b>Expand the full skill list</b></summary>
 
-| Skill | 所属 Agent | 核心产出 | 门控 |
+| Skill | Owning Agent | Core output | Gate |
 |-------|------------|----------|:----:|
-| **industrial-analysis-auto** | main-agent | 全自动编排器 | 所有 CP |
-| **industrial-data-preprocessor** | — | 自适应多格式前处理 | — |
-| **industrial-ontology-builder** | context-builder | `ontology.json`, RAG 深度理解 | CP-2, CP-3 |
+| **industrial-analysis-auto** | main-agent | fully automated orchestrator | all CPs |
+| **industrial-data-preprocessor** | — | adaptive multi-format preprocessing | — |
+| **industrial-ontology-builder** | context-builder | `ontology.json`, RAG deep understanding | CP-2, CP-3 |
 | **industrial-data-processor** | data-processor | `data_analysis_conclusion.json`, 9+ PNG | CP-4 |
-| **industrial-diagnostician** | diagnostician | 4× 诊断 JSON（诊断/证据/置信度/推理链） | CP-5 |
-| **industrial-judge** | judge | `judge_feedback.json`（10 项评分） | CP-6 |
-| **industrial-physical-auditor** | report-reviewer | `optimizer.md`（双模式审计） | CP-6, CP-8 |
+| **industrial-diagnostician** | diagnostician | 4× diagnostic JSON (diagnosis/evidence/confidence/reasoning chain) | CP-5 |
+| **industrial-judge** | judge | `judge_feedback.json` (10-criterion score) | CP-6 |
+| **industrial-physical-auditor** | report-reviewer | `optimizer.md` (dual-mode audit) | CP-6, CP-8 |
 | **industrial-reporter** | reporter | `report.md`, `run_summary.json` | CP-7 |
-| **industrial-html-visualizer** | html-visualizer | `diagnostic-report.html`（ECharts+Three.js） | CP-9 |
+| **industrial-html-visualizer** | html-visualizer | `diagnostic-report.html` (ECharts+Three.js) | CP-9 |
 | **industrial-html-reviewer** | html-reviewer | `html_review.json` | — |
-| **industrial-physics-bridge** | physics-bridge | 物理-数据桥接 | — |
-| **industrial-deep-analysis** | deep-analyst | E1–E4 深层覆盖矩阵 | — |
-| **industrial-analysis-enhance-auto** | enhance-orchestrator | 增强管线编排 | — |
-| **industrial-enhanced-html-visualizer** | enhanced-visualizer | 增强版 HTML | — |
-| **industrial-enhanced-html-reviewer** | enhanced-html-reviewer | 增强版 HTML 审校 | — |
-| **rag-knowledge-builder** | — | 领域知识图谱 | — |
-| **diagnostic-html-visualizer** | — | HTML 设计系统 | — |
-| **darwin-skill** | — | Skill 进化评估 | — |
+| **industrial-physics-bridge** | physics-bridge | physics-data bridge | — |
+| **industrial-deep-analysis** | deep-analyst | E1–E4 deep coverage matrix | — |
+| **industrial-analysis-enhance-auto** | enhance-orchestrator | enhancement pipeline orchestration | — |
+| **industrial-enhanced-html-visualizer** | enhanced-visualizer | enhanced HTML | — |
+| **industrial-enhanced-html-reviewer** | enhanced-html-reviewer | enhanced HTML review | — |
+| **rag-knowledge-builder** | — | domain knowledge graph | — |
+| **diagnostic-html-visualizer** | — | HTML design system | — |
+| **darwin-skill** | — | skill evolution assessment | — |
 
 </details>
 
-### 9 道质量门控 (Checkpoint Gates)
+### 9 Checkpoint Gates
 
-| CP | 位置 | 验证内容 | 失败处理 |
+| CP | Position | Validation | Failure handling |
 |:--:|:----:|----------|:--------:|
-| **1** | 1→2 | `input_manifest` + `user_context` 存在 | 回 Step 0 |
-| **2** | 2→2.5 | `ontology.json` ≥1KB + schema 校验通过 | 重跑 ontology |
-| **3** | 2.5→3 | `clarification_status: AUTO_RESOLVED` | 引导解决 |
-| **4** | 3→4 | `data_analysis_conclusion.json` + plots > 0 | 重跑 processor |
-| **5** | 4→5 | 4 个诊断 JSON schema 全部通过 | 重跑 diagnostician (≤3) |
-| **6** | 5→6 | Judge ≥90 + pre-audit 无 FATAL | 修复循环 (best-of-3) |
-| **7** | 6→7 | `report.md` + `run_summary.json` | 重跑 reporter |
-| **8** | 7→8 | `optimizer.md` 含 `ENDORSED` | 审计修复循环 |
-| **9** | 8→8.5 | HTML ≥5KB + review verdict=pass | 重跑 visualizer |
+| **1** | 1→2 | `input_manifest` + `user_context` exist | back to Step 0 |
+| **2** | 2→2.5 | `ontology.json` ≥1KB + schema validation passed | rerun ontology |
+| **3** | 2.5→3 | `clarification_status: AUTO_RESOLVED` | guide to resolution |
+| **4** | 3→4 | `data_analysis_conclusion.json` + plots > 0 | rerun processor |
+| **5** | 4→5 | all 4 diagnostic JSONs pass schema | rerun diagnostician (≤3) |
+| **6** | 5→6 | Judge ≥90 + pre-audit has no FATAL | repair loop (best-of-3) |
+| **7** | 6→7 | `report.md` + `run_summary.json` | rerun reporter |
+| **8** | 7→8 | `optimizer.md` contains `ENDORSED` | audit repair loop |
+| **9** | 8→8.5 | HTML ≥5KB + review verdict=pass | rerun visualizer |
 
-### 证据等级体系
+### Evidence Grading System
 
-| 等级 | 来源 | 置信度权重 |
+| Level | Source | Confidence weight |
 |:----:|------|:----------:|
-| **L1** | 直接测量值 | 🟢 最高 |
-| **L2** | 用户文档（SOP / 手册） | 🟢 高 |
-| **L3** | 统计分析（含验证报告） | 🟡 中高 |
-| **L4** | 图表视觉证据（VLM） | 🟡 中 |
-| **L5** | 领域知识 / 工艺逻辑 | 🟡 中 |
-| **L6** | 外部网络引用 | 🔴 低 |
-| **L7** | 无支持假设 | ⚫ 最低 |
+| **L1** | direct measurements | 🟢 highest |
+| **L2** | user documents (SOP / manuals) | 🟢 high |
+| **L3** | statistical analysis (including validation reports) | 🟡 medium-high |
+| **L4** | chart-based visual evidence (VLM) | 🟡 medium |
+| **L5** | domain knowledge / process logic | 🟡 medium |
+| **L6** | external web references | 🔴 low |
+| **L7** | unsupported assumptions | ⚫ lowest |
 
-### 反假相关统计管线
+### Anti-Spurious-Correlation Statistical Pipeline
 
-| 版本 | 检测能力 | 方法 |
+| Version | Detection capability | Method |
 |:----:|----------|------|
-| **v6.4** | 时滞补偿 CCF | 互相关函数计算最优迟滞，避免虚假同步 |
-| **v6.5** | 稳态过滤 | 三算法融合检测稳态/过渡/启停段 |
-| **v6.6** | 批次完整性 | `batch_id` 唯一性验证，防止跨批次混淆 |
-| **v6.7** | 留一法杠杆检查 | \|r\|≥0.3 必须通过 leave-one-out |
+| **v6.4** | lag-compensated CCF | cross-correlation finds the optimal lag and avoids spurious synchrony |
+| **v6.5** | steady-state filtering | three fused algorithms detect steady-state / transition / startup-shutdown segments |
+| **v6.6** | batch integrity | `batch_id` uniqueness validation prevents cross-batch confusion |
+| **v6.7** | leave-one-out leverage check | any \|r\|≥0.3 must pass leave-one-out |
 
 ---
 
-## 📦 安装
+## 📦 Installation
 
-### 环境依赖
+### Requirements
 
-| 依赖 | 版本 | 验证命令 |
+| Dependency | Version | Verification command |
 |------|:----:|----------|
-| [Node.js](https://nodejs.org/) | ≥ 18（推荐 22+） | `node --version` |
+| [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
 | [Python](https://www.python.org/) | ≥ 3.10 | `python --version` |
-| [uv](https://docs.astral.sh/uv/)（可选） | ≥ 0.4 | `uv --version` |
+| [uv](https://docs.astral.sh/uv/) (optional) | ≥ 0.4 | `uv --version` |
 
-### Windows 安装
+### Windows Installation
 
 ```powershell
-# 克隆并安装
+# clone and install
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
 npm install
-npm link                    # 注册 ind-diag 全局命令
+npm link                    # register the global ind-diag command
 
-# 环境检查 + 初始化
+# environment check + initialization
 ind-diag init
 
-# 启动
+# start
 ind-diag start --all --detach
 ```
 
-也可双击运行批处理脚本（旧版，仅覆盖后端 + 前端，**不含 RAG 引擎**；完整启动请用上方 CLI 命令）：
-- `commands\start-backend.bat` — 启动后端
-- `commands\start-frontend.bat` — 启动前端
-- `commands\start-all.bat` — 同时启动
+You can also double-click the batch scripts (legacy; they cover only the backend + frontend and **exclude the RAG engine** — use the CLI command above for a complete start):
+- `commands\start-backend.bat` — start the backend
+- `commands\start-frontend.bat` — start the frontend
+- `commands\start-all.bat` — start both at once
 
-### Linux / macOS 安装
+### Linux / macOS Installation
 
 ```bash
-# 克隆并安装
+# clone and install
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
 npm install
-npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
+npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
 
-# 环境检查
+# environment check
 ind-diag init
 
-# 启动
+# start
 ind-diag start --all --detach
 
-# 或使用 Shell 脚本
+# or use the shell script
 bash commands/start-all.sh
 ```
 
-### Python 依赖（RAG 引擎 + 统计分析）
+### Python Dependencies (RAG engine + statistical analysis)
 
-**无需手动安装** —— `ind-diag start` 会自动：检查系统 Python → 若 `rag-retrieval-engine/.venv` 不存在则创建 → `uv sync`（无 uv 时回退系统 pip）安装全部依赖。
+**No manual installation needed** — `ind-diag start` automatically: checks the system Python → creates `rag-retrieval-engine/.venv` if it does not exist → installs every dependency with `uv sync` (falling back to system pip when uv is absent).
 
-只需保证存在以下任一（`python --version` 验证）：
-- Python ≥ 3.10（RAG 运行必需）
-- **uv**（推荐，RAG 依赖自动隔离安装；未安装时自动回退 pip）
+You only need one of the following to exist (verify with `python --version`):
+- Python ≥ 3.10 (required to run the RAG engine)
+- **uv** (recommended; RAG dependencies are installed in isolation automatically, falling back to pip when absent)
 
-需要手动安装时（可选，例如国内网络加速）：
+When a manual install really is needed (optional, e.g. for a faster mirror):
 
 ```bash
-# 方式一：uv（推荐，自动隔离 + 镜像加速）
+# option 1: uv (recommended — isolated install + mirror acceleration)
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
 
-# 方式二：pip + 镜像
+# option 2: pip + mirror
 pip install -r rag-retrieval-engine/requirements.txt \
   -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 ---
 
-## ⌨️ CLI 命令手册
+## ⌨️ CLI Reference
 
-全局命令通过 `ind-diag`（注册后）或 `node commands/cli.mjs` 使用。
+Use the global `ind-diag` command (once linked) or `node commands/cli.mjs`.
 
-### 服务管理
+### Service Management
 
-| 命令 | 用途 | 示例 |
+| Command | Purpose | Example |
 |------|------|------|
-| `start --all` | 启动全部服务（后台守护） | `ind-diag start --all --detach` |
-| `start --backend` | 仅启动后端 (3210) | `ind-diag start --backend --detach` |
-| `start --frontend` | 仅启动前端 (5180) | `ind-diag start --frontend --detach` |
-| `start --rag` | 启动 RAG 引擎 (8764) | `ind-diag start --rag --detach` |
-| `stop --all` | 停止全部服务 | `ind-diag stop --all` |
-| `restart --all` | 重启全部服务 | `ind-diag restart --all --detach` |
-| `status` | 查看服务状态 | `ind-diag status` |
-| `init` | 环境检查（Node/npm/Python/端口） | `ind-diag init` |
-| `build` | 前端生产构建 | `ind-diag build` |
-| `webfrp` | Cloudflare Tunnel 公网暴露 | `ind-diag webfrp` |
+| `start --all` | start all services (background daemon) | `ind-diag start --all --detach` |
+| `start --backend` | start only the backend (3210) | `ind-diag start --backend --detach` |
+| `start --frontend` | start only the frontend (5180) | `ind-diag start --frontend --detach` |
+| `start --rag` | start the RAG engine (8764) | `ind-diag start --rag --detach` |
+| `stop --all` | stop all services | `ind-diag stop --all` |
+| `restart --all` | restart all services | `ind-diag restart --all --detach` |
+| `status` | show service status | `ind-diag status` |
+| `init` | environment check (Node/npm/Python/ports) | `ind-diag init` |
+| `build` | frontend production build | `ind-diag build` |
+| `webfrp` | expose publicly through Cloudflare Tunnel | `ind-diag webfrp` |
 
-> **`--detach` 为推荐用法**（后台守护）：命令立即返回，服务日志写入 `.runtime/*.log`。省略 `--detach` 时 CLI 会保持前台输出并最终报 `FATAL: Service manager timeout`——服务不受影响，但命令不会正常结束。
+> **`--detach` is the recommended form** (background daemon): the command returns immediately and service logs go to `.runtime/*.log`. Without `--detach` the CLI keeps streaming in the foreground and eventually reports `FATAL: Service manager timeout` — the services are unaffected, but the command never finishes cleanly.
 
-### npm 快捷脚本
+### npm Shortcuts
 
 ```bash
 npm start              # = ind-diag start --all --detach
@@ -479,34 +479,34 @@ npm run build          # = ind-diag build
 npm run init           # = ind-diag init
 ```
 
-### 诊断管线脚本（高级）
+### Diagnostic Pipeline Scripts (advanced)
 
 <details>
-<summary><b>🔧 手动驱动诊断管线各阶段</b></summary>
+<summary><b>🔧 Drive individual pipeline stages by hand</b></summary>
 
 ```bash
-# 1. 创建运行目录
+# 1. create the run directory
 node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
-  --name <场景名> --base-dir ./workspace/diagnostic-runs
+  --name <scenario-name> --base-dir ./workspace/diagnostic-runs
 
-# 2. 数据探查
+# 2. data inspection
 node .claude/skills/industrial-analysis-auto/scripts/inspect.mjs \
-  <数据文件> --rows 10
+  <data-file> --rows 10
 
-# 3. 管道事件日志（诊断中自动调用）
+# 3. pipeline event log (called automatically during a diagnosis)
 node .claude/shared/scripts/append-pipeline-event.mjs \
-  <运行目录> --event agent_start --agent <agent名>
+  <run-directory> --event agent_start --agent <agent-name>
 
-# 4. 管道日志验证
+# 4. pipeline log validation
 node .claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs \
-  <运行目录>
+  <run-directory>
 
-# 5. JSON Schema 验证
+# 5. JSON Schema validation
 node .claude/shared/scripts/validate.mjs \
   .claude/shared/schemas/diagnosis_schema.json \
   workspace/diagnostic-runs/<run>/04_diagnostics/diagnosis.json
 
-# 6. Python venv 初始化
+# 6. Python venv initialization
 node .claude/shared/scripts/uv_env_setup.mjs \
   --skill-path .claude/skills/industrial-data-processor
 ```
@@ -515,80 +515,80 @@ node .claude/shared/scripts/uv_env_setup.mjs \
 
 ---
 
-## 📊 使用方式
+## 📊 Usage
 
-### 方式一：Web UI（推荐）🌐
+### Option 1: Web UI (recommended) 🌐
 
-1. 启动服务：`ind-diag start --all --detach`
-2. 打开 **http://localhost:5180**
-3. 上传数据文件（CSV / XLSX / Parquet）
-4. 填写场景名称与分析问题
-5. 实时观察 9 步管线进度
-6. 下载 `report.md` + 打开 `diagnostic-report.html`
+1. Start the services: `ind-diag start --all --detach`
+2. Open **http://localhost:5180**
+3. Upload a data file (CSV / XLSX / Parquet)
+4. Fill in the scenario name and the analysis question
+5. Watch the 9-step pipeline progress in real time
+6. Download `report.md` + open `diagnostic-report.html`
 
-### 方式二：命令行全自动 🖥
+### Option 2: Fully Automated Command Line 🖥
 
 ```bash
-# 创建运行目录并启动编排
+# create the run directory and start the orchestration
 node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
   --name cnc-test --base-dir ./workspace/diagnostic-runs
 
-# 主 Agent 自动按 Step 0-9 顺序调度子 Agent
-# 产出在 workspace/diagnostic-runs/<timestamp>_cnc-test/
+# the main agent dispatches subagents through Steps 0-9 automatically
+# output lands in workspace/diagnostic-runs/<timestamp>_cnc-test/
 ```
 
-### 方式三：交互模式 💬
+### Option 3: Interactive Mode 💬
 
-支持三种交互模式（`config/default.yaml` → `diagnosis.interaction_mode`）：
+Three interaction modes are supported (`config/default.yaml` → `diagnosis.interaction_mode`):
 
-| 模式 | 行为 | 适用场景 |
+| Mode | Behaviour | Best for |
 |------|------|----------|
-| `auto` | 全自动，零干预 | 批量分析、生产环境 |
-| `interactive` | 关键决策点等待用户确认 | 精细控制、研究分析 |
-| `minimal` | 仅必要问题 | 快速验证 |
+| `auto` | fully automatic, zero intervention | batch analysis, production |
+| `interactive` | waits for user confirmation at key decision points | fine-grained control, research analysis |
+| `minimal` | only essential questions | quick validation |
 
-### 查看历史诊断
+### Browsing Past Diagnoses
 
 ```bash
-# 列出所有运行
+# list all runs
 ls workspace/diagnostic-runs/
 
-# 查看报告
+# view a report
 cat workspace/diagnostic-runs/<run>/report.md
 
-# Windows 打开 HTML
+# open the HTML on Windows
 start workspace/diagnostic-runs/<run>/diagnostic-report.html
 
-# macOS 打开 HTML
+# open the HTML on macOS
 open workspace/diagnostic-runs/<run>/diagnostic-report.html
 ```
 
 ---
 
-## 🔧 配置
+## 🔧 Configuration
 
-配置优先级：`环境变量` > `config/local.yaml` > `config/default.yaml`
+Configuration precedence: `environment variables` > `config/local.yaml` > `config/default.yaml`
 
 <details>
-<summary><b>📄 config/default.yaml 关键配置</b></summary>
+<summary><b>📄 Key settings in config/default.yaml</b></summary>
 
 ```yaml
 server:
-  port: 3210                       # 后端端口
+  port: 3210                       # backend port
   body_limit: "10mb"
 
 frontend:
-  port: 5180                       # 前端端口
+  port: 5180                       # frontend port
   backend_url: "http://localhost:3210"
   ws_url: "ws://localhost:3210"
 
 database:
   path: "data/diagnostic.db"
-  journal_mode: "WAL"              # WAL 模式提升并发
+  journal_mode: "WAL"              # WAL mode improves concurrency
 
 claude:
-  model: "claude-opus-4-7"         # 核心模型
-  max_turns: 200                   # 单次诊断最大轮次
+  model: "claude-opus-4-7"         # core model
+  max_turns: 200                   # max turns per diagnosis
   timeout_minutes: 120
 
 diagnosis:
@@ -597,36 +597,36 @@ diagnosis:
 
 data:
   upload:
-    max_file_size_mb: 500          # 单文件上限
+    max_file_size_mb: 500          # per-file limit
     max_files: 50
 
 pipeline:
-  max_judge_repair: 3              # Judge 修复上限
-  max_reviewer_cycles: 2           # 审计循环上限
-  global_rediagnosis_cap: 5        # 全局重诊断上限
+  max_judge_repair: 3              # Judge repair limit
+  max_reviewer_cycles: 2           # audit cycle limit
+  global_rediagnosis_cap: 5        # global rediagnosis limit
 ```
 
 </details>
 
-### 环境变量覆盖
+### Environment Variable Overrides
 
-| 变量 | 对应配置 | 说明 |
+| Variable | Maps to config | Notes |
 |------|---------|------|
-| `SERVER_PORT` | `server.port` | 后端端口 |
-| `CLAUDE_MODEL` | `claude.model` | Claude 模型 ID |
-| `DATA_DIR` | `data.dir` | 数据目录 |
-| `DIAGNOSIS_DEFAULT_LANGUAGE` | `diagnosis.default_language` | 输出语言 |
-| `DIAGNOSIS_INTERACTION_MODE` | `diagnosis.interaction_mode` | 交互模式 |
-| `ANTHROPIC_API_KEY` | — | Claude API 密钥 |
-| `ANTHROPIC_BASE_URL` | — | API 基础 URL（第三方代理） |
+| `SERVER_PORT` | `server.port` | backend port |
+| `CLAUDE_MODEL` | `claude.model` | Claude model ID |
+| `DATA_DIR` | `data.dir` | data directory |
+| `DIAGNOSIS_DEFAULT_LANGUAGE` | `diagnosis.default_language` | output language |
+| `DIAGNOSIS_INTERACTION_MODE` | `diagnosis.interaction_mode` | interaction mode |
+| `ANTHROPIC_API_KEY` | — | Claude API key |
+| `ANTHROPIC_BASE_URL` | — | API base URL (third-party proxy) |
 
 ---
 
-## 🔌 API 文档
+## 🔌 API Reference
 
-所有 API 通过 Express 后端（port 3210）提供，前端通过 Vite 代理 `/api` 调用。
+All APIs are served by the Express backend (port 3210); the frontend calls them through the Vite `/api` proxy.
 
-### 健康检查
+### Health Check
 
 ```http
 GET /api/health
@@ -642,160 +642,160 @@ GET /api/health
 }
 ```
 
-### 核心端点
+### Core Endpoints
 
-| 分类 | 端点 | 方法 | 用途 |
+| Category | Endpoint | Method | Purpose |
 |------|------|:----:|------|
-| **文件** | `/api/files/data` | GET | 列出数据文件 |
-| | `/api/files/data/folder` | POST | 创建文件夹 |
-| | `/api/files/data/file/:path` | GET | 读取文件内容 |
-| | `/api/files/workspace` | GET | 列出诊断运行 |
-| | `/api/files/workspace/report/:name` | GET | 获取诊断报告 |
-| **诊断** | `/api/diagnosis/start` | POST | 启动新诊断（`harness` / `ontologyMode` / `enhancement` 可选） |
-| | `/api/diagnosis/execute/:runId` | POST | 执行诊断 |
-| | `/api/diagnosis/status/:runId` | GET | 查询运行状态 |
-| | `/api/diagnosis/snapshot/:runId` | GET | 获取快照 |
-| | `/api/diagnosis/stop/:runId` | POST | 停止运行 |
-| | `/api/diagnosis/list` | GET | 列出所有运行 |
-| | `/api/diagnosis/stream/:runId` | GET | SSE 事件流 |
-| | `/api/diagnosis/enhance/:runId` | POST | **一键深度增强（E0-E8）** |
-| **本体资产** | `/api/ontology/store` | GET | 本体资产库注册表（场景/版本/指纹） |
-| **聊天** | `/api/diagnosis/chat/:runId` | POST | 诊断对话 |
-| | `/api/diagnosis/hitl/:hitlId` | POST | 人工审批 |
-| | `/api/chat/start` | POST | 启动聊天会话（`harness` 可选） |
-| | `/api/chat/stream/:chatId` | GET | SSE 聊天流 |
-| **Harness** | `/api/harness` | GET | 引擎注册表（claude / omp） |
-| | `/api/harness/omp/health` | GET | OMP 引擎健康探测（二进制可执行性） |
+| **Files** | `/api/files/data` | GET | list data files |
+| | `/api/files/data/folder` | POST | create a folder |
+| | `/api/files/data/file/:path` | GET | read file contents |
+| | `/api/files/workspace` | GET | list diagnostic runs |
+| | `/api/files/workspace/report/:name` | GET | fetch a diagnostic report |
+| **Diagnosis** | `/api/diagnosis/start` | POST | start a new diagnosis (`harness` / `ontologyMode` / `enhancement` optional) |
+| | `/api/diagnosis/execute/:runId` | POST | execute the diagnosis |
+| | `/api/diagnosis/status/:runId` | GET | query run status |
+| | `/api/diagnosis/snapshot/:runId` | GET | fetch a snapshot |
+| | `/api/diagnosis/stop/:runId` | POST | stop a run |
+| | `/api/diagnosis/list` | GET | list all runs |
+| | `/api/diagnosis/stream/:runId` | GET | SSE event stream |
+| | `/api/diagnosis/enhance/:runId` | POST | **one-click deep enhancement (E0-E8)** |
+| **Ontology assets** | `/api/ontology/store` | GET | ontology asset library registry (scenario / version / fingerprint) |
+| **Chat** | `/api/diagnosis/chat/:runId` | POST | diagnostic conversation |
+| | `/api/diagnosis/hitl/:hitlId` | POST | human approval |
+| | `/api/chat/start` | POST | start a chat session (`harness` optional) |
+| | `/api/chat/stream/:chatId` | GET | SSE chat stream |
+| **Harness** | `/api/harness` | GET | engine registry (claude / omp) |
+| | `/api/harness/omp/health` | GET | OMP engine health probe (binary executability) |
 
-### WebSocket 实时推送
+### WebSocket Real-Time Push
 
 ```
 ws://localhost:3210/ws
 ```
 
-实时推送诊断进度、日志和事件（心跳 30s，超时 60s）。
+Streams diagnostic progress, logs and events in real time (30s heartbeat, 60s timeout).
 
 ---
 
-## 🐳 Docker 部署
+## 🐳 Docker Deployment
 
 ```bash
-# 构建并后台启动
+# build and start in the background
 docker compose up -d
 
-# 查看日志
+# view logs
 docker compose logs -f
 
-# 停止
+# stop
 docker compose down
 ```
 
-### 数据持久化（Docker Volumes）
+### Data Persistence (Docker Volumes)
 
 ```yaml
 volumes:
-  - ./data:/app/data                       # 数据文件
-  - ./workspace:/app/workspace             # 诊断产出
-  - ./config/local.yaml:/app/config/local.yaml:ro  # 本地配置
+  - ./data:/app/data                       # data files
+  - ./workspace:/app/workspace             # diagnostic output
+  - ./config/local.yaml:/app/config/local.yaml:ro  # local config
 ```
 
-### 多架构支持
+### Multi-Architecture Support
 
-| 架构 | 状态 | 说明 |
+| Architecture | Status | Notes |
 |------|:----:|------|
-| `linux/amd64` | ✅ | 标准 x86_64 服务器 |
-| `linux/arm64` | ✅ | Apple Silicon / ARM 服务器 |
-| `windows/amd64` | ✅ | WSL2 环境 |
+| `linux/amd64` | ✅ | standard x86_64 servers |
+| `linux/arm64` | ✅ | Apple Silicon / ARM servers |
+| `windows/amd64` | ✅ | WSL2 environments |
 
-> Dockerfile 基于 `node:22-alpine`，多阶段构建，镜像体积优化。
+> The Dockerfile is based on `node:22-alpine`, uses a multi-stage build and keeps the image size small.
 
 ---
 
-## 🗂 项目结构
+## 🗂 Project Structure
 
 ```
 industrial-deep-diagnostic/
-├── commands/                       # CLI 与服务管理
-│   ├── cli.mjs                    # 统一 CLI 入口 (ind-diag)
-│   ├── service-manager.mjs        # 服务生命周期管理
-│   ├── cross-platform.mjs         # 交叉平台工具库
-│   └── start-*.bat/.sh            # 平台专用启动脚本
+├── commands/                       # CLI and service management
+│   ├── cli.mjs                    # unified CLI entry point (ind-diag)
+│   ├── service-manager.mjs        # service lifecycle management
+│   ├── cross-platform.mjs         # cross-platform utility library
+│   └── start-*.bat/.sh            # platform-specific start scripts
 │
 ├── app/
-│   ├── backend/                   # Express.js 后端 (port 3210)
+│   ├── backend/                   # Express.js backend (port 3210)
 │   │   └── src/
-│   │       ├── index.mjs          # 服务入口
-│   │       ├── routes/            # REST API 路由
-│   │       ├── services/          # 业务逻辑
-│   │       ├── engine/            # 诊断引擎
+│   │       ├── index.mjs          # service entry point
+│   │       ├── routes/            # REST API routes
+│   │       ├── services/          # business logic
+│   │       ├── engine/            # diagnostic engine
 │   │       ├── transport/         # WebSocket
 │   │       └── db/                # SQLite (WAL)
 │   │
-│   └── frontend/                  # Vue 3 + Vite 前端 (port 5180)
+│   └── frontend/                  # Vue 3 + Vite frontend (port 5180)
 │       └── src/
-│           ├── App.vue            # 主视图
-│           ├── api/               # API 客户端
-│           ├── components/        # UI 组件
-│           └── stores/            # 状态管理
+│           ├── App.vue            # main view
+│           ├── api/               # API client
+│           ├── components/        # UI components
+│           └── stores/            # state management
 │
-├── .claude/skills/                # 18 个 Skill 实现（唯一源）
-│   ├── industrial-analysis-auto/  # 全自动编排器
-│   ├── industrial-data-processor/ # 统计分析
-│   ├── industrial-diagnostician/  # 竞争假设诊断
+├── .claude/skills/                # 18 skill implementations (single source)
+│   ├── industrial-analysis-auto/  # fully automated orchestrator
+│   ├── industrial-data-processor/ # statistical analysis
+│   ├── industrial-diagnostician/  # competing-hypothesis diagnosis
 │   └── ...                        # scripts/schemas/resources
 │
-├── .omp/agents/                   # 14 个 OMP Agent 定义
+├── .omp/agents/                   # 14 OMP agent definitions
 │   ├── context-builder.md
 │   ├── diagnostician.md
 │   └── ...
 │
-├── rag-retrieval-engine/          # RAG 检索微服务 (port 8764)
-│   ├── server.py                  # FastAPI 入口
-│   └── engine/                    # 检索/评分/注入引擎
+├── rag-retrieval-engine/          # RAG retrieval microservice (port 8764)
+│   ├── server.py                  # FastAPI entry point
+│   └── engine/                    # retrieval/scoring/injection engines
 │
 ├── config/
-│   ├── default.yaml               # 默认配置
-│   ├── loader.mjs                 # 配置加载器
-│   └── local.yaml                 # 用户覆盖（gitignored）
+│   ├── default.yaml               # default configuration
+│   ├── loader.mjs                 # configuration loader
+│   └── local.yaml                 # user overrides (gitignored)
 │
-├── data/                          # 样本数据 & 仿真数据
-├── workspace/diagnostic-runs/     # 诊断运行产出
+├── data/                          # sample data & simulated data
+├── workspace/diagnostic-runs/     # diagnostic run output
 │   └── <timestamp>_<name>/
-│       ├── 00_input/              # 输入 & 配置
-│       ├── 01_ontology/           # 领域本体
-│       ├── 02_processed/          # 统计 & 清洗
-│       ├── 03_figures/            # 图表 & VLM
-│       ├── 04_diagnostics/        # 诊断结论
-│       ├── 05_review/             # 评审 & 审计
-│       ├── report.md              # 中文诊断报告
-│       ├── diagnostic-report.html # HTML 可视化
-│       └── .pipeline_events.jsonl # 事件日志
+│       ├── 00_input/              # input & configuration
+│       ├── 01_ontology/           # domain ontology
+│       ├── 02_processed/          # statistics & cleaning
+│       ├── 03_figures/            # charts & VLM
+│       ├── 04_diagnostics/        # diagnostic conclusions
+│       ├── 05_review/             # review & audit
+│       ├── report.md              # Chinese diagnostic report
+│       ├── diagnostic-report.html # HTML visualization
+│       └── .pipeline_events.jsonl # event log
 │
-├── docs/                          # 文档 & 架构图
-├── Dockerfile                     # 多阶段构建
+├── docs/                          # documentation & architecture diagrams
+├── Dockerfile                     # multi-stage build
 ├── docker-compose.yml             # Docker Compose
 └── package.json
 ```
 
 ---
 
-## 🐛 故障排查
+## 🐛 Troubleshooting
 
 <details>
 <summary><b>❌ "ind-diag: command not found"</b></summary>
 
 ```bash
-# 使用完整路径
+# use the full path
 node commands/cli.mjs status
 
-# 或重新注册全局命令
+# or re-register the global command
 npm link
 ```
 
 </details>
 
 <details>
-<summary><b>❌ 端口被占用 (EADDRINUSE :3210 / :5180 / :8764)</b></summary>
+<summary><b>❌ Port already in use (EADDRINUSE :3210 / :5180 / :8764)</b></summary>
 
 ```powershell
 # Windows
@@ -811,97 +811,97 @@ lsof -ti :3210 | xargs kill -9
 </details>
 
 <details>
-<summary><b>❌ 启动后命令卡住 / 报 "FATAL: Service manager timeout"</b></summary>
+<summary><b>❌ The command hangs after startup / reports "FATAL: Service manager timeout"</b></summary>
 
-原因：使用了前台模式（省略了 `--detach`）。服务可能已经启动（`ind-diag status` 可确认），但 CLI 因前台等待而超时。
+Cause: foreground mode was used (`--detach` omitted). The services may already be running (confirm with `ind-diag status`), but the CLI times out waiting in the foreground.
 
 ```bash
-# 改为后台守护模式启动
+# switch to background daemon mode
 ind-diag stop --all
 ind-diag start --all --detach
 ```
 </details>
 
 <details>
-<summary><b>❌ RAG 引擎启动失败（Python / venv）</b></summary>
+<summary><b>❌ RAG engine fails to start (Python / venv)</b></summary>
 
-RAG 引擎依赖由一个 `rag-retrieval-engine/start.mjs` 自动管理：检测系统 Python → 创建 `.venv` → `uv sync`（或 pip）→ 启动。
+RAG engine dependencies are managed automatically by `rag-retrieval-engine/start.mjs`: detect the system Python → create `.venv` → `uv sync` (or pip) → start.
 
-排查顺序：
+Diagnose in this order:
 ```bash
-# 1. 确认 Python ≥ 3.10
+# 1. confirm Python ≥ 3.10
 python --version        # Linux/macOS: python3 --version
 
-# 2. 确认系统有 uv 或 pip（二选一即可）
+# 2. confirm uv or pip exists (either one is enough)
 uv --version || pip --version
 
-# 3. 国内网络慢 → 用镜像手动安装后重启
+# 3. slow network → install manually from a mirror, then restart
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
 ind-diag restart --all --detach
 ```
 
-如仍失败，查看日志：`.runtime/rag.log`
+If it still fails, check the log: `.runtime/rag.log`
 </details>
 
 <details>
-<summary><b>❌ 服务已启动但无法发起诊断（报 Claude 相关错误）</b></summary>
+<summary><b>❌ Services are up but a diagnosis cannot be started (Claude-related errors)</b></summary>
 
-诊断管线由 Claude Code CLI 驱动，需要：
+The diagnostic pipeline is driven by the Claude Code CLI and requires:
 
 ```bash
-# 1. 确认已安装 Claude Code
+# 1. confirm Claude Code is installed
 claude --version
 
-# 2. 确认已登录或配置 API Key（可选：写入 .env）
-cp .env.example .env   # 然后编辑 ANTHROPIC_API_KEY
+# 2. confirm you are logged in or an API key is configured (optionally in .env)
+cp .env.example .env   # then edit ANTHROPIC_API_KEY
 
-# 3. 参考 config/default.yaml → claude 段（模型、binary 名可配置）
+# 3. see config/default.yaml → the claude section (model and binary name are configurable)
 ```
 </details>
 
 <details>
-<summary><b>❌ 前端页面白屏</b></summary>
+<summary><b>❌ The frontend page is blank</b></summary>
 
 ```bash
-# 1. 确认后端运行
+# 1. confirm the backend is running
 curl http://localhost:3210/api/health
 
-# 2. 重新构建前端
+# 2. rebuild the frontend
 cd app/frontend && npx vite build
 
-# 3. 清除 Vite 缓存
+# 3. clear the Vite cache
 rm -rf app/frontend/node_modules/.vite
 ```
 
 </details>
 
 <details>
-<summary><b>❌ 诊断报告不生成 / 管道卡住</b></summary>
+<summary><b>❌ No diagnostic report is produced / the pipeline is stuck</b></summary>
 
 ```bash
-# 检查管道事件日志
+# inspect the pipeline event log
 cat workspace/diagnostic-runs/<run>/.pipeline_events.jsonl
 
-# 验证管道完整性
+# validate pipeline integrity
 node .claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs \
   workspace/diagnostic-runs/<run>
 
-# 检查各步骤产物
+# inspect the artifact of each step
 ls -la workspace/diagnostic-runs/<run>/
 ```
 
 </details>
 
 <details>
-<summary><b>❌ RAG 引擎依赖下载慢（国内网络）</b></summary>
+<summary><b>❌ RAG engine dependency download is slow</b></summary>
 
 ```bash
-# 使用清华镜像
+# use the Tsinghua mirror
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
 
-# 或 pip 镜像
+# or the pip mirror
 pip install -r rag-retrieval-engine/requirements.txt \
   -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
@@ -910,30 +910,30 @@ pip install -r rag-retrieval-engine/requirements.txt \
 
 ---
 
-## 🤝 贡献
+## 🤝 Contributing
 
-### 开发流程
+### Development Workflow
 
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feat/my-feature`
-3. 提交变更（遵循 Conventional Commits）
-4. 推送并提交 Pull Request
+1. Fork this repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
+3. Commit your changes (following Conventional Commits)
+4. Push and open a Pull Request
 
-### 提交规范
+### Commit Convention
 
 ```
-feat:     新功能          fix:      缺陷修复
-docs:     文档变更        refactor: 重构
-test:     测试            chore:    构建/工具
-style:    格式            perf:     性能优化
+feat:     new feature       fix:      bug fix
+docs:     documentation     refactor: refactor
+test:     tests             chore:    build/tooling
+style:    formatting        perf:     performance
 ```
 
-### 扩展诊断管线（添加新 Skill）
+### Extending the Diagnostic Pipeline (adding a new skill)
 
-1. 在 `.claude/skills/<name>/SKILL.md` 定义技能入口（含脚本 + Schema + 协议）
-2. 在 `.omp/agents/<name>.md` 定义 Agent（OMP 契约：name + description + tools + model）
-3. 在 `industrial-analysis-auto/SKILL.md` 注册步骤
-4. 添加对应的 JSON Schema 到 `.claude/shared/schemas/`
+1. Define the skill entry point in `.claude/skills/<name>/SKILL.md` (scripts + Schema + protocol)
+2. Define the agent in `.omp/agents/<name>.md` (OMP contract: name + description + tools + model)
+3. Register the step in `industrial-analysis-auto/SKILL.md`
+4. Add the matching JSON Schema under `.claude/shared/schemas/`
 
 ---
 
@@ -953,7 +953,7 @@ style:    格式            perf:     性能优化
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
 npm install
-npm link                    # 注册全局 ind-diag 命令（可选；无权限时改用 node commands/cli.mjs）
+npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
 ind-diag start --all --detach     # → http://localhost:5180
 ```
 

@@ -1,13 +1,14 @@
 ---
 name: industrial-data-preprocessor
 description: >
-  自适应数据前处理（E-1 阶段）。把用户给的任何数据源——单个文件或整个目录、
-  任意格式混合（CSV/TSV/分隔符文本、Excel xlsx/xlsm/xls 多工作表、JSON 记录、
-  Markdown 表格、HTML 表格、自由文本说明）——归一化为管线可直接消费的标准表
-  preprocessed_data.csv + 完整审计报告 + 上下文文件保留。
-  Trigger: 数据前处理, 预处理, 数据格式, 多格式数据, 目录数据, xlsm, 多sheet,
-  data preprocessing, preprocess, adaptive data, any data format.
-  保证与数据源无关：管线流程对任何数据形态生效。
+  Adaptive data preprocessing (stage E-1). Normalizes any user-supplied data source —
+  a single file or an entire directory, any mix of formats (CSV/TSV/delimited text,
+  Excel xlsx/xlsm/xls multi-sheet, JSON records, Markdown tables, HTML tables,
+  free-text descriptions) — into the canonical table preprocessed_data.csv that the
+  pipeline can consume directly, plus a full audit report and preserved context files.
+  Trigger: data preprocessing, preprocess, data formats, multi-format data,
+  directory data, xlsm, multi-sheet, adaptive data, any data format.
+  Guarantees data-source independence: the pipeline flow works for any data shape.
 ---
 
 # Industrial Data Preprocessor
@@ -62,7 +63,7 @@ is genuinely **data-source agnostic**.
 
 - Column names trimmed, de-duplicated (`_2` suffix), fully-empty columns dropped.
 - Time column detected by name hints + datetime parseability (numeric columns
-   excluded from the fallback — they are never misread as epoch datetimes).
+  excluded from the fallback — they are never misread as epoch datetimes).
 - Time values normalized to ISO `YYYY-MM-DD HH:MM:SS` where parseable; the
   original value is preserved otherwise.
 - Missing cells stay NaN — downstream cleaning handles them.

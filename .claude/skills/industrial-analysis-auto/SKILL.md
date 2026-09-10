@@ -1,51 +1,51 @@
 ---
 name: industrial-analysis-auto
-description: "工业深度诊断全自动编排器 — 集成 8 个标准化子 skill 实现端到端诊断管线。从原始传感器/工艺数据到中文诊断报告+HTML可视化页面，零人工干预。Trigger: 工业诊断, 根因分析, 故障诊断, 生产过程异常, 质量缺陷分析, 传感器数据分析, 工艺参数优化, SPC excursion, root cause analysis, manufacturing diagnostics, 上传CSV/XLSX/Parquet数据后全自动执行8步诊断管线。3 modes: auto/interactive/minimal. 输出: report.md + diagnostic-report.html"
+description: "Fully automated orchestrator for industrial deep diagnosis — integrates 8 standardized sub-skills into an end-to-end diagnostic pipeline, from raw sensor/process data to a Chinese-language diagnostic report plus an HTML visualization page, with zero human intervention. 3 modes: auto/interactive/minimal. Outputs: report.md + diagnostic-report.html. Trigger: industrial diagnosis, root cause analysis, fault diagnosis, production process anomaly, quality defect analysis, prediction, failure prediction, predictive maintenance, sensor data analysis, process parameter optimization, SPC excursion, manufacturing diagnostics, automatically run the full 8-step diagnostic pipeline after uploading CSV/XLSX/Parquet data"
 ---
 
 # Industrial Analysis Auto — Full Pipeline Orchestrator
 
-端到端工业深度诊断自动编排器。上传传感器/工艺数据 → 8 步全自动诊断 → `report.md` + `diagnostic-report.html`。
+End-to-end industrial deep diagnosis auto-orchestrator. Upload sensor/process data → 8 fully automated diagnosis steps → `report.md` + `diagnostic-report.html`.
 
 ## Inputs / Outputs
 
 ### Inputs
 | Input | Required | Description |
 |-------|----------|-------------|
-| CSV/XLSX/Parquet data file | ✓ | 工业传感器/工艺数据（CSV, XLSX, Parquet） |
-| run_config.json (auto-generated) | ✓ | 运行配置（interaction_mode等） |
-| Reference docs (optional) | - | data/references/ 下的工艺参考文档 |
+| CSV/XLSX/Parquet data file | ✓ | Industrial sensor/process data (CSV, XLSX, Parquet) |
+| run_config.json (auto-generated) | ✓ | Run configuration (interaction_mode etc.) |
+| Reference docs (optional) | - | Process reference documents under data/references/ |
 
 ### Outputs
 | Output | File | Gate |
 |--------|------|:----:|
-| 诊断本体 | 01_ontology/ontology.json | CP-2 |
-| 数据分析结论 | 02_processed/data_analysis_conclusion.json | CP-4 |
-| 诊断结论 | 04_diagnostics/diagnosis.json | CP-5 |
-| 质量门结果 | 05_review/judge_feedback.json | CP-6 |
-| 最终报告 | report.md / run_summary.json | CP-7 |
-| 物理审计 | optimizer.md | CP-8 |
-| HTML报告 | diagnostic-report.html / 05_review/html_review.json | CP-9 |
+| Diagnostic ontology | 01_ontology/ontology.json | CP-2 |
+| Data analysis conclusion | 02_processed/data_analysis_conclusion.json | CP-4 |
+| Diagnosis conclusion | 04_diagnostics/diagnosis.json | CP-5 |
+| Quality gate result | 05_review/judge_feedback.json | CP-6 |
+| Final report | report.md / run_summary.json | CP-7 |
+| Physical audit | optimizer.md | CP-8 |
+| HTML report | diagnostic-report.html / 05_review/html_review.json | CP-9 |
 
 ## TL;DR
 
 ```
-输入: CSV/XLSX/Parquet 工业传感器/工艺数据
-输出: 中文诊断报告 (report.md) + HTML 可视化讲解页 (diagnostic-report.html)
-核心: 本体构建 → 去趋势/分层/Simpson检测 → 竞争假说 → 物理验证 → Judge审查 → HTML可视化
-默认: FULL-AUTO — 8 步连续跑完、零人工干预
+Input : CSV/XLSX/Parquet industrial sensor/process data
+Output: Chinese-language diagnostic report (report.md) + HTML visualization walkthrough page (diagnostic-report.html)
+Core  : ontology construction → detrending/stratification/Simpson detection → competing hypotheses → physics verification → Judge review → HTML visualization
+Default: FULL-AUTO — 8 steps run continuously, zero human intervention
 ```
 
 ## Core Principle
 
-诊断 = 排除而非确认。每条结论要求四条件：时间先后 + 统计显著 + 物理机制 + 无矛盾。
+Diagnosis = exclusion, not confirmation. Every conclusion requires four conditions: temporal precedence + statistical significance + physical mechanism + no contradiction.
 
 | Pillar | Principle |
 |--------|-----------|
-| Scenario-Adaptive | 从数据特征驱动分析流 — 无硬编码工艺类型 |
-| RAG Deep Understanding | RAG 知识语义理解，非机械映射 |
-| Data↔Ontology Bidirectional | 本体预测→数据确认；数据揭示→本体解释 |
-| Physics-Based | 每条相关性必须追溯到控制方程 |
+| Scenario-Adaptive | Drive the analysis flow from data characteristics — no hardcoded process types |
+| RAG Deep Understanding | Semantic understanding via RAG knowledge, not mechanical mapping |
+| Data↔Ontology Bidirectional | Ontology predicts → data confirms; data reveals → ontology explains |
+| Physics-Based | Every correlation must be traceable to governing equations |
 
 ## Pipeline Flow
 
@@ -54,15 +54,13 @@ Step 0-1: Setup + Inspect (main agent)
     ↓
 Step 2+2.5: [industrial-ontology-builder] → CP-2, CP-3
     ↓
-Step 3+3.3: [industrial-data-processor] → CP-4（含 VLM 视觉分析）
-    ↓
-Step 4: [industrial-diagnostician] → CP-5
+Step 3+3.3: [industrial-data-processor] → CP-4 (includes VLM visual analysis)
     ↓       ┌── repair max 3 ──┐
     ├───────┤                  │
     ↓       ↓                  │
 Step 5a:   Step 5b:            │
 [judge]    [physical-auditor]  │
-   │     (pre-report,并行)      │
+   │     (pre-report, parallel)│
    └───────┬───────────────────┘
            ↓ pass
      Step 6: [industrial-reporter] → CP-7
@@ -92,7 +90,7 @@ Step 5a:   Step 5b:            │
 
 ## Dispatch
 
-每个子步骤使用 Claude Code `Agent` 工具调度对应的 sub-agent：
+Each sub-step dispatches its corresponding sub-agent via the Claude Code `Agent` tool:
 
 ```javascript
 // Step 2+2.5: Ontology Builder
@@ -199,7 +197,7 @@ Read skill://industrial-html-reviewer and execute. Review → pass/needs_revisio
 })
 ```
 
-子 agent 通过文件系统通信，不经过主 agent context。
+Sub-agents communicate through the filesystem, never through the main-agent context.
 
 ---
 
@@ -220,16 +218,16 @@ node "$SHARED_PATH/scripts/uv_env_setup.mjs"
 
 `setup.mjs` bootstraps `run_manifest.json` + `.pipeline_events.jsonl` with `run_initialized` event.
 
-**Shell 兼容约定（强制）**：所有 bash 命令不得使用 cmd 内建语法（`cd /d`、`dir`、反斜杠路径）。
-跨盘/切换目录直接以绝对路径调用（`node "D:/.../setup.mjs"`）或 `cd "D:/path" && cmd`。
-（实测 `cd /d D:\...` 在 POSIX bash 下失败重试，浪费 ~1 分钟。）
+**Shell compatibility convention (mandatory)**: all bash commands must not use cmd built-in syntax (`cd /d`, `dir`, backslash paths).
+For cross-drive/directory switching, invoke directly with absolute paths (`node "D:/.../setup.mjs"`) or use `cd "D:/path" && cmd`.
+(Verified in practice: `cd /d D:\...` fails and retries under POSIX bash, wasting ~1 minute.)
 
-**RAG 可用性预检（3s 快失败）**：Step 0 结束时执行一次并记录到 run_config：
+**RAG availability pre-check (3s fast-fail)**: execute once at the end of Step 0 and record in run_config:
 ```bash
 curl -m 3 -s http://localhost:8764/health >/dev/null 2>&1 && RAG_AVAILABLE=true || RAG_AVAILABLE=false
 ```
-`RAG_AVAILABLE=false` → ontology-builder 直接走 `parameter_to_physics.json` 降级路径，跳过 Phase 2/3
-（避免执行期反复探测与不可控网络下的 web 搜索空转）。
+`RAG_AVAILABLE=false` → ontology-builder goes straight to the `parameter_to_physics.json` fallback path and skips Phase 2/3
+(avoids repeated runtime probing and idle web-search spinning under uncontrollable networks).
 
 ### Step 0.5: Adaptive Data Preprocessing (data-source agnosticism gate)
 
@@ -270,16 +268,16 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --files 00_input/input_manifest.json,00_input/user_context.json
 ```
 
-### Step 2-F: Ontology Deterministic Fast Path（复用命中 ≤60s，plan v5 F1）
+### Step 2-F: Ontology Deterministic Fast Path (reuse hit ≤60s, plan v5 F1)
 
-Step 2 派发**之前**，先尝试确定性快路径（纯脚本资产拷贝+校验，无语义判断，不属于 Blacklist #2 的"主代理执行子代理协议"范畴）：
+**Before** dispatching Step 2, attempt the deterministic fast path (pure script asset copy + validation, no semantic judgment; outside the scope of Blacklist #2 "main agent executes the sub-agent protocol"):
 
 ```bash
 node "$SHARED_PATH/scripts/ontology_store.mjs" fast-reuse \
   --data <DATA_PATH> --run-dir "$RUN_DIR" [--scene <scene_key>]
 ```
 
-- 输出 `fastPath:true` → 写事件记录跳过原因（满足 strictly-sequential 的 not_applicable 约定）：
+- Output `fastPath:true` → write an event recording the skip reason (satisfies the strictly-sequential `not_applicable` convention):
 
 ```bash
 node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
@@ -287,9 +285,9 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --data '{"fastpath":true,"reason":"store reuse — deterministic fast path"}'
 ```
 
-  随后写 `clarification_auto_inferred` 事件（快路径已生成 `00_input/clarification_needed.json` AUTO_RESOLVED），**直接跳到 Step 3**——不派发 context-builder 子代理、不进 hub wait。CP-2（schema 校验 + ≥1KB）已在 fast-reuse 内强制执行，失败自动回滚并返回 fastPath:false。
-- 输出 `fastPath:false` → 走下方 Step 2 子代理派发（extend/miss 的语义判断仍需 LLM，Phase -1 指令继续生效）。
-- `run_config.ontology.mode` 为 `full` 时跳过 Step 2-F（用户强制重建）。
+  Then write a `clarification_auto_inferred` event (the fast path has already generated `00_input/clarification_needed.json` AUTO_RESOLVED), and **jump directly to Step 3** — do not dispatch the context-builder sub-agent, do not enter hub wait. CP-2 (schema validation + ≥1KB) is already enforced inside fast-reuse; on failure it automatically rolls back and returns fastPath:false.
+- Output `fastPath:false` → proceed with the Step 2 sub-agent dispatch below (extend/miss still require LLM semantic judgment; the Phase -1 instructions remain in effect).
+- When `run_config.ontology.mode` is `full`, skip Step 2-F (user forces a rebuild).
 
 ### Step 2 + 2.5: Ontology Builder
 
@@ -297,14 +295,14 @@ Read `skill://industrial-ontology-builder` and dispatch via `Agent({subagent_typ
 - `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`, `SHARED_PATH` must be absolute paths
 - `SKILL_PATH` = path to `industrial-ontology-builder` skill directory
 - `INTERACTION_MODE` = `auto` (default for FULL-AUTO)
-- **透传 runtime prompt 中的 `## Ontology Directive`（ONTOLOGY_MODE / ONTOLOGY_SOURCE）** 到 dispatch task — agent 据此执行 Phase -1 模式分派：
-  - `reuse` 命中：agent 30 秒内拷贝资产本体 + CP-2 校验完成本步（本管线最大时间收益，禁止重建）
-  - `extend`：仅对新增列增量构建后合并
-  - `full`：标准全流程
-- **子代理止损上限**：累计等待 `ontology.json` 产出超过 **8 分钟**仍未完成 → abort 子代理任务，主代理按兜底协议用 `parameter_to_physics.json` 本地构建最小有效本体（≤3 分钟）。禁止 3 次串行长等待（180s+240s+300s=12 分钟空转是实测最大浪费）。
-- 所有 dispatch 后的文件写入必须使用绝对路径（子代理相对路径写入是历史失败根因）。
+- **Forward the `## Ontology Directive` (ONTOLOGY_MODE / ONTOLOGY_SOURCE) from the runtime prompt** into the dispatch task — the agent executes the Phase -1 mode dispatch based on it:
+  - `reuse` hit: the agent copies the asset ontology and completes this step with CP-2 validation within 30 seconds (the largest time win in this pipeline; rebuilding is forbidden)
+  - `extend`: incrementally build only the new columns, then merge
+  - `full`: standard full flow
+- **Sub-agent stop-loss cap**: if cumulative waiting for `ontology.json` exceeds **8 minutes** without completion → abort the sub-agent task; the main agent builds a minimal valid ontology locally per the fallback protocol using `parameter_to_physics.json` (≤3 minutes). Three consecutive serial long waits are forbidden (180s+240s+300s=12 minutes of idle spinning was the largest measured waste).
+- All file writes after dispatch must use absolute paths (sub-agent relative-path writes are a historical root cause of failures).
 
-**CP-2**: `ontology.json` ≥1KB + schema-valid。**CP-2 通过后立即发布入本体资产库（所有模式必须，这是下次复用命中的前提）**：
+**CP-2**: `ontology.json` ≥1KB + schema-valid. **Immediately after CP-2 passes, publish to the ontology asset store (mandatory in all modes; this is the prerequisite for future reuse hits)**:
 ```bash
 node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR"
 ```
@@ -312,11 +310,11 @@ node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR"
 
 ### Step 2P (parallel with Step 2, optional): Data Profiling Pre-Pass
 
-Step 1 完成后，数据格式/质量/生产状态剖析**不依赖本体语义**，可与 Step 2 并行派发 `data-processor` 的 Phase 0-1 前置段（产出 `02_processed/pre_profile.json`）。本体 ready 后 data-processor 从 Phase 2 起接续并消费 pre_profile.json，跳过重复探查。语义分析（discrepancy / R2 校验）**必须等本体**——ontology_first 契约的语义部分不变。若当前 harness 不支持并行子代理则保持串行（向后兼容）。
+After Step 1 completes, data format/quality/production-state profiling **does not depend on ontology semantics**; the Phase 0-1 pre-pass of `data-processor` (producing `02_processed/pre_profile.json`) can be dispatched in parallel with Step 2. Once the ontology is ready, data-processor resumes from Phase 2 and consumes pre_profile.json, skipping duplicate probing. Semantic analysis (discrepancy / R2 validation) **must wait for the ontology** — the semantic part of the ontology_first contract is unchanged. If the current harness does not support parallel sub-agents, remain serial (backward compatible).
 
 ### Step 3 + 3.3: Data Processor
 
-Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work. 若 `02_processed/pre_profile.json` 存在（Step 2P 产物），从其结论接续，跳过重复探查。
+Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work. If `02_processed/pre_profile.json` exists (Step 2P artifact), resume from its conclusions and skip duplicate probing.
 
 Post-processing after agent completes:
 ```bash
@@ -324,7 +322,7 @@ SKILL_PATH_DATA_PROCESSOR="$PROJECT_ROOT/.claude/skills/industrial-data-processo
 node "$SKILL_PATH_DATA_PROCESSOR/scripts/data-processor-finalize.mjs" "$RUN_DIR"
 ```
 
-事件证明（确定性补救，防 OMP 子代理漏报执行事件——子代理已发则幂等无害）：
+Event proof (deterministic remediation to guard against OMP sub-agents omitting execution events — idempotent and harmless if the sub-agent already emitted them):
 ```bash
 node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --event agent_complete --agent data-processor --step data_processor \
@@ -339,13 +337,13 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
 
 Read `skill://industrial-diagnostician` and dispatch via `Agent({subagent_type: "diagnostician", ...})`. Fuses data + ontology + physics + VLM + time-lag → diagnosis/evidence/confidence/reasoning_chain.
 
-For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`；第 2/3 轮同时传递 `REPAIR_SCOPE=<files>`（来自 judge_feedback.json 的 repair_scope 映射，见 Step 5a）。scope 外文件从 best_round 快照恢复并标 `carried_over: true`，**不重算**。
+For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`; for rounds 2/3 also pass `REPAIR_SCOPE=<files>` (from the repair_scope mapping in judge_feedback.json, see Step 5a). Files outside the scope are restored from the best_round snapshot and marked `carried_over: true` — **not recomputed**.
 
 **CP-5**: All 4 diagnosis outputs schema-valid + quality-check passes
 
 ### Step 5a: Judge
 
-Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`. feedback 必须含**结构化修复范围** `repair_scope: [{dimension, files, instructions}]`（Step 4 修复轮据此定向重算，避免全量重算 4 个诊断 JSON）。第 2/3 轮 Judge 仅复审 scope 内维度 + 上轮 blocking 复核，已 pass 维度引用上轮结论。
+Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`. The feedback must contain a **structured repair scope** `repair_scope: [{dimension, files, instructions}]` (Step 4 repair rounds recompute in a targeted way based on it, avoiding full recomputation of the 4 diagnosis JSONs). In rounds 2/3 the Judge re-reviews only in-scope dimensions plus previous-round blocking re-checks; already-pass dimensions reference previous-round conclusions.
 
 ### Step 5b: Physical Auditor (Pre-Report)
 
@@ -402,36 +400,36 @@ node "$SKILL_PATH/scripts/pipeline-finalize.mjs" "$RUN_DIR" "$SKILL_PATH"
 
 Present: executive summary + key findings + diagnosis type + confidence + recommendations + optimizer highlights + workspace/HTML paths.
 
-### Step 10: Enhanced Diagnosis（条件步骤 — 深度增强 E0-E8）
+### Step 10: Enhanced Diagnosis (conditional step — deep enhancement E0-E8)
 
-读取 runtime prompt 的 `## Enhancement Directive`（ENHANCEMENT_POLICY / ENHANCEMENT_INTENT_HIT）：
+Read the `## Enhancement Directive` (ENHANCEMENT_POLICY / ENHANCEMENT_INTENT_HIT) from the runtime prompt:
 
-| ENHANCEMENT_POLICY | 动作 |
-|--------------------|------|
-| `on`（用户显式或意图命中） | 基线 Step 9 完成后，**同一 run 目录**执行增强链：`node "$PROJECT_ROOT/.claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs" --run-dir "$RUN_DIR"`。E0-E1-E6 全为确定性脚本零 LLM；复用本体，**绝不重建基线**。E0 报 BLOCKED（基线产物不齐）→ 写 enhancement_status.json{status:blocked} 优雅收尾，**不判 run 失败**。完成后 append-pipeline-event `--event step_complete --step enhance`，并在 report.md 尾部追加一行「深度增强分析已生成：enhancement/enhanced_analysis.md」 |
-| `off` | 跳过。append-pipeline-event `--event enhance_skipped --data '{"reason":"policy_off"}'` |
-| `auto` 未命中 | 跳过。`--event enhance_skipped --data '{"reason":"no_intent"}'`；在总结尾部提示用户：「如需深度增强诊断（条件分析/物理桥接/关联图谱），可在本运行上一键启动」 |
+| ENHANCEMENT_POLICY | Action |
+|--------------------|--------|
+| `on` (explicit user request or intent hit) | After baseline Step 9 completes, execute the enhancement chain in the **same run directory**: `node "$PROJECT_ROOT/.claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrator.mjs" --run-dir "$RUN_DIR"`. E0-E1-E6 are all deterministic scripts with zero LLM; reuse the ontology, **never rebuild the baseline**. If E0 reports BLOCKED (baseline artifacts incomplete) → write enhancement_status.json{status:blocked} and close out gracefully, **do not mark the run as failed**. On completion, append-pipeline-event `--event step_complete --step enhance`, and append one line to the end of report.md: "Deep enhancement analysis generated: enhancement/enhanced_analysis.md" |
+| `off` | Skip. append-pipeline-event `--event enhance_skipped --data '{"reason":"policy_off"}'` |
+| `auto` no intent hit | Skip. `--event enhance_skipped --data '{"reason":"no_intent"}'`; at the end of the summary, tell the user: "If you need deep enhanced diagnosis (conditional analysis / physics bridging / correlation graph), it can be launched for this run with one click" |
 
-增强产物落在 `RUN_DIR/enhancement/`（enhanced_analysis.md / enhanced-analysis.html / enhancement_status.json），
-与基线产物完全隔离；E1-E6 的 mtime skip 机制使重复执行增量且廉价。
+Enhancement artifacts land in `RUN_DIR/enhancement/` (enhanced_analysis.md / enhanced-analysis.html / enhancement_status.json),
+fully isolated from baseline artifacts; the E1-E6 mtime skip mechanism makes repeated execution incremental and cheap.
 
 ---
 
-## Step Turn Budgets（提示性治理，非硬截断）
+## Step Turn Budgets (advisory governance, not hard truncation)
 
-| Step | 建议轮次上限 | 超限动作 |
-|------|------------|---------|
-| Step 0-1 setup/inspect | 4 | 检查脚本调用方式（多为路径/语法重试） |
-| Step 2 本体（reuse 命中） | 2 | 直接主代理本地校验 |
-| Step 2 本体（full） | 6 | 触发 8 分钟止损上限 |
-| Step 3 数据处理 | 10 | 检查 pre_profile 是否被消费 |
-| Step 4 诊断 | 12 | 检查输入产物完整性 |
-| Step 5a/5b 评审 | 6 | 引用上轮结论 |
-| Step 6-7 报告+审计 | 8 | 精简章节 |
-| Step 8-9 HTML+收尾 | 6 | 降级静态模式 |
-| Step 10 增强 | 3 | 脚本链零 LLM，超限=异常 |
+| Step | Suggested turn cap | Action when exceeded |
+|------|--------------------|----------------------|
+| Step 0-1 setup/inspect | 4 | Check script invocation style (mostly path/syntax retries) |
+| Step 2 ontology (reuse hit) | 2 | Main agent performs local validation directly |
+| Step 2 ontology (full) | 6 | Triggers the 8-minute stop-loss cap |
+| Step 3 data processing | 10 | Check whether pre_profile was consumed |
+| Step 4 diagnosis | 12 | Check input artifact integrity |
+| Step 5a/5b review | 6 | Reference previous-round conclusions |
+| Step 6-7 report+audit | 8 | Streamline sections |
+| Step 8-9 HTML+finalize | 6 | Degrade to static mode |
+| Step 10 enhancement | 3 | Script chain is zero-LLM; exceeding the cap = anomaly |
 
-连续 2 次同 Step 超预算 2 倍 → 记录 pipeline 事件 step_overbudget 并在 run_summary 汇总。
+If the same Step exceeds its budget by 2x twice in a row → record the `step_overbudget` pipeline event and summarize in run_summary.
 
 ## Checkpoint Gates (Quick Reference)
 
@@ -457,12 +455,12 @@ Present: executive summary + key findings + diagnosis type + confidence + recomm
 - **Step 5a + 5b** are the ONLY parallel steps. Everything else is serial.
 - **HTML auto-build**: CP-8 ENDORSED → immediately launch Steps 8→8.5→9, no user prompts.
 
-### Token & Wait Discipline（plan v5 F2/F3 — 执行效率纪律）
+### Token & Wait Discipline (plan v5 F2/F3 — execution efficiency discipline)
 
-- **hub wait 治理（F2）**：子代理运行期间，hub wait 循环的**每轮迭代**先用 `test -f <关键产物>` 检查——产物就绪立即 break 进入下游，**不把 300s 等满才检查**。等待目标必须是**子代理写的产物**（Step 2: `01_ontology/ontology.json`；Step 3: `02_processed/feature_summary.json` 或 `03_figures/plot_manifest.json`——`data_analysis_conclusion.json` 由主代理 finalize 写，不可作等待目标）。
-- **SKILL.md 单读（F3.1）**：SKILL.md 全文只在首次读取一次；后续协议细节读对应 reference 文件，禁止重复读全文（claude 引擎已注入系统提示前 8K chars，二次读是纯浪费）。
-- **目录探查纪律（F3.2）**：目录探查用 `ls <dir>` 单层；禁止 `ls -R` / 递归 glob 全库（单次 >2s 的探查命令视为浪费）。
-- **todo 纪律（F3.3）**：todo op 每阶段最多 1 次（子项完成合并进该阶段的 done 更新）；禁止每完成一个子项就单独更新 todo。
+- **hub wait governance (F2)**: while a sub-agent runs, **each iteration** of the hub wait loop first checks `test -f <key artifact>` — the moment the artifact is ready, break and move downstream; **do not wait the full 300s before checking**. The wait target must be **an artifact written by the sub-agent** (Step 2: `01_ontology/ontology.json`; Step 3: `02_processed/feature_summary.json` or `03_figures/plot_manifest.json` — `data_analysis_conclusion.json` is written by the main-agent finalize and must not be used as a wait target).
+- **SKILL.md single-read (F3.1)**: read the full SKILL.md text only once, on first access; read the corresponding reference file for subsequent protocol details; re-reading the full text is forbidden (the claude engine already injects the first 8K chars into the system prompt, so a second read is pure waste).
+- **Directory probing discipline (F3.2)**: use `ls <dir>` single-level for directory probing; `ls -R` / recursive glob across the whole tree is forbidden (any probing command taking >2s counts as waste).
+- **todo discipline (F3.3)**: at most 1 todo operation per phase (merge sub-item completions into that phase's done update); updating the todo separately for each completed sub-item is forbidden.
 
 ## Repair Governance
 
@@ -489,7 +487,7 @@ Sub-agents communicate ONLY through workspace files, never through main-agent co
 
 ```
 Ontology Builder  → 01_ontology/ontology.json, clarification_needed.json, rag_deep_understanding.json
-Data Processor    → 02_processed/*, data_analysis_conclusion.json, 03_figures/* (含 visual_analysis.json)
+Data Processor    → 02_processed/*, data_analysis_conclusion.json, 03_figures/* (includes visual_analysis.json)
 Diagnostician     → 04_diagnostics/diagnosis.json, evidence.json, confidence.json, reasoning_chain.json
 Judge             → 05_review/judge_feedback.json
 Pre-Audit         → 05_review/optimizer_preflight.md
@@ -501,46 +499,46 @@ HTML Reviewer     → 05_review/html_review.json
 
 ## Data Truth Mandate
 
-**每一个写入 JSON/报告的数字必须可从原始数据重算。**
+**Every number written into JSON/reports must be recomputable from the raw data.**
 
-| 规则 | 要求 |
+| Rule | Requirement |
 |------|------|
-| 数字可追溯性 | 每个数字必须标注数据源(cleaned/raw)、行范围、计算方法 |
-| 派生值标记 | 推断/派生值必须显式 `"derived": true` 或 `"inferred": true` |
-| 清洗留痕 | cleaning_integrity 记录全部清洗操作 |
-| 可视化可追溯 | 每张图的每个数据点可追溯到数据集的具体行 |
-| 不可用标记 | 无法从数据计算的 → 写 NOT_APPLICABLE + 原因 |
+| Numeric traceability | Every number must be annotated with data source (cleaned/raw), row range, and computation method |
+| Derived value marking | Inferred/derived values must be explicitly marked `"derived": true` or `"inferred": true` |
+| Cleaning audit trail | cleaning_integrity records all cleaning operations |
+| Visualization traceability | Every data point in every plot must be traceable to specific dataset rows |
+| Unavailable marking | Values that cannot be computed from data → write NOT_APPLICABLE + reason |
 
 ---
 
-## Counterfactual Reasoning — 排除约束
+## Counterfactual Reasoning — Exclusion Constraints
 
-| 约束 | 说明 |
+| Constraint | Description |
 |------|------|
-| 四条件 | 时间先后 + 统计显著 + 物理机制 + 无矛盾 |
-| 排除标准 | 任一条件不满足 → 标记为排除候选项并提供量化依据 |
-| 物理边界 | 排除必须有第一性原理或控制方程支撑 |
-| 置信阈值 | 排除置信度 <80 时标记 `[WEAK_EXCLUSION]` |
+| Four conditions | Temporal precedence + statistical significance + physical mechanism + no contradiction |
+| Exclusion criterion | Any unmet condition → mark as an excluded candidate and provide quantitative justification |
+| Physics boundary | Exclusions must be supported by first principles or governing equations |
+| Confidence threshold | When exclusion confidence <80, mark `[WEAK_EXCLUSION]` |
 
 ---
 
 ## Assumptions & Limitations
 
-| 类别 | 要求 |
+| Category | Requirement |
 |------|------|
-| 数据限制 | 采样率/噪声/缺失最值/范围限制 |
-| 模型假设 | 线性近似/稳态假设/分布假设 |
-| 未控制混淆 | 明确列出无法控制的潜在混淆变量 |
-| 结论可信区间 | 每个结论标注置信度 ± 误差范围 |
+| Data limitations | Sampling rate / noise / missing extremes / range limits |
+| Model assumptions | Linear approximation / steady-state assumptions / distribution assumptions |
+| Uncontrolled confounders | Explicitly list potential confounding variables that cannot be controlled |
+| Conclusion confidence intervals | Annotate each conclusion with confidence ± error margin |
 
 ---
 
 ## Efficiency — Parallel Execution
 
-- 与上下游 agent 无数据依赖时 → 主动并行
-- 对可预测结果使用确定性脚本而非 LLM 推理
-- 大文件采样策略: >100K 行时系统抽样
-- Agent stall >600s → 检查已有产物, 部分可用的继续推进
+- No data dependency with upstream/downstream agents → parallelize proactively
+- Use deterministic scripts instead of LLM reasoning for predictable results
+- Large-file sampling strategy: systematic sampling when >100K rows
+- Agent stall >600s → check existing artifacts; if partially usable, keep moving forward
 
 ---
 

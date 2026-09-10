@@ -1,14 +1,14 @@
 # Test Scenarios — Multi-Domain Validation Suite (v4.0)
 
-本文件包含**端到端测试场景**，验证 rag-knowledge-builder skill 在**多个知识领域**中正确工作。
+This file contains **end-to-end test scenarios** that verify that the rag-knowledge-builder skill works correctly across **multiple knowledge domains**.
 
-每个场景测试：
-1. **领域识别** — LLM 是否正确识别了领域？
-2. **跨域拒绝** — 错误域的知识块是否被正确拒绝？
-3. **本体构建** — 是否构建了领域特定的实体（而非硬编码的）？
-4. **自然语言定义** — 每个概念是否有精确的中文定义？
-5. **约束发现** — 是否发现了至少 3 条领域约束？
-6. **质量门** — 最终本体是否通过 8 维质量验证？
+Each scenario tests:
+1. **Domain identification** — did the LLM correctly identify the domain?
+2. **Cross-domain rejection** — are knowledge chunks from the wrong domain correctly rejected?
+3. **Ontology construction** — were domain-specific entities built (rather than hard-coded ones)?
+4. **Natural-language definitions** — does every concept have a precise definition, written in the configured output language (default: Chinese)?
+5. **Constraint discovery** — were at least 3 domain constraints discovered?
+6. **Quality gate** — does the final ontology pass the 8-dimension quality verification?
 
 ---
 
@@ -21,12 +21,12 @@ Skill({
 })
 ```
 
-检查 `<RUN_DIR>/00_input/` 下的输出：
-- `rag_ontology_draft.json` — 结构化本体
-- `rag_ontology_nl_spec.md` — 自然语言规范
-- `rag_structured_data.json` — 生成的模板
-- `rag_audit_log.json` — 质量验证结果
-- `rag_clarification_needed.json` — 知识缺口
+Inspect the outputs under `<RUN_DIR>/00_input/`:
+- `rag_ontology_draft.json` — structured ontology
+- `rag_ontology_nl_spec.md` — natural-language specification
+- `rag_structured_data.json` — generated templates
+- `rag_audit_log.json` — quality verification results
+- `rag_clarification_needed.json` — knowledge gaps
 
 ---
 
@@ -47,13 +47,13 @@ context_dimensions = "patient_cohort,study_site,ethnicity,measurement_batch"
 | Domain detection | `domain_type = "clinical_risk_stratification"` |
 | Entity list | `pancreatic_beta_cell`, `liver`, `skeletal_muscle`, `cardiovascular_system` |
 | Anti-pattern entity | `spindle_assembly` MUST NOT appear |
-| Target concept | `hba1c_pct.definition = "糖化血红蛋白占血红蛋白总量的百分比，反映过去2-3个月平均血糖水平..."` |
-| Definition quality | Has `broader_concept` (如 "血糖相关生物标志物"), `distinguish_from`, `terminology` |
-| Constraint | 至少 3 条（如 HbA1c ≥6.5% 诊断阈值） |
+| Target concept | `hba1c_pct.definition = "糖化血红蛋白占血红蛋白总量的百分比，反映过去2-3个月平均血糖水平..."` (the produced definition is written in the configured output language; default: Chinese) |
+| Definition quality | Has `broader_concept` (e.g. "血糖相关生物标志物"), `distinguish_from`, `terminology` |
+| Constraint | At least 3 (e.g. HbA1c ≥6.5% 诊断阈值) |
 | Relationship | `fasting_glucose_mg_dl →(causal)→ hba1c_pct` (lag: weeks) |
 | Confounder | `ethnicity` — different populations have different baseline HbA1c |
 | Cross-domain rejection | CNC spindle chunk → REJECTED with reason "wrong domain" |
-| NL Spec | 包含完整的领域概述、概念字典、关系图谱 |
+| NL Spec | Contains the complete domain overview, concept dictionary, and relationship graph |
 
 **Success criteria:**
 
@@ -83,11 +83,11 @@ context_dimensions = "contract_family,deal_value_band,target_subsidiary,language
 | Domain detection | `domain_type = "legal_contract_due_diligence"` |
 | Entity list | `target_company`, `counterparty`, `governing_law`, `contract_clause` |
 | Anti-pattern entity | `MDO_oven` MUST NOT appear |
-| Target concept | `change_of_control_risk_score.definition` 包含精确定义和消歧义 |
-| Constraint | 如 "非竞争条款在加州通常不可执行" |
+| Target concept | `change_of_control_risk_score.definition` contains a precise definition and disambiguation |
+| Constraint | e.g. "非竞争条款在加州通常不可执行" |
 | Relationship | `amendment_count →(legal)→ change_of_control_risk_score` |
 | Confounder | `governing_law_state` — Delaware vs California |
-| NL Spec | 关系图谱有条件/例外列 |
+| NL Spec | The relationship graph has conditions/exceptions columns |
 
 **Success criteria:**
 
@@ -114,7 +114,7 @@ context_dimensions = "loan_product,underwriting_channel,origination_quarter,geog
 |-------|-----------------|
 | Domain detection | `domain_type = "consumer_credit_scoring"` |
 | Entity list | `applicant`, `lender`, `credit_bureau`, `loan_product` |
-| Target concept | `default_probability_12m.definition` 含精确建模定义 |
+| Target concept | `default_probability_12m.definition` contains a precise modelling definition |
 | Constraint | "模型不得使用受保护特征" (ECOA) |
 | Relationship | `debt_to_income_ratio →(correlative)→ default_probability_12m` |
 | Confounder | `origination_quarter` — macro conditions shift applicant pool |
@@ -144,8 +144,8 @@ context_dimensions = "raw_material_batch_id,production_line_id,shift_id,operator
 | Domain detection | `domain_type = "biaxial_film_stretching"` |
 | Entity list | `extruder`, `mdo_oven`, `tdo_oven`, `winder` |
 | Anti-pattern entity | `cardiovascular_system` MUST NOT appear |
-| Target concept | `film_thickness_um.definition` 含精确物理含义 |
-| Constraint | 如 "PET 熔体温度 >300°C 导致热降解" |
+| Target concept | `film_thickness_um.definition` contains the precise physical meaning |
+| Constraint | e.g. "PET 熔体温度 >300°C 导致热降解" |
 | Relationship | `melt_temp_C →(causal)→ film_thickness_um` (lag: seconds) |
 | Confounder | `raw_material_batch_id` — PET IV varies |
 
@@ -159,28 +159,28 @@ context_dimensions = "raw_material_batch_id,production_line_id,shift_id,operator
 
 ## Cross-Domain Pollution Test
 
-**最重要的测试** — 验证不发生跨域知识泄漏。
+**The most important test** — verifies that no cross-domain knowledge leakage occurs.
 
-**Setup:** ChromaDB 中混合多领域知识块：
+**Setup:** Multi-domain knowledge chunks mixed in ChromaDB:
 - 8 clinical, 8 legal, 8 industrial, 4 finance, 2 generic
 
-**Test 1:** 临床场景 → 临床 chunk ACCEPTED，其他域 REJECTED
-**Test 2:** 工业场景 → 工业 chunk ACCEPTED，其他域 REJECTED
-**Test 3:** 比较两次 `rag_ontology_draft.json` — 无跨域泄漏
+**Test 1:** Clinical scenario → clinical chunks ACCEPTED, other domains REJECTED
+**Test 2:** Industrial scenario → industrial chunks ACCEPTED, other domains REJECTED
+**Test 3:** Compare the two `rag_ontology_draft.json` files — no cross-domain leakage
 
-如果错误域的实体出现在本体中（如 `mdo_oven` 出现在临床本体中），测试 FAIL。
+If an entity from the wrong domain appears in the ontology (e.g. `mdo_oven` appearing in a clinical ontology), the test FAILS.
 
 ---
 
 ## Knowledge Gap Test
 
-**Setup:** 运行临床场景但 KB 中只有工业 chunk。
+**Setup:** Run the clinical scenario while the KB contains only industrial chunks.
 
 **Expected:**
 - `match_rate = 0.0`
-- `rag_clarification_needed.json` 至少一个条目
+- `rag_clarification_needed.json` contains at least one entry
 - `rag_audit_log.json` verdict: `FAIL`
-- 不捏造临床实体
+- No fabricated clinical entities
 
 ---
 

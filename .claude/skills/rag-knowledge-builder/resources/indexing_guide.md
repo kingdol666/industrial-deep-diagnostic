@@ -1,28 +1,28 @@
 # Indexing Guide — Chunking Strategy & Metadata Design
 
-> 本文件指导 `kb_build.py` 如何将源文档分割为语义块，以及如何设计元数据以便检索过滤。
+> This file tells `kb_build.py` how to split source documents into semantic chunks, and how to design metadata so that retrieval can filter on it.
 
-## Chunking 策略
+## Chunking Strategy
 
-### 1. Markdown 文档 (`*.md`)
-
-```
-算法: RecursiveCharacterTextSplitter
-块大小: 512 tokens
-重叠: 64 tokens
-```
-
-**按节分割**: 每个 `## Section` 是一个独立的语义单元。如果一个节超过 512 tokens，进一步在段落边界处分割。
-
-**概念保留**: 确保每个块保留任何概念名、公式和阈值。如果一个概念跨越两个块，在重叠中复制关键行。
-
-### 2. JSON 文件（知识库）
+### 1. Markdown documents (`*.md`)
 
 ```
-算法: 超边分块 (OG-RAG pattern)
+Algorithm: RecursiveCharacterTextSplitter
+Chunk size: 512 tokens
+Overlap: 64 tokens
 ```
 
-每个 `causal_chain` / `concept_definition` / `quantitative_rule` 条目成为一个完整的语义块 — 整个因果弧或定义保存在一个块中。
+**Split by section**: each `## Section` is an independent semantic unit. If a section exceeds 512 tokens, split it further at paragraph boundaries.
+
+**Concept retention**: make sure every chunk retains any concept names, formulas, and thresholds. If a concept spans two chunks, duplicate the key lines in the overlap.
+
+### 2. JSON files (knowledge base)
+
+```
+Algorithm: hyperedge chunking (OG-RAG pattern)
+```
+
+Each `causal_chain` / `concept_definition` / `quantitative_rule` entry becomes one complete semantic chunk — the whole causal arc or definition is kept inside a single chunk.
 
 ```json
 {
@@ -34,40 +34,42 @@
 }
 ```
 
-### 3. 网页搜索结果
+> **Note**: the `content` field above is the emitted-output template for chunk content; the rendered text is written in the configured output language (default: Chinese), which is why its field labels stay in Chinese.
+
+### 3. Web search results
 
 ```
-算法: 逐片段块
-每个搜索结果片段 = 1 个块
+Algorithm: per-snippet chunking
+Each web search result snippet = 1 chunk
 ```
 
-网页片段是临时性的 — 它们只在当前检索会话中存在。如果它们通过了评分门槛并被用于本体构建，它们将被标记为与源 URL 一起。
+Web snippets are ephemeral — they exist only within the current retrieval session. If they pass the scoring threshold and are used for ontology construction, they are tagged together with their source URL.
 
-## Metadata 模式
+## Metadata Schema
 
-每个块在 ChromaDB 中携带以下元数据：
+Every chunk carries the following metadata in ChromaDB:
 
 ```python
 metadatas = {
     "source_type": "local_reference|web_authoritative|web_general|user_documentation|accumulated_verified",
     "source_path": "path/to/source/file",
-    "domain_tags": "domain_1,domain_2",           # 逗号分隔（用于 D3 过滤）
+    "domain_tags": "domain_1,domain_2",           # comma-separated (used for D3 filtering)
     "mechanism_type": "causal_chain|concept_definition|quantitative_rule|...",
-    "concept_tags": "concept_1,concept_2,concept_3", # 逗号分隔（用于 D2 匹配）
+    "concept_tags": "concept_1,concept_2,concept_3", # comma-separated (used for D2 matching)
 }
 ```
 
-**字段说明：**
-- `domain_tags` — 该知识块涉及的领域（用于 D3 领域一致性评分）
-- `concept_tags` — 该知识块讨论的概念（用于 D2 概念匹配）
-- `mechanism_type` — 知识类型（用于检索时的过滤）
-- `source_type` — 来源类型（用于 D4 来源信誉评分）
+**Field descriptions:**
+- `domain_tags` — the domain(s) this knowledge chunk touches (used for D3 domain-consistency scoring)
+- `concept_tags` — the concepts this knowledge chunk discusses (used for D2 concept matching)
+- `mechanism_type` — knowledge type (used for filtering during retrieval)
+- `source_type` — source type (used for D4 source-credibility scoring)
 
-## 索引更新策略
+## Index Update Strategy
 
-| 操作 | 命令 | 频率 | 说明 |
+| Operation | Command | Frequency | Description |
 |------|------|------|------|
-| 完全重建 | `--rebuild` | 仅当源文件变更时 | 删除并重新创建所有内容 |
-| 增量添加 | `--add-source <file>` | 按需 | 索引一个新的参考文件 |
-| 从运行累积 | `--accumulate <RUN_DIR>` | 每次高置信度运行后 | 仅在 audit=PASS 且 match_rate≥0.6 时 |
-| 移除过时知识 | `--prune` | 每月 | 移除超过 6 个月未使用的块 |
+| Full rebuild | `--rebuild` | Only when source files change | Delete and recreate everything |
+| Incremental add | `--add-source <file>` | On demand | Index one new reference file |
+| Accumulate from runs | `--accumulate <RUN_DIR>` | After every high-confidence run | Only when audit=PASS and match_rate≥0.6 |
+| Remove stale knowledge | `--prune` | Monthly | Remove chunks unused for more than 6 months |
