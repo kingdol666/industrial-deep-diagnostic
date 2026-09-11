@@ -1,0 +1,13 @@
+{
+ "case_id": "skab_cavitation_13",
+ "dataset": "skab",
+ "input": "experience/data/skab_cavitation_13/input.csv",
+ "source": "data/benchmark/prepared/skab/other_13.csv",
+ "sha256": "9face62601fab3c6d236835c1d32a3b9243cd4a1777a5e1ed7d0f0fc5ab7863a",
+ "rows": 923,
+ "cols": 9,
+ "time_col": "datetime",
+ "target_cols": "Pressure,Accelerometer1RMS",
+ "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。本文件来自other实验组（故障类型不下发，仅提供传感器语义）。",
+ "control": false
+}

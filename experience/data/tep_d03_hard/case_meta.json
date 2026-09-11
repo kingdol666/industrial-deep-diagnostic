@@ -1,0 +1,13 @@
+{
+ "case_id": "tep_d03_hard",
+ "dataset": "tep",
+ "input": "experience/data/tep_d03_hard/input.csv",
+ "source": "data/benchmark/prepared/tep/d03_te.csv",
+ "sha256": "3b3cec233428b9fb575f30cbd26e659177a02ecdfad1770e294fd9e79bf5fac7",
+ "rows": 960,
+ "cols": 53,
+ "time_col": "timestamp",
+ "target_cols": "XMEAS_9,XMEAS_2",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为文献公认统计难检故障（IDV 3）。",
+ "control": false
+}

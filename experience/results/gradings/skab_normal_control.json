@@ -1,10 +1,10 @@
 {
- "case_id": "tep_d00_normal_control",
+ "case_id": "skab_normal_control",
  "control": true,
  "control_pass": true,
  "false_alarm": false,
  "diagnosis_type": "DETERMINED",
- "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246555_bench_tep_d00_normal_control",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100244063_bench_skab_normal_control",
  "judge_score": 91,
  "checks": {
   "pipeline_log": "PASS",

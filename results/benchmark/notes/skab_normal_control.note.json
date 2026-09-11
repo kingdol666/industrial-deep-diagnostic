@@ -1,0 +1,127 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "正常基线运行：全部通道 z 尾部温和（max z=5.4、超 3σ 占比≤0.6%，为 9405 行长序列的正常统计尾部），通道间强相关均为物理相干耦合（温度-流量热交换 r=-0.89/0.83），无跨域持续性偏差，未检出故障。",
+ "confidence": 0.68,
+ "ontology": {
+  "domain": "水循环试验台（长时稳态基线）",
+  "physics_notes": "闭环回路稳态下，电机温度与流体温度经热交换反相耦合，流量调节引起温度/压力的自然起伏，属运行性波动而非故障。",
+  "variables": [
+   {
+    "name": "Temperature",
+    "unit": "C",
+    "meaning": "电机温度"
+   },
+   {
+    "name": "Thermocouple",
+    "unit": "C",
+    "meaning": "流体温度"
+   },
+   {
+    "name": "Volume Flow RateRMS",
+    "unit": "L/min",
+    "meaning": "回路流量"
+   },
+   {
+    "name": "Pressure",
+    "unit": "Bar",
+    "meaning": "回路压力"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "正常运行（稳态波动）",
+   "mechanism_class": "normal-appearance",
+   "confidence": 0.68,
+   "verdict": "surviving",
+   "logic_chain": [
+    "超 3σ 占比 ≤0.6% 符合高斯尾部",
+    "强相关均为热交换/流动的物理相干（无虚假相关）"
+   ],
+   "evidence": [
+    "Temperature~Thermocouple r=-0.891 热交换反相",
+    "Thermocouple~Flow r=0.830 流量调制换热"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "出现跨域持续性偏差或振动事件则推翻"
+   ],
+   "proof": "波动量级与回路控制带宽一致",
+   "predicted": [
+    "统计尾部随窗口平滑消失"
+   ]
+  },
+  {
+   "name": "传感器漂移",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.15,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "漂移应呈单调缓变"
+   ],
+   "evidence": [
+    "未见单调基线偏移",
+    "各通道尾部对称"
+   ],
+   "contradiction": [
+    "无趋势性偏移证据"
+   ],
+   "falsification": [
+    "检出单调基线漂移则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "泵性能退化",
+   "mechanism_class": "feed-system-fault",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "退化应表现为流量/电流持续走低"
+   ],
+   "evidence": [
+    "流量-压力-电流关系保持在正常工作点附近"
+   ],
+   "contradiction": [
+    "无工作点漂移证据"
+   ],
+   "falsification": [
+    "工作点持续偏移则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "max z=5.4 / 超限占比 ≤0.6%（长序列正常尾部）",
+   "相干耦合均为物理性"
+  ],
+  "ontology_industry_interpretation": [
+   "闭环回路稳态波动的统计学与物理学解释一致"
+  ],
+  "time_lag": "温度-流量反相（热惯性）",
+  "data_supported_conclusions": [
+   "无跨域持续偏差（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图无事件性尖峰群，波动呈自然随机形态"
+ ],
+ "judge": {
+  "score": 91,
+  "warnings": [],
+  "validation_findings_cited": [
+   "Simpson/离群敏感度校验通过"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "正常结论与统计尾部及相干耦合一致，未过度声称。"
+ },
+ "data_gaps": [],
+ "inference_gaps": [
+  "控制组结论的置信上限受长序列尾部统计不确定限制"
+ ]
+}

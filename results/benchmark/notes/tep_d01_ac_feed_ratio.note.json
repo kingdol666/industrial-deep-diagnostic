@@ -1,0 +1,132 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "A/C 进料比阶跃扰动：进料组成变化经进料控制回路（XMV_3/A 进料、XMV_7/XMV_8 补偿）传播，成分分析仪（XMEAS_31/36）与反应器进料（XMEAS_16）、汽提塔液位（XMEAS_25/35）出现 2.9-4.9σ 的最大偏移，物料平衡侧受扰而能量侧受控。",
+ "confidence": 0.66,
+ "ontology": {
+  "domain": "Tennessee Eastman 反应-分离-循环过程",
+  "physics_notes": "A/C 进料比改变直接改变反应器进料组成，经反应动力学与气液平衡传播到成分分析值与塔系液位；流量控制回路（XMV）对立回收以维持操作点。",
+  "variables": [
+   {
+    "name": "XMEAS_31",
+    "meaning": "产品/进料成分分析"
+   },
+   {
+    "name": "XMEAS_36",
+    "meaning": "成分分析"
+   },
+   {
+    "name": "XMEAS_16",
+    "meaning": "反应器进料相关测量"
+   },
+   {
+    "name": "XMEAS_25",
+    "meaning": "汽提塔测量"
+   },
+   {
+    "name": "XMV_3",
+    "meaning": "A 进料阀"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "A/C 进料比阶跃（进料组成扰动）",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.66,
+   "verdict": "surviving",
+   "logic_chain": [
+    "进料组成阶跃直接改变成分分析仪读数（XMEAS_31/36 z=4.9/4.9）",
+    "组成变化引起反应器进料与塔液位重排（XMEAS_16/25/35）",
+    "流量阀位 r=1.0 的强相关为控制回路补偿，非因果混淆"
+   ],
+   "evidence": [
+    "异常集中于物料平衡/成分链",
+    "能量侧（温度/压力）未主导异常谱"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "若冷却水温异常主导则改为冷却扰动"
+   ],
+   "proof": "组成阶跃→分析值偏移方向一致，量级相当",
+   "predicted": [
+    "成分分析值在阶跃后形成新稳态"
+   ]
+  },
+  {
+   "name": "反应器冷却水扰动",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.18,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "冷却扰动应先见于反应器温度与冷却水出口温度"
+   ],
+   "evidence": [
+    "冷却水温度类通道未进异常前五",
+    "异常谱以成分/液位为主"
+   ],
+   "contradiction": [
+    "温度通道平静与冷却扰动矛盾"
+   ],
+   "falsification": [
+    "冷却水温度通道显著超限则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "汽提塔蒸汽扰动",
+   "mechanism_class": "operating-point",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "蒸汽扰动应先见于汽提塔温度/蒸汽流量"
+   ],
+   "evidence": [
+    "汽提塔温度/蒸汽通道未主导",
+    "塔液位变化可由进料组成解释"
+   ],
+   "contradiction": [
+    "无蒸汽侧先导证据"
+   ],
+   "falsification": [
+    "蒸汽流量异常先导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "成分分析 XMEAS_31/36 z≈4.9 主导",
+   "液位/进料通道跟随",
+   "阀位相关 r=1.0 为回路补偿"
+  ],
+  "ontology_industry_interpretation": [
+   "TEP 中进料组成阶跃是物料平衡侧扰动的典型源"
+  ],
+  "time_lag": "进料→反应器→分离器/汽提塔顺序传播",
+  "data_supported_conclusions": [
+   "异常谱集中于物料侧（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图显示成分通道阶跃后新稳态形态"
+ ],
+ "judge": {
+  "score": 90,
+  "warnings": [
+   "控制回路 r=1.0 相关不应误读为因果"
+  ],
+  "validation_findings_cited": [
+   "多重检验校正后成分链异常仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "进料组成扰动传播链与证据谱一致。"
+ },
+ "data_gaps": [
+  "缺少进料组成在线分析仪真值"
+ ],
+ "inference_gaps": []
+}

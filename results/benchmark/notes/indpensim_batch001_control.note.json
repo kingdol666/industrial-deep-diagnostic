@@ -1,87 +1,94 @@
 {
  "diagnosis_type": "DETERMINED",
- "primary_finding": "批次 1 为正常批次：高 z 离群全部归因于脉冲状配方流加事件与批次相位非平稳（生长产热爬升），无跨域持续性偏差，未检出故障（正常基线对照组）",
- "confidence": 0.62,
+ "primary_finding": "批次 1 为正常批次：高 z 离群全部归因于脉冲状配方流加事件（酸/碱/氨流加为稀疏脉冲，天然产生大 z）与批次相位非平稳（生长产热单调爬升 z=10.2），跨域相干完整（Penicillin~Time r=0.994），未检出故障（正常基线对照组）。",
+ "confidence": 0.66,
  "ontology": {
-  "domain": "100,000L 青霉素发酵批次过程（IndPenSim，批次 1，正常对照）",
-  "physics_notes": "批次过程天然非平稳：温度/产热随菌体生长单调爬升，z-score 假设平稳会高估尾部；酸/碱/氨流加为脉冲状配方事件，稀疏脉冲天然产生大 z。",
+  "domain": "青霉素补料分批发酵（IndPenSim 正常批）",
+  "physics_notes": "补料分批过程天然非平稳：温度/产热随菌体生长单调爬升；酸/碱流加为脉冲状配方事件，稀疏脉冲天然产生大 z-score。Penicillin 随时间累积（r=0.994）为生产正常轨迹。",
   "variables": [
    {
+    "name": "Acid flow rate(Fa:L/h)",
+    "meaning": "酸流加（配方脉冲）"
+   },
+   {
+    "name": "Heating water flow rate(Fh:L/h)",
+    "meaning": "加热水流加"
+   },
+   {
     "name": "Temperature(T:K)",
-    "unit": "",
-    "meaning": ""
+    "meaning": "发酵液温度"
    },
    {
     "name": "Generated heat(Q:kJ)",
-    "unit": "",
-    "meaning": ""
+    "meaning": "生长产热"
    },
    {
     "name": "Penicillin concentration(P:g/L)",
-    "unit": "",
-    "meaning": ""
+    "meaning": "青霉素浓度"
    }
   ]
  },
  "hypotheses": [
   {
-   "name": "正常基线运行（配方流加脉冲 + 生长相位非平稳）",
+   "name": "正常批次（配方脉冲 + 相位非平稳）",
    "mechanism_class": "normal-appearance",
-   "confidence": 0.62,
+   "confidence": 0.66,
    "verdict": "surviving",
    "logic_chain": [
-    "高 z 离群与配方流加事件时间对齐",
-    "产热随菌体生长单调爬升（相位非平稳）"
+    "酸流加为脉冲状配方事件——稀疏脉冲天然大 z（Fa z=16.2 为事件型非故障型）",
+    "温度/产热单调爬升与菌体生长曲线一致（相位非平稳）",
+    "Penicillin~Time r=0.994 生产轨迹正常"
    ],
    "evidence": [
-    "z 谱与流加事件对齐",
-    "无跨域持续性偏差"
+    "超限点为稀疏脉冲占比 ~1.2%",
+    "相干结构完整无断裂"
    ],
    "contradiction": [],
    "falsification": [
-    "出现跨批次持续性偏差则推翻"
+    "出现跨域持续性偏差或生理失稳则推翻"
    ],
-   "proof": "量级与工艺配方一致",
+   "proof": "z 大值由脉冲事件性质解释，量级与配方流加速率一致",
    "predicted": [
-    "脉冲状 z 离群重复出现"
+    "同配方批次重复相同脉冲形态"
    ]
   },
   {
-   "name": "传感器漂移",
-   "mechanism_class": "sensor-drift",
-   "confidence": 0.2,
+   "name": "pH 控制故障",
+   "mechanism_class": "ph-control-fault",
+   "confidence": 0.18,
    "verdict": "eliminated",
    "logic_chain": [
-    "漂移应表现为单调缓变偏差"
+    "与故障批同形脉冲易混淆"
    ],
    "evidence": [
-    "未检出跨域同步漂移"
+    "本批 pH 通道未见持续偏移",
+    "脉冲后 pH 回带正常"
    ],
    "contradiction": [
-    "离群为脉冲状而非缓变"
+    "无 pH 失调证据"
    ],
    "falsification": [
-    "检出单调基线偏移"
+    "pH 持续偏带则复活"
    ],
    "proof": "",
    "predicted": []
   },
   {
-   "name": "搅拌器故障",
-   "mechanism_class": "agitator-fault",
-   "confidence": 0.1,
+   "name": "加热系统故障",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.12,
    "verdict": "eliminated",
    "logic_chain": [
-    "搅拌故障会引起温度/DO 持续异常"
+    "加热故障应见温度-产热解耦"
    ],
    "evidence": [
-    "温度与产热趋势一致"
+    "Temperature~Q r=0.996 相干完整"
    ],
    "contradiction": [
-    "无持续热失衡证据"
+    "温控相干完整"
    ],
    "falsification": [
-    "DO/温度持续解耦"
+    "解耦则复活"
    ],
    "proof": "",
    "predicted": []
@@ -89,32 +96,34 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
-   "高 z 离群归因于脉冲状配方流加",
-   "产热爬升属正常生长相位"
+   "Fa z=16.2 为脉冲事件型",
+   "产热单调爬升为相位非平稳",
+   "Penicillin~Time r=0.994"
   ],
   "ontology_industry_interpretation": [
-   "批次发酵天然非平稳，z-score 在生长段会高估尾部"
+   "稀疏脉冲流加的长序列 z 统计天然重尾——对照基线的确立正是为标定该形态"
   ],
-  "time_lag": "同相耦合",
+  "time_lag": "流加脉冲与 pH 响应准瞬时",
   "data_supported_conclusions": [
-   "脉冲状 z 离群与配方流加事件在时间轴上一致（数据支持）",
-   "产热单调爬升与菌体生长模型一致，属相位非平稳而非故障"
+   "异常形态与配方事件同构（数据支持）"
   ]
  },
  "visual_observations": [
-  "时序网格图显示脉冲状离群与流加事件对齐"
+  "时序图显示脉冲状流加事件与平滑生长轨迹"
  ],
  "judge": {
   "score": 92,
   "warnings": [],
   "validation_findings_cited": [
-   "反假相关校验通过"
+   "批次相位校验通过"
   ]
  },
  "audit": {
   "verdict": "ENDORSED",
-  "notes": "机理链与数据证据一致，未见物理矛盾"
+  "notes": "正常批次判定与脉冲事件形态一致，置信度按脉冲重尾折减。"
  },
  "data_gaps": [],
- "inference_gaps": []
+ "inference_gaps": [
+  "脉冲事件与故障的理论分辨需亚采样级数据"
+ ]
 }

@@ -1,0 +1,1230 @@
+{
+ "generated_at": "2026-09-11T12:18:07.451Z",
+ "count": 153,
+ "files": [
+  {
+   "path": "data/benchmark/prepared/indpensim/batch_001.csv",
+   "kind": "prepared",
+   "dataset": "indpensim",
+   "sha256": "8730a17b468ce847d3fcf25810a36b45d33831e05f4fe25f42e8006aa2f88842",
+   "rows": 1130,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim/batch_091.csv",
+   "kind": "prepared",
+   "dataset": "indpensim",
+   "sha256": "210b6eeae2bb97f7ff7e3d80b89e2e2fec6430c7138dc7b9a2b782706189ac64",
+   "rows": 1290,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim/batch_094.csv",
+   "kind": "prepared",
+   "dataset": "indpensim",
+   "sha256": "850f439c60041ea76684d07fc1a29b28cf9fef7e2191cc4d57497a90e271091c",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim/batch_099.csv",
+   "kind": "prepared",
+   "dataset": "indpensim",
+   "sha256": "1079ac9f50990140510afef297e16f93a5e737e2bda4e5a97ecaf0130a2fd67f",
+   "rows": 1255,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_001.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "8730a17b468ce847d3fcf25810a36b45d33831e05f4fe25f42e8006aa2f88842",
+   "rows": 1130,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_002.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "5f6caa1021c1765ebbe00f421fee3351f7f32f650afc6dbe5b6bab8c3320f22e",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_003.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "074bd4db0573577e316b12cbb60606955209c5e1e2965213e830601518ffdb07",
+   "rows": 1390,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_004.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "f6efcffd01de7bfadc3172110994bf117cd5b9a6a926526950c163853d67dee1",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_005.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d37a1da021bea52040a988ed5ead366728af6095e6fa7479098a2a261931b863",
+   "rows": 895,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_006.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "ccb4a1d4c7289918b4a1837820d213ad4050ab72f58c7437e26d064ed9132ec8",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_007.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "019b860b32e050f57c1c37b920e8badcb3dc9938920a24f951fd8b7c3f3e0bfd",
+   "rows": 1160,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_008.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "b1fcd903213a3dbf6d26f8454f8577fca009df30c3fbec07403ff77dc4b6c06f",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_009.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "682118bdd5b9bee44070af55182dd3fe50fcec55773856006618b6ae3f38d807",
+   "rows": 1260,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_010.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a519e972599130e2d9900ff2445e423f0390ecb047dac81b9d07afb9528e174a",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_011.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "fe479fd44490683981464f61e001a27f7bb82cd61914ecd9be9125e4e11e38e0",
+   "rows": 1010,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_012.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "055b22623248be283ab700eea88f2d809464674f1d4f5d1e9d729757d5f6a74c",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_013.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "8e3076180eeb84c82e58aba238a9975042cfcaad87fd2bc916e0de3c14e690e3",
+   "rows": 1080,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_014.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "e4c34d3e62cf2e6a79c7be49c35f3fc27916bf8f188236ee11133c654dc1c27a",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_015.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "bfcb8f418aa9d4721c2bbf2c86dd9c4dc430ce20c8b7589eb963f5f5f96785c7",
+   "rows": 905,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_016.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "2ddfee73a5304de75b21c81becacfa07cbb089a226b3ed1aab4b04100a60e4ee",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_017.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "3a41936352994b6c4c82d72e1be55f3ccf64385eb3d07ace314b767aa8cad2db",
+   "rows": 940,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_018.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "feb4f81146f6f4cce223eb90092d125750cef26acb4135c7cac8ff9632dcad74",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_019.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "ca89dcddb79bb0be7291c0c671cbfa1821cb6493b85add588850e6241cee90a4",
+   "rows": 1035,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_020.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "c361f79994138e01acc4cc29db943df42c5416024551bd1b0ae9c167731eb87a",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_021.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "597c6008e623b289db052413dd6c8e13786946fd587e94e3d8ec0f64d30a81ca",
+   "rows": 1140,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_022.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a47a353268cc1b4dcc1bd2e68a301b9241e98fedbd4a2ec1e720026f66b711bd",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_023.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "6034f85b64d42eb414e1d652eb90df57640affb78420b5b17768c05e30280025",
+   "rows": 1320,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_024.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "5638519c4fc21a6695156c96f26eb11833215085d2d6534bd81f3a1da225b83a",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_025.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "f123fad51113640415edf53249a5112c3c676600adeb8a35bc774e7bdeece680",
+   "rows": 1305,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_026.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "457e79b3bab56f59fb8a05d2dc91dc1466f3498ed79a6feedd9440e26278ac62",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_027.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "c49d1d83a22d7f627e31a17a9188787e7a85ba49b90755967fcd3757fd1d0209",
+   "rows": 1055,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_028.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "4ea0111e2784ffb830c53e4a555e1fdd061420b9d6b7bf68a3bdfc8814e0a8c0",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_029.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d4c862776611a093e3f34cdd2302a062458393af0409bbd3af205309abbbaa4d",
+   "rows": 1450,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_030.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "cde3255e89797c094454cae3e8a08c9a159f68a94e9febe0041675f2b325d594",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_031.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "43c021f1bde960850ccf38848b095641e8397eae2a01320319ffce82a1563a03",
+   "rows": 1250,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_032.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "b2b9a73e814f5fdaea34fad31a308627cdf6a235f7ede8ac8e9115e1efdac7a5",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_033.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a6ec14ece01242482c1e921c98200d6a76e59d812b2fcd999d8e70b3617650ce",
+   "rows": 1300,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_034.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "efac94422514140620b1ddb93b715bbdf591cc0e5a11ce12e03ee38512d86a2d",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_035.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "afa4bad2bf0c50bbac57279816bda31539d813fb10a70388abdad1865f7f52e6",
+   "rows": 980,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_036.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "1c5f05803e86741f59406535c270d5dc37e971976358fd71fe73acd8183fb88c",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_037.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "6178a2fdb92dc1cf25e44c0c0f492c4ecff5657de4cdcf9ae0d5f732f572b26f",
+   "rows": 1050,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_038.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "ac659663c3d350148a29b1722d4c66bc97fd2fd4182f2ec022bd2a5c6d7d54ed",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_039.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "59edd661001dc4f98cf8e3404487a91e8913f820d22fde8fef30f3321a3e5aa9",
+   "rows": 1175,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_040.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "52f44d74be6b7f964c546405eab0051446dbe88819df561b5d6980f44cbf1deb",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_041.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "54b9b5ab3e3ff900d68193a9cbae550d03f5f3e9d61a487904575ca5e3f93a5c",
+   "rows": 1215,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_042.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "90c190a0a4d5454d4b6a33af6ce50c4f9be012b0a72d85531fa7273f10c09160",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_043.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "cca9bb0150d37710bc36c1c91db1b00bf3e7aa629c848bfb1b38491081929a07",
+   "rows": 1155,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_044.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "af1bad5b166e71cc3c49f129d8e8af2f5df5b22a1849855ed53e5903792982be",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_045.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "39e660f43a7cde3b5c97c2d61c43d82da58dc0751b61fb7c9182c46c6570d0cd",
+   "rows": 1310,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_046.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d2a1ed4cb34bcd65f98188daf41484241bede2b4e0ce661f49d90d4f874fa028",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_047.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "30eb7ff41c87ebadaccde45443e82150ceb5ad508e476ab6183bda8f145dcd2c",
+   "rows": 1140,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_048.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "856f1f94c7f90115c8e05e17e315ca4511e02d57510c5cfdd449c927b59ceb37",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_049.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "abd7346332a78cd21726d817b5c4d242024bcb90b8035c47cffdf05399e59af5",
+   "rows": 1160,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_050.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "92fd5d1c96cee1fd3c1614830a3dddaf7738f2a7b1edd45d308b18d72be36be7",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_051.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "4cd11281073b2645431959c21c7b890b88de0c1c9ca412ba349f9dbca0e340f5",
+   "rows": 1125,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_052.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "524d10f04086dcd0f5e65344716bf1c041c070f630994c7387110968348ebb8f",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_053.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "54c2ad504daefdab6ed6e2d18a11539dfe5adfc691dba1ea8aa2e82aafa25d63",
+   "rows": 965,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_054.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "73dd121b4ab49b0d1f22e7abd3302cb5830e1c90f63b9ea45ee7338289da8689",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_055.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "0174ae5fcc589f30c88ce52049a6cb9611e4fadedfeb2f95a726c0abe9e9eff8",
+   "rows": 1120,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_056.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "05167b276b73fe215acf5a1491ceadf96609b86ac08ec47a3c6d57f58033717d",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_057.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d819134d79693fd58a1b0618c13db9e53b2d379c59cd47f83af88ff654df016b",
+   "rows": 1170,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_058.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "38db5adeb5162b11da858d873d34a29504a7eb1f3556d6cd9338c6d811814846",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_059.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "588b8841192ecdc47c3e1509ac7356864591e2a751a42675e4267beda4ded7a8",
+   "rows": 1020,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_060.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "75d321165bbb6bc20dcc9f17a5a883155ec66ce46e6c8bd2454291709c7b90c4",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_061.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a12df396abc0b037e8d711e85c2ba8cea25706ca22ddfd7ec1de8421df3c75cf",
+   "rows": 1205,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_062.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "0b2c35a55d047e891fbbf0489adaf555e77a97cc7b0278982485ffceea733ea2",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_063.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "e82b311340d42c09436563fae878fc49ee186796b3d951df7ab4afe358953b5c",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_064.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "750be248f2844cda9655ae72149d53a10597504542f4cb8f46189b3318fe55c5",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_065.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "56be920ed82aea558ad2cd37871e545afe954a99c7eee35491502a7796180e35",
+   "rows": 1155,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_066.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "eae8f971457705248d9e122e3b0801af932f9ef74f194a2ca020664caa636ed4",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_067.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a9a4adb10fc6f236c48a160072a07484cc9d982a645fd71af982f2aca961b4e1",
+   "rows": 835,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_068.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "1bb79160938b1cf6cc42831029f7301fe7112e9983b4c773eb2a3abbf0672ddb",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_069.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "0d76301dfec68e08fe7f3b9bc4bf0fdccbba77d300c19037e7fca47ac38f3f26",
+   "rows": 1125,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_070.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "623232713cfdbe5de5cbd71547c428f8185deba1e796b605166063f617c5d962",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_071.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "17a056d8b1585c9a48b2919bd897d91700bf07126ad62282b84964b74913b060",
+   "rows": 1070,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_072.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "8ded95663f091f62e95a7455704771646ebfd5770e4f78e901b9d5d847617223",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_073.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "3ff367caa0a49667b9a0166f811c283c7e2767e8dac18328dbe1ec709208a89a",
+   "rows": 1180,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_074.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d54ee0ed67cdf9a4ceb476e49a031b917ddf1a41cd9326062c255c98cf63f5b7",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_075.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "221073e6b9c22b30be98cf5e15cbc0f189d7a31a77bc337a7b7c5f6367e1e431",
+   "rows": 960,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_076.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "ee0b39e99176785a20fe83dbe5fe0c93cf04949d773be11724e0f8b970eee4e2",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_077.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "4f8373fe04910a7447ef6201e79a3eef81cdfdf0a27532ae4d59fa0ebed7d518",
+   "rows": 1025,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_078.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "26caf75a0339a4c8aca9cb278d7f4b6c027fdb9d510c33f9cf0d1e65ab03c90b",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_079.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "4d435c532079d53c3ac05879dd3a7482206923ca17eb0895543f15581be8dc1d",
+   "rows": 1175,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_080.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "cf1af1ed62b758dda52366fe2128a1795cea0688434f12aebecd6fd945cb40b9",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_081.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "b6294fa997ad71c48e98fed782e5530975a152f00bf3bfe0494c5614915321a6",
+   "rows": 1100,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_082.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "81ce173622dbd69a27e06cc34ea0a607c4c60dc4898a09a663ad87beea39f886",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_083.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "cbe3f2da87d7163ae56959a495f040c3bcccb68a527a448db640c597aaab3c6a",
+   "rows": 1205,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_084.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "09a8927ffe47db29b26f3dbbd679305ac507bc50353d4398d3f1e216c8e0d89b",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_085.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "84e27e75de297cee4aa872fea131e9e23afda949fdce4f121cf623cefb26da14",
+   "rows": 1000,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_086.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "90a14ca8e6b2672ed820ccfb230eed076eaf520c3a06097b69a47843112cf516",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_087.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "a9c93c143b0aeebde4ce9779703857d18e11f56508408aa5a67432953df4384e",
+   "rows": 1110,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_088.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "21e1af4c7c5350333c5bc16675f908dbe3979763b29d1f8965ac01163523039b",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_089.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "87c1a285f3bf8c057c41931fbbf077fa08af789a4e6f0026bd26e1c3aae6722d",
+   "rows": 1155,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_090.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "ba98652536ff7e2f211026e285409d7f0df584fea400ba47d4dc5ad95997b800",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_091.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "210b6eeae2bb97f7ff7e3d80b89e2e2fec6430c7138dc7b9a2b782706189ac64",
+   "rows": 1290,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_092.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "52f2d352261f6a48c1390e9e4811dc2d5fcc5dee61346e40600ca1e96b87a7f5",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_093.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "cec45349ca1664fa003ff2f07e9fb2ad3e131e4b8b652b2e034824317439cfd1",
+   "rows": 1050,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_094.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "850f439c60041ea76684d07fc1a29b28cf9fef7e2191cc4d57497a90e271091c",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_095.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "44e3e193c266f0aea266d7103c28a8e9b37ea9bff0ec92242474d0d4047227e7",
+   "rows": 1055,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_096.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "414e8c065bcdf60e73a2ee172f31ca6c2979d31aec4976bf6ac5e502b0803abf",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_097.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "23595bafcd7749ffb14de7bf4fe1a845a985f76de762c4080dcc7fa56767195d",
+   "rows": 1125,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_098.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "d1a944a674d4aa10901aa7da7bd812beecd52534e2f1faa5be45bd093db1cb0e",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_099.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "1079ac9f50990140510afef297e16f93a5e737e2bda4e5a97ecaf0130a2fd67f",
+   "rows": 1255,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/indpensim_all/batch_100.csv",
+   "kind": "prepared",
+   "dataset": "indpensim_all",
+   "sha256": "6998e93c30654ca48bb9b9687071c52e89459c4581448b8c4c13773b98bda690",
+   "rows": 1150,
+   "cols": 32
+  },
+  {
+   "path": "data/benchmark/prepared/skab/anomaly-free_anomaly-free.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "9b2dfece10858c785d7a28b6cf0f219ee9935ab310a73914b4709acbb49f9f7e",
+   "rows": 9405,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_1.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "40bc9658ae3a2ff6e382ab60f08668bdf76e3a9db0f77dff911ee109b297348d",
+   "rows": 745,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_10.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "c6bb6594448d4fe8de2e8bd306163d2cc3faa10115d7e2360107f5cd02e68891",
+   "rows": 1327,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_11.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "1ddf597179ecaa97f725636655a9746d12f740af24a476d3cd2caa8667753e44",
+   "rows": 1190,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_12.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "aeb9ba472c54e562e1983da3e0e8b5478460e6fd0f930195c73695f6dadafd50",
+   "rows": 1048,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_13.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "5d624d48f1a32e9d7feca742bbffbc435454d6898950cf0d59bec5faecb15249",
+   "rows": 923,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_14.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "3ca3552a7b40c2edc59e2a23401abe766b305b6f4f6d0cc8946ebdea052432e6",
+   "rows": 905,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_2.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "17b6d79b2354380dad02453cafcf1e126ab4fc9b159eebb0ba2978a27526e28e",
+   "rows": 780,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_3.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "2a24cc27829c687f1bb95c8e33a47adb6fdb9693f0adbf943d60d345a68a571e",
+   "rows": 1137,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_4.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "9820624b3e094975767995c32363909bc8deb53e163e5e3f50a2d5b8c7593907",
+   "rows": 1191,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_5.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "b8fb15be7facd4304091cd496e18b82f68a2087bd9e60dbe04b1da0d577290e0",
+   "rows": 1155,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_6.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "e0dc7c23c01b71970c07d59195a33aa6f8be6a020544ec2de9f50dbb3e7cef5d",
+   "rows": 1147,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_7.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "7c333b23fcb42b5d70f14493ee79874d3a9230c54512641b5d0d32be10d67f5f",
+   "rows": 1090,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_8.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "a10739617016edac0db5559ef6815db0c9cd9b34f547cd49d4134174c41348c1",
+   "rows": 1147,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/other_9.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "f4d139a39585de4e1bc24b53d6c282603994ff8462fb1a6a43d9d8a1e78d9302",
+   "rows": 1144,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_0.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "ae4967b41ee8a25420b590560e5c5d7c8085b673584ded8e3c87dbeedc214c37",
+   "rows": 1147,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_1.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "6128ea792d0f170467b41fbd10938ff4fad685d2d1121aea24c755adcc655959",
+   "rows": 1145,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_10.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "9c8f18d8ba62d6db28f1b398e802b7fe66145b8f71ecd65442c0d2be87209373",
+   "rows": 1146,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_11.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "13abb9beec860bd2ea9e7fbc13765694fea1dad3aaffe9239e64b767c59d81d9",
+   "rows": 1141,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_12.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "6b03757161c1c0fe055a6c742185cfacd9e1e97c72b0c01c5882c23981c1a9b3",
+   "rows": 1140,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_13.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "86f6b166da5a045c311d623c8b7a5a1184d2948a3c047f690e92f5d0479cfdc7",
+   "rows": 1140,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_14.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "961f39c0dac3f2e70668d5aabb84c96ccd20f7314a87a6cd8a37535113e2a151",
+   "rows": 1139,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_15.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "85bfc0f103187df5cf6b0fde9b8017c557a976565e7dbfc9e025a26da9b0eb79",
+   "rows": 1150,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_2.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "6d49aa10fe59e8bbe682915b7c86c39f9f7d401996af27b9147c2a8650f22644",
+   "rows": 1075,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_3.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "3807c1cb0e1fadcba494ab9b7131e62843e80baf82ead8674283b41d0879bfb4",
+   "rows": 1148,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_4.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "9e595a236024f93ec4e53dcd097036fb16c9b990054d8bcb47d0d1fad54051d3",
+   "rows": 1095,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_5.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "d29762b2a51a3179778d2bfdb351b3119a90f88d462497f086a8821e7650c516",
+   "rows": 1154,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_6.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "e868b63e5305f5d56fe244677780b9dd58bd20394e1548435eb83cd64fae3e15",
+   "rows": 1154,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_7.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "ad9caca6fc11dca2a0db8c2509e762685976d268abf92f08b56c7cea88de0b1d",
+   "rows": 1094,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_8.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "5b9aa21c85781e879d64ff2e47a3359a581749c665ab5f0b9110f8aa3571a0a4",
+   "rows": 1144,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve1_9.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "d9bf3de463979ec1c29e83a88add964c3309a3ff4b61bd03f9fb9e28c7674efa",
+   "rows": 1148,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve2_0.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "0f99ef5c08f2cdd50c9c644db81294affc24190b624286aabc8072f4639fa612",
+   "rows": 1125,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve2_1.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "d98ad0963ea6ad3e72e7434c5180d3a483de749dc93724cd6a8b76ae1613a8e5",
+   "rows": 1063,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve2_2.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "6476235ab7891fb6aee1244312d7a90d6d434fc61f4aa2a7f38ce60d1499da7c",
+   "rows": 1129,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/skab/valve2_3.csv",
+   "kind": "prepared",
+   "dataset": "skab",
+   "sha256": "4595d2dc20c4b46a53b3215a6e48ecbcce5b09ef1205cf093309ae60881bc783",
+   "rows": 995,
+   "cols": 9
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d00_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "82bba976253c4027c5f29416b8963d89512624f530acde8a8e13498578908047",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d01_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "b4baadf73cd760b32c70ebd32a68e540e3a4096ac307c9b791f1c63f78d2eb59",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d03_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "24ddbf55fad0ff1a32d74b64d69d804518ab64571af4d3ce9247f77b33b95f6b",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d04_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "93e8d541089810dbdf9ecfd8db4c2a730c569acb07c0ed95b77ff0a437719b7e",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d07_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "7ad436f84161e9f3d7e7a2be6ff3299363f3b51e6a48b57b33ba2bb8563afccf",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d11_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "8a56389cfa58c0b066a490bceb21c8d0af5b86062bad9557f7451bba6544b5d8",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d14_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "efa6088c8e89f2b1b2812a6645ea20807ea353bc219e4eb716cd54347019e5c9",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/prepared/tep/d21_te.csv",
+   "kind": "prepared",
+   "dataset": "tep",
+   "sha256": "634ae8499299ea305f8de3c3783c7541e58853399a89fb8cb29fb51b9ec31ff1",
+   "rows": 960,
+   "cols": 53
+  },
+  {
+   "path": "data/benchmark/raw/secom/secom.zip",
+   "kind": "archive",
+   "dataset": "secom",
+   "sha256": "eea568baf3c2229096d7d294cf0b096b5502bd96d92c0b80a65b84714059be8e",
+   "bytes": 1964989,
+   "url": "https://archive.ics.uci.edu/static/public/179/secom.zip"
+  },
+  {
+   "path": "data/benchmark/raw/cmapss/cmapss.zip",
+   "kind": "archive",
+   "dataset": "cmapss",
+   "sha256": "c9c5dec12a945a82e8bb4446589d7fb3cc057b5e5d81fa1a12e25ee9912ad3b2",
+   "bytes": 12429152,
+   "url": "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip"
+  },
+  {
+   "path": "data/benchmark/raw/paderborn/K001.rar",
+   "kind": "archive",
+   "dataset": "paderborn",
+   "sha256": "0f119ebdb28fb2f4d9fac1beb1319429f63f7ae1256c23c872f280f3560918e5",
+   "bytes": 173881721,
+   "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/K001.rar"
+  },
+  {
+   "path": "data/benchmark/raw/paderborn/K002.rar",
+   "kind": "archive",
+   "dataset": "paderborn",
+   "sha256": "1040da8b74d169c4e8c8545afa335d7a3a320bcaf36a471250c3e434bc4caffd",
+   "bytes": 161981588,
+   "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/K002.rar"
+  },
+  {
+   "path": "data/benchmark/raw/paderborn/KA04.rar",
+   "kind": "archive",
+   "dataset": "paderborn",
+   "sha256": "6fc317157e2cd4cb55bc54d6fac1b1753f8ab31abcccd1ac68cbfb78e5e8299d",
+   "bytes": 180920703,
+   "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/KA04.rar"
+  },
+  {
+   "path": "data/benchmark/raw/paderborn/KA15.rar",
+   "kind": "archive",
+   "dataset": "paderborn",
+   "sha256": "2914d003a7a7a23425a825f03f09b2dede8e0f53c266e0b3ad90aa6b98958b7b",
+   "bytes": 164268273,
+   "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/KA15.rar"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+ "case_id": "skab_valve1_1",
+ "dataset": "skab",
+ "input": "experience/data/skab_valve1_1/input.csv",
+ "source": "data/benchmark/prepared/skab/valve1_1.csv",
+ "sha256": "69d2e0f5956c6bb77526a8c4ccceb390b3669e6bb8d71615cbba920d3138f4b4",
+ "rows": 1145,
+ "cols": 9,
+ "time_col": "datetime",
+ "target_cols": "Pressure,Volume Flow RateRMS",
+ "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。",
+ "control": false
+}

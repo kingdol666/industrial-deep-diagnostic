@@ -1,0 +1,123 @@
+{
+ "generated_at": "2026-09-11",
+ "count": 9,
+ "inputs": [
+  {
+   "case_id": "skab_valve1_1",
+   "dataset": "skab",
+   "input": "experience/data/skab_valve1_1/input.csv",
+   "source": "data/benchmark/prepared/skab/valve1_1.csv",
+   "sha256": "69d2e0f5956c6bb77526a8c4ccceb390b3669e6bb8d71615cbba920d3138f4b4",
+   "rows": 1145,
+   "cols": 9,
+   "time_col": "datetime",
+   "target_cols": "Pressure,Volume Flow RateRMS",
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。",
+   "control": false
+  },
+  {
+   "case_id": "skab_cavitation_13",
+   "dataset": "skab",
+   "input": "experience/data/skab_cavitation_13/input.csv",
+   "source": "data/benchmark/prepared/skab/other_13.csv",
+   "sha256": "9face62601fab3c6d236835c1d32a3b9243cd4a1777a5e1ed7d0f0fc5ab7863a",
+   "rows": 923,
+   "cols": 9,
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。本文件来自other实验组（故障类型不下发，仅提供传感器语义）。",
+   "control": false
+  },
+  {
+   "case_id": "skab_normal_control",
+   "dataset": "skab",
+   "input": "experience/data/skab_normal_control/input.csv",
+   "source": "data/benchmark/prepared/skab/anomaly-free_anomaly-free.csv",
+   "sha256": "d013616c7d766a0b87aa0c7aaab43135705572178270841c4a35491f7fffe6fc",
+   "rows": 9405,
+   "cols": 9,
+   "time_col": "datetime",
+   "target_cols": "Pressure,Volume Flow RateRMS",
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。",
+   "control": true
+  },
+  {
+   "case_id": "tep_d01_ac_feed_ratio",
+   "dataset": "tep",
+   "input": "experience/data/tep_d01_ac_feed_ratio/input.csv",
+   "source": "data/benchmark/prepared/tep/d01_te.csv",
+   "sha256": "6f859db77806accfac04dfd2a43bfb1c7ece6597560270310400c390cb07cce2",
+   "rows": 960,
+   "cols": 53,
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_7",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。",
+   "control": false
+  },
+  {
+   "case_id": "tep_d03_hard",
+   "dataset": "tep",
+   "input": "experience/data/tep_d03_hard/input.csv",
+   "source": "data/benchmark/prepared/tep/d03_te.csv",
+   "sha256": "3b3cec233428b9fb575f30cbd26e659177a02ecdfad1770e294fd9e79bf5fac7",
+   "rows": 960,
+   "cols": 53,
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_2",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为文献公认统计难检故障（IDV 3）。",
+   "control": false
+  },
+  {
+   "case_id": "tep_d00_normal_control",
+   "dataset": "tep",
+   "input": "experience/data/tep_d00_normal_control/input.csv",
+   "source": "data/benchmark/prepared/tep/d00_te.csv",
+   "sha256": "6b51b22668ab220fd51ebd914333680e28378d257cf66903f8fb8cb89109fc33",
+   "rows": 960,
+   "cols": 53,
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_7",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。",
+   "control": true
+  },
+  {
+   "case_id": "indpensim_batch091",
+   "dataset": "indpensim",
+   "input": "experience/data/indpensim_batch091/input.csv",
+   "source": "data/benchmark/prepared/indpensim/batch_091.csv",
+   "sha256": "69efb8d907f7bd962c50d1a943d4162df46f3fd203afe326f26f4938c0dcf1f4",
+   "rows": 1290,
+   "cols": 32,
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。",
+   "control": false
+  },
+  {
+   "case_id": "indpensim_batch093",
+   "dataset": "indpensim",
+   "input": "experience/data/indpensim_batch093/input.csv",
+   "source": "data/benchmark/prepared/indpensim_all/batch_093.csv",
+   "sha256": "598dbcc4356f3806544e0231173b2a15f12416cf79ab35de9b28b49ee144d6e0",
+   "rows": 1050,
+   "cols": 32,
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。",
+   "control": false
+  },
+  {
+   "case_id": "indpensim_batch001_control",
+   "dataset": "indpensim",
+   "input": "experience/data/indpensim_batch001_control/input.csv",
+   "source": "data/benchmark/prepared/indpensim/batch_001.csv",
+   "sha256": "9c0de4af8cb68d3e8262c826f33ce5765213ccca7f0264de3cf7016af5bf2e6d",
+   "rows": 1130,
+   "cols": 32,
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。本批为 recipe 驱动正常批次。",
+   "control": true
+  }
+ ]
+}

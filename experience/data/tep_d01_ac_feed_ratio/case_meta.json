@@ -1,0 +1,13 @@
+{
+ "case_id": "tep_d01_ac_feed_ratio",
+ "dataset": "tep",
+ "input": "experience/data/tep_d01_ac_feed_ratio/input.csv",
+ "source": "data/benchmark/prepared/tep/d01_te.csv",
+ "sha256": "6f859db77806accfac04dfd2a43bfb1c7ece6597560270310400c390cb07cce2",
+ "rows": 960,
+ "cols": 53,
+ "time_col": "timestamp",
+ "target_cols": "XMEAS_9,XMEAS_7",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。",
+ "control": false
+}

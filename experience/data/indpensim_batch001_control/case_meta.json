@@ -1,0 +1,13 @@
+{
+ "case_id": "indpensim_batch001_control",
+ "dataset": "indpensim",
+ "input": "experience/data/indpensim_batch001_control/input.csv",
+ "source": "data/benchmark/prepared/indpensim/batch_001.csv",
+ "sha256": "9c0de4af8cb68d3e8262c826f33ce5765213ccca7f0264de3cf7016af5bf2e6d",
+ "rows": 1130,
+ "cols": 32,
+ "time_col": "Time (h)",
+ "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+ "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。本批为 recipe 驱动正常批次。",
+ "control": true
+}

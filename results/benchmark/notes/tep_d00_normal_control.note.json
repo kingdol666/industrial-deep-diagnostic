@@ -1,0 +1,120 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "TEP 正常基线运行：全部异常为温和尾部（max z=3.97、超 3σ 占比≤0.6%），最强相关均为控制回路本征耦合（XMEAS_12~XMV_7 r=1.0、XMEAS_15~XMV_8 r=1.0），物料-能量侧均无持续性偏差，未检出故障。",
+ "confidence": 0.64,
+ "ontology": {
+  "domain": "Tennessee Eastman 过程（稳态基线）",
+  "physics_notes": "稳态下液位-阀位、流量-阀位构成回路本征强相关；扰动静默时统计尾部由测量噪声与小幅操作波动构成。",
+  "variables": [
+   {
+    "name": "XMEAS_12",
+    "meaning": "分离器液位"
+   },
+   {
+    "name": "XMV_7",
+    "meaning": "分离器罐阀"
+   },
+   {
+    "name": "XMEAS_15",
+    "meaning": "汽提塔液位"
+   },
+   {
+    "name": "XMV_8",
+    "meaning": "汽提塔蒸汽阀"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "正常运行（噪声+小幅操作波动）",
+   "mechanism_class": "normal-appearance",
+   "confidence": 0.64,
+   "verdict": "surviving",
+   "logic_chain": [
+    "超 3σ 占比≤0.6%，符合噪声尾部",
+    "强相关全部为回路本征（阀位-液位）"
+   ],
+   "evidence": [
+    "XMEAS_12~XMV_7 r=1.000 液位-阀位回路",
+    "XMEAS_17~XMV_11 r=-0.999 流量调节"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "出现跨单元传播的持续偏差则推翻"
+   ],
+   "proof": "尾部量级与仪表噪声带一致",
+   "predicted": [
+    "尾部统计随更长窗口收敛"
+   ]
+  },
+  {
+   "name": "小幅未建模扰动残留",
+   "mechanism_class": "operating-point",
+   "confidence": 0.2,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "残留扰动应形成通道簇"
+   ],
+   "evidence": [
+    "异常通道分散且无传播链"
+   ],
+   "contradiction": [
+    "无簇结构"
+   ],
+   "falsification": [
+    "形成跨单元传播簇则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "传感器毛刺",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "毛刺应孤立单点"
+   ],
+   "evidence": [
+    "未占主导且无孤立尖峰证据"
+   ],
+   "contradiction": [
+    "尾部为弥散而非孤立"
+   ],
+   "falsification": [
+    "孤立尖峰成簇则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "max z=3.97",
+   "回路本征相关主导"
+  ],
+  "ontology_industry_interpretation": [
+   "TEP 稳态的统计基线即由回路耦合构成"
+  ],
+  "time_lag": "阀位-液位近瞬时（回路作用）",
+  "data_supported_conclusions": [
+   "无传播链（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图呈稳态噪声带"
+ ],
+ "judge": {
+  "score": 91,
+  "warnings": [],
+  "validation_findings_cited": [
+   "反假相关校验剔除定义性相关"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "正常结论与回路耦合结构一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

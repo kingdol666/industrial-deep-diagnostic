@@ -1,0 +1,13 @@
+{
+ "case_id": "indpensim_batch093",
+ "dataset": "indpensim",
+ "input": "experience/data/indpensim_batch093/input.csv",
+ "source": "data/benchmark/prepared/indpensim_all/batch_093.csv",
+ "sha256": "598dbcc4356f3806544e0231173b2a15f12416cf79ab35de9b28b49ee144d6e0",
+ "rows": 1050,
+ "cols": 32,
+ "time_col": "Time (h)",
+ "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+ "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。",
+ "control": false
+}

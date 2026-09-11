@@ -1,0 +1,103 @@
+{
+ "generated_at": "2026-09-11",
+ "protocol_note": "口径A=同任务直接对比（故障级根因诊断）；口径B=跨任务量级参照（样本级检测分类）。本表严格区分两种口径，不混比。",
+ "same_task_direct": [
+  {
+   "id": "faultexplainer-gpt4o",
+   "paper": "FaultExplainer (C&CE 2025)",
+   "source": "github.com/li-group/FaultExplainer",
+   "task": "TEP 根因诊断（11 个 PCA 可检故障，含根因清单提示）",
+   "metric": "Top-1 正确率",
+   "value": "7/11 (63.6%)",
+   "caveat": "含根因清单提示；11 故障小样本；教科书记忆污染风险"
+  },
+  {
+   "id": "faultexplainer-o1",
+   "paper": "FaultExplainer (C&CE 2025)",
+   "source": "github.com/li-group/FaultExplainer",
+   "task": "同上",
+   "metric": "Top-1 正确率",
+   "value": "9/11 (81.8%)",
+   "caveat": "同上（o1-preview 推理模型）"
+  },
+  {
+   "id": "idd-tier0",
+   "paper": "本系统 (IDD, 2026)",
+   "source": "results/benchmark/metrics.json",
+   "task": "TEP 根因诊断（d01 组成阶跃 + d03 难检温度阶跃 + 正常控制）",
+   "metric": "Top-1 正确率 / CDR",
+   "value": "2/2 故障 case 100%（Top-1）；CDR=1.0",
+   "caveat": "n=2 故障 case（ tier0 冒烟规模），统计效力弱于 11 case；难检故障 d03 亦命中"
+  }
+ ],
+ "reference_only": [
+  {
+   "id": "pozdnyakov-tep",
+   "paper": "Pozdnyakov et al. (IEEE OJIES 2024), 10.1109/OJIES.2024.3401396",
+   "dataset": "TEP",
+   "baselines": {
+    "MLP": 0.8873,
+    "GRU": 0.9067,
+    "TCN": 0.8985
+   },
+   "metric": "样本级故障分类准确率",
+   "note": "口径B：逐样本分类 vs 本系统故障级 RCA，仅量级参照"
+  },
+  {
+   "id": "hartung-tep",
+   "paper": "Hartung et al. (arXiv:2303.05904)",
+   "dataset": "TEP",
+   "baselines": {
+    "BeatGAN F1": 0.9699,
+    "TCN-S2S-AE F1": 0.9632
+   },
+   "metric": "样本级异常检测 F1",
+   "note": "口径B：无监督检测 vs 根因诊断，仅参照"
+  },
+  {
+   "id": "iliopoulos-skab",
+   "paper": "Iliopoulos et al. (IEEE BigDataService 2023), 10.1109/BigDataService58306.2023.00007",
+   "dataset": "SKAB",
+   "baselines": {
+    "Stacking+LR F1/AUC": "0.85/0.88",
+    "ConvAE F1/AUC": "0.7622/0.8117"
+   },
+   "metric": "样本级异常检测 F1/AUC",
+   "note": "口径B：SKAB 逐样本检测 vs 本系统 SKAB 故障级 RCA（本系统 SKAB Top-1 2/2、控制组零误报）"
+  },
+  {
+   "id": "vieira-bearing",
+   "paper": "Vieira et al. (MSSP 2026), 10.1016/j.ymssp.2026.114640",
+   "dataset": "CWRU/Paderborn/UORED",
+   "baselines": {
+    "WDCNN UORED MacroAUROC": 0.9312,
+    "RF CWRU MacroAUROC": 0.8506
+   },
+   "metric": "泄漏受控 Macro AUROC",
+   "note": "口径B：轴承分类 vs 本系统（轴承轨暂未纳入 tier0）——其泄漏可控协议为本系统 P1 case 设计依据"
+  }
+ ],
+ "aei_adjacent": [
+  {
+   "id": "aei-stacgg",
+   "paper": "Liu et al., Spatial-temporal adaptive causality graph root cause location (AEI 2025)",
+   "doi": "10.1016/j.aei.2025.103765",
+   "relation": "最同源：时变工业过程根因定位",
+   "status": "实验细节付费墙未核实——定性对标，禁止引用未核实数字"
+  },
+  {
+   "id": "aei-ckm",
+   "paper": "Yue et al., Root cause analysis via causal knowledge map (AEI 2023)",
+   "doi": "10.1016/j.aei.2023.102057",
+   "relation": "知识图谱式 RCA，与本系统本体层对标",
+   "status": "实验细节未核实"
+  },
+  {
+   "id": "aei-labelfree",
+   "paper": "Liu et al., Label-free evaluation of FD models (AEI 2024)",
+   "doi": "10.1016/j.aei.2024.102912",
+   "relation": "无标签评估思路与本系统置信校准维度互补",
+   "status": "未核实"
+  }
+ ]
+}

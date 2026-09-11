@@ -1,0 +1,13 @@
+{
+ "case_id": "tep_d00_normal_control",
+ "dataset": "tep",
+ "input": "experience/data/tep_d00_normal_control/input.csv",
+ "source": "data/benchmark/prepared/tep/d00_te.csv",
+ "sha256": "6b51b22668ab220fd51ebd914333680e28378d257cf66903f8fb8cb89109fc33",
+ "rows": 960,
+ "cols": 53,
+ "time_col": "timestamp",
+ "target_cols": "XMEAS_9,XMEAS_7",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。",
+ "control": true
+}

@@ -1,0 +1,128 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "酸流加与加热流加的双通道强扰动（pH-温度控制联合失调）：Fa z=15.8 与加热水 Fh z=13.1 极端异常并伴 pH z=7.1 偏移，温度-产热 r=0.996 仍生理相干——两类辅料流加回路同时大幅动作，指向控制执行侧（泵/阀）失调而非代谢故障。",
+ "confidence": 0.64,
+ "ontology": {
+  "domain": "青霉素补料分批发酵（IndPenSim）",
+  "physics_notes": "pH 失调引发酸流加正反馈式加大；酸注入扰动温度后加热水 Fh 补偿——Fa 与 Fh 同时极端化是执行侧失调的指纹。",
+  "variables": [
+   {
+    "name": "Acid flow rate(Fa:L/h)",
+    "meaning": "酸流加"
+   },
+   {
+    "name": "Heating water flow rate(Fh:L/h)",
+    "meaning": "加热水流加"
+   },
+   {
+    "name": "pH(pH:pH)",
+    "meaning": "发酵液 pH"
+   },
+   {
+    "name": "Heating/cooling water flow rate(Fc:L/h)",
+    "meaning": "冷却水流加"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "pH-温度辅料流加执行侧失调（酸/加热双通道）",
+   "mechanism_class": "ph-control-fault",
+   "confidence": 0.64,
+   "verdict": "surviving",
+   "logic_chain": [
+    "Fa z=15.8 + Fh z=13.1 双通道极端化",
+    "pH z=7.1 联动偏移",
+    "温度-产热 r=0.996 生理相干（代谢未失稳）"
+   ],
+   "evidence": [
+    "异常集中于执行流加通道",
+    "生理学相干完整"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "若 OUR/CER 偏离生理带则改为代谢故障"
+   ],
+   "proof": "双辅料回路同时极端动作的量级无法由代谢波动解释",
+   "predicted": [
+    "执行侧恢复后 Fa/Fh 同步回基线"
+   ]
+  },
+  {
+   "name": "污染/染菌导致代谢失稳",
+   "mechanism_class": "agitator-fault",
+   "confidence": 0.18,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "染菌应表现 OUR/CER/pH 的缓慢生理漂移"
+   ],
+   "evidence": [
+    "生理通道相干完整",
+    "扰动为快变执行型而非慢变生理型"
+   ],
+   "contradiction": [
+    "快变执行形态与染菌慢漂矛盾"
+   ],
+   "falsification": [
+    "出现慢变生理漂移则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "搅拌器故障",
+   "mechanism_class": "agitator-fault",
+   "confidence": 0.14,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "搅拌故障应见温度分布失匀与 DO 异常"
+   ],
+   "evidence": [
+    "DO/OUR 相干保持",
+    "无搅拌侧直接证据"
+   ],
+   "contradiction": [
+    "无搅拌扰动指纹"
+   ],
+   "falsification": [
+    "DO 失稳则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "Fa z=15.8 / Fh z=13.1 双通道极端",
+   "pH z=7.1 联动",
+   "生理相干保持"
+  ],
+  "ontology_industry_interpretation": [
+   "执行侧（泵/阀）失调是双辅料通道同时极端化的首要解释"
+  ],
+  "time_lag": "酸-加热补偿交联准瞬时",
+  "data_supported_conclusions": [
+   "双通道执行型异常谱（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图显示 Fa/Fh 大幅方波状动作段"
+ ],
+ "judge": {
+  "score": 90,
+  "warnings": [],
+  "validation_findings_cited": [
+   "去趋势后双通道异常仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "执行侧失调解释与双通道极端谱一致。"
+ },
+ "data_gaps": [
+  "无阀位/泵状态反馈"
+ ],
+ "inference_gaps": [
+  "泵或阀何者失调不可分辨"
+ ]
+}
