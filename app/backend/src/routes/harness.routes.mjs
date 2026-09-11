@@ -18,6 +18,7 @@
 
 import { Router } from 'express';
 import { listHarnesses, getHarness } from '../harness/registry.mjs';
+import { resolveBestAvailableHarness } from '../harness/engines.mjs';
 import { HarnessNotFoundError, HarnessNotSupportedError } from '../harness/base.mjs';
 
 const router = Router();
@@ -26,8 +27,8 @@ function ok(res, data) {
   res.json({ success: true, data });
 }
 
-function fail(res, status, message) {
-  res.status(status).json({ success: false, error: message });
+function fail(res, status, message, code) {
+  res.status(status).json({ success: false, code: code || 'HARNESS_ERROR', error: message });
 }
 
 function resolve(res, id) {
@@ -35,16 +36,51 @@ function resolve(res, id) {
     return getHarness(id);
   } catch (e) {
     if (e instanceof HarnessNotFoundError) {
-      fail(res, 404, e.message);
+      fail(res, 404, e.message, 'HARNESS_NOT_FOUND');
       return null;
     }
-    fail(res, 500, e.message);
+    fail(res, 500, e.message, 'HARNESS_INTERNAL');
     return null;
   }
 }
 
 /** GET /api/harness — list all engines */
 router.get('/', (req, res) => ok(res, listHarnesses()));
+
+/** GET /api/harness/default — the default harness (best-adapted available).
+ *  Returns 503 HARNESS_NONE_AVAILABLE when even the in-process fallback fails. */
+router.get('/default', async (_req, res) => {
+  try {
+    const id = await resolveBestAvailableHarness();
+    ok(res, { id, manifest: getHarness(id).manifest() });
+  } catch (e) {
+    fail(res, 503, `No harness available: ${e.message}`, 'HARNESS_NONE_AVAILABLE');
+  }
+});
+
+/** GET /api/harness/availability — one-shot availability of every engine
+ *  (frontend dropdown greying). Probes are cached server-side (30s).
+ *  `default: true` marks the best-adapted AVAILABLE engine (config
+ *  harness.default, then adaptation chain) — external callers that omit the
+ *  harness field get this engine. */
+router.get('/availability', async (_req, res) => {
+  const manifests = listHarnesses();
+  const results = await Promise.all(manifests.map(async (m) => {
+    try {
+      const h = getHarness(m.id);
+      const health = await h.health();
+      return { id: m.id, name: m.name, capabilities: m.capabilities, processModel: m.processModel || null, homepage: m.homepage || null, ...health };
+    } catch (e) {
+      return { id: m.id, name: m.name, capabilities: m.capabilities, processModel: m.processModel || null, homepage: m.homepage || null, available: false, meta: { probe_error: e.message } };
+    }
+  }));
+  let defaultId = null;
+  try {
+    defaultId = await resolveBestAvailableHarness();
+  } catch { defaultId = null; }
+  for (const r of results) r.default = r.id === defaultId;
+  ok(res, results);
+});
 
 /** GET /api/harness/:id/health */
 router.get('/:id/health', async (req, res) => {

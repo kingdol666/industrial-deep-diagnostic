@@ -135,7 +135,7 @@ export function buildPrompt(sceneName, userQuestion, target, reportLanguage, fol
     const fileList = target.dataFiles.map(f => sanitize(basename(f))).join(', ');
     dataDescription = `Folder (absolute path): ${safeFolder}\n  Files (${target.dataFiles.length}): ${fileList}`;
   } else {
-    dataDescription = `File (absolute path): ${sanitize(target.dataPath)}`;
+    dataDescription = `File (absolute path): ${sanitize(target.dataPath || '(missing data path)')}`;
   }
 
   const langRule = reportLanguage === 'zh'

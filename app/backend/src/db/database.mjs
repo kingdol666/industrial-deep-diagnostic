@@ -1,10 +1,10 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { resolve, dirname } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 
-const DB_PATH = join(PROJECT_ROOT, config.database.path);
+const DB_PATH = resolve(PROJECT_ROOT, config.database.path); // absolute DATABASE_PATH overrides are honored
 mkdirSync(dirname(DB_PATH), { recursive: true });
 
 const db = new Database(DB_PATH);

@@ -156,6 +156,7 @@ class WebSearchEngine:
         url = f"{self.daemon_url}/search"
         params = f"q={self._urlencode(query)}&limit={max_results}"
         full_url = f"{url}?{params}"
+        self._assert_safe_url(full_url)
 
         req = Request(full_url, headers={"Accept": "application/json"})
         with urlopen(req, timeout=self.timeout_seconds) as resp:
@@ -177,6 +178,7 @@ class WebSearchEngine:
             return []
 
         url = self.fallback_url.replace("{query}", self._urlencode(query))
+        self._assert_safe_url(url)
         req = Request(url, headers={
             "Accept": "application/json",
             "User-Agent": "RAG-Retrieval-Engine/1.0",
@@ -390,3 +392,23 @@ class WebSearchEngine:
     def _urlencode(s: str) -> str:
         from urllib.parse import quote
         return quote(s, safe='')
+
+    @staticmethod
+    def _assert_safe_url(url: str) -> None:
+        """SSRF guard: http/https only, never loopback/private/reserved hosts."""
+        from urllib.parse import urlparse
+        import ipaddress
+        parsed = urlparse(str(url))
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"blocked URL scheme: {parsed.scheme}")
+        host = (parsed.hostname or "").lower()
+        if not host or host in ("localhost",) or host.endswith((".local", ".internal")):
+            raise ValueError(f"blocked URL host: {host}")
+        try:
+            addrs = {ai[4][0] for ai in __import__("socket").getaddrinfo(host, None)}
+        except OSError:
+            return  # unresolvable here — the HTTP layer will surface the real error
+        for a in addrs:
+            ip = ipaddress.ip_address(a.split("%")[0])
+            if ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+                raise ValueError(f"blocked URL address: {a}")

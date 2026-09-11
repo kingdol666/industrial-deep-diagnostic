@@ -50,6 +50,46 @@ omp:
   timeout_minutes: 120                       # Mapped to --max-time
   health_timeout_ms: 8000                    # `omp --version` probe timeout for harness health
 
+# --- Multi-Harness Engine Adapters (mock + 11 CLI engines) ---
+# 执行前强校验: 未知 harness → 400 / 二进制不可用 → 409。
+# 命令覆盖链: harness.engines.<id>.binary → env HARNESS_<ID>_COMMAND → PATH 探测。
+harness:
+  default: "omp"                             # 默认引擎 — 不可用时按适配度自动回落（omp → claude → mock → …）
+  timeout_minutes: 120                       # CLI 引擎每回合超时（0 = 不限制）
+  health_timeout_ms: 8000                    # --version 探测超时
+  health_cache_ms: 30000                     # 可用性探测缓存
+  engines:
+    codex:
+      binary: "codex"                        # codex app-server (JSON-RPC over stdio)
+      auto_approve: true                     # requestApproval 自动放行；false = fail-closed 拒绝
+    dsh:
+      binary: "dsh"                          # dsh --profile acp (标准 ACP v1)
+      auto_approve: true                     # session/request_permission 自动放行
+    hermes:
+      binary: "hermes"                       # hermes acp (标准 ACP v1)
+      auto_approve: true
+    qwen:
+      binary: "qwen"                         # qwen --experimental-acp (旧版 Zed ACP)
+      auto_approve: true                     # requestToolCallConfirmation 自动放行
+    opencode:
+      binary: "opencode"                     # opencode serve (HTTP + SSE)
+      auto_approve: true                     # permission.asked 自动 once
+    gemini:
+      binary: "gemini"                       # gemini --output-format stream-json
+    copilot:
+      binary: "copilot"                      # copilot --output-format json
+    cursor:
+      binary: "cursor-agent"                 # cursor-agent --output-format stream-json (默认不带 --force)
+    crush:
+      binary: "crush"                        # crush run -q (纯文本)
+      # api_key: ""                          # 设置后经 AW_CRUSH_API_KEY 环境变量注入（凭据不落盘）
+    goose:
+      binary: "goose"                        # goose run -t --output-format stream-json
+      session_name: "diag"                   # 会话命名 aw-<session_name>（--resume 依赖）
+    pi:
+      binary: "pi"                           # pi -p --mode json (prompt 经 @临时文件)
+    mock: {}                                 # 进程内剧本引擎 — 恒可用
+
 # --- Diagnosis Defaults ---
 diagnosis:
   default_scene_name: "industrial_analysis"

@@ -7,6 +7,7 @@ import {
   sendChatMessage, continueDiagnosis, answerQuestion,
   triggerDiagnosis, startStream, subscribeSSE,
   getSessionContent, getRunRealtimeSnapshot, triggerEnhancement,
+  assertRunHarnessUsable,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -16,6 +17,9 @@ const router = Router();
 router.post('/start', async (req, res) => {
   try {
     const { dataPath, folderPath, dataPaths, sceneName, harness } = req.body;
+
+    // 执行前强校验 — unknown → 400 / not installed → 409, before any run state exists
+    await assertRunHarnessUsable(harness);
 
     // Validate all data paths before creating the run
     if (dataPaths && Array.isArray(dataPaths) && dataPaths.length > 0) {
@@ -31,7 +35,7 @@ router.post('/start', async (req, res) => {
     const result = createDiagnosisRun(req.body);    res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, error: err.message, code: err.code });
   }
 });
 
@@ -135,12 +139,12 @@ router.post('/execute/:runId', async (req, res) => {
     res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'DIAGNOSIS_ERROR', error: err.message });
   }
 });
 
-// Send a chat message to running Claude process
-router.post('/chat/:runId', (req, res) => {
+// Send a chat message to the running engine process
+router.post('/chat/:runId', async (req, res) => {
   const { runId } = req.params;
   const { message } = req.body;
 
@@ -148,7 +152,7 @@ router.post('/chat/:runId', (req, res) => {
     return res.status(400).json({ success: false, error: 'message is required' });
   }
 
-  const sent = sendChatMessage(runId, message);
+  const sent = await sendChatMessage(runId, message);
   if (!sent) {
     return res.status(404).json({
       success: false,
@@ -167,7 +171,7 @@ router.post('/continue/:runId', async (req, res) => {
     res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'DIAGNOSIS_ERROR', error: err.message });
   }
 });
 
@@ -227,7 +231,7 @@ router.post('/enhance/:runId', async (req, res) => {
     res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'DIAGNOSIS_ERROR', error: err.message });
   }
 });
 

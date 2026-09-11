@@ -106,6 +106,7 @@ function applyEnvOverrides(config) {
     ['DIAGNOSIS_DEFAULT_LANGUAGE', 'diagnosis.default_language', String],
     ['DIAGNOSIS_DEFAULT_SCENE', 'diagnosis.default_scene_name', String],
     ['DATA_DIR', 'data.dir', String],
+    ['DATABASE_PATH', 'database.path', String],
     ['DATA_MAX_FILE_SIZE_MB', 'data.upload.max_file_size_mb', Number],
     ['ENGINE_MAX_EVENT_BUFFER', 'engine.max_event_buffer', Number],
     ['ENGINE_CLOSE_RUN_DELAY', 'engine.close_run_delay_seconds', Number],

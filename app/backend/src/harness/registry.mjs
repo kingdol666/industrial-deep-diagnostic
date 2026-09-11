@@ -1,18 +1,26 @@
 // Harness Registry — the single source of truth for available engines.
 //
-// To add a new harness (Codex, OpenCode, a remote runner, ...):
-//   1. implement app/backend/src/harness/<name>-harness.mjs (see base.mjs)
-//   2. register an instance below
+// 14 engines from the multi-harness architecture (mock/claude/omp resident
+// trio + the 11 CLI adapters) are registered here. Adding a new harness:
+//   1. implement the engine client (engine/<name>-client.mjs or a spec in
+//      oneshot-specs.mjs / acp-client.mjs)
+//   2. add a definition to HARNESS_DEFS in engines.mjs (if not present)
 //   3. the REST layer and the frontend pick it up automatically
-//
-// The registry is intentionally tiny: discovery, lookup, enumeration.
 
 import { BaseHarness, HarnessNotFoundError } from './base.mjs';
 import { OmpHarness } from './omp-harness.mjs';
 import { ClaudeHarness } from './claude-harness.mjs';
+import { HARNESS_DEFS, createLiveHarness } from './engines.mjs';
 
-/** Ordered list — first entry is the default engine for the console. */
+/** Ordered list — display/preference order; the RUNTIME default harness is
+ *  resolved separately from availability (config harness.default → chain, see
+ *  engines.mjs resolveBestAvailableHarness). */
 const harnesses = [new ClaudeHarness(), new OmpHarness()];
+
+// The 12 definition-table engines (mock + 11 CLI adapters), in table order.
+for (const def of HARNESS_DEFS) {
+  harnesses.push(createLiveHarness(def));
+}
 
 // Optional reference implementation (capability-driven UI proof) —
 // enabled explicitly via IDD_DEMO_HARNESS=1, never on in production runs.
@@ -31,6 +39,16 @@ export function getHarness(id) {
   const h = harnesses.find((x) => x.id === id);
   if (!h) throw new HarnessNotFoundError(id);
   return h;
+}
+
+/** Membership check without throwing (normalize / validation fast path). */
+export function hasHarness(id) {
+  return typeof id === 'string' && harnesses.some((x) => x.id === id);
+}
+
+/** All known harness ids, registry order (first = default). */
+export function listHarnessIds() {
+  return harnesses.map((h) => h.id);
 }
 
 /** Instantiate an unregistered harness (for tests / plugins). */

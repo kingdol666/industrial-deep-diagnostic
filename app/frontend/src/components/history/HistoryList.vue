@@ -70,7 +70,7 @@
             </td>
             <td class="cell-date">{{ formatDate(run.created_at) }}</td>
             <td class="cell-actions" @click.stop>
-              <span v-if="run.harness === 'omp'" class="engine-badge" :title="$t('history.executedByOmp')">OMP</span>
+              <span v-if="run.harness && run.harness !== 'claude'" class="engine-badge" :title="$t('history.executedByEngine', { engine: run.harness })">{{ run.harness.toUpperCase() }}</span>
               <span v-if="run.ontology_hit === 'reused'" class="engine-badge ont-badge" :title="$t('history.ontologyReusedTitle')">{{ $t('history.ontologyReused') }}</span>
               <span v-else-if="run.ontology_hit === 'extended'" class="engine-badge ont-badge" :title="$t('history.ontologyExtendedTitle')">{{ $t('history.ontologyExtended') }}</span>
               <span v-if="run.enhancement_triggered" class="engine-badge enh-badge" :title="$t('history.enhancedTitle')">E0-E8</span>

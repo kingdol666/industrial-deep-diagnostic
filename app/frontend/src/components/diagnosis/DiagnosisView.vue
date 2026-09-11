@@ -171,7 +171,7 @@
                     :data="chartData.heatmap.data"
                     :x-labels="chartData.heatmap.xLabels"
                     :y-labels="chartData.heatmap.yLabels"
-                    title="Correlation Matrix"
+                    :title="$t('charts.correlationMatrix')"
                   />
                 </div>
                 <div v-if="chartData.confidence" class="chart-cell chart-cell-half">
@@ -249,12 +249,16 @@ const props = defineProps({
   analysisTarget: { type: Object, default: null },
   autoRunId: { type: String, default: null },
   harness: { type: String, default: 'claude' },
+  harnessName: { type: String, default: '' },
 });
 
 // The run started from this view runs on the harness selected in the sidebar;
-// runs opened from history default to the Claude engine badge.
-const startedHarness = ref(props.harness === 'omp' ? 'omp' : 'claude');
-const runEngineLabel = computed(() => (startedHarness.value === 'omp' ? 'OMP' : 'Claude'));
+// runs opened from history show the run's own engine badge.
+const startedHarness = ref(props.harness || 'claude');
+const runEngineLabel = computed(() => {
+  if (startedHarness.value === props.harness && props.harnessName) return props.harnessName;
+  return startedHarness.value.toUpperCase();
+});
 
 const emit = defineEmits(['started', 'view-report', 'go-data']);
 

@@ -24,7 +24,7 @@ router.post('/start', async (req, res) => {
     });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
 });
 
@@ -95,7 +95,7 @@ router.post('/send/:chatId', async (req, res) => {
     });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
 });
 
@@ -133,7 +133,7 @@ router.patch('/session/:chatId/config', (req, res) => {
     res.json({ success: true, data: updated });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
 });
 
@@ -173,7 +173,7 @@ router.get('/directories', async (req, res) => {
     res.json({ success: true, data });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
 });
 
@@ -184,7 +184,7 @@ router.post('/directories/pick', async (req, res) => {
     res.json({ success: true, data });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
 });
 

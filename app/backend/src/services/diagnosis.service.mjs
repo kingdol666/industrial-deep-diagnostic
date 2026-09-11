@@ -18,8 +18,30 @@ import {
   registerChild as ompRegisterChild, closeQuery as ompCloseQuery,
   parseOmpSessionId,
 } from '../engine/omp-client.mjs';
+import * as mockEngine from '../engine/mock-client.mjs';
+import * as codexEngine from '../engine/codex-client.mjs';
+import * as opencodeEngine from '../engine/opencode-client.mjs';
+import {
+  geminiClient, copilotClient, cursorClient, crushClient, gooseClient, piClient,
+} from '../engine/oneshot-specs.mjs';
+import { dshClient, hermesClient, qwenClient } from '../engine/acp-client.mjs';
+import { hasHarness } from '../harness/registry.mjs';
+import { assertHarnessUsable } from '../harness/availability.mjs';
+import { defaultHarnessChain } from '../harness/engines.mjs';
 
 // ── Engine dispatch: route execution by the run's harness ──
+// (多 Harness 架构 · 原则 1: 上层只依赖统一契约 — startDiagnosis /
+// startSessionChat / parseStreamEvent / registerChild / closeQuery.)
+function clientShape(mod) {
+  return {
+    startDiagnosis: mod.startDiagnosis,
+    startSessionChat: mod.startSessionChat,
+    parseStreamEvent: mod.parseStreamEvent,
+    registerChild: mod.registerChild,
+    closeQuery: mod.closeQuery,
+  };
+}
+
 const ENGINES = {
   claude: {
     startDiagnosis: claudeStartDiagnosis,
@@ -35,16 +57,57 @@ const ENGINES = {
     registerChild: ompRegisterChild,
     closeQuery: ompCloseQuery,
   },
+  mock: clientShape(mockEngine),
+  codex: clientShape(codexEngine),
+  opencode: clientShape(opencodeEngine),
+  dsh: dshClient,
+  hermes: hermesClient,
+  qwen: qwenClient,
+  gemini: geminiClient,
+  copilot: copilotClient,
+  cursor: cursorClient,
+  crush: crushClient,
+  goose: gooseClient,
+  pi: piClient,
 };
 
 export function normalizeHarness(value) {
   const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  if (id === 'omp') return 'omp';
-  return 'claude'; // default + any unknown value stays on the Claude engine
+  if (!id) {
+    // 默认引擎（config harness.default，默认 omp — 适配最全的已装引擎）
+    return defaultHarnessChain()[0];
+  }
+  if (id === 'omp' || id === 'claude') return id;
+  // 已注册引擎按 id 分发；未知值（历史 DB 行/拼错）保持 Claude 引擎兜底。
+  return hasHarness(id) ? id : 'claude';
+}
+
+/**
+ * Harness id as REQUESTED by an external caller — empty/absent resolves to
+ * the configured default (omp), explicit values are returned normalized for
+ * strict validation (unknown → 400 / unavailable → 409 by the caller).
+ */
+export function resolveRequestedHarness(value) {
+  const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (!id) return defaultHarnessChain()[0];
+  // 显式给出但未注册的 id 原样返回 — assertHarnessUsable 会给出 400 人话报错
+  return id;
+}
+
+// ── 执行前强校验 (原则 7): unknown 400 / not installed 409 / ok → probe ──
+export function assertRunHarnessUsable(harness) {
+  return assertHarnessUsable(resolveRequestedHarness(harness));
 }
 
 export function resolveEngine(harnessId) {
   return ENGINES[normalizeHarness(harnessId)] || ENGINES.claude;
+}
+
+/** Close a runId on EVERY engine — each closeQuery is a no-op when unknown. */
+export function closeAllEngines(runId) {
+  for (const engine of Object.values(ENGINES)) {
+    try { engine.closeQuery(runId); } catch { /* individual engine cleanup must not block others */ }
+  }
 }
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
@@ -83,6 +146,7 @@ export async function validateDataPath(dataPath) {
     if (!existsSync(dataPath)) {
       const err = new Error(`Data not found: ${dataPath}`);
       err.code = 'DATA_NOT_FOUND';
+      err.status = 404;
       throw err;
     }
     const resolved = await realpath(dataPath);
@@ -114,6 +178,7 @@ export async function validateDataPath(dataPath) {
   if (!resolved) {
     const err = new Error(`Data not found: ${dataPath}`);
     err.code = 'DATA_NOT_FOUND';
+    err.status = 404;
     throw err;
   }
 
@@ -324,9 +389,8 @@ export function getRunRealtimeSnapshot(runId) {
 // Stop a running diagnosis
 export function stopDiagnosis(runId) {
   const run = stmts.getRunById.get(runId);
-  // Close on both engines — each is a no-op when the runId is unknown.
-  claudeCloseQuery(runId);
-  ompCloseQuery(runId);
+  // Close on every engine — each is a no-op when the runId is unknown.
+  closeAllEngines(runId);
   void run;
   questionSessions.delete(runId);
   updateStatus(runId, 'stopped');
@@ -356,12 +420,11 @@ export function getPendingHITL(runId) {
 }
 
 // Send a chat message — close current query and resume session with message
-export function sendChatMessage(runId, message) {
+export async function sendChatMessage(runId, message) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
   const engine = resolveEngine(run.harness);
-  claudeCloseQuery(runId);
-  ompCloseQuery(runId);
+  closeAllEngines(runId);
   executingRuns.delete(runId);
   try {
     if (!hasRun(runId)) createRun(runId);
@@ -381,10 +444,11 @@ export function sendChatMessage(runId, message) {
         source: 'chat',
       },
     });
+    const engineLabel = (run.harness || 'claude').toUpperCase();
     emit(runId, {
       type: 'system',
       subtype: 'session_chat',
-      data: { message: `已发送到当前 ${run.harness === 'omp' ? 'OMP' : 'Claude'} session，不重新启动诊断流程。` },
+      data: { message: `已发送到当前 ${engineLabel} session，不重新启动诊断流程。` },
     });
 
     const result = engine.startSessionChat({
@@ -392,7 +456,7 @@ export function sendChatMessage(runId, message) {
       sessionId: run.session_id,
       message,
       maxTurns: 1,
-      harness: run.harness === 'omp' ? 'omp' : 'claude',
+      harness: run.harness || 'claude',
     });
     setChild(runId, result.query);
     engine.registerChild(runId, result.query);
@@ -414,7 +478,7 @@ async function consumeSessionChat(runId, query, sessionId, engine) {
       if (parsed.type === 'system') {
         const subtype = parsed.subtype || 'system';
         emit(runId, { type: 'system', subtype, data: parsed });
-        if (parsed.subtype === 'init' && parsed.session_id) {
+        if (parsed.subtype === 'init' && parsed.session_id && getMeta(runId).sessionId !== parsed.session_id) {
           stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
           setMeta(runId, { sessionId: parsed.session_id });
         }
@@ -461,8 +525,7 @@ async function consumeSessionChat(runId, query, sessionId, engine) {
       data: { runId, error: formatResumeError(err, runId, sessionId) },
     });
   } finally {
-    claudeCloseQuery(runId);
-    ompCloseQuery(runId);
+    closeAllEngines(runId);
     setChild(runId, null);
   }
 }
@@ -486,8 +549,7 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
   executingRuns.delete(runId);
 
   // Close any existing query — we're starting fresh
-  claudeCloseQuery(runId);
-  ompCloseQuery(runId);
+  closeAllEngines(runId);
 
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
@@ -569,8 +631,26 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
   }
 }
 
-// Core diagnosis execution — spawns Claude, streams events, handles HITL
-// Core diagnosis execution — uses SDK query, iterates stream events, handles HITL and AskUserQuestion
+/**
+ * Can the run's engine actually resume THIS session id across processes?
+ * (诚实语义 — engines without cross-process resume get a full re-run with
+ * the follow-up context instead of a context-free "resume" that would strip
+ * the data paths from the prompt.)
+ */
+function engineCanResumeSession(harnessId, sessionId) {
+  if (!sessionId) return false;
+  const id = normalizeHarness(harnessId);
+  if (id === 'omp') return !!parseOmpSessionId(sessionId);
+  if (id === 'claude') return true; // claude-client validates UUID format itself
+  const engine = ENGINES[id];
+  if (!engine) return false;
+  if (typeof engine.spec?.parseSessionId === 'function') {
+    return !!engine.spec.parseSessionId(sessionId)?.resumable;
+  }
+  return false; // acp / codex / opencode / mock: no cross-process resume
+}
+
+// Core diagnosis execution — spawns the run's engine, streams events, handles HITL and AskUserQuestion
 async function executeDiagnosis(runId, run, isRetry = false) {
   // Guard: prevent double execution of the same run
   if (executingRuns.has(runId)) {
@@ -589,7 +669,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   stmts.updateRunStatus.run({ runId, status: 'running' });
   emit(runId, { type: 'status', data: { status: 'running', runId, isRetry } });
   const meta = getMeta(runId);
-  const isSessionResume = isRetry && !!meta.sessionId;
+  const isSessionResume = isRetry && engineCanResumeSession(run.harness, meta.sessionId);
   if (!isRetry && run.user_question) {
     emit(runId, {
       type: 'user_message',
@@ -668,8 +748,9 @@ async function executeDiagnosis(runId, run, isRetry = false) {
             content: JSON.stringify({ subtype: 'init', model: parsed.model, tools: parsed.tools?.length }),
             messageType: 'system', toolName: null,
           });
-          // Capture session ID from SDK init event (may come after start)
-          if (parsed.session_id && !getMeta(runId).sessionId) {
+          // Capture session ID from SDK init event (may come after start);
+          // one-shot engines re-emit init with the real engine session marker.
+          if (parsed.session_id && getMeta(runId).sessionId !== parsed.session_id) {
             stmts.updateRunSession.run({ runId, sessionId: parsed.session_id });
             setMeta(runId, { sessionId: parsed.session_id });
           }

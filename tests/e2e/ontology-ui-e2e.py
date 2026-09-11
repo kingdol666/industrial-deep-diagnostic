@@ -12,14 +12,17 @@ lifecycle a user would perform:
 Run:  python app/backend/../.runtime/ontology-ui-e2e.py
 """
 import json
+import os
 import sys
 import time
+import urllib.request
 from playwright.sync_api import sync_playwright, expect
 
 FRONTEND = "http://127.0.0.1:5180"
 BACKEND = "http://127.0.0.1:3210"
 USER = "ontoadmin"
-PASSWORD = "OntoAdmin123!"
+PASSWORD = os.environ.get("IDD_E2E_PASSWORD", "")
+assert PASSWORD, "IDD_E2E_PASSWORD env required (no hardcoded credentials)"
 
 SCENE = "three_system_e2e"
 # 每次运行使用唯一标记：保存端按内容哈希去重（同内容不产生噪声版本），
@@ -34,10 +37,24 @@ def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  — {detail}" if detail and not ok else ""))
 
 
+def _check_url(u):
+    """SSRF guard for the e2e suite: http(s) only, and every resolved address
+    MUST be loopback — this test may only ever talk to the local backend."""
+    from urllib.parse import urlparse
+    import ipaddress
+    import socket
+    p = urlparse(str(u))
+    assert p.scheme in ("http", "https"), "URL scheme must be http/https"
+    port = p.port or (443 if p.scheme == "https" else 80)
+    for info in socket.getaddrinfo(p.hostname or "", port):
+        ip = ipaddress.ip_address(info[4][0])
+        assert ip.is_loopback, f"e2e may only target loopback, got {ip}"
+    return u
+
+
 def api_token():
-    import urllib.request
     req = urllib.request.Request(
-        f"{BACKEND}/api/auth/login",
+        _check_url(BACKEND + "/api/auth/login"),
         data=json.dumps({"username": USER, "password": PASSWORD}).encode(),
         headers={"Content-Type": "application/json"},
     )
@@ -46,8 +63,7 @@ def api_token():
 
 
 def api_get(path, token):
-    import urllib.request
-    req = urllib.request.Request(f"{BACKEND}{path}", headers={"Authorization": f"Bearer {token}"})
+    req = urllib.request.Request(_check_url(BACKEND + path), headers={"Authorization": f"Bearer {token}"})
     with urllib.request.urlopen(req, timeout=15) as r:
         return json.loads(r.read())["data"]
 

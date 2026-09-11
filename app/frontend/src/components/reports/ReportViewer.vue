@@ -151,7 +151,7 @@
             :data="chartData.heatmap.data"
             :x-labels="chartData.heatmap.xLabels"
             :y-labels="chartData.heatmap.yLabels"
-            title="Correlation Matrix"
+            :title="$t('charts.correlationMatrix')"
           />
         </div>
         <div v-if="chartData.confidence" class="chart-cell chart-cell-half">

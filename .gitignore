@@ -83,3 +83,14 @@ data/aw-snapshots/
 
 # JWT 签名密钥(绝不能提交)
 data/.auth-jwt-secret
+
+# Benchmark datasets (GB-scale; reproducibility via sha256 manifests, not git)
+data/benchmark/
+!data/benchmark/downloads.lock.json
+
+# Local tool state
+.mimosa/
+.runtime/
+.workbuddy/
+--help/
+--run-dir/

@@ -7,7 +7,7 @@ import { homedir } from 'os';
 import { join, resolve } from 'path';
 import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
-import { PROJECT_ROOT } from '../../../../config/loader.mjs';
+import { PROJECT_ROOT, config } from '../../../../config/loader.mjs';
 import * as ompClient from '../engine/omp-client.mjs';
 
 let queryFn = null;
@@ -23,10 +23,21 @@ const activeChats = new Map();
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
 
+// Chat currently runs on two engines: claude (SDK) and omp (RPC).
+// Everything else → explicit 400 (诚实语义 — never silently fall back).
+const CHAT_CAPABLE_HARNESSES = new Set(['claude', 'omp']);
+
 function normalizeChatHarness(value) {
   const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  if (id === 'omp') return 'omp';
-  return 'claude'; // default + unknown values stay on the Claude engine
+  if (!id) return (config.harness?.default || 'omp') === 'omp' ? 'omp' : 'claude';
+  if (CHAT_CAPABLE_HARNESSES.has(id)) return id;
+  const err = new Error(
+    `AI Chat currently supports only the 'claude' and 'omp' harnesses (requested: "${id}"). `
+    + `Run diagnoses with harness="${id}" via POST /api/diagnosis/start — chat sessions need cross-turn engines.`,
+  );
+  err.status = 400;
+  err.code = 'CHAT_HARNESS_UNSUPPORTED';
+  throw err;
 }
 
 // A stored chat is OMP-backed when its harness column says so or its
