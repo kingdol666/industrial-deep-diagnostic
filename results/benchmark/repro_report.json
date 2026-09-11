@@ -1,0 +1,43 @@
+{
+ "generated_at": "2026-09-11T16:59:07.794Z",
+ "tier": "scripts/benchmark/cases/tier0_smoke.json",
+ "checks": {
+  "dataset_integrity": {
+   "entries": 153,
+   "verified": 153,
+   "missing": 0,
+   "mismatched": 0
+  },
+  "case_coverage": {
+   "cases": 9,
+   "prepared": 9,
+   "graded": 9,
+   "missing": []
+  },
+  "metric_reproducibility": {
+   "recomputed": {
+    "total_cases": 9,
+    "executed": 9,
+    "fault_cases": 6,
+    "control_cases": 3,
+    "top1": 2,
+    "topk": 6,
+    "cdr": 0.3333,
+    "calibrated": 6,
+    "overconfident": 0,
+    "control_pass": 3,
+    "false_alarms": 0
+   },
+   "recorded_present": true,
+   "drift_fields": []
+  },
+  "execution_proof": {
+   "checked": 9,
+   "events_present": 9,
+   "pipeline_log_pass": 9
+  }
+ },
+ "failures": [],
+ "warnings": [],
+ "status": "REPRODUCIBLE"
+}

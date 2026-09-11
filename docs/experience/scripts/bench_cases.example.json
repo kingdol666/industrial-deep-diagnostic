@@ -1,0 +1,40 @@
+[
+  {
+    "dataset": "skab",
+    "csv": "data/benchmark/prepared/skab/valve1_1.csv",
+    "process_description": "水循环试验台：水箱+离心泵+阀门回路。Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。",
+    "truth": "泵入口流量阀门关闭",
+    "keywords": ["valve", "inlet", "入口", "阀"],
+    "expect": "DETERMINED"
+  },
+  {
+    "dataset": "skab",
+    "csv": "data/benchmark/prepared/skab/other_13.csv",
+    "truth": "泵入口两相流导致气蚀",
+    "keywords": ["cavitation", "气蚀", "空化", "两相流"],
+    "expect": "COMPETING_SET|NEEDS_DATA|DETERMINED"
+  },
+  {
+    "dataset": "tep",
+    "csv": "data/benchmark/prepared/tep/d01_te.csv",
+    "process_description": "Tennessee Eastman 化工过程（变量映射见 data/references/tep_variables.md）：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，XMEAS_1..41 过程测量 + XMV_1..11 操纵变量，3分钟采样，第161样本（8h）起为故障时段。",
+    "truth": "A/C 进料比阶跃（Stream 4）",
+    "keywords": ["A/C feed", "feed ratio", "进料比", "stream 4"],
+    "expect": "DETERMINED"
+  },
+  {
+    "dataset": "tep",
+    "csv": "data/benchmark/prepared/tep/d03_te.csv",
+    "truth": "D 进料温度阶跃（文献公认难检）",
+    "keywords": ["D feed", "temperature", "D 进料温度"],
+    "expect": "COMPETING_SET|NEEDS_DATA"
+  },
+  {
+    "dataset": "indpensim",
+    "csv": "data/benchmark/prepared/indpensim/batch_091.csv",
+    "process_description": "100,000L 青霉素发酵批次过程，0.2h采样，Time (h)为批内相对小时，Fault reference列是评测标注不是证据。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。",
+    "truth": "工艺偏差故障（见批91故障窗口 20-30.2h/76-92.2h/200-214.2h）",
+    "keywords": ["aeration", "曝气", "DO2", "溶氧", "pH"],
+    "expect": "DETERMINED|COMPETING_SET"
+  }
+]

@@ -1,0 +1,14 @@
+{
+ "case_id": "indpensim_batch001_control",
+ "control": true,
+ "control_pass": true,
+ "false_alarm": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "workspace/diagnostic-runs/202609111640303_bench_indpensim_batch001_control",
+ "judge_score": 92,
+ "checks": {
+  "pipeline_log": "PASS",
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ }
+}

@@ -1,0 +1,120 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "批次 1 为正常批次：高 z 离群全部归因于脉冲状配方流加事件与批次相位非平稳（生长产热爬升），无跨域持续性偏差，未检出故障（正常基线对照组）",
+ "confidence": 0.62,
+ "ontology": {
+  "domain": "100,000L 青霉素发酵批次过程（IndPenSim，批次 1，正常对照）",
+  "physics_notes": "批次过程天然非平稳：温度/产热随菌体生长单调爬升，z-score 假设平稳会高估尾部；酸/碱/氨流加为脉冲状配方事件，稀疏脉冲天然产生大 z。",
+  "variables": [
+   {
+    "name": "Temperature(T:K)",
+    "unit": "",
+    "meaning": ""
+   },
+   {
+    "name": "Generated heat(Q:kJ)",
+    "unit": "",
+    "meaning": ""
+   },
+   {
+    "name": "Penicillin concentration(P:g/L)",
+    "unit": "",
+    "meaning": ""
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "正常基线运行（配方流加脉冲 + 生长相位非平稳）",
+   "mechanism_class": "normal-appearance",
+   "confidence": 0.62,
+   "verdict": "surviving",
+   "logic_chain": [
+    "高 z 离群与配方流加事件时间对齐",
+    "产热随菌体生长单调爬升（相位非平稳）"
+   ],
+   "evidence": [
+    "z 谱与流加事件对齐",
+    "无跨域持续性偏差"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "出现跨批次持续性偏差则推翻"
+   ],
+   "proof": "量级与工艺配方一致",
+   "predicted": [
+    "脉冲状 z 离群重复出现"
+   ]
+  },
+  {
+   "name": "传感器漂移",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.2,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "漂移应表现为单调缓变偏差"
+   ],
+   "evidence": [
+    "未检出跨域同步漂移"
+   ],
+   "contradiction": [
+    "离群为脉冲状而非缓变"
+   ],
+   "falsification": [
+    "检出单调基线偏移"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "搅拌器故障",
+   "mechanism_class": "agitator-fault",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "搅拌故障会引起温度/DO 持续异常"
+   ],
+   "evidence": [
+    "温度与产热趋势一致"
+   ],
+   "contradiction": [
+    "无持续热失衡证据"
+   ],
+   "falsification": [
+    "DO/温度持续解耦"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "高 z 离群归因于脉冲状配方流加",
+   "产热爬升属正常生长相位"
+  ],
+  "ontology_industry_interpretation": [
+   "批次发酵天然非平稳，z-score 在生长段会高估尾部"
+  ],
+  "time_lag": "同相耦合",
+  "data_supported_conclusions": [
+   "脉冲状 z 离群与配方流加事件在时间轴上一致（数据支持）",
+   "产热单调爬升与菌体生长模型一致，属相位非平稳而非故障"
+  ]
+ },
+ "visual_observations": [
+  "时序网格图显示脉冲状离群与流加事件对齐"
+ ],
+ "judge": {
+  "score": 92,
+  "warnings": [],
+  "validation_findings_cited": [
+   "反假相关校验通过"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "机理链与数据证据一致，未见物理矛盾"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

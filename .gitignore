@@ -94,3 +94,7 @@ data/benchmark/
 .workbuddy/
 --help/
 --run-dir/
+
+# 修复/冒烟临时目录
+workspace/_repair_tmp_r2/
+workspace/ontology-store-smoke-*/

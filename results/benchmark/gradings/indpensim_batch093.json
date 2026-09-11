@@ -1,0 +1,17 @@
+{
+ "case_id": "indpensim_batch093",
+ "control": false,
+ "top1": false,
+ "topk": true,
+ "root_cause_kw_hit": true,
+ "calibrated": true,
+ "overconfident": false,
+ "diagnosis_type": "COMPETING_SET",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100307051_bench_indpensim_batch093",
+ "judge_score": 90,
+ "checks": {
+  "pipeline_log": "PASS",
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ }
+}

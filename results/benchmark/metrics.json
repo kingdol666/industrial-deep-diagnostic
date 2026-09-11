@@ -1,0 +1,157 @@
+{
+ "generated_at": "2026-09-11T16:58:20.031Z",
+ "tier_file": "scripts\\benchmark\\cases\\tier0_smoke.json",
+ "total_cases": 9,
+ "executed": 9,
+ "fault_cases": 6,
+ "control_cases": 3,
+ "top1": 2,
+ "topk": 6,
+ "cdr": 0.3333,
+ "calibrated": 6,
+ "overconfident": 0,
+ "control_pass": 3,
+ "false_alarms": 0,
+ "by_dataset": {
+  "skab": {
+   "cases": 3,
+   "top1": 1,
+   "topk": 2,
+   "controls": 1,
+   "control_pass": 1
+  },
+  "tep": {
+   "cases": 3,
+   "top1": 1,
+   "topk": 2,
+   "controls": 1,
+   "control_pass": 1
+  },
+  "indpensim": {
+   "cases": 3,
+   "top1": 0,
+   "topk": 2,
+   "controls": 1,
+   "control_pass": 1
+  }
+ },
+ "per_case": [
+  {
+   "case_id": "skab_valve1_1",
+   "dataset": "skab",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 93,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100243175_bench_skab_valve1_1"
+  },
+  {
+   "case_id": "skab_cavitation_13",
+   "dataset": "skab",
+   "control": false,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 91,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100243425_bench_skab_cavitation_13"
+  },
+  {
+   "case_id": "skab_normal_control",
+   "dataset": "skab",
+   "control": true,
+   "diagnosis_type": "DETERMINED",
+   "top1": null,
+   "topk": null,
+   "calibrated": null,
+   "control_pass": true,
+   "judge_score": 91,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100244063_bench_skab_normal_control"
+  },
+  {
+   "case_id": "tep_d01_ac_feed_ratio",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 92,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246017_bench_tep_d01_ac_feed_ratio"
+  },
+  {
+   "case_id": "tep_d03_hard",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "NEEDS_DATA",
+   "top1": false,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 92,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246329_bench_tep_d03_hard"
+  },
+  {
+   "case_id": "tep_d00_normal_control",
+   "dataset": "tep",
+   "control": true,
+   "diagnosis_type": "DETERMINED",
+   "top1": null,
+   "topk": null,
+   "calibrated": null,
+   "control_pass": true,
+   "judge_score": 92,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246555_bench_tep_d00_normal_control"
+  },
+  {
+   "case_id": "indpensim_batch091",
+   "dataset": "indpensim",
+   "control": false,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 91,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100259513_bench_indpensim_batch091"
+  },
+  {
+   "case_id": "indpensim_batch093",
+   "dataset": "indpensim",
+   "control": false,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 90,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100307051_bench_indpensim_batch093"
+  },
+  {
+   "case_id": "indpensim_batch001_control",
+   "dataset": "indpensim",
+   "control": true,
+   "diagnosis_type": "DETERMINED",
+   "top1": null,
+   "topk": null,
+   "calibrated": null,
+   "control_pass": true,
+   "judge_score": 92,
+   "finalize_passed": true,
+   "run_dir": "workspace/diagnostic-runs/202609111640303_bench_indpensim_batch001_control"
+  }
+ ]
+}

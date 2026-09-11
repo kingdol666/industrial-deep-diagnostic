@@ -1,0 +1,54 @@
+{
+  "ontology": {
+    "domain": "水循环试验台（水箱+离心泵+阀门闭环回路），正常基线对照",
+    "physics_notes": "闭环稳态下传感器呈窄带噪声；温度-流量耦合（冷却/散热回路）为正常物理关联。",
+    "variables": [
+      { "name": "Pressure", "meaning": "泵后回路压力", "unit": "Bar", "role": "process" },
+      { "name": "Volume Flow RateRMS", "meaning": "回路流量", "unit": "L/min", "role": "process" },
+      { "name": "Accelerometer1RMS", "meaning": "泵侧振动RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Accelerometer2RMS", "meaning": "电机侧振动RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Temperature", "meaning": "电机本体温度", "unit": "℃", "role": "thermal" },
+      { "name": "Thermocouple", "meaning": "回路流体温度", "unit": "℃", "role": "thermal" },
+      { "name": "Current", "meaning": "电机电流", "unit": "A", "role": "electrical" },
+      { "name": "Voltage", "meaning": "电机电压", "unit": "V", "role": "electrical" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "8 通道 max|z| 在 3.18–5.40 之间，超 3σ 点占比全部 ≤0.9%——孤立噪声尾部，无时序聚集",
+      "温度-流量负相关（Temperature~Thermocouple r=-0.891、Thermocouple~Flow r=0.830）为散热回路正常物理耦合",
+      "无跨域同步瞬态：机械/流体/电/热四域均无阶跃、方差爆发或阻尼振荡包络"
+    ],
+    "data_supported_conclusions": ["全程与正常闭环稳态一致，无异常事件（分析基于 2000 行系统抽样+全序列双检）"],
+    "ontology_industry_interpretation": ["泵在额定点附近运行，散热回路正常换热"],
+    "time_lag": "无异常滞后耦合",
+    "boundary": "9405 行数据按抽样纪律取 2000 行进统计引擎，孤立极值点比例与全序列核对一致"
+  },
+  "hypotheses": [
+    {
+      "name": "过程处于正常闭环稳态（无故障）",
+      "mechanism_class": "normal-operation",
+      "root_physical_cause": "无扰动注入",
+      "logic_chain": ["全通道窄带噪声", "无跨域同步瞬态", "孤立 3σ 点为噪声尾部且无聚集"],
+      "confidence": 0.88,
+      "evidence": ["8 通道超 3σ 占比 ≤0.9% 且孤立（L3）", "温度-流量正常物理耦合（L3）"],
+      "visual_observations": ["各通道窄带波动，无事件形态"],
+      "contradiction": [],
+      "falsification": ["若出现跨域同步瞬态则重新诊断"],
+      "verdict": "surviving"
+    }
+  ],
+  "primary_finding": "过程处于正常闭环稳态，未检出故障或异常事件（正常基线对照组）",
+  "diagnosis_type": "DETERMINED",
+  "confidence": 0.88,
+  "data_gaps": [],
+  "inference_gaps": [],
+  "judge": {
+    "score": 91,
+    "blocking_issues": [],
+    "warnings": [],
+    "validation_findings_cited": ["validate_report.json: anti_spurious.summary.fatal_issues=0"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "正常基线判定与统计证据一致。" },
+  "visual_observations": ["各通道窄带随机波动，无事件形态"]
+}

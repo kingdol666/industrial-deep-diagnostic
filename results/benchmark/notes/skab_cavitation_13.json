@@ -1,0 +1,109 @@
+{
+  "ontology": {
+    "domain": "水循环试验台（水箱+离心泵+阀门闭环回路），机械-流体耦合系统",
+    "physics_notes": "泵入口流体出现气相（两相流）时：泵内流态间歇崩溃→振动RMS呈'基线漂移+间歇爆发'特征；压力出现随机尖峰；流量与振动强耦合。",
+    "variables": [
+      { "name": "Pressure", "meaning": "泵后回路压力", "unit": "Bar", "role": "process" },
+      { "name": "Volume Flow RateRMS", "meaning": "回路流量", "unit": "L/min", "role": "process" },
+      { "name": "Accelerometer1RMS", "meaning": "泵侧振动加速度RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Accelerometer2RMS", "meaning": "电机侧振动加速度RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Current", "meaning": "电机电流", "unit": "A", "role": "electrical" },
+      { "name": "Voltage", "meaning": "电机电压", "unit": "V", "role": "electrical" },
+      { "name": "Temperature", "meaning": "电机本体温度", "unit": "℃", "role": "thermal" },
+      { "name": "Thermocouple", "meaning": "回路流体温度", "unit": "℃", "role": "thermal" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "Accelerometer1RMS/Accelerometer2RMS 在样本~170处同步发生基线阶跃下移（0.260→0.245 / 0.300→0.287 g）且此后不再回到原水平——振动基线工况漂移",
+      "两条振动通道在 460/520/750-780 处出现间歇性爆发峰（Accel2 max|z|=3.45），呈'低基线+间歇发作'形态",
+      "Pressure max|z|=5.02 为早期（样本180-320）随机尖峰群，其后趋于平淡——瞬态压力激励而非持续偏移",
+      "Accel1~流量 r=-0.821、Accel1~Accel2 r=0.796、热电偶~流量 r=-0.741：振动-流量-温度强耦合（L3）",
+      "Thermocouple 全程缓降（29.3→28.8℃），未见故障型突变"
+    ],
+    "data_supported_conclusions": [
+      "振动基线阶跃+间歇爆发+早期压力尖峰的组合符合泵入口流体品质劣化（两相流/间歇气蚀）的物理特征",
+      "传感器层面无法在'入口流体品质劣化'与'泵工况点漂移/性能退化'之间做出唯一归因——诚实结论为竞争集"
+    ],
+    "ontology_industry_interpretation": [
+      "两相流进入泵入口→空泡溃灭与流量脉动→振动RMS间歇爆发；气相比例改变会整体改变泵工作点→振动基线漂移"
+    ],
+    "time_lag": "跨域强相关为零滞后同相（r=-0.821），为同一工况的即时耦合",
+    "boundary": "无入口侧流体含气率/透明视镜观测，气蚀归因缺乏直接测量；本案例未下发故障类型信息"
+  },
+  "hypotheses": [
+    {
+      "name": "泵入口流体品质劣化（两相流供给/间歇性气蚀）",
+      "mechanism_class": "cavitation",
+      "root_physical_cause": "泵入口两相流供给导致间歇气蚀",
+      "logic_chain": [
+        "入口流体含气→泵内流态间歇崩溃→振动RMS间歇爆发（460/520/750 处峰）",
+        "气相比例改变泵平均工作点→振动基线阶跃下移且不回落（~170 处双通道同步阶跃）",
+        "空泡溃灭产生压力随机尖峰（早期样本180-320 压力尖峰群）"
+      ],
+      "confidence": 0.58,
+      "evidence": ["Accel1/2 基线阶跃+间歇爆发形态（L4）", "Accel1~Flow r=-0.821 强耦合（L3）", "Pressure 早期尖峰群 max|z|=5.02（L3）"],
+      "visual_observations": [
+        "Accelerometer1RMS 在~170处基线由0.260阶跃至0.245，之后三个间歇爆发段",
+        "Accelerometer2RMS 同步阶跃（0.300→0.287）并在460/520/750出现爆发",
+        "Pressure 在样本180-320有随机尖峰群（最大1.3σ外），其后无持续偏移"
+      ],
+      "contradiction": [],
+      "falsification": ["若流量出现阶跃受限形态则改判阀门节流", "若视镜/含气率观测无气相则排除"],
+      "verdict": "surviving"
+    },
+    {
+      "name": "泵工况点漂移/泵性能退化",
+      "mechanism_class": "operating-point",
+      "root_physical_cause": "泵或管路特性变化导致工作点移动",
+      "logic_chain": ["管路特性或泵特性改变→工作点移动→振动基线整体改变", "性能退化呈渐进或阶跃"],
+      "confidence": 0.45,
+      "evidence": ["振动基线阶跃本身与工况漂移一致（L4）"],
+      "visual_observations": [],
+      "contradiction": ["间歇爆发峰与压力尖峰群更支持流体品质事件而非平滑工况移动"],
+      "falsification": ["若流量-扬程关系显示稳定工作点则弱化"],
+      "verdict": "surviving"
+    },
+    {
+      "name": "泵入口/出口阀门节流",
+      "mechanism_class": "fluid-restriction",
+      "root_physical_cause": "阀门开度减小",
+      "logic_chain": ["节流→流量阶跃受限→压力方向性响应"],
+      "confidence": 0.12,
+      "evidence": [],
+      "visual_observations": [],
+      "contradiction": ["流量未出现阶跃受限形态（Flow 不在异常列前列且无阶跃证据），Pressure 无方向性偏移"],
+      "falsification": ["若流量出现阶跃则复活"],
+      "verdict": "eliminated"
+    },
+    {
+      "name": "转子不平衡",
+      "mechanism_class": "rotor-dynamics",
+      "root_physical_cause": "转子质量不平衡",
+      "logic_chain": ["不平衡→振动RMS持续抬升"],
+      "confidence": 0.1,
+      "evidence": [],
+      "visual_observations": [],
+      "contradiction": ["振动基线是下移而非抬升，与不平衡预期方向相反"],
+      "falsification": ["若振动呈1×转频持续抬升则复活"],
+      "verdict": "eliminated"
+    }
+  ],
+  "primary_finding": "泵入口流体品质劣化（两相流供给/间歇性气蚀）与泵工况点漂移构成统计上不可分辨的竞争假设集：振动基线双通道同步阶跃+间歇爆发+早期压力尖峰群支持前者，但缺乏含气率直接测量无法唯一归因",
+  "diagnosis_type": "COMPETING_SET",
+  "confidence": 0.58,
+  "data_gaps": ["无入口含气率/视镜观测", "无流量阶跃判别的直接高频压力脉动谱"],
+  "inference_gaps": ["竞争假设 H1/H2 依赖形态学判别，置信上限受 COMPETING_SET≤70 约束"],
+  "judge": {
+    "score": 91,
+    "blocking_issues": [],
+    "warnings": ["竞争集未收敛为单一根因，属传感器配置限制而非推理缺陷"],
+    "validation_findings_cited": ["validate_report.json: anti_spurious.summary.fatal_issues=0；跨域强相关 Accel1~Flow r=-0.821 经多重检验校正"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "竞争集输出符合证据边界，未做超出数据的唯一归因，物理机制自洽。" },
+  "visual_observations": [
+    "Accel1/Accel2 在~170处双通道同步基线阶跃（0.260→0.245 / 0.300→0.287）",
+    "两条振动通道在460/520/750-780出现间歇爆发峰",
+    "Pressure 尖峰群集中于样本180-320，Thermocouple 全程缓降无突变"
+  ]
+}

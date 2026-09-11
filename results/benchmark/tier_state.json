@@ -1,0 +1,55 @@
+{
+ "tiers": {
+  "scripts/benchmark/cases/tier0_smoke.json": {
+   "cases": {
+    "skab_valve1_1": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609111657547_bench_skab_valve1_1",
+     "graded_at": "2026-09-11T12:01:03.922Z",
+     "imported_from": "gradings",
+     "prepared_at": "2026-09-11T16:58:19.808Z"
+    },
+    "skab_cavitation_13": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100243425_bench_skab_cavitation_13",
+     "graded_at": "2026-09-11T12:01:03.926Z",
+     "imported_from": "gradings"
+    },
+    "skab_normal_control": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100244063_bench_skab_normal_control",
+     "graded_at": "2026-09-11T12:01:03.927Z",
+     "imported_from": "gradings"
+    },
+    "tep_d01_ac_feed_ratio": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246017_bench_tep_d01_ac_feed_ratio",
+     "graded_at": "2026-09-11T12:01:03.928Z",
+     "imported_from": "gradings"
+    },
+    "tep_d03_hard": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246329_bench_tep_d03_hard",
+     "graded_at": "2026-09-11T12:01:03.930Z",
+     "imported_from": "gradings"
+    },
+    "tep_d00_normal_control": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246555_bench_tep_d00_normal_control",
+     "graded_at": "2026-09-11T12:01:03.933Z",
+     "imported_from": "gradings"
+    },
+    "indpensim_batch091": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100259513_bench_indpensim_batch091",
+     "graded_at": "2026-09-11T12:01:03.934Z",
+     "imported_from": "gradings"
+    },
+    "indpensim_batch093": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100307051_bench_indpensim_batch093",
+     "graded_at": "2026-09-11T12:01:03.934Z",
+     "imported_from": "gradings"
+    },
+    "indpensim_batch001_control": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609111640303_bench_indpensim_batch001_control",
+     "graded_at": "2026-09-11T12:01:03.939Z",
+     "imported_from": "gradings",
+     "prepared_at": "2026-09-11T16:44:32.721Z"
+    }
+   }
+  }
+ }
+}

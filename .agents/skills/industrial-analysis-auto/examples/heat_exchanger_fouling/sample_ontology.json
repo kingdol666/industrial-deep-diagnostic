@@ -1,0 +1,118 @@
+{
+  "scene": {
+    "name": "Heat Exchanger E-201 Fouling Diagnosis",
+    "process_type": "shell_and_tube_heat_exchanger",
+    "production_goal": "Cool phenol-acetone process fluid from 180°C to <150°C before extraction vessel V-205",
+    "equipment": [
+      {
+        "id": "E-201",
+        "name": "Intermediate Product Cooler",
+        "type": "shell_and_tube_heat_exchanger",
+        "configuration": "TEMA BEM — process fluid tube-side, cooling water shell-side",
+        "area_m2": 15,
+        "material": "316L SS"
+      },
+      {
+        "id": "P-104",
+        "name": "Distillation Bottoms Pump",
+        "type": "centrifugal_pump",
+        "controlled_variable": "hot_flow_rate_lpm"
+      },
+      {
+        "id": "CT-1",
+        "name": "Cooling Tower #1",
+        "type": "evaporative_cooling_tower",
+        "shared_load": "E-101, E-201, E-301, E-401"
+      }
+    ],
+    "stages": [
+      {"id": "cooling", "name": "Process Fluid Cooling", "sequence": 1, "equipment": "E-201"}
+    ],
+    "objectives": [
+      "Diagnose cause of declining heat transfer performance in E-201",
+      "Identify root cause of gradual HTC decline and pressure drop increase",
+      "Assess effectiveness of chemical cleaning on 2025-03-25"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {"name": "Heat Transfer Coefficient", "column": "heat_transfer_coeff_wm2k", "unit": "W/m²K", "target": 1850, "tolerance": 30},
+      {"name": "Approach Temperature", "column": "approach_temp_c", "unit": "°C", "target": 76, "tolerance": 3},
+      {"name": "Effectiveness", "column": "effectiveness", "unit": "dimensionless", "target": 0.248, "tolerance": 0.005}
+    ],
+    "process_parameters": [
+      {"name": "Hot Inlet Temperature", "column": "hot_inlet_temp_c", "unit": "°C", "normal_range": [179, 181]},
+      {"name": "Hot Outlet Temperature", "column": "hot_outlet_temp_c", "unit": "°C", "normal_range": [142, 144]},
+      {"name": "Cold Inlet Temperature", "column": "cold_inlet_temp_c", "unit": "°C", "normal_range": [27, 33]},
+      {"name": "Cold Outlet Temperature", "column": "cold_outlet_temp_c", "unit": "°C", "normal_range": [65, 69]},
+      {"name": "Hot Side Pressure Drop", "column": "pressure_drop_hot_kpa", "unit": "kPa", "normal_range": [11.8, 13.0]},
+      {"name": "Cold Side Pressure Drop", "column": "pressure_drop_cold_kpa", "unit": "kPa", "normal_range": [7.6, 8.6]}
+    ],
+    "control_variables": [
+      {"name": "Hot Side Flow Rate", "column": "hot_flow_rate_lpm", "unit": "L/min", "setpoint": 200, "controlled_by": "P-104"},
+      {"name": "Cold Side Flow Rate", "column": "cold_flow_rate_lpm", "unit": "L/min", "setpoint": 200, "controlled_by": "manual_valve"}
+    ],
+    "events": [
+      {"name": "Pump Trip Event", "column": "pump_trip_event", "event_values": [1]},
+      {"name": "Cleaning Cycle", "column": "cleaning_cycle", "event_values": [1]}
+    ],
+    "metadata_columns": [
+      {"name": "Timestamp", "column": "timestamp"}
+    ]
+  },
+  "relationships": [
+    {
+      "from": "heat_transfer_coeff_wm2k",
+      "to": "hot_outlet_temp_c",
+      "type": "causal",
+      "strength": "strong",
+      "description": "Fouling reduces HTC → less heat transferred → hot outlet temperature rises"
+    },
+    {
+      "from": "heat_transfer_coeff_wm2k",
+      "to": "pressure_drop_hot_kpa",
+      "type": "correlative",
+      "strength": "strong",
+      "description": "Scale deposits simultaneously reduce HTC and increase flow resistance"
+    },
+    {
+      "from": "cold_flow_rate_lpm",
+      "to": "heat_transfer_coeff_wm2k",
+      "type": "causal",
+      "strength": "moderate",
+      "description": "Reduced cooling water flow lowers effective HTC (pump trip events)"
+    },
+    {
+      "from": "cold_inlet_temp_c",
+      "to": "approach_temp_c",
+      "type": "physical",
+      "strength": "moderate",
+      "description": "Diurnal cold inlet variation affects approach temperature by ±1.5°C"
+    },
+    {
+      "from": "hot_inlet_temp_c",
+      "to": "hot_outlet_temp_c",
+      "type": "physical",
+      "strength": "strong",
+      "description": "Hot outlet directly depends on hot inlet for a given HTC"
+    },
+    {
+      "from": "cleaning_cycle",
+      "to": "heat_transfer_coeff_wm2k",
+      "type": "causal",
+      "strength": "strong",
+      "description": "Chemical cleaning partially removes scale, improving HTC"
+    }
+  ],
+  "metadata": {
+    "units": {
+      "temperature": "°C",
+      "flow": "L/min",
+      "pressure": "kPa",
+      "htc": "W/m²K"
+    },
+    "sampling_rate": "5 minutes",
+    "batch_id": "E201-202503",
+    "timezone": "UTC+8"
+  }
+}

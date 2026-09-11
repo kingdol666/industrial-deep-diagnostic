@@ -3,10 +3,19 @@
 
 import json, sys, urllib.request
 
+def _checked_url(u):
+    """SSRF guard: http(s) only; this test may only target the local backend."""
+    from urllib.parse import urlparse
+    pp = urlparse(str(u))
+    assert pp.scheme in ("http", "https"), "URL scheme must be http/https"
+    assert pp.hostname in ("127.0.0.1", "localhost", "::1"), "test may only target the local backend"
+    return u
+
+
 BASE = "http://localhost:8764"
 
 def req(method, path, data=None):
-    url = f"{BASE}{path}"
+    url = _checked_url(BASE + path)
     body = json.dumps(data).encode() if data else None
     r = urllib.request.Request(url, data=body, method=method,
         headers={"Content-Type": "application/json"} if data else {})

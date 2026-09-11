@@ -1,0 +1,54 @@
+{
+  "ontology": {
+    "domain": "Tennessee Eastman 化工过程（正常工况基线测试段）",
+    "physics_notes": "闭环控制下的稳态运行：测量波动应为窄带随机噪声；操纵变量与被控变量强相关（r≈1）为控制回路固有特征而非异常。",
+    "variables": [
+      { "name": "XMEAS_7", "meaning": "反应器压力", "unit": "kPa gauge", "role": "process" },
+      { "name": "XMEAS_9", "meaning": "反应器温度", "unit": "℃", "role": "process" },
+      { "name": "XMEAS_15", "meaning": "汽提塔液位", "unit": "%", "role": "process" },
+      { "name": "XMV_8", "meaning": "汽提塔液相采出流量操纵变量", "unit": "m3/hr", "role": "manipulated" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "全部 52 变量 max|z| ≤ 3.97，超过 3σ 的点占比 ≤0.6%——与高斯窄带噪声预期一致",
+      "异常列前列为 XMEAS_15/XMV_8（汽提塔液位-采出控制对）等，均为孤立点且无时序聚集",
+      "XMV-XMEAS 控制对 r≈1.0（XMEAS_12~XMV_7 等）为闭环控制固有相关，非故障证据",
+      "无跨域联动：成分、温度、压力、流量各组内部与之间均无同步瞬态"
+    ],
+    "data_supported_conclusions": [
+      "全程无阶跃、无阻尼振荡瞬态、无方差爆发——与正常闭环稳态一致",
+      "孤立 3σ 点（合计 <0.6%）属噪声尾部，不构成异常事件"
+    ],
+    "ontology_industry_interpretation": ["基线段所有控制回路工作于设定点附近，操纵变量小幅调节即可维持稳态"],
+    "time_lag": "无跨变量滞后耦合异常",
+    "boundary": "基线判定基于本文件自身统计；无同时段多机组对照"
+  },
+  "hypotheses": [
+    {
+      "name": "过程处于正常闭环稳态（无故障）",
+      "mechanism_class": "normal-operation",
+      "root_physical_cause": "无扰动注入",
+      "logic_chain": ["全部变量窄带噪声", "无跨域同步瞬态", "孤立极值点为噪声尾部"],
+      "confidence": 0.9,
+      "evidence": ["52 变量 max|z|≤3.97 且超 3σ 占比 ≤0.6%（L3）", "无时序聚集瞬态（L4）"],
+      "visual_observations": ["各通道呈窄带随机波动，无阶跃/振荡包络/方差爆发"],
+      "contradiction": [],
+      "falsification": ["若后续样本出现跨域同步瞬态则重新诊断"],
+      "verdict": "surviving"
+    }
+  ],
+  "primary_finding": "过程处于正常闭环稳态，未检出故障或异常事件（正常基线对照组）",
+  "diagnosis_type": "DETERMINED",
+  "confidence": 0.9,
+  "data_gaps": [],
+  "inference_gaps": [],
+  "judge": {
+    "score": 92,
+    "blocking_issues": [],
+    "warnings": [],
+    "validation_findings_cited": ["validate_report.json: anti_spurious.summary.fatal_issues=0，无 Simpson/趋势混淆发现"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "正常基线判定与统计证据一致。" },
+  "visual_observations": ["各通道窄带随机波动，无阶跃与方差爆发"]
+}

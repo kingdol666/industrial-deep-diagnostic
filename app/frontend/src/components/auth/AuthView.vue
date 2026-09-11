@@ -3,40 +3,40 @@
     <div class="auth-card">
       <div class="auth-brand">
         <div class="auth-mark">ID</div>
-        <div class="auth-title">工业深度诊断系统</div>
-        <div class="auth-sub">Industrial Deep Diagnostic · 统一身份认证</div>
+        <div class="auth-title">{{ $t('auth.appTitle') }}</div>
+        <div class="auth-sub">{{ $t('auth.appSubtitle') }}</div>
       </div>
 
       <div class="auth-tabs" role="tablist">
-        <button type="button" :class="{ active: mode === 'login' }" @click="switchMode('login')">登录</button>
-        <button type="button" :class="{ active: mode === 'register' }" @click="switchMode('register')">注册</button>
+        <button type="button" :class="{ active: mode === 'login' }" @click="switchMode('login')">{{ $t('auth.login') }}</button>
+        <button type="button" :class="{ active: mode === 'register' }" @click="switchMode('register')">{{ $t('auth.register') }}</button>
       </div>
 
       <form class="auth-form" @submit.prevent="submit">
         <label class="auth-field">
-          <span>用户名</span>
-          <input v-model.trim="username" autocomplete="username" placeholder="3-32 位字母 / 数字 / _ / -" />
+          <span>{{ $t('auth.username') }}</span>
+          <input v-model.trim="username" autocomplete="username" :placeholder="$t('auth.usernamePlaceholder')" />
         </label>
         <label v-if="mode === 'register'" class="auth-field">
-          <span>邮箱（可选）</span>
+          <span>{{ $t('auth.emailOptional') }}</span>
           <input v-model.trim="email" type="email" autocomplete="email" placeholder="name@example.com" />
         </label>
         <label class="auth-field">
-          <span>密码</span>
+          <span>{{ $t('auth.passwordLabel') }}</span>
           <input
             v-model="password"
             type="password"
             :autocomplete="mode === 'login' ? 'current-password' : 'new-password'"
-            placeholder="至少 8 位，需同时包含字母和数字"
+            :placeholder="$t('auth.passwordPlaceholder')"
           />
         </label>
 
         <div v-if="error" class="auth-error">{{ error }}</div>
 
         <button class="auth-submit" type="submit" :disabled="loading">
-          {{ loading ? '请稍候…' : (mode === 'login' ? '登 录' : '注册并登录') }}
+          {{ loading ? $t('auth.pleaseWait') : (mode === 'login' ? $t('auth.loginAction') : $t('auth.registerAndLogin')) }}
         </button>
-        <p class="auth-note">登录后可在「账户」中创建多个 API Token 用于程序化调用（明文仅显示一次）。</p>
+        <p class="auth-note">{{ $t('auth.tokenNote') }}</p>
       </form>
     </div>
   </div>
@@ -44,8 +44,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { api, setToken, setStoredUser } from '../../api/index.js';
 
+const { t } = useI18n();
 const emit = defineEmits(['authed']);
 
 const mode = ref('login');
@@ -63,7 +65,7 @@ function switchMode(m) {
 async function submit() {
   error.value = '';
   if (!username.value || !password.value) {
-    error.value = '请输入用户名和密码';
+    error.value = t('auth.errUsernamePasswordRequired');
     return;
   }
   loading.value = true;
@@ -77,7 +79,7 @@ async function submit() {
     setStoredUser(data.user);
     emit('authed', data.user);
   } catch (err) {
-    error.value = err.message || '操作失败';
+    error.value = err.message || t('auth.errOperationFailed');
   } finally {
     loading.value = false;
   }

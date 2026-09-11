@@ -1,0 +1,110 @@
+{
+  "ontology": {
+    "domain": "水循环试验台（水箱+离心泵+阀门闭环回路），机械-流体耦合系统",
+    "physics_notes": "离心泵工作点由管路特性与阀开度决定：入口节流→流量受限→泵偏离设计点→振动抬升与温升；出口节流→泵后压力抬升。",
+    "variables": [
+      { "name": "Pressure", "meaning": "泵后回路压力", "unit": "Bar", "role": "process" },
+      { "name": "Volume Flow RateRMS", "meaning": "回路流量", "unit": "L/min", "role": "process" },
+      { "name": "Accelerometer1RMS", "meaning": "泵侧振动加速度RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Accelerometer2RMS", "meaning": "电机侧振动加速度RMS", "unit": "g", "role": "mechanical" },
+      { "name": "Current", "meaning": "电机电流", "unit": "A", "role": "electrical" },
+      { "name": "Voltage", "meaning": "电机电压", "unit": "V", "role": "electrical" },
+      { "name": "Temperature", "meaning": "电机本体温度", "unit": "℃", "role": "thermal" },
+      { "name": "Thermocouple", "meaning": "回路流体温度", "unit": "℃", "role": "thermal" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "Volume Flow RateRMS 在样本约600处发生阶跃下移（≈32.4→30.8 L/min，-5%），持续约400个样本后部分恢复——阶跃型流量受限",
+      "Accelerometer2RMS 出现全程最大离群（max|z|=13.6，超3σ点占0.4%），且方差爆发时段与流量受限段重合（600-700、950-1050）",
+      "Accelerometer1RMS 在流量受限段出现0.038→0.054 g尖峰与基线方差抬升（max|z|=3.45）",
+      "Pressure max|z|=4.02 但以高频小幅振荡为主，未见持续性均值上移",
+      "Thermocouple（流体温度）出现两个宽峰（~样本250、~950），后者与流量受限段重合，符合泵效率下降→能量转入流体的机制"
+    ],
+    "data_supported_conclusions": [
+      "流量阶跃下移与振动方差爆发时间上耦合，指向入口侧节流事件而非传感器孤立故障（双传感器同步、跨域联动）",
+      "完整序列 Pearson 相关被短故障窗口稀释（r≈0.07），属窗口稀释效应而非无因果——已用分段视觉证据补强"
+    ],
+    "ontology_industry_interpretation": [
+      "泵入口节流使 NPSH 裕度下降，泵内流态恶化→振动RMS抬升（机械域）并与流量阶跃（流体域）构成跨域证据链"
+    ],
+    "time_lag": "CCF best_lag 在±20样本内无强峰（|r|≤0.084），故障为同步耦合型而非传递滞后型",
+    "boundary": "无阀位/压力入口侧直接测量，入口 vs 出口节流的区分依赖压力方向性间接证据"
+  },
+  "hypotheses": [
+    {
+      "name": "泵入口流量受限（入口阀开度减小/部分关闭）",
+      "mechanism_class": "fluid-restriction",
+      "root_physical_cause": "泵入口阀门部分关闭",
+      "logic_chain": [
+        "入口阀开度减小→管路阻力增大→流量阶跃下降（图：Volume Flow RateRMS -5% 阶跃）",
+        "泵工作点向小流量偏移→叶轮进口冲角增大、流态恶化→振动RMS抬升（Accel1/2 方差爆发与受限段重合）",
+        "泵效率下降→更多机械能转入流体→回路流体温度宽峰（Thermocouple ~950 处峰与受限段重合）"
+      ],
+      "confidence": 0.86,
+      "evidence": ["Volume Flow RateRMS 阶跃下移5%且持续400样本（L1/L4）", "Accelerometer2RMS max|z|=13.6 与流量受限段时间重合（L3/L4）", "Thermocouple 宽峰与受限段重合（L4）"],
+      "visual_observations": [
+        "Volume Flow RateRMS 在样本~600处阶跃下移~1.6 L/min并持续至~1000后部分恢复",
+        "Accelerometer1RMS 在样本~950-1050出现0.054 g孤立尖峰与方差抬升",
+        "Thermocouple 两个宽温峰（~250、~950），后者落在流量受限段内"
+      ],
+      "contradiction": [],
+      "falsification": ["若泵后压力呈持续上移而非流量下移，则应改判出口节流", "若阀位数据（未采集）显示开度未变，则转向泵内部劣化"],
+      "proof": "流体连续性+泵特性曲线：入口节流→Q下降与振动抬升为同一机理的必然联动",
+      "verdict": "surviving"
+    },
+    {
+      "name": "泵出口阀部分关闭（出口节流）",
+      "mechanism_class": "fluid-restriction",
+      "root_physical_cause": "泵出口阀门部分关闭",
+      "logic_chain": ["出口节流→泵后压力抬升、流量下降", "工作点沿特性曲线上移→轴功率略增"],
+      "confidence": 0.2,
+      "evidence": ["流量同样会下降（共性）"],
+      "visual_observations": [],
+      "contradiction": ["Pressure 未见持续性均值上移（max|z|=4.02 为高频振荡而非台阶），与出口节流的压力抬升预期相反", "出口节流的温升机理弱于入口节流，无法解释 Thercoucle 宽峰"],
+      "falsification": ["若压力段均值+3σ上移成立则复活本假设"],
+      "verdict": "eliminated"
+    },
+    {
+      "name": "转子不平衡（渐进/阶跃型）",
+      "mechanism_class": "rotor-dynamics",
+      "root_physical_cause": "转子质量不平衡",
+      "logic_chain": ["不平衡→1×转速频率振动能量增大→Accel RMS 持续抬升", "不影响回路流量本身"],
+      "confidence": 0.15,
+      "evidence": ["Accel1/2 确有方差抬升（共性）"],
+      "visual_observations": [],
+      "contradiction": ["转子不平衡不改变回路流量，无法解释 -5% 的流量阶跃下移", "振动爆发随流量恢复而回落，不符合不平衡的持续/渐变特征"],
+      "falsification": ["若流量恢复后振动仍持续抬升则复活"],
+      "verdict": "eliminated"
+    },
+    {
+      "name": "泵入口气蚀（two-phase/cavitation）",
+      "mechanism_class": "cavitation",
+      "root_physical_cause": "泵入口两相流/汽化",
+      "logic_chain": ["入口汽化→空泡溃灭→压力宽带脉动+流量噪声崩溃", "噪声呈宽带随机特征"],
+      "confidence": 0.12,
+      "evidence": ["入口节流本身可诱发气蚀（关联性）"],
+      "visual_observations": [],
+      "contradiction": ["[WEAK_EXCLUSION] 流量为平滑阶跃而非气蚀特征的高频崩溃-恢复振荡；压力未见宽带脉动带", "证据不足以完全排除叠加发生的可能，置信上限 12%"],
+      "falsification": ["若出现压力宽带脉动+流量高频崩溃则复活"],
+      "verdict": "eliminated"
+    }
+  ],
+  "primary_finding": "根因为泵入口流量受限——入口阀门开度减小/部分关闭（valve at flow inlet to pump partially closed）：流量阶跃下移5%并伴随泵侧振动方差爆发与流体温度宽峰，三域证据时间耦合于同一受限段",
+  "diagnosis_type": "DETERMINED",
+  "confidence": 0.86,
+  "data_gaps": ["无入口/出口阀位开度直接测量", "无泵转速信号，无法做1×转频谱分析"],
+  "inference_gaps": ["受限段内振动爆发与流量阶跃的因果方向基于机理先验，非干预实验"],
+  "judge": {
+    "score": 93,
+    "blocking_issues": [],
+    "warnings": ["完整序列相关被短窗口稀释，已用分段视觉证据补强（validate_report sorting/correlation 均通过）"],
+    "validation_findings_cited": ["validate_report.json: sorting_validation.time_sorted=true；anti_spurious.summary.fatal_issues=0；outlier_driven_correlations=0 排除了离群驱动的假相关"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "机理链（入口节流→流量阶跃→振动/温升）物理自洽，证据等级 L1/L3/L4 支撑，无与数据矛盾的断言。" },
+  "visual_observations": [
+    "Volume Flow RateRMS 在样本~600处发生-5%阶跃下移，持续约400样本后部分恢复",
+    "Accelerometer1RMS 在样本~950-1050出现0.054 g尖峰；Accelerometer2RMS 在600-700与950-1050方差爆发",
+    "Thermocouple 呈两个宽温峰（~250、~950），后者与流量受限段重合；Pressure 无持续均值台阶"
+  ]
+}

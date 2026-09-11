@@ -1,0 +1,22 @@
+{
+  "data_path": "./bopet_line3_thickness_data.csv",
+  "scene_name": "BOPET Line 3 Thickness Anomaly",
+  "process_description": "BOPET (Biaxially Oriented Polyethylene Terephthalate) film production line. The process involves extrusion, longitudinal stretching (MDO), transverse stretching (TDO), and heat setting. The issue under investigation is periodic thickness variation in the final product.",
+  "batch_id": "BOPET-2024-0315-A",
+  "user_objective": "Identify the root cause of periodic thickness variation exceeding ±3% tolerance in the 12μm BOPET film product.",
+  "reference_dir": "./references/",
+  "known_faults": [
+    "Die lip thermal drift",
+    "Screw speed instability",
+    "Chill roll temperature fluctuation"
+  ],
+  "analysis_constraints": {
+    "focus_signals": ["thickness", "die_temp", "screw_speed", "chill_roll_temp", "line_speed"],
+    "time_range": {
+      "start": "2024-03-15T08:00:00",
+      "end": "2024-03-15T16:00:00"
+    },
+    "judge_score_threshold": 90,
+    "max_iterations": 3
+  }
+}

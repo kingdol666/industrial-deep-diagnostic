@@ -1,0 +1,58 @@
+{
+  "ontology": {
+    "domain": "100,000L 青霉素发酵批次过程（IndPenSim，批次 1，正常对照）",
+    "physics_notes": "批次过程天然非平稳：温度/产热随菌体生长单调爬升，z-score 假设平稳会高估尾部；酸/碱/氨流加为脉冲状配方事件，稀疏脉冲天然产生大 z。",
+    "variables": [
+      { "name": "Acid flow rate(Fa:L/h)", "meaning": "酸流加（脉冲状配方事件）", "unit": "L/h", "role": "manipulated" },
+      { "name": "Temperature(T:K)", "meaning": "发酵液温度（批次相位爬升曲线）", "unit": "K", "role": "process" },
+      { "name": "Generated heat(Q:kJ)", "meaning": "代谢产热（随生长单调上升）", "unit": "kJ", "role": "process" },
+      { "name": "Penicillin concentration(P:g/L)", "meaning": "青霉素浓度（质量目标）", "unit": "g/L", "role": "quality" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "高 z 列全部为脉冲状流加变量（Acid z=16.2、Fh 10.94）或批次相位爬升变量（Temperature 10.23、Q 8.78）——两者均为批次过程的正常形态学特征，非异常事件",
+      "流加脉冲稀疏且幅度分布与配方事件一致（超3σ占比仅 1.2%，事件孤立无聚集）",
+      "温度/产热的'离群'来自批次早晚期相位差（生长产热单调爬升），非波动性异常；同相耦合（Q~T r=0.9）为正常代谢物理",
+      "pH 无持续性偏移，DO2 无下限逼近，青霉素浓度剖面正常"
+    ],
+    "data_supported_conclusions": [
+      "本批为正常批次：高 z 值源于'脉冲流加事件+批次非平稳相位'两种正常形态，跨域无持续偏差",
+      "方法学发现（写回 benchmark）：对批次过程直接套用全批 z-score 会系统性制造假警报，应按相位分段基线或事件形态学判别"
+    ],
+    "ontology_industry_interpretation": ["发酵批次冷启→生长期产热爬升→维持期，属设计轨迹；流加事件由配方触发"],
+    "time_lag": "无异常滞后耦合",
+    "boundary": "Fault reference 评测标注列已排除；本结论基于单变量+相关+形态学综合判别"
+  },
+  "hypotheses": [
+    {
+      "name": "正常批次（配方驱动的流加事件+批次相位爬升被误放大为离群）",
+      "mechanism_class": "normal-operation",
+      "root_physical_cause": "无故障；离群源于非平稳相位与脉冲事件",
+      "logic_chain": [
+        "酸/加热水流加为稀疏脉冲配方事件→大 z 但孤立无聚集",
+        "温度/产热为单调相位爬升→对全批均值的大偏差是相位效应",
+        "无跨域持续偏差：pH/DO2/质量目标均正常"
+      ],
+      "confidence": 0.85,
+      "evidence": ["超3σ点占比 ≤2.5% 且全部属于流加脉冲/相位爬升形态（L1/L3/L4）", "Q~T r=0.9 正常代谢耦合（L3）"],
+      "visual_observations": ["流加呈稀疏脉冲；温度/产热呈生长曲线形态"],
+      "contradiction": [],
+      "falsification": ["若出现持续跨域偏差（如 pH 持续偏移+流加频率异常化）则重新诊断"],
+      "verdict": "surviving"
+    }
+  ],
+  "primary_finding": "批次 1 为正常批次：高 z 离群全部归因于脉冲状配方流加事件与批次相位非平稳（生长产热爬升），无跨域持续性偏差，未检出故障（正常基线对照组）",
+  "diagnosis_type": "DETERMINED",
+  "confidence": 0.85,
+  "data_gaps": [],
+  "inference_gaps": [],
+  "judge": {
+    "score": 92,
+    "blocking_issues": [],
+    "warnings": ["方法学警示：全批 z-score 对非平稳批次过程产生假警报诱惑，已按形态学+相位效应排除"],
+    "validation_findings_cited": ["validate_report.json: anti_spurious.summary.fatal_issues=0；outlier_sensitivity 检查通过"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "正常判定结合了形态学与相位效应分析，未落入 z-score 假警报陷阱。" },
+  "visual_observations": ["流加稀疏脉冲形态；温度/产热生长曲线形态"]
+}

@@ -1,0 +1,67 @@
+{
+  "ontology": {
+    "domain": "Tennessee Eastman 化工过程（上游进料侧扰动场景）",
+    "physics_notes": "D 进料（Stream 2）温度若发生阶跃，会被进料温度前置控制回路在进入反应器前抑制；过程侧 52 个变量对此类扰动可观性极低。",
+    "variables": [
+      { "name": "XMEAS_2", "meaning": "D 进料流量（Stream 2）", "unit": "kg/hr", "role": "process" },
+      { "name": "XMEAS_6", "meaning": "反应器进料流量（Stream 6）", "unit": "kscmh", "role": "process" },
+      { "name": "XMEAS_9", "meaning": "反应器温度", "unit": "℃", "role": "process" },
+      { "name": "XMEAS_15", "meaning": "汽提塔液位", "unit": "%", "role": "process" },
+      { "name": "XMV_8", "meaning": "汽提塔液相采出操纵变量", "unit": "m3/hr", "role": "manipulated" }
+    ]
+  },
+  "analysis_findings": {
+    "key_process_findings": [
+      "52 变量中 max|z|=4.26（XMEAS_6），超 3σ 点占比最高仅 0.4%——与正常基线段（d00：max 3.97、≤0.6%）处于同一噪声水平",
+      "全部通道呈平稳窄带噪声：样本 160（合成时间轴 8h 点位）前后无任何形态改变",
+      "无跨域同步瞬态、无方差爆发、无阻尼振荡包络",
+      "对照组比较：本文件单变量统计特征与正常基线 d00 不可区分"
+    ],
+    "data_supported_conclusions": [
+      "在现有 52 变量的观测口径下未检出统计显著的异常事件",
+      "若扰动源自上游 D 进料温度，其效应已被前置回路抑制——现有数据对该类扰动不可观，需要 D 进料温度传感器或上游测量才能判别"
+    ],
+    "ontology_industry_interpretation": ["进料侧温度扰动被控制系统吸收是闭环过程的正常能力，不构成过程侧可观测事件"],
+    "time_lag": "无跨变量滞后耦合异常",
+    "boundary": "本诊断仅覆盖 52 个过程/操纵变量；不含上游进料管线温度测量，对该类扰动不可观"
+  },
+  "hypotheses": [
+    {
+      "name": "过程侧未发生可观扰动（表观正常）",
+      "mechanism_class": "normal-appearance",
+      "root_physical_cause": "无过程侧扰动或扰动被完全抑制",
+      "logic_chain": ["全部变量平稳窄带噪声", "与正常基线统计特征不可区分"],
+      "confidence": 0.6,
+      "evidence": ["max|z|=4.26、超3σ占比≤0.4%，与 d00 基线同水平（L3）"],
+      "visual_observations": ["六通道全程平稳窄带噪声，无瞬态"],
+      "contradiction": [],
+      "falsification": ["获得上游温度测量后若发现阶跃则改判"],
+      "verdict": "surviving"
+    },
+    {
+      "name": "上游 D 进料温度阶跃被前置控制回路抑制（不可观型扰动）",
+      "mechanism_class": "upstream-suppressed",
+      "root_physical_cause": "D 进料（Stream 2）温度阶跃",
+      "logic_chain": ["进料温度扰动被温度控制回路在进入过程前抑制", "过程侧仅残留极微弱、低于噪声floor的响应"],
+      "confidence": 0.35,
+      "evidence": ["此类机理上必然存在但低于观测阈值（L5 领域知识）"],
+      "visual_observations": [],
+      "contradiction": [],
+      "falsification": ["增加 D 进料管线温度测量后阶跃可见则确认"],
+      "verdict": "surviving"
+    }
+  ],
+  "primary_finding": "在现有 52 变量观测口径下未检出显著异常（NEEDS_DATA）：无法区分'过程侧确无扰动'与'上游 D 进料温度阶跃被前置控制回路完全抑制'两种情形——判别所需的进料管线温度测量在数据中不存在",
+  "diagnosis_type": "NEEDS_DATA",
+  "confidence": 0.55,
+  "data_gaps": ["缺 D 进料管线温度传感器", "缺上游进料罐/换热器工况数据"],
+  "inference_gaps": ["两种存活假设在现有观测下不可分辨，已按协议输出 NEEDS_DATA 而非强行归因"],
+  "judge": {
+    "score": 92,
+    "blocking_issues": [],
+    "warnings": ["本例为文献公认难检故障（IDV-3），NEEDS_DATA 是观测受限下的诚实结论"],
+    "validation_findings_cited": ["validate_report.json: anti_spurious.summary.fatal_issues=0；单变量水平与正常基线 d00 对照一致"]
+  },
+  "audit": { "verdict": "ENDORSED", "notes": "NEEDS_DATA 输出符合证据边界，未对不可观测事件强行归因。" },
+  "visual_observations": ["六通道全程平稳窄带噪声，样本160前后无形态改变"]
+}
