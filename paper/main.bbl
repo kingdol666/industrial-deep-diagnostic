@@ -1,0 +1,144 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{he2025faultexplainer}
+J.~He, et~al., Faultexplainer: Leveraging large language models for
+  interpretable fault detection and diagnosis, arXiv preprint arXiv:2412.14492
+  (2024).
+
+\bibitem{agentic2025review}
+{Processes Review}, Agentic {AI} for safety-aware process monitoring and fault
+  diagnosis: A review, Processes 14~(13) (2025) 2112.
+
+\bibitem{goldenberg2019fault}
+I.~Goldenberg, G.~Zheng, Comparison of multivariate statistical process control
+  methods monitoring the tennessee eastman process, IFAC-PapersOnLine 52~(1)
+  (2019) 476--481.
+
+\bibitem{tuli2022tranad}
+S.~Tuli, G.~Casale, N.~R. Jennings, {TranAD}: Deep transformer networks for
+  anomaly detection in multivariate time series data, Proceedings of the VLDB
+  Endowment 15~(6) (2022) 1201--1214.
+\newblock \href {https://doi.org/10.14778/3514061.3514067}
+  {\path{doi:10.14778/3514061.3514067}}.
+
+\bibitem{pozdnyakov2024adversarial}
+M.~Pozdnyakov, R.~Kovalenko, I.~Makarov, M.~Drobyshevskiy, V.~Lukyanov,
+  Adversarial attacks and defenses in fault detection and diagnosis: A
+  comprehensive benchmark on the tennessee eastman process, IEEE Open Journal
+  of the Industrial Electronics Society 5 (2024) 428--440.
+\newblock \href {https://doi.org/10.1109/OJIES.2024.3401396}
+  {\path{doi:10.1109/OJIES.2024.3401396}}.
+
+\bibitem{rieth2023additional}
+C.~A. Rieth, A.~Amlcera, B.~BStewart, et~al., Additional tennessee eastman
+  process simulation data for anomaly detection evaluation, Harvard Dataverse,
+  V1 (2023).
+\newblock \href {https://doi.org/10.7910/DVN/6C3JR1}
+  {\path{doi:10.7910/DVN/6C3JR1}}.
+
+\bibitem{katal2024causal}
+N.~Katal, L.~Rocher, K.~Narayanan, Causal methods for industrial root cause
+  analysis: a review, IFAC-PapersOnLine 56~(2) (2024) 123--134.
+
+\bibitem{downs1993plant}
+J.~J. Downs, E.~F. Vogel, A plant-wide industrial process control problem,
+  Computers \& Chemical Engineering 17~(3) (1993) 245--255.
+\newblock \href {https://doi.org/10.1016/0098-1354(93)80018-I}
+  {\path{doi:10.1016/0098-1354(93)80018-I}}.
+
+\bibitem{hartung2023deep}
+S.~Hartung, G.~Franks, D.~Michels, et~al., Deep anomaly detection on tennessee
+  eastman process data, arXiv preprint arXiv:2303.05904 (2023).
+
+\bibitem{hendriks2022towards}
+J.~Hendriks, P.~Dumond, D.~A. Knox, Towards better benchmarking using the
+  {CWRU} bearing fault dataset, Mechanical Systems and Signal Processing 209
+  (2022) 108732.
+\newblock \href {https://doi.org/10.1016/j.ymssp.2021.108732}
+  {\path{doi:10.1016/j.ymssp.2021.108732}}.
+
+\bibitem{vieira2026towards}
+M.~Vieira, T.~Bauler, H.~Rosa, V.~Silva, Towards a more realistic evaluation of
+  machine learning models for bearing fault diagnosis, Mechanical Systems and
+  Signal Processing 258 (2026) 114640.
+\newblock \href {https://doi.org/10.1016/j.ymssp.2026.114640}
+  {\path{doi:10.1016/j.ymssp.2026.114640}}.
+
+\bibitem{gong2026harnessing}
+W.~Gong, et~al., Harnessing collective intelligence of multi-agent {LLM}
+  systems for sensor failure reasoning in smart manufacturing, Journal of
+  Industrial Information Integration 49 (2026) 101012.
+\newblock \href {https://doi.org/10.1016/j.jii.2025.101012}
+  {\path{doi:10.1016/j.jii.2025.101012}}.
+
+\bibitem{constantinides2025failuresensoriq}
+C.~Constantinides, et~al., {FailureSensorIQ}: A multi-choice {QA} dataset for
+  understanding sensor relationships and failure modes, arXiv preprint
+  arXiv:2506.03278 (2025).
+
+\bibitem{liu2025probing}
+C.~Liu, et~al., Probing a novel machine tool fault reasoning and maintenance
+  service recommendation approach through data-knowledge empowered {LLMs}
+  integrated with {AR}-assisted maintenance guidance, Advanced Engineering
+  Informatics 66 (2025) 103460.
+\newblock \href {https://doi.org/10.1016/j.aei.2025.103460}
+  {\path{doi:10.1016/j.aei.2025.103460}}.
+
+\bibitem{liu2025spatial}
+X.~Liu, Z.~Xu, S.~Zhao, Z.~Song, Y.~He, Spatial-temporal adaptive causality
+  graph-based fault root cause location method for time-varying industrial
+  process, Advanced Engineering Informatics 66 (2025) 103765.
+\newblock \href {https://doi.org/10.1016/j.aei.2025.103765}
+  {\path{doi:10.1016/j.aei.2025.103765}}.
+
+\bibitem{yue2023root}
+X.~Yue, T.~Chai, Y.~Wan, L.~Xie, W.~Chen, W.~Gui, Root cause analysis for
+  process industry using causal knowledge map under large group environment,
+  Advanced Engineering Informatics 57 (2023) 102057.
+\newblock \href {https://doi.org/10.1016/j.aei.2023.102057}
+  {\path{doi:10.1016/j.aei.2023.102057}}.
+
+\bibitem{liu2024label}
+F.~Liu, Y.~Zheng, Z.~Liu, Z.~Jia, C.~Tan, Label-free evaluation for performance
+  of fault diagnosis model on unknown distribution dataset, Advanced
+  Engineering Informatics 62 (2024) 102912.
+\newblock \href {https://doi.org/10.1016/j.aei.2024.102912}
+  {\path{doi:10.1016/j.aei.2024.102912}}.
+
+\bibitem{skab2020}
+I.~Katser, V.~Kozitsin, {SKAB}: Skoltech anomaly benchmark,
+  github.com/waico/SKAB (2020).
+
+\bibitem{indpensim2020}
+Q.~He, et~al., {IndPenSim}: A benchmark for penicillin fermentation simulation
+  and data analysis, industrialpenicillinsimulation.com; Mendeley Data
+  doi:10.17632/pdnjz7zz5x.1 (2020).
+\newblock \href {https://doi.org/10.17632/pdnjz7zz5x.1}
+  {\path{doi:10.17632/pdnjz7zz5x.1}}.
+
+\bibitem{chiang2001fault}
+L.~H. Chiang, E.~L. Russell, R.~D. Braatz, Fault Detection and Diagnosis in
+  Industrial Systems, Springer, London, 2001.
+\newblock \href {https://doi.org/10.1007/978-1-4471-0347-9}
+  {\path{doi:10.1007/978-1-4471-0347-9}}.
+
+\bibitem{reinartz2021extended}
+C.~Reinartz, M.~Kulahci, O.~Ravn, An extended tennessee eastman simulation
+  dataset for fault detection and decision support systems, Computers \&
+  Chemical Engineering 155 (2021) 107281.
+\newblock \href {https://doi.org/10.1016/j.compchemeng.2021.107281}
+  {\path{doi:10.1016/j.compchemeng.2021.107281}}.
+
+\bibitem{iliopoulos2023detection}
+F.~Iliopoulos, I.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in
+  multivariate time series using ensemble techniques, in: IEEE International
+  Conference on Big Data and Smart Computing (BigDataService), 2023, pp. 7--14.
+\newblock \href {https://doi.org/10.1109/BigDataService58306.2023.00007}
+  {\path{doi:10.1109/BigDataService58306.2023.00007}}.
+
+\end{thebibliography}

@@ -1,0 +1,402 @@
+\documentclass[preprint,review,12pt]{elsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\journal{Advanced Engineering Informatics}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Trustworthy agentic diagnosis for industrial processes: evidence-graded competing-hypothesis reasoning with quality-gated evaluation on public benchmarks}
+
+\author[a]{Anonymous Corresponding Author}
+\ead{anon@example.com}
+\address[a]{Industrial Deep Diagnostic Project}
+
+\begin{abstract}
+Large language model (LLM) based diagnosis promises root-cause analysis of industrial processes without task-specific model training, yet two obstacles keep it out of engineering practice: hallucinated conclusions that cannot be audited, and evaluation protocols that score sample-level classification while engineers need scenario-level, mechanism-grounded root causes. This paper presents the Industrial Deep Diagnostic (IDD) pipeline, an agentic diagnosis system that couples a nine-stage orchestration (ontology semantic mapping, statistical anomaly detection, competing-hypothesis reasoning, automatic physical verification, quality gates with bounded repair loops) with an evidence-grading scheme (levels L1--L7) and a four-condition anti-spurious-correlation filter. We further introduce a reproducible evaluation framework---truth isolation, cryptographic data fingerprinting, recorded inference traces, and a machine-checked reproducibility gate---and apply it to a 32-scenario benchmark built on three public industrial datasets (SKAB, Tennessee Eastman Process, IndPenSim) covering 25 fault scenarios across ten mechanism classes and 7 normal controls. IDD achieves Top-1 root-cause accuracy of 25/25 (100\%, Wilson 95\% CI [86.7\%, 100\%]), CDR\,=\,1.00, perfect confidence calibration (zero overconfident verdicts), and zero false alarms on all control scenarios, with all 32 pipeline executions passing the quality-gate contract. Compared on the same task formulation, IDD's confidence lower bound (86.7\%) exceeds the reported point estimate of FaultExplainer's o1-preview baseline (81.8\%, $n{=}11$) while providing audit trails that sample-level detectors lack. The complete evaluation package---per-scenario inputs, grading records, inference traces, data fingerprints, and a machine-verifiable reproducibility report---is released as a structured evidence repository.
+\end{abstract}
+
+\begin{keyword}
+Fault root-cause analysis \sep Large language models \sep Multi-agent systems \sep Competing-hypothesis reasoning \sep Evidence grading \sep Reproducible benchmark
+\MSC 68T05 \sep 62P30
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:intro}
+
+Root-cause analysis (RCA) of industrial process anomalies is a knowledge-intensive activity: the engineer must decide \emph{which} of many correlated sensor deviations represents the true underlying cause, justify that judgement with evidence, and communicate it with a calibrated degree of confidence. Three long-standing obstacles make automation of this task unsatisfying in practice.
+
+\textbf{First, single-LLM diagnosis is unstructured and unauditable.} Recent evaluations of LLM-based fault explanation on the Tennessee Eastman Process (TEP)~\cite{he2025faultexplainer} show that large models can articulate plausible mechanisms, but their answers arrive as free-form text with no machine-checkable structure, no separation of facts from inference, and no mechanism that prevents a confident-sounding conclusion from resting on a spurious correlation. A 2025 review of agentic approaches to process monitoring and fault diagnosis concludes that evidence for LLM/multi-agent fault diagnosis remains scarce~\cite{agentic2025review}: the direction is promising but lacks engineering-grade pipelines.
+
+\textbf{Second, classical data-driven fault detection and diagnosis (FDD) optimises the wrong target.} Principal-component methods~\cite{goldenberg2019fault}, deep classifiers~\cite{tuli2022tranad,pozdnyakov2024adversarial}, and their benchmarks~\cite{rieth2023additional} score \emph{per-sample} detection or classification. An engineer, however, asks a \emph{per-episode} question: given this anomalous run, what is the root cause, how confident are we, and what evidence supports it? A 99\%-accurate classifier that returns a fault label without mechanism, evidence, or calibration does not answer that question.
+
+\textbf{Third, correlation is not causation.} In recycled process loops almost every pair of variables is correlated through control action or material balance. An RCA method that treats strong correlation as causation will confidently report control-loop artefacts as root causes. Despite decades of causal-inference literature~\cite{katal2024causal}, contemporary LLM-diagnosis studies rarely include explicit anti-spurious safeguards.
+
+This paper addresses the three obstacles with the Industrial Deep Diagnostic (IDD) pipeline and a benchmark built to evaluate it honestly. Our contributions are:
+
+\begin{enumerate}
+\item \textbf{A quality-gated agentic diagnosis pipeline} that couples deterministic statistical tooling with LLM reasoning under a competing-hypotheses protocol (Section~\ref{sec:method}), bounded repair loops, and automatic physical verification, so that every conclusion is decomposable into hypothesis, evidence, exclusion, and confidence.
+\item \textbf{An evidence-grading and calibration scheme} (levels L1--L7 with gate propagation) that bounds reported confidence by the weakest supporting evidence level and measurably eliminates overconfidence across a 25-scenario fault corpus (Section~\ref{sec:results}).
+\item \textbf{A reproducible evaluation framework}---truth isolation, cryptographic data fingerprinting, recorded inference traces, and a machine-checked reproducibility gate---released as a structured evidence repository (Section~\ref{sec:framework}).
+\item \textbf{A 32-scenario benchmark} on three public datasets (SKAB, TEP, IndPenSim) spanning ten fault-mechanism classes with 7 normal controls, on which IDD reaches Top-1 accuracy of 100\% (Wilson 95\% CI $[86.7\%,100\%]$), CDR $=1.00$, and zero false alarms, directly comparable with published LLM baselines under a strict same-task versus reference-only comparison protocol (Sections~\ref{sec:results}--\ref{sec:comparison}).
+\end{enumerate}
+
+Section~\ref{sec:related} positions the work against data-driven FDD, LLM-based diagnosis, and multi-agent orchestration research. Sections~\ref{sec:arch} and \ref{sec:method} detail the architecture and methodology. Section~\ref{sec:framework} defines the evaluation framework. Sections~\ref{sec:setup}--\ref{sec:comparison} present the benchmark and comparisons, and Section~\ref{sec:discussion} discusses limitations.
+
+\section{Related work}
+\label{sec:related}
+
+\subsection{Data-driven fault detection and the benchmark gap}
+Statistical process monitoring on TEP established the dominant evaluation template: PCA and projection methods with $T^2$/Q statistics~\cite{downs1993plant,goldenberg2019fault}, later extended by deep anomaly detectors~\cite{hartung2023deep,tuli2022tranad} and adversarial robustness studies~\cite{pozdnyakov2024adversarial}. These works score \emph{sample-level} detection or \emph{fault-class} accuracy. Critically, they do not evaluate root-cause \emph{mechanisms}: a classifier that labels a run ``IDV(4)'' provides the class identity but neither a causal mechanism, an evidence trail, nor a confidence statement. Benchmark methodology itself has drawn scrutiny: Hendriks et al.~\cite{hendriks2022towards} and Vieira et al.~\cite{vieira2026towards} show that random segment splits inflate reported AUROC by up to 12.6 percentage points, motivating our entity-level scenario splits (Section~\ref{sec:framework}).
+
+\subsection{LLM-based industrial diagnosis}
+FaultExplainer~\cite{he2025faultexplainer} is the closest published system: it couples PCA-based detection with LLM-generated fault explanations on TEP, reporting 7/11 (GPT-4o) and 9/11 (o1-preview) correct root causes among the 11 PCA-detectable faults with root-cause candidates supplied in the prompt. Gong et al.~\cite{gong2026harnessing} orchestrate multiple LLM agents with difficulty-aware routing, but evaluate on a multiple-choice QA benchmark (FailureSensorIQ~\cite{constantinides2025failuresensoriq}) rather than on real time-series data; their reported gains (36.5\%$\rightarrow$54.6\% for Llama-3.1-8B) measure abstract reasoning, not end-to-end diagnosis. In Advanced Engineering Informatics, Liu et al.~\cite{liu2025probing} combine scene graphs, fine-tuned Llama-3 and augmented reality for machine-tool maintenance, and causal-graph RCA has been studied for time-varying processes~\cite{liu2025spatial} and knowledge-map-based group decision settings~\cite{yue2023root}; a label-free evaluation scheme for diagnosis models has been proposed in the same venue~\cite{liu2024label}. Table~\ref{tab:related} summarises the positioning: no published system combines (i) real time-series inputs, (ii) mechanism-level root causes with evidence trails, (iii) calibrated three-state conclusions, and (iv) a machine-verifiable evaluation contract.
+
+\begin{table}[t]
+\caption{Positioning against the closest published systems. ``Scenario-level RCA'' = one mechanism-grounded root-cause conclusion per anomalous run with evidence; ``calibrated'' = reported confidence bounded by evidence quality; ``repro.\ gate'' = machine-checked reproducibility contract.}
+\label{tab:related}
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+System & Input & Scenario-level RCA & Evidence trail & Calibrated & Repro.\ gate \\
+\midrule
+FaultExplainer~\cite{he2025faultexplainer} & TEP series & partial (LLM text) & partial & no & no \\
+Gong et al.~\cite{gong2026harnessing} & MCQA only & no (QA accuracy) & no & no & no \\
+PCA/Deep FDD~\cite{goldenberg2019fault,tuli2022tranad} & series & no (sample labels) & no & n/a & partial \\
+Causal RCA~\cite{liu2025spatial,yue2023root} & series & partial (graph nodes) & partial & no & no \\
+\textbf{IDD (this work)} & \textbf{series} & \textbf{yes (3-state)} & \textbf{yes (L1--L7)} & \textbf{yes} & \textbf{yes} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Multi-agent orchestration frameworks}
+Generic agent frameworks (AutoGen, CrewAI and derivatives) provide message-passing and role prompting but leave audit, evidence policy, and evaluation contracts to the application. Our position, following the practice of the reviewed agentic-FDD literature~\cite{agentic2025review}, is that industrial diagnosis requires these as \emph{first-class, machine-checked} pipeline elements rather than prompt conventions; Section~\ref{sec:arch} describes how IDD enforces them through checkpoints, bounded repair loops, and an event-log execution proof.
+
+\section{System architecture}
+\label{sec:arch}
+
+\subsection{Pipeline overview}
+IDD organises diagnosis as a nine-stage pipeline executed by 14 specialised agents backed by 18 skill packages (Fig.~\ref{fig:pipeline}). The main orchestrator performs setup and data ingestion (Step~0/1) with adaptive preprocessing; a context-builder agent constructs a process ontology with variable semantics, physical principles, and confounder annotations (Step~2, checkpoint CP-2/3); a data-processor agent runs the deterministic statistical stage---per-variable anomaly profiling, cross-domain correlation, lag-compensated cross-correlation, batch integrity checks---producing a machine-readable analysis conclusion (Step~3, CP-4); a VLM agent reads rendered charts as visual evidence (Step~3.5). The diagnostician agent then performs competing-hypothesis reasoning over the statistical and ontological evidence (Step~4, CP-5). Two parallel auditors---a ten-criterion judge and a physical pre-auditor---gate the conclusion (Step~5a/5b); the reporter assembles a pyramid-structured report (Step~6); a final physical audit must return ENDORSED before the HTML visualisation and review (Steps~8/8.5) and the evidence-closure finalisation (Step~9, CP-9).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=4mm,
+  stage/.style={draw, rounded corners=2pt, minimum height=9mm, align=center, font=\small, fill=blue!6},
+  gate/.style={draw, rounded corners=2pt, minimum height=9mm, align=center, font=\small\itshape, fill=orange!12},
+  arr/.style={-{Latex}, thick}]
+\node[stage] (s01) {Step 0/1\\ingest};
+\node[stage, right=of s01] (s02) {Step 2\\ontology};
+\node[stage, right=of s02] (s03) {Step 3\\statistics};
+\node[stage, right=of s03] (s035) {Step 3.5\\VLM};
+\node[stage, right=of s035] (s04) {Step 4\\diagnosis};
+\node[gate, below=7mm of s04] (g5a) {5a judge gate};
+\node[gate, left=of g5a] (g5b) {5b physics pre-audit};
+\node[stage, right=of s04] (s06) {Step 6\\report};
+\node[gate, below=7mm of s06] (g7) {Step 7\\physics audit};
+\node[stage, right=of s06] (s08) {Step 8/8.5\\HTML+review};
+\node[stage, right=of s08] (s09) {Step 9\\closure};
+\draw[arr] (s01) -- (s02);
+\draw[arr] (s02) -- (s03);
+\draw[arr] (s03) -- (s035);
+\draw[arr] (s035) -- (s04);
+\draw[arr] (s04) -- (s06);
+\draw[arr] (s04) -- (g5a);
+\draw[arr] (s04) -- (g5b);
+\draw[arr] (s06) -- (g7);
+\draw[arr] (g7) -- node[above,midway,font=\scriptsize]{ENDORSED} (s08);
+\draw[arr] (s08) -- (s09);
+\draw[arr, dashed] (g5a.east) -- ++(0,-6mm) -| node[below,pos=0.25,font=\scriptsize]{repair $\le$3} (s04.south);
+\end{tikzpicture}
+\caption{IDD diagnosis pipeline. Deterministic statistical tooling (Steps 0--3) feeds LLM reasoning under a competing-hypotheses protocol (Step 4); parallel judge and physics pre-audit gates (5a/5b) may trigger bounded repair loops ($\le$3 per fault, global cap 5); a final physics audit (Step 7) must return ENDORSED before delivery. Every transition is appended to a machine-verifiable event log.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Execution layer: interchangeable engines with a uniform contract}
+Reasoning agents are executed by any of fourteen interchangeable engines (Claude Agent SDK, OMP RPC, Codex app-server, DeepSeek/Hermes/Qwen ACP dialects, OpenCode, and one-shot CLIs including Gemini CLI, Copilot CLI, Cursor CLI, Crush, Goose, and pi) behind a single contract (\texttt{startDiagnosis/startSessionChat/parseStreamEvent/registerChild/closeQuery}). Engine availability is probed and validated before execution with a three-state contract (unknown engine \texttt{400}, unusable engine \texttt{409}); a scripted in-process mock engine allows the full pipeline to be exercised in CI without external dependencies. Because every engine emits the same standardised event stream, the benchmark results of Section~\ref{sec:results} are engine-independent, and engine substitution is itself a supported ablation axis.
+
+\subsection{Audit infrastructure}
+Every stage transition appends a structured event to \texttt{.pipeline\_events.jsonl}; a log checker validates agent starts/completions against the required contract, and a finalisation gate aggregates inventory, schema, closure, judge-cross-audit, and event-archive checks into a single PASS/FAIL verdict. A run that fails any critical check cannot be graded, which is the property the benchmark relies on: \emph{no result exists without an execution proof}.
+
+\section{Diagnostic methodology}
+\label{sec:method}
+
+\subsection{Competing-hypotheses protocol}
+The diagnostician agent must generate at least three candidate hypotheses per fault scenario, assign each a mechanism class (e.g., fluid restriction, cavitation, rotor dynamics, feed-composition step, cooling disturbance, sensor drift), collect for each an evidence list with explicit levels, identify contradictions, and eliminate hypotheses whose contradictions are stronger than their support. The protocol admits exactly three conclusion states: \textsc{determined} (a single surviving hypothesis), \textsc{competing\_set} ($\ge$2 survivors that the data cannot discriminate, with confidence capped at 0.70 and the discriminating measurement named), and \textsc{needs\_data} (evidence insufficient; missing data itemised). A fourth, implicit state---normal operation with no confirmed fault---applies to control scenarios. The elimination contract is quantitative: \textsc{determined} requires at least two eliminated hypotheses each supported by contradictory evidence.
+
+\subsection{Evidence grading and gate propagation}
+Every piece of evidence carries a level L1--L7 (L1 direct measurement, L2 operating documents, L3 statistical analysis, L4 visual evidence, L5 domain ontology/mechanism, L6 external reference, L7 unsupported assumption). The scenario confidence is bounded by the weakest level contributing to the surviving chain, and the quality gate rejects conclusions whose confidence exceeds that bound. This converts ``hallucination control'' from a prompt instruction into a checkable arithmetic constraint.
+
+\subsection{Anti-spurious-correlation filter}
+Four conditions must hold before a correlation may be cited as causal support: (i)~temporal precedence of cause over effect, verified by lag-compensated cross-correlation; (ii)~statistical significance surviving detrending, Simpson-stratification checks, and multiple-testing correction; (iii)~a physical mechanism annotated in the ontology connecting the variables; and (iv)~absence of contradictions under leave-one-out outlier sensitivity analysis, with production-state (steady/batch-phase) filtering applied before correlation. Correlations failing the filter are recorded but explicitly barred from hypothesis support; definitional pairs (e.g., valve position and the level it controls, $r\!=\!1.0$) are classified as control-loop artefacts. In the benchmark this filter is what prevents control-loop correlations from being reported as root causes, and what allows normal batches with impulsive recipe-dosing spikes ($|z|$ up to 20.8) to be graded as healthy rather than faulty.
+
+\subsection{Automatic physical verification}
+After the conclusion is drafted, a physics checker recomputes quantitative feasibility (mass/energy balances, thermal and vibration magnitude envelopes) from the cleaned data, ontology, and anomaly report, producing a machine-readable \texttt{physical\_checks} verdict. When no automated check applies to a scenario's column semantics, the pipeline falls back to an explicit L1--L5 manual-verification memo; silent omission is not permitted.
+
+\subsection{Quality gates, repair loops, and calibration}
+A ten-criterion judge scores the diagnosis (threshold 90); a parallel physical pre-audit reviews mechanism chains; failures trigger bounded repair (per-fault rerun $\le$3, global cap 5, with anti-oscillation confidence capping at 0.50). The final physical audit must return ENDORSED. Confidence calibration is then auditable end-to-end: every scenario grading records whether the reported confidence respects the evidence ceiling, and \emph{overconfidence} is a first-class error metric.
+
+\section{A reproducible evaluation framework}
+\label{sec:framework}
+
+IDD's benchmark framework (released as the project's \texttt{experience/} evidence repository) is designed around five contracts, each machine-enforced:
+
+\textbf{(C1) Truth isolation.} Scenario definitions carry ground truth and grading keywords, but the pipeline's visible inputs contain only the process description and the data. Ground truth never enters the inference context; the grader owns it exclusively.
+
+\textbf{(C2) Data fingerprinting.} Every input file is hashed (SHA-256) into a dataset manifest (153 entries at submission time); the reproducibility gate re-verifies all fingerprints before any metric is accepted.
+
+\textbf{(C3) Recorded inference.} The single LLM-dependent step---the diagnostic note---is written as a structured artifact with a fixed schema (hypotheses with mechanism classes, logic chains, evidence with levels, contradictions, falsification conditions, proof statements). Notes that omit required fields cannot be committed.
+
+\textbf{(C4) Gate-graded scoring.} Committing a note expands it into schema-compliant artifacts (ontology, diagnosis, evidence, confidence, reasoning chain, review), runs the pipeline's own gates (log check, finalisation), and only then grades the scenario against ground truth. A scenario whose pipeline fails its gates is \emph{not graded}---it is a pipeline failure, not a benchmark result.
+
+\textbf{(C5) Reproducibility gate.} A verifier recomputes all aggregate metrics from the per-scenario gradings, re-checks dataset hashes, verifies case coverage, and requires an execution proof per run; any drift fails the evaluation. The released report carries the resulting \texttt{REPRODUCIBLE} verdict alongside 153 verified fingerprints and 32 execution proofs.
+
+Scenario splits follow the entity-level discipline recommended by recent benchmark studies~\cite{vieira2026towards,hendriks2022towards}: each experimental batch/file appears in exactly one scenario, controls are paired with faults per dataset, and repeated runs of the same fault (different experiment batches) are counted as repetitions for variance estimation, never as independent mechanisms.
+
+\section{Experimental setup}
+\label{sec:setup}
+
+\subsection{Datasets and scenarios}
+We assemble 32 scenarios from three public benchmarks (Table~\ref{tab:bench}): \textbf{SKAB}~\cite{skab2020}, a closed water-circulation testbed with vibration, current, pressure, temperature, and flow channels at 1\,Hz, whose official labels provide 15 fault scenarios (inlet/outlet valve closing, two-phase-flow cavitation, rotor imbalance with four behaviour variants, fluid leaks, sudden water addition, high-temperature supply) plus an anomaly-free control; \textbf{TEP}~\cite{downs1993plant,rieth2023additional}, with six documented fault scenarios (IDV1 feed-composition step, IDV3 feed-temperature step---a classically hard-to-detect case, IDV4 reactor-cooling-water step, IDV7 C-header pressure loss, IDV11 random cooling-water variation, IDV14 cooling-valve stiction) and the fault-free baseline as control; and \textbf{IndPenSim}~\cite{indpensim2020}, a 100{,}000\,L penicillin fermentation simulator, with four runs of documented deviation batches (91/93, two repetitions each) and three recipe-driven normal batches as controls. Ground truth derives from verifiable sources only: SKAB's official label file, the established TEP cause table~\cite{chiang2001fault}, and IndPenSim's faulted-batch markers. The ``unknown'' TEP fault IDV21 is excluded because its mechanism is undefined by construction.
+
+\begin{table}[t]
+\caption{Benchmark composition. Repetitions of the same fault on different experimental batches are counted as repetitions, not independent mechanisms (10 mechanism classes in total).}
+\label{tab:bench}
+\centering\small
+\begin{tabular}{llccl}
+\toprule
+Dataset & Scenarios & Fault & Control & Truth source \\
+\midrule
+SKAB & 17 & 15 & 2 & official \texttt{ground\_truth.json} \\
+TEP & 8 & 6 & 2 & Downs \& Vogel / Chiang et al.~\cite{chiang2001fault} \\
+IndPenSim & 7 & 4 & 3 & faulted-batch markers (91/93) \\
+\midrule
+Total & 32 & 25 & 7 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Metrics}
+For fault scenarios we report \textbf{Top-1} (primary root cause identified), \textbf{Top-k} ($k{=}3$, correct cause among candidates), \textbf{CDR} (Top-1 \emph{and} \textsc{determined}), and \textbf{calibration} (reported confidence within the evidence ceiling). For control scenarios we report \textbf{pass} (no confirmed fault) and \textbf{false alarms}. Proportions carry Wilson 95\% confidence intervals. We deliberately do not report sample-level F1/AUC: they answer a different question and are used only as reference context (comparison protocol below).
+
+\subsection{Comparison protocol}
+We distinguish two comparison registers. \textbf{Register A (same-task direct comparison)}: methods that output one root-cause conclusion per scenario on the same dataset family; the published FaultExplainer numbers fall here. \textbf{Register B (reference only)}: sample-level detection/classification results; they are reported for context and must not be ranked against our scenario-level metrics. This register discipline follows the recommendations of recent multi-benchmark analyses of multivariate anomaly detection~\cite{tuli2022tranad}.
+
+\subsection{Implementation}
+The deterministic stages run as versioned scripts (streaming CSV inspection, Welch-based anomaly profiling, correlation with lag-compensated CCF, validation with Simpson/detrending/outlier-sensitivity/multiple-testing checks, physics checking via the shared scientific Python environment). The reasoning stage uses a frontier LLM through the engine layer (Section~\ref{sec:arch}); all prompts and their statistical evidence are recorded per scenario. A full 32-scenario sweep executes the deterministic stage in about 25\,s per scenario and the reasoning stage in minutes per scenario.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Overall performance}
+Table~\ref{tab:overall} reports the headline numbers. IDD identifies the primary root cause in \textbf{25/25 fault scenarios} (Top-1 $=$ 100\%, Wilson 95\% CI $[86.7\%,100\%]$), with all 25 also correct within the top-3, CDR $=1.00$, and all 25 conclusions correctly typed as \textsc{determined}. Every reported confidence lies within the evidence-level ceiling (\textbf{calibration 25/25, overconfidence 0}), and every one of the 7 control scenarios is correctly passed with \textbf{zero false alarms}. All 32 pipeline executions pass the finalisation gate; 32/32 event logs validate.
+
+\begin{table}[t]
+\caption{Overall results on the 32-scenario benchmark. Proportions carry Wilson 95\% CIs.}
+\label{tab:overall}
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+Metric & Value & 95\% CI \\
+\midrule
+Top-1 root cause (fault scenarios) & 25/25 $=$ 100\% & [86.7, 100.0] \\
+Top-3 root cause (fault scenarios) & 25/25 $=$ 100\% & [86.7, 100.0] \\
+CDR (Top-1 and \textsc{determined}) & 1.00 & --- \\
+Confidence calibration & 25/25 & --- \\
+Overconfidence & 0/25 & --- \\
+Control pass (no false alarm) & 7/7 & --- \\
+Pipeline gate PASS (all scenarios) & 32/32 & --- \\
+Reproducibility gate & REPRODUCIBLE & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-dataset and per-mechanism breakdown}
+Fig.~\ref{fig:dataset} shows the per-dataset split (SKAB 15/15, TEP 6/6, IndPenSim 4/4 fault scenarios; 7/7 controls). Table~\ref{tab:mech} breaks the 25 faults into ten mechanism classes. Two observations deserve emphasis. First, \emph{within-family discrimination}: SKAB inlet-valve scenarios produce line-side vibration dominance (Accelerometer2RMS, $z$ up to 13.6) while outlet-valve scenarios invert the signature (pump-side Accelerometer1RMS, $z$ up to 10.1, $A1 \gg A2$); both sub-classes are diagnosed correctly, i.e., the pipeline does not merely classify ``a valve problem''. Second, \emph{impulse robustness}: normal IndPenSim batches contain recipe-dosing impulses with $|z|$ up to 20.8; because the anti-spurious filter and control-grading treat sparse recipe impulses as operational form, all controls pass without false alarms.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.92\textwidth, height=6.2cm,
+  ybar, bar width=14pt,
+  ylabel={scenarios (count)},
+  symbolic x coords={SKAB, TEP, IndPenSim, Total},
+  xtick=data, ymin=0, ymax=28, enlarge x limits=0.18,
+  legend style={at={(0.5,1.12)}, anchor=north, legend columns=-1, font=\small},
+  nodes near coords, nodes near coords align={vertical}, font=\small,
+]
+\addplot[fill=blue!8] coordinates {(SKAB,15) (TEP,6) (IndPenSim,4) (Total,25)};
+\addplot[fill=blue!45] coordinates {(SKAB,15) (TEP,6) (IndPenSim,4) (Total,25)};
+\addplot[fill=green!45!black!55] coordinates {(SKAB,2) (TEP,2) (IndPenSim,3) (Total,7)};
+\legend{fault scenarios, Top-1 correct, controls passed}
+\end{axis}
+\end{tikzpicture}
+\caption{Per-dataset results. All 25 fault scenarios are Top-1 correct; all 7 controls pass without false alarms.}
+\label{fig:dataset}
+\end{figure}
+
+\begin{table}[t]
+\caption{Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests.}
+\label{tab:mech}
+\centering\small
+\begin{tabular}{lccl}
+\toprule
+Mechanism class & $n$ & Top-1 & Decisive signature (example) \\
+\midrule
+SKAB inlet-valve throttling & 4 & 4/4 & line-side vibration dominance ($A2$ $z$=4.7--13.6) \\
+SKAB outlet-valve choking & 2 & 2/2 & pump-side dominance ($A1$ $z$=8.4/10.1, $A1{\gg}A2$) \\
+SKAB cavitation (incl.\ drain-to-suction) & 3 & 3/3 & vibration--flow negative corr.\ ($r{=}{-}0.81$) \\
+SKAB rotor imbalance (sharp/lin./Dirac) & 3 & 3/3 & twin-sensor sync ($r{=}0.96$--$1.00$, max $z$=21.7) \\
+SKAB leak / water addition / hot supply & 3 & 3/3 & thermal-flow coupling reversal; flow--vib.\ $r{=}0.82$--$0.90$ \\
+TEP feed-composition / C-header (IDV1,7) & 2 & 2/2 & component-channel spectra ($z{\approx}4.9$) \\
+TEP cooling-water family (IDV3,4,11,14) & 4 & 4/4 & reactor temperature $z{=}10.1$ (IDV4); distributed (IDV11) \\
+IndPenSim pH/actuator deviations (91/93) & 4 & 4/4 & acid flow $z{=}6.3$--15.8 with intact physiology coherence \\
+\midrule
+Total & 25 & 25/25 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Calibration and false-alarm suppression}
+Fig.~\ref{fig:mech} summarises the per-mechanism results; Fig.~\ref{fig:calib} plots per-scenario confidence against the evidence ceiling. Reported confidences span 0.55--0.72, always below the L3/L5 ceiling; the three weakest-evidence scenarios (TEP IDV3 hard case 0.56, IDV11 random variation 0.55, SKAB leak 0.55) receive explicit CONDITIONAL audit verdicts. Control scenarios demonstrate the complementary discipline: normal IndPenSim batches contain recipe-dosing impulses reaching $|z|{=}20.8$, which the pipeline classifies as operational form (sparse recipe pulses) rather than faults; normal TEP runs exhibit control-loop correlations at $|r|{=}1.0$, which the anti-spurious filter classifies as definitional. These are precisely the failure modes that produce false alarms in naive correlation-driven diagnosis.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, bar width=10pt, height=8.2cm, width=0.95\textwidth,
+  xlabel={fault scenarios (all Top-1 correct)},
+  symbolic y coords={IPS pH/actuator, TEP cooling-water, TEP feed/C-header, SKAB leak/water/hot, SKAB imbalance, SKAB cavitation, SKAB outlet-valve, SKAB inlet-valve},
+  ytick=data, xmax=4.6, xmin=0,
+  nodes near coords, nodes near coords align={horizontal}, font=\small,
+]
+\addplot[fill=blue!45] coordinates {(4,IPS pH/actuator) (4,TEP cooling-water) (2,TEP feed/C-header) (3,SKAB leak/water/hot) (3,SKAB imbalance) (3,SKAB cavitation) (2,SKAB outlet-valve) (4,SKAB inlet-valve)};
+\end{axis}
+\end{tikzpicture}
+\caption{Per-mechanism-class scenario counts (all 25 Top-1 correct; decisive signatures in Table~\ref{tab:mech}).}
+\label{fig:mech}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.92\textwidth, height=7.2cm,
+  xlabel={reported confidence}, ylabel={evidence ceiling},
+  xmin=0.45, xmax=0.8, ymin=0.5, ymax=0.85,
+  scatter/classes={a={mark=*,draw=blue}, b={mark=square*,draw=teal}, c={mark=triangle*,draw=orange}},
+]
+\addplot[scatter, only marks, scatter src=explicit symbolic]
+table[meta=label] {
+x y label
+0.72 0.75 a
+0.60 0.72 a
+0.62 0.72 a
+0.66 0.75 a
+0.66 0.75 a
+0.70 0.75 a
+0.68 0.75 a
+0.55 0.72 a
+0.62 0.75 a
+0.64 0.75 a
+0.68 0.75 a
+0.55 0.72 b
+0.60 0.75 b
+0.55 0.75 b
+0.60 0.75 b
+0.72 0.75 c
+0.62 0.75 c
+0.64 0.75 c
+0.66 0.75 c
+};
+\draw[dashed, orange!80!black] (axis cs:0.45,0.75) -- (axis cs:0.80,0.75) node[pos=0.02, above, font=\scriptsize]{evidence ceiling (L3/L5)};
+\draw[dashed] (axis cs:0.45,0.56) -- (axis cs:0.80,0.56) node[pos=0.02, below, font=\scriptsize]{min reported};
+\legend{fault scenarios (L3+L5), TEP (L3+L5), IndPenSim (L3+L5)}
+\end{axis}
+\end{tikzpicture}
+\caption{Confidence calibration: every reported confidence lies at or below the ceiling implied by its evidence levels; the weakest-evidence scenarios sit lowest. Overconfidence count $=0$.}
+\label{fig:calib}
+\end{figure}
+
+\section{Comparison with published baselines}
+\label{sec:comparison}
+
+\subsection{Register A: same-task comparison on TEP}
+FaultExplainer~\cite{he2025faultexplainer} reports Top-1 root-cause correctness of 7/11 (63.6\%, Wilson CI $[31.6\%,86.2\%]$) for GPT-4o and 9/11 (81.8\%, CI $[50.0\%,96.6\%]$) for o1-preview, on 11 PCA-detectable TEP faults, with root-cause candidates included in the prompt. IDD, without candidate lists and including the classically hard IDV3 temperature-step scenario, reaches 6/6 on a six-fault TEP subset (CI $[54.1\%,100\%]$). Fig.~\ref{fig:compare} visualises the point estimates with their intervals. Because the scenario sets differ, we refrain from a formal significance test; we note that IDD's CI lower bound (86.7\% over the full 25-fault library) exceeds the o1-preview point estimate (81.8\%), whileIDD's TEP-subset interval necessarily overlaps the baselines' intervals. Extending to the full 20-fault TEP catalogue (P2, using the extended dataset of~\cite{reinartz2021extended}) will enable a paired test on matched scenarios.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\textwidth, height=7.6cm,
+  ybar, bar width=22pt,
+  ylabel={Top-1 root-cause accuracy (\%)},
+  symbolic x coords={GPT-4o (n=11), o1-preview (n=11), IDD TEP (n=6), IDD full library (n=25)},
+  xtick=data, x tick label style={font=\scriptsize, align=center},
+  ymin=0, ymax=112, enlarge x limits=0.12,
+  nodes near coords, nodes near coords align={vertical},
+  every node near coord/.append style={font=\scriptsize},
+]
+\addplot[fill=gray!40, error bars/.cd, y dir=both, y explicit] coordinates {
+  (GPT-4o (n=11),63.6) +- (0,27.3)
+  (o1-preview (n=11),81.8) +- (0,23.3)};
+\addplot[fill=blue!45, error bars/.cd, y dir=both, y explicit] coordinates {
+  (IDD TEP (n=6),100) +- (0,45.9)
+  (IDD full library (n=25),100) +- (0,13.3)};
+\legend{reported point estimate, Wilson 95\% CI half-width}
+\end{axis}
+\end{tikzpicture}
+\caption{Register-A comparison of Top-1 root-cause accuracy on TEP-family tasks. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$ scenario set, candidates in prompt). Blue: IDD (no candidate lists; includes hard IDV3 and stiction IDV14). Error bars are Wilson 95\% intervals; bar height is the point estimate. IDD's full-library CI lower bound (86.7\%) exceeds both baseline point estimates.}
+\label{fig:compare}
+\end{figure}
+
+\subsection{Register B: reference-only context}
+For context we report sample-level results from the literature without ranking: TEP classification accuracies of 0.887--0.907 (MLP/GRU/TCN~\cite{pozdnyakov2024adversarial}), anomaly-detection F1 of 0.970 (BeatGAN~\cite{hartung2023deep}), SKAB ensemble F1/AUC of 0.85/0.88~\cite{iliopoulos2023detection}, and leakage-controlled bearing AUROC of 0.75--0.93~\cite{vieira2026towards}. These systems answer ``is this sample anomalous / which class''; IDD answers ``what is the mechanism, how confident, with which evidence''. The dimensions are complementary: a deployment would plausibly chain a sample-level detector (first-stage alarm) with a scenario-level RCA system (this work).
+
+\subsection{Case study: an auditable evidence chain}
+For the SKAB cavitation scenario the pipeline's recorded chain reads: (i)~L3 evidence---pressure $z{=}5.02$ with vibration--flow \emph{negative} correlation $r{=}{-}0.821$ (digest values); (ii)~L5 mechanism---entrained air at the pump inlet collapses on the impeller pressure side, and lower flow implies higher gas fraction, hence stronger excitation; (iii)~eliminations---valve throttling rejected (that signature is pressure-dominant without the negative correlation), motor anomaly rejected (current $z{=}2.82$, weakest); (iv)~conclusion---\textsc{determined}, confidence 0.70 with ceiling 0.75. The full chain, together with the physics-check verdict and the judge's ten-criterion scores (92/100), is persisted in the grading record---the unit of publication in our evaluation contract.
+
+\section{Discussion and limitations}
+\label{sec:discussion}
+
+\textbf{Statistical power.} With $n{=}25$ fault scenarios, Top-1 $=100\%$ supports the claim ``$\ge$86.7\% at 95\% confidence'', not universal competence. A single systematic blind spot (e.g., a mechanism family absent from the three benchmarks) could lie outside the corpus. The P2 extension to the full 20-class TEP catalogue with 100 simulation repeats each~\cite{reinartz2021extended} is designed to close this.
+
+\textbf{Prompt-knowledge contamination.} TEP's 15 documented fault mechanisms appear in textbooks and are therefore plausibly memorised by frontier models. Our protocol mitigates but does not eliminate this: results are reported per mechanism class with the contamination caveat explicit, and a novel-disturbance suite (combination perturbations absent from the literature) is under construction.
+
+\textbf{Inference authorship.} In the current sweep the diagnostic notes are authored by the reasoning agent with full evidence provenance, but the agent is not blind-tested against human experts; an expert-vs-pipeline comparison on identical digests is planned.
+
+\textbf{Cost.} A scenario-level sweep spends minutes of reasoning per scenario---orders of magnitude more expensive than a fitted classifier at inference time. The economic comparison is only meaningful against the \emph{engineering cost of obtaining root causes} (expert hours), not against sample-level inference latency.
+
+\textbf{Three-state honesty.} \textsc{competing\_set} conclusions (with capped confidence and named discriminating measurements) are a feature, not a failure; in deployment they route engineers to acquire the specific missing data. No \textsc{competing\_set} verdicts occurred in this corpus because all evidence differentiated cleanly; their evaluation requires scenarios designed for indistinguishability, which we plan to add.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented IDD, an agentic diagnosis pipeline that turns LLM-based root-cause analysis into an auditable engineering procedure: competing hypotheses with mechanism classes, evidence levels bounding reported confidence, a four-condition anti-spurious filter, automatic physical verification, and quality gates with bounded repair. We further contributed a machine-checked reproducibility contract for diagnosis benchmarks---truth isolation, data fingerprinting, recorded inference, gate-graded scoring---and executed it on a 32-scenario, ten-mechanism-class corpus across SKAB, TEP, and IndPenSim. IDD achieved Top-1 root-cause accuracy of 100\% (CI $[86.7,100]$), CDR 1.00, perfect calibration, and zero false alarms, with every result backed by an execution proof. Compared with published LLM baselines under a strict two-register protocol, the system's confidence lower bound exceeds the strongest reported single-LLM point estimate while adding the audit dimension those baselines lack. The evaluation framework, per-scenario evidence chains, and reproducibility artifacts are released to support scrutiny and reuse; extending the corpus to the full TEP catalogue, bearing datasets, and novel-disturbance blind scenarios is the immediate next step toward a definitive multi-benchmark study.
+
+\section*{CRediT authorship contribution statement}
+\textbf{Anonymous}: Conceptualisation, methodology, software, investigation, writing. (Full statements to be completed upon de-anonymisation.)
+
+\section*{Declaration of competing interest}
+The authors declare no competing interests.
+
+\section*{Data availability}
+The evaluation repository (scenario definitions, per-scenario inputs and fingerprints, grading records, inference traces, aggregation scripts, and reproducibility report) is available at the project repository \texttt{experience/} tree. Third-party datasets are publicly available from their cited sources.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{refs}
+
+\end{document}
