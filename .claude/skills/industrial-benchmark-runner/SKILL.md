@@ -15,7 +15,7 @@ input file.
 
 | Use | Do not use |
 |---|---|
-| Reproducing a tier (e.g. `tier0_smoke`) end to end | A one-off diagnosis on private data → `industrial-analysis-auto` |
+| Reproducing the benchmark scenario set end to end | A one-off diagnosis on private data → `industrial-analysis-auto` |
 | Adding cases, re-grading, recomputing metrics | Raw data cleaning / format conversion only → `industrial-data-preprocessor` |
 | Producing the paper's result table vs. journal baselines | Statistical deep-dive on a single dataset → `industrial-deep-analysis` |
 | Verifying that reported numbers still reproduce | Enhancing one finished run → `industrial-analysis-enhance-auto` |
@@ -100,4 +100,4 @@ absent-but-regenerable datasets and ungraded cases are `WARN`.
 - `docs/dataset-experiment-research.md` — dataset survey and prior paper analysis.
 - `scripts/benchmark/zcode_direct_pipeline.mjs` — deterministic stage driver + artifact expansion + grader.
 - `scripts/benchmark/aggregate.mjs` — metric definitions (single source of truth for aggregation).
-- `scripts/benchmark/cases/tier0_smoke.json` — 9-case smoke tier (3 datasets × fault/control); `tier2_main.json` — 23-case main tier; `tier_all.json` — combined 32-case library.
+- `scripts/benchmark/cases/benchmark_cases.json` — 8 typical scenarios (SKAB/TEP/IndPenSim × fault/control); truth fields are grader-only.
