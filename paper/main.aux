@@ -4,125 +4,139 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \emailauthor{anon@example.com}{Anonymous Corresponding Author}
 \Newlabel{a}{a}
-\citation{he2025faultexplainer}
+\citation{khan2024faultexplainer}
 \citation{agentic2025review}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
 \citation{goldenberg2019fault}
 \citation{tuli2022tranad,pozdnyakov2024adversarial}
 \citation{rieth2023additional}
+\citation{chiang2001fault}
+\citation{khan2024faultexplainer}
 \citation{katal2024causal}
+\citation{khan2024faultexplainer}
 \citation{downs1993plant,goldenberg2019fault}
 \citation{hartung2023deep,tuli2022tranad}
 \citation{pozdnyakov2024adversarial}
+\citation{chiang2001fault}
 \citation{hendriks2022towards}
 \citation{vieira2026towards}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Related work}{4}{section.2}\protected@file@percent }
-\newlabel{sec:related}{{2}{4}{Related work}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Data-driven fault detection and the benchmark gap}{4}{subsection.2.1}\protected@file@percent }
-\citation{he2025faultexplainer}
+\citation{khan2024faultexplainer}
 \citation{gong2026harnessing}
 \citation{constantinides2025failuresensoriq}
 \citation{liu2025probing}
 \citation{liu2025spatial}
 \citation{yue2023root}
 \citation{liu2024label}
-\citation{he2025faultexplainer}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related work}{5}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{5}{Related work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Data-driven fault detection and the benchmark gap}{5}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}LLM-based industrial diagnosis}{5}{subsection.2.2}\protected@file@percent }
+\citation{khan2024faultexplainer}
 \citation{gong2026harnessing}
 \citation{goldenberg2019fault,tuli2022tranad}
 \citation{liu2025spatial,yue2023root}
 \citation{agentic2025review}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}LLM-based industrial diagnosis}{5}{subsection.2.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Positioning against the closest published systems. ``Scenario-level RCA'' = one mechanism-grounded root-cause conclusion per anomalous run with evidence; ``calibrated'' = reported confidence bounded by evidence quality; ``repro.\ gate'' = machine-checked reproducibility contract.}}{6}{table.1}\protected@file@percent }
 \newlabel{tab:related}{{1}{6}{Positioning against the closest published systems. ``Scenario-level RCA'' = one mechanism-grounded root-cause conclusion per anomalous run with evidence; ``calibrated'' = reported confidence bounded by evidence quality; ``repro.\ gate'' = machine-checked reproducibility contract}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Multi-agent orchestration frameworks}{6}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}System architecture}{6}{section.3}\protected@file@percent }
-\newlabel{sec:arch}{{3}{6}{System architecture}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Pipeline overview}{6}{subsection.3.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces IDD diagnosis pipeline. Deterministic statistical tooling (Steps 0--3) feeds LLM reasoning under a competing-hypotheses protocol (Step 4); parallel judge and physics pre-audit gates (5a/5b) may trigger bounded repair loops ($\le $3 per fault, global cap 5); a final physics audit (Step 7) must return ENDORSED before delivery. Every transition is appended to a machine-verifiable event log.}}{7}{figure.1}\protected@file@percent }
-\newlabel{fig:pipeline}{{1}{7}{IDD diagnosis pipeline. Deterministic statistical tooling (Steps 0--3) feeds LLM reasoning under a competing-hypotheses protocol (Step 4); parallel judge and physics pre-audit gates (5a/5b) may trigger bounded repair loops ($\le $3 per fault, global cap 5); a final physics audit (Step 7) must return ENDORSED before delivery. Every transition is appended to a machine-verifiable event log}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Multi-agent orchestration frameworks}{7}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}System architecture}{7}{section.3}\protected@file@percent }
+\newlabel{sec:arch}{{3}{7}{System architecture}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Pipeline overview}{7}{subsection.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces IDD diagnosis pipeline (v6.5). Deterministic statistical tooling (Steps 0--3) feeds LLM reasoning under a competing-hypotheses protocol (Step 4); parallel judge and physics pre-audit gates (5a/5b) may trigger bounded repair loops ($\le $3 per fault, global cap 5, anti-oscillation confidence cap 0.50); a final physics audit (Step 7) must return ENDORSED before delivery, and the finalisation gate (CP-9) aggregates inventory, schema, closure, judge-cross-audit, and event-log checks into a single PASS/FAIL verdict. Every transition is appended to a machine-verifiable event log.}}{8}{figure.1}\protected@file@percent }
+\newlabel{fig:pipeline}{{1}{8}{IDD diagnosis pipeline (v6.5). Deterministic statistical tooling (Steps 0--3) feeds LLM reasoning under a competing-hypotheses protocol (Step 4); parallel judge and physics pre-audit gates (5a/5b) may trigger bounded repair loops ($\le $3 per fault, global cap 5, anti-oscillation confidence cap 0.50); a final physics audit (Step 7) must return ENDORSED before delivery, and the finalisation gate (CP-9) aggregates inventory, schema, closure, judge-cross-audit, and event-log checks into a single PASS/FAIL verdict. Every transition is appended to a machine-verifiable event log}{figure.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Execution layer: interchangeable engines with a uniform contract}{8}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Audit infrastructure}{8}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Diagnostic methodology}{8}{section.4}\protected@file@percent }
-\newlabel{sec:method}{{4}{8}{Diagnostic methodology}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Competing-hypotheses protocol}{8}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Evidence grading and gate propagation}{9}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Anti-spurious-correlation filter}{9}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Automatic physical verification}{10}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Quality gates, repair loops, and calibration}{10}{subsection.4.5}\protected@file@percent }
-\citation{vieira2026towards,hendriks2022towards}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Audit infrastructure}{9}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Diagnostic methodology}{9}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{9}{Diagnostic methodology}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Competing-hypotheses protocol}{9}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Evidence grading and gate propagation}{10}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Anti-spurious-correlation filter}{10}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Automatic physical verification}{11}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Quality gates, repair loops, and calibration}{11}{subsection.4.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}A reproducible evaluation framework}{11}{section.5}\protected@file@percent }
 \newlabel{sec:framework}{{5}{11}{A reproducible evaluation framework}{section.5}{}}
+\citation{vieira2026towards,hendriks2022towards}
 \citation{skab2020}
 \citation{downs1993plant,rieth2023additional}
 \citation{indpensim2020}
 \citation{chiang2001fault}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Experimental setup}{13}{section.6}\protected@file@percent }
+\newlabel{sec:setup}{{6}{13}{Experimental setup}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Datasets and scenarios}{13}{subsection.6.1}\protected@file@percent }
+\citation{khan2024faultexplainer}
 \citation{chiang2001fault}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Experimental setup}{12}{section.6}\protected@file@percent }
-\newlabel{sec:setup}{{6}{12}{Experimental setup}{section.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Datasets and scenarios}{12}{subsection.6.1}\protected@file@percent }
-\citation{tuli2022tranad}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Benchmark composition. Repetitions of the same fault on different experimental batches are counted as repetitions, not independent mechanisms (10 mechanism classes in total).}}{13}{table.2}\protected@file@percent }
-\newlabel{tab:bench}{{2}{13}{Benchmark composition. Repetitions of the same fault on different experimental batches are counted as repetitions, not independent mechanisms (10 mechanism classes in total)}{table.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Metrics}{13}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Comparison protocol}{13}{subsection.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Implementation}{14}{subsection.6.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Results}{14}{section.7}\protected@file@percent }
-\newlabel{sec:results}{{7}{14}{Results}{section.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Overall performance}{14}{subsection.7.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Overall results on the 32-scenario benchmark. Proportions carry Wilson 95\% CIs.}}{15}{table.3}\protected@file@percent }
-\newlabel{tab:overall}{{3}{15}{Overall results on the 32-scenario benchmark. Proportions carry Wilson 95\% CIs}{table.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Per-dataset and per-mechanism breakdown}{15}{subsection.7.2}\protected@file@percent }
-\citation{he2025faultexplainer}
-\citation{reinartz2021extended}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-dataset results. All 25 fault scenarios are Top-1 correct; all 7 controls pass without false alarms.}}{16}{figure.2}\protected@file@percent }
-\newlabel{fig:dataset}{{2}{16}{Per-dataset results. All 25 fault scenarios are Top-1 correct; all 7 controls pass without false alarms}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Calibration and false-alarm suppression}{16}{subsection.7.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests.}}{17}{table.4}\protected@file@percent }
-\newlabel{tab:mech}{{4}{17}{Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests}{table.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Comparison with published baselines}{17}{section.8}\protected@file@percent }
-\newlabel{sec:comparison}{{8}{17}{Comparison with published baselines}{section.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Register A: same-task comparison on TEP}{17}{subsection.8.1}\protected@file@percent }
+\citation{chiang2001fault}
+\citation{chiang2001fault}
+\citation{chiang2001fault}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Benchmark composition. The TEP subset carries per-fault published baselines (FaultExplainer, arXiv:2412.14492); IDV3/IDV4 are PCA-undetectable~\cite  {chiang2001fault}.}}{14}{table.2}\protected@file@percent }
+\newlabel{tab:bench}{{2}{14}{Benchmark composition. The TEP subset carries per-fault published baselines (FaultExplainer, arXiv:2412.14492); IDV3/IDV4 are PCA-undetectable~\cite {chiang2001fault}}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Metrics}{15}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Comparison protocol}{15}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Implementation}{16}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Results}{16}{section.7}\protected@file@percent }
+\newlabel{sec:results}{{7}{16}{Results}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Overall performance}{16}{subsection.7.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Overall results on the 12-scenario benchmark. Proportions carry Wilson 95\% CIs.}}{17}{table.3}\protected@file@percent }
+\newlabel{tab:overall}{{3}{17}{Overall results on the 12-scenario benchmark. Proportions carry Wilson 95\% CIs}{table.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Per-mechanism breakdown and within-family discrimination}{17}{subsection.7.2}\protected@file@percent }
+\citation{chiang2001fault}
+\citation{khan2024faultexplainer}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Benchmark composition and results. Left: per-dataset scenario counts and truth sources; all 9 fault scenarios are Top-1 correct and all 3 controls pass without false alarms. Right: the decisive statistical signature per fault scenario as recorded in the digests, with per-scenario judge scores. Bottom badges: pipeline and reproducibility gate outcomes.}}{18}{figure.2}\protected@file@percent }
+\newlabel{fig:benchmark}{{2}{18}{Benchmark composition and results. Left: per-dataset scenario counts and truth sources; all 9 fault scenarios are Top-1 correct and all 3 controls pass without false alarms. Right: the decisive statistical signature per fault scenario as recorded in the digests, with per-scenario judge scores. Bottom badges: pipeline and reproducibility gate outcomes}{figure.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Per-scenario results with the decisive statistical signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository).}}{19}{table.4}\protected@file@percent }
+\newlabel{tab:mech}{{4}{19}{Per-scenario results with the decisive statistical signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository)}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Calibration and false-alarm suppression}{19}{subsection.7.3}\protected@file@percent }
+\citation{khan2024faultexplainer}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0).}}{20}{figure.3}\protected@file@percent }
+\newlabel{fig:calib}{{3}{20}{Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0)}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Comparison with published baselines}{20}{section.8}\protected@file@percent }
+\newlabel{sec:comparison}{{8}{20}{Comparison with published baselines}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Register A: per-fault comparison on TEP}{20}{subsection.8.1}\protected@file@percent }
+\citation{chiang2001fault}
+\citation{chiang2001fault}
+\citation{chiang2001fault}
+\citation{chiang2001fault}
 \citation{pozdnyakov2024adversarial}
 \citation{hartung2023deep}
 \citation{iliopoulos2023detection}
 \citation{vieira2026towards}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Per-mechanism-class scenario counts (all 25 Top-1 correct; decisive signatures in Table~\ref {tab:mech}).}}{18}{figure.3}\protected@file@percent }
-\newlabel{fig:mech}{{3}{18}{Per-mechanism-class scenario counts (all 25 Top-1 correct; decisive signatures in Table~\ref {tab:mech})}{figure.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Register B: reference-only context}{18}{subsection.8.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Confidence calibration: every reported confidence lies at or below the ceiling implied by its evidence levels; the weakest-evidence scenarios sit lowest. Overconfidence count $=0$.}}{19}{figure.4}\protected@file@percent }
-\newlabel{fig:calib}{{4}{19}{Confidence calibration: every reported confidence lies at or below the ceiling implied by its evidence levels; the weakest-evidence scenarios sit lowest. Overconfidence count $=0$}{figure.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Case study: an auditable evidence chain}{19}{subsection.8.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Per-fault comparison on the TEP subset: IDD vs.\ FaultExplainer (transcribed Table~1 outcomes, arXiv:2412.14492) and PCA detectability (Chiang et al.~\cite  {chiang2001fault}). IDD is correct on 6/6 without candidate lists, including the PCA-undetectable IDV3/IDV4 that FaultExplainer leaves unscored and IDV1 that the GPT-4o baseline mis-diagnoses.}}{22}{figure.4}\protected@file@percent }
+\newlabel{fig:perfault}{{4}{22}{Per-fault comparison on the TEP subset: IDD vs.\ FaultExplainer (transcribed Table~1 outcomes, arXiv:2412.14492) and PCA detectability (Chiang et al.~\cite {chiang2001fault}). IDD is correct on 6/6 without candidate lists, including the PCA-undetectable IDV3/IDV4 that FaultExplainer leaves unscored and IDV1 that the GPT-4o baseline mis-diagnoses}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Register B: reference-only context}{22}{subsection.8.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Per-fault outcomes on the TEP subset (machine-readable companion to Fig.~\ref {fig:perfault}). FE = FaultExplainer (arXiv:2412.14492, root-causes-included prompt, alias hits accepted); ``unscored'' = excluded from FE scoring because PCA cannot detect the fault~\cite  {chiang2001fault}. IDD: strict mechanism-keyword scoring, no candidate list.}}{23}{table.5}\protected@file@percent }
+\newlabel{tab:perfault}{{5}{23}{Per-fault outcomes on the TEP subset (machine-readable companion to Fig.~\ref {fig:perfault}). FE = FaultExplainer (arXiv:2412.14492, root-causes-included prompt, alias hits accepted); ``unscored'' = excluded from FE scoring because PCA cannot detect the fault~\cite {chiang2001fault}. IDD: strict mechanism-keyword scoring, no candidate list}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Case study: an auditable evidence chain}{23}{subsection.8.3}\protected@file@percent }
 \citation{reinartz2021extended}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Register-A comparison of Top-1 root-cause accuracy on TEP-family tasks. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$ scenario set, candidates in prompt). Blue: IDD (no candidate lists; includes hard IDV3 and stiction IDV14). Error bars are Wilson 95\% intervals; bar height is the point estimate. IDD's full-library CI lower bound (86.7\%) exceeds both baseline point estimates.}}{20}{figure.5}\protected@file@percent }
-\newlabel{fig:compare}{{5}{20}{Register-A comparison of Top-1 root-cause accuracy on TEP-family tasks. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$ scenario set, candidates in prompt). Blue: IDD (no candidate lists; includes hard IDV3 and stiction IDV14). Error bars are Wilson 95\% intervals; bar height is the point estimate. IDD's full-library CI lower bound (86.7\%) exceeds both baseline point estimates}{figure.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion and limitations}{20}{section.9}\protected@file@percent }
-\newlabel{sec:discussion}{{9}{20}{Discussion and limitations}{section.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{21}{section.10}\protected@file@percent }
-\newlabel{sec:conclusion}{{10}{21}{Conclusion}{section.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Register-A aggregate comparison with Wilson 95\% intervals. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$, candidates in prompt). Blue: IDD (no candidates). Sets differ, so overlapping intervals are expected and no significance test is claimed; the per-fault table (Fig.~\ref {fig:perfault}) is the finer-grained evidence.}}{24}{figure.5}\protected@file@percent }
+\newlabel{fig:forest}{{5}{24}{Register-A aggregate comparison with Wilson 95\% intervals. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$, candidates in prompt). Blue: IDD (no candidates). Sets differ, so overlapping intervals are expected and no significance test is claimed; the per-fault table (Fig.~\ref {fig:perfault}) is the finer-grained evidence}{figure.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion and limitations}{24}{section.9}\protected@file@percent }
+\newlabel{sec:discussion}{{9}{24}{Discussion and limitations}{section.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{26}{section.10}\protected@file@percent }
+\newlabel{sec:conclusion}{{10}{26}{Conclusion}{section.10}{}}
 \bibstyle{elsarticle-num}
 \bibdata{refs}
-\bibcite{he2025faultexplainer}{{1}{}{{}}{{}}}
+\bibcite{khan2024faultexplainer}{{1}{}{{}}{{}}}
 \bibcite{agentic2025review}{{2}{}{{}}{{}}}
 \bibcite{goldenberg2019fault}{{3}{}{{}}{{}}}
 \bibcite{tuli2022tranad}{{4}{}{{}}{{}}}
 \bibcite{pozdnyakov2024adversarial}{{5}{}{{}}{{}}}
 \bibcite{rieth2023additional}{{6}{}{{}}{{}}}
-\bibcite{katal2024causal}{{7}{}{{}}{{}}}
-\bibcite{downs1993plant}{{8}{}{{}}{{}}}
-\bibcite{hartung2023deep}{{9}{}{{}}{{}}}
-\bibcite{hendriks2022towards}{{10}{}{{}}{{}}}
-\bibcite{vieira2026towards}{{11}{}{{}}{{}}}
-\bibcite{gong2026harnessing}{{12}{}{{}}{{}}}
-\bibcite{constantinides2025failuresensoriq}{{13}{}{{}}{{}}}
-\bibcite{liu2025probing}{{14}{}{{}}{{}}}
-\bibcite{liu2025spatial}{{15}{}{{}}{{}}}
-\bibcite{yue2023root}{{16}{}{{}}{{}}}
-\bibcite{liu2024label}{{17}{}{{}}{{}}}
-\bibcite{skab2020}{{18}{}{{}}{{}}}
-\bibcite{indpensim2020}{{19}{}{{}}{{}}}
-\bibcite{chiang2001fault}{{20}{}{{}}{{}}}
-\bibcite{reinartz2021extended}{{21}{}{{}}{{}}}
-\bibcite{iliopoulos2023detection}{{22}{}{{}}{{}}}
+\bibcite{chiang2001fault}{{7}{}{{}}{{}}}
+\bibcite{katal2024causal}{{8}{}{{}}{{}}}
+\bibcite{downs1993plant}{{9}{}{{}}{{}}}
+\bibcite{hartung2023deep}{{10}{}{{}}{{}}}
+\bibcite{hendriks2022towards}{{11}{}{{}}{{}}}
+\bibcite{vieira2026towards}{{12}{}{{}}{{}}}
+\bibcite{gong2026harnessing}{{13}{}{{}}{{}}}
+\bibcite{constantinides2025failuresensoriq}{{14}{}{{}}{{}}}
+\bibcite{liu2025probing}{{15}{}{{}}{{}}}
+\bibcite{liu2025spatial}{{16}{}{{}}{{}}}
+\bibcite{yue2023root}{{17}{}{{}}{{}}}
+\bibcite{liu2024label}{{18}{}{{}}{{}}}
+\bibcite{skab2020}{{19}{}{{}}{{}}}
+\bibcite{indpensim2020}{{20}{}{{}}{{}}}
+\bibcite{iliopoulos2023detection}{{21}{}{{}}{{}}}
+\bibcite{reinartz2021extended}{{22}{}{{}}{{}}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\gdef \@abspage@last{26}
+\gdef \@abspage@last{31}

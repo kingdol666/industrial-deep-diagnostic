@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1500px; height:720px; background:#fff; font-family:"Segoe UI",Arial,sans-serif; padding:28px 34px; }
+  h2 { font-size:17px; color:#16324f; margin:4px 0 16px; }
+  .plot { position:relative; height:470px; margin-left:300px; border-left:2px solid #333; border-bottom:2px solid #333; width:1120px; }
+  .grid { position:absolute; top:0; bottom:0; border-left:1px dashed #dde5ec; font-size:12px; color:#8a9aa8; }
+  .grid span { position:absolute; bottom:-24px; left:-10px; }
+  .row { position:absolute; height:44px; left:0; right:0; }
+  .lab { position:absolute; left:-292px; width:280px; text-align:right; font-size:13px; color:#16324f; top:11px; }
+  .lab small { display:block; color:#8a9aa8; font-size:10.5px; }
+  .bar { position:absolute; top:6px; height:26px; border-radius:3px; }
+  .val { position:absolute; top:10px; font-size:12.5px; font-weight:700; color:#16324f; }
+  .ceiling { position:absolute; top:-6px; bottom:-6px; border-left:2px dashed #b0722a; }
+  .ceiling span { position:absolute; top:-22px; left:-150px; width:300px; text-align:center; font-size:11.5px; color:#b0722a; font-weight:700; }
+  .foot { margin:12px 0 0 300px; font-size:12.5px; color:#5a6a7a; line-height:1.55; width:1100px; }
+</style></head><body>
+  <h2>Reported confidence per fault scenario (blind re-diagnosis run) — every verdict typed DETERMINED with explicit falsification conditions; calibration 9/9, overconfidence 0</h2>
+  <div class="plot">
+    <div class="grid" style="left:0px"><span>0</span></div>
+    <div class="grid" style="left:224px"><span>0.25</span></div>
+    <div class="grid" style="left:448px"><span>0.50</span></div>
+    <div class="grid" style="left:672px"><span>0.75</span></div>
+    <div class="grid" style="left:896px"><span>1.0</span></div>
+    <!-- 1120px / 1.0 = 1120 px per unit -->
+    <div class="ceiling" style="left:784px;"><span>0.70 protocol cap for COMPETING_SET / NEEDS_DATA verdicts</span></div>
+
+    <div class="row" style="top:14px;">
+      <div class="lab">SKAB inlet-valve throttling<small>line-side vib. 13.56σ burst</small></div>
+      <div class="bar" style="left:0px; width:974px; background:#2a5d8f;"></div><div class="val" style="left:984px;">0.87</div>
+    </div>
+    <div class="row" style="top:64px;">
+      <div class="lab">SKAB cavitation (blind set)<small>vib–flow r = −0.821</small></div>
+      <div class="bar" style="left:0px; width:918px; background:#2a5d8f;"></div><div class="val" style="left:928px;">0.82</div>
+    </div>
+    <div class="row" style="top:114px;">
+      <div class="lab">TEP IDV1 A/C feed ratio<small>component spectra 4/6 dominant</small></div>
+      <div class="bar" style="left:0px; width:941px; background:#3f7cb5;"></div><div class="val" style="left:951px;">0.84</div>
+    </div>
+    <div class="row" style="top:164px;">
+      <div class="lab">TEP IDV3 D-feed temp (hard)<small>weak-signature exclusion chain</small></div>
+      <div class="bar" style="left:0px; width:806px; background:#b0722a;"></div><div class="val" style="left:816px;">0.72</div>
+    </div>
+    <div class="row" style="top:214px;">
+      <div class="lab">TEP IDV4 cooling temp (step)<small>reactor temp 10.06σ</small></div>
+      <div class="bar" style="left:0px; width:963px; background:#3f7cb5;"></div><div class="val" style="left:973px;">0.86</div>
+    </div>
+    <div class="row" style="top:264px;">
+      <div class="lab">TEP IDV7 C-header pressure<small>F-family + dual pressure</small></div>
+      <div class="bar" style="left:0px; width:896px; background:#3f7cb5;"></div><div class="val" style="left:906px;">0.80</div>
+    </div>
+    <div class="row" style="top:314px;">
+      <div class="lab">TEP IDV11 cooling temp (random)<small>3.73σ sporadic form</small></div>
+      <div class="bar" style="left:0px; width:784px; background:#b0722a;"></div><div class="val" style="left:794px;">0.70</div>
+    </div>
+    <div class="row" style="top:364px;">
+      <div class="lab">TEP IDV14 valve stiction<small>loop pair r = 0.998</small></div>
+      <div class="bar" style="left:0px; width:762px; background:#b0722a;"></div><div class="val" style="left:772px;">0.68</div>
+    </div>
+    <div class="row" style="top:414px;">
+      <div class="lab">IndPenSim batch-93 deviation<small>Fa 15.8σ + pH 7.09σ</small></div>
+      <div class="bar" style="left:0px; width:952px; background:#4caf50;"></div><div class="val" style="left:962px;">0.85</div>
+    </div>
+  </div>
+  <div class="foot">
+    Amber bars: weak-signature scenarios (PCA-undetectable IDV3/IDV4-family members) whose confidence is self-limited to 0.68–0.72 under the evidence-ceiling rule; the dashed 0.70 line marks the cap that COMPETING_SET/NEEDS_DATA verdicts may not exceed (a DETERMINED verdict under a complete exclusion chain, as in IDV3, is not bound by it). Controls (n=3, reported 0.88–0.90) omitted from this plot. No conclusion exceeded the ceiling implied by its evidence levels; the three weakest-evidence scenarios carry explicit falsification conditions naming the measurement that would revise them.
+  </div>
+</body></html>

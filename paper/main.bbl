@@ -5,10 +5,10 @@
 \expandafter\ifx\csname href\endcsname\relax
   \def\href#1#2{#2} \def\path#1{#1}\fi
 
-\bibitem{he2025faultexplainer}
-J.~He, et~al., Faultexplainer: Leveraging large language models for
-  interpretable fault detection and diagnosis, arXiv preprint arXiv:2412.14492
-  (2024).
+\bibitem{khan2024faultexplainer}
+D.~Khan, J.~D. Nahar, Y.~Chen, A.~Flores, J.~Li, Faultexplainer: Leveraging
+  large language models for interpretable fault detection and diagnosis, arXiv
+  preprint arXiv:2412.14492 (2024).
 
 \bibitem{agentic2025review}
 {Processes Review}, Agentic {AI} for safety-aware process monitoring and fault
@@ -40,6 +40,12 @@ C.~A. Rieth, A.~Amlcera, B.~BStewart, et~al., Additional tennessee eastman
   V1 (2023).
 \newblock \href {https://doi.org/10.7910/DVN/6C3JR1}
   {\path{doi:10.7910/DVN/6C3JR1}}.
+
+\bibitem{chiang2001fault}
+L.~H. Chiang, E.~L. Russell, R.~D. Braatz, Fault Detection and Diagnosis in
+  Industrial Systems, Springer, London, 2001.
+\newblock \href {https://doi.org/10.1007/978-1-4471-0347-9}
+  {\path{doi:10.1007/978-1-4471-0347-9}}.
 
 \bibitem{katal2024causal}
 N.~Katal, L.~Rocher, K.~Narayanan, Causal methods for industrial root cause
@@ -121,11 +127,12 @@ Q.~He, et~al., {IndPenSim}: A benchmark for penicillin fermentation simulation
 \newblock \href {https://doi.org/10.17632/pdnjz7zz5x.1}
   {\path{doi:10.17632/pdnjz7zz5x.1}}.
 
-\bibitem{chiang2001fault}
-L.~H. Chiang, E.~L. Russell, R.~D. Braatz, Fault Detection and Diagnosis in
-  Industrial Systems, Springer, London, 2001.
-\newblock \href {https://doi.org/10.1007/978-1-4471-0347-9}
-  {\path{doi:10.1007/978-1-4471-0347-9}}.
+\bibitem{iliopoulos2023detection}
+F.~Iliopoulos, I.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in
+  multivariate time series using ensemble techniques, in: IEEE International
+  Conference on Big Data and Smart Computing (BigDataService), 2023, pp. 7--14.
+\newblock \href {https://doi.org/10.1109/BigDataService58306.2023.00007}
+  {\path{doi:10.1109/BigDataService58306.2023.00007}}.
 
 \bibitem{reinartz2021extended}
 C.~Reinartz, M.~Kulahci, O.~Ravn, An extended tennessee eastman simulation
@@ -133,12 +140,5 @@ C.~Reinartz, M.~Kulahci, O.~Ravn, An extended tennessee eastman simulation
   Chemical Engineering 155 (2021) 107281.
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2021.107281}
   {\path{doi:10.1016/j.compchemeng.2021.107281}}.
-
-\bibitem{iliopoulos2023detection}
-F.~Iliopoulos, I.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in
-  multivariate time series using ensemble techniques, in: IEEE International
-  Conference on Big Data and Smart Computing (BigDataService), 2023, pp. 7--14.
-\newblock \href {https://doi.org/10.1109/BigDataService58306.2023.00007}
-  {\path{doi:10.1109/BigDataService58306.2023.00007}}.
 
 \end{thebibliography}

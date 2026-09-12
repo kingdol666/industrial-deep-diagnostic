@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1500px; height:760px; background:#fff; font-family:"Segoe UI",Arial,sans-serif; padding:28px 34px; }
+  h2 { font-size:17px; color:#16324f; margin:6px 0 16px; }
+  table { border-collapse:collapse; font-size:14.5px; width:1430px; }
+  th,td { border:1px solid #c9d6e2; padding:9px 13px; text-align:center; }
+  th { background:#eef4fa; color:#16324f; }
+  td.left { text-align:left; }
+  .ok { color:#0a7d38; font-weight:700; } .bad { color:#b02323; font-weight:700; } .na { color:#8a9aa8; }
+  .idd { background:#eef7ee; font-weight:700; color:#0a7d38; }
+  .note { margin-top:16px; font-size:12.5px; color:#5a6a7a; line-height:1.6; }
+  .tag { display:inline-block; border-radius:10px; padding:1px 9px; font-size:11.5px; font-weight:700; margin:0 3px; }
+  .green { background:#e3f2e6; color:#0a7d38; } .red { background:#fbe9e7; color:#b02323; } .gray { background:#eceff3; color:#5a6a7a; }
+</style></head><body>
+  <h2>TEP per-fault comparison — IDD vs FaultExplainer (arXiv:2412.14492, Table 1) and PCA detectability (Chiang et al. 2001)</h2>
+  <table>
+    <tr>
+      <th style="width:420px;" class="left">TEP fault (mechanism)</th>
+      <th>FaultExplainer<br>GPT-4o</th>
+      <th>FaultExplainer<br>o1-preview</th>
+      <th>PCA<br>detectable</th>
+      <th>Candidate list<br>in prompt (FE)</th>
+      <th>IDD<br>Top-1</th>
+      <th class="left">IDD decisive evidence</th>
+    </tr>
+    <tr>
+      <td class="left">IDV1 — A/C feed ratio step (Stream 4)</td>
+      <td><span class="tag red">✗ wrong</span></td><td><span class="tag green">✓ correct</span></td><td>yes</td><td>yes</td>
+      <td class="idd">✓</td><td class="left">component spectra dominate 4/6 top columns (z≈4.9), cross-stream propagation</td>
+    </tr>
+    <tr>
+      <td class="left">IDV3 — D feed temperature step (Stream 2)</td>
+      <td><span class="tag gray">unscored</span></td><td><span class="tag gray">unscored</span></td><td><b>no</b></td><td>yes</td>
+      <td class="idd">✓</td><td class="left">weak-signature exclusion chain: tower-side heat balance + feed-link compensation</td>
+    </tr>
+    <tr>
+      <td class="left">IDV4 — reactor cooling-water inlet temp (step)</td>
+      <td><span class="tag gray">unscored</span></td><td><span class="tag gray">unscored</span></td><td><b>no</b></td><td>yes</td>
+      <td class="idd">✓</td><td class="left">reactor temperature step-dominant z = 10.06 (2.6× runner-up)</td>
+    </tr>
+    <tr>
+      <td class="left">IDV7 — C header pressure reduced (Stream 4)</td>
+      <td><span class="tag green">✓ correct</span></td><td><span class="tag green">✓ correct</span></td><td>yes</td><td>yes</td>
+      <td class="idd">✓</td><td class="left">F-family shift across streams 6/9/11 + dual pressure signature (z≈4.6)</td>
+    </tr>
+    <tr>
+      <td class="left">IDV11 — reactor cooling-water temp (random)</td>
+      <td><span class="tag green">✓ correct</span></td><td><span class="tag green">✓ correct</span></td><td>yes</td><td>yes</td>
+      <td class="idd">✓</td><td class="left">form discrimination: 3.73σ sporadic vs 10.06σ step plateau (same channel)</td>
+    </tr>
+    <tr>
+      <td class="left">IDV14 — reactor cooling-water valve (stiction)</td>
+      <td><span class="tag green">✓ correct</span></td><td><span class="tag green">✓ correct</span></td><td>yes</td><td>yes</td>
+      <td class="idd">✓</td><td class="left">control-loop pair XM9–XMV10 r = 0.998 (loop stress), no step plateau</td>
+    </tr>
+  </table>
+  <div class="note">
+    <b>Reading.</b> FaultExplainer numbers are transcribed from its Table 1 (root-causes-included prompt; alias hits accepted; IDV3/4/9/15 excluded from scoring because PCA cannot detect them). IDD operates without candidate lists, scores mechanism keywords strictly, and includes the PCA-undetectable IDV3/IDV4 — both correctly diagnosed. IDD 6/6 on this subset (Wilson 95% CI [61.0, 100]); FE GPT-4o 7/11 = 63.6% and o1-preview 9/11 = 81.8% on their scoreable set. Same-task register (one mechanism-grounded conclusion per fault); sets differ, so no significance test is claimed.
+  </div>
+</body></html>

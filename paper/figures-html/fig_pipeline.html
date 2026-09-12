@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1500px; height:760px; background:#fff; font-family:"Segoe UI",Arial,sans-serif; padding:28px 30px; }
+  .row { display:flex; align-items:stretch; gap:0; margin-top:10px; }
+  .stage { border:2px solid #2a5d8f; border-radius:8px; background:#eef4fa; padding:12px 14px; text-align:center; min-width:150px; }
+  .stage .n { font-size:12px; color:#2a5d8f; font-weight:700; letter-spacing:.4px; }
+  .stage .t { font-size:17px; font-weight:700; color:#16324f; margin-top:2px; }
+  .stage .d { font-size:11.5px; color:#4a6a8a; margin-top:4px; line-height:1.35; }
+  .gate { border:2px solid #b0722a; border-radius:8px; background:#fdf3e4; padding:10px 12px; text-align:center; }
+  .gate .t { font-size:14px; font-weight:700; color:#7a4a12; }
+  .gate .d { font-size:11px; color:#9a6a32; margin-top:3px; line-height:1.3; }
+  .arrow { align-self:center; font-size:22px; color:#2a5d8f; padding:0 6px; font-weight:700; }
+  .lane { margin-top:26px; }
+  .loop { border:2px dashed #b02323; border-radius:10px; padding:8px 12px; display:inline-block; font-size:12px; color:#b02323; background:#fdf0f0; }
+  .captionline { margin-top:22px; font-size:12.5px; color:#5a6a7a; line-height:1.5; }
+  .badge { display:inline-block; background:#2a5d8f; color:#fff; font-size:11px; border-radius:10px; padding:2px 9px; margin-right:6px; font-weight:600; }
+</style></head><body>
+  <div style="font-size:13px;color:#5a6a7a;font-weight:600;letter-spacing:1px;">IDD DIAGNOSIS PIPELINE — 9 STAGES, 14 AGENTS, 18 SKILL PACKAGES · PIPELINE v6.5</div>
+
+  <div class="row">
+    <div class="stage"><div class="n">STEP 0/1</div><div class="t">Setup + Ingest</div><div class="d">adaptive preprocessing<br>input manifest + sha256<br>user context</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 2</div><div class="t">Ontology</div><div class="d">variable semantics<br>physical principles<br>confounder annotation</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 3</div><div class="t">Statistics</div><div class="d">anomaly z-profiles<br>correlation + lagged CCF<br>anti-spurious checks</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 3.5</div><div class="t">VLM</div><div class="d">chart reading<br>visual evidence (L4)</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 4</div><div class="t">Diagnosis</div><div class="d">≥3 competing hypotheses<br>mechanism classes<br>3-state conclusion</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 6</div><div class="t">Report</div><div class="d">pyramid structure<br>MD + HTML</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 8/8.5</div><div class="t">HTML + Review</div><div class="d">visualization<br>usability review</div></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">STEP 9</div><div class="t">Closure</div><div class="d">evidence closure<br>finalize gate</div></div>
+  </div>
+
+  <div class="lane row" style="margin-top:20px; gap:18px;">
+    <div class="gate" style="flex:1;"><div class="t">CP-2/3 Ontology gate</div><div class="d">schema-valid · clarification resolved</div></div>
+    <div class="gate" style="flex:1;"><div class="t">CP-4 Analysis gate</div><div class="d">conclusion + plots present</div></div>
+    <div class="gate" style="flex:1.3;"><div class="t">Step 5a Judge gate ∥ 5b Physics pre-audit</div><div class="d">10-criterion score ≥ 90 · parallel · repair ≤ 3 per fault, global cap 5</div></div>
+    <div class="gate" style="flex:1;"><div class="t">Step 7 Final physics audit</div><div class="d">must return ENDORSED</div></div>
+    <div class="gate" style="flex:1;"><div class="t">CP-9 Finalize gate</div><div class="d">inventory · schema · closure ·<br>judge cross-audit · event log</div></div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <span class="loop">repair loop: judge &lt; 90 → evidence-strengthening rerun (≤3) · anti-oscillation → confidence cap 0.50 · global cap 5</span>
+  </div>
+
+  <div class="captionline">
+    <span class="badge">deterministic</span> Steps 0–3 statistics are versioned scripts — byte-reproducible.
+    <span class="badge">reasoning</span> Step 4 diagnostic note is the single LLM step, written to a fixed schema with evidence levels L1–L7.
+    <span class="badge">audit</span> every transition appends to <b>.pipeline_events.jsonl</b>; no result exists without an execution proof.
+  </div>
+</body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1500px; height:820px; background:#fff; font-family:"Segoe UI",Arial,sans-serif; padding:28px 34px; }
+  h2 { font-size:17px; color:#16324f; margin:6px 0 14px; }
+  .wrap { display:flex; gap:34px; }
+  table { border-collapse:collapse; font-size:14px; width:640px; }
+  th,td { border:1px solid #c9d6e2; padding:7px 11px; text-align:left; }
+  th { background:#eef4fa; color:#16324f; }
+  .num { text-align:center; }
+  .bar { height:22px; background:#2a5d8f; border-radius:3px; }
+  .barc { height:22px; background:#4caf50; border-radius:3px; }
+  .legend { font-size:12.5px; color:#4a6a8a; margin-top:10px; line-height:1.6; }
+  .sw { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:5px; }
+  .chips { margin-top:24px; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; width:780px; }
+  .chip { border:1px solid #c9d6e2; border-radius:8px; text-align:center; padding:12px 6px; background:#f7fafc; }
+  .chip .v { font-size:26px; font-weight:800; color:#2a5d8f; }
+  .chip .l { font-size:11.5px; color:#5a6a7a; margin-top:3px; }
+  .gates { margin-top:20px; font-size:13px; color:#16324f; }
+  .ok { color:#0a7d38; font-weight:700; }
+</style></head><body>
+  <h2>Benchmark composition &amp; results — 12 scenarios (9 fault + 3 controls), three public datasets</h2>
+  <div class="wrap">
+    <div>
+      <table>
+        <tr><th>Dataset</th><th class="num">Fault</th><th class="num">Control</th><th>Truth source</th><th style="width:170px;">Top-1 correct</th></tr>
+        <tr><td>SKAB (testbed, 1 Hz)</td><td class="num">2</td><td class="num">1</td><td>official ground_truth.json</td><td><div class="bar" style="width:100%"></div> 2/2</td></tr>
+        <tr><td>TEP (Downs–Vogel)</td><td class="num">6</td><td class="num">1</td><td>cause table (Chiang et al.)</td><td><div class="bar" style="width:100%"></div> 6/6</td></tr>
+        <tr><td>IndPenSim (fermentation)</td><td class="num">1</td><td class="num">1</td><td>faulted-batch markers</td><td><div class="bar" style="width:100%"></div> 1/1</td></tr>
+        <tr><td><b>Total</b></td><td class="num"><b>9</b></td><td class="num"><b>3</b></td><td>—</td><td><b>9/9 (100%)</b></td></tr>
+      </table>
+      <div class="legend">
+        <span class="sw" style="background:#2a5d8f"></span>fault scenarios, all Top-1 correct &nbsp;&nbsp;
+        <span class="sw" style="background:#4caf50"></span>controls passed, zero false alarms<br>
+        Scenario split follows entity-level discipline (no segment leaking); blind-diagnosis protocol: truth withheld from pipeline inputs.
+      </div>
+      <div class="chips">
+        <div class="chip"><div class="v">9/9</div><div class="l">Top-1 root cause<br>Wilson 95% CI [70.1, 100]</div></div>
+        <div class="chip"><div class="v">1.00</div><div class="l">CDR (Top-1 ∧ DETERMINED)</div></div>
+        <div class="chip"><div class="v">9/9</div><div class="l">calibration · overconf. 0</div></div>
+        <div class="chip"><div class="v">3/3</div><div class="l">controls · false alarms 0</div></div>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <table style="width:100%;">
+        <tr><th>Scenario (fault)</th><th class="num">Decisive signature (from digests)</th><th class="num">Judge</th></tr>
+        <tr><td>SKAB inlet-valve throttling</td><td class="num">vibration A2 z = 13.56</td><td class="num">92</td></tr>
+        <tr><td>SKAB cavitation (blind set)</td><td class="num">vib–flow r = −0.821</td><td class="num">92</td></tr>
+        <tr><td>TEP IDV1 A/C feed ratio</td><td class="num">component spectra 4/6 dominant (z≈4.9)</td><td class="num">92</td></tr>
+        <tr><td>TEP IDV3 D-feed temp (hard)</td><td class="num">weak-signature exclusion chain</td><td class="num">90</td></tr>
+        <tr><td>TEP IDV4 cooling temp (step)</td><td class="num">reactor temp z = 10.06</td><td class="num">92</td></tr>
+        <tr><td>TEP IDV7 C-header pressure</td><td class="num">F-family + dual pressure</td><td class="num">91</td></tr>
+        <tr><td>TEP IDV11 cooling temp (random)</td><td class="num">3.73σ sporadic vs step 10σ</td><td class="num">90</td></tr>
+        <tr><td>TEP IDV14 cooling valve stiction</td><td class="num">XM9–XMV10 loop r = 0.998</td><td class="num">90</td></tr>
+        <tr><td>IndPenSim batch 93 deviation</td><td class="num">Fa z = 15.8, pH 7.09</td><td class="num">91</td></tr>
+      </table>
+      <div class="gates">
+        Pipeline finalisation gate <span class="ok">12/12 PASS</span> · event logs <span class="ok">12/12 valid</span> ·
+        data fingerprints <span class="ok">153/153 verified</span> · reproducibility gate <span class="ok">REPRODUCIBLE</span>
+      </div>
+    </div>
+  </div>
+</body></html>
