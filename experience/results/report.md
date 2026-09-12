@@ -1,6 +1,6 @@
-# Benchmark 报告 — 多场景根因诊断（Tier-0 冒烟）
+# Benchmark 报告 — 多场景根因诊断（典型 8 场景集）
 
-> 生成：2026-09-12T09:55:11.876Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T11:40:00.157Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
@@ -26,14 +26,14 @@
 
 | case | 结论类型 | Top-1 | Top-k | 校准 | judge | finalize |
 |---|---|---|---|---|---|---|
-| skab_valve1_1 | DETERMINED | true | true | true | 93 | true |
+| skab_valve1_1 | DETERMINED | true | true | true | 92 | true |
 | skab_cavitation_13 | DETERMINED | true | true | true | 92 | true |
 | skab_normal_control | DETERMINED | null | null | null | 91 | true |
-| tep_d01_ac_feed_ratio | DETERMINED | true | true | true | 90 | true |
+| tep_d01_ac_feed_ratio | DETERMINED | true | true | true | 92 | true |
 | tep_d03_hard | DETERMINED | true | true | true | 90 | true |
 | tep_d00_normal_control | DETERMINED | null | null | null | 91 | true |
-| indpensim_batch093 | DETERMINED | true | true | true | 90 | true |
-| indpensim_batch001_control | DETERMINED | null | null | null | 92 | true |
+| indpensim_batch093 | DETERMINED | true | true | true | 91 | true |
+| indpensim_batch001_control | DETERMINED | null | null | null | 90 | true |
 
 ## 4. 与已发表论文对比
 

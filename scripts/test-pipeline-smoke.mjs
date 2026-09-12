@@ -249,9 +249,9 @@ check('rag-knowledge-builder', 'rag_client.py CLI responds', () => {
   return 'CLI OK';
 });
 
-// ── 14. industrial-benchmark-runner — reproducibility gate ──
-check('industrial-benchmark-runner', 'verify-repro REPRODUCIBLE', () => {
-  const out = run('node', [path.join(ROOT, '.claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs')]);
+// ── 14. benchmark reproducibility gate (scripts, docs/benchmark protocol) ──
+check('benchmark-repro-gate', 'verify-repro REPRODUCIBLE', () => {
+  const out = run('node', [path.join(ROOT, 'scripts/benchmark/verify-repro.mjs')]);
   if (!/REPRODUCIBLE/.test(out)) throw new Error(out.slice(-120));
   return 'gates green';
 });

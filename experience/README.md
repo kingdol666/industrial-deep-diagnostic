@@ -1,61 +1,59 @@
-# Experience — 基准实验资料库（全库对照实验，tier0+tier2 = 32 场景）
+# Experience — 诊断基准实验资料库（8 典型场景）
 
-本目录是诊断系统 benchmark 实验的**自包含资料库**：输入数据、运行结果、真值对照、
-文献 baseline、以及出版级 HTML 汇总报告。所有数字可回溯、可复现。
+本目录是诊断系统 benchmark 实验的**自包含资料库**：场景输入副本、盲诊 brief、
+现场诊断 note、逐场景评分、文献 baseline 与出版级 HTML 汇总报告。
+所有数字可回溯、可复现。协议文档唯一入口：**`docs/benchmark/`**（按设计不含 skill）。
 
 ## 目录结构
 
 | 路径 | 内容 |
 |---|---|
-| `benchmark-report.html` | **汇总报告 v2**（32 场景：指标总览+Wilson CI / 5 图 / 机理类别细分 / 口径 A+B 文献对比含区间 / AEI 对标 / 局限声明 / 15 条参考文献）— 浏览器直接打开 |
-| `data/inputs_manifest.json` | tier0 场景输入清单（tier2 输入直接引用 prepared 源，见 `results/tier2_main.json`） |
-| `data/<case_id>/input.csv` + `case_meta.json` | tier0 场景的标准输入副本与元数据 |
-| `results/metrics.json` | 全库聚合指标（32 场景） |
-| `results/gradings/<case_id>.json` | 32 份逐场景评分（真值对照 + 门禁检查） |
+| `benchmark-report.html` | **评分报告**（评分卡+Wilson CI / 分数据集 / 逐场景表 / 口径 A+B baseline 对比 / 优劣势分析 / 复现命令）— 浏览器直接打开；由 `scripts/benchmark/build-report.mjs` 从 results 自动生成，零硬编码数字 |
+| `results/benchmark_cases.json` | 场景定义副本（真值+判定关键词，评分器专用） |
+| `results/briefs/*.brief.json` | 盲诊任务包（仅统计证据，真值隔离） |
+| `results/notes/*.note.json` | 现场诊断 note（本会话 agent 按 brief 统计证据推理的原始留痕） |
+| `results/gradings/<case_id>.json` | 逐场景评分（独立评分器真值对照 + 门禁检查） |
+| `results/metrics.json` | 聚合指标（总体 + 分数据集 + 逐 case） |
 | `results/journal.jsonl` | 运行日志（追加式） |
 | `results/report.md` | Markdown 版结果报告 |
-| `results/repro_report.json` | 可复现性门禁（32/32 全绿） |
+| `results/repro_report.json` | 可复现性门禁报告 |
 | `results/dataset_manifest.json` | 数据集指纹（153 条 sha256） |
-| `results/tier0_smoke.json` / `tier2_main.json` / `tier_all.json` | case 定义（tier_all = 合并全库） |
-| `baselines/baselines.json` | 文献 baseline 数据（口径 A 直比 / 口径 B 参照 / AEI 定性对标） |
+| `results/tier_state.json` | 场景 → run 目录映射 |
+| `data/<case_id>/` | 场景输入副本与元数据（历史 tier0 归档） |
+| `baselines/baselines.json` | 文献 baseline 数据（口径 A 直比 / 口径 B 参照） |
+| `results/scorer-discrimination-test.json` | **阴性对照留痕**：注入 plausible-but-wrong 诊断 → 评分器判伪（top1=false） |
+| `paper-support.md` | 论文图表 ↔ 证据工件映射 |
 
-## 全库结果（2026-09-12，32 场景 = 25 故障 + 7 对照）
+> 注：run 目录（每场景的 report.md / diagnostic-report.html / 全套管线产物）位于
+> `workspace/diagnostic-runs/<ts>_bench_<case_id>/`，映射见 `results/tier_state.json`。
+
+## 当前结果（2026-09-12 现场诊断轮，8 场景 = 5 故障 + 3 对照）
 
 | 指标 | 值 |
 |---|---|
-| 故障场景 Top-1 / Top-k | **25/25 (100%) / 25/25** |
-| **Top-1 Wilson 95% CI** | **[86.7%, 100%]** |
+| 故障场景 Top-1 / Top-k | **5/5 (100%) / 5/5** |
+| **Top-1 Wilson 95% CI** | **[56.6%, 100%]**（小样本诚实区间） |
 | CDR（Top-1 且 DETERMINED） | **1.00** |
-| 正常对照通过 / 误报 | **7/7 / 0** |
-| 置信校准 / 过度自信 | **25/25 / 0** |
-| 管线门禁（pipeline-finalize） | **32/32 PASS** |
-| 可复现门禁 | **REPRODUCIBLE**（153 指纹 / 32 覆盖 / 指标零漂移 / 32 执行证明） |
+| 置信校准 / 过度自信 | **5/5 / 0** |
+| 正常对照通过 / 误报 | **3/3 / 0** |
+| 平均 judge（10 维质量门） | **91.1 / 100** |
+| 管线门禁（pipeline-finalize） | **8/8 PASS** |
+| 可复现门禁 | **REPRODUCIBLE**（153 指纹 / 8 覆盖 / 指标零漂移 / 8 执行证明） |
 
-分数据集故障命中：SKAB 15/15 · TEP 6/6（含难检 d03、粘滞阀 d14）· IndPenSim 4/4。
-机理类别 10 类全部命中（入口阀 4、出口阀 2、气蚀 3、不平衡 3、泄漏/水量/高温 3、TEP 组成/压头 2、TEP 冷却水系 4、IPS pH/执行 4）。
+分数据集故障命中：SKAB 2/2（阀节流 + 气蚀）· TEP 2/2（含难检 IDV3，置信校准 0.72）· IndPenSim 1/1（pH/温控执行侧工艺偏差）。
+本轮诊断由执行 agent **仅依据 brief 统计证据现场推理**（note 留痕见 `results/notes/`），每条证据引用 brief 实测数字。
 
 ## 复现入口
 
 **一键复现（推荐，S0-S6 fail-fast 门禁链）**：
 
 ```bash
-node scripts/benchmark/reproduce-all.mjs                # 全链：环境→数据→notes→管线→聚合→复现门禁
-node scripts/benchmark/reproduce-all.mjs --skip-prepare # 复用已有 run 目录（快速核对）
+node scripts/benchmark/run-benchmark.mjs
 ```
 
-分步执行（等价，详见 skill 手册 `.claude/skills/industrial-benchmark-runner/references/reproduction-playbook.md`）：
+S3 中断是设计行为（等待现场诊断）——按 `docs/benchmark/execution-guide.md` §4
+填写 note 后重跑同一条命令。分步命令、期望输出与漂移决策树见
+**`docs/benchmark/reproduction-guide.md`**；设计依据与期刊 baseline 对标见
+**`docs/benchmark/design.md`**。
 
-```bash
-python scripts/benchmark/author_notes_t0.py && python scripts/benchmark/author_notes_t2.py
-node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs prepare --tier scripts/benchmark/cases/tier0_smoke.json
-node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs prepare --tier scripts/benchmark/cases/tier2_main.json
-node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs commit --tier scripts/benchmark/cases/tier0_smoke.json
-node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs commit --tier scripts/benchmark/cases/tier2_main.json
-python scripts/benchmark/make_tier2.py
-node scripts/benchmark/aggregate.mjs --tier-file scripts/benchmark/cases/tier_all.json
-node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/tier_all.json
-```
-
-任何一步不符合 playbook 中的期望输出即停止，按手册 §7 漂移决策树处理——禁止手改结果文件。
-
-详细协议与文献对比口径见 `docs/benchmark-design.md`；执行计划见 `docs/benchmark-plan.md`。
+任何一步不符合期望输出即失败退出——禁止手改结果文件。

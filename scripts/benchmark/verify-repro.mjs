@@ -18,11 +18,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const ROOT = path.resolve(import.meta.dirname, '..', '..', '..', '..');
+const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const RESULTS = path.join(ROOT, 'results', 'benchmark');
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.indexOf(n) >= 0 && args[args.indexOf(n) + 1] ? args[args.indexOf(n) + 1] : d);
-const tierArg = opt('--tier', 'scripts/benchmark/cases/tier0_smoke.json');
+const tierArg = opt('--tier', 'scripts/benchmark/cases/benchmark_cases.json');
 const TIER = path.isAbsolute(tierArg) ? tierArg : path.join(ROOT, tierArg);
 
 const failures = [];

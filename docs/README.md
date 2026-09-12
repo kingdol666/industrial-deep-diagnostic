@@ -11,8 +11,7 @@
 | 文档 | 内容 |
 |---|---|
 | [api.md](api.md) | 外部 API 接口定义 + 错误码表 + 接入三步（已验证） |
-| [benchmark-design.md](benchmark-design.md) | Benchmark 设计：期刊 baseline 对标（可验证 DOI）、评估协议、口径 A/B |
-| [benchmark-plan.md](benchmark-plan.md) | Benchmark 执行计划（P0-P4 分阶段、三档规模、里程碑） |
+| [benchmark/](benchmark/README.md) | 诊断基准唯一文档入口：README（8 场景）+ design（指标/期刊 baseline 对标/口径 A/B）+ execution-guide（管线执行规程）+ reproduction-guide（复现手册）；编排脚本在 `scripts/benchmark/` |
 | [multi-harness.md](multi-harness.md) | 14 执行引擎适配架构（能力矩阵、工程纪律、API） |
 | [publication-strategy-report.md](publication-strategy-report.md) | 投稿策划（AEI 主投、章节模板、对比矩阵、命中率策略） |
 | [dataset-experiment-research.md](dataset-experiment-research.md) | 数据集调研与实验设计依据 |
@@ -32,5 +31,5 @@
 ## 阅读顺序
 
 1. `architecture/system-overview.md` → `architecture/repository-layout.md`
-2. `benchmark-design.md` → `benchmark-plan.md` → 根 `experience/README.md`（证据库与复现）
+2. `benchmark/README.md` → `benchmark/design.md` → 根 `experience/README.md`（证据库与复现）
 3. 需要外部集成时读 `api.md`、`agentworkshop-integration.md`、`multi-harness.md`

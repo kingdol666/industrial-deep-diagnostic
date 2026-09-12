@@ -6,7 +6,7 @@ import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..", "..");
 const args = process.argv.slice(2);
-const caseFile = path.join(ROOT, args.includes("--tier-file") ? args[args.indexOf("--tier-file") + 1] : "scripts/benchmark/cases/tier0_smoke.json");
+const caseFile = path.join(ROOT, args.includes("--tier-file") ? args[args.indexOf("--tier-file") + 1] : "scripts/benchmark/cases/benchmark_cases.json");
 const OUT = path.join(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : "results/benchmark");
 
 const { cases } = JSON.parse(fs.readFileSync(caseFile, "utf8"));
@@ -57,7 +57,7 @@ const CDR_REF = [
   ["PCA 经典结论（Chiang et al. 2001）", "TEP 21 故障", "IDV 3/9/15 难检", "本地复现：pca_baseline.py（Tier-1）"],
 ];
 const L = [];
-L.push(`# Benchmark 报告 — 多场景根因诊断（Tier-0 冒烟）`);
+L.push(`# Benchmark 报告 — 多场景根因诊断（典型 8 场景集）`);
 L.push(`\n> 生成：${metrics.generated_at} · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）`);
 L.push(`\n## 1. 总体指标\n\n| 指标 | 值 |\n|---|---|\n| 执行 cases | ${metrics.executed}/${metrics.total_cases} |\n| Top-1 命中（故障组） | ${metrics.top1}/${fault.length} = ${pct(metrics.top1, fault.length)}% |`);
 L.push(`| Top-k 命中 | ${metrics.topk}/${fault.length} = ${pct(metrics.topk, fault.length)}% |`);

@@ -696,7 +696,7 @@ ${surviving.map(h => `### ${h.name}
 ${[...(note.data_gaps ?? []).map(g => `  - [数据缺口] ${g}`), ...(note.inference_gaps ?? []).map(g => `  - [推理限制] ${g}`)].join("\n") || "  - 无"}
 
 ## 13. 复现信息
-- case 定义：scripts/benchmark/cases/tier0_smoke.json（真值与关键词仅在评分器使用，未注入管线）
+- case 定义：scripts/benchmark/cases/benchmark_cases.json（真值与关键词仅在评分器使用，未注入管线）
 - 评分：results/benchmark/gradings/${c.case_id}.json；事件日志：.pipeline_events.jsonl（pipeline-log-check 通过）
 - 门禁：pipeline-finalize_report.json（overall=${"见文件"}）
 `;

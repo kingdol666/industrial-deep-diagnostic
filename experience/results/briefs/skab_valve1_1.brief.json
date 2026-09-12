@@ -1,0 +1,51 @@
+{
+ "case_id": "skab_valve1_1",
+ "dataset": "skab",
+ "role": "fault investigation",
+ "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。",
+ "columns": 9,
+ "rows": 1145,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "Accelerometer2RMS",
+    "max_abs_z": 13.56,
+    "pct_z3": 0.004
+   },
+   {
+    "col": "Pressure",
+    "max_abs_z": 4.02,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "Accelerometer1RMS",
+    "max_abs_z": 3.45,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "Thermocouple",
+    "max_abs_z": 2.9,
+    "pct_z3": 0
+   },
+   {
+    "col": "Voltage",
+    "max_abs_z": 2.57,
+    "pct_z3": 0
+   },
+   {
+    "col": "Current",
+    "max_abs_z": 2.23,
+    "pct_z3": 0
+   }
+  ],
+  "top_correlation_pairs": [
+   "Accelerometer1RMS ~ Accelerometer2RMS: r=0.468"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

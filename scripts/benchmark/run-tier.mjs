@@ -12,16 +12,18 @@
 //   status   → per-case state table (prepared / note filled / graded)
 //
 // Usage:
-//   node run-tier.mjs prepare --tier scripts/benchmark/cases/tier0_smoke.json
+//   node run-tier.mjs prepare --tier scripts/benchmark/cases/benchmark_cases.json
 //   node run-tier.mjs notes   --tier <file> --out results/benchmark/notes
 //   node run-tier.mjs commit  --tier <file> [--only case_a,case_b]
 //   node run-tier.mjs status  --tier <file>
+//
+// Protocol documentation lives in docs/benchmark/ (NOT in a skill by design).
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-const ROOT = path.resolve(import.meta.dirname, '..', '..', '..', '..');
+const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const DIRECT = path.join(ROOT, 'scripts', 'benchmark', 'zcode_direct_pipeline.mjs');
 const RESULTS = path.join(ROOT, 'results', 'benchmark');
 const STATE = path.join(RESULTS, 'tier_state.json');
@@ -29,7 +31,7 @@ const STATE = path.join(RESULTS, 'tier_state.json');
 const args = process.argv.slice(2);
 const stage = args[0];
 const opt = (n, d) => (args.indexOf(n) >= 0 && args[args.indexOf(n) + 1] ? args[args.indexOf(n) + 1] : d);
-const tierArg = opt('--tier', 'scripts/benchmark/cases/tier0_smoke.json');
+const tierArg = opt('--tier', 'scripts/benchmark/cases/benchmark_cases.json');
 const TIER = path.isAbsolute(tierArg) ? tierArg : path.join(ROOT, tierArg);
 const NOTES_DIR = path.resolve(ROOT, opt('--out', 'results/benchmark/notes'));
 const only = opt('--only', '').split(',').map((s) => s.trim()).filter(Boolean);

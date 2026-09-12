@@ -1,0 +1,56 @@
+{
+ "case_id": "skab_cavitation_13",
+ "dataset": "skab",
+ "role": "fault investigation",
+ "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。本文件来自other实验组（故障类型不下发，仅提供传感器语义）。",
+ "columns": 9,
+ "rows": 923,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "Pressure",
+    "max_abs_z": 5.02,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "Accelerometer2RMS",
+    "max_abs_z": 3.45,
+    "pct_z3": 0.005
+   },
+   {
+    "col": "Accelerometer1RMS",
+    "max_abs_z": 3.08,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "Current",
+    "max_abs_z": 2.82,
+    "pct_z3": 0
+   },
+   {
+    "col": "Temperature",
+    "max_abs_z": 2.68,
+    "pct_z3": 0
+   },
+   {
+    "col": "Thermocouple",
+    "max_abs_z": 2.47,
+    "pct_z3": 0
+   }
+  ],
+  "top_correlation_pairs": [
+   "Accelerometer1RMS ~ Volume Flow RateRMS: r=-0.821",
+   "Accelerometer1RMS ~ Accelerometer2RMS: r=0.796",
+   "Thermocouple ~ Volume Flow RateRMS: r=-0.741",
+   "Accelerometer2RMS ~ Volume Flow RateRMS: r=-0.651",
+   "Accelerometer1RMS ~ Thermocouple: r=0.567",
+   "Current ~ Voltage: r=0.500"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

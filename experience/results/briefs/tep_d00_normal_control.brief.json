@@ -1,0 +1,56 @@
+{
+ "case_id": "tep_d00_normal_control",
+ "dataset": "tep",
+ "role": "control (expected: normal operation unless data proves otherwise)",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。",
+ "columns": 53,
+ "rows": 960,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "XMEAS_15",
+    "max_abs_z": 3.97,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "XMV_8",
+    "max_abs_z": 3.97,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "XMEAS_36",
+    "max_abs_z": 3.85,
+    "pct_z3": 0.004
+   },
+   {
+    "col": "XMV_4",
+    "max_abs_z": 3.76,
+    "pct_z3": 0.006
+   },
+   {
+    "col": "XMEAS_14",
+    "max_abs_z": 3.57,
+    "pct_z3": 0.005
+   },
+   {
+    "col": "XMV_10",
+    "max_abs_z": 3.53,
+    "pct_z3": 0.002
+   }
+  ],
+  "top_correlation_pairs": [
+   "XMEAS_12 ~ XMV_7: r=1.000",
+   "XMEAS_15 ~ XMV_8: r=1.000",
+   "XMEAS_17 ~ XMV_11: r=-0.999",
+   "XMEAS_7 ~ XMEAS_13: r=0.997",
+   "XMEAS_1 ~ XMV_3: r=0.997",
+   "XMEAS_19 ~ XMV_9: r=0.987"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

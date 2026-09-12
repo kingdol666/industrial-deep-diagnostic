@@ -27,7 +27,7 @@ import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const CASES = 'scripts/benchmark/cases/benchmark_cases.json';
-const RUN_TIER = path.join(ROOT, '.claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs');
+const RUN_TIER = path.join(ROOT, 'scripts/benchmark/run-tier.mjs');
 const NOTES = path.join(ROOT, 'results/benchmark/notes');
 const PY = path.join(ROOT, '.claude/shared/scripts/.venv/Scripts/python.exe');
 
@@ -114,7 +114,7 @@ stage('S5 aggregate + reproducibility gate', () => {
   for (const [k, v] of Object.entries(expect)) {
     if (m[k] !== v) throw new Error(`metrics.${k}=${JSON.stringify(m[k])} expected ${JSON.stringify(v)} — see gradings/`);
   }
-  const v = run('node', [path.join(ROOT, '.claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs'), '--tier', CASES]);
+  const v = run('node', [path.join(ROOT, 'scripts/benchmark/verify-repro.mjs'), '--tier', CASES]);
   if (!/REPRODUCIBLE/.test(v)) throw new Error(v.slice(-200));
   return `Top-1 ${m.top1}/${m.fault_cases}, CDR ${m.cdr}, controls ${m.control_pass}/${m.control_cases} — REPRODUCIBLE`;
 });

@@ -1,0 +1,56 @@
+{
+ "case_id": "indpensim_batch001_control",
+ "dataset": "indpensim",
+ "role": "control (expected: normal operation unless data proves otherwise)",
+ "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。本批为 recipe 驱动正常批次。",
+ "columns": 32,
+ "rows": 1130,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "Acid flow rate(Fa:L/h)",
+    "max_abs_z": 16.2,
+    "pct_z3": 0.012
+   },
+   {
+    "col": "Heating water flow rate(Fh:L/h)",
+    "max_abs_z": 10.94,
+    "pct_z3": 0.025
+   },
+   {
+    "col": "Temperature(T:K)",
+    "max_abs_z": 10.23,
+    "pct_z3": 0.014
+   },
+   {
+    "col": "Generated heat(Q:kJ)",
+    "max_abs_z": 8.78,
+    "pct_z3": 0.012
+   },
+   {
+    "col": "Heating/cooling water flow rate(Fc:L/h)",
+    "max_abs_z": 6.93,
+    "pct_z3": 0.012
+   },
+   {
+    "col": "pH(pH:pH)",
+    "max_abs_z": 6.01,
+    "pct_z3": 0.013
+   }
+  ],
+  "top_correlation_pairs": [
+   "Vessel Volume(V:L) ~ Vessel Weight(Wt:Kg): r=0.997",
+   "Time (h) ~ Penicillin concentration(P:g/L): r=0.994",
+   "carbon dioxide percent in off-gas(CO2outgas:%) ~ Carbon evolution rate(CER:g/h): r=0.969",
+   "Vessel Weight(Wt:Kg) ~ Carbon evolution rate(CER:g/h): r=0.941",
+   "Aeration rate(Fg:L/h) ~ Carbon evolution rate(CER:g/h): r=0.935",
+   "Oxygen Uptake Rate(OUR:(g min^{-1})) ~ Oxygen in percent in off-gas(O2:O2  (%)): r=-0.929"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

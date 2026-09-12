@@ -39,7 +39,30 @@ const rows = tier.cases.map((c) => {
 }).join('\n');
 
 const byDataset = Object.entries(metrics.by_dataset || {}).map(([d, v]) =>
-  `<tr><td>${esc(d)}</td><td>${v.cases}</td><td>${v.top1}/${v.cases - v.controls}</td><td>${v.controls}/${v.controls}</td></tr>`).join('\n');
+  `<tr><td>${esc(d)}</td><td>${v.cases}</td><td>${v.top1}/${v.cases - v.controls}</td><td>${v.control_pass ?? v.controls}/${v.controls}</td></tr>`).join('\n');
+
+const judgeScores = Object.values(gradings).map((g) => g.judge_score).filter((x) => typeof x === 'number');
+const meanJudge = judgeScores.length ? (judgeScores.reduce((a, b) => a + b, 0) / judgeScores.length).toFixed(1) : '-';
+
+// 优劣势分析 — 每条结论都由 metrics/repro 数字或协议事实支撑，不写无依据断言。
+const faultN = metrics.fault_cases;
+const calibOk = metrics.calibrated === faultN;
+const gatePass = repro.checks?.execution_proof?.finalize_pass ?? 0;
+const gateTotal = repro.checks?.execution_proof?.checked ?? metrics.total_cases;
+const strengths = [
+  `零误报：${metrics.control_pass}/${metrics.control_cases} 个正常对照被正确判为正常运行（误报 ${metrics.false_alarms}）——检测类文献中误报率常被忽视，此处作为一级指标报告。`,
+  `置信校准：${metrics.calibrated}/${faultN} 个故障场景结论类型落在证据允许集内，过度自信 ${metrics.overconfident} 例——系统在证据不足时选择 COMPETING_SET/NEEDS_DATA 而非强行单因结论。`,
+  `执行可信度：${gatePass}/${gateTotal} 个 run 通过 pipeline-finalize 门禁并携带 .pipeline_events.jsonl 事件日志——结论可回溯到统计/视觉/机理证据文件，而非仅最终答案。`,
+  `评分真实判别：真值隔离 + 独立评分器 + 阴性对照（注入 plausible-but-wrong 诊断被判伪，见 experience/results/scorer-discrimination-test.json）。`,
+  `可复现底座：确定性统计（S1 同数据逐字节一致）+ 指标零漂移 + ${repro.checks?.dataset_integrity?.verified ?? 0} 条数据 sha256 指纹，复现门禁 ${esc(repro.status)}。`,
+];
+const weaknesses = [
+  `样本量小：故障场景仅 ${faultN} 个，Top-1 比例的 Wilson 95% CI 为 ${ci[0]}–${ci[1]}%——区间宽，不支撑与文献数字的显著性比较（扩量路线见 docs/benchmark/design.md §7）。`,
+  `关键词判定的粒度：Top-1 由评分器按机理关键词双判定，能判"机理方向正确"，但细于关键词的差别（如阀门开度不足 vs 阀门全关）需人工复核 grading 与报告原文。`,
+  `单次运行：每场景一条诊断链，未报重复方差与配对检验（P4 路线：重复 R 次报均值±标准差）。`,
+  `教科书故障的记忆污染风险：TEP IDV 类扰动在公开文献中大量出现，agent 可能记忆性命中；当前仅靠 SKAB other 组不下发故障类型、IndPenSim 排除标注列部分缓解，陌生故障组单列在 P4。`,
+  `校准与 CDR 的张力：接受 NEEDS_DATA/COMPETING_SET 出口（校准优先）意味着 CDR 上界受"证据是否充分"约束——这是设计取舍，不是缺陷，但与"必须给出单因结论"的系统对比时口径不同。`,
+];
 
 const html = `<!DOCTYPE html>
 <html lang="zh">
@@ -85,6 +108,7 @@ ${metrics.total_cases} 场景（${metrics.fault_cases} 故障 + ${metrics.contro
   <div class="card"><div class="num">${metrics.cdr}</div><div class="lbl">CDR（Top-1 且 DETERMINED）</div></div>
   <div class="card"><div class="num">${metrics.control_pass}/${metrics.control_cases}</div><div class="lbl">对照通过 / 误报 ${metrics.false_alarms}</div></div>
   <div class="card"><div class="num">${metrics.calibrated}/${metrics.fault_cases}</div><div class="lbl">置信校准（过度自信 ${metrics.overconfident}）</div></div>
+  <div class="card"><div class="num">${meanJudge}</div><div class="lbl">平均 Judge（10 维质量门）</div></div>
 </div>
 
 <h2>2 分数据集</h2>
@@ -109,13 +133,25 @@ ${rows}
 </table>
 <p style="font-size:12.5px;color:var(--sub)">口径 A = 同任务（每场景一个根因结论）直接对比；口径 B = 样本级检测/分类，仅作量级参照。TEP 基线提示中包含根因候选清单，IDD 不提供候选。</p>
 
-<h2>5 复现</h2>
+<h2>5 优势与劣势分析</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div>
+    <h3 style="font-size:14px;margin:6px 0">优势（数字支撑）</h3>
+    <ul>${strengths.map((s) => `<li>${s}</li>`).join('\n')}</ul>
+  </div>
+  <div>
+    <h3 style="font-size:14px;margin:6px 0">劣势与边界（诚实声明）</h3>
+    <ul>${weaknesses.map((s) => `<li>${s}</li>`).join('\n')}</ul>
+  </div>
+</div>
+
+<h2>6 复现</h2>
 <pre>node scripts/benchmark/run-benchmark.mjs</pre>
 <ul>
   <li>S1 prepare 产出每个场景的 run 目录与统计 digest（数据 sha256 见 dataset_manifest.json，${(repro.checks?.dataset_integrity?.verified ?? 0)} 条已验证）；</li>
-  <li>S2 下发盲诊断任务包（仅统计证据；truth 隔离）；S3 由执行 agent 现场诊断（协议见 industrial-benchmark-runner skill）；</li>
-  <li>S4 展开管线产物并过 finalize 门禁（${repro.checks?.execution_proof?.finalize_pass ?? metrics.total_cases}/${metrics.total_cases} PASS）；S5 独立评分 + 复现门禁；S6 生成本报告。</li>
-  <li>任何一步偏离期望输出即失败退出（漂移决策树见 skill 手册）。</li>
+  <li>S2 下发盲诊断任务包（仅统计证据；truth 隔离）；S3 由执行 agent 按 <b>docs/benchmark/execution-guide.md</b> 现场诊断；</li>
+  <li>S4 展开管线产物（每场景 report.md + diagnostic-report.html）并过 finalize 门禁（${repro.checks?.execution_proof?.finalize_pass ?? metrics.total_cases}/${metrics.total_cases} PASS）；S5 独立评分 + 复现门禁；S6 生成本报告。</li>
+  <li>逐步命令、期望输出与漂移决策树见 <b>docs/benchmark/reproduction-guide.md</b>。</li>
 </ul>
 
 <div class="meta" style="margin-top:30px;border-top:1px solid var(--line);padding-top:12px">

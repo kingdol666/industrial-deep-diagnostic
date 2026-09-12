@@ -1,0 +1,56 @@
+{
+ "case_id": "indpensim_batch093",
+ "dataset": "indpensim",
+ "role": "fault investigation",
+ "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。",
+ "columns": 32,
+ "rows": 1050,
+ "stats_engine": "driver-js-fallback",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "Acid flow rate(Fa:L/h)",
+    "max_abs_z": 15.8,
+    "pct_z3": 0.014
+   },
+   {
+    "col": "Heating water flow rate(Fh:L/h)",
+    "max_abs_z": 13.05,
+    "pct_z3": 0.013
+   },
+   {
+    "col": "pH(pH:pH)",
+    "max_abs_z": 7.09,
+    "pct_z3": 0.014
+   },
+   {
+    "col": "Heating/cooling water flow rate(Fc:L/h)",
+    "max_abs_z": 5.18,
+    "pct_z3": 0.031
+   },
+   {
+    "col": "Substrate concentration(S:g/L)",
+    "max_abs_z": 5.01,
+    "pct_z3": 0.044
+   },
+   {
+    "col": "Dumped broth flow(Fremoved:L/h)",
+    "max_abs_z": 4.47,
+    "pct_z3": 0.048
+   }
+  ],
+  "top_correlation_pairs": [
+   "Vessel Volume(V:L) ~ Vessel Weight(Wt:Kg): r=0.999",
+   "Temperature(T:K) ~ Generated heat(Q:kJ): r=0.996",
+   "Time (h) ~ Penicillin concentration(P:g/L): r=0.993",
+   "carbon dioxide percent in off-gas(CO2outgas:%) ~ Carbon evolution rate(CER:g/h): r=0.966",
+   "Vessel Weight(Wt:Kg) ~ Carbon evolution rate(CER:g/h): r=0.961",
+   "Vessel Volume(V:L) ~ Carbon evolution rate(CER:g/h): r=0.954"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

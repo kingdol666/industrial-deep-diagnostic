@@ -24,7 +24,7 @@
 </head>
 <body>
 <h1>IDD 诊断基准 — 评分报告</h1>
-<div class="meta">生成 2026-09-12 09:55 ·
+<div class="meta">生成 2026-09-12 11:40 ·
 8 场景（5 故障 + 3 对照）·
 执行模式：zcode-direct（确定性统计管线 + 现场诊断推理）·
 复现门禁：<b style="color:#0a7d38">REPRODUCIBLE</b></div>
@@ -42,6 +42,7 @@
   <div class="card"><div class="num">1</div><div class="lbl">CDR（Top-1 且 DETERMINED）</div></div>
   <div class="card"><div class="num">3/3</div><div class="lbl">对照通过 / 误报 0</div></div>
   <div class="card"><div class="num">5/5</div><div class="lbl">置信校准（过度自信 0）</div></div>
+  <div class="card"><div class="num">91.1</div><div class="lbl">平均 Judge（10 维质量门）</div></div>
 </div>
 
 <h2>2 分数据集</h2>
@@ -52,14 +53,14 @@
 <h2>3 逐场景评分（管线输出 vs 标准答案）</h2>
 <table>
 <tr><th>场景</th><th>数据集</th><th>类型</th><th>管线结论类型</th><th>Top-1</th><th>Judge</th><th>门禁</th></tr>
-<tr><td>skab_valve1_1</td><td>skab</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>93</td><td><span class="ok">PASS</span></td></tr>
+<tr><td>skab_valve1_1</td><td>skab</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>92</td><td><span class="ok">PASS</span></td></tr>
 <tr><td>skab_cavitation_13</td><td>skab</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>92</td><td><span class="ok">PASS</span></td></tr>
 <tr><td>skab_normal_control</td><td>skab</td><td>control</td><td>normal operation (no fault)</td><td>—</td><td>91</td><td><span class="ok">PASS</span></td></tr>
-<tr><td>tep_d01_ac_feed_ratio</td><td>tep</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>90</td><td><span class="ok">PASS</span></td></tr>
+<tr><td>tep_d01_ac_feed_ratio</td><td>tep</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>92</td><td><span class="ok">PASS</span></td></tr>
 <tr><td>tep_d03_hard</td><td>tep</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>90</td><td><span class="ok">PASS</span></td></tr>
 <tr><td>tep_d00_normal_control</td><td>tep</td><td>control</td><td>normal operation (no fault)</td><td>—</td><td>91</td><td><span class="ok">PASS</span></td></tr>
-<tr><td>indpensim_batch093</td><td>indpensim</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>90</td><td><span class="ok">PASS</span></td></tr>
-<tr><td>indpensim_batch001_control</td><td>indpensim</td><td>control</td><td>normal operation (no fault)</td><td>—</td><td>92</td><td><span class="ok">PASS</span></td></tr>
+<tr><td>indpensim_batch093</td><td>indpensim</td><td>fault</td><td>DETERMINED</td><td><span class="ok">✓</span></td><td>91</td><td><span class="ok">PASS</span></td></tr>
+<tr><td>indpensim_batch001_control</td><td>indpensim</td><td>control</td><td>normal operation (no fault)</td><td>—</td><td>90</td><td><span class="ok">PASS</span></td></tr>
 </table>
 <p style="font-size:12.5px;color:var(--sub)">Top-1 由独立评分器判定：管线输出的首要根因需命中标准答案的机理关键词（双判定）。每个 grading 的完整依据见 results/benchmark/gradings/。</p>
 
@@ -75,13 +76,33 @@
 </table>
 <p style="font-size:12.5px;color:var(--sub)">口径 A = 同任务（每场景一个根因结论）直接对比；口径 B = 样本级检测/分类，仅作量级参照。TEP 基线提示中包含根因候选清单，IDD 不提供候选。</p>
 
-<h2>5 复现</h2>
+<h2>5 优势与劣势分析</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div>
+    <h3 style="font-size:14px;margin:6px 0">优势（数字支撑）</h3>
+    <ul><li>零误报：3/3 个正常对照被正确判为正常运行（误报 0）——检测类文献中误报率常被忽视，此处作为一级指标报告。</li>
+<li>置信校准：5/5 个故障场景结论类型落在证据允许集内，过度自信 0 例——系统在证据不足时选择 COMPETING_SET/NEEDS_DATA 而非强行单因结论。</li>
+<li>执行可信度：8/8 个 run 通过 pipeline-finalize 门禁并携带 .pipeline_events.jsonl 事件日志——结论可回溯到统计/视觉/机理证据文件，而非仅最终答案。</li>
+<li>评分真实判别：真值隔离 + 独立评分器 + 阴性对照（注入 plausible-but-wrong 诊断被判伪，见 experience/results/scorer-discrimination-test.json）。</li>
+<li>可复现底座：确定性统计（S1 同数据逐字节一致）+ 指标零漂移 + 153 条数据 sha256 指纹，复现门禁 REPRODUCIBLE。</li></ul>
+  </div>
+  <div>
+    <h3 style="font-size:14px;margin:6px 0">劣势与边界（诚实声明）</h3>
+    <ul><li>样本量小：故障场景仅 5 个，Top-1 比例的 Wilson 95% CI 为 56.6–100%——区间宽，不支撑与文献数字的显著性比较（扩量路线见 docs/benchmark/design.md §7）。</li>
+<li>关键词判定的粒度：Top-1 由评分器按机理关键词双判定，能判"机理方向正确"，但细于关键词的差别（如阀门开度不足 vs 阀门全关）需人工复核 grading 与报告原文。</li>
+<li>单次运行：每场景一条诊断链，未报重复方差与配对检验（P4 路线：重复 R 次报均值±标准差）。</li>
+<li>教科书故障的记忆污染风险：TEP IDV 类扰动在公开文献中大量出现，agent 可能记忆性命中；当前仅靠 SKAB other 组不下发故障类型、IndPenSim 排除标注列部分缓解，陌生故障组单列在 P4。</li>
+<li>校准与 CDR 的张力：接受 NEEDS_DATA/COMPETING_SET 出口（校准优先）意味着 CDR 上界受"证据是否充分"约束——这是设计取舍，不是缺陷，但与"必须给出单因结论"的系统对比时口径不同。</li></ul>
+  </div>
+</div>
+
+<h2>6 复现</h2>
 <pre>node scripts/benchmark/run-benchmark.mjs</pre>
 <ul>
   <li>S1 prepare 产出每个场景的 run 目录与统计 digest（数据 sha256 见 dataset_manifest.json，153 条已验证）；</li>
-  <li>S2 下发盲诊断任务包（仅统计证据；truth 隔离）；S3 由执行 agent 现场诊断（协议见 industrial-benchmark-runner skill）；</li>
-  <li>S4 展开管线产物并过 finalize 门禁（8/8 PASS）；S5 独立评分 + 复现门禁；S6 生成本报告。</li>
-  <li>任何一步偏离期望输出即失败退出（漂移决策树见 skill 手册）。</li>
+  <li>S2 下发盲诊断任务包（仅统计证据；truth 隔离）；S3 由执行 agent 按 <b>docs/benchmark/execution-guide.md</b> 现场诊断；</li>
+  <li>S4 展开管线产物（每场景 report.md + diagnostic-report.html）并过 finalize 门禁（8/8 PASS）；S5 独立评分 + 复现门禁；S6 生成本报告。</li>
+  <li>逐步命令、期望输出与漂移决策树见 <b>docs/benchmark/reproduction-guide.md</b>。</li>
 </ul>
 
 <div class="meta" style="margin-top:30px;border-top:1px solid var(--line);padding-top:12px">
