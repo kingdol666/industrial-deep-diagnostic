@@ -1,6 +1,6 @@
 # SKAB 工业诊断报告 — skab_valve1_1
 
-> run_id: 202609121128008_bench_skab_valve1_1 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 1145 行 × 9 列 · 统计引擎: stats-package
+> run_id: 202609121642257_bench_skab_valve1_1 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 1145 行 × 9 列 · 统计引擎: stats-package
 
 ## 1. 执行摘要 (Executive Summary)
 - 诊断结论类型：**DETERMINED**（置信度 87%）

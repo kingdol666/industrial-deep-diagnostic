@@ -3,7 +3,7 @@
 <style>body{font-family:Segoe UI,'Microsoft YaHei',sans-serif;margin:2rem;color:#1a1a2e;background:#f6f8fa}h1{color:#16537e}.card{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:12px;background:#16537e;color:#fff;font-size:.85rem}table{border-collapse:collapse;width:100%}td,th{border:1px solid #d0d7de;padding:.4rem .6rem;font-size:.9rem;text-align:left}img{max-width:100%;border:1px solid #d0d7de;border-radius:6px}code{background:#eef1f4;padding:.1rem .3rem;border-radius:4px}</style></head>
 <body><h1>工业诊断报告 — tep_d11_reactor_cooling_random</h1>
-<div class="card"><span class="badge">DETERMINED</span> 置信度 70% · judge 90/100 · run <code>202609121510516_bench_tep_d11_reactor_cooling_random</code> · 执行模式 zcode-direct</div>
+<div class="card"><span class="badge">DETERMINED</span> 置信度 70% · judge 90/100 · run <code>202609121653450_bench_tep_d11_reactor_cooling_random</code> · 执行模式 zcode-direct</div>
 <div class="card"><h2>根因结论</h2><p>反应器冷却水入口温度随机波动（random variation，方差增大型扰动）：反应器温度 XMEAS_9 以 3.73σ 入异常列谱次高位、无阶跃平台、全列谱弱签名（≤3.78σ）——与同通道阶跃场景（10.06σ 主导）的形态判别明确。</p></div>
 <div class="card"><h2>统计发现（stats-package）</h2><ul><li><code>XMEAS_26</code> max|z|=3.78，超3σ占比 0.2%</li><li><code>XMEAS_9</code> max|z|=3.73，超3σ占比 0.5%</li><li><code>XMV_8</code> max|z|=3.66，超3σ占比 0.4%</li><li><code>XMEAS_15</code> max|z|=3.66，超3σ占比 0.4%</li><li><code>XMEAS_11</code> max|z|=3.61，超3σ占比 0.3%</li><li><code>XMEAS_25</code> max|z|=3.59，超3σ占比 0.2%</li></ul>
 <p>强相关对：XMEAS_12 ~ XMV_7: r=1.000；XMEAS_15 ~ XMV_8: r=1.000；XMEAS_17 ~ XMV_11: r=-0.999；XMEAS_7 ~ XMEAS_13: r=0.998；XMEAS_1 ~ XMV_3: r=0.997；XMEAS_19 ~ XMV_9: r=0.988</p></div>

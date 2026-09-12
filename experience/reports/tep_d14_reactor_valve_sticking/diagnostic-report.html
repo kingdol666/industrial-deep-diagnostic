@@ -3,7 +3,7 @@
 <style>body{font-family:Segoe UI,'Microsoft YaHei',sans-serif;margin:2rem;color:#1a1a2e;background:#f6f8fa}h1{color:#16537e}.card{background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:12px;background:#16537e;color:#fff;font-size:.85rem}table{border-collapse:collapse;width:100%}td,th{border:1px solid #d0d7de;padding:.4rem .6rem;font-size:.9rem;text-align:left}img{max-width:100%;border:1px solid #d0d7de;border-radius:6px}code{background:#eef1f4;padding:.1rem .3rem;border-radius:4px}</style></head>
 <body><h1>工业诊断报告 — tep_d14_reactor_valve_sticking</h1>
-<div class="card"><span class="badge">DETERMINED</span> 置信度 68% · judge 90/100 · run <code>202609121511125_bench_tep_d14_reactor_valve_sticking</code> · 执行模式 zcode-direct</div>
+<div class="card"><span class="badge">DETERMINED</span> 置信度 68% · judge 90/100 · run <code>202609121654012_bench_tep_d14_reactor_valve_sticking</code> · 执行模式 zcode-direct</div>
 <div class="card"><h2>根因结论</h2><p>反应器冷却水阀粘滞（reactor cooling water valve sticking，振荡型执行器故障）：反应器温度-冷却阀控制对 XMEAS_9~XMV_10 以 r=0.998 强耦合（全列谱中唯一的非液位/进料控制对），回路高负荷运转的粘滞签名，下游分离/汽提/进料链多点轻补偿。</p></div>
 <div class="card"><h2>统计发现（stats-package）</h2><ul><li><code>XMEAS_22</code> max|z|=4，超3σ占比 0.3%</li><li><code>XMEAS_11</code> max|z|=3.97，超3σ占比 0.3%</li><li><code>XMEAS_4</code> max|z|=3.95，超3σ占比 0.4%</li><li><code>XMEAS_15</code> max|z|=3.53，超3σ占比 0.2%</li><li><code>XMV_8</code> max|z|=3.53，超3σ占比 0.3%</li><li><code>XMEAS_3</code> max|z|=3.52，超3σ占比 0.3%</li></ul>
 <p>强相关对：XMEAS_12 ~ XMV_7: r=1.000；XMEAS_15 ~ XMV_8: r=1.000；XMEAS_17 ~ XMV_11: r=-1.000；XMEAS_9 ~ XMV_10: r=0.998；XMEAS_1 ~ XMV_3: r=0.996；XMEAS_7 ~ XMEAS_13: r=0.992</p></div>

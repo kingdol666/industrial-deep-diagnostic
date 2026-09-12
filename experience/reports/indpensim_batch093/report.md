@@ -1,6 +1,6 @@
 # INDPENSIM 工业诊断报告 — indpensim_batch093
 
-> run_id: 202609121131528_bench_indpensim_batch093 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 1050 行 × 32 列 · 统计引擎: driver-js-fallback
+> run_id: 202609121646106_bench_indpensim_batch093 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 1050 行 × 32 列 · 统计引擎: driver-js-fallback
 
 ## 1. 执行摘要 (Executive Summary)
 - 诊断结论类型：**DETERMINED**（置信度 85%）

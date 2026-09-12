@@ -1,6 +1,6 @@
 # SKAB 工业诊断报告 — skab_cavitation_13
 
-> run_id: 202609121128268_bench_skab_cavitation_13 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 923 行 × 9 列 · 统计引擎: stats-package
+> run_id: 202609121642485_bench_skab_cavitation_13 · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 923 行 × 9 列 · 统计引擎: stats-package
 
 ## 1. 执行摘要 (Executive Summary)
 - 诊断结论类型：**DETERMINED**（置信度 82%）

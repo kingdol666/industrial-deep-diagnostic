@@ -1,6 +1,6 @@
 # TEP 工业诊断报告 — tep_d03_hard
 
-> run_id: 202609121131087_bench_tep_d03_hard · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 960 行 × 53 列 · 统计引擎: stats-package
+> run_id: 202609121645337_bench_tep_d03_hard · 执行模式: zcode-direct（无 OMP/Claude Code，ZCode agent 直接按 skill 协议执行） · 数据: 960 行 × 53 列 · 统计引擎: stats-package
 
 ## 1. 执行摘要 (Executive Summary)
 - 诊断结论类型：**DETERMINED**（置信度 72%）

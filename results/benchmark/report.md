@@ -1,6 +1,6 @@
-# Benchmark 报告 — 多场景根因诊断（典型 8 场景集）
+# Benchmark 报告 — 12 场景集（TEP 逐故障文献可比）
 
-> 生成：2026-09-12T15:18:31.324Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T17:01:50.947Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
