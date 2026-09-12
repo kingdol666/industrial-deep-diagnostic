@@ -35,8 +35,20 @@ const rows = tier.cases.map((c) => {
   const type = c.control ? 'control' : 'fault';
   const top1 = c.control ? '—' : (g.top1 ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>');
   const conclusion = esc(c.control ? 'normal operation (no fault)' : (g.diagnosis_type || '?'));
-  return `<tr><td>${esc(c.case_id)}</td><td>${esc(c.dataset)}</td><td>${type}</td><td>${conclusion}</td><td>${top1}</td><td>${g.judge_score ?? '-'}</td><td>${g.checks?.pipeline_log === 'PASS' && g.checks?.finalize_passed ? '<span class="ok">PASS</span>' : '<span class="bad">FAIL</span>'}</td></tr>`;
+  const lit = c.literature_baseline
+    ? `${esc(c.literature_baseline.fault)}<br><span style="font-size:11px;color:var(--sub)">FE GPT-4o ${esc(c.literature_baseline.fe_gpt4o)} · o1 ${esc(c.literature_baseline.fe_o1)} · PCA ${esc(c.literature_baseline.pca)}</span>`
+    : '—';
+  return `<tr><td>${esc(c.case_id)}</td><td>${esc(c.dataset)}</td><td>${type}</td><td>${conclusion}</td><td>${top1}</td><td>${lit}</td><td>${g.judge_score ?? '-'}</td><td>${g.checks?.pipeline_log === 'PASS' && g.checks?.finalize_passed ? '<span class="ok">PASS</span>' : '<span class="bad">FAIL</span>'}</td></tr>`;
 }).join('\n');
+
+// 逐故障文献对比（TEP：FaultExplainer arXiv:2412.14492 Table 1，root-causes-included prompt）
+const tepRows = tier.cases.filter((c) => c.literature_baseline && gradings[c.case_id]).map((c) => {
+  const g = gradings[c.case_id];
+  const mark = (v) => v === 'correct' ? '<span class="ok">✓ correct</span>' : v === 'incorrect' ? '<span class="bad">✗ wrong</span>' : '<span style="color:var(--sub)">未评分（PCA 不可检）</span>';
+  const ours = g.top1 ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>';
+  return `<tr><td>${esc(c.literature_baseline.fault)}</td><td>${mark(c.literature_baseline.fe_gpt4o)}</td><td>${mark(c.literature_baseline.fe_o1)}</td><td>${esc(c.literature_baseline.pca)}</td><td>${ours}（${esc(g.diagnosis_type)}）</td></tr>`;
+}).join('\n');
+const feScored = tepRows;
 
 const byDataset = Object.entries(metrics.by_dataset || {}).map(([d, v]) =>
   `<tr><td>${esc(d)}</td><td>${v.cases}</td><td>${v.top1}/${v.cases - v.controls}</td><td>${v.control_pass ?? v.controls}/${v.controls}</td></tr>`).join('\n');
@@ -114,12 +126,19 @@ ${metrics.total_cases} 场景（${metrics.fault_cases} 故障 + ${metrics.contro
 <h2>2 分数据集</h2>
 <table><tr><th>数据集</th><th>场景</th><th>故障 Top-1</th><th>对照通过</th></tr>${byDataset}</table>
 
-<h2>3 逐场景评分（管线输出 vs 标准答案）</h2>
+<h2>3 逐场景评分（管线输出 vs 标准答案 vs 文献基线）</h2>
 <table>
-<tr><th>场景</th><th>数据集</th><th>类型</th><th>管线结论类型</th><th>Top-1</th><th>Judge</th><th>门禁</th></tr>
+<tr><th>场景</th><th>数据集</th><th>类型</th><th>管线结论类型</th><th>Top-1</th><th>文献基线（FaultExplainer arXiv:2412.14492）</th><th>Judge</th><th>门禁</th></tr>
 ${rows}
 </table>
-<p style="font-size:12.5px;color:var(--sub)">Top-1 由独立评分器判定：管线输出的首要根因需命中标准答案的机理关键词（双判定）。每个 grading 的完整依据见 results/benchmark/gradings/。</p>
+<p style="font-size:12.5px;color:var(--sub)">Top-1 由独立评分器判定：管线输出的首要根因需命中标准答案的机理关键词（双判定）。FE = FaultExplainer 在该故障上的结果（root-causes-included prompt，含候选根因清单；PCA 不可检故障其表未评分）。每个 grading 的完整依据见 results/benchmark/gradings/。</p>
+
+<h2>3A TEP 逐故障对比（口径 A：同任务直比，逐故障粒度）</h2>
+<table>
+<tr><th>TEP 故障</th><th>FaultExplainer GPT-4o</th><th>FaultExplainer o1-preview</th><th>PCA 可检性</th><th>IDD（本管线）Top-1</th></tr>
+${tepRows}
+</table>
+<p style="font-size:12.5px;color:var(--sub)">口径声明：FaultExplainer 的提示中包含<b>候选根因清单</b>且接受别名命中；IDD 不提供候选清单、不提供真值提示，为更严口径。PCA 可检性沿 FaultExplainer 对 Chiang et al. 2001 的标注（IDV3/4/9/15 不可检）。样本量小，比例对比读方向不读显著性。</p>
 
 <h2>4 与文献 baseline 对比</h2>
 <table>

@@ -1,16 +1,16 @@
 # Benchmark 报告 — 多场景根因诊断（典型 8 场景集）
 
-> 生成：2026-09-12T11:40:00.157Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T15:18:31.324Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
 | 指标 | 值 |
 |---|---|
-| 执行 cases | 8/8 |
-| Top-1 命中（故障组） | 5/5 = 100.0% |
-| Top-k 命中 | 5/5 = 100.0% |
+| 执行 cases | 12/12 |
+| Top-1 命中（故障组） | 9/9 = 100.0% |
+| Top-k 命中 | 9/9 = 100.0% |
 | CDR（Top-1 且 DETERMINED） | 1 |
-| 三态校准正确率 | 5/5 |
+| 三态校准正确率 | 9/9 |
 | 过度自信（DETERMINED 且错） | 0 |
 | 正常控制组通过 / 误报 | 3/3 · 误报 0 |
 
@@ -19,7 +19,7 @@
 | 数据集 | cases | Top-1 | Top-k | 控制组通过 |
 |---|---|---|---|---|
 | skab | 3 | 2 | 2 | 1/1 |
-| tep | 3 | 2 | 2 | 1/1 |
+| tep | 7 | 6 | 6 | 1/1 |
 | indpensim | 2 | 1 | 1 | 1/1 |
 
 ## 3. 逐 case 明细
@@ -34,6 +34,10 @@
 | tep_d00_normal_control | DETERMINED | null | null | null | 91 | true |
 | indpensim_batch093 | DETERMINED | true | true | true | 91 | true |
 | indpensim_batch001_control | DETERMINED | null | null | null | 90 | true |
+| tep_d04_reactor_cooling_step | DETERMINED | true | true | true | 92 | true |
+| tep_d07_header_pressure | DETERMINED | true | true | true | 91 | true |
+| tep_d11_reactor_cooling_random | DETERMINED | true | true | true | 90 | true |
+| tep_d14_reactor_valve_sticking | DETERMINED | true | true | true | 90 | true |
 
 ## 4. 与已发表论文对比
 

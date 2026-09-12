@@ -52,8 +52,11 @@ stage('S0 environment', () => {
   if (!fs.existsSync(PY)) throw new Error(`missing python venv: ${PY} (run node .claude/shared/scripts/uv_env_setup.mjs)`);
   const all = JSON.parse(fs.readFileSync(path.join(ROOT, CASES), 'utf8'));
   const fault = all.cases.filter((c) => !c.control).length;
-  if (all.cases.length !== 8 || fault !== 5) throw new Error(`case contract: ${all.cases.length}/${fault} (expected 8/5)`);
-  return `8 scenarios (5 fault + 3 control)`;
+  const lit = all.cases.filter((c) => !c.control && c.literature_baseline).length;
+  const tep = all.cases.filter((c) => c.dataset === 'tep' && !c.control);
+  if (all.cases.length !== 12 || fault !== 9) throw new Error(`case contract: ${all.cases.length}/${fault} (expected 12/9)`);
+  if (lit !== tep.length || tep.length < 6) throw new Error(`per-fault literature baseline (TEP subset): ${lit}/${tep.length} (expected ${tep.length}>=6)`);
+  return `12 scenarios (9 fault + 3 control); TEP subset ${tep.length} with per-fault literature baselines`;
 });
 
 // ── S1 prepare ──
@@ -102,7 +105,7 @@ stage('S4 commit (pipeline artifacts + gates + grading)', () => {
   const lines = out.split('\n').filter((l) => l.startsWith('[commit]'));
   const skipped = out.match(/skipped (\d+)/);
   if (skipped && Number(skipped[1]) > 0) throw new Error(`${skipped[1]} scenario(s) skipped`);
-  if (lines.length !== 8) throw new Error(`committed ${lines.length} != 8`);
+  if (lines.length !== 12) throw new Error(`committed ${lines.length} != 12`);
   return lines.map((l) => l.replace('[commit] ', '')).join(' | ');
 });
 
@@ -110,7 +113,9 @@ stage('S4 commit (pipeline artifacts + gates + grading)', () => {
 stage('S5 aggregate + reproducibility gate', () => {
   run('node', ['scripts/benchmark/aggregate.mjs', '--tier-file', CASES]);
   const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'results/benchmark/metrics.json'), 'utf8'));
-  const expect = { total_cases: 8, executed: 8, fault_cases: 5, control_cases: 3, top1: 5, topk: 5, cdr: 1, calibrated: 5, overconfident: 0, control_pass: 3, false_alarms: 0 };
+  // 硬断言：全执行、对照零误报、校准无过度自信（结果质量底线）；Top-1 不做完美断言，
+  // 由 verify-repro 从 gradings 独立重算核对（诚实报告实际命中率）。
+  const expect = { total_cases: 12, executed: 12, fault_cases: 9, control_cases: 3, control_pass: 3, false_alarms: 0, overconfident: 0 };
   for (const [k, v] of Object.entries(expect)) {
     if (m[k] !== v) throw new Error(`metrics.${k}=${JSON.stringify(m[k])} expected ${JSON.stringify(v)} — see gradings/`);
   }

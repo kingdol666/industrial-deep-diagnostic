@@ -1,0 +1,94 @@
+{
+ "_case_id": "tep_d04_reactor_cooling_step",
+ "_control": false,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "反应器冷却侧扰动（reactor cooling disturbance）：反应器温度 XMEAS_9 以 10.06σ 主导异常列谱（次高仅 3.8σ），进料与组分通道仅轻度联动——冷却能力不足引发的一次热失衡，符合冷却水入口温度阶跃机理。",
+ "confidence": 0.86,
+ "ontology": {
+  "domain": "Tennessee Eastman 化工过程（反应器-冷凝器-分离器-汽提塔）",
+  "physics_notes": [
+   "反应器温度由冷却水移热控制：冷却水入口温度阶跃升高 → 移热能力下降 → 反应器温度越界（XM9 强签名）",
+   "反应器温度偏离 → 反应速率/转化率变化 → 进料链（XM1/XM2/XMV_3）与组分（XM23）轻度补偿",
+   "判别要点：冷却类扰动以 XM9（及 XM21 冷却出口温度）为主导；进料组成阶跃以组分通道主导；进料量阶跃以流量通道主导"
+  ],
+  "variables": [
+   { "name": "XMEAS_1", "unit": "ksm3/h", "meaning": "A 进料（流股1）" },
+   { "name": "XMEAS_2", "unit": "kg/h", "meaning": "D 进料（流股2）" },
+   { "name": "XMEAS_9", "unit": "℃", "meaning": "反应器温度（冷却控制被控量）" },
+   { "name": "XMEAS_11", "unit": "℃", "meaning": "产品分离器温度" },
+   { "name": "XMEAS_21", "unit": "℃", "meaning": "反应器冷却水出口温度" },
+   { "name": "XMEAS_23", "unit": "mol %", "meaning": "流股6（反应器进料）A 组分摩尔分数" },
+   { "name": "XMV_3", "unit": "%", "meaning": "A 进料阀" },
+   { "name": "XMV_10", "unit": "%", "meaning": "反应器冷却水阀" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "反应器冷却水侧扰动（冷却能力不足）",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.86,
+   "verdict": "surviving",
+   "logic_chain": [
+    "冷却水入口温度阶跃 → 移热能力下降 → 反应器温度越界（brief：XMEAS_9 max|z|=10.06，全列谱 2.6 倍于次高）",
+    "反应器温度偏离 → 反应速率失衡 → 进料链补偿（brief：XMEAS_2 3.8 / XMV_3 3.74 / XMEAS_1 3.7）",
+    "转化率变化 → 反应器进料组分轻移（brief：XMEAS_23 3.7）与分离器温度响应（brief：XMEAS_11 3.66）"
+   ],
+   "evidence": [
+    "L3 统计：XMEAS_9（反应器温度）max|z|=10.06、超3σ占比 0.3%——极端主导签名，热一次扰动的直接证据",
+    "L3 统计：全部次级异常 ≤3.8σ 且集中在进料/组分/分离器温度——一次热扰动的下游补偿结构",
+    "L3 统计：强相关对全为控制回路对（XM15~XMV8 1.000、XM12~XMV7 1.000 等）——控制器正常补偿，无跨域伪相关",
+    "L4 视觉：反应器温度通道自故障时段呈阶跃式偏离平台（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "若 XM21（冷却水出口温度）与 XMV_10 出现与 XM9 同期的主导异常且形态为振荡，则改判阀粘滞类",
+    "若组分通道（XM23-41）升至主导位，则改判进料组成阶跃"
+   ],
+   "proof": "签名-机理核对：冷却扰动的第一被控量是反应器温度——10.06σ 对 0.3% 超限占比的『阶跃主导』形态与冷却水入口温度阶跃一致；量级比（10.06 vs 次高 3.8）排除了多源小扰动的叠加解释。",
+   "predicted": ["XM9 呈阶跃平台后受控收敛", "XMV_10 冷却阀位大幅补偿动作"]
+  },
+  {
+   "name": "进料组成阶跃（IDV1/2/8 类）",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": ["组成阶跃应以组分测量（XM23-41）主导"],
+   "evidence": ["L3 统计：组分通道仅 XM23 3.7σ 入列，远低于 XM9 的 10.06σ"],
+   "contradiction": ["组分通道为次级响应（3.7σ）而非主导——与 d01 类『组分主导 4/6』的签名结构相反"],
+   "falsification": ["若分段分析显示组分先于 XM9 异常，本假设复活"]
+  },
+  {
+   "name": "进料量阶跃/损失（IDV6 类）",
+   "mechanism_class": "feed-loss",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": ["进料量扰动应以流量/阀位主导"],
+   "evidence": ["L3 统计：XM1/XMV_3 均 3.7σ 次级，非主导"],
+   "contradiction": ["流量通道为温度响应的补偿动作而非一次扰动"],
+   "falsification": ["若 XM1 出现 ≥5σ 阶跃且先于 XM9，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "XMEAS_9 反应器温度主导异常：max|z|=10.06（次高 3.8）——热一次扰动直接签名",
+   "进料链次级补偿：XMEAS_2/XMV_3/XMEAS_1 均 ≈3.7σ",
+   "组分轻移：XMEAS_23 3.7σ；分离器温度 XMEAS_11 3.66σ",
+   "控制回路结构对完好（r 0.98-1.0）——控制器正常"
+  ],
+  "ontology_industry_interpretation": [
+   "TEP 冷却类扰动的判别学：XM9 主导 + 补偿链为辅 + 组分不主导",
+   "10σ 级反应器温度越界只有移热侧失衡能解释——进料/组分扰动无法产生该量级"
+  ],
+  "time_lag": "传播时序：冷却侧失衡 → 反应器温度（即时）→ 进料/组分/分离器温度（补偿滞后）",
+  "data_supported_conclusions": ["一次扰动在冷却侧（反应器冷却能力）", "控制与进料通道均为响应"]
+ },
+ "visual_observations": [
+  "反应器温度通道出现显著阶跃式偏离，穿越 ±3σ 线后呈平台",
+  "进料与分离器温度通道呈补偿性小幅响应",
+  "阀位通道处于调节带"
+ ],
+ "judge": { "score": 92, "warnings": ["XM21/XMV_10 未入异常列谱 top-6——冷却侧直接执行器签名以 XM9 主导间接支撑"], "validation_findings_cited": ["反假相关校验通过：强相关对全为控制对，无跨域伪相关"] },
+ "audit": { "verdict": "ENDORSED", "notes": "热失衡机理链与 10σ 主导签名方向、量级一致；进料/组成假设的排除有量化依据。" },
+ "data_gaps": ["XMV_10/XM21 未入 top-6，冷却水侧一次证据以反应器温度主导间接呈现"],
+ "inference_gaps": ["冷却水入口温度无直接测量列（XM21 为出口温度）——阶跃幅值不可直接估计"]
+}

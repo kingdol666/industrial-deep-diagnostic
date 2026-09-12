@@ -75,7 +75,13 @@
     "DETERMINED",
     "COMPETING_SET"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。"
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。",
+   "literature_baseline": {
+    "fault": "IDV1 A/C feed ratio step (Stream 4)",
+    "fe_gpt4o": "incorrect",
+    "fe_o1": "correct",
+    "pca": "detectable"
+   }
   },
   {
    "case_id": "tep_d03_hard",
@@ -95,7 +101,13 @@
     "COMPETING_SET",
     "NEEDS_DATA"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为文献公认统计难检故障（IDV 3）。"
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为文献公认统计难检故障（IDV 3）。",
+   "literature_baseline": {
+    "fault": "IDV3 D feed temperature step (Stream 2)",
+    "fe_gpt4o": "unscored",
+    "fe_o1": "unscored",
+    "pca": "undetectable"
+   }
   },
   {
    "case_id": "tep_d00_normal_control",
@@ -150,6 +162,119 @@
     "NORMAL"
    ],
    "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。本批为 recipe 驱动正常批次。"
+  },
+  {
+   "case_id": "tep_d04_reactor_cooling_step",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d04_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21",
+   "truth": "IDV(4)：反应器冷却水入口温度阶跃（PCA 不可检集，FaultExplainer 表未评分）",
+   "keywords": [
+    "cooling",
+    "冷却",
+    "反应器冷却",
+    "reactor cooling",
+    "水"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度阶跃。",
+   "literature_baseline": {
+    "fault": "IDV4 reactor cooling water inlet temperature (step)",
+    "fe_gpt4o": "unscored",
+    "fe_o1": "unscored",
+    "pca": "undetectable"
+   }
+  },
+  {
+   "case_id": "tep_d07_header_pressure",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d07_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_7,XMEAS_4",
+   "truth": "IDV(7)：流股4 C 集管压力降低（逐步可用；FaultExplainer：GPT-4o 与 o1-preview 均正确）",
+   "keywords": [
+    "c header",
+    "header",
+    "压力",
+    "集管",
+    "c feed",
+    "stream 4",
+    "c 进料"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为流股4 C 集管压力降低。",
+   "literature_baseline": {
+    "fault": "IDV7 C header pressure reduced (Stream 4)",
+    "fe_gpt4o": "correct",
+    "fe_o1": "correct",
+    "pca": "detectable"
+   }
+  },
+  {
+   "case_id": "tep_d11_reactor_cooling_random",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d11_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21",
+   "truth": "IDV(11)：反应器冷却水入口温度随机变化（FaultExplainer：两模型经别名判正确）",
+   "keywords": [
+    "cooling",
+    "冷却",
+    "反应器冷却",
+    "reactor cooling",
+    "随机",
+    "random",
+    "波动"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度随机变化（方差增大，非阶跃）。",
+   "literature_baseline": {
+    "fault": "IDV11 reactor cooling water inlet temperature (random)",
+    "fe_gpt4o": "correct",
+    "fe_o1": "correct",
+    "pca": "detectable"
+   }
+  },
+  {
+   "case_id": "tep_d14_reactor_valve_sticking",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d14_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21,XMV_10",
+   "truth": "IDV(14)：反应器冷却水阀粘滞（FaultExplainer：两模型经别名判正确）",
+   "keywords": [
+    "cooling",
+    "冷却",
+    "阀",
+    "valve",
+    "粘滞",
+    "sticking",
+    "反应器冷却"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水阀粘滞（振荡型执行器故障）。",
+   "literature_baseline": {
+    "fault": "IDV14 reactor cooling water valve (sticking)",
+    "fe_gpt4o": "correct",
+    "fe_o1": "correct",
+    "pca": "detectable"
+   }
   }
  ]
 }

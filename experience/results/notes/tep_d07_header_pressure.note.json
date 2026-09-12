@@ -1,0 +1,95 @@
+{
+ "_case_id": "tep_d07_header_pressure",
+ "_control": false,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "流股4 C 集管压力降低（C header pressure reduced, Stream 4）：F 族组分跨三流股一致偏移（XM28/34/38）+ 反应器与汽提塔压力双签名（XM7 4.61 / XM16 4.60）——气相供给侧压力/组成一次扰动。",
+ "confidence": 0.8,
+ "ontology": {
+  "domain": "Tennessee Eastman 化工过程（反应器-冷凝器-分离器-汽提塔）",
+  "physics_notes": [
+   "流股4 为 A+C 混合进料：C 集管压力降低 → C 供给量下降 → A/F 相对富集（F 为随进料进入的惰性组分）",
+   "气相负荷变化 → 反应器压力（XM7）与汽提塔压力（XM16）双压力签名",
+   "F 组分随气相走吹扫（XM34）与产品（XM38）——跨流股 F 族一致偏移是供给组成变化的传播证据",
+   "判别要点：压力通道显著 + 组分跨流股一致 → 供给压力/组成类；纯配比阶跃则组分主导而无压力双签名"
+  ],
+  "variables": [
+   { "name": "XMEAS_7", "unit": "kPa gauge", "meaning": "反应器压力" },
+   { "name": "XMEAS_11", "unit": "℃", "meaning": "产品分离器温度" },
+   { "name": "XMEAS_16", "unit": "kPa gauge", "meaning": "汽提塔压力" },
+   { "name": "XMEAS_28", "unit": "mol %", "meaning": "流股6（反应器进料）F 组分摩尔分数" },
+   { "name": "XMEAS_34", "unit": "mol %", "meaning": "流股9（吹扫）组分摩尔分数" },
+   { "name": "XMEAS_38", "unit": "mol %", "meaning": "流股11（产品）组分摩尔分数" },
+   { "name": "XMV_4", "unit": "%", "meaning": "A+C 进料阀（流股4）" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+   "mechanism_class": "operating-point",
+   "confidence": 0.8,
+   "verdict": "surviving",
+   "logic_chain": [
+    "C 集管压力降低 → 流股4 中 C 供给量下降、A/F 相对富集（brief：F 族组分 XM28 4.84 / XM34 4.67 / XM38 4.60 跨流股6/9/11 一致偏移）",
+    "气相供给失衡 → 反应器压力越界（brief：XMEAS_7 4.61）与汽提塔压力响应（brief：XMEAS_16 4.60）——双压力签名",
+    "分离负荷重平衡 → 分离器温度补偿（brief：XMEAS_11 4.72）"
+   ],
+   "evidence": [
+    "L3 统计：F 族组分跨流股6/9/11 一致偏移（4.60-4.84σ，超3σ占比 1.3-3.7%）——供给组成变化的传播链证据",
+    "L3 统计：反应器压力 XM7 4.61 与汽提塔压力 XM16 4.60 同级异常——气相供给侧压力签名",
+    "L3 统计：分离器温度 XM11 4.72——分离负荷重平衡补偿",
+    "L3 统计：控制回路对完好（XM15~XMV8 1.000、XM1~XMV3 0.999）——阀位补偿正常，异常非控制器引起",
+    "L4 视觉：组分与压力通道自故障时段持续偏移（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "若压力通道恢复而组分维持平台（纯组成变化），应改判组成阶跃",
+    "若流股4 流量/阀位（XM4/XMV_4）主导异常，则改判进料量阶跃"
+   ],
+   "proof": "签名-机理核对：C 供给压力下降同时产生『组成偏移（C 少→A/F 富集）』与『气相压力失衡』两类签名——观测正是 F 族组分跨流股一致偏移 + 反应器/汽提塔双压力异常；组成阶跃类（IDV1/8）无压力双签名，进料量类无组分偏移，均可判别。",
+   "predicted": ["压力通道呈阶跃后部分恢复（供给侧可补偿）", "F 族组分维持偏移直至供给恢复"]
+  },
+  {
+   "name": "A/C 配比阶跃（IDV1 类）",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.25,
+   "verdict": "eliminated",
+   "logic_chain": ["配比阶跃以组分测量主导、无压力双签名"],
+   "evidence": ["L3 统计：本记录压力通道（XM7/XM16 4.6 级）与组分同级显著——双签名结构"],
+   "contradiction": ["IDV1 类签名（对比 d01 场景的『组分 4/6 主导、压力缺席』）与本记录『组分+压力双签名』结构不符"],
+   "falsification": ["若压力异常被证实为组分变化的被动结果（滞后递减形态），本假设复活"]
+  },
+  {
+   "name": "冷却水侧扰动",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": ["冷却类以 XM9/XM21 主导"],
+   "evidence": ["L3 统计：XM9 未入异常列谱 top-6"],
+   "contradiction": ["反应器温度签名缺失——冷却类一次扰动被排除"],
+   "falsification": ["若 XM9 升至主导位，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "F 族组分跨流股一致偏移：XM28 4.84 / XM34 4.67 / XM38 4.60（超3σ占比 1.3-3.7%，持续型）",
+   "双压力签名：反应器 XM7 4.61 + 汽提塔 XM16 4.60",
+   "分离器温度 XM11 4.72 补偿",
+   "控制回路对完好——阀位正常调节"
+  ],
+  "ontology_industry_interpretation": [
+   "C 集管压力降低 = 供给侧一次扰动：组成（C 降→A/F 富集）与气相压力双通道同时失稳",
+   "跨流股 F 族一致偏移证明扰动源在供给（流股4）而非塔/反应器本体"
+  ],
+  "time_lag": "传播时序：供给压力/组成 → 反应器压力/组分 → 分离/汽提补偿",
+  "data_supported_conclusions": ["一次扰动在流股4 供给侧（C 集管压力）", "组成与压力双签名相互印证"]
+ },
+ "visual_observations": [
+  "F 族组分通道自故障时段呈持续偏移平台",
+  "反应器/汽提塔压力通道同期异常",
+  "阀位通道正常调节带"
+ ],
+ "judge": { "score": 91, "warnings": ["F 组分列的具体字母归属按 Downs-Vogel 标准映射推断"], "validation_findings_cited": ["反假相关校验通过：强相关对全为控制对（r 0.99-1.0），无跨域伪相关"] },
+ "audit": { "verdict": "ENDORSED", "notes": "供给压力扰动的双签名（组成+压力）与机理链一致；对 IDV1/冷却类假设排除有量化依据。" },
+ "data_gaps": ["C 集管压力无直接测量列——一次签名以组成+压力双通道间接呈现"],
+ "inference_gaps": ["压力降幅与 C 供给量变化比例需流股4 组分直接测量才能定量"]
+}

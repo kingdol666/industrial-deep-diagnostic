@@ -1,0 +1,56 @@
+{
+ "case_id": "tep_d14_reactor_valve_sticking",
+ "dataset": "tep",
+ "role": "fault investigation",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水阀粘滞（振荡型执行器故障）。",
+ "columns": 53,
+ "rows": 960,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "XMEAS_22",
+    "max_abs_z": 4,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "XMEAS_11",
+    "max_abs_z": 3.97,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "XMEAS_4",
+    "max_abs_z": 3.95,
+    "pct_z3": 0.004
+   },
+   {
+    "col": "XMEAS_15",
+    "max_abs_z": 3.53,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "XMV_8",
+    "max_abs_z": 3.53,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "XMEAS_3",
+    "max_abs_z": 3.52,
+    "pct_z3": 0.003
+   }
+  ],
+  "top_correlation_pairs": [
+   "XMEAS_12 ~ XMV_7: r=1.000",
+   "XMEAS_15 ~ XMV_8: r=1.000",
+   "XMEAS_17 ~ XMV_11: r=-1.000",
+   "XMEAS_9 ~ XMV_10: r=0.998",
+   "XMEAS_1 ~ XMV_3: r=0.996",
+   "XMEAS_7 ~ XMEAS_13: r=0.992"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

@@ -5,7 +5,7 @@
     "skab_valve1_1": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121128008_bench_skab_valve1_1",
      "prepared_at": "2026-09-12T11:28:26.744Z",
-     "graded_at": "2026-09-12T11:39:32.965Z",
+     "graded_at": "2026-09-12T15:17:34.589Z",
      "grading": {
       "case_id": "skab_valve1_1",
       "control": false,
@@ -27,7 +27,7 @@
     "skab_cavitation_13": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121128268_bench_skab_cavitation_13",
      "prepared_at": "2026-09-12T11:28:44.924Z",
-     "graded_at": "2026-09-12T11:39:36.818Z",
+     "graded_at": "2026-09-12T15:17:39.352Z",
      "grading": {
       "case_id": "skab_cavitation_13",
       "control": false,
@@ -49,7 +49,7 @@
     "skab_normal_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121128450_bench_skab_normal_control",
      "prepared_at": "2026-09-12T11:30:42.492Z",
-     "graded_at": "2026-09-12T11:39:40.680Z",
+     "graded_at": "2026-09-12T15:17:43.957Z",
      "grading": {
       "case_id": "skab_normal_control",
       "control": true,
@@ -68,7 +68,7 @@
     "tep_d01_ac_feed_ratio": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121130426_bench_tep_d01_ac_feed_ratio",
      "prepared_at": "2026-09-12T11:31:08.643Z",
-     "graded_at": "2026-09-12T11:39:44.592Z",
+     "graded_at": "2026-09-12T15:17:48.512Z",
      "grading": {
       "case_id": "tep_d01_ac_feed_ratio",
       "control": false,
@@ -90,7 +90,7 @@
     "tep_d03_hard": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121131087_bench_tep_d03_hard",
      "prepared_at": "2026-09-12T11:31:26.985Z",
-     "graded_at": "2026-09-12T11:39:48.422Z",
+     "graded_at": "2026-09-12T15:17:54.496Z",
      "grading": {
       "case_id": "tep_d03_hard",
       "control": false,
@@ -112,7 +112,7 @@
     "tep_d00_normal_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121131271_bench_tep_d00_normal_control",
      "prepared_at": "2026-09-12T11:31:52.660Z",
-     "graded_at": "2026-09-12T11:39:52.339Z",
+     "graded_at": "2026-09-12T15:17:59.459Z",
      "grading": {
       "case_id": "tep_d00_normal_control",
       "control": true,
@@ -131,7 +131,7 @@
     "indpensim_batch093": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121131528_bench_indpensim_batch093",
      "prepared_at": "2026-09-12T11:35:34.271Z",
-     "graded_at": "2026-09-12T11:39:56.241Z",
+     "graded_at": "2026-09-12T15:18:04.868Z",
      "grading": {
       "case_id": "indpensim_batch093",
       "control": false,
@@ -153,7 +153,7 @@
     "indpensim_batch001_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121135344_bench_indpensim_batch001_control",
      "prepared_at": "2026-09-12T11:39:28.787Z",
-     "graded_at": "2026-09-12T11:40:00.093Z",
+     "graded_at": "2026-09-12T15:18:10.339Z",
      "grading": {
       "case_id": "indpensim_batch001_control",
       "control": true,
@@ -161,6 +161,94 @@
       "false_alarm": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121135344_bench_indpensim_batch001_control",
+      "judge_score": 90,
+      "checks": {
+       "pipeline_log": "PASS",
+       "finalize_overall": "PASS",
+       "finalize_passed": true
+      }
+     }
+    },
+    "tep_d04_reactor_cooling_step": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121509530_bench_tep_d04_reactor_cooling_step",
+     "prepared_at": "2026-09-12T15:10:11.672Z",
+     "graded_at": "2026-09-12T15:18:15.312Z",
+     "grading": {
+      "case_id": "tep_d04_reactor_cooling_step",
+      "control": false,
+      "top1": true,
+      "topk": true,
+      "root_cause_kw_hit": true,
+      "calibrated": true,
+      "overconfident": false,
+      "diagnosis_type": "DETERMINED",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121509530_bench_tep_d04_reactor_cooling_step",
+      "judge_score": 92,
+      "checks": {
+       "pipeline_log": "PASS",
+       "finalize_overall": "PASS",
+       "finalize_passed": true
+      }
+     }
+    },
+    "tep_d07_header_pressure": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510117_bench_tep_d07_header_pressure",
+     "prepared_at": "2026-09-12T15:10:51.515Z",
+     "graded_at": "2026-09-12T15:18:20.394Z",
+     "grading": {
+      "case_id": "tep_d07_header_pressure",
+      "control": false,
+      "top1": true,
+      "topk": true,
+      "root_cause_kw_hit": true,
+      "calibrated": true,
+      "overconfident": false,
+      "diagnosis_type": "DETERMINED",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510117_bench_tep_d07_header_pressure",
+      "judge_score": 91,
+      "checks": {
+       "pipeline_log": "PASS",
+       "finalize_overall": "PASS",
+       "finalize_passed": true
+      }
+     }
+    },
+    "tep_d11_reactor_cooling_random": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510516_bench_tep_d11_reactor_cooling_random",
+     "prepared_at": "2026-09-12T15:11:12.435Z",
+     "graded_at": "2026-09-12T15:18:26.450Z",
+     "grading": {
+      "case_id": "tep_d11_reactor_cooling_random",
+      "control": false,
+      "top1": true,
+      "topk": true,
+      "root_cause_kw_hit": true,
+      "calibrated": true,
+      "overconfident": false,
+      "diagnosis_type": "DETERMINED",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510516_bench_tep_d11_reactor_cooling_random",
+      "judge_score": 90,
+      "checks": {
+       "pipeline_log": "PASS",
+       "finalize_overall": "PASS",
+       "finalize_passed": true
+      }
+     }
+    },
+    "tep_d14_reactor_valve_sticking": {
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121511125_bench_tep_d14_reactor_valve_sticking",
+     "prepared_at": "2026-09-12T15:11:36.917Z",
+     "graded_at": "2026-09-12T15:18:31.241Z",
+     "grading": {
+      "case_id": "tep_d14_reactor_valve_sticking",
+      "control": false,
+      "top1": true,
+      "topk": true,
+      "root_cause_kw_hit": true,
+      "calibrated": true,
+      "overconfident": false,
+      "diagnosis_type": "DETERMINED",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121511125_bench_tep_d14_reactor_valve_sticking",
       "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",

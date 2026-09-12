@@ -1,14 +1,14 @@
 {
- "generated_at": "2026-09-12T11:40:00.157Z",
+ "generated_at": "2026-09-12T15:18:31.324Z",
  "tier_file": "scripts\\benchmark\\cases\\benchmark_cases.json",
- "total_cases": 8,
- "executed": 8,
- "fault_cases": 5,
+ "total_cases": 12,
+ "executed": 12,
+ "fault_cases": 9,
  "control_cases": 3,
- "top1": 5,
- "topk": 5,
+ "top1": 9,
+ "topk": 9,
  "cdr": 1,
- "calibrated": 5,
+ "calibrated": 9,
  "overconfident": 0,
  "control_pass": 3,
  "false_alarms": 0,
@@ -21,9 +21,9 @@
    "control_pass": 1
   },
   "tep": {
-   "cases": 3,
-   "top1": 2,
-   "topk": 2,
+   "cases": 7,
+   "top1": 6,
+   "topk": 6,
    "controls": 1,
    "control_pass": 1
   },
@@ -139,6 +139,58 @@
    "judge_score": 90,
    "finalize_passed": true,
    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121135344_bench_indpensim_batch001_control"
+  },
+  {
+   "case_id": "tep_d04_reactor_cooling_step",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 92,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121509530_bench_tep_d04_reactor_cooling_step"
+  },
+  {
+   "case_id": "tep_d07_header_pressure",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 91,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510117_bench_tep_d07_header_pressure"
+  },
+  {
+   "case_id": "tep_d11_reactor_cooling_random",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 90,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121510516_bench_tep_d11_reactor_cooling_random"
+  },
+  {
+   "case_id": "tep_d14_reactor_valve_sticking",
+   "dataset": "tep",
+   "control": false,
+   "diagnosis_type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "calibrated": true,
+   "control_pass": null,
+   "judge_score": 90,
+   "finalize_passed": true,
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121511125_bench_tep_d14_reactor_valve_sticking"
   }
  ]
 }

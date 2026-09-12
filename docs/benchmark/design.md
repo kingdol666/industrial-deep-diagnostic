@@ -33,18 +33,37 @@
 4. **判别力自证**：阴性对照——向评分器注入"plausible-but-wrong"诊断必须被打叉
    （留痕 `experience/results/scorer-discrimination-test.json`）。
 
-## 3. 场景集选择依据（8 典型场景）
+## 3. 场景集选择依据（12 典型场景）
 
 - **三工艺域**：连续化工（TEP）、泵阀试验台（SKAB）、批式发酵（IndPenSim）——
   覆盖系统的三类本体/机理域，避免单域过拟合；
+- **逐故障文献可比（TEP 子集 6 场景）**：d01(IDV1)/d03(IDV3)/d04(IDV4)/d07(IDV7)/d11(IDV11)/d14(IDV14)
+  均在 FaultExplainer（arXiv:2412.14492）评测集内，逐故障基线写入 case 文件的
+  `literature_baseline` 字段，HTML 报告自动渲染逐故障对比表（口径 A）；
+  其中 IDV3/IDV4 属 **PCA 不可检集**（Chiang et al. 2001 标注，FaultExplainer 未评分）——
+  检验超出传统检测能力范围的根因推理；
 - **每组对照**：每个数据集配 1 个正常批次作对照，度量误报；
-- **难度分层**：含文献公认难检故障 TEP IDV(3)（允许 NEEDS_DATA 三态出口）与
-  故障类型不下发的隐蔽场景（SKAB other_13），检验"承认不可判别"的校准能力
-  而非逼出过度自信结论；
+- **机理族内细分**：IDV4（阶跃）/IDV11（随机波动）/IDV14（阀粘滞）同属反应器冷却家族——
+  检验族内形态判别（10σ 阶跃 vs 3.7σ 零星 vs 回路耦合对）；
 - **防记忆污染**：SKAB other 组文件故障类型不在场景描述中披露；IndPenSim 的
   Fault reference 标注列被显式排除出证据（`exclude_cols`）；
-- **规模声明**：8 场景为"可发表的最小可复现核"，Top-1 比例指标一律报 Wilson CI；
+- **规模声明**：12 场景为"可发表的最小可复现核"，Top-1 比例指标一律报 Wilson CI；
   扩量路线见 §7。
+
+### 3A. TEP 逐故障文献基线（写入 case 文件，报告自动对比）
+
+| 故障 | FaultExplainer GPT-4o | FaultExplainer o1-preview | PCA 可检性 | IDD Top-1（本轮） |
+|---|---|---|---|---|
+| IDV1 A/C 进料比阶跃 | ✗ wrong | ✓ correct | 可检 | ✓ |
+| IDV3 D 进料温度阶跃 | 未评分 | 未评分 | **不可检** | ✓ |
+| IDV4 反应器冷却水温度阶跃 | 未评分 | 未评分 | **不可检** | ✓ |
+| IDV7 C 集管压力降低 | ✓ correct | ✓ correct | 可检 | ✓ |
+| IDV11 反应器冷却水温度随机 | ✓ correct | ✓ correct | 可检 | ✓ |
+| IDV14 反应器冷却水阀粘滞 | ✓ correct | ✓ correct | 可检 | ✓ |
+
+> 口径：FaultExplainer 提示含候选根因清单且接受别名命中（如 IDV1↔IDV8、IDV11↔IDV4/14）；
+> IDD 不提供候选清单、按机理关键词严格判定，为更严口径。PCA 不可检集沿
+> FaultExplainer 对 Chiang et al. 2001（DOI:10.1002/9780471724736）的标注。
 
 ## 4. 期刊 baseline 对标表（可验证 DOI）
 
@@ -71,7 +90,7 @@
 | B7 | Pozdnyakov et al., 对抗攻击 TEP 基准 | IEEE OJIES 2024 | `10.1109/OJIES.2024.3401396` | TEP | 干净准确率 MLP 0.8873 / GRU 0.9067 / TCN 0.8985 |
 | B8 | Hartung et al., TEP 深度异常检测 | arXiv 2023 | `arXiv:2303.05904` | TEP | F1：BeatGAN 0.9699；TCN-S2S-AE 0.9632 |
 | B11 | Iliopoulos et al., MTS 异常检测集成 | IEEE BigDataService 2023 | `10.1109/BigDataService58306.2023.00007` | **SKAB** | F1/AUC：stacking 0.85/0.88；ConvAE 0.7622/0.8117 |
-| B14 | FaultExplainer | C&CE 2025 | `github.com/li-group/FaultExplainer` | TEP 根因 | GPT-4o 7/11、o1-preview 9/11（**prompt 含根因清单**）；通用推理 8/11"正确或相关" |
+| B14 | FaultExplainer | arXiv:2412.14492（2024，Khan et al.） | TEP IDV1-15 逐故障 | GPT-4o 7/11、o1-preview 9/11（**root-causes-included prompt，含候选根因清单**；IDV3/4/9/15 PCA 不可检未评分）。逐故障结果见 §4A |
 | B15 | Pinet et al., MTS 基准异常多为单变量 | arXiv 2026 | `arXiv:2606.02670` | 8 个 MTSAD 基准 | 警示：跨通道断裂——必须报告通道耦合度 |
 
 ### 4.3 双口径对照（评审必读的诚实性约定）

@@ -1,0 +1,56 @@
+{
+ "case_id": "tep_d11_reactor_cooling_random",
+ "dataset": "tep",
+ "role": "fault investigation",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度随机变化（方差增大，非阶跃）。",
+ "columns": 53,
+ "rows": 960,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "XMEAS_26",
+    "max_abs_z": 3.78,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "XMEAS_9",
+    "max_abs_z": 3.73,
+    "pct_z3": 0.005
+   },
+   {
+    "col": "XMV_8",
+    "max_abs_z": 3.66,
+    "pct_z3": 0.004
+   },
+   {
+    "col": "XMEAS_15",
+    "max_abs_z": 3.66,
+    "pct_z3": 0.004
+   },
+   {
+    "col": "XMEAS_11",
+    "max_abs_z": 3.61,
+    "pct_z3": 0.003
+   },
+   {
+    "col": "XMEAS_25",
+    "max_abs_z": 3.59,
+    "pct_z3": 0.002
+   }
+  ],
+  "top_correlation_pairs": [
+   "XMEAS_12 ~ XMV_7: r=1.000",
+   "XMEAS_15 ~ XMV_8: r=1.000",
+   "XMEAS_17 ~ XMV_11: r=-0.999",
+   "XMEAS_7 ~ XMEAS_13: r=0.998",
+   "XMEAS_1 ~ XMV_3: r=0.997",
+   "XMEAS_19 ~ XMV_9: r=0.988"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}

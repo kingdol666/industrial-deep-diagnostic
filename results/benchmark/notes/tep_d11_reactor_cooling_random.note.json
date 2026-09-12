@@ -1,0 +1,93 @@
+{
+ "_case_id": "tep_d11_reactor_cooling_random",
+ "_control": false,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "反应器冷却水入口温度随机波动（random variation，方差增大型扰动）：反应器温度 XMEAS_9 以 3.73σ 入异常列谱次高位、无阶跃平台、全列谱弱签名（≤3.78σ）——与同通道阶跃场景（10.06σ 主导）的形态判别明确。",
+ "confidence": 0.7,
+ "ontology": {
+  "domain": "Tennessee Eastman 化工过程（反应器-冷凝器-分离器-汽提塔）",
+  "physics_notes": [
+   "冷却水入口温度随机波动 → 移热量随机抖动 → 反应器温度不规则波动（XM9 入谱但无阶跃平台）",
+   "方差增大型扰动 vs 阶跃型的判别：max|z| 水平（3-4σ vs 10σ）、超限占比（零星 vs 平台）、形态（不规则 vs 台阶）",
+   "反应器温度抖动 → 下游分离/汽提负荷小幅重平衡（XMV_8/XM15/XM11）"
+  ],
+  "variables": [
+   { "name": "XMEAS_9", "unit": "℃", "meaning": "反应器温度（冷却控制被控量）" },
+   { "name": "XMEAS_11", "unit": "℃", "meaning": "产品分离器温度" },
+   { "name": "XMEAS_15", "unit": "%", "meaning": "汽提塔液位" },
+   { "name": "XMEAS_25", "unit": "mol %", "meaning": "流股6 C 组分摩尔分数" },
+   { "name": "XMEAS_26", "unit": "mol %", "meaning": "流股6 D 组分摩尔分数" },
+   { "name": "XMV_8", "unit": "%", "meaning": "汽提塔液相流阀" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "反应器冷却水入口温度随机波动（方差增大型）",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.7,
+   "verdict": "surviving",
+   "logic_chain": [
+    "冷却入口温度随机抖动 → 反应器温度不规则波动（brief：XMEAS_9 3.73σ 入异常列谱，超3σ占比 0.5% 零星分布）",
+    "下游负荷小幅重平衡（brief：XMV_8 3.66 / XMEAS_15 3.66 / XMEAS_11 3.61）",
+    "反应器温度抖动 → 反应速率微摆 → 进料组分轻移（brief：XMEAS_26 3.78 / XMEAS_25 3.59）"
+   ],
+   "evidence": [
+    "L3 统计：XMEAS_9（反应器温度）3.73σ 入谱且无阶跃平台——与同通道阶跃场景（10.06σ 主导、0.3% 平台占比）形态判别明确",
+    "L3 统计：全列谱弱签名（max 3.78σ，超3σ占比 ≤0.5%）——方差增大型而非阶跃型",
+    "L3 统计：异常横跨反应器温度 + 下游分离/汽提补偿链 + 进料组分——冷却抖动的多点弱响应结构",
+    "L3 统计：控制回路对完好（XM12~XMV7 1.000、XM15~XMV8 1.000）——补偿正常",
+    "L4 视觉：反应器温度通道呈不规则波动而非台阶（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "若 XM9 出现 ≥8σ 阶跃平台，应改判同通道阶跃型扰动",
+    "若 XM9~XMV_10 呈持续振荡且阀位大幅摆动，应改判阀粘滞类"
+   ],
+   "proof": "形态判别核对：同一被控通道（XM9）在阶跃场景为 10.06σ/0.3% 平台、本记录为 3.73σ/0.5% 零星——量级与形态双双指向方差增大型冷却扰动；进料/组成/汽提一次扰动均无『XM9 入谱 + 无组分主导』的组合。",
+   "predicted": ["反应器温度不规则波动持续", "下游补偿通道维持小幅联动"]
+  },
+  {
+   "name": "反应器冷却水阀粘滞",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.2,
+   "verdict": "eliminated",
+   "logic_chain": ["阀粘滞产生极限环振荡：XM9 与 XMV_10 同步大幅振荡"],
+   "evidence": ["L3 统计：XMV_10 未入异常列谱 top-6，XM9 仅 3.73σ 弱签名"],
+   "contradiction": ["粘滞 signatures（阀位大幅摆动 + XM9 振荡对）缺失——本记录为弱不规则波动而非极限环"],
+   "falsification": ["若 XMV_10 入谱且与 XM9 呈振荡对，本假设复活"]
+  },
+  {
+   "name": "进料组成阶跃（IDV1/2/8 类）",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.15,
+   "verdict": "eliminated",
+   "logic_chain": ["组成阶跃以组分通道主导"],
+   "evidence": ["L3 统计：组分仅 XM26 3.78σ 弱入谱（且为响应位）"],
+   "contradiction": ["组分不主导 + XM9 入谱——证据结构与组成阶跃相反"],
+   "falsification": ["若组分通道升至主导且先于 XM9，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "全列谱弱签名：max 3.78σ（XM26），超3σ占比 ≤0.5%——方差增大而非阶跃",
+   "XMEAS_9 反应器温度 3.73σ 入谱次高位——冷却通道被扰动",
+   "下游补偿链：XMV_8/XM15（汽提）3.66σ、XM11（分离温度）3.61σ",
+   "进料组分轻移：XM26/XM25 ≈3.6-3.8σ"
+  ],
+  "ontology_industry_interpretation": [
+   "随机型冷却扰动的判别学：同通道阶跃场景 10σ 主导，本记录 3.7σ 零星——量级+形态双判别",
+   "多点弱响应（温度+下游补偿+组分轻移）符合入口参数随机波动的传播结构"
+  ],
+  "time_lag": "传播时序：冷却入口随机抖动 → 反应器温度（即时）→ 下游补偿（滞后）",
+  "data_supported_conclusions": ["一次扰动在冷却水入口侧（随机/方差型）", "签名弱但结构一致——置信按弱签名规则设 0.70"]
+ },
+ "visual_observations": [
+  "反应器温度通道呈不规则小幅波动（无台阶）",
+  "下游汽提/分离通道弱联动",
+  "阀位处于正常调节带"
+ ],
+ "judge": { "score": 90, "warnings": ["签名弱（max 3.78σ），冷却家族内（阶跃/随机/阀粘滞）的细分以形态判别为据", "冷却入口温度无直接测量，结论以 XM9 响应+排除法支撑"], "validation_findings_cited": ["反假相关校验通过：强相关对全为控制对，无跨域伪相关"] },
+ "audit": { "verdict": "ENDORSED", "notes": "方差型冷却扰动的形态判别（3.73σ 零星 vs 阶跃 10.06σ 平台）有同通道对照场景支撑；排除链完整；置信 0.70 与弱签名匹配。" },
+ "data_gaps": ["冷却水入口温度无直接测量列", "随机波动的统计检验（方差齐性）受批级聚合限制"],
+ "inference_gaps": ["与同通道其他随机扰动的最终分辨需入口温度直接测量"]
+}

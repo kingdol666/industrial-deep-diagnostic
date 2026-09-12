@@ -1,0 +1,17 @@
+{
+ "case_id": "tep_d04_reactor_cooling_step",
+ "control": false,
+ "top1": true,
+ "topk": true,
+ "root_cause_kw_hit": true,
+ "calibrated": true,
+ "overconfident": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121509530_bench_tep_d04_reactor_cooling_step",
+ "judge_score": 92,
+ "checks": {
+  "pipeline_log": "PASS",
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ }
+}

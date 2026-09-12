@@ -15,23 +15,27 @@
 
 然后由**独立评分器**读取管线输出，与标准答案（truth，仅存在于评分器侧）对照打分。
 
-## 2. 场景集（8 个典型场景）
+## 2. 场景集（12 个典型场景，TEP 子集逐故障文献可比）
 
-| case_id | 数据集 | 角色 | 难点设计 |
-|---|---|---|---|
-| `skab_valve1_1` | SKAB 水循环试验台 | 故障 | 阀门类机理判别 |
-| `skab_cavitation_13` | SKAB（other 组，故障类型不下发） | 故障 | 隐蔽故障，允许三态结论 |
-| `skab_normal_control` | SKAB anomaly-free | **对照** | 误报检验 |
-| `tep_d01_ac_feed_ratio` | Tennessee Eastman d01 | 故障 | 进料比阶跃（文献可比 IDV1） |
-| `tep_d03_hard` | Tennessee Eastman d03 | 故障 | **文献公认难检故障 IDV3**，允许 NEEDS_DATA |
-| `tep_d00_normal_control` | Tennessee Eastman d00 | **对照** | 误报检验 |
-| `indpensim_batch093` | IndPenSim 青霉素发酵 batch 93 | 故障 | 批过程工艺偏差 |
-| `indpensim_batch001_control` | IndPenSim batch 1 | **对照** | 误报检验 |
+| case_id | 数据集 | 角色 | 难点设计 | 逐故障文献基线 |
+|---|---|---|---|---|
+| `skab_valve1_1` | SKAB 水循环试验台 | 故障 | 阀门类机理判别 | 数据集级（检测类） |
+| `skab_cavitation_13` | SKAB（other 组，故障类型不下发） | 故障 | 隐蔽故障，允许三态结论 | 数据集级（检测类） |
+| `skab_normal_control` | SKAB anomaly-free | **对照** | 误报检验 | — |
+| `tep_d01_ac_feed_ratio` | TEP d01 | 故障 | 进料比阶跃（IDV1） | FE：GPT-4o ✗ / o1 ✓ |
+| `tep_d03_hard` | TEP d03 | 故障 | **文献公认难检 IDV3** | FE：未评分（PCA 不可检） |
+| `tep_d00_normal_control` | TEP d00 | **对照** | 误报检验 | — |
+| `tep_d04_reactor_cooling_step` | TEP d04 | 故障 | 反应器冷却水温度阶跃（IDV4） | FE：未评分（PCA 不可检） |
+| `tep_d07_header_pressure` | TEP d07 | 故障 | C 集管压力降低（IDV7） | FE：GPT-4o ✓ / o1 ✓ |
+| `tep_d11_reactor_cooling_random` | TEP d11 | 故障 | 冷却水温度随机波动（IDV11） | FE：GPT-4o ✓ / o1 ✓ |
+| `tep_d14_reactor_valve_sticking` | TEP d14 | 故障 | 冷却水阀粘滞（IDV14） | FE：GPT-4o ✓ / o1 ✓ |
+| `indpensim_batch093` | IndPenSim batch 93 | 故障 | 批过程工艺偏差 | 数据集级 |
+| `indpensim_batch001_control` | IndPenSim batch 1 | **对照** | 误报检验 | — |
 
-构成：5 故障 + 3 对照，覆盖连续化工 / 泵阀试验台 / 批式发酵三类工艺。
+构成：9 故障 + 3 对照；TEP 子集 6 个场景带 **FaultExplainer 逐故障结果**（arXiv:2412.14492 Table 1）+
+PCA 可检性（Chiang et al. 2001 标注）双文献基线，SKAB/IndPenSim 为数据集级参照。
 **真值隔离**：故障场景的标准答案（truth + 判定关键词）只存在于评分器使用的
-`scripts/benchmark/cases/benchmark_cases.json`，不在任何管线可见输入、
-brief 或本文档中出现。对照场景在上表已明示（这是评分协议的一部分）。
+`scripts/benchmark/cases/benchmark_cases.json`，不在任何管线可见输入、brief 或本文档中出现。
 
 ## 3. 快速开始（审稿人 / 复现者）
 
