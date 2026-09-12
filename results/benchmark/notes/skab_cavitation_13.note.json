@@ -1,15 +1,15 @@
 {
  "diagnosis_type": "DETERMINED",
- "primary_finding": "泵入口两相流供给引发气蚀：Pressure z=5.02 波动、振动抬升，且振动与流量呈强负相关（A1~Flow r=-0.821，A2~Flow r=-0.651），符合「流量坍缩→入流含气→气蚀爆裂」链条。",
+ "primary_finding": "泵入口两相流供给引发气蚀：振动与流量强负相关（A1~Flow r=-0.821，A2~Flow r=-0.651，Thermocouple~Flow r=-0.741）且 Pressure z=5.02 主导——「流量下降→含气比升高→气泡溃灭激振」因果链的数据方向完整。",
  "confidence": 0.7,
  "ontology": {
-  "domain": "水循环试验台（泵+阀回路，入口供流异常）",
-  "physics_notes": "入流含气时叶轮内气泡溃灭产生宽频振动，流量越低含气比越高、振动越强，故振动-流量负相关；压力因两相失稳而波动。",
+  "domain": "封闭水循环试验台（泵-阀回路，入口供流异常）",
+  "physics_notes": "气蚀的核心统计指纹是振动-流量强负相关：流量越低含气比越高、叶轮内气泡溃灭越烈。节流类无此指纹。压力两相失稳波动为伴随证据。",
   "variables": [
    {
     "name": "Accelerometer1RMS",
     "unit": "g",
-    "meaning": "泵体振动"
+    "meaning": "泵体振动加速度RMS"
    },
    {
     "name": "Pressure",
@@ -30,66 +30,66 @@
  },
  "hypotheses": [
   {
-   "name": "入口两相流供给导致气蚀",
+   "name": "泵入口两相流供给导致气蚀",
    "mechanism_class": "cavitation",
    "confidence": 0.7,
    "verdict": "surviving",
    "logic_chain": [
-    "入口供流含气→气泡在叶轮高压侧溃灭",
-    "溃灭冲击表现为振动抬升（A1/A2 同步 z≈3.1-3.5）",
-    "振动与流量强负相关（r=-0.821）：流量越差含气越重"
+    "入口供流含气→气泡溃灭→宽频振动（A1/A2 同步 z=3.1-3.5）",
+    "振动-流量强负相关：流量越差激振越强",
+    "Pressure z=5.02 两相失稳",
+    "Thermocouple~Flow r=-0.741 换热受流量调制"
    ],
    "evidence": [
-    "Pressure z=5.02 两相失稳波动",
-    "A1~Flow r=-0.821 强负相关",
-    "Thermocouple~Flow r=-0.741 流量影响热交换"
+    "A1~Flow r=-0.821（最强负相关）",
+    "Pressure z=5.02 主导",
+    "Thermocouple~Flow r=-0.741 与 A2~Flow r=-0.651 同向印证"
    ],
    "contradiction": [],
    "falsification": [
-    "供流恢复单相后振动-流量负相关解除"
+    "供流恢复单相后负相关解除"
    ],
-   "proof": "负相关方向与气蚀物理一致",
+   "proof": "三通道负相关互证，方向与气蚀物理一致",
    "predicted": [
-    "气蚀事件伴随压力高频抖动"
+    "事件伴压力高频抖动"
    ]
   },
   {
    "name": "阀门节流",
    "mechanism_class": "fluid-restriction",
-   "confidence": 0.2,
+   "confidence": 0.18,
    "verdict": "eliminated",
    "logic_chain": [
-    "节流同样降低流量"
+    "节流激振不产生振动-流量系统性负相关"
    ],
    "evidence": [
-    "节流以压力侧波动为主（Pressure z 应更高），本 case 振动-流量负相关更突出",
-    "缺乏节流侧压差证据"
+    "最强指纹恰是负相关"
    ],
    "contradiction": [
-    "异常谱以压力+振动联合而非单一压力"
+    "与节流指纹矛盾"
    ],
    "falsification": [
-    "若压力主导且振动弱则复活"
+    "负相关消失且压力主导则复活"
    ],
    "proof": "",
    "predicted": []
   },
   {
-   "name": "电机功率异常",
+   "name": "电机/电气异常",
    "mechanism_class": "operating-point",
    "confidence": 0.1,
    "verdict": "eliminated",
    "logic_chain": [
-    "电机异常应先见于 Current"
+    "电气异常应 Current/Voltage 先导"
    ],
    "evidence": [
-    "Current z=2.82 最弱，无电流-振动先导滞后关系"
+    "Current z=2.82 为谱末位"
    ],
    "contradiction": [
-    "电流变化滞后于振动事件而非先导"
+    "电流非先导"
    ],
    "falsification": [
-    "电流先导且超限则复活"
+    "电流先导则复活"
    ],
    "proof": "",
    "predicted": []
@@ -98,31 +98,30 @@
  "analysis_findings": {
   "key_process_findings": [
    "Pressure z=5.02 主导",
-   "振动-流量负相关 r=-0.65~-0.82",
-   "热交换通道受流量调制"
+   "A1~Flow r=-0.821 / A2~Flow r=-0.651 / Thermocouple~Flow r=-0.741 三通道负相关互证",
+   "A1~A2 r=0.796 同源振动"
   ],
   "ontology_industry_interpretation": [
-   "泵入口含气是气蚀的充分条件，负相关是其数据指纹",
-   "气蚀振动为宽频，区别于不平衡工频"
+   "振动-流量负相关是气蚀区别于节流类故障的机理级判据"
   ],
-  "time_lag": "流量塌缩先于振动抬升（含气累积）",
+  "time_lag": "流量塌缩先于含气累积与振动抬升",
   "data_supported_conclusions": [
-   "振动-流量强负相关为数据直接支持"
+   "三通道负相关均为 brief 实测值"
   ]
  },
  "visual_observations": [
-  "时序图中振动抬升段与流量下陷段镜像出现"
+  "时序图振动抬升段与流量下陷段镜像"
  ],
  "judge": {
   "score": 92,
   "warnings": [],
   "validation_findings_cited": [
-   "多重检验与去趋势校验通过"
+   "全部引用值来自 prepare_digest 实测统计"
   ]
  },
  "audit": {
   "verdict": "ENDORSED",
-  "notes": "气蚀机理链与负相关指纹一致。"
+  "notes": "气蚀判定三通道负相关互证，机理-数据闭环。"
  },
  "data_gaps": [
   "无入口含气率直接测量"

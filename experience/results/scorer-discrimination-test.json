@@ -1,0 +1,12 @@
+{
+ "purpose": "证明评分器真实判别（非橡皮图章）：对 skab_cavitation_13 注入故意错误诊断（阀门节流替代气蚀），评分器必须打叉",
+ "date": "2026-09-12",
+ "control_case": "skab_cavitation_13",
+ "injected_diagnosis": "阀门节流（fluid-restriction，plausible-but-wrong）",
+ "expected": "top1=false",
+ "observed": {
+  "top1": false,
+  "topk": false
+ },
+ "conclusion": "评分器对错误诊断给出 0 分——benchmark 结果不可能通过迎合评分器获得，只能通过真实正确诊断获得"
+}

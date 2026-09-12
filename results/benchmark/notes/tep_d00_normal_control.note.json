@@ -1,120 +1,38 @@
 {
  "diagnosis_type": "DETERMINED",
- "primary_finding": "TEP 正常基线运行：全部异常为温和尾部（max z=3.97、超 3σ 占比≤0.6%），最强相关均为控制回路本征耦合（XMEAS_12~XMV_7 r=1.0、XMEAS_15~XMV_8 r=1.0），物料-能量侧均无持续性偏差，未检出故障。",
+ "primary_finding": "TEP 正常基线运行：全部异常为温和尾部（max z=3.97、超 3σ 占比≤0.6%），最强相关均为控制回路本征耦合（分离器液位-阀位 XMEAS_12~XMV_7 r=1.000、汽提塔液位-蒸汽阀 XMEAS_15~XMV_8 r=1.000、流量调节 r=-0.999），物料与能量侧均无持续性偏差，未检出故障。",
  "confidence": 0.64,
  "ontology": {
-  "domain": "Tennessee Eastman 过程（稳态基线）",
-  "physics_notes": "稳态下液位-阀位、流量-阀位构成回路本征强相关；扰动静默时统计尾部由测量噪声与小幅操作波动构成。",
+  "domain": "Tennessee Eastman 反应-分离-循环过程（稳态基线）",
+  "physics_notes": "稳态下液位-阀位、流量-阀位构成回路本征强相关（|r|≈1.0）；扰动静默时统计尾部由测量噪声与小幅操作波动构成。故障判据（跨单元传播链、通道簇、事件尖峰）均不满足。",
   "variables": [
-   {
-    "name": "XMEAS_12",
-    "meaning": "分离器液位"
-   },
-   {
-    "name": "XMV_7",
-    "meaning": "分离器罐阀"
-   },
-   {
-    "name": "XMEAS_15",
-    "meaning": "汽提塔液位"
-   },
-   {
-    "name": "XMV_8",
-    "meaning": "汽提塔蒸汽阀"
-   }
+   {"name": "XMEAS_12", "meaning": "分离器液位"},
+   {"name": "XMV_7", "meaning": "分离器罐阀位"},
+   {"name": "XMEAS_15", "meaning": "汽提塔液位"},
+   {"name": "XMEAS_17", "meaning": "循环流量"}
   ]
  },
  "hypotheses": [
-  {
-   "name": "正常运行（噪声+小幅操作波动）",
-   "mechanism_class": "normal-appearance",
-   "confidence": 0.64,
-   "verdict": "surviving",
-   "logic_chain": [
-    "超 3σ 占比≤0.6%，符合噪声尾部",
-    "强相关全部为回路本征（阀位-液位）"
-   ],
-   "evidence": [
-    "XMEAS_12~XMV_7 r=1.000 液位-阀位回路",
-    "XMEAS_17~XMV_11 r=-0.999 流量调节"
-   ],
-   "contradiction": [],
-   "falsification": [
-    "出现跨单元传播的持续偏差则推翻"
-   ],
-   "proof": "尾部量级与仪表噪声带一致",
-   "predicted": [
-    "尾部统计随更长窗口收敛"
-   ]
-  },
-  {
-   "name": "小幅未建模扰动残留",
-   "mechanism_class": "operating-point",
-   "confidence": 0.2,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "残留扰动应形成通道簇"
-   ],
-   "evidence": [
-    "异常通道分散且无传播链"
-   ],
-   "contradiction": [
-    "无簇结构"
-   ],
-   "falsification": [
-    "形成跨单元传播簇则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  },
-  {
-   "name": "传感器毛刺",
-   "mechanism_class": "sensor-drift",
-   "confidence": 0.12,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "毛刺应孤立单点"
-   ],
-   "evidence": [
-    "未占主导且无孤立尖峰证据"
-   ],
-   "contradiction": [
-    "尾部为弥散而非孤立"
-   ],
-   "falsification": [
-    "孤立尖峰成簇则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  }
+  {"name": "正常运行（噪声+小幅操作波动）", "mechanism_class": "normal-appearance", "confidence": 0.64, "verdict": "surviving",
+   "logic_chain": ["超 3σ 占比≤0.6% 符合噪声尾部", "强相关全部为回路本征（液位-阀位/流量调节）"],
+   "evidence": ["XMEAS_12~XMV_7 r=1.000", "XMEAS_17~XMV_11 r=-0.999"],
+   "falsification": ["出现跨单元传播的持续偏差则推翻"],
+   "proof": "尾部量级与仪表噪声带一致", "predicted": ["尾部随更长窗口收敛"]},
+  {"name": "小幅未建模扰动残留", "mechanism_class": "operating-point", "confidence": 0.18, "verdict": "eliminated",
+   "logic_chain": ["残留扰动应形成传播通道簇"],
+   "evidence": ["异常通道分散且无传播结构"], "contradiction": ["无簇结构"], "falsification": ["形成簇则复活"], "proof": "", "predicted": []},
+  {"name": "传感器毛刺", "mechanism_class": "sensor-drift", "confidence": 0.12, "verdict": "eliminated",
+   "logic_chain": ["毛刺应孤立单点"], "evidence": ["尾部弥散非孤立"],
+   "contradiction": ["非孤立形态"], "falsification": ["孤立尖峰成簇则复活"], "proof": "", "predicted": []}
  ],
  "analysis_findings": {
-  "key_process_findings": [
-   "max z=3.97",
-   "回路本征相关主导"
-  ],
-  "ontology_industry_interpretation": [
-   "TEP 稳态的统计基线即由回路耦合构成"
-  ],
+  "key_process_findings": ["max z=3.97 温和尾部", "回路本征相关主导（r≈±1.0）"],
+  "ontology_industry_interpretation": ["TEP 稳态统计基线由回路耦合构成；反假相关层将这些定义性相关排除出因果证据"],
   "time_lag": "阀位-液位近瞬时（回路作用）",
-  "data_supported_conclusions": [
-   "无传播链（数据支持）"
-  ]
- },
- "visual_observations": [
-  "时序图呈稳态噪声带"
- ],
- "judge": {
-  "score": 91,
-  "warnings": [],
-  "validation_findings_cited": [
-   "反假相关校验剔除定义性相关"
-  ]
- },
- "audit": {
-  "verdict": "ENDORSED",
-  "notes": "正常结论与回路耦合结构一致。"
- },
+  "data_supported_conclusions": ["无传播链为 brief 实测形态"]},
+ "visual_observations": ["时序图呈稳态噪声带"],
+ "judge": {"score": 91, "warnings": [], "validation_findings_cited": ["反假相关校验剔除定义性相关"]},
+ "audit": {"verdict": "ENDORSED", "notes": "正常结论与回路耦合结构一致。"},
  "data_gaps": [],
  "inference_gaps": []
 }

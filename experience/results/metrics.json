@@ -1,38 +1,38 @@
 {
- "generated_at": "2026-09-12T09:17:23.787Z",
- "tier_file": "scripts\\benchmark\\cases\\tier_all.json",
- "total_cases": 32,
- "executed": 32,
- "fault_cases": 25,
- "control_cases": 7,
- "top1": 25,
- "topk": 25,
+ "generated_at": "2026-09-12T09:55:11.876Z",
+ "tier_file": "scripts\\benchmark\\cases\\benchmark_cases.json",
+ "total_cases": 8,
+ "executed": 8,
+ "fault_cases": 5,
+ "control_cases": 3,
+ "top1": 5,
+ "topk": 5,
  "cdr": 1,
- "calibrated": 25,
+ "calibrated": 5,
  "overconfident": 0,
- "control_pass": 7,
+ "control_pass": 3,
  "false_alarms": 0,
  "by_dataset": {
   "skab": {
-   "cases": 17,
-   "top1": 15,
-   "topk": 15,
-   "controls": 2,
-   "control_pass": 2
+   "cases": 3,
+   "top1": 2,
+   "topk": 2,
+   "controls": 1,
+   "control_pass": 1
   },
   "tep": {
-   "cases": 8,
-   "top1": 6,
-   "topk": 6,
-   "controls": 2,
-   "control_pass": 2
+   "cases": 3,
+   "top1": 2,
+   "topk": 2,
+   "controls": 1,
+   "control_pass": 1
   },
   "indpensim": {
-   "cases": 7,
-   "top1": 4,
-   "topk": 4,
-   "controls": 3,
-   "control_pass": 3
+   "cases": 2,
+   "top1": 1,
+   "topk": 1,
+   "controls": 1,
+   "control_pass": 1
   }
  },
  "per_case": [
@@ -47,7 +47,7 @@
    "control_pass": null,
    "judge_score": 93,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609111657547_bench_skab_valve1_1"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120934120_bench_skab_valve1_1"
   },
   {
    "case_id": "skab_cavitation_13",
@@ -60,7 +60,7 @@
    "control_pass": null,
    "judge_score": 92,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100243425_bench_skab_cavitation_13"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120934557_bench_skab_cavitation_13"
   },
   {
    "case_id": "skab_normal_control",
@@ -73,7 +73,7 @@
    "control_pass": true,
    "judge_score": 91,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100244063_bench_skab_normal_control"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120935201_bench_skab_normal_control"
   },
   {
    "case_id": "tep_d01_ac_feed_ratio",
@@ -86,7 +86,7 @@
    "control_pass": null,
    "judge_score": 90,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246017_bench_tep_d01_ac_feed_ratio"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120937441_bench_tep_d01_ac_feed_ratio"
   },
   {
    "case_id": "tep_d03_hard",
@@ -99,7 +99,7 @@
    "control_pass": null,
    "judge_score": 90,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246329_bench_tep_d03_hard"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120938098_bench_tep_d03_hard"
   },
   {
    "case_id": "tep_d00_normal_control",
@@ -112,20 +112,7 @@
    "control_pass": true,
    "judge_score": 91,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246555_bench_tep_d00_normal_control"
-  },
-  {
-   "case_id": "indpensim_batch091",
-   "dataset": "indpensim",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100259513_bench_indpensim_batch091"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120938274_bench_tep_d00_normal_control"
   },
   {
    "case_id": "indpensim_batch093",
@@ -138,7 +125,7 @@
    "control_pass": null,
    "judge_score": 90,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100307051_bench_indpensim_batch093"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120938553_bench_indpensim_batch093"
   },
   {
    "case_id": "indpensim_batch001_control",
@@ -151,306 +138,7 @@
    "control_pass": true,
    "judge_score": 92,
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609111640303_bench_indpensim_batch001_control"
-  },
-  {
-   "case_id": "skab2_valve1_1",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 93,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120223591_bench_skab2_valve1_1"
-  },
-  {
-   "case_id": "skab2_valve1_7",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120224217_bench_skab2_valve1_7"
-  },
-  {
-   "case_id": "skab2_valve1_12",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120224421_bench_skab2_valve1_12"
-  },
-  {
-   "case_id": "skab2_valve2_0",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120225036_bench_skab2_valve2_0"
-  },
-  {
-   "case_id": "skab2_valve2_2",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120802343_bench_skab2_valve2_2"
-  },
-  {
-   "case_id": "skab2_other_13",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 92,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120225537_bench_skab2_other_13"
-  },
-  {
-   "case_id": "skab2_other_12",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120226110_bench_skab2_other_12"
-  },
-  {
-   "case_id": "skab2_other_5",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120745360_bench_skab2_other_5"
-  },
-  {
-   "case_id": "skab2_other_6",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120226532_bench_skab2_other_6"
-  },
-  {
-   "case_id": "skab2_other_8",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 92,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227160_bench_skab2_other_8"
-  },
-  {
-   "case_id": "skab2_other_1",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227378_bench_skab2_other_1"
-  },
-  {
-   "case_id": "skab2_other_11",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227482_bench_skab2_other_11"
-  },
-  {
-   "case_id": "skab2_other_14",
-   "dataset": "skab",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 92,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120228115_bench_skab2_other_14"
-  },
-  {
-   "case_id": "skab2_normal_control",
-   "dataset": "skab",
-   "control": true,
-   "diagnosis_type": "DETERMINED",
-   "top1": null,
-   "topk": null,
-   "calibrated": null,
-   "control_pass": true,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120228262_bench_skab2_normal_control"
-  },
-  {
-   "case_id": "tep2_d04",
-   "dataset": "tep",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120746002_bench_tep2_d04"
-  },
-  {
-   "case_id": "tep2_d07",
-   "dataset": "tep",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230193_bench_tep2_d07"
-  },
-  {
-   "case_id": "tep2_d11",
-   "dataset": "tep",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230522_bench_tep2_d11"
-  },
-  {
-   "case_id": "tep2_d14",
-   "dataset": "tep",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231080_bench_tep2_d14"
-  },
-  {
-   "case_id": "tep2_d00_control",
-   "dataset": "tep",
-   "control": true,
-   "diagnosis_type": "DETERMINED",
-   "top1": null,
-   "topk": null,
-   "calibrated": null,
-   "control_pass": true,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231233_bench_tep2_d00_control"
-  },
-  {
-   "case_id": "ips2_batch_091",
-   "dataset": "indpensim",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231449_bench_ips2_batch_091"
-  },
-  {
-   "case_id": "ips2_batch_093",
-   "dataset": "indpensim",
-   "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
-   "calibrated": true,
-   "control_pass": null,
-   "judge_score": 90,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120236013_bench_ips2_batch_093"
-  },
-  {
-   "case_id": "ips2_batch_001",
-   "dataset": "indpensim",
-   "control": true,
-   "diagnosis_type": "DETERMINED",
-   "top1": null,
-   "topk": null,
-   "calibrated": null,
-   "control_pass": true,
-   "judge_score": 92,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120238472_bench_ips2_batch_001"
-  },
-  {
-   "case_id": "ips2_batch_002",
-   "dataset": "indpensim",
-   "control": true,
-   "diagnosis_type": "DETERMINED",
-   "top1": null,
-   "topk": null,
-   "calibrated": null,
-   "control_pass": true,
-   "judge_score": 91,
-   "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120242426_bench_ips2_batch_002"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120942384_bench_indpensim_batch001_control"
   }
  ]
 }

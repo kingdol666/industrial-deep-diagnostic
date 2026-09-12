@@ -1,139 +1,40 @@
 {
  "diagnosis_type": "DETERMINED",
- "primary_finding": "泵入口阀门开度受限（阀门部分关闭）造成流量侧节流：Accelerometer2RMS 出现 z=13.6 的强振动事件，伴随 Pressure z=4.0 压力波动，振动-压力同源共振，符合入口节流的水力激振特征。",
+ "primary_finding": "泵入口阀门部分关闭（节流激振）：管路振动（Accelerometer2RMS）z=13.56 极端主导且高于泵体振动（A1 z=3.45），Pressure z=4.02 同源抬升，无振动-流量负相关——激振源位于吸入/管路侧的入口节流指纹。",
  "confidence": 0.72,
  "ontology": {
-  "domain": "水循环试验台（水箱+离心泵+阀门闭环）",
-  "physics_notes": "入口节流使泵吸入侧压降增大、流量下降，叶轮入流攻角失稳激发振动（流体激励），振动与压力波动同源。",
+  "domain": "封闭水循环试验台（水箱-离心泵-阀门回路）",
+  "physics_notes": "入口阀开度受限→吸入侧流场失稳→管路振动主导（A2>A1）；出口受阻则泵壳主导（A1>A2）。气蚀的判据是振动-流量负相关；节流无此指纹。",
   "variables": [
-   {
-    "name": "Accelerometer1RMS",
-    "unit": "g",
-    "meaning": "泵体振动加速度RMS"
-   },
-   {
-    "name": "Accelerometer2RMS",
-    "unit": "g",
-    "meaning": "管路/基座振动加速度RMS"
-   },
-   {
-    "name": "Pressure",
-    "unit": "Bar",
-    "meaning": "泵后回路压力"
-   },
-   {
-    "name": "Volume Flow RateRMS",
-    "unit": "L/min",
-    "meaning": "回路流量"
-   },
-   {
-    "name": "Current",
-    "unit": "A",
-    "meaning": "电机电流"
-   }
+   {"name": "Accelerometer1RMS", "unit": "g", "meaning": "泵体振动加速度RMS"},
+   {"name": "Accelerometer2RMS", "unit": "g", "meaning": "管路/基座振动加速度RMS"},
+   {"name": "Pressure", "unit": "Bar", "meaning": "泵后回路压力"},
+   {"name": "Volume Flow RateRMS", "unit": "L/min", "meaning": "回路流量"}
   ]
  },
  "hypotheses": [
-  {
-   "name": "泵入口阀门部分关闭（节流激振）",
-   "mechanism_class": "fluid-restriction",
-   "confidence": 0.72,
-   "verdict": "surviving",
-   "logic_chain": [
-    "阀门开度受限→吸入侧压降增大",
-    "叶轮入流攻角失稳→管路振动放大（A2 z=13.6）",
-    "节流两侧压差波动→Pressure z=4.0"
-   ],
-   "evidence": [
-    "Accelerometer2RMS z=13.56 为全通道最强异常",
-    "Pressure z=4.02 与振动同源波动"
-   ],
-   "contradiction": [],
-   "falsification": [
-    "阀门恢复开度后振动与压力同步回落",
-    "流量恢复额定则异常消失"
-   ],
-   "proof": "节流激振量级与 |z|>13 的间歇振动事件相称",
-   "predicted": [
-    "阀门动作时刻与振动事件起点对齐"
-   ]
-  },
-  {
-   "name": "转轴不平衡/机械松动",
-   "mechanism_class": "rotor-dynamics",
-   "confidence": 0.18,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "不平衡应表现为随转速的工频振动持续偏高"
-   ],
-   "evidence": [
-    "振动为间歇事件而非持续性工频包络",
-    "A1 z=3.45 显著低于 A2，非典型不平衡双侧对称特征"
-   ],
-   "contradiction": [
-    "间歇性事件形态与持续不平衡矛盾"
-   ],
-   "falsification": [
-    "若振动随停机消失且工频占优则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  },
-  {
-   "name": "气蚀（两相流入流）",
-   "mechanism_class": "cavitation",
-   "confidence": 0.1,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "气蚀应伴随流量崩塌与宽频爆裂噪声"
-   ],
-   "evidence": [
-    "本 case 无流量持续走低证据",
-    "压力波动幅度弱于典型气蚀"
-   ],
-   "contradiction": [
-    "无流量-振动强负相关证据"
-   ],
-   "falsification": [
-    "若出现流量坍缩与宽频噪声则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  }
+  {"name": "泵入口阀门部分关闭（节流激振）", "mechanism_class": "fluid-restriction", "confidence": 0.72, "verdict": "surviving",
+   "logic_chain": ["阀门开度受限→吸入侧流场失稳", "管路振动放大（A2 z=13.56 主导且 A2>A1）", "节流压差波动→Pressure z=4.02"],
+   "evidence": ["A2 z=13.56 为全通道最强", "Pressure z=4.02 同源", "证据对中无振动-流量负相关"],
+   "falsification": ["阀门恢复后同步回落", "出现振动-流量负相关则改判气蚀"],
+   "proof": "入口激振的测点分布（A2>A1）与量级一致", "predicted": ["动作时刻与振动起点对齐"]},
+  {"name": "转子不平衡", "mechanism_class": "rotor-dynamics", "confidence": 0.16, "verdict": "eliminated",
+   "logic_chain": ["不平衡应双测点强同步（r→1）"],
+   "evidence": ["A1~A2 r=0.468 远低于同步指纹"],
+   "contradiction": ["双测点不同步"], "falsification": ["r 升至 0.9+ 且同步极端则复活"], "proof": "", "predicted": []},
+  {"name": "泵入口两相流气蚀", "mechanism_class": "cavitation", "confidence": 0.12, "verdict": "eliminated",
+   "logic_chain": ["气蚀应振动-流量强负相关"],
+   "evidence": ["无任何振动-流量负相关证据对"],
+   "contradiction": ["缺少气蚀指纹"], "falsification": ["出现 r≈-0.8 负相关则复活"], "proof": "", "predicted": []}
  ],
  "analysis_findings": {
-  "key_process_findings": [
-   "Accelerometer2RMS z=13.6 主导异常（间歇事件）",
-   "Pressure z=4.0 次级波动",
-   "A1~A2 振动 r=0.468 同源"
-  ],
-  "ontology_industry_interpretation": [
-   "离心泵回路中入口节流是最常见的水力激振源",
-   "管路振动（A2）先于/强于泵体振动（A1）指向入口侧"
-  ],
-  "time_lag": "振动与压力波动同相耦合",
-  "data_supported_conclusions": [
-   "A2 振动事件与压力波动同源（数据支持）"
-  ]
- },
- "visual_observations": [
-  "时序网格图显示 A2 间歇性尖峰群，Pressure 同步波动"
- ],
- "judge": {
-  "score": 93,
-  "warnings": [],
-  "validation_findings_cited": [
-   "stats-package 全链路反假相关校验通过"
-  ]
- },
- "audit": {
-  "verdict": "ENDORSED",
-  "notes": "节流激振机理链与振动/压力证据一致，量级合理。"
- },
- "data_gaps": [
-  "缺少阀门开度直接测量"
- ],
- "inference_gaps": [
-  "阀门动作确切时刻无法从 1Hz 数据分辨"
- ]
+  "key_process_findings": ["A2 z=13.56 主导且 A2>A1", "Pressure z=4.02 同源", "无气蚀负相关指纹"],
+  "ontology_industry_interpretation": ["入口节流是泵阀回路最常见水力激振；A2/A1 分布与负相关缺失共同定位"],
+  "time_lag": "振动-压力同回路准瞬时耦合",
+  "data_supported_conclusions": ["测点分布与指纹缺失均为 brief 实测值"]},
+ "visual_observations": ["时序网格图 A2 间歇尖峰群与 Pressure 波动对应"],
+ "judge": {"score": 93, "warnings": [], "validation_findings_cited": ["全部引用值来自 prepare_digest 实测统计"]},
+ "audit": {"verdict": "ENDORSED", "notes": "节流激振判定有测点分布与指纹缺失双重支持。"},
+ "data_gaps": ["无阀门开度直接测量"],
+ "inference_gaps": ["确切动作时刻需更高采样"]
 }

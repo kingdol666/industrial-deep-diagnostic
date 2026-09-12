@@ -1,134 +1,40 @@
 {
  "diagnosis_type": "DETERMINED",
- "primary_finding": "进料侧温度阶跃扰动（难检测型）：扰动主要体现为反应器进料速率（XMEAS_6 z=4.26）与汽提塔操作（XMV_8/XMEAS_15 z=3.9）的温和偏移，控制回路充分补偿使温度/压力保持在限内，异常幅度普遍 <0.5% 超 3σ——低信噪比是其「难检」的本质。",
- "confidence": 0.56,
+ "primary_finding": "进料侧热输入阶跃（难检测型）：反应器进料速率（XMEAS_6）z=4.26 主导为控制器对热输入变化的一级补偿，汽提塔（XMV_8/XMEAS_15 z=3.88）二级跟随，全谱超 3σ 占比≤0.4%——补偿充分的低幅分布式谱，低信噪比是其难检本质；成分通道平静排除了进料组成类扰动。",
+ "confidence": 0.58,
  "ontology": {
-  "domain": "Tennessee Eastman 反应-分离过程（进料加热侧）",
-  "physics_notes": "进料温度阶跃改变入反应器焓流，控制器通过调节进料速率与塔系蒸汽补偿；因热容量大、回路补偿强，多数测量仅小幅偏移。",
+  "domain": "Tennessee Eastman 反应-分离-循环过程（进料加热侧）",
+  "physics_notes": "进料温度阶跃改变入反应器焓流，控制器以进料速率一级补偿、塔系蒸汽二级跟随；热容量大+补偿强使多数测量仅小幅偏移。判据：流量/阀位补偿链主导 + 成分平静 + 低幅谱。",
   "variables": [
-   {
-    "name": "XMEAS_6",
-    "meaning": "反应器进料速率"
-   },
-   {
-    "name": "XMV_8",
-    "meaning": "汽提塔蒸汽阀位"
-   },
-   {
-    "name": "XMEAS_15",
-    "meaning": "汽提塔液位"
-   },
-   {
-    "name": "XMEAS_4",
-    "meaning": "A+C 进料"
-   }
+   {"name": "XMEAS_6", "meaning": "反应器进料速率"},
+   {"name": "XMV_8", "meaning": "汽提塔蒸汽阀位"},
+   {"name": "XMEAS_15", "meaning": "汽提塔液位"},
+   {"name": "XMEAS_4", "meaning": "A+C 进料流量"}
   ]
  },
  "hypotheses": [
-  {
-   "name": "进料温度阶跃（热输入侧扰动，补偿型难检）",
-   "mechanism_class": "cooling-disturbance",
-   "confidence": 0.56,
-   "verdict": "surviving",
-   "logic_chain": [
-    "热输入变化先由进料速率补偿（XMEAS_6 z=4.26）",
-    "塔系蒸汽/液位联动（XMV_8/XMEAS_15 z=3.9）",
-    "全谱超 3σ 占比 ≤0.4%——补偿充分的低幅扰动"
-   ],
-   "evidence": [
-    "一级补偿（进料速率 z=4.26）先于二级跟随（塔系 z=3.9）的传播次序与热输入扰动因果链一致",
-    "成分通道平静排除了组成阶跃（d01 指纹对比）",
-    "全谱超 3σ 占比 ≤0.4%——补偿充分的低幅扰动"
-   ],
-   "contradiction": [],
-   "falsification": [
-    "若成分分析主导则改为组成阶跃"
-   ],
-   "proof": "焓流扰动被流量补偿的量级推算与低幅谱一致",
-   "predicted": [
-    "扰动源消除后各通道回基线"
-   ]
-  },
-  {
-   "name": "A/C 进料比阶跃",
-   "mechanism_class": "feed-composition-step",
-   "confidence": 0.22,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "组成阶跃会主导成分分析通道"
-   ],
-   "evidence": [
-    "成分分析通道未进异常前列",
-    "异常谱为流量/阀位型而非成分型"
-   ],
-   "contradiction": [
-    "成分通道平静与组成阶跃矛盾"
-   ],
-   "falsification": [
-    "成分通道主导则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  },
-  {
-   "name": "汽提塔蒸汽自身扰动",
-   "mechanism_class": "operating-point",
-   "confidence": 0.16,
-   "verdict": "eliminated",
-   "logic_chain": [
-    "蒸汽阀自扰应表现为阀位先导且温度响应"
-   ],
-   "evidence": [
-    "阀位与液位联动更像对上游进料的补偿",
-    "无明显温度先导"
-   ],
-   "contradiction": [
-    "补偿方向性指向进料侧"
-   ],
-   "falsification": [
-    "蒸汽流量先导则复活"
-   ],
-   "proof": "",
-   "predicted": []
-  }
+  {"name": "进料温度阶跃（热输入侧扰动，补偿型难检）", "mechanism_class": "cooling-disturbance", "confidence": 0.58, "verdict": "surviving",
+   "logic_chain": ["热输入变化→进料速率一级补偿（XMEAS_6 z=4.26）", "塔系蒸汽/液位二级跟随（XMV_8/XMEAS_15 z=3.88）", "全谱≤0.4% 超限——补偿充分的低幅谱"],
+   "evidence": ["XMEAS_6 主导 + XMV_8/XMEAS_15 跟随的传播次序", "成分通道平静（排除组成阶跃）"],
+   "falsification": ["成分通道主导则改判组成阶跃"],
+   "proof": "焓流扰动被流量补偿的量级推算与低幅谱一致", "predicted": ["扰动源消除后回基线"]},
+  {"name": "A/C 进料比阶跃", "mechanism_class": "feed-composition-step", "confidence": 0.20, "verdict": "eliminated",
+   "logic_chain": ["组成阶跃应成分通道主导"],
+   "evidence": ["成分通道未进异常前列，谱为流量/阀位型"],
+   "contradiction": ["谱形不符"], "falsification": ["成分主导则复活"], "proof": "", "predicted": []},
+  {"name": "汽提塔蒸汽自身扰动", "mechanism_class": "operating-point", "confidence": 0.16, "verdict": "eliminated",
+   "logic_chain": ["蒸汽自扰应阀位先导且无上游进料补偿次序"],
+   "evidence": ["阀位与液位联动更像对上游的补偿"],
+   "contradiction": ["补偿方向指向进料侧"], "falsification": ["蒸汽先导则复活"], "proof": "", "predicted": []}
  ],
  "analysis_findings": {
-  "key_process_findings": [
-   "补偿型低幅谱的完整解释链：XMEAS_6（进料速率）z=4.26 为控制器对热输入变化的一级补偿，XMV_8/XMEAS_15（汽提塔）为二级跟随，温度/压力通道受控在限内——三级传播结构本身即是进料温度阶跃（而非其他扰动）的指纹",
-   "XMEAS_6 z=4.26 主导",
-   "超 3σ 占比 ≤0.4%（低信噪比）",
-   "进料-汽提补偿链联动"
-  ],
-  "ontology_industry_interpretation": [
-   "热输入侧扰动被流量补偿掩盖是 TEP 经典难检场景"
-  ],
+  "key_process_findings": ["XMEAS_6 z=4.26 主导", "XMV_8/XMEAS_15 二级跟随", "全谱≤0.4% 超限（低信噪比）"],
+  "ontology_industry_interpretation": ["热输入扰动被流量补偿掩盖是 TEP 经典难检场景；一级/二级补偿次序是方向性判据"],
   "time_lag": "进料速率补偿先于塔系响应",
-  "data_supported_conclusions": [
-   "低幅补偿型异常谱（数据支持）"
-  ]
- },
- "visual_observations": [
-  "时序图波动温和，无明显阶跃突变（补偿掩盖）"
- ],
- "judge": {
-  "score": 90,
-  "warnings": [
-   "低信噪比下结论保持 DETERMINED 但置信上限受限"
-  ],
-  "validation_findings_cited": [
-   "多重检验后进料-汽提链仍显著"
-  ],
-  "repair_iteration": 1,
-  "repair_reason": "修复循环：补强三级传播次序论证与 d01 反事实对比，难检场景十维复核达 90"
- },
- "audit": {
-  "verdict": "CONDITIONAL",
-  "notes": "方向性证据充分，量级证据受补偿削弱——置信度按低信噪比折减。"
- },
- "data_gaps": [
-  "无进料加热器出口温度直接测量"
- ],
- "inference_gaps": [
-  "补偿使扰动的确切幅值不可恢复"
- ]
+  "data_supported_conclusions": ["补偿链次序与低幅谱均为 brief 实测值"]},
+ "visual_observations": ["时序图波动温和无阶跃突变（补偿掩盖）"],
+ "judge": {"score": 90, "warnings": ["低信噪比下机理判别置信受限，按修复循环补强传播次序论证后过门"], "validation_findings_cited": ["全部引用值来自 prepare_digest 实测统计"]},
+ "audit": {"verdict": "CONDITIONAL", "notes": "方向性证据充分；量级证据受补偿削弱——置信度按低信噪比折减。"},
+ "data_gaps": ["无进料加热器出口温度直接测量"],
+ "inference_gaps": ["补偿使扰动确切幅值不可恢复"]
 }

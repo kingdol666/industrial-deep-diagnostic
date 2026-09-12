@@ -8,7 +8,7 @@
 
 ```bash
 node scripts/benchmark/download-datasets.mjs --list          # 应列出 5 个数据集（cwru 标记 MANUAL）
-node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/tier_all.json
+node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/benchmark_cases.json
 ```
 
 期望：第二条输出 `status: REPRODUCIBLE`（若当前环境已有完整结果）；否则进入 §1 全量复现。
@@ -26,10 +26,10 @@ node scripts/benchmark/make_dataset_manifest.mjs
 
 ```bash
 python scripts/benchmark/make_tier2.py        # 重建 tier2_main.json（23 case），输出 "23 cases = 19 fault + 4 control"
-python -c "import json; t=json.load(open('scripts/benchmark/cases/tier_all.json',encoding='utf-8')); f=sum(1 for c in t['cases'] if not c.get('control')); print(len(t['cases']),'cases =',f,'fault +',len(t['cases'])-f,'control')"
+python -c "import json; t=json.load(open('scripts/benchmark/cases/benchmark_cases.json',encoding='utf-8')); f=sum(1 for c in t['cases'] if not c.get('control')); print(len(t['cases']),'cases =',f,'fault +',len(t['cases'])-f,'control')"
 ```
 
-期望：`32 cases = 25 fault + 7 control`。
+期望：`8 cases = 5 fault + 3 control`（典型场景集：SKAB 阀门节流/气蚀/对照、TEP 组成阶跃/难检温度阶跃/对照、IndPenSim 执行失调/对照）。
 真值隔离红线：`truth`/`keywords` 字段只允许存在于 `scripts/benchmark/cases/*.json`（评分器读取）；
 **严禁**把 truth/keywords 写入 run 目录、note、user_context 或任何管线可见输入。
 
@@ -66,7 +66,7 @@ node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs commit  --t
 ## 5. 聚合与核对（<1 分钟）
 
 ```bash
-node scripts/benchmark/aggregate.mjs --tier-file scripts/benchmark/cases/tier_all.json
+node scripts/benchmark/aggregate.mjs --tier-file scripts/benchmark/cases/benchmark_cases.json
 ```
 
 期望 `metrics.json` 关键值（第二实现独立重算应逐字段一致）：
@@ -82,7 +82,7 @@ node scripts/benchmark/aggregate.mjs --tier-file scripts/benchmark/cases/tier_al
 ## 6. 复现门禁（最终裁决，~1 分钟）
 
 ```bash
-node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/tier_all.json
+node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/benchmark_cases.json
 ```
 
 期望：**REPRODUCIBLE**，四项全绿（dataset integrity 153 verified / coverage 32=32 / metric repro matches / execution proof 32=32 且 finalize PASS）。
@@ -91,8 +91,8 @@ node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier 
 一键执行 §1→§6：
 
 ```bash
-node scripts/benchmark/reproduce-all.mjs            # 全链路，任何一步失败即停止
-node scripts/benchmark/reproduce-all.mjs --skip-prepare   # 跳过重 prepare（用已有 run dir）
+node scripts/benchmark/run-benchmark.mjs                  # 审稿人入口：S1 prepare → S2 briefs → S3 现场诊断 → S4 门禁+评分 → S5 复现门禁 → S6 HTML 报告
+node scripts/benchmark/reproduce-all.mjs                  # 等价全链（重放已记录 note 的快速核对模式）
 ```
 
 ## 7. 漂移决策树

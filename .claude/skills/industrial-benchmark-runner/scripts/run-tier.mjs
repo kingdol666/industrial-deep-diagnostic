@@ -137,6 +137,72 @@ function cmdNotes() {
   }
 }
 
+/**
+ * BLIND-DIAGNOSIS support (真实性保障):
+ *   brief   — per case, write an evidence brief containing ONLY what a real
+ *             diagnostician may see: prepare_digest statistics + process
+ *             description + column names. NO truth, NO keywords, NO previous
+ *             notes, NO gradings. The diagnosing agent reasons from this alone.
+ *   archive — move existing notes aside (so the fresh diagnosis cannot read
+ *             them); `--restore <dir>` moves them back.
+ */
+const BRIEFS_DIR = path.join(RESULTS, 'briefs');
+
+function cmdBrief() {
+  fs.mkdirSync(BRIEFS_DIR, { recursive: true });
+  for (const c of cases()) {
+    const entry = tierState.cases[c.case_id] || {};
+    if (!entry.run_dir || !fs.existsSync(entry.run_dir)) {
+      console.log(`[brief] ${c.case_id} — no prepared run dir (run prepare first)`);
+      continue;
+    }
+    const digest = JSON.parse(fs.readFileSync(path.join(entry.run_dir, 'prepare_digest.json'), 'utf8'));
+    const brief = {
+      case_id: c.case_id,
+      dataset: c.dataset,
+      role: c.control ? 'control (expected: normal operation unless data proves otherwise)' : 'fault investigation',
+      process_description: c.process_description,
+      columns: digest.cols,
+      rows: digest.rows,
+      stats_engine: digest.engine,
+      evidence: {
+        anomaly_columns: digest.anomaly_columns, // per-column max|z| + %beyond-3sigma
+        top_correlation_pairs: digest.top_pairs, // strongest cross-domain pairs with |r|
+      },
+      _rules: [
+        'Reason ONLY from evidence above plus domain knowledge of the process described.',
+        'Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.',
+        'Every evidence claim in your note must cite a number present in this brief.',
+      ],
+    };
+    const out = path.join(BRIEFS_DIR, `${c.case_id}.brief.json`);
+    fs.writeFileSync(out, JSON.stringify(brief, null, 1) + '\n');
+    console.log(`[brief] ${c.case_id} → ${path.relative(ROOT, out)}`);
+  }
+}
+
+function cmdArchive() {
+  const restoreIdx = args.indexOf('--restore');
+  if (restoreIdx >= 0 && args[restoreIdx + 1]) {
+    const src = path.resolve(ROOT, args[restoreIdx + 1]);
+    let n = 0;
+    for (const f of fs.readdirSync(src).filter((f) => f.endsWith('.note.json'))) {
+      fs.copyFileSync(path.join(src, f), path.join(NOTES_DIR, f));
+      n += 1;
+    }
+    console.log(`[archive] restored ${n} note(s) from ${path.relative(ROOT, src)}`);
+    return;
+  }
+  const dst = path.join(RESULTS, `notes_archive_${Date.now()}`);
+  fs.mkdirSync(dst, { recursive: true });
+  let n = 0;
+  for (const f of fs.readdirSync(NOTES_DIR).filter((f) => f.endsWith('.note.json'))) {
+    fs.renameSync(path.join(NOTES_DIR, f), path.join(dst, f));
+    n += 1;
+  }
+  console.log(`[archive] moved ${n} note(s) → ${path.relative(ROOT, dst)} (restore: archive --restore <dir>)`);
+}
+
 function noteIsFilled(note) {
   if (!note || note._instructions) return false;
   return !!(note.diagnosis_type && note.ontology?.variables?.length && Array.isArray(note.hypotheses)
@@ -213,7 +279,7 @@ function save() {
   fs.writeFileSync(STATE, JSON.stringify(state, null, 1) + '\n');
 }
 
-const stages = { prepare: cmdPrepare, notes: cmdNotes, commit: cmdCommit, status: cmdStatus, 'import-state': cmdImportState };
+const stages = { prepare: cmdPrepare, notes: cmdNotes, commit: cmdCommit, status: cmdStatus, 'import-state': cmdImportState, brief: cmdBrief, archive: cmdArchive };
 if (!stages[stage]) {
   console.error('stage must be prepare|notes|commit|status|import-state');
   process.exit(2);

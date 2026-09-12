@@ -1,0 +1,56 @@
+{
+ "case_id": "skab_normal_control",
+ "dataset": "skab",
+ "role": "control (expected: normal operation unless data proves otherwise)",
+ "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。",
+ "columns": 9,
+ "rows": 9405,
+ "stats_engine": "stats-package",
+ "evidence": {
+  "anomaly_columns": [
+   {
+    "col": "Pressure",
+    "max_abs_z": 5.4,
+    "pct_z3": 0.001
+   },
+   {
+    "col": "Accelerometer1RMS",
+    "max_abs_z": 5.14,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "Accelerometer2RMS",
+    "max_abs_z": 5.1,
+    "pct_z3": 0.001
+   },
+   {
+    "col": "Volume Flow RateRMS",
+    "max_abs_z": 4.51,
+    "pct_z3": 0.006
+   },
+   {
+    "col": "Temperature",
+    "max_abs_z": 3.38,
+    "pct_z3": 0.002
+   },
+   {
+    "col": "Current",
+    "max_abs_z": 3.18,
+    "pct_z3": 0.009
+   }
+  ],
+  "top_correlation_pairs": [
+   "Temperature ~ Thermocouple: r=-0.891",
+   "Thermocouple ~ Volume Flow RateRMS: r=0.830",
+   "Temperature ~ Volume Flow RateRMS: r=-0.760",
+   "Accelerometer2RMS ~ Thermocouple: r=-0.759",
+   "Accelerometer1RMS ~ Thermocouple: r=0.741",
+   "Accelerometer1RMS ~ Volume Flow RateRMS: r=0.713"
+  ]
+ },
+ "_rules": [
+  "Reason ONLY from evidence above plus domain knowledge of the process described.",
+  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
+  "Every evidence claim in your note must cite a number present in this brief."
+ ]
+}
