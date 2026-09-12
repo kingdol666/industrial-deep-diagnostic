@@ -35,7 +35,7 @@ Fault root-cause analysis \sep Large language models \sep Multi-agent systems \s
 
 Root-cause analysis (RCA) of industrial process anomalies is a knowledge-intensive activity: the engineer must decide \emph{which} of many correlated sensor deviations represents the true underlying cause, justify that judgement with evidence, and communicate it with a calibrated degree of confidence. Three long-standing obstacles make automation of this task unsatisfying in practice.
 
-\textbf{First, single-LLM diagnosis is unstructured and unauditable.} Recent evaluations of LLM-based fault explanation on the Tennessee Eastman Process (TEP)~\cite{khan2024faultexplainer} show that large models can articulate plausible mechanisms, but their answers arrive as free-form text with no machine-checkable structure, no separation of facts from inference, and no mechanism that prevents a confident-sounding conclusion from resting on a spurious correlation. A 2025 review of agentic approaches to process monitoring and fault diagnosis concludes that evidence for LLM/multi-agent fault diagnosis remains scarce~\cite{agentic2025review}: the direction is promising but lacks engineering-grade pipelines.
+\textbf{First, single-LLM diagnosis is unstructured and unauditable.} Recent evaluations of LLM-based fault explanation on the Tennessee Eastman Process (TEP)~\cite{khan2024faultexplainer} show that large models can articulate plausible mechanisms, but their answers arrive as free-form text with no machine-checkable structure, no separation of facts from inference, and no mechanism that prevents a confident-sounding conclusion from resting on a spurious correlation. A recent review of agentic approaches to process monitoring and fault diagnosis concludes that evidence for LLM/multi-agent fault diagnosis remains scarce~\cite{agentic2025review}: the direction is promising but lacks engineering-grade pipelines.
 
 \textbf{Second, classical data-driven fault detection and diagnosis (FDD) optimises the wrong target.} Principal-component methods~\cite{goldenberg2019fault}, deep classifiers~\cite{tuli2022tranad,pozdnyakov2024adversarial}, and their benchmarks~\cite{rieth2023additional} score \emph{per-sample} detection or classification. An engineer, however, asks a \emph{per-episode} question: given this anomalous run, what is the root cause, how confident are we, and what evidence supports it? A 99\%-accurate classifier that returns a fault label without mechanism, evidence, or calibration does not answer that question. The detection--diagnosis gap is not merely theoretical: on TEP, PCA cannot detect four of the fifteen documented faults (IDV3, IDV4, IDV9, IDV15)~\cite{chiang2001fault}, and the published LLM baselines follow PCA in leaving these faults unscored~\cite{khan2024faultexplainer}.
 
@@ -148,8 +148,8 @@ Three design decisions deserve emphasis. First, the TEP subset is chosen so that
 \begin{table}[t]
 \caption{Benchmark composition. The TEP subset carries per-fault published baselines (FaultExplainer, arXiv:2412.14492); IDV3/IDV4 are PCA-undetectable~\cite{chiang2001fault}.}
 \label{tab:bench}
-\centering\small
-\begin{tabular}{llccl}
+\centering\footnotesize
+\begin{tabular}{llccp{6.4cm}}
 \toprule
 Dataset & Scenarios & Fault & Control & Truth source \\
 \midrule
@@ -217,8 +217,8 @@ Table~\ref{tab:mech} lists the nine fault scenarios grouped by mechanism, with t
 \begin{table}[t]
 \caption{Per-scenario results with the decisive statistical signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository).}
 \label{tab:mech}
-\centering\small
-\begin{tabular}{lccl}
+\centering\footnotesize
+\begin{tabular}{lccp{6.6cm}}
 \toprule
 Scenario (mechanism) & Conclusion & Judge & Decisive signature \\
 \midrule
@@ -271,7 +271,7 @@ Because the scenario sets and prompt regimes differ (candidates vs.\ none; alias
 \begin{table}[t]
 \caption{Per-fault outcomes on the TEP subset (machine-readable companion to Fig.~\ref{fig:perfault}). FE = FaultExplainer (arXiv:2412.14492, root-causes-included prompt, alias hits accepted); ``unscored'' = excluded from FE scoring because PCA cannot detect the fault~\cite{chiang2001fault}. IDD: strict mechanism-keyword scoring, no candidate list.}
 \label{tab:perfault}
-\centering\small
+\centering\footnotesize
 \begin{tabular}{llccl}
 \toprule
 TEP fault & FE GPT-4o & FE o1-preview & PCA detectable & IDD Top-1 \\
@@ -313,6 +313,21 @@ For the SKAB cavitation scenario the pipeline's recorded chain reads: (i)~L3 evi
 \textbf{Cost.} A scenario-level sweep spends minutes of reasoning per scenario---orders of magnitude more expensive than a fitted classifier at inference time. The economic comparison is only meaningful against the \emph{engineering cost of obtaining root causes} (expert hours), not against sample-level inference latency.
 
 \textbf{Three-state honesty.} \textsc{competing\_set} and \textsc{needs\_data} conclusions (with capped confidence and named discriminating measurements) are a feature, not a failure. In this corpus all nine faults resolved to \textsc{determined} because the evidence differentiated cleanly; the discipline was exercised in a real deployment case (a biaxially-oriented polyester film line), where the pipeline returned \textsc{needs\_data} with an explicit discriminating-data list rather than fabricating a cause---episodic scratch defects whose driver lay outside the sensor set, a conclusion the statistic-heavy scans (180 parameter--defect associations, none surviving false-discovery-rate correction) supported quantitatively. Their systematic evaluation requires scenarios designed for indistinguishability, which we plan to add.
+
+\subsection{Industrial deployment prospects}
+Beyond the benchmark, the pipeline was engineered to fit the data and organisational realities of process plants, and its deployment surface is considerably wider than the evaluated scenarios.
+
+\textbf{Integration with existing plant infrastructure.} IDD consumes what plants already produce: flat exports from historians (OPC-UA/PI), LIMS quality records, and batch logs. The same pipeline runs interactively through a web application and programmatically through a versioned REST API (\texttt{/api/diagnosis} with engine selection and typed error contracts), so a deployment is an export job plus one API call rather than an instrumentation project. Because the deterministic stage is byte-reproducible, results do not drift when the surrounding IT landscape changes.
+
+\textbf{Data-sovereign deployment.} The fourteen-engine execution layer (Section~\ref{sec:arch}) accepts on-premise and private-model agents through uniform dialect adapters. For operators who cannot send process data to external LLM services---defence, pharmaceuticals, semiconductors, national infrastructure---the reasoning stage can be pointed at an internally hosted model without touching the audit, evidence, or gate contracts; the benchmark protocol itself executes identically against a scripted mock engine, which is how the full chain is exercised in CI.
+
+\textbf{Conclusions that route work, not just verdicts.} The three-state protocol converts diagnosis into an engineering workflow: \textsc{determined} conclusions carry mechanism chains that point to corrective actions; \textsc{competing\_set} and \textsc{needs\_data} conclusions carry named discriminating measurements---in effect, work orders for targeted instrumentation or tests. The film-line deployment above illustrates the value: the \textsc{needs\_data} verdict redirected the investigation from blind parameter tuning to surface-inspection and equipment-event data, which is where the defect family's driver plausibly lies.
+
+\textbf{Audit-ready documentation for regulated operations.} Because every conclusion is bound to graded evidence, physics checks, and a fingerprinted execution trace, the by-product of each run is an RCA report that satisfies the documentation expectations of regulated environments (e.g., GxP batch-deviation investigation and incident post-mortems), where ``who concluded what, from which data, with which confidence'' is the deliverable.
+
+\textbf{Knowledge compounding across plants.} The ontology layer is an asset store, not a per-run artifact: variable semantics, physical principles, and confounder annotations published once for a plant or product family are reused by every subsequent diagnosis, and the evaluation contracts make each new labelled episode immediately reusable as a graded scenario. The marginal cost of a diagnosis therefore falls as the fleet grows---an economics that sample-level detectors, which must be retrained per asset, do not share.
+
+\textbf{Scope of applicability.} The method requires multivariate time-ordered process data with engineering semantics for the channels (to build the ontology) and applies to continuous, batch, and testbed processes alike---the three benchmark families were chosen to span exactly that range. It does not apply where no time-aligned process data exists, and its root-cause reach is bounded by the sensor set, as the \textsc{needs\_data} case demonstrates honestly.
 
 \section{Conclusion}
 \label{sec:conclusion}
