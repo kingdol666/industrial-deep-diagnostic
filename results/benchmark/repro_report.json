@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-12T03:09:36.433Z",
+ "generated_at": "2026-09-12T08:02:59.078Z",
  "tier": "scripts/benchmark/cases/tier_all.json",
  "checks": {
   "dataset_integrity": {
@@ -34,7 +34,8 @@
   "execution_proof": {
    "checked": 32,
    "events_present": 32,
-   "pipeline_log_pass": 32
+   "pipeline_log_pass": 32,
+   "finalize_pass": 32
   }
  },
  "failures": [],

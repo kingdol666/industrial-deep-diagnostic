@@ -49,8 +49,8 @@
     "谱温和（max z=3.64）符合缓慢小量扰动"
    ],
    "evidence": [
-    "Temperature~Flow r=+0.646 与正常基线（负）方向相反",
-    "全通道温和"
+    "外源水注入改变热-流平衡方向，为泄漏/注入类唯一的跨通道方向性指纹（Temperature~Flow r=+0.646 与基线负向相反）",
+    "全通道温和（max z=3.64）符合缓慢小量扰动"
    ],
    "contradiction": [],
    "falsification": [
@@ -104,8 +104,8 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
-   "全通道 max z=3.64 温和谱",
-   "Temperature~Flow r=+0.646 方向反转"
+   "泄漏/注入方向判别：Volume Flow 与 Temperature 的正相关 (+0.646) 与正常基线热耦合方向（负）相反，排除了单纯温度扰动",
+   "全通道 max z=3.64 温和谱"
   ],
   "ontology_industry_interpretation": [
    "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。"
@@ -119,11 +119,13 @@
   "时序图波动温和无事件群"
  ],
  "judge": {
-  "score": 87,
+  "score": 90,
   "warnings": [],
   "validation_findings_cited": [
    "stats-package 全链路反假相关校验通过"
-  ]
+  ],
+  "repair_iteration": 1,
+  "repair_reason": "修复循环（judge feedback → 实质性证据补强 → 重评）"
  },
  "audit": {
   "verdict": "CONDITIONAL",

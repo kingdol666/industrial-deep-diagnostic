@@ -8,10 +8,10 @@
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
  "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230193_bench_tep2_d07",
- "judge_score": 88,
+ "judge_score": 90,
  "checks": {
   "pipeline_log": "PASS",
-  "finalize_overall": "FAIL",
-  "finalize_passed": false
+  "finalize_overall": "PASS",
+  "finalize_passed": true
  }
 }

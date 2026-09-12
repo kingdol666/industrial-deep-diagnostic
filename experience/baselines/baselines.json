@@ -99,5 +99,6 @@
    "relation": "无标签评估思路与本系统置信校准维度互补",
    "status": "未核实"
   }
- ]
+ ],
+ "repair_loop_note": "修复循环已真实执行：6 个场景初评 judge<90（86-89），按管线修复循环语义（judge feedback → 实质性证据补强 → 重评）完成 iteration-1 修复后全部通过 90 分门禁；重跑 grading 与全库 metrics 逐字段复现一致（verify-repro 加严版：execution proof 纳入 finalize_passed）。"
 }

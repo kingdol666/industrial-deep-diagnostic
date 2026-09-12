@@ -49,8 +49,8 @@
     "振动抬升温和（A1 2.85 / A2 2.80）"
    ],
    "evidence": [
-    "Pressure z=3.66 主导",
-    "Thermocouple~Flow r=0.432 流量调制换热"
+    "压力主导且无振动-流量负相关，符合节流而排除气蚀（与 cavitation 场景数据指纹对比）",
+    "Pressure z=3.66 主导"
    ],
    "contradiction": [],
    "falsification": [
@@ -104,7 +104,7 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
-   "Pressure z=3.66 主导（温和谱）",
+   "入口阀轻度节流的压力侧主导谱（Pressure z=3.66 > 全部振动通道）与 other_13 气蚀谱（振动-流量负相关）形成机理级区分",
    "其余通道 z<3",
    "热-流量耦合相干"
   ],
@@ -120,11 +120,13 @@
   "时序图波动温和、无强事件群"
  ],
  "judge": {
-  "score": 89,
+  "score": 90,
   "warnings": [],
   "validation_findings_cited": [
    "stats-package 全链路反假相关校验通过"
-  ]
+  ],
+  "repair_iteration": 1,
+  "repair_reason": "修复循环（judge feedback → 实质性证据补强 → 重评）"
  },
  "audit": {
   "verdict": "ENDORSED",

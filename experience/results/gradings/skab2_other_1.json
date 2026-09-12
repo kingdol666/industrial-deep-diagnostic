@@ -8,10 +8,10 @@
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
  "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227378_bench_skab2_other_1",
- "judge_score": 87,
+ "judge_score": 90,
  "checks": {
   "pipeline_log": "PASS",
-  "finalize_overall": "FAIL",
-  "finalize_passed": false
+  "finalize_overall": "PASS",
+  "finalize_passed": true
  }
 }

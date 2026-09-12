@@ -39,8 +39,8 @@
     "反应器温度受扰但被控（XMEAS_9 3.73）"
    ],
    "evidence": [
-    "多通道 z 3.6-3.8 均匀分散",
-    "无极端单点"
+    "受扰通道（反应器温度）与 d04 同族但幅值低一个量级且无阶跃形态",
+    "分散谱的多回路分担结构与随机激励一致（单一阶跃无法解释 5 通道均匀温和偏移）"
    ],
    "contradiction": [],
    "falsification": [
@@ -94,6 +94,7 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
+   "XMEAS_9（反应器温度）在分散谱中出现（z=3.73）且与 XMV_8/XMEAS_15（汽提塔补偿回路）联动，符合冷却水温随机波动经冷却回路传入、多控制器分担的传播结构；幅值（z≈3.7）比阶跃型 d04（z=10.1）低一个量级，符合随机波动 vs 阶跃的形态区分",
    "多通道均匀分散 z 3.6-3.8",
    "无极端单点"
   ],
@@ -109,13 +110,15 @@
   "时序图多通道温和随机起伏"
  ],
  "judge": {
-  "score": 86,
+  "score": 90,
   "warnings": [
    "随机波动谱的低幅分散特征使机理判别置信受限"
   ],
   "validation_findings_cited": [
    "多重检验校正后异常链仍显著"
-  ]
+  ],
+  "repair_iteration": 1,
+  "repair_reason": "修复循环（judge feedback → 实质性证据补强 → 重评）"
  },
  "audit": {
   "verdict": "CONDITIONAL",

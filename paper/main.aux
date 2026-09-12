@@ -70,34 +70,34 @@
 \@writefile{toc}{\contentsline {section}{\numberline {7}Results}{14}{section.7}\protected@file@percent }
 \newlabel{sec:results}{{7}{14}{Results}{section.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Overall performance}{14}{subsection.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Per-dataset and per-mechanism breakdown}{14}{subsection.7.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Overall results on the 32-scenario benchmark. Proportions carry Wilson 95\% CIs.}}{15}{table.3}\protected@file@percent }
 \newlabel{tab:overall}{{3}{15}{Overall results on the 32-scenario benchmark. Proportions carry Wilson 95\% CIs}{table.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Calibration and false-alarm suppression}{15}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Per-dataset and per-mechanism breakdown}{15}{subsection.7.2}\protected@file@percent }
 \citation{he2025faultexplainer}
 \citation{reinartz2021extended}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-dataset results. All 25 fault scenarios are Top-1 correct; all 7 controls pass without false alarms.}}{16}{figure.2}\protected@file@percent }
 \newlabel{fig:dataset}{{2}{16}{Per-dataset results. All 25 fault scenarios are Top-1 correct; all 7 controls pass without false alarms}{figure.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Comparison with published baselines}{16}{section.8}\protected@file@percent }
-\newlabel{sec:comparison}{{8}{16}{Comparison with published baselines}{section.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Register A: same-task comparison on TEP}{16}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Calibration and false-alarm suppression}{16}{subsection.7.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests.}}{17}{table.4}\protected@file@percent }
+\newlabel{tab:mech}{{4}{17}{Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests}{table.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Comparison with published baselines}{17}{section.8}\protected@file@percent }
+\newlabel{sec:comparison}{{8}{17}{Comparison with published baselines}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Register A: same-task comparison on TEP}{17}{subsection.8.1}\protected@file@percent }
 \citation{pozdnyakov2024adversarial}
 \citation{hartung2023deep}
 \citation{iliopoulos2023detection}
 \citation{vieira2026towards}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests.}}{17}{table.4}\protected@file@percent }
-\newlabel{tab:mech}{{4}{17}{Per-mechanism-class results (repeated runs of the same fault on different experimental batches counted as repetitions). ``Signature'' lists the decisive statistical evidence per class as recorded in the scenario digests}{table.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Register B: reference-only context}{17}{subsection.8.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Per-mechanism-class scenario counts (all 25 Top-1 correct; decisive signatures in Table~\ref {tab:mech}).}}{18}{figure.3}\protected@file@percent }
 \newlabel{fig:mech}{{3}{18}{Per-mechanism-class scenario counts (all 25 Top-1 correct; decisive signatures in Table~\ref {tab:mech})}{figure.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Case study: an auditable evidence chain}{18}{subsection.8.3}\protected@file@percent }
-\citation{reinartz2021extended}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Register B: reference-only context}{18}{subsection.8.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Confidence calibration: every reported confidence lies at or below the ceiling implied by its evidence levels; the weakest-evidence scenarios sit lowest. Overconfidence count $=0$.}}{19}{figure.4}\protected@file@percent }
 \newlabel{fig:calib}{{4}{19}{Confidence calibration: every reported confidence lies at or below the ceiling implied by its evidence levels; the weakest-evidence scenarios sit lowest. Overconfidence count $=0$}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion and limitations}{19}{section.9}\protected@file@percent }
-\newlabel{sec:discussion}{{9}{19}{Discussion and limitations}{section.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Case study: an auditable evidence chain}{19}{subsection.8.3}\protected@file@percent }
+\citation{reinartz2021extended}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Register-A comparison of Top-1 root-cause accuracy on TEP-family tasks. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$ scenario set, candidates in prompt). Blue: IDD (no candidate lists; includes hard IDV3 and stiction IDV14). Error bars are Wilson 95\% intervals; bar height is the point estimate. IDD's full-library CI lower bound (86.7\%) exceeds both baseline point estimates.}}{20}{figure.5}\protected@file@percent }
 \newlabel{fig:compare}{{5}{20}{Register-A comparison of Top-1 root-cause accuracy on TEP-family tasks. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$ scenario set, candidates in prompt). Blue: IDD (no candidate lists; includes hard IDV3 and stiction IDV14). Error bars are Wilson 95\% intervals; bar height is the point estimate. IDD's full-library CI lower bound (86.7\%) exceeds both baseline point estimates}{figure.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Discussion and limitations}{20}{section.9}\protected@file@percent }
+\newlabel{sec:discussion}{{9}{20}{Discussion and limitations}{section.9}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{21}{section.10}\protected@file@percent }
 \newlabel{sec:conclusion}{{10}{21}{Conclusion}{section.10}{}}
 \bibstyle{elsarticle-num}

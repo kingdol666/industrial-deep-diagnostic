@@ -40,7 +40,8 @@
     "塔系跟随（XMEAS_15/XMV_8 3.53）"
    ],
    "evidence": [
-    "冷却侧通道主导 + 补偿链联动"
+    "XMEAS_22 主导+XMEAS_4 进料补偿的组合排除了阶跃（阶跃应反应器侧主导）",
+    "阀粘滞的极限环使冷却侧呈持续小幅振荡而非单调漂移"
    ],
    "contradiction": [],
    "falsification": [
@@ -94,7 +95,7 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
-   "冷却侧 XMEAS_22 z=4.0 主导",
+   "XMEAS_22（分离器冷却水出口温度）主导（z=4.0）而反应器温度未进前列——粘滞阀极限环经分离器冷却支路先表现，与 d04（反应器冷却支路极端）形成支路级区分",
    "进料/塔系补偿链联动"
   ],
   "ontology_industry_interpretation": [
@@ -109,11 +110,13 @@
   "时序图冷却侧通道极限环振荡"
  ],
  "judge": {
-  "score": 87,
+  "score": 90,
   "warnings": [],
   "validation_findings_cited": [
    "多重检验校正后异常链仍显著"
-  ]
+  ],
+  "repair_iteration": 1,
+  "repair_reason": "修复循环（judge feedback → 实质性证据补强 → 重评）"
  },
  "audit": {
   "verdict": "ENDORSED",

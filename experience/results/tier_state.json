@@ -90,7 +90,7 @@
     },
     "tep_d03_hard": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246329_bench_tep_d03_hard",
-     "graded_at": "2026-09-11T17:46:26.350Z",
+     "graded_at": "2026-09-12T07:59:39.953Z",
      "imported_from": "gradings",
      "grading": {
       "case_id": "tep_d03_hard",
@@ -102,11 +102,11 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609100246329_bench_tep_d03_hard",
-      "judge_score": 88,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
@@ -222,7 +222,7 @@
     "skab2_valve1_7": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120224217_bench_skab2_valve1_7",
      "prepared_at": "2026-09-12T02:24:42.026Z",
-     "graded_at": "2026-09-12T03:06:06.093Z",
+     "graded_at": "2026-09-12T07:59:13.520Z",
      "grading": {
       "case_id": "skab2_valve1_7",
       "control": false,
@@ -233,11 +233,11 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120224217_bench_skab2_valve1_7",
-      "judge_score": 89,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
@@ -286,9 +286,9 @@
      }
     },
     "skab2_valve2_2": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120225277_bench_skab2_valve2_2",
-     "prepared_at": "2026-09-12T02:25:53.680Z",
-     "graded_at": "2026-09-12T03:06:21.586Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120802343_bench_skab2_valve2_2",
+     "prepared_at": "2026-09-12T08:02:54.399Z",
+     "graded_at": "2026-09-12T08:02:58.869Z",
      "grading": {
       "case_id": "skab2_valve2_2",
       "control": false,
@@ -298,12 +298,12 @@
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120225277_bench_skab2_valve2_2",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120802343_bench_skab2_valve2_2",
       "judge_score": 91,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
@@ -352,9 +352,9 @@
      }
     },
     "skab2_other_5": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120226307_bench_skab2_other_5",
-     "prepared_at": "2026-09-12T02:26:53.167Z",
-     "graded_at": "2026-09-12T03:06:36.046Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120745360_bench_skab2_other_5",
+     "prepared_at": "2026-09-12T07:46:00.089Z",
+     "graded_at": "2026-09-12T07:46:21.130Z",
      "grading": {
       "case_id": "skab2_other_5",
       "control": false,
@@ -364,7 +364,7 @@
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120226307_bench_skab2_other_5",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120745360_bench_skab2_other_5",
       "judge_score": 91,
       "checks": {
        "pipeline_log": "PASS",
@@ -420,7 +420,7 @@
     "skab2_other_1": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227378_bench_skab2_other_1",
      "prepared_at": "2026-09-12T02:27:48.148Z",
-     "graded_at": "2026-09-12T03:06:51.171Z",
+     "graded_at": "2026-09-12T07:59:22.165Z",
      "grading": {
       "case_id": "skab2_other_1",
       "control": false,
@@ -431,11 +431,11 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120227378_bench_skab2_other_1",
-      "judge_score": 87,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
@@ -503,9 +503,9 @@
      }
     },
     "tep2_d04": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230018_bench_tep2_d04",
-     "prepared_at": "2026-09-12T02:30:19.182Z",
-     "graded_at": "2026-09-12T03:07:11.793Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120746002_bench_tep2_d04",
+     "prepared_at": "2026-09-12T07:46:16.753Z",
+     "graded_at": "2026-09-12T07:46:25.385Z",
      "grading": {
       "case_id": "tep2_d04",
       "control": false,
@@ -515,7 +515,7 @@
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230018_bench_tep2_d04",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120746002_bench_tep2_d04",
       "judge_score": 91,
       "checks": {
        "pipeline_log": "PASS",
@@ -527,7 +527,7 @@
     "tep2_d07": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230193_bench_tep2_d07",
      "prepared_at": "2026-09-12T02:30:52.109Z",
-     "graded_at": "2026-09-12T03:07:16.619Z",
+     "graded_at": "2026-09-12T07:59:26.551Z",
      "grading": {
       "case_id": "tep2_d07",
       "control": false,
@@ -538,18 +538,18 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230193_bench_tep2_d07",
-      "judge_score": 88,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
     "tep2_d11": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230522_bench_tep2_d11",
      "prepared_at": "2026-09-12T02:31:07.927Z",
-     "graded_at": "2026-09-12T03:07:21.626Z",
+     "graded_at": "2026-09-12T07:59:30.908Z",
      "grading": {
       "case_id": "tep2_d11",
       "control": false,
@@ -560,18 +560,18 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230522_bench_tep2_d11",
-      "judge_score": 86,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },
     "tep2_d14": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231080_bench_tep2_d14",
      "prepared_at": "2026-09-12T02:31:23.211Z",
-     "graded_at": "2026-09-12T03:07:26.832Z",
+     "graded_at": "2026-09-12T07:59:35.413Z",
      "grading": {
       "case_id": "tep2_d14",
       "control": false,
@@ -582,11 +582,11 @@
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
       "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231080_bench_tep2_d14",
-      "judge_score": 87,
+      "judge_score": 90,
       "checks": {
        "pipeline_log": "PASS",
-       "finalize_overall": "FAIL",
-       "finalize_passed": false
+       "finalize_overall": "PASS",
+       "finalize_passed": true
       }
      }
     },

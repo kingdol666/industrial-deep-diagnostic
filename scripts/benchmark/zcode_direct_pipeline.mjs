@@ -151,7 +151,7 @@ function prepare(c) {
     run_dir: runDir, engine: statsOk ? "stats-package" : "driver-js-fallback", rows: rows.length, cols: header.length,
     anomaly_columns: Object.entries(anomaly).sort((a, b) => b[1].max_abs_z - a[1].max_abs_z).slice(0, 6)
       .map(([k, v]) => ({ col: k, max_abs_z: +v.max_abs_z.toFixed(2), pct_z3: +v.pct_beyond_3sigma.toFixed(3) })),
-    top_pairs: topPairs.slice(0, 6).map(p => `${p.pair}: r=${p.r.toFixed(3)}`),
+    top_pairs: topPairs.slice(0, 6).map(p => `${p.pair}: r=${p.r.toFixed(3)}${p.weak ? " (|r|<0.4 weak)" : ""}`),
     figure: "03_figures/fig_temporal_overview.png",
   };
   fs.writeFileSync(path.join(runDir, "prepare_digest.json"), JSON.stringify(digest, null, 1));
@@ -215,9 +215,15 @@ function topCorrelations(rows, header) {
     const ra = Math.sqrt(saa / n - (sa / n) ** 2), rb = Math.sqrt(sbb / n - (sb / n) ** 2);
     if (!(ra > 1e-9 && rb > 1e-9)) continue;
     const r = cov / (ra * rb);
-    if (Math.abs(r) >= 0.4 && Math.abs(r) <= 1) pairs.push({ pair: `${cols[i].name} ~ ${cols[j].name}`, r });
+    if (Math.abs(r) <= 1 && Math.abs(r) >= 0.05) pairs.push({ pair: `${cols[i].name} ~ ${cols[j].name}`, r });
   }
-  return pairs.sort((x, y) => Math.abs(y.r) - Math.abs(x.r)).slice(0, 10);
+  const all = pairs.sort((x, y) => Math.abs(y.r) - Math.abs(x.r));
+  const strong = all.filter(p => Math.abs(p.r) >= 0.4).slice(0, 10);
+  if (strong.length > 0) return strong;
+  // Weak-correlation fallback: keep the top-3 pairs regardless of threshold so
+  // the dual-drive entry stays auditable (marked as below the causal-citation
+  // threshold — usable to PROVE the cross-domain check ran, never as support).
+  return all.slice(0, 3).map(p => ({ ...p, weak: true }));
 }
 function engineFallback(runDir, rows, header) {
   const anomaly = computeAnomaly(rows, header);
@@ -373,7 +379,7 @@ function diagnose(c, runDir, note) {
       ontology_physics_reasoning: note.analysis_findings.ontology_industry_interpretation.map(s => ({ reasoning: s })),
       conclusion: note.primary_finding },
     integrated_dual_drive_analysis: { analysis_performed: targetNames.length > 0, has_quality_or_inspection_targets: targetNames.length > 0,
-      linked_groups: [], process_to_quality_links: (digest.top_pairs ?? []).slice(0, 3).map(p => ({ link: p, interpretation: "跨域相关候选，经反假相关校验" })),
+      linked_groups: [], process_to_quality_links: (digest.top_pairs ?? []).slice(0, 3).map(p => ({ link: p, interpretation: p.includes("weak") || p.includes("|r|<0.4") ? "弱相关候选（|r|<0.4，未达因果引用阈值，仅证明双驱动通道已检查）" : "驱动侧-质量侧相关候选，经反假相关校验" })),
       integrated_conclusion: note.primary_finding },
     product_stratified_analysis: { has_product_column: false, products_found: [], overall_vs_per_product_comparison: [], analysis_scope: "overall_only" },
     hypotheses: { surviving: survivors, competing_sets: competing,

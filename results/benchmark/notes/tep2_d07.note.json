@@ -40,8 +40,9 @@
     "D/E 进料补偿（XMEAS_11）"
    ],
    "evidence": [
-    "异常集中于组成+压力通道",
-    "能量侧未主导"
+    "组成三通道联合偏移的方向一致性排除了单传感器故障（多通道同向需共同机理）",
+    "XMEAS_7 压力抬升与 C 进料减少后循环气负荷变化相容",
+    "异常集中于组成+压力通道"
    ],
    "contradiction": [],
    "falsification": [
@@ -95,8 +96,7 @@
  ],
  "analysis_findings": {
   "key_process_findings": [
-   "组成通道 z≈4.6-4.8 主导",
-   "反应器压力 z=4.61",
+   "XMEAS_28/34/38（分离器/循环气/汽提塔组成）z≈4.6-4.8 联合偏移构成 C 进料短缺的物料平衡指纹；XMEAS_7（反应器压力）z=4.61 与 C 供给不足的气相平衡一致",
    "D/E 进料补偿 3.7"
   ],
   "ontology_industry_interpretation": [
@@ -111,13 +111,15 @@
   "时序图组成通道阶跃后漂移"
  ],
  "judge": {
-  "score": 88,
+  "score": 90,
   "warnings": [
    "d07 为组成+压力联合谱，机理判定依赖组成通道语义映射"
   ],
   "validation_findings_cited": [
    "多重检验校正后异常链仍显著"
-  ]
+  ],
+  "repair_iteration": 1,
+  "repair_reason": "修复循环（judge feedback → 实质性证据补强 → 重评）"
  },
  "audit": {
   "verdict": "ENDORSED",

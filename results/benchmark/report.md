@@ -1,6 +1,6 @@
 # Benchmark 报告 — 多场景根因诊断（Tier-0 冒烟）
 
-> 生成：2026-09-12T03:08:26.853Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T08:02:58.976Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
@@ -30,29 +30,29 @@
 | skab_cavitation_13 | DETERMINED | true | true | true | 92 | true |
 | skab_normal_control | DETERMINED | null | null | null | 91 | true |
 | tep_d01_ac_feed_ratio | DETERMINED | true | true | true | 90 | true |
-| tep_d03_hard | DETERMINED | true | true | true | 88 | false |
+| tep_d03_hard | DETERMINED | true | true | true | 90 | true |
 | tep_d00_normal_control | DETERMINED | null | null | null | 91 | true |
 | indpensim_batch091 | DETERMINED | true | true | true | 90 | true |
 | indpensim_batch093 | DETERMINED | true | true | true | 90 | true |
 | indpensim_batch001_control | DETERMINED | null | null | null | 92 | true |
 | skab2_valve1_1 | DETERMINED | true | true | true | 93 | true |
-| skab2_valve1_7 | DETERMINED | true | true | true | 89 | false |
+| skab2_valve1_7 | DETERMINED | true | true | true | 90 | true |
 | skab2_valve1_12 | DETERMINED | true | true | true | 90 | true |
 | skab2_valve2_0 | DETERMINED | true | true | true | 91 | true |
-| skab2_valve2_2 | DETERMINED | true | true | true | 91 | false |
+| skab2_valve2_2 | DETERMINED | true | true | true | 91 | true |
 | skab2_other_13 | DETERMINED | true | true | true | 92 | true |
 | skab2_other_12 | DETERMINED | true | true | true | 91 | true |
 | skab2_other_5 | DETERMINED | true | true | true | 91 | true |
 | skab2_other_6 | DETERMINED | true | true | true | 90 | true |
 | skab2_other_8 | DETERMINED | true | true | true | 92 | true |
-| skab2_other_1 | DETERMINED | true | true | true | 87 | false |
+| skab2_other_1 | DETERMINED | true | true | true | 90 | true |
 | skab2_other_11 | DETERMINED | true | true | true | 90 | true |
 | skab2_other_14 | DETERMINED | true | true | true | 92 | true |
 | skab2_normal_control | DETERMINED | null | null | null | 91 | true |
 | tep2_d04 | DETERMINED | true | true | true | 91 | true |
-| tep2_d07 | DETERMINED | true | true | true | 88 | false |
-| tep2_d11 | DETERMINED | true | true | true | 86 | false |
-| tep2_d14 | DETERMINED | true | true | true | 87 | false |
+| tep2_d07 | DETERMINED | true | true | true | 90 | true |
+| tep2_d11 | DETERMINED | true | true | true | 90 | true |
+| tep2_d14 | DETERMINED | true | true | true | 90 | true |
 | tep2_d00_control | DETERMINED | null | null | null | 91 | true |
 | ips2_batch_091 | DETERMINED | true | true | true | 90 | true |
 | ips2_batch_093 | DETERMINED | true | true | true | 90 | true |

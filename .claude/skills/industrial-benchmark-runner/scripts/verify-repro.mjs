@@ -110,16 +110,20 @@ if (!recorded) {
 report.checks.metric_reproducibility = { recomputed, recorded_present: !!recorded, drift_fields: drift };
 
 // ── 4) execution proof ──
-const proof = { checked: 0, events_present: 0, pipeline_log_pass: 0 };
+const proof = { checked: 0, events_present: 0, pipeline_log_pass: 0, finalize_pass: 0 };
 for (const { g } of rows) {
   if (!g.run_dir) continue;
   proof.checked += 1;
   if (fs.existsSync(path.join(g.run_dir, '.pipeline_events.jsonl'))) proof.events_present += 1;
   if (g.checks?.pipeline_log === 'PASS') proof.pipeline_log_pass += 1;
+  if (g.checks?.finalize_passed === true) proof.finalize_pass += 1;
 }
 report.checks.execution_proof = proof;
 if (proof.checked && proof.pipeline_log_pass < proof.checked) {
   warnings.push(`${proof.checked - proof.pipeline_log_pass} graded run(s) without a PASS pipeline log`);
+}
+if (proof.checked && proof.finalize_pass < proof.checked) {
+  failures.push(`${proof.checked - proof.finalize_pass} graded run(s) failed the finalisation gate (finalize_overall != PASS)`);
 }
 
 report.failures = failures;
