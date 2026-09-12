@@ -19,13 +19,16 @@
 | `results/repro_report.json` | 可复现性门禁报告 |
 | `results/dataset_manifest.json` | 数据集指纹（153 条 sha256） |
 | `results/tier_state.json` | 场景 → run 目录映射 |
+| `reports/<case_id>/` | **每场景最终交付报告归档**：`report.md`（MD 诊断报告）+ `diagnostic-report.html`（HTML 诊断报告）+ `03_figures/` 时序图 — 8 场景齐备，仓库内直接可看 |
 | `data/<case_id>/` | 场景输入副本与元数据（历史 tier0 归档） |
 | `baselines/baselines.json` | 文献 baseline 数据（口径 A 直比 / 口径 B 参照） |
 | `results/scorer-discrimination-test.json` | **阴性对照留痕**：注入 plausible-but-wrong 诊断 → 评分器判伪（top1=false） |
 | `paper-support.md` | 论文图表 ↔ 证据工件映射 |
 
-> 注：run 目录（每场景的 report.md / diagnostic-report.html / 全套管线产物）位于
-> `workspace/diagnostic-runs/<ts>_bench_<case_id>/`，映射见 `results/tier_state.json`。
+> 注：完整 run 目录（全套管线产物 + 事件日志）位于
+> `workspace/diagnostic-runs/<ts>_bench_<case_id>/`（gitignore，可由
+> `node scripts/benchmark/run-benchmark.mjs` 再生），映射见 `results/tier_state.json`；
+> 每场景的最终报告已归档到 `reports/<case_id>/`（上表，随仓库分发）。
 
 ## 当前结果（2026-09-12 现场诊断轮，8 场景 = 5 故障 + 3 对照）
 
