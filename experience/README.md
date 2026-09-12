@@ -36,8 +36,17 @@
 
 ## 复现入口
 
+**一键复现（推荐，S0-S6 fail-fast 门禁链）**：
+
 ```bash
-node scripts/benchmark/author_notes_t0.py && python scripts/benchmark/author_notes_t2.py
+node scripts/benchmark/reproduce-all.mjs                # 全链：环境→数据→notes→管线→聚合→复现门禁
+node scripts/benchmark/reproduce-all.mjs --skip-prepare # 复用已有 run 目录（快速核对）
+```
+
+分步执行（等价，详见 skill 手册 `.claude/skills/industrial-benchmark-runner/references/reproduction-playbook.md`）：
+
+```bash
+python scripts/benchmark/author_notes_t0.py && python scripts/benchmark/author_notes_t2.py
 node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs prepare --tier scripts/benchmark/cases/tier0_smoke.json
 node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs prepare --tier scripts/benchmark/cases/tier2_main.json
 node .claude/skills/industrial-benchmark-runner/scripts/run-tier.mjs commit --tier scripts/benchmark/cases/tier0_smoke.json
@@ -46,5 +55,7 @@ python scripts/benchmark/make_tier2.py
 node scripts/benchmark/aggregate.mjs --tier-file scripts/benchmark/cases/tier_all.json
 node .claude/skills/industrial-benchmark-runner/scripts/verify-repro.mjs --tier scripts/benchmark/cases/tier_all.json
 ```
+
+任何一步不符合 playbook 中的期望输出即停止，按手册 §7 漂移决策树处理——禁止手改结果文件。
 
 详细协议与文献对比口径见 `docs/benchmark-design.md`；执行计划见 `docs/benchmark-plan.md`。

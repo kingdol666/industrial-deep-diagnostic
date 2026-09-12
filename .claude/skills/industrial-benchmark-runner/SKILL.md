@@ -93,9 +93,11 @@ absent-but-regenerable datasets and ungraded cases are `WARN`.
 
 ## References
 
+- `references/reproduction-playbook.md` — **start here for reproduction**: the agent-executable protocol (S0-S6 stages, expected outputs, drift decision tree, authenticity rules).
+- One-command reproduction: `node scripts/benchmark/reproduce-all.mjs` (fail-fast S0-S6 chain; `--skip-prepare` reuses run dirs).
 - `docs/benchmark-design.md` — system review, journal baseline table (verified DOIs), evaluation protocol, comparison caveats, known gaps.
 - `docs/benchmark-plan.md` — tiered execution plan, cost model, integration milestones.
 - `docs/dataset-experiment-research.md` — dataset survey and prior paper analysis.
 - `scripts/benchmark/zcode_direct_pipeline.mjs` — deterministic stage driver + artifact expansion + grader.
 - `scripts/benchmark/aggregate.mjs` — metric definitions (single source of truth for aggregation).
-- `scripts/benchmark/cases/tier0_smoke.json` — 9-case smoke tier (3 datasets × fault/control).
+- `scripts/benchmark/cases/tier0_smoke.json` — 9-case smoke tier (3 datasets × fault/control); `tier2_main.json` — 23-case main tier; `tier_all.json` — combined 32-case library.

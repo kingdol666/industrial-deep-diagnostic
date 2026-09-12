@@ -1,6 +1,6 @@
 # Benchmark 报告 — 多场景根因诊断（Tier-0 冒烟）
 
-> 生成：2026-09-12T08:02:58.976Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T09:17:23.787Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
