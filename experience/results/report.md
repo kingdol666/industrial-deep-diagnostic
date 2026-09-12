@@ -1,26 +1,26 @@
 # Benchmark 报告 — 多场景根因诊断（Tier-0 冒烟）
 
-> 生成：2026-09-11T17:47:13.200Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
+> 生成：2026-09-12T03:08:26.853Z · 执行模式：ZCode 直接作业（无 OMP/Claude Code，agent 按 skill 协议执行 Step 0–9）
 
 ## 1. 总体指标
 
 | 指标 | 值 |
 |---|---|
-| 执行 cases | 9/9 |
-| Top-1 命中（故障组） | 6/6 = 100.0% |
-| Top-k 命中 | 6/6 = 100.0% |
+| 执行 cases | 32/32 |
+| Top-1 命中（故障组） | 25/25 = 100.0% |
+| Top-k 命中 | 25/25 = 100.0% |
 | CDR（Top-1 且 DETERMINED） | 1 |
-| 三态校准正确率 | 6/6 |
+| 三态校准正确率 | 25/25 |
 | 过度自信（DETERMINED 且错） | 0 |
-| 正常控制组通过 / 误报 | 3/3 · 误报 0 |
+| 正常控制组通过 / 误报 | 7/7 · 误报 0 |
 
 ## 2. 分数据集
 
 | 数据集 | cases | Top-1 | Top-k | 控制组通过 |
 |---|---|---|---|---|
-| skab | 3 | 2 | 2 | 1/1 |
-| tep | 3 | 2 | 2 | 1/1 |
-| indpensim | 3 | 2 | 2 | 1/1 |
+| skab | 17 | 15 | 15 | 2/2 |
+| tep | 8 | 6 | 6 | 2/2 |
+| indpensim | 7 | 4 | 4 | 3/3 |
 
 ## 3. 逐 case 明细
 
@@ -35,6 +35,29 @@
 | indpensim_batch091 | DETERMINED | true | true | true | 90 | true |
 | indpensim_batch093 | DETERMINED | true | true | true | 90 | true |
 | indpensim_batch001_control | DETERMINED | null | null | null | 92 | true |
+| skab2_valve1_1 | DETERMINED | true | true | true | 93 | true |
+| skab2_valve1_7 | DETERMINED | true | true | true | 89 | false |
+| skab2_valve1_12 | DETERMINED | true | true | true | 90 | true |
+| skab2_valve2_0 | DETERMINED | true | true | true | 91 | true |
+| skab2_valve2_2 | DETERMINED | true | true | true | 91 | false |
+| skab2_other_13 | DETERMINED | true | true | true | 92 | true |
+| skab2_other_12 | DETERMINED | true | true | true | 91 | true |
+| skab2_other_5 | DETERMINED | true | true | true | 91 | true |
+| skab2_other_6 | DETERMINED | true | true | true | 90 | true |
+| skab2_other_8 | DETERMINED | true | true | true | 92 | true |
+| skab2_other_1 | DETERMINED | true | true | true | 87 | false |
+| skab2_other_11 | DETERMINED | true | true | true | 90 | true |
+| skab2_other_14 | DETERMINED | true | true | true | 92 | true |
+| skab2_normal_control | DETERMINED | null | null | null | 91 | true |
+| tep2_d04 | DETERMINED | true | true | true | 91 | true |
+| tep2_d07 | DETERMINED | true | true | true | 88 | false |
+| tep2_d11 | DETERMINED | true | true | true | 86 | false |
+| tep2_d14 | DETERMINED | true | true | true | 87 | false |
+| tep2_d00_control | DETERMINED | null | null | null | 91 | true |
+| ips2_batch_091 | DETERMINED | true | true | true | 90 | true |
+| ips2_batch_093 | DETERMINED | true | true | true | 90 | true |
+| ips2_batch_001 | DETERMINED | null | null | null | 92 | true |
+| ips2_batch_002 | DETERMINED | null | null | null | 91 | true |
 
 ## 4. 与已发表论文对比
 
@@ -50,6 +73,6 @@
 
 ## 5. 复现信息
 
-- case 定义：scripts\benchmark\cases\tier0_smoke.json
+- case 定义：scripts\benchmark\cases\tier_all.json
 - 逐 run 产物：workspace/diagnostic-runs/*_bench_<case_id>/（含 .pipeline_events.jsonl 完整事件日志）
 - 评分：results/benchmark/gradings/*.json；执行日志：results/benchmark/journal.jsonl

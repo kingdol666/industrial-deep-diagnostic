@@ -1,0 +1,134 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "转子不平衡（Dirac 冲激行为）：双测点极端同步振动（A2 z=21.71、A1 z=20.11、r=0.963）——全库最强异常，冲激式不平衡质量释放的指纹。",
+ "confidence": 0.72,
+ "ontology": {
+  "domain": "水循环试验台（水箱+离心泵+阀门闭环回路，SKAB）",
+  "physics_notes": "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。",
+  "variables": [
+   {
+    "name": "Accelerometer1RMS",
+    "unit": "g",
+    "meaning": "泵体振动加速度RMS"
+   },
+   {
+    "name": "Accelerometer2RMS",
+    "unit": "g",
+    "meaning": "管路/基座振动加速度RMS"
+   },
+   {
+    "name": "Pressure",
+    "unit": "Bar",
+    "meaning": "泵后回路压力"
+   },
+   {
+    "name": "Volume Flow RateRMS",
+    "unit": "L/min",
+    "meaning": "回路流量"
+   },
+   {
+    "name": "Thermocouple",
+    "unit": "C",
+    "meaning": "流体温度"
+   },
+   {
+    "name": "Temperature",
+    "unit": "C",
+    "meaning": "电机本体温度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "转子不平衡（Dirac 冲激）",
+   "mechanism_class": "rotor-dynamics",
+   "confidence": 0.72,
+   "verdict": "surviving",
+   "logic_chain": [
+    "冲激式不平衡→双测点极端同步振动（z=21.7/20.1）",
+    "流量/压力/流体温度伴随联动（z≈3.2-3.7）"
+   ],
+   "evidence": [
+    "A2 z=21.71 + A1 z=20.11、r=0.963",
+    "全通道最强异常谱"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "冲激后振动回落基线则符合一次性事件判定"
+   ],
+   "proof": "冲激能量与 |z|>20 的极端幅值一致",
+   "predicted": [
+    "单次冲激形态、无渐变前兆"
+   ]
+  },
+  {
+   "name": "气蚀",
+   "mechanism_class": "cavitation",
+   "confidence": 0.14,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "气蚀应负相关指纹"
+   ],
+   "evidence": [
+    "主导指纹为双测点同步振动"
+   ],
+   "contradiction": [
+    "指纹不匹配"
+   ],
+   "falsification": [
+    "负相关主导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "阀门节流",
+   "mechanism_class": "fluid-restriction",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "节流应压力主导"
+   ],
+   "evidence": [
+    "双振动极端主导"
+   ],
+   "contradiction": [
+    "指纹不匹配"
+   ],
+   "falsification": [
+    "压力主导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "A2 z=21.71 / A1 z=20.11 / r=0.963",
+   "Flow/Pressure 3.5-3.7 联动"
+  ],
+  "ontology_industry_interpretation": [
+   "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。"
+  ],
+  "time_lag": "振动/压力/流量同回路耦合（准瞬时）",
+  "data_supported_conclusions": [
+   "异常谱与判定机理的数据指纹一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图双通道同步极端冲激"
+ ],
+ "judge": {
+  "score": 92,
+  "warnings": [],
+  "validation_findings_cited": [
+   "stats-package 全链路反假相关校验通过"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "机理链与证据谱一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

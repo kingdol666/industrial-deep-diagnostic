@@ -1,0 +1,125 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "酸流加与加热流加双通道强扰动（执行侧失调）：Fa z=15.8 + Fh z=13.1 极端异常伴 pH z=7.1，温度-产热 r=0.996 生理相干——双辅料回路同时大幅动作，指向执行侧（泵/阀）失调。",
+ "confidence": 0.64,
+ "ontology": {
+  "domain": "青霉素补料分批发酵（IndPenSim）",
+  "physics_notes": "补料分批发酵天然非平稳：温度/产热随菌体生长单调爬升；酸/碱流加为脉冲状配方事件（稀疏脉冲天然大 z）；pH-酸流加与温度-加热水是最活跃的两条控制回路；OUR/CER 轨迹偏离生理带是代谢失稳的判据。",
+  "variables": [
+   {
+    "name": "Acid flow rate(Fa:L/h)",
+    "meaning": "酸流加"
+   },
+   {
+    "name": "Heating water flow rate(Fh:L/h)",
+    "meaning": "加热水流加"
+   },
+   {
+    "name": "pH(pH:pH)",
+    "meaning": "发酵液 pH"
+   },
+   {
+    "name": "Temperature(T:K)",
+    "meaning": "发酵液温度"
+   },
+   {
+    "name": "Penicillin concentration(P:g/L)",
+    "meaning": "青霉素浓度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "pH-温度辅料流加执行侧失调（酸/加热双通道）",
+   "mechanism_class": "ph-control-fault",
+   "confidence": 0.64,
+   "verdict": "surviving",
+   "logic_chain": [
+    "Fa z=15.8 + Fh z=13.1 双通道极端",
+    "pH z=7.1 联动",
+    "生理相干完整"
+   ],
+   "evidence": [
+    "异常集中于执行流加通道"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "OUR/CER 偏离生理带则改为代谢故障"
+   ],
+   "proof": "双辅料回路同时极端化无法由代谢波动解释",
+   "predicted": [
+    "执行恢复后同步回基线"
+   ]
+  },
+  {
+   "name": "染菌代谢失稳",
+   "mechanism_class": "agitator-fault",
+   "confidence": 0.18,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "染菌应慢变生理漂移"
+   ],
+   "evidence": [
+    "快变执行形态"
+   ],
+   "contradiction": [
+    "形态不符"
+   ],
+   "falsification": [
+    "慢变漂移则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "搅拌器故障",
+   "mechanism_class": "agitator-fault",
+   "confidence": 0.14,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应温度失匀+DO 异常"
+   ],
+   "evidence": [
+    "DO/OUR 相干保持"
+   ],
+   "contradiction": [
+    "无搅拌指纹"
+   ],
+   "falsification": [
+    "DO 失稳则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "Fa z=15.8 / Fh z=13.1 双通道极端",
+   "pH z=7.1 联动",
+   "生理相干保持"
+  ],
+  "ontology_industry_interpretation": [
+   "补料分批发酵天然非平稳：温度/产热随菌体生长单调爬升；酸/碱流加为脉冲状配方事件（稀疏脉冲天然大 z）；pH-酸流加与温度-加热水是最活跃的两条控制回路；OUR/CER 轨迹偏离生理带是代谢失稳的判据。"
+  ],
+  "time_lag": "辅料流加与过程响应准瞬时（回路作用）",
+  "data_supported_conclusions": [
+   "异常通道谱与判定机理一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图 Fa/Fh 方波状动作段"
+ ],
+ "judge": {
+  "score": 90,
+  "warnings": [],
+  "validation_findings_cited": [
+   "多重检验后异常链仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "判定与生理通道完整性/异常分布一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

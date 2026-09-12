@@ -1,0 +1,128 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "反应器冷却水入口温度随机波动：多通道温和分散偏移（XMEAS_26/9/XMV_8/15/11 均 z≈3.6-3.8、无单一主导）——随机激励被多回路分担，形成低幅分布式谱（区别于 d04 的单点极端）。",
+ "confidence": 0.55,
+ "ontology": {
+  "domain": "Tennessee Eastman 反应-分离-循环过程",
+  "physics_notes": "TEP 反应-分离-循环过程：扰动经控制回路补偿后常呈低幅分布式偏移；阀位-液位 r≈1.0 为回路本征相关（非因果）；冷却水侧扰动集中于反应器/分离器温度通道；进料组成/压头扰动集中于物料平衡与成分分析通道。",
+  "variables": [
+   {
+    "name": "XMEAS_26",
+    "meaning": "分离器液相组成"
+   },
+   {
+    "name": "XMEAS_9",
+    "meaning": "反应器温度"
+   },
+   {
+    "name": "XMV_8",
+    "meaning": "过程测量"
+   },
+   {
+    "name": "XMEAS_15",
+    "meaning": "汽提塔液位"
+   },
+   {
+    "name": "XMEAS_11",
+    "meaning": "分离器温度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "反应器冷却水温随机波动",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.55,
+   "verdict": "surviving",
+   "logic_chain": [
+    "随机温度激励经多回路分担→无主导通道的分散谱",
+    "反应器温度受扰但被控（XMEAS_9 3.73）"
+   ],
+   "evidence": [
+    "多通道 z 3.6-3.8 均匀分散",
+    "无极端单点"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "出现单通道极端则改为阶跃/其他"
+   ],
+   "proof": "随机激励的分散谱形态一致",
+   "predicted": [
+    "谱随波动周期起伏"
+   ]
+  },
+  {
+   "name": "进料组成阶跃",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.22,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应成分通道主导"
+   ],
+   "evidence": [
+    "成分未主导"
+   ],
+   "contradiction": [
+    "成分平静"
+   ],
+   "falsification": [
+    "成分主导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "汽提塔扰动",
+   "mechanism_class": "operating-point",
+   "confidence": 0.18,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应塔系集中"
+   ],
+   "evidence": [
+    "分散谱无塔系集中"
+   ],
+   "contradiction": [
+    "无集中"
+   ],
+   "falsification": [
+    "塔系集中则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "多通道均匀分散 z 3.6-3.8",
+   "无极端单点"
+  ],
+  "ontology_industry_interpretation": [
+   "TEP 反应-分离-循环过程：扰动经控制回路补偿后常呈低幅分布式偏移；阀位-液位 r≈1.0 为回路本征相关（非因果）；冷却水侧扰动集中于反应器/分离器温度通道；进料组成/压头扰动集中于物料平衡与成分分析通道。"
+  ],
+  "time_lag": "进料→反应器→分离器/汽提塔顺序传播（回路补偿准瞬时）",
+  "data_supported_conclusions": [
+   "异常通道谱与判定扰动的传播路径一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图多通道温和随机起伏"
+ ],
+ "judge": {
+  "score": 86,
+  "warnings": [
+   "随机波动谱的低幅分散特征使机理判别置信受限"
+  ],
+  "validation_findings_cited": [
+   "多重检验校正后异常链仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "CONDITIONAL",
+  "notes": "分散谱下不排除其他随机源——置信度按谱形可分性折减。"
+ },
+ "data_gaps": [
+  "部分组成真值依赖分析仪采样"
+ ],
+ "inference_gaps": []
+}

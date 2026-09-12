@@ -1,0 +1,17 @@
+{
+ "case_id": "tep2_d11",
+ "control": false,
+ "top1": true,
+ "topk": true,
+ "root_cause_kw_hit": true,
+ "calibrated": true,
+ "overconfident": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120230522_bench_tep2_d11",
+ "judge_score": 86,
+ "checks": {
+  "pipeline_log": "PASS",
+  "finalize_overall": "FAIL",
+  "finalize_passed": false
+ }
+}

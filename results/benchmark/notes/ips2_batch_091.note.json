@@ -1,0 +1,124 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "pH 控制回路受扰（酸流加异常）：Fa z=6.3 主导 + pH z=5.1 同步偏移，温度-产热 r=0.996、OUR-尾气氧 r=-0.989 生理相干保持——扰动限于 pH/酸通道，代谢未失稳。",
+ "confidence": 0.62,
+ "ontology": {
+  "domain": "青霉素补料分批发酵（IndPenSim）",
+  "physics_notes": "补料分批发酵天然非平稳：温度/产热随菌体生长单调爬升；酸/碱流加为脉冲状配方事件（稀疏脉冲天然大 z）；pH-酸流加与温度-加热水是最活跃的两条控制回路；OUR/CER 轨迹偏离生理带是代谢失稳的判据。",
+  "variables": [
+   {
+    "name": "Acid flow rate(Fa:L/h)",
+    "meaning": "酸流加"
+   },
+   {
+    "name": "Heating water flow rate(Fh:L/h)",
+    "meaning": "加热水流加"
+   },
+   {
+    "name": "pH(pH:pH)",
+    "meaning": "发酵液 pH"
+   },
+   {
+    "name": "Temperature(T:K)",
+    "meaning": "发酵液温度"
+   },
+   {
+    "name": "Penicillin concentration(P:g/L)",
+    "meaning": "青霉素浓度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "pH 控制回路受扰（酸流加异常注入）",
+   "mechanism_class": "ph-control-fault",
+   "confidence": 0.62,
+   "verdict": "surviving",
+   "logic_chain": [
+    "Fa z=6.3 主导 + pH z=5.1 同步",
+    "生理相干完整（温度-产热/OUR-氧）"
+   ],
+   "evidence": [
+    "Fa/pH 显著高于其他通道"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "OUR/CER 偏离生理带则升级"
+   ],
+   "proof": "酸注入→pH 偏移→控制器响应量级链一致",
+   "predicted": [
+    "pH 回设定后 Fa 回落"
+   ]
+  },
+  {
+   "name": "温度控制故障",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.2,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应 Fc 先导+温度解耦"
+   ],
+   "evidence": [
+    "Fc 跟随、相干完整"
+   ],
+   "contradiction": [
+    "相干完整"
+   ],
+   "falsification": [
+    "解耦则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "补料基质扰动",
+   "mechanism_class": "feed-system-fault",
+   "confidence": 0.14,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应 S/CER 先导"
+   ],
+   "evidence": [
+    "未主导"
+   ],
+   "contradiction": [
+    "无先导"
+   ],
+   "falsification": [
+    "S/CER 主导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "Fa z=6.3 主导 + pH z=5.1",
+   "温度-产热 r=0.996 生理相干",
+   "OUR-尾气氧 r=-0.989"
+  ],
+  "ontology_industry_interpretation": [
+   "补料分批发酵天然非平稳：温度/产热随菌体生长单调爬升；酸/碱流加为脉冲状配方事件（稀疏脉冲天然大 z）；pH-酸流加与温度-加热水是最活跃的两条控制回路；OUR/CER 轨迹偏离生理带是代谢失稳的判据。"
+  ],
+  "time_lag": "辅料流加与过程响应准瞬时（回路作用）",
+  "data_supported_conclusions": [
+   "异常通道谱与判定机理一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图 Fa 与 pH 联动波动段"
+ ],
+ "judge": {
+  "score": 90,
+  "warnings": [],
+  "validation_findings_cited": [
+   "多重检验后异常链仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "判定与生理通道完整性/异常分布一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

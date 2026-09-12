@@ -1,0 +1,124 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "反应器冷却水入口温度阶跃：反应器温度（XMEAS_9）z=10.06 极端主导，D 进料（XMEAS_2 z=3.8）与 A 进料阀（XMV_3 3.74）补偿性动作，分离器组成（XMEAS_23）跟随——冷却水温阶跃打破反应器热平衡的典型谱。",
+ "confidence": 0.72,
+ "ontology": {
+  "domain": "Tennessee Eastman 反应-分离-循环过程",
+  "physics_notes": "TEP 反应-分离-循环过程：扰动经控制回路补偿后常呈低幅分布式偏移；阀位-液位 r≈1.0 为回路本征相关（非因果）；冷却水侧扰动集中于反应器/分离器温度通道；进料组成/压头扰动集中于物料平衡与成分分析通道。",
+  "variables": [
+   {
+    "name": "XMEAS_9",
+    "meaning": "反应器温度"
+   },
+   {
+    "name": "XMEAS_2",
+    "meaning": "D 进料流量"
+   },
+   {
+    "name": "XMV_3",
+    "meaning": "过程测量"
+   },
+   {
+    "name": "XMEAS_23",
+    "meaning": "过程测量"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "反应器冷却水入口温度阶跃",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.72,
+   "verdict": "surviving",
+   "logic_chain": [
+    "冷却水温阶跃→反应器热平衡破坏（XMEAS_9 z=10.06 极端主导）",
+    "进料补偿（XMEAS_2/XMV_3）维持操作点",
+    "分离器组成跟随（XMEAS_23 3.7）"
+   ],
+   "evidence": [
+    "XMEAS_9 z=10.06 全通道最强",
+    "D 进料/A 进料阀补偿联动"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "冷却水温恢复则温度回基线"
+   ],
+   "proof": "热平衡破坏-补偿的量级链一致",
+   "predicted": [
+    "温度新稳态或受控回落"
+   ]
+  },
+  {
+   "name": "进料组成阶跃",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.16,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "组成阶跃应成分分析主导"
+   ],
+   "evidence": [
+    "成分通道未主导、反应器温度极端主导"
+   ],
+   "contradiction": [
+    "谱形不符"
+   ],
+   "falsification": [
+    "成分通道主导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "汽提塔蒸汽扰动",
+   "mechanism_class": "operating-point",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "应汽提塔温度/蒸汽先导"
+   ],
+   "evidence": [
+    "XMEAS_18/19 未主导"
+   ],
+   "contradiction": [
+    "无蒸汽先导"
+   ],
+   "falsification": [
+    "蒸汽先导则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "XMEAS_9 z=10.06 主导",
+   "D 进料/A 进料阀补偿联动",
+   "分离器组成跟随"
+  ],
+  "ontology_industry_interpretation": [
+   "TEP 反应-分离-循环过程：扰动经控制回路补偿后常呈低幅分布式偏移；阀位-液位 r≈1.0 为回路本征相关（非因果）；冷却水侧扰动集中于反应器/分离器温度通道；进料组成/压头扰动集中于物料平衡与成分分析通道。"
+  ],
+  "time_lag": "进料→反应器→分离器/汽提塔顺序传播（回路补偿准瞬时）",
+  "data_supported_conclusions": [
+   "异常通道谱与判定扰动的传播路径一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图反应器温度大幅阶跃后受控"
+ ],
+ "judge": {
+  "score": 91,
+  "warnings": [],
+  "validation_findings_cited": [
+   "多重检验校正后异常链仍显著"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "扰动传播链与证据谱一致。"
+ },
+ "data_gaps": [
+  "部分组成真值依赖分析仪采样"
+ ],
+ "inference_gaps": []
+}

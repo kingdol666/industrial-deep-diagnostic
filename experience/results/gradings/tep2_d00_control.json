@@ -1,0 +1,14 @@
+{
+ "case_id": "tep2_d00_control",
+ "control": true,
+ "control_pass": true,
+ "false_alarm": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609120231233_bench_tep2_d00_control",
+ "judge_score": 91,
+ "checks": {
+  "pipeline_log": "PASS",
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ }
+}

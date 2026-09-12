@@ -1,0 +1,472 @@
+{
+ "tier": 2,
+ "name": "tier2_main",
+ "cases": [
+  {
+   "case_id": "skab2_valve1_1",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/valve1_1.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵入口流量阀门关闭（valve at flow inlet to pump partially closed）（SKAB 官方标签，异常点 402/1145）",
+   "keywords": [
+    "valve",
+    "阀",
+    "入口",
+    "inlet",
+    "节流",
+    "关闭",
+    "flow inlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_valve1_7",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/valve1_7.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵入口流量阀门关闭（valve at flow inlet to pump partially closed）（SKAB 官方标签，异常点 405/1094）",
+   "keywords": [
+    "valve",
+    "阀",
+    "入口",
+    "inlet",
+    "节流",
+    "关闭",
+    "flow inlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_valve1_12",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/valve1_12.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵入口流量阀门关闭（valve at flow inlet to pump partially closed）（SKAB 官方标签，异常点 399/1140）",
+   "keywords": [
+    "valve",
+    "阀",
+    "入口",
+    "inlet",
+    "节流",
+    "关闭",
+    "flow inlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_valve2_0",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/valve2_0.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵出口阀门关闭（valve at outlet of flow from pump closed）（SKAB 官方标签，异常点 394/1125）",
+   "keywords": [
+    "valve",
+    "阀",
+    "出口",
+    "outlet",
+    "关闭",
+    "flow outlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_valve2_2",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/valve2_2.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵出口阀门关闭（valve at outlet of flow from pump closed）（SKAB 官方标签，异常点 395/1129）",
+   "keywords": [
+    "valve",
+    "阀",
+    "出口",
+    "outlet",
+    "关闭",
+    "flow outlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_13",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_13.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "泵入口两相流→气蚀（two-phase flow supply to pump inlet, cavitation）（SKAB 官方标签，异常点 265/923）",
+   "keywords": [
+    "cavitation",
+    "气蚀",
+    "两相",
+    "two-phase",
+    "入口",
+    "inlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_12",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_12.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "排水至气蚀（draining water from tank until cavitation）（SKAB 官方标签，异常点 309/1048）",
+   "keywords": [
+    "cavitation",
+    "气蚀",
+    "两相",
+    "two-phase",
+    "入口",
+    "inlet"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_5",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_5.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "转子不平衡·尖锐行为（sharply rotor imbalance）（SKAB 官方标签，异常点 410/1155）",
+   "keywords": [
+    "imbalance",
+    "不平衡",
+    "rotor",
+    "转子"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_6",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_6.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "转子不平衡·线性行为（linear rotor imbalance）（SKAB 官方标签，异常点 402/1147）",
+   "keywords": [
+    "imbalance",
+    "不平衡",
+    "rotor",
+    "转子"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_8",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_8.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "转子不平衡·Dirac 冲激行为（Dirac delta rotor imbalance）（SKAB 官方标签，异常点 403/1147）",
+   "keywords": [
+    "imbalance",
+    "不平衡",
+    "rotor",
+    "转子"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_1",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_1.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "流体泄漏/添加模拟（fluid leaks and additions）（SKAB 官方标签，异常点 188/745）",
+   "keywords": [
+    "leak",
+    "泄漏",
+    "流体",
+    "fluid",
+    "addition"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_11",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_11.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "回路水量突然增加（sudden increase of water in circuit）（SKAB 官方标签，异常点 451/1190）",
+   "keywords": [
+    "water",
+    "水量",
+    "增加",
+    "sudden",
+    "increase",
+    "回路"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_other_14",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/other_14.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "truth": "高温供水（water supply of increased temperature）（SKAB 官方标签，异常点 302/905）",
+   "keywords": [
+    "temperature",
+    "高温",
+    "供水",
+    "supply",
+    "温度"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "skab2_normal_control",
+   "dataset": "skab",
+   "csv": "data/benchmark/prepared/skab/anomaly-free_anomaly-free.csv",
+   "time_col": "datetime",
+   "target_cols": "Pressure,Accelerometer1RMS",
+   "control": true,
+   "truth": "正常工况（SKAB anomaly-free 官方无异常基线）",
+   "keywords": [],
+   "expect_type_set": [
+    "NORMAL"
+   ],
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz 采样，回路封闭循环。"
+  },
+  {
+   "case_id": "tep2_d04",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d04_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21",
+   "truth": "IDV(4)：反应器冷却水入口温度阶跃",
+   "keywords": [
+    "cooling water",
+    "冷却水",
+    "reactor",
+    "反应器",
+    "温度",
+    "step"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3 分钟采样，前 160 样本为正常闭环，之后注入扰动。"
+  },
+  {
+   "case_id": "tep2_d07",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d07_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_4,XMEAS_23",
+   "truth": "IDV(7)：C 段压头损失（C 进料 4 可用量减少，组成阶跃关联）",
+   "keywords": [
+    "c header",
+    "压头",
+    "c feed",
+    "c 进料",
+    "stream 4",
+    "压力"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3 分钟采样，前 160 样本为正常闭环，之后注入扰动。"
+  },
+  {
+   "case_id": "tep2_d11",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d11_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21",
+   "truth": "IDV(11)：反应器冷却水入口温度随机波动",
+   "keywords": [
+    "cooling water",
+    "冷却水",
+    "random",
+    "随机",
+    "reactor",
+    "波动"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3 分钟采样，前 160 样本为正常闭环，之后注入扰动。"
+  },
+  {
+   "case_id": "tep2_d14",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d14_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_21",
+   "truth": "IDV(14)：反应器冷却水阀粘滞（sticking）",
+   "keywords": [
+    "cooling water",
+    "冷却水",
+    "valve",
+    "阀",
+    "sticky",
+    "粘滞"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET",
+    "NEEDS_DATA"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3 分钟采样，前 160 样本为正常闭环，之后注入扰动。"
+  },
+  {
+   "case_id": "tep2_d00_control",
+   "dataset": "tep",
+   "csv": "data/benchmark/prepared/tep/d00_te.csv",
+   "time_col": "timestamp",
+   "target_cols": "XMEAS_9,XMEAS_7",
+   "control": true,
+   "truth": "正常工况（d00 无故障基线）",
+   "keywords": [],
+   "expect_type_set": [
+    "NORMAL"
+   ],
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3 分钟采样，前 160 样本为正常闭环，之后注入扰动。"
+  },
+  {
+   "case_id": "ips2_batch_091",
+   "dataset": "indpensim",
+   "csv": "data/benchmark/prepared/indpensim/batch_091.csv",
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "exclude_cols": "Fault reference",
+   "truth": "批次91工艺偏差故障（激活窗口 20-30.2h / 76-92.2h / 200-214.2h；曝气/流加类）",
+   "keywords": [
+    "aeration",
+    "曝气",
+    "do2",
+    "溶氧",
+    "feed",
+    "流加",
+    "ph",
+    "工艺偏差",
+    "deviation"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "100,000L 青霉素补料分批发酵（IndPenSim）。列含流加率（Fs/Fa/Fb/Fc/Fh/Fw）、过程变量（pH/温度/产热/DO/OUR/CER）与产品浓度；Fault reference 列标记扰动窗口（本 case 排除该列，不进入分析）。500L/h 采样≈0.2h 间隔。"
+  },
+  {
+   "case_id": "ips2_batch_093",
+   "dataset": "indpensim",
+   "csv": "data/benchmark/prepared/indpensim_all/batch_093.csv",
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "exclude_cols": "Fault reference",
+   "truth": "批次93工艺偏差故障（激活窗口 70-90.2h；曝气/流加类）",
+   "keywords": [
+    "aeration",
+    "曝气",
+    "do2",
+    "溶氧",
+    "feed",
+    "流加",
+    "ph",
+    "工艺偏差",
+    "deviation"
+   ],
+   "expect_type_set": [
+    "DETERMINED",
+    "COMPETING_SET"
+   ],
+   "process_description": "100,000L 青霉素补料分批发酵（IndPenSim）。列含流加率（Fs/Fa/Fb/Fc/Fh/Fw）、过程变量（pH/温度/产热/DO/OUR/CER）与产品浓度；Fault reference 列标记扰动窗口（本 case 排除该列，不进入分析）。500L/h 采样≈0.2h 间隔。"
+  },
+  {
+   "case_id": "ips2_batch_001",
+   "dataset": "indpensim",
+   "csv": "data/benchmark/prepared/indpensim/batch_001.csv",
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "exclude_cols": "Fault reference",
+   "truth": "正常批次（batch 1，recipe 驱动正常批）",
+   "keywords": [],
+   "expect_type_set": [
+    "NORMAL",
+    "COMPETING_SET"
+   ],
+   "process_description": "100,000L 青霉素补料分批发酵（IndPenSim）。列含流加率（Fs/Fa/Fb/Fc/Fh/Fw）、过程变量（pH/温度/产热/DO/OUR/CER）与产品浓度；Fault reference 列标记扰动窗口（本 case 排除该列，不进入分析）。500L/h 采样≈0.2h 间隔。",
+   "control": true
+  },
+  {
+   "case_id": "ips2_batch_002",
+   "dataset": "indpensim",
+   "csv": "data/benchmark/prepared/indpensim_all/batch_002.csv",
+   "time_col": "Time (h)",
+   "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
+   "exclude_cols": "Fault reference",
+   "truth": "正常批次（batch 2，recipe 驱动正常批）",
+   "keywords": [],
+   "expect_type_set": [
+    "NORMAL",
+    "COMPETING_SET"
+   ],
+   "process_description": "100,000L 青霉素补料分批发酵（IndPenSim）。列含流加率（Fs/Fa/Fb/Fc/Fh/Fw）、过程变量（pH/温度/产热/DO/OUR/CER）与产品浓度；Fault reference 列标记扰动窗口（本 case 排除该列，不进入分析）。500L/h 采样≈0.2h 间隔。",
+   "control": true
+  }
+ ]
+}

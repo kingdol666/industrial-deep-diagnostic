@@ -1,0 +1,136 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "泵入口阀门部分关闭（节流激振）：Accelerometer2RMS z=13.56 主导 + Pressure z=4.02 同源波动——入口节流以管路振动为主的指纹。",
+ "confidence": 0.72,
+ "ontology": {
+  "domain": "水循环试验台（水箱+离心泵+阀门闭环回路，SKAB）",
+  "physics_notes": "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。",
+  "variables": [
+   {
+    "name": "Accelerometer1RMS",
+    "unit": "g",
+    "meaning": "泵体振动加速度RMS"
+   },
+   {
+    "name": "Accelerometer2RMS",
+    "unit": "g",
+    "meaning": "管路/基座振动加速度RMS"
+   },
+   {
+    "name": "Pressure",
+    "unit": "Bar",
+    "meaning": "泵后回路压力"
+   },
+   {
+    "name": "Volume Flow RateRMS",
+    "unit": "L/min",
+    "meaning": "回路流量"
+   },
+   {
+    "name": "Thermocouple",
+    "unit": "C",
+    "meaning": "流体温度"
+   },
+   {
+    "name": "Temperature",
+    "unit": "C",
+    "meaning": "电机本体温度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "泵入口阀门部分关闭（节流激振）",
+   "mechanism_class": "fluid-restriction",
+   "confidence": 0.72,
+   "verdict": "surviving",
+   "logic_chain": [
+    "阀门开度受限→吸入侧压降增大",
+    "叶轮入流失稳→管路振动放大（A2 z=13.56）",
+    "节流压差波动→Pressure z=4.02"
+   ],
+   "evidence": [
+    "A2 z=13.56 全通道最强",
+    "Pressure z=4.02 同源"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "阀门恢复后振动/压力同步回落"
+   ],
+   "proof": "节流激振量级与间歇振动事件相称",
+   "predicted": [
+    "动作时刻与振动起点对齐"
+   ]
+  },
+  {
+   "name": "转轴不平衡",
+   "mechanism_class": "rotor-dynamics",
+   "confidence": 0.16,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "不平衡应为持续性工频包络"
+   ],
+   "evidence": [
+    "间歇事件形态不符"
+   ],
+   "contradiction": [
+    "间歇形态与持续不平衡矛盾"
+   ],
+   "falsification": [
+    "持续性工频占优则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "气蚀",
+   "mechanism_class": "cavitation",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "气蚀应有振动-流量负相关"
+   ],
+   "evidence": [
+    "本 case 无该指纹"
+   ],
+   "contradiction": [
+    "无负相关"
+   ],
+   "falsification": [
+    "出现负相关则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "A2 z=13.56 主导",
+   "Pressure z=4.02 同源",
+   "A1~A2 r=0.468"
+  ],
+  "ontology_industry_interpretation": [
+   "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。"
+  ],
+  "time_lag": "振动/压力/流量同回路耦合（准瞬时）",
+  "data_supported_conclusions": [
+   "异常谱与判定机理的数据指纹一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图 A2 间歇尖峰群 + Pressure 同步波动"
+ ],
+ "judge": {
+  "score": 93,
+  "warnings": [],
+  "validation_findings_cited": [
+   "stats-package 全链路反假相关校验通过"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "机理链与证据谱一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

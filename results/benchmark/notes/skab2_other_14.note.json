@@ -1,0 +1,136 @@
+{
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "高温供水扰动：Volume Flow z=20.15 与双振动（A2 15.11 / A1 14.78）强正相关（Flow~A2 r=0.898、Flow~A1 r=0.821）——供水温度升高致密度下降/体积流量增大、振动随流量同向放大，为全库最强正联动指纹。",
+ "confidence": 0.7,
+ "ontology": {
+  "domain": "水循环试验台（水箱+离心泵+阀门闭环回路，SKAB）",
+  "physics_notes": "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。",
+  "variables": [
+   {
+    "name": "Accelerometer1RMS",
+    "unit": "g",
+    "meaning": "泵体振动加速度RMS"
+   },
+   {
+    "name": "Accelerometer2RMS",
+    "unit": "g",
+    "meaning": "管路/基座振动加速度RMS"
+   },
+   {
+    "name": "Pressure",
+    "unit": "Bar",
+    "meaning": "泵后回路压力"
+   },
+   {
+    "name": "Volume Flow RateRMS",
+    "unit": "L/min",
+    "meaning": "回路流量"
+   },
+   {
+    "name": "Thermocouple",
+    "unit": "C",
+    "meaning": "流体温度"
+   },
+   {
+    "name": "Temperature",
+    "unit": "C",
+    "meaning": "电机本体温度"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "高温供水（温度驱动的流量-振动正联动）",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.7,
+   "verdict": "surviving",
+   "logic_chain": [
+    "供水温度升高→体积流量增大（Flow z=20.15）",
+    "高流量激励→双振动同向放大（A2 15.1 / A1 14.8）",
+    "流量-振动强正相关 r=0.82-0.90"
+   ],
+   "evidence": [
+    "Flow~A2 r=0.898",
+    "Flow~A1 r=0.821",
+    "三通道 z=14.8-20.2 极端联动"
+   ],
+   "contradiction": [],
+   "falsification": [
+    "供水温度回落后联动解除"
+   ],
+   "proof": "热胀流量增大与高流量激振的量级链一致",
+   "predicted": [
+    "供水温度降低则全体回落"
+   ]
+  },
+  {
+   "name": "转子不平衡",
+   "mechanism_class": "rotor-dynamics",
+   "confidence": 0.16,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "不平衡应双测点同步但与流量无强正相关"
+   ],
+   "evidence": [
+    "Flow~振动 r=0.82-0.90 的强正联动不符"
+   ],
+   "contradiction": [
+    "联动方向不符"
+   ],
+   "falsification": [
+    "振动与流量解耦则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  },
+  {
+   "name": "水量突增",
+   "mechanism_class": "fluid-restriction",
+   "confidence": 0.14,
+   "verdict": "eliminated",
+   "logic_chain": [
+    "水量突增以工作点抬升为主、振动-流量无强正相关"
+   ],
+   "evidence": [
+    "强正相关不符"
+   ],
+   "contradiction": [
+    "指纹不匹配"
+   ],
+   "falsification": [
+    "正相关消失则复活"
+   ],
+   "proof": "",
+   "predicted": []
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "Flow z=20.15 主导",
+   "Flow~A2 r=0.898 / Flow~A1 r=0.821 强正联动"
+  ],
+  "ontology_industry_interpretation": [
+   "闭环泵阀回路：入口节流激振以管路振动（A2）为主；出口憋压激振以泵体振动（A1）为主；气蚀以振动-流量负相关为指纹；转子不平衡激发双测点强同步振动（r→1）；回路水量改变直接调制流量/压力工作点。"
+  ],
+  "time_lag": "振动/压力/流量同回路耦合（准瞬时）",
+  "data_supported_conclusions": [
+   "异常谱与判定机理的数据指纹一致（数据支持）"
+  ]
+ },
+ "visual_observations": [
+  "时序图流量与振动同步大幅抬升"
+ ],
+ "judge": {
+  "score": 92,
+  "warnings": [],
+  "validation_findings_cited": [
+   "stats-package 全链路反假相关校验通过"
+  ]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "机理链与证据谱一致。"
+ },
+ "data_gaps": [],
+ "inference_gaps": []
+}

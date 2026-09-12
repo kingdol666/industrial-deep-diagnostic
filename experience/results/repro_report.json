@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-09-11T17:47:13.393Z",
- "tier": "scripts/benchmark/cases/tier0_smoke.json",
+ "generated_at": "2026-09-12T03:09:36.433Z",
+ "tier": "scripts/benchmark/cases/tier_all.json",
  "checks": {
   "dataset_integrity": {
    "entries": 153,
@@ -9,32 +9,32 @@
    "mismatched": 0
   },
   "case_coverage": {
-   "cases": 9,
-   "prepared": 9,
-   "graded": 9,
+   "cases": 32,
+   "prepared": 32,
+   "graded": 32,
    "missing": []
   },
   "metric_reproducibility": {
    "recomputed": {
-    "total_cases": 9,
-    "executed": 9,
-    "fault_cases": 6,
-    "control_cases": 3,
-    "top1": 6,
-    "topk": 6,
+    "total_cases": 32,
+    "executed": 32,
+    "fault_cases": 25,
+    "control_cases": 7,
+    "top1": 25,
+    "topk": 25,
     "cdr": 1,
-    "calibrated": 6,
+    "calibrated": 25,
     "overconfident": 0,
-    "control_pass": 3,
+    "control_pass": 7,
     "false_alarms": 0
    },
    "recorded_present": true,
    "drift_fields": []
   },
   "execution_proof": {
-   "checked": 9,
-   "events_present": 9,
-   "pipeline_log_pass": 9
+   "checked": 32,
+   "events_present": 32,
+   "pipeline_log_pass": 32
   }
  },
  "failures": [],

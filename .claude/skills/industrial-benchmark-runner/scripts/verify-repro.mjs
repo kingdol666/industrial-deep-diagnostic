@@ -56,7 +56,16 @@ if (mismatched > 0) failures.push(`${mismatched} dataset file(s) changed content
 const tier = readJson(TIER, { cases: [] });
 const state = readJson(path.join(RESULTS, 'tier_state.json'), { tiers: {} });
 const tierKey = path.relative(ROOT, TIER).replace(/\\/g, '/');
-const tierState = state.tiers?.[tierKey]?.cases || {};
+// For a combined tier file (not itself prepared), fall back to the union of
+// every prepared tier in state so coverage reflects the whole library.
+const tierStateAll = {};
+for (const [k, t] of Object.entries(state.tiers || {})) {
+  for (const [cid, e] of Object.entries(t.cases || {})) {
+    if (!tierStateAll[cid]) tierStateAll[cid] = e;
+  }
+}
+const tierState = tierKey in (state.tiers || {}) ? state.tiers[tierKey].cases
+  : (tier.cases.every((c) => tierStateAll[c.case_id]) ? tierStateAll : {});
 const gradingsDir = path.join(RESULTS, 'gradings');
 const coverage = { cases: tier.cases.length, prepared: 0, graded: 0, missing: [] };
 for (const c of tier.cases) {
