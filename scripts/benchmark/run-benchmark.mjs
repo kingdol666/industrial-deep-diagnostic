@@ -46,7 +46,7 @@ function stage(name, fn) {
 
 // ── S0 environment ──
 stage('S0 environment', () => {
-  for (const f of [CASES, 'scripts/benchmark/aggregate.mjs', 'scripts/benchmark/build-report.mjs']) {
+  for (const f of [CASES, 'scripts/benchmark/aggregate.mjs', 'scripts/benchmark/build-report.mjs', 'scripts/benchmark/check-leakage.mjs']) {
     if (!fs.existsSync(path.join(ROOT, f))) throw new Error(`missing: ${f}`);
   }
   if (!fs.existsSync(PY)) throw new Error(`missing python venv: ${PY} (run node .claude/shared/scripts/uv_env_setup.mjs)`);
@@ -56,7 +56,9 @@ stage('S0 environment', () => {
   const tep = all.cases.filter((c) => c.dataset === 'tep' && !c.control);
   if (all.cases.length !== 12 || fault !== 9) throw new Error(`case contract: ${all.cases.length}/${fault} (expected 12/9)`);
   if (lit !== tep.length || tep.length < 6) throw new Error(`per-fault literature baseline (TEP subset): ${lit}/${tep.length} (expected ${tep.length}>=6)`);
-  return `12 scenarios (9 fault + 3 control); TEP subset ${tep.length} with per-fault literature baselines`;
+  // truth-isolation sentinel (briefs + notes + run-dir user_context) — non-zero exit aborts the run
+  run('node', [path.join(ROOT, 'scripts/benchmark/check-leakage.mjs'), '--tier', CASES], { timeout: 120000 });
+  return `12 scenarios (9 fault + 3 control); TEP subset ${tep.length} with per-fault literature baselines; leakage sentinel PASS`;
 });
 
 // ── S1 prepare ──
@@ -90,13 +92,13 @@ stage('S3 diagnose (agent writes notes from briefs)', () => {
   }
   if (missing.length) {
     throw new Error(
-      `${missing.length} scenario(s) need on-the-spot diagnosis. ` +
+      `${missing.length} of ${all.cases.length} scenario(s) need on-the-spot diagnosis. ` +
       `For each, read results/benchmark/briefs/<case>.brief.json (statistical evidence ONLY — ` +
       `truth/keywords are withheld by design), reason per the industrial-diagnostician skill protocol, ` +
       `and write results/benchmark/notes/<case>.note.json (schema: run-tier.mjs notes template). ` +
       `Missing: ${missing.join(', ')}`);
   }
-  return 'all 8 notes present and schema-complete';
+  return `all ${all.cases.length} notes present and schema-complete`;
 });
 
 // ── S4 commit + gate + grade ──

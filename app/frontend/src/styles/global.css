@@ -162,11 +162,20 @@ a { color: inherit; }
   grid-template-columns: var(--sidebar-width-collapsed) minmax(0, 1fr);
 }
 
-/* ── Sidebar — solid iron panel, hairline right border ── */
+/* ── Sidebar — solid iron panel, hairline right border ─────────────────
+   The rail is a three-band column: brand (fixed), nav (the only scrollable
+   band), footer (fixed). Before this, nav carried no scroll host of its own,
+   so once the viewport got short the six nav items were compressed into the
+   leftover space — 485px of content inside a 78px box with `overflow:
+   visible` — and the footer, pinned by `margin-top: auto`, painted straight
+   over them. Items were not merely cramped, they were unreachable: nothing
+   in the rail could scroll. `overflow: hidden` here plus an explicit
+   scroll host on .app-nav is what makes every item reachable at any height. */
 .app-sidebar {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;         /* clip horizontally; nav owns the vertical scroll */
   padding: 18px 14px 12px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
@@ -291,12 +300,48 @@ a { color: inherit; }
   background: var(--accent-soft);
 }
 
-/* ── Primary navigation ── */
+/* ── Primary navigation — the rail's one scrollable band ───────────────
+   `flex: 1 1 auto` + `min-height: 0` lets it take exactly the space left
+   between brand and footer and then scroll inside it; `overscroll-behavior:
+   contain` stops the wheel from chaining out to the page when the end of the
+   list is reached. Affordance is the thin scrollbar below, which appears only
+   while the band is actually overflowing — plus the amber tick still marking
+   the active row wherever it has scrolled to. */
 .app-nav {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(237, 232, 216, 0.13) transparent;
+  overscroll-behavior: contain;
+}
+
+.app-nav::-webkit-scrollbar { width: 8px; }
+.app-nav::-webkit-scrollbar-track { background: transparent; }
+.app-nav::-webkit-scrollbar-thumb {
+  background: rgba(237, 232, 216, 0.09);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.app-nav:hover::-webkit-scrollbar-thumb {
+  background: rgba(237, 232, 216, 0.18);
+  background-clip: content-box;
+}
+
+/* ── Brand band — never squeezed, never scrolled away ── */
+.app-brand {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
 }
 
 .app-nav-item {
@@ -330,7 +375,7 @@ a { color: inherit; }
 .app-nav-item.active::before {
   content: '';
   position: absolute;
-  left: -14px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
@@ -338,6 +383,7 @@ a { color: inherit; }
   background: var(--accent);
   border-radius: 0 1px 1px 0;
   box-shadow: 0 0 8px rgba(232, 163, 61, 0.5);
+  pointer-events: none;
 }
 
 .app-nav-icon {
@@ -380,9 +426,14 @@ a { color: inherit; }
   letter-spacing: 0.01em;
 }
 
-/* ── Sidebar footer ── */
+/* ── Sidebar footer — a fixed band, not a sliding one ──────────────────
+   `margin-top: auto` alone made this band *slide up over* the nav once the
+   column ran out of room. Reserving its space instead (`flex: 0 0 auto`, so
+   it is never shrunk) plus the nav's own scroll host above is what keeps the
+   two bands from ever occupying the same pixels. */
 .app-sidebar-footer {
   margin-top: auto;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1821,50 +1872,119 @@ select {
 
 /* ═══════════════════════════════════════════════════════════════════════
    RESPONSIVE
-   ═══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 1100px) {
-  .app-shell { grid-template-columns: 1fr; }
+   ═══════════════════════════════════════════════════════════════════════
+   Two independent axes, because they break the shell in different ways:
+
+   • WIDTH  decides the *shape* of the shell. The vertical rail survives down
+     to 900px (reflowing it to a top bar at 1100px took the rail away on
+     ordinary laptops); below that it becomes a horizontal band.
+   • HEIGHT decides the *density* of the rail. A short viewport does not need
+     a different shell, it needs smaller rows — the nav scrolls regardless, so
+     compacting only changes how much is visible before you must scroll.
+
+   No breakpoint may strand a control: either the nav is the scroll host (rail)
+   or the sidebar is (band), so every item stays reachable at any size. */
+
+/* ── Short viewports: compact the rail so more of it is visible at once ── */
+@media (max-height: 820px) {
+  .app-sidebar { padding: 12px 12px 10px; }
+
+  .app-brand {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    gap: 10px;
+  }
+  .app-brand-subtitle { display: none; }
+
+  .app-nav-item { padding: 6px 9px; gap: 9px; }
+  .app-nav-icon { width: 21px; height: 21px; font-size: 13px; }
+  .app-nav-label { font-size: 12.5px; }
+  .app-nav-caption { font-size: 10px; }
+
+  .app-sidebar-footer { gap: 6px; padding-top: 10px; }
+  .app-presence,
+  .app-sidebar-note { min-height: 26px; }
+}
+
+/* ── Very short viewports: drop the nav captions, tighten further ──
+   At this point the caption is the first thing worth losing — the label and
+   the icon still identify the destination, and the row roughly halves. */
+@media (max-height: 660px) {
+  .app-brand-mark { width: 32px; height: 32px; font-size: 11px; }
+  .app-brand-title { font-size: 15px; }
+
+  .app-nav-item { padding: 5px 8px; }
+  .app-nav-caption { display: none; }
+
+  .app-sidebar-note { display: none; }
+}
+
+/* ── Narrow tablets / small laptops: the rail becomes a top band ──
+   Below 900px the rail costs more than it is worth horizontally. It reflows
+   to a band whose *nav* is a wrapping grid and whose bands are capped, so the
+   whole sidebar scrolls as one unit rather than clipping. */
+@media (max-width: 900px) {
+  .app-shell,
+  .app-shell.app-shell-collapsed { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
 
   .app-sidebar {
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
+    max-height: 52vh;
+    overflow-y: auto;
+    padding: 12px 14px 10px;
   }
   .app-sidebar::after { display: none; }
 
+  .app-brand { margin-bottom: 12px; padding-bottom: 10px; }
+
+  /* In the band the nav no longer needs its own scroll host — the sidebar
+     scrolls, so the nav grows to its natural height and wraps into columns. */
   .app-nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex: 0 0 auto;
+    overflow: visible;
   }
+
+  .app-nav-item.active::before { display: none; }
+  .app-nav-item.active { border-left: 2px solid var(--accent); }
 
   .app-sidebar-footer {
     flex-direction: row;
     flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 10px;
   }
+  .app-sidebar-footer > * { flex: 1 1 auto; min-width: 0; }
+  .app-sidebar-note { flex-basis: 100%; }
+  .app-engine { margin-bottom: 0; }
+  .app-presence { justify-content: center; }
 }
 
-@media (max-width: 760px) {
-  .app-sidebar { padding: 14px 12px 10px; }
+/* ── Phones: single-column nav in the band ── */
+@media (max-width: 700px) {
+  .app-sidebar { max-height: 60vh; padding: 12px 12px 10px; }
 
-  .app-brand {
-    grid-template-columns: 36px minmax(0, 1fr);
-    gap: 10px;
-  }
-
+  .app-brand { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; }
   .app-brand-mark { width: 36px; height: 36px; font-size: 12px; }
 
   .app-nav { grid-template-columns: 1fr; }
 
   .app-topbar {
-    padding: 14px 14px 10px;
+    padding: 10px 14px;
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
   }
-
+  .app-topbar-copy { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+  .app-topbar-kicker { grid-row: auto; border-right: none; padding-right: 0; }
+  .app-topbar-title,
+  .app-topbar-subtitle { grid-column: 1; }
   .app-topbar-meta { justify-content: flex-start; }
+  .app-topbar-subtitle { max-width: none; white-space: normal; }
 
-  .app-content { padding: 14px 14px 16px; }
-
+  .app-content { padding: 12px 12px 14px; }
   .app-content-chat,
   .app-content-diagnose { padding: 8px 8px 8px; }
 }

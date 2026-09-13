@@ -4,10 +4,16 @@
  "control_pass": true,
  "false_alarm": false,
  "diagnosis_type": "DETERMINED",
- "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609121649167_bench_indpensim_batch001_control",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131603254_bench_indpensim_batch001_control",
  "judge_score": 90,
+ "judge_score_source": "note-self-declared",
+ "audit_verdict_source": "note-self-declared",
+ "audit_verdict": "ENDORSED",
  "checks": {
   "pipeline_log": "PASS",
+  "statistics_engine": "stats-package",
+  "stats_degraded": false,
+  "anti_spurious_executed": true,
   "finalize_overall": "PASS",
   "finalize_passed": true
  }

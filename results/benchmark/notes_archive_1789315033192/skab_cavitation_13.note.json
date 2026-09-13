@@ -1,0 +1,109 @@
+{
+ "_case_id": "skab_cavitation_13",
+ "_control": false,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "泵入口两相流供给引发气蚀（空化）：振动-流量强反向耦合（r=-0.821）与压力失稳（5.02σ）构成气蚀典型签名——流量塌落与振动爆发互为反相，符合气泡间歇阻塞-溃灭机理。",
+ "confidence": 0.82,
+ "ontology": {
+  "domain": "水循环泵阀闭环回路（离心泵系统，other 组隐蔽故障）",
+  "physics_notes": [
+   "两相流进入叶轮 → 气泡在高压侧溃灭 → 宽频振动尖峰；气团间歇阻塞流道 → 流量塌落与振动爆发互为反相",
+   "气蚀的压力签名：出口压力失稳（波动而非稳态偏移）",
+   "判别要点：气蚀呈『振动-流量反向强耦合』；阀节流呈『单通道极端振动爆发』；转子类呈『振动-转速耦合』"
+  ],
+  "variables": [
+   { "name": "Accelerometer1RMS", "unit": "g", "meaning": "泵驱动端振动加速度 RMS（通道1）" },
+   { "name": "Accelerometer2RMS", "unit": "g", "meaning": "泵壳振动加速度 RMS（通道2）" },
+   { "name": "Current", "unit": "A", "meaning": "电机电流" },
+   { "name": "Pressure", "unit": "Bar", "meaning": "泵后回路压力" },
+   { "name": "Temperature", "unit": "℃", "meaning": "电机本体温度" },
+   { "name": "Thermocouple", "unit": "℃", "meaning": "回路流体温度" },
+   { "name": "Voltage", "unit": "V", "meaning": "电机电压" },
+   { "name": "Volume Flow RateRMS", "unit": "L/min", "meaning": "回路体积流量" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "泵入口两相流供给引发气蚀（空化）",
+   "mechanism_class": "cavitation",
+   "confidence": 0.82,
+   "verdict": "surviving",
+   "logic_chain": [
+    "入口供给含气 → 两相流进入叶轮流道",
+    "气泡溃灭 → 宽频振动尖峰；气团间歇阻塞 → 流量塌落（brief：Accelerometer1RMS~Volume Flow RateRMS r=-0.821 强反向耦合）",
+    "出口压力失稳（brief：Pressure max|z|=5.02 主导异常，超3σ占比 0.2%）"
+   ],
+   "evidence": [
+    "L3 统计：Accelerometer1RMS~Volume Flow RateRMS r=-0.821 为全记录最强耦合且呈反向——流量塌落对应振动爆发，是气蚀间歇阻塞-溃灭的典型形态",
+    "L3 统计：Pressure max|z|=5.02 主导异常列谱——压力失稳签名",
+    "L3 统计：双加速度通道中度异常（3.45/3.08σ）——气泡溃灭宽频激励的均衡分布，非单通道极端爆发",
+    "L3 统计：Thermocouple~Volume Flow RateRMS r=-0.741（流量下降对应流体温度上升）——低流量驻留时间延长的物理一致耦合",
+    "L4 视觉：振动/压力通道多处穿越±3σ线且与流量低谷相位对应（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": ["若流量与振动呈同向耦合或无强耦合，气蚀签名不成立", "若供给侧温度出现异常抬升（独立热力学起因），需重新判别气蚀起源"],
+   "proof": "耦合结构核对：正常稳态下振动-流量应弱耦合或同向（对照正常基线的耦合结构为热平衡型），本记录 |r|=0.821 的反向强耦合方向与气蚀物理一致；振动 3.45σ+压力 5.02σ 的量级组合在两相流入流引发的失稳合理区间。",
+   "predicted": ["振动事件与流量低谷反相对应", "压力波动与振动事件同相出现"]
+  },
+  {
+   "name": "入口阀节流（流体受限）",
+   "mechanism_class": "fluid-restriction",
+   "confidence": 0.2,
+   "verdict": "eliminated",
+   "logic_chain": ["节流 → 单通道极端振动爆发 + 单向流量下降"],
+   "evidence": ["L3 统计：本记录振动仅 3.45/3.08σ 中度异常，无单通道主导极端爆发"],
+   "contradiction": ["节流的振动签名应为单通道极端爆发（量级显著高于其他列），而本记录为多通道中度异常 + 强反向耦合结构——证据形态不符"],
+   "falsification": ["若后续确认阀门被人为节流且振动呈单通道爆发形态，本假设复活"]
+  },
+  {
+   "name": "转子失衡/磨损",
+   "mechanism_class": "rotor-dynamics",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": ["转子类振动与转速耦合，与流量无反向耦合关系"],
+   "evidence": ["L3 统计：跨域一致耦合（Accel1~Accel2 r=0.796、Thermocouple~Flow r=-0.741）指向流体侧机理"],
+   "contradiction": ["转子类振动应与转速/负载耦合而非与流量反相；Current~Voltage r=0.500 的电气耦合正常，负载无异常变化"],
+   "falsification": ["若振动频谱显示转频特征峰且与流量解耦，本假设复活"]
+  },
+  {
+   "name": "多传感器同步漂移",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.08,
+   "verdict": "eliminated",
+   "logic_chain": ["漂移为仪器侧缓波单向偏移，不产生跨通道相干动态结构"],
+   "evidence": ["L3 统计：振动×2/压力/温度/流量多通道耦合方向与幅度高度一致（|r| 0.651-0.821）"],
+   "contradiction": ["漂移无法产生跨通道的相干反向耦合结构（振动-流量反相 + 温度-流量反相 + 压力主导异常的同时出现）"],
+   "falsification": ["若离线校准确认某传感器灵敏度突变且时序吻合，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "Pressure 主导异常：max|z|=5.02，超3σ占比 0.2%（压力失稳）",
+   "振动-流量强反向耦合：Accelerometer1RMS~Volume Flow RateRMS r=-0.821（全记录最强耦合对）",
+   "双加速度通道中度异常（3.45/3.08σ）+ Thermocouple~Flow r=-0.741 反向耦合",
+   "电气侧正常：Current 2.82 / Voltage（未入 top-6）——排除驱动侧"
+  ],
+  "ontology_industry_interpretation": [
+   "『强反向振动-流量耦合 + 压力失稳 + 多通道中度振动』是离心泵气蚀的教科书签名组合",
+   "与阀节流（单通道极端爆发）和转子故障（转速耦合）的证据形态均可判别"
+  ],
+  "time_lag": "反相耦合：振动事件与流量低谷对应（1Hz 采样，气团阻塞-溃灭周期内同相反转）",
+  "data_supported_conclusions": ["扰动源在流体侧（吸入侧含气），非电气/转子/仪器侧", "压力失稳与振动-流量反相耦合为气蚀机理的直接统计证据"]
+ },
+ "visual_observations": [
+  "压力通道多处穿越±3σ阈值线，呈失稳波动形态",
+  "振动双通道在流量低谷区段出现密集高幅事件（反相对应）",
+  "电流/电压通道平稳，无负载侧事件响应"
+ ],
+ "judge": {
+  "score": 92,
+  "warnings": ["故障类型未下发（other 组），气蚀判别基于签名-机理匹配而非工艺确认"],
+  "validation_findings_cited": ["反假相关校验通过：强耦合对（|r| 0.5-0.821）均具明确物理机理（振动-流量反相、温度-流量反相、电气同相），无 Simpson/离群敏感度异常"]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "气蚀机理链（两相流入流→气泡溃灭/间歇阻塞→振动-流量反相+压力失稳）与统计签名方向、量级一致；对节流/转子/漂移三向排除均有量化矛盾证据。"
+ },
+ "data_gaps": ["无入口含气率直接测量，两相流供给确认需工艺侧（水源/管路）检查", "故障类型未在任务中披露（other 组设计），结论以证据签名界定"],
+ "inference_gaps": ["气蚀起始位置（吸入管 vs 叶轮入口）需频谱/压力波形细化才能定位，本数据粒度不可分辨"]
+}

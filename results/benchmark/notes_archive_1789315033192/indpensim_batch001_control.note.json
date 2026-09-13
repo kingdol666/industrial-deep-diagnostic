@@ -1,0 +1,119 @@
+{
+ "_case_id": "indpensim_batch001_control",
+ "_control": true,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "正常批次（recipe 驱动的受控批次动态，无故障）：全局 z 谱的执行器越限属批过程非平稳轨迹下的闭环调节瞬态——被控质量变量在带内、物理不变量完好、产物累积轨迹健康（Time~P r=0.994），判定为正常运行。",
+ "confidence": 0.88,
+ "ontology": {
+  "domain": "青霉素发酵批过程（100,000L 工业规模发酵罐，正常批次）",
+  "physics_notes": [
+   "批过程天然非平稳：设定点随批内时间（补料阶段/代谢阶段）演进，全局 i.i.d. z 基线会把正常轨迹与调节瞬态误标为异常——这是方法学已知陷阱，判别必须回到被控量与生产目标",
+   "pH 回路：酸流加（Fa）的短时 corrective 脉冲是 pH 控制正常工作方式，脉冲峰值在全局 z 下可显著越限",
+   "健康批次签名：体积-质量守恒（V~Wt）、呼吸代谢一致（CO2~CER）、产物随批时稳定累积（Time~P）",
+   "工艺偏差与调节瞬态的判别：前者多执行器同步越限+被控量出带+质量变量偏离；后者孤立执行器脉冲+被控量在带内"
+  ],
+  "variables": [
+   { "name": "Time (h)", "unit": "h", "meaning": "批内相对时间（0.2h 采样）" },
+   { "name": "Acid flow rate(Fa:L/h)", "unit": "L/h", "meaning": "酸流加流量（pH 控制执行器）" },
+   { "name": "Heating water flow rate(Fh:L/h)", "unit": "L/h", "meaning": "加热水流量（温度控制执行器）" },
+   { "name": "Heating/cooling water flow rate(Fc:L/h)", "unit": "L/h", "meaning": "加热/冷却水流量（温度控制执行器）" },
+   { "name": "pH(pH:pH)", "unit": "pH", "meaning": "罐内 pH（被控量）" },
+   { "name": "Temperature(T:K)", "unit": "K", "meaning": "罐内温度（被控量）" },
+   { "name": "Substrate concentration(S:g/L)", "unit": "g/L", "meaning": "底物浓度（受控质量变量）" },
+   { "name": "Penicillin concentration(P:g/L)", "unit": "g/L", "meaning": "青霉素浓度（目标产物）" },
+   { "name": "Aeration rate(Fg:L/h)", "unit": "L/h", "meaning": "曝气流量" },
+   { "name": "Carbon evolution rate(CER:g/h)", "unit": "g/h", "meaning": "CO2 释放率（呼吸代谢）" },
+   { "name": "Vessel Volume(V:L)", "unit": "L", "meaning": "罐内体积" },
+   { "name": "Vessel Weight(Wt:Kg)", "unit": "Kg", "meaning": "罐内质量" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "正常批次（受控批次动态，无故障）",
+   "mechanism_class": "normal-operation",
+   "confidence": 0.88,
+   "verdict": "surviving",
+   "logic_chain": [
+    "批轨迹非平稳 → 全局 z 谱在执行器 corrective 脉冲处越限（brief：Fa 16.2σ/Fh 10.94σ，超3σ占比仅 1.2-2.5%）——方法学伪象而非过程故障",
+    "被控量与质量变量在带内（brief：pH 最大 6.01σ 且 Substrate concentration 未入异常列谱 top-6）——调节结果正常",
+    "生产目标达成（brief：Time (h)~Penicillin concentration r=0.994——产物随批时稳定累积）",
+    "物理不变量完好（brief：V~Wt r=0.997、CO2outgas~CER r=0.969）——测量与过程结构可信"
+   ],
+   "evidence": [
+    "L3 统计：主导异常全部为执行器瞬态（Fa 16.2 / Fh 10.94 / Fc 6.93），超3σ占比 1.2-2.5%——短时 corrective 脉冲特征",
+    "L3 统计：被控质量变量健康——底物浓度未入 top-6 异常列谱，pH 峰值 6.01 处于调节带",
+    "L3 统计：产物轨迹 Time~P r=0.994 单调累积——批次生产目标正常达成",
+    "L3 统计：物理/代谢不变量完好：V~Wt r=0.997（守恒）、CO2outgas~CER r=0.969（呼吸一致）、Aeration~CER r=0.935（供气-代谢联动）",
+    "L4 视觉：执行器通道为孤立脉冲簇而非持续平台；温度/产物通道呈平滑批轨迹（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": ["若被控质量变量（底物/产物轨迹）出现带外偏离或累积中断，正常判定推翻", "若多执行器越限与被控量出带同时出现（工艺偏差签名），本假设复活"],
+   "proof": "签名结构核对：本批异常呈『执行器孤立脉冲 + 被控量在带 + 产物累积健康』——与工艺偏差签名（多执行器同步越限+被控量出带+质量变量偏离）相反；脉冲占比 ≤2.5% 对应 0.2h 采样下的短时 corrective 动作，量级与 pH 控制工作方式一致。",
+   "predicted": ["执行器脉冲持续为孤立短簇", "产物累积维持单调轨迹"]
+  },
+  {
+   "name": "执行侧工艺偏差（同故障批签名）",
+   "mechanism_class": "ph-control-fault",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": ["工艺偏差要求多执行器同步持续越限且被控量出带"],
+   "evidence": ["L3 统计：本批越限为孤立脉冲（占比 ≤2.5%），底物浓度未入异常列谱，产物轨迹健康（r=0.994）"],
+   "contradiction": ["被控量在带 + 质量变量正常 + 产物累积健康——工艺偏差三要素全部缺失；执行器脉冲是闭环调节的结果而非失稳的原因"],
+   "falsification": ["若脉冲密度持续上升且 pH 带宽扩大，本假设复活"]
+  },
+  {
+   "name": "温度控制故障",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": ["温控故障应表现罐温出带与热平衡破坏"],
+   "evidence": ["L3 统计：Temperature~Generated heat r=0.996 热耦合结构完好，罐温围绕设定轨迹波动"],
+   "contradiction": ["热平衡结构（T~Q 0.996）完好且罐温在带——温度控制正常工作，Fh 越限为调节瞬态"],
+   "falsification": ["若罐温偏离设定轨迹且 T~Q 耦合断裂，本假设复活"]
+  },
+  {
+   "name": "传感器/测量伪象",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.08,
+   "verdict": "eliminated",
+   "logic_chain": ["测量伪象无法保持物理不变量"],
+   "evidence": ["L3 统计：V~Wt r=0.997 守恒、CO2outgas~CER r=0.969 代谢一致、OUR~O2 -0.929 呼吸物理"],
+   "contradiction": ["跨通道物理不变量（守恒/热平衡/呼吸代谢）全部完好——多传感器独立漂移无物理基础"],
+   "falsification": ["若离线校准发现执行器流量计偏差，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "全局 z 谱执行器越限：Fa 16.2（1.2%）/Fh 10.94（2.5%）/Fc 6.93（1.2%）——孤立 corrective 脉冲特征",
+   "被控质量变量在带：底物浓度未入 top-6、pH 峰值 6.01σ 处于调节带",
+   "产物累积健康：Time~P r=0.994 单调上升（生产目标达成）",
+   "物理不变量完好：V~Wt 0.997 / CO2~CER 0.969 / Aeration~CER 0.935 / OUR~O2 -0.929",
+   "方法学要点：全局 z 基线对批过程非平稳轨迹敏感——判别以被控量与生产目标为准"
+  ],
+  "ontology_industry_interpretation": [
+   "批过程正常性的判别学：执行器脉冲是闭环调节的工作方式，工艺偏差要看被控量与质量变量是否出带",
+   "守恒/代谢/累积三类不变量完好是『过程健康+测量可信』的直接证据"
+  ],
+  "time_lag": "控制对即时耦合：执行器脉冲与被控量调节同段出现，无异常传播时序",
+  "data_supported_conclusions": ["本批为 recipe 驱动正常批次，无工艺偏差签名", "全局 z 谱的执行器越限为非平稳基线下的调节瞬态伪象（已在结论中显式声明）"]
+ },
+ "visual_observations": [
+  "酸流加/加热水通道为孤立脉冲簇，非持续平台",
+  "温度与产物通道呈平滑批轨迹（阶段演进形态）",
+  "体积/质量通道同步平稳（守恒）"
+ ],
+ "judge": {
+  "score": 90,
+  "warnings": [
+   "全局 z 基线对批过程非平稳轨迹的适用性有限——本判定显式依赖被控量/质量变量/产物轨迹的结构证据而非原始 z 峰值",
+   "分段稳态过滤可将执行器瞬态伪象进一步压缩（列入改进项）"
+  ],
+  "validation_findings_cited": ["物理不变量校验通过：V~Wt r=0.997、Time~P r=0.994、CO2outgas~CER r=0.969——过程健康与测量可信双重确认"]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "正常判定建立在结构证据（被控量在带+产物累积+三类不变量）而非仅统计阈值上；对批过程非平稳性的方法学声明诚实显式；无过度报警。"
+ },
+ "data_gaps": ["全局 i.i.d. z 基线未做批内分段稳态过滤——执行器瞬态伪象的完全消除需分段基线（已记录为改进项）"],
+ "inference_gaps": ["脉冲簇与 recipe 阶段切换的逐段对应需 recipe 时间表核对，本数据不含 recipe 标注"]
+}

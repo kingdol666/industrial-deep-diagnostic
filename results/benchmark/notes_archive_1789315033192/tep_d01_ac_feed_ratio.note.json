@@ -1,0 +1,114 @@
+{
+ "_case_id": "tep_d01_ac_feed_ratio",
+ "_control": false,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "流股4（Stream 4）A/C 进料比阶跃（A/C feed ratio step：A and C feed 配比变化、B 成分不变）：进料组成阶跃经反应器→吹扫→汽提塔传播，组分测量主导异常列谱（4/6）。",
+ "confidence": 0.84,
+ "ontology": {
+  "domain": "Tennessee Eastman 化工过程（反应器-冷凝器-分离器-汽提塔）",
+  "physics_notes": [
+   "流股4 为 A+C 混合进料：配比阶跃直接改变反应器进料组成（流股6 组分 23-28）",
+   "气相组成变化经冷凝/循环累积于吹扫流股9（组分 29-35，含惰性组分 G 积累）",
+   "塔侧气液负荷重平衡表现为汽提塔压力/分离器温度补偿",
+   "组成阶跃的判别签名：组分测量（XM23-41）主导异常列谱，纯流量/温度扰动则相反"
+  ],
+  "variables": [
+   { "name": "XMEAS_1", "unit": "ksm3/h", "meaning": "A 进料（流股1）" },
+   { "name": "XMEAS_4", "unit": "ksm3/h", "meaning": "A+C 混合进料（流股4）" },
+   { "name": "XMEAS_7", "unit": "kPa gauge", "meaning": "反应器压力" },
+   { "name": "XMEAS_9", "unit": "℃", "meaning": "反应器温度" },
+   { "name": "XMEAS_11", "unit": "℃", "meaning": "产品分离器温度" },
+   { "name": "XMEAS_16", "unit": "kPa gauge", "meaning": "汽提塔压力" },
+   { "name": "XMEAS_25", "unit": "mol %", "meaning": "流股6（反应器进料）C 组分摩尔分数" },
+   { "name": "XMEAS_31", "unit": "mol %", "meaning": "流股9（吹扫）组分摩尔分数" },
+   { "name": "XMEAS_35", "unit": "mol %", "meaning": "流股9（吹扫）组分摩尔分数（惰性组分侧）" },
+   { "name": "XMEAS_36", "unit": "mol %", "meaning": "流股11（产品）组分摩尔分数" },
+   { "name": "XMV_3", "unit": "%", "meaning": "A 进料阀" },
+   { "name": "XMV_4", "unit": "%", "meaning": "A+C 进料阀（流股4）" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "流股4 A/C 进料比阶跃（feed-composition-step）",
+   "mechanism_class": "feed-composition-step",
+   "confidence": 0.84,
+   "verdict": "surviving",
+   "logic_chain": [
+    "流股4 配比阶跃 → 反应器进料组成偏移（brief：XMEAS_25 流股6 组分 max|z|=4.68，超3σ 2.9%）",
+    "气相组成改变 → 吹扫流股9 组分重分布与惰性组分积累（brief：XMEAS_31 4.93、XMEAS_35 4.48）",
+    "分离/汽提负荷重平衡 → 产品组分与塔压/分离器温度补偿（brief：XMEAS_36 4.85、XMEAS_16 4.82、XMEAS_11 4.40）"
+   ],
+   "evidence": [
+    "L3 统计：组分测量占异常列谱 4/6（XM31 4.93 / XM36 4.85 / XM25 4.68 / XM35 4.48），超3σ占比 1.9-3.3%——持续型偏移而非瞬态，是组成阶跃的直接签名",
+    "L3 统计：组分异常横跨流股6/9/11 三条流股且方向一致——进料组成一次扰动的传播路径完整",
+    "L3 统计：XM16 汽提塔压力 4.82 与 XM11 分离器温度 4.40 为气液负荷重平衡的下游补偿",
+    "L3 统计：强相关对全部为控制回路结构对（XM12~XMV7 r=1.000、XM15~XMV8 r=1.000、XM1~XMV3 r=1.000）——控制器正常补偿，无跨域伪相关",
+    "L4 视觉：组分通道自第161样本（故障时段）起呈持续偏移形态，非瞬态（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": ["若组分通道呈瞬态回归而非持续偏移，配比阶跃不成立", "若流股4 流量/阀位（XM4/XMV_4）主导异常而组分稳定，则应改判流量阶跃"],
+   "proof": "签名-机理核对：组成阶跃应在组分测量上留下持续型主导签名——观测 4/6 主导列为组分且超3σ占比 1.9-3.3%（持续偏移量级），方向（进料组成→吹扫/产品组分→塔压）与机理链一致；XMV 阀位未入主导异常（控制器补偿带宽内），量级自洽。",
+   "predicted": ["流股4 配比改变期间组分通道维持偏移平台", "塔压/分离器温度补偿与组分偏移同期"]
+  },
+  {
+   "name": "反应器冷却水扰动",
+   "mechanism_class": "cooling-disturbance",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": ["冷却侧扰动应首先体现在冷却出口温度与反应器温度"],
+   "evidence": ["L3 统计：XM21/XM22（冷却出口温度）未进入异常列谱 top-6，XM9（反应器温度）亦未入列"],
+   "contradiction": ["冷却签名（冷却出口温度+反应器温度）完全缺失，与本记录『组分主导』的证据结构相反"],
+   "falsification": ["若 XM21/22 出现 ≥5σ 持续偏移，本假设复活"]
+  },
+  {
+   "name": "进料流量阶跃（非组成变化）",
+   "mechanism_class": "feed-loss",
+   "confidence": 0.12,
+   "verdict": "eliminated",
+   "logic_chain": ["纯流量阶跃应以流量测量/阀位主导，组分比例保持"],
+   "evidence": ["L3 统计：XM1-XM4（进料流量）未进入异常列谱 top-6，组分测量主导"],
+   "contradiction": ["证据结构为『组分主导、流量缺席』——与流量阶跃的预期签名相反"],
+   "falsification": ["若复查发现 XM4 流量 ≥5σ 且组分不变，本假设复活"]
+  },
+  {
+   "name": "汽提塔一次扰动",
+   "mechanism_class": "operating-point",
+   "confidence": 0.15,
+   "verdict": "eliminated",
+   "logic_chain": ["塔侧一次扰动应塔侧测量主导且组分呈被动响应"],
+   "evidence": ["L3 统计：塔压 XM16 4.82 与组分异常同期出现，但组分占主导（4/6）"],
+   "contradiction": ["塔侧单一扰动无法解释流股6/9/11 三条流股组分的一致性持续偏移；组分主导序位与塔一次扰动预期相反"],
+   "falsification": ["若组分异常滞后于塔压异常且幅度递减（被动响应形态），本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "组分测量主导异常列谱：XM31 4.93 / XM36 4.85 / XM25 4.68 / XM35 4.48（超3σ占比 1.9-3.3%，持续型）",
+   "XM16 汽提塔压力 4.82、XM11 分离器温度 4.40——气液负荷重平衡补偿",
+   "强相关对全为控制回路结构对（r 0.984-1.000）——控制器补偿正常",
+   "进料流量与冷却侧通道未入主导异常——排除流量阶跃与冷却扰动"
+  ],
+  "ontology_industry_interpretation": [
+   "组成阶跃的判别学：组分测量主导 + 跨流股传播（进料→吹扫→产品）+ 持续偏移形态",
+   "流股4 配比变化同时解释反应器进料组分、吹扫组分（含惰性积累）与产品组分的三站联动"
+  ],
+  "time_lag": "传播时序：进料组成→反应器/吹扫组分→塔侧补偿（3 分钟采样粒度下同段持续偏移）",
+  "data_supported_conclusions": ["一次扰动在进料组成侧（流股4），非冷却/流量/塔侧", "控制器补偿结构正常（阀位-被控量强耦合），异常源于设定点外的一次扰动"]
+ },
+ "visual_observations": [
+  "组分通道自记录中段（第161样本起故障时段）呈持续偏移平台，穿越±3σ线后不回归",
+  "塔压/分离器温度通道同期出现补偿性偏移",
+  "阀位通道（XMV）波动处于正常调节带"
+ ],
+ "judge": {
+  "score": 92,
+  "warnings": ["流股9/11 组分列的具体字母归属按 Downs-Vogel 标准映射推断，文档映射表缺失已记录"],
+  "validation_findings_cited": ["反假相关校验通过：r≈1.000 的强相关对均为被控量-操纵量控制对（物理必然），无跨域伪相关"]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "组成阶跃机理链与『组分主导 + 跨流股传播 + 持续偏移』签名一致；冷却/流量/塔侧三向排除均有量化证据；传播方向与 TEP 工艺结构吻合。"
+ },
+ "data_gaps": ["data/references/tep_variables.md 映射表缺失，组分列字母归属依公开标准映射（Downs-Vogel）推断", "流股4 阀位 XMV_4 未入异常列谱 top-6，配比阶跃的执行器侧签名以组分侧证据间接支撑"],
+ "inference_gaps": ["A/C 各自的变化量无法仅凭单变量 z 谱分离（需流股4 组分直接测量），配比变化的具体比例不可得"]
+}

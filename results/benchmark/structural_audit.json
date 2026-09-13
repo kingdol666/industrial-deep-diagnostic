@@ -1,0 +1,3276 @@
+{
+ "generated_at": "2026-09-13T13:52:00.933Z",
+ "purpose": "Independent structural audit of bench runs. Replaces the note-copied judge score, which scored all ten criteria identically in every run.",
+ "runs_audited": 12,
+ "mean_structural_score": 100,
+ "mean_self_reported_score": 91,
+ "distinct_self_reported_scores": [
+  90,
+  91,
+  92
+ ],
+ "distinct_structural_scores": [
+  100
+ ],
+ "results": [
+  {
+   "case_id": "skab_valve1_1",
+   "run_dir": "workspace/diagnostic-runs/202609121642257_bench_skab_valve1_1",
+   "structural_score": 100,
+   "note_self_reported_score": 92,
+   "delta": -8,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 1145
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 8
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/8, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "datetime"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 87
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.87
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "skab_cavitation_13",
+   "run_dir": "workspace/diagnostic-runs/202609121642485_bench_skab_cavitation_13",
+   "structural_score": 100,
+   "note_self_reported_score": 92,
+   "delta": -8,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 923
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 8
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/8, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "datetime"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 82
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.82
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "skab_normal_control",
+   "run_dir": "workspace/diagnostic-runs/202609121643039_bench_skab_normal_control",
+   "structural_score": 100,
+   "note_self_reported_score": 91,
+   "delta": -9,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 2352
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 8
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/8, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "datetime"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 90
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.9
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d01_ac_feed_ratio",
+   "run_dir": "workspace/diagnostic-runs/202609121645109_bench_tep_d01_ac_feed_ratio",
+   "structural_score": 100,
+   "note_self_reported_score": 92,
+   "delta": -8,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 12
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=10"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=2"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/12, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 84
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.84
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d03_hard",
+   "run_dir": "workspace/diagnostic-runs/202609121645337_bench_tep_d03_hard",
+   "structural_score": 100,
+   "note_self_reported_score": 90,
+   "delta": -10,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 11
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=3"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/11, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 72
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "MEDIUM"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.72
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d00_normal_control",
+   "run_dir": "workspace/diagnostic-runs/202609121645490_bench_tep_d00_normal_control",
+   "structural_score": 100,
+   "note_self_reported_score": 91,
+   "delta": -9,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 14
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=6"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/14, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 90
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.9
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "indpensim_batch093",
+   "run_dir": "workspace/diagnostic-runs/202609121646106_bench_indpensim_batch093",
+   "structural_score": 100,
+   "note_self_reported_score": 91,
+   "delta": -9,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 1050
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 14
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=7"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=6"
+      },
+      {
+       "name": "roles in \"metadata_columns\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=1"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/14, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "Time (h)"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 11
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 85
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.85
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "indpensim_batch001_control",
+   "run_dir": "workspace/diagnostic-runs/202609121649167_bench_indpensim_batch001_control",
+   "structural_score": 100,
+   "note_self_reported_score": 90,
+   "delta": -10,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 1130
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 13
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=8"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=4"
+      },
+      {
+       "name": "roles in \"metadata_columns\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=1"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/13, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "Time (h)"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 11
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 88
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=3"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.88
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d04_reactor_cooling_step",
+   "run_dir": "workspace/diagnostic-runs/202609121652514_bench_tep_d04_reactor_cooling_step",
+   "structural_score": 100,
+   "note_self_reported_score": 92,
+   "delta": -8,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 8
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=6"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=2"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/8, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 86
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.86
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d07_header_pressure",
+   "run_dir": "workspace/diagnostic-runs/202609121653079_bench_tep_d07_header_pressure",
+   "structural_score": 100,
+   "note_self_reported_score": 91,
+   "delta": -9,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 7
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=6"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=1"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/7, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 80
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "HIGH"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.8
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d11_reactor_cooling_random",
+   "run_dir": "workspace/diagnostic-runs/202609121653450_bench_tep_d11_reactor_cooling_random",
+   "structural_score": 100,
+   "note_self_reported_score": 90,
+   "delta": -10,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 6
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=5"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=1"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/6, principles=3"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 70
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "MEDIUM"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.7
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  },
+  {
+   "case_id": "tep_d14_reactor_valve_sticking",
+   "run_dir": "workspace/diagnostic-runs/202609121654012_bench_tep_d14_reactor_valve_sticking",
+   "structural_score": 100,
+   "note_self_reported_score": 90,
+   "delta": -10,
+   "criteria": {
+    "data_quality_awareness": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "validate_report carries a data summary",
+       "ok": true
+      },
+      {
+       "name": "records total row count",
+       "ok": true,
+       "detail": 960
+      },
+      {
+       "name": "records analysed vs total column counts",
+       "ok": true
+      },
+      {
+       "name": "states which columns were excluded and why",
+       "ok": true
+      },
+      {
+       "name": "diagnosis discloses data gaps",
+       "ok": true
+      }
+     ]
+    },
+    "variable_classification": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "ontology enumerates signals",
+       "ok": true,
+       "detail": 8
+      },
+      {
+       "name": "every signal declares a role",
+       "ok": true
+      },
+      {
+       "name": "roles in \"process_parameters\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=6"
+      },
+      {
+       "name": "roles in \"control_variables\" use its schema vocabulary",
+       "ok": true,
+       "detail": "n=2"
+      },
+      {
+       "name": "variable semantics recorded somewhere (ontology or diagnosis)",
+       "ok": true,
+       "detail": "meaning=0/8, principles=4"
+      }
+     ]
+    },
+    "time_alignment_and_sorting": {
+     "score": 10,
+     "passed": 3,
+     "total": 3,
+     "checks": [
+      {
+       "name": "a time column is declared",
+       "ok": true,
+       "detail": "timestamp"
+      },
+      {
+       "name": "time ordering is validated",
+       "ok": true,
+       "detail": "unknown"
+      },
+      {
+       "name": "R1 records dimensions read from the file",
+       "ok": true
+      }
+     ]
+    },
+    "visualization_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "figure PNG exists on disk",
+       "ok": true,
+       "detail": 1
+      },
+      {
+       "name": "plot_manifest records the plots",
+       "ok": true
+      },
+      {
+       "name": "visual_analysis.json present (charts were read, not just drawn)",
+       "ok": true
+      },
+      {
+       "name": "image_captions fallback present",
+       "ok": true
+      },
+      {
+       "name": "at least one visual finding is recorded",
+       "ok": true
+      }
+     ]
+    },
+    "evidence_based_conclusions": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "evidence inventory is non-empty",
+       "ok": true,
+       "detail": 10
+      },
+      {
+       "name": "every evidence item carries a level",
+       "ok": true
+      },
+      {
+       "name": "every evidence item cites a source",
+       "ok": true
+      },
+      {
+       "name": "conclusions reference recorded figures",
+       "ok": true
+      },
+      {
+       "name": "surviving hypotheses each carry supporting evidence",
+       "ok": true,
+       "detail": "1 surviving"
+      }
+     ]
+    },
+    "correlation_vs_causation": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "anti-spurious validation block present",
+       "ok": true
+      },
+      {
+       "name": "lag / cross-correlation evidence recorded",
+       "ok": true
+      },
+      {
+       "name": "confounders annotated in the ontology",
+       "ok": true
+      },
+      {
+       "name": "control-loop and confound handling recorded",
+       "ok": true,
+       "detail": "distribution_analysis,leave_one_out_leverage,time_trend_confounding,simpson_paradox"
+      }
+     ]
+    },
+    "uncertainty_disclosure": {
+     "score": 10,
+     "passed": 6,
+     "total": 6,
+     "checks": [
+      {
+       "name": "confidence artifact present",
+       "ok": true
+      },
+      {
+       "name": "overall confidence present and in range (0-100 or 0-1)",
+       "ok": true,
+       "detail": 68
+      },
+      {
+       "name": "overall confidence declares a level",
+       "ok": true,
+       "detail": "MEDIUM"
+      },
+      {
+       "name": "per-hypothesis breakdown recorded",
+       "ok": true
+      },
+      {
+       "name": "any ceiling application is logged",
+       "ok": true
+      },
+      {
+       "name": "diagnosis states inference gaps",
+       "ok": true
+      }
+     ]
+    },
+    "report_quality": {
+     "score": 10,
+     "passed": 5,
+     "total": 5,
+     "checks": [
+      {
+       "name": "report.md exists",
+       "ok": true
+      },
+      {
+       "name": "report has section headings",
+       "ok": true,
+       "detail": 15
+      },
+      {
+       "name": "report carries an executive summary",
+       "ok": true
+      },
+      {
+       "name": "report names the conclusion type",
+       "ok": true
+      },
+      {
+       "name": "HTML report exists",
+       "ok": true
+      }
+     ]
+    },
+    "no_over_claiming": {
+     "score": 10,
+     "passed": 4,
+     "total": 4,
+     "checks": [
+      {
+       "name": "a three-state conclusion type is present",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "COMPETING_SET cap check not applicable",
+       "ok": true,
+       "detail": "DETERMINED"
+      },
+      {
+       "name": "falsification / revival conditions recorded for every hypothesis",
+       "ok": true,
+       "detail": "surviving=1 (1 with conditions), eliminated=2"
+      },
+      {
+       "name": "weak-signature confidence stays below certainty",
+       "ok": true,
+       "detail": 0.68
+      }
+     ]
+    },
+    "completeness": {
+     "score": 10,
+     "passed": 1,
+     "total": 1,
+     "checks": [
+      {
+       "name": "all 24 required artifacts present",
+       "ok": true,
+       "detail": "none missing"
+      }
+     ]
+    }
+   },
+   "unmet_checks": [],
+   "load_errors": []
+  }
+ ]
+}

@@ -2,7 +2,7 @@
  "case_id": "tep_d11_reactor_cooling_random",
  "dataset": "tep",
  "role": "fault investigation",
- "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度随机变化（方差增大，非阶跃）。",
+ "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。",
  "columns": 53,
  "rows": 960,
  "stats_engine": "stats-package",

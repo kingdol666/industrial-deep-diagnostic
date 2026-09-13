@@ -6,6 +6,7 @@ Output: RUN_DIR/02_processed/validate_report.json
 """
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -95,8 +96,30 @@ def main():
         results['batch'] = bi.run_batch_checks(rows, run_dir)
 
     output = run_dir / '02_processed' / 'validate_report.json'
+    # JSON has no way to spell Infinity or NaN. Python's json module emits the
+    # bare tokens `Infinity` / `-Infinity` / `NaN` anyway, which every strict
+    # parser (JS JSON.parse, jq, Go, Rust) rejects — so a single non-finite
+    # statistic silently makes the whole report unreadable to downstream tools.
+    # That already happened once via mean_median_ratio on zero-median driver
+    # columns. Replace non-finite numbers with None (valid JSON = null) and
+    # report how many were replaced, rather than letting them escape.
+    replaced = [0]
+
+    def _finite(o):
+        if isinstance(o, float) and not math.isfinite(o):
+            replaced[0] += 1
+            return None
+        if isinstance(o, dict):
+            return {k: _finite(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [_finite(v) for v in o]
+        return o
+
+    results = _finite(results)
     output.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding='utf-8')
     print(f"Stats pipeline complete \u2192 {output}")
+    if replaced[0]:
+        print(f"  note: {replaced[0]} non-finite statistic(s) written as null (JSON cannot encode Infinity/NaN)")
 
 
 if __name__ == '__main__':

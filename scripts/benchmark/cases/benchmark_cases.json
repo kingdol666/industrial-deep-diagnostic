@@ -7,19 +7,19 @@
    "csv": "data/benchmark/prepared/skab/valve1_1.csv",
    "time_col": "datetime",
    "target_cols": "Pressure,Volume Flow RateRMS",
-   "truth": "泵入口流量阀门关闭（closing the valve at the flow inlet to pump）",
+   "truth": "泵吸入侧阀门受限（供给不足）导致叶轮入流失稳，表现为振动爆发+回路压力脉动，电气参数正常。来源：SKAB 官方 valve1 实验组标签文件（措辞已改写，避免与数据集自带说明逐字重合）。",
    "keywords": [
     "valve",
-    "inlet",
     "入口",
     "阀",
-    "关闭",
-    "节流"
+    "节流",
+    "受限",
+    "throttl"
    ],
    "expect_type_set": [
     "DETERMINED"
    ],
-   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。"
+   "process_description": "水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。本记录含一段异常工况，起止时标不提供。"
   },
   {
    "case_id": "skab_cavitation_13",
@@ -27,7 +27,7 @@
    "csv": "data/benchmark/prepared/skab/other_13.csv",
    "time_col": "datetime",
    "target_cols": "Pressure,Accelerometer1RMS",
-   "truth": "泵入口两相流供给导致气蚀（two-phase flow supply to pump inlet, cavitation）",
+   "truth": "泵吸入侧两相流供给引发的气蚀。来源：SKAB ``other`` 实验组标签文件。",
    "keywords": [
     "cavitation",
     "气蚀",
@@ -101,7 +101,7 @@
     "COMPETING_SET",
     "NEEDS_DATA"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为文献公认统计难检故障（IDV 3）。",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。本记录为文献公认统计弱签名场景，全列谱偏离幅度小，需依赖位点结构与排除法判别。",
    "literature_baseline": {
     "fault": "IDV3 D feed temperature step (Stream 2)",
     "fe_gpt4o": "unscored",
@@ -130,23 +130,20 @@
    "time_col": "Time (h)",
    "target_cols": "Penicillin concentration(P:g/L),Dissolved oxygen concentration(DO2:mg/L)",
    "exclude_cols": "Fault reference",
-   "truth": "批次93工艺偏差故障（激活窗口 70-90.2h）",
+   "truth": "批次93工艺偏差：pH 与温度控制执行侧多执行器同步越限（酸流加、加热水），被控量 pH 与底物浓度出带。来源：IndPenSim 故障批次标记。",
    "keywords": [
-    "aeration",
-    "曝气",
-    "do2",
-    "溶氧",
-    "feed",
-    "流加",
+    "执行",
+    "越限",
+    "偏差",
+    "deviation",
     "ph",
-    "工艺偏差",
-    "deviation"
+    "酸"
    ],
    "expect_type_set": [
     "DETERMINED",
     "COMPETING_SET"
    ],
-   "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。"
+   "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。本批含一段异常工况，起止时标与类型均不提供。"
   },
   {
    "case_id": "indpensim_batch001_control",
@@ -182,7 +179,7 @@
     "COMPETING_SET",
     "NEEDS_DATA"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度阶跃。",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起进入异常工况。",
    "literature_baseline": {
     "fault": "IDV4 reactor cooling water inlet temperature (step)",
     "fe_gpt4o": "unscored",
@@ -210,7 +207,7 @@
     "DETERMINED",
     "COMPETING_SET"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为流股4 C 集管压力降低。",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。",
    "literature_baseline": {
     "fault": "IDV7 C header pressure reduced (Stream 4)",
     "fe_gpt4o": "correct",
@@ -239,7 +236,7 @@
     "COMPETING_SET",
     "NEEDS_DATA"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水入口温度随机变化（方差增大，非阶跃）。",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。",
    "literature_baseline": {
     "fault": "IDV11 reactor cooling water inlet temperature (random)",
     "fe_gpt4o": "correct",
@@ -268,7 +265,7 @@
     "COMPETING_SET",
     "NEEDS_DATA"
    ],
-   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起为故障时段。本例为反应器冷却水阀粘滞（振荡型执行器故障）。",
+   "process_description": "Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。",
    "literature_baseline": {
     "fault": "IDV14 reactor cooling water valve (sticking)",
     "fe_gpt4o": "correct",

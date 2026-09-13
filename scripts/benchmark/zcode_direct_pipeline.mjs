@@ -14,6 +14,14 @@ import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 
 const ROOT = path.resolve(import.meta.dirname, "..", "..");
+
+// Tolerant report reader used for grading-time provenance checks (e.g. which
+// statistics engine actually produced validate_report.json). Returns null rather
+// than throwing so a missing/unparseable report degrades to a recorded fact.
+function readJsonReport(p) {
+  try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; }
+}
+
 const SETUP = path.join(ROOT, ".claude/skills/industrial-analysis-auto/scripts/setup.mjs");
 const INSPECT = path.join(ROOT, ".claude/skills/industrial-analysis-auto/scripts/inspect.mjs");
 const CONVERT = path.join(ROOT, ".claude/shared/scripts/convert.mjs");
@@ -446,6 +454,10 @@ function diagnose(c, runDir, note) {
   fs.writeFileSync(path.join(runDir, "04_diagnostics/confidence.json"), JSON.stringify({
     run_id: rid, diagnosis_time: now,
     confidence_breakdown: Object.fromEntries(surviving.map((h, i) => [sIdx(i), { hypothesis_id: sIdx(i), confidence_score: INT(h.confidence), level: INT(h.confidence) >= 80 ? "HIGH" : INT(h.confidence) >= 60 ? "MEDIUM" : "LOW", five_factor_breakdown: { statistical_strength: { score: Math.round(INT(h.confidence) * 0.25) }, physical_plausibility: { score: Math.round(INT(h.confidence) * 0.25) }, temporal_evidence: { score: Math.round(INT(h.confidence) * 0.2) }, absence_of_confounds: { score: Math.min(10, Math.round(INT(h.confidence) * 0.1)) }, symptom_completeness: { score: Math.min(10, Math.round(INT(h.confidence) * 0.1)) } } }])),
+    // NOTE: overall_confidence is an object {score, level, summary} — this is
+    // what .claude/skills/industrial-diagnostician/schemas/confidence_schema.json
+    // requires, so it must NOT be collapsed to a bare 0-1 float. The 0-1 reading
+    // is reconstructed where needed as score/100.
     overall_confidence: { score: confInt, level: confInt >= 80 ? "HIGH" : confInt >= 60 ? "MEDIUM" : "LOW", summary: note.primary_finding.slice(0, 140) },
     adjustment_log: surviving.map((h, i) => ({ hypothesis_id: `H${i + 1}`, source: "diagnostician", adjustment: 0, reason: "初始评估即为最终置信（证据无反向修正）", basis: "反假相关校验通过，无下调触发条件" })),
     confidence_ceilings_applied: note.diagnosis_type === "COMPETING_SET" ? [{ ceiling: 70, reason: "INDISTINGUISHABLE_COMPETING_SET" }] : [],
@@ -612,9 +624,38 @@ ${digest.anomaly_columns.map(a => `<tr><td>${a.col}</td><td>${a.max_abs_z}</td><
       calibrated: c.expect_type_set.includes(note.diagnosis_type),
       overconfident: note.diagnosis_type === "DETERMINED" && !kwHit(c.keywords), diagnosis_type: note.diagnosis_type };
   }
-  grading.run_dir = runDir; grading.judge_score = note.judge.score;
+  grading.run_dir = runDir;
+  // The judge score is a number the AGENT WROTE INTO ITS OWN NOTE. It is
+  // rendered, not computed: nothing independent scored this diagnosis. The
+  // provenance is recorded explicitly so no downstream consumer (report,
+  // paper, reviewer) can mistake it for a verified quality-gate result.
+  grading.judge_score = note.judge.score;
+  grading.judge_score_source = "note-self-declared";
+  grading.audit_verdict_source = "note-self-declared";
+  grading.audit_verdict = note.audit?.verdict ?? null;
+  // A statistics-engine fallback is a first-class degradation, not a footnote.
+  // When the stats package fails, the driver falls back to univariate summaries
+  // and the ENTIRE anti-spurious-correlation layer (lag CCF, distribution,
+  // leverage, trend confounding, Simpson, multiple testing) is silently skipped.
+  // Such a run previously still finalised, still scored, and still counted in the
+  // aggregate with nothing in the metrics to distinguish it — so a conclusion
+  // resting on removed confound-control evidence looked as strong as one that
+  // was fully analysed. Record it explicitly and withhold the finalize pass.
+  const engine = readJsonReport(path.join(runDir, "02_processed/validate_report.json"))?.engine ?? "stats-package";
+  const degraded = engine !== "stats-package";
   grading.checks = { pipeline_log: logCheck.trim().startsWith("{") ? "PASS" : "SEE_REPORT",
-    finalize_overall: finReport.overall ?? null, finalize_passed: finReport.overall === "PASS" };
+    statistics_engine: engine,
+    stats_degraded: degraded,
+    anti_spurious_executed: !degraded,
+    finalize_overall: finReport.overall ?? null,
+    finalize_passed: finReport.overall === "PASS" && !degraded };
+  if (degraded) {
+    grading.degradation = {
+      reason: "statistics package failed; driver fell back to univariate-only JS path",
+      omitted: "anti-spurious-correlation layer (lag CCF / distribution / leverage / trend confounding / Simpson / multiple testing)",
+      consequence: "conclusion is not comparable with fully analysed scenarios and must not be aggregated as if it were",
+    };
+  }
   fs.mkdirSync(path.join(RESULTS, "gradings"), { recursive: true });
   fs.writeFileSync(path.join(RESULTS, "gradings", `${c.case_id}.json`), JSON.stringify(grading, null, 1));
   fs.appendFileSync(path.join(RESULTS, "journal.jsonl"), JSON.stringify({ ...grading, ts: new Date().toISOString() }) + "\n");

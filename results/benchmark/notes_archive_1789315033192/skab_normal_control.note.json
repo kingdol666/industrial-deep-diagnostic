@@ -1,0 +1,98 @@
+{
+ "_case_id": "skab_normal_control",
+ "_control": true,
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "系统处于正常稳态运行（无故障基线）：全通道受控波动、无主导异常列，超3σ点为孤立瞬态（9405 行记录下高斯尾部期望内），跨域耦合为稳态热平衡结构。",
+ "confidence": 0.9,
+ "ontology": {
+  "domain": "水循环泵阀闭环回路（离心泵系统，正常基线记录）",
+  "physics_notes": [
+   "闭环受控系统在稳态下各通道围绕设定值波动，长记录（n=9405）下最大 |z| 达 3.5-4 属高斯尾部正常预期",
+   "正常热平衡签名：电机温度与流体温度互逆（散热路径）、流体温度与流量同向（对流换热）",
+   "故障判别看形态（阶跃/爆发/漂移/持续偏移）与主导列，而非单点超限"
+  ],
+  "variables": [
+   { "name": "Accelerometer1RMS", "unit": "g", "meaning": "泵驱动端振动加速度 RMS（通道1）" },
+   { "name": "Accelerometer2RMS", "unit": "g", "meaning": "泵壳振动加速度 RMS（通道2）" },
+   { "name": "Current", "unit": "A", "meaning": "电机电流" },
+   { "name": "Pressure", "unit": "Bar", "meaning": "泵后回路压力" },
+   { "name": "Temperature", "unit": "℃", "meaning": "电机本体温度" },
+   { "name": "Thermocouple", "unit": "℃", "meaning": "回路流体温度" },
+   { "name": "Voltage", "unit": "V", "meaning": "电机电压" },
+   { "name": "Volume Flow RateRMS", "unit": "L/min", "meaning": "回路体积流量" }
+  ]
+ },
+ "hypotheses": [
+  {
+   "name": "正常稳态运行（无故障基线）",
+   "mechanism_class": "normal-operation",
+   "confidence": 0.9,
+   "verdict": "surviving",
+   "logic_chain": [
+    "长记录受控运行 → 各通道围绕设定值正常波动（brief：全列谱 max|z| 3.18-5.4，超3σ占比 ≤0.9%）",
+    "超限点为孤立瞬态而非事件链（占比 0.1-0.9%，对应每千行数个点）——受控噪声尾部",
+    "跨域耦合呈稳态热平衡结构（brief：Temperature~Thermocouple r=-0.891、Thermocouple~Volume Flow RateRMS r=0.830）"
+   ],
+   "evidence": [
+    "L3 统计：异常列谱无主导列（最大仅 Pressure 5.4，且超3σ占比 0.1%≈孤立瞬态）——无故障 signatures",
+    "L3 统计：Current max|z|=3.18、Voltage 未入 top-6——电气侧平稳",
+    "L3 统计：强相关对全部为热平衡物理对（电机温度-流体温度互逆 r=-0.891；流体温度-流量同向 r=0.830）——正常换热结构",
+    "L4 视觉：全通道围绕均值带状波动，±3σ线外为孤立点而非事件链（fig_temporal_overview.png）"
+   ],
+   "contradiction": [],
+   "falsification": ["若任一通道出现阶跃/爆发/漂移形态（事件链超限），正常判定将被推翻", "若耦合结构出现非物理方向（如温度-流量关系反转），需重新审查"],
+   "proof": "统计预期核对：n=9405 的高斯记录最大 |z| 期望约 3.5-4，观测最大 5.4 对应约 9 个孤立超限点（0.1%）——处于受控波动尾部预期内，无主导列、无形态异常。",
+   "predicted": ["全通道持续围绕稳态均值波动", "热平衡耦合方向保持不变"]
+  },
+  {
+   "name": "未观测的早期故障（低幅隐匿演化）",
+   "mechanism_class": "normal-appearance",
+   "confidence": 0.1,
+   "verdict": "eliminated",
+   "logic_chain": ["早期故障即使低幅也应留下形态痕迹（漂移起点/微事件链）"],
+   "evidence": ["L3 统计：无任何通道呈漂移或事件链形态"],
+   "contradiction": ["全列谱超3σ占比 ≤0.9% 且为孤立瞬态，无持续性偏移或渐进抬升——隐匿演化的统计痕迹缺失"],
+   "falsification": ["若后续记录显示某通道基线持续单向下移，本假设复活"]
+  },
+  {
+   "name": "多传感器同步漂移",
+   "mechanism_class": "sensor-drift",
+   "confidence": 0.08,
+   "verdict": "eliminated",
+   "logic_chain": ["漂移应产生跨通道的系统性偏移而非物理一致的耦合结构"],
+   "evidence": ["L3 统计：Temperature~Thermocouple r=-0.891 互逆与 Thermocouple~Flow r=0.830 同向并存——方向结构只能是物理过程"],
+   "contradiction": ["漂移无法同时产生互逆（电机温度-流体温度）与同向（流体温度-流量）两组方向相反的强耦合"],
+   "falsification": ["若离线校准发现温度链路灵敏度漂移，本假设复活"]
+  }
+ ],
+ "analysis_findings": {
+  "key_process_findings": [
+   "全列谱 max|z| 3.18-5.4、超3σ占比 ≤0.9%——孤立瞬态，无主导异常列",
+   "强相关对为热平衡结构：Temperature~Thermocouple r=-0.891（互逆）、Thermocouple~Volume Flow RateRMS r=0.830（同向）",
+   "电气侧平稳（Current 3.18σ），振动双通道 5.14/5.1σ 无事件链",
+   "9405 行长记录下最大 |z| 5.4 属受控波动尾部预期"
+  ],
+  "ontology_industry_interpretation": [
+   "闭环受控泵回路的正常基线特征：带状波动 + 孤立尾部超限 + 热平衡耦合结构",
+   "判别依据是形态与结构，而非是否存在超3σ点——长记录下超限点必然出现"
+  ],
+  "time_lag": "稳态同相结构：温度-流量同向、电机-流体温度互逆，无动态事件滞后",
+  "data_supported_conclusions": ["无故障 signatures（无主导列、无事件链、无漂移）", "耦合结构与物理机理一致，数据质量可信"]
+ },
+ "visual_observations": [
+  "全通道呈带状稳态波动，±3σ阈值线外仅孤立点",
+  "无阶跃、爆发、漂移或事件链形态",
+  "通道间相位关系稳定（热平衡结构）"
+ ],
+ "judge": {
+  "score": 91,
+  "warnings": ["控制组判定依赖『无形态异常』的反向论证，正面证据为热平衡结构与统计预期"],
+  "validation_findings_cited": ["反假相关校验通过：强相关对均为物理热平衡对，方向可解释，无伪相关"]
+ },
+ "audit": {
+  "verdict": "ENDORSED",
+  "notes": "正常判定的证据链完整：统计预期（n=9405 尾部）、形态（孤立瞬态）、结构（热平衡耦合）三面一致；无过度报警倾向。"
+ },
+ "data_gaps": [],
+ "inference_gaps": ["正常判定受记录时长约束：更长记录中若出现低幅缓变故障，需趋势监测而非本记录可判"]
+}

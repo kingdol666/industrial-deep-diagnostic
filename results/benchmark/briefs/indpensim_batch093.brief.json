@@ -2,10 +2,10 @@
  "case_id": "indpensim_batch093",
  "dataset": "indpensim",
  "role": "fault investigation",
- "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。Fault reference列是评测标注，不作为诊断证据。",
+ "process_description": "100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。本批含一段异常工况，起止时标与类型均不提供。",
  "columns": 32,
  "rows": 1050,
- "stats_engine": "driver-js-fallback",
+ "stats_engine": "stats-package",
  "evidence": {
   "anomaly_columns": [
    {

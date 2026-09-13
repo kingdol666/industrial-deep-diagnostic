@@ -51,7 +51,18 @@ def _pearson_simple(x, y):
     if count < 3:
         return 0.0
     num = count * sxy - sx * sy
-    den = math.sqrt((count * sx2 - sx * sx) * (count * sy2 - sy * sy))
+    # The textbook form of the denominator is sqrt[(n*sx2 - sx^2)(n*sy2 - sy^2)],
+    # but each factor is a difference of two large nearly-equal sums, so
+    # catastrophic cancellation can make it slightly NEGATIVE (e.g. -1e-12) for a
+    # near-constant series. math.sqrt then raises "ValueError: math domain error",
+    # which aborted the whole stats pipeline on IndPenSim and silently dropped the
+    # entire anti-spurious-correlation layer for that run. A negative discriminant
+    # is never meaningful here — it means the variance is numerically zero — so
+    # clamp to 0 and report no correlation instead of crashing.
+    disc = (count * sx2 - sx * sx) * (count * sy2 - sy * sy)
+    if disc <= 0:
+        return 0.0
+    den = math.sqrt(disc)
     return num / den if den != 0 else 0.0
 
 
@@ -238,7 +249,15 @@ def _distribution_check(col_data):
         sk = _skewness(valid)
         med = _median(valid)
         mean = sum(valid) / len(valid)
-        mm_ratio = mean / med if med != 0 else (1.0 if mean == 0 else float('inf'))
+        # A zero median makes the ratio mathematically undefined, and this column
+        # is *expected* to have one: driver variables such as Acid flow rate sit at
+        # 0 for most of a batch. Emitting float('inf') here was wrong twice over —
+        # it serialised as the bare token `Infinity`, which is not legal JSON and
+        # makes validate_report.json unreadable to every strict parser (JS
+        # JSON.parse, jq, Go, Rust), and it isn't a skewness signal either.
+        # None records "undefined" honestly; the `or 0` guards below and in
+        # is_heavily_skewed keep the downstream flags well-defined.
+        mm_ratio = mean / med if med != 0 else (1.0 if mean == 0 else None)
 
         abs_sk = abs(sk)
         if abs_sk > 2:
@@ -250,9 +269,9 @@ def _distribution_check(col_data):
 
         results[name] = {
             'skewness': round(sk, 3),
-            'mean_median_ratio': round(mm_ratio, 3),
-            'is_heavily_skewed': abs_sk > 2 or mm_ratio > 3 or mm_ratio < 0.33,
-            'pearson_appropriate': abs_sk < 1.5 and 0.5 < mm_ratio < 2,
+            'mean_median_ratio': None if mm_ratio is None else round(mm_ratio, 3),
+            'is_heavily_skewed': abs_sk > 2 or (mm_ratio or 0) > 3 or (mm_ratio or 1) < 0.33,
+            'pearson_appropriate': abs_sk < 1.5 and 0.5 < (mm_ratio or 0) < 2,
             'recommendation': rec,
         }
     return results
@@ -407,7 +426,7 @@ def _detect_change_points(values, min_segment_length=10, penalty=None):
 
     n = len(valid)
     if n < min_segment_length * 2:
-        return {'change_points': [], 'n_segments': 1, 'warning': 'insufficient data'}
+        return {'change_points': [], 'n_segments': 1, 'n_changes': 0, 'warning': 'insufficient data'}
 
     y = [v['v'] for v in valid]
     mean = sum(y) / n

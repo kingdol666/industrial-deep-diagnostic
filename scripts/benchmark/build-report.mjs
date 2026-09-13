@@ -108,19 +108,27 @@ ${metrics.total_cases} 场景（${metrics.fault_cases} 故障 + ${metrics.contro
 复现门禁：<b style="color:${repro.status === 'REPRODUCIBLE' ? '#0a7d38' : '#b42323'}">${esc(repro.status)}</b></div>
 
 <div class="abstract">
-  <b>评分协议</b> — 管线对每个场景执行：确定性统计（prepare）→ 诊断推理（agent 仅依据统计证据 brief 现场分析，真值隔离）→
-  产物展开与管线门禁（finalize PASS 必需）→ <b>独立评分器</b>对照标准答案（机理关键词双判定）。
-  评分器只读管线输出文件与 truth；truth 不进入管线可见输入。比例指标报 Wilson 95% CI。
+  <b>评分协议</b> — 管线对每个场景执行：确定性统计（prepare）→ 诊断推理（reasoning agent 仅依据统计证据 brief 现场分析，真值隔离，由 <code>check-leakage.mjs</code> 机械门禁）→
+  产物展开与管线门禁（finalize PASS 必需）→ 评分器对照标准答案（机理关键词双判定）。比例指标报 Wilson 95% CI。
+</div>
+
+<div class="abstract" style="border-left-color:#b42323;background:#fff6f6">
+  <b>两项必须同时阅读的限定</b>
+  <ol style="margin:6px 0 0 18px;padding:0">
+    <li><b>被测对象是推理层，不是 14-agent 管线整体。</b>本基准不执行 context-builder / data-processor / diagnostician / judge / 物理审计 的编排；它测的是"1 次 LLM 推理 + 预计算统计 brief"的判别能力。引用这些数字时必须保留此界定。</li>
+    <li><b>"Judge 分数"不是判断。</b>展开步骤把十个维度全部设为 <code>Math.round(note.judge.score/10)</code>（<code>zcode_direct_pipeline.mjs:503</code>），实测 12 次运行中每个维度都恰好是 9——该门禁零判别信息，其均值只是复述被评产物的自我评价。请改看下方的<b>独立结构审计</b>分。</li>
+  </ol>
 </div>
 
 <h2>1 总评分</h2>
 <div class="cards">
   <div class="card"><div class="num">${metrics.top1}/${metrics.fault_cases}</div><div class="lbl">Top-1 根因命中（CI ${ci[0]}–${ci[1]}%）</div></div>
   <div class="card"><div class="num">${metrics.topk}/${metrics.fault_cases}</div><div class="lbl">Top-k（k=3）</div></div>
-  <div class="card"><div class="num">${metrics.cdr}</div><div class="lbl">CDR（Top-1 且 DETERMINED）</div></div>
+  <div class="card"><div class="num">${metrics.cdr_display ?? metrics.cdr}</div><div class="lbl">CDR 比率（Top-1 且 DETERMINED${metrics.cdr_ci95 ? `，CI ${metrics.cdr_ci95[0].toFixed(1)}–${metrics.cdr_ci95[1].toFixed(1)}%` : ""}）</div></div>
   <div class="card"><div class="num">${metrics.control_pass}/${metrics.control_cases}</div><div class="lbl">对照通过 / 误报 ${metrics.false_alarms}</div></div>
   <div class="card"><div class="num">${metrics.calibrated}/${metrics.fault_cases}</div><div class="lbl">置信校准（过度自信 ${metrics.overconfident}）</div></div>
-  <div class="card"><div class="num">${meanJudge}</div><div class="lbl">平均 Judge（10 维质量门）</div></div>
+  <div class="card"><div class="num">${meanJudge}</div><div class="lbl">平均 Judge（自报，无判别力）</div></div>
+  <div class="card"><div class="num">${metrics.structural_audit?.mean_score ?? '—'}</div><div class="lbl">独立结构审计（${metrics.structural_audit?.covered ?? 0}/${metrics.total_cases}）</div></div>
 </div>
 
 <h2>2 分数据集</h2>
@@ -145,7 +153,8 @@ ${tepRows}
 <tr><th>方法</th><th>来源</th><th>任务</th><th>指标</th><th>数值</th><th>口径</th></tr>
 <tr><td>FaultExplainer（GPT-4o）</td><td>C&amp;CE 2025</td><td>TEP 根因诊断</td><td>Top-1</td><td>7/11 = 63.6%</td><td>A 同任务直比</td></tr>
 <tr><td>FaultExplainer（o1-preview）</td><td>C&amp;CE 2025</td><td>TEP 根因诊断</td><td>Top-1</td><td>9/11 = 81.8%</td><td>A 同任务直比</td></tr>
-<tr><td><b>IDD（本管线）</b></td><td><b>本报告</b></td><td><b>TEP 根因诊断（含难检 IDV3）</b></td><td><b>Top-1 / CDR</b></td><td><b>${metrics.by_dataset?.tep ? `${metrics.by_dataset.tep.top1}/${metrics.by_dataset.tep.cases - metrics.by_dataset.tep.controls}` : '-'} / ${metrics.cdr}</b></td><td><b>A 同任务直比</b></td></tr>
+<tr><td><b>IDD（本管线）</b></td><td><b>本报告</b></td><td><b>TEP 根因诊断（含难检 IDV3）</b></td><td><b>Top-1（TEP 子集）</b></td><td><b>${metrics.by_dataset?.tep ? `${metrics.by_dataset.tep.top1}/${metrics.by_dataset.tep.cases - metrics.by_dataset.tep.controls}` : '-'}</b></td><td><b>A 同任务直比</b></td></tr>
+<tr><td colspan="6" style="font-size:12px;color:#666">注：FaultExplainer 的 63.6%/81.8% 是<b>故障类别命中率</b>（prompt 内含候选根因清单、接受别名匹配）；IDD 的数字是<b>机制关键词严格匹配率</b>（无候选清单）。<b>二者不是同一个指标</b>，数值不可直接相减或作显著性检验，仅作方向性参照。IDD 的全基准 CDR 为 ${metrics.cdr_display ?? metrics.cdr}（CDR 定义在全部 9 个故障场景上，与 TEP 子集口径不同，故不并入本行）。</td></tr>
 <tr><td>Pozdnyakov et al.</td><td>IEEE OJIES 2024</td><td>TEP 逐样本分类</td><td>准确率</td><td>0.887–0.907</td><td>B 参照（不直比）</td></tr>
 <tr><td>Hartung et al.（BeatGAN）</td><td>arXiv 2023</td><td>TEP 逐样本检测</td><td>F1</td><td>0.970</td><td>B 参照（不直比）</td></tr>
 <tr><td>Iliopoulos et al.</td><td>IEEE BigDataService 2023</td><td>SKAB 逐样本检测</td><td>F1 / AUC</td><td>0.85 / 0.88</td><td>B 参照（不直比）</td></tr>
