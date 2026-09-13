@@ -16,5 +16,9 @@
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
   "finalize_passed": true
+ },
+ "rubric": {
+  "score": 100,
+  "source": "deterministic-rubric-v1"
  }
 }

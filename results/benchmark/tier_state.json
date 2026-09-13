@@ -5,13 +5,20 @@
     "skab_valve1_1": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557133_bench_skab_valve1_1",
      "prepared_at": "2026-09-13T15:57:34.895Z",
-     "graded_at": "2026-09-13T16:09:38.584Z",
+     "graded_at": "2026-09-13T16:36:33.157Z",
      "grading": {
       "case_id": "skab_valve1_1",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "valve",
+       "入口",
+       "阀",
+       "节流",
+       "受限"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -33,13 +40,18 @@
     "skab_cavitation_13": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557350_bench_skab_cavitation_13",
      "prepared_at": "2026-09-13T15:57:50.200Z",
-     "graded_at": "2026-09-13T16:09:42.741Z",
+     "graded_at": "2026-09-13T16:36:37.110Z",
      "grading": {
       "case_id": "skab_cavitation_13",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "气蚀",
+       "空化",
+       "两相流"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -61,7 +73,7 @@
     "skab_normal_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557503_bench_skab_normal_control",
      "prepared_at": "2026-09-13T15:59:23.615Z",
-     "graded_at": "2026-09-13T16:09:47.138Z",
+     "graded_at": "2026-09-13T16:36:40.879Z",
      "grading": {
       "case_id": "skab_normal_control",
       "control": true,
@@ -86,13 +98,21 @@
     "tep_d01_ac_feed_ratio": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559237_bench_tep_d01_ac_feed_ratio",
      "prepared_at": "2026-09-13T15:59:45.509Z",
-     "graded_at": "2026-09-13T16:09:51.480Z",
+     "graded_at": "2026-09-13T16:36:44.622Z",
      "grading": {
       "case_id": "tep_d01_ac_feed_ratio",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "a/c feed",
+       "feed ratio",
+       "进料比",
+       "stream 4",
+       "a and c",
+       "成分"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -114,13 +134,19 @@
     "tep_d03_hard": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559456_bench_tep_d03_hard",
      "prepared_at": "2026-09-13T16:00:00.999Z",
-     "graded_at": "2026-09-13T16:09:55.638Z",
+     "graded_at": "2026-09-13T16:36:48.349Z",
      "grading": {
       "case_id": "tep_d03_hard",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "d feed",
+       "进料温度",
+       "d 进料",
+       "温度"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -142,7 +168,7 @@
     "tep_d00_normal_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131600011_bench_tep_d00_normal_control",
      "prepared_at": "2026-09-13T16:00:21.888Z",
-     "graded_at": "2026-09-13T16:09:59.548Z",
+     "graded_at": "2026-09-13T16:36:52.105Z",
      "grading": {
       "case_id": "tep_d00_normal_control",
       "control": true,
@@ -167,13 +193,21 @@
     "indpensim_batch093": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131616537_bench_indpensim_batch093",
      "prepared_at": "2026-09-13T16:19:48.765Z",
-     "graded_at": "2026-09-13T16:20:53.105Z",
+     "graded_at": "2026-09-13T16:36:55.828Z",
      "grading": {
       "case_id": "indpensim_batch093",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "执行",
+       "越限",
+       "偏差",
+       "deviation",
+       "ph",
+       "酸"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -195,7 +229,7 @@
     "indpensim_batch001_control": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131603254_bench_indpensim_batch001_control",
      "prepared_at": "2026-09-13T16:06:45.795Z",
-     "graded_at": "2026-09-13T16:10:07.550Z",
+     "graded_at": "2026-09-13T16:36:59.545Z",
      "grading": {
       "case_id": "indpensim_batch001_control",
       "control": true,
@@ -220,13 +254,20 @@
     "tep_d04_reactor_cooling_step": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131606459_bench_tep_d04_reactor_cooling_step",
      "prepared_at": "2026-09-13T16:07:02.274Z",
-     "graded_at": "2026-09-13T16:10:11.449Z",
+     "graded_at": "2026-09-13T16:37:03.279Z",
      "grading": {
       "case_id": "tep_d04_reactor_cooling_step",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "cooling",
+       "冷却",
+       "反应器冷却",
+       "reactor cooling",
+       "水"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -248,13 +289,20 @@
     "tep_d07_header_pressure": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607023_bench_tep_d07_header_pressure",
      "prepared_at": "2026-09-13T16:07:35.889Z",
-     "graded_at": "2026-09-13T16:10:15.296Z",
+     "graded_at": "2026-09-13T16:37:07.188Z",
      "grading": {
       "case_id": "tep_d07_header_pressure",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "c header",
+       "header",
+       "压力",
+       "集管",
+       "stream 4"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -276,13 +324,20 @@
     "tep_d11_reactor_cooling_random": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random",
      "prepared_at": "2026-09-13T16:07:51.358Z",
-     "graded_at": "2026-09-13T16:10:19.117Z",
+     "graded_at": "2026-09-13T16:37:11.029Z",
      "grading": {
       "case_id": "tep_d11_reactor_cooling_random",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "冷却",
+       "反应器冷却",
+       "随机",
+       "random",
+       "波动"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
@@ -304,13 +359,22 @@
     "tep_d14_reactor_valve_sticking": {
      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607514_bench_tep_d14_reactor_valve_sticking",
      "prepared_at": "2026-09-13T16:08:08.543Z",
-     "graded_at": "2026-09-13T16:10:23.302Z",
+     "graded_at": "2026-09-13T16:37:14.779Z",
      "grading": {
       "case_id": "tep_d14_reactor_valve_sticking",
       "control": false,
       "top1": true,
       "topk": true,
       "root_cause_kw_hit": true,
+      "kw_hits": [
+       "cooling",
+       "冷却",
+       "阀",
+       "valve",
+       "粘滞",
+       "sticking",
+       "反应器冷却"
+      ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",

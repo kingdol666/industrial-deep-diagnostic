@@ -76,8 +76,6 @@
 \newlabel{tab:bench}{{II}{5}{Benchmark Composition}{table.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-B}}Metrics}{5}{subsection.6.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-C}}Comparison Protocol}{5}{subsection.6.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Overall Results on the 12-Scenario Benchmark}}{5}{table.3}\protected@file@percent }
-\newlabel{tab:overall}{{III}{5}{Overall Results on the 12-Scenario Benchmark}{table.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-D}}Implementation}{5}{subsection.6.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {VII}Results}{5}{section.7}\protected@file@percent }
 \newlabel{sec:results}{{VII}{5}{Results}{section.7}{}}
@@ -88,9 +86,9 @@
 \citation{khan2024faultexplainer}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Benchmark composition and results. Left: per-dataset scenario counts and truth sources; all 9 fault scenarios are Top-1 correct and all 3 controls pass without false alarms. Right: the decisive statistical signature per fault scenario as recorded in the digests, with per-scenario judge scores. Bottom badges: pipeline and reproducibility gate outcomes.}}{6}{figure.2}\protected@file@percent }
 \newlabel{fig:benchmark}{{2}{6}{Benchmark composition and results. Left: per-dataset scenario counts and truth sources; all 9 fault scenarios are Top-1 correct and all 3 controls pass without false alarms. Right: the decisive statistical signature per fault scenario as recorded in the digests, with per-scenario judge scores. Bottom badges: pipeline and reproducibility gate outcomes}{figure.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Overall Results on the 12-Scenario Benchmark}}{6}{table.3}\protected@file@percent }
+\newlabel{tab:overall}{{III}{6}{Overall Results on the 12-Scenario Benchmark}{table.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VII-C}}Calibration and False-Alarm Suppression}{6}{subsection.7.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0).}}{6}{figure.3}\protected@file@percent }
-\newlabel{fig:calib}{{3}{6}{Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0)}{figure.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {VIII}Comparison With Published Baselines}{6}{section.8}\protected@file@percent }
 \newlabel{sec:comparison}{{VIII}{6}{Comparison With Published Baselines}{section.8}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-A}}Register A: Per-Fault Comparison on TEP}{6}{subsection.8.1}\protected@file@percent }
@@ -102,8 +100,10 @@
 \citation{iliopoulos2023detection}
 \citation{vieira2026towards}
 \citation{reinartz2021extended}
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Per-Scenario Results With the Decisive Statistical Signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository)}}{7}{table.4}\protected@file@percent }
-\newlabel{tab:mech}{{IV}{7}{Per-Scenario Results With the Decisive Statistical Signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository)}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Per-Scenario Results With the Decisive Statistical Signature (Rubric = deterministic protocol-compliance score, 100 = all seven checks pass; all values transcribed from the scenario digests)}}{7}{table.4}\protected@file@percent }
+\newlabel{tab:mech}{{IV}{7}{Per-Scenario Results With the Decisive Statistical Signature (Rubric = deterministic protocol-compliance score, 100 = all seven checks pass; all values transcribed from the scenario digests)}{table.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0).}}{7}{figure.3}\protected@file@percent }
+\newlabel{fig:calib}{{3}{7}{Reported confidence per fault scenario in the blind re-diagnosis run. Amber bars mark weak-signature scenarios whose confidence is self-limited to 0.68--0.72 under the evidence-ceiling rule; no conclusion exceeded the ceiling implied by its evidence levels (calibration 9/9, overconfidence 0)}{figure.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-B}}Register B: Reference-Only Context}{7}{subsection.8.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-C}}Case Study: An Auditable Evidence Chain}{7}{subsection.8.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {IX}Discussion, Limitations, and Deployment Prospects}{7}{section.9}\protected@file@percent }
@@ -114,6 +114,9 @@
 \newlabel{tab:perfault}{{V}{8}{Per-Fault Outcomes on the TEP Subset (machine-readable companion to Fig.~\ref {fig:perfault}). FE = FaultExplainer (arXiv:2412.14492, root-causes-included prompt, alias hits accepted); ``unscored'' = excluded from FE scoring because PCA cannot detect the fault~\cite {chiang2001fault}. IDD: strict mechanism-keyword scoring, no candidate list}{table.5}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Register-A aggregate comparison with Wilson 95\% intervals. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$, candidates in prompt). Blue: IDD (no candidates). Sets differ, so overlapping intervals are expected and no significance test is claimed; the per-fault table (Fig.~\ref {fig:perfault}) is the finer-grained evidence.}}{8}{figure.5}\protected@file@percent }
 \newlabel{fig:forest}{{5}{8}{Register-A aggregate comparison with Wilson 95\% intervals. Grey: FaultExplainer-reported single-LLM baselines ($n{=}11$, candidates in prompt). Blue: IDD (no candidates). Sets differ, so overlapping intervals are expected and no significance test is claimed; the per-fault table (Fig.~\ref {fig:perfault}) is the finer-grained evidence}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IX-A}}Industrial Deployment Prospects}{9}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {X}Conclusion}{9}{section.10}\protected@file@percent }
+\newlabel{sec:conclusion}{{X}{9}{Conclusion}{section.10}{}}
 \bibstyle{IEEEtran}
 \bibdata{refs}
 \bibcite{khan2024faultexplainer}{1}
@@ -122,10 +125,6 @@
 \bibcite{tuli2022tranad}{4}
 \bibcite{pozdnyakov2024adversarial}{5}
 \bibcite{rieth2023additional}{6}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IX-A}}Industrial Deployment Prospects}{9}{subsection.9.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {X}Conclusion}{9}{section.10}\protected@file@percent }
-\newlabel{sec:conclusion}{{X}{9}{Conclusion}{section.10}{}}
-\@writefile{toc}{\contentsline {section}{References}{9}{section*.2}\protected@file@percent }
 \bibcite{chiang2001fault}{7}
 \bibcite{katal2024causal}{8}
 \bibcite{downs1993plant}{9}
@@ -142,4 +141,5 @@
 \bibcite{indpensim2020}{20}
 \bibcite{iliopoulos2023detection}{21}
 \bibcite{reinartz2021extended}{22}
+\@writefile{toc}{\contentsline {section}{References}{10}{section*.2}\protected@file@percent }
 \gdef \@abspage@last{10}

@@ -10,11 +10,13 @@ const caseFile = path.join(ROOT, args.includes("--tier-file") ? args[args.indexO
 const OUT = path.join(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : "results/benchmark");
 
 const { cases } = JSON.parse(fs.readFileSync(caseFile, "utf8"));
-const journal = fs.readFileSync(path.join(OUT, "journal.jsonl"), "utf8").trim().split("\n")
-  .filter(Boolean).map(l => JSON.parse(l));
-// 每 case 取最新一条
+// gradings/*.json 是评分的唯一权威来源（含 rubric/kw_hits/judge 溯源字段）；
+// journal.jsonl 仅作运行历史保留。
 const byCase = new Map();
-for (const j of journal) byCase.set(j.case_id, j);
+for (const f of fs.readdirSync(path.join(OUT, "gradings")).filter(f => f.endsWith(".json"))) {
+  const g = JSON.parse(fs.readFileSync(path.join(OUT, "gradings", f), "utf8"));
+  byCase.set(g.case_id, g);
+}
 
 const rows = cases.map(c => ({ case: c, g: byCase.get(c.case_id) })).filter(x => x.g);
 const fault = rows.filter(x => !x.case.control);
@@ -63,6 +65,7 @@ const metrics = {
   overconfident: fault.filter(x => x.g.overconfident).length,
   control_pass: control.filter(x => x.g.control_pass).length,
   false_alarms: control.filter(x => x.g.false_alarm).length,
+  mean_rubric: rows.length ? +(rows.reduce((a, x) => a + (x.g.rubric?.score ?? 0), 0) / rows.length).toFixed(1) : null,
   by_dataset: {},
   per_case: rows.map(({ case: c, g }) => ({
     case_id: c.case_id, dataset: c.dataset, control: !!c.control, diagnosis_type: g.diagnosis_type,

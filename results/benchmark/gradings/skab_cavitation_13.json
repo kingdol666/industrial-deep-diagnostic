@@ -4,6 +4,11 @@
  "top1": true,
  "topk": true,
  "root_cause_kw_hit": true,
+ "kw_hits": [
+  "气蚀",
+  "空化",
+  "两相流"
+ ],
  "calibrated": true,
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
@@ -19,5 +24,9 @@
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
   "finalize_passed": true
+ },
+ "rubric": {
+  "score": 100,
+  "source": "deterministic-rubric-v1"
  }
 }

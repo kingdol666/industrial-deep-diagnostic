@@ -4,6 +4,13 @@
  "top1": true,
  "topk": true,
  "root_cause_kw_hit": true,
+ "kw_hits": [
+  "冷却",
+  "反应器冷却",
+  "随机",
+  "random",
+  "波动"
+ ],
  "calibrated": true,
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
@@ -19,5 +26,9 @@
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
   "finalize_passed": true
+ },
+ "rubric": {
+  "score": 100,
+  "source": "deterministic-rubric-v1"
  }
 }

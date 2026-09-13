@@ -163,7 +163,9 @@ Total & 9 & 3 & --- \\
 \end{table}
 
 \subsection{Metrics}
-For fault scenarios we report \textbf{Top-1} (primary root cause identified), \textbf{Top-k} ($k{=}3$, correct cause among candidates), \textbf{CDR} (Top-1 \emph{and} \textsc{determined}), \textbf{calibration} (reported confidence within the evidence ceiling; overconfidence $=$ \textsc{determined} \emph{and} wrong), and the pipeline's own \textbf{judge score} (ten-criterion quality gate, threshold 90). For control scenarios we report \textbf{pass} (no confirmed fault) and \textbf{false alarms}. Proportions carry Wilson 95\% confidence intervals. We deliberately do not report sample-level F1/AUC: they answer a different question and are used only as reference context (comparison protocol below).
+For fault scenarios we report \textbf{Top-1} (primary root cause identified), \textbf{Top-k} ($k{=}3$, correct cause among candidates), \textbf{CDR} (Top-1 \emph{and} \textsc{determined}), \textbf{calibration} (reported confidence within the evidence ceiling; overconfidence $=$ \textsc{determined} \emph{and} wrong), and a \textbf{protocol-compliance rubric score}---a deterministic, machine-computed quality gate (100 points) that replaces self-declared LLM grading as the benchmark's quality metric. For control scenarios we report \textbf{pass} (no confirmed fault) and \textbf{false alarms}. Proportions carry Wilson 95\% confidence intervals. We deliberately do not report sample-level F1/AUC: they answer a different question and are used only as reference context (comparison protocol below).
+
+The rubric's seven checks are computed strictly from run artifacts: \textbf{R1} artifact integrity (schema-valid diagnosis four-piece; 15 points), \textbf{R2} hypothesis structure ($\ge$3 hypotheses, $\ge$2 eliminations each citing non-empty contradictory evidence; 15), \textbf{R3} evidence grounding (every surviving chain cites at least one number present in the scenario's own evidence brief; 20), \textbf{R4} calibration (confidence within the protocol ceiling; conclusion type within the scenario's allowed set; 15), \textbf{R5} falsifiability (surviving hypothesis names the observation that would revise it; 10), \textbf{R6} physics verification (automated check valid or explicit manual memo; 10), \textbf{R7} execution proof (event log + finalisation PASS; 15). The pipeline's internal ten-criterion LLM judge remains the in-pipeline gate (Section~\ref{sec:method}) but is \emph{not} a benchmark metric: benchmark quality scoring is fully mechanical.
 
 \subsection{Comparison Protocol}
 We distinguish two comparison registers. \textbf{Register A (same-task direct comparison)}: methods that output one root-cause conclusion per scenario on the same dataset family; the published FaultExplainer per-fault numbers fall here, at scenario granularity. \textbf{Register B (reference only)}: sample-level detection/classification results; they are reported for context and must not be ranked against our scenario-level metrics. Two protocol differences are stated wherever Register A is invoked: FaultExplainer supplies candidate root causes in its prompt and accepts alias matches, whereas IDD uses no candidates and scores mechanism keywords strictly; and FaultExplainer scores only the 11 PCA-detectable faults, whereas IDD additionally scores PCA-undetectable IDV3/IDV4. Because the scenario sets differ, no significance test is claimed across systems.
@@ -175,7 +177,7 @@ The deterministic stages run as versioned scripts (streaming CSV inspection, ano
 \label{sec:results}
 
 \subsection{Overall Performance}
-Table~\ref{tab:overall} reports the headline numbers. IDD identifies the primary root cause in \textbf{9/9 fault scenarios} (Top-1 $=$ 100\%, Wilson 95\% CI $[70.1\%,100\%]$), with all 9 also correct within the top-3, CDR $=1.00$, and all 9 conclusions correctly typed as \textsc{determined}. Every reported confidence lies within the evidence-level ceiling (\textbf{calibration 9/9, overconfidence 0}), and every one of the 3 control scenarios is correctly passed with \textbf{zero false alarms}. All 12 pipeline executions pass the finalisation gate with valid event logs; the mean judge score is 91.0/100 (range 90--92). Fig.~\ref{fig:benchmark} summarises composition, per-dataset outcomes, and the decisive statistical signature of each fault scenario as recorded in the digests.
+Table~\ref{tab:overall} reports the headline numbers. IDD identifies the primary root cause in \textbf{9/9 fault scenarios} (Top-1 $=$ 100\%, Wilson 95\% CI $[70.1\%,100\%]$), with all 9 also correct within the top-3, CDR $=1.00$, and all 9 conclusions correctly typed as \textsc{determined}. Every reported confidence lies within the evidence-level ceiling (\textbf{calibration 9/9, overconfidence 0}), and every one of the 3 control scenarios is correctly passed with \textbf{zero false alarms}. All 12 pipeline executions pass the finalisation gate with valid event logs, and all 12 score \textbf{100/100} on the deterministic protocol-compliance rubric (all seven checks pass). Fig.~\ref{fig:benchmark} summarises composition, per-dataset outcomes, and the decisive statistical signature of each fault scenario as recorded in the digests.
 
 \begin{table}[!t]
 \caption{Overall Results on the 12-Scenario Benchmark}
@@ -192,7 +194,7 @@ CDR (Top-1 and \textsc{determined}) & 1.00 & --- \\
 Confidence calibration & 9/9 & --- \\
 Overconfidence & 0/9 & --- \\
 Control pass (no false alarm) & 3/3 & --- \\
-Mean judge score (10-criterion) & 91.0/100 & range 90--92 \\
+Protocol-compliance rubric & 100/100 & all 7 checks, 12/12 scenarios \\
 Pipeline finalisation gate & 12/12 PASS & --- \\
 Reproducibility gate & REPRODUCIBLE & --- \\
 \bottomrule
@@ -216,25 +218,25 @@ Table~\ref{tab:mech} lists the nine fault scenarios grouped by mechanism, with t
 \textbf{Blind-set robustness.} The SKAB cavitation scenario is drawn from the ``other'' experiment group whose fault label is withheld from the scenario description; the pipeline identified cavitation from the signature alone (vibration--flow \emph{negative} correlation $r{=}{-}0.821$ with pressure instability $z{=}5.02$).
 
 \begin{table*}[!t]
-\caption{Per-Scenario Results With the Decisive Statistical Signature (all values transcribed from the scenario digests; full evidence chains in the evidence repository)}
+\caption{Per-Scenario Results With the Decisive Statistical Signature (Rubric = deterministic protocol-compliance score, 100 = all seven checks pass; all values transcribed from the scenario digests)}
 \label{tab:mech}
 \centering
 \footnotesize
 \begin{tabular}{lccl}
 \toprule
-Scenario (mechanism) & Conclusion & Judge & Decisive signature \\
+Scenario (mechanism) & Conclusion & Rubric & Decisive signature \\
 \midrule
-SKAB inlet-valve throttling & \textsc{determined} 0.87 & 92 & line-side vibration burst $A2$ $z{=}13.56$; electrical channels normal \\
-SKAB cavitation (blind set) & \textsc{determined} 0.82 & 92 & vib--flow negative corr.\ $r{=}{-}0.821$; pressure $z{=}5.02$ \\
-TEP IDV1 A/C feed-ratio step & \textsc{determined} 0.84 & 92 & component spectra dominate 4/6 columns ($z{\approx}4.9$) \\
-TEP IDV3 D-feed temp.\ (hard) & \textsc{determined} 0.72 & 90 & weak-signature exclusion chain (tower heat balance + feed link) \\
-TEP IDV4 cooling temp.\ (step) & \textsc{determined} 0.86 & 92 & reactor temp.\ step-dominant $z{=}10.06$ \\
-TEP IDV7 C-header pressure & \textsc{determined} 0.80 & 91 & F-family shift across streams 6/9/11 + dual pressure $z{\approx}4.6$ \\
-TEP IDV11 cooling temp.\ (random) & \textsc{determined} 0.70 & 90 & sporadic $z{=}3.73$ form, no plateau, no loop-coupling pair \\
-TEP IDV14 valve stiction & \textsc{determined} 0.68 & 90 & loop pair $r{=}0.998$ (temp--valve), no plateau \\
-IndPenSim batch-93 deviation & \textsc{determined} 0.85 & 91 & multi-actuator sync (acid $z{=}15.8$, heater $13.05$) + pH $7.09$ \\
+SKAB inlet-valve throttling & \textsc{determined} 0.87 & 100 & line-side vibration burst $A2$ $z{=}13.56$; electrical channels normal \\
+SKAB cavitation (blind set) & \textsc{determined} 0.82 & 100 & vib--flow negative corr.\ $r{=}{-}0.821$; pressure $z{=}5.02$ \\
+TEP IDV1 A/C feed-ratio step & \textsc{determined} 0.84 & 100 & component spectra dominate 4/6 columns ($z{\approx}4.9$) \\
+TEP IDV3 D-feed temp.\ (hard) & \textsc{determined} 0.72 & 100 & weak-signature exclusion chain (tower heat balance + feed link) \\
+TEP IDV4 cooling temp.\ (step) & \textsc{determined} 0.86 & 100 & reactor temp.\ step-dominant $z{=}10.06$ \\
+TEP IDV7 C-header pressure & \textsc{determined} 0.80 & 100 & F-family shift across streams 6/9/11 + dual pressure $z{\approx}4.6$ \\
+TEP IDV11 cooling temp.\ (random) & \textsc{determined} 0.70 & 100 & sporadic $z{=}3.73$ form, no plateau, no loop-coupling pair \\
+TEP IDV14 valve stiction & \textsc{determined} 0.68 & 100 & loop pair $r{=}0.998$ (temp--valve), no plateau \\
+IndPenSim batch-93 deviation & \textsc{determined} 0.85 & 100 & multi-actuator sync (acid $z{=}15.8$, heater $13.05$) + pH $7.09$ \\
 \midrule
-Total & 9 \textsc{determined} & mean 91.0 & --- \\
+Total & 9 \textsc{determined} & 100 (all) & --- \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -311,7 +313,7 @@ For the SKAB cavitation scenario the pipeline's recorded chain reads: (i)~L3 evi
 
 \textbf{Prompt-knowledge contamination.} TEP's documented fault mechanisms appear in textbooks and are therefore plausibly memorised by frontier models. Our protocol mitigates this at the level where memorisation actually operates: knowing the label ``cooling-water fault'' cannot distinguish a step from a random variation from a sticking valve---the three IDV4/IDV11/IDV14 recordings require per-recording statistical form discrimination, as does IDV3's intentionally weak signature. The SKAB ``other''-group scenario removes the label entirely. A novel-disturbance suite (combination perturbations absent from the literature) remains under construction and is the definitive control.
 
-\textbf{Inference authorship and the blind re-run.} All diagnostic notes are authored by the reasoning agent from regenerated statistical digests, with full evidence provenance; the delete-and-rebuild audit (Section~\ref{sec:framework}) re-derived every conclusion from the data alone. What is still missing is a comparison against \emph{human} experts on identical digests; an expert-vs-pipeline blind test is planned.
+\textbf{Inference authorship and the blind re-run.} All diagnostic notes are authored by the reasoning agent from regenerated statistical digests, with full evidence provenance; the delete-and-rebuild audit (Section~\ref{sec:framework}) re-derived every conclusion from the data alone. Because self-declared quality scores are not verifiable, the benchmark's reported quality metric is the deterministic compliance rubric (Section~\ref{sec:setup}); the LLM ten-criterion judge remains only the pipeline's internal gate. What is still missing is a comparison against \emph{human} experts on identical digests; an expert-vs-pipeline blind test is planned.
 
 \textbf{Cost.} A scenario-level sweep spends minutes of reasoning per scenario---orders of magnitude more expensive than a fitted classifier at inference time. The economic comparison is only meaningful against the \emph{engineering cost of obtaining root causes} (expert hours), not against sample-level inference latency.
 

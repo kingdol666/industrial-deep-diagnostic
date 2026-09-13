@@ -108,6 +108,9 @@ stage('S4 commit (pipeline artifacts + gates + grading)', () => {
   const skipped = out.match(/skipped (\d+)/);
   if (skipped && Number(skipped[1]) > 0) throw new Error(`${skipped[1]} scenario(s) skipped`);
   if (lines.length !== 12) throw new Error(`committed ${lines.length} != 12`);
+  // deterministic quality rubric — replaces self-declared judge scores as the
+  // benchmark's quality metric; also adds kw_hits transparency in gradings
+  run('node', [path.join(ROOT, 'scripts/benchmark/judge-rubric.mjs'), '--tier', CASES]);
   return lines.map((l) => l.replace('[commit] ', '')).join(' | ');
 });
 

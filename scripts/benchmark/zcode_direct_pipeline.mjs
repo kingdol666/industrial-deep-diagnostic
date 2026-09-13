@@ -614,6 +614,7 @@ ${digest.anomaly_columns.map(a => `<tr><td>${a.col}</td><td>${a.max_abs_z}</td><
 
   const text = [note.primary_finding, ...surviving.map(h => h.name), ...surviving.flatMap(h => h.logic_chain ?? [])].join(" ").toLowerCase();
   const kwHit = kw => kw.some(k => text.includes(k.toLowerCase()));
+  const kwHits = kw => kw.filter(k => text.includes(k.toLowerCase()));
   let grading;
   if (c.control) {
     const normalClaim = /正常|normal|无异常|无故障|稳态|baseline|稳定/i.test(note.primary_finding + " " + surviving.map(h => h.name).join(" "));
@@ -621,6 +622,7 @@ ${digest.anomaly_columns.map(a => `<tr><td>${a.col}</td><td>${a.max_abs_z}</td><
   } else {
     const top1 = note.diagnosis_type === "DETERMINED" && kwHit(c.keywords);
     grading = { case_id: c.case_id, control: false, top1, topk: kwHit(c.keywords), root_cause_kw_hit: kwHit(c.keywords),
+      kw_hits: kwHits(c.keywords),
       calibrated: c.expect_type_set.includes(note.diagnosis_type),
       overconfident: note.diagnosis_type === "DETERMINED" && !kwHit(c.keywords), diagnosis_type: note.diagnosis_type };
   }

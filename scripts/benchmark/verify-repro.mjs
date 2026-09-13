@@ -76,7 +76,7 @@ for (const c of tier.cases) {
   else coverage.missing.push(c.case_id);
 }
 report.checks.case_coverage = coverage;
-if (coverage.graded < coverage.cases) warnings.push(`${coverage.missing.length} case(s) not graded yet: ${coverage.missing.slice(0, 5).join(', ')}`);
+if (coverage.graded < coverage.cases) failures.push(`${coverage.missing.length} case(s) not graded yet: ${coverage.missing.slice(0, 5).join(', ')}`);
 
 // ── 3) metric reproducibility (same definitions as scripts/benchmark/aggregate.mjs) ──
 const gradings = fs.existsSync(gradingsDir)
@@ -102,7 +102,7 @@ const recomputed = {
 const recorded = readJson(path.join(RESULTS, 'metrics.json'), null);
 let drift = [];
 if (!recorded) {
-  warnings.push('metrics.json absent — nothing to compare (run aggregate.mjs)');
+  failures.push('metrics.json absent — nothing to compare (run aggregate.mjs)');
 } else {
   drift = Object.keys(recomputed).filter((k) => recorded[k] !== undefined && recorded[k] !== recomputed[k]);
   if (drift.length) failures.push(`metrics drift vs metrics.json: ${drift.join(', ')}`);
