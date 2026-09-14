@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.22)  14 SEP 2026 11:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.12.22)  14 SEP 2026 13:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -490,11 +490,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 96--96
 [6]
 
 [7]
-<figures/fig_pipeline.png, id=249, 3011.25pt x 1525.7pt>
+<figures/fig_pipeline.png, id=249, 4408.47pt x 818.05624pt>
 File: figures/fig_pipeline.png Graphic file (type png)
 <use figures/fig_pipeline.png>
 Package pdftex.def Info: figures/fig_pipeline.png  used on input line 110.
-(pdftex.def)             Requested size: 382.19833pt x 193.64534pt.
+(pdftex.def)             Requested size: 382.19833pt x 70.91318pt.
 
 Overfull \hbox (0.79224pt too wide) in paragraph at lines 116--117
 \T1/cmr/m/n/12 (Claude Agent SDK, OMP RPC, Codex app-server, DeepSeek/Hermes/Qw
@@ -563,16 +563,14 @@ t), IDV4 reactor-
 [15]
 
 [16]
-<figures/fig_benchmark.png, id=310, 3011.25pt x 1646.15pt>
+<figures/fig_benchmark.png, id=311, 2922.92pt x 920.43875pt>
 File: figures/fig_benchmark.png Graphic file (type png)
 <use figures/fig_benchmark.png>
 Package pdftex.def Info: figures/fig_benchmark.png  used on input line 227.
-(pdftex.def)             Requested size: 382.19833pt x 208.93314pt.
+(pdftex.def)             Requested size: 382.19833pt x 120.34943pt.
 
 
 [17]
-
-[18 <./figures/fig_benchmark.png (PNG copy)>]
 Overfull \hbox (13.8127pt too wide) in paragraph at lines 239--240
 \T1/cmr/m/n/12 (vibration--flow \T1/cmr/m/it/12 neg-a-tive \T1/cmr/m/n/12 cor-r
 e-la-tion $\OML/cmm/m/it/12 r[][]\OT1/cmr/m/n/12 0\OML/cmm/m/it/12 :\OT1/cmr/m/
@@ -582,33 +580,33 @@ n/12 821$ \T1/cmr/m/n/12 with pres-sure in-sta-bil-ity $\OML/cmm/m/it/12 z[]\OT
 
 
 
-[19]
-<figures/fig_calibration.png, id=336, 3011.25pt x 1525.7pt>
+[18 <./figures/fig_benchmark.png (PNG copy)>]
+<figures/fig_calibration.png, id=329, 3961.80125pt x 1814.78pt>
 File: figures/fig_calibration.png Graphic file (type png)
 <use figures/fig_calibration.png>
 Package pdftex.def Info: figures/fig_calibration.png  used on input line 272.
-(pdftex.def)             Requested size: 350.99762pt x 177.83803pt.
+(pdftex.def)             Requested size: 350.99762pt x 160.77556pt.
 
 
-[20 <./figures/fig_calibration.png (PNG copy)>]
+[19]
+
+[20{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./fi
+gures/fig_calibration.png (PNG copy)>]
 Overfull \hbox (15.75511pt too wide) in paragraph at lines 285--286
 \T1/cmr/m/n/12 scores and solves both---IDV4 from the step-dominant reactor-tem
 perature
  []
 
-
-
-[21{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-<figures/fig_tep_perfault.png, id=352, 3011.25pt x 1525.7pt>
+<figures/fig_tep_perfault.png, id=348, 4408.47pt x 1302.8675pt>
 File: figures/fig_tep_perfault.png Graphic file (type png)
 <use figures/fig_tep_perfault.png>
 Package pdftex.def Info: figures/fig_tep_perfault.png  used on input line 293.
-(pdftex.def)             Requested size: 382.19833pt x 193.64534pt.
-<figures/fig_forest.png, id=359, 3011.25pt x 1525.7pt>
+(pdftex.def)             Requested size: 382.19833pt x 112.93903pt.
+<figures/fig_forest.png, id=355, 3997.93625pt x 1573.88pt>
 File: figures/fig_forest.png Graphic file (type png)
 <use figures/fig_forest.png>
 Package pdftex.def Info: figures/fig_forest.png  used on input line 323.
-(pdftex.def)             Requested size: 350.99762pt x 177.83803pt.
+(pdftex.def)             Requested size: 350.99762pt x 138.16084pt.
 
 Underfull \hbox (badness 1769) in paragraph at lines 324--324
 []\T1/cmr/m/n/10 Figure 5: []Register-A ag-gre-gate com-par-i-son with Wil-son 
@@ -616,6 +614,8 @@ Underfull \hbox (badness 1769) in paragraph at lines 324--324
  []
 
 
+
+[21]
 
 [22 <./figures/fig_tep_perfault.png (PNG copy)>]
 
@@ -648,8 +648,6 @@ ional infrastructure---
  []
 
 
-
-[26]
 Overfull \hbox (41.58615pt too wide) in paragraph at lines 354--355
 \T1/cmr/m/sc/12 ing_set \T1/cmr/m/n/12 and \T1/cmr/m/sc/12 needs_data \T1/cmr/m
 /n/12 con-clu-sions carry named dis-crim-i-nat-ing measurements---
@@ -663,25 +661,27 @@ pection and equipment-
 
 
 
-[27]
+[26]
 
-[28] (./main.bbl
+[27] (./main.bbl
 
-[29]
+[28]
 Underfull \hbox (badness 2865) in paragraph at lines 33--39
 []\T1/cmr/m/n/12 M. Pozd-nyakov, R. Ko-valenko, I. Makarov, M. Droby-shevskiy,
  []
 
 
 
-[30]
+[29]
 
-[31]
+[30]
 Underfull \hbox (badness 5050) in paragraph at lines 123--125
 []\T1/cmr/m/n/12 I. Katser, V. Koz-itsin, SKAB: Skoltech anomaly bench-mark,
  []
 
-)
+
+
+[31])
 
 [32] (./main.aux)
  ***********
@@ -694,11 +694,11 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 Here is how much of TeX's memory you used:
  11608 strings out of 473190
  174313 string characters out of 5719978
- 581210 words of memory out of 5000000
+ 580210 words of memory out of 5000000
  34594 multiletter control sequences out of 15000+600000
  574928 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1807b,613s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1807b,625s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tex
 live/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2025
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dis
@@ -716,7 +716,7 @@ fti0700.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pf
 b><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb><c:/texl
 ive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb><c:/texlive/2025/t
 exmf-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on main.pdf (32 pages, 1363376 bytes).
+Output written on main.pdf (32 pages, 1424911 bytes).
 PDF statistics:
  555 PDF objects out of 1000 (max. 8388607)
  468 compressed objects within 5 object streams

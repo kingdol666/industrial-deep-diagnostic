@@ -1,61 +1,53 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { width:1500px; height:700px; background:#fff; font-family:"Segoe UI",Arial,sans-serif; padding:28px 34px; }
-  h2 { font-size:17px; color:#16324f; margin:4px 0 18px; }
-  .plot { position:relative; height:420px; margin-left:260px; border-left:2px solid #333; border-bottom:2px solid #333; width:1160px; }
-  .grid { position:absolute; top:0; bottom:0; border-left:1px dashed #dde5ec; font-size:12px; color:#8a9aa8; }
-  .grid span { position:absolute; bottom:-24px; left:-8px; }
-  .row { position:absolute; height:52px; left:0; right:0; }
-  .lab { position:absolute; left:-252px; width:240px; text-align:right; font-size:13.5px; color:#16324f; top:14px; }
-  .lab small { display:block; color:#8a9aa8; font-size:11px; }
-  .ci { position:absolute; top:22px; height:8px; border-radius:4px; }
-  .pt { position:absolute; top:14px; width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 1px #999; }
-  .val { position:absolute; top:-6px; font-size:12.5px; font-weight:700; color:#16324f; }
-  .legend { margin:26px 0 0 260px; font-size:13px; color:#4a6a7a; }
-  .sw { display:inline-block; width:16px; height:16px; border-radius:50%; vertical-align:-3px; margin:0 6px 0 18px; }
-  .foot { margin:14px 0 0 260px; font-size:12.5px; color:#5a6a7a; line-height:1.55; }
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="aei_template.css">
+<style>
+  body { width:1500px; height:545px; padding:18px 26px; }
+  svg text { font-family: Arial, Helvetica, sans-serif; }
 </style></head><body>
-  <h2>Top-1 root-cause accuracy with Wilson 95% confidence intervals (same-task register, TEP family)</h2>
-  <div class="plot">
-    <!-- gridlines every 20% : 1160px / 100 = 11.6 px per % -->
-    <div class="grid" style="left:0px"><span>0</span></div>
-    <div class="grid" style="left:232px"><span>20</span></div>
-    <div class="grid" style="left:464px"><span>40</span></div>
-    <div class="grid" style="left:696px"><span>60</span></div>
-    <div class="grid" style="left:928px"><span>80</span></div>
-    <div class="grid" style="left:1160px"><span>100%</span></div>
+<svg width="1448" height="545" viewBox="0 0 1448 545">
+  <line class="axis" x1="300" y1="20" x2="300" y2="470"/>
+  <line class="axis" x1="300" y1="470" x2="1440" y2="470"/>
+  <g class="gridline">
+    <line x1="528" y1="20" x2="528" y2="470"/><line x1="756" y1="20" x2="756" y2="470"/>
+    <line x1="984" y1="20" x2="984" y2="470"/><line x1="1212" y1="20" x2="1212" y2="470"/>
+    <line x1="1440" y1="20" x2="1440" y2="470"/>
+  </g>
+  <g class="ticklabel" text-anchor="middle">
+    <text x="300" y="492">0</text><text x="528" y="492">20</text><text x="756" y="492">40</text>
+    <text x="984" y="492">60</text><text x="1212" y="492">80</text><text x="1440" y="492">100%</text>
+  </g>
+  <text class="axlabel" x="870" y="524" text-anchor="middle">Top-1 root-cause accuracy (%) with Wilson 95% CI</text>
 
-    <div class="row" style="top:20px;">
-      <div class="lab">FaultExplainer GPT-4o<small>n=11, candidates in prompt</small></div>
-      <div class="ci" style="left:411px; width:573px; background:#b8c4cf;"></div>
-      <div class="pt" style="left:738px-12px; left:726px; background:#8a9aa8;"></div>
-      <div class="val" style="left:752px;">63.6% [35.4, 84.8]</div>
-    </div>
-    <div class="row" style="top:110px;">
-      <div class="lab">FaultExplainer o1-preview<small>n=11, candidates in prompt</small></div>
-      <div class="ci" style="left:607px; width:494px; background:#b8c4cf;"></div>
-      <div class="pt" style="left:949px; background:#8a9aa8;"></div>
-      <div class="val" style="left:963px;">81.8% [52.3, 94.9]</div>
-    </div>
-    <div class="row" style="top:200px;">
-      <div class="lab">IDD — TEP subset<small>n=6, no candidate list</small></div>
-      <div class="ci" style="left:708px; width:452px; background:#9ec9ee;"></div>
-      <div class="pt" style="left:1148px; background:#2a5d8f;"></div>
-      <div class="val" style="left:1000px; top:-8px;">100% [61.0, 100]</div>
-    </div>
-    <div class="row" style="top:290px;">
-      <div class="lab"><b>IDD — full library</b><small>n=9 faults, no candidate list</small></div>
-      <div class="ci" style="left:813px; width:347px; background:#9ec9ee;"></div>
-      <div class="pt" style="left:1148px; background:#2a5d8f;"></div>
-      <div class="val" style="left:960px; top:-8px;">100% [70.1, 100]</div>
-    </div>
-  </div>
-  <div class="legend">
-    <span class="sw" style="background:#8a9aa8;"></span>published single-LLM baselines (FaultExplainer, arXiv:2412.14492)
-    <span class="sw" style="background:#2a5d8f;"></span>IDD (this work)
-  </div>
-  <div class="foot">
-    Bars are Wilson 95% intervals; dots are point estimates. Scenario sets differ (FE scores 11 PCA-detectable faults with root-cause candidates supplied in the prompt; IDD scores its own 6-fault TEP subset without candidates and includes PCA-undetectable IDV3/IDV4), so intervals overlapping is expected and no significance test is claimed. IDD's full-library lower bound (70.1%) is reported as the honest small-n bound; per-fault outcomes are compared in the per-fault table.
-  </div>
+  <text class="axlabel" x="288" y="60" text-anchor="end">FaultExplainer GPT-4o</text>
+  <text class="ticklabel" x="288" y="78" text-anchor="end">n = 11, candidates in prompt</text>
+  <line x1="704" y1="66" x2="1267" y2="66" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1025" cy="66" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1277" y="58">63.6%</text>
+  <text class="ticklabel" x="1277" y="74">[35.4, 84.8]</text>
+
+  <text class="axlabel" x="288" y="150" text-anchor="end">FaultExplainer o1-preview</text>
+  <text class="ticklabel" x="288" y="168" text-anchor="end">n = 11, candidates in prompt</text>
+  <line x1="896" y1="156" x2="1382" y2="156" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1233" cy="156" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1195" y="148">81.8%</text>
+  <text class="ticklabel" x="1195" y="164">[52.3, 94.9]</text>
+
+  <text class="axlabel" x="288" y="240" text-anchor="end">IDD — TEP subset</text>
+  <text class="ticklabel" x="288" y="258" text-anchor="end">n = 6, no candidate list</text>
+  <line x1="995" y1="246" x2="1440" y2="246" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1440" cy="246" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1325" y="232">100%</text>
+  <text class="ticklabel" x="1325" y="242">[61.0, 100]</text>
+
+  <text class="axlabel" x="288" y="330" text-anchor="end" font-weight="bold">IDD — full library</text>
+  <text class="ticklabel" x="288" y="348" text-anchor="end">n = 9 faults, no candidate list</text>
+  <line x1="1099" y1="336" x2="1440" y2="336" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1440" cy="336" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1325" y="320">100%</text>
+  <text class="ticklabel" x="1325" y="332">[70.1, 100]</text>
+
+  <circle cx="330" cy="516" r="8" fill="#8f9aa5"/><text class="axlabel" x="346" y="521">published single-LLM baselines (FaultExplainer, arXiv:2412.14492)</text>
+  <circle cx="900" cy="516" r="8" fill="#0072b2"/><text class="axlabel" x="916" y="521">IDD (this work)</text>
+</svg>
 </body></html>

@@ -1,0 +1,49 @@
+/* ============================================================
+   aei_template.css — AEI/Elsevier 论文插图统一模板（单一风格源）
+   ------------------------------------------------------------
+   规范依据（Elsevier Artwork + AEI Guide for Authors）：
+   - 字体：Arial/Helvetica（无衬线），图内字号一致
+   - 调色板：Okabe-Ito 色盲友好色（蓝/橙/绿/朱红/灰）
+   - 图内不嵌大标题（题注由 LaTeX caption 承担）
+   - 细轴线 0.75pt、浅网格、直接数值标注、面板标签 (a)(b)(c)
+   - 画布尺寸对应版面：双栏宽 190mm（本文全宽图）、单栏 90mm
+   导出：Edge headless, --force-device-scale-factor=3（≥500 dpi 等效）
+   重绘命令（在 paper/figures-html/ 下）：
+   "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" \
+     --headless=new --disable-gpu --hide-scrollbars \
+     --force-device-scale-factor=3 --window-size=<W>,<H> \
+     --screenshot="..\figures\<name>.png" "file:///<abs path>/<name>.html"
+   ============================================================ */
+:root {
+  --ink: #1a1a1a;          /* 主文字 */
+  --sub: #555555;          /* 次级文字 */
+  --blue: #0072b2;         /* Okabe-Ito 蓝（主色/IDD） */
+  --sky: #56b4e9;          /* 浅蓝（次要系列） */
+  --orange: #e69f00;       /* 橙（基线/对照） */
+  --green: #009e73;        /* 绿（通过/正确） */
+  --vermilion: #d55e00;    /* 朱红（错误/警示） */
+  --gray: #8f8f8f;         /* 灰（基线系统/未评分） */
+  --grid: #e3e7ea;         /* 网格 */
+  --line: #2b2b2b;         /* 轴线 */
+  --panel: #f5f7f9;        /* 面板底 */
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.panel-label { font-weight: 700; font-size: 15px; color: var(--ink); }
+.sub { color: var(--sub); }
+.axis { stroke: var(--line); stroke-width: 1.5; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.ticklabel { font-size: 12px; fill: var(--sub); }
+.axlabel { font-size: 13px; fill: var(--ink); }
+.datalabel { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.ok { color: #0a7d38; font-weight: 700; }
+.bad { color: var(--vermilion); font-weight: 700; }
+.na { color: var(--gray); }
+table.aei { border-collapse: collapse; }
+table.aei th, table.aei td { border: 1px solid var(--grid); padding: 5px 9px; }
+table.aei th { background: var(--panel); }
