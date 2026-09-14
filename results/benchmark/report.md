@@ -1,6 +1,6 @@
 # Benchmark 报告 — 12 场景集（TEP 逐故障文献可比）
 
-> 生成：2026-09-13T16:39:29.746Z
+> 生成：2026-09-14T03:51:46.119Z
 >
 > ⚠️ **被测对象界定（必读）**：本基准测的是**推理层** —— 由 1 次 LLM 推理消费预计算的统计 brief
 > 并产出一份符合诊断协议的 note，随后由模板展开为完整产物集。它**不包含**
@@ -54,8 +54,8 @@
 
 | 方法 | 数据/口径 | 报告数字 | 来源 |
 |---|---|---|---|
-| FaultExplainer（C&CE 2025）— GPT-4o | TEP 11 个 PCA 可检故障 | 7/11 = 63.6% | 引用（论文表） |
-| FaultExplainer（C&CE 2025）— o1-preview | TEP 11 个 PCA 可检故障 | 9/11 = 81.8% | 引用（论文表） |
+| FaultExplainer（arXiv:2412.14492）— GPT-4o | TEP 11 个 PCA 可检故障（候选清单在提示中） | 7/11 = 63.6% | 引用（论文表） |
+| FaultExplainer（arXiv:2412.14492）— o1-preview | TEP 11 个 PCA 可检故障（候选清单在提示中） | 9/11 = 81.8% | 引用（论文表） |
 | Gong et al.（JII 2026）多代理框架 | FailureSensorIQ MCQA（Llama3.1-8B） | 36.5% → 54.6%（框架开关） | 引用（论文表） |
 | SKAB leaderboard — Conv-AE / MSET / PCA | SKAB 检测任务（非根因） | F1 ≈ 0.76–0.78 | 引用（waico/skab README） |
 | PCA 经典结论（Chiang et al. 2001） | TEP 21 故障 | IDV 3/4/9/15 难检 | 引用（文献结论）；本仓库对照见 results/benchmark/pca_local.json |

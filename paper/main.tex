@@ -5,7 +5,23 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xcolor}
+\usepackage[section]{placeins}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+% ── AEI/Elsevier published-article float discipline ──────────────────────────
+% Figures sit directly against the surrounding text with the class's standard
+% separation (~12-15 pt), never drifting pages away from their first citation:
+% floats are confined to their section (placeins [section]) and the float
+% parameters match Elsevier's published layout.
+\setlength{\floatsep}{12pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{15pt plus 2pt minus 4pt}
+\setlength{\intextsep}{12pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{2pt}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
 
 \journal{Advanced Engineering Informatics}
 

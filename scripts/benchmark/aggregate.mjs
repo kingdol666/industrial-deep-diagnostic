@@ -128,8 +128,8 @@ for (const e of engineByCase.values()) metrics.execution_integrity.by_engine[e] 
 fs.writeFileSync(path.join(OUT, "metrics.json"), JSON.stringify(metrics, null, 1));
 
 const CDR_REF = [
-  ["FaultExplainer（C&CE 2025）— GPT-4o", "TEP 11 个 PCA 可检故障", "7/11 = 63.6%", "引用（论文表）"],
-  ["FaultExplainer（C&CE 2025）— o1-preview", "TEP 11 个 PCA 可检故障", "9/11 = 81.8%", "引用（论文表）"],
+  ["FaultExplainer（arXiv:2412.14492）— GPT-4o", "TEP 11 个 PCA 可检故障（候选清单在提示中）", "7/11 = 63.6%", "引用（论文表）"],
+  ["FaultExplainer（arXiv:2412.14492）— o1-preview", "TEP 11 个 PCA 可检故障（候选清单在提示中）", "9/11 = 81.8%", "引用（论文表）"],
   ["Gong et al.（JII 2026）多代理框架", "FailureSensorIQ MCQA（Llama3.1-8B）", "36.5% → 54.6%（框架开关）", "引用（论文表）"],
   ["SKAB leaderboard — Conv-AE / MSET / PCA", "SKAB 检测任务（非根因）", "F1 ≈ 0.76–0.78", "引用（waico/skab README）"],
   ["PCA 经典结论（Chiang et al. 2001）", "TEP 21 故障", "IDV 3/4/9/15 难检", "引用（文献结论）；本仓库对照见 results/benchmark/pca_local.json"],
