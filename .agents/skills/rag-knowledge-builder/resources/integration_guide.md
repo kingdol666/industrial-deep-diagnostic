@@ -1,10 +1,10 @@
 # RAG Knowledge Builder — Integration Guide
 
-> 消费者 skill 如何调用本 skill 获取领域本体。
+> How a consumer skill calls this skill to obtain a domain ontology.
 
 ## Integration Pattern: Skill-to-Skill Invocation
 
-消费者 skill 的 context-builder 调用：
+The context-builder of a consumer skill calls:
 
 ```
 Skill({
@@ -15,27 +15,27 @@ Skill({
 
 | Parameter | Required | Source in consumer skill | Example |
 |-----------|:--------:|-------------------------|---------|
-| `domain` | Yes | 领域描述或从列名模式自动构建 | `biaxial PET film stretching with thickness control` |
-| `target_concepts` | Yes | 质量目标列 | `thickness_um,haze_pct` |
-| `related_concepts` | Yes | 所有数值预测变量 | `mdo_temp_C,tdo_temp_C,line_speed_m_min` |
-| `context_dimensions` | Yes | 分层的分类列 | `product_grade,material_batch` |
-| `run_dir` | Yes | Pipeline 运行目录 | `/path/to/runs/20260602_xxx` |
-| `interaction_mode` | No | 默认 `auto` | `auto` |
+| `domain` | Yes | Domain description, or built automatically from column-name patterns | `biaxial PET film stretching with thickness control` |
+| `target_concepts` | Yes | Quality target columns | `thickness_um,haze_pct` |
+| `related_concepts` | Yes | All numeric predictor variables | `mdo_temp_C,tdo_temp_C,line_speed_m_min` |
+| `context_dimensions` | Yes | Categorical columns used for stratification | `product_grade,material_batch` |
+| `run_dir` | Yes | Pipeline run directory | `/path/to/runs/20260602_xxx` |
+| `interaction_mode` | No | Defaults to `auto` | `auto` |
 
 ## Files Exchanged
 
 | From RAG Builder (write) | → | To Consumer Skill (read) | Purpose |
 |--------------------------|---|--------------------------|---------|
-| `rag_ontology_draft.json` | → | `00_input/rag_ontology_draft.json` | **结构化本体** — 概念定义、层次、关系、约束、术语 |
-| `rag_ontology_nl_spec.md` | → | `00_input/rag_ontology_nl_spec.md` | **自然语言规范** — 人类可读的本体设计文档 |
-| `rag_structured_data.json` | → | `00_input/rag_structured_data.json` | 机器消费模板 — 示例、验证规则、查询模板 |
-| `rag_scored_chunks.json` | → | `00_input/rag_scored_chunks.json` | 知识块（5 维评分 + 分类） |
-| `rag_clarification_needed.json` | → | `00_input/clarification_needed.json` | 需要用户澄清的概念 |
-| `rag_audit_log.json` | → | `00_input/rag_audit_log.json` | 质量验证结果 |
+| `rag_ontology_draft.json` | → | `00_input/rag_ontology_draft.json` | **Structured ontology** — concept definitions, hierarchy, relationships, constraints, terminology |
+| `rag_ontology_nl_spec.md` | → | `00_input/rag_ontology_nl_spec.md` | **Natural-language specification** — human-readable ontology design document |
+| `rag_structured_data.json` | → | `00_input/rag_structured_data.json` | Machine-consumable template — examples, validation rules, query templates |
+| `rag_scored_chunks.json` | → | `00_input/rag_scored_chunks.json` | Knowledge chunks (5-dimension scoring + classification) |
+| `rag_clarification_needed.json` | → | `00_input/clarification_needed.json` | Concepts that need user clarification |
+| `rag_audit_log.json` | → | `00_input/rag_audit_log.json` | Quality verification results |
 
-## 本体输出格式 v4 (Ontology-First)
+## Ontology Output Format v4 (Ontology-First)
 
-### 结构化 JSON 输出
+### Structured JSON Output
 
 ```
 rag_ontology_draft.json
@@ -54,48 +54,50 @@ rag_ontology_draft.json
 └── rag_construction_metadata: { ... }
 ```
 
-### 关键新增字段（vs v3）
+### Key New Fields (vs v3)
 
-| 字段 | 说明 |
+| Field | Description |
 |------|------|
-| `definition` | 精确的自然语言定义（v4 新增，替代 v3 的 `semantic_meaning`） |
-| `broader_concept` | IS-A 父概念（层次完整性） |
-| `sibling_concepts` | 兄弟概念（消歧义） |
-| `distinguish_from` | 与相似概念的区别 |
-| `terminology{}` | 术语映射：同义词、缩写、跨语言、上下文别名 |
-| `abnormal_indicates` | 异常值指示什么问题 |
-| `conditions` | 关系成立的前提条件 |
-| `exceptions` | 关系不成立的例外情况 |
-| `constraints[]` | 领域约束和规则（新增顶级字段） |
+| `definition` | Precise natural-language definition (new in v4, replaces `semantic_meaning` from v3) |
+| `broader_concept` | IS-A parent concept (hierarchy completeness) |
+| `sibling_concepts` | Sibling concepts (disambiguation) |
+| `distinguish_from` | How it differs from similar concepts |
+| `terminology{}` | Terminology mapping: synonyms, abbreviations, cross-language, contextual aliases |
+| `abnormal_indicates` | What problem an abnormal value indicates |
+| `conditions` | Preconditions under which the relationship holds |
+| `exceptions` | Exception cases in which the relationship does not hold |
+| `constraints[]` | Domain constraints and rules (new top-level field) |
 
-### 自然语言规范 (NL Spec)
+### Natural-Language Specification (NL Spec)
 
-`rag_ontology_nl_spec.md` 包含：
-1. 领域概述（定义、边界）
-2. 核心实体（角色、生命周期、交互）
-3. 概念字典（每个概念的定义、层次、消歧义、术语映射）
-4. 关系图谱（机制、条件、例外、时滞）
-5. 公理与约束
-6. 混杂因子
-7. 过程/逻辑阶段
-8. 知识缺口
-9. 构建元数据
+`rag_ontology_nl_spec.md` contains:
+1. Domain overview (definition, boundaries)
+2. Core entities (roles, lifecycle, interactions)
+3. Concept dictionary (definition, hierarchy, disambiguation, terminology mapping for every concept)
+4. Relationship map (mechanism, conditions, exceptions, time lag)
+5. Axioms and constraints
+6. Confounders
+7. Process / logical stages
+8. Knowledge gaps
+9. Construction metadata
 
-## Consumer 消费方式
+> **Output language**: The rendered `rag_ontology_nl_spec.md` must be written in the configured output language (default: Chinese — see the Language Default section of `SKILL.md`); the section titles above are listed in English here for reference only.
 
-### Context Builder: 加载和映射
+## How the Consumer Skill Consumes the Output
 
-1. 读取 `rag_ontology_draft.json` → 映射 `definition` 到参数描述，`expected_value_range` 到范围，`constraints` 到验证规则
-2. 读取 `rag_ontology_nl_spec.md` → 供下游 LLM agent 理解领域上下文
-3. 读取 `rag_structured_data.json` → 提取验证规则和查询模板
-4. 合并 `rag_clarification_needed.json` 到自己的 unknowns
+### Context Builder: Loading and Mapping
 
-### 术语映射使用
+1. Read `rag_ontology_draft.json` → map `definition` to parameter descriptions, `expected_value_range` to ranges, and `constraints` to validation rules
+2. Read `rag_ontology_nl_spec.md` → gives downstream LLM agents the domain context
+3. Read `rag_structured_data.json` → extract validation rules and query templates
+4. Merge `rag_clarification_needed.json` into its own unknowns
 
-本体中每个概念都有 `terminology` 字段。消费者 agent 可以：
-- 用任何别名（数据列名、缩写、中文名）查找概念
-- 跨语言引用概念
-- 在不同上下文中使用不同的名称
+### Using Terminology Mapping
+
+Every concept in the ontology has a `terminology` field. A consumer agent can:
+- Look up a concept by any alias (data column name, abbreviation, Chinese name)
+- Reference concepts across languages
+- Use different names in different contexts
 
 ### Fallback Chain
 
@@ -107,7 +109,7 @@ rag_ontology_draft.json
 3. Fallback: Build ontology from scratch (context-builder steps)
 ```
 
-RAG 是加速器，不是硬依赖。
+RAG is an accelerator, not a hard dependency.
 
 ## First-Time Setup
 

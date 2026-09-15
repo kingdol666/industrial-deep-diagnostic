@@ -1,8 +1,8 @@
 # Parameter Pattern Library v4.0
 
-**v4.0 定位：** 本文件是**物理量通用模式参考库**，适用于涉及物理过程的任何领域（工业、化工、材料、半导体、电池等）。LLM 从中提取模式来推断概念的物理含义和因果机制。
+**v4.0 positioning:** This file is a **general-purpose pattern reference library for physical quantities**, applicable to any domain that involves physical processes (industrial, chemical, materials, semiconductor, battery, etc.). The LLM extracts patterns from it to infer the physical meaning and causal mechanisms of concepts.
 
-> **注意：** 对于非物理领域（临床、法律、金融、教育等），本库不直接适用。那些领域的概念定义和因果机制由 ontology-construction-agent 从知识块中动态推断。本库仅作为物理量推断的辅助参考。
+> **Note:** For non-physical domains (clinical, legal, financial, educational, etc.), this library does not apply directly. Concept definitions and causal mechanisms in those domains are inferred dynamically from knowledge chunks by the ontology-construction-agent. This library serves only as an auxiliary reference for physical-quantity inference.
 
 The LLM uses this library as PATTERNS to infer physics for any parameter name, not just those listed. When a parameter is not found here, apply the same structure from first principles:
 1. Identify the physical quantity (temperature? vibration? flow?)

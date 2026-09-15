@@ -1,184 +1,187 @@
 # Ontology Design Principles — Natural Language Ontology Quality Standard
 
-> 本文件定义了一个好的本体模型在自然语言层面必须满足的设计原则。
-> 这是 Phase 2 本体构建 agent 的核心参考标准。
+> This document defines the design principles that a good ontology model must satisfy at the natural-language level.
+> This is the core reference standard for the Phase 2 ontology-construction agent.
+>
+> **Language directive:** the examples below are shown in English for readability. The natural-language values actually written into the ontology must be produced in the configured output language — default **Chinese** (see the Language Default section of `SKILL.md`). Structured field names and enum values always remain in English.
 
 ---
 
-## 1. 概念精确性 (Concept Precision)
+## 1. Concept Precision
 
-### 原则
-每个概念有且仅有一个精确的自然语言定义。定义必须：
-- **唯一性**：在该本体范围内，没有其他概念有相同的含义
-- **消歧义**：明确指出该概念"不是什么"，避免与相似概念混淆
-- **可操作**：一个领域专家读完定义后能判断任何实例是否属于该概念
+### Principle
+Every concept has one — and only one — precise natural-language definition. The definition must be:
+- **Unique:** within this ontology, no other concept carries the same meaning
+- **Disambiguating:** states explicitly what the concept is *not*, so that it cannot be confused with similar concepts
+- **Operational:** a domain expert can read the definition and decide whether any given instance belongs to the concept
 
-### 反模式
+### Anti-patterns
 ```
-❌ "温度" — 太模糊：什么温度？在哪里？什么条件下？
-❌ "反应温度，单位摄氏度" — 缺少物理含义，只是复述了名称
-❌ "主轴温度" — 没说清是轴承温度、电机绕组温度还是主轴表面温度
+❌ "temperature" — too vague: which temperature? where? under what conditions?
+❌ "reaction temperature, in degrees Celsius" — no physical meaning, merely a restatement of the name
+❌ "spindle temperature" — does not say whether it is bearing temperature, motor winding temperature, or spindle surface temperature
 
-✅ "主轴前轴承外圈温度 (°C) — 反映主轴轴承运行状态的关键指标。
-   正常范围 20-70°C；>80°C 预示润滑失效或过载；
-   >90°C 需立即停机。与电机绕组温度 (winding_temp_C) 不同，
-   后者反映电机发热而非轴承状态。"
-```
-
-```
-✅ "HbA1c (糖化血红蛋白百分比, %) — 反映过去 2-3 个月平均血糖水平的指标。
-   与空腹血糖 (fasting_glucose_mg_dl) 不同：HbA1c 反映长期趋势而非瞬时值。
-   正常 <5.7%；5.7-6.4% 为糖尿病前期；≥6.5% 为糖尿病诊断阈值。
-   在贫血或血红蛋白病患者中可能不准确。"
+✅ "Spindle front-bearing outer-race temperature (°C) — a key indicator of spindle bearing
+   operating condition. Normal range 20-70°C; >80°C indicates lubrication failure or overload;
+   >90°C requires an immediate shutdown. Distinct from motor winding temperature
+   (winding_temp_C), which reflects motor heating rather than bearing condition."
 ```
 
-### 检验方法
-对于每个概念定义，问三个问题：
-1. **领域专家能区分它和相似概念吗？** 如果不能 → 定义不够精确
-2. **定义中有"等"、"大概"、"类似"吗？** 如果有 → 消歧义不充分
-3. **读完定义后能判断一个实例是否属于该概念吗？** 如果不能 → 定义太模糊
+```
+✅ "HbA1c (glycated hemoglobin percentage, %) — an indicator of average blood glucose level
+   over the past 2-3 months. Distinct from fasting glucose (fasting_glucose_mg_dl):
+   HbA1c reflects a long-term trend rather than an instantaneous value.
+   Normal <5.7%; 5.7-6.4% is prediabetes; ≥6.5% is the diagnostic threshold for diabetes.
+   May be inaccurate in patients with anemia or hemoglobinopathy."
+```
+
+### Test Method
+For every concept definition, ask three questions:
+1. **Can a domain expert distinguish it from similar concepts?** If not → the definition is not precise enough
+2. **Does the definition contain "etc.", "roughly", or "similar to"?** If so → disambiguation is insufficient
+3. **After reading the definition, can you decide whether an instance belongs to the concept?** If not → the definition is too vague
 
 ---
 
-## 2. 层次完整性 (Hierarchical Completeness)
+## 2. Hierarchical Completeness
 
-### 原则
-核心概念必须有 IS-A（分类层次）和 PART-OF（组成层次）关系。层次结构必须：
-- **覆盖核心概念**：每个重要概念至少出现在一个层次链中
-- **避免孤立节点**：没有概念完全游离于层次结构之外
-- **区分 IS-A 与 PART-OF**：IS-A 是"是一种"，PART-OF 是"是...的一部分"
-- **避免过深层次**：一般不超过 4 层（根→子→孙→叶），更深的层次应扁平化
+### Principle
+Core concepts must have IS-A (classification) and PART-OF (composition) relations. The hierarchy must:
+- **Cover the core concepts:** every important concept appears in at least one hierarchy chain
+- **Avoid orphan nodes:** no concept floats entirely outside the hierarchy
+- **Distinguish IS-A from PART-OF:** IS-A means "is a kind of", PART-OF means "is a part of"
+- **Avoid excessive depth:** generally no more than 4 levels (root → child → grandchild → leaf); deeper hierarchies should be flattened
 
-### IS-A 层次 (Taxonomy)
+### IS-A Hierarchy (Taxonomy)
 ```
-IS-A 层次表达概念的分类关系：
+An IS-A hierarchy expresses the classification relations among concepts:
 
-工业领域示例:
-  物理量
-  ├── 温度量
-  │   ├── 熔体温度 (melt_temp_C)
-  │   ├── 轴承温度 (bearing_temp_C)
-  │   └── 环境温度 (ambient_temp_C)
-  ├── 振动量
-  │   ├── 轴承振动速度 (bearing_vib_mm_s)
-  │   └── 结构振动加速度 (structure_vib_g)
-  └── 流量
-      ├── 冷却水流量 (coolant_flow_L_min)
-      └── 进料流量 (feed_rate_L_min)
+Industrial domain example:
+  Physical quantity
+  ├── Temperature quantity
+  │   ├── Melt temperature (melt_temp_C)
+  │   ├── Bearing temperature (bearing_temp_C)
+  │   └── Ambient temperature (ambient_temp_C)
+  ├── Vibration quantity
+  │   ├── Bearing vibration velocity (bearing_vib_mm_s)
+  │   └── Structural vibration acceleration (structure_vib_g)
+  └── Flow rate
+      ├── Cooling water flow (coolant_flow_L_min)
+      └── Feed flow (feed_rate_L_min)
 
-医学领域示例:
-  生物标志物
-  ├── 血糖相关标志物
-  │   ├── 空腹血糖 (fasting_glucose_mg_dl)
+Medical domain example:
+  Biomarker
+  ├── Glycemic markers
+  │   ├── Fasting glucose (fasting_glucose_mg_dl)
   │   ├── HbA1c (hba1c_pct)
-  │   └── 餐后血糖 (postprandial_glucose_mg_dl)
-  ├── 心血管标志物
-  │   ├── 血压 (blood_pressure_mmhg)
-  │   └── 心率 (heart_rate_bpm)
-  └── 肾功能标志物
+  │   └── Postprandial glucose (postprandial_glucose_mg_dl)
+  ├── Cardiovascular markers
+  │   ├── Blood pressure (blood_pressure_mmhg)
+  │   └── Heart rate (heart_rate_bpm)
+  └── Renal-function markers
       ├── eGFR (egfr_ml_min)
-      └── 肌酐 (creatinine_mg_dl)
+      └── Creatinine (creatinine_mg_dl)
 ```
 
-### PART-OF 层次 (Mereology)
+### PART-OF Hierarchy (Mereology)
 ```
-PART-OF 层次表达组成关系：
+A PART-OF hierarchy expresses composition relations:
 
-工业领域示例:
-  CNC 加工系统
-  ├── 主轴系统
-  │   ├── 主轴轴承
-  │   ├── 主轴电机
-  │   └── 冷却系统
-  ├── 进给系统
-  │   ├── X 轴驱动
-  │   ├── Y 轴驱动
-  │   └── Z 轴驱动
-  └── 刀具系统
-      ├── 刀柄
-      └── 刀片
+Industrial domain example:
+  CNC machining system
+  ├── Spindle system
+  │   ├── Spindle bearing
+  │   ├── Spindle motor
+  │   └── Cooling system
+  ├── Feed system
+  │   ├── X-axis drive
+  │   ├── Y-axis drive
+  │   └── Z-axis drive
+  └── Tooling system
+      ├── Tool holder
+      └── Cutting insert
 
-医学领域示例:
-  2 型糖尿病管理
-  ├── 血糖监测
-  │   ├── HbA1c 检测
-  │   ├── 空腹血糖检测
-  │   └── 持续血糖监测 (CGM)
-  ├── 药物治疗
-  │   ├── 二甲双胍
-  │   ├── SGLT2 抑制剂
-  │   └── 胰岛素
-  └── 生活方式干预
-      ├── 饮食管理
-      └── 运动处方
+Medical domain example:
+  Type 2 diabetes management
+  ├── Glycemic monitoring
+  │   ├── HbA1c testing
+  │   ├── Fasting glucose testing
+  │   └── Continuous glucose monitoring (CGM)
+  ├── Pharmacotherapy
+  │   ├── Metformin
+  │   ├── SGLT2 inhibitors
+  │   └── Insulin
+  └── Lifestyle intervention
+      ├── Dietary management
+      └── Exercise prescription
 ```
 
-### 反模式
+### Anti-patterns
 ```
-❌ 所有概念平铺在一个列表里，没有任何层次关系
-❌ IS-A 和 PART-OF 混淆（"主轴 IS-A CNC" 是错的，"主轴 PART-OF CNC系统" 是对的）
-❌ 层次太深（5层以上）：工业过程 → 聚合物加工 → 薄膜拉伸 → 双向拉伸 → MDO拉伸 → MDO温度 → T1区温度
-✅ 适当扁平化：工业过程 → 薄膜拉伸 → MDO温度 (含 T1-T12 各温区的说明)
+❌ All concepts flattened into a single list, with no hierarchical relations at all
+❌ IS-A and PART-OF confused ("spindle IS-A CNC" is wrong; "spindle PART-OF CNC system" is right)
+❌ Hierarchy too deep (5+ levels): industrial process → polymer processing → film stretching → biaxial stretching → MDO stretching → MDO temperature → zone T1 temperature
+✅ Appropriately flattened: industrial process → film stretching → MDO temperature (with a description of each T1-T12 heating zone)
 ```
 
 ---
 
-## 3. 关系语义丰富性 (Relationship Semantic Richness)
+## 3. Relationship Semantic Richness
 
-### 原则
-每个关系不仅有 `from → to` 方向，还必须有：
-- **关系类型**：精确的语义类型（不只是 "related_to"）
-- **机制描述**：用 2-3 句自然语言解释为什么存在这种关系
-- **方向性**：明确因果方向、时序方向或逻辑方向
-- **基数约束**：一对一、一对多、多对多
-- **条件约束**：在什么条件下关系成立
-- **时滞**：原因和效果之间的时间延迟
-- **强度/置信度**：这个关系有多确定
+### Principle
+Every relationship has not only a `from → to` direction, but also:
+- **Relationship type:** a precise semantic type (not just "related_to")
+- **Mechanism description:** 2-3 natural-language sentences explaining why this relationship exists
+- **Directionality:** an explicit causal, temporal, or logical direction
+- **Cardinality constraint:** one-to-one, one-to-many, many-to-many
+- **Conditional constraint:** the conditions under which the relationship holds
+- **Time lag:** the delay between cause and effect
+- **Strength/confidence:** how certain this relationship is
 
-### 关系类型分类
+### Relationship Type Taxonomy
 
-| 类型 | 语义 | 自然语言模式 | 示例 |
+| Type | Semantics | Natural-language pattern | Example |
 |------|------|-------------|------|
-| `causal` | 直接物理/生物因果 | "X 导致 Y，因为..." | "轴承磨损导致振动增大，因为..." |
-| `correlative` | 统计关联（无因果证据） | "X 与 Y 相关，相关方向为..." | "BMI 与 HbA1c 正相关" |
-| `physical` | 物理定律约束 | "根据 [定律]，X 决定 Y" | "根据 Arrhenius 方程，温度决定反应速率" |
-| `control` | 控制回路 | "X 是 Y 的控制变量" | "PID 控制器调节冷却水流量以维持温度设定值" |
-| `temporal` | 时序/演化 | "X 先于 Y 发生" | "进料变化先于出口温度变化约 5 分钟" |
-| `compositional` | 组成关系 | "X 是 Y 的组成部分" | "主轴轴承是主轴系统的组成部分" |
-| `classificational` | 分类关系 | "X 是 Y 的一种" | "HbA1c 是血糖相关生物标志物的一种" |
-| `conditional` | 条件依赖 | "在 Z 条件下，X 影响 Y" | "在高温条件下(>85°C)，拉伸比增加导致雾度上升" |
-| `regulatory` | 监管/法规 | "法规/标准要求 X 限制 Y" | "ISO 10816 要求振动速度 <4.5mm/s" |
-| `definitional` | 定义性 | "X 被定义为 Y" | "转化率被定义为(进料-出料)/进料 × 100%" |
-| `statistical` | 统计模型 | "统计模型预测 X → Y" | "Logistic 回归模型预测债务收入比 → 违约概率" |
-| `precedential` | 先例/参考 | "先例 X 指导 Y" | "Delaware 法院的先例指导赔偿条款的可执行性" |
+| `causal` | Direct physical/biological causation | "X causes Y, because..." | "Bearing wear causes increased vibration, because..." |
+| `correlative` | Statistical association (no evidence of causation) | "X is correlated with Y, in the direction..." | "BMI is positively correlated with HbA1c" |
+| `physical` | Constrained by a physical law | "According to [law], X determines Y" | "According to the Arrhenius equation, temperature determines reaction rate" |
+| `control` | Control loop | "X is the control variable for Y" | "The PID controller regulates cooling water flow to hold the temperature setpoint" |
+| `temporal` | Temporal ordering/evolution | "X occurs before Y" | "A feed change precedes the outlet temperature change by about 5 minutes" |
+| `compositional` | Composition | "X is a component of Y" | "The spindle bearing is a component of the spindle system" |
+| `classificational` | Classification | "X is a kind of Y" | "HbA1c is a kind of glycemic biomarker" |
+| `conditional` | Conditional dependency | "Under condition Z, X affects Y" | "Under high temperature (>85°C), an increased draw ratio raises haze" |
+| `regulatory` | Regulatory/statutory | "A regulation/standard requires X to limit Y" | "ISO 10816 requires vibration velocity <4.5 mm/s" |
+| `definitional` | Definitional | "X is defined as Y" | "Conversion rate is defined as (feed - output) / feed × 100%" |
+| `statistical` | Statistical model | "A statistical model predicts X → Y" | "A logistic regression model predicts debt-to-income ratio → probability of default" |
+| `precedential` | Precedent/reference | "Precedent X guides Y" | "Delaware case law guides the enforceability of indemnification clauses" |
 
-### 反模式
+### Anti-patterns
 ```
-❌ "温度 → 质量" — 没有机制，没有方向性，没有条件
-❌ "spindle_vib → roughness (related)" — "related" 不是关系类型
-❌ "HbA1c 影响血糖" — 因果方向反了（血糖影响 HbA1c）
+❌ "temperature → quality" — no mechanism, no direction, no conditions
+❌ "spindle_vib → roughness (related)" — "related" is not a relationship type
+❌ "HbA1c affects blood glucose" — the causal direction is reversed (blood glucose affects HbA1c)
 
 ✅ "melt_temp_C →(causal)→ melt_viscosity_Pa_s →(causal)→ draw_stability
-     机制: PET 熔体粘度遵循 Arrhenius 型温度依赖性。
-          温度升高 → 粘度降低 → 熔体强度下降 → 拉伸不稳定 → 厚度波动。
-          该链在 270-290°C 范围内有效；低于 270°C 会出现未熔融粒子（不同机制）。
-     时滞: 约 30-60s（熔体在挤出机中的停留时间）
-     条件: 仅在正常 PET IV (0.60-0.80 dL/g) 范围内成立"
+     Mechanism: PET melt viscosity follows an Arrhenius-type temperature dependence.
+          Rising temperature → falling viscosity → reduced melt strength → unstable drawing → thickness fluctuation.
+          This chain holds within 270-290°C; below 270°C unmelted particles appear (a different mechanism).
+     Time lag: about 30-60 s (melt residence time in the extruder)
+     Conditions: holds only within the normal PET IV range (0.60-0.80 dL/g)"
 ```
 
 ---
 
-## 4. 术语映射 (Terminology Mapping)
+## 4. Terminology Mapping
 
-### 原则
-每个核心概念必须有术语映射表，包含：
-- **标准名** (canonical name)：本体中使用的正式名称
-- **同义词** (synonyms)：同一领域内可以互换使用的名称
-- **缩写** (abbreviations)：常见的缩写形式
-- **跨语言术语** (cross-language)：中英对照（或其他语言）
-- **上下游别名** (context-specific aliases)：在不同阶段/上下文中可能使用的不同名称
+### Principle
+Every core concept must have a terminology mapping table containing:
+- **Canonical name:** the formal name used in the ontology
+- **Synonyms:** names that are interchangeable within the same domain
+- **Abbreviations:** the common abbreviated forms
+- **Cross-language terms:** Chinese-English correspondences (or other languages)
+- **Upstream/downstream aliases** (context-specific aliases): the different names that may be used at different stages or in different contexts
 
-### 示例
+### Examples
 
 ```json
 {
@@ -192,7 +195,7 @@ PART-OF 层次表达组成关系：
   },
   "context_aliases": {
     "clinical_lab": "HbA1c%",
-    "icd10": "R73.0（异常糖化血红蛋白）",
+    "icd10": "R73.0 (abnormal glycated hemoglobin)",
     "data_column": "hba1c_pct"
   }
 }
@@ -200,16 +203,16 @@ PART-OF 层次表达组成关系：
 
 ```json
 {
-  "canonical_name": "MDO 拉伸温度",
-  "synonyms": ["纵向拉伸温度", "MD 拉伸温度", "机械方向拉伸温度"],
+  "canonical_name": "MDO stretching temperature",
+  "synonyms": ["machine-direction stretching temperature", "MD stretching temperature", "machine direction orientation temperature"],
   "abbreviations": ["MDO_temp", "MDT"],
   "cross_language": {
     "zh": "MDO拉伸温度 / 纵拉温度",
     "en": "MDO stretching temperature / machine-direction orientation temperature"
   },
   "context_aliases": {
-    "process_control": "MD_TH001~MD_TH012（各温区）",
-    "quality_report": "纵向拉伸设定温度",
+    "process_control": "MD_TH001~MD_TH012 (individual heating zones)",
+    "quality_report": "machine-direction stretching setpoint temperature",
     "data_column": "mdo_temp_C"
   }
 }
@@ -217,158 +220,158 @@ PART-OF 层次表达组成关系：
 
 ---
 
-## 5. 公理与约束 (Axioms and Constraints)
+## 5. Axioms and Constraints
 
-### 原则
-领域中的规则和约束必须用自然语言明确表达。公理包括：
-- **物理约束**：物理定律施加的硬限制
-- **操作约束**：工艺窗口、安全限值
-- **逻辑约束**：概念之间的逻辑蕴含
-- **互斥规则**：不能同时为真的条件
-- **边界条件**：模型在什么条件下失效
+### Principle
+The rules and constraints of a domain must be stated explicitly in natural language. Axioms include:
+- **Physical constraints:** hard limits imposed by physical law
+- **Operational constraints:** process windows and safety limits
+- **Logical constraints:** logical entailments between concepts
+- **Mutual-exclusion rules:** conditions that cannot both be true
+- **Boundary conditions:** the conditions under which the model fails
 
-### 自然语言公理格式
+### Natural-Language Axiom Format
 
 ```
-AXIOM <id>: <自然语言陈述>
+AXIOM <id>: <natural-language statement>
 
-约束类型: hard | soft | heuristic
-适用范围: <概念列表>
-违反后果: <如果违反会发生什么>
-来源: <知识块引用>
+Constraint type: hard | soft | heuristic
+Applies to: <list of concepts>
+Consequence of violation: <what happens if it is violated>
+Source: <knowledge chunk reference>
 ```
 
-### 示例
+### Examples
 
 ```
 AXIOM temp_viscosity_01:
-  "PET 熔体温度每升高 10°C，粘度约降低 30-40%（在 270-290°C 范围内）"
-  约束类型: heuristic (Arrhenius 近似)
-  适用范围: melt_temp_C, melt_viscosity_Pa_s
-  违反后果: 如果温度低于 270°C，该规则失效（存在未熔融粒子）
-  来源: kb_pet_physics_003
+  "For every 10°C rise in PET melt temperature, viscosity falls by roughly 30-40% (within the 270-290°C range)"
+  Constraint type: heuristic (Arrhenius approximation)
+  Applies to: melt_temp_C, melt_viscosity_Pa_s
+  Consequence of violation: if the temperature drops below 270°C the rule fails (unmelted particles are present)
+  Source: kb_pet_physics_003
 
 AXIOM diabetes_hba1c_01:
-  "HbA1c ≥ 6.5% 可诊断为糖尿病；5.7-6.4% 为糖尿病前期；<5.7% 为正常"
-  约束类型: hard (ADA 诊断标准)
-  适用范围: hba1c_pct
-  违反后果: 在血红蛋白病或贫血患者中，HbA1c 可能不准确
-  来源: kb_clinical_guideline_001
+  "HbA1c ≥ 6.5% is diagnostic of diabetes; 5.7-6.4% is prediabetes; <5.7% is normal"
+  Constraint type: hard (ADA diagnostic criteria)
+  Applies to: hba1c_pct
+  Consequence of violation: in patients with hemoglobinopathy or anemia, HbA1c may be inaccurate
+  Source: kb_clinical_guideline_001
 
 AXIOM legal_noncompete_01:
-  "非竞争条款在加利福尼亚州通常不可执行，而在特拉华州可执行（如果合理范围内）"
-  约束类型: hard (州法律)
-  适用范围: governing_law_state, non_compete_enforceability
-  违反后果: 使用不可执行的非竞争条款可能导致整个合同条款无效
-  来源: kb_legal_precedent_007
+  "Non-compete clauses are generally unenforceable in California but enforceable in Delaware (if reasonable in scope)"
+  Constraint type: hard (state law)
+  Applies to: governing_law_state, non_compete_enforceability
+  Consequence of violation: relying on an unenforceable non-compete clause may void the entire contract clause
+  Source: kb_legal_precedent_007
 
 AXIOM credit_fairness_01:
-  "模型不得使用受保护特征（种族、性别、年龄组）作为违约预测的直接输入（ECOA 合规）"
-  约束类型: hard (联邦法规)
-  适用范围: all related_concepts in credit scoring model
-  违反后果: 监管处罚 + 诉讼风险
-  来源: kb_regulatory_ecoa_001
+  "The model must not use protected attributes (race, sex, age group) as direct inputs to default prediction (ECOA compliance)"
+  Constraint type: hard (federal regulation)
+  Applies to: all related_concepts in credit scoring model
+  Consequence of violation: regulatory penalties + litigation risk
+  Source: kb_regulatory_ecoa_001
 ```
 
 ---
 
-## 6. 实例化说明 (Instantiation Examples)
+## 6. Instantiation Examples
 
-### 原则
-每个抽象概念必须有至少一个具体实例，说明：
-- **典型值**：在正常运行/标准条件下的期望值
-- **异常值示例**：什么样的值是异常的
-- **实例上下文**：这个值出现在什么场景下
-- **推断路径**：从该值如何推断出领域知识
+### Principle
+Every abstract concept must have at least one concrete instance, showing:
+- **Typical value:** the expected value under normal operation / standard conditions
+- **Abnormal-value example:** what a value looks like when it is abnormal
+- **Instance context:** the scenario in which this value occurs
+- **Inference path:** how domain knowledge is inferred from this value
 
-### 示例
-
-```
-概念: HbA1c (hba1c_pct)
-实例化:
-  正常实例: { value: 5.2%, context: "45岁亚洲女性，无糖尿病史，常规体检" }
-  异常实例: { value: 8.1%, context: "55岁非裔男性，2型糖尿病确诊3年，
-             推断: 血糖控制不佳，可能需要调整药物方案" }
-  边界实例: { value: 6.3%, context: "60岁白人女性，肥胖(BMI=32)，
-             推断: 糖尿病前期，需生活方式干预" }
-```
+### Examples
 
 ```
-概念: 主轴振动速度 (spindle_vib_mm_s)
-实例化:
-  正常实例: { value: 1.2 mm/s RMS, context: "新轴承，8000RPM，铝合金加工" }
-  异常实例: { value: 5.8 mm/s RMS, context: "运行2000小时后，
-             推断: ISO 10816 Zone C（不满意），可能轴承磨损，
-             预计表面粗糙度 Ra > 1.6μm" }
-  临界实例: { value: 4.3 mm/s RMS, context: "Zone B 上限附近，
-             推断: 需计划维护，尚未影响质量" }
+Concept: HbA1c (hba1c_pct)
+Instantiation:
+  Normal instance: { value: 5.2%, context: "45-year-old Asian woman, no history of diabetes, routine check-up" }
+  Abnormal instance: { value: 8.1%, context: "55-year-old African-American man, type 2 diabetes
+             diagnosed 3 years ago, inference: poor glycemic control, medication regimen may need adjustment" }
+  Boundary instance: { value: 6.3%, context: "60-year-old white woman, obese (BMI=32),
+             inference: prediabetes, lifestyle intervention required" }
+```
+
+```
+Concept: spindle vibration velocity (spindle_vib_mm_s)
+Instantiation:
+  Normal instance: { value: 1.2 mm/s RMS, context: "new bearing, 8000 RPM, aluminum alloy machining" }
+  Abnormal instance: { value: 5.8 mm/s RMS, context: "after 2000 hours of operation,
+             inference: ISO 10816 Zone C (unsatisfactory), probable bearing wear,
+             expected surface roughness Ra > 1.6 μm" }
+  Marginal instance: { value: 4.3 mm/s RMS, context: "near the upper limit of Zone B,
+             inference: planned maintenance required, quality not yet affected" }
 ```
 
 ---
 
-## 7. 可追溯性 (Provenance)
+## 7. Provenance
 
-### 原则
-本体中的每个声明必须可追溯到来源知识，并标注置信度：
-- **来源引用**：每个概念、关系、公理、实体都引用 source chunk_id
-- **置信度**：KNOWN（有直接证据）/ INFERRED（有间接证据）/ UNKNOWN（无证据）
-- **推理记录**：为什么从这个知识块推导出这个声明
-- **冲突标记**：如果不同来源给出矛盾信息，明确标记
+### Principle
+Every claim in the ontology must be traceable to its source knowledge and annotated with a confidence level:
+- **Source citation:** every concept, relationship, axiom, and entity cites a source chunk_id
+- **Confidence:** KNOWN (direct evidence) / INFERRED (indirect evidence) / UNKNOWN (no evidence)
+- **Reasoning record:** why this claim was derived from this knowledge chunk
+- **Conflict flag:** if different sources give contradictory information, flag it explicitly
 
-### 反模式
+### Anti-patterns
 ```
-❌ 没有任何 knowledge_source 的概念定义
-❌ 所有概念的置信度都是 KNOWN（不现实的）
-❌ 没有记录推理过程（"HbA1c 正常值 <5.7%" — 从哪个指南来的？）
-❌ 有冲突信息但未标记
+❌ A concept definition with no knowledge_source at all
+❌ Every concept's confidence is KNOWN (unrealistic)
+❌ No record of the reasoning process ("normal HbA1c <5.7%" — from which guideline?)
+❌ Conflicting information present but not flagged
 
-✅ 每个声明都有 source chunk_id + confidence + 1-2句推理
-✅ 冲突信息被标记，并说明选择理由
-✅ UNKNOWN 的概念被列入 clarification_needed.json
+✅ Every claim has a source chunk_id + confidence + 1-2 sentences of reasoning
+✅ Conflicting information is flagged, with the reason for the choice stated
+✅ UNKNOWN concepts are listed in clarification_needed.json
 ```
 
 ---
 
 ## Quality Self-Assessment Checklist
 
-在完成本体构建后，对以下每一项进行自检：
+After completing the ontology construction, self-check every item below:
 
-### A. 概念精确性
-- [ ] 每个概念有唯一的、精确的自然语言定义
-- [ ] 定义包含"不是什么"的消歧义说明
-- [ ] 领域专家能从定义判断实例归属
+### A. Concept Precision
+- [ ] Every concept has a unique, precise natural-language definition
+- [ ] The definition includes a "what it is not" disambiguation statement
+- [ ] A domain expert can decide instance membership from the definition
 
-### B. 层次完整性
-- [ ] 核心概念出现在至少一个 IS-A 或 PART-OF 层次链中
-- [ ] IS-A 和 PART-OF 没有混淆
-- [ ] 没有超过 4 层的深层嵌套
-- [ ] 没有完全孤立的节点
+### B. Hierarchical Completeness
+- [ ] Every core concept appears in at least one IS-A or PART-OF hierarchy chain
+- [ ] IS-A and PART-OF are not confused
+- [ ] No nesting deeper than 4 levels
+- [ ] No completely orphaned nodes
 
-### C. 关系语义丰富性
-- [ ] 每个关系有精确的类型（不是 "related_to"）
-- [ ] 每个关系有 2-3 句机制描述
-- [ ] 因果方向、时滞、条件约束都已标注
-- [ ] 没有循环因果链
+### C. Relationship Semantic Richness
+- [ ] Every relationship has a precise type (not "related_to")
+- [ ] Every relationship has a 2-3 sentence mechanism description
+- [ ] Causal direction, time lag, and conditional constraints are all annotated
+- [ ] No circular causal chains
 
-### D. 术语映射
-- [ ] 核心概念有同义词列表
-- [ ] 有缩写和跨语言术语
-- [ ] 数据列名与本体概念名之间的映射已记录
+### D. Terminology Mapping
+- [ ] Core concepts have a synonym list
+- [ ] Abbreviations and cross-language terms are present
+- [ ] The mapping between data column names and ontology concept names is recorded
 
-### E. 公理与约束
-- [ ] 至少有 3 条自然语言公理
-- [ ] 公理标注了约束类型（hard/soft/heuristic）
-- [ ] 公理标注了违反后果
-- [ ] 边界条件已记录
+### E. Axioms and Constraints
+- [ ] At least 3 natural-language axioms
+- [ ] Axioms are annotated with a constraint type (hard/soft/heuristic)
+- [ ] Axioms are annotated with the consequence of violation
+- [ ] Boundary conditions are recorded
 
-### F. 实例化说明
-- [ ] 核心概念有正常实例和异常实例
-- [ ] 实例包含上下文和推断路径
+### F. Instantiation Examples
+- [ ] Core concepts have normal instances and abnormal instances
+- [ ] Instances include context and an inference path
 
-### G. 可追溯性
-- [ ] 每个声明有 source chunk_id
-- [ ] 置信度（KNOWN/INFERRED/UNKNOWN）已标注
-- [ ] 冲突信息已标记并说明选择理由
-- [ ] UNKNOWN 概念已列入 clarification_needed
+### G. Provenance
+- [ ] Every claim has a source chunk_id
+- [ ] Confidence (KNOWN/INFERRED/UNKNOWN) is annotated
+- [ ] Conflicting information is flagged, with the reason for the choice stated
+- [ ] UNKNOWN concepts are listed in clarification_needed
 
-如果任何一项不通过，在提交前修复。
+If any item fails, fix it before submitting.

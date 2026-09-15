@@ -1,7 +1,7 @@
 {
   "skill_name": "rag-knowledge-builder",
   "schema_version": "2.0",
-  "description": "v4.0 本体优先评估套件。测试领域识别、本体构建质量（定义精确性、层次完整性、约束发现）、跨域拒绝、NL 规范质量。",
+  "description": "v4.0 ontology-first evaluation suite. Tests domain identification, ontology construction quality (definition precision, hierarchy completeness, constraint discovery), cross-domain rejection, and NL spec quality.",
   "evals": [
     {
       "id": 1,
@@ -15,17 +15,17 @@
         "expected_min_relationships": 5,
         "expected_min_constraints": 3,
         "expected_min_match_rate": 0.6,
-        "checks": ["概念有 definition（不是名称复述）", "有 broader_concept（层次）", "有 constraints", "有 terminology 映射"]
+        "checks": ["concepts have a definition (not a restatement of the name)", "have broader_concept (hierarchy)", "have constraints", "have terminology mapping"]
       },
       "assertions": [
-        {"name": "has_relationships", "jsonpath": "$.relationships.length()", "expected_type": "numeric_gte", "expected_values": [5], "weight": "critical", "description": "至少 5 条关系"},
-        {"name": "has_constraints", "jsonpath": "$.constraints.length()", "expected_type": "numeric_gte", "expected_values": [3], "weight": "critical", "description": "至少 3 条约束"},
-        {"name": "identifies_confounders", "jsonpath": "$.confounders.length()", "expected_type": "numeric_gte", "expected_values": [2], "weight": "high", "description": "至少 2 个混杂因子"},
-        {"name": "match_rate_sufficient", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_gte", "expected_values": [0.6], "weight": "high", "description": "匹配率 >= 0.6"},
-        {"name": "scene_has_domain_type", "jsonpath": "$.scene.domain_type", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "domain_type 存在"},
-        {"name": "concepts_have_definitions", "jsonpath": "$.concepts.target_concepts[0].definition", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "目标概念有 definition"},
-        {"name": "concepts_have_hierarchy", "jsonpath": "$.concepts.target_concepts[0].broader_concept", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "概念有 broader_concept"},
-        {"name": "concepts_have_terminology", "jsonpath": "$.concepts.target_concepts[0].terminology", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "概念有 terminology 映射"}
+        {"name": "has_relationships", "jsonpath": "$.relationships.length()", "expected_type": "numeric_gte", "expected_values": [5], "weight": "critical", "description": "At least 5 relationships"},
+        {"name": "has_constraints", "jsonpath": "$.constraints.length()", "expected_type": "numeric_gte", "expected_values": [3], "weight": "critical", "description": "At least 3 constraints"},
+        {"name": "identifies_confounders", "jsonpath": "$.confounders.length()", "expected_type": "numeric_gte", "expected_values": [2], "weight": "high", "description": "At least 2 confounders"},
+        {"name": "match_rate_sufficient", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_gte", "expected_values": [0.6], "weight": "high", "description": "Match rate >= 0.6"},
+        {"name": "scene_has_domain_type", "jsonpath": "$.scene.domain_type", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "domain_type is present"},
+        {"name": "concepts_have_definitions", "jsonpath": "$.concepts.target_concepts[0].definition", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "Target concepts have a definition"},
+        {"name": "concepts_have_hierarchy", "jsonpath": "$.concepts.target_concepts[0].broader_concept", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "Concepts have broader_concept"},
+        {"name": "concepts_have_terminology", "jsonpath": "$.concepts.target_concepts[0].terminology", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "Concepts have terminology mapping"}
       ]
     },
     {
@@ -41,9 +41,9 @@
         "checks": ["graceful fallback", "knowledge gaps reported", "match_rate reflects reality"]
       },
       "assertions": [
-        {"name": "no_crash_on_unknown", "jsonpath": "$.relationships", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "不崩溃"},
-        {"name": "metadata_present", "jsonpath": "$.rag_construction_metadata", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "元数据存在"},
-        {"name": "low_match_rate_reported", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_lt", "expected_values": [0.5], "weight": "high", "description": "匹配率 <0.5（反映知识不足）"}
+        {"name": "no_crash_on_unknown", "jsonpath": "$.relationships", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "Does not crash"},
+        {"name": "metadata_present", "jsonpath": "$.rag_construction_metadata", "expected_type": "exists", "expected_values": ["present"], "weight": "medium", "description": "Metadata is present"},
+        {"name": "low_match_rate_reported", "jsonpath": "$.rag_construction_metadata.match_rate", "expected_type": "numeric_lt", "expected_values": [0.5], "weight": "high", "description": "Match rate <0.5 (reflects insufficient knowledge)"}
       ]
     },
     {
@@ -59,8 +59,8 @@
         "checks": ["web results normalized to chunk format", "source credibility scored"]
       },
       "assertions": [
-        {"name": "web_returns_results", "jsonpath": "$.total_chunks_retrieved", "expected_type": "numeric_gte", "expected_values": [1], "weight": "critical", "description": "web 搜索返回至少 1 个结果"},
-        {"name": "source_marked_web", "jsonpath": "$.chunks[0].source.type", "expected_type": "contains_any", "expected_values": ["web_authoritative", "web_general"], "weight": "high", "description": "结果标记为 web 来源"}
+        {"name": "web_returns_results", "jsonpath": "$.total_chunks_retrieved", "expected_type": "numeric_gte", "expected_values": [1], "weight": "critical", "description": "Web search returns at least 1 result"},
+        {"name": "source_marked_web", "jsonpath": "$.chunks[0].source.type", "expected_type": "contains_any", "expected_values": ["web_authoritative", "web_general"], "weight": "high", "description": "Results are tagged as a web source"}
       ]
     },
     {
@@ -75,9 +75,9 @@
         "checks": ["schema compliance rejects generic domain_type", "definition quality rejects tautologies"]
       },
       "assertions": [
-        {"name": "rejects_generic_type", "jsonpath": "$.checks.schema_compliance.passed", "expected_type": "equals", "expected_values": [false], "weight": "critical", "description": "domain_type 为 generic 应被拒绝"},
-        {"name": "has_eight_checks", "jsonpath": "$.checks", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "8 项检查全部执行"},
-        {"name": "produces_fail_verdict", "jsonpath": "$.verdict", "expected_type": "equals", "expected_values": ["FAIL"], "weight": "critical", "description": "最终判定为 FAIL"}
+        {"name": "rejects_generic_type", "jsonpath": "$.checks.schema_compliance.passed", "expected_type": "equals", "expected_values": [false], "weight": "critical", "description": "domain_type generic should be rejected"},
+        {"name": "has_eight_checks", "jsonpath": "$.checks", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "All 8 checks are executed"},
+        {"name": "produces_fail_verdict", "jsonpath": "$.verdict", "expected_type": "equals", "expected_values": ["FAIL"], "weight": "critical", "description": "Final verdict is FAIL"}
       ]
     },
     {
@@ -91,10 +91,10 @@
         "checks": ["all 9 sections present", "definitions are full sentences", "no JSON leakage"]
       },
       "assertions": [
-        {"name": "nl_spec_exists", "jsonpath": "$.nl_spec_content", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "NL Spec 文件存在"},
-        {"name": "has_domain_overview", "jsonpath": "$.nl_spec_sections.domain_overview", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "包含领域概述"},
-        {"name": "has_concept_dictionary", "jsonpath": "$.nl_spec_sections.concept_dictionary", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "包含概念字典"},
-        {"name": "has_relationship_graph", "jsonpath": "$.nl_spec_sections.relationship_graph", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "包含关系图谱"}
+        {"name": "nl_spec_exists", "jsonpath": "$.nl_spec_content", "expected_type": "exists", "expected_values": ["present"], "weight": "critical", "description": "The NL Spec file exists"},
+        {"name": "has_domain_overview", "jsonpath": "$.nl_spec_sections.domain_overview", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "Contains the domain overview"},
+        {"name": "has_concept_dictionary", "jsonpath": "$.nl_spec_sections.concept_dictionary", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "Contains the concept dictionary"},
+        {"name": "has_relationship_graph", "jsonpath": "$.nl_spec_sections.relationship_graph", "expected_type": "exists", "expected_values": ["present"], "weight": "high", "description": "Contains the relationship graph"}
       ]
     }
   ]

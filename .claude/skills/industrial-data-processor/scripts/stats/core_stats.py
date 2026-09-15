@@ -356,9 +356,18 @@ def _validate_time_sorting(rows, time_col):
 
     is_sorted = True
     for k in range(1, len(indices)):
-        if indices[k][1] < indices[k - 1][1]:
-            is_sorted = False
-            break
+        a, b = indices[k - 1][1], indices[k][1]
+        try:
+            # numeric-aware compare: string compare would falsely flag
+            # sorted numeric times ("10" < "2" lexicographically)
+            fa, fb = float(a), float(b)
+            if fb < fa:
+                is_sorted = False
+                break
+        except (TypeError, ValueError):
+            if b < a:
+                is_sorted = False
+                break
 
     return {
         'time_sorted': is_sorted,

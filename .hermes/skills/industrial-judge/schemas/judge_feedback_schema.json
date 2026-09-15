@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Judge Feedback Schema v6.0",
+  "description": "Schema for the Judge agent's quality assessment output, including criteria scores, reasoning chain audit, and spot-check findings.",
+  "type": "object",
+  "required": ["overall_score", "verdict", "criteria_scores", "blocking_issues"],
+  "properties": {
+    "overall_score": {"type": "integer", "minimum": 0, "maximum": 100},
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "needs_repair", "major_issues", "fail"]
+    },
+    "criteria_scores": {
+      "type": "object",
+      "required": [
+        "data_quality_awareness", "variable_classification", "time_alignment_and_sorting",
+        "visualization_quality", "evidence_based_conclusions", "correlation_vs_causation",
+        "uncertainty_disclosure", "report_quality", "no_over_claiming", "completeness"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "score": {"type": "integer", "minimum": 0, "maximum": 10},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "reasoning_chain_audit": {
+      "type": "object",
+      "properties": {
+        "score": {"type": "integer", "minimum": 0, "maximum": 10},
+        "checks": {
+          "type": "object",
+          "properties": {
+            "completeness": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}},
+            "evidence_grounding": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}},
+            "counterfactual_adequacy": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}},
+            "falsifiability": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}},
+            "hallucination_audit": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}},
+            "uncertainty_decomposition": {"type": "object", "properties": {"passed": {"type": "boolean"}, "issues": {"type": "array", "items": {"type": "string"}}}}
+          }
+        },
+        "blocking_issues": {"type": "array", "items": {"type": "string"}},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "spot_check_findings": {
+      "type": "object",
+      "properties": {
+        "correlations_sampled": {"type": "integer", "minimum": 0},
+        "verified": {"type": "integer", "minimum": 0},
+        "questionable": {"type": "integer", "minimum": 0},
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claim": {"type": "string"},
+              "sample_verified": {"type": "boolean"},
+              "note": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "blocking_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "repair_instruction"],
+        "properties": {
+          "description": {"type": "string"},
+          "repair_instruction": {"type": "string"},
+          "affected_steps": {"type": "array", "items": {"type": "string"}},
+          "validation_source": {"type": "string"}
+        }
+      }
+    },
+    "repair_instructions": {
+      "type": "object",
+      "properties": {
+        "summary": {"type": "string"},
+        "steps_to_rerun": {"type": "array", "items": {"type": "string"}},
+        "key_changes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {"type": "string"},
+          "suggestion": {"type": "string"},
+          "validation_source": {"type": "string"}
+        }
+      }
+    },
+    "evidence_gaps": {"type": "array", "items": {"type": "string"}},
+    "strengths": {"type": "array", "items": {"type": "string"}},
+    "validation_findings_cited": {"type": "array", "items": {"type": "string"}},
+    "iteration": {"type": "integer", "minimum": 1},
+    "max_iterations": {"type": "integer", "minimum": 1, "maximum": 5}
+  }
+}

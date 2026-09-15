@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HTML Review",
+  "description": "Schema for html-reviewer sub-agent output — validates the generated diagnostic-report.html against clarity, evidence, logic, and cross-run contamination criteria",
+  "type": "object",
+  "required": [
+    "verdict",
+    "overall_score",
+    "blocking_issues",
+    "warnings",
+    "checks"
+  ],
+  "properties": {
+    "verdict": {
+      "description": "Final review decision",
+      "type": "string",
+      "enum": ["pass", "warn", "fail"]
+    },
+    "overall_score": {
+      "description": "Overall quality score (0-100)",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "blocking_issues": {
+      "description": "Issues that must be resolved before delivery",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "warnings": {
+      "description": "Non-blocking improvement suggestions",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "checks": {
+      "description": "Per-criterion check results, each mapping to a SKILL.md red-line or quality dimension",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "evidence"],
+        "properties": {
+          "name": {
+            "description": "Check identifier — maps to one or more SKILL.md red lines",
+            "type": "string",
+            "enum": [
+              "hero_clarity",
+              "evidence_layer_1_statistical",
+              "evidence_layer_2_physics",
+              "evidence_layer_3_exclusion",
+              "image_usage_from_03_figures",
+              "three_d_fidelity",
+              "chart_initialization",
+              "dual_evidence_per_conclusion",
+              "plain_language_translation",
+              "action_and_limitations",
+              "render_manifest_produced",
+              "manifest_page_consistency",
+              "no_cross_run_pollution"
+            ]
+          },
+          "status": {
+            "description": "Pass/fail for this check",
+            "type": "string",
+            "enum": ["pass", "fail"]
+          },
+          "evidence": {
+            "description": "Supporting evidence or explanation for the verdict",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

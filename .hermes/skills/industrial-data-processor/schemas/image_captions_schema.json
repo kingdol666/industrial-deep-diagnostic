@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Captions Schema v1.0",
+  "description": "Per-figure structured descriptions for downstream agents that cannot view PNG images. Accepts both flat-object format (vlm-visual-analyzer) and wrapped-object format (generate_captions.mjs). Also accepts legacy array format for backward compatibility. Consumed by diagnostician, judge, and reporter.",
+
+  "anyOf": [
+    {
+      "type": "object",
+      "description": "Flat format: {filename: figure_caption, ...} or wrapper format: {generated_at, figures: {filename: ...}}",
+      "required": [],
+      "properties": {
+        "generated_at": { "type": "string" },
+        "source_files": { "type": "object" },
+        "total_figures": { "type": "integer" },
+        "figures": {
+          "type": "object",
+          "description": "Wrapped format: all figure captions keyed by filename",
+          "additionalProperties": { "$ref": "#/definitions/figure_caption" }
+        }
+      },
+      "additionalProperties": { "$ref": "#/definitions/figure_caption" }
+    },
+    {
+      "type": "array",
+      "description": "Legacy array format: [{figure, purpose, key_observations, diagnostic_implication}, ...]",
+      "items": {
+        "type": "object",
+        "required": ["figure", "key_observations", "diagnostic_implication"],
+        "properties": {
+          "figure": { "type": "string", "description": "Image filename" },
+          "purpose": { "type": "string", "description": "What diagnostic question this figure answers" },
+          "key_observations": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "3-5 concrete bullets with ACTUAL NUMBERS"
+          },
+          "diagnostic_implication": {
+            "type": "string",
+            "description": "ONE sentence: what this plot tells the Diagnostician about root cause"
+          },
+          "chart_type": { "type": "string" },
+          "axes": { "type": "object" },
+          "validation_issues": { "type": "array", "items": { "type": "string" } },
+          "trend_shapes": { "type": "string" },
+          "divergence_points": { "type": "string" },
+          "anomaly_regions": { "type": "string" },
+          "vlm_notes": { "type": "string" }
+        }
+      }
+    }
+  ],
+
+  "definitions": {
+    "figure_caption": {
+      "type": "object",
+      "required": ["description", "key_observations", "diagnostic_implication"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "One paragraph: what this figure shows, how it was generated, what parameters are plotted"
+        },
+        "key_observations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "3-5 concrete bullets with ACTUAL NUMBERS — r values, p values, threshold values, anomaly counts, drift rates"
+        },
+        "diagnostic_implication": {
+          "type": "string",
+          "description": "ONE sentence: what this plot tells the Diagnostician about root cause. Must be directly citable as evidence."
+        },
+        "figure_id": { "type": "string", "description": "Short figure identifier e.g. fig_1" },
+        "title": { "type": "string", "description": "Display title for the figure" },
+        "chart_type": { "type": "string", "description": "overlay | scatter | heatmap | bar | line | profile | boxplot | diagram" },
+        "axes": {
+          "type": "object",
+          "properties": { "x": { "type": "string" }, "y": { "type": "string" }, "color": { "type": "string" }, "facet": { "type": "string" } }
+        },
+        "validation_issues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Statistical validation issues: Simpson reversal, Pearson-Spearman divergence, trend confounding, outlier-driven"
+        },
+        "trend_shapes": { "type": "string", "description": "Linear / accelerating / decelerating / flat / periodic / irregular / pulse_burst" },
+        "divergence_points": { "type": "string", "description": "Where correlated parameters diverge" },
+        "anomaly_regions": { "type": "string", "description": "Time windows or group labels where anomalies cluster" },
+        "vlm_notes": { "type": "string", "description": "Additional VLM insights — nuance, subtle patterns, reading confidence" },
+        "figure_order": { "type": "integer", "minimum": 1, "description": "Display priority" }
+      }
+    }
+  }
+}

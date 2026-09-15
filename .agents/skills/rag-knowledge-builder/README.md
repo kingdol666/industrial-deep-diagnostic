@@ -1,76 +1,80 @@
 # RAG Knowledge Builder Skill
 
-这是一个**本体优先**的知识构建 Skill。它的目标不是简单检索，而是把检索到的知识组织成一个**可供下游 Skill 直接消费的领域本体模型**。
+This is an **ontology-first** knowledge-construction skill. Its goal is not simple retrieval, but organizing retrieved knowledge into a **domain ontology model that downstream skills can consume directly**.
 
-## Skill 定位
+## What This Skill Is For
 
-当任务需要：
-- 构建领域本体
-- 形成概念层次和关系图谱
-- 从 RAG 检索结果中提炼结构化知识
-- 为下游诊断/分析 Skill 提供领域语义支撑
+Use this skill when the task requires:
 
-就应该使用这个 Skill。
+- Building a domain ontology
+- Forming a concept hierarchy and a relationship map
+- Distilling structured knowledge from RAG retrieval results
+- Providing domain-semantic support for downstream diagnostic/analysis skills
 
-## 这个 Skill 输出什么
+That is when you should use this skill.
 
-它会输出一组本体相关工件：
-- `rag_ontology_draft.json`：结构化本体
-- `rag_ontology_nl_spec.md`：人类可读自然语言规范
-- `rag_structured_data.json`：机器消费模板
-- `rag_scored_chunks.json`：检索块与评分结果
-- `rag_audit_log.json`：质量审查日志
-- `rag_clarification_needed.json`：待澄清概念
+## What This Skill Outputs
 
-## 标准执行流程
+It emits a set of ontology-related artifacts:
 
-### Phase 0：Engine Startup
-- 启动或检查 `rag-retrieval-engine`
+- `rag_ontology_draft.json`: the structured ontology
+- `rag_ontology_nl_spec.md`: the human-readable natural-language specification
+- `rag_structured_data.json`: machine-consumption templates
+- `rag_scored_chunks.json`: retrieved chunks and their scores
+- `rag_audit_log.json`: the quality audit log
+- `rag_clarification_needed.json`: concepts awaiting clarification
 
-### Phase 1：Knowledge Collection
-- 本地知识库检索
-- 可选 Web 检索
-- 检索块评分与筛选
+## Standard Execution Flow
 
-### Phase 2：Ontology Construction
-- 领域理解
-- 概念定义
-- 层次关系构建
-- 约束与术语映射
-- 输出 JSON + Markdown 双版本本体
+### Phase 0: Engine Startup
+- Start or health-check `rag-retrieval-engine`
 
-### Phase 3：Structured Data Generation
-- 生成查询模板、验证规则、结构化模板
+### Phase 1: Knowledge Collection
+- Local knowledge-base retrieval
+- Optional web retrieval
+- Scoring and triage of retrieved chunks
 
-### Phase 4：Quality Verification
-- 检查本体完整性、一致性、可追溯性与下游可用性
+### Phase 2: Ontology Construction
+- Domain understanding
+- Concept definition
+- Hierarchy construction
+- Constraints and terminology mapping
+- Output both the JSON and the Markdown version of the ontology
 
-## 与诊断 Skill 的关系
+### Phase 3: Structured Data Generation
+- Generate query templates, validation rules, and structured templates
 
-这个 Skill 通常作为：
-- `industrial-deep-diagnostic` 的上游知识构建模块
-- 或者独立的领域知识准备模块
+### Phase 4: Quality Verification
+- Check ontology completeness, consistency, traceability, and downstream usability
 
-关系是：
+## Relationship to the Diagnostic Skills
+
+This skill usually serves as:
+
+- an upstream knowledge-construction module for `industrial-deep-diagnostic`
+- or a standalone domain-knowledge preparation module
+
+The relationship is:
+
 ```text
 RAG Engine -> RAG Knowledge Builder Skill -> Industrial Deep Diagnostic Skill
 ```
 
-## 优势
+## Advantages
 
-- 本体优先，而不是“搜索结果堆砌”
-- 同时面向机器和人类输出
-- 可作为多个下游 Skill 的语义基础设施
-- 领域无关，可复用于工业、医学、法律、科研等场景
+- Ontology-first, rather than a "pile of search results"
+- Outputs aimed at both machines and humans
+- Serves as semantic infrastructure for multiple downstream skills
+- Domain-agnostic; reusable across industrial, medical, legal, scientific-research, and other scenarios
 
-## 典型用途
+## Typical Uses
 
-- 为工业诊断构建领域本体
-- 为复杂问答系统构建术语与关系图谱
-- 为数据分析系统提供概念字典与因果语义支撑
+- Building a domain ontology for industrial diagnosis
+- Building terminology and relationship maps for complex question-answering systems
+- Providing a concept dictionary and causal-semantic support for data-analysis systems
 
-## 关键入口
+## Key Entry Points
 
-- 主协议：`SKILL.md`
-- 输出目录：通常写入 `run_dir/00_input/`
-- 引擎服务：见 `rag-retrieval-engine/README.md`
+- Main protocol: `SKILL.md`
+- Output directory: usually written into `run_dir/00_input/`
+- Engine service: see `rag-retrieval-engine/README.md`

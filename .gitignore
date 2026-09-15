@@ -49,8 +49,10 @@ rag-retrieval-engine/storage/retrieval_runs/
 rag-retrieval-engine/knowledge_base/chroma_db/
 rag-retrieval-engine/storage/retrieval_engine.db
 
-# Diagnostic run directories
-runs/
+# Diagnostic run directories — anchored to the repository root. Unanchored
+# `runs/` also matched baseline-lab/results/runs/, silently excluding the
+# baseline-lab sweep evidence from every commit.
+/runs/
 
 # Generated images / prompts cache
 garden-gpt-image-2/
@@ -98,3 +100,27 @@ data/benchmark/
 # 修复/冒烟临时目录
 workspace/_repair_tmp_r2/
 workspace/ontology-store-smoke-*/
+
+# ---------------------------------------------------------------- LaTeX
+# Build artifacts are regenerable from main.tex; main.bbl IS kept because it is
+# required for the arXiv/submission bundle.
+*.aux
+*.log
+*.out
+*.blg
+*.spl
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+paper/pagepng/
+
+# ------------------------------------------------------- baseline-lab (Nuxt)
+# The lab's source AND its results/ are committed: results/ holds the archived
+# LLM answers and sweep summaries that the reproduction claims rest on (~1.7 MB).
+baseline-lab/node_modules/
+baseline-lab/.nuxt/
+baseline-lab/.output/
+baseline-lab/.llm-scratch/
+baseline-lab/dist/
+baseline-lab/.env
+

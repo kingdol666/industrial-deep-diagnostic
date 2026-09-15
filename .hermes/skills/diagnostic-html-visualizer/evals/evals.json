@@ -1,0 +1,30 @@
+{
+  "skill_name": "diagnostic-html-visualizer",
+  "description": "Qualitative eval prompts for turning diagnostic run folders into human-friendly HTML explainers.",
+  "schema_version": "2.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "bopet_story_html_from_full_run",
+      "prompt": "请读取 workspace/diagnostic-runs/202606151602359_bopet_scratch_lekai 下的全部诊断产物，生成一个完整的 HTML 可视化讲解页面，让用户能理解结论、证据、异常工段和下一步动作。",
+      "expected_output": "生成单文件 HTML 页面，包含四段式讲解、ECharts 图表、3D 工段示意、主结论摘要、证据链和行动建议。",
+      "files": [
+        "workspace/diagnostic-runs/202606151602359_bopet_scratch_lekai"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "rebuild_when_some_figures_missing",
+      "prompt": "某次诊断目录里有 diagnosis.json、evidence.json、ontology.json，但部分 PNG 图缺失。请你仍然生成一个可读的 HTML 页面，复用现有产物并用 ECharts 补绘关键图。",
+      "expected_output": "页面明确降级策略，缺图时重绘关键图，并保持四段式讲解完整。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "executive_friendly_html_for_mixed_audience",
+      "prompt": "把诊断结果做成一个适合工艺、设备、管理层混合受众阅读的 HTML 页面，要求主结论先行、证据链清楚、图表解释简单，不要堆统计术语。",
+      "expected_output": "页面语言通俗、结构清晰、证据与结论绑定紧密，并包含局限性与下一步建议。",
+      "files": []
+    }
+  ]
+}

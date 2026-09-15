@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
 # Default engine endpoint
-ENGINE_URL = os.environ.get("RAG_ENGINE_URL", "http://localhost:8765")
+ENGINE_URL = os.environ.get("RAG_ENGINE_URL", "http://localhost:8764")
 
 # Skill root (rag_client.py is at .claude/skills/rag-knowledge-builder/scripts/)
 SKILL_ROOT = str(Path(__file__).resolve().parent.parent)
@@ -401,6 +401,7 @@ def cmd_health(_args):
 def cmd_start(args):
     """Check RAG engine, auto-start if not running."""
     import subprocess
+    import tempfile
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.realpath(os.path.join(script_dir, "..", "..", "..", ".."))
@@ -422,7 +423,7 @@ def cmd_start(args):
     engine = subprocess.Popen(
         ["uv", "run", "python", "server.py"],
         cwd=ENGINE_DIR,
-        stdout=open("/tmp/rag_engine.log", "w"),
+        stdout=open(os.path.join(tempfile.gettempdir(), "rag_engine.log"), "w"),
         stderr=subprocess.STDOUT,
         env={**os.environ, "VIRTUAL_ENV": "", "http_proxy": "", "https_proxy": "",
              "HTTP_PROXY": "", "HTTPS_PROXY": "", "ALL_PROXY": "", "all_proxy": ""},
