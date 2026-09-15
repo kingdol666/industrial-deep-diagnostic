@@ -155,20 +155,21 @@ export function buildCotPrompt(caseId, matrix) {
 
 // ------------------------------------------------------------ ReAct variant
 
-export const REACT_TOOLS = `Available tools (call at most 6 times total):
-- column_stats(column)                     -> mean, std, min, max, first-half vs second-half mean shift for one column
-- top_changed_columns(k)                   -> the k columns with the largest mean shift between the first and second half of the record
-- correlate(column_a, column_b)            -> Pearson r between two columns
-- window_compare(column, from_row, to_row) -> mean and std of one column over an explicit row range
+export const REACT_TOOLS = `Available tools — these are the ONLY tools that exist. Calling anything else returns an error, and writing an OBSERVATION yourself is a protocol violation that invalidates your answer:
+- column_stats(column [, from_row, to_row])   -> mean, std, min, max, first-half vs second-half shift (optionally within a row window)
+- top_changed_columns(k)                      -> the k columns with the largest mean shift between the first and second half
+- correlate(column_a, column_b)               -> Pearson r between two columns
+- window_compare(column, from_row, to_row)    -> mean and std of one column over an explicit row range
+- trend(column, from_row, to_row)             -> OLS slope, r², p-value and direction over a row range
 
 To call a tool, emit a line exactly of the form:
 ACTION: <tool_name>(<arguments>)
 You will then receive:
 OBSERVATION: <result>
-The OBSERVATION is supplied BY THE SYSTEM. Never write an OBSERVATION line yourself — inventing tool output is a critical failure. Emit one ACTION per turn and wait for the real result.
+The OBSERVATION is supplied BY THE SYSTEM. NEVER write an OBSERVATION line yourself, and never state a number you did not receive in one — inventing tool output is a critical failure and the answer will be marked contaminated. Emit ONE ACTION per turn and wait for the real result.
 
 Finish with EXACTLY these keys and nothing else:
-FINAL: {"top3": ["<most likely root cause>", "<second>", "<third>"], "reasoning": "<2-3 sentences citing the numbers you actually observed>"}
+FINAL: {"top3": ["<most likely root cause>", "<second>", "<third>"], "reasoning": "<2-3 sentences citing numbers you actually received in OBSERVATION lines>"}
 If the evidence shows no fault, answer FINAL: {"top3": [], "verdict": "normal", "reasoning": "<why>"}.
 Do not substitute other key names such as "finding" or "recommended_action" — a reply without a "top3" array is treated as an empty answer.`;
 

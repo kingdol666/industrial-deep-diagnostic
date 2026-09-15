@@ -260,6 +260,21 @@ function runCli(cmd, args, { stdinText, timeoutMs, cwd, shell = false }) {
 }
 
 /**
+ * Honest model label for a CLI harness.
+ *
+ * A CLI harness does not necessarily disclose which model it used, so returning
+ * the harness id in the `model` field (e.g. "cli:claude") invites the reader to
+ * believe the model is literally named that. We name the harness and say
+ * explicitly that no model was pinned, so `BASELINE_LLM_MODEL` is the obvious
+ * remedy when exact model identity matters for a comparison.
+ */
+export function modelLabel(provider) {
+  if (provider?.model) return provider.model;
+  const harness = String(provider?.id || '').replace(/^cli:/, '');
+  return `${harness} (harness default — no model pinned)`;
+}
+
+/**
  * Perform one genuine LLM completion.
  * Returns { ok, text, model, provider, seconds, error?, fabricated }
  */
@@ -346,20 +361,20 @@ export async function chat(provider, { system, prompt, timeoutMs = 300000, maxTo
 
       if (r.timedOut) {
         return {
-          ok: false, text: r.stdout, provider: provider.id, model: provider.model || harnessId,
+          ok: false, text: r.stdout, provider: provider.id, model: modelLabel(provider),
           error: `timeout after ${timeoutMs}ms`, seconds: (Date.now() - t0) / 1000, fabricated: false,
         };
       }
       if (r.code !== 0 || r.spawnError) {
         return {
-          ok: false, text: r.stdout, provider: provider.id, model: provider.model || harnessId,
+          ok: false, text: r.stdout, provider: provider.id, model: modelLabel(provider),
           error: `exit ${r.code}: ${r.stderr.slice(-400)}`,
           seconds: (Date.now() - t0) / 1000, fabricated: false,
         };
       }
       const text = r.stdout.trim();
       return {
-        ok: Boolean(text), text, provider: provider.id, model: provider.model || harnessId,
+        ok: Boolean(text), text, provider: provider.id, model: modelLabel(provider),
         seconds: (Date.now() - t0) / 1000, fabricated: false,
         stderr_tail: r.stderr.slice(-300) || undefined,
       };

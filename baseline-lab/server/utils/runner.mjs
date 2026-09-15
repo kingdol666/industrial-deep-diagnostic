@@ -24,9 +24,12 @@ export function runDir(runId) {
 
 /**
  * Execute one algorithm on one case.
+ * @param {object} opts
+ * @param {function} [opts.onEvent] live lifecycle callback, forwarded to the
+ *   algorithm so long model calls can be streamed instead of appearing frozen.
  * @returns {{case_id, algorithm, status, ok, output, scored, error?}}
  */
-export async function runOne({ algorithmId, caseId, config = {}, options = {}, log = () => {} }) {
+export async function runOne({ algorithmId, caseId, config = {}, options = {}, log = () => {}, onEvent = null }) {
   const algo = getAlgorithm(algorithmId);
   const caseDef = loadCaseForAlgorithm(caseId); // sanitized — no truth fields
   const result = {
@@ -47,9 +50,10 @@ export async function runOne({ algorithmId, caseId, config = {}, options = {}, l
       reasoning: `This algorithm declares domains [${algo.meta.domains.join(', ')}] and is therefore not applicable to '${caseDef.dataset}'.`,
     };
   } else {
+    const t0 = Date.now();
     try {
       const ctx = buildContext(caseDef, { log });
-      result.output = await algo.run(ctx, { ...options, config });
+      result.output = await algo.run(ctx, { ...options, config, onEvent });
       result.status = result.output?.status || 'executed';
     } catch (err) {
       result.status = 'error';
@@ -61,6 +65,7 @@ export async function runOne({ algorithmId, caseId, config = {}, options = {}, l
         reasoning: `Algorithm threw: ${String(err && err.message ? err.message : err)}`,
       };
     }
+    result.runtime_ms = result.output?.runtime_ms ?? (Date.now() - t0);
   }
 
   // ---- scoring happens AFTER the algorithm has finished and only here

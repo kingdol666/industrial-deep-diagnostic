@@ -35,7 +35,7 @@ export const meta = {
   },
 };
 
-export async function run(ctx, { config = {} } = {}) {
+export async function run(ctx, { config = {}, onEvent = null } = {}) {
   const t0 = Date.now();
   const { caseDef, matrix } = ctx;
 
@@ -55,6 +55,7 @@ export async function run(ctx, { config = {} } = {}) {
       caseId: caseDef.case_id,
       algoId: meta.id,
       tag: `debate.r1.${role.id}`,
+      onEvent,
     });
     invocations.push(invocation);
     openings.push({ id: role.id, round: 1, ok, answer: answer || { top3: [], reasoning: '(no parseable reply)' } });
@@ -67,7 +68,7 @@ export async function run(ctx, { config = {} } = {}) {
     const { ok, answer, invocation } = await callJson(
       provider,
       buildDebateRebuttal(role, context, others),
-      { timeoutMs, caseId: caseDef.case_id, algoId: meta.id, tag: `debate.r2.${role.id}` },
+      { timeoutMs, caseId: caseDef.case_id, algoId: meta.id, tag: `debate.r2.${role.id}`, onEvent },
     );
     invocations.push(invocation);
     rebuttals.push({ id: role.id, round: 2, ok, answer: answer || { top3: [], reasoning: '(no parseable reply)' } });
@@ -77,7 +78,7 @@ export async function run(ctx, { config = {} } = {}) {
   const { ok: judgeOk, answer: judgeAnswer, invocation: judgeInv } = await callJson(
     provider,
     buildDebateJudge(context, [...openings, ...rebuttals]),
-    { timeoutMs, caseId: caseDef.case_id, algoId: meta.id, tag: 'debate.judge' },
+    { timeoutMs, caseId: caseDef.case_id, algoId: meta.id, tag: 'debate.judge', onEvent },
   );
   invocations.push(judgeInv);
 

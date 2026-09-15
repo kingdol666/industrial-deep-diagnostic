@@ -133,3 +133,8 @@ baseline-lab/.env
 # baseline-lab/results/runs/ (committed) and are self-describing.
 baseline-lab/uploads/
 
+# Per-job diagnosis reports reference an upload by id, so they are runtime state
+# like the upload itself. Regenerate with `npm run diagnose <uploadId>`.
+baseline-lab/results/diagnoses/
+baseline-lab/.devlog.txt
+

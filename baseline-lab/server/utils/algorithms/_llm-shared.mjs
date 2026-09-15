@@ -61,8 +61,15 @@ const JSON_INSTRUCTION =
 /**
  * Run a single prompt through the provider and parse the strict JSON reply.
  * Returns { ok, answer, invocation }.
+ *
+ * `onEvent` (optional) receives lifecycle callbacks so a caller can stream the
+ * diagnosis live. Without it a long model call is an opaque 40-80 second gap —
+ * which is exactly what makes a real diagnosis look like a frozen script.
  */
-export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, algoId, tag } = {}) {
+export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, algoId, tag, onEvent = null } = {}) {
+  const emit = (type, data) => { try { onEvent?.(type, data); } catch { /* a listener must never break the run */ } };
+  emit('llm_call_start', { tag: tag || algoId, algoId, provider: provider?.id, model: provider?.model || provider?.id, prompt_chars: prompt?.length || 0 });
+
   const r = await chat(provider, { prompt: `${prompt}\n\n${JSON_INSTRUCTION}`, timeoutMs });
   const parsed = r.ok ? extractJson(r.text) : null;
   const invocation = {
@@ -92,6 +99,18 @@ export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, a
       archived_at: new Date().toISOString(),
     });
   }
+  emit('llm_call_done', {
+    tag: invocation.tag,
+    algoId,
+    ok: r.ok,
+    model: r.model,
+    seconds: invocation.seconds,
+    error: invocation.error,
+    archived: invocation.archived || null,
+    // A clipped view of the model's OWN words, so the UI can show the reply
+    // arriving rather than only a spinner.
+    reply_head: String(r.text || '').slice(0, 600),
+  });
   return { ok: r.ok, answer: parsed, invocation, raw: String(r.text || '') };
 }
 

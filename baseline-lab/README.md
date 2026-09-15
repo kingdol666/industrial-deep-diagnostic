@@ -258,15 +258,36 @@ node scripts/sweep.mjs --algorithms llm-direct,llm-cot,llm-react,llm-debate,fe-o
 The lab is not limited to the 12 benchmark scenarios. The **自建数据诊断** page
 (`/custom`) accepts a file you upload and runs the selected algorithms on it for
 real — the backend parses your bytes, executes each algorithm against your rows,
-and for the LLM comparators makes a genuine model call per algorithm, showing
-which provider and model answered.
+and for the LLM comparators makes a genuine model call per algorithm.
 
 ```bash
-node scripts/verify-upload.mjs                    # synthesises a test file
+node scripts/verify-upload.mjs                    # 52 checks, synthesised file
 node scripts/verify-upload.mjs mydata.csv         # your own file
 node scripts/verify-upload.mjs mydata.csv --llm   # also make real LLM calls
-node scripts/check-digest-masking.mjs             # prove the digest basis is right
+node scripts/verify-integrity.mjs                 # evidence-integrity guard, 23 checks
+node scripts/check-imports.mjs                    # every relative import resolves
+node scripts/drive-diagnosis.mjs <uploadId> a,b,c # drive a diagnosis over HTTP + SSE
 ```
+
+### The diagnosis API
+
+A diagnosis is a separate job from a benchmark sweep, and its own API reflects
+that (`runner.mjs` scores algorithms against hidden ground truth; a diagnosis of
+user data has nothing to score and must be observable while it runs).
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/diagnose` | which algorithms can run on uploaded data, which cannot and why, plus the resolved provider |
+| `POST /api/diagnose` | `{ uploadId, algorithms }` → starts the job, returns `{ job_id, stream_url, result_url }` |
+| `GET /api/diagnose/:id/stream` | **Server-Sent Events**: `stage`, `algorithm_start`, `llm_call_start`, `llm_call_done`, `protocol_violation`, `algorithm_done`, `complete` |
+| `GET /api/diagnose/:id` | accumulated findings + the rendered report (`?events=1` for the full log) |
+
+The stream is what makes the diagnosis *observably* real rather than a progress
+bar followed by a blob. A single model call takes 40–200 s, and a silent gap is
+indistinguishable from a frozen script — so each call is announced when it
+starts, and when it returns the UI shows the provider, the model, the latency and
+a clipped excerpt of the model's own reply. Events are replayed on connect, so a
+reload converges on the same log.
 
 ### What actually happens to your file
 
@@ -300,6 +321,33 @@ node scripts/check-digest-masking.mjs             # prove the digest basis is ri
    `scored: false, unscored_reason: 'no_ground_truth'`. Accuracy denominators
    exclude these rows rather than counting them as failures.
 
+### Evidence integrity — answers built on fabricated tool output are labelled
+
+A ReAct agent that writes its own `OBSERVATION:` lines is not using tools, it is
+inventing data. A real run did exactly that: it called two tools that do not
+exist (`column_trace`, `trend`) and fabricated their output, including a
+plausible-looking `{"slope":0.00093,"p_value":0.0001,"r2":0.83}`, then answered
+from that fabrication.
+
+Reporting such an answer as a diagnosis would be worse than reporting nothing, so:
+
+- self-authored `OBSERVATION` blocks (including **inline**, e.g.
+  `ACTION: trend(...) OBSERVATION: {...}`, which an anchored `^OBSERVATION:`
+  test misses) are **detected and stripped** before the turn becomes transcript;
+- the model is corrected and re-prompted rather than silently allowed to proceed;
+- calls to non-existent tools are rejected with the real tool list;
+- each finding carries `evidence_integrity` ∈ `grounded | unverified |
+  contaminated`, surfaced as a banner at the top of the report. A contaminated
+  answer is **kept but labelled** — we do not silently rewrite the model's words,
+  we mark them untrustworthy;
+- tools the model genuinely kept reaching for were implemented **for real**
+  (`trend`, plus an optional window on `column_stats`), so the intent is served
+  by computation instead of hallucination.
+
+`node scripts/verify-integrity.mjs` proves all of this deterministically against
+the observed transcripts, including that a prose mention of the word
+"OBSERVATION" is **not** false-positived.
+
 ### Which algorithms can run on your data
 
 | Runs | Why |
@@ -307,11 +355,15 @@ node scripts/check-digest-masking.mjs             # prove the digest basis is ri
 | `pca-t2-spe`, `kpca-rbf`, `ica-fastica`, `spc-ewma-cusum`, `knn-fdd`, `iforest` | Domain-agnostic detectors. They report **contributing variables** and detection statistics. |
 | `llm-direct`, `llm-cot`, `llm-react`, `llm-debate` | Reason over the statistical digest plus whatever process description you supply. This is where **mechanism hypotheses** come from. |
 
-| Refuses (reported as `not_applicable`) | Why |
+| Refuses (reported as `not_applicable`, with the reason) | Why |
 |---|---|
 | `fe-official` | FaultExplainer's protocol is TEP-specific (its scaler, PCA basis and EXPLAIN_ROOT cause list). |
 | `xgb-gbdt`, `rf-forest`, `mlp-classifier` | Trained on labelled TEP runs; they cannot classify a different process. |
 | `ae-reconstruction` | Its threshold was calibrated on the TEP normal run and does not transfer to another dataset's per-row scale. |
+
+Refusals are announced in the event stream and in the report — a selected
+algorithm that cannot run is never silently dropped, and never given a
+meaningless result.
 
 The classical detectors deliberately return `top3: []` for your data. The
 variable → cause table in `tep-affinity.mjs` is TEP-specific, and inventing a
@@ -319,6 +371,15 @@ mechanism mapping for an unknown process is exactly the kind of fabrication the
 honesty contract forbids. Mechanism claims come from the LLM comparators, which
 must reason from the digest and your process description — and an LLM that
 concludes "normal" is reported as such rather than being pushed to name a cause.
+
+### A worked example on real industrial data
+
+Uploading an actual TEP run (`d01`, 960 × 52) through the page produces, in one
+pass: `pca-t2-spe` 75% alarm rate with `XMEAS_1`/`XMV_3` as top contributors,
+`kpca-rbf` 100%, `iforest` 1% (normal). `XMEAS_1` and `XMV_3` are the A/C feed
+ratio variables — which is arithmetically where the fault lives, so the detector
+layer lands on the right *variables* while the LLM layer separately proposes a
+*mechanism* (and, on this case, one from the wrong family — reported as-is).
 
 ---
 

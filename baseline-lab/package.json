@@ -13,7 +13,8 @@
     "audit": "node scripts/audit.mjs",
     "sweep": "node scripts/sweep.mjs",
     "provider-doctor": "node scripts/provider-selftest.mjs",
-    "verify": "node scripts/verify-pca.mjs && node scripts/check-fe-scaler.mjs && node scripts/verify-fe.mjs && node scripts/verify-classical.mjs && node scripts/verify-supervised.mjs && node scripts/verify-upload.mjs",
+    "verify": "node scripts/check-imports.mjs && node scripts/verify-pca.mjs && node scripts/check-fe-scaler.mjs && node scripts/verify-fe.mjs && node scripts/verify-classical.mjs && node scripts/verify-supervised.mjs && node scripts/verify-upload.mjs && node scripts/verify-integrity.mjs",
+    "verify:imports": "node scripts/check-imports.mjs",
     "verify:pca": "node scripts/verify-pca.mjs",
     "verify:fe": "node scripts/verify-fe.mjs",
     "verify:fe-scaler": "node scripts/check-fe-scaler.mjs",
@@ -21,7 +22,9 @@
     "verify:supervised": "node scripts/verify-supervised.mjs",
     "verify:upload": "node scripts/verify-upload.mjs",
     "verify:upload:llm": "node scripts/verify-upload.mjs --llm",
-    "verify:provider": "node scripts/provider-selftest.mjs --live"
+    "verify:integrity": "node scripts/verify-integrity.mjs",
+    "verify:provider": "node scripts/provider-selftest.mjs --live",
+    "diagnose": "node scripts/drive-diagnosis.mjs"
   },
   "dependencies": {
     "nuxt": "^4.5.2",

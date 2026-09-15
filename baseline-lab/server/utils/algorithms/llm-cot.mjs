@@ -28,7 +28,7 @@ export const meta = {
   },
 };
 
-export async function run(ctx, { config = {} } = {}) {
+export async function run(ctx, { config = {}, onEvent = null } = {}) {
   const t0 = Date.now();
   const { caseDef, matrix } = ctx;
 
@@ -42,6 +42,7 @@ export async function run(ctx, { config = {} } = {}) {
     caseId: caseDef.case_id,
     algoId: meta.id,
     tag: 'cot',
+    onEvent,
   });
 
   if (!ok || !answer) {

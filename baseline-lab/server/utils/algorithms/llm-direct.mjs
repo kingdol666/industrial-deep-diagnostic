@@ -32,7 +32,7 @@ export const meta = {
   },
 };
 
-export async function run(ctx, { regime = 'no_candidates', config = {} } = {}) {
+export async function run(ctx, { regime = 'no_candidates', config = {}, onEvent = null } = {}) {
   const t0 = Date.now();
   const { caseDef, matrix } = ctx;
 
@@ -57,6 +57,7 @@ export async function run(ctx, { regime = 'no_candidates', config = {} } = {}) {
     caseId: caseDef.case_id,
     algoId: `${meta.id}.${regime}`,
     tag: regime,
+    onEvent,
   });
 
   if (!ok || !answer) {
