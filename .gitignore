@@ -54,8 +54,12 @@ rag-retrieval-engine/storage/retrieval_engine.db
 # baseline-lab sweep evidence from every commit.
 /runs/
 
-# Generated images / prompts cache
-garden-gpt-image-2/
+# Generated images / prompts cache.
+# Only the generated `image/` output is ignored — `prompt/` holds the input
+# prompt files, which the deck build scripts under ppt_workspace/ read by path,
+# so they must stay tracked. The previous whole-directory rule silently blocked
+# two of them from ever being committed.
+garden-gpt-image-2/image/
 
 # RAG knowledge submodule (has its own repo)
 rag-knowledge/
