@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { RESULTS_DIR, ensureDir, loadBrief } from '../paths.mjs';
-import { resolveProvider, chat, extractJson } from '../llm/provider.mjs';
+import { resolveProvider, chat, extractJson, modelLabel } from '../llm/provider.mjs';
 import { buildDirectPrompt, buildCotPrompt } from '../llm/prompts.mjs';
 
 export const ANSWERS_DIR = path.join(RESULTS_DIR, 'answers');
@@ -68,7 +68,15 @@ const JSON_INSTRUCTION =
  */
 export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, algoId, tag, onEvent = null } = {}) {
   const emit = (type, data) => { try { onEvent?.(type, data); } catch { /* a listener must never break the run */ } };
-  emit('llm_call_start', { tag: tag || algoId, algoId, provider: provider?.id, model: provider?.model || provider?.id, prompt_chars: prompt?.length || 0 });
+  emit('llm_call_start', {
+    tag: tag || algoId,
+    algoId,
+    provider: provider?.id,
+    // Same honest label the completion returns — an unconfigured CLI harness must
+    // not have its provider id presented as a model name.
+    model: provider ? modelLabel(provider) : null,
+    prompt_chars: prompt?.length || 0,
+  });
 
   const r = await chat(provider, { prompt: `${prompt}\n\n${JSON_INSTRUCTION}`, timeoutMs });
   const parsed = r.ok ? extractJson(r.text) : null;
