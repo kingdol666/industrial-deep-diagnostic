@@ -1,0 +1,15 @@
+{
+  "run_id": "20260915-101248-llm-test",
+  "algorithms": [
+    "llm-direct"
+  ],
+  "cases": [
+    "tep_d01_ac_feed_ratio",
+    "tep_d00_normal_control",
+    "skab_valve1_1"
+  ],
+  "config": {
+    "llmTimeoutMs": 300000
+  },
+  "started_at": "2026-09-15T10:12:48.481Z"
+}

@@ -3,102 +3,126 @@
   "scripts/benchmark/cases/benchmark_cases.json": {
    "cases": {
     "skab_valve1_1": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557133_bench_skab_valve1_1",
-     "prepared_at": "2026-09-13T15:57:34.895Z",
-     "graded_at": "2026-09-14T03:50:25.940Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150453290_bench_skab_valve1_1",
+     "prepared_at": "2026-09-15T04:54:12.442Z",
+     "graded_at": "2026-09-15T09:20:16.518Z",
      "grading": {
       "case_id": "skab_valve1_1",
       "control": false,
-      "top1": true,
+      "top1": false,
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "valve",
-       "入口",
        "阀",
        "节流",
        "受限"
       ],
-      "calibrated": true,
+      "calibrated": false,
       "overconfident": false,
-      "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557133_bench_skab_valve1_1",
-      "judge_score": 92,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "diagnosis_type": "COMPETING_SET",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150453290_bench_skab_valve1_1",
+      "execution_mode": "pipeline-agents",
+      "confidence": 65,
+      "judge_score": 90,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "skab_cavitation_13": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557350_bench_skab_cavitation_13",
-     "prepared_at": "2026-09-13T15:57:50.200Z",
-     "graded_at": "2026-09-14T03:50:30.243Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141843516_bench_skab_cavitation_13",
+     "prepared_at": "2026-09-14T22:31:06.152Z",
+     "graded_at": "2026-09-15T09:20:16.652Z",
      "grading": {
       "case_id": "skab_cavitation_13",
       "control": false,
-      "top1": true,
+      "top1": false,
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
        "气蚀",
-       "空化",
        "两相流"
       ],
       "calibrated": true,
       "overconfident": false,
-      "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557350_bench_skab_cavitation_13",
-      "judge_score": 92,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "diagnosis_type": "COMPETING_SET",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141843516_bench_skab_cavitation_13",
+      "execution_mode": "pipeline-agents",
+      "confidence": 58,
+      "judge_score": 93,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "skab_normal_control": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557503_bench_skab_normal_control",
-     "prepared_at": "2026-09-13T15:59:23.615Z",
-     "graded_at": "2026-09-14T03:50:34.519Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141844090_bench_skab_normal_control",
+     "prepared_at": "2026-09-14T22:32:31.176Z",
+     "graded_at": "2026-09-15T09:20:16.786Z",
      "grading": {
       "case_id": "skab_normal_control",
       "control": true,
       "control_pass": true,
       "false_alarm": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557503_bench_skab_normal_control",
-      "judge_score": 91,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141844090_bench_skab_normal_control",
+      "execution_mode": "pipeline-agents",
+      "confidence": 78,
+      "judge_score": 96,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d01_ac_feed_ratio": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559237_bench_tep_d01_ac_feed_ratio",
-     "prepared_at": "2026-09-13T15:59:45.509Z",
-     "graded_at": "2026-09-14T03:50:38.658Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454126_bench_tep_d01_ac_feed_ratio",
+     "prepared_at": "2026-09-15T04:54:47.777Z",
+     "graded_at": "2026-09-15T09:20:16.920Z",
      "grading": {
       "case_id": "tep_d01_ac_feed_ratio",
       "control": false,
@@ -106,94 +130,111 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "a/c feed",
-       "feed ratio",
-       "进料比",
-       "stream 4",
-       "a and c",
-       "成分"
+       "配比"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559237_bench_tep_d01_ac_feed_ratio",
-      "judge_score": 92,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454126_bench_tep_d01_ac_feed_ratio",
+      "execution_mode": "pipeline-agents",
+      "confidence": 79,
+      "judge_score": 94,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d03_hard": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559456_bench_tep_d03_hard",
-     "prepared_at": "2026-09-13T16:00:00.999Z",
-     "graded_at": "2026-09-14T03:50:42.790Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846195_bench_tep_d03_hard",
+     "prepared_at": "2026-09-14T22:33:07.066Z",
+     "graded_at": "2026-09-15T09:20:17.055Z",
      "grading": {
       "case_id": "tep_d03_hard",
       "control": false,
-      "top1": true,
-      "topk": true,
-      "root_cause_kw_hit": true,
-      "kw_hits": [
-       "d feed",
-       "进料温度",
-       "d 进料",
-       "温度"
-      ],
+      "top1": false,
+      "topk": false,
+      "root_cause_kw_hit": false,
+      "kw_hits": [],
       "calibrated": true,
       "overconfident": false,
-      "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559456_bench_tep_d03_hard",
-      "judge_score": 90,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "diagnosis_type": "COMPETING_SET",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846195_bench_tep_d03_hard",
+      "execution_mode": "pipeline-agents",
+      "confidence": 60,
+      "judge_score": 92,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d00_normal_control": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131600011_bench_tep_d00_normal_control",
-     "prepared_at": "2026-09-13T16:00:21.888Z",
-     "graded_at": "2026-09-14T03:50:46.951Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846394_bench_tep_d00_normal_control",
+     "prepared_at": "2026-09-14T22:33:27.202Z",
+     "graded_at": "2026-09-15T09:20:17.193Z",
      "grading": {
       "case_id": "tep_d00_normal_control",
       "control": true,
       "control_pass": true,
       "false_alarm": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131600011_bench_tep_d00_normal_control",
-      "judge_score": 91,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846394_bench_tep_d00_normal_control",
+      "execution_mode": "pipeline-agents",
+      "confidence": 88,
+      "judge_score": 97,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "indpensim_batch093": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131616537_bench_indpensim_batch093",
-     "prepared_at": "2026-09-13T16:19:48.765Z",
-     "graded_at": "2026-09-14T03:50:51.111Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141847046_bench_indpensim_batch093",
+     "prepared_at": "2026-09-14T22:36:10.207Z",
+     "graded_at": "2026-09-15T09:20:17.322Z",
      "grading": {
       "case_id": "indpensim_batch093",
       "control": false,
@@ -201,60 +242,74 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "执行",
-       "越限",
-       "偏差",
-       "deviation",
-       "ph",
-       "酸"
+       "执行器",
+       "偏差"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131616537_bench_indpensim_batch093",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141847046_bench_indpensim_batch093",
+      "execution_mode": "pipeline-agents",
+      "confidence": 88,
       "judge_score": 91,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "indpensim_batch001_control": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131603254_bench_indpensim_batch001_control",
-     "prepared_at": "2026-09-13T16:06:45.795Z",
-     "graded_at": "2026-09-14T03:50:55.485Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141850296_bench_indpensim_batch001_control",
+     "prepared_at": "2026-09-14T22:39:20.723Z",
+     "graded_at": "2026-09-15T09:20:17.458Z",
      "grading": {
       "case_id": "indpensim_batch001_control",
       "control": true,
       "control_pass": true,
       "false_alarm": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131603254_bench_indpensim_batch001_control",
-      "judge_score": 90,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141850296_bench_indpensim_batch001_control",
+      "execution_mode": "pipeline-agents",
+      "confidence": 88,
+      "judge_score": 93,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d04_reactor_cooling_step": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131606459_bench_tep_d04_reactor_cooling_step",
-     "prepared_at": "2026-09-13T16:07:02.274Z",
-     "graded_at": "2026-09-14T03:50:59.601Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854259_bench_tep_d04_reactor_cooling_step",
+     "prepared_at": "2026-09-14T22:39:35.899Z",
+     "graded_at": "2026-09-15T09:20:17.597Z",
      "grading": {
       "case_id": "tep_d04_reactor_cooling_step",
       "control": false,
@@ -262,34 +317,40 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "cooling",
-       "冷却",
        "反应器冷却",
-       "reactor cooling",
-       "水"
+       "冷却水"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131606459_bench_tep_d04_reactor_cooling_step",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854259_bench_tep_d04_reactor_cooling_step",
+      "execution_mode": "pipeline-agents",
+      "confidence": 75,
       "judge_score": 92,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d07_header_pressure": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607023_bench_tep_d07_header_pressure",
-     "prepared_at": "2026-09-13T16:07:35.889Z",
-     "graded_at": "2026-09-14T03:51:03.861Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854457_bench_tep_d07_header_pressure",
+     "prepared_at": "2026-09-14T22:40:08.175Z",
+     "graded_at": "2026-09-15T09:20:17.731Z",
      "grading": {
       "case_id": "tep_d07_header_pressure",
       "control": false,
@@ -297,34 +358,39 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "c header",
-       "header",
-       "压力",
-       "集管",
-       "stream 4"
+       "header"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607023_bench_tep_d07_header_pressure",
-      "judge_score": 91,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854457_bench_tep_d07_header_pressure",
+      "execution_mode": "pipeline-agents",
+      "confidence": 82,
+      "judge_score": 90,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d11_reactor_cooling_random": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random",
-     "prepared_at": "2026-09-13T16:07:51.358Z",
-     "graded_at": "2026-09-14T03:51:08.044Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141855230_bench_tep_d11_reactor_cooling_random",
+     "prepared_at": "2026-09-14T22:40:22.731Z",
+     "graded_at": "2026-09-15T09:20:17.870Z",
      "grading": {
       "case_id": "tep_d11_reactor_cooling_random",
       "control": false,
@@ -332,34 +398,42 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "冷却",
        "反应器冷却",
+       "冷却水",
        "随机",
-       "random",
-       "波动"
+       "random"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random",
-      "judge_score": 90,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141855230_bench_tep_d11_reactor_cooling_random",
+      "execution_mode": "pipeline-agents",
+      "confidence": 80,
+      "judge_score": 93,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     },
     "tep_d14_reactor_valve_sticking": {
-     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607514_bench_tep_d14_reactor_valve_sticking",
-     "prepared_at": "2026-09-13T16:08:08.543Z",
-     "graded_at": "2026-09-14T03:51:12.405Z",
+     "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454479_bench_tep_d14_reactor_valve_sticking",
+     "prepared_at": "2026-09-15T04:55:15.904Z",
+     "graded_at": "2026-09-15T09:20:18.015Z",
      "grading": {
       "case_id": "tep_d14_reactor_valve_sticking",
       "control": false,
@@ -367,31 +441,35 @@
       "topk": true,
       "root_cause_kw_hit": true,
       "kw_hits": [
-       "cooling",
-       "冷却",
-       "阀",
-       "valve",
-       "粘滞",
-       "sticking",
-       "反应器冷却"
+       "反应器冷却",
+       "sticking"
       ],
       "calibrated": true,
       "overconfident": false,
       "diagnosis_type": "DETERMINED",
-      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607514_bench_tep_d14_reactor_valve_sticking",
-      "judge_score": 90,
-      "judge_score_source": "note-self-declared",
-      "audit_verdict_source": "note-self-declared",
+      "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454479_bench_tep_d14_reactor_valve_sticking",
+      "execution_mode": "pipeline-agents",
+      "confidence": 89,
+      "judge_score": 96,
+      "judge_score_source": "judge-agent-10-criteria",
       "audit_verdict": "ENDORSED",
+      "audit_verdict_source": "auditor-agent",
+      "html_review_verdict": "pass",
+      "html_review_source": "html-reviewer-agent",
       "checks": {
        "pipeline_log": "PASS",
        "statistics_engine": "stats-package",
        "stats_degraded": false,
        "anti_spurious_executed": true,
        "finalize_overall": "PASS",
-       "finalize_passed": true
+       "finalize_passed": true,
+       "audit_endorsed": true,
+       "render_manifest": true,
+       "html_selfcheck_pass": true,
+       "html_review_pass": true
       }
-     }
+     },
+     "imported_from": "gradings"
     }
    }
   }

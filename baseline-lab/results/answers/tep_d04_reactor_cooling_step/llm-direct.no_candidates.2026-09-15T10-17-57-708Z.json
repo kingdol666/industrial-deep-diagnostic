@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d04_reactor_cooling_step",
+  "algorithm": "llm-direct.no_candidates",
+  "tag": "no_candidates",
+  "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_9 max|z|=10.06 (0.3% beyond 3σ); XMEAS_2 max|z|=3.8 (0.2% beyond 3σ); XMV_3 max|z|=3.74 (0.2% beyond 3σ); XMEAS_1 max|z|=3.7 (0.2% beyond 3σ); XMEAS_23 max|z|=3.7 (0.4% beyond 3σ); XMEAS_11 max|z|=3.66 (0.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.998; XMEAS_1 ~ XMV_3: r=0.996; XMEAS_19 ~ XMV_9: r=0.981\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起进入异常工况。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 58.92,
+  "raw_reply": "{\"top3\": [\"反应器冷却水入口温度阶跃/冷却能力下降导致反应器温度异常，进而引发汽提塔温度(XMEAS_9)大幅偏移与循环/进料扰动\", \"进料组成扰动（A/B/C比例变化），表现为XMEAS_1/XMEAS_2/XMEAS_23等流量与组分相关变量异常并向汽提塔传播\", \"循环压缩机阀(XMV_3/XMV_7/XMV_8等)或冷凝器冷却相关操纵变量漂移引起的再循环回路失衡\"], \"reasoning\": \"XMEAS_9（反应器温度，TEP 标准映射中的关键温度量）max|z|=10.06 远超其它变量，且仅 0.3% 超 3σ，说明是一个幅值大但持续时间短的阶跃型异常，典型对应冷却水入口温度阶跃（TEP 故障 4/冷却能力骤变）或反应扰动。XMEAS_2、XMEAS_1、XMEAS_23、XMEAS_11 与 XMV_3 高度同步（|z|≈3.7、r≈0.996），表明进料流量与反应器压力/物料平衡被同向牵动，属温度异常的下游传播而非独立故障。因此按 TEP 标准故障库排序，首选反应器冷却水入口温度阶跃（Fault 4）引起的反应器温度失控，其次为进料组成/进料流量扰动，再次为循环压缩机与冷凝器相关的操纵变量/冷却回路失衡。\"}",
+  "parsed": {
+    "top3": [
+      "反应器冷却水入口温度阶跃/冷却能力下降导致反应器温度异常，进而引发汽提塔温度(XMEAS_9)大幅偏移与循环/进料扰动",
+      "进料组成扰动（A/B/C比例变化），表现为XMEAS_1/XMEAS_2/XMEAS_23等流量与组分相关变量异常并向汽提塔传播",
+      "循环压缩机阀(XMV_3/XMV_7/XMV_8等)或冷凝器冷却相关操纵变量漂移引起的再循环回路失衡"
+    ],
+    "reasoning": "XMEAS_9（反应器温度，TEP 标准映射中的关键温度量）max|z|=10.06 远超其它变量，且仅 0.3% 超 3σ，说明是一个幅值大但持续时间短的阶跃型异常，典型对应冷却水入口温度阶跃（TEP 故障 4/冷却能力骤变）或反应扰动。XMEAS_2、XMEAS_1、XMEAS_23、XMEAS_11 与 XMV_3 高度同步（|z|≈3.7、r≈0.996），表明进料流量与反应器压力/物料平衡被同向牵动，属温度异常的下游传播而非独立故障。因此按 TEP 标准故障库排序，首选反应器冷却水入口温度阶跃（Fault 4）引起的反应器温度失控，其次为进料组成/进料流量扰动，再次为循环压缩机与冷凝器相关的操纵变量/冷却回路失衡。"
+  },
+  "archived_at": "2026-09-15T10:17:57.708Z"
+}

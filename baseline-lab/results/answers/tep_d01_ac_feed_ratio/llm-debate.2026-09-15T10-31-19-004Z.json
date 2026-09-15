@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d01_ac_feed_ratio",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.utilities",
+  "prompt": "You are a utilities/rotating-equipment engineer. You argue from cooling-water loops, valve behaviour, fouling and actuator dynamics. You favour causes on the utility side.\n\nDataset: tep_d01_ac_feed_ratio (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 42.77,
+  "raw_reply": "{\"top3\": [\"reactor cooling-water temperature / cooling capacity loss (XMEAS_21/22-cold-water side, e.g. condenser or reactor jacket fouling or CW supply upset)\", \"stripper/reboiler steam-side or feed-temperature disturbance propagating to separator pressure and recycle (XMV_11/XMEAS_17 loop)\", \"recycle compressor/separator pressure control saturation with actuator valve stiction (XMV_7-XMEAS_12, XMV_9-XMEAS_19 near-unity tracking)\"], \"reasoning\": \"From a utilities standpoint the highest-z excursions cluster on the cooling-water and pressure/level utility loop instruments (XMEAS_31, 36, 16, 25, 35, 11), and the near-perfect XMEAS-XMV pairings (r=0.995-1.000 for 12/7, 15/8, 1/3, 19/9, -0.984 for 17/11) show controllers still tracking setpoints with no valve saturation, which points to a heat-removal/utility-side capacity change (fouling or CW temperature rise) rather than a reaction-kinetics fault. A cooling-condenser or jacket duty loss raises separator temperature/pressure, shifts recycle flow through XMV_7/XMV_11, and shows up as correlated level/pressure deviations in XMEAS_16/25/31/35/36. Alternatives are the stripper steam-side feed-temperature upset and compressor/actuator stiction, but both are secondary effects unless the CW loops were already margin-limited.\"}",
+  "parsed": {
+    "top3": [
+      "reactor cooling-water temperature / cooling capacity loss (XMEAS_21/22-cold-water side, e.g. condenser or reactor jacket fouling or CW supply upset)",
+      "stripper/reboiler steam-side or feed-temperature disturbance propagating to separator pressure and recycle (XMV_11/XMEAS_17 loop)",
+      "recycle compressor/separator pressure control saturation with actuator valve stiction (XMV_7-XMEAS_12, XMV_9-XMEAS_19 near-unity tracking)"
+    ],
+    "reasoning": "From a utilities standpoint the highest-z excursions cluster on the cooling-water and pressure/level utility loop instruments (XMEAS_31, 36, 16, 25, 35, 11), and the near-perfect XMEAS-XMV pairings (r=0.995-1.000 for 12/7, 15/8, 1/3, 19/9, -0.984 for 17/11) show controllers still tracking setpoints with no valve saturation, which points to a heat-removal/utility-side capacity change (fouling or CW temperature rise) rather than a reaction-kinetics fault. A cooling-condenser or jacket duty loss raises separator temperature/pressure, shifts recycle flow through XMV_7/XMV_11, and shows up as correlated level/pressure deviations in XMEAS_16/25/31/35/36. Alternatives are the stripper steam-side feed-temperature upset and compressor/actuator stiction, but both are secondary effects unless the CW loops were already margin-limited."
+  },
+  "archived_at": "2026-09-15T10:31:19.004Z"
+}

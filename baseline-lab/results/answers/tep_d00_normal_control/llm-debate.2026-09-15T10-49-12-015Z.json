@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d00_normal_control",
+  "algorithm": "llm-debate",
+  "tag": "debate.r2.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d00_normal_control (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_15 max|z|=3.97 (0.2% beyond 3σ); XMV_8 max|z|=3.97 (0.2% beyond 3σ); XMEAS_36 max|z|=3.85 (0.4% beyond 3σ); XMV_4 max|z|=3.76 (0.6% beyond 3σ); XMEAS_14 max|z|=3.57 (0.5% beyond 3σ); XMV_10 max|z|=3.53 (0.2% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.997; XMEAS_1 ~ XMV_3: r=0.997; XMEAS_19 ~ XMV_9: r=0.987\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。\n\nThe other panellists argued:\n- utilities: {\"top3\":[\"冷却水回路扰动：冷凝器冷却水温度/流量波动导致 XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷凝器冷却水流量阀）同步漂移\",\"冷凝器结垢/传热恶化引起的缓慢热平衡再分布（冷却水侧热阻上升）\",\"阀门/执行器动态（XMV_4、XMV_8、XMV_10 回差或卡涩）造成的流量-温度耦合假象\"],\"reasoning\":\"XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷却水流量阀）同时出现最大 |z|≈3.97 且 r=1.000，这是冷却水回路内部的自洽耦合，而非反应侧异常，指向冷却水温度/流量扰动或结垢导致的传热工况漂移。XMV_4（反应器冷却水流量）3.76、XMV_10（汽提塔给料阀）3.53 伴随 XMEAS_14/36 的越限，符合公用工程侧波动经阀门动作向工艺侧传导的模式；而 XMEAS_12~XMV_7 r=1.000、XMEAS_17~XMV_11 r=-0.999 等强相关为控制回路设定值跟踪的正常表现，本段为无故障测试段，越限点比例≤0.6% 属噪声级，支持轻微公用工程扰动而非设备故障。\"}\n- instrumentation: {\"top3\":[\"无故障（正常工况，统计波动与采样/控制回路耦合的假象）\",\"仪表漂移/测量噪声（XMEAS_15、XMEAS_36等传感器）\",\"控制回路设定值扰动或开车瞬态（XMV_4/XMV_8/XMV_10操纵变量）\"],\"reasoning\":\"该文件明确标注为无故障测试段（48h正常工况），且所有列max|z|均在3.5–4.0之间，超过3σ的样本仅占0.2%–0.6%，完全符合960点高斯噪声下的期望超出率（~0.3%），不存在持续偏移或趋势，属典型多重比较导致的伪异常。最强的'跨域相关'（XMEAS_12~XMV_7 r=1.000、XMEAS_15~XMV_8 r=1.000、XMEAS_17~XMV_11 r=-0.999）恰好是测量变量与其对应操纵变量的闭环配对，反映控制器的设定值跟踪而非过程耦合，不能作为故障证据；XMEAS_7~XMEAS_13（r=0.997）等同族相关亦为TE过程物料/能量平衡的固有结构。因此无任何证据支持真实过程故障，剩余可能性仅为传感器漂移或开车瞬态，但后者缺乏时间维度的启动特征支持。\"}\n\nNow critique their arguments. Where do they contradict the evidence? Which single cause best explains the largest number of observed deviations?\nYou may change your answer or hold your position — but justify it against the evidence.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 26.44,
+  "raw_reply": "{\"top3\": [\"无故障正常工况下的多重比较伪异常：XMEAS_15/XMV_8 等越限仅为 960 点高斯噪声下 0.2–0.6% 的期望超出率，非冷却水回路扰动\", \"闭环控制回路设定值跟踪造成的表观强相关（XMEAS_12~XMV_7、XMEAS_15~XMV_8 r≈1.000，XMEAS_17~XMV_11 r=-0.999），是测量-操纵变量配对而非过程耦合\", \"冷凝器冷却水侧热平衡再分布/轻度结垢或阀门动态（XMV_4/XMV_8/XMV_10），最多为可忽略的缓变工况漂移，无故障证据\"], \"reasoning\": \"utilities 把 XMEAS_15~XMV_8 的 r=1.000 当作冷却水回路自洽耦合的证据，但这条配对本身就是冷凝器冷却水出口温度与其流量阀的闭环设定值跟踪，r 越接近 1 越说明控制正常而非异常；且越限样本仅 0.2–0.6%，与 960 点高斯噪声的期望超出率一致，结垢或公用工程扰动应表现为持续偏移与趋势，而统计上并不存在，因此其因果链与证据自相矛盾。instrumentation 的无故障结论在时间维度上证据不足，我按物料/能量平衡与回路行为判断：单一最简解释——正常控制工况下的多重比较伪异常——即可覆盖全部六列越限与全部强相关，无需引入任何反应侧或公用工程侧故障。我保留 feed/reaction 侧判断：数据中无进料组成、反应转化率或反应器温压的偏离，故不在反应侧立案，仅将冷却水侧漂移列为最低优先级的残余可能。\"}",
+  "parsed": {
+    "top3": [
+      "无故障正常工况下的多重比较伪异常：XMEAS_15/XMV_8 等越限仅为 960 点高斯噪声下 0.2–0.6% 的期望超出率，非冷却水回路扰动",
+      "闭环控制回路设定值跟踪造成的表观强相关（XMEAS_12~XMV_7、XMEAS_15~XMV_8 r≈1.000，XMEAS_17~XMV_11 r=-0.999），是测量-操纵变量配对而非过程耦合",
+      "冷凝器冷却水侧热平衡再分布/轻度结垢或阀门动态（XMV_4/XMV_8/XMV_10），最多为可忽略的缓变工况漂移，无故障证据"
+    ],
+    "reasoning": "utilities 把 XMEAS_15~XMV_8 的 r=1.000 当作冷却水回路自洽耦合的证据，但这条配对本身就是冷凝器冷却水出口温度与其流量阀的闭环设定值跟踪，r 越接近 1 越说明控制正常而非异常；且越限样本仅 0.2–0.6%，与 960 点高斯噪声的期望超出率一致，结垢或公用工程扰动应表现为持续偏移与趋势，而统计上并不存在，因此其因果链与证据自相矛盾。instrumentation 的无故障结论在时间维度上证据不足，我按物料/能量平衡与回路行为判断：单一最简解释——正常控制工况下的多重比较伪异常——即可覆盖全部六列越限与全部强相关，无需引入任何反应侧或公用工程侧故障。我保留 feed/reaction 侧判断：数据中无进料组成、反应转化率或反应器温压的偏离，故不在反应侧立案，仅将冷却水侧漂移列为最低优先级的残余可能。"
+  },
+  "archived_at": "2026-09-15T10:49:12.015Z"
+}

@@ -1,0 +1,248 @@
+{
+  "generated_at": "2026-09-15T10:54:57.389Z",
+  "algorithms": [
+    "llm-direct",
+    "llm-cot",
+    "llm-react",
+    "llm-debate",
+    "fe-official"
+  ],
+  "cases": [
+    "tep_d01_ac_feed_ratio",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d00_normal_control"
+  ],
+  "by_algorithm": {
+    "llm-direct": {
+      "label": "裸 LLM 单次调用（无管线/无候选）",
+      "family": "llm",
+      "status": "executed",
+      "executed": 4,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "llm-direct",
+        "cases": 4,
+        "fault_cases": 3,
+        "control_cases": 1,
+        "tep_fault_cases": 3,
+        "nontep_fault_cases": 0,
+        "top1": 1,
+        "top1_rate": 0.3333,
+        "top1_wilson": [
+          6.1,
+          79.2
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          56.1
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 1,
+        "idv_named": 0,
+        "tep_top1": 1,
+        "tep_top1_rate": 0.3333,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 0,
+        "control_pass_rate": 0,
+        "false_alarms": 1,
+        "calibrated": 3,
+        "overconfident": 2,
+        "answered": 3,
+        "abstained": 0
+      }
+    },
+    "llm-cot": {
+      "label": "LLM + 思维链 (CoT)",
+      "family": "llm",
+      "status": "executed",
+      "executed": 4,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "llm-cot",
+        "cases": 4,
+        "fault_cases": 3,
+        "control_cases": 1,
+        "tep_fault_cases": 3,
+        "nontep_fault_cases": 0,
+        "top1": 1,
+        "top1_rate": 0.3333,
+        "top1_wilson": [
+          6.1,
+          79.2
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          56.1
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 1,
+        "idv_named": 0,
+        "tep_top1": 1,
+        "tep_top1_rate": 0.3333,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 0,
+        "control_pass_rate": 0,
+        "false_alarms": 1,
+        "calibrated": 3,
+        "overconfident": 2,
+        "answered": 3,
+        "abstained": 0
+      }
+    },
+    "llm-react": {
+      "label": "ReAct 工具调用代理",
+      "family": "llm",
+      "status": "executed",
+      "executed": 4,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "llm-react",
+        "cases": 4,
+        "fault_cases": 3,
+        "control_cases": 1,
+        "tep_fault_cases": 3,
+        "nontep_fault_cases": 0,
+        "top1": 2,
+        "top1_rate": 0.6667,
+        "top1_wilson": [
+          20.8,
+          93.9
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          56.1
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 2,
+        "idv_named": 0,
+        "tep_top1": 2,
+        "tep_top1_rate": 0.6667,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 0,
+        "control_pass_rate": 0,
+        "false_alarms": 1,
+        "calibrated": 3,
+        "overconfident": 1,
+        "answered": 3,
+        "abstained": 0
+      }
+    },
+    "llm-debate": {
+      "label": "多代理辩论（3 专家 + 主席裁决）",
+      "family": "llm",
+      "status": "executed",
+      "executed": 4,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "llm-debate",
+        "cases": 4,
+        "fault_cases": 3,
+        "control_cases": 1,
+        "tep_fault_cases": 3,
+        "nontep_fault_cases": 0,
+        "top1": 1,
+        "top1_rate": 0.3333,
+        "top1_wilson": [
+          6.1,
+          79.2
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          56.1
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 1,
+        "idv_named": 0,
+        "tep_top1": 1,
+        "tep_top1_rate": 0.3333,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 0,
+        "control_pass_rate": 0,
+        "false_alarms": 1,
+        "calibrated": 3,
+        "overconfident": 2,
+        "answered": 3,
+        "abstained": 0
+      }
+    },
+    "fe-official": {
+      "label": "FaultExplainer 官方协议复刻 (PCA0.9+T²F分布+EXPLAIN_ROOT)",
+      "family": "official",
+      "status": "executed",
+      "executed": 4,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "fe-official",
+        "cases": 4,
+        "fault_cases": 3,
+        "control_cases": 1,
+        "tep_fault_cases": 3,
+        "nontep_fault_cases": 0,
+        "top1": 2,
+        "top1_rate": 0.6667,
+        "top1_wilson": [
+          20.8,
+          93.9
+        ],
+        "exact_idv_top1": 2,
+        "exact_idv_top1_rate": 0.6667,
+        "exact_idv_top1_wilson": [
+          20.8,
+          93.9
+        ],
+        "exact_idv_top3": 3,
+        "exact_idv_top3_rate": 1,
+        "strict_but_not_exact": 0,
+        "idv_named": 3,
+        "tep_top1": 2,
+        "tep_top1_rate": 0.6667,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 3,
+        "fe_style_top3_rate": 1,
+        "control_pass": 1,
+        "control_pass_rate": 1,
+        "false_alarms": 0,
+        "calibrated": 3,
+        "overconfident": 1,
+        "answered": 3,
+        "abstained": 0
+      }
+    }
+  }
+}

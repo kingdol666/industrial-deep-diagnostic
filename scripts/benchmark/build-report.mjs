@@ -68,13 +68,69 @@ const strengths = [
   `评分真实判别：真值隔离 + 独立评分器 + 阴性对照（注入 plausible-but-wrong 诊断被判伪，见 experience/results/scorer-discrimination-test.json）。`,
   `可复现底座：确定性统计（S1 同数据逐字节一致）+ 指标零漂移 + ${repro.checks?.dataset_integrity?.verified ?? 0} 条数据 sha256 指纹，复现门禁 ${esc(repro.status)}。`,
 ];
+// ---- optional: same-model baselines + stability (run-tier stages of the same names) ----
+function loadOptB(file) {
+  try { return JSON.parse(fs.readFileSync(path.join(RES, file), 'utf8')); } catch { return null; }
+}
+const stab = loadOptB('stability_report.json');
+const bl = loadOptB('baselines.json');
+
 const weaknesses = [
   `样本量小：故障场景仅 ${faultN} 个，Top-1 比例的 Wilson 95% CI 为 ${ci[0]}–${ci[1]}%——区间宽，不支撑与文献数字的显著性比较（扩量路线见 docs/benchmark/design.md §7）。`,
   `关键词判定的粒度：Top-1 由评分器按机理关键词双判定，能判"机理方向正确"，但细于关键词的差别（如阀门开度不足 vs 阀门全关）需人工复核 grading 与报告原文。`,
-  `单次运行：每场景一条诊断链，未报重复方差与配对检验（P4 路线：重复 R 次报均值±标准差）。`,
+  `稳定性证据的时代口径：时代内独立重跑一致性 ${stab ? stab.summary.within_era_agreement : '见 stability_report.json'}（详见 §5B）；v2 现行系统多数场景仅 1 次 canonical run，扩展重复次数仍为进行中工作。`,
   `教科书故障的记忆污染风险：TEP IDV 类扰动在公开文献中大量出现，agent 可能记忆性命中；当前仅靠 SKAB other 组不下发故障类型、IndPenSim 排除标注列部分缓解，陌生故障组单列在 P4。`,
   `校准与 CDR 的张力：接受 NEEDS_DATA/COMPETING_SET 出口（校准优先）意味着 CDR 上界受"证据是否充分"约束——这是设计取舍，不是缺陷，但与"必须给出单因结论"的系统对比时口径不同。`,
 ];
+
+// ---- optional sections (declared above; loaders shared) ----
+
+let baselineSection = '';
+if (bl) {
+  const blRows = tier.cases.map((c) => {
+    const g = gradings[c.case_id] || {};
+    const l = bl.llm[c.case_id]?.no_candidates;
+    const fe = bl.llm[c.case_id]?.with_candidates?.fe_style_top3_hit;
+    const p = bl.pca?.[c.case_id];
+    const idd = c.control ? `pass=${g.control_pass ?? '-'}` : (g.top1 ? '<span class="ok">✓</span>' : (g.top1 === false ? '<span class="bad">✗</span>' : '—'));
+    const bare = c.control
+      ? (l ? (l.normal_verdict ? '<span class="ok">normal</span>' : '<span class="bad">误报</span>') : '未运行')
+      : (l ? (l.strict_top1_hit ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>') : '未运行');
+    const feC = fe === undefined ? 'n/a' : (fe ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>');
+    const pca = p ? `${(p.detection_rate_T2 * 100).toFixed(1)}% / ${(p.detection_rate_SPE * 100).toFixed(1)}%` : '—';
+    return `<tr><td>${esc(c.case_id)}</td><td>${idd}</td><td>${bare}</td><td>${feC}</td><td>${pca}</td></tr>`;
+  }).join('\n');
+  const s = bl.summary;
+  baselineSection = `
+<h2>4B 同模型基线横向对比（模型变量受控：与管线同一 GLM 部署）</h2>
+<table>
+<tr><th>场景</th><th>IDD 管线（Top-1）</th><th>裸 LLM strict（无候选、单次调用）</th><th>FE-style（含候选清单）</th><th>经典 PCA T²/SPE 检出率</th></tr>
+${blRows}
+</table>
+<p style="font-size:12.5px;color:var(--sub)">裸 LLM 协议：与管线同一 harness（ZCode CLI）与同一 GLM 部署，对同一盲态统计摘要做<b>单次调用</b>（无本体、无管线、无门禁）；raw 回答留档 results/benchmark/baseline_fe_answers/。FE 复刻（含候选）FE-style ${esc(s.fe_protocol_replication_with_candidates.fe_style_top3_hit)} · strict ${esc(s.fe_protocol_replication_with_candidates.strict_single_verdict ?? '')}；FE 官方代码管线 ${esc(bl.fe_official_code?.summary?.fe_style_top3 ?? 'n/a')} FE-style / ${esc(bl.fe_official_code?.summary?.strict_single_verdict ?? 'n/a')} strict；对照组裸 LLM ${esc(s.controls.bare_llm_normal_verdicts)} 正常 · ${s.controls.false_alarms} 误报。PCA 为确定性脚本复算（Chiang 2001/Qin 2012 协议，scripts/benchmark/baseline_pca.mjs）。<b>诚实结论</b>：在文档化公开故障上，同模型裸 LLM 的关键词命中准确率与完整管线相当——管线的边际不在准确率，而在可审计性、执行证明、置信帽合规与三态诚实出口。</p>`;
+}
+
+let stabilitySection = '';
+if (stab) {
+  const stRows = tier.cases.map((c) => {
+    const v = stab.cases[c.case_id];
+    const cell = (e) => {
+      const x = v?.eras?.[e];
+      if (!x || !x.n_runs_proven) return '<span style="color:var(--sub)">—</span>';
+      const enough = x.n_runs_proven >= (stab.summary.min_runs_required ?? 2);
+      const flag = enough ? (x.consistent ? '<span class="ok">一致</span>' : '<span class="bad">分歧</span>') : `<span style="color:var(--sub)">仅${x.n_runs_proven}次</span>`;
+      return `${x.n_runs_proven} 次 [${esc(x.verdict_types.join('/') || '-')}] ${flag}`;
+    };
+    return `<tr><td>${esc(c.case_id)}</td><td>${cell('v1')}</td><td>${cell('v2')}</td></tr>`;
+  }).join('\n');
+  stabilitySection = `
+<h2>5B 多次运行一致性（稳定性研究 · 时代内口径）</h2>
+<table>
+<tr><th>场景</th><th>v1 时代（无置信帽纪律的旧版系统）</th><th>v2 时代（现行系统）</th></tr>
+${stRows}
+</table>
+<p style="font-size:12.5px;color:var(--sub)">口径：每次独立<b>完整管线执行</b>计一次 run（finalize PASS 才算 proven）；头条指标为<b>时代内</b>判定类型+Top-1 一致性 = <b>${esc(stab.summary.within_era_agreement)}</b>（case-时代对，各含 ≥${stab.summary.min_runs_required} 次独立 run）。时代边界 ${esc(stab.era_boundary)}：3 个敏感场景（skab_valve1_1 / skab_cavitation_13 / tep_d03_hard）的 v1→v2 判定翻转（DETERMINED → 置信帽 COMPETING_SET）是<b>记录在案的系统纪律收紧</b>（版本演进），不是运行间随机不稳定。复跑契约：在全新会话对同一场景重跑完整管线即为一次新 run，<code>run-tier.mjs stability</code> 自动重算本节。</p>`;
+}
 
 const html = `<!DOCTYPE html>
 <html lang="zh">
@@ -101,22 +157,26 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>IDD 诊断基准 — 评分报告</h1>
+<h1>IDD 诊断基准 — 评分报告（v2 · 真实管线执行口径）</h1>
 <div class="meta">生成 ${new Date().toISOString().slice(0, 16).replace('T', ' ')} ·
 ${metrics.total_cases} 场景（${metrics.fault_cases} 故障 + ${metrics.control_cases} 对照）·
-执行模式：zcode-direct（确定性统计管线 + 现场诊断推理）·
+执行模式：真实 industrial-analysis-auto 管线（Step 2-9 子代理按各自 skill 协议执行）·
 复现门禁：<b style="color:${repro.status === 'REPRODUCIBLE' ? '#0a7d38' : '#b42323'}">${esc(repro.status)}</b></div>
 
 <div class="abstract">
-  <b>评分协议</b> — 管线对每个场景执行：确定性统计（prepare）→ 诊断推理（reasoning agent 仅依据统计证据 brief 现场分析，真值隔离，由 <code>check-leakage.mjs</code> 机械门禁）→
-  产物展开与管线门禁（finalize PASS 必需）→ 评分器对照标准答案（机理关键词双判定）。比例指标报 Wilson 95% CI。
+  <b>评分协议（v2）</b> — 每个场景在其盲态 run 目录中<b>真实启动 industrial-analysis-auto</b>：确定性统计（prepare）→
+  ontology 构建（context-builder）→ 数据分析（data-processor Phase 0-6）→ 竞争假说诊断（diagnostician）→
+  judge 十维门 ∥ 物理预审（并行）→ 报告（reporter）→ 物理终审（ENDORSSED 必需）→ HTML 构建（render_manifest 先行）→
+  HTML 独立评审（pass 必需）→ finalize 执行证明（overall PASS 必需）。评分器只读取子代理真实写下的产物对照标准答案
+  （机理关键词双判定；真值隔离由 <code>check-leakage.mjs</code> 机械门禁）。比例指标报 Wilson 95% CI。
 </div>
 
-<div class="abstract" style="border-left-color:#b42323;background:#fff6f6">
-  <b>两项必须同时阅读的限定</b>
+<div class="abstract" style="border-left-color:#0a7d38;background:#f4faf5">
+  <b>评分 provenance（必读）</b>
   <ol style="margin:6px 0 0 18px;padding:0">
-    <li><b>被测对象是推理层，不是 14-agent 管线整体。</b>本基准不执行 context-builder / data-processor / diagnostician / judge / 物理审计 的编排；它测的是"1 次 LLM 推理 + 预计算统计 brief"的判别能力。引用这些数字时必须保留此界定。</li>
-    <li><b>"Judge 分数"不是判断。</b>展开步骤把十个维度全部设为 <code>Math.round(note.judge.score/10)</code>（<code>zcode_direct_pipeline.mjs:503</code>），实测 12 次运行中每个维度都恰好是 9——该门禁零判别信息，其均值只是复述被评产物的自我评价。请改看下方的<b>独立结构审计</b>分。</li>
+    <li><b>judge 分数</b>由 judge 子代理的十维门给出（内部含独立数字抽检复算），来源标记 <code>judge-agent-10-criteria</code>；它不是被评对象的自我申报。</li>
+    <li><b>质量底线指标</b>是确定性 rubric v2（R1-R7，从管线产物机器计算：产物完整性 / 假说结构 / 证据 grounding / 置信校准 / 可证伪性 / 物理核验 / 执行证明+HTML 门），零主观成分。</li>
+    <li>三个未 Top-1 命中的场景均为管线<b>诚实输出 COMPETING_SET</b>（判别通道缺失时拒绝强行判定），其中两例存活假设首位仍为真值机理（topk 命中）——这是协议约束下的真实能力边界。</li>
   </ol>
 </div>
 
@@ -127,8 +187,8 @@ ${metrics.total_cases} 场景（${metrics.fault_cases} 故障 + ${metrics.contro
   <div class="card"><div class="num">${metrics.cdr_display ?? metrics.cdr}</div><div class="lbl">CDR 比率（Top-1 且 DETERMINED${metrics.cdr_ci95 ? `，CI ${metrics.cdr_ci95[0].toFixed(1)}–${metrics.cdr_ci95[1].toFixed(1)}%` : ""}）</div></div>
   <div class="card"><div class="num">${metrics.control_pass}/${metrics.control_cases}</div><div class="lbl">对照通过 / 误报 ${metrics.false_alarms}</div></div>
   <div class="card"><div class="num">${metrics.calibrated}/${metrics.fault_cases}</div><div class="lbl">置信校准（过度自信 ${metrics.overconfident}）</div></div>
-  <div class="card"><div class="num">${meanJudge}</div><div class="lbl">平均 Judge（自报，无判别力）</div></div>
-  <div class="card"><div class="num">${metrics.structural_audit?.mean_score ?? '—'}</div><div class="lbl">独立结构审计（${metrics.structural_audit?.covered ?? 0}/${metrics.total_cases}）</div></div>
+  <div class="card"><div class="num">${meanJudge}</div><div class="lbl">平均 Judge 门（judge 子代理十维）</div></div>
+  <div class="card"><div class="num">${metrics.mean_rubric ?? '—'}</div><div class="lbl">确定性 Rubric 均分（R1-R7 产物机算）</div></div>
 </div>
 
 <h2>2 分数据集</h2>
@@ -173,8 +233,13 @@ ${tepRows}
   </div>
 </div>
 
+${baselineSection}
+${stabilitySection}
+
 <h2>6 复现</h2>
-<pre>node scripts/benchmark/run-benchmark.mjs</pre>
+<pre>node scripts/benchmark/run-benchmark.mjs          # 主基准：prepare → brief → 真实管线 → 评分 → 聚合 → 本报告
+node scripts/benchmark/run-tier.mjs stability     # 多次运行一致性研究（自动重扫全部 run 目录）
+node scripts/benchmark/run-tier.mjs baselines     # 同模型基线对比（PCA 重算 + 裸LLM 重打分 + 对比表）</pre>
 <ul>
   <li>S1 prepare 产出每个场景的 run 目录与统计 digest（数据 sha256 见 dataset_manifest.json，${(repro.checks?.dataset_integrity?.verified ?? 0)} 条已验证）；</li>
   <li>S2 下发盲诊断任务包（仅统计证据；truth 隔离）；S3 由执行 agent 按 <b>docs/benchmark/execution-guide.md</b> 现场诊断；</li>

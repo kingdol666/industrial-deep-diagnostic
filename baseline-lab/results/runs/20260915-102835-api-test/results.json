@@ -1,0 +1,410 @@
+{
+  "run_id": "20260915-102835-api-test",
+  "partial": false,
+  "results": [
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:28:35.192Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMEAS_2",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_20",
+          "XMV_5"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 7.264856
+          },
+          {
+            "col": "XMEAS_2",
+            "contribution": 4.923559
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 2.200653
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 2.002574
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 1.998608
+          },
+          {
+            "col": "XMV_5",
+            "contribution": 1.683814
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.9925,
+            "alarms": 794,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 1357.15857,
+            "series_head": [
+              13.0657,
+              10.7695,
+              16.3115,
+              15.4133,
+              33.288,
+              28.2985,
+              29.9381,
+              26.3814
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.9975,
+            "alarms": 798,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0375,
+            "threshold": 6.777786,
+            "max_stat": 191.981267,
+            "series_head": [
+              0.9085,
+              0.6071,
+              2.4674,
+              1.4992,
+              1.1219,
+              0.9157,
+              3.5578,
+              3.1256
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 99.75% / T² 99.25% over the fault window. Dominant residual contributors: XMEAS_21, XMEAS_2, XMEAS_38. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 43
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "idv_rank": null,
+        "exact_idv_top1_hit": false,
+        "exact_idv_top3_hit": false,
+        "strict_but_not_exact": false,
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:28:35.268Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:28:35.270Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_25",
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_38",
+            "contribution": 1.939534
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.679339
+          },
+          {
+            "col": "XMEAS_25",
+            "contribution": 0.523417
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.447852
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.41479
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.412406
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.0104,
+            "alarms": 10,
+            "window_rows": 960,
+            "pre_window_alarm_rate": null,
+            "threshold": 56.348115,
+            "max_stat": 66.03893,
+            "series_head": [
+              11.7244,
+              11.4242,
+              13.4472,
+              28.5978,
+              21.8654,
+              26.9936,
+              37.9935,
+              27.5262
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0104,
+            "alarms": 10,
+            "window_rows": 960,
+            "pre_window_alarm_rate": null,
+            "threshold": 6.777786,
+            "max_stat": 8.968222,
+            "series_head": [
+              0.3231,
+              0.5618,
+              0.6313,
+              0.9546,
+              1.5636,
+              0.755,
+              1.1954,
+              1.0873
+            ]
+          },
+          "components_retained": 35,
+          "detectable": false
+        },
+        "reasoning": "No detection: SPE alarm rate 1.04% and T² 1.04% are at the control-limit expectation. The classical detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 35
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:28:35.305Z"
+    },
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "rf-forest",
+      "algorithm_label": "随机森林分类器",
+      "family": "supervised",
+      "started_at": "2026-09-15T10:28:35.306Z",
+      "output": {
+        "applicable": true,
+        "top3": [
+          "IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step",
+          "IDV(8) A, B, C Feed Composition (Stream 4) & Random Variation",
+          "IDV(13) Reaction Kinetics & Slow Drift"
+        ],
+        "verdict": "fault",
+        "predicted_class": "IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step",
+        "class_probabilities": [
+          {
+            "label": "IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step",
+            "p": 0.891667
+          },
+          {
+            "label": "IDV(8) A, B, C Feed Composition (Stream 4) & Random Variation",
+            "p": 0.041667
+          },
+          {
+            "label": "IDV(13) Reaction Kinetics & Slow Drift",
+            "p": 0.025
+          },
+          {
+            "label": "IDV(7) C Header Pressure Loss - Reduced Availability (Stream 4) & Step",
+            "p": 0.016667
+          },
+          {
+            "label": "IDV(10) C Feed Temperature (Stream 4) & Random Variation",
+            "p": 0.016667
+          }
+        ],
+        "variable_top3": [],
+        "detection": {
+          "confidence": 0.891667,
+          "margin_to_runner_up": 0.85,
+          "votes_for_top_class": 107,
+          "n_trees": 120,
+          "train_accuracy": 0.9494,
+          "model": "random forest (majority vote, vote fraction as probability)"
+        },
+        "training": {
+          "rows": 336,
+          "classes": 16,
+          "features": 156,
+          "source": "baselines/FaultExplainer/backend/data",
+          "seconds": 0.131,
+          "cached": false,
+          "raw_labelled_rows": 7680,
+          "excluded_rows": 2400,
+          "unnamed_runs_excluded": 5
+        },
+        "reasoning": "Trained on 336 window samples (7680 labelled TEP rows, 16 named classes, 80-sample windows / stride 20) over 156 features = 3 x 52 (mean, sd, mean |first difference|); 120 bootstrap trees, maxDepth 12, mtry 12, Gini splits, 8662 nodes total; in-bag training accuracy 94.94%. Fault window = rows 160..959 (800 samples). Prediction: 'IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step' with vote fraction 0.8917, runner-up 'IDV(8) A, B, C Feed Composition (Stream 4) & Random Variation' with 0.0417. Ranked top-3: 1. IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step | 2. IDV(8) A, B, C Feed Composition (Stream 4) & Random Variation | 3. IDV(13) Reaction Kinetics & Slow Drift. Vote fractions are quantised in steps of 1/120, so a probability of 0.5 is not a calibrated confidence but a near-tie in the forest. Note: the FaultExplainer clone also ships 5 further labelled runs (fault16..fault20) with no published fault description; they are excluded (2400 rows) so that every emitted label is a documented TEP fault name.",
+        "runtime_ms": 216
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [
+          "IDV(1) A/C Feed Ratio, B Composition Constant (Stream 4) & Step",
+          "IDV(8) A, B, C Feed Composition (Stream 4) & Random Variation",
+          "IDV(13) Reaction Kinetics & Slow Drift"
+        ],
+        "kw_hits": [
+          "a/c feed",
+          "feed ratio",
+          "stream 4"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "idv_rank": 1,
+        "exact_idv_top1_hit": true,
+        "exact_idv_top3_hit": true,
+        "strict_but_not_exact": false,
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:28:35.524Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "rf-forest",
+      "algorithm_label": "随机森林分类器",
+      "family": "supervised",
+      "started_at": "2026-09-15T10:28:35.525Z",
+      "output": {
+        "applicable": true,
+        "top3": [
+          "Normal Operating Conditions",
+          "IDV(15) Condenser Cooling Water Valve & Sticking",
+          "IDV(9) D Feed Temperature (Stream 2) & Random Variation"
+        ],
+        "verdict": "normal",
+        "predicted_class": "Normal Operating Conditions",
+        "class_probabilities": [
+          {
+            "label": "Normal Operating Conditions",
+            "p": 0.325
+          },
+          {
+            "label": "IDV(15) Condenser Cooling Water Valve & Sticking",
+            "p": 0.275
+          },
+          {
+            "label": "IDV(9) D Feed Temperature (Stream 2) & Random Variation",
+            "p": 0.166667
+          },
+          {
+            "label": "IDV(3) D Feed Temperature (Stream 2) & Step",
+            "p": 0.1
+          },
+          {
+            "label": "IDV(5) Condenser Cooling Water Inlet Temperature & Step",
+            "p": 0.05
+          }
+        ],
+        "variable_top3": [],
+        "detection": {
+          "confidence": 0.325,
+          "margin_to_runner_up": 0.05,
+          "votes_for_top_class": 39,
+          "n_trees": 120,
+          "train_accuracy": 0.9494,
+          "model": "random forest (majority vote, vote fraction as probability)"
+        },
+        "training": {
+          "rows": 336,
+          "classes": 16,
+          "features": 156,
+          "source": "baselines/FaultExplainer/backend/data",
+          "seconds": 0.131,
+          "cached": true,
+          "raw_labelled_rows": 7680,
+          "excluded_rows": 2400,
+          "unnamed_runs_excluded": 5
+        },
+        "reasoning": "Trained on 336 window samples (7680 labelled TEP rows, 16 named classes, 80-sample windows / stride 20) over 156 features = 3 x 52 (mean, sd, mean |first difference|); 120 bootstrap trees, maxDepth 12, mtry 12, Gini splits, 8662 nodes total; in-bag training accuracy 94.94%. Fault window = rows 160..959 (800 samples). Prediction: 'Normal Operating Conditions' with vote fraction 0.3250, runner-up 'IDV(15) Condenser Cooling Water Valve & Sticking' with 0.2750. The top-ranked class is 0 (Normal). This is reported honestly and NOT dropped from the ranking, which is the expected answer for this control case. Note: the FaultExplainer clone also ships 5 further labelled runs (fault16..fault20) with no published fault description; they are excluded (2400 rows) so that every emitted label is a documented TEP fault name.",
+        "runtime_ms": 0
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [
+          "Normal Operating Conditions",
+          "IDV(15) Condenser Cooling Water Valve & Sticking",
+          "IDV(9) D Feed Temperature (Stream 2) & Random Variation"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:28:35.526Z"
+    }
+  ]
+}

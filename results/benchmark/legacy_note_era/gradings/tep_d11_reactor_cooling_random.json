@@ -1,0 +1,34 @@
+{
+ "case_id": "tep_d11_reactor_cooling_random",
+ "control": false,
+ "top1": true,
+ "topk": true,
+ "root_cause_kw_hit": true,
+ "kw_hits": [
+  "冷却",
+  "反应器冷却",
+  "随机",
+  "random",
+  "波动"
+ ],
+ "calibrated": true,
+ "overconfident": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random",
+ "judge_score": 90,
+ "judge_score_source": "note-self-declared",
+ "audit_verdict_source": "note-self-declared",
+ "audit_verdict": "ENDORSED",
+ "checks": {
+  "pipeline_log": "PASS",
+  "statistics_engine": "stats-package",
+  "stats_degraded": false,
+  "anti_spurious_executed": true,
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ },
+ "rubric": {
+  "score": 65,
+  "source": "deterministic-rubric-v2-pipeline-artifacts"
+ }
+}

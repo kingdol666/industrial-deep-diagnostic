@@ -1,0 +1,189 @@
+{
+  "run_id": "20260915-101248-llm-test",
+  "partial": false,
+  "results": [
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "llm-direct",
+      "algorithm_label": "裸 LLM 单次调用（无管线/无候选）",
+      "family": "llm",
+      "started_at": "2026-09-15T10:12:48.491Z",
+      "output": {
+        "status": "executed",
+        "top3": [
+          "Reactor cooling water inlet temperature step/random variation (XMV_10, reactor cooling water valve) causing reactor temperature and pressure excursion",
+          "Condenser cooling water inlet temperature variation (XMV_11) with separator pressure/temperature deviation",
+          "Feed composition disturbance (A/C feed ratio, XMEAS_1/XMEAS_3/XMV_3) driving reactor composition and product stripper column upset"
+        ],
+        "verdict": "fault",
+        "reasoning": "The strongest indicators span reactor/separator/stripper pressure and temperature (XMEAS_31 separator pressure, XMEAS_36/35, stripper XMEAS_16/25, XMEAS_11 product) while the tightest cross-domain couplings are the direct control pairings XMEAS_12~XMV_7, XMEAS_15~XMV_8, XMEAS_1~XMV_3 and the reactor pressure/coolant path XMEAS_19~XMV_9, XMEAS_17~XMV_11, indicating the anomaly propagates as a pressure-driven thermal imbalance rather than a single composition shift. This pattern is classically produced by a reactor cooling-water temperature/valve disturbance (XMV_10) with a secondary condenser cooling-water (XMV_11) contribution, both of which raise reactor and separator pressure and stress the stripper/product columns. A feed-composition upset (A/C ratio via XMEAS_1/XMEAS_3) is retained as a lower-ranked alternative since it also shifts reactor chemistry and the coupled column measurements.",
+        "invocations": [
+          {
+            "tag": "no_candidates",
+            "provider": "cli:claude",
+            "model": "claude",
+            "ok": true,
+            "seconds": 47.91,
+            "fabricated": false,
+            "error": null,
+            "parsed_ok": true,
+            "raw_head": "{\"top3\": [\"Reactor cooling water inlet temperature step/random variation (XMV_10, reactor cooling water valve) causing reactor temperature and pressure excursion\", \"Condenser cooling water inlet temperature variation (XMV_11) with separator pressure/temperature deviation\", \"Feed composition disturbance (A/C feed ratio, XMEAS_1/XMEAS_3/XMV_3) driving reactor composition and product stripper column upset\"], \"reasoning\": \"The strongest indicators span reactor/separator/stripper pressure and temperature (XMEAS_31 separator pressure, XMEAS_36/35, stripper XMEAS_16/25, XMEAS_11 product) while the tightest cross-domain couplings are the direct control pairings XMEAS_12~XMV_7, XMEAS_15~XMV_8, XMEAS_1~XMV_3 and the reactor pressure/coolant path XMEAS_19~XMV_9, XMEAS_17~XMV_11, indicating the anomaly propagates as a pressure-driven thermal imbalance rather than a single composition shift. This pattern is classically produced by a reactor cooling-water temperature/valve disturbance (XMV_10) with a secondary condenser cooling-water (XMV_11) contribution, both of which raise reactor and separator pressure and stress the stripper/product columns. A feed-composition upset (A/C ratio via XMEAS_1/X",
+            "archived": "answers/tep_d01_ac_feed_ratio/llm-direct.no_candidates.2026-09-15T10-13-36-496Z.json"
+          }
+        ],
+        "prompt_source": "archived blind brief (results/benchmark/briefs)",
+        "regime": "no_candidates",
+        "runtime_ms": 47980
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [
+          "Reactor cooling water inlet temperature step/random variation (XMV_10, reactor cooling water valve) causing reactor temperature and pressure excursion",
+          "Condenser cooling water inlet temperature variation (XMV_11) with separator pressure/temperature deviation",
+          "Feed composition disturbance (A/C feed ratio, XMEAS_1/XMEAS_3/XMV_3) driving reactor composition and product stripper column upset"
+        ],
+        "kw_hits": [
+          "a/c feed",
+          "feed ratio"
+        ],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "idv_rank": null,
+        "exact_idv_top1_hit": false,
+        "exact_idv_top3_hit": false,
+        "strict_but_not_exact": false,
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:13:36.498Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "llm-direct",
+      "algorithm_label": "裸 LLM 单次调用（无管线/无候选）",
+      "family": "llm",
+      "started_at": "2026-09-15T10:13:36.509Z",
+      "output": {
+        "status": "executed",
+        "top3": [
+          "Reactor cooling water inlet temperature step (IDV(10)-type fault, condenser cooling water temperature disturbance)",
+          "Random variation in reactor cooling water inlet temperature (IDV(11))",
+          "Condenser cooling water inlet temperature step (IDV(11)/cooling water valve XMV_10/11 fault)"
+        ],
+        "verdict": "fault",
+        "reasoning": "The only variables exceeding their normal ranges are XMEAS_15 (reactor cooling water outlet temperature, max|z|=3.97) and XMV_8 (reactor cooling water valve, max|z|=3.97, r=1.000 with XMEAS_15), with secondary involvement of XMV_10 (condenser cooling water valve) and XMEAS_14/XMEAS_36; the perfect 1.000 correlation between the reactor cooling water outlet temperature and its valve position is the signature of a cooling-water loop disturbance rather than a feed or reaction fault. Since the fault only shifts the cooling water loop (temperature/valve) with no corresponding composition or pressure signature, the ranked root cause is a step/random disturbance in reactor cooling water inlet temperature (TEP IDV(10)/IDV(11)-type fault) propagating to the condenser loop.",
+        "invocations": [
+          {
+            "tag": "no_candidates",
+            "provider": "cli:claude",
+            "model": "claude",
+            "ok": true,
+            "seconds": 23.88,
+            "fabricated": false,
+            "error": null,
+            "parsed_ok": true,
+            "raw_head": "{\"top3\": [\"Reactor cooling water inlet temperature step (IDV(10)-type fault, condenser cooling water temperature disturbance)\", \"Random variation in reactor cooling water inlet temperature (IDV(11))\", \"Condenser cooling water inlet temperature step (IDV(11)/cooling water valve XMV_10/11 fault)\"], \"reasoning\": \"The only variables exceeding their normal ranges are XMEAS_15 (reactor cooling water outlet temperature, max|z|=3.97) and XMV_8 (reactor cooling water valve, max|z|=3.97, r=1.000 with XMEAS_15), with secondary involvement of XMV_10 (condenser cooling water valve) and XMEAS_14/XMEAS_36; the perfect 1.000 correlation between the reactor cooling water outlet temperature and its valve position is the signature of a cooling-water loop disturbance rather than a feed or reaction fault. Since the fault only shifts the cooling water loop (temperature/valve) with no corresponding composition or pressure signature, the ranked root cause is a step/random disturbance in reactor cooling water inlet temperature (TEP IDV(10)/IDV(11)-type fault) propagating to the condenser loop.\"}",
+            "archived": "answers/tep_d00_normal_control/llm-direct.no_candidates.2026-09-15T10-14-00-470Z.json"
+          }
+        ],
+        "prompt_source": "archived blind brief (results/benchmark/briefs)",
+        "regime": "no_candidates",
+        "runtime_ms": 23962
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [
+          "Reactor cooling water inlet temperature step (IDV(10)-type fault, condenser cooling water temperature disturbance)",
+          "Random variation in reactor cooling water inlet temperature (IDV(11))",
+          "Condenser cooling water inlet temperature step (IDV(11)/cooling water valve XMV_10/11 fault)"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": false,
+        "false_alarm": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:14:00.471Z"
+    },
+    {
+      "case_id": "skab_valve1_1",
+      "dataset": "skab",
+      "algorithm": "llm-direct",
+      "algorithm_label": "裸 LLM 单次调用（无管线/无候选）",
+      "family": "llm",
+      "started_at": "2026-09-15T10:14:00.472Z",
+      "output": {
+        "status": "executed",
+        "top3": [
+          "[object Object]",
+          "[object Object]",
+          "[object Object]"
+        ],
+        "verdict": "fault",
+        "reasoning": "统计监控显示唯一显著越界信号集中在 Accelerometer2RMS（max|z|=13.56），而电流、电压、温度几乎无异常，说明不是电气或热故障，而是机械/流体诱发的振动事件。振动越界比例极低（0.4%）呈间歇冲击特征，最可能是泵气蚀或泵/阀机械松动；压力同步轻微越界提示阀门侧扰动为次要候选。因缺乏明确时标与幅值/频谱细节，无法进一步区分气蚀与松动，但可判定本段记录存在故障。",
+        "invocations": [
+          {
+            "tag": "no_candidates",
+            "provider": "cli:claude",
+            "model": "claude",
+            "ok": true,
+            "seconds": 58.35,
+            "fabricated": false,
+            "error": null,
+            "parsed_ok": true,
+            "raw_head": "{\"verdict\": \"fault\", \"top3\": [{\"root_cause\": \"离心泵气蚀或泵内/阀内机械松动引起的异常振动（Accelerometer2RMS 显著抬升）\", \"confidence\": \"high\", \"evidence\": \"Accelerometer2RMS 最大|z|=13.56，远超其他列（次高 Pressure 仅 4.02），且仅 0.4% 采样点越界，符合间歇性冲击/振动事件；两台加速度计相关性仅 r=0.468，说明振动源为局部（泵/阀）而非整机共振\"}, {\"root_cause\": \"阀门开度异常/阀芯振荡导致回路压力波动与流量扰动\", \"confidence\": \"medium\", \"evidence\": \"Pressure 最大|z|=4.02 且 0.3% 越界，Accelerometer1RMS 3.45 同步轻微抬升，符合阀门节流-压力脉动耦合特征\"}, {\"root_cause\": \"电机轴承磨损早期（电流/电压/温度均无明显异常，可基本排除电气与热故障）\", \"confidence\": \"low\", \"evidence\": \"Current max|z|=2.23、Voltage 2.57、Thermocouple 2.9 均在 3σ 内且越界比例为 0%，温度与电气量正常，不支持电机过载或绕组故障\"}], \"reasoning\": \"统计监控显示唯一显著越界信号集中在 Accelerometer2RMS（max|z|=13.56），而电流、电压、温度几乎无异常，说明不是电气或热故障，而是机械/流体诱发的振动事件。振动越界比例极低（0.4%）呈间歇冲击特征，最可能是泵气蚀或泵/阀机械松动；压力同步轻微越界提示阀门侧扰动为次要候选。因缺乏明确时标与幅值/频谱细节，无法进一步区分气蚀与松动，但可判定本段记录存在故障。\"}",
+            "archived": "answers/skab_valve1_1/llm-direct.no_candidates.2026-09-15T10-14-58-951Z.json"
+          }
+        ],
+        "prompt_source": "archived blind brief (results/benchmark/briefs)",
+        "regime": "no_candidates",
+        "runtime_ms": 58432
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_valve1_1",
+        "control": false,
+        "top3": [
+          "[object Object]",
+          "[object Object]",
+          "[object Object]"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "idv_rank": null,
+        "exact_idv_top1_hit": null,
+        "exact_idv_top3_hit": null,
+        "strict_but_not_exact": false,
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:14:58.952Z"
+    }
+  ]
+}

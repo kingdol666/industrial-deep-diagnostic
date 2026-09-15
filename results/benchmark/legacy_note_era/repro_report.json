@@ -1,0 +1,44 @@
+{
+ "generated_at": "2026-09-14T03:51:12.673Z",
+ "tier": "scripts/benchmark/cases/benchmark_cases.json",
+ "checks": {
+  "dataset_integrity": {
+   "entries": 153,
+   "verified": 153,
+   "missing": 0,
+   "mismatched": 0
+  },
+  "case_coverage": {
+   "cases": 12,
+   "prepared": 12,
+   "graded": 12,
+   "missing": []
+  },
+  "metric_reproducibility": {
+   "recomputed": {
+    "total_cases": 12,
+    "executed": 12,
+    "fault_cases": 9,
+    "control_cases": 3,
+    "top1": 9,
+    "topk": 9,
+    "cdr": 1,
+    "calibrated": 9,
+    "overconfident": 0,
+    "control_pass": 3,
+    "false_alarms": 0
+   },
+   "recorded_present": true,
+   "drift_fields": []
+  },
+  "execution_proof": {
+   "checked": 12,
+   "events_present": 12,
+   "pipeline_log_pass": 12,
+   "finalize_pass": 12
+  }
+ },
+ "failures": [],
+ "warnings": [],
+ "status": "REPRODUCIBLE"
+}

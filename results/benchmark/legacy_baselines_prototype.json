@@ -1,0 +1,499 @@
+{
+ "model": "GLM family (same deployment as IDD pipeline; ZCode CLI harness, Sept 2026 snapshot)",
+ "protocol": "bare single-call LLM: identical blind brief, no pipeline, no ontology, no gates; FE-regime prompts include the documented TEP cause list",
+ "scoring": "strict = single-verdict mechanism keywords (IDD rubric); FE-style = true IDV or alias class within top-3",
+ "llm": {
+  "indpensim_batch001_control": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": "normal",
+    "top3": [],
+    "normal_verdict": true,
+    "false_alarm": false
+   }
+  },
+  "indpensim_batch093": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": "fault",
+    "top3": [
+     "pH control loop disturbance — acid feed (Fa) extreme excursions (max|z|=15.8) reacting to a pH deviation (max|z|=7.09), consistent with an acid pump malfunction or pH probe drift in the pH cascade loop",
+     "Temperature control loop disturbance — heating water flow (Fh, max|z|=13.05) and cooling water flow (Fc, max|z|=5.18) both far beyond normal band, indicating a thermal control fault (heating water valve/pump or temperature sensor)",
+     "Substrate feed fault — sugar feed or substrate concentration deviation (S max|z|=5.01) driving metabolic (CO2/CER) and broth-volume (Fremoved max|z|=4.47) perturbations that secondarily stress the pH and temperature loops"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "ph ",
+     "deviation"
+    ]
+   }
+  },
+  "skab_cavitation_13": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": "fault",
+    "top3": [
+     "离心泵汽蚀（空化）：吸入压力不足导致泵内气泡生成与溃灭",
+     "吸入侧阻力异常（阀门过度节流/滤网堵塞）造成入口压力过低，诱发类汽蚀工况",
+     "叶轮损伤或机械松动（轴承磨损/对中不良）引起的异常振动"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "空化",
+     "汽蚀"
+    ]
+   }
+  },
+  "skab_normal_control": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": "normal",
+    "top3": [],
+    "normal_verdict": true,
+    "false_alarm": false
+   }
+  },
+  "skab_valve1_1": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": "fault",
+    "top3": [
+     "Valve malfunction - partial closure/sticking of the loop valve causing flow restriction with water-hammer/cavitation-induced vibration and pressure spikes (most likely; vibration-dominant signature with electrical and thermal variables normal is typical of valve manipulation in a closed pump loop)",
+     "Pump-side hydraulic fault - incipient cavitation or impeller wear/degradation generating broadband vibration and pressure fluctuation while motor current remains normal",
+     "Instrumentation artifact - loosened accelerometer mounting or intermittent sensor fault producing spurious RMS spikes (less likely because both accelerometers and pressure co-excurse)"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "valve"
+    ]
+   }
+  },
+  "tep_d01_ac_feed_ratio": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV(1): A/C feed ratio step change in Stream 4 (B composition constant)",
+     "IDV(7): C header pressure loss / reduced availability of Stream 4",
+     "IDV(8): A, B, C feed composition change in Stream 4"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "a/c feed",
+     "feed ratio",
+     "stream 4"
+    ],
+    "fe_style_top3_hit": false
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+     "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4",
+     "IDV2: B composition, A/C ratio constant (step) — Stream 4"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "a/c feed",
+     "feed ratio",
+     "stream 4"
+    ],
+    "fe_style_top3_hit": true
+   }
+  },
+  "tep_d03_hard": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV(3) - Step change in D feed temperature (stream 2 feed temperature step)",
+     "IDV(9) - Random variation of D feed temperature (stream 2)",
+     "IDV(2) - Step change in B feed composition (A/C feed ratio held constant)"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "d feed",
+     "stream 2"
+    ],
+    "fe_style_top3_hit": false
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV3: D feed temperature step — Stream 2",
+     "IDV9: D feed temperature random variation — Stream 2",
+     "IDV10: D feed temperature + C header pressure random variation — Streams 2/4"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "d feed",
+     "stream 2"
+    ],
+    "fe_style_top3_hit": true
+   }
+  },
+  "tep_d04_reactor_cooling_step": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV(4): Reactor cooling water inlet temperature step change",
+     "IDV(11): Reactor cooling water inlet temperature random variation",
+     "IDV(14): Reactor cooling water valve sticking"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "reactor cooling",
+     "cooling water"
+    ],
+    "fe_style_top3_hit": false
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV4: Reactor cooling-water inlet temperature step",
+     "IDV11: Reactor cooling-water inlet temperature random variation",
+     "IDV14: Reactor cooling-water valve sticking"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "reactor cooling",
+     "cooling water"
+    ],
+    "fe_style_top3_hit": true
+   }
+  },
+  "tep_d07_header_pressure": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV7: C header pressure reduced (step change)",
+     "IDV1: A/C feed ratio changed with B composition constant (step change)",
+     "IDV6: A feed loss (step change)"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "c header",
+     "header",
+     "c feed"
+    ],
+    "fe_style_top3_hit": true
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV7: C header pressure loss — reduced availability (Stream 4)",
+     "IDV10: D feed temperature + C header pressure random variation — Streams 2/4",
+     "IDV2: B composition, A/C ratio constant (step) — Stream 4"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "c header",
+     "header",
+     "stream 4"
+    ],
+    "fe_style_top3_hit": true
+   }
+  },
+  "tep_d11_reactor_cooling_random": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV(11): Random variation in reactor cooling water inlet temperature",
+     "IDV(14): Sticking reactor cooling water valve",
+     "IDV(4): Step change in reactor cooling water inlet temperature"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "reactor cooling",
+     "random"
+    ],
+    "fe_style_top3_hit": false
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV11: Reactor cooling-water inlet temperature random variation",
+     "IDV12: Condenser cooling-water inlet temperature random variation",
+     "IDV14: Reactor cooling-water valve sticking"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "reactor cooling",
+     "random"
+    ],
+    "fe_style_top3_hit": true
+   }
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "no_candidates": {
+    "regime": "no_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV(14): Reactor cooling water valve sticking",
+     "IDV(15): Condenser cooling water valve sticking",
+     "IDV(11): Reactor cooling water inlet temperature (random variation)"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "reactor cooling",
+     "sticking"
+    ],
+    "fe_style_top3_hit": false
+   },
+   "with_candidates": {
+    "regime": "with_candidates",
+    "verdict": null,
+    "top3": [
+     "IDV14: Reactor cooling-water valve sticking",
+     "IDV15: Condenser cooling-water valve sticking",
+     "IDV4: Reactor cooling-water inlet temperature step"
+    ],
+    "strict_top1_hit": true,
+    "kw_hits": [
+     "反应器冷却",
+     "reactor cooling",
+     "冷却水阀",
+     "阀粘滞",
+     "粘滞",
+     "sticking"
+    ],
+    "fe_style_top3_hit": true
+   }
+  }
+ },
+ "pca": {
+  "skab_normal_control": {
+   "dataset": "skab",
+   "control": true,
+   "detection_rate_T2": 0.0101,
+   "detection_rate_SPE": 0.0101,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Thermocouple",
+    "Volume Flow RateRMS",
+    "Accelerometer2RMS"
+   ]
+  },
+  "skab_valve1_1": {
+   "dataset": "skab",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 1,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Accelerometer2RMS",
+    "Accelerometer1RMS",
+    "Volume Flow RateRMS"
+   ]
+  },
+  "skab_cavitation_13": {
+   "dataset": "skab",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 1,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Volume Flow RateRMS",
+    "Accelerometer2RMS",
+    "Accelerometer1RMS"
+   ]
+  },
+  "tep_d00_normal_control": {
+   "dataset": "tep",
+   "control": true,
+   "detection_rate_T2": 0.0104,
+   "detection_rate_SPE": 0.0104,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_31",
+    "XMEAS_38",
+    "XMEAS_29"
+   ]
+  },
+  "tep_d01_ac_feed_ratio": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.9925,
+   "detection_rate_SPE": 0.9975,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_21",
+    "XMEAS_2",
+    "XMEAS_38"
+   ]
+  },
+  "tep_d03_hard": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.0063,
+   "detection_rate_SPE": 0.0475,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_31",
+    "XMEAS_38",
+    "XMEAS_29"
+   ]
+  },
+  "tep_d04_reactor_cooling_step": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.0912,
+   "detection_rate_SPE": 1,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMV_10",
+    "XMEAS_9",
+    "XMEAS_31"
+   ]
+  },
+  "tep_d07_header_pressure": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 0.995,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_33",
+    "XMEAS_29",
+    "XMEAS_38"
+   ]
+  },
+  "tep_d11_reactor_cooling_random": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.3488,
+   "detection_rate_SPE": 0.6625,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMV_10",
+    "XMEAS_9",
+    "XMEAS_31"
+   ]
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.99,
+   "detection_rate_SPE": 0.9337,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_21",
+    "XMEAS_2",
+    "XMV_1"
+   ]
+  },
+  "indpensim_batch093": {
+   "dataset": "indpensim",
+   "control": false,
+   "detection_rate_T2": 0.1105,
+   "detection_rate_SPE": 0.9971,
+   "components_retained": 13,
+   "top3_contribution_variables": [
+    "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+    "Heating water flow rate(Fh:L/h)",
+    "Offline Penicillin concentration(P_offline:P(g L^{-1}))"
+   ]
+  },
+  "indpensim_batch001_control": {
+   "dataset": "indpensim",
+   "control": true,
+   "detection_rate_T2": 0.0106,
+   "detection_rate_SPE": 0.0106,
+   "components_retained": 13,
+   "top3_contribution_variables": [
+    "Offline Biomass concentratio(X_offline:X(g L^{-1}))",
+    "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+    "Water for injection/dilution(Fw:L/h)"
+   ]
+  }
+ },
+ "summary": {
+  "fe_protocol_replication_with_candidates": {
+   "fe_style_top3_hit": "6/6",
+   "note": "FE-style scoring: true IDV or alias class within top-3"
+  },
+  "fe_protocol_replication_no_candidates_strict": "strict single-verdict 6/6",
+  "single_llm_same_digest_ablation": "strict single-verdict: TEP 6/6, non-TEP 3/3 (all 9 faults hit)",
+  "controls": {
+   "bare_llm_normal_verdicts": "2/2",
+   "false_alarms": 0,
+   "note": "tep_d00 control not run in the bare-LLM baseline; skab+indpensim controls covered"
+  },
+  "headline": "Same-model bare single-call LLM matches or exceeds the full pipeline on keyword-scored accuracy (9/9 faults, 0 control false alarms). The pipeline adds no accuracy on documented public faults; its margins are process qualities: auditability, execution proofs, ceiling compliance, and honest capped verdicts on the three scenarios where signature data cannot discriminate mechanisms."
+ },
+ "fe_official_code": {
+  "source": "li-group/FaultExplainer (github.com/li-group/FaultExplainer), commit 2fcfee9",
+  "method": "FE official PCA(0.9) + T2(alpha=0.01 F-dist) + 6-consecutive trigger + top-6 T2-contribution features + EXPLAIN_ROOT prompt",
+  "model": "GLM family (same as IDD pipeline; ZCode CLI harness, Sept 2026 snapshot)",
+  "scoring": "FE-style top-3 + alias AND strict single-verdict",
+  "per_fault": {
+   "tep_d01_ac_feed_ratio": {
+    "fe_hit": true,
+    "strict_hit": true,
+    "top3_ids": [
+     "IDV1",
+     "IDV7",
+     "IDV2"
+    ]
+   },
+   "tep_d03_hard": {
+    "fe_hit": true,
+    "strict_hit": true,
+    "top3_ids": [
+     "IDV3",
+     "IDV9",
+     "IDV13"
+    ]
+   },
+   "tep_d04_reactor_cooling_step": {
+    "fe_hit": false,
+    "strict_hit": false,
+    "top3_ids": [
+     "IDV1",
+     "IDV2",
+     "IDV8"
+    ]
+   },
+   "tep_d07_header_pressure": {
+    "fe_hit": true,
+    "strict_hit": true,
+    "top3_ids": [
+     "IDV7",
+     "IDV1",
+     "IDV8"
+    ]
+   },
+   "tep_d11_reactor_cooling_random": {
+    "fe_hit": true,
+    "strict_hit": true,
+    "top3_ids": [
+     "IDV11",
+     "IDV4",
+     "IDV14"
+    ]
+   },
+   "tep_d14_reactor_valve_sticking": {
+    "fe_hit": true,
+    "strict_hit": true,
+    "top3_ids": [
+     "IDV14",
+     "IDV4",
+     "IDV11"
+    ]
+   }
+  },
+  "summary": {
+   "fe_style_top3": "5/6",
+   "strict_single_verdict": "5/6",
+   "note": "FE official PCA+T2+EXPLAIN_ROOT + GLM. FE-style: true IDV or alias in top-3. Strict: rank-1 IDV matches truth. FE misses d04 (T2 dominated by composition shifts, cooling-water signal invisible to PCA); IDD misses d03 (honest COMPETING_SET). Different miss patterns."
+  }
+ }
+}

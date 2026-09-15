@@ -43,26 +43,55 @@ PCA 可检性（Chiang et al. 2001 标注）双文献基线，SKAB/IndPenSim 为
 node scripts/benchmark/run-benchmark.mjs
 ```
 
-一键执行 S0→S6 六阶段（环境检查 → 确定性统计 → 盲诊任务包 → 现场诊断 →
-门禁+评分 → 聚合+复现门禁 → HTML 报告）。任一阶段偏离期望输出即失败退出。
+一键执行 S0→S6 六阶段（环境检查 → 确定性统计 prepare → 盲态任务包 brief →
+**真实管线执行 S3**：每个场景在其盲态 run 目录启动 `industrial-analysis-auto` Step 2-9，
+由 context-builder / data-processor / diagnostician / judge ∥ pre-audit / reporter /
+final-audit / html-visualizer / html-reviewer 子代理按各自 skill 协议逐阶段执行 →
+从真实产物评分 S4 → 聚合+复现门禁 → HTML 报告）。任一阶段偏离期望输出即失败退出。
+
+> **v2 口径（2026-09-14）**：v1 的"写 note → 脚本扩写成管线产物"路径已退役
+> （它伪造了产物与代理事件、HTML 是固定模板）。v2 只认子代理真实执行留下的产物；
+> v1 结果整体归档于 `results/benchmark/legacy_note_era/`，不与新口径混用。
+> 首个 v2 实测：skab_valve1_1 九阶段全通过，finalize 门禁抓出并强制修复 3 个真实
+> 契约违规；诚实产出 COMPETING_SET（judge 98、HTML 评审 95）。
+
 分步操作与每阶段期望输出见 [reproduction-guide.md](reproduction-guide.md)；
 诊断 agent 的现场作业规程见 [execution-guide.md](execution-guide.md)。
+
+### 3.1 一致性测试与基线对比（论文实验两件套）
+
+```bash
+# 多次运行一致性：自动扫描每个场景的全部独立管线执行，按"时代内"口径
+# 报告判定类型 + Top-1 一致性（v2 现行系统缺重复的场景给出复跑契约）
+node scripts/benchmark/run-tier.mjs stability
+
+# 同模型基线横向对比：PCA 确定性重算 + 裸 LLM（同一 GLM 部署单次调用）归档
+# 答案重打分 + FE 协议/官方代码 + IDD 逐场景对比表
+node scripts/benchmark/run-tier.mjs baselines
+```
+
+两步均为零硬编码数字：一致性读 run 目录真实产物（同 `commit` 提取语义），
+基线读留档 raw 回答重算。协议细节与真实性红线见
+[reproduction-guide.md](reproduction-guide.md) §9/§10。
 
 ## 4. 文件地图
 
 | 文件 / 目录 | 内容 |
 |---|---|
 | [design.md](design.md) | 设计依据：任务口径、指标定义、期刊 baseline 对标（可验证 DOI）、双口径声明、已知缺口、路线图 |
-| [execution-guide.md](execution-guide.md) | 管线执行规程：prepare → brief → 现场诊断（note 规程）→ commit → 门禁 → 评分 |
+| [execution-guide.md](execution-guide.md) | 管线执行规程（v2）：prepare → brief → **真实管线执行（子 skill 分阶段契约）** → 从产物评分 → 门禁 → 报告 |
 | [reproduction-guide.md](reproduction-guide.md) | 复现手册：逐步命令、期望输出、漂移决策树、真实性保障层 |
 | `scripts/benchmark/run-benchmark.mjs` | 审稿人一键入口（S0-S6 fail-fast） |
-| `scripts/benchmark/run-tier.mjs` | 分步编排（prepare / notes / brief / commit / status / archive） |
-| `scripts/benchmark/zcode_direct_pipeline.mjs` | 管线驱动：prepare（确定性统计）+ diagnose（note → 全套产物 + 门禁 + 评分） |
-| `scripts/benchmark/aggregate.mjs` | 指标聚合 → `results/benchmark/metrics.json` + `report.md` |
+| `scripts/benchmark/run-tier.mjs` | 分步编排（prepare / brief / pipeline / commit / status / import-state / **stability** / **baselines**；notes/archive 已退役） |
+| `scripts/benchmark/baseline_pca.mjs` | 经典 PCA 基线（确定性：对照训练 / 95% 方差 / T²+Q / 99 分位 / SPE top-3；纯 JS，无 venv 依赖） |
+| `scripts/benchmark/baseline_llm.mjs` | 同模型裸 LLM 基线：prompts（幂等）/ score（确定性重打分 → baselines.json）/ check（缺失答案的执行契约） |
+| `scripts/benchmark/zcode_direct_pipeline.mjs` | 管线驱动：prepare（确定性统计）+ pipeline-check（完整性验证）+ grade（从真实产物评分）；diagnose（note 扩写）已退役需 `--legacy` |
+| `scripts/benchmark/judge-rubric.mjs` | 确定性质量 rubric v2（R1-R7 全部从管线产物计算） |
+| `scripts/benchmark/aggregate.mjs` | 指标聚合 → `results/benchmark/metrics.json` |
 | `scripts/benchmark/verify-repro.mjs` | 复现性门禁（数据指纹 / 覆盖 / 指标零漂移 / 执行证明） |
 | `scripts/benchmark/build-report.mjs` | HTML 评分报告生成（零硬编码数字，派生自 results） |
 | `scripts/benchmark/cases/benchmark_cases.json` | 场景定义 + 标准答案（**评分器专用**） |
-| `results/benchmark/` | 运行产物：briefs / notes / gradings / journal / metrics / repro_report |
+| `results/benchmark/` | 运行产物：briefs / gradings / tier_state（v1 结果在 `legacy_note_era/`） |
 | `experience/benchmark-report.html` | 最终评分报告（自动生成） |
 | `experience/results/scorer-discrimination-test.json` | 阴性对照留痕：注入错误诊断 → 评分器判伪 |
 

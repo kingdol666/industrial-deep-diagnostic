@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d00_normal_control",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.utilities",
+  "prompt": "You are a utilities/rotating-equipment engineer. You argue from cooling-water loops, valve behaviour, fouling and actuator dynamics. You favour causes on the utility side.\n\nDataset: tep_d00_normal_control (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_15 max|z|=3.97 (0.2% beyond 3σ); XMV_8 max|z|=3.97 (0.2% beyond 3σ); XMEAS_36 max|z|=3.85 (0.4% beyond 3σ); XMV_4 max|z|=3.76 (0.6% beyond 3σ); XMEAS_14 max|z|=3.57 (0.5% beyond 3σ); XMV_10 max|z|=3.53 (0.2% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.997; XMEAS_1 ~ XMV_3: r=0.997; XMEAS_19 ~ XMV_9: r=0.987\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 48.54,
+  "raw_reply": "{\"top3\": [\"冷却水回路扰动：冷凝器冷却水温度/流量波动导致 XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷凝器冷却水流量阀）同步漂移\", \"冷凝器结垢/传热恶化引起的缓慢热平衡再分布（冷却水侧热阻上升）\", \"阀门/执行器动态（XMV_4、XMV_8、XMV_10 回差或卡涩）造成的流量-温度耦合假象\"], \"reasoning\": \"XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷却水流量阀）同时出现最大 |z|≈3.97 且 r=1.000，这是冷却水回路内部的自洽耦合，而非反应侧异常，指向冷却水温度/流量扰动或结垢导致的传热工况漂移。XMV_4（反应器冷却水流量）3.76、XMV_10（汽提塔给料阀）3.53 伴随 XMEAS_14/36 的越限，符合公用工程侧波动经阀门动作向工艺侧传导的模式；而 XMEAS_12~XMV_7 r=1.000、XMEAS_17~XMV_11 r=-0.999 等强相关为控制回路设定值跟踪的正常表现，本段为无故障测试段，越限点比例≤0.6% 属噪声级，支持轻微公用工程扰动而非设备故障。\"}",
+  "parsed": {
+    "top3": [
+      "冷却水回路扰动：冷凝器冷却水温度/流量波动导致 XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷凝器冷却水流量阀）同步漂移",
+      "冷凝器结垢/传热恶化引起的缓慢热平衡再分布（冷却水侧热阻上升）",
+      "阀门/执行器动态（XMV_4、XMV_8、XMV_10 回差或卡涩）造成的流量-温度耦合假象"
+    ],
+    "reasoning": "XMEAS_15（冷凝器冷却水出口温度）与 XMV_8（冷却水流量阀）同时出现最大 |z|≈3.97 且 r=1.000，这是冷却水回路内部的自洽耦合，而非反应侧异常，指向冷却水温度/流量扰动或结垢导致的传热工况漂移。XMV_4（反应器冷却水流量）3.76、XMV_10（汽提塔给料阀）3.53 伴随 XMEAS_14/36 的越限，符合公用工程侧波动经阀门动作向工艺侧传导的模式；而 XMEAS_12~XMV_7 r=1.000、XMEAS_17~XMV_11 r=-0.999 等强相关为控制回路设定值跟踪的正常表现，本段为无故障测试段，越限点比例≤0.6% 属噪声级，支持轻微公用工程扰动而非设备故障。"
+  },
+  "archived_at": "2026-09-15T10:48:22.217Z"
+}

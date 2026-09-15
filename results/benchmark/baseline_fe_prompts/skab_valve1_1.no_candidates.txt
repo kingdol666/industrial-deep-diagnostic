@@ -1,0 +1,10 @@
+You are an industrial process monitoring engineer. A process shows the following recorded episode. Your task: assess whether a fault is present and, if so, identify the most likely root cause.
+
+Dataset: skab_valve1_1 (skab). Rows: 1145. Sampling as described below.
+Blind statistical monitoring results (computed from the data):
+- Per-column max |z|-score (top columns): Accelerometer2RMS max|z|=13.56 (0.4% beyond 3σ); Pressure max|z|=4.02 (0.3% beyond 3σ); Accelerometer1RMS max|z|=3.45 (0.3% beyond 3σ); Thermocouple max|z|=2.9 (0.0% beyond 3σ); Voltage max|z|=2.57 (0.0% beyond 3σ); Current max|z|=2.23 (0.0% beyond 3σ)
+- Strongest cross-domain correlations: Accelerometer1RMS ~ Accelerometer2RMS: r=0.468
+
+Process description: 水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。本记录含一段异常工况，起止时标不提供。
+
+Task: (1) state whether this episode shows a fault or normal operation; (2) if a fault, give the most likely root cause and up to 2 alternatives. Output STRICT JSON only (no markdown, no extra text): {"verdict": "fault" | "normal", "top3": [...], "reasoning": "<2-3 sentences>"}

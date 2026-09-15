@@ -45,7 +45,7 @@
  },
  "_rules": [
   "Reason ONLY from evidence above plus domain knowledge of the process described.",
-  "Do NOT read results/benchmark/gradings/*, scripts/benchmark/cases/* truth fields, or any other note files.",
-  "Every evidence claim in your note must cite a number present in this brief."
+  "Do NOT read results/benchmark/gradings/* or scripts/benchmark/cases/* truth fields.",
+  "Every evidence claim must cite a number present in this brief."
  ]
 }

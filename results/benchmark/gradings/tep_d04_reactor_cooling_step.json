@@ -5,30 +5,35 @@
  "topk": true,
  "root_cause_kw_hit": true,
  "kw_hits": [
-  "cooling",
-  "冷却",
   "反应器冷却",
-  "reactor cooling",
-  "水"
+  "冷却水"
  ],
  "calibrated": true,
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
- "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131606459_bench_tep_d04_reactor_cooling_step",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854259_bench_tep_d04_reactor_cooling_step",
+ "execution_mode": "pipeline-agents",
+ "confidence": 75,
  "judge_score": 92,
- "judge_score_source": "note-self-declared",
- "audit_verdict_source": "note-self-declared",
+ "judge_score_source": "judge-agent-10-criteria",
  "audit_verdict": "ENDORSED",
+ "audit_verdict_source": "auditor-agent",
+ "html_review_verdict": "pass",
+ "html_review_source": "html-reviewer-agent",
  "checks": {
   "pipeline_log": "PASS",
   "statistics_engine": "stats-package",
   "stats_degraded": false,
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
-  "finalize_passed": true
+  "finalize_passed": true,
+  "audit_endorsed": true,
+  "render_manifest": true,
+  "html_selfcheck_pass": true,
+  "html_review_pass": true
  },
  "rubric": {
   "score": 100,
-  "source": "deterministic-rubric-v1"
+  "source": "deterministic-rubric-v2-pipeline-artifacts"
  }
 }

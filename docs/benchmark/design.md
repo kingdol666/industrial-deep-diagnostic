@@ -27,9 +27,13 @@
 评分协议要点（详见 execution-guide §5）：
 
 1. **真值隔离**：truth/关键词只在评分器使用的 case 文件中，brief 与管线输入不含真值；
-2. **独立评分**：评分器只读管线输出文件 + truth，不读诊断 note；
-3. **门禁前置**：仅当 `.pipeline_events.jsonl` 通过 `pipeline-log-check` 且
-   `pipeline-finalize` overall=PASS 的 run 才计分（无执行证明的结论无效）；
+2. **独立评分**：评分器只读管线输出文件 + truth；**v2 起评分对象是子代理真实执行的
+   产物**（diagnosis/judge_feedback/optimizer/html_review 由各自 skill 子代理写下，
+   评分器带 provenance 标记 `judge-agent-10-criteria` / `auditor-agent` /
+   `html-reviewer-agent`），v1 的 note 自我申报判分已退役；
+3. **门禁前置**：仅当 run 目录含全部管线产物（14 项 `PIPELINE_ARTIFACTS`）、
+   `.pipeline_events.jsonl` 通过 `pipeline-log-check` 且 `pipeline-finalize`
+   overall=PASS 的 run 才计分（无执行证明的结论无效）；
 4. **判别力自证**：阴性对照——向评分器注入"plausible-but-wrong"诊断必须被打叉
    （留痕 `experience/results/scorer-discrimination-test.json`）。
 

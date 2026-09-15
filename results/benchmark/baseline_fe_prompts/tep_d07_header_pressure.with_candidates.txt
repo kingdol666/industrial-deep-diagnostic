@@ -1,0 +1,26 @@
+You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.
+
+Dataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.
+Blind statistical monitoring results (computed from the data):
+- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)
+- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990
+
+Process description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。
+
+Documented root-cause list for the TEP (choose from these):
+- IDV1: A/C feed ratio step (B composition constant) — Stream 4
+- IDV2: B composition, A/C ratio constant (step) — Stream 4
+- IDV3: D feed temperature step — Stream 2
+- IDV4: Reactor cooling-water inlet temperature step
+- IDV5: Condenser cooling-water inlet temperature step
+- IDV6: A feed head pressure loss (step, Stream 1)
+- IDV7: C header pressure loss — reduced availability (Stream 4)
+- IDV8: A/C feed ratio random variation (B composition constant) — Stream 4
+- IDV9: D feed temperature random variation — Stream 2
+- IDV10: D feed temperature + C header pressure random variation — Streams 2/4
+- IDV11: Reactor cooling-water inlet temperature random variation
+- IDV12: Condenser cooling-water inlet temperature random variation
+- IDV13: Reaction kinetics slow drift
+- IDV14: Reactor cooling-water valve sticking
+- IDV15: Condenser cooling-water valve sticking
+Task: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {"top3": ["<root cause id/name>", ...], "reasoning": "<2-3 sentences>"} where top3 is your ranked list of up to 3 candidate root causes.

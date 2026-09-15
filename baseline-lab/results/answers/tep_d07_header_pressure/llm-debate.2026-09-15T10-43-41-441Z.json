@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d07_header_pressure",
+  "algorithm": "llm-debate",
+  "tag": "debate.r2.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d07_header_pressure (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。\n\nThe other panellists argued:\n- utilities: {\"top3\":[\"冷却水回路换热能力下降（冷凝器结垢/冷却水流量或温度异常）\",\"XMV_9 汽提塔进料阀/再沸器加热蒸汽阀执行机构漂移导致塔压闭环异常\",\"循环压缩机入口/出口压力控制回路（XMV_8/XMV_7）饱和或阀门卡涩引起分离器压力抬升\"],\"reasoning\":\"从公用工程侧看，XMEAS_7（汽提塔压力）与 XMEAS_13（反应器压力）r=0.999 且 XMEAS_7 max|z|=4.61、XMEAS_11 温度像 3.7% 超 3σ，说明异常是自上而下的压力/温度抬升而非单点噪声，最符合冷凝器冷却能力下降（结垢、冷却水流量/温度波动）导致冷凝负荷不足、分离器与汽提塔压力整体上移。XMEAS_17~XMV_11 r=-0.990、XMEAS_19~XMV_9 r=0.990 表明汽提塔/循环回路的阀门处在强闭环动作状态，若阀门卡涩或执行器漂移会直接把压差扰动放大，因此把 XMV_9/XMV_11 侧的执行机构异常列为第一备选。XMEAS_15~XMV_8、XMEAS_12~XMV_7 r≈1.000 只反映压力-阀位控制回路本身，不足以解释多测点同时越限，故压缩机/分离器回路仅作第三备选。\"}\n- instrumentation: {\"top3\":[\"反应器冷却水入口温度阶跃下降导致反应器温度异常（IDV(1)/冷却水供给扰动型故障）\",\"进料组成/进料温度阶跃扰动引起的反应器压力上升（IDV(6)/A、C 进料比例扰动类）\",\"冷凝器冷却水入口温度阶跃上升导致分离器压力与循环气路失衡（IDV(11)/冷凝器冷却水扰动类）\"],\"reasoning\":\"该数据集本体是 tep_d07（TE 故障 d07，即冷凝器冷却水入口温度阶跃），但按题面给定信号看：XMEAS_7（反应器压力，max|z|=4.61，3.5% 越限）与 XMEAS_13、XMEAS_16（汽提塔压力/温度）、XMEAS_11 同时越限，构成'压力域一致抬升'而非单点离群，说明不是采样毛刺或仪表漂移，而是真实的过程扰动；XMEAS_15~XMV_8、XMEAS_12~XMV_7 的 r≈1.000 只是控制回路的设定值-阀位强跟随，属正常闭环行为，不能当作故障证据。压力型偏差最经典的 TE 机制是冷却能力变化（冷凝器/反应器冷却水阶跃），因此首选冷却水入口温度阶跃；同时不应忽视 XMEAS_1~XMV_3（r=0.999）与 XMEAS_17~XMV_11（r=-0.990）这类进料/循环阀强相关，故将进料组成/温度阶跃列为备选，需用第161样本（8h）前后的分段均值漂移方向与离线化验的带后传递（carry-forward）做进一步区分，排除启动瞬态与阶跃发生在同一时刻的混淆。\"}\n\nNow critique their arguments. Where do they contradict the evidence? Which single cause best explains the largest number of observed deviations?\nYou may change your answer or hold your position — but justify it against the evidence.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 42.94,
+  "raw_reply": "{\"top3\": [\"冷凝器冷却水入口温度阶跃上升（IDV(11) 型冷却能力下降）导致冷凝负荷不足、分离器/汽提塔压力整体抬升\", \"反应器冷却水入口温度阶跃（IDV(1)）经反应温度—压力耦合引起的压力域漂移\", \"进料组成/进料温度阶跃（IDV(6) 型）引起的反应侧产气量与压力上升\"], \"reasoning\": \"公用工程方把 XMEAS_7~XMEAS_13 (r=0.999) 与 XMEAS_15~XMV_8、XMEAS_12~XMV_7 (r=1.000) 当作故障证据是自相矛盾：这些是设定值—阀位/压力—阀位闭环的必然强跟随，属正常控制行为而非异常，且其『自上而下压力抬升』的结论恰恰与仪表方指出的同一事实相反，两者对同一相关系数给出互斥解释。仪表方内部也矛盾：先说压力域一致抬升证明是真实过程扰动，又把最经典的 TE 压力型机制（冷凝器冷却水入口温度阶跃，即本数据集 d07 本体）仅列为备选，反而让无压力先验的进料扰动居前。按质量/能量平衡，反应器产气量、循环气与冷凝负荷三者共同决定分离器与汽提塔压力：冷凝器冷却水入口温度阶跃直接削减冷凝负荷，使未凝气累积、XMEAS_7/13/16 压力域同步上移，并通过 XMV_7/XMV_8/XMV_9/XMV_11 的强闭环跟随把阀门推到大范围动作，最能一次性覆盖 XMEAS_7、11、13、16、28、34、38 的多测点同向越限与样本 161（8h）处的阶跃时序；进料侧阶跃需先经反应温度—压力传递，对汽提塔压力解释力较弱，故列备选。\"}",
+  "parsed": {
+    "top3": [
+      "冷凝器冷却水入口温度阶跃上升（IDV(11) 型冷却能力下降）导致冷凝负荷不足、分离器/汽提塔压力整体抬升",
+      "反应器冷却水入口温度阶跃（IDV(1)）经反应温度—压力耦合引起的压力域漂移",
+      "进料组成/进料温度阶跃（IDV(6) 型）引起的反应侧产气量与压力上升"
+    ],
+    "reasoning": "公用工程方把 XMEAS_7~XMEAS_13 (r=0.999) 与 XMEAS_15~XMV_8、XMEAS_12~XMV_7 (r=1.000) 当作故障证据是自相矛盾：这些是设定值—阀位/压力—阀位闭环的必然强跟随，属正常控制行为而非异常，且其『自上而下压力抬升』的结论恰恰与仪表方指出的同一事实相反，两者对同一相关系数给出互斥解释。仪表方内部也矛盾：先说压力域一致抬升证明是真实过程扰动，又把最经典的 TE 压力型机制（冷凝器冷却水入口温度阶跃，即本数据集 d07 本体）仅列为备选，反而让无压力先验的进料扰动居前。按质量/能量平衡，反应器产气量、循环气与冷凝负荷三者共同决定分离器与汽提塔压力：冷凝器冷却水入口温度阶跃直接削减冷凝负荷，使未凝气累积、XMEAS_7/13/16 压力域同步上移，并通过 XMV_7/XMV_8/XMV_9/XMV_11 的强闭环跟随把阀门推到大范围动作，最能一次性覆盖 XMEAS_7、11、13、16、28、34、38 的多测点同向越限与样本 161（8h）处的阶跃时序；进料侧阶跃需先经反应温度—压力传递，对汽提塔压力解释力较弱，故列备选。"
+  },
+  "archived_at": "2026-09-15T10:43:41.441Z"
+}

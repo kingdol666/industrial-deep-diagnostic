@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d00_normal_control",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d00_normal_control (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_15 max|z|=3.97 (0.2% beyond 3σ); XMV_8 max|z|=3.97 (0.2% beyond 3σ); XMEAS_36 max|z|=3.85 (0.4% beyond 3σ); XMV_4 max|z|=3.76 (0.6% beyond 3σ); XMEAS_14 max|z|=3.57 (0.5% beyond 3σ); XMV_10 max|z|=3.53 (0.2% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.997; XMEAS_1 ~ XMV_3: r=0.997; XMEAS_19 ~ XMV_9: r=0.987\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，本文件为无故障测试段（48h）。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 106.64,
+  "raw_reply": "{\"top3\": [\"no fault — normal steady-state operation with routine setpoint/regulatory cycling\", \"cooling-water temperature (XMV_10) drift affecting condenser duty\", \"feed composition/ratio (A/C feed) fluctuation\"], \"reasoning\": \"The digest is a normal (fault-free) control segment, so the near-unity correlations are hardwired controller pairings, not anomalies: XMEAS_15~XMV_8 and XMEAS_12~XMV_7 (level/flow manipulated variables tracking their measurements) and XMEAS_17~XMV_11 (stripper temperature vs. steam valve) are exactly the reactor/separator/stripper control loops, showing the regulatory layer is closed and behaving. Max |z| values cluster near 3-4 with only 0.2-0.6% of points beyond 3-sigma, i.e. mild non-Gaussian tails from normal setpoint moves and recycle-compressor cycling rather than a sustained mass-balance or stoichiometric excursion (no drifting inventory, no coherent pressure/temperature runaway). From a process-systems view the feed-and-reaction side is balanced, so I would not assign a fault; the only weakly credible alternatives are small condenser-duty perturbations via cooling-water valve XMV_10 or feed A/C ratio shifts, both consistent with the observed level/temperature loop activity.\"}",
+  "parsed": {
+    "top3": [
+      "no fault — normal steady-state operation with routine setpoint/regulatory cycling",
+      "cooling-water temperature (XMV_10) drift affecting condenser duty",
+      "feed composition/ratio (A/C feed) fluctuation"
+    ],
+    "reasoning": "The digest is a normal (fault-free) control segment, so the near-unity correlations are hardwired controller pairings, not anomalies: XMEAS_15~XMV_8 and XMEAS_12~XMV_7 (level/flow manipulated variables tracking their measurements) and XMEAS_17~XMV_11 (stripper temperature vs. steam valve) are exactly the reactor/separator/stripper control loops, showing the regulatory layer is closed and behaving. Max |z| values cluster near 3-4 with only 0.2-0.6% of points beyond 3-sigma, i.e. mild non-Gaussian tails from normal setpoint moves and recycle-compressor cycling rather than a sustained mass-balance or stoichiometric excursion (no drifting inventory, no coherent pressure/temperature runaway). From a process-systems view the feed-and-reaction side is balanced, so I would not assign a fault; the only weakly credible alternatives are small condenser-duty perturbations via cooling-water valve XMV_10 or feed A/C ratio shifts, both consistent with the observed level/temperature loop activity."
+  },
+  "archived_at": "2026-09-15T10:47:33.675Z"
+}

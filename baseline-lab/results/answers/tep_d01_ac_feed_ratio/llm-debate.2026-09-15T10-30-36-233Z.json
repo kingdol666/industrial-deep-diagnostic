@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d01_ac_feed_ratio",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d01_ac_feed_ratio (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 33.97,
+  "raw_reply": "{\"top3\": [\"Reactor feed A/C ratio disturbance (XMV_3 feed flow / XMEAS_1 A feed) — feed composition/ratio fault\", \"Reactor cooling water temperature / condenser cooling disturbance (XMEAS_22/XMV_10 region)\", \"Stripper feed (XMEAS_15/XMV_8) flow or recycle imbalance\"], \"reasoning\": \"The dataset name and strongest couplings point at the feed-ratio loop: XMEAS_1 (A feed) is perfectly collinear with XMV_3 (r=1.000), so A/C ratio upsets propagate straight through the reactor mass balance while the control loop masks the step, and downstream variables (XMEAS_31, XMEAS_36, XMEAS_16, XMEAS_25) show the largest excursions as the composition front travels through reactor-separator-stripper. XMEAS_15~XMV_8 and XMEAS_19~XMV_9 at r≈0.99 confirm that stripper/recycle flows move as a tightly controlled block, so a genuine feed-ratio change would surface there rather than as an isolated sensor fault. The absence of a dominant temperature/pressure column in the top z list argues against a pure cooling or compressor fault, keeping feed-side and reaction-side stoichiometry as the leading explanation.\"}",
+  "parsed": {
+    "top3": [
+      "Reactor feed A/C ratio disturbance (XMV_3 feed flow / XMEAS_1 A feed) — feed composition/ratio fault",
+      "Reactor cooling water temperature / condenser cooling disturbance (XMEAS_22/XMV_10 region)",
+      "Stripper feed (XMEAS_15/XMV_8) flow or recycle imbalance"
+    ],
+    "reasoning": "The dataset name and strongest couplings point at the feed-ratio loop: XMEAS_1 (A feed) is perfectly collinear with XMV_3 (r=1.000), so A/C ratio upsets propagate straight through the reactor mass balance while the control loop masks the step, and downstream variables (XMEAS_31, XMEAS_36, XMEAS_16, XMEAS_25) show the largest excursions as the composition front travels through reactor-separator-stripper. XMEAS_15~XMV_8 and XMEAS_19~XMV_9 at r≈0.99 confirm that stripper/recycle flows move as a tightly controlled block, so a genuine feed-ratio change would surface there rather than as an isolated sensor fault. The absence of a dominant temperature/pressure column in the top z list argues against a pure cooling or compressor fault, keeping feed-side and reaction-side stoichiometry as the leading explanation."
+  },
+  "archived_at": "2026-09-15T10:30:36.233Z"
+}

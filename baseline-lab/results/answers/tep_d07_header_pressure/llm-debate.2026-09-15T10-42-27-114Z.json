@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d07_header_pressure",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.utilities",
+  "prompt": "You are a utilities/rotating-equipment engineer. You argue from cooling-water loops, valve behaviour, fouling and actuator dynamics. You favour causes on the utility side.\n\nDataset: tep_d07_header_pressure (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 44,
+  "raw_reply": "{\"top3\": [\"冷却水回路换热能力下降（冷凝器结垢/冷却水流量或温度异常）\", \"XMV_9 汽提塔进料阀/再沸器加热蒸汽阀执行机构漂移导致塔压闭环异常\", \"循环压缩机入口/出口压力控制回路（XMV_8/XMV_7）饱和或阀门卡涩引起分离器压力抬升\"], \"reasoning\": \"从公用工程侧看，XMEAS_7（汽提塔压力）与 XMEAS_13（反应器压力）r=0.999 且 XMEAS_7 max|z|=4.61、XMEAS_11 温度像 3.7% 超 3σ，说明异常是自上而下的压力/温度抬升而非单点噪声，最符合冷凝器冷却能力下降（结垢、冷却水流量/温度波动）导致冷凝负荷不足、分离器与汽提塔压力整体上移。XMEAS_17~XMV_11 r=-0.990、XMEAS_19~XMV_9 r=0.990 表明汽提塔/循环回路的阀门处在强闭环动作状态，若阀门卡涩或执行器漂移会直接把压差扰动放大，因此把 XMV_9/XMV_11 侧的执行机构异常列为第一备选。XMEAS_15~XMV_8、XMEAS_12~XMV_7 r≈1.000 只反映压力-阀位控制回路本身，不足以解释多测点同时越限，故压缩机/分离器回路仅作第三备选。\"}",
+  "parsed": {
+    "top3": [
+      "冷却水回路换热能力下降（冷凝器结垢/冷却水流量或温度异常）",
+      "XMV_9 汽提塔进料阀/再沸器加热蒸汽阀执行机构漂移导致塔压闭环异常",
+      "循环压缩机入口/出口压力控制回路（XMV_8/XMV_7）饱和或阀门卡涩引起分离器压力抬升"
+    ],
+    "reasoning": "从公用工程侧看，XMEAS_7（汽提塔压力）与 XMEAS_13（反应器压力）r=0.999 且 XMEAS_7 max|z|=4.61、XMEAS_11 温度像 3.7% 超 3σ，说明异常是自上而下的压力/温度抬升而非单点噪声，最符合冷凝器冷却能力下降（结垢、冷却水流量/温度波动）导致冷凝负荷不足、分离器与汽提塔压力整体上移。XMEAS_17~XMV_11 r=-0.990、XMEAS_19~XMV_9 r=0.990 表明汽提塔/循环回路的阀门处在强闭环动作状态，若阀门卡涩或执行器漂移会直接把压差扰动放大，因此把 XMV_9/XMV_11 侧的执行机构异常列为第一备选。XMEAS_15~XMV_8、XMEAS_12~XMV_7 r≈1.000 只反映压力-阀位控制回路本身，不足以解释多测点同时越限，故压缩机/分离器回路仅作第三备选。"
+  },
+  "archived_at": "2026-09-15T10:42:27.114Z"
+}

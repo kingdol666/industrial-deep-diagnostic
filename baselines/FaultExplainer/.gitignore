@@ -1,0 +1,6 @@
+*.rdb
+.env
+.DS_Store
+node_modules/.yarn-integrity
+yarn.lock
+backend/node_modules/.yarn-integrity

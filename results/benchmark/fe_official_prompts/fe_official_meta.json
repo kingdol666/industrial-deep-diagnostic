@@ -1,0 +1,296 @@
+{
+ "tep_d01_ac_feed_ratio": {
+  "trigger_index": 171,
+  "note": "",
+  "top6": [
+   {
+    "feature": "XMEAS_27",
+    "fault_value": 18.451,
+    "recent_mean": 18.5791,
+    "normal_mean": 18.771,
+    "pct_change": -1.0
+   },
+   {
+    "feature": "XMEAS_23",
+    "fault_value": 30.397,
+    "recent_mean": 31.8403,
+    "normal_mean": 32.1894,
+    "pct_change": -1.1
+   },
+   {
+    "feature": "XMV_4",
+    "fault_value": 60.188,
+    "recent_mean": 61.2942,
+    "normal_mean": 61.3011,
+    "pct_change": -0.0
+   },
+   {
+    "feature": "XMEAS_28",
+    "fault_value": 1.609,
+    "recent_mean": 1.6704,
+    "normal_mean": 1.6566,
+    "pct_change": 0.8
+   },
+   {
+    "feature": "XMEAS_37",
+    "fault_value": 0.0193,
+    "recent_mean": 0.0137,
+    "normal_mean": 0.0185,
+    "pct_change": -25.8
+   },
+   {
+    "feature": "XMEAS_3",
+    "fault_value": 4548.4,
+    "recent_mean": 4531.315,
+    "normal_mean": 4510.9667,
+    "pct_change": 0.5
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d01_ac_feed_ratio.fe_official.txt"
+ },
+ "tep_d03_hard": {
+  "trigger_index": 202,
+  "note": " (max-T2 fallback)",
+  "top6": [
+   {
+    "feature": "XMEAS_25",
+    "fault_value": 26.67,
+    "recent_mean": 26.5426,
+    "normal_mean": 26.4032,
+    "pct_change": 0.5
+   },
+   {
+    "feature": "XMEAS_36",
+    "fault_value": 2.2336,
+    "recent_mean": 2.2496,
+    "normal_mean": 2.3,
+    "pct_change": -2.2
+   },
+   {
+    "feature": "XMEAS_40",
+    "fault_value": 52.663,
+    "recent_mean": 53.6515,
+    "normal_mean": 53.7116,
+    "pct_change": -0.1
+   },
+   {
+    "feature": "XMEAS_34",
+    "fault_value": 2.3069,
+    "recent_mean": 2.2635,
+    "normal_mean": 2.2649,
+    "pct_change": -0.1
+   },
+   {
+    "feature": "XMEAS_6",
+    "fault_value": 41.831,
+    "recent_mean": 42.3537,
+    "normal_mean": 42.3276,
+    "pct_change": 0.1
+   },
+   {
+    "feature": "XMEAS_39",
+    "fault_value": 0.1138,
+    "recent_mean": 0.0929,
+    "normal_mean": 0.0981,
+    "pct_change": -5.3
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d03_hard.fe_official.txt"
+ },
+ "tep_d04_reactor_cooling_step": {
+  "trigger_index": 523,
+  "note": "",
+  "top6": [
+   {
+    "feature": "XMEAS_14",
+    "fault_value": 27.118,
+    "recent_mean": 25.6278,
+    "normal_mean": 25.1864,
+    "pct_change": 1.8
+   },
+   {
+    "feature": "XMEAS_25",
+    "fault_value": 26.704,
+    "recent_mean": 26.1324,
+    "normal_mean": 26.4032,
+    "pct_change": -1.0
+   },
+   {
+    "feature": "XMEAS_24",
+    "fault_value": 9.0399,
+    "recent_mean": 8.8418,
+    "normal_mean": 8.897,
+    "pct_change": -0.6
+   },
+   {
+    "feature": "XMEAS_36",
+    "fault_value": 2.3198,
+    "recent_mean": 2.3106,
+    "normal_mean": 2.3,
+    "pct_change": 0.5
+   },
+   {
+    "feature": "XMV_2",
+    "fault_value": 54.348,
+    "recent_mean": 53.6856,
+    "normal_mean": 53.9857,
+    "pct_change": -0.6
+   },
+   {
+    "feature": "XMEAS_34",
+    "fault_value": 2.2613,
+    "recent_mean": 2.2508,
+    "normal_mean": 2.2649,
+    "pct_change": -0.6
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d04_reactor_cooling_step.fe_official.txt"
+ },
+ "tep_d07_header_pressure": {
+  "trigger_index": 165,
+  "note": "",
+  "top6": [
+   {
+    "feature": "XMEAS_22",
+    "fault_value": 76.868,
+    "recent_mean": 77.006,
+    "normal_mean": 77.2791,
+    "pct_change": -0.4
+   },
+   {
+    "feature": "XMEAS_4",
+    "fault_value": 8.4666,
+    "recent_mean": 9.1147,
+    "normal_mean": 9.3441,
+    "pct_change": -2.5
+   },
+   {
+    "feature": "XMEAS_3",
+    "fault_value": 4554.0,
+    "recent_mean": 4506.575,
+    "normal_mean": 4510.9667,
+    "pct_change": -0.1
+   },
+   {
+    "feature": "XMEAS_30",
+    "fault_value": 14.009,
+    "recent_mean": 13.8352,
+    "normal_mean": 13.8246,
+    "pct_change": 0.1
+   },
+   {
+    "feature": "XMV_4",
+    "fault_value": 68.99,
+    "recent_mean": 63.623,
+    "normal_mean": 61.3011,
+    "pct_change": 3.8
+   },
+   {
+    "feature": "XMEAS_11",
+    "fault_value": 80.856,
+    "recent_mean": 79.9865,
+    "normal_mean": 80.0867,
+    "pct_change": -0.1
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d07_header_pressure.fe_official.txt"
+ },
+ "tep_d11_reactor_cooling_random": {
+  "trigger_index": 215,
+  "note": "",
+  "top6": [
+   {
+    "feature": "XMEAS_34",
+    "fault_value": 2.2731,
+    "recent_mean": 2.2675,
+    "normal_mean": 2.2649,
+    "pct_change": 0.1
+   },
+   {
+    "feature": "XMEAS_40",
+    "fault_value": 53.669,
+    "recent_mean": 54.0867,
+    "normal_mean": 53.7116,
+    "pct_change": 0.7
+   },
+   {
+    "feature": "XMEAS_5",
+    "fault_value": 26.708,
+    "recent_mean": 26.9075,
+    "normal_mean": 26.9021,
+    "pct_change": 0.0
+   },
+   {
+    "feature": "XMEAS_14",
+    "fault_value": 25.804,
+    "recent_mean": 25.3746,
+    "normal_mean": 25.1864,
+    "pct_change": 0.7
+   },
+   {
+    "feature": "XMEAS_27",
+    "fault_value": 18.741,
+    "recent_mean": 18.7745,
+    "normal_mean": 18.771,
+    "pct_change": 0.0
+   },
+   {
+    "feature": "XMEAS_6",
+    "fault_value": 42.315,
+    "recent_mean": 42.442,
+    "normal_mean": 42.3276,
+    "pct_change": 0.3
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d11_reactor_cooling_random.fe_official.txt"
+ },
+ "tep_d14_reactor_valve_sticking": {
+  "trigger_index": 165,
+  "note": "",
+  "top6": [
+   {
+    "feature": "XMEAS_9",
+    "fault_value": 120.56,
+    "recent_mean": 120.402,
+    "normal_mean": 120.4002,
+    "pct_change": 0.0
+   },
+   {
+    "feature": "XMV_10",
+    "fault_value": 46.029,
+    "recent_mean": 41.4389,
+    "normal_mean": 41.102,
+    "pct_change": 0.8
+   },
+   {
+    "feature": "XMEAS_21",
+    "fault_value": 93.075,
+    "recent_mean": 94.4878,
+    "normal_mean": 94.6051,
+    "pct_change": -0.1
+   },
+   {
+    "feature": "XMEAS_2",
+    "fault_value": 3650.6,
+    "recent_mean": 3673.575,
+    "normal_mean": 3661.5015,
+    "pct_change": 0.3
+   },
+   {
+    "feature": "XMV_1",
+    "fault_value": 63.312,
+    "recent_mean": 63.116,
+    "normal_mean": 63.0211,
+    "pct_change": 0.2
+   },
+   {
+    "feature": "XMEAS_34",
+    "fault_value": 2.238,
+    "recent_mean": 2.2448,
+    "normal_mean": 2.2649,
+    "pct_change": -0.9
+   }
+  ],
+  "prompt_file": "D:\\codes\\myskills\\industrial-deep-diagnostic\\results\\benchmark\\fe_official_prompts\\tep_d14_reactor_valve_sticking.fe_official.txt"
+ }
+}

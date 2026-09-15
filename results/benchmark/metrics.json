@@ -1,40 +1,40 @@
 {
- "generated_at": "2026-09-14T03:51:46.119Z",
+ "generated_at": "2026-09-15T09:20:18.217Z",
  "tier_file": "scripts\\benchmark\\cases\\benchmark_cases.json",
  "total_cases": 12,
  "executed": 12,
  "fault_cases": 9,
  "control_cases": 3,
- "top1": 9,
- "topk": 9,
- "cdr": 1,
- "cdr_count": 9,
- "cdr_display": "1.00 (9/9)",
+ "top1": 6,
+ "topk": 8,
+ "cdr": 0.6667,
+ "cdr_count": 6,
+ "cdr_display": "0.67 (6/9)",
  "cdr_ci95": [
-  70.08472464490407,
-  100
+  35.419734749908976,
+  87.9418401317257
  ],
  "top1_ci95": [
-  70.08472464490407,
-  100
+  35.419734749908976,
+  87.9418401317257
  ],
- "calibrated": 9,
+ "calibrated": 8,
  "overconfident": 0,
  "control_pass": 3,
  "false_alarms": 0,
- "mean_rubric": 100,
+ "mean_rubric": 97.9,
  "by_dataset": {
   "skab": {
    "cases": 3,
-   "top1": 2,
+   "top1": 0,
    "topk": 2,
    "controls": 1,
    "control_pass": 1
   },
   "tep": {
    "cases": 7,
-   "top1": 6,
-   "topk": 6,
+   "top1": 5,
+   "topk": 5,
    "controls": 1,
    "control_pass": 1
   },
@@ -51,33 +51,37 @@
    "case_id": "skab_valve1_1",
    "dataset": "skab",
    "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
    "topk": true,
-   "calibrated": true,
+   "calibrated": false,
    "control_pass": null,
-   "judge_score": 92,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 90,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 85,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557133_bench_skab_valve1_1"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150453290_bench_skab_valve1_1"
   },
   {
    "case_id": "skab_cavitation_13",
    "dataset": "skab",
    "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
    "topk": true,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 92,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 93,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557350_bench_skab_cavitation_13"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141843516_bench_skab_cavitation_13"
   },
   {
    "case_id": "skab_normal_control",
@@ -88,12 +92,14 @@
    "topk": null,
    "calibrated": null,
    "control_pass": true,
-   "judge_score": 91,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 96,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557503_bench_skab_normal_control"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141844090_bench_skab_normal_control"
   },
   {
    "case_id": "tep_d01_ac_feed_ratio",
@@ -104,28 +110,32 @@
    "topk": true,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 92,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 94,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559237_bench_tep_d01_ac_feed_ratio"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454126_bench_tep_d01_ac_feed_ratio"
   },
   {
    "case_id": "tep_d03_hard",
    "dataset": "tep",
    "control": false,
-   "diagnosis_type": "DETERMINED",
-   "top1": true,
-   "topk": true,
+   "diagnosis_type": "COMPETING_SET",
+   "top1": false,
+   "topk": false,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 90,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 92,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131559456_bench_tep_d03_hard"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846195_bench_tep_d03_hard"
   },
   {
    "case_id": "tep_d00_normal_control",
@@ -136,12 +146,14 @@
    "topk": null,
    "calibrated": null,
    "control_pass": true,
-   "judge_score": 91,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 97,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131600011_bench_tep_d00_normal_control"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141846394_bench_tep_d00_normal_control"
   },
   {
    "case_id": "indpensim_batch093",
@@ -153,11 +165,13 @@
    "calibrated": true,
    "control_pass": null,
    "judge_score": 91,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131616537_bench_indpensim_batch093"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141847046_bench_indpensim_batch093"
   },
   {
    "case_id": "indpensim_batch001_control",
@@ -168,12 +182,14 @@
    "topk": null,
    "calibrated": null,
    "control_pass": true,
-   "judge_score": 90,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 93,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131603254_bench_indpensim_batch001_control"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141850296_bench_indpensim_batch001_control"
   },
   {
    "case_id": "tep_d04_reactor_cooling_step",
@@ -185,11 +201,13 @@
    "calibrated": true,
    "control_pass": null,
    "judge_score": 92,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131606459_bench_tep_d04_reactor_cooling_step"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854259_bench_tep_d04_reactor_cooling_step"
   },
   {
    "case_id": "tep_d07_header_pressure",
@@ -200,12 +218,14 @@
    "topk": true,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 91,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 90,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607023_bench_tep_d07_header_pressure"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141854457_bench_tep_d07_header_pressure"
   },
   {
    "case_id": "tep_d11_reactor_cooling_random",
@@ -216,12 +236,14 @@
    "topk": true,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 90,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 93,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 90,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141855230_bench_tep_d11_reactor_cooling_random"
   },
   {
    "case_id": "tep_d14_reactor_valve_sticking",
@@ -232,29 +254,25 @@
    "topk": true,
    "calibrated": true,
    "control_pass": null,
-   "judge_score": 90,
-   "judge_score_source": "note-self-declared",
-   "structural_score": 100,
-   "structural_unmet_checks": 0,
+   "judge_score": 96,
+   "judge_score_source": "judge-agent-10-criteria",
+   "rubric": 100,
+   "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+   "audit_endorsed": true,
+   "html_review_verdict": "pass",
    "finalize_passed": true,
-   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607514_bench_tep_d14_reactor_valve_sticking"
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150454479_bench_tep_d14_reactor_valve_sticking"
   }
  ],
- "structural_audit": {
-  "source": "results/benchmark/structural_audit.json",
-  "script": "scripts/benchmark/audit-structural.mjs",
-  "covered": 12,
-  "mean_score": 100,
-  "distinct_scores": [
-   100
-  ],
-  "note": "独立于 note 的结构化评分（10 维、加权同项目 judge 模板）。用于替代无判别力的自报 judge 分数。"
- },
  "execution_integrity": {
   "by_engine": {
-   "stats-package": 12
+   "stats-package": 10,
+   "unknown": 2
   },
-  "degraded_cases": [],
+  "degraded_cases": [
+   "tep_d01_ac_feed_ratio",
+   "tep_d00_normal_control"
+  ],
   "note": "degraded_cases 以 driver-js-fallback 运行：统计包失败，未执行反假相关校验（lag CCF / 分布 / 杠杆 / 趋势混杂 / Simpson / 多重检验），其判别证据链不完整。"
  }
 }

@@ -5,30 +5,37 @@
  "topk": true,
  "root_cause_kw_hit": true,
  "kw_hits": [
-  "冷却",
   "反应器冷却",
+  "冷却水",
   "随机",
-  "random",
-  "波动"
+  "random"
  ],
  "calibrated": true,
  "overconfident": false,
  "diagnosis_type": "DETERMINED",
- "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131607359_bench_tep_d11_reactor_cooling_random",
- "judge_score": 90,
- "judge_score_source": "note-self-declared",
- "audit_verdict_source": "note-self-declared",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609141855230_bench_tep_d11_reactor_cooling_random",
+ "execution_mode": "pipeline-agents",
+ "confidence": 80,
+ "judge_score": 93,
+ "judge_score_source": "judge-agent-10-criteria",
  "audit_verdict": "ENDORSED",
+ "audit_verdict_source": "auditor-agent",
+ "html_review_verdict": "pass",
+ "html_review_source": "html-reviewer-agent",
  "checks": {
   "pipeline_log": "PASS",
   "statistics_engine": "stats-package",
   "stats_degraded": false,
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
-  "finalize_passed": true
+  "finalize_passed": true,
+  "audit_endorsed": true,
+  "render_manifest": true,
+  "html_selfcheck_pass": true,
+  "html_review_pass": true
  },
  "rubric": {
-  "score": 100,
-  "source": "deterministic-rubric-v1"
+  "score": 90,
+  "source": "deterministic-rubric-v2-pipeline-artifacts"
  }
 }

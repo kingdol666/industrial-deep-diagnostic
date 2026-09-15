@@ -1,0 +1,24 @@
+{
+ "case_id": "tep_d00_normal_control",
+ "control": true,
+ "control_pass": true,
+ "false_alarm": false,
+ "diagnosis_type": "DETERMINED",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131600011_bench_tep_d00_normal_control",
+ "judge_score": 91,
+ "judge_score_source": "note-self-declared",
+ "audit_verdict_source": "note-self-declared",
+ "audit_verdict": "ENDORSED",
+ "checks": {
+  "pipeline_log": "PASS",
+  "statistics_engine": "stats-package",
+  "stats_degraded": false,
+  "anti_spurious_executed": true,
+  "finalize_overall": "PASS",
+  "finalize_passed": true
+ },
+ "rubric": {
+  "score": 65,
+  "source": "deterministic-rubric-v2-pipeline-artifacts"
+ }
+}

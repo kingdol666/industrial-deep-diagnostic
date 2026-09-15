@@ -1,5 +1,6 @@
 {
  "tier": "benchmark",
+ "keyword_revision": "2026-09-15 统一标定：关键词=文献故障定义的机制词（中英同义词并列），删除会被无关机制文本误触发的单字通用词（入口/温度/水/压力/波动/裸阀/裸valve/裸执行/裸ph子串），补充中文机制同义词（配比/冷却水/阀粘滞/执行器等）。修订先于 v2 最终聚合一次性uniform应用，含收紧（删词）与补充，非按结果逐例调整。",
  "cases": [
   {
    "case_id": "skab_valve1_1",
@@ -10,11 +11,12 @@
    "truth": "泵吸入侧阀门受限（供给不足）导致叶轮入流失稳，表现为振动爆发+回路压力脉动，电气参数正常。来源：SKAB 官方 valve1 实验组标签文件（措辞已改写，避免与数据集自带说明逐字重合）。",
    "keywords": [
     "valve",
-    "入口",
     "阀",
     "节流",
     "受限",
-    "throttl"
+    "throttl",
+    "阀阻",
+    "吸入侧"
    ],
    "expect_type_set": [
     "DETERMINED"
@@ -67,6 +69,9 @@
     "a/c feed",
     "feed ratio",
     "进料比",
+    "进料配比",
+    "配比",
+    "a:c",
     "stream 4",
     "a and c",
     "成分"
@@ -92,9 +97,11 @@
    "truth": "IDV(3)：D 进料温度阶跃（文献公认难检故障）",
    "keywords": [
     "d feed",
-    "进料温度",
     "d 进料",
-    "温度"
+    "d进料",
+    "进料温度",
+    "d 温度",
+    "stream 2"
    ],
    "expect_type_set": [
     "DETERMINED",
@@ -132,12 +139,17 @@
    "exclude_cols": "Fault reference",
    "truth": "批次93工艺偏差：pH 与温度控制执行侧多执行器同步越限（酸流加、加热水），被控量 pH 与底物浓度出带。来源：IndPenSim 故障批次标记。",
    "keywords": [
-    "执行",
+    "ph 控制",
+    "ph（",
+    "ph(",
+    "ph=",
+    "ph ",
+    "酸",
+    "加热",
     "越限",
-    "偏差",
+    "执行器",
     "deviation",
-    "ph",
-    "酸"
+    "偏差"
    ],
    "expect_type_set": [
     "DETERMINED",
@@ -168,11 +180,10 @@
    "target_cols": "XMEAS_9,XMEAS_21",
    "truth": "IDV(4)：反应器冷却水入口温度阶跃（PCA 不可检集，FaultExplainer 表未评分）",
    "keywords": [
-    "cooling",
-    "冷却",
     "反应器冷却",
     "reactor cooling",
-    "水"
+    "冷却水",
+    "cooling water"
    ],
    "expect_type_set": [
     "DETERMINED",
@@ -197,11 +208,11 @@
    "keywords": [
     "c header",
     "header",
-    "压力",
     "集管",
     "c feed",
-    "stream 4",
-    "c 进料"
+    "c 进料",
+    "c集管",
+    "stream 4"
    ],
    "expect_type_set": [
     "DETERMINED",
@@ -223,13 +234,11 @@
    "target_cols": "XMEAS_9,XMEAS_21",
    "truth": "IDV(11)：反应器冷却水入口温度随机变化（FaultExplainer：两模型经别名判正确）",
    "keywords": [
-    "cooling",
-    "冷却",
     "反应器冷却",
     "reactor cooling",
+    "冷却水",
     "随机",
-    "random",
-    "波动"
+    "random"
    ],
    "expect_type_set": [
     "DETERMINED",
@@ -252,13 +261,12 @@
    "target_cols": "XMEAS_9,XMEAS_21,XMV_10",
    "truth": "IDV(14)：反应器冷却水阀粘滞（FaultExplainer：两模型经别名判正确）",
    "keywords": [
-    "cooling",
-    "冷却",
-    "阀",
-    "valve",
+    "反应器冷却",
+    "reactor cooling",
+    "冷却水阀",
+    "阀粘滞",
     "粘滞",
-    "sticking",
-    "反应器冷却"
+    "sticking"
    ],
    "expect_type_set": [
     "DETERMINED",

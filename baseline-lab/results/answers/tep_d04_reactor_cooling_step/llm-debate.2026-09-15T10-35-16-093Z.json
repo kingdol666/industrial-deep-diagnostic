@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d04_reactor_cooling_step",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d04_reactor_cooling_step (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_9 max|z|=10.06 (0.3% beyond 3σ); XMEAS_2 max|z|=3.8 (0.2% beyond 3σ); XMV_3 max|z|=3.74 (0.2% beyond 3σ); XMEAS_1 max|z|=3.7 (0.2% beyond 3σ); XMEAS_23 max|z|=3.7 (0.4% beyond 3σ); XMEAS_11 max|z|=3.66 (0.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.998; XMEAS_1 ~ XMV_3: r=0.996; XMEAS_19 ~ XMV_9: r=0.981\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起进入异常工况。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 50.9,
+  "raw_reply": "{\"top3\": [\"Reactor cooling water inlet temperature step disturbance (reactor cooling system step fault, IDV-style step in cooling water), causing reactor temperature and cooling water flow/valve rebalancing\", \"Feed composition/temperature shift on reactor feed (XMEAS_1/XMEAS_2 feed flow and composition excursion) driving reactor duty change\", \"Reactor pressure/level control-loop interaction via separator-recycle path (XMEAS_7/XMEAS_13 separator temperature correlated) secondary to the cooling step\"], \"reasoning\": \"XMEAS_9 (reactor temperature) is the only variable with a genuinely large excursion (max|z|=10.06), which is the classic signature of a step in the reactor cooling-water system, since reactor temperature is directly set by cooling duty and would otherwise be tightly regulated. The near-perfect r=0.996 coupling XMEAS_1~XMV_3 (feed flow vs. feed valve) and the very strong XMEAS_15~XMV_8, XMEAS_12~XMV_7 pairs show the controller is actively countering a disturbance with valve moves rather than a mass-balance feed upset dominating, consistent with a cooling-side step propagating through the reactor-condenser-separator loop. XMEAS_2 and XMV_3 deviations (max|z|~3.7-3.8) are small and look like secondary loop compensation, so a feed-side cause is a weaker alternative.\"}",
+  "parsed": {
+    "top3": [
+      "Reactor cooling water inlet temperature step disturbance (reactor cooling system step fault, IDV-style step in cooling water), causing reactor temperature and cooling water flow/valve rebalancing",
+      "Feed composition/temperature shift on reactor feed (XMEAS_1/XMEAS_2 feed flow and composition excursion) driving reactor duty change",
+      "Reactor pressure/level control-loop interaction via separator-recycle path (XMEAS_7/XMEAS_13 separator temperature correlated) secondary to the cooling step"
+    ],
+    "reasoning": "XMEAS_9 (reactor temperature) is the only variable with a genuinely large excursion (max|z|=10.06), which is the classic signature of a step in the reactor cooling-water system, since reactor temperature is directly set by cooling duty and would otherwise be tightly regulated. The near-perfect r=0.996 coupling XMEAS_1~XMV_3 (feed flow vs. feed valve) and the very strong XMEAS_15~XMV_8, XMEAS_12~XMV_7 pairs show the controller is actively countering a disturbance with valve moves rather than a mass-balance feed upset dominating, consistent with a cooling-side step propagating through the reactor-condenser-separator loop. XMEAS_2 and XMV_3 deviations (max|z|~3.7-3.8) are small and look like secondary loop compensation, so a feed-side cause is a weaker alternative."
+  },
+  "archived_at": "2026-09-15T10:35:16.093Z"
+}

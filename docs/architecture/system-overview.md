@@ -11,8 +11,8 @@
    - `config/`
 
 2. **Skill Layer**
-   - `.claude/skills/industrial-deep-diagnostic/`
-   - `.claude/skills/rag-knowledge-builder/`
+   - `.claude/skills/`（18 个 skill，唯一权威源；`industrial-analysis-auto` 为管线编排入口）
+   - `.agents/skills/`、`.hermes/skills/` — 由 `scripts/sync-harness-skills.mjs` 生成的镜像，禁止手改
 
 3. **Knowledge Service Layer**
    - `rag-retrieval-engine/`

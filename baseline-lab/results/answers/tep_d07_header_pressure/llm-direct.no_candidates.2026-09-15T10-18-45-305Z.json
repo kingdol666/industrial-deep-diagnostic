@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d07_header_pressure",
+  "algorithm": "llm-direct.no_candidates",
+  "tag": "no_candidates",
+  "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 47.5,
+  "raw_reply": "{\"top3\": [\"Fault 4: Reactor cooling water inlet temperature step (reactor cooling water valve XMV_10 / condenser cooling water XMV_11 loop)\", \"Fault 1: A/C feed ratio step (XMV_3 feed flow, composition XMEAS_1/XMEAS_6)\", \"Fault 14: Reactor cooling water valve sticking (XMV_10)\"], \"reasoning\": \"The strongest signature is the cooling-water loop: XMEAS_17~XMV_11 (r=-0.990) and XMEAS_19~XMV_9 (r=0.990) show tight separator/stripper temperature-control coupling, while the top |z| columns (XMEAS_28, XMEAS_11, XMEAS_34, XMEAS_7, XMEAS_38, XMEAS_16) are all reactor/separator temperatures, indicating a heat-removal disturbance rather than a feed-composition event. The very high XMEAS_15~XMV_8 and XMEAS_12~XMV_7 correlations confirm the stripper recycle/level loops merely compensating, and a sustained step in cooling-water temperature (or a sticking reactor cooling-water valve) explains a persistent, non-oscillatory temperature offset with only ~2-4% of samples beyond 3-sigma. Feed-ratio and composition faults are ranked lower because product/reactant composition measurements do not dominate the anomaly.\"}",
+  "parsed": {
+    "top3": [
+      "Fault 4: Reactor cooling water inlet temperature step (reactor cooling water valve XMV_10 / condenser cooling water XMV_11 loop)",
+      "Fault 1: A/C feed ratio step (XMV_3 feed flow, composition XMEAS_1/XMEAS_6)",
+      "Fault 14: Reactor cooling water valve sticking (XMV_10)"
+    ],
+    "reasoning": "The strongest signature is the cooling-water loop: XMEAS_17~XMV_11 (r=-0.990) and XMEAS_19~XMV_9 (r=0.990) show tight separator/stripper temperature-control coupling, while the top |z| columns (XMEAS_28, XMEAS_11, XMEAS_34, XMEAS_7, XMEAS_38, XMEAS_16) are all reactor/separator temperatures, indicating a heat-removal disturbance rather than a feed-composition event. The very high XMEAS_15~XMV_8 and XMEAS_12~XMV_7 correlations confirm the stripper recycle/level loops merely compensating, and a sustained step in cooling-water temperature (or a sticking reactor cooling-water valve) explains a persistent, non-oscillatory temperature offset with only ~2-4% of samples beyond 3-sigma. Feed-ratio and composition faults are ranked lower because product/reactant composition measurements do not dominate the anomaly."
+  },
+  "archived_at": "2026-09-15T10:18:45.305Z"
+}

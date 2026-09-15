@@ -1,0 +1,29 @@
+{
+  "run_id": "20260915-101525-kpca-fix",
+  "algorithms": [
+    "pca-t2-spe",
+    "kpca-rbf",
+    "ica-fastica",
+    "spc-ewma-cusum",
+    "knn-fdd",
+    "iforest"
+  ],
+  "cases": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "skab_normal_control",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "tep_d00_normal_control",
+    "indpensim_batch093",
+    "indpensim_batch001_control",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+  ],
+  "config": {
+    "llmTimeoutMs": 300000
+  },
+  "started_at": "2026-09-15T10:15:25.961Z"
+}

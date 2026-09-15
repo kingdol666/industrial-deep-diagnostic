@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-09-15T10:28:35.527Z",
+  "algorithms": [
+    "pca-t2-spe",
+    "rf-forest"
+  ],
+  "cases": [
+    "tep_d01_ac_feed_ratio",
+    "tep_d00_normal_control"
+  ],
+  "by_algorithm": {
+    "pca-t2-spe": {
+      "label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "status": "executed",
+      "executed": 2,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "pca-t2-spe",
+        "cases": 2,
+        "fault_cases": 1,
+        "control_cases": 1,
+        "tep_fault_cases": 1,
+        "nontep_fault_cases": 0,
+        "top1": 0,
+        "top1_rate": 0,
+        "top1_wilson": [
+          0,
+          79.3
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          79.3
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 0,
+        "idv_named": 0,
+        "tep_top1": 0,
+        "tep_top1_rate": 0,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 1,
+        "control_pass_rate": 1,
+        "false_alarms": 0,
+        "calibrated": 1,
+        "overconfident": 1,
+        "answered": 1,
+        "abstained": 0
+      }
+    },
+    "rf-forest": {
+      "label": "随机森林分类器",
+      "family": "supervised",
+      "status": "executed",
+      "executed": 2,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "rf-forest",
+        "cases": 2,
+        "fault_cases": 1,
+        "control_cases": 1,
+        "tep_fault_cases": 1,
+        "nontep_fault_cases": 0,
+        "top1": 1,
+        "top1_rate": 1,
+        "top1_wilson": [
+          20.7,
+          100
+        ],
+        "exact_idv_top1": 1,
+        "exact_idv_top1_rate": 1,
+        "exact_idv_top1_wilson": [
+          20.7,
+          100
+        ],
+        "exact_idv_top3": 1,
+        "exact_idv_top3_rate": 1,
+        "strict_but_not_exact": 0,
+        "idv_named": 1,
+        "tep_top1": 1,
+        "tep_top1_rate": 1,
+        "nontep_top1": 0,
+        "nontep_top1_rate": null,
+        "fe_style_top3": 1,
+        "fe_style_top3_rate": 1,
+        "control_pass": 1,
+        "control_pass_rate": 1,
+        "false_alarms": 0,
+        "calibrated": 1,
+        "overconfident": 0,
+        "answered": 1,
+        "abstained": 0
+      }
+    }
+  }
+}

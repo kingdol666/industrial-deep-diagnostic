@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d01_ac_feed_ratio",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.instrumentation",
+  "prompt": "You are an instrumentation and data-quality engineer. You are sceptical: you check whether apparent deviations could be sensor drift, sampling artefacts, offline-assay carry-forward, or start-up transients rather than a real process fault.\n\nDataset: tep_d01_ac_feed_ratio (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 36.9,
+  "raw_reply": "{\"top3\": [\"reactor feed A/C ratio step disturbance (D01) — feed composition/ratio imbalance\", \"condenser cooling-water inlet temperature step (D03-ish) or recycle-related cooling upset\", \"sensor drift / sampling artefact misread as fault\"], \"reasoning\": \"The digest is dominated by near-perfect measurement-to-manipulated-variable identities (XMEAS_12~XMV_7 r=1.000, XMEAS_15~XMV_8 r=1.000, XMEAS_1~XMV_3 r=1.000), which are physically forced pairings (e.g. stripper level/pump, separator level/valve) and therefore carry no fault information — I discount them as collinearity, not evidence. The genuine deviation is a broad, low-amplitude |z| pattern (max 4.4-4.9, only 2-3% beyond 3σ) spread across XMEAS_16, 25, 35, 31, 36, 11 — reactor pressure, stripper temperature, recycle/compressor and feed-analysis channels — which is the signature of a small persistent feed-ratio/composition bias propagating through the reactor-stripper-recycle loop rather than a sharp unit failure. Because the excursion is mild and grows after sample 161, I cannot fully exclude an analyser carry-forward/drift artefact, but the multi-loop coherence favours a real D01-type feed ratio step.\"}",
+  "parsed": {
+    "top3": [
+      "reactor feed A/C ratio step disturbance (D01) — feed composition/ratio imbalance",
+      "condenser cooling-water inlet temperature step (D03-ish) or recycle-related cooling upset",
+      "sensor drift / sampling artefact misread as fault"
+    ],
+    "reasoning": "The digest is dominated by near-perfect measurement-to-manipulated-variable identities (XMEAS_12~XMV_7 r=1.000, XMEAS_15~XMV_8 r=1.000, XMEAS_1~XMV_3 r=1.000), which are physically forced pairings (e.g. stripper level/pump, separator level/valve) and therefore carry no fault information — I discount them as collinearity, not evidence. The genuine deviation is a broad, low-amplitude |z| pattern (max 4.4-4.9, only 2-3% beyond 3σ) spread across XMEAS_16, 25, 35, 31, 36, 11 — reactor pressure, stripper temperature, recycle/compressor and feed-analysis channels — which is the signature of a small persistent feed-ratio/composition bias propagating through the reactor-stripper-recycle loop rather than a sharp unit failure. Because the excursion is mild and grows after sample 161, I cannot fully exclude an analyser carry-forward/drift artefact, but the multi-loop coherence favours a real D01-type feed ratio step."
+  },
+  "archived_at": "2026-09-15T10:31:55.907Z"
+}

@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-14T03:51:12.673Z",
+ "generated_at": "2026-09-15T09:20:18.328Z",
  "tier": "scripts/benchmark/cases/benchmark_cases.json",
  "checks": {
   "dataset_integrity": {
@@ -20,10 +20,10 @@
     "executed": 12,
     "fault_cases": 9,
     "control_cases": 3,
-    "top1": 9,
-    "topk": 9,
-    "cdr": 1,
-    "calibrated": 9,
+    "top1": 6,
+    "topk": 8,
+    "cdr": 0.6667,
+    "calibrated": 8,
     "overconfident": 0,
     "control_pass": 3,
     "false_alarms": 0

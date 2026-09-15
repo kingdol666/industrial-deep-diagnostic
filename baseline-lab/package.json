@@ -1,0 +1,32 @@
+{
+  "name": "idd-baseline-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "IDD Baseline Lab — runnable reproductions of comparator diagnostic algorithms for the Industrial Deep Diagnostic benchmark (12 scenarios: TEP / SKAB / IndPenSim).",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "start": "nuxt dev",
+    "postinstall": "nuxt prepare",
+    "audit": "node scripts/audit.mjs",
+    "sweep": "node scripts/sweep.mjs",
+    "provider-doctor": "node scripts/provider-selftest.mjs",
+    "verify": "node scripts/verify-pca.mjs && node scripts/check-fe-scaler.mjs && node scripts/verify-fe.mjs && node scripts/verify-classical.mjs && node scripts/verify-supervised.mjs",
+    "verify:pca": "node scripts/verify-pca.mjs",
+    "verify:fe": "node scripts/verify-fe.mjs",
+    "verify:fe-scaler": "node scripts/check-fe-scaler.mjs",
+    "verify:classical": "node scripts/verify-classical.mjs",
+    "verify:supervised": "node scripts/verify-supervised.mjs",
+    "verify:provider": "node scripts/provider-selftest.mjs --live"
+  },
+  "dependencies": {
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.42",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

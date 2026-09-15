@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d04_reactor_cooling_step",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.instrumentation",
+  "prompt": "You are an instrumentation and data-quality engineer. You are sceptical: you check whether apparent deviations could be sensor drift, sampling artefacts, offline-assay carry-forward, or start-up transients rather than a real process fault.\n\nDataset: tep_d04_reactor_cooling_step (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_9 max|z|=10.06 (0.3% beyond 3σ); XMEAS_2 max|z|=3.8 (0.2% beyond 3σ); XMV_3 max|z|=3.74 (0.2% beyond 3σ); XMEAS_1 max|z|=3.7 (0.2% beyond 3σ); XMEAS_23 max|z|=3.7 (0.4% beyond 3σ); XMEAS_11 max|z|=3.66 (0.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.998; XMEAS_1 ~ XMV_3: r=0.996; XMEAS_19 ~ XMV_9: r=0.981\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起进入异常工况。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 29.88,
+  "raw_reply": "{\"top3\": [\"reactor cooling water inlet temperature step disturbance (XMV_10) causing reactor temperature excursion\", \"condenser cooling water step / feed temperature step disturbance (XMV_11) with reactor pressure and separator response\", \"sensor drift or sampling artefact on XMEAS_9 (reactor temperature) rather than a true process fault\"], \"reasoning\": \"The digest's dominant deviation is XMEAS_9 (reactor temperature) at |z|=10 while every other channel stays near 3-4 sigma, which is the classic TEP signature of the step-4 reactor cooling water inlet temperature fault: a pure thermal excursion that saturates only the reactor temperature loop and leaves the rest of the plant mildly perturbed. Cross-domain ties are all trivial control pairings (separator temperature ~ stripper steam valve, stripper level ~ stripper flow, reactor feed/feed valve), i.e. ordinary closed-loop correlation rather than cross-unit propagation, so there is no evidence of a feed composition or compressor-recycle fault. I still rank an XMV_11/condenser-side step and an XMEAS_9 instrument artefact as alternatives because the digest shows no onset timing, no pressure/level shift magnitude, and no offline-assay lag check, so sensor drift or a cooling-side transient cannot yet be excluded.\"}",
+  "parsed": {
+    "top3": [
+      "reactor cooling water inlet temperature step disturbance (XMV_10) causing reactor temperature excursion",
+      "condenser cooling water step / feed temperature step disturbance (XMV_11) with reactor pressure and separator response",
+      "sensor drift or sampling artefact on XMEAS_9 (reactor temperature) rather than a true process fault"
+    ],
+    "reasoning": "The digest's dominant deviation is XMEAS_9 (reactor temperature) at |z|=10 while every other channel stays near 3-4 sigma, which is the classic TEP signature of the step-4 reactor cooling water inlet temperature fault: a pure thermal excursion that saturates only the reactor temperature loop and leaves the rest of the plant mildly perturbed. Cross-domain ties are all trivial control pairings (separator temperature ~ stripper steam valve, stripper level ~ stripper flow, reactor feed/feed valve), i.e. ordinary closed-loop correlation rather than cross-unit propagation, so there is no evidence of a feed composition or compressor-recycle fault. I still rank an XMV_11/condenser-side step and an XMEAS_9 instrument artefact as alternatives because the digest shows no onset timing, no pressure/level shift magnitude, and no offline-assay lag check, so sensor drift or a cooling-side transient cannot yet be excluded."
+  },
+  "archived_at": "2026-09-15T10:37:01.599Z"
+}

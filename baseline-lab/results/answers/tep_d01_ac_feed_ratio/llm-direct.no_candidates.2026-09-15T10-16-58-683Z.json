@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d01_ac_feed_ratio",
+  "algorithm": "llm-direct.no_candidates",
+  "tag": "no_candidates",
+  "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 60.72,
+  "raw_reply": "{\"top3\": [\"Reactor cooling water inlet temperature step/random variation (TE fault 6/7: reactor cooling water valve malfunction)\", \"Condenser cooling water inlet temperature variation (TE fault 9/10: condenser cooling water valve)\", \"Feed composition/ratio disturbance (A/C feed ratio step, TE fault 1/2 or feed temperature fault 4)\"], \"reasoning\": \"The highest z-score deviations are on XMEAS_31 (reactor cooling water outlet temperature), XMEAS_36 (reactor cooling water outlet flow) and XMEAS_16 (reactor pressure), with strong coupling to cooling water and feed-related loops, which is the classic signature of a reactor cooling-water disturbance rather than a stripper/compressor fault. Directly measured variables (XMEAS_1-22) are not the only ones affected, and the tight XMEAS_1~XMV_3, XMEAS_12~XMV_7 identities reflect normal control action, so the disturbance most likely enters the reactor cooling water system (faults 6/7) or, secondarily, the condenser cooling water (9/10). Feed-side composition/temperature upsets (faults 1-4) are the next candidate since they propagate through reactor temperature and pressure in a similar way.\"}",
+  "parsed": {
+    "top3": [
+      "Reactor cooling water inlet temperature step/random variation (TE fault 6/7: reactor cooling water valve malfunction)",
+      "Condenser cooling water inlet temperature variation (TE fault 9/10: condenser cooling water valve)",
+      "Feed composition/ratio disturbance (A/C feed ratio step, TE fault 1/2 or feed temperature fault 4)"
+    ],
+    "reasoning": "The highest z-score deviations are on XMEAS_31 (reactor cooling water outlet temperature), XMEAS_36 (reactor cooling water outlet flow) and XMEAS_16 (reactor pressure), with strong coupling to cooling water and feed-related loops, which is the classic signature of a reactor cooling-water disturbance rather than a stripper/compressor fault. Directly measured variables (XMEAS_1-22) are not the only ones affected, and the tight XMEAS_1~XMV_3, XMEAS_12~XMV_7 identities reflect normal control action, so the disturbance most likely enters the reactor cooling water system (faults 6/7) or, secondarily, the condenser cooling water (9/10). Feed-side composition/temperature upsets (faults 1-4) are the next candidate since they propagate through reactor temperature and pressure in a similar way."
+  },
+  "archived_at": "2026-09-15T10:16:58.682Z"
+}

@@ -1,0 +1,4288 @@
+{
+  "run_id": "20260915-100550-verify",
+  "partial": false,
+  "results": [
+    {
+      "case_id": "skab_valve1_1",
+      "dataset": "skab",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.658Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Volume Flow RateRMS",
+          "Thermocouple",
+          "Temperature",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 478.081231
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 461.890422
+          },
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 435.389625
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 140.784137
+          },
+          {
+            "col": "Temperature",
+            "contribution": 29.21101
+          },
+          {
+            "col": "Current",
+            "contribution": 0.045028
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 1,
+            "alarms": 1145,
+            "window_rows": 1145,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 18941.255512,
+            "series_head": [
+              16927.8832,
+              16913.894,
+              16721.2361,
+              16764.1693,
+              17015.4478,
+              16956.2224,
+              16795.9302,
+              16958.5141
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 1145,
+            "window_rows": 1145,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 1609.070945,
+            "series_head": [
+              1567.3164,
+              1577.0266,
+              1542.9222,
+              1551.2703,
+              1569.0357,
+              1571.0787,
+              1540.8417,
+              1570.256
+            ]
+          },
+          "components_retained": 6,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 100.00% / T² 100.00% over the fault window. Dominant residual contributors: Accelerometer2RMS, Accelerometer1RMS, Volume Flow RateRMS. Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); variables reported only",
+        "runtime_ms": 21
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_valve1_1",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:50.707Z"
+    },
+    {
+      "case_id": "skab_cavitation_13",
+      "dataset": "skab",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.708Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Volume Flow RateRMS",
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Temperature",
+          "Thermocouple",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 112.056665
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 78.890736
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 78.190559
+          },
+          {
+            "col": "Temperature",
+            "contribution": 40.858103
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 4.047213
+          },
+          {
+            "col": "Current",
+            "contribution": 0.013751
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 1,
+            "alarms": 923,
+            "window_rows": 923,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 12785.608938,
+            "series_head": [
+              9446.0767,
+              5680.077,
+              7537.6599,
+              12552.6195,
+              12171.2911,
+              8891.6512,
+              5737.5487,
+              7854.4058
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 923,
+            "window_rows": 923,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 2197.774162,
+            "series_head": [
+              1584.8724,
+              760.2912,
+              1172.6849,
+              2044.6911,
+              2141.2045,
+              1355.6706,
+              867.3317,
+              1174.4949
+            ]
+          },
+          "components_retained": 6,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 100.00% / T² 100.00% over the fault window. Dominant residual contributors: Volume Flow RateRMS, Accelerometer2RMS, Accelerometer1RMS. Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); variables reported only",
+        "runtime_ms": 15
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_cavitation_13",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:50.727Z"
+    },
+    {
+      "case_id": "skab_normal_control",
+      "dataset": "skab",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.727Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Volume Flow RateRMS",
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Temperature",
+          "Thermocouple",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 0.926721
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 0.768253
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 0.753298
+          },
+          {
+            "col": "Temperature",
+            "contribution": 0.254923
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 0.130434
+          },
+          {
+            "col": "Current",
+            "contribution": 0.000108
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.0101,
+            "alarms": 95,
+            "window_rows": 9405,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 85.350961,
+            "series_head": [
+              7.9882,
+              8.4547,
+              8.1038,
+              9.1918,
+              12.9459,
+              8.3366,
+              11.7839,
+              6.0572
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0101,
+            "alarms": 95,
+            "window_rows": 9405,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 6.9411,
+            "series_head": [
+              0.2629,
+              0.2887,
+              0.0008,
+              0.069,
+              0.1881,
+              0.0195,
+              0.2701,
+              0.1633
+            ]
+          },
+          "components_retained": 6,
+          "detectable": false
+        },
+        "reasoning": "No detection: SPE alarm rate 1.01% and T² 1.01% are at the control-limit expectation. The classical detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); variables reported only",
+        "runtime_ms": 14
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.741Z"
+    },
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.742Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMEAS_2",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_20",
+          "XMV_5"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 7.264856
+          },
+          {
+            "col": "XMEAS_2",
+            "contribution": 4.923559
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 2.200653
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 2.002574
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 1.998608
+          },
+          {
+            "col": "XMV_5",
+            "contribution": 1.683814
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.9925,
+            "alarms": 794,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 1357.15857,
+            "series_head": [
+              13.0657,
+              10.7695,
+              16.3115,
+              15.4133,
+              33.288,
+              28.2985,
+              29.9381,
+              26.3814
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.9975,
+            "alarms": 798,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0375,
+            "threshold": 6.777786,
+            "max_stat": 191.981267,
+            "series_head": [
+              0.9085,
+              0.6071,
+              2.4674,
+              1.4992,
+              1.1219,
+              0.9157,
+              3.5578,
+              3.1256
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 99.75% / T² 99.25% over the fault window. Dominant residual contributors: XMEAS_21, XMEAS_2, XMEAS_38. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 22
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:50.787Z"
+    },
+    {
+      "case_id": "tep_d03_hard",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.787Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_25",
+          "XMEAS_21",
+          "XMEAS_22"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_31",
+            "contribution": 1.206245
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 1.138037
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.782604
+          },
+          {
+            "col": "XMEAS_25",
+            "contribution": 0.488511
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.420718
+          },
+          {
+            "col": "XMEAS_22",
+            "contribution": 0.389692
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.0288,
+            "alarms": 23,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 73.432278,
+            "series_head": [
+              9.3328,
+              15.4005,
+              29.9338,
+              32.2475,
+              23.119,
+              26.9488,
+              30.8175,
+              31.8396
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0475,
+            "alarms": 38,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.025,
+            "threshold": 6.777786,
+            "max_stat": 17.523028,
+            "series_head": [
+              0.7407,
+              0.7623,
+              6.429,
+              4.7867,
+              2.5195,
+              1.5912,
+              1.2148,
+              2.6323
+            ]
+          },
+          "components_retained": 35,
+          "detectable": false
+        },
+        "reasoning": "No detection: SPE alarm rate 4.75% and T² 2.88% are at the control-limit expectation. The classical detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 13
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d03_hard",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV3",
+        "alias_class": [
+          "IDV3",
+          "IDV9"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:50.810Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.811Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_25",
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_38",
+            "contribution": 1.939534
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.679339
+          },
+          {
+            "col": "XMEAS_25",
+            "contribution": 0.523417
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.447852
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.41479
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.412406
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.0104,
+            "alarms": 10,
+            "window_rows": 960,
+            "pre_window_alarm_rate": null,
+            "threshold": 56.348115,
+            "max_stat": 66.03893,
+            "series_head": [
+              11.7244,
+              11.4242,
+              13.4472,
+              28.5978,
+              21.8654,
+              26.9936,
+              37.9935,
+              27.5262
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0104,
+            "alarms": 10,
+            "window_rows": 960,
+            "pre_window_alarm_rate": null,
+            "threshold": 6.777786,
+            "max_stat": 8.968222,
+            "series_head": [
+              0.3231,
+              0.5618,
+              0.6313,
+              0.9546,
+              1.5636,
+              0.755,
+              1.1954,
+              1.0873
+            ]
+          },
+          "components_retained": 35,
+          "detectable": false
+        },
+        "reasoning": "No detection: SPE alarm rate 1.04% and T² 1.04% are at the control-limit expectation. The classical detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 10
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.822Z"
+    },
+    {
+      "case_id": "indpensim_batch093",
+      "dataset": "indpensim",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.823Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Heating water flow rate(Fh:L/h)",
+          "Generated heat(Q:kJ)",
+          "Heating/cooling water flow rate(Fc:L/h)",
+          "Temperature(T:K)",
+          "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+          "PAA flow(Fpaa:PAA flow (L/h))"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Heating water flow rate(Fh:L/h)",
+            "contribution": 33.491356
+          },
+          {
+            "col": "Generated heat(Q:kJ)",
+            "contribution": 13.13831
+          },
+          {
+            "col": "Heating/cooling water flow rate(Fc:L/h)",
+            "contribution": 5.051456
+          },
+          {
+            "col": "Temperature(T:K)",
+            "contribution": 3.78864
+          },
+          {
+            "col": "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+            "contribution": 3.16813
+          },
+          {
+            "col": "PAA flow(Fpaa:PAA flow (L/h))",
+            "contribution": 2.495527
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.1505,
+            "alarms": 158,
+            "window_rows": 1050,
+            "pre_window_alarm_rate": null,
+            "threshold": 49.495279,
+            "max_stat": 1456.401087,
+            "series_head": [
+              76.8937,
+              31.2484,
+              28.1755,
+              57.6192,
+              85.7676,
+              136.634,
+              197.1723,
+              288.2007
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.739,
+            "alarms": 776,
+            "window_rows": 1050,
+            "pre_window_alarm_rate": null,
+            "threshold": 6.35065,
+            "max_stat": 866.674051,
+            "series_head": [
+              23.8171,
+              20.9268,
+              18.9429,
+              14.2196,
+              10.0133,
+              9.651,
+              8.7065,
+              8.318
+            ]
+          },
+          "components_retained": 11,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 73.90% / T² 15.05% over the fault window. Dominant residual contributors: Heating water flow rate(Fh:L/h), Generated heat(Q:kJ), Heating/cooling water flow rate(Fc:L/h). Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); variables reported only",
+        "runtime_ms": 5
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch093",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:50.840Z"
+    },
+    {
+      "case_id": "indpensim_batch001_control",
+      "dataset": "indpensim",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.841Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Heating/cooling water flow rate(Fc:L/h)",
+          "Sugar feed rate(Fs:L/h)",
+          "Base flow rate(Fb:L/h)",
+          "Heating water flow rate(Fh:L/h)",
+          "Water for injection/dilution(Fw:L/h)",
+          "Substrate concentration(S:g/L)"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Heating/cooling water flow rate(Fc:L/h)",
+            "contribution": 1.938081
+          },
+          {
+            "col": "Sugar feed rate(Fs:L/h)",
+            "contribution": 1.683118
+          },
+          {
+            "col": "Base flow rate(Fb:L/h)",
+            "contribution": 1.147036
+          },
+          {
+            "col": "Heating water flow rate(Fh:L/h)",
+            "contribution": 0.652573
+          },
+          {
+            "col": "Water for injection/dilution(Fw:L/h)",
+            "contribution": 0.537121
+          },
+          {
+            "col": "Substrate concentration(S:g/L)",
+            "contribution": 0.518894
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.0106,
+            "alarms": 12,
+            "window_rows": 1130,
+            "pre_window_alarm_rate": null,
+            "threshold": 49.495279,
+            "max_stat": 285.866183,
+            "series_head": [
+              26.9812,
+              21.8237,
+              29.2914,
+              40.88,
+              45.7952,
+              82.7608,
+              161.2399,
+              285.8662
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0106,
+            "alarms": 12,
+            "window_rows": 1130,
+            "pre_window_alarm_rate": null,
+            "threshold": 6.35065,
+            "max_stat": 20.546762,
+            "series_head": [
+              7.7443,
+              5.6969,
+              5.5185,
+              4.9416,
+              3.0614,
+              1.7799,
+              1.4227,
+              2.2802
+            ]
+          },
+          "components_retained": 11,
+          "detectable": false
+        },
+        "reasoning": "No detection: SPE alarm rate 1.06% and T² 1.06% are at the control-limit expectation. The classical detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); variables reported only",
+        "runtime_ms": 5
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch001_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.848Z"
+    },
+    {
+      "case_id": "tep_d04_reactor_cooling_step",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.848Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 11.084061
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 10.99534
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.417768
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.362431
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.318604
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.229932
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.4875,
+            "alarms": 390,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 216.392723,
+            "series_head": [
+              12.4883,
+              10.9948,
+              35.0436,
+              27.8067,
+              43.2784,
+              44.2298,
+              23.4681,
+              41.6811
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 800,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0187,
+            "threshold": 6.777786,
+            "max_stat": 47.330476,
+            "series_head": [
+              1.0731,
+              1.5531,
+              2.7063,
+              1.9033,
+              2.582,
+              4.3871,
+              2.4228,
+              2.9173
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 100.00% / T² 48.75% over the fault window. Dominant residual contributors: XMV_10, XMEAS_9, XMEAS_31. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 21
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d04_reactor_cooling_step",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [
+          "reactor cooling"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV4",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.879Z"
+    },
+    {
+      "case_id": "tep_d07_header_pressure",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.880Z",
+      "output": {
+        "top3": [
+          "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+          "IDV2: B composition, A/C ratio constant (step) — Stream 4",
+          "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_33",
+          "XMEAS_29",
+          "XMEAS_38",
+          "XMV_4",
+          "XMEAS_20",
+          "XMEAS_31"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_33",
+            "contribution": 3.100359
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 3.038297
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 2.340758
+          },
+          {
+            "col": "XMV_4",
+            "contribution": 2.041329
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 1.764031
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 1.693494
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 1,
+            "alarms": 800,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 765.178455,
+            "series_head": [
+              11.0911,
+              8.1439,
+              23.9197,
+              29.0124,
+              19.8489,
+              45.6005,
+              44.0652,
+              44.5053
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.995,
+            "alarms": 796,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0313,
+            "threshold": 6.777786,
+            "max_stat": 121.170162,
+            "series_head": [
+              1.2461,
+              0.5441,
+              2.396,
+              1.3074,
+              3.2737,
+              5.5548,
+              2.5088,
+              1.7545
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 99.50% / T² 100.00% over the fault window. Dominant residual contributors: XMEAS_33, XMEAS_29, XMEAS_38. Mechanism mapping (separate knowledge step): IDV1 > IDV2 > IDV8.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 15
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d07_header_pressure",
+        "control": false,
+        "top3": [
+          "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+          "IDV2: B composition, A/C ratio constant (step) — Stream 4",
+          "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4"
+        ],
+        "kw_hits": [
+          "c feed",
+          "stream 4"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV7",
+        "alias_class": [],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.904Z"
+    },
+    {
+      "case_id": "tep_d11_reactor_cooling_random",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.905Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 12.025764
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 11.955198
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.531827
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.494732
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.357368
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.292561
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.5375,
+            "alarms": 430,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 310.96734,
+            "series_head": [
+              4.5845,
+              8.3387,
+              19.3592,
+              24.2005,
+              25.5244,
+              42.7667,
+              31.7637,
+              38.1776
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.6625,
+            "alarms": 530,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0375,
+            "threshold": 6.777786,
+            "max_stat": 118.221476,
+            "series_head": [
+              1.0766,
+              1.3591,
+              5.5799,
+              3.4445,
+              1.1647,
+              1.3397,
+              1.7694,
+              0.9874
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 66.25% / T² 53.75% over the fault window. Dominant residual contributors: XMV_10, XMEAS_9, XMEAS_31. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 11
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d11_reactor_cooling_random",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [
+          "reactor cooling",
+          "random"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV11",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.925Z"
+    },
+    {
+      "case_id": "tep_d14_reactor_valve_sticking",
+      "dataset": "tep",
+      "algorithm": "pca-t2-spe",
+      "algorithm_label": "经典 PCA 监测 (T²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.926Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV3: D feed temperature step — Stream 2",
+          "IDV11: Reactor cooling-water inlet temperature random variation"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMEAS_2",
+          "XMV_1",
+          "XMEAS_22",
+          "XMEAS_11",
+          "XMEAS_16"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 43.974897
+          },
+          {
+            "col": "XMEAS_2",
+            "contribution": 12.413464
+          },
+          {
+            "col": "XMV_1",
+            "contribution": 9.626576
+          },
+          {
+            "col": "XMEAS_22",
+            "contribution": 2.010487
+          },
+          {
+            "col": "XMEAS_11",
+            "contribution": 1.127736
+          },
+          {
+            "col": "XMEAS_16",
+            "contribution": 0.8217
+          }
+        ],
+        "detection": {
+          "T2": {
+            "detection_rate": 0.9975,
+            "alarms": 798,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 826.312472,
+            "series_head": [
+              6.6603,
+              17.7413,
+              21.2517,
+              13.6355,
+              29.949,
+              31.8465,
+              37.091,
+              33.232
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.9337,
+            "alarms": 747,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.025,
+            "threshold": 6.777786,
+            "max_stat": 204.594925,
+            "series_head": [
+              2.9596,
+              0.819,
+              1.6595,
+              3.6832,
+              1.7254,
+              1.4566,
+              4.8232,
+              1.8196
+            ]
+          },
+          "components_retained": 35,
+          "detectable": true
+        },
+        "reasoning": "SPE alarm rate 93.37% / T² 99.75% over the fault window. Dominant residual contributors: XMEAS_21, XMEAS_2, XMV_1. Mechanism mapping (separate knowledge step): IDV4 > IDV3 > IDV11.",
+        "diagnosis_step": "contribution top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 9
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d14_reactor_valve_sticking",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV3: D feed temperature step — Stream 2",
+          "IDV11: Reactor cooling-water inlet temperature random variation"
+        ],
+        "kw_hits": [
+          "reactor cooling"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV14",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:50.943Z"
+    },
+    {
+      "case_id": "skab_valve1_1",
+      "dataset": "skab",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:50.944Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Accelerometer1RMS",
+          "Accelerometer2RMS",
+          "Current",
+          "Pressure",
+          "Temperature",
+          "Thermocouple"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 0
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 0
+          },
+          {
+            "col": "Current",
+            "contribution": 0
+          },
+          {
+            "col": "Pressure",
+            "contribution": 0
+          },
+          {
+            "col": "Temperature",
+            "contribution": 0
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 0
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 1145,
+          "pre_window_alarm_rate": null,
+          "threshold": 0.991604,
+          "max_stat": 0.192908,
+          "series_head": [
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 1145,
+            "pre_window_alarm_rate": null,
+            "threshold": 0.991604,
+            "max_stat": 0.192908,
+            "series_head": [
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929
+            ]
+          },
+          "components_retained": 69,
+          "training_rows": 256,
+          "reference_rows": 9405,
+          "gamma": 0.125,
+          "kernel_eigenvalue_mass_captured": 0.9509,
+          "detectable": false,
+          "params": "a=69/256 gamma=0.12500 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/1145 fault-window rows (0.00%) at the reference 99th-percentile limit 0.991604 (pre-window alarm rate n/a, max statistic 0.192908). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); T² gradient contributions reported as variables only",
+        "runtime_ms": 597
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_valve1_1",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:51.542Z"
+    },
+    {
+      "case_id": "skab_cavitation_13",
+      "dataset": "skab",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:51.542Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Accelerometer1RMS",
+          "Temperature",
+          "Accelerometer2RMS",
+          "Volume Flow RateRMS",
+          "Pressure",
+          "Voltage"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 0.000275
+          },
+          {
+            "col": "Temperature",
+            "contribution": 0.000223
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 0.000116
+          },
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 0.000013
+          },
+          {
+            "col": "Pressure",
+            "contribution": 0.000007
+          },
+          {
+            "col": "Voltage",
+            "contribution": 0.000006
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 923,
+          "pre_window_alarm_rate": null,
+          "threshold": 0.991604,
+          "max_stat": 0.193468,
+          "series_head": [
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929,
+            0.1929
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 923,
+            "pre_window_alarm_rate": null,
+            "threshold": 0.991604,
+            "max_stat": 0.193468,
+            "series_head": [
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929,
+              0.1929
+            ]
+          },
+          "components_retained": 69,
+          "training_rows": 256,
+          "reference_rows": 9405,
+          "gamma": 0.125,
+          "kernel_eigenvalue_mass_captured": 0.9509,
+          "detectable": false,
+          "params": "a=69/256 gamma=0.12500 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/923 fault-window rows (0.00%) at the reference 99th-percentile limit 0.991604 (pre-window alarm rate n/a, max statistic 0.193468). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); T² gradient contributions reported as variables only",
+        "runtime_ms": 578
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_cavitation_13",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:52.121Z"
+    },
+    {
+      "case_id": "skab_normal_control",
+      "dataset": "skab",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:52.122Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Pressure",
+          "Current",
+          "Voltage",
+          "Accelerometer2RMS",
+          "Volume Flow RateRMS",
+          "Temperature"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Pressure",
+            "contribution": 0.057323
+          },
+          {
+            "col": "Current",
+            "contribution": 0.054879
+          },
+          {
+            "col": "Voltage",
+            "contribution": 0.051761
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 0.044935
+          },
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 0.04234
+          },
+          {
+            "col": "Temperature",
+            "contribution": 0.041149
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0101,
+          "alarms": 95,
+          "window_rows": 9405,
+          "pre_window_alarm_rate": null,
+          "threshold": 0.991604,
+          "max_stat": 1.154341,
+          "series_head": [
+            1.0023,
+            0.992,
+            0.9119,
+            0.9136,
+            0.9377,
+            0.9168,
+            0.8811,
+            0.9944
+          ],
+          "T2": {
+            "detection_rate": 0.0101,
+            "alarms": 95,
+            "window_rows": 9405,
+            "pre_window_alarm_rate": null,
+            "threshold": 0.991604,
+            "max_stat": 1.154341,
+            "series_head": [
+              1.0023,
+              0.992,
+              0.9119,
+              0.9136,
+              0.9377,
+              0.9168,
+              0.8811,
+              0.9944
+            ]
+          },
+          "components_retained": 69,
+          "training_rows": 256,
+          "reference_rows": 9405,
+          "gamma": 0.125,
+          "kernel_eigenvalue_mass_captured": 0.9509,
+          "detectable": false,
+          "params": "a=69/256 gamma=0.12500 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 95/9405 fault-window rows (1.01%) at the reference 99th-percentile limit 0.991604 (pre-window alarm rate n/a, max statistic 1.154341). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); T² gradient contributions reported as variables only",
+        "runtime_ms": 772
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:52.894Z"
+    },
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:52.895Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_16",
+          "XMEAS_20",
+          "XMEAS_21",
+          "XMV_5",
+          "XMEAS_41",
+          "XMEAS_7"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_16",
+            "contribution": 0.000313
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 0.000276
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.000258
+          },
+          {
+            "col": "XMV_5",
+            "contribution": 0.000133
+          },
+          {
+            "col": "XMEAS_41",
+            "contribution": 0.000116
+          },
+          {
+            "col": "XMEAS_7",
+            "contribution": 0.000099
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.384307,
+          "series_head": [
+            0.3819,
+            0.3711,
+            0.3455,
+            0.342,
+            0.2889,
+            0.3225,
+            0.3301,
+            0.3227
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.384307,
+            "series_head": [
+              0.3819,
+              0.3711,
+              0.3455,
+              0.342,
+              0.2889,
+              0.3225,
+              0.3301,
+              0.3227
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.384307). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 451
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:53.347Z"
+    },
+    {
+      "case_id": "tep_d03_hard",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:53.348Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_35",
+          "XMEAS_28",
+          "XMV_2",
+          "XMEAS_39",
+          "XMEAS_4",
+          "XMEAS_8"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_35",
+            "contribution": 0.010311
+          },
+          {
+            "col": "XMEAS_28",
+            "contribution": 0.010243
+          },
+          {
+            "col": "XMV_2",
+            "contribution": 0.010179
+          },
+          {
+            "col": "XMEAS_39",
+            "contribution": 0.010118
+          },
+          {
+            "col": "XMEAS_4",
+            "contribution": 0.009877
+          },
+          {
+            "col": "XMEAS_8",
+            "contribution": 0.009776
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.405555,
+          "series_head": [
+            0.3657,
+            0.3792,
+            0.2821,
+            0.2893,
+            0.3502,
+            0.333,
+            0.3119,
+            0.2854
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.405555,
+            "series_head": [
+              0.3657,
+              0.3792,
+              0.2821,
+              0.2893,
+              0.3502,
+              0.333,
+              0.3119,
+              0.2854
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.405555). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 553
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d03_hard",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV3",
+        "alias_class": [
+          "IDV3",
+          "IDV9"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:53.902Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:53.903Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_6",
+          "XMV_4",
+          "XMEAS_5",
+          "XMEAS_8",
+          "XMEAS_14",
+          "XMV_10"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_6",
+            "contribution": 0.010451
+          },
+          {
+            "col": "XMV_4",
+            "contribution": 0.010415
+          },
+          {
+            "col": "XMEAS_5",
+            "contribution": 0.01006
+          },
+          {
+            "col": "XMEAS_8",
+            "contribution": 0.01004
+          },
+          {
+            "col": "XMEAS_14",
+            "contribution": 0.009916
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.009455
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0112,
+          "alarms": 9,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0.0063,
+          "threshold": 0.987186,
+          "max_stat": 1.048879,
+          "series_head": [
+            0.4087,
+            0.3891,
+            0.3887,
+            0.3189,
+            0.5181,
+            0.3606,
+            0.262,
+            0.3381
+          ],
+          "T2": {
+            "detection_rate": 0.0112,
+            "alarms": 9,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 0.987186,
+            "max_stat": 1.048879,
+            "series_head": [
+              0.4087,
+              0.3891,
+              0.3887,
+              0.3189,
+              0.5181,
+              0.3606,
+              0.262,
+              0.3381
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 9/800 fault-window rows (1.12%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.63%, max statistic 1.048879). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 647
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:54.550Z"
+    },
+    {
+      "case_id": "indpensim_batch093",
+      "dataset": "indpensim",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:54.552Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+          "Heating/cooling water flow rate(Fc:L/h)",
+          "Generated heat(Q:kJ)",
+          "Substrate concentration(S:g/L)",
+          "Base flow rate(Fb:L/h)",
+          "Temperature(T:K)"
+        ],
+        "variables_ranked": [
+          {
+            "col": "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+            "contribution": 0.061211
+          },
+          {
+            "col": "Heating/cooling water flow rate(Fc:L/h)",
+            "contribution": 0.049309
+          },
+          {
+            "col": "Generated heat(Q:kJ)",
+            "contribution": 0.039493
+          },
+          {
+            "col": "Substrate concentration(S:g/L)",
+            "contribution": 0.025957
+          },
+          {
+            "col": "Base flow rate(Fb:L/h)",
+            "contribution": 0.021589
+          },
+          {
+            "col": "Temperature(T:K)",
+            "contribution": 0.021216
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 1050,
+          "pre_window_alarm_rate": null,
+          "threshold": 1.203019,
+          "max_stat": 0.969921,
+          "series_head": [
+            0.2831,
+            0.4694,
+            0.5367,
+            0.3952,
+            0.5196,
+            0.3104,
+            0.2459,
+            0.235
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 1050,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.203019,
+            "max_stat": 0.969921,
+            "series_head": [
+              0.2831,
+              0.4694,
+              0.5367,
+              0.3952,
+              0.5196,
+              0.3104,
+              0.2459,
+              0.235
+            ]
+          },
+          "components_retained": 43,
+          "training_rows": 256,
+          "reference_rows": 1130,
+          "gamma": 0.03125,
+          "kernel_eigenvalue_mass_captured": 0.952,
+          "detectable": false,
+          "params": "a=43/256 gamma=0.03125 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/1050 fault-window rows (0.00%) at the reference 99th-percentile limit 1.203019 (pre-window alarm rate n/a, max statistic 0.969921). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); T² gradient contributions reported as variables only",
+        "runtime_ms": 715
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch093",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:55.267Z"
+    },
+    {
+      "case_id": "indpensim_batch001_control",
+      "dataset": "indpensim",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:55.269Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Dissolved oxygen concentration(DO2:mg/L)",
+          "Water for injection/dilution(Fw:L/h)",
+          "Dumped broth flow(Fremoved:L/h)",
+          "Base flow rate(Fb:L/h)",
+          "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+          "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Dissolved oxygen concentration(DO2:mg/L)",
+            "contribution": 0.027875
+          },
+          {
+            "col": "Water for injection/dilution(Fw:L/h)",
+            "contribution": 0.026164
+          },
+          {
+            "col": "Dumped broth flow(Fremoved:L/h)",
+            "contribution": 0.020276
+          },
+          {
+            "col": "Base flow rate(Fb:L/h)",
+            "contribution": 0.020091
+          },
+          {
+            "col": "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+            "contribution": 0.018704
+          },
+          {
+            "col": "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+            "contribution": 0.018513
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0106,
+          "alarms": 12,
+          "window_rows": 1130,
+          "pre_window_alarm_rate": null,
+          "threshold": 1.203019,
+          "max_stat": 1.308813,
+          "series_head": [
+            1.1631,
+            1.0289,
+            0.931,
+            0.8286,
+            1.2861,
+            0.657,
+            0.2718,
+            0.2348
+          ],
+          "T2": {
+            "detection_rate": 0.0106,
+            "alarms": 12,
+            "window_rows": 1130,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.203019,
+            "max_stat": 1.308813,
+            "series_head": [
+              1.1631,
+              1.0289,
+              0.931,
+              0.8286,
+              1.2861,
+              0.657,
+              0.2718,
+              0.2348
+            ]
+          },
+          "components_retained": 43,
+          "training_rows": 256,
+          "reference_rows": 1130,
+          "gamma": 0.03125,
+          "kernel_eigenvalue_mass_captured": 0.952,
+          "detectable": false,
+          "params": "a=43/256 gamma=0.03125 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 12/1130 fault-window rows (1.06%) at the reference 99th-percentile limit 1.203019 (pre-window alarm rate n/a, max statistic 1.308813). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); T² gradient contributions reported as variables only",
+        "runtime_ms": 698
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch001_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:55.968Z"
+    },
+    {
+      "case_id": "tep_d04_reactor_cooling_step",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:55.979Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_39",
+          "XMV_1",
+          "XMV_2",
+          "XMEAS_8"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 0.128412
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.004831
+          },
+          {
+            "col": "XMEAS_39",
+            "contribution": 0.003146
+          },
+          {
+            "col": "XMV_1",
+            "contribution": 0.003095
+          },
+          {
+            "col": "XMV_2",
+            "contribution": 0.002913
+          },
+          {
+            "col": "XMEAS_8",
+            "contribution": 0.002908
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.388871,
+          "series_head": [
+            0.3671,
+            0.3889,
+            0.2875,
+            0.3038,
+            0.2923,
+            0.2426,
+            0.32,
+            0.2137
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.388871,
+            "series_head": [
+              0.3671,
+              0.3889,
+              0.2875,
+              0.3038,
+              0.2923,
+              0.2426,
+              0.32,
+              0.2137
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.388871). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 643
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d04_reactor_cooling_step",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV4",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:56.623Z"
+    },
+    {
+      "case_id": "tep_d07_header_pressure",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:56.625Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMV_4",
+          "XMV_9",
+          "XMEAS_19",
+          "XMEAS_18",
+          "XMEAS_38",
+          "XMEAS_20"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_4",
+            "contribution": 0.013154
+          },
+          {
+            "col": "XMV_9",
+            "contribution": 0.000298
+          },
+          {
+            "col": "XMEAS_19",
+            "contribution": 0.000298
+          },
+          {
+            "col": "XMEAS_18",
+            "contribution": 0.000286
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.000276
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 0.000244
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.387422,
+          "series_head": [
+            0.368,
+            0.3616,
+            0.3195,
+            0.3215,
+            0.3449,
+            0.2233,
+            0.2514,
+            0.2659
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.387422,
+            "series_head": [
+              0.368,
+              0.3616,
+              0.3195,
+              0.3215,
+              0.3449,
+              0.2233,
+              0.2514,
+              0.2659
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.387422). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 632
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d07_header_pressure",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV7",
+        "alias_class": [],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:57.257Z"
+    },
+    {
+      "case_id": "tep_d11_reactor_cooling_random",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:57.268Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_35",
+          "XMEAS_21",
+          "XMEAS_30",
+          "XMEAS_5"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 0.049873
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.031484
+          },
+          {
+            "col": "XMEAS_35",
+            "contribution": 0.004437
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.004265
+          },
+          {
+            "col": "XMEAS_30",
+            "contribution": 0.004192
+          },
+          {
+            "col": "XMEAS_5",
+            "contribution": 0.004134
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.389217,
+          "series_head": [
+            0.3638,
+            0.3768,
+            0.3178,
+            0.339,
+            0.3276,
+            0.2489,
+            0.3116,
+            0.3148
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.389217,
+            "series_head": [
+              0.3638,
+              0.3768,
+              0.3178,
+              0.339,
+              0.3276,
+              0.2489,
+              0.3116,
+              0.3148
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.389217). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 624
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d11_reactor_cooling_random",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV11",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:57.893Z"
+    },
+    {
+      "case_id": "tep_d14_reactor_valve_sticking",
+      "dataset": "tep",
+      "algorithm": "kpca-rbf",
+      "algorithm_label": "核主成分分析监测 (RBF核 T²)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:57.894Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_8",
+          "XMEAS_22",
+          "XMEAS_11"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.003684
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.000627
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.000563
+          },
+          {
+            "col": "XMEAS_8",
+            "contribution": 0.00004
+          },
+          {
+            "col": "XMEAS_22",
+            "contribution": 0.000037
+          },
+          {
+            "col": "XMEAS_11",
+            "contribution": 0.000034
+          }
+        ],
+        "detection": {
+          "detection_rate": 0,
+          "alarms": 0,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 0.987186,
+          "max_stat": 0.395252,
+          "series_head": [
+            0.3601,
+            0.3718,
+            0.367,
+            0.3429,
+            0.3163,
+            0.2791,
+            0.2708,
+            0.3109
+          ],
+          "T2": {
+            "detection_rate": 0,
+            "alarms": 0,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 0.987186,
+            "max_stat": 0.395252,
+            "series_head": [
+              0.3601,
+              0.3718,
+              0.367,
+              0.3429,
+              0.3163,
+              0.2791,
+              0.2708,
+              0.3109
+            ]
+          },
+          "components_retained": 216,
+          "training_rows": 256,
+          "reference_rows": 960,
+          "gamma": 0.01923077,
+          "kernel_eigenvalue_mass_captured": 0.9508,
+          "detectable": false,
+          "params": "a=216/256 gamma=0.01923 ntrain=256"
+        },
+        "reasoning": "No detection: feature-space T² alarms on only 0/800 fault-window rows (0.00%) at the reference 99th-percentile limit 0.987186 (pre-window alarm rate 0.00%, max statistic 0.395252). The kernel detector reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "analytic RBF-kernel T² gradient contribution |dT²/dz_j * z_j| averaged over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs); kernel trained on a systematic 256-row (or fewer) subsample of the reference — a uniform tractability cap, not a per-case choice",
+        "runtime_ms": 615
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d14_reactor_valve_sticking",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV14",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:58.510Z"
+    },
+    {
+      "case_id": "skab_valve1_1",
+      "dataset": "skab",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:58.511Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Volume Flow RateRMS",
+          "Thermocouple",
+          "Temperature",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 478.081231
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 461.890422
+          },
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 435.389625
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 140.784137
+          },
+          {
+            "col": "Temperature",
+            "contribution": 29.21101
+          },
+          {
+            "col": "Current",
+            "contribution": 0.045028
+          }
+        ],
+        "detection": {
+          "detection_rate": 1,
+          "alarms": 1145,
+          "window_rows": 1145,
+          "pre_window_alarm_rate": null,
+          "threshold": 19.359588,
+          "max_stat": 18941.255512,
+          "series_head": [
+            16927.8832,
+            16913.894,
+            16721.2361,
+            16764.1693,
+            17015.4478,
+            16956.2224,
+            16795.9302,
+            16958.5141
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 1,
+            "alarms": 1145,
+            "window_rows": 1145,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 18941.255512,
+            "series_head": [
+              16927.8832,
+              16913.894,
+              16721.2361,
+              16764.1693,
+              17015.4478,
+              16956.2224,
+              16795.9302,
+              16958.5141
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 1145,
+            "window_rows": 1145,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 1609.070945,
+            "series_head": [
+              1567.3164,
+              1577.0266,
+              1542.9222,
+              1551.2703,
+              1569.0357,
+              1571.0787,
+              1540.8417,
+              1570.256
+            ]
+          },
+          "components_retained": 6,
+          "ica_iterations": 47,
+          "ica_converged": true,
+          "detectable": true,
+          "params": "a=6 iters=47"
+        },
+        "reasoning": "FastICA (6 independent components, 47 iterations, converged=true) alarms on 1145/1145 fault-window rows by I² (100.00%, limit 19.359588) and 1145/1145 by SPE (100.00%, limit 1.954328); the more sensitive chart I2 drives the verdict. Pre-window alarm rate n/a confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: Accelerometer2RMS, Accelerometer1RMS, Volume Flow RateRMS. Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); SPE residual variables reported only",
+        "runtime_ms": 127
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_valve1_1",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:58.640Z"
+    },
+    {
+      "case_id": "skab_cavitation_13",
+      "dataset": "skab",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:58.651Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Volume Flow RateRMS",
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Temperature",
+          "Thermocouple",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 112.056665
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 78.890736
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 78.190559
+          },
+          {
+            "col": "Temperature",
+            "contribution": 40.858103
+          },
+          {
+            "col": "Thermocouple",
+            "contribution": 4.047213
+          },
+          {
+            "col": "Current",
+            "contribution": 0.013751
+          }
+        ],
+        "detection": {
+          "detection_rate": 1,
+          "alarms": 923,
+          "window_rows": 923,
+          "pre_window_alarm_rate": null,
+          "threshold": 19.359588,
+          "max_stat": 12785.608938,
+          "series_head": [
+            9446.0767,
+            5680.077,
+            7537.6599,
+            12552.6195,
+            12171.2911,
+            8891.6512,
+            5737.5487,
+            7854.4058
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 1,
+            "alarms": 923,
+            "window_rows": 923,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 12785.608938,
+            "series_head": [
+              9446.0767,
+              5680.077,
+              7537.6599,
+              12552.6195,
+              12171.2911,
+              8891.6512,
+              5737.5487,
+              7854.4058
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 923,
+            "window_rows": 923,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 2197.774162,
+            "series_head": [
+              1584.8724,
+              760.2912,
+              1172.6849,
+              2044.6911,
+              2141.2045,
+              1355.6706,
+              867.3317,
+              1174.4949
+            ]
+          },
+          "components_retained": 6,
+          "ica_iterations": 47,
+          "ica_converged": true,
+          "detectable": true,
+          "params": "a=6 iters=47"
+        },
+        "reasoning": "FastICA (6 independent components, 47 iterations, converged=true) alarms on 923/923 fault-window rows by I² (100.00%, limit 19.359588) and 923/923 by SPE (100.00%, limit 1.954328); the more sensitive chart I2 drives the verdict. Pre-window alarm rate n/a confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: Volume Flow RateRMS, Accelerometer2RMS, Accelerometer1RMS. Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); SPE residual variables reported only",
+        "runtime_ms": 99
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_cavitation_13",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:05:58.750Z"
+    },
+    {
+      "case_id": "skab_normal_control",
+      "dataset": "skab",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:58.752Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Thermocouple",
+          "Volume Flow RateRMS",
+          "Accelerometer2RMS",
+          "Accelerometer1RMS",
+          "Temperature",
+          "Current"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Thermocouple",
+            "contribution": 0.06561
+          },
+          {
+            "col": "Volume Flow RateRMS",
+            "contribution": 0.065511
+          },
+          {
+            "col": "Accelerometer2RMS",
+            "contribution": 0.055687
+          },
+          {
+            "col": "Accelerometer1RMS",
+            "contribution": 0.05421
+          },
+          {
+            "col": "Temperature",
+            "contribution": 0.036752
+          },
+          {
+            "col": "Current",
+            "contribution": 0.000008
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0101,
+          "alarms": 95,
+          "window_rows": 9405,
+          "pre_window_alarm_rate": null,
+          "threshold": 19.359588,
+          "max_stat": 85.350961,
+          "series_head": [
+            7.9882,
+            8.4547,
+            8.1038,
+            9.1918,
+            12.9459,
+            8.3366,
+            11.7839,
+            6.0572
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 0.0101,
+            "alarms": 95,
+            "window_rows": 9405,
+            "pre_window_alarm_rate": null,
+            "threshold": 19.359588,
+            "max_stat": 85.350961,
+            "series_head": [
+              7.9882,
+              8.4547,
+              8.1038,
+              9.1918,
+              12.9459,
+              8.3366,
+              11.7839,
+              6.0572
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0101,
+            "alarms": 95,
+            "window_rows": 9405,
+            "pre_window_alarm_rate": null,
+            "threshold": 1.954328,
+            "max_stat": 6.9411,
+            "series_head": [
+              0.2629,
+              0.2887,
+              0.0008,
+              0.069,
+              0.1881,
+              0.0195,
+              0.2701,
+              0.1633
+            ]
+          },
+          "components_retained": 6,
+          "ica_iterations": 47,
+          "ica_converged": true,
+          "detectable": false,
+          "params": "a=6 iters=47"
+        },
+        "reasoning": "No detection: I² alarms on 95/9405 fault-window rows (1.01%, limit 19.359588) and SPE on 95/9405 (1.01%, limit 1.954328), i.e. at the 99th-percentile expectation of the reference distributions. FastICA reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); SPE residual variables reported only",
+        "runtime_ms": 99
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "skab_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:05:58.852Z"
+    },
+    {
+      "case_id": "tep_d01_ac_feed_ratio",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:05:58.853Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMEAS_2",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_20",
+          "XMV_5"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 7.250384
+          },
+          {
+            "col": "XMEAS_2",
+            "contribution": 4.911432
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 2.195188
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 1.998648
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 1.994386
+          },
+          {
+            "col": "XMV_5",
+            "contribution": 1.680126
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.9975,
+          "alarms": 798,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0.0375,
+          "threshold": 6.777786,
+          "max_stat": 191.981267,
+          "series_head": [
+            0.9085,
+            0.6071,
+            2.4674,
+            1.4992,
+            1.1219,
+            0.9157,
+            3.5578,
+            3.1256
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.9925,
+            "alarms": 794,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 1357.15857,
+            "series_head": [
+              13.0657,
+              10.7695,
+              16.3115,
+              15.4133,
+              33.288,
+              28.2985,
+              29.9381,
+              26.3814
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.9975,
+            "alarms": 798,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0375,
+            "threshold": 6.777786,
+            "max_stat": 191.981267,
+            "series_head": [
+              0.9085,
+              0.6071,
+              2.4674,
+              1.4992,
+              1.1219,
+              0.9157,
+              3.5578,
+              3.1256
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": true,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "FastICA (35 independent components, 500 iterations, converged=false) alarms on 794/800 fault-window rows by I² (99.25%, limit 56.348115) and 798/800 by SPE (99.75%, limit 6.777786); the more sensitive chart SPE drives the verdict. Pre-window alarm rate 3.75% confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: XMEAS_21, XMEAS_2, XMEAS_38. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 1819
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d01_ac_feed_ratio",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV1",
+        "alias_class": [
+          "IDV1",
+          "IDV8"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": true
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:06:00.673Z"
+    },
+    {
+      "case_id": "tep_d03_hard",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:00.674Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21",
+          "XMV_10",
+          "XMEAS_11"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.369969
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.350842
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.28636
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.219447
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.164427
+          },
+          {
+            "col": "XMEAS_11",
+            "contribution": 0.163126
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0475,
+          "alarms": 38,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0.025,
+          "threshold": 6.777786,
+          "max_stat": 17.523028,
+          "series_head": [
+            0.7407,
+            0.7623,
+            6.429,
+            4.7867,
+            2.5195,
+            1.5912,
+            1.2148,
+            2.6323
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.0288,
+            "alarms": 23,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 73.432278,
+            "series_head": [
+              9.3328,
+              15.4005,
+              29.9338,
+              32.2475,
+              23.119,
+              26.9488,
+              30.8175,
+              31.8396
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0475,
+            "alarms": 38,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.025,
+            "threshold": 6.777786,
+            "max_stat": 17.523028,
+            "series_head": [
+              0.7407,
+              0.7623,
+              6.429,
+              4.7867,
+              2.5195,
+              1.5912,
+              1.2148,
+              2.6323
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": false,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "No detection: I² alarms on 23/800 fault-window rows (2.88%, limit 56.348115) and SPE on 38/800 (4.75%, limit 6.777786), i.e. at the 99th-percentile expectation of the reference distributions. FastICA reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 1810
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d03_hard",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV3",
+        "alias_class": [
+          "IDV3",
+          "IDV9"
+        ],
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:06:02.485Z"
+    },
+    {
+      "case_id": "tep_d00_normal_control",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:02.496Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21",
+          "XMEAS_9",
+          "XMV_10"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.331483
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.255441
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.21929
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.164736
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 0.137325
+          },
+          {
+            "col": "XMV_10",
+            "contribution": 0.136606
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0125,
+          "alarms": 10,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 6.777786,
+          "max_stat": 8.968222,
+          "series_head": [
+            0.3231,
+            0.5618,
+            0.6313,
+            0.9546,
+            1.5636,
+            0.755,
+            1.1954,
+            1.0873
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.0112,
+            "alarms": 9,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 66.03893,
+            "series_head": [
+              11.7244,
+              11.4242,
+              13.4472,
+              28.5978,
+              21.8654,
+              26.9936,
+              37.9935,
+              27.5262
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0125,
+            "alarms": 10,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 6.777786,
+            "max_stat": 8.968222,
+            "series_head": [
+              0.3231,
+              0.5618,
+              0.6313,
+              0.9546,
+              1.5636,
+              0.755,
+              1.1954,
+              1.0873
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": false,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "No detection: I² alarms on 9/800 fault-window rows (1.12%, limit 56.348115) and SPE on 10/800 (1.25%, limit 6.777786), i.e. at the 99th-percentile expectation of the reference distributions. FastICA reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 1828
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d00_normal_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:04.325Z"
+    },
+    {
+      "case_id": "indpensim_batch093",
+      "dataset": "indpensim",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:04.327Z",
+      "output": {
+        "top3": [],
+        "verdict": "fault",
+        "variable_top3": [
+          "Heating water flow rate(Fh:L/h)",
+          "Heating/cooling water flow rate(Fc:L/h)",
+          "Generated heat(Q:kJ)",
+          "Water for injection/dilution(Fw:L/h)",
+          "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+          "Temperature(T:K)"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Heating water flow rate(Fh:L/h)",
+            "contribution": 12.505745
+          },
+          {
+            "col": "Heating/cooling water flow rate(Fc:L/h)",
+            "contribution": 7.544184
+          },
+          {
+            "col": "Generated heat(Q:kJ)",
+            "contribution": 5.892271
+          },
+          {
+            "col": "Water for injection/dilution(Fw:L/h)",
+            "contribution": 2.045516
+          },
+          {
+            "col": "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+            "contribution": 1.943068
+          },
+          {
+            "col": "Temperature(T:K)",
+            "contribution": 1.791801
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.7752,
+          "alarms": 814,
+          "window_rows": 1050,
+          "pre_window_alarm_rate": null,
+          "threshold": 5.102916,
+          "max_stat": 667.959672,
+          "series_head": [
+            23.0838,
+            19.797,
+            18.3906,
+            14.1957,
+            10.0132,
+            9.5084,
+            8.5017,
+            8.0875
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.18,
+            "alarms": 189,
+            "window_rows": 1050,
+            "pre_window_alarm_rate": null,
+            "threshold": 52.697561,
+            "max_stat": 2008.810932,
+            "series_head": [
+              77.9223,
+              33.3741,
+              28.7035,
+              56.6853,
+              84.7677,
+              136.0287,
+              196.7389,
+              287.8385
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.7752,
+            "alarms": 814,
+            "window_rows": 1050,
+            "pre_window_alarm_rate": null,
+            "threshold": 5.102916,
+            "max_stat": 667.959672,
+            "series_head": [
+              23.0838,
+              19.797,
+              18.3906,
+              14.1957,
+              10.0132,
+              9.5084,
+              8.5017,
+              8.0875
+            ]
+          },
+          "components_retained": 11,
+          "ica_iterations": 49,
+          "ica_converged": true,
+          "detectable": true,
+          "params": "a=11 iters=49"
+        },
+        "reasoning": "FastICA (11 independent components, 49 iterations, converged=true) alarms on 189/1050 fault-window rows by I² (18.00%, limit 52.697561) and 814/1050 by SPE (77.52%, limit 5.102916); the more sensitive chart SPE drives the verdict. Pre-window alarm rate n/a confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: Heating water flow rate(Fh:L/h), Heating/cooling water flow rate(Fc:L/h), Generated heat(Q:kJ). Mechanism mapping (separate knowledge step): none.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); SPE residual variables reported only",
+        "runtime_ms": 36
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch093",
+        "control": false,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": null,
+        "diagnosis_type": "NEEDS_DATA",
+        "calibrated": false,
+        "overconfident": false
+      },
+      "ok": false,
+      "finished_at": "2026-09-15T10:06:04.364Z"
+    },
+    {
+      "case_id": "indpensim_batch001_control",
+      "dataset": "indpensim",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:04.365Z",
+      "output": {
+        "top3": [],
+        "verdict": "normal",
+        "variable_top3": [
+          "Water for injection/dilution(Fw:L/h)",
+          "Heating/cooling water flow rate(Fc:L/h)",
+          "Substrate concentration(S:g/L)",
+          "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+          "Heating water flow rate(Fh:L/h)",
+          "Base flow rate(Fb:L/h)"
+        ],
+        "variables_ranked": [
+          {
+            "col": "Water for injection/dilution(Fw:L/h)",
+            "contribution": 0.098632
+          },
+          {
+            "col": "Heating/cooling water flow rate(Fc:L/h)",
+            "contribution": 0.091258
+          },
+          {
+            "col": "Substrate concentration(S:g/L)",
+            "contribution": 0.081496
+          },
+          {
+            "col": "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+            "contribution": 0.071533
+          },
+          {
+            "col": "Heating water flow rate(Fh:L/h)",
+            "contribution": 0.070416
+          },
+          {
+            "col": "Base flow rate(Fb:L/h)",
+            "contribution": 0.067841
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.0106,
+          "alarms": 12,
+          "window_rows": 1130,
+          "pre_window_alarm_rate": null,
+          "threshold": 52.697561,
+          "max_stat": 290.247343,
+          "series_head": [
+            26.4015,
+            21.1562,
+            28.3282,
+            40.6553,
+            45.2841,
+            81.776,
+            160.6356,
+            286.9652
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 0.0106,
+            "alarms": 12,
+            "window_rows": 1130,
+            "pre_window_alarm_rate": null,
+            "threshold": 52.697561,
+            "max_stat": 290.247343,
+            "series_head": [
+              26.4015,
+              21.1562,
+              28.3282,
+              40.6553,
+              45.2841,
+              81.776,
+              160.6356,
+              286.9652
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.0106,
+            "alarms": 12,
+            "window_rows": 1130,
+            "pre_window_alarm_rate": null,
+            "threshold": 5.102916,
+            "max_stat": 16.173307,
+            "series_head": [
+              7.5924,
+              5.5767,
+              5.5052,
+              4.6614,
+              2.8846,
+              1.7745,
+              1.2797,
+              1.5215
+            ]
+          },
+          "components_retained": 11,
+          "ica_iterations": 49,
+          "ica_converged": true,
+          "detectable": false,
+          "params": "a=11 iters=49"
+        },
+        "reasoning": "No detection: I² alarms on 12/1130 fault-window rows (1.06%, limit 52.697561) and SPE on 12/1130 (1.06%, limit 5.102916), i.e. at the 99th-percentile expectation of the reference distributions. FastICA reports no fault and therefore yields no root-cause candidates.",
+        "diagnosis_step": "unavailable for this domain (no published variable->cause table); SPE residual variables reported only",
+        "runtime_ms": 43
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "indpensim_batch001_control",
+        "control": true,
+        "top3": [],
+        "kw_hits": [],
+        "strict_top1_hit": false,
+        "top1_kw_hit": false,
+        "verdict": "normal",
+        "control_pass": true,
+        "false_alarm": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:04.409Z"
+    },
+    {
+      "case_id": "tep_d04_reactor_cooling_step",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:04.410Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 11.084061
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 10.99534
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.417768
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.362431
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.318604
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.229932
+          }
+        ],
+        "detection": {
+          "detection_rate": 1,
+          "alarms": 800,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0.0187,
+          "threshold": 6.777786,
+          "max_stat": 47.330476,
+          "series_head": [
+            1.0731,
+            1.5531,
+            2.7063,
+            1.9033,
+            2.582,
+            4.3871,
+            2.4228,
+            2.9173
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.4875,
+            "alarms": 390,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0063,
+            "threshold": 56.348115,
+            "max_stat": 216.392723,
+            "series_head": [
+              12.4883,
+              10.9948,
+              35.0436,
+              27.8067,
+              43.2784,
+              44.2298,
+              23.4681,
+              41.6811
+            ]
+          },
+          "SPE": {
+            "detection_rate": 1,
+            "alarms": 800,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0187,
+            "threshold": 6.777786,
+            "max_stat": 47.330476,
+            "series_head": [
+              1.0731,
+              1.5531,
+              2.7063,
+              1.9033,
+              2.582,
+              4.3871,
+              2.4228,
+              2.9173
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": true,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "FastICA (35 independent components, 500 iterations, converged=false) alarms on 390/800 fault-window rows by I² (48.75%, limit 56.348115) and 800/800 by SPE (100.00%, limit 6.777786); the more sensitive chart SPE drives the verdict. Pre-window alarm rate 1.87% confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: XMV_10, XMEAS_9, XMEAS_31. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 2111
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d04_reactor_cooling_step",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [
+          "reactor cooling"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV4",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:06.523Z"
+    },
+    {
+      "case_id": "tep_d07_header_pressure",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:06.533Z",
+      "output": {
+        "top3": [
+          "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+          "IDV2: B composition, A/C ratio constant (step) — Stream 4",
+          "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_33",
+          "XMEAS_29",
+          "XMEAS_38",
+          "XMV_4",
+          "XMEAS_20",
+          "XMEAS_31"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_33",
+            "contribution": 3.087354
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 3.027957
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 2.329626
+          },
+          {
+            "col": "XMV_4",
+            "contribution": 2.033226
+          },
+          {
+            "col": "XMEAS_20",
+            "contribution": 1.755733
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 1.686121
+          }
+        ],
+        "detection": {
+          "detection_rate": 1,
+          "alarms": 800,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 56.348115,
+          "max_stat": 765.178455,
+          "series_head": [
+            11.0911,
+            8.1439,
+            23.9197,
+            29.0124,
+            19.8489,
+            45.6005,
+            44.0652,
+            44.5053
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 1,
+            "alarms": 800,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 765.178455,
+            "series_head": [
+              11.0911,
+              8.1439,
+              23.9197,
+              29.0124,
+              19.8489,
+              45.6005,
+              44.0652,
+              44.5053
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.995,
+            "alarms": 796,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0313,
+            "threshold": 6.777786,
+            "max_stat": 121.170162,
+            "series_head": [
+              1.2461,
+              0.5441,
+              2.396,
+              1.3074,
+              3.2737,
+              5.5548,
+              2.5088,
+              1.7545
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": true,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "FastICA (35 independent components, 500 iterations, converged=false) alarms on 800/800 fault-window rows by I² (100.00%, limit 56.348115) and 796/800 by SPE (99.50%, limit 6.777786); the more sensitive chart I2 drives the verdict. Pre-window alarm rate 0.00% confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: XMEAS_33, XMEAS_29, XMEAS_38. Mechanism mapping (separate knowledge step): IDV1 > IDV2 > IDV8.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 2174
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d07_header_pressure",
+        "control": false,
+        "top3": [
+          "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+          "IDV2: B composition, A/C ratio constant (step) — Stream 4",
+          "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4"
+        ],
+        "kw_hits": [
+          "c feed",
+          "stream 4"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": false,
+        "true_idv": "IDV7",
+        "alias_class": [],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:08.709Z"
+    },
+    {
+      "case_id": "tep_d11_reactor_cooling_random",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:08.710Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMV_10",
+          "XMEAS_9",
+          "XMEAS_31",
+          "XMEAS_38",
+          "XMEAS_29",
+          "XMEAS_21"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMV_10",
+            "contribution": 8.187168
+          },
+          {
+            "col": "XMEAS_9",
+            "contribution": 8.140286
+          },
+          {
+            "col": "XMEAS_31",
+            "contribution": 0.475678
+          },
+          {
+            "col": "XMEAS_38",
+            "contribution": 0.424101
+          },
+          {
+            "col": "XMEAS_29",
+            "contribution": 0.321984
+          },
+          {
+            "col": "XMEAS_21",
+            "contribution": 0.25668
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.6625,
+          "alarms": 530,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0.0375,
+          "threshold": 6.777786,
+          "max_stat": 118.221476,
+          "series_head": [
+            1.0766,
+            1.3591,
+            5.5799,
+            3.4445,
+            1.1647,
+            1.3397,
+            1.7694,
+            0.9874
+          ],
+          "primary": "SPE",
+          "I2": {
+            "detection_rate": 0.5375,
+            "alarms": 430,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 310.96734,
+            "series_head": [
+              4.5845,
+              8.3387,
+              19.3592,
+              24.2005,
+              25.5244,
+              42.7667,
+              31.7637,
+              38.1776
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.6625,
+            "alarms": 530,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.0375,
+            "threshold": 6.777786,
+            "max_stat": 118.221476,
+            "series_head": [
+              1.0766,
+              1.3591,
+              5.5799,
+              3.4445,
+              1.1647,
+              1.3397,
+              1.7694,
+              0.9874
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": true,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "FastICA (35 independent components, 500 iterations, converged=false) alarms on 430/800 fault-window rows by I² (53.75%, limit 56.348115) and 530/800 by SPE (66.25%, limit 6.777786); the more sensitive chart SPE drives the verdict. Pre-window alarm rate 3.75% confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: XMV_10, XMEAS_9, XMEAS_31. Mechanism mapping (separate knowledge step): IDV4 > IDV11 > IDV14.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 2167
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d11_reactor_cooling_random",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV11: Reactor cooling-water inlet temperature random variation",
+          "IDV14: Reactor cooling-water valve sticking"
+        ],
+        "kw_hits": [
+          "reactor cooling",
+          "random"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV11",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:10.877Z"
+    },
+    {
+      "case_id": "tep_d14_reactor_valve_sticking",
+      "dataset": "tep",
+      "algorithm": "ica-fastica",
+      "algorithm_label": "独立成分分析监测 (FastICA I²+SPE)",
+      "family": "classical",
+      "started_at": "2026-09-15T10:06:10.879Z",
+      "output": {
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV3: D feed temperature step — Stream 2",
+          "IDV11: Reactor cooling-water inlet temperature random variation"
+        ],
+        "verdict": "fault",
+        "variable_top3": [
+          "XMEAS_21",
+          "XMEAS_2",
+          "XMV_1",
+          "XMEAS_22",
+          "XMEAS_11",
+          "XMEAS_16"
+        ],
+        "variables_ranked": [
+          {
+            "col": "XMEAS_21",
+            "contribution": 41.109262
+          },
+          {
+            "col": "XMEAS_2",
+            "contribution": 11.609383
+          },
+          {
+            "col": "XMV_1",
+            "contribution": 8.999898
+          },
+          {
+            "col": "XMEAS_22",
+            "contribution": 1.887177
+          },
+          {
+            "col": "XMEAS_11",
+            "contribution": 1.06128
+          },
+          {
+            "col": "XMEAS_16",
+            "contribution": 0.775235
+          }
+        ],
+        "detection": {
+          "detection_rate": 0.9975,
+          "alarms": 798,
+          "window_rows": 800,
+          "pre_window_alarm_rate": 0,
+          "threshold": 56.348115,
+          "max_stat": 826.312472,
+          "series_head": [
+            6.6603,
+            17.7413,
+            21.2517,
+            13.6355,
+            29.949,
+            31.8465,
+            37.091,
+            33.232
+          ],
+          "primary": "I2",
+          "I2": {
+            "detection_rate": 0.9975,
+            "alarms": 798,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0,
+            "threshold": 56.348115,
+            "max_stat": 826.312472,
+            "series_head": [
+              6.6603,
+              17.7413,
+              21.2517,
+              13.6355,
+              29.949,
+              31.8465,
+              37.091,
+              33.232
+            ]
+          },
+          "SPE": {
+            "detection_rate": 0.9337,
+            "alarms": 747,
+            "window_rows": 800,
+            "pre_window_alarm_rate": 0.025,
+            "threshold": 6.777786,
+            "max_stat": 204.594925,
+            "series_head": [
+              2.9596,
+              0.819,
+              1.6595,
+              3.6832,
+              1.7254,
+              1.4566,
+              4.8232,
+              1.8196
+            ]
+          },
+          "components_retained": 35,
+          "ica_iterations": 500,
+          "ica_converged": false,
+          "detectable": true,
+          "params": "a=35 iters=500(cap)"
+        },
+        "reasoning": "FastICA (35 independent components, 500 iterations, converged=false) alarms on 798/800 fault-window rows by I² (99.75%, limit 56.348115) and 747/800 by SPE (93.37%, limit 6.777786); the more sensitive chart I2 drives the verdict. Pre-window alarm rate 0.00% confirms the limit is reference-calibrated, not file-calibrated. Largest SPE residual contributors: XMEAS_21, XMEAS_2, XMV_1. Mechanism mapping (separate knowledge step): IDV4 > IDV3 > IDV11.",
+        "diagnosis_step": "mean squared SPE residual per original variable over the fault window -> top-6 -> documented TEP variable-affinity table (tep-affinity.mjs)",
+        "runtime_ms": 2136
+      },
+      "status": "executed",
+      "scored": {
+        "case_id": "tep_d14_reactor_valve_sticking",
+        "control": false,
+        "top3": [
+          "IDV4: Reactor cooling-water inlet temperature step",
+          "IDV3: D feed temperature step — Stream 2",
+          "IDV11: Reactor cooling-water inlet temperature random variation"
+        ],
+        "kw_hits": [
+          "reactor cooling"
+        ],
+        "strict_top1_hit": true,
+        "top1_kw_hit": true,
+        "verdict": "fault",
+        "control_pass": null,
+        "false_alarm": null,
+        "fe_style_top3_hit": true,
+        "true_idv": "IDV14",
+        "alias_class": [
+          "IDV4",
+          "IDV11",
+          "IDV14"
+        ],
+        "diagnosis_type": "DETERMINED",
+        "calibrated": true,
+        "overconfident": false
+      },
+      "ok": true,
+      "finished_at": "2026-09-15T10:06:13.016Z"
+    }
+  ]
+}

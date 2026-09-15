@@ -1,0 +1,635 @@
+{
+ "generated_at": "2026-09-14T18:26:48.781Z",
+ "tier": "scripts\\benchmark\\cases\\benchmark_cases.json",
+ "scenarios": {
+  "skab_valve1_1": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 5,
+      "surviving": 2,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "回路水力阻力增大（调节阀开度减小或管路/阀芯结垢",
+       "grounded": false
+      },
+      {
+       "hypothesis": "泵占空/转速控制指令主动下调（运行点切换，非设备",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": false,
+     "detail": {
+      "confidence": 0.65,
+      "ceiling": 0.7,
+      "type": "COMPETING_SET",
+      "allowed": [
+       "DETERMINED"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 253
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": true
+    }
+   }
+  },
+  "skab_cavitation_13": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 4,
+      "surviving": 1,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "泵入口两相流供给引发气蚀（空化）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.82,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "COMPETING_SET",
+       "NEEDS_DATA",
+       "DETERMINED"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 87
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "skab_normal_control": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "正常稳态运行（无故障基线）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.9,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "NORMAL"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 74
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d01_ac_feed_ratio": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 4,
+      "surviving": 1,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "流股4 A/C 进料比阶跃（feed-compo",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.84,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 105
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d03_hard": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 4,
+      "surviving": 1,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "D 进料温度阶跃（进料系统热扰动）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.72,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET",
+       "NEEDS_DATA"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 122
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d00_normal_control": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "受控稳态正常运行（无故障基线）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.9,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "NORMAL"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 78
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "indpensim_batch093": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 4,
+      "surviving": 1,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.85,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 148
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "indpensim_batch001_control": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 4,
+      "surviving": 1,
+      "eliminated_with_evidence": 3
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "正常批次（受控批次动态，无故障）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.88,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "NORMAL"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 109
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d04_reactor_cooling_step": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "反应器冷却水侧扰动（冷却能力不足）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.86,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET",
+       "NEEDS_DATA"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 121
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d07_header_pressure": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.8,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 128
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d11_reactor_cooling_random": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "反应器冷却水入口温度随机波动（方差增大型）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.7,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET",
+       "NEEDS_DATA"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 117
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "score": 65,
+   "max": 100,
+   "checks": {
+    "R1_artifacts": {
+     "pass": true,
+     "detail": []
+    },
+    "R2_hypotheses": {
+     "pass": true,
+     "detail": {
+      "total": 3,
+      "surviving": 1,
+      "eliminated_with_evidence": 2
+     }
+    },
+    "R3_grounding": {
+     "pass": false,
+     "detail": [
+      {
+       "hypothesis": "反应器冷却水阀粘滞（执行器振荡型）",
+       "grounded": false
+      }
+     ]
+    },
+    "R4_calibration": {
+     "pass": true,
+     "detail": {
+      "confidence": 0.68,
+      "ceiling": 0.9,
+      "type": "DETERMINED",
+      "allowed": [
+       "DETERMINED",
+       "COMPETING_SET",
+       "NEEDS_DATA"
+      ]
+     }
+    },
+    "R5_falsifiability": {
+     "pass": true,
+     "detail": {
+      "falsifiable": true,
+      "substantive_len": 147
+     }
+    },
+    "R6_physics": {
+     "pass": true
+    },
+    "R7_execution": {
+     "pass": false
+    }
+   }
+  }
+ }
+}

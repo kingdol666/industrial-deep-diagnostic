@@ -1,0 +1,153 @@
+{
+ "method": "PCA (normal-control training, 95% variance, T2+Q, 99th-pct alarm, SPE contribution top-3)",
+ "published_basis": [
+  "chiang2001fault",
+  "qin2012survey"
+ ],
+ "scenarios": {
+  "skab_valve1_1": {
+   "dataset": "skab",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 1,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Accelerometer2RMS",
+    "Accelerometer1RMS",
+    "Volume Flow RateRMS"
+   ]
+  },
+  "skab_cavitation_13": {
+   "dataset": "skab",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 1,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Volume Flow RateRMS",
+    "Accelerometer2RMS",
+    "Accelerometer1RMS"
+   ]
+  },
+  "skab_normal_control": {
+   "dataset": "skab",
+   "control": true,
+   "detection_rate_T2": 0.0101,
+   "detection_rate_SPE": 0.0101,
+   "components_retained": 6,
+   "top3_contribution_variables": [
+    "Volume Flow RateRMS",
+    "Accelerometer2RMS",
+    "Accelerometer1RMS"
+   ]
+  },
+  "tep_d01_ac_feed_ratio": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.9925,
+   "detection_rate_SPE": 0.9975,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_21",
+    "XMEAS_2",
+    "XMEAS_38"
+   ]
+  },
+  "tep_d03_hard": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.0288,
+   "detection_rate_SPE": 0.0475,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_31",
+    "XMEAS_38",
+    "XMEAS_29"
+   ]
+  },
+  "tep_d00_normal_control": {
+   "dataset": "tep",
+   "control": true,
+   "detection_rate_T2": 0.0104,
+   "detection_rate_SPE": 0.0104,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_38",
+    "XMEAS_29",
+    "XMEAS_25"
+   ]
+  },
+  "indpensim_batch093": {
+   "dataset": "indpensim",
+   "control": false,
+   "detection_rate_T2": 0.1505,
+   "detection_rate_SPE": 0.739,
+   "components_retained": 11,
+   "top3_contribution_variables": [
+    "Heating water flow rate(Fh:L/h)",
+    "Generated heat(Q:kJ)",
+    "Heating/cooling water flow rate(Fc:L/h)"
+   ]
+  },
+  "indpensim_batch001_control": {
+   "dataset": "indpensim",
+   "control": true,
+   "detection_rate_T2": 0.0106,
+   "detection_rate_SPE": 0.0106,
+   "components_retained": 11,
+   "top3_contribution_variables": [
+    "Heating/cooling water flow rate(Fc:L/h)",
+    "Sugar feed rate(Fs:L/h)",
+    "Base flow rate(Fb:L/h)"
+   ]
+  },
+  "tep_d04_reactor_cooling_step": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.4875,
+   "detection_rate_SPE": 1,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMV_10",
+    "XMEAS_9",
+    "XMEAS_31"
+   ]
+  },
+  "tep_d07_header_pressure": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 1,
+   "detection_rate_SPE": 0.995,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_33",
+    "XMEAS_29",
+    "XMEAS_38"
+   ]
+  },
+  "tep_d11_reactor_cooling_random": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.5375,
+   "detection_rate_SPE": 0.6625,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMV_10",
+    "XMEAS_9",
+    "XMEAS_31"
+   ]
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "dataset": "tep",
+   "control": false,
+   "detection_rate_T2": 0.9975,
+   "detection_rate_SPE": 0.9338,
+   "components_retained": 35,
+   "top3_contribution_variables": [
+    "XMEAS_21",
+    "XMEAS_2",
+    "XMV_1"
+   ]
+  }
+ }
+}

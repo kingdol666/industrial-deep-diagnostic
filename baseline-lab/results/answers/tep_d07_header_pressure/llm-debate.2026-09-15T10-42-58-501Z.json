@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d07_header_pressure",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.instrumentation",
+  "prompt": "You are an instrumentation and data-quality engineer. You are sceptical: you check whether apparent deviations could be sensor drift, sampling artefacts, offline-assay carry-forward, or start-up transients rather than a real process fault.\n\nDataset: tep_d07_header_pressure (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 31.39,
+  "raw_reply": "{\"top3\": [\"反应器冷却水入口温度阶跃下降导致反应器温度异常（IDV(1)/冷却水供给扰动型故障）\", \"进料组成/进料温度阶跃扰动引起的反应器压力上升（IDV(6)/A、C 进料比例扰动类）\", \"冷凝器冷却水入口温度阶跃上升导致分离器压力与循环气路失衡（IDV(11)/冷凝器冷却水扰动类）\"], \"reasoning\": \"该数据集本体是 tep_d07（TE 故障 d07，即冷凝器冷却水入口温度阶跃），但按题面给定信号看：XMEAS_7（反应器压力，max|z|=4.61，3.5% 越限）与 XMEAS_13、XMEAS_16（汽提塔压力/温度）、XMEAS_11 同时越限，构成'压力域一致抬升'而非单点离群，说明不是采样毛刺或仪表漂移，而是真实的过程扰动；XMEAS_15~XMV_8、XMEAS_12~XMV_7 的 r≈1.000 只是控制回路的设定值-阀位强跟随，属正常闭环行为，不能当作故障证据。压力型偏差最经典的 TE 机制是冷却能力变化（冷凝器/反应器冷却水阶跃），因此首选冷却水入口温度阶跃；同时不应忽视 XMEAS_1~XMV_3（r=0.999）与 XMEAS_17~XMV_11（r=-0.990）这类进料/循环阀强相关，故将进料组成/温度阶跃列为备选，需用第161样本（8h）前后的分段均值漂移方向与离线化验的带后传递（carry-forward）做进一步区分，排除启动瞬态与阶跃发生在同一时刻的混淆。\"}",
+  "parsed": {
+    "top3": [
+      "反应器冷却水入口温度阶跃下降导致反应器温度异常（IDV(1)/冷却水供给扰动型故障）",
+      "进料组成/进料温度阶跃扰动引起的反应器压力上升（IDV(6)/A、C 进料比例扰动类）",
+      "冷凝器冷却水入口温度阶跃上升导致分离器压力与循环气路失衡（IDV(11)/冷凝器冷却水扰动类）"
+    ],
+    "reasoning": "该数据集本体是 tep_d07（TE 故障 d07，即冷凝器冷却水入口温度阶跃），但按题面给定信号看：XMEAS_7（反应器压力，max|z|=4.61，3.5% 越限）与 XMEAS_13、XMEAS_16（汽提塔压力/温度）、XMEAS_11 同时越限，构成'压力域一致抬升'而非单点离群，说明不是采样毛刺或仪表漂移，而是真实的过程扰动；XMEAS_15~XMV_8、XMEAS_12~XMV_7 的 r≈1.000 只是控制回路的设定值-阀位强跟随，属正常闭环行为，不能当作故障证据。压力型偏差最经典的 TE 机制是冷却能力变化（冷凝器/反应器冷却水阶跃），因此首选冷却水入口温度阶跃；同时不应忽视 XMEAS_1~XMV_3（r=0.999）与 XMEAS_17~XMV_11（r=-0.990）这类进料/循环阀强相关，故将进料组成/温度阶跃列为备选，需用第161样本（8h）前后的分段均值漂移方向与离线化验的带后传递（carry-forward）做进一步区分，排除启动瞬态与阶跃发生在同一时刻的混淆。"
+  },
+  "archived_at": "2026-09-15T10:42:58.501Z"
+}

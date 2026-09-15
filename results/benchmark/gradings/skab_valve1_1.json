@@ -1,34 +1,40 @@
 {
  "case_id": "skab_valve1_1",
  "control": false,
- "top1": true,
+ "top1": false,
  "topk": true,
  "root_cause_kw_hit": true,
  "kw_hits": [
-  "valve",
-  "入口",
   "阀",
   "节流",
   "受限"
  ],
- "calibrated": true,
+ "calibrated": false,
  "overconfident": false,
- "diagnosis_type": "DETERMINED",
- "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609131557133_bench_skab_valve1_1",
- "judge_score": 92,
- "judge_score_source": "note-self-declared",
- "audit_verdict_source": "note-self-declared",
+ "diagnosis_type": "COMPETING_SET",
+ "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609150453290_bench_skab_valve1_1",
+ "execution_mode": "pipeline-agents",
+ "confidence": 65,
+ "judge_score": 90,
+ "judge_score_source": "judge-agent-10-criteria",
  "audit_verdict": "ENDORSED",
+ "audit_verdict_source": "auditor-agent",
+ "html_review_verdict": "pass",
+ "html_review_source": "html-reviewer-agent",
  "checks": {
   "pipeline_log": "PASS",
   "statistics_engine": "stats-package",
   "stats_degraded": false,
   "anti_spurious_executed": true,
   "finalize_overall": "PASS",
-  "finalize_passed": true
+  "finalize_passed": true,
+  "audit_endorsed": true,
+  "render_manifest": true,
+  "html_selfcheck_pass": true,
+  "html_review_pass": true
  },
  "rubric": {
-  "score": 100,
-  "source": "deterministic-rubric-v1"
+  "score": 85,
+  "source": "deterministic-rubric-v2-pipeline-artifacts"
  }
 }

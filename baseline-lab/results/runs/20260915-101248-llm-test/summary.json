@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-09-15T10:14:58.953Z",
+  "algorithms": [
+    "llm-direct"
+  ],
+  "cases": [
+    "tep_d01_ac_feed_ratio",
+    "tep_d00_normal_control",
+    "skab_valve1_1"
+  ],
+  "by_algorithm": {
+    "llm-direct": {
+      "label": "裸 LLM 单次调用（无管线/无候选）",
+      "family": "llm",
+      "status": "executed",
+      "executed": 3,
+      "skipped_no_provider": 0,
+      "errors": 0,
+      "not_applicable": 0,
+      "metrics": {
+        "algorithms": "llm-direct",
+        "cases": 3,
+        "fault_cases": 2,
+        "control_cases": 1,
+        "tep_fault_cases": 1,
+        "nontep_fault_cases": 1,
+        "top1": 0,
+        "top1_rate": 0,
+        "top1_wilson": [
+          0,
+          65.8
+        ],
+        "exact_idv_top1": 0,
+        "exact_idv_top1_rate": 0,
+        "exact_idv_top1_wilson": [
+          0,
+          79.3
+        ],
+        "exact_idv_top3": 0,
+        "exact_idv_top3_rate": 0,
+        "strict_but_not_exact": 0,
+        "idv_named": 0,
+        "tep_top1": 0,
+        "tep_top1_rate": 0,
+        "nontep_top1": 0,
+        "nontep_top1_rate": 0,
+        "fe_style_top3": 0,
+        "fe_style_top3_rate": 0,
+        "control_pass": 0,
+        "control_pass_rate": 0,
+        "false_alarms": 1,
+        "calibrated": 2,
+        "overconfident": 2,
+        "answered": 2,
+        "abstained": 0
+      }
+    }
+  }
+}

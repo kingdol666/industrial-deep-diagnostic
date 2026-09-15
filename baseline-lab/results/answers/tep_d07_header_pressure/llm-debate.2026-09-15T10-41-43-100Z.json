@@ -1,0 +1,21 @@
+{
+  "case_id": "tep_d07_header_pressure",
+  "algorithm": "llm-debate",
+  "tag": "debate.r1.process",
+  "prompt": "You are a process-systems engineer. You argue from mass balance, reaction stoichiometry and control-loop behaviour. You favour causes on the feed and reaction side.\n\nDataset: tep_d07_header_pressure (tep). Rows: 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_28 max|z|=4.84 (1.3% beyond 3σ); XMEAS_11 max|z|=4.72 (3.7% beyond 3σ); XMEAS_34 max|z|=4.67 (1.9% beyond 3σ); XMEAS_7 max|z|=4.61 (3.5% beyond 3σ); XMEAS_38 max|z|=4.6 (2.6% beyond 3σ); XMEAS_16 max|z|=4.6 (3.7% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_1 ~ XMV_3: r=0.999; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_17 ~ XMV_11: r=-0.990; XMEAS_19 ~ XMV_9: r=0.990\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。\n\nGive your independent initial diagnosis. State your top candidate and up to two alternatives, and the specific evidence in the digest that supports you.\nOutput STRICT JSON only: {\"top3\": [\"<cause>\", ...], \"reasoning\": \"<2-3 sentences of your argument>\"}",
+  "provider": "cli:claude",
+  "model": "claude",
+  "ok": true,
+  "error": null,
+  "seconds": 40.36,
+  "raw_reply": "{\"top3\": [\"Feed composition/feed ratio disturbance (reactor feed A/C ratio shift) driving reactor pressure\", \"Reactor cooling-water temperature / condenser duty loss raising separator and header pressure\", \"Compressor recycle/throughput imbalance (XMV_8/XMV_9 recycle and stripper steam) propagating pressure\"] , \"reasoning\": \"XMEAS_7 (reactor pressure) is flagged at max|z|=4.61 and is nearly collinear with XMEAS_13 (reactor level, r=0.999), while the strongest cross-domain links are XMEAS_15~XMV_8 (r=1.000), XMEAS_12~XMV_7 (r=1.000) and XMEAS_1~XMV_3 (r=0.999) - i.e. the reactor/separator pressure train is moving with recycle and feed-valve action, not with any single column in isolation. Mass-balance reading: a feed-side composition or purge/recycle shift would raise reactor inventory and pressure, with XMV_8 (recycle) saturating and XMEAS_11/16 (separator and stripper pressure/temperature) responding downstream at 8 h. My alternatives are a condenser cooling-duty loss (control-loop cause raising pressure across reactor-separator) and a recycle-compressor throughput imbalance, both of which fit the same XMV_8/XMV_9 correlation structure but would show sharper temperature signatures than the digest shows.\"}",
+  "parsed": {
+    "top3": [
+      "Feed composition/feed ratio disturbance (reactor feed A/C ratio shift) driving reactor pressure",
+      "Reactor cooling-water temperature / condenser duty loss raising separator and header pressure",
+      "Compressor recycle/throughput imbalance (XMV_8/XMV_9 recycle and stripper steam) propagating pressure"
+    ],
+    "reasoning": "XMEAS_7 (reactor pressure) is flagged at max|z|=4.61 and is nearly collinear with XMEAS_13 (reactor level, r=0.999), while the strongest cross-domain links are XMEAS_15~XMV_8 (r=1.000), XMEAS_12~XMV_7 (r=1.000) and XMEAS_1~XMV_3 (r=0.999) - i.e. the reactor/separator pressure train is moving with recycle and feed-valve action, not with any single column in isolation. Mass-balance reading: a feed-side composition or purge/recycle shift would raise reactor inventory and pressure, with XMV_8 (recycle) saturating and XMEAS_11/16 (separator and stripper pressure/temperature) responding downstream at 8 h. My alternatives are a condenser cooling-duty loss (control-loop cause raising pressure across reactor-separator) and a recycle-compressor throughput imbalance, both of which fit the same XMV_8/XMV_9 correlation structure but would show sharper temperature signatures than the digest shows."
+  },
+  "archived_at": "2026-09-15T10:41:43.100Z"
+}
