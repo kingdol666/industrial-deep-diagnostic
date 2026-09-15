@@ -2,52 +2,69 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:545px; padding:18px 26px; }
+  * { box-sizing: border-box; }
+  body { width:1500px; height:650px; padding:14px 26px; }
   svg text { font-family: Arial, Helvetica, sans-serif; }
 </style></head><body>
-<svg width="1448" height="545" viewBox="0 0 1448 545">
-  <line class="axis" x1="300" y1="20" x2="300" y2="470"/>
-  <line class="axis" x1="300" y1="470" x2="1440" y2="470"/>
+<svg width="1448" height="622" viewBox="0 0 1448 622">
+  <line class="axis" x1="300" y1="20" x2="300" y2="516"/>
+  <line class="axis" x1="300" y1="516" x2="1440" y2="516"/>
   <g class="gridline">
-    <line x1="528" y1="20" x2="528" y2="470"/><line x1="756" y1="20" x2="756" y2="470"/>
-    <line x1="984" y1="20" x2="984" y2="470"/><line x1="1212" y1="20" x2="1212" y2="470"/>
-    <line x1="1440" y1="20" x2="1440" y2="470"/>
+    <line x1="528" y1="20" x2="528" y2="516"/><line x1="756" y1="20" x2="756" y2="516"/>
+    <line x1="984" y1="20" x2="984" y2="516"/><line x1="1212" y1="20" x2="1212" y2="516"/>
+    <line x1="1440" y1="20" x2="1440" y2="516"/>
   </g>
   <g class="ticklabel" text-anchor="middle">
-    <text x="300" y="492">0</text><text x="528" y="492">20</text><text x="756" y="492">40</text>
-    <text x="984" y="492">60</text><text x="1212" y="492">80</text><text x="1440" y="492">100%</text>
+    <text x="300" y="538">0</text><text x="528" y="538">20</text><text x="756" y="538">40</text>
+    <text x="984" y="538">60</text><text x="1212" y="538">80</text><text x="1440" y="538">100%</text>
   </g>
-  <text class="axlabel" x="870" y="524" text-anchor="middle">Top-1 root-cause accuracy (%) with Wilson 95% CI</text>
+  <text class="axlabel" x="870" y="566" text-anchor="middle">Accuracy (%) with Wilson 95% CI</text>
 
-  <text class="axlabel" x="288" y="60" text-anchor="end">FaultExplainer GPT-4o</text>
-  <text class="ticklabel" x="288" y="78" text-anchor="end">n = 11, candidates in prompt</text>
-  <line x1="704" y1="66" x2="1267" y2="66" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1025" cy="66" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1277" y="58">63.6%</text>
-  <text class="ticklabel" x="1277" y="74">[35.4, 84.8]</text>
+  <text class="axlabel" x="288" y="54" text-anchor="end">FaultExplainer GPT-4o</text>
+  <text class="ticklabel" x="288" y="72" text-anchor="end">n = 11, candidates in prompt</text>
+  <line x1="704" y1="60" x2="1267" y2="60" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1025" cy="60" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1277" y="52">63.6%</text>
+  <text class="ticklabel" x="1277" y="68">[35.4, 84.8]</text>
 
-  <text class="axlabel" x="288" y="150" text-anchor="end">FaultExplainer o1-preview</text>
-  <text class="ticklabel" x="288" y="168" text-anchor="end">n = 11, candidates in prompt</text>
-  <line x1="896" y1="156" x2="1382" y2="156" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1233" cy="156" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1195" y="148">81.8%</text>
-  <text class="ticklabel" x="1195" y="164">[52.3, 94.9]</text>
+  <text class="axlabel" x="288" y="138" text-anchor="end">FaultExplainer o1-preview</text>
+  <text class="ticklabel" x="288" y="156" text-anchor="end">n = 11, candidates in prompt</text>
+  <line x1="896" y1="144" x2="1382" y2="144" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1233" cy="144" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1195" y="136">81.8%</text>
+  <text class="ticklabel" x="1195" y="152">[52.3, 94.9]</text>
 
-  <text class="axlabel" x="288" y="240" text-anchor="end">IDD — TEP subset</text>
-  <text class="ticklabel" x="288" y="258" text-anchor="end">n = 6, no candidate list</text>
-  <line x1="995" y1="246" x2="1440" y2="246" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1440" cy="246" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1325" y="232">100%</text>
-  <text class="ticklabel" x="1325" y="242">[61.0, 100]</text>
+  <text class="axlabel" x="288" y="222" text-anchor="end">IDD — TEP subset</text>
+  <text class="ticklabel" x="288" y="240" text-anchor="end">n = 6, no candidate list</text>
+  <line x1="797" y1="228" x2="1406" y2="228" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1249" cy="228" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1300" y="220">83.3%</text>
+  <text class="ticklabel" x="1300" y="236">[43.6, 97.0]</text>
 
-  <text class="axlabel" x="288" y="330" text-anchor="end" font-weight="bold">IDD — full library</text>
-  <text class="ticklabel" x="288" y="348" text-anchor="end">n = 9 faults, no candidate list</text>
-  <line x1="1099" y1="336" x2="1440" y2="336" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1440" cy="336" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1325" y="320">100%</text>
-  <text class="ticklabel" x="1325" y="332">[70.1, 100]</text>
+  <text class="axlabel" x="288" y="306" text-anchor="end" font-weight="bold">IDD — all faults, Top-1</text>
+  <text class="ticklabel" x="288" y="324" text-anchor="end">n = 9, no candidate list</text>
+  <line x1="704" y1="312" x2="1302" y2="312" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1060" cy="312" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
+  <text class="datalabel" x="1312" y="304">66.7%</text>
+  <text class="ticklabel" x="1312" y="320">[35.4, 87.9]</text>
 
-  <circle cx="330" cy="516" r="8" fill="#8f9aa5"/><text class="axlabel" x="346" y="521">published single-LLM baselines (FaultExplainer, arXiv:2412.14492)</text>
-  <circle cx="900" cy="516" r="8" fill="#0072b2"/><text class="axlabel" x="916" y="521">IDD (this work)</text>
+  <text class="axlabel" x="288" y="390" text-anchor="end">IDD — all faults, top-k (k = 3)</text>
+  <text class="ticklabel" x="288" y="408" text-anchor="end">n = 9, true cause among candidates</text>
+  <line x1="944" y1="396" x2="1417" y2="396" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1313" cy="396" r="9" fill="#fff" stroke="#0072b2" stroke-width="3"/>
+  <text class="datalabel" x="1180" y="388">88.9%</text>
+  <text class="ticklabel" x="1180" y="404">[56.5, 98.0]</text>
+
+  <text class="axlabel" x="288" y="464" text-anchor="end">IDD — controls passed</text>
+  <text class="ticklabel" x="288" y="482" text-anchor="end">n = 3 normal batches, zero false alarms</text>
+  <line x1="800" y1="470" x2="1440" y2="470" stroke="#8fd0ae" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1440" cy="470" r="9" fill="#fff" stroke="#009e73" stroke-width="3"/>
+  <text class="datalabel" x="1300" y="462">100%</text>
+  <text class="ticklabel" x="1300" y="478">[43.9, 100]</text>
+
+  <circle cx="330" cy="600" r="8" fill="#8f9aa5"/><text class="axlabel" x="346" y="605">published single-LLM baselines (FaultExplainer, arXiv:2412.14492)</text>
+  <circle cx="920" cy="600" r="8" fill="#0072b2"/><text class="axlabel" x="936" y="605">IDD Top-1 (this work)</text>
+  <circle cx="1110" cy="600" r="8" fill="#fff" stroke="#0072b2" stroke-width="3"/><text class="axlabel" x="1126" y="605">IDD top-k</text>
+  <circle cx="1230" cy="600" r="8" fill="#fff" stroke="#009e73" stroke-width="3"/><text class="axlabel" x="1246" y="605">IDD controls</text>
 </svg>
 </body></html>

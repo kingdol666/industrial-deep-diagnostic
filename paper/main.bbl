@@ -6,9 +6,9 @@
   \def\href#1#2{#2} \def\path#1{#1}\fi
 
 \bibitem{khan2024faultexplainer}
-D.~Khan, J.~D. Nahar, Y.~Chen, A.~Flores, J.~Li, Faultexplainer: Leveraging
-  large language models for interpretable fault detection and diagnosis, arXiv
-  preprint arXiv:2412.14492 (2024).
+A.~Khan, R.~Nahar, H.~Chen, G.~E. Constante-Flores, C.~Li, {FaultExplainer}:
+  Leveraging large language models for interpretable fault detection and
+  diagnosis, Computers \& Chemical Engineering (2025).
 
 \bibitem{agentic2025review}
 X.~Jiang, H.~Xie, J.~Wang, Z.~Yang, Y.~Zhou, L.~Yao, Z.~Zhu, Agentic {AI} for
@@ -44,6 +44,19 @@ C.~A. Rieth, B.~D. Amsel, R.~Tran, M.~B. Cook, Additional tennessee eastman
 \newblock \href {https://doi.org/10.7910/DVN/6C3JR1}
   {\path{doi:10.7910/DVN/6C3JR1}}.
 
+\bibitem{qin2012survey}
+S.~J. Qin, Survey on data-driven industrial process monitoring and diagnosis,
+  Journal of Process Control 22~(6) (2012) 989--1002.
+\newblock \href {https://doi.org/10.1016/j.jprocont.2011.12.012}
+  {\path{doi:10.1016/j.jprocont.2011.12.012}}.
+
+\bibitem{russell2000delay}
+E.~L. Russell, L.~H. Chiang, R.~D. Braatz, Data-driven methods for process
+  monitoring and fault detection, Computers \& Chemical Engineering 24~(2--7)
+  (2000) 593--596.
+\newblock \href {https://doi.org/10.1016/S0098-1354(00)00428-6}
+  {\path{doi:10.1016/S0098-1354(00)00428-6}}.
+
 \bibitem{chiang2001fault}
 L.~H. Chiang, E.~L. Russell, R.~D. Braatz, Fault Detection and Diagnosis in
   Industrial Systems, Springer, London, 2001.
@@ -61,15 +74,11 @@ J.~J. Downs, E.~F. Vogel, A plant-wide industrial process control problem,
   {\path{doi:10.1016/0098-1354(93)80018-I}}.
 
 \bibitem{hartung2023deep}
-S.~Hartung, G.~Franks, D.~Michels, et~al., Deep anomaly detection on tennessee
-  eastman process data, arXiv preprint arXiv:2303.05904 (2023).
-
-\bibitem{hendriks2022towards}
-J.~Hendriks, P.~Dumond, D.~A. Knox, Towards better benchmarking using the
-  {CWRU} bearing fault dataset, Mechanical Systems and Signal Processing 209
-  (2022) 108732.
-\newblock \href {https://doi.org/10.1016/j.ymssp.2021.108732}
-  {\path{doi:10.1016/j.ymssp.2021.108732}}.
+F.~Hartung, B.~J. Franks, T.~Michels, D.~Wagner, P.~Liznerski, S.~Reithermann,
+  S.~Fellenz, F.~Jirasek, M.~Rudolph, D.~Neider, H.~Leitte, C.~Song,
+  B.~Kloepper, S.~Mandt, M.~Bortz, J.~Burger, H.~Hasse, M.~Kloft, Deep anomaly
+  detection on tennessee eastman process data, arXiv preprint arXiv:2303.05904
+  (2023).
 
 \bibitem{vieira2026towards}
 M.~Vieira, T.~Bauler, H.~Rosa, V.~Silva, Towards a more realistic evaluation of
@@ -78,23 +87,58 @@ M.~Vieira, T.~Bauler, H.~Rosa, V.~Silva, Towards a more realistic evaluation of
 \newblock \href {https://doi.org/10.1016/j.ymssp.2026.114640}
   {\path{doi:10.1016/j.ymssp.2026.114640}}.
 
+\bibitem{hendriks2022towards}
+J.~Hendriks, P.~Dumond, D.~A. Knox, Towards better benchmarking using the
+  {CWRU} bearing fault dataset, Mechanical Systems and Signal Processing 209
+  (2022) 108732.
+\newblock \href {https://doi.org/10.1016/j.ymssp.2021.108732}
+  {\path{doi:10.1016/j.ymssp.2021.108732}}.
+
+\bibitem{yuan2014root}
+T.~Yuan, S.~J. Qin, Root cause diagnosis of plant-wide oscillations using
+  {G}ranger causality, Journal of Process Control 24~(2) (2014) 450--459.
+\newblock \href {https://doi.org/10.1016/j.jprocont.2014.01.006}
+  {\path{doi:10.1016/j.jprocont.2014.01.006}}.
+
+\bibitem{bauer2007finding}
+M.~Bauer, J.~W. Cox, M.~H. Caveness, J.~J. Downs, N.~F. Thornhill, Finding the
+  direction of propagation in multivariate time series using transfer entropy,
+  Industrial \& Engineering Chemistry Research 46~(21) (2007) 7077--7085.
+\newblock \href {https://doi.org/10.1021/ie070972z}
+  {\path{doi:10.1021/ie070972z}}.
+
+\bibitem{iri1979algorithm}
+M.~Iri, K.~Aoki, E.~O'Shima, H.~Matsuyama, An algorithm for diagnosis of system
+  failures in the chemical process, Computers \& Chemical Engineering 3~(1--4)
+  (1979) 489--493.
+\newblock \href {https://doi.org/10.1016/0098-1354(79)80038-0}
+  {\path{doi:10.1016/0098-1354(79)80038-0}}.
+
+\bibitem{tao2019digital}
+F.~Tao, H.~Zhang, A.~Liu, A.~Y.~C. Nee, Digital twin in industry:
+  state-of-the-art, IEEE Transactions on Industrial Informatics 15~(4) (2019)
+  2405--2415.
+\newblock \href {https://doi.org/10.1109/TII.2018.2873186}
+  {\path{doi:10.1109/TII.2018.2873186}}.
+
 \bibitem{gong2026harnessing}
-W.~Gong, et~al., Harnessing collective intelligence of multi-agent {LLM}
-  systems for sensor failure reasoning in smart manufacturing, Journal of
-  Industrial Information Integration 49 (2026) 101012.
+W.~Gong, S.~Qiao, C.~Cao, S.~Tan, J.~Ye, H.~Liu, S.~Chen, X.~Wang, Harnessing
+  collective intelligence of multi-agent {LLM} systems for sensor failure
+  reasoning in smart manufacturing, Journal of Industrial Information
+  Integration 49 (2026) 101012.
 \newblock \href {https://doi.org/10.1016/j.jii.2025.101012}
   {\path{doi:10.1016/j.jii.2025.101012}}.
 
 \bibitem{constantinides2025failuresensoriq}
-C.~Constantinides, et~al., {FailureSensorIQ}: A multi-choice {QA} dataset for
-  understanding sensor relationships and failure modes, arXiv preprint
-  arXiv:2506.03278 (2025).
+C.~Constantinides, D.~Patel, S.~Lin, C.~Guerrero, S.~D. Patil, J.~Kalagnanam,
+  {FailureSensorIQ}: A multi-choice {QA} dataset for understanding sensor
+  relationships and failure modes, arXiv preprint arXiv:2506.03278 (2025).
 
 \bibitem{liu2025probing}
-C.~Liu, et~al., Probing a novel machine tool fault reasoning and maintenance
-  service recommendation approach through data-knowledge empowered {LLMs}
-  integrated with {AR}-assisted maintenance guidance, Advanced Engineering
-  Informatics 66 (2025) 103460.
+C.~Liu, J.~Song, D.~Tang, L.~Wang, H.~Zhu, Q.~Cai, Probing a novel machine tool
+  fault reasoning and maintenance service recommendation approach through
+  data-knowledge empowered {LLMs} integrated with {AR}-assisted maintenance
+  guidance, Advanced Engineering Informatics 66 (2025) 103460.
 \newblock \href {https://doi.org/10.1016/j.aei.2025.103460}
   {\path{doi:10.1016/j.aei.2025.103460}}.
 
@@ -119,16 +163,70 @@ F.~Liu, Y.~Zheng, Z.~Liu, Z.~Jia, C.~Tan, Label-free evaluation for performance
 \newblock \href {https://doi.org/10.1016/j.aei.2024.102912}
   {\path{doi:10.1016/j.aei.2024.102912}}.
 
+\bibitem{wu2023autogen}
+Q.~Wu, G.~Bansal, J.~Zhang, C.~Wu, B.~Li, E.~Zhu, L.~Jiang, X.~Zhang, S.~Zhang,
+  J.~Liu, A.~H. Awadallah, R.~W. White, D.~Burger, C.~Wang, {AutoGen}: Enabling
+  next-gen {LLM} applications via multi-agent conversation, arXiv preprint
+  arXiv:2308.08155 (2023).
+
+\bibitem{yao2023react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, Y.~Cao, {ReAct}:
+  Synergizing reasoning and acting in language models, in: International
+  Conference on Learning Representations (ICLR), 2023.
+
+\bibitem{parasuraman2000model}
+R.~Parasuraman, T.~B. Sheridan, C.~D. Wickens, A model for types and levels of
+  human interaction with automation, IEEE Transactions on Systems, Man, and
+  Cybernetics---Part A: Systems and Humans 30~(3) (2000) 286--297.
+\newblock \href {https://doi.org/10.1109/3468.844354}
+  {\path{doi:10.1109/3468.844354}}.
+
+\bibitem{lee2004trust}
+J.~D. Lee, K.~A. See, Trust in automation: designing for appropriate reliance,
+  Human Factors 46~(1) (2004) 50--80.
+\newblock \href {https://doi.org/10.1518/hfes.46.1.50_30392}
+  {\path{doi:10.1518/hfes.46.1.50_30392}}.
+
+\bibitem{heuer1999psychology}
+R.~J. Heuer, Psychology of Intelligence Analysis, Center for the Study of
+  Intelligence, Central Intelligence Agency, Washington, DC, 1999.
+
+\bibitem{hill1965environment}
+A.~B. Hill, The environment and disease: association or causation?, Proceedings
+  of the Royal Society of Medicine 58~(5) (1965) 295--300.
+
+\bibitem{chow1970optimum}
+C.~K. Chow, On optimum recognition error and reject tradeoff, IEEE Transactions
+  on Information Theory 16~(1) (1970) 41--46.
+\newblock \href {https://doi.org/10.1109/TIT.1970.1054406}
+  {\path{doi:10.1109/TIT.1970.1054406}}.
+
+\bibitem{morbach2009ontocape}
+J.~Morbach, A.~Wiesner, W.~Marquardt, {OntoCAPE}---a (re)usable ontology for
+  computer-aided process engineering, Computers \& Chemical Engineering 33~(10)
+  (2009) 1546--1556.
+\newblock \href {https://doi.org/10.1016/j.compchemeng.2009.04.019}
+  {\path{doi:10.1016/j.compchemeng.2009.04.019}}.
+
 \bibitem{skab2020}
 I.~Katser, V.~Kozitsin, {SKAB}: Skoltech anomaly benchmark,
   github.com/waico/SKAB (2020).
 
 \bibitem{indpensim2020}
-Q.~He, et~al., {IndPenSim}: A benchmark for penicillin fermentation simulation
-  and data analysis, industrialpenicillinsimulation.com; Mendeley Data
-  doi:10.17632/pdnjz7zz5x.1 (2020).
+Q.~He, U.~Cavas, S.~Mercier, et~al., {IndPenSim}: A benchmark for penicillin
+  fermentation simulation and data analysis,
+  industrialpenicillinsimulation.com; Mendeley Data doi:10.17632/pdnjz7zz5x.1
+  (2020).
 \newblock \href {https://doi.org/10.17632/pdnjz7zz5x.1}
   {\path{doi:10.17632/pdnjz7zz5x.1}}.
+
+\bibitem{goldrick2019modern}
+S.~Goldrick, A.~Holmes, G.~Black, L.~Radman, J.~Ison, H.~Merchant, S.~Farid,
+  J.~Herrmann, T.~McAvoy, B.~Lennox, Modern day monitoring and control
+  challenges outlined on an industrial-scale benchmark fermentation process,
+  Computers \& Chemical Engineering 124 (2019) 155--169.
+\newblock \href {https://doi.org/10.1016/j.compchemeng.2019.01.011}
+  {\path{doi:10.1016/j.compchemeng.2019.01.011}}.
 
 \bibitem{iliopoulos2023detection}
 F.~Iliopoulos, I.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in

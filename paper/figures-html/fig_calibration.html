@@ -2,83 +2,96 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:635px; padding:18px 26px; }
+  * { box-sizing: border-box; }
+  body { width:1500px; height:625px; padding:14px 26px; }
   svg text { font-family: Arial, Helvetica, sans-serif; }
 </style></head><body>
-<svg width="1448" height="635" viewBox="0 0 1448 635">
-  <line class="axis" x1="330" y1="24" x2="330" y2="500"/>
-  <line class="axis" x1="330" y1="500" x2="1420" y2="500"/>
+<svg width="1448" height="597" viewBox="0 0 1448 597">
+  <defs>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#c9cdd3"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#8f8f8f" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <line class="axis" x1="330" y1="16" x2="330" y2="444"/>
+  <line class="axis" x1="330" y1="444" x2="1420" y2="444"/>
   <g class="gridline">
-    <line x1="548" y1="24" x2="548" y2="500"/><line x1="766" y1="24" x2="766" y2="500"/>
-    <line x1="984" y1="24" x2="984" y2="500"/><line x1="1202" y1="24" x2="1202" y2="500"/>
-    <line x1="1420" y1="24" x2="1420" y2="500"/>
+    <line x1="602.5" y1="16" x2="602.5" y2="444"/><line x1="875" y1="16" x2="875" y2="444"/>
+    <line x1="1147.5" y1="16" x2="1147.5" y2="444"/><line x1="1420" y1="16" x2="1420" y2="444"/>
   </g>
   <g class="ticklabel" text-anchor="middle">
-    <text x="330" y="522">0</text><text x="548" y="522">0.25</text><text x="766" y="522">0.50</text>
-    <text x="984" y="522">0.75</text><text x="1202" y="522">1.0</text>
+    <text x="330" y="466">0</text><text x="602.5" y="466">0.25</text><text x="875" y="466">0.50</text>
+    <text x="1147.5" y="466">0.75</text><text x="1420" y="466">1.0</text>
   </g>
-  <text class="axlabel" x="875" y="556" text-anchor="middle">Reported confidence (protocol ceiling 0.70 applies to COMPETING_SET / NEEDS_DATA verdicts — dashed line)</text>
-  <line x1="1104" y1="24" x2="1104" y2="500" stroke="#e69f00" stroke-width="2" stroke-dasharray="7,5"/>
+  <text class="axlabel" x="875" y="494" text-anchor="middle">Reported confidence (dashed line = 0.70 protocol ceiling for COMPETING_SET / NEEDS_DATA verdicts)</text>
+  <line x1="1093" y1="16" x2="1093" y2="444" stroke="#e69f00" stroke-width="2" stroke-dasharray="7,5"/>
 
-  <!-- bars: x(v) = 330 + v*1090 ; 9 fault scenarios -->
-  <!-- SKAB inlet-valve 0.87 -->
-  <text class="axlabel" x="322" y="48" text-anchor="end">SKAB inlet-valve throttling</text>
-  <text class="ticklabel" x="322" y="64" text-anchor="end">vib. burst A2 z = 13.56</text>
-  <rect x="330" y="34" width="948" height="26" fill="#0072b2"/>
-  <text class="datalabel" x="1286" y="52">0.87</text>
+  <!-- 12 rows: y_i = 22 + i*36, bar h 22 ; x(v) = 330 + v*1090 -->
+  <text class="axlabel" x="322" y="39" text-anchor="end">SKAB inlet-valve throttling</text>
+  <text class="ticklabel" x="322" y="53" text-anchor="end">valve resistance vs control duty</text>
+  <rect x="330" y="24" width="708.5" height="22" fill="#e69f00"/>
+  <text class="datalabel" x="1046" y="40">CS 0.65</text>
 
-  <!-- SKAB cavitation 0.82 -->
-  <text class="axlabel" x="322" y="98" text-anchor="end">SKAB cavitation (blind set)</text>
-  <text class="ticklabel" x="322" y="114" text-anchor="end">vib–flow r = −0.821</text>
-  <rect x="330" y="84" width="894" height="26" fill="#0072b2"/>
-  <text class="datalabel" x="1232" y="102">0.82</text>
+  <text class="axlabel" x="322" y="75" text-anchor="end">SKAB cavitation (blind set)</text>
+  <text class="ticklabel" x="322" y="89" text-anchor="end">intermittent flow collapse</text>
+  <rect x="330" y="60" width="632.2" height="22" fill="#e69f00"/>
+  <text class="datalabel" x="970" y="76">CS 0.58</text>
 
-  <!-- TEP IDV1 0.84 -->
-  <text class="axlabel" x="322" y="148" text-anchor="end">TEP IDV1 A/C feed-ratio step</text>
-  <text class="ticklabel" x="322" y="164" text-anchor="end">component spectra 4/6 dominant</text>
-  <rect x="330" y="134" width="916" height="26" fill="#56b4e9"/>
-  <text class="datalabel" x="1254" y="152">0.84</text>
+  <text class="axlabel" x="322" y="111" text-anchor="end">TEP IDV1 A/C feed-ratio step</text>
+  <text class="ticklabel" x="322" y="125" text-anchor="end">XMV_3 +204%, A+C feed −5.9%</text>
+  <rect x="330" y="96" width="959.2" height="22" fill="#0072b2"/>
+  <text class="datalabel" x="1297" y="112">DET 0.88</text>
 
-  <!-- TEP IDV3 0.72 (weak) -->
-  <text class="axlabel" x="322" y="198" text-anchor="end">TEP IDV3 D-feed temp. (hard)</text>
-  <text class="ticklabel" x="322" y="214" text-anchor="end">weak-signature exclusion chain</text>
-  <rect x="330" y="184" width="785" height="26" fill="#e69f00"/>
-  <text class="datalabel" x="1123" y="202">0.72</text>
+  <text class="axlabel" x="322" y="147" text-anchor="end">TEP IDV3 D-feed temp. (hard)</text>
+  <text class="ticklabel" x="322" y="161" text-anchor="end">composition shift, site unresolvable</text>
+  <rect x="330" y="132" width="654" height="22" fill="#e69f00"/>
+  <text class="datalabel" x="992" y="148">CS 0.60</text>
 
-  <!-- TEP IDV4 0.86 -->
-  <text class="axlabel" x="322" y="248" text-anchor="end">TEP IDV4 cooling temp. (step)</text>
-  <text class="ticklabel" x="322" y="264" text-anchor="end">reactor temp. z = 10.06</text>
-  <rect x="330" y="234" width="937" height="26" fill="#56b4e9"/>
-  <text class="datalabel" x="1275" y="252">0.86</text>
+  <text class="axlabel" x="322" y="183" text-anchor="end">TEP IDV4 cooling temp. (step)</text>
+  <text class="ticklabel" x="322" y="197" text-anchor="end">XMV_10 +6.8σ plateau</text>
+  <rect x="330" y="168" width="817.5" height="22" fill="#56b4e9"/>
+  <text class="datalabel" x="1155" y="184">DET 0.75</text>
 
-  <!-- TEP IDV7 0.80 -->
-  <text class="axlabel" x="322" y="298" text-anchor="end">TEP IDV7 C-header pressure</text>
-  <text class="ticklabel" x="322" y="314" text-anchor="end">F-family + dual pressure</text>
-  <rect x="330" y="284" width="872" height="26" fill="#56b4e9"/>
-  <text class="datalabel" x="1210" y="302">0.80</text>
+  <text class="axlabel" x="322" y="219" text-anchor="end">TEP IDV7 C-header pressure</text>
+  <text class="ticklabel" x="322" y="233" text-anchor="end">feed −11.9σ, valve +25.3%</text>
+  <rect x="330" y="204" width="893.8" height="22" fill="#56b4e9"/>
+  <text class="datalabel" x="1231" y="220">DET 0.82</text>
 
-  <!-- TEP IDV11 0.70 (weak, at cap) -->
-  <text class="axlabel" x="322" y="348" text-anchor="end">TEP IDV11 cooling temp. (random)</text>
-  <text class="ticklabel" x="322" y="364" text-anchor="end">3.73σ sporadic form</text>
-  <rect x="330" y="334" width="763" height="26" fill="#e69f00"/>
-  <text class="datalabel" x="1101" y="352">0.70</text>
+  <text class="axlabel" x="322" y="255" text-anchor="end">TEP IDV11 cooling temp. (random)</text>
+  <text class="ticklabel" x="322" y="269" text-anchor="end">VR 16.45, Δmean 0.006σ</text>
+  <rect x="330" y="240" width="872" height="22" fill="#56b4e9"/>
+  <text class="datalabel" x="1210" y="256">DET 0.80</text>
 
-  <!-- TEP IDV14 0.68 (weak) -->
-  <text class="axlabel" x="322" y="398" text-anchor="end">TEP IDV14 valve stiction</text>
-  <text class="ticklabel" x="322" y="414" text-anchor="end">loop pair r = 0.998</text>
-  <rect x="330" y="384" width="741" height="26" fill="#e69f00"/>
-  <text class="datalabel" x="1079" y="402">0.68</text>
+  <text class="axlabel" x="322" y="291" text-anchor="end">TEP IDV14 valve stiction</text>
+  <text class="ticklabel" x="322" y="305" text-anchor="end">period-4 ACF limit cycle</text>
+  <rect x="330" y="276" width="893.8" height="22" fill="#56b4e9"/>
+  <text class="datalabel" x="1231" y="292">DET 0.82</text>
 
-  <!-- IndPenSim 0.85 -->
-  <text class="axlabel" x="322" y="448" text-anchor="end">IndPenSim batch-93 deviation</text>
-  <text class="ticklabel" x="322" y="464" text-anchor="end">acid flow z = 15.8, pH 7.09</text>
-  <rect x="330" y="434" width="927" height="26" fill="#009e73"/>
-  <text class="datalabel" x="1265" y="452">0.85</text>
+  <text class="axlabel" x="322" y="327" text-anchor="end">IndPenSim batch-93 deviation</text>
+  <text class="ticklabel" x="322" y="341" text-anchor="end">CW loop clamped → +3.0 K</text>
+  <rect x="330" y="312" width="959.2" height="22" fill="#009e73"/>
+  <text class="datalabel" x="1297" y="328">DET 0.88</text>
+
+  <text class="axlabel" x="322" y="363" text-anchor="end">Control: SKAB anomaly-free</text>
+  <text class="ticklabel" x="322" y="377" text-anchor="end">normal operation</text>
+  <rect x="330" y="348" width="850.2" height="22" fill="url(#hatch)"/>
+  <text class="datalabel" x="1188" y="364">normal 0.78</text>
+
+  <text class="axlabel" x="322" y="399" text-anchor="end">Control: TEP d00 fault-free</text>
+  <text class="ticklabel" x="322" y="413" text-anchor="end">normal controlled steady state</text>
+  <rect x="330" y="384" width="959.2" height="22" fill="url(#hatch)"/>
+  <text class="datalabel" x="1297" y="400">normal 0.88</text>
+
+  <text class="axlabel" x="322" y="435" text-anchor="end">Control: IndPenSim batch-1</text>
+  <text class="ticklabel" x="322" y="449" text-anchor="end">recipe-driven normal batch</text>
+  <rect x="330" y="420" width="959.2" height="22" fill="url(#hatch)"/>
+  <text class="datalabel" x="1297" y="436">normal 0.88</text>
 
   <!-- legend -->
-  <rect x="336" y="596" width="14" height="14" fill="#0072b2"/><text class="axlabel" x="358" y="608">SKAB</text>
-  <rect x="436" y="596" width="14" height="14" fill="#56b4e9"/><text class="axlabel" x="458" y="608">TEP (standard signature)</text>
-  <rect x="672" y="596" width="14" height="14" fill="#e69f00"/><text class="axlabel" x="694" y="608">TEP weak-signature (self-limited 0.68–0.72)</text>
-  <rect x="1006" y="596" width="14" height="14" fill="#009e73"/><text class="axlabel" x="1028" y="608">IndPenSim</text>
+  <rect x="336" y="524" width="14" height="14" fill="#e69f00"/><text class="axlabel" x="358" y="536">COMPETING_SET (protocol-capped)</text>
+  <rect x="654" y="524" width="14" height="14" fill="#56b4e9"/><text class="axlabel" x="676" y="536">DETERMINED (TEP)</text>
+  <rect x="852" y="524" width="14" height="14" fill="#0072b2"/><text class="axlabel" x="874" y="536">DET (SKAB)</text>
+  <rect x="996" y="524" width="14" height="14" fill="#009e73"/><text class="axlabel" x="1018" y="536">DET (IndPenSim)</text>
+  <rect x="1178" y="524" width="14" height="14" fill="url(#hatch)"/><text class="axlabel" x="1200" y="536">Controls</text>
 </svg>
 </body></html>
