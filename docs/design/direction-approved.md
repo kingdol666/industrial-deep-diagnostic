@@ -170,3 +170,137 @@ reviewed against the direction rather than against taste.
    stacks, but the legend itself still wraps to three lines.
 
 None of these are correctness defects; they are the next pass.
+
+---
+
+# Iteration 2 — palette conformance, threshold layout, and a report-rendering bug
+
+**Gate status: exempt.** This is an iteration *within* an already-approved
+direction, not a new one. Per the design-direction protocol the three-candidate
+step applies to new visual designs; "revisions inside a project whose direction
+the user has already chosen" is an explicit exemption. Direction A (Instrument
+Panel) still governs, and nothing below reinterprets it.
+
+The brief was "beautify the frontend and make it adaptive". That was read as
+**making the existing system actually hold**, not replacing it — so the work
+started from measurement rather than taste.
+
+## What the audit found
+
+A scanner (`scripts/scan-design-tokens.py`) was written to classify every colour
+literal outside the `:root` token block by hue. It found **59 off-palette
+literals across 11 files** — colours that exist nowhere in this palette:
+
+| File | Count | What had leaked in |
+|---|:--:|---|
+| `diagnosis/AnswerBar.vue` | 17 | a violet `rgba(188,140,255)` — a hardcoded copy of `--purple` — plus GitHub's blue |
+| `diagnosis/MessageStream.vue` | 11 | GitHub-dark: `#161b22` canvas, `#58a6ff` link blue, Tailwind `#22d3ee` |
+| `auth/AuthView.vue` | 9 | a **complete light theme** (`#fff` on `#f6f8fb`) with a `#1f5eff` blue button — 23 literals, zero design tokens |
+| `chat/ChatView.vue` | 6 | a blue gradient on the "New Chat" primary button |
+| `charts/*` (3 files) | 9 | ECharts' stock palette, incl. a blue-dominant heatmap ramp |
+| `ontology/*`, `history/*` | 7 | stray blue/violet literals |
+
+`AuthView` was the worst of it: the first screen any user sees was a blue-and-
+white SaaS form, and the console behind it was warm graphite and amber. Two
+different products, one click apart. This also resolves known-weakness #3 from
+Iteration 1 — the Chat page's off-brand primary button is now on-palette.
+
+## What changed
+
+**Foundation.** A semantic tint ramp was added to `:root` — `--green|yellow|red|
+purple|cyan` each with `-soft` / `-fill` / `-border`, plus `--well` / `--well-2`
+for recessed surfaces. Every component that had been hand-writing `rgba()` for a
+state tint now reads a token, and the existing `.badge-*`, `.ip-chip.*`,
+`.engine-badge` and `.omp-status` rules were consolidated onto it. The ramp is
+what makes the fix durable: the next state tint is a lookup, not an invention.
+
+**All 59 literals replaced**, each mapped by *role* rather than by nearest
+colour — e.g. `rgba(31,111,235)` was a primary-action blue and became
+`var(--accent)` (this system has exactly one dominant accent), while
+`rgba(88,166,255)` was informational chrome and became the cyan ramp.
+
+**`AuthView` rebuilt** from the token system as an instrument *nameplate*: a rail
+carrying the access state (and the language toggle the page had been missing
+entirely), the mark in its gauge housing, the serif identity, then the gate. It
+now has zero colour literals.
+
+**Chart palettes derived from tokens.** New `utils/chartTheme.js` resolves
+`--accent/--cyan/--green/--purple/--red` at runtime for series colours and builds
+a blue-free heat ramp. Note: ECharts renders to canvas, where `var(--x)` does not
+resolve — hence `readToken()` rather than raw CSS variables.
+
+## Threshold layout
+
+Two defects that only appear at the edges of the viewport range:
+
+**The phone rail consumed the screen.** Measured 506px of a 390×844 viewport —
+60% of the screen gone before any content appeared. It had been *capped* at 60vh
+rather than fixed, which truncates the problem instead of solving it. The rail is
+now a 48px command bar with the nav behind a drawer: **506px → 51px**, and the
+page gets the remaining viewport.
+
+**The data manifest crushed its own name column.** `minmax(0, 2.4fr)` let the
+only identifying column collapse to nothing at 390px, so the manifest rendered as
+anonymous `文件夹` rows. The column now has a 180px floor and the row carries a
+580px `min-width`, so a narrow viewport scrolls the readout sideways rather than
+deleting a column. While fixing it, a latent bug surfaced: `.ip-thead` declares
+`position: sticky` but was a **sibling** of the scroll host, so it could never
+stick and header/rows sat in separate scroll contexts. The header now lives
+inside the scroll host.
+
+**History ledger.** Rows were ~86–102px tall (up to 323px at 1024px wide) with
+CJK status chips wrapping one character per line and action rails stacking into
+7 rows. Root cause was not the chip: `.cell-question` had no `white-space` rule
+and the scenario column was unbounded. With those pinned and a measured column
+template, rows are a uniform 40px at every width, chips are single-line, and the
+action rail fits on one line.
+
+## Verification
+
+| Check | Tool | Result |
+|---|---|---|
+| Off-palette literals | `scripts/scan-design-tokens.py --fail-on-cool` | 59 → **0** (exit 0) |
+| Shell geometry, 7 viewports | `scripts/capture-ui-shots.py --set review` | no band overlap, no page overflow, **0 console errors** |
+| Phone nav band | same | 506px → **51px** |
+| History rows | measured in headless Chromium | ~86–102px → **40px** |
+| Backend suite | `cd app/backend && npm test` | **116/116 pass** |
+| Frontend build | `npx vite build` | passes |
+
+## Bug found along the way (not a design issue)
+
+Verifying "zero console errors" surfaced a **401 on every report figure**. The
+report embeds figures as `/api/files/workspace/asset/...png`, and a browser
+cannot attach an `Authorization` header to an `<img>` or `<iframe>` request — so
+the auth guard rejected them. The visible symptom was that the generated HTML
+report tab rendered **completely blank**, and Markdown-report figures never
+appeared.
+
+Fixed by using the `?token=` fallback the backend already sanctions for
+header-less callers (it exists for SSE/EventSource, which has the identical
+constraint): the frontend appends the session token to asset URLs, and the
+backend forwards the caller's token when it rewrites relative asset paths inside
+a served HTML document. Rewriting logic was extracted to
+`utils/html-assets.mjs` so the two routes cannot drift. Guarded by
+`scripts/check-report-assets.py`, which asserts figures actually *decode*
+(`naturalWidth > 0`) and that the iframe contains a real document.
+
+## Honest weaknesses in this pass
+
+1. **`--text-dim` is still 2.4:1** — carried over from Iteration 1, still used
+   for placeholder and disabled text where WCAG does not require AA.
+2. **The History table has no slack.** Its column template sums to 1126px against
+   a 1130px box at 1440px wide. Widening any text column buys a horizontal
+   scrollbar at 1440. Below 1280 the wrapper scrolls by design (lanes intact),
+   but there is no headroom left.
+3. **The ontology empty state is three large empty panels** with a single
+   centred sentence. It is honest but it is not designed; it needs a real
+   first-run affordance.
+4. **Chart chrome is still light-theme** (white tooltips, grey axes) and the
+   heatmap's cell labels are low-contrast against the new dark cold end. Both
+   predate this pass — the old ramp's cold end was dark too — but they are now
+   the most obviously unfinished surfaces in the product.
+5. **Emoji remain** as file/status glyphs in several components (the Data
+   manifest and AnswerBar were cleaned up, others were not). Emoji are drawn by
+   the OS font stack, so their weight and optical size are outside the design
+   system's control.
+

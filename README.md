@@ -1,74 +1,168 @@
-<p align="center">
-  <img src="docs/logo.svg" width="140" alt="Industrial Deep Diagnostic">
-</p>
+<div align="center">
 
-<h1 align="center">Industrial Deep Diagnostic</h1>
+<img src="docs/logo.svg" width="118" alt="Industrial Deep Diagnostic"/>
 
-<p align="center">
-  <strong>End-to-end industrial deep-diagnosis system · 9-step fully automated root-cause pipeline</strong><br>
-  <sub>From sensor time-series to root-cause report — zero human intervention</sub>
-</p>
+# Industrial Deep Diagnostic
 
-<p align="center">
-  <a href="#-quick-start"><img src="https://img.shields.io/badge/Quick%20Start-2%20Steps-brightgreen?style=flat-square" alt="Quick Start"></a>
-  <a href="#-system-architecture"><img src="https://img.shields.io/badge/Pipeline-9%20Steps-blue?style=flat-square" alt="Pipeline"></a>
-  <a href="#-use-cases"><img src="https://img.shields.io/badge/Platform-Win%20%7C%20Linux%20%7C%20Mac-lightgrey?style=flat-square" alt="Platform"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node"></a>
-  <a href="#-docker-deployment"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"></a>
-  <a href="https://github.com/kingdol666/industrial-deep-diagnostic"><img src="https://img.shields.io/badge/Version-6.7-blueviolet?style=flat-square" alt="Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License"></a>
-</p>
+**工业深度诊断系统**
 
-<p align="center">
-  <b>English</b> · <a href="#-english-overview">Overview</a>
-</p>
+**End-to-end industrial root-cause diagnosis · a 9-stage fully automated pipeline of elimination**
+
+<sub>From sensor time series to a traceable Chinese-language report — zero human intervention, and it never invents a conclusion</sub>
+
+<!-- ══ Language switcher ══ -->
+<a href="README.md"><img src="https://img.shields.io/badge/English-current-e8a33d?style=for-the-badge" height="27" alt="English"></a>
+<a href="README-zh.md"><img src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-switch-3a3a30?style=for-the-badge" height="27" alt="简体中文"></a>
+
+<!-- ══ Status badges ══ -->
+<img src="https://img.shields.io/badge/Pipeline-9%20stages-e8a33d?style=flat-square" alt="9-stage pipeline">
+<img src="https://img.shields.io/badge/Skills-18-8fbf6a?style=flat-square" alt="18 skills">
+<img src="https://img.shields.io/badge/Agents-14-b889e0?style=flat-square" alt="14 agents">
+<img src="https://img.shields.io/badge/Engines-14-6ba8b8?style=flat-square" alt="14 engines">
+<img src="https://img.shields.io/badge/Quality%20gates-CP--1%20~%20CP--9-d45d3d?style=flat-square" alt="9 checkpoints">
+<img src="https://img.shields.io/badge/Evidence-L1--L7-d4a93d?style=flat-square" alt="Evidence levels">
+<img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
+<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+<img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
+
+</div>
 
 ---
 
-> 💡 **Core idea**: diagnosis = **elimination**, not confirmation. Every conclusion must satisfy **physical mechanism + statistical validation + temporal alignment + no counter-evidence** — all four, no exceptions. The system never fabricates a conclusion to please the user: it will honestly tell you `DETERMINED` (settled), `COMPETING_SET` (competing hypotheses are indistinguishable) or `NEEDS_DATA` (insufficient data).
+> ### The core claim
+>
+> **Diagnosis is elimination, not confirmation.**
+>
+> Every conclusion must satisfy four conditions at once: **a valid physical mechanism + statistical significance + temporal precedence + no counter-evidence**. Miss one and the conclusion does not stand.
+>
+> The system will not fabricate a root cause to please you. When the data cannot separate the surviving hypotheses it says so — it returns `COMPETING_SET` and **caps its own confidence by protocol**, rather than picking whichever answer looks most plausible.
+>
+> That is not caution. On a real plant floor it is the only honest option available.
 
-## ✨ Core Capabilities
+---
+
+## 📸 The console
+
+> Every screenshot below was taken from a real local instance (`ind-diag start --all`), driven by the sample data shipped in this repository.
+
+<div align="center">
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="docs/screenshots/01-access.png" alt="Access control"/>
+<br/><b>① Access control</b><br/>
+<sub>Unified sign-in · an instrument nameplate, not a SaaS form</sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/screenshots/02-data.png" alt="Data workspace"/>
+<br/><b>② Data workspace</b><br/>
+<sub>Dense manifest · fixed columns · tabular figures</sub>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src="docs/screenshots/03-diagnose.png" alt="Diagnostic run"/>
+<br/><b>③ Live diagnostic workbench</b><br/>
+<sub>9-stage progress · run status · score and verdict</sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/screenshots/05-reports.png" alt="Reports and audit artifacts"/>
+<br/><b>④ Reports & audit artifacts</b><br/>
+<sub>Markdown report · HTML visualization · audit verdict</sub>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src="docs/screenshots/06-ontology.png" alt="Ontology asset library"/>
+<br/><b>⑤ Ontology asset library</b><br/>
+<sub>Graph · structural editing · version diff · reuse</sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/screenshots/07-history.png" alt="Execution ledger"/>
+<br/><b>⑥ Execution ledger</b><br/>
+<sub>Full run history · resume · one-click deep enhancement</sub>
+</td>
+</tr>
+</table>
+
+</div>
+
+<details>
+<summary><b>📱 Expand: adaptive layout and engine views</b></summary>
+<br/>
+
+<div align="center">
+
+<table>
+<tr>
+<td width="33%" align="center">
+<img src="docs/screenshots/08-engine-runs.png" alt="Engine runs"/>
+<br/><b>Engine runs</b><br/>
+<sub>14 selectable engines · runs and artifacts</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/09-engine-run-detail.png" alt="Run detail"/>
+<br/><b>Run detail</b><br/>
+<sub>Event timeline · capability matrix · artifact coverage</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/10-phone.png" alt="Narrow viewport"/>
+<br/><b>Narrow-viewport layout</b><br/>
+<sub>Rail collapses to a command bar · nav into a drawer</sub>
+</td>
+</tr>
+</table>
+
+</div>
+
+</details>
+
+---
+
+## ✨ Capabilities
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🧠 Intelligent Diagnostic Engine
-- **9-step fully automated pipeline** — zero intervention from raw data to Chinese report
-- **18 specialized skills** × **14 dedicated agents** working in concert
-- **Competing-hypotheses protocol** — elimination instead of confirmation bias
-- **9 quality gates** (CP-1 ~ CP-9) enforced stage by stage
-- **Anti-spurious-correlation statistics** v6.4–v6.7 (lag CCF / steady-state filtering / batch integrity / leave-one-out)
+### 🧠 Elimination-based diagnostic engine
+- **9-stage fully automated pipeline** — raw data to Chinese report, zero intervention
+- **18 standardized skills × 14 dedicated agents** working in concert
+- **Competing-hypotheses protocol** — hypothesize, score discriminability, then eliminate
+- **9 quality gates (CP-1 ~ CP-9)** enforced stage by stage; the pipeline blocks or rolls back
+- **Anti-spurious-correlation statistics** v6.4–v6.7: lag-compensated CCF · steady-state filtering · batch integrity · leave-one-out leverage
 
 </td>
 <td width="50%" valign="top">
 
-### 🛡 Industrial-Grade Reliability
-- **Evidence levels L1–L7** — a conclusion is bounded by its lowest evidence level
-- **Dual-driver analysis** — pure process fluctuation + combined process-and-inspection drivers
-- **VLM visual verification** — a vision model independently reads the charts
-- **Physical-truth audit** — dual mode (pre-audit + final audit) with an ENDORSED gate
-- **Repair anti-oscillation** — the third attempt at the same problem is downgraded automatically; global cap of 5 rediagnoses
+### 🛡 Industrial-grade trustworthiness
+- **Evidence levels L1–L7** — a conclusion is bounded by its *lowest* evidence level
+- **Dual-driver analysis** — pure process fluctuation, plus combined process-and-inspection drivers
+- **VLM visual cross-check** — a vision model reads the charts independently, so chart claims cannot be hallucinated
+- **Physical-truth audit** — pre-audit and final audit; `ENDORSED` is required to ship
+- **Repair anti-oscillation** — a third attempt at the same problem is downgraded automatically; global cap of 5 rediagnoses
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-### ⚙ Dual-Engine Harness (new in v6.8)
-- **Genuinely swappable execution engines** — native bridges to the Claude Code SDK and OMP RPC, switched with one click in the frontend
-- **Isomorphic event streams across both engines** — tool calls / thinking / subagent orchestration stay visible in real time throughout
-- **Session continuity** — both engines support resuming a conversation across processes and carrying diagnostic context forward
-- **Per-run routing** — every diagnosis records its execution engine, and the History page shows an `OMP` badge for traceability
+### ⚙ 14-engine swappable execution layer
+- **Genuinely swappable engines** — Claude Code SDK, OMP RPC, Codex app-server, ACP and more
+- **Isomorphic event streams** — tool calls, thinking and subagent orchestration stay visible in real time
+- **Strict pre-flight** — unknown engine → 400 `HARNESS_UNKNOWN`; registered but not installed → 409 `HARNESS_UNAVAILABLE`
+- **Session continuity** — resume a conversation across processes, carrying diagnostic context
+- **Per-run provenance** — every diagnosis records its engine; the ledger shows an engine badge
 
 </td>
 <td width="50%" valign="top">
 
-### 🗺 Ontology Assetization + Deep Enhancement (new in v6.8)
-- **Ontology asset library** — data-schema fingerprint matching; same-scenario reuse hits in seconds and **cuts a single diagnosis by ~70%**
+### 🗺 Ontology assetization + deep enhancement
+- **Ontology asset library** — data-column fingerprint matching; a same-scenario reuse hits in seconds and **cuts a single diagnosis by ~70%**
 - **Incremental extension** — newly added columns trigger only an incremental build and merge, versioned over time (`provenance` traceable end to end)
-- **Intent-driven deep enhancement** — saying "deep diagnosis" automatically chains the deterministic E0-E8 enhancement pipeline (zero LLM cost, +3–5 minutes)
-- **Knowledge flywheel** — enhancement artifacts feed back into the RAG knowledge base, so it gets more accurate the more you use it
+- **Intent-driven deep enhancement** — say "deep diagnosis" and the deterministic E0-E8 pipeline chains automatically (zero LLM cost, +3–5 minutes)
+- **Knowledge flywheel** — enhancement artifacts feed back into the RAG knowledge base, so it sharpens the more you use it
 
 </td>
 </tr>
@@ -76,168 +170,125 @@
 
 ---
 
-## ⚡ Performance Design (optimization plan v4 shipped)
+## 🎯 Use cases
 
-| Mechanism | Trigger | Effect |
-|------|---------|------|
-| **Ontology reuse** | data-column schema fingerprint hits the asset library (on by default in `auto` mode) | ontology build 15.6 min → **≤0.5 min** |
-| **Incremental ontology extension** | same-scenario schema evolution (new columns) | only the diff columns are retrieved and built, saving 60%+ |
-| **Subagent stop-loss** | the ontology subagent produces nothing for 8 minutes | the main agent falls back locally, avoiding a 12-minute idle spin |
-| **Targeted repair** | a Judge score of 70-89 triggers a repair round | only the affected dimensions are recomputed, saving 40-60% |
-| **Parallel profiling** | data profiling and ontology building have no semantic dependency | serial becomes parallel, saving another 2-4 min |
-| **RAG fast-fail** | the 3s health pre-check fails | falls straight back to local physical priors, zero idle spin |
-
-> See [docs/skill-optimization-plan-v4.md](docs/skill-optimization-plan-v4.md) for measured timeline evidence and the acceptance gate of each optimization.
-
----
-
-## 📑 Table of Contents
-
-- [✨ Core Capabilities](#-core-capabilities)
-- [🎯 Use Cases](#-use-cases)
-- [🚀 Quick Start](#-quick-start)
-- [🖥 System Architecture](#-system-architecture)
-- [📦 Installation](#-installation)
-- [⌨️ CLI Reference](#️-cli-reference)
-- [📊 Usage](#-usage)
-- [🔧 Configuration](#-configuration)
-- [🔌 API Reference](#-api-reference)
-- [🐳 Docker Deployment](#-docker-deployment)
-- [🗂 Project Structure](#-project-structure)
-- [🐛 Troubleshooting](#-troubleshooting)
-- [🤝 Contributing](#-contributing)
-- [📄 English Overview](#-english-overview)
-
----
-
-## 🎯 Use Cases
-
-> Applies to any industrial analysis scenario where you **have data and need the root cause**. As long as you can supply sensor time series or process-parameter records, the system will produce a traceable diagnostic conclusion.
+> If you **have data and need the cause**, this applies. Supply sensor time series or process-parameter records and the system produces a traceable diagnostic conclusion.
 
 <table>
 <tr>
 <td width="33%" valign="top" align="center">
 
-#### 🏭 Manufacturing Process Anomalies
+#### 🏭 Manufacturing process anomalies
 
-<b>Quality defects / yield loss</b><br>
-<sub>Film thickness drift · steel plate defects · paper basis-weight fluctuation</sub>
+<b>Quality defects / yield loss</b><br/>
+<sub>film thickness drift · steel plate defects · paper basis-weight fluctuation</sub>
 
 </td>
 <td width="33%" valign="top" align="center">
 
-#### ⚙️ Equipment Condition Diagnosis
+#### ⚙️ Equipment condition diagnosis
 
-<b>Performance degradation / progressive faults</b><br>
+<b>Performance degradation / progressive faults</b><br/>
 <sub>CNC spindle wear · heat-exchanger fouling · catalyst deactivation</sub>
 
 </td>
 <td width="33%" valign="top" align="center">
 
-#### 📈 Process Parameter Optimization
+#### 📈 Process parameter optimization
 
-<b>SPC excursion / correlation analysis</b><br>
-<sub>pressure-thickness association · temperature-viscosity causality · multivariate tradeoffs</sub>
+<b>SPC excursion / correlation analysis</b><br/>
+<sub>pressure–thickness association · temperature–viscosity causality · multivariate tradeoffs</sub>
 
 </td>
 </tr>
 </table>
 
-### Bundled Sample Data (works out of the box)
+### Bundled sample data (works out of the box)
 
 | Scenario | Path | Notes |
 |------|------|------|
-| 🔄 **Paper machine headbox** | `data/paper_machine_headbox/` | full diagnostic report already generated (76-point confidence) |
+| 🔄 **Paper machine headbox** | `data/paper_machine_headbox/` | classic progressive-scaling case |
 | ⚙️ **CNC spindle wear** | `data/eval_cnc_spindle_wear/` | includes ground-truth labels |
-| 🔥 **Heat-exchanger fouling** | `data/eval_heat_exchanger_scaling/` | classic progressive-degradation case |
+| 🔥 **Heat-exchanger fouling** | `data/eval_heat_exchanger_scaling/` | progressive degradation + energy efficiency |
 | 🎞 **BOPET film drift** | `data/eval_bopet_film_drift/` | multivariate thickness analysis |
 | ⚗️ **Reactor catalyst deactivation** | `data/eval_reactor_catalyst/` | chemical-process diagnosis |
 | 🥶 **Cold-rolled steel defects** | `data/eval_steel_cold_rolling/` | metallurgical quality analysis |
-| 📊 **Simulated process data** | `data/simulateData/merged_process_inspection.csv` | composite process dataset |
+| 🧪 **Tennessee Eastman (TEP)** | `data/benchmark/` | international standard chemical benchmark |
+| 📊 **Simulated process data** | `data/simulateData/merged_process_inspection.csv` | combined process + inspection dataset |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick start
 
-> The same steps apply on any Windows / Linux / macOS host; no platform-specific configuration is required.
-> Dependencies are fully automatic: the service checks and installs them at startup — if backend/frontend lack `node_modules` it runs `npm install`, and the RAG engine creates its own Python virtual environment (`uv sync`, falling back to pip when uv is absent).
->
-> **Prerequisites** (startup fails if they are missing, so verify first):
+> The same steps apply on Windows / Linux / macOS; no platform-specific configuration is required.
+> Dependencies are fully automatic: on startup the services check and install them — if the backend or frontend lacks `node_modules` it runs `npm install`, and the RAG engine builds its own Python virtual environment (`uv sync`, falling back to pip when uv is absent).
+
+**Prerequisites** (a missing one will fail the startup, so verify first):
 
 | Dependency | Version | Verification command |
 |------|:----:|----------|
 | [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
-| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` (Linux/macOS: `python3 --version`) |
-| [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to system pip when not installed) |
+| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` |
+| [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to system pip) |
 
-
-### Three Steps to Take Off 🛫
+### Three steps to take off 🛫
 
 ```bash
 # 1️⃣ Clone & install
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
 npm install
-npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
+npm link        # register the global `ind-diag` command (optional; else `node commands/cli.mjs`)
 
-# 2️⃣ Start all services (backend 3210 + frontend 5180 + RAG engine 8764)
+# 2️⃣ Start every service (backend 3210 + frontend 5180 + RAG 8764)
 ind-diag start --all --detach
-#    --detach = background daemon mode, the command returns immediately; logs go to .runtime/*.log
-#    The first start installs dependencies automatically (backend/frontend npm install + RAG venv), about 1-3 minutes
+#    --detach = background daemon: returns immediately, logs to .runtime/*.log
+#    First start installs dependencies (npm install + RAG venv), roughly 1-3 minutes
 
-# 3️⃣ Verify service health
-ind-diag status                                          # all three services should be running and healthy
-curl http://localhost:3210/api/health                    # should return 200
+# 3️⃣ Verify health
+ind-diag status                        # all three services should be running / healthy
+curl http://localhost:3210/api/health  # should return 200
 ```
 
 Open **http://localhost:5180** → upload data → automatic diagnosis → download the report ✅
 
-> ⚠️ Do not omit `--detach`: in foreground mode (no `--detach`) the CLI blocks and after 120 seconds reports `FATAL: Service manager timeout` (the services have actually started, but the command never returns, which is easily mistaken for a failure).
+> ⚠️ Do not omit `--detach`. In foreground mode the CLI blocks and after 120 seconds reports `FATAL: Service manager timeout` — the services have actually started, but the command never returns, which is easily mistaken for a failure.
 >
-> Stop the services: `ind-diag stop --all` · logs: `.runtime/backend.log`, `.runtime/frontend.log`, `.runtime/rag.log`
+> Stop everything: `ind-diag stop --all` · Logs: `.runtime/backend.log`, `.runtime/frontend.log`, `.runtime/rag.log`
 >
-> Starting a diagnosis additionally requires the [Claude Code CLI](https://docs.anthropic.com/) to be logged in or `ANTHROPIC_API_KEY` to be configured (see `.env.example`) — merely starting the services does not.
+> Starting the services does **not** require model credentials. **Running a diagnosis** does — the selected engine's CLI must be signed in (the default is OMP; you can switch engines in the sidebar, or configure `ANTHROPIC_API_KEY` / `DEEPSEEK_API_KEY` per `.env.example`).
 
-
-### Service Ports at a Glance
+### Service ports at a glance
 
 | Service | Port | Stack | Purpose |
 |:----:|:----:|--------|------|
 | 🟢 **Backend** | `3210` | Express.js + SQLite (WAL) + WebSocket | REST API · diagnosis orchestration · real-time push |
-| 🟢 **Frontend** | `5180` | Vue 3 + Vite + SSE | Web UI · data upload · live monitoring |
-| 🟢 **RAG Engine** | `8764` | FastAPI + ChromaDB | vector retrieval · domain knowledge augmentation |
+| 🟢 **Frontend** | `5180` | Vue 3 + Vite + SSE | Web console · data upload · live monitoring |
+| 🟢 **RAG engine** | `8764` | FastAPI + ChromaDB | vector retrieval · domain knowledge augmentation |
 
 <details>
-<summary><b>🔍 Verify that the services started successfully</b></summary>
+<summary><b>🔍 Verify the services started</b></summary>
 
 ```bash
-# check service status
-ind-diag status
-
-# backend health check (should return 200)
-curl http://localhost:3210/api/health
-
-# frontend is reachable
-curl -I http://localhost:5180
-
-# RAG engine docs
-curl -I http://localhost:8764/docs
+ind-diag status                            # service status
+curl http://localhost:3210/api/health      # backend health (expect 200)
+curl -I http://localhost:5180              # frontend reachable
+curl -I http://localhost:8764/docs         # RAG engine docs
 ```
 
 </details>
 
 <details>
-<summary><b>⚡ Run one diagnosis from the command line, without starting the frontend</b></summary>
+<summary><b>⚡ Run one diagnosis from the CLI, without the frontend</b></summary>
 
 ```bash
-# drive the industrial-analysis-auto orchestrator fully automatically
 node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
   --name my-diagnosis --base-dir ./workspace/diagnostic-runs
 
-# output location: workspace/diagnostic-runs/<timestamp>_my-diagnosis/
+# Output: workspace/diagnostic-runs/<timestamp>_my-diagnosis/
 # ├── report.md                    ← Chinese diagnostic report
-# ├── diagnostic-report.html       ← HTML visualization page
+# ├── diagnostic-report.html       ← HTML visualization
 # └── optimizer.md                 ← physical audit verdict
 ```
 
@@ -245,329 +296,326 @@ node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
 
 ---
 
-## 🖥 System Architecture
+## 🖥 Architecture
 
-### The 9-Step Diagnostic Pipeline at a Glance
+### The 9-stage diagnostic pipeline
 
+```mermaid
+flowchart TD
+    IN([Raw industrial data<br/>CSV · XLSX · JSON · TSV · Markdown tables]) --> S01
+
+    S01["<b>Step 0–1 · Setup &amp; inspect</b><br/>main-agent<br/><i>run_manifest · input_manifest · user_context</i>"]
+    S01 --> CP1{{"CP-1<br/>input manifest complete"}}
+    CP1 --> S2
+
+    S2["<b>Step 2 · Domain context</b><br/>🧑‍🔬 context-builder<br/><i>ontology.json · RAG deep understanding</i>"]
+    S2 --> CP2{{"CP-2 · ontology schema valid<br/>CP-3 · clarification AUTO_RESOLVED"}}
+    CP2 --> S3
+
+    S3["<b>Step 3 · Statistics &amp; visualization</b><br/>👷 data-processor<br/><i>data_analysis_conclusion · 9+ figures</i><br/>└ <b>Step 3.5</b> 🔍 vlm-visual-analyzer (vision model reads charts)"]
+    S3 --> CP4{{"CP-4<br/>conclusion + figures &gt; 0"}}
+    CP4 --> S4
+
+    S4["<b>Step 4 · Root-cause diagnosis</b><br/>👷 diagnostician<br/><i>diagnosis · evidence · confidence · reasoning_chain</i><br/>hypothesize → score discriminability → eliminate"]
+    S4 --> CP5{{"CP-5<br/>4 diagnostic artifacts schema-valid"}}
+    CP5 --> P5
+
+    P5["<b>Step 5a ∥ 5b · the only parallel stage</b><br/>⚖️ judge (10-criterion score)<br/>🔍 report-reviewer (physical pre-audit)"]
+    P5 --> CP6{{"CP-6<br/>score ≥ 90 and no FATAL"}}
+    CP6 -->|fail| REPAIR
+
+    REPAIR["🔁 <b>Repair loop</b><br/>judge &lt; 90 → rerun diagnostician (≤3)<br/>reviewer fail → D→J→R→R (≤2 cycles)<br/><b>global cap 5 rediagnoses</b> · 3rd attempt at one problem → COMPETING_SET, confidence ≤ 50"]
+    REPAIR --> S4
+
+    CP6 -->|pass| S6
+    S6["<b>Step 6 · Report</b><br/>👷 reporter<br/><i>report.md · run_summary.json</i>"]
+    S6 --> CP7{{"CP-7<br/>report + summary present"}}
+    CP7 --> S7
+
+    S7["<b>Step 7 · Physical final audit</b><br/>🔍 report-reviewer<br/><i>optimizer.md</i>"]
+    S7 --> CP8{{"CP-8<br/>ENDORSED ?"}}
+    CP8 -->|not endorsed| REPAIR2["🔁 audit repair loop"]
+    REPAIR2 --> S7
+    CP8 -->|ENDORSED| S89
+
+    S89["<b>Step 8 → 8.5 → 9 · automatic finalize</b><br/>🎨 html-visualizer → 🔍 html-reviewer → main-agent<br/><i>diagnostic-report.html · evidence_closure_report</i>"]
+    S89 --> CP9{{"CP-9 · HTML ≥ 5KB and review passed"}}
+    CP9 --> OUT([Traceable report<br/>+ interactive HTML visualization])
+
+    classDef gate fill:#2a1f0a,stroke:#e8a33d,stroke-width:1px,color:#f4b65a
+    classDef repair fill:#2a1410,stroke:#d45d3d,stroke-width:1px,color:#f0a08a
+    classDef io fill:#14150f,stroke:#8a8676,color:#ede8d8
+    class CP1,CP2,CP4,CP5,CP6,CP7,CP8,CP9 gate
+    class REPAIR,REPAIR2 repair
+    class IN,OUT io
 ```
-                         ┌─────────────────────────────────────┐
-                         │  Raw industrial data (CSV/XLSX/...) │
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                Step 0–1 │  Setup & Inspect · probe & manifest │  ◄── CP-1
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                  Step 2 │  context-builder · ontology + RAG   │  ◄── CP-2, CP-3
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                  Step 3 │  data-processor · stats + charts    │  ◄── CP-4
-                         │   └─ Step 3.5: VLM visual analysis  │
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                  Step 4 │  diagnostician · competing causes   │  ◄── CP-5
-                         └──────────────────┬──────────────────┘
-                                            │
-                ┌───────────────────────────┴───────────────────────────┐
-                │  Step 5a: judge (score)   │   Step 5b: pre-audit      │  ◄── CP-6
-                │      ↑ repair loop ↓      │        (parallel)         │
-                └───────────────────────────┬───────────────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                  Step 6 │  reporter · 20-section zh report    │  ◄── CP-7
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                  Step 7 │  report-reviewer · physical audit   │  ◄── CP-8
-                         │      ↑ repair loop ↓ (ENDORSED?)    │
-                         └──────────────────┬──────────────────┘
-                                            │
-                         ┌──────────────────▼──────────────────┐
-                Step 8–9 │  html-visualizer → html-reviewer    │  ◄── CP-9
-                         │  → Finalize · deliver report + HTML │
-                         └─────────────────────────────────────┘
+
+> **Step 5a/5b is the only parallel stage in the pipeline** — quality scoring and physical pre-audit do not depend on each other.
+> **After CP-8 passes, Steps 8→8.5→9 run back to back automatically** with no prompt; only a pre-existing `00_input/html_opt_out` skips the HTML build.
+
+### Runtime architecture
+
+```mermaid
+flowchart LR
+    subgraph CLIENT["🖥 Operator"]
+        UI["Vue 3 console<br/>:5180"]
+    end
+
+    subgraph BACKEND["⚙️ Backend · Express :3210"]
+        API["REST API<br/>routes / auth / upload"]
+        ORCH["Diagnosis orchestrator<br/>ENGINES dispatch table"]
+        BUS["Event bus"]
+        WS["WebSocket / SSE<br/>real-time push"]
+        DB[("SQLite · WAL<br/>run ledger")]
+    end
+
+    subgraph ENGINES["🔌 14 execution engines"]
+        E1["claude · Claude Code"]
+        E2["omp · OMP Engine ★default"]
+        E3["codex / dsh / gemini<br/>opencode / copilot / …"]
+        E4["mock · in-process scripted engine<br/>CI and smoke tests"]
+    end
+
+    subgraph RAG["📚 RAG engine :8764"]
+        VEC[("ChromaDB<br/>vector store")]
+        SCORE["5-dimensional scoring"]
+    end
+
+    subgraph STORE["💾 Assets"]
+        ONTO[("Ontology asset library<br/>data/ontology_store")]
+        RUNS[("Diagnostic runs<br/>workspace/diagnostic-runs")]
+    end
+
+    UI <-->|HTTP| API
+    UI <-->|WS / SSE| WS
+    API --> ORCH
+    ORCH --> DB
+    ORCH --> BUS
+    BUS --> WS
+    ORCH --> ENGINES
+    ORCH -->|retrieve / score / inject| RAG
+    ORCH --> ONTO
+    ORCH --> RUNS
+    RAG -.->|automatic degradation when down:<br/>parameter_to_physics + web search| ORCH
+    ONTO -.->|fingerprint hit → reuse<br/>ontology build 15.6 min → ≤0.5 min| ORCH
+
+    classDef def fill:#2a1f0a,stroke:#e8a33d,color:#f4b65a
+    class E2 def
 ```
 
-### How a Real Diagnosis Was Derived
+### How a real diagnosis was derived
 
-Taking the **paper machine headbox section** as an example ([view the full report](workspace/diagnostic-runs/202607271128116_paper_machine_headbox/report.md)):
+Every number below comes from a **real run in this repository**, `202609141845547_bench_tep_d01_ac_feed_ratio` (Tennessee Eastman benchmark, A/C feed-ratio disturbance):
 
 | Step | Finding |
 |:----:|------|
-| 1️⃣ **Data discovery** | headbox pressure went from 15kPa → 29kPa over 90 days (**+93%**); CD basis-weight CV went from 0.5% → 2.8% (**+460%**) |
-| 2️⃣ **Statistical validation** | pressure~cdcv Pearson r=0.87, r=0.57 after detrending; leave-one-out passed; r=0.92~0.93 within each of the three paper grades |
-| 3️⃣ **Physical mechanism** | fan pump speed rose only +4.1%, while the pump affinity laws predict +8.4% — actual +93% → **11× excess → increased flow resistance** |
-| 4️⃣ **Eliminating competitors** | ❌ temperature hypothesis (98.6% decayed) · ❌ vacuum system (r<0.03) · ❌ speed-driven (11× excess) |
-| 5️⃣ **Root-cause conclusion** | progressive scaling/blockage inside the headbox — `DETERMINED`, confidence **76/100** |
-| 6️⃣ **Action plan** | P0 acid cleaning during shutdown · P1 verify the sensor · P2 install CD pressure-profile sensors |
+| 1️⃣ **Data inspection** | 960 samples × 52 channels; from sample 160 the A feed valve `XMV_3` stepped **24.6% → 74.8%** |
+| 2️⃣ **Statistical validation** | A feed flow `XMEAS_1` rose **+204.8%** in step (0.2494 → 0.7601 kscmh, **18.7σ**); mixed feed `XMEAS_4` fell −5.9% |
+| 3️⃣ **Physical mechanism** | Rising light-component vapour load raised pressure via `PV=nRT` in the constant-volume loop: reactor **+6.5 kPa** / separator **+6.3 kPa** / stripper **+6.7 kPa** |
+| 4️⃣ **Eliminating competitors** | 5 competing hypotheses eliminated (elimination confidence **90–92**): feed temperature, cooling water, agitation, composition-analyser drift, catalyst activity |
+| 5️⃣ **Root-cause conclusion** | Feed-ratio reconfiguration disturbance — **`DETERMINED`**, confidence **88/100 (HIGH)** |
+| 6️⃣ **Audit chain** | Judge 10-criterion score **93 PASS** (round 1, no repair) · physical final audit **ENDORSED**, physical-match rating **10/10** |
+| 7️⃣ **Honest boundary** | Open questions logged explicitly: whether `XMV_3` moved *on command* needs the DCS setpoint history; the online A/C composition of stream 4 is missing, so the +11.7% feed ratio is labelled `derived` |
 
-> Every conclusion carries an **evidence level (L1–L7)**, and the reasoning chain is traceable back to individual data rows.
+> Every conclusion carries an **evidence level (L1–L7)** and its reasoning chain is traceable down to individual data rows.
 
-### 18 Specialized Skills
+<details>
+<summary><b>⚠️ Expand: what does it say when the data cannot decide?</b></summary>
+<br/>
+
+Case `202609141511399_bench_skab_valve1_1` (SKAB water-circulation rig, closed-loop anomaly, n=1145 @ 1 Hz):
+
+- The flow operating point underwent a real discrete migration in the second half of the window: main level **32 → 31/30 L/min**, half-window mean −2.87%;
+- That shift is **500–1000× the float noise** (±0.002) — three orders of magnitude — confirming a genuine process event rather than measurement jitter;
+- The decisive physical discriminator: **flow dropped but post-pump pressure did not** (0.05930 → 0.08962 bar, direction upward). That "Q↓ with flat/rising P" signature supports **increased hydraulic resistance** and is *opposite* to **pump head degradation**;
+- But **valve opening** and **pump duty/speed command** — the two decisive channels — were **never measured**, so "increased resistance (H1)" and "control command turndown (H3)" are inseparable in this dataset.
+
+**What the system answered**: `COMPETING_SET{H1, H3}`, confidence **65/100 (MEDIUM)**.
+
+That 65 is **not caution — it is the protocol's hard ceiling**. H1 scored **69** on the five-factor assessment and was force-capped to 65 precisely because it cannot be separated from H3.
+Three alternative explanations were closed by independent evidence at elimination confidences of **92 / 93 / 95**.
+
+**Minimum discriminating set**: pull the SCADA/DCS **valve-opening feedback** *or* the **pump duty-command log** — either one collapses the competing set into a single root cause.
+
+> This is the most essential difference between this system and an AI that merely *sounds* clever: it would rather say "I don't know yet" than hand you a fabricated answer.
+
+</details>
+
+### Real verdict distribution in this repository
+
+Across the **38 completed diagnoses** under `workspace/diagnostic-runs/` (those with a `04_diagnostics/diagnosis.json`):
+
+| Verdict | Count | Meaning |
+|:--------|:----:|------|
+| ✅ `DETERMINED` | **34** | competitors eliminated down to a single root cause |
+| ⚖️ `COMPETING_SET` | **3** | surviving hypotheses are indistinguishable in this data (confidence capped by protocol) |
+| 📊 `NEEDS_DATA` | **1** | data cannot support any conclusion; the minimum required dataset is listed |
+
+> 89% of runs converge on a single root cause; the other 11% report uncertainty honestly — which is the design intent, not a failure.
+
+---
+
+## 🧩 Skills & agents
+
+### 18 standardized skills
+
+`.claude/skills/<name>/` is the **single skill source** (discovered by OMP through the `claude` provider at priority 80, and simultaneously serving native Claude Code discovery). `scripts/`, `schemas/`, `references/`, `resources/` and `templates/` all live together under it.
 
 <details>
 <summary><b>Expand the full skill list</b></summary>
 
-| Skill | Owning Agent | Core output | Gate |
+| Skill | Owning agent | Core output | Gate |
 |-------|------------|----------|:----:|
-| **industrial-analysis-auto** | main-agent | fully automated orchestrator | all CPs |
-| **industrial-data-preprocessor** | — | adaptive multi-format preprocessing | — |
-| **industrial-ontology-builder** | context-builder | `ontology.json`, RAG deep understanding | CP-2, CP-3 |
-| **industrial-data-processor** | data-processor | `data_analysis_conclusion.json`, 9+ PNG | CP-4 |
-| **industrial-diagnostician** | diagnostician | 4× diagnostic JSON (diagnosis/evidence/confidence/reasoning chain) | CP-5 |
-| **industrial-judge** | judge | `judge_feedback.json` (10-criterion score) | CP-6 |
-| **industrial-physical-auditor** | report-reviewer | `optimizer.md` (dual-mode audit) | CP-6, CP-8 |
-| **industrial-reporter** | reporter | `report.md`, `run_summary.json` | CP-7 |
-| **industrial-html-visualizer** | html-visualizer | `diagnostic-report.html` (ECharts+Three.js) | CP-9 |
-| **industrial-html-reviewer** | html-reviewer | `html_review.json` | — |
-| **industrial-physics-bridge** | physics-bridge | physics-data bridge | — |
-| **industrial-deep-analysis** | deep-analyst | E1–E4 deep coverage matrix | — |
-| **industrial-analysis-enhance-auto** | enhance-orchestrator | enhancement pipeline orchestration | — |
-| **industrial-enhanced-html-visualizer** | enhanced-visualizer | enhanced HTML | — |
-| **industrial-enhanced-html-reviewer** | enhanced-html-reviewer | enhanced HTML review | — |
-| **rag-knowledge-builder** | — | domain knowledge graph | — |
-| **diagnostic-html-visualizer** | — | HTML design system | — |
-| **darwin-skill** | — | skill evolution assessment | — |
+| `industrial-analysis-auto` | main-agent | fully automated orchestrator | all CPs |
+| `industrial-data-preprocessor` | — | adaptive multi-format preprocessing | — |
+| `industrial-ontology-builder` | context-builder | `ontology.json` · RAG deep understanding | CP-2, CP-3 |
+| `industrial-data-processor` | data-processor | `data_analysis_conclusion.json` · 9+ PNG | CP-4 |
+| `industrial-diagnostician` | diagnostician | 4 diagnostic JSONs (diagnosis/evidence/confidence/reasoning_chain) | CP-5 |
+| `industrial-judge` | judge | `judge_feedback.json` (10-criterion score) | CP-6 |
+| `industrial-physical-auditor` | report-reviewer | `optimizer.md` (dual-mode audit) | CP-6, CP-8 |
+| `industrial-reporter` | reporter | `report.md` · `run_summary.json` | CP-7 |
+| `industrial-html-visualizer` | html-visualizer | `diagnostic-report.html` (ECharts + Three.js) | CP-9 |
+| `industrial-html-reviewer` | html-reviewer | `html_review.json` | — |
+| `industrial-physics-bridge` | physics-bridge | physics–data bridge | — |
+| `industrial-deep-analysis` | deep-analyst | E1–E4 coverage matrix | — |
+| `industrial-analysis-enhance-auto` | enhance-orchestrator | E0-E8 enhancement orchestration | — |
+| `industrial-enhanced-html-visualizer` | enhanced-visualizer | enhanced HTML | — |
+| `industrial-enhanced-html-reviewer` | enhanced-html-reviewer | enhanced HTML review | — |
+| `rag-knowledge-builder` | — | domain knowledge graph | — |
+| `diagnostic-html-visualizer` | — | HTML design system | — |
+| `darwin-skill` | — | skill fitness evolution assessment | — |
 
 </details>
 
-### 9 Checkpoint Gates
+### 14 dedicated agents
 
-| CP | Position | Validation | Failure handling |
+| Agent | Persona | Core output |
+|-------|---------|---------|
+| `context-builder` | Professor Wang · Failure Analysis | ontology + physical principles |
+| `data-processor` | Engineer Zhang · Process Analysis | statistics + charts + handoff |
+| `vlm-visual-analyzer` | Veteran Sun · Visual Inspection | chart-based visual evidence (the only `model: vision` agent) |
+| `diagnostician` | Chief Engineer Liu · Root-Cause Diagnosis | competing hypotheses + reasoning chain |
+| `judge` | Director Chen · Quality Audit | 10-criterion scoring gate |
+| `report-reviewer` | Auditor Sun · Physical Audit | physical-truth audit |
+| `reporter` | Engineer Zhou · Technical Reporting | pyramid-structure report |
+| `html-visualizer` | Engineer Lin · HMI Visualization | ECharts + Three.js |
+| `html-reviewer` | Reviewer Zhao · Page Review | HTML usability review |
+| `deep-analyst` | Deep Analysis Engine | E1–E4 coverage + conditions + tradeoffs |
+| `physics-bridge` | Physics Mechanism Bridge | five physical verifications + mechanism chain |
+| `enhance-orchestrator` | Enhancement Pipeline Orchestration | fully automated E0-E8 enhancement |
+| `enhanced-visualizer` | Enhanced Frontend | enhanced ECharts HTML |
+| `enhanced-html-reviewer` | Enhanced Review | enhanced HTML review |
+
+---
+
+## ✅ The 9 quality gates
+
+| CP | Position | Validation | On failure |
 |:--:|:----:|----------|:--------:|
 | **1** | 1→2 | `input_manifest` + `user_context` exist | back to Step 0 |
-| **2** | 2→2.5 | `ontology.json` ≥1KB + schema validation passed | rerun ontology |
+| **2** | 2→2.5 | `ontology.json` ≥ 1KB and schema-valid | rerun ontology build |
 | **3** | 2.5→3 | `clarification_status: AUTO_RESOLVED` | guide to resolution |
-| **4** | 3→4 | `data_analysis_conclusion.json` + plots > 0 | rerun processor |
-| **5** | 4→5 | all 4 diagnostic JSONs pass schema | rerun diagnostician (≤3) |
-| **6** | 5→6 | Judge ≥90 + pre-audit has no FATAL | repair loop (best-of-3) |
+| **4** | 3→4 | `data_analysis_conclusion.json` + figures > 0 | rerun data processor |
+| **5** | 4→5 | all 4 diagnostic JSONs schema-valid | rerun diagnostician (≤3) |
+| **6** | 5→6 | Judge ≥ 90 and pre-audit has no FATAL | repair loop (best of 3) |
 | **7** | 6→7 | `report.md` + `run_summary.json` | rerun reporter |
 | **8** | 7→8 | `optimizer.md` contains `ENDORSED` | audit repair loop |
-| **9** | 8→8.5 | HTML ≥5KB + review verdict=pass | rerun visualizer |
+| **9** | 8→8.5 | HTML ≥ 5KB and review verdict = pass | rerun visualizer |
 
-### Evidence Grading System
+---
+
+## 🔬 Evidence grading
 
 | Level | Source | Confidence weight |
-|:----:|------|:----------:|
+|:----:|------|:--------:|
 | **L1** | direct measurements | 🟢 highest |
 | **L2** | user documents (SOP / manuals) | 🟢 high |
-| **L3** | statistical analysis (including validation reports) | 🟡 medium-high |
+| **L3** | statistical analysis (incl. validation reports) | 🟡 medium-high |
 | **L4** | chart-based visual evidence (VLM) | 🟡 medium |
 | **L5** | domain knowledge / process logic | 🟡 medium |
 | **L6** | external web references | 🔴 low |
 | **L7** | unsupported assumptions | ⚫ lowest |
 
-### Anti-Spurious-Correlation Statistical Pipeline
+> **Iron rule: a conclusion is bounded by its lowest evidence level.** An L4 chart observation can never support an L1-grade assertion.
+
+### Anti-spurious-correlation pipeline
 
 | Version | Detection capability | Method |
 |:----:|----------|------|
-| **v6.4** | lag-compensated CCF | cross-correlation finds the optimal lag and avoids spurious synchrony |
-| **v6.5** | steady-state filtering | three fused algorithms detect steady-state / transition / startup-shutdown segments |
+| **v6.4** | lag-compensated CCF | cross-correlation finds the optimal lag, avoiding spurious synchrony |
+| **v6.5** | steady-state filtering | three fused algorithms detect steady / transition / startup-shutdown segments |
 | **v6.6** | batch integrity | `batch_id` uniqueness validation prevents cross-batch confusion |
-| **v6.7** | leave-one-out leverage check | any \|r\|≥0.3 must pass leave-one-out |
+| **v6.7** | leave-one-out leverage check | any \|r\| ≥ 0.3 must pass leave-one-out |
+
+**Four anti-speculation conditions** (all required): temporal precedence + statistical significance + physical mechanism + no contradiction.
+
+**Confidence caps**: `COMPETING_SET` indistinguishable ≤ 65; oscillation scenarios ≤ 50.
 
 ---
 
-## 📦 Installation
+## 🔌 API reference
 
-### Requirements
-
-| Dependency | Version | Verification command |
-|------|:----:|----------|
-| [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
-| [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
-| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` |
-| [uv](https://docs.astral.sh/uv/) (optional) | ≥ 0.4 | `uv --version` |
-
-### Windows Installation
-
-```powershell
-# clone and install
-git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
-cd industrial-deep-diagnostic
-npm install
-npm link                    # register the global ind-diag command
-
-# environment check + initialization
-ind-diag init
-
-# start
-ind-diag start --all --detach
-```
-
-You can also double-click the batch scripts (legacy; they cover only the backend + frontend and **exclude the RAG engine** — use the CLI command above for a complete start):
-- `commands\start-backend.bat` — start the backend
-- `commands\start-frontend.bat` — start the frontend
-- `commands\start-all.bat` — start both at once
-
-### Linux / macOS Installation
-
-```bash
-# clone and install
-git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
-cd industrial-deep-diagnostic
-npm install
-npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
-
-# environment check
-ind-diag init
-
-# start
-ind-diag start --all --detach
-
-# or use the shell script
-bash commands/start-all.sh
-```
-
-### Python Dependencies (RAG engine + statistical analysis)
-
-**No manual installation needed** — `ind-diag start` automatically: checks the system Python → creates `rag-retrieval-engine/.venv` if it does not exist → installs every dependency with `uv sync` (falling back to system pip when uv is absent).
-
-You only need one of the following to exist (verify with `python --version`):
-- Python ≥ 3.10 (required to run the RAG engine)
-- **uv** (recommended; RAG dependencies are installed in isolation automatically, falling back to pip when absent)
-
-When a manual install really is needed (optional, e.g. for a faster mirror):
-
-```bash
-# option 1: uv (recommended — isolated install + mirror acceleration)
-export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-uv sync --directory rag-retrieval-engine
-
-# option 2: pip + mirror
-pip install -r rag-retrieval-engine/requirements.txt \
-  -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-```
-
----
-
-## ⌨️ CLI Reference
-
-Use the global `ind-diag` command (once linked) or `node commands/cli.mjs`.
-
-### Service Management
-
-| Command | Purpose | Example |
-|------|------|------|
-| `start --all` | start all services (background daemon) | `ind-diag start --all --detach` |
-| `start --backend` | start only the backend (3210) | `ind-diag start --backend --detach` |
-| `start --frontend` | start only the frontend (5180) | `ind-diag start --frontend --detach` |
-| `start --rag` | start the RAG engine (8764) | `ind-diag start --rag --detach` |
-| `stop --all` | stop all services | `ind-diag stop --all` |
-| `restart --all` | restart all services | `ind-diag restart --all --detach` |
-| `status` | show service status | `ind-diag status` |
-| `init` | environment check (Node/npm/Python/ports) | `ind-diag init` |
-| `build` | frontend production build | `ind-diag build` |
-| `webfrp` | expose publicly through Cloudflare Tunnel | `ind-diag webfrp` |
-
-> **`--detach` is the recommended form** (background daemon): the command returns immediately and service logs go to `.runtime/*.log`. Without `--detach` the CLI keeps streaming in the foreground and eventually reports `FATAL: Service manager timeout` — the services are unaffected, but the command never finishes cleanly.
-
-### npm Shortcuts
-
-```bash
-npm start              # = ind-diag start --all --detach
-npm run start:backend  # = ind-diag start --backend --detach
-npm run start:frontend # = ind-diag start --frontend --detach
-npm run start:rag      # = ind-diag start --rag --detach
-npm stop               # = ind-diag stop --all
-npm run status         # = ind-diag status
-npm run restart        # = ind-diag restart --all --detach
-npm run build          # = ind-diag build
-npm run init           # = ind-diag init
-```
-
-### Diagnostic Pipeline Scripts (advanced)
+Every API is served by the Express backend (`:3210`); the frontend calls it through the Vite `/api` proxy.
 
 <details>
-<summary><b>🔧 Drive individual pipeline stages by hand</b></summary>
+<summary><b>Health check</b></summary>
 
-```bash
-# 1. create the run directory
-node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
-  --name <scenario-name> --base-dir ./workspace/diagnostic-runs
+```http
+GET /api/health
+```
 
-# 2. data inspection
-node .claude/skills/industrial-analysis-auto/scripts/inspect.mjs \
-  <data-file> --rows 10
-
-# 3. pipeline event log (called automatically during a diagnosis)
-node .claude/shared/scripts/append-pipeline-event.mjs \
-  <run-directory> --event agent_start --agent <agent-name>
-
-# 4. pipeline log validation
-node .claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs \
-  <run-directory>
-
-# 5. JSON Schema validation
-node .claude/shared/scripts/validate.mjs \
-  .claude/shared/schemas/diagnosis_schema.json \
-  workspace/diagnostic-runs/<run>/04_diagnostics/diagnosis.json
-
-# 6. Python venv initialization
-node .claude/shared/scripts/uv_env_setup.mjs \
-  --skill-path .claude/skills/industrial-data-processor
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-09-15T04:09:32.258Z",
+  "uptime": 841.89,
+  "memory": { "rss": "66MB", "heapUsed": "13MB", "heapTotal": "16MB" },
+  "checks": { "database": { "status": "ok" }, "activeRuns": 0 }
+}
 ```
 
 </details>
 
----
+### Core endpoints
 
-## 📊 Usage
+| Category | Endpoint | Method | Purpose |
+|------|------|:----:|------|
+| **Files** | `/api/files/data` | GET | list data files |
+| | `/api/files/data/folder` | POST | create a folder |
+| | `/api/files/data/file/:path` | GET | read file contents |
+| | `/api/files/workspace` | GET | list diagnostic runs |
+| | `/api/files/workspace/report/:name` | GET | fetch a diagnostic report |
+| **Diagnosis** | `/api/diagnosis/start` | POST | start a diagnosis (`harness` / `ontologyMode` / `enhancement` optional) |
+| | `/api/diagnosis/execute/:runId` | POST | execute the diagnosis |
+| | `/api/diagnosis/status/:runId` | GET | query run status |
+| | `/api/diagnosis/snapshot/:runId` | GET | fetch a snapshot |
+| | `/api/diagnosis/stop/:runId` | POST | stop a run |
+| | `/api/diagnosis/list` | GET | list all runs |
+| | `/api/diagnosis/stream/:runId` | GET | SSE event stream |
+| | `/api/diagnosis/enhance/:runId` | POST | **one-click deep enhancement (E0-E8)** |
+| **Ontology assets** | `/api/ontology/assets` | GET | asset-library registry (scene / version / fingerprint) |
+| | `/api/ontology/assets/:scene/:version` | GET | read one ontology asset |
+| | `/api/ontology/assets/:scene/:version/graph` | GET | ontology graph projection |
+| **Chat** | `/api/diagnosis/chat/:runId` | POST | diagnostic conversation |
+| | `/api/diagnosis/hitl/:hitlId` | POST | human approval |
+| | `/api/chat/start` | POST | start a chat session (`harness` optional) |
+| | `/api/chat/stream/:chatId` | GET | SSE chat stream |
+| **Engines** | `/api/harness` | GET | engine registry (14 engines) |
+| | `/api/harness/availability` | GET | per-engine availability and the default engine |
 
-### Option 1: Web UI (recommended) 🌐
+### WebSocket real-time push
 
-1. Start the services: `ind-diag start --all --detach`
-2. Open **http://localhost:5180**
-3. Upload a data file (CSV / XLSX / Parquet)
-4. Fill in the scenario name and the analysis question
-5. Watch the 9-step pipeline progress in real time
-6. Download `report.md` + open `diagnostic-report.html`
-
-### Option 2: Fully Automated Command Line 🖥
-
-```bash
-# create the run directory and start the orchestration
-node .claude/skills/industrial-analysis-auto/scripts/setup.mjs \
-  --name cnc-test --base-dir ./workspace/diagnostic-runs
-
-# the main agent dispatches subagents through Steps 0-9 automatically
-# output lands in workspace/diagnostic-runs/<timestamp>_cnc-test/
+```
+ws://localhost:3210/ws
 ```
 
-### Option 3: Interactive Mode 💬
-
-Three interaction modes are supported (`config/default.yaml` → `diagnosis.interaction_mode`):
-
-| Mode | Behaviour | Best for |
-|------|------|----------|
-| `auto` | fully automatic, zero intervention | batch analysis, production |
-| `interactive` | waits for user confirmation at key decision points | fine-grained control, research analysis |
-| `minimal` | only essential questions | quick validation |
-
-### Browsing Past Diagnoses
-
-```bash
-# list all runs
-ls workspace/diagnostic-runs/
-
-# view a report
-cat workspace/diagnostic-runs/<run>/report.md
-
-# open the HTML on Windows
-start workspace/diagnostic-runs/<run>/diagnostic-report.html
-
-# open the HTML on macOS
-open workspace/diagnostic-runs/<run>/diagnostic-report.html
-```
+Streams diagnostic progress, logs and events in real time (30s heartbeat, 60s timeout).
 
 ---
 
 ## 🔧 Configuration
 
-Configuration precedence: `environment variables` > `config/local.yaml` > `config/default.yaml`
+Precedence: `environment variables` > `config/local.yaml` > `config/default.yaml`
 
 <details>
 <summary><b>📄 Key settings in config/default.yaml</b></summary>
@@ -584,7 +632,7 @@ frontend:
 
 database:
   path: "data/diagnostic.db"
-  journal_mode: "WAL"              # WAL mode improves concurrency
+  journal_mode: "WAL"              # WAL improves concurrency
 
 claude:
   model: "claude-opus-4-7"         # core model
@@ -608,7 +656,7 @@ pipeline:
 
 </details>
 
-### Environment Variable Overrides
+### Environment variable overrides
 
 | Variable | Maps to config | Notes |
 |------|---------|------|
@@ -618,88 +666,35 @@ pipeline:
 | `DIAGNOSIS_DEFAULT_LANGUAGE` | `diagnosis.default_language` | output language |
 | `DIAGNOSIS_INTERACTION_MODE` | `diagnosis.interaction_mode` | interaction mode |
 | `ANTHROPIC_API_KEY` | — | Claude API key |
-| `ANTHROPIC_BASE_URL` | — | API base URL (third-party proxy) |
+| `DEEPSEEK_API_KEY` | — | DeepSeek Harness engine key |
+
+### Interaction modes
+
+| Mode | Behaviour | Best for |
+|------|------|----------|
+| `auto` | fully automatic, zero intervention | batch analysis, production |
+| `interactive` | waits for confirmation at key decision points | fine-grained control, research |
+| `minimal` | only essential questions | quick validation |
 
 ---
 
-## 🔌 API Reference
-
-All APIs are served by the Express backend (port 3210); the frontend calls them through the Vite `/api` proxy.
-
-### Health Check
-
-```http
-GET /api/health
-```
-
-```json
-{
-  "status": "ok",
-  "timestamp": "2026-07-28T15:42:42.258Z",
-  "uptime": 841.89,
-  "memory": { "rss": "66MB", "heapUsed": "13MB", "heapTotal": "16MB" },
-  "checks": { "database": { "status": "ok" }, "activeRuns": 0 }
-}
-```
-
-### Core Endpoints
-
-| Category | Endpoint | Method | Purpose |
-|------|------|:----:|------|
-| **Files** | `/api/files/data` | GET | list data files |
-| | `/api/files/data/folder` | POST | create a folder |
-| | `/api/files/data/file/:path` | GET | read file contents |
-| | `/api/files/workspace` | GET | list diagnostic runs |
-| | `/api/files/workspace/report/:name` | GET | fetch a diagnostic report |
-| **Diagnosis** | `/api/diagnosis/start` | POST | start a new diagnosis (`harness` / `ontologyMode` / `enhancement` optional) |
-| | `/api/diagnosis/execute/:runId` | POST | execute the diagnosis |
-| | `/api/diagnosis/status/:runId` | GET | query run status |
-| | `/api/diagnosis/snapshot/:runId` | GET | fetch a snapshot |
-| | `/api/diagnosis/stop/:runId` | POST | stop a run |
-| | `/api/diagnosis/list` | GET | list all runs |
-| | `/api/diagnosis/stream/:runId` | GET | SSE event stream |
-| | `/api/diagnosis/enhance/:runId` | POST | **one-click deep enhancement (E0-E8)** |
-| **Ontology assets** | `/api/ontology/store` | GET | ontology asset library registry (scenario / version / fingerprint) |
-| **Chat** | `/api/diagnosis/chat/:runId` | POST | diagnostic conversation |
-| | `/api/diagnosis/hitl/:hitlId` | POST | human approval |
-| | `/api/chat/start` | POST | start a chat session (`harness` optional) |
-| | `/api/chat/stream/:chatId` | GET | SSE chat stream |
-| **Harness** | `/api/harness` | GET | engine registry (claude / omp) |
-| | `/api/harness/omp/health` | GET | OMP engine health probe (binary executability) |
-
-### WebSocket Real-Time Push
-
-```
-ws://localhost:3210/ws
-```
-
-Streams diagnostic progress, logs and events in real time (30s heartbeat, 60s timeout).
-
----
-
-## 🐳 Docker Deployment
+## 🐳 Docker deployment
 
 ```bash
-# build and start in the background
-docker compose up -d
-
-# view logs
-docker compose logs -f
-
-# stop
-docker compose down
+docker compose up -d          # build and start in the background
+docker compose logs -f        # view logs
+docker compose down           # stop
 ```
 
-### Data Persistence (Docker Volumes)
+<details>
+<summary><b>Data persistence and multi-architecture support</b></summary>
 
 ```yaml
 volumes:
-  - ./data:/app/data                       # data files
-  - ./workspace:/app/workspace             # diagnostic output
-  - ./config/local.yaml:/app/config/local.yaml:ro  # local config
+  - ./data:/app/data                                # data files
+  - ./workspace:/app/workspace                      # diagnostic output
+  - ./config/local.yaml:/app/config/local.yaml:ro   # local config
 ```
-
-### Multi-Architecture Support
 
 | Architecture | Status | Notes |
 |------|:----:|------|
@@ -707,75 +702,81 @@ volumes:
 | `linux/arm64` | ✅ | Apple Silicon / ARM servers |
 | `windows/amd64` | ✅ | WSL2 environments |
 
-> The Dockerfile is based on `node:22-alpine`, uses a multi-stage build and keeps the image size small.
+> The Dockerfile is based on `node:22-alpine`, uses a multi-stage build and keeps the image small.
+
+</details>
 
 ---
 
-## 🗂 Project Structure
+## 🗂 Project structure
 
-```
+```text
 industrial-deep-diagnostic/
 ├── commands/                       # CLI and service management
 │   ├── cli.mjs                    # unified CLI entry point (ind-diag)
 │   ├── service-manager.mjs        # service lifecycle management
-│   ├── cross-platform.mjs         # cross-platform utility library
-│   └── start-*.bat/.sh            # platform-specific start scripts
+│   └── cross-platform.mjs         # cross-platform utility library
 │
 ├── app/
-│   ├── backend/                   # Express.js backend (port 3210)
+│   ├── backend/                   # Express backend (:3210)
 │   │   └── src/
 │   │       ├── index.mjs          # service entry point
-│   │       ├── routes/            # REST API routes
-│   │       ├── services/          # business logic
+│   │       ├── routes/            # REST routes
+│   │       ├── services/          # business logic (incl. ENGINES dispatch table)
+│   │       ├── harness/           # 14 engine definitions (HARNESS_DEFS)
 │   │       ├── engine/            # diagnostic engine
 │   │       ├── transport/         # WebSocket
 │   │       └── db/                # SQLite (WAL)
 │   │
-│   └── frontend/                  # Vue 3 + Vite frontend (port 5180)
+│   └── frontend/                  # Vue 3 + Vite frontend (:5180)
 │       └── src/
 │           ├── App.vue            # main view
-│           ├── api/               # API client
+│           ├── styles/global.css  # design system (Precision Instrument)
 │           ├── components/        # UI components
+│           ├── i18n/              # zh / en locales
 │           └── stores/            # state management
 │
 ├── .claude/skills/                # 18 skill implementations (single source)
 │   ├── industrial-analysis-auto/  # fully automated orchestrator
 │   ├── industrial-data-processor/ # statistical analysis
 │   ├── industrial-diagnostician/  # competing-hypothesis diagnosis
-│   └── ...                        # scripts/schemas/resources
+│   └── ...                        # scripts / schemas / resources
 │
 ├── .omp/agents/                   # 14 OMP agent definitions
 │   ├── context-builder.md
 │   ├── diagnostician.md
 │   └── ...
 │
-├── rag-retrieval-engine/          # RAG retrieval microservice (port 8764)
+├── rag-retrieval-engine/          # RAG retrieval microservice (:8764)
 │   ├── server.py                  # FastAPI entry point
-│   └── engine/                    # retrieval/scoring/injection engines
+│   └── engine/                    # retrieval / scoring / injection engines
 │
-├── config/
-│   ├── default.yaml               # default configuration
-│   ├── loader.mjs                 # configuration loader
-│   └── local.yaml                 # user overrides (gitignored)
-│
-├── data/                          # sample data & simulated data
+├── config/                        # default.yaml · loader.mjs · local.yaml
+├── data/                          # sample data · ontology asset library
 ├── workspace/diagnostic-runs/     # diagnostic run output
-│   └── <timestamp>_<name>/
-│       ├── 00_input/              # input & configuration
-│       ├── 01_ontology/           # domain ontology
-│       ├── 02_processed/          # statistics & cleaning
-│       ├── 03_figures/            # charts & VLM
-│       ├── 04_diagnostics/        # diagnostic conclusions
-│       ├── 05_review/             # review & audit
-│       ├── report.md              # Chinese diagnostic report
-│       ├── diagnostic-report.html # HTML visualization
-│       └── .pipeline_events.jsonl # event log
-│
-├── docs/                          # documentation & architecture diagrams
-├── Dockerfile                     # multi-stage build
-├── docker-compose.yml             # Docker Compose
+├── scripts/                       # repo tooling (screenshots, design-token scan)
+├── docs/                          # documentation · architecture · screenshots
+├── Dockerfile · docker-compose.yml
 └── package.json
 ```
+
+### Output layout of a single diagnosis
+
+```text
+workspace/diagnostic-runs/<timestamp>_<scene>/
+├── 00_input/          # input data + user context
+├── 01_ontology/       # domain ontology (incl. RAG deep understanding)
+├── 02_processed/      # cleaning / validation / features / anomaly reports
+├── 03_figures/        # visualization charts + VLM analysis
+├── 04_diagnostics/    # diagnosis / evidence / confidence / reasoning chain
+├── 05_review/         # Judge review + HTML review
+├── report.md          # final Chinese report
+├── diagnostic-report.html
+├── optimizer.md       # physical audit verdict (ENDORSED / CONDITIONAL / REJECTED)
+└── .pipeline_events.jsonl   # pipeline event log (proof of execution)
+```
+
+> **Proof of execution**: a run counts as fully executed only once its `.pipeline_events.jsonl` passes `pipeline-log-check.mjs`.
 
 ---
 
@@ -785,11 +786,8 @@ industrial-deep-diagnostic/
 <summary><b>❌ "ind-diag: command not found"</b></summary>
 
 ```bash
-# use the full path
-node commands/cli.mjs status
-
-# or re-register the global command
-npm link
+node commands/cli.mjs status    # use the full path
+npm link                        # or re-register the global command
 ```
 
 </details>
@@ -811,99 +809,66 @@ lsof -ti :3210 | xargs kill -9
 </details>
 
 <details>
-<summary><b>❌ The command hangs after startup / reports "FATAL: Service manager timeout"</b></summary>
+<summary><b>❌ The command hangs, or reports "FATAL: Service manager timeout"</b></summary>
 
-Cause: foreground mode was used (`--detach` omitted). The services may already be running (confirm with `ind-diag status`), but the CLI times out waiting in the foreground.
+Cause: foreground mode was used (no `--detach`). The services may already be running — confirm with `ind-diag status` — but the CLI times out waiting in the foreground.
 
 ```bash
-# switch to background daemon mode
 ind-diag stop --all
 ind-diag start --all --detach
 ```
+
 </details>
 
 <details>
 <summary><b>❌ RAG engine fails to start (Python / venv)</b></summary>
 
-RAG engine dependencies are managed automatically by `rag-retrieval-engine/start.mjs`: detect the system Python → create `.venv` → `uv sync` (or pip) → start.
-
-Diagnose in this order:
 ```bash
-# 1. confirm Python ≥ 3.10
-python --version        # Linux/macOS: python3 --version
-
-# 2. confirm uv or pip exists (either one is enough)
-uv --version || pip --version
-
-# 3. slow network → install manually from a mirror, then restart
+python --version                      # confirm ≥ 3.10
+uv --version || pip --version         # either one is enough
+# slow network: install from a mirror
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 uv sync --directory rag-retrieval-engine
 ind-diag restart --all --detach
 ```
 
-If it still fails, check the log: `.runtime/rag.log`
+Still failing? Check `.runtime/rag.log`.
+
 </details>
 
 <details>
-<summary><b>❌ Services are up but a diagnosis cannot be started (Claude-related errors)</b></summary>
+<summary><b>❌ Services are up but a diagnosis cannot be started</b></summary>
 
-The diagnostic pipeline is driven by the Claude Code CLI and requires:
+The pipeline is driven by the selected execution engine, whose CLI must be signed in:
 
 ```bash
-# 1. confirm Claude Code is installed
-claude --version
-
-# 2. confirm you are logged in or an API key is configured (optionally in .env)
-cp .env.example .env   # then edit ANTHROPIC_API_KEY
-
-# 3. see config/default.yaml → the claude section (model and binary name are configurable)
+claude --version              # or omp --version / codex --version
+cp .env.example .env          # then fill in the matching API key
 ```
+
+You can also switch to an installed engine in the sidebar — engines that are not installed are greyed out and marked "offline".
+
 </details>
 
 <details>
 <summary><b>❌ The frontend page is blank</b></summary>
 
 ```bash
-# 1. confirm the backend is running
-curl http://localhost:3210/api/health
-
-# 2. rebuild the frontend
-cd app/frontend && npx vite build
-
-# 3. clear the Vite cache
-rm -rf app/frontend/node_modules/.vite
+curl http://localhost:3210/api/health     # confirm the backend is up
+cd app/frontend && npx vite build         # rebuild
+rm -rf app/frontend/node_modules/.vite    # clear the Vite cache
 ```
 
 </details>
 
 <details>
-<summary><b>❌ No diagnostic report is produced / the pipeline is stuck</b></summary>
+<summary><b>❌ No report is produced / the pipeline is stuck</b></summary>
 
 ```bash
-# inspect the pipeline event log
-cat workspace/diagnostic-runs/<run>/.pipeline_events.jsonl
-
-# validate pipeline integrity
+cat workspace/diagnostic-runs/<run>/.pipeline_events.jsonl      # inspect the event log
 node .claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs \
-  workspace/diagnostic-runs/<run>
-
-# inspect the artifact of each step
-ls -la workspace/diagnostic-runs/<run>/
-```
-
-</details>
-
-<details>
-<summary><b>❌ RAG engine dependency download is slow</b></summary>
-
-```bash
-# use the Tsinghua mirror
-export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-uv sync --directory rag-retrieval-engine
-
-# or the pip mirror
-pip install -r rag-retrieval-engine/requirements.txt \
-  -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+  workspace/diagnostic-runs/<run>                               # validate pipeline integrity
+ls -la workspace/diagnostic-runs/<run>/                         # inspect each stage's artifacts
 ```
 
 </details>
@@ -912,49 +877,37 @@ pip install -r rag-retrieval-engine/requirements.txt \
 
 ## 🤝 Contributing
 
-### Development Workflow
+### Development workflow
 
 1. Fork this repository
 2. Create a feature branch: `git checkout -b feat/my-feature`
-3. Commit your changes (following Conventional Commits)
+3. Commit your changes (Conventional Commits)
 4. Push and open a Pull Request
 
-### Commit Convention
+### Commit convention
 
-```
+```text
 feat:     new feature       fix:      bug fix
 docs:     documentation     refactor: refactor
-test:     tests             chore:    build/tooling
+test:     tests             chore:    build / tooling
 style:    formatting        perf:     performance
 ```
 
-### Extending the Diagnostic Pipeline (adding a new skill)
+### Extending the pipeline (adding a skill)
 
-1. Define the skill entry point in `.claude/skills/<name>/SKILL.md` (scripts + Schema + protocol)
+1. Define the skill entry point in `.claude/skills/<name>/SKILL.md` (scripts + schema + protocol)
 2. Define the agent in `.omp/agents/<name>.md` (OMP contract: name + description + tools + model)
-3. Register the step in `industrial-analysis-auto/SKILL.md`
+3. Register the stage in `industrial-analysis-auto/SKILL.md`
 4. Add the matching JSON Schema under `.claude/shared/schemas/`
+5. **After any change to `.claude/skills/`, run `node scripts/sync-harness-skills.mjs`** to regenerate the mirror directories (`--check` is the drift guard; it exits 1 on drift)
 
----
+### Frontend design system
 
-## 📄 English Overview
+The console follows the "Precision Instrument" design system defined in `app/frontend/src/styles/global.css` — warm iron graphite with a single phosphor-amber accent. New components **must** use the design tokens; hardcoded colour literals are not accepted:
 
-**Industrial Deep Diagnostic** is an end-to-end automated root-cause analysis system for industrial sensor and process data. It runs a **9-step diagnostic pipeline** powered by **18 specialized skills** and **14 dedicated agents**, producing Chinese-language diagnostic reports and interactive HTML visualizations.
-
-**Key principles:**
-- **Diagnosis = Elimination, not confirmation.** Every conclusion must satisfy physical mechanism + statistical validation + temporal alignment + no counter-evidence.
-- **Evidence-graded conclusions** (L1–L7) with full traceability to source data rows.
-- **Anti-spurious-correlation** statistical pipeline (v6.4–v6.7): lag-CCF, steady-state filtering, batch integrity, leave-one-out leverage check.
-- **9 checkpoint gates** (CP-1 ~ CP-9) ensure quality at every pipeline stage.
-- **Honest uncertainty:** outputs `DETERMINED`, `COMPETING_SET`, or `NEEDS_DATA` — never fabricates conclusions.
-
-**Quick start:**
 ```bash
-git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
-cd industrial-deep-diagnostic
-npm install
-npm link                    # register the global ind-diag command (optional; without privileges use node commands/cli.mjs)
-ind-diag start --all --detach     # → http://localhost:5180
+python scripts/scan-design-tokens.py                  # scan for off-palette literals (currently 0)
+python scripts/scan-design-tokens.py --fail-on-cool   # CI guard (exits 1 if any are found)
 ```
 
 ---
@@ -965,7 +918,10 @@ ind-diag start --all --detach     # → http://localhost:5180
 
 ---
 
-<p align="center">
-  <sub>Built with ❤️ for the industrial AI community</sub><br>
-  <sub>If this project helps you, please consider giving it a ⭐ on GitHub</sub>
-</p>
+<div align="center">
+
+<sub><b>Industrial Deep Diagnostic</b> · built for the industrial AI community</sub><br/>
+<sub>If this project helps you, please consider giving it a ⭐</sub><br/><br/>
+<b>English</b> · <a href="README-zh.md">简体中文</a>
+
+</div>
