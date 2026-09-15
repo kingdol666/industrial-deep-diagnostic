@@ -15,6 +15,10 @@ const { data: uploadsData, refresh: refreshUploads } = await useFetch('/api/uplo
 // ---------------------------------------------------------------- upload
 const fileInput = ref(null);
 const file = ref(null);
+const trainingInput = ref(null);
+const trainingFile = ref(null);
+const labelColumn = ref('');
+const causeList = ref('');
 const dragging = ref(false);
 const label = ref('');
 const processDescription = ref('');
@@ -43,6 +47,11 @@ async function doUpload() {
     fd.append('label', label.value);
     fd.append('process_description', processDescription.value);
     fd.append('calibration_fraction', String(calibration.value / 100));
+    // Optional: labelled examples unlock the supervised classifiers; a cause list
+    // unlocks the FaultExplainer protocol with candidates that fit this process.
+    if (trainingFile.value) fd.append('training', trainingFile.value);
+    if (labelColumn.value) fd.append('label_column', labelColumn.value);
+    if (causeList.value) fd.append('cause_list', causeList.value);
     const res = await $fetch('/api/uploads', { method: 'POST', body: fd });
     upload.value = res.upload;
     inspection.value = await $fetch(`/api/uploads/${res.upload.upload_id}`);
@@ -50,6 +59,8 @@ async function doUpload() {
     await refreshUploads();
     file.value = null;
     if (fileInput.value) fileInput.value.value = '';
+    trainingFile.value = null;
+    if (trainingInput.value) trainingInput.value.value = '';
   } catch (e) {
     uploadError.value = String(e?.data?.statusMessage || e.message);
   } finally { uploading.value = false; }
@@ -246,6 +257,38 @@ const fmtSec = (s) => (s == null ? '—' : `${Number(s).toFixed(1)}s`);
             否则持续故障会把自己所在的标准差撑大而被掩蔽。
           </div>
           <div class="spacer-y" />
+          <details>
+            <summary>可选：解锁更多算法（监督分类器 / FaultExplainer 协议）</summary>
+            <div class="tiny muted" style="margin: 6px 0">
+              不填也能跑 —— 但 <code>xgb-gbdt</code>/<code>rf-forest</code>/<code>mlp-classifier</code>
+              是分类器，没有带标签样本就无法学习，会<strong>如实拒绝</strong>而不是编造类别；
+              <code>fe-official</code> 的 EXPLAIN_ROOT 需要一个候选成因清单，不给就开放式推理。
+            </div>
+
+            <label class="row" style="display: block">
+              <span class="tiny muted">① 带标签训练集 CSV（含 label/class/fault 列）</span>
+              <div class="toolbar" style="margin-top: 4px">
+                <input ref="trainingInput" type="file" accept=".csv,.tsv,.txt,text/csv"
+                       @change="trainingFile = $event.target.files?.[0] || null" style="font-size: 12px" />
+                <span v-if="trainingFile" class="badge info">{{ trainingFile.name }}</span>
+              </div>
+            </label>
+            <div class="spacer-y" />
+            <label class="row" style="display: block">
+              <span class="tiny muted">② 标签列名（留空则自动识别 label/class/fault/y/target）</span>
+              <input v-model="labelColumn" type="text" placeholder="例如 fault_code" style="width: 100%" />
+            </label>
+            <div class="spacer-y" />
+            <label class="row" style="display: block">
+              <span class="tiny muted">③ 候选成因清单（每行一条，可写「编号: 描述」）</span>
+              <textarea v-model="causeList" rows="4"
+                placeholder="C1: 冷却水阀卡涩/开度不足&#10;C2: 冷却水过滤器堵塞&#10;C3: 泵扬程下降"
+                style="width: 100%; font: inherit; font-size: 12px; padding: 6px 8px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-inset); color: var(--ink); resize: vertical"
+              />
+            </label>
+          </details>
+
+          <div class="spacer-y" />
           <button class="primary" :disabled="uploading || !file" @click="doUpload">
             {{ uploading ? '上传解析中…' : '上传并解析' }}
           </button>
@@ -277,6 +320,16 @@ const fmtSec = (s) => (s == null ? '—' : `${Number(s).toFixed(1)}s`);
               </template>
               <template v-if="upload?.dropped_non_numeric?.length">
                 <dt>丢弃非数值列</dt><dd>{{ upload.dropped_non_numeric.join(', ') }}</dd>
+              </template>
+              <template v-if="upload?.training">
+                <dt>训练集</dt>
+                <dd>
+                  {{ upload.training.rows }} 行 · {{ upload.training.classes }} 类 ·
+                  label 列 <code>{{ upload.training.label_column }}</code>
+                </dd>
+              </template>
+              <template v-if="upload?.cause_list">
+                <dt>候选成因</dt><dd>{{ upload.cause_list.length }} 条</dd>
               </template>
             </dl>
             <details :open="parsedDetails" style="margin-top: 8px">

@@ -43,7 +43,7 @@ export const meta = {
   requiresProvider: false,
   needsReference: false,
   needsTraining: true,
-  domains: ['tep'],
+  domains: ['tep', 'custom'],
   description:
     'Autoencoder (52->16->6->16->52, tanh, linear output) trained by hand-written backpropagation with MSE loss on the NORMAL TEP run only; per-row squared reconstruction error scored against its 99th training-percentile threshold, residual ranking mapped to TEP causes through the published variable-affinity table.',
   provenance: {
@@ -70,7 +70,29 @@ const MIN_ALARM_RATE = 0.05;
 
 let CORPUS = null;
 
-function loadCorpus() {
+/**
+ * The "normal" corpus the autoencoder trains on.
+ *
+ * TEP  -> the normal rows of FaultExplainer's labelled runs (published protocol).
+ * UPLOAD -> the upload's own CALIBRATION SEGMENT. The AE is unsupervised, so an
+ *   unlabelled record is enough; this is what makes it usable on a user's
+ *   process. It is never cached process-wide, because a model trained on one
+ *   user's record must not be reused for another's.
+ */
+function loadCorpus(override = null) {
+  if (override) {
+    const X = override.X.map((r) => Array.from(r));
+    if (!X.length) throw new Error('calibration segment is empty — nothing to train the autoencoder on');
+    return {
+      cols: override.cols.slice(),
+      X,
+      normal: X.map((_, i) => i),
+      labelNames: ['Normal (upload calibration segment)'],
+      source: override.source,
+      totalRows: X.length,
+      from_upload: true,
+    };
+  }
   if (CORPUS) return CORPUS;
   const t = loadFeTrainingSet();
   const normal = [];
@@ -83,6 +105,7 @@ function loadCorpus() {
     labelNames: t.labelNames,
     source: t.source,
     totalRows: t.X.length,
+    from_upload: false,
   };
   return CORPUS;
 }
@@ -318,9 +341,10 @@ function configKey(m) {
   });
 }
 
-function fit() {
+function fit(corpus) {
   const t0 = Date.now();
-  const corpus = loadCorpus();
+    // Corpus is PASSED IN: getModel already resolved and cache-keyed the correct one.
+    // Re-loading here would train on TEP while the cache claimed an upload entry.
   const m = corpus.cols.length;
   const n = corpus.normal.length;
 
@@ -405,10 +429,12 @@ function fit() {
   };
 }
 
-function getModel(m) {
-  const key = configKey(m);
+function getModel(m, corpus = null) {
+  // The corpus is part of the cache key: a TEP model and an upload model of the
+  // same width must never share an entry, or one user's normal would score another's.
+  const key = configKey(m) + '|' + (corpus?.from_upload ? corpus.source + ':' + corpus.totalRows : 'tep');
   const hit = MODEL_CACHE.has(key);
-  if (!hit) MODEL_CACHE.set(key, fit());
+  if (!hit) MODEL_CACHE.set(key, fit(corpus || loadCorpus()));
   return { model: MODEL_CACHE.get(key), cached: hit };
 }
 
@@ -439,16 +465,27 @@ function notApplicable(ctx, t0) {
 export async function run(ctx) {
   const t0 = Date.now();
   const caseDef = ctx.caseDef;
-  if (!caseDef || caseDef.dataset !== 'tep') return notApplicable(ctx, t0);
+  const isUpload = ctx.is_upload === true || caseDef?.dataset === 'custom' || Boolean(caseDef?.upload);
 
-  const corpus = loadCorpus();
+  if (!isUpload && caseDef?.dataset !== 'tep') return notApplicable(ctx, t0);
+
+  // Trained on the same columns as the record under test, so alignment is exact
+  // and the "normal" definition comes from the user's own calibration segment.
+  const corpus = isUpload && ctx.reference?.matrix
+    ? loadCorpus({
+        X: ctx.reference.matrix.X,
+        cols: ctx.reference.matrix.colNames,
+        source: 'upload-calibration-segment',
+      })
+    : loadCorpus();
+
   const m = corpus.cols.length;
   const perm = alignmentPerm(corpus.cols, ctx.matrix.colNames);
   const win = ctx.faultWindow;
   const rows = ctx.matrix.X.slice(win.start, win.end);
   if (!rows.length) throw new Error(`empty fault window for ${caseDef.case_id}`);
 
-  const { model, cached } = getModel(m);
+  const { model, cached } = getModel(m, corpus);
 
   const scoreRow = (row) => {
     const z = new Float64Array(m);

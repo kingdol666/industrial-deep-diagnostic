@@ -122,6 +122,30 @@ export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, a
   return { ok: r.ok, answer: parsed, invocation, raw: String(r.text || '') };
 }
 
+/**
+ * Render one hypothesis entry as a readable string.
+ *
+ * Models sometimes return objects instead of strings
+ * (`"top3": [{"cause": "...", "confidence": 0.8}]`). `String(obj)` yields
+ * "[object Object]", which is what the UI then displays — a real run did exactly
+ * that. Pull the descriptive field out instead.
+ */
+function hypothesisToString(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string') return v.trim();
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (typeof v === 'object') {
+    const pick = firstString(v, [
+      'cause', 'root_cause', 'name', 'description', 'label', 'hypothesis',
+      'fault', 'idv', 'mechanism', 'finding', 'title', 'text', 'id',
+    ]);
+    if (pick) return pick;
+    // Last resort: a compact single-line JSON, never "[object Object]".
+    try { return JSON.stringify(v).slice(0, 300); } catch { return ''; }
+  }
+  return String(v);
+}
+
 /** First present value from `keys` that is a non-empty string. */
 function firstString(obj, keys) {
   for (const k of keys) {
@@ -131,11 +155,11 @@ function firstString(obj, keys) {
   return '';
 }
 
-/** First present value from `keys` that is a non-empty array of strings. */
+/** First present value from `keys` that is a non-empty array. */
 function firstArray(obj, keys) {
   for (const k of keys) {
     const v = obj?.[k];
-    if (Array.isArray(v) && v.length) return v.map(String).filter(Boolean);
+    if (Array.isArray(v) && v.length) return v.map(hypothesisToString).filter(Boolean);
   }
   return [];
 }

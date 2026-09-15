@@ -23,6 +23,9 @@ export default defineEventHandler(async (event) => {
 
   const field = (name) => parts.find((p) => p.name === name && !p.filename)?.data?.toString('utf8') ?? '';
   const filePart = parts.find((p) => (p.name === 'file' || p.name === 'data') && p.filename);
+  // Optional second file: labelled examples that make the supervised comparators
+  // runnable on a user's own process.
+  const trainingPart = parts.find((p) => p.name === 'training' && p.filename);
 
   if (!filePart) {
     throw createError({
@@ -38,8 +41,12 @@ export default defineEventHandler(async (event) => {
     const meta = createUpload(filePart.data, filePart.filename, {
       label: field('label'),
       process_description: field('process_description'),
+      cause_list: field('cause_list'),
       calibration_fraction: field('calibration_fraction') || undefined,
       notes: field('notes'),
+      training_buffer: trainingPart?.data,
+      training_filename: trainingPart?.filename,
+      label_column: field('label_column'),
     });
     return {
       ok: true,
@@ -48,7 +55,9 @@ export default defineEventHandler(async (event) => {
       // real shape of what it accepted rather than a generic success toast.
       summary:
         `Accepted ${meta.original_name}: ${meta.rows} rows x ${meta.numeric_columns} numeric columns`
-        + (meta.dropped_non_numeric.length ? `; dropped ${meta.dropped_non_numeric.length} non-numeric column(s)` : ''),
+        + (meta.dropped_non_numeric.length ? `; dropped ${meta.dropped_non_numeric.length} non-numeric column(s)` : '')
+        + (meta.training ? `; training set: ${meta.training.rows} rows, ${meta.training.classes} classes (label '${meta.training.label_column}')` : '')
+        + (meta.cause_list ? `; cause list: ${meta.cause_list.length} candidates` : ''),
     };
   } catch (err) {
     throw createError({ statusCode: 400, statusMessage: String(err && err.message ? err.message : err) });

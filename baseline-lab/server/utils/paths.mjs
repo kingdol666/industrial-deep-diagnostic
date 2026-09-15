@@ -253,6 +253,13 @@ export function uploadCaseDef(uploadId) {
       columns: meta.columns,
       dropped_non_numeric: meta.dropped_non_numeric,
       calibration_fraction: meta.calibration_fraction,
+      // Optional user-supplied domain knowledge. Both are what make the
+      // TEP-scoped comparators usable on an arbitrary process:
+      //   cause_list -> the FaultExplainer protocol's candidate list
+      //   training   -> labelled examples for the supervised classifiers
+      cause_list: meta.cause_list || null,
+      training: meta.training || null,
+      process_description: meta.process_description || '',
     },
   };
 }

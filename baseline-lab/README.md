@@ -64,10 +64,18 @@ forest) are implemented in `server/utils/linalg.mjs` and the algorithm modules.
 | `mlp-classifier` | MLP 156→64→32→16, ReLU + softmax, real backprop, momentum SGD |
 | `ae-reconstruction` | Autoencoder 52→16→6→16→52, trained on normal rows only, MSE threshold |
 
-Trained **only** on `baselines/FaultExplainer/backend/data/fault*.csv` (real
-labelled TEP runs). They declare `domains: ['tep']` and return
-`applicable: false` with an empty verdict on SKAB/IndPenSim rather than
-fabricating a prediction.
+For the TEP benchmark cases these are trained on
+`baselines/FaultExplainer/backend/data/fault*.csv` (real labelled TEP runs) —
+that protocol is unchanged. On an **uploaded** dataset the three classifiers
+(`xgb-gbdt`, `rf-forest`, `mlp-classifier`, `domains: ['tep', 'custom']`) instead
+train on the **labelled training file the user supplies** together with their
+data: feature columns are joined to the diagnosis columns *by name* (a mismatch
+is a hard error, never a silent misalignment) and the class labels are the user's
+own strings, so no TEP fault name can be emitted for user data. Without such a
+file they return `status: 'not_applicable'` with the reason — no class is
+invented and no unsupervised detector is substituted. On SKAB/IndPenSim there are
+no labels at all, so they still return `applicable: false` with an empty verdict
+rather than fabricating a prediction.
 
 ### LLM comparators (genuine provider calls — never fabricated)
 
@@ -350,16 +358,37 @@ the observed transcripts, including that a prose mention of the word
 
 ### Which algorithms can run on your data
 
-| Runs | Why |
-|---|---|
-| `pca-t2-spe`, `kpca-rbf`, `ica-fastica`, `spc-ewma-cusum`, `knn-fdd`, `iforest` | Domain-agnostic detectors. They report **contributing variables** and detection statistics. |
-| `llm-direct`, `llm-cot`, `llm-react`, `llm-debate` | Reason over the statistical digest plus whatever process description you supply. This is where **mechanism hypotheses** come from. |
+**All 15.** None is a dead entry on the page. What differs is the input each one
+needs, and a missing input produces an explicit refusal with instructions rather
+than a fabricated result.
 
-| Refuses (reported as `not_applicable`, with the reason) | Why |
+| Algorithms | What they need | Output |
+|---|---|---|
+| `pca-t2-spe`, `kpca-rbf`, `ica-fastica`, `spc-ewma-cusum`, `knn-fdd`, `iforest` | nothing beyond the upload — thresholds come from the calibration split | **contributing variables** + detection statistics |
+| `ae-reconstruction` | nothing beyond the upload — the autoencoder is unsupervised and trains on the calibration segment | detection + contributing variables |
+| `llm-direct`, `llm-cot`, `llm-react`, `llm-debate` | a process description helps a lot | **mechanism hypotheses** |
+| `fe-official` (FaultExplainer's published protocol) | nothing, but a candidate cause list makes it much sharper | mechanism hypothesis, from a scaler + PCA basis **fitted to your own process** |
+
+| Refuses until you supply something | What unlocks it |
 |---|---|
-| `fe-official` | FaultExplainer's protocol is TEP-specific (its scaler, PCA basis and EXPLAIN_ROOT cause list). |
-| `xgb-gbdt`, `rf-forest`, `mlp-classifier` | Trained on labelled TEP runs; they cannot classify a different process. |
-| `ae-reconstruction` | Its threshold was calibrated on the TEP normal run and does not transfer to another dataset's per-row scale. |
+| `xgb-gbdt`, `rf-forest`, `mlp-classifier` | a **labelled training CSV** (uploaded alongside your data, with a `label`/`class`/`fault` column). These are classifiers: they learn from examples, and with no labels there is nothing to learn. Inventing class names would be fabrication, so they refuse and say exactly what to upload instead. |
+
+Two of the previously TEP-only algorithms were made genuinely usable rather than
+merely documented as inapplicable:
+
+- **`fe-official`** — the FaultExplainer *protocol* is generic (standardise →
+  PCA to 90% variance → T² against an F-distribution limit → trigger on
+  consecutive violations → rank T² contributions → explain). Only two inputs were
+  TEP artefacts: **where the scaler/PCA basis is trained**, and **which candidate
+  causes the prompt offers**. Both are now substitutable — the basis is fitted on
+  your calibration segment, and the cause list comes from your upload. Without a
+  cause list the model reasons open-ended and is explicitly told *not* to answer
+  with TEP IDV labels. The published TEP path is untouched and still passes the
+  21/21 fidelity gate at ~1e-12.
+- **`ae-reconstruction`** — an autoencoder is unsupervised; it needs "normal",
+  not labels. It now trains on the upload's calibration segment. The model cache
+  is keyed on the corpus source, so a model trained on one user's record can
+  never be reused to score another's.
 
 Refusals are announced in the event stream and in the report — a selected
 algorithm that cannot run is never silently dropped, and never given a
@@ -489,11 +518,23 @@ Recorded in the audit page as `citation_only`, not hidden:
 - **Published XGBoost/LSTM/BeatGAN numbers are citation-only** — different task
   (per-sample detection vs root-cause). `xgb`/`rf`/`mlp`/`ae` are same-family
   models measured on *this* benchmark.
-- **Supervised models are TEP-only** and return `applicable: false` elsewhere.
-  Known caveats from their verification: a training/evaluation window mismatch
-  (80 vs 800 samples), XGB train accuracy 1.000 (interpolates 336 samples), and
-  the AE's calibration does not transfer per-row between the two TEP encodings.
-  These are reported, not tuned away.
+- **The supervised classifiers need labels.** On the benchmark they train on
+  FaultExplainer's TEP runs; on an upload they train on the user's own labelled
+  file, and refuse with instructions until one is supplied. Their TEP-side
+  caveats: a training/evaluation window mismatch (80 vs 800 samples), XGB train
+  accuracy 1.000 (interpolates 336 samples), and the AE's calibration not
+  transferring per-row between the two TEP encodings. On the user path the
+  monitored window is scored in the same *w*-row windows the model was trained on
+  (a single whole-record aggregate is out of distribution for short-window
+  training), and that choice is reported as `scored_windows` /
+  `window_agreement`. These are reported, not tuned away.
+- **The FE protocol's sensitivity depends on the calibration segment you choose.**
+  On an upload the scaler/PCA basis is fitted to that segment, so if the segment
+  is not representative of normal operation the T² limit inherits that. Feeding a
+  TEP file with a 25% split is a concrete example: the published fault onset is
+  at row 161, so the first 25% (240 rows) already contains ~80 fault rows and the
+  trigger does not fire. The page states the risk; the fix is a calibration
+  fraction that ends before the fault.
 - **`tep_d00_normal_control` has 2 missing archived LLM answers** in the
   repository's own archive.
 - **The 12-scenario set is small.** Wilson intervals are reported everywhere, but

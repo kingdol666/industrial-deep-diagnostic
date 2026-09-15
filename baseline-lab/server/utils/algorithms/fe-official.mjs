@@ -46,7 +46,7 @@ export const meta = {
   statistical_frontend_deterministic: true,
   requiresProvider: true,
   needsReference: false,
-  domains: ['tep'],
+  domains: ['tep', 'custom'],
   description:
     "FaultExplainer's published pipeline reproduced from its source: StandardScaler on fault0.csv, PCA(n_components=0.9), T² with an F-distribution control limit (alpha=0.01), consecutive-anomaly trigger, top-6 T²-contribution features, then FE's EXPLAIN_ROOT prompt with the 15 documented TEP causes.",
   provenance: {
@@ -127,19 +127,41 @@ let cachedModel = null;
  * order (which is identical to XMEAS_1..41,XMV_1..11, verified by
  * scripts/check-fe-scaler.mjs).
  */
-export function fitFeModel({ trainingFile = null } = {}) {
-  if (cachedModel && !trainingFile) return cachedModel;
-  const file = trainingFile || repoPath('baselines', 'FaultExplainer', 'backend', 'data', 'fault0.csv');
-  if (!exists(file)) throw new Error(`FE training file missing: ${file}`);
+export function fitFeModel({ trainingFile = null, trainMatrix = null, colNames = null } = {}) {
+  // Benchmark path: exactly as published, and cached process-wide.
+  if (cachedModel && !trainingFile && !trainMatrix) return cachedModel;
 
-  const { header, rows } = readCsv(file);
-  const keep = TEP_TAG_ORDER.map((t) => header.indexOf(t));
-  const missing = TEP_TAG_ORDER.filter((t, i) => keep[i] < 0);
-  if (missing.length) throw new Error(`FE training file missing TEP tags: ${missing.join(', ')}`);
+  let X;
+  let cols;
+  let sourceFile = trainingFile;
 
-  const X = rows.map((r) => keep.map((j) => Number(r[j])));
+  if (trainMatrix) {
+    // User-supplied basis: the SAME protocol fitted on the process under
+    // diagnosis. Never cached globally — a model fitted on one user's record must
+    // not be reused for another's.
+    X = trainMatrix.X.map((r) => Array.from(r));
+    cols = colNames || trainMatrix.colNames;
+    sourceFile = null;
+  } else {
+    const file = trainingFile || repoPath('baselines', 'FaultExplainer', 'backend', 'data', 'fault0.csv');
+    if (!exists(file)) throw new Error(`FE training file missing: ${file}`);
+    const { header, rows } = readCsv(file);
+    const keep = TEP_TAG_ORDER.map((tag) => header.indexOf(tag));
+    const missing = TEP_TAG_ORDER.filter((tag, i) => keep[i] < 0);
+    if (missing.length) throw new Error(`FE training file missing TEP tags: ${missing.join(', ')}`);
+    X = rows.map((r) => keep.map((j) => Number(r[j])));
+    sourceFile = file;
+    cols = TEP_TAG_ORDER.slice();
+  }
+
   const n = X.length;
   const m = X[0].length;
+  if (n < m + 2) {
+    throw new Error(
+      `FE protocol needs more training rows than variables: got ${n} rows for ${m} columns. `
+      + 'Increase the calibration fraction or upload a longer record.',
+    );
+  }
 
   // ---- StandardScaler: mean + population std over ALL rows (ddof=0)
   const mu = new Array(m).fill(0);
@@ -177,8 +199,13 @@ export function fitFeModel({ trainingFile = null } = {}) {
   const scaling = (a * (n - 1) * (n + 1)) / (n * (n - a));
   const t2Threshold = scaling * fPpf(1 - FE_CONFIG.alpha, a, n - a);
 
-  const model = { mu, sd, P, lamda, a, m, n, t2Threshold, scaling, trainingFile: file, colNames: TEP_TAG_ORDER.slice() };
-  if (!trainingFile) cachedModel = model;
+  const model = {
+    mu, sd, P, lamda, a, m, n, t2Threshold, scaling,
+    trainingFile: sourceFile,
+    colNames: cols.slice(),
+    fitted_on_upload: Boolean(trainMatrix),
+  };
+  if (!trainingFile && !trainMatrix) cachedModel = model;
   return model;
 }
 
@@ -230,11 +257,13 @@ export function findTrigger(stats, k = FE_CONFIG.fault_trigger_consecutive_step)
 }
 
 /** Align a benchmark case matrix to FE's column order. */
-export function alignCaseToFe(matrix) {
-  const idx = TEP_TAG_ORDER.map((tag) => {
-    const canon = TEP_TAG_TO_CANON_LOCAL(tag);
-    return matrix.colNames.indexOf(canon);
-  });
+export function alignCaseToFe(matrix, model = null) {
+  // With a model fitted on the upload, the required columns are that model's own
+  // columns (the user's tags). Otherwise the published 52 TEP variables.
+  const wanted = model?.fitted_on_upload
+    ? model.colNames
+    : TEP_TAG_ORDER.map((tag) => TEP_TAG_TO_CANON_LOCAL(tag));
+  const idx = wanted.map((name) => matrix.colNames.indexOf(name));
   if (idx.some((i) => i < 0)) return null;
   return matrix.X.map((r) => idx.map((j) => r[j]));
 }
@@ -245,7 +274,8 @@ function TEP_TAG_TO_CANON_LOCAL(tag) {
 }
 
 /** Build FE's diagnosis prompt from the top-6 contributing features. */
-export function buildFePrompt(model, stats, triggerIdx, featureTable) {
+export function buildFePrompt(model, stats, triggerIdx, featureTable, opts = {}) {
+  const { causeList = null, processDescription = '', isUpload = false } = opts;
   const lines = [];
   lines.push('You will be given the top six contributing features to the fault.');
   lines.push('');
@@ -260,6 +290,22 @@ export function buildFePrompt(model, stats, triggerIdx, featureTable) {
   lines.push(`Trigger sample index: ${triggerIdx} (1-based row ${triggerIdx + 1}).`);
   lines.push(`T² statistic at trigger: ${stats[triggerIdx].t2.toFixed(4)} (control limit ${model.t2Threshold.toFixed(4)}).`);
   lines.push('');
+  if (processDescription) {
+    lines.push('');
+    lines.push('Process description (supplied with this dataset):');
+    lines.push(processDescription);
+  }
+  if (causeList?.length) {
+    lines.push('');
+    lines.push('Candidate root causes for THIS process (supplied with this dataset — choose from these):');
+    for (const c of causeList) lines.push(`- ${c.id}: ${c.description}`);
+  } else if (isUpload) {
+    lines.push('');
+    lines.push('No fixed candidate cause list was supplied for this process. Reason from the feature deviations, '
+      + 'the process description above, and standard engineering principles, and name the root cause in your own terms. '
+      + 'Do NOT answer with Tennessee Eastman IDV labels — this is not a TEP dataset.');
+    return `${EXPLAIN_ROOT.replace(/\*\*Available Root Causes\*\*[\s\S]*$/, '')}\n${lines.join('\n')}\n`;
+  }
   lines.push('Output STRICT JSON only: {"top3": ["<root cause id/name>", ...], "reasoning": "<your coherent paragraph>"}');
   return `${EXPLAIN_ROOT}\n${lines.join('\n')}\n`;
 }
@@ -270,26 +316,48 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
   const t0 = Date.now();
   const { caseDef, matrix } = ctx;
 
-  if (caseDef.dataset !== 'tep') {
+  // The FE *protocol* is generic: standardise, PCA to 90% variance, T² against an
+  // F-distribution limit, trigger on consecutive violations, rank contributions,
+  // then explain. Only two inputs are TEP artefacts — WHERE the scaler/PCA basis
+  // is trained, and WHICH candidate causes the prompt offers. Both can be
+  // supplied for a user's process, which makes the published protocol usable
+  // rather than merely quotable.
+  const isUpload = ctx.is_upload === true || caseDef.dataset === 'custom' || Boolean(caseDef.upload);
+
+  if (!isUpload && caseDef.dataset !== 'tep') {
     return {
       status: 'not_applicable',
       top3: [],
       verdict: null,
       reasoning:
-        "FaultExplainer's official protocol is defined for the Tennessee Eastman process (TEP) only; its training scaler, PCA basis and EXPLAIN_ROOT cause list are TEP-specific, so it is not applied to this domain.",
+        "FaultExplainer's published protocol is applied to the Tennessee Eastman process here. "
+        + 'Upload a dataset to run it with a scaler and PCA basis fitted to your own process.',
       invocations: [],
       runtime_ms: Date.now() - t0,
     };
   }
 
-  const model = fitFeModel();
-  const aligned = alignCaseToFe(matrix);
+  // ---- fit the basis: the user's own calibration segment, or FE's normal run --
+  let model;
+  let trainingNote;
+  if (isUpload && ctx.reference?.matrix) {
+    const ref = ctx.reference.matrix;
+    model = fitFeModel({ trainMatrix: ref, colNames: matrix.colNames });
+    trainingNote =
+      `scaler + PCA basis fitted on the first ${ref.n} rows of THIS upload `
+      + `(${ctx.reference.source}); the published TEP basis was not used`;
+  } else {
+    model = fitFeModel();
+    trainingNote = `scaler + PCA basis trained on FaultExplainer's own normal run (${String(model.trainingFile).replace(/\\/g, '/')})`;
+  }
+
+  const aligned = alignCaseToFe(matrix, model);
   if (!aligned) {
     return {
       status: 'error',
       top3: [],
       verdict: null,
-      reasoning: 'Could not align the case matrix to the 52 TEP variables required by the FE protocol.',
+      reasoning: 'Could not align the case matrix to the columns this FE model was fitted on.',
       invocations: [],
       runtime_ms: Date.now() - t0,
     };
@@ -301,8 +369,11 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
   const anomalyCount = stats.filter((s) => s.anomaly).length;
 
   const frontEnd = {
-    training_file: model.trainingFile.replace(/\\/g, '/'),
+    training_file: model.trainingFile ? String(model.trainingFile).replace(/\\/g, '/') : null,
+    training_source: model.fitted_on_upload ? 'upload-calibration-segment' : 'faultexplainer-normal-run',
+    training_note: trainingNote,
     scaler_rows: model.n,
+    variables: model.m,
     components_retained: model.a,
     t2_threshold: Number(model.t2Threshold.toFixed(6)),
     scaling_factor: Number(model.scaling.toFixed(6)),
@@ -313,7 +384,7 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
     noise: 'statistical front end is deterministic; only the LLM explanation is stochastic',
   };
 
-  // Control case: FE's protocol is a detector too — with no trigger it reports normal.
+  // No trigger means the protocol does not fire — it reports normal, not a cause.
   if (triggerIdx === null) {
     return {
       status: 'executed',
@@ -326,17 +397,17 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
     };
   }
 
-  // ---- top-6 features by T² contribution at the trigger index
+  // ---- top-6 features by T² contribution at the trigger index ----------------
   const row = stats[triggerIdx];
   const ranked = model.colNames
     .map((feature, j) => ({ feature, contribution: row.contrib[j] }))
     .sort((a, b) => b.contribution - a.contribution);
   const topK = ranked.slice(0, FE_CONFIG.topkfeatures);
 
-  const start = Math.max(triggerIdx - FE_CONFIG.recent_window + 1, 0);
+  const startWin = Math.max(triggerIdx - FE_CONFIG.recent_window + 1, 0);
   const featureTable = topK.map(({ feature, contribution }) => {
     const j = model.colNames.indexOf(feature);
-    const recent = aligned.slice(start, triggerIdx + 1).map((r) => r[j]);
+    const recent = aligned.slice(startWin, triggerIdx + 1).map((r) => r[j]);
     const recentMean = mean(recent);
     const normalMean = model.mu[j];
     return {
@@ -349,7 +420,17 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
     };
   });
 
-  const prompt = buildFePrompt(model, stats, triggerIdx, featureTable);
+  // The cause list is a PROMPT INPUT in FE's protocol. TEP uses the documented
+  // table; a user's process uses the list they supplied, or reasons open-ended —
+  // handing the model the TEP list for a different plant would guarantee a wrong,
+  // confidently-stated answer.
+  const userCauses = caseDef.upload?.cause_list || null;
+  const prompt = buildFePrompt(model, stats, triggerIdx, featureTable, {
+    causeList: userCauses,
+    processDescription: caseDef.process_description || caseDef.upload?.process_description || '',
+    isUpload,
+  });
+
   const { provider, providerError } = llmContext(config);
   if (providerError) {
     return { ...notRun('error', { error: providerError }), fe_frontend: frontEnd, feature_table: featureTable, runtime_ms: Date.now() - t0 };
@@ -383,7 +464,11 @@ export async function run(ctx, { config = {}, onEvent = null } = {}) {
   return {
     status: 'executed',
     ...norm,
-    top3_source: 'EXPLAIN_ROOT (official FE prompt, reproduced verbatim)',
+    top3_source: userCauses
+      ? `EXPLAIN_ROOT (official FE prompt) with the ${userCauses.length}-candidate list supplied with this upload`
+      : (isUpload
+        ? 'EXPLAIN_ROOT (official FE prompt) with NO fixed candidate list — the model reasons open-ended from the digest and the process description'
+        : 'EXPLAIN_ROOT (official FE prompt, reproduced verbatim) with the documented TEP cause list'),
     fe_frontend: frontEnd,
     feature_table: featureTable,
     invocations: [invocation],

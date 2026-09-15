@@ -25,11 +25,17 @@ import { runOne } from './runner.mjs';
 import { uploadCaseDef, writeJson, RESULTS_DIR, ensureDir } from './paths.mjs';
 import path from 'node:path';
 
-/** Algorithms that can legitimately run on a non-TEP dataset. */
-export const DIAGNOSABLE = [
-  'pca-t2-spe', 'kpca-rbf', 'ica-fastica', 'spc-ewma-cusum', 'knn-fdd', 'iforest',
-  'llm-direct', 'llm-cot', 'llm-react', 'llm-debate',
-];
+/**
+ * Default algorithm set for a diagnosis: every registered algorithm that can run
+ * on an uploaded dataset. Derived from each module's declared domains rather
+ * than a hand-maintained list, so it cannot drift when an algorithm gains or
+ * loses upload support.
+ */
+export function defaultDiagnosable() {
+  return listAlgorithms()
+    .filter((a) => !a.domains || a.domains.includes('custom'))
+    .map((a) => a.id);
+}
 
 /** In-memory diagnosis jobs (the persisted report lives on disk). */
 const jobs = new Map();
@@ -59,7 +65,7 @@ export function startDiagnosis({ uploadId, algorithms, options = {}, config = {}
   if (!meta) throw new Error(`unknown upload: ${uploadId}`);
   const caseId = meta.case_id;
 
-  const requested = (algorithms && algorithms.length ? algorithms : DIAGNOSABLE).filter(Boolean);
+  const requested = (algorithms && algorithms.length ? algorithms : defaultDiagnosable()).filter(Boolean);
   if (!requested.length) throw new Error('select at least one algorithm');
 
   // Reject anything that cannot run on this data, with the reason — rather than
@@ -359,7 +365,7 @@ function buildReport(job, uploadMeta, caseDef) {
   };
 }
 
-export { DIAGNOSABLE as DIAGNOSABLE_ALGORITHMS };
+export { defaultDiagnosable as DIAGNOSABLE_ALGORITHMS };
 
 /** Which registered algorithms can run on uploaded data, and why the rest cannot. */
 export function diagnosableAlgorithms() {

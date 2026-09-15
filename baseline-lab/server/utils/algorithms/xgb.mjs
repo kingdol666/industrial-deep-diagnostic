@@ -2,18 +2,42 @@
 //
 // PROTOCOL
 // --------
-// Training source : the LABELLED TEP corpus shipped inside the FaultExplainer
-//                   clone (baselines/FaultExplainer/backend/data/faultN.csv),
-//                   reached through dataset.mjs#loadFeTrainingSet(). Each of the
-//                   16 named runs contributes 480 fault-active rows (FE drops
-//                   the first 20 start-up samples; in the TEP *training*
-//                   encoding the fault is injected at sample 21, not at the
-//                   published test-set sample 161).
+// Training source : TWO, selected by ctx.training (see _shared.mjs#resolveTraining)
+//
+//                   (a) TEP benchmark case -> the LABELLED TEP corpus shipped
+//                       inside the FaultExplainer clone
+//                       (baselines/FaultExplainer/backend/data/faultN.csv),
+//                       reached through dataset.mjs#loadFeTrainingSet(). Each of
+//                       the 16 named runs contributes 480 fault-active rows (FE
+//                       drops the first 20 start-up samples; in the TEP
+//                       *training* encoding the fault is injected at sample 21,
+//                       not at the published test-set sample 161). This is the
+//                       published protocol and it is byte-for-byte unchanged.
+//
+//                   (b) uploaded user data -> the USER'S OWN labelled file
+//                       (ctx.training.path). Feature columns are joined BY NAME
+//                       against the diagnosis matrix's columns (a mismatch is an
+//                       error, never a guess); the class labels are the distinct
+//                       strings in ctx.training.label_column, sorted
+//                       deterministically. No TEP row and no TEP fault name
+//                       enters a user-trained model.
+//
+//                   When neither is available the module returns
+//                   status:'not_applicable' with the reason and makes no
+//                   prediction — it never invents classes and never falls back
+//                   to an unsupervised detector.
 // Features        : the case's FAULT WINDOW is aggregated per column into
 //                   [mean, sd, mean |first difference|] -> 3 * m = 156 features.
 //                   The training corpus is aggregated the same way over sliding
-//                   80-sample / stride-20 windows (21 windows per run), never
-//                   over the case under test.
+//                   windows (80 samples / stride 20 for TEP, i.e. 21 windows per
+//                   run), never over the case under test. A small user file
+//                   shortens the window (disclosed in the result) so that every
+//                   class contributes real window samples instead of none.
+//                   On the user path the MONITORED window is then scored in the
+//                   same w-row windows the model was trained on (the triple is
+//                   not scale-free: sd and mean|diff| depend on window length),
+//                   and the reported probability is the mean over those windows,
+//                   with the agreement between them reported.
 // Standardisation : column statistics (ddof=1) computed from the TRAINING
 //                   feature matrix only.
 // Model           : 120 boosting rounds of genuine multiclass softmax GBST.
@@ -26,15 +50,13 @@
 //                   is the real multiclass objective, documented so the result
 //                   cannot be mistaken for an OvR approximation.
 // Determinism     : every stochastic step draws from makeRng(SEED); no
-//                   Math.random, no Date, no Map-order dependence.
-//
-// APPLICABILITY LIMIT (honesty requirement)
-// -----------------------------------------
-// The only labelled corpus in this repository is TEP. For any non-TEP case the
-// module returns applicable:false and makes no prediction at all.
+//                   Math.random, no Date, no Map-order dependence. The model
+//                   cache is keyed on the training SOURCE (and file), so one
+//                   user's model is never served for another's data.
 
 import { makeRng, shuffle, colStats } from '../linalg.mjs';
 import { loadFeTrainingSet, FE_FAULT_DESCRIPTIONS } from '../dataset.mjs';
+import { loadUserTrainingCorpus, uploadNormalClassIndex, scoringWindows } from './_shared.mjs';
 
 export const meta = {
   id: 'xgb-gbdt',
@@ -46,9 +68,9 @@ export const meta = {
   requiresProvider: false,
   needsReference: false,
   needsTraining: true,
-  domains: ['tep'],
+  domains: ['tep', 'custom'],
   description:
-    'Gradient-boosted decision trees with a genuine multiclass softmax objective (per-class exact-split regression trees on the multinomial logistic gradient/hessian), 120 rounds, lr 0.1, depth 4, 0.8 row subsample, 0.7 column subsample, L2 leaf lambda 1.0, min 5 samples per leaf; trained on 3*m window features of the labelled FaultExplainer TEP corpus and applied to TEP cases only.',
+    'Gradient-boosted decision trees with a genuine multiclass softmax objective (per-class exact-split regression trees on the multinomial logistic gradient/hessian), 120 rounds, lr 0.1, depth 4, 0.8 row subsample, 0.7 column subsample, L2 leaf lambda 1.0, min 5 samples per leaf. Trained on 3*m window features: on the labelled FaultExplainer TEP corpus for TEP cases (unchanged benchmark protocol), or on the user\'s OWN labelled training file for uploaded data (feature columns joined by name, class labels taken from the user\'s label column). Both feature constructions are identical, so the comparison stays apples-to-apples.',
   provenance: {
     basis: ['friedman2001greedy', 'chen2016xgboost'],
     repo: null,
@@ -74,6 +96,12 @@ const MIN_LEAF = 5;
 const TOP_K_PROB = 5;
 /** The benchmark answer space is Normal + IDV1..IDV15 (16 readable classes). */
 const USE_NAMED_CLASSES_ONLY = true;
+/**
+ * Smallest window-sample count a user-trained model will accept. Below this the
+ * boosting rounds would fit a handful of rows with MIN_LEAF=5 — a constant, not a
+ * classifier — so the module refuses instead of reporting a degenerate model.
+ */
+const MIN_TRAIN_SAMPLES = 12;
 
 // ------------------------------------------------------------- feature core
 // (kept local: this module must stay self-contained — no new shared files)
@@ -106,12 +134,26 @@ function loadCorpus() {
     labelNames: Array.from({ length: classCount }, (_, k) => t.labelNames[k] || `class${k}`),
     classCount,
     source: t.source,
+    cacheKey: 'tep-faultexplainer',
     totalRows: t.X.length,
     usedRows: t.y.length - dropped,
     droppedRows: dropped,
     unnamedRuns: t.labelNames.length - classCount,
   };
   return CORPUS;
+}
+
+/**
+ * Training corpus for a case.
+ *   TEP benchmark case      -> the labelled FaultExplainer corpus (unchanged).
+ *   uploaded user dataset   -> the user's own labelled file, joined by name.
+ */
+function corpusFor(ctx) {
+  if (!ctx.is_upload) return loadCorpus();
+  return loadUserTrainingCorpus(ctx.training, ctx.matrix.colNames, {
+    window: TRAIN_WINDOW,
+    stride: TRAIN_STRIDE,
+  });
 }
 
 /**
@@ -173,16 +215,32 @@ function windowFeatureVector(rows, perm, m) {
 function buildTrainingMatrix(corpus) {
   const m = corpus.cols.length;
   const identity = Int32Array.from({ length: m }, (_, p) => p);
+  // The window/stride come from the corpus: TEP uses the protocol constants, a
+  // user file may have adapted them to its smallest class (disclosed in the result).
+  const window = corpus.window ?? TRAIN_WINDOW;
+  const stride = corpus.stride ?? TRAIN_STRIDE;
   const rows = [];
   const labels = [];
   for (let k = 0; k < corpus.classCount; k++) {
     const idx = corpus.byClass[k];
-    for (let s = 0; s + TRAIN_WINDOW <= idx.length; s += TRAIN_STRIDE) {
+    if (idx.length < window) {
+      throw new Error(
+        `class ${k} (${corpus.labelNames[k]}) has ${idx.length} labelled rows, fewer than the ${window}-sample aggregation window`,
+      );
+    }
+    for (let s = 0; s + window <= idx.length; s += stride) {
       const win = [];
-      for (let t = s; t < s + TRAIN_WINDOW; t++) win.push(corpus.X[idx[t]]);
+      for (let t = s; t < s + window; t++) win.push(corpus.X[idx[t]]);
       rows.push(windowFeatureVector(win, identity, m));
       labels.push(k);
     }
+  }
+  if (rows.length < MIN_TRAIN_SAMPLES) {
+    throw new Error(
+      `only ${rows.length} training window sample(s) could be built from '${corpus.source}' `
+      + `(${corpus.classCount} classes, ${window}-sample windows) — at least ${MIN_TRAIN_SAMPLES} are needed; `
+      + 'supply more labelled rows per class.',
+    );
   }
   return { rows, labels, m, F: 3 * m };
 }
@@ -346,7 +404,7 @@ export function __resetCacheForTest() {
   MODEL_CACHE.clear();
 }
 
-function configKey(F, classCount) {
+function configKey(F, classCount, corpus) {
   return JSON.stringify({
     id: meta.id,
     seed: SEED,
@@ -362,12 +420,18 @@ function configKey(F, classCount) {
     LAMBDA,
     MIN_LEAF,
     USE_NAMED_CLASSES_ONLY,
+    // Training-source isolation. Without this, a model trained on one user's
+    // labelled file would be reused for a different user's data whenever the
+    // feature count and class count happened to match.
+    training: corpus.cacheKey,
+    window: corpus.window ?? null,
+    stride: corpus.stride ?? null,
+    labels: corpus.labelNames,
   });
 }
 
-function fit() {
+function fit(corpus) {
   const t0 = Date.now();
-  const corpus = loadCorpus();
   const { rows, labels, m, F } = buildTrainingMatrix(corpus);
   const K = corpus.classCount;
   const n = rows.length;
@@ -461,6 +525,11 @@ function fit() {
     unnamedRuns: corpus.unnamedRuns,
     runsPerClass: corpus.byClass.map((a) => a.length),
     source: corpus.source,
+    trainingFile: corpus.original_name || corpus.path || null,
+    labelColumn: corpus.label_column || null,
+    window: corpus.window ?? null,
+    stride: corpus.stride ?? null,
+    minRowsPerClass: corpus.minRowsPerClass ?? null,
     trainAccuracy: correct / n,
     totalNodes,
     seconds: (Date.now() - t0) / 1000,
@@ -482,10 +551,10 @@ function predictMargins(trees, x, F, K, prior) {
   return out;
 }
 
-function getModel(F, K) {
-  const key = configKey(F, K);
+function getModel(F, K, corpus) {
+  const key = configKey(F, K, corpus);
   const hit = MODEL_CACHE.has(key);
-  if (!hit) MODEL_CACHE.set(key, fit());
+  if (!hit) MODEL_CACHE.set(key, fit(corpus));
   return { model: MODEL_CACHE.get(key), cached: hit };
 }
 
@@ -498,6 +567,7 @@ function result(t0, extra) {
 function notApplicable(ctx, t0) {
   const ds = ctx.caseDef.dataset;
   return result(t0, {
+    status: 'not_applicable',
     applicable: false,
     top3: [],
     verdict: null,
@@ -514,11 +584,48 @@ function notApplicable(ctx, t0) {
   });
 }
 
+/** No labelled training data was supplied with an upload: refuse, with the reason. */
+function notTrained(ctx, t0, reason) {
+  return result(t0, {
+    status: 'not_applicable',
+    applicable: false,
+    top3: [],
+    verdict: null,
+    predicted_class: 'N/A',
+    class_probabilities: [],
+    variable_top3: [],
+    detection: {},
+    training: { rows: 0, classes: 0, features: 0, source: 'not trained (no labelled training file)', seconds: 0, cached: false },
+    reasoning: reason,
+  });
+}
+
+const DEFAULT_NO_TRAINING_REASON =
+  'No labelled training data is available for this upload, so the gradient-boosted classifier was NOT applied and '
+  + 'no prediction is made: a classifier needs labelled examples of each class and inventing them would be '
+  + 'fabrication. Re-upload the dataset together with a labelled training CSV (one row per sample, the same sensor '
+  + 'column names as the data, plus a class/label column) to make this algorithm usable.';
+
 export async function run(ctx) {
   const t0 = Date.now();
   const caseDef = ctx.caseDef;
-  if (!caseDef || caseDef.dataset !== 'tep') return notApplicable(ctx, t0);
 
+  // ---- uploaded user data: train on the user's OWN labelled file -----------
+  if (ctx.is_upload) {
+    const training = ctx.training;
+    if (!training || !training.available || training.source !== 'user-upload') {
+      return notTrained(ctx, t0, training?.reason || DEFAULT_NO_TRAINING_REASON);
+    }
+    return runUserTrained(ctx, t0);
+  }
+
+  // ---- benchmark case: the published TEP protocol, unchanged ---------------
+  if (!caseDef || caseDef.dataset !== 'tep') return notApplicable(ctx, t0);
+  return runTep(ctx, t0);
+}
+
+async function runTep(ctx, t0) {
+  const caseDef = ctx.caseDef;
   const corpus = loadCorpus();
   const m = corpus.cols.length;
   const perm = alignmentPerm(corpus.cols, ctx.matrix.colNames);
@@ -528,7 +635,7 @@ export async function run(ctx) {
 
   const raw = windowFeatureVector(rows, perm, m);
   const F = 3 * m;
-  const { model, cached } = getModel(F, corpus.classCount);
+  const { model, cached } = getModel(F, corpus.classCount, corpus);
   const x = standardizeVector(raw, model.mu, model.sd);
 
   const margins = predictMargins(model.trees, x, F, model.K, model.prior);
@@ -588,5 +695,118 @@ export async function run(ctx) {
         ? ` Note: the FaultExplainer clone also ships ${model.unnamedRuns} further labelled runs (fault16..fault20) with no published fault description; ` +
           `they are excluded (${model.droppedRows} rows) so that every emitted label is a documented TEP fault name.`
         : ''),
+  });
+}
+
+/**
+ * Uploaded data WITH a user-supplied labelled file: train on that file.
+ * The answer space is exactly the user's own class strings — no TEP class can be
+ * emitted, because no TEP row took part in the training.
+ */
+async function runUserTrained(ctx, t0) {
+  const caseDef = ctx.caseDef;
+  const corpus = corpusFor(ctx);
+  const m = corpus.cols.length;
+  const perm = alignmentPerm(corpus.cols, ctx.matrix.colNames); // identity by construction
+  const win = ctx.faultWindow;
+  const rows = ctx.matrix.X.slice(win.start, win.end);
+  if (!rows.length) throw new Error(`empty fault window for ${caseDef.case_id}`);
+
+  const F = 3 * m;
+  const { model, cached } = getModel(F, corpus.classCount, corpus);
+
+  // Score the monitored window in the SAME w-row windows the model was trained
+  // on (see _shared.mjs#scoringWindows): the feature triple is not scale-free,
+  // so one whole-record aggregate would be out of distribution for a model
+  // trained on short windows. The reported probability is the mean over windows.
+  const segments = scoringWindows(rows, model.window, model.stride);
+  const probs = new Float64Array(model.K);
+  const hits = new Int32Array(model.K);
+  for (let i = 0; i < segments.length; i++) {
+    const x = standardizeVector(windowFeatureVector(segments[i], perm, m), model.mu, model.sd);
+    const margins = predictMargins(model.trees, x, F, model.K, model.prior);
+    const p = Float64Array.from(margins);
+    softmaxInto(p, 0, model.K);
+    let best = 0;
+    for (let k = 0; k < model.K; k++) {
+      probs[k] += p[k];
+      if (p[k] > p[best]) best = k;
+    }
+    hits[best]++;
+  }
+  for (let k = 0; k < model.K; k++) probs[k] /= segments.length;
+
+  const ranked = Array.from({ length: model.K }, (_, k) => ({ k, p: probs[k] }))
+    .sort((a, b) => b.p - a.p || a.k - b.k);
+  const top3 = ranked.slice(0, 3).map((r) => model.labelNames[r.k]);
+  const top5 = ranked.slice(0, TOP_K_PROB).map((r) => ({
+    label: model.labelNames[r.k],
+    p: Number(r.p.toFixed(6)),
+  }));
+  const top = ranked[0];
+  const predicted = model.labelNames[top.k];
+  const runnerUp = ranked[1];
+  const normalIdx = uploadNormalClassIndex(model.labelNames);
+  const verdict = normalIdx < 0 ? null : (top.k === normalIdx ? 'normal' : 'fault');
+  const agreement = hits[top.k] / segments.length;
+
+  return result(t0, {
+    applicable: true,
+    top3,
+    verdict,
+    predicted_class: predicted,
+    class_probabilities: top5,
+    variable_top3: [],
+    detection: {
+      confidence: Number(top.p.toFixed(6)),
+      margin_to_runner_up: Number((top.p - (runnerUp ? runnerUp.p : 0)).toFixed(6)),
+      train_accuracy: Number(model.trainAccuracy.toFixed(4)),
+      scored_windows: segments.length,
+      window_rows: model.window,
+      window_agreement: Number(agreement.toFixed(4)),
+      short_monitored_window: segments.length === 1 && rows.length < model.window,
+      model: 'softmax gradient boosting (multiclass, second-order), trained on the user-supplied labelled file',
+    },
+    training: {
+      rows: model.trainRows,
+      classes: model.K,
+      features: model.F,
+      source: model.source,
+      seconds: Number(model.seconds.toFixed(3)),
+      cached,
+      raw_labelled_rows: model.trainRawRows,
+      excluded_rows: model.droppedRows,
+      unnamed_runs_excluded: model.unnamedRuns,
+      training_file: model.trainingFile,
+      label_column: model.labelColumn,
+      class_names: model.labelNames,
+      window: model.window,
+      stride: model.stride,
+      rows_per_class: model.runsPerClass,
+      unlabelled_rows_dropped: corpus.unlabelledRows ?? 0,
+    },
+    reasoning:
+      `Trained on THIS upload's own labelled file ${model.trainingFile ? `'${model.trainingFile}'` : ''}: ` +
+      `${model.trainRawRows} labelled row(s), ${model.K} classes (${model.labelNames.join(' | ')}) read from column '${model.labelColumn}'; ` +
+      `feature columns joined BY NAME to the diagnosis data, aggregated into ${model.trainRows} window samples of ` +
+      `${model.window} rows (stride ${model.stride}` +
+      (model.window !== TRAIN_WINDOW
+        ? `, shortened from the ${TRAIN_WINDOW}-sample benchmark protocol because the smallest class holds only ${model.minRowsPerClass} rows`
+        : '') +
+      `) over the same ${model.F} features = 3 x ${m} (mean, sd, mean |first difference|) the TEP protocol uses. ` +
+      `${N_ESTIMATORS} boosting rounds x ${model.K} per-class trees (${model.totalNodes} nodes total, lr ${LEARNING_RATE}, depth ${MAX_DEPTH}, ` +
+      `subsample ${SUBSAMPLE}, colsample ${COLSAMPLE}, lambda ${LAMBDA}, min leaf ${MIN_LEAF}); training-set accuracy ${(model.trainAccuracy * 100).toFixed(2)}%. ` +
+      `No TEP data and no TEP fault name was used: the answer space is exactly the ${model.K} label(s) supplied by the user. ` +
+      `Fault window = rows ${win.start}..${win.end - 1} (${rows.length} samples), scored as ${segments.length} window(s) of ${model.window} rows ` +
+      `— the same aggregation the model was trained on` +
+      (segments.length === 1 && rows.length < model.window ? ' (the record is shorter than one training window, so the single aggregate is reported as-is)' : '') +
+      `; the probabilities below are the mean over those windows and ${hits[top.k]}/${segments.length} of them agree on the top class. ` +
+      `Prediction: '${predicted}' with p=${top.p.toFixed(4)}` +
+      (runnerUp ? `, runner-up '${model.labelNames[runnerUp.k]}' p=${runnerUp.p.toFixed(4)}` : '') +
+      `. Ranked top-3: ${top3.map((s, i) => `${i + 1}. ${s}`).join(' | ')}. ` +
+      (verdict === null
+        ? `None of the supplied label names identifies a normal/healthy class, so no normal-vs-fault verdict is asserted — `
+          + `the ranking above is the complete answer.`
+        : `'${model.labelNames[normalIdx]}' is read as the normal class from its name, so the verdict is '${verdict}'.`),
   });
 }

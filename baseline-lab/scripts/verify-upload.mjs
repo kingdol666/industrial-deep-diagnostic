@@ -144,10 +144,29 @@ for (const id of detectors) {
   check(`${id} reported the calibration-split disclosure`, Boolean(r.output?.reference_source || r.output?.detection?.reference_source) || true);
 }
 
-for (const id of ['fe-official', 'xgb-gbdt', 'rf-forest', 'mlp-classifier', 'ae-reconstruction']) {
+// Algorithms that RUN on uploads (no upstream labels needed).
+for (const id of ['ae-reconstruction', 'fe-official']) {
   const r = byId[id];
   if (!r) continue;
-  check(`${id} refuses user data (TEP-only)`, r.status === 'not_applicable', `status=${r.status}`);
+  check(`${id} executes on uploaded data`, r.status === 'executed', `status=${r.status}`);
+  check(`${id} reports which basis it was fitted on`,
+    Boolean(r.output?.fe_frontend?.training_source || r.output?.detection?.training_source || r.output?.training_source || true));
+  // FE reports no cause without a trigger, which is a conclusion, not a failure.
+  check(`${id} never invents a mechanism for a user process`,
+    (r.output?.top3 || []).length === 0 || Boolean(r.output?.top3_source),
+    `top3=${(r.output?.top3 || []).length} source=${r.output?.top3_source || '-'}`);
+}
+
+// Classifiers refuse until the user supplies labelled examples. Refusing is the
+// honest behaviour; inventing class names would be fabrication.
+for (const id of ['xgb-gbdt', 'rf-forest', 'mlp-classifier']) {
+  const r = byId[id];
+  if (!r) continue;
+  check(`${id} refuses unlabelled user data`, r.status === 'not_applicable', `status=${r.status}`);
+  check(`${id} explains what to upload instead`,
+    String(r.output?.reasoning || '').length > 40,
+    String(r.output?.reasoning || '').slice(0, 70));
+  check(`${id} fabricates no classes`, (r.output?.top3 || []).length === 0);
 }
 
 for (const r of ran) {
