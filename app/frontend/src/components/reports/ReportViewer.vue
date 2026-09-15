@@ -169,7 +169,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { api } from '../../api/index.js';
+import { api, getToken } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
@@ -197,7 +197,7 @@ const hasOptimizer = ref(false);
 const hasHtml = ref(false);
 const activeTab = ref('report');
 const htmlReportSrc = computed(() =>
-  selectedRun.value ? `/api/files/workspace/asset/${encodeURIComponent(selectedRun.value)}/diagnostic-report.html` : '',
+  selectedRun.value ? assetUrl(selectedRun.value, 'diagnostic-report.html') : '',
 );
 const viewRaw = ref(false);
 const loadingReport = ref(false);
@@ -311,7 +311,10 @@ function goToList() {
 
 async function probeHtml(runName) {
   try {
-    const res = await fetch(`/api/files/workspace/asset/${encodeURIComponent(runName)}/diagnostic-report.html`, { method: 'HEAD' });
+    const res = await fetch(assetUrl(runName, 'diagnostic-report.html'), {
+      method: 'HEAD',
+      headers: authHeaders(),
+    });
     if (selectedRun.value === runName) hasHtml.value = res.ok;
   } catch {
     if (selectedRun.value === runName) hasHtml.value = false;
@@ -422,13 +425,40 @@ async function fetchChartData(runDir) {
   }
 }
 
+/**
+ * Build a URL for a workspace asset (figure PNG, generated HTML report).
+ *
+ * These URLs end up in `<img src>` and `<iframe src>`, and the browser cannot
+ * attach an `Authorization` header to either — so the global auth guard
+ * rejected every one of them with 401. The symptom was silent and specific:
+ * report figures never appeared, and the whole "HTML report" tab rendered
+ * blank, because the iframe received a 401 JSON body instead of the page.
+ *
+ * The backend already sanctions a `?token=` fallback for exactly this class of
+ * caller (see extractBearerToken — it exists for SSE/EventSource, which has the
+ * same "cannot set headers" constraint). Reusing it keeps the fix on the
+ * client and needs no change to the auth contract.
+ */
+function assetUrl(runName, path) {
+  const base = `/api/files/workspace/asset/${encodeURIComponent(runName)}/${path}`;
+  const token = getToken();
+  if (!token) return base;
+  return `${base}${base.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+}
+
+/** Header form, for fetches that *can* carry one. */
+function authHeaders() {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 function rewriteImageUrls(html, runName) {
   if (!runName) return html;
   return html.replace(
     /(<img\s[^>]*src=")([^"]+)(")/g,
     (match, prefix, src, suffix) => {
       if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('/')) return match;
-      return `${prefix}/api/files/workspace/asset/${encodeURIComponent(runName)}/${src}${suffix}`;
+      return `${prefix}${assetUrl(runName, src)}${suffix}`;
     }
   );
 }

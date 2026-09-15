@@ -10,6 +10,7 @@ import {
   listWorkspaceRuns, getWorkspaceReport, getWorkspaceOptimizer,
   listWorkspaceFiles, getWorkspaceAsset, readDataFile, DATA_DIR,
 } from '../services/files.service.mjs';
+import { rewriteHtmlAssetUrls, callerToken, isHtmlContentType } from '../utils/html-assets.mjs';
 
 const UPLOAD_DIR = join(PROJECT_ROOT, dataConfig.upload_dir);
 const FOLDER_NAME_RE = new RegExp(dataConfig.folder_name_pattern);
@@ -173,6 +174,16 @@ router.get('/workspace/asset/:runName/*', async (req, res) => {
 
     res.setHeader('Content-Type', asset.contentType);
     res.setHeader('Cache-Control', `public, max-age=${dataConfig.asset_cache_max_age}`);
+
+    // A generated report references its figures with run-relative paths. This
+    // route has no static handler, so those URLs must be rewritten before the
+    // document reaches the browser — and the token forwarded, because the
+    // resulting <img> requests cannot carry an Authorization header.
+    if (isHtmlContentType(asset.contentType)) {
+      const html = asset.content.toString('utf8');
+      return res.send(rewriteHtmlAssetUrls(html, req.params.runName, callerToken(req)));
+    }
+
     res.send(asset.content);
   } catch (err) {
     const status = err.status || 500;
