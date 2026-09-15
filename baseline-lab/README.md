@@ -253,7 +253,76 @@ node scripts/sweep.mjs --algorithms llm-direct,llm-cot,llm-react,llm-debate,fe-o
 
 ---
 
-## 6. Running it
+## 6. Running your own data
+
+The lab is not limited to the 12 benchmark scenarios. The **自建数据诊断** page
+(`/custom`) accepts a file you upload and runs the selected algorithms on it for
+real — the backend parses your bytes, executes each algorithm against your rows,
+and for the LLM comparators makes a genuine model call per algorithm, showing
+which provider and model answered.
+
+```bash
+node scripts/verify-upload.mjs                    # synthesises a test file
+node scripts/verify-upload.mjs mydata.csv         # your own file
+node scripts/verify-upload.mjs mydata.csv --llm   # also make real LLM calls
+node scripts/check-digest-masking.mjs             # prove the digest basis is right
+```
+
+### What actually happens to your file
+
+1. **Real ingest, real validation.** The bytes are parsed with the same CSV
+   reader the benchmark uses. Fewer than 2 numeric columns, fewer than 10 rows,
+   an empty file, or over 64 MB is **rejected with the reason** and nothing is
+   written. The stored shape is measured, not assumed.
+2. **Row-index columns are excluded.** A datetime column is dropped
+   automatically, but many exports use a *numeric* index (`Time (h)`, `t`,
+   `step`). Those are detected by header name, or by being strictly monotonic
+   with a constant step, and removed from the feature set — a row counter is not
+   a sensor, and being perfectly monotonic it would dominate distance-based
+   statistics.
+3. **Thresholds are self-calibrated and disclosed.** No separate baseline file is
+   required: the first *N*% of rows (default 30%, adjustable) calibrate the
+   control limits and the rest is monitored. This is the standard approach for a
+   single unlabelled record, but it is weaker than an independent normal run, so
+   every result records `reference.source = 'in-file calibration split'` and the
+   UI states it. If that leading segment is not representative of normal
+   operation, the limits inherit that — and the page says so.
+4. **The LLM digest uses the same split as the detectors.** This one matters more
+   than it looks. Scoring a record against its own whole-record mean/std lets a
+   sustained fault inflate the standard deviation and **mask itself**. On the
+   planted test record the whole-record basis reported `max|z| = 1.83, 0.0%
+   beyond 3σ`, so the model correctly but uselessly answered "normal" — while the
+   detectors, calibrating on the leading segment, alarmed on 43–99% of rows.
+   Against the calibration split the same record reads `max|z| = 27.87, 42.9%
+   beyond 3σ`. `calibrationRows()` in `dataset.mjs` is the single source of truth
+   for that boundary, so the algorithm context and the prompts cannot drift apart.
+5. **Results are UNSCORED, not "missed".** Your data has no ground truth, so
+   `scored: false, unscored_reason: 'no_ground_truth'`. Accuracy denominators
+   exclude these rows rather than counting them as failures.
+
+### Which algorithms can run on your data
+
+| Runs | Why |
+|---|---|
+| `pca-t2-spe`, `kpca-rbf`, `ica-fastica`, `spc-ewma-cusum`, `knn-fdd`, `iforest` | Domain-agnostic detectors. They report **contributing variables** and detection statistics. |
+| `llm-direct`, `llm-cot`, `llm-react`, `llm-debate` | Reason over the statistical digest plus whatever process description you supply. This is where **mechanism hypotheses** come from. |
+
+| Refuses (reported as `not_applicable`) | Why |
+|---|---|
+| `fe-official` | FaultExplainer's protocol is TEP-specific (its scaler, PCA basis and EXPLAIN_ROOT cause list). |
+| `xgb-gbdt`, `rf-forest`, `mlp-classifier` | Trained on labelled TEP runs; they cannot classify a different process. |
+| `ae-reconstruction` | Its threshold was calibrated on the TEP normal run and does not transfer to another dataset's per-row scale. |
+
+The classical detectors deliberately return `top3: []` for your data. The
+variable → cause table in `tep-affinity.mjs` is TEP-specific, and inventing a
+mechanism mapping for an unknown process is exactly the kind of fabrication the
+honesty contract forbids. Mechanism claims come from the LLM comparators, which
+must reason from the digest and your process description — and an LLM that
+concludes "normal" is reported as such rather than being pushed to name a cause.
+
+---
+
+## 7. Running it
 
 ```bash
 cd baseline-lab
@@ -310,7 +379,7 @@ Visit `/api/provider-doctor` to see exactly what the server can discover.
 
 ---
 
-## 7. Honest gaps
+## 8. Honest gaps
 
 ### Algorithm-level methodological disclosures
 

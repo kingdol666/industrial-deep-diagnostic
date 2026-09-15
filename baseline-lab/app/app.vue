@@ -5,10 +5,11 @@ provide('lab-state', { state, refresh });
 
 const nav = [
   { to: '/', num: '01', label: '复现审计', hint: 'Audit' },
-  { to: '/run', num: '02', label: '运行基线', hint: 'Run' },
-  { to: '/results', num: '03', label: '结果对比', hint: 'Results' },
-  { to: '/algorithms', num: '04', label: '算法清单', hint: 'Algorithms' },
-  { to: '/cases', num: '05', label: '场景与数据', hint: 'Cases' },
+  { to: '/custom', num: '02', label: '自建数据诊断', hint: 'Your data' },
+  { to: '/run', num: '03', label: '运行基线', hint: 'Run' },
+  { to: '/results', num: '04', label: '结果对比', hint: 'Results' },
+  { to: '/algorithms', num: '05', label: '算法清单', hint: 'Algorithms' },
+  { to: '/cases', num: '06', label: '场景与数据', hint: 'Cases' },
 ];
 </script>
 

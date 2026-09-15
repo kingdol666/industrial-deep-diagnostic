@@ -12,11 +12,7 @@
 // rubric are never interpolated. `assertNoLeak()` re-checks this at runtime.
 
 import { loadBrief, loadCauseTable, loadCaseForAlgorithm } from '../paths.mjs';
-import { anomalyDigest } from '../dataset.mjs';
-
-const FORBIDDEN = [
-  /IDV\((\d+)\)\s*(?:：|:)?\s*(?=[A-Z])/g, // would-be truth strings, caught below instead
-];
+import { anomalyDigest, topCorrelationPairs, calibrationRows } from '../dataset.mjs';
 
 /** Sanity guard: the rendered prompt must not contain the case's truth text. */
 export function assertNoLeak(text, truth) {
@@ -29,11 +25,25 @@ export function assertNoLeak(text, truth) {
 
 /**
  * Blind statistical digest lines — identical construction to
- * baseline_llm.mjs::digestLines, with a computed fallback when a brief is
- * absent.
+ * baseline_llm.mjs::digestLines for benchmark cases, with a computed fallback.
+ *
+ * For UPLOADED data there is no archived brief, so the digest is computed here.
+ * `referenceRows` MUST be the same calibration split the detectors use: scoring
+ * a record against its own whole-record mean/std lets a sustained fault inflate
+ * the standard deviation and mask itself, which would put the LLM comparators on
+ * a different — and misleading — footing from the detectors.
  */
-export function digestLines(caseId, matrix) {
-  const brief = loadBrief(caseId);
+export function digestLines(caseId, matrix, { referenceRows = undefined } = {}) {
+  // Uploaded data: no archived brief, so the digest is computed — against the
+  // SAME calibration split the detectors use (calibrationRows is the single
+  // source of truth for that boundary).
+  let refRows = referenceRows;
+  if (refRows === undefined) {
+    const c = loadCaseForAlgorithm(caseId);
+    refRows = c.upload ? calibrationRows(matrix.n, c.upload.calibration_fraction ?? 0.3) : null;
+  }
+
+  const brief = refRows === null ? loadBrief(caseId) : null;
   if (brief?.evidence?.anomaly_columns) {
     const cols = brief.evidence.anomaly_columns
       .map((c) => `${c.col} max|z|=${c.max_abs_z} (${(c.pct_z3 * 100).toFixed(1)}% beyond 3σ)`)
@@ -49,17 +59,22 @@ export function digestLines(caseId, matrix) {
       source: 'results/benchmark/briefs (archived blind brief)',
     };
   }
-  const digest = anomalyDigest(matrix, { topK: 8 });
+
+  const digest = anomalyDigest(matrix, { topK: 8, referenceRows: refRows });
+  const pairs = topCorrelationPairs(matrix, { topK: 6, referenceRows: refRows });
+  const basis = refRows
+    ? `computed over the monitored rows against the first ${refRows}-row calibration segment, the same baseline the detectors test against`
+    : 'computed over the whole record';
   return {
     lines: [
-      `- Per-column max |z|-score (top columns): ${digest
+      `- Per-column max |z|-score (top columns; ${basis}): ${digest
         .map((c) => `${c.col} max|z|=${c.max_abs_z} (${(c.pct_z3 * 100).toFixed(1)}% beyond 3σ)`)
         .join('; ')}`,
-      '- Strongest cross-domain correlations: (not available — brief missing)',
+      `- Strongest cross-domain correlations: ${pairs.length ? pairs.join('; ') : '(none computed)'}`,
     ],
     rows: matrix.n,
     process_description: '',
-    source: 'computed anomaly digest (brief missing)',
+    source: `computed anomaly digest (${basis})`,
   };
 }
 
@@ -150,8 +165,12 @@ To call a tool, emit a line exactly of the form:
 ACTION: <tool_name>(<arguments>)
 You will then receive:
 OBSERVATION: <result>
-Repeat as needed, then finish with:
-FINAL: {"top3": ["<root cause id/name>", ...], "reasoning": "<2-3 sentences>"}`;
+The OBSERVATION is supplied BY THE SYSTEM. Never write an OBSERVATION line yourself — inventing tool output is a critical failure. Emit one ACTION per turn and wait for the real result.
+
+Finish with EXACTLY these keys and nothing else:
+FINAL: {"top3": ["<most likely root cause>", "<second>", "<third>"], "reasoning": "<2-3 sentences citing the numbers you actually observed>"}
+If the evidence shows no fault, answer FINAL: {"top3": [], "verdict": "normal", "reasoning": "<why>"}.
+Do not substitute other key names such as "finding" or "recommended_action" — a reply without a "top3" array is treated as an empty answer.`;
 
 export function buildReactPrompt(caseId, matrix) {
   const c = loadCaseForAlgorithm(caseId);

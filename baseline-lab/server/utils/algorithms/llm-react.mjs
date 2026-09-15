@@ -7,7 +7,7 @@
 // the data — the model cannot obtain numbers any other way, and its tool calls
 // and observations are archived verbatim so the trajectory is auditable.
 
-import { llmContext, notRun, callJson, normalizeAnswer, promptSource } from './_llm-shared.mjs';
+import { llmContext, notRun, callJson, normalizeAnswer, promptSource, archiveAnswer } from './_llm-shared.mjs';
 import { buildReactPrompt } from '../llm/prompts.mjs';
 import { mean, stdev, pearson } from '../linalg.mjs';
 import { chat, extractJson } from '../llm/provider.mjs';
@@ -148,6 +148,22 @@ export async function run(ctx, { config = {} } = {}) {
 
   for (let step = 0; step <= maxSteps; step++) {
     const r = await chat(provider, { prompt: turnPrompt, timeoutMs });
+    // Archive EVERY step's raw reply, not only the final answer: a ReAct
+    // trajectory is only auditable if each turn's actual model output is kept.
+    const archivedStep = r.ok
+      ? archiveAnswer(caseDef.case_id, `${meta.id}.step${step}`, {
+          case_id: caseDef.case_id,
+          algorithm: meta.id,
+          tag: `react.step${step}`,
+          prompt: turnPrompt,
+          provider: r.provider,
+          model: r.model,
+          ok: r.ok,
+          seconds: Number((r.seconds || 0).toFixed(2)),
+          raw_reply: String(r.text || ''),
+          archived_at: new Date().toISOString(),
+        })
+      : null;
     invocations.push({
       tag: `react.step${step}`,
       provider: r.provider,
@@ -156,6 +172,7 @@ export async function run(ctx, { config = {} } = {}) {
       seconds: Number((r.seconds || 0).toFixed(2)),
       error: r.error || null,
       raw_head: String(r.text || '').slice(0, 1500),
+      archived: archivedStep,
     });
     if (!r.ok) break;
 
@@ -193,8 +210,7 @@ export async function run(ctx, { config = {} } = {}) {
     turnPrompt = `${r.text}\nOBSERVATION: ${JSON.stringify(observation)}\n\nContinue: emit another ACTION line, or FINAL: {...} if you have enough evidence.`;
   }
 
-  // Archive the full trajectory (auditable tool use).
-  const { archiveAnswer } = await import('./_llm-shared.mjs');
+  // Archive the full trajectory (auditable tool use + every step's raw reply).
   const archived = archiveAnswer(caseDef.case_id, meta.id, {
     case_id: caseDef.case_id,
     algorithm: meta.id,

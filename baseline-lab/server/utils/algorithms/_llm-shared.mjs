@@ -95,16 +95,81 @@ export async function callJson(provider, prompt, { timeoutMs = 300000, caseId, a
   return { ok: r.ok, answer: parsed, invocation, raw: String(r.text || '') };
 }
 
-/** Normalise a parsed model answer into the lab's result shape. */
-export function normalizeAnswer(answer, { caseDef } = {}) {
-  const top3 = Array.isArray(answer?.top3) ? answer.top3.map(String).filter(Boolean) : [];
-  let verdict = null;
-  if (answer && typeof answer.verdict === 'string') {
-    verdict = answer.verdict.toLowerCase() === 'normal' ? 'normal' : 'fault';
-  } else if (top3.length) {
-    verdict = caseDef?.control ? 'fault' : 'fault';
+/** First present value from `keys` that is a non-empty string. */
+function firstString(obj, keys) {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (typeof v === 'string' && v.trim()) return v.trim();
   }
-  return { top3, verdict, reasoning: String(answer?.reasoning || '') };
+  return '';
+}
+
+/** First present value from `keys` that is a non-empty array of strings. */
+function firstArray(obj, keys) {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (Array.isArray(v) && v.length) return v.map(String).filter(Boolean);
+  }
+  return [];
+}
+
+/**
+ * Normalise a parsed model answer into the lab's result shape.
+ *
+ * SCHEMA TOLERANCE IS DELIBERATE. Models do not always honour the requested
+ * JSON keys: a real ReAct run returned
+ *   {"finding": "...", "confidence": "medium", "recommended_action": "..."}
+ * instead of {"top3": [...], "reasoning": "..."}. A strict reader reduced a
+ * substantive, correct diagnosis to an empty answer — the analysis was thrown
+ * away over key naming. We therefore accept the common synonyms, and record
+ * `schema_conformance` so a deviation stays VISIBLE instead of being silently
+ * smoothed over.
+ */
+export function normalizeAnswer(answer, { caseDef } = {}) {
+  const a = answer && typeof answer === 'object' ? answer : {};
+
+  let top3 = firstArray(a, ['top3', 'top_candidates', 'candidates', 'root_causes', 'root_cause_candidates', 'hypotheses', 'causes', 'ranked_causes']);
+  let reasoning = firstString(a, ['reasoning', 'finding', 'analysis', 'explanation', 'rationale', 'conclusion', 'assessment', 'summary']);
+
+  // Callers may wrap the payload (e.g. {"result": {...}} or {"answer": {...}}).
+  for (const wrap of ['result', 'answer', 'output', 'response']) {
+    if (a[wrap] && typeof a[wrap] === 'object') {
+      const inner = a[wrap];
+      if (!top3.length) top3 = firstArray(inner, ['top3', 'top_candidates', 'candidates', 'root_causes', 'hypotheses', 'causes']);
+      if (!reasoning) reasoning = firstString(inner, ['reasoning', 'finding', 'analysis', 'explanation', 'rationale', 'conclusion', 'summary']);
+    }
+  }
+
+  // Verdict: honour an explicit one; otherwise a substantive cause implies fault.
+  let verdict = null;
+  const rawVerdict = firstString(a, ['verdict', 'status', 'conclusion_type']).toLowerCase();
+  if (rawVerdict) verdict = rawVerdict.includes('normal') || rawVerdict.includes('no_fault') ? 'normal' : 'fault';
+
+  // A model that states a cause but does not wrap it in a list has still named a
+  // cause — take its own wording as the single ranked hypothesis rather than
+  // discarding it. `recommended_action` is explicitly NOT treated as a cause.
+  if (!top3.length && reasoning && verdict !== 'normal') {
+    const firstSentence = reasoning.split(/(?<=[.。!?！？])\s+/)[0].slice(0, 300);
+    top3 = [firstSentence || reasoning.slice(0, 300)];
+  }
+  if (!verdict) verdict = top3.length ? 'fault' : (rawVerdict ? 'normal' : null);
+
+  const recommendation = firstString(a, ['recommended_action', 'next_step', 'recommendation']);
+  if (recommendation) {
+    reasoning = reasoning ? `${reasoning}\n\nRecommended action: ${recommendation}` : `Recommended action: ${recommendation}`;
+  }
+
+  const canonical = Array.isArray(a.top3) && typeof a.reasoning === 'string';
+  return {
+    top3,
+    verdict,
+    reasoning,
+    confidence: firstString(a, ['confidence']) || null,
+    schema_conformance: canonical
+      ? 'canonical'
+      : (top3.length || reasoning ? 'coerced' : 'empty'),
+    schema_keys_seen: Object.keys(a).slice(0, 12),
+  };
 }
 
 /** Build the prompt for a named regime. */

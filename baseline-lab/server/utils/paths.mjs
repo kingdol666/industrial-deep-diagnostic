@@ -186,7 +186,105 @@ export function loadCasesRaw() {
   return doc.cases || [];
 }
 
+// ------------------------------------------------- uploaded user datasets
+//
+// A user-uploaded dataset is addressed as `up_<uploadId>` so that every existing
+// `loadCaseForAlgorithm` / `loadTruth` call site keeps working unchanged.
+//
+// Resolution lives HERE, in the dependency-free layer, and reads meta.json with
+// plain fs. The store that *writes* uploads (server/utils/uploads.mjs) imports
+// this module, so having paths.mjs import it back would create a cycle — and
+// uploads.mjs touches `LAB_ROOT` at module-evaluation time, which would make
+// that cycle throw a TDZ error rather than degrade gracefully.
+
+export const UPLOADS_DIR = () => path.join(LAB_ROOT, 'uploads');
+export const UPLOAD_PREFIX = 'up_';
+
+export function isUploadCaseId(caseId) {
+  return typeof caseId === 'string' && caseId.startsWith(UPLOAD_PREFIX);
+}
+
+export function uploadIdFromCaseId(caseId) {
+  return isUploadCaseId(caseId) ? caseId.slice(UPLOAD_PREFIX.length) : null;
+}
+
+export function caseIdForUpload(uploadId) {
+  return `${UPLOAD_PREFIX}${uploadId}`;
+}
+
+/** Read an upload's meta.json, or null when it does not exist. */
+export function loadUploadMeta(uploadId) {
+  if (!/^[A-Za-z0-9_-]{6,64}$/.test(String(uploadId || ''))) return null;
+  const f = path.join(UPLOADS_DIR(), uploadId, 'meta.json');
+  if (!exists(f)) return null;
+  return readJsonSafe(f, null);
+}
+
+/** Absolute path of an upload's stored CSV. */
+export function uploadDataFile(uploadId) {
+  const f = path.join(UPLOADS_DIR(), uploadId, 'data.csv');
+  if (!exists(f)) throw new Error(`uploaded data missing for ${uploadId}`);
+  return f;
+}
+
+/**
+ * Sanitized case definition for an uploaded dataset, in the exact shape the
+ * algorithm context expects. Carries NO truth fields — there is no ground truth
+ * for user data, and `loadTruth` says so explicitly.
+ */
+export function uploadCaseDef(uploadId) {
+  const meta = loadUploadMeta(uploadId);
+  if (!meta) throw new Error(`unknown upload: ${uploadId}`);
+  const dataFile = uploadDataFile(uploadId);
+  return {
+    case_id: meta.case_id,
+    dataset: 'custom',
+    csv: `uploads/${uploadId}/data.csv`,
+    csv_abs: dataFile,
+    time_col: meta.time_col || 'row_index',
+    control: false,
+    process_description: meta.process_description || '',
+    upload: {
+      upload_id: meta.upload_id,
+      label: meta.label,
+      original_name: meta.original_name,
+      rows: meta.rows,
+      numeric_columns: meta.numeric_columns,
+      columns: meta.columns,
+      dropped_non_numeric: meta.dropped_non_numeric,
+      calibration_fraction: meta.calibration_fraction,
+    },
+  };
+}
+
+/**
+ * Truth stub for uploaded data. `has_ground_truth: false` is what makes the
+ * scorer report the run as UNSCORED instead of inventing a hit/miss.
+ */
+export function uploadTruthStub(uploadId) {
+  const meta = loadUploadMeta(uploadId);
+  if (!meta) throw new Error(`unknown upload: ${uploadId}`);
+  return {
+    case_id: meta.case_id,
+    dataset: 'custom',
+    control: false,
+    has_ground_truth: false,
+    truth: '',
+    keywords: [],
+    expect_type_set: [],
+    literature_baseline: null,
+    note:
+      'User-uploaded data: no ground truth exists, so this run is reported as UNSCORED. '
+      + 'Detection statistics and root-cause hypotheses are still produced and are genuine.',
+  };
+}
+
 export function loadCase(caseId) {
+  if (isUploadCaseId(caseId)) {
+    const meta = loadUploadMeta(uploadIdFromCaseId(caseId));
+    if (!meta) throw new Error(`unknown uploaded case_id: ${caseId}`);
+    return { case_id: meta.case_id, dataset: 'custom', csv: `uploads/${meta.upload_id}/data.csv`, control: false };
+  }
   const c = loadCasesRaw().find((x) => x.case_id === caseId);
   if (!c) throw new Error(`unknown case_id: ${caseId}`);
   return c;
@@ -194,6 +292,7 @@ export function loadCase(caseId) {
 
 /** Sanitized case definition — safe to hand to a diagnostic algorithm. */
 export function loadCaseForAlgorithm(caseId) {
+  if (isUploadCaseId(caseId)) return uploadCaseDef(uploadIdFromCaseId(caseId));
   const c = loadCase(caseId);
   const safe = { ...c };
   for (const f of TRUTH_FIELDS) delete safe[f];
@@ -202,13 +301,15 @@ export function loadCaseForAlgorithm(caseId) {
   return safe;
 }
 
-/** Truth-only view, for the scorer. */
+/** Truth-only view, for the scorer. Uploads have none — reported, not invented. */
 export function loadTruth(caseId) {
+  if (isUploadCaseId(caseId)) return uploadTruthStub(uploadIdFromCaseId(caseId));
   const c = loadCase(caseId);
   return {
     case_id: c.case_id,
     dataset: c.dataset,
     control: !!c.control,
+    has_ground_truth: true,
     truth: c.truth || '',
     keywords: c.keywords || [],
     expect_type_set: c.expect_type_set || [],

@@ -12,7 +12,7 @@
 //     from the file under test.
 
 import { loadCasesRaw, repoPath, exists } from '../paths.mjs';
-import { faultWindow, loadCaseMatrix, loadMatrixCached } from '../dataset.mjs';
+import { faultWindow, loadCaseMatrix, loadMatrixCached, calibrationRows } from '../dataset.mjs';
 
 /** The dataset's normal-control case (the only legitimate training source). */
 export function controlCaseFor(dataset) {
@@ -24,19 +24,60 @@ export function controlCaseFor(dataset) {
 /**
  * Build the evaluation context handed to every algorithm.
  * `caseDef` MUST already be sanitized (no truth fields) — see paths.mjs.
+ *
+ * REFERENCE SELECTION
+ * -------------------
+ * Benchmark cases: the dataset's registered normal-control scenario file. This
+ * is the protocol the repository's own PCA script uses, which is what makes the
+ * lab's numbers comparable with results/benchmark/baseline_pca_rca.json.
+ *
+ * Uploaded user data: there is no registered control, so the reference is a
+ * CALIBRATION SPLIT of the uploaded record itself — the first
+ * `calibration_fraction` (default 30%) of rows. That is the standard approach for
+ * a single unlabelled record and it needs no second file from the user, but it is
+ * a weaker footing than an independent normal run, so it is recorded in
+ * `reference.source` and surfaced in the result and the UI rather than hidden.
  */
 export function buildContext(caseDef, { log = () => {} } = {}) {
   const matrix = loadCaseMatrix(caseDef);
-  const win = faultWindow(caseDef, matrix.n);
 
-  const ctrl = controlCaseFor(caseDef.dataset);
+  const isUpload = caseDef.dataset === 'custom' || Boolean(caseDef.upload);
   let reference = null;
-  if (ctrl && exists(ctrl.csv_abs)) {
+  let win;
+
+  if (isUpload) {
+    const fraction = caseDef.upload?.calibration_fraction ?? 0.3;
+    const cut = calibrationRows(matrix.n, fraction);
     reference = {
-      case_id: ctrl.case_id,
-      matrix: loadMatrixCached(ctrl.csv_abs),
-      is_self: ctrl.case_id === caseDef.case_id,
+      case_id: `${caseDef.case_id}:calibration`,
+      matrix: {
+        ...matrix,
+        X: matrix.X.slice(0, cut),
+        n: cut,
+        times: matrix.times.slice(0, cut),
+      },
+      is_self: true,
+      source: 'in-file calibration split',
+      disclosure:
+        `Thresholds are calibrated on the first ${cut} of ${matrix.n} rows (${(fraction * 100).toFixed(0)}%) `
+        + 'of THIS file. No independent normal-operation baseline was supplied, so treat the control limits as '
+        + 'self-referenced: if that leading segment is not representative of normal operation, the limits inherit that.',
+      calibration_rows: cut,
+      monitored_rows: matrix.n - cut,
     };
+    win = { start: cut, end: matrix.n };
+  } else {
+    win = faultWindow(caseDef, matrix.n);
+    const ctrl = controlCaseFor(caseDef.dataset);
+    if (ctrl && exists(ctrl.csv_abs)) {
+      reference = {
+        case_id: ctrl.case_id,
+        matrix: loadMatrixCached(ctrl.csv_abs),
+        is_self: ctrl.case_id === caseDef.case_id,
+        source: 'registered normal-control case',
+        disclosure: `Thresholds come from the dataset's normal-control scenario (${ctrl.case_id}).`,
+      };
+    }
   }
 
   return {
@@ -44,8 +85,9 @@ export function buildContext(caseDef, { log = () => {} } = {}) {
     matrix,
     faultWindow: win,
     reference,
+    has_ground_truth: !isUpload,
     log,
-    /** rows of the case inside its fault window */
+    /** rows of the case inside its monitoring window */
     faultRows() {
       return matrix.X.slice(win.start, win.end);
     },

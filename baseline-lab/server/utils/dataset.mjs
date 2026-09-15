@@ -14,6 +14,7 @@
 
 import fs from 'node:fs';
 import { repoPath, exists } from './paths.mjs';
+import { pearson } from './linalg.mjs';
 
 // ------------------------------------------------------------- CSV parsing
 
@@ -121,6 +122,12 @@ export function loadMatrixCached(file) {
   return cache.get(file);
 }
 
+/** Drop a cached matrix (or the whole cache) — used when an upload is deleted. */
+export function clearMatrixCache(file = null) {
+  if (file) cache.delete(file);
+  else cache.clear();
+}
+
 /** Load a benchmark case's dataset (sanitized case object required). */
 export function loadCaseMatrix(caseDef) {
   const abs = caseDef.csv_abs || repoPath(caseDef.csv);
@@ -201,26 +208,43 @@ export function faultWindow(caseDef, n) {
   return { start: 0, end: n };
 }
 
-/** Blind per-column anomaly digest — the same shape the pipeline brief uses. */
-export function anomalyDigest(matrix, { topK = 8 } = {}) {
+/**
+ * Blind per-column anomaly digest — the same shape the pipeline brief uses.
+ *
+ * MASKING GUARD: when `referenceRows` is supplied, the mean/std come from THAT
+ * segment and the reported excursions are measured over everything else. This
+ * matters: scoring a record against its own whole-record mean/std lets a
+ * sustained fault inflate the standard deviation and hide itself. On the planted
+ * test record a 30% flow step reported `max|z| = 2, 0% beyond 3σ` under
+ * whole-record statistics, while the detectors (which calibrate on the leading
+ * segment) alarmed on 43-99% of rows. The model must see the same baseline the
+ * detectors actually test against.
+ */
+export function anomalyDigest(matrix, { topK = 8, referenceRows = null } = {}) {
   const { X, colNames } = matrix;
   const n = X.length;
   const m = colNames.length;
+
+  const refEnd = referenceRows && referenceRows > 1 && referenceRows < n ? referenceRows : null;
+  const refIdx = refEnd ? Array.from({ length: refEnd }, (_, i) => i) : Array.from({ length: n }, (_, i) => i);
+  const scanIdx = refEnd ? Array.from({ length: n - refEnd }, (_, i) => i + refEnd) : refIdx;
+
   const stats = [];
   for (let j = 0; j < m; j++) {
     let s = 0;
-    for (let i = 0; i < n; i++) s += X[i][j];
-    const mu = s / n;
+    for (const i of refIdx) s += X[i][j];
+    const mu = s / refIdx.length;
     let v = 0;
-    for (let i = 0; i < n; i++) { const d = X[i][j] - mu; v += d * d; }
-    const sd = Math.sqrt(v / Math.max(1, n - 1)) || 1e-12;
+    for (const i of refIdx) { const d = X[i][j] - mu; v += d * d; }
+    const sd = Math.sqrt(v / Math.max(1, refIdx.length - 1)) || 1e-12;
+
     let maxAbsZ = 0, beyond = 0;
-    for (let i = 0; i < n; i++) {
+    for (const i of scanIdx) {
       const z = Math.abs((X[i][j] - mu) / sd);
       if (z > maxAbsZ) maxAbsZ = z;
       if (z > 3) beyond++;
     }
-    stats.push({ col: colNames[j], maxAbsZ, pctBeyond3: beyond / n });
+    stats.push({ col: colNames[j], maxAbsZ, pctBeyond3: beyond / scanIdx.length });
   }
   stats.sort((a, b) => b.maxAbsZ - a.maxAbsZ);
   return stats.slice(0, topK).map((s) => ({
@@ -228,6 +252,44 @@ export function anomalyDigest(matrix, { topK = 8 } = {}) {
     max_abs_z: Number(s.maxAbsZ.toFixed(2)),
     pct_z3: Number(s.pctBeyond3.toFixed(4)),
   }));
+}
+
+/**
+ * Strongest cross-domain correlation pairs over the scanned window.
+ * The pipeline brief carries these, and the LLM prompts lean on them, so user
+ * data must have them too rather than a "(not available)" placeholder.
+ */
+export function topCorrelationPairs(matrix, { topK = 6, referenceRows = null } = {}) {
+  const { X, colNames } = matrix;
+  const n = X.length;
+  const start = referenceRows && referenceRows > 1 && referenceRows < n ? referenceRows : 0;
+  const idx = Array.from({ length: n - start }, (_, i) => i + start);
+  if (colNames.length < 2 || idx.length < 3) return [];
+
+  const pairs = [];
+  for (let a = 0; a < colNames.length; a++) {
+    for (let b = a + 1; b < colNames.length; b++) {
+      const va = idx.map((i) => X[i][a]);
+      const vb = idx.map((i) => X[i][b]);
+      const r = pearson(va, vb);
+      pairs.push({ a: colNames[a], b: colNames[b], r });
+    }
+  }
+  pairs.sort((x, y) => Math.abs(y.r) - Math.abs(x.r));
+  return pairs.slice(0, topK).map((p) => `${p.a} ~ ${p.b}: r=${p.r.toFixed(3)}`);
+}
+
+/**
+ * Number of leading rows used to calibrate thresholds for an UNLABELLED record.
+ *
+ * Single source of truth: the algorithm context (which builds the reference) and
+ * the LLM digest (which must z-score against that same reference) both call this.
+ * If they drifted apart, the model would be shown different excursions from the
+ * ones the detectors actually test against.
+ */
+export function calibrationRows(n, fraction = 0.3) {
+  const f = Number.isFinite(Number(fraction)) ? Number(fraction) : 0.3;
+  return Math.max(10, Math.min(Math.max(10, n - 10), Math.round(n * f)));
 }
 
 /** Column index lookup by canonical name. */

@@ -128,3 +128,8 @@ baseline-lab/.llm-scratch/
 baseline-lab/dist/
 baseline-lab/.env
 
+# User-uploaded datasets are runtime state, not repository content: they belong
+# to whoever uploaded them and must never be committed. Sweeps over them land in
+# baseline-lab/results/runs/ (committed) and are self-describing.
+baseline-lab/uploads/
+

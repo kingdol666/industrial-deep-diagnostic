@@ -47,6 +47,36 @@ export function scoreResult(truth, output) {
   const lower1 = top1.toLowerCase();
   const lower3 = top3.join(' \n ').toLowerCase();
 
+  // ---- UNSCORED: user-uploaded data has no ground truth ------------------
+  // Reporting `strict_top1_hit: false` here would be a lie of omission — it
+  // reads as "the algorithm got it wrong" when in fact nothing is known about
+  // correctness. Detection statistics and hypotheses are still returned.
+  if (truth.has_ground_truth === false) {
+    return {
+      case_id: truth.case_id,
+      control: false,
+      scored: false,
+      unscored_reason: 'no_ground_truth',
+      note: truth.note || 'No ground truth exists for this dataset; this run is reported unscored.',
+      top3,
+      kw_hits: [],
+      strict_top1_hit: null,
+      top1_kw_hit: null,
+      verdict: output?.verdict ?? (top3.length ? 'fault' : 'normal'),
+      control_pass: null,
+      false_alarm: null,
+      fe_style_top3_hit: null,
+      true_idv: null,
+      exact_idv_top1_hit: null,
+      exact_idv_top3_hit: null,
+      strict_but_not_exact: null,
+      idv_rank: null,
+      diagnosis_type: output?.diagnosis_type || (top3.length ? 'DETERMINED' : 'NEEDS_DATA'),
+      calibrated: null,
+      overconfident: null,
+    };
+  }
+
   const keywords = truth.keywords || [];
   const kwHits = keywords.filter((k) => lower3.includes(String(k).toLowerCase()));
   const top1Kw = keywords.some((k) => lower1.includes(String(k).toLowerCase()));
@@ -119,7 +149,11 @@ export function scoreResult(truth, output) {
 
 /** Roll a set of scored results into the headline metrics. */
 export function aggregate(scored, { algorithms = null } = {}) {
-  const rows = Object.values(scored);
+  const all = Object.values(scored);
+  // Unscored rows (user uploads) are excluded from every accuracy denominator —
+  // counting them would silently drag every rate toward zero.
+  const rows = all.filter((r) => r.scored !== false);
+  const unscored = all.filter((r) => r.scored === false);
   const faults = rows.filter((r) => !r.control);
   const controls = rows.filter((r) => r.control);
   const tepFaults = faults.filter((r) => r.true_idv);
@@ -130,6 +164,8 @@ export function aggregate(scored, { algorithms = null } = {}) {
   const exactCount = tepFaults.filter((r) => r.exact_idv_top1_hit).length;
   return {
     algorithms,
+    unscored_rows: unscored.length,
+    scored_rows: rows.length,
     cases: rows.length,
     fault_cases: faults.length,
     control_cases: controls.length,
