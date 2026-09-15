@@ -1381,7 +1381,7 @@ onBeforeUnmount(() => {
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 11px;
   color: var(--accent);
-  background: rgba(88,166,255,.06);
+  background: var(--cyan-soft);
   padding: 6px 8px;
   border-radius: 4px;
   word-break: break-all;
@@ -1519,7 +1519,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .4px;
-  background: rgba(188, 140, 255, .1);
+  background: var(--purple-fill);
   color: var(--purple);
 }
 .question-text {
@@ -1545,8 +1545,8 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.02);
 }
 .question-option:hover {
-  background: rgba(188, 140, 255, .04);
-  border-color: rgba(188, 140, 255, .1);
+  background: var(--purple-soft);
+  border-color: var(--purple-fill);
 }
 .question-option-empty { color: var(--text2); font-style: italic; }
 .option-marker {
@@ -1566,7 +1566,7 @@ onBeforeUnmount(() => {
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(188, 140, 255, .08);
+  background: var(--purple-fill);
   color: var(--purple);
   margin-bottom: 6px;
 }
@@ -1601,13 +1601,13 @@ onBeforeUnmount(() => {
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
-  background: rgba(88, 166, 255, .1);
+  background: var(--cyan-soft);
   color: var(--accent);
 }
 .card-progress {
   border-left: 3px solid var(--accent);
   border-radius: 12px;
-  background: rgba(22, 27, 34, .54);
+  background: var(--surface-soft);
 }
 .card-progress.progress-completed { border-left-color: var(--green); }
 .card-progress.progress-failed { border-left-color: var(--red); }
@@ -1621,9 +1621,9 @@ onBeforeUnmount(() => {
   font-weight: 700;
   letter-spacing: .2px;
 }
-.stage-blue { background: rgba(88,166,255,.12); color: var(--accent); }
-.stage-cyan { background: rgba(34,211,238,.12); color: #22d3ee; }
-.stage-purple { background: rgba(188,140,255,.12); color: var(--purple); }
+.stage-blue { background: var(--cyan-fill); color: var(--accent); }
+.stage-cyan { background: var(--cyan-fill); color: var(--cyan); }
+.stage-purple { background: var(--purple-fill); color: var(--purple); }
 .stage-green { background: rgba(63,185,80,.12); color: var(--green); }
 .stage-gray { background: rgba(139,148,158,.12); color: var(--text2); }
 .progress-detail { padding: 6px 12px 2px; }

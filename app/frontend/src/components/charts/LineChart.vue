@@ -11,6 +11,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart as ELineChart } from 'echarts/charts';
 import { GridComponent, TooltipComponent, DataZoomComponent, LegendComponent } from 'echarts/components';
+import { seriesPalette } from '../../utils/chartTheme';
 
 use([CanvasRenderer, ELineChart, GridComponent, TooltipComponent, DataZoomComponent, LegendComponent]);
 
@@ -22,8 +23,6 @@ const props = defineProps({
   colors: { type: Array, default: () => [] },
   zoomable: { type: Boolean, default: true },
 });
-
-const DEFAULT_COLORS = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
 
 const chartOption = computed(() => {
   const series = (props.yFields || []).map((field, idx) => ({
@@ -75,7 +74,9 @@ const chartOption = computed(() => {
       splitLine: { lineStyle: { color: '#eee', type: 'dashed' } },
       axisLabel: { color: '#666' },
     },
-    color: props.colors.length ? props.colors : DEFAULT_COLORS,
+    /* Series colours come from the design tokens — amber, cyan, green, purple,
+       red, bright amber — not ECharts' stock cool defaults. */
+    color: props.colors.length ? props.colors : seriesPalette(),
     dataZoom: props.zoomable
       ? [
           { type: 'inside', start: 0, end: 100 },

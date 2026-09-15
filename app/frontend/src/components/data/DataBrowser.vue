@@ -82,14 +82,20 @@
            in a fixed column so 40 rows can be scanned vertically; size is
            right-aligned and tabular so magnitudes compare at a glance. -->
       <div class="ip-table ip-panel data-manifest">
-        <div class="ip-thead manifest-cols">
-          <span class="col-check"></span>
-          <span>{{ $t('data.colName') }}</span>
-          <span>{{ $t('data.colType') }}</span>
-          <span class="ta-r">{{ $t('data.colSize') }}</span>
-          <span class="ta-r">{{ $t('data.colActions') }}</span>
-        </div>
+        <!-- The header lives INSIDE the scroll host. It used to be a sibling,
+             which meant two things were broken at once: `.ip-thead` declares
+             `position: sticky` but had no scroll ancestor to stick to, and the
+             header and the rows sat in separate scroll contexts — so any
+             horizontal overflow on a narrow viewport scrolled the rows out
+             from under their own column titles. -->
         <div class="manifest-body ip-scroll">
+          <div class="ip-thead manifest-cols">
+            <span class="col-check"></span>
+            <span>{{ $t('data.colName') }}</span>
+            <span>{{ $t('data.colType') }}</span>
+            <span class="ta-r">{{ $t('data.colSize') }}</span>
+            <span class="ta-r">{{ $t('data.colActions') }}</span>
+          </div>
           <div
             v-for="item in items"
             :key="item.name"
@@ -386,10 +392,23 @@ function formatSize(bytes) {
 
 .data-stats { margin-bottom: 12px; }
 .data-manifest { min-height: 0; }
+/* The name column carries the only identifying value in the row, so it gets a
+   floor (`180px`) rather than `minmax(0, …)`. With a 0 floor, a 390px phone
+   collapsed it to nothing and the manifest rendered as a list of anonymous
+   "文件夹" rows with their names clipped away. The track sum below is
+   26 + 180 + 96 + 92 + 120 + 4×10 gaps + 2×12 padding = 580px; declaring it as
+   a min-width on the whole row means a narrow viewport scrolls the instrument
+   readout sideways instead of crushing a column out of existence. */
 .manifest-cols {
-  grid-template-columns: 26px minmax(0, 2.4fr) 96px 92px minmax(120px, auto);
+  grid-template-columns: 26px minmax(180px, 2.4fr) 96px 92px minmax(120px, auto);
+  min-width: 580px;
 }
-.manifest-body { overflow-y: auto; min-height: 0; }
+/* One scroll host for header AND rows, so they can never drift apart. */
+.manifest-body {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
 .manifest-body .ip-row { cursor: pointer; }
 .col-check { display: flex; align-items: center; }
 .cell-name { display: flex; align-items: center; gap: 8px; min-width: 0; }

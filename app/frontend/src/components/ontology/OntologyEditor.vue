@@ -801,16 +801,16 @@ function newDiscrepancy() {
 .onto-badge.bhv-contradicted { color: var(--red); border-color: rgba(212,93,61,0.4); }
 .onto-badge.bhv-unverified { color: var(--text3); }
 .onto-badge.rel-causal { color: #f97362; border-color: rgba(249,115,98,0.35); }
-.onto-badge.rel-correlative { color: #4ea8f5; border-color: rgba(78,168,245,0.35); }
+.onto-badge.rel-correlative { color: var(--cyan); border-color: var(--cyan-border); }
 .onto-badge.rel-control { color: #31c9a8; border-color: rgba(49,201,168,0.35); }
 .onto-badge.rel-physical { color: #c9a227; border-color: rgba(201,162,39,0.35); }
-.onto-badge.inferred { color: var(--cyan); border-color: rgba(107,168,184,0.35); }
+.onto-badge.inferred { color: var(--cyan); border-color: var(--cyan-border); }
 .onto-badge.sev-high { color: var(--red); border-color: rgba(212,93,61,0.4); }
 .onto-badge.sev-medium { color: var(--yellow); border-color: rgba(212,169,61,0.35); }
 .onto-badge.sev-low, .onto-badge.sev-info { color: var(--text3); }
 .onto-badge.bucket-inspection_signals { color: #f97362; }
 .onto-badge.bucket-control_variables { color: #31c9a8; }
-.onto-badge.bucket-events { color: #b98cf0; }
+.onto-badge.bucket-events { color: var(--purple); }
 .onto-badge.bucket-metadata_columns { color: #8b93a7; }
 
 .onto-field-grid {

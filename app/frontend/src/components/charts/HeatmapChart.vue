@@ -11,6 +11,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { HeatmapChart as EHeatmap } from 'echarts/charts';
 import { GridComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
+import { heatRamp } from '../../utils/chartTheme';
 
 use([CanvasRenderer, EHeatmap, GridComponent, TooltipComponent, VisualMapComponent]);
 
@@ -71,7 +72,9 @@ const chartOption = computed(() => {
       right: 0,
       top: 'center',
       inRange: {
-        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#fee090', '#fdae61', '#f46d43', '#d73027'],
+        /* Warm cold-to-hot ramp from the design tokens (recessed well → surface
+           → caution yellow → amber → cadmium rust). No blue. */
+        color: heatRamp(),
       },
       textStyle: { color: '#666' },
     },

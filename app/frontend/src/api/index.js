@@ -266,8 +266,14 @@ export const api = {
     request(`/harness/${id}/runs/${encodeURIComponent(name)}/artifact/${kind}`),
   harnessEnhancement: (id, name, kind) =>
     request(`/harness/${id}/runs/${encodeURIComponent(name)}/enhancement/${kind}`),
-  harnessHtmlUrl: (id, name, mode = 'baseline') =>
-    `${BASE}/harness/${id}/runs/${encodeURIComponent(name)}/html?mode=${mode}`,
+  // Loaded as an <iframe src>, which the browser cannot attach an
+  // Authorization header to — so the session token rides as a query param,
+  // the same fallback the backend already sanctions for SSE/EventSource.
+  harnessHtmlUrl: (id, name, mode = 'baseline') => {
+    const url = `${BASE}/harness/${id}/runs/${encodeURIComponent(name)}/html?mode=${mode}`;
+    const token = getToken();
+    return token ? `${url}&token=${encodeURIComponent(token)}` : url;
+  },
 
   // ── OMP harness bridge (legacy alias, kept for compatibility) ──
   ompHealth: () => request('/omp/health'),

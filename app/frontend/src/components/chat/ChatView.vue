@@ -1146,9 +1146,19 @@ onBeforeUnmount(() => {
   justify-content: center;
   min-height: 36px;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(31, 111, 235, 0.96), rgba(20, 91, 201, 0.96));
-  box-shadow: 0 12px 32px rgba(12, 33, 75, 0.35);
+  /* Solid amber primary — the one accent this system allows, following the
+     .btn-primary idiom instead of a blue gradient. */
+  background: var(--accent);
+  border: 1px solid var(--accent-strong);
+  color: #1a1408;
+  font-weight: 600;
+  box-shadow: var(--inset-hi), 0 0 0 1px rgba(232, 163, 61, 0.2), 0 4px 14px rgba(232, 163, 61, 0.18);
   padding: 0 12px;
+}
+
+.chat-sidebar-new:hover:not(:disabled) {
+  background: var(--accent-bright);
+  border-color: var(--accent);
 }
 
 .chat-sidebar-new-icon {
@@ -1893,9 +1903,11 @@ onBeforeUnmount(() => {
 }
 .chat-engine-opt:hover { color: var(--text-primary, rgba(255,255,255,.85)); background: rgba(255,255,255,.05); }
 .chat-engine-opt.active.engine-claude {
-  color: #7fb3ff;
-  background: rgba(88,140,255,.14);
-  border-color: rgba(88,140,255,.45);
+  /* Selected engine is a primary/active affordance, so it takes the amber
+     accent rather than an off-palette blue. */
+  color: var(--accent-bright);
+  background: var(--accent-soft-strong);
+  border-color: var(--border-accent);
 }
 .chat-engine-opt.active.engine-omp {
   color: #ffb45e;

@@ -55,6 +55,34 @@
   --purple: #b889e0;      /* reserved: awaiting input */
   --cyan: #6ba8b8;        /* muted steel — info */
 
+  /* ── State tints — the alpha ramp for every semantic hue ─────────────
+     Every state in this product needs the same three weights: a fill for a
+     resting surface, a stronger fill for a selected/active one, and a border.
+     Components used to hand-write `rgba(...)` for these, which is how a
+     GitHub-blue (`88,166,255`) and a stray violet (`188,140,255`) got into the
+     message stream and the answer bar — two hues that exist nowhere in this
+     palette. Declaring the ramp once means the next state tint is a token
+     lookup, not an invented colour. */
+  --green-soft: rgba(143, 191, 106, 0.10);
+  --green-fill: rgba(143, 191, 106, 0.16);
+  --green-border: rgba(143, 191, 106, 0.30);
+  --yellow-soft: rgba(212, 169, 61, 0.10);
+  --yellow-fill: rgba(212, 169, 61, 0.16);
+  --yellow-border: rgba(212, 169, 61, 0.32);
+  --red-soft: rgba(212, 93, 61, 0.10);
+  --red-fill: rgba(212, 93, 61, 0.16);
+  --red-border: rgba(212, 93, 61, 0.34);
+  --purple-soft: rgba(184, 137, 224, 0.10);
+  --purple-fill: rgba(184, 137, 224, 0.18);
+  --purple-border: rgba(184, 137, 224, 0.32);
+  --cyan-soft: rgba(107, 168, 184, 0.10);
+  --cyan-fill: rgba(107, 168, 184, 0.18);
+  --cyan-border: rgba(107, 168, 184, 0.32);
+
+  /* Recessed wells — deeper than any surface, for code blocks and insets. */
+  --well: #080905;
+  --well-2: #0a0b07;
+
   /* ── Geometry — sharper, more deliberate ──────────── */
   --radius-xs: 3px;
   --radius-sm: 5px;
@@ -299,6 +327,56 @@ a { color: inherit; }
   border-color: var(--border-accent);
   background: var(--accent-soft);
 }
+
+/* ── Phone nav toggle ──────────────────────────────────────────────────
+   Hidden on every viewport that can afford the rail; the phone media query
+   swaps it in for the collapse control. Three hairlines rather than a glyph,
+   so its weight matches the instrument's 1px rules instead of whatever the
+   OS font decides a ☰ should weigh. */
+.app-nav-toggle {
+  display: none;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  place-items: center;
+  transition: all 0.14s ease;
+}
+
+.app-nav-toggle-bars,
+.app-nav-toggle-bars::before,
+.app-nav-toggle-bars::after {
+  display: block;
+  width: 14px;
+  height: 1px;
+  background: var(--text3);
+  transition: background 0.14s ease;
+}
+
+.app-nav-toggle-bars { position: relative; }
+
+.app-nav-toggle-bars::before,
+.app-nav-toggle-bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.app-nav-toggle-bars::before { top: -4.5px; }
+.app-nav-toggle-bars::after { top: 4.5px; }
+
+.app-nav-toggle:hover {
+  border-color: var(--border-accent);
+  background: var(--accent-soft);
+}
+
+.app-nav-toggle:hover .app-nav-toggle-bars,
+.app-nav-toggle:hover .app-nav-toggle-bars::before,
+.app-nav-toggle:hover .app-nav-toggle-bars::after { background: var(--accent); }
 
 /* ── Primary navigation — the rail's one scrollable band ───────────────
    `flex: 1 1 auto` + `min-height: 0` lets it take exactly the space left
@@ -799,13 +877,13 @@ a { color: inherit; }
 }
 
 .btn-danger {
-  border-color: rgba(212, 93, 61, 0.4);
+  border-color: var(--red-border);
   color: var(--red);
-  background: rgba(212, 93, 61, 0.08);
+  background: var(--red-soft);
 }
 
 .btn-danger:hover {
-  background: rgba(212, 93, 61, 0.14);
+  background: var(--red-fill);
   border-color: var(--red);
 }
 
@@ -837,11 +915,11 @@ a { color: inherit; }
   border: 1px solid transparent;
 }
 
-.badge-green { background: rgba(143, 191, 106, 0.10); color: var(--green); border-color: rgba(143, 191, 106, 0.22); }
-.badge-yellow { background: rgba(212, 169, 61, 0.10); color: var(--yellow); border-color: rgba(212, 169, 61, 0.22); }
-.badge-red { background: rgba(212, 93, 61, 0.10); color: var(--red); border-color: rgba(212, 93, 61, 0.22); }
+.badge-green { background: var(--green-soft); color: var(--green); border-color: var(--green-border); }
+.badge-yellow { background: var(--yellow-soft); color: var(--yellow); border-color: var(--yellow-border); }
+.badge-red { background: var(--red-soft); color: var(--red); border-color: var(--red-border); }
 .badge-blue { background: var(--accent-soft); color: var(--accent); border-color: var(--border-accent); }
-.badge-purple { background: rgba(184, 137, 224, 0.10); color: var(--purple); border-color: rgba(184, 137, 224, 0.22); }
+.badge-purple { background: var(--purple-soft); color: var(--purple); border-color: var(--purple-border); }
 
 /* ── Engine / provenance badges (History actions rail) ──
    Telemetry chips in the instrument language: mono micro-caps,
@@ -872,16 +950,16 @@ a { color: inherit; }
 
 /* Ontology asset reuse — phosphor green (efficient / endorsed path) */
 .engine-badge.ont-badge {
-  background: rgba(143, 191, 106, 0.10);
+  background: var(--green-soft);
   color: var(--green);
-  border-color: rgba(143, 191, 106, 0.22);
+  border-color: var(--green-border);
 }
 
 /* E0-E8 enhancement — muted steel info */
 .engine-badge.enh-badge {
-  background: rgba(107, 168, 184, 0.10);
+  background: var(--cyan-soft);
   color: var(--cyan);
-  border-color: rgba(107, 168, 184, 0.25);
+  border-color: var(--cyan-border);
 }
 
 /* Deep-enhance action — amber outline that fills on hover,
@@ -1343,15 +1421,15 @@ select {
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.04em;
-  background: rgba(143, 191, 106, 0.08);
+  background: var(--green-soft);
   color: var(--green);
-  border: 1px solid rgba(143, 191, 106, 0.22);
+  border: 1px solid var(--green-border);
 }
 
 .omp-engine-pill.off {
-  background: rgba(212, 93, 61, 0.08);
+  background: var(--red-soft);
   color: var(--red);
-  border-color: rgba(212, 93, 61, 0.22);
+  border-color: var(--red-border);
 }
 
 .omp-engine-dot {
@@ -1462,10 +1540,10 @@ select {
   background: currentColor;
 }
 
-.st-completed { background: rgba(143, 191, 106, 0.08); color: var(--green); }
-.st-report    { background: rgba(107, 168, 184, 0.10); color: var(--cyan); }
-.st-diagnosed { background: rgba(184, 137, 224, 0.10); color: var(--purple); }
-.st-progress  { background: rgba(212, 169, 61, 0.10); color: var(--yellow); }
+.st-completed { background: var(--green-soft); color: var(--green); }
+.st-report    { background: var(--cyan-soft); color: var(--cyan); }
+.st-diagnosed { background: var(--purple-soft); color: var(--purple); }
+.st-progress  { background: var(--yellow-soft); color: var(--yellow); }
 .st-init      { background: var(--surface2); color: var(--text3); }
 
 .omp-run-meta {
@@ -1494,9 +1572,9 @@ select {
 .omp-error {
   padding: 14px;
   border-radius: var(--radius);
-  background: rgba(212, 93, 61, 0.06);
+  background: var(--red-soft);
   color: var(--red);
-  border: 1px solid rgba(212, 93, 61, 0.22);
+  border: 1px solid var(--red-border);
   border-left: 3px solid var(--red);
   font-size: 12.5px;
 }
@@ -1962,14 +2040,98 @@ select {
   .app-presence { justify-content: center; }
 }
 
-/* ── Phones: single-column nav in the band ── */
+/* ── Phones: the rail becomes a command bar, the nav becomes a drawer ──
+   A 7-item single-column nav in the band measured 506px on a 390×844 phone —
+   60% of the viewport consumed before any content appeared, which is why the
+   band was capped at 60vh in the first place. Capping it did not fix the
+   shape of the problem, only truncated it.
+
+   On a phone the rail now collapses to one 48px command bar (mark, title,
+   engine state) and the nav + footer live behind a toggle. The page gets the
+   full remaining viewport instead of competing with navigation for it. */
 @media (max-width: 700px) {
-  .app-sidebar { max-height: 60vh; padding: 12px 12px 10px; }
+  .app-sidebar {
+    max-height: none;
+    padding: 8px 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
 
-  .app-brand { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; }
-  .app-brand-mark { width: 36px; height: 36px; font-size: 12px; }
+  .app-brand {
+    flex: 1 1 auto;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 10px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .app-brand-mark { width: 34px; height: 34px; font-size: 12px; }
+  .app-brand-kicker,
+  .app-brand-subtitle { display: none; }
+  .app-brand-title {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-  .app-nav { grid-template-columns: 1fr; }
+  /* Swap the collapse control for the drawer toggle. */
+  .app-sidebar-toggle { display: none; }
+  .app-nav-toggle { display: grid; }
+
+  /* Nav and footer are the drawer: out of flow until the toggle opens them. */
+  .app-nav,
+  .app-sidebar-footer {
+    display: none;
+    flex-basis: 100%;
+  }
+
+  .app-shell.app-shell-nav-open .app-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: 52vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+  }
+
+  .app-shell.app-shell-nav-open .app-sidebar-footer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 0;
+    padding-top: 10px;
+  }
+
+  .app-nav-item { padding: 8px 10px; }
+
+  /* A collapsed-rail preference saved on desktop must not leak into the
+     drawer: on a phone there is no rail to collapse, and honouring the flag
+     here would render the nav as a column of unlabelled icons. */
+  .app-shell.app-shell-collapsed .app-brand {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    justify-items: stretch;
+    padding-bottom: 0;
+  }
+  .app-shell.app-shell-collapsed .app-brand-copy,
+  .app-shell.app-shell-collapsed .app-nav-copy { display: block; }
+  .app-shell.app-shell-collapsed .app-nav-item {
+    justify-content: flex-start;
+    padding: 8px 10px;
+  }
+  .app-shell.app-shell-collapsed .app-nav-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  .app-shell.app-shell-collapsed .app-sidebar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 
   .app-topbar {
     padding: 10px 14px;
@@ -2136,13 +2298,17 @@ samp {
   flex: none;
   opacity: 0.85;
 }
-.ip-chip.ok      { color: var(--green);  border-color: rgba(143,191,106,0.34); }
-.ip-chip.warn    { color: var(--yellow); border-color: rgba(212,169,61,0.34); }
-.ip-chip.bad     { color: var(--red);    border-color: rgba(212,93,61,0.38); }
-.ip-chip.info    { color: var(--cyan);   border-color: rgba(107,168,184,0.34); }
+.ip-chip.ok      { color: var(--green);  border-color: var(--green-border); }
+.ip-chip.warn    { color: var(--yellow); border-color: var(--yellow-border); }
+.ip-chip.bad     { color: var(--red);    border-color: var(--red-border); }
+.ip-chip.info    { color: var(--cyan);   border-color: var(--cyan-border); }
+.ip-chip.wait    { color: var(--purple); border-color: var(--purple-border); }
 .ip-chip.accent  { color: var(--accent-bright); border-color: var(--border-accent); }
 .ip-chip.muted   { color: var(--text3); }
 .ip-chip.no-dot::before { display: none; }
+/* A chip that must not wrap its label — CJK status text in a narrow column
+   will otherwise break one character per line and turn a chip into a ladder. */
+.ip-chip.nowrap  { white-space: nowrap; word-break: keep-all; }
 
 /* ── Stat strip — a row of labelled readouts ─────────────────────────── */
 .ip-stats {

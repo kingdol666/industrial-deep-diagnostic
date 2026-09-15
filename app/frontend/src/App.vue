@@ -1,6 +1,6 @@
 <template>
   <AuthView v-if="!authed" @authed="onAuthed" />
-  <div v-else :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed }]">
+  <div v-else :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed, 'app-shell-nav-open': mobileNavOpen }]">
     <aside class="app-sidebar">
       <div class="app-brand">
         <div class="app-brand-mark">ID</div>
@@ -9,6 +9,17 @@
           <div class="app-brand-title">{{ $t('common.appName') }}</div>
           <div class="app-brand-subtitle">{{ $t('common.appSubtitle') }}</div>
         </div>
+        <!-- Phone only: the rail becomes a command bar and the nav lives
+             behind this toggle, so content is not pushed below a 500px band. -->
+        <button
+          class="app-nav-toggle"
+          type="button"
+          :aria-expanded="mobileNavOpen"
+          :title="mobileNavOpen ? $t('sidebar.collapseSidebar') : $t('sidebar.expandSidebar')"
+          @click="mobileNavOpen = !mobileNavOpen"
+        >
+          <span class="app-nav-toggle-bars" aria-hidden="true"></span>
+        </button>
         <button
           class="app-sidebar-toggle"
           type="button"
@@ -25,7 +36,7 @@
           :key="tab.key"
           :class="['app-nav-item', { active: currentTab === tab.key }]"
           :title="tab.label"
-          @click="currentTab = tab.key"
+          @click="selectTab(tab.key)"
         >
           <span class="app-nav-icon">{{ tab.icon }}</span>
           <span class="app-nav-copy">
@@ -215,6 +226,7 @@ const analysisTarget = ref(null);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
+const mobileNavOpen = ref(false);   // phones only: nav drawer
 const engineListOpen = ref(false);
 const harness = ref('claude'); // default engine id; list refreshed from registry
 const harnessList = ref([]); // [{id, name, kind, description, capabilities}] from /api/harness
@@ -374,6 +386,23 @@ function toggleSidebar() {
   } catch {}
 }
 
+/**
+ * Every tab change goes through here so the phone drawer closes itself. The
+ * drawer is an overlay: leaving it open after a selection would hide the page
+ * the user just asked for.
+ */
+function selectTab(key) {
+  currentTab.value = key;
+  mobileNavOpen.value = false;
+}
+
+// The drawer is meaningless once the viewport is wide enough for the rail.
+// Without this, resizing up and back down leaves the nav stuck open.
+function onViewportResize() {
+  if (window.innerWidth > PHONE_MAX && mobileNavOpen.value) mobileNavOpen.value = false;
+}
+const PHONE_MAX = 700;
+
 function onToggleLocale() {
   toggleLocale();
 }
@@ -421,6 +450,7 @@ function onOpenReport(reportPath) {
 onMounted(() => {
   loadSidebarState();
   window.addEventListener('auth:unauthorized', onUnauthorized);
+  window.addEventListener('resize', onViewportResize);
   if (authed.value) {
     refreshHarnesses();
     init();
@@ -428,6 +458,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   window.removeEventListener('auth:unauthorized', onUnauthorized);
+  window.removeEventListener('resize', onViewportResize);
   teardown();
 });
 </script>

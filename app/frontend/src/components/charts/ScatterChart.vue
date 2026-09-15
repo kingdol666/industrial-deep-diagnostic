@@ -11,6 +11,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { ScatterChart as EScatter } from 'echarts/charts';
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { seriesPalette } from '../../utils/chartTheme';
 
 use([CanvasRenderer, EScatter, GridComponent, TooltipComponent, LegendComponent]);
 
@@ -34,6 +35,10 @@ const chartOption = computed(() => {
   const yMax = Math.max(...yData);
   const xPad = (xMax - xMin) * 0.05 || 1;
   const yPad = (yMax - yMin) * 0.05 || 1;
+
+  /* Points take the primary accent from the design tokens; the hover glow
+     reuses it instead of a blue-tinted shadow. */
+  const pointColor = seriesPalette()[0];
 
   return {
     title: props.title ? { text: props.title, left: 'center' } : undefined,
@@ -80,14 +85,14 @@ const chartOption = computed(() => {
         data: (props.data || []).map((d) => [d[props.xField], d[props.yField]]),
         symbolSize: 8,
         itemStyle: {
-          color: '#5470c6',
+          color: pointColor,
           borderColor: '#fff',
           borderWidth: 1,
         },
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
-            shadowColor: 'rgba(84,112,198,0.5)',
+            shadowColor: pointColor,
           },
           label: {
             show: true,

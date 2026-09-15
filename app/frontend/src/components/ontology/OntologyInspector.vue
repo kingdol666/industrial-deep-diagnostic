@@ -175,7 +175,7 @@
           {{ selection.data.label || selection.data.type }}
         </span>
         <span v-if="ed.strength" class="onto-chip-sm muted">{{ ed.strength }}</span>
-        <span v-if="ed.inferred" class="onto-chip-sm" style="color:#6ba8b8">{{ $t('ontology.editor.inferred') }}</span>
+        <span v-if="ed.inferred" class="onto-chip-sm" style="color:var(--cyan)">{{ $t('ontology.editor.inferred') }}</span>
       </div>
 
       <div class="onto-insp-section" v-if="ed.mechanism">

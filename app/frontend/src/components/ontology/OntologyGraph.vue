@@ -111,6 +111,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { GraphChart } from 'echarts/charts';
 import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
+import { readToken, seriesPalette } from '../../utils/chartTheme';
 
 use([CanvasRenderer, GraphChart, TooltipComponent, LegendComponent, TitleComponent]);
 
@@ -139,7 +140,11 @@ const layouts = computed(() => [
 
 const EDGE_LEGEND_TYPES = [
   { type: 'causal', key: 'ontology.graph.edgeCausal', color: '#f97362', width: 3 },
-  { type: 'correlative', key: 'ontology.graph.edgeCorrelative', color: '#4ea8f5', width: 2 },
+  /* Correlative edges are informational — they take the --cyan token (muted
+     steel). Resolved to a concrete value because the ECharts canvas cannot read
+     var(); the fallback is the palette's cyan slot, so the colour is not
+     duplicated as a literal here. */
+  { type: 'correlative', key: 'ontology.graph.edgeCorrelative', color: readToken('--cyan', seriesPalette()[1]), width: 2 },
   { type: 'control', key: 'ontology.graph.edgeControl', color: '#31c9a8', width: 3 },
   { type: 'physical', key: 'ontology.graph.edgePhysical', color: '#c9a227', width: 3 },
 ];

@@ -53,6 +53,8 @@ export default {
   },
 
   auth: {
+    railLabel: '访问控制',
+    railState: '安全通道',
     appTitle: '工业深度诊断系统',
     appSubtitle: 'Industrial Deep Diagnostic · 统一身份认证',
     login: '登录',

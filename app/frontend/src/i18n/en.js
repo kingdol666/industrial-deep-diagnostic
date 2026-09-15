@@ -53,6 +53,8 @@ export default {
   },
 
   auth: {
+    railLabel: 'Access Control',
+    railState: 'Secure Channel',
     appTitle: 'Industrial Deep Diagnostic',
     appSubtitle: 'Industrial Deep Diagnostic · Unified Sign-in',
     login: 'Sign in',

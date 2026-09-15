@@ -414,7 +414,7 @@ const paginatedLogs = computed(() => {
 }
 
 .history-table th {
-  padding: 10px 12px;
+  padding: 8px 10px;
   text-align: left;
   font-weight: 600;
   font-size: 12px;
@@ -425,8 +425,11 @@ const paginatedLogs = computed(() => {
   white-space: nowrap;
 }
 
+/* Dense readout: one --row-h-lg (40px) line per run, set by the height of the
+   tallest control in the row (a 28px btn-sm), not by stacked dead space. */
 .history-table td {
-  padding: 10px 12px;
+  padding: 0 10px;
+  height: var(--row-h-lg);
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -436,16 +439,79 @@ const paginatedLogs = computed(() => {
   transition: background 0.1s;
 }
 
-.history-row:hover { background: rgba(88, 166, 255, 0.03); }
+/* Hover is interaction feedback, so it rides the accent ramp — the same idiom
+   as .log-line:hover below — instead of a foreign blue wash. */
+.history-row:hover { background: color-mix(in srgb, var(--accent) 3%, transparent); }
 
 .row-running { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .row-failed { background: color-mix(in srgb, var(--red) 5%, transparent); }
 
-.cell-name { font-weight: 600; font-size: 12px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cell-path { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--accent); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cell-question { max-width: 200px; }
+/* Elastic text columns: one line each, ellipsized. Name / scene / path / question
+   are identifiers and prose that the detail panel already carries in full, and
+   the question cell also holds the whole string in its title, so a one-line cap
+   costs no information but buys back a 40px row. */
+.cell-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-path { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-question { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cell-date { font-size: 11px; color: var(--text2); white-space: nowrap; }
 .cell-actions { display: flex; gap: 4px; }
+
+/* Scene has no class of its own — it is the second column. Same treatment. */
+.history-table td:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Column template ──────────────────────────────────────────────────────
+   Nine columns, so the geometry is declared once here instead of being
+   renegotiated for every row by the auto table algorithm. Fixed layout makes
+   those declarations exact: no lane can be crushed by a long value, and every
+   elastic cell ellipsizes instead of wrapping.
+
+   The two control lanes are sized from measured content, not guessed. Against
+   the 115 runs in data/diagnostic.db (harness in {claude,omp,mock},
+   ontology_hit in {built,reused}, enhancement reachable):
+
+     5  状态   76px — a 4-glyph CJK chip (等待回答) on one line, + cell padding
+     9  操作  410px — the widest real rail measures 387px of content:
+                      engine chip + 本体复用 + 会话 + 报告 + ⚡深度增强 + 详情 + 删除
+                      (the global .cell-actions cap of 340px is what forced it
+                      to wrap, which is why it is lifted below)
+
+   The other seven lanes carry the rest. Everything is one line, so each row is
+   exactly --row-h-lg (40px). At a 1440px viewport the column box is
+   1440 − 264 sidebar − 44 content padding = 1130px, and these lanes sum to
+   1126px, so nothing scrolls there. Narrower than that the table keeps its
+   declared lanes and .history-table-wrapper scrolls — rather than the columns
+   crushing the way they did at 1024px before (status chip 3 lines, actions 7). */
+.history-table {
+  table-layout: fixed;
+  min-width: 1126px;
+}
+
+.history-table th:nth-child(1) { width: 128px; }  /* 任务名 */
+.history-table th:nth-child(2) { width: 84px; }   /* 场景 */
+.history-table th:nth-child(3) { width: 72px; }   /* 数据文件 */
+.history-table th:nth-child(4) { width: 96px; }   /* 问题 */
+.history-table th:nth-child(5) { width: 76px; }   /* 状态 */
+.history-table th:nth-child(6) { width: 46px; }   /* 评分 */
+.history-table th:nth-child(7) { width: 102px; }  /* 结论 */
+.history-table th:nth-child(8) { width: 112px; }  /* 创建时间 */
+.history-table th:nth-child(9) { width: 410px; }  /* 操作 */
+
+.history-list .badge {
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* The rail is one instrument line. The global .cell-actions rule wraps and caps
+   at 340px for narrow non-table windows; inside the ledger the rail instead
+   keeps its chips + buttons on a single row and lets .history-table-wrapper
+   scroll, so controls are never stacked into a column. */
+.history-table .cell-actions {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  max-width: none;
+}
+
+.history-table .cell-actions > * { flex: none; }
 
 .text-muted { color: var(--text2); font-size: 12px; }
 

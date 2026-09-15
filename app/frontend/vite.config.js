@@ -6,6 +6,15 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     port: frontend.port,
+    watch: {
+      // Atomic writes replace a file by creating `.<name>.<pid>.<uuid>.tmpdir/`
+      // beside it, then renaming over the target. On Windows the watcher can
+      // land on that directory mid-rename and raise EBUSY — an unhandled
+      // 'error' event on FSWatcher, which kills the whole dev server rather
+      // than just the one HMR update. These paths are never served, so
+      // ignoring them costs nothing and makes edits crash-proof.
+      ignored: ['**/.*.tmpdir/**', '**/*.tmp', '**/.mimosa/**'],
+    },
     proxy: {
       '/api': {
         target: frontend.backend_url,

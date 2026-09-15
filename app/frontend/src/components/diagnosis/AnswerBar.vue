@@ -336,7 +336,7 @@ function renderPreviewMd(text) {
 <style scoped>
 .answer-bar {
   background: var(--surface);
-  border: 1px solid rgba(188, 140, 255, .25);
+  border: 1px solid var(--purple-border);
   border-radius: var(--radius);
   overflow: hidden;
   margin-top: 8px;
@@ -349,8 +349,8 @@ function renderPreviewMd(text) {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: rgba(188, 140, 255, .06);
-  border-bottom: 1px solid rgba(188, 140, 255, .1);
+  background: var(--purple-soft);
+  border-bottom: 1px solid var(--purple-fill);
 }
 
 .ab-header-left {
@@ -419,7 +419,7 @@ function renderPreviewMd(text) {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .4px;
-  background: rgba(188, 140, 255, .12);
+  background: var(--purple-fill);
   color: var(--purple);
   flex-shrink: 0;
 }
@@ -457,19 +457,19 @@ function renderPreviewMd(text) {
   background: var(--surface);
 }
 .ab-option-card:hover {
-  border-color: rgba(188, 140, 255, .3);
-  background: rgba(188, 140, 255, .03);
+  border-color: var(--purple-border);
+  background: var(--purple-soft);
 }
 .ab-option-card.selected {
-  border-color: var(--purple);
-  background: rgba(188, 140, 255, .08);
-  box-shadow: 0 0 0 1px rgba(188, 140, 255, .2);
+  border-color: var(--purple-border);
+  background: var(--purple-fill);
+  box-shadow: 0 0 0 1px var(--purple-border);
 }
 .ab-option-card.has-preview {
   cursor: pointer;
 }
 .ab-option-card.has-preview::after {
-  content: '👁 Click to preview';
+  content: 'Click to preview';
   position: absolute;
   right: 12px;
   top: 50%;
@@ -510,7 +510,7 @@ function renderPreviewMd(text) {
   border: 2px solid var(--border);
   transition: all .15s;
 }
-.ab-option-card:hover .radio-ring { border-color: rgba(188, 140, 255, .4); }
+.ab-option-card:hover .radio-ring { border-color: var(--purple-border); }
 .ab-option-card.selected .radio-ring { border-color: var(--purple); }
 
 .radio-dot {
@@ -571,7 +571,7 @@ function renderPreviewMd(text) {
 .ab-other-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(88, 166, 255, .1);
+  box-shadow: 0 0 0 2px var(--cyan-soft);
 }
 .ab-other-input::placeholder {
   color: var(--text2);
@@ -593,7 +593,7 @@ function renderPreviewMd(text) {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 16px;
-  background: rgba(188, 140, 255, .12);
+  background: var(--purple-fill);
   color: var(--purple);
   font-size: 12px;
   font-weight: 500;
@@ -613,8 +613,8 @@ function renderPreviewMd(text) {
 
 /* ── Preview Panel ── */
 .ab-preview-panel {
-  border-top: 1px solid rgba(188, 140, 255, .15);
-  background: rgba(30, 35, 50, .6);
+  border-top: 1px solid var(--purple-fill);
+  background: var(--surface-soft);
   max-height: 280px;
   overflow-y: auto;
 }
@@ -624,8 +624,8 @@ function renderPreviewMd(text) {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: rgba(188, 140, 255, .06);
-  border-bottom: 1px solid rgba(188, 140, 255, .08);
+  background: var(--purple-soft);
+  border-bottom: 1px solid var(--purple-fill);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -731,12 +731,12 @@ function renderPreviewMd(text) {
   background: linear-gradient(135deg, var(--accent2), var(--accent));
   color: #fff;
   transition: all .15s;
-  box-shadow: 0 2px 8px rgba(31, 111, 235, .25);
+  box-shadow: 0 2px 8px var(--accent-soft-strong);
 }
 .ab-btn-submit:hover:not(:disabled) {
   opacity: .9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(31, 111, 235, .35);
+  box-shadow: 0 4px 12px var(--accent-soft-strong);
 }
 .ab-btn-submit:active:not(:disabled) {
   transform: translateY(0);
