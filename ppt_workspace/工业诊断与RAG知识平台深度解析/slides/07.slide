@@ -1,0 +1,139 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>双引擎协同：一次诊断，长期复用</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        IDD 把结论做实，RAG 把结论存住——组织记忆由此形成
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>CLOSED LOOP</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>04 STEPS</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 430, flexDirection: 'row', gap: 20 }}>
+
+    <Box style={{ width: 560, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 18px', flexDirection: 'column' }}>
+      <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Box style={{ width: 4, height: 15, background: '#2563EB', borderRadius: 2 }} />
+        <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#0F172A' }}>协同闭环：诊断结论如何变成组织资产</Text>
+      </Box>
+      <Box style={{ height: 12 }} />
+
+      <Box style={{ flexDirection: 'row', gap: 12 }}>
+        <Box style={{ flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          <Box style={{ width: 24, height: 24, borderRadius: 12, background: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Cascadia Mono' }}>1</Text>
+          </Box>
+          <Box style={{ width: 2, flex: 1, background: '#CBD5E1' }} />
+        </Box>
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 3, paddingBottom: 14 }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0F172A' }}>产线数据与客诉问题进入系统</Text>
+          <Text style={{ fontSize: 11.5, color: '#475569', lineHeight: 1.6 }}>
+            质量记录、时序数据、图像与工艺参数按统一契约上传，形成可诊断的数据包
+          </Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flexDirection: 'row', gap: 12 }}>
+        <Box style={{ flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          <Box style={{ width: 24, height: 24, borderRadius: 12, background: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Cascadia Mono' }}>2</Text>
+          </Box>
+          <Box style={{ width: 2, flex: 1, background: '#CBD5E1' }} />
+        </Box>
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 3, paddingBottom: 14 }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0F172A' }}>IDD 执行 Step 0-10 深度诊断</Text>
+          <Text style={{ fontSize: 11.5, color: '#475569', lineHeight: 1.6 }}>
+            本体与 RAG 提供上下文，多 Agent 完成统计、视觉与机理推理，三道闸门逐层把关
+          </Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flexDirection: 'row', gap: 12 }}>
+        <Box style={{ flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          <Box style={{ width: 24, height: 24, borderRadius: 12, background: '#7C3AED', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Cascadia Mono' }}>3</Text>
+          </Box>
+          <Box style={{ width: 2, flex: 1, background: '#CBD5E1' }} />
+        </Box>
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 3, paddingBottom: 14 }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0F172A' }}>结论连同证据链写入知识库</Text>
+          <Text style={{ fontSize: 11.5, color: '#475569', lineHeight: 1.6 }}>
+            报告、机理结论、证据等级与审计轨迹一并沉淀为经验条目，带来源标签与可信度分级
+          </Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flexDirection: 'row', gap: 12 }}>
+        <Box style={{ flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+          <Box style={{ width: 24, height: 24, borderRadius: 12, background: '#0D9488', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Cascadia Mono' }}>4</Text>
+          </Box>
+        </Box>
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 3 }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0F172A' }}>下一次检索直接命中经验</Text>
+          <Text style={{ fontSize: 11.5, color: '#475569', lineHeight: 1.6 }}>
+            新批次遇到同类问题时，QDCVR 优先命中已验证经验，诊断从"重新推理"变成"复用 + 校验"
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, flexDirection: 'column', gap: 10 }}>
+      <Box style={{ flexDirection: 'row', gap: 10 }}>
+        <Box style={{ flex: 1, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px', flexDirection: 'column', gap: 5 }}>
+          <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>94</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>MCP 工具</Text>
+          <Text style={{ fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
+            知识库增删改查、检索、图谱、经验、人格、解析、标签与生命周期，全部 MCP 原生
+          </Text>
+        </Box>
+        <Box style={{ flex: 1, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '14px 16px', flexDirection: 'column', gap: 5 }}>
+          <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#7C3AED', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>19</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>Agent Skills</Text>
+          <Text style={{ fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
+            自然语言指令、中英双语触发词，自动派发到归档与检索流程
+          </Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flexDirection: 'row', gap: 10, flex: 1 }}>
+        <Box style={{ flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px', flexDirection: 'column', gap: 5 }}>
+          <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>11</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>图谱工具</Text>
+          <Text style={{ fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
+            实体关系查询、跨库文档桥接与图谱可视化，支撑"顺着关系找证据"
+          </Text>
+        </Box>
+        <Box style={{ flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px', flexDirection: 'column', gap: 5 }}>
+          <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>20</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>人格专用工具</Text>
+          <Text style={{ fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
+            SOUL 人格系统：人格蒸馏与好奇心驱动训练，让检索回答带稳定的专业视角
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ height: 14 }} />
+
+  <Box style={{ height: 60, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 18px', flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+    <Box style={{ width: 4, height: 30, background: '#2563EB', borderRadius: 2 }} />
+    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.5 }}>
+      诊断产生结论，知识库让结论继续产生价值 —— <span style={{ color: '#7C3AED' }}>一次诊断，长期复用</span>。
+    </Text>
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>工业深度诊断 × RAG 知识平台</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>07 / 07</Text>
+  </Box>
+
+</Slide>

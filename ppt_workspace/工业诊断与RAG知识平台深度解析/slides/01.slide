@@ -1,0 +1,77 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 180, flexDirection: 'column', gap: 8, justifyContent: 'center' }}>
+    <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono', letterSpacing: 2 }}>TECHNICAL DEEP DIVE · 2026</Text>
+    <Text style={{ fontSize: 52, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.2 }}>
+      工业深度诊断 <span style={{ color: '#2563EB' }}>×</span> RAG 知识平台
+    </Text>
+    <Text style={{ fontSize: 16, color: '#64748B', lineHeight: 1.5 }}>
+      双引擎深度解析：从一个根因结论的可信性，到一个知识条目的可复用性
+    </Text>
+  </Box>
+
+  <Box style={{ height: 210, flexDirection: 'row', gap: 24 }}>
+
+    <Box style={{ flex: 1, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '16px 20px', flexDirection: 'column' }}>
+      <Text style={{ fontSize: 11, color: '#2563EB', fontFamily: 'Cascadia Mono', letterSpacing: 1 }}>ENGINE 01 · DIAGNOSIS</Text>
+      <Box style={{ height: 7 }} />
+      <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#0F172A' }}>工业深度诊断引擎 IDD</Text>
+      <Box style={{ height: 4 }} />
+      <Text style={{ fontSize: 12.5, color: '#475569', lineHeight: 1.5 }}>多 Agent × 多 Skill 的可审计根因分析管线</Text>
+      <Box style={{ height: 10 }} />
+      <Box style={{ flexDirection: 'column', gap: 5 }}>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#2563EB', fontWeight: 'bold' }}>▪ </span>Step 0-10 主管线：本体 → 统计 + VLM → 诊断 → 评审 → 报告 → 审计
+        </Text>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#2563EB', fontWeight: 'bold' }}>▪ </span>14 Agents × 18 Skills，14 类执行引擎可切换（OMP / Claude Code 等）
+        </Text>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#2563EB', fontWeight: 'bold' }}>▪ </span>CP-1~9 检查点 · 证据分级 L1-L7 · 反假相关四条件
+        </Text>
+      </Box>
+      <Box style={{ marginTop: 'auto', flexDirection: 'row', gap: 6 }}>
+        <Text style={{ fontSize: 10.5, color: '#1D4ED8', fontFamily: 'Cascadia Mono' }}>14 AGENTS · 18 SKILLS · CP-1~9 · L1-L7</Text>
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 12, padding: '16px 20px', flexDirection: 'column' }}>
+      <Text style={{ fontSize: 11, color: '#7C3AED', fontFamily: 'Cascadia Mono', letterSpacing: 1 }}>ENGINE 02 · KNOWLEDGE</Text>
+      <Box style={{ height: 7 }} />
+      <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#0F172A' }}>RAG Knowledge 知识平台</Text>
+      <Box style={{ height: 4 }} />
+      <Text style={{ fontSize: 12.5, color: '#475569', lineHeight: 1.5 }}>企业级文档智能与智能体知识库</Text>
+      <Box style={{ height: 10 }} />
+      <Box style={{ flexDirection: 'column', gap: 5 }}>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>QDCVR 内容验证检索：0-8 评分，低于 6 扩展召回、低于 4 硬丢弃
+        </Text>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>BM25 + 向量 + 标签 + 图谱四路召回，跨库去重与融合
+        </Text>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>P0 / P1 / P2 / DISCARD 可信度分级 · E0-E12 经验生命周期
+        </Text>
+      </Box>
+      <Box style={{ marginTop: 'auto', flexDirection: 'row', gap: 6 }}>
+        <Text style={{ fontSize: 10.5, color: '#6D28D9', fontFamily: 'Cascadia Mono' }}>94 MCP TOOLS · 19 SKILLS · NEO4J · MINERU</Text>
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ height: 22 }} />
+
+  <Box style={{ height: 172, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '8px 10px', flexDirection: 'column', gap: 4 }}>
+    <Image src="assets/idd_pipeline.png" style={{ width: '100%', height: 140, objectFit: 'contain' }} />
+    <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono', textAlign: 'center' }}>
+      IDD · Step 0-10 分析管线（项目真实产物）
+    </Text>
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>工业深度诊断 × RAG 知识平台 · 深度解析</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>01 / 07</Text>
+  </Box>
+
+</Slide>

@@ -1,0 +1,82 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>RAG · QDCVR：不信余弦分的内容验证检索</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        Query-Driven · Content-Verified Retrieval —— 六个阶段里，最关键的是"真的去读一遍内容"
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>QDCVR</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>6 STAGES</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 490, flexDirection: 'row', gap: 24 }}>
+
+    <Box style={{ width: 818, flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>QDCVR 六阶段管线与可信度模型（项目官方图）</Text>
+      <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4 }}>
+        <Image src="assets/rag_qdcvr_pipeline.png" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, flexDirection: 'column', gap: 10 }}>
+
+      <Box style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '10px 13px', flexDirection: 'column', gap: 3 }}>
+        <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#5B21B6' }}>到底在读什么</Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          余弦相似度高 ≠ 内容相关。QDCVR 会把召回片段的正文实际读一遍再打分
+        </Text>
+      </Box>
+
+      <Box style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 13px', flexDirection: 'column', gap: 4 }}>
+        <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>0-8 分门槛</Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>得分 &lt; 6：触发标签 + 描述扩展，再召回一轮
+        </Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>得分 &lt; 4：直接硬丢弃，不进入候选集
+        </Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>最终按分数分配可信度等级，随答案一起给出
+        </Text>
+      </Box>
+
+      <Box style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 13px', flexDirection: 'column', gap: 4 }}>
+        <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0F172A' }}>三路并行召回</Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>A </span>Agent 语义路径 · 理解上下文与意图
+        </Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>B </span>BM25 + 向量 · 词法精确与语义泛化兼顾
+        </Text>
+        <Text style={{ fontSize: 11, color: '#334155', lineHeight: 1.55 }}>
+          <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>C </span>跨库语义 · 按实体与标签扩展，突破单库边界
+        </Text>
+      </Box>
+
+      <Box style={{ flex: 1, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '10px 13px', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+        <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#1D4ED8' }}>可信度模型</Text>
+        <Text style={{ fontSize: 11, color: '#1E3A8A', lineHeight: 1.6 }}>
+          P0 权威（官方 / 一级来源） · P1 可信（专家 / 验证）<br />
+          P2 可能（未验证 / 传闻） · DISCARD（无关 / 不可用）
+        </Text>
+        <Text style={{ fontSize: 10.5, color: '#3B82F6', lineHeight: 1.5 }}>
+          答案中会显式标注来源与盲点，低可信内容不会被悄悄当成事实
+        </Text>
+      </Box>
+
+    </Box>
+
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>RAG Knowledge 知识平台</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>06 / 07</Text>
+  </Box>
+
+</Slide>

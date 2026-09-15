@@ -1,0 +1,124 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>IDD · 三道闸门：结论为什么可信</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        证据不足时宁可不结论——每一道闸门都可以把不合适的结果挡回去
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>GATES</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>01 → 03</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 430, flexDirection: 'row', gap: 18 }}>
+
+    <Box style={{ flex: 1, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 12, overflow: 'hidden', flexDirection: 'column' }}>
+      <Box style={{ height: 4, background: '#93C5FD' }} />
+      <Box style={{ flex: 1, padding: '14px 18px', flexDirection: 'column' }}>
+        <Text style={{ fontSize: 11, color: '#2563EB', fontFamily: 'Cascadia Mono' }}>GATE 01</Text>
+        <Box style={{ height: 5 }} />
+        <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0F172A' }}>竞争性假设协议</Text>
+        <Box style={{ height: 10 }} />
+        <Box style={{ flexDirection: 'column', gap: 7 }}>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#2563EB', fontWeight: 'bold' }}>① </span>先并列多个候选机理，而不是先射箭再画靶
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#2563EB', fontWeight: 'bold' }}>② </span>为每个假设预先声明"什么样的证据能区分它"
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#2563EB', fontWeight: 'bold' }}>③ </span>用数据执行排除，保留无法排除的假设集合
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#2563EB', fontWeight: 'bold' }}>④ </span>三态输出：DETERMINED / COMPETING_SET / NEEDS_DATA
+          </Text>
+        </Box>
+        <Box style={{ marginTop: 'auto', background: '#FFFFFF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '9px 11px' }}>
+          <Text style={{ fontSize: 11.5, color: '#1D4ED8', lineHeight: 1.55, fontWeight: 'bold' }}>
+            拦截：区分不出来的假设，不强行收敛成一个答案
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, background: '#DBEAFE', border: '1px solid #93C5FD', borderRadius: 12, overflow: 'hidden', flexDirection: 'column' }}>
+      <Box style={{ height: 4, background: '#60A5FA' }} />
+      <Box style={{ flex: 1, padding: '14px 18px', flexDirection: 'column' }}>
+        <Text style={{ fontSize: 11, color: '#1D4ED8', fontFamily: 'Cascadia Mono' }}>GATE 02</Text>
+        <Box style={{ height: 5 }} />
+        <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0F172A' }}>质量门禁与物理审计</Text>
+        <Box style={{ height: 10 }} />
+        <Box style={{ flexDirection: 'column', gap: 7 }}>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1D4ED8', fontWeight: 'bold' }}>① </span>Judge 按十个维度打分，<span style={{ fontWeight: 'bold' }}>≥ 90 才放行</span>
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1D4ED8', fontWeight: 'bold' }}>② </span>物理审计复核机理自洽、量纲与工况合理性
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1D4ED8', fontWeight: 'bold' }}>③ </span>报告产出后再做一次终审，签署 ENDORSED 才交付
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1D4ED8', fontWeight: 'bold' }}>④ </span>CP-1~9 检查点逐项校验产物，不通过即阻断或回退
+          </Text>
+        </Box>
+        <Box style={{ marginTop: 'auto', background: '#FFFFFF', border: '1px solid #93C5FD', borderRadius: 8, padding: '9px 11px' }}>
+          <Text style={{ fontSize: 11.5, color: '#1D4ED8', lineHeight: 1.55, fontWeight: 'bold' }}>
+            拦截：分数不足打回重诊（≤3），机理矛盾全链重跑（≤2）
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, background: '#BFDBFE', border: '1px solid #60A5FA', borderRadius: 12, overflow: 'hidden', flexDirection: 'column' }}>
+      <Box style={{ height: 4, background: '#2563EB' }} />
+      <Box style={{ flex: 1, padding: '14px 18px', flexDirection: 'column' }}>
+        <Text style={{ fontSize: 11, color: '#1E3A8A', fontFamily: 'Cascadia Mono' }}>GATE 03</Text>
+        <Box style={{ height: 5 }} />
+        <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0F172A' }}>证据分级与反假相关</Text>
+        <Box style={{ height: 10 }} />
+        <Box style={{ flexDirection: 'column', gap: 7 }}>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1E3A8A', fontWeight: 'bold' }}>① </span>证据分级 L1-L7，结论被其最低等级证据"封顶"
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1E3A8A', fontWeight: 'bold' }}>② </span>反推测四条件：时间先后 + 统计显著 + 物理机制 + 无矛盾
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1E3A8A', fontWeight: 'bold' }}>③ </span>强制反假相关：时滞 CCF、稳态过滤、批次完整性、留一杠杆
+          </Text>
+          <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+            <span style={{ color: '#1E3A8A', fontWeight: 'bold' }}>④ </span>辛普森悖论与混淆变量检查，防止"整体相关、分层反相关"
+          </Text>
+        </Box>
+        <Box style={{ marginTop: 'auto', background: '#FFFFFF', border: '1px solid #60A5FA', borderRadius: 8, padding: '9px 11px' }}>
+          <Text style={{ fontSize: 11.5, color: '#1E3A8A', lineHeight: 1.55, fontWeight: 'bold' }}>
+            拦截：相关不等于因果，假相关在进入结论前出局
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ height: 14 }} />
+
+  <Box style={{ height: 60, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 18px', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+    <Text style={{ fontSize: 12, color: '#64748B', fontFamily: 'Cascadia Mono' }}>CONFIDENCE CAP</Text>
+    <Box style={{ width: 1, height: 32, background: '#CBD5E1' }} />
+    <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6, flex: 1 }}>
+      结论无法唯一确定时置信度封顶 65；同一问题第三次重诊仍振荡则停止并封顶 50，同时输出"证据不足 + 建议补测项"，而不是编一个看起来完整的答案。
+    </Text>
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>工业深度诊断引擎 IDD</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>03 / 07</Text>
+  </Box>
+
+</Slide>

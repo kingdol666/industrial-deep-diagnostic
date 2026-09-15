@@ -1,0 +1,88 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>IDD · 实证：9 个场景与真实产线案例</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        覆盖化工 / 水力 / 发酵三类过程，含 3 个无故障控制组；结论全部可回溯到证据
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>EVALUATION</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>n = 9</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 380, flexDirection: 'row', gap: 20 }}>
+
+    <Box style={{ width: 430, flexDirection: 'column', gap: 8 }}>
+      <Box style={{ flex: 1, background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: 10, padding: '10px 14px', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>5/6</Text>
+        <Box style={{ flexDirection: 'column', gap: 2 }}>
+          <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0F172A' }}>TEP 故障场景 Top-1 命中</Text>
+          <Text style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5 }}>田纳西-伊士曼过程，6 个可归因故障</Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flex: 1, background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: 10, padding: '10px 14px', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>1/1</Text>
+        <Box style={{ flexDirection: 'column', gap: 2 }}>
+          <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0F172A' }}>IndPenSim 批次偏差定位正确</Text>
+          <Text style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5 }}>工业级青霉素发酵批次（真实工况形态）</Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flex: 1, background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: 10, padding: '10px 14px', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>3/3</Text>
+        <Box style={{ flexDirection: 'column', gap: 2 }}>
+          <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0F172A' }}>无故障控制组全部通过</Text>
+          <Text style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5 }}>TEP / SKAB / IndPenSim 各一，未产生误报</Text>
+        </Box>
+      </Box>
+
+      <Box style={{ flex: 1, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '10px 14px', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono', lineHeight: 1.0 }}>96</Text>
+        <Box style={{ flexDirection: 'column', gap: 2 }}>
+          <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0F172A' }}>Judge 评分 · ENDORSED</Text>
+          <Text style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5 }}>十维评分通过并经物理终审签署</Text>
+        </Box>
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>基准结果：故障结论分布 · rubric 与 judge 门限（项目实证数据）</Text>
+      <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4 }}>
+        <Image src="assets/idd_benchmark.png" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ height: 14 }} />
+
+  <Box style={{ height: 120, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 18px', flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+    <Box style={{ width: 240, height: 94, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 3 }}>
+      <Image src="assets/idd_mechanism.png" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+    </Box>
+    <Box style={{ flex: 1, flexDirection: 'column', gap: 5 }}>
+      <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Box style={{ width: 4, height: 14, background: '#2563EB', borderRadius: 2 }} />
+        <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#0F172A' }}>真实产线案例 · BOPET 薄膜划伤投诉</Text>
+      </Box>
+      <Text style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>
+        8# 拉伸扭矩与熔融缺陷族 |ρ| ≈ 0.5 显著相关，与划伤的 |ρ| 仅 0.18 —— 结论：划伤是独立机理，不应与熔融类缺陷合并处置。
+      </Text>
+      <Text style={{ fontSize: 11.5, color: '#64748B', lineHeight: 1.6 }}>
+        诚实性说明：SKAB 2 个场景未给出强断言（真因仅进入候补集），结论被置信度封顶输出为 COMPETING_SET —— 宁可说"无法区分"，也不制造假阳性。
+      </Text>
+    </Box>
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>工业深度诊断引擎 IDD</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>04 / 07</Text>
+  </Box>
+
+</Slide>

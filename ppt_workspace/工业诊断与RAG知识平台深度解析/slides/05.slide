@@ -1,0 +1,84 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>RAG 知识平台 · 五层架构与检索范式</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        从原始文档到可被 Agent 调用的知识：解析、召回、验证、图谱、经验
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>ARCHITECTURE</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>5 LAYERS</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 300, flexDirection: 'row', gap: 20 }}>
+
+    <Box style={{ width: 620, flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>五层架构（项目官方图）</Text>
+      <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4 }}>
+        <Image src="assets/rag_architecture.png" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, flexDirection: 'column', gap: 8 }}>
+      <Box style={{ flex: 1, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '10px 14px', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
+        <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#5B21B6' }}>① 文档解析层</Text>
+        <Text style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.55 }}>
+          PDF / Word / Excel / PPT / 图片统一转 Markdown，内置 MinerU OCR 引擎
+        </Text>
+      </Box>
+      <Box style={{ flex: 1, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '10px 14px', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
+        <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#5B21B6' }}>② 多策略召回层</Text>
+        <Text style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.55 }}>
+          BM25 词法 + 向量语义两阶段召回，跨库企业级检索；balance_kbs 防止大库垄断结果
+        </Text>
+      </Box>
+      <Box style={{ flex: 1, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '10px 14px', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
+        <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#5B21B6' }}>③ 内容验证层</Text>
+        <Text style={{ fontSize: 11.5, color: '#334155', lineHeight: 1.55 }}>
+          对召回片段独立打 0-8 分，低于 6 触发标签与描述扩展召回，低于 4 直接硬丢弃
+        </Text>
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ height: 14 }} />
+
+  <Box style={{ height: 186, flexDirection: 'row', gap: 18 }}>
+
+    <Box style={{ width: 340, flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>知识图谱可视化（项目官方截图）</Text>
+      <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 3 }}>
+        <Image src="assets/rag_graph.png" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }} />
+      </Box>
+    </Box>
+
+    <Box style={{ flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 18px', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
+      <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Box style={{ width: 4, height: 14, background: '#7C3AED', borderRadius: 2 }} />
+        <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#0F172A' }}>图谱层与经验层：知识不只是"被检索到"</Text>
+      </Box>
+      <Text style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>
+        <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>Neo4j 知识图谱：11 个图谱工具，实体 / 关系图谱与跨库文档桥接
+      </Text>
+      <Text style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>
+        <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>经验库 E0-E12 生命周期：问题 → 方案 → 教训的结构化沉淀，按可信度 P0 / P1 / P2 分级并带时间衰减
+      </Text>
+      <Text style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>
+        <span style={{ color: '#7C3AED', fontWeight: 'bold' }}>▪ </span>94 个 MCP 工具 + 19 个 Agent Skills，四个界面共用同一后端能力面
+      </Text>
+    </Box>
+
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>RAG Knowledge 知识平台</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>05 / 07</Text>
+  </Box>
+
+</Slide>

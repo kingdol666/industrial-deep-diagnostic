@@ -1,0 +1,148 @@
+<Slide style={{ width: 1280, height: 720, background: '#FFFFFF', padding: '20px 56px', flexDirection: 'column', fontFamily: 'Noto Sans SC' }}>
+
+  <Box style={{ height: 88, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <Box style={{ flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0F172A', lineHeight: 1.25 }}>IDD · Step 0-10 分析管线与角色分工</Text>
+      <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+        一条主管线，14 个专职角色；评审与审计介入在结论产出前后各一次
+      </Text>
+    </Box>
+    <Box style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 3, paddingTop: 8 }}>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>PIPELINE</Text>
+      <Text style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>AND ROLES</Text>
+    </Box>
+  </Box>
+
+  <Box style={{ height: 12 }} />
+
+  <Box style={{ height: 170, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '16px 18px', flexDirection: 'column', gap: 12 }}>
+    <Box style={{ height: 104, flexDirection: 'row', alignItems: 'flex-start', position: 'relative' }}>
+      <Box style={{ position: 'absolute', top: 13, left: 40, right: 40, height: 1, background: '#CBD5E1' }} />
+
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>0</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>Setup</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>main-agent</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>1</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>Inspect</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>main-agent</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>2</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>本体</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>context-builder</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>3</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>数据处理</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>data-processor</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#2563EB', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Cascadia Mono' }}>4</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#1D4ED8' }}>根因诊断</Text>
+        <Text style={{ fontSize: 9.5, color: '#60A5FA', fontFamily: 'Cascadia Mono' }}>diagnostician</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #0D9488', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono' }}>5</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F766E' }}>双评审</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>judge ∥ auditor</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>6</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>报告</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>reporter</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #0D9488', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0D9488', fontFamily: 'Cascadia Mono' }}>7</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F766E' }}>物理终审</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>report-reviewer</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>8</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>HTML</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>html-visualizer</Text>
+      </Box>
+      <Box style={{ flex: 1, flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
+        <Box style={{ width: 26, height: 26, borderRadius: 13, background: '#FFFFFF', border: '2px solid #2563EB', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#2563EB', fontFamily: 'Cascadia Mono' }}>9</Text>
+        </Box>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A' }}>证据闭环</Text>
+        <Text style={{ fontSize: 9.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>main-agent</Text>
+      </Box>
+    </Box>
+
+    <Text style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+      Step 5a（Judge）与 5b（物理预审计）是管线中<span style={{ fontWeight: 'bold', color: '#0F172A' }}>唯一并行对</span>；另有 Step 0.5 数据源无关性预处理与 Step 10（E0-E8）条件增强。修复循环：Judge &lt; 90 重诊断 ≤ 3 次，终审未过全链重跑 ≤ 2 次，全局重诊断 ≤ 5 次。
+    </Text>
+  </Box>
+
+  <Box style={{ height: 14 }} />
+
+  <Box style={{ height: 340, flexDirection: 'row', gap: 20 }}>
+
+    <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 18px', flexDirection: 'column' }}>
+      <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Box style={{ width: 4, height: 15, background: '#2563EB', borderRadius: 2 }} />
+        <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#0F172A' }}>三类角色，互不越权</Text>
+      </Box>
+      <Box style={{ height: 12 }} />
+
+      <Box style={{ flexDirection: 'column', gap: 6 }}>
+        <Text style={{ fontSize: 13, color: '#0F172A', lineHeight: 1.6 }}>
+          <span style={{ fontWeight: 'bold', color: '#0D9488' }}>分析组　</span>context-builder 构建本体与 RAG 检索上下文；data-processor 负责统计与产线状态判别；vlm-visual-analyzer 读取图表与图像证据
+        </Text>
+        <Text style={{ fontSize: 13, color: '#0F172A', lineHeight: 1.6 }}>
+          <span style={{ fontWeight: 'bold', color: '#2563EB' }}>决策组　</span>diagnostician 执行竞争性假设推理；judge 按十维度量评分；report-reviewer 以物理机理复核，守住"不合理即打回"
+        </Text>
+        <Text style={{ fontSize: 13, color: '#0F172A', lineHeight: 1.6 }}>
+          <span style={{ fontWeight: 'bold', color: '#7C3AED' }}>交付组　</span>reporter 输出金字塔结构报告与 run_summary；html-visualizer / html-reviewer 生成并审校可交付的单文件 HTML 报告
+        </Text>
+      </Box>
+
+      <Box style={{ height: 12 }} />
+
+      <Box style={{ flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '12px 14px', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+          <span style={{ color: '#2563EB', fontWeight: 'bold' }}>▪ </span>每个角色只消费上游产物、只产出下游依赖的工件，职责边界由文件契约固定
+        </Text>
+        <Text style={{ fontSize: 12.5, color: '#0F172A', lineHeight: 1.6 }}>
+          <span style={{ color: '#2563EB', fontWeight: 'bold' }}>▪ </span>main-agent 只做编排与收尾，不下场做分析——避免"既当运动员又当裁判"
+        </Text>
+      </Box>
+    </Box>
+
+    <Box style={{ width: 476, flexDirection: 'column', gap: 6 }}>
+      <Text style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>实时诊断工作台（真实界面）</Text>
+      <Box style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4 }}>
+        <Image src="assets/idd_ui_diagnose.png" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }} />
+      </Box>
+    </Box>
+
+  </Box>
+
+  <Box style={{ marginTop: 'auto', height: 34, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8' }}>工业深度诊断引擎 IDD</Text>
+    <Text style={{ fontSize: 12.5, color: '#94A3B8', fontFamily: 'Cascadia Mono' }}>02 / 07</Text>
+  </Box>
+
+</Slide>
