@@ -62,6 +62,40 @@ cd rag-retrieval-engine
 python server.py      # → http://localhost:8764
 ```
 
+### Diagnosis benchmark (four-step test pipeline)
+
+The benchmark evaluates **one complete diagnosis run** (12 scenarios: 9 fault + 3 control) against
+isolated ground truth. Single agent-executable entry point:
+
+```bash
+node scripts/benchmark/run-benchmark-pipeline.mjs              # all four steps
+node scripts/benchmark/run-benchmark-pipeline.mjs --step 3     # single step (1|2|3|4)
+node scripts/benchmark/run-benchmark-pipeline.mjs --seed <n>   # replay a specific random draw
+```
+
+| Step | Script(s) | Produces |
+|:--|:--|:--|
+| 1 Pipeline diagnosis | `run-tier.mjs` (`prepare`/`brief`/`pipeline`/`commit`) + `judge-rubric.mjs` + `aggregate.mjs` + `verify-repro.mjs` | `results/benchmark/gradings/*.json`, `metrics.json`, repro gate |
+| 2 LLM-replication baseline | `baselines/baseline-suite/scripts/run-all.mjs` (Nuxt suite, port 5181) | `baselines/baseline-suite/runs/*.json`, `suite_determinism.json` |
+| 3 Random re-test + consistency | `select-retest-case.mjs` (uniform draw, recorded seed) + `consistency-audit.mjs` | `retest_selection.json`, `consistency_audit.json` |
+| 4 English report | `build-english-benchmark-report.mjs` | `results/benchmark/benchmark_report_en.{md,html}` |
+
+Discipline (violating any of these invalidates a result):
+
+- **Scripts verify and score; they never author pipeline artifacts or agent events.** The v1
+  note-expansion path is retired (`zcode_direct_pipeline.mjs diagnose` requires `--legacy`).
+- An incomplete stage exits non-zero and prints an **EXECUTION CONTRACT** naming what an agent must
+  still execute. `--allow-gaps` reports gaps without failing — never use it to declare success.
+- The re-tested scenario is drawn uniformly at random with a recorded seed; never hand-pick it.
+- Consistency is measured **within era** (run-dir prefix `< 20260914` = v1, pre-discipline system
+  revision). Cross-era flips are version change, not run-to-run instability.
+- Ground truth lives only in `scripts/benchmark/cases/benchmark_cases.json`; the English report's
+  Appendix A is truth-bearing and must not be shown to a diagnosing agent.
+
+Protocol docs: `docs/benchmark/benchmark-pipeline-runbook.md` (agent runbook, EN),
+`docs/benchmark/baseline-suite-pipeline.md` (CN), `docs/benchmark/execution-guide.md` (pipeline
+execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drift decision tree).
+
 ## Architecture
 
 ### Pipeline (Step 0–9)

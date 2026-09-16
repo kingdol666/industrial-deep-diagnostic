@@ -1,0 +1,20 @@
+{
+ "case_id": "tep_d01_ac_feed_ratio",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.256Z",
+ "arm": "llm",
+ "regime": "with_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nDocumented root-cause list for the TEP (choose from these):\n- IDV1: A/C feed ratio step (B composition constant) — Stream 4\n- IDV2: B composition, A/C ratio constant (step) — Stream 4\n- IDV3: D feed temperature step — Stream 2\n- IDV4: Reactor cooling-water inlet temperature step\n- IDV5: Condenser cooling-water inlet temperature step\n- IDV6: A feed head pressure loss (step, Stream 1)\n- IDV7: C header pressure loss — reduced availability (Stream 4)\n- IDV8: A/C feed ratio random variation (B composition constant) — Stream 4\n- IDV9: D feed temperature random variation — Stream 2\n- IDV10: D feed temperature + C header pressure random variation — Streams 2/4\n- IDV11: Reactor cooling-water inlet temperature random variation\n- IDV12: Condenser cooling-water inlet temperature random variation\n- IDV13: Reaction kinetics slow drift\n- IDV14: Reactor cooling-water valve sticking\n- IDV15: Condenser cooling-water valve sticking\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+ "answer": {
+  "top3": [
+   "IDV1: A/C feed ratio step (B composition constant) — Stream 4",
+   "IDV8: A/C feed ratio random variation (B composition constant) — Stream 4",
+   "IDV2: B composition, A/C ratio constant (step) — Stream 4"
+  ],
+  "verdict": null,
+  "reasoning": "受影响最严重的测量值集中在 C 组分上——汽提塔塔底出料中的 C (XMEAS_31)、反应器进料中的 C (XMEAS_25)——以及塔底产品中的 H/G (XMEAS_36, XMEAS_35) 和汽提塔压力 (XMEAS_16)，这正是当进料中 A/C 比率发生阶跃变化时（C 相对 A 过量）所预期的特征：C 在反应器/汽提塔回路中累积并改变了塔底产品的组成，而任何 B 组分测量值均未占据主导地位，排除了 IDV2。最强的跨域相关性是正常的控制器配对（例如，XMEAS_1–XMV_3, XMEAS_15–XMV_8），且冷却水相关的变量没有出现偏差，因此冷却水故障 (IDV4/5/11/12/14/15) 缺乏支持。阶跃状、中等幅度（最大 |z| 约 4.9）的偏差符合 IDV1，IDV8（相同流股 4 上的随机 A/C 比率波动）作为次要候选，IDV2（同一流股上的进料组成扰动）作为第三候选。"
+ }
+}

@@ -1,11 +1,11 @@
 {
- "generated_at": "2026-09-15T09:11:59.156Z",
+ "generated_at": "2026-09-15T17:26:35.449Z",
  "era_boundary": "20260914",
  "era_semantics": "v1 = pre anti-oscillation/cap discipline (system revision), v2 = current benchmark system; headline metric is within-era agreement",
  "extraction": "same semantics as commit: diagnosis.json primary_finding + surviving hypotheses, truth keywords from the case file",
  "cases": {
   "skab_valve1_1": {
-   "n_runs_found": 5,
+   "n_runs_found": 4,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -66,14 +66,6 @@
      "confidence": 65
     },
     {
-     "run_dir": "workspace\\diagnostic-runs\\202609142230308_bench_skab_valve1_1",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
-    },
-    {
      "run_dir": "workspace\\diagnostic-runs\\202609150453290_bench_skab_valve1_1",
      "era": "v2",
      "finalized": true,
@@ -84,7 +76,7 @@
    ]
   },
   "skab_cavitation_13": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -143,19 +135,11 @@
      "diagnosis_type": "COMPETING_SET",
      "top1_hit": false,
      "confidence": 58
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142230513_bench_skab_cavitation_13",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "skab_normal_control": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -214,19 +198,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": false,
      "confidence": 78
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142231062_bench_skab_normal_control",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d01_ac_feed_ratio": {
-   "n_runs_found": 5,
+   "n_runs_found": 4,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -287,14 +263,6 @@
      "confidence": 88
     },
     {
-     "run_dir": "workspace\\diagnostic-runs\\202609142232312_bench_tep_d01_ac_feed_ratio",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
-    },
-    {
      "run_dir": "workspace\\diagnostic-runs\\202609150454126_bench_tep_d01_ac_feed_ratio",
      "era": "v2",
      "finalized": true,
@@ -305,7 +273,7 @@
    ]
   },
   "tep_d03_hard": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -364,19 +332,11 @@
      "diagnosis_type": "COMPETING_SET",
      "top1_hit": false,
      "confidence": 60
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142232523_bench_tep_d03_hard",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d00_normal_control": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -435,19 +395,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": false,
      "confidence": 88
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142233071_bench_tep_d00_normal_control",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "indpensim_batch093": {
-   "n_runs_found": 5,
+   "n_runs_found": 4,
    "eras": {
     "v1": {
      "n_runs_proven": 3,
@@ -514,19 +466,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 88
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142233273_bench_indpensim_batch093",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "indpensim_batch001_control": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -585,19 +529,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": false,
      "confidence": 88
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142236103_bench_indpensim_batch001_control",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d04_reactor_cooling_step": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -656,19 +592,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 75
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142239208_bench_tep_d04_reactor_cooling_step",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d07_header_pressure": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -727,19 +655,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 82
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142239360_bench_tep_d07_header_pressure",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d11_reactor_cooling_random": {
-   "n_runs_found": 4,
+   "n_runs_found": 3,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -798,19 +718,11 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 80
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142240082_bench_tep_d11_reactor_cooling_random",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     }
    ]
   },
   "tep_d14_reactor_valve_sticking": {
-   "n_runs_found": 5,
+   "n_runs_found": 4,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -869,14 +781,6 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 82
-    },
-    {
-     "run_dir": "workspace\\diagnostic-runs\\202609142240228_bench_tep_d14_reactor_valve_sticking",
-     "era": "v2",
-     "finalized": false,
-     "diagnosis_type": null,
-     "top1_hit": null,
-     "confidence": null
     },
     {
      "run_dir": "workspace\\diagnostic-runs\\202609150454479_bench_tep_d14_reactor_valve_sticking",

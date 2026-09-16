@@ -260,8 +260,112 @@ def fig_forest():
     save(fig, "fig_forest")
 
 
+def fig_suite_matrix():
+    """Per-scenario x multi-system comparison matrix (IDD vs same-model baselines).
+    Data: gradings (IDD verdicts) + baselines.json (scored LLM arms) +
+    baselines/baseline-suite/runs (live PCA/FE suite executions). Zero hand-copied values."""
+    import matplotlib.patches as mpatches
+    from matplotlib.colors import LinearSegmentedColormap
+
+    baselines = json.load(open(os.path.join(RES, "baselines.json"), encoding="utf-8"))
+    suite = os.path.join(ROOT, "baselines", "baseline-suite", "runs")
+
+    def suite_json(name):
+        p = os.path.join(suite, name)
+        return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else None
+
+    rate_cmap = LinearSegmentedColormap.from_list("rate", ["#FFFFFF", "#BFD7EE", BLUE])
+
+    fig, ax = plt.subplots(figsize=(7.05, 3.85))
+    n = len(ORDER)
+    for yi, cid in enumerate(ORDER):
+        y = n - 1 - yi
+        c = cases[cid]
+        g = gradings[cid]
+        bl = baselines["llm"].get(cid, {})
+        # 1) IDD verdict
+        if c.get("control"):
+            col, txt = GREEN, "normal\n%.2f" % (g["confidence"] / 100.0)
+        elif g.get("top1"):
+            col, txt = GREEN, "Top-1\n%.2f" % (g["confidence"] / 100.0)
+        elif g.get("topk"):
+            col, txt = SKY, "CS %.2f\nranked" % (g["confidence"] / 100.0)
+        else:
+            col, txt = ORANGE, "CS %.2f\nunranked" % (g["confidence"] / 100.0)
+        ax.add_patch(Rectangle((0, y), 1, 1, facecolor=col, edgecolor="white", lw=1.2))
+        ax.text(0.5, y + 0.5, txt, ha="center", va="center", fontsize=6.6,
+                color="white" if col != SKY else "#123a52", linespacing=1.1)
+        # 2) bare-LLM strict
+        nc = bl.get("no_candidates")
+        if nc is None:
+            col, txt = "#eef0f2", "n/a"
+        elif c.get("control"):
+            col, txt = (GREEN, "normal") if nc.get("normal_verdict") else (VERM, "alarm!")
+        else:
+            col, txt = (GREEN, "hit") if nc.get("strict_top1_hit") else (VERM, "miss")
+        ax.add_patch(Rectangle((1, y), 1, 1, facecolor=col, edgecolor="white", lw=1.2))
+        ax.text(1.5, y + 0.5, txt, ha="center", va="center", fontsize=6.8,
+                color="white" if col in (GREEN, VERM) else "#5a6a7a")
+        # 3) FE-style with candidates (TEP faults only)
+        wc = bl.get("with_candidates")
+        if c["dataset"] != "tep" or c.get("control"):
+            col, txt = "#eef0f2", "-"
+        else:
+            col, txt = (GREEN, "hit") if (wc or {}).get("fe_style_top3_hit") else (VERM, "miss")
+        ax.add_patch(Rectangle((2, y), 1, 1, facecolor=col, edgecolor="white", lw=1.2))
+        ax.text(2.5, y + 0.5, txt, ha="center", va="center", fontsize=6.8,
+                color="white" if col in (GREEN, VERM) else "#5a6a7a")
+        # 4/5) PCA detection rates (suite live execution)
+        sp = suite_json(cid + ".pca.json")
+        rates = [(sp or {}).get("detection", {}).get(k) for k in ("detection_rate_T2", "detection_rate_SPE")]
+        if rates[0] is None:
+            rates = [baselines["pca"][cid]["detection_rate_T2"], baselines["pca"][cid]["detection_rate_SPE"]]
+        for xi, r in zip((3, 4), rates):
+            r = float(r)  # int rates (1) would index the cmap LUT instead of normalizing
+            ax.add_patch(Rectangle((xi, y), 1, 1, facecolor=rate_cmap(r), edgecolor="white", lw=1.2))
+            ax.text(xi + 0.5, y + 0.5, "%.0f" % (r * 100), ha="center", va="center", fontsize=6.8,
+                    color="white" if r > 0.62 else "#1e3a54")
+        # 6) FE-protocol detection (suite live execution)
+        sf = suite_json(cid + ".fe.json")
+        if sf is None:
+            col, txt = "#eef0f2", "-"
+        else:
+            col, txt = (GREEN, "det.") if sf["detection"]["detected"] else (VERM, "no")
+        ax.add_patch(Rectangle((5, y), 1, 1, facecolor=col, edgecolor="white", lw=1.2))
+        ax.text(5.5, y + 0.5, txt, ha="center", va="center", fontsize=6.8,
+                color="white" if col in (GREEN, VERM) else "#5a6a7a")
+
+    # dataset group separators (skab | tep | indpensim | tep)
+    for yi in range(1, n):
+        if cases[ORDER[yi]]["dataset"] != cases[ORDER[yi - 1]]["dataset"]:
+            ax.axhline(n - yi, color="#4a5a6a", lw=1.0)
+    ax.set_xlim(0, 6)
+    ax.set_ylim(0, n)
+    ax.set_yticks([n - 0.5 - i for i in range(n)])
+    ax.set_yticklabels([SHORT[cid] for cid in ORDER], fontsize=7)
+    ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5, 5.5])
+    ax.set_xticklabels(["IDD verdict\n(conf.)", "Bare LLM\n(strict)", "FE style\n(cand.)",
+                        "PCA T²\ndet. %", "PCA SPE\ndet. %", "FE prot.\ndet."], fontsize=6.9)
+    ax.tick_params(length=0)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.set_aspect("auto")
+    handles = [
+        mpatches.Patch(facecolor=GREEN, label="resolved / hit / pass"),
+        mpatches.Patch(facecolor=SKY, label="capped CS, mechanism ranked"),
+        mpatches.Patch(facecolor=ORANGE, label="capped CS, not ranked"),
+        mpatches.Patch(facecolor=VERM, label="miss / not detected"),
+        mpatches.Patch(facecolor="#eef0f2", label="not in protocol scope"),
+    ]
+    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.09),
+              ncol=3, frameon=False, fontsize=6.6, handlelength=1.2, handleheight=0.9)
+    save(fig, "fig_suite_matrix")
+
+
+
 fig_benchmark()
 fig_calibration()
 fig_tep()
 fig_forest()
+fig_suite_matrix()
 print("done")

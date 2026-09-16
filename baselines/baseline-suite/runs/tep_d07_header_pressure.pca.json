@@ -1,0 +1,34 @@
+{
+ "case_id": "tep_d07_header_pressure",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:38.237Z",
+ "arm": "pca-classical",
+ "method": "PCA (normal-control training, 95% variance, T2+Q, 99th-pct training alarm, SPE top-3)",
+ "detection": {
+  "window": "rows 161..960",
+  "detection_rate_T2": 1,
+  "detection_rate_SPE": 0.995,
+  "threshold_T2": 56.348,
+  "threshold_SPE": 6.778,
+  "components_retained": 35
+ },
+ "diagnosis": {
+  "top3_contribution_variables": [
+   {
+    "variable": "XMEAS_33",
+    "mean_squared_residual": 3.1004
+   },
+   {
+    "variable": "XMEAS_29",
+    "mean_squared_residual": 3.0383
+   },
+   {
+    "variable": "XMEAS_38",
+    "mean_squared_residual": 2.3408
+   }
+  ],
+  "mechanism_verdict": null,
+  "note": "classical PCA outputs variable contributions only — no mechanism verdict, no confidence, no evidence state"
+ }
+}

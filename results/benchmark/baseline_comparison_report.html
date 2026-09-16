@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benchmark × Baseline 对比基线报告</title>
+<style>
+ body{font-family:"Source Han Sans SC","Noto Sans SC",system-ui,sans-serif;color:#1c2733;max-width:1020px;margin:0 auto;padding:36px 28px 72px;line-height:1.75;font-size:14.5px;background:#f4f7fb}
+ .card{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;margin:14px 0}
+ h1{font-size:22px;border-bottom:3px solid #1c2733;padding-bottom:10px}
+ h2{font-size:17px;border-left:5px solid #1f5eff;padding-left:10px;margin:26px 0 8px}
+ table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.8px;background:#fff}
+ th,td{border:1px solid #d9e2ec;padding:6px 9px;text-align:left}
+ th{background:#eef3f9}
+ .sub{color:#5a6a7a;font-size:12.5px}
+</style></head><body>
+<h1>Benchmark × Baseline 对比基线报告（双项目真实执行）</h1>
+<div class="sub">生成 2026-09-15 16:07 · IDD 12 场景 canonical 判定 × Nuxt 套件 45 项实时运行 · 模型变量受控（同一 GLM 部署）</div>
+<div class="card"><b>对比双方</b> — IDD：industrial-analysis-auto 完整管线（Step 2-9，门禁 + 执行证明）；
+Baseline Suite：Nuxt 复刻（经典 PCA / FE 协议 / 同模型裸 LLM），FE 上游快照 @2fcfee9。套件 LLM 臂回放同 GLM 部署的归档 raw 回答（recorded 标注），配置 live 端点后自动切换真实调用。</div>
+<h2>1 逐场景对比</h2>
+<table><tr><th>场景</th><th>IDD（判定/置信）</th><th>裸LLM strict</th><th>FE-style（含候选）</th><th>套件PCA 检出 T²/SPE</th><th>套件FE 检出</th></tr>
+<tr><td>skab_valve1_1</td><td>未中 COMPETING_SET (conf 65)</td><td>命中</td><td>n/a</td><td>100.0% / 100.0%</td><td>—</td></tr>
+<tr><td>skab_cavitation_13</td><td>未中 COMPETING_SET (conf 58)</td><td>命中</td><td>n/a</td><td>100.0% / 100.0%</td><td>—</td></tr>
+<tr><td>skab_normal_control</td><td>对照通过=true</td><td>normal ✓</td><td>n/a</td><td>1.0% / 1.0%</td><td>—</td></tr>
+<tr><td>tep_d01_ac_feed_ratio</td><td>命中 DETERMINED (conf 79)</td><td>命中</td><td>命中</td><td>99.3% / 99.8%</td><td>检出 (XMEAS_25)</td></tr>
+<tr><td>tep_d03_hard</td><td>未中 COMPETING_SET (conf 60)</td><td>命中</td><td>命中</td><td>2.9% / 4.8%</td><td>未检出</td></tr>
+<tr><td>tep_d00_normal_control</td><td>对照通过=true</td><td>未运行</td><td>n/a</td><td>1.0% / 1.0%</td><td>未检出</td></tr>
+<tr><td>indpensim_batch093</td><td>命中 DETERMINED (conf 88)</td><td>命中</td><td>n/a</td><td>15.0% / 73.9%</td><td>—</td></tr>
+<tr><td>indpensim_batch001_control</td><td>对照通过=true</td><td>normal ✓</td><td>n/a</td><td>1.1% / 1.1%</td><td>—</td></tr>
+<tr><td>tep_d04_reactor_cooling_step</td><td>命中 DETERMINED (conf 75)</td><td>命中</td><td>命中</td><td>48.8% / 100.0%</td><td>检出 (XMV_10)</td></tr>
+<tr><td>tep_d07_header_pressure</td><td>命中 DETERMINED (conf 82)</td><td>命中</td><td>命中</td><td>100.0% / 99.5%</td><td>检出 (XMEAS_4)</td></tr>
+<tr><td>tep_d11_reactor_cooling_random</td><td>命中 DETERMINED (conf 80)</td><td>命中</td><td>命中</td><td>53.8% / 66.3%</td><td>检出 (XMEAS_9)</td></tr>
+<tr><td>tep_d14_reactor_valve_sticking</td><td>命中 DETERMINED (conf 89)</td><td>命中</td><td>命中</td><td>99.8% / 93.4%</td><td>检出 (XMV_10)</td></tr></table>
+<p class="sub">套件 FE 臂在 benchmark 数据上的检出格局复现文献结论：IDV3 未检出（检测极限），IDV4/IDV14 首要贡献特征落在冷却水阀 XMV_10。</p>
+<h2>2 抽查复测（一致性）</h2>
+<div class="card">
+套件侧：tep_d14 全部 5 臂二次执行与首次<b>逐字节一致</b>（剔除时间戳）。<br>
+IDD 侧：tep_d14 两次独立完整执行 — 判定类型相同（DETERMINED），同一机理（XMV_10 阀粘滞 → 极限环振荡），置信 82 → 89。<br>
+全量稳定性：时代内判定+Top-1 一致性 <b>15/15</b>（跨时代翻转 = 已记录的系统纪律收紧，非随机不稳定）。
+</div>
+<h2>3 真实性声明</h2>
+<div class="card sub">套件不读取任何真值/关键词（评分在 benchmark 侧）；缺失 LLM 臂（tep_d00 对照 ×3）为已记录的协议范围缺口；
+本报告全部数字来自磁盘真实产物，按 docs/benchmark/baseline-suite-pipeline.md 可完整再生成。</div>
+<div class="sub" style="margin-top:22px">results/benchmark/baseline_comparison_report.html · 由 scripts/benchmark/build-baseline-suite-report.mjs 生成</div>
+</body></html>

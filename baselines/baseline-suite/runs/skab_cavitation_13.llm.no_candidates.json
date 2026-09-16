@@ -1,0 +1,20 @@
+{
+ "case_id": "skab_cavitation_13",
+ "dataset": "skab",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:36.903Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. A process shows the following recorded episode. Your task: assess whether a fault is present and, if so, identify the most likely root cause.\n\nDataset: skab_cavitation_13 (skab). Rows: 923. Sampling as described below.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): Pressure max|z|=5.02 (0.2% beyond 3σ); Accelerometer2RMS max|z|=3.45 (0.5% beyond 3σ); Accelerometer1RMS max|z|=3.08 (0.2% beyond 3σ); Current max|z|=2.82 (0.0% beyond 3σ); Temperature max|z|=2.68 (0.0% beyond 3σ); Thermocouple max|z|=2.47 (0.0% beyond 3σ)\n- Strongest cross-domain correlations: Accelerometer1RMS ~ Volume Flow RateRMS: r=-0.821; Accelerometer1RMS ~ Accelerometer2RMS: r=0.796; Thermocouple ~ Volume Flow RateRMS: r=-0.741; Accelerometer2RMS ~ Volume Flow RateRMS: r=-0.651; Accelerometer1RMS ~ Thermocouple: r=0.567; Current ~ Voltage: r=0.500\n\nProcess description: 水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样。本文件来自other实验组（故障类型不下发，仅提供传感器语义）。\n\nTask: (1) state whether this episode shows a fault or normal operation; (2) if a fault, give the most likely root cause and up to 2 alternatives. Output STRICT JSON only (no markdown, no extra text): {\"verdict\": \"fault\" | \"normal\", \"top3\": [...], \"reasoning\": \"<2-3 sentences>\"}\n",
+ "answer": {
+  "top3": [
+   "离心泵汽蚀（空化）：吸入压力不足导致泵内气泡生成与溃灭",
+   "吸入侧阻力异常（阀门过度节流/滤网堵塞）造成入口压力过低，诱发类汽蚀工况",
+   "叶轮损伤或机械松动（轴承磨损/对中不良）引起的异常振动"
+  ],
+  "verdict": "fault",
+  "reasoning": "压力出现最大偏离（max|z|=5.02）且两路加速度计RMS同时升高，而振动与流量呈强负相关（r=-0.82/-0.65）、并与流体温度正相关：流量下降时振动与流体温度同步上升，符合离心泵内气泡生成-溃灭的汽蚀特征。电机电流与电压均接近正常（max|z|<3，Current~Voltage r=0.5 为正常电特性），可排除电气驱动故障为主导。单纯机械故障难以解释振动-流量-压力之间的强耦合，故最可能根因为吸入压力不足引起的泵汽蚀。"
+ }
+}

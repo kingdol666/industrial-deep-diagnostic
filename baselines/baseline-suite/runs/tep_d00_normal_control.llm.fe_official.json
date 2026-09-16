@@ -1,0 +1,10 @@
+{
+ "case_id": "tep_d00_normal_control",
+ "dataset": "tep",
+ "control": true,
+ "executed_at": "2026-09-16T02:24:37.811Z",
+ "arm": "llm",
+ "regime": "fe_official",
+ "mode": "unavailable",
+ "error": "no live endpoint configured and no archived answer for tep_d00_normal_control.fe_official"
+}

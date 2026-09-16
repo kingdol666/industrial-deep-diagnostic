@@ -1,0 +1,120 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "selected_at": "2026-09-16T02:21:28.566Z",
+   "rng": "mulberry32",
+   "seed": 141354613,
+   "uniform_draw": 0.359796974,
+   "pool_size": 9,
+   "pool": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "indpensim_batch093",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+   ],
+   "pool_filter": "faults-only",
+   "index": 3,
+   "case_id": "tep_d03_hard",
+   "dataset": "tep",
+   "control": false,
+   "contract": [
+    "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d03_hard in a FRESH run dir.",
+    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+    "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d03_hard"
+   ]
+  },
+  {
+   "round": 2,
+   "selected_at": "2026-09-16T02:24:39.234Z",
+   "rng": "mulberry32",
+   "seed": 2066730807,
+   "uniform_draw": 0.844815896,
+   "pool_size": 9,
+   "pool": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "indpensim_batch093",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+   ],
+   "pool_filter": "faults-only",
+   "index": 7,
+   "case_id": "tep_d11_reactor_cooling_random",
+   "dataset": "tep",
+   "control": false,
+   "contract": [
+    "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+    "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+   ]
+  },
+  {
+   "round": 3,
+   "selected_at": "2026-09-16T02:25:16.521Z",
+   "rng": "mulberry32",
+   "seed": 503865577,
+   "uniform_draw": 0.781653556,
+   "pool_size": 9,
+   "pool": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "indpensim_batch093",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+   ],
+   "pool_filter": "faults-only",
+   "index": 7,
+   "case_id": "tep_d11_reactor_cooling_random",
+   "dataset": "tep",
+   "control": false,
+   "contract": [
+    "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+    "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+   ]
+  }
+ ],
+ "last": {
+  "round": 3,
+  "selected_at": "2026-09-16T02:25:16.521Z",
+  "rng": "mulberry32",
+  "seed": 503865577,
+  "uniform_draw": 0.781653556,
+  "pool_size": 9,
+  "pool": [
+   "skab_valve1_1",
+   "skab_cavitation_13",
+   "tep_d01_ac_feed_ratio",
+   "tep_d03_hard",
+   "indpensim_batch093",
+   "tep_d04_reactor_cooling_step",
+   "tep_d07_header_pressure",
+   "tep_d11_reactor_cooling_random",
+   "tep_d14_reactor_valve_sticking"
+  ],
+  "pool_filter": "faults-only",
+  "index": 7,
+  "case_id": "tep_d11_reactor_cooling_random",
+  "dataset": "tep",
+  "control": false,
+  "contract": [
+   "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+   "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+   "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "case_id": "indpensim_batch093",
+ "dataset": "indpensim",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.830Z",
+ "arm": "pca-classical",
+ "method": "PCA (normal-control training, 95% variance, T2+Q, 99th-pct training alarm, SPE top-3)",
+ "detection": {
+  "window": "rows 1..1050",
+  "detection_rate_T2": 0.1505,
+  "detection_rate_SPE": 0.739,
+  "threshold_T2": 49.495,
+  "threshold_SPE": 6.351,
+  "components_retained": 11
+ },
+ "diagnosis": {
+  "top3_contribution_variables": [
+   {
+    "variable": "Heating water flow rate(Fh:L/h)",
+    "mean_squared_residual": 33.4914
+   },
+   {
+    "variable": "Generated heat(Q:kJ)",
+    "mean_squared_residual": 13.1383
+   },
+   {
+    "variable": "Heating/cooling water flow rate(Fc:L/h)",
+    "mean_squared_residual": 5.0515
+   }
+  ],
+  "mechanism_verdict": null,
+  "note": "classical PCA outputs variable contributions only — no mechanism verdict, no confidence, no evidence state"
+ }
+}

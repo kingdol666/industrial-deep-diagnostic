@@ -1,0 +1,21 @@
+{
+  "name": "idd-baseline-suite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nuxt replication of the IDD paper's baseline diagnostic arms: classical PCA monitoring (Chiang 2001/Qin 2012), FaultExplainer-protocol replication (PCA(0.9)+T2+EXPLAIN_ROOT), and the same-model bare-LLM single-call protocol. Runs real diagnoses on the IDD benchmark scenarios' prepared data. Truth-free by contract: no truth, no keywords, no gradings are read.",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --port 5181",
+    "build": "nuxt build",
+    "preview": "nuxt preview --port 5181",
+    "start": "node .output/server/index.mjs",
+    "run-all": "node scripts/run-all.mjs"
+  },
+  "dependencies": {
+    "nuxt": "^3.17.0",
+    "vue": "^3.5.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

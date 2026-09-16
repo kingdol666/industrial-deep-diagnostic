@@ -105,6 +105,11 @@ if (structuralByCase.size) {
 // Execution-engine provenance: a scenario that silently degraded to the JS
 // fallback skipped the entire anti-spurious-correlation layer, so it must be
 // visible in the aggregate rather than discoverable only by opening a run dir.
+// validate_report.json has two schema generations (both agent-authored wraps):
+//   v1: top-level {correlation, anti_spurious, batch} blocks
+//   v2: top-level {validations, summary, metadata} with summary.total_pairs_analyzed
+// Both are stats-package outputs; treat a run as non-degraded on any positive
+// evidence, and never assert degradation without it.
 const engineByCase = new Map();
 for (const { case: c, g } of rows) {
   // run_dir is recorded as an absolute path; tolerate a repo-relative one too.
@@ -112,13 +117,18 @@ for (const { case: c, g } of rows) {
   const vr = path.join(path.isAbsolute(rd) ? rd : path.join(ROOT, rd), "02_processed/validate_report.json");
   try {
     const v = JSON.parse(fs.readFileSync(vr, "utf8"));
-    engineByCase.set(c.case_id, v.engine ?? (v.correlation ? "stats-package" : "unknown"));
+    const statsEvidence =
+      v.engine === "stats-package" ||
+      v.correlation != null ||
+      (v.summary != null && (v.summary.total_pairs_analyzed != null || v.summary.correlation != null)) ||
+      (v.metadata != null && typeof v.metadata.generated_by === "string" && v.metadata.generated_by.includes("stats/"));
+    engineByCase.set(c.case_id, statsEvidence ? (v.engine ?? "stats-package") : "unknown");
   } catch { engineByCase.set(c.case_id, "unknown"); }
 }
 metrics.execution_integrity = {
   by_engine: {},
   degraded_cases: [...engineByCase.entries()].filter(([, e]) => e !== "stats-package").map(([k]) => k),
-  note: "degraded_cases 以 driver-js-fallback 运行：统计包失败，未执行反假相关校验（lag CCF / 分布 / 杠杆 / 趋势混杂 / Simpson / 多重检验），其判别证据链不完整。",
+  note: "engine records which implementation produced 02_processed/validate_report.json. 'stats-package' runs executed the anti-spurious-correlation layer (lag CCF / distribution / leave-one-out leverage / trend-confounding / Simpson / multiple testing). degraded_cases lists runs whose engine could not be evidenced from the released artifact; degradation is never asserted without evidence.",
 };
 for (const e of engineByCase.values()) metrics.execution_integrity.by_engine[e] = (metrics.execution_integrity.by_engine[e] ?? 0) + 1;
 

@@ -1,0 +1,20 @@
+{
+ "case_id": "tep_d01_ac_feed_ratio",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.244Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_31 max|z|=4.93 (3.3% beyond 3σ); XMEAS_36 max|z|=4.85 (1.9% beyond 3σ); XMEAS_16 max|z|=4.82 (3.2% beyond 3σ); XMEAS_25 max|z|=4.68 (2.9% beyond 3σ); XMEAS_35 max|z|=4.48 (2.9% beyond 3σ); XMEAS_11 max|z|=4.4 (2.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_1 ~ XMV_3: r=1.000; XMEAS_7 ~ XMEAS_13: r=0.999; XMEAS_19 ~ XMV_9: r=0.995; XMEAS_17 ~ XMV_11: r=-0.984\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机，产物为反应器内 A+B→C→D+E 的两级反应。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（映射表 data/references/tep_variables.md）。3分钟采样，第161样本（8h）起为故障时段。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+ "answer": {
+  "top3": [
+   "IDV(1): A/C feed ratio step change in Stream 4 (B composition constant)",
+   "IDV(7): C header pressure loss / reduced availability of Stream 4",
+   "IDV(8): A, B, C feed composition change in Stream 4"
+  ],
+  "verdict": null,
+  "reasoning": "The dominant standardized deviations are in the C mole fraction of the reactor feed (XMEAS_25) and the purge (XMEAS_31), together with the resulting G/H redistribution in the purge (XMEAS_35/36) and stripper pressure (XMEAS_16), while no B-composition column appears in the top list — exactly the signature of a step change in the A/C ratio of the mixed Stream 4 feed with B composition held constant, which shifts reactor conversion and the G/H product split recycled through the loop. The strongest correlations are all routine control-loop pairings (level~valve, feed~valve, steam~valve), showing the base controllers are tracking well and the upset enters as an external feed-property disturbance rather than a sensor fault, valve stiction, or cooling-water fault."
+ }
+}

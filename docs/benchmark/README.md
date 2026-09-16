@@ -74,6 +74,25 @@ node scripts/benchmark/run-tier.mjs baselines
 基线读留档 raw 回答重算。协议细节与真实性红线见
 [reproduction-guide.md](reproduction-guide.md) §9/§10。
 
+### 3.2 四步测试流水线（Agent 可执行 · 一键）
+
+```bash
+node scripts/benchmark/run-benchmark-pipeline.mjs            # 全部四步
+node scripts/benchmark/run-benchmark-pipeline.mjs --step 3   # 单步（1|2|3|4）
+node scripts/benchmark/run-benchmark-pipeline.mjs --seed <n> # 复现同一次随机抽签
+```
+
+| 步骤 | 内容 | 脚本 |
+|---|---|---|
+| 1 | 对场景数据真实执行 IDD 诊断管线（prepare → brief → 真实 Step 2-9 → 评分 → 复现门禁） | `run-tier.mjs` + `aggregate.mjs` + `verify-repro.mjs` |
+| 2 | 对**同一批数据**执行 LLM 复现基线套件（PCA / FE 协议 / 同模型裸 LLM），并核验套件确定性 | `baselines/baseline-suite/scripts/run-all.mjs` |
+| 3 | **随机**抽取一个场景复测 + 结构化机理签名一致性审计（时代内口径） | `select-retest-case.mjs` + `consistency-audit.mjs` |
+| 4 | 生成**英文** benchmark 标准报告（MD + HTML） | `build-english-benchmark-report.mjs` |
+
+任一阶段不完整即以退出码 1 结束并打印 **EXECUTION CONTRACT**（明确列出 agent 还需执行什么）。
+步骤 3 的抽签用记录 seed 的均匀随机——不接受自选场景。完整规程见
+[benchmark-pipeline-runbook.md](benchmark-pipeline-runbook.md)（英文，Agent 运行手册）。
+
 ## 4. 文件地图
 
 | 文件 / 目录 | 内容 |
@@ -81,10 +100,19 @@ node scripts/benchmark/run-tier.mjs baselines
 | [design.md](design.md) | 设计依据：任务口径、指标定义、期刊 baseline 对标（可验证 DOI）、双口径声明、已知缺口、路线图 |
 | [execution-guide.md](execution-guide.md) | 管线执行规程（v2）：prepare → brief → **真实管线执行（子 skill 分阶段契约）** → 从产物评分 → 门禁 → 报告 |
 | [reproduction-guide.md](reproduction-guide.md) | 复现手册：逐步命令、期望输出、漂移决策树、真实性保障层 |
+| [baseline-suite-pipeline.md](baseline-suite-pipeline.md) | 双项目对照测试流程：IDD 管线 × 复刻 baseline 套件并行启动 → **随机**抽查复测 → 对比基线报告（MD+HTML） |
+| [benchmark-pipeline-runbook.md](benchmark-pipeline-runbook.md) | **Agent 运行手册（英文）**：四步测试流水线的逐步命令、门禁、执行契约与漂移决策树 |
+| `scripts/benchmark/run-benchmark-pipeline.mjs` | **四步测试流水线一键入口**（1 管线诊断 / 2 基线套件 / 3 随机复测 / 4 英文报告） |
+| `scripts/benchmark/select-retest-case.mjs` | 随机场景抽签（mulberry32 均匀随机；记录 seed/u/索引，可精确复现） |
+| `scripts/benchmark/consistency-audit.mjs` | 一致性审计：结构化机理签名（判定类型 + primary_tag + mechanism_class + cause 重叠），时代内口径 |
+| `scripts/benchmark/build-english-benchmark-report.mjs` | **英文** benchmark 标准报告生成器（→ `results/benchmark/benchmark_report_en.{md,html}`） |
 | `scripts/benchmark/run-benchmark.mjs` | 审稿人一键入口（S0-S6 fail-fast） |
 | `scripts/benchmark/run-tier.mjs` | 分步编排（prepare / brief / pipeline / commit / status / import-state / **stability** / **baselines**；notes/archive 已退役） |
 | `scripts/benchmark/baseline_pca.mjs` | 经典 PCA 基线（确定性：对照训练 / 95% 方差 / T²+Q / 99 分位 / SPE top-3；纯 JS，无 venv 依赖） |
 | `scripts/benchmark/baseline_llm.mjs` | 同模型裸 LLM 基线：prompts（幂等）/ score（确定性重打分 → baselines.json）/ check（缺失答案的执行契约） |
+| `baselines/FaultExplainer/` | 上游对照算法 vendored 快照（li-group/FaultExplainer @ 2fcfee9，MIT） |
+| `baselines/baseline-suite/` | 无公开仓库对照算法的 Nuxt 复刻套件（经典 PCA / FE 协议 / 裸 LLM 协议；可启动、可全量执行） |
+| `scripts/benchmark/build-baseline-suite-report.mjs` | 双项目对比基线报告生成器（→ results/benchmark/baseline_comparison_report.{md,html}） |
 | `scripts/benchmark/zcode_direct_pipeline.mjs` | 管线驱动：prepare（确定性统计）+ pipeline-check（完整性验证）+ grade（从真实产物评分）；diagnose（note 扩写）已退役需 `--legacy` |
 | `scripts/benchmark/judge-rubric.mjs` | 确定性质量 rubric v2（R1-R7 全部从管线产物计算） |
 | `scripts/benchmark/aggregate.mjs` | 指标聚合 → `results/benchmark/metrics.json` |
@@ -92,6 +120,7 @@ node scripts/benchmark/run-tier.mjs baselines
 | `scripts/benchmark/build-report.mjs` | HTML 评分报告生成（零硬编码数字，派生自 results） |
 | `scripts/benchmark/cases/benchmark_cases.json` | 场景定义 + 标准答案（**评分器专用**） |
 | `results/benchmark/` | 运行产物：briefs / gradings / tier_state（v1 结果在 `legacy_note_era/`） |
+| `results/benchmark/benchmark_report_en.{md,html}` | **英文 benchmark 标准报告**（交付物；附录 A 含真值，禁止交给诊断 agent） |
 | `experience/benchmark-report.html` | 最终评分报告（自动生成） |
 | `experience/results/scorer-discrimination-test.json` | 阴性对照留痕：注入错误诊断 → 评分器判伪 |
 

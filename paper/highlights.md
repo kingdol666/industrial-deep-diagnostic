@@ -1,7 +1,7 @@
 # Highlights
 
-- Agentic pipeline grades industrial RCA verdicts by evidence level L1–L7 with hard ceilings.
+- Agentic pipeline grades RCA verdicts by evidence level L1-L7 with hard ceilings.
 - Three-state verdicts turn inconclusive diagnoses into named instrumentation requests.
-- Full-pipeline 12-scenario benchmark: 6/9 resolved, no false alarms, no forced conclusions.
+- 12-scenario benchmark: 6/9 faults resolved, zero false alarms, no forced conclusions.
 - Per-fault TEP comparison vs FaultExplainer under a stricter no-candidate protocol.
-- Machine-checked evaluation contract with provenance labels and an integrity audit trail.
+- Machine-checked evaluation contract with provenance and integrity audit trail.

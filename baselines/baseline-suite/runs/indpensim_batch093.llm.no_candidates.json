@@ -1,0 +1,20 @@
+{
+ "case_id": "indpensim_batch093",
+ "dataset": "indpensim",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.907Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. A process shows the following recorded episode. Your task: assess whether a fault is present and, if so, identify the most likely root cause.\n\nDataset: indpensim_batch093 (indpensim). Rows: 1050. Sampling as described below.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): Acid flow rate(Fa:L/h) max|z|=15.8 (1.4% beyond 3σ); Heating water flow rate(Fh:L/h) max|z|=13.05 (1.3% beyond 3σ); pH(pH:pH) max|z|=7.09 (1.4% beyond 3σ); Heating/cooling water flow rate(Fc:L/h) max|z|=5.18 (3.1% beyond 3σ); Substrate concentration(S:g/L) max|z|=5.01 (4.4% beyond 3σ); Dumped broth flow(Fremoved:L/h) max|z|=4.47 (4.8% beyond 3σ)\n- Strongest cross-domain correlations: Vessel Volume(V:L) ~ Vessel Weight(Wt:Kg): r=0.999; Temperature(T:K) ~ Generated heat(Q:kJ): r=0.996; Time (h) ~ Penicillin concentration(P:g/L): r=0.993; carbon dioxide percent in off-gas(CO2outgas:%) ~ Carbon evolution rate(CER:g/h): r=0.966; Vessel Weight(Wt:Kg) ~ Carbon evolution rate(CER:g/h): r=0.961; Vessel Volume(V:L) ~ Carbon evolution rate(CER:g/h): r=0.954\n\nProcess description: 100,000L 青霉素发酵批次过程（IndPenSim），0.2h采样，Time (h)为批内相对小时。关键变量：Aeration rate曝气、DO2溶氧、OUR/CER呼吸代谢、pH、Sugar feed rate糖流加、Penicillin concentration为目标产物。本批含一段异常工况，起止时标与类型均不提供。\n\nTask: (1) state whether this episode shows a fault or normal operation; (2) if a fault, give the most likely root cause and up to 2 alternatives. Output STRICT JSON only (no markdown, no extra text): {\"verdict\": \"fault\" | \"normal\", \"top3\": [...], \"reasoning\": \"<2-3 sentences>\"}\n",
+ "answer": {
+  "top3": [
+   "pH control loop disturbance — acid feed (Fa) extreme excursions (max|z|=15.8) reacting to a pH deviation (max|z|=7.09), consistent with an acid pump malfunction or pH probe drift in the pH cascade loop",
+   "Temperature control loop disturbance — heating water flow (Fh, max|z|=13.05) and cooling water flow (Fc, max|z|=5.18) both far beyond normal band, indicating a thermal control fault (heating water valve/pump or temperature sensor)",
+   "Substrate feed fault — sugar feed or substrate concentration deviation (S max|z|=5.01) driving metabolic (CO2/CER) and broth-volume (Fremoved max|z|=4.47) perturbations that secondarily stress the pH and temperature loops"
+  ],
+  "verdict": "fault",
+  "reasoning": "The episode is clearly abnormal: acid flow (Fa) reaches max|z|=15.8 and heating water flow (Fh) 13.05, while the controlled variables pH (7.09) deviate substantially, a pattern typical of fault conditions in IndPenSim where manipulated variables saturate correcting a loop disturbance. Because the manipulated variable Fa shows by far the largest excursions together with its controlled variable pH, a pH control loop fault (acid supply/probe) is the most likely root cause, with the thermal loop and substrate feed disturbances as alternatives. The normal process correlations (V~Wt r=0.999, T~Q r=0.996, P growing with time r=0.993) remain intact, indicating the fault is a control-actuation disturbance rather than a total loss of fermentation progress."
+ }
+}

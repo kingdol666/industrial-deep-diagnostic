@@ -455,6 +455,35 @@ Across the **38 completed diagnoses** under `workspace/diagnostic-runs/` (those 
 
 ---
 
+## 🧪 Diagnosis benchmark — 12 scenarios, four-step test pipeline
+
+The benchmark evaluates **one complete diagnosis run**, not per-sample labels: 12 scenarios
+(9 fault + 3 anomaly-free control) drawn from TEP, SKAB and IndPenSim, scored by an independent
+grader that compares the pipeline's agent-authored artifacts against isolated ground truth.
+
+```bash
+node scripts/benchmark/run-benchmark-pipeline.mjs            # all four steps
+node scripts/benchmark/run-benchmark-pipeline.mjs --step 3   # a single step (1|2|3|4)
+```
+
+| Step | What it runs | Result |
+|:--|:--|:--|
+| **1** Pipeline diagnosis | Real `industrial-analysis-auto` Steps 2-9 per scenario → truth-compared grading → reproducibility gate | 12/12 finalize `PASS`, gate `REPRODUCIBLE` |
+| **2** LLM-replication baseline | The Nuxt replication suite on the **same** data (classic PCA / FaultExplainer protocol / same-model bare LLM) + a byte-level determinism diff | 45 runs, deterministic arms byte-identical |
+| **3** Random re-test | One scenario drawn **uniformly at random** with a recorded seed, then a structured mechanism-signature consistency audit | within-era verdict agreement, `divergent = 0` |
+| **4** English report | Benchmark-standard Markdown + HTML derived entirely from on-disk artifacts | `results/benchmark/benchmark_report_en.{md,html}` |
+
+An incomplete stage exits non-zero and prints an explicit **EXECUTION CONTRACT** naming what an
+agent must still do — a script verifies and scores, it never authors pipeline artifacts. The
+re-tested scenario is never hand-picked: `select-retest-case.mjs` records the RNG seed, the uniform
+draw value and the resulting index so the draw is both verifiable and replayable.
+
+- Runbook (agent-executable): [`docs/benchmark/benchmark-pipeline-runbook.md`](docs/benchmark/benchmark-pipeline-runbook.md)
+- Design, execution guide, reproduction guide: [`docs/benchmark/`](docs/benchmark/)
+- Benchmark-standard report (English): `results/benchmark/benchmark_report_en.md`
+
+---
+
 ## 🧩 Skills & agents
 
 ### 18 standardized skills

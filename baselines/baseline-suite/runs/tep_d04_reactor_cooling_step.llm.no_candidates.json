@@ -1,0 +1,20 @@
+{
+ "case_id": "tep_d04_reactor_cooling_step",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:38.194Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_9 max|z|=10.06 (0.3% beyond 3σ); XMEAS_2 max|z|=3.8 (0.2% beyond 3σ); XMV_3 max|z|=3.74 (0.2% beyond 3σ); XMEAS_1 max|z|=3.7 (0.2% beyond 3σ); XMEAS_23 max|z|=3.7 (0.4% beyond 3σ); XMEAS_11 max|z|=3.66 (0.4% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_15 ~ XMV_8: r=1.000; XMEAS_12 ~ XMV_7: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.998; XMEAS_1 ~ XMV_3: r=0.996; XMEAS_19 ~ XMV_9: r=0.981\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量（Downs-Vogel 标准映射）。3分钟采样，第161样本（8h）起进入异常工况。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+ "answer": {
+  "top3": [
+   "IDV(4): Reactor cooling water inlet temperature step change",
+   "IDV(11): Reactor cooling water inlet temperature random variation",
+   "IDV(14): Reactor cooling water valve sticking"
+  ],
+  "verdict": null,
+  "reasoning": "XMEAS_9 is the reactor temperature (Downs-Vogel mapping), and its max |z|=10.06 is far above every other column (next is 3.8), indicating a large, sustained reactor temperature excursion rather than a feed-side disturbance. A step increase in reactor cooling water inlet temperature degrades heat removal, driving the reactor temperature up while downstream controllers adjust feed/manipulated variables (XMEAS_1/XMV_3, XMEAS_2/XMV_3-XMV_4 shifts), which matches this signature. The closest fault families are the reactor-cooling-loop faults IDV(4) (step), IDV(11) (random variation of the same root cause), and IDV(14) (reactor cooling water valve), with IDV(4) most likely given the abrupt onset at sample 161 and the single dominant temperature deviation."
+ }
+}

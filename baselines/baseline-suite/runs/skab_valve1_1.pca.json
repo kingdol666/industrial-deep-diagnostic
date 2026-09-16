@@ -1,0 +1,34 @@
+{
+ "case_id": "skab_valve1_1",
+ "dataset": "skab",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:36.492Z",
+ "arm": "pca-classical",
+ "method": "PCA (normal-control training, 95% variance, T2+Q, 99th-pct training alarm, SPE top-3)",
+ "detection": {
+  "window": "rows 1..1145",
+  "detection_rate_T2": 1,
+  "detection_rate_SPE": 1,
+  "threshold_T2": 19.36,
+  "threshold_SPE": 1.954,
+  "components_retained": 6
+ },
+ "diagnosis": {
+  "top3_contribution_variables": [
+   {
+    "variable": "Accelerometer2RMS",
+    "mean_squared_residual": 478.0812
+   },
+   {
+    "variable": "Accelerometer1RMS",
+    "mean_squared_residual": 461.8904
+   },
+   {
+    "variable": "Volume Flow RateRMS",
+    "mean_squared_residual": 435.3896
+   }
+  ],
+  "mechanism_verdict": null,
+  "note": "classical PCA outputs variable contributions only — no mechanism verdict, no confidence, no evidence state"
+ }
+}

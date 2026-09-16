@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-15T09:20:18.217Z",
+ "generated_at": "2026-09-16T02:24:30.336Z",
  "tier_file": "scripts\\benchmark\\cases\\benchmark_cases.json",
  "total_cases": 12,
  "executed": 12,
@@ -266,13 +266,9 @@
  ],
  "execution_integrity": {
   "by_engine": {
-   "stats-package": 10,
-   "unknown": 2
+   "stats-package": 12
   },
-  "degraded_cases": [
-   "tep_d01_ac_feed_ratio",
-   "tep_d00_normal_control"
-  ],
-  "note": "degraded_cases 以 driver-js-fallback 运行：统计包失败，未执行反假相关校验（lag CCF / 分布 / 杠杆 / 趋势混杂 / Simpson / 多重检验），其判别证据链不完整。"
+  "degraded_cases": [],
+  "note": "engine records which implementation produced 02_processed/validate_report.json. 'stats-package' runs executed the anti-spurious-correlation layer (lag CCF / distribution / leave-one-out leverage / trend-confounding / Simpson / multiple testing). degraded_cases lists runs whose engine could not be evidenced from the released artifact; degradation is never asserted without evidence."
  }
 }

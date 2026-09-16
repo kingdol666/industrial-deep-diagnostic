@@ -1,0 +1,20 @@
+{
+ "case_id": "skab_valve1_1",
+ "dataset": "skab",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:36.751Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. A process shows the following recorded episode. Your task: assess whether a fault is present and, if so, identify the most likely root cause.\n\nDataset: skab_valve1_1 (skab). Rows: 1145. Sampling as described below.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): Accelerometer2RMS max|z|=13.56 (0.4% beyond 3σ); Pressure max|z|=4.02 (0.3% beyond 3σ); Accelerometer1RMS max|z|=3.45 (0.3% beyond 3σ); Thermocouple max|z|=2.9 (0.0% beyond 3σ); Voltage max|z|=2.57 (0.0% beyond 3σ); Current max|z|=2.23 (0.0% beyond 3σ)\n- Strongest cross-domain correlations: Accelerometer1RMS ~ Accelerometer2RMS: r=0.468\n\nProcess description: 水循环试验台：水箱+离心泵+阀门闭环回路。列含义：Accelerometer1RMS/Accelerometer2RMS=振动加速度RMS(g)，Current=电机电流(A)，Pressure=泵后回路压力(Bar)，Temperature=电机本体温度(℃)，Thermocouple=回路流体温度(℃)，Voltage=电机电压(V)，Volume Flow RateRMS=回路流量(L/min)。1Hz采样，回路封闭循环。本记录含一段异常工况，起止时标不提供。\n\nTask: (1) state whether this episode shows a fault or normal operation; (2) if a fault, give the most likely root cause and up to 2 alternatives. Output STRICT JSON only (no markdown, no extra text): {\"verdict\": \"fault\" | \"normal\", \"top3\": [...], \"reasoning\": \"<2-3 sentences>\"}\n",
+ "answer": {
+  "top3": [
+   "Valve malfunction - partial closure/sticking of the loop valve causing flow restriction with water-hammer/cavitation-induced vibration and pressure spikes (most likely; vibration-dominant signature with electrical and thermal variables normal is typical of valve manipulation in a closed pump loop)",
+   "Pump-side hydraulic fault - incipient cavitation or impeller wear/degradation generating broadband vibration and pressure fluctuation while motor current remains normal",
+   "Instrumentation artifact - loosened accelerometer mounting or intermittent sensor fault producing spurious RMS spikes (less likely because both accelerometers and pressure co-excurse)"
+  ],
+  "verdict": "fault",
+  "reasoning": "The episode is abnormal: Accelerometer2RMS reaches |z|=13.56 with ~0.4% of samples beyond 3σ, and Pressure and Accelerometer1RMS also show >3σ excursions, while Current, Voltage, Thermocouple and Temperature stay within normal bounds, ruling out a motor electrical or thermal problem. The co-occurrence of large vibration spikes with pressure transients in a closed water loop, without sustained flow or current change, best matches a valve event such as partial closure or sticking that induces water hammer/cavitation. Sensor artifact is unlikely because both accelerometers correlate (r=0.468) and pressure moves with them."
+ }
+}

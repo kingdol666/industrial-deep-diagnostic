@@ -1,0 +1,20 @@
+{
+ "case_id": "tep_d03_hard",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.528Z",
+ "arm": "llm",
+ "regime": "no_candidates",
+ "mode": "recorded",
+ "recorded_source": "archived raw replies of the same-GLM deployment as the IDD pipeline (ZCode CLI harness, Sept 2026 snapshot)",
+ "prompt": "You are an industrial process monitoring engineer. The Tennessee Eastman Process (TEP) shows an abnormal episode. Your task: identify the root cause.\n\nDataset: Tennessee Eastman Process simulation. Columns: XMEAS_1..41 process measurements, XMV_1..11 manipulator variables (Downs-Vogel standard mapping). Sampling: 3 minutes. Fault onset: sample 161 of 960.\nBlind statistical monitoring results (computed from the data):\n- Per-column max |z|-score (top columns): XMEAS_6 max|z|=4.26 (0.3% beyond 3σ); XMV_8 max|z|=3.88 (0.2% beyond 3σ); XMEAS_15 max|z|=3.88 (0.2% beyond 3σ); XMEAS_4 max|z|=3.77 (0.2% beyond 3σ); XMEAS_30 max|z|=3.72 (0.4% beyond 3σ); XMV_6 max|z|=3.63 (0.2% beyond 3σ)\n- Strongest cross-domain correlations: XMEAS_12 ~ XMV_7: r=1.000; XMEAS_15 ~ XMV_8: r=1.000; XMEAS_17 ~ XMV_11: r=-0.999; XMEAS_7 ~ XMEAS_13: r=0.998; XMEAS_1 ~ XMV_3: r=0.997; XMEAS_19 ~ XMV_9: r=0.988\n\nProcess description: Tennessee Eastman 化工过程：反应器-冷凝器-气液分离器-汽提塔+循环压缩机。XMEAS_1..41 过程测量、XMV_1..11 操纵变量。3分钟采样，第161样本（8h）起进入异常工况。本记录为文献公认统计弱签名场景，全列谱偏离幅度小，需依赖位点结构与排除法判别。\n\nTask: identify the root cause of this abnormal episode. Output STRICT JSON only (no markdown, no extra text): {\"top3\": [\"<root cause id/name>\", ...], \"reasoning\": \"<2-3 sentences>\"} where top3 is your ranked list of up to 3 candidate root causes.\n",
+ "answer": {
+  "top3": [
+   "IDV(3) - Step change in D feed temperature (stream 2 feed temperature step)",
+   "IDV(9) - Random variation of D feed temperature (stream 2)",
+   "IDV(2) - Step change in B feed composition (A/C feed ratio held constant)"
+  ],
+  "verdict": null,
+  "reasoning": "All columns deviate only weakly (max|z|<=4.3, <0.5% of samples beyond 3-sigma) after the step-like onset at sample 161, and the excursions concentrate in the feed-rate loops (XMEAS_6, XMEAS_4, XMV_6), the stripper level/product-flow control pair (XMEAS_15 ~ XMV_8, r=1.000), and product composition (XMEAS_30), while reactor temperature/pressure and both cooling-water circuits (XMV_10/XMV_11, XMEAS_21/XMEAS_22) remain quiet, which excludes cooling-water faults (IDV 4/5/11/12/14/15) and reaction-kinetics drift (IDV 13). The remaining signature — a small feed/product-composition disturbance propagating into feed and stripper inventory loops with no directly instrumented feed-temperature measurement — matches the literature's statistically weakest TEP scenario: a step change in the D feed (stream 2) temperature, i.e. IDV(3), with IDV(9) as the same-site random-variation alternative."
+ }
+}

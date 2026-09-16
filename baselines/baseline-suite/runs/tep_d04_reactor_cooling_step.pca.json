@@ -1,0 +1,34 @@
+{
+ "case_id": "tep_d04_reactor_cooling_step",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:38.022Z",
+ "arm": "pca-classical",
+ "method": "PCA (normal-control training, 95% variance, T2+Q, 99th-pct training alarm, SPE top-3)",
+ "detection": {
+  "window": "rows 161..960",
+  "detection_rate_T2": 0.4875,
+  "detection_rate_SPE": 1,
+  "threshold_T2": 56.348,
+  "threshold_SPE": 6.778,
+  "components_retained": 35
+ },
+ "diagnosis": {
+  "top3_contribution_variables": [
+   {
+    "variable": "XMV_10",
+    "mean_squared_residual": 11.0841
+   },
+   {
+    "variable": "XMEAS_9",
+    "mean_squared_residual": 10.9953
+   },
+   {
+    "variable": "XMEAS_31",
+    "mean_squared_residual": 0.4178
+   }
+  ],
+  "mechanism_verdict": null,
+  "note": "classical PCA outputs variable contributions only — no mechanism verdict, no confidence, no evidence state"
+ }
+}

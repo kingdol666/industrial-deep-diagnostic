@@ -1,0 +1,45 @@
+{
+ "case_id": "tep_d01_ac_feed_ratio",
+ "dataset": "tep",
+ "control": false,
+ "executed_at": "2026-09-16T02:24:37.185Z",
+ "arm": "fe-protocol",
+ "method": "FE replication (protocol-faithful): PCA(0.9) + T2(alpha=0.01, F-limit 48.6) + 6-consecutive trigger + top-6 per-feature T2 contributions at trigger + EXPLAIN_ROOT. Trained on the benchmark normal-control recording (documented deviation from FE's fault0 corpus).",
+ "detection": {
+  "detected": true,
+  "first_alarm_index": 166,
+  "alarm_region": "rows 167..960",
+  "t2_limit": 48.56,
+  "components_retained": 31,
+  "max_T2": 1159.9,
+  "t2_at_contribution_sample": 72.5
+ },
+ "features": [
+  {
+   "feature": "XMEAS_25",
+   "t2_contribution": 14.9107
+  },
+  {
+   "feature": "XMEAS_23",
+   "t2_contribution": 13.441
+  },
+  {
+   "feature": "XMEAS_16",
+   "t2_contribution": 7.3178
+  },
+  {
+   "feature": "XMEAS_20",
+   "t2_contribution": 5.1146
+  },
+  {
+   "feature": "XMEAS_31",
+   "t2_contribution": 4.178
+  },
+  {
+   "feature": "XMV_5",
+   "t2_contribution": 3.4934
+  }
+ ],
+ "prompt": "You are an expert in industrial process monitoring and root-cause diagnosis of the Tennessee Eastman Process.\nThe monitoring layer reports the following abnormal situation:\nDetection outcome: FAULT detected;\nTop contributing features (T2 contribution ranking):\n1. XMEAS_25 (T2 contribution 14.9107)\n2. XMEAS_23 (T2 contribution 13.441)\n3. XMEAS_16 (T2 contribution 7.3178)\n4. XMEAS_20 (T2 contribution 5.1146)\n5. XMEAS_31 (T2 contribution 4.178)\n6. XMV_5 (T2 contribution 3.4934)\n\nThe documented root-cause catalogue of the process is:\n- IDV1: A/C feed ratio step (B composition constant) — Stream 4\n- IDV2: B composition, A/C ratio constant (step) — Stream 4\n- IDV3: D feed temperature step — Stream 2\n- IDV4: Reactor cooling-water inlet temperature step\n- IDV5: Condenser cooling-water inlet temperature step\n- IDV6: A feed head pressure loss (step, Stream 1)\n- IDV7: C header pressure loss — reduced availability (Stream 4)\n- IDV8: A/C feed ratio random variation (B composition constant) — Stream 4\n- IDV9: D feed temperature random variation — Stream 2\n- IDV10: D feed temperature + C header pressure random variation — Streams 2/4\n- IDV11: Reactor cooling-water inlet temperature random variation\n- IDV12: Condenser cooling-water inlet temperature random variation\n- IDV13: Reaction kinetics slow drift\n- IDV14: Reactor cooling-water valve sticking\n- IDV15: Condenser cooling-water valve sticking\n\nEXPLAIN_ROOT: explain the root cause of the reported abnormality. Rank the three most probable root causes from the catalogue and justify each briefly using the contributing features.\nAnswer with STRICT JSON only: {\"top3\": [\"<IDVxx: description>\", ...], \"reasoning\": \"<3-5 sentences>\"}",
+ "prompt_arm": "EXPLAIN_ROOT (root-causes-included; documented 15-fault TEP cause list)"
+}

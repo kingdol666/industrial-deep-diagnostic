@@ -1,6 +1,6 @@
 # Benchmark 报告 — 12 场景集（TEP 逐故障文献可比 · v2 真实管线执行口径）
 
-> 生成：2026-09-15T09:20:18.217Z
+> 生成：2026-09-16T02:24:30.336Z
 >
 > **被测对象界定（必读）**：本基准测的是**完整的 industrial-analysis-auto 管线执行** ——
 > 每个场景在其盲态 run 目录中真实跑通 Step 2-9（context-builder / data-processor /
@@ -70,11 +70,7 @@
 
 ## 5. 执行完整性（确定性 rubric + 引擎来源）
 
-统计引擎分布：`stats-package` ×10 · `unknown` ×2
-
-⚠️ **降级运行场景**：`tep_d01_ac_feed_ratio`、`tep_d00_normal_control`
-
-degraded_cases 以 driver-js-fallback 运行：统计包失败，未执行反假相关校验（lag CCF / 分布 / 杠杆 / 趋势混杂 / Simpson / 多重检验），其判别证据链不完整。
+统计引擎分布：`stats-package` ×12
 
 确定性质量 rubric（`judge-rubric.mjs` v2，R1-R7 从管线产物机器计算：产物完整性/假说结构/证据 grounding/置信校准/可证伪性/物理核验/执行证明+HTML 门）：
 

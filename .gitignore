@@ -118,6 +118,12 @@ workspace/ontology-store-smoke-*/
 *.fdb_latexmk
 paper/pagepng/
 
+# Derived review dump (extracted text of the compiled PDF, regenerable; the
+# source of truth is paper/main.pdf) and the prior-generation backup of the
+# baseline-suite results.
+paper/main_review_dump.txt
+results/benchmark/.suite-prior/
+
 # ------------------------------------------------------- baseline-lab (Nuxt)
 # The lab's source AND its results/ are committed: results/ holds the archived
 # LLM answers and sweep summaries that the reproduction claims rest on (~1.7 MB).

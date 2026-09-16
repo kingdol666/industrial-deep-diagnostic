@@ -455,6 +455,33 @@ flowchart LR
 
 ---
 
+## 🧪 诊断基准 —— 12 场景 · 四步测试流水线
+
+基准评测的对象是**一次完整的诊断 run**，而非逐样本标签：12 个场景（9 故障 + 3 无异常对照），
+取自 TEP / SKAB / IndPenSim，由独立评分器读取管线真实产物、对照隔离存放的标准答案打分。
+
+```bash
+node scripts/benchmark/run-benchmark-pipeline.mjs            # 四步串联
+node scripts/benchmark/run-benchmark-pipeline.mjs --step 3   # 单步（1|2|3|4）
+```
+
+| 步骤 | 执行内容 | 产出 |
+|:--|:--|:--|
+| **1** 管线诊断 | 对每个场景真实执行 `industrial-analysis-auto` Step 2-9 → 对照真值评分 → 复现门禁 | 12/12 finalize `PASS`，门禁 `REPRODUCIBLE` |
+| **2** LLM 复现基线 | 对**同一批数据**执行 Nuxt 复刻套件（经典 PCA / FaultExplainer 协议 / 同模型裸 LLM）+ 字节级确定性比对 | 45 项运行，确定性臂逐字节一致 |
+| **3** 随机复测 | **均匀随机**抽取一个场景（记录 seed）复跑，再做结构化机理签名一致性审计 | 时代内判定一致，`divergent = 0` |
+| **4** 英文报告 | 全部数字读自磁盘产物的 benchmark 标准 Markdown + HTML | `results/benchmark/benchmark_report_en.{md,html}` |
+
+阶段不完整时以非零退出码结束并打印明确的 **EXECUTION CONTRACT**，列出 agent 还需执行什么 ——
+脚本只做校验与评分，绝不代写管线产物。复测场景不允许自选：`select-retest-case.mjs` 记录
+RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现。
+
+- Agent 运行手册： [`docs/benchmark/benchmark-pipeline-runbook.md`](docs/benchmark/benchmark-pipeline-runbook.md)
+- 设计 / 执行规程 / 复现手册： [`docs/benchmark/`](docs/benchmark/)
+- benchmark 标准报告（英文）： `results/benchmark/benchmark_report_en.md`
+
+---
+
 ## 🧩 技能与智能体
 
 ### 18 个标准化技能

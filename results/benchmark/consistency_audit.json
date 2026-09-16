@@ -1,0 +1,1485 @@
+{
+ "generated_at": "2026-09-16T02:25:17.791Z",
+ "comparison": "run-over-run (truth-free): each execution compared against the case canonical execution",
+ "consistency_rule": "CONSISTENT = same diagnosis_type AND (same primary equipment tag OR same mechanism_class with >=0.35 cause-token overlap); WEAK = same type, weaker structural agreement; DIVERGENT = different diagnosis_type or unrelated mechanism",
+ "era_boundary": "20260914",
+ "era_semantics": "run-dir prefix < 20260914 = v1 (pre anti-oscillation/cap discipline, documented system revision); headline metric is WITHIN-ERA agreement",
+ "min_runs": 2,
+ "cases": {
+  "skab_valve1_1": {
+   "dataset": "skab",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609150453290_bench_skab_valve1_1",
+   "canonical_era": "v2",
+   "n_runs_found": 4,
+   "n_runs_proven": 4,
+   "status": "WEAK",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      87,
+      87
+     ],
+     "pairs": [
+      {
+       "against": "202609150453290_bench_skab_valve1_1",
+       "run": "202609121642257_bench_skab_valve1_1",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0408,
+       "canonical_mechanism": "下游流阻上升导致真实流量下降（阀门开度减小/管路局部阻塞），流量计读数下探至量程下限档并hunting",
+       "run_mechanism": "泵入口阀门节流（流体受限）",
+       "confidence_canonical": 65,
+       "confidence_run": 87,
+       "confidence_delta": 22
+      },
+      {
+       "against": "202609150453290_bench_skab_valve1_1",
+       "run": "202609131557133_bench_skab_valve1_1",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0408,
+       "canonical_mechanism": "下游流阻上升导致真实流量下降（阀门开度减小/管路局部阻塞），流量计读数下探至量程下限档并hunting",
+       "run_mechanism": "泵入口阀门节流（流体受限）",
+       "confidence_canonical": 65,
+       "confidence_run": 87,
+       "confidence_delta": 22
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "COMPETING_SET"
+     ],
+     "confidence_range": [
+      65,
+      65
+     ],
+     "pairs": [
+      {
+       "against": "202609150453290_bench_skab_valve1_1",
+       "run": "202609141511399_bench_skab_valve1_1",
+       "era": "v2",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "COMPETING_SET",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0763,
+       "canonical_mechanism": "下游流阻上升导致真实流量下降（阀门开度减小/管路局部阻塞），流量计读数下探至量程下限档并hunting",
+       "run_mechanism": "回路水力阻力增大（调节阀开度减小或管路/阀芯结垢）——工作点沿泵特性曲线上移",
+       "confidence_canonical": 65,
+       "confidence_run": 65,
+       "confidence_delta": 0
+      }
+     ]
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121642257_bench_skab_valve1_1",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "泵入口阀门节流（流体受限）",
+     "survival_count": 1,
+     "confidence": 87
+    },
+    {
+     "run_id": "202609131557133_bench_skab_valve1_1",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "泵入口阀门节流（流体受限）",
+     "survival_count": 1,
+     "confidence": 87
+    },
+    {
+     "run_id": "202609141511399_bench_skab_valve1_1",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "COMPETING_SET",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "回路水力阻力增大（调节阀开度减小或管路/阀芯结垢）——工作点沿泵特性曲线上移",
+     "survival_count": 2,
+     "confidence": 65
+    },
+    {
+     "run_id": "202609150453290_bench_skab_valve1_1",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "COMPETING_SET",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "下游流阻上升导致真实流量下降（阀门开度减小/管路局部阻塞），流量计读数下探至量程下限档并hunting",
+     "survival_count": 2,
+     "confidence": 65
+    }
+   ]
+  },
+  "skab_cavitation_13": {
+   "dataset": "skab",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141843516_bench_skab_cavitation_13",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      82,
+      82
+     ],
+     "pairs": [
+      {
+       "against": "202609141843516_bench_skab_cavitation_13",
+       "run": "202609121642485_bench_skab_cavitation_13",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "INTERACTION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": false,
+       "cause_token_overlap": 0.1053,
+       "canonical_mechanism": "气蚀样两相流失稳（泵入口/阀局部低压区气泡生成-溃灭）",
+       "run_mechanism": "泵入口两相流供给引发气蚀（空化）",
+       "confidence_canonical": 58,
+       "confidence_run": 82,
+       "confidence_delta": 24
+      },
+      {
+       "against": "202609141843516_bench_skab_cavitation_13",
+       "run": "202609131557350_bench_skab_cavitation_13",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "INTERACTION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": false,
+       "cause_token_overlap": 0.1053,
+       "canonical_mechanism": "气蚀样两相流失稳（泵入口/阀局部低压区气泡生成-溃灭）",
+       "run_mechanism": "泵入口两相流供给引发气蚀（空化）",
+       "confidence_canonical": 58,
+       "confidence_run": 82,
+       "confidence_delta": 24
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "COMPETING_SET"
+     ],
+     "confidence_range": [
+      58,
+      58
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121642485_bench_skab_cavitation_13",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "泵入口两相流供给引发气蚀（空化）",
+     "survival_count": 1,
+     "confidence": 82
+    },
+    {
+     "run_id": "202609131557350_bench_skab_cavitation_13",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "泵入口两相流供给引发气蚀（空化）",
+     "survival_count": 1,
+     "confidence": 82
+    },
+    {
+     "run_id": "202609141843516_bench_skab_cavitation_13",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "COMPETING_SET",
+     "mechanism_class": "INTERACTION",
+     "primary_tag": null,
+     "mechanism": "气蚀样两相流失稳（泵入口/阀局部低压区气泡生成-溃灭）",
+     "survival_count": 2,
+     "confidence": 58
+    }
+   ]
+  },
+  "skab_normal_control": {
+   "dataset": "skab",
+   "control": true,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141844090_bench_skab_normal_control",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      90,
+      90
+     ],
+     "pairs": [
+      {
+       "against": "202609141844090_bench_skab_normal_control",
+       "run": "202609121643039_bench_skab_normal_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1091,
+       "canonical_mechanism": "正常运行基线：稳态邻域内孤立瞬态（量化伪影+占空调制）+ 未测控制/热状态慢漂移",
+       "run_mechanism": "正常稳态运行（无故障基线）",
+       "confidence_canonical": 78,
+       "confidence_run": 90,
+       "confidence_delta": 12
+      },
+      {
+       "against": "202609141844090_bench_skab_normal_control",
+       "run": "202609131557503_bench_skab_normal_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1091,
+       "canonical_mechanism": "正常运行基线：稳态邻域内孤立瞬态（量化伪影+占空调制）+ 未测控制/热状态慢漂移",
+       "run_mechanism": "正常稳态运行（无故障基线）",
+       "confidence_canonical": 78,
+       "confidence_run": 90,
+       "confidence_delta": 12
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      78,
+      78
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121643039_bench_skab_normal_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "正常稳态运行（无故障基线）",
+     "survival_count": 1,
+     "confidence": 90
+    },
+    {
+     "run_id": "202609131557503_bench_skab_normal_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "正常稳态运行（无故障基线）",
+     "survival_count": 1,
+     "confidence": 90
+    },
+    {
+     "run_id": "202609141844090_bench_skab_normal_control",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "正常运行基线：稳态邻域内孤立瞬态（量化伪影+占空调制）+ 未测控制/热状态慢漂移",
+     "survival_count": 1,
+     "confidence": 78
+    }
+   ]
+  },
+  "tep_d01_ac_feed_ratio": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609150454126_bench_tep_d01_ac_feed_ratio",
+   "canonical_era": "v2",
+   "n_runs_found": 4,
+   "n_runs_proven": 4,
+   "status": "CONSISTENT",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      84,
+      84
+     ],
+     "pairs": [
+      {
+       "against": "202609150454126_bench_tep_d01_ac_feed_ratio",
+       "run": "202609121645109_bench_tep_d01_ac_feed_ratio",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV3",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0678,
+       "canonical_mechanism": "物流4（A+C 混合进料）A/C 配比阶跃失衡（A 相对亏缺，B 组分不变）",
+       "run_mechanism": "流股4 A/C 进料比阶跃（feed-composition-step）",
+       "confidence_canonical": 79,
+       "confidence_run": 84,
+       "confidence_delta": 5
+      },
+      {
+       "against": "202609150454126_bench_tep_d01_ac_feed_ratio",
+       "run": "202609131559237_bench_tep_d01_ac_feed_ratio",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV3",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0678,
+       "canonical_mechanism": "物流4（A+C 混合进料）A/C 配比阶跃失衡（A 相对亏缺，B 组分不变）",
+       "run_mechanism": "流股4 A/C 进料比阶跃（feed-composition-step）",
+       "confidence_canonical": 79,
+       "confidence_run": 84,
+       "confidence_delta": 5
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      79,
+      88
+     ],
+     "pairs": [
+      {
+       "against": "202609150454126_bench_tep_d01_ac_feed_ratio",
+       "run": "202609141845547_bench_tep_d01_ac_feed_ratio",
+       "era": "v2",
+       "verdict": "CONSISTENT",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV3",
+       "run_primary_tag": "XMV3",
+       "same_primary_tag": true,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0777,
+       "canonical_mechanism": "物流4（A+C 混合进料）A/C 配比阶跃失衡（A 相对亏缺，B 组分不变）",
+       "run_mechanism": "进料配比重构：A进料阀阶跃+204%叠加A+C进料−5.9%",
+       "confidence_canonical": 79,
+       "confidence_run": 88,
+       "confidence_delta": 9
+      }
+     ]
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121645109_bench_tep_d01_ac_feed_ratio",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "流股4 A/C 进料比阶跃（feed-composition-step）",
+     "survival_count": 1,
+     "confidence": 84
+    },
+    {
+     "run_id": "202609131559237_bench_tep_d01_ac_feed_ratio",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "流股4 A/C 进料比阶跃（feed-composition-step）",
+     "survival_count": 1,
+     "confidence": 84
+    },
+    {
+     "run_id": "202609141845547_bench_tep_d01_ac_feed_ratio",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV3",
+     "mechanism": "进料配比重构：A进料阀阶跃+204%叠加A+C进料−5.9%",
+     "survival_count": 1,
+     "confidence": 88
+    },
+    {
+     "run_id": "202609150454126_bench_tep_d01_ac_feed_ratio",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV3",
+     "mechanism": "物流4（A+C 混合进料）A/C 配比阶跃失衡（A 相对亏缺，B 组分不变）",
+     "survival_count": 1,
+     "confidence": 79
+    }
+   ]
+  },
+  "tep_d03_hard": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141846195_bench_tep_d03_hard",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      72,
+      72
+     ],
+     "pairs": [
+      {
+       "against": "202609141846195_bench_tep_d03_hard",
+       "run": "202609121645337_bench_tep_d03_hard",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV9",
+       "run_primary_tag": "XMV8",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0536,
+       "canonical_mechanism": "流股4 A/C进料比阶跃（A相对亏缺方向）",
+       "run_mechanism": "D 进料温度阶跃（进料系统热扰动）",
+       "confidence_canonical": 60,
+       "confidence_run": 72,
+       "confidence_delta": 12
+      },
+      {
+       "against": "202609141846195_bench_tep_d03_hard",
+       "run": "202609131559456_bench_tep_d03_hard",
+       "era": "v1",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "COMPETING_SET",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV9",
+       "run_primary_tag": "XMV8",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0536,
+       "canonical_mechanism": "流股4 A/C进料比阶跃（A相对亏缺方向）",
+       "run_mechanism": "D 进料温度阶跃（进料系统热扰动）",
+       "confidence_canonical": 60,
+       "confidence_run": 72,
+       "confidence_delta": 12
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "COMPETING_SET"
+     ],
+     "confidence_range": [
+      60,
+      60
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121645337_bench_tep_d03_hard",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV8",
+     "mechanism": "D 进料温度阶跃（进料系统热扰动）",
+     "survival_count": 1,
+     "confidence": 72
+    },
+    {
+     "run_id": "202609131559456_bench_tep_d03_hard",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV8",
+     "mechanism": "D 进料温度阶跃（进料系统热扰动）",
+     "survival_count": 1,
+     "confidence": 72
+    },
+    {
+     "run_id": "202609141846195_bench_tep_d03_hard",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "COMPETING_SET",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV9",
+     "mechanism": "流股4 A/C进料比阶跃（A相对亏缺方向）",
+     "survival_count": 3,
+     "confidence": 60
+    }
+   ]
+  },
+  "tep_d00_normal_control": {
+   "dataset": "tep",
+   "control": true,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141846394_bench_tep_d00_normal_control",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      90,
+      90
+     ],
+     "pairs": [
+      {
+       "against": "202609141846394_bench_tep_d00_normal_control",
+       "run": "202609121645490_bench_tep_d00_normal_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV9",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1039,
+       "canonical_mechanism": "正常受控稳态运行（含一次已解释的自恢复汽提蒸汽侧小扰动）",
+       "run_mechanism": "受控稳态正常运行（无故障基线）",
+       "confidence_canonical": 88,
+       "confidence_run": 90,
+       "confidence_delta": 2
+      },
+      {
+       "against": "202609141846394_bench_tep_d00_normal_control",
+       "run": "202609131600011_bench_tep_d00_normal_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV9",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1039,
+       "canonical_mechanism": "正常受控稳态运行（含一次已解释的自恢复汽提蒸汽侧小扰动）",
+       "run_mechanism": "受控稳态正常运行（无故障基线）",
+       "confidence_canonical": 88,
+       "confidence_run": 90,
+       "confidence_delta": 2
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      88,
+      88
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121645490_bench_tep_d00_normal_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "受控稳态正常运行（无故障基线）",
+     "survival_count": 1,
+     "confidence": 90
+    },
+    {
+     "run_id": "202609131600011_bench_tep_d00_normal_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "受控稳态正常运行（无故障基线）",
+     "survival_count": 1,
+     "confidence": 90
+    },
+    {
+     "run_id": "202609141846394_bench_tep_d00_normal_control",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV9",
+     "mechanism": "正常受控稳态运行（含一次已解释的自恢复汽提蒸汽侧小扰动）",
+     "survival_count": 1,
+     "confidence": 88
+    }
+   ]
+  },
+  "indpensim_batch093": {
+   "dataset": "indpensim",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141847046_bench_indpensim_batch093",
+   "canonical_era": "v2",
+   "n_runs_found": 4,
+   "n_runs_proven": 4,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 3,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      85,
+      85
+     ],
+     "pairs": [
+      {
+       "against": "202609141847046_bench_indpensim_batch093",
+       "run": "202609121646106_bench_indpensim_batch093",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0541,
+       "canonical_mechanism": "冷却水回路失灵(执行侧流量钳制)导致的热失控",
+       "run_mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+       "confidence_canonical": 88,
+       "confidence_run": 85,
+       "confidence_delta": -3
+      },
+      {
+       "against": "202609141847046_bench_indpensim_batch093",
+       "run": "202609131600219_bench_indpensim_batch093",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0541,
+       "canonical_mechanism": "冷却水回路失灵(执行侧流量钳制)导致的热失控",
+       "run_mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+       "confidence_canonical": 88,
+       "confidence_run": 85,
+       "confidence_delta": -3
+      },
+      {
+       "against": "202609141847046_bench_indpensim_batch093",
+       "run": "202609131616537_bench_indpensim_batch093",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0541,
+       "canonical_mechanism": "冷却水回路失灵(执行侧流量钳制)导致的热失控",
+       "run_mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+       "confidence_canonical": 88,
+       "confidence_run": 85,
+       "confidence_delta": -3
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      88,
+      88
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121646106_bench_indpensim_batch093",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+     "survival_count": 1,
+     "confidence": 85
+    },
+    {
+     "run_id": "202609131600219_bench_indpensim_batch093",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+     "survival_count": 1,
+     "confidence": 85
+    },
+    {
+     "run_id": "202609131616537_bench_indpensim_batch093",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "pH/温度控制执行侧工艺偏差（多执行器同步越限）",
+     "survival_count": 1,
+     "confidence": 85
+    },
+    {
+     "run_id": "202609141847046_bench_indpensim_batch093",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "冷却水回路失灵(执行侧流量钳制)导致的热失控",
+     "survival_count": 1,
+     "confidence": 88
+    }
+   ]
+  },
+  "indpensim_batch001_control": {
+   "dataset": "indpensim",
+   "control": true,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141850296_bench_indpensim_batch001_control",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      88,
+      88
+     ],
+     "pairs": [
+      {
+       "against": "202609141850296_bench_indpensim_batch001_control",
+       "run": "202609121649167_bench_indpensim_batch001_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0723,
+       "canonical_mechanism": "配方驱动的正常批次运行（无故障根因）",
+       "run_mechanism": "正常批次（受控批次动态，无故障）",
+       "confidence_canonical": 88,
+       "confidence_run": 88,
+       "confidence_delta": 0
+      },
+      {
+       "against": "202609141850296_bench_indpensim_batch001_control",
+       "run": "202609131603254_bench_indpensim_batch001_control",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": null,
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0723,
+       "canonical_mechanism": "配方驱动的正常批次运行（无故障根因）",
+       "run_mechanism": "正常批次（受控批次动态，无故障）",
+       "confidence_canonical": 88,
+       "confidence_run": 88,
+       "confidence_delta": 0
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      88,
+      88
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121649167_bench_indpensim_batch001_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "正常批次（受控批次动态，无故障）",
+     "survival_count": 1,
+     "confidence": 88
+    },
+    {
+     "run_id": "202609131603254_bench_indpensim_batch001_control",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "正常批次（受控批次动态，无故障）",
+     "survival_count": 1,
+     "confidence": 88
+    },
+    {
+     "run_id": "202609141850296_bench_indpensim_batch001_control",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "配方驱动的正常批次运行（无故障根因）",
+     "survival_count": 1,
+     "confidence": 88
+    }
+   ]
+  },
+  "tep_d04_reactor_cooling_step": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141854259_bench_tep_d04_reactor_cooling_step",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      86,
+      86
+     ],
+     "pairs": [
+      {
+       "against": "202609141854259_bench_tep_d04_reactor_cooling_step",
+       "run": "202609121652514_bench_tep_d04_reactor_cooling_step",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMEAS9",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "ENVIRONMENT",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1023,
+       "canonical_mechanism": "反应器冷却水回路移热能力阶跃型劣化（冷却侧扰动，控制器经 XMV_10 补偿）",
+       "run_mechanism": "反应器冷却水侧扰动（冷却能力不足）",
+       "confidence_canonical": 75,
+       "confidence_run": 86,
+       "confidence_delta": 11
+      },
+      {
+       "against": "202609141854259_bench_tep_d04_reactor_cooling_step",
+       "run": "202609131606459_bench_tep_d04_reactor_cooling_step",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMEAS9",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "ENVIRONMENT",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1023,
+       "canonical_mechanism": "反应器冷却水回路移热能力阶跃型劣化（冷却侧扰动，控制器经 XMV_10 补偿）",
+       "run_mechanism": "反应器冷却水侧扰动（冷却能力不足）",
+       "confidence_canonical": 75,
+       "confidence_run": 86,
+       "confidence_delta": 11
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      75,
+      75
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121652514_bench_tep_d04_reactor_cooling_step",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMEAS9",
+     "mechanism": "反应器冷却水侧扰动（冷却能力不足）",
+     "survival_count": 1,
+     "confidence": 86
+    },
+    {
+     "run_id": "202609131606459_bench_tep_d04_reactor_cooling_step",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMEAS9",
+     "mechanism": "反应器冷却水侧扰动（冷却能力不足）",
+     "survival_count": 1,
+     "confidence": 86
+    },
+    {
+     "run_id": "202609141854259_bench_tep_d04_reactor_cooling_step",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却水回路移热能力阶跃型劣化（冷却侧扰动，控制器经 XMV_10 补偿）",
+     "survival_count": 1,
+     "confidence": 75
+    }
+   ]
+  },
+  "tep_d07_header_pressure": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141854457_bench_tep_d07_header_pressure",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      80,
+      80
+     ],
+     "pairs": [
+      {
+       "against": "202609141854457_bench_tep_d07_header_pressure",
+       "run": "202609121653079_bench_tep_d07_header_pressure",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV4",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0632,
+       "canonical_mechanism": "流股4（A+C混合进料）上游供给能力阶跃损失（进料header压力/可用性骤降类扰动）",
+       "run_mechanism": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+       "confidence_canonical": 82,
+       "confidence_run": 80,
+       "confidence_delta": -2
+      },
+      {
+       "against": "202609141854457_bench_tep_d07_header_pressure",
+       "run": "202609131607023_bench_tep_d07_header_pressure",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV4",
+       "run_primary_tag": null,
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "OPERATION",
+       "run_mechanism_class": "OPERATION",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.0632,
+       "canonical_mechanism": "流股4（A+C混合进料）上游供给能力阶跃损失（进料header压力/可用性骤降类扰动）",
+       "run_mechanism": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+       "confidence_canonical": 82,
+       "confidence_run": 80,
+       "confidence_delta": -2
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      82,
+      82
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121653079_bench_tep_d07_header_pressure",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+     "survival_count": 1,
+     "confidence": 80
+    },
+    {
+     "run_id": "202609131607023_bench_tep_d07_header_pressure",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": null,
+     "mechanism": "流股4 C 集管压力降低（供给侧压力/组成扰动）",
+     "survival_count": 1,
+     "confidence": 80
+    },
+    {
+     "run_id": "202609141854457_bench_tep_d07_header_pressure",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "OPERATION",
+     "primary_tag": "XMV4",
+     "mechanism": "流股4（A+C混合进料）上游供给能力阶跃损失（进料header压力/可用性骤降类扰动）",
+     "survival_count": 1,
+     "confidence": 82
+    }
+   ]
+  },
+  "tep_d11_reactor_cooling_random": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609141855230_bench_tep_d11_reactor_cooling_random",
+   "canonical_era": "v2",
+   "n_runs_found": 3,
+   "n_runs_proven": 3,
+   "status": "INSUFFICIENT-RUNS",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      70,
+      70
+     ],
+     "pairs": [
+      {
+       "against": "202609141855230_bench_tep_d11_reactor_cooling_random",
+       "run": "202609121653450_bench_tep_d11_reactor_cooling_random",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMEAS9",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "ENVIRONMENT",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.3333,
+       "canonical_mechanism": "反应器冷却支路随机扰动（最可能：冷却水入口温度随机波动）",
+       "run_mechanism": "反应器冷却水入口温度随机波动（方差增大型）",
+       "confidence_canonical": 80,
+       "confidence_run": 70,
+       "confidence_delta": -10
+      },
+      {
+       "against": "202609141855230_bench_tep_d11_reactor_cooling_random",
+       "run": "202609131607359_bench_tep_d11_reactor_cooling_random",
+       "era": "v1",
+       "verdict": "WEAK",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMEAS9",
+       "same_primary_tag": false,
+       "canonical_mechanism_class": "ENVIRONMENT",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.3333,
+       "canonical_mechanism": "反应器冷却支路随机扰动（最可能：冷却水入口温度随机波动）",
+       "run_mechanism": "反应器冷却水入口温度随机波动（方差增大型）",
+       "confidence_canonical": 80,
+       "confidence_run": 70,
+       "confidence_delta": -10
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 1,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      80,
+      80
+     ],
+     "pairs": []
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121653450_bench_tep_d11_reactor_cooling_random",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMEAS9",
+     "mechanism": "反应器冷却水入口温度随机波动（方差增大型）",
+     "survival_count": 1,
+     "confidence": 70
+    },
+    {
+     "run_id": "202609131607359_bench_tep_d11_reactor_cooling_random",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMEAS9",
+     "mechanism": "反应器冷却水入口温度随机波动（方差增大型）",
+     "survival_count": 1,
+     "confidence": 70
+    },
+    {
+     "run_id": "202609141855230_bench_tep_d11_reactor_cooling_random",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却支路随机扰动（最可能：冷却水入口温度随机波动）",
+     "survival_count": 2,
+     "confidence": 80
+    }
+   ]
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "dataset": "tep",
+   "control": false,
+   "canonical_run_dir": "workspace/diagnostic-runs/202609150454479_bench_tep_d14_reactor_valve_sticking",
+   "canonical_era": "v2",
+   "n_runs_found": 4,
+   "n_runs_proven": 4,
+   "status": "CONSISTENT",
+   "eras": {
+    "v1": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      68,
+      68
+     ],
+     "pairs": [
+      {
+       "against": "202609150454479_bench_tep_d14_reactor_valve_sticking",
+       "run": "202609121654012_bench_tep_d14_reactor_valve_sticking",
+       "era": "v1",
+       "verdict": "CONSISTENT",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMV10",
+       "same_primary_tag": true,
+       "canonical_mechanism_class": "WEAR",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": false,
+       "cause_token_overlap": 0.1379,
+       "canonical_mechanism": "反应器冷却水调节阀(XMV_10)执行器黏滞/卡涩(sticking)→温度回路极限环振荡",
+       "run_mechanism": "反应器冷却水阀粘滞（执行器振荡型）",
+       "confidence_canonical": 89,
+       "confidence_run": 68,
+       "confidence_delta": -21
+      },
+      {
+       "against": "202609150454479_bench_tep_d14_reactor_valve_sticking",
+       "run": "202609131607514_bench_tep_d14_reactor_valve_sticking",
+       "era": "v1",
+       "verdict": "CONSISTENT",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMV10",
+       "same_primary_tag": true,
+       "canonical_mechanism_class": "WEAR",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": false,
+       "cause_token_overlap": 0.1379,
+       "canonical_mechanism": "反应器冷却水调节阀(XMV_10)执行器黏滞/卡涩(sticking)→温度回路极限环振荡",
+       "run_mechanism": "反应器冷却水阀粘滞（执行器振荡型）",
+       "confidence_canonical": 89,
+       "confidence_run": 68,
+       "confidence_delta": -21
+      }
+     ]
+    },
+    "v2": {
+     "n_runs_proven": 2,
+     "verdict_types": [
+      "DETERMINED"
+     ],
+     "confidence_range": [
+      82,
+      89
+     ],
+     "pairs": [
+      {
+       "against": "202609150454479_bench_tep_d14_reactor_valve_sticking",
+       "run": "202609141855391_bench_tep_d14_reactor_valve_sticking",
+       "era": "v2",
+       "verdict": "CONSISTENT",
+       "same_diagnosis_type": true,
+       "canonical_type": "DETERMINED",
+       "run_type": "DETERMINED",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMV10",
+       "same_primary_tag": true,
+       "canonical_mechanism_class": "WEAR",
+       "run_mechanism_class": "WEAR",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.1905,
+       "canonical_mechanism": "反应器冷却水调节阀(XMV_10)执行器黏滞/卡涩(sticking)→温度回路极限环振荡",
+       "run_mechanism": "反应器冷却水阀 XMV_10 粘滞（stuck-slip）导致温度回路极限环振荡",
+       "confidence_canonical": 89,
+       "confidence_run": 82,
+       "confidence_delta": -7
+      }
+     ]
+    }
+   },
+   "runs": [
+    {
+     "run_id": "202609121654012_bench_tep_d14_reactor_valve_sticking",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却水阀粘滞（执行器振荡型）",
+     "survival_count": 1,
+     "confidence": 68
+    },
+    {
+     "run_id": "202609131607514_bench_tep_d14_reactor_valve_sticking",
+     "era": "v1",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却水阀粘滞（执行器振荡型）",
+     "survival_count": 1,
+     "confidence": 68
+    },
+    {
+     "run_id": "202609141855391_bench_tep_d14_reactor_valve_sticking",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "WEAR",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却水阀 XMV_10 粘滞（stuck-slip）导致温度回路极限环振荡",
+     "survival_count": 1,
+     "confidence": 82
+    },
+    {
+     "run_id": "202609150454479_bench_tep_d14_reactor_valve_sticking",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "DETERMINED",
+     "mechanism_class": "WEAR",
+     "primary_tag": "XMV10",
+     "mechanism": "反应器冷却水调节阀(XMV_10)执行器黏滞/卡涩(sticking)→温度回路极限环振荡",
+     "survival_count": 1,
+     "confidence": 89
+    }
+   ]
+  }
+ },
+ "summary": {
+  "cases_audited": 3,
+  "consistent": 2,
+  "weak": 1,
+  "divergent": 0,
+  "insufficient_runs": 9,
+  "within_era_pairs": 3,
+  "within_era_pairs_stable": 3,
+  "within_era_agreement": "3/3",
+  "cross_era_divergent_pairs": 6,
+  "headline": "within-era verdict agreement 3/3 over 3 re-tested case(s)"
+ }
+}

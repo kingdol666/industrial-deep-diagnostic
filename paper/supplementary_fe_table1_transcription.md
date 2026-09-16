@@ -2,14 +2,16 @@
 
 Source: Khan, A.; Nahar, R.; Chen, H.; Constante-Flores, G.E.; Li, C.
 *FaultExplainer: Leveraging Large Language Models for Interpretable Fault Detection and
-Diagnosis.* arXiv:2412.14492 (2024); published in *Computers & Chemical Engineering* (2025).
+Diagnosis.* arXiv:2412.14492 (2024); published in *Computers & Chemical Engineering* 199
+(2025) 109152, DOI 10.1016/j.compchemeng.2025.109152.
 
 ## Evaluation protocol of the baseline (as stated by FE)
 
 - Prompt regime 1 (root-causes-included): the prompt carries the documented root-cause list;
   the model outputs a **top-3 candidate list**; a hit is scored when the true fault **or an
-  alias class** appears. Alias classes: IDV1↔IDV8, IDV3↔IDV9, IDV4↔IDV11↔IDV14,
-  IDV5↔IDV12↔IDV15.
+  alias class** appears. Alias classes: IDV1/2/8, IDV3↔IDV9, IDV4↔IDV11↔IDV14,
+  IDV5↔IDV12↔IDV15. (FE Table 1 marks F2 "alias 8" and F8 "alias 1,2"; IDV2 is not in
+  this paper's TEP subset, so the two-member shorthand IDV1↔IDV8 covers all scored faults.)
 - FE's PCA implementation does not detect IDV3, IDV4, IDV9, IDV15 → these four are excluded
   from FE's scoring.
 - Prompt regime 2 (General-Reasoning Prompt — **no candidate list**, designed to simulate
