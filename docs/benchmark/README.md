@@ -113,6 +113,10 @@ node scripts/benchmark/run-benchmark-pipeline.mjs --seed <n> # 复现同一次�
 | `baselines/FaultExplainer/` | 上游对照算法 vendored 快照（li-group/FaultExplainer @ 2fcfee9，MIT） |
 | `baselines/baseline-suite/` | 无公开仓库对照算法的 Nuxt 复刻套件（经典 PCA / FE 协议 / 裸 LLM 协议；可启动、可全量执行） |
 | `scripts/benchmark/build-baseline-suite-report.mjs` | 双项目对比基线报告生成器（→ results/benchmark/baseline_comparison_report.{md,html}） |
+| `scripts/benchmark/run-benchmark-pipeline.mjs` | 四步 Runbook 入口（--step 1..4；缺真实执行即 exit 1 并打印 execution contract） |
+| `scripts/benchmark/select-retest-case.mjs` | 随机抽复测场景（mulberry32 + 记录 seed，可复现/可复核） |
+| `scripts/benchmark/consistency-audit.mjs` | 跨独立执行的一致性审计（时代感知，truth-free） |
+| `scripts/benchmark/build-english-benchmark-report.mjs` | 英文基准报告（MD+HTML，零硬编码判定，附录 A 含真值警示） |
 | `scripts/benchmark/zcode_direct_pipeline.mjs` | 管线驱动：prepare（确定性统计）+ pipeline-check（完整性验证）+ grade（从真实产物评分）；diagnose（note 扩写）已退役需 `--legacy` |
 | `scripts/benchmark/judge-rubric.mjs` | 确定性质量 rubric v2（R1-R7 全部从管线产物计算） |
 | `scripts/benchmark/aggregate.mjs` | 指标聚合 → `results/benchmark/metrics.json` |

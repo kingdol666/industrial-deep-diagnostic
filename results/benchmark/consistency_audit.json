@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-16T02:25:17.791Z",
+ "generated_at": "2026-09-17T04:45:19.611Z",
  "comparison": "run-over-run (truth-free): each execution compared against the case canonical execution",
  "consistency_rule": "CONSISTENT = same diagnosis_type AND (same primary equipment tag OR same mechanism_class with >=0.35 cause-token overlap); WEAK = same type, weaker structural agreement; DIVERGENT = different diagnosis_type or unrelated mechanism",
  "era_boundary": "20260914",
@@ -1219,9 +1219,9 @@
    "control": false,
    "canonical_run_dir": "workspace/diagnostic-runs/202609141855230_bench_tep_d11_reactor_cooling_random",
    "canonical_era": "v2",
-   "n_runs_found": 3,
-   "n_runs_proven": 3,
-   "status": "INSUFFICIENT-RUNS",
+   "n_runs_found": 4,
+   "n_runs_proven": 4,
+   "status": "DIVERGENT",
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -1278,15 +1278,38 @@
      ]
     },
     "v2": {
-     "n_runs_proven": 1,
+     "n_runs_proven": 2,
      "verdict_types": [
-      "DETERMINED"
+      "DETERMINED",
+      "COMPETING_SET"
      ],
      "confidence_range": [
-      80,
+      62,
       80
      ],
-     "pairs": []
+     "pairs": [
+      {
+       "against": "202609141855230_bench_tep_d11_reactor_cooling_random",
+       "run": "202609170117293_bench_tep_d11_reactor_cooling_random",
+       "era": "v2",
+       "verdict": "DIVERGENT",
+       "same_diagnosis_type": false,
+       "canonical_type": "DETERMINED",
+       "run_type": "COMPETING_SET",
+       "canonical_primary_tag": "XMV10",
+       "run_primary_tag": "XMV10",
+       "same_primary_tag": true,
+       "canonical_mechanism_class": "ENVIRONMENT",
+       "run_mechanism_class": "ENVIRONMENT",
+       "same_mechanism_class": true,
+       "cause_token_overlap": 0.2241,
+       "canonical_mechanism": "反应器冷却支路随机扰动（最可能：冷却水入口温度随机波动）",
+       "run_mechanism": "冷却水进口温度（T_cw,in）随机波动 → 反应器移热扰动（外部热负荷扰动）",
+       "confidence_canonical": 80,
+       "confidence_run": 62,
+       "confidence_delta": -18
+      }
+     ]
     }
    },
    "runs": [
@@ -1322,6 +1345,17 @@
      "mechanism": "反应器冷却支路随机扰动（最可能：冷却水入口温度随机波动）",
      "survival_count": 2,
      "confidence": 80
+    },
+    {
+     "run_id": "202609170117293_bench_tep_d11_reactor_cooling_random",
+     "era": "v2",
+     "proven": true,
+     "diagnosis_type": "COMPETING_SET",
+     "mechanism_class": "ENVIRONMENT",
+     "primary_tag": "XMV10",
+     "mechanism": "冷却水进口温度（T_cw,in）随机波动 → 反应器移热扰动（外部热负荷扰动）",
+     "survival_count": 2,
+     "confidence": 62
     }
    ]
   },
@@ -1471,15 +1505,15 @@
   }
  },
  "summary": {
-  "cases_audited": 3,
+  "cases_audited": 4,
   "consistent": 2,
   "weak": 1,
-  "divergent": 0,
-  "insufficient_runs": 9,
-  "within_era_pairs": 3,
+  "divergent": 1,
+  "insufficient_runs": 8,
+  "within_era_pairs": 4,
   "within_era_pairs_stable": 3,
-  "within_era_agreement": "3/3",
+  "within_era_agreement": "3/4",
   "cross_era_divergent_pairs": 6,
-  "headline": "within-era verdict agreement 3/3 over 3 re-tested case(s)"
+  "headline": "within-era verdict agreement 3/4 over 4 re-tested case(s)"
  }
 }

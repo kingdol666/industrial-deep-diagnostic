@@ -1,5 +1,7 @@
 # 双项目对照测试流程（Benchmark × Baseline Suite Pipeline）
 
+> **注（2026-09-16）**：本文件的四步流程已由 [benchmark-pipeline-runbook.md](benchmark-pipeline-runbook.md) 取代为权威入口——新入口增加了随机抽场景复测（记录 seed）、套件确定性 diff、英文基准报告与 execution-contract 门禁。本文件保留作原理说明与命令参考。
+
 > 目的：把"**IDD 管线诊断 × 复刻 baseline 诊断 → 随机抽查复测 → 对比基线报告**"固化为可照做的
 > 流程。任何无记忆的 agent 或评审人按本文件执行，即可对仓库内已下载的数据场景完成
 > **真实**诊断测试并再生成对比报告（MD + HTML）。

@@ -1,6 +1,6 @@
 # Industrial Deep Diagnostic (IDD) — Diagnosis Benchmark Report
 
-> **Generated:** 2026-09-16 02:26:09 UTC · **Generator:** `scripts/benchmark/build-english-benchmark-report.mjs` (derived from on-disk artifacts; zero hard-coded verdicts)
+> **Generated:** 2026-09-17 04:45:58 UTC · **Generator:** `scripts/benchmark/build-english-benchmark-report.mjs` (derived from on-disk artifacts; zero hard-coded verdicts)
 > **System under test:** IDD full diagnosis pipeline `industrial-analysis-auto` Steps 2–9 (context-builder → data-processor → diagnostician → judge ∥ pre-audit → reporter → final audit → html-visualizer → html-reviewer → finalize)
 > **Latest canonical run batch:** 20260915 · **Baseline model:** GLM family (same deployment as IDD pipeline; ZCode CLI harness, Sept 2026 snapshot)
 
@@ -128,18 +128,18 @@ The re-tested scenario was selected by a uniform draw over the 9-scenario pool u
 
 | Field | Value |
 |---|---|
-| Draw round | 3 |
+| Draw round | 5 |
 | RNG | mulberry32 |
-| Seed | `503865577` |
-| Uniform draw u | 0.781653556 |
+| Seed | `368776031` |
+| Uniform draw u | 0.131221641 |
 | Pool size / filter | 9 / faults-only |
-| **Selected scenario** | **`tep_d11_reactor_cooling_random`** (tep) |
+| **Selected scenario** | **`skab_cavitation_13`** (skab) |
 
-Replay the identical draw: `node scripts/benchmark/select-retest-case.mjs --seed 503865577`.
+Replay the identical draw: `node scripts/benchmark/select-retest-case.mjs --seed 368776031`.
 
 **Outcome** — 1 proven execution(s) in the current era (3 on disk across all eras), canonical era v2, audit status **INSUFFICIENT-RUNS**.
 
-> **Execution contract (outstanding).** This scenario has only 1 proven execution(s) in the current era; the consistency claim needs a second one. Run the full `industrial-analysis-auto` pipeline (Steps 2–9) for `tep_d11_reactor_cooling_random` in a **fresh run directory**, then re-run `node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random`. Never copy artifacts between run directories.
+> **Execution contract (outstanding).** This scenario has only 1 proven execution(s) in the current era; the consistency claim needs a second one. Run the full `industrial-analysis-auto` pipeline (Steps 2–9) for `skab_cavitation_13` in a **fresh run directory**, then re-run `node scripts/benchmark/consistency-audit.mjs --case skab_cavitation_13`. Never copy artifacts between run directories.
 
 ### 7.2 Consistency across all scenarios
 
@@ -147,11 +147,11 @@ Structured mechanism signature comparison (diagnosis type + primary equipment ta
 
 | Metric | Value |
 |---|---|
-| Re-tested cases with ≥2 proven runs (same era) | 3 |
+| Re-tested cases with ≥2 proven runs (same era) | 4 |
 | Verdict-stable | 2 consistent, 1 weak |
-| Divergent (within era) | 0 |
-| Awaiting a second in-era execution | 9 |
-| Within-era verdict agreement | **3/3** |
+| Divergent (within era) | 1 |
+| Awaiting a second in-era execution | 8 |
+| Within-era verdict agreement | **3/4** |
 
 Cross-era pairs excluded from the headline: 6 (run-dir prefix < 20260914 is the pre-discipline system revision — a documented version change, not run-to-run instability).
 
@@ -167,7 +167,7 @@ Cross-era pairs excluded from the headline: 6 (run-dir prefix < 20260914 is the 
 | `indpensim_batch001_control` | v2 | 1 / 3 | INSUFFICIENT-RUNS | DETERMINED | 88–88 |
 | `tep_d04_reactor_cooling_step` | v2 | 1 / 3 | INSUFFICIENT-RUNS | DETERMINED | 75–75 |
 | `tep_d07_header_pressure` | v2 | 1 / 3 | INSUFFICIENT-RUNS | DETERMINED | 82–82 |
-| `tep_d11_reactor_cooling_random` | v2 | 1 / 3 | INSUFFICIENT-RUNS | DETERMINED | 80–80 |
+| `tep_d11_reactor_cooling_random` | v2 | 2 / 4 | DIVERGENT | DETERMINED, COMPETING_SET | 62–80 |
 | `tep_d14_reactor_valve_sticking` | v2 | 2 / 4 | CONSISTENT | DETERMINED | 82–89 |
 
 Status is decided **within the canonical era**; the "total" column includes the earlier-era executions, which are not counted toward consistency.

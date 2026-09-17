@@ -1,6 +1,6 @@
 # Benchmark 报告 — 12 场景集（TEP 逐故障文献可比 · v2 真实管线执行口径）
 
-> 生成：2026-09-16T02:24:30.336Z
+> 生成：2026-09-17T01:17:50.037Z
 >
 > **被测对象界定（必读）**：本基准测的是**完整的 industrial-analysis-auto 管线执行** ——
 > 每个场景在其盲态 run 目录中真实跑通 Step 2-9（context-builder / data-processor /

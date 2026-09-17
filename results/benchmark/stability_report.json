@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-15T17:26:35.449Z",
+ "generated_at": "2026-09-17T04:46:37.253Z",
  "era_boundary": "20260914",
  "era_semantics": "v1 = pre anti-oscillation/cap discipline (system revision), v2 = current benchmark system; headline metric is within-era agreement",
  "extraction": "same semantics as commit: diagnosis.json primary_finding + surviving hypotheses, truth keywords from the case file",
@@ -659,7 +659,7 @@
    ]
   },
   "tep_d11_reactor_cooling_random": {
-   "n_runs_found": 3,
+   "n_runs_found": 4,
    "eras": {
     "v1": {
      "n_runs_proven": 2,
@@ -678,15 +678,17 @@
      "consistent": true
     },
     "v2": {
-     "n_runs_proven": 1,
+     "n_runs_proven": 2,
      "verdict_types": [
-      "DETERMINED"
+      "DETERMINED",
+      "COMPETING_SET"
      ],
      "top1_hits": [
-      true
+      true,
+      false
      ],
      "confidence_range": [
-      80,
+      62,
       80
      ],
      "verdict_type_consistent": false,
@@ -718,6 +720,14 @@
      "diagnosis_type": "DETERMINED",
      "top1_hit": true,
      "confidence": 80
+    },
+    {
+     "run_dir": "workspace\\diagnostic-runs\\202609170117293_bench_tep_d11_reactor_cooling_random",
+     "era": "v2",
+     "finalized": true,
+     "diagnosis_type": "COMPETING_SET",
+     "top1_hit": false,
+     "confidence": 62
     }
    ]
   },
@@ -795,8 +805,8 @@
  },
  "summary": {
   "min_runs_required": 2,
-  "era_case_pairs": 15,
+  "era_case_pairs": 16,
   "era_case_pairs_consistent": 15,
-  "within_era_agreement": "15/15"
+  "within_era_agreement": "15/16"
  }
 }

@@ -86,14 +86,72 @@
     "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
     "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
    ]
+  },
+  {
+   "round": 4,
+   "selected_at": "2026-09-16T09:43:56.574Z",
+   "rng": "mulberry32",
+   "seed": 149290398,
+   "uniform_draw": 0.803782468,
+   "pool_size": 9,
+   "pool": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "indpensim_batch093",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+   ],
+   "pool_filter": "faults-only",
+   "index": 7,
+   "case_id": "tep_d11_reactor_cooling_random",
+   "dataset": "tep",
+   "control": false,
+   "contract": [
+    "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+    "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+   ]
+  },
+  {
+   "round": 5,
+   "selected_at": "2026-09-17T01:11:22.208Z",
+   "rng": "mulberry32",
+   "seed": 368776031,
+   "uniform_draw": 0.131221641,
+   "pool_size": 9,
+   "pool": [
+    "skab_valve1_1",
+    "skab_cavitation_13",
+    "tep_d01_ac_feed_ratio",
+    "tep_d03_hard",
+    "indpensim_batch093",
+    "tep_d04_reactor_cooling_step",
+    "tep_d07_header_pressure",
+    "tep_d11_reactor_cooling_random",
+    "tep_d14_reactor_valve_sticking"
+   ],
+   "pool_filter": "faults-only",
+   "index": 1,
+   "case_id": "skab_cavitation_13",
+   "dataset": "skab",
+   "control": false,
+   "contract": [
+    "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for skab_cavitation_13 in a FRESH run dir.",
+    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+    "Then: node scripts/benchmark/consistency-audit.mjs --case skab_cavitation_13"
+   ]
   }
  ],
  "last": {
-  "round": 3,
-  "selected_at": "2026-09-16T02:25:16.521Z",
+  "round": 5,
+  "selected_at": "2026-09-17T01:11:22.208Z",
   "rng": "mulberry32",
-  "seed": 503865577,
-  "uniform_draw": 0.781653556,
+  "seed": 368776031,
+  "uniform_draw": 0.131221641,
   "pool_size": 9,
   "pool": [
    "skab_valve1_1",
@@ -107,14 +165,14 @@
    "tep_d14_reactor_valve_sticking"
   ],
   "pool_filter": "faults-only",
-  "index": 7,
-  "case_id": "tep_d11_reactor_cooling_random",
-  "dataset": "tep",
+  "index": 1,
+  "case_id": "skab_cavitation_13",
+  "dataset": "skab",
   "control": false,
   "contract": [
-   "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+   "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for skab_cavitation_13 in a FRESH run dir.",
    "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
-   "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+   "Then: node scripts/benchmark/consistency-audit.mjs --case skab_cavitation_13"
   ]
  }
 }

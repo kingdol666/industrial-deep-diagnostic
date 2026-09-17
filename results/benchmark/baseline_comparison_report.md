@@ -1,6 +1,6 @@
 # Benchmark × Baseline 对比基线报告（双项目真实执行）
 
-> 生成：2026-09-15 16:07 · 生成器：scripts/benchmark/build-baseline-suite-report.mjs（零硬编码判定）
+> 生成：2026-09-16 04:54 · 生成器：scripts/benchmark/build-baseline-suite-report.mjs（零硬编码判定）
 >
 > 被测双方：**IDD**（industrial-analysis-auto 完整管线，12 场景 canonical 判定）×
 > **Baseline Suite**（Nuxt 复刻套件 baselines/baseline-suite，45 项实时运行：

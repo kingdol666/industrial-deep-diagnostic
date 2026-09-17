@@ -124,6 +124,22 @@ paper/pagepng/
 paper/main_review_dump.txt
 results/benchmark/.suite-prior/
 
+# Paper working dumps / page-render checks (regenerable; keep compiled PDFs only)
+paper/main_dump*.txt
+paper/pages_check.pdf
+paper/render_review/
+
+# Review-round audit trail: track the documents (md/mjs/py), not the page
+# renders — 1.6k+ PNGs of double-spaced pages are regenerable from the rounds'
+# PDFs and would dominate the repo.
+paper/review/**/*.png
+paper/review/vb_pages/
+paper/review/vb_dump.txt
+
+# Third-party cited-literature snapshots (57 MB of arXiv PDFs; cite via refs.bib,
+# keep only the reading notes)
+paper/reference/*.pdf
+
 # ------------------------------------------------------- baseline-lab (Nuxt)
 # The lab's source AND its results/ are committed: results/ holds the archived
 # LLM answers and sweep summaries that the reproduction claims rest on (~1.7 MB).

@@ -18,7 +18,18 @@ import sys
 import os
 
 #open a text file to write the results
-f = open("results.txt", "w")
+from pathlib import Path
+
+_expected_run = Path(__file__).resolve().parents[1]
+
+def safe_path(rel):
+    p = (_expected_run / rel).resolve()
+    p.relative_to(_expected_run)
+    return p
+
+def safe_open(rel, mode="r", **kw):
+    return safe_path(rel).open(mode, **kw)
+f = safe_open("backend/results.txt", "w")
 
 # Import EXPLAIN_PROMPT from app.py
 from prompts import EXPLAIN_PROMPT, EXPLAIN_ROOT, SYSTEM_MESSAGE
