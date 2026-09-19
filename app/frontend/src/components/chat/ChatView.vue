@@ -177,7 +177,7 @@
                       <span class="chat-inline-icon">+</span>
                       <span class="chat-inline-text">{{ displayChatCwd(activePanel) }}</span>
                     </button>
-                    <label class="chat-inline-select-wrap">
+                    <label class="chat-inline-select-wrap" v-if="chatEngine === 'claude'">
                       <span class="chat-inline-select-icon">!</span>
                       <select
                         class="chat-inline-select"
@@ -188,6 +188,18 @@
                         <option v-for="option in permissionModeOptions" :key="option.value" :value="option.value">
                           {{ option.shortLabel }}
                         </option>
+                      </select>
+                    </label>
+                    <label class="chat-inline-select-wrap" v-if="chatEngine !== 'mock' && engineChatModels.length">
+                      <span class="chat-inline-select-icon">◆</span>
+                      <select
+                        class="chat-inline-select"
+                        :value="getChatModel(activePanel)"
+                        :disabled="runtimeConfigSaving"
+                        @change="onChatModelChange($event.target.value)"
+                      >
+                        <option value="">{{ $t('chat.model_default') }}</option>
+                        <option v-for="m in engineChatModels" :key="m.id" :value="m.id">{{ m.label }}</option>
                       </select>
                     </label>
                   </template>
@@ -248,6 +260,34 @@ const permissionModeOptions = computed(() => [
   { value: 'plan', shortLabel: t('chat.permission_plan') },
   { value: 'bypassPermissions', shortLabel: t('chat.permission_bypassPermissions') },
 ]);
+
+// ── Chat model catalog (from the harness manifest) ──
+const harnessOptionsMap = ref({});
+const claudeModelOptions = computed(() => engineChatModels.value);
+const engineChatModels = computed(() => harnessOptionsMap.value[chatEngine.value]?.models || []);
+
+async function loadHarnessOptionsMap() {
+  try {
+    const list = await api.listHarnesses();
+    const map = {};
+    for (const h of list || []) map[h.id] = h.options || { models: [], permissionModes: [] };
+    harnessOptionsMap.value = map;
+  } catch {
+    harnessOptionsMap.value = {};
+  }
+}
+
+function getChatModel(panel) {
+  return panel?.model || '';
+}
+
+function onChatModelChange(value) {
+  const panel = activePanel.value;
+  if (panel) {
+    panel.model = value || null;
+    syncCurrentSessionIfActive(panel);
+  }
+}
 
 let socket = null;
 let reconnectTimer = null;
@@ -357,6 +397,7 @@ function createBasePanel(kind, title) {
     currentSessionId: null,
     cwd: kind === 'chat' ? DEFAULT_CHAT_CWD : null,
     permissionMode: kind === 'chat' ? 'default' : null,
+    model: null,
     // engine stays unset so panelEngine() falls through to the conversation
     // engine picker (chatEngine) — pre-seeding 'claude' here would make the
     // picker a no-op for every new chat.
@@ -951,6 +992,7 @@ async function submitMessage() {
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
             harness: panelEngine(panel),
+            model: panel.model || undefined,
           });
           panel.chatId = result.chatId;
           panel.sessionId = result.sessionId || null;
@@ -974,6 +1016,7 @@ async function submitMessage() {
             permissionMode: getChatPermissionMode(panel),
             cwd: getChatCwd(panel),
             harness: panelEngine(panel),
+            model: panel.model || undefined,
           },
         });
         if (!sent) {
@@ -1027,6 +1070,7 @@ async function submitMessage() {
 onMounted(async () => {
   loadChatSidebarState();
   ensureSocket();
+  loadHarnessOptionsMap();
   await Promise.all([refreshChats(), refreshDiagnosePanels()]);
   if (diagnosePanels.value[0]) {
     activePanelId.value = diagnosePanels.value[0].localId;

@@ -114,8 +114,9 @@ const geminiSpec = {
   model: config.harness?.engines?.gemini?.model || null,
   versionArgs: ['--version'],
   promptDelivery: 'stdin',
-  buildArgs({ resumeSessionId }) {
+  buildArgs({ resumeSessionId, model }) {
     const args = ['--output-format', 'stream-json', '-p'];
+    if (model) args.push('--model', model);
     if (resumeSessionId) args.push('--resume', resumeSessionId);
     return args;
   },
@@ -169,8 +170,10 @@ const copilotSpec = {
   model: config.harness?.engines?.copilot?.model || null,
   versionArgs: ['--version'],
   promptDelivery: 'stdin',
-  buildArgs() {
-    return ['--output-format', 'json', '-p'];
+  buildArgs({ model }) {
+    const args = ['--output-format', 'json', '-p'];
+    if (model) args.push('--model', model);
+    return args;
   },
   engineEnv() {
     return { NO_COLOR: '1' };
@@ -189,9 +192,11 @@ const cursorSpec = {
   model: config.harness?.engines?.cursor?.model || null,
   versionArgs: ['--version'],
   promptDelivery: 'stdin',
-  buildArgs() {
+  buildArgs({ model }) {
     // 默认不带 --force — 文件变更只提案不落地（与平台写控制哲学一致）。
-    return ['--output-format', 'stream-json', '-p'];
+    const args = ['--output-format', 'stream-json', '-p'];
+    if (model) args.push('--model', model);
+    return args;
   },
   parseLine: claudeishParseLine,
   parseSessionId(marker) {

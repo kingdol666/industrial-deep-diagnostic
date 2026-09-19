@@ -268,6 +268,7 @@ export function startDiagnosis({
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
+  model = null, permissionMode = null,
 }) {
   if (!sdkAvailable || !queryFn) {
     throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
@@ -299,12 +300,16 @@ export function startDiagnosis({
       + buildOntologyDirective(ontology)
       + buildEnhancementDirective(enhancement);
 
-  // Build SDK options
+  // Build SDK options — model and permissionMode are per-run switchable
+  // (validated against the harness catalog upstream). bypassPermissions is
+  // the pipeline default and needs allowDangerouslySkipPermissions; the
+  // other SDK modes must NOT set that flag.
+  const effPermissionMode = permissionMode || 'bypassPermissions';
   const options = {
     cwd: PROJECT_ROOT,
-    model: config.claude.model,
-    permissionMode: 'bypassPermissions',
-    allowDangerouslySkipPermissions: true,
+    model: model || config.claude.model,
+    permissionMode: effPermissionMode,
+    allowDangerouslySkipPermissions: effPermissionMode === 'bypassPermissions',
     includePartialMessages: true,
     forwardSubagentText: true,
     maxTurns: maxTurns > 0 ? maxTurns : undefined,

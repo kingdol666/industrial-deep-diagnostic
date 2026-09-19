@@ -79,7 +79,7 @@ export function mapCodexNotification(method, params, ctx) {
 }
 
 // ── Query wrapper ──
-function createCodexQuery({ turnKey, prompt }) {
+function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null }) {
   const engCfg = config.harness?.engines?.codex || {};
   const queue = [];
   let wake = null;
@@ -160,8 +160,8 @@ function createCodexQuery({ turnKey, prompt }) {
 
       const thread = await rpc.request('thread/start', {
         cwd: PROJECT_ROOT,
-        model: engCfg.model || undefined,
-        approvalPolicy: engCfg.approval_policy || 'on-request',
+        model: model || engCfg.model || undefined,
+        approvalPolicy: approvalPolicy || engCfg.approval_policy || 'on-request',
       }, { timeoutMs: 30000 });
       // 0.155+: thread/start returns { thread: { id } } — older builds returned
       // the id at the top level. threadId: null here is what produced the
@@ -235,12 +235,19 @@ export function startDiagnosis({
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
+  model = null, permissionMode = null,
 }) {
   void maxTurns; void timeoutMinutes; void sessionId; // codex threads don't resume cross-process here
+  const engCfg = config.harness?.engines?.codex || {};
   const built = buildCodexPrompt({
     analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
   });
-  const query = createCodexQuery({ turnKey: runId, prompt: built.prompt });
+  const query = createCodexQuery({
+    turnKey: runId,
+    prompt: built.prompt,
+    model: model || engCfg.model || undefined,
+    approvalPolicy: permissionMode || engCfg.approval_policy || undefined,
+  });
   activeQueries.set(runId, query);
   return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };
 }
@@ -254,8 +261,12 @@ export function startSessionChat({ runId, sessionId, message }) {
 
 // Raw-prompt conversational turn (standalone chat) — one app-server turn,
 // no industrial prompt wrapper.
-export function startChatTurn({ runId, prompt }) {
-  const query = createCodexQuery({ turnKey: runId, prompt: String(prompt || '').trim() });
+export function startChatTurn({ runId, prompt, model = null }) {
+  const query = createCodexQuery({
+    turnKey: runId,
+    prompt: String(prompt || '').trim(),
+    model: model || undefined,
+  });
   activeQueries.set(runId, query);
   return { query, runId, getSessionId: () => query.sessionId };
 }

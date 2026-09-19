@@ -41,11 +41,26 @@
               <label class="turns-label">{{ $t('diagnosis.maxTurns') }}</label>
               <select v-model.number="maxTurns" class="ctrl-input ctrl-select">
                 <option :value="0">{{ $t('diagnosis.unlimited') }}</option>
+                <option :value="10">10</option>
                 <option :value="50">50</option>
                 <option :value="100">100</option>
                 <option :value="200">200</option>
                 <option :value="300">300</option>
                 <option :value="500">500</option>
+              </select>
+            </div>
+            <div class="turns-control" v-if="engineOptions.models.length">
+              <label class="turns-label">{{ $t('diagnosis.model') }}</label>
+              <select v-model="modelSel" class="ctrl-input ctrl-select">
+                <option value="">{{ $t('diagnosis.model_default') }}</option>
+                <option v-for="m in engineOptions.models" :key="m.id" :value="m.id">{{ m.label }}</option>
+              </select>
+            </div>
+            <div class="turns-control" v-if="engineOptions.permissionModes.length > 1">
+              <label class="turns-label">{{ $t('diagnosis.permissionMode') }}</label>
+              <select v-model="permSel" class="ctrl-input ctrl-select">
+                <option value="">{{ $t('diagnosis.permission_default') }}</option>
+                <option v-for="pm in engineOptions.permissionModes" :key="pm.id" :value="pm.id">{{ pm.label }}</option>
               </select>
             </div>
             <div class="turns-control">
@@ -255,6 +270,28 @@ const props = defineProps({
 // The run started from this view runs on the harness selected in the sidebar;
 // runs opened from history show the run's own engine badge.
 const startedHarness = ref(props.harness || 'claude');
+
+// ── Per-harness model / permission-mode catalogs ──
+// Fed by the harness manifest (GET /api/harness → options); empty arrays hide
+// the dropdown because that dimension is fixed by the engine's design.
+const engineOptions = ref({ models: [], permissionModes: [] });
+const modelSel = ref('');
+const permSel = ref('');
+
+async function loadEngineOptions() {
+  modelSel.value = '';
+  permSel.value = '';
+  try {
+    const list = await api.listHarnesses();
+    const h = (list || []).find(x => x.id === (props.harness || 'claude'));
+    engineOptions.value = h?.options || { models: [], permissionModes: [] };
+  } catch {
+    engineOptions.value = { models: [], permissionModes: [] };
+  }
+}
+
+watch(() => props.harness, loadEngineOptions, { immediate: true });
+
 const runEngineLabel = computed(() => {
   if (startedHarness.value === props.harness && props.harnessName) return props.harnessName;
   return startedHarness.value.toUpperCase();
@@ -486,6 +523,8 @@ async function start() {
   startedHarness.value = payload.harness;
 
   if (maxTurns.value > 0) payload.maxTurns = maxTurns.value;
+  if (modelSel.value) payload.model = modelSel.value;
+  if (permSel.value) payload.permissionMode = permSel.value;
   if (target.mode === 'multi') {
     payload.dataPaths = target.files.map(f => (typeof f === 'string' ? f : f.path));
   } else if (target.mode === 'folder') {
