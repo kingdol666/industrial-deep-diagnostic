@@ -52,7 +52,7 @@ function scanPath(name) {
   return null;
 }
 
-function whereLookup(name) {
+export function whereLookup(name) {
   try {
     const lookup = execFileSync(process.platform === 'win32' ? 'where' : 'which', [name], {
       encoding: 'utf-8', timeout: 5000, windowsHide: true,
@@ -150,20 +150,20 @@ export function quoteCmdArg(arg) {
 }
 
 /**
- * Spawn an engine CLI with the resolved binary.
- * Windows .cmd/.bat shims are wrapped in a literal `cmd.exe /d /s /c` with a
- * verbatim, self-quoted command string (the documented Node/cmd.exe contract —
- * never shell:true, never an env-configurable wrapper).
+ * Spawn an already-resolved binary path. Windows .cmd/.bat shims are wrapped
+ * in a literal `cmd.exe /d /s /c` with a verbatim, self-quoted command string
+ * (the documented Node/cmd.exe contract — never shell:true, never an
+ * env-configurable wrapper). Shared by spawnCli and the omp client so every
+ * engine gets identical shim handling (探测与拉起同源).
  */
-export function spawnCli(id, args, { cwd = PROJECT_ROOT, env = {}, windowsVerbatimArguments } = {}) {
-  const resolved = resolveCliBinary(id);
+export function spawnResolvedCli(resolved, args, { cwd = PROJECT_ROOT, env = {}, windowsVerbatimArguments, context = 'CliCommon' } = {}) {
   const safeArgs = (args || []).map((a) => validateCliArg(a));
-  const mergedEnv = { ...process.env, ...engineConfig(id).env, ...env };
+  const mergedEnv = { ...process.env, ...env };
 
   const ext = extname(resolved).toLowerCase();
   if (process.platform === 'win32' && (ext === '.cmd' || ext === '.bat')) {
     const commandLine = [quoteCmdArg(resolved), ...safeArgs.map(quoteCmdArg)].join(' ');
-    logger.info(`spawn [${id}]: cmd.exe /d /s /c ${commandLine}`.slice(0, 400), { context: 'CliCommon' });
+    logger.info(`spawn [${context}]: cmd.exe /d /s /c ${commandLine}`.slice(0, 400), { context: 'CliCommon' });
     return spawn('cmd.exe', ['/d', '/s', '/c', commandLine], {
       cwd,
       env: mergedEnv,
@@ -173,13 +173,19 @@ export function spawnCli(id, args, { cwd = PROJECT_ROOT, env = {}, windowsVerbat
     });
   }
 
-  logger.info(`spawn [${id}]: ${resolved} ${safeArgs.join(' ')}`.slice(0, 400), { context: 'CliCommon' });
+  logger.info(`spawn [${context}]: ${resolved} ${safeArgs.join(' ')}`.slice(0, 400), { context: 'CliCommon' });
   return spawn(resolved, safeArgs, {
     cwd,
     env: mergedEnv,
     stdio: ['pipe', 'pipe', 'pipe'],
     windowsHide: true,
   });
+}
+
+export function spawnCli(id, args, { cwd = PROJECT_ROOT, env = {}, windowsVerbatimArguments } = {}) {
+  const resolved = resolveCliBinary(id);
+  const mergedEnv = { ...engineConfig(id).env, ...env };
+  return spawnResolvedCli(resolved, args, { cwd, env: mergedEnv, windowsVerbatimArguments, context: id });
 }
 
 /**

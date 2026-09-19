@@ -11,13 +11,13 @@
 //   ← tool_execution_start/update/end (toolCallId, toolName, result)
 //   ← turn_start/turn_end, agent_start/agent_end (isTerminal)
 
-import { spawn, execFileSync } from 'child_process';
-import { existsSync, mkdirSync, rmSync, readFileSync } from 'fs';
-import { join, isAbsolute } from 'path';
 import {
   config, PROJECT_ROOT,
 } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { whereLookup, spawnResolvedCli } from './cli-common.mjs';
+import { existsSync, mkdirSync, rmSync, readFileSync } from 'fs';
+import { join, isAbsolute } from 'path';
 import {
   buildRuntimeProtocol, buildPrompt, resolveAnalysisTarget,
   isDangerousCommand, buildOntologyDirective, buildEnhancementDirective,
@@ -36,14 +36,11 @@ function resolveOmpBinary() {
   if (isAbsolute(configured)) {
     candidates.push(configured);
   } else {
-    // 1) `where omp` (Windows) / `which omp` (POSIX)
-    try {
-      const lookup = execFileSync(process.platform === 'win32' ? 'where' : 'which', [configured], {
-        encoding: 'utf-8', timeout: 5000, windowsHide: true,
-      });
-      const first = (lookup || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean)[0];
-      if (first) candidates.push(first);
-    } catch { /* ignore */ }
+    // 1) `where omp` / `which omp` — whereLookup prefers .exe then .cmd/.bat;
+    //    on Windows it must NEVER pick the extensionless sh shim (npm global
+    //    installs emit sh/.cmd/.ps1 shims; the sh one cannot be spawned).
+    const found = whereLookup(configured);
+    if (found) candidates.push(found);
     // 2) Common install locations
     if (process.platform === 'win32' && process.env.LOCALAPPDATA) {
       candidates.push(join(process.env.LOCALAPPDATA, 'omp', 'omp.exe'));
@@ -107,12 +104,7 @@ function spawnOmpRpc({ sessionDir, resume = false, label = 'omp' }) {
 
   logger.info(`Spawning ${label}: ${binary} ${args.join(' ')}`, { context: 'OmpClient' });
 
-  const proc = spawn(binary, args, {
-    cwd: PROJECT_ROOT,
-    stdio: ['pipe', 'pipe', 'pipe'],
-    windowsHide: true,
-    env: { ...process.env },
-  });
+  const proc = spawnResolvedCli(binary, args, { cwd: PROJECT_ROOT, context: 'OmpClient' });
 
   let stderrTail = '';
   proc.stderr.on('data', (d) => {
@@ -468,7 +460,7 @@ export function probeOmpEngine() {
 
     let proc;
     try {
-      proc = spawn(binary, ['--version'], { stdio: 'pipe', windowsHide: true, cwd: PROJECT_ROOT });
+      proc = spawnResolvedCli(binary, ['--version'], { cwd: PROJECT_ROOT, context: 'OmpClient' });
     } catch (e) {
       done({ available: false, binary, error: e.message });
       return;
