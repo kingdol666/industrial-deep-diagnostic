@@ -11,6 +11,7 @@ import { BaseHarness, HarnessNotFoundError } from './base.mjs';
 import { OmpHarness } from './omp-harness.mjs';
 import { ClaudeHarness } from './claude-harness.mjs';
 import { HARNESS_DEFS, createLiveHarness } from './engines.mjs';
+import { getEngineOptions } from './engine-options.mjs';
 
 /** Ordered list — display/preference order; the RUNTIME default harness is
  *  resolved separately from availability (config harness.default → chain, see
@@ -31,7 +32,13 @@ if (process.env.IDD_DEMO_HARNESS === '1') {
 
 /** All registered harness manifests (public metadata). */
 export function listHarnesses() {
-  return harnesses.map((h) => h.manifest());
+  return harnesses.map((h) => ({
+    ...h.manifest(),
+    // Per-engine switchable model + permission-mode catalogs — the web
+    // console renders these as the Model/Permission dropdowns for the
+    // selected harness. Empty arrays = the dimension is fixed by design.
+    options: getEngineOptions(h.id),
+  }));
 }
 
 /** Look up a harness by id; throws HarnessNotFoundError when absent. */

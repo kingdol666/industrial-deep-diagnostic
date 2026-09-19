@@ -191,6 +191,7 @@ export async function startChat(params = {}) {
       stored: earlyStored,
       title: params.title,
       harness,
+      model: params.model || null,
     });
   }
 
@@ -728,7 +729,7 @@ function buildReplayPrompt(chatId, message, { maxTurns = 12 } = {}) {
  * use native session resume when the engine supports it, transcript replay
  * when it does not. Engine-side failures propagate honestly (no fallback).
  */
-async function startGenericEngineChat({ chatId, prompt, stored, title, harness }) {
+async function startGenericEngineChat({ chatId, prompt, stored, title, harness, model = null }) {
   if (!prompt || typeof prompt !== 'string') {
     throw new Error('prompt is required');
   }
@@ -754,7 +755,7 @@ async function startGenericEngineChat({ chatId, prompt, stored, title, harness }
   if (!query) {
     replayed = isFollowUp;
     const turnPrompt = replayed ? buildReplayPrompt(chatId, prompt) : prompt;
-    const turn = client.startChatTurn({ runId: chatId, prompt: turnPrompt });
+    const turn = client.startChatTurn({ runId: chatId, prompt: turnPrompt, model });
     query = turn.query;
     sessionId = (turn.getSessionId ? turn.getSessionId() : null) || turn.sessionId || `${harness}:chat:${chatId}`;
   }
@@ -884,6 +885,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
       stored,
       title: stored.title || followUpMessage.slice(0, 60),
       harness: stored.harness,
+      model: stored.model || null,
     });
   }
 

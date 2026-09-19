@@ -40,8 +40,9 @@ function writePromptArgFile(id, prompt) {
  * owning engine module — mirrors omp-client's session markers).
  */
 export function createOneShotTurn(spec, {
-  prompt, resumeSessionId = null, timeoutMinutes = 0, turnKey = '',
+  prompt, resumeSessionId = null, timeoutMinutes = 0, turnKey = '', model = null,
 }) {
+  const turnModel = model || spec.model || null;
   const id = spec.id;
 
   // argFile delivery materializes the prompt BEFORE buildArgs so the spec can
@@ -53,7 +54,7 @@ export function createOneShotTurn(spec, {
 
   let args;
   try {
-    args = spec.buildArgs({ prompt, promptFile: argFileMeta?.file || null, resumeSessionId });
+    args = spec.buildArgs({ prompt, promptFile: argFileMeta?.file || null, resumeSessionId, model: turnModel });
   } catch (e) {
     if (argFileMeta) { try { rmSync(argFileMeta.dir, { recursive: true, force: true }); } catch { /* ignore */ } }
     logger.error(`[${id}] buildArgs failed: ${e.message}`, { context: 'OneShot', turnKey });
@@ -296,6 +297,7 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
     runId, maxTurns = 0, timeoutMinutes = 0,
     reportLanguage, followUpMessage, sessionId = null,
     ontology = null, enhancement = null,
+    model = null,
   }) {
     void maxTurns; // one-shot engines loop internally; turn budget == timeout
     const parsed = spec.parseSessionId ? spec.parseSessionId(sessionId) : null;
@@ -322,6 +324,7 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
       resumeSessionId,
       timeoutMinutes: timeoutMinutes || defaultTimeoutMinutes,
       turnKey: runId,
+      model,
     });
     activeQueries.set(runId, query);
     return { query, dataPaths, prompt, getSessionId: () => query.sessionId, runId, isResume };
@@ -347,10 +350,11 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
   // wrapper. This is what the standalone chat service rides on: turn 1 of
   // an engine-native chat is exactly one one-shot process (resume, when the
   // spec supports it, is startSessionChat's job).
-  function startChatTurn({ runId, prompt }) {
+  function startChatTurn({ runId, prompt, model = null }) {
     const query = createOneShotTurn(spec, {
       prompt: String(prompt || '').trim(),
       turnKey: runId,
+      model,
     });
     activeQueries.set(runId, query);
     return { query, runId, getSessionId: () => query.sessionId };

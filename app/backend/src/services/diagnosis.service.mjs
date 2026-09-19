@@ -26,6 +26,7 @@ import {
 } from '../engine/oneshot-specs.mjs';
 import { dshClient, hermesClient, qwenClient } from '../engine/acp-client.mjs';
 import { hasHarness } from '../harness/registry.mjs';
+import * as harnessOptionsModule from '../harness/engine-options.mjs';
 import { assertHarnessUsable } from '../harness/availability.mjs';
 import { defaultHarnessChain } from '../harness/engines.mjs';
 
@@ -222,8 +223,23 @@ function resolveOntologyDirective({ ontologyMode, ontologyScene, ontologySource,
 
 // Create a new diagnosis run (DB + engine state)
 export function createDiagnosisRun(params) {
-  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage } = params;
+  const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage,
+          model, permissionMode } = params;
   const harness = normalizeHarness(params.harness);
+
+  // Per-harness model / permission-mode switching — validated against the
+  // harness's own catalog (mirrors what the engine really supports), so an
+  // unsupported choice is a 400, never a silent fallback.
+  const { validateEngineOption } = harnessOptionsModule;
+  const check = validateEngineOption(harness, { model, permissionMode });
+  if (!check.ok) {
+    const err = new Error(check.errors.map((e) => e.message).join(' | '));
+    err.status = 400;
+    err.code = check.errors[0].code;
+    throw err;
+  }
+  const effectiveModel = model || null;
+  const effectivePermissionMode = permissionMode || null;
 
   // Enhancement (E0-E8) policy — Phase C of optimization plan v4
   const enhancement = resolveEnhancementPolicy(params.enhancement, userQuestion);
@@ -278,7 +294,7 @@ export function createDiagnosisRun(params) {
     dataPath: dataPathForDb,
     dataFolder,
     userQuestion: userQuestion || '',
-    model: config.claude.model,
+    model: effectiveModel || config.claude.model,
     maxTurns: maxTurns ?? config.claude.max_turns,
     reportLanguage: reportLanguage || diagConfig.default_language,
     harness,
@@ -292,6 +308,8 @@ export function createDiagnosisRun(params) {
     timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes,
     ontology,
     enhancement,
+    model: effectiveModel,
+    permissionMode: effectivePermissionMode,
   });
 
   return { runId, name, status: 'pending', mode, harness, ontologyHit: ontology.hit, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
@@ -721,6 +739,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       sessionId,
       ontology: meta.ontology || null,
       enhancement: meta.enhancement || null,
+      model: meta.model || run.model || null,
+      permissionMode: meta.permissionMode || null,
     });
 
     const query = result.query;
