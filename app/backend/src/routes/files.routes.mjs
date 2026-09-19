@@ -8,7 +8,7 @@ import { config, PROJECT_ROOT, data as dataConfig } from '../../../../config/loa
 import {
   listDataDir, createDataFolder, deleteDataFolder,
   listWorkspaceRuns, getWorkspaceReport, getWorkspaceOptimizer,
-  listWorkspaceFiles, getWorkspaceAsset, readDataFile, DATA_DIR,
+  listWorkspaceFiles, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
 } from '../services/files.service.mjs';
 import { rewriteHtmlAssetUrls, callerToken, isHtmlContentType } from '../utils/html-assets.mjs';
 
@@ -90,6 +90,11 @@ router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), 
 
     const uploaded = [];
     for (const file of req.files || []) {
+      // Uploading resolves an arbitrary name — a file named like the system
+      // database would overwrite the live DB, so refuse it up front.
+      if (isSystemDatabaseFile(file.originalname)) {
+        return res.status(400).json({ success: false, error: 'System database file cannot be uploaded' });
+      }
       const destPath = join(targetDir, file.originalname);
       const { rename } = await import('fs/promises');
       await rename(file.path, destPath);

@@ -113,11 +113,16 @@ const geminiSpec = {
   id: 'gemini',
   model: config.harness?.engines?.gemini?.model || null,
   versionArgs: ['--version'],
+  // gemini CLI >=0.60: `-p/--prompt` REQUIRES a value (bare `-p` + stdin dies
+  // in yargs "Not enough arguments following: p") and `--resume` is gone
+  // (per-session persistence moved to `--session-file <path>`). The free-text
+  // prompt still travels via stdin: spawnResolvedCli validates every argv
+  // element and rejects double quotes, so the prompt can never be an argv
+  // value — `--prompt ''` only satisfies the parser, stdin content is used.
   promptDelivery: 'stdin',
-  buildArgs({ resumeSessionId, model }) {
-    const args = ['--output-format', 'stream-json', '-p'];
+  buildArgs({ model }) {
+    const args = ['--output-format', 'stream-json', '--prompt', ''];
     if (model) args.push('--model', model);
-    if (resumeSessionId) args.push('--resume', resumeSessionId);
     return args;
   },
   engineEnv() {
@@ -156,10 +161,10 @@ const geminiSpec = {
     }
   },
   parseSessionId(marker) {
-    if (typeof marker !== 'string' || !marker.startsWith('gemini:')) return null;
-    const sid = marker.slice('gemini:'.length);
-    // "unbound" = the engine never reported a session id — resume impossible.
-    return sid && !sid.startsWith('unbound:') ? { sessionId: sid, resumable: true } : null;
+    // gemini CLI >=0.60 removed `--resume <id>` — resuming a session now needs
+    // a `--session-file` JSON path (not a bare id), so engine sessions are
+    // non-resumable; cross-run continuation goes through history replay.
+    return sessionIdMarker('gemini', typeof marker === 'string' ? marker.slice('gemini:'.length) : null, { resumable: false });
   },
   probe: probeFor('gemini', ['--version']),
 };

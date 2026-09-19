@@ -140,7 +140,7 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">{{ $t('history.model') }}</span>
-          <span class="detail-value">{{ detailRun.model }}</span>
+          <span class="detail-value">{{ detailRun.model || $t('history.model_default') }}</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">{{ $t('history.maxTurns') }}</span>
@@ -168,7 +168,7 @@
         </div>
         <div class="detail-item" v-if="detailRun.error_message">
           <span class="detail-label">{{ $t('history.error') }}</span>
-          <span class="detail-value error-text">{{ detailRun.error_message }}</span>
+          <span class="detail-value error-text" :title="detailRun.error_message">{{ formatRunErrorMessage(detailRun.error_message) }}</span>
         </div>
       </div>
 
@@ -207,6 +207,7 @@ import {
   getRunStatusBadgeClass,
   getRunStatusLabel,
   normalizeRunSummary,
+  formatRunErrorMessage,
 } from '../../utils/diagnosisRun.js';
 
 const { t } = useI18n();

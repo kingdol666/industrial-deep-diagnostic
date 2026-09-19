@@ -218,6 +218,9 @@ describe('mock harness full run — create → execute → complete → report �
     assert.match(run.report_path, /report\.md$/);
     assert.equal(run.score, 96);
     assert.equal(run.judge_verdict, 'ENDORSED');
+    // No model was selected → the run row must not carry a claude default
+    // (Bug A: claude model must not leak into non-claude engine runs).
+    assert.equal(run.model ?? null, null);
   });
 
   test('event stream recorded the scripted pipeline', async () => {
@@ -279,6 +282,61 @@ describe('mock failure script — 错误即事件', () => {
   });
 });
 
+describe('false-success guard — success result without report.md must fail', () => {
+  test('mock:noreport ends failed with the guard error even on result success', async () => {
+    const { json: startJson } = await api('POST', '/api/diagnosis/start', {
+      harness: 'mock',
+      dataPath: 'data/smoke.csv',
+      sceneName: 'mock_e2e_noreport',
+      userQuestion: 'please mock:noreport this run',
+    });
+    const noreportRunId = startJson.data.runId;
+    await api('POST', `/api/diagnosis/execute/${noreportRunId}`);
+    const run = await waitForStatus(noreportRunId, ['failed'], 20000);
+    assert.equal(run.status, 'failed');
+    assert.match(run.error_message, /report\.md/);
+    assert.equal(run.error_message.includes('false success'), true);
+    assert.equal(run.report_path ?? null, null);
+    const { json: snap } = await api('GET', `/api/diagnosis/snapshot/${noreportRunId}`);
+    const lastComplete = [...snap.data.events].reverse().find((e) => e.type === 'complete');
+    assert.equal(lastComplete?.data?.status, 'failed');
+  });
+});
+
+describe('chat option validation — same catalog gate as diagnosis runs', () => {
+  test('chat with a model outside the harness catalog → 400 MODEL_NOT_SUPPORTED', async () => {
+    const { status, json } = await api('POST', '/api/chat/start', {
+      harness: 'codex',
+      model: 'gpt-99',
+      prompt: 'hello',
+    });
+    assert.equal(status, 400);
+    assert.equal(json.code, 'MODEL_NOT_SUPPORTED');
+    assert.match(json.error, /gpt-99/);
+  });
+
+  test('chat with a permission mode outside the harness catalog → 400 PERMISSION_NOT_SUPPORTED', async () => {
+    const { status, json } = await api('POST', '/api/chat/start', {
+      harness: 'omp',
+      permissionMode: 'plan', // claude-style mode — omp only supports auto-approve
+      prompt: 'hello',
+    });
+    assert.equal(status, 400);
+    assert.equal(json.code, 'PERMISSION_NOT_SUPPORTED');
+    assert.match(json.error, /plan/);
+  });
+
+  test('mock chat accepts any model (scripted engine is exempt from the catalog gate)', async () => {
+    const { status, json } = await api('POST', '/api/chat/start', {
+      harness: 'mock',
+      model: 'any-model-string',
+      prompt: 'mock chat smoke',
+    });
+    assert.equal(status, 200);
+    assert.ok(json.data.chatId);
+  });
+});
+
 describe('SSE stream endpoint — harness-agnostic consumption', () => {
   test('stream endpoint answers with SSE frames for a mock run', async () => {
     const { json: startJson } = await api('POST', '/api/diagnosis/start', {
@@ -295,5 +353,38 @@ describe('SSE stream endpoint — harness-agnostic consumption', () => {
     const chunk = Buffer.from(value).toString('utf-8');
     assert.match(chunk, /event: status/);
     reader.cancel().catch(() => {});
+  });
+});
+
+describe('zombie pending hygiene — listRuns lazily expires orphaned pendings', () => {
+  test('a start-without-execute run older than 24h flips to expired; fresh pendings survive', async () => {
+    // Seed the isolated DB directly: one backdated orphaned pending (created
+    // via /start, /execute never arrived) and one fresh pending.
+    const { default: Database } = await import('better-sqlite3');
+    const db = new Database(DB_PATH);
+    const insertStale = db.prepare(`
+      INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, status, created_at, updated_at)
+      VALUES (?, ?, 'zombie_pending', 'data/smoke.csv', 'pending', datetime('now', '-25 hours'), datetime('now', '-25 hours'))
+    `);
+    const insertFresh = db.prepare(`
+      INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, status)
+      VALUES (?, ?, 'zombie_pending', 'data/smoke.csv', 'pending')
+    `);
+    const staleRunId = 'zombiestale01';
+    const freshRunId = 'zombiefresh01';
+    insertStale.run(staleRunId, 'zombie_stale');
+    insertFresh.run(freshRunId, 'zombie_fresh');
+    db.close();
+
+    const { json } = await api('GET', '/api/diagnosis/list');
+    assert.ok(json.success);
+    const byId = Object.fromEntries(json.data.map((r) => [r.run_id, r]));
+    assert.equal(byId[staleRunId].status, 'expired');
+    assert.equal(byId[freshRunId].status, 'pending');
+
+    // An expired run is no longer executable — the pending gate refuses it.
+    const exec = await api('POST', `/api/diagnosis/execute/${staleRunId}`);
+    assert.equal(exec.status, 400);
+    assert.match(exec.json.error, /not pending/);
   });
 });

@@ -69,7 +69,7 @@
                 <span class="tl-scene">{{ run.scene_name }}</span>
                 <span class="tl-id mono">#{{ run.run_id }}</span>
                 <span v-if="run.error_message" class="tl-error" :title="run.error_message">
-                  {{ run.error_message }}
+                  {{ formatRunErrorMessage(run.error_message) }}
                 </span>
               </span>
               <span><span class="ip-chip" :class="statusTone(run)">{{ getRunStatusLabel(run) }}</span></span>
@@ -90,7 +90,7 @@
 import { computed, onMounted } from 'vue';
 import { useDiagnosisRealtimeStore } from '../../stores/diagnosisRealtimeStore.js';
 import { formatTime } from '../../utils/time.js';
-import { getEffectiveRunStatus, getRunStatusBadgeClass, getRunStatusLabel } from '../../utils/diagnosisRun.js';
+import { getEffectiveRunStatus, getRunStatusBadgeClass, getRunStatusLabel, formatRunErrorMessage } from '../../utils/diagnosisRun.js';
 
 const emit = defineEmits(['view-run', 'view-report', 'new-task']);
 const { state, runningRuns, pastRuns, refreshCatalog, connect } = useDiagnosisRealtimeStore();

@@ -11,6 +11,7 @@ import { PROJECT_ROOT, config } from '../../../../config/loader.mjs';
 import * as ompClient from '../engine/omp-client.mjs';
 import { getEngineClient } from '../harness/engines.mjs';
 import { hasHarness } from '../harness/registry.mjs';
+import { validateEngineOption } from '../harness/engine-options.mjs';
 
 let queryFn = null;
 try {
@@ -173,6 +174,22 @@ export async function startChat(params = {}) {
     ? 'omp'
     : (earlyStored ? normalizeChatHarness(earlyStored.harness || params.harness || 'claude')
                    : normalizeChatHarness(params.harness));
+
+  // Model / permission-mode selections must exist in the harness's own catalog
+  // — same gate as diagnosis run creation, so both surfaces 400 identically
+  // (mock is scripted in-process and has no real option surface to check).
+  if (harness !== 'mock' && (params.model || params.permissionMode)) {
+    const check = validateEngineOption(harness, {
+      model: params.model || null,
+      permissionMode: params.permissionMode || null,
+    });
+    if (!check.ok) {
+      const err = new Error(check.errors.map((e) => e.message).join(' | '));
+      err.status = 400;
+      err.code = check.errors[0].code;
+      throw err;
+    }
+  }
 
   if (harness === 'omp') {
     return startOmpChat({

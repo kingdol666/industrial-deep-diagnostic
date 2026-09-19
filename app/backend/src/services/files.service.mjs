@@ -3,7 +3,7 @@
 import { readdir, stat, mkdir, rm, readFile, realpath } from 'fs/promises';
 import { existsSync } from 'fs';
 import { execFile as execFileCallback } from 'child_process';
-import { join, extname, dirname, resolve } from 'path';
+import { join, extname, dirname, resolve, basename } from 'path';
 import { homedir } from 'os';
 import { promisify } from 'util';
 import { config, PROJECT_ROOT, data as dataConfig, pipeline as pipeConfig } from '../../../../config/loader.mjs';
@@ -13,13 +13,23 @@ import { stmts } from '../db/database.mjs';
 const DATA_DIR = join(PROJECT_ROOT, dataConfig.dir);
 const execFile = promisify(execFileCallback);
 
+// The system's own SQLite database lives inside the data directory (WAL mode
+// keeps `-wal` / `-shm` siblings next to it). It is infrastructure, not user
+// data: listing, overwriting or deleting it can corrupt a running system, so
+// it is hidden from user-facing listings and destructive endpoints refuse it.
+// Matched by the configured db filename plus any `-` suffixed sibling.
+export function isSystemDatabaseFile(name) {
+  const dbFileName = basename(config.database.path);
+  return typeof name === 'string' && (name === dbFileName || name.startsWith(`${dbFileName}-`));
+}
+
 // List contents of a data directory with metadata
 export async function listDataDir(dir) {
   if (!existsSync(dir)) return [];
   const entries = await readdir(dir);
   const result = [];
   for (const entry of entries) {
-    if (entry.startsWith('.') || entry === 'references') continue;
+    if (entry.startsWith('.') || entry === 'references' || isSystemDatabaseFile(entry)) continue;
     const fullPath = join(dir, entry);
     try {
       const s = await stat(fullPath);
@@ -125,6 +135,11 @@ export async function createDataFolder(name, description = '') {
 
 // Delete an empty data subfolder
 export async function deleteDataFolder(name) {
+  if (isSystemDatabaseFile(name)) {
+    const err = new Error('System database file cannot be deleted');
+    err.status = 400;
+    throw err;
+  }
   const folderPath = join(DATA_DIR, name);
   if (!existsSync(folderPath)) {
     const err = new Error('Folder not found');

@@ -5,12 +5,11 @@
 // 回退同步 message 端点。permission.asked → 自动放行/拒绝（fail-closed）。
 // 事件映射抽取为纯函数 mapOpenCodeEvent 供单测使用。
 
-import { spawn } from 'child_process';
 import { createServer } from 'net';
 import { EventEmitter } from 'events';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
-import { resolveCliBinary, killTree } from './cli-common.mjs';
+import { resolveCliBinary, spawnResolvedCli, killTree } from './cli-common.mjs';
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
@@ -109,11 +108,13 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   state.baseUrl = baseUrl;
 
   const binary = resolveCliBinary('opencode');
-  const proc = spawn(binary, ['serve', '--port', String(port), '--hostname', '127.0.0.1'], {
+  // spawnResolvedCli wraps Windows .cmd/.bat shims in `cmd.exe /d /s /c` — a
+  // raw spawn of the resolved .cmd shim throws EINVAL on Windows. It merges
+  // process.env itself and keeps windowsHide.
+  const proc = spawnResolvedCli(binary, ['serve', '--port', String(port), '--hostname', '127.0.0.1'], {
     cwd: PROJECT_ROOT,
-    env: { ...process.env, ...(engCfg.env || {}) },
-    stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true,
+    env: { ...(engCfg.env || {}) },
+    context: 'OpenCode',
   });
   state.proc = proc;
   let stderrTail = '';

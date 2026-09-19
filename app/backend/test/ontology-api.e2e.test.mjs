@@ -106,9 +106,26 @@ const workDir = mkdtempSync(join(tmpdir(), 'idd-onto-api-work-'));
 let csvPath;
 let runDir;
 
+// Test-owned namespace: a killed run leaves its pid-suffixed scenes behind, and
+// stale same-fingerprint scenes poison /recommend for every later run — so the
+// sweep removes the WHOLE prefix family, not just this run's two names. Staleness
+// guard (updated_at older than 1h): the suite files run in parallel, so a prefix
+// match alone would delete another live run's fixtures.
+const TEST_SCENE_PREFIXES = ['e2e_onto_api_', 'test_ontology_ctrl_'];
+const STALE_MS = 60 * 60 * 1000;
+
 async function cleanupScenes() {
-  for (const scene of [SCENE, CLONE]) {
-    await req('DELETE', `/api/ontology/scenes/${scene}`).catch(() => {});
+  const listing = await req('GET', '/api/ontology/assets');
+  const assets = listing.body?.data?.assets || [];
+  const names = new Set([SCENE, CLONE]);
+  for (const s of assets) {
+    const key = s.scene_key || s.scene || s.name;
+    if (!key || !TEST_SCENE_PREFIXES.some((p) => String(key).startsWith(p))) continue;
+    const updated = Date.parse(s.updated_at || '') || 0;
+    if (Date.now() - updated > STALE_MS) names.add(key);
+  }
+  for (const scene of names) {
+    await req('DELETE', `/api/ontology/scenes/${encodeURIComponent(scene)}`).catch(() => {});
   }
 }
 

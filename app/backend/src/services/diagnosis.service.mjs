@@ -130,7 +130,7 @@ let hitlSeq = 0;
 // Guard: prevent double execution of the same run
 const executingRuns = new Set();
 
-const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped']);
+const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped', 'expired']);
 const PAUSED_STATUSES = new Set(['awaiting_input']);
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
 
@@ -294,7 +294,9 @@ export function createDiagnosisRun(params) {
     dataPath: dataPathForDb,
     dataFolder,
     userQuestion: userQuestion || '',
-    model: effectiveModel || config.claude.model,
+    // Record only what the user actually chose (nullable) — a claude-specific
+    // default must never leak into non-claude engine rows.
+    model: effectiveModel,
     maxTurns: maxTurns ?? config.claude.max_turns,
     reportLanguage: reportLanguage || diagConfig.default_language,
     harness,
@@ -315,9 +317,41 @@ export function createDiagnosisRun(params) {
   return { runId, name, status: 'pending', mode, harness, ontologyHit: ontology.hit, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
 }
 
+// ── Zombie pending hygiene ──────────────────────────────────────────────
+// A run created via POST /start whose follow-up /execute never arrived would
+// sit in 'pending' forever. The frontend always executes immediately after
+// start, so a pending run older than this horizon is definitionally orphaned.
+// listRuns() lazily flips such rows to 'expired' — running / awaiting_input /
+// completed / failed / stopped rows are never touched.
+const PENDING_EXPIRY_MS = 24 * 60 * 60 * 1000;
+
+/** True when a run row is a stale pending older than the expiry horizon. */
+export function isStalePendingRun(run, now = Date.now()) {
+  if (!run || run.status !== 'pending' || !run.created_at) return false;
+  // SQLite datetime('now') stores 'YYYY-MM-DD HH:MM:SS' in UTC.
+  const createdMs = Date.parse(`${String(run.created_at).replace(' ', 'T')}Z`);
+  return Number.isFinite(createdMs) && now - createdMs >= PENDING_EXPIRY_MS;
+}
+
+function expireStalePendingRuns(runs) {
+  for (const run of runs) {
+    if (!isStalePendingRun(run)) continue;
+    try {
+      stmts.updateRunStatus.run({ runId: run.run_id, status: 'expired' });
+      // Keep the in-process engine view in sync so engineStatus cannot
+      // shadow the freshly expired DB status with a stale 'pending'.
+      updateStatus(run.run_id, 'expired');
+      run.status = 'expired';
+    } catch (e) {
+      logger.warn(`Failed to expire stale pending run ${run.run_id}: ${e.message}`, { context: 'Diagnosis' });
+    }
+  }
+}
+
 // List all runs enriched with engine status
 export function listRuns() {
   const runs = stmts.getAllRuns.all();
+  expireStalePendingRuns(runs);
   return runs.map(r => ({
     ...r,
     engineStatus: getStatus(r.run_id) || r.status,
@@ -739,7 +773,9 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       sessionId,
       ontology: meta.ontology || null,
       enhancement: meta.enhancement || null,
-      model: meta.model || run.model || null,
+      // Forward ONLY an explicitly selected model — run.model is display data
+      // (may hold a legacy claude default) and must not reach other engines.
+      model: meta.model || null,
       permissionMode: meta.permissionMode || null,
     });
 
@@ -892,22 +928,39 @@ async function executeDiagnosis(runId, run, isRetry = false) {
           }
           if (parsed.subtype === 'success') {
             questionSessions.delete(runId);
-            updateStatus(runId, 'completed');
-            stmts.completeRun.run({
-              runId,
-              workspacePath,
-              reportPath,
-              score: score ?? null,
-              judgeVerdict: verdict ?? null,
-            });
-            emit(runId, {
-              type: 'status',
-              data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
-            });
-            emit(runId, {
-              type: 'complete',
-              data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
-            });
+            // False-success guard: an engine can end cleanly (end_turn) while
+            // the pipeline stalled before writing report.md. Success without
+            // a report (and without a prior report on this run) is a failure.
+            if (!reportPath && !run.report_path) {
+              const error = 'Agent ended without producing report.md (pipeline incomplete at end_turn) — marked failed to prevent false success';
+              updateStatus(runId, 'failed');
+              stmts.failRun.run({ runId, error });
+              emit(runId, {
+                type: 'status',
+                data: { status: 'failed', runId, error },
+              });
+              emit(runId, {
+                type: 'complete',
+                data: { status: 'failed', runId, error },
+              });
+            } else {
+              updateStatus(runId, 'completed');
+              stmts.completeRun.run({
+                runId,
+                workspacePath,
+                reportPath,
+                score: score ?? null,
+                judgeVerdict: verdict ?? null,
+              });
+              emit(runId, {
+                type: 'status',
+                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+              });
+              emit(runId, {
+                type: 'complete',
+                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+              });
+            }
           } else {
             questionSessions.delete(runId);
             const error = `Query stopped: ${parsed.stop_reason || parsed.subtype}`;

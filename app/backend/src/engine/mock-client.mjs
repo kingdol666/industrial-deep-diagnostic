@@ -8,6 +8,8 @@
 // tool_use/tool_result 对 → result success），并写入最小 report.md 使完成
 // 路径的 workspace/report 关联与分数解析被真实执行。
 // 触发失败剧本: userQuestion 含 "mock:fail" → result error（测试错误路径）。
+// 触发无报告剧本: userQuestion 含 "mock:noreport" → result success 但不写
+// report.md（测试完成层的 false-success 防护：成功必须有报告）。
 
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -62,6 +64,7 @@ function createMockQuery({ runId, sceneName, userQuestion, reportLanguage, isRes
   const sessionId = `mock:run:${runId}`;
   const zh = (reportLanguage || config.diagnosis.default_language) === 'zh';
   const shouldFail = /mock:fail/i.test(userQuestion || '');
+  const shouldSkipReport = /mock:noreport/i.test(userQuestion || '');
 
   const push = (msg) => { queue.push(msg); if (wake) { wake(); wake = null; } };
 
@@ -77,8 +80,11 @@ function createMockQuery({ runId, sceneName, userQuestion, reportLanguage, isRes
 
     let runDir = null;
     if (!isResume) {
+      // The run dir is always created (newest unclaimed dir → deterministic
+      // run-dir linking); with mock:noreport it stays empty so the completion
+      // layer sees a success result without report.md.
       runDir = mockRunDir(sceneName);
-      writeMockReport(runDir, sceneName);
+      if (!shouldSkipReport) writeMockReport(runDir, sceneName);
       push({ type: 'system', subtype: 'run_dir', data: { runDir: runDir.replace(/\\/g, '/') } });
     }
 

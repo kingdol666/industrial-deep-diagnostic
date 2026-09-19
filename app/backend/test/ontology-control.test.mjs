@@ -74,10 +74,29 @@ function deepMerge(a, b) {
   return b === undefined ? a : b;
 }
 
+// Test-owned namespaces: a killed run leaves its pid-suffixed scenes behind and
+// stale same-fingerprint scenes poison findMatch for every later run — sweep the
+// whole prefix family, not just this run's names. Staleness guard (updated_at
+// older than 1h): the suite files run in parallel, so a prefix match alone would
+// delete another live run's fixtures.
+const TEST_SCENE_PREFIXES = ['test_ontology_ctrl_', 'e2e_onto_api_'];
+const STALE_MS = 60 * 60 * 1000;
+
 function cleanup() {
   for (const scene of [TEST_SCENE, CLONE_SCENE]) {
     try { store.removeScene(scene); } catch { /* not present */ }
   }
+  try {
+    const idx = store.readIndex();
+    for (const e of idx.entries || []) {
+      const key = e.scene_key || e.scene;
+      if (!key || !TEST_SCENE_PREFIXES.some((p) => String(key).startsWith(p))) continue;
+      const updated = Date.parse(e.updated_at || '') || 0;
+      if (Date.now() - updated > STALE_MS) {
+        try { store.removeScene(key); } catch { /* already gone */ }
+      }
+    }
+  } catch { /* index not written yet */ }
 }
 
 before(() => cleanup());

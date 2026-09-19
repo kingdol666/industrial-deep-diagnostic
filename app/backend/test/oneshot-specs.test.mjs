@@ -15,11 +15,20 @@ const SPEC_BY_ID = {
 };
 
 describe('one-shot engine specs — argv discipline (勿信文档，逐引擎探针固化)', () => {
-  test('gemini: stream-json + stdin prompt, resume via --resume <sid>', () => {
+  test('gemini: stream-json + stdin prompt, --prompt always carries a value, no --resume (CLI >=0.60)', () => {
     const s = SPEC_BY_ID.gemini;
     assert.equal(s.promptDelivery, 'stdin');
-    assert.deepEqual(s.buildArgs({}), ['--output-format', 'stream-json', '-p']);
-    assert.deepEqual(s.buildArgs({ resumeSessionId: 'abc' }), ['--output-format', 'stream-json', '-p', '--resume', 'abc']);
+    const args = s.buildArgs({});
+    // gemini CLI >=0.60: bare `-p` + stdin dies in yargs parsing — the flag
+    // must always carry a (possibly empty) value while the free-text prompt
+    // stays on stdin (argv must remain quote-free for spawnResolvedCli).
+    assert.deepEqual(args, ['--output-format', 'stream-json', '--prompt', '']);
+    const pAt = args.indexOf('--prompt');
+    assert.ok(pAt >= 0 && pAt + 1 < args.length, 'buildArgs must never emit a bare -p/--prompt');
+    // `--resume` is gone in CLI >=0.60 — never emitted, even for resume ids.
+    assert.deepEqual(s.buildArgs({ resumeSessionId: 'abc' }), args);
+    // per-session resume needs --session-file <path> — sessions non-resumable
+    assert.equal(s.parseSessionId('gemini:abc').resumable, false);
   });
 
   test('copilot: json output, no resume (GitHub 账号锁定)', () => {
