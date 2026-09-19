@@ -12,7 +12,7 @@ import { spawn } from 'child_process';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync } from 'fs';
-import { nodeCmd, npxCmd, npmCmd, isWindows, killProcess, gracefulKill, onShutdown } from './cross-platform.mjs';
+import { nodeCmd, npxCmd, npmCmd, isWindows, killProcess, gracefulKill, onShutdown, freePort } from './cross-platform.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -77,6 +77,18 @@ function ensureDirectories() {
 
 // ─── Starters ──────────────────────────────────────────────
 
+// Force-start on the expected port: evict whatever holds it (previous
+// instance, orphan, or third-party process) before spawning (覆盖启动).
+// freePort judges occupancy via the netstat LISTENING list — a bind probe
+// would miss wildcard 0.0.0.0 listeners on Windows.
+async function ensurePortFree(port, name) {
+  const freed = await freePort(port, { label: `${name} port ${port}` });
+  if (!freed) {
+    console.error(`  [ERROR] ${name} port ${port} still in use after eviction — aborting.`);
+    process.exit(1);
+  }
+}
+
 function startBackend() {
   const child = spawn(nodeCmd(), ['src/index.mjs'], {
     cwd: BACKEND_DIR,
@@ -90,7 +102,7 @@ function startBackend() {
 }
 
 function startFrontend() {
-  const child = spawn(npxCmd(), ['vite', '--host'], {
+  const child = spawn(npxCmd(), ['vite', '--host', '--port', String(FRONTEND_PORT), '--strictPort'], {
     cwd: FRONTEND_DIR,
     stdio: 'inherit',
     shell: isWindows,
@@ -110,6 +122,8 @@ async function cmdAll() {
 
   await installDeps(BACKEND_DIR, 'backend');
   await installDeps(FRONTEND_DIR, 'frontend');
+  await ensurePortFree(BACKEND_PORT, 'Backend');
+  await ensurePortFree(FRONTEND_PORT, 'Frontend');
 
   console.log('');
   console.log(`  Backend:  http://localhost:${BACKEND_PORT}`);
@@ -151,6 +165,7 @@ async function cmdBackend() {
   console.log('  Press Ctrl+C to stop');
   console.log('');
 
+  await ensurePortFree(BACKEND_PORT, 'Backend');
   const backend = startBackend();
 
   onShutdown(() => {
@@ -174,6 +189,7 @@ async function cmdFrontend() {
   console.log('  Press Ctrl+C to stop');
   console.log('');
 
+  await ensurePortFree(FRONTEND_PORT, 'Frontend');
   const frontend = startFrontend();
 
   onShutdown(() => {

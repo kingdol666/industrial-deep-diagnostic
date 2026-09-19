@@ -97,50 +97,79 @@ export function isPortFree(port) {
 }
 
 /**
- * Find and kill process(es) occupying a port.
- * Cross-platform: uses netstat + taskkill on Windows, lsof + kill on Unix.
+ * List PIDs of processes LISTENING on a TCP port — exact port match
+ * (local address ending in ":port"), IPv4 and IPv6 alike. Never matches
+ * remote-address columns or other ports that merely contain the digits.
  */
-export function killPortProcess(port) {
+export function getPortListenerPids(port) {
   try {
     if (isWindows) {
-      // Windows: netstat -ano | findstr :PORT
-      const output = execSync(`netstat -ano | findstr :${port}`, {
-        encoding: 'utf-8',
-        timeout: 5000,
-      });
-      const lines = output.split(/\r?\n/).filter(Boolean);
+      // Plain `netstat -ano` — `-p tcp` would list IPv4 TCP only and miss
+      // IPv6 listeners like `[::1]:5180` (vite's default bind).
+      const out = execSync('netstat -ano', { encoding: 'utf-8', timeout: 8000 });
       const pids = new Set();
-      for (const line of lines) {
-        const match = line.trim().match(/(\d+)\s*$/);
-        if (match) {
-          const pid = parseInt(match[1], 10);
-          if (pid > 0 && pid !== process.pid) pids.add(pid);
+      for (const line of out.split(/\r?\n/)) {
+        const cols = line.trim().split(/\s+/);
+        // TCP  0.0.0.0:3210  0.0.0.0:0  LISTENING  1234   (IPv6 rows too)
+        if (cols.length >= 5 && cols[0] === 'TCP' && /^LISTENING$/i.test(cols[3])
+            && cols[1].endsWith(`:${port}`)) {
+          const pid = parseInt(cols[4], 10);
+          if (Number.isInteger(pid) && pid > 0 && pid !== process.pid) pids.add(pid);
         }
       }
-      for (const pid of pids) {
-        try {
-          execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore', timeout: 5000 });
-        } catch {}
-      }
+      return [...pids];
+    }
+    const out = execSync(`lsof -ti tcp:${port} -sTCP:LISTEN`, { encoding: 'utf-8', timeout: 8000 });
+    return out.split(/\r?\n/)
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((p) => Number.isInteger(p) && p > 0 && p !== process.pid);
+  } catch {
+    return []; // netstat/lsof unavailable or no match — treat as no listeners
+  }
+}
+
+/**
+ * Force-kill a process and its whole process tree.
+ */
+export function killProcessTree(pid) {
+  try {
+    if (isWindows) {
+      execSync(`taskkill /F /T /PID ${pid}`, { stdio: 'ignore', timeout: 8000 });
     } else {
-      // Unix: lsof -ti:PORT | xargs kill -9
-      try {
-        const pids = execSync(`lsof -ti:${port}`, { encoding: 'utf-8', timeout: 5000 })
-          .trim()
-          .split('\n')
-          .filter(Boolean)
-          .map(p => parseInt(p.trim(), 10))
-          .filter(p => p > 0 && p !== process.pid);
-        for (const pid of pids) {
-          try { process.kill(pid, 'SIGKILL'); } catch {}
-        }
-      } catch {
-        // lsof returns non-zero when no process found — that's fine
-      }
+      process.kill(pid, 'SIGKILL');
     }
   } catch {
-    // netstat/findstr may fail if port is free — that's fine
+    // Process may already be dead
   }
+}
+
+/**
+ * Force-free a port: kill every LISTENING occupant (process tree included),
+ * then wait for the OS to release it (up to ~10s). The netstat listener list
+ * is the source of truth for occupancy — a bind probe cannot be used here,
+ * because on Windows a wildcard 0.0.0.0:P listener does NOT conflict with a
+ * 127.0.0.1:P bind, so a probe can wrongly report an occupied port as free.
+ * Returns true when no listener remains on the port.
+ */
+export async function freePort(port, { label = `port ${port}` } = {}) {
+  const listeners = getPortListenerPids(port);
+  if (listeners.length === 0) return true;
+  console.log(`  [FORCE] ${label} held by PID ${listeners.join(', ')} — evicting...`);
+  for (const pid of listeners) killProcessTree(pid);
+  for (let i = 0; i < 20; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    if (getPortListenerPids(port).length === 0) return true;
+  }
+  return false;
+}
+
+/**
+ * Find and kill process(es) occupying a port.
+ * Cross-platform: uses netstat + taskkill on Windows, lsof + kill on Unix.
+ * (Legacy entry — now delegates to the exact-match implementation.)
+ */
+export async function killPortProcess(port) {
+  for (const pid of getPortListenerPids(port)) killProcessTree(pid);
 }
 
 // ─── Process Management ──────────────────────────────────────

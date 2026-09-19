@@ -21,6 +21,7 @@ import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync, createWriteStream, openSync, closeSync } from 'fs';
 import { createServer } from 'net';
+import { freePort, getPortListenerPids, killProcessTree } from './cross-platform.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -56,7 +57,7 @@ const SERVICES = {
     // the spawned PID is the real server process on every platform — npx on
     // Windows spawns cmd.exe shims whose PID dies with the console.
     startCmd: 'node',
-    startArgs: [join(PROJECT_ROOT, 'app', 'frontend', 'node_modules', 'vite', 'bin', 'vite.js'), '--port', '5180'],
+    startArgs: [join(PROJECT_ROOT, 'app', 'frontend', 'node_modules', 'vite', 'bin', 'vite.js'), '--port', '5180', '--strictPort'],
     env: { FRONTEND_PORT: '5180' },
     healthPath: '/',
     pidFile: join(RUNTIME_DIR, 'frontend.pid'),
@@ -134,13 +135,18 @@ function checkPort(port) {
 }
 
 async function checkHealth(port, path = '/') {
-  try {
-    const url = `http://127.0.0.1:${port}${path}`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-    return res.ok ? 'healthy' : 'unhealthy';
-  } catch {
-    return 'not_reachable';
+  // Probe both stacks — vite by default binds only the IPv6 loopback (::1),
+  // while other services bind IPv4; an IPv4-only probe would misread a
+  // healthy vite as dead (and kill it after the start timeout).
+  let sawResponse = false;
+  for (const host of ['127.0.0.1', '[::1]']) {
+    try {
+      const res = await fetch(`http://${host}:${port}${path}`, { signal: AbortSignal.timeout(3000) });
+      if (res.ok) return 'healthy';
+      sawResponse = true;
+    } catch { /* unreachable on this stack — try the next */ }
   }
+  return sawResponse ? 'unhealthy' : 'not_reachable';
 }
 
 // ─── Start Service ────────────────────────────────────────
@@ -149,31 +155,17 @@ async function startService(key, { detach = false } = {}) {
   const svc = SERVICES[key];
   if (!svc) throw new Error(`Unknown service: ${key}`);
 
-  // Check if already running
-  const existingPid = readPid(svc.pidFile);
-  if (existingPid && isProcessAlive(existingPid)) {
-    return { service: key, status: 'already_running', pid: existingPid };
+  // Force-start on the service's FIXED port: whatever holds the port — a
+  // previous managed instance, an orphan from an older run, or any
+  // third-party process — is evicted (process tree killed) so the new
+  // instance always comes up on the expected port (覆盖启动). Occupancy is
+  // judged by the netstat LISTENING list: a bind probe would miss wildcard
+  // 0.0.0.0 listeners, which don't conflict with a 127.0.0.1 probe on Windows.
+  if (getPortListenerPids(svc.port).length > 0) {
+    const freed = await freePort(svc.port, { label: `${svc.name} port ${svc.port}` });
+    if (!freed) return { service: key, status: 'port_blocked', port: svc.port };
   }
-
-  // Check port
-  const portFree = await checkPort(svc.port);
-  if (!portFree) {
-    // Try to kill the port occupant
-    const { execSync } = await import('child_process');
-    try {
-      if (IS_WIN) {
-        execSync(`netstat -ano | findstr :${svc.port}`, { encoding: 'utf-8' });
-        const lines = execSync(`netstat -ano | findstr :${svc.port}`, { encoding: 'utf-8' }).trim().split('\n');
-        for (const line of lines) {
-          const pid = line.trim().split(/\s+/).pop();
-          if (pid && pid !== '0') execSync(`taskkill /F /PID ${pid} 2>nul`, { encoding: 'utf-8' });
-        }
-      }
-      await new Promise(r => setTimeout(r, 1000));
-    } catch { /* port was actually free or cleanup failed */ }
-    const stillBlocked = !(await checkPort(svc.port));
-    if (stillBlocked) return { service: key, status: 'port_blocked', port: svc.port };
-  }
+  removePid(svc.pidFile);
 
   // Ensure node_modules exist (skip RAG which has its own venv via start.mjs)
   if (key !== 'rag' && !existsSync(join(svc.dir, 'node_modules'))) {
@@ -294,21 +286,10 @@ async function stopService(key) {
 
   removePid(svc.pidFile);
 
-  // Also try port-based killing (belt and suspenders)
-  const portFree = await checkPort(svc.port);
-  if (!portFree) {
-    const { execSync } = await import('child_process');
-    try {
-      if (IS_WIN) {
-        const lines = execSync(`netstat -ano | findstr :${svc.port}`, { encoding: 'utf-8' }).trim().split('\n');
-        for (const line of lines) {
-          const pid = line.trim().split(/\s+/).pop();
-          if (pid && pid !== '0') execSync(`taskkill /F /PID ${pid} 2>nul`, { encoding: 'utf-8' });
-        }
-      } else {
-        execSync(`lsof -ti :${svc.port} | xargs kill -9 2>/dev/null`, { encoding: 'utf-8' });
-      }
-    } catch { /* cleanup was fine */ }
+  // Also try port-based killing (belt and suspenders) — exact LISTENING
+  // match so unrelated client connections on this port are never killed.
+  for (const pid of getPortListenerPids(svc.port)) {
+    killProcessTree(pid);
   }
 
   return { service: key, status: 'stopped' };
@@ -374,7 +355,7 @@ async function main() {
         const r = await startService(key, { detach });
         results[key] = r;
         if (!jsonOutput) {
-          console.log(r.status === 'running' || r.status === 'already_running'
+          console.log(r.status === 'running'
             ? `\x1b[32mOK\x1b[0m (${r.status})`
             : `\x1b[31m${r.status}\x1b[0m`);
         }
