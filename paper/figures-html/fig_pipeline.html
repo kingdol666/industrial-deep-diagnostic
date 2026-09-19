@@ -2,48 +2,48 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:960px; padding:24px 26px; }
+  body { width:1500px; height:1640px; padding:30px 34px; }
   .strip { position:relative; }
-  .s1 { height:64px; } .s2 { height:66px; } .s3 { height:64px; }
+  .s1 { height:170px; } .s2 { height:90px; } .s3 { height:120px; }
   .row { display:flex; justify-content:space-between; align-items:stretch; }
-  .r1 { height:340px; } .r2 { height:264px; }
+  .r1 { height:600px; } .r2 { height:400px; }
   .box { border:1px solid #c6d0d9; border-radius:8px; background:#fbfcfd; padding:11px 12px 10px;
          display:flex; flex-direction:column; text-align:left; }
   .b { width:268px; }
-  .box .t { font-size:24px; font-weight:800; line-height:1.3; }
+  .box .t { font-size:35px; font-weight:800; line-height:1.3; }
   .box .t .st { color:var(--blue); }
-  .box .d { font-size:23px; color:var(--sub); margin-top:6px; line-height:1.35; }
-  .box .x { font-size:22px; color:#6a7683; margin-top:6px; line-height:1.35; }
+  .box .d { font-size:33px; color:var(--sub); margin-top:6px; line-height:1.35; }
+  .box .x { font-size:32px; color:#6a7683; margin-top:6px; line-height:1.35; }
   .gate { margin-top:auto; align-self:flex-start; padding:3px 10px; border-radius:12px;
-          background:#e7f0f8; color:var(--blue); font-size:22px; font-weight:700; }
+          background:#e7f0f8; color:var(--blue); font-size:32px; font-weight:700; }
   .gate.g { background:#e2f2ec; color:#0a7d38; }
   .harr { align-self:center; flex:0 0 22px; display:flex; justify-content:center; }
   .pair { width:292px; display:flex; flex-direction:column; }
   .prow { display:flex; gap:7px; align-items:center; justify-content:center; margin-bottom:6px; }
-  .ptxt { font-size:22px; color:#6a7683; }
-  .tag { display:inline-block; padding:1px 9px; border-radius:12px; font-size:22px; font-weight:700;
+  .ptxt { font-size:32px; color:#6a7683; }
+  .tag { display:inline-block; padding:1px 9px; border-radius:12px; font-size:32px; font-weight:700;
          background:#fdeee0; color:#a34a00; }
   .pboxes { display:flex; gap:8px; flex:1; }
   .pbox { flex:1; border:1px solid #c6d0d9; border-radius:8px; background:#fff; padding:8px 4px; text-align:center; }
-  .pbox .pt { font-size:23px; font-weight:800; color:var(--blue); }
-  .pbox .pn2 { font-size:23px; font-weight:700; margin-top:2px; }
-  .pbox .pag { font-size:21px; color:var(--sub); margin-top:4px; }
+  .pbox .pt { font-size:33px; font-weight:800; color:var(--blue); }
+  .pbox .pn2 { font-size:33px; font-weight:700; margin-top:2px; }
+  .pbox .pag { font-size:30px; color:var(--sub); margin-top:4px; }
   .pbrk { height:9px; border-left:1.5px solid #c6d0d9; border-right:1.5px solid #c6d0d9;
           border-bottom:1.5px solid #c6d0d9; border-radius:0 0 6px 6px; margin:4px 62px 0; }
-  .pgate { margin-top:7px; background:#e7f0f8; color:var(--blue); border-radius:12px; font-size:21px;
+  .pgate { margin-top:7px; background:#e7f0f8; color:var(--blue); border-radius:12px; font-size:30px;
            font-weight:700; text-align:center; padding:4px 6px; line-height:1.35; }
   .arc1 { position:absolute; bottom:0; height:32px; border:2px dashed var(--orange);
           border-bottom:none; border-radius:16px 16px 0 0; }
   .ah1 { position:absolute; bottom:-1px; width:0; height:0; border-left:6px solid transparent;
          border-right:6px solid transparent; border-top:9px solid var(--orange); }
-  .albl1 { position:absolute; top:8px; text-align:right; font-size:22px; color:#a35c17; }
+  .albl1 { position:absolute; top:10px; text-align:right; font-size:32px; color:#a35c17; }
   .varr { position:absolute; top:11px; }
-  .arc2 { position:absolute; top:0; height:32px; border:2px dashed var(--orange);
+  .arc2 { position:absolute; top:0; height:40px; border:2px dashed var(--orange);
           border-top:none; border-radius:0 0 16px 16px; }
   .ah2 { position:absolute; top:-1px; width:0; height:0; border-left:6px solid transparent;
          border-right:6px solid transparent; border-bottom:9px solid var(--orange); }
-  .albl2 { position:absolute; top:9px; text-align:center; font-size:22px; color:#a35c17; }
-  .fnote { margin-top:14px; background:#f0f3f6; border-radius:6px; padding:10px 15px; font-size:22px;
+  .albl2 { position:absolute; top:52px; text-align:center; font-size:32px; color:#a35c17; }
+  .fnote { margin-top:20px; background:#f0f3f6; border-radius:6px; padding:10px 15px; font-size:32px;
            color:var(--ink); line-height:1.5; }
 </style></head><body>
 
@@ -83,7 +83,7 @@
       <div class="prow"><span class="tag">PARALLEL</span></div>
       <div class="pboxes">
         <div class="pbox"><div class="pt">Step 5a</div><div class="pn2">Judge</div><div class="pag">judge</div></div>
-        <div class="pbox"><div class="pt">Step 5b</div><div class="pn2">Pre-audit</div><div class="pag" style="white-space:nowrap; font-size:19px;">report-reviewer</div></div>
+        <div class="pbox"><div class="pt">Step 5b</div><div class="pn2">Pre-audit</div><div class="pag">report-reviewer</div></div>
       </div>
       <div class="pbrk"></div>
       <div class="pgate">CP-6 ✓</div>

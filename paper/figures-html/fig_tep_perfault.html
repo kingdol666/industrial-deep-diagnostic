@@ -2,28 +2,28 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:1580px; padding:20px 26px 24px; }
-  .panel-label { margin-bottom:10px; font-size:24px; }
-  table.m { border-collapse:collapse; width:1448px; font-size:22px; line-height:1.3; }
-  table.m th, table.m td { border:1px solid var(--grid); padding:8px 12px; text-align:center; }
-  table.m th { background:var(--panel); }
+  body { width:1160px; height:1548px; padding:20px 26px 24px; }
+  .panel-label { margin-bottom:6px; font-size:25px; }
+  table.m { border-collapse:collapse; width:1108px; font-size:25px; line-height:1.08; }
+  table.m th, table.m td { border:1px solid var(--grid); padding:3px 8px; text-align:center; }
+  table.m th { background:var(--panel); font-size:25px; }
   table.m td.l { text-align:left; }
   .ok { color:var(--green); font-weight:700; } .bad { color:var(--vermilion); font-weight:700; } .na { color:var(--gray); }
   .iddet { background:#0072b2; font-weight:700; color:#ffffff; }
   .iddcs { background:#fdf4e7; font-weight:700; color:#a35c17; }
-  .note { margin-top:14px; font-size:24px; color:var(--sub); line-height:1.55; width:1448px; }
-  .key { margin-top:10px; font-size:24px; color:var(--ink); line-height:1.5; }
+  .note { margin-top:8px; font-size:25px; color:var(--sub); line-height:1.35; width:1108px; }
+  .key { margin-top:6px; font-size:25px; color:var(--ink); line-height:1.3; }
   .sw { display:inline-block; width:16px; height:16px; border-radius:2px; vertical-align:-2px; margin-right:6px; }
 </style></head><body>
-  <div class="panel-label">Verification matrix — IDD (full-pipeline execution) vs FaultExplainer (arXiv:2412.14492, Table 1) with PCA detectability (Chiang et al., 2001)</div>
+  <div class="panel-label">Verification matrix — IDD (full-pipeline execution) vs FaultExplainer (arXiv:2412.14492, Table 1) with PCA detectability</div>
   <table class="m">
     <tr>
-      <th class="l" style="width:430px;">TEP fault (mechanism)</th>
-      <th style="width:150px;">FE GPT-4o</th>
-      <th style="width:150px;">FE o1-preview</th>
-      <th style="width:170px;">PCA detectable</th>
-      <th style="width:150px;">Candidates in prompt</th>
-      <th style="width:190px;">IDD verdict (conf.)</th>
+      <th class="l" style="width:175px;">TEP fault (mechanism)</th>
+      <th style="width:106px;">FE GPT-4o</th>
+      <th style="width:106px;">FE o1-preview</th>
+      <th style="width:70px;">PCA detectable</th>
+      <th style="width:70px;">Candidates in prompt</th>
+      <th style="width:165px;">IDD verdict (conf.)</th>
       <th class="l">IDD decisive evidence (run artifacts)</th>
     </tr>
     <tr>

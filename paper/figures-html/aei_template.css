@@ -34,13 +34,16 @@ body {
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
-.panel-label { font-weight: 700; font-size: 15px; color: var(--ink); }
+/* Base type sizes: every figure canvas is scaled to \textwidth (343.7pt) at print,
+   so the smallest legible size is ~6.5pt -> min 29px at the largest canvas (1500px).
+   Individual figures override these per their own canvas width. */
+.panel-label { font-weight: 700; font-size: 29px; color: var(--ink); }
 .sub { color: var(--sub); }
 .axis { stroke: var(--line); stroke-width: 1.5; }
 .gridline { stroke: var(--grid); stroke-width: 1; }
-.ticklabel { font-size: 12px; fill: var(--sub); }
-.axlabel { font-size: 13px; fill: var(--ink); }
-.datalabel { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.ticklabel { font-size: 29px; fill: var(--sub); }
+.axlabel { font-size: 29px; fill: var(--ink); }
+.datalabel { font-size: 29px; font-weight: 700; fill: var(--ink); }
 .ok { color: #0a7d38; font-weight: 700; }
 .bad { color: var(--vermilion); font-weight: 700; }
 .na { color: var(--gray); }

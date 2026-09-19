@@ -2,17 +2,17 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:900px; padding:20px 26px 30px; }
-  .wrap { display:flex; gap:36px; }
+  body { width:1160px; height:1050px; padding:20px 26px 30px; }
+  .wrap { display:flex; gap:24px; }
   .panel-label { margin-bottom:8px; font-size:24px; }
-  table.aei { font-size:22px; width:700px; }
+  table.aei { font-size:22px; width:540px; }
   table.aei td:nth-child(2), table.aei th:nth-child(2),
   table.aei td:nth-child(3), table.aei th:nth-child(3) { text-align:center; }
   .barrow { display:flex; align-items:center; margin:7px 0; }
   .track { flex:1; background:#eef1f4; border-radius:3px; height:24px; position:relative; display:flex; }
   .fill { height:24px; background:var(--blue); }
   .fill.sky { background-color:#56b4e9; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(25,25,25,0.45) 3px 4.5px); }
-  .barval { position:absolute; right:-56px; top:-2px; font-size:26px; font-weight:700; color:var(--ink); width:56px; }
+  .barval { position:absolute; right:-50px; top:-2px; font-size:26px; font-weight:700; color:var(--ink); width:56px; }
   .legend { font-size:24px; color:var(--sub); margin:12px 0 16px; line-height:1.55; }
   .sw { display:inline-block; width:15px; height:15px; border-radius:2px; vertical-align:-2px; margin-right:6px; }
   .sw.sky { background-color:#56b4e9; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(25,25,25,0.45) 3px 4.5px); }
@@ -26,10 +26,10 @@
   .axlabel { font-size:24px; }
 </style></head><body>
   <div class="wrap">
-    <div style="width:720px;">
+    <div style="width:560px;">
       <div class="panel-label">(a) Fault outcomes by dataset</div>
       <table class="aei">
-        <tr><th>Dataset</th><th>Fault</th><th>Control</th><th style="width:300px;">Outcome (faults)</th></tr>
+        <tr><th>Dataset</th><th>Fault</th><th>Control</th><th style="width:160px;">Outcome (faults)</th></tr>
         <tr><td>SKAB</td><td>2</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill sky" style="width:33.3%"></div><span class="barval">0/2</span></div></div></td></tr>
         <tr><td>TEP</td><td>6</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill" style="width:50%"></div><div class="fill sky" style="width:50%"></div><span class="barval">3/6</span></div></div></td></tr>
         <tr><td>IndPenSim</td><td>1</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill" style="width:16.7%"></div><span class="barval">1/1</span></div></div></td></tr>
@@ -50,46 +50,46 @@
     </div>
     <div class="side">
       <div class="panel-label">(b) Rubric vs. judge gate per scenario</div>
-      <svg width="718" height="378" viewBox="0 0 718 378">
+      <svg width="524" height="378" viewBox="0 0 524 378">
         <line class="axis" x1="330" y1="8" x2="330" y2="330"/>
-        <line class="axis" x1="330" y1="330" x2="700" y2="330"/>
+        <line class="axis" x1="330" y1="330" x2="496.5" y2="330"/>
         <g class="gridline">
-          <line x1="422.5" y1="8" x2="422.5" y2="330"/><line x1="515" y1="8" x2="515" y2="330"/>
-          <line x1="607.5" y1="8" x2="607.5" y2="330"/><line x1="700" y1="8" x2="700" y2="330"/>
+          <line x1="371.5" y1="8" x2="371.5" y2="330"/><line x1="413.2" y1="8" x2="413.2" y2="330"/>
+          <line x1="454.9" y1="8" x2="454.9" y2="330"/><line x1="496.5" y1="8" x2="496.5" y2="330"/>
         </g>
         <g class="ticklabel" text-anchor="middle">
-          <text x="330" y="348">60</text><text x="422.5" y="348">70</text><text x="515" y="348">80</text>
-          <text x="607.5" y="348">90</text><text x="700" y="348">100</text>
+          <text x="330" y="348">60</text><text x="371.5" y="348">70</text><text x="413.2" y="348">80</text>
+          <text x="454.9" y="348">90</text><text x="496.5" y="348">100</text>
         </g>
-        <text class="axlabel" x="515" y="372" text-anchor="middle">Score (points)</text>
-        <line x1="607.5" y1="8" x2="607.5" y2="330" stroke="#b9c2cc" stroke-width="1" stroke-dasharray="2,4"/>
-        <text class="ticklabel" x="607.5" y="17" text-anchor="middle" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">gate 90</text>
+        <text class="axlabel" x="413" y="372" text-anchor="middle">Score (points)</text>
+        <line x1="454.9" y1="8" x2="454.9" y2="330" stroke="#b9c2cc" stroke-width="1" stroke-dasharray="2,4"/>
+        <text class="ticklabel" x="454.9" y="17" text-anchor="middle" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">gate 90</text>
 
         <!-- rows y = 18 + i*27 ; x(85)=561.25 x(95)=653.75 x(100)=700 x(90)=607.5 x(97)=672.25 x(96)=663 x(65)=376.25 x(94)=644.5 x(93)=635.25 x(98)=681.5 -->
         <text class="ticklabel" x="322" y="22" text-anchor="end" fill="#1a1a1a">SKAB inlet-valve throttling</text>
-        <circle cx="561.25" cy="18" r="4.5" fill="#0072b2"/><circle cx="653.75" cy="18" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="434.1" cy="18" r="4.5" fill="#0072b2"/><circle cx="475.6" cy="18" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="49" text-anchor="end" fill="#1a1a1a">SKAB cavitation (blind)</text>
-        <circle cx="700" cy="45" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="45" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="45" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="45" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="76" text-anchor="end" fill="#1a1a1a">Control: SKAB anomaly-free</text>
-        <circle cx="700" cy="72" r="4.5" fill="#8f8f8f"/><circle cx="672.25" cy="72" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
+        <circle cx="496.5" cy="72" r="4.5" fill="#8f8f8f"/><circle cx="484.1" cy="72" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="103" text-anchor="end" fill="#1a1a1a">TEP IDV1 feed-ratio step</text>
-        <circle cx="561.25" cy="99" r="4.5" fill="#0072b2"/><circle cx="663" cy="99" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="434.1" cy="99" r="4.5" fill="#0072b2"/><circle cx="479.0" cy="99" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="130" text-anchor="end" fill="#1a1a1a">TEP IDV3 D-feed temp. (hard)</text>
-        <circle cx="700" cy="126" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="126" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="126" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="126" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="157" text-anchor="end" fill="#1a1a1a">Control: TEP fault-free</text>
-        <circle cx="700" cy="153" r="4.5" fill="#8f8f8f"/><circle cx="663" cy="153" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
+        <circle cx="496.5" cy="153" r="4.5" fill="#8f8f8f"/><circle cx="479.0" cy="153" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="184" text-anchor="end" fill="#1a1a1a">IndPenSim batch-93 deviation</text>
-        <circle cx="700" cy="180" r="4.5" fill="#0072b2"/><circle cx="663" cy="180" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="180" r="4.5" fill="#0072b2"/><circle cx="479.0" cy="180" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="211" text-anchor="end" fill="#1a1a1a">Control: IndPenSim batch-1</text>
-        <circle cx="376.25" cy="207" r="4.5" fill="#8f8f8f"/><circle cx="644.5" cy="207" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
+        <circle cx="350.7" cy="207" r="4.5" fill="#8f8f8f"/><circle cx="471.9" cy="207" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="238" text-anchor="end" fill="#1a1a1a">TEP IDV4 cooling step</text>
-        <circle cx="700" cy="234" r="4.5" fill="#0072b2"/><circle cx="672.25" cy="234" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="234" r="4.5" fill="#0072b2"/><circle cx="484.1" cy="234" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="265" text-anchor="end" fill="#1a1a1a">TEP IDV7 C-header pressure</text>
-        <circle cx="700" cy="261" r="4.5" fill="#0072b2"/><circle cx="681.5" cy="261" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="261" r="4.5" fill="#0072b2"/><circle cx="488.5" cy="261" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="292" text-anchor="end" fill="#1a1a1a">TEP IDV11 cooling random</text>
-        <circle cx="700" cy="288" r="4.5" fill="#0072b2"/><circle cx="635.25" cy="288" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="288" r="4.5" fill="#0072b2"/><circle cx="467.7" cy="288" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
         <text class="ticklabel" x="322" y="319" text-anchor="end" fill="#1a1a1a">TEP IDV14 valve stiction</text>
-        <circle cx="700" cy="315" r="4.5" fill="#0072b2"/><circle cx="644.5" cy="315" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
+        <circle cx="496.5" cy="315" r="4.5" fill="#0072b2"/><circle cx="471.9" cy="315" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
       </svg>
       <div class="legend"><span class="sw" style="background:var(--blue); border-radius:50%;"></span>rubric (faults, filled)&nbsp;&nbsp;
       <span class="sw" style="background:#fff; border:1.6px solid var(--blue); border-radius:50%;"></span>judge gate (faults, open)&nbsp;&nbsp;

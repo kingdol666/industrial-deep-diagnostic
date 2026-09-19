@@ -2,31 +2,31 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:1500px; padding:18px 26px 24px; }
-  .panel-label { margin-bottom:5px; font-size:24px; }
-  .legend { font-size:22px; color:var(--sub); margin-top:1px; line-height:1.4; }
+  body { width:1030px; height:1250px; padding:18px 26px 24px; }
+  .panel-label { margin-bottom:5px; font-size:29px; }
+  .legend { font-size:29px; color:var(--sub); margin-top:1px; line-height:1.4; }
   /* evidence chain chips */
   .chain { display:flex; align-items:stretch; gap:0; margin-top:2px; }
-  .chip { flex:1; border:1px solid var(--grid); border-radius:6px; background:#fbfcfd; padding:7px 9px; }
-  .chip .tag { display:inline-block; font-size:20px; font-weight:800; letter-spacing:.5px; padding:1.5px 10px; border-radius:12px; margin-bottom:5px; }
-  .chip .txt { font-size:20px; line-height:1.45; color:var(--ink); }
-  .chip .txt b { font-size:21px; }
+  .chip { flex:1; min-width:0; overflow:hidden; border:1px solid var(--grid); border-radius:6px; background:#fbfcfd; padding:7px 9px; }
+  .chip .tag { display:inline-block; font-size:29px; font-weight:800; letter-spacing:.5px; padding:1.5px 10px; border-radius:12px; margin-bottom:5px; }
+  .chip .txt { font-size:29px; line-height:1.45; color:var(--ink); }
+  .chip .txt b { font-size:29px; }
   .chip.l1 { border-top:3px solid var(--blue); }   .chip.l1 .tag { background:#e7f0f8; color:var(--blue); }
   .chip.l3 { border-top:3px solid var(--sky); }    .chip.l3 .tag { background:#e3f4fc; color:#1f7fb5; }
   .chip.l5 { border-top:3px solid var(--green); }  .chip.l5 .tag { background:#e7f4ef; color:#0a7d38; }
-  .chip.sv { border-top:3px solid var(--sub); }    .chip.sv .tag { background:#eceff1; color:var(--ink); }
-  .chip.vd { border-top:3px solid var(--orange); background:#fdf6ea; border-color:#ecd9b0; }
+  .chip.sv { flex:1.25; border-top:3px solid var(--sub); }    .chip.sv .tag { background:#eceff1; color:var(--ink); }
+  .chip.vd { flex:1.25; border-top:3px solid var(--orange); background:#fdf6ea; border-color:#ecd9b0; }
   .chip.vd .tag { background:#fdf1e3; color:#a35c17; }
-  .arr { width:30px; display:flex; align-items:center; justify-content:center; color:var(--sub); font-size:22px; font-weight:700; }
+  .arr { width:16px; display:flex; align-items:center; justify-content:center; color:var(--sub); font-size:29px; font-weight:700; }
   .hrow { display:flex; align-items:baseline; gap:14px; }
-  .hyp { display:inline-block; border:1px solid var(--grid); border-radius:4px; background:#fff; padding:2px 7px; margin:3px 2px 0 0; font-size:20px; }
+  .hyp { display:inline-block; border:1px solid var(--grid); border-radius:4px; background:#fff; padding:2px 7px; margin:3px 2px 0 0; font-size:29px; }
   .hyp b { color:var(--blue); }
-  .ticklabel { font-size:22px; }
-  .axlabel { font-size:24px; }
-  .datalabel { font-size:22px; }
+  .ticklabel { font-size:29px; }
+  .axlabel { font-size:29px; }
+  .datalabel { font-size:29px; }
 </style></head><body>
   <div class="panel-label">(a) SKAB inlet-valve throttling — raw recording (1,145 rows @ 1 Hz), flow-plateau window rows 621&ndash;927 shaded</div>
-  <svg id="ts" width="1448" height="510"></svg>
+  <svg id="ts" width="978" height="510"></svg>
   <div class="legend"><span style="color:#0072b2;font-weight:700;">&#9472;&#9472;</span> Volume Flow RateRMS (L/min, left axis) &nbsp;&nbsp;
   <span style="color:#d55e00;font-weight:700;">&#9472;&#9472;</span> Current (A, right axis) &nbsp;&nbsp;
   <span style="display:inline-block;width:12px;height:12px;background:rgba(230,159,0,.18);border:1px solid rgba(166,113,0,.35);vertical-align:-2px;"></span> flow-plateau window (rows 621&ndash;927, 307 rows &asymp; 5.1 min, self-recovering)</div>
@@ -164,7 +164,7 @@ const CURR=[
 ];
 const NS="http://www.w3.org/2000/svg";
 const svg=document.getElementById("ts");
-const N=FLOW.length, L=56,R=56,T=96,B=46,W=1448,H=510,PL=W-L-R,PTh=H-T-B;
+const N=FLOW.length, L=56,R=56,T=96,B=46,W=978,H=510,PL=W-L-R,PTh=H-T-B;
 const X=i=>L+PL*i/(N-1);
 const FMIN=28.5,FMAX=33.5, CMIN=0, CMAX=1.8;
 const YF=v=>T+PTh*(1-(v-FMIN)/(FMAX-FMIN));
@@ -199,7 +199,7 @@ el("line",{x1:X(800),y1:YF(31.7)+33,x2:X(800),y2:YF(31.05),stroke:"#1f7fb5","str
 // current co-drop annotation
 el("text",{x:X(773),y:YF(29.15),"text-anchor":"middle",class:"ticklabel",fill:"#d55e00",...HALO},"current co-drop \u22120.115 A (p = 0.10, directional only)");
 // vibration flat
-el("text",{x:X(120),y:T+PTh-20,class:"ticklabel",fill:"#555",...HALO},"vibration RMS (both accelerometer channels) flat throughout \u2014 no mechanical signature");
+el("text",{x:L+8,y:T+PTh-20,"text-anchor":"start",style:"font-size:29px",class:"ticklabel",fill:"#555",...HALO},"vibration RMS (both accelerometer channels) flat throughout \u2014 no mechanical signature");
 // pressure quantisation inset (no second axis)
 el("rect",{x:L+PL-566,y:12,width:560,height:92,fill:"#ffffff",stroke:"#cccccc","stroke-width":1,rx:4});
 el("text",{x:L+PL-554,y:38,class:"ticklabel",fill:"#1a1a1a"},"Pressure channel: quantisation step 0.327 bar \u2014 the");

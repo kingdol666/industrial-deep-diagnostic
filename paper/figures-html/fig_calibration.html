@@ -3,13 +3,13 @@
 <link rel="stylesheet" href="aei_template.css">
 <style>
   * { box-sizing: border-box; }
-  body { width:1500px; height:945px; padding:14px 26px; }
+  body { width:1160px; height:970px; padding:14px 26px; }
   svg text { font-family: Arial, Helvetica, sans-serif; }
   .ticklabel { font-size:22px; }
   .axlabel { font-size:24px; }
   .datalabel { font-size:24px; paint-order:stroke; stroke:#ffffff; stroke-width:4px; stroke-linejoin:round; }
 </style></head><body>
-<svg width="1448" height="915" viewBox="0 0 1448 915">
+<svg width="1108" height="940" viewBox="0 0 1108 940">
   <defs>
     <pattern id="hatchgrey" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
       <rect width="7" height="7" fill="#c9cdd3"/>
@@ -21,90 +21,91 @@
     </pattern>
   </defs>
   <line class="axis" x1="420" y1="16" x2="420" y2="736"/>
-  <line class="axis" x1="420" y1="736" x2="1420" y2="736"/>
+  <line class="axis" x1="420" y1="736" x2="1060" y2="736"/>
   <g class="gridline">
-    <line x1="662.5" y1="16" x2="662.5" y2="736"/><line x1="905" y1="16" x2="905" y2="736"/>
-    <line x1="1147.5" y1="16" x2="1147.5" y2="736"/><line x1="1390" y1="16" x2="1390" y2="736"/>
+    <line x1="575.2" y1="16" x2="575.2" y2="736"/><line x1="728.8" y1="16" x2="728.8" y2="736"/>
+    <line x1="882.4" y1="16" x2="882.4" y2="736"/><line x1="1036" y1="16" x2="1036" y2="736"/>
   </g>
   <g class="ticklabel" text-anchor="middle">
-    <text x="420" y="758">0</text><text x="662.5" y="758">0.25</text><text x="905" y="758">0.50</text>
-    <text x="1147.5" y="758">0.75</text><text x="1390" y="758">1.0</text>
+    <text x="420" y="758">0</text><text x="575.2" y="758">0.25</text><text x="728.8" y="758">0.50</text>
+    <text x="882.4" y="758">0.75</text><text x="1036" y="758">1.0</text>
   </g>
-  <text class="axlabel" x="920" y="788" text-anchor="middle">Reported confidence (dashed = 0.70 protocol ceiling for COMPETING_SET ·</text>
-  <text class="axlabel" x="920" y="816" text-anchor="middle" style="font-size:22px;">dotted = 0.90 machine grading gate, non-CS verdicts)</text>
+  <text class="axlabel" x="740" y="782" text-anchor="middle">Reported confidence (dashed = 0.70 protocol ceiling</text>
+  <text class="axlabel" x="740" y="810" text-anchor="middle">for COMPETING_SET · dotted = 0.90 machine grading</text>
+  <text class="axlabel" x="740" y="838" text-anchor="middle">gate, non-CS verdicts)</text>
 
   <!-- 0.70 CS ceiling (orange dashed) and 0.90 machine grading gate (grey dotted) -->
-  <line x1="1099" y1="16" x2="1099" y2="736" stroke="#e69f00" stroke-width="2" stroke-dasharray="7,5"/>
-  <line x1="1293" y1="16" x2="1293" y2="736" stroke="#7a848e" stroke-width="1.4" stroke-dasharray="2,4"/>
-  <text class="ticklabel" x="1420" y="17" text-anchor="end" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">machine grading gate (non-CS)</text>
+  <line x1="865" y1="16" x2="865" y2="736" stroke="#e69f00" stroke-width="2" stroke-dasharray="7,5"/>
+  <line x1="987.1" y1="16" x2="987.1" y2="736" stroke="#7a848e" stroke-width="1.4" stroke-dasharray="2,4"/>
+  <text class="ticklabel" x="1060" y="17" text-anchor="end" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">machine grading gate (non-CS)</text>
 
   <!-- 12 rows grouped by dataset: y_i = 24 + i*60, bar h 22 ; x(v) = 420 + v*970 -->
   <text class="axlabel" x="412" y="40" text-anchor="end">SKAB inlet-valve throttling</text>
   <text class="ticklabel" x="412" y="70" text-anchor="end">valve resistance vs control duty</text>
-  <rect x="420" y="38" width="582" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="1011" y="47">CS 0.60</text>
+  <rect x="420" y="38" width="372.5" height="22" fill="url(#hatchsky)"/>
+  <text class="datalabel" x="791" y="47">CS 0.60</text>
 
   <text class="axlabel" x="412" y="100" text-anchor="end">SKAB cavitation (blind set)</text>
   <text class="ticklabel" x="412" y="130" text-anchor="end">intermittent flow collapse</text>
-  <rect x="420" y="98" width="582" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="1011" y="107">CS 0.60</text>
+  <rect x="420" y="98" width="372.5" height="22" fill="url(#hatchsky)"/>
+  <text class="datalabel" x="791" y="107">CS 0.60</text>
 
   <text class="axlabel" x="412" y="160" text-anchor="end">Control: SKAB anomaly-free</text>
   <text class="ticklabel" x="412" y="190" text-anchor="end">normal operation</text>
-  <rect x="420" y="158" width="834.2" height="22" fill="url(#hatchgrey)"/>
-  <text class="datalabel" x="1263" y="167">normal 0.86</text>
+  <rect x="420" y="158" width="533.9" height="22" fill="url(#hatchgrey)"/>
+  <text class="datalabel" x="959.5" y="167">normal 0.86</text>
 
   <text class="axlabel" x="412" y="220" text-anchor="end">TEP IDV1 A/C feed-ratio step</text>
   <text class="ticklabel" x="412" y="250" text-anchor="end">A-feed valve/flow +18.5/+18.7σ lockstep</text>
-  <rect x="420" y="218" width="882.7" height="22" fill="#0072b2"/>
-  <line x1="1302.7" y1="215" x2="1302.7" y2="243" stroke="#d55e00" stroke-width="3"/>
-  <text class="datalabel" x="1312" y="227">DET 0.91</text>
+  <rect x="420" y="218" width="564.9" height="22" fill="#0072b2"/>
+  <line x1="984.9" y1="215" x2="984.9" y2="243" stroke="#d55e00" stroke-width="3"/>
+  <text class="datalabel" x="980" y="227">DET 0.91</text>
 
   <text class="axlabel" x="412" y="280" text-anchor="end">TEP IDV3 D-feed temp. (hard)</text>
   <text class="ticklabel" x="412" y="310" text-anchor="end">steam-loop site, thermal fork unresolvable</text>
-  <rect x="420" y="278" width="533.5" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="962" y="287">CS 0.55</text>
+  <rect x="420" y="278" width="341.4" height="22" fill="url(#hatchsky)"/>
+  <text class="datalabel" x="767.7" y="287">CS 0.55</text>
 
   <text class="axlabel" x="412" y="340" text-anchor="end">Control: TEP d00 fault-free</text>
   <text class="ticklabel" x="412" y="370" text-anchor="end">normal controlled steady state</text>
-  <rect x="420" y="338" width="873" height="22" fill="url(#hatchgrey)"/>
-  <text class="datalabel" x="1302" y="347">normal 0.90</text>
+  <rect x="420" y="338" width="558.7" height="22" fill="url(#hatchgrey)"/>
+  <text class="datalabel" x="975" y="347">normal 0.90</text>
 
   <text class="axlabel" x="412" y="400" text-anchor="end">TEP IDV4 cooling temp. (step)</text>
   <text class="ticklabel" x="412" y="430" text-anchor="end">XMV_10 +6.8σ plateau</text>
-  <rect x="420" y="398" width="611.1" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="1040" y="407">CS 0.63</text>
+  <rect x="420" y="398" width="391.1" height="22" fill="url(#hatchsky)"/>
+  <text class="datalabel" x="808.6" y="407">CS 0.63</text>
 
   <text class="axlabel" x="412" y="460" text-anchor="end">TEP IDV7 C-header pressure</text>
   <text class="ticklabel" x="412" y="490" text-anchor="end">valve +25.1% (z = 12.4) at constant flow</text>
-  <rect x="420" y="458" width="756.6" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="1186" y="467">DET 0.78</text>
+  <rect x="420" y="458" width="484.2" height="22" fill="#0072b2"/>
+  <text class="datalabel" x="901.8" y="467">DET 0.78</text>
 
   <text class="axlabel" x="412" y="520" text-anchor="end">TEP IDV11 cooling temp. (random)</text>
   <text class="ticklabel" x="412" y="550" text-anchor="end">VR 40.1/16.4, means frozen ≤0.01σ</text>
-  <rect x="420" y="518" width="582" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="1011" y="527">CS 0.60</text>
+  <rect x="420" y="518" width="372.5" height="22" fill="url(#hatchsky)"/>
+  <text class="datalabel" x="791" y="527">CS 0.60</text>
 
   <text class="axlabel" x="412" y="580" text-anchor="end">TEP IDV14 valve stiction</text>
   <text class="ticklabel" x="412" y="610" text-anchor="end">quantised stepping 633/800, lag 1→5</text>
-  <rect x="420" y="578" width="776" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="1205" y="587">DET 0.80</text>
+  <rect x="420" y="578" width="496.6" height="22" fill="#0072b2"/>
+  <text class="datalabel" x="914" y="587">DET 0.80</text>
 
   <text class="axlabel" x="412" y="640" text-anchor="end">IndPenSim batch-93 deviation</text>
   <text class="ticklabel" x="412" y="670" text-anchor="end">CW loop clamped → +3.3 K</text>
-  <rect x="420" y="638" width="795.4" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="1224" y="647">DET 0.82</text>
+  <rect x="420" y="638" width="509.1" height="22" fill="#0072b2"/>
+  <text class="datalabel" x="926.1" y="647">DET 0.82</text>
 
   <text class="axlabel" x="412" y="700" text-anchor="end">Control: IndPenSim batch-1</text>
   <text class="ticklabel" x="412" y="730" text-anchor="end">recipe-driven normal batch</text>
-  <rect x="420" y="698" width="902.1" height="22" fill="url(#hatchgrey)"/>
-  <line x1="1322.1" y1="695" x2="1322.1" y2="723" stroke="#d55e00" stroke-width="3"/>
-  <text class="datalabel" x="1313" y="707" text-anchor="end">normal 0.93</text>
+  <rect x="420" y="698" width="577.3" height="22" fill="url(#hatchgrey)"/>
+  <line x1="997.3" y1="695" x2="997.3" y2="723" stroke="#d55e00" stroke-width="3"/>
+  <text class="datalabel" x="986.6" y="707" text-anchor="end">normal 0.93</text>
 
   <!-- legend -->
-  <rect x="336" y="852" width="14" height="14" fill="#0072b2"/><text class="axlabel" x="358" y="864">DETERMINED (non-CS)</text>
-  <rect x="640" y="852" width="14" height="14" fill="url(#hatchsky)"/><text class="axlabel" x="662" y="864">capped COMPETING_SET, true mechanism ranked</text>
-  <line x1="343" y1="878" x2="343" y2="898" stroke="#d55e00" stroke-width="3"/><text class="axlabel" x="358" y="892">crosses 0.90 machine gate (+0.01 / +0.03)</text>
-  <rect x="920" y="880" width="14" height="14" fill="url(#hatchgrey)"/><text class="axlabel" x="942" y="892">controls (normal)</text>
+  <rect x="336" y="872" width="14" height="14" fill="#0072b2"/><text class="axlabel" x="358" y="884" style="font-size:22px;">DETERMINED (non-CS)</text>
+  <rect x="580" y="872" width="14" height="14" fill="url(#hatchsky)"/><text class="axlabel" x="602" y="884" style="font-size:22px;">capped COMPETING_SET, true mechanism ranked</text>
+  <line x1="343" y1="898" x2="343" y2="918" stroke="#d55e00" stroke-width="3"/><text class="axlabel" x="358" y="912" style="font-size:22px;">crosses 0.90 machine gate (+0.01 / +0.03)</text>
+  <rect x="860" y="898" width="14" height="14" fill="url(#hatchgrey)"/><text class="axlabel" x="882" y="912" style="font-size:22px;">controls (normal)</text>
 </svg>
 </body></html>
