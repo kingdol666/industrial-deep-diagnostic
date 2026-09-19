@@ -8,8 +8,7 @@
 \bibitem{khan2024faultexplainer}
 A.~Khan, R.~Nahar, H.~Chen, G.~E. Constante-Flores, C.~Li, {FaultExplainer}:
   Leveraging large language models for interpretable fault detection and
-  diagnosis, Computers \& Chemical Engineering 199 (2025) 109152, preprint:
-  arXiv:2412.14492.
+  diagnosis, Computers \& Chemical Engineering 199 (2025) 109152.
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2025.109152}
   {\path{doi:10.1016/j.compchemeng.2025.109152}}.
 
@@ -44,12 +43,10 @@ V.~Pozdnyakov, A.~Kovalenko, I.~Makarov, M.~Drobyshevskiy, K.~Lukyanov,
   {\path{doi:10.1109/OJIES.2024.3401396}}.
 
 \bibitem{rieth2017additional}
-C.~A. Rieth, B.~D. Amsel, R.~Tran, M.~B. Cook,
-  \href{https://doi.org/10.7910/DVN/6C3JR1}{Additional {Tennessee} {Eastman}
-  process simulation data for anomaly detection evaluation} (2017).
+C.~A. Rieth, B.~D. Amsel, R.~Tran, M.~B. Cook, Additional {Tennessee} {Eastman}
+  process simulation data for anomaly detection evaluation (2017).
 \newblock \href {https://doi.org/10.7910/DVN/6C3JR1}
   {\path{doi:10.7910/DVN/6C3JR1}}.
-\newline\urlprefix\url{https://doi.org/10.7910/DVN/6C3JR1}
 
 \bibitem{qin2012survey}
 S.~J. Qin, Survey on data-driven industrial process monitoring and diagnosis,
@@ -104,6 +101,20 @@ V.~Venkatasubramanian, R.~Rengaswamy, K.~Yin, S.~N. Kavuri, A review of process
   Computers \& Chemical Engineering 27~(3) (2003) 293--311.
 \newblock \href {https://doi.org/10.1016/S0098-1354(02)00160-6}
   {\path{doi:10.1016/S0098-1354(02)00160-6}}.
+
+\bibitem{venkatasubramanian2003part2}
+V.~Venkatasubramanian, R.~Rengaswamy, S.~N. Kavuri, A review of process fault
+  detection and diagnosis: {Part II}: Qualitative models and search strategies,
+  Computers \& Chemical Engineering 27~(3) (2003) 313--326.
+\newblock \href {https://doi.org/10.1016/S0098-1354(02)00218-X}
+  {\path{doi:10.1016/S0098-1354(02)00218-X}}.
+
+\bibitem{venkatasubramanian2003part3}
+V.~Venkatasubramanian, R.~Rengaswamy, S.~N. Kavuri, K.~Yin, A review of process
+  fault detection and diagnosis: {Part III}: Process history based methods,
+  Computers \& Chemical Engineering 27~(3) (2003) 327--346.
+\newblock \href {https://doi.org/10.1016/S0098-1354(02)00219-1}
+  {\path{doi:10.1016/S0098-1354(02)00219-1}}.
 
 \bibitem{isermann2005model}
 R.~Isermann, Model-based fault-detection and diagnosis -- status and
@@ -183,6 +194,20 @@ Z.~Liu, H.~Zheng, H.~Liu, W.~Jia, J.~Tan, Label-free evaluation for performance
   Engineering Informatics 62 (2024) 102912.
 \newblock \href {https://doi.org/10.1016/j.aei.2024.102912}
   {\path{doi:10.1016/j.aei.2024.102912}}.
+
+\bibitem{alsaif2024multimodal}
+K.~M. Alsaif, A.~A. Albeshri, M.~A. Khemakhem, F.~E. Eassa, Multimodal large
+  language model-based fault detection and diagnosis in context of industry
+  4.0, Electronics 13~(24) (2024) 4912.
+\newblock \href {https://doi.org/10.3390/electronics13244912}
+  {\path{doi:10.3390/electronics13244912}}.
+
+\bibitem{merkelbach2024multimodal}
+S.~Merkelbach, W.~Hasenauer, Using multi-modal {LLMs} to create models for
+  fault diagnosis, in: DX 2024 -- 35th International Workshop on Principles of
+  Diagnosis (OASIcs), 2024, pp. 31:1--31:8.
+\newblock \href {https://doi.org/10.4230/OASIcs.DX.2024.31}
+  {\path{doi:10.4230/OASIcs.DX.2024.31}}.
 
 \bibitem{zhou2024causalkgpt}
 B.~Zhou, X.~Li, T.~Liu, K.~Xu, W.~Liu, J.~Bao, {CausalKGPT}: Industrial
@@ -289,11 +314,24 @@ J.~Morbach, A.~Wiesner, W.~Marquardt, {OntoCAPE}---a (re)usable ontology for
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2009.01.019}
   {\path{doi:10.1016/j.compchemeng.2009.01.019}}.
 
+\bibitem{lewis2020rag}
+P.~Lewis, E.~Perez, A.~Piktus, F.~Petroni, V.~Karpukhin, N.~Goyal,
+  H.~K{"u}ttler, M.~Lewis, W.-t. Yih, T.~Rockt{"a}schel, S.~Riedel, D.~Kiela,
+  Retrieval-augmented generation for knowledge-intensive {NLP} tasks, in:
+  Advances in Neural Information Processing Systems 33 (NeurIPS 2020), 2020,
+  arXiv:2005.11401.
+
 \bibitem{skab2020}
 I.~D. Katser, V.~O. Kozitsin, Skoltech anomaly benchmark ({SKAB}),
   \url{https://www.kaggle.com/dsv/1693952} (2020).
 \newblock \href {https://doi.org/10.34740/KAGGLE/DSV/1693952}
   {\path{doi:10.34740/KAGGLE/DSV/1693952}}.
+
+\bibitem{lyman1995plant}
+P.~R. Lyman, C.~Georgakis, Plant-wide control of the {Tennessee} {Eastman}
+  problem, Computers \& Chemical Engineering 19~(3) (1995) 321--331.
+\newblock \href {https://doi.org/10.1016/0098-1354(94)00057-U}
+  {\path{doi:10.1016/0098-1354(94)00057-U}}.
 
 \bibitem{goldrick2015development}
 S.~Goldrick, A.~{\c{S}}tefan, D.~Lovett, G.~Montague, B.~Lennox, The
@@ -324,5 +362,15 @@ C.~Reinartz, M.~Kulahci, O.~Ravn, An extended tennessee eastman simulation
   Chemical Engineering 149 (2021) 107281.
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2021.107281}
   {\path{doi:10.1016/j.compchemeng.2021.107281}}.
+
+\bibitem{mhra2018}
+{Medicines and Healthcare products Regulatory Agency (MHRA)}, 'gxp' data
+  integrity guidance and definitions, revision 1, Tech. rep., MHRA, London
+  (2018).
+
+\bibitem{gamp2022}
+{ISPE}, GAMP 5: A Risk-Based Approach to Compliant {GxP} Computerized Systems,
+  2nd Edition, International Society for Pharmaceutical Engineering, Tampa, FL,
+  2022.
 
 \end{thebibliography}
