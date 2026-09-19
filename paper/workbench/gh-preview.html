@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GitHub-style preview — README</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown-light.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body { display: flex; justify-content: center; background: #ffffff; padding: 24px 0 64px; margin: 0; }
+  .markdown-body { width: 980px; padding: 0 32px; box-sizing: content-box; }
+  .markdown-body img { max-width: 100%; }
+  .tb { position: fixed; top: 0; left: 0; right: 0; z-index: 9; background: #24292f; color: #fff;
+        font: 13px/36px -apple-system, "Segoe UI", sans-serif; padding: 0 16px; }
+  .tb b { color: #f4b65a; }
+</style>
+</head>
+<body>
+<div class="tb">kingdol666 / <b>industrial-deep-diagnostic</b> · branch <b>v4-AgentWorkShopIntegrate</b> · <span id="which"></span> — GitHub-style local render (github-markdown-css + marked)</div>
+<article class="markdown-body" id="out" style="margin-top:60px"></article>
+<script>
+const which = new URLSearchParams(location.search).get('f') || 'README.md';
+document.getElementById('which').textContent = which;
+fetch('/' + which).then(r => r.text()).then(md => {
+  const html = marked.parse(md);
+  const out = document.getElementById('out');
+  out.innerHTML = html;
+  // GitHub rewrites relative image paths against the repo root; mirror that here.
+  out.querySelectorAll('img').forEach(img => {
+    const s = img.getAttribute('src') || '';
+    if (s && !/^https?:/.test(s) && !s.startsWith('/')) img.src = '/' + s;
+  });
+});
+</script>
+</body>
+</html>
