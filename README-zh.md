@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="docs/logo.svg" width="118" alt="Industrial Deep Diagnostic"/>
+<img src="docs/assets/hero.png" width="100%" alt="Industrial Deep Diagnostic — 端到端工业根因诊断"/>
 
 # 工业深度诊断系统
-
-**Industrial Deep Diagnostic**
 
 **端到端工业根因诊断系统 · 9 步全自动化排除法管线**
 
@@ -16,13 +14,11 @@
 
 <!-- ══ 状态徽章 ══ -->
 <img src="https://img.shields.io/badge/%E7%AE%A1%E7%BA%BF-9%20%E6%AD%A5-e8a33d?style=flat-square" alt="9 步管线">
-<img src="https://img.shields.io/badge/%E6%8A%80%E8%83%BD-18-8fbf6a?style=flat-square" alt="18 技能">
-<img src="https://img.shields.io/badge/%E6%99%BA%E8%83%BD%E4%BD%93-14-b889e0?style=flat-square" alt="14 智能体">
-<img src="https://img.shields.io/badge/%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-14-6ba8b8?style=flat-square" alt="14 引擎">
-<img src="https://img.shields.io/badge/%E8%B4%A8%E9%87%8F%E9%97%A8-CP--1%20~%20CP--9-d45d3d?style=flat-square" alt="9 个检查点">
-<img src="https://img.shields.io/badge/%E8%AF%81%E6%8D%AE%E7%AD%89%E7%BA%A7-L1--L7-d4a93d?style=flat-square" alt="证据等级">
+<img src="https://img.shields.io/badge/%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-14%20%C2%B7%20%E8%AF%8A%E6%96%AD%20%2B%20%E8%81%8A%E5%A4%A9-6ba8b8?style=flat-square" alt="14 引擎">
+<img src="https://img.shields.io/badge/%E5%9F%BA%E5%87%86-Rubric%2094.6-8fbf6a?style=flat-square" alt="基准 Rubric 94.6">
+<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-116%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://img.shields.io/badge/%E5%90%AF%E5%8A%A8-%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4-f4b65a?style=flat-square" alt="一键启动">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
-<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
 
 </div>
@@ -89,7 +85,7 @@
 </div>
 
 <details>
-<summary><b>📱 展开：自适应布局与执行引擎视图</b></summary>
+<summary><b>📱 展开：自适应布局、引擎下拉与聊天</b></summary>
 <br/>
 
 <div align="center">
@@ -110,6 +106,23 @@
 <img src="docs/screenshots/10-phone.png" alt="移动端"/>
 <br/><b>窄窗口自适应</b><br/>
 <sub>侧栏收为指令条 · 导航入抽屉</sub>
+</td>
+</tr>
+<tr>
+<td width="33%" align="center">
+<img src="docs/screenshots/11-engine-dropdown.png" alt="引擎下拉"/>
+<br/><b>引擎下拉</b><br/>
+<sub>全部 14 个 Harness · 不可用置灰禁选</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/04-chat.png" alt="聊天工作台"/>
+<br/><b>任意引擎聊天</b><br/>
+<sub>同一控制台同一事件流 · 切引擎只差一个下拉</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/11-phone-nav.png" alt="移动端导航"/>
+<br/><b>移动端导航</b><br/>
+<sub>在线状态与语言切换同排呈现</sub>
 </td>
 </tr>
 </table>
@@ -149,11 +162,12 @@
 <td width="50%" valign="top">
 
 ### ⚙ 14 引擎可插拔执行层
-- **真实可替换的执行引擎** —— Claude Code SDK、OMP RPC、Codex app-server、ACP 等 14 种
+- **真实可替换的执行引擎** —— Claude Code SDK、OMP RPC、Codex app-server、ACP、一次性 CLI 家族等 14 种
+- **每个引擎都能诊断 + 聊天** —— 对话走通用回合路径：优先原生会话续聊，无状态引擎自动重放对话上下文；绝不静默换引擎
 - **同构事件流** —— 工具调用 / 思考 / 子智能体编排全程实时可见
+- **启动可用性探测** —— 引擎下拉列出全部 14 个 Harness；不可用的置灰禁选
 - **严格预检** —— 未知引擎 400 `HARNESS_UNKNOWN`；已注册但未安装 409 `HARNESS_UNAVAILABLE`
-- **会话延续** —— 跨进程恢复对话并携带诊断上下文
-- **逐次可溯源** —— 每次诊断记录其执行引擎，历史页展示引擎徽章
+- **逐次可溯源** —— 每次诊断与聊天记录其执行引擎，历史页展示引擎徽章
 
 </td>
 <td width="50%" valign="top">
@@ -220,44 +234,52 @@
 
 ## 🚀 快速开始
 
-> Windows / Linux / macOS 步骤一致，无需平台专属配置。
-> 依赖全自动：服务启动时会自检并安装 —— 前后端缺 `node_modules` 就执行 `npm install`，RAG 引擎自建 Python 虚拟环境（优先 `uv sync`，无 uv 时回退 pip）。
+> Windows / Linux / macOS 一条命令通用。`npm run setup` 幂等可重跑：已就绪的步骤自动跳过。
 
-**前置条件**（缺失会导致启动失败，请先确认）：
+**前置条件**：
 
 | 依赖 | 版本 | 验证命令 |
 |------|:----:|----------|
 | [Node.js](https://nodejs.org/) | ≥ 18（推荐 22+） | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
-| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` |
-| [uv](https://docs.astral.sh/uv/) | 推荐 | `uv --version`（未安装时回退系统 pip） |
+| [Python](https://www.python.org/) | ≥ 3.10 | `python --version`（RAG 引擎 / venv 使用） |
+| [uv](https://docs.astral.sh/uv/) | 推荐 | `uv --version`（未安装时回退 pip） |
 
-### 三步起飞 🛫
+### 克隆到运行，一条命令 🛫
 
 ```bash
-# 1️⃣ 克隆与安装
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
-npm install
-npm link        # 注册全局 ind-diag 命令（可选；无权限时用 node commands/cli.mjs）
-
-# 2️⃣ 启动全部服务（后端 3210 + 前端 5180 + RAG 8764）
-ind-diag start --all --detach
-#    --detach = 后台守护模式，命令立即返回，日志落 .runtime/*.log
-#    首次启动会自动装依赖（前后端 npm install + RAG venv），约 1-3 分钟
-
-# 3️⃣ 验证服务健康
-ind-diag status                        # 三个服务都应为 running / healthy
-curl http://localhost:3210/api/health  # 应返回 200
+npm run setup
 ```
 
-打开 **http://localhost:5180** → 上传数据 → 自动诊断 → 下载报告 ✅
+`npm run setup`（别名 `quickstart`）按顺序完成**全部**初始化与启动：
 
-> ⚠️ 不要省略 `--detach`：前台模式下 CLI 会阻塞，120 秒后报 `FATAL: Service manager timeout`（服务其实已启动，但命令不返回，容易被误判为失败）。
+1. 安装 root + 后端 + 前端依赖（已存在自动跳过）
+2. 引导 RAG 引擎的 Python venv（`uv` 优先，pip 回退）
+3. 初始化数据目录
+4. 注册全局 **`ind-diag`** 指令（`npm link`）
+5. 启动 后端 · 前端 · RAG 并轮询三个健康检查端点直至全绿
+
+然后打开 **http://localhost:5180** → 选择数据集 → 自动诊断 → 阅读报告 ✅
+
+<details>
+<summary><b>⚡ 偏好手动驱动 CLI？</b></summary>
+
+```bash
+npm run setup -- --no-start     # 只初始化，不启动服务
+ind-diag start --all --detach   # 启动 后端 3210 + 前端 5180 + RAG 8764
+ind-diag status                 # 三个服务都应为 running / healthy
+ind-diag stop --all             # 一键停止
+```
+
+> ⚠️ CLI 直启请加 `--detach`：前台模式会阻塞，120 秒后报 `FATAL: Service manager timeout`（服务其实已启动，但命令不返回，容易被误判为失败）。
 >
 > 停止服务：`ind-diag stop --all` · 查看日志：`.runtime/backend.log`、`.runtime/frontend.log`、`.runtime/rag.log`
 >
-> 仅启动服务**不需要**模型凭据；**发起诊断**才需要对应的引擎 CLI 已登录（默认引擎为 OMP，亦可在侧栏切换，或配置 `ANTHROPIC_API_KEY`、`DEEPSEEK_API_KEY` 等，见 `.env.example`）。
+> 仅启动服务**不需要**模型凭据；**发起诊断**才需要对应的引擎 CLI 已登录（默认引擎为 OMP，可在侧栏下拉切换，或配置 `ANTHROPIC_API_KEY`、`DEEPSEEK_API_KEY` 等，见 `.env.example`）。
+
+</details>
 
 ### 服务端口一览
 
@@ -441,17 +463,25 @@ flowchart LR
 
 </details>
 
-### 仓库真实运行统计
+### 📊 当前基准成绩（2026-09-18 复跑）
 
-对本仓库 `workspace/diagnostic-runs/` 下 **38 个已完成诊断**（`04_diagnostics/diagnosis.json` 齐备）的结论类型分布：
+由上述四步流水线复跑得出；每个数字都从磁盘产物重新推导
+（`results/benchmark/metrics.json`，报告：`results/benchmark/benchmark_report_en.md`）。
 
-| 结论类型 | 数量 | 含义 |
-|:---------|:----:|------|
-| ✅ `DETERMINED` | **34** | 竞争假设已排除至唯一根因 |
-| ⚖️ `COMPETING_SET` | **3** | 存续假设在本数据内不可分辨（置信度按协议封顶） |
-| 📊 `NEEDS_DATA` | **1** | 数据不足以支撑任何结论，已列出所需最小数据集 |
+| 指标 | 结果 |
+|------|------|
+| 场景 | **12** — 9 故障 + 3 无异常对照（TEP · SKAB · IndPenSim） |
+| 管线收尾 | **12/12 `PASS`** · 复现门禁 **`REPRODUCIBLE`** |
+| Top-1 精确根因 | **4/9**（44.4%，Wilson 95% CI 18.9–73.3） |
+| Top-k（机理族级） | **9/9** — 每个故障场景都命中正确机理族 |
+| 置信校准 | 8/9 · **零过度自信**判定 |
+| 对照组（无故障） | **3/3 通过 —— 零误报** |
+| 平均 Rubric（R1–R7，产物推导） | **94.6 / 100** |
+| 套件确定性 | 45 次基线运行 · 确定性分支逐字节一致 |
 
-> 89% 的运行能收敛到唯一根因；其余 11% 如实报告不确定性 —— 这正是设计意图。
+> 诚实解读：Top-1 44.4% 指九个故障场景中有四个锁定了*唯一*故障；其余五个命名了正确机理族，
+> 但报告 `COMPETING_SET` 并按协议封顶置信度，而不是猜一个最像的答案 —— 这是设计行为，
+> 对照组的零误报才是我们保护得最重的数字。
 
 ---
 
@@ -813,8 +843,9 @@ workspace/diagnostic-runs/<时间戳>_<场景名>/
 <summary><b>❌ "ind-diag: command not found"</b></summary>
 
 ```bash
-node commands/cli.mjs status    # 使用完整路径
-npm link                        # 或重新注册全局命令
+npm run setup                  # 自动（重新）注册全局指令
+npm link                       # 或手动注册
+node commands/cli.mjs status   # 或不经注册直接用完整路径
 ```
 
 </details>
@@ -899,6 +930,22 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 ```
 
 </details>
+
+---
+
+## 🧪 用验证说话，不用形容词
+
+每一项发布级主张都对应一个可重复执行的检查，而不是一段措辞。
+
+| 验证 | 范围 | 结果 | 证据 |
+|------|------|------|------|
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **116/116 通过** | `app/backend npm test` |
+| 端到端验收 | 28 项 UI 驱动检查：认证 · 数据 · 诊断 · 聊天 · 报告 · 本体 · 历史 · 引擎 · API 面 | **28/28 通过** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
+| 真实场景多 Harness | 20 轮真实工业数据诊断（mock / claude / codex / omp）+ claude / codex / omp / mock 四引擎真实对话 | 首轮 11/20 终态通过；真实 AI 轮均验证到管线阶段产物 | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
+| 基准复跑 | 12 场景 · 四步流水线 | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |
+
+> 真实场景报告同样记录了*失败*的部分（两次引擎侧协议漂移、一次缺失 API key），
+> 以及 codex 0.155 app-server 漂移的定位与修复过程 —— 失败是记录的一部分，不是脚注。
 
 ---
 

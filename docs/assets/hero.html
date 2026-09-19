@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 300px; overflow: hidden; }
+  body {
+    background:
+      linear-gradient(rgba(232,163,61,0.045) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgba(232,163,61,0.045) 1px, transparent 1px) 0 0 / 32px 32px,
+      radial-gradient(900px 420px at 8% -20%, rgba(232,163,61,0.10), transparent 55%),
+      #0b0c09;
+    color: #ede8d8;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    position: relative;
+  }
+  .frame {
+    position: absolute; inset: 10px;
+    border: 1px solid rgba(237,232,216,0.10);
+    display: flex; align-items: stretch;
+  }
+  .frame::before { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(237,232,216,0.045); pointer-events: none; }
+  .left { flex: 1.35; padding: 34px 20px 30px 46px; position: relative; display: flex; flex-direction: column; }
+  .right {
+    width: 388px; margin: 24px 24px 24px 0;
+    border-left: 1px solid rgba(237,232,216,0.08);
+    display: grid; grid-template-columns: 1fr 1fr; align-content: center;
+  }
+  .kicker {
+    font-family: Consolas, monospace; font-size: 12px; letter-spacing: 0.34em;
+    text-transform: uppercase; color: #e8a33d; margin-bottom: 12px;
+  }
+  .kicker::before { content: ''; display: inline-block; width: 26px; height: 1px; background: #e8a33d; vertical-align: 4px; margin-right: 12px; }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif; font-weight: 500;
+    font-size: 46px; line-height: 1.0; letter-spacing: -0.01em; color: #ede8d8;
+  }
+  h1 em { font-style: normal; color: #f4b65a; }
+  .sub {
+    margin-top: 10px; font-family: Consolas, monospace; font-size: 12px;
+    color: #8a8676; letter-spacing: 0.05em;
+  }
+  .cmd {
+    margin-top: auto;
+    display: inline-flex; align-items: center; gap: 12px; align-self: flex-start;
+    border: 1px solid rgba(232,163,61,0.35); background: rgba(232,163,61,0.08);
+    padding: 8px 16px; border-radius: 4px;
+  }
+  .cmd .p { color: #8fbf6a; font-family: Consolas, monospace; font-size: 13px; }
+  .cmd .c { font-family: Consolas, monospace; font-size: 13.5px; color: #ede8d8; }
+  .cmd .n { font-family: Consolas, monospace; font-size: 10px; color: #8a8676; letter-spacing: 0.08em; text-transform: uppercase; }
+  .stat { padding: 6px 26px; border-left: 1px solid rgba(237,232,216,0.07); }
+  .stat:nth-child(-n+2) { border-bottom: 1px solid rgba(237,232,216,0.07); }
+  .stat:nth-child(odd) { border-left: none; }
+  .stat .v { font-family: Georgia, serif; font-size: 37px; color: #f4b65a; line-height: 1.05; }
+  .stat .v small { font-size: 20px; color: #8a8676; }
+  .stat .k { font-family: Consolas, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #8a8676; margin-top: 4px; }
+  .mark {
+    position: absolute; top: 34px; right: 34px; width: 34px; height: 34px;
+    border: 1px solid rgba(237,232,216,0.14); border-radius: 4px; background: #14150f;
+    display: flex; align-items: center; justify-content: center;
+    font-family: Consolas, monospace; font-size: 12px; color: #e8a33d; font-weight: 700;
+    box-shadow: 0 0 0 1px rgba(232,163,61,0.10);
+  }
+  .mark::after { content: ''; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: #e8a33d; box-shadow: 0 0 6px rgba(232,163,61,0.8); }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="left">
+      <div class="kicker">End-to-end industrial root-cause diagnosis</div>
+      <h1>Industrial Deep<br/><em>Diagnostic</em></h1>
+      <div class="sub">9-stage elimination pipeline · 18 skills · 14 agents · traceable evidence L1–L7</div>
+      <div class="cmd"><span class="p">$</span><span class="c">npm run setup</span><span class="n">init · link · start · verify</span></div>
+    </div>
+    <div class="right">
+      <div class="stat"><div class="v">14</div><div class="k">Harness engines</div></div>
+      <div class="stat"><div class="v">9</div><div class="k">Quality gates</div></div>
+      <div class="stat"><div class="v">9/9</div><div class="k">Benchmark top-k</div></div>
+      <div class="stat"><div class="v">94.6</div><div class="k">Mean rubric</div></div>
+    </div>
+    <div class="mark">ID</div>
+  </div>
+</body>
+</html>

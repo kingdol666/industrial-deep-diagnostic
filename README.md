@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="docs/logo.svg" width="118" alt="Industrial Deep Diagnostic"/>
+<img src="docs/assets/hero.png" width="100%" alt="Industrial Deep Diagnostic — end-to-end industrial root-cause diagnosis"/>
 
 # Industrial Deep Diagnostic
-
-**工业深度诊断系统**
 
 **End-to-end industrial root-cause diagnosis · a 9-stage fully automated pipeline of elimination**
 
@@ -16,13 +14,11 @@
 
 <!-- ══ Status badges ══ -->
 <img src="https://img.shields.io/badge/Pipeline-9%20stages-e8a33d?style=flat-square" alt="9-stage pipeline">
-<img src="https://img.shields.io/badge/Skills-18-8fbf6a?style=flat-square" alt="18 skills">
-<img src="https://img.shields.io/badge/Agents-14-b889e0?style=flat-square" alt="14 agents">
-<img src="https://img.shields.io/badge/Engines-14-6ba8b8?style=flat-square" alt="14 engines">
-<img src="https://img.shields.io/badge/Quality%20gates-CP--1%20~%20CP--9-d45d3d?style=flat-square" alt="9 checkpoints">
-<img src="https://img.shields.io/badge/Evidence-L1--L7-d4a93d?style=flat-square" alt="Evidence levels">
+<img src="https://img.shields.io/badge/Engines-14%20·%20diagnose%20%2B%20chat-6ba8b8?style=flat-square" alt="14 engines">
+<img src="https://img.shields.io/badge/Benchmark-Rubric%2094.6-8fbf6a?style=flat-square" alt="Benchmark rubric 94.6">
+<img src="https://img.shields.io/badge/Backend%20tests-116%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://img.shields.io/badge/Setup-one%20command-f4b65a?style=flat-square" alt="One-command setup">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
-<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
 
 </div>
@@ -89,7 +85,7 @@
 </div>
 
 <details>
-<summary><b>📱 Expand: adaptive layout and engine views</b></summary>
+<summary><b>📱 Expand: adaptive layout, engine dropdown and chat</b></summary>
 <br/>
 
 <div align="center">
@@ -110,6 +106,23 @@
 <img src="docs/screenshots/10-phone.png" alt="Narrow viewport"/>
 <br/><b>Narrow-viewport layout</b><br/>
 <sub>Rail collapses to a command bar · nav into a drawer</sub>
+</td>
+</tr>
+<tr>
+<td width="33%" align="center">
+<img src="docs/screenshots/11-engine-dropdown.png" alt="Engine dropdown"/>
+<br/><b>Engine dropdown</b><br/>
+<sub>All 14 harnesses · unavailable greyed out and unselectable</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/04-chat.png" alt="Chat workbench"/>
+<br/><b>Chat on any engine</b><br/>
+<sub>Same console, same events — harness is one dropdown away</sub>
+</td>
+<td width="33%" align="center">
+<img src="docs/screenshots/11-phone-nav.png" alt="Narrow navigation"/>
+<br/><b>Phone navigation</b><br/>
+<sub>Presence and language switch share the footer row</sub>
 </td>
 </tr>
 </table>
@@ -149,11 +162,12 @@
 <td width="50%" valign="top">
 
 ### ⚙ 14-engine swappable execution layer
-- **Genuinely swappable engines** — Claude Code SDK, OMP RPC, Codex app-server, ACP and more
+- **Genuinely swappable engines** — Claude Code SDK, OMP RPC, Codex app-server, ACP, one-shot CLI family and more
+- **Diagnose *and* chat on every engine** — conversations ride a generic turn path: native session resume first, automatic transcript replay for stateless engines; never a silent engine swap
 - **Isomorphic event streams** — tool calls, thinking and subagent orchestration stay visible in real time
+- **Startup availability probe** — the engine dropdown lists all 14 harnesses; unavailable ones are greyed out and unselectable
 - **Strict pre-flight** — unknown engine → 400 `HARNESS_UNKNOWN`; registered but not installed → 409 `HARNESS_UNAVAILABLE`
-- **Session continuity** — resume a conversation across processes, carrying diagnostic context
-- **Per-run provenance** — every diagnosis records its engine; the ledger shows an engine badge
+- **Per-run provenance** — every diagnosis and chat records its engine; the ledger shows an engine badge
 
 </td>
 <td width="50%" valign="top">
@@ -220,44 +234,55 @@
 
 ## 🚀 Quick start
 
-> The same steps apply on Windows / Linux / macOS; no platform-specific configuration is required.
-> Dependencies are fully automatic: on startup the services check and install them — if the backend or frontend lacks `node_modules` it runs `npm install`, and the RAG engine builds its own Python virtual environment (`uv sync`, falling back to pip when uv is absent).
+> Windows / Linux / macOS — the same one command everywhere. `npm run setup` is idempotent:
+> re-running it skips whatever is already in place.
 
-**Prerequisites** (a missing one will fail the startup, so verify first):
+**Prerequisites**:
 
 | Dependency | Version | Verification command |
 |------|:----:|----------|
 | [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
-| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` |
-| [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to system pip) |
+| [Python](https://www.python.org/) | ≥ 3.10 | `python --version` (for the RAG engine / venv) |
+| [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to pip) |
 
-### Three steps to take off 🛫
+### One command from clone to running 🛫
 
 ```bash
-# 1️⃣ Clone & install
 git clone https://github.com/kingdol666/industrial-deep-diagnostic.git
 cd industrial-deep-diagnostic
-npm install
-npm link        # register the global `ind-diag` command (optional; else `node commands/cli.mjs`)
-
-# 2️⃣ Start every service (backend 3210 + frontend 5180 + RAG 8764)
-ind-diag start --all --detach
-#    --detach = background daemon: returns immediately, logs to .runtime/*.log
-#    First start installs dependencies (npm install + RAG venv), roughly 1-3 minutes
-
-# 3️⃣ Verify health
-ind-diag status                        # all three services should be running / healthy
-curl http://localhost:3210/api/health  # should return 200
+npm run setup
 ```
 
-Open **http://localhost:5180** → upload data → automatic diagnosis → download the report ✅
+`npm run setup` (alias `quickstart`) does **all** of this in order:
 
-> ⚠️ Do not omit `--detach`. In foreground mode the CLI blocks and after 120 seconds reports `FATAL: Service manager timeout` — the services have actually started, but the command never returns, which is easily mistaken for a failure.
+1. installs root + backend + frontend dependencies (skipped when already present)
+2. bootstraps the Python venv for the RAG engine (`uv` first, pip fallback)
+3. initializes the data directory
+4. registers the global **`ind-diag`** command (`npm link`)
+5. starts backend · frontend · RAG and polls all three health endpoints until green
+
+Then open **http://localhost:5180** → pick a dataset → automatic diagnosis → read the report ✅
+
+<details>
+<summary><b>⚡ Prefer to drive the CLI yourself?</b></summary>
+
+```bash
+npm run setup -- --no-start     # initialize without starting services
+ind-diag start --all --detach   # start backend 3210 + frontend 5180 + RAG 8764
+ind-diag status                 # all three services should be healthy
+ind-diag stop --all             # stop everything
+```
+
+> ⚠️ Use `--detach` with the CLI. Foreground mode blocks and after 120 seconds reports
+> `FATAL: Service manager timeout` — the services have actually started, but the command never
+> returns, which is easily mistaken for a failure. Logs: `.runtime/backend.log`, `.runtime/frontend.log`, `.runtime/rag.log`.
 >
-> Stop everything: `ind-diag stop --all` · Logs: `.runtime/backend.log`, `.runtime/frontend.log`, `.runtime/rag.log`
->
-> Starting the services does **not** require model credentials. **Running a diagnosis** does — the selected engine's CLI must be signed in (the default is OMP; you can switch engines in the sidebar, or configure `ANTHROPIC_API_KEY` / `DEEPSEEK_API_KEY` per `.env.example`).
+> Starting the services does **not** require model credentials. **Running a diagnosis** does — the
+> selected engine's CLI must be signed in (the default is OMP; switch engines in the sidebar dropdown,
+> or configure `ANTHROPIC_API_KEY` / `DEEPSEEK_API_KEY` per `.env.example`).
+
+</details>
 
 ### Service ports at a glance
 
@@ -441,17 +466,26 @@ Three alternative explanations were closed by independent evidence at eliminatio
 
 </details>
 
-### Real verdict distribution in this repository
+### 📊 Current benchmark standing (2026-09-18 rerun)
 
-Across the **38 completed diagnoses** under `workspace/diagnostic-runs/` (those with a `04_diagnostics/diagnosis.json`):
+Rerun with the four-step pipeline above; every number is re-derived from on-disk artifacts
+(`results/benchmark/metrics.json`, report: `results/benchmark/benchmark_report_en.md`).
 
-| Verdict | Count | Meaning |
-|:--------|:----:|------|
-| ✅ `DETERMINED` | **34** | competitors eliminated down to a single root cause |
-| ⚖️ `COMPETING_SET` | **3** | surviving hypotheses are indistinguishable in this data (confidence capped by protocol) |
-| 📊 `NEEDS_DATA` | **1** | data cannot support any conclusion; the minimum required dataset is listed |
+| Metric | Result |
+|------|------|
+| Scenarios | **12** — 9 fault + 3 anomaly-free controls (TEP · SKAB · IndPenSim) |
+| Pipeline finalization | **12/12 `PASS`** · reproducibility gate **`REPRODUCIBLE`** |
+| Top-1 exact root cause | **4/9** (44.4%, Wilson 95% CI 18.9–73.3) |
+| Top-k (mechanism-family level) | **9/9** — every fault scenario's correct family identified |
+| Calibrated confidence | 8/9 · **zero overconfident** verdicts |
+| Controls (no fault present) | **3/3 pass — zero false alarms** |
+| Mean rubric (R1–R7, artifact-derived) | **94.6 / 100** |
+| Suite determinism | 45 baseline runs · deterministic arms **byte-identical** |
 
-> 89% of runs converge on a single root cause; the other 11% report uncertainty honestly — which is the design intent, not a failure.
+> Honest reading: Top-1 44.4% means the pipeline pins the *exact* fault on four of nine scenarios;
+> on the remaining five it names the correct mechanism family but reports `COMPETING_SET` with
+> protocol-capped confidence instead of guessing — that is the designed behaviour, and the
+> zero-false-alarm controls are the number we protect hardest.
 
 ---
 
@@ -815,8 +849,9 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 <summary><b>❌ "ind-diag: command not found"</b></summary>
 
 ```bash
-node commands/cli.mjs status    # use the full path
-npm link                        # or re-register the global command
+npm run setup                  # (re)registers the global command automatically
+npm link                       # or register manually
+node commands/cli.mjs status   # or use the full path without registering
 ```
 
 </details>
@@ -901,6 +936,23 @@ ls -la workspace/diagnostic-runs/<run>/                         # inspect each s
 ```
 
 </details>
+
+---
+
+## 🧪 Verified, not claimed
+
+Every release-quality claim traces to a repeatable check, not to a paragraph of prose.
+
+| Verification | Scope | Result | Evidence |
+|------|------|------|------|
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **116/116 pass** | `app/backend npm test` |
+| End-to-end acceptance | 28 UI-driven checks across auth · data · diagnose · chat · reports · ontology · history · engines · API surface | **28/28 pass** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
+| Real-scenario multi-harness | 20 diagnosis rounds on real industrial datasets across mock / claude / codex / omp + live chats on claude / codex / omp / mock | 11/20 terminal pass first run; real-AI rounds verified down to pipeline stage artifacts | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
+| Benchmark rerun | 12 scenarios, four-step pipeline | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |
+
+> The real-scenario report also documents what *failed* (two engine-side protocol drifts, one
+> missing API key) and how the codex 0.155 app-server drift was located and fixed — failures are
+> part of the record, not footnotes.
 
 ---
 
