@@ -1,0 +1,47 @@
+{
+ "run_id": "solo_tep_d07",
+ "scene_name": "tep_d07_stream4_supply_header_pressure_loss",
+ "timestamp": "2026-09-17T16:49:24.959675+00:00",
+ "pipeline_steps_completed": [
+  "setup",
+  "inspect",
+  "context_builder",
+  "clarification_gate",
+  "data_processor",
+  "diagnostician",
+  "judge",
+  "reporter",
+  "audit"
+ ],
+ "diagnosis_type": "DETERMINED",
+ "judge_verdict": {
+  "score": 98,
+  "verdict": "pass"
+ },
+ "primary_finding": "流股4（A+C 混合进料）上游供给压力损失：异常起始（第 161 样本）XMEAS_4 进料流量瞬态跌落 -12.29σ，控制器将 XMV_4 进料阀开大 +25.13%（瞬态 +18.73σ 后稳态保持 +12.24σ）使进料流量完全恢复（稳态偏移 -0.25σ），反应器压力瞬态波动后重新受控，其余进料与全部被控量稳态归零——补偿成功的供给侧扰动指纹完整。判为 DETERMINED@0.82：机理（流股4 供给压力损失，含 C header）已确证；上游 header 的具体物理成因需上游压力测点方可进一步归因。",
+ "confidence": 82,
+ "evidence_levels": [
+  "L3",
+  "L5"
+ ],
+ "key_measurements": {
+  "xmeas4_onset_dip_sigma": -12.29,
+  "xmv4_step_pct": 25.13,
+  "xmv4_held_sigma": 12.24,
+  "xmeas7_transient_sigma": [
+   -27.57,
+   37.85
+  ]
+ },
+ "missing_channels": [
+  "stream4_upstream_header_pressure",
+  "controller_command_log"
+ ],
+ "artifacts": {
+  "report": "report.md",
+  "diagnosis": "04_diagnostics/diagnosis.json",
+  "evidence": "04_diagnostics/evidence.json",
+  "confidence": "04_diagnostics/confidence.json",
+  "reasoning_chain": "04_diagnostics/reasoning_chain.json"
+ }
+}

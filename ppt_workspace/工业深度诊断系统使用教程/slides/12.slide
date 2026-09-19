@@ -1,0 +1,34 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 2 章 · 换引擎：14 个里挑一个干活</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>点左下角引擎名展开清单；这台机器上，OMP Engine 是唯一「实时 + 运行浏览 + 增强」全能力的默认引擎</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>OMP Engine 已就绪</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'row', gap: 20 }}>
+        <Box style={{ width: 620, height: 540, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/03_engine.png" style={{ width: 620, height: 395, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ width: 520, height: 540, flexDirection: 'column', gap: 18 }}>
+            <Box style={{ height: 168, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 绿点 = 能跑，灰点 = 没装</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 8 }}>每个引擎后面标注自己的定位：实时引擎、原生运行浏览、零成本演练。挑之前先看状态点。</Text>
+            </Box>
+            <Box style={{ height: 168, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>② 换引擎会影响历史记录吗</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 8 }}>不会。每次运行都会把自己的引擎记下来，历史账本上会打出 MOCK / CLAUDE / OMP 徽标，随时可追溯。</Text>
+            </Box>
+            <Box style={{ height: 168, padding: 18, background: '#1D1B16', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#F7F4EC' }}>③ 第一次建议先用 Mock</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(247,244,236,0.80)', lineHeight: 1.6, marginTop: 8 }}>它几秒就能跑完一遍完整管线，帮你把上传、配置、报告三件事先走通，再换成真实引擎跑正式诊断。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>引擎预检与实际启动共用同一条解析链路</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>12 / 31</Text>
+    </Box>
+</Slide>

@@ -1,0 +1,1510 @@
+{
+  "ontology_version": "tep-v6.5-full-20260914",
+  "process_type": "连续化工过程（Tennessee Eastman 反应-分离-循环流程）",
+  "created_at": "2026-09-14T19:07:45.823Z",
+  "scene": {
+    "name": "Tennessee Eastman (TEP) 连续化工过程",
+    "process_type": "气相放热反应 + 冷凝分离 + 循环压缩 + 汽提精制的连续化工流程",
+    "equipment": [
+      {
+        "id": "reactor",
+        "name": "反应器",
+        "type": "连续搅拌釜式气液反应器",
+        "governing_equations": [
+          "能量平衡: mCp dT/dt = Σ(-ΔHr)·rk·V - Q_cw",
+          "反应动力学: A+C→D, A+D→E, A+E→F, A+G→H（均为放热不可逆反应）"
+        ]
+      },
+      {
+        "id": "condenser",
+        "name": "冷凝器",
+        "type": "水冷部分冷凝器",
+        "governing_equations": [
+          "VLE: 露点/泡点判据",
+          "热量平衡: Q = F·ΔHvap"
+        ]
+      },
+      {
+        "id": "separator",
+        "name": "气液分离器",
+        "type": "闪蒸罐",
+        "governing_equations": [
+          "VLE闪蒸: Σ zi·K_i = 1",
+          "液位物料平衡: A dL/dt = F_in - F_out"
+        ]
+      },
+      {
+        "id": "compressor",
+        "name": "循环压缩机",
+        "type": "离心压缩机",
+        "governing_equations": [
+          "功: W = f(流量, 压比)"
+        ]
+      },
+      {
+        "id": "stripper",
+        "name": "汽提塔",
+        "type": "蒸汽汽提塔",
+        "governing_equations": [
+          "解吸传质: N = Ky·a·V·(x* - x)",
+          "塔温热平衡: 蒸汽供热 vs 进料显热"
+        ]
+      }
+    ],
+    "stages": [
+      {
+        "id": "S1",
+        "name": "新鲜进料与混合",
+        "columns": [
+          "XMEAS_1",
+          "XMEAS_2",
+          "XMEAS_3",
+          "XMEAS_4",
+          "XMV_1",
+          "XMV_2",
+          "XMV_3",
+          "XMV_4"
+        ],
+        "governing_equations": "总进料物料平衡: F6 = F1 + F2 + F3 + F4 + F8(循环)",
+        "sequence": 0
+      },
+      {
+        "id": "S2",
+        "name": "气相放热反应（反应器）",
+        "columns": [
+          "XMEAS_6",
+          "XMEAS_7",
+          "XMEAS_8",
+          "XMEAS_9",
+          "XMV_10",
+          "XMEAS_21"
+        ],
+        "governing_equations": "四反应网络 A+C→D, A+D→E, A+E→F, A+G→H；能量平衡由冷却水移热",
+        "sequence": 1
+      },
+      {
+        "id": "S3",
+        "name": "冷凝与气液分离",
+        "columns": [
+          "XMEAS_11",
+          "XMEAS_12",
+          "XMEAS_13",
+          "XMEAS_14",
+          "XMV_7",
+          "XMV_11",
+          "XMEAS_22"
+        ],
+        "governing_equations": "VLE闪蒸分离；液位由XMV_7闭环控制",
+        "sequence": 2
+      },
+      {
+        "id": "S4",
+        "name": "不凝气循环与排放",
+        "columns": [
+          "XMEAS_5",
+          "XMEAS_10",
+          "XMEAS_20",
+          "XMV_5",
+          "XMV_6"
+        ],
+        "governing_equations": "循环+purge联合控制系统压力与惰性组分积累",
+        "sequence": 3
+      },
+      {
+        "id": "S5",
+        "name": "汽提与产品输出",
+        "columns": [
+          "XMEAS_15",
+          "XMEAS_16",
+          "XMEAS_17",
+          "XMEAS_18",
+          "XMEAS_19",
+          "XMV_8",
+          "XMV_9"
+        ],
+        "governing_equations": "蒸汽汽提脱除轻组分；液位由XMV_8闭环控制",
+        "sequence": 4
+      },
+      {
+        "id": "S6",
+        "name": "产品质量（流股11组分分析）",
+        "columns": [
+          "XMEAS_37",
+          "XMEAS_38",
+          "XMEAS_39",
+          "XMEAS_40",
+          "XMEAS_41"
+        ],
+        "governing_equations": "产品D/E/F/G/H摩尔分数由反应选择性与汽提效率决定",
+        "sequence": 5
+      }
+    ],
+    "objectives": [
+      "维持系统压力与液位稳定（反应器/分离器/汽提塔）",
+      "控制排放以避免惰性组分F/G/H积累",
+      "最大化目标产物G与H的产率（流股11中XMEAS_40/41）",
+      "约束条件: 反应器压力/温度上限、冷却水负荷上限"
+    ]
+  },
+  "signals": {
+    "process_parameters": [
+      {
+        "name": "XMEAS_1 A进料流量(流股1)",
+        "column": "XMEAS_1",
+        "unit": "kmol/h·10³",
+        "physical_meaning": "组分A原料进料体积流量（标况千立方米/小时），反应新鲜A进料",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          0.158,
+          0.343
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=0.167, max=0.357, |z|>3 fraction=0.42%, last-third vs first-third drift=0.022σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_2 D进料流量(流股2)",
+        "column": "XMEAS_2",
+        "unit": "kg/h",
+        "physical_meaning": "组分D溶剂进料质量流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          3557.123,
+          3765.88
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=3566.1, max=3756.1, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.141σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_3 E进料流量(流股3)",
+        "column": "XMEAS_3",
+        "unit": "kg/h",
+        "physical_meaning": "组分E原料进料质量流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          4394.669,
+          4627.264
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=4412.8, max=4634.9, |z|>3 fraction=0.10%, last-third vs first-third drift=0.184σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_4 A与C混合进料流量(流股4)",
+        "column": "XMEAS_4",
+        "unit": "kmol/h·10³",
+        "physical_meaning": "A与C混合循环进料流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          9.105,
+          9.583
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=9.091, max=9.602, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.015σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_5 循环流量(流股8)",
+        "column": "XMEAS_5",
+        "unit": "kmol/h·10³",
+        "physical_meaning": "气液分离器回流经压缩机的循环气流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          26.287,
+          27.517
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=26.358, max=27.511, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.095σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_6 反应器进料量(流股6)",
+        "column": "XMEAS_6",
+        "unit": "kmol/h·10³",
+        "physical_meaning": "进入反应器的总进料流量（新鲜+循环）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          41.666,
+          42.989
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=41.617, max=42.964, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.006σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_7 反应器压力",
+        "column": "XMEAS_7",
+        "unit": "kPa(表压)",
+        "physical_meaning": "反应器气相压力，受进出气体物料平衡与冷却支配",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          2685.013,
+          2726.308
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=2689.9, max=2724.7, |z|>3 fraction=0.00%, last-third vs first-third drift=0.158σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_8 反应器液位",
+        "column": "XMEAS_8",
+        "unit": "%",
+        "physical_meaning": "反应器液相持液量百分比",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          73.437,
+          76.602
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=73.302, max=76.631, |z|>3 fraction=0.21%, last-third vs first-third drift=0.112σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_9 反应器温度",
+        "column": "XMEAS_9",
+        "unit": "°C",
+        "physical_meaning": "反应器操作温度，放热反应由冷却水移热维持",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          120.341,
+          120.46
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=120.34, max=120.46, |z|>3 fraction=0.73%, last-third vs first-third drift=0.019σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_10 排放流量(流股9)",
+        "column": "XMEAS_10",
+        "unit": "kmol/h·10³",
+        "physical_meaning": "purge排放流量，控制惰性/轻组分积累",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          0.3,
+          0.373
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=0.294, max=0.371, |z|>3 fraction=0.83%, last-third vs first-third drift=0.048σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_11 分离器温度",
+        "column": "XMEAS_11",
+        "unit": "°C",
+        "physical_meaning": "气液分离器操作温度",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          79.402,
+          80.772
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=79.351, max=80.697, |z|>3 fraction=0.10%, last-third vs first-third drift=-0.182σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_12 分离器液位",
+        "column": "XMEAS_12",
+        "unit": "%",
+        "physical_meaning": "气液分离器液相液位",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          46.834,
+          53.025
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=46.4, max=53.512, |z|>3 fraction=0.42%, last-third vs first-third drift=-0.02σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_13 分离器压力",
+        "column": "XMEAS_13",
+        "unit": "kPa(表压)",
+        "physical_meaning": "气液分离器气相压力",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          2612.909,
+          2655.93
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=2617.7, max=2654.1, |z|>3 fraction=0.00%, last-third vs first-third drift=0.153σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_14 分离器底部出料(流股10)",
+        "column": "XMEAS_14",
+        "unit": "m³/h",
+        "physical_meaning": "分离器液相出料（去汽提塔）体积流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          22.068,
+          28.304
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=21.473, max=28.367, |z|>3 fraction=0.52%, last-third vs first-third drift=0.081σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_15 汽提塔液位",
+        "column": "XMEAS_15",
+        "unit": "%",
+        "physical_meaning": "汽提塔液相液位",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          46.836,
+          53.081
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=46.61, max=54.089, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.007σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_16 汽提塔压力",
+        "column": "XMEAS_16",
+        "unit": "kPa(表压)",
+        "physical_meaning": "汽提塔操作压力",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          3084.393,
+          3121.376
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=3088.8, max=3121, |z|>3 fraction=0.00%, last-third vs first-third drift=0.159σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_17 汽提塔底部出料(流股11)",
+        "column": "XMEAS_17",
+        "unit": "m³/h",
+        "physical_meaning": "汽提塔产品出料体积流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          21.104,
+          24.71
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=20.866, max=24.705, |z|>3 fraction=0.21%, last-third vs first-third drift=0.042σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_18 汽提塔温度",
+        "column": "XMEAS_18",
+        "unit": "°C",
+        "physical_meaning": "汽提塔操作温度，由蒸汽与进料热平衡决定",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          64.462,
+          67.245
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=64.304, max=66.975, |z|>3 fraction=1.77%, last-third vs first-third drift=0.044σ",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "z3_fraction_or_drift_outside_threshold",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_19 汽提塔蒸汽流量",
+        "column": "XMEAS_19",
+        "unit": "kg/h",
+        "physical_meaning": "进入汽提塔的蒸汽质量流量",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          201.643,
+          266.391
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=197.48, max=261.95, |z|>3 fraction=1.04%, last-third vs first-third drift=0.15σ",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "z3_fraction_or_drift_outside_threshold",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_20 压缩机功率",
+        "column": "XMEAS_20",
+        "unit": "kW",
+        "physical_meaning": "循环压缩机功耗，反映循环气路负荷",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          336.755,
+          346.095
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=336.25, max=345.32, |z|>3 fraction=0.42%, last-third vs first-third drift=0.085σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_21 反应器冷却水出口温度",
+        "column": "XMEAS_21",
+        "unit": "°C",
+        "physical_meaning": "反应器冷却水夹套出口温度，反映移热负荷",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          94.22,
+          94.99
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=94.193, max=94.966, |z|>3 fraction=0.10%, last-third vs first-third drift=0.073σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_22 分离器冷却水出口温度",
+        "column": "XMEAS_22",
+        "unit": "°C",
+        "physical_meaning": "冷凝器/分离器冷却水出口温度",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          76.493,
+          78.066
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=76.445, max=78.101, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.131σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_23 反应器进料组分A(流股6)",
+        "column": "XMEAS_23",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分A的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          31.325,
+          33.054
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=31.272, max=33.002, |z|>3 fraction=0.21%, last-third vs first-third drift=0.001σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_24 反应器进料组分B(流股6)",
+        "column": "XMEAS_24",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分B的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          8.585,
+          9.209
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=8.573, max=9.182, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.147σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_25 反应器进料组分C(流股6)",
+        "column": "XMEAS_25",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分C的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          25.471,
+          27.335
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=25.622, max=27.312, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.021σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_26 反应器进料组分D(流股6)",
+        "column": "XMEAS_26",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分D的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          6.553,
+          7.212
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=6.603, max=7.231, |z|>3 fraction=0.21%, last-third vs first-third drift=0.016σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_27 反应器进料组分E(流股6)",
+        "column": "XMEAS_27",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分E的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          17.924,
+          19.618
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=17.925, max=19.557, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.008σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_28 反应器进料组分F(流股6)",
+        "column": "XMEAS_28",
+        "unit": "mol%",
+        "physical_meaning": "流股6中组分F的摩尔分数（气相色谱分析）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          1.582,
+          1.731
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=1.581, max=1.738, |z|>3 fraction=0.83%, last-third vs first-third drift=-0.142σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_29 排放组分A(流股9)",
+        "column": "XMEAS_29",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分A的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          31.92,
+          33.998
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=31.96, max=34.082, |z|>3 fraction=0.21%, last-third vs first-third drift=0.043σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_30 排放组分B(流股9)",
+        "column": "XMEAS_30",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分B的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          13.509,
+          14.14
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=13.525, max=14.121, |z|>3 fraction=0.00%, last-third vs first-third drift=0.035σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_31 排放组分C(流股9)",
+        "column": "XMEAS_31",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分C的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          22.851,
+          25.127
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=23.012, max=25.14, |z|>3 fraction=0.21%, last-third vs first-third drift=0.034σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_32 排放组分D(流股9)",
+        "column": "XMEAS_32",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分D的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          0.936,
+          1.571
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=0.984, max=1.605, |z|>3 fraction=0.83%, last-third vs first-third drift=0.054σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_33 排放组分E(流股9)",
+        "column": "XMEAS_33",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分E的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          17.584,
+          19.517
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=17.573, max=19.418, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.062σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_34 排放组分F(流股9)",
+        "column": "XMEAS_34",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分F的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          2.188,
+          2.342
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=2.193, max=2.328, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.146σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_35 排放组分G(流股9)",
+        "column": "XMEAS_35",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分G的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          4.642,
+          5.033
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=4.63, max=5.029, |z|>3 fraction=0.21%, last-third vs first-third drift=-0.154σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_36 排放组分H(流股9)",
+        "column": "XMEAS_36",
+        "unit": "mol%",
+        "physical_meaning": "purge流股9中组分H的摩尔分数",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "predictor",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          2.138,
+          2.462
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=2.137, max=2.508, |z|>3 fraction=0.42%, last-third vs first-third drift=-0.038σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_37 产品组分D(流股11)",
+        "column": "XMEAS_37",
+        "unit": "mol%",
+        "physical_meaning": "产品流股11中组分D的摩尔分数（产品质量指标，G/H为目标产物）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "target",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          -0.012,
+          0.049
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=-0.006, max=0.047, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.12σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_38 产品组分E(流股11)",
+        "column": "XMEAS_38",
+        "unit": "mol%",
+        "physical_meaning": "产品流股11中组分E的摩尔分数（产品质量指标，G/H为目标产物）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "target",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          0.783,
+          0.888
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=0.783, max=0.883, |z|>3 fraction=0.52%, last-third vs first-third drift=-0.009σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_39 产品组分F(流股11)",
+        "column": "XMEAS_39",
+        "unit": "mol%",
+        "physical_meaning": "产品流股11中组分F的摩尔分数（产品质量指标，G/H为目标产物）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "target",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          0.068,
+          0.129
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=0.074, max=0.124, |z|>3 fraction=0.00%, last-third vs first-third drift=0.189σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_40 产品组分G(流股11)",
+        "column": "XMEAS_40",
+        "unit": "mol%",
+        "physical_meaning": "产品流股11中组分G的摩尔分数（产品质量指标，G/H为目标产物）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "target",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          52.203,
+          55.22
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=52.463, max=55.012, |z|>3 fraction=0.00%, last-third vs first-third drift=-0.298σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      },
+      {
+        "name": "XMEAS_41 产品组分H(流股11)",
+        "column": "XMEAS_41",
+        "unit": "mol%",
+        "physical_meaning": "产品流股11中组分H的摩尔分数（产品质量指标，G/H为目标产物）",
+        "physical_meaning_confidence": "KNOWN",
+        "role": "target",
+        "knowledge_source": "user_provided",
+        "normal_range": [
+          42.23,
+          45.516
+        ],
+        "normal_range_derivation": "mean±3σ recomputed from 00_input/data.csv (n=960)",
+        "observed_data_behavior": "min=42.473, max=45.445, |z|>3 fraction=0.00%, last-third vs first-third drift=0.162σ",
+        "behavior_match": "CONSISTENT",
+        "time_lag": null,
+        "knowledge_source_detail": "TEP 标准流程图语义 grounding user_context.process_description（Downs & Vogel 1993）"
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "XMV_1 D进料阀(流股2)",
+        "column": "XMV_1",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "D进料流股2调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          61.255,
+          64.787
+        ],
+        "observed_data_behavior": "min=61.033, max=64.855, |z|>3 fraction=0.31%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_2 E进料阀(流股3)",
+        "column": "XMV_2",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "E进料流股3调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          52.662,
+          55.31
+        ],
+        "observed_data_behavior": "min=52.481, max=55.282, |z|>3 fraction=0.10%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_3 A进料阀(流股1)",
+        "column": "XMV_3",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "A进料流股1调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          15.506,
+          33.734
+        ],
+        "observed_data_behavior": "min=16.627, max=34.859, |z|>3 fraction=0.42%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_4 A+C进料阀(流股4)",
+        "column": "XMV_4",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "A与C混合进料流股4调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          57.534,
+          65.068
+        ],
+        "observed_data_behavior": "min=56.905, max=66.024, |z|>3 fraction=0.63%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_5 压缩机循环阀",
+        "column": "XMV_5",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "压缩机入口循环阀开度，调节循环气量",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          20.752,
+          23.712
+        ],
+        "observed_data_behavior": "min=20.665, max=23.468, |z|>3 fraction=0.10%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_6 排放阀(流股9)",
+        "column": "XMV_6",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "purge排放调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          35.62,
+          44.414
+        ],
+        "observed_data_behavior": "min=35.208, max=44.303, |z|>3 fraction=0.31%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_7 分离器液相出料阀(流股10)",
+        "column": "XMV_7",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "分离器罐底液相出料阀开度（分离器液位操纵量）",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          28.784,
+          47.002
+        ],
+        "observed_data_behavior": "min=27.504, max=48.434, |z|>3 fraction=0.42%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_8 汽提塔产品阀(流股11)",
+        "column": "XMV_8",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "汽提塔液相产品出料阀开度（汽提塔液位操纵量）",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          39.212,
+          53.665
+        ],
+        "observed_data_behavior": "min=38.688, max=55.997, |z|>3 fraction=0.21%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_9 汽提塔蒸汽阀",
+        "column": "XMV_9",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "汽提塔蒸汽调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          39.837,
+          56.978
+        ],
+        "observed_data_behavior": "min=39.353, max=55.624, |z|>3 fraction=0.83%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_10 反应器冷却水阀",
+        "column": "XMV_10",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "反应器冷却水流量调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          39.446,
+          42.758
+        ],
+        "observed_data_behavior": "min=39.366, max=43.051, |z|>3 fraction=0.21%",
+        "behavior_match": "CONSISTENT"
+      },
+      {
+        "name": "XMV_11 冷凝器冷却水阀",
+        "column": "XMV_11",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "冷凝器冷却水流量调节阀开度",
+        "physical_meaning_confidence": "KNOWN",
+        "knowledge_source": "user_provided",
+        "knowledge_source_detail": "TEP 标准操纵变量定义",
+        "control_type": "output",
+        "auto_inferred": false,
+        "normal_range": [
+          13.955,
+          22.501
+        ],
+        "observed_data_behavior": "min=13.975, max=23.005, |z|>3 fraction=0.21%",
+        "behavior_match": "CONSISTENT"
+      }
+    ],
+    "metadata_columns": [
+      {
+        "name": "timestamp",
+        "column": "timestamp",
+        "role": "timestamp",
+        "description": "3 分钟采样时间戳"
+      }
+    ],
+    "inspection_signals": [],
+    "events": []
+  },
+  "quality_target_causal_map": {
+    "XMEAS_40_产品G摩尔分数": [
+      "XMV_8",
+      "XMV_9",
+      "XMEAS_15",
+      "XMEAS_18",
+      "XMEAS_19",
+      "XMEAS_35",
+      "XMV_6",
+      "XMEAS_10"
+    ],
+    "XMEAS_41_产品H摩尔分数": [
+      "XMV_8",
+      "XMV_9",
+      "XMEAS_15",
+      "XMEAS_18",
+      "XMEAS_19",
+      "XMEAS_36",
+      "XMV_6",
+      "XMEAS_10"
+    ],
+    "XMEAS_39_产品F摩尔分数": [
+      "XMV_8",
+      "XMV_9",
+      "XMEAS_18",
+      "XMEAS_34",
+      "XMEAS_15"
+    ]
+  },
+  "physical_principles": [
+    {
+      "principle": "气相物料平衡（系统压力）",
+      "equation": "dP/dt ∝ ΣF_in - ΣF_out（反应消耗+冷凝+purge）",
+      "parameters": [
+        "XMEAS_6",
+        "XMEAS_10",
+        "XMEAS_7",
+        "XMEAS_13",
+        "XMV_5",
+        "XMV_6"
+      ],
+      "direction": "进料>排出→压力上升"
+    },
+    {
+      "principle": "液位物料平衡",
+      "equation": "A·dL/dt = F_in - F_out",
+      "parameters": [
+        "XMEAS_8",
+        "XMEAS_12",
+        "XMEAS_15"
+      ],
+      "direction": "出入不平衡→液位漂移（闭环下被操纵量消除）"
+    },
+    {
+      "principle": "反应能量平衡与移热",
+      "equation": "Σ(-ΔHr)rkV = m_cw·Cp·(T_out - T_in)",
+      "parameters": [
+        "XMEAS_9",
+        "XMEAS_21",
+        "XMV_10"
+      ],
+      "direction": "冷却不足→反应器温度与压力同向上升"
+    },
+    {
+      "principle": "汽液平衡（VLE）",
+      "equation": "Σ zi Ki(T,P) = 1",
+      "parameters": [
+        "XMEAS_11",
+        "XMEAS_13",
+        "XMEAS_16",
+        "XMEAS_18"
+      ],
+      "direction": "温度/压力决定气液分配"
+    },
+    {
+      "principle": "反应选择性网络",
+      "equation": "G、H为目标产物；F为惰性副产物，经purge排出",
+      "parameters": [
+        "XMEAS_35",
+        "XMEAS_36",
+        "XMEAS_39",
+        "XMEAS_40",
+        "XMEAS_41",
+        "XMEAS_10"
+      ],
+      "direction": "purge不足→惰性积累→组分漂移"
+    }
+  ],
+  "known_failure_modes": [
+    {
+      "id": "IDV(0)",
+      "name": "正常基准工况（无故障）",
+      "type": "baseline",
+      "knowledge_source": "tep_standard_benchmark_prior"
+    },
+    {
+      "id": "IDV(1)",
+      "name": "A/C进料比阶跃（B组成不变）",
+      "type": "step"
+    },
+    {
+      "id": "IDV(2)",
+      "name": "B组成阶跃（A/C进料比不变）",
+      "type": "step"
+    },
+    {
+      "id": "IDV(3)",
+      "name": "D进料温度阶跃",
+      "type": "step"
+    },
+    {
+      "id": "IDV(4)",
+      "name": "反应器冷却水入口温度阶跃",
+      "type": "step"
+    },
+    {
+      "id": "IDV(5)",
+      "name": "冷凝器冷却水入口温度阶跃",
+      "type": "step"
+    },
+    {
+      "id": "IDV(6)",
+      "name": "A进料损失（阶跃）",
+      "type": "step"
+    },
+    {
+      "id": "IDV(7)",
+      "name": "C管头压力损失（阶跃）",
+      "type": "step"
+    },
+    {
+      "id": "IDV(8)",
+      "name": "A/B/C组成随机变移",
+      "type": "random"
+    },
+    {
+      "id": "IDV(9)",
+      "name": "D进料温度随机变移",
+      "type": "random"
+    },
+    {
+      "id": "IDV(10)",
+      "name": "C进料温度随机变移",
+      "type": "random"
+    },
+    {
+      "id": "IDV(11)",
+      "name": "反应器冷却水入口温度随机变移",
+      "type": "random"
+    },
+    {
+      "id": "IDV(12)",
+      "name": "冷凝器冷却水入口温度随机变移",
+      "type": "random"
+    },
+    {
+      "id": "IDV(13)",
+      "name": "反应动力学慢漂移",
+      "type": "slow_drift"
+    },
+    {
+      "id": "IDV(14)",
+      "name": "反应器冷却水阀粘滞",
+      "type": "sticking"
+    },
+    {
+      "id": "IDV(15)",
+      "name": "冷凝器冷却水阀粘滞",
+      "type": "sticking"
+    },
+    {
+      "id": "IDV(16-20)",
+      "name": "未知扰动类型（基准未公开定义）",
+      "type": "unknown"
+    }
+  ],
+  "relationships": [
+    {
+      "from": "XMV_3",
+      "to": "XMEAS_1",
+      "type": "causal",
+      "direction": "forward",
+      "strength": "strong",
+      "mechanism": "A进料阀开度直接计量调节A进料流量（阀门流量特性）",
+      "observed_r": 0.997,
+      "verification": "Pearson r=0.997 computed from data"
+    },
+    {
+      "from": "XMV_9",
+      "to": "XMEAS_19",
+      "type": "causal",
+      "direction": "forward",
+      "strength": "strong",
+      "mechanism": "蒸汽阀开度直接决定蒸汽流量",
+      "observed_r": 0.987,
+      "verification": "Pearson r=0.987"
+    },
+    {
+      "from": "XMV_7",
+      "to": "XMEAS_12",
+      "type": "control",
+      "direction": "reverse",
+      "strength": "strong",
+      "mechanism": "分离器液位(XMEAS_12)由罐底出料阀(XMV_7)闭环控制；|r|≈1 为闭环耦合的预期形态，非故障信号",
+      "observed_r": 1
+    },
+    {
+      "from": "XMV_8",
+      "to": "XMEAS_15",
+      "type": "control",
+      "direction": "reverse",
+      "strength": "strong",
+      "mechanism": "汽提塔液位(XMEAS_15)由产品出料阀(XMV_8)闭环控制；|r|≈1 为闭环耦合的预期形态，非故障信号",
+      "observed_r": 1
+    },
+    {
+      "from": "XMEAS_7",
+      "to": "XMEAS_13",
+      "type": "physical",
+      "direction": "bidirectional",
+      "strength": "strong",
+      "mechanism": "反应器-分离器经循环压缩机气路联通，两端压力受同一气相物料平衡支配",
+      "observed_r": 0.997
+    },
+    {
+      "from": "XMV_11",
+      "to": "XMEAS_17",
+      "type": "correlative",
+      "direction": "unknown",
+      "strength": "strong",
+      "mechanism": "机制未定：冷凝器冷却水阀与汽提塔底出料的强负相关需经滞后补偿CCF与工艺机理复核（可能为伪相关）",
+      "observed_r": -0.999,
+      "caution": "anti_spurious_correlation_check_required"
+    },
+    {
+      "from": "XMEAS_10",
+      "to": "XMEAS_29",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "purge流量与排放组分含量共同决定惰性组分排出速率"
+    },
+    {
+      "from": "XMEAS_19",
+      "to": "XMEAS_18",
+      "type": "causal",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "蒸汽流量加热汽提塔，改变塔温与解吸效率"
+    },
+    {
+      "from": "XMV_10",
+      "to": "XMEAS_21",
+      "type": "causal",
+      "direction": "reverse",
+      "strength": "moderate",
+      "mechanism": "反应器冷却水量增大→冷却水出口温度降低（移热带走反应热）"
+    }
+  ],
+  "confounders": [
+    {
+      "name": "闭环控制耦合",
+      "detail": "液位-出料阀、压力-气路的强相关为闭环控制的预期产物，分析时必须区分\"控制回路耦合\"与\"故障传导\"",
+      "mitigation": "对控制对使用滞后补偿CCF与机理复核，不将|r|≈1直接判为因果"
+    },
+    {
+      "name": "共用冷却水系统",
+      "detail": "反应器与冷凝器冷却水负荷可能共享上游公用工程",
+      "mitigation": "分析冷却水相关变量时检查共变"
+    }
+  ],
+  "parameter_groups": {
+    "feed_group": [
+      "XMEAS_1",
+      "XMEAS_2",
+      "XMEAS_3",
+      "XMEAS_4",
+      "XMV_1",
+      "XMV_2",
+      "XMV_3",
+      "XMV_4"
+    ],
+    "reactor_group": [
+      "XMEAS_6",
+      "XMEAS_7",
+      "XMEAS_8",
+      "XMEAS_9",
+      "XMV_10",
+      "XMEAS_21"
+    ],
+    "separator_group": [
+      "XMEAS_11",
+      "XMEAS_12",
+      "XMEAS_13",
+      "XMEAS_14",
+      "XMV_7",
+      "XMV_11",
+      "XMEAS_22"
+    ],
+    "stripper_group": [
+      "XMEAS_15",
+      "XMEAS_16",
+      "XMEAS_17",
+      "XMEAS_18",
+      "XMEAS_19",
+      "XMV_8",
+      "XMV_9"
+    ],
+    "recycle_purge_group": [
+      "XMEAS_5",
+      "XMEAS_10",
+      "XMEAS_20",
+      "XMV_5",
+      "XMV_6"
+    ],
+    "composition_reactor_feed": [],
+    "composition_purge": [],
+    "composition_product": [],
+    "utility_group": [
+      "XMEAS_20",
+      "XMEAS_21",
+      "XMEAS_22",
+      "XMV_10",
+      "XMV_11"
+    ]
+  },
+  "discrepancy_signals": [
+    {
+      "type": "range_violation",
+      "column": "XMEAS_18",
+      "detail": "min=64.304, max=66.975, |z|>3 fraction=1.77%, last-third vs first-third drift=0.044σ",
+      "severity": "watch",
+      "derived": true
+    },
+    {
+      "type": "range_violation",
+      "column": "XMEAS_19",
+      "detail": "min=197.48, max=261.95, |z|>3 fraction=1.04%, last-third vs first-third drift=0.15σ",
+      "severity": "watch",
+      "derived": true
+    }
+  ],
+  "metadata": {
+    "sampling_rate": "3分钟/样本",
+    "data_window": "NaN → NaN (960 行)",
+    "units": {
+      "XMEAS_1": "kmol/h·10³",
+      "XMEAS_2": "kg/h",
+      "XMEAS_3": "kg/h",
+      "XMEAS_4": "kmol/h·10³",
+      "XMEAS_5": "kmol/h·10³",
+      "XMEAS_6": "kmol/h·10³",
+      "XMEAS_7": "kPa(表压)",
+      "XMEAS_8": "%",
+      "XMEAS_9": "°C",
+      "XMEAS_10": "kmol/h·10³",
+      "XMEAS_11": "°C",
+      "XMEAS_12": "%",
+      "XMEAS_13": "kPa(表压)",
+      "XMEAS_14": "m³/h",
+      "XMEAS_15": "%",
+      "XMEAS_16": "kPa(表压)",
+      "XMEAS_17": "m³/h",
+      "XMEAS_18": "°C",
+      "XMEAS_19": "kg/h",
+      "XMEAS_20": "kW",
+      "XMEAS_21": "°C",
+      "XMEAS_22": "°C",
+      "XMEAS_23": "mol%",
+      "XMEAS_24": "mol%",
+      "XMEAS_25": "mol%",
+      "XMEAS_26": "mol%",
+      "XMEAS_27": "mol%",
+      "XMEAS_28": "mol%",
+      "XMEAS_29": "mol%",
+      "XMEAS_30": "mol%",
+      "XMEAS_31": "mol%",
+      "XMEAS_32": "mol%",
+      "XMEAS_33": "mol%",
+      "XMEAS_34": "mol%",
+      "XMEAS_35": "mol%",
+      "XMEAS_36": "mol%",
+      "XMEAS_37": "mol%",
+      "XMEAS_38": "mol%",
+      "XMEAS_39": "mol%",
+      "XMEAS_40": "mol%",
+      "XMEAS_41": "mol%",
+      "XMV_1": "%",
+      "XMV_2": "%",
+      "XMV_3": "%",
+      "XMV_4": "%",
+      "XMV_5": "%",
+      "XMV_6": "%",
+      "XMV_7": "%",
+      "XMV_8": "%",
+      "XMV_9": "%",
+      "XMV_10": "%",
+      "XMV_11": "%"
+    },
+    "data_sources": [
+      "00_input/data.csv"
+    ],
+    "rag_available": false,
+    "rag_fallback": "parameter_to_physics.json + TEP flowsheet domain knowledge (per orchestrator directive RAG UNAVAILABLE)",
+    "build_mode": "full",
+    "scenario_note": "user_context 声明本段为无故障测试段(48h)；真值对诊断不可见(truth_withheld=true)，结论必须由数据独立支撑"
+  }
+}

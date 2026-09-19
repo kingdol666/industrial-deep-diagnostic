@@ -385,6 +385,14 @@ export function startSessionChat({ runId, sessionId, message }) {
   throw err;
 }
 
+// Raw-prompt conversational turn (standalone chat) — one prompt_async flight
+// against the resident opencode server, no industrial prompt wrapper.
+export function startChatTurn({ runId, prompt }) {
+  const query = createOpenCodeQuery({ turnKey: runId, prompt: String(prompt || '').trim() });
+  activeQueries.set(runId, query);
+  return { query, runId, getSessionId: () => query.sessionId };
+}
+
 export function parseStreamEvent(message) {
   if (!message || typeof message !== 'object') return null;
   return message;

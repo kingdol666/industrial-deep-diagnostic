@@ -1,0 +1,78 @@
+{
+ "run_id": "solo_tep_d07",
+ "generated_at": "2026-09-17T16:49:24.959675+00:00",
+ "nodes": [
+  {
+   "id": "XMV4",
+   "label": "XMV_4 A+C feed valve",
+   "role": "compensating_actuator"
+  },
+  {
+   "id": "XMEAS4",
+   "label": "XMEAS_4 A+C feed flow",
+   "role": "affected_then_recontrolled"
+  },
+  {
+   "id": "XMEAS7",
+   "label": "XMEAS_7 reactor pressure",
+   "role": "downstream_witness"
+  },
+  {
+   "id": "H1",
+   "label": "流股4（A+C）上游供给压力损失",
+   "role": "root_cause_candidate"
+  }
+ ],
+ "edges": [
+  {
+   "from": "XMEAS_4",
+   "to": "XMEAS_7",
+   "r": 0.389,
+   "p_value": 5.814e-36,
+   "method": "pearson"
+  },
+  {
+   "from": "XMEAS_6",
+   "to": "XMEAS_7",
+   "r": 0.102,
+   "p_value": 0.00148,
+   "method": "pearson"
+  },
+  {
+   "from": "XMEAS_9",
+   "to": "XMEAS_21",
+   "r": -0.071,
+   "p_value": 0.02747,
+   "method": "pearson"
+  },
+  {
+   "from": "XMEAS_18",
+   "to": "XMEAS_19",
+   "r": 0.978,
+   "p_value": 0.0,
+   "method": "pearson"
+  }
+ ],
+ "colinear_groups": [
+  {
+   "group_id": "CG1",
+   "members": [
+    "XMEAS_18",
+    "XMEAS_19"
+   ],
+   "mean_intra_r": 0.978
+  }
+ ],
+ "root_cause_candidates": [
+  {
+   "parameter": "XMV_4 / stream-4 supply header pressure loss",
+   "score": 0.82,
+   "reason": "valve stepped +25% and HELD while feed flow was restored — upstream supply loss compensated"
+  },
+  {
+   "parameter": "XMEAS_4 (transient dip only)",
+   "score": 0.3,
+   "reason": "transient symptom restored by compensation; not an independent cause"
+  }
+ ]
+}

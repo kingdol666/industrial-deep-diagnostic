@@ -1,0 +1,34 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 6 章 · HTML 报告：拿去汇报的那一版</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>第三个页签在页面里直接渲染交互式可视化；图表可缩放、可悬停取值</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>ECharts + Three.js</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 412, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/13_htmlreport.png" style={{ width: 872, height: 412, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 112, flexDirection: 'row', gap: 18 }}>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 谁生成它</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>Step 8 的可视化代理产出，随后 Step 8.5 由 HTML 复审代理检查可用性。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 事实源仍是 Markdown</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>HTML 只是 report.md 的可视化外观；两者不一致时，以 Markdown 为准。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: 'rgba(184,115,15,0.10)', borderRadius: 10, border: '1px solid rgba(184,115,15,0.40)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>③ 什么时候用</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.78)', lineHeight: 1.5, marginTop: 6 }}>跨部门汇报、产线现场追溯、给不懂统计的人讲一次波动是怎么发生的。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>HTML 文件也可以单独发给别人，双击即可打开</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>21 / 31</Text>
+    </Box>
+</Slide>

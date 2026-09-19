@@ -1,0 +1,39 @@
+{
+  "plots": [
+    {
+      "filename": "fig_adaptive_overlay.png",
+      "title": "Adaptive temporal overlay",
+      "chart_type": "temporal_overlay",
+      "source": "adaptive_charts.py",
+      "vlm_priority": "MANDATORY"
+    },
+    {
+      "filename": "fig_adaptive_line_XMEAS_1.png",
+      "title": "XMEAS_1 (line)",
+      "chart_type": "line",
+      "source": "adaptive_charts.py",
+      "vlm_priority": "SUPPLEMENTARY"
+    },
+    {
+      "filename": "fig_vlm_synchronization.png",
+      "title": "fig_vlm_synchronization",
+      "plot_type": "vlm_supplementary",
+      "params": [],
+      "vlm_priority": "MANDATORY"
+    },
+    {
+      "filename": "fig_vlm_temporal_overlay.png",
+      "title": "fig_vlm_temporal_overlay",
+      "plot_type": "vlm_temporal_overlay",
+      "params": [],
+      "vlm_priority": "MANDATORY"
+    },
+    {
+      "filename": "fig_vlm_temporal_overlay_single_product.png",
+      "title": "fig_vlm_temporal_overlay_single_product",
+      "plot_type": "vlm_temporal_overlay",
+      "params": [],
+      "vlm_priority": "MANDATORY"
+    }
+  ]
+}

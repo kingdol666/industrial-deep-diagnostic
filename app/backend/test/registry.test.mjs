@@ -35,13 +35,13 @@ describe('harness registry — 14 engines', () => {
   test('capability matrix matches the declared truth (能力如实声明)', () => {
     const caps = Object.fromEntries(listHarnesses().map((m) => [m.id, m.capabilities]));
     assert.deepEqual(caps.claude, ['live', 'chat']);
-    assert.deepEqual(caps.omp, ['live', 'runs', 'report', 'html', 'enhancement']);
+    // chat 加入 omp 能力面：OMP 聊天一直存在（RPC 驻留会话），2026-09-19 起清单如实声明
+    assert.deepEqual(caps.omp, ['live', 'chat', 'runs', 'report', 'html', 'enhancement']);
     assert.deepEqual(caps.mock, ['live', 'chat']);
-    for (const id of ['codex', 'dsh', 'opencode', 'copilot', 'cursor', 'crush', 'qwen', 'pi', 'hermes']) {
-      assert.deepEqual(caps[id], ['live'], `${id} should be live-only`);
-    }
-    for (const id of ['gemini', 'goose']) {
-      assert.deepEqual(caps[id], ['live', 'chat']);
+    // 2026-09-19 起：全部定义表引擎统一声明 live + chat —— 诊断走各自客户端，
+    // 聊天走 chat.service 的通用 turn 路径（原生 resume 优先，否则历史重放）。
+    for (const id of ['codex', 'dsh', 'opencode', 'copilot', 'cursor', 'crush', 'qwen', 'pi', 'hermes', 'gemini', 'goose']) {
+      assert.deepEqual(caps[id], ['live', 'chat'], `${id} should carry live + chat`);
     }
     // runs browsing stays OMP-only
     for (const id of ['mock', 'codex', 'dsh', 'gemini', 'goose', 'pi', 'hermes', 'qwen', 'opencode']) {

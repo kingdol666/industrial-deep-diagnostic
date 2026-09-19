@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">第 5 章 · 实时监控工作台</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">这是全篇信息密度最高的一屏：点进任务后，你会一直盯着它，直到报告出来</div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;background:#1D1B16;border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#B8730F">真实 OMP 运行 #0060f47b</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:row;gap:22px">
+        <div style="display:flex;flex-direction:column;width:700px;height:540px;justify-content:center">
+            <img src="assets/08_liverun.png" style="width:700px;height:535px;border-radius:10px;border:1px solid rgba(29,27,22,0.10)"/>
+        </div>
+        <div style="display:flex;flex-direction:column;width:438px;height:540px;flex-direction:column;gap:14px">
+            <div style="display:flex;flex-direction:column;height:168px;padding:18px;background:#1D1B16;border-radius:12px;flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#F7F4EC">顶部：状态与进度</div>
+                <div class="tx" style="font-size:16px;color:rgba(247,244,236,0.80);line-height:1.6;margin-top:10px">① 停止按钮随时可中断　② 状态点显示诊断中 / 已完成 / 失败　③ 阶段进度条下方写着当前正在执行的动作，例如「执行工具：bash」</div>
+            </div>
+            <div style="display:flex;flex-direction:column;height:150px;padding:18px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#1D1B16">中间：四个计数器</div>
+                <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.72);line-height:1.6;margin-top:10px">轮次 / 工具 / 消息 / 计时。本图放大后是 0 轮次、26 工具、6 消息、489:38 —— 长跑任务靠它判断是否还在推进。</div>
+            </div>
+            <div style="display:flex;flex-direction:column;height:194px;padding:18px;background:rgba(184,115,15,0.10);border-radius:12px;border:1px solid rgba(184,115,15,0.40);flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#8A5608">下方：事件流</div>
+                <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.78);line-height:1.6;margin-top:10px">④ 思考过程、工具调用、命令行原文、返回结果逐条留痕。这就是「证据可回溯」在界面上的样子 —— 结论里的每个数字，都能顺着这条流找到它是怎么算出来的。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:8px 11px;background:rgba(184,115,15,0.20);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">⑤ 底部输入框可随时插话引导</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">一场完整诊断可能跑几十分钟，随时刷新页面都不会丢进度</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">17 / 31</div>
+    </div>
+</div>
+</body></html>

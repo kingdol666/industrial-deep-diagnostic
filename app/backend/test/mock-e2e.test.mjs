@@ -176,14 +176,16 @@ describe('POST /api/diagnosis/start — 执行前强校验 gates', () => {
     assert.match(json.error, /Data not found/);
   });
 
-  test('chat with a non-chat-capable harness → 400 CHAT_HARNESS_UNSUPPORTED (no silent fallback)', async () => {
+  test('chat with an unknown harness → 400 CHAT_HARNESS_UNSUPPORTED; every REGISTERED harness is chat-capable (generic turn path)', async () => {
+    // 2026-09-19 起：通用 turn 路径让全部注册引擎都能聊天（原生 resume 优先，
+    // 否则历史重放）——只有未注册的 id 才 400，绝不静默换引擎。
     const { status, json } = await api('POST', '/api/chat/start', {
-      harness: 'gemini',
+      harness: 'not-a-real-engine',
       prompt: 'hello',
     });
     assert.equal(status, 400);
     assert.equal(json.code, 'CHAT_HARNESS_UNSUPPORTED');
-    assert.match(json.error, /claude.*omp/);
+    assert.match(json.error, /Unknown chat harness/);
   });
 });
 

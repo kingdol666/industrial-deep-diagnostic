@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">第 4 章 · 配置一次诊断：八个控件怎么填</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">数据源已经带过来了，这里只需要做两件事：说清楚要问什么，然后决定用什么策略</div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;background:#1D1B16;border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#B8730F">③ 写得越具体，结论越贴题</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;height:319px;justify-content:center;align-items:center">
+            <img src="assets/06_configure.png" style="width:1160px;height:319px;border-radius:10px;border:1px solid rgba(29,27,22,0.10)"/>
+        </div>
+        <div style="display:flex;flex-direction:column;height:205px;flex-direction:row;gap:22px">
+            <div style="display:flex;flex-direction:column;flex:1;padding:18px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#1D1B16">必填的两栏</div>
+                <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.72);line-height:1.6;margin-top:9px">② 场景名与 ③ 诊断问题会原样写进报告首页。写清楚对象与现象，例如「请判断本批次工艺数据是否发生真实工况漂移，并定位根因」。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:8px 11px;background:rgba(228,220,203,0.75);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.80)">问题留空也能跑，但结论会很泛</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;flex:1;padding:18px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#1D1B16">四个策略下拉</div>
+                <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.72);line-height:1.6;margin-top:9px">④ 最大轮次 ⑤ 报告语言 ⑥ 本体策略 ⑦ 诊断深度。第一次保持默认值即可：不限轮次、中文、自动、自动识别意图。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:8px 11px;background:rgba(228,220,203,0.75);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.80)">「诊断深度」设为开启即自动跑 E0–E8</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;flex:1;padding:18px;background:rgba(184,115,15,0.10);border-radius:12px;border:1px solid rgba(184,115,15,0.40);flex-direction:column">
+                <div class="tx" style="font-size:20px;font-weight:bold;color:#8A5608">① 数据源卡片要核对</div>
+                <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.78);line-height:1.6;margin-top:9px">左上角明确写出「已选择 N 个文件」。如果这里数量不对，说明选错了数据；点「新建任务」可以回到数据页重选。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:8px 11px;background:rgba(184,115,15,0.20);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">按下 ⑧ 开始诊断即进入运行</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">配置只在这一刻生效，运行开始后不可改</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">15 / 31</div>
+    </div>
+</div>
+</body></html>

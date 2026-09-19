@@ -208,19 +208,22 @@ export function getAsset(sceneKey, version, { withGraph = true, withMetrics = tr
 // ────────────────────────── 图投影（VOWL 风格的领域图） ──────────────────────────
 
 // 分类调色板 —— 与前端暗色主题一致；语义：角色/实体类型各有稳定色。
+// 注意：调色板属于"表示层"——本体文件的 content_sha256 不随它变化。带图的
+// 资产响应因此在路由层直接 no-store（2026-09-19 实锤：协商缓存会永远 304
+// 命中旧配色的图），ETag 保持纯 sha 以维持 If-Match 并发契约。
 export const GRAPH_PALETTE = {
-  target: { color: '#f97362', symbol: 'circle', label: '目标量 (target)' },
-  predictor: { color: '#4ea8f5', symbol: 'circle', label: '过程量 (predictor)' },
-  confounder: { color: '#f5b544', symbol: 'circle', label: '混杂因子 (confounder)' },
-  control: { color: '#31c9a8', symbol: 'roundRect', label: '控制量 (control)' },
-  metadata: { color: '#8b93a7', symbol: 'rect', label: '元数据 (metadata)' },
-  event: { color: '#b98cf0', symbol: 'diamond', label: '事件 (event)' },
-  equipment: { color: '#6ee7b7', symbol: 'roundRect', label: '设备' },
-  stage: { color: '#7aa2f7', symbol: 'roundRect', label: '工艺阶段' },
+  target: { color: '#d4694d', symbol: 'circle', label: '目标量 (target)' },
+  predictor: { color: '#5f9fc0', symbol: 'circle', label: '过程量 (predictor)' },
+  confounder: { color: '#d4a93d', symbol: 'circle', label: '混杂因子 (confounder)' },
+  control: { color: '#5fae92', symbol: 'roundRect', label: '控制量 (control)' },
+  metadata: { color: '#8a8676', symbol: 'rect', label: '元数据 (metadata)' },
+  event: { color: '#b889e0', symbol: 'diamond', label: '事件 (event)' },
+  equipment: { color: '#6fae87', symbol: 'roundRect', label: '设备' },
+  stage: { color: '#8b9fc9', symbol: 'roundRect', label: '工艺阶段' },
   principle: { color: '#c9a227', symbol: 'triangle', label: '物理原理' },
-  failure_mode: { color: '#e06c9f', symbol: 'pin', label: '失效模式' },
-  discrepancy: { color: '#ff6b6b', symbol: 'triangle', label: '差异信号' },
-  group: { color: '#5b6b8c', symbol: 'rect', label: '参数组' },
+  failure_mode: { color: '#c4759b', symbol: 'pin', label: '失效模式' },
+  discrepancy: { color: '#b8453a', symbol: 'triangle', label: '差异信号' },
+  group: { color: '#6d6a78', symbol: 'rect', label: '参数组' },
 };
 
 const SIGNAL_BUCKETS = ['inspection_signals', 'process_parameters', 'control_variables', 'events', 'metadata_columns'];
@@ -237,9 +240,9 @@ const ROLE_COLOR_KEY = {
 };
 const REL_STRENGTH_WIDTH = { strong: 3.2, moderate: 2.2, weak: 1.4 };
 const REL_STYLE = {
-  causal: { color: '#f97362', label: '因果', dashed: false },
-  correlative: { color: '#4ea8f5', label: '相关', dashed: true },
-  control: { color: '#31c9a8', label: '控制', dashed: false },
+  causal: { color: '#d4694d', label: '因果', dashed: false },
+  correlative: { color: '#5f9fc0', label: '相关', dashed: true },
+  control: { color: '#5fae92', label: '控制', dashed: false },
   physical: { color: '#c9a227', label: '物理', dashed: false },
 };
 

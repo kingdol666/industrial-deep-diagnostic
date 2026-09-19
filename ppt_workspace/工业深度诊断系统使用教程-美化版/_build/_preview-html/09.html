@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程-美化版/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:22px 64px 18px 64px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1152px;height:102px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:36px;font-weight:bold;color:#1D1B16;line-height:1.25">第 4 步 · 验证：三个服务是否真的活着</div>
+            <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);margin-top:6px">看一眼状态表，再打两个健康检查接口 —— 别急着开浏览器</div>
+        </div>
+        <div style="display:flex;flex-direction:column;padding:10px 18px;background:rgba(184,115,15,0.12);border:1px solid rgba(184,115,15,0.42);border-radius:8px">
+            <div class="tx" style="font-size:16px;font-weight:bold;color:#B8730F">本机真实输出</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1152px;height:534px;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;height:360px;justify-content:center;align-items:center">
+            <img src="assets/t_status.png" style="width:1152px;height:360px;border-radius:11px"/>
+        </div>
+        <div style="display:flex;flex-direction:column;height:158px;flex-direction:row;gap:20px">
+            <div style="display:flex;flex-direction:column;flex:1;padding:18px;background:#FFFFFF;border-radius:11px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                <div class="tx" style="font-size:22px;font-weight:bold;color:#1D1B16">三行全绿才算成功</div>
+                <div class="tx" style="font-size:18px;color:rgba(29,27,22,0.78);line-height:1.6;margin-top:10px">三行都是 ● running 且 health 为 healthy。只要有一行不是，先去看 .runtime/ 下对应的日志。</div>
+            </div>
+            <div style="display:flex;flex-direction:column;flex:1;padding:18px;background:rgba(184,115,15,0.10);border-radius:11px;border:1px solid rgba(184,115,15,0.42);flex-direction:column">
+                <div class="tx" style="font-size:22px;font-weight:bold;color:#8A5608">再打两个健康接口</div>
+                <div class="tx" style="font-size:18px;color:rgba(29,27,22,0.80);line-height:1.6;margin-top:10px">后端返回 status ok、数据库 ok；RAG 返回 kb_ready true。两个都通，就可以进浏览器了。</div>
+            </div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1152px;height:44px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.48)">现在可以打开 http://localhost:5180</div>
+        <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.48)">09 / 34</div>
+    </div>
+</div>
+</body></html>

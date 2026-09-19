@@ -1,0 +1,41 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>报告清单：你要找的东西都在这</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>点左侧「报告」。这里按时间倒序列出所有运行，一行两个按钮，分工明确</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>本机 29 次运行</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'row', gap: 22 }}>
+        <Box style={{ width: 390, height: 534, flexDirection: 'column', gap: 14 }}>
+            <Box style={{ height: 168, padding: 17, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 「查看」列出全部产物</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>这个运行目录下的每一件东西都能点开：报告、审计、HTML、中间件。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>想找中间产物用它</Text>
+                </Box>
+            </Box>
+            <Box style={{ height: 168, padding: 17, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 「阅读报告」直接看结论</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>跳过文件树，直接打开 Markdown 正文 —— 只想看结论时用这个。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>零基础推荐用这个</Text>
+                </Box>
+            </Box>
+            <Box style={{ height: 168, padding: 17, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 看徽标判断完整度</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 9 }}>带「审计」「HTML 报告」标签的运行说明产物更完整，优先看这些。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: '#8A5608' }}>没标签的通常是早期运行</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Image src="assets/10_reportlist.png" style={{ width: 740, height: 350, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>只有「查看」没有「阅读报告」，说明该次运行没产出报告</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>24 / 34</Text>
+    </Box>
+</Slide>

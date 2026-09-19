@@ -1,0 +1,30 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 4 步 · 验证：三个服务是否真的活着</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>看一眼状态表，再打两个健康检查接口 —— 别急着开浏览器</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>本机真实输出</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 360, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_status.png" style={{ width: 1152, height: 360, borderRadius: 11 }} />
+        </Box>
+        <Box style={{ height: 158, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>三行全绿才算成功</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>三行都是 ● running 且 health 为 healthy。只要有一行不是，先去看 .runtime/ 下对应的日志。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#8A5608' }}>再打两个健康接口</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 10 }}>后端返回 status ok、数据库 ok；RAG 返回 kb_ready true。两个都通，就可以进浏览器了。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>现在可以打开 http://localhost:5180</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>09 / 34</Text>
+    </Box>
+</Slide>

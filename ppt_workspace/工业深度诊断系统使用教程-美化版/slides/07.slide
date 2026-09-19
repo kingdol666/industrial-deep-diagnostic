@@ -1,0 +1,43 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 1 步 · 环境准备：四个依赖一次查完</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>缺任何一项，启动都会直接失败 —— 所以先花 30 秒把版本查清楚</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>本机真实输出</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 299, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_prereq.png" style={{ width: 1112, height: 299, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 219, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>① 版本下限</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>Node.js ≥ 18（推荐 22+）、npm ≥ 9、Python ≥ 3.10；uv 是推荐的，不装也能跑。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>低一个主版本通常也能跑</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>② 依赖是自动装的</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>启动时如果缺 node_modules，后端与前端会自己 npm install；RAG 会自建 Python 虚拟环境。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>所以你不用手动装一堆包</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#8A5608' }}>③ 网络慢的时候</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 10 }}>RAG 的 Python 依赖体积较大。可以先切到国内镜像源再启动，免得卡在 uv sync 上。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: '#8A5608' }}>UV_INDEX_URL 指向清华镜像</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>Industrial Deep Diagnostic · 零基础使用教程</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>07 / 34</Text>
+    </Box>
+</Slide>

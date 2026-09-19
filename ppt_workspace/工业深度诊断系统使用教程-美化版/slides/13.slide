@@ -1,0 +1,35 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>进门：登录注册，以及整张控制台地图</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>浏览器打开 http://localhost:5180 就是这一页；左边那一条，是你之后所有操作的入口</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>真实界面截图</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 376, flexDirection: 'row', gap: 22, justifyContent: 'center' }}>
+            <Image src="assets/01_auth.png" style={{ width: 526, height: 376, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Image src="assets/02_rail.png" style={{ width: 212, height: 376, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 142, flexDirection: 'row', gap: 18 }}>
+            <Box style={{ flex: 1, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 第一次用先注册</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>用户名 3–32 位字母或数字；密码至少 8 位且要同时含字母与数字。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 日常只走三个页面</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>数据（传文件）→ 诊断（发起与盯着跑）→ 报告（读结论）。其余是进阶能力。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 首个账号就是管理员</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.80)', lineHeight: 1.55, marginTop: 8 }}>第一个注册的用户自动获得管理员权限；登录状态由 24 小时会话保持。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>左下角能看到引擎开关与实时连接状态</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>13 / 34</Text>
+    </Box>
+</Slide>

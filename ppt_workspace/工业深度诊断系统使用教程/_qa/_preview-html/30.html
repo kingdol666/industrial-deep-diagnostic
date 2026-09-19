@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">第 12 章 · 排错速查：三个等级，按顺序查</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">九成问题落在这三类里；先看现象，再按顺序做检查，不用猜</div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;background:rgba(168,68,42,0.12);border:1px solid rgba(168,68,42,0.45);border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#A8442A">先查 L1，再查 L2</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:row;gap:20px">
+        <div style="display:flex;flex-direction:column;flex:1;height:540px;padding:20px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);border-top:4px solid #A8442A;flex-direction:column">
+            <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:10px">
+                <div style="display:flex;flex-direction:column;padding:4px 10px;background:#A8442A;border-radius:6px">
+                    <div class="tx" style="font-size:14px;font-weight:bold;color:#FFFFFF">L1 · 起不来</div>
+                </div>
+                <div class="tx" style="font-size:18px;font-weight:bold;color:#1D1B16">服务根本没跑</div>
+            </div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.80);line-height:1.72;margin-top:14px">现象：访问 5180 打不开，或 ind-diag status 里某一行不是 running。<br/><br/>① 端口被占用：查 3210 / 5180 / 8764 三个端口，杀掉占用的进程再启动。<br/><br/>② 命令不返回、报 Service manager timeout：几乎一定是漏了 --detach，服务其实已经起来。<br/><br/>③ RAG 起不来：先确认 Python ≥ 3.10，再切镜像源重跑 uv sync，日志看 .runtime/rag.log。</div>
+            <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(168,68,42,0.10);border-radius:8px">
+                <div class="tx" style="font-size:15px;color:#A8442A;line-height:1.5">先看日志再动手：三个日志文件都在 .runtime/ 下</div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex:1;height:540px;padding:20px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);border-top:4px solid #B8730F;flex-direction:column">
+            <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:10px">
+                <div style="display:flex;flex-direction:column;padding:4px 10px;background:#B8730F;border-radius:6px">
+                    <div class="tx" style="font-size:14px;font-weight:bold;color:#FFFFFF">L2 · 跑不起来</div>
+                </div>
+                <div class="tx" style="font-size:18px;font-weight:bold;color:#1D1B16">服务活着，诊断发不出去</div>
+            </div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.80);line-height:1.72;margin-top:14px">现象：点了开始诊断没反应，或立刻失败。<br/><br/>① 引擎未登录：跑 claude --version / omp --version 确认 CLI 可用；缺 Key 就补 .env。<br/><br/>② 返回 400 HARNESS_UNKNOWN：引擎名拼错了，前端下拉里选。<br/><br/>③ 返回 409 HARNESS_UNAVAILABLE：引擎没装，换一个已就绪的，或先装 CLI。</div>
+            <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(184,115,15,0.12);border-radius:8px">
+                <div class="tx" style="font-size:15px;color:#8A5608;line-height:1.5">先拿 Mock 引擎跑一遍，能通说明是引擎问题不是系统问题</div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex:1;height:540px;padding:20px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);border-top:4px solid #2F6FA8;flex-direction:column">
+            <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:10px">
+                <div style="display:flex;flex-direction:column;padding:4px 10px;background:#2F6FA8;border-radius:6px">
+                    <div class="tx" style="font-size:14px;font-weight:bold;color:#FFFFFF">L3 · 结果不对</div>
+                </div>
+                <div class="tx" style="font-size:18px;font-weight:bold;color:#1D1B16">跑完了但结论奇怪</div>
+            </div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.80);line-height:1.72;margin-top:14px">现象：结论不合理、评分低、或反复重跑。<br/><br/>① 先读结论列：COMPETING_SET 不代表失败，它是在告诉你数据不足以区分假设，页面上会列出「最小判别数据集」。<br/><br/>② 检查问题栏写清楚没有 —— 泛泛的问题只会得到泛泛的结论。<br/><br/>③ 查 .pipeline_events.jsonl 确认是否真的执行完；没跑完的运行不算证据。</div>
+            <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(47,111,168,0.10);border-radius:8px">
+                <div class="tx" style="font-size:15px;color:#2F6FA8;line-height:1.5">不确定是否正常？去引擎运行页看产物覆盖是否齐全</div>
+            </div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">三张卡已按「先看现象 → 再定位」的顺序排好</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">30 / 31</div>
+    </div>
+</div>
+</body></html>

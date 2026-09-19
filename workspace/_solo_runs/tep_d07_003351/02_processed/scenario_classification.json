@@ -1,0 +1,24 @@
+{
+ "scene_type": "continuous_process_fault_window",
+ "process_category": "tennessee_eastman_reactor_separator_stripper_recycle",
+ "confidence": "high",
+ "classification_basis": [
+  "ontology",
+  "column_name_heuristics",
+  "user_provided"
+ ],
+ "ontology_available": true,
+ "adaptive_visualization_plan": {
+  "time_series_overlay": true,
+  "single_channel_lines": true,
+  "contour_2d_field": false,
+  "reason": "TEP 3-min multivariate time series; no 2D coordinate grid"
+ },
+ "expected_physics": [
+  "feed header supply pressure vs valve compensation",
+  "reactor pressure/temperature control loops"
+ ],
+ "degradation_candidates": [
+  "VLM pixel reading unavailable -> metadata_backed_inference"
+ ]
+}

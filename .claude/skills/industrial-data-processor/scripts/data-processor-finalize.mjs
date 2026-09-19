@@ -756,6 +756,87 @@ function synthesizeDataAnalysisConclusion(runDir) {
 }
 
 // ============================================================================
+// Stage digest — <=2KB machine summary for downstream stages (speed contract:
+// read stage_digest.json FIRST, full artifacts only on demand)
+// ============================================================================
+
+function writeStageDigest(runDir) {
+  const P = (rel) => join(runDir, rel);
+  const anomaly = readJson(P('02_processed/anomaly_report.json'), {}) || {};
+  const scenario = readJson(P('02_processed/scenario_classification.json'), {}) || {};
+  const validate = readJson(P('02_processed/validate_report.json'), {}) || {};
+  const conclusion = readJson(P('02_processed/data_analysis_conclusion.json'), {}) || {};
+  const alignment = readJson(P('02_processed/time_alignment.json'), {}) || {};
+  const chartPlan = readJson(P('03_figures/adaptive_chart_plan.json'), {}) || {};
+  const featureSummary = readJson(P('02_processed/feature_summary.json'), {}) || {};
+
+  const anom = Array.isArray(anomaly.anomalies) ? anomaly.anomalies
+    : Array.isArray(anomaly.anomalous_columns) ? anomaly.anomalous_columns : [];
+  const topAnomalies = anom.slice(0, 6).map((a) => typeof a === 'string'
+    ? a
+    : { column: a.column || a.name, z_max: a.z_max ?? a.max_z ?? a.score, onset: a.onset_index ?? a.onset });
+  const fluct = anomaly.process_parameter_fluctuation || {};
+  const fluctTop = Object.entries(fluct)
+    .filter(([, v]) => v && typeof v === 'object')
+    .map(([col, v]) => ({ column: col, cv: v.cv, abrupt: v.abrupt_behavior }))
+    .sort((a, b) => (b.cv || 0) - (a.cv || 0)).slice(0, 5);
+  const pearson = validate?.correlation?.correlation_matrices?.pearson || {};
+  const corrPairs = [];
+  const seen = new Set();
+  for (const [a, row] of Object.entries(pearson)) {
+    for (const [b, r] of Object.entries(row || {})) {
+      if (a >= b || typeof r !== 'number' || Math.abs(r) > 0.995) continue;
+      const key = [a, b].sort().join('~');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      corrPairs.push({ pair: key, r: Number(r.toFixed(3)) });
+    }
+  }
+  const segment = readJson(P('02_processed/segment_statistics.json'), {}) || {};
+  const digest = {
+    stage: 'data-processor',
+    schema: 'stage_digest/1.0',
+    scenario: scenario.scenario_type || scenario.classification || null,
+    data_shape: {
+      n_rows: featureSummary?.dataset_profile?.n_rows ?? conclusion?.dataset_profile?.n_rows ?? null,
+      n_columns: featureSummary?.dataset_profile?.n_columns ?? null,
+      time_col: alignment.time_col || null,
+      time_method: alignment.method || null,
+      median_interval_s: alignment.median_interval_s ?? null,
+      index_implied_only: alignment.method === 'index-implied',
+    },
+    anomaly_counts: anomaly.summary || { flagged: anom.length },
+    top_anomalies: topAnomalies.length ? topAnomalies : fluctTop,
+    fluctuation_top_cv: fluctTop,
+    top_correlations: corrPairs.sort((a, b) => Math.abs(b.r) - Math.abs(a.r)).slice(0, 5),
+    segment_contrast: segment.detected_window
+      ? { window: segment.detected_window, key_deltas: Object.fromEntries(
+          ['Volume Flow RateRMS', 'Current', 'Pressure', 'Accelerometer1RMS', 'Accelerometer2RMS']
+            .filter((c) => segment[c]).map((c) => [c, segment[c].delta_pct])) }
+      : null,
+    robustness: (typeof validate?.anti_spurious?.overall_validity === 'string')
+      ? validate.anti_spurious.overall_validity : null,
+    analysis_mode: conclusion.analysis_mode || conclusion.data_view_mode || null,
+    key_findings: (conclusion.key_findings || conclusion.findings || []).slice(0, 5),
+    charts: {
+      adaptive_plan: (chartPlan.decisions || []).map((d) => ({ chart: d.chart_type, target: d.target })),
+      n_pngs: (chartPlan.files || []).length,
+    },
+    read_full: {
+      data_analysis_conclusion: '02_processed/data_analysis_conclusion.json',
+      validate_report: '02_processed/validate_report.json',
+      anomaly_report: '02_processed/anomaly_report.json',
+      segment_statistics: '02_processed/segment_statistics.json',
+      adaptive_chart_plan: '03_figures/adaptive_chart_plan.json',
+    },
+  };
+  const out = P('02_processed/stage_digest.json');
+  fs.writeFileSync(out, JSON.stringify(digest, null, 1) + '\n');
+  const kb = fs.statSync(out).size / 1024;
+  return { ok: true, output: out, size_kb: Number(kb.toFixed(1)) };
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
@@ -767,4 +848,8 @@ console.log('[data-processor-finalize] Step 2: Synthesize data analysis conclusi
 const synthesizeResult = synthesizeDataAnalysisConclusion(runDir);
 console.log(JSON.stringify({ step: 'synthesize', ...synthesizeResult }, null, 2));
 
-console.log(JSON.stringify({ ok: true, steps: ['normalize', 'synthesize'] }, null, 2));
+console.log('[data-processor-finalize] Step 3: Write stage digest (downstream fast path)...');
+const digestResult = writeStageDigest(runDir);
+console.log(JSON.stringify({ step: 'stage_digest', ...digestResult }, null, 2));
+
+console.log(JSON.stringify({ ok: true, steps: ['normalize', 'synthesize', 'stage_digest'] }, null, 2));

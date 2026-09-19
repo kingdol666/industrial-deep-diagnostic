@@ -1,0 +1,25 @@
+<Slide style={{ padding: 0, background: '#1D1B16', position: 'relative', overflow: 'hidden' }}>
+    <Box style={{ position: 'absolute', right: 0, top: 0, width: 470, height: 720, background: 'linear-gradient(135deg, #1D1B16 0%, #B8730F 100%)', opacity: 0.34 }} />
+    <Box style={{ position: 'absolute', right: 470, top: 0, width: 6, height: 720, background: '#B8730F' }} />
+    <Box style={{ flexDirection: 'row', width: 1280, height: 720 }}>
+        <Box style={{ width: 810, height: 720, padding: '0 0 0 76px', flexDirection: 'column', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 14, color: '#B8730F', letterSpacing: 5, fontWeight: 'bold' }}>ACT THREE</Text>
+            <Text style={{ fontSize: 62, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.12, marginTop: 20 }}>上机操作<br />从登录到跑起来</Text>
+            <Box style={{ width: 124, height: 5, background: '#B8730F', marginTop: 28 }} />
+            <Text style={{ fontSize: 21, color: 'rgba(247,244,236,0.80)', lineHeight: 1.72, marginTop: 28, width: 660 }}>八页，每一页一张真实界面截图，编号与引线直接指到你要点的那个控件。照着顺序点一遍，你就完成了一次真实的工业诊断。</Text>
+            <Text style={{ fontSize: 18, color: 'rgba(247,244,236,0.56)', lineHeight: 1.75, marginTop: 18, width: 660 }}>登录注册 → 认识导航 → 换引擎 → 数据工作台 → 选中数据 → 配置诊断 → 任务列表 → 实时监控</Text>
+            <Box style={{ flexDirection: 'row', gap: 10, marginTop: 34 }}>
+                <Box style={{ padding: '9px 18px', border: '1px solid rgba(247,244,236,0.28)', borderRadius: 20 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.76)' }}>第 13 页起</Text>
+                </Box>
+                <Box style={{ padding: '9px 18px', border: '1px solid rgba(247,244,236,0.28)', borderRadius: 20 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.76)' }}>共 8 页</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ width: 470, height: 720, justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+            <Text style={{ fontSize: 176, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1, opacity: 0.92 }}>03</Text>
+            <Text style={{ fontSize: 21, color: 'rgba(247,244,236,0.60)', letterSpacing: 4, marginTop: 14 }}>USE IT</Text>
+        </Box>
+    </Box>
+</Slide>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="aei_template.css">
+<style>
+  body { width:1500px; height:1100px; padding:20px 26px; display:flex; flex-direction:column; }
+  .plane { border:1px solid #c6d0d9; border-radius:9px; background:#fbfcfd; padding:13px 16px 14px;
+           display:flex; flex-direction:column; justify-content:center; }
+  .phead { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .pname { font-size:22px; font-weight:800; color:var(--ink); white-space:nowrap; }
+  .pn { display:inline-block; min-width:28px; height:28px; border-radius:14px; background:var(--blue);
+        color:#fff; font-size:20px; font-weight:700; text-align:center; line-height:28px; margin-right:7px; }
+  .psub { font-size:20px; color:var(--sub); }
+  .vlink { flex:1; display:flex; align-items:center; justify-content:center; gap:10px; min-height:34px; }
+  .vlbl { font-size:20px; color:var(--sub); }
+  .chips { display:flex; gap:9px; }
+  .chip { flex:1; border:1px solid var(--grid); border-radius:6px; background:#fff; text-align:center;
+          padding:10px 6px; font-size:20px; }
+  .echip { flex:1; border:1px solid var(--grid); border-radius:6px; background:#fff; text-align:center;
+           padding:8px 2px; font-size:20px; }
+  .note { margin-top:10px; background:#f0f3f6; border-left:3px solid var(--sky); border-radius:0 5px 5px 0;
+          padding:7px 12px; font-size:20px; color:var(--ink); line-height:1.5; }
+  .plane.hl { background:#e9f3fb; border-color:#9ccbe9; }
+  .srow { display:flex; gap:9px; }
+  .sbox { flex:1; background:#fff; border:1px solid #bcd8ec; border-radius:6px; padding:9px 10px;
+          font-size:20px; line-height:1.45; text-align:center; color:var(--ink); }
+  .strow { display:flex; gap:6px; align-items:stretch; }
+  .stg { flex:1; background:#fff; border:1px solid var(--grid); border-radius:6px; padding:8px 5px 7px;
+         text-align:center; display:flex; flex-direction:column; }
+  .stg .s { font-size:20px; font-weight:700; line-height:1.3; }
+  .stg .a { font-size:20px; color:var(--sub); margin-top:4px; line-height:1.3; }
+  .stg .tg { margin-top:auto; padding-top:4px; }
+  .sarr { align-self:center; flex:0 0 16px; text-align:center; font-size:20px; color:var(--sub); }
+  .tag { display:inline-block; padding:1px 8px; border-radius:12px; font-size:20px; font-weight:700; }
+  .tag.par { background:#fdeee0; color:#a34a00; }
+  .plane.audit { background:#e9f5f0; border-color:#a3d4c2; }
+  .arow { display:flex; gap:7px; align-items:stretch; }
+  .abox { flex:1; background:#fff; border:1px solid #b7dcc9; border-radius:6px; padding:9px 10px; text-align:center;
+          display:flex; flex-direction:column; justify-content:center; }
+  .abox .t { font-size:20px; font-weight:700; }
+  .abox .d { font-size:20px; color:var(--sub); margin-top:4px; line-height:1.4; }
+  .aarr { align-self:center; flex:0 0 18px; text-align:center; font-size:20px; color:var(--sub); }
+  .note.gn { background:#f0f7f4; border-left-color:var(--green); }
+  .ok { color:#0a7d38; font-weight:700; } .bad { color:var(--vermilion); font-weight:700; }
+</style></head><body>
+
+  <div class="plane">
+    <div class="phead"><span class="pname"><span class="pn">1</span>Client surfaces</span></div>
+    <div class="chips">
+      <div class="chip">Web application (Vue 3 + REST/SSE, :5180/:3210)</div>
+      <div class="chip">CLI drivers</div>
+      <div class="chip">CI harness (mock engine e2e)</div>
+    </div>
+  </div>
+
+  <div class="vlink"><svg width="14" height="30" viewBox="0 0 14 30"><line x1="7" y1="0" x2="7" y2="22" class="axis"/><polygon points="2,21 12,21 7,29" fill="#2b2b2b"/></svg><span class="vlbl">startDiagnosis request · SSE event stream</span></div>
+
+  <div class="plane">
+    <div class="phead"><span class="pname"><span class="pn">2</span>Engine layer</span><span class="psub">14 interchangeable execution engines — one uniform event contract</span></div>
+    <div class="chips">
+      <div class="echip">claude</div><div class="echip">omp</div><div class="echip">codex</div><div class="echip">dsh</div><div class="echip">opencode</div><div class="echip">gemini</div><div class="echip">copilot</div><div class="echip">cursor</div><div class="echip">crush</div><div class="echip">goose</div><div class="echip">qwen</div><div class="echip">pi</div><div class="echip">hermes</div><div class="echip">mock</div>
+    </div>
+    <div class="note"><b>Pre-flight probing</b> — unknown → <span class="bad">400 HARNESS_UNKNOWN</span>, unavailable → <span class="bad">409 HARNESS_UNAVAILABLE</span> · engine substitution = configuration change <b>(pre-registered ablation axis)</b></div>
+  </div>
+
+  <div class="vlink"><svg width="14" height="30" viewBox="0 0 14 30"><line x1="7" y1="0" x2="7" y2="22" class="axis"/><polygon points="2,21 12,21 7,29" fill="#2b2b2b"/></svg><span class="vlbl">spawn</span></div>
+
+  <div class="plane hl">
+    <div class="phead"><span class="pname"><span class="pn">3</span>Orchestrating agent</span><span class="psub">domain knowledge as 18 skill packages · 14 specialised agents</span></div>
+    <div class="srow">
+      <div class="sbox">dispatch: <b>SKILL_PATH + RUN_DIR</b><br>(absolute paths)</div>
+      <div class="sbox">sub-agents communicate <b>ONLY</b> through<br>workspace artifacts</div>
+      <div class="sbox">bounded repair loops<br>(≤3/fault, ≤5 global, anti-oscillation cap 0.50)</div>
+      <div class="sbox">step turn-budget governance</div>
+    </div>
+  </div>
+
+  <div class="vlink"><svg width="14" height="30" viewBox="0 0 14 30"><line x1="7" y1="0" x2="7" y2="22" class="axis"/><polygon points="2,21 12,21 7,29" fill="#2b2b2b"/></svg><span class="vlbl">stage dispatch</span></div>
+
+  <div class="plane">
+    <div class="phead"><span class="pname"><span class="pn">4</span>Diagnostic path</span><span class="psub">nine gated stages (Steps 0–9)</span></div>
+    <div class="strow">
+      <div class="stg"><div class="s">S0/1 Setup +<br>Inspect</div><div class="a">main</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S2 Ontology</div><div class="a">context-builder</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S3 Statistics</div><div class="a">data-processor</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S4 Diagnosis</div><div class="a">diagnostician</div></div>
+      <div class="sarr">→</div>
+      <div class="stg" style="border-color:#e8b871;"><div class="s">S5a ∥ S5b<br>Judge ∥ Pre-audit</div><div class="a">judge ∥ report-reviewer</div><div class="tg"><span class="tag par">PARALLEL</span></div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S6 Report</div><div class="a">reporter</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S7 Final audit</div><div class="a">report-reviewer</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S8/8.5 HTML<br>build + review</div><div class="a">html-visualizer +<br>html-reviewer</div></div>
+      <div class="sarr">→</div>
+      <div class="stg"><div class="s">S9 Finalise</div><div class="a">script</div></div>
+    </div>
+    <div class="note">+ optional layers: RAG retrieval microservice (L6, health-probed), ontology asset store, E0–E8 enhancement (outside benchmarked path)</div>
+  </div>
+
+  <div class="vlink"><svg width="14" height="30" viewBox="0 0 14 30"><line x1="7" y1="0" x2="7" y2="22" class="axis"/><polygon points="2,21 12,21 7,29" fill="#2b2b2b"/></svg><span class="vlbl">events + artifacts</span></div>
+
+  <div class="plane audit">
+    <div class="phead"><span class="pname"><span class="pn">5</span>Audit plane</span></div>
+    <div class="arow">
+      <div class="abox"><div class="t">.pipeline_events.jsonl</div><div class="d">append-only execution log</div></div>
+      <div class="aarr">→</div>
+      <div class="abox"><div class="t">log-checker</div><div class="d">agent start/complete · order · declared files</div></div>
+      <div class="aarr">→</div>
+      <div class="abox"><div class="t">finalisation gate</div><div class="d">14-artifact inventory + schemas + evidence closure + judge cross-audit + events</div></div>
+      <div class="aarr">→</div>
+      <div class="abox"><div class="t">single verdict</div><div class="d"><span class="ok">PASS</span> / <span class="bad">FAIL</span></div></div>
+    </div>
+    <div class="note gn">No result exists without an execution proof — grading reads only artifacts that survived this plane.</div>
+  </div>
+
+</body></html>

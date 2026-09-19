@@ -35,7 +35,7 @@ export const HARNESS_DEFS = [
     processModel: 'resident',
     homepage: 'https://github.com/openai/codex',
     description: 'codex app-server — stdio NDJSON JSON-RPC v2（thread/start + turn/start）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: true, supervise: true, hitl: true, terminal: false, contextStats: true, compact: true },
     authEnv: ['CODEX_HOME'],
   },
@@ -45,7 +45,7 @@ export const HARNESS_DEFS = [
     processModel: 'resident',
     homepage: 'https://github.com/deepseek-ai/DeepSeek-Harness',
     description: 'dsh --profile acp — 标准 ACP v1（session/new + session/prompt 单飞）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: true, terminal: false, contextStats: true, compact: false },
     authEnv: ['DEEPSEEK_BASE_URL', 'DEEPSEEK_API_KEY'],
   },
@@ -55,7 +55,7 @@ export const HARNESS_DEFS = [
     processModel: 'resident',
     homepage: 'https://opencode.ai',
     description: 'opencode serve — HTTP API + 全局 SSE（prompt_async / permissions / summarize）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: true, supervise: true, hitl: true, terminal: false, contextStats: true, compact: true },
     authEnv: ['OPENCODE_API_KEY'],
   },
@@ -75,7 +75,7 @@ export const HARNESS_DEFS = [
     processModel: 'oneshot',
     homepage: 'https://docs.github.com/en/copilot/how-tos/copilot-cli',
     description: 'copilot --output-format json — 一次性回合（GitHub 账号鉴权）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: false, terminal: false, contextStats: false, compact: false },
     authEnv: ['COPILOT_GITHUB_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN'],
   },
@@ -85,7 +85,7 @@ export const HARNESS_DEFS = [
     processModel: 'oneshot',
     homepage: 'https://cursor.com/docs/cli/headless',
     description: 'cursor-agent --output-format stream-json — Claude 同构帧（默认不带 --force）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: false, terminal: false, contextStats: false, compact: false },
     authEnv: ['CURSOR_API_KEY'],
   },
@@ -95,7 +95,7 @@ export const HARNESS_DEFS = [
     processModel: 'oneshot',
     homepage: 'https://github.com/charmbracelet/crush',
     description: 'crush run -q — 纯文本 stdout 一次性回合（v0.92+ 无 JSON 格式）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: false, terminal: false, contextStats: true, compact: false },
     authEnv: ['AW_CRUSH_API_KEY'],
   },
@@ -115,7 +115,7 @@ export const HARNESS_DEFS = [
     processModel: 'resident',
     homepage: 'https://github.com/QwenLM/qwen-code',
     description: 'qwen --experimental-acp — 旧版 Zed ACP（camelCase 方法、单隐式会话）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: true, terminal: false, contextStats: false, compact: false },
     authEnv: ['OPENAI_API_KEY', 'OPENAI_BASE_URL', 'OPENAI_MODEL'],
   },
@@ -125,7 +125,7 @@ export const HARNESS_DEFS = [
     processModel: 'oneshot',
     homepage: 'https://github.com/badlogic/pi-mono',
     description: 'pi -p --mode json — 一次性回合，prompt 经 @临时文件 投递',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: false, terminal: false, contextStats: true, compact: false },
     authEnv: ['PI_API_KEY'],
   },
@@ -135,7 +135,7 @@ export const HARNESS_DEFS = [
     processModel: 'resident',
     homepage: 'https://github.com/NousResearch/hermes-agent',
     description: 'hermes acp — 标准 ACP v1（与 dsh 同型实现）',
-    capabilities: ['live'],
+    capabilities: ['live', 'chat'],
     features: { steer: false, supervise: true, hitl: true, terminal: false, contextStats: true, compact: false },
     authEnv: ['GLM_API_KEY', 'HERMES_PROVIDER', 'HERMES_MODEL'],
   },
@@ -219,23 +219,32 @@ export async function resolveBestAvailableHarness() {
   return ids[0];
 }
 
+// ── Engine client registry (module-level — chat service 与 harness 共用) ──
+const clientLoaders = {
+  mock: () => import('../engine/mock-client.mjs'),
+  codex: () => import('../engine/codex-client.mjs'),
+  opencode: () => import('../engine/opencode-client.mjs'),
+  dsh: () => import('../engine/acp-client.mjs').then((m) => m.dshClient),
+  hermes: () => import('../engine/acp-client.mjs').then((m) => m.hermesClient),
+  qwen: () => import('../engine/acp-client.mjs').then((m) => m.qwenClient),
+  gemini: () => import('../engine/oneshot-specs.mjs').then((m) => m.geminiClient),
+  copilot: () => import('../engine/oneshot-specs.mjs').then((m) => m.copilotClient),
+  cursor: () => import('../engine/oneshot-specs.mjs').then((m) => m.cursorClient),
+  crush: () => import('../engine/oneshot-specs.mjs').then((m) => m.crushClient),
+  goose: () => import('../engine/oneshot-specs.mjs').then((m) => m.gooseClient),
+  pi: () => import('../engine/oneshot-specs.mjs').then((m) => m.piClient),
+};
+
+/** Engine client module for any definition-table engine. claude/omp 不在此表
+ *  —— 它们是 registry 里的专用 harness（SDK/RPC），走各自实现。 */
+export async function getEngineClient(id) {
+  const loader = clientLoaders[id];
+  if (!loader) throw new Error(`no engine client registered for: ${id}`);
+  return loader();
+}
+
 // ── Generic live harness for the 12 definition-table engines ──
 export function createLiveHarness(def) {
-  const clientLoader = {
-    mock: () => import('../engine/mock-client.mjs'),
-    codex: () => import('../engine/codex-client.mjs'),
-    opencode: () => import('../engine/opencode-client.mjs'),
-    dsh: () => import('../engine/acp-client.mjs').then((m) => m.dshClient),
-    hermes: () => import('../engine/acp-client.mjs').then((m) => m.hermesClient),
-    qwen: () => import('../engine/acp-client.mjs').then((m) => m.qwenClient),
-    gemini: () => import('../engine/oneshot-specs.mjs').then((m) => m.geminiClient),
-    copilot: () => import('../engine/oneshot-specs.mjs').then((m) => m.copilotClient),
-    cursor: () => import('../engine/oneshot-specs.mjs').then((m) => m.cursorClient),
-    crush: () => import('../engine/oneshot-specs.mjs').then((m) => m.crushClient),
-    goose: () => import('../engine/oneshot-specs.mjs').then((m) => m.gooseClient),
-    pi: () => import('../engine/oneshot-specs.mjs').then((m) => m.piClient),
-  }[def.id];
-
   return new class extends BaseHarness {
     id = def.id;
     name = def.name;
@@ -274,7 +283,7 @@ export function createLiveHarness(def) {
     }
 
     async startDiagnosis(params) {
-      const client = await clientLoader();
+      const client = await getEngineClient(def.id);
       return client.startDiagnosis(params);
     }
   }();

@@ -1,0 +1,13 @@
+{
+ "run_id": "solo_tep_d07",
+ "checked_at": "2026-09-17T16:49:24.959675+00:00",
+ "manifest_first": true,
+ "checks": {
+  "html_bytes_gt_5120": false,
+  "echarts_referenced": true,
+  "primary_finding_verbatim": true,
+  "charts_exist": true,
+  "no_placeholder_text": true
+ },
+ "pass": false
+}

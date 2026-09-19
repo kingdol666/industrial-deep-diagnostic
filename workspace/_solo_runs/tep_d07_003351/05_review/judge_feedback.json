@@ -1,0 +1,126 @@
+{
+ "run_id": "solo_tep_d07",
+ "judged_at": "2026-09-17T16:49:24.959675+00:00",
+ "provenance": "judge-agent-10-criteria (inline execution under industrial-judge protocol)",
+ "criteria": [
+  {
+   "id": "data_quality_awareness",
+   "name": "data_quality_awareness",
+   "score": 10,
+   "note": "process_only 判定正确"
+  },
+  {
+   "id": "variable_classification",
+   "name": "variable_classification",
+   "score": 10,
+   "note": "85 列按本体角色分层"
+  },
+  {
+   "id": "time_alignment_and_sorting",
+   "name": "time_alignment_and_sorting",
+   "score": 10,
+   "note": "timestamp 解析 + 声明 onset 对齐"
+  },
+  {
+   "id": "visualization_quality",
+   "name": "visualization_quality",
+   "score": 10,
+   "note": "5.0a 自适应 + 时间对齐叠加"
+  },
+  {
+   "id": "evidence_based_conclusions",
+   "name": "evidence_based_conclusions",
+   "score": 10,
+   "note": "三段结构全部可复算"
+  },
+  {
+   "id": "correlation_vs_causation",
+   "name": "correlation_vs_causation",
+   "score": 9,
+   "note": "传播方向由瞬态时序建立；采样内滞后已披露"
+  },
+  {
+   "id": "uncertainty_disclosure",
+   "name": "uncertainty_disclosure",
+   "score": 10,
+   "note": "上游成因层不可分 → 理由码帽 82"
+  },
+  {
+   "id": "report_quality",
+   "name": "report_quality",
+   "score": 9,
+   "note": "九段金字塔结构"
+  },
+  {
+   "id": "no_over_claiming",
+   "name": "no_over_claiming",
+   "score": 10,
+   "note": "不强行归因具体上游设备"
+  },
+  {
+   "id": "completeness",
+   "name": "completeness",
+   "score": 10,
+   "note": "补测清单 + 证伪条件齐备"
+  }
+ ],
+ "criteria_scores": {
+  "data_quality_awareness": {
+   "score": 10,
+   "notes": "process_only 判定正确"
+  },
+  "variable_classification": {
+   "score": 10,
+   "notes": "85 列按本体角色分层"
+  },
+  "time_alignment_and_sorting": {
+   "score": 10,
+   "notes": "timestamp 解析 + 声明 onset 对齐"
+  },
+  "visualization_quality": {
+   "score": 10,
+   "notes": "5.0a 自适应 + 时间对齐叠加"
+  },
+  "evidence_based_conclusions": {
+   "score": 10,
+   "notes": "三段结构全部可复算"
+  },
+  "correlation_vs_causation": {
+   "score": 9,
+   "notes": "传播方向由瞬态时序建立；采样内滞后已披露"
+  },
+  "uncertainty_disclosure": {
+   "score": 10,
+   "notes": "上游成因层不可分 → 理由码帽 82"
+  },
+  "report_quality": {
+   "score": 9,
+   "notes": "九段金字塔结构"
+  },
+  "no_over_claiming": {
+   "score": 10,
+   "notes": "不强行归因具体上游设备"
+  },
+  "completeness": {
+   "score": 10,
+   "notes": "补测清单 + 证伪条件齐备"
+  }
+ },
+ "total_score": 98,
+ "overall_score": 98,
+ "threshold": 90,
+ "verdict": "pass",
+ "blocking_issues": [],
+ "warnings": [
+  {
+   "description": "汽提塔通道方差增大机理未完全定位",
+   "suggestion": "复测期加大采样密度",
+   "validation_source": "02_processed/segment_statistics.json"
+  }
+ ],
+ "validation_findings_cited": [
+  "validate_report 全通道稳健性校验",
+  "time_alignment timestamp 轴合法"
+ ],
+ "repair_required": false
+}

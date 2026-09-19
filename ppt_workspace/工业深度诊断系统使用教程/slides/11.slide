@@ -1,0 +1,35 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 2 章 · 进门：登录注册与整张地图</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>浏览器打开 http://localhost:5180 就是这一页；左边那一条，是你之后所有操作的总入口</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>真实界面截图</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 12 }}>
+        <Box style={{ height: 376, flexDirection: 'row', gap: 22, justifyContent: 'center' }}>
+            <Image src="assets/01_auth.png" style={{ width: 526, height: 376, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Image src="assets/02_rail.png" style={{ width: 212, height: 376, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 152, flexDirection: 'row', gap: 18 }}>
+            <Box style={{ flex: 1, padding: 16, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 第一次用先注册</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>用户名 3–32 位字母/数字；密码至少 8 位且含字母与数字。首个注册用户自动获得管理员权限。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 16, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 左侧七项，按顺序用</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>日常主线只有三个：数据（传文件）→ 诊断（发起与监控）→ 报告（读结论）。其余是进阶能力。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 10, border: '1px solid rgba(184,115,15,0.40)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>③ 左下角是引擎开关</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>引擎决定「谁来跑诊断」，随时可换；右下角能看实时连接状态，掉线会立刻变色。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>登录状态由 24 小时会话保持</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>11 / 31</Text>
+    </Box>
+</Slide>

@@ -1,0 +1,23 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 10 章 · 一次诊断到底留下了什么</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>磁盘上的目录结构才是硬证据；界面上的状态只是它的一个视图</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>跑完就能在本地找到</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 449, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/d_layout.png" style={{ width: 1160, height: 449, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 75, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 10, borderLeft: '4px solid #B8730F', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 17, color: '#1D1B16', lineHeight: 1.6 }}>只有 <span style={{ fontWeight: 'bold', color: '#8A5608' }}>.pipeline_events.jsonl</span> 能通过管线日志校验，这次运行才算真正执行完毕 —— 界面状态与磁盘证据是两套独立口径，后者才是可交付的凭据。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>每个运行一个目录，编号带时间戳，不会互相覆盖</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>27 / 31</Text>
+    </Box>
+</Slide>

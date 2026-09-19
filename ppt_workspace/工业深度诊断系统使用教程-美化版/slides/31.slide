@@ -1,0 +1,42 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>手机上也能用</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>同一套代码覆盖手机、平板、笔电、桌面与超宽屏；窄屏时侧栏折成顶部条，导航进抽屉</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>390px 宽度实测</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 458, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ width: 470, height: 458, justifyContent: 'center', alignItems: 'center' }}>
+                <Image src="assets/18_phone.png" style={{ width: 468, height: 458, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+            </Box>
+            <Box style={{ width: 660, height: 458, flexDirection: 'column', gap: 16 }}>
+                <Box style={{ height: 221, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 折行发生在 900px</Text>
+                    <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>宽于 900px 时，左侧是一条竖向导航栏；窄于 900px 时自动折成顶部横条，七个入口收进抽屉，不占内容区。</Text>
+                    <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                        <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>布局切换不会出现横向滚动条</Text>
+                    </Box>
+                </Box>
+                <Box style={{ height: 221, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>② 手机上能做完整个闭环</Text>
+                    <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.80)', lineHeight: 1.62, marginTop: 10 }}>上传数据、发起诊断、盯进度、读报告、看历史全部可用。产线巡检时掏出手机就能确认昨晚那批料的结论。</Text>
+                    <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 8 }}>
+                        <Text style={{ fontSize: 16, color: '#8A5608' }}>手机访问用电脑的局域网 IP</Text>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 60, padding: 16, background: '#1D1B16', borderRadius: 11, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>注意</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.84)' }}>窄屏下表格保留列语义但压缩内边距，超长文本以省略号截断，不会出现错位或遮挡。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>端口仍是 5180，只是把 localhost 换成电脑的局域网 IP</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>31 / 34</Text>
+    </Box>
+</Slide>

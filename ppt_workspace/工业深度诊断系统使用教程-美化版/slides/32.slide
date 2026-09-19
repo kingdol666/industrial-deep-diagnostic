@@ -1,0 +1,76 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>排错速查：三个等级，按顺序查</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>九成问题落在这三类里。先看现象，再看处理办法，不用猜</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(168,68,42,0.12)', border: '1px solid rgba(168,68,42,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#A8442A' }}>先查 L1，再查 L2</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534 }}>
+        <Table
+            style={{ width: '100%', height: '100%' }}
+            defaultTextStyle={{ fontSize: 16, textAlign: 'left', color: '#1D1B16' }}
+            defaultCellStyle={{
+                border: {
+                    left: { width: 1, color: '#E4DCCB' },
+                    right: { width: 1, color: '#E4DCCB' },
+                    top: { width: 1, color: '#E4DCCB' },
+                    bottom: { width: 1, color: '#E4DCCB' },
+                },
+            }}
+            cells={[
+                [
+                    { text: '等级', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    { text: '现象', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    { text: '怎么处理', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                ],
+                [
+                    { text: 'L1 起不来', textStyle: { bold: true, color: '#A8442A' } },
+                    '打开 localhost:5180 打不开',
+                    '先跑 ind-diag status，看哪一行不是 running；再去 .runtime/ 看对应日志',
+                ],
+                [
+                    { text: 'L1 起不来', textStyle: { bold: true, color: '#A8442A' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '命令一直不返回，最后报超时', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '多半是漏了 --detach；服务其实已起来，直接 status 确认即可', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: 'L1 起不来', textStyle: { bold: true, color: '#A8442A' } },
+                    'RAG 引擎起不来',
+                    '确认 Python ≥ 3.10；网络慢就先切镜像源再 uv sync',
+                ],
+                [
+                    { text: 'L2 跑不起来', textStyle: { bold: true, color: '#B8730F' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '点开始诊断没反应，或立刻失败', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '多半是引擎 CLI 未登录：跑一次 <引擎> --version 确认，缺 Key 就补 .env', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: 'L2 跑不起来', textStyle: { bold: true, color: '#B8730F' } },
+                    '接口返回 400 HARNESS_UNKNOWN',
+                    '引擎名拼错了；在前端左下角的下拉里选，不要手写',
+                ],
+                [
+                    { text: 'L2 跑不起来', textStyle: { bold: true, color: '#B8730F' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '接口返回 409 HARNESS_UNAVAILABLE', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '这个引擎本机没装；换一个绿点的，或先装它的 CLI', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: 'L3 结果不对', textStyle: { bold: true, color: '#2F6FA8' } },
+                    '结论是 COMPETING_SET，分数不高',
+                    '这不是失败：数据不足以区分假设。页面会列出最小判别数据集，补采那一列即可',
+                ],
+                [
+                    { text: 'L3 结果不对', textStyle: { bold: true, color: '#2F6FA8' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '报告没生成，任务停在中间', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '查看该运行的 .pipeline_events.jsonl，确认执行到哪一步停下', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+            ]}
+        />
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>三组已按「先看现象 → 再定位」的顺序排好</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>32 / 34</Text>
+    </Box>
+</Slide>

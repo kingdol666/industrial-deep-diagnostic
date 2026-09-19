@@ -1,0 +1,18 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 11 章 · 全貌：9 步 + 9 道闸门</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>把前面所有操作串起来看：诊断是排除、每一道闸门都可能回退重跑，最后只留下守得住的结论</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>Step 5a ∥ 5b 是唯一并行段</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, justifyContent: 'center', alignItems: 'center' }}>
+        <Image src="assets/d_pipeline.png" style={{ width: 1028, height: 540, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>CP-6 不过 → 自愈回路；CP-8 不过 → 审计修复回路；全局重诊上限 5 次</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>28 / 31</Text>
+    </Box>
+</Slide>

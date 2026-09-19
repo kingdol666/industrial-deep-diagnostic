@@ -1,0 +1,93 @@
+{
+ "source": "Phase 0.4 ontology-guided analysis selection",
+ "ontology_file": "01_ontology/ontology.json",
+ "parameter_physical_groups": {
+  "feeds": [
+   "XMEAS_1",
+   "XMEAS_2",
+   "XMEAS_3",
+   "XMEAS_4",
+   "XMEAS_6",
+   "XMV_1",
+   "XMV_2",
+   "XMV_3",
+   "XMV_4"
+  ],
+  "reactor": [
+   "XMEAS_7",
+   "XMEAS_8",
+   "XMEAS_9",
+   "XMEAS_21",
+   "XMEAS_22"
+  ],
+  "separator_stripper": [
+   "XMEAS_18",
+   "XMEAS_19"
+  ],
+  "actuators": [
+   "XMV_9",
+   "XMV_10"
+  ]
+ },
+ "quality_targets": [
+  "NOT_APPLICABLE (process_only view: no quality/inspection channel in TEP recording)"
+ ],
+ "analysis_tiers": {
+  "tier_1": [
+   {
+    "target": "XMEAS_4",
+    "predictor": "XMV_4",
+    "justification": "feed flow vs own valve: supply-loss compensation discriminator"
+   },
+   {
+    "target": "XMEAS_7",
+    "predictor": "XMEAS_4",
+    "justification": "feed interruption propagates to reactor pressure"
+   },
+   {
+    "target": "XMEAS_19",
+    "predictor": "XMV_9",
+    "justification": "stripper perturbation witness"
+   }
+  ],
+  "tier_2": [
+   {
+    "target": "XMEAS_9",
+    "predictor": "XMEAS_21",
+    "justification": "reactor temperature vs cooling-water outlet"
+   },
+   {
+    "target": "XMEAS_6",
+    "predictor": "XMV_3",
+    "justification": "other-feed compensation cross-check"
+   }
+  ],
+  "tier_3": [
+   {
+    "target": "XMEAS_8",
+    "predictor": "XMEAS_6",
+    "justification": "reactor level vs total feed (slow integrator)"
+   }
+  ]
+ },
+ "pruned": [
+  {
+   "predictor": "time_hours",
+   "target": "*",
+   "reason": "monotonic clock column, not a physical signal"
+  }
+ ],
+ "predictor_cols": [
+  "XMEAS_4",
+  "XMV_4",
+  "XMEAS_6",
+  "XMEAS_7",
+  "XMEAS_9",
+  "XMEAS_19",
+  "XMV_9"
+ ],
+ "exclude_cols": [
+  "timestamp",
+  "time_hours"
+ ]
+}

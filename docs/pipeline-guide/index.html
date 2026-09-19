@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industrial Deep Diagnostic — 九阶段诊断流水线全景指南</title>
+<style>
+:root{
+  --bg:#0b1220; --panel:#111a2b; --panel2:#0e1626; --line:#22304a;
+  --ink:#e8eef7; --mut:#93a4bd; --blue:#4da3ff; --green:#3ecf8e; --amber:#f5b04c;
+  --red:#ff7a7a; --mono:"Cascadia Code","JetBrains Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:
+  radial-gradient(1200px 600px at 80% -10%, #14233d 0%, transparent 60%),
+  var(--bg); color:var(--ink);
+  font-family:"Microsoft YaHei","Segoe UI",system-ui,sans-serif; line-height:1.65}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+header.hero{padding:64px 0 30px;text-align:center}
+header.hero .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.35em;color:var(--blue);text-transform:uppercase}
+header.hero h1{font-size:40px;margin:14px 0 10px;font-weight:800}
+header.hero p.sub{color:var(--mut);max-width:860px;margin:0 auto;font-size:15.5px}
+.stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 22px;min-width:130px}
+.stat b{display:block;font-size:24px;color:var(--blue)}
+.stat span{font-size:12px;color:var(--mut)}
+h2.sec{font-size:26px;margin:64px 0 8px;padding-left:14px;border-left:4px solid var(--blue)}
+p.secdesc{color:var(--mut);margin:0 0 22px 18px;font-size:14.5px}
+/* planes */
+.planes{display:flex;flex-direction:column;gap:10px}
+.plane{border:1px solid var(--line);border-radius:12px;padding:14px 20px;background:var(--panel2);
+  display:flex;align-items:center;gap:16px}
+.plane .tag{font-family:var(--mono);font-size:11px;color:var(--blue);border:1px solid var(--line);
+  border-radius:6px;padding:3px 8px;white-space:nowrap}
+.plane b{font-size:15px}
+.plane .d{color:var(--mut);font-size:13px}
+.plane.audit{border-color:#2c4a3c;background:#0f1d18}
+.plane.audit .tag{color:var(--green);border-color:#2c4a3c}
+.arrowdown{text-align:center;color:var(--mut);font-size:16px;line-height:.6}
+/* pipeline flow */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:8px}
+.fstep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;min-height:120px}
+.fstep.gate{border-color:#2c4a3c;background:#0f1d18}
+.fstep.par{border-color:#5a4a2c;background:#1d180f}
+.fstep h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+.fstep .a{font-family:var(--mono);font-size:11.5px;color:var(--amber)}
+.fstep .g{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:10px;color:var(--amber);
+  border:1px solid #5a4a2c;border-radius:5px;padding:1px 6px}
+.fstep.gate .g{color:var(--green);border-color:#2c4a3c}
+.fstep p{margin:8px 0 0;font-size:12.3px;color:var(--mut)}
+.flowrow2{margin-top:12px}
+.repair{margin:14px 4px 0;font-size:12.5px;color:var(--amber);border:1px dashed #5a4a2c;border-radius:8px;padding:8px 14px;display:inline-block}
+/* step cards */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.card .no{font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.2em}
+.card h3{margin:6px 0 2px;font-size:18px}
+.card .agent{color:var(--amber);font-family:var(--mono);font-size:12px;margin-bottom:10px}
+.card ul{margin:8px 0;padding-left:18px;font-size:13.2px;color:#c7d3e4}
+.card li{margin:4px 0}
+.card .art{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px}
+.card .art b{color:var(--green);font-weight:600}
+.card.wide{grid-column:1 / -1}
+/* tables */
+table.tt{width:100%;border-collapse:collapse;font-size:13.2px;background:var(--panel);border-radius:10px;overflow:hidden}
+table.tt th{background:#16233a;color:var(--mut);font-weight:600;text-align:left;padding:9px 12px;font-size:12px}
+table.tt td{border-top:1px solid var(--line);padding:8px 12px;vertical-align:top}
+table.tt td.mono{font-family:var(--mono);font-size:12px;color:#9fc3ee}
+.badge{display:inline-block;font-family:var(--mono);font-size:10.5px;border-radius:5px;padding:1px 7px;margin-right:4px}
+.b-b{color:var(--blue);border:1px solid #2c4a6e}.b-g{color:var(--green);border:1px solid #2c4a3c}
+.b-a{color:var(--amber);border:1px solid #5a4a2c}.b-r{color:var(--red);border:1px solid #5a2c2c}
+/* screenshots */
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+figure img{width:100%;display:block}
+figcaption{padding:10px 14px;font-size:12.5px;color:var(--mut)}
+figcaption b{color:var(--ink)}
+.shots .wide{grid-column:1 / -1}
+/* callouts */
+.callout{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--green);
+  border-radius:10px;padding:14px 18px;margin-top:16px;font-size:13.5px}
+.callout.warn{border-left-color:var(--amber)}
+.callout b{color:var(--ink)}
+code{font-family:var(--mono);font-size:.92em;background:#16233a;border-radius:4px;padding:1px 6px;color:#9fc3ee}
+footer{margin-top:70px;text-align:center;color:var(--mut);font-size:12px;border-top:1px solid var(--line);padding-top:24px}
+@media (max-width:900px){.cards,.shots{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Industrial Deep Diagnostic · v4.2 · System Guide</div>
+  <h1>九阶段根因诊断流水线全景</h1>
+  <p class="sub">从数据接入到可视化报告的完整执行流程：每一步做什么、用什么真实算法、产出什么工件、过哪一道机器门禁。
+  本指南基于<b>真实运行</b>（两个通过全部门禁的完整诊断 + 浏览器实拍界面）编写。</p>
+  <div class="stats">
+    <div class="stat"><b>9</b><span>流水线阶段</span></div>
+    <div class="stat"><b>CP-1~9</b><span>机器检查点</span></div>
+    <div class="stat"><b>14</b><span>可替换执行引擎</span></div>
+    <div class="stat"><b>L1–L7</b><span>证据分级</span></div>
+    <div class="stat"><b>3 态</b><span>判决协议</span></div>
+    <div class="stat"><b>≈45</b><span>finalize 校验项</span></div>
+  </div>
+</header>
+
+<!-- ══════════ 架构 ══════════ -->
+<h2 class="sec">① 五层执行架构</h2>
+<p class="secdesc">每一层职责单一、可独立替换；诊断结果必须经过最底层的审计平面才能被采信——"没有执行证明就没有结果"。</p>
+<div class="planes">
+  <div class="plane"><span class="tag">CLIENT</span><div><b>客户端层</b>
+    <div class="d">Web 工作台（Vue 3 + SSE 实时流）、CLI 驱动器、CI 冒测——三类入口提交诊断任务</div></div></div>
+  <div class="arrowdown">▼</div>
+  <div class="plane"><span class="tag">ENGINE ×14</span><div><b>执行引擎层</b>
+    <div class="d">claude / omp / codex / dsh / opencode / gemini / copilot / cursor / crush / goose / qwen / pi / hermes / mock ——
+    统一 事件流 + 预检三态（未知 400 / 不可用 409），引擎替换即配置变更</div></div></div>
+  <div class="arrowdown">▼</div>
+  <div class="plane"><span class="tag">ORCHESTRATOR</span><div><b>编排主代理</b>
+    <div class="d">持有 18 个技能包，按 <code>SKILL_PATH</code> 派发 14 个专职子代理；代理间只通过工件通信（不共享对话上下文）</div></div></div>
+  <div class="arrowdown">▼</div>
+  <div class="plane"><span class="tag">PIPELINE 0–9</span><div><b>九阶段诊断管线</b>
+    <div class="d">本体 → 统计 → 视觉 → 推理 → 双审计 → 报告 → 终审 → 可视化 → 收尾（下方逐步详解）</div></div></div>
+  <div class="arrowdown">▼</div>
+  <div class="plane audit"><span class="tag">AUDIT</span><div><b>审计平面</b>
+    <div class="d"><code>.pipeline_events.jsonl</code> → log-check（顺序/配对校验）→ finalize（≈45 项：inventory/schema/closure/judge-cross/event-archive）→ 单一 PASS/FAIL</div></div></div>
+</div>
+
+<!-- ══════════ 流程图 ══════════ -->
+<h2 class="sec">② 管线流程图</h2>
+<p class="secdesc">实线为强制顺序；琥珀色 = 机器检查点；绿色 = 硬门禁；Steps 5a‖5b 是唯一并行段；虚线为有界修复回路。</p>
+<div class="flow">
+  <div class="fstep"><span class="g">CP-1</span><h4>Step 0/1 · Setup + Inspect</h4><div class="a">main agent + inspect.mjs</div>
+    <p>建运行目录、SHA-256 指纹、流式探测（分隔符/时间列/行列统计）</p></div>
+  <div class="fstep"><span class="g">CP-2/3</span><h4>Step 2 · Ontology</h4><div class="a">context-builder</div>
+    <p>本体构建或资产库指纹复用（秒级）；变量语义/物理原理/混杂因子</p></div>
+  <div class="fstep"><span class="g">CP-4</span><h4>Step 3 · Statistics</h4><div class="a">data-processor + stats-package</div>
+    <p>工况检测→计划驱动统计→异常→时滞 CCF→自适应绘图</p></div>
+  <div class="fstep"><span class="g">3.5</span><h4>Step 3.5 · VLM 视觉</h4><div class="a">vlm-visual-analyzer</div>
+    <p>读图提取视觉证据；无视觉模型时合规降级 metadata_backed_inference</p></div>
+  <div class="fstep"><span class="g">CP-5</span><h4>Step 4 · Diagnosis</h4><div class="a">diagnostician</div>
+    <p>竞争假设推理（≥3 假设、定量排除）、三态判决、证据链</p></div>
+</div>
+<div class="flow flowrow2">
+  <div class="fstep par"><span class="g">CP-6</span><h4>Step 5a‖5b · 双审计（并行）</h4><div class="a">judge ‖ report-reviewer</div>
+    <p>十判据质量门（≥90 通过）‖ 物理预审计（0 FATAL 放行）</p></div>
+  <div class="fstep"><span class="g">CP-7</span><h4>Step 6 · Report</h4><div class="a">reporter</div>
+    <p>金字塔报告 + run_summary（primary_finding 与 diagnosis 逐字一致）</p></div>
+  <div class="fstep gate"><span class="g">CP-8</span><h4>Step 7 · 物理终审</h4><div class="a">report-reviewer</div>
+    <p>独立验算机制链；必须返回 <b style="color:var(--green)">ENDORSED</b></p></div>
+  <div class="fstep gate"><span class="g">CP-9</span><h4>Step 8/8.5 · HTML + 审查</h4><div class="a">html-visualizer + reviewer</div>
+    <p>render_manifest 先行 → 报告页 → 独立审查 verdict=pass（≥5120B）</p></div>
+  <div class="fstep gate"><span class="g">FINAL</span><h4>Step 9 · Finalise</h4><div class="a">pipeline-finalize</div>
+    <p>inventory/schema/closure/judge-cross/event-archive 五组全过 → PASS</p></div>
+</div>
+<div class="repair">⟲ 有界修复回路：judge &lt;90 → 带修复范围重跑诊断（每故障 ≤3 轮，全局 ≤5；反振荡 PARAM_AMBIGUITY → 置信度帽 0.50；第三轮同题 → COMPETING_SET）</div>
+
+<!-- ══════════ 逐步详解 ══════════ -->
+<h2 class="sec">③ 每一步做了什么（真实算法与工件）</h2>
+<p class="secdesc">以下内容与代码库一一对应：脚本名、阈值、枚举均为真实实现，非示意。</p>
+<div class="cards">
+
+  <div class="card"><div class="no">STEP 0/1</div><h3>Setup + 数据巡检</h3><div class="agent">main-agent · setup.mjs / inspect.mjs</div>
+    <ul><li>创建运行目录骨架（00_input…06_scripts）与 run_manifest</li>
+    <li>inspect.mjs：流式解析 CSV/TSV/XLSX/Parquet，分隔符探测（tab→分号→逗号），时间列识别，行列/缺失统计</li>
+    <li>&gt;10 万行自动抽样；SHA-256 数据指纹写入 manifest（<code>time_column</code> 字段存在即触发时序图门禁）</li></ul>
+    <div class="art">产出 <b>input_manifest.json · input_inspection.json · user_context.json</b> → CP-1</div></div>
+
+  <div class="card"><div class="no">STEP 2</div><h3>本体构建 / 资产复用</h3><div class="agent">context-builder · ontology_store.mjs</div>
+    <ul><li>优先<b>指纹复用</b>：列 schema 指纹命中资产库 → 秒级复制已验证本体（本次 TEP 实测 1s）</li>
+    <li>否则由代理构建：变量语义、物理原理、控制回路、混杂因子标注、RAG 语义增强（不可用则降级 parameter_to_physics + L5）</li>
+    <li>本体 ≥1KB 且 schema 合法过 CP-2；澄清 AUTO_RESOLVED 过 CP-3</li></ul>
+    <div class="art">产出 <b>01_ontology/ontology.json</b>（+ schema.json / rag_deep_understanding.json）→ CP-2/3</div></div>
+
+  <div class="card"><div class="no">STEP 3</div><h3>确定性统计分析</h3><div class="agent">data-processor · dp_toolkit.py + stats/run.py</div>
+    <ul><li><b>Phase 1.2 自适应方法计划</b>：先蒸馏 3–6 个假设，再按假设选最小判别方法集——方法跟随假设，不做无计划全量扫描</li>
+    <li><b>工况检测</b>（三算法融合）先于统计：剔除启动/停机/过渡段，只留稳态</li>
+    <li><b>统计引擎</b>：Pearson/Spearman 矩阵、互信息、<b>滞后补偿 CCF</b>（±10 步寻优）、Granger（需 n≥maxLag+10）、
+    <b>反伪相关四条件</b>：时间先序 + 去趋势/Simpson 分层 + Bonferroni 多重检验 + 留一法离群敏感性；分布分析 + 变点检测</li>
+    <li><b>Phase 5.0a 自适应绘图</b>（新增）：数据形态→图型（二维网格→云图 / 多参数→z-overlay / 单通道→折线），时间对齐溯源 time_alignment.json</li>
+    <li>finalize 合成 data_analysis_conclusion（强制交接件）+ ≤3KB stage_digest（下游速读）</li></ul>
+    <div class="art">产出 <b>data_analysis_conclusion.json · validate_report.json · segment_statistics.json · 03_figures/*</b> → CP-4</div></div>
+
+  <div class="card"><div class="no">STEP 3.5</div><h4 style="margin-top:0">VLM 视觉证据</h4><div class="agent">vlm-visual-analyzer（data-processor 内 Phase 5.5 派发）</div>
+    <ul><li>vlm_input_manifest 过滤：只有时空对齐的图才进 VLM（时序叠加=MANDATORY，单参数趋势=排除）</li>
+    <li>VLM 按 manifest 顺序读图：同步性/先序性/事件响应/趋势形态/群体分离</li>
+    <li>无视觉模型 → 合规降级 <code>metadata_backed_inference</code>（观测来自图设计元数据+数值证据，注明非像素读取）</li>
+    <li>vlm-verification-check 防伪：核对 source_agent、骨架被覆写、未越界读图</li></ul>
+    <div class="art">产出 <b>03_figures/visual_analysis.json · image_captions.json</b>（L4 视觉证据）</div></div>
+
+  <div class="card wide"><div class="no">STEP 4 · 核心推理</div><h3>竞争假设诊断（诊断引擎）</h3><div class="agent">diagnostician · physics-constrained competing-hypotheses engine</div>
+    <ul><li><b>≥3 个竞争假设</b>，每假设带机理类（WEAR/DRIFT/CONTAMINATION/OPERATION/ENVIRONMENT/INTERACTION）</li>
+    <li><b>定量排除</b>：矛盾证据强度 &gt; 支持强度才可排除（|X|&gt;|E|），每条排除引用具体反证 + 排除类型（PHYSICAL/STATISTICAL/COMBINED）</li>
+    <li><b>chain_link_validation</b>：机理链每一箭头单独标注验证状态（ALL_LINKS_VALIDATED / DATA_LINK_MISSING / MAGNITUDE_IMPLAUSIBLE…）——防止"物理话术无数据支撑"</li>
+    <li><b>三态判决</b>：DETERMINED（唯一存续且全部排除有证）/ COMPETING_SET（存续≥2 不可分，点名判别测量）/ NEEDS_DATA（证据不足）</li>
+    <li><b>证据分级 L1–L7</b>：结论置信度 ≤ 最弱证据级；置信度帽：CS≤0.70、INDISTINGUISHABLE≤0.65、PARAM_AMBIGUITY≤0.50、门禁侧非 CS≤0.90</li>
+    <li>每假设 five_factor 五因子分解（统计/物理/时序/混杂/完备性）+ 证伪条件 + 补测清单</li></ul>
+    <div class="art">产出 <b>diagnosis.json · evidence.json · confidence.json · reasoning_chain.json（R1–R8）</b> → CP-5</div></div>
+
+  <div class="card"><div class="no">STEP 5a‖5b（并行）</div><h3>质量门 + 物理预审计</h3><div class="agent">judge ‖ report-reviewer</div>
+    <ul><li><b>十判据 judge</b>（数据质量感知/变量分类/时间对齐/可视化/循证结论/相关vs因果/不确定性披露/报告质量/不过度声称/完备性），总分 ≥90 才放行</li>
+    <li>未达标 → 进入有界修复回路：带<b>修复范围</b>重跑（只重算被点名缺陷的工件，其余 carried over），best-of-3、全局 ≤5</li>
+    <li><b>物理预审计</b>：机制链、量纲、数据真相抽查，0 FATAL 才放行</li></ul>
+    <div class="art">产出 <b>judge_feedback.json（provenance 标注）· optimizer_preflight.md</b> → CP-6</div></div>
+
+  <div class="card"><div class="no">STEP 6 → 7</div><h3>报告 + 物理终审</h3><div class="agent">reporter → report-reviewer</div>
+    <ul><li>九段金字塔报告（执行摘要/统计发现/根因结论/证据附录/建议），编号锚点被门禁校验</li>
+    <li><b>物理终审（Step 7）</b>：独立验算机制链、数值抽查、弱证据限定词、判决-置信度一致性 → 必须 <b style="color:var(--green)">ENDORSED</b></li></ul>
+    <div class="art">产出 <b>report.md · run_summary.json · optimizer.md(ENDORSED)</b> → CP-7/8</div></div>
+
+  <div class="card"><div class="no">STEP 8 / 8.5</div><h3>HTML 可视化 + 独立审查</h3><div class="agent">html-visualizer → html-reviewer</div>
+    <ul><li><b>manifest-first</b>：先写 render_manifest.json（页面模型），再渲染 diagnostic-report.html（ECharts，≥5120B）</li>
+    <li>html_selfcheck 自检 + 独立 html-reviewer 审查（渲染/数值溯源/相对路径/诚实性）→ verdict=pass 过 CP-9</li></ul>
+    <div class="art">产出 <b>diagnostic-report.html · render_manifest.json · html_selfcheck.json · html_review.json</b> → CP-9</div></div>
+
+  <div class="card"><div class="no">STEP 9</div><h3>Finalise 终局门禁</h3><div class="agent">pipeline-finalize.mjs（确定性脚本）</div>
+    <ul><li><b>五组校验全过才 PASS</b>：inventory（≈33 项产物存在性）· schema（14 个官方 schema 逐项验证）·
+    closure（过程波动/双驱动/本体桥/验证与视觉前向引用）· judge-cross-audit（判决-评分交叉核对）· event-archive（事件顺序 + 交付契约）</li>
+    <li>任何 critical 失败 → 整体 FAIL，run 不可被判分——这是"结果必须可审计"的最终执行点</li>
+    <li>另产出 evidence_closure_report.json（证据闭环报告）</li></ul>
+    <div class="art">产出 <b>pipeline_finalize_report.json · evidence_closure_report.json</b> → 总 PASS</div></div>
+
+</div>
+
+<!-- ══════════ 截图 ══════════ -->
+<h2 class="sec">④ 实拍界面（英文模式 · 浏览器实截）</h2>
+<p class="secdesc">以下为浏览器实截的项目界面（1600×1000，英文 locale）。截图对应的真实交互：注册登录 → 六大工作区。</p>
+<div class="shots">
+  <figure><img src="img/01_data.png" alt="Data Ingest & Selection">
+    <figcaption><b>① Data — 数据接入与选择</b>：上传工业数据、组织文件夹、把目标数据集送入诊断管线。底部状态条显示当前引擎（Claude Code · READY）与实时连接状态。</figcaption></figure>
+  <figure class="wide"><img src="img/02_diagnose.png" alt="Live Diagnostic Workbench">
+    <figcaption><b>② Diagnose — 实时诊断工作台</b>：任务列表显示 115 个历史运行及其状态与判定（COMPLETED / ENDORSED / 评分 96 等）；右上 ACTIVE TASKS 与「+ New Task」启动新诊断；每行可进入实时阶段跟踪、证据链与交互式追问。</figcaption></figure>
+  <figure><img src="img/03_reports.png" alt="Reports & Audit Artifacts">
+    <figcaption><b>③ Reports — 报告与审计工件</b>：集中浏览 Markdown 诊断报告、图表与优化审计，可快速定位结论与关键证据（新工作区需先发起诊断）。</figcaption></figure>
+  <figure><img src="img/04_history.png" alt="Historical Runs">
+    <figcaption><b>④ History — 执行台账</b>：按状态回看历史诊断、检查日志与会话、恢复失败或暂停的任务（Refresh / Clear All）。</figcaption></figure>
+  <figure class="wide"><img src="img/05_ontology.png" alt="Ontology Model Management">
+    <figcaption><b>⑤ Ontology — 本体知识资产库</b>：语义图可视化、在浏览器内编辑并持久化本体资产（资产库服务离线时会显式报错——系统的优雅降级设计：本体构建回退到 parameter_to_physics 语义 + 数据自描述）。</figcaption></figure>
+</div>
+
+<!-- ══════════ 实测 ══════════ -->
+<h2 class="sec">⑤ 真实运行验证（本周实测）</h2>
+<p class="secdesc">两个场景按上述流程完整执行，均通过全部门禁；判定与历史基准高度一致。</p>
+<table class="tt">
+  <tr><th>场景</th><th>本次判定</th><th>关键判别性证据（可复算）</th><th>历史基准一致性</th></tr>
+  <tr><td><b>SKAB valve1_1</b><br>水循环回路 · 1 Hz · 1145 行</td>
+    <td><span class="badge b-g">DETERMINED</span> 0.78<br>下游流通路径节流</td>
+    <td>故障窗行 621–924（303 s）：流量 −4.17% 锁定最低量化档猎振 212 次；电流 −3.09%；相似定律判别器排除降速路径（预测 −12% vs 实测 −3.09%）</td>
+    <td><span class="badge b-g">一致</span> 机理相同；本次以电流判别器闭合主机理（历史为 CS 0.65），执行器级子归因同样诚实挂起</td></tr>
+  <tr><td><b>TEP d07</b><br>流股4 供给压力损失 · 3 min · 960 行</td>
+    <td><span class="badge b-g">DETERMINED</span> 0.82<br>流股4 供给压力损失（XMV_4 补偿）</td>
+    <td>三段结构：XMEAS_4 瞬跌 −12.29σ → XMV_4 +18.73σ→+12.24σ 保持（+25.13%）→ 流量恢复 held −0.25σ；反应器压力 ±38σ 瞬态后重控归零</td>
+    <td><span class="badge b-g">逐点一致</span> 判决类型/置信度 82=82/XMV_4 +25.3%≈+25.13%/进料瞬态 −11.9σ≈−12.29σ</td></tr>
+</table>
+<div class="callout"><b>为什么这两次运行可信：</b>
+两次 run 均通过 <code>pipeline-finalize</code> 五组门禁（inventory 33 项 / schema 14 项 / closure / judge-cross / event-archive）
+与 <code>pipeline-log-check</code>（0 critical）；diagnosis 的 primary_finding 与 run_summary 逐字一致；
+每条证据带 L 级与来源路径，任何数字可回溯到 02_processed 确定性产物复算。</div>
+<div class="callout warn"><b>已知边界（诚实披露）：</b>
+判别通道缺失时执行器级子归因会显式挂起（SKAB 阀位通道、TEP 上游 header 测点）并转化为补测清单而非强行结论；
+无视觉模型部署下 VLM 走 metadata_backed_inference 合规降级（观测来自数值证据而非像素）；
+统计结论受最弱证据级 L3 约束。</div>
+
+<footer>Industrial Deep Diagnostic · 九阶段门禁管线 · 本指南由真实运行与浏览器实截生成 ·
+截图目录 docs/pipeline-guide/img/ · 事件流水与全部数值可在各 run 目录复算</footer>
+</div>
+</body>
+</html>

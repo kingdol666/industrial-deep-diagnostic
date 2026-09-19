@@ -1,0 +1,43 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 4 章 · 配置一次诊断：八个控件怎么填</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>数据源已经带过来了，这里只需要做两件事：说清楚要问什么，然后决定用什么策略</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>③ 写得越具体，结论越贴题</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 319, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/06_configure.png" style={{ width: 1160, height: 319, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 205, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1D1B16' }}>必填的两栏</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 9 }}>② 场景名与 ③ 诊断问题会原样写进报告首页。写清楚对象与现象，例如「请判断本批次工艺数据是否发生真实工况漂移，并定位根因」。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>问题留空也能跑，但结论会很泛</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1D1B16' }}>四个策略下拉</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 9 }}>④ 最大轮次 ⑤ 报告语言 ⑥ 本体策略 ⑦ 诊断深度。第一次保持默认值即可：不限轮次、中文、自动、自动识别意图。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>「诊断深度」设为开启即自动跑 E0–E8</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#8A5608' }}>① 数据源卡片要核对</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>左上角明确写出「已选择 N 个文件」。如果这里数量不对，说明选错了数据；点「新建任务」可以回到数据页重选。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>按下 ⑧ 开始诊断即进入运行</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>配置只在这一刻生效，运行开始后不可改</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>15 / 31</Text>
+    </Box>
+</Slide>

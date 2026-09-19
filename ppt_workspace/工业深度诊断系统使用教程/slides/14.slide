@@ -1,0 +1,43 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 3 章 · 选中数据 → 发起分析</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>勾上左侧复选框，工具条才会出现；点「分析选中文件」，系统带着数据跳到诊断工作台</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>两种发起方式</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 221, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/05_selected.png" style={{ width: 1160, height: 221, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 240, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ flex: 1, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 批量：勾选后统一分析</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>适合多个文件属于同一场景的情况。勾选后点工具条上的「分析选中文件」，之后在配置页里确认数据源即可。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>可多选，也可全选</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 单个：行尾「分析」按钮</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>只跑一个文件时最快。点下去效果与批量完全一致，只是数据源被锁定成这一个文件，不会误带上别的数据。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>行尾还有「预览」可先看内容</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 20, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 整个文件夹一起分析</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>双击进入文件夹后，顶部会出现「分析整个文件夹」。当一次诊断需要同时吃过程数据与质检数据时，这样最省事。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>过程数据 + 质检数据同批送入</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>选中状态会显示在左下方：1 files selected</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>14 / 31</Text>
+    </Box>
+</Slide>

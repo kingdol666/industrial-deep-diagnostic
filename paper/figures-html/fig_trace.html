@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="aei_template.css">
+<style>
+  body { width:1500px; height:1700px; padding:20px 22px 16px; }
+  .banner { display:flex; align-items:center; justify-content:space-between;
+            background:#eef3f7; border:1px solid #c6d0d9; border-radius:8px;
+            padding:9px 16px; margin-bottom:12px; }
+  .banner .l { font-size:26px; font-weight:800; }
+  .banner .l .id { color:var(--blue); }
+  .banner .r { font-size:22px; color:var(--sub); text-align:right; flex:0 0 520px; line-height:1.35; }
+  .trace { position:relative; }
+  .rail { position:absolute; left:79px; top:22px; bottom:22px; width:2px; background:#c6d0d9; }
+  .row { display:flex; align-items:stretch; gap:12px; margin-bottom:9px; position:relative; }
+  .step { flex:0 0 196px; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .chip { padding:4px 11px; border-radius:8px; font-size:23px; font-weight:800; color:#fff;
+          background:var(--blue); line-height:1.2; text-align:center; }
+  .chip.script { background:#5b6b78; }
+  .agent { font-size:19px; color:var(--sub); text-align:right; line-height:1.25; }
+  .card { flex:1 1 auto; border:1px solid #c6d0d9; border-radius:8px; background:#fbfcfd;
+          padding:8px 12px 7px; }
+  .did { font-size:23px; line-height:1.32; }
+  .out { margin-top:6px; background:#eef3f7; border-left:4px solid var(--sky);
+         border-radius:0 6px 6px 0; padding:6px 11px; font-size:22px; line-height:1.34; color:var(--ink); }
+  .out b { color:#004a74; }
+  .gatecol { flex:0 0 148px; display:flex; align-items:center; justify-content:flex-start; }
+  .gate { padding:3px 11px; border-radius:12px; font-size:21px; font-weight:700;
+          background:#e7f0f8; color:var(--blue); white-space:nowrap; }
+  .gate.g { background:#e2f2ec; color:#0a7d38; }
+  .gate.na { background:#f0f0f0; color:#8f8f8f; }
+  .par { display:flex; gap:8px; margin-top:2px; }
+  .par .p1, .par .p2 { flex:1; border:1px solid #9dbedb; border-radius:6px; background:#fff;
+                       padding:5px 9px; font-size:22px; line-height:1.3; }
+  .par .hdr { font-size:22px; font-weight:800; color:var(--blue); }
+  .rep { position:absolute; right:-4px; width:270px; top:388px; }
+  .rep .arc { border:2px dashed var(--orange); border-radius:0 14px 14px 0; border-left:none;
+              height:120px; }
+  .rep .lbl { position:absolute; top:34px; left:12px; font-size:18px; color:#a35c17;
+              background:#fff; padding:0 4px; line-height:1.3; }
+  .foot { margin-top:10px; background:#f0f3f6; border-radius:6px; padding:8px 14px;
+          font-size:19px; color:var(--ink); line-height:1.45; }
+  .legend { display:flex; gap:24px; align-items:center; margin:0 0 12px 2px; font-size:22px; color:var(--sub); }
+  .legend .sw { display:inline-block; width:15px; height:15px; border-radius:4px; margin-right:6px; vertical-align:-2px; }
+</style></head><body>
+
+  <div class="banner">
+    <div class="l">One complete execution, as recorded — <span class="id">TEP IDV4 · reactor-cooling step</span></div>
+    <div class="r">run 202609171639066 · every quoted string is read from the released run directory</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--blue);"></span>agent stage (semantic judgement)</span>
+    <span><span class="sw" style="background:#5b6b78;"></span>deterministic script</span>
+    <span><span class="sw" style="background:#e7f0f8; border:1.5px solid #9dbedb;"></span>checkpoint gate</span>
+    <span><span class="sw" style="background:#e2f2ec; border:1.5px solid #0a7d38;"></span>hard gate</span>
+  </div>
+
+  <div class="trace">
+    <div class="rail"></div>
+
+    <div class="row" style="align-items:center;">
+      <div class="step"><span class="chip script">Step 0/1</span><span class="agent">main agent + scripts</span></div>
+      <div class="card">
+        <div class="did">Fingerprint the recording; stream-inspect columns; record user context (declared onset idx&nbsp;160; ground truth withheld).</div>
+        <div class="out">data.csv: <b>960 rows × 52 channels</b>, 3-min grid, 48 h, no missing values · <b>time_sorted = true</b></div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-1 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 2</span><span class="agent">context-builder</span></div>
+      <div class="card">
+        <div class="did">Variable semantics, mechanism annotations, confounder list from the process description; RAG probe fails → documented fallback (no external evidence enters).</div>
+        <div class="out">XMEAS_9 = reactor temp, setpoint <b>120.4&nbsp;°C (σ 0.019)</b> · XMV_10 = manipulated cooling valve · <b>unmeasured: cooling-water inlet T, exchanger UA</b></div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-2/3 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 3</span><span class="agent">data-processor + scripts</span></div>
+      <div class="card">
+        <div class="did">Cleaning and state filtering; anomaly profile; era-stratified lag-compensated CCF; leave-one-out leverage; Simpson and multiple-testing checks; physics checks P1–P5.</div>
+        <div class="out"><b>XMV_10 steps 41.14→44.90&nbsp;% (+6.82σ sustained — the only &gt;1.2σ era-shift among 52 channels)</b> · same-sample triad at idx160: <b>XMEAS_9 spike z = +10.5</b>, XMEAS_21 transient · cross-loop XMEAS_22 flat (−0.08σ)</div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-4 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 3.5</span><span class="agent">vlm-visual-analyzer (nested)</span></div>
+      <div class="card">
+        <div class="did">No vision-capable model in this deployment → documented non-visual skeleton executes; provenance signed by script.</div>
+        <div class="out">visual_analysis.json · <b>source_agent = visual_analysis.py</b> (non-visual fallback disclosed)</div>
+      </div>
+      <div class="gatecol"><span class="gate na">no gate</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 4</span><span class="agent">diagnostician</span></div>
+      <div class="card">
+        <div class="did">Six hypotheses formed (≥3 required); four eliminated with quantified contradictions, each ≥95% exclusion confidence; survivors ranked; three-state verdict.</div>
+        <div class="out">excl. <b>H2</b> feed/reaction-heat · <b>H3</b> gradual fouling (no ramp: window σ flat) · <b>H4</b> D-feed (stratified r exposed a background coupling) · <b>H5</b> sensor artifact (pressure network + actuator co-response) → survivors <b>H1 inlet-temperature step (rank 1) ‖ H6 sudden UA loss</b> · <b>COMPETING_SET, conf 63 (cap 65)</b> · names the missing channel: cooling-water inlet thermocouple</div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-5 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 5a·5b</span><span class="agent">judge ∥ pre-auditor</span></div>
+      <div class="card">
+        <div class="par">
+          <div class="p1"><span class="hdr">5a · ten-criterion judge</span><br>97/100, pass, round 1 of 3 · judge spot-checks: <b>3/3 correlations re-verified</b></div>
+          <div class="p2"><span class="hdr">5b · physical pre-audit</span><br>PREFLIGHT_PASS · <b>FATAL 0</b> · auditor recomputation: <b>20/20 items agree</b></div>
+        </div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-6 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 6</span><span class="agent">reporter</span></div>
+      <div class="card">
+        <div class="did">Pyramid report assembled from gated artifacts only.</div>
+        <div class="out">report.md + run_summary.json · action list led by <b>P0: install a cooling-water inlet-temperature measurement</b></div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-7 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Step 7</span><span class="agent">report-reviewer</span></div>
+      <div class="card">
+        <div class="did">Independent physical-truth audit of the report against the artifacts.</div>
+        <div class="out"><b>FINAL_AUDIT_VERDICT: ENDORSED</b> — FATAL 0 · MAJOR 0 · MINOR 0 · INFO 2</div>
+      </div>
+      <div class="gatecol"><span class="gate g">CP-8 ✓ hard</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip">Steps 8/8.5</span><span class="agent">html-visualizer → html-reviewer</span></div>
+      <div class="card">
+        <div class="did">Manifest-first page build, then independent review of the deliverable.</div>
+        <div class="out">diagnostic-report.html · html_review verdict = <b>pass</b></div>
+      </div>
+      <div class="gatecol"><span class="gate">CP-9 ✓</span></div>
+    </div>
+
+    <div class="row">
+      <div class="step"><span class="chip script">Step 9</span><span class="agent">deterministic script</span></div>
+      <div class="card">
+        <div class="did">Artifact inventory, schema checks, evidence closure, judge cross-audit, event-archive validation.</div>
+        <div class="out">pipeline_finalize_report.json — <b>overall PASS</b> (0 critical items missing, events VALID) → <b>the run becomes gradeable</b></div>
+      </div>
+      <div class="gatecol"><span class="gate g">PASS ✓</span></div>
+    </div>
+  </div>
+
+  <div class="foot" style="display:none;"></div>
+
+</body></html>

@@ -15,6 +15,7 @@ Core rule: **diagnosis = elimination**. Every conclusion satisfies the four cond
 
 | File | Role |
 |------|------|
+| `02_processed/stage_digest.json` | **Speed fast path — read FIRST.** ≤2KB machine summary (data shape, top anomalies, top filtered correlations, chart plan, time-alignment mode). Full artifacts below are consulted on demand for the details a hypothesis actually needs |
 | `02_processed/data_analysis_conclusion.json` | Mandatory handoff file — statistical analysis conclusion |
 | `01_ontology/ontology.json` | Physical-semantic ontology |
 | `03_figures/visual_analysis.json` | VLM visual evidence |

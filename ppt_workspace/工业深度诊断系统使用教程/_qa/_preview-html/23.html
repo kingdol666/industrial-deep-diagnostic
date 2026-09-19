@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">第 7 章 · 历史账本与一键深度增强</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">这里回看每一次运行：谁跑的、跑到什么状态、拿了多少分、下一步能做什么</div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;background:#1D1B16;border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#B8730F">115 条历史记录</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;height:391px;flex-direction:row;gap:22px">
+            <img src="assets/15_history.png" style="width:740px;height:391px;border-radius:10px;border:1px solid rgba(29,27,22,0.10)"/>
+            <div style="display:flex;flex-direction:column;width:398px;height:391px;flex-direction:column;gap:14px">
+                <div style="display:flex;flex-direction:column;height:121px;padding:16px;background:#FFFFFF;border-radius:11px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#1D1B16">① 引擎徽标</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.72);line-height:1.55;margin-top:8px">MOCK / CLAUDE / OMP —— 一眼看出这次是谁跑的。</div>
+                </div>
+                <div style="display:flex;flex-direction:column;height:121px;padding:16px;background:#FFFFFF;border-radius:11px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#1D1B16">② 会话与报告</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.72);line-height:1.55;margin-top:8px">「会话」带着上下文继续追问；「报告」直接跳转产物。</div>
+                </div>
+                <div style="display:flex;flex-direction:column;height:121px;padding:16px;background:rgba(184,115,15,0.10);border-radius:11px;border:1px solid rgba(184,115,15,0.40);flex-direction:column">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#8A5608">③ 继续诊断 / 删除</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.78);line-height:1.55;margin-top:8px">被中断的运行可恢复；确认无用的记录可清理。</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;height:133px;padding:20px;background:#1D1B16;border-radius:12px;flex-direction:row;align-items:center;gap:24px">
+            <div style="display:flex;flex-direction:column;width:200px;flex-direction:column">
+                <div class="tx" style="font-size:30px;font-weight:bold;color:#B8730F">深度增强</div>
+                <div class="tx" style="font-size:15px;color:rgba(247,244,236,0.62);margin-top:4px">E0 – E8 确定性管线</div>
+            </div>
+            <div class="tx" style="font-size:17px;color:rgba(247,244,236,0.86);line-height:1.62;width:880px">对一个已经完成的运行点「深度增强」，系统会接着跑一段确定性增强管线：不调用大模型、不额外花钱，约 3–5 分钟，产出更细的覆盖矩阵与工况条件。增强产物还会回流进 RAG 知识库，越用越准。</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">刷新与清空记录在右上角</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">23 / 31</div>
+    </div>
+</div>
+</body></html>

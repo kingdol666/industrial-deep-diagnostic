@@ -1,0 +1,51 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 0 章 · 环境准备：四个依赖一次查完</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>缺任何一项，启动都会直接失败 —— 所以先花 30 秒把版本查清楚</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>本机真实输出</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 18 }}>
+        <Box style={{ height: 310, flexDirection: 'row', gap: 18 }}>
+            <Image src="assets/t_prereq.png" style={{ width: 830, height: 223, borderRadius: 10 }} />
+            <Box style={{ width: 312, height: 310, padding: 20, background: '#1D1B16', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 3, fontWeight: 'bold' }}>CHECKLIST</Text>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#F7F4EC', marginTop: 10 }}>四个依赖的下限</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(247,244,236,0.78)', lineHeight: 1.7, marginTop: 12 }}>Node.js ≥ 18（推荐 22+）<br />npm ≥ 9<br />Python ≥ 3.10<br />uv（推荐；缺失时回退系统 pip）</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.18)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 15, color: '#F0A93B', lineHeight: 1.5 }}>依赖是自动装的：后端/前端会自动 npm install，RAG 会自建虚拟环境</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 212, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ flex: 1, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 检查命令</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>四条命令分别对应四个依赖，回车即可。输出与左图一致就说明环境没问题。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>node --version / npm --version</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 版本不达标怎么办</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>Node 用 nvm 切版本，Python 用官网安装包；uv 是可选项，不装也能跑（走 pip）。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>先解决依赖，再看下一章</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 20, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 网络慢的时候</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>RAG 引擎的 Python 依赖体积较大，国内网络可以先切到镜像源再启动，避免卡在 uv sync。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>UV_INDEX_URL=清华镜像</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>Industrial Deep Diagnostic · 使用教程</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>05 / 31</Text>
+    </Box>
+</Slide>

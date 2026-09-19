@@ -1,0 +1,99 @@
+{
+ "run_id": "solo_tep_d07",
+ "evidence_inventory": {
+  "visual_evidence": [
+   {
+    "source": "03_figures/fig_vlm_temporal_overlay.png",
+    "rank": 4,
+    "finding": "declared onset 处 XMV_4 阶跃与 XMEAS_4 跌落-恢复同步；反应器压力瞬态后归零",
+    "implication": "扰动局限于流股4 供给侧且被补偿"
+   },
+   {
+    "source": "03_figures/fig_adaptive_overlay.png",
+    "rank": 4,
+    "finding": "关键通道 z-overlay 无其它通道出现同窗稳态偏移",
+    "implication": "非全局扰动"
+   }
+  ],
+  "numerical_evidence": [
+   {
+    "source": "02_processed/segment_statistics.json",
+    "rank": 3,
+    "metric": "XMV_4 held",
+    "value": "+12.24σ/+25.13%",
+    "finding": "进料阀开大 +25% 稳态保持",
+    "interpretation": "补偿动作"
+   },
+   {
+    "source": "02_processed/segment_statistics.json",
+    "rank": 3,
+    "metric": "XMEAS_4 dip",
+    "value": "-12.29σ",
+    "finding": "进料流量瞬态跌落后恢复",
+    "interpretation": "供给中断指纹"
+   },
+   {
+    "source": "02_processed/segment_statistics.json",
+    "rank": 3,
+    "metric": "XMEAS_7",
+    "value": "held +0.01σ",
+    "finding": "反应器压力重控",
+    "interpretation": "受控后果"
+   },
+   {
+    "source": "02_processed/segment_statistics.json",
+    "rank": 3,
+    "metric": "other feeds held",
+    "value": "≤|0.25|σ",
+    "finding": "XMV_3 等不动",
+    "interpretation": "扰动局限于流股4"
+   },
+   {
+    "source": "02_processed/segment_statistics.json",
+    "rank": 3,
+    "metric": "XMEAS_19 var ratio",
+    "value": "35.29",
+    "finding": "汽提塔蒸汽方差增大无 held 偏移",
+    "interpretation": "次级扰动"
+   }
+  ],
+  "validation_evidence": [
+   {
+    "source": "02_processed/validate_report.json",
+    "finding": "全通道相关结构经稳健性校验",
+    "affected_hypotheses": [
+     "H1",
+     "H2",
+     "H3",
+     "H4",
+     "H5"
+    ]
+   },
+   {
+    "source": "02_processed/time_alignment.json",
+    "finding": "timestamp 轴解析合法（3 分钟采样、单调）",
+    "affected_hypotheses": [
+     "H1"
+    ]
+   }
+  ],
+  "physical_evidence": [
+   {
+    "source": "01_ontology/ontology.json",
+    "rank": 5,
+    "affected_hypotheses": [
+     "H1"
+    ],
+    "finding": "XMV_4=A+C 进料阀 control 角色 + 阀门流量方程"
+   }
+  ]
+ },
+ "ontology_data_physics_proof": {
+  "mechanism_chain": "流股4 供给压力↓ → XMEAS_4 瞬跌 → 控制器开大 XMV_4(+25%) → 流量恢复 → 反应器压力瞬态后重控",
+  "valve_discriminant": "阀门开大+流量恢复 ⇒ 上游供给压力损失；需求变更或仪表漂移均不自洽"
+ },
+ "validate_report_constraints": {
+  "overall_validity": "见 validate_report.json",
+  "note": "time_hours 相关（慢时钟漂移）不作为因果证据"
+ }
+}

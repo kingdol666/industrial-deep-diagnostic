@@ -1,0 +1,18 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>先看全貌：五步上手路线图</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>你要做的全部事情就是这五行。下面是每一步的命令与预期结果，后面每页都会展开细讲。</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>总计约 5 分钟</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, justifyContent: 'center', alignItems: 'center' }}>
+        <Image src="assets/d_roadmap.png" style={{ width: 1152, height: 534, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>装完你会得到：全局命令 ind-diag · 三个后台服务 · 一个网页操作台</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>02 / 34</Text>
+    </Box>
+</Slide>

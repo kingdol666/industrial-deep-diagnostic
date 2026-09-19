@@ -1,0 +1,23 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 2–3 步 · 装项目 + 起服务</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>两条命令。第一条把项目装到本机并注册 ind-diag 命令，第二条把三个服务一起拉起来</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>命令逐字可用</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 12 }}>
+        <Box style={{ height: 260, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_clone.png" style={{ width: 967, height: 260, borderRadius: 11 }} />
+        </Box>
+        <Box style={{ height: 260, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_start.png" style={{ width: 967, height: 260, borderRadius: 11 }} />
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>不加 --detach 会卡在前台，120 秒后报超时 —— 服务其实已经起来了</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>08 / 34</Text>
+    </Box>
+</Slide>

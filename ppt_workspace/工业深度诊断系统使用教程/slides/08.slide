@@ -1,0 +1,30 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 1 章 · 验证：三个服务是否真的活着</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>看一眼状态表，再打两个健康检查接口 —— 别急着开浏览器</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>本机真实输出</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 363, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_status.png" style={{ width: 1160, height: 363, borderRadius: 10 }} />
+        </Box>
+        <Box style={{ height: 161, flexDirection: 'row', gap: 18 }}>
+            <Image src="assets/t_health.png" style={{ width: 716, height: 161, borderRadius: 10 }} />
+            <Box style={{ width: 426, height: 161, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>三行全绿才算启动成功</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 10 }}>状态表三行都是 ● running / healthy；再确认后端返回 status ok、RAG 返回 kb_ready true。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>现在可以打开 http://localhost:5180</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>日志在 .runtime/backend.log · frontend.log · rag.log</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>08 / 31</Text>
+    </Box>
+</Slide>

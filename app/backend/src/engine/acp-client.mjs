@@ -317,6 +317,19 @@ function createAcpEngineClient(id) {
     throw err;
   }
 
+  // Raw-prompt conversational turn (standalone chat) — one ACP session/prompt
+  // single-flight, same shape as the diagnosis turn but without the industrial
+  // prompt wrapper.
+  function startChatTurn({ runId, prompt }) {
+    const query = createAcpQuery(id, {
+      turnKey: runId,
+      prompt: String(prompt || '').trim(),
+      label: `chat:${runId}`,
+    });
+    activeQueries.set(runId, query);
+    return { query, runId, getSessionId: () => query.sessionId };
+  }
+
   function parseStreamEvent(message) {
     if (!message || typeof message !== 'object') return null;
     return message;
@@ -331,7 +344,7 @@ function createAcpEngineClient(id) {
     }
   }
 
-  return { startDiagnosis, startSessionChat, parseStreamEvent, registerChild, closeQuery };
+  return { startDiagnosis, startSessionChat, startChatTurn, parseStreamEvent, registerChild, closeQuery };
 }
 
 export const dshClient = createAcpEngineClient('dsh');

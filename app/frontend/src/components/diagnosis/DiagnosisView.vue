@@ -13,7 +13,7 @@
       <div class="ds-card" v-if="analysisTarget && !started">
         <div class="ds-card-header">
           <div class="ds-icon" :class="'ds-icon-' + (analysisTarget.mode || 'file')">
-            {{ analysisTarget.mode === 'folder' ? '📁' : analysisTarget.mode === 'multi' ? '📊' : '📄' }}
+            {{ analysisTarget.mode === 'folder' ? '▦' : analysisTarget.mode === 'multi' ? '◫' : '▤' }}
           </div>
           <div class="ds-info">
           <div class="ds-title">
@@ -367,16 +367,16 @@ const statusLabel = computed(() => {
 
 const phaseIcon = computed(() => {
   const p = currentPhase.value;
-  if (p.includes('等待用户') || p.includes('等待回答') || /wait/i.test(p)) return '❓';
-  if (p.includes('读取') || p.includes('数据') || /read|data/i.test(p)) return '📂';
-  if (p.includes('执行') || p.includes('分析') || /exec|analy/i.test(p)) return '⚙️';
-  if (p.includes('生成') || p.includes('输出') || /generat|output/i.test(p)) return '📝';
-  if (p.includes('规划') || /plan/i.test(p)) return '📋';
-  if (p.includes('诊断') || p.includes('技能') || /diagnos|skill/i.test(p)) return '🔬';
-  if (p.includes('探索') || /explor/i.test(p)) return '🔍';
-  if (p.includes('检索') || p.includes('网页') || /search|web/i.test(p)) return '🌐';
-  if (p.includes('图') || p.includes('可视化') || /visual|chart/i.test(p)) return '📊';
-  return '⚙️';
+  if (p.includes('等待用户') || p.includes('等待回答') || /wait/i.test(p)) return '?';
+  if (p.includes('读取') || p.includes('数据') || /read|data/i.test(p)) return '▤';
+  if (p.includes('执行') || p.includes('分析') || /exec|analy/i.test(p)) return '▸';
+  if (p.includes('生成') || p.includes('输出') || /generat|output/i.test(p)) return '▣';
+  if (p.includes('规划') || /plan/i.test(p)) return '☰';
+  if (p.includes('诊断') || p.includes('技能') || /diagnos|skill/i.test(p)) return '◎';
+  if (p.includes('探索') || /explor/i.test(p)) return '◌';
+  if (p.includes('检索') || p.includes('网页') || /search|web/i.test(p)) return '⌕';
+  if (p.includes('图') || p.includes('可视化') || /visual|chart/i.test(p)) return '▦';
+  return '▸';
 });
 
 const verdictClass = computed(() => {

@@ -16,17 +16,11 @@
             {{ chatSidebarCollapsed ? '›' : '‹' }}
           </button>
         </div>
-        <div class="chat-engine-picker" role="group" :aria-label="$t('chat.engineLabel')" :title="chatSidebarCollapsed ? $t('chat.engineLabel') : ''">
-          <button
-            class="chat-engine-opt"
-            :class="{ active: chatEngine === 'claude', 'engine-claude': chatEngine === 'claude' }"
-            @click="setChatEngine('claude')"
-          >⌘ Claude</button>
-          <button
-            class="chat-engine-opt"
-            :class="{ active: chatEngine === 'omp', 'engine-omp': chatEngine === 'omp' }"
-            @click="setChatEngine('omp')"
-          >⛭ OMP</button>
+        <div class="chat-engine-picker" role="group" :aria-label="$t('chat.engineLabel')" :title="chatSidebarCollapsed ? $t('chat.engineLabel') : (harnessTitle)">
+          <span class="chat-engine-opt active engine-current" :title="harnessTitle">
+            <span class="chat-engine-glyph">{{ engineGlyph }}</span>
+            <span class="chat-engine-name">{{ harnessName }}</span>
+          </span>
         </div>
         <button class="btn btn-primary chat-sidebar-new" :title="chatSidebarCollapsed ? $t('chat.newChat') : ''" @click="createChatPanel" :disabled="loading">
           <span class="chat-sidebar-new-icon">+</span>
@@ -50,7 +44,6 @@
               @click="selectPanel(panel.localId)"
             >
               <div class="chat-session-head">
-                <span class="chat-session-type">{{ $t('chat.chatGroup') }}</span>
                 <div v-if="panel.chatId" class="chat-session-actions" @click.stop>
                   <button class="session-icon-btn" @click="renameChatPanel(panel)">✎</button>
                   <button class="session-icon-btn danger" @click="removeChatPanel(panel)">✕</button>
@@ -83,9 +76,6 @@
               :title="panel.title"
               @click="selectPanel(panel.localId)"
             >
-              <div class="chat-session-head">
-                <span class="chat-session-type diagnose-type">{{ $t('chat.diagnoseGroup') }}</span>
-              </div>
               <div class="chat-session-avatar diagnose-avatar">{{ sessionAvatar(panel.title, 'D') }}</div>
               <div class="chat-session-name">{{ panel.title }}</div>
               <div class="chat-session-meta">
@@ -120,7 +110,7 @@
 
       <div class="chat-stage" v-if="!activePanel">
         <div class="chat-empty">
-          <div class="chat-empty-icon">💬</div>
+          <div class="chat-empty-icon">◎</div>
           <h3>{{ $t('chat.startConversation') }}</h3>
           <p>{{ $t('chat.startConversationDesc') }}</p>
         </div>
@@ -147,7 +137,7 @@
 
           <div class="chat-thread">
             <div class="chat-welcome" v-if="activePanel.events.length === 0">
-              <div class="chat-empty-icon">✨</div>
+              <div class="chat-empty-icon">✦</div>
               <h3>{{ activePanel.kind === 'diagnose' ? $t('chat.welcomeDiagnose') : $t('chat.welcomeChat') }}</h3>
               <p>{{ activePanel.kind === 'diagnose' ? $t('chat.welcomeDiagnoseDesc') : $t('chat.welcomeChatDesc') }}</p>
             </div>
@@ -230,6 +220,7 @@ import { getRunStatusBadgeClass, getRunStatusLabel, normalizeRunSummary } from '
 
 const props = defineProps({
   harness: { type: String, default: 'claude' },
+  harnessName: { type: String, default: '' },
 });
 
 const { t } = useI18n();
@@ -282,33 +273,36 @@ const canStop = computed(() => {
   return !!panel.runId && ['running', 'awaiting_input'].includes(panel.status);
 });
 
-// ── Per-chat engine selection ──────────────────────────────────────────
-// "New Chat" always asks which engine runs the conversation: Claude Code or
-// the OMP harness (.omp/agents contract topology). The choice is stored per
-// panel, persisted in localStorage, and travels with every start request.
-const chatEngine = ref(
-  localStorage.getItem('idd.chatEngine') === 'omp' || localStorage.getItem('idd.chatEngine') === 'claude'
-    ? localStorage.getItem('idd.chatEngine')
-    : (props.harness === 'omp' ? 'omp' : 'claude'),
-);
+// ── Chat engine follows the global harness selector ───────────────────
+// New chats run on whichever engine is selected in the sidebar (every
+// registered harness now carries both live + chat capabilities). Existing
+// chats stay sticky to the engine that created them — the backend keeps
+// that binding and the panel badge shows it.
+const chatEngine = computed(() => props.harness || 'claude');
+const harnessName = computed(() => props.harnessName || chatEngine.value);
+const harnessTitle = computed(() => `${t('chat.engineLabel')}: ${harnessName.value}`);
+const engineGlyph = computed(() => (
+  { claude: '⌘', omp: '⛭', mock: '▶', gemini: '✦', hermes: '☲', goose: 'ƒ' }[chatEngine.value]
+  || chatEngine.value.charAt(0).toUpperCase()
+));
 
-function setChatEngine(next) {
-  chatEngine.value = next === 'omp' ? 'omp' : 'claude';
-  try { localStorage.setItem('idd.chatEngine', chatEngine.value); } catch {}
+function engineLabel(id) {
+  if (id === 'omp') return 'OMP';
+  if (id === 'claude') return 'Claude';
+  return String(id || '').toUpperCase();
 }
 
 function panelEngine(panel) {
-  const engine = panel?.engine || chatEngine.value;
-  return engine === 'omp' ? 'omp' : 'claude';
+  return panel?.engine || panel?.harness || chatEngine.value;
 }
 
-// Assistant bubbles carry the engine badge: OMP chats show "OMP", Claude
-// chats show "Claude". Diagnose-session panels follow the run's harness.
+// Assistant bubbles carry the engine badge; diagnose-session panels follow
+// the run's harness.
 const activePanelEngineLabel = computed(() => {
   const panel = activePanel.value;
-  if (!panel) return chatEngine.value === 'omp' ? 'OMP' : 'Claude';
-  if (panel.kind === 'chat') return panelEngine(panel) === 'omp' ? 'OMP' : 'Claude';
-  return panel.metadata?.run?.harness === 'omp' ? 'OMP' : 'Claude';
+  if (!panel) return engineLabel(chatEngine.value);
+  if (panel.kind === 'chat') return engineLabel(panelEngine(panel));
+  return engineLabel(panel.metadata?.run?.harness || chatEngine.value);
 });
 
 function loadChatSidebarState() {
@@ -378,7 +372,8 @@ function createChatPanel() {
   const panel = createBasePanel('chat', t('chat.newChatLabel'));
   const panelEngineChoice = panelEngine(panel);
   panel.engine = panelEngineChoice;
-  // The engine chosen at creation time decides which harness runs this chat.
+  // The global harness selection decides which engine runs this chat; the
+  // backend keeps existing chats sticky to their original engine.
   panel.harness = panelEngineChoice;
   panels.value.unshift(panel);
   activePanelId.value = panel.localId;
@@ -594,7 +589,7 @@ function setChatSnapshot(panel, payload) {
   panel.originSessionId = payload.session?.originSessionId || payload.session?.sessionId || panel.originSessionId || panel.sessionId;
   panel.currentSessionId = payload.session?.currentSessionId || panel.currentSessionId || panel.sessionId;
   panel.permissionMode = payload.session?.permissionMode || panel.permissionMode || 'default';
-  if (payload.session?.harness) panel.engine = payload.session.harness === 'omp' ? 'omp' : 'claude';
+  if (payload.session?.harness) panel.engine = payload.session.harness;
   panel.cwd = payload.session?.cwd || panel.cwd || DEFAULT_CHAT_CWD;
   panel.title = payload.session?.title || panel.title;
   panel.status = payload.session?.status || panel.status;
@@ -1552,6 +1547,15 @@ onBeforeUnmount(() => {
   padding: 48px 16px;
 }
 
+.chat-empty-icon::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  pointer-events: none;
+}
+
 .chat-empty-icon {
   width: 64px;
   height: 64px;
@@ -1560,9 +1564,11 @@ onBeforeUnmount(() => {
   justify-content: center;
   font-size: 26px;
   border-radius: 20px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--purple) 10%, transparent));
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--accent);
+  box-shadow: var(--inset-hi);
+  position: relative;
 }
 
 .chat-composer-shell {
@@ -1901,19 +1907,24 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.chat-engine-opt:hover { color: var(--text-primary, rgba(255,255,255,.85)); background: rgba(255,255,255,.05); }
-.chat-engine-opt.active.engine-claude {
-  /* Selected engine is a primary/active affordance, so it takes the amber
-     accent rather than an off-palette blue. */
+.chat-engine-opt { cursor: default; }
+.chat-engine-opt:hover { color: var(--accent-bright); background: transparent; }
+/* Readout, not a toggle — new chats always follow the sidebar's engine. */
+.chat-engine-opt.active.engine-current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
   color: var(--accent-bright);
   background: var(--accent-soft-strong);
   border-color: var(--border-accent);
 }
-.chat-engine-opt.active.engine-omp {
-  color: #ffb45e;
-  background: rgba(255,166,77,.13);
-  border-color: rgba(255,166,77,.5);
-  box-shadow: 0 0 8px rgba(255,166,77,.12);
+.chat-engine-opt.engine-current .chat-engine-glyph { flex: none; }
+.chat-engine-opt.engine-current .chat-engine-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 </style>

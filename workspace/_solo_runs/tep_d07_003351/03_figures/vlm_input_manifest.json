@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-09-17T16:37:08Z",
+  "total_images_available": 5,
+  "total_images_for_vlm": 5,
+  "total_images_excluded": 0,
+  "filtering_principle": "Only images with true spatio-temporal alignment are sent to VLM. Single-parameter trends, bar charts, and non-aligned plots are excluded because VLM cannot extract cross-parameter temporal precedence or synchrony from them.",
+  "selection_criteria": [
+    "MANDATORY: temporal overlays with shared time axis + z-score normalization",
+    "MANDATORY: per-group temporal overlays (when product grouping exists)",
+    "SUPPLEMENTARY: scatter plots colored by confounder (Simpson Paradox check)",
+    "EXCLUDED: single-parameter trends (no cross-parameter alignment)",
+    "EXCLUDED: bar charts (VLM cannot read numerical values from bars)",
+    "EXCLUDED: non-aligned basic charts (no diagnostic insight beyond numbers)"
+  ],
+  "vlm_images": [
+    {
+      "filename": "fig_adaptive_overlay.png",
+      "title": "Adaptive temporal overlay",
+      "plot_type": "",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig_adaptive_line_XMEAS_1.png",
+      "title": "XMEAS_1 (line)",
+      "plot_type": "",
+      "vlm_priority": "SUPPLEMENTARY",
+      "vlm_read_order": 3,
+      "diagnostic_questions_for_vlm": [
+        "Do different groups form separate clusters?",
+        "Are within-group slopes consistent? (Simpson check)"
+      ]
+    },
+    {
+      "filename": "fig_vlm_synchronization.png",
+      "title": "fig_vlm_synchronization",
+      "plot_type": "vlm_supplementary",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig_vlm_temporal_overlay.png",
+      "title": "fig_vlm_temporal_overlay",
+      "plot_type": "vlm_temporal_overlay",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig_vlm_temporal_overlay_single_product.png",
+      "title": "fig_vlm_temporal_overlay_single_product",
+      "plot_type": "vlm_temporal_overlay",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,452 @@
+{
+  "run_dir": "D:/codes/myskills/industrial-deep-diagnostic/workspace/_solo_runs/tep_d07_003351",
+  "verified_at": "2026-09-17T16:53:38.080Z",
+  "overall": "PASS",
+  "steps_summary": {
+    "inventory": {
+      "pass": true,
+      "ok": 33,
+      "total": 33,
+      "missing_critical": 0,
+      "invalid_critical": 0
+    },
+    "schema": {
+      "pass": true,
+      "ok": 14,
+      "total": 14,
+      "failed_critical": 0
+    },
+    "closure": {
+      "pass": true,
+      "status": "PASS",
+      "critical_issues": 0,
+      "warnings": 0
+    },
+    "judge_cross_audit": {
+      "pass": true,
+      "checks": [
+        {
+          "label": "Judge Feedback Exists",
+          "status": "OK",
+          "critical": true
+        },
+        {
+          "label": "Judge Verdict",
+          "status": "PASS",
+          "critical": true
+        },
+        {
+          "label": "Judge Score",
+          "status": "OK (98)",
+          "critical": true
+        },
+        {
+          "label": "Judge Blocking Issues",
+          "status": "CLEAR",
+          "critical": true
+        },
+        {
+          "label": "Judge Checks Coverage",
+          "status": "OK (10 dimensions)",
+          "critical": true
+        },
+        {
+          "label": "Judge Warnings vs Diagnosis Repairs",
+          "status": "WARN (judge has warnings but diagnosis lacks repair_history)",
+          "critical": false
+        }
+      ]
+    },
+    "event_archive": {
+      "pass": true,
+      "checks": [
+        {
+          "label": "Pipeline Log Check",
+          "status": "VALID",
+          "detail": {
+            "log_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\_solo_runs\\tep_d07_003351\\.pipeline_events.jsonl",
+            "validation": "PASS",
+            "summary": {
+              "required_agents": [
+                "data-processor",
+                "diagnostician",
+                "judge",
+                "reporter",
+                "report-reviewer"
+              ],
+              "total_lines": 24,
+              "parsed_events": 24,
+              "malformed_lines": 0,
+              "repair_spawn_count": 0,
+              "repair_cap_reached_count": 0
+            },
+            "agent_counts": {
+              "context-builder": {
+                "starts": 1,
+                "completes": 1
+              },
+              "data-processor": {
+                "starts": 1,
+                "completes": 1
+              },
+              "vlm-visual-analyzer": {
+                "starts": 0,
+                "completes": 0
+              },
+              "diagnostician": {
+                "starts": 1,
+                "completes": 1
+              },
+              "judge": {
+                "starts": 1,
+                "completes": 1
+              },
+              "reporter": {
+                "starts": 1,
+                "completes": 1
+              },
+              "report-reviewer": {
+                "starts": 2,
+                "completes": 2
+              }
+            },
+            "issues": [
+              {
+                "severity": "warning",
+                "code": "VLM_ONTOLOGY_GROUNDING_WEAK",
+                "message": "Fewer than two visual observations contain ontology grounding context."
+              },
+              {
+                "severity": "warning",
+                "code": "FINALIZE_EVENT_MISSING",
+                "message": "Final artifacts exist but artifact_finalize_complete was not logged."
+              },
+              {
+                "severity": "warning",
+                "code": "ARTIFACT_CHECK_EVENT_MISSING",
+                "message": "run_summary.json exists but artifact_check_complete was not logged."
+              }
+            ]
+          }
+        },
+        {
+          "label": "Delivery Contract (present step)",
+          "path": "run_manifest.json",
+          "status": "VALID",
+          "critical": true
+        },
+        {
+          "label": "Delivery Contract (artifacts)",
+          "path": "run_manifest.json",
+          "status": "VALID",
+          "critical": true
+        },
+        {
+          "label": "HTML Delivery",
+          "status": "VALID",
+          "critical": true
+        },
+        {
+          "label": "Optimizer Content",
+          "path": "optimizer.md",
+          "status": "VALID",
+          "critical": true
+        },
+        {
+          "label": "Report Content",
+          "path": "report.md",
+          "status": "VALID",
+          "critical": true
+        }
+      ]
+    }
+  },
+  "figures_generated": 5,
+  "inventory_details": [
+    {
+      "label": "Run Manifest",
+      "path": "run_manifest.json",
+      "status": "OK (5.2 KB)",
+      "critical": true
+    },
+    {
+      "label": "Run Config",
+      "path": "00_input/run_config.json",
+      "status": "OK (0.1 KB)",
+      "critical": true
+    },
+    {
+      "label": "Input Manifest",
+      "path": "00_input/input_manifest.json",
+      "status": "OK (0.2 KB)",
+      "critical": false
+    },
+    {
+      "label": "User Context",
+      "path": "00_input/user_context.json",
+      "status": "OK (0.3 KB)",
+      "critical": false
+    },
+    {
+      "label": "Ontology",
+      "path": "01_ontology/ontology.json",
+      "status": "OK (53.8 KB)",
+      "critical": true
+    },
+    {
+      "label": "Schema",
+      "path": "01_ontology/schema.json",
+      "status": "OK (0.2 KB)",
+      "critical": true
+    },
+    {
+      "label": "Clarification Needed",
+      "path": "00_input/clarification_needed.json",
+      "status": "OK (0.4 KB)",
+      "critical": false
+    },
+    {
+      "label": "RAG Knowledge Artifacts",
+      "path": "00_input/extracted_knowledge.json, 01_ontology/rag_deep_understanding.json",
+      "status": "OK",
+      "critical": false
+    },
+    {
+      "label": "Data JSON",
+      "path": "02_processed/data.json",
+      "status": "OK (1980.5 KB)",
+      "critical": false
+    },
+    {
+      "label": "Analysis Plan",
+      "path": "02_processed/analysis_plan.md",
+      "status": "OK (0.9 KB)",
+      "critical": false
+    },
+    {
+      "label": "Scenario Classification",
+      "path": "02_processed/scenario_classification.json",
+      "status": "OK (0.7 KB)",
+      "critical": true
+    },
+    {
+      "label": "Feature Summary",
+      "path": "02_processed/feature_summary.json",
+      "status": "OK (11.3 KB)",
+      "critical": true
+    },
+    {
+      "label": "Validate Report",
+      "path": "02_processed/validate_report.json",
+      "status": "OK (471.5 KB)",
+      "critical": true
+    },
+    {
+      "label": "Anomaly Report",
+      "path": "02_processed/anomaly_report.json",
+      "status": "OK (4.4 KB)",
+      "critical": true
+    },
+    {
+      "label": "Analysis Parameter Selection",
+      "path": "02_processed/analysis_parameter_selection.json",
+      "status": "OK (1.8 KB)",
+      "critical": true
+    },
+    {
+      "label": "Data Analysis Conclusion",
+      "path": "02_processed/data_analysis_conclusion.json",
+      "status": "OK (10.8 KB)",
+      "critical": true
+    },
+    {
+      "label": "Data Processing Optional Artifacts",
+      "path": "5/7 present",
+      "status": "OK (5 files, missing: physics_check.json,time_lag_analysis.json)",
+      "critical": false
+    },
+    {
+      "label": "Plot Manifest",
+      "path": "03_figures/plot_manifest.json",
+      "status": "OK (1.1 KB)",
+      "critical": true
+    },
+    {
+      "label": "Visual Analysis",
+      "path": "03_figures/visual_analysis.json",
+      "status": "OK (4.0 KB)",
+      "critical": true
+    },
+    {
+      "label": "Image Captions",
+      "path": "03_figures/image_captions.json",
+      "status": "OK (1.2 KB)",
+      "critical": true
+    },
+    {
+      "label": "Temporal / Process-Health Figure",
+      "path": "03_figures/fig_adaptive_overlay.png",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Diagnosis",
+      "path": "04_diagnostics/diagnosis.json",
+      "status": "OK (9.3 KB)",
+      "critical": true
+    },
+    {
+      "label": "Evidence",
+      "path": "04_diagnostics/evidence.json",
+      "status": "OK (2.8 KB)",
+      "critical": true
+    },
+    {
+      "label": "Confidence",
+      "path": "04_diagnostics/confidence.json",
+      "status": "OK (1.6 KB)",
+      "critical": true
+    },
+    {
+      "label": "Reasoning Chain",
+      "path": "04_diagnostics/reasoning_chain.json",
+      "status": "OK (8.6 KB)",
+      "critical": true
+    },
+    {
+      "label": "Judge Feedback",
+      "path": "05_review/judge_feedback.json",
+      "status": "OK (3.1 KB)",
+      "critical": true
+    },
+    {
+      "label": "Pre-Audit Report",
+      "path": "05_review/optimizer_preflight.md",
+      "status": "OK (0.8 KB)",
+      "critical": false
+    },
+    {
+      "label": "Report",
+      "path": "report.md",
+      "status": "OK (5.2 KB)",
+      "critical": false
+    },
+    {
+      "label": "Run Summary",
+      "path": "run_summary.json",
+      "status": "OK (1.6 KB)",
+      "critical": true
+    },
+    {
+      "label": "Optimizer",
+      "path": "optimizer.md",
+      "status": "OK (1.3 KB)",
+      "critical": false
+    },
+    {
+      "label": "Evidence Closure Report",
+      "path": "evidence_closure_report.json",
+      "status": "OK (0.6 KB)",
+      "critical": false
+    },
+    {
+      "label": "Diagnostic HTML Report",
+      "path": "diagnostic-report.html",
+      "status": "OK (5.2 KB)",
+      "critical": true
+    },
+    {
+      "label": "HTML Review",
+      "path": "05_review/html_review.json",
+      "status": "OK (0.7 KB)",
+      "critical": true
+    }
+  ],
+  "schema_details": [
+    {
+      "label": "Ontology Schema",
+      "path": "01_ontology/ontology.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Scenario Classification Schema",
+      "path": "02_processed/scenario_classification.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Anomaly Report Schema",
+      "path": "02_processed/anomaly_report.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Analysis Parameter Selection Schema",
+      "path": "02_processed/analysis_parameter_selection.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Data Analysis Conclusion Schema",
+      "path": "02_processed/data_analysis_conclusion.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Visual Analysis (VLM) Schema",
+      "path": "03_figures/visual_analysis.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Image Captions Schema",
+      "path": "03_figures/image_captions.json",
+      "status": "VALID",
+      "critical": false
+    },
+    {
+      "label": "Causal Evidence Map Schema",
+      "path": "02_processed/causal_evidence_map.json",
+      "status": "VALID",
+      "critical": false
+    },
+    {
+      "label": "Diagnosis Schema",
+      "path": "04_diagnostics/diagnosis.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Evidence Schema",
+      "path": "04_diagnostics/evidence.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Confidence Schema",
+      "path": "04_diagnostics/confidence.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Reasoning Chain Schema",
+      "path": "04_diagnostics/reasoning_chain.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Judge Feedback Schema",
+      "path": "05_review/judge_feedback.json",
+      "status": "VALID",
+      "critical": true
+    },
+    {
+      "label": "Run Summary Schema",
+      "path": "run_summary.json",
+      "status": "VALID",
+      "critical": true
+    }
+  ],
+  "closure_details": []
+}

@@ -1,0 +1,36 @@
+<Slide style={{ padding: 0, background: '#1D1B16', position: 'relative', overflow: 'hidden' }}>
+    <Box style={{ position: 'absolute', top: -140, right: -90, width: 640, height: 640, background: 'linear-gradient(135deg, #B8730F 0%, #1D1B16 100%)', opacity: 0.32 }} />
+    <Box style={{ position: 'absolute', left: 0, bottom: 0, width: 1280, height: 7, background: '#B8730F' }} />
+    <Box style={{ flexDirection: 'column', width: 1280, height: 720, padding: '60px 76px 52px 76px', position: 'relative' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Box style={{ width: 56, height: 56, border: '2px solid #B8730F', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#B8730F', letterSpacing: 1 }}>ID</Text>
+            </Box>
+            <Box style={{ flexDirection: 'column' }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 3, fontWeight: 'bold' }}>ENTERPRISE WORKSPACE</Text>
+                <Text style={{ fontSize: 13, color: 'rgba(247,244,236,0.55)', marginTop: 3 }}>工业深度诊断系统 · v4.2 · 零基础使用教程</Text>
+            </Box>
+        </Box>
+        <Text style={{ fontSize: 14, color: '#B8730F', letterSpacing: 5, fontWeight: 'bold', marginTop: 54 }}>INDUSTRIAL DEEP DIAGNOSTIC</Text>
+        <Text style={{ fontSize: 78, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.18, marginTop: 14 }}>从零到投产<br />完整使用教程</Text>
+        <Text style={{ fontSize: 21, color: 'rgba(247,244,236,0.78)', lineHeight: 1.6, marginTop: 22, width: 900 }}>不需要懂统计学，也不需要懂大模型。装好、启动、上传一份工业数据，拿到一份可追溯、可审计的中文根因报告。</Text>
+        <Text style={{ fontSize: 21, color: 'rgba(247,244,236,0.62)', lineHeight: 1.6, marginTop: 8, width: 900 }}>全篇 31 张图，全部截自本机真实运行实例，编号与引线一一指到该点的控件上。</Text>
+        <Box style={{ flexDirection: 'row', gap: 14, marginTop: 'auto' }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>5</Text>
+                <Text style={{ fontSize: 16, color: '#F7F4EC' }}>条命令即可投产</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>9</Text>
+                <Text style={{ fontSize: 16, color: '#F7F4EC' }}>步全自动诊断管线</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>14</Text>
+                <Text style={{ fontSize: 16, color: '#F7F4EC' }}>个可热切换引擎</Text>
+            </Box>
+            <Box style={{ justifyContent: 'center', marginLeft: 'auto' }}>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.45)' }}>共 34 页 · 建议按顺序读一遍</Text>
+            </Box>
+        </Box>
+    </Box>
+</Slide>

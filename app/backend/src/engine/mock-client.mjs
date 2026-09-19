@@ -226,6 +226,13 @@ export function startSessionChat({ runId, sessionId, message }) {
   };
 }
 
+// Raw-prompt scripted chat turn (standalone chat path).
+export function startChatTurn({ runId, prompt }) {
+  const sessionId = `mock:${runId}`;
+  const query = createMockQuery({ runId, sceneName: 'chat', userQuestion: String(prompt || ''), reportLanguage: null, isResume: false });
+  return { query, runId, getSessionId: () => query.sessionId, sessionId };
+}
+
 export function parseStreamEvent(message) {
   if (!message || typeof message !== 'object') return null;
   return message;

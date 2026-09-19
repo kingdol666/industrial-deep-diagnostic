@@ -1,0 +1,74 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">凭什么信它：诊断是排除，不是确认</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">每个结论必须同时满足四个条件；做不到就明说做不到，并按协议封住自己的置信度</div>
+        </div>
+        <div style="display:flex;flex-direction:column;padding:9px 16px;background:#1D1B16;border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#B8730F">本机实测</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:column;gap:20px">
+        <div style="display:flex;flex-direction:column;flex-direction:row;gap:22px;height:300px">
+            <div style="display:flex;flex-direction:column;width:372px;height:300px;padding:22px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10)">
+                <div class="tx" style="font-size:88px;font-weight:bold;color:#B8730F;line-height:1">89%</div>
+                <div class="tx" style="font-size:21px;font-weight:bold;color:#1D1B16;margin-top:12px">运行收敛到单一根因</div>
+                <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);line-height:1.62;margin-top:10px">本机 38 次完成的诊断里，34 次把竞争假设排除到只剩一个根因。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(184,115,15,0.12);border-radius:8px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">剩余 11% 如实报告不确定</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;width:372px;height:300px;padding:22px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10)">
+                <div class="tx" style="font-size:88px;font-weight:bold;color:#B8730F;line-height:1">9</div>
+                <div class="tx" style="font-size:21px;font-weight:bold;color:#1D1B16;margin-top:12px">道质量闸门 CP-1 ~ CP-9</div>
+                <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);line-height:1.62;margin-top:10px">每两步之间设一道校验：产物缺失、Schema 不合法、评分不足 90 都会让管线停下回退。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(184,115,15,0.12);border-radius:8px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">CP-8 不过，报告不许发布</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;width:372px;height:300px;padding:22px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10)">
+                <div class="tx" style="font-size:88px;font-weight:bold;color:#B8730F;line-height:1">7</div>
+                <div class="tx" style="font-size:21px;font-weight:bold;color:#1D1B16;margin-top:12px">级证据体系 L1 ~ L7</div>
+                <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);line-height:1.62;margin-top:10px">从直接测量到无支撑假设。铁律：结论被它最低的那一级证据封顶。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:10px 12px;background:rgba(184,115,15,0.12);border-radius:8px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">L4 的读图观察撑不起 L1 的断言</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;height:220px;padding:22px;background:#1D1B16;border-radius:12px;flex-direction:column">
+            <div class="tx" style="font-size:21px;font-weight:bold;color:#F7F4EC">四个条件必须同时成立，缺一不成结论</div>
+            <div style="display:flex;flex-direction:column;flex-direction:row;gap:16px;margin-top:16px">
+                <div style="display:flex;flex-direction:column;flex:1;padding:14px 16px;background:rgba(184,115,15,0.18);border-radius:9px">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#F0A93B">时间上先发生</div>
+                    <div class="tx" style="font-size:15px;color:rgba(247,244,236,0.72);margin-top:6px;line-height:1.5">有滞后补偿的互相关</div>
+                </div>
+                <div style="display:flex;flex-direction:column;flex:1;padding:14px 16px;background:rgba(184,115,15,0.18);border-radius:9px">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#F0A93B">统计上显著</div>
+                    <div class="tx" style="font-size:15px;color:rgba(247,244,236,0.72);margin-top:6px;line-height:1.5">逐点剔除杠杆点复核</div>
+                </div>
+                <div style="display:flex;flex-direction:column;flex:1;padding:14px 16px;background:rgba(184,115,15,0.18);border-radius:9px">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#F0A93B">物理机理成立</div>
+                    <div class="tx" style="font-size:15px;color:rgba(247,244,236,0.72);margin-top:6px;line-height:1.5">两位独立物理审计</div>
+                </div>
+                <div style="display:flex;flex-direction:column;flex:1;padding:14px 16px;background:rgba(184,115,15,0.18);border-radius:9px">
+                    <div class="tx" style="font-size:18px;font-weight:bold;color:#F0A93B">无反证</div>
+                    <div class="tx" style="font-size:15px;color:rgba(247,244,236,0.72);margin-top:6px;line-height:1.5">有反例即撤回结论</div>
+                </div>
+            </div>
+            <div class="tx" style="font-size:17px;color:rgba(247,244,236,0.80);line-height:1.6;margin-top:16px">数据无法区分幸存假设时，它返回 COMPETING_SET 并把置信度硬顶到 65 分以下 —— 在真实产线上，这是唯一诚实的选项。</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">Industrial Deep Diagnostic · 使用教程</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">04 / 31</div>
+    </div>
+</div>
+</body></html>

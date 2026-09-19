@@ -1,0 +1,38 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 6 章 · 审计页签：ENDORSED 才是发布许可</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>这一步由独立的物理审计员完成，它有权直接否掉诊断结论 —— 报告写完了不等于能发出去</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>Step 7 · FINAL_AUDIT</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 387, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/12_audit.png" style={{ width: 819, height: 387, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 137, flexDirection: 'row', gap: 18 }}>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 页首先声明范围</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>审计只读本运行目录，输入件与隔离边界逐条列出，避免"审了个寂寞"。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 复核数字不靠信任</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>审计员会自己重算关键统计量，而不是复述报告里的话 —— 对不上就判 FATAL。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: 'rgba(62,142,99,0.10)', borderRadius: 10, border: '1px solid rgba(62,142,99,0.35)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2F6F4C' }}>③ ENDORSED 的含义</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.78)', lineHeight: 1.5, marginTop: 6 }}>本轮 FATAL 0 / MAJOR 0 / MINOR 3 · INFO 3，结论可对外发布。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: '#1D1B16', borderRadius: 10 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F7F4EC' }}>④ 不通过会怎样</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.78)', lineHeight: 1.5, marginTop: 6 }}>触发审计修复回路，最多两轮；仍不过则报告被拦在门外。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>页签读的是 optimizer.md —— 最终物理审计记录</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>20 / 31</Text>
+    </Box>
+</Slide>

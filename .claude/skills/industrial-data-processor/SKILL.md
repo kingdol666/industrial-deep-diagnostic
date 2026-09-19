@@ -30,9 +30,11 @@ Performs full-chain statistical analysis on industrial sensor/process data under
 | `02_processed/feature_summary.json` | Feature summary — must include the three top-level fields columns(object)/dataset_profile(object)/metadata(object) (feature_summary_schema required) |
 | `02_processed/production_regime_filter.json` | Production regime filter (when applicable) |
 | `02_processed/time_lag_analysis.json` | Time-lag analysis results (when applicable) |
+| `02_processed/time_alignment.json` | Time-axis alignment provenance (parsed format, dropped rows, monotonicity, interval; written by Phase 5.0a) |
 | `02_processed/duplicate_batch_report.json` | Duplicate batch report (when applicable) |
 | `02_processed/analysis_plan.md` | Analysis plan |
 | `03_figures/plot_manifest.json` | Plot manifest |
+| `03_figures/adaptive_chart_plan.json` | Adaptive chart decision record (data shape → chart type per column, written by Phase 5.0a) |
 | `03_figures/image_captions.json` | Plot captions |
 | `03_figures/visual_analysis.json` | VLM visual analysis output |
 | `03_figures/*.png` | Visualization charts |
@@ -82,7 +84,24 @@ Key constraints:
 
 ### VLM Visual Analysis Dispatch (Phase 5.5)
 
-#### Step 0: Generate VLM-Specialized Temporal Overlay Charts
+#### Step 0a: Adaptive Chart Planning (run BEFORE fixed chart steps)
+
+Data-shape-adaptive chart selection + time-axis alignment. Deterministic, idempotent, safe to re-run:
+
+```bash
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/adaptive_charts.py" "$RUN_DIR" \
+  [--time-col <time_col>] [--x-col <x>] [--y-col <y>] [--value-cols a,b,c]
+```
+
+Decision policy (recorded per column in `03_figures/adaptive_chart_plan.json`):
+- **2D field** (x/y coordinate grid detected by coverage; e.g. web/film line positions, CFD/mesh scans) → filled contour cloud map (云图) per value column, sample points overlaid — VLM priority MANDATORY
+- **Multi-parameter time series** (2..8 numeric channels) → z-normalized temporal overlay on the aligned time axis — VLM priority MANDATORY
+- **Single-channel series** → line chart — VLM priority SUPPLEMENTARY
+- **No parsable time column** → index-implied axis is used and the limitation is recorded in `02_processed/time_alignment.json` (never presented as real time)
+
+`time_alignment.json` records: parsing format, dropped unparsable rows, monotonicity, median sampling interval, span. A chart may only claim temporal precedence if its axis comes from a real parsed time column.
+
+### Step 0: Generate VLM-Specialized Temporal Overlay Charts
 
 Before dispatching VLM, generate VLM-optimized temporal overlay charts following `visual_analysis_framework.md` design specs:
 
@@ -195,7 +214,7 @@ Full protocol in `references/agent-protocol.md` (Phase 0-6 checklist, persona, d
 | 2 | **Plan-driven** universal analysis (execute the stats modes selected by the plan, not the full battery) + anomaly + time-lag (when applicable) + batch integrity (when applicable) | `feature_summary.json` + `validate_report.json` exist; `data_source` set |
 | 3 | Plan-mapped scenario deep analysis + dual-drive + **hypothesis sufficiency check** | Schema-valid `data_analysis_conclusion.json`; every hypothesis has a supported/refuted/indeterminate verdict |
 | 4 | RAG knowledge validation | All claims validated or marked untestable |
-| 5 | Visualization — per-product time-aligned overlays | `plot_manifest.json` has ≥1 verified real plot |
+| 5 | Visualization — adaptive chart plan (5.0a) + per-product time-aligned overlays | `adaptive_chart_plan.json` + `plot_manifest.json` has ≥1 verified real plot |
 | 5.5 | VLM visual analysis (optional, auto-degrade) | `visual_analysis.json` exists (metadata or VLM-enriched) |
 | 6 | Stabilize + verify output contract | All mandatory files exist and non-empty |
 

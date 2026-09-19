@@ -45,8 +45,8 @@
           @click="openRun(run)"
         >
           <div class="run-icon">
-            <span v-if="run.hasReport">📋</span>
-            <span v-else>📁</span>
+            <span v-if="run.hasReport">▤</span>
+            <span v-else>▦</span>
           </div>
           <div class="run-info">
             <div class="run-name">{{ formatRunName(run.name) }}</div>
@@ -558,11 +558,11 @@ function formatDate(dateStr) {
 
 function fileIcon(ext) {
   const icons = {
-    '.md': '📝', '.json': '📋', '.csv': '📊', '.png': '🖼️',
-    '.jpg': '🖼️', '.svg': '🖼️', '.py': '🐍', '.mjs': '📦',
-    '.txt': '📄', '.html': '🌐',
+    '.md': '▤', '.json': '▣', '.csv': '▦', '.png': '◈',
+    '.jpg': '◈', '.svg': '◈', '.py': 'λ', '.mjs': '⌘',
+    '.txt': '▬', '.html': '⌁',
   };
-  return icons[ext] || '📄';
+  return icons[ext] || '▤';
 }
 
 function formatSize(bytes) {

@@ -1,0 +1,30 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>展开一个运行：五个页签看全证据面</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>点任意一张运行卡片展开，就能看到这次运行的全部分级产物与执行证明</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>真实运行 #r18-omp-cement</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 369, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/17_enginedetail.png" style={{ width: 1152, height: 369, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 149, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 17, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 五个页签，一条证据链</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>概览看运行态与代理；执行证明列出每一步记录；报告与 HTML 预览直接读产物。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 17, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>② 两条管线状态并列</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 9 }}>本图显示 in_progress，说明它还在跑 —— 跑完这里会变成 complete。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>这一页是排查"跑没跑完"最直接的证据</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>28 / 34</Text>
+    </Box>
+</Slide>

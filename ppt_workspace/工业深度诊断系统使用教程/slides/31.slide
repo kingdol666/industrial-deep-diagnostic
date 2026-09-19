@@ -1,0 +1,35 @@
+<Slide style={{ padding: 0, background: '#1D1B16', position: 'relative', overflow: 'hidden' }}>
+    <Box style={{ position: 'absolute', left: -140, bottom: -180, width: 620, height: 620, background: 'linear-gradient(135deg, #B8730F 0%, #1D1B16 100%)', opacity: 0.30 }} />
+    <Box style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 6, background: '#B8730F' }} />
+    <Box style={{ flexDirection: 'column', width: 1280, height: 720, padding: '72px 76px 56px 76px', position: 'relative' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Box style={{ width: 48, height: 48, border: '2px solid #B8730F', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#B8730F' }}>ID</Text>
+            </Box>
+            <Text style={{ fontSize: 13, color: 'rgba(247,244,236,0.55)', letterSpacing: 3 }}>INDUSTRIAL DEEP DIAGNOSTIC · 使用教程</Text>
+        </Box>
+        <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.2, marginTop: 54 }}>三个命令起来，<br />一次诊断到底。</Text>
+        <Text style={{ fontSize: 19, color: 'rgba(247,244,236,0.72)', lineHeight: 1.7, marginTop: 24, width: 900 }}>剩下的交给那九步管线：它不会为了取悦你而编造根因，也不会在数据说不清的时候硬给一个答案。你现在已经知道每一步该点哪里了。</Text>
+        <Box style={{ flexDirection: 'row', gap: 16, marginTop: 44 }}>
+            <Box style={{ flex: 1, padding: '18px 20px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>01</Text>
+                <Text style={{ fontSize: 17, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>装好</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.68)', marginTop: 6, lineHeight: 1.5 }}>npm install &amp;&amp; npm link</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: '18px 20px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>02</Text>
+                <Text style={{ fontSize: 17, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>起服务</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.68)', marginTop: 6, lineHeight: 1.5 }}>ind-diag start --all --detach</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: '18px 20px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>03</Text>
+                <Text style={{ fontSize: 17, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>开浏览器</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.68)', marginTop: 6, lineHeight: 1.5 }}>http://localhost:5180</Text>
+            </Box>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+            <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.55)', lineHeight: 1.6 }}>下一步：换一份你自己的数据，按第 13 页上传，走一遍完整闭环。</Text>
+            <Text style={{ fontSize: 14, color: 'rgba(247,244,236,0.40)' }}>31 / 31</Text>
+        </Box>
+    </Box>
+</Slide>

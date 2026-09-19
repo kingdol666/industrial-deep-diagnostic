@@ -1,0 +1,238 @@
+{
+ "run_id": "solo_tep_d07",
+ "diagnosis_time": "2026-09-17T16:49:24.959675+00:00",
+ "diagnosis_type": "DETERMINED",
+ "primary_finding": "流股4（A+C 混合进料）上游供给压力损失：异常起始（第 161 样本）XMEAS_4 进料流量瞬态跌落 -12.29σ，控制器将 XMV_4 进料阀开大 +25.13%（瞬态 +18.73σ 后稳态保持 +12.24σ）使进料流量完全恢复（稳态偏移 -0.25σ），反应器压力瞬态波动后重新受控，其余进料与全部被控量稳态归零——补偿成功的供给侧扰动指纹完整。判为 DETERMINED@0.82：机理（流股4 供给压力损失，含 C header）已确证；上游 header 的具体物理成因需上游压力测点方可进一步归因。",
+ "process_fluctuation_analysis": {
+  "analysis_performed": true,
+  "scope": "process_only",
+  "grouping_basis": "no product group column; single-product analysis",
+  "time_order_basis": "parsed timestamp axis (3-min sampling, 960 rows, monotonic) — real time",
+  "key_process_findings": [
+   {
+    "parameter": "XMEAS_4",
+    "behavior_type": "threshold_crossing",
+    "finding": "onset transient dip -12.29σ then full recovery to held offset -0.25σ — supply interruption then compensation"
+   },
+   {
+    "parameter": "XMV_4",
+    "behavior_type": "step_change",
+    "finding": "valve stepped +25.13% (transient +18.73σ, held +12.24σ) and stayed open — compensation action"
+   },
+   {
+    "parameter": "XMEAS_7",
+    "behavior_type": "threshold_crossing",
+    "finding": "reactor pressure transient -27.57/37.85σ, re-controlled to 0.01σ held offset"
+   },
+   {
+    "parameter": "XMEAS_19",
+    "behavior_type": "high_variability",
+    "finding": "stripper steam flow variance ratio 35 with small mean shift — secondary perturbation, no held offset"
+   },
+   {
+    "parameter": "XMEAS_6/XMEAS_1/XMEAS_2/XMEAS_3",
+    "behavior_type": "stable",
+    "finding": "all other feeds: transient excursions but held offsets within ±0.25σ — production maintained"
+   }
+  ],
+  "ontology_physics_reasoning": [
+   {
+    "parameter": "XMV_4",
+    "ontology_role": "A+C 进料阀（流股4，control）",
+    "governing_law": "valve flow equation: opening ↑ under fixed downstream demand ⇒ upstream supply pressure ↓",
+    "reasoning_summary": "阀门开大 +25% 且流量恢复恒定：唯一自洽解释是阀上游供给压力下降"
+   },
+   {
+    "parameter": "XMEAS_4",
+    "ontology_role": "A+C 进料流量测量",
+    "governing_law": "质量/动量守恒：供给中断 → 流量瞬跌 → 补偿恢复",
+    "reasoning_summary": "跌落-恢复-保持三段结构与供给中断+补偿一致"
+   },
+   {
+    "parameter": "XMEAS_7",
+    "ontology_role": "reactor pressure (controlled)",
+    "governing_law": "进料中断 → 反应器压力瞬态扰动 → 控制回路重新受控",
+    "reasoning_summary": "瞬态大幅波动后稳态归零，属受扰后果而非独立根源"
+   }
+  ],
+  "conclusion": "扰动根源在流股4 供给侧（header 压力损失），XMV_4 补偿成功使生产维持；反应器侧波动为后果"
+ },
+ "integrated_dual_drive_analysis": {
+  "analysis_performed": true,
+  "has_quality_or_inspection_targets": false,
+  "linked_groups": [],
+  "process_to_quality_links": [],
+  "integrated_conclusion": "process_only 视图：无质量/检测通道，双驱动退化为纯过程驱动"
+ },
+ "product_stratified_analysis": {
+  "analysis_performed": false,
+  "reason": "TEP 单流程无产品分组列",
+  "consistency_across_products": "NOT_APPLICABLE"
+ },
+ "hypotheses": {
+  "surviving": [
+   {
+    "id": "H1",
+    "name": "流股4（A+C）上游供给压力损失（含 C header），经 XMV_4 补偿",
+    "mechanism_class": "OPERATION",
+    "root_physical_cause": "流股4 上游供给压力下降，控制器开大 XMV_4 维持进料",
+    "physical_logic_chain": [
+     {
+      "link": "供给压力↓ → XMV_4 未动作时流量瞬跌",
+      "evidence_status": "OBSERVED",
+      "quantification": "XMEAS_4 onset dip -12.29σ"
+     },
+     {
+      "link": "控制器开大 XMV_4 → 流量恢复",
+      "evidence_status": "OBSERVED",
+      "quantification": "XMV_4 +25.13% 稳态保持；XMEAS_4 held -0.25σ"
+     },
+     {
+      "link": "补偿成功 → 反应器工况重新受控",
+      "evidence_status": "OBSERVED",
+      "quantification": "XMEAS_7 瞬态 -27.57/37.85σ 后 held 0.01σ"
+     },
+     {
+      "link": "其它进料阀不动 → 扰动局限于流股4",
+      "evidence_status": "OBSERVED",
+      "quantification": "XMV_3 held +0.12σ，其余进料 held ≤0.25σ"
+     }
+    ],
+    "chain_quality": "ACTIONABLE_HYPOTHESIS",
+    "confidence": 82,
+    "confidence_adjustments": [
+     {
+      "reason": "无上游 header 压力测点 → 上游成因不可进一步归因",
+      "adjustment": -8,
+      "source": "01_ontology/ontology.json 通道清单"
+     },
+     {
+      "reason": "补偿成功掩蔽损失幅度",
+      "adjustment": 0,
+      "source": "XMEAS_4 held -0.25σ"
+     }
+    ],
+    "supporting_evidence": [
+     {
+      "rank": 3,
+      "source": "02_processed/segment_statistics.json",
+      "detail": "XMV_4 +12.24σ/+25.13% 稳态保持"
+     },
+     {
+      "rank": 3,
+      "source": "02_processed/segment_statistics.json",
+      "detail": "XMEAS_4 瞬态 -12.29σ 后恢复"
+     },
+     {
+      "rank": 3,
+      "source": "02_processed/segment_statistics.json",
+      "detail": "全部其它通道 held ≤±0.25σ"
+     },
+     {
+      "rank": 5,
+      "source": "01_ontology/ontology.json",
+      "detail": "XMV_4=流股4 进料阀 control 角色 + 阀门流量方程"
+     }
+    ],
+    "visual_evidence": {
+     "vlm_observations": [
+      "OBS-1",
+      "OBS-2"
+     ],
+     "synchronous_with_quality": false,
+     "event_response": "XMV_4 step-up coherently with XMEAS_4 dip-recovery at declared onset",
+     "trend_alignment": "independent",
+     "source": "03_figures/visual_analysis.json (metadata_backed_inference)"
+    },
+    "ontology_data_physics_proof": {
+     "functional_form_match": "MATCH",
+     "lag_match": "NOT_APPLICABLE",
+     "magnitude_ratio": {
+      "status": "PLAUSIBLE",
+      "observed_over_predicted": "XMV_4 +25% opening restores XMEAS_4 to baseline: compensation magnitude consistent with supply-pressure loss"
+     },
+     "direction_match": "MATCH",
+     "overall_proof_strength": "STRONG_EVIDENCE",
+     "proof_summary": "阀门口径关系（开大+流量恢复 ⇒ 上游供给压力损失）与观测三段结构完全一致；反应器侧波动为受控后果"
+    },
+    "chain_link_validation": {
+     "validation_performed": true,
+     "links": [
+      {
+       "from": "流股4 供给压力",
+       "to": "XMEAS_4",
+       "mechanism": "供给损失 → 流量瞬跌",
+       "result": "ALL_LINKS_VALIDATED"
+      },
+      {
+       "from": "XMV_4 开度",
+       "to": "XMEAS_4",
+       "mechanism": "阀开大 +25% → 流量恢复",
+       "result": "ALL_LINKS_VALIDATED"
+      },
+      {
+       "from": "XMEAS_4 中断",
+       "to": "XMEAS_7",
+       "mechanism": "进料扰动 → 反应器压力瞬态后重控",
+       "result": "ALL_LINKS_VALIDATED"
+      },
+      {
+       "from": "其它通道",
+       "to": "独立根源",
+       "mechanism": "全部稳态归零 → 非独立根源",
+       "result": "CORRELATION_ABSENT"
+      }
+     ],
+     "overall_result": "PARTIAL"
+    },
+    "falsification_conditions": [
+     "若上游 header 压力测点显示压力恒定而 XMV_4 为阀位传感漂移 → 改判仪表链问题",
+     "若生产记录显示同期计划性流量设定调整 → 改判计划性操作"
+    ]
+   }
+  ],
+  "eliminated": [
+   {
+    "hypothesis_id": "H2",
+    "statement": "反应器侧扰动（动力学/冷却异常）作为独立根源",
+    "mechanism_class": "OPERATION",
+    "exclusion_type": "PHYSICAL",
+    "specific_evidence": "冷却水通道（XMEAS_21/22）瞬态后 held ±0.1σ；扰动时序由进料侧起始"
+   },
+   {
+    "hypothesis_id": "H3",
+    "statement": "XMV_4 阀位传感器/执行器漂移",
+    "mechanism_class": "CONTAMINATION",
+    "exclusion_type": "PHYSICAL",
+    "specific_evidence": "若仅阀位读数漂移，实际流量不应变化——实测 XMEAS_4 瞬跌后经阀开大恢复，阀门真实动作"
+   },
+   {
+    "hypothesis_id": "H4",
+    "statement": "下游需求侧变更（生产计划调整）",
+    "mechanism_class": "OPERATION",
+    "exclusion_type": "STATISTICAL",
+    "specific_evidence": "需求变更应迁移流量而非'跌落-补偿-保持'三段结构；XMEAS_6 held -0.20σ"
+   },
+   {
+    "hypothesis_id": "H5",
+    "statement": "汽提塔/分离器侧扰动作根源",
+    "mechanism_class": "ENVIRONMENT",
+    "exclusion_type": "STATISTICAL",
+    "specific_evidence": "XMEAS_18/19 仅方差增大无 held 偏移，时序上滞后于进料扰动"
+   }
+  ],
+  "competing_sets": [
+   {
+    "set_id": "CS1",
+    "hypotheses": [
+     "H1"
+    ],
+    "discriminability": "INDISTINGUISHABLE",
+    "cross_product_discriminability": "REMAINS_INDISTINGUISHABLE",
+    "reason": "上游 header 成因（管路阻力上升 vs 上游设备降压 vs 供给泵段问题）在现有通道下不可分",
+    "discriminating_data_needed": "流股4 上游 header 压力测点 + 上游设备运行数据",
+    "confidence_ceiling": 82
+   }
+  ]
+ }
+}

@@ -1,0 +1,36 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 9 章 · 展开一个运行：五个页签看全证据面</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>点任意一张运行卡片展开，就能看到这次运行的全部分级产物与执行证明</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>真实运行 #r18-omp-cement</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 358, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/17_enginedetail.png" style={{ width: 1117, height: 358, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 166, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#1D1B16' }}>① 五个页签，一条证据链</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 9 }}>概览看运行态与代理；执行证明列出每一步的执行记录；报告与 HTML 预览直接读产物；增强产物放 E0–E8 的产出一共存。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>五页签位置固定，不随运行变化</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#8A5608' }}>② 两条管线状态并列</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>基线管线显示执行状态、审批结果、报告与结论；增量管线显示增强是否触发。本图显示 in_progress，说明它还在跑 —— 这正是实时性的一部分。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>跑完这里会变成 complete</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>这一页是排查「跑没跑完」最直接的证据</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>26 / 31</Text>
+    </Box>
+</Slide>

@@ -79,10 +79,16 @@ router.get('/assets/:scene/:version', (req, res) => {
       withGraph: req.query.graph !== '0',
       withMetrics: req.query.metrics !== '0',
     });
-    const etag = asset.entry?.content_sha256 || null;
-    if (etag) res.set('ETag', `"${etag}"`);
-    res.set('Cache-Control', 'no-cache');
-    ok(res, { ...asset, etag });
+    const sha = asset.entry?.content_sha256 || null;
+    // The embedded graph carries palette-derived colours: render-affecting
+    // changes that leave the ontology file untouched would otherwise be
+    // served forever stale through 304 revalidation. Responses WITH the
+    // graph therefore opt out of caching entirely (freshness beats bytes on
+    // a diagnostic console); the ETag stays the bare content sha so the
+    // If-Match concurrency contract keeps its exact meaning.
+    if (sha) res.set('ETag', `"${sha}"`);
+    res.set('Cache-Control', asset.graph ? 'no-store' : 'no-cache');
+    ok(res, { ...asset, etag: sha });
   } catch (err) { fail(res, err); }
 });
 

@@ -1,0 +1,65 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>这份教程怎么读</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>四幕 · 34 页 · 每一页都能照着操作</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>全篇为真实运行截图</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'row', gap: 22 }}>
+        <Box style={{ width: 336, height: 534, padding: 22, background: 'rgba(228,220,203,0.55)', borderRadius: 12, flexDirection: 'column' }}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>赶时间就这样读</Text>
+            <Text style={{ fontSize: 19, color: 'rgba(29,27,22,0.80)', lineHeight: 1.65, marginTop: 12 }}>第 2 页先看五步路线图，然后直接跳到第 7 页，按顺序把命令敲完，再回到第 13 页开始点界面。</Text>
+            <Box style={{ height: 1, background: 'rgba(29,27,22,0.14)', marginTop: 20, marginBottom: 20 }} />
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>想先弄懂再动手</Text>
+            <Text style={{ fontSize: 19, color: 'rgba(29,27,22,0.80)', lineHeight: 1.65, marginTop: 12 }}>从第 4 页的架构图读起，先弄清"谁在干活、产物落在哪"，再上手会踏实很多。</Text>
+            <Box style={{ marginTop: 'auto', padding: '14px 16px', background: '#1D1B16', borderRadius: 10 }}>
+                <Text style={{ fontSize: 16, color: '#EFE9DA', lineHeight: 1.6 }}>本机实测环境<br />Node 22 · npm 10 · Python 3.13 · uv 0.11</Text>
+            </Box>
+        </Box>
+        <Box style={{ width: 794, height: 534, flexDirection: 'column', gap: 18 }}>
+            <Box style={{ height: 120, flexDirection: 'row', gap: 18, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Box style={{ width: 54, height: 54, borderRadius: 10, background: '#1D1B16', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>1</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', width: 686 }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>认识它 —— 它是什么，凭什么信它</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.74)', lineHeight: 1.55, marginTop: 8 }}>三个服务、14 个引擎、9 步管线，以及那条铁律。第 4–6 页。</Text>
+                </Box>
+            </Box>
+            <Box style={{ height: 120, flexDirection: 'row', gap: 18, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Box style={{ width: 54, height: 54, borderRadius: 10, background: '#1D1B16', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>2</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', width: 686 }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>装起来 —— 从零到能打开浏览器</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.74)', lineHeight: 1.55, marginTop: 8 }}>查依赖、装项目、起服务、验状态、预检引擎。第 7–12 页。</Text>
+                </Box>
+            </Box>
+            <Box style={{ height: 120, flexDirection: 'row', gap: 18, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Box style={{ width: 54, height: 54, borderRadius: 10, background: '#1D1B16', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>3</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', width: 686 }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>用起来 —— 登录、上传、配置、跑</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.74)', lineHeight: 1.55, marginTop: 8 }}>登录、选引擎、上传数据、发起分析、实时监控。第 13–20 页。</Text>
+                </Box>
+            </Box>
+            <Box style={{ height: 120, flexDirection: 'row', gap: 18, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Box style={{ width: 54, height: 54, borderRadius: 10, background: '#1D1B16', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>4</Text>
+                </Box>
+                <Box style={{ flexDirection: 'column', width: 686 }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>读懂它、用久它 —— 从一次运行到一套体系</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.74)', lineHeight: 1.55, marginTop: 8 }}>报告三视图、审计、历史增强、本体资产、排错。第 21–34 页。</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>Industrial Deep Diagnostic · 零基础使用教程</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>03 / 34</Text>
+    </Box>
+</Slide>

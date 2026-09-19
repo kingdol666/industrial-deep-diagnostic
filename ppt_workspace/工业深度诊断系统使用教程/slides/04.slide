@@ -1,0 +1,65 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>凭什么信它：诊断是排除，不是确认</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>每个结论必须同时满足四个条件；做不到就明说做不到，并按协议封住自己的置信度</Text>
+        </Box>
+        <Box style={{ padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>本机实测</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 20 }}>
+        <Box style={{ flexDirection: 'row', gap: 22, height: 300 }}>
+            <Box style={{ width: 372, height: 300, padding: 22, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 88, fontWeight: 'bold', color: '#B8730F', lineHeight: 1 }}>89%</Text>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16', marginTop: 12 }}>运行收敛到单一根因</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>本机 38 次完成的诊断里，34 次把竞争假设排除到只剩一个根因。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.12)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>剩余 11% 如实报告不确定</Text>
+                </Box>
+            </Box>
+            <Box style={{ width: 372, height: 300, padding: 22, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 88, fontWeight: 'bold', color: '#B8730F', lineHeight: 1 }}>9</Text>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16', marginTop: 12 }}>道质量闸门 CP-1 ~ CP-9</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>每两步之间设一道校验：产物缺失、Schema 不合法、评分不足 90 都会让管线停下回退。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.12)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>CP-8 不过，报告不许发布</Text>
+                </Box>
+            </Box>
+            <Box style={{ width: 372, height: 300, padding: 22, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 88, fontWeight: 'bold', color: '#B8730F', lineHeight: 1 }}>7</Text>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16', marginTop: 12 }}>级证据体系 L1 ~ L7</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 10 }}>从直接测量到无支撑假设。铁律：结论被它最低的那一级证据封顶。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.12)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>L4 的读图观察撑不起 L1 的断言</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 220, padding: 22, background: '#1D1B16', borderRadius: 12, flexDirection: 'column' }}>
+            <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#F7F4EC' }}>四个条件必须同时成立，缺一不成结论</Text>
+            <Box style={{ flexDirection: 'row', gap: 16, marginTop: 16 }}>
+                <Box style={{ flex: 1, padding: '14px 16px', background: 'rgba(184,115,15,0.18)', borderRadius: 9 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>时间上先发生</Text>
+                    <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.72)', marginTop: 6, lineHeight: 1.5 }}>有滞后补偿的互相关</Text>
+                </Box>
+                <Box style={{ flex: 1, padding: '14px 16px', background: 'rgba(184,115,15,0.18)', borderRadius: 9 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>统计上显著</Text>
+                    <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.72)', marginTop: 6, lineHeight: 1.5 }}>逐点剔除杠杆点复核</Text>
+                </Box>
+                <Box style={{ flex: 1, padding: '14px 16px', background: 'rgba(184,115,15,0.18)', borderRadius: 9 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>物理机理成立</Text>
+                    <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.72)', marginTop: 6, lineHeight: 1.5 }}>两位独立物理审计</Text>
+                </Box>
+                <Box style={{ flex: 1, padding: '14px 16px', background: 'rgba(184,115,15,0.18)', borderRadius: 9 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>无反证</Text>
+                    <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.72)', marginTop: 6, lineHeight: 1.5 }}>有反例即撤回结论</Text>
+                </Box>
+            </Box>
+            <Text style={{ fontSize: 17, color: 'rgba(247,244,236,0.80)', lineHeight: 1.6, marginTop: 16 }}>数据无法区分幸存假设时，它返回 COMPETING_SET 并把置信度硬顶到 65 分以下 —— 在真实产线上，这是唯一诚实的选项。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>Industrial Deep Diagnostic · 使用教程</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>04 / 31</Text>
+    </Box>
+</Slide>

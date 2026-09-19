@@ -1,0 +1,36 @@
+<Slide style={{ padding: 0, background: '#1D1B16', position: 'relative', overflow: 'hidden' }}>
+    <Box style={{ position: 'absolute', top: -120, right: -80, width: 620, height: 620, background: 'linear-gradient(135deg, #B8730F 0%, #1D1B16 100%)', opacity: 0.30 }} />
+    <Box style={{ position: 'absolute', left: 0, bottom: 0, width: 1280, height: 6, background: '#B8730F' }} />
+    <Box style={{ flexDirection: 'column', width: 1280, height: 720, padding: '64px 76px 56px 76px', position: 'relative' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Box style={{ width: 56, height: 56, border: '2px solid #B8730F', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#B8730F', letterSpacing: 1 }}>ID</Text>
+            </Box>
+            <Box style={{ flexDirection: 'column' }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 3, fontWeight: 'bold' }}>ENTERPRISE WORKSPACE</Text>
+                <Text style={{ fontSize: 13, color: 'rgba(247,244,236,0.55)', letterSpacing: 1 }}>工业缺陷诊断与知识协同工作台 · v4.2</Text>
+            </Box>
+        </Box>
+        <Text style={{ fontSize: 14, color: '#B8730F', letterSpacing: 5, fontWeight: 'bold', marginTop: 68 }}>INDUSTRIAL DEEP DIAGNOSTIC</Text>
+        <Text style={{ fontSize: 76, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.18, marginTop: 16 }}>从零到投产<br />完整使用教程</Text>
+        <Text style={{ fontSize: 20, color: 'rgba(247,244,236,0.72)', lineHeight: 1.6, marginTop: 22, width: 860 }}>装好即用：三个命令启动三个服务，上传一份工业数据，拿到一份可追溯、可审计的中文根因报告。</Text>
+        <Text style={{ fontSize: 20, color: 'rgba(247,244,236,0.72)', lineHeight: 1.6, marginTop: 6, width: 860 }}>全篇 27 张图，全部截自本机真实运行实例，编号与引线一一指到该点的控件上。</Text>
+        <Box style={{ flexDirection: 'row', gap: 14, marginTop: 'auto' }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>9</Text>
+                <Text style={{ fontSize: 15, color: '#F7F4EC' }}>步全自动诊断管线</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>14</Text>
+                <Text style={{ fontSize: 15, color: '#F7F4EC' }}>个可热切换执行引擎</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: '11px 20px', background: 'rgba(184,115,15,0.16)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+                <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#B8730F' }}>3</Text>
+                <Text style={{ fontSize: 15, color: '#F7F4EC' }}>个命令即可投产</Text>
+            </Box>
+            <Box style={{ justifyContent: 'center', marginLeft: 'auto' }}>
+                <Text style={{ fontSize: 14, color: 'rgba(247,244,236,0.45)' }}>Industrial Deep Diagnostic · 使用教程</Text>
+            </Box>
+        </Box>
+    </Box>
+</Slide>

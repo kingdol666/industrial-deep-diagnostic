@@ -16,6 +16,16 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 // ── Notification / item mappers (exported for tests) ──
+
+/** 0.155+ packs prose into content/summary arrays of {type,text} parts. */
+function flattenItemText(value) {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    return value.map((p) => (typeof p === 'string' ? p : p?.text || p?.summary || '')).join('');
+  }
+  return '';
+}
+
 export function mapCodexItem(item, ctx) {
   if (!item || typeof item !== 'object') return;
   const type = item.type || item.itemType || '';
@@ -23,13 +33,13 @@ export function mapCodexItem(item, ctx) {
     case 'agentMessage':
     case 'agent_message':
     case 'message': {
-      const text = item.text || item.content || '';
+      const text = item.text || flattenItemText(item.content) || flattenItemText(item.summary);
       if (text) ctx.assistant([{ type: 'text', text: String(text) }]);
       break;
     }
     case 'reasoning':
     case 'agent_reasoning': {
-      const text = item.text || item.summary || '';
+      const text = item.text || flattenItemText(item.summary) || flattenItemText(item.content);
       if (text) ctx.assistant([{ type: 'thinking', thinking: String(text) }]);
       break;
     }
@@ -153,16 +163,22 @@ function createCodexQuery({ turnKey, prompt }) {
         model: engCfg.model || undefined,
         approvalPolicy: engCfg.approval_policy || 'on-request',
       }, { timeoutMs: 30000 });
-      threadId = thread?.threadId || thread?.thread_id || thread?.id || null;
+      // 0.155+: thread/start returns { thread: { id } } — older builds returned
+      // the id at the top level. threadId: null here is what produced the
+      // historic "invalid type: null, expected a string" turn failures.
+      threadId = thread?.threadId || thread?.thread_id || thread?.id || thread?.thread?.id || null;
 
       emit({ type: 'system', subtype: 'session_ready', data: { engine: 'codex', threadId } });
 
+      // 0.155+: turn/start resolves as soon as the turn is ACCEPTED (the turn
+      // object arrives with status "inProgress"); completion arrives via the
+      // turn/completed notification mapped below. Resolving success here would
+      // kill the process mid-turn, so only a request-level rejection ends the
+      // turn at this call site.
       await rpc.request('turn/start', {
         threadId,
         input: [{ type: 'text', text: prompt }],
-        items: [{ type: 'text', text: prompt }],
       }, { timeoutMs: 0 })
-        .then(() => result('success', 'success'))
         .catch((e) => result('error_during_execution', `codex_turn_failed: ${e.message}`));
     } catch (e) {
       logger.error(`[codex] session setup failed: ${e.message}`, { context: 'Codex', turnKey });
@@ -234,6 +250,14 @@ export function startSessionChat({ runId, sessionId, message }) {
   const err = new Error(`codex does not support cross-process session resume (session id: ${sessionId || 'none'}) — use Continue instead, which re-runs with the follow-up context`);
   err.status = 400;
   throw err;
+}
+
+// Raw-prompt conversational turn (standalone chat) — one app-server turn,
+// no industrial prompt wrapper.
+export function startChatTurn({ runId, prompt }) {
+  const query = createCodexQuery({ turnKey: runId, prompt: String(prompt || '').trim() });
+  activeQueries.set(runId, query);
+  return { query, runId, getSessionId: () => query.sessionId };
 }
 
 export function parseStreamEvent(message) {

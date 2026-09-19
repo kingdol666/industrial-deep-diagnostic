@@ -21,7 +21,7 @@ export class OmpHarness extends BaseHarness {
   name = 'OMP Engine';
   kind = 'runs';
   description = 'OMP 代理管线原生引擎（RPC 实时执行 + 运行浏览）';
-  capabilities = ['live', 'runs', 'report', 'html', 'enhancement'];
+  capabilities = ['live', 'chat', 'runs', 'report', 'html', 'enhancement'];
 
   async health() {
     const [h, engine] = await Promise.all([

@@ -48,9 +48,13 @@ export function getRunStatusBadgeClass(runOrStatus) {
     case 'completed': return 'badge-green';
     case 'running': return 'badge-blue';
     case 'awaiting_input': return 'badge-purple';
-    case 'pending': return 'badge-yellow';
+    // pending / stopped are not warnings: a queued run and a deliberate stop
+    // both stay neutral so amber keeps its meaning (live) and red keeps
+    // failure. Before this, a 100-row task list rendered twenty amber
+    // PENDING chips and the accent meant nothing.
+    case 'pending': return 'badge-neutral';
     case 'failed': return 'badge-red';
-    case 'stopped': return 'badge-purple';
+    case 'stopped': return 'badge-neutral';
     default: return '';
   }
 }

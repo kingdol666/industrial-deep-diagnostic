@@ -1,0 +1,71 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>开机检查清单：照着打勾就行</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>七项检查，从上到下做一遍。全部打勾，说明你的环境已经完全就绪</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>可打印照做</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534 }}>
+        <Table
+            style={{ width: '100%', height: '100%' }}
+            defaultTextStyle={{ fontSize: 17, textAlign: 'left', color: '#1D1B16' }}
+            defaultCellStyle={{
+                border: {
+                    left: { width: 1, color: '#E4DCCB' },
+                    right: { width: 1, color: '#E4DCCB' },
+                    top: { width: 1, color: '#E4DCCB' },
+                    bottom: { width: 1, color: '#E4DCCB' },
+                },
+            }}
+            cells={[
+                [
+                    { text: '✔', textStyle: { bold: true, color: '#FFFFFF', textAlign: 'center' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    { text: '检查项', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    { text: '怎么查', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    { text: '期望结果', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    'Node.js 版本', 'node --version', '≥ 18，推荐 22 或更高',
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    { text: 'npm 版本', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: 'npm --version', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '≥ 9', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    'Python 版本', 'python --version', '≥ 3.10',
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    { text: 'uv（可选）', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: 'uv --version', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '有最好；没有会自动回退到系统 pip', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    '全局命令', 'ind-diag status', '能打印出状态表，说明命令已注册',
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    { text: '三个服务', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: 'ind-diag status', cellStyle: { background: { color: '#F2EDE1' } } },
+                    { text: '三行都是 ● running 且 health 为 healthy', cellStyle: { background: { color: '#F2EDE1' } } },
+                ],
+                [
+                    { text: '☐', textStyle: { textAlign: 'center', color: '#B8730F', bold: true } },
+                    '网页可达', '浏览器打开 http://localhost:5180', '出现登录页，说明可以开始用了',
+                ],
+            ]}
+        />
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>前三项查完就可以直接开始装，不用等七项全做完</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>11 / 34</Text>
+    </Box>
+</Slide>

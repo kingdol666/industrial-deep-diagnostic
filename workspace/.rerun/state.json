@@ -1,0 +1,18 @@
+{
+  "round": "rerun-2",
+  "started": "2026-09-18",
+  "lanes": {
+    "skab_valve1_1":            {"dir": "202609181728292_bench_skab_valve1_1",            "stage": "pending"},
+    "skab_cavitation_13":       {"dir": "202609181728509_bench_skab_cavitation_13",       "stage": "pending"},
+    "skab_normal_control":      {"dir": "202609181729062_bench_skab_normal_control",      "stage": "pending"},
+    "tep_d01_ac_feed_ratio":    {"dir": "202609181730356_bench_tep_d01_ac_feed_ratio",    "stage": "pending"},
+    "tep_d03_hard":             {"dir": "202609181730577_bench_tep_d03_hard",             "stage": "pending"},
+    "tep_d00_normal_control":   {"dir": "202609181731134_bench_tep_d00_normal_control",   "stage": "pending"},
+    "indpensim_batch093":       {"dir": "202609181731352_bench_indpensim_batch093",       "stage": "pending"},
+    "indpensim_batch001_control":{"dir": "202609181734271_bench_indpensim_batch001_control","stage": "pending"},
+    "tep_d04_reactor_cooling_step": {"dir": "202609181737475_bench_tep_d04_reactor_cooling_step", "stage": "pending"},
+    "tep_d07_header_pressure":  {"dir": "202609181738028_bench_tep_d07_header_pressure",  "stage": "pending"},
+    "tep_d11_reactor_cooling_random": {"dir": "202609181738384_bench_tep_d11_reactor_cooling_random", "stage": "pending"},
+    "tep_d14_reactor_valve_sticking": {"dir": "202609181738538_bench_tep_d14_reactor_valve_sticking", "stage": "pending"}
+  }
+}

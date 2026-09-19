@@ -1,0 +1,53 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 6 章 · 一份结论，三种读法</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>同一个运行下挂着三个页签：报告看结论、审计看背书、HTML 拿去汇报</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>真实报告：bench_tep_d00</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 15 }}>
+        <Box style={{ height: 455, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/11_report.png" style={{ width: 760, height: 455, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 378, height: 455, flexDirection: 'column', gap: 14 }}>
+                <Box style={{ height: 142, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+                        <Box style={{ padding: '3px 9px', background: '#1D1B16', borderRadius: 5 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#B8730F' }}>① 报告</Text>
+                        </Box>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>正文</Text>
+                    </Box>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 9 }}>首屏给出阅读指南，逐条标注证据等级与可复现来源。</Text>
+                </Box>
+                <Box style={{ height: 142, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+                        <Box style={{ padding: '3px 9px', background: 'rgba(62,142,99,0.16)', borderRadius: 5 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#2F6F4C' }}>② 审计</Text>
+                        </Box>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>物理终审</Text>
+                    </Box>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 9 }}>独立审计员给出 ENDORSED 或驳回，是发布许可。</Text>
+                </Box>
+                <Box style={{ height: 142, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+                        <Box style={{ padding: '3px 9px', background: 'rgba(184,115,15,0.28)', borderRadius: 5 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#8A5608' }}>③ HTML</Text>
+                        </Box>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>交互可视化</Text>
+                    </Box>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 9 }}>ECharts + Three.js 生成，适合拿去汇报与现场追溯。</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 70, padding: 16, background: '#1D1B16', borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+            <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#F0A93B' }}>右上角还有两个按钮</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.82)' }}>④ 刷新重新拉取产物　·　⑤ 下载报告把 Markdown 存到本地；「查看原文」可看未渲染的原始文本。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>面包屑可以随时退回报告清单</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>19 / 31</Text>
+    </Box>
+</Slide>

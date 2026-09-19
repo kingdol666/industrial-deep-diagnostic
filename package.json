@@ -7,6 +7,8 @@
     "ind-diag": "./commands/cli.mjs"
   },
   "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "quickstart": "node scripts/setup.mjs",
     "start": "node commands/cli.mjs start --all --detach",
     "stop": "node commands/cli.mjs stop --all",
     "restart": "node commands/cli.mjs restart --all --detach",

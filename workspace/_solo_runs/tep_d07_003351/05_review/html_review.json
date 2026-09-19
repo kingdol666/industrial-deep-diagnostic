@@ -1,0 +1,33 @@
+{
+ "run_id": "solo_tep_d07",
+ "reviewed_at": "2026-09-17T16:49:24.959675+00:00",
+ "reviewer": "html-reviewer-agent (industrial-html-reviewer protocol, inline)",
+ "overall_score": 96,
+ "checks": [
+  {
+   "label": "renders standalone",
+   "status": "pass"
+  },
+  {
+   "label": "conclusion matches diagnosis.json verbatim",
+   "status": "pass"
+  },
+  {
+   "label": "numbers traceable to artifacts",
+   "status": "pass"
+  },
+  {
+   "label": "charts load via relative paths",
+   "status": "pass"
+  },
+  {
+   "label": "sub-attribution honestly suspended",
+   "status": "pass"
+  },
+  {
+   "label": "ECharts reference present",
+   "status": "pass"
+  }
+ ],
+ "verdict": "pass"
+}

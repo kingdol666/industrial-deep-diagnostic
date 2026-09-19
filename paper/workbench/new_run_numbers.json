@@ -1,0 +1,544 @@
+{
+ "generated": "2026-09-18T00:54:59.917Z",
+ "metrics": {
+  "generated_at": "2026-09-18T00:44:54.936Z",
+  "tier_file": "scripts\\benchmark\\cases\\benchmark_cases.json",
+  "total_cases": 12,
+  "executed": 12,
+  "fault_cases": 9,
+  "control_cases": 3,
+  "top1": 4,
+  "topk": 9,
+  "cdr": 0.4444,
+  "cdr_count": 4,
+  "cdr_display": "0.44 (4/9)",
+  "cdr_ci95": [
+   18.8775429471914,
+   73.33526542559703
+  ],
+  "top1_ci95": [
+   18.8775429471914,
+   73.33526542559703
+  ],
+  "calibrated": 8,
+  "overconfident": 0,
+  "control_pass": 3,
+  "false_alarms": 0,
+  "mean_rubric": 86.3,
+  "by_dataset": {
+   "skab": {
+    "cases": 3,
+    "top1": 0,
+    "topk": 2,
+    "controls": 1,
+    "control_pass": 1
+   },
+   "tep": {
+    "cases": 7,
+    "top1": 3,
+    "topk": 6,
+    "controls": 1,
+    "control_pass": 1
+   },
+   "indpensim": {
+    "cases": 2,
+    "top1": 1,
+    "topk": 1,
+    "controls": 1,
+    "control_pass": 1
+   }
+  },
+  "per_case": [
+   {
+    "case_id": "skab_valve1_1",
+    "dataset": "skab",
+    "control": false,
+    "diagnosis_type": "COMPETING_SET",
+    "top1": false,
+    "topk": true,
+    "calibrated": false,
+    "control_pass": null,
+    "judge_score": 95,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 85,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171630389_bench_skab_valve1_1"
+   },
+   {
+    "case_id": "skab_cavitation_13",
+    "dataset": "skab",
+    "control": false,
+    "diagnosis_type": "COMPETING_SET",
+    "top1": false,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 90,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171630579_bench_skab_cavitation_13"
+   },
+   {
+    "case_id": "skab_normal_control",
+    "dataset": "skab",
+    "control": true,
+    "diagnosis_type": "DETERMINED",
+    "top1": null,
+    "topk": null,
+    "calibrated": null,
+    "control_pass": true,
+    "judge_score": 97,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171631116_bench_skab_normal_control"
+   },
+   {
+    "case_id": "tep_d01_ac_feed_ratio",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "DETERMINED",
+    "top1": true,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 96,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 85,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171632332_bench_tep_d01_ac_feed_ratio"
+   },
+   {
+    "case_id": "tep_d03_hard",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "COMPETING_SET",
+    "top1": false,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 90,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171632563_bench_tep_d03_hard"
+   },
+   {
+    "case_id": "tep_d00_normal_control",
+    "dataset": "tep",
+    "control": true,
+    "diagnosis_type": "DETERMINED",
+    "top1": null,
+    "topk": null,
+    "calibrated": null,
+    "control_pass": true,
+    "judge_score": 96,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171633136_bench_tep_d00_normal_control"
+   },
+   {
+    "case_id": "indpensim_batch093",
+    "dataset": "indpensim",
+    "control": false,
+    "diagnosis_type": "DETERMINED",
+    "top1": true,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 96,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171633340_bench_indpensim_batch093"
+   },
+   {
+    "case_id": "indpensim_batch001_control",
+    "dataset": "indpensim",
+    "control": true,
+    "diagnosis_type": "DETERMINED",
+    "top1": null,
+    "topk": null,
+    "calibrated": null,
+    "control_pass": true,
+    "judge_score": 94,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 65,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171636045_bench_indpensim_batch001_control"
+   },
+   {
+    "case_id": "tep_d04_reactor_cooling_step",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "COMPETING_SET",
+    "top1": false,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 97,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171639066_bench_tep_d04_reactor_cooling_step"
+   },
+   {
+    "case_id": "tep_d07_header_pressure",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "DETERMINED",
+    "top1": true,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 98,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171639214_bench_tep_d07_header_pressure"
+   },
+   {
+    "case_id": "tep_d11_reactor_cooling_random",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "COMPETING_SET",
+    "top1": false,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 93,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": null,
+    "rubric_source": null,
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609172247007_bench_tep_d11_reactor_cooling_random"
+   },
+   {
+    "case_id": "tep_d14_reactor_valve_sticking",
+    "dataset": "tep",
+    "control": false,
+    "diagnosis_type": "DETERMINED",
+    "top1": true,
+    "topk": true,
+    "calibrated": true,
+    "control_pass": null,
+    "judge_score": 94,
+    "judge_score_source": "judge-agent-10-criteria",
+    "rubric": 100,
+    "rubric_source": "deterministic-rubric-v2-pipeline-artifacts",
+    "audit_endorsed": true,
+    "html_review_verdict": "pass",
+    "finalize_passed": true,
+    "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171640072_bench_tep_d14_reactor_valve_sticking"
+   }
+  ],
+  "execution_integrity": {
+   "by_engine": {
+    "stats-package": 12
+   },
+   "degraded_cases": [],
+   "note": "engine records which implementation produced 02_processed/validate_report.json. 'stats-package' runs executed the anti-spurious-correlation layer (lag CCF / distribution / leave-one-out leverage / trend-confounding / Simpson / multiple testing). degraded_cases lists runs whose engine could not be evidenced from the released artifact; degradation is never asserted without evidence."
+  }
+ },
+ "rubric_summary": null,
+ "per": {
+  "skab_valve1_1": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171630389_bench_skab_valve1_1",
+   "type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "conf": 60,
+   "judge": 95,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": null,
+   "pca": {
+    "t2": 100,
+    "spe": 100
+   }
+  },
+  "skab_cavitation_13": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171630579_bench_skab_cavitation_13",
+   "type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "conf": 60,
+   "judge": 90,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": null,
+   "pca": {
+    "t2": 100,
+    "spe": 100
+   }
+  },
+  "skab_normal_control": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171631116_bench_skab_normal_control",
+   "type": "DETERMINED",
+   "conf": 86,
+   "judge": 97,
+   "control": true,
+   "control_pass": true,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": false,
+    "normal": true
+   },
+   "fe3": null,
+   "pca": {
+    "t2": 1,
+    "spe": 1
+   }
+  },
+  "tep_d01_ac_feed_ratio": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171632332_bench_tep_d01_ac_feed_ratio",
+   "type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "conf": 91,
+   "judge": 96,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 99.3,
+    "spe": 99.8
+   }
+  },
+  "tep_d03_hard": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171632563_bench_tep_d03_hard",
+   "type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "conf": 55,
+   "judge": 90,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 2.9,
+    "spe": 4.8
+   }
+  },
+  "tep_d00_normal_control": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171633136_bench_tep_d00_normal_control",
+   "type": "DETERMINED",
+   "conf": 90,
+   "judge": 96,
+   "control": true,
+   "control_pass": true,
+   "rubric": "?",
+   "llm_strict": null,
+   "fe3": null,
+   "pca": {
+    "t2": 1,
+    "spe": 1
+   }
+  },
+  "indpensim_batch093": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171633340_bench_indpensim_batch093",
+   "type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "conf": 82,
+   "judge": 96,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": null,
+   "pca": {
+    "t2": 15,
+    "spe": 73.9
+   }
+  },
+  "indpensim_batch001_control": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171636045_bench_indpensim_batch001_control",
+   "type": "DETERMINED",
+   "conf": 93,
+   "judge": 94,
+   "control": true,
+   "control_pass": true,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": false,
+    "normal": true
+   },
+   "fe3": null,
+   "pca": {
+    "t2": 1.1,
+    "spe": 1.1
+   }
+  },
+  "tep_d04_reactor_cooling_step": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171639066_bench_tep_d04_reactor_cooling_step",
+   "type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "conf": 63,
+   "judge": 97,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 48.8,
+    "spe": 100
+   }
+  },
+  "tep_d07_header_pressure": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171639214_bench_tep_d07_header_pressure",
+   "type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "conf": 78,
+   "judge": 98,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 100,
+    "spe": 99.5
+   }
+  },
+  "tep_d11_reactor_cooling_random": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609172247007_bench_tep_d11_reactor_cooling_random",
+   "type": "COMPETING_SET",
+   "top1": false,
+   "topk": true,
+   "conf": 60,
+   "judge": 93,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 53.8,
+    "spe": 66.3
+   }
+  },
+  "tep_d14_reactor_valve_sticking": {
+   "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\diagnostic-runs\\202609171640072_bench_tep_d14_reactor_valve_sticking",
+   "type": "DETERMINED",
+   "top1": true,
+   "topk": true,
+   "conf": 80,
+   "judge": 94,
+   "control": false,
+   "rubric": "?",
+   "llm_strict": {
+    "hit": true
+   },
+   "fe3": true,
+   "pca": {
+    "t2": 99.8,
+    "spe": 93.4
+   }
+  }
+ },
+ "determinism": {
+  "generated_at": "2026-09-17T22:42:54.639Z",
+  "suite_base": "http://localhost:5181",
+  "compared": 45,
+  "identical": 45,
+  "differing": 0,
+  "differing_files": [],
+  "verdict": "DETERMINISTIC",
+  "method": "consecutive executions of the same suite; only executed_at is excluded from the comparison"
+ },
+ "consistency": {
+  "cases_audited": 1,
+  "consistent": 1,
+  "weak": 0,
+  "divergent": 0,
+  "insufficient_runs": 11,
+  "within_era_pairs": 1,
+  "within_era_pairs_stable": 1,
+  "within_era_agreement": "1/1",
+  "cross_era_divergent_pairs": 0,
+  "headline": "within-era verdict agreement 1/1 over 1 re-tested case(s)"
+ },
+ "retest_last": {
+  "round": 1,
+  "selected_at": "2026-09-17T22:46:46.726Z",
+  "rng": "mulberry32",
+  "seed": 1003818694,
+  "uniform_draw": 0.846792349,
+  "pool_size": 9,
+  "pool": [
+   "skab_valve1_1",
+   "skab_cavitation_13",
+   "tep_d01_ac_feed_ratio",
+   "tep_d03_hard",
+   "indpensim_batch093",
+   "tep_d04_reactor_cooling_step",
+   "tep_d07_header_pressure",
+   "tep_d11_reactor_cooling_random",
+   "tep_d14_reactor_valve_sticking"
+  ],
+  "pool_filter": "faults-only",
+  "index": 7,
+  "case_id": "tep_d11_reactor_cooling_random",
+  "dataset": "tep",
+  "control": false,
+  "contract": [
+   "Re-run the FULL skill://industrial-analysis-auto pipeline (Steps 2-9) for tep_d11_reactor_cooling_random in a FRESH run dir.",
+   "Never copy artifacts between run dirs; never re-use the canonical run dir as a source of truth.",
+   "Then: node scripts/benchmark/consistency-audit.mjs --case tep_d11_reactor_cooling_random"
+  ]
+ }
+}

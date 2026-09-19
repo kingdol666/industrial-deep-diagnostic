@@ -291,7 +291,8 @@ function buildChatSnapshot(chatId) {
         title: history.session.title || '',
         status: history.session.status || 'unknown',
         permissionMode: history.session.permissionMode || 'default',
-        harness: history.session.harness === 'omp' ? 'omp' : 'claude',
+        // 全引擎时代：快照如实携带真实 harness（mock/gemini/codex/…），不再压成 omp/claude
+        harness: history.session.harness || 'claude',
         cwd: history.session.cwd || null,
         createdAt: history.session.createdAt || null,
         updatedAt: history.session.updatedAt || null,

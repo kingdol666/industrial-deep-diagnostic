@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:20px 60px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1160px;height:100px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:34px;font-weight:bold;color:#1D1B16;line-height:1.25">第 1 章 · 三步起飞：克隆 → 启动 → 验证</div>
+            <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.62);margin-top:6px">两条命令装好，一条命令起飞；首次启动会自动补齐所有依赖</div>
+        </div>
+        <div style="display:flex;flex-direction:column;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;background:#1D1B16;border-radius:8px">
+            <div class="tx" style="font-size:15px;font-weight:bold;color:#B8730F">命令逐字可用</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:540px;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;height:223px;flex-direction:row;gap:18px">
+            <img src="assets/t_clone.png" style="width:830px;height:223px;border-radius:10px"/>
+            <div style="display:flex;flex-direction:column;width:312px;height:223px;padding:18px;background:#FFFFFF;border-radius:12px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                <div class="tx" style="font-size:21px;font-weight:bold;color:#1D1B16">① 克隆并安装</div>
+                <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);line-height:1.6;margin-top:10px">git clone 拉下仓库，npm install 装根依赖，npm link 注册全局命令 ind-diag。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:9px 12px;background:rgba(228,220,203,0.75);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.80)">不想 link：node commands/cli.mjs</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;height:223px;flex-direction:row;gap:18px">
+            <img src="assets/t_start.png" style="width:830px;height:223px;border-radius:10px"/>
+            <div style="display:flex;flex-direction:column;width:312px;height:223px;padding:18px;background:rgba(184,115,15,0.10);border-radius:12px;border:1px solid rgba(184,115,15,0.40);flex-direction:column">
+                <div class="tx" style="font-size:21px;font-weight:bold;color:#8A5608">② 一键启动全部服务</div>
+                <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.78);line-height:1.6;margin-top:10px">--all 拉起后端、前端、RAG 三个服务；--detach 让它后台常驻并立刻返回。</div>
+                <div style="display:flex;flex-direction:column;margin-top:auto;padding:9px 12px;background:rgba(184,115,15,0.20);border-radius:7px">
+                    <div class="tx" style="font-size:15px;color:#8A5608">必须带 --detach</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;height:62px;padding:16px;background:#1D1B16;border-radius:10px;flex-direction:row;align-items:center;gap:16px;justify-content:center">
+            <div class="tx" style="font-size:18px;font-weight:bold;color:#F0A93B">不加 --detach 会怎样？</div>
+            <div class="tx" style="font-size:17px;color:rgba(247,244,236,0.82)">前台模式会一直阻塞，120 秒后打印 FATAL: Service manager timeout —— 服务其实已经起来了，只是命令不返回，很容易被误判为失败。</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1160px;height:40px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">Industrial Deep Diagnostic · 使用教程</div>
+        <div class="tx" style="font-size:14px;color:rgba(29,27,22,0.45)">07 / 31</div>
+    </div>
+</div>
+</body></html>

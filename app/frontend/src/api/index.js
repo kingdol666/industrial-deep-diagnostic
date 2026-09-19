@@ -58,6 +58,10 @@ export class ApiError extends Error {
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
     headers: authHeaders({ 'Content-Type': 'application/json' }),
+    // Diagnostic state must never be served from heuristic cache: the ETag on
+    // /ontology responses let a stale pre-restart payload outlive the server
+    // that produced it. Revalidate every API GET.
+    cache: 'no-cache',
     ...options,
   });
   let data;

@@ -1,0 +1,19 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>它是什么：三个服务 + 14 个可热切换执行引擎</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>浏览器只跟后端说话；后端把一次诊断派发给所选引擎，并按需调用 RAG 与本体资产库</Text>
+        </Box>
+        <Box style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 3, fontWeight: 'bold' }}>ARCHITECTURE</Text>
+            <Text style={{ fontSize: 13, color: 'rgba(29,27,22,0.45)', marginTop: 4 }}>依据仓库源码与 README 绘制</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, justifyContent: 'center', alignItems: 'center' }}>
+        <Image src="assets/d_runtime.png" style={{ width: 1080, height: 522, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>端口 3210 后端 · 5180 前端 · 8764 RAG</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>03 / 31</Text>
+    </Box>
+</Slide>

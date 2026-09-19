@@ -1,0 +1,32 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>本体资产库：让下一次更快</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>把领域理解沉淀成可复用资产。同场景再跑一次，本体构建能从 15.6 分钟压到半分钟以内</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>单次诊断提速约 70%</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'row', gap: 22 }}>
+        <Image src="assets/14_ontology.png" style={{ width: 780, height: 500, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+        <Box style={{ width: 350, height: 500, flexDirection: 'column', gap: 10 }}>
+            <Box style={{ height: 160, padding: 17, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 资产清单</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 8 }}>按场景 × 版本列出，后面标着多少工序、多少关系、是否校验通过。</Text>
+            </Box>
+            <Box style={{ height: 160, padding: 17, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 知识图谱</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 8 }}>设备、测量点、工艺阶段之间的连线，就是本次诊断的物理假设空间。</Text>
+            </Box>
+            <Box style={{ height: 160, padding: 17, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 质检与冲突清单</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 8 }}>右侧给出模型健康分与冲突项，区分「孤立关系」「矛盾关系」等缺陷。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>新增数据列只会触发增量构建，不重跑全量</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>26 / 34</Text>
+    </Box>
+</Slide>

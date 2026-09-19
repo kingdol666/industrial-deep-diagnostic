@@ -187,7 +187,8 @@ export function spawnCli(id, args, { cwd = PROJECT_ROOT, env = {}, windowsVerbat
  * Same resolution path as spawnCli (探测与拉起同源).
  */
 export function probeCliBinary(id, { versionArgs = ['--version'], timeoutMs } = {}) {
-  const timeout = timeoutMs || config.harness?.health_timeout_ms || 8000;
+  // 15s — qwen/pi 等慢启动 CLI 在 Windows 上 8s 探测会假阴性（available=false）
+  const timeout = timeoutMs || config.harness?.health_timeout_ms || 15000;
   return new Promise((resolve) => {
     let proc;
     try {

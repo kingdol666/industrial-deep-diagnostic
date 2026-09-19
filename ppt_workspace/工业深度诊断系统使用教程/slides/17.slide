@@ -1,0 +1,37 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 5 章 · 实时监控工作台</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>这是全篇信息密度最高的一屏：点进任务后，你会一直盯着它，直到报告出来</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>真实 OMP 运行 #0060f47b</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'row', gap: 22 }}>
+        <Box style={{ width: 700, height: 540, justifyContent: 'center' }}>
+            <Image src="assets/08_liverun.png" style={{ width: 700, height: 535, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ width: 438, height: 540, flexDirection: 'column', gap: 14 }}>
+            <Box style={{ height: 168, padding: 18, background: '#1D1B16', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#F7F4EC' }}>顶部：状态与进度</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.80)', lineHeight: 1.6, marginTop: 10 }}>① 停止按钮随时可中断　② 状态点显示诊断中 / 已完成 / 失败　③ 阶段进度条下方写着当前正在执行的动作，例如「执行工具：bash」</Text>
+            </Box>
+            <Box style={{ height: 150, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1D1B16' }}>中间：四个计数器</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 10 }}>轮次 / 工具 / 消息 / 计时。本图放大后是 0 轮次、26 工具、6 消息、489:38 —— 长跑任务靠它判断是否还在推进。</Text>
+            </Box>
+            <Box style={{ height: 194, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#8A5608' }}>下方：事件流</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>④ 思考过程、工具调用、命令行原文、返回结果逐条留痕。这就是「证据可回溯」在界面上的样子 —— 结论里的每个数字，都能顺着这条流找到它是怎么算出来的。</Text>
+                <Box style={{ marginTop: 'auto', padding: '8px 11px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>⑤ 底部输入框可随时插话引导</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>一场完整诊断可能跑几十分钟，随时刷新页面都不会丢进度</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>17 / 31</Text>
+    </Box>
+</Slide>

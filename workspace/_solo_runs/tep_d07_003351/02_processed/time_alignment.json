@@ -1,0 +1,10 @@
+{
+ "time_col": "timestamp",
+ "method": "single-source-parse",
+ "merged_sources": [],
+ "n_rows_total": 960,
+ "n_rows_dropped_unparsable": 0,
+ "monotonic_after_sort": true,
+ "median_interval_s": 180.0,
+ "span_s": 172620.0
+}

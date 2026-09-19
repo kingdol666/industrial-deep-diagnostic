@@ -1,0 +1,629 @@
+{
+ "columns": {
+  "timestamp": {
+   "dtype": "str",
+   "n_unique": 960,
+   "missing_pct": 0.0,
+   "mean": null
+  },
+  "XMEAS_1": {
+   "dtype": "float64",
+   "n_unique": 934,
+   "missing_pct": 0.0,
+   "mean": 0.2504
+  },
+  "XMEAS_2": {
+   "dtype": "float64",
+   "n_unique": 683,
+   "missing_pct": 0.0,
+   "mean": 3661.3718
+  },
+  "XMEAS_3": {
+   "dtype": "float64",
+   "n_unique": 788,
+   "missing_pct": 0.0,
+   "mean": 4507.7614
+  },
+  "XMEAS_4": {
+   "dtype": "float64",
+   "n_unique": 871,
+   "missing_pct": 0.0,
+   "mean": 9.3462
+  },
+  "XMEAS_5": {
+   "dtype": "float64",
+   "n_unique": 552,
+   "missing_pct": 0.0,
+   "mean": 26.9015
+  },
+  "XMEAS_6": {
+   "dtype": "float64",
+   "n_unique": 611,
+   "missing_pct": 0.0,
+   "mean": 42.3322
+  },
+  "XMEAS_7": {
+   "dtype": "float64",
+   "n_unique": 469,
+   "missing_pct": 0.0,
+   "mean": 2705.8042
+  },
+  "XMEAS_8": {
+   "dtype": "float64",
+   "n_unique": 836,
+   "missing_pct": 0.0,
+   "mean": 74.8985
+  },
+  "XMEAS_9": {
+   "dtype": "float64",
+   "n_unique": 14,
+   "missing_pct": 0.0,
+   "mean": 120.4006
+  },
+  "XMEAS_10": {
+   "dtype": "float64",
+   "n_unique": 886,
+   "missing_pct": 0.0,
+   "mean": 0.3369
+  },
+  "XMEAS_11": {
+   "dtype": "float64",
+   "n_unique": 692,
+   "missing_pct": 0.0,
+   "mean": 80.0797
+  },
+  "XMEAS_12": {
+   "dtype": "float64",
+   "n_unique": 860,
+   "missing_pct": 0.0,
+   "mean": 49.9349
+  },
+  "XMEAS_13": {
+   "dtype": "float64",
+   "n_unique": 477,
+   "missing_pct": 0.0,
+   "mean": 2634.5515
+  },
+  "XMEAS_14": {
+   "dtype": "float64",
+   "n_unique": 850,
+   "missing_pct": 0.0,
+   "mean": 25.2383
+  },
+  "XMEAS_15": {
+   "dtype": "float64",
+   "n_unique": 845,
+   "missing_pct": 0.0,
+   "mean": 50.0224
+  },
+  "XMEAS_16": {
+   "dtype": "float64",
+   "n_unique": 433,
+   "missing_pct": 0.0,
+   "mean": 3102.8739
+  },
+  "XMEAS_17": {
+   "dtype": "float64",
+   "n_unique": 795,
+   "missing_pct": 0.0,
+   "mean": 22.9297
+  },
+  "XMEAS_18": {
+   "dtype": "float64",
+   "n_unique": 814,
+   "missing_pct": 0.0,
+   "mean": 65.9975
+  },
+  "XMEAS_19": {
+   "dtype": "float64",
+   "n_unique": 894,
+   "missing_pct": 0.0,
+   "mean": 237.9146
+  },
+  "XMEAS_20": {
+   "dtype": "float64",
+   "n_unique": 672,
+   "missing_pct": 0.0,
+   "mean": 341.2586
+  },
+  "XMEAS_21": {
+   "dtype": "float64",
+   "n_unique": 577,
+   "missing_pct": 0.0,
+   "mean": 94.6086
+  },
+  "XMEAS_22": {
+   "dtype": "float64",
+   "n_unique": 685,
+   "missing_pct": 0.0,
+   "mean": 77.2834
+  },
+  "XMEAS_23": {
+   "dtype": "float64",
+   "n_unique": 422,
+   "missing_pct": 0.0,
+   "mean": 32.2114
+  },
+  "XMEAS_24": {
+   "dtype": "float64",
+   "n_unique": 452,
+   "missing_pct": 0.0,
+   "mean": 8.887
+  },
+  "XMEAS_25": {
+   "dtype": "float64",
+   "n_unique": 411,
+   "missing_pct": 0.0,
+   "mean": 26.3966
+  },
+  "XMEAS_26": {
+   "dtype": "float64",
+   "n_unique": 450,
+   "missing_pct": 0.0,
+   "mean": 6.8824
+  },
+  "XMEAS_27": {
+   "dtype": "float64",
+   "n_unique": 412,
+   "missing_pct": 0.0,
+   "mean": 18.775
+  },
+  "XMEAS_28": {
+   "dtype": "float64",
+   "n_unique": 388,
+   "missing_pct": 0.0,
+   "mean": 1.6578
+  },
+  "XMEAS_29": {
+   "dtype": "float64",
+   "n_unique": 425,
+   "missing_pct": 0.0,
+   "mean": 32.9936
+  },
+  "XMEAS_30": {
+   "dtype": "float64",
+   "n_unique": 318,
+   "missing_pct": 0.0,
+   "mean": 13.8221
+  },
+  "XMEAS_31": {
+   "dtype": "float64",
+   "n_unique": 420,
+   "missing_pct": 0.0,
+   "mean": 23.9776
+  },
+  "XMEAS_32": {
+   "dtype": "float64",
+   "n_unique": 449,
+   "missing_pct": 0.0,
+   "mean": 1.2563
+  },
+  "XMEAS_33": {
+   "dtype": "float64",
+   "n_unique": 435,
+   "missing_pct": 0.0,
+   "mean": 18.5746
+  },
+  "XMEAS_34": {
+   "dtype": "float64",
+   "n_unique": 406,
+   "missing_pct": 0.0,
+   "mean": 2.2662
+  },
+  "XMEAS_35": {
+   "dtype": "float64",
+   "n_unique": 448,
+   "missing_pct": 0.0,
+   "mean": 4.8444
+  },
+  "XMEAS_36": {
+   "dtype": "float64",
+   "n_unique": 442,
+   "missing_pct": 0.0,
+   "mean": 2.2936
+  },
+  "XMEAS_37": {
+   "dtype": "float64",
+   "n_unique": 192,
+   "missing_pct": 0.0,
+   "mean": 0.0177
+  },
+  "XMEAS_38": {
+   "dtype": "float64",
+   "n_unique": 189,
+   "missing_pct": 0.0,
+   "mean": 0.8357
+  },
+  "XMEAS_39": {
+   "dtype": "float64",
+   "n_unique": 191,
+   "missing_pct": 0.0,
+   "mean": 0.099
+  },
+  "XMEAS_40": {
+   "dtype": "float64",
+   "n_unique": 181,
+   "missing_pct": 0.0,
+   "mean": 53.6673
+  },
+  "XMEAS_41": {
+   "dtype": "float64",
+   "n_unique": 177,
+   "missing_pct": 0.0,
+   "mean": 43.8247
+  },
+  "XMV_1": {
+   "dtype": "float64",
+   "n_unique": 790,
+   "missing_pct": 0.0,
+   "mean": 63.0244
+  },
+  "XMV_2": {
+   "dtype": "float64",
+   "n_unique": 820,
+   "missing_pct": 0.0,
+   "mean": 53.9763
+  },
+  "XMV_3": {
+   "dtype": "float64",
+   "n_unique": 925,
+   "missing_pct": 0.0,
+   "mean": 24.6284
+  },
+  "XMV_4": {
+   "dtype": "float64",
+   "n_unique": 904,
+   "missing_pct": 0.0,
+   "mean": 74.0758
+  },
+  "XMV_5": {
+   "dtype": "float64",
+   "n_unique": 841,
+   "missing_pct": 0.0,
+   "mean": 22.2519
+  },
+  "XMV_6": {
+   "dtype": "float64",
+   "n_unique": 914,
+   "missing_pct": 0.0,
+   "mean": 40.0319
+  },
+  "XMV_7": {
+   "dtype": "float64",
+   "n_unique": 924,
+   "missing_pct": 0.0,
+   "mean": 37.9086
+  },
+  "XMV_8": {
+   "dtype": "float64",
+   "n_unique": 901,
+   "missing_pct": 0.0,
+   "mean": 46.5858
+  },
+  "XMV_9": {
+   "dtype": "float64",
+   "n_unique": 942,
+   "missing_pct": 0.0,
+   "mean": 50.0913
+  },
+  "XMV_10": {
+   "dtype": "float64",
+   "n_unique": 807,
+   "missing_pct": 0.0,
+   "mean": 41.0913
+  },
+  "XMV_11": {
+   "dtype": "float64",
+   "n_unique": 874,
+   "missing_pct": 0.0,
+   "mean": 18.1782
+  },
+  "XMEAS_1_dev": {
+   "dtype": "float64",
+   "n_unique": 934,
+   "missing_pct": 0.0,
+   "mean": 0.0059
+  },
+  "XMEAS_4_dev": {
+   "dtype": "float64",
+   "n_unique": 871,
+   "missing_pct": 0.0,
+   "mean": -0.0064
+  },
+  "XMEAS_7_dev": {
+   "dtype": "float64",
+   "n_unique": 469,
+   "missing_pct": 0.0,
+   "mean": -0.2198
+  },
+  "XMEAS_8_dev": {
+   "dtype": "float64",
+   "n_unique": 836,
+   "missing_pct": 0.0,
+   "mean": -0.1576
+  },
+  "XMEAS_10_dev": {
+   "dtype": "float64",
+   "n_unique": 886,
+   "missing_pct": 0.0,
+   "mean": -0.0022
+  },
+  "XMEAS_12_dev": {
+   "dtype": "float64",
+   "n_unique": 860,
+   "missing_pct": 0.0,
+   "mean": -0.0569
+  },
+  "XMEAS_13_dev": {
+   "dtype": "float64",
+   "n_unique": 477,
+   "missing_pct": 0.0,
+   "mean": -0.1585
+  },
+  "XMEAS_15_dev": {
+   "dtype": "float64",
+   "n_unique": 845,
+   "missing_pct": 0.0,
+   "mean": 0.0042
+  },
+  "XMEAS_17_dev": {
+   "dtype": "float64",
+   "n_unique": 795,
+   "missing_pct": 0.0,
+   "mean": 0.0365
+  },
+  "XMEAS_19_dev": {
+   "dtype": "float64",
+   "n_unique": 894,
+   "missing_pct": 0.0,
+   "mean": 7.9734
+  },
+  "XMEAS_20_dev": {
+   "dtype": "float64",
+   "n_unique": 672,
+   "missing_pct": 0.0,
+   "mean": -0.0473
+  },
+  "XMEAS_23_dev": {
+   "dtype": "float64",
+   "n_unique": 422,
+   "missing_pct": 0.0,
+   "mean": -0.0089
+  },
+  "XMEAS_24_dev": {
+   "dtype": "float64",
+   "n_unique": 452,
+   "missing_pct": 0.0,
+   "mean": -0.0123
+  },
+  "XMEAS_25_dev": {
+   "dtype": "float64",
+   "n_unique": 411,
+   "missing_pct": 0.0,
+   "mean": -0.0766
+  },
+  "XMEAS_27_dev": {
+   "dtype": "float64",
+   "n_unique": 412,
+   "missing_pct": 0.0,
+   "mean": 0.041
+  },
+  "XMEAS_29_dev": {
+   "dtype": "float64",
+   "n_unique": 425,
+   "missing_pct": 0.0,
+   "mean": 0.034
+  },
+  "XMEAS_30_dev": {
+   "dtype": "float64",
+   "n_unique": 318,
+   "missing_pct": 0.0,
+   "mean": -0.0006
+  },
+  "XMEAS_32_dev": {
+   "dtype": "float64",
+   "n_unique": 449,
+   "missing_pct": 0.0,
+   "mean": 0.013
+  },
+  "XMEAS_33_dev": {
+   "dtype": "float64",
+   "n_unique": 435,
+   "missing_pct": 0.0,
+   "mean": -0.0293
+  },
+  "XMEAS_37_dev": {
+   "dtype": "float64",
+   "n_unique": 192,
+   "missing_pct": 0.0,
+   "mean": -0.0008
+  },
+  "XMEAS_38_dev": {
+   "dtype": "float64",
+   "n_unique": 189,
+   "missing_pct": 0.0,
+   "mean": -0.0003
+  },
+  "XMEAS_39_dev": {
+   "dtype": "float64",
+   "n_unique": 191,
+   "missing_pct": 0.0,
+   "mean": 0.0018
+  },
+  "XMV_1_dev": {
+   "dtype": "float64",
+   "n_unique": 790,
+   "missing_pct": 0.0,
+   "mean": -0.0003
+  },
+  "XMV_3_dev": {
+   "dtype": "float64",
+   "n_unique": 925,
+   "missing_pct": 0.0,
+   "mean": 0.5994
+  },
+  "XMV_4_dev": {
+   "dtype": "float64",
+   "n_unique": 904,
+   "missing_pct": 0.0,
+   "mean": 12.7978
+  },
+  "XMV_5_dev": {
+   "dtype": "float64",
+   "n_unique": 841,
+   "missing_pct": 0.0,
+   "mean": 0.0845
+  },
+  "XMV_7_dev": {
+   "dtype": "float64",
+   "n_unique": 924,
+   "missing_pct": 0.0,
+   "mean": -0.1677
+  },
+  "XMV_8_dev": {
+   "dtype": "float64",
+   "n_unique": 901,
+   "missing_pct": 0.0,
+   "mean": 0.0096
+  },
+  "XMV_9_dev": {
+   "dtype": "float64",
+   "n_unique": 942,
+   "missing_pct": 0.0,
+   "mean": 2.7895
+  },
+  "XMV_10_dev": {
+   "dtype": "float64",
+   "n_unique": 807,
+   "missing_pct": 0.0,
+   "mean": 0.0027
+  },
+  "XMV_11_dev": {
+   "dtype": "float64",
+   "n_unique": 874,
+   "missing_pct": 0.0,
+   "mean": -0.0623
+  },
+  "time_hours": {
+   "dtype": "float64",
+   "n_unique": 960,
+   "missing_pct": 0.0,
+   "mean": 23.975
+  }
+ },
+ "dataset_profile": {
+  "n_rows": 960,
+  "n_columns": 85,
+  "numeric_columns": [
+   "XMEAS_1",
+   "XMEAS_2",
+   "XMEAS_3",
+   "XMEAS_4",
+   "XMEAS_5",
+   "XMEAS_6",
+   "XMEAS_7",
+   "XMEAS_8",
+   "XMEAS_9",
+   "XMEAS_10",
+   "XMEAS_11",
+   "XMEAS_12",
+   "XMEAS_13",
+   "XMEAS_14",
+   "XMEAS_15",
+   "XMEAS_16",
+   "XMEAS_17",
+   "XMEAS_18",
+   "XMEAS_19",
+   "XMEAS_20",
+   "XMEAS_21",
+   "XMEAS_22",
+   "XMEAS_23",
+   "XMEAS_24",
+   "XMEAS_25",
+   "XMEAS_26",
+   "XMEAS_27",
+   "XMEAS_28",
+   "XMEAS_29",
+   "XMEAS_30",
+   "XMEAS_31",
+   "XMEAS_32",
+   "XMEAS_33",
+   "XMEAS_34",
+   "XMEAS_35",
+   "XMEAS_36",
+   "XMEAS_37",
+   "XMEAS_38",
+   "XMEAS_39",
+   "XMEAS_40",
+   "XMEAS_41",
+   "XMV_1",
+   "XMV_2",
+   "XMV_3",
+   "XMV_4",
+   "XMV_5",
+   "XMV_6",
+   "XMV_7",
+   "XMV_8",
+   "XMV_9",
+   "XMV_10",
+   "XMV_11",
+   "XMEAS_1_dev",
+   "XMEAS_4_dev",
+   "XMEAS_7_dev",
+   "XMEAS_8_dev",
+   "XMEAS_10_dev",
+   "XMEAS_12_dev",
+   "XMEAS_13_dev",
+   "XMEAS_15_dev",
+   "XMEAS_17_dev",
+   "XMEAS_19_dev",
+   "XMEAS_20_dev",
+   "XMEAS_23_dev",
+   "XMEAS_24_dev",
+   "XMEAS_25_dev",
+   "XMEAS_27_dev",
+   "XMEAS_29_dev",
+   "XMEAS_30_dev",
+   "XMEAS_32_dev",
+   "XMEAS_33_dev",
+   "XMEAS_37_dev",
+   "XMEAS_38_dev",
+   "XMEAS_39_dev",
+   "XMV_1_dev",
+   "XMV_3_dev",
+   "XMV_4_dev",
+   "XMV_5_dev",
+   "XMV_7_dev",
+   "XMV_8_dev",
+   "XMV_9_dev",
+   "XMV_10_dev",
+   "XMV_11_dev",
+   "time_hours"
+  ],
+  "time_column": "timestamp",
+  "sampling_interval_s": 180.0,
+  "steady_state_rows": 867,
+  "data_source": "02_processed/cleaned_data.csv"
+ },
+ "metadata": {
+  "generated_by": "data-processor inline (Phase 2)",
+  "stats_engine": "stats-package"
+ },
+ "key_features": [
+  "XMEAS_1",
+  "XMEAS_2",
+  "XMEAS_3",
+  "XMEAS_4",
+  "XMEAS_5",
+  "XMEAS_6",
+  "XMEAS_7",
+  "XMEAS_8",
+  "XMEAS_9",
+  "XMEAS_10",
+  "XMEAS_11",
+  "XMEAS_12",
+  "XMEAS_13",
+  "XMEAS_14",
+  "XMEAS_15"
+ ]
+}

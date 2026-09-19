@@ -9,6 +9,8 @@ import logger from '../utils/logger.mjs';
 import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT, config } from '../../../../config/loader.mjs';
 import * as ompClient from '../engine/omp-client.mjs';
+import { getEngineClient } from '../harness/engines.mjs';
+import { hasHarness } from '../harness/registry.mjs';
 
 let queryFn = null;
 try {
@@ -23,17 +25,21 @@ const activeChats = new Map();
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
 
-// Chat currently runs on two engines: claude (SDK) and omp (RPC).
-// Everything else → explicit 400 (诚实语义 — never silently fall back).
-const CHAT_CAPABLE_HARNESSES = new Set(['claude', 'omp']);
+// Chat runs on every registered harness: claude (SDK) and omp (RPC) keep
+// their dedicated resident-session paths; every definition-table engine
+// (mock / one-shot family / ACP family / codex / opencode) rides the
+// generic turn path below — native session resume when the engine supports
+// it, transcript replay when it does not. Never a silent engine swap.
+const DEDICATED_CHAT_HARNESSES = new Set(['claude', 'omp']);
 
 function normalizeChatHarness(value) {
   const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
   if (!id) return (config.harness?.default || 'omp') === 'omp' ? 'omp' : 'claude';
-  if (CHAT_CAPABLE_HARNESSES.has(id)) return id;
+  if (DEDICATED_CHAT_HARNESSES.has(id)) return id;
+  if (hasHarness(id)) return id;
   const err = new Error(
-    `AI Chat currently supports only the 'claude' and 'omp' harnesses (requested: "${id}"). `
-    + `Run diagnoses with harness="${id}" via POST /api/diagnosis/start — chat sessions need cross-turn engines.`,
+    `Unknown chat harness: "${id}" — see GET /api/harness for the registry. `
+    + `Diagnoses accept the same ids via POST /api/diagnosis/start.`,
   );
   err.status = 400;
   err.code = 'CHAT_HARNESS_UNSUPPORTED';
@@ -174,6 +180,17 @@ export async function startChat(params = {}) {
       prompt: params.prompt,
       stored: earlyStored,
       title: params.title,
+    });
+  }
+
+  // ── Generic definition-table engines (mock / one-shot / ACP / codex / opencode) ──
+  if (harness !== 'claude') {
+    return startGenericEngineChat({
+      chatId: earlyChatId,
+      prompt: params.prompt,
+      stored: earlyStored,
+      title: params.title,
+      harness,
     });
   }
 
@@ -569,7 +586,28 @@ function startOmpChat({ chatId, prompt, stored, title }) {
     timestamp: new Date().toISOString(),
   });
 
+  runEngineChatLoop({ chatId, query, emitter, harness: 'omp', stored, title, sessionId, model: 'omp', permissionMode, cwd });
+
+  return {
+    chatId,
+    emitter,
+    sessionId,
+    currentSessionId: sessionId,
+    originSessionId: sessionId,
+    permissionMode,
+    cwd,
+    harness: 'omp',
+  };
+}
+
+/**
+ * Shared chat consumption loop — every harness emits Claude-SDK-shaped
+ * messages, so one loop maps ANY engine's stream onto the same SSE event
+ * names and chat_message persistence the Claude path established.
+ */
+function runEngineChatLoop({ chatId, query, emitter, harness, stored, title, sessionId, model, permissionMode = null, cwd = PROJECT_ROOT }) {
   (async () => {
+    let failed = false;
     try {
       for await (const msg of query) {
         if (!msg || typeof msg !== 'object') continue;
@@ -615,6 +653,7 @@ function startOmpChat({ chatId, prompt, stored, title }) {
             eventType: 'system', eventSubtype: msg.subtype || 'system',
           });
         } else if (msg.type === 'result') {
+          if (msg.subtype === 'error_during_execution') failed = true;
           emitter.emit('event', 'result', {
             subtype: msg.subtype,
             durationMs: msg.duration_ms,
@@ -640,12 +679,12 @@ function startOmpChat({ chatId, prompt, stored, title }) {
         originSessionId: sessionId,
         permissionMode,
         cwd,
-        status: 'completed',
-        harness: 'omp',
+        status: failed ? 'failed' : 'completed',
+        harness,
       });
     } catch (err) {
       emitter.emit('event', 'chat_error', { chatId, error: err.message });
-      logger.error(`OMP chat error [${chatId}]: ${err.message}`, { context: 'Chat' });
+      logger.error(`${harness} chat error [${chatId}]: ${err.message}`, { context: 'Chat' });
       stmts.insertChatMessage.run({
         chatId, role: 'system', content: err.message, eventType: 'error', eventSubtype: 'chat_error',
       });
@@ -657,24 +696,92 @@ function startOmpChat({ chatId, prompt, stored, title }) {
         permissionMode,
         cwd,
         status: 'failed',
-        harness: 'omp',
+        harness,
       });
     } finally {
       try { query.close(); } catch { /* ignore */ }
       activeChats.delete(chatId);
     }
   })();
+}
 
-  return {
-    chatId,
-    emitter,
-    sessionId,
-    currentSessionId: sessionId,
-    originSessionId: sessionId,
-    permissionMode,
-    cwd,
-    harness: 'omp',
-  };
+/**
+ * Stateless engines (ACP single-flight, codex threads, copilot…) have no
+ * cross-turn memory — replay the recent transcript ahead of the new message
+ * so a chat is still a REAL conversation, just with explicit context.
+ */
+function buildReplayPrompt(chatId, message, { maxTurns = 12 } = {}) {
+  const rows = stmts.getChatMessagesByChatId.all(chatId) || [];
+  const recent = rows
+    .filter((r) => (r.event_type === 'message' || r.event_type === 'user_message') && r.content)
+    .slice(-maxTurns);
+  if (recent.length === 0) return message;
+  const transcript = recent
+    .map((r) => `${r.role === 'user' ? 'User' : 'Assistant'}: ${String(r.content).replace(/\s+\n/g, '\n')}`)
+    .join('\n\n');
+  return `You are continuing an existing conversation. Earlier turns are replayed below for context.\n\n--- Conversation so far ---\n${transcript}\n--- End of earlier conversation ---\n\nUser: ${message}`;
+}
+
+/**
+ * Generic definition-table engine chat — mock / one-shot family / ACP family
+ * / codex / opencode. Turn 1 rides the engine's raw startChatTurn; follow-ups
+ * use native session resume when the engine supports it, transcript replay
+ * when it does not. Engine-side failures propagate honestly (no fallback).
+ */
+async function startGenericEngineChat({ chatId, prompt, stored, title, harness }) {
+  if (!prompt || typeof prompt !== 'string') {
+    throw new Error('prompt is required');
+  }
+  const client = await getEngineClient(harness);
+  const emitter = new EventEmitter();
+  const isFollowUp = Boolean(stored);
+  const cwd = PROJECT_ROOT;
+
+  let query = null;
+  let sessionId = null;
+  let replayed = false;
+
+  if (isFollowUp && stored?.session_id && stored.harness === harness) {
+    try {
+      const resumed = client.startSessionChat({ runId: chatId, sessionId: stored.session_id, message: prompt });
+      query = resumed.query;
+      sessionId = resumed.query?.sessionId || resumed.sessionId || stored.session_id;
+    } catch (e) {
+      if (e?.status !== 400) throw e; // engine-side errors are real — surface them
+      query = null;                   // no cross-process resume → replay below
+    }
+  }
+  if (!query) {
+    replayed = isFollowUp;
+    const turnPrompt = replayed ? buildReplayPrompt(chatId, prompt) : prompt;
+    const turn = client.startChatTurn({ runId: chatId, prompt: turnPrompt });
+    query = turn.query;
+    sessionId = (turn.getSessionId ? turn.getSessionId() : null) || turn.sessionId || `${harness}:chat:${chatId}`;
+  }
+
+  activeChats.set(chatId, { query, emitter, sessionId, originSessionId: sessionId, harness });
+  if (stored) {
+    stmts.updateChatSession.run({
+      chatId, title: title || null, sessionId, originSessionId: sessionId,
+      permissionMode: null, cwd, status: 'active', harness,
+    });
+  } else {
+    stmts.insertChatSession.run({
+      chatId, title: title || prompt.slice(0, 60), sessionId, originSessionId: sessionId,
+      status: 'active', model: harness, permissionMode: null, cwd, harness,
+    });
+  }
+  stmts.insertChatMessage.run({
+    chatId, role: 'user', content: prompt, eventType: 'user_message', eventSubtype: null,
+  });
+
+  emitter.emit('event', 'chat_init', {
+    chatId, sessionId, model: harness, permissionMode: null, cwd, harness, timestamp: new Date().toISOString(),
+  });
+
+  runEngineChatLoop({ chatId, query, emitter, harness, stored, title, sessionId, model: harness, permissionMode: null, cwd });
+
+  return { chatId, emitter, sessionId, currentSessionId: sessionId, originSessionId: sessionId, permissionMode: null, cwd, harness, replayed };
 }
 
 /**
@@ -715,7 +822,6 @@ export function getChatInfo(chatId) {
     title: stored?.title || null,
     status: stored?.status || (entry ? 'active' : 'unknown'),
     permissionMode: stored?.permission_mode || 'default',
-    harness: stored?.harness === 'omp' ? 'omp' : 'claude',
     cwd: stored?.cwd || PROJECT_ROOT,
     harness: stored?.harness || entry?.harness || 'claude',
   };
@@ -733,7 +839,6 @@ export function listActiveChats() {
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     permissionMode: row.permission_mode || 'default',
-    harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
     harness: row.harness || 'claude',
     createdAt: row.created_at,
@@ -761,6 +866,24 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
       prompt: followUpMessage,
       stored,
       title: stored?.title || followUpMessage.slice(0, 60),
+    });
+  }
+
+  // ── Generic definition-table engines: native resume when possible,
+  //    transcript replay otherwise. An existing chat is sticky to the
+  //    engine that created it. ──
+  if (stored && stored.harness && !DEDICATED_CHAT_HARNESSES.has(stored.harness)) {
+    const stale = activeChats.get(chatId);
+    if (stale) {
+      try { stale.query.close(); } catch { /* ignore */ }
+      activeChats.delete(chatId);
+    }
+    return startGenericEngineChat({
+      chatId,
+      prompt: followUpMessage,
+      stored,
+      title: stored.title || followUpMessage.slice(0, 60),
+      harness: stored.harness,
     });
   }
 
@@ -794,7 +917,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
     throw err;
   }
 
-  const inheritedHarness = stored?.harness === 'omp' ? 'omp' : 'claude';
+  const inheritedHarness = stored?.harness || 'claude';
   return startChat({
     ...params,
     chatId,
@@ -841,7 +964,6 @@ export function getChatSession(chatId) {
     title: row.title,
     status: activeChats.has(row.chat_id) ? 'active' : row.status,
     permissionMode: row.permission_mode || 'default',
-    harness: row.harness === 'omp' ? 'omp' : 'claude',
     cwd: row.cwd || PROJECT_ROOT,
     harness: row.harness || 'claude',
     createdAt: row.created_at,
@@ -862,7 +984,6 @@ export function getChatHistory(chatId) {
       title: session.title,
       status: activeChats.has(session.chat_id) ? 'active' : session.status,
       permissionMode: session.permission_mode || 'default',
-      harness: session.harness === 'omp' ? 'omp' : 'claude',
       cwd: session.cwd || PROJECT_ROOT,
       harness: session.harness || 'claude',
       createdAt: session.created_at,

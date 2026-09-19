@@ -1,0 +1,18 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>引擎原生产物：绕过界面看底层</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>点左侧最后一项。这里直接读引擎自己在磁盘上写下的运行目录，只读、不干预</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>25 总运行 · 17 已完成 · 16 HTML</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, justifyContent: 'center', alignItems: 'center' }}>
+        <Image src="assets/16_engines.png" style={{ width: 1120, height: 528, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>在线状态 + 刷新 · 四个统计卡 · 每张运行卡显示原生运行号与阶段状态</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>27 / 34</Text>
+    </Box>
+</Slide>

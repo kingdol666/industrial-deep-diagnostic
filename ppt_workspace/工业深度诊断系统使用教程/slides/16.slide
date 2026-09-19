@@ -1,0 +1,38 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 4 章 · 任务列表：一屏读完全局状态</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>发起之后回到这里。任务按状态分组，结论与评分直接摆在列表里，不用点进去看</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>本机当前：活跃 3 · 历史 135</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 408, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/07_tasklist.png" style={{ width: 973, height: 408, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 116, flexDirection: 'row', gap: 18 }}>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 活跃任务</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>正在运行或等待你回答的任务，排在最上面</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 结论列</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.5, marginTop: 6 }}>ENDORSED / COMPETING_SET 一眼可辨，评分 0–100</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: 'rgba(184,115,15,0.10)', borderRadius: 10, border: '1px solid rgba(184,115,15,0.40)' }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>③ 点行即看</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.5, marginTop: 6 }}>点任务名进入实时工作台；已完成的会直接打开报告</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 14, background: '#1D1B16', borderRadius: 10 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F7F4EC' }}>④ 新建任务</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.78)', lineHeight: 1.5, marginTop: 6 }}>回到数据页重新选一份数据，开始下一轮</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>表头固定，向下滚动时列名始终可见</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>16 / 31</Text>
+    </Box>
+</Slide>

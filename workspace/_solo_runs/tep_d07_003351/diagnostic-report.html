@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="utf-8"><title>工业诊断报告 — TEP 流股4 供给压力损失场景</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+body { font-family: "Microsoft YaHei", "Segoe UI", sans-serif; margin: 0; background: #f4f6f8; color: #1c2733; }
+header { background: #1e3a54; color: #fff; padding: 22px 32px; }
+main { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+section { background: #fff; border: 1px solid #dde3e9; border-radius: 8px; padding: 18px 22px; margin-bottom: 18px; }
+h2 { font-size: 17px; border-left: 4px solid #0072b2; padding-left: 10px; }
+.verdict { font-size: 26px; font-weight: 700; color: #0072b2; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+td, th { border-bottom: 1px solid #e6ebf0; padding: 7px 9px; text-align: left; }
+th { background: #f0f3f6; } td.num { text-align: right; }
+img { max-width: 100%; border: 1px solid #dde3e9; border-radius: 6px; margin: 6px 0; }
+.warn { background: #fdf3e3; border-left: 4px solid #e6a23c; padding: 10px 14px; border-radius: 4px; }
+</style></head>
+<body>
+<header><h1>工业诊断报告 — TEP 流股4（A+C）供给压力损失场景</h1>
+<div style="font-size:12px;opacity:.8">run_id: solo_tep_d07 | 2026-09-17T16:49:24.959675+00:00 | 九阶段门禁全过</div></header>
+<main>
+<section><h2>结论（BLUF）</h2><div class="verdict">DETERMINED · 82/100 HIGH</div>
+<p>流股4（A+C 混合进料）上游供给压力损失：异常起始（第 161 样本）XMEAS_4 进料流量瞬态跌落 -12.29σ，控制器将 XMV_4 进料阀开大 +25.13%（瞬态 +18.73σ 后稳态保持 +12.24σ）使进料流量完全恢复（稳态偏移 -0.25σ），反应器压力瞬态波动后重新受控，其余进料与全部被控量稳态归零——补偿成功的供给侧扰动指纹完整。判为 DETERMINED@0.82：机理（流股4 供给压力损失，含 C header）已确证；上游 header 的具体物理成因需上游压力测点方可进一步归因。</p></section>
+<section><h2>判别性量化对比</h2>
+<table><tr><th>通道</th><th>瞬态/稳态</th></tr>
+<tr><td>XMEAS_4 进料流量</td><td>onset 瞬态 -12.29σ → held -0.25σ（恢复）</td></tr>
+<tr><td>XMV_4 进料阀开度</td><td>+18.73σ → held +12.24σ（+25.13%，补偿保持）</td></tr>
+<tr><td>XMEAS_7 反应器压力</td><td>-27.57/37.85σ → held 0.01σ（重控）</td></tr>
+<tr><td>其余进料/被控量</td><td>held ≤|0.25|σ（扰动局限于流股4）</td></tr></table></section>
+<section><h2>竞争假设与排除</h2>
+<table><tr><th>假设</th><th>判定</th><th>依据</th></tr>
+<tr><td>H1 流股4 供给压力损失（XMV_4 补偿）</td><td><b>存续（判定）</b></td><td>阀门口径关系 + 三段结构</td></tr>
+<tr><td>H2 反应器侧独立扰动</td><td>排除</td><td>冷却通道 held≈0 + 传播方向</td></tr>
+<tr><td>H3 XMV_4 仪表链漂移</td><td>排除</td><td>流量真实跌落与恢复</td></tr>
+<tr><td>H4 需求侧变更</td><td>排除</td><td>产量未变 + 非设定迁移形态</td></tr>
+<tr><td>H5 汽提塔侧根源</td><td>排除</td><td>无 held 偏移且时序滞后</td></tr></table>
+<div class="warn">上游 header 成因（管路阻力 vs 上游设备）不可分 — 需补装流股4 上游压力测点。</div></section>
+<section><h2>可视化证据</h2>
+<img src="03_figures/fig_vlm_temporal_overlay.png" alt="temporal overlay">
+<img src="03_figures/fig_adaptive_overlay.png" alt="adaptive overlay">
+<p style="font-size:13px;color:#5a6a7a">选图决策 adaptive_chart_plan.json · 对齐溯源 time_alignment.json</p></section>
+
+<section><h2>机理链（三段结构）</h2>
+<table><tr><th>阶段</th><th>通道表现</th><th>物理含义</th></tr>
+<tr><td>① 瞬跌</td><td>XMEAS_4 -12.29σ（onset 瞬态）</td><td>流股4 供给压力损失即时影响</td></tr>
+<tr><td>② 补偿</td><td>XMV_4 瞬态 +18.73σ → 开大至 +25.13% 并保持</td><td>控制器开阀维持流量设定</td></tr>
+<tr><td>③ 保持</td><td>XMEAS_4 held -0.25σ；产量维持</td><td>补偿成功，生产未受影响</td></tr></table>
+<p style="font-size:13px;color:#5a6a7a">传播方向：流股4 进料 → 反应器压力瞬态 → 重控归零；其余进料阀 held ≤0.25σ（扰动局限于流股4）。</p></section>
+<section><h2>置信度审计</h2>
+<table><tr><th>因子</th><th>权重</th><th>得分</th><th>依据</th></tr>
+<tr><td>统计强度</td><td>25</td><td class="num">23</td><td>三段结构跨 4 通道一致，瞬态幅度 12-38σ</td></tr>
+<tr><td>物理合理性</td><td>25</td><td class="num">24</td><td>阀门口径关系唯一自洽</td></tr>
+<tr><td>时间证据</td><td>20</td><td class="num">20</td><td>onset 对齐 + 单向传播</td></tr>
+<tr><td>混杂缺失</td><td>20</td><td class="num">17</td><td>无上游 header 压力测点</td></tr>
+<tr><td>症状完备性</td><td>10</td><td class="num">8</td><td>次级方差扰动机理未定位</td></tr></table>
+<p style="font-size:13px;color:#5a6a7a">五因子 92 → INDISTINGUISHABLE_COMPETING_SET 理由码帽 → 82/100（上游成因层不可分）。</p></section>
+</main>
+<footer>IDD v6.5 · 九阶段门禁管线 · 数值可由 02_processed 产物复算 · .pipeline_events.jsonl</footer>
+</body></html>

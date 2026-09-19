@@ -1,0 +1,7 @@
+{
+ "run_id": "solo_tep_d07",
+ "rag_available": false,
+ "retrieved_chunks": 0,
+ "fallback_reason": "RAG engine unreachable at Step 0 health check; ontology fast-reuse from asset store; no L6 external evidence enters any surviving chain",
+ "fallback_mode": "ontology_store_fast_reuse + L5 standard semantics + L4 data self-description"
+}

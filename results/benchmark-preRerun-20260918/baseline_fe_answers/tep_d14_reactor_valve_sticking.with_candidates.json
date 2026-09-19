@@ -1,0 +1,8 @@
+{
+  "top3": [
+    "IDV14: Reactor cooling-water valve sticking",
+    "IDV15: Condenser cooling-water valve sticking",
+    "IDV4: Reactor cooling-water inlet temperature step"
+  ],
+  "reasoning": "反应器温度XMEAS_9与反应器冷却水阀XMV_10呈现r=0.998的近完美耦合，说明冷却回路正被阀位补偿性调节以对抗温度异常，这是反应器冷却水阀粘滞（IDV14）的典型特征；偏差最大的XMEAS_22（分离器冷却水出口温度）与XMEAS_11（分离器温度）可由反应器温度升高沿反应器-冷凝器-分离器流程传导解释。次要候选为冷凝器冷却水阀粘滞（IDV15，同样直接作用于XMEAS_22/XMEAS_11）和反应器冷却水入口温度阶跃（IDV4，冷却相关但无法解释阀门-温度强耦合及持续随机型波动）。"
+}

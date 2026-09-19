@@ -1,0 +1,52 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 1 章 · 引擎预检：选谁来干活</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>14 个引擎里，本机装好哪个就用哪个；未安装的会被前端灰显为「离线」</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>OMP Engine 为本机默认</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 261, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_engine.png" style={{ width: 1160, height: 261, borderRadius: 10 }} />
+        </Box>
+        <Box style={{ height: 263, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ width: 372, height: 263, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 12, height: 12, borderRadius: 6, background: '#3E8E63' }} />
+                    <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>已就绪</Text>
+                </Box>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 12 }}>CLI 已安装且已登录。选中它就能跑真实诊断：OMP Engine、Claude Code、Mock Engine 在本机均可用。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(62,142,99,0.12)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#2F6F4C' }}>可直接发起诊断</Text>
+                </Box>
+            </Box>
+            <Box style={{ width: 372, height: 263, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 12, height: 12, borderRadius: 6, background: '#A8442A' }} />
+                    <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>未安装</Text>
+                </Box>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 12 }}>前端列表里是灰色并标注「离线」。强行通过接口调用不会跑起来，而是返回 409 HARNESS_UNAVAILABLE。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(168,68,42,0.10)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#A8442A' }}>409 而不是 500，预检生效</Text>
+                </Box>
+            </Box>
+            <Box style={{ width: 372, height: 263, padding: 20, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 12, height: 12, borderRadius: 6, background: '#B8730F' }} />
+                    <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>Mock 引擎</Text>
+                </Box>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.62, marginTop: 12 }}>进程内脚本引擎，零成本、秒级完成，适合第一次演练流程、验证上传与报告链路，以及 CI 冒烟测试。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.12)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>新手先拿它走一遍全流程</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>启动服务不需要模型凭据，跑诊断才需要</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>09 / 31</Text>
+    </Box>
+</Slide>

@@ -30,6 +30,21 @@ An image is not a passive "evidence display" but an **active input source** for 
 
 ### Key chart type: temporal alignment overlay (generate first when a time column exists)
 
+> **Adaptive chart selection (Phase 5.0a, before any fixed chart step).** Chart type follows
+> data shape — never force a temporal chart onto non-temporal data. `adaptive_charts.py`
+> profiles the frame and records the decision per column in `03_figures/adaptive_chart_plan.json`:
+>
+> | Detected shape | Chart | VLM priority |
+> |---|---|---|
+> | 2D coordinate field (x/y grid + value; e.g. web/film position scans, mesh data) | Filled contour cloud map (云图) with colorbar + sample-point overlay | MANDATORY |
+> | 2..8 numeric channels on a parsed time column | z-normalized temporal overlay | MANDATORY |
+> | Single channel on a parsed time column | Line chart | SUPPLEMENTARY |
+> | No parsable time column | Index-implied axis, flagged `index-implied` in `time_alignment.json` — temporal-precedence claims are barred from such charts | — |
+>
+> Time alignment is a precondition, not an afterthought: `02_processed/time_alignment.json`
+> records the parsed format, dropped unparsable rows, monotonicity, and sampling interval, so
+> every downstream temporal claim is auditable against a real parsed axis.
+
 This is the chart type from which the VLM extracts the most diagnostic information, and it is **the primary chart the Data Processor should generate first whenever a valid time column exists**. When the data has a usable time column, the key quality indicators and key process parameters should be drawn **in the same figure**, aligned on **the same x time axis**. Normalize all parameters and overlay them on one time axis:
 
 ```

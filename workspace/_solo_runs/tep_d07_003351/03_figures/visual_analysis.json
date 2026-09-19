@@ -1,0 +1,116 @@
+{
+ "generated_at": "2026-09-18T00:37:08.218922",
+ "vlm_chart_count": 3,
+ "observation_mode": "metadata_backed_inference",
+ "chart_design_purpose": "Per-product time-aligned overlays with ALL process parameters + quality metrics on shared time axis. When multiple products exist, each product gets its own overlay; focus product (highest anomaly rate) is analyzed first.",
+ "time_alignment_applicable": true,
+ "primary_grouping_dimension": null,
+ "n_products": 1,
+ "n_per_product_overlays": 1,
+ "analysis_provenance": {
+  "source_agent": "visual_analysis.py",
+  "stage": "metadata_backed_inference",
+  "note": "no vision-capable model in deployment; observations derived from chart-design metadata + numeric evidence"
+ },
+ "cross_parameter_temporal_alignment": {
+  "summary": "all temporal charts share the parsed timestamp axis (3-min sampling, 960 rows, monotonic); the only regime change is at the declared onset (sample 161): XMEAS_4 transient dip with XMV_4 step-up and hold; reactor pressure transient re-controlled",
+  "synchronous_groups": [
+   {
+    "group_id": "SG1",
+    "parameters": [
+     "XMEAS_4",
+     "XMV_4",
+     "XMEAS_7"
+    ],
+    "description": "coherent transient at onset: feed dip, valve compensation, reactor pressure excursion"
+   }
+  ],
+  "precedence_signals": [
+   {
+    "earlier": "XMEAS_4",
+    "later": "XMEAS_7",
+    "lag_samples": 0,
+    "description": "simultaneous within one 3-min sample; feed-side disturbance propagates to reactor"
+   }
+  ],
+  "independent_parameters": [
+   {
+    "parameters": [
+     "Temperature",
+     "Thermocouple"
+    ],
+    "description": "slow thermal drift unrelated to the fault window"
+   }
+  ]
+ },
+ "chart_inventory": [
+  {
+   "figure": "fig_vlm_temporal_overlay.png",
+   "read_status": "READ_FAILED",
+   "read_failure_reason": "no vision-capable model in deployment; metadata_backed_inference used",
+   "purpose": "z-normalized multi-parameter time-aligned overlay (3-min real timestamp axis)"
+  },
+  {
+   "figure": "fig_adaptive_overlay.png",
+   "read_status": "READ_FAILED",
+   "read_failure_reason": "no vision-capable model in deployment; metadata_backed_inference used",
+   "purpose": "Phase 5.0a adaptive overlay of key channels"
+  },
+  {
+   "figure": "fig_vlm_synchronization.png",
+   "read_status": "READ_FAILED",
+   "read_failure_reason": "no vision-capable model in deployment; metadata_backed_inference used",
+   "purpose": "cross-channel synchronisation structure"
+  }
+ ],
+ "visual_observations": [
+  {
+   "figure": "fig_vlm_temporal_overlay.png",
+   "observations": [
+    {
+     "type": "temporal_synchronization",
+     "description": "at the declared onset (sample 161), XMEAS_4 dips transiently then recovers while XMV_4 steps up +25% and HOLDS; reactor pressure transient re-controlled",
+     "parameters_involved": [
+      "XMEAS_4",
+      "XMV_4",
+      "XMEAS_7"
+     ],
+     "confidence": "high",
+     "diagnostic_implication": "supply-side interruption with successful valve compensation on stream 4"
+    }
+   ]
+  },
+  {
+   "figure": "fig_adaptive_overlay.png",
+   "observations": [
+    {
+     "type": "temporal_synchronization",
+     "description": "no other channel shows a held offset beyond ±0.25σ; Voltage flat; vibration flat",
+     "parameters_involved": [
+      "XMEAS_6",
+      "Voltage",
+      "Accelerometer1RMS",
+      "Accelerometer2RMS"
+     ],
+     "confidence": "medium",
+     "diagnostic_implication": "disturbance localised to stream-4 supply; cavitation/impeller excluded"
+    }
+   ]
+  }
+ ],
+ "synthesis": {
+  "visual_conclusion": "supply-side interruption on stream 4 with successful XMV_4 compensation; reactor-side excursions are controlled consequences",
+  "confidence": "medium-high (metadata-backed, no pixel reading in this deployment)"
+ },
+ "reading_guide": [
+  {
+   "for_agent": "diagnostician",
+   "primary_sections_to_read": [
+    "analysis_provenance"
+   ],
+   "key_insights": [
+    "This file is pre-VLM skeleton. Trust only final_vlm_output from vlm-visual-analyzer."
+   ]
+  }
+ ]
+}

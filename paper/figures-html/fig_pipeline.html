@@ -2,50 +2,130 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:590px; padding:22px 26px; }
-  .lane { display:flex; align-items:stretch; margin-top:8px; }
-  .stage { border:1.6px solid var(--blue); border-radius:6px; background:#eef4fb; padding:10px 12px; text-align:center; flex:1; }
-  .stage .n { font-size:11px; color:var(--blue); font-weight:700; letter-spacing:.4px; }
-  .stage .t { font-size:15.5px; font-weight:700; color:#12324f; margin-top:2px; }
-  .stage .d { font-size:10.8px; color:#41566b; margin-top:4px; line-height:1.32; }
-  .arrow { align-self:center; font-size:20px; color:var(--blue); padding:0 5px; font-weight:700; }
-  .gates { display:flex; gap:14px; margin-top:16px; }
-  .gate { border:1.4px solid #b0722a; border-radius:6px; background:#fbf3e6; padding:8px 11px; text-align:center; flex:1; }
-  .gate .t { font-size:12.5px; font-weight:700; color:#7a4a12; }
-  .gate .d { font-size:10.5px; color:#96703f; margin-top:2px; line-height:1.3; }
-  .repair { margin-top:14px; display:inline-block; border:1.4px dashed var(--vermilion); border-radius:6px; padding:6px 12px; font-size:11.5px; color:var(--vermilion); background:#fdf1ee; }
-  .foot { margin-top:12px; font-size:11px; color:var(--sub); line-height:1.5; }
-  .k { display:inline-block; border-radius:9px; padding:1px 8px; font-size:10.5px; font-weight:700; margin-right:6px; }
-  .kd { background:#eef4fb; color:var(--blue); } .kr { background:#fdf1ee; color:var(--vermilion); } .ka { background:#eef7f2; color:#0a7d38; }
+  body { width:1500px; height:960px; padding:24px 26px; }
+  .strip { position:relative; }
+  .s1 { height:64px; } .s2 { height:66px; } .s3 { height:64px; }
+  .row { display:flex; justify-content:space-between; align-items:stretch; }
+  .r1 { height:340px; } .r2 { height:264px; }
+  .box { border:1px solid #c6d0d9; border-radius:8px; background:#fbfcfd; padding:11px 12px 10px;
+         display:flex; flex-direction:column; text-align:left; }
+  .b { width:268px; }
+  .box .t { font-size:24px; font-weight:800; line-height:1.3; }
+  .box .t .st { color:var(--blue); }
+  .box .d { font-size:23px; color:var(--sub); margin-top:6px; line-height:1.35; }
+  .box .x { font-size:22px; color:#6a7683; margin-top:6px; line-height:1.35; }
+  .gate { margin-top:auto; align-self:flex-start; padding:3px 10px; border-radius:12px;
+          background:#e7f0f8; color:var(--blue); font-size:22px; font-weight:700; }
+  .gate.g { background:#e2f2ec; color:#0a7d38; }
+  .harr { align-self:center; flex:0 0 22px; display:flex; justify-content:center; }
+  .pair { width:292px; display:flex; flex-direction:column; }
+  .prow { display:flex; gap:7px; align-items:center; justify-content:center; margin-bottom:6px; }
+  .ptxt { font-size:22px; color:#6a7683; }
+  .tag { display:inline-block; padding:1px 9px; border-radius:12px; font-size:22px; font-weight:700;
+         background:#fdeee0; color:#a34a00; }
+  .pboxes { display:flex; gap:8px; flex:1; }
+  .pbox { flex:1; border:1px solid #c6d0d9; border-radius:8px; background:#fff; padding:8px 4px; text-align:center; }
+  .pbox .pt { font-size:23px; font-weight:800; color:var(--blue); }
+  .pbox .pn2 { font-size:23px; font-weight:700; margin-top:2px; }
+  .pbox .pag { font-size:21px; color:var(--sub); margin-top:4px; }
+  .pbrk { height:9px; border-left:1.5px solid #c6d0d9; border-right:1.5px solid #c6d0d9;
+          border-bottom:1.5px solid #c6d0d9; border-radius:0 0 6px 6px; margin:4px 62px 0; }
+  .pgate { margin-top:7px; background:#e7f0f8; color:var(--blue); border-radius:12px; font-size:21px;
+           font-weight:700; text-align:center; padding:4px 6px; line-height:1.35; }
+  .arc1 { position:absolute; bottom:0; height:32px; border:2px dashed var(--orange);
+          border-bottom:none; border-radius:16px 16px 0 0; }
+  .ah1 { position:absolute; bottom:-1px; width:0; height:0; border-left:6px solid transparent;
+         border-right:6px solid transparent; border-top:9px solid var(--orange); }
+  .albl1 { position:absolute; top:8px; text-align:right; font-size:22px; color:#a35c17; }
+  .varr { position:absolute; top:11px; }
+  .arc2 { position:absolute; top:0; height:32px; border:2px dashed var(--orange);
+          border-top:none; border-radius:0 0 16px 16px; }
+  .ah2 { position:absolute; top:-1px; width:0; height:0; border-left:6px solid transparent;
+         border-right:6px solid transparent; border-bottom:9px solid var(--orange); }
+  .albl2 { position:absolute; top:9px; text-align:center; font-size:22px; color:#a35c17; }
+  .fnote { margin-top:14px; background:#f0f3f6; border-radius:6px; padding:10px 15px; font-size:22px;
+           color:var(--ink); line-height:1.5; }
 </style></head><body>
-  <div class="lane">
-    <div class="stage"><div class="n">STEP 0/1</div><div class="t">Setup + Ingest</div><div class="d">adaptive preprocessing<br>manifest + SHA-256<br>user context</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 2</div><div class="t">Ontology</div><div class="d">variable semantics<br>physical principles<br>confounders</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 3</div><div class="t">Statistics</div><div class="d">anomaly profiles<br>correlation + lagged CCF<br>anti-spurious checks</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 3.5</div><div class="t">VLM</div><div class="d">chart reading<br>visual evidence (L4)</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 4</div><div class="t">Diagnosis</div><div class="d">≥3 competing hypotheses<br>mechanism classes<br>3-state conclusion</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 6</div><div class="t">Report</div><div class="d">pyramid structure<br>MD + HTML</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 8/8.5</div><div class="t">HTML + Review</div><div class="d">visualization<br>usability review</div></div>
-    <div class="arrow">→</div>
-    <div class="stage"><div class="n">STEP 9</div><div class="t">Closure</div><div class="d">evidence closure<br>finalise gate</div></div>
+
+  <div class="strip s1">
+    <div class="arc1" style="left:1004px; width:302px;"></div>
+    <div class="ah1" style="left:998px;"></div>
+    <div class="albl1" style="left:424px; width:570px;">bounded repair path (dashed amber) — best-of-3 · global ≤5 · anti-oscillation cap 0.50 ⇒ conf ≤50</div>
   </div>
-  <div class="gates">
-    <div class="gate"><div class="t">CP-2/3 Ontology gate</div><div class="d">schema-valid · clarification resolved</div></div>
-    <div class="gate"><div class="t">CP-4 Analysis gate</div><div class="d">conclusion + plots present</div></div>
-    <div class="gate"><div class="t">Step 5a Judge ∥ 5b Physics pre-audit</div><div class="d">10 criteria ≥ 90 · parallel · repair ≤ 3 per fault, global cap 5</div></div>
-    <div class="gate"><div class="t">Step 7 Final physics audit</div><div class="d">must return ENDORSED</div></div>
-    <div class="gate"><div class="t">CP-9 Finalise gate</div><div class="d">inventory · schema · closure ·<br>judge cross-audit · event log</div></div>
+
+  <div class="row r1">
+    <div class="box b">
+      <div class="t"><span class="st">Step 0/1</span> · Setup · Inspect</div>
+      <div class="d">main agent — run fingerprint<br>→ run_manifest · input_manifest</div>
+      <span class="gate">CP-1</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="14" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#2b2b2b"/></svg></div>
+    <div class="box b">
+      <div class="t"><span class="st">Step 2</span> · Ontology</div>
+      <div class="d">context-builder · RAG fallback if probe fails<br>→ ontology.json</div>
+      <span class="gate">CP-2/3</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="14" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#2b2b2b"/></svg></div>
+    <div class="box b">
+      <div class="t"><span class="st">Step 3</span> · Statistics</div>
+      <div class="d">data-processor · anomaly profile, lag-CCF, batch integrity</div>
+      <div class="x">+ Phase 5.5 VLM-nested (non-visual skeleton in this deployment)</div>
+      <span class="gate">CP-4</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="14" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#2b2b2b"/></svg></div>
+    <div class="box b">
+      <div class="t"><span class="st">Step 4</span> · Diagnosis</div>
+      <div class="d">diagnostician · ≥3 hypotheses, eliminations, 3-state verdict</div>
+      <span class="gate">CP-5</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="0" y1="7" x2="14" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="13,2 13,12 21,7" fill="#2b2b2b"/></svg></div>
+    <div class="pair">
+      <div class="prow"><span class="tag">PARALLEL</span></div>
+      <div class="pboxes">
+        <div class="pbox"><div class="pt">Step 5a</div><div class="pn2">Judge</div><div class="pag">judge</div></div>
+        <div class="pbox"><div class="pt">Step 5b</div><div class="pn2">Pre-audit</div><div class="pag" style="white-space:nowrap; font-size:19px;">report-reviewer</div></div>
+      </div>
+      <div class="pbrk"></div>
+      <div class="pgate">CP-6 ✓</div>
+    </div>
   </div>
-  <div class="repair">repair loop: judge &lt; 90 → evidence-strengthening rerun (≤3) · anti-oscillation → confidence cap 0.50 · global cap 5</div>
-  <div class="foot">
-    <span class="k kd">deterministic</span>Steps 0–3 are versioned scripts — byte-reproducible.
-    <span class="k kr">reasoning</span>Step 4 diagnostic note is the single LLM step, written to a fixed schema with evidence levels L1–L7.
-    <span class="k ka">audit</span>every transition appends to <b>.pipeline_events.jsonl</b> — no result exists without an execution proof.
+
+  <div class="strip s2">
+    <svg class="varr" style="left:1300px;" width="12" height="36" viewBox="0 0 12 36"><line x1="6" y1="0" x2="6" y2="28" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="1,27 11,27 6,35" fill="#2b2b2b"/></svg>
   </div>
+
+  <div class="row r2">
+    <div class="box" style="width:442px;">
+      <div class="t"><span class="st">Step 9</span> · Finalise</div>
+      <div class="d">script — 14-artifact inventory + schemas + evidence closure + events</div>
+      <span class="gate g">overall PASS</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="22" y1="7" x2="8" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="9,2 9,12 1,7" fill="#2b2b2b"/></svg></div>
+    <div class="box" style="width:352px;">
+      <div class="t"><span class="st">Steps 8 / 8.5</span> · HTML build + review</div>
+      <div class="d">html-visualizer → html-reviewer · manifest-first build, independent review</div>
+      <span class="gate g">CP-9 pass</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="22" y1="7" x2="8" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="9,2 9,12 1,7" fill="#2b2b2b"/></svg></div>
+    <div class="box" style="width:300px;">
+      <div class="t"><span class="st">Step 7</span> · Final audit</div>
+      <div class="d">report-reviewer — physical-truth audit</div>
+      <span class="gate g">CP-8 ENDORSED — hard gate</span>
+    </div>
+    <div class="harr"><svg width="22" height="14" viewBox="0 0 22 14"><line x1="22" y1="7" x2="8" y2="7" stroke="#2b2b2b" stroke-width="1.5"/><polygon points="9,2 9,12 1,7" fill="#2b2b2b"/></svg></div>
+    <div class="box" style="width:292px;">
+      <div class="t"><span class="st">Step 6</span> · Report</div>
+      <div class="d">reporter — judge-gated</div>
+      <span class="gate">CP-7</span>
+    </div>
+  </div>
+
+  <div class="strip s3">
+    <div class="arc2" style="left:988px; width:318px;"></div>
+    <div class="ah2" style="left:1300px;"></div>
+    <div class="albl2" style="left:988px; width:318px;">report repair if not endorsed</div>
+  </div>
+
+  <div class="fnote">Every stage writes its own artifacts · every transition appends a structured event · gates are mechanical predicates (Table 3); dashed amber = bounded repair path. <b>Step 5a ∥ 5b is the only mandatory parallel step.</b></div>
+
 </body></html>

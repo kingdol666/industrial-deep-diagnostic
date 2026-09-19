@@ -1,0 +1,252 @@
+{
+  "total_rows": 960,
+  "total_columns": 53,
+  "missing_values": {
+    "total_missing": 0
+  },
+  "outliers_iqr": {
+    "XMEAS_1": {
+      "count": 135,
+      "pct": 14.06
+    },
+    "XMEAS_2": {
+      "count": 10,
+      "pct": 1.04
+    },
+    "XMEAS_3": {
+      "count": 95,
+      "pct": 9.9
+    },
+    "XMEAS_4": {
+      "count": 126,
+      "pct": 13.12
+    },
+    "XMEAS_6": {
+      "count": 23,
+      "pct": 2.4
+    },
+    "XMEAS_7": {
+      "count": 170,
+      "pct": 17.71
+    },
+    "XMEAS_8": {
+      "count": 106,
+      "pct": 11.04
+    },
+    "XMEAS_9": {
+      "count": 40,
+      "pct": 4.17
+    },
+    "XMEAS_10": {
+      "count": 79,
+      "pct": 8.23
+    },
+    "XMEAS_11": {
+      "count": 129,
+      "pct": 13.44
+    },
+    "XMEAS_12": {
+      "count": 3,
+      "pct": 0.31
+    },
+    "XMEAS_13": {
+      "count": 173,
+      "pct": 18.02
+    },
+    "XMEAS_14": {
+      "count": 5,
+      "pct": 0.52
+    },
+    "XMEAS_15": {
+      "count": 8,
+      "pct": 0.83
+    },
+    "XMEAS_16": {
+      "count": 166,
+      "pct": 17.29
+    },
+    "XMEAS_17": {
+      "count": 6,
+      "pct": 0.62
+    },
+    "XMEAS_18": {
+      "count": 128,
+      "pct": 13.33
+    },
+    "XMEAS_19": {
+      "count": 116,
+      "pct": 12.08
+    },
+    "XMEAS_20": {
+      "count": 201,
+      "pct": 20.94
+    },
+    "XMEAS_21": {
+      "count": 129,
+      "pct": 13.44
+    },
+    "XMEAS_22": {
+      "count": 58,
+      "pct": 6.04
+    },
+    "XMEAS_23": {
+      "count": 104,
+      "pct": 10.83
+    },
+    "XMEAS_24": {
+      "count": 50,
+      "pct": 5.21
+    },
+    "XMEAS_25": {
+      "count": 126,
+      "pct": 13.12
+    },
+    "XMEAS_26": {
+      "count": 14,
+      "pct": 1.46
+    },
+    "XMEAS_27": {
+      "count": 114,
+      "pct": 11.88
+    },
+    "XMEAS_28": {
+      "count": 32,
+      "pct": 3.33
+    },
+    "XMEAS_29": {
+      "count": 130,
+      "pct": 13.54
+    },
+    "XMEAS_30": {
+      "count": 58,
+      "pct": 6.04
+    },
+    "XMEAS_31": {
+      "count": 144,
+      "pct": 15.0
+    },
+    "XMEAS_32": {
+      "count": 22,
+      "pct": 2.29
+    },
+    "XMEAS_33": {
+      "count": 136,
+      "pct": 14.17
+    },
+    "XMEAS_34": {
+      "count": 60,
+      "pct": 6.25
+    },
+    "XMEAS_35": {
+      "count": 94,
+      "pct": 9.79
+    },
+    "XMEAS_36": {
+      "count": 70,
+      "pct": 7.29
+    },
+    "XMEAS_37": {
+      "count": 10,
+      "pct": 1.04
+    },
+    "XMEAS_38": {
+      "count": 160,
+      "pct": 16.67
+    },
+    "XMEAS_39": {
+      "count": 25,
+      "pct": 2.6
+    },
+    "XMEAS_40": {
+      "count": 5,
+      "pct": 0.52
+    },
+    "XMEAS_41": {
+      "count": 20,
+      "pct": 2.08
+    },
+    "XMV_1": {
+      "count": 8,
+      "pct": 0.83
+    },
+    "XMV_2": {
+      "count": 95,
+      "pct": 9.9
+    },
+    "XMV_3": {
+      "count": 136,
+      "pct": 14.17
+    },
+    "XMV_4": {
+      "count": 182,
+      "pct": 18.96
+    },
+    "XMV_5": {
+      "count": 179,
+      "pct": 18.65
+    },
+    "XMV_6": {
+      "count": 89,
+      "pct": 9.27
+    },
+    "XMV_7": {
+      "count": 3,
+      "pct": 0.31
+    },
+    "XMV_8": {
+      "count": 8,
+      "pct": 0.83
+    },
+    "XMV_9": {
+      "count": 118,
+      "pct": 12.29
+    },
+    "XMV_10": {
+      "count": 58,
+      "pct": 6.04
+    },
+    "XMV_11": {
+      "count": 6,
+      "pct": 0.62
+    }
+  },
+  "time_sorted": true,
+  "sorted_strategy": "time_only:timestamp",
+  "time_sorted_after_preprocess": true,
+  "time_column": "timestamp",
+  "primary_group_column": null,
+  "derived_features": [
+    "XMEAS_1_dev",
+    "XMEAS_4_dev",
+    "XMEAS_7_dev",
+    "XMEAS_8_dev",
+    "XMEAS_10_dev",
+    "XMEAS_12_dev",
+    "XMEAS_13_dev",
+    "XMEAS_15_dev",
+    "XMEAS_17_dev",
+    "XMEAS_19_dev",
+    "XMEAS_20_dev",
+    "XMEAS_23_dev",
+    "XMEAS_24_dev",
+    "XMEAS_25_dev",
+    "XMEAS_27_dev",
+    "XMEAS_29_dev",
+    "XMEAS_30_dev",
+    "XMEAS_32_dev",
+    "XMEAS_33_dev",
+    "XMEAS_37_dev",
+    "XMEAS_38_dev",
+    "XMEAS_39_dev",
+    "XMV_1_dev",
+    "XMV_3_dev",
+    "XMV_4_dev",
+    "XMV_5_dev",
+    "XMV_7_dev",
+    "XMV_8_dev",
+    "XMV_9_dev",
+    "XMV_10_dev",
+    "XMV_11_dev",
+    "time_hours"
+  ]
+}

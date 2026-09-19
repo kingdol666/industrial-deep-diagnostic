@@ -1,0 +1,38 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 8 章 · 本体资产库：让下一次更快</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>把领域理解沉淀成可复用资产。同一场景再跑一次，本体构建能从 15.6 分钟压到半分钟以内</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>单次诊断提速约 70%</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 12 }}>
+        <Box style={{ height: 488, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/14_ontology.png" style={{ width: 760, height: 488, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 378, height: 488, flexDirection: 'column', gap: 13 }}>
+                <Box style={{ height: 152, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 资产清单</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>按场景 × 版本列出。每个场景后面标着多少工序、多少关系、是否校验通过。</Text>
+                </Box>
+                <Box style={{ height: 152, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 知识图谱</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>设备、测量点、工艺阶段、控制量之间的连线就是本次诊断的物理假设空间。</Text>
+                </Box>
+                <Box style={{ height: 158, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>③ 质检与冲突清单</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>右侧给出模型健康分与冲突项，区分「孤立关系」「矛盾关系」等具体缺陷。</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 40, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>④ 三个页签随时切换</Text>
+            <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.68)' }}>知识图谱 · 结构编辑 · 覆盖率 —— 只想看结论就留在图谱，要改结构就切到编辑。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>新增数据列会触发增量构建，只补差异、不重跑全量</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>24 / 31</Text>
+    </Box>
+</Slide>

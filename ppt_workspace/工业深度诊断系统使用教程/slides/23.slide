@@ -1,0 +1,41 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 7 章 · 历史账本与一键深度增强</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>这里回看每一次运行：谁跑的、跑到什么状态、拿了多少分、下一步能做什么</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>115 条历史记录</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 391, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/15_history.png" style={{ width: 740, height: 391, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 398, height: 391, flexDirection: 'column', gap: 14 }}>
+                <Box style={{ height: 121, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>① 引擎徽标</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>MOCK / CLAUDE / OMP —— 一眼看出这次是谁跑的。</Text>
+                </Box>
+                <Box style={{ height: 121, padding: 16, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1D1B16' }}>② 会话与报告</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.72)', lineHeight: 1.55, marginTop: 8 }}>「会话」带着上下文继续追问；「报告」直接跳转产物。</Text>
+                </Box>
+                <Box style={{ height: 121, padding: 16, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#8A5608' }}>③ 继续诊断 / 删除</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>被中断的运行可恢复；确认无用的记录可清理。</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 133, padding: 20, background: '#1D1B16', borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 24 }}>
+            <Box style={{ width: 200, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#B8730F' }}>深度增强</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.62)', marginTop: 4 }}>E0 – E8 确定性管线</Text>
+            </Box>
+            <Text style={{ fontSize: 17, color: 'rgba(247,244,236,0.86)', lineHeight: 1.62, width: 880 }}>对一个已经完成的运行点「深度增强」，系统会接着跑一段确定性增强管线：不调用大模型、不额外花钱，约 3–5 分钟，产出更细的覆盖矩阵与工况条件。增强产物还会回流进 RAG 知识库，越用越准。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>刷新与清空记录在右上角</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>23 / 31</Text>
+    </Box>
+</Slide>

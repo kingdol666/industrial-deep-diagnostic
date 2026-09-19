@@ -1,0 +1,219 @@
+{
+ "targets": {
+  "XMV_1_dev": {
+   "anomaly_intervals": [
+    {
+     "start_index": 315,
+     "end_index": 318,
+     "severity": "medium",
+     "max_deviation_sigma": 2.934
+    }
+   ],
+   "threshold_analysis": {
+    "critical_threshold": 1.25,
+    "percent_above_threshold": 1.6,
+    "threshold_crossing_index": 28
+   }
+  },
+  "XMV_10_dev": {
+   "anomaly_intervals": [],
+   "threshold_analysis": {
+    "critical_threshold": 1.73,
+    "percent_above_threshold": 3.3,
+    "threshold_crossing_index": 190
+   }
+  },
+  "XMEAS_30_dev": {
+   "anomaly_intervals": [],
+   "threshold_analysis": {
+    "critical_threshold": 0.39,
+    "percent_above_threshold": 3.8,
+    "threshold_crossing_index": 174
+   }
+  },
+  "XMEAS_38_dev": {
+   "anomaly_intervals": [
+    {
+     "start_index": 21,
+     "end_index": 24,
+     "severity": "medium",
+     "max_deviation_sigma": 2.071
+    },
+    {
+     "start_index": 91,
+     "end_index": 94,
+     "severity": "medium",
+     "max_deviation_sigma": 2.191
+    },
+    {
+     "start_index": 765,
+     "end_index": 769,
+     "severity": "medium",
+     "max_deviation_sigma": 2.129
+    }
+   ],
+   "threshold_analysis": {
+    "critical_threshold": 0.16,
+    "percent_above_threshold": 3.6,
+    "threshold_crossing_index": 240
+   }
+  }
+ },
+ "transition_events": [],
+ "process_parameter_fluctuation": {
+  "XMEAS_1": {
+   "mean": 0.2504,
+   "std": 0.0817,
+   "cv": 0.3264,
+   "p05_p95_span": 0.2996,
+   "abrupt_behavior": "yes"
+  },
+  "XMEAS_2": {
+   "mean": 3661.3718,
+   "std": 38.3528,
+   "cv": 0.0105,
+   "p05_p95_span": 129.5,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_3": {
+   "mean": 4507.7614,
+   "std": 87.4741,
+   "cv": 0.0194,
+   "p05_p95_span": 272.5,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_4": {
+   "mean": 9.3462,
+   "std": 0.2426,
+   "cv": 0.026,
+   "p05_p95_span": 0.8151,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_5": {
+   "mean": 26.9015,
+   "std": 0.2142,
+   "cv": 0.008,
+   "p05_p95_span": 0.706,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_6": {
+   "mean": 42.3322,
+   "std": 0.2702,
+   "cv": 0.0064,
+   "p05_p95_span": 0.882,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_7": {
+   "mean": 2705.8042,
+   "std": 32.7587,
+   "cv": 0.0121,
+   "p05_p95_span": 104.1,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_8": {
+   "mean": 74.8985,
+   "std": 1.3632,
+   "cv": 0.0182,
+   "p05_p95_span": 4.487,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_9": {
+   "mean": 120.4006,
+   "std": 0.0203,
+   "cv": 0.0002,
+   "p05_p95_span": 0.06,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_10": {
+   "mean": 0.3369,
+   "std": 0.0228,
+   "cv": 0.0677,
+   "p05_p95_span": 0.073,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_11": {
+   "mean": 80.0797,
+   "std": 0.7896,
+   "cv": 0.0099,
+   "p05_p95_span": 2.262,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_12": {
+   "mean": 49.9349,
+   "std": 0.9943,
+   "cv": 0.0199,
+   "p05_p95_span": 3.303,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_13": {
+   "mean": 2634.5515,
+   "std": 34.3176,
+   "cv": 0.013,
+   "p05_p95_span": 110.1,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_14": {
+   "mean": 25.2383,
+   "std": 1.086,
+   "cv": 0.043,
+   "p05_p95_span": 3.487,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_15": {
+   "mean": 50.0224,
+   "std": 1.0146,
+   "cv": 0.0203,
+   "p05_p95_span": 3.411,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_16": {
+   "mean": 3102.8739,
+   "std": 27.0482,
+   "cv": 0.0087,
+   "p05_p95_span": 79.6,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_17": {
+   "mean": 22.9297,
+   "std": 0.6188,
+   "cv": 0.027,
+   "p05_p95_span": 2.068,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_18": {
+   "mean": 65.9975,
+   "std": 1.9066,
+   "cv": 0.0289,
+   "p05_p95_span": 5.218,
+   "abrupt_behavior": "no"
+  },
+  "XMEAS_19": {
+   "mean": 237.9146,
+   "std": 44.9639,
+   "cv": 0.189,
+   "p05_p95_span": 139.67,
+   "abrupt_behavior": "yes"
+  },
+  "XMEAS_20": {
+   "mean": 341.2586,
+   "std": 7.272,
+   "cv": 0.0213,
+   "p05_p95_span": 27.96,
+   "abrupt_behavior": "no"
+  }
+ },
+ "dual_drive_analysis": {
+  "applicable": false,
+  "data_view_mode": "process_only",
+  "cross_domain_links": [],
+  "reason": "TEP recording has no quality/inspection channel; NOT_APPLICABLE"
+ },
+ "summary": {
+  "data_view_mode": "process_only",
+  "anomaly_intervals": 4,
+  "total_transitions": 0,
+  "process_parameters_screened": 20,
+  "integrated_links": 0,
+  "normalized_from_legacy_shape": true
+ }
+}

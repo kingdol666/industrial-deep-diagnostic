@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-09-17T16:37:08.463Z",
+  "source_files": {
+    "plot_manifest": "03_figures/plot_manifest.json",
+    "feature_summary": null,
+    "validate_report": "02_processed/validate_report.json"
+  },
+  "total_figures": 2,
+  "figures": {
+    "fig_adaptive_overlay.png": {
+      "figure_id": "fig_adaptive_overlay.png",
+      "title": "Adaptive temporal overlay",
+      "chart_type": "unknown",
+      "axes": {},
+      "key_observations": [
+        "unknown of fig_adaptive_overlay.png"
+      ],
+      "trend_shapes": "参见 key_observations",
+      "validation_issues": [],
+      "diagnostic_implication": "此图展示参数关联关系，用于辅助根因分析",
+      "description": "unknown of fig_adaptive_overlay.png"
+    },
+    "fig_adaptive_line_XMEAS_1.png": {
+      "figure_id": "fig_adaptive_line_XMEAS_1.png",
+      "title": "XMEAS_1 (line)",
+      "chart_type": "unknown",
+      "axes": {},
+      "key_observations": [
+        "unknown of fig_adaptive_line_XMEAS_1.png"
+      ],
+      "trend_shapes": "参见 key_observations",
+      "validation_issues": [],
+      "diagnostic_implication": "此图展示参数关联关系，用于辅助根因分析",
+      "description": "unknown of fig_adaptive_line_XMEAS_1.png"
+    }
+  }
+}

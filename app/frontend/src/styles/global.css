@@ -2467,3 +2467,166 @@ samp {
 .ip-seg > button:last-child { border-right: none; }
 .ip-seg > button:hover { color: var(--text); background: var(--surface-muted); }
 .ip-seg > button.active { color: var(--accent-bright); background: var(--accent-soft); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POLISH PASS v4.3 — accent budget, footer row, dir line, focus rings
+   ═══════════════════════════════════════════════════════════════════════
+   One rule above all: amber is a signal, not a decoration. Queued and
+   stopped runs are neutral; live is amber; done is green; failed is red.
+   Every addition here spends accent, it never accumulates it. */
+
+/* Neutral badge — queued / deliberate-stop states. Quiet on purpose: a
+   hundred PENDING chips must not out-shout the three runs that are live. */
+.badge-neutral {
+  background: var(--surface-muted);
+  color: var(--text2);
+  border-color: var(--border-strong);
+}
+
+/* Sidebar footer row — presence lamp + language switch share one line so
+   neither reads as a stray control at the rail's dead end. */
+.app-footer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 6px;
+}
+.app-footer-row .app-presence {
+  margin-bottom: 0;
+  min-width: 0;
+}
+.app-footer-row .app-lang-toggle {
+  width: auto;
+  padding: 6px 12px;
+}
+
+/* OMP page: the runs directory is the one fact the topbar cannot carry. */
+.omp-header-dir {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--text2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 720px;
+  overflow: hidden;
+}
+.omp-header-dir > span {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  flex: none;
+}
+.omp-header-dir code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--surface2);
+  padding: 1px 6px;
+  border-radius: 2px;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Keyboard focus — visible, amber, consistent. Focus that only shows on
+   :focus-visible keeps mouse clicks clean while tabbing stays legible. */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--border-accent);
+  outline-offset: 1px;
+  border-radius: var(--radius-xs);
+}
+
+/* Row-level buttons: quiet at rest, legible on hover. A table rail of six
+   solid buttons per row competes with the data it serves. */
+.cell-actions .btn-sm {
+  background: transparent;
+  box-shadow: none;
+}
+.cell-actions .btn-sm:hover {
+  background: var(--surface-strong);
+}
+.cell-actions .btn-primary {
+  background: var(--accent);
+}
+
+/* ── Engine dropdown — the sidebar's true harness selector ─────────────
+   14 engines in one list; unavailable ones stay visible but greyed and
+   unclickable (the probe error rides the row title). The panel floats
+   ABOVE the trigger because the selector lives in the rail's footer. */
+.app-engine {
+  position: relative;
+  overflow: visible;
+}
+.app-engine-caret { transition: transform 0.14s ease; }
+.app-engine-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: min(46vh, 380px);
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+.app-engine-row {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+.app-engine-row:hover:not(:disabled),
+.app-engine-row:focus-visible {
+  background: var(--accent-soft);
+}
+.app-engine-row.active {
+  background: var(--accent-soft-strong);
+}
+.app-engine-row.active .app-engine-row-name { color: var(--accent-bright); }
+.app-engine-row-name {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-engine-row-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text3);
+  white-space: nowrap;
+}
+.app-engine-row.offline {
+  cursor: not-allowed;
+}
+.app-engine-row.offline .app-engine-row-name,
+.app-engine-row.offline .app-engine-row-sub {
+  color: var(--text-dim);
+  text-decoration: line-through;
+  text-decoration-color: rgba(212, 93, 61, 0.45);
+  text-decoration-thickness: 1px;
+}
+.app-engine-row.offline .app-engine-dot { opacity: 0.4; }

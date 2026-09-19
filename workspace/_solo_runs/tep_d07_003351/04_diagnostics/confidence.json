@@ -1,0 +1,64 @@
+{
+ "run_id": "solo_tep_d07",
+ "diagnosis_time": "2026-09-17T16:49:24.959675+00:00",
+ "confidence_breakdown": {
+  "H1": {
+   "hypothesis_id": "H1",
+   "confidence_score": 82,
+   "level": "HIGH",
+   "five_factor_breakdown": {
+    "statistical_strength": {
+     "weight": 25,
+     "score": 23,
+     "note": "三段结构跨 4 通道一致；瞬态幅度 12-38σ"
+    },
+    "physical_plausibility": {
+     "weight": 25,
+     "score": 24,
+     "note": "阀门口径关系唯一自洽"
+    },
+    "temporal_evidence": {
+     "weight": 20,
+     "score": 20,
+     "note": "onset 对齐 + 单向传播"
+    },
+    "absence_of_confounds": {
+     "weight": 20,
+     "score": 17,
+     "note": "无上游 header 测点 → 成因层不可分"
+    },
+    "symptom_completeness": {
+     "weight": 10,
+     "score": 8,
+     "note": "补偿成功掩蔽损失幅度；次级方差扰动未定位"
+    }
+   }
+  }
+ },
+ "overall_confidence": {
+  "score": 82,
+  "level": "HIGH",
+  "summary": "DETERMINED 82/100：五因子 92 经 INDISTINGUISHABLE_COMPETING_SET(82) 理由码帽收敛；依据最弱证据级 L3"
+ },
+ "adjustment_log": [
+  {
+   "hypothesis_id": "H1",
+   "adjustment": -8,
+   "reason": "无上游 header 压力测点 → 上游成因不可进一步归因",
+   "source": "01_ontology/ontology.json 通道清单"
+  },
+  {
+   "hypothesis_id": "H1",
+   "adjustment": 0,
+   "reason": "补偿成功掩蔽损失幅度",
+   "source": "02_processed/segment_statistics.json"
+  }
+ ],
+ "confidence_ceilings_applied": [
+  {
+   "hypothesis_id": "H1",
+   "ceiling": 82,
+   "reason": "INDISTINGUISHABLE_COMPETING_SET"
+  }
+ ]
+}

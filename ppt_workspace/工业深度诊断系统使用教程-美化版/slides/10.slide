@@ -1,0 +1,52 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 5 步 · 引擎预检：选谁来干活</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>14 个引擎里，本机装好哪个就用哪个；未安装的会被前端灰显为"离线"</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>本机默认 OMP Engine</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 259, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/t_engine.png" style={{ width: 1152, height: 259, borderRadius: 11 }} />
+        </Box>
+        <Box style={{ height: 259, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 13, height: 13, borderRadius: 7, background: '#3E8E63' }} />
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>已就绪</Text>
+                </Box>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 12 }}>CLI 已安装且已登录。本机 OMP Engine、Claude Code、Mock Engine 都可用，选中即可跑真实诊断。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(62,142,99,0.12)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: '#2F6F4C' }}>可直接发起诊断</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 13, height: 13, borderRadius: 7, background: '#A8442A' }} />
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>未安装</Text>
+                </Box>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 12 }}>前端列表里显示灰色"离线"。强行用接口调用也不会跑起来，而是立刻返回 409，不会白等。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(168,68,42,0.10)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: '#A8442A' }}>预检生效，不会跑到一半才失败</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Box style={{ width: 13, height: 13, borderRadius: 7, background: '#B8730F' }} />
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#8A5608' }}>新手先用 Mock</Text>
+                </Box>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 12 }}>进程内脚本引擎，零成本、几秒跑完。第一次先用它把上传、配置、报告三件事走通，再换真实引擎。</Text>
+                <Box style={{ marginTop: 'auto', padding: '10px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: '#8A5608' }}>想练手且不花钱就用它</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>启动服务不需要模型凭据，跑诊断才需要</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>10 / 34</Text>
+    </Box>
+</Slide>

@@ -343,6 +343,19 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
     return { query, runId, sessionId };
   }
 
+  // Fresh conversational turn with a RAW prompt — no diagnosis prompt
+  // wrapper. This is what the standalone chat service rides on: turn 1 of
+  // an engine-native chat is exactly one one-shot process (resume, when the
+  // spec supports it, is startSessionChat's job).
+  function startChatTurn({ runId, prompt }) {
+    const query = createOneShotTurn(spec, {
+      prompt: String(prompt || '').trim(),
+      turnKey: runId,
+    });
+    activeQueries.set(runId, query);
+    return { query, runId, getSessionId: () => query.sessionId };
+  }
+
   function parseStreamEvent(message) {
     if (!message || typeof message !== 'object') return null;
     return message; // the adapter already emits standardized shapes
@@ -362,7 +375,7 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
 
   return {
     spec,
-    startDiagnosis, startSessionChat, parseStreamEvent, registerChild, closeQuery,
+    startDiagnosis, startSessionChat, startChatTurn, parseStreamEvent, registerChild, closeQuery,
     probe: (options) => spec.probe(options),
   };
 }

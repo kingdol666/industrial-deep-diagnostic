@@ -2,12 +2,13 @@
   <div class="omp-view">
     <!-- ── Header ── -->
     <div class="omp-header">
+      <!-- The topbar already titles and describes this page; repeating the
+           hero here made every arrival read the same sentence twice. What the
+           topbar cannot show — the runs directory — stays as the one line. -->
       <div class="omp-header-copy">
         <div class="omp-header-kicker">{{ $t('harness.headerKicker') }} · {{ harnessName }}</div>
-        <h2 class="omp-header-title">{{ harnessName }}{{ $t('harness.headerTitle') }}</h2>
-        <p class="omp-header-sub">
-          {{ $t('harness.descPre') }} {{ harnessName }} {{ $t('harness.descMid') }}
-          <span v-if="runsDirLabel">{{ $t('harness.dirLabel') }}<code>{{ runsDirLabel }}</code></span>
+        <p v-if="runsDirLabel" class="omp-header-dir">
+          <span>{{ $t('harness.dirLabel') }}</span><code>{{ runsDirLabel }}</code>
         </p>
       </div>
       <div class="omp-header-meta">

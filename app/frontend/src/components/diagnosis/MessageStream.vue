@@ -18,7 +18,7 @@
         <div class="ms-body">
           <div class="ms-card card-thinking" @click="toggleThinking(item)">
             <div class="ms-card-header">
-              <span class="ms-card-icon">🧠</span>
+              <span class="ms-card-icon">✦</span>
               <span class="ms-card-title">{{ $t('messageStream.thinking') }}</span>
               <span class="ms-card-toggle" :class="{ open: expandedThinking.has(item.key) }">▶</span>
             </div>
@@ -827,12 +827,12 @@ function extractHighlights(events) {
     if (['content_block_delta', 'content_block_start', 'content_block_stop', 'message_delta', 'message_start', 'message_stop', 'signature_delta'].includes(entry.type)) {
       return null;
     }
-    if (entry.type === 'thinking') return { icon: '🧠', label: t('messageStream.highlight_thinking'), text: summarizeAny(entry.thinking || entry.content) };
-    if (entry.type === 'message' || entry.type === 'text') return { icon: '💬', label: t('messageStream.highlight_message'), text: summarizeAny(entry.content || entry.text) };
-    if (entry.type === 'tool_use') return { icon: '⚙️', label: entry.name || 'Tool', text: toolPreview(entry.name, entry.input) };
+    if (entry.type === 'thinking') return { icon: '✦', label: t('messageStream.highlight_thinking'), text: summarizeAny(entry.thinking || entry.content) };
+    if (entry.type === 'message' || entry.type === 'text') return { icon: '❝', label: t('messageStream.highlight_message'), text: summarizeAny(entry.content || entry.text) };
+    if (entry.type === 'tool_use') return { icon: '▸', label: entry.name || 'Tool', text: toolPreview(entry.name, entry.input) };
     if (entry.type === 'tool_result') return { icon: entry.is_error ? '✗' : '✓', label: t('messageStream.highlight_result'), text: summarizeAny(entry.summary || entry.content || entry.text) };
-    if (entry.type === 'task_progress') return { icon: '🔄', label: entry.name || entry.task?.name || t('messageStream.highlight_task'), text: entry.message || entry.current_step || entry.status || '' };
-    return { icon: '📡', label: humanizeLabel(entry.type || 'event'), text: summarizeAny(entry) };
+    if (entry.type === 'task_progress') return { icon: '↻', label: entry.name || entry.task?.name || t('messageStream.highlight_task'), text: entry.message || entry.current_step || entry.status || '' };
+    return { icon: '⌁', label: humanizeLabel(entry.type || 'event'), text: summarizeAny(entry) };
   }).filter(Boolean)).slice(-6);
 }
 
@@ -916,11 +916,12 @@ function formatDuration(ms) {
 }
 
 function statusIcon(status) {
+  // Instrument glyphs, not emoji — status lamps stay in the console's register.
   const map = {
-    running: '🔄', in_progress: '🔄', completed: '✅', failed: '❌',
-    pending: '⏳', stopped: '⏹', awaiting_input: '❓',
+    running: '↻', in_progress: '↻', completed: '✓', failed: '✗',
+    pending: '○', stopped: '⏻', awaiting_input: '?',
   };
-  return map[status] || '📌';
+  return map[status] || '○';
 }
 
 function statusBadgeClass(status) {

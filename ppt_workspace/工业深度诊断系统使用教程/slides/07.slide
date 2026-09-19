@@ -1,0 +1,41 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 1 章 · 三步起飞：克隆 → 启动 → 验证</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>两条命令装好，一条命令起飞；首次启动会自动补齐所有依赖</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>命令逐字可用</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 223, flexDirection: 'row', gap: 18 }}>
+            <Image src="assets/t_clone.png" style={{ width: 830, height: 223, borderRadius: 10 }} />
+            <Box style={{ width: 312, height: 223, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 克隆并安装</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', lineHeight: 1.6, marginTop: 10 }}>git clone 拉下仓库，npm install 装根依赖，npm link 注册全局命令 ind-diag。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.80)' }}>不想 link：node commands/cli.mjs</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 223, flexDirection: 'row', gap: 18 }}>
+            <Image src="assets/t_start.png" style={{ width: 830, height: 223, borderRadius: 10 }} />
+            <Box style={{ width: 312, height: 223, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.40)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>② 一键启动全部服务</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>--all 拉起后端、前端、RAG 三个服务；--detach 让它后台常驻并立刻返回。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(184,115,15,0.20)', borderRadius: 7 }}>
+                    <Text style={{ fontSize: 15, color: '#8A5608' }}>必须带 --detach</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 62, padding: 16, background: '#1D1B16', borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 16, justifyContent: 'center' }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>不加 --detach 会怎样？</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(247,244,236,0.82)' }}>前台模式会一直阻塞，120 秒后打印 FATAL: Service manager timeout —— 服务其实已经起来了，只是命令不返回，很容易被误判为失败。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>Industrial Deep Diagnostic · 使用教程</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>07 / 31</Text>
+    </Box>
+</Slide>

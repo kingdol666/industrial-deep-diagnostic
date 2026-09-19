@@ -471,7 +471,7 @@ const paginatedLogs = computed(() => {
 
      5  状态   76px — a 4-glyph CJK chip (等待回答) on one line, + cell padding
      9  操作  410px — the widest real rail measures 387px of content:
-                      engine chip + 本体复用 + 会话 + 报告 + ⚡深度增强 + 详情 + 删除
+                      engine chip + 本体复用 + 会话 + 报告 + 深度增强 + 详情 + 删除
                       (the global .cell-actions cap of 340px is what forced it
                       to wrap, which is why it is lifted below)
 

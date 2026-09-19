@@ -1,0 +1,48 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#1D1B16' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 4, fontWeight: 'bold' }}>CHEAT SHEET</Text>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.25, marginTop: 4 }}>命令速查卡：需要时直接翻这一页</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: 'rgba(184,115,15,0.18)', border: '1px solid rgba(184,115,15,0.55)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#F0A93B' }}>只有这几条，背不下来就来查</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 28 }}>
+        <Box style={{ height: 253, flexDirection: 'row', gap: 32 }}>
+            <Box style={{ width: 560, height: 253, padding: 20, background: 'rgba(247,244,236,0.06)', border: '1px solid rgba(247,244,236,0.16)', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#F0A93B' }}>日常运维</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, marginTop: 12, fontWeight: 'bold' }}>ind-diag start --all --detach</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>ind-diag status</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>ind-diag restart --all --detach</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>ind-diag stop --all</Text>
+            </Box>
+            <Box style={{ width: 560, height: 253, padding: 20, background: 'rgba(247,244,236,0.06)', border: '1px solid rgba(247,244,236,0.16)', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#F0A93B' }}>健康检查</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, marginTop: 12, fontWeight: 'bold' }}>curl http://localhost:3210/api/health</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>curl -I http://localhost:5180</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>curl -I http://localhost:8764/docs</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.56)', lineHeight: 1.85, marginTop: 4 }}>三条都通，说明三个服务都活着</Text>
+            </Box>
+        </Box>
+        <Box style={{ height: 253, flexDirection: 'row', gap: 32 }}>
+            <Box style={{ width: 560, height: 253, padding: 20, background: 'rgba(247,244,236,0.06)', border: '1px solid rgba(247,244,236,0.16)', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#F0A93B' }}>没装全局命令时</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, marginTop: 12, fontWeight: 'bold' }}>node commands/cli.mjs status</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>node commands/cli.mjs start --all --detach</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.56)', lineHeight: 1.85, marginTop: 4 }}>效果和 ind-diag 完全一样，只是多打几个字；想省事就再跑一次 npm link</Text>
+            </Box>
+            <Box style={{ width: 560, height: 253, padding: 20, background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.42)', borderRadius: 12, flexDirection: 'column' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#F0A93B' }}>出问题时先看日志</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, marginTop: 12, fontWeight: 'bold' }}>.runtime/backend.log</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>.runtime/frontend.log</Text>
+                <Text style={{ fontSize: 16, color: '#D9E8A8', lineHeight: 1.85, fontWeight: 'bold' }}>.runtime/rag.log</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.62)', lineHeight: 1.85, marginTop: 4 }}>三个服务的日志都在这一个目录下</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.45)' }}>停服务：ind-diag stop --all　·　重启：ind-diag restart --all --detach</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.45)' }}>33 / 34</Text>
+    </Box>
+</Slide>

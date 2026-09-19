@@ -1,0 +1,30 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 3 章 · 数据工作台：把数据放进来</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>点左侧「数据」。文件夹与文件同列，CSV / Excel / MAT / JSON / TXT 都能直接上传</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: 'rgba(184,115,15,0.12)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>单文件上限 500 MB · 可多选</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 12 }}>
+        <Box style={{ height: 64, flexDirection: 'row', gap: 16 }}>
+            <Box style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', borderRadius: 9, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#B8730F' }}>①</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.45 }}>统计条一眼读出：13 个文件夹 / 5 个文件 / 17.9 MB</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', borderRadius: 9, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#B8730F' }}>②</Text>
+                <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.45 }}>右上角两个动作：新建文件夹、上传文件</Text>
+            </Box>
+        </Box>
+        <Box style={{ height: 464, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/04_data.png" style={{ width: 946, height: 464, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>也可直接把文件拷进项目 data/ 目录，这里同样能看到</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>13 / 31</Text>
+    </Box>
+</Slide>

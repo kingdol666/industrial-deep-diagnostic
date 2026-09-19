@@ -1,0 +1,78 @@
+{
+ "loop": "aei-review-fix",
+ "round": 1,
+ "max_rounds": 3,
+ "consensus_rule": "all reviewers publishable=yes (Accept or Minor without Critical/Major)",
+ "rounds": [
+  {
+   "round": 1,
+   "reviewers": {
+    "A_systems": {
+     "publishable": "yes",
+     "recommendation": "Minor Revision",
+     "blocking": 2
+    },
+    "B_methodology": {
+     "publishable": "yes",
+     "recommendation": "Minor Revision",
+     "blocking": 0
+    },
+    "C_writing_figures": {
+     "publishable": "no",
+     "recommendation": "Minor Revision",
+     "blocking": 2
+    }
+   },
+   "consensus": false,
+   "blocking_summary": "figure export clipping (5 figs; 3 already fixed+verified), abstract identifier caveat, C1 keyword-provenance + identifier cross-ref, top-k family-token caveat, precision CI, misc text/figure nits"
+  },
+  {
+   "round": 2,
+   "reviewers": {
+    "A_process_systems": {
+     "publishable": "yes",
+     "recommendation": "Major Revision",
+     "blocking": 3
+    },
+    "B_trustworthy_ai": {
+     "publishable": "yes",
+     "recommendation": "Minor Revision",
+     "blocking": 2
+    },
+    "C_production": {
+     "publishable": "no",
+     "recommendation": "Minor Revision",
+     "blocking": 2
+    }
+   },
+   "consensus": false,
+   "blocking_summary": "A: IDV3-topk appendix disclosure + branch-level reading; IDV4 contradict wording; mitigation demotion. B: L1-L7 self-assignment disclosure; enforces->flags wording. C: Tables 2/3/4/7 margin overflow; fig_forest 100% tick clipped."
+  },
+  {
+   "round": 3,
+   "reviewers": {
+    "A_editor_gate": {
+     "publishable": "yes",
+     "recommendation": "Minor Revision",
+     "blocking": 2,
+     "note": "abstract condensation + T6/T8 legibility, applied"
+    },
+    "B_skeptic": {
+     "publishable": "yes",
+     "recommendation": "Minor Revision",
+     "blocking": 1,
+     "note": "top-k symmetry, applied inline"
+    },
+    "C_final_regression": {
+     "publishable": "no->yes after fix",
+     "recommendation": "Accept",
+     "blocking": 0,
+     "note": "suite_matrix regression fixed + re-verified by fresh instance"
+    }
+   },
+   "converged": true,
+   "final_verifier": "fresh C-instance: PUBLISHABLE yes / Accept / 0 blocking",
+   "compile": "46 pp, 0 undefined, 0 errors, 3 overfull <= 8.7pt (cosmetic)"
+  }
+ ]
+}

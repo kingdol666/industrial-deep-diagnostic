@@ -1,0 +1,38 @@
+<Slide style={{ padding: '20px 60px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1160, height: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 9 章 · 引擎原生产物：绕过界面看底层</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.62)', marginTop: 6 }}>点左侧最后一项。这里直接读引擎自己在磁盘上写下的运行目录，只读、不干预</Text>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 16px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#B8730F' }}>25 总运行 · 17 已完成 · 16 HTML</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 540, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 418, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/16_engines.png" style={{ width: 886, height: 418, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 106, flexDirection: 'row', gap: 14 }}>
+            <Box style={{ flex: 1, padding: 13, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#1D1B16' }}>① 在线状态 + 刷新</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.45, marginTop: 5 }}>显示引擎是否在线与已发现多少个运行目录。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 13, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#1D1B16' }}>② 四个统计卡</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.45, marginTop: 5 }}>总运行 / 已完成 / 增强完成 / HTML 报告，一屏看产出总量。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 13, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }}>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#1D1B16' }}>③ 运行卡片</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.72)', lineHeight: 1.45, marginTop: 5 }}>每张卡显示原生运行号、阶段状态与产物 / 代理计数。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 13, background: 'rgba(184,115,15,0.10)', borderRadius: 10, border: '1px solid rgba(184,115,15,0.40)' }}>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#8A5608' }}>④ 什么时候用它</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.78)', lineHeight: 1.45, marginTop: 5 }}>界面里看不到的中间件，来这里翻磁盘上的原始产物。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1160, height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>读的是 workspace/diagnostic-runs 下的真实目录</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(29,27,22,0.45)' }}>25 / 31</Text>
+    </Box>
+</Slide>

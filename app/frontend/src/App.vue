@@ -55,12 +55,15 @@
           <button class="app-userbox-logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
         </div>
 
-        <!-- 执行引擎选择：14 个引擎若平铺成一堵墙就无法扫读。
-             改为「当前引擎读数 + 可展开清单」：状态点、名称、副标题各自成列。 -->
-        <div class="app-engine" :class="{ open: engineListOpen }">
+        <!-- 执行引擎选择：真下拉列表。14 个引擎全部列出；启动探测判定的
+             不可用引擎置灰禁选（探针错误进 title），可用的原生承载诊断与
+             聊天。面板向上弹出（选择器位于侧栏底部），点击外部 / Esc 关闭。 -->
+        <div ref="engineBox" class="app-engine" :class="{ open: engineListOpen }">
           <button
             type="button"
             class="app-engine-current"
+            :aria-expanded="engineListOpen"
+            aria-haspopup="listbox"
             :title="harnessTitle(activeHarnessMeta)"
             @click="engineListOpen = !engineListOpen"
           >
@@ -72,16 +75,19 @@
             <span class="app-engine-state" :class="isHarnessOffline(harness) ? 'off' : 'on'">
               {{ isHarnessOffline(harness) ? $t('sidebar.offline') : $t('sidebar.ready') }}
             </span>
-            <span class="app-engine-caret">{{ engineListOpen ? '▾' : '▸' }}</span>
+            <span class="app-engine-caret">{{ engineListOpen ? '▾' : '▴' }}</span>
           </button>
 
-          <div v-if="engineListOpen" class="app-engine-list ip-scroll">
+          <div v-if="engineListOpen" class="app-engine-menu ip-scroll" role="listbox" :aria-label="$t('sidebar.engine')">
             <button
               v-for="h in harnessList"
               :key="h.id"
               type="button"
+              role="option"
               class="app-engine-row"
               :class="{ active: harness === h.id, offline: isHarnessOffline(h.id) }"
+              :disabled="isHarnessOffline(h.id)"
+              :aria-selected="harness === h.id"
               :title="harnessTitle(h)"
               @click="selectHarness(h.id)"
             >
@@ -92,22 +98,26 @@
           </div>
         </div>
 
-        <div class="app-presence" :class="wsStatusClass">
-          <span class="app-presence-dot"></span>
-          <span>{{ wsStatusText }}</span>
-        </div>
         <div class="app-sidebar-note" v-if="analysisTargetLabel">
           <span class="app-sidebar-note-label">{{ $t('common.selection') }}</span>
           <span class="app-sidebar-note-value">{{ analysisTargetLabel }}</span>
         </div>
-        <button
-          class="app-lang-toggle"
-          type="button"
-          :title="$t('lang.switchTo')"
-          @click="onToggleLocale"
-        >
-          {{ $t('lang.switch') }}
-        </button>
+        <!-- Presence and the language switch share one footer row: stacked, the
+             lone 「中」 button read as an orphan at the rail's dead end. -->
+        <div class="app-footer-row">
+          <div class="app-presence" :class="wsStatusClass">
+            <span class="app-presence-dot"></span>
+            <span>{{ wsStatusText }}</span>
+          </div>
+          <button
+            class="app-lang-toggle"
+            type="button"
+            :title="$t('lang.switchTo')"
+            @click="onToggleLocale"
+          >
+            {{ $t('lang.switch') }}
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -148,7 +158,7 @@
           @go-data="currentTab = 'data'"
         />
 
-        <ChatView v-else-if="currentTab === 'chat'" :harness="harness" />
+        <ChatView v-else-if="currentTab === 'chat'" :harness="harness" :harness-name="activeHarnessMeta.name" />
 
         <div v-else-if="currentTab === 'reports'" class="app-view-frame">
           <ReportViewer
@@ -228,6 +238,7 @@ const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
 const mobileNavOpen = ref(false);   // phones only: nav drawer
 const engineListOpen = ref(false);
+const engineBox = ref(null);
 const harness = ref('claude'); // default engine id; list refreshed from registry
 const harnessList = ref([]); // [{id, name, kind, description, capabilities}] from /api/harness
 const harnessAvailability = ref({}); // id -> available (from /api/harness/availability)
@@ -368,15 +379,27 @@ function harnessTitle(h) {
 }
 
 function selectHarness(next) {
+  if (isHarnessOffline(next)) return; // 不可用引擎禁选 —— 永不产生 409 惊喜
   harness.value = next;
   try {
     localStorage.setItem('idd.harness', next);
   } catch {}
+  engineListOpen.value = false;
   if (activeHarnessSupportsRuns.value) {
     currentTab.value = 'omp';
   } else if (currentTab.value === 'omp') {
     currentTab.value = 'diagnose';
   }
+}
+
+// 下拉的关闭语义：点击面板外 / Esc 收起。监听器常驻但先做廉价短路，
+// 面板未打开时直接返回。
+function onGlobalPointerDown(e) {
+  if (!engineListOpen.value) return;
+  if (engineBox.value && !engineBox.value.contains(e.target)) engineListOpen.value = false;
+}
+function onGlobalKeydown(e) {
+  if (engineListOpen.value && e.key === 'Escape') engineListOpen.value = false;
 }
 
 function toggleSidebar() {
@@ -451,6 +474,8 @@ onMounted(() => {
   loadSidebarState();
   window.addEventListener('auth:unauthorized', onUnauthorized);
   window.addEventListener('resize', onViewportResize);
+  document.addEventListener('pointerdown', onGlobalPointerDown);
+  document.addEventListener('keydown', onGlobalKeydown);
   if (authed.value) {
     refreshHarnesses();
     init();
@@ -459,6 +484,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('auth:unauthorized', onUnauthorized);
   window.removeEventListener('resize', onViewportResize);
+  document.removeEventListener('pointerdown', onGlobalPointerDown);
+  document.removeEventListener('keydown', onGlobalKeydown);
   teardown();
 });
 </script>

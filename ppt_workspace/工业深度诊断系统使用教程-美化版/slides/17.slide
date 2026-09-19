@@ -1,0 +1,36 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>配置一次诊断：八个控件怎么填</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>数据源已经带过来了，这里只要做两件事：说清楚要问什么，然后决定用什么策略</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>③ 写得越具体越贴题</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 317, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/06_configure.png" style={{ width: 1152, height: 317, borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 201, flexDirection: 'row', gap: 22 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>必填的两栏</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>② 场景名与 ③ 诊断问题会原样写进报告首页。把对象和现象写清楚，例如"本批次是否发生真实工况漂移"。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>留空也能跑，但结论会很泛</Text>
+                </Box>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>四个策略下拉</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>④ 最大轮次 ⑤ 报告语言 ⑥ 本体策略 ⑦ 诊断深度。第一次全部保持默认值即可。</Text>
+                <Box style={{ marginTop: 'auto', padding: '9px 12px', background: 'rgba(228,220,203,0.75)', borderRadius: 8 }}>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.82)' }}>默认：不限轮次 · 中文 · 自动</Text>
+                </Box>
+            </Box>
+                    </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>配置只在这一刻生效，运行开始后不可更改</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>17 / 34</Text>
+    </Box>
+</Slide>

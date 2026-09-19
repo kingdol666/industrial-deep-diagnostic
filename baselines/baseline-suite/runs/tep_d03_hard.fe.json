@@ -2,7 +2,7 @@
  "case_id": "tep_d03_hard",
  "dataset": "tep",
  "control": false,
- "executed_at": "2026-09-17T01:16:19.582Z",
+ "executed_at": "2026-09-17T22:42:53.828Z",
  "arm": "fe-protocol",
  "method": "FE replication (protocol-faithful): PCA(0.9) + T2(alpha=0.01, F-limit 48.6) + 6-consecutive trigger + top-6 per-feature T2 contributions at trigger + EXPLAIN_ROOT. Trained on the benchmark normal-control recording (documented deviation from FE's fault0 corpus).",
  "detection": {

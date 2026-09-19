@@ -1,0 +1,130 @@
+{
+ "stage": "data-processor",
+ "schema": "stage_digest/1.0",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": null,
+  "time_col": "timestamp",
+  "time_method": "single-source-parse",
+  "median_interval_s": 180,
+  "index_implied_only": false
+ },
+ "anomaly_counts": {
+  "data_view_mode": "process_only",
+  "anomaly_intervals": 4,
+  "total_transitions": 0,
+  "process_parameters_screened": 20,
+  "integrated_links": 0,
+  "normalized_from_legacy_shape": true
+ },
+ "top_anomalies": [
+  {
+   "column": "XMEAS_1",
+   "cv": 0.3264,
+   "abrupt": "yes"
+  },
+  {
+   "column": "XMEAS_19",
+   "cv": 0.189,
+   "abrupt": "yes"
+  },
+  {
+   "column": "XMEAS_10",
+   "cv": 0.0677,
+   "abrupt": "no"
+  },
+  {
+   "column": "XMEAS_14",
+   "cv": 0.043,
+   "abrupt": "no"
+  },
+  {
+   "column": "XMEAS_18",
+   "cv": 0.0289,
+   "abrupt": "no"
+  }
+ ],
+ "fluctuation_top_cv": [
+  {
+   "column": "XMEAS_1",
+   "cv": 0.3264,
+   "abrupt": "yes"
+  },
+  {
+   "column": "XMEAS_19",
+   "cv": 0.189,
+   "abrupt": "yes"
+  },
+  {
+   "column": "XMEAS_10",
+   "cv": 0.0677,
+   "abrupt": "no"
+  },
+  {
+   "column": "XMEAS_14",
+   "cv": 0.043,
+   "abrupt": "no"
+  },
+  {
+   "column": "XMEAS_18",
+   "cv": 0.0289,
+   "abrupt": "no"
+  }
+ ],
+ "top_correlations": [
+  {
+   "pair": "XMEAS_17~XMV_11",
+   "r": -0.99
+  },
+  {
+   "pair": "XMEAS_17~XMV_11_dev",
+   "r": -0.99
+  },
+  {
+   "pair": "XMEAS_19~XMV_9",
+   "r": 0.99
+  },
+  {
+   "pair": "XMEAS_19~XMV_9_dev",
+   "r": 0.99
+  },
+  {
+   "pair": "XMEAS_17_dev~XMV_11",
+   "r": -0.99
+  }
+ ],
+ "segment_contrast": null,
+ "robustness": "ROBUST — Statistical evidence passes robustness checks. Correlation findings are stable.",
+ "analysis_mode": "ontology_guided_plus_custom",
+ "key_findings": [],
+ "charts": {
+  "adaptive_plan": [
+   {
+    "chart": "z_overlay",
+    "target": [
+     "XMEAS_1",
+     "XMEAS_2",
+     "XMEAS_3",
+     "XMEAS_4",
+     "XMEAS_5",
+     "XMEAS_6",
+     "XMEAS_7",
+     "XMEAS_8"
+    ]
+   },
+   {
+    "chart": "line",
+    "target": "XMEAS_1"
+   }
+  ],
+  "n_pngs": 2
+ },
+ "read_full": {
+  "data_analysis_conclusion": "02_processed/data_analysis_conclusion.json",
+  "validate_report": "02_processed/validate_report.json",
+  "anomaly_report": "02_processed/anomaly_report.json",
+  "segment_statistics": "02_processed/segment_statistics.json",
+  "adaptive_chart_plan": "03_figures/adaptive_chart_plan.json"
+ }
+}

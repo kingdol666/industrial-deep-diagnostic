@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F7F4EC;font-family:'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;color:#1D1B16;-webkit-font-smoothing:antialiased}
+.wrap{width:1152px;height:534px;display:flex;flex-direction:column}
+.hd{height:44px;display:flex;align-items:baseline;gap:14px}
+.k{font:700 12.5px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;letter-spacing:.22em;color:#B8730F}
+.sub{font:400 14.5px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;color:#6B655A}
+.list{flex:1;display:flex;flex-direction:column;gap:11px}
+.row{height:91px;background:#fff;border:1px solid #E3DCCB;border-left:5px solid #B8730F;
+  border-radius:11px;padding:0 18px;display:flex;align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.045)}
+.n{width:40px;height:40px;border-radius:10px;background:#1D1B16;color:#B8730F;
+  font:800 19px/40px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;text-align:center;flex:0 0 40px}
+.tt{width:182px;margin-left:14px;flex:0 0 182px}
+.t{font:700 19px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif}
+.s{font:400 13.5px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;color:#6B655A;margin-top:2px}
+.cmds{flex:1;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.ch{background:#14130F;color:#D9E8A8;font:400 14px 'Cascadia Mono','Consolas','Courier New',monospace;
+  padding:5px 10px;border-radius:6px;white-space:nowrap}
+.ex{width:236px;flex:0 0 236px;font:600 15px 'Microsoft YaHei','Source Han Sans SC',system-ui,sans-serif;color:#8A5608;text-align:right}
+</style></head><body><div class="wrap">
+<div class="hd"><span class="k">QUICK START</span>
+  <span class="sub">五步上手 · 全程命令行 · 首次启动会自动装依赖，多花 1–3 分钟</span></div>
+<div class="list"><div class="row">
+          <div class="n">1</div>
+          <div class="tt"><div class="t">查依赖</div><div class="s">确认四个依赖都达标</div></div>
+          <div class="cmds"><span class="ch">node --version</span><span class="ch">npm --version</span><span class="ch">python --version</span><span class="ch">uv --version</span></div>
+          <div class="ex">四条全绿即可继续</div>
+        </div><div class="row">
+          <div class="n">2</div>
+          <div class="tt"><div class="t">装项目</div><div class="s">克隆仓库、装依赖、注册命令</div></div>
+          <div class="cmds"><span class="ch">git clone …</span><span class="ch">cd industrial-deep-diagnostic</span><span class="ch">npm install</span><span class="ch">npm link</span></div>
+          <div class="ex">多出全局命令 ind-diag</div>
+        </div><div class="row">
+          <div class="n">3</div>
+          <div class="tt"><div class="t">起服务</div><div class="s">一条命令拉起三个服务</div></div>
+          <div class="cmds"><span class="ch">ind-diag start --all --detach</span></div>
+          <div class="ex">三服务后台常驻并立刻返回</div>
+        </div><div class="row">
+          <div class="n">4</div>
+          <div class="tt"><div class="t">验状态</div><div class="s">确认三个服务真的活着</div></div>
+          <div class="cmds"><span class="ch">ind-diag status</span><span class="ch">curl :3210/api/health</span></div>
+          <div class="ex">三行都是 running / healthy</div>
+        </div><div class="row">
+          <div class="n">5</div>
+          <div class="tt"><div class="t">开浏览器</div><div class="s">注册账号，开始第一次诊断</div></div>
+          <div class="cmds"><span class="ch">http://localhost:5180</span></div>
+          <div class="ex">上传数据 → 点开始诊断</div>
+        </div></div></div></body></html>

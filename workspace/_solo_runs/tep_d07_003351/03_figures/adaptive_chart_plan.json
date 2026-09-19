@@ -1,0 +1,41 @@
+{
+ "source_data": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\_solo_runs\\tep_d07_003351\\02_processed\\cleaned_data.csv",
+ "time_alignment": {
+  "time_col": "timestamp",
+  "method": "single-source-parse",
+  "merged_sources": [],
+  "n_rows_total": 960,
+  "n_rows_dropped_unparsable": 0,
+  "monotonic_after_sort": true,
+  "median_interval_s": 180.0,
+  "span_s": 172620.0
+ },
+ "decisions": [
+  {
+   "target": [
+    "XMEAS_1",
+    "XMEAS_2",
+    "XMEAS_3",
+    "XMEAS_4",
+    "XMEAS_5",
+    "XMEAS_6",
+    "XMEAS_7",
+    "XMEAS_8"
+   ],
+   "shape": "multi_parameter_time_series",
+   "chart_type": "z_overlay",
+   "reason": "2..8 numeric series on one aligned time axis"
+  },
+  {
+   "target": "XMEAS_1",
+   "shape": "single_time_series",
+   "chart_type": "line",
+   "reason": "single measurement channel over the aligned time axis"
+  }
+ ],
+ "files": [
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\_solo_runs\\tep_d07_003351\\03_figures\\fig_adaptive_overlay.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\_solo_runs\\tep_d07_003351\\03_figures\\fig_adaptive_line_XMEAS_1.png"
+ ],
+ "chart_policy": "2d_field->contour_cloud; multi_parameter_time_series->z_overlay; single_time_series->line; all temporal charts on the aligned axis"
+}

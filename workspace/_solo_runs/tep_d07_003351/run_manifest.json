@@ -1,0 +1,194 @@
+{
+  "run_id": "solo_tep_d07",
+  "created": "2026-09-17T16:30:38.944Z",
+  "run_dir": "workspace/_solo_runs/tep_d07_003351",
+  "status": "completed",
+  "steps": [
+    {
+      "index": 0,
+      "step": "setup",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:16.529Z",
+      "completed_at": "2026-09-17T16:52:16.629Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "00_input/run_config.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 1,
+      "step": "inspect",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:16.743Z",
+      "completed_at": "2026-09-17T16:52:16.838Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "00_input/input_inspection.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 2,
+      "step": "context_builder",
+      "owner": "context-builder",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:16.935Z",
+      "completed_at": "2026-09-17T16:52:17.044Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "01_ontology/ontology.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 3,
+      "step": "clarification_gate",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": "2026-09-17T16:52:17.139Z",
+      "last_event": "agent_complete",
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 4,
+      "step": "data_processor",
+      "owner": "data-processor",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:17.239Z",
+      "completed_at": "2026-09-17T16:52:17.334Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "02_processed/data_analysis_conclusion.json",
+        "02_processed/validate_report.json",
+        "03_figures/plot_manifest.json",
+        "03_figures/visual_analysis.json",
+        "03_figures/image_captions.json",
+        "02_processed/stage_digest.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 5,
+      "step": "diagnostician",
+      "owner": "diagnostician",
+      "status": "completed",
+      "attempts": 2,
+      "started_at": "2026-09-17T16:50:23.305Z",
+      "completed_at": "2026-09-17T16:52:17.550Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "04_diagnostics/diagnosis.json",
+        "04_diagnostics/evidence.json",
+        "04_diagnostics/confidence.json",
+        "04_diagnostics/reasoning_chain.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 6,
+      "step": "judge",
+      "owner": "judge",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:17.657Z",
+      "completed_at": "2026-09-17T16:52:17.763Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "05_review/judge_feedback.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 7,
+      "step": "reporter",
+      "owner": "reporter",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:18.089Z",
+      "completed_at": "2026-09-17T16:52:18.199Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "report.md",
+        "run_summary.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 8,
+      "step": "audit",
+      "owner": "report-reviewer",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:18.304Z",
+      "completed_at": "2026-09-17T16:52:18.446Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "optimizer.md"
+      ],
+      "notes": []
+    },
+    {
+      "index": 9,
+      "step": "present",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-09-17T16:52:18.556Z",
+      "completed_at": "2026-09-17T16:53:38.068Z",
+      "last_event": "run_completed",
+      "outputs": [
+        "diagnostic-report.html",
+        "03_figures/html_selfcheck.json",
+        "05_review/html_review.json"
+      ],
+      "notes": []
+    }
+  ],
+  "delivery_contract": {
+    "strict_pipeline_required": true,
+    "evidence_closure_required": true,
+    "required_runtime_artifacts": [
+      "00_input/run_config.json",
+      "00_input/input_manifest.json",
+      "01_ontology/ontology.json",
+      "02_processed/scenario_classification.json",
+      "02_processed/anomaly_report.json",
+      "02_processed/data_analysis_conclusion.json",
+      "03_figures/plot_manifest.json",
+      "03_figures/visual_analysis.json",
+      "03_figures/image_captions.json",
+      "04_diagnostics/diagnosis.json",
+      "04_diagnostics/evidence.json",
+      "04_diagnostics/confidence.json",
+      "04_diagnostics/reasoning_chain.json",
+      "05_review/judge_feedback.json",
+      "report.md",
+      "run_summary.json",
+      "optimizer.md",
+      "evidence_closure_report.json"
+    ]
+  },
+  "pipeline": {
+    "version": "v6.5",
+    "current_step": "present",
+    "current_owner": "html-visualizer",
+    "diag_iters_total": 0,
+    "repair_spawn_count": 0,
+    "artifact_finalize_runs": 0,
+    "integrity": {
+      "event_log_bootstrapped": true,
+      "evidence_closure_last_status": "not_checked"
+    }
+  },
+  "updated_at": "2026-09-17T16:53:38.068Z"
+}
