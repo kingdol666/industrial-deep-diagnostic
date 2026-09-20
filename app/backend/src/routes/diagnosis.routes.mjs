@@ -7,7 +7,7 @@ import {
   sendChatMessage, continueDiagnosis, answerQuestion,
   triggerDiagnosis, startStream, subscribeSSE,
   getSessionContent, getRunRealtimeSnapshot, triggerEnhancement,
-  assertRunHarnessUsable,
+  assertRunHarnessUsable, getDiagTaskView,
 } from '../services/diagnosis.service.mjs';
 import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
 
@@ -233,6 +233,55 @@ router.post('/enhance/:runId', async (req, res) => {
     const status = err.status || 500;
     res.status(status).json({ success: false, code: err.code || 'DIAGNOSIS_ERROR', error: err.message });
   }
+});
+
+// ── 异步任务 API(AgentWorkShop diag-bridge 任务管理面)─────────────────
+// POST /tasks:接收即返 task_id——诊断放入任务管理(run 记录 + 引擎子进程后台
+// 线程执行),调用方绝不阻塞;GET /tasks/:taskId 查询状态,完成后 result 携带
+// 诊断总结与报告 md 绝对路径,供外部(如 kb_agent)接续入库。
+
+// Start a diagnosis as a managed async task: acknowledge immediately.
+router.post('/tasks', async (req, res) => {
+  try {
+    const { dataPath, folderPath, dataPaths, harness } = req.body;
+    await assertRunHarnessUsable(harness);
+    if (dataPaths && Array.isArray(dataPaths) && dataPaths.length > 0) {
+      for (const dp of dataPaths) await validateDataPath(dp);
+    } else if (folderPath) {
+      await validateDataPath(folderPath);
+    } else if (dataPath) {
+      await validateDataPath(dataPath);
+    }
+    const created = createDiagnosisRun(req.body);
+    const taskId = created.runId ?? created.id ?? '';
+    if (!taskId) {
+      return res.status(500).json({ success: false, error: 'createDiagnosisRun 未返回 runId' });
+    }
+    try {
+      triggerDiagnosis(taskId);
+    } catch (execErr) {
+      // 拉起失败:run 已标记 failed,GET /tasks/:id 会如实呈现错误
+      console.warn(`[diagnosis] task execute failed: ${execErr.message}`);
+    }
+    res.json({
+      success: true,
+      data: {
+        task_id: taskId,
+        status: 'running',
+        poll: 'GET /api/diagnosis/tasks/' + taskId,
+      },
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message, code: err.code });
+  }
+});
+
+// Task view: status + result(诊断总结 + report md 绝对路径,完成后可得)
+router.get('/tasks/:taskId', (req, res) => {
+  const view = getDiagTaskView(req.params.taskId);
+  if (!view) return res.status(404).json({ success: false, error: 'Task not found' });
+  res.json({ success: true, data: view });
 });
 
 export default router;

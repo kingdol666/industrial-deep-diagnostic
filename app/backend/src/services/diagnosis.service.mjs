@@ -359,6 +359,52 @@ export function listRuns() {
 }
 
 // Get single run status
+// ── 异步任务视图(AgentWorkShop diag-bridge 任务管理面)─────────────────
+// POST /api/diagnosis/tasks 即返 task_id(=runId,诊断在引擎子进程后台执行);
+// GET /api/diagnosis/tasks/:id 返回状态与结果(诊断总结 + 报告 md 绝对路径)。
+export function getDiagTaskView(taskId) {
+  const run = getRunStatus(taskId);
+  if (!run) return null;
+  const raw = run.engineStatus || run.status;
+  const taskStatus = raw === 'completed' ? 'completed'
+    : (raw === 'failed' || raw === 'interrupted') ? 'failed'
+      : raw === 'stopped' ? 'stopped'
+        : 'running';
+  const view = {
+    task_id: run.run_id,
+    status: taskStatus,
+    run_status: raw,
+    name: run.name ?? null,
+    scene: run.scene_name ?? null,
+    harness: run.harness ?? null,
+    created_at: run.created_at ?? null,
+    finished_at: run.completed_at ?? null,
+    result: null,
+  };
+  if (taskStatus === 'completed') {
+    let summary = '';
+    const reportAbs = run.report_path ? join(PROJECT_ROOT, run.report_path) : null;
+    if (reportAbs && existsSync(reportAbs)) {
+      try {
+        const md = readFileSync(reportAbs, 'utf8');
+        const sectionRe = /^##?\s*(结论|总结|最终结论|conclusion|summary)[^\n]*\n?([\s\S]*?)(?=\n##?\s|\s*$)/im;
+        const sec = md.match(sectionRe);
+        summary = (sec ? (sec[2] || sec[1]) : md).trim().slice(0, 1500);
+      } catch { /* 读取失败回退 judge_verdict */ }
+    }
+    view.result = {
+      summary: summary || run.judge_verdict || '',
+      verdict: run.judge_verdict ?? null,
+      score: run.score ?? null,
+      report_md_path: reportAbs,
+    };
+  }
+  if (taskStatus === 'failed') {
+    view.result = { error: run.error_message ?? 'diagnosis failed' };
+  }
+  return view;
+}
+
 export function getRunStatus(runId) {
   const run = stmts.getRunById.get(runId);
   if (!run) return null;
