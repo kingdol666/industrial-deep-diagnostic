@@ -3,68 +3,75 @@
 <link rel="stylesheet" href="aei_template.css">
 <style>
   * { box-sizing: border-box; }
-  body { width:1500px; height:650px; padding:14px 10px; }
+  body { width:1500px; padding:12px 10px; }
   svg text { font-family: Arial, Helvetica, sans-serif; }
 </style></head><body>
-<svg width="1480" height="622" viewBox="0 0 1480 622">
-  <line class="axis" x1="300" y1="20" x2="300" y2="516"/>
-  <line class="axis" x1="300" y1="516" x2="1440" y2="516"/>
-  <g class="gridline">
-    <line x1="528" y1="20" x2="528" y2="516"/><line x1="756" y1="20" x2="756" y2="516"/>
-    <line x1="984" y1="20" x2="984" y2="516"/><line x1="1212" y1="20" x2="1212" y2="516"/>
-    <line x1="1440" y1="20" x2="1440" y2="516"/>
-  </g>
-  <g class="ticklabel" text-anchor="middle">
-    <text x="300" y="538">0</text><text x="528" y="538">20</text><text x="756" y="538">40</text>
-    <text x="984" y="538">60</text><text x="1212" y="538">80</text><text x="1440" y="538">100%</text>
-  </g>
-  <text class="axlabel" x="870" y="566" text-anchor="middle">Accuracy (%) with Wilson 95% CI</text>
+<svg id="svg" width="1480" height="712" viewBox="0 0 1480 712"></svg>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+function mk(n, a, txt) { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
 
-  <text class="axlabel" x="288" y="54" text-anchor="end">FaultExplainer GPT-4o</text>
-  <text class="ticklabel" x="288" y="72" text-anchor="end">n = 11, candidates in prompt</text>
-  <line x1="704" y1="60" x2="1267" y2="60" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1025" cy="60" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1277" y="52">63.6%</text>
-  <text class="ticklabel" x="1277" y="68">[35.4, 84.8]</text>
+// verified rows: [label, sub, est(%), lo, hi, colour-role]
+// roles: fe = grey (published baseline), idd = blue, iddk = open blue (top-k), ctrl = open green
+const ROWS = [
+  ["FaultExplainer GPT-4o", "n = 11 · candidates in prompt", 63.6, 35.4, 84.8, "fe"],
+  ["FaultExplainer o1-preview", "n = 11 · candidates in prompt", 81.8, 52.3, 94.9, "fe"],
+  ["IDD — TEP subset", "n = 6 · no candidate list", 50.0, 18.8, 81.2, "idd"],
+  ["IDD — all faults, Top-1", "n = 9 · no candidate list", 44.4, 18.9, 73.3, "idd"],
+  ["IDD — top-k (survivor set)", "n = 9 · true cause among candidates", 100.0, 70.1, 100.0, "iddk"],
+  ["IDD — controls passed", "n = 3 normal batches · zero false alarms", 100.0, 43.9, 100.0, "ctrl"],
+];
+const W = 1480, H = 712, L = 540, R = 96, T = 18, B = 172;
+const XMAX = 100, X = v => L + (W - L - R) * v / XMAX;
+const PH = H - T - B, rowH = PH / ROWS.length;
+const GREY = "#8f9aa5", BLU = "#0072b2", GRN = "#009e73";
 
-  <text class="axlabel" x="288" y="138" text-anchor="end">FaultExplainer o1-preview</text>
-  <text class="ticklabel" x="288" y="156" text-anchor="end">n = 11, candidates in prompt</text>
-  <line x1="896" y1="144" x2="1382" y2="144" stroke="#9aa7b2" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1233" cy="144" r="9" fill="#8f9aa5" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1248" y="132">81.8%</text>
-  <text class="ticklabel" x="1248" y="172">[52.3, 94.9]</text>
+// gridlines + axis
+for (let v = 0; v <= 100; v += 20) {
+  mk("line", { x1: X(v), y1: T, x2: X(v), y2: T + PH, class: v === 0 ? "axis" : "gridline" });
+  mk("text", { x: X(v), y: T + PH + 34, "text-anchor": "middle", class: "ticklabel" }, v === 100 ? "100%" : v);
+}
+mk("line", { x1: L, y1: T + PH, x2: X(100), y2: T + PH, class: "axis" });
+mk("text", { x: L + (W - L - R) / 2, y: T + PH + 64, "text-anchor": "middle", class: "axlabel" },
+  "accuracy with Wilson 95% CI (z = 1.96)");
 
-  <text class="axlabel" x="288" y="222" text-anchor="end">IDD — TEP subset</text>
-  <text class="ticklabel" x="288" y="240" text-anchor="end">n = 6, no candidate list</text>
-  <line x1="514" y1="228" x2="1226" y2="228" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="870" cy="228" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1236" y="220">50.0%</text>
-  <text class="ticklabel" x="1236" y="236">[18.8, 81.2]</text>
+const HALO = { "paint-order": "stroke", stroke: "#ffffff", "stroke-width": 5, "stroke-linejoin": "round" };
+ROWS.forEach((r, i) => {
+  const [label, sub, est, lo, hi, role] = r;
+  const y = T + rowH * (i + 0.5);
+  mk("text", { x: L - 16, y: y - 4, "text-anchor": "end", class: "axlabel",
+    "font-weight": role === "idd" && label.includes("Top-1") ? "700" : "400", fill: "#1a1a1a" }, label);
+  mk("text", { x: L - 16, y: y + 24, "text-anchor": "end", class: "ticklabel", fill: "#8f8f8f" }, sub);
+  const stroke = role === "fe" ? GREY : role === "ctrl" ? GRN : BLU;
+  // CI line — cap at axis end for 100% rows
+  const xhi = Math.min(X(hi), X(100));
+  mk("line", { x1: X(lo), y1: y, x2: xhi, y2: y, stroke: stroke, "stroke-width": 7, "stroke-linecap": "round", opacity: 0.55 });
+  // point estimate
+  if (role === "iddk" || role === "ctrl") {
+    mk("circle", { cx: xhi, cy: y, r: 10, fill: "#ffffff", stroke: stroke, "stroke-width": 3.4 });
+  } else {
+    mk("circle", { cx: X(est), cy: y, r: 10, fill: stroke, stroke: "#ffffff", "stroke-width": 2 });
+  }
+  // value + CI annotation, placed on the emptier side
+  const estX = role === "iddk" || role === "ctrl" ? xhi : X(est);
+  const right = estX < X(78);
+  const tx = right ? estX + 18 : estX - 18;
+  mk("text", { x: tx, y: y - 6, "text-anchor": right ? "start" : "end", class: "datalabel", ...HALO }, est.toFixed(1) + "%");
+  mk("text", { x: tx, y: y + 20, "text-anchor": right ? "start" : "end", class: "ticklabel", fill: "#555555", ...HALO },
+    `[${lo.toFixed(1)}, ${hi.toFixed(1)}]`);
+});
 
-  <text class="axlabel" x="288" y="306" text-anchor="end" font-weight="bold">IDD — all faults, Top-1</text>
-  <text class="ticklabel" x="288" y="324" text-anchor="end">n = 9, no candidate list</text>
-  <line x1="516" y1="312" x2="1136" y2="312" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="806" cy="312" r="9" fill="#0072b2" stroke="#fff" stroke-width="2"/>
-  <text class="datalabel" x="1146" y="304">44.4%</text>
-  <text class="ticklabel" x="1146" y="320">[18.9, 73.3]</text>
-
-  <text class="axlabel" x="288" y="390" text-anchor="end">IDD — all faults, top-k (survivor set)</text>
-  <text class="ticklabel" x="288" y="408" text-anchor="end">n = 9, true cause among candidates</text>
-  <line x1="1099" y1="396" x2="1440" y2="396" stroke="#7fb3d8" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1440" cy="396" r="9" fill="#fff" stroke="#0072b2" stroke-width="3"/>
-  <text class="datalabel" x="1029" y="388">100%</text>
-  <text class="ticklabel" x="1029" y="404">[70.1, 100]</text>
-
-  <text class="axlabel" x="288" y="464" text-anchor="end">IDD — controls passed</text>
-  <text class="ticklabel" x="288" y="482" text-anchor="end">n = 3 normal batches, zero false alarms</text>
-  <line x1="799" y1="470" x2="1440" y2="470" stroke="#8fd0ae" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="1440" cy="470" r="9" fill="#fff" stroke="#009e73" stroke-width="3"/>
-  <text class="datalabel" x="729" y="462">100%</text>
-  <text class="ticklabel" x="729" y="478">[43.8, 100]</text>
-
-  <circle cx="330" cy="600" r="8" fill="#8f9aa5"/><text class="axlabel" x="346" y="605">published single-LLM baselines (FaultExplainer, arXiv:2412.14492)</text>
-  <circle cx="920" cy="600" r="8" fill="#0072b2"/><text class="axlabel" x="936" y="605">IDD Top-1 (this work)</text>
-  <circle cx="1110" cy="600" r="8" fill="#fff" stroke="#0072b2" stroke-width="3"/><text class="axlabel" x="1126" y="605">IDD top-k</text>
-  <circle cx="1230" cy="600" r="8" fill="#fff" stroke="#009e73" stroke-width="3"/><text class="axlabel" x="1246" y="605">IDD controls</text>
-</svg>
+// legend: two stacked rows below the axis title
+const LY = T + PH + 108;
+mk("circle", { cx: 564, cy: LY - 8, r: 9, fill: GREY });
+mk("text", { x: 580, y: LY, class: "ticklabel", fill: "#1a1a1a" }, "FE-reported baselines (Khan et al., 2025)");
+mk("circle", { cx: 1244, cy: LY - 8, r: 9, fill: BLU });
+mk("text", { x: 1260, y: LY, class: "ticklabel", fill: "#1a1a1a" }, "IDD (this work)");
+const LY2 = LY + 36;
+mk("circle", { cx: 564, cy: LY2 - 8, r: 9, fill: "#fff", stroke: BLU, "stroke-width": 3 });
+mk("text", { x: 580, y: LY2, class: "ticklabel", fill: "#1a1a1a" }, "open marker = bounded at 100%");
+mk("circle", { cx: 1244, cy: LY2 - 8, r: 9, fill: "#fff", stroke: GRN, "stroke-width": 3 });
+mk("text", { x: 1260, y: LY2, class: "ticklabel", fill: "#1a1a1a" }, "IDD controls");
+</script>
 </body></html>

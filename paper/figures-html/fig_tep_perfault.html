@@ -2,70 +2,80 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1160px; height:1548px; padding:20px 26px 24px; }
-  .panel-label { margin-bottom:6px; font-size:25px; }
-  table.m { border-collapse:collapse; width:1108px; font-size:25px; line-height:1.08; }
-  table.m th, table.m td { border:1px solid var(--grid); padding:3px 8px; text-align:center; }
-  table.m th { background:var(--panel); font-size:25px; }
+  body { width:1240px; padding:16px 20px 14px; }
+  .regime { font-size:27px; color:#555; margin:2px 0 10px; }
+  table.m { border-collapse:collapse; width:1200px; table-layout:fixed; }
+  table.m th, table.m td { border-bottom:1px solid #e3e7ea; padding:12px 10px; text-align:center; vertical-align:middle; }
+  table.m th { background:#f0f3f6; font-size:28px; line-height:1.25; border-bottom:2px solid #c6d0d9; }
   table.m td.l { text-align:left; }
-  .ok { color:var(--green); font-weight:700; } .bad { color:var(--vermilion); font-weight:700; } .na { color:var(--gray); }
-  .iddet { background:#0072b2; font-weight:700; color:#ffffff; }
-  .iddcs { background:#fdf4e7; font-weight:700; color:#a35c17; }
-  .note { margin-top:8px; font-size:25px; color:var(--sub); line-height:1.35; width:1108px; }
-  .key { margin-top:6px; font-size:25px; color:var(--ink); line-height:1.3; }
-  .sw { display:inline-block; width:16px; height:16px; border-radius:2px; vertical-align:-2px; margin-right:6px; }
+  tr.zeb td { background:#fafbfc; }
+  .fault { font-size:28px; line-height:1.3; }
+  .fault b { font-size:28px; }
+  .ev { font-size:26px; line-height:1.4; color:#1a1a1a; text-align:left; }
+  .ev b { color:#004a74; }
+  .ok  { color:#007a4d; font-weight:700; font-size:27px; background:#e9f6f0; border-radius:6px; padding:6px 4px; }
+  .bad { color:#c25400; font-weight:700; font-size:27px; background:#fdeee6; border-radius:6px; padding:6px 4px; }
+  .na  { color:#8f8f8f; font-size:26px; background:#f0f1f3; border-radius:6px; padding:6px 4px; }
+  .pca-y { font-size:27px; }
+  .pca-n { font-size:27px; font-weight:700; background:#f0f1f3; border-radius:6px; padding:6px 4px; }
+  .iddet { background:#0072b2; color:#fff; font-weight:700; font-size:27px; border-radius:6px; padding:8px 4px; }
+  .iddcs { background-color:#cfe9f7; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(18,58,82,.38) 3px 4.5px);
+           color:#123a52; font-weight:700; font-size:26px; line-height:1.3; border-radius:6px; padding:8px 4px; }
+  .legendbar { display:flex; gap:26px; align-items:center; margin-top:14px; font-size:26px; color:#1a1a1a; flex-wrap:wrap; }
+  .sw { display:inline-block; width:18px; height:18px; border-radius:3px; vertical-align:-3px; margin-right:7px; }
+  .sum { margin-top:10px; font-size:27px; color:#1a1a1a; }
+  .sum b { color:#0072b2; }
 </style></head><body>
-  <div class="panel-label">Verification matrix — IDD (full-pipeline execution) vs FaultExplainer (arXiv:2412.14492, Table 1) with PCA detectability</div>
+  <div class="regime">FaultExplainer regime: documented root causes in prompt · top-3 output · alias hits accepted (Khan et al., 2025, Table 1). IDD: no candidate list · strict mechanism keywords · one verdict.</div>
   <table class="m">
+    <colgroup><col style="width:250px"><col style="width:128px"><col style="width:132px"><col style="width:96px"><col style="width:172px"><col></colgroup>
     <tr>
-      <th class="l" style="width:175px;">TEP fault (mechanism)</th>
-      <th style="width:106px;">FE GPT-4o</th>
-      <th style="width:106px;">FE o1-preview</th>
-      <th style="width:70px;">PCA detectable</th>
-      <th style="width:70px;">Candidates in prompt</th>
-      <th style="width:165px;">IDD verdict (conf.)</th>
-      <th class="l">IDD decisive evidence (run artifacts)</th>
+      <th class="l" style="text-align:left;">TEP fault (mechanism)</th>
+      <th>FE<br>GPT-4o</th><th>FE<br>o1-preview</th><th>PCA<br>detect.</th>
+      <th>IDD verdict<br>(confidence)</th>
+      <th class="l" style="text-align:left;">IDD decisive evidence (run artifacts)</th>
     </tr>
     <tr>
-      <td class="l">IDV1 — A/C feed-ratio step (Stream 4)</td>
-      <td class="bad">✗ wrong</td><td class="ok">✓ correct</td><td>yes</td><td>yes</td>
-      <td class="iddet">✓ Top-1 (0.91)</td>
-      <td class="l">A-feed valve/flow +18.5/+18.7σ lockstep (r≈0.9996); A:C supply-weight restructure</td>
+      <td class="l fault"><b>IDV1</b> · A/C feed-ratio step</td>
+      <td><span class="bad">✗ wrong</span></td><td><span class="ok">✓ correct</span></td><td class="pca-y">yes</td>
+      <td><span class="iddet">✓ Top-1 · 0.91</span></td>
+      <td class="ev">A-feed valve/flow <b>+18.5/+18.7σ lockstep (r ≈ 0.9996)</b>; A:C supply-weight restructure; steam response trails at lag 2</td>
+    </tr>
+    <tr class="zeb">
+      <td class="l fault"><b>IDV3</b> · D-feed temperature step</td>
+      <td><span class="na">unscored</span></td><td><span class="na">unscored</span></td><td><span class="pca-n">no</span></td>
+      <td><span class="iddcs">CS 0.55<br>truth family ranked</span></td>
+      <td class="ev">3 mechanism families excluded; localized to the <b>stripper steam loop (variance ×2.1–2.7)</b>; thermal fork unresolvable — missing header/feed-temperature channels named</td>
     </tr>
     <tr>
-      <td class="l">IDV3 — D feed temperature step (Stream 2)</td>
-      <td class="na">unscored</td><td class="na">unscored</td><td><b>no</b></td><td>yes</td>
-      <td class="iddcs">CS 0.55 — family ranked; site fork capped</td>
-      <td class="l">3 mechanism families excluded; localised to the stripper steam loop (variance ×2.1–2.7); thermal fork unresolvable (no header/feed-temperature channels)</td>
+      <td class="l fault"><b>IDV4</b> · reactor cooling-water inlet (step)</td>
+      <td><span class="na">unscored</span></td><td><span class="na">unscored</span></td><td><span class="pca-n">no</span></td>
+      <td><span class="iddcs">CS 0.63<br>cooling fork capped</span></td>
+      <td class="ev"><b>XMV_10 step +6.8σ</b> — the only sustained shift &gt;1.2σ of 52 channels; reactor temp spike <b>z = +10.5</b>, re-controlled</td>
+    </tr>
+    <tr class="zeb">
+      <td class="l fault"><b>IDV7</b> · C-header pressure reduced</td>
+      <td><span class="ok">✓ correct</span></td><td><span class="ok">✓ correct</span></td><td class="pca-y">yes</td>
+      <td><span class="iddet">✓ Top-1 · 0.78</span></td>
+      <td class="ev">flow held at setpoint (−0.03%) while valve opens <b>+25.1% (z = 12.4)</b> ⇒ supply-capacity drop, ΔP ratio 0.64</td>
     </tr>
     <tr>
-      <td class="l">IDV4 — reactor cooling-water inlet temp. (step)</td>
-      <td class="na">unscored</td><td class="na">unscored</td><td><b>no</b></td><td>yes</td>
-      <td class="iddcs">CS 0.63 — cooling-side fork capped; top-ranked = heat-removal step</td>
-      <td class="l">XMV_10 step +6.8σ (only sustained shift &gt;1.2σ of 52 channels); reactor temp. spike z = +10.5, re-controlled</td>
+      <td class="l fault"><b>IDV11</b> · reactor cooling-water (random)</td>
+      <td><span class="ok">✓ correct</span></td><td><span class="ok">✓ correct</span></td><td class="pca-y">yes</td>
+      <td><span class="iddcs">CS 0.60<br>cooling branch top-ranked</span></td>
+      <td class="ev">variance burst <b>VR 40.1/16.4 with frozen means (≤0.01σ)</b>; no step, no stiction — form read off the recording</td>
     </tr>
-    <tr>
-      <td class="l">IDV7 — C header pressure reduced (Stream 4)</td>
-      <td class="ok">✓ correct</td><td class="ok">✓ correct</td><td>yes</td><td>yes</td>
-      <td class="iddet">✓ Top-1 (0.78)</td>
-      <td class="l">flow held at setpoint (−0.03%) while valve opens +25.1% (z = 12.4) ⇒ ΔP ratio 0.64</td>
-    </tr>
-    <tr>
-      <td class="l">IDV11 — reactor cooling-water temp. (random)</td>
-      <td class="ok">✓ correct</td><td class="ok">✓ correct</td><td>yes</td><td>yes</td>
-      <td class="iddcs">CS 0.60 — fork capped; cooling branch top-ranked (specific form 3rd of 4)</td>
-      <td class="l">variance burst VR 40.1/16.4 with frozen means (≤0.01σ); no step, no stiction</td>
-    </tr>
-    <tr>
-      <td class="l">IDV14 — reactor cooling-water valve (stiction)</td>
-      <td class="ok">✓ correct</td><td class="ok">✓ correct</td><td>yes</td><td>yes</td>
-      <td class="iddet">✓ Top-1 (0.80)</td>
-      <td class="l">actuator limit cycle: variance ×189/116/222 with frozen means; quantised stepping 633/800; lag tightens 1→5</td>
+    <tr class="zeb">
+      <td class="l fault"><b>IDV14</b> · cooling-water valve (stiction)</td>
+      <td><span class="ok">✓ correct</span></td><td><span class="ok">✓ correct</span></td><td class="pca-y">yes</td>
+      <td><span class="iddet">✓ Top-1 · 0.80</span></td>
+      <td class="ev">actuator limit cycle: variance <b>×189/116/222</b> with frozen means; quantized stepping <b>633/800</b>; lag tightens 1→5</td>
     </tr>
   </table>
-  <div class="key">
-    <span class="sw" style="background:#0072b2"></span>DETERMINED Top-1&nbsp;&nbsp;·&nbsp;&nbsp;
-    <span class="sw" style="background:#fdf4e7; border:1px solid #e8c89a;"></span>capped COMPETING_SET — <b>every amber cell keeps the true mechanism ranked among survivors</b> (no unranked miss)&nbsp;&nbsp;·&nbsp;&nbsp;
-    IDD summary: Top-1 <b>3/6</b> (Wilson 95% CI [18.8, 81.2]); top-k 6/6 (true mechanism in all six survivor sets)
+  <div class="legendbar">
+    <span><span class="sw" style="background:#0072b2"></span>IDD determined, Top-1 correct</span>
+    <span><span class="sw" style="background-color:#cfe9f7;background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(18,58,82,.38) 3px 4.5px);"></span>capped set — true mechanism ranked in every survivor set</span>
+    <span><span class="sw" style="background:#f0f1f3;"></span>excluded from FE scoring by its PCA screen</span>
   </div>
+  <div class="sum">IDD summary: Top-1 <b>3/6</b> (Wilson 95% CI [18.8, 81.2], n = 6) · top-k <b>6/6</b> · the two PCA-excluded faults (IDV3, IDV4) are scored by IDD and capped with the mechanism family ranked.</div>
 </body></html>

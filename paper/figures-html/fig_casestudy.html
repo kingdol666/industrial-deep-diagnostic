@@ -2,54 +2,52 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1030px; height:1250px; padding:18px 26px 24px; }
-  .panel-label { margin-bottom:5px; font-size:29px; }
-  .legend { font-size:29px; color:var(--sub); margin-top:1px; line-height:1.4; }
-  /* evidence chain chips */
-  .chain { display:flex; align-items:stretch; gap:0; margin-top:2px; }
-  .chip { flex:1; min-width:0; overflow:hidden; border:1px solid var(--grid); border-radius:6px; background:#fbfcfd; padding:7px 9px; }
-  .chip .tag { display:inline-block; font-size:29px; font-weight:800; letter-spacing:.5px; padding:1.5px 10px; border-radius:12px; margin-bottom:5px; }
-  .chip .txt { font-size:29px; line-height:1.45; color:var(--ink); }
-  .chip .txt b { font-size:29px; }
-  .chip.l1 { border-top:3px solid var(--blue); }   .chip.l1 .tag { background:#e7f0f8; color:var(--blue); }
-  .chip.l3 { border-top:3px solid var(--sky); }    .chip.l3 .tag { background:#e3f4fc; color:#1f7fb5; }
-  .chip.l5 { border-top:3px solid var(--green); }  .chip.l5 .tag { background:#e7f4ef; color:#0a7d38; }
-  .chip.sv { flex:1.25; border-top:3px solid var(--sub); }    .chip.sv .tag { background:#eceff1; color:var(--ink); }
-  .chip.vd { flex:1.25; border-top:3px solid var(--orange); background:#fdf6ea; border-color:#ecd9b0; }
+  * { box-sizing: border-box; }
+  body { width:1240px; padding:14px 20px 16px; }
+  svg text { font-family: Arial, Helvetica, sans-serif; }
+  .panel-label { font-size:33px; }
+  .legend { font-size:26px; color:#555; margin-top:2px; line-height:1.45; }
+  .chain { display:flex; align-items:stretch; margin-top:6px; }
+  .chip { flex:1; min-width:0; border:1px solid #dfe4e8; border-radius:8px; background:#fbfcfd; padding:9px 11px; }
+  .chip .tag { display:inline-block; font-size:26px; font-weight:800; letter-spacing:.4px; padding:2px 11px; border-radius:12px; margin-bottom:6px; }
+  .chip .txt { font-size:24.5px; line-height:1.42; color:#1a1a1a; }
+  .chip .txt b { font-size:24.5px; }
+  .chip.l1 { border-top:4px solid #0072b2; }  .chip.l1 .tag { background:#e7f0f8; color:#0072b2; }
+  .chip.l3 { border-top:4px solid #56b4e9; }  .chip.l3 .tag { background:#e3f4fc; color:#1f7fb5; }
+  .chip.l5 { border-top:4px solid #009e73; }  .chip.l5 .tag { background:#e7f4ef; color:#0a7d38; }
+  .chip.sv { flex:1.22; border-top:4px solid #6a7683; } .chip.sv .tag { background:#eceff1; color:#1a1a1a; }
+  .chip.vd { flex:1.22; border-top:4px solid #e69f00; background:#fdf8ee; border-color:#ecd9b0; }
   .chip.vd .tag { background:#fdf1e3; color:#a35c17; }
-  .arr { width:16px; display:flex; align-items:center; justify-content:center; color:var(--sub); font-size:29px; font-weight:700; }
-  .hrow { display:flex; align-items:baseline; gap:14px; }
-  .hyp { display:inline-block; border:1px solid var(--grid); border-radius:4px; background:#fff; padding:2px 7px; margin:3px 2px 0 0; font-size:29px; }
-  .hyp b { color:var(--blue); }
-  .ticklabel { font-size:29px; }
-  .axlabel { font-size:29px; }
-  .datalabel { font-size:29px; }
+  .arr { width:22px; display:flex; align-items:center; justify-content:center; color:#8f9aa5; font-size:27px; font-weight:700; }
+  .hyp { display:inline-block; border:1px solid #dfe4e8; border-radius:5px; background:#fff; padding:2px 8px; margin:3px 3px 2px 0; font-size:24px; }
+  .hyp b { color:#0072b2; }
+  .src { margin-top:9px; font-size:23px; color:#8f8f8f; line-height:1.4; }
 </style></head><body>
-  <div class="panel-label">(a) SKAB inlet-valve throttling — raw recording (1,145 rows @ 1 Hz), flow-plateau window rows 621&ndash;927 shaded</div>
-  <svg id="ts" width="978" height="510"></svg>
-  <div class="legend"><span style="color:#0072b2;font-weight:700;">&#9472;&#9472;</span> Volume Flow RateRMS (L/min, left axis) &nbsp;&nbsp;
-  <span style="color:#d55e00;font-weight:700;">&#9472;&#9472;</span> Current (A, right axis) &nbsp;&nbsp;
-  <span style="display:inline-block;width:12px;height:12px;background:rgba(230,159,0,.18);border:1px solid rgba(166,113,0,.35);vertical-align:-2px;"></span> flow-plateau window (rows 621&ndash;927, 307 rows &asymp; 5.1 min, self-recovering)</div>
+  <div class="panel-label">(a) SKAB inlet-valve throttling — raw recording (1,145 rows @ 1 Hz), plateau window rows 621–927 shaded</div>
+  <svg id="ts" width="1200" height="500"></svg>
+  <div class="legend"><span style="color:#0072b2;font-weight:700;">──</span> flow channel (Volume Flow Rate RMS, L/min · left axis) &nbsp;&nbsp;
+  <span style="color:#d55e00;font-weight:700;">──</span> pump current (A · right axis) &nbsp;&nbsp;
+  <span style="white-space:nowrap;"><span style="display:inline-block;width:13px;height:13px;background:rgba(230,159,0,.18);border:1px solid rgba(166,113,0,.35);vertical-align:-2px;"></span> flow-plateau window (rows 621–927 · self-recovering)</span></div>
 
-  <div class="panel-label" style="margin-top:10px;">(b) Evidence chain from raw recording to capped verdict (evidence levels L1 &rarr; L3 &rarr; L5 &rarr; survivors &rarr; verdict)</div>
+  <div class="panel-label" style="margin-top:14px;">(b) Evidence chain from raw recording to capped verdict (levels L1 → L3 → L5 → survivors → verdict)</div>
   <div class="chain">
-    <div class="chip l1"><span class="tag">L1 &middot; RAW RECORDING</span>
-      <div class="txt">Flow plateau <b>30&ndash;31 L/min</b> vs &asymp;32 L/min baseline — <b>307 rows</b> (621&ndash;927), sharp onset row 621, spontaneous recovery after row 927.</div></div>
-    <div class="arr">&#8594;</div>
-    <div class="chip l3"><span class="tag">L3 &middot; STATISTICS</span>
-      <div class="txt">Level shift <b>&minus;3.13%</b>, Mann-Whitney <b>p = 5.7&times;10<sup>&minus;158</sup></b> &middot; current co-drop <b>&minus;0.115 A</b> (p = 0.10, directional only) &middot; vibration RMS flat.</div></div>
-    <div class="arr">&#8594;</div>
-    <div class="chip l5"><span class="tag">L5 &middot; MECHANISM</span>
-      <div class="txt">Hydraulic <b>flow-path resistance</b> family — operating-point migration along the pump curve (H = H&#8320; &minus; kQ&sup2;), reversible signature.</div></div>
-    <div class="arr">&#8594;</div>
+    <div class="chip l1"><span class="tag">L1 · RAW RECORDING</span>
+      <div class="txt">Flow plateau <b>30–31 L/min</b> vs ≈32 L/min baseline — <b>307 rows</b> (621–927), sharp onset at row 621, spontaneous recovery after row 927.</div></div>
+    <div class="arr">→</div>
+    <div class="chip l3"><span class="tag">L3 · STATISTICS</span>
+      <div class="txt">Level shift <b>−3.13%</b>, Mann-Whitney <b>p = 5.7×10<sup>−158</sup></b> · current co-drop <b>−0.115 A</b> (p = 0.10, directional only) · vibration RMS flat.</div></div>
+    <div class="arr">→</div>
+    <div class="chip l5"><span class="tag">L5 · MECHANISM</span>
+      <div class="txt">Hydraulic <b>flow-path resistance</b> family — operating-point migration along the pump curve (H = H₀ − kQ²), reversible signature.</div></div>
+    <div class="arr">→</div>
     <div class="chip sv"><span class="tag">SURVIVORS (2)</span>
-      <div class="txt"><span class="hyp"><b>H1</b> downstream throttling &middot; 0.65</span> <span class="hyp"><b>H2</b> upstream supply restriction &middot; 0.60</span><br>
-      pressure direction masked by <b>0.327-bar</b> quantisation &rarr; H1/H2 indistinguishable.</div></div>
-    <div class="arr">&#8594;</div>
+      <div class="txt"><span class="hyp"><b>H1</b> downstream throttling · 0.65</span> <span class="hyp"><b>H2</b> upstream supply restriction · 0.60</span><br>
+      pressure direction masked by <b>0.327-bar</b> quantization → H1/H2 indistinguishable.</div></div>
+    <div class="arr">→</div>
     <div class="chip vd"><span class="tag">VERDICT</span>
-      <div class="txt">Capped <b>COMPETING_SET 0.60</b> &middot; missing channel named: <b>high-resolution valve-position / command + pressure direction</b>.</div></div>
+      <div class="txt">Capped <b>COMPETING_SET 0.60</b> · missing channel named: <b>high-resolution valve position / command + pressure direction</b>.</div></div>
   </div>
-  <div class="legend" style="margin-top:7px;">Data: 00_input/data.csv, run 202609171630389_bench_skab_valve1_1 (verdict, p-values and levels as reported in the run artifacts 04_diagnostics/diagnosis.json and 02_processed/data_analysis_conclusion.json). No second y-axis: pressure is reported as text only.</div>
+  <div class="src">Data: 00_input/data.csv, run 202609171630389_bench_skab_valve1_1 — verdict, p-values and evidence levels as reported in the released run artifacts (04_diagnostics/diagnosis.json, 02_processed/data_analysis_conclusion.json). Pressure is reported as text only (no second axis).</div>
 
 <script>
 const FLOW=[
@@ -162,48 +160,51 @@ const CURR=[
 0.564,1.135,1.142,0.986,0.9,0.931,1.532,1.309,1.473,0.617,0.973,1.009,1.025,1.361,0.629,1.269,1.071,1.031,1.267,1.284,1.139,1.098,
 1.339
 ];
-const NS="http://www.w3.org/2000/svg";
-const svg=document.getElementById("ts");
-const N=FLOW.length, L=56,R=56,T=96,B=46,W=978,H=510,PL=W-L-R,PTh=H-T-B;
-const X=i=>L+PL*i/(N-1);
-const FMIN=28.5,FMAX=33.5, CMIN=0, CMAX=1.8;
-const YF=v=>T+PTh*(1-(v-FMIN)/(FMAX-FMIN));
-const YC=v=>T+PTh*(1-(v-CMIN)/(CMAX-CMIN));
-function el(n,a,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
-// grid, axes, ticks
-for(let v=29;v<=33;v++){ el("line",{x1:L,y1:YF(v),x2:L+PL,y2:YF(v),class:"gridline"});
-  el("text",{x:L-7,y:YF(v)+4,"text-anchor":"end",class:"ticklabel"},v); }
-for(let v=0;v<=1.51;v+=0.5){ el("text",{x:L+PL+7,y:YC(v)+4,class:"ticklabel",fill:"#d55e00"},v.toFixed(1)); }
-el("line",{x1:L,y1:T,x2:L,y2:T+PTh,class:"axis"});
-el("line",{x1:L+PL,y1:T,x2:L+PL,y2:T+PTh,stroke:"#d55e00","stroke-width":1.5});
-el("line",{x1:L,y1:T+PTh,x2:L+PL,y2:T+PTh,class:"axis"});
-el("text",{x:15,y:T+PTh/2,class:"axlabel",transform:`rotate(-90 15 ${T+PTh/2})`,"text-anchor":"middle",fill:"#0072b2"},"Volume Flow RateRMS (L/min)");
-el("text",{x:W-8,y:T+PTh/2,class:"axlabel",transform:`rotate(90 ${W-8} ${T+PTh/2})`,"text-anchor":"middle",fill:"#d55e00"},"Current (A)");
-for(const i of [1,201,401,601,821,1021,1145]) el("text",{x:X(i-1),y:T+PTh+16,"text-anchor":"middle",class:"ticklabel"},i);
-el("text",{x:L+PL/2,y:T+PTh+34,"text-anchor":"middle",class:"axlabel"},"data row (1 Hz)");
-// plateau window shading
-el("rect",{x:X(620),y:T,width:X(926)-X(620),height:PTh,fill:"rgba(230,159,0,0.16)"});
-el("line",{x1:X(620),y1:T,x2:X(620),y2:T+PTh,stroke:"rgba(166,113,0,0.55)","stroke-width":1,"stroke-dasharray":"4 3"});
-el("line",{x1:X(926),y1:T,x2:X(926),y2:T+PTh,stroke:"rgba(166,113,0,0.55)","stroke-width":1,"stroke-dasharray":"4 3"});
-// series (thin lines, every row)
-function path(arr,Yf){let d="";for(let i=0;i<arr.length;i++)d+=(i?"L":"M")+X(i).toFixed(1)+" "+Yf(arr[i]).toFixed(1);return d;}
-el("path",{d:path(CURR,YC),fill:"none",stroke:"#d55e00","stroke-width":0.9,opacity:0.85});
-el("path",{d:path(FLOW,YF),fill:"none",stroke:"#0072b2","stroke-width":1.1});
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("ts");
+const N = FLOW.length, L = 78, R = 78, T = 30, B = 56, W = 1200, H = 500, PL = W - L - R, PTh = H - T - B;
+const X = i => L + PL * i / (N - 1);
+const FMIN = 28.5, FMAX = 33.5, CMIN = 0, CMAX = 1.8;
+const YF = v => T + PTh * (1 - (v - FMIN) / (FMAX - FMIN));
+const YC = v => T + PTh * (1 - (v - CMIN) / (CMAX - CMIN));
+function el(n, a, txt) { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+const HALO = { "paint-order": "stroke", stroke: "#ffffff", "stroke-width": 4, "stroke-linejoin": "round" };
+// grid + axes
+for (let v = 29; v <= 33; v++) {
+  el("line", { x1: L, y1: YF(v), x2: L + PL, y2: YF(v), class: "gridline" });
+  el("text", { x: L - 9, y: YF(v) + 8, "text-anchor": "end", class: "ticklabel" }, v);
+}
+for (let v = 0; v <= 1.51; v += 0.5) {
+  el("text", { x: L + PL + 9, y: v === 0 ? YC(v) - 14 : YC(v) + 8, class: "ticklabel", fill: "#d55e00" }, v.toFixed(1));
+}
+el("line", { x1: L, y1: T, x2: L, y2: T + PTh, class: "axis" });
+el("line", { x1: L + PL, y1: T, x2: L + PL, y2: T + PTh, stroke: "#d55e00", "stroke-width": 1.5 });
+el("line", { x1: L, y1: T + PTh, x2: L + PL, y2: T + PTh, class: "axis" });
+el("text", { x: 26, y: T + PTh / 2, class: "axlabel", transform: `rotate(-90 26 ${T + PTh / 2})`, "text-anchor": "middle", fill: "#0072b2" }, "Flow Rate RMS (L/min)");
+el("text", { x: W - 22, y: T + PTh / 2, class: "axlabel", transform: `rotate(90 ${W - 22} ${T + PTh / 2})`, "text-anchor": "middle", fill: "#d55e00" }, "Current (A)");
+for (const i of [1, 201, 401, 601, 821, 1021, 1145]) el("text", { x: X(i - 1), y: T + PTh + 28, "text-anchor": "middle", class: "ticklabel" }, i);
+el("text", { x: L + PL / 2, y: T + PTh + 52, "text-anchor": "middle", class: "axlabel" }, "data row (1 Hz)");
+// plateau window
+el("rect", { x: X(620), y: T, width: X(926) - X(620), height: PTh, fill: "rgba(230,159,0,0.15)" });
+el("line", { x1: X(620), y1: T, x2: X(620), y2: T + PTh, stroke: "rgba(166,113,0,0.55)", "stroke-width": 1, "stroke-dasharray": "4 3" });
+el("line", { x1: X(926), y1: T, x2: X(926), y2: T + PTh, stroke: "rgba(166,113,0,0.55)", "stroke-width": 1, "stroke-dasharray": "4 3" });
+// series
+function path(arr, Yf) { let d = ""; for (let i = 0; i < arr.length; i++) d += (i ? "L" : "M") + X(i).toFixed(1) + " " + Yf(arr[i]).toFixed(1); return d; }
+el("path", { d: path(CURR, YC), fill: "none", stroke: "#d55e00", "stroke-width": 1.0, opacity: 0.85 });
+el("path", { d: path(FLOW, YF), fill: "none", stroke: "#0072b2", "stroke-width": 1.2 });
 // annotations
-const HALO={"stroke":"#ffffff","stroke-width":"3.5","paint-order":"stroke","stroke-linejoin":"round"};
-el("text",{x:X(700),y:T+40,"text-anchor":"middle",class:"ticklabel",fill:"#a3690b","font-weight":"700",...HALO},"flow-plateau window \u00b7 rows 621\u2013927");
-// plateau level annotation (placed in the empty 31-32 L/min band inside the window)
-el("text",{x:X(800),y:YF(31.7),"text-anchor":"middle",class:"ticklabel",fill:"#0072b2",...HALO},"plateau 30\u201331 L/min vs \u224832 L/min baseline");
-el("text",{x:X(800),y:YF(31.7)+26,"text-anchor":"middle",class:"datalabel",fill:"#0072b2",...HALO},"\u22123.13% level shift, MW p = 5.7e-158");
-el("line",{x1:X(800),y1:YF(31.7)+33,x2:X(800),y2:YF(31.05),stroke:"#1f7fb5","stroke-width":1});
-// current co-drop annotation
-el("text",{x:X(773),y:YF(29.15),"text-anchor":"middle",class:"ticklabel",fill:"#d55e00",...HALO},"current co-drop \u22120.115 A (p = 0.10, directional only)");
-// vibration flat
-el("text",{x:L+8,y:T+PTh-20,"text-anchor":"start",style:"font-size:29px",class:"ticklabel",fill:"#555",...HALO},"vibration RMS (both accelerometer channels) flat throughout \u2014 no mechanical signature");
-// pressure quantisation inset (no second axis)
-el("rect",{x:L+PL-566,y:12,width:560,height:92,fill:"#ffffff",stroke:"#cccccc","stroke-width":1,rx:4});
-el("text",{x:L+PL-554,y:38,class:"ticklabel",fill:"#1a1a1a"},"Pressure channel: quantisation step 0.327 bar \u2014 the");
-el("text",{x:L+PL-554,y:64,class:"ticklabel",fill:"#1a1a1a"},"expected \u0394p (<0.025 bar) is not resolvable");
-el("text",{x:L+PL-554,y:90,class:"ticklabel",fill:"#1a1a1a"},"(text only, no axis).");
+el("rect", { x: X(430), y: 126, width: X(1150) - X(430), height: (YF(31.72) + 44) - 126, fill: "rgba(255,255,255,0.94)", stroke: "#e3d9c6", "stroke-width": 1, rx: 5 });
+el("text", { x: X(690), y: 148, "text-anchor": "middle", class: "ticklabel", fill: "#a3690b", "font-weight": "700", ...HALO }, "flow-plateau window · rows 621–927");
+el("text", { x: X(790), y: YF(31.72), "text-anchor": "middle", class: "ticklabel", fill: "#0072b2", ...HALO }, "plateau 30–31 L/min vs ≈32 L/min baseline");
+el("text", { x: X(790), y: YF(31.72) + 32, "text-anchor": "middle", class: "ticklabel", fill: "#0072b2", "font-weight": "700", ...HALO }, "−3.13% level shift · MW p = 5.7×10⁻¹⁵⁸");
+el("line", { x1: X(790), y1: YF(31.72) + 33, x2: X(790), y2: YF(31.02), stroke: "#1f7fb5", "stroke-width": 1.2 });
+el("text", { x: X(760), y: YF(29.2), "text-anchor": "middle", class: "ticklabel", fill: "#d55e00", ...HALO }, "current co-drop −0.115 A (p = 0.10, directional only)");
+el("text", { x: L + 10, y: T + PTh - 16, "text-anchor": "start", class: "ticklabel", fill: "#555555", ...HALO }, "vibration RMS (both accelerometer channels) flat — no mechanical signature");
+// pressure quantization note (top-right box)
+el("rect", { x: L + PL - 520, y: 8, width: 512, height: 122, fill: "#ffffff", stroke: "#d7dde3", "stroke-width": 1.2, rx: 5 });
+el("text", { x: L + PL - 504, y: 36, class: "ticklabel", fill: "#1a1a1a", "font-weight": "700" }, "Quantization: 0.327 bar");
+el("text", { x: L + PL - 504, y: 60, class: "ticklabel", fill: "#555555" }, "expected head change: smaller by");
+el("text", { x: L + PL - 504, y: 82, class: "ticklabel", fill: "#555555" }, "an order of magnitude (text only)");
+el("text", { x: L + PL - 504, y: 104, class: "ticklabel", fill: "#555555" }, "head direction masked (text only)");
 </script>
 </body></html>

@@ -2,99 +2,131 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1160px; height:1050px; padding:20px 26px 30px; }
-  .wrap { display:flex; gap:24px; }
-  .panel-label { margin-bottom:8px; font-size:24px; }
-  table.aei { font-size:22px; width:540px; }
-  table.aei td:nth-child(2), table.aei th:nth-child(2),
-  table.aei td:nth-child(3), table.aei th:nth-child(3) { text-align:center; }
-  .barrow { display:flex; align-items:center; margin:7px 0; }
-  .track { flex:1; background:#eef1f4; border-radius:3px; height:24px; position:relative; display:flex; }
-  .fill { height:24px; background:var(--blue); }
-  .fill.sky { background-color:#56b4e9; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(25,25,25,0.45) 3px 4.5px); }
-  .barval { position:absolute; right:-50px; top:-2px; font-size:26px; font-weight:700; color:var(--ink); width:56px; }
-  .legend { font-size:24px; color:var(--sub); margin:12px 0 16px; line-height:1.55; }
-  .sw { display:inline-block; width:15px; height:15px; border-radius:2px; vertical-align:-2px; margin-right:6px; }
-  .sw.sky { background-color:#56b4e9; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(25,25,25,0.45) 3px 4.5px); }
-  .strip { display:flex; gap:12px; margin-top:4px; }
-  .chip { border:1px solid var(--grid); border-radius:5px; text-align:center; padding:9px 4px; flex:1; background:#fbfcfd; }
-  .chip .v { font-size:22px; font-weight:800; color:var(--blue); }
-  .chip .l { font-size:22px; color:var(--sub); margin-top:2px; line-height:1.3; }
-  .side { flex:1; }
-  .side .legend { margin-top:8px; }
-  .ticklabel { font-size:22px; }
-  .axlabel { font-size:24px; }
+  * { box-sizing: border-box; }
+  body { width:1500px; padding:16px 20px 18px; }
+  svg text { font-family: Arial, Helvetica, sans-serif; }
+  .panel-label { font-size:36px; }
+  .chiprow { display:flex; gap:14px; margin-top:14px; }
+  .chip { flex:1; border:1px solid #d7dde3; border-radius:6px; background:#fbfcfd; text-align:center; padding:10px 6px 12px; }
+  .chip .v { font-size:32px; font-weight:800; color:#0072b2; line-height:1.1; }
+  .chip .l { font-size:25px; color:#555; margin-top:5px; line-height:1.32; }
 </style></head><body>
-  <div class="wrap">
-    <div style="width:560px;">
-      <div class="panel-label">(a) Fault outcomes by dataset</div>
-      <table class="aei">
-        <tr><th>Dataset</th><th>Fault</th><th>Control</th><th style="width:160px;">Outcome (faults)</th></tr>
-        <tr><td>SKAB</td><td>2</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill sky" style="width:33.3%"></div><span class="barval">0/2</span></div></div></td></tr>
-        <tr><td>TEP</td><td>6</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill" style="width:50%"></div><div class="fill sky" style="width:50%"></div><span class="barval">3/6</span></div></div></td></tr>
-        <tr><td>IndPenSim</td><td>1</td><td>1</td><td><div class="barrow"><div class="track"><div class="fill" style="width:16.7%"></div><span class="barval">1/1</span></div></div></td></tr>
-        <tr><td><b>Total</b></td><td><b>9</b></td><td><b>3</b></td><td><div class="barrow"><div class="track"><div class="fill" style="width:44.4%"></div><div class="fill sky" style="width:55.6%"></div><span class="barval">4/9</span></div></div></td></tr>
-      </table>
-      <div class="legend"><span class="sw" style="background:var(--blue)"></span>Top-1 correct (DETERMINED)&nbsp;&nbsp;
-      <span class="sw sky"></span>capped COMPETING_SET, true mechanism ranked&nbsp;&nbsp;
-      Bar length is proportional to the dataset's fault count (TEP, six faults, is full scale); every capped verdict keeps the true mechanism among survivors.<br>
-      By dataset (faults only): SKAB 0/2 Top-1, TEP 3/6, IndPenSim 1/1 — every capped verdict keeps the true mechanism among survivors.
-      All 3 controls pass with zero false alarms. Wilson 95% CI for Top-1: [18.9, 73.3]; entity-level splits; truth withheld from pipeline inputs.</div>
-      <div class="strip">
-        <div class="chip"><div class="v">4/9</div><div class="l">Top-1 root cause<br>CI [18.9, 73.3]</div></div>
-        <div class="chip"><div class="v">9/9</div><div class="l">top-k (survivor set)<br>CI [70.1, 100]</div></div>
-        <div class="chip"><div class="v">3/3</div><div class="l">controls pass<br>zero false alarms</div></div>
-        <div class="chip"><div class="v">8/9</div><div class="l">verdict-type compliance<br>(only SKAB valve misses)</div></div>
-        <div class="chip"><div class="v">94.6 / 94.7</div><div class="l">rubric / judge mean<br>(12 scenarios)</div></div>
-      </div>
+<div style="display:flex; gap:30px;">
+  <div style="width:560px; flex:0 0 560px;">
+    <div class="panel-label">(a) Fault outcomes by dataset</div>
+    <svg id="svgA" width="560" height="430"></svg>
+    <div class="chiprow">
+      <div class="chip"><div class="v">4/9</div><div class="l">Top-1 root cause<br>[18.9, 73.3]</div></div>
+      <div class="chip"><div class="v">9/9</div><div class="l">top-k (survivor set)<br>[70.1, 100]</div></div>
     </div>
-    <div class="side">
-      <div class="panel-label">(b) Rubric vs. judge gate per scenario</div>
-      <svg width="524" height="378" viewBox="0 0 524 378">
-        <line class="axis" x1="330" y1="8" x2="330" y2="330"/>
-        <line class="axis" x1="330" y1="330" x2="496.5" y2="330"/>
-        <g class="gridline">
-          <line x1="371.5" y1="8" x2="371.5" y2="330"/><line x1="413.2" y1="8" x2="413.2" y2="330"/>
-          <line x1="454.9" y1="8" x2="454.9" y2="330"/><line x1="496.5" y1="8" x2="496.5" y2="330"/>
-        </g>
-        <g class="ticklabel" text-anchor="middle">
-          <text x="330" y="348">60</text><text x="371.5" y="348">70</text><text x="413.2" y="348">80</text>
-          <text x="454.9" y="348">90</text><text x="496.5" y="348">100</text>
-        </g>
-        <text class="axlabel" x="413" y="372" text-anchor="middle">Score (points)</text>
-        <line x1="454.9" y1="8" x2="454.9" y2="330" stroke="#b9c2cc" stroke-width="1" stroke-dasharray="2,4"/>
-        <text class="ticklabel" x="454.9" y="17" text-anchor="middle" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">gate 90</text>
-
-        <!-- rows y = 18 + i*27 ; x(85)=561.25 x(95)=653.75 x(100)=700 x(90)=607.5 x(97)=672.25 x(96)=663 x(65)=376.25 x(94)=644.5 x(93)=635.25 x(98)=681.5 -->
-        <text class="ticklabel" x="322" y="22" text-anchor="end" fill="#1a1a1a">SKAB inlet-valve throttling</text>
-        <circle cx="434.1" cy="18" r="4.5" fill="#0072b2"/><circle cx="475.6" cy="18" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="49" text-anchor="end" fill="#1a1a1a">SKAB cavitation (blind)</text>
-        <circle cx="496.5" cy="45" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="45" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="76" text-anchor="end" fill="#1a1a1a">Control: SKAB anomaly-free</text>
-        <circle cx="496.5" cy="72" r="4.5" fill="#8f8f8f"/><circle cx="484.1" cy="72" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="103" text-anchor="end" fill="#1a1a1a">TEP IDV1 feed-ratio step</text>
-        <circle cx="434.1" cy="99" r="4.5" fill="#0072b2"/><circle cx="479.0" cy="99" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="130" text-anchor="end" fill="#1a1a1a">TEP IDV3 D-feed temp. (hard)</text>
-        <circle cx="496.5" cy="126" r="4.5" fill="#0072b2"/><circle cx="607.5" cy="126" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="157" text-anchor="end" fill="#1a1a1a">Control: TEP fault-free</text>
-        <circle cx="496.5" cy="153" r="4.5" fill="#8f8f8f"/><circle cx="479.0" cy="153" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="184" text-anchor="end" fill="#1a1a1a">IndPenSim batch-93 deviation</text>
-        <circle cx="496.5" cy="180" r="4.5" fill="#0072b2"/><circle cx="479.0" cy="180" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="211" text-anchor="end" fill="#1a1a1a">Control: IndPenSim batch-1</text>
-        <circle cx="350.7" cy="207" r="4.5" fill="#8f8f8f"/><circle cx="471.9" cy="207" r="4.5" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="238" text-anchor="end" fill="#1a1a1a">TEP IDV4 cooling step</text>
-        <circle cx="496.5" cy="234" r="4.5" fill="#0072b2"/><circle cx="484.1" cy="234" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="265" text-anchor="end" fill="#1a1a1a">TEP IDV7 C-header pressure</text>
-        <circle cx="496.5" cy="261" r="4.5" fill="#0072b2"/><circle cx="488.5" cy="261" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="292" text-anchor="end" fill="#1a1a1a">TEP IDV11 cooling random</text>
-        <circle cx="496.5" cy="288" r="4.5" fill="#0072b2"/><circle cx="467.7" cy="288" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-        <text class="ticklabel" x="322" y="319" text-anchor="end" fill="#1a1a1a">TEP IDV14 valve stiction</text>
-        <circle cx="496.5" cy="315" r="4.5" fill="#0072b2"/><circle cx="471.9" cy="315" r="4.5" fill="#fff" stroke="#0072b2" stroke-width="1.6"/>
-      </svg>
-      <div class="legend"><span class="sw" style="background:var(--blue); border-radius:50%;"></span>rubric (faults, filled)&nbsp;&nbsp;
-      <span class="sw" style="background:#fff; border:1.6px solid var(--blue); border-radius:50%;"></span>judge gate (faults, open)&nbsp;&nbsp;
-      <span class="sw" style="background:var(--gray); border-radius:50%;"></span>controls (3)&nbsp;&nbsp;
-      <span style="color:#7a848e;">┈┈</span> gate 90 — judge ≥ 90 on all 12 scenarios; rubric dips below only for the two 85s (SKAB valve, TEP IDV1) and the batch-1 control (65).</div>
+    <div class="chiprow">
+      <div class="chip"><div class="v">3/3</div><div class="l">controls pass, zero<br>false alarms</div></div>
+      <div class="chip"><div class="v">8/9</div><div class="l">verdict-type compliance<br>(miss: SKAB valve)</div></div>
+    </div>
+    <div class="chiprow">
+      <div class="chip"><div class="v">94.6 / 94.7</div><div class="l">rubric / judge mean<br>(12 scenarios)</div></div>
+      <div class="chip"><div class="v">12/12</div><div class="l">finalization<br>gate PASS</div></div>
     </div>
   </div>
+  <div>
+    <div class="panel-label">(b) Rubric vs. judge gate, per scenario</div>
+    <svg id="svgB" width="860" height="770"></svg>
+  </div>
+</div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+function mk(svg, n, a, txt) { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+
+/* ── panel (a): per-dataset stacked bars ─────────────────────── */
+(function(){
+  const svg = document.getElementById("svgA");
+  const L = 170, R = 56, T = 16, W = 560, H = 430, PL = W - L - R; const PH = 238; const B = 130;
+  const defs = mk(svg, "defs", {});
+  defs.innerHTML =
+    '<pattern id="hsky" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">' +
+    '<rect width="7" height="7" fill="#56b4e9"/><line x1="0" y1="0" x2="0" y2="7" stroke="#123a52" stroke-width="1.6"/></pattern>';
+  const rows = [
+    { name: "SKAB",       det: 0, cs: 2, n: 2 },
+    { name: "TEP",        det: 3, cs: 3, n: 6 },
+    { name: "IndPenSim",  det: 1, cs: 0, n: 1 },
+    { name: "All faults", det: 4, cs: 5, n: 9 },
+  ];
+  const xmax = 9;
+  const X = v => L + PL * v / xmax;
+  const rh = 44, gap = 18;
+  for (let v = 0; v <= xmax; v += 3) {
+    mk(svg, "line", { x1: X(v), y1: T, x2: X(v), y2: T + PH, class: "gridline" });
+    mk(svg, "text", { x: X(v), y: T + PH + 30, "text-anchor": "middle", class: "ticklabel" }, v);
+  }
+  mk(svg, "line", { x1: L, y1: T, x2: L, y2: T + PH, class: "axis" });
+  mk(svg, "line", { x1: L, y1: T + PH, x2: L + PL, y2: T + PH, class: "axis" });
+  mk(svg, "text", { x: L + PL / 2, y: T + PH + 58, "text-anchor": "middle", class: "axlabel" }, "fault scenarios (n)");
+  rows.forEach((r, i) => {
+    const y = T + 6 + i * (rh + gap);
+    mk(svg, "text", { x: L - 12, y: y + rh / 2 + 9, "text-anchor": "end", class: "axlabel",
+      "font-weight": i === 3 ? "700" : "400" }, r.name);
+    if (r.det > 0) mk(svg, "rect", { x: X(0), y, width: X(r.det) - X(0), height: rh, fill: "#0072b2" });
+    if (r.cs > 0) mk(svg, "rect", { x: X(r.det), y, width: X(r.det + r.cs) - X(r.det), height: rh,
+      fill: "url(#hsky)", stroke: "#1f7fb5", "stroke-width": 0.8 });
+    const full = (r.det + r.cs) >= xmax;
+    mk(svg, "text", full ? { x: X(xmax) - 10, y: y + rh / 2 + 9, "text-anchor": "end", class: "datalabel", "paint-order": "stroke", stroke: "#ffffff", "stroke-width": 4 }
+                         : { x: X(r.det + r.cs) + 9, y: y + rh / 2 + 9, class: "datalabel" }, `${r.det}/${r.n}`);
+  });
+  // legend below the axis title
+  const ly = T + PH + 94;
+  mk(svg, "rect", { x: L, y: ly - 16, width: 26, height: 20, fill: "#0072b2" });
+  mk(svg, "text", { x: L + 34, y: ly + 2, class: "ticklabel", fill: "#1a1a1a" }, "Top-1 correct (determined)");
+  mk(svg, "rect", { x: L, y: ly + 22, width: 26, height: 20, fill: "url(#hsky)", stroke: "#1f7fb5", "stroke-width": 0.8 });
+  mk(svg, "text", { x: L + 34, y: ly + 40, class: "ticklabel", fill: "#1a1a1a" }, "capped set, truth ranked");
+})();
+
+/* ── panel (b): rubric (filled) vs judge (open) dot plot ─────── */
+(function(){
+  const svg = document.getElementById("svgB");
+  const rows = [
+    ["SKAB inlet-valve throttling", 85, 95, "f"],
+    ["SKAB cavitation (blind)",    100, 90, "f"],
+    ["Control: SKAB anomaly-free", 100, 97, "c"],
+    ["TEP IDV1 feed-ratio step",    85, 96, "f"],
+    ["TEP IDV3 D-feed temp. (hard)",100, 90, "f"],
+    ["Control: TEP fault-free",    100, 96, "c"],
+    ["IndPenSim batch-93",         100, 96, "f"],
+    ["Control: IndPenSim batch-1",  65, 94, "c"],
+    ["TEP IDV4 cooling step",      100, 97, "f"],
+    ["TEP IDV7 C-header pressure", 100, 98, "f"],
+    ["TEP IDV11 cooling random",   100, 93, "f"],
+    ["TEP IDV14 valve stiction",   100, 94, "f"],
+  ];
+  const W = 860, H = 770, L = 424, R = 26, T = 30, B = 202;
+  const PL = W - L - R, PH = H - T - B;
+  const xmin = 60, xmax = 102;
+  const X = v => L + PL * (v - xmin) / (xmax - xmin);
+  const rh = PH / rows.length;
+  for (let v = 60; v <= 100; v += 10) {
+    mk(svg, "line", { x1: X(v), y1: T, x2: X(v), y2: T + PH, class: v === 60 ? "axis" : "gridline" });
+    mk(svg, "text", { x: X(v), y: T + PH + 30, "text-anchor": "middle", class: "ticklabel" }, v);
+  }
+  mk(svg, "line", { x1: L, y1: T + PH, x2: L + PL, y2: T + PH, class: "axis" });
+  mk(svg, "text", { x: L + PL / 2, y: T + PH + 60, "text-anchor": "middle", class: "axlabel" }, "score (points)");
+  mk(svg, "line", { x1: X(90), y1: T, x2: X(90), y2: T + PH, stroke: "#7a848e", "stroke-width": 1.6, "stroke-dasharray": "3,5" });
+  mk(svg, "text", { x: X(90), y: T - 10, "text-anchor": "middle", class: "ticklabel", fill: "#7a848e", "font-weight": "700" }, "gate 90");
+  rows.forEach((r, i) => {
+    const y = T + rh * (i + 0.5);
+    if (r[3] === "c") mk(svg, "rect", { x: L, y: T + rh * i, width: PL, height: rh, fill: "#f4f6f8" });
+    mk(svg, "text", { x: L - 14, y: y + 8, "text-anchor": "end", class: "ticklabel", fill: r[3] === "c" ? "#555555" : "#1a1a1a",
+      "font-style": r[3] === "c" ? "italic" : "normal" }, r[0]);
+    const col = r[3] === "c" ? "#8f8f8f" : "#0072b2";
+    mk(svg, "line", { x1: X(r[1]), y1: y, x2: X(r[2]), y2: y, stroke: col, "stroke-width": 1.2, opacity: 0.45 });
+    mk(svg, "circle", { cx: X(r[1]), cy: y, r: 8, fill: col, stroke: "#ffffff", "stroke-width": 1.6 });
+    mk(svg, "circle", { cx: X(r[2]), cy: y, r: 8, fill: "#ffffff", stroke: col, "stroke-width": 2.4 });
+  });
+  const ly = T + PH + 96;
+  mk(svg, "circle", { cx: L + 8, cy: ly - 8, r: 8, fill: "#0072b2" });
+  mk(svg, "text", { x: L + 24, y: ly, class: "ticklabel", fill: "#1a1a1a" }, "deterministic rubric (filled)");
+  mk(svg, "circle", { cx: L + 8, cy: ly + 26, r: 8, fill: "#fff", stroke: "#0072b2", "stroke-width": 2.4 });
+  mk(svg, "text", { x: L + 24, y: ly + 34, class: "ticklabel", fill: "#1a1a1a" }, "judge gate (open)");
+  mk(svg, "rect", { x: L + 8, y: ly + 52, width: 24, height: 19, fill: "#f4f6f8", stroke: "#d7dde3" });
+  mk(svg, "text", { x: L + 24, y: ly + 69, class: "ticklabel", fill: "#1a1a1a" }, "controls (shaded rows)");
+})();
+</script>
 </body></html>

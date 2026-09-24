@@ -2,110 +2,82 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:1040px; padding:20px 26px; }
-  .panel-label { margin-bottom:10px; font-size:29px; }
-  table.m { border-collapse:collapse; width:1448px; font-size:29px; line-height:1.3; }
-  table.m th, table.m td { border:1px solid #ffffff; padding:7px 8px; text-align:center; }
-  table.m th { background:var(--panel); border:1px solid var(--grid); font-size:29px; }
+  body { width:1500px; padding:14px 20px 12px; }
+  table.m { border-collapse:collapse; width:1460px; table-layout:fixed; }
+  table.m th { background:#f0f3f6; font-size:26px; line-height:1.25; border-bottom:2px solid #c6d0d9; padding:9px 6px; }
+  table.m td { border-bottom:1px solid #edf0f2; padding:6px 6px; text-align:center; font-size:25px; }
   table.m td.l { text-align:left; padding-left:12px; }
-  tr.grp td { border-top:2px solid #4a5a6a; }
-  .det  { background:#0072b2; color:#ffffff; font-weight:700; }
-  .cs   { background-color:#56b4e9; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(25,25,25,0.45) 3px 4.5px); color:#123a52; font-weight:700; }
-  .norm { background:#009e73; color:#ffffff; font-weight:700; }
-  .hit  { background:#009e73; color:#ffffff; font-weight:700; }
-  .miss { background:#d55e00; color:#ffffff; font-weight:700; }
-  .na   { background:#eef0f2; color:#5a6a7a; }
-  .keyrow { margin-top:12px; font-size:29px; color:var(--ink); line-height:1.5; }
-  .sw { display:inline-block; width:16px; height:16px; border-radius:2px; vertical-align:-2px; margin-right:6px; }
-  .sw.cs { width:24px; }
-  .sw.teal { width:40px; background:linear-gradient(90deg,#FEFEFE,#CDE4DD,#81ABA2,#2E6E63); border:1px solid var(--grid); }
-  .note { margin-top:10px; font-size:29px; color:var(--sub); line-height:1.55; width:1448px; }
+  tr.grp td { border-top:2px solid #b9c2cc; }
+  tr.ctrl td { background:#f7f8fa; }
+  .scn { font-size:25px; }
+  .det  { background:#0072b2; color:#fff; font-weight:700; border-radius:5px; padding:7px 4px; }
+  .cs   { background-color:#cfe9f7; background-image:repeating-linear-gradient(45deg, transparent 0 3px, rgba(18,58,82,.38) 3px 4.5px);
+          color:#123a52; font-weight:700; border-radius:5px; padding:7px 2px; font-size:23px; }
+  .norm { background:#009e73; color:#fff; font-weight:700; border-radius:5px; padding:7px 4px; }
+  .hit  { background:#e9f6f0; color:#007a4d; font-weight:700; border-radius:5px; padding:7px 4px; }
+  .miss { background:#fdeee6; color:#c25400; font-weight:700; border-radius:5px; padding:7px 4px; }
+  .nap  { color:#8f8f8f; background:#f0f1f3; border-radius:5px; padding:7px 4px; }
+  .dsl { font-size:23px; font-weight:700; color:#8f8f8f; }
+  .chiprow { display:flex; gap:14px; margin-top:14px; }
+  .chip { flex:1; border:1px solid #d7dde3; border-radius:6px; background:#fbfcfd; text-align:center; padding:8px 4px 7px; }
+  .chip .v { font-size:29px; font-weight:800; color:#0072b2; line-height:1.1; }
+  .chip .l { font-size:23px; color:#555; margin-top:3px; line-height:1.28; }
 </style></head><body>
-  <div class="panel-label">Per-scenario comparison — IDD (full pipeline) vs same-model bare LLM, FE-regime prompts and live PCA / FE-protocol executions</div>
-  <table class="m">
-    <tr>
-      <th class="l" style="width:340px;">Scenario</th>
-      <th style="width:184px;">IDD verdict<br>(conf.)</th>
-      <th style="width:184px;">Bare LLM<br>(strict)</th>
-      <th style="width:184px;">FE style<br>(cand.)</th>
-      <th style="width:184px;">PCA T²<br>det. %</th>
-      <th style="width:184px;">PCA SPE<br>det. %</th>
-      <th style="width:184px;">FE prot.<br>det.</th>
-    </tr>
-    <tr>
-      <td class="l">SKAB inlet-valve throttling</td>
-      <td class="cs">CS 0.60 · ranked</td><td class="hit">hit</td><td class="na">-</td>
-      <td style="background:#2E6E63; color:#fff;">100</td><td style="background:#2E6E63; color:#fff;">100</td><td class="na">-</td>
-    </tr>
-    <tr>
-      <td class="l">SKAB cavitation (blind)</td>
-      <td class="cs">CS 0.60 · ranked</td><td class="hit">hit</td><td class="na">-</td>
-      <td style="background:#2E6E63; color:#fff;">100</td><td style="background:#2E6E63; color:#fff;">100</td><td class="na">-</td>
-    </tr>
-    <tr>
-      <td class="l">Control: SKAB anomaly-free</td>
-      <td class="norm">normal 0.86</td><td class="hit">normal</td><td class="na">-</td>
-      <td style="background:#FEFEFE; color:#1e3a54;">1.0</td><td style="background:#FEFEFE; color:#1e3a54;">1.0</td><td class="na">-</td>
-    </tr>
-    <tr class="grp">
-      <td class="l">TEP IDV1 feed-ratio step</td>
-      <td class="det">Top-1 0.91</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#307065; color:#fff;">99.3</td><td style="background:#2F6F64; color:#fff;">99.8</td><td class="hit">det.</td>
-    </tr>
-    <tr>
-      <td class="l">TEP IDV3 D-feed temp. (hard)</td>
-      <td class="cs">CS 0.55 · ranked</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#FCFDFD; color:#1e3a54;">2.9</td><td style="background:#FAFCFC; color:#1e3a54;">4.8</td><td class="miss">no</td>
-    </tr>
-    <tr>
-      <td class="l">Control: TEP fault-free (d00)</td>
-      <td class="norm">normal 0.90</td><td class="na">-</td><td class="na">-</td>
-      <td style="background:#FEFEFE; color:#1e3a54;">1.0</td><td style="background:#FEFEFE; color:#1e3a54;">1.0</td><td class="na">no</td>
-    </tr>
-    <tr class="grp">
-      <td class="l">IndPenSim batch-93 deviation</td>
-      <td class="det">Top-1 0.82</td><td class="hit">hit</td><td class="na">-</td>
-      <td style="background:#F0F7F4; color:#1e3a54;">15.0</td><td style="background:#81ABA2; color:#fff;">73.9</td><td class="na">-</td>
-    </tr>
-    <tr>
-      <td class="l">Control: IndPenSim batch-1</td>
-      <td class="norm">normal 0.93</td><td class="hit">normal</td><td class="na">-</td>
-      <td style="background:#FEFEFE; color:#1e3a54;">1.1</td><td style="background:#FEFEFE; color:#1e3a54;">1.1</td><td class="na">-</td>
-    </tr>
-    <tr class="grp">
-      <td class="l">TEP IDV4 cooling step</td>
-      <td class="cs">CS 0.63 · ranked</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#CDE4DD; color:#1e3a54;">48.8</td><td style="background:#2E6E63; color:#fff;">100</td><td class="hit">det.</td>
-    </tr>
-    <tr>
-      <td class="l">TEP IDV7 C-header pressure</td>
-      <td class="det">Top-1 0.78</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#2E6E63; color:#fff;">100</td><td style="background:#437D73; color:#fff;">99.5</td><td class="hit">det.</td>
-    </tr>
-    <tr>
-      <td class="l">TEP IDV11 cooling random</td>
-      <td class="cs">CS 0.60 · ranked</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#C0DAD3; color:#1e3a54;">53.8</td><td style="background:#99BDB5; color:#fff;">66.3</td><td class="hit">det.</td>
-    </tr>
-    <tr>
-      <td class="l">TEP IDV14 valve stiction</td>
-      <td class="det">Top-1 0.80</td><td class="hit">hit</td><td class="hit">hit</td>
-      <td style="background:#307065; color:#fff;">99.8</td><td style="background:#437D73; color:#fff;">93.4</td><td class="hit">det.</td>
-    </tr>
-  </table>
-  <div class="keyrow">
-    <span class="sw" style="background:#0072b2"></span>IDD resolved (Top-1)&nbsp;&nbsp;
-    <span class="sw cs"></span>capped CS, mechanism ranked (5/5)&nbsp;&nbsp;
-    <span class="sw" style="background:#009e73"></span>baseline hit / control pass&nbsp;&nbsp;
-    <span class="sw" style="background:#d55e00"></span>miss / not detected&nbsp;&nbsp;
-    <span class="sw teal"></span>PCA detection rate (%)&nbsp;&nbsp;
-    <span class="sw" style="background:#eef0f2"></span>not in protocol scope
-  </div>
-  <div class="note">
-    <b>Reading.</b> Column 1 = canonical one-execution-per-scenario grading. Bare LLM strict: 9/9 faults hit, covered controls 2/2 normal
-    (TEP d00 control out of protocol scope). FE style with candidates (TEP 6): 6/6. FE official detection: 5/6 (IDV3 undetected;
-    d00 "no" is the correct control outcome). PCA columns = live suite executions, sample-level T²/SPE detection rates
-    (controls ≈1% = nominal false-alarm level). IDD headline: Top-1 4/9 [18.9, 73.3] · top-k 9/9 [70.1, 100] · controls 3/3,
-    zero false alarms · TEP subset 3/6 [18.8, 81.2].
-  </div>
+<table class="m">
+  <colgroup><col style="width:66px"><col style="width:296px"><col style="width:196px"><col style="width:158px"><col style="width:158px"><col style="width:150px"><col style="width:150px"><col></colgroup>
+  <tr>
+    <th></th><th style="text-align:left;">Scenario</th><th>IDD verdict<br>(confidence)</th><th>bare LLM<br>(strict keywords)</th><th>FE style<br>(candidates)</th>
+    <th>PCA T²<br>det. %</th><th>PCA SPE<br>det. %</th><th>FE trigger<br>(6 × T²)</th>
+  </tr>
+  <tbody id="tb"></tbody>
+</table>
+<div class="chiprow">
+  <div class="chip"><div class="v">9/9</div><div class="l">bare LLM strict hits<br>(2/2 covered controls)</div></div>
+  <div class="chip"><div class="v">6/6</div><div class="l">FE-style, candidates<br>(TEP subset)</div></div>
+  <div class="chip"><div class="v">4/9</div><div class="l">IDD resolved Top-1<br>top-k 9/9 · controls 3/3</div></div>
+  <div class="chip"><div class="v">2.9 / 4.8</div><div class="l">PCA on IDV3 —<br>the detection limit</div></div>
+</div>
+<script>
+// verified per-scenario matrix; pca rates from the released suite re-execution
+const ROWS = [
+  { g: "SKAB", scn: "SKAB inlet-valve throttling", idd: ["cs", "CS 0.60 · ranked"], bare: ["hit", "hit"], fe: ["nap", "—"], t2: 100, spe: 100, trig: ["nap", "—"], ctrl: false },
+  { scn: "SKAB cavitation (blind)", idd: ["cs", "CS 0.60 · ranked"], bare: ["hit", "hit"], fe: ["nap", "—"], t2: 100, spe: 100, trig: ["nap", "—"], ctrl: false },
+  { scn: "Control: SKAB anomaly-free", idd: ["norm", "normal 0.86"], bare: ["hit", "normal"], fe: ["nap", "—"], t2: 1.0, spe: 1.0, trig: ["nap", "—"], ctrl: true },
+  { g: "TEP", scn: "TEP IDV1 feed-ratio step", idd: ["det", "Top-1 0.91"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 99.3, spe: 99.8, trig: ["hit", "det."], ctrl: false },
+  { scn: "TEP IDV3 D-feed temp. (hard)", idd: ["cs", "CS 0.55 · ranked"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 2.9, spe: 4.8, trig: ["miss", "no"], ctrl: false },
+  { scn: "Control: TEP fault-free (d00)", idd: ["norm", "normal 0.90"], bare: ["nap", "—"], fe: ["nap", "—"], t2: 1.0, spe: 1.0, trig: ["hit", "no ✓"], ctrl: true },
+  { scn: "TEP IDV4 cooling step", idd: ["cs", "CS 0.63 · ranked"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 48.8, spe: 100, trig: ["hit", "det."], ctrl: false },
+  { scn: "TEP IDV7 C-header pressure", idd: ["det", "Top-1 0.78"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 100, spe: 99.5, trig: ["hit", "det."], ctrl: false },
+  { scn: "TEP IDV11 cooling random", idd: ["cs", "CS 0.60 · ranked"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 53.8, spe: 66.3, trig: ["hit", "det."], ctrl: false },
+  { scn: "TEP IDV14 valve stiction", idd: ["det", "Top-1 0.80"], bare: ["hit", "hit"], fe: ["hit", "hit"], t2: 99.8, spe: 93.4, trig: ["hit", "det."], ctrl: false },
+  { g: "IPS", scn: "IndPenSim batch-93 deviation", idd: ["det", "Top-1 0.82"], bare: ["hit", "hit"], fe: ["nap", "—"], t2: 15.0, spe: 73.9, trig: ["nap", "—"], ctrl: false },
+  { scn: "Control: IndPenSim batch-1", idd: ["norm", "normal 0.93"], bare: ["hit", "normal"], fe: ["nap", "—"], t2: 1.1, spe: 1.1, trig: ["nap", "—"], ctrl: true },
+];
+// white → deep teal ramp for PCA detection rates (log-scaled so the 1% controls sit near white)
+function heat(v) {
+  const t = Math.min(1, Math.pow(v / 100, 0.45));
+  const c0 = [252, 253, 253], c1 = [27, 94, 74];
+  const c = c0.map((a, i) => Math.round(a + (c1[i] - a) * t));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+const tb = document.getElementById("tb");
+let html = "";
+ROWS.forEach((r, gi) => {
+  const grp = r.g ? `<td class="dsl">${r.g}</td>` : `<td></td>`;
+  const t2bg = heat(r.t2), spebg = heat(r.spe);
+  const t2fg = r.t2 > 45 ? "#fff" : "#1e3a54";
+  const spefg = r.spe > 45 ? "#fff" : "#1e3a54";
+  const cell = (k) => `<td><span class="${r[k][0]}">${r[k][1]}</span></td>`;
+  html += `<tr class="${r.ctrl ? "ctrl" : ""}${r.g ? " grp" : ""}">` +
+    grp +
+    `<td class="l scn">${r.scn}</td>` +
+    `<td><span class="${r.idd[0]}">${r.idd[1]}</span></td>` +
+    cell("bare") + cell("fe") +
+    `<td style="background:${t2bg}; color:${t2fg}; font-weight:${r.t2 > 45 ? 700 : 400}; border-radius:4px;">${r.t2}</td>` +
+    `<td style="background:${spebg}; color:${spefg}; font-weight:${r.spe > 45 ? 700 : 400}; border-radius:4px;">${r.spe}</td>` +
+    cell("trig") +
+    `</tr>`;
+});
+tb.innerHTML = html;
+</script>
 </body></html>

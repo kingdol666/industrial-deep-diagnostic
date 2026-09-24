@@ -12,7 +12,7 @@ A.~Khan, R.~Nahar, H.~Chen, G.~E. Constante-Flores, C.~Li, {FaultExplainer}:
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2025.109152}
   {\path{doi:10.1016/j.compchemeng.2025.109152}}.
 
-\bibitem{agentic2025review}
+\bibitem{agentic2026review}
 X.~Jiang, H.~Xie, J.~Wang, Z.~Yang, Y.~Zhou, L.~Yao, Z.~Zhu, Agentic {AI} for
   safety-aware process monitoring and fault diagnosis: A review, Processes
   14~(13) (2026) 2112.
@@ -37,8 +37,8 @@ S.~Tuli, G.~Casale, N.~R. Jennings, {TranAD}: Deep transformer networks for
 \bibitem{pozdnyakov2024adversarial}
 V.~Pozdnyakov, A.~Kovalenko, I.~Makarov, M.~Drobyshevskiy, K.~Lukyanov,
   Adversarial attacks and defenses in fault detection and diagnosis: A
-  comprehensive benchmark on the tennessee eastman process, IEEE Open Journal
-  of the Industrial Electronics Society 5 (2024) 428--440.
+  comprehensive benchmark on the {T}ennessee {E}astman process, IEEE Open
+  Journal of the Industrial Electronics Society 5 (2024) 428--440.
 \newblock \href {https://doi.org/10.1109/OJIES.2024.3401396}
   {\path{doi:10.1109/OJIES.2024.3401396}}.
 
@@ -86,6 +86,13 @@ J.~J. Downs, E.~F. Vogel, A plant-wide industrial process control problem,
 \newblock \href {https://doi.org/10.1016/0098-1354(93)80018-I}
   {\path{doi:10.1016/0098-1354(93)80018-I}}.
 
+\bibitem{yin2014review}
+S.~Yin, S.~X. Ding, X.~Xie, H.~Luo, A review on basic data-driven approaches
+  for industrial process monitoring, IEEE Transactions on Industrial
+  Electronics 61~(11) (2014) 6418--6428.
+\newblock \href {https://doi.org/10.1109/TIE.2014.2301773}
+  {\path{doi:10.1109/TIE.2014.2301773}}.
+
 \bibitem{hartung2023deep}
 F.~Hartung, B.~J. Franks, T.~Michels, D.~Wagner, P.~Liznerski, S.~Reithermann,
   S.~Fellenz, F.~Jirasek, M.~Rudolph, D.~Neider, H.~Leitte, C.~Song,
@@ -106,15 +113,15 @@ V.~Venkatasubramanian, R.~Rengaswamy, K.~Yin, S.~N. Kavuri, A review of process
 V.~Venkatasubramanian, R.~Rengaswamy, S.~N. Kavuri, A review of process fault
   detection and diagnosis: {Part II}: Qualitative models and search strategies,
   Computers \& Chemical Engineering 27~(3) (2003) 313--326.
-\newblock \href {https://doi.org/10.1016/S0098-1354(02)00218-X}
-  {\path{doi:10.1016/S0098-1354(02)00218-X}}.
+\newblock \href {https://doi.org/10.1016/S0098-1354(02)00161-8}
+  {\path{doi:10.1016/S0098-1354(02)00161-8}}.
 
 \bibitem{venkatasubramanian2003part3}
 V.~Venkatasubramanian, R.~Rengaswamy, S.~N. Kavuri, K.~Yin, A review of process
   fault detection and diagnosis: {Part III}: Process history based methods,
   Computers \& Chemical Engineering 27~(3) (2003) 327--346.
-\newblock \href {https://doi.org/10.1016/S0098-1354(02)00219-1}
-  {\path{doi:10.1016/S0098-1354(02)00219-1}}.
+\newblock \href {https://doi.org/10.1016/S0098-1354(02)00162-x}
+  {\path{doi:10.1016/S0098-1354(02)00162-x}}.
 
 \bibitem{isermann2005model}
 R.~Isermann, Model-based fault-detection and diagnosis -- status and
@@ -136,12 +143,38 @@ J.~Hendriks, P.~Dumond, D.~A. Knox, Towards better benchmarking using the
 \newblock \href {https://doi.org/10.1016/j.ymssp.2021.108732}
   {\path{doi:10.1016/j.ymssp.2021.108732}}.
 
+\bibitem{yoon2001statistical}
+S.~Yoon, J.~F. MacGregor, Statistical and causal model-based approaches to
+  fault detection and isolation, AIChE Journal 46~(9) (2000) 1813--1824.
+\newblock \href {https://doi.org/10.1002/aic.690460910}
+  {\path{doi:10.1002/aic.690460910}}.
+
+\bibitem{thornhill2007fault}
+N.~F. Thornhill, A.~Horch, Advances and new directions in plant-wide
+  disturbance detection and diagnosis, Control Engineering Practice 15~(10)
+  (2007) 1196--1206.
+\newblock \href {https://doi.org/10.1016/j.conengprac.2006.10.011}
+  {\path{doi:10.1016/j.conengprac.2006.10.011}}.
+
 \bibitem{iri1979algorithm}
 M.~Iri, K.~Aoki, E.~O'Shima, H.~Matsuyama, An algorithm for diagnosis of system
   failures in the chemical process, Computers \& Chemical Engineering 3~(1--4)
   (1979) 489--493.
 \newblock \href {https://doi.org/10.1016/0098-1354(79)80079-4}
   {\path{doi:10.1016/0098-1354(79)80079-4}}.
+
+\bibitem{dunia1996identification}
+R.~Dunia, S.~J. Qin, T.~F. Edgar, T.~J. McAvoy, Identification of faulty
+  sensors using principal component analysis, AIChE Journal 42~(10) (1996)
+  2797--2812.
+\newblock \href {https://doi.org/10.1002/aic.690421011}
+  {\path{doi:10.1002/aic.690421011}}.
+
+\bibitem{alcala2009reconstruction}
+C.~F. Alcal{\'a}, S.~J. Qin, Reconstruction-based contribution for process
+  monitoring, Automatica 45~(7) (2009) 1594--1600.
+\newblock \href {https://doi.org/10.1016/j.automatica.2009.02.027}
+  {\path{doi:10.1016/j.automatica.2009.02.027}}.
 
 \bibitem{tao2019digital}
 F.~Tao, H.~Zhang, A.~Liu, A.~Y.~C. Nee, Digital twin in industry:
@@ -203,9 +236,11 @@ K.~M. Alsaif, A.~A. Albeshri, M.~A. Khemakhem, F.~E. Eassa, Multimodal large
   {\path{doi:10.3390/electronics13244912}}.
 
 \bibitem{merkelbach2024multimodal}
-S.~Merkelbach, W.~Hasenauer, Using multi-modal {LLMs} to create models for
-  fault diagnosis, in: DX 2024 -- 35th International Workshop on Principles of
-  Diagnosis (OASIcs), 2024, pp. 31:1--31:8.
+S.~Merkelbach, A.~Diedrich, A.~Sztyber-Betley, L.~Trav{\'e}-Massuy{\`e}s,
+  E.~Chanthery, O.~Niggemann, R.~Dumitrescu, Using multi-modal {LLMs} to create
+  models for fault diagnosis (short paper), in: 35th International Conference
+  on Principles of Diagnosis and Resilient Systems (DX 2024), Vol. 125 of Open
+  Access Series in Informatics (OASIcs), 2024, pp. 31:1--31:15.
 \newblock \href {https://doi.org/10.4230/OASIcs.DX.2024.31}
   {\path{doi:10.4230/OASIcs.DX.2024.31}}.
 
@@ -240,11 +275,18 @@ Q.~Xu, G.~Wen, Z.~Lei, S.~Gu, Y.~Su, Z.~Zhang, X.~Chen, Deep digital
   {\path{doi:10.1016/j.aei.2025.103997}}.
 
 \bibitem{wei2026agentrca}
-A.~Wei, O.~Fink, {AgentRCA}: Agentic root cause analysis through
-  evidence-grounded reasoning (2026).
+A.~Wei, O.~Fink, Agentic root cause analysis through evidence-grounded
+  reasoning (2026).
 \newblock \href {http://arxiv.org/abs/2607.22385} {\path{arXiv:2607.22385}},
   \href {https://doi.org/10.48550/arXiv.2607.22385}
   {\path{doi:10.48550/arXiv.2607.22385}}.
+
+\bibitem{chen2023automatic}
+Y.~Chen, H.~Xie, M.~Ma, Y.~Kang, X.~Gao, L.~Shi, Y.~Cao, X.~Gao, H.~Fan,
+  M.~Wen, et~al., Automatic root cause analysis via large language models for
+  cloud incidents, arXiv preprint arXiv:2305.15778 (2023).
+\newblock \href {https://doi.org/10.48550/arXiv.2305.15778}
+  {\path{doi:10.48550/arXiv.2305.15778}}.
 
 \bibitem{wu2023autogen}
 Q.~Wu, G.~Bansal, J.~Zhang, Y.~Wu, B.~Li, E.~Zhu, L.~Jiang, X.~Zhang, S.~Zhang,
@@ -261,6 +303,12 @@ S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, Y.~Cao, {ReAct}:
 \newblock \href {https://doi.org/10.48550/arXiv.2210.03629}
   {\path{doi:10.48550/arXiv.2210.03629}}.
 
+\bibitem{cemri2025mast}
+M.~Cemri, M.~Z. Pan, S.~Yang, E.~MacNeil, et~al., Why do multi-agent {LLM}
+  systems fail?, arXiv preprint arXiv:2503.13657 (2025).
+\newblock \href {https://doi.org/10.48550/arXiv.2503.13657}
+  {\path{doi:10.48550/arXiv.2503.13657}}.
+
 \bibitem{parasuraman2000model}
 R.~Parasuraman, T.~B. Sheridan, C.~D. Wickens, A model for types and levels of
   human interaction with automation, IEEE Transactions on Systems, Man, and
@@ -268,11 +316,29 @@ R.~Parasuraman, T.~B. Sheridan, C.~D. Wickens, A model for types and levels of
 \newblock \href {https://doi.org/10.1109/3468.844354}
   {\path{doi:10.1109/3468.844354}}.
 
+\bibitem{sheridan1978human}
+T.~B. Sheridan, W.~L. Verplanck, Human and computer control of undersea
+  teleoperators, Tech. rep., Man-Machine Systems Laboratory, Massachusetts
+  Institute of Technology, Cambridge, MA (1978).
+\newblock \href {https://doi.org/10.21236/ada057655}
+  {\path{doi:10.21236/ada057655}}.
+
 \bibitem{lee2004trust}
 J.~D. Lee, K.~A. See, Trust in automation: designing for appropriate reliance,
   Human Factors 46~(1) (2004) 50--80.
 \newblock \href {https://doi.org/10.1518/hfes.46.1.50_30392}
   {\path{doi:10.1518/hfes.46.1.50_30392}}.
+
+\bibitem{parasuraman2010complacency}
+R.~Parasuraman, D.~H. Manzey, Complacency and bias in human use of automation:
+  An attentional integration, Human Factors 52~(3) (2010) 381--410.
+\newblock \href {https://doi.org/10.1177/0018720810376055}
+  {\path{doi:10.1177/0018720810376055}}.
+
+\bibitem{bainbridge1983ironies}
+L.~Bainbridge, Ironies of automation, Automatica 19~(6) (1983) 775--779.
+\newblock \href {https://doi.org/10.1016/0005-1098(83)90046-8}
+  {\path{doi:10.1016/0005-1098(83)90046-8}}.
 
 \bibitem{heuer1999psychology}
 R.~J. Heuer, Psychology of Intelligence Analysis, Center for the Study of
@@ -299,6 +365,8 @@ A.~N. Angelopoulos, S.~Bates, Conformal prediction: A gentle introduction,
 \bibitem{doshivelez2017rigorous}
 F.~Doshi-Velez, B.~Kim, Towards {A} {Rigorous} {Science} of {Interpretable}
   {Machine} {Learning}, arXiv preprint arXiv:1702.08608 (2017).
+\newblock \href {https://doi.org/10.48550/arXiv.1702.08608}
+  {\path{doi:10.48550/arXiv.1702.08608}}.
 
 \bibitem{scott2014input}
 J.~K. Scott, R.~Findeisen, R.~D. Braatz, D.~M. Raimondo, Input design for
@@ -307,6 +375,18 @@ J.~K. Scott, R.~Findeisen, R.~D. Braatz, D.~M. Raimondo, Input design for
 \newblock \href {https://doi.org/10.1016/j.automatica.2014.03.016}
   {\path{doi:10.1016/j.automatica.2014.03.016}}.
 
+\bibitem{reiter1987theory}
+R.~Reiter, A theory of diagnosis from first principles, Artificial Intelligence
+  32~(1) (1987) 57--95.
+\newblock \href {https://doi.org/10.1016/0004-3702(87)90062-2}
+  {\path{doi:10.1016/0004-3702(87)90062-2}}.
+
+\bibitem{dekleer1987diagnosing}
+J.~de~Kleer, B.~C. Williams, Diagnosing multiple faults, Artificial
+  Intelligence 32~(1) (1987) 97--130.
+\newblock \href {https://doi.org/10.1016/0004-3702(87)90063-4}
+  {\path{doi:10.1016/0004-3702(87)90063-4}}.
+
 \bibitem{morbach2009ontocape}
 J.~Morbach, A.~Wiesner, W.~Marquardt, {OntoCAPE}---a (re)usable ontology for
   computer-aided process engineering, Computers \& Chemical Engineering 33~(10)
@@ -314,12 +394,34 @@ J.~Morbach, A.~Wiesner, W.~Marquardt, {OntoCAPE}---a (re)usable ontology for
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2009.01.019}
   {\path{doi:10.1016/j.compchemeng.2009.01.019}}.
 
+\bibitem{iso15926}
+{International Organization for Standardization}, {ISO} 15926-2:2003.
+  industrial automation systems and integration --- integration of life-cycle
+  data for process plants including oil and gas production facilities --- {Part
+  2}: Conceptual data model, Standard, Geneva (2003).
+
 \bibitem{lewis2020rag}
 P.~Lewis, E.~Perez, A.~Piktus, F.~Petroni, V.~Karpukhin, N.~Goyal,
-  H.~K{"u}ttler, M.~Lewis, W.-t. Yih, T.~Rockt{"a}schel, S.~Riedel, D.~Kiela,
+  H.~K{\"u}ttler, M.~Lewis, W.-t. Yih, T.~Rockt{\"a}schel, S.~Riedel, D.~Kiela,
   Retrieval-augmented generation for knowledge-intensive {NLP} tasks, in:
   Advances in Neural Information Processing Systems 33 (NeurIPS 2020), 2020,
   arXiv:2005.11401.
+\newblock \href {https://doi.org/10.48550/arXiv.2005.11401}
+  {\path{doi:10.48550/arXiv.2005.11401}}.
+
+\bibitem{zheng2023judging}
+L.~Zheng, W.-L. Chiang, Y.~Sheng, S.~Zhuang, Z.~Wu, Y.~Zhuang, Z.~Lin, Z.~Li,
+  D.~Li, E.~P. Xing, H.~Zhang, J.~E. Gonzalez, I.~Stoica, Judging
+  {LLM}-as-a-judge with {MT-Bench} and {Chatbot Arena}, in: Advances in Neural
+  Information Processing Systems 36 (Datasets and Benchmarks Track), 2023.
+\newblock \href {https://doi.org/10.48550/arXiv.2306.05685}
+  {\path{doi:10.48550/arXiv.2306.05685}}.
+
+\bibitem{panickssery2024selfpref}
+A.~Panickssery, S.~R. Bowman, S.~Feng, {LLM} evaluators recognize and favor
+  their own generations, arXiv preprint arXiv:2404.13096 (2024).
+\newblock \href {https://doi.org/10.48550/arXiv.2404.13096}
+  {\path{doi:10.48550/arXiv.2404.13096}}.
 
 \bibitem{skab2020}
 I.~D. Katser, V.~O. Kozitsin, Skoltech anomaly benchmark ({SKAB}),
@@ -332,6 +434,12 @@ P.~R. Lyman, C.~Georgakis, Plant-wide control of the {Tennessee} {Eastman}
   problem, Computers \& Chemical Engineering 19~(3) (1995) 321--331.
 \newblock \href {https://doi.org/10.1016/0098-1354(94)00057-U}
   {\path{doi:10.1016/0098-1354(94)00057-U}}.
+
+\bibitem{bathelt2015revision}
+A.~Bathelt, N.~L. Ricker, M.~Jelali, Revision of the {T}ennessee {E}astman
+  process model, IFAC-PapersOnLine 48~(8) (2015) 309--314.
+\newblock \href {https://doi.org/10.1016/j.ifacol.2015.08.199}
+  {\path{doi:10.1016/j.ifacol.2015.08.199}}.
 
 \bibitem{goldrick2015development}
 S.~Goldrick, A.~{\c{S}}tefan, D.~Lovett, G.~Montague, B.~Lennox, The
@@ -348,6 +456,45 @@ S.~Goldrick, C.~A. Duran-Villalobos, K.~Jankauskas, D.~Lovett, S.~S. Farid,
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2019.05.037}
   {\path{doi:10.1016/j.compchemeng.2019.05.037}}.
 
+\bibitem{glm2024chatglm}
+{GLM Team}, A.~Zeng, et~al., {ChatGLM}: A family of large language models from
+  {GLM-130B} to {GLM-4} all tools, arXiv preprint arXiv:2406.18871 (2024).
+\newblock \href {https://doi.org/10.48550/arXiv.2406.18871}
+  {\path{doi:10.48550/arXiv.2406.18871}}.
+
+\bibitem{horch1999simple}
+A.~Horch, A simple method for detection of stiction in control valves, Control
+  Engineering Practice 7~(10) (1999) 1221--1231.
+\newblock \href {https://doi.org/10.1016/s0967-0661(99)00100-8}
+  {\path{doi:10.1016/s0967-0661(99)00100-8}}.
+
+\bibitem{hagglund1995control}
+T.~H{\"a}gglund, A control-loop performance monitor, Control Engineering
+  Practice 3~(11) (1995) 1543--1551.
+\newblock \href {https://doi.org/10.1016/0967-0661(95)00164-p}
+  {\path{doi:10.1016/0967-0661(95)00164-p}}.
+
+\bibitem{choudhury2008diagnosis}
+M.~A. A.~S. Choudhury, S.~L. Shah, N.~F. Thornhill, Diagnosis of Process
+  Nonlinearities and Valve Stiction: Data Driven Approaches, Springer, Berlin,
+  Heidelberg, 2008.
+
+\bibitem{alfayez2005detection}
+L.~Alfayez, D.~Mba, Detection of incipient cavitation and determination of the
+  best efficiency point for centrifugal pumps using acoustic emission,
+  Proceedings of the Institution of Mechanical Engineers, Part E: Journal of
+  Process Mechanical Engineering 219~(4) (2005) 327--344.
+\newblock \href {https://doi.org/10.1243/095440805x33225}
+  {\path{doi:10.1243/095440805x33225}}.
+
+\bibitem{zhou2019beatgan}
+B.~Zhou, S.~Liu, B.~Hooi, X.~Cheng, J.~Ye, {BeatGAN}: Anomalous rhythm
+  detection using adversarially generated time series, in: Proceedings of the
+  28th International Joint Conference on Artificial Intelligence (IJCAI), 2019,
+  pp. 2775--2781.
+\newblock \href {https://doi.org/10.24963/ijcai.2019/616}
+  {\path{doi:10.24963/ijcai.2019/616}}.
+
 \bibitem{iliopoulos2023detection}
 A.~Iliopoulos, J.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in
   multivariate time series using ensemble techniques, in: 2023 IEEE Ninth
@@ -357,14 +504,14 @@ A.~Iliopoulos, J.~Violos, C.~Diou, I.~Varlamis, Detection of anomalies in
   {\path{doi:10.1109/BigDataService58306.2023.00007}}.
 
 \bibitem{reinartz2021extended}
-C.~Reinartz, M.~Kulahci, O.~Ravn, An extended tennessee eastman simulation
+C.~Reinartz, M.~Kulahci, O.~Ravn, An extended {T}ennessee {E}astman simulation
   dataset for fault detection and decision support systems, Computers \&
   Chemical Engineering 149 (2021) 107281.
 \newblock \href {https://doi.org/10.1016/j.compchemeng.2021.107281}
   {\path{doi:10.1016/j.compchemeng.2021.107281}}.
 
 \bibitem{mhra2018}
-{Medicines and Healthcare products Regulatory Agency (MHRA)}, 'gxp' data
+{Medicines and Healthcare products Regulatory Agency (MHRA)}, {'GXP'} data
   integrity guidance and definitions, revision 1, Tech. rep., MHRA, London
   (2018).
 

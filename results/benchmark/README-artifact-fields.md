@@ -37,7 +37,9 @@ Run directories dated before `20260914` are v1-era (pre anti-oscillation /
 confidence-cap discipline). The canonical batch for every number in the
 manuscript is the `20260917 16:30–16:45 UTC` batch plus the drawn re-execution
 `202609172247007`. A later, **interrupted** second-round batch
-(`202609181728xxx`–`202609181738xxx`) exists on disk: only 4 of 12 runs
-completed, it was never graded or consistency-audited, and `tier_state.json`
+(`202609181728xxx`–`202609181738xxx`) exists on disk: 4 of 12 runs reached the
+final-audit stage (an `optimizer.md` was produced) and 2 closed all gates
+(`pipeline_finalize_report.json` PASS + `evidence_closure_report.json`); it was
+never graded or consistency-audited, and `tier_state.json`
 has been restored to point at the canonical batch (`run-tier.mjs import-state`).
 Do not cite the interrupted batch as evidence.

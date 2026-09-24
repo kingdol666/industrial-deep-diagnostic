@@ -3,109 +3,102 @@
 <link rel="stylesheet" href="aei_template.css">
 <style>
   * { box-sizing: border-box; }
-  body { width:1160px; height:970px; padding:14px 26px; }
+  body { width:1500px; padding:14px 20px 16px; }
   svg text { font-family: Arial, Helvetica, sans-serif; }
-  .ticklabel { font-size:22px; }
-  .axlabel { font-size:24px; }
-  .datalabel { font-size:24px; paint-order:stroke; stroke:#ffffff; stroke-width:4px; stroke-linejoin:round; }
 </style></head><body>
-<svg width="1108" height="940" viewBox="0 0 1108 940">
-  <defs>
-    <pattern id="hatchgrey" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
-      <rect width="7" height="7" fill="#c9cdd3"/>
-      <line x1="0" y1="0" x2="0" y2="7" stroke="#8f8f8f" stroke-width="2"/>
-    </pattern>
-    <pattern id="hatchsky" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
-      <rect width="7" height="7" fill="#56b4e9"/>
-      <line x1="0" y1="0" x2="0" y2="7" stroke="#123a52" stroke-width="2"/>
-    </pattern>
-  </defs>
-  <line class="axis" x1="420" y1="16" x2="420" y2="736"/>
-  <line class="axis" x1="420" y1="736" x2="1060" y2="736"/>
-  <g class="gridline">
-    <line x1="575.2" y1="16" x2="575.2" y2="736"/><line x1="728.8" y1="16" x2="728.8" y2="736"/>
-    <line x1="882.4" y1="16" x2="882.4" y2="736"/><line x1="1036" y1="16" x2="1036" y2="736"/>
-  </g>
-  <g class="ticklabel" text-anchor="middle">
-    <text x="420" y="758">0</text><text x="575.2" y="758">0.25</text><text x="728.8" y="758">0.50</text>
-    <text x="882.4" y="758">0.75</text><text x="1036" y="758">1.0</text>
-  </g>
-  <text class="axlabel" x="740" y="782" text-anchor="middle">Reported confidence (dashed = 0.70 protocol ceiling</text>
-  <text class="axlabel" x="740" y="810" text-anchor="middle">for COMPETING_SET · dotted = 0.90 machine grading</text>
-  <text class="axlabel" x="740" y="838" text-anchor="middle">gate, non-CS verdicts)</text>
+<svg id="svg" width="1460" height="910"></svg>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+function mk(n, a, txt) { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
 
-  <!-- 0.70 CS ceiling (orange dashed) and 0.90 machine grading gate (grey dotted) -->
-  <line x1="865" y1="16" x2="865" y2="736" stroke="#e69f00" stroke-width="2" stroke-dasharray="7,5"/>
-  <line x1="987.1" y1="16" x2="987.1" y2="736" stroke="#7a848e" stroke-width="1.4" stroke-dasharray="2,4"/>
-  <text class="ticklabel" x="1060" y="17" text-anchor="end" fill="#7a848e" stroke="#ffffff" stroke-width="4" paint-order="stroke">machine grading gate (non-CS)</text>
+// verified values; kind: det | cs | ctrl ; over = exceeds 0.90 machine gate
+const GROUPS = [
+  { name: "SKAB", rows: [
+    ["SKAB inlet-valve throttling", "valve vs control duty", 0.60, "cs", 0],
+    ["SKAB cavitation (blind set)", "intermittent flow collapse", 0.60, "cs", 0],
+    ["Control: SKAB anomaly-free", "anomaly-free segment", 0.86, "ctrl", 0],
+  ]},
+  { name: "TEP", rows: [
+    ["TEP IDV1 A/C feed-ratio step", "A-feed valve/flow lockstep", 0.91, "det", 0.01],
+    ["TEP IDV3 D-feed temp. (hard)", "steam-loop thermal fork", 0.55, "cs", 0],
+    ["Control: TEP fault-free", "fault-free steady state", 0.90, "ctrl", 0],
+    ["TEP IDV4 cooling (step)", "XMV_10 +6.8σ sustained step", 0.63, "cs", 0],
+    ["TEP IDV7 C-header pressure", "valve +25.1% at constant flow", 0.78, "det", 0],
+    ["TEP IDV11 cooling (random)", "variance burst, means frozen", 0.60, "cs", 0],
+    ["TEP IDV14 valve stiction", "quantized stepping, lag 1→5", 0.80, "det", 0],
+  ]},
+  { name: "IndPenSim", rows: [
+    ["IndPenSim batch-93 deviation", "CW loop pinned, 72/72 rows", 0.82, "det", 0],
+    ["Control: IndPenSim batch-1", "recipe-driven normal batch", 0.93, "ctrl", 0.03],
+  ]},
+];
 
-  <!-- 12 rows grouped by dataset: y_i = 24 + i*60, bar h 22 ; x(v) = 420 + v*970 -->
-  <text class="axlabel" x="412" y="40" text-anchor="end">SKAB inlet-valve throttling</text>
-  <text class="ticklabel" x="412" y="70" text-anchor="end">valve resistance vs control duty</text>
-  <rect x="420" y="38" width="372.5" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="791" y="47">CS 0.60</text>
+const defs = mk("defs", {});
+defs.innerHTML =
+  '<pattern id="hsky" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">' +
+  '<rect width="7" height="7" fill="#56b4e9"/><line x1="0" y1="0" x2="0" y2="7" stroke="#123a52" stroke-width="1.6"/></pattern>' +
+  '<pattern id="hgrey" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">' +
+  '<rect width="7" height="7" fill="#d4d8dd"/><line x1="0" y1="0" x2="0" y2="7" stroke="#8f8f8f" stroke-width="1.6"/></pattern>';
 
-  <text class="axlabel" x="412" y="100" text-anchor="end">SKAB cavitation (blind set)</text>
-  <text class="ticklabel" x="412" y="130" text-anchor="end">intermittent flow collapse</text>
-  <rect x="420" y="98" width="372.5" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="791" y="107">CS 0.60</text>
+const W = 1460, L = 470, R = 62;
+const XMAX = 1.0, X = v => L + (W - L - R) * v / XMAX;
+const RH = 46, GAPG = 16, rowH = RH + 10;
+const T = 58;
+const PH = 12 * rowH + (GROUPS.length - 1) * GAPG;
+const B = T + PH;
+const H = B + 128;
 
-  <text class="axlabel" x="412" y="160" text-anchor="end">Control: SKAB anomaly-free</text>
-  <text class="ticklabel" x="412" y="190" text-anchor="end">normal operation</text>
-  <rect x="420" y="158" width="533.9" height="22" fill="url(#hatchgrey)"/>
-  <text class="datalabel" x="959.5" y="167">normal 0.86</text>
+// gridlines + ticks
+for (let v = 0; v <= 1.001; v += 0.2) {
+  mk("line", { x1: X(v), y1: T, x2: X(v), y2: B, class: v === 0 ? "axis" : "gridline" });
+  mk("text", { x: X(v), y: B + 32, "text-anchor": "middle", class: "ticklabel" }, v.toFixed(1));
+}
+mk("line", { x1: L, y1: B, x2: X(1), y2: B, class: "axis" });
+mk("text", { x: L + (W - L - R) / 2, y: B + 62, "text-anchor": "middle", class: "axlabel" },
+  "reported confidence");
+// protocol cap 0.70 (dashed amber) + machine gate 0.90 (dotted grey), labels staggered above the plot
+mk("line", { x1: X(0.70), y1: T, x2: X(0.70), y2: B, stroke: "#e69f00", "stroke-width": 2.4, "stroke-dasharray": "9,6" });
+mk("line", { x1: X(0.90), y1: T, x2: X(0.90), y2: B, stroke: "#7a848e", "stroke-width": 1.8, "stroke-dasharray": "2,5" });
+mk("text", { x: X(0.70) - 8, y: 26, "text-anchor": "end", class: "ticklabel", fill: "#a3690b", "font-weight": "700" }, "COMPETING_SET ceiling 0.70");
+mk("text", { x: X(0.90) - 8, y: 50, "text-anchor": "end", class: "ticklabel", fill: "#7a848e" }, "machine grading gate 0.90");
 
-  <text class="axlabel" x="412" y="220" text-anchor="end">TEP IDV1 A/C feed-ratio step</text>
-  <text class="ticklabel" x="412" y="250" text-anchor="end">A-feed valve/flow +18.5/+18.7σ lockstep</text>
-  <rect x="420" y="218" width="564.9" height="22" fill="#0072b2"/>
-  <line x1="984.9" y1="215" x2="984.9" y2="243" stroke="#d55e00" stroke-width="3"/>
-  <text class="datalabel" x="980" y="227">DET 0.91</text>
+let y = T;
+const HALO = { "paint-order": "stroke", stroke: "#ffffff", "stroke-width": 4, "stroke-linejoin": "round" };
+GROUPS.forEach((g, gi) => {
+  if (gi > 0) y += GAPG;
+  g.rows.forEach(r => {
+    const [name, cue, conf, kind, over] = r;
+    const yc = y + rowH / 2;
+    mk("text", { x: L - 16, y: yc - 4, "text-anchor": "end", class: "ticklabel",
+      fill: kind === "ctrl" ? "#555555" : "#1a1a1a", "font-style": kind === "ctrl" ? "italic" : "normal" }, name);
+    mk("text", { x: L - 16, y: yc + 22, "text-anchor": "end", class: "ticklabel", fill: "#8f8f8f" }, cue);
+    const by = yc - RH / 2, bw = X(conf) - L;
+    if (kind === "det") mk("rect", { x: L, y: by, width: bw, height: RH, fill: "#0072b2" });
+    else if (kind === "cs") mk("rect", { x: L, y: by, width: bw, height: RH, fill: "url(#hsky)", stroke: "#1f7fb5", "stroke-width": 0.8 });
+    else mk("rect", { x: L, y: by, width: bw, height: RH, fill: "url(#hgrey)", stroke: "#8f8f8f", "stroke-width": 0.8 });
+    const vt = kind === "det" ? "DET " : kind === "cs" ? "CS " : "normal ";
+    const label = vt + conf.toFixed(2) + (over > 0 ? ` (+${over.toFixed(2)} over)` : "");
+    const inside = X(conf) + 185 > W - R;   // keep the label inside the canvas
+    mk("text", inside ? { x: X(conf) - 10, y: yc + 10, "text-anchor": "end", class: "datalabel", ...HALO }
+                      : { x: X(conf) + 10, y: yc + 10, class: "datalabel", ...HALO }, label);
+    if (over > 0) {
+      mk("line", { x1: X(conf), y1: by - 5, x2: X(conf), y2: by + RH + 5, stroke: "#d55e00", "stroke-width": 3.5 });
+    }
+    y += rowH;
+  });
+});
 
-  <text class="axlabel" x="412" y="280" text-anchor="end">TEP IDV3 D-feed temp. (hard)</text>
-  <text class="ticklabel" x="412" y="310" text-anchor="end">steam-loop site, thermal fork unresolvable</text>
-  <rect x="420" y="278" width="341.4" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="767.7" y="287">CS 0.55</text>
-
-  <text class="axlabel" x="412" y="340" text-anchor="end">Control: TEP d00 fault-free</text>
-  <text class="ticklabel" x="412" y="370" text-anchor="end">normal controlled steady state</text>
-  <rect x="420" y="338" width="558.7" height="22" fill="url(#hatchgrey)"/>
-  <text class="datalabel" x="975" y="347">normal 0.90</text>
-
-  <text class="axlabel" x="412" y="400" text-anchor="end">TEP IDV4 cooling temp. (step)</text>
-  <text class="ticklabel" x="412" y="430" text-anchor="end">XMV_10 +6.8σ plateau</text>
-  <rect x="420" y="398" width="391.1" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="808.6" y="407">CS 0.63</text>
-
-  <text class="axlabel" x="412" y="460" text-anchor="end">TEP IDV7 C-header pressure</text>
-  <text class="ticklabel" x="412" y="490" text-anchor="end">valve +25.1% (z = 12.4) at constant flow</text>
-  <rect x="420" y="458" width="484.2" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="901.8" y="467">DET 0.78</text>
-
-  <text class="axlabel" x="412" y="520" text-anchor="end">TEP IDV11 cooling temp. (random)</text>
-  <text class="ticklabel" x="412" y="550" text-anchor="end">VR 40.1/16.4, means frozen ≤0.01σ</text>
-  <rect x="420" y="518" width="372.5" height="22" fill="url(#hatchsky)"/>
-  <text class="datalabel" x="791" y="527">CS 0.60</text>
-
-  <text class="axlabel" x="412" y="580" text-anchor="end">TEP IDV14 valve stiction</text>
-  <text class="ticklabel" x="412" y="610" text-anchor="end">quantised stepping 633/800, lag 1→5</text>
-  <rect x="420" y="578" width="496.6" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="914" y="587">DET 0.80</text>
-
-  <text class="axlabel" x="412" y="640" text-anchor="end">IndPenSim batch-93 deviation</text>
-  <text class="ticklabel" x="412" y="670" text-anchor="end">CW loop clamped → +3.3 K</text>
-  <rect x="420" y="638" width="509.1" height="22" fill="#0072b2"/>
-  <text class="datalabel" x="926.1" y="647">DET 0.82</text>
-
-  <text class="axlabel" x="412" y="700" text-anchor="end">Control: IndPenSim batch-1</text>
-  <text class="ticklabel" x="412" y="730" text-anchor="end">recipe-driven normal batch</text>
-  <rect x="420" y="698" width="577.3" height="22" fill="url(#hatchgrey)"/>
-  <line x1="997.3" y1="695" x2="997.3" y2="723" stroke="#d55e00" stroke-width="3"/>
-  <text class="datalabel" x="986.6" y="707" text-anchor="end">normal 0.93</text>
-
-  <!-- legend -->
-  <rect x="336" y="872" width="14" height="14" fill="#0072b2"/><text class="axlabel" x="358" y="884" style="font-size:22px;">DETERMINED (non-CS)</text>
-  <rect x="580" y="872" width="14" height="14" fill="url(#hatchsky)"/><text class="axlabel" x="602" y="884" style="font-size:22px;">capped COMPETING_SET, true mechanism ranked</text>
-  <line x1="343" y1="898" x2="343" y2="918" stroke="#d55e00" stroke-width="3"/><text class="axlabel" x="358" y="912" style="font-size:22px;">crosses 0.90 machine gate (+0.01 / +0.03)</text>
-  <rect x="860" y="898" width="14" height="14" fill="url(#hatchgrey)"/><text class="axlabel" x="882" y="912" style="font-size:22px;">controls (normal)</text>
-</svg>
+// legend: two stacked rows, left-aligned, clear of the axis block
+const LY = B + 98;
+mk("rect", { x: L, y: LY - 18, width: 26, height: 20, fill: "#0072b2" });
+mk("text", { x: L + 34, y: LY, class: "ticklabel", fill: "#1a1a1a" }, "determined fault verdict");
+mk("rect", { x: 830, y: LY - 18, width: 26, height: 20, fill: "url(#hsky)", stroke: "#1f7fb5", "stroke-width": 0.8 });
+mk("text", { x: 864, y: LY, class: "ticklabel", fill: "#1a1a1a" }, "capped set, truth ranked (5/5)");
+const LY2 = LY + 40;
+mk("rect", { x: L, y: LY2 - 18, width: 26, height: 20, fill: "url(#hgrey)", stroke: "#8f8f8f", "stroke-width": 0.8 });
+mk("text", { x: L + 34, y: LY2, class: "ticklabel", fill: "#1a1a1a" }, "controls (normal)");
+mk("line", { x1: 830, y1: LY2 - 8, x2: 856, y2: LY2 - 8, stroke: "#d55e00", "stroke-width": 3.5 });
+mk("text", { x: 864, y: LY2, class: "ticklabel", fill: "#1a1a1a" }, "crosses the 0.90 gate (+0.01 / +0.03)");
+</script>
 </body></html>

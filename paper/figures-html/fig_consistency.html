@@ -2,154 +2,144 @@
 <html><head><meta charset="utf-8">
 <link rel="stylesheet" href="aei_template.css">
 <style>
-  body { width:1500px; height:1460px; padding:18px 26px; }
-  .panel-label { margin-bottom:6px; font-size:29px; }
-  .wrapA { display:flex; gap:22px; }
-  .legend { font-size:29px; color:var(--sub); line-height:1.4; }
-  .audit { width:726px; }
-  .audit table.aei { width:100%; font-size:29px; }
-  .audit td { padding:3px 7px; line-height:1.3; }
-  .audit .scn { font-weight:700; white-space:nowrap; }
-  .audit tr.hl td { background:#e7f4ef; }
-  .ok2 { color:#0a7d38; font-weight:700; }
-  /* panel b */
-  .rowB { display:flex; gap:18px; align-items:stretch; }
-  .runs { flex:1; display:flex; flex-direction:column; gap:8px; }
-  .run { display:flex; flex-wrap:wrap; align-items:center; gap:10px; border:1px solid var(--grid); border-radius:5px; padding:7px 12px; background:#fbfcfd; }
-  .role { font-size:29px; font-weight:700; padding:2px 10px; border-radius:12px; white-space:nowrap; }
-  .role.r1 { background:#e7f0f8; color:var(--blue); }
-  .role.r2 { background:#eee6f6; color:#5b3d8f; }
-  .rid { font-size:29px; font-weight:700; white-space:nowrap; }
-  .fld { display:inline-block; border:1px solid var(--grid); border-radius:4px; background:#fff; padding:3px 8px; font-size:29px; line-height:1.3; }
-  .fld b { font-size:29px; }
+  * { box-sizing: border-box; }
+  body { width:1500px; padding:14px 22px; }
+  svg text { font-family: Arial, Helvetica, sans-serif; }
+  .panel-label { font-size:34px; }
+  .rowA { display:flex; gap:30px; align-items:flex-start; }
+  .drawcard { border:1px solid #d7dde3; border-left:5px solid #0072b2; border-radius:6px; background:#fbfcfd;
+              padding:10px 16px; font-size:26px; line-height:1.5; margin-bottom:14px; }
+  .drawcard b { color:#0072b2; }
+  .runs { display:flex; flex-direction:column; gap:12px; }
+  .run { border:1px solid #c6d0d9; border-radius:8px; background:#fbfcfd; padding:10px 14px; }
+  .run .hd { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .role { font-size:25px; font-weight:700; padding:2px 12px; border-radius:13px; }
+  .role.r1 { background:#e7f0f8; color:#0072b2; }
+  .role.r2 { background:#e2f2ec; color:#007a4d; }
+  .rid { font-size:25px; font-weight:700; color:#555; }
+  .flds { display:flex; flex-wrap:wrap; gap:8px; }
+  .fld { border:1px solid #e3e7ea; border-radius:5px; background:#fff; padding:4px 10px; font-size:25px; line-height:1.35; }
+  .fld .k { display:block; font-size:20px; color:#8f8f8f; text-transform:uppercase; letter-spacing:.4px; }
+  .fld b { font-size:25px; }
   .fld.cs b { color:#a35c17; }
-  .fld .k { color:var(--sub); font-size:29px; display:block; text-transform:uppercase; letter-spacing:.4px; }
-  .agree { width:600px; border:1.5px solid #0a7d38; border-radius:6px; background:#f2faf6; display:flex; align-items:center; gap:14px; padding:8px 14px; }
-  .stampcol { display:flex; flex-direction:column; align-items:center; gap:7px; }
-  .stamp { font-size:29px; font-weight:800; color:#0a7d38; border:2.5px solid #0a7d38; border-radius:6px; padding:8px 12px; transform:rotate(-4deg); background:#fff; letter-spacing:.5px; }
-  .checks { font-size:29px; line-height:1.7; color:var(--ink); white-space:nowrap; }
+  .agree { display:flex; align-items:center; gap:20px; min-width:0; border:1.5px solid #0a7d38; border-radius:8px;
+           background:#f2faf6; padding:12px 18px 16px; margin-top:14px; }
+  .stamp { font-size:30px; font-weight:800; color:#0a7d38; border:3px solid #0a7d38; border-radius:8px;
+           padding:6px 14px; transform:rotate(-3deg); background:#fff; letter-spacing:.5px; }
+  .dconf { font-size:28px; font-weight:800; color:#0a7d38; }
+  .checks { font-size:24px; line-height:1.6; }
   .checks .tk { color:#0a7d38; font-weight:800; }
-  .dconf { font-size:29px; font-weight:800; color:#0a7d38; white-space:nowrap; }
-  .footer { font-size:29px; color:var(--sub); margin-top:8px; line-height:1.45; }
-  .ticklabel { font-size:29px; }
-  .axlabel { font-size:29px; }
-  .datalabel { font-size:29px; paint-order:stroke; stroke:#ffffff; stroke-width:4px; stroke-linejoin:round; }
+  .foot { margin-top:14px; font-size:25px; color:#555; line-height:1.5; }
 </style></head><body>
-  <div class="wrapA">
-    <div>
-      <div class="panel-label">(a) Reported confidence, 13 current-era executions</div>
-      <svg id="scat" width="700" height="450"></svg>
-      <div class="legend" style="margin-top:2px;">* = control (no fault injected) &nbsp;·&nbsp; dashed line = COMPETING_SET confidence cap (0.70) &nbsp;·&nbsp; all values are the run-reported confidences</div>
+  <div class="rowA">
+    <div style="flex:0 0 640px; min-width:0;">
+      <div class="panel-label">(a) Reported confidence, 13 executions</div>
+      <svg id="scat" width="640" height="772"></svg>
     </div>
-    <div class="audit">
-      <div class="panel-label">consistency-audit status</div>
-      <table class="aei" id="audittab"></table>
+    <div style="flex:1;">
+      <div class="drawcard"><b>Seeded draw, replayable:</b> mulberry32 seed <b>1003818694</b> over the nine-fault pool — drawn and recorded before any comparison, never hand-picked. Drawn scenario: TEP IDV11 (the only scenario with ≥2 proven executions).</div>
+      <div class="panel-label" style="margin-bottom:8px;">(b) Run-over-run agreement on the drawn scenario</div>
+      <div class="runs">
+        <div class="run">
+          <div class="hd"><span class="role r1">run 1 · benchmark batch</span><span class="rid">202609171639527</span></div>
+          <div class="flds">
+            <span class="fld cs"><span class="k">verdict</span><b>COMPETING_SET · 0.62</b></span>
+            <span class="fld"><span class="k">actuator</span><b>XMV_10</b></span>
+            <span class="fld"><span class="k">mechanism class</span><b>ENVIRONMENT</b></span>
+            <span class="fld"><span class="k">top-ranked cause</span><b>cooling-water-side disturbance</b></span>
+          </div>
+        </div>
+        <div class="run">
+          <div class="hd"><span class="role r2">run 2 · drawn re-execution (now canonical)</span><span class="rid">202609172247007</span></div>
+          <div class="flds">
+            <span class="fld cs"><span class="k">verdict</span><b>COMPETING_SET · 0.60</b></span>
+            <span class="fld"><span class="k">actuator</span><b>XMV_10</b></span>
+            <span class="fld"><span class="k">mechanism class</span><b>ENVIRONMENT</b></span>
+            <span class="fld"><span class="k">top-ranked cause</span><b>cooling branch, unmeasured form</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="agree">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+          <div class="stamp">CONSISTENT</div>
+          <div class="dconf">Δconf = 0.02</div>
+        </div>
+        <div class="checks">
+          verdict state <span class="tk">✓</span> COMPETING_SET, both runs<br>
+          actuator <span class="tk">✓</span> XMV_10 &nbsp;·&nbsp; class <span class="tk">✓</span> ENVIRONMENT<br>
+          both under the 0.65 INDISTINGUISHABLE cap
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="panel-label" style="margin-top:10px;">(b) Re-tested scenario tep_d11 — run-over-run agreement (the only scenario with &ge;2 proven executions)</div>
-  <div class="rowB">
-    <div class="runs">
-      <div class="run">
-        <span class="role r1">run 1 · benchmark batch</span><span class="rid">202609171639527</span>
-        <span class="fld cs"><span class="k">verdict</span><b>COMPETING_SET 0.62</b></span>
-        <span class="fld"><span class="k">top-ranked cause</span>cooling-water-side random disturbance</span>
-        <span class="fld"><span class="k">actuator</span>XMV_10</span>
-        <span class="fld"><span class="k">mechanism class</span>ENVIRONMENT</span>
-      </div>
-      <div class="run">
-        <span class="role r2">run 2 · drawn re-execution</span><span class="rid">202609172247007</span>
-        <span class="fld cs"><span class="k">verdict</span><b>COMPETING_SET 0.60</b></span>
-        <span class="fld"><span class="k">top-ranked cause</span>unmeasured disturbance, reactor cooling branch</span>
-        <span class="fld"><span class="k">actuator</span>XMV_10</span>
-        <span class="fld"><span class="k">mechanism class</span>ENVIRONMENT</span>
-      </div>
-    </div>
-    <div class="agree">
-      <div class="stampcol"><div class="stamp">CONSISTENT</div><div class="dconf">&Delta;conf = 0.02</div></div>
-      <div class="checks">
-        verdict state <span class="tk">&#10003;</span> COMPETING_SET<br>
-        actuator <span class="tk">&#10003;</span> XMV_10<br>
-        mechanism class <span class="tk">&#10003;</span> ENVIRONMENT
-      </div>
-    </div>
-  </div>
-  <div class="footer">Re-test draw: seeded uniform (mulberry32, seed 1003818694 — replayable); executed before any comparison — never hand-picked. Audit rule: CONSISTENT = same diagnosis type AND (same primary tag OR same mechanism class). Remaining 11 scenarios: single execution each — re-run contract outstanding.</div>
+  <div class="foot">Audit rule: CONSISTENT = same diagnosis type AND (same primary tag OR same mechanism class); both sessions ran as independent agent sessions from a fresh ontology build. The remaining 11 scenarios each hold a single current-era execution — the released consistency report lists them as explicit outstanding re-run contracts, not assumed stability.</div>
 
 <script>
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("scat");
+function mk(n, a, txt) { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+
 const ORDER = [
-  ["SKAB","valve1_1",false], ["SKAB","cavitation_13",false], ["SKAB","normal*",true],
-  ["TEP","d01",false], ["TEP","d03",false], ["TEP","d00*",true],
-  ["IPS","batch093",false], ["IPS","batch001*",true],
-  ["TEP","d04",false], ["TEP","d07",false], ["TEP","d11",false], ["TEP","d14",false]
+  ["SKAB valve", 0], ["SKAB cav*", 0], ["ctrl SKAB", 1],
+  ["IDV1", 0], ["IDV3", 0], ["ctrl TEP", 1],
+  ["IPS b93", 0], ["ctrl IPS", 1],
+  ["IDV4", 0], ["IDV7", 0], ["IDV11", 0], ["IDV14", 0],
 ];
-// per scenario: [{conf, kind}] kind: det | cs | ctrl ; tep_d11 has the re-test pair
+// kind: det | cs | ctrl ; d11 carries the re-test pair
 const PTS = [
-  [{c:0.60,k:"cs"}], [{c:0.60,k:"cs"}], [{c:0.86,k:"ctrl"}],
-  [{c:0.91,k:"det"}], [{c:0.55,k:"cs"}], [{c:0.90,k:"ctrl"}],
-  [{c:0.82,k:"det"}], [{c:0.93,k:"ctrl"}],
-  [{c:0.63,k:"cs"}], [{c:0.78,k:"det"}],
-  [{c:0.62,k:"cs",dx:-9,lab:"run 1"},{c:0.60,k:"cs",dx:9,lab:"run 2"}],
-  [{c:0.80,k:"det"}]
+  [{ c: 0.60, k: "cs" }], [{ c: 0.60, k: "cs" }], [{ c: 0.86, k: "ctrl", lp: [-14, -10, "end"] }],
+  [{ c: 0.91, k: "det" }], [{ c: 0.55, k: "cs" }], [{ c: 0.90, k: "ctrl" }],
+  [{ c: 0.82, k: "det" }], [{ c: 0.93, k: "ctrl" }],
+  [{ c: 0.63, k: "cs" }], [{ c: 0.78, k: "det", lp: [-14, 26, "end"] }],
+  [{ c: 0.62, k: "cs", dx: -10, lab: "run 1" }, { c: 0.60, k: "cs", dx: 10, lab: "run 2" }],
+  [{ c: 0.80, k: "det", lp: [0, -20, "middle"] }],
 ];
-const NS="http://www.w3.org/2000/svg";
-const svg=document.getElementById("scat");
-const L=56,R=34,T=24,B=146,W=700,H=450,PL=W-L-R,PTh=H-T-B;
-const X=i=>L+PL*(i+0.5)/12, Y=v=>T+PTh*(1-v);
-function el(n,a,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
-// grid + y axis
-for(let v=0;v<=1.001;v+=0.2){
-  el("line",{x1:L,y1:Y(v),x2:L+PL,y2:Y(v),class:"gridline"});
-  el("text",{x:L-7,y:Y(v)+4,"text-anchor":"end",class:"ticklabel"},v.toFixed(1));
+const W = 640, H = 772, L = 70, R = 20, T = 26, B = 340;
+const X = i => L + (W - L - R) * (i + 0.5) / 12, Y = v => T + (H - T - B) * (1 - v);
+const HALO = { "paint-order": "stroke", stroke: "#ffffff", "stroke-width": 4, "stroke-linejoin": "round" };
+
+for (let v = 0; v <= 1.001; v += 0.2) {
+  mk("line", { x1: L, y1: Y(v), x2: L + W - L - R, y2: Y(v), class: "gridline" });
+  mk("text", { x: L - 8, y: Y(v) + 8, "text-anchor": "end", class: "ticklabel" }, v.toFixed(1));
 }
-el("line",{x1:L,y1:T,x2:L,y2:T+PTh,class:"axis"});
-el("line",{x1:L,y1:T+PTh,x2:L+PL,y2:T+PTh,class:"axis"});
-el("text",{x:16,y:T+PTh/2,class:"axlabel",transform:`rotate(-90 16 ${T+PTh/2})`,"text-anchor":"middle"},"reported confidence");
-// CS cap dashed
-el("line",{x1:L,y1:Y(0.70),x2:L+PL,y2:Y(0.70),stroke:"#a35c17","stroke-width":1.4,"stroke-dasharray":"7 5"});
-el("text",{x:L+PL-4,y:Y(0.70)-6,"text-anchor":"end",class:"ticklabel",fill:"#a35c17","font-weight":"700"},"CS cap 0.70");
-// markers
-function marker(p,cx,cy){
-  if(p.k==="det"){el("circle",{cx,cy,r:7,fill:"#0072b2"});return;}
-  if(p.k==="cs"){el("rect",{x:cx-6.5,y:cy-6.5,width:13,height:13,fill:"#56b4e9",stroke:"#1f7fb5","stroke-width":1});return;}
-  el("rect",{x:cx-6,y:cy-6,width:12,height:12,fill:"#fff",stroke:"#8f8f8f","stroke-width":2,transform:`rotate(45 ${cx} ${cy})`});
+mk("line", { x1: L, y1: T, x2: L, y2: T + H - T - B, class: "axis" });
+mk("line", { x1: L, y1: T + H - T - B, x2: L + W - L - R, y2: T + H - T - B, class: "axis" });
+mk("text", { x: 24, y: T + (H - T - B) / 2, class: "axlabel", transform: `rotate(-90 20 ${T + (H - T - B) / 2})`, "text-anchor": "middle" }, "reported confidence");
+// CS cap
+mk("line", { x1: L, y1: Y(0.70), x2: L + W - L - R, y2: Y(0.70), stroke: "#a3690b", "stroke-width": 1.8, "stroke-dasharray": "8,5" });
+mk("text", { x: L + 8, y: Y(0.70) - 12, "text-anchor": "start", class: "ticklabel", fill: "#a3690b", "font-weight": "700", ...HALO }, "CS cap 0.70");
+
+function marker(p, cx, cy) {
+  if (p.k === "det") { mk("circle", { cx, cy, r: 9, fill: "#0072b2", stroke: "#fff", "stroke-width": 1.6 }); return; }
+  if (p.k === "cs") { mk("rect", { x: cx - 8, y: cy - 8, width: 16, height: 16, fill: "#56b4e9", stroke: "#1f7fb5", "stroke-width": 1.2 }); return; }
+  mk("rect", { x: cx - 7.5, y: cy - 7.5, width: 15, height: 15, fill: "#fff", stroke: "#8f8f8f", "stroke-width": 2.2, transform: `rotate(45 ${cx} ${cy})` });
 }
-ORDER.forEach((s,i)=>{
-  const pts=PTS[i];
-  // x tick label (two lines, rotated -90)
-  const tx=X(i), ty=T+PTh+12;
-  el("text",{x:tx+8,y:ty,"text-anchor":"end",class:"ticklabel",transform:`rotate(-90 ${tx+8} ${ty})`},s[0]);
-  el("text",{x:tx+30,y:ty,"text-anchor":"end",class:"ticklabel",transform:`rotate(-90 ${tx+30} ${ty})`,"font-weight":s[2]?"400":"700",fill:s[2]?"#8f8f8f":"#1a1a1a"},s[1]);
-  if(pts.length===1){
-    const p=pts[0],cx=X(i),cy=Y(p.c);
-    marker(p,cx,cy);
-    el("text",{x:cx+11,y:cy+4,class:"datalabel"},p.c.toFixed(2).slice(1));
-  }else{
-    // re-test pair: two markers joined by a vertical connector
-    const cx=X(i),y1=Y(pts[0].c),y2=Y(pts[1].c);
-    el("line",{x1:cx,y1:y1-1,x2:cx,y2:y2+1,stroke:"#1f7fb5","stroke-width":1.6});
-    marker(pts[0],cx+pts[0].dx,y1); marker(pts[1],cx+pts[1].dx,y2);
-    el("text",{x:cx-22,y:y1-8,class:"datalabel",fill:"#1f7fb5"},pts[0].c.toFixed(2).slice(1));
-    el("text",{x:cx+16,y:y2+15,class:"datalabel",fill:"#1f7fb5"},pts[1].c.toFixed(2).slice(1));
-    el("text",{x:cx,y:y2+30,"text-anchor":"middle","font-size":"20","font-weight":"700",fill:"#1f7fb5"},"re-test pair");
+ORDER.forEach((s, i) => {
+  const pts = PTS[i], tx = X(i), ty = T + (H - T - B) + 14;
+  mk("text", { x: tx + 7, y: ty, "text-anchor": "end", class: "ticklabel", transform: `rotate(-90 ${tx + 7} ${ty})`,
+    "font-weight": s[1] ? "400" : "700", fill: s[1] ? "#8f8f8f" : "#1a1a1a", "font-style": s[1] ? "italic" : "normal" }, s[0]);
+  if (pts.length === 1) {
+    const p = pts[0], cx = X(i), cy = Y(p.c);
+    marker(p, cx, cy);
+    const last = i === ORDER.length - 1;
+    const lp = p.lp || (last ? [-12, -10, "end"] : [12, -10, "start"]);
+    mk("text", { x: cx + lp[0], y: cy + lp[1], "text-anchor": lp[2], class: "ticklabel", fill: "#1a1a1a", "font-weight": "700", ...HALO }, p.c.toFixed(2).slice(1));
+  } else {
+    const cx = X(i), y1 = Y(pts[0].c), y2 = Y(pts[1].c);
+    mk("line", { x1: cx, y1: y1 - 1, x2: cx, y2: y2 + 1, stroke: "#1f7fb5", "stroke-width": 2 });
+    marker(pts[0], cx + pts[0].dx, y1); marker(pts[1], cx + pts[1].dx, y2);
+    mk("text", { x: cx - 14, y: y1 - 10, class: "ticklabel", fill: "#1f7fb5", "font-weight": "700", ...HALO }, "0.62");
+    mk("text", { x: cx + 24, y: y2 + 22, class: "ticklabel", fill: "#1f7fb5", "font-weight": "700", "text-anchor": "end", ...HALO }, "0.60");
+    mk("text", { x: cx, y: y2 + 44, "text-anchor": "middle", class: "ticklabel", fill: "#1f7fb5", "font-weight": "700" }, "re-test pair");
   }
 });
-// legend inside plot (lower-left, empty zone), three stacked rows
-const LY1=Y(0.21), LY2=Y(0.12), LY3=Y(0.03);
-el("circle",{cx:L+20,cy:LY1,r:7,fill:"#0072b2"});
-el("text",{x:L+34,y:LY1+5,class:"ticklabel",fill:"#1a1a1a"},"DETERMINED fault verdict");
-el("rect",{x:L+20-6.5,y:LY2-6.5,width:13,height:13,fill:"#56b4e9",stroke:"#1f7fb5","stroke-width":1});
-el("text",{x:L+34,y:LY2+5,class:"ticklabel",fill:"#1a1a1a"},"capped COMPETING_SET fault verdict");
-el("rect",{x:L+20-6,y:LY3-6,width:12,height:12,fill:"#fff",stroke:"#8f8f8f","stroke-width":2,transform:`rotate(45 ${L+20} ${LY3})`});
-el("text",{x:L+34,y:LY3+5,class:"ticklabel",fill:"#1a1a1a"},"control (no fault)");
-// audit status column
-const AUD = ORDER.map((s,i)=>{
-  const name=s[0]+" "+s[1].replace("*","");
-  if(s[1]==="d11") return {name,hl:true,txt:`<span class="ok2">CONSISTENT</span> — type + actuator XMV_10 + mechanism class match, &Delta;conf 0.02`};
-  return {name,hl:false,txt:`<span class="na">single execution — re-run contract outstanding</span>`};
-});
-const tb=document.getElementById("audittab");
-tb.innerHTML = `<tr><th style="width:150px;">scenario</th><th>audit status</th></tr>` +
-  AUD.map(r=>`<tr${r.hl?` class="hl"`:""}><td class="scn">${r.name}</td><td>${r.txt}</td></tr>`).join("");
+// legend inside the empty lower-left zone
+const LY1 = H - 96, LY2 = H - 62, LY3 = H - 28;
+mk("circle", { cx: L + 18, cy: LY1, r: 9, fill: "#0072b2" });
+mk("text", { x: L + 36, y: LY1 + 8, class: "ticklabel", fill: "#1a1a1a" }, "determined fault verdict");
+mk("rect", { x: L + 10, y: LY2 - 8, width: 16, height: 16, fill: "#56b4e9", stroke: "#1f7fb5" });
+mk("text", { x: L + 36, y: LY2 + 8, class: "ticklabel", fill: "#1a1a1a" }, "capped COMPETING_SET fault verdict");
+mk("rect", { x: L + 10.5, y: LY3 - 7.5, width: 15, height: 15, fill: "#fff", stroke: "#8f8f8f", "stroke-width": 2.2, transform: `rotate(45 ${L + 18} ${LY3})` });
+mk("text", { x: L + 36, y: LY3 + 8, class: "ticklabel", fill: "#1a1a1a" }, "control (no fault)");
 </script>
 </body></html>
