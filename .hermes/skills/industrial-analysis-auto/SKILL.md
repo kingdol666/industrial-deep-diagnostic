@@ -308,13 +308,15 @@ node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR"
 ```
 **CP-3**: `clarification_needed.json` contains `AUTO_RESOLVED` or `USER_CONFIRMED`
 
-### Step 2P (parallel with Step 2, optional): Data Profiling Pre-Pass
+### Step 2P (parallel with Step 2, default-on): Data Profiling Pre-Pass
 
-After Step 1 completes, data format/quality/production-state profiling **does not depend on ontology semantics**; the Phase 0-1 pre-pass of `data-processor` (producing `02_processed/pre_profile.json`) can be dispatched in parallel with Step 2. Once the ontology is ready, data-processor resumes from Phase 2 and consumes pre_profile.json, skipping duplicate probing. Semantic analysis (discrepancy / R2 validation) **must wait for the ontology** — the semantic part of the ontology_first contract is unchanged. If the current harness does not support parallel sub-agents, remain serial (backward compatible).
+After Step 1 completes, data format/quality/production-state profiling **does not depend on ontology semantics**; the Phase 0-1 pre-pass of `data-processor` (producing `02_processed/pre_profile.json`) is dispatched **in parallel by default** with Step 2 (single message, two Agent calls). Once the ontology is ready, data-processor resumes from Phase 2 and consumes pre_profile.json, skipping duplicate probing. Semantic analysis (discrepancy / R2 validation) **must wait for the ontology** — the semantic part of the ontology_first contract is unchanged. Fall back to serial only when the harness provably cannot run two agents concurrently (record `not_applicable_reason: serial_harness`).
 
 ### Step 3 + 3.3: Data Processor
 
 Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work. If `02_processed/pre_profile.json` exists (Step 2P artifact), resume from its conclusions and skip duplicate probing.
+
+**VLM early-dispatch rule (A4, cuts ~9 min of serial wall clock)**: the VLM pass (Phase 5.5) only depends on `plot_manifest.json` + `vlm_input_manifest.json`, not on the statistical conclusions. As orchestrator, poll for those two files; the moment they exist, dispatch the vlm-visual-analyzer agent **in parallel** with the data-processor's remaining phases. VLM reads charts only — no data dependency, no quality risk. The large-data regime detector is vectorized (numpy path is default above 20K rows; the pure-Python path remains a fallback below that).
 
 Post-processing after agent completes:
 ```bash
@@ -375,6 +377,17 @@ Read `skill://industrial-reporter` and dispatch via `Agent({subagent_type: "repo
 
 **CP-7**: `report.md` + `run_summary.json` exist
 
+**CP-7L (pre-audit lint, mandatory before Step 7)**: run the deterministic lint and hand any FAIL back to the reporter as a targeted repair list — never dispatch the final audit over a lint-FAIL report:
+
+```bash
+node "$SHARED_PATH/../../.claude/skills/industrial-analysis-auto/scripts/pre_audit_lint.mjs" "$RUN_DIR"
+```
+
+Covers the seven mechanically-checkable defect classes observed in practice
+(steps→time unit claims vs time_lag unit semantics, plot ink, run_summary
+verbatim, report numbers vs diagnosis, sections, figure refs). Report-only —
+it never edits artifacts; the final audit keeps full semantic authority.
+
 ### Step 7: Physical Auditor (Final)
 
 Read `skill://industrial-physical-auditor` (final mode) and dispatch via `Agent({subagent_type: "report-reviewer", ...})`. Audits `report.md` → `optimizer.md`.
@@ -399,6 +412,32 @@ node "$SKILL_PATH/scripts/pipeline-finalize.mjs" "$RUN_DIR" "$SKILL_PATH"
 ```
 
 Present: executive summary + key findings + diagnosis type + confidence + recommendations + optimizer highlights + workspace/HTML paths.
+
+### Step 9.5: Experience Distill (non-blocking, deterministic, zero-LLM)
+
+After finalize, distill this run's reusable experience and write it to the RAG
+knowledge base so future runs of similar scenes can retrieve it (read-side
+credibility `accumulated_diag_*` is already wired in the engine):
+
+```bash
+# 1) deterministic distill (extraction only — never authors content)
+node "$SHARED_PATH/scripts/experience_distill.mjs" "$RUN_DIR" --repo-root "$PROJECT_ROOT"
+# → 06_experience/experience_candidates.jsonl
+
+# 2) upload when the RAG engine is up AND judge ≥ 90 (server enforces the gate)
+if [ "$RAG_AVAILABLE" = "true" ] && curl -m 3 -s http://localhost:8764/health >/dev/null 2>&1; then
+  curl -s -X POST http://localhost:8764/accumulate \
+    -H "Content-Type: application/json" -H "X-API-Key: ${RAG_API_KEY:-}" \
+    -d "{\"run_dir\": \"$RUN_DIR\"}" || true
+fi
+```
+
+Event proof: `append-pipeline-event --event step_complete --agent main-agent --step experience_distill --files 06_experience/experience_candidates.jsonl`.
+Any failure (RAG down, candidates missing, upload error) → append `experience_skipped`
+with the reason and continue — this step MUST NEVER block the pipeline. Contamination
+red lines enforced in code: benchmark-scene `scene_fault_pattern` entries are rejected
+server-side; payload text is capped at mode-level length; negative samples stay
+`accumulated_diag_unverified`.
 
 ### Step 10: Enhanced Diagnosis (conditional step — deep enhancement E0-E8)
 
@@ -458,6 +497,8 @@ If the same Step exceeds its budget by 2x twice in a row → record the `step_ov
 ### Token & Wait Discipline (plan v5 F2/F3 — execution efficiency discipline)
 
 - **hub wait governance (F2)**: while a sub-agent runs, **each iteration** of the hub wait loop first checks `test -f <key artifact>` — the moment the artifact is ready, break and move downstream; **do not wait the full 300s before checking**. The wait target must be **an artifact written by the sub-agent** (Step 2: `01_ontology/ontology.json`; Step 3: `02_processed/feature_summary.json` or `03_figures/plot_manifest.json` — `data_analysis_conclusion.json` is written by the main-agent finalize and must not be used as a wait target).
+- **dispatch latency budget (F2b)**: checkpoint passed → dispatch the next agent immediately in the same turn; never idle a full wait cycle after an artifact is ready. Measured orchestration idle totaled ~65 min in run 202609300452274 — budget <30 s per dispatch gap.
+- **parallel dispatch (F2c)**: Step 5a (judge) + Step 5b (pre-audit) go out as **two Agent calls in one message**; so do Step 2 + Step 2P. Serial dispatch of known-parallel steps is a discipline violation.
 - **SKILL.md single-read (F3.1)**: read the full SKILL.md text only once, on first access; read the corresponding reference file for subsequent protocol details; re-reading the full text is forbidden (the claude engine already injects the first 8K chars into the system prompt, so a second read is pure waste).
 - **Directory probing discipline (F3.2)**: use `ls <dir>` single-level for directory probing; `ls -R` / recursive glob across the whole tree is forbidden (any probing command taking >2s counts as waste).
 - **todo discipline (F3.3)**: at most 1 todo operation per phase (merge sub-item completions into that phase's done update); updating the todo separately for each completed sub-item is forbidden.

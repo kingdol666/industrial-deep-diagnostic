@@ -35,6 +35,10 @@ function parseArgs() {
     lagSearchSeconds: null,
     timeCol: null,
     minConsistency: 0.6,
+    lagAxis: 'process_grid',
+    stepIntervalSeconds: null,
+    intervalFromCsv: null,
+    csvTimeCol: null,
     help: false,
   };
   for (let i = 1; i < args.length; i++) {
@@ -43,9 +47,32 @@ function parseArgs() {
     else if (args[i] === '--lag-search-seconds') opts.lagSearchSeconds = parseFloat(args[++i]);
     else if (args[i] === '--time-col') opts.timeCol = args[++i];
     else if (args[i] === '--min-consistency') opts.minConsistency = parseFloat(args[++i]);
+    else if (args[i] === '--lag-axis') opts.lagAxis = args[++i];
+    else if (args[i] === '--step-interval-seconds') opts.stepIntervalSeconds = parseFloat(args[++i]);
+    else if (args[i] === '--interval-from-csv') opts.intervalFromCsv = args[++i];
+    else if (args[i] === '--csv-time-col') opts.csvTimeCol = args[++i];
     else if (args[i] === '--help' || args[i] === '-h') opts.help = true;
   }
   return opts;
+}
+
+// Median sampling interval of the actual CCF row axis, computed from a CSV
+// time column (e.g. the lab-valid subset the correlations ran on — its median
+// delta can be hours even when the DCS grid is minutes).
+function detectIntervalFromCsv(csvPath, timeCol) {
+  const content = fs.readFileSync(csvPath, 'utf-8');
+  const lines = content.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return null;
+  const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const tIdx = timeCol ? header.indexOf(timeCol) : header.findIndex(h =>
+    /time|date|timestamp/i.test(h));
+  if (tIdx < 0) return null;
+  const timeValues = [];
+  for (let i = 1; i < Math.min(lines.length, 501) && timeValues.length < 500; i++) {
+    const cell = lines[i].split(',')[tIdx];
+    if (cell) timeValues.push(cell.trim().replace(/^"|"$/g, ''));
+  }
+  return detectSamplingInterval(timeValues);
 }
 
 // ═══════════════════════════════════════════════
@@ -311,12 +338,28 @@ function main() {
     process.exit(1);
   }
 
-  // Detect sampling interval from multiple sources
+  // Detect sampling interval from multiple sources. Priority: explicit
+  // caller-supplied step interval (the axis the CCF actually ran on) >
+  // interval measured from the CCF axis CSV > stats metadata > stats time values.
   let samplingIntervalSec = null;
+  let intervalSource = null;
+
+  // Source 0: explicit step interval for the CCF axis
+  if (opts.stepIntervalSeconds && opts.stepIntervalSeconds > 0) {
+    samplingIntervalSec = opts.stepIntervalSeconds;
+    intervalSource = 'cli_step_interval_seconds';
+  }
+
+  // Source 0b: measure the median delta of the CCF axis CSV itself
+  if (!samplingIntervalSec && opts.intervalFromCsv) {
+    samplingIntervalSec = detectIntervalFromCsv(opts.intervalFromCsv, opts.csvTimeCol);
+    if (samplingIntervalSec) intervalSource = `measured_from:${opts.intervalFromCsv}`;
+  }
 
   // Source 1: stats output may include time_interval_seconds
-  if (stats.data_summary?.time_interval_seconds) {
+  if (!samplingIntervalSec && stats.data_summary?.time_interval_seconds) {
     samplingIntervalSec = stats.data_summary.time_interval_seconds;
+    intervalSource = 'stats.data_summary.time_interval_seconds';
   }
 
   // Source 2: stats.sorting_validation may include time_delta_seconds
@@ -377,6 +420,19 @@ function main() {
     run_id: `lag_${Date.now()}`,
     generated_at: new Date().toISOString(),
     sampling_interval_seconds: samplingIntervalSec,
+    interval_source: intervalSource,
+    // ── axis semantics (unit-conservation metadata) ──
+    // Every "steps" number below is a number of ROWS on the axis the CCF was
+    // computed over — NOT seconds and NOT DCS-grid rows unless lag_axis says so.
+    lag_axis: opts.lagAxis,
+    step_interval_seconds: samplingIntervalSec,
+    unit_conversion_available: samplingIntervalSec != null && samplingIntervalSec > 0,
+    unit_semantics: {
+      note: samplingIntervalSec != null
+        ? `1 step = ${samplingIntervalSec}s on the '${opts.lagAxis}' axis (source: ${intervalSource || 'unknown'}). All seconds values in this artifact derive from this interval.`
+        : `Step interval unknown for the '${opts.lagAxis}' axis — all seconds fields are null and physics lag comparisons abstain (agreement='unknown_interval'). Do NOT narrate step counts as time durations.`,
+      downstream_rule: 'Reports/diagnoses may convert steps to durations ONLY via step_interval_seconds recorded here. When unit_conversion_available=false, any step→time narrative is a unit error.',
+    },
     max_lag_steps: maxLag,
     max_lag_seconds: (samplingIntervalSec && maxLag) ? maxLag * samplingIntervalSec : null,
     pair_analyses: [],
@@ -423,7 +479,10 @@ function main() {
 
       let physicsComparison = { agreement: 'no_physics_prior', discrepancy: null, message: 'No physics prior available for this pair' };
       if (expectedLag) {
-        physicsComparison = compareLag(expectedLag, optimal, samplingIntervalSec || 1);
+        // NOTE: no `|| 1` fallback here — with an unknown interval compareLag
+        // must abstain ('unknown_interval'), not fabricate 1 s/step (a silent
+        // 60-3600x unit error on minute/hour-sampled axes).
+        physicsComparison = compareLag(expectedLag, optimal, samplingIntervalSec);
       }
 
       // Correlation improvement assessment

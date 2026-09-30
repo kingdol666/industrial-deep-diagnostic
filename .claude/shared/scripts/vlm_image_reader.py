@@ -153,6 +153,7 @@ def read_image(image_path, question=None, model=None):
     message = choices[0].get("message", {}) or {}
     content = message.get("content", "")
     reasoning = message.get("reasoning_content", "")
+    finish = choices[0].get("finish_reason", "stop")
 
     # Reasoning models (e.g. qwen3.6-reasoner) may exhaust max_tokens during
     # the reasoning phase, leaving content=None. Fall back to reasoning so the

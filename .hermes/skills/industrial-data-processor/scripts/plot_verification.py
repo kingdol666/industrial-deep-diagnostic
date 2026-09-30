@@ -31,6 +31,41 @@ except ImportError:
 
 
 MIN_PNG_BYTES = 5120  # 5KB
+MIN_INK_RATIO = 0.01      # non-near-white pixel fraction (blank fig6 was 0.24%)
+MIN_INK_QUADRANTS = 2     # ink must appear in >= 2 quadrants (title-only renders fail)
+
+
+def _ink_check(path):
+    """Decode a PNG and verify it actually renders content, not just a title.
+
+    Returns (ok, detail). Graceful skip (ok=True, note) when PIL/numpy is
+    unavailable — the size check above still applies.
+    """
+    try:
+        from PIL import Image
+        import numpy as np
+    except ImportError:
+        return True, 'ink check skipped (PIL/numpy unavailable)'
+    try:
+        img = Image.open(path).convert('L')
+        w, h = img.size
+        if w < 50 or h < 50:
+            return False, f'image too small to be a real plot ({w}x{h})'
+        a = np.asarray(img, dtype=np.uint8)
+        ink = a < 245  # non-near-white
+        ratio = float(ink.mean())
+        if ratio < MIN_INK_RATIO:
+            return False, (f'near-blank render: non-white pixel ratio '
+                           f'{ratio:.3%} < {MIN_INK_RATIO:.0%} (title-only or failed render)')
+        hh, ww = a.shape
+        quads = [ink[:hh // 2, :ww // 2], ink[:hh // 2, ww // 2:],
+                 ink[hh // 2:, :ww // 2], ink[hh // 2:, ww // 2:]]
+        n_quads = sum(1 for q in quads if q.mean() > 0.001)
+        if n_quads < MIN_INK_QUADRANTS:
+            return False, f'ink confined to {n_quads} quadrant(s) — suspected title-only render'
+        return True, f'ink ratio {ratio:.1%} across {n_quads} quadrants'
+    except Exception as e:
+        return False, f'cannot decode PNG for ink check: {e}'
 
 
 def _load_json(path, default=None):
@@ -82,6 +117,11 @@ def verify(run_dir):
         if size < MIN_PNG_BYTES:
             errors.append(f'plot PNG too small ({size} bytes < {MIN_PNG_BYTES}): {path}')
             continue
+        ok, detail = _ink_check(path)
+        if not ok:
+            errors.append(f'plot PNG failed ink check: {path} — {detail}')
+            continue
+        p['_ink_check'] = detail
         verified_plots.append(p)
 
     if not verified_plots:

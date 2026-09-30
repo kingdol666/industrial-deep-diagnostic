@@ -1,0 +1,28 @@
+{
+  "$id": "cross_skill_contracts.json",
+  "description": "Cross-skill artifact field contracts. Consumers declare the producer field paths they read; contract tests (tests/fixtures) verify producer schemas against this file. A path miss on the primary path with a fallback hit = CONTRACT_DRIFT (warning, fix the path); miss on all paths = the original business issue.",
+  "version": "1.0",
+  "contracts": [
+    {
+      "id": "dual_drive_inputs",
+      "description": "Diagnostician quality gate reads dual-drive input links from anomaly_report.json (Step 3 output).",
+      "producer": "industrial-data-processor:02_processed/anomaly_report.json",
+      "consumer": "industrial-diagnostician:scripts/diagnostic-quality-check.mjs",
+      "primary_path": "dual_drive_analysis.cross_domain_links",
+      "fallback_paths": ["dual_drive_diagnostic_layer.linkage"],
+      "expect": "non_empty_array_when_analysis_performed",
+      "drift_history": [
+        "2026-09-30: producer wrote dual_drive_diagnostic_layer.linkage while gate read dual_drive_analysis.cross_domain_links -> false FAIL (run 202609300452274_cement_ball_mill_fulltest). Fallback path added."
+      ]
+    },
+    {
+      "id": "stage_digest",
+      "description": "Diagnostician fast path reads the machine summary written by data-processor-finalize.",
+      "producer": "industrial-data-processor:02_processed/stage_digest.json",
+      "consumer": "industrial-diagnostician:references/agent-protocol.md Phase 0",
+      "primary_path": "(file)",
+      "fallback_paths": [],
+      "expect": "file_exists_le_2kb"
+    }
+  ]
+}

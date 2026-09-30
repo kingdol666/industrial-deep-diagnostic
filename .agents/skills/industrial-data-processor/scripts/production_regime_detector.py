@@ -25,6 +25,16 @@ import csv, json, math, os, sys, argparse
 from collections import defaultdict
 from statistics import mean, median, stdev
 
+try:
+    import numpy as np
+except ImportError:  # zero-dependency fallback: pure-Python paths below
+    np = None
+
+# Above this row count the pure-Python change-point scan is O(n^2) per segment
+# (measured >40 min at 64,800 rows); the vectorized path is numerically
+# equivalent (same SSE algebra via prefix sums) and runs in seconds.
+_FAST_PATH_MIN_ROWS = 20000
+
 
 # ── UTILITIES ──
 
@@ -76,6 +86,202 @@ def _window_indices(total, window):
         left = max(0, i - window)
         right = min(total, i + window + 1)
         yield i, left, right
+
+
+# ── VECTORIZED FAST PATH (numpy, large data) ──
+
+def _col_arrays(rows, cols):
+    """Parse columns once into float64 arrays (NaN for missing)."""
+    out = {}
+    for c in cols:
+        out[c] = np.array([_safe_float(r.get(c)) for r in rows], dtype=float)
+    return out
+
+
+def _rolling_sums(x, window):
+    """Sum / sum-of-squares / count over centered windows [i-window, i+window].
+
+    Missing values (NaN) are excluded from both sums and count. Returns
+    (s1, s2, cnt) arrays of len(x) — O(n) via prefix sums.
+    """
+    valid = ~np.isnan(x)
+    x0 = np.where(valid, x, 0.0)
+    n_arr = x.size
+    c1 = np.concatenate(([0.0], np.cumsum(x0)))
+    c2 = np.concatenate(([0.0], np.cumsum(x0 * x0)))
+    vc = np.concatenate(([0], np.cumsum(valid.astype(np.int64))))
+    idx = np.arange(n_arr)
+    left = np.maximum(0, idx - window)
+    right = np.minimum(n_arr, idx + window + 1)
+    return c1[right] - c1[left], c2[right] - c2[left], vc[right] - vc[left]
+
+
+def detect_by_variance_fast(col_arrays, window):
+    """Vectorized equivalent of detect_by_variance — same output contract."""
+    param_stats = {}
+    per_param_ratios = {}
+    for c, vals in col_arrays.items():
+        v = vals[~np.isnan(vals)]
+        if v.size < 10:
+            continue
+        sd = float(np.std(v, ddof=1)) if v.size > 1 else 0.0
+        mu = abs(float(np.mean(v))) + 1e-9
+        cv = sd / mu
+        if not (0.001 < cv < 0.5):
+            continue
+        param_stats[c] = {'cv': cv}
+        s1, s2, cnt = _rolling_sums(vals, window)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            var = np.where(cnt > 1, (s2 - s1 * s1 / np.maximum(cnt, 1)) / np.maximum(cnt - 1, 1), 0.0)
+        local_std = np.sqrt(np.maximum(var, 0.0))
+        local_std[cnt < 3] = 0.0
+        clean_stds = local_std[local_std > 0]
+        if clean_stds.size == 0:
+            continue
+        baseline_std = float(np.median(clean_stds)) + 1e-9
+        ratios = np.where(local_std == 0.0, 0.0, local_std / baseline_std)
+        per_param_ratios[c] = ratios
+
+    if len(param_stats) < 2:
+        return None, "insufficient_parameters_for_variance_analysis"
+
+    mats = np.vstack([per_param_ratios[c] for c in per_param_ratios])
+    with np.errstate(invalid='ignore'):
+        med = np.nanmedian(mats, axis=0)
+    med = np.where(np.isnan(med), 1.0, med)
+    n_params = len(per_param_ratios)
+    thresh = max(2, n_params // 2)
+    regime_scores = [float(med[i]) for i in range(med.size)]
+    return regime_scores, param_stats
+
+
+def _binary_segmentation_fast(values, min_size=5, n_segments=20):
+    """Vectorized equivalent of _binary_segmentation.
+
+    Same top-down scheme, but the best-split scan uses prefix sums:
+    reduction(split) = s_l^2/n_l + s_r^2/n_r - s^2/n  (between-segment SSE),
+    computed for all candidate splits at once — O(n) per segment instead of O(n^2).
+    """
+    vals = np.asarray(values, dtype=float)
+    valid_pos = np.flatnonzero(~np.isnan(vals))
+    if valid_pos.size < 2 * min_size:
+        return []
+    v = vals[valid_pos]
+    m = v.size
+    c1 = np.concatenate(([0.0], np.cumsum(v)))
+    segments = [(0, m)]
+    change_points = []
+    for _ in range(n_segments):
+        best_red, best_seg, best_split = -1.0, -1, -1
+        for si, (a, b) in enumerate(segments):
+            if b - a < 2 * min_size:
+                continue
+            k = np.arange(a + min_size, b - min_size + 1)
+            if k.size == 0:
+                continue
+            cnt_l = (k - a).astype(float)
+            cnt_r = (b - k).astype(float)
+            s_l = c1[k] - c1[a]
+            s_r = c1[b] - c1[k]
+            s_t = c1[b] - c1[a]
+            red = s_l * s_l / cnt_l + s_r * s_r / cnt_r - s_t * s_t / (b - a)
+            imax = int(np.argmax(red))
+            if float(red[imax]) > best_red:
+                best_red = float(red[imax])
+                best_seg = si
+                best_split = int(k[imax])
+        if best_red <= 0 or best_split < 0:
+            break
+        a, b = segments.pop(best_seg)
+        segments.append((a, best_split))
+        segments.append((best_split, b))
+        change_points.append(int(valid_pos[best_split]))
+    return sorted(set(change_points))
+
+
+def detect_change_points_fast(col_arrays, window):
+    """Vectorized equivalent of detect_change_points — same fusion semantics."""
+    candidates = []
+    for c, vals in col_arrays.items():
+        clean = vals[~np.isnan(vals)]
+        if clean.size < 20:
+            continue
+        cv = float(np.std(clean, ddof=1)) / (abs(float(np.mean(clean))) + 1e-9) if clean.size > 1 else 0
+        if 0.005 < cv < 2.0:
+            candidates.append((cv, c))
+    candidates.sort(reverse=True)
+    top_params = [c for _, c in candidates[:10]]
+
+    all_cp = []
+    for c in top_params:
+        all_cp.extend(_binary_segmentation_fast(col_arrays[c], min_size=max(5, window), n_segments=10))
+    if not all_cp:
+        return [], top_params
+
+    all_cp.sort()
+    clusters, current = [], [all_cp[0]]
+    for cp in all_cp[1:]:
+        if cp - current[-1] <= window:
+            current.append(cp)
+        else:
+            clusters.append(current)
+            current = [cp]
+    clusters.append(current)
+    return [int(median(cl)) for cl in clusters if len(cl) >= 2], top_params
+
+
+def detect_drift_ramps_fast(col_arrays, window, rows_total):
+    """Vectorized equivalent of detect_drift_ramps — rolling regression slope
+    via prefix sums of j*v and j^2*v (x = j - i within each window)."""
+    process_like = [c for c in col_arrays if any(
+        kw in c.lower() for kw in ('temp', 'press', 'speed', 'flow', 'rpm', 'torque',
+                                    'current', 'power', 'amp', 'volt', 'thickness',
+                                    'tension', 'ratio', 'frequency', 'position', 'load',
+                                    'rate', 'level', 'density', 'viscosity', 'gap'))]
+    if not process_like:
+        process_like = list(col_arrays)[:10]
+
+    n_arr = rows_total
+    idx = np.arange(n_arr)
+    left = np.maximum(0, idx - window)
+    right = np.minimum(n_arr, idx + window + 1)
+    j = np.arange(n_arr, dtype=float)
+
+    per_param_slope = {}
+    for c in process_like[:8]:
+        vals = col_arrays[c]
+        valid = ~np.isnan(vals)
+        if int(valid.sum()) < 20:
+            continue
+        x0 = np.where(valid, vals, 0.0)
+        c1 = np.concatenate(([0.0], np.cumsum(x0)))               # Σv (valid only)
+        vc = np.concatenate(([0], np.cumsum(valid.astype(np.int64))))
+        cj = np.concatenate(([0.0], np.cumsum(np.where(valid, j, 0.0))))    # Σj (valid only)
+        cjj = np.concatenate(([0.0], np.cumsum(np.where(valid, j * j, 0.0))))  # Σj² (valid only)
+        c1j = np.concatenate(([0.0], np.cumsum(x0 * j)))           # Σjv (valid only)
+        s1 = c1[right] - c1[left]
+        cnt = (vc[right] - vc[left]).astype(float)                 # valid count, NOT window span
+        sj = cj[right] - cj[left]
+        sjj = cjj[right] - cjj[left]
+        s1j = c1j[right] - c1j[left]
+        # x = j - i  →  Σx = sj - i*cnt ; Σx² = sjj - 2i*sj + i²*cnt ; Σxy = s1j - i*s1
+        i_f = idx.astype(float)
+        sx = sj - i_f * cnt
+        sx2 = sjj - 2.0 * i_f * sj + i_f * i_f * cnt
+        sxy = s1j - i_f * s1
+        denom = cnt * sx2 - sx * sx
+        with np.errstate(invalid='ignore', divide='ignore'):
+            slope = np.where(np.abs(denom) > 1e-9, (cnt * sxy - sx * s1) / np.where(np.abs(denom) > 1e-9, denom, 1.0), 0.0)
+        mag = np.abs(s1 / np.maximum(cnt, 1.0)) + 1e-9
+        slopes = np.where(cnt >= 3, slope / mag, 0.0)
+        per_param_slope[c] = slopes
+
+    if not per_param_slope:
+        return [0.0] * n_arr, {}
+    mats = np.vstack([per_param_slope[c] for c in per_param_slope])
+    med = np.nanmedian(mats, axis=0)
+    med = np.where(np.isnan(med), 0.0, med)
+    return [float(x) for x in med], {c: None for c in per_param_slope}
 
 
 # ── METHOD 1: MULTI-PARAMETER VARIANCE RATIO ──
@@ -593,17 +799,28 @@ def main():
 
     print(f"[regime-detector] {n} rows, {len(numeric_cols)} numeric cols, window={window}")
 
-    # Method 1: Variance ratio analysis
-    variance_scores, param_stats = detect_by_variance(rows, numeric_cols, window)
-    if variance_scores is None:
-        print(f"[regime-detector] WARNING: Variance analysis failed — {param_stats}")
+    use_fast = np is not None and n >= _FAST_PATH_MIN_ROWS
+    if use_fast:
+        print(f"[regime-detector] fast path: numpy vectorized (n={n} >= {_FAST_PATH_MIN_ROWS})")
+        col_arrays = _col_arrays(rows, numeric_cols)
+        variance_scores, param_stats = detect_by_variance_fast(col_arrays, window)
+        if variance_scores is None:
+            print(f"[regime-detector] WARNING: Variance analysis failed — {param_stats}")
+        change_points, cp_params = detect_change_points_fast(col_arrays, window)
+        print(f"[regime-detector] Detected {len(change_points)} consensus change points")
+        ramp_scores, ramp_params = detect_drift_ramps_fast(col_arrays, window, n)
+    else:
+        # Method 1: Variance ratio analysis
+        variance_scores, param_stats = detect_by_variance(rows, numeric_cols, window)
+        if variance_scores is None:
+            print(f"[regime-detector] WARNING: Variance analysis failed — {param_stats}")
 
-    # Method 2: Change point detection
-    change_points, cp_params = detect_change_points(rows, numeric_cols, window)
-    print(f"[regime-detector] Detected {len(change_points)} consensus change points")
+        # Method 2: Change point detection
+        change_points, cp_params = detect_change_points(rows, numeric_cols, window)
+        print(f"[regime-detector] Detected {len(change_points)} consensus change points")
 
-    # Method 3: Ramp detection (startup/shutdown directional)
-    ramp_scores, ramp_params = detect_drift_ramps(rows, numeric_cols, window)
+        # Method 3: Ramp detection (startup/shutdown directional)
+        ramp_scores, ramp_params = detect_drift_ramps(rows, numeric_cols, window)
 
     # Fuse into final labels
     labels, diagnosis, abnormal_windows = fuse_regimes(

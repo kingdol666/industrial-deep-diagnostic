@@ -182,11 +182,13 @@ def append_plot_manifest(safe_path, safe_open, entries):
     plots = manifest.get("plots")
     if not isinstance(plots, list):
         plots = []
-    have = {p.get("filename") for p in plots if isinstance(p, dict)}
+    by_name = {p.get("filename"): i for i, p in enumerate(plots) if isinstance(p, dict)}
     for e in entries:
-        if e["filename"] not in have:
+        if e["filename"] in by_name:
+            plots[by_name[e["filename"]]] = e  # refresh (priority/type may evolve)
+        else:
             plots.append(e)
-            have.add(e["filename"])
+            by_name[e["filename"]] = len(plots) - 1
     manifest["plots"] = plots
     with safe_open("03_figures/plot_manifest.json", "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, ensure_ascii=False, indent=1)

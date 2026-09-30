@@ -23,7 +23,7 @@ import argparse, json, os, sys, re
 from pathlib import Path
 
 
-def classify_image(filename, title, plot_type, params):
+def classify_image(filename, title, plot_type, params, plot=None):
     """
     Classify an image for VLM priority based on its type and content.
     
@@ -32,7 +32,12 @@ def classify_image(filename, title, plot_type, params):
     fname_lower = filename.lower()
     title_lower = title.lower() if title else ''
     plot_type_lower = plot_type.lower() if plot_type else ''
-    
+
+    # Producer-decided priority wins (e.g. adaptive_charts.py Phase 5.0a already
+    # classified the chart by data shape — respect that decision)
+    if plot and plot.get('vlm_priority') in ('MANDATORY', 'SUPPLEMENTARY', 'NOT_FOR_VLM'):
+        return plot['vlm_priority']
+
     # MANDATORY: temporal overlay charts (explicitly named for VLM)
     if fname_lower.startswith('fig_vlm_temporal') or 'vlm_temporal_overlay' in fname_lower:
         return 'MANDATORY'
@@ -99,13 +104,29 @@ def main():
     
     # Classify each plot
     vlm_images = []
+    # Register charts that were written to 03_figures but never entered the
+    # manifest (visual_analysis.py writes PNGs without manifest entries)
+    try:
+        import os as _os
+        _fig_dir = os.path.join(run_dir, '03_figures')
+        _known = {p.get('filename', p.get('file', '')) for p in pm.get('plots', [])}
+        for _png in sorted(_os.listdir(_fig_dir)):
+            if _png.lower().endswith('.png') and _png not in _known:
+                pm.setdefault('plots', []).append({
+                    'filename': _png, 'title': _png.rsplit('.', 1)[0],
+                    'plot_type': ('vlm_temporal_overlay' if 'vlm_temporal' in _png
+                                  else 'vlm_supplementary' if 'vlm_' in _png else 'plot'),
+                    'params': [],
+                })
+    except OSError:
+        pass
     for plot in pm.get('plots', []):
         filename = plot.get('filename', plot.get('file', ''))
         title = plot.get('title', '')
         plot_type = plot.get('plot_type', plot.get('type', ''))
         params = plot.get('params', [])
         
-        priority = classify_image(filename, title, plot_type, params)
+        priority = classify_image(filename, title, plot_type, params, plot=plot)
         plot['vlm_priority'] = priority
         
         if priority != 'NOT_FOR_VLM':

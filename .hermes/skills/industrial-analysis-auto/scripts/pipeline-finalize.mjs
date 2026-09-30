@@ -409,10 +409,26 @@ function runClosureCheck() {
       'report.md missing process-only diagnosis, dual-drive, or data expert conclusion sections.');
   }
 
-  // Run summary consistency
+  // Run summary consistency — primary_finding / conclusion type / confidence
+  // are the customer-facing conclusion statement; drift here is a critical
+  // defect (run 202609300452274 shipped a mismatch as a warning). Reporter
+  // protocol requires verbatim copy from diagnosis.json.
   if (runSummary.primary_finding && diagnosis.primary_finding && runSummary.primary_finding !== diagnosis.primary_finding) {
-    addIssue('warning', 'RUN_SUMMARY_MISMATCH',
-      'run_summary.json primary_finding differs from diagnosis.json — final deliverable drift.');
+    addIssue('critical', 'RUN_SUMMARY_MISMATCH',
+      'run_summary.json primary_finding differs from diagnosis.json — final deliverable drift. Reporter must copy primary_finding verbatim from diagnosis.json.',
+      { run_summary_head: String(runSummary.primary_finding).slice(0, 120), diagnosis_head: String(diagnosis.primary_finding).slice(0, 120) });
+  }
+  const runType = runSummary.diagnosis_type || runSummary.conclusion_type;
+  const diagType = diagnosis.conclusion_type || diagnosis.diagnosis_type;
+  if (runType && diagType && runType !== diagType) {
+    addIssue('critical', 'RUN_SUMMARY_TYPE_MISMATCH',
+      `run_summary.json conclusion type "${runType}" differs from diagnosis.json "${diagType}".`);
+  }
+  const runConf = runSummary.confidence ?? runSummary.confidence_score;
+  const diagConf = diagnosis.confidence ?? diagnosis.confidence_score;
+  if (typeof runConf === 'number' && typeof diagConf === 'number' && Math.abs(runConf - diagConf) > 0.5) {
+    addIssue('critical', 'RUN_SUMMARY_CONFIDENCE_MISMATCH',
+      `run_summary.json confidence ${runConf} differs from diagnosis.json ${diagConf}.`);
   }
 
   const criticalIssues = issues.filter(i => i.severity === 'critical');
@@ -595,10 +611,14 @@ function runEventArchive() {
     } else {
       try {
         const review = JSON.parse(fs.readFileSync(reviewPath, 'utf-8'));
+        // writer field aliases: score == overall_score; findings == checks (per-item review results)
+        const overallScore = typeof review.overall_score === 'number' ? review.overall_score : review.score;
+        const checkItems = Array.isArray(review.checks) ? review.checks : (Array.isArray(review.findings) ? review.findings : []);
         if (review.verdict !== 'pass') htmlIssues.push(`html_review verdict="${review.verdict}", expected "pass"`);
-        if (typeof review.overall_score !== 'number' || review.overall_score < 0 || review.overall_score > 100) htmlIssues.push(`html_review overall_score invalid: ${review.overall_score}`);
-        if (!Array.isArray(review.checks) || review.checks.length < 5) htmlIssues.push(`html_review checks insufficient: ${Array.isArray(review.checks) ? review.checks.length : 0} items`);
-        if (nonEmptyArray(review.blocking_issues)) htmlIssues.push(`unresolved blocking issues: ${review.blocking_issues.slice(0, 3).join('; ')}`);
+        if (typeof overallScore !== 'number' || overallScore < 0 || overallScore > 100) htmlIssues.push(`html_review overall_score invalid: ${overallScore}`);
+        if (!Array.isArray(checkItems) || checkItems.length < 5) htmlIssues.push(`html_review checks insufficient: ${checkItems.length} items`);
+        const blockers = review.blocking_issues || review.blockers;
+        if (nonEmptyArray(blockers)) htmlIssues.push(`unresolved blocking issues: ${blockers.slice(0, 3).join('; ')}`);
       } catch (e) { htmlIssues.push(`html_review.json parse failed: ${e.message}`); }
     }
     if (htmlIssues.length > 0) {
@@ -619,8 +639,8 @@ function runEventArchive() {
     const content = fs.readFileSync(optPath, 'utf-8').toLowerCase();
     const patterns = [
       { name: 'audit overview', re: [/audit overview/i, /审计总览|独立验算|判定/] },
-      { name: 'statistical verification', re: [/statistical verification/i, /统计.*(核验|基础|验证)/] },
-      { name: 'physics verification', re: [/physics verification/i, /物理.*(核验|真实|验证)/] },
+      { name: 'statistical verification', re: [/statistical verification/i, /统计.*(核验|基础|验证|抽验|复算)/, /独立复算|数字抽验/] },
+      { name: 'physics verification', re: [/physics verification/i, /物理.*(核验|真实|验证|真相|链|机制)/] },
       { name: 'verdict', re: [/verdict/i, /判定|终审|ENDORSED|CONDITIONAL|REJECTED/] },
     ];
     const missingSecs = patterns.filter(p => !p.re.some(r => r.test(content))).map(p => p.name);
@@ -653,11 +673,12 @@ function runEventArchive() {
     // title, executive summary, statistical findings, root-cause conclusion,
     // evidence appendix.
     const required = [
-      { name: 'title', re: /^#\s+.*(工业诊断报告|Industrial Diagnostic Report)/m },
-      { name: 'executive summary', re: /^##\s+1\.\s*执行摘要/m },
-      { name: 'statistical findings', re: /^##\s+4\.\s*统计分析发现|^##\s+14\.\s*统计验证与置信度评估/m },
-      { name: 'root cause conclusion', re: /^##\s+6\.\s*根因结论|^##\s+12\.\s*诊断结果/m },
-      { name: 'evidence appendix', re: /^##\s+7\.\s*(证据附录|证据全景)|^##\s+11\.\s*可视化证据/m },
+      // numbering variants: "## 1. / ## 一、 / ## 1、" (writer templates differ)
+      { name: 'title', re: /^#\s+.*(工业诊断报告|诊断报告|Industrial Diagnostic Report)/m },
+      { name: 'executive summary', re: /^##\s+(1\.|[一二]|[一二]、|\d、|\d+\.)\s*执行摘要/m },
+      { name: 'statistical findings', re: /^##\s+(4\.|14\.|[四十四]、|\d、)\s*统计|^##\s+14\.\s*统计验证与置信度评估/m },
+      { name: 'root cause conclusion', re: /^##\s+(6\.|12\.|[二六十二]、|\d、)\s*(根因结论|诊断结果|诊断结论)/m },
+      { name: 'evidence appendix', re: /^##\s+(7\.|11\.|附录\s*A[:：]?|\d、)\s*(证据附录|证据全景|可视化证据|证据)/m },
     ];
     const missingRe = required.filter(r => !r.re.test(content)).map(r => r.name);
     if (!content) issues.push('report.md is empty');

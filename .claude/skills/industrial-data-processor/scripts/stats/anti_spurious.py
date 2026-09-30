@@ -187,22 +187,41 @@ def _leave_one_out_leverage(x, y, threshold=0.3):
     """Check correlation stability by removing each point one at a time.
 
     For |r| >= threshold: ensure no single point shifts r by more than 0.15.
+
+    Implementation note: O(n^2) re-computation of Pearson per removal is
+    intractable at DCS scale (64k rows x 60 pairs). The leave-one-out r is
+    instead computed with the algebraic sum-removal identity, which yields the
+    exact same value as recomputing Pearson on the reduced sample:
+        S1' = S1 - u_i, Sxy' = Sxy - x_i*y_i, ...  (per-axis sums decremented)
+        r' = (n1*Sxy1 - Sx1*Sy1) / sqrt((n1*Sxx1 - Sx1^2) * (n1*Syy1 - Sy1^2))
     """
     valid_pairs = []
     for i in range(len(x)):
         xi = _safe_float(x[i])
         yi = _safe_float(y[i])
         if xi is not None and yi is not None:
-            valid_pairs.append({'x': xi, 'y': yi})
+            valid_pairs.append((xi, yi))
 
     if len(valid_pairs) < 10:
         return None
 
-    x_vals = [p['x'] for p in valid_pairs]
-    y_vals = [p['y'] for p in valid_pairs]
-    n = len(x_vals)
+    n = len(valid_pairs)
+    Sx = Sy = Sxy = Sxx = Syy = 0.0
+    for xi, yi in valid_pairs:
+        Sx += xi
+        Sy += yi
+        Sxy += xi * yi
+        Sxx += xi * xi
+        Syy += yi * yi
 
-    full_r = _pearson_simple(x_vals, y_vals)
+    def _r_from_sums(n_, Sx_, Sy_, Sxy_, Sxx_, Syy_):
+        num = n_ * Sxy_ - Sx_ * Sy_
+        den2 = (n_ * Sxx_ - Sx_ * Sx_) * (n_ * Syy_ - Sy_ * Sy_)
+        if den2 <= 0:
+            return 0.0
+        return num / math.sqrt(den2)
+
+    full_r = _r_from_sums(n, Sx, Sy, Sxy, Sxx, Syy)
 
     if abs(full_r) < threshold:
         return {'full_r': round(full_r, 4), 'leveraged': False,
@@ -210,10 +229,10 @@ def _leave_one_out_leverage(x, y, threshold=0.3):
 
     max_shift = 0.0
     max_shift_idx = -1
-    for i in range(n):
-        loo_x = x_vals[:i] + x_vals[i + 1:]
-        loo_y = y_vals[:i] + y_vals[i + 1:]
-        loo_r = _pearson_simple(loo_x, loo_y)
+    n1 = n - 1
+    for i, (xi, yi) in enumerate(valid_pairs):
+        loo_r = _r_from_sums(n1, Sx - xi, Sy - yi, Sxy - xi * yi,
+                             Sxx - xi * xi, Syy - yi * yi)
         shift = abs(loo_r - full_r)
         if shift > max_shift:
             max_shift = shift
@@ -233,6 +252,7 @@ def _leave_one_out_leverage(x, y, threshold=0.3):
             'Leave-one-out check passed: correlation is robust to single-point removal.'
         ),
     }
+
 
 
 # ═══════════════════════════════════════════════
@@ -428,6 +448,17 @@ def _detect_change_points(values, min_segment_length=10, penalty=None):
     if n < min_segment_length * 2:
         return {'change_points': [], 'n_segments': 1, 'n_changes': 0, 'warning': 'insufficient data'}
 
+    # PELT is O(n^2) in the worst case when the series contains many genuine change
+    # points (R pruning fails). At DCS scale (64k rows) this is intractable, so a
+    # deterministic systematic subsample caps the DP cost. Each `valid` entry
+    # carries its ORIGINAL row index, so returned change-point positions remain in
+    # the original index space (approximate to the stride resolution).
+    cp_subsample_stride = 1
+    if n > 4000:
+        cp_subsample_stride = (n + 3999) // 4000
+        valid = valid[::cp_subsample_stride]
+        n = len(valid)
+
     y = [v['v'] for v in valid]
     mean = sum(y) / n
     variance = sum((v - mean) ** 2 for v in y) / n
@@ -512,7 +543,7 @@ def _detect_change_points(values, min_segment_length=10, penalty=None):
         })
 
     sig_shifts = [r for r in regime_shifts if r['significant']]
-    return {
+    result = {
         'change_points': change_points,
         'n_segments': len(segments),
         'n_changes': len(change_points),
@@ -526,6 +557,13 @@ def _detect_change_points(values, min_segment_length=10, penalty=None):
             if sig_shifts else None
         ),
     }
+    if cp_subsample_stride > 1:
+        result['subsample_stride'] = cp_subsample_stride
+        result['subsample_note'] = (
+            f'change-point detection ran on a deterministic systematic subsample '
+            f'(stride {cp_subsample_stride}, ~{n} points) for tractability; '
+            f'positions are original-row indices, approximate to the stride resolution.')
+    return result
 
 
 # ═══════════════════════════════════════════════

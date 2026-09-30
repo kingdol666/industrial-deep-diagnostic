@@ -128,6 +128,8 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 - All web/external knowledge marked `[EXTERNAL KNOWLEDGE]`
 - Report written in Chinese; technical terms may be in English
 - Chinese double quotes must be escaped
+- **Verbatim conclusion fields (B4)**: `primary_finding`, conclusion type and confidence in `run_summary.json` and report.md MUST be copied verbatim from `diagnosis.json` — never reworded, never recomputed. `pre_audit_lint.mjs` (CP-7L) blocks the final audit on any drift.
+- **Steps are not time**: when citing lag steps, convert to durations only via `time_lag_analysis.json` `step_interval_seconds`; when `unit_conversion_available=false`, narrate steps as steps — never invent a minutes/hours figure (the "≈38min" class of unit error).
 
 ## Data Truth Mandate
 

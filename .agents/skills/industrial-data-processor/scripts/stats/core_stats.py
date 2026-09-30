@@ -497,15 +497,32 @@ def _digamma(x):
     return math.log(x) - 0.5 * inv_x - inv_x2 / 12.0 + inv_x2 * inv_x2 / 120.0 - inv_x2 * inv_x2 * inv_x2 / 252.0
 
 
+MI_MAX_N = 1200  # Kraskov kNN estimator is O(n^2); above this n a deterministic
+                 # systematic subsample (fixed stride) is used. n~1200 preserves the
+                 # estimator's accuracy for a nonlinear-dependency indicator while
+                 # keeping 60+ column pairs tractable at DCS scale (64k rows).
+
+
 def _mutual_information(x, y, k=3):
-    """k-NN estimator of mutual information (Kraskov estimator)."""
+    """k-NN estimator of mutual information (Kraskov estimator).
+
+    Deterministic subsampling: for n > MI_MAX_N, a systematic sample with fixed
+    stride ceil(n/MI_MAX_N) is taken (no randomness, reproducible). The stride
+    and full n are reported in the result for data-truth transparency.
+    """
     valid = [(xi, yi) for xi, yi in zip(x, y)
              if xi is not None and yi is not None and
              not (isinstance(xi, float) and (math.isnan(xi) or math.isinf(xi))) and
              not (isinstance(yi, float) and (math.isnan(yi) or math.isinf(yi)))]
+    n_full = len(valid)
+    if n_full < k + 2:
+        return {'mi': 0.0, 'n': n_full, 'warning': 'insufficient data'}
+
+    stride = 1
+    if n_full > MI_MAX_N:
+        stride = (n_full + MI_MAX_N - 1) // MI_MAX_N
+        valid = valid[::stride]
     n = len(valid)
-    if n < k + 2:
-        return {'mi': 0.0, 'n': n, 'warning': 'insufficient data'}
 
     xs = [v[0] for v in valid]
     ys = [v[1] for v in valid]
@@ -541,7 +558,12 @@ def _mutual_information(x, y, k=3):
     max_mi = 0.5 * math.log2(n)
     mi_normalized = min(1.0, mi / max_mi) if max_mi > 0 else 0.0
 
-    return {'mi': round(mi, 4), 'mi_normalized': round(mi_normalized, 4), 'n': n, 'k': k}
+    result = {'mi': round(mi, 4), 'mi_normalized': round(mi_normalized, 4), 'n': n, 'k': k}
+    if stride > 1:
+        result['n_full'] = n_full
+        result['subsample_stride'] = stride
+        result['subsample_method'] = 'systematic_fixed_stride'
+    return result
 
 
 # ═══════════════════════════════════════════════
@@ -789,11 +811,13 @@ def run_correlation_analysis(rows, run_dir, *,
     sorting_validation = _validate_time_sorting(rows, time_col)
 
     # --- Determine effective targets and predictors ---
-    effective_targets = []
-    if data_view_mode == 'process_only':
-        effective_targets = []
-    elif target_cols:
+    # Explicit target_cols (ontology-guided, e.g. health-indicator channels under
+    # process_only) take precedence over the mode default. Without explicit
+    # targets, process_only keeps its no-targets default.
+    if target_cols:
         effective_targets = [t for t in target_cols if t in col_data]
+    elif data_view_mode == 'process_only':
+        effective_targets = []
     else:
         effective_targets = numeric_cols[:5]
 

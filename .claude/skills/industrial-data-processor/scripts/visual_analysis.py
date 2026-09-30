@@ -56,7 +56,7 @@ def _parse_time(values):
         import re as _re
         s = str(v).strip()
         m = _re.match(
-            r"(\d{4})\s*[年./-]\s*(\d{1,2})\s*[月./-]\s*(\d{1,2})\s*[日]?"
+            r"(\d{4})\s*[年./-]\s*(\d{1,2})\s*[月./-]\s*(\d{1,2})\s*[日]?(?=\s|$)"
             r"(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?", s)
         if m:
             y, mo, d = m.group(1), int(m.group(2)), int(m.group(3))
@@ -602,6 +602,8 @@ def generate_simpson_visual(df, target, param, group_col, fig_dir):
     if len(groups) == 1:
         axes = [axes]
 
+    if param == target:
+        return None  # degenerate self-pair: duplicate-column DataFrame crashes polyfit
     overall_r = df[target].corr(df[param])
     directions = []
 

@@ -7,7 +7,13 @@
 //   node data-processor-finalize.mjs <run_dir>
 
 import fs from 'fs';
-import { join, basename } from 'path';
+import { join, basename, dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+// <repo>/.claude/skills/industrial-data-processor/scripts → repo root (resolved, no dot-dot segments in source)
+const REPO_ROOT = resolve(scriptDir, '..', '..', '..', '..');
 
 const args = process.argv.slice(2);
 const runDir = args[0];
@@ -756,6 +762,87 @@ function synthesizeDataAnalysisConclusion(runDir) {
 }
 
 // ============================================================================
+// Stage digest — <=2KB machine summary for downstream stages (speed contract:
+// read stage_digest.json FIRST, full artifacts only on demand)
+// ============================================================================
+
+function writeStageDigest(runDir) {
+  const P = (rel) => join(runDir, rel);
+  const anomaly = readJson(P('02_processed/anomaly_report.json'), {}) || {};
+  const scenario = readJson(P('02_processed/scenario_classification.json'), {}) || {};
+  const validate = readJson(P('02_processed/validate_report.json'), {}) || {};
+  const conclusion = readJson(P('02_processed/data_analysis_conclusion.json'), {}) || {};
+  const alignment = readJson(P('02_processed/time_alignment.json'), {}) || {};
+  const chartPlan = readJson(P('03_figures/adaptive_chart_plan.json'), {}) || {};
+  const featureSummary = readJson(P('02_processed/feature_summary.json'), {}) || {};
+
+  const anom = Array.isArray(anomaly.anomalies) ? anomaly.anomalies
+    : Array.isArray(anomaly.anomalous_columns) ? anomaly.anomalous_columns : [];
+  const topAnomalies = anom.slice(0, 6).map((a) => typeof a === 'string'
+    ? a
+    : { column: a.column || a.name, z_max: a.z_max ?? a.max_z ?? a.score, onset: a.onset_index ?? a.onset });
+  const fluct = anomaly.process_parameter_fluctuation || {};
+  const fluctTop = Object.entries(fluct)
+    .filter(([, v]) => v && typeof v === 'object')
+    .map(([col, v]) => ({ column: col, cv: v.cv, abrupt: v.abrupt_behavior }))
+    .sort((a, b) => (b.cv || 0) - (a.cv || 0)).slice(0, 5);
+  const pearson = validate?.correlation?.correlation_matrices?.pearson || {};
+  const corrPairs = [];
+  const seen = new Set();
+  for (const [a, row] of Object.entries(pearson)) {
+    for (const [b, r] of Object.entries(row || {})) {
+      if (a >= b || typeof r !== 'number' || Math.abs(r) > 0.995) continue;
+      const key = [a, b].sort().join('~');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      corrPairs.push({ pair: key, r: Number(r.toFixed(3)) });
+    }
+  }
+  const segment = readJson(P('02_processed/segment_statistics.json'), {}) || {};
+  const digest = {
+    stage: 'data-processor',
+    schema: 'stage_digest/1.0',
+    scenario: scenario.scenario_type || scenario.classification || null,
+    data_shape: {
+      n_rows: featureSummary?.dataset_profile?.n_rows ?? conclusion?.dataset_profile?.n_rows ?? null,
+      n_columns: featureSummary?.dataset_profile?.n_columns ?? null,
+      time_col: alignment.time_col || null,
+      time_method: alignment.method || null,
+      median_interval_s: alignment.median_interval_s ?? null,
+      index_implied_only: alignment.method === 'index-implied',
+    },
+    anomaly_counts: anomaly.summary || { flagged: anom.length },
+    top_anomalies: topAnomalies.length ? topAnomalies : fluctTop,
+    fluctuation_top_cv: fluctTop,
+    top_correlations: corrPairs.sort((a, b) => Math.abs(b.r) - Math.abs(a.r)).slice(0, 5),
+    segment_contrast: segment.detected_window
+      ? { window: segment.detected_window, key_deltas: Object.fromEntries(
+          ['Volume Flow RateRMS', 'Current', 'Pressure', 'Accelerometer1RMS', 'Accelerometer2RMS']
+            .filter((c) => segment[c]).map((c) => [c, segment[c].delta_pct])) }
+      : null,
+    robustness: (typeof validate?.anti_spurious?.overall_validity === 'string')
+      ? validate.anti_spurious.overall_validity : null,
+    analysis_mode: conclusion.analysis_mode || conclusion.data_view_mode || null,
+    key_findings: (conclusion.key_findings || conclusion.findings || []).slice(0, 5),
+    charts: {
+      adaptive_plan: (chartPlan.decisions || []).map((d) => ({ chart: d.chart_type, target: d.target })),
+      n_pngs: (chartPlan.files || []).length,
+    },
+    read_full: {
+      data_analysis_conclusion: '02_processed/data_analysis_conclusion.json',
+      validate_report: '02_processed/validate_report.json',
+      anomaly_report: '02_processed/anomaly_report.json',
+      segment_statistics: '02_processed/segment_statistics.json',
+      adaptive_chart_plan: '03_figures/adaptive_chart_plan.json',
+    },
+  };
+  const out = P('02_processed/stage_digest.json');
+  fs.writeFileSync(out, JSON.stringify(digest, null, 1) + '\n');
+  const kb = fs.statSync(out).size / 1024;
+  return { ok: true, output: out, size_kb: Number(kb.toFixed(1)) };
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
@@ -767,4 +854,144 @@ console.log('[data-processor-finalize] Step 2: Synthesize data analysis conclusi
 const synthesizeResult = synthesizeDataAnalysisConclusion(runDir);
 console.log(JSON.stringify({ step: 'synthesize', ...synthesizeResult }, null, 2));
 
-console.log(JSON.stringify({ ok: true, steps: ['normalize', 'synthesize'] }, null, 2));
+console.log('[data-processor-finalize] Step 3: Write stage digest (downstream fast path)...');
+const digestResult = writeStageDigest(runDir);
+console.log(JSON.stringify({ step: 'stage_digest', ...digestResult }, null, 2));
+
+// ── Step 4: downstream readiness (kills first-round gate failures downstream) ──
+// 4a. Project the diagnostic-layer linkage into the gate-read field. The
+//     diagnostician quality gate reads dual_drive_analysis.cross_domain_links;
+//     the rich linkage analysis lives in dual_drive_diagnostic_layer.linkage
+//     (field drift found in run 202609300452274). Deterministic projection with
+//     provenance — no new analysis.
+function projectDualDrive(runDir) {
+  const p = join(runDir, '02_processed', 'anomaly_report.json');
+  if (!fs.existsSync(p)) return { ok: false, reason: 'anomaly_report.json missing' };
+  const a = JSON.parse(fs.readFileSync(p, 'utf-8'));
+  a.dual_drive_analysis = a.dual_drive_analysis || {};
+  const primary = a.dual_drive_analysis.cross_domain_links;
+  const linkage = a.dual_drive_diagnostic_layer?.linkage;
+  if (Array.isArray(primary) && primary.length > 0) return { ok: true, action: 'already_populated' };
+  if (!Array.isArray(linkage) || linkage.length === 0) return { ok: true, action: 'nothing_to_project' };
+  a.dual_drive_analysis.cross_domain_links = linkage.map(t => ({
+    link: typeof t === 'string' ? t : String(t?.link ?? JSON.stringify(t)),
+    projected_from: 'dual_drive_diagnostic_layer.linkage',
+  }));
+  a.dual_drive_analysis._remediation = {
+    who: 'data-processor-finalize.mjs (deterministic projection)',
+    when: new Date().toISOString(),
+    reason: 'gate field-path drift: quality gate reads dual_drive_analysis.cross_domain_links; processor linkage lives in dual_drive_diagnostic_layer.linkage. Projection of existing output only.',
+  };
+  fs.writeFileSync(p, JSON.stringify(a, null, 2) + '\n');
+  return { ok: true, action: 'projected', n: a.dual_drive_analysis.cross_domain_links.length };
+}
+
+// 4b. Ensure physics checks exist — the diagnostician quality gate counts
+//     physics.checks_performed; a missing physics_check.json cost a full
+//     repair round downstream. physics_check.py is deterministic.
+function ensurePhysicsCheck(runDir) {
+  const out = join(runDir, '02_processed', 'physics_check.json');
+  if (fs.existsSync(out)) {
+    try {
+      const j = JSON.parse(fs.readFileSync(out, 'utf-8'));
+      const n = j?.summary?.checks_performed ?? (j?.checks_performed ?? Object.keys(j).length);
+      if (n > 0) return { ok: true, action: 'already_present', checks: n };
+    } catch { /* fall through and regenerate */ }
+  }
+  const here = scriptDir;
+  const py = [
+    join(REPO_ROOT, '.claude', 'shared', 'scripts', '.venv', 'Scripts', 'python.exe'),
+    join(REPO_ROOT, '.claude', 'shared', 'scripts', '.venv', 'bin', 'python'),
+  ].find(p => fs.existsSync(p));
+  const script = join(here, 'physics_check.py');
+  const ontology = join(runDir, '01_ontology', 'ontology.json');
+  const featureSummary = join(runDir, '02_processed', 'feature_summary.json');
+  const anomalyReport = join(runDir, '02_processed', 'anomaly_report.json');
+  if (!py || !fs.existsSync(script) || !fs.existsSync(ontology) || !fs.existsSync(featureSummary) || !fs.existsSync(anomalyReport)) {
+    return { ok: false, reason: 'prerequisites missing for physics_check.py (leave to diagnostician protocol)' };
+  }
+  try {
+    execFileSync(py, [script, runDir, ontology, featureSummary, anomalyReport, '--output', out], { stdio: 'pipe' });
+    return { ok: true, action: 'generated', output: out };
+  } catch (e) {
+    return { ok: false, reason: String(e.stderr || e.message).slice(0, 200) };
+  }
+}
+
+// 4c. Evidence pack — ≤8KB compact index so every downstream agent (diagnostician,
+//     judge, auditor, reporter, html) loads ONE small file instead of ~250KB of
+//     artifacts. Index only: every number points at its source artifact.
+function writeEvidencePack(runDir) {
+  const j = p => { try { return JSON.parse(fs.readFileSync(join(runDir, p), 'utf-8')); } catch { return null; } };
+  const digest = j('02_processed/stage_digest.json') || {};
+  const anomaly = j('02_processed/anomaly_report.json') || {};
+  const sensor = j('02_processed/sensor_artifact_audit.json') || {};
+  const lag = j('02_processed/time_lag_analysis.json') || {};
+  const oc = j('01_ontology/ontology.json') || {};
+  const pm = j('03_figures/plot_manifest.json') || {};
+  const manifest2 = j('00_input/input_manifest.json') || {};
+  const eventWindows = (j('02_processed/event_window_analysis.json') || {}).events || [];
+  const sig = oc.signals || {};
+  const flatSignals = [].concat(sig.inspection_signals || [], sig.process_parameters || [], sig.control_variables || []).filter(s => s && s.column);
+  const pack = {
+    schema: 'evidence_pack/2.0',
+    generated_at: new Date().toISOString(),
+    instruction: 'Index for downstream agents. Every value cites its source artifact — open that artifact for full context before relying on a number.',
+    scenario: digest.scenario || null,
+    data_shape: Object.assign({}, digest.data_shape || {}, {
+      n_rows: (digest.data_shape && digest.data_shape.n_rows) || manifest2.rows || null,
+      n_columns: (digest.data_shape && digest.data_shape.n_columns) || manifest2.columns || null,
+    }),
+    top_anomalies: (digest.top_anomalies || []).slice(0, 8),
+    top_correlations: (digest.top_correlations || []).slice(0, 12),
+    quality_reset_verdict: anomaly.quality_reset_analysis?.verdict ?? anomaly.quality_reset_analysis?.summary ?? null,
+    transitions: (anomaly.transition_events || []).slice(0, 15).map(t => ({ ts: t.ts || t.timestamp, type: t.event_type || t.type, desc: String(t.description || '').slice(0, 80) })),
+    event_windows: eventWindows.slice(0, 4).map((e, i) => ({
+      window: 'EW-' + (i + 1),
+      pre_24h_power: (e.pre_mean_24h && (e.pre_mean_24h.mill_power_kW_cal ?? e.pre_mean_24h.mill_power_kW)) ?? null,
+      post_72h_power: (e.post_mean_72h && (e.post_mean_72h.mill_power_kW_cal ?? e.post_mean_72h.mill_power_kW)) ?? null,
+      source: '02_processed/event_window_analysis.json',
+    })),
+    sensor_artifacts: Object.entries(sensor.channels || {}).map(([ch, v]) => ({
+      channel: ch,
+      floor: v.floor_value ?? null, ceiling: v.ceiling_value ?? null,
+      clamped_pct: v.clamped_pct_total ?? null,
+      note: v.floor_value != null ? 'range-floor clamping — exclude before use' : (v.ceiling_value != null ? 'range-ceiling saturation' : null),
+    })),
+    artifact_excluded_recheck: sensor.artifact_excluded_recheck ?? null,
+    lag_axis: { axis: lag.lag_axis ?? null, step_interval_seconds: lag.step_interval_seconds ?? null, unit_conversion_available: lag.unit_conversion_available ?? false, rule: lag.unit_semantics?.downstream_rule ?? 'steps are not time unless interval is available' },
+    ontology_roles: flatSignals.slice(0, 10).map(s => ({ column: s.column, role: s.role, meaning: String(s.physical_meaning || '').slice(0, 90) })),
+    plots: (pm.plots || []).map(x => ({ file: x.filename || x.file, type: x.plot_type || x.figure_type, status: x.status || 'ok' })),
+    physics_checks: j('02_processed/physics_check.json')?.summary ?? null,
+  };
+  const out = join(runDir, '02_processed', 'evidence_pack.json');
+  let json = JSON.stringify(pack, null, 1);
+  // hard cap: drop verbose sections if over 8KB
+  while (Buffer.byteLength(json) > 8192 && (pack.top_correlations?.length > 4 || pack.transitions?.length > 8)) {
+    if (pack.transitions.length > 8) pack.transitions = pack.transitions.slice(0, 8);
+    else pack.top_correlations = pack.top_correlations.slice(0, 4);
+    json = JSON.stringify(pack, null, 1);
+  }
+  fs.writeFileSync(out, json + '\n');
+  return { ok: true, output: out, size_kb: Number((Buffer.byteLength(json) / 1024).toFixed(1)) };
+}
+
+let step4 = {};
+try {
+  step4.dual_drive = projectDualDrive(runDir);
+} catch (e) { step4.dual_drive = { ok: false, reason: String(e.message).slice(0, 120) }; }
+try {
+  step4.physics = ensurePhysicsCheck(runDir);
+} catch (e) { step4.physics = { ok: false, reason: String(e.message).slice(0, 120) }; }
+try {
+  step4.evidence_pack = writeEvidencePack(runDir);
+} catch (e) { step4.evidence_pack = { ok: false, reason: String(e.message).slice(0, 120) }; }
+console.log('[data-processor-finalize] Step 4: downstream readiness...');
+// 4d. shared-schema conformance projection (single source: .claude/shared/schemas)
+try {
+  const conf = execFileSync(process.execPath, [join(scriptDir, '..', '..', '..', 'shared', 'scripts', 'schema_conformance.mjs'), runDir], { stdio: 'pipe' });
+  console.log(conf.toString().trim());
+} catch (e) { console.log('[schema_conformance] failed:', String(e.stderr || e.message).slice(0, 160)); }
+console.log(JSON.stringify({ step: 'downstream_readiness', ...step4 }, null, 2));
+
+console.log(JSON.stringify({ ok: true, steps: ['normalize', 'synthesize', 'stage_digest', 'downstream_readiness'] }, null, 2));

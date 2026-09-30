@@ -17,6 +17,8 @@ security:
   allowed_base_dirs:
     - "./storage"
     - "./knowledge_base"
+    # diagnostic run dirs — read-only consumption by POST /accumulate (Step 9.5)
+    - "../workspace/diagnostic-runs"
 
 knowledge_base:
   # Path to ChromaDB persistent storage

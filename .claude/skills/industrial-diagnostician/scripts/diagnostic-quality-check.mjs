@@ -155,6 +155,29 @@ if (cHypIds.length === 0) {
           `${hid}.${fname} score=${fdata.score} 超过 max=${factorMax[fname]}。`);
       }
     }
+    // Arithmetic closure: Σ(five factors) must equal the hypothesis's final
+    // confidence_score exactly (run 202609300452274 exposed three parallel
+    // ledgers of which only the five-factor path closed arithmetically).
+    // Arithmetic closure: Σ(five factors) must equal the hypothesis's final
+    // confidence_score exactly — SURVIVING hypotheses only. For eliminated
+    // hypotheses confidence_score is the post-exclusion residual, which is
+    // not the sum of the pre-exclusion factor decomposition (run
+    // 202609300452274: H2-H5 residuals 10/15/10/5 vs factor sums 54/48/46/37).
+    if (!surviving.some(s => s.id === hid)) {
+      continue;
+    }
+    const factorSum = requiredFactors.reduce((s, f) => s + (typeof ffd[f]?.score === 'number' ? ffd[f].score : 0), 0);
+    if (typeof entry.confidence_score === 'number' && Math.abs(factorSum - entry.confidence_score) > 0.5) {
+      addIssue(issues, 'critical', `CONFIDENCE_${hid}_SUM_MISMATCH`,
+        `${hid} 五因素分值之和 ${factorSum} ≠ confidence_score ${entry.confidence_score}——置信记账不闭合，必须以五因子路径为唯一正则口径（canonical）。`);
+      // Closure failure only: audit the adjustment ledger semantics.
+      const hidAdjs = (confidence.adjustment_log || []).filter(a => a.hypothesis_id === hid);
+      const unreconciled = hidAdjs.filter(a => a.already_included_in_factors !== true);
+      if (unreconciled.length > 0) {
+        addIssue(issues, 'warning', `CONFIDENCE_${hid}_ADJUSTMENTS_UNRECONCILED`,
+          `${hid} 有 ${unreconciled.length} 条 adjustment_log 未声明 already_included_in_factors:true 且五因子之和不闭合——要么补声明，要么给出可对账的基线→扣减链。`);
+      }
+    }
   }
 }
 const adjLog = confidence.adjustment_log || [];
@@ -220,7 +243,36 @@ for (const hyp of surviving) {
   }
 }
 
-const dualDriveInputs = anomaly.dual_drive_analysis?.cross_domain_links || [];
+// ----- Cross-skill contract read (B1) -----
+// Field paths consumers rely on are declared in
+// .claude/shared/schemas/cross_skill_contracts.json. Primary path miss with a
+// fallback hit = CONTRACT_DRIFT (warning — the producer renamed a field; fix
+// the path, do not silently absorb it). All paths miss = the original issue.
+function readDualDriveInputs(anomaly) {
+  const primary = anomaly.dual_drive_analysis?.cross_domain_links;
+  const fb = anomaly.dual_drive_diagnostic_layer?.linkage;
+  const fbHasData = Array.isArray(fb) && fb.length > 0;
+  // primary populated -> clean; primary empty/missing AND fallback carries the
+  // data -> the producer's normalize step never projected the field (drift).
+  if (Array.isArray(primary) && (primary.length > 0 || !fbHasData)) {
+    return { value: primary, drifted: false };
+  }
+  if (fbHasData) {
+    // normalize legacy string-linkage shape to the object shape the gate expects
+    return {
+      value: fb.map(t => (typeof t === 'string' ? { link: t, projected_from: 'dual_drive_diagnostic_layer.linkage' } : t)),
+      drifted: true,
+    };
+  }
+  return { value: [], drifted: false };
+}
+
+const dualDriveRead = readDualDriveInputs(anomaly);
+const dualDriveInputs = dualDriveRead.value;
+if (dualDriveRead.drifted) {
+  addIssue(issues, 'warning', 'CONTRACT_DRIFT_DUAL_DRIVE_INPUTS',
+    'anomaly_report.json 缺少 dual_drive_analysis.cross_domain_links（契约主路径），gate 经 fallback dual_drive_diagnostic_layer.linkage 读取——生产端字段路径漂移，请在 data-processor-finalize 归一化时投影该字段（见 .claude/shared/schemas/cross_skill_contracts.json）。');
+}
 const dualDriveOutputs = diagnosis.integrated_dual_drive_analysis?.process_to_quality_links || [];
 const dataViewMode =
   dataConclusion.adaptive_decision_audit?.data_view_mode ||

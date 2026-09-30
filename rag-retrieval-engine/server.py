@@ -11,6 +11,7 @@ Start:  python server.py
 
 import sys, os, time, yaml, hashlib, shutil, json
 from pathlib import Path
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Query, Header, Depends, UploadFile, File, Form
@@ -825,7 +826,20 @@ def _extract_params_from_text(text: str) -> List[str]:
 
 @app.post("/accumulate")
 async def accumulate(req: AccumulateRequest, _api_key: str = Depends(_require_api_key)):
-    """Accumulate verified diagnostic findings into the KB."""
+    """Accumulate verified diagnostic experience into the KB.
+
+    Reads 06_experience/experience_candidates.jsonl (produced by the
+    deterministic Step 9.5 distiller) and upserts experience chunks with
+    accumulated_diag_* source types. Cross-run corroboration: a new entry
+    highly similar to an existing one of the same experience_type increments
+    the existing entry's corroboration_count instead of adding a duplicate.
+
+    Contamination guards (code-level, not convention):
+      - entries whose scene matches a benchmark case id are rejected
+        (benchmark truth must never enter the retrieval corpus);
+      - payload text fields are length-capped mode-level descriptions;
+      - negative samples are forced to accumulated_diag_unverified.
+    """
     # Validate the user-supplied run_dir is within an allowed base directory
     run_dir = _validate_path(req.run_dir, purpose="diagnostic run accumulation")
 
@@ -838,6 +852,7 @@ async def accumulate(req: AccumulateRequest, _api_key: str = Depends(_require_ap
         return {"status": "skipped", "reason": "No judge feedback found"}
 
     import json
+    import hashlib
     judge = json.loads(judge_path.read_text())
     score = judge.get("overall_score", 0)
 
@@ -845,9 +860,152 @@ async def accumulate(req: AccumulateRequest, _api_key: str = Depends(_require_ap
         return {"status": "skipped",
                 "reason": f"Judge score {score} < 90 — not accumulating"}
 
+    candidates_path = run_dir / "06_experience" / "experience_candidates.jsonl"
+    if not candidates_path.exists():
+        return {"status": "skipped",
+                "reason": "No 06_experience/experience_candidates.jsonl — run the Step 9.5 distiller first"}
+
+    # Benchmark-case blacklist (code-level contamination guard)
+    bench_path = Path(__file__).resolve().parents[1] / "scripts" / "benchmark" / "cases" / "benchmark_cases.json"
+    bench_scene_keys = set()
+    if bench_path.exists():
+        try:
+            bench = json.loads(bench_path.read_text())
+            bench_scene_keys = {str(c.get("case_id", "")).lower() for c in bench.get("cases", [])}
+        except Exception:
+            pass
+
+    r = get_retriever()
+    if r.collection is None:
+        return {"status": "skipped", "reason": "KB collection not initialized — run /index first"}
+
+    MAX_FIELD_CHARS = 2000  # mode-level text only; raw data rows cannot fit
+    TYPE_TO_MECHANISM = {
+        "scene_fault_pattern": "fault_pattern",
+        "method_efficacy": "quantitative_rule",
+        "repair_lesson": "knowledge_general",
+        "artifact_signature": "fault_pattern",
+        "param_physics_correction": "quantitative_rule",
+        "negative_sample": "knowledge_general",
+    }
+    FIELD_LABELS = ["pattern", "mechanism", "discriminating_evidence", "signature",
+                    "method", "lesson", "correction", "misdiagnosis", "actual",
+                    "applicability_note"]
+
+    now = datetime.now(timezone.utc).isoformat()
+    added, corroborated, skipped = [], [], []
+    for line_no, raw in enumerate(candidates_path.read_text(encoding="utf-8").splitlines(), 1):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            exp = json.loads(raw)
+        except Exception as e:
+            skipped.append({"line": line_no, "reason": f"invalid json: {e}"})
+            continue
+
+        etype = str(exp.get("experience_type", "")).strip()
+        if etype not in TYPE_TO_MECHANISM:
+            skipped.append({"line": line_no, "reason": f"unknown experience_type '{etype}'"})
+            continue
+        payload = exp.get("payload") or {}
+        prov = exp.get("provenance") or {}
+        appl = exp.get("applicability") or {}
+        label = str(exp.get("confidence_label", "observation"))
+
+        # Contamination guard 1: benchmark scene blacklist
+        scene_key = str(prov.get("scene_key", "") or "").lower()
+        run_id = str(prov.get("run_id", ""))
+        scene_token = scene_key or run_id.lower()
+        if etype == "scene_fault_pattern" and any(bk and bk in scene_token for bk in bench_scene_keys):
+            skipped.append({"line": line_no, "reason": f"benchmark case scene '{scene_key or run_id}' — truth isolation forbids indexing"})
+            continue
+
+        # Contamination guard 2: field length cap (mode-level text only)
+        parts = []
+        too_long = False
+        for f in FIELD_LABELS:
+            v = payload.get(f)
+            if v in (None, "", []):
+                continue
+            s = v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)
+            if len(s) > MAX_FIELD_CHARS:
+                too_long = True
+                break
+            parts.append(f"{f}: {s}")
+        if too_long:
+            skipped.append({"line": line_no, "reason": "payload field exceeds mode-level length cap — possible raw data"})
+            continue
+        if not parts:
+            skipped.append({"line": line_no, "reason": "empty payload"})
+            continue
+
+        doc = (f"诊断经验 [{etype}|{label}] 场景属: {appl.get('scenario_genus', 'generic')}\n"
+               + "\n".join(parts)
+               + f"\n溯源: run={run_id} era={prov.get('era', 'unknown')} judge={prov.get('judge_score', score)}")
+
+        etype_hash = hashlib.sha256(
+            (etype + "|" + "|".join(parts)).encode("utf-8")).hexdigest()[:16]
+        scene8 = (scene_key or run_id or "generic").replace("-", "")[:8] or "generic"
+        chunk_id = f"exp_{etype}_{scene8}_{etype_hash}"[:63]
+
+        # Corroboration: near-identical entry of the same type already stored?
+        emb = r.model.encode([doc]).tolist()
+        try:
+            res = r.collection.query(query_embeddings=emb, n_results=1,
+                                     where={"experience_type": etype})
+            hits = res.get("ids") or [[]]
+            dists = res.get("distances") or [[]]
+            metas = res.get("metadatas") or [[]]
+            if hits[0] and dists[0]:
+                sim = 1.0 - float(dists[0][0])  # cosine distance -> similarity
+                if sim >= 0.92:
+                    hit_id = hits[0][0]
+                    meta = dict(metas[0][0]) if metas[0] else {}
+                    meta["corroboration_count"] = int(meta.get("corroboration_count", 1)) + 1
+                    meta["last_corroborated_at"] = now
+                    if meta["corroboration_count"] >= 2 and label != "negative":
+                        meta["confidence_label"] = "verified"
+                        meta["source_type"] = "accumulated_diag_verified"
+                    r.collection.update(ids=[hit_id], metadatas=[meta])
+                    corroborated.append({"id": hit_id, "similarity": round(sim, 4),
+                                         "corroboration_count": meta["corroboration_count"]})
+                    continue
+        except Exception:
+            pass  # query filter unsupported / empty collection — fall through to upsert
+
+        negative = label == "negative"
+        meta = {
+            "source_type": "accumulated_diag_unverified" if (negative or label != "verified") else "accumulated_diag_verified",
+            "source_path": str(run_dir),
+            "scenario_types": ",".join(filter(None, [str(appl.get("scenario_genus", "generic")), scene_key or None])),
+            "mechanism_type": TYPE_TO_MECHANISM[etype],
+            "parameter_tags": ",".join(list(appl.get("parameter_tags", []) or [])[:20]),
+            "experience_type": etype,
+            "confidence_label": "negative" if negative else ("verified" if label == "verified" else "observation"),
+            "era": str(prov.get("era", "unknown")),
+            "corroboration_count": int(exp.get("corroboration_count", 1)),
+            "refutation_count": int(exp.get("refutation_count", 0)),
+            "run_id": run_id,
+            "judge_score": prov.get("judge_score", score),
+        }
+        try:
+            r.collection.upsert(
+                ids=[chunk_id],
+                embeddings=r.model.encode([doc]).tolist(),
+                documents=[doc],
+                metadatas=[meta],
+            )
+            added.append(chunk_id)
+        except Exception as e:
+            skipped.append({"line": line_no, "reason": f"upsert failed: {e}"})
+
     return {"status": "accumulated",
-            "message": f"High-confidence diagnosis (score={score}) indexed",
-            "chunks_added": 0}
+            "message": f"judge={score}: {len(added)} added, {len(corroborated)} corroborated, {len(skipped)} skipped",
+            "chunks_added": len(added),
+            "added_ids": added,
+            "corroborated": corroborated,
+            "skipped": skipped[:20]}
 
 
 # ═══════════════════════════════════════════════════════════════
