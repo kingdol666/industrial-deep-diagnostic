@@ -354,7 +354,7 @@ def check_projection(group, arrays, store, steady, time_hours, th,
             if proj is None:
                 continue
             level = proj["level"]
-            check_type, rule = projection.alert_fields()
+            check_type, rule = projection.alert_fields(level)
             if proj["out_of_range"]:
                 check_type, rule = projection.out_of_range_fields()
             if level in (SEV["warn"], SEV["high"], SEV["critical"]) or proj["out_of_range"]:
