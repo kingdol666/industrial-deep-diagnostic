@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Downstream agent contract v1.0 (operating windows & tuning recommendations)",
+  "type": "object",
+  "required": ["contract_version", "audience", "operating_windows", "current_baseline",
+               "response_specs", "confirmations", "applicability_domain",
+               "invalidation_conditions", "usage_rules", "provenance"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "audience": { "const": "downstream_agent" },
+    "analysis_mode": { "enum": ["designed", "observational"] },
+    "operating_windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "factor", "factor_unit", "range", "expected_effect",
+                     "confidence", "fdr_q", "sample_size", "extrapolation", "confirmation_needed"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^OW-\\d{3}$" },
+          "priority": { "type": "integer", "minimum": 1 },
+          "factor": { "type": "string" },
+          "factor_unit": { "type": ["string", "null"] },
+          "response": { "type": "string" },
+          "range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+          "shape": { "enum": ["connected", "disconnected"] },
+          "expected_effect": {
+            "type": "object",
+            "required": ["delta", "direction_semantics", "unit"],
+            "properties": {
+              "delta": { "type": ["number", "null"] },
+              "direction_semantics": { "type": "string" },
+              "ci95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+              "unit": { "type": ["string", "null"] }
+            }
+          },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "fdr_q": { "type": ["number", "null"] },
+          "sample_size": { "type": "integer", "minimum": 1 },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "extrapolation": { "type": "boolean" },
+          "confirmation_needed": { "type": "boolean" },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "current_baseline": {
+      "type": "object",
+      "required": ["point"],
+      "properties": {
+        "point": { "type": "object", "additionalProperties": { "type": ["number", "string", "null"] } },
+        "distance_to_window": { "type": "object" },
+        "move_instruction": { "type": ["string", "null"] }
+      }
+    },
+    "setpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "value"],
+        "properties": {
+          "factor": { "type": "string" },
+          "value": { "type": ["number", "string", "null"] },
+          "expected_response": { "type": "object" },
+          "confidence": { "enum": ["high", "medium", "low"] }
+        }
+      }
+    },
+    "interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pair", "nature"],
+        "properties": {
+          "pair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
+          "nature": { "type": "string" },
+          "q_value_bh": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "between", "resolution", "chosen"],
+        "properties": {
+          "factor": { "type": "string" },
+          "between": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+          "resolution": { "type": "string" },
+          "chosen": { "type": "string" }
+        }
+      }
+    },
+    "response_specs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "lsl": { "type": ["number", "null"] },
+          "usl": { "type": ["number", "null"] },
+          "target": { "type": ["number", "null"] },
+          "current": { "type": ["number", "null"] },
+          "goal": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "confirmations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "reason"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^CF-\\d{3}$" },
+          "reason": { "type": "string" },
+          "reason_code": { "enum": [null, "observational", "aliased", "saturated", "linear_only", "non_randomized", "extrapolation"] },
+          "design_hint": { "type": ["string", "null"] },
+          "runs": { "type": ["integer", "null"], "minimum": 1 }
+        }
+      }
+    },
+    "watchlist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "factor": { "type": ["string", "null"] },
+          "response": { "type": ["string", "null"] },
+          "threshold": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor"],
+        "properties": {
+          "factor": { "type": "string" },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "source": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "applicability_domain": {
+      "type": "object",
+      "required": ["n_rows", "factor_observed_ranges"],
+      "properties": {
+        "n_rows": { "type": "integer", "minimum": 1 },
+        "time_span": { "type": ["string", "null"] },
+        "regime": { "type": ["string", "null"] },
+        "factor_observed_ranges": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "min": { "type": "number" },
+              "max": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "invalidation_conditions": { "type": "array", "items": { "type": "string" } },
+    "usage_rules": { "type": "array", "items": { "type": "string" } },
+    "provenance": {
+      "type": "object",
+      "required": ["input_sha256", "script_version", "authored_by"],
+      "properties": {
+        "input_sha256": { "type": "string" },
+        "script_version": { "type": "string" },
+        "seed": { "type": ["integer", "null"] },
+        "authored_by": { "enum": ["script", "agent"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Observational-mode validated correlation report",
+  "type": "object",
+  "required": ["generated_at", "mode", "pairs", "multiple_testing"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "mode": { "const": "observational" },
+    "n_rows": { "type": "integer" },
+    "time_col": { "type": ["string", "null"] },
+    "group_col": { "type": ["string", "null"] },
+    "sorting_validation": { "type": ["object", "null"] },
+    "pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "parameter", "r", "n", "anti_spurious_verdict"],
+        "properties": {
+          "target": { "type": "string" },
+          "parameter": { "type": "string" },
+          "r": { "type": "number" },
+          "p_value": { "type": ["number", "null"] },
+          "q_value_bh": { "type": ["number", "null"] },
+          "n": { "type": "integer" },
+          "best_lag": { "type": ["integer", "null"] },
+          "best_lag_r": { "type": ["number", "null"] },
+          "lag_window_consistent": { "type": ["boolean", "null"] },
+          "detrended_r": { "type": ["number", "null"] },
+          "trend_confounded": { "type": ["boolean", "null"] },
+          "contribution_delta_r2": { "type": ["number", "null"] },
+          "verdicts": { "type": "object" },
+          "anti_spurious_verdict": { "enum": ["PASS", "CAUTION", "FAIL", "NOT_ASSESSED"] },
+          "evidence_level": { "enum": ["L3", "L4", "L5", "L6"] },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "top_contributors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["response", "factor", "delta_r2"],
+        "properties": {
+          "response": { "type": "string" },
+          "factor": { "type": "string" },
+          "delta_r2": { "type": "number" },
+          "r_full_model": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "multiple_testing": {
+      "type": "object",
+      "required": ["method", "n_families", "total_tests", "total_significant_q05"],
+      "properties": {
+        "method": { "const": "BH" },
+        "n_families": { "type": "integer" },
+        "total_tests": { "type": "integer" },
+        "total_significant_q05": { "type": "integer" }
+      }
+    },
+    "anti_spurious_summary": { "type": "object" }
+  }
+}

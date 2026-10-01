@@ -1,0 +1,39 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "y",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "x",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "t",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 10,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "F7 fixture"
+    ]
+  },
+  "_predictor_cols": [
+    "x"
+  ]
+}

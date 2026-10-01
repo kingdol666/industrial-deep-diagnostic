@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Designed-mode fitted model (per response)",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": ["response", "coded_coefficients", "r_squared", "df_resid"],
+    "properties": {
+      "response": { "type": "string" },
+      "n": { "type": "integer" },
+      "df_resid": { "type": "integer", "minimum": 0 },
+      "mse": { "type": ["number", "null"] },
+      "coded_coefficients": {
+        "type": "object",
+        "additionalProperties": { "type": "number" }
+      },
+      "r_squared": { "type": "number" },
+      "adj_r_squared": { "type": ["number", "null"] },
+      "q_squared_loo": { "type": ["number", "null"] },
+      "q_squared_note": { "type": ["string", "null"] },
+      "saturated": { "type": ["boolean", "null"] },
+      "pooled_terms": { "type": "array", "items": { "type": "string" } },
+      "lack_of_fit": {
+        "type": ["object", "null"],
+        "properties": {
+          "estimable": { "type": "boolean" },
+          "reason": { "type": ["string", "null"] },
+          "f_stat": { "type": ["number", "null"] },
+          "p_value": { "type": ["number", "null"] },
+          "curvature_test": { "type": ["object", "null"] }
+        }
+      },
+      "residual_diagnostics": {
+        "type": ["object", "null"],
+        "properties": {
+          "n": { "type": "integer" },
+          "n_params": { "type": "integer" },
+          "sigma_residual": { "type": ["number", "null"] },
+          "max_leverage": { "type": ["number", "null"] },
+          "leverage_cutoff_2p_over_n": { "type": ["number", "null"] },
+          "n_leverage_gt": { "type": ["integer", "null"] },
+          "max_cooks_d": { "type": ["number", "null"] },
+          "n_high_residual_abs_gt3sigma": { "type": ["integer", "null"] },
+          "preview_stride": { "type": ["integer", "null"] },
+          "preview_truncated": { "type": ["boolean", "null"] },
+          "residuals_preview": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "required": ["row_index", "y", "yhat", "resid"],
+              "properties": {
+                "row_index": { "type": "integer" },
+                "y": { "type": ["number", "null"] },
+                "yhat": { "type": ["number", "null"] },
+                "resid": { "type": ["number", "null"] }
+              }
+            }
+          },
+          "normality": { "type": ["object", "null"] }
+        }
+      },
+      "predictor": {
+        "type": ["object", "null"],
+        "properties": {
+          "base": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "kind": { "enum": ["numeric_main", "level"] },
+                "factor": { "type": "string" },
+                "mean": { "type": "number" },
+                "half_range": { "type": "number" },
+                "level": { "type": "string" },
+                "reference": { "type": "string" }
+              }
+            }
+          },
+          "terms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "term": { "type": "string" },
+                "specs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "fn": { "enum": ["identity", "square", "product"] },
+                      "inputs": { "type": "array", "items": { "type": "string" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "coefficients": {
+            "type": "object",
+            "additionalProperties": { "type": ["number", "null"] }
+          },
+          "intercept": { "type": ["number", "null"] }
+        }
+      },
+      "stationary_point": { "type": ["object", "null"] }
+    }
+  }
+}

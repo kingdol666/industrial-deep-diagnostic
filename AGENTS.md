@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 18 standardized skills (discovered by OMP through the `claude` provider) × 14 dedicated agents, with JSON Schema validation + a script toolchain
+1. **Skills** (`.claude/skills/`) — 19 standardized skills (discovered by OMP through the `claude` provider) × 15 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` for DOE / production-condition data analysis outside the 9-stage pipeline)
 2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 
@@ -139,7 +139,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 - **Mandatory anti-spurious-correlation (v6.4–v6.7)**: lag-compensated CCF · production-state detection + steady-state filtering · batch identifier integrity · outlier leverage leave-one-out
 - **Automatic HTML build (non-interactive)**: after CP-8 `ENDORSED`, Steps 8→8.5→9 run back to back automatically by default, with no user prompt
 
-### Skill System (18 skills)
+### Skill System (19 skills)
 
 | Skill | Trigger conditions | Model |
 |-------|---------|:----:|
@@ -159,10 +159,11 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | `industrial-enhanced-html-visualizer` | enhanced html, enhanced visualization... | default |
 | `industrial-enhanced-html-reviewer` | enhanced html review, enhanced review... | default |
 | `rag-knowledge-builder` | knowledge base construction, ontology construction... | default |
+| `industrial-doe-analyzer` | DOE, design of experiments, trial data analysis, factorial, response surface, ANOVA, operating window, 工况分析, 试验数据分析, 因子效应, 响应面, 参数相关性, 操作窗口, 高通量数据分析, 工艺优化参考 (standalone — NOT a pipeline stage; its own negative triggers route DOE asks away from data-processor/diagnostician/analysis-auto, but those skills do not yet route designed-experiment data back — see doe-analyzer v2 plan) | default |
 | `diagnostic-html-visualizer` | diagnosis result visualization, dashboard... | — |
 | `darwin-skill` | skill fitness, skill evaluation... | — |
 
-### Agent Roles (14 agents)
+### Agent Roles (15 agents)
 
 | Agent | Persona | Core output |
 |-------|------|---------|
@@ -180,6 +181,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | enhance-orchestrator | Enhancement Pipeline Orchestration | Fully automated E0-E8 enhancement |
 | enhanced-visualizer | Enhanced Frontend | Enhanced ECharts HTML |
 | enhanced-html-reviewer | Enhanced Review | Enhanced HTML review |
+| doe-analyst | Engineer Qin · DOE & Process Data Analysis | Deterministic effect/correlation/stability analysis + downstream recommendations contract |
 
 ### Diagnostic Output Directory Structure
 ```

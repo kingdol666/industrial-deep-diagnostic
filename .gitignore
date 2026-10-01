@@ -163,3 +163,12 @@ baseline-lab/.devlog.txt
 
 # Paper workbench bulk page renders (transient review artifacts, ~100MB)
 paper/workbench/pages*/
+
+# Scratch space for review/stress-test evidence (regenerable via the generators
+# in tmp/doe_stress/gen_data.py and tmp/stress_sweep.py; keep nothing tracked)
+tmp/
+
+# DOE-analyzer v1 red-team / E2E bulk run artifacts (regenerable from
+# workspace/doe-redteam/gen_cases.py; keep the generator + E2E_REPORT.md only)
+workspace/doe-redteam/*/run/
+workspace/e2e-doe/run/

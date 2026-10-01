@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Master conclusion (script baseline or agent-enriched)",
+  "type": "object",
+  "required": ["generated_at", "analysis_mode", "evidence_grade", "authored_by", "key_findings", "limitations", "recommendations_ref"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "analysis_mode": { "enum": ["designed", "observational"] },
+    "design_type": { "type": ["string", "null"] },
+    "evidence_grade": { "enum": ["A", "A-", "B"] },
+      "grade_checklist": {
+        "type": "object",
+        "properties": {
+          "randomization_ok": { "type": ["boolean", "null"] },
+          "pure_error_df_gt0": { "type": ["boolean", "null"] },
+          "resolution_ok": { "type": ["boolean", "null"] },
+          "balanced": { "type": ["boolean", "null"] },
+          "model_adequacy_ok": { "type": ["boolean", "null"] },
+          "anti_spurious_ok": { "type": ["boolean", "null"] },
+          "overridden_by": { "type": ["string", "null"] }
+        }
+      },
+    "authored_by": { "enum": ["script", "agent"] },
+    "key_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "confidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "statement": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "fdr_q": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "figure_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file": { "type": "string" },
+          "title": { "type": "string" },
+          "purpose": { "type": "string" }
+        }
+      }
+    },
+    "recommendations_ref": { "type": "string" },
+    "downstream_usage_card": {
+      "type": "object",
+      "properties": {
+        "contract_version": { "type": "string" },
+        "n_windows": { "type": "integer" },
+        "n_confirmations": { "type": "integer" },
+        "n_watchlist": { "type": "integer" },
+        "usage_rules": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

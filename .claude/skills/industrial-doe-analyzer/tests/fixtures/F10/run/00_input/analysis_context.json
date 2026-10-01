@@ -1,0 +1,39 @@
+{
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-doe-analyzer\\tests\\fixtures\\F10\\run\\00_input\\data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "yield",
+      "goal": null,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "speed",
+      "type": "categorical"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": null,
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "analysis_context.json was absent — fields auto-inferred; review responses/factors before trusting windows"
+    ]
+  },
+  "_predictor_cols": [
+    "speed"
+  ]
+}

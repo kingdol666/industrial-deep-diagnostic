@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Figure manifest with ink-gate results",
+  "type": "object",
+  "required": ["generated_at", "mode", "plots"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "mode": { "enum": ["designed", "observational"] },
+    "notes": { "type": "string" },
+    "plots": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["file", "type", "title", "ink_ok"],
+        "properties": {
+          "file": { "type": "string" },
+          "type": {
+            "enum": ["pareto", "main_effects", "contour",
+                     "residual_diagnostics", "correlation_heatmap", "contribution_bar",
+                     "stability_timeline", "segment_comparison"]
+          },
+          "title": { "type": "string" },
+          "response": { "type": ["string", "null"] },
+          "min_ink_ratio": { "type": "number" },
+          "ink_ok": { "type": "boolean" },
+          "ink_detail": { "type": "string" },
+          "bytes": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

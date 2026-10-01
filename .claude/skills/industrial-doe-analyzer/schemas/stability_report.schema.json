@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Observational-mode stability & capability report",
+  "type": "object",
+  "required": ["generated_at", "capability"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "n_rows": { "type": "integer" },
+    "time_col": { "type": ["string", "null"] },
+    "capability": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["response", "n", "mean", "has_specs"],
+        "properties": {
+          "response": { "type": "string" },
+          "n": { "type": "integer" },
+          "mean": { "type": "number" },
+          "std_overall": { "type": ["number", "null"] },
+          "sigma_within_mr": { "type": ["number", "null"] },
+          "has_specs": { "type": "boolean" },
+          "lsl": { "type": ["number", "null"] },
+          "usl": { "type": ["number", "null"] },
+          "target": { "type": ["number", "null"] },
+          "cp": { "type": ["number", "null"] },
+          "cpk": { "type": ["number", "null"] },
+          "cpk_label": { "type": ["string", "null"] },
+          "pp": { "type": ["number", "null"] },
+          "ppk": { "type": ["number", "null"] },
+          "cnp": { "type": ["number", "null"] },
+          "normality": { "type": ["object", "null"] },
+          "autocorr_lag1": { "type": ["number", "null"] },
+          "n_eff": { "type": ["integer", "null"] },
+          "note": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "steady_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["start", "end", "n_rows"],
+        "properties": {
+          "start": { "type": "integer", "minimum": 0 },
+          "end": { "type": "integer", "minimum": 0 },
+          "n_rows": { "type": "integer", "minimum": 1 },
+          "response_means": { "type": "object" },
+          "score": { "type": ["number", "null"] },
+          "selected_for_windows": { "type": "boolean" }
+        }
+      }
+    },
+    "change_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["response", "positions"],
+        "properties": {
+          "response": { "type": "string" },
+          "positions": { "type": "array", "items": { "type": "integer" } },
+          "detail": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "drift_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "response": { "type": ["string", "null"] },
+          "severity": { "enum": ["info", "warn", "critical"] }
+        }
+      }
+    },
+    "regime_summary": { "type": ["object", "null"] }
+  }
+}

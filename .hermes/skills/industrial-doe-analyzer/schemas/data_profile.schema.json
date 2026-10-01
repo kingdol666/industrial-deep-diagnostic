@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DOE data profile + design detection",
+  "type": "object",
+  "required": ["generated_at", "data_path", "n_rows", "columns", "roles", "design", "quality", "caveats"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "data_path": { "type": "string" },
+    "n_rows": { "type": "integer", "minimum": 1 },
+    "n_cols": { "type": "integer", "minimum": 1 },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "dtype", "role", "role_assigned_by"],
+        "properties": {
+          "name": { "type": "string" },
+          "dtype": { "type": "string" },
+          "role": { "enum": ["response", "factor", "block", "covariate", "index", "ignore"] },
+          "role_assigned_by": { "enum": ["user", "auto"] },
+          "n_unique": { "type": ["integer", "null"] },
+          "n_missing": { "type": ["integer", "null"] },
+          "n_valid": { "type": ["integer", "null"] },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "required": ["responses", "factors", "blocks", "covariates", "index", "ignore"],
+      "properties": {
+        "responses": { "type": "array", "items": { "type": "string" } },
+        "factors": { "type": "array", "items": { "type": "string" } },
+        "blocks": { "type": "array", "items": { "type": "string" } },
+        "covariates": { "type": "array", "items": { "type": "string" } },
+        "index": { "type": "array", "items": { "type": "string" } },
+        "ignore": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "design": {
+      "type": "object",
+      "required": ["design_type", "mode"],
+      "properties": {
+        "mode": { "enum": ["designed", "observational"] },
+        "design_type": {
+          "enum": ["full_factorial", "fractional_factorial", "rsm_ccd", "rsm_bbd",
+                   "orthogonal_array", "latin_hypercube", "replicates_unknown", "observational"]
+        },
+        "n_runs": { "type": ["integer", "null"] },
+        "n_distinct_combos": { "type": ["integer", "null"] },
+        "replicates": { "type": ["integer", "null"] },
+        "balanced": { "type": ["boolean", "null"] },
+        "balance_ratio": { "type": ["number", "null"] },
+        "max_abs_factor_corr": { "type": ["number", "null"] },
+        "resolution": { "type": ["integer", "null"] },
+        "generators": { "type": "array", "items": { "type": "string" } },
+        "defining_relation": { "type": "array", "items": { "type": "string" } },
+        "alias_chains": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        },
+        "center_points": { "type": ["integer", "null"] },
+        "axial_points": { "type": ["integer", "null"] },
+        "alpha_axial": { "type": ["number", "null"] },
+        "detection_notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "duplicate_rows": { "type": "integer" },
+        "constant_cols": { "type": "array", "items": { "type": "string" } },
+        "high_missing_cols": { "type": "array", "items": { "type": "string" } },
+        "rows_dropped_missing_targets": { "type": "integer" }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message", "severity"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "severity": { "enum": ["info", "warn", "critical"] },
+          "evidence": { "type": ["object", "string", "null"] }
+        }
+      }
+    }
+  }
+}
