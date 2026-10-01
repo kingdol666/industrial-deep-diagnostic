@@ -1,0 +1,150 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261001-114604-000",
+  "mode": "fast_screen",
+  "status": "alert",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-01T11:46:04.641740+00:00",
+  "source": {
+    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\b1.csv",
+    "sha256": "a10637494a3b7ede187e7ed036d0862ba9b93d4fcec1af30116cc871119e358b",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 200,
+    "time_col": null,
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 2,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 1,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261001-114604-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 12.090504730056995,
+        "index": 300,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 稳健 z |12.09| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114604-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 14.432665383541917,
+        "index": 100,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114604-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 14.432665383541917,
+        "index": 300,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "repeat_count": 3
+    }
+  ],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|temp",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+        "repeat_count": 6
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "a10637494a3b7ede187e7ed036d0862ba9b93d4fcec1af30116cc871119e358b",
+    "script_version": "1.0.0",
+    "duration_ms": 8,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

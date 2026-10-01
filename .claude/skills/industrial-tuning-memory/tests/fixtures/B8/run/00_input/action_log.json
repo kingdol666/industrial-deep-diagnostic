@@ -1,0 +1,113 @@
+[
+  {
+    "schema_version": "1.0",
+    "ts": "2026-01-15T00:01:40Z",
+    "actor": {
+      "actor_id": "ENG-ZHANG-0091",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp",
+        "from": 50.0,
+        "to": 52.0,
+        "unit": "degC"
+      },
+      {
+        "parameter": "press",
+        "from": 1.0,
+        "to": 1.2,
+        "unit": "kPa"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": true,
+      "bundle_reason": "coupled_move",
+      "note": "联动调整"
+    },
+    "context": {
+      "product": "P1",
+      "machine": "M1",
+      "regime_label": "R1",
+      "steady_segment_ref": null,
+      "group_key": null
+    },
+    "attribution_confounds": [],
+    "recommendation_ref": null,
+    "ingest_meta": {
+      "source": null,
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-01-15T00:05:50Z",
+    "actor": {
+      "actor_id": "ENG-ZHANG-0091",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp",
+        "from": 52.0,
+        "to": 54.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "P1",
+      "machine": "M1",
+      "regime_label": "R1",
+      "steady_segment_ref": null,
+      "group_key": null
+    },
+    "attribution_confounds": [],
+    "recommendation_ref": null,
+    "ingest_meta": {
+      "source": null,
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-01-15T00:06:20Z",
+    "actor": {
+      "actor_id": "ENG-ZHANG-0091",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp",
+        "from": 54.0,
+        "to": 56.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "P1",
+      "machine": "M1",
+      "regime_label": "R1",
+      "steady_segment_ref": null,
+      "group_key": null
+    },
+    "attribution_confounds": [],
+    "recommendation_ref": null,
+    "ingest_meta": {
+      "source": null,
+      "ingested_at": null
+    }
+  }
+]

@@ -11,6 +11,9 @@ import ompRoutes from './routes/omp.routes.mjs';
 import ontologyRoutes from './routes/ontology.routes.mjs';
 import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
+import sentinelRoutes from './routes/sentinel.routes.mjs';
+import experienceRoutes from './routes/experience.routes.mjs';
+import optimizerRoutes from './routes/optimizer.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -78,6 +81,11 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/omp', ompRoutes);
 app.use('/api/harness', harnessRoutes);
 app.use('/api/ontology', ontologyRoutes);
+
+// 闭环三件套（Workstream D 集成层：产线哨兵 / 调优经验库 / 目标闭环寻优）
+app.use('/api/sentinel', sentinelRoutes);
+app.use('/api/experience', experienceRoutes);
+app.use('/api/optimizer', optimizerRoutes);
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {

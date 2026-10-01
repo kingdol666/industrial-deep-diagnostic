@@ -1,0 +1,149 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T11:46:08.418038+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "03f1eea28a02e0e42d00a3633fb2592b44033f604fe7724b8f9c9a24f8b144b2",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": null,
+    "group_col": "line",
+    "numeric_columns": [
+      "temp",
+      "press"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "A": {
+      "parameters": {
+        "temp": {
+          "center": 50.00133808122572,
+          "sigma_within_mr": 0.035181589022866236,
+          "sigma_overall": 0.023042676192449166,
+          "median": 50.00020864218344,
+          "mad": 0.02024169483227567,
+          "q10": 49.96878757450428,
+          "q90": 50.03160262315784,
+          "cv": 0.0004608411909900693,
+          "variance_ratio_baseline_std": 0.023042676192449166
+        },
+        "press": {
+          "center": 9.999746879537051,
+          "sigma_within_mr": 0.012827953792729023,
+          "sigma_overall": 0.008397837814171579,
+          "median": 10.000043636655125,
+          "mad": 0.0072767368256903,
+          "q10": 9.988401710148812,
+          "q90": 10.01122007437086,
+          "cv": 0.0008398050386011737,
+          "variance_ratio_baseline_std": 0.008397837814171579
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "temp",
+          "press"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.7730103255867752,
+          -0.7730103255867752,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          -0.7730103255867752,
+          0.6343934398590735
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 300,
+        "steady_ratio": 1.0,
+        "time_span": null,
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    },
+    "B": {
+      "parameters": {
+        "temp": {
+          "center": 49.99879411888012,
+          "sigma_within_mr": 0.034275837633662,
+          "sigma_overall": 0.022360130085739224,
+          "median": 50.0003621743225,
+          "mad": 0.020037046055339403,
+          "q10": 49.968456902023476,
+          "q90": 50.029022782513294,
+          "cv": 0.0004472133874383939,
+          "variance_ratio_baseline_std": 0.022360130085739224
+        },
+        "press": {
+          "center": 10.00007210261899,
+          "sigma_within_mr": 0.012977833945326735,
+          "sigma_overall": 0.008510146721753148,
+          "median": 10.00001328449667,
+          "mad": 0.0074762586483414495,
+          "q10": 9.988240490087001,
+          "q90": 10.011598092670217,
+          "cv": 0.0008510085361808907,
+          "variance_ratio_baseline_std": 0.008510146721753148
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "temp",
+          "press"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.7485942997902695,
+          -0.7485942997902695,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          -0.7485942997902695,
+          0.6630283359868688
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 300,
+        "steady_ratio": 1.0,
+        "time_span": null,
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "03f1eea28a02e0e42d00a3633fb2592b44033f604fe7724b8f9c9a24f8b144b2",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

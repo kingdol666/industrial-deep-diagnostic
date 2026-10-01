@@ -1,0 +1,222 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261001-114608-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": "line",
+  "generated_at": "2026-10-01T11:46:08.941957+00:00",
+  "source": {
+    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F5_multi_group\\watch.csv",
+    "sha256": "9560722c6024934f0e6a77997d865628f77e4069f59541577880b320df434eba",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 700,
+    "time_col": null,
+    "group_col": "line"
+  },
+  "baseline": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F5_multi_group\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 2,
+      "rules_hit": {
+        "NELSON_R1": 2
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "A": {
+          "steady": 300
+        },
+        "B": {
+          "steady": 300
+        },
+        "C": {
+          "steady": 100
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 2,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261001-114608-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "A",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 11.233259125314126,
+        "index": 150,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 稳健 z 分数 |11.23| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "A|multivariate|ROBUST_Z_OUTLIER|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114608-002",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "B",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 11.34450422849947,
+        "index": 150,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 稳健 z 分数 |11.34| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "B|multivariate|ROBUST_Z_OUTLIER|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114608-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "A",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 14.17394531128702,
+        "index": 150,
+        "timestamp": null,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 0.10554476706859871,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "A|spc|NELSON_R1|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114608-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "B",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 14.622717217788718,
+        "index": 150,
+        "timestamp": null,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 0.102827512900986,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "B|spc|NELSON_R1|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114608-005",
+      "check_type": "baseline",
+      "rule_name": "UNSEEN_GROUP",
+      "parameter": null,
+      "indicator": null,
+      "group": "C",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": null
+      },
+      "threshold": {},
+      "evidence": {
+        "n_points": 100
+      },
+      "suggested_check": "分组 C 未在基线登记，请扩充基线（build_baseline.py）或核对分组列取值",
+      "suggested_next_skill": null,
+      "advisory": false,
+      "suppression_key": "C|baseline|UNSEEN_GROUP|_",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": {
+    "A": {
+      "labels": {
+        "steady": 300
+      }
+    },
+    "B": {
+      "labels": {
+        "steady": 300
+      }
+    },
+    "C": {
+      "labels": {
+        "steady": 100
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "9560722c6024934f0e6a77997d865628f77e4069f59541577880b320df434eba",
+    "script_version": "1.0.0",
+    "duration_ms": 15,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

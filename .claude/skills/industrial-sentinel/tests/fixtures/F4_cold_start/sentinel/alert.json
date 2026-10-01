@@ -1,0 +1,125 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261001-114607-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-01T11:46:07.297668+00:00",
+  "source": {
+    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F4_cold_start\\watch.csv",
+    "sha256": "9df2727760300fc0b130b4125a58742cc70064dc6669db82bb2516f48ee3f57d",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 240,
+    "time_col": null,
+    "group_col": null
+  },
+  "baseline": {
+    "path": null,
+    "baseline_version": "self:v1.0.0",
+    "mode": "self",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 1,
+      "rules_hit": {
+        "NELSON_R1": 1
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "steady": 240
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 0,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261001-114607-001",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.5,
+        "statistic": 13.48591091659528,
+        "index": 200,
+        "timestamp": null,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 0.11076905279230928,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114607-002",
+      "check_type": "baseline",
+      "rule_name": "SELF_BASELINE",
+      "parameter": null,
+      "indicator": null,
+      "group": null,
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": null
+      },
+      "threshold": {
+        "hours_warn": 48
+      },
+      "evidence": {
+        "n_points": 240
+      },
+      "suggested_check": "self 基线仅覆盖本窗口，统计功效有限；48 小时内请用历史数据运行 build_baseline.py 固化正式基线",
+      "suggested_next_skill": null,
+      "advisory": true,
+      "suppression_key": "_|baseline|SELF_BASELINE|_",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "steady": 240
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "9df2727760300fc0b130b4125a58742cc70064dc6669db82bb2516f48ee3f57d",
+    "script_version": "1.0.0",
+    "duration_ms": 12,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

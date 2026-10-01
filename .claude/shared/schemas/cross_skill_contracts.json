@@ -23,6 +23,56 @@
       "primary_path": "(file)",
       "fallback_paths": [],
       "expect": "file_exists_le_2kb"
+    },
+    {
+      "id": "doe_baseline_to_sentinel",
+      "description": "Sentinel build_baseline copies operating windows / response specs / applicability domain from doe-analyzer recommendations into watch_baseline.json.",
+      "producer": "industrial-doe-analyzer:conclusions/recommendations.json",
+      "consumer": "industrial-sentinel:scripts/build_baseline.py",
+      "primary_path": "operating_windows[].range",
+      "fallback_paths": ["operating_windows[].range[0]", "operating_windows[].range[1]"],
+      "expect": "non_empty_array_when_designed_or_observational_windows_issued",
+      "drift_history": []
+    },
+    {
+      "id": "alert_to_signature",
+      "description": "Tuning-memory fault signature consumes sentinel alert parameters/groups when an alert triggers playbook retrieval (trigger.ref_id = alert_id).",
+      "producer": "industrial-sentinel:sentinel/alert.json",
+      "consumer": "industrial-tuning-memory:scripts/match_playbook.mjs",
+      "primary_path": "alerts[].parameter",
+      "fallback_paths": ["alerts[].indicator", "projection_summary"],
+      "expect": "alert_id_present_when_checks_triggered",
+      "drift_history": []
+    },
+    {
+      "id": "doe_prior_to_optimizer",
+      "description": "Optimizer window_seed reads doe-analyzer recommendations as round-1 prior seeds.",
+      "producer": "industrial-doe-analyzer:conclusions/recommendations.json",
+      "consumer": "industrial-optimizer-loop:scripts/optcore/windows_seed.py",
+      "primary_path": "operating_windows",
+      "fallback_paths": ["setpoints", "current_baseline.point"],
+      "expect": "optional_prior_when_absent",
+      "drift_history": []
+    },
+    {
+      "id": "recipe_to_experience",
+      "description": "Optimizer converged recipe must be KB-ready for AWS-side ingestion: AWS agent (via rag-bridge kb_agent) ingests with regime_key scenario title — IDD NEVER calls the knowledge base directly (three-system split: AWS orchestrates).",
+      "producer": "industrial-optimizer-loop:06_experience/experience_candidates.jsonl",
+      "consumer": "aws-agentworkshop:rag-bridge kb_agent (agent-driven, regime_key scenario title)",
+      "primary_path": "experience_type",
+      "fallback_paths": ["payload.final_setpoints"],
+      "expect": "experience_type_in_closedloop_enums",
+      "drift_history": []
+    },
+    {
+      "id": "recommendation_execution_ack",
+      "description": "AWS execution receipt (inbox ack file) references recommendation_id and carries executed_action_log_id back to tuning-memory.",
+      "producer": "aws-integration:data/integration/<line>/outbox/recommendation.json",
+      "consumer": "industrial-tuning-memory:POST /api/experience/feedback + action_logs table",
+      "primary_path": "recommendation_id",
+      "fallback_paths": ["alert_id"],
+      "expect": "ack_within_timeout_else_unconfirmed",
+      "drift_history": []
     }
   ]
 }

@@ -1,0 +1,70 @@
+{
+  "$id": "closedloop_enums.json",
+  "description": "Single source of truth for closed-loop skill-suite enums (sentinel / tuning-memory / optimizer-loop). quality_gate.mjs of all three skills MUST read literals from this file; python side mirrors via closedloop_common/enums.py. Changing a literal here = breaking contract, bump contract_version of affected artifact.",
+  "version": "1.0",
+  "contract_versions": {
+    "sentinel_alert": "sentinel-alert/1.0",
+    "sentinel_baseline": "sentinel-baseline/1.0",
+    "action_log": "1.0",
+    "attribution_report": "1.0",
+    "fault_signature": "1.0",
+    "tuning_experience": "1.0",
+    "recommendation": "1.0",
+    "objective": "1.0",
+    "trial_design": "1.0",
+    "trial_result": "1.0",
+    "optimizer_state": "1.0",
+    "inbox_envelope": "integration-envelope/1.0"
+  },
+  "severity": ["info", "warn", "high", "critical"],
+  "urgency": ["routine", "same_shift", "immediate"],
+  "responsibility_rule": "IDD is a PURE ANALYSIS system (v1.4 user ruling): it produces analysis artifacts with evidence grades and NEVER dispatches parameters or makes control decisions. Evidence grade = advisory strength for the consumer, NOT an authorization level. Whether/how to act (suggest-approve-auto dispatch policy) is decided entirely by the AWS side; the former IDD-side autonomy enum is retired to AWS concern.",
+  "evidence_grades": {
+    "E0": "weak: retro-mined | attribution_status=truncated | confound_detected | attribution_compromised | direction_uncertain — advisory strength: reference only",
+    "E1": "observed: single estimable attribution (CI may cross 0)",
+    "E2": "confirmed: same-regime corroboration_count>=2 (RAG verified) AND ci95 excludes 0 AND confound_detected=false",
+    "E3": "cross_regime: E2 AND cross_regime_consistent (>=2 regime_key with same direction)"
+  },
+  "sentinel": {
+    "modes": ["watch", "fast_screen"],
+    "status": ["ok", "warn", "alert"],
+    "check_types": ["spc", "window_projection", "regime", "multivariate", "baseline"],
+    "rule_names": ["NELSON_R1", "NELSON_R2", "NELSON_R3", "NELSON_R5", "NELSON_R6", "WINDOW_DRIFT_PROJECTION", "WINDOW_OUT_OF_RANGE", "REGIME_ABNORMAL", "REGIME_CHANGE_NEW", "VARIANCE_RATIO_HIGH", "ROBUST_Z_OUTLIER", "MAHALANOBIS_OUTLIER", "UNSEEN_GROUP", "SELF_BASELINE"],
+    "suggested_next_skill": ["industrial-doe-analyzer", "industrial-diagnostician", "industrial-optimizer-loop", null],
+    "exit_codes": { "0": "ok", "1": "warn_or_alert", "2": "undetermined_no_baseline_or_bad_input", "3": "gate_fail" },
+    "suppression": { "suppress_window_minutes": 60, "hysteresis_points": 5, "post_changepoint_quiet_rows": 30 },
+    "baseline": { "min_steady_rows_per_group": 100, "self_baseline_ttl_hours": 48, "fast_path_min_rows": 20000 }
+  },
+  "tuning_memory": {
+    "trigger_types": ["alert", "experience_recipe", "manual", "aws_optimization"],
+    "actor_types": ["engineer", "control_system", "batch_recipe", "aws_executor", "unknown_retro_inferred"],
+    "observed_trajectories": ["settled_to_target", "oscillating", "drifted", "no_change", "transient_then_reversed", "not_observed"],
+    "attribution_status": ["estimable", "direction_uncertain", "truncated", "not_estimable"],
+    "not_estimable_reason_codes": ["min_points", "outlier_driven", "dead_time_unknown", "overlapping_action", "metric_missing"],
+    "experience_types": ["tuning_action_effect", "fault_control_recipe", "optimization_recipe"],
+    "feedback_results": ["effective", "ineffective", "harmful", "confirmed"],
+    "admission_rule": "local experience store admits ONLY entries whose attribution_report passed schema validation AND attribution_status != not_estimable (E0 retro entries allowed as observation-grade); KB ingestion is NOT done by IDD — AWS agent ingests kb-ready summaries via rag-bridge kb_agent with regime_key scenario title (three-system split: AWS orchestrates, IDD analyzes, KB stores/retrieves)",
+    "match_scopes": ["regime", "product", "machine", "generic"],
+    "recommendation_status": ["playbook_hit", "direction_only", "fallback_generic", "no_playbook_hit"]
+  },
+  "optimizer": {
+    "phases": ["initialized", "exploring", "exploiting", "confirming", "converged", "paused", "exhausted", "aborted"],
+    "methods": ["window_seed", "lhs_fill", "rsm_augment", "gp_ei", "poly_refine", "confirm_replicates", "screen_first"],
+    "goals": ["target", "minimize", "maximize"],
+    "trial_status": ["completed", "failed", "partial", "safety_aborted", "late"],
+    "next_actions": ["await_results", "continue_exploit", "enter_confirm", "resume_exploit", "stop", "needs_human"],
+    "convergence": "dual gate (USER DECISION 2026-10-01): m>=3 confirm replicates all inside target_range AND one-sided 95% CI within limits AND desirability D(x)>=0.8*D_max",
+    "constants": { "epsilon_ei_frac": 0.005, "stall_rounds": 2, "delta_confirm_coded": 0.05, "domain_coverage_duplication_ratio_max": 0.5, "neighborhood_coded": 0.8 }
+  },
+  "ack": {
+    "statuses": ["received", "executed", "rejected"],
+    "rule": "recommendation without ack within timeout -> unconfirmed, excluded from corroboration promotion; executed action MUST be written back as action_log with actor_type=aws_executor and recommendation_id reference"
+  },
+  "inbox": {
+    "dirs": ["data/integration/<line>/inbox", "data/integration/<line>/outbox", "data/integration/<line>/archive", "data/integration/<line>/_rejected"],
+    "file_naming": "{type}-{ts}-{seq}.json",
+    "error_receipt": "{original_name}.error.json with human-readable Chinese error + fix guidance, original moved to _rejected/",
+    "types": ["data_window", "action_log", "trial_result", "ack"],
+    "auth": "top-level auth.api_key field OR X-API-Key header; validated by scanner, invalid envelope rejected to _rejected/"
+  }
+}

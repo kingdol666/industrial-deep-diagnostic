@@ -1,0 +1,4228 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261001-114602-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-01T11:46:02.893823+00:00",
+  "source": {
+    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F2_watch_drift\\watch.csv",
+    "sha256": "3097017106871a1028ef17725d9007427ba979bc3d73c3e7b5eb923f3615cd04",
+    "window_start": "2026-03-01 00:00:00",
+    "window_end": "2026-03-07 22:39:00",
+    "n_rows": 10000,
+    "time_col": "timestamp",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F2_watch_drift\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 133,
+      "rules_hit": {
+        "NELSON_R1": 2,
+        "NELSON_R5": 1,
+        "NELSON_R6": 1,
+        "NELSON_R2": 89,
+        "NELSON_R3": 40
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "steady": 9868,
+          "transition": 132
+        }
+      },
+      "n_change_points_new": 12
+    },
+    "multivariate": {
+      "n_outliers": 0,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261001-114602-001",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 52.98550905906431,
+        "statistic": 3.0044863939637096,
+        "index": 9362,
+        "timestamp": "row 9362",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.02520223834418,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 53.03980236252734,
+        "statistic": 3.0583273928644084,
+        "index": 9478,
+        "timestamp": "row 9478",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.02520223834418,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "repeat_count": 9
+    },
+    {
+      "alert_id": "ALT-20261001-114602-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 51.98545467057472,
+        "statistic": 2.012763220074053,
+        "index": 8336,
+        "timestamp": "row 8336",
+        "run_length": 7
+      },
+      "threshold": {
+        "bound": 2.0168014922294533,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 7
+      },
+      "suggested_check": "temp 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|temp",
+      "repeat_count": 22
+    },
+    {
+      "alert_id": "ALT-20261001-114602-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 51.00904872032019,
+        "statistic": 1.0444914749206193,
+        "index": 7155,
+        "timestamp": "row 7155",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 1.0084007461147266,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|temp",
+      "repeat_count": 8
+    },
+    {
+      "alert_id": "ALT-20261001-114602-005",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 6183
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 6183
+      },
+      "suggested_check": "__ALL__ 组在第 6183 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6183",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-006",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 6431
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 6431
+      },
+      "suggested_check": "__ALL__ 组在第 6431 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6431",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-007",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 6678
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 6678
+      },
+      "suggested_check": "__ALL__ 组在第 6678 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6678",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-008",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 6931
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 6931
+      },
+      "suggested_check": "__ALL__ 组在第 6931 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6931",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-009",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 7422
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 7422
+      },
+      "suggested_check": "__ALL__ 组在第 7422 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_7422",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-010",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 7809
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 7809
+      },
+      "suggested_check": "__ALL__ 组在第 7809 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_7809",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-011",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 8049
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 8049
+      },
+      "suggested_check": "__ALL__ 组在第 8049 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8049",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-012",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 8382
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 8382
+      },
+      "suggested_check": "__ALL__ 组在第 8382 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8382",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-013",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 8670
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 8670
+      },
+      "suggested_check": "__ALL__ 组在第 8670 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8670",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-014",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 8999
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 8999
+      },
+      "suggested_check": "__ALL__ 组在第 8999 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8999",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-015",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 9369
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 9369
+      },
+      "suggested_check": "__ALL__ 组在第 9369 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_9369",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-016",
+      "check_type": "regime",
+      "rule_name": "REGIME_CHANGE_NEW",
+      "parameter": null,
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "index": 9604
+      },
+      "threshold": {},
+      "evidence": {
+        "cp_position": 9604
+      },
+      "suggested_check": "__ALL__ 组在第 9604 行附近检出新的工况变化点，其后 30 行已静默并重估中心线",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_9604",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.03578283960459,
+        "statistic": 0.12006285057795033,
+        "index": 159,
+        "timestamp": "row 159",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.011769753786345,
+        "statistic": 0.06181477761065645,
+        "index": 470,
+        "timestamp": "row 470",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-019",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.006558279737696,
+        "statistic": 0.04917340686178796,
+        "index": 774,
+        "timestamp": "row 774",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-020",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.998719477793465,
+        "statistic": 0.030158978184035873,
+        "index": 1111,
+        "timestamp": "row 1111",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-021",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.11065864337676,
+        "statistic": 0.30168762444572417,
+        "index": 1479,
+        "timestamp": "row 1479",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-022",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.994533844635637,
+        "statistic": 0.020005969635411472,
+        "index": 1674,
+        "timestamp": "row 1674",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-023",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.031696045295616,
+        "statistic": 0.11014959349332648,
+        "index": 1741,
+        "timestamp": "row 1741",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-024",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.987554022780824,
+        "statistic": 0.0030751521730029746,
+        "index": 1869,
+        "timestamp": "row 1869",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-025",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.999541423133596,
+        "statistic": 0.032152754931826504,
+        "index": 1945,
+        "timestamp": "row 1945",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-026",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.069730334994787,
+        "statistic": 0.20240862668985296,
+        "index": 2126,
+        "timestamp": "row 2126",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-027",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.030531301859025,
+        "statistic": 0.10732429810246027,
+        "index": 2334,
+        "timestamp": "row 2334",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-028",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.013272861871068,
+        "statistic": 0.06546083751563339,
+        "index": 2531,
+        "timestamp": "row 2531",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-029",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.004916984712294,
+        "statistic": 0.04519214959547418,
+        "index": 2852,
+        "timestamp": "row 2852",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-030",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.089709628943591,
+        "statistic": 0.2508720095542386,
+        "index": 3444,
+        "timestamp": "row 3444",
+        "run_length": 15
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 15
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-031",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.073435559901208,
+        "statistic": 0.21139631833194275,
+        "index": 3569,
+        "timestamp": "row 3569",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-032",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.048078532846157,
+        "statistic": 0.1498882733719714,
+        "index": 3754,
+        "timestamp": "row 3754",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-033",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.058051468178814,
+        "statistic": 0.17407942770138868,
+        "index": 3938,
+        "timestamp": "row 3938",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-034",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.089138380028237,
+        "statistic": 0.2494863422245197,
+        "index": 4002,
+        "timestamp": "row 4002",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-035",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.018875486020471,
+        "statistic": 0.07905101341942514,
+        "index": 4162,
+        "timestamp": "row 4162",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-036",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.048022159956291,
+        "statistic": 0.14975153075475361,
+        "index": 4411,
+        "timestamp": "row 4411",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-037",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.013820121979611,
+        "statistic": 0.06678831566549787,
+        "index": 4473,
+        "timestamp": "row 4473",
+        "run_length": 16
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 16
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-038",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.048693651256288,
+        "statistic": 0.1513803540778018,
+        "index": 4534,
+        "timestamp": "row 4534",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-039",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.067144369775528,
+        "statistic": 0.19613590139655318,
+        "index": 4734,
+        "timestamp": "row 4734",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-040",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.040124469373506,
+        "statistic": 0.13059425705735686,
+        "index": 4857,
+        "timestamp": "row 4857",
+        "run_length": 15
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 15
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-041",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.021275524768072,
+        "statistic": 0.0848727405040943,
+        "index": 5386,
+        "timestamp": "row 5386",
+        "run_length": 17
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 17
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-042",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.017104409313726,
+        "statistic": 0.07475494726507817,
+        "index": 5502,
+        "timestamp": "row 5502",
+        "run_length": 14
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 14
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-043",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.99854895885936,
+        "statistic": 0.029745353738129757,
+        "index": 5670,
+        "timestamp": "row 5670",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-044",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.990235195260668,
+        "statistic": 0.009578819857612955,
+        "index": 5914,
+        "timestamp": "row 5914",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-045",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.986985099433394,
+        "statistic": 0.0016951259279495577,
+        "index": 5985,
+        "timestamp": "row 5985",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-046",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.029210953390043,
+        "statistic": 0.1041215546256077,
+        "index": 6112,
+        "timestamp": "row 6112",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-047",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.044349467050743,
+        "statistic": 0.14084275135138852,
+        "index": 6242,
+        "timestamp": "row 6242",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-048",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.988437662470336,
+        "statistic": 0.0052185796983560346,
+        "index": 6480,
+        "timestamp": "row 6480",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-049",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.998365274428089,
+        "statistic": 0.02929979400305081,
+        "index": 6743,
+        "timestamp": "row 6743",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-050",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.00332043713095,
+        "statistic": 0.04131943532968952,
+        "index": 6837,
+        "timestamp": "row 6837",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261001-114602-051",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.064530865171552,
+        "statistic": 0.1897963743559626,
+        "index": 7008,
+        "timestamp": "row 7008",
+        "run_length": 15
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 15
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-052",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.010951965261802,
+        "statistic": 0.05983108396920003,
+        "index": 7130,
+        "timestamp": "row 7130",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-053",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.992002394480467,
+        "statistic": 0.013865480467653506,
+        "index": 7212,
+        "timestamp": "row 7212",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-054",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.001779197558674,
+        "statistic": 0.03758088062058095,
+        "index": 7469,
+        "timestamp": "row 7469",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-055",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.099438884583682,
+        "statistic": 0.2744720748157747,
+        "index": 7587,
+        "timestamp": "row 7587",
+        "run_length": 14
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 14
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-056",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.027700793634375,
+        "statistic": 0.1004583896202346,
+        "index": 7742,
+        "timestamp": "row 7742",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-057",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.009133129347466,
+        "statistic": 0.0554191692383896,
+        "index": 7958,
+        "timestamp": "row 7958",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-058",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.0645768860389,
+        "statistic": 0.1899080062744756,
+        "index": 8041,
+        "timestamp": "row 8041",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-059",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.0003501579326,
+        "statistic": 0.034114487128183026,
+        "index": 8221,
+        "timestamp": "row 8221",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-060",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.003927813472112,
+        "statistic": 0.04279273625012745,
+        "index": 8607,
+        "timestamp": "row 8607",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-061",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.043968632832394,
+        "statistic": 0.13991896923080824,
+        "index": 8887,
+        "timestamp": "row 8887",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-062",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.052265033283156,
+        "statistic": 0.1600433856627315,
+        "index": 8962,
+        "timestamp": "row 8962",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-063",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.005528952286172,
+        "statistic": 0.046676587379383766,
+        "index": 9151,
+        "timestamp": "row 9151",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-064",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.010134535619818,
+        "statistic": 0.05784826086215368,
+        "index": 9279,
+        "timestamp": "row 9279",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-065",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.001519240522772,
+        "statistic": 0.03695030791908665,
+        "index": 9585,
+        "timestamp": "row 9585",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-066",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.970235206635468,
+        "statistic": -0.09270526163454505,
+        "index": 9795,
+        "timestamp": "row 9795",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "press 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-067",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.21416476008704,
+        "statistic": 0.25622950338225664,
+        "index": 30,
+        "timestamp": "row 30",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-068",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.11062887100599,
+        "statistic": 0.15355614710008578,
+        "index": 183,
+        "timestamp": "row 183",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-069",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.08279881767971,
+        "statistic": 0.12595793931066254,
+        "index": 314,
+        "timestamp": "row 314",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-070",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.9794838311134,
+        "statistic": 0.023503645257059863,
+        "index": 376,
+        "timestamp": "row 376",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-071",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.00693811351328,
+        "statistic": 0.05072921257804687,
+        "index": 454,
+        "timestamp": "row 454",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-072",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.12517250085652,
+        "statistic": 0.1679786174389506,
+        "index": 682,
+        "timestamp": "row 682",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-073",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.01310578260461,
+        "statistic": 0.05684550028915427,
+        "index": 844,
+        "timestamp": "row 844",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-074",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.11653075355472,
+        "statistic": 0.15940886247288427,
+        "index": 932,
+        "timestamp": "row 932",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-075",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.05196605733465,
+        "statistic": 0.0953820393385015,
+        "index": 1103,
+        "timestamp": "row 1103",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-076",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.018131421786144,
+        "statistic": 0.06182927206926822,
+        "index": 1424,
+        "timestamp": "row 1424",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-077",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.995742137895554,
+        "statistic": 0.03962650796298061,
+        "index": 1612,
+        "timestamp": "row 1612",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-078",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.08719343665194,
+        "statistic": 0.1303159477603387,
+        "index": 1870,
+        "timestamp": "row 1870",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-079",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.16965866829708,
+        "statistic": 0.21209418122840745,
+        "index": 1973,
+        "timestamp": "row 1973",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-080",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.980399570215496,
+        "statistic": 0.02441175555509961,
+        "index": 2069,
+        "timestamp": "row 2069",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-081",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.09710063359592,
+        "statistic": 0.1401406102094258,
+        "index": 2288,
+        "timestamp": "row 2288",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-082",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.081531607217165,
+        "statistic": 0.1247012856762556,
+        "index": 2490,
+        "timestamp": "row 2490",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-083",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.06241842724695,
+        "statistic": 0.10574733304992794,
+        "index": 2589,
+        "timestamp": "row 2589",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-084",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.2634740754415,
+        "statistic": 0.30512803459065535,
+        "index": 2775,
+        "timestamp": "row 2775",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-085",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.05803959648586,
+        "statistic": 0.10140498128356695,
+        "index": 2842,
+        "timestamp": "row 2842",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-086",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.07260290330392,
+        "statistic": 0.11584696466583383,
+        "index": 2948,
+        "timestamp": "row 2948",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-087",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.043525395717104,
+        "statistic": 0.08701169485981126,
+        "index": 3067,
+        "timestamp": "row 3067",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-088",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.96022220860598,
+        "statistic": 0.004402486732896699,
+        "index": 3144,
+        "timestamp": "row 3144",
+        "run_length": 15
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 15
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-089",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.09759899498158,
+        "statistic": 0.14063481986523937,
+        "index": 3303,
+        "timestamp": "row 3303",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-090",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.96710801296666,
+        "statistic": 0.011230927099700826,
+        "index": 3445,
+        "timestamp": "row 3445",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-091",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.0623291066252,
+        "statistic": 0.10565875653697097,
+        "index": 3654,
+        "timestamp": "row 3654",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261001-114602-092",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.14804530339307,
+        "statistic": 0.19066087211267407,
+        "index": 3939,
+        "timestamp": "row 3939",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-093",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.09675504159912,
+        "statistic": 0.1397978972571236,
+        "index": 4017,
+        "timestamp": "row 4017",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-094",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.00341777157246,
+        "statistic": 0.047238197766342235,
+        "index": 4210,
+        "timestamp": "row 4210",
+        "run_length": 21
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 21
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-095",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.03625929996966,
+        "statistic": 0.07980613122309001,
+        "index": 4575,
+        "timestamp": "row 4575",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-096",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.02524493145924,
+        "statistic": 0.0688835207898336,
+        "index": 4745,
+        "timestamp": "row 4745",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-097",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.89820112762323,
+        "statistic": -0.05710191141606035,
+        "index": 4837,
+        "timestamp": "row 4837",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-098",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.16464930754838,
+        "statistic": 0.20712655226938298,
+        "index": 5114,
+        "timestamp": "row 5114",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-099",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.08678761000651,
+        "statistic": 0.12991350195990653,
+        "index": 5230,
+        "timestamp": "row 5230",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-100",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.01897565611627,
+        "statistic": 0.06266647328453585,
+        "index": 5621,
+        "timestamp": "row 5621",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-101",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.03174104487994,
+        "statistic": 0.07532551663892857,
+        "index": 5775,
+        "timestamp": "row 5775",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 6
+    },
+    {
+      "alert_id": "ALT-20261001-114602-102",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.11719926785312,
+        "statistic": 0.16007180753810027,
+        "index": 6066,
+        "timestamp": "row 6066",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261001-114602-103",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 52.85693162431628,
+        "statistic": -0.19215867799185735,
+        "index": 9642,
+        "timestamp": "row 9642",
+        "run_length": 16
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 16
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261001-114602-104",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 53.27114523459795,
+        "statistic": 0.21860421749150763,
+        "index": 9898,
+        "timestamp": "row 9898",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-105",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 53.14040178991032,
+        "statistic": 0.08894996525957141,
+        "index": 9968,
+        "timestamp": "row 9968",
+        "run_length": 13
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-106",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.055221687630914,
+        "statistic": 0.1672152843304318,
+        "index": 129,
+        "timestamp": "row 129",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-107",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.047706889336627,
+        "statistic": 0.14898678497415574,
+        "index": 429,
+        "timestamp": "row 429",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-108",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.87522100304528,
+        "statistic": -0.2694088584084681,
+        "index": 731,
+        "timestamp": "row 731",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-109",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.0709874136635,
+        "statistic": 0.20545789784871413,
+        "index": 1055,
+        "timestamp": "row 1055",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-110",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.04377811005222,
+        "statistic": 0.13945682184643873,
+        "index": 1973,
+        "timestamp": "row 1973",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-111",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.933333122567385,
+        "statistic": -0.12844742580342328,
+        "index": 3196,
+        "timestamp": "row 3196",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261001-114602-112",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.91479709424966,
+        "statistic": -0.17340990743309737,
+        "index": 4425,
+        "timestamp": "row 4425",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-113",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.93036340464973,
+        "statistic": -0.13565101251731349,
+        "index": 5167,
+        "timestamp": "row 5167",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-114",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.9695634608077,
+        "statistic": -0.04056420240494589,
+        "index": 5354,
+        "timestamp": "row 5354",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-115",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.913324173199475,
+        "statistic": -0.17698274323835905,
+        "index": 5915,
+        "timestamp": "row 5915",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-116",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.065582502609224,
+        "statistic": 0.19234731073574934,
+        "index": 6154,
+        "timestamp": "row 6154",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-117",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.896557747582635,
+        "statistic": -0.21765273418089673,
+        "index": 7156,
+        "timestamp": "row 7156",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-118",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.038342841128076,
+        "statistic": 0.12627259624183773,
+        "index": 7725,
+        "timestamp": "row 7725",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-119",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.965207054193224,
+        "statistic": -0.05113145278983585,
+        "index": 7925,
+        "timestamp": "row 7925",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-120",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.922650137698584,
+        "statistic": -0.15436093341574414,
+        "index": 8905,
+        "timestamp": "row 8905",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-121",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 10.06329598210766,
+        "statistic": 0.1868009426419332,
+        "index": 9600,
+        "timestamp": "row 9600",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-122",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "press",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 9.94058576823686,
+        "statistic": -0.16462532490143594,
+        "index": 9969,
+        "timestamp": "row 9969",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "press 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|press",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-123",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.07933472351999,
+        "statistic": 0.12252270369321154,
+        "index": 65,
+        "timestamp": "row 65",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-124",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.29138624660073,
+        "statistic": 0.3328076761089432,
+        "index": 139,
+        "timestamp": "row 139",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-125",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.87555282123989,
+        "statistic": -0.0795615401604859,
+        "index": 558,
+        "timestamp": "row 558",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-126",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.00385811229809,
+        "statistic": 0.047674870118409124,
+        "index": 893,
+        "timestamp": "row 893",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-127",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.890266232545294,
+        "statistic": -0.06497070277555712,
+        "index": 1104,
+        "timestamp": "row 1104",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-128",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.9120490371341,
+        "statistic": -0.043369365536630164,
+        "index": 1207,
+        "timestamp": "row 1207",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-129",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.82323778870606,
+        "statistic": -0.13144074863528962,
+        "index": 1469,
+        "timestamp": "row 1469",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-130",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.09112380445689,
+        "statistic": 0.13421357260849381,
+        "index": 2112,
+        "timestamp": "row 2112",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-131",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.10808562049509,
+        "statistic": 0.1510340838026292,
+        "index": 2204,
+        "timestamp": "row 2204",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-132",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.10393690449185,
+        "statistic": 0.14691992976295729,
+        "index": 2718,
+        "timestamp": "row 2718",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-133",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.94233015110725,
+        "statistic": -0.013340516302021483,
+        "index": 2788,
+        "timestamp": "row 2788",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-134",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.06766145517765,
+        "statistic": 0.11094668256538297,
+        "index": 3163,
+        "timestamp": "row 3163",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-135",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.87876317069403,
+        "statistic": -0.07637793536199167,
+        "index": 3490,
+        "timestamp": "row 3490",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-136",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.78135935599828,
+        "statistic": -0.17297030210808262,
+        "index": 4364,
+        "timestamp": "row 4364",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-137",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.04837013936085,
+        "statistic": 0.09181607809971916,
+        "index": 5439,
+        "timestamp": "row 5439",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-138",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.1425541372371,
+        "statistic": 0.18521545155231953,
+        "index": 5517,
+        "timestamp": "row 5517",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-139",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.87388762686528,
+        "statistic": -0.08121286219790565,
+        "index": 5605,
+        "timestamp": "row 5605",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261001-114602-140",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.14390750834862,
+        "statistic": 0.18655754805188532,
+        "index": 5844,
+        "timestamp": "row 5844",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-141",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 49.954829458623465,
+        "statistic": -0.0009453375356690636,
+        "index": 6125,
+        "timestamp": "row 6125",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-142",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.27803105963669,
+        "statistic": 0.31956374802231924,
+        "index": 6473,
+        "timestamp": "row 6473",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-143",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.41000843586776,
+        "statistic": 0.45044165220829563,
+        "index": 6643,
+        "timestamp": "row 6643",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-144",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 50.8825030693334,
+        "statistic": 0.9190000455713719,
+        "index": 7205,
+        "timestamp": "row 7205",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261001-114602-145",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 53.11179679342739,
+        "statistic": 3.129722055331127,
+        "index": 9552,
+        "timestamp": "row 9552",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "temp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "steady": 9868,
+        "transition": 132
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+        "repeat_count": 10
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|press",
+        "repeat_count": 72
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|temp",
+        "repeat_count": 71
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R3|press",
+        "repeat_count": 19
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R3|temp",
+        "repeat_count": 26
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|temp",
+        "repeat_count": 22
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|temp",
+        "repeat_count": 8
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "3097017106871a1028ef17725d9007427ba979bc3d73c3e7b5eb923f3615cd04",
+    "script_version": "1.0.0",
+    "duration_ms": 41,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

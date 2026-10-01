@@ -1,0 +1,142 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T11:46:09.675456+00:00",
+  "generated_from": {
+    "doe_recommendations_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run\\conclusions\\recommendations.json",
+    "doe_run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run",
+    "history_csv_sha256": "2e818321d81d48f1b3b6b5a3bc9720766310281b49539dadb2fdc7eaba68b12a",
+    "recommendations_contract_version": "1.0"
+  },
+  "global": {
+    "time_col": null,
+    "group_col": null,
+    "numeric_columns": [
+      "temp",
+      "press"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "temp": {
+          "center": 49.99986498836037,
+          "sigma_within_mr": 0.034843174283599745,
+          "sigma_overall": 0.022934054919140467,
+          "median": 50.00040068213261,
+          "mad": 0.01872869338388483,
+          "q10": 49.96849826333951,
+          "q90": 50.032226554021726,
+          "cv": 0.0004586823369318969,
+          "variance_ratio_baseline_std": 0.022934054919140467
+        },
+        "press": {
+          "center": 9.999807250175579,
+          "sigma_within_mr": 0.013195287719331284,
+          "sigma_overall": 0.008689701455391425,
+          "median": 10.000042883999173,
+          "mad": 0.007514180471209109,
+          "q10": 9.987860325178842,
+          "q90": 10.011860609283238,
+          "cv": 0.0008689868952462908,
+          "variance_ratio_baseline_std": 0.008689701455391425
+        }
+      },
+      "indicators": {
+        "quality": {
+          "lsl": 97.5,
+          "usl": 98.5,
+          "target": 98.0,
+          "goal": "target"
+        }
+      },
+      "operating_windows": [
+        {
+          "id": "OW-001",
+          "priority": 1,
+          "factor": "temp",
+          "factor_unit": "C",
+          "response": "quality",
+          "range": [
+            49.5,
+            50.5
+          ],
+          "expected_effect": {
+            "delta": 0.8,
+            "direction_semantics": "per unit",
+            "ci95": [
+              0.5,
+              1.1
+            ],
+            "unit": "sigma"
+          },
+          "confidence": "medium",
+          "fdr_q": 0.02,
+          "sample_size": 300,
+          "evidence_refs": [
+            "correlation:temp~quality"
+          ],
+          "extrapolation": false,
+          "confirmation_needed": true,
+          "notes": "canned window"
+        }
+      ],
+      "applicability_domain": {
+        "n_rows": 300,
+        "time_span": "0 .. 299",
+        "regime": "steady",
+        "factor_observed_ranges": {
+          "temp": {
+            "min": 49.9,
+            "max": 50.1
+          }
+        }
+      },
+      "correlation": {
+        "cols": [
+          "temp",
+          "press"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.7325191701100626,
+          -0.7325191701100626,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          -0.7325191701100626,
+          0.680746403164398
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": [
+          77,
+          120,
+          240
+        ]
+      },
+      "validity": {
+        "n_steady_rows": 300,
+        "steady_ratio": 1.0,
+        "time_span": null,
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": [
+          "IF 窗口外因子组合出现 THEN 窗口失效"
+        ]
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "2e818321d81d48f1b3b6b5a3bc9720766310281b49539dadb2fdc7eaba68b12a",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

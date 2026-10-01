@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "watch_baseline.schema.json",
+  "title": "Sentinel watch baseline (sentinel-baseline/1.0) — per-group parameter/indicator/window store",
+  "type": "object",
+  "required": ["contract_version", "baseline_version", "generated_at", "generated_from", "global", "groups", "provenance"],
+  "properties": {
+    "contract_version": { "const": "sentinel-baseline/1.0" },
+    "baseline_version": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "generated_from": {
+      "type": "object",
+      "properties": {
+        "doe_recommendations_path": { "type": ["string", "null"] },
+        "doe_run_dir": { "type": ["string", "null"] },
+        "history_csv_sha256": { "type": ["string", "null"] },
+        "recommendations_contract_version": { "type": ["string", "null"] }
+      }
+    },
+    "global": {
+      "type": "object",
+      "required": ["time_col", "group_col", "numeric_columns"],
+      "properties": {
+        "time_col": { "type": ["string", "null"] },
+        "group_col": { "type": ["string", "null"] },
+        "numeric_columns": { "type": "array", "items": { "type": "string" } },
+        "fast_path_min_rows": { "type": "integer", "minimum": 1 },
+        "window_rows": { "type": ["integer", "null"] }
+      }
+    },
+    "groups": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["parameters", "validity"],
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["center"],
+              "properties": {
+                "center": { "type": "number" },
+                "sigma_within_mr": { "type": ["number", "null"] },
+                "sigma_overall": { "type": ["number", "null"] },
+                "median": { "type": ["number", "null"] },
+                "mad": { "type": ["number", "null"] },
+                "q10": { "type": ["number", "null"] },
+                "q90": { "type": ["number", "null"] },
+                "cv": { "type": ["number", "null"] },
+                "variance_ratio_baseline_std": { "type": ["number", "null"] }
+              }
+            }
+          },
+          "indicators": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "lsl": { "type": ["number", "null"] },
+                "usl": { "type": ["number", "null"] },
+                "target": { "type": ["number", "null"] },
+                "goal": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "operating_windows": {
+            "type": "array",
+            "description": "verbatim copy of doe-analyzer recommendations.operating_windows (projection input)",
+            "items": { "type": "object" }
+          },
+          "applicability_domain": { "type": ["object", "null"] },
+          "correlation": {
+            "type": ["object", "null"],
+            "properties": {
+              "cols": { "type": "array", "items": { "type": "string" } },
+              "corr_matrix_flat": { "type": "array", "items": { "type": "number" } },
+              "cholesky_lower": { "type": ["array", "null"], "items": { "type": "number" } }
+            }
+          },
+          "regime": {
+            "type": "object",
+            "properties": {
+              "variance_threshold": { "type": ["number", "null"] },
+              "ramp_threshold": { "type": ["number", "null"] },
+              "window_rows": { "type": ["integer", "null"] },
+              "known_change_points": { "type": "array", "items": { "type": "integer" } }
+            }
+          },
+          "validity": {
+            "type": "object",
+            "required": ["n_steady_rows"],
+            "properties": {
+              "n_steady_rows": { "type": "integer" },
+              "steady_ratio": { "type": ["number", "null"] },
+              "time_span": { "type": ["string", "null"] },
+              "self_baseline_ttl_hours": { "type": ["integer", "null"] },
+              "invalidation_conditions": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "state": {
+      "type": ["object", "null"],
+      "description": "fast-screen continuation state (ring buffer / projection cache / suppression table); sole writer = sentinel_fast.py",
+      "properties": {
+        "last_seen_ts": { "type": ["string", "null"] },
+        "last_index": { "type": ["integer", "null"] },
+        "ring_buffer": {
+          "type": "object",
+          "properties": {
+            "cols": { "type": "array", "items": { "type": "string" } },
+            "rows": { "type": "array", "maxItems": 300, "items": { "type": "array", "items": { "type": ["number", "null"] } } }
+          }
+        },
+        "projection_cache": { "type": "object" },
+        "suppression": { "type": "object" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["input_sha256", "script_version", "authored_by"],
+      "properties": {
+        "input_sha256": { "type": ["string", "null"] },
+        "script_version": { "type": "string" },
+        "authored_by": { "const": "script" }
+      }
+    }
+  }
+}

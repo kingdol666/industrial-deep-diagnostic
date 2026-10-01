@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sentinel-alert.schema.json",
+  "title": "Sentinel alert contract (sentinel-alert/1.0) — enums per closedloop_enums.json",
+  "type": "object",
+  "required": ["contract_version", "alert_id", "mode", "status", "generated_at", "source", "baseline", "checks_summary", "alerts", "provenance"],
+  "properties": {
+    "contract_version": { "const": "sentinel-alert/1.0" },
+    "alert_id": { "type": "string", "pattern": "^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3}$" },
+    "mode": { "enum": ["watch", "fast_screen"] },
+    "status": { "enum": ["ok", "warn", "alert"] },
+    "group_scope": { "type": ["string", "null"] },
+    "generated_at": { "type": "string" },
+    "source": {
+      "type": "object",
+      "required": ["data_path", "sha256", "n_rows", "time_col", "group_col"],
+      "properties": {
+        "data_path": { "type": "string" },
+        "sha256": { "type": "string" },
+        "window_start": { "type": ["string", "null"] },
+        "window_end": { "type": ["string", "null"] },
+        "n_rows": { "type": "integer", "minimum": 0 },
+        "time_col": { "type": ["string", "null"] },
+        "group_col": { "type": ["string", "null"] }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "required": ["path", "baseline_version", "mode"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "baseline_version": { "type": ["string", "null"] },
+        "mode": { "enum": ["prior", "self"] },
+        "generated_from": { "type": ["string", "null"] }
+      }
+    },
+    "checks_summary": {
+      "type": "object",
+      "properties": {
+        "spc": { "type": "object", "properties": { "n_triggered": { "type": "integer" }, "rules_hit": { "type": "object" } } },
+        "window_projection": { "type": "object", "properties": { "n_triggered": { "type": "integer" } } },
+        "regime": { "type": "object", "properties": { "labels": { "type": "object" }, "n_change_points_new": { "type": "integer" } } },
+        "multivariate": { "type": "object", "properties": { "n_outliers": { "type": "integer" }, "max_d2": { "type": ["number", "null"] } } },
+        "rows_skipped": { "type": "integer" }
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["alert_id", "check_type", "rule_name", "severity", "urgency", "observed", "threshold", "suppression_key"],
+        "properties": {
+          "alert_id": { "type": "string" },
+          "check_type": { "enum": ["spc", "window_projection", "regime", "multivariate", "baseline"] },
+          "rule_name": { "enum": ["NELSON_R1", "NELSON_R2", "NELSON_R3", "NELSON_R5", "NELSON_R6", "WINDOW_DRIFT_PROJECTION", "WINDOW_OUT_OF_RANGE", "REGIME_ABNORMAL", "REGIME_CHANGE_NEW", "VARIANCE_RATIO_HIGH", "ROBUST_Z_OUTLIER", "MAHALANOBIS_OUTLIER", "UNSEEN_GROUP", "SELF_BASELINE"] },
+          "parameter": { "type": ["string", "null"] },
+          "indicator": { "type": ["string", "null"] },
+          "group": { "type": ["string", "null"] },
+          "severity": { "enum": ["info", "warn", "high", "critical"] },
+          "urgency": { "enum": ["routine", "same_shift", "immediate"] },
+          "observed": {
+            "type": "object",
+            "properties": {
+              "value": { "type": ["number", "null"] },
+              "statistic": { "type": ["number", "null"] },
+              "index": { "type": ["integer", "null"] },
+              "timestamp": { "type": ["string", "null"] },
+              "run_length": { "type": ["integer", "null"] }
+            }
+          },
+          "threshold": {
+            "type": "object",
+            "properties": {
+              "bound": { "type": ["number", "null"] },
+              "sigma_level": { "type": ["number", "null"] },
+              "lsl": { "type": ["number", "null"] },
+              "usl": { "type": ["number", "null"] },
+              "window": { "type": ["array", "null"], "items": { "type": "number" } },
+              "d2_limit": { "type": ["number", "null"] },
+              "hours_warn": { "type": ["number", "null"] },
+              "hours_alarm": { "type": ["number", "null"] }
+            }
+          },
+          "evidence": {
+            "type": "object",
+            "properties": {
+              "n_points": { "type": ["integer", "null"] },
+              "slope_per_hour": { "type": ["number", "null"] },
+              "hours_to_edge": { "type": ["number", "null"] },
+              "direction": { "enum": ["up", "down", "none", null] },
+              "d2": { "type": ["number", "null"] },
+              "contributing_params": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "z_robust": { "type": "number" } } } },
+              "ratio": { "type": ["number", "null"] },
+              "cp_position": { "type": ["integer", "null"] }
+            }
+          },
+          "suggested_check": { "type": ["string", "null"] },
+          "suggested_next_skill": { "enum": ["industrial-doe-analyzer", "industrial-diagnostician", "industrial-optimizer-loop", null] },
+          "advisory": { "type": "boolean" },
+          "suppression_key": { "type": "string" },
+          "repeat_count": { "type": "integer", "minimum": 1 },
+          "interpretation": { "type": ["string", "null"], "description": "agent-added Chinese note only; script numeric fields stay untouched" }
+        }
+      }
+    },
+    "regime_summary": { "type": ["object", "null"] },
+    "projection_summary": { "type": ["array", "null"], "items": { "type": "object", "properties": { "factor": { "type": "string" }, "current": { "type": "number" }, "window": { "type": "array", "items": { "type": "number" } }, "slope_per_hour": { "type": "number" }, "hours_to_edge": { "type": ["number", "null"] }, "level": { "type": "string" } } } },
+    "suppression": { "type": "object", "properties": { "applied": { "type": "array", "items": { "type": "object" } }, "config": { "type": "object" } } },
+    "provenance": {
+      "type": "object",
+      "required": ["input_sha256", "script_version", "authored_by"],
+      "properties": {
+        "input_sha256": { "type": ["string", "null"] },
+        "script_version": { "type": "string" },
+        "duration_ms": { "type": ["integer", "null"] },
+        "zero_llm": { "const": true },
+        "authored_by": { "enum": ["script", "agent"] }
+      }
+    }
+  }
+}
