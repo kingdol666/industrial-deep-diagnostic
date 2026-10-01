@@ -293,7 +293,10 @@ def metric_specs(o, observed_grid=None):
     spec = specs[o["target_metric"]]
     if spec["lsl"] is None:
         spec["_grid_lo"] = glo
-    if spec["usl"] is None:
+    # _grid_hi is d_individual's D=0 anchor (the observed worst value): with
+    # goal=minimize + tolerance, usl is the D=1 boundary, so the anchor must
+    # still be written or every y<=usl collapses to D==0 (P0 F1, EVAL_REPORT)
+    if spec["usl"] is None or goal == "minimize":
         spec["_grid_hi"] = ghi
     for m in o.get("secondary_metrics") or []:
         name = m.get("metric")
@@ -305,6 +308,6 @@ def metric_specs(o, observed_grid=None):
         glo, ghi = grid.get(name, (None, None))
         if specs[name]["lsl"] is None:
             specs[name]["_grid_lo"] = glo
-        if specs[name]["usl"] is None:
+        if specs[name]["usl"] is None or specs[name]["goal"] == "minimize":
             specs[name]["_grid_hi"] = ghi
     return specs

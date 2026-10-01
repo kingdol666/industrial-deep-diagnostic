@@ -853,11 +853,7 @@ def cmd_ingest(run_dir, result_path=None):
             best_e, best_d = e, float(d)
     if best_e:
         tgt_mean = best_e["metrics"].get(target, {}).get("mean")
-        if o["goal"] == "target" and tgt_mean is not None:
-            lo, hi = o["target_range"]
-            in_t = bool(lo <= tgt_mean <= hi)
-        else:
-            in_t = True
+        in_t = _in_target(o, tgt_mean)
         state["incumbent"] = {
             "setpoints": {f: round(float(best_e["setpoints"][f]), 6)
                           for f in sorted(best_e["setpoints"])},
@@ -1008,11 +1004,18 @@ def m_confirm_default(o):
 
 
 def _in_target(o, mean):
+    """Window membership of a measured value. goal=target -> target_range;
+    minimize/maximize with tolerance -> at/beyond the tolerance limit; a goal
+    that declares no window cannot be judged, so it stays permissive (True)."""
     if mean is None:
         return False
     if o["goal"] == "target":
         lo, hi = o["target_range"]
         return lo <= mean <= hi
+    if o["goal"] == "minimize" and o.get("tolerance") is not None:
+        return mean <= float(o["tolerance"])
+    if o["goal"] == "maximize" and o.get("tolerance") is not None:
+        return mean >= float(o["tolerance"])
     return True
 
 
