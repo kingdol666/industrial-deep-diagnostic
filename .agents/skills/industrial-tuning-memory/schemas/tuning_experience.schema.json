@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tuning_experience.schema.json",
+  "title": "Tuning experience entries (v1.0) — tuning_action_effect | fault_control_recipe | optimization_recipe union",
+  "type": "object",
+  "required": ["experience_version", "experience_type", "payload", "provenance"],
+  "properties": {
+    "experience_version": { "const": "1.0" },
+    "experience_type": { "enum": ["tuning_action_effect", "fault_control_recipe", "optimization_recipe"] },
+    "regime_key": { "type": "string", "description": "product|machine|regime composite key; scene8 slot in chunk_id — same action different regime = different entries" },
+    "payload": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "action_summary": { "type": ["string", "null"], "maxLength": 2000 },
+        "effect": {
+          "type": ["object", "null"],
+          "properties": {
+            "metric": { "type": "string" },
+            "delta": { "type": ["number", "null"] },
+            "ci95": { "type": ["array", "null"], "items": { "type": "number" } },
+            "n_eff": { "type": ["integer", "null"] },
+            "direction_established": { "type": ["boolean", "null"] }
+          }
+        },
+        "attribution_status": { "enum": ["estimable", "direction_uncertain", "truncated", "not_estimable", null] },
+        "confound_detected": { "type": ["boolean", "null"] },
+        "trajectory": { "type": ["string", "null"] },
+        "fault_signature": { "type": ["object", "null"] },
+        "action_sequence": {
+          "type": ["array", "null"],
+          "items": { "type": "object", "required": ["parameter", "to", "unit", "step_order"], "properties": { "parameter": { "type": "string" }, "to": { "type": "number" }, "to_level": { "type": ["string", "null"] }, "unit": { "type": "string" }, "step_order": { "type": "integer" }, "expected_effect": { "type": ["object", "null"], "properties": { "delta": { "type": ["number", "null"] }, "ci95": { "type": ["array", "null"], "items": { "type": "number" } } } } } }
+        },
+        "applicability_note": { "type": ["string", "null"] },
+        "final_setpoints": { "type": ["object", "null"], "description": "optimization_recipe only" },
+        "achieved": { "type": ["object", "null"], "properties": { "mean": { "type": "number" }, "sd": { "type": "number" }, "ci95": { "type": "array", "items": { "type": "number" } }, "n": { "type": "integer" } } },
+        "rounds_used": { "type": ["integer", "null"] },
+        "trials_used": { "type": ["integer", "null"] },
+        "confirm_status": { "type": ["string", "null"] },
+        "lesson": { "type": ["string", "null"], "maxLength": 2000, "description": "agent-authored prose; NOT part of attribution math" }
+      }
+    },
+    "applicability": {
+      "type": "object",
+      "properties": {
+        "factor_observed_ranges": { "type": ["object", "null"] },
+        "system": { "type": ["string", "null"] },
+        "scenario_tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["built_from"],
+      "properties": {
+        "actor_alias": { "type": ["string", "null"] },
+        "action_log_ids": { "type": "array", "items": { "type": "string" } },
+        "run_ids": { "type": "array", "items": { "type": "string" } },
+        "batch_ids": { "type": "array", "items": { "type": "string" } },
+        "regime_key": { "type": ["string", "null"] },
+        "attribution_version": { "type": ["string", "null"] },
+        "built_from": { "type": "string" },
+        "judge_score": { "type": ["number", "null"], "description": "null for tuning entries; confirm_status substitutes for optimization_recipe" },
+        "era": { "type": ["string", "null"] }
+      }
+    },
+    "confidence_label": { "enum": ["verified", "observation", null] },
+    "evidence_grade": { "enum": ["E0", "E1", "E2", "E3", null], "description": "advisory strength only — dispatch policy is AWS-side (v1.4)" },
+    "corroboration_count": { "type": ["integer", "null"], "minimum": 0 },
+    "refutation_count": { "type": ["integer", "null"], "minimum": 0 },
+    "cross_regime_consistent": { "type": ["boolean", "null"] },
+    "invalidation_conditions": { "type": "array", "items": { "type": "string" } }
+  }
+}

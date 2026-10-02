@@ -93,7 +93,7 @@ import { formatTime } from '../../utils/time.js';
 import { getEffectiveRunStatus, getRunStatusBadgeClass, getRunStatusLabel, formatRunErrorMessage } from '../../utils/diagnosisRun.js';
 
 const emit = defineEmits(['view-run', 'view-report', 'new-task']);
-const { state, runningRuns, pastRuns, refreshCatalog, connect } = useDiagnosisRealtimeStore();
+const { state, runningRuns, pastRuns, refreshCatalog } = useDiagnosisRealtimeStore();
 const loading = computed(() => state.wsStatus === 'connecting' && state.catalogRuns.length === 0);
 const runs = computed(() => state.catalogRuns);
 

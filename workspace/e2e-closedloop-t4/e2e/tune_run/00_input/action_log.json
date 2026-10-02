@@ -1,0 +1,80 @@
+[
+  {
+    "schema_version": "1.0",
+    "ts": "2026-01-06T09:20:00Z",
+    "actor": {
+      "actor_id": "ENG-ZHANG-0091",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp",
+        "from": 85.0,
+        "to": 88.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PA",
+      "machine": "L1",
+      "regime_label": "S1",
+      "steady_segment_ref": null,
+      "group_key": null
+    },
+    "trigger": {
+      "trigger_type": "alert",
+      "ref_id": "ALT-20261001-142408-000"
+    },
+    "attribution_confounds": [],
+    "recommendation_ref": null,
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-01-07T18:40:00Z",
+    "actor": {
+      "actor_id": "ENG-ZHANG-0091",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp",
+        "from": 88.0,
+        "to": 84.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PA",
+      "machine": "L1",
+      "regime_label": "S1",
+      "steady_segment_ref": null,
+      "group_key": null
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "attribution_confounds": [],
+    "recommendation_ref": null,
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  }
+]

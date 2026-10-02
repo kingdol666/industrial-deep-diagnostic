@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "ts": "2026-01-05T00:33:20Z",
+  "actor": {
+    "actor_id": "ENG-ZHANG-0091",
+    "actor_type": "engineer",
+    "display_alias": null
+  },
+  "actions": [
+    {
+      "parameter": "temp",
+      "from": 85,
+      "to": 88,
+      "unit": "degC"
+    }
+  ],
+  "bundled_action": {
+    "is_bundle": false,
+    "bundle_reason": "single",
+    "note": null
+  },
+  "context": {
+    "product": "PA",
+    "machine": "L1",
+    "regime_label": "S1",
+    "steady_segment_ref": null,
+    "group_key": null
+  },
+  "trigger": {
+    "trigger_type": "alert",
+    "ref_id": "ALT-20261001-001"
+  },
+  "attribution_confounds": [],
+  "recommendation_ref": null,
+  "ingest_meta": {
+    "source": "csv_import",
+    "ingested_at": null
+  }
+}

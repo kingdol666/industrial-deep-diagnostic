@@ -1,0 +1,155 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261002-101",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "ff1f1762d3fb1670a8292a5a457aae1ade4875ef25f6001d49eabe3df503fc70",
+  "phase": "exploiting",
+  "round_count": 7,
+  "trial_count": 14,
+  "budget": {
+    "max_rounds": 10,
+    "max_trials": 30,
+    "deadline": null,
+    "rounds_used": 7,
+    "trials_used": 14,
+    "replicates_used": 16
+  },
+  "incumbent": {
+    "setpoints": {
+      "press": 0.555287,
+      "temp": 84.902422
+    },
+    "measured": {
+      "yield_pct": {
+        "mean": 100.0,
+        "sd": 0.1,
+        "n": 3
+      }
+    },
+    "in_target": true,
+    "predicted_D": 0.181818,
+    "round_id": "R001"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ci_in_limits": false,
+    "desirability_gate": true
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 14,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": -51.24480618877894,
+      "cond_K": 595174.5634327349
+    }
+  },
+  "belief": {
+    "stall_rounds": 6,
+    "max_ei_last": 9.483222730544499e-05,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 0.96
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 8,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R005",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R006",
+      "phase": "exploit",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R007",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.181818,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; confirm_failed_dual_gate"
+    }
+  ],
+  "next_action": {
+    "recommendation": "resume_exploit",
+    "reasons": [
+      "confirm failed the dual gate — fake-summit fallback, LHS points injected next round",
+      "1 replicate(s) outside target_range",
+      "one-sided 95% CI not within limits"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": true,
+    "resume_hint": "ingest each round's trial_result.json"
+  },
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T18:00:12.199133+00:00",
+      "detail": "confirm round R007: values=[100.28, 99.69, 100.05], ci_in_limits=False, desirability_gate=True"
+    }
+  ],
+  "provenance": {
+    "input_sha256": "ff1f1762d3fb1670a8292a5a457aae1ade4875ef25f6001d49eabe3df503fc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

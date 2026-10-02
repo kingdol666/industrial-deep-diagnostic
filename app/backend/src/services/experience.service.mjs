@@ -22,7 +22,7 @@ import { existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, readd
 import { createHash } from 'crypto';
 import {
   closedloopRoot, ensureDir, readJsonSafe, writeJson,
-  uvPython, nodeScript, tail,
+  uvPython, nodeScript, tail, resolveServerPath,
 } from './closedloop.util.mjs';
 
 const SKILL_SCRIPTS = '.claude/skills/industrial-tuning-memory/scripts';
@@ -108,7 +108,7 @@ function deriveActionLogId(log) {
 
 function registerDataset({ data_path, metric = null, time_col = 't', group_key = null, dead_time = null }) {
   if (!data_path) return datasetMeta();
-  const abs = resolve(String(data_path));
+  const abs = resolveServerPath(data_path);
   if (!existsSync(abs)) {
     const err = new Error(`data_path not found: ${data_path}`);
     err.status = 400;

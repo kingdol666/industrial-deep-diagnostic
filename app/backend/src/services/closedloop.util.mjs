@@ -28,6 +28,18 @@ export function closedloopRoot() {
   return cachedRoot;
 }
 
+// 服务器侧路径解析：绝对路径原样；仓库相对路径（data/…、workspace/…）按
+// PROJECT_ROOT 解析。后端进程 cwd 是 app/backend，直接 existsSync 会 404，
+// 前端闭环控制台传的正是仓库相对路径（datalist 候选与文件面板同源）。
+export function resolveServerPath(value) {
+  const raw = String(value ?? '');
+  if (!raw) return raw;
+  if (resolve(raw) === raw) return raw; // already absolute
+  const rooted = join(PROJECT_ROOT, raw);
+  if (existsSync(rooted)) return rooted;
+  return raw;
+}
+
 export function ensureDir(dir) {
   mkdirSync(dir, { recursive: true });
   return dir;

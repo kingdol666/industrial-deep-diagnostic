@@ -1,0 +1,72 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-001",
+  "round_id": "R004",
+  "phase": "exploit",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "setpoints": {
+        "press": 0.601434,
+        "temp": 86.497834
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.715392,
+      "expected": {
+        "yield_pct": {
+          "mean": 98.081569,
+          "ci95": [
+            97.391776,
+            98.771362
+          ]
+        }
+      },
+      "predicted_D": 0.074154,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=0.198"
+    },
+    {
+      "trial_id": "R004-T02",
+      "setpoints": {
+        "press": 0.557396,
+        "temp": 83.804495
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.603352,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.63739,
+          "ci95": [
+            98.790235,
+            100.484544
+          ]
+        }
+      },
+      "predicted_D": 0.511464,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=0.191"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -15.494253,
+    "lengthscales": {
+      "x0": -1.264397,
+      "x1": 0.693147
+    },
+    "sigma_noise": 0.234609,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "c958d4f4009eea769de24246c114734fdf124b1b2d1de8058b1d80753fc4bc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

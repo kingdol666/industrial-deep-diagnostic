@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fast_state.schema.json",
+  "title": "Sentinel fast-screen continuation state (sole writer: sentinel_fast.py)",
+  "type": "object",
+  "required": ["state_version", "line_id", "updated_at", "ring_buffer"],
+  "properties": {
+    "state_version": { "const": "sentinel-state/1.0" },
+    "line_id": { "type": "string" },
+    "updated_at": { "type": "string" },
+    "baseline_ref": { "type": ["string", "null"] },
+    "last_seen_ts": { "type": ["string", "null"] },
+    "last_index": { "type": ["integer", "null"] },
+    "ring_buffer": {
+      "type": "object",
+      "required": ["cols", "rows"],
+      "properties": {
+        "cols": { "type": "array", "items": { "type": "string" } },
+        "rows": { "type": "array", "maxItems": 300, "items": { "type": "array", "items": { "type": ["number", "null"] } } }
+      }
+    },
+    "known_change_points": { "type": "array", "items": { "type": "integer" } },
+    "projection_cache": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "slope_per_hour": { "type": "number" },
+          "computed_at": { "type": "string" }
+        }
+      }
+    },
+    "suppression": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "since": { "type": "string" },
+          "count": { "type": "integer" }
+        }
+      }
+    },
+    "consecutive_in_band": {
+      "type": "object",
+      "description": "hysteresis counters per suppression_key (severity downgrade requires N consecutive in-band points)",
+      "additionalProperties": { "type": "integer" }
+    },
+    "provenance": { "type": "object", "properties": { "script_version": { "type": "string" }, "authored_by": { "const": "script" } } }
+  }
+}

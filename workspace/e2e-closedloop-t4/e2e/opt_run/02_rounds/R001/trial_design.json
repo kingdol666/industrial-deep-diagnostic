@@ -1,0 +1,101 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-001",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "press": 0.555287,
+        "temp": 84.902422
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T02",
+      "setpoints": {
+        "press": 0.628199,
+        "temp": 87.543314
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T03",
+      "setpoints": {
+        "press": 0.644886,
+        "temp": 82.328411
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T04",
+      "setpoints": {
+        "press": 0.607553,
+        "temp": 86.029562
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T05",
+      "setpoints": {
+        "press": 0.570586,
+        "temp": 86.580215
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T06",
+      "setpoints": {
+        "press": 0.598892,
+        "temp": 83.109224
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T07",
+      "setpoints": {
+        "press": 0.614378,
+        "temp": 83.681014
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T08",
+      "setpoints": {
+        "press": 0.579642,
+        "temp": 85.192859
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "c958d4f4009eea769de24246c114734fdf124b1b2d1de8058b1d80753fc4bc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

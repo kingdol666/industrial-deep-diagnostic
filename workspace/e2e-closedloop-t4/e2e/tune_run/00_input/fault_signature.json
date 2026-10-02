@@ -1,0 +1,17 @@
+{
+  "signature_version": "1.0",
+  "source_ref": "ALT-20261001-142408-000",
+  "anomalous_params": [
+    {
+      "parameter": "temp",
+      "direction": "high",
+      "severity": null
+    }
+  ],
+  "regime": {
+    "product": "PA",
+    "machine": "L1",
+    "regime_label": "S1"
+  },
+  "degraded_metric": "yield_pct"
+}

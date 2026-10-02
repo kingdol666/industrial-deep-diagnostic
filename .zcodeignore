@@ -1,0 +1,203 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# Node
+node_modules/
+
+# Database
+app/backend/data/*.db*
+data/*.db*
+
+# Diagnostic runs & bridge runs (generated artifacts, large files)
+workspace/diagnostic-runs/
+workspace/bridge-runs/
+workspace/*.csv
+workspace/*.png
+workspace/*.py
+workspace/*.json
+!workspace/.gitkeep
+
+# Build output
+app/frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (user overrides)
+config/local.yaml
+
+# Tool caches
+.omc/
+.serena/
+
+# Skill workspace (generated at runtime)
+.claude/skills/industrial-deep-diagnostic/workspace/
+
+# Temp
+*.tmp
+*.swp
+
+# RAG run artifacts
+workspace/rag_ontology_*
+rag-retrieval-engine/storage/retrieval_runs/
+
+# RAG engine runtime data (vector DB + storage)
+rag-retrieval-engine/knowledge_base/chroma_db/
+rag-retrieval-engine/storage/retrieval_engine.db
+
+# Diagnostic run directories — anchored to the repository root. Unanchored
+# `runs/` also matched baseline-lab/results/runs/, silently excluding the
+# baseline-lab sweep evidence from every commit.
+/runs/
+
+# Generated images / prompts cache.
+# Only the generated `image/` output is ignored — `prompt/` holds the input
+# prompt files, which the deck build scripts under ppt_workspace/ read by path,
+# so they must stay tracked. The previous whole-directory rule silently blocked
+# two of them from ever being committed.
+garden-gpt-image-2/image/
+
+# RAG knowledge submodule (has its own repo)
+rag-knowledge/
+
+# Runtime-generated ChromaDB vector store (regenerable binary)
+knowledge_base/
+.claude/worktrees/
+workspace/diagnostic-runs/
+
+# Nested git repos (standalone projects)
+claude-talk-to-figma-mcp/
+
+# Runtime state
+.runtime/pids/*.pid
+.runtime/*.log
+
+# Test artifacts (generated during validation)
+test_vlm/
+
+# Ontology asset store & OMP runtime sessions (generated)
+data/ontology_store/
+workspace/.omp-sessions/
+workspace/.omp-chats/
+
+# AgentWorkShop diag-bridge 快照目录(运行时数据)
+data/aw-snapshots/
+
+# JWT 签名密钥(绝不能提交)
+data/.auth-jwt-secret
+
+# Benchmark datasets (GB-scale; reproducibility via sha256 manifests, not git)
+data/benchmark/
+!data/benchmark/downloads.lock.json
+
+# Local tool state
+.mimosa/
+.runtime/
+.workbuddy/
+--help/
+--run-dir/
+
+# 修复/冒烟临时目录
+workspace/_repair_tmp_r2/
+workspace/ontology-store-smoke-*/
+
+# ---------------------------------------------------------------- LaTeX
+# Build artifacts are regenerable from main.tex; main.bbl IS kept because it is
+# required for the arXiv/submission bundle.
+*.aux
+*.log
+*.out
+*.blg
+*.spl
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+paper/pagepng/
+
+# Derived review dump (extracted text of the compiled PDF, regenerable; the
+# source of truth is paper/main.pdf) and the prior-generation backup of the
+# baseline-suite results.
+paper/main_review_dump.txt
+results/benchmark/.suite-prior/
+
+# Paper working dumps / page-render checks (regenerable; keep compiled PDFs only)
+paper/main_dump*.txt
+paper/pages_check.pdf
+paper/render_review/
+
+# Review-round audit trail: track the documents (md/mjs/py), not the page
+# renders — 1.6k+ PNGs of double-spaced pages are regenerable from the rounds'
+# PDFs and would dominate the repo.
+paper/review/**/*.png
+paper/review/vb_pages/
+paper/review/vb_dump.txt
+
+# Third-party cited-literature snapshots (57 MB of arXiv PDFs; cite via refs.bib,
+# keep only the reading notes)
+paper/reference/*.pdf
+
+# ------------------------------------------------------- baseline-lab (Nuxt)
+# The lab's source AND its results/ are committed: results/ holds the archived
+# LLM answers and sweep summaries that the reproduction claims rest on (~1.7 MB).
+baseline-lab/node_modules/
+baseline-lab/.nuxt/
+baseline-lab/.output/
+baseline-lab/.llm-scratch/
+baseline-lab/dist/
+baseline-lab/.env
+
+# User-uploaded datasets are runtime state, not repository content: they belong
+# to whoever uploaded them and must never be committed. Sweeps over them land in
+# baseline-lab/results/runs/ (committed) and are self-describing.
+baseline-lab/uploads/
+
+# Per-job diagnosis reports reference an upload by id, so they are runtime state
+# like the upload itself. Regenerate with `npm run diagnose <uploadId>`.
+baseline-lab/results/diagnoses/
+baseline-lab/.devlog.txt
+
+
+# Paper workbench bulk page renders (transient review artifacts, ~100MB)
+paper/workbench/pages*/
+
+# Scratch space for review/stress-test evidence (regenerable via the generators
+# in tmp/doe_stress/gen_data.py and tmp/stress_sweep.py; keep nothing tracked)
+tmp/
+
+# DOE-analyzer v1 red-team / E2E bulk run artifacts (regenerable from
+# workspace/doe-redteam/gen_cases.py; keep the generator + E2E_REPORT.md only)
+workspace/doe-redteam/*/run/
+workspace/e2e-doe/run/
+
+# ===== ↑ 以上同步自 .gitignore（「从 .gitignore 同步」只重写以上部分）=====
+.git/
+.hg/
+.svn/
+bower_components/
+jspm_packages/
+site-packages/
+venv/
+coverage/
+htmlcov/
+lcov-report/
+cmakefiles/
+cmake-build-*/
+bazel-*/
+pods/
+deriveddata/
+storybook-static/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+cdk.out/
+*.dist-info/
+eggs/
+pip-wheel-metadata/
+wheels/
+# ----- ↑ 以上为 ZCode 默认排除规则（自定义规则请写在本行下方，不会被同步/恢复改动）-----
+# 自定义规则写在下方（本行提示可删除）

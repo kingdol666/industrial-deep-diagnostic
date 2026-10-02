@@ -1,0 +1,136 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261001-001",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "c958d4f4009eea769de24246c114734fdf124b1b2d1de8058b1d80753fc4bc70",
+  "phase": "converged",
+  "round_count": 5,
+  "trial_count": 20,
+  "budget": {
+    "max_rounds": 10,
+    "max_trials": 30,
+    "deadline": null,
+    "rounds_used": 5,
+    "trials_used": 20,
+    "replicates_used": 24
+  },
+  "incumbent": {
+    "setpoints": {
+      "press": 0.559759,
+      "temp": 82.0
+    },
+    "measured": {
+      "yield_pct": {
+        "mean": 99.1053,
+        "sd": 0.0,
+        "n": 1
+      }
+    },
+    "in_target": true,
+    "predicted_D": 0.995182,
+    "round_id": "R002"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      0.625,
+      0.75,
+      0.764706,
+      0.789474,
+      0.8
+    ],
+    "ci_in_limits": true,
+    "desirability_gate": true
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 20,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": -16.389057107902246,
+      "cond_K": 173.87155481052378
+    }
+  },
+  "belief": {
+    "stall_rounds": 1,
+    "max_ei_last": 3.940881882912896e-05,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 0.96
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 8,
+      "best_D": 0.933909,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 8,
+      "best_D": 0.995182,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.995182,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; confirm_failed_dual_gate"
+    },
+    {
+      "round_id": "R004",
+      "phase": "exploit",
+      "method": "lhs_fill",
+      "n_trials": 2,
+      "best_D": 0.995182,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R005",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.995182,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "next_action": {
+    "recommendation": "stop",
+    "reasons": [
+      "dual gate satisfied"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": false,
+    "resume_hint": "campaign converged closed"
+  },
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T14:24:20.486089+00:00",
+      "detail": "confirm round R003: values=[98.6396, 98.8891, 99.0174], ci_in_limits=True, desirability_gate=False"
+    },
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T14:24:25.690528+00:00",
+      "detail": "confirm round R005: values=[98.7972, 99.1047, 98.945], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "provenance": {
+    "input_sha256": "c958d4f4009eea769de24246c114734fdf124b1b2d1de8058b1d80753fc4bc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "action_log.schema.json",
+  "title": "Tuning action log (v1.0) — engineer/control-system parameter actions with context & outcome",
+  "type": "object",
+  "required": ["schema_version", "ts", "actor", "actions", "context"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "action_log_id": { "type": ["string", "null"], "description": "server-assigned ts8+sha256(canonical)[..8]; idempotent replay" },
+    "ts": { "type": "string", "description": "action effective time (UTC ISO8601)" },
+    "actor": {
+      "type": "object",
+      "required": ["actor_id", "actor_type"],
+      "properties": {
+        "actor_id": { "type": "string", "description": "engineer ID or system name; alias-mapped before persistence" },
+        "actor_type": { "enum": ["engineer", "control_system", "batch_recipe", "aws_executor", "unknown_retro_inferred"] },
+        "display_alias": { "type": ["string", "null"] }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["parameter", "to", "unit"],
+        "properties": {
+          "parameter": { "type": "string" },
+          "from": { "type": ["number", "null"] },
+          "to": { "type": "number" },
+          "to_level": { "type": ["string", "null"], "description": "categorical setpoint level (v1 extension field)" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "bundled_action": {
+      "type": "object",
+      "properties": {
+        "is_bundle": { "type": "boolean" },
+        "bundle_reason": { "enum": ["coupled_move", "recipe_change", "single", null] },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "product": { "type": ["string", "null"] },
+        "machine": { "type": ["string", "null"] },
+        "regime_label": { "type": ["string", "null"] },
+        "steady_segment_ref": {
+          "type": ["object", "null"],
+          "properties": {
+            "data_path": { "type": "string" },
+            "row_range": { "type": "array", "items": { "type": "integer" } },
+            "time_range": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "group_key": { "type": ["string", "null"] }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "trigger_type": { "enum": ["alert", "experience_recipe", "manual", "aws_optimization"] },
+        "ref_id": { "type": ["string", "null"], "description": "alert_id / experience_id / work order; required when trigger_type != manual" }
+      }
+    },
+    "outcome": {
+      "type": ["object", "null"],
+      "properties": {
+        "metric": { "type": ["string", "null"] },
+        "before_window": { "type": ["object", "null"], "properties": { "row_range": { "type": "array", "items": { "type": "integer" } }, "time_range": { "type": "array", "items": { "type": "string" } } } },
+        "after_window": { "type": ["object", "null"], "properties": { "row_range": { "type": "array", "items": { "type": "integer" } }, "time_range": { "type": "array", "items": { "type": "string" } } } },
+        "observed_trajectory": { "enum": ["settled_to_target", "oscillating", "drifted", "no_change", "transient_then_reversed", "not_observed", null] },
+        "observed_by": { "enum": ["engineer_reported", "system_computed", null] }
+      }
+    },
+    "attribution_confounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "enum": ["batch_change", "environment", "maintenance", "other_action"] },
+          "note": { "type": "string" },
+          "ts": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "recommendation_ref": {
+      "type": ["string", "null"],
+      "description": "recommendation_id when this action executes a recommendation (aws_executor path); anchors ack/feedback chain"
+    },
+    "ingest_meta": {
+      "type": "object",
+      "properties": {
+        "source": { "enum": ["api", "csv_import", "retro_mined", null] },
+        "ingested_at": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

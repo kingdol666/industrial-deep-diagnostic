@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "ts": "2026-01-15T00:05:00Z",
+  "actor": {
+    "actor_id": "ENG-ZHANG-0091",
+    "actor_type": "engineer",
+    "display_alias": null
+  },
+  "actions": [
+    {
+      "parameter": "temp",
+      "from": 0,
+      "to": 1,
+      "unit": "x"
+    }
+  ],
+  "bundled_action": {
+    "is_bundle": false,
+    "bundle_reason": "single",
+    "note": null
+  },
+  "context": {
+    "product": "P1",
+    "machine": "M1",
+    "regime_label": "R1",
+    "steady_segment_ref": null,
+    "group_key": null
+  },
+  "attribution_confounds": [],
+  "recommendation_ref": null,
+  "ingest_meta": {
+    "source": null,
+    "ingested_at": null
+  }
+}

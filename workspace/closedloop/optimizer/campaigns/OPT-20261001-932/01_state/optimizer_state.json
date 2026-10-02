@@ -1,0 +1,59 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261001-932",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "dd7442576a5f66a3e487273bf1e788c9e7ef90b8f50caeee6e678048962f63e4",
+  "phase": "exploring",
+  "round_count": 1,
+  "trial_count": 8,
+  "budget": {
+    "max_rounds": 10,
+    "max_trials": 30,
+    "deadline": null,
+    "rounds_used": 1,
+    "trials_used": 8,
+    "replicates_used": 8
+  },
+  "incumbent": null,
+  "target_status": {
+    "hit_ratio_history": [],
+    "ci_in_limits": null,
+    "desirability_gate": null
+  },
+  "model": null,
+  "belief": {
+    "stall_rounds": 0,
+    "max_ei_last": null,
+    "duplication_ratio": 0.0,
+    "domain_coverage": null
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 8,
+      "best_D": null,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    }
+  ],
+  "next_action": {
+    "recommendation": "await_results",
+    "reasons": [
+      "round R001 designed (method=lhs_fill, n=8) — execute trials (AWS/manual), then place 02_rounds/R001/trial_result.json and run `ingest`"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": true,
+    "resume_hint": "ingest each round's trial_result.json"
+  },
+  "guardrail_log": [],
+  "provenance": {
+    "input_sha256": "dd7442576a5f66a3e487273bf1e788c9e7ef90b8f50caeee6e678048962f63e4",
+    "script_version": "1.0.0",
+    "seed": 11,
+    "authored_by": "script"
+  }
+}

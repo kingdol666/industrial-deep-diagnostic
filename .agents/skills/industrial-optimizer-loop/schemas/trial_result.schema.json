@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "trial_result.schema.json",
+  "title": "Optimizer trial result (v1.0) — AWS/manual execution feedback per round",
+  "type": "object",
+  "required": ["result_version", "campaign_id", "round_id", "trials"],
+  "properties": {
+    "result_version": { "const": "1.0" },
+    "campaign_id": { "type": "string" },
+    "round_id": { "type": "string", "pattern": "^R[0-9]{3}$" },
+    "trials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["trial_id", "status", "measurements"],
+        "properties": {
+          "trial_id": { "type": "string", "pattern": "^R[0-9]{3}-T[0-9]{2}$" },
+          "status": { "enum": ["completed", "failed", "partial", "safety_aborted", "late"] },
+          "measurements": {
+            "type": "object",
+            "description": "metric -> array of replicate values (order = replicates); s^2/n feeds heteroscedastic nugget",
+            "additionalProperties": { "type": "array", "items": { "type": ["number", "null"] } }
+          },
+          "measured_at": { "type": ["string", "null"] },
+          "operator_note": { "type": ["string", "null"] },
+          "failure_reason": { "type": ["string", "null"], "description": "required when status in {failed, safety_aborted} (gate O-G6b)" }
+        }
+      }
+    },
+    "late_results": {
+      "type": ["array", "null"],
+      "description": "cross-round late deliveries; assigned to their historical round and refitted — no verdict rollback",
+      "items": { "type": "object", "required": ["trial_id", "measurements"], "properties": { "trial_id": { "type": "string" }, "measurements": { "type": "object" }, "assigned_round": { "type": "string", "pattern": "^R[0-9]{3}$" } } }
+    },
+    "environment": { "type": ["object", "null"], "description": "optional covariates; recorded only, not auto-modeled" },
+    "ingest_meta": { "type": ["object", "null"], "properties": { "source": { "enum": ["api", "inbox_file", "manual_csv", null] }, "ingested_at": { "type": ["string", "null"] } } }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "signature_version": "1.0",
+  "source_ref": null,
+  "anomalous_params": [
+    {
+      "parameter": "temp",
+      "direction": "high",
+      "severity": 2.5
+    }
+  ],
+  "regime": null,
+  "degraded_metric": null
+}

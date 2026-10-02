@@ -99,6 +99,10 @@
         @view-report="onViewReport"
         @new-task="goToData"
       />
+
+      <div v-if="missingRunId" class="rb-error" style="padding:10px 4px;">
+        {{ $t('diagnosis.runNotFound', { id: missingRunId }) }}
+      </div>
     </template>
 
     <!-- ============ LIVE RUN MODE ============ -->
@@ -302,8 +306,6 @@ const emit = defineEmits(['started', 'view-report', 'go-data']);
 const {
   state: realtimeState,
   activeSnapshot,
-  connect,
-  disconnect,
   subscribeRun,
   hydrateRun,
   refreshCatalog,
@@ -351,6 +353,7 @@ const score = computed(() => run.value?.score ?? null);
 const verdict = computed(() => run.value?.judge_verdict ?? null);
 const reportPath = computed(() => run.value?.report_path ?? null);
 const errorMsg = computed(() => run.value?.error_message || '');
+const missingRunId = ref(null);
 const currentQuestion = computed(() => {
   const question = snapshot.value?.currentQuestion || null;
   if (!question) return null;
@@ -478,13 +481,16 @@ function toggleCharts() {
 }
 
 async function fetchChartData(runDir) {
-  if (!runDir) return;
+  // runDir may be a bare directory name or any path ending with it.
+  const parts = String(runDir || '').split(/[/\\]/);
+  const dirName = parts.lastIndexOf('diagnostic-runs') >= 0
+    ? parts[parts.lastIndexOf('diagnostic-runs') + 1]
+    : parts.filter(Boolean).pop() || '';
+  if (!dirName) return;
   chartLoading.value = true;
   try {
-    const dirName = runDir.replace('workspace/diagnostic-runs/', '');
-    const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
-    const json = await res.json();
-    chartData.value = json.success && json.data ? json.data : {};
+    const json = await api.getChartData(dirName);
+    chartData.value = json?.success && json?.data ? json.data : {};
   } catch (err) {
     console.error('Failed to fetch chart data:', err);
     chartData.value = {};
@@ -494,9 +500,15 @@ async function fetchChartData(runDir) {
 }
 
 function loadCharts() {
-  if (chartLoading.value || !reportPath.value) return;
-  const runDir = reportPath.value.split('/').slice(0, -1).join('/');
-  fetchChartData(runDir);
+  if (chartLoading.value) return;
+  // Prefer the report path; fall back to the run's own directory record.
+  // With neither, show the empty state instead of doing nothing silently.
+  const source = reportPath.value || run.value?.run_dir || run.value?.data_dir || '';
+  const parts = String(source).split(/[/\\]/);
+  const idx = parts.lastIndexOf('diagnostic-runs');
+  const dirName = idx >= 0 ? parts[idx + 1] : (reportPath.value ? parts[parts.length - 2] : '');
+  if (!dirName) { chartData.value = {}; return; }
+  fetchChartData(dirName);
 }
 
 async function start() {
@@ -634,7 +646,17 @@ async function openRun(rid) {
   started.value = true;
   chartData.value = null;
   showCharts.value = true;
-  await hydrateRun(rid);
+  try {
+    await hydrateRun(rid);
+  } catch (err) {
+    // The run was deleted (or never existed) — go back to the task list
+    // instead of leaving a zombie "Pending" detail page open.
+    console.warn('Run not hydratable, returning to task list:', rid, err?.message || err);
+    missingRunId.value = rid;
+    goBack();
+    return;
+  }
+  missingRunId.value = null;
   subscribeRun(rid);
 }
 

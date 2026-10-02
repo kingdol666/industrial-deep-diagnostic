@@ -346,11 +346,6 @@ function findingText(f) {
   return localised === key ? f.message : localised;
 }
 
-function findingRule(f) {
-  const key = `ontology.findingRule.${f.sourceRule}`;
-  const localised = t(key);
-  return localised === key ? f.sourceRule : localised;
-}
 </script>
 
 <style scoped>

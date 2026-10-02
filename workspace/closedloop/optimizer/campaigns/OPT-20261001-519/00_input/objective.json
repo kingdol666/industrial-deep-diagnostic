@@ -1,0 +1,34 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261001-519",
+  "target_metric": "yield_pct",
+  "goal": "target",
+  "target_range": [
+    98,
+    100.2
+  ],
+  "factors": [
+    {
+      "name": "temp",
+      "type": "numeric",
+      "min": 82,
+      "max": 88,
+      "unit": "degC"
+    },
+    {
+      "name": "press",
+      "type": "numeric",
+      "min": 0.55,
+      "max": 0.65,
+      "unit": "MPa"
+    }
+  ],
+  "budget": {
+    "max_rounds": 10,
+    "max_trials": 30
+  },
+  "noise": {
+    "replicates_for_sigma": 3
+  },
+  "seed": 11
+}

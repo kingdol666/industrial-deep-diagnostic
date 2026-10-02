@@ -263,7 +263,6 @@ const permissionModeOptions = computed(() => [
 
 // ── Chat model catalog (from the harness manifest) ──
 const harnessOptionsMap = ref({});
-const claudeModelOptions = computed(() => engineChatModels.value);
 const engineChatModels = computed(() => harnessOptionsMap.value[chatEngine.value]?.models || []);
 
 async function loadHarnessOptionsMap() {

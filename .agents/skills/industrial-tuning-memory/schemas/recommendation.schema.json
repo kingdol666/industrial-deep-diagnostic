@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "recommendation.schema.json",
+  "title": "Tuning/control recommendation contract (v1.0) — playbook hit or degradation, with execution ack chain",
+  "type": "object",
+  "required": ["contract_version", "recommendation_id", "generated_at", "recommendation_status"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "recommendation_id": { "type": "string", "pattern": "^REC-[0-9]{8}-[0-9]{6}-[0-9]{3}$" },
+    "generated_at": { "type": "string" },
+    "source": {
+      "type": "object",
+      "properties": {
+        "fault_signature": { "type": ["object", "null"] },
+        "trigger_alert_id": { "type": ["string", "null"] },
+        "campaign_id": { "type": ["string", "null"], "description": "optimizer convergence path carrier" }
+      }
+    },
+    "recommendation_status": { "enum": ["playbook_hit", "direction_only", "fallback_generic", "no_playbook_hit"] },
+    "match_scope": { "enum": ["regime", "product", "machine", "generic", null] },
+    "degradation_path": { "type": ["array", "null"], "items": { "type": "string" } },
+    "playbooks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["experience_id", "autonomy_level"],
+        "properties": {
+          "experience_id": { "type": "string" },
+          "action_sequence": { "type": "array", "items": { "type": "object" } },
+          "expected_effect": { "type": ["object", "null"] },
+          "evidence_grade": { "enum": ["E0", "E1", "E2", "E3"], "description": "advisory strength only — dispatch authorization is an AWS-side concern (v1.4)" },
+          "corroboration_count": { "type": ["integer", "null"] },
+          "refutation_count": { "type": ["integer", "null"] },
+          "provenance_alias": { "type": ["string", "null"] },
+          "invalidation_conditions": { "type": "array", "items": { "type": "string" } },
+          "match_score": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "final_setpoints": {
+      "type": ["object", "null"],
+      "description": "optimizer convergence path: machine-executable final recipe",
+      "properties": {
+        "values": { "type": "object", "additionalProperties": { "type": ["number", "string"] } },
+        "achieved": { "type": ["object", "null"] },
+        "guardrails": { "type": ["object", "null"], "description": "applicability bounds + safety limits for downstream enforcement" },
+        "confirm_status": { "type": ["string", "null"] }
+      }
+    },
+    "fallback": {
+      "type": ["object", "null"],
+      "properties": {
+        "doe_analyzer_hint": { "type": ["string", "null"], "description": "observational-mode run guidance when no playbook hit" }
+      }
+    },
+    "ack": {
+      "type": ["object", "null"],
+      "description": "filled when the execution receipt arrives via inbox ack file; timeout -> status stays null and promotion excluded (unconfirmed)",
+      "properties": {
+        "status": { "enum": ["received", "executed", "rejected", null] },
+        "ack_at": { "type": ["string", "null"] },
+        "executed_action_log_id": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "autonomy_level": { "enum": ["suggest", "approve_required", "auto_within_guardrails", null], "description": "REMOVED from IDD scope (v1.4): present only if the AWS side stamps its own dispatch policy onto the artifact; IDD never sets it" },
+    "provenance": {
+      "type": "object",
+      "required": ["authored_by"],
+      "properties": {
+        "script_version": { "type": "string" },
+        "authored_by": { "enum": ["script", "agent"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "attribution_report.schema.json",
+  "title": "Deterministic action→outcome attribution report (v1.0) — zero-LLM output",
+  "type": "object",
+  "required": ["report_version", "action_log_id", "attribution_status"],
+  "properties": {
+    "report_version": { "const": "1.0" },
+    "action_log_id": { "type": "string" },
+    "bundle_scope": { "type": ["boolean", "null"] },
+    "attribution_status": { "enum": ["estimable", "direction_uncertain", "truncated", "not_estimable"] },
+    "reason_code": { "enum": [null, "min_points", "outlier_driven", "dead_time_unknown", "overlapping_action", "metric_missing"] },
+    "metric": { "type": ["string", "null"] },
+    "segments": {
+      "type": ["object", "null"],
+      "properties": {
+        "baseline": { "type": "object", "properties": { "row_range": { "type": "array", "items": { "type": "integer" } }, "n": { "type": "integer" }, "n_eff": { "type": ["integer", "null"] }, "lag1_autocorr": { "type": ["number", "null"] } } },
+        "effect": { "type": "object", "properties": { "row_range": { "type": "array", "items": { "type": "integer" } }, "n": { "type": "integer" }, "n_eff": { "type": ["integer", "null"] }, "lag1_autocorr": { "type": ["number", "null"] }, "truncated_by": { "type": ["string", "null"] } } },
+        "dead_time_used": { "type": ["number", "null"] }
+      }
+    },
+    "effect": {
+      "type": ["object", "null"],
+      "description": "null when attribution_status=not_estimable (never fabricate)",
+      "required": ["delta", "ci95"],
+      "properties": {
+        "delta": { "type": ["number", "null"] },
+        "ci95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+        "n_eff_hi": { "type": ["integer", "null"] },
+        "n_eff_lo": { "type": ["integer", "null"] },
+        "direction_established": { "type": ["boolean", "null"] },
+        "stratified": {
+          "type": ["array", "null"],
+          "items": { "type": "object", "properties": { "group": { "type": "string" }, "n": { "type": "integer" }, "delta": { "type": ["number", "null"] }, "ci95": { "type": ["array", "null"], "items": { "type": "number" } }, "skipped": { "type": "boolean" } } }
+        }
+      }
+    },
+    "confound_detected": { "type": "boolean" },
+    "attribution_compromised": { "type": "boolean" },
+    "anti_spurious": {
+      "type": ["object", "null"],
+      "properties": {
+        "trend_check": { "enum": ["PASS", "CAUTION", "FAIL", null] },
+        "outlier_check": { "enum": ["PASS", "CAUTION", "FAIL", null] }
+      }
+    },
+    "evidence_grade": { "enum": ["E0", "E1", "E2", "E3"] },
+    "provenance": { "type": "object", "properties": { "script_version": { "type": "string" }, "authored_by": { "const": "script" } } }
+  }
+}

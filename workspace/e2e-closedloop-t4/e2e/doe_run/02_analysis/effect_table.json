@@ -1,0 +1,186 @@
+{
+  "generated_at": "2026-10-01T14:24:05.618912+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "temp",
+      "press",
+      "rate"
+    ],
+    "interactions": [
+      "temp:press",
+      "temp:rate",
+      "press:rate",
+      "temp:press:rate"
+    ],
+    "quadratic": [],
+    "blocks": [],
+    "covariates": [],
+    "pooled_terms": []
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "temp": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "press": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "rate": {
+        "type": "numeric",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "yield_pct",
+      "n": 16,
+      "df_resid": 9,
+      "df_pure_error": 8,
+      "df_lack_of_fit": 1,
+      "mse": 0.074293,
+      "mse_pure_error": 0.081572,
+      "sigma_pure_error": 0.285609,
+      "r_squared": 0.981008,
+      "adj_r_squared": 0.968347,
+      "q_squared_loo": 0.939976,
+      "mde": 0.456245,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": true,
+        "reason": null,
+        "f_stat": 0.196793,
+        "p_value": 0.6690748038029098
+      },
+      "tests": [
+        {
+          "term": "temp",
+          "order": 1,
+          "coefficient": -1.4637,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 34.278683,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 461.401428,
+          "p_value": 4.832696142461793e-09,
+          "eta_squared": 0.973663,
+          "partial_eta_squared": 0.980867,
+          "effect_size_std": 5.124839,
+          "q_value_bh": 2.899617685477076e-08,
+          "pareto_rank": 1
+        },
+        {
+          "term": "press",
+          "order": 1,
+          "coefficient": 0.010962,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 0.001923,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.025882,
+          "p_value": 0.8757426675643408,
+          "eta_squared": 5.5e-05,
+          "partial_eta_squared": 0.002868,
+          "effect_size_std": 0.038383,
+          "q_value_bh": 0.9682628076703949,
+          "pareto_rank": 4
+        },
+        {
+          "term": "rate",
+          "order": 1,
+          "coefficient": 0.002787,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 0.000124,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.001673,
+          "p_value": 0.9682628076703949,
+          "eta_squared": 4e-06,
+          "partial_eta_squared": 0.000186,
+          "effect_size_std": 0.00976,
+          "q_value_bh": 0.9682628076703949,
+          "pareto_rank": 6
+        },
+        {
+          "term": "temp:press",
+          "order": 2,
+          "coefficient": 0.060425,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 0.058419,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.786336,
+          "p_value": 0.398286152385424,
+          "eta_squared": 0.001659,
+          "partial_eta_squared": 0.08035,
+          "effect_size_std": 0.211565,
+          "q_value_bh": 0.796572304770848,
+          "pareto_rank": 3
+        },
+        {
+          "term": "temp:rate",
+          "order": 2,
+          "coefficient": 0.00905,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 0.00131,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.017639,
+          "p_value": 0.8972644284299496,
+          "eta_squared": 3.7e-05,
+          "partial_eta_squared": 0.001956,
+          "effect_size_std": 0.031687,
+          "q_value_bh": 0.9682628076703949,
+          "pareto_rank": 5
+        },
+        {
+          "term": "press:rate",
+          "order": 2,
+          "coefficient": 0.110913,
+          "std_err": 0.068142,
+          "df": 1,
+          "ss_extra_ss": 0.196825,
+          "n": 16,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 2.649328,
+          "p_value": 0.13803573674005679,
+          "eta_squared": 0.005591,
+          "partial_eta_squared": 0.227423,
+          "effect_size_std": 0.388337,
+          "q_value_bh": 0.4141072102201704,
+          "pareto_rank": 2
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 6,
+    "total_significant_q05": 1,
+    "excluded_from_family": 0
+  }
+}

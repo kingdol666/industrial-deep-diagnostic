@@ -1,0 +1,127 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "temp",
+      "factor_unit": null,
+      "response": "yield_pct",
+      "range": [
+        82.0,
+        82.75
+      ],
+      "shape": "disconnected",
+      "expected_effect": {
+        "delta": -0.4879,
+        "direction_semantics": "因子 temp 每增加 1 个原始单位，响应 yield_pct 变化约 -0.4879（编码主效应 -1.4637/半极差 3.0）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 2.899617685477076e-08,
+      "sample_size": 16,
+      "evidence_refs": [
+        "effect_table.json#yield_pct.temp.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "temp": 85.0
+    },
+    "distance_to_window": {
+      "OW-001": 2.25
+    },
+    "move_instruction": "优先处理 OW-001：将 temp 调整至 [82.0, 82.75]"
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "coded": {
+          "temp": -1.0
+        },
+        "D": 1.0,
+        "raw": {
+          "temp": 82.0,
+          "press": 0.6,
+          "rate": 120.0
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "yield_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 97.437138
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "模型仅线性项可估（无显著曲率/交互或残差自由度不足）— 数值窗口置信有限",
+      "reason_code": "linear_only",
+      "design_hint": "补中心点与轴点升级为 RSM（布点数 = 未估项数 + 5）",
+      "runs": 6
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "DISCONNECTED_WINDOW",
+      "message": "因子 temp 的可行集不连通 — 仅报告含最优点的连通块",
+      "factor": "temp"
+    },
+    {
+      "code": "DIRECTION_ONLY",
+      "message": "线性模型方向建议：因子 temp 每增加 1 原始单位，响应 yield_pct 变化 -0.4879（CI95 约 [-0.533328, -0.442472]，编码单位）",
+      "factor": "temp",
+      "response": "yield_pct",
+      "threshold": null
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 yield_pct: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "yield_pct"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 16,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "temp": {
+        "min": 82.0,
+        "max": 88.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "4b568466495135cd0eb8550b2fdc5f40bea844080aadd609e1c0f74a53be7f47",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

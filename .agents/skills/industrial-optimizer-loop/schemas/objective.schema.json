@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "objective.schema.json",
+  "title": "Optimizer campaign objective (v1.0) — target-driven small-trial loop spec",
+  "type": "object",
+  "required": ["contract_version", "campaign_id", "target_metric", "goal", "factors", "budget"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "campaign_id": { "type": "string", "pattern": "^OPT-[0-9]{8}-[0-9]{3,}$" },
+    "target_metric": { "type": "string" },
+    "goal": { "enum": ["target", "minimize", "maximize"] },
+    "target_range": { "type": ["array", "null"], "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "required when goal=target (O-G1a)" },
+    "tolerance": { "type": ["number", "null"], "description": "goal=minimize/maximize achievement band; mutually exclusive with target_range (O-G1a)" },
+    "weight": { "type": ["number", "null"], "minimum": 0 },
+    "secondary_metrics": {
+      "type": "array",
+      "items": { "type": "object", "required": ["metric", "goal"], "properties": { "metric": { "type": "string" }, "goal": { "enum": ["target", "minimize", "maximize"] }, "lsl": { "type": ["number", "null"] }, "usl": { "type": ["number", "null"] }, "target": { "type": ["number", "null"] }, "weight": { "type": ["number", "null"] } } }
+    },
+    "factors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "enum": ["numeric", "categorical"] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "levels": { "type": ["array", "null"], "items": { "type": "string" } },
+          "unit": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "factor": { "type": ["string", "null"] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "type": { "enum": ["box", "safety", null] },
+          "expr": { "type": ["string", "null"], "description": "safety constraint expression, e.g. 'reactor_pressure < 0.8 MPa'" },
+          "hard": { "type": ["boolean", "null"], "description": "safety limits absolute priority (O-G5)" },
+          "source": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": ["max_rounds", "max_trials"],
+      "properties": {
+        "max_rounds": { "type": "integer", "minimum": 1 },
+        "max_trials": { "type": "integer", "minimum": 1, "description": "counts design points; replicates budgeted separately" },
+        "trials_per_round": { "type": ["array", "null"], "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+        "deadline": { "type": ["string", "null"] }
+      }
+    },
+    "noise": {
+      "type": ["object", "null"],
+      "properties": {
+        "replicates_for_sigma": { "type": ["integer", "null"], "minimum": 2 },
+        "known_sigma": { "type": ["number", "null"] }
+      }
+    },
+    "prior": {
+      "type": ["object", "null"],
+      "properties": {
+        "doe_analyzer_run_dir": { "type": ["string", "null"] },
+        "history_csv": { "type": ["string", "null"] },
+        "tuning_memory_query": { "type": ["string", "null"] }
+      }
+    },
+    "execution": {
+      "type": ["object", "null"],
+      "properties": {
+        "executor": { "type": ["string", "null"] },
+        "callback_url": { "type": ["string", "null"] }
+      }
+    },
+    "convergence_mode": { "enum": ["in_range", "desirability"], "description": "USER DECISION: dual gate is fixed default (in_range AND D>=0.8*D_max); field reserved for future relaxation" },
+    "seed": { "type": ["integer", "null"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "goal": { "const": "target" } }, "required": ["goal"] },
+      "then": { "required": ["target_range"] }
+    },
+    {
+      "if": { "properties": { "goal": { "enum": ["minimize", "maximize"] } }, "required": ["goal"] },
+      "then": { "not": { "required": ["target_range"] } }
+    }
+  ]
+}

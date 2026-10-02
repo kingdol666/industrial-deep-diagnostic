@@ -541,6 +541,21 @@ function normalizeSystemEvent(ev) {
   if (subtype === 'continue') {
     return { kind: 'system', key: `system:${ev._seq}`, title: t('messageStream.sys_continue'), text: ev.data?.message || t('messageStream.sys_continueDefault'), level: 'important', details: [] };
   }
+  if (subtype === 'run_dir') {
+    // Render the run directory as a readable path — never raw JSON.
+    const dir = ev.data?.runDir || ev.data?.run_dir || '';
+    const parts = String(dir).split(/[/\\]/).filter(Boolean);
+    const base = parts.pop() || dir;
+    return {
+      kind: 'system',
+      key: `system:${ev._seq}`,
+      aggregateKey: 'system:run-dir',
+      title: t('messageStream.sys_runDir'),
+      text: base,
+      level: 'normal',
+      details: dir && dir !== base ? [dir] : [],
+    };
+  }
   if (subtype === 'chat_sent') {
     return { kind: 'system', key: `system:${ev._seq}`, title: t('messageStream.sys_chatSent'), text: (ev.data?.message || '').slice(0, 200), level: 'normal', details: [] };
   }

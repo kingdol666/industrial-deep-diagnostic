@@ -7,7 +7,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/工艺数据进行 9 阶段根因分析 + E0-E8 增强分析管线。核心架构包含四大部分：
 
 1. **Skills** (`.claude/skills/`) — 18 个标准化 Skill（OMP 经 `claude` provider 发现）+ JSON Schema 验证 + 脚本工具链
-2. **OMP Agents** (`.omp/agents/`) — 15 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤（`doe-analyst` 为独立分析代理，不属于 9 步诊断管线）
+2. **OMP Agents** (`.omp/agents/`) — 16 个专用子代理（OMP task-agent 唯一发现源），每个对应管线的一个步骤（`doe-analyst` 为独立分析代理，`optimizer-pilot` 为闭环寻优解读代理，均不属于 9 步诊断管线）
 3. **Web 应用** — Express.js 后端 (port 3210) + Vue 3 / Vite 前端 (port 5180)
 4. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI 微服务 (port 8764)
 
@@ -51,6 +51,7 @@ Industrial Deep Diagnostic — 端到端工业深度诊断系统，对传感器/
 | enhanced-visualizer | 增强 HTML 可视化 (E7b) | leaf | read, write, bash, glob, grep |
 | enhanced-html-reviewer | 增强 HTML 审校 (E7c) | leaf | read, write, bash, glob, grep |
 | doe-analyst | DOE/工况数据分析（独立，非管线步骤） | leaf | read, write, bash, glob, grep |
+| optimizer-pilot | 闭环寻优会话解读（独立，非管线步骤；sentinel/tuning-memory/optimizer-loop 闭环三件套） | leaf | read, write, bash, glob, grep |
 
 ## Skill Directory Convention
 

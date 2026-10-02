@@ -1,0 +1,45 @@
+{
+  "contract_version": "1.0",
+  "recommendation_id": "REC-20261001-143717-322",
+  "generated_at": "2026-10-01T14:37:17.158Z",
+  "source": {
+    "fault_signature": {
+      "signature_version": "1.0",
+      "source_ref": "ALT-20261001-142408-000",
+      "anomalous_params": [
+        {
+          "parameter": "temp",
+          "direction": "high",
+          "severity": null
+        }
+      ],
+      "regime": {
+        "product": "PA",
+        "machine": "L1",
+        "regime_label": "S1"
+      },
+      "degraded_metric": "yield_pct"
+    },
+    "trigger_alert_id": "ALT-20261001-142408-000",
+    "campaign_id": null
+  },
+  "recommendation_status": "no_playbook_hit",
+  "match_scope": null,
+  "degradation_path": [
+    "regime: 0 candidates",
+    "product: 0 candidates",
+    "machine: 0 candidates",
+    "generic: 0 candidates",
+    "-> no_playbook_hit (本地经验库为空)"
+  ],
+  "playbooks": [],
+  "final_setpoints": null,
+  "fallback": {
+    "doe_analyzer_hint": "本地经验库无可用命中：建议 (1) 对该工况数据运行 industrial-doe-analyzer 观察模式分析以积累首个窗口经验；或 (2) 由 AWS 侧经 kb_agent 查询知识库宽知识后再决策。"
+  },
+  "ack": null,
+  "provenance": {
+    "script_version": "match_playbook/1.0",
+    "authored_by": "script"
+  }
+}

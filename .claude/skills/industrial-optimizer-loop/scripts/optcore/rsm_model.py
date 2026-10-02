@@ -264,7 +264,9 @@ def propose_poly_refine(quad_model, specs, domain_numeric, batch, seed=42,
 
     best = refine_optimum({primary: _predict_raw}, primary_spec, infos,
                           [f"x{i}" for i in range(k)], {}, primary_grid)
-    pts = [dict(zip(names, best["coded"])), dict(zip(names, center))]
+    # refine_optimum returns coded as a {name: value} dict — use it directly;
+    # zip(names, dict) would iterate the KEYS and yield {"x0": "x0", ...}
+    pts = [dict(best["coded"]), dict(zip(names, center))]
     from .gp import lhs_uniform
     fill = 2.0 * lhs_uniform(max(batch - 2, 0), k, seed + 1) - 1.0
     for row in fill:

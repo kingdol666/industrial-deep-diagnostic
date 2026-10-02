@@ -801,6 +801,20 @@ a { color: inherit; }
   flex-direction: column;
 }
 
+/* 闭环控制台：满高独立滚动（同本体页范式） */
+.app-content-closedloop {
+  overflow: hidden;
+  padding: 8px 12px 10px;
+}
+
+.app-content-closedloop .app-view-frame.closedloop-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    PRIMITIVES — cards, buttons, badges, inputs
    ═══════════════════════════════════════════════════════════════════════ */

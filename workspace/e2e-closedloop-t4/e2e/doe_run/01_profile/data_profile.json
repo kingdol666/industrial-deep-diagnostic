@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-10-01T14:24:05.611984+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-closedloop-t4\\e2e\\doe_run\\00_input\\data.csv",
+  "n_rows": 16,
+  "n_cols": 4,
+  "columns": [
+    {
+      "name": "temp",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 16,
+      "notes": ""
+    },
+    {
+      "name": "press",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 16,
+      "notes": ""
+    },
+    {
+      "name": "rate",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 16,
+      "notes": ""
+    },
+    {
+      "name": "yield_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 16,
+      "n_missing": 0,
+      "n_valid": 16,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "yield_pct"
+    ],
+    "factors": [
+      "temp",
+      "press",
+      "rate"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": []
+  },
+  "design": {
+    "n_runs": 16,
+    "n_factor_cols": 3,
+    "n_distinct_combos": 8,
+    "balanced": true,
+    "balance_ratio": 1.0,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": null,
+    "axial_points": null,
+    "alpha_axial": null,
+    "replicates": 2,
+    "detection_notes": [
+      "all 8 level combos present and balanced"
+    ],
+    "design_type": "full_factorial",
+    "mode": "designed"
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

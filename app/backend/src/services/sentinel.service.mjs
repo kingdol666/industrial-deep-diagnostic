@@ -15,7 +15,7 @@ import { existsSync } from 'fs';
 import { createHash } from 'crypto';
 import {
   closedloopRoot, ensureDir, readJsonSafe, writeJson,
-  TaskTable, uvPython, tail,
+  TaskTable, uvPython, tail, resolveServerPath,
 } from './closedloop.util.mjs';
 
 const SKILL_SCRIPTS = '.claude/skills/industrial-sentinel/scripts';
@@ -62,12 +62,13 @@ function requireExistingFile(value, name, { optional = false } = {}) {
     err.status = 400;
     throw err;
   }
-  if (!existsSync(String(value))) {
+  const resolved = resolveServerPath(value);
+  if (!existsSync(resolved)) {
     const err = new Error(`${name} not found: ${value}`);
     err.status = 400;
     throw err;
   }
-  return String(value);
+  return resolved;
 }
 
 /** 读快筛/批筛产出的 alert.json，裁成 HTTP 摘要（原文件路径一并回传）。 */
@@ -243,7 +244,8 @@ export function submitBaseline({ line, history_csv, doe_run_dir = null, time_col
     throw err;
   }
   const historyAbs = requireExistingFile(history_csv, 'history_csv');
-  if (doe_run_dir && !existsSync(String(doe_run_dir))) {
+  const doeDir = doe_run_dir ? resolveServerPath(doe_run_dir) : null;
+  if (doe_run_dir && (!doeDir || !existsSync(doeDir))) {
     const err = new Error(`doe_run_dir not found: ${doe_run_dir}`);
     err.status = 400;
     throw err;
@@ -255,13 +257,13 @@ export function submitBaseline({ line, history_csv, doe_run_dir = null, time_col
 
   (async () => {
     const args = ['--history-csv', historyAbs, '--out', outPath];
-    if (doe_run_dir) args.push('--doe-run-dir', String(doe_run_dir));
+    if (doeDir) args.push('--doe-run-dir', doeDir);
     if (time_col) args.push('--time-col', String(time_col));
     if (group_col) args.push('--group-col', String(group_col));
     const proc = await uvPython(join(SKILL_SCRIPTS, 'build_baseline.py'), args, { timeoutMs: 120000 });
     const code = Number(proc.code ?? -1);
     if (code === 0 && existsSync(outPath)) {
-      registerBaseline(line, { baseline_path: outPath, history_csv: historyAbs, doe_run_dir });
+      registerBaseline(line, { baseline_path: outPath, history_csv: historyAbs, doe_run_dir: doeDir });
     }
     baselineTasks.markDone(task.task_id, {
       code,

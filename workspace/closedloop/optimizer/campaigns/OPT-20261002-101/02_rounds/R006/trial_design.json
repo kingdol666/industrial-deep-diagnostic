@@ -1,0 +1,53 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261002-101",
+  "round_id": "R006",
+  "phase": "exploit",
+  "method": "gp_ei",
+  "trials": [
+    {
+      "trial_id": "R006-T01",
+      "setpoints": {
+        "press": 0.555248,
+        "temp": 85.059127
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.052241,
+      "expected": {
+        "yield_pct": {
+          "mean": 100.000124,
+          "ci95": [
+            99.999549,
+            100.000699
+          ]
+        }
+      },
+      "predicted_D": 0.181705,
+      "selection_reason": "gp_ei pick (EI=5.963e-05, path=mc_desirability); gp_ei; dup_to_existing=False; nearest_data_coded=0.052",
+      "ei": 6e-05,
+      "ucb": 100.000699
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -43.749376,
+    "lengthscales": {
+      "x0": 0.693147,
+      "x1": 0.693147
+    },
+    "sigma_noise": 9.2e-05,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "ff1f1762d3fb1670a8292a5a457aae1ade4875ef25f6001d49eabe3df503fc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

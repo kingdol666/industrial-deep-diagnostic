@@ -1,0 +1,80 @@
+{
+  "contract_version": "1.0",
+  "recommendation_id": "REC-20261001-144151-013",
+  "generated_at": "2026-10-01T14:41:51.976Z",
+  "source": {
+    "fault_signature": {
+      "signature_version": "1.0",
+      "source_ref": "ALT-20261001-142408-000",
+      "anomalous_params": [
+        {
+          "parameter": "temp",
+          "direction": "high",
+          "severity": null
+        }
+      ],
+      "regime": {
+        "product": "PA",
+        "machine": "L1",
+        "regime_label": "S1"
+      },
+      "degraded_metric": "yield_pct"
+    },
+    "trigger_alert_id": "ALT-20261001-142408-000",
+    "campaign_id": null
+  },
+  "recommendation_status": "playbook_hit",
+  "match_scope": "regime",
+  "degradation_path": [
+    "regime: best 1.0000 (exp_tuning_action_effect_PA|L1|S1_aff312e4d8d9ab9b)",
+    "-> playbook_hit @regime"
+  ],
+  "playbooks": [
+    {
+      "experience_id": "exp_tuning_action_effect_PA|L1|S1_aff312e4d8d9ab9b",
+      "action_sequence": [
+        {
+          "parameter": "temp",
+          "to": 88,
+          "to_level": null,
+          "unit": "degC",
+          "step_order": 1,
+          "expected_effect": {
+            "delta": 0.0495072413792883,
+            "ci95": [
+              -0.3042232379423473,
+              0.4032377207009239
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": 0.0495072413792883,
+        "ci95": [
+          -0.3042232379423473,
+          0.4032377207009239
+        ],
+        "metric": "yield_pct",
+        "direction_established": false
+      },
+      "evidence_grade": "E0",
+      "corroboration_count": 1,
+      "refutation_count": 0,
+      "provenance_alias": "eng_14",
+      "invalidation_conditions": [
+        "CI95 跨 0——效应方向未确立，仅作观察记录",
+        "效果窗被截断，未观察到完全整定，效应量可能被低估",
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 1,
+      "autonomy_level": null
+    }
+  ],
+  "final_setpoints": null,
+  "fallback": null,
+  "ack": null,
+  "provenance": {
+    "script_version": "match_playbook/1.0",
+    "authored_by": "script"
+  }
+}

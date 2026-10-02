@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-10-01T14:24:06.624929+00:00",
+  "analysis_mode": "designed",
+  "design_type": "full_factorial",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": true,
+    "model_adequacy_ok": true,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "因子/项 temp 对响应 yield_pct 存在负向效应：编码系数 -1.4637，q(BH)=2.899617685477076e-08，partial η²=0.980867",
+      "evidence_refs": [
+        "effect_table.json#yield_pct.temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 2.899617685477076e-08
+    },
+    {
+      "id": "KF-002",
+      "statement": "因子/项 press:rate 对响应 yield_pct 存在正向效应：编码系数 0.110913，q(BH)=0.4141072102201704，partial η²=0.227423",
+      "evidence_refs": [
+        "effect_table.json#yield_pct.press:rate"
+      ],
+      "confidence": "medium",
+      "fdr_q": 0.4141072102201704
+    }
+  ],
+  "limitations": [
+    "响应 yield_pct 的最大 Cook's D=0.275806 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论"
+  ],
+  "figure_index": [
+    {
+      "file": "pareto_yield_pct.png",
+      "title": "Pareto of standardized effects — yield_pct"
+    },
+    {
+      "file": "residuals_yield_pct.png",
+      "title": "Residual diagnostics — yield_pct"
+    },
+    {
+      "file": "main_effects_yield_pct.png",
+      "title": "Main effects — yield_pct"
+    },
+    {
+      "file": "contour_yield_pct.png",
+      "title": "Predicted response contour — yield_pct (top-Pareto pair temp x press)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 1,
+    "n_confirmations": 1,
+    "n_watchlist": 3,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0",
+  "recommendation_id": "REC-20261001-120000-001",
+  "generated_at": "2026-10-01T12:00:00.000Z",
+  "source": {
+    "fault_signature": {
+      "signature_version": "1.0",
+      "source_ref": "alert-20261001-115500-001",
+      "anomalous_params": [
+        {
+          "parameter": "mill_pressure_setpoint",
+          "direction": "low",
+          "severity": 2.8
+        }
+      ],
+      "regime": {
+        "product": "P42-cement",
+        "machine": "M07-ball-mill",
+        "regime_label": "R1-high-throughput"
+      },
+      "degraded_metric": "fineness"
+    },
+    "trigger_alert_id": "alert-20261001-115500-001",
+    "campaign_id": null
+  },
+  "recommendation_status": "playbook_hit",
+  "match_scope": "regime",
+  "degradation_path": [
+    "regime: best 0.8500 (exp_tuning_action_effect_P42|M07|_ab12cd34)",
+    "-> playbook_hit @regime"
+  ],
+  "playbooks": [
+    {
+      "experience_id": "exp_tuning_action_effect_P42|M07|_ab12cd34",
+      "action_sequence": [
+        {
+          "parameter": "mill_pressure_setpoint",
+          "to": 6.8,
+          "to_level": null,
+          "unit": "kPa",
+          "step_order": 1,
+          "expected_effect": {
+            "delta": 1.42,
+            "ci95": [
+              0.61,
+              2.23
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": 1.42,
+        "ci95": [
+          0.61,
+          2.23
+        ],
+        "metric": "fineness",
+        "direction_established": true
+      },
+      "evidence_grade": "E1",
+      "corroboration_count": 1,
+      "refutation_count": 0,
+      "provenance_alias": "eng_17",
+      "invalidation_conditions": [
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 0.85,
+      "autonomy_level": null
+    }
+  ],
+  "final_setpoints": null,
+  "fallback": null,
+  "ack": null,
+  "provenance": {
+    "script_version": "match_playbook/1.0",
+    "authored_by": "script"
+  },
+  "autonomy_level": "auto_within_guardrails"
+}

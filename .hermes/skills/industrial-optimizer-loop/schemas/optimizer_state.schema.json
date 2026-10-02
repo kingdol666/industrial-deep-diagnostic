@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "optimizer_state.schema.json",
+  "title": "Optimizer campaign state (v1.0) — session memory; converged requires dual gate",
+  "type": "object",
+  "required": ["state_version", "campaign_id", "phase", "round_count", "budget", "incumbent", "next_action", "provenance"],
+  "properties": {
+    "state_version": { "const": "1.0" },
+    "campaign_id": { "type": "string" },
+    "objective_ref": { "type": ["string", "null"] },
+    "objective_sha256": { "type": ["string", "null"] },
+    "phase": { "enum": ["initialized", "exploring", "exploiting", "confirming", "converged", "paused", "exhausted", "aborted"] },
+    "round_count": { "type": "integer", "minimum": 0 },
+    "trial_count": { "type": "integer", "minimum": 0 },
+    "budget": {
+      "type": "object",
+      "required": ["max_rounds", "max_trials"],
+      "properties": {
+        "max_rounds": { "type": "integer" },
+        "max_trials": { "type": "integer" },
+        "deadline": { "type": ["string", "null"] },
+        "rounds_used": { "type": "integer" },
+        "trials_used": { "type": "integer" },
+        "replicates_used": { "type": "integer" }
+      }
+    },
+    "incumbent": {
+      "type": ["object", "null"],
+      "properties": {
+        "setpoints": { "type": "object" },
+        "measured": { "type": "object", "additionalProperties": { "type": "object", "properties": { "mean": { "type": "number" }, "sd": { "type": ["number", "null"] }, "n": { "type": "integer" } } } },
+        "in_target": { "type": "boolean" },
+        "predicted_D": { "type": ["number", "null"] },
+        "round_id": { "type": ["string", "null"] }
+      }
+    },
+    "target_status": {
+      "type": ["object", "null"],
+      "properties": {
+        "hit_ratio_history": { "type": "array", "items": { "type": "number" } },
+        "ci_in_limits": { "type": ["boolean", "null"] },
+        "desirability_gate": { "type": ["boolean", "null"], "description": "D(x)>=0.8*D_max — dual-gate second condition (USER DECISION)" }
+      }
+    },
+    "model": {
+      "type": ["object", "null"],
+      "properties": {
+        "kind": { "type": ["string", "null"] },
+        "fallback_active": { "type": ["boolean", "null"] },
+        "data_n": { "type": ["integer", "null"] },
+        "noise_source": { "enum": ["replicates", "known_sigma", "residual_pool", null] },
+        "fit_quality": { "type": ["object", "null"], "properties": { "log_ml": { "type": ["number", "null"] }, "cond_K": { "type": ["number", "null"] } } }
+      }
+    },
+    "belief": {
+      "type": ["object", "null"],
+      "properties": {
+        "stall_rounds": { "type": ["integer", "null"] },
+        "max_ei_last": { "type": ["number", "null"] },
+        "duplication_ratio": { "type": ["number", "null"] },
+        "domain_coverage": { "type": ["number", "null"] }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": { "type": "object", "required": ["round_id"], "properties": { "round_id": { "type": "string" }, "phase": { "type": "string" }, "method": { "type": "string" }, "n_trials": { "type": "integer" }, "best_D": { "type": ["number", "null"] }, "failures": { "type": "integer" }, "notes": { "type": ["string", "null"] } } }
+    },
+    "next_action": {
+      "type": "object",
+      "required": ["recommendation"],
+      "properties": {
+        "recommendation": { "enum": ["await_results", "continue_exploit", "enter_confirm", "resume_exploit", "stop", "needs_human"] },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "agent_review_required": { "type": "boolean" }
+      }
+    },
+    "stop_resume": { "type": ["object", "null"], "properties": { "can_pause": { "type": "boolean" }, "resume_hint": { "type": ["string", "null"] } } },
+    "guardrail_log": { "type": "array", "items": { "type": "object", "required": ["code"], "properties": { "code": { "type": "string" }, "ts": { "type": "string" }, "detail": { "type": "string" } } } },
+    "provenance": {
+      "type": "object",
+      "required": ["script_version", "authored_by"],
+      "properties": {
+        "input_sha256": { "type": ["string", "null"] },
+        "script_version": { "type": "string" },
+        "seed": { "type": ["integer", "null"] },
+        "authored_by": { "enum": ["script", "agent"] }
+      }
+    }
+  }
+}

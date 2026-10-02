@@ -1,0 +1,161 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T14:24:08.014828+00:00",
+  "generated_from": {
+    "doe_recommendations_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-closedloop-t4\\e2e\\doe_run\\conclusions\\recommendations.json",
+    "doe_run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-closedloop-t4\\e2e\\doe_run",
+    "history_csv_sha256": "a913b353c9d98d1ec573a4ebfe003d81952d672a76426ba4e3702684604c0b25",
+    "recommendations_contract_version": "1.0"
+  },
+  "global": {
+    "time_col": "t",
+    "group_col": null,
+    "numeric_columns": [
+      "temp",
+      "press",
+      "rate"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "temp": {
+          "center": 84.9999883375,
+          "sigma_within_mr": 0.028637400597060447,
+          "sigma_overall": 0.01799584880070541,
+          "median": 84.9999,
+          "mad": 0.016199999999997772,
+          "q10": 84.9771,
+          "q90": 85.0228,
+          "cv": 0.00021171589729225955,
+          "variance_ratio_baseline_std": 0.01799584880070541
+        },
+        "press": {
+          "center": 0.60000128625,
+          "sigma_within_mr": 0.0007110895510875016,
+          "sigma_overall": 0.00044879158280491005,
+          "median": 0.6,
+          "mad": 0.00040000000000006697,
+          "q10": 0.59943,
+          "q90": 0.60057,
+          "cv": 0.0007479843678500281,
+          "variance_ratio_baseline_std": 0.00044879158280491005
+        },
+        "rate": {
+          "center": 119.99994475,
+          "sigma_within_mr": 0.053175086602139175,
+          "sigma_overall": 0.03351416636820903,
+          "median": 120.0,
+          "mad": 0.030000000000001137,
+          "q10": 119.957,
+          "q90": 120.043,
+          "cv": 0.0002792848483224742,
+          "variance_ratio_baseline_std": 0.03351416636820903
+        }
+      },
+      "indicators": {
+        "yield_pct": {
+          "lsl": null,
+          "usl": null,
+          "target": null,
+          "goal": "maximize"
+        }
+      },
+      "operating_windows": [
+        {
+          "id": "OW-001",
+          "priority": 1,
+          "factor": "temp",
+          "factor_unit": null,
+          "response": "yield_pct",
+          "range": [
+            82.0,
+            82.75
+          ],
+          "shape": "disconnected",
+          "expected_effect": {
+            "delta": -0.4879,
+            "direction_semantics": "因子 temp 每增加 1 个原始单位，响应 yield_pct 变化约 -0.4879（编码主效应 -1.4637/半极差 3.0）",
+            "ci95": null,
+            "unit": "response units"
+          },
+          "confidence": "high",
+          "fdr_q": 2.899617685477076e-08,
+          "sample_size": 16,
+          "evidence_refs": [
+            "effect_table.json#yield_pct.temp.main"
+          ],
+          "extrapolation": true,
+          "confirmation_needed": false,
+          "notes": null
+        }
+      ],
+      "applicability_domain": {
+        "n_rows": 16,
+        "time_span": null,
+        "regime": "designed region",
+        "factor_observed_ranges": {
+          "temp": {
+            "min": 82.0,
+            "max": 88.0
+          }
+        }
+      },
+      "correlation": {
+        "cols": [
+          "temp",
+          "press",
+          "rate"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.8030253409789506,
+          0.8024408945415119,
+          0.8030253409789506,
+          1.0,
+          0.7988945097063034,
+          0.8024408945415119,
+          0.7988945097063033,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.8030253409789506,
+          0.5959448814660967,
+          0.0,
+          0.8024408945415119,
+          0.2592758853327643,
+          0.5374612786539412
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 8000,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.133h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": [
+          "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+          "stability_report 变点检测触发新 regime（漂移/换产）",
+          "确认试验结果与 expected_effect 的 CI95 不相交"
+        ]
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "a913b353c9d98d1ec573a4ebfe003d81952d672a76426ba4e3702684604c0b25",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

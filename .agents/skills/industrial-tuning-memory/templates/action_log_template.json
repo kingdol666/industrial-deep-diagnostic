@@ -1,0 +1,49 @@
+{
+  "_template_note": "action_log v1.0 模板（占位值仅为示例，实际值由工程师/控制系统/回写链路提供）。单条日志 = 一个动作事件（bundle 即归因单元，≤10 个参数）。必填：ts / actor / actions / context。",
+  "schema_version": "1.0",
+  "action_log_id": null,
+  "ts": "2026-01-15T08:00:00Z",
+  "actor": {
+    "actor_id": "ENG-RAW-ID-OR-SYSTEM-NAME",
+    "actor_type": "engineer",
+    "display_alias": null
+  },
+  "actions": [
+    {
+      "parameter": "mill_pressure_setpoint",
+      "from": 6.2,
+      "to": 6.8,
+      "to_level": null,
+      "unit": "kPa"
+    }
+  ],
+  "bundled_action": {
+    "is_bundle": false,
+    "bundle_reason": "single",
+    "note": null
+  },
+  "context": {
+    "product": "P42-cement",
+    "machine": "M07-ball-mill",
+    "regime_label": "R1-high-throughput",
+    "steady_segment_ref": null,
+    "group_key": null
+  },
+  "trigger": {
+    "trigger_type": "manual",
+    "ref_id": null
+  },
+  "outcome": {
+    "metric": "fineness",
+    "before_window": null,
+    "after_window": null,
+    "observed_trajectory": "not_observed",
+    "observed_by": null
+  },
+  "attribution_confounds": [],
+  "recommendation_ref": null,
+  "ingest_meta": {
+    "source": "api",
+    "ingested_at": null
+  }
+}

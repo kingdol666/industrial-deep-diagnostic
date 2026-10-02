@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-10-01T14:24:28.085Z",
+  "history": [
+    {
+      "ts": "2026-10-01T14:24:10.370Z",
+      "chunk_id": "exp_tuning_action_effect_PA|L1|S1_aff312e4d8d9ab9b",
+      "result": "build",
+      "note": null
+    },
+    {
+      "ts": "2026-10-01T14:24:10.371Z",
+      "chunk_id": "exp_fault_control_recipe_PA|L1|S1_9150a86409f94269",
+      "result": "build_recipe",
+      "note": null
+    },
+    {
+      "ts": "2026-10-01T14:24:10.371Z",
+      "chunk_id": "exp_tuning_action_effect_PA|L1|S1_bec898521d097f26",
+      "result": "build",
+      "note": null
+    },
+    {
+      "ts": "2026-10-01T14:24:28.076Z",
+      "chunk_id": "exp_fault_control_recipe_PA|L1|S1_9150a86409f94269",
+      "result": "effective",
+      "note": "T4 e2e: optimizer recipe confirmed effective"
+    }
+  ],
+  "counters": {
+    "exp_tuning_action_effect_PA|L1|S1_aff312e4d8d9ab9b": {
+      "corroboration": 1,
+      "refutation": 0
+    },
+    "exp_fault_control_recipe_PA|L1|S1_9150a86409f94269": {
+      "corroboration": 2,
+      "refutation": 0
+    },
+    "exp_tuning_action_effect_PA|L1|S1_bec898521d097f26": {
+      "corroboration": 1,
+      "refutation": 0
+    }
+  }
+}

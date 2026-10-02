@@ -1,0 +1,49 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "yield_pct",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "temp",
+      "type": "numeric"
+    },
+    {
+      "col": "press",
+      "type": "numeric"
+    },
+    {
+      "col": "rate",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": null,
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "T4 e2e physical-unit factorial"
+    ]
+  },
+  "_predictor_cols": [
+    "temp",
+    "press",
+    "rate"
+  ]
+}

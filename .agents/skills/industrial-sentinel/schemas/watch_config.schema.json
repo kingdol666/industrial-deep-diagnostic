@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "watch_config.schema.json",
+  "title": "Sentinel watch configuration (user input, all thresholds optional with defaults)",
+  "type": "object",
+  "required": [],
+  "properties": {
+    "baseline_path": { "type": ["string", "null"] },
+    "time_col": { "type": ["string", "null"] },
+    "group_col": { "type": ["string", "null"] },
+    "parameters": { "type": "array", "items": { "type": "string" } },
+    "indicators": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "spc": { "type": "boolean" },
+        "window_projection": { "type": "boolean" },
+        "regime": { "type": "boolean" },
+        "multivariate": { "type": ["boolean", "string"], "enum": [true, false, "robust_z_only"] }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "run_length_r2": { "type": "integer", "minimum": 5 },
+        "run_length_r3": { "type": "integer", "minimum": 4 },
+        "r5_count": { "type": "integer", "minimum": 2 },
+        "r5_of": { "type": "integer", "minimum": 3 },
+        "r6_count": { "type": "integer", "minimum": 3 },
+        "r6_of": { "type": "integer", "minimum": 4 },
+        "min_points": { "type": "integer", "minimum": 5 },
+        "robust_z_limit": { "type": "number" },
+        "mahalanobis_q": { "type": "number", "minimum": 0.9, "maximum": 0.9999 },
+        "variance_ratio_high": { "type": "number" },
+        "hours_warn": { "type": "number" },
+        "hours_alarm": { "type": "number" },
+        "abnormal_ratio_warn": { "type": "number" },
+        "abnormal_ratio_critical": { "type": "number" },
+        "suppression": {
+          "type": "object",
+          "properties": {
+            "suppress_window_minutes": { "type": "integer" },
+            "hysteresis_points": { "type": "integer" },
+            "post_changepoint_quiet_rows": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

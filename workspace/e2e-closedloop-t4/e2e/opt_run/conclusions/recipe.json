@@ -1,0 +1,60 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261001-001",
+  "regime_key": "yield_pct_2f_target",
+  "final_setpoints": {
+    "press": 0.559759,
+    "temp": 82.0
+  },
+  "achieved": {
+    "yield_pct": {
+      "mean": 98.94896666666666,
+      "sd": 0.15378837190545933,
+      "n": 3,
+      "ci95_one_sided": [
+        98.68970185386344,
+        99.20823147946989
+      ],
+      "values": [
+        98.7972,
+        99.1047,
+        98.945
+      ]
+    }
+  },
+  "guardrails": {
+    "temp": {
+      "value": 82.0,
+      "envelope": [
+        82.0,
+        82.15
+      ]
+    },
+    "press": {
+      "value": 0.559759,
+      "envelope": [
+        0.5572590000000001,
+        0.562259
+      ]
+    }
+  },
+  "verification_status": "verified",
+  "dual_gate": {
+    "replicates_in_window": true,
+    "ci_in_limits": true,
+    "desirability_gate": true,
+    "D": 0.862697,
+    "D_max": 0.995182
+  },
+  "usage_rules": [
+    "本文件为纯分析建议（advisory），IDD 不下发参数；执行决策由 AWS 侧做出",
+    "仅在 guardrails 包络内、非外推点直接复用；越包络或越支撑需重新验证",
+    "regime_key 场景化复用；跨工况使用前必须重新验证"
+  ],
+  "provenance": {
+    "script_version": "1.0.0",
+    "input_sha256": "c958d4f4009eea769de24246c114734fdf124b1b2d1de8058b1d80753fc4bc70",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

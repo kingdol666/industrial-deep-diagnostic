@@ -1,0 +1,32 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261002-101",
+  "round_id": "R004",
+  "phase": "explore",
+  "method": "poly_refine",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "setpoints": {
+        "press": 0.620319,
+        "temp": 83.237472
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.414093,
+      "selection_reason": "poly_refine: GP ill-conditioned — quadratic model (R2=1.000) optimum + LHS filler; poly_refine; dup_to_existing=False; nearest_data_coded=0.19"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "ff1f1762d3fb1670a8292a5a457aae1ade4875ef25f6001d49eabe3df503fc70",
+    "script_version": "1.0.0",
+    "seed": 7,
+    "authored_by": "script"
+  }
+}

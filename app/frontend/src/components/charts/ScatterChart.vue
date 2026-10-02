@@ -28,7 +28,6 @@ const chartOption = computed(() => {
   const xData = (props.data || []).map((d) => d[props.xField]);
   const yData = (props.data || []).map((d) => d[props.yField]);
 
-  const allVals = [...xData, ...yData].filter((v) => typeof v === 'number');
   const xMin = Math.min(...xData);
   const xMax = Math.max(...xData);
   const yMin = Math.min(...yData);

@@ -1,0 +1,198 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-266",
+  "round_id": "R002",
+  "phase": "exploit",
+  "method": "rsm_augment",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "setpoints": {
+        "press": 0.587749,
+        "temp": 83.742629
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.75387,
+      "expected": {
+        "yield_pct": {
+          "mean": 100.116201,
+          "ci95": [
+            99.610575,
+            100.621827
+          ]
+        }
+      },
+      "predicted_D": 0.076181,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.202"
+    },
+    {
+      "trial_id": "R002-T02",
+      "setpoints": {
+        "press": 0.587749,
+        "temp": 85.542629
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.262267,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.406147,
+          "ci95": [
+            99.005984,
+            99.806309
+          ]
+        }
+      },
+      "predicted_D": 0.721685,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.057"
+    },
+    {
+      "trial_id": "R002-T03",
+      "setpoints": {
+        "press": 0.587749,
+        "temp": 82.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.511798,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.426292,
+          "ci95": [
+            98.800921,
+            100.051664
+          ]
+        }
+      },
+      "predicted_D": 0.703371,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.512"
+    },
+    {
+      "trial_id": "R002-T04",
+      "setpoints": {
+        "press": 0.617749,
+        "temp": 83.742629
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.561249,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.914501,
+          "ci95": [
+            99.534314,
+            100.294689
+          ]
+        }
+      },
+      "predicted_D": 0.259545,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.179"
+    },
+    {
+      "trial_id": "R002-T05",
+      "setpoints": {
+        "press": 0.557749,
+        "temp": 83.742629
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.241628,
+      "expected": {
+        "yield_pct": {
+          "mean": 100.171047,
+          "ci95": [
+            99.349636,
+            100.992457
+          ]
+        }
+      },
+      "predicted_D": 0.026321,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.672"
+    },
+    {
+      "trial_id": "R002-T06",
+      "setpoints": {
+        "press": 0.557749,
+        "temp": 82.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.111421,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.529183,
+          "ci95": [
+            98.481323,
+            100.577043
+          ]
+        }
+      },
+      "predicted_D": 0.609834,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=1.009"
+    },
+    {
+      "trial_id": "R002-T07",
+      "setpoints": {
+        "press": 0.617749,
+        "temp": 82.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.092827,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.245072,
+          "ci95": [
+            98.824252,
+            99.665892
+          ]
+        }
+      },
+      "predicted_D": 0.868116,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.093"
+    },
+    {
+      "trial_id": "R002-T08",
+      "setpoints": {
+        "press": 0.557749,
+        "temp": 85.542629
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.602073,
+      "expected": {
+        "yield_pct": {
+          "mean": 99.3763,
+          "ci95": [
+            98.815546,
+            99.937054
+          ]
+        }
+      },
+      "predicted_D": 0.748818,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=max); rsm_augment; dup_to_existing=False; nearest_data_coded=0.512"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -6.258521,
+    "lengthscales": {
+      "x0": -0.459234,
+      "x1": 0.693147
+    },
+    "sigma_noise": 0.150001,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "379154f3594dd35477820504f8ba566544c72d973facf6137104572c7e683905",
+    "script_version": "1.0.0",
+    "seed": 11,
+    "authored_by": "script"
+  }
+}

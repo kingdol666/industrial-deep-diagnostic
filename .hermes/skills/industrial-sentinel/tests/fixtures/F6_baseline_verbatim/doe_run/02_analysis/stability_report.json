@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-01T00:00:00+00:00",
+  "n_rows": 300,
+  "time_col": null,
+  "capability": [
+    {
+      "response": "quality",
+      "n": 300,
+      "mean": 98.0,
+      "has_specs": true,
+      "lsl": 97.5,
+      "usl": 98.5,
+      "target": 98.0,
+      "sigma_within_mr": 0.02
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 299,
+      "n_rows": 300,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [
+    {
+      "response": "quality",
+      "positions": [
+        120,
+        240
+      ]
+    },
+    {
+      "response": "temp",
+      "positions": [
+        77
+      ]
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": null
+}

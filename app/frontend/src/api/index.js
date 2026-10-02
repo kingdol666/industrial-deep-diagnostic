@@ -124,6 +124,7 @@ export const api = {
   getReport: (name) => request(`/files/workspace/report/${name}`),
   getOptimizer: (name) => request(`/files/workspace/optimizer/${name}`),
   listWorkspaceFiles: (name) => request(`/files/workspace/files/${name}`),
+  getChartData: (dirName) => request(`/analysis/chart-data/${encodeURIComponent(dirName)}`),
 
   // Diagnosis
   startDiagnosis: (params) =>
@@ -290,6 +291,38 @@ export const api = {
     request(`/omp/runs/${encodeURIComponent(name)}/enhancement/${kind}`),
   ompHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/html`,
   ompEnhHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/enhancement/html`,
+
+  // ── Closed-loop console（闭环三件套：sentinel / experience / optimizer）──
+  // 哨兵：基线 / 批筛任务 / 增量快筛 / 基线登记表
+  sentinelBaselines: () => request('/sentinel/baselines'),
+  sentinelBaselineBuild: (params) =>
+    request('/sentinel/baseline', { method: 'POST', body: JSON.stringify(params) }),
+  sentinelWatch: (params) =>
+    request('/sentinel/tasks', { method: 'POST', body: JSON.stringify(params) }),
+  sentinelScreen: (params) =>
+    request('/sentinel/screen', { method: 'POST', body: JSON.stringify(params) }),
+  sentinelTask: (taskId) => request(`/sentinel/tasks/${encodeURIComponent(taskId)}`),
+  // 经验库：动作摄取（异步归因 job）→ 库视图 → 检索 → 反馈
+  experienceIngest: (params) =>
+    request('/experience/actions', { method: 'POST', body: JSON.stringify(params) }),
+  experienceJob: (jobId) => request(`/experience/attribution/${encodeURIComponent(jobId)}`),
+  experienceRecommend: (params) =>
+    request('/experience/recommend', { method: 'POST', body: JSON.stringify(params) }),
+  experienceLibrary: () => request('/experience/library'),
+  experienceFeedback: (params) =>
+    request('/experience/feedback', { method: 'POST', body: JSON.stringify(params) }),
+  // 寻优：campaign 全生命周期
+  optimizerCampaigns: () => request('/optimizer/campaigns'),
+  optimizerCampaign: (objective) =>
+    request('/optimizer/campaign', { method: 'POST', body: JSON.stringify({ objective }) }),
+  optimizerRound: (params) =>
+    request('/optimizer/round', { method: 'POST', body: JSON.stringify(params) }),
+  optimizerState: (campaignId) =>
+    request(`/optimizer/state${campaignId ? `?campaign_id=${encodeURIComponent(campaignId)}` : ''}`),
+  optimizerPause: (campaignId) =>
+    request('/optimizer/pause', { method: 'POST', body: JSON.stringify({ campaign_id: campaignId }) }),
+  optimizerResume: (campaignId) =>
+    request('/optimizer/resume', { method: 'POST', body: JSON.stringify({ campaign_id: campaignId }) }),
 };
 
 // WebSocket URL (same host, port determined at runtime) — 连接时携带 token 鉴权

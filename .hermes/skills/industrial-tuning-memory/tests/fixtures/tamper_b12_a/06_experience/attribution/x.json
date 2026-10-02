@@ -1,0 +1,52 @@
+{
+  "report_version": "1.0",
+  "action_log_id": "x",
+  "bundle_scope": null,
+  "attribution_status": "not_estimable",
+  "reason_code": "min_points",
+  "metric": "y",
+  "segments": {
+    "baseline": {
+      "row_range": [
+        0,
+        10
+      ],
+      "n": 10,
+      "n_eff": 10,
+      "lag1_autocorr": 0.0
+    },
+    "effect": {
+      "row_range": [
+        20,
+        30
+      ],
+      "n": 10,
+      "n_eff": 10,
+      "lag1_autocorr": 0.0,
+      "truncated_by": null
+    },
+    "dead_time_used": 0.0
+  },
+  "effect": {
+    "delta": 1.0,
+    "ci95": [
+      0.5,
+      1.5
+    ],
+    "n_eff_hi": 10,
+    "n_eff_lo": 10,
+    "direction_established": true,
+    "stratified": null
+  },
+  "confound_detected": false,
+  "attribution_compromised": false,
+  "anti_spurious": {
+    "trend_check": "PASS",
+    "outlier_check": "PASS"
+  },
+  "evidence_grade": "E1",
+  "provenance": {
+    "script_version": "tune_stats/1.0",
+    "authored_by": "script"
+  }
+}

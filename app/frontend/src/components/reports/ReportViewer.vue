@@ -416,10 +416,11 @@ async function copyReport() {
 async function fetchChartData(runDir) {
   if (!runDir) return;
   try {
-    const dirName = runDir.replace('workspace/diagnostic-runs/', '');
-    const res = await fetch(`/api/analysis/chart-data/${encodeURIComponent(dirName)}`);
-    const json = await res.json();
-    if (json.success && json.data) chartData.value = json.data;
+    const parts = String(runDir).split(/[/\\]/);
+    const idx = parts.lastIndexOf('diagnostic-runs');
+    const dirName = idx >= 0 ? parts[idx + 1] : parts.filter(Boolean).pop();
+    const json = await api.getChartData(dirName);
+    if (json?.success && json?.data) chartData.value = json.data;
   } catch (err) {
     console.error('Chart fetch failed:', err);
   }
@@ -480,10 +481,23 @@ const renderedReport = computed(() => renderMarkdown(reportContent.value, select
 const renderedOptimizer = computed(() => renderMarkdown(optimizerContent.value, selectedRun.value));
 
 function formatRunName(name) {
+  // Epoch-ms directory prefix (e.g. 1789839637950_smoke) — format as a real date.
+  const epoch = String(name || '').match(/^(\d{13})[._]\s*(.+)/);
+  if (epoch) {
+    const d = new Date(Number(epoch[1]));
+    if (!Number.isNaN(d.getTime())) {
+      const p = (n) => String(n).padStart(2, '0');
+      return `${epoch[2]} (${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())})`;
+    }
+  }
   const match = name.match(/^(\d{4})(\d{2})(\d{2})(\d{1,2})(\d{2})(\d{1,2})[._]\s*(.+)/);
   if (match) {
     const [, y, mo, d, hh, mm, ss, label] = match;
-    return `${label} (${y}-${mo}-${d} ${hh}:${mm})`;
+    // Guard against non-timestamp digit runs (calendar fields must be plausible)
+    if (Number(mo) >= 1 && Number(mo) <= 12 && Number(d) >= 1 && Number(d) <= 31
+        && Number(hh) <= 23 && Number(mm) <= 59 && Number(ss) <= 60) {
+      return `${label} (${y}-${mo}-${d} ${hh}:${mm})`;
+    }
   }
   // Fallback: try UUID-suffix format (scene_abc12345)
   const uuidMatch = name.match(/^(.+?)_([a-f0-9]{8})$/);

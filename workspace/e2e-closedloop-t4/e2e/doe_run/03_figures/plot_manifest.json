@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-01T14:24:06.623926+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_yield_pct.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — yield_pct",
+      "response": "yield_pct",
+      "bytes": 24651,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1132 ok; ink ratio 11.3% across 4 quadrants"
+    },
+    {
+      "file": "residuals_yield_pct.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — yield_pct",
+      "response": "yield_pct",
+      "bytes": 88632,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0947 ok; ink ratio 9.5% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_yield_pct.png",
+      "type": "main_effects",
+      "title": "Main effects — yield_pct",
+      "response": "yield_pct",
+      "bytes": 27937,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0333 ok; ink ratio 3.3% across 4 quadrants"
+    },
+    {
+      "file": "contour_yield_pct.png",
+      "type": "contour",
+      "title": "Predicted response contour — yield_pct (top-Pareto pair temp x press)",
+      "response": "yield_pct",
+      "bytes": 71527,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5046 ok; ink ratio 50.5% across 4 quadrants"
+    }
+  ]
+}

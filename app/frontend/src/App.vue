@@ -178,6 +178,10 @@
           <OntologyView />
         </div>
 
+        <div v-else-if="currentTab === 'closedloop'" class="app-view-frame closedloop-frame">
+          <ClosedLoopView />
+        </div>
+
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
           <OmpRunsView
             :harness-id="harness"
@@ -200,12 +204,13 @@ import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import OntologyView from './components/ontology/OntologyView.vue';
+import ClosedLoopView from './components/closedloop/ClosedLoopView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 import { api, getToken, setToken, setStoredUser, getStoredUser } from './api/index.js';
 import AuthView from './components/auth/AuthView.vue';
 import { toggleLocale } from './i18n/index.js';
 
-const { t, tm } = useI18n();
+const { t } = useI18n();
 
 // ─── 认证状态门禁 ───
 const authed = ref(!!getToken());
@@ -267,6 +272,7 @@ const tabs = computed(() => [
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
   { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
+  { key: 'closedloop', label: t('tabs.closedloop.label'), icon: '∿', kicker: t('tabs.closedloop.kicker'), title: t('tabs.closedloop.title'), description: t('tabs.closedloop.description'), caption: t('tabs.closedloop.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
 ]);
 
@@ -298,6 +304,7 @@ const contentClass = computed(() => ({
   'app-content-chat': currentTab.value === 'chat',
   'app-content-diagnose': currentTab.value === 'diagnose',
   'app-content-ontology': currentTab.value === 'ontology',
+  'app-content-closedloop': currentTab.value === 'closedloop',
 }));
 
 const analysisTargetLabel = computed(() => {

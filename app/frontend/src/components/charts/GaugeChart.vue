@@ -22,10 +22,6 @@ const props = defineProps({
 });
 
 const chartOption = computed(() => {
-  const range = props.max - props.min;
-  const midLow = props.min + range * 0.3;
-  const midHigh = props.min + range * 0.7;
-
   return {
     series: [
       {

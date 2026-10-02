@@ -335,7 +335,7 @@ export function healthCheck(timeoutMs = 3000) {
       state.wsStatus = 'connecting';
       connect();
       // Wait briefly for connection
-      const wait = setTimeout(() => {
+      setTimeout(() => {
         const ok = socket && socket.readyState === WebSocket.OPEN;
         resolve(ok);
       }, timeoutMs);

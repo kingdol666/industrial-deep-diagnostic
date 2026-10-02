@@ -1,0 +1,251 @@
+[
+  {
+    "response": "yield_pct",
+    "n": 16,
+    "df_resid": 9,
+    "mse": 0.074293,
+    "coded_coefficients": {
+      "temp": -1.4637,
+      "press": 0.010962,
+      "rate": 0.002787,
+      "temp:press": 0.060425,
+      "temp:rate": 0.00905,
+      "press:rate": 0.110913
+    },
+    "r_squared": 0.981008,
+    "adj_r_squared": 0.968347,
+    "q_squared_loo": 0.939976,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 0.196793,
+      "p_value": 0.6690748038029098
+    },
+    "residual_diagnostics": {
+      "n": 16,
+      "n_params": 7,
+      "sigma_residual": 0.272567,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.4375,
+      "leverage_cutoff_2p_over_n": 0.875,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.275806,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 98.817,
+          "yhat": 99.067475,
+          "resid": -0.250475
+        },
+        {
+          "row_index": 1,
+          "y": 99.0719,
+          "yhat": 98.833125,
+          "resid": 0.238775
+        },
+        {
+          "row_index": 2,
+          "y": 98.6635,
+          "yhat": 98.746725,
+          "resid": -0.083225
+        },
+        {
+          "row_index": 3,
+          "y": 98.8921,
+          "yhat": 98.956025,
+          "resid": -0.063925
+        },
+        {
+          "row_index": 4,
+          "y": 96.224,
+          "yhat": 96.001125,
+          "resid": 0.222875
+        },
+        {
+          "row_index": 5,
+          "y": 95.7238,
+          "yhat": 95.802975,
+          "resid": -0.079175
+        },
+        {
+          "row_index": 6,
+          "y": 95.9357,
+          "yhat": 95.922075,
+          "resid": 0.013625
+        },
+        {
+          "row_index": 7,
+          "y": 96.4263,
+          "yhat": 96.167575,
+          "resid": 0.258725
+        },
+        {
+          "row_index": 8,
+          "y": 99.3813,
+          "yhat": 99.067475,
+          "resid": 0.313825
+        },
+        {
+          "row_index": 9,
+          "y": 98.531,
+          "yhat": 98.833125,
+          "resid": -0.302125
+        },
+        {
+          "row_index": 10,
+          "y": 98.7666,
+          "yhat": 98.746725,
+          "resid": 0.019875
+        },
+        {
+          "row_index": 11,
+          "y": 99.0833,
+          "yhat": 98.956025,
+          "resid": 0.127275
+        },
+        {
+          "row_index": 12,
+          "y": 95.7149,
+          "yhat": 96.001125,
+          "resid": -0.286225
+        },
+        {
+          "row_index": 13,
+          "y": 95.9455,
+          "yhat": 95.802975,
+          "resid": 0.142525
+        },
+        {
+          "row_index": 14,
+          "y": 95.9718,
+          "yhat": 95.922075,
+          "resid": 0.049725
+        },
+        {
+          "row_index": 15,
+          "y": 95.8455,
+          "yhat": 96.167575,
+          "resid": -0.322075
+        }
+      ],
+      "normality": {
+        "skew": -0.17181,
+        "excess_kurtosis": -1.19541
+      }
+    },
+    "predictor": {
+      "base": {
+        "temp": {
+          "kind": "numeric_main",
+          "factor": "temp",
+          "mean": 85.0,
+          "half_range": 3.0
+        },
+        "press": {
+          "kind": "numeric_main",
+          "factor": "press",
+          "mean": 0.6,
+          "half_range": 0.05
+        },
+        "rate": {
+          "kind": "numeric_main",
+          "factor": "rate",
+          "mean": 120.0,
+          "half_range": 10.0
+        }
+      },
+      "terms": [
+        {
+          "term": "temp",
+          "specs": [
+            {
+              "name": "temp",
+              "fn": "identity",
+              "inputs": [
+                "temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "press",
+          "specs": [
+            {
+              "name": "press",
+              "fn": "identity",
+              "inputs": [
+                "press"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "rate",
+          "specs": [
+            {
+              "name": "rate",
+              "fn": "identity",
+              "inputs": [
+                "rate"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "temp:press",
+          "specs": [
+            {
+              "name": "temp*press",
+              "fn": "product",
+              "inputs": [
+                "temp",
+                "press"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "temp:rate",
+          "specs": [
+            {
+              "name": "temp*rate",
+              "fn": "product",
+              "inputs": [
+                "temp",
+                "rate"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "press:rate",
+          "specs": [
+            {
+              "name": "press*rate",
+              "fn": "product",
+              "inputs": [
+                "press",
+                "rate"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "temp": -1.4637,
+        "press": 0.010962,
+        "rate": 0.002787,
+        "temp*press": 0.060425,
+        "temp*rate": 0.00905,
+        "press*rate": 0.110913
+      },
+      "intercept": 97.437138
+    },
+    "stationary_point": null
+  }
+]
