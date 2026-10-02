@@ -9,7 +9,7 @@
   .chiprow { display:flex; gap:14px; margin-top:14px; }
   .chip { flex:1; border:1px solid #d7dde3; border-radius:6px; background:#fbfcfd; text-align:center; padding:10px 6px 12px; }
   .chip .v { font-size:32px; font-weight:800; color:#0072b2; line-height:1.1; }
-  .chip .l { font-size:25px; color:#555; margin-top:5px; line-height:1.32; }
+  .chip .l { font-size:28px; color:#555; margin-top:5px; line-height:1.32; }
 </style></head><body>
 <div style="display:flex; gap:30px;">
   <div style="width:560px; flex:0 0 560px;">
@@ -99,11 +99,12 @@ function mk(svg, n, a, txt) { const e = document.createElementNS(NS, n); for (co
   ];
   const W = 860, H = 770, L = 424, R = 26, T = 30, B = 202;
   const PL = W - L - R, PH = H - T - B;
-  const xmin = 60, xmax = 102;
+  const xmin = 55, xmax = 102;
   const X = v => L + PL * (v - xmin) / (xmax - xmin);
   const rh = PH / rows.length;
+  mk(svg, "line", { x1: L, y1: T, x2: L, y2: T + PH, class: "axis" });
   for (let v = 60; v <= 100; v += 10) {
-    mk(svg, "line", { x1: X(v), y1: T, x2: X(v), y2: T + PH, class: v === 60 ? "axis" : "gridline" });
+    mk(svg, "line", { x1: X(v), y1: T, x2: X(v), y2: T + PH, class: "gridline" });
     mk(svg, "text", { x: X(v), y: T + PH + 30, "text-anchor": "middle", class: "ticklabel" }, v);
   }
   mk(svg, "line", { x1: L, y1: T + PH, x2: L + PL, y2: T + PH, class: "axis" });
@@ -125,7 +126,7 @@ function mk(svg, n, a, txt) { const e = document.createElementNS(NS, n); for (co
   mk(svg, "text", { x: L + 24, y: ly, class: "ticklabel", fill: "#1a1a1a" }, "deterministic rubric (filled)");
   mk(svg, "circle", { cx: L + 8, cy: ly + 26, r: 8, fill: "#fff", stroke: "#0072b2", "stroke-width": 2.4 });
   mk(svg, "text", { x: L + 24, y: ly + 34, class: "ticklabel", fill: "#1a1a1a" }, "judge gate (open)");
-  mk(svg, "rect", { x: L + 8, y: ly + 52, width: 24, height: 19, fill: "#f4f6f8", stroke: "#d7dde3" });
+  mk(svg, "rect", { x: L + 8, y: ly + 52, width: 24, height: 19, fill: "#e8ecf0", stroke: "#8f9aa5", "stroke-width": 1.2 });
   mk(svg, "text", { x: L + 24, y: ly + 69, class: "ticklabel", fill: "#1a1a1a" }, "controls (shaded rows)");
 })();
 </script>

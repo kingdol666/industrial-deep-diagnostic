@@ -201,10 +201,9 @@ el("line", { x1: X(790), y1: YF(31.72) + 33, x2: X(790), y2: YF(31.02), stroke: 
 el("text", { x: X(760), y: YF(29.2), "text-anchor": "middle", class: "ticklabel", fill: "#d55e00", ...HALO }, "current co-drop −0.115 A (p = 0.10, directional only)");
 el("text", { x: L + 10, y: T + PTh - 16, "text-anchor": "start", class: "ticklabel", fill: "#555555", ...HALO }, "vibration RMS (both accelerometer channels) flat — no mechanical signature");
 // pressure quantization note (top-right box)
-el("rect", { x: L + PL - 520, y: 8, width: 512, height: 122, fill: "#ffffff", stroke: "#d7dde3", "stroke-width": 1.2, rx: 5 });
-el("text", { x: L + PL - 504, y: 36, class: "ticklabel", fill: "#1a1a1a", "font-weight": "700" }, "Quantization: 0.327 bar");
-el("text", { x: L + PL - 504, y: 60, class: "ticklabel", fill: "#555555" }, "expected head change: smaller by");
-el("text", { x: L + PL - 504, y: 82, class: "ticklabel", fill: "#555555" }, "an order of magnitude (text only)");
-el("text", { x: L + PL - 504, y: 104, class: "ticklabel", fill: "#555555" }, "head direction masked (text only)");
+el("rect", { x: L + PL - 560, y: 8, width: 560, height: 100, fill: "#ffffff", stroke: "#d7dde3", "stroke-width": 1.2, rx: 5 });
+el("text", { x: L + PL - 544, y: 36, class: "ticklabel", fill: "#1a1a1a", "font-weight": "700" }, "Pressure quantized at 0.327 bar:");
+el("text", { x: L + PL - 544, y: 66, class: "ticklabel", fill: "#555555" }, "\u224810\u00d7 the expected head change, so");
+el("text", { x: L + PL - 544, y: 96, class: "ticklabel", fill: "#555555" }, "head direction is masked (text only)");
 </script>
 </body></html>

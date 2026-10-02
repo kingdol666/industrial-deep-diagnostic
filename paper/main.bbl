@@ -129,6 +129,12 @@ R.~Isermann, Model-based fault-detection and diagnosis -- status and
 \newblock \href {https://doi.org/10.1016/j.arcontrol.2004.12.002}
   {\path{doi:10.1016/j.arcontrol.2004.12.002}}.
 
+\bibitem{venkatasubramanian2019promise}
+V.~Venkatasubramanian, The promise of artificial intelligence in chemical
+  engineering: Is it here, finally?, AIChE Journal 65~(2) (2019) 466--478.
+\newblock \href {https://doi.org/10.1002/aic.16489}
+  {\path{doi:10.1002/aic.16489}}.
+
 \bibitem{vieira2026towards}
 J.~P. Vieira, V.~A. Bauler, R.~K. Rosa, D.~Silva, Towards a more realistic
   evaluation of machine learning models for bearing fault diagnosis, Mechanical
@@ -172,7 +178,7 @@ R.~Dunia, S.~J. Qin, T.~F. Edgar, T.~J. McAvoy, Identification of faulty
 
 \bibitem{alcala2009reconstruction}
 C.~F. Alcal{\'a}, S.~J. Qin, Reconstruction-based contribution for process
-  monitoring, Automatica 45~(7) (2009) 1594--1600.
+  monitoring, Automatica 45~(7) (2009) 1593--1600.
 \newblock \href {https://doi.org/10.1016/j.automatica.2009.02.027}
   {\path{doi:10.1016/j.automatica.2009.02.027}}.
 
@@ -192,11 +198,10 @@ W.~Gong, S.~Qiao, C.~Cao, S.~Tan, J.~Ye, H.~Liu, S.~Chen, X.~Wang, Harnessing
   {\path{doi:10.1016/j.jii.2025.101012}}.
 
 \bibitem{constantinides2025failuresensoriq}
-C.~Constantinides, D.~Patel, S.~Lin, C.~Guerrero, S.~D. Patil, et~al.,
+C.~Constantinides, D.~Patel, S.~Lin, C.~Guerrero, S.~D. Patil, J.~Kalagnanam,
   {FailureSensorIQ}: A multi-choice {QA} dataset for understanding sensor
-  relationships and failure modes (2025).
-\newblock \href {http://arxiv.org/abs/2506.03278} {\path{arXiv:2506.03278}},
-  \href {https://doi.org/10.48550/arXiv.2506.03278}
+  relationships and failure modes, arXiv preprint arXiv:2506.03278 (2025).
+\newblock \href {https://doi.org/10.48550/arXiv.2506.03278}
   {\path{doi:10.48550/arXiv.2506.03278}}.
 
 \bibitem{liu2025probing}
@@ -276,9 +281,8 @@ Q.~Xu, G.~Wen, Z.~Lei, S.~Gu, Y.~Su, Z.~Zhang, X.~Chen, Deep digital
 
 \bibitem{wei2026agentrca}
 A.~Wei, O.~Fink, Agentic root cause analysis through evidence-grounded
-  reasoning (2026).
-\newblock \href {http://arxiv.org/abs/2607.22385} {\path{arXiv:2607.22385}},
-  \href {https://doi.org/10.48550/arXiv.2607.22385}
+  reasoning, arXiv preprint arXiv:2607.22385 (2026).
+\newblock \href {https://doi.org/10.48550/arXiv.2607.22385}
   {\path{doi:10.48550/arXiv.2607.22385}}.
 
 \bibitem{chen2023automatic}
@@ -291,9 +295,9 @@ Y.~Chen, H.~Xie, M.~Ma, Y.~Kang, X.~Gao, L.~Shi, Y.~Cao, X.~Gao, H.~Fan,
 \bibitem{wu2023autogen}
 Q.~Wu, G.~Bansal, J.~Zhang, Y.~Wu, B.~Li, E.~Zhu, L.~Jiang, X.~Zhang, S.~Zhang,
   J.~Liu, A.~H. Awadallah, R.~W. White, D.~Burger, C.~Wang, {AutoGen}: Enabling
-  next-gen {LLM} applications via multi-agent conversation (2023).
-\newblock \href {http://arxiv.org/abs/2308.08155} {\path{arXiv:2308.08155}},
-  \href {https://doi.org/10.48550/arXiv.2308.08155}
+  next-gen {LLM} applications via multi-agent conversation, arXiv preprint
+  arXiv:2308.08155 (2023).
+\newblock \href {https://doi.org/10.48550/arXiv.2308.08155}
   {\path{doi:10.48550/arXiv.2308.08155}}.
 
 \bibitem{yao2023react}
@@ -304,8 +308,10 @@ S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, Y.~Cao, {ReAct}:
   {\path{doi:10.48550/arXiv.2210.03629}}.
 
 \bibitem{cemri2025mast}
-M.~Cemri, M.~Z. Pan, S.~Yang, E.~MacNeil, et~al., Why do multi-agent {LLM}
-  systems fail?, arXiv preprint arXiv:2503.13657 (2025).
+M.~Cemri, M.~Z. Pan, S.~Yang, L.~A. Agrawal, B.~Chopra, R.~Tiwari, K.~Keutzer,
+  A.~Parameswaran, D.~Klein, K.~Ramchandran, M.~Zaharia, J.~E. Gonzalez,
+  I.~Stoica, Why do multi-agent {LLM} systems fail?, arXiv preprint
+  arXiv:2503.13657 (2025).
 \newblock \href {https://doi.org/10.48550/arXiv.2503.13657}
   {\path{doi:10.48550/arXiv.2503.13657}}.
 
@@ -317,7 +323,7 @@ R.~Parasuraman, T.~B. Sheridan, C.~D. Wickens, A model for types and levels of
   {\path{doi:10.1109/3468.844354}}.
 
 \bibitem{sheridan1978human}
-T.~B. Sheridan, W.~L. Verplanck, Human and computer control of undersea
+T.~B. Sheridan, W.~L. Verplank, Human and computer control of undersea
   teleoperators, Tech. rep., Man-Machine Systems Laboratory, Massachusetts
   Institute of Technology, Cambridge, MA (1978).
 \newblock \href {https://doi.org/10.21236/ada057655}
@@ -419,9 +425,9 @@ L.~Zheng, W.-L. Chiang, Y.~Sheng, S.~Zhuang, Z.~Wu, Y.~Zhuang, Z.~Lin, Z.~Li,
 
 \bibitem{panickssery2024selfpref}
 A.~Panickssery, S.~R. Bowman, S.~Feng, {LLM} evaluators recognize and favor
-  their own generations, arXiv preprint arXiv:2404.13096 (2024).
-\newblock \href {https://doi.org/10.48550/arXiv.2404.13096}
-  {\path{doi:10.48550/arXiv.2404.13096}}.
+  their own generations, arXiv preprint arXiv:2404.13076 (2024).
+\newblock \href {https://doi.org/10.48550/arXiv.2404.13076}
+  {\path{doi:10.48550/arXiv.2404.13076}}.
 
 \bibitem{skab2020}
 I.~D. Katser, V.~O. Kozitsin, Skoltech anomaly benchmark ({SKAB}),
@@ -458,9 +464,9 @@ S.~Goldrick, C.~A. Duran-Villalobos, K.~Jankauskas, D.~Lovett, S.~S. Farid,
 
 \bibitem{glm2024chatglm}
 {GLM Team}, A.~Zeng, et~al., {ChatGLM}: A family of large language models from
-  {GLM-130B} to {GLM-4} all tools, arXiv preprint arXiv:2406.18871 (2024).
-\newblock \href {https://doi.org/10.48550/arXiv.2406.18871}
-  {\path{doi:10.48550/arXiv.2406.18871}}.
+  {GLM-130B} to {GLM-4} all tools, arXiv preprint arXiv:2406.12793 (2024).
+\newblock \href {https://doi.org/10.48550/arXiv.2406.12793}
+  {\path{doi:10.48550/arXiv.2406.12793}}.
 
 \bibitem{horch1999simple}
 A.~Horch, A simple method for detection of stiction in control valves, Control
@@ -478,6 +484,8 @@ T.~H{\"a}gglund, A control-loop performance monitor, Control Engineering
 M.~A. A.~S. Choudhury, S.~L. Shah, N.~F. Thornhill, Diagnosis of Process
   Nonlinearities and Valve Stiction: Data Driven Approaches, Springer, Berlin,
   Heidelberg, 2008.
+\newblock \href {https://doi.org/10.1007/978-3-540-79224-6}
+  {\path{doi:10.1007/978-3-540-79224-6}}.
 
 \bibitem{alfayez2005detection}
 L.~Alfayez, D.~Mba, Detection of incipient cavitation and determination of the
@@ -491,7 +499,7 @@ L.~Alfayez, D.~Mba, Detection of incipient cavitation and determination of the
 B.~Zhou, S.~Liu, B.~Hooi, X.~Cheng, J.~Ye, {BeatGAN}: Anomalous rhythm
   detection using adversarially generated time series, in: Proceedings of the
   28th International Joint Conference on Artificial Intelligence (IJCAI), 2019,
-  pp. 2775--2781.
+  pp. 4433--4439.
 \newblock \href {https://doi.org/10.24963/ijcai.2019/616}
   {\path{doi:10.24963/ijcai.2019/616}}.
 
