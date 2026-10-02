@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T07:42:47.857406+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "heat_transfer_coeff_W_m2K 与 thermal_efficiency_pct 的相关 r=0.9543，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.heat_transfer_coeff_W_m2K"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "hot_outlet_temp_C 与 thermal_efficiency_pct 的相关 r=-0.8873，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.hot_outlet_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "approach_temp_C 与 thermal_efficiency_pct 的相关 r=-0.8212，滞后 -13 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.approach_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "lmtd_C 与 thermal_efficiency_pct 的相关 r=-0.8081，滞后 -13 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.lmtd_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "cold_outlet_temp_C 与 thermal_efficiency_pct 的相关 r=0.7944，滞后 -12 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.cold_outlet_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_thermal_efficiency_pct.png",
+      "title": "Stability timeline — thermal_efficiency_pct"
+    },
+    {
+      "file": "timeline_pressure_drop_bar.png",
+      "title": "Stability timeline — pressure_drop_bar"
+    },
+    {
+      "file": "segments_thermal_efficiency_pct.png",
+      "title": "Steady-segment comparison — thermal_efficiency_pct"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 6,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

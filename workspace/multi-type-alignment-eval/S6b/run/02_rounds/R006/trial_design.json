@@ -1,0 +1,50 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-007",
+  "round_id": "R006",
+  "phase": "confirm",
+  "method": "confirm_replicates",
+  "trials": [
+    {
+      "trial_id": "R006-T01",
+      "setpoints": {
+        "die_bolt_T3_pct": 1.541242
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "replicates": 3,
+      "distance_to_incumbent_coded": 0.0,
+      "expected": {
+        "dev_pos07": {
+          "mean": 0.10097,
+          "ci95": [
+            -0.382042,
+            0.583982
+          ]
+        }
+      },
+      "predicted_D": 0.653733,
+      "selection_reason": "confirm_replicates: incumbent confirmation under the dual gate; confirm_replicates; dup_to_existing=True; nearest_data_coded=0.0"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": 23.98856,
+    "lengthscales": {
+      "x0": 0.056539
+    },
+    "sigma_noise": 0.227447,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "8235282c482a2af83e45d2c7b3ec19ef285a792c800db53ee496a9cb3532543f",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "signature_version": "1.0",
+  "source_ref": "eval-s1t-watch-001",
+  "anomalous_params": [{"parameter": "x1", "direction": "high", "severity": 2.5}],
+  "regime": {"product": "P1", "machine": "M1", "regime_label": "R1"},
+  "degraded_metric": "y"
+}

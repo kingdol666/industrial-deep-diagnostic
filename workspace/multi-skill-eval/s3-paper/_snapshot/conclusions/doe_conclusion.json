@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T07:45:05.615216+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "fan_pump_speed_rpm 与 cd_basis_weight_cv_pct 的相关 r=0.8755，滞后 -5 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.fan_pump_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "headbox_pressure_kPa 与 cd_basis_weight_cv_pct 的相关 r=0.8688，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.headbox_pressure_kPa"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "retention_aid_dosage_ppm 与 cd_basis_weight_cv_pct 的相关 r=0.8595，滞后 6 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.retention_aid_dosage_ppm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "white_water_consistency_pct 与 cd_basis_weight_cv_pct 的相关 r=0.7509，滞后 1 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.white_water_consistency_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "fan_pump_speed_rpm 与 strength_rel_pct 的相关 r=-0.7306，滞后 1 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.fan_pump_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_cd_basis_weight_cv_pct.png",
+      "title": "Stability timeline — cd_basis_weight_cv_pct"
+    },
+    {
+      "file": "timeline_strength_rel_pct.png",
+      "title": "Stability timeline — strength_rel_pct"
+    },
+    {
+      "file": "segments_cd_basis_weight_cv_pct.png",
+      "title": "Steady-segment comparison — cd_basis_weight_cv_pct"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 7,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

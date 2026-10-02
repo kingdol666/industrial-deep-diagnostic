@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-10-01T12:58:09.731920+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "model_adequacy_ok": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "die_bolt_T3_pct 与 dev_pos07 的相关 r=0.986，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#dev_pos07.die_bolt_T3_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "die_bolt_T3_pct 与 zone_L 的相关 r=0.9396，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#zone_L.die_bolt_T3_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlations (q<0.05 or non-FAIL pairs; r values)"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_dev_pos07.png",
+      "title": "Stability timeline — dev_pos07 (green: steady, dashed: change points)"
+    },
+    {
+      "file": "timeline_zone_L.png",
+      "title": "Stability timeline — zone_L (green: steady, dashed: change points)"
+    },
+    {
+      "file": "segments_dev_pos07.png",
+      "title": "Steady-segment comparison — dev_pos07"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

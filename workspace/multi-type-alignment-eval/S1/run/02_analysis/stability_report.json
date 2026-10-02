@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-10-01T12:53:51.116308+00:00",
+  "n_rows": 1200,
+  "time_col": "t",
+  "capability": [
+    {
+      "response": "y",
+      "n": 1200,
+      "mean": 49.960894,
+      "std_overall": 0.685629,
+      "sigma_within_mr": 0.504773,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.0539,
+        "excess_kurtosis": -0.3089,
+        "ad_statistic": 0.4136,
+        "ad_critical_5pct": 0.752,
+        "normal": true
+      },
+      "autocorr_lag1": 0.4717,
+      "n_eff": 430,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 1199,
+      "n_rows": 1200,
+      "response_means": {
+        "y": 49.960894
+      },
+      "score": 49.960894,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [
+    {
+      "response": "y",
+      "positions": [
+        39,
+        52,
+        89,
+        122,
+        133,
+        159,
+        175,
+        194,
+        208,
+        300,
+        340,
+        356,
+        460,
+        475,
+        485,
+        497,
+        517,
+        815,
+        842,
+        875,
+        991,
+        1020,
+        1034
+      ],
+      "detail": {
+        "n_segments": 24,
+        "n_changes": 23
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 24,
+    "total_rows": 1200,
+    "steady_state_ratio": 1.0,
+    "regime_distribution": {
+      "steady": {
+        "count": 1200,
+        "pct": 100.0
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "generated_at": "2026-10-01T12:58:11.155137+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-type-alignment-eval\\S3\\run_unaligned\\00_input\\data.csv",
+  "n_rows": 400,
+  "n_cols": 10,
+  "columns": [
+    {
+      "name": "timestamp",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "mean_thk",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "td_std",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "zone_L",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "zone_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 399,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "zone_R",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "dev_pos07",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "die_bolt_T3_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "melt_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    },
+    {
+      "name": "pull_speed_mpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 400,
+      "n_missing": 0,
+      "n_valid": 400,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "dev_pos07",
+      "zone_L"
+    ],
+    "factors": [
+      "die_bolt_T3_pct",
+      "melt_temp_C",
+      "pull_speed_mpm"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "mean_thk",
+      "td_std",
+      "zone_C",
+      "zone_R"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.19 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

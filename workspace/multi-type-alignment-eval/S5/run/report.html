@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOE 工况分析报告 — run</title>
+<script id="report-meta" type="application/json">{"generated_at": "2026-10-01T12:59:55.948851+00:00", "script_version": "1.0.0", "mode": "observational", "design_type": "observational", "artifacts": {"00_input/analysis_context.json": "e9dfa3b326aca66cbecdd9cb636ace2194c3427cecfdf0ceec1ce23477fe63c4", "01_profile/data_profile.json": "fe7d65781a2e42ad7e3d71fce5304c3c28caceaa0d31192186c0787b5a6b7ca7", "02_analysis/correlation_report.json": "b8c7d13f865d9285ce9a51d1eabd02c4dbeed8983691723a844a5e2472ed1eba", "02_analysis/stability_report.json": "9f4c6dfc7b81da56901230a31b907ecdeff83a53b921dd3f9f5c4d41bc8a2e7f", "03_figures/plot_manifest.json": "47ec951eb2e9e54f6aee111ddeabd7462e2ad32e831a7e21d76585f60682f1e6", "conclusions/doe_conclusion.json": "cace74175268abf2d3a0452184cdf82f1af22977675782a3feb7bb274c70a58b", "conclusions/recommendations.json": "939271048ee964b6b693b0346cdc27fd0050686fbd64fb57a62b97859579f4f1"}, "raw_data_sha256": "03dffc5f4eaf48cfbb1eda1933643cc2884b2410e20c7b8338e4579c92122cb8"}</script>
+<script id="report-payload" type="application/json">{"mode": "observational", "charts": {"corrheat": {"targets": ["y"], "params": ["drift_a", "drift_b", "x1"], "cells": [{"ti": 0, "pi": 2, "r": 0.0995, "q": 0.0006, "verdict": "PASS", "tip": "r: 0.0995\np: 0.0006\nq: 0.0006\nn: 1200\nbest_lag: -4\ndetrended_r: 0.113\ntrend_confounded: 0\noutlier: —\nloo: —\nsimpson: —\nverdict: PASS"}, {"ti": 0, "pi": 0, "r": 0.7335, "q": 0.0, "verdict": "CAUTION", "tip": "r: 0.7335\np: 0\nq: 0\nn: 1200\nbest_lag: 7\ndetrended_r: 0.011\ntrend_confounded: 1\noutlier: OK\nloo: 0\nsimpson: —\nverdict: CAUTION"}, {"ti": 0, "pi": 1, "r": 0.7278, "q": 0.0, "verdict": "CAUTION", "tip": "r: 0.7278\np: 0\nq: 0\nn: 1200\nbest_lag: 6\ndetrended_r: -0.0453\ntrend_confounded: 1\noutlier: OK\nloo: 0\nsimpson: —\nverdict: CAUTION"}], "truncated": false, "n_total": 3}, "dr2": {"rows": [{"label": "drift_a → y", "value": 0.008515}, {"label": "x1 → y", "value": 0.005911}, {"label": "drift_b → y", "value": 0.000262}]}, "timeline:y": {"values": [50.62031, 50.563767, 50.796773, 51.067857, 50.837947, 50.46195, 50.744063, 50.118698, 50.30455, 49.473361, 49.602813, 50.392814, 50.484399, 49.142902, 49.55106, 50.211821, 49.729522, 49.804042, 49.03569, 49.57635, 50.185949, 50.30662, 49.578741, 50.36154, 50.182857, 50.862235, 50.936125, 51.064311, 50.538098, 49.930753, 49.035137, 49.209476, 49.985586, 49.502999, 49.430349, 49.209133, 49.340975, 49.534299, 50.346296, 50.401341, 51.017339, 49.720622, 49.832218, 49.302941, 49.560196, 49.865296, 48.931676, 50.209946, 50.357656, 50.086031, 50.110481, 50.453771, 50.110098, 49.701016, 50.156888, 50.455427, 50.479728, 49.638055, 49.145866, 49.424441, 48.648621, 49.435294, 49.648107, 49.531149, 50.242847, 50.580595, 49.720385, 50.113119, 50.275975, 49.840591, 49.766103, 49.718766, 49.844523, 49.519594, 50.101964, 50.236668, 50.135959, 50.056854, 49.761124, 50.993668, 50.185144, 49.367256, 49.401708, 50.018, 49.640218, 49.580673, 50.031653, 50.333135, 50.743399, 50.027564, 50.347612, 50.227751, 50.56606, 49.159317, 50.029498, 51.368533, 51.050215, 49.868187, 51.016267, 50.051644, 50.179998, 48.657851, 50.438448, 51.003236, 50.536893, 50.980705, 50.464539, 50.964456, 50.333635, 50.66715, 49.648465, 50.444476, 50.644514, 50.090363, 50.201177, 49.953789, 49.849985, 50.534612, 51.153097, 51.078044, 50.611974, 49.668934, 49.784529, 49.769952, 49.757427, 49.946652, 50.965856, 51.231275, 51.105381, 50.707729, 50.176957, 50.647247, 50.440707, 50.321883, 50.749301, 51.281525, 51.021106, 50.202324, 50.478614, 50.490196, 50.530825, 49.705504, 50.509758, 50.143954, 50.383482, 50.300542, 49.383792, 50.597324, 49.633703, 49.101239, 50.082389, 50.317706, 49.433407, 51.129168, 50.320645, 49.862667, 50.384897, 48.895284, 48.945127, 49.821787, 50.440889, 50.275261, 50.466646, 51.27494, 50.71119, 51.476089, 51.149906, 50.099511, 49.41191, 49.983999, 50.525077, 50.437828, 50.709803, 50.246772, 49.647091, 50.030727, 49.215173, 49.881455, 49.996921, 49.995304, 49.664657, 50.307225, 49.603189, 50.559625, 50.380751, 51.44565, 51.515114, 51.275614, 51.687932, 52.001554, 51.292405, 51.343919, 51.263379, 51.385551, 50.374832, 49.981797, 49.985179, 49.707299, 51.144237, 51.506498, 51.102057, 50.306472, 50.29127, 49.771979, 50.228521, 50.36555, 50.253502, 50.177419, 49.79106, 48.663231, 49.640481, 50.294403, 50.435371, 49.609964, 49.459574, 49.925292, 50.44523, 49.544528, 50.230613, 50.367243, 50.982897, 50.893635, 51.341047, 51.498954, 51.751419, 50.472945, 50.254215, 50.04472, 50.748334, 50.603503, 50.589176, 50.79248, 50.704891, 50.083853, 50.111091, 51.412715, 49.870884, 50.917881, 49.818165, 49.030342, 49.024299, 50.087402, 50.259713, 49.483499, 49.715402, 50.057142, 50.29828, 50.543773, 50.729572, 49.680497, 49.937613, 50.352289, 50.42678, 50.334121, 50.035235, 50.469898, 50.403899, 49.980694, 49.908424, 50.670536, 49.975112, 49.360154, 49.897453, 49.843571, 50.880298, 50.655077, 51.876936, 51.334838, 51.49246, 51.267706, 51.303333, 50.471432, 49.629996, 49.021291, 49.991501, 50.143363, 50.045927, 50.365695, 50.807493, 49.640628, 50.290147, 49.951773, 50.63576, 50.560979, 50.287112, 51.220389, 51.068496, 51.196685, 50.914615, 50.833777, 50.188784, 50.907796, 49.87213, 50.18174, 49.815781, 50.060886, 50.610243, 50.771356, 50.645246, 50.66531, 50.589433, 50.674965, 49.768412, 50.091069, 50.005594, 50.840765, 50.983254, 50.372073, 50.560172, 50.019969, 50.286228, 50.842726, 51.749902, 50.919854, 50.129293, 50.127219, 50.622004, 49.267147, 48.687558, 48.990733, 49.223123, 50.386548, 50.576026, 50.176755, 49.872033, 50.059158, 50.233884, 50.603087, 50.82267, 50.854992, 50.820655, 51.546282, 51.399274, 51.519172, 51.049813, 50.424748, 50.564334, 50.603805, 51.583592, 51.31434, 51.127516, 50.353255, 50.770073, 51.220148, 50.543193, 51.440327, 51.81922, 51.886034, 51.438951, 51.104093, 51.196385, 50.251299, 50.365483, 49.780723, 50.504118, 51.010435, 50.41975, 50.627906, 50.346065, 49.612974, 49.365298, 50.622236, 50.924437, 51.606902, 51.209836, 50.618078, 51.021009, 50.253321, 49.881504, 50.310939, 50.651799, 50.784815, 50.543555, 51.092979, 50.275678, 51.071512, 51.023865, 51.566128, 49.615343, 50.269108, 50.486311, 50.743493, 50.310726, 50.549138, 50.007781, 50.060772, 50.081645, 49.332021, 50.42869, 49.555561, 49.236148, 49.736307, 49.043001, 48.719107, 49.152832, 48.75576, 50.413503, 50.439357, 50.398705, 50.870856, 51.460768, 51.654632, 51.479394, 50.194109, 49.642773, 49.45339, 51.326193, 50.77569, 50.063043, 50.654155, 50.897201, 51.021501, 50.405604, 50.924774, 51.818513, 50.573095, 50.558094, 50.379596, 50.351238, 51.231954, 50.24289, 50.336871, 50.868042, 51.095244, 51.77038, 51.520764, 52.071125, 51.538321, 50.897326, 49.978141, 50.217072, 49.987434, 50.701291, 50.452517, 50.416509, 51.196535, 51.126143, 51.782648, 51.922542, 51.753248, 51.013021, 50.921614, 50.198419, 51.344903, 51.106912, 50.069447, 49.374696, 49.93287, 51.035272, 50.830319, 50.95997, 51.578926, 51.556352, 52.000439, 51.768227, 52.606775, 51.169114, 51.730041, 51.156998, 49.355308, 50.636852, 51.940847, 50.701329, 51.083091, 50.595392, 50.676114, 51.39217, 51.102474, 51.020025, 52.364829, 51.513116, 52.153731, 52.015026, 50.671701, 50.759257, 51.083773, 50.502391, 50.688479, 50.117411, 50.297566, 50.240869, 50.492681, 49.822878, 49.653245, 50.892301, 51.100437, 51.523725, 50.53524, 50.194082, 50.327471, 50.857171, 50.689804, 51.479744, 50.660115, 49.812784, 50.435838, 50.632914, 51.622955, 50.772033, 49.783785, 50.499871, 50.984688, 51.891718, 51.480606, 51.09694, 50.707147, 51.053389, 51.885697, 52.471175, 51.818632, 51.1494, 50.448311, 51.006233, 50.256387, 50.841343, 50.432779, 51.03233, 50.922269, 51.351211, 50.85436, 50.990498, 51.881336, 50.53446, 50.151997, 50.062452, 51.189688, 51.405717, 50.569087, 50.421995, 51.970585, 51.921656, 51.745672, 50.759227, 51.861396, 50.933529, 51.615747, 51.046102, 51.612002, 51.425323, 50.472922, 50.75729, 50.245135, 51.157431, 50.338302, 50.588099, 51.27711, 51.223059, 51.163507, 49.501135, 51.205498, 51.254014, 50.777828, 50.081716, 49.42204, 49.810664, 49.73442, 50.463651, 51.312522, 51.939598, 50.938861, 50.882209, 50.341864, 51.025167, 51.275115, 50.868919, 51.094187, 51.591625, 51.43764, 52.15319, 51.680799, 51.015635, 51.445993, 52.190266, 52.700517, 52.255311, 52.040275, 51.585905, 51.774276, 51.208004, 51.048125, 51.568341, 50.629296, 50.81947, 51.232705, 51.762267, 51.533109, 51.58046, 51.310479, 51.410707, 50.812147, 50.843237, 50.832587, 50.704099, 50.414773, 51.640642, 50.625006, 51.155996, 51.225848, 50.408393, 50.67425, 50.319591, 50.386175, 51.03424, 51.37492, 51.273491, 51.196178, 52.008029, 51.483861, 51.957676, 50.626434, 51.151949, 51.318425, 51.190124, 51.236526, 52.017256, 51.738389, 52.044549, 51.179802, 51.546781, 51.498219, 50.774269, 50.838355, 51.422333, 52.003369, 51.813557, 51.774438, 51.290063, 50.704782, 51.281558, 50.115718, 51.357701, 50.324795, 51.850719, 52.231208, 51.149581, 51.011175, 52.82101, 52.259256, 51.553757, 51.407537, 51.600661, 51.846077, 50.878984, 52.659852, 51.286609, 51.235419, 50.977054, 49.761528, 51.483262, 51.94007, 51.630949, 51.027963, 50.967299, 50.404174, 51.870029, 52.559031, 52.119814, 50.700076, 50.838102, 52.317659, 51.25679, 51.551678, 51.03631, 51.403149, 51.072747, 51.140844, 52.391812, 52.144163, 52.477679, 51.089509, 51.415499, 50.969057, 51.37966, 52.358585, 52.193382, 51.974957, 53.097375, 52.735842, 51.461156, 51.468386, 51.327436, 51.015999, 51.546778, 51.551059, 50.904826, 50.624007, 50.973864, 51.398999, 51.444762, 51.688461, 51.906159, 52.003745, 51.849173, 51.473524, 50.648289, 52.00014, 51.341654, 52.089021, 51.234621, 51.553371, 50.939616, 51.958395, 51.240281, 51.094917, 50.924657, 51.980678, 51.945295, 51.633191, 51.328694, 50.618439, 51.763363, 51.493572, 50.208308, 51.117797, 51.011459, 50.562067, 49.439157, 50.687259, 50.919734, 51.476031, 51.807108, 52.537086, 51.201431, 51.014109, 51.614912, 52.615344, 52.578657, 53.029887, 52.271689, 52.085556, 51.567786, 51.844973, 52.0579, 52.871089, 51.952738, 52.129593, 52.21847, 51.571262, 52.224827, 52.077597, 51.771074, 50.924856, 50.289902, 50.196023, 51.224222, 51.082617, 51.312398, 52.268388, 52.134359, 51.568906, 51.467581, 51.621646, 50.192008, 51.429778, 50.733788, 51.257641, 50.408025, 50.479742, 51.953358, 50.707728, 51.643614, 51.273065, 50.813319, 51.106945, 51.100864, 51.376903, 51.337035, 51.673676, 51.430758, 51.529119, 51.151896, 52.387103, 51.924941, 52.465089, 52.304276, 51.854073, 52.016458, 52.659285, 51.569921, 51.839674, 51.577546, 51.674984, 51.381085, 52.925109, 52.297161, 51.248117, 50.316085, 49.629649, 50.289176, 50.446718, 50.36944, 50.4135, 51.730422, 51.559105, 51.243832, 50.966755, 51.74497, 51.105695, 51.752799, 51.404664, 51.726038, 51.159984, 50.567608, 51.638468, 51.082979, 51.139347, 51.603663, 51.350604, 49.586181, 50.805603, 50.342295, 50.792016, 50.880838, 51.668618, 50.560341, 51.091076, 51.864806, 51.109373, 50.971603, 51.399563, 51.302602, 51.143387, 52.4262, 51.151077, 51.643908, 52.167378, 52.604053, 52.52972, 51.332021, 51.038971, 51.764516, 50.944712, 51.797743, 51.655589, 51.292859, 52.372159, 52.162999, 52.541109, 51.396789, 51.616741, 51.558238, 51.548706, 51.406488, 51.9828, 52.111385, 51.74879, 52.550034, 53.057497, 52.705007, 51.902652, 51.906311, 51.84971, 52.479336, 52.674289, 52.860685, 52.834643, 51.52052, 51.743874, 52.681281, 52.836293, 52.239018, 51.822952, 52.213567, 51.870319, 51.819401, 51.8183, 51.949487, 51.754551, 50.47066, 51.793833, 51.981788, 52.442011, 51.992951, 52.291609, 52.366812, 51.847911, 52.388368, 51.624228, 51.849824, 50.801409, 50.9394, 52.118544, 51.094457, 51.247781, 51.265927, 50.853954, 51.722856, 52.505221, 52.562069, 52.176314, 52.107471, 52.415949, 51.597438, 51.743066, 51.73957, 51.301698, 51.683284, 52.236876, 52.446338, 52.665396, 51.744442, 52.348444, 52.986205, 52.018756, 51.188571, 51.827023, 51.202955, 51.225955, 50.846174, 50.776358, 51.070718, 50.948703, 50.776981, 52.314178, 52.103503, 51.675127, 51.754513, 52.451433, 52.687937, 52.708645, 52.189621, 51.541164, 51.383937, 52.263272, 52.263531, 51.532289, 51.045417, 52.429544, 51.932933, 52.435426, 52.189811, 51.442206, 51.592054, 51.026493, 50.393919, 51.163169, 51.906201, 51.654601, 51.588124, 51.266115, 51.056595, 51.764929, 51.069969, 51.991505, 52.932233, 52.392146, 52.884603, 52.955866, 51.975823, 52.188575, 52.33084, 52.728934, 52.085309, 53.130122, 52.281419, 52.221764, 51.468622, 51.877008, 52.081463, 52.655729, 53.219765, 52.068281, 51.821587, 52.219811, 52.156028, 51.331156, 51.809643, 51.672573, 51.782972, 52.275601, 51.729272, 53.048347, 51.719051, 51.921727, 50.898158, 52.302554, 51.94873, 52.393936, 52.246003, 52.340683, 51.394924, 51.547974, 51.028446, 50.828363, 51.164173, 51.240839, 52.08697, 52.181025, 51.504184, 52.230548, 52.348753, 52.970903, 52.728303, 52.542667, 52.314617, 51.560928, 51.864749, 51.842191, 51.999155, 51.761187, 53.142481, 51.771388, 51.78123, 51.395036, 52.331072, 51.720333, 51.802142, 52.196322, 52.953574, 52.852102, 51.283149, 51.649134, 51.601208, 52.653515, 51.991764, 51.718778, 52.03126, 51.977691, 52.516984, 52.118494, 52.316343, 51.84104, 52.31316, 51.135291, 51.169273, 51.151762, 52.053037, 52.535525, 53.192609, 52.262517, 52.438176, 51.44015, 51.397559, 51.262038, 50.921664, 52.044081, 51.884147, 52.533083, 52.174112, 51.835778, 52.267923, 51.305344, 50.033371, 50.361177, 50.332567, 50.484089, 51.607155, 50.895741, 51.35835, 52.09509, 51.917712, 52.045434, 51.898459, 52.205516, 51.852312, 52.089799, 52.473834, 52.285581, 52.646578, 52.131257, 52.605574, 52.653952, 52.463329, 52.750727, 52.841331, 52.727679, 52.292584, 52.752354, 52.500197, 52.356538, 52.084944, 51.935412, 52.117071, 51.838915, 52.069174, 52.303108, 53.148527, 52.288697, 52.464, 52.12435, 52.062249, 51.471175, 51.371648, 51.885903, 51.924328, 51.688643, 51.691727, 51.787044, 52.284865, 52.745263, 53.723366, 53.222444, 52.667126, 52.308171, 53.449854, 52.731952, 52.322994, 52.122052, 53.206252, 52.915137, 52.349143, 51.883491, 52.529852, 52.474048, 51.571319, 51.572391, 51.604401, 50.808845, 50.882017, 50.992279, 51.07829, 51.134104, 52.257731, 54.070651, 53.268759, 52.072992, 52.677874, 52.11494, 51.70549, 51.388721, 52.692491, 51.290199, 51.556962, 51.419359, 52.160574, 52.284388, 51.799286, 52.737689, 52.05749, 52.77503, 52.330454, 52.987607, 52.114669, 51.140771, 52.456997, 52.154096, 53.008861, 52.489502, 52.242235, 52.788609, 53.40196, 53.075955, 52.540364, 51.891485, 52.62103, 52.813514, 52.965404, 53.635706, 53.000988, 52.104246, 52.31963, 51.884323, 51.831083, 52.047275, 52.111246, 52.515932, 53.139266, 52.903159, 51.460921, 51.656259, 51.303532, 52.107845, 51.834687, 52.084976, 52.14962, 51.968475, 52.454906, 52.550344, 52.084196, 52.30486, 52.091465, 52.305309, 52.139091, 52.740009, 52.448855, 51.771054, 52.642616, 52.741846, 52.095932, 51.808229, 51.949741, 51.275433, 52.262657, 52.750378, 52.408291, 52.959702, 52.352269, 53.114057, 52.652883, 51.893763, 51.135048, 51.898173, 52.031919, 51.929184, 52.109901, 51.712815, 51.689391, 51.51193, 51.358354, 51.885065], "segments": [{"start": 0, "end": 1199, "selected": true, "label": "0–1199"}], "cps": [95, 399, 566, 822, 1055], "stride": 1, "n_total": 1200, "response": "y"}, "forest": {"rows": [{"id": "OW-001", "factor": "x1", "response": "y", "lo": -1.29064, "hi": 1.250391, "obsmin": -3.765735, "obsmax": 2.716779, "baseline": -0.067266, "ci": [0.090211, 0.352064], "confidence": "low", "confirm": true, "loser": false, "chosen_conflict": false, "delta": 0.221138, "unit": "response units"}]}}}</script>
+<style>
+/* House style (diagnostic-html-visualizer design system): warm white bg,
+   single ink accent, serif headings + sans body + mono statistics. */
+:root {
+  --bg: #fafaf8; --bg-alt: #f4f3f0; --bg-card: #ffffff;
+  --hairline: rgba(0,0,0,0.06); --rule: rgba(0,0,0,0.10);
+  --t1: #111; --t2: #4a4a4a; --t3: #888;
+  --ink: #1e3a54; --warm: #c2673a; --green: #2d7d4f; --red: #c4433b; --gold: #8a6d3b;
+  --serif: "Source Han Serif SC", "Noto Serif SC", Georgia, "SimSun", serif;
+  --sans: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--t1);
+       font: 0.92rem/1.75 var(--sans); }
+body::before { content: ""; display: block; height: 3px; background: var(--ink); }
+.layout { display: flex; max-width: 1280px; margin: 0 auto; }
+aside.nav { width: 200px; flex: 0 0 200px; position: sticky; top: 0;
+  align-self: flex-start; max-height: 100vh; overflow-y: auto;
+  padding: 28px 14px 40px 20px; border-right: 1px solid var(--hairline); }
+aside.nav .brand { font-family: var(--mono); font-size: 0.68rem; color: var(--t3);
+  letter-spacing: 0.08em; margin-bottom: 14px; text-transform: uppercase; }
+aside.nav a { display: block; padding: 5px 8px; color: var(--t2);
+  text-decoration: none; font-size: 0.82rem; border-left: 2px solid transparent; }
+aside.nav a:hover { color: var(--ink); border-left-color: var(--ink); background: var(--bg-alt); }
+main { flex: 1; min-width: 0; padding: 30px 40px 80px; }
+.sec { margin: 54px 0; padding-top: 6px; }
+h2 { font-family: var(--serif); font-size: 1.45rem; font-weight: 600; color: var(--t1);
+  border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin: 0 0 18px; }
+.sec-num { font-family: var(--mono); font-size: 0.85rem; color: var(--t3);
+  letter-spacing: 0.1em; margin-right: 12px; }
+h3.block-title { font-family: var(--serif); font-size: 1.05rem; margin: 26px 0 10px; }
+code, .mono { font-family: var(--mono); font-size: 0.78rem; }
+.num { font-family: var(--mono); text-align: right; }
+.sha { word-break: break-all; font-size: 0.68rem; color: var(--t3); }
+.body-l { font-size: 1.02rem; max-width: 860px; }
+.body-note, .t3 { color: var(--t3); font-size: 0.82rem; }
+.t2 { color: var(--t2); }
+.twocol { display: flex; gap: 40px; flex-wrap: wrap; }
+.twocol > div { flex: 1 1 340px; }
+
+/* hero */
+.hero-card { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 22px 26px; }
+.hero-badges { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--hairline); padding-bottom: 14px; }
+.grade-badge { font-family: var(--serif); font-size: 2.2rem; font-weight: 700;
+  line-height: 1; padding: 10px 18px; border-radius: 8px; }
+.g-green { background: #e2f2ec; color: var(--green); }
+.g-gold { background: #f2ecdf; color: var(--gold); }
+.g-warm { background: #f7e8dd; color: var(--warm); }
+.mode-badge { font-size: 0.9rem; color: var(--ink); background: #e7eef5;
+  padding: 5px 12px; border-radius: 14px; }
+.hero-meta { color: var(--t3); }
+.hero-grid { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 16px; }
+.hero-main { flex: 1 1 420px; }
+.hero-sub { font-size: 0.8rem; color: var(--t3); font-weight: 400;
+  letter-spacing: 0.06em; margin: 0 0 8px; }
+.hero-findings { list-style: none; margin: 0; padding: 0; }
+.hero-findings li { padding: 8px 0; border-bottom: 1px solid var(--hairline); }
+.kf-id { font-family: var(--mono); font-size: 0.72rem; color: var(--ink);
+  margin-right: 8px; }
+.kf-q { color: var(--t3); margin-left: 8px; }
+.hero-side { display: flex; flex-direction: column; gap: 8px; min-width: 130px; }
+.hero-num { display: flex; align-items: baseline; gap: 10px; }
+.hero-num b { font-family: var(--serif); font-size: 1.7rem; color: var(--ink); }
+.hero-num span { color: var(--t3); font-size: 0.8rem; }
+.hero-limit { margin-top: 16px; padding: 12px 16px; background: #fdf6f0;
+  border-left: 3px solid var(--warm); border-radius: 4px; font-size: 0.88rem; }
+.hero-limit .cr-label { margin-right: 10px; }
+
+/* charts */
+.chart { background: var(--bg-card); border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 16px 18px 12px; margin: 18px 0; }
+.chart-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--hairline); padding-bottom: 8px; margin-bottom: 10px; }
+.chart-title { font-family: var(--mono); font-size: 0.8rem; color: var(--ink);
+  letter-spacing: 0.02em; }
+.chart-note { font-size: 0.75rem; color: var(--t3); }
+.chart-body svg { max-width: 100%; height: auto; display: block; }
+.chart-body svg text { font-family: var(--sans); }
+.chart-body svg .mono-lbl { font-family: var(--mono); }
+.chart-reading { display: grid; grid-template-columns: 90px 1fr; gap: 3px 12px;
+  margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--hairline);
+  font-size: 0.82rem; }
+.cr-label { font-family: var(--mono); font-size: 0.72rem; color: var(--ink);
+  letter-spacing: 0.06em; }
+
+/* tables */
+.stat-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.stat-table thead th { text-align: left; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--t3); font-size: 0.68rem; font-weight: 600;
+  border-bottom: 1px solid var(--rule); padding: 6px 8px; }
+.stat-table tbody td { border-bottom: 1px solid var(--hairline); padding: 5px 8px; }
+.stat-table .hi { color: var(--ink); font-weight: 600; }
+.stat-table .lo { color: var(--t3); }
+.table-wrap { overflow-x: auto; }
+
+/* badges and cards */
+.sev-badge { display: inline-block; padding: 1px 9px; border-radius: 11px;
+  font-size: 0.72rem; font-weight: 600; font-family: var(--mono); }
+.sev-ok { background: #e2f2ec; color: var(--green); }
+.sev-warn { background: #f7e8dd; color: var(--warm); }
+.sev-crit { background: #f6dfdd; color: var(--red); }
+.sev-info { background: var(--bg-alt); color: var(--t2); }
+.sev-na { background: var(--bg-alt); color: var(--t3); }
+.role-chip { display: inline-block; padding: 0 8px; border-radius: 9px;
+  font-size: 0.7rem; font-family: var(--mono); }
+.r-response { background: #e7eef5; color: var(--ink); }
+.r-factor { background: #e2f2ec; color: var(--green); }
+.r-block, .r-covariate { background: #f2ecdf; color: var(--gold); }
+.r-index, .r-ignore { background: var(--bg-alt); color: var(--t3); }
+.caveat-list { margin: 8px 0; padding-left: 20px; }
+.caveat-list li { margin: 5px 0; }
+.mono-list { list-style: none; padding-left: 0; }
+.mono-list li { font-size: 0.72rem; margin: 3px 0; }
+.kf-list { list-style: none; padding: 0; }
+.kf-list li { padding: 9px 0; border-bottom: 1px solid var(--hairline); }
+.ev-ref { background: var(--bg-alt); border-radius: 8px; padding: 1px 8px;
+  margin-left: 8px; color: var(--gold); text-decoration: none;
+  display: inline-block; max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.check-card { background: var(--bg-card); border: 1px solid var(--hairline);
+  border-left: 3px solid var(--ink); border-radius: 6px; padding: 12px 16px; margin: 12px 0; }
+.check-warn { border-left-color: var(--warm); }
+.check-info { border-left-color: var(--gold); }
+.check-card p { margin: 6px 0; }
+.gate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.gate-cell { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border: 1px solid var(--hairline); border-radius: 6px; font-size: 0.82rem; }
+.kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+.kpi { flex: 1 1 150px; background: var(--bg-card); border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 10px 14px; display: flex; flex-direction: column; }
+.kpi-wide { flex: 2 1 320px; }
+.kpi-label { font-family: var(--mono); font-size: 0.68rem; color: var(--t3);
+  letter-spacing: 0.08em; text-transform: uppercase; }
+.kpi-value { font-size: 1.25rem; color: var(--ink); margin-top: 2px; }
+.kpi-note { font-size: 0.74rem; color: var(--t2); }
+.tab-bar { display: flex; gap: 8px; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+.tab-btn { border: 1px solid var(--rule); background: var(--bg-card); color: var(--t2);
+  border-radius: 14px; padding: 3px 14px; font-size: 0.8rem; cursor: pointer; }
+.tab-btn.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.resp-block { display: none; }
+.resp-block.resp-active { display: block; }
+.sig-only .anova-table tbody tr[data-sig="0"] { display: none; }
+.hide-ci .ci-el { display: none; }
+.toggle { font-size: 0.78rem; color: var(--t2); display: inline-flex;
+  align-items: center; gap: 5px; cursor: pointer; }
+.read-layers li, .chap-map li { margin: 7px 0; }
+.chap-map { list-style: none; padding: 0; }
+.chap-map a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--rule); }
+.alias-probe summary { cursor: pointer; color: var(--ink); font-size: 0.85rem; }
+.alias-list { columns: 2; font-size: 0.76rem; }
+#tooltip { position: fixed; display: none; pointer-events: none; z-index: 50;
+  background: #22303f; color: #f5f2ec; font-family: var(--mono); font-size: 0.7rem;
+  line-height: 1.5; padding: 8px 11px; border-radius: 6px; white-space: pre;
+  max-width: 420px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+footer.run-foot { max-width: 1280px; margin: 0 auto; padding: 18px 40px 30px;
+  color: var(--t3); font-size: 0.75rem; border-top: 1px solid var(--hairline); }
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  aside.nav { position: static; width: 100%; flex: none; max-height: none;
+    border-right: none; border-bottom: 1px solid var(--hairline); }
+  main { padding: 20px 18px 60px; }
+}
+@media print {
+  aside.nav, .toggle, .tab-bar { display: none !important; }
+  .resp-block { display: block !important; }
+  body { background: #fff; }
+  .chart, .check-card, .hero-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="nav">
+  <div class="brand">DOE analyzer<br>mode: observational<br>design: observational<br>v1.0</div>
+  <nav><a href="#sec-hero">10 秒结论</a><a href="#sec-0">导读</a><a href="#sec-1">数据概貌</a><a href="#sec-2">模式判定依据</a><a href="#sec-3">分析流程总览</a><a href="#sec-6b">相关与防伪</a><a href="#sec-7">稳定性与能力</a><a href="#sec-8">操作窗口</a><a href="#sec-9">结论与等级</a><a href="#sec-10">局限与确认实验</a><a href="#sec-appendix">工件索引</a></nav>
+</aside>
+<main>
+<section class="sec" id="sec-hero"><h2><span class="sec-num">★</span>10 秒结论</h2>
+<div class="hero-card">
+  <div class="hero-badges">
+    <span class="grade-badge g-warm" title="证据等级（checklist 计算）">B</span>
+    <span class="mode-badge">observational · 观察性数据（未匹配任何设计签名）</span>
+    <span class="mono hero-meta">script v1.0 · 2026-10-01T12:59:55</span>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-main">
+      <h3 class="hero-sub">前三条关键发现（脚本产出，agent 仅解读）</h3>
+      <ul class="hero-findings"><li><span class="kf-id">KF-001</span>drift_a 与 y 的相关 r=0.7335，滞后 7 步，q(BH)=0，防伪裁决 CAUTION — 相关级证据，非因果<span class="mono kf-q">q=0</span></li><li><span class="kf-id">KF-002</span>drift_b 与 y 的相关 r=0.7278，滞后 6 步，q(BH)=0，防伪裁决 CAUTION — 相关级证据，非因果<span class="mono kf-q">q=0</span></li></ul>
+    </div>
+    <div class="hero-side">
+      <div class="hero-num"><b>1</b><span>操作窗口</span></div>
+      <div class="hero-num"><b>1</b><span>需确认试验</span></div>
+      <div class="hero-num"><b>3</b><span>观察清单条目</span></div>
+    </div>
+  </div>
+  <div class="hero-limit"><span class="cr-label">最重要限制</span>观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations</div>
+</div></section><section class="sec" id="sec-0"><h2><span class="sec-num">§0</span>导读</h2>
+<div class="twocol">
+<div>
+<h3 class="block-title">三层读法</h3>
+<ol class="read-layers">
+<li><b>10 秒</b> — 只看上方 10 秒结论卡：等级徽标、前三条发现、窗口/确认数与最重要限制。</li>
+<li><b>1 分钟</b> — 顺着左侧导航读 §2（这个结论凭什么在 designed/observational 档）→ §9（等级四门）→ §10（必须做什么才能闭环）。</li>
+<li><b>深读</b> — 在证据章节（§4–§7 按模式裁剪）逐图核对：每张图都带三行读图，悬停可查看每个点/格/带的完整统计明细。</li>
+</ol>
+<p class="body-note">本页由脚本确定性渲染 9 个工件 JSON，页面内不做任何统计计算；数字如与工件不符即视为被篡改（附录含每个工件的 sha256）。</p>
+</div>
+<div>
+<h3 class="block-title">章节地图（本报告模式：observational）</h3>
+<ul class="chap-map"><li><a href="#sec-hero">10 秒结论</a></li><li><a href="#sec-0">导读</a></li><li><a href="#sec-1">数据概貌</a></li><li><a href="#sec-2">模式判定依据</a></li><li><a href="#sec-3">分析流程总览</a></li><li><a href="#sec-6b">相关与防伪</a></li><li><a href="#sec-7">稳定性与能力</a></li><li><a href="#sec-8">操作窗口</a></li><li><a href="#sec-9">结论与等级</a></li><li><a href="#sec-10">局限与确认实验</a></li><li><a href="#sec-appendix">附录：工件索引</a></li></ul>
+<p class="body-note">章节编号为全局编号，按模式裁剪：observational 模式不产生设计实验章节 §4–§6，designed 模式不产生观测章节 §6b–§7 — 因此各自存在一次跳号，属预期。</p>
+</div>
+</div></section><section class="sec" id="sec-1"><h2><span class="sec-num">§1</span>数据概貌</h2>
+<p class="body-l">数据文件 <code class="mono">D:\codes\myskills\industrial-deep-diagnostic\workspace\multi-type-alignment-eval\S5\run\00_input\data.csv</code>：
+<b>1200</b> 行 × <b>5</b> 列
+（重复行 0，高缺失列 无）。</p>
+<figure class="chart"><figcaption class="chart-head"><span class="chart-title">列角色面板</span></figcaption>
+<table class="stat-table"><thead><tr><th>列名</th><th>角色</th><th>类型</th><th>缺失</th><th>唯一值</th></tr></thead>
+<tbody><tr><td class="mono">t</td><td><span class="role-chip r-index">index</span></td><td class="mono">str</td><td class="num">0</td><td class="num">1200</td></tr><tr><td class="mono">x1</td><td><span class="role-chip r-factor">factor</span></td><td class="mono">float64</td><td class="num">0</td><td class="num">1199</td></tr><tr><td class="mono">drift_a</td><td><span class="role-chip r-factor">factor</span></td><td class="mono">float64</td><td class="num">0</td><td class="num">1200</td></tr><tr><td class="mono">drift_b</td><td><span class="role-chip r-factor">factor</span></td><td class="mono">float64</td><td class="num">0</td><td class="num">1200</td></tr><tr><td class="mono">y</td><td><span class="role-chip r-response">response</span></td><td class="mono">float64</td><td class="num">0</td><td class="num">1200</td></tr></tbody></table>
+<div class="chart-reading"><span class="cr-label">看到了什么</span><span>每列按 profile 赋予的角色着色：响应（蓝）/因子（绿）/区组·协变量（金）/索引（灰）。</span><span class="cr-label">意味着什么</span><span>角色由 user context 或自动推断赋予，决定它进入模型的位置。</span><span class="cr-label">为何重要</span><span>看错角色（例如把运行序当成因子）是工况分析最常见的翻车点。</span></div></figure>
+<h3 class="block-title">质量警示（caveats）</h3>
+<ul class="caveat-list"><li class="t3">无（本轮未检出结构性质量警示）</li></ul></section><section class="sec" id="sec-2"><h2><span class="sec-num">§2</span>模式判定依据</h2><p class="body-l">判定信号摘要：未匹配任何试验设计签名 → 保守判定 <b>observational</b>（全部结论为相关级证据）。</p><table class="stat-table"><tbody><tr><th>design_type</th><td class="mono">观察性数据（未匹配任何设计签名）</td></tr><tr><th>runs × 因子列 × 不同组合</th><td class="mono">— × — × —</td></tr><tr><th>resolution / 生成子</th><td class="mono">—</td></tr><tr><th>中心点 / 轴点 / α</th><td class="mono">— / — / —</td></tr><tr><th>balanced / balance_ratio</th><td class="mono">— / —</td></tr><tr><th>replicates / 最大|因子相关|</th><td class="mono">— / —</td></tr></tbody></table><h3 class="block-title">判定过程记录（detection_notes）</h3><ul class="mono-list"><li class="mono t2">continuous or mixed factors — discrete-design rules skipped</li><li class="mono t2">LHS occupancy only 0.07 (&lt;0.85)</li><li class="mono t2">center-stripped retry did not match (3 center rows)</li><li class="mono t2">no designed-experiment signature matched</li></ul><p class="t3">无别名链记录（全因子 / RSM / 观察档）</p><div class="check-card"><b>时序校验（sorting_validation）</b><p><span class="sev-badge g-green">已按时间排序</span> 时间列 <span class="mono">t</span>，1200 行；Time-sorted</p><p class="t3">观察档窗口取自稳态段 — 数据未按时间排序时稳态/变点结果不可信。</p></div></section><section class="sec" id="sec-3"><h2><span class="sec-num">§3</span>分析流程总览</h2><figure class="chart"><figcaption class="chart-head"><span class="chart-title">Phase 0 → 报告 流程带</span></figcaption><svg viewBox="0 0 1180 128" width="100%" role="img" aria-label="分析流程带"><rect x="0" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="87" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">Phase 0/1</text><text x="87" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">清单 + 探查 + 设计检测</text><text x="87" y="88" text-anchor="middle" font-size="12" fill="#555">run_manifest · data_profile</text><line x1="176" y1="62" x2="197" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="197,57 197,67 203,62" fill="#1a1a1a"/><rect x="201" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#8a6d3b" stroke-width="1.4"/><text x="288" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#8a6d3b">分派</text><text x="288" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">designed / observational</text><text x="288" y="88" text-anchor="middle" font-size="12" fill="#555">模式决定方法链</text><line x1="378" y1="62" x2="399" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="399,57 399,67 405,62" fill="#1a1a1a"/><rect x="403" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="489" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">Phase 2</text><text x="489" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">确定性统计（numpy/scipy）</text><text x="489" y="88" text-anchor="middle" font-size="12" fill="#555">effect_table · model · correlation · stability</text><line x1="579" y1="62" x2="600" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="600,57 600,67 606,62" fill="#1a1a1a"/><rect x="604" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#8a6d3b" stroke-width="1.4"/><text x="691" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#8a6d3b">Phase 3</text><text x="691" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">agent 仅解读，不改数</text><text x="691" y="88" text-anchor="middle" font-size="12" fill="#555">key_findings 措辞</text><line x1="780" y1="62" x2="801" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="801,57 801,67 807,62" fill="#1a1a1a"/><rect x="805" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#2d7d4f" stroke-width="1.4"/><text x="892" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#2d7d4f">G1–G7</text><text x="892" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">质量门（Node 独立复核）</text><text x="892" y="88" text-anchor="middle" font-size="12" fill="#555">gate PASS 才允许交付</text><line x1="982" y1="62" x2="1003" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="1003,57 1003,67 1009,62" fill="#1a1a1a"/><rect x="1007" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="1093" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">报告</text><text x="1093" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">本页 report.html</text><text x="1093" y="88" text-anchor="middle" font-size="12" fill="#555">9 工件确定性渲染</text></svg><div class="chart-reading"><span class="cr-label">看到了什么</span><span>六段流程：profile 探查 → 模式分派 → 确定性统计 → agent 解读 → G1–G7 质量门 → 本页渲染。</span><span class="cr-label">意味着什么</span><span>脚本算数（numpy/scipy 固定口径），agent 只改措辞；质量门用独立 Node 进程复核工件。</span><span class="cr-label">为何重要</span><span>数字的产出与审计分离 — 页面上任何统计量都能在附录工件里找到原值与 sha256。</span></div></figure></section><section class="sec" id="sec-6b"><h2><span class="sec-num">§6b</span>相关与防伪</h2><p class="body-note">编号说明：章节编号为全局编号 — observational 模式不产生设计实验章节 §4–§6，故本章由 §3 直接跳至 §6b（跳号属预期，非内容缺失）。</p><p class="body-l">共 3 个原始相关对，BH 校正后显著（q&lt;0.05）3 个；本节只渲染通过筛选的对。</p><figure class="chart" id="chart-01"><figcaption class="chart-head"><span class="chart-title">验证相关热图（q&lt;0.05 或非 FAIL 对；悬停看该对完整防伪记录）</span></figcaption><div class="chart-body" data-chart="corrheat" data-key="corrheat"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>3 个通过筛选的相关格：PASS 1 / CAUTION 2 / FAIL 已剔除</span><span class="cr-label">意味着什么</span><span>PASS = 防伪链全过；CAUTION = 存在趋势/离群警示 — 可引用但要确认；FAIL 对已从视图剔除</span><span class="cr-label">为何重要</span><span>颜色深浅只代表相关强度，是否可信由防伪裁决决定 — 引用任何相关前先看裁决色环</span></div></figure><figure class="chart" id="chart-02"><figcaption class="chart-head"><span class="chart-title">留一因子 ΔR² 贡献排名（前 10）</span></figcaption><div class="chart-body" data-chart="dr2" data-key="dr2"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>最大贡献 drift_a→y（ΔR²=0.00851）</span><span class="cr-label">意味着什么</span><span>ΔR² 是把该因子从多元回归中移除后 R² 的降幅 — 衡量边际贡献而非单变量相关</span><span class="cr-label">为何重要</span><span>高 r 低 ΔR² 的因子多为冗余/共线 — 窗口优先落在高 ΔR² 的因子上</span></div></figure><div class="check-card check-info"><b>防伪图例</b><p><span class="sev-badge sev-ok">PASS</span> 滞后补偿 CCF + 去趋势 + 离群留一 + Simpson 分层 全部通过；<span class="sev-badge sev-warn">CAUTION</span> 存在时间趋势/离群敏感 — 结论可用但需确认；<span class="sev-badge sev-crit">FAIL</span> 离群驱动/LOO 不稳/Simpson 悖论 — 已剔除，不得引用。</p><p class="t3">防伪链实现见 industrial-data-processor anti_spurious（v1 口径），本页只展示其裁决。</p></div></section><section class="sec" id="sec-7"><h2><span class="sec-num">§7</span>稳定性与能力</h2><div class="resp-block resp-active" data-response="y"><figure class="chart" id="chart-03"><figcaption class="chart-head"><span class="chart-title">稳态时间线 — y</span></figcaption><div class="chart-body" data-chart="timeline" data-key="timeline:y"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>1 个稳态段（绿色阴影，加深的为入选窗口的段）；虚线为变点位置（5 个）</span><span class="cr-label">意味着什么</span><span>窗口证据只能来自稳态段 — 段外数据含过渡/漂移，进入统计会污染均值与方差</span><span class="cr-label">为何重要</span><span>若变点紧随最后一个稳态段之后（见 §10），说明过程仍在漂移，窗口有效期存疑</span></div></figure><div class="kpi-row"><div class="kpi"><span class="kpi-label">n</span><span class="kpi-value mono">1200</span></div><div class="kpi"><span class="kpi-label">mean</span><span class="kpi-value mono">51.16</span></div><div class="kpi"><span class="kpi-label">σ overall</span><span class="kpi-value mono">0.9585</span></div><div class="kpi"><span class="kpi-label">σ within (MR)</span><span class="kpi-value mono">0.4476</span></div><div class="kpi"><span class="kpi-label">正态</span><span class="kpi-value mono">否（AD=1.93 ≥ 0.752）</span></div><div class="kpi"><span class="kpi-label">n_eff (AR1)</span><span class="kpi-value mono">148</span></div></div></div></section><section class="sec" id="sec-8"><h2><span class="sec-num">§8</span>操作窗口</h2><figure class="chart" id="chart-04"><figcaption class="chart-head"><span class="chart-title">操作窗口 Forest 图（1 个窗口；灰带=观测域，色带=窗口，菱形=当前基线，须=CI95）</span><label class="toggle"><input type="checkbox" id="toggle-ci" checked/>显示 CI95</label></figcaption><div class="chart-body" data-chart="forest" data-key="forest"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>1 个窗口需要确认试验后才能执行；0 个因子存在多响应窗口冲突（已标注 chosen/落选）</span><span class="cr-label">意味着什么</span><span>窗口色带落在灰带边缘甚至触边 → 外推风险；菱形（当前基线）离窗口越远，调整代价越大</span><span class="cr-label">为何重要</span><span>这是全报告最直接的动作清单 — 每个 OW 的 range 都可对照灰带判断「调多少、往哪调」</span></div></figure></section><section class="sec" id="sec-9"><h2><span class="sec-num">§9</span>结论与等级</h2><figure class="chart"><figcaption class="chart-head"><span class="chart-title">等级四门（evidence_grade = B）</span><span class="chart-note">未评估项（—）不计入 fail，见 method_notes C11 等级规则</span></figcaption><div class="gate-grid"><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>随机化检查（因子 × 运行顺序 ρ）</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>纯误差自由度 &gt; 0（存在重复）</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>分辨度 / 设计类型充分</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>设计平衡</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>模型适切性（失拟不显著且非饱和）</span></div><div class="gate-cell"><span class="sev-badge sev-ok">通过</span><span>防伪检查（|r|≥0.3 对无 FAIL）</span></div></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>每扇门是一个机械判据（随机化/纯误差/分辨度/平衡/模型适切/防伪），未评估显示 — 不计失败。</span><span class="cr-label">意味着什么</span><span>等级由 checklist 逐门计算：0 败=A、1 败=A−、其余=B；observational 恒为 B。</span><span class="cr-label">为何重要</span><span>等级决定下游能把它用到哪：A 才可作因果结论，B 只能作方向参考。</span></div></figure><h3 class="block-title">关键发现 ↔ 证据链接（悬停证据 chip 看全名）</h3><ul class="kf-list"><li><span class="kf-id">KF-001</span>drift_a 与 y 的相关 r=0.7335，滞后 7 步，q(BH)=0，防伪裁决 CAUTION — 相关级证据，非因果 <a class="mono ev-ref" title="correlation_report.json#y.drift_a" href="#sec-appendix">correlation_report.json#y.drift_a</a><span class="sev-badge sev-na">low</span></li><li><span class="kf-id">KF-002</span>drift_b 与 y 的相关 r=0.7278，滞后 6 步，q(BH)=0，防伪裁决 CAUTION — 相关级证据，非因果 <a class="mono ev-ref" title="correlation_report.json#y.drift_b" href="#sec-appendix">correlation_report.json#y.drift_b</a><span class="sev-badge sev-na">low</span></li></ul><h3 class="block-title">使用规则（usage_rules）</h3><ul class="caveat-list"><li>observational 窗口在闭环执行前必须先跑 confirmations</li><li>confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制</li></ul></section><section class="sec" id="sec-10"><h2><span class="sec-num">§10</span>局限与确认实验</h2><h3 class="block-title">局限（script-authored，全量）</h3><ul class="caveat-list"><li>观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations</li><li>检出过程变点 — 结论仅适用于 applicability_domain 所限工况</li></ul><h3 class="block-title">确认实验（执行任何窗口前必须完成）</h3><table class="stat-table"><thead><tr><th>ID</th><th>reason_code</th><th>原因</th><th>设计提示</th><th class="num">runs</th></tr></thead><tbody><tr><td class="mono">CF-001</td><td><span class="sev-badge sev-warn">observational</span></td><td>全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认</td><td>在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）</td><td class="num">4</td></tr></tbody></table><h3 class="block-title">观察清单（watchlist）</h3><ul class="caveat-list"><li><b class="mono">TREND_CONFOUNDED_NO_WINDOW</b> y~drift_a 原始 r=0.7335 主要由共同时间趋势驱动（去趋势 r=0.011，|detrended_r|&lt;0.1）— 不产出操作窗口，仅列入观察清单等待去趋势后复核</li><li><b class="mono">TREND_CONFOUNDED_NO_WINDOW</b> y~drift_b 原始 r=0.7278 主要由共同时间趋势驱动（去趋势 r=-0.0453，|detrended_r|&lt;0.1）— 不产出操作窗口，仅列入观察清单等待去趋势后复核</li><li><b class="mono">OBSERVATIONAL_EVIDENCE</b> 本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行</li></ul><h3 class="block-title">失效条件（invalidation_conditions）</h3><ol class="caveat-list"><li>任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%</li><li>stability_report 变点检测触发新 regime（漂移/换产）</li><li>确认试验结果与 expected_effect 的 CI95 不相交</li></ol><div class="check-card"><b>适用域（applicability_domain）</b><p>行数 1200；时间跨度 2026-09-01T00:00:00Z .. 2026-09-01T19:59:00Z；工况 steady-state segments。</p><table class="stat-table"><thead><tr><th>因子</th><th class="num">观测 min</th><th class="num">观测 max</th></tr></thead><tbody><tr><td class="mono">x1</td><td class="num">-3.766</td><td class="num">2.717</td></tr></tbody></table><p class="t3">越出观测域 ±20% 或触发新变点即视为失效 — 见上方失效条件。</p></div></section><section class="sec" id="sec-appendix"><h2><span class="sec-num">附录</span>工件索引</h2><h3 class="block-title">工件索引（sha256 — 篡改检测的锚点）</h3><div class="table-wrap"><table class="stat-table"><thead><tr><th>工件</th><th>sha256（前 16）</th><th>generated_at</th><th>状态</th></tr></thead><tbody><tr><td class="mono">00_input/analysis_context.json</td><td class="mono sha">e9dfa3b326aca66cbecdd9cb636ace2194c3427cecfdf0ceec1ce23477fe63c4</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">01_profile/data_profile.json</td><td class="mono sha">fe7d65781a2e42ad7e3d71fce5304c3c28caceaa0d31192186c0787b5a6b7ca7</td><td class="mono t3">2026-10-01T12:59:50</td><td>在</td></tr><tr><td class="mono">02_analysis/effect_table.json</td><td class="mono sha">—</td><td class="mono t3">—</td><td>不适用（observational 模式）</td></tr><tr><td class="mono">02_analysis/model.json</td><td class="mono sha">—</td><td class="mono t3">—</td><td>不适用（observational 模式）</td></tr><tr><td class="mono">02_analysis/correlation_report.json</td><td class="mono sha">b8c7d13f865d9285ce9a51d1eabd02c4dbeed8983691723a844a5e2472ed1eba</td><td class="mono t3">2026-10-01T12:59:55</td><td>在</td></tr><tr><td class="mono">02_analysis/stability_report.json</td><td class="mono sha">9f4c6dfc7b81da56901230a31b907ecdeff83a53b921dd3f9f5c4d41bc8a2e7f</td><td class="mono t3">2026-10-01T12:59:55</td><td>在</td></tr><tr><td class="mono">03_figures/plot_manifest.json</td><td class="mono sha">47ec951eb2e9e54f6aee111ddeabd7462e2ad32e831a7e21d76585f60682f1e6</td><td class="mono t3">2026-10-01T12:59:55</td><td>在</td></tr><tr><td class="mono">conclusions/doe_conclusion.json</td><td class="mono sha">cace74175268abf2d3a0452184cdf82f1af22977675782a3feb7bb274c70a58b</td><td class="mono t3">2026-10-01T12:59:55</td><td>在</td></tr><tr><td class="mono">conclusions/recommendations.json</td><td class="mono sha">939271048ee964b6b693b0346cdc27fd0050686fbd64fb57a62b97859579f4f1</td><td class="mono t3">—</td><td>在</td></tr></tbody></table></div><p class="body-note">原始数据 sha256：<span class="mono sha">03dffc5f4eaf48cfbb1eda1933643cc2884b2410e20c7b8338e4579c92122cb8</span>（只读输入；观测档用于稳定性序列图形，designed 档仅作指纹留存）</p><h3 class="block-title">plot_manifest 逐图 ink 结果</h3><div class="table-wrap"><table class="stat-table"><thead><tr><th>文件</th><th>类型</th><th>标题</th><th>ink</th><th>bytes</th><th>详情</th></tr></thead><tbody><tr><td class="mono">correlation_heatmap.png</td><td>correlation_heatmap</td><td>Validated correlations (q&lt;0.05 or non-FAIL pairs; r values)</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">25455</td><td class="mono t3">ink ratio 0.5726 ok; ink ratio 57.3% across 4 quadrants</td></tr><tr><td class="mono">contribution_bar.png</td><td>contribution_bar</td><td>ΔR² contribution ranking</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">18639</td><td class="mono t3">ink ratio 0.3206 ok; ink ratio 32.1% across 4 quadrants</td></tr><tr><td class="mono">timeline_y.png</td><td>stability_timeline</td><td>Stability timeline — y (green: steady, dashed: change points)</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">140856</td><td class="mono t3">ink ratio 0.7204 ok; ink ratio 72% across 4 quadrants</td></tr><tr><td class="mono">segments_y.png</td><td>segment_comparison</td><td>Steady-segment comparison — y</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">19273</td><td class="mono t3">ink ratio 0.6251 ok; ink ratio 62.5% across 4 quadrants</td></tr></tbody></table></div></section>
+</main>
+</div>
+<footer class="run-foot">generated 2026-10-01T12:59:55 · 由 industrial-doe-analyzer 脚本确定性渲染（9 工件 · sha256 见附录） · 页面无外部请求、无浏览器端统计</footer>
+<div id="tooltip"></div>
+<script>
+(function () {
+"use strict";
+var PAYLOAD = JSON.parse(document.getElementById("report-payload").textContent);
+var NS = "http://www.w3.org/2000/svg";
+var C = { ink: "#1e3a54", warm: "#c2673a", green: "#2d7d4f", red: "#c4433b",
+          grey: "#8a8a8a", gold: "#8a6d3b", grid: "rgba(0,0,0,0.08)", t3: "#888" };
+
+function fmt(v, digits) {
+  if (v === null || v === undefined) return "\u2014";
+  if (typeof v !== "number") return String(v);
+  if (!isFinite(v)) return "\u2014";
+  var d = digits === undefined ? 4 : digits;
+  var s = v.toPrecision(Math.max(1, d));
+  if (Math.abs(v) >= 1e5 || (Math.abs(v) < 1e-4 && v !== 0)) {
+    var e = v.toExponential(2);
+    return e;
+  }
+  return String(parseFloat(s));
+}
+function S(tag, attrs, parent, txt) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (txt !== null && txt !== undefined) e.textContent = txt;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function H(tag, cls, parent, txt) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== null && txt !== undefined) e.textContent = txt;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function lin(v, d0, d1, r0, r1) {
+  if (d1 - d0 === 0) return (r0 + r1) / 2;
+  return r0 + (v - d0) * (r1 - r0) / (d1 - d0);
+}
+function mix(a, b, t) {
+  function p(h, i) { return parseInt(h.substr(i, 2), 16); }
+  var r = Math.round(p(a, 1) + (p(b, 1) - p(a, 1)) * t);
+  var g = Math.round(p(a, 3) + (p(b, 3) - p(a, 3)) * t);
+  var bl = Math.round(p(a, 5) + (p(b, 5) - p(a, 5)) * t);
+  return "rgb(" + r + "," + g + "," + bl + ")";
+}
+function ramp(t) { /* ink -> warm paper -> warm */
+  if (t < 0.5) return mix("#1e3a54", "#f4f3f0", t * 2);
+  return mix("#f4f3f0", "#c2673a", (t - 0.5) * 2);
+}
+function chartSvg(el, w, h) {
+  var svg = S("svg", { viewBox: "0 0 " + w + " " + h, width: w, height: h });
+  el.appendChild(svg);
+  return svg;
+}
+
+/* ---------------- tooltip ---------------- */
+var tip = document.getElementById("tooltip");
+document.addEventListener("mousemove", function (ev) {
+  var t = ev.target;
+  while (t && t.getAttribute && !t.getAttribute("data-tip")) t = t.parentNode;
+  var msg = t && t.getAttribute ? t.getAttribute("data-tip") : null;
+  if (msg) {
+    tip.textContent = msg;
+    tip.style.display = "block";
+    var x = ev.clientX + 14, y = ev.clientY + 14;
+    if (x + 440 > window.innerWidth) x = ev.clientX - 440;
+    if (y + 180 > window.innerHeight) y = ev.clientY - 120;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  } else {
+    tip.style.display = "none";
+  }
+});
+
+/* ---------------- builders ---------------- */
+var BUILDERS = {};
+
+BUILDERS.pareto = function (el, d) {
+  var rows = d.rows.slice().sort(function (a, b) { return (b.t || 0) - (a.t || 0); });
+  var L = 180, R = 60, T = 18, rowH = 24;
+  var W = 760, H = rows.length * rowH + T + 40;
+  var maxT = Math.max.apply(null, rows.map(function (r) { return r.t || 0; }).concat([0.001]));
+  var svg = chartSvg(el, W, H);
+  var steps = [0, 0.25, 0.5, 0.75, 1];
+  steps.forEach(function (s) {
+    var x = lin(s * maxT, 0, maxT, L, W - R);
+    S("line", { x1: x, y1: T, x2: x, y2: H - 34, stroke: s === 0 ? C.t3 : C.grid, "stroke-width": 1 }, svg);
+    S("text", { x: x, y: H - 20, "text-anchor": "middle", "font-size": 10, fill: C.t3 }, svg, fmt(s * maxT, 3));
+  });
+  if (d.ref !== null && d.ref !== undefined) {
+    var xr = lin(d.ref, 0, maxT, L, W - R);
+    S("line", { x1: xr, y1: T, x2: xr, y2: H - 34, stroke: C.red, "stroke-width": 1.2, "stroke-dasharray": "5 4" }, svg);
+    /* label ABOVE the plot area (T-5): never collides with the longest bar */
+    S("text", { x: xr + 4, y: T - 5, "font-size": 10.5, fill: C.red }, svg, "t*=" + fmt(d.ref, 3));
+  }
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.t || 0, 0, maxT, L, W - R) - L;
+    var col = r.sig ? C.warm : C.grey;
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10.5,
+                fill: r.sig ? C.ink : C.t2 }, svg, String(r.term));
+    var bar = S("rect", { x: L, y: y - 8, width: Math.max(w, 1), height: 16, rx: 3, fill: col,
+                          opacity: r.sig ? 0.95 : 0.65 }, svg);
+    bar.setAttribute("data-tip", "term: " + r.term + "\n|t|: " + fmt(r.t, 4) +
+      "\ncoef: " + fmt(r.coef) + "\nSE: " + fmt(r.se) + "\nq(BH): " + fmt(r.q, 4) +
+      "\npartial eta2: " + fmt(r.eta) + (r.rank ? "\npareto rank: " + r.rank : ""));
+    S("text", { x: L + Math.max(w, 1) + 5, y: y + 3, "font-size": 11,
+                fill: r.sig ? C.warm : C.t3, "class": "mono-lbl" }, svg, fmt(r.t, 3));
+  });
+};
+
+BUILDERS.eta = function (el, d) {
+  var rows = d.rows;
+  var L = 180, R = 70, T = 10, rowH = 22;
+  var W = 700, H = rows.length * rowH + T + 26;
+  var max = Math.max.apply(null, rows.map(function (r) { return r.eta || 0; }).concat([1e-9]));
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.eta || 0, 0, max, 0, W - L - R);
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10.5, fill: C.t2 }, svg, String(r.term));
+    var bar = S("rect", { x: L, y: y - 7, width: Math.max(w, 1), height: 14, rx: 3, fill: C.ink, opacity: 0.85 }, svg);
+    bar.setAttribute("data-tip", "term: " + r.term + "\npartial eta2: " + fmt(r.eta, 5) + "\nq(BH): " + fmt(r.q, 4));
+    S("text", { x: L + Math.max(w, 1) + 6, y: y + 3, "font-size": 11.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(r.eta, 3));
+  });
+};
+
+BUILDERS.resid = function (el, d) {
+  var PW = 350, PH = 240, GAP = 24;
+  var W = PW * 2 + GAP * 3, H = PH * 2 + GAP * 2;
+  var svg = chartSvg(el, W, H);
+  var n = d.fitted.length;
+  function panel(px, py, title) {
+    S("rect", { x: px, y: py, width: PW, height: PH, fill: "#fdfdfc", stroke: C.grid }, svg);
+    S("text", { x: px + 10, y: py + 16, "font-size": 11, fill: C.ink }, svg, title);
+  }
+  function scatter(px, py, xs, ys, tipFn, color) {
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (x1 - x0 === 0) { x0 -= 1; x1 += 1; }
+    if (y1 - y0 === 0) { y0 -= 1; y1 += 1; }
+    var pad = 0.08;
+    x0 -= (x1 - x0) * pad; x1 += (x1 - x0) * pad;
+    y0 -= (y1 - y0) * pad; y1 += (y1 - y0) * pad;
+    var ox = px + 42, oy = py + 30, iw = PW - 58, ih = PH - 52;
+    for (var k = 0; k <= 4; k++) {
+      var gy = oy + ih * k / 4;
+      S("line", { x1: ox, y1: gy, x2: ox + iw, y2: gy, stroke: C.grid }, svg);
+      var gx = ox + iw * k / 4;
+      S("line", { x1: gx, y1: oy, x2: gx, y2: oy + ih, stroke: C.grid }, svg);
+    }
+    xs.forEach(function (xv, i) {
+      var c = S("circle", { cx: lin(xv, x0, x1, ox, ox + iw), cy: lin(ys[i], y0, y1, oy + ih, oy),
+                            r: 2.6, fill: color || C.ink, opacity: 0.8 }, svg);
+      if (tipFn) c.setAttribute("data-tip", tipFn(i));
+    });
+    return { ox: ox, oy: oy, iw: iw, ih: ih, x0: x0, x1: x1, y0: y0, y1: y1 };
+  }
+  var r0 = d.resid;
+  /* panel() (opaque backing + title) MUST be painted BEFORE each panel's
+     data: it fills the full panel rect and would otherwise cover everything. */
+  panel(GAP, GAP, "Residuals vs fitted");
+  var p1 = scatter(GAP, GAP, d.fitted, r0, function (i) {
+    var row = d.rows[i] || {};
+    return "row " + row.row_index + "\ny: " + fmt(row.y) + "\nyhat: " + fmt(row.yhat) + "\nresid: " + fmt(row.resid);
+  });
+  S("line", { x1: p1.ox, y1: lin(0, p1.y0, p1.y1, p1.oy + p1.ih, p1.oy),
+              x2: p1.ox + p1.iw, y2: lin(0, p1.y0, p1.y1, p1.oy + p1.ih, p1.oy),
+              stroke: C.red, "stroke-width": 1.2 }, svg);
+  panel(PW + GAP * 2, GAP, "Normal Q-Q");
+  if (d.qq.length > 1) {
+    var qxs = d.qq.map(function (p) { return p[0]; });
+    var qys = d.qq.map(function (p) { return p[1]; });
+    var p2 = scatter(PW + GAP * 2, GAP, qxs, qys, null);
+    S("line", { x1: lin(qxs[0], p2.x0, p2.x1, p2.ox, p2.ox + p2.iw), y1: lin(qys[0], p2.y0, p2.y1, p2.oy + p2.ih, p2.oy),
+                x2: lin(qxs[qxs.length - 1], p2.x0, p2.x1, p2.ox, p2.ox + p2.iw),
+                y2: lin(qys[qys.length - 1], p2.y0, p2.y1, p2.oy + p2.ih, p2.oy),
+                stroke: C.t3, "stroke-dasharray": "4 3" }, svg);
+  }
+  panel(GAP, PH + GAP * 2, "Residual histogram");
+  var counts = d.hist.counts, edges = d.hist.edges;
+  var maxC = Math.max.apply(null, counts.concat([1]));
+  var ox3 = GAP + 42, oy3 = GAP + 30 + PH, iw3 = PW - 58, ih3 = PH - 52;
+  S("line", { x1: ox3, y1: oy3 + ih3, x2: ox3 + iw3, y2: oy3 + ih3, stroke: C.t3 }, svg);
+  counts.forEach(function (c, i) {
+    var bx0 = lin(edges[i], edges[0], edges[edges.length - 1], ox3, ox3 + iw3);
+    var bx1 = lin(edges[i + 1], edges[0], edges[edges.length - 1], ox3, ox3 + iw3);
+    var bh2 = ih3 * c / maxC;
+    var b = S("rect", { x: bx0 + 1, y: oy3 + ih3 - bh2, width: Math.max(bx1 - bx0 - 2, 1),
+                        height: bh2, fill: C.green, opacity: 0.85 }, svg);
+    b.setAttribute("data-tip", "bin [" + fmt(edges[i], 3) + ", " + fmt(edges[i + 1], 3) + ")\ncount: " + c);
+  });
+  panel(PW + GAP * 2, PH + GAP * 2, "Residuals vs run order");
+  var idx = d.order;
+  var p4 = scatter(PW + GAP * 2, PH + GAP * 2, idx, r0, function (i) {
+    var row = d.rows[i] || {};
+    return "run order " + i + " (row " + row.row_index + ")\nresid: " + fmt(row.resid);
+  });
+  S("line", { x1: p4.ox, y1: lin(0, p4.y0, p4.y1, p4.oy + p4.ih, p4.oy),
+              x2: p4.ox + p4.iw, y2: lin(0, p4.y0, p4.y1, p4.oy + p4.ih, p4.oy),
+              stroke: C.red, "stroke-width": 1.2 }, svg);
+};
+
+BUILDERS.contour = function (el, d) {
+  var PW = 350, PH = 320, L = 64, T = 16, Rm = 60;
+  var W = L + PW + Rm + 30, H = T + PH + 54;
+  var svg = chartSvg(el, W, H);
+  var g = d.z.length, flat = [];
+  d.z.forEach(function (row) { row.forEach(function (v) { if (v !== null) flat.push(v); }); });
+  var zmin = Math.min.apply(null, flat), zmax = Math.max.apply(null, flat);
+  var x0 = -1, x1 = 1;
+  for (var a = 0; a < g; a++) {
+    for (var b = 0; b < g; b++) {
+      var v = d.z[a][b];
+      var rx = lin(b, 0, g, L, L + PW), ry = lin(a, 0, g, T + PH, T);
+      if (v === null) {
+        S("rect", { x: rx, y: ry, width: PW / g + 0.5, height: PH / g + 0.5, fill: "#eee" }, svg);
+        continue;
+      }
+      var t = (zmax - zmin) === 0 ? 0.5 : (v - zmin) / (zmax - zmin);
+      var cell = S("rect", { x: rx, y: ry, width: PW / g + 0.6, height: PH / g + 0.6, fill: ramp(t) }, svg);
+      cell.setAttribute("data-tip", d.xlabel + " (coded): " + fmt(-1 + 2 * b / (g - 1), 2) +
+        "\n" + d.ylabel + " (coded): " + fmt(-1 + 2 * a / (g - 1), 2) +
+        "\npredicted: " + fmt(v, 5));
+    }
+  }
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s, i) {
+    var x = lin(s, 0, 1, L, L + PW);
+    S("text", { x: x, y: T + PH + 16, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(d.xraw[i], 3));
+    var y = lin(s, 0, 1, T + PH, T);
+    S("text", { x: L - 6, y: y + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(d.yraw[i], 3));
+  });
+  S("text", { x: L + PW / 2, y: T + PH + 34, "text-anchor": "middle", "font-size": 10.5, fill: C.ink }, svg, d.xlabel + " (raw)");
+  S("text", { x: 14, y: T + PH / 2, "font-size": 10.5, fill: C.ink,
+              transform: "rotate(-90 14 " + (T + PH / 2) + ")", "text-anchor": "middle" }, svg, d.ylabel + " (raw)");
+  if (d.st && d.st.x !== null && d.st.x !== undefined) {
+    var sx = lin((d.st.x + 1) / 2, 0, 1, L, L + PW);
+    var sy = lin((d.st.y + 1) / 2, 0, 1, T + PH, T);
+    S("rect", { x: sx - 6, y: sy - 6, width: 12, height: 12, fill: "none",
+                stroke: C.red, "stroke-width": 2, transform: "rotate(45 " + sx + " " + sy + ")" }, svg);
+    S("text", { x: sx + 10, y: sy - 8, "font-size": 10, fill: C.red }, svg,
+      ({ max: "\u9A7B\u70B9=max", min: "\u9A7B\u70B9=min", saddle: "\u9A7B\u70B9=saddle" })[d.st.classification] || d.st.classification);
+  }
+  var lgx = L + PW + 16, lgy = T + 10, lgh = PH - 40;
+  var grad = S("linearGradient", { id: "cg" + el.parentNode.parentNode.id }, svg);
+  var defs = S("defs", {}, svg);
+  defs.appendChild(grad);
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (o) {
+    var st = document.createElementNS(NS, "stop");
+    st.setAttribute("offset", (o * 100) + "%");
+    st.setAttribute("stop-color", ramp(1 - o));
+    grad.appendChild(st);
+  });
+  svg.appendChild(defs);
+  S("rect", { x: lgx, y: lgy, width: 14, height: lgh, fill: "url(#cg" + el.parentNode.parentNode.id + ")", stroke: C.grid }, svg);
+  S("text", { x: lgx + 18, y: lgy + 10, "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(zmax, 4));
+  S("text", { x: lgx + 18, y: lgy + lgh, "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(zmin, 4));
+};
+
+BUILDERS.interact = function (el, d) {
+  var PW = 640, PH = 300, L = 70, T = 30, Rm = 30;
+  var W = L + PW + Rm, H = T + PH + 46;
+  var svg = chartSvg(el, W, H);
+  var all = [];
+  d.series.forEach(function (s) { all = all.concat(s.values); });
+  var ymin = Math.min.apply(null, all), ymax = Math.max.apply(null, all);
+  if (ymax - ymin === 0) { ymin -= 1; ymax += 1; }
+  var pad = (ymax - ymin) * 0.1;
+  ymin -= pad; ymax += pad;
+  var n = d.xt.length;
+  function xpos(i) { return lin(i, 0, n - 1, L + 20, L + PW - 20); }
+  for (var k = 0; k <= 4; k++) {
+    var gy = T + PH * k / 4;
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(ymax - (ymax - ymin) * k / 4, 3));
+  }
+  d.xt.forEach(function (x, i) {
+    S("text", { x: xpos(i), y: T + PH + 18, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      x.raw !== null && x.raw !== undefined ? fmt(x.raw, 3) : String(x.level));
+  });
+  S("text", { x: L + PW / 2, y: T + PH + 36, "text-anchor": "middle", "font-size": 10.5, fill: C.ink }, svg, d.xlabel);
+  var cols = [C.ink, C.warm, C.green, C.gold];
+  d.series.forEach(function (s, si) {
+    var pts = s.values.map(function (v, i) { return xpos(i) + "," + lin(v, ymin, ymax, T + PH, T); }).join(" ");
+    S("polyline", { points: pts, fill: "none", stroke: cols[si % cols.length], "stroke-width": 2 }, svg);
+    s.values.forEach(function (v, i) {
+      var c = S("circle", { cx: xpos(i), cy: lin(v, ymin, ymax, T + PH, T), r: 3.5,
+                            fill: cols[si % cols.length] }, svg);
+      c.setAttribute("data-tip", d.sname + ": " + s.name + "\n" + d.xlabel + ": " +
+        (d.xt[i].raw !== null && d.xt[i].raw !== undefined ? fmt(d.xt[i].raw, 3) : d.xt[i].level) +
+        "\npredicted " + d.ylabel + ": " + fmt(v, 5));
+    });
+    S("text", { x: L + PW + 4, y: lin(s.values[s.values.length - 1], ymin, ymax, T + PH, T) + 3,
+                "font-size": 9.5, fill: cols[si % cols.length] }, svg, s.name);
+  });
+};
+
+BUILDERS.corrheat = function (el, d) {
+  var CW = 56, CH = 30, L = 120, T = 46;
+  var W = L + d.params.length * CW + 20, H = T + d.targets.length * CH + 30;
+  var svg = chartSvg(el, W, H);
+  d.params.forEach(function (p, j) {
+    S("text", { x: L + j * CW + CW / 2, y: T - 8, "font-size": 9.5, fill: C.t2,
+                transform: "rotate(-38 " + (L + j * CW + CW / 2) + " " + (T - 8) + ")", "text-anchor": "start" }, svg, p);
+  });
+  d.targets.forEach(function (tg, i) {
+    S("text", { x: L - 8, y: T + i * CH + CH / 2 + 4, "text-anchor": "end", "font-size": 10.5, fill: C.ink }, svg, tg);
+  });
+  var drawn = {};
+  d.cells.forEach(function (c) { drawn[c.ti + "_" + c.pi] = c; });
+  d.targets.forEach(function (tg, i) {
+    d.params.forEach(function (p, j) {
+      var c = drawn[i + "_" + j];
+      var x = L + j * CW, y = T + i * CH;
+      var vdot = c && c.r !== null && c.r !== undefined ? c.r : 0;
+      var fill = c ? ramp((vdot + 1) / 2) : "#f0efec";
+      var rect = S("rect", { x: x, y: y, width: CW - 2, height: CH - 2, rx: 3, fill: fill }, svg);
+      if (c) {
+        rect.setAttribute("data-tip", c.tip);
+        var light = vdot > -0.85 && vdot < 0.6;
+        S("text", { x: x + CW / 2 - 1, y: y + CH / 2 + 4, "text-anchor": "middle", "font-size": 9.5,
+                    fill: light ? "#222" : "#fff", "class": "mono-lbl" }, svg, fmt(c.r, 3));
+        var ring = c.verdict === "PASS" ? C.green : (c.verdict === "CAUTION" ? C.warm : C.red);
+        S("circle", { cx: x + CW - 8, cy: y + 8, r: 3.5, fill: "none", stroke: ring, "stroke-width": 2 }, svg);
+      }
+    });
+  });
+  var ly = T + d.targets.length * CH + 14;
+  [["PASS", C.green], ["CAUTION", C.warm], ["FAIL", C.red]].forEach(function (it, i) {
+    S("circle", { cx: L + i * 110 + 5, cy: ly + 4, r: 4, fill: "none", stroke: it[1], "stroke-width": 2 }, svg);
+    S("text", { x: L + i * 110 + 14, y: ly + 8, "font-size": 9.5, fill: C.t2 }, svg, it[0]);
+  });
+};
+
+BUILDERS.dr2 = function (el, d) {
+  var rows = d.rows;
+  var L = 210, R = 80, T = 10, rowH = 22;
+  var W = 760, H = rows.length * rowH + T + 20;
+  var max = Math.max.apply(null, rows.map(function (r) { return r.value || 0; }).concat([1e-9]));
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.value || 0, 0, max, 0, W - L - R);
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10, fill: C.t2 }, svg, r.label);
+    var bar = S("rect", { x: L, y: y - 7, width: Math.max(w, 1), height: 14, rx: 3, fill: C.ink, opacity: 0.85 }, svg);
+    bar.setAttribute("data-tip", r.label + "\ndelta R2: " + fmt(r.value, 5));
+    S("text", { x: L + Math.max(w, 1) + 6, y: y + 3, "font-size": 11.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(r.value, 3));
+  });
+};
+
+BUILDERS.timeline = function (el, d) {
+  var PW = 900, PH = 210, L = 60, T = 16, Rm = 24;
+  var W = L + PW + Rm, H = T + PH + 40;
+  var svg = chartSvg(el, W, H);
+  var vals = d.values.filter(function (v) { return v !== null; });
+  var ymin = Math.min.apply(null, vals), ymax = Math.max.apply(null, vals);
+  if (ymax - ymin === 0) { ymin -= 1; ymax += 1; }
+  var pad = (ymax - ymin) * 0.08;
+  ymin -= pad; ymax += pad;
+  var n = d.values.length;
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s) {
+    var gy = lin(s, 0, 1, T + PH, T);
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(ymax - (ymax - ymin) * s, 3));
+  });
+  d.segments.forEach(function (s) {
+    var x0 = lin(s.start / n, 0, 1, L, L + PW), x1 = lin((s.end + 1) / n, 0, 1, L, L + PW);
+    var seg = S("rect", { x: x0, y: T, width: Math.max(x1 - x0, 1), height: PH,
+                          fill: C.green, opacity: s.selected ? 0.22 : 0.10 }, svg);
+    seg.setAttribute("data-tip", "steady segment rows " + s.label +
+      (s.selected ? "\nselected for windows" : ""));
+  });
+  var pts = [];
+  d.values.forEach(function (v, i) {
+    if (v === null) return;
+    pts.push(lin(i / n, 0, 1, L, L + PW) + "," + lin(v, ymin, ymax, T + PH, T));
+  });
+  S("polyline", { points: pts.join(" "), fill: "none", stroke: C.ink, "stroke-width": 0.8, opacity: 0.9 }, svg);
+  d.cps.forEach(function (cp) {
+    var x = lin(cp / n, 0, 1, L, L + PW);
+    S("line", { x1: x, y1: T, x2: x, y2: T + PH, stroke: C.warm, "stroke-width": 1.2, "stroke-dasharray": "5 4" }, svg);
+  });
+  S("text", { x: L + PW / 2, y: H - 8, "text-anchor": "middle", "font-size": 9.5, fill: C.t3 }, svg,
+    "run order (" + n + " pts" + (d.stride > 1 ? ", 1/" + d.stride + " of " + d.n_total : "") + ")");
+};
+
+BUILDERS.hist = function (el, d) {
+  var PW = 640, PH = 260, L = 60, T = 24, Rm = 30;
+  var W = L + PW + Rm, H = T + PH + 46;
+  var svg = chartSvg(el, W, H);
+  var counts = d.counts, edges = d.edges;
+  var e0 = edges[0], e1 = edges[edges.length - 1];
+  var maxC = Math.max.apply(null, counts.concat([1]));
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s) {
+    var gy = lin(s, 0, 1, T + PH, T);
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(maxC * (1 - s), 0));
+  });
+  counts.forEach(function (c, i) {
+    var bx0 = lin(edges[i], e0, e1, L, L + PW), bx1 = lin(edges[i + 1], e0, e1, L, L + PW);
+    var bh2 = PH * c / maxC;
+    var b = S("rect", { x: bx0 + 1, y: T + PH - bh2, width: Math.max(bx1 - bx0 - 2, 1), height: bh2,
+                        fill: C.ink, opacity: 0.82 }, svg);
+    b.setAttribute("data-tip", "bin [" + fmt(edges[i], 4) + ", " + fmt(edges[i + 1], 4) + ")\ncount: " + c);
+  });
+  [e0, (e0 + e1) / 2, e1].forEach(function (v) {
+    var x = lin(v, e0, e1, L, L + PW);
+    S("text", { x: x, y: T + PH + 16, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(v, 4));
+  });
+  function spec(v, label, color, dash) {
+    if (v === null || v === undefined) return;
+    var x = lin(v, e0, e1, L, L + PW);
+    S("line", { x1: x, y1: T - 6, x2: x, y2: T + PH, stroke: color, "stroke-width": 1.6,
+                "stroke-dasharray": dash ? "5 4" : "" }, svg);
+    S("text", { x: x + 3, y: T - 9, "font-size": 9.5, fill: color }, svg, label + " " + fmt(v, 4));
+  }
+  spec(d.lsl, "LSL", C.red, false);
+  spec(d.usl, "USL", C.red, false);
+  spec(d.target, "T", C.ink, true);
+  spec(d.mean, "mean", C.green, true);
+};
+
+BUILDERS.forest = function (el, d) {
+  var rows = d.rows;
+  var L = 230, Rm = 120, T = 14, rowH = 44;
+  var W = L + 460 + Rm + 60, H = T + rows.length * rowH + 30;
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var omin = r.obsmin !== null ? r.obsmin : (r.lo - (r.hi - r.lo) * 0.2);
+    var omax = r.obsmax !== null ? r.obsmax : (r.hi + (r.hi - r.lo) * 0.2);
+    var pl = L, pr = L + 460;
+    function xs(v) { return lin(v, omin, omax, pl, pr); }
+    S("rect", { x: pl, y: y - 13, width: pr - pl, height: 26, fill: "#efeeea" }, svg);
+    S("line", { x1: pl, y1: y, x2: pr, y2: y, stroke: C.grid }, svg);
+    S("text", { x: L - 8, y: y - 3, "text-anchor": "end", "font-size": 10.5, fill: C.ink, "font-weight": 600 },
+      svg, String(r.id));
+    S("text", { x: L - 8, y: y + 12, "text-anchor": "end", "font-size": 9.5, fill: C.t3 }, svg,
+      r.factor + " \u2190 " + r.response + (r.chosen_conflict ? " \u2713" : ""));
+    var col = r.confirm ? C.warm : C.green;
+    var confCN = ({ high: "置信：高", medium: "置信：中", low: "置信：低" })[r.confidence] || r.confidence;
+    var x0 = xs(r.lo), x1 = xs(r.hi);
+    var band = S("rect", { x: x0, y: y - 11, width: Math.max(x1 - x0, 2), height: 22, rx: 3,
+                           fill: col, opacity: r.loser ? 0.25 : 0.8 }, svg);
+    var tipTxt = r.id + " " + r.factor + "\nwindow: [" + fmt(r.lo) + ", " + fmt(r.hi) + "]" +
+      "\nobserved: [" + fmt(r.obsmin) + ", " + fmt(r.obsmax) + "]" +
+      "\ndelta: " + fmt(r.delta) + " " + (r.unit || "") + "\n" + confCN +
+      "\nconfirmation needed: " + (r.confirm ? "yes" : "no");
+    if (r.loser) tipTxt += "\nconflict loser (reference only)";
+    band.setAttribute("data-tip", tipTxt);
+    if (r.loser) {
+      S("text", { x: (x0 + x1) / 2, y: y + 3, "text-anchor": "middle", "font-size": 9, fill: "#fff" }, svg,
+        "\u843D\u9009");
+    }
+    if (r.ci && r.ci[0] !== null && r.ci[1] !== null) {
+      var c0 = xs(Math.max(r.ci[0], omin - (omax - omin) * 0.1));
+      var c1 = xs(Math.min(r.ci[1], omax + (omax - omin) * 0.1));
+      var g = S("g", { "class": "ci-el" }, svg);
+      S("line", { x1: c0, y1: y, x2: c1, y2: y, stroke: C.ink, "stroke-width": 1.4 }, g);
+      S("line", { x1: c0, y1: y - 5, x2: c0, y2: y + 5, stroke: C.ink, "stroke-width": 1.4 }, g);
+      S("line", { x1: c1, y1: y - 5, x2: c1, y2: y + 5, stroke: C.ink, "stroke-width": 1.4 }, g);
+    }
+    if (r.baseline !== null && r.baseline !== undefined) {
+      var bx = xs(r.baseline);
+      var dm = S("rect", { x: bx - 6, y: y - 6, width: 12, height: 12, fill: C.ink,
+                           stroke: "#fff", "stroke-width": 1.5,
+                           transform: "rotate(45 " + bx + " " + y + ")" }, svg);
+      dm.setAttribute("data-tip", "current baseline: " + fmt(r.baseline));
+    }
+    S("text", { x: pr + 10, y: y - 3, "font-size": 11, fill: C.t3, "class": "mono-lbl" }, svg,
+      "[" + fmt(r.lo) + ", " + fmt(r.hi) + "]");
+    S("text", { x: pr + 10, y: y + 13, "font-size": 11,
+                fill: r.confirm ? C.warm : C.green }, svg,
+      r.confirm ? "\u9700\u786E\u8BA4 \u00B7 " + confCN : confCN);
+  });
+};
+
+/* ---------------- mount ---------------- */
+var mounted = 0;
+document.querySelectorAll(".chart-body[data-chart]").forEach(function (body) {
+  var kind = body.getAttribute("data-chart");
+  var key = body.getAttribute("data-key");
+  var data = (PAYLOAD.charts || {})[key];
+  if (!data || !BUILDERS[kind]) {
+    H("p", "t3", body, "\u672c\u56fe\u65e0\u53ef\u7528\u6570\u636e\u3002");
+    return;
+  }
+  BUILDERS[kind](body, data);
+  mounted++;
+});
+
+/* ---------------- interactions ---------------- */
+/* Default-activate the first resp-block of EVERY section that has one —
+   single-response sections have no tab bar, so without this their charts
+   would stay display:none forever. */
+document.querySelectorAll("section").forEach(function (sec) {
+  var blocks = sec.querySelectorAll(".resp-block");
+  if (blocks.length && !sec.querySelector(".resp-block.resp-active")) {
+    blocks[0].classList.add("resp-active");
+  }
+});
+document.querySelectorAll(".tab-bar").forEach(function (bar) {
+  var sec = bar.closest("section");
+  if (!sec) return;
+  var blocks = sec.querySelectorAll(".resp-block");
+  bar.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      bar.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      blocks.forEach(function (b) {
+        b.classList.toggle("resp-active", b.getAttribute("data-response") === btn.getAttribute("data-target"));
+      });
+    });
+  });
+});
+document.querySelectorAll(".toggle-sig").forEach(function (cb) {
+  cb.addEventListener("change", function () {
+    document.body.classList.toggle("sig-only", cb.checked);
+  });
+});
+var tci = document.getElementById("toggle-ci");
+if (tci) {
+  tci.addEventListener("change", function () {
+    document.body.classList.toggle("hide-ci", !tci.checked);
+  });
+}
+var meta = {};
+try { meta = JSON.parse(document.getElementById("report-meta").textContent); } catch (e) { meta = {}; }
+console.log("report.html ready: mode=" + (meta.mode || "?") + ", charts=" + mounted);
+})();
+</script>
+</body>
+</html>

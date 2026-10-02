@@ -1,0 +1,161 @@
+{
+  "generated_at": "2026-10-01T12:36:25.374411+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\film-thickness-demo\\doe-run\\00_input\\aligned.csv",
+  "n_rows": 1200,
+  "n_cols": 11,
+  "columns": [
+    {
+      "name": "timestamp",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 1200,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "mean_thk",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 1193,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "td_std",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 1197,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "zone_L",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 1186,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "zone_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 1176,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "zone_R",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 1179,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "dev_pos07",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 1182,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "die_bolt_T3_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1179,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "melt_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1137,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "pull_speed_mpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1095,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "lip_gap_mm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 394,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "dev_pos07",
+      "mean_thk"
+    ],
+    "factors": [
+      "die_bolt_T3_pct",
+      "melt_temp_C",
+      "pull_speed_mpm",
+      "lip_gap_mm"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "td_std",
+      "zone_L",
+      "zone_C",
+      "zone_R"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.09 (<0.85)",
+      "no designed-experiment signature matched",
+      "mode overridden by user context to observational (the evidence grade is NOT overridden)"
+    ],
+    "mode_overridden": true
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

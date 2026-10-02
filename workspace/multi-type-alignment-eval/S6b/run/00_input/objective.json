@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261001-007",
+  "target_metric": "dev_pos07",
+  "goal": "target",
+  "target_range": [
+    0.0,
+    0.15
+  ],
+  "factors": [
+    {
+      "name": "die_bolt_T3_pct",
+      "type": "numeric",
+      "min": 0.0,
+      "max": 10.0,
+      "unit": "%"
+    }
+  ],
+  "budget": {
+    "max_rounds": 14,
+    "max_trials": 80
+  },
+  "noise": {
+    "replicates_for_sigma": 3
+  },
+  "seed": 42
+}

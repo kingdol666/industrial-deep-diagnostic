@@ -1,0 +1,409 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T12:37:57.153789+00:00",
+  "generated_from": {
+    "doe_recommendations_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\film-thickness-demo\\doe-run\\conclusions\\recommendations.json",
+    "doe_run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\film-thickness-demo\\doe-run",
+    "history_csv_sha256": "ec2f4e32f6e107949c3bfec4a7250cab45cae0ea0a4a745fd1c5bcd2f49353c5",
+    "recommendations_contract_version": "1.0"
+  },
+  "global": {
+    "time_col": "timestamp",
+    "group_col": null,
+    "numeric_columns": [
+      "zone_L",
+      "zone_R",
+      "dev_pos07",
+      "mean_thk",
+      "die_bolt_T3_pct",
+      "melt_temp_C"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "zone_L": {
+          "center": 49.36674128000001,
+          "sigma_within_mr": 0.05427260527204567,
+          "sigma_overall": 0.057310188843781425,
+          "median": 49.365907,
+          "mad": 0.036286000000000485,
+          "q10": 49.2956699,
+          "q90": 49.4443988,
+          "cv": 0.0011609068647802272,
+          "variance_ratio_baseline_std": 0.057310188843781425
+        },
+        "zone_R": {
+          "center": 49.36341554750001,
+          "sigma_within_mr": 0.05636285083275566,
+          "sigma_overall": 0.055720685430726,
+          "median": 49.366543,
+          "mad": 0.034128499999997786,
+          "q10": 49.2874804,
+          "q90": 49.4301082,
+          "cv": 0.001128785048860906,
+          "variance_ratio_baseline_std": 0.055720685430726
+        },
+        "dev_pos07": {
+          "center": 0.020770999999999998,
+          "sigma_within_mr": 0.18635718285074393,
+          "sigma_overall": 0.18587835273112113,
+          "median": 0.025599999999999998,
+          "mad": 0.125975,
+          "q10": -0.20461,
+          "q90": 0.27532500000000004,
+          "cv": 8.948936148048777,
+          "variance_ratio_baseline_std": 0.18587835273112113
+        },
+        "mean_thk": {
+          "center": 49.5599067275,
+          "sigma_within_mr": 0.03355188725359512,
+          "sigma_overall": 0.033832390826037714,
+          "median": 49.560364,
+          "mad": 0.02414500000000075,
+          "q10": 49.5152002,
+          "q90": 49.6009044,
+          "cv": 0.0006826564668909004,
+          "variance_ratio_baseline_std": 0.033832390826037714
+        },
+        "die_bolt_T3_pct": {
+          "center": 49.9613425,
+          "sigma_within_mr": 0.23771796512557988,
+          "sigma_overall": 0.23610288514689254,
+          "median": 49.9657,
+          "mad": 0.1615499999999983,
+          "q10": 49.65139,
+          "q90": 50.26327,
+          "cv": 0.004725711386696475,
+          "variance_ratio_baseline_std": 0.23610288514689254
+        },
+        "melt_temp_C": {
+          "center": 284.9980945,
+          "sigma_within_mr": 0.14618794326241236,
+          "sigma_overall": 0.1490769012152454,
+          "median": 284.99345,
+          "mad": 0.10044999999999504,
+          "q10": 284.81334,
+          "q90": 285.17589,
+          "cv": 0.0005230803436661062,
+          "variance_ratio_baseline_std": 0.1490769012152454
+        }
+      },
+      "indicators": {
+        "dev_pos07": {
+          "lsl": null,
+          "usl": null,
+          "target": 0.0,
+          "goal": "target"
+        },
+        "mean_thk": {
+          "lsl": null,
+          "usl": null,
+          "target": 50.0,
+          "goal": "maximize"
+        }
+      },
+      "operating_windows": [
+        {
+          "id": "OW-001",
+          "priority": 1,
+          "factor": "lip_gap_mm",
+          "factor_unit": null,
+          "response": "dev_pos07",
+          "range": [
+            0.849191,
+            0.85064
+          ],
+          "shape": "connected",
+          "expected_effect": {
+            "delta": -0.239085,
+            "direction_semantics": "观察性结论：lip_gap_mm 处于窗内上三分位 vs 下三分位时，dev_pos07 均值差为 -0.2391（方向已按目标校正）",
+            "ci95": [
+              -0.441672,
+              -0.036499
+            ],
+            "unit": "response units"
+          },
+          "confidence": "low",
+          "fdr_q": null,
+          "sample_size": 175,
+          "evidence_refs": [
+            "correlation_report.json#dev_pos07.lip_gap_mm",
+            "stability_report.json#steady_segments"
+          ],
+          "extrapolation": false,
+          "confirmation_needed": true,
+          "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+        },
+        {
+          "id": "OW-002",
+          "priority": 2,
+          "factor": "die_bolt_T3_pct",
+          "factor_unit": null,
+          "response": "mean_thk",
+          "range": [
+            50.47203,
+            52.39935
+          ],
+          "shape": "connected",
+          "expected_effect": {
+            "delta": 0.050539,
+            "direction_semantics": "观察性结论：die_bolt_T3_pct 处于窗内上三分位 vs 下三分位时，mean_thk 均值差为 0.05054（方向已按目标校正）",
+            "ci95": [
+              0.037787,
+              0.063291
+            ],
+            "unit": "response units"
+          },
+          "confidence": "low",
+          "fdr_q": null,
+          "sample_size": 174,
+          "evidence_refs": [
+            "correlation_report.json#mean_thk.die_bolt_T3_pct",
+            "stability_report.json#steady_segments"
+          ],
+          "extrapolation": false,
+          "confirmation_needed": true,
+          "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+        },
+        {
+          "id": "OW-003",
+          "priority": 3,
+          "factor": "melt_temp_C",
+          "factor_unit": null,
+          "response": "mean_thk",
+          "range": [
+            284.82244,
+            285.21539
+          ],
+          "shape": "connected",
+          "expected_effect": {
+            "delta": -0.015796,
+            "direction_semantics": "观察性结论：melt_temp_C 处于窗内上三分位 vs 下三分位时，mean_thk 均值差为 -0.0158（方向已按目标校正）",
+            "ci95": [
+              -0.030082,
+              -0.00151
+            ],
+            "unit": "response units"
+          },
+          "confidence": "low",
+          "fdr_q": null,
+          "sample_size": 174,
+          "evidence_refs": [
+            "correlation_report.json#mean_thk.melt_temp_C",
+            "stability_report.json#steady_segments"
+          ],
+          "extrapolation": false,
+          "confirmation_needed": true,
+          "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+        }
+      ],
+      "applicability_domain": {
+        "n_rows": 1200,
+        "time_span": "2026-09-30 00:00:00 .. 2026-10-01 15:58:00",
+        "regime": "steady-state segments",
+        "factor_observed_ranges": {
+          "lip_gap_mm": {
+            "min": 0.82855,
+            "max": 0.85192
+          },
+          "die_bolt_T3_pct": {
+            "min": 49.2951,
+            "max": 56.3707
+          },
+          "melt_temp_C": {
+            "min": 284.5512,
+            "max": 287.7639
+          }
+        }
+      },
+      "correlation": {
+        "cols": [
+          "zone_L",
+          "zone_R",
+          "dev_pos07",
+          "mean_thk",
+          "die_bolt_T3_pct",
+          "melt_temp_C"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.07499741702434892,
+          0.23477999251162993,
+          0.5925090448309444,
+          0.020686922690614083,
+          0.021530183801474416,
+          0.07499741702434892,
+          1.0,
+          0.03791757765982069,
+          0.6334159336256924,
+          0.051743697962130686,
+          -0.0233701523041183,
+          0.2347799925116299,
+          0.03791757765982069,
+          1.0,
+          0.0697734716858854,
+          0.015010871767195831,
+          0.03258660012421648,
+          0.5925090448309444,
+          0.6334159336256925,
+          0.0697734716858854,
+          1.0,
+          0.08760489387662246,
+          -0.02446811368162967,
+          0.02068692269061408,
+          0.05174369796213069,
+          0.015010871767195831,
+          0.08760489387662244,
+          1.0,
+          0.02557403604904634,
+          0.021530183801474416,
+          -0.0233701523041183,
+          0.03258660012421648,
+          -0.02446811368162967,
+          0.02557403604904634,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.07499741702434892,
+          0.9971837280259219,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.2347799925116299,
+          0.0203670437870648,
+          0.9718351396423237,
+          0.0,
+          0.0,
+          0.0,
+          0.5925090448309444,
+          0.5906426961717299,
+          -0.08372350387328269,
+          0.5413544237850947,
+          0.0,
+          0.0,
+          0.02068692269061408,
+          0.05033398638936424,
+          0.009393405666927092,
+          0.08571972526595584,
+          0.9947876324492848,
+          0.0,
+          0.021530183801474416,
+          -0.025055423363906794,
+          0.028854738312517787,
+          -0.036963436221160134,
+          0.029440689168080594,
+          0.9979193510632404
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": [
+          29,
+          39,
+          69,
+          84,
+          115,
+          128,
+          143,
+          174,
+          185,
+          195,
+          214,
+          228,
+          238,
+          257,
+          272,
+          288,
+          307,
+          317,
+          329,
+          349,
+          364,
+          392,
+          411,
+          421,
+          431,
+          435,
+          445,
+          455,
+          477,
+          478,
+          488,
+          500,
+          520,
+          526,
+          536,
+          554,
+          567,
+          577,
+          580,
+          587,
+          607,
+          619,
+          662,
+          674,
+          684,
+          720,
+          732,
+          756,
+          768,
+          778,
+          805,
+          827,
+          839,
+          849,
+          861,
+          871,
+          891,
+          914,
+          937,
+          953,
+          967,
+          989,
+          1012,
+          1025,
+          1040,
+          1051,
+          1073,
+          1090,
+          1100,
+          1119,
+          1133,
+          1149,
+          1162,
+          1176
+        ]
+      },
+      "validity": {
+        "n_steady_rows": 400,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.013h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": [
+          "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+          "stability_report 变点检测触发新 regime（漂移/换产）",
+          "确认试验结果与 expected_effect 的 CI95 不相交"
+        ]
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "ec2f4e32f6e107949c3bfec4a7250cab45cae0ea0a4a745fd1c5bcd2f49353c5",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

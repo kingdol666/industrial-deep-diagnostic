@@ -1,0 +1,189 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "lip_gap_mm",
+      "factor_unit": null,
+      "response": "dev_pos07",
+      "range": [
+        0.849191,
+        0.85064
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.239085,
+        "direction_semantics": "观察性结论：lip_gap_mm 处于窗内上三分位 vs 下三分位时，dev_pos07 均值差为 -0.2391（方向已按目标校正）",
+        "ci95": [
+          -0.441672,
+          -0.036499
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 175,
+      "evidence_refs": [
+        "correlation_report.json#dev_pos07.lip_gap_mm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "die_bolt_T3_pct",
+      "factor_unit": null,
+      "response": "mean_thk",
+      "range": [
+        50.47203,
+        52.39935
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.050539,
+        "direction_semantics": "观察性结论：die_bolt_T3_pct 处于窗内上三分位 vs 下三分位时，mean_thk 均值差为 0.05054（方向已按目标校正）",
+        "ci95": [
+          0.037787,
+          0.063291
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 174,
+      "evidence_refs": [
+        "correlation_report.json#mean_thk.die_bolt_T3_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "melt_temp_C",
+      "factor_unit": null,
+      "response": "mean_thk",
+      "range": [
+        284.82244,
+        285.21539
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.015796,
+        "direction_semantics": "观察性结论：melt_temp_C 处于窗内上三分位 vs 下三分位时，mean_thk 均值差为 -0.0158（方向已按目标校正）",
+        "ci95": [
+          -0.030082,
+          -0.00151
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 174,
+      "evidence_refs": [
+        "correlation_report.json#mean_thk.melt_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "lip_gap_mm": 0.84982,
+      "die_bolt_T3_pct": 51.4767,
+      "melt_temp_C": 285.1312
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0,
+      "OW-003": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 lip_gap_mm 调整至 [0.849191, 0.85064]（当前已在窗内）"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "dev_pos07": {
+      "lsl": null,
+      "usl": null,
+      "target": 0.0,
+      "goal": "target",
+      "current": 1.47269
+    },
+    "mean_thk": {
+      "lsl": null,
+      "usl": null,
+      "target": 50.0,
+      "goal": "maximize",
+      "current": 49.418294
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 8
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "TREND_CONFOUNDED_NO_WINDOW",
+      "message": "dev_pos07~die_bolt_T3_pct 原始 r=0.838 主要由共同时间趋势驱动（去趋势 r=-0.0686，|detrended_r|<0.1）— 不产出操作窗口，仅列入观察清单等待去趋势后复核",
+      "factor": "die_bolt_T3_pct",
+      "response": "dev_pos07",
+      "threshold": "0.1"
+    },
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 1200,
+    "time_span": "2026-09-30 00:00:00 .. 2026-10-01 15:58:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "lip_gap_mm": {
+        "min": 0.82855,
+        "max": 0.85192
+      },
+      "die_bolt_T3_pct": {
+        "min": 49.2951,
+        "max": 56.3707
+      },
+      "melt_temp_C": {
+        "min": 284.5512,
+        "max": 287.7639
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "f51f61ca79dd05a78f4238d9d0ea05e6cb7279f2d2e966b924cdc9a467a2fa7a",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

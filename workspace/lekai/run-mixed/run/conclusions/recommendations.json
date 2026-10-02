@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "total_defects": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 204.791946
+    },
+    "oligomer": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 29.087248
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    },
+    {
+      "code": "MIXED_MODEL_STRATIFICATION_REQUIRED",
+      "message": "9 个型号混线且缺陷基线差异悬殊（描述性中位数 35 ~ 4145），本合同全部统计量均为跨型号混合估计——按型号（必要时再按时间段）分层复验前，不得引用任何相关性的方向与幅度"
+    },
+    {
+      "code": "NO_WINDOWS_PRODUCED",
+      "message": "本次运行产出 0 条操作窗口：合并稳态段仅 30 行、跨 6 个型号（最大层 8 行，低于分层核验每层 ≥20 行要求），分层三分位差不可估——下游不应期待可直接执行的参数区间，应先按单型号补齐连续 ≥20 批数据"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 149,
+    "time_span": "2026-05-04 14:42:00 .. 2026-05-13 14:26:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+    "混线数据先分层：任何窗口化/调参动作前，必须先按 model（必要时再按时间段）分层复跑，确认效应方向在层内一致后才有资格进入确认试验",
+    "本合同的 ΔR² 贡献排名含趋势混杂项（W1C40/W1C4B 为 CAUTION，去趋势后 r≈0.005），不得作为因子优先级直接采信"
+  ],
+  "provenance": {
+    "input_sha256": "f7df6e563b6ca541a0aae60602a877aa02c987620ede56f320796450df568cfc",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "agent"
+  }
+}

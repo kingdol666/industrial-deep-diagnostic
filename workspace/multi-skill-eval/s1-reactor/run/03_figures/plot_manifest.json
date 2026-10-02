@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-01T07:41:47.954907+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlation matrix",
+      "response": null,
+      "bytes": 44070,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5139 ok; ink ratio 51.4% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "quality_index",
+      "bytes": 26701,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1785 ok; ink ratio 17.9% across 4 quadrants"
+    },
+    {
+      "file": "timeline_quality_index.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — quality_index",
+      "response": "quality_index",
+      "bytes": 94403,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.6010 ok; ink ratio 60.1% across 4 quadrants"
+    },
+    {
+      "file": "timeline_conversion_pct.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — conversion_pct",
+      "response": "conversion_pct",
+      "bytes": 69198,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5932 ok; ink ratio 59.3% across 4 quadrants"
+    },
+    {
+      "file": "segments_quality_index.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — quality_index",
+      "response": "quality_index",
+      "bytes": 31874,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4132 ok; ink ratio 41.3% across 4 quadrants"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-10-01T07:46:06.373175+00:00",
+  "n_rows": 777,
+  "time_col": "ts_lab",
+  "capability": [
+    {
+      "response": "strength_28d_MPa",
+      "n": 777,
+      "mean": 38.73982,
+      "std_overall": 2.475487,
+      "sigma_within_mr": 0.727876,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.1573,
+        "excess_kurtosis": -0.8296,
+        "ad_statistic": 3.9646,
+        "ad_critical_5pct": 0.751,
+        "normal": false
+      },
+      "autocorr_lag1": 0.9006,
+      "n_eff": 40,
+      "note": null
+    },
+    {
+      "response": "blaine_fineness_cm2g",
+      "n": 777,
+      "mean": 3522.875161,
+      "std_overall": 161.111678,
+      "sigma_within_mr": 62.891853,
+      "has_specs": true,
+      "lsl": 3400.0,
+      "usl": 3800.0,
+      "target": 3600.0,
+      "cp": 1.060021,
+      "cpk": 0.651251,
+      "cpk_label": "Cpk(within, MRbar/d2) — INDICATIVE (non-normal data)",
+      "pp": 0.413792,
+      "ppk": 0.254224,
+      "cnp": 0.3109,
+      "normality": {
+        "skew": 0.102,
+        "excess_kurtosis": 0.6476,
+        "ad_statistic": 2.1905,
+        "ad_critical_5pct": 0.751,
+        "normal": false
+      },
+      "autocorr_lag1": 0.776,
+      "n_eff": 98,
+      "note": "非正态分布：Cpk 仅作指示值，请以 Cnp/分位数指数与原始分布图为准 | 正自相关 (rho=0.7759642971339877): 有效样本量 98/777，指标精度低于表面 n"
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 55,
+      "n_rows": 56,
+      "response_means": {
+        "strength_28d_MPa": 42.99,
+        "blaine_fineness_cm2g": 3768.196429
+      },
+      "score": 21.607094,
+      "selected_for_windows": true
+    },
+    {
+      "start": 77,
+      "end": 194,
+      "n_rows": 118,
+      "response_means": {
+        "strength_28d_MPa": 41.360254,
+        "blaine_fineness_cm2g": 3682.110169
+      },
+      "score": 20.920225,
+      "selected_for_windows": true
+    },
+    {
+      "start": 216,
+      "end": 265,
+      "n_rows": 50,
+      "response_means": {
+        "strength_28d_MPa": 40.309,
+        "blaine_fineness_cm2g": 3622.54
+      },
+      "score": 20.445863,
+      "selected_for_windows": true
+    },
+    {
+      "start": 287,
+      "end": 531,
+      "n_rows": 245,
+      "response_means": {
+        "strength_28d_MPa": 38.11102,
+        "blaine_fineness_cm2g": 3488.310204
+      },
+      "score": 19.217647,
+      "selected_for_windows": false
+    },
+    {
+      "start": 553,
+      "end": 731,
+      "n_rows": 179,
+      "response_means": {
+        "strength_28d_MPa": 36.27257,
+        "blaine_fineness_cm2g": 3378.027933
+      },
+      "score": 18.094873,
+      "selected_for_windows": false
+    },
+    {
+      "start": 753,
+      "end": 776,
+      "n_rows": 24,
+      "response_means": {
+        "strength_28d_MPa": 35.595417,
+        "blaine_fineness_cm2g": 3306.958333
+      },
+      "score": 17.659705,
+      "selected_for_windows": false
+    }
+  ],
+  "change_points": [
+    {
+      "response": "strength_28d_MPa",
+      "positions": [
+        186,
+        298,
+        565
+      ],
+      "detail": {
+        "n_segments": 4,
+        "n_changes": 3
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 20,
+    "total_rows": 777,
+    "steady_state_ratio": 0.8649,
+    "regime_distribution": {
+      "steady": {
+        "count": 672,
+        "pct": 86.49
+      },
+      "transition": {
+        "count": 105,
+        "pct": 13.51
+      }
+    }
+  }
+}

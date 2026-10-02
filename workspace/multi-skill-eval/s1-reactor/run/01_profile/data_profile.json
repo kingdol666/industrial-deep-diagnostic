@@ -1,0 +1,214 @@
+{
+  "generated_at": "2026-10-01T07:41:24.038123+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-skill-eval\\s1-reactor\\run\\00_input\\data.csv",
+  "n_rows": 1440,
+  "n_cols": 16,
+  "columns": [
+    {
+      "name": "timestamp",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 1440,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "reactor_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 79,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "reactor_pressure_bar",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 275,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "h2_partial_pressure_bar",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 291,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "feed_rate_kg_hr",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 854,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "feed_sulfur_ppm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 31,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "conversion_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 200,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "byproduct_ppm",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 831,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "selectivity_pct",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 66,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "quality_index",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 268,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "cooling_duty_kW",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 675,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "delta_T_reactor_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 181,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "cooling_water_temp_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 202,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "product_lot",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 20,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "catalyst_bed_id",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    },
+    {
+      "name": "shift",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 1440,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "quality_index",
+      "conversion_pct"
+    ],
+    "factors": [
+      "reactor_temp_C",
+      "reactor_pressure_bar",
+      "h2_partial_pressure_bar",
+      "feed_rate_kg_hr",
+      "feed_sulfur_ppm"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "byproduct_ppm",
+      "selectivity_pct",
+      "cooling_duty_kW",
+      "delta_T_reactor_C",
+      "cooling_water_temp_C",
+      "product_lot",
+      "catalyst_bed_id",
+      "shift"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.06 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

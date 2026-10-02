@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-10-01T05:19:37.981465+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-edge\\zv\\run\\00_input\\data.csv",
+  "n_rows": 40,
+  "n_cols": 4,
+  "columns": [
+    {
+      "name": "A",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 40,
+      "n_missing": 0,
+      "n_valid": 40,
+      "notes": ""
+    },
+    {
+      "name": "B",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 40,
+      "n_missing": 0,
+      "n_valid": 40,
+      "notes": ""
+    },
+    {
+      "name": "y",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "auto",
+      "n_unique": 40,
+      "n_missing": 0,
+      "n_valid": 40,
+      "notes": ""
+    },
+    {
+      "name": "C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 40,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "y"
+    ],
+    "factors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": []
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.23 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [
+      "C"
+    ],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": [
+    {
+      "code": "ZERO_VARIANCE_FACTORS",
+      "message": "零方差因子: ['C']",
+      "severity": "warn"
+    }
+  ]
+}

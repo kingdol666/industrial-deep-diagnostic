@@ -1,0 +1,320 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "headbox_pressure_kPa",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        14.836,
+        20.86
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -2.676316,
+        "direction_semantics": "观察性结论：headbox_pressure_kPa 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -2.676（方向已按目标校正）",
+        "ci95": [
+          -4.16617,
+          -1.186462
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 207,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.headbox_pressure_kPa",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "fan_pump_speed_rpm",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        875.4,
+        889.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.612559,
+        "direction_semantics": "观察性结论：fan_pump_speed_rpm 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -0.6126（方向已按目标校正）",
+        "ci95": [
+          -0.984222,
+          -0.240895
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 601,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.fan_pump_speed_rpm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "stock_temp_C",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        41.9,
+        50.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.610671,
+        "direction_semantics": "观察性结论：stock_temp_C 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -0.6107（方向已按目标校正）",
+        "ci95": [
+          -0.996629,
+          -0.224713
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 600,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.stock_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-004",
+      "priority": 4,
+      "factor": "stock_temp_C",
+      "factor_unit": null,
+      "response": "cd_basis_weight_cv_pct",
+      "range": [
+        41.9,
+        50.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.115383,
+        "direction_semantics": "观察性结论：stock_temp_C 处于窗内上三分位 vs 下三分位时，cd_basis_weight_cv_pct 均值差为 0.1154（方向已按目标校正）",
+        "ci95": [
+          0.057769,
+          0.172996
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 600,
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.stock_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-005",
+      "priority": 5,
+      "factor": "white_water_consistency_pct",
+      "factor_unit": null,
+      "response": "cd_basis_weight_cv_pct",
+      "range": [
+        0.784,
+        0.963
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.098982,
+        "direction_semantics": "观察性结论：white_water_consistency_pct 处于窗内上三分位 vs 下三分位时，cd_basis_weight_cv_pct 均值差为 0.09898（方向已按目标校正）",
+        "ci95": [
+          0.043728,
+          0.154235
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 601,
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.white_water_consistency_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-006",
+      "priority": 6,
+      "factor": "fan_pump_speed_rpm",
+      "factor_unit": null,
+      "response": "cd_basis_weight_cv_pct",
+      "range": [
+        875.4,
+        889.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.097398,
+        "direction_semantics": "观察性结论：fan_pump_speed_rpm 处于窗内上三分位 vs 下三分位时，cd_basis_weight_cv_pct 均值差为 0.0974（方向已按目标校正）",
+        "ci95": [
+          0.035156,
+          0.159641
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 601,
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.fan_pump_speed_rpm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-007",
+      "priority": 7,
+      "factor": "retention_aid_dosage_ppm",
+      "factor_unit": null,
+      "response": "cd_basis_weight_cv_pct",
+      "range": [
+        172.0,
+        198.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.077581,
+        "direction_semantics": "观察性结论：retention_aid_dosage_ppm 处于窗内上三分位 vs 下三分位时，cd_basis_weight_cv_pct 均值差为 0.07758（方向已按目标校正）",
+        "ci95": [
+          0.014822,
+          0.14034
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 601,
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.retention_aid_dosage_ppm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "headbox_pressure_kPa": 23.74,
+      "fan_pump_speed_rpm": 905.6,
+      "stock_temp_C": 43.25,
+      "white_water_consistency_pct": 1.043,
+      "retention_aid_dosage_ppm": 228.7
+    },
+    "distance_to_window": {
+      "OW-001": 2.88,
+      "OW-002": 16.0,
+      "OW-003": 0.0,
+      "OW-004": 0.0,
+      "OW-005": 0.08,
+      "OW-006": 16.0,
+      "OW-007": 30.1
+    },
+    "move_instruction": "优先处理 OW-001：将 headbox_pressure_kPa 调整至 [14.836, 20.86]"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "cd_basis_weight_cv_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 1.776348
+    },
+    "strength_rel_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 96.396019
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 12
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 3240,
+    "time_span": "2025-10-01 07:24:30 .. 2026-01-04 05:57:30",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "headbox_pressure_kPa": {
+        "min": 13.51,
+        "max": 39.84
+      },
+      "fan_pump_speed_rpm": {
+        "min": 864.4,
+        "max": 956.3
+      },
+      "stock_temp_C": {
+        "min": 31.9,
+        "max": 62.4
+      },
+      "white_water_consistency_pct": {
+        "min": 0.3,
+        "max": 2.0
+      },
+      "retention_aid_dosage_ppm": {
+        "min": 153.9,
+        "max": 298.5
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "7b632aca89aa073ba49493d8363e3753c5be5049c534cf60d947d205944378a2",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

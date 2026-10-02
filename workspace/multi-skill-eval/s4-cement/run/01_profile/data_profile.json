@@ -1,0 +1,291 @@
+{
+  "generated_at": "2026-10-01T07:45:08.201033+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-skill-eval\\s4-cement\\run\\00_input\\data.csv",
+  "n_rows": 777,
+  "n_cols": 23,
+  "columns": [
+    {
+      "name": "ts_dcs",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 777,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "day",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 531,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "shift",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "clinker_source",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "mill_feed_tph",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 212,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "mill_power_kW",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 737,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "mill_vibration_mm_s",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 715,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "separator_speed_rpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 687,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "reject_rate_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 656,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "feed_moisture_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 192,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "mill_outlet_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 197,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "main_bearing_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 196,
+      "n_missing": 2,
+      "n_valid": 775,
+      "notes": ""
+    },
+    {
+      "name": "mill_sound_dB",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 352,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "separator_current_A",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 374,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "gypsum_dosage_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 290,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "baghouse_dp_kPa",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 619,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "ts_lab",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 777,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "blaine_fineness_cm2g",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 415,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "residue_45um_pct",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 563,
+      "n_missing": 1,
+      "n_valid": 776,
+      "notes": ""
+    },
+    {
+      "name": "strength_3d_MPa",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 444,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "strength_28d_MPa",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 525,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "cement_temperature_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 219,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    },
+    {
+      "name": "defect_grade",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 777,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "strength_28d_MPa",
+      "blaine_fineness_cm2g"
+    ],
+    "factors": [
+      "mill_feed_tph",
+      "mill_power_kW",
+      "mill_vibration_mm_s",
+      "separator_speed_rpm",
+      "reject_rate_pct",
+      "feed_moisture_pct",
+      "mill_outlet_temp_C",
+      "main_bearing_temp_C",
+      "mill_sound_dB",
+      "separator_current_A",
+      "gypsum_dosage_pct",
+      "baghouse_dp_kPa"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "ts_dcs",
+      "day",
+      "shift",
+      "clinker_source",
+      "residue_45um_pct",
+      "strength_3d_MPa",
+      "cement_temperature_C",
+      "defect_grade"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.13 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

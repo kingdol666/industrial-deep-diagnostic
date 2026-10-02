@@ -1,0 +1,291 @@
+{
+  "generated_at": "2026-10-01T07:42:50.389351+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-skill-eval\\s3-paper\\run\\00_input\\data.csv",
+  "n_rows": 3240,
+  "n_cols": 23,
+  "columns": [
+    {
+      "name": "ts_dcs",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 3240,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "day",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 880,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "shift",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "grade_running",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "headbox_pressure_kPa",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1644,
+      "n_missing": 25,
+      "n_valid": 3215,
+      "notes": ""
+    },
+    {
+      "name": "approach_flow_lpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 948,
+      "n_missing": 3,
+      "n_valid": 3237,
+      "notes": ""
+    },
+    {
+      "name": "fan_pump_speed_rpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 728,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "white_water_consistency_pct",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 586,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "retention_aid_dosage_ppm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1098,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "slice_opening_mm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 513,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "machine_speed_mmin",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1240,
+      "n_missing": 4,
+      "n_valid": 3236,
+      "notes": ""
+    },
+    {
+      "name": "stock_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 197,
+      "n_missing": 2,
+      "n_valid": 3238,
+      "notes": ""
+    },
+    {
+      "name": "jet_to_wire_ratio",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 180,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "vacuum_pump1_kPa",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 269,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "vacuum_pump2_kPa",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 383,
+      "n_missing": 5,
+      "n_valid": 3235,
+      "notes": ""
+    },
+    {
+      "name": "ts_qcs",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3240,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "grade",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "cd_basis_weight_cv_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 1977,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "formation_index",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 533,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "ash_content_pct",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 910,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "moisture_pct",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 2,
+      "n_valid": 3238,
+      "notes": ""
+    },
+    {
+      "name": "strength_rel_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 162,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    },
+    {
+      "name": "defect_grade",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 3240,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "cd_basis_weight_cv_pct",
+      "strength_rel_pct"
+    ],
+    "factors": [
+      "headbox_pressure_kPa",
+      "approach_flow_lpm",
+      "fan_pump_speed_rpm",
+      "white_water_consistency_pct",
+      "retention_aid_dosage_ppm",
+      "slice_opening_mm",
+      "machine_speed_mmin",
+      "stock_temp_C",
+      "jet_to_wire_ratio",
+      "vacuum_pump1_kPa",
+      "vacuum_pump2_kPa"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "day",
+      "shift",
+      "grade_running",
+      "ts_qcs",
+      "grade",
+      "formation_index",
+      "ash_content_pct",
+      "moisture_pct",
+      "defect_grade"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.08 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

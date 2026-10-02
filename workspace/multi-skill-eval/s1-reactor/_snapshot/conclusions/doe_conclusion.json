@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T07:41:47.955906+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "reactor_temp_C 与 conversion_pct 的相关 r=-0.7349，滞后 2 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.reactor_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "reactor_temp_C 与 quality_index 的相关 r=-0.7025，滞后 1 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#quality_index.reactor_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "reactor_pressure_bar 与 conversion_pct 的相关 r=-0.6031，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.reactor_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "reactor_pressure_bar 与 quality_index 的相关 r=-0.5824，滞后 3 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#quality_index.reactor_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "h2_partial_pressure_bar 与 conversion_pct 的相关 r=0.5245，滞后 1 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.h2_partial_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_quality_index.png",
+      "title": "Stability timeline — quality_index"
+    },
+    {
+      "file": "timeline_conversion_pct.png",
+      "title": "Stability timeline — conversion_pct"
+    },
+    {
+      "file": "segments_quality_index.png",
+      "title": "Steady-segment comparison — quality_index"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

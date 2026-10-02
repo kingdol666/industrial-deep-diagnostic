@@ -1,0 +1,75 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-007",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "die_bolt_T3_pct": 9.311905
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T02",
+      "setpoints": {
+        "die_bolt_T3_pct": 2.041175
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T03",
+      "setpoints": {
+        "die_bolt_T3_pct": 7.919654
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T04",
+      "setpoints": {
+        "die_bolt_T3_pct": 3.77282
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T05",
+      "setpoints": {
+        "die_bolt_T3_pct": 0.699963
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T06",
+      "setpoints": {
+        "die_bolt_T3_pct": 5.751719
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "8235282c482a2af83e45d2c7b3ec19ef285a792c800db53ee496a9cb3532543f",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T07:07:30.774226+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF1-MIXED-CANNOT-CONCLUDE",
+      "statement": "混线数据不能直接出结论：88 对批次级相关（2 响应 × 44 过程量，n=149）中防伪判定 FAIL 12 对、CAUTION（共享时间趋势混杂）35 对、PASS 仅 41 对；其中离群驱动（outlier_sensitivity=SERIOUS）8 对、Simpson 分层方向翻转 12 处、Spearman 分歧 6 处，整体判定为 SERIOUS_CONCERNS。BH 校正后 q<0.05 的 8 对相关（全部指向 total_defects）中 6 对为 FAIL——例如 F_PS005@PV1_mean（r=0.2422，p=0.0029，q=0.033）同时命中“离群驱动”与“分层方向翻转”，MD_TH016/017/018@PV_mean（r=-0.2352/-0.2358/-0.2358，q=0.033）同为离群驱动 FAIL。显著不等于可信：目前没有任何一对相关同时满足“显著且稳健”。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#pairs",
+        "02_analysis/correlation_report.json#anti_spurious_summary"
+      ],
+      "confidence": "low",
+      "fdr_q": null
+    },
+    {
+      "id": "KF2-ZERO-WINDOWS-CAUSE",
+      "statement": "0 窗口不是“没有算”，而是“算不了”：观测档窗口只能从选中稳态段构建，本次选中 3 段（行 0-16、49-51、53-62，合计仅 30 行）；分层核验（group_col=model）要求每个型号层 ≥20 行才能估计分层三分位 Welch 差值，而 30 行横跨 6 个型号、最大层仅 8 行（PG32B），无任何一层达标，全部候选窗口被跳过 → operating_windows=[]、confirmations=0。叠加约束：全表 88 对相关的最大 |r| 仅 0.2422（F_PS005@PV1_mean，且该对为 FAIL），低于 |r|≥0.3 的防伪复核门槛，即便不分层也没有值得确认的窗口。",
+      "evidence_refs": [
+        "02_analysis/stability_report.json#steady_segments",
+        "02_analysis/correlation_report.json#pairs",
+        "scripts/doestats/windows.py#observational_windows"
+      ],
+      "confidence": "low",
+      "fdr_q": null
+    },
+    {
+      "id": "KF3-MODEL-STRATA-GAP",
+      "statement": "型号间缺陷基线差异悬殊，是离群驱动与 Simpson 翻转的物理来源（00_input/batches.csv 描述性汇总，未计入证据等级）：9 个型号的批次级 total_defects 中位数从 PG32M 的 35（n=13）到 FP41 的 4145（n=3）；FG22（n=6）中位数 35 但含单批 9516 的极端批次（H2652611，2026-05-07，同批 oligomer=1105）。全表均值 204.791946 远高于中位数 51，偏度 7.8311、超越峰度 63.9518、AD=48.7257（5% 临界 0.748，非正态），total_defects>1000 的批次仅 3 批——少数型号层 + 少数极端批次同时造成均值失真与相关杠杆，任何因素效应讨论必须先按型号分层。",
+      "evidence_refs": [
+        "00_input/batches.csv#model_strata_descriptive",
+        "02_analysis/stability_report.json#capability"
+      ],
+      "confidence": "low",
+      "fdr_q": null
+    },
+    {
+      "id": "KF4-TREND-LAG-UNSTABLE",
+      "statement": "时间趋势混杂与滞后不稳定进一步排除“直接调参”路径：35 对相关 trend_confounded=true；ΔR² 贡献前两名 W1C40@PV1_mean（ΔR²=0.023132）与 W1C4B@PV1_mean（ΔR²=0.021411）原始 r 仅 0.075/0.0725（p=0.3633/0.3796，均 CAUTION），去趋势后 r=0.0047/0.0006，贡献几乎全部来自共享时间趋势，ΔR² 排名不可直接采信。88 对 lag_window_consistent 全部 false，例如 W1C00@PV1_mean 原始 r=0.0186、最优滞后（lag=3）处 -0.2885，符号翻转。44 因子全模型 r_full_model=0.334643（按 r² 折算联合解释方差约 11%，解释力为解读性推算）——先分层、再做小型试验设计，而不是从本合同直接取参数窗口。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#top_contributors",
+        "02_analysis/correlation_report.json#pairs",
+        "02_analysis/correlation_report.json#multiple_testing"
+      ],
+      "confidence": "low",
+      "fdr_q": null
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "混线未分层：9 个型号共用一张相关表，型号间缺陷基线差异悬殊（描述性中位数 35 ~ 4145），12 处 Simpson 分层方向翻转即由此类层间结构产生——任何跨型号的方向/幅度都必须先按型号（必要时再按时间段）分层复验",
+    "total_defects 与 oligomer 均无规格限（lsl/usl/target 为空），Cp/Cpk/Pp/Ppk 全部不可计算，能力评估缺位",
+    "响应分布极端右偏非正态（total_defects 偏度 7.8311、AD=48.7257），Pearson r 受极端批次杠杆影响；FP41（3 批）与 FG22（6 批）样本量过小，其层内数字不可单独引用",
+    "0 窗口的成因是合并稳态段仅 30 行且跨 6 个型号（最大层 8 行，低于分层核验每层 ≥20 行的要求）；补数方案应以“单型号连续 ≥20 批”为最小分析单元"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_total_defects.png",
+      "title": "Stability timeline — total_defects"
+    },
+    {
+      "file": "timeline_oligomer.png",
+      "title": "Stability timeline — oligomer"
+    },
+    {
+      "file": "segments_total_defects.png",
+      "title": "Steady-segment comparison — total_defects"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 0,
+    "n_confirmations": 0,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

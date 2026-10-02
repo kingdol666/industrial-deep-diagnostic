@@ -1,0 +1,178 @@
+{
+  "generated_at": "2026-10-01T05:02:10.345160+00:00",
+  "mode": "observational",
+  "n_rows": 68,
+  "time_col": null,
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": null,
+    "time_column": null,
+    "message": "No time column specified or found."
+  },
+  "pairs": [
+    {
+      "target": "fineness",
+      "parameter": "media_fill",
+      "r": 0.7446,
+      "p_value": 0.0,
+      "n": 68,
+      "best_lag": 16,
+      "best_lag_r": 0.754,
+      "lag_window_consistent": true,
+      "detrended_r": 0.736,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "fineness",
+      "parameter": "sep_speed",
+      "r": -0.5003,
+      "p_value": 0.0,
+      "n": 68,
+      "best_lag": 20,
+      "best_lag_r": 0.5733,
+      "lag_window_consistent": true,
+      "detrended_r": -0.5273,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "fineness",
+      "parameter": "moisture",
+      "r": 0.0062,
+      "p_value": 0.9602,
+      "n": 68,
+      "best_lag": -5,
+      "best_lag_r": 0.0615,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0023,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9602
+    },
+    {
+      "target": "specific_energy",
+      "parameter": "media_fill",
+      "r": -0.8003,
+      "p_value": 0.0,
+      "n": 68,
+      "best_lag": 16,
+      "best_lag_r": -0.8018,
+      "lag_window_consistent": true,
+      "detrended_r": -0.8049,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "specific_energy",
+      "parameter": "sep_speed",
+      "r": 0.4751,
+      "p_value": 0.0,
+      "n": 68,
+      "best_lag": -20,
+      "best_lag_r": -0.5398,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4851,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "specific_energy",
+      "parameter": "moisture",
+      "r": -0.015,
+      "p_value": 0.9032,
+      "n": 68,
+      "best_lag": -11,
+      "best_lag_r": 0.073,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0118,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.9032
+    }
+  ],
+  "top_contributors": [],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 2,
+    "total_tests": 6,
+    "total_significant_q05": 4
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "ROBUST — Statistical evidence passes robustness checks. Correlation findings are stable.",
+    "summary": {
+      "total_targets": 2,
+      "total_parameters": 3,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 0,
+      "fatal_issues": 0,
+      "serious_count": 0,
+      "moderate_count": 0
+    },
+    "lag_warning": null
+  }
+}

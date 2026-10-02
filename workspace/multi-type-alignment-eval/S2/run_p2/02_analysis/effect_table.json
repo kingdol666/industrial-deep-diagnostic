@@ -1,0 +1,162 @@
+{
+  "generated_at": "2026-10-01T12:56:22.259907+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "x1",
+      "x2"
+    ],
+    "interactions": [
+      "x1:x2"
+    ],
+    "quadratic": [
+      "x1^2",
+      "x2^2"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "pooled_terms": []
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "x1": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "x2": {
+        "type": "numeric",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "y",
+      "n": 600,
+      "df_resid": 594,
+      "df_pure_error": 0,
+      "df_lack_of_fit": 0,
+      "mse": 0.43907,
+      "mse_pure_error": null,
+      "sigma_pure_error": null,
+      "r_squared": 0.008469,
+      "adj_r_squared": 0.000123,
+      "q_squared_loo": -0.011692,
+      "mde": null,
+      "mde_note": null,
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": false,
+        "reason": "no pure-error replicates",
+        "f_stat": null,
+        "p_value": null
+      },
+      "tests": [
+        {
+          "term": "x1",
+          "order": 1,
+          "coefficient": 0.166004,
+          "std_err": 0.082083,
+          "df": 1,
+          "ss_extra_ss": 1.795834,
+          "n": 600,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 4.090081,
+          "p_value": 0.04358319235544922,
+          "eta_squared": 0.006827,
+          "partial_eta_squared": 0.006839,
+          "effect_size_std": null,
+          "q_value_bh": 0.2179159617772461,
+          "pareto_rank": 1
+        },
+        {
+          "term": "x2",
+          "order": 1,
+          "coefficient": 0.011198,
+          "std_err": 0.08268,
+          "df": 1,
+          "ss_extra_ss": 0.008054,
+          "n": 600,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.018344,
+          "p_value": 0.8923108110645532,
+          "eta_squared": 3.1e-05,
+          "partial_eta_squared": 3.1e-05,
+          "effect_size_std": null,
+          "q_value_bh": 0.9362241614826845,
+          "pareto_rank": 4
+        },
+        {
+          "term": "x1^2",
+          "order": 2,
+          "coefficient": 0.034425,
+          "std_err": 0.166461,
+          "df": 1,
+          "ss_extra_ss": 0.018778,
+          "n": 600,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.042768,
+          "p_value": 0.8362336509696016,
+          "eta_squared": 7.1e-05,
+          "partial_eta_squared": 7.2e-05,
+          "effect_size_std": null,
+          "q_value_bh": 0.9362241614826845,
+          "pareto_rank": 3
+        },
+        {
+          "term": "x2^2",
+          "order": 2,
+          "coefficient": 0.067089,
+          "std_err": 0.160783,
+          "df": 1,
+          "ss_extra_ss": 0.076448,
+          "n": 600,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.174113,
+          "p_value": 0.6766329508308041,
+          "eta_squared": 0.000291,
+          "partial_eta_squared": 0.000293,
+          "effect_size_std": null,
+          "q_value_bh": 0.9362241614826845,
+          "pareto_rank": 2
+        },
+        {
+          "term": "x1:x2",
+          "order": 2,
+          "coefficient": -0.019337,
+          "std_err": 0.241563,
+          "df": 1,
+          "ss_extra_ss": 0.002814,
+          "n": 600,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.006408,
+          "p_value": 0.9362241614826845,
+          "eta_squared": 1.1e-05,
+          "partial_eta_squared": 1.1e-05,
+          "effect_size_std": null,
+          "q_value_bh": 0.9362241614826845,
+          "pareto_rank": 5
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 5,
+    "total_significant_q05": 0,
+    "excluded_from_family": 0
+  }
+}

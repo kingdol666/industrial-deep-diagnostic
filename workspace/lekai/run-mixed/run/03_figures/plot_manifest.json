@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-01T07:07:30.773726+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlation matrix",
+      "response": null,
+      "bytes": 57136,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5835 ok; ink ratio 58.3% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "total_defects",
+      "bytes": 43934,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.3347 ok; ink ratio 33.5% across 4 quadrants"
+    },
+    {
+      "file": "timeline_total_defects.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — total_defects",
+      "response": "total_defects",
+      "bytes": 35187,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4629 ok; ink ratio 46.3% across 4 quadrants"
+    },
+    {
+      "file": "timeline_oligomer.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — oligomer",
+      "response": "oligomer",
+      "bytes": 37908,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4618 ok; ink ratio 46.2% across 4 quadrants"
+    },
+    {
+      "file": "segments_total_defects.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — total_defects",
+      "response": "total_defects",
+      "bytes": 22816,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1764 ok; ink ratio 17.6% across 4 quadrants"
+    }
+  ]
+}

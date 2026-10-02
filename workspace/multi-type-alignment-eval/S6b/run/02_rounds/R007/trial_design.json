@@ -1,0 +1,69 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-007",
+  "round_id": "R007",
+  "phase": "exploit",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R007-T01",
+      "setpoints": {
+        "die_bolt_T3_pct": 2.191304
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.130012,
+      "expected": {
+        "dev_pos07": {
+          "mean": 0.045509,
+          "ci95": [
+            -0.431569,
+            0.522588
+          ]
+        }
+      },
+      "predicted_D": 0.606787,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=True; nearest_data_coded=0.03"
+    },
+    {
+      "trial_id": "R007-T02",
+      "setpoints": {
+        "die_bolt_T3_pct": 6.915964
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.074944,
+      "expected": {
+        "dev_pos07": {
+          "mean": 6.040845,
+          "ci95": [
+            5.562707,
+            6.518983
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=True; nearest_data_coded=0.025"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": 25.887469,
+    "lengthscales": {
+      "x0": 0.044422
+    },
+    "sigma_noise": 0.226232,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 1.0
+  },
+  "provenance": {
+    "input_sha256": "8235282c482a2af83e45d2c7b3ec19ef285a792c800db53ee496a9cb3532543f",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

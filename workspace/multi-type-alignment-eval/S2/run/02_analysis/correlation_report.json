@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-10-01T12:56:16.278531+00:00",
+  "mode": "observational",
+  "n_rows": 1200,
+  "time_col": "t",
+  "group_col": "product",
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "t",
+    "n_rows": 1200,
+    "n_time_values": 1200,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "y",
+      "parameter": "x1",
+      "r": -0.8143,
+      "p_value": 0.0,
+      "n": 1200,
+      "best_lag": 3,
+      "best_lag_r": -0.8279,
+      "lag_window_consistent": true,
+      "detrended_r": -0.5258,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.663186,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "Simpson paradox / direction reversal across strata"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "y",
+      "parameter": "x2",
+      "r": -0.0034,
+      "p_value": 0.907,
+      "n": 1200,
+      "best_lag": 1,
+      "best_lag_r": -0.0281,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0275,
+      "trend_confounded": true,
+      "contribution_delta_r2": 7.9e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.907
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "y",
+      "factor": "x1",
+      "delta_r2": 0.663186,
+      "r_full_model": 0.663197
+    },
+    {
+      "response": "y",
+      "factor": "x2",
+      "delta_r2": 7.9e-05,
+      "r_full_model": 0.663197
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 2,
+    "total_significant_q05": 1
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly.",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 2,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 1,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 1,
+      "fatal_issues": 0,
+      "serious_count": 2,
+      "moderate_count": 0
+    },
+    "lag_warning": null
+  }
+}

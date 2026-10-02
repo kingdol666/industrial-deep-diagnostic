@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T07:41:47.955906+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "reactor_temp_C 与 conversion_pct 呈显著负相关：r=-0.7349（n=1440，q(BH)=0.0），最优滞后 2 步（r=-0.7360），滞后窗口一致；去趋势后 r=-0.4582，仍保持中等强度；离群点敏感性 OK、无 LOO 杠杆点，全局防伪汇总未见离群点驱动相关与 Simpson 悖论。防伪裁决 PASS，为本次 10 组配对中唯一 PASS（证据级 L3）——仍属相关级证据，非因果。BH 多重检验 10 组中共 6 组在 q<0.05 显著（reactor_temp_C、reactor_pressure_bar、h2_partial_pressure_bar 对两响应的全部配对）。",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.reactor_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "reactor_temp_C 与 quality_index 呈显著负相关：r=-0.7025（n=1440，q(BH)=0.0），最优滞后 1 步（r=-0.7199），滞后窗口一致；ΔR²=0.1661，为 quality_index 的首要贡献因子；但去趋势后 r 降至 -0.3879，原始相关含共享时间趋势成分，防伪裁决 CAUTION（证据级 L4）——非因果。窗口依据：据此生成操作窗口 OW-001（reactor_temp_C∈[183.9, 186.6]，取 3 个最优稳态段——行 0-15/45-130/160-294——的 P10-P90），窗内按目标校正方向的三分位均值差 +0.7082（CI95 [0.1026, 1.3139]，n=170，confidence=low，confirmation_needed=true）；当前基线 187.2 高于窗上沿 0.6。稳定性依据：quality_index 在行 305 检出变点，3 个取材段全部位于变点前高稳态平台（段均值 92.68/92.89/92.73，全 run 均值 81.45，其后逐级下行），窗口能否外推到变点后工况必须由确认试验裁决。",
+      "evidence_refs": [
+        "correlation_report.json#quality_index.reactor_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "reactor_pressure_bar 与 conversion_pct 呈显著负相关：r=-0.6031（n=1440，q(BH)=0.0），最优滞后 0 步且无滞后增强（lag_window_consistent=false）；ΔR²=0.0712；去趋势后 r=-0.3447，原始相关含共享时间趋势成分，防伪裁决 CAUTION（证据级 L4）——非因果。稳定性依据：conversion_pct 在行 301、598 检出两个变点，分段均值自行 0-294 的 93.06-93.20 平台逐级降至末段 73.6-77.9（行 1198-1239 段部分回升至 79.2），存在与因子变化同向的共同时间趋势，是本配对防伪降级的主因。",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.reactor_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "reactor_pressure_bar 与 quality_index 呈显著负相关：r=-0.5824（n=1440，q(BH)=0.0），最优滞后 3 步（r=-0.5929），滞后窗口一致；ΔR²=0.0712，居 quality_index 贡献第二位；去趋势后 r=-0.3048，原始相关含共享时间趋势成分，防伪裁决 CAUTION（证据级 L4）——相关级证据，非因果，确认试验前不得单独作为调参依据。",
+      "evidence_refs": [
+        "correlation_report.json#quality_index.reactor_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "h2_partial_pressure_bar 与 conversion_pct 呈显著正相关：r=0.5245（n=1440，q(BH)=0.0），最优滞后 1 步（r=0.5247），滞后窗口一致；ΔR²=0.0490；去趋势后 r=0.3049，原始相关含共享时间趋势成分，防伪裁决 CAUTION（证据级 L4）——非因果。不显著配对披露：feed_rate_kg_hr 与 feed_sulfur_ppm 对两响应均不显著（q=0.535-0.877）；其中操作窗口 OW-002（feed_sulfur_ppm∈[5.4, 7.7]→conversion_pct，三分位均值差 +0.4068，CI95 [0.1532, 0.6603]，n=162）为稳态段内描述性差异，与该配对全局相关不显著（r=-0.007，q=0.791）不一致，窗口置信度为 low，必须以确认试验结果裁决后方可使用。",
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.h2_partial_pressure_bar"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_quality_index.png",
+      "title": "Stability timeline — quality_index"
+    },
+    {
+      "file": "timeline_conversion_pct.png",
+      "title": "Stability timeline — conversion_pct"
+    },
+    {
+      "file": "segments_quality_index.png",
+      "title": "Steady-segment comparison — quality_index"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

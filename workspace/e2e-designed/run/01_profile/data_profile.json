@@ -1,0 +1,125 @@
+{
+  "generated_at": "2026-10-01T05:06:39.279997+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-designed\\run\\00_input\\grinding_doe.csv",
+  "n_rows": 68,
+  "n_cols": 7,
+  "columns": [
+    {
+      "name": "media_fill",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "sep_speed",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "moisture",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "助磨剂",
+      "dtype": "str",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "batch",
+      "dtype": "str",
+      "role": "block",
+      "role_assigned_by": "user",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "fineness",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 68,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    },
+    {
+      "name": "specific_energy",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 68,
+      "n_missing": 0,
+      "n_valid": 68,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "fineness",
+      "specific_energy"
+    ],
+    "factors": [
+      "media_fill",
+      "sep_speed",
+      "moisture",
+      "助磨剂"
+    ],
+    "blocks": [
+      "batch"
+    ],
+    "covariates": [],
+    "index": [],
+    "ignore": []
+  },
+  "design": {
+    "n_runs": 68,
+    "n_factor_cols": 4,
+    "n_distinct_combos": 16,
+    "balanced": true,
+    "balance_ratio": 1.0,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": 4,
+    "axial_points": null,
+    "alpha_axial": null,
+    "replicates": 4,
+    "detection_notes": [
+      "all 16 level combos present and balanced",
+      "detected after stripping 4 center rows"
+    ],
+    "design_type": "full_factorial",
+    "mode": "designed"
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

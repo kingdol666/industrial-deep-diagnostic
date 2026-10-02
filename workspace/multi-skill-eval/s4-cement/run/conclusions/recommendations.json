@@ -1,0 +1,508 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "mill_power_kW",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        3297.47,
+        3594.63
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 98.004518,
+        "direction_semantics": "观察性结论：mill_power_kW 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 98（方向已按目标校正）",
+        "ci95": [
+          70.299985,
+          125.709051
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.mill_power_kW",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "reject_rate_pct",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        15.172,
+        22.877
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -96.778791,
+        "direction_semantics": "观察性结论：reject_rate_pct 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 -96.78（方向已按目标校正）",
+        "ci95": [
+          -128.968036,
+          -64.589545
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.reject_rate_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "separator_speed_rpm",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        896.53,
+        996.83
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -93.195382,
+        "direction_semantics": "观察性结论：separator_speed_rpm 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 -93.2（方向已按目标校正）",
+        "ci95": [
+          -122.501719,
+          -63.889045
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.separator_speed_rpm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-004",
+      "priority": 4,
+      "factor": "mill_vibration_mm_s",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        1.9614,
+        3.5211
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -67.734252,
+        "direction_semantics": "观察性结论：mill_vibration_mm_s 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 -67.73（方向已按目标校正）",
+        "ci95": [
+          -98.103878,
+          -37.364626
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.mill_vibration_mm_s",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-005",
+      "priority": 5,
+      "factor": "mill_outlet_temp_C",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        103.3,
+        112.34
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 38.379496,
+        "direction_semantics": "观察性结论：mill_outlet_temp_C 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 38.38（方向已按目标校正）",
+        "ci95": [
+          7.298106,
+          69.460886
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.mill_outlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-006",
+      "priority": 6,
+      "factor": "main_bearing_temp_C",
+      "factor_unit": null,
+      "response": "blaine_fineness_cm2g",
+      "range": [
+        61.53,
+        69.7
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -33.014,
+        "direction_semantics": "观察性结论：main_bearing_temp_C 处于窗内上三分位 vs 下三分位时，blaine_fineness_cm2g 均值差为 -33.01（方向已按目标校正）",
+        "ci95": [
+          -59.951324,
+          -6.076676
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.main_bearing_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-007",
+      "priority": 7,
+      "factor": "separator_speed_rpm",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        896.53,
+        996.83
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.721442,
+        "direction_semantics": "观察性结论：separator_speed_rpm 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 -1.721（方向已按目标校正）",
+        "ci95": [
+          -1.972442,
+          -1.470443
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.separator_speed_rpm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-008",
+      "priority": 8,
+      "factor": "mill_power_kW",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        3297.47,
+        3594.63
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 1.545972,
+        "direction_semantics": "观察性结论：mill_power_kW 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 1.546（方向已按目标校正）",
+        "ci95": [
+          1.289926,
+          1.802018
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.mill_power_kW",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-009",
+      "priority": 9,
+      "factor": "reject_rate_pct",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        15.172,
+        22.877
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.381749,
+        "direction_semantics": "观察性结论：reject_rate_pct 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 -1.382（方向已按目标校正）",
+        "ci95": [
+          -1.65498,
+          -1.108518
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.reject_rate_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-010",
+      "priority": 10,
+      "factor": "mill_vibration_mm_s",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        1.9614,
+        3.5211
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.048048,
+        "direction_semantics": "观察性结论：mill_vibration_mm_s 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 -1.048（方向已按目标校正）",
+        "ci95": [
+          -1.369141,
+          -0.726954
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.mill_vibration_mm_s",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-011",
+      "priority": 11,
+      "factor": "main_bearing_temp_C",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        61.53,
+        69.7
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.611178,
+        "direction_semantics": "观察性结论：main_bearing_temp_C 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 -0.6112（方向已按目标校正）",
+        "ci95": [
+          -0.955767,
+          -0.26659
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.main_bearing_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-012",
+      "priority": 12,
+      "factor": "mill_outlet_temp_C",
+      "factor_unit": null,
+      "response": "strength_28d_MPa",
+      "range": [
+        103.3,
+        112.34
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.49146,
+        "direction_semantics": "观察性结论：mill_outlet_temp_C 处于窗内上三分位 vs 下三分位时，strength_28d_MPa 均值差为 0.4915（方向已按目标校正）",
+        "ci95": [
+          0.124171,
+          0.85875
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.mill_outlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "mill_power_kW": 3090.9,
+      "reject_rate_pct": 27.18,
+      "separator_speed_rpm": 1072.4,
+      "mill_vibration_mm_s": 4.113,
+      "mill_outlet_temp_C": 103.9,
+      "main_bearing_temp_C": 62.4
+    },
+    "distance_to_window": {
+      "OW-001": 206.57,
+      "OW-002": 4.303,
+      "OW-003": 75.57,
+      "OW-004": 0.5919,
+      "OW-005": 0.0,
+      "OW-006": 0.0,
+      "OW-007": 75.57,
+      "OW-008": 206.57,
+      "OW-009": 4.303,
+      "OW-010": 0.5919,
+      "OW-011": 0.0,
+      "OW-012": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 mill_power_kW 调整至 [3297.47, 3594.63]"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "strength_28d_MPa": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 38.73982
+    },
+    "blaine_fineness_cm2g": {
+      "lsl": 3400.0,
+      "usl": 3800.0,
+      "target": 3600.0,
+      "goal": "target",
+      "current": 3522.875161
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 12
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    },
+    {
+      "code": "CONFOUNDER_CLINKER_SOURCE",
+      "factor": "clinker_source",
+      "response": null,
+      "message": "clinker_source（2 个水平）与时间慢漂移共线：分层 Simpson 核验 0 起反转、离群驱动判定 0 起，但趋势混杂判定 16 起（overall_validity=MODERATE_CONCERNS）——全部窗口效应量为熟料来源时代条件相关",
+      "threshold": "确认试验限定单一来源，或按来源分层各做一轮"
+    },
+    {
+      "code": "DETRENDED_COLLAPSE_OW001",
+      "factor": "mill_power_kW",
+      "response": "blaine_fineness_cm2g",
+      "message": "OW-001 底层相关 r=0.8293 去趋势后降至 -0.0108（接近零），Δ=+98.004518 cm²/g 可能主要由共线慢漂移贡献",
+      "threshold": "确认均值差须落入 CI95 [70.299985, 125.709051] cm²/g 方可闭环，否则判 OW-001 失效"
+    },
+    {
+      "code": "ERA_DRIFT_MONITOR",
+      "factor": null,
+      "response": "strength_28d_MPa",
+      "message": "6 个稳态段均值单调下行（strength 42.99→35.595417 MPa，blaine 3768.196429→3306.958333 cm²/g），strength 已检出 3 个变点（行 186/298/565）；窗口取自行 0-265 早期稳态段，当前基线 mill_power_kW=3090.9 距 OW-001/OW-008 下沿 206.57 kW",
+      "threshold": "新变点触发或漂移延续即按 invalidation_conditions 停用合同"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 777,
+    "time_span": "2025-10-01 01:44:50 .. 2025-12-31 15:22:50",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "mill_power_kW": {
+        "min": 2601.8,
+        "max": 3654.0
+      },
+      "reject_rate_pct": {
+        "min": 8.0,
+        "max": 40.11
+      },
+      "separator_speed_rpm": {
+        "min": 874.9,
+        "max": 1258.6
+      },
+      "mill_vibration_mm_s": {
+        "min": 1.0,
+        "max": 6.959
+      },
+      "mill_outlet_temp_C": {
+        "min": 88.1,
+        "max": 119.7
+      },
+      "main_bearing_temp_C": {
+        "min": 50.8,
+        "max": 76.8
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+    "确认试验须限定单一熟料来源（clinker_source）内完成，或按来源分层各执行一轮后再合并判定；跨来源切换点执行无效",
+    "窗口效应量为去趋势前观测值：执行前核对 stability_report 无新增变点、稳态段均值未延续历史单调漂移，否则按 invalidation_conditions 第 2 条停用合同"
+  ],
+  "provenance": {
+    "input_sha256": "3d6f5fcce23a9191bbce194156dab6f8221df1b385e33d5dcc4535773ccf1b0a",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "agent"
+  }
+}

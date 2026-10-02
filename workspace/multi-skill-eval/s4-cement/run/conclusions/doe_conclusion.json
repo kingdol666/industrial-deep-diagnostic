@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-10-01T07:46:07.213266+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "separator_speed_rpm 与 strength_28d_MPa 原始相关 r=-0.9242（n=777，q(BH)=0.0，ΔR²=0.042534，为 12 因子中最大贡献），best_lag=0 且滞后窗不一致；防伪核验：离群驱动判定 0 起（本对离群敏感 OK、留一杠杆 false）、clinker_source 分层 Simpson 核验 0 起反转，但属 16 起趋势混杂之一——去趋势后 r=-0.3559，为全部 24 对中去趋势后 |r| 最高者，方向相对稳健而幅度属熟料来源时代条件相关；裁决 CAUTION，系相关级证据非因果，对应窗口 OW-007 确认前不得执行。",
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.separator_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "reject_rate_pct 与 strength_28d_MPa 原始相关 r=-0.8782（q(BH)=0.0，best_lag=9 且滞后窗一致，ΔR²=0.000618）：离群敏感 OK、留一杠杆 false、Simpson 分层核验未触发，但趋势混杂成立——去趋势后 r 降至 -0.129，与 6 个稳态段 strength 均值单调下行（42.99→35.595417 MPa）共线；裁决 CAUTION——原始负相关大部分由熟料来源时代漂移贡献，且 reject_rate_pct 属过程结果型变量而非独立操作杠杆，对应窗口 OW-009 仅可作参考信号。",
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.reject_rate_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "mill_sound_dB 与 strength_28d_MPa 原始相关 r=0.8722（q(BH)=0.0，best_lag=-4 且滞后窗一致，ΔR²=0.001342）：离群敏感 OK、留一杠杆 false、Simpson 分层核验未触发，但去趋势后 r=0.0704（接近零）——该相关几乎完全由与熟料来源切换共线的慢漂移贡献；裁决 CAUTION——mill_sound_dB 为磨机声学状态量而非独立操作杠杆，12 条操作窗口亦未为其设窗，不建议据此操作。",
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.mill_sound_dB"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "separator_speed_rpm 与 blaine_fineness_cm2g 原始相关 r=-0.8682（q(BH)=0.0，best_lag=2 且滞后窗一致，ΔR²=0.042534 为两响应共有的最大因子贡献）：离群敏感 OK、留一杠杆 false、Simpson 分层核验未触发；趋势混杂成立，去趋势后 r=-0.2202，强度衰减但仍保留弱-中关联；裁决 CAUTION——方向较稳、幅度属熟料来源时代条件，对应窗口 OW-003（896.53–996.83 rpm）确认前不得执行。",
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.separator_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "mill_power_kW 与 strength_28d_MPa 原始相关 r=0.8593（q(BH)=0.0，best_lag=8 且滞后窗一致，ΔR²=0.014649）：离群敏感 OK、留一杠杆 false、Simpson 分层核验未触发；趋势混杂成立，去趋势后 r=-0.1834——原始正相关与熟料来源时代整体下行共线；裁决 CAUTION——对应窗口 OW-008 与 top 窗口 OW-001 共用同一因子观测域 [3297.47, 3594.63]，确认前不得执行。",
+      "evidence_refs": [
+        "correlation_report.json#strength_28d_MPa.mill_power_kW"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-006",
+      "statement": "top 窗口 OW-001（mill_power_kW [3297.47, 3594.63] → blaine_fineness_cm2g，Δ=+98.004518，CI95 [70.299985, 125.709051]）在熟料来源混杂下的可信度：底层相关 r=0.8293（q(BH)=0.0，best_lag=5 且滞后窗一致），离群敏感 OK、留一杠杆 false、clinker_source 分层 Simpson 0 起反转、离群驱动判定 0 起——相关并非数据伪迹；但趋势混杂成立（去趋势后 r=-0.0108，接近零），窗口取自 3 个最优早期稳态段（数据行 0-265，n=224），当前基线 mill_power_kW=3090.9 距窗口下沿 206.57 kW；判定：方向与量级均为熟料来源时代条件相关，confidence=low 与 confirmation_needed=true 维持不变，闭环前必须先完成 CF-001 确认试验（限定单一熟料来源）。",
+      "evidence_refs": [
+        "correlation_report.json#blaine_fineness_cm2g.mill_power_kW",
+        "stability_report.json#steady_segments",
+        "recommendations.json#operating_windows.OW-001"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况",
+    "group_col=clinker_source（熟料来源，2 个水平，用户标注 switching trap）为已知混杂：分层 Simpson 核验 0 起反转、离群驱动判定 0 起、fatal/serious 均 0，但趋势混杂判定 16 起（overall_validity=MODERATE_CONCERNS）；6 个稳态段均值随时间单调下行（strength 42.99→35.595417 MPa，blaine 3768.196429→3306.958333 cm²/g）并检出 3 个 strength 变点（行 186/298/565），原始相关与熟料来源切换/慢漂移共线，去趋势后 top 相关大幅衰减（mill_power_kW×blaine 由 0.8293 降至 -0.0108）",
+    "12 条窗口全部取自 3 个最优早期稳态段（数据行 0-55/77-194/216-265，合计 n=224），代表早期熟料来源时代工况；当前基线（mill_power_kW=3090.9）距 OW-001/OW-008 窗口下沿 206.57 kW、separator_speed_rpm 基线（1072.4）距 OW-003/OW-007 上沿 75.57——跨时代调整可信度最低，必须先完成 CF-001 确认",
+    "两响应均非正态且强正自相关（strength_28d_MPa：AD=3.9646>0.751，lag1=0.9006，n_eff=40/777；blaine：AD=2.1905>0.751，lag1=0.776，n_eff=98/777），有效样本量远小于表面 n=777；blaine 的 Cpk=0.651 为非正态指示值（Ppk=0.254、Cnp=0.311 更保守），当前均值 3522.875 低于目标 3600 且过程能力不足"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_strength_28d_MPa.png",
+      "title": "Stability timeline — strength_28d_MPa"
+    },
+    {
+      "file": "timeline_blaine_fineness_cm2g.png",
+      "title": "Stability timeline — blaine_fineness_cm2g"
+    },
+    {
+      "file": "segments_strength_28d_MPa.png",
+      "title": "Steady-segment comparison — strength_28d_MPa"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+    "downstream_usage_card": {
+      "contract_version": "1.0",
+      "n_windows": 12,
+      "n_confirmations": 1,
+      "n_watchlist": 4,
+      "usage_rules": [
+        "observational 窗口在闭环执行前必须先跑 confirmations",
+        "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+        "确认试验须限定单一熟料来源（clinker_source）内完成，或按来源分层各执行一轮后再合并判定；跨来源切换点执行无效",
+        "窗口效应量为去趋势前观测值：执行前核对 stability_report 无新增变点、稳态段均值未延续历史单调漂移，否则按 invalidation_conditions 第 2 条停用合同"
+      ]
+    }
+}

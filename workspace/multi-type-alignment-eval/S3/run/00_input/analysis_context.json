@@ -1,0 +1,57 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "dev_pos07",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    },
+    {
+      "col": "zone_L",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "die_bolt_T3_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "melt_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "pull_speed_mpm",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "timestamp",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 8,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S3 aligned (back 10min=5 scan steps): pos_07 stripe = 0.8*die_bolt_T3(t-10min)"
+    ]
+  },
+  "_predictor_cols": [
+    "die_bolt_T3_pct",
+    "melt_temp_C",
+    "pull_speed_mpm"
+  ]
+}

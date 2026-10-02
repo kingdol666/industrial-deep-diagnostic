@@ -1,0 +1,140 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "die_bolt_T3_pct",
+      "factor_unit": null,
+      "response": "dev_pos07",
+      "range": [
+        52.127308,
+        55.269592
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 2.149899,
+        "direction_semantics": "观察性结论：die_bolt_T3_pct 处于窗内上三分位 vs 下三分位时，dev_pos07 均值差为 2.15（方向已按目标校正）",
+        "ci95": [
+          1.909351,
+          2.390447
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 80,
+      "evidence_refs": [
+        "correlation_report.json#dev_pos07.die_bolt_T3_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "die_bolt_T3_pct",
+      "factor_unit": null,
+      "response": "zone_L",
+      "range": [
+        52.127308,
+        55.269592
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.314111,
+        "direction_semantics": "观察性结论：die_bolt_T3_pct 处于窗内上三分位 vs 下三分位时，zone_L 均值差为 0.3141（方向已按目标校正）",
+        "ci95": [
+          0.274769,
+          0.353454
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 80,
+      "evidence_refs": [
+        "correlation_report.json#zone_L.die_bolt_T3_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "die_bolt_T3_pct": 52.519407
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 die_bolt_T3_pct 调整至 [52.127308, 55.269592]（当前已在窗内）"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "dev_pos07": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 41.052235
+    },
+    "zone_L": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 108.884683
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 4
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 400,
+    "time_span": "2026-09-01 00:10:00+00:00 .. 2026-09-01 13:28:00+00:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "die_bolt_T3_pct": {
+        "min": 49.100295,
+        "max": 56.653564
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "6a25c6f5e6504fb8706a0abfbe262c045e59c11ea2fe4cc2a352d5d54759cbe0",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

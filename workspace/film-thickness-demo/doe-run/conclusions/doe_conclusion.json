@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-10-01T12:36:53.630261+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "model_adequacy_ok": null,
+    "anti_spurious_ok": false,
+    "overridden_by": "user"
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "melt_temp_C 与 mean_thk 的相关 r=-0.9534，滞后 -17 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#mean_thk.melt_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "die_bolt_T3_pct 与 dev_pos07 的相关 r=0.838，滞后 20 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#dev_pos07.die_bolt_T3_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "die_bolt_T3_pct 与 mean_thk 的相关 r=-0.8224，滞后 -20 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#mean_thk.die_bolt_T3_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "melt_temp_C 与 dev_pos07 的相关 r=0.5852，滞后 20 步，q(BH)=0.0，防伪裁决 CAUTION — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#dev_pos07.melt_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "相关对 lip_gap_mm→dev_pos07 存在离群点敏感证据（outlier_sensitivity=SERIOUS，r=-0.4566）— 结论对个别样本敏感，需复核原始数据或做稳健性重算",
+    "相关对 lip_gap_mm→mean_thk 存在离群点敏感证据（outlier_sensitivity=SERIOUS，r=0.9396）— 结论对个别样本敏感，需复核原始数据或做稳健性重算",
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlations (q<0.05 or non-FAIL pairs; r values)"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_dev_pos07.png",
+      "title": "Stability timeline — dev_pos07 (green: steady, dashed: change points)"
+    },
+    {
+      "file": "timeline_mean_thk.png",
+      "title": "Stability timeline — mean_thk (green: steady, dashed: change points)"
+    },
+    {
+      "file": "segments_dev_pos07.png",
+      "title": "Steady-segment comparison — dev_pos07"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 3,
+    "n_confirmations": 1,
+    "n_watchlist": 2,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

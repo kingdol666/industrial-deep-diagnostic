@@ -1,0 +1,234 @@
+{
+  "generated_at": "2026-10-01T12:58:09.035732+00:00",
+  "n_rows": 400,
+  "time_col": "timestamp",
+  "capability": [
+    {
+      "response": "dev_pos07",
+      "n": 400,
+      "mean": 41.052235,
+      "std_overall": 1.101337,
+      "sigma_within_mr": 0.657338,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.3099,
+        "excess_kurtosis": -0.1771,
+        "ad_statistic": 1.259,
+        "ad_critical_5pct": 0.751,
+        "normal": false
+      },
+      "autocorr_lag1": 0.6459,
+      "n_eff": 86,
+      "note": null
+    },
+    {
+      "response": "zone_L",
+      "n": 400,
+      "mean": 108.884683,
+      "std_overall": 0.163536,
+      "sigma_within_mr": 0.101693,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.171,
+        "excess_kurtosis": -0.3693,
+        "ad_statistic": 0.9103,
+        "ad_critical_5pct": 0.751,
+        "normal": false
+      },
+      "autocorr_lag1": 0.5977,
+      "n_eff": 100,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 14,
+      "n_rows": 15,
+      "response_means": {
+        "dev_pos07": 40.640357,
+        "zone_L": 108.849114
+      },
+      "score": 74.744735,
+      "selected_for_windows": false
+    },
+    {
+      "start": 36,
+      "end": 43,
+      "n_rows": 8,
+      "response_means": {
+        "dev_pos07": 40.826993,
+        "zone_L": 108.822625
+      },
+      "score": 74.824809,
+      "selected_for_windows": true
+    },
+    {
+      "start": 65,
+      "end": 65,
+      "n_rows": 1,
+      "response_means": {
+        "dev_pos07": 41.010988,
+        "zone_L": 108.948122
+      },
+      "score": null,
+      "selected_for_windows": false
+    },
+    {
+      "start": 87,
+      "end": 105,
+      "n_rows": 19,
+      "response_means": {
+        "dev_pos07": 40.633257,
+        "zone_L": 108.824786
+      },
+      "score": 74.729021,
+      "selected_for_windows": false
+    },
+    {
+      "start": 127,
+      "end": 150,
+      "n_rows": 24,
+      "response_means": {
+        "dev_pos07": 41.127412,
+        "zone_L": 108.886425
+      },
+      "score": 75.006918,
+      "selected_for_windows": true
+    },
+    {
+      "start": 172,
+      "end": 202,
+      "n_rows": 31,
+      "response_means": {
+        "dev_pos07": 40.634842,
+        "zone_L": 108.825103
+      },
+      "score": 74.729973,
+      "selected_for_windows": false
+    },
+    {
+      "start": 224,
+      "end": 225,
+      "n_rows": 2,
+      "response_means": {
+        "dev_pos07": 40.502848,
+        "zone_L": 108.850776
+      },
+      "score": null,
+      "selected_for_windows": false
+    },
+    {
+      "start": 247,
+      "end": 289,
+      "n_rows": 43,
+      "response_means": {
+        "dev_pos07": 40.477589,
+        "zone_L": 108.794637
+      },
+      "score": 74.636113,
+      "selected_for_windows": false
+    },
+    {
+      "start": 311,
+      "end": 399,
+      "n_rows": 89,
+      "response_means": {
+        "dev_pos07": 42.38894,
+        "zone_L": 109.071916
+      },
+      "score": 75.730428,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [
+    {
+      "response": "dev_pos07",
+      "positions": [
+        300
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    },
+    {
+      "response": "zone_L",
+      "positions": [
+        14,
+        24,
+        34,
+        44,
+        54,
+        66,
+        76,
+        87,
+        98,
+        116,
+        126,
+        139,
+        150,
+        161,
+        171,
+        181,
+        193,
+        204,
+        214,
+        226,
+        238,
+        248,
+        258,
+        269,
+        279,
+        289,
+        300,
+        319,
+        329,
+        339,
+        349,
+        363,
+        378,
+        388
+      ],
+      "detail": {
+        "n_segments": 35,
+        "n_changes": 34
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 20,
+    "total_rows": 400,
+    "steady_state_ratio": 0.58,
+    "regime_distribution": {
+      "steady": {
+        "count": 232,
+        "pct": 58.0
+      },
+      "transition": {
+        "count": 168,
+        "pct": 42.0
+      }
+    }
+  }
+}

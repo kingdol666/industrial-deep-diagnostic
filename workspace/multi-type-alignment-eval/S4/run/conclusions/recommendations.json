@@ -1,0 +1,101 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "furnace_temp_C",
+      "factor_unit": null,
+      "response": "band_mean",
+      "range": [
+        1177.867174,
+        1188.057982
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 2.572716,
+        "direction_semantics": "观察性结论：furnace_temp_C 处于窗内上三分位 vs 下三分位时，band_mean 均值差为 2.573（方向已按目标校正）",
+        "ci95": [
+          2.414752,
+          2.730681
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 316,
+      "evidence_refs": [
+        "correlation_report.json#band_mean.furnace_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "furnace_temp_C": 1181.639472
+    },
+    "distance_to_window": {
+      "OW-001": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 furnace_temp_C 调整至 [1177.867174, 1188.057982]（当前已在窗内）"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "band_mean": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 38.745885
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 4
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 600,
+    "time_span": "2026-09-01T00:00:00Z .. 2026-09-03T01:55:00Z",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "furnace_temp_C": {
+        "min": 1173.829522,
+        "max": 1191.285444
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "39d2d1930a84f6c542b6f5dd69df071a6f529073716ebece139d559caf25d6d7",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

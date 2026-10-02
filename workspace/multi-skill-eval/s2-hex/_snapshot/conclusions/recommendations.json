@@ -1,0 +1,278 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "heat_transfer_coeff_W_m2K",
+      "factor_unit": null,
+      "response": "thermal_efficiency_pct",
+      "range": [
+        980.0,
+        1081.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 3.705714,
+        "direction_semantics": "观察性结论：heat_transfer_coeff_W_m2K 处于窗内上三分位 vs 下三分位时，thermal_efficiency_pct 均值差为 3.706（方向已按目标校正）",
+        "ci95": [
+          3.445632,
+          3.965797
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 210,
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.heat_transfer_coeff_W_m2K",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "hot_outlet_temp_C",
+      "factor_unit": null,
+      "response": "thermal_efficiency_pct",
+      "range": [
+        67.15,
+        69.45
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -2.925893,
+        "direction_semantics": "观察性结论：hot_outlet_temp_C 处于窗内上三分位 vs 下三分位时，thermal_efficiency_pct 均值差为 -2.926（方向已按目标校正）",
+        "ci95": [
+          -3.269008,
+          -2.582777
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.hot_outlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "cold_inlet_temp_C",
+      "factor_unit": null,
+      "response": "thermal_efficiency_pct",
+      "range": [
+        23.6,
+        26.1
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.999075,
+        "direction_semantics": "观察性结论：cold_inlet_temp_C 处于窗内上三分位 vs 下三分位时，thermal_efficiency_pct 均值差为 -1.999（方向已按目标校正）",
+        "ci95": [
+          -2.366044,
+          -1.632106
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.cold_inlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-004",
+      "priority": 4,
+      "factor": "heat_transfer_coeff_W_m2K",
+      "factor_unit": null,
+      "response": "pressure_drop_bar",
+      "range": [
+        980.0,
+        1081.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.303324,
+        "direction_semantics": "观察性结论：heat_transfer_coeff_W_m2K 处于窗内上三分位 vs 下三分位时，pressure_drop_bar 均值差为 -0.3033（方向已按目标校正）",
+        "ci95": [
+          -0.315721,
+          -0.290927
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 210,
+      "evidence_refs": [
+        "correlation_report.json#pressure_drop_bar.heat_transfer_coeff_W_m2K",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-005",
+      "priority": 5,
+      "factor": "hot_outlet_temp_C",
+      "factor_unit": null,
+      "response": "pressure_drop_bar",
+      "range": [
+        67.15,
+        69.45
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.24833,
+        "direction_semantics": "观察性结论：hot_outlet_temp_C 处于窗内上三分位 vs 下三分位时，pressure_drop_bar 均值差为 0.2483（方向已按目标校正）",
+        "ci95": [
+          0.227104,
+          0.269557
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#pressure_drop_bar.hot_outlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-006",
+      "priority": 6,
+      "factor": "cold_inlet_temp_C",
+      "factor_unit": null,
+      "response": "pressure_drop_bar",
+      "range": [
+        23.6,
+        26.1
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.16289,
+        "direction_semantics": "观察性结论：cold_inlet_temp_C 处于窗内上三分位 vs 下三分位时，pressure_drop_bar 均值差为 0.1629（方向已按目标校正）",
+        "ci95": [
+          0.134544,
+          0.191236
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 224,
+      "evidence_refs": [
+        "correlation_report.json#pressure_drop_bar.cold_inlet_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "heat_transfer_coeff_W_m2K": 910.0,
+      "hot_outlet_temp_C": 70.6,
+      "cold_inlet_temp_C": 22.1
+    },
+    "distance_to_window": {
+      "OW-001": 70.0,
+      "OW-002": 1.15,
+      "OW-003": 1.5,
+      "OW-004": 70.0,
+      "OW-005": 1.15,
+      "OW-006": 1.5
+    },
+    "move_instruction": "优先处理 OW-001：将 heat_transfer_coeff_W_m2K 调整至 [980.0, 1081.0]"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "thermal_efficiency_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 78.674491
+    },
+    "pressure_drop_bar": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 1.763321
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 8
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 2160,
+    "time_span": "2026-08-01 00:00:00 .. 2026-09-14 23:30:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "heat_transfer_coeff_W_m2K": {
+        "min": 791.0,
+        "max": 1101.0
+      },
+      "hot_outlet_temp_C": {
+        "min": 65.8,
+        "max": 73.7
+      },
+      "cold_inlet_temp_C": {
+        "min": 12.9,
+        "max": 30.3
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "d2d84db13c051b8ad15a3d7320e56d7eb8f76aa12b3a74314077bc0b7b58d654",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

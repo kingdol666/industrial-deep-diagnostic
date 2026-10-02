@@ -1,0 +1,149 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-006",
+  "round_id": "R005",
+  "phase": "exploit",
+  "method": "rsm_augment",
+  "trials": [
+    {
+      "trial_id": "R005-T01",
+      "setpoints": {
+        "die_bolt_T3_pct": 9.275182
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.007345,
+      "expected": {
+        "dev_pos07": {
+          "mean": 13.243869,
+          "ci95": [
+            12.735085,
+            13.752653
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.007"
+    },
+    {
+      "trial_id": "R005-T02",
+      "setpoints": {
+        "die_bolt_T3_pct": 7.756555
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.31107,
+      "expected": {
+        "dev_pos07": {
+          "mean": 8.352863,
+          "ci95": [
+            7.853653,
+            8.852074
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.033"
+    },
+    {
+      "trial_id": "R005-T03",
+      "setpoints": {
+        "die_bolt_T3_pct": 4.861961
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.889989,
+      "expected": {
+        "dev_pos07": {
+          "mean": 2.036758,
+          "ci95": [
+            1.549771,
+            2.523745
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.019"
+    },
+    {
+      "trial_id": "R005-T04",
+      "setpoints": {
+        "die_bolt_T3_pct": 0.087429
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.844895,
+      "expected": {
+        "dev_pos07": {
+          "mean": 0.915315,
+          "ci95": [
+            0.338233,
+            1.492396
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.017"
+    },
+    {
+      "trial_id": "R005-T05",
+      "setpoints": {
+        "die_bolt_T3_pct": 6.483024
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.565776,
+      "expected": {
+        "dev_pos07": {
+          "mean": 5.017865,
+          "ci95": [
+            4.529423,
+            5.506308
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.039"
+    },
+    {
+      "trial_id": "R005-T06",
+      "setpoints": {
+        "die_bolt_T3_pct": 2.953687
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.271644,
+      "expected": {
+        "dev_pos07": {
+          "mean": 0.261708,
+          "ci95": [
+            -0.232521,
+            0.755938
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.045"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": 30.085916,
+    "lengthscales": {
+      "x0": 0.055171
+    },
+    "sigma_noise": 0.233399,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 1.0
+  },
+  "provenance": {
+    "input_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T12:59:37.262250+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "4e72ebf62e0b2cc4d52e5c46a3bceaf76f8c9f4bc3323de2ee025f4dd39200cb",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "timestamp",
+    "group_col": null,
+    "numeric_columns": [
+      "band_mean",
+      "band_ref_mean",
+      "furnace_temp_C",
+      "stir_speed_rpm"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "band_mean": {
+          "center": 37.77383209333333,
+          "sigma_within_mr": 0.4371766022676059,
+          "sigma_overall": 0.6846521949240206,
+          "median": 37.7715525,
+          "mad": 0.47710950000000096,
+          "q10": 36.8029653,
+          "q90": 38.648823900000004,
+          "cv": 0.0181250393985008,
+          "variance_ratio_baseline_std": 0.6846521949240206
+        },
+        "band_ref_mean": {
+          "center": 33.80472715333333,
+          "sigma_within_mr": 0.14406935944875376,
+          "sigma_overall": 0.13877288229802262,
+          "median": 33.812608499999996,
+          "mad": 0.09792200000000406,
+          "q10": 33.6226427,
+          "q90": 33.9751576,
+          "cv": 0.004105132446967224,
+          "variance_ratio_baseline_std": 0.13877288229802262
+        },
+        "furnace_temp_C": {
+          "center": 1179.65716501,
+          "sigma_within_mr": 1.2013779501411357,
+          "sigma_overall": 1.9049106838474041,
+          "median": 1179.7343354999998,
+          "mad": 1.3110520000002452,
+          "q10": 1177.1273531,
+          "q90": 1181.9198468999998,
+          "cv": 0.0016148002490463033,
+          "variance_ratio_baseline_std": 1.9049106838474041
+        },
+        "stir_speed_rpm": {
+          "center": 89.85232298666666,
+          "sigma_within_mr": 0.6635076822268079,
+          "sigma_overall": 0.9535551980543345,
+          "median": 89.8575235,
+          "mad": 0.5590595000000036,
+          "q10": 88.617424,
+          "q90": 91.1527341,
+          "cv": 0.0106124712902062,
+          "variance_ratio_baseline_std": 0.9535551980543345
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "band_mean",
+          "band_ref_mean",
+          "furnace_temp_C",
+          "stir_speed_rpm"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.09129646403588226,
+          0.25900914666388025,
+          0.04332052449959964,
+          0.09129646403588225,
+          1.0,
+          0.05104809356445039,
+          0.028366536594691186,
+          0.25900914666388025,
+          0.051048093564450385,
+          1.0,
+          -0.007562856892012864,
+          0.04332052449959963,
+          0.02836653659469119,
+          -0.0075628568920128635,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.09129646403588225,
+          0.9958237573258356,
+          0.0,
+          0.0,
+          0.25900914666388025,
+          0.027516389440908944,
+          0.965482837888165,
+          0.0,
+          0.04332052449959963,
+          0.02451390189088493,
+          -0.020153442695462563,
+          0.9985570787484731
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 300,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.025h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "4e72ebf62e0b2cc4d52e5c46a3bceaf76f8c9f4bc3323de2ee025f4dd39200cb",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-01T12:36:53.629760+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlations (q<0.05 or non-FAIL pairs; r values)",
+      "response": null,
+      "bytes": 45223,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5247 ok; ink ratio 52.5% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "dev_pos07",
+      "bytes": 21846,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1599 ok; ink ratio 16.0% across 4 quadrants"
+    },
+    {
+      "file": "timeline_dev_pos07.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — dev_pos07 (green: steady, dashed: change points)",
+      "response": "dev_pos07",
+      "bytes": 104833,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5991 ok; ink ratio 59.9% across 4 quadrants"
+    },
+    {
+      "file": "timeline_mean_thk.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — mean_thk (green: steady, dashed: change points)",
+      "response": "mean_thk",
+      "bytes": 108082,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.6102 ok; ink ratio 61.0% across 4 quadrants"
+    },
+    {
+      "file": "segments_dev_pos07.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — dev_pos07",
+      "response": "dev_pos07",
+      "bytes": 37276,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.3248 ok; ink ratio 32.5% across 4 quadrants"
+    }
+  ]
+}

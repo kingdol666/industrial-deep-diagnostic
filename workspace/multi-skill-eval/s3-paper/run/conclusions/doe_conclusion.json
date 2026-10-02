@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-10-01T07:45:05.615216+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "风泵转速 fan_pump_speed_rpm 与 cd_basis_weight_cv_pct 的混线 pooled 相关 r=0.8755（n=3240，22 对中最高；最优滞后 -5 步、跨滞后窗口一致，q(BH)=0.0）；去趋势后 r 降至 0.4288，防伪裁决 CAUTION（共同时间趋势混杂）——原始 r 的过半强度由慢漂移承载，相关级证据，非因果，幅度不可直接折算调优量",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.fan_pump_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "头箱压力 headbox_pressure_kPa 与 cd_basis_weight_cv_pct 的相关 r=0.8688（n=3215，滞后 0，q(BH)=0.0），去趋势后仍保持 r=0.5725 且无趋势混杂，是全部 22 对中唯一 PASS 且 |r|≥0.3 的 L3 级证据；但单因子增量贡献仅 ΔR²=0.0225（全模型 r=0.8515），说明剩余方差由 11 个 DCS 参数间的共线与共同漂移承载，相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.headbox_pressure_kPa"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "助留剂加入量 retention_aid_dosage_ppm 与 cd_basis_weight_cv_pct 的相关 r=0.8595（n=3240，最优滞后 +6 步、跨滞后窗口一致，q(BH)=0.0）；去趋势后 r=0.3776，防伪裁决 CAUTION（共同时间趋势混杂）——按 cd CV 最小化目标为正向伴生（剂量高伴随 CV 高），且单因子 ΔR² 仅 0.002376，相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.retention_aid_dosage_ppm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "白水浓度 white_water_consistency_pct 与 cd_basis_weight_cv_pct 的相关 r=0.7509（n=3240，最优滞后 +1 步、跨滞后窗口一致，q(BH)=0.0）；去趋势后 r=0.2476，防伪裁决 CAUTION（共同时间趋势混杂）——原始相关大部分由慢漂移承载，单因子 ΔR² 仅 0.000748，相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#cd_basis_weight_cv_pct.white_water_consistency_pct"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "风泵转速 fan_pump_speed_rpm 与 strength_rel_pct 的相关 r=-0.7306（n=3240，最优滞后 +1 步、跨滞后窗口一致，q(BH)=0.0）；去趋势后 r=-0.2371，防伪裁决 CAUTION（共同时间趋势混杂）——负向伴生与其在 cd_cv 侧的正向伴生（r=+0.8755）互为镜像，单因子 ΔR² 仅 0.001834，相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.fan_pump_speed_rpm"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-006",
+      "statement": "多牌号混线结论可信度：分析按 group_col=grade 分层执行防伪核验，22 对相关 0 例 FAIL（无跨牌号 Simpson 反转/方向翻转，simpson_paradox_findings=0、spearman_divergence_findings=0，亦无离群驱动与 LOO 不稳定）、16 例 CAUTION（全部源于共同时间趋势）、6 例 PASS，总体判定 SERIOUS_CONCERNS。三个牌号层样本量均衡（GSM80=1053、GSM100=1091、GSM120=1096，按输入数据计数）；7 个操作窗口的来源 3 个最优稳态段（n=601）内牌号配比亦均衡（GSM80=184、GSM100=208、GSM120=209），窗口并非单一牌号段落的伪影。结论：混线合并下各相关的『方向』经分层核验稳健，但『幅度』为跨牌号 pooled 估计且被慢漂移放大（如 stock_temp_C 与 strength_rel_pct 原始 r=+0.4332、去趋势后 -0.023 反号；与 cd_cv 原始 -0.5253、去趋势后 0.0073）——CF-001 确认试验必须在同一牌号内执行",
+      "evidence_refs": [
+        "correlation_report.json#anti_spurious_summary",
+        "stability_report.json#steady_segments"
+      ],
+      "confidence": "low",
+      "fdr_q": null
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况",
+    "业务上下文：expected_effect 幅度为混线（grade 三层）pooled 估计，未按牌号分别建模；GSM80/GSM100/GSM120 定量与浆料配比不同，cd CV 与强度基线天然不同，确认试验与调优验证必须单牌号内执行",
+    "业务上下文：12 个稳态段的 cd_cv 段均值沿时间单调上行（0.577→3.067）、strength 段均值下行（100.11→92.67，2025-10-01 至 2026-01-04），窗口取自最优（最早）3 段；当前基线（cd_cv=1.776、strength=96.40）已偏离窗口源工况，越晚执行确认试验失效风险越高",
+    "业务上下文：全模型 r=0.8515 但任一单因子 ΔR²≤0.0225，11 个 DCS 参数高度共线且随时间共同漂移——单因子『显著相关』不等于可单独操纵的杠杆；两响应均非正态（AD 检验不过）且强自相关（lag-1 0.854/0.580，n_eff 仅 254/862），无规格限（lsl/usl/target）故 Cp/Cpk 不可算"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_cd_basis_weight_cv_pct.png",
+      "title": "Stability timeline — cd_basis_weight_cv_pct"
+    },
+    {
+      "file": "timeline_strength_rel_pct.png",
+      "title": "Stability timeline — strength_rel_pct"
+    },
+    {
+      "file": "segments_cd_basis_weight_cv_pct.png",
+      "title": "Steady-segment comparison — cd_basis_weight_cv_pct"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 7,
+    "n_confirmations": 1,
+    "n_watchlist": 4,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+      "多牌号混线：expected_effect 为跨牌号 pooled 估计，确认试验与调优验证必须在同一牌号（grade）内执行",
+      "stock_temp_C 与两响应的原始相关在去趋势后消失或反号（cd_cv：-0.5253→0.0073；strength：+0.4332→-0.023），不得以浆温作为调节手段，仅作监测项"
+    ]
+  }
+}

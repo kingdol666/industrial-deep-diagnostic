@@ -1,0 +1,67 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "quality_index",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.5
+    },
+    {
+      "col": "conversion_pct",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "factors": [
+    {
+      "col": "reactor_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "reactor_pressure_bar",
+      "type": "numeric"
+    },
+    {
+      "col": "h2_partial_pressure_bar",
+      "type": "numeric"
+    },
+    {
+      "col": "feed_rate_kg_hr",
+      "type": "numeric"
+    },
+    {
+      "col": "feed_sulfur_ppm",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "timestamp",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 15,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S1 reactor catalyst"
+    ]
+  },
+  "_predictor_cols": [
+    "reactor_temp_C",
+    "reactor_pressure_bar",
+    "h2_partial_pressure_bar",
+    "feed_rate_kg_hr",
+    "feed_sulfur_ppm"
+  ]
+}

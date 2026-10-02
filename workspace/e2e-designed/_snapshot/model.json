@@ -1,0 +1,120 @@
+[
+  {
+    "response": "fineness",
+    "n": 68,
+    "df_resid": 55,
+    "mse": 0.07456,
+    "coded_coefficients": {
+      "media_fill": 1.197273,
+      "sep_speed": -0.804445,
+      "moisture": 0.00992,
+      "助磨剂": -0.498911,
+      "batch": -0.121634,
+      "media_fill^2": -0.430909,
+      "media_fill:sep_speed": 0.412414,
+      "media_fill:moisture": 0.01123,
+      "media_fill:助磨剂": 0.025948,
+      "sep_speed:moisture": -0.03937,
+      "sep_speed:助磨剂": 0.041992,
+      "moisture:助磨剂": -0.04253
+    },
+    "r_squared": 0.975219,
+    "adj_r_squared": 0.969812,
+    "q_squared_loo": 0.961443,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 0.886198,
+      "p_value": 0.6073162398842268
+    },
+    "residual_diagnostics": {
+      "n_high_residual_abs_gt3sigma": 1,
+      "normality": {
+        "skew": 0.566753,
+        "excess_kurtosis": 1.069445
+      }
+    },
+    "stationary_point": {
+      "coded": {
+        "media_fill": 1.710535,
+        "sep_speed": 0.739874,
+        "moisture": -2.514502
+      },
+      "raw": {
+        "media_fill": 34.842139,
+        "sep_speed": 986.993716,
+        "moisture": 0.985498
+      },
+      "classification": "saddle",
+      "inside_design_region": false,
+      "eigenvalues": [
+        -1.027985,
+        -0.005503,
+        0.17167
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  },
+  {
+    "response": "specific_energy",
+    "n": 68,
+    "df_resid": 55,
+    "mse": 0.122761,
+    "coded_coefficients": {
+      "media_fill": -1.549819,
+      "sep_speed": 0.920088,
+      "moisture": -0.029113,
+      "助磨剂": 0.589869,
+      "batch": -0.153026,
+      "media_fill^2": 0.723737,
+      "media_fill:sep_speed": -0.015144,
+      "media_fill:moisture": 0.056475,
+      "media_fill:助磨剂": -0.022988,
+      "sep_speed:moisture": 0.049175,
+      "sep_speed:助磨剂": 0.091162,
+      "moisture:助磨剂": 0.081381
+    },
+    "r_squared": 0.971868,
+    "adj_r_squared": 0.96573,
+    "q_squared_loo": 0.957139,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 1.895287,
+      "p_value": 0.04720208908028563
+    },
+    "residual_diagnostics": {
+      "n_high_residual_abs_gt3sigma": 0,
+      "normality": {
+        "skew": 0.187365,
+        "excess_kurtosis": -0.681651
+      }
+    },
+    "stationary_point": {
+      "coded": {
+        "media_fill": 1.764509,
+        "sep_speed": -1.434431,
+        "moisture": -18.167081
+      },
+      "raw": {
+        "media_fill": 35.058034,
+        "sep_speed": 878.278475,
+        "moisture": -14.667081
+      },
+      "classification": "saddle",
+      "inside_design_region": false,
+      "eigenvalues": [
+        -0.050896,
+        0.048576,
+        1.449796
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  }
+]

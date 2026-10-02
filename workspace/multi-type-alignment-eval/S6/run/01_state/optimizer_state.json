@@ -1,0 +1,120 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261001-006",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+  "phase": "converged",
+  "round_count": 4,
+  "trial_count": 19,
+  "budget": {
+    "max_rounds": 14,
+    "max_trials": 80,
+    "deadline": null,
+    "rounds_used": 4,
+    "trials_used": 19,
+    "replicates_used": 21
+  },
+  "incumbent": {
+    "setpoints": {
+      "die_bolt_T3_pct": 2.041175
+    },
+    "measured": {
+      "dev_pos07": {
+        "mean": 0.0226,
+        "sd": 0.0,
+        "n": 1
+      }
+    },
+    "in_target": true,
+    "predicted_D": 1.0,
+    "round_id": "R001"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      0.166667,
+      0.166667,
+      0.166667,
+      0.210526
+    ],
+    "ci_in_limits": true,
+    "desirability_gate": true
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 19,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": 20.181993745566512,
+      "cond_K": 24449.0969006197
+    }
+  },
+  "belief": {
+    "stall_rounds": 2,
+    "max_ei_last": 1.4296447232111185e-177,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 1.0
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "next_action": {
+    "recommendation": "stop",
+    "reasons": [
+      "dual gate satisfied"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": false,
+    "resume_hint": "campaign converged closed"
+  },
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T13:26:22.300485+00:00",
+      "detail": "confirm round R004: values=[0.0459, 0.0328, 0.0535], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "provenance": {
+    "input_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

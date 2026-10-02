@@ -1,0 +1,413 @@
+{
+  "generated_at": "2026-10-01T07:42:45.527557+00:00",
+  "mode": "observational",
+  "n_rows": 2160,
+  "time_col": "timestamp",
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "timestamp",
+    "n_rows": 2160,
+    "n_time_values": 2160,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "hot_inlet_temp_C",
+      "r": -0.0034,
+      "p_value": 0.8756,
+      "n": 2160,
+      "best_lag": 11,
+      "best_lag_r": -0.0138,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0018,
+      "trend_confounded": true,
+      "contribution_delta_r2": 4.1e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8756
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "hot_outlet_temp_C",
+      "r": -0.8873,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": -0.8873,
+      "lag_window_consistent": false,
+      "detrended_r": -0.8357,
+      "trend_confounded": false,
+      "contribution_delta_r2": 3.6e-05,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "cold_inlet_temp_C",
+      "r": 0.5307,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -12,
+      "best_lag_r": 0.534,
+      "lag_window_consistent": true,
+      "detrended_r": 0.7651,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.018103,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "cold_outlet_temp_C",
+      "r": 0.7944,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -12,
+      "best_lag_r": 0.7965,
+      "lag_window_consistent": true,
+      "detrended_r": 0.7956,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "approach_temp_C",
+      "r": -0.8212,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -13,
+      "best_lag_r": -0.8229,
+      "lag_window_consistent": true,
+      "detrended_r": -0.7935,
+      "trend_confounded": false,
+      "contribution_delta_r2": 4.9e-05,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "lmtd_C",
+      "r": -0.8081,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -13,
+      "best_lag_r": -0.8103,
+      "lag_window_consistent": true,
+      "detrended_r": -0.7936,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "thermal_efficiency_pct",
+      "parameter": "heat_transfer_coeff_W_m2K",
+      "r": 0.9543,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": 0.9543,
+      "lag_window_consistent": false,
+      "detrended_r": 0.9373,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.026708,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "hot_inlet_temp_C",
+      "r": 0.0108,
+      "p_value": 0.6167,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": 0.0108,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0592,
+      "trend_confounded": true,
+      "contribution_delta_r2": 4.1e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6167
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "hot_outlet_temp_C",
+      "r": 0.6024,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -6,
+      "best_lag_r": 0.6025,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4851,
+      "trend_confounded": false,
+      "contribution_delta_r2": 3.6e-05,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "cold_inlet_temp_C",
+      "r": -0.0375,
+      "p_value": 0.0818,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": -0.0375,
+      "lag_window_consistent": false,
+      "detrended_r": -0.403,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.018103,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.09543333333333333
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "cold_outlet_temp_C",
+      "r": -0.4345,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": -0.4345,
+      "lag_window_consistent": false,
+      "detrended_r": -0.4351,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "approach_temp_C",
+      "r": 0.4948,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": 0.4948,
+      "lag_window_consistent": false,
+      "detrended_r": 0.4439,
+      "trend_confounded": false,
+      "contribution_delta_r2": 4.9e-05,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "lmtd_C",
+      "r": 0.4661,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": 0,
+      "best_lag_r": 0.4661,
+      "lag_window_consistent": false,
+      "detrended_r": 0.4421,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "pressure_drop_bar",
+      "parameter": "heat_transfer_coeff_W_m2K",
+      "r": -0.643,
+      "p_value": 0.0,
+      "n": 2160,
+      "best_lag": -1,
+      "best_lag_r": -0.643,
+      "lag_window_consistent": true,
+      "detrended_r": -0.5232,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.026708,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "heat_transfer_coeff_W_m2K",
+      "delta_r2": 0.026708,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "cold_inlet_temp_C",
+      "delta_r2": 0.018103,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "approach_temp_C",
+      "delta_r2": 4.9e-05,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "hot_inlet_temp_C",
+      "delta_r2": 4.1e-05,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "hot_outlet_temp_C",
+      "delta_r2": 3.6e-05,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "cold_outlet_temp_C",
+      "delta_r2": 0.0,
+      "r_full_model": 0.935855
+    },
+    {
+      "response": "thermal_efficiency_pct",
+      "factor": "lmtd_C",
+      "delta_r2": 0.0,
+      "r_full_model": 0.935855
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 2,
+    "total_tests": 14,
+    "total_significant_q05": 11
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "SERIOUS_CONCERNS — Multiple statistical robustness issues detected. Key correlations should be re-verified before drawing causal conclusions.",
+    "summary": {
+      "total_targets": 2,
+      "total_parameters": 11,
+      "skew_affected_columns": 1,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 1,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 3,
+      "fatal_issues": 0,
+      "serious_count": 3,
+      "moderate_count": 1
+    },
+    "lag_warning": null
+  }
+}

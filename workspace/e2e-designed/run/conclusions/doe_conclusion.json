@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T05:06:40.701133+00:00",
+  "analysis_mode": "designed",
+  "design_type": "full_factorial",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": true,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "media_fill（研磨体填充率）是 fineness（细度）的第一强效应因子（Pareto rank 1，占细度总平方和 η²=0.554386）：编码系数 1.197273，即 media_fill 自中心 28.0 编码值每 +1（原始值提高半个极差 4.0，如 28.0→32.0），细度平均升高 1.197273；q(BH)=3.0145137089351637e-38，partial η²=0.957213。工艺含义：提高填充率使细度读数显著增大；细度为双向目标规格（目标 38、规格 [36,40]），media_fill 应作为把细度对中到 38 的首要调节手段，而非单向增大。另 media_fill^2=-0.430909（q=0.008675039000127624）显著，存在轻度弯曲，跨水平线性外推需谨慎。",
+      "evidence_refs": [
+        "effect_table.json#fineness.media_fill"
+      ],
+      "confidence": "high",
+      "fdr_q": 3.0145137089351637e-38
+    },
+    {
+      "id": "KF-002",
+      "statement": "sep_speed（分离器转速）是 fineness（细度）的第二强效应因子，呈负向主效应（Pareto rank 2）：编码系数 -0.804445，即 sep_speed 自中心 950.0 编码值每 +1（原始值提高半个极差 50.0，如 950.0→1000.0），细度平均降低 0.804445；q(BH)=1.2072035614813869e-29，partial η²=0.909906。工艺含义：提高转速使细度读数下降，与 media_fill 方向相反，两者配合可把细度对中到目标 38；但转速上调会推高比能耗（见 KF-004），且 media_fill×sep_speed 交互显著（q=1.2469933484815257e-16，partial η²=0.726362），单因子效应幅度随另一因子水平变化，不建议只动一个因子。",
+      "evidence_refs": [
+        "effect_table.json#fineness.sep_speed"
+      ],
+      "confidence": "high",
+      "fdr_q": 1.2072035614813869e-29
+    },
+    {
+      "id": "KF-003",
+      "statement": "media_fill 对 specific_energy（比能耗）呈最强负向主效应（Pareto rank 1）：编码系数 -1.549819，即 media_fill 自中心 28.0 编码值每 +1（原始值提高半个极差 4.0，如 28.0→32.0），比能耗平均降低 1.549819；q(BH)=1.8980082523044825e-38，partial η²=0.957926。工艺含义：在观测域 [24.0, 32.0] 内提高填充率是压降比能耗的主导手段；当前比能耗 42.119944 高于目标 40（usl 44），方向上支持上调 media_fill，但 media_fill^2=0.723737（q=0.0008050867754345189）为显著正向弯曲，降耗幅度随填充率升高而收窄，不能按线性关系无限外推。",
+      "evidence_refs": [
+        "effect_table.json#specific_energy.media_fill"
+      ],
+      "confidence": "high",
+      "fdr_q": 1.8980082523044825e-38
+    },
+    {
+      "id": "KF-004",
+      "statement": "sep_speed 对 specific_energy（比能耗）呈第二强正向主效应（Pareto rank 2）：编码系数 0.920088，即 sep_speed 自中心 950.0 编码值每 +1（原始值提高半个极差 50.0，如 950.0→1000.0），比能耗平均升高 0.920088；q(BH)=3.6173973518543346e-27，partial η²=0.88919。工艺含义：提转速改善细度（KF-002）的能耗代价明确，而比能耗规格为最小化（目标 40、usl 44），细度与能耗的调节方向相反，必须按下游合同 operating_windows/conflicts 机制联合寻优，不可为细度单边拉满转速。",
+      "evidence_refs": [
+        "effect_table.json#specific_energy.sep_speed"
+      ],
+      "confidence": "high",
+      "fdr_q": 3.6173973518543346e-27
+    }
+  ],
+  "limitations": [
+    "细度 fineness 为双向目标规格（target=38.0，规格限 [36.0, 40.0]），当前 38.196701 略高于目标：media_fill（正向）与 sep_speed（负向）是一对方向相反的细度调节手段，应围绕目标 38 做小幅对中调整，而非追求单侧极值。",
+    "比能耗 specific_energy 目标为最小化（target 40.0、usl 44.0），当前 42.119944 仍高于目标：提 media_fill 降耗（OW-001）与压 sep_speed 保能耗须联合核算，避免细度对中合格而比能耗越过 usl 44.0。",
+    "specific_energy 的失拟检验 p=0.04720208908028563（<0.05，边际显著）：二阶模型可能未完全刻画高阶结构，按窗口端点执行前建议以确认试验复核。",
+    "两个响应的驻点均为鞍点且落在设计域外（model.json stationary_point.warning）：理论最优点不可直接使用，优化须在盒约束内进行；OW-001/OW-002 均 extrapolation=true，其端点按合同 usage_rules 需工艺确认后方可执行。",
+    "区组 batch 对两响应均显著但效应量小（fineness q=0.0013046948219187582、η²=0.006079；specific_energy q=0.0016322542829272902、η²=0.006635）：批次间存在系统性小差异，落地窗口设定值时应固定或配平批次来源。",
+    "所有因子列的工程单位未登记（factor_unit 为空）：窗口端点为数据原始单位，执行前须由工艺人员确认单位换算口径。",
+    "Q²(LOO)（fineness 0.961443、specific_energy 0.957139）按 hat-matrix 计算，重复（twin）行可能泄漏，只能视为乐观上界（model.json q_squared_note）。"
+  ],
+  "figure_index": [
+    {
+      "file": "pareto_fineness.png",
+      "title": "Pareto of standardized effects — fineness"
+    },
+    {
+      "file": "residuals_fineness.png",
+      "title": "Residual diagnostics — fineness"
+    },
+    {
+      "file": "pareto_specific_energy.png",
+      "title": "Pareto of standardized effects — specific_energy"
+    },
+    {
+      "file": "residuals_specific_energy.png",
+      "title": "Residual diagnostics — specific_energy"
+    },
+    {
+      "file": "main_effects_fineness.png",
+      "title": "Main effects — fineness"
+    },
+    {
+      "file": "contour_fineness.png",
+      "title": "Predicted response contour — fineness"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 0,
+    "n_watchlist": 5,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ]
+  }
+}

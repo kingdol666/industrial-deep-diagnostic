@@ -1,0 +1,18 @@
+{
+  "purpose": "SHA-256 fingerprints of the blind briefs handed to the model-controlled baseline arms (bare-LLM and FE-regime), released so the input-cleanliness claim of the comparison section is auditable against the sentinel-checked generation path.",
+  "hash_algorithm": "SHA-256",
+  "briefs": {
+    "indpensim_batch001_control.brief.json": "543d3263107b4a31de8451b42f0eb9dfec474c479f1a7ff7e445d8c6eaf972ea",
+    "indpensim_batch093.brief.json": "8eae3bbadd1af8c7824a4d259369fe3ff8229639b332a4d6c6230bdc6777c42b",
+    "skab_cavitation_13.brief.json": "af483bd4dc77fc046db4af391477e4d0f02dcc8b249eaf6635ff5732b20648c8",
+    "skab_normal_control.brief.json": "288d2b18c80d7fd6e5987f2caf57ca19f99d25c3144685971754446da26291af",
+    "skab_valve1_1.brief.json": "6aad706e9dfcd6277114cd2c1cbfa6b290acc935034684f710ed205407bd21cb",
+    "tep_d00_normal_control.brief.json": "dd103bd717ce9efe9c3bb46865f7f5ffd8d4c8f8bd640760fab8271b28e86683",
+    "tep_d01_ac_feed_ratio.brief.json": "caace9d1b693d13c5a7a51e134b39ef0237119a3b891e3b7e3a199101f1c7c3e",
+    "tep_d03_hard.brief.json": "3fd04a634fdcff783b2ec0244a234fa328161a499760d9a7721ad84646f56fc7",
+    "tep_d04_reactor_cooling_step.brief.json": "ceca577c997ac76ea63c3339704a451aa5ab54b7f353c811c2c8b33c6f6641b2",
+    "tep_d07_header_pressure.brief.json": "79b737b34b128e779f8d2a9dcc2a5c90c10e39d689636f3e10a5ad52c2cf6325",
+    "tep_d11_reactor_cooling_random.brief.json": "8e56d6bb18bf0caff522043b64b1652386fc93eddad06970353179d2e5eb6ed6",
+    "tep_d14_reactor_valve_sticking.brief.json": "732cca8af04eec4ad241554bdb6d0c8d8350529303ccf1c9d6051bee5a401523"
+  }
+}

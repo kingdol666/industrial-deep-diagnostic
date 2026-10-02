@@ -1,0 +1,149 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261001-006",
+  "round_id": "R004",
+  "phase": "exploit",
+  "method": "rsm_augment",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "setpoints": {
+        "die_bolt_T3_pct": 4.767948
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.908791,
+      "expected": {
+        "dev_pos07": {
+          "mean": 1.86528,
+          "ci95": [
+            1.372819,
+            2.357741
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.052"
+    },
+    {
+      "trial_id": "R004-T02",
+      "setpoints": {
+        "die_bolt_T3_pct": 7.409155
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.38055,
+      "expected": {
+        "dev_pos07": {
+          "mean": 7.406474,
+          "ci95": [
+            6.896277,
+            7.916671
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.102"
+    },
+    {
+      "trial_id": "R004-T03",
+      "setpoints": {
+        "die_bolt_T3_pct": 4.767948
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.908791,
+      "expected": {
+        "dev_pos07": {
+          "mean": 1.86528,
+          "ci95": [
+            1.372819,
+            2.357741
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.052"
+    },
+    {
+      "trial_id": "R004-T04",
+      "setpoints": {
+        "die_bolt_T3_pct": 7.409155
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.38055,
+      "expected": {
+        "dev_pos07": {
+          "mean": 7.406474,
+          "ci95": [
+            6.896277,
+            7.916671
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.102"
+    },
+    {
+      "trial_id": "R004-T05",
+      "setpoints": {
+        "die_bolt_T3_pct": 9.370658
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.011751,
+      "expected": {
+        "dev_pos07": {
+          "mean": 13.556282,
+          "ci95": [
+            13.025814,
+            14.08675
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.012"
+    },
+    {
+      "trial_id": "R004-T06",
+      "setpoints": {
+        "die_bolt_T3_pct": 1.395565
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.583268,
+      "expected": {
+        "dev_pos07": {
+          "mean": 0.162887,
+          "ci95": [
+            -0.334714,
+            0.660487
+          ]
+        }
+      },
+      "predicted_D": 0.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=True; nearest_data_coded=0.029"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": 18.318871,
+    "lengthscales": {
+      "x0": 0.138625
+    },
+    "sigma_noise": 0.231915,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.333333
+  },
+  "provenance": {
+    "input_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "generated_at": "2026-10-01T07:41:50.781778+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-skill-eval\\s2-hex\\run\\00_input\\data.csv",
+  "n_rows": 2160,
+  "n_cols": 16,
+  "columns": [
+    {
+      "name": "timestamp",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 2160,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "hot_inlet_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 27,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "hot_outlet_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 75,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "cold_inlet_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 163,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "cold_outlet_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 172,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "approach_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 182,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "lmtd_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 179,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "heat_transfer_coeff_W_m2K",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 301,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "thermal_efficiency_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 180,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "pressure_drop_bar",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 1316,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "flow_rate_m3_hr",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 203,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "pump_speed_pct",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 298,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "process_load_MW",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 358,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "ct_approach_temp_C",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 59,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "unit_id",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    },
+    {
+      "name": "shift",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 2160,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "thermal_efficiency_pct",
+      "pressure_drop_bar"
+    ],
+    "factors": [
+      "hot_inlet_temp_C",
+      "hot_outlet_temp_C",
+      "cold_inlet_temp_C",
+      "cold_outlet_temp_C",
+      "approach_temp_C",
+      "lmtd_C",
+      "heat_transfer_coeff_W_m2K"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "flow_rate_m3_hr",
+      "pump_speed_pct",
+      "process_load_MW",
+      "ct_approach_temp_C",
+      "unit_id",
+      "shift"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.03 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

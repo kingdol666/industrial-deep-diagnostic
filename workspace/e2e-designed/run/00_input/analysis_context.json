@@ -1,0 +1,64 @@
+{
+  "data_path": "00_input/grinding_doe.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "fineness",
+      "goal": "target",
+      "lsl": 36.0,
+      "usl": 40.0,
+      "target": 38.0,
+      "weight": 1.0
+    },
+    {
+      "col": "specific_energy",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 44.0,
+      "target": 40.0,
+      "weight": 1.5
+    }
+  ],
+  "factors": [
+    {
+      "col": "media_fill",
+      "type": "numeric"
+    },
+    {
+      "col": "sep_speed",
+      "type": "numeric"
+    },
+    {
+      "col": "moisture",
+      "type": "numeric"
+    },
+    {
+      "col": "助磨剂",
+      "type": "categorical"
+    }
+  ],
+  "blocks": [
+    "batch"
+  ],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": null,
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "E2E-1 designed fixture"
+    ]
+  },
+  "_predictor_cols": [
+    "media_fill",
+    "sep_speed",
+    "moisture",
+    "助磨剂"
+  ]
+}

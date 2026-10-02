@@ -1,0 +1,112 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-01T12:54:17.652720+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "00fd593ec6e5b8762e9a93b1ceedea7fdbc874801742d7ce7bd555a2ccbd1a2f",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "t",
+    "group_col": null,
+    "numeric_columns": [
+      "x1",
+      "x2",
+      "y"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "x1": {
+          "center": 0.019876991666666677,
+          "sigma_within_mr": 0.6358271069394619,
+          "sigma_overall": 0.987276462401127,
+          "median": 0.039,
+          "mad": 0.6866325,
+          "q10": -1.3047982,
+          "q90": 1.2981015000000005,
+          "cv": 49.66931007254836,
+          "variance_ratio_baseline_std": 0.987276462401127
+        },
+        "x2": {
+          "center": 0.047725455,
+          "sigma_within_mr": 1.0461173365183107,
+          "sigma_overall": 1.0073974161073032,
+          "median": 0.1012735,
+          "mad": 0.648413,
+          "q10": -1.2852583,
+          "q90": 1.3123240000000005,
+          "cv": 21.10817835277428,
+          "variance_ratio_baseline_std": 1.0073974161073032
+        },
+        "y": {
+          "center": 50.01405381166666,
+          "sigma_within_mr": 0.4837565046353852,
+          "sigma_overall": 0.6656053343584397,
+          "median": 50.002806,
+          "mad": 0.46727149999999895,
+          "q10": 49.150095799999995,
+          "q90": 50.9316644,
+          "cv": 0.013308366021775573,
+          "variance_ratio_baseline_std": 0.6656053343584397
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "x1",
+          "x2",
+          "y"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.049575225778950786,
+          0.1200495145054964,
+          -0.049575225778950786,
+          1.0,
+          0.03842279526741383,
+          0.1200495145054964,
+          0.03842279526741383,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          -0.049575225778950786,
+          0.9987703925272144,
+          0.0,
+          0.1200495145054964,
+          0.0444289071699411,
+          0.9917732534580066
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 600,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.010h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "00fd593ec6e5b8762e9a93b1ceedea7fdbc874801742d7ce7bd555a2ccbd1a2f",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

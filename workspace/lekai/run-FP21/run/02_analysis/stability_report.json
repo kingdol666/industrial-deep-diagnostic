@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-10-01T07:07:37.638116+00:00",
+  "n_rows": 19,
+  "time_col": "ts_start",
+  "capability": [
+    {
+      "response": "total_defects",
+      "n": 19,
+      "mean": 94.105263,
+      "std_overall": 137.705763,
+      "sigma_within_mr": 72.645784,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 3.1306,
+        "excess_kurtosis": 9.2224,
+        "ad_statistic": 3.1801,
+        "ad_critical_5pct": 0.719,
+        "normal": false
+      },
+      "autocorr_lag1": -0.1837,
+      "n_eff": 27,
+      "note": null
+    },
+    {
+      "response": "oligomer",
+      "n": 19,
+      "mean": 47.368421,
+      "std_overall": 133.942032,
+      "sigma_within_mr": 49.694641,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 3.5052,
+        "excess_kurtosis": 11.0879,
+        "ad_statistic": 5.1479,
+        "ad_critical_5pct": 0.719,
+        "normal": false
+      },
+      "autocorr_lag1": -0.0402,
+      "n_eff": 20,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 18,
+      "n_rows": 19,
+      "response_means": {
+        "total_defects": 94.105263,
+        "oligomer": 47.368421
+      },
+      "score": -70.736842,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 6,
+    "total_rows": 19,
+    "steady_state_ratio": 1.0,
+    "regime_distribution": {
+      "steady": {
+        "count": 19,
+        "pct": 100.0
+      }
+    }
+  }
+}

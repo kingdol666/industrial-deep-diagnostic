@@ -1,0 +1,102 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "strength_28d_MPa",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.5
+    },
+    {
+      "col": "blaine_fineness_cm2g",
+      "goal": "target",
+      "lsl": 3400.0,
+      "usl": 3800.0,
+      "target": 3600.0,
+      "weight": 1.0
+    }
+  ],
+  "factors": [
+    {
+      "col": "mill_feed_tph",
+      "type": "numeric"
+    },
+    {
+      "col": "mill_power_kW",
+      "type": "numeric"
+    },
+    {
+      "col": "mill_vibration_mm_s",
+      "type": "numeric"
+    },
+    {
+      "col": "separator_speed_rpm",
+      "type": "numeric"
+    },
+    {
+      "col": "reject_rate_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "feed_moisture_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "mill_outlet_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "main_bearing_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "mill_sound_dB",
+      "type": "numeric"
+    },
+    {
+      "col": "separator_current_A",
+      "type": "numeric"
+    },
+    {
+      "col": "gypsum_dosage_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "baghouse_dp_kPa",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "ts_lab",
+  "group_col": "clinker_source",
+  "run_order_col": null,
+  "max_lag": 10,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S4 cement, group_col=clinker_source (switching trap)"
+    ]
+  },
+  "_predictor_cols": [
+    "mill_feed_tph",
+    "mill_power_kW",
+    "mill_vibration_mm_s",
+    "separator_speed_rpm",
+    "reject_rate_pct",
+    "feed_moisture_pct",
+    "mill_outlet_temp_C",
+    "main_bearing_temp_C",
+    "mill_sound_dB",
+    "separator_current_A",
+    "gypsum_dosage_pct",
+    "baghouse_dp_kPa"
+  ]
+}

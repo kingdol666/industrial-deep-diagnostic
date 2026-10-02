@@ -1,0 +1,171 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "media_fill",
+      "factor_unit": null,
+      "response": "specific_energy",
+      "range": [
+        24.0,
+        29.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.387455,
+        "direction_semantics": "因子 media_fill 每增加 1 个原始单位，响应 specific_energy 变化约 -0.387455（编码主效应 -1.549819/半极差 4.0）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 1.8980082523044825e-38,
+      "sample_size": 68,
+      "evidence_refs": [
+        "effect_table.json#specific_energy.media_fill.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "sep_speed",
+      "factor_unit": null,
+      "response": "fineness",
+      "range": [
+        912.5,
+        1000.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.016089,
+        "direction_semantics": "因子 sep_speed 每增加 1 个原始单位，响应 fineness 变化约 -0.016089（编码主效应 -0.804445/半极差 50.0）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 1.2072035614813869e-29,
+      "sample_size": 68,
+      "evidence_refs": [
+        "effect_table.json#fineness.sep_speed.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "media_fill": 28.0,
+      "sep_speed": 950.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 media_fill 调整至 [24.0, 29.0]（当前已在窗内）"
+  },
+  "setpoints": [
+    {
+      "factor": "助磨剂",
+      "value": "高",
+      "expected_response": {
+        "kind": "categorical_level_choice",
+        "coefficient_coded": -0.498911,
+        "q_value_bh": 5.453172651774099e-20,
+        "note": "类别因子 助磨剂：偏向水平「高」（编码主效应 -0.498911）"
+      },
+      "confidence": "high"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "media_fill",
+        "sep_speed"
+      ],
+      "nature": "交互显著（q=1.2469933484815257e-16, partial η²=0.726362），fineness 的因子效应随另一因子水平变化",
+      "q_value_bh": 1.2469933484815257e-16
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "fineness": {
+      "lsl": 36.0,
+      "usl": 40.0,
+      "target": 38.0,
+      "goal": "target",
+      "current": 38.196701
+    },
+    "specific_energy": {
+      "lsl": null,
+      "usl": 44.0,
+      "target": 40.0,
+      "goal": "minimize",
+      "current": 42.119944
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 fineness: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "fineness"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 specific_energy: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "specific_energy"
+    },
+    {
+      "code": "LACK_OF_FIT_MARGIN",
+      "message": "响应 specific_energy 的失拟检验 p=0.04720208908028563 边际显著（<0.05）：二阶模型可能未完全刻画高阶结构，按 OW-001 端点执行前建议安排确认试验复核。",
+      "response": "specific_energy"
+    },
+    {
+      "code": "BLOCK_EFFECT",
+      "message": "区组 batch 对两响应均显著但效应量小（fineness q=0.0013046948219187582、specific_energy q=0.0016322542829272902）：换批执行窗口设定值时预期出现小幅系统性偏移，建议固定或配平批次。",
+      "factor": "batch"
+    },
+    {
+      "code": "RESPONSE_TRADEOFF",
+      "message": "media_fill 与 sep_speed 对两响应的效应方向相反（编码系数：media_fill 对 fineness +1.197273、对 specific_energy -1.549819；sep_speed 对 fineness -0.804445、对 specific_energy +0.920088）：联合调机须同时校核细度 [36.0, 40.0]（目标 38.0）与比能耗 ≤40.0（usl 44.0）。",
+      "response": null
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 68,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "media_fill": {
+        "min": 24.0,
+        "max": 32.0
+      },
+      "sep_speed": {
+        "min": 900.0,
+        "max": 1000.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "f4f07ec19fff2bc42f64fd9f2b0da97d7fd5134943aaae93fc91442b249b698d",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "agent"
+  }
+}

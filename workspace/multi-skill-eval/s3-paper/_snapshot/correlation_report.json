@@ -1,0 +1,641 @@
+{
+  "generated_at": "2026-10-01T07:45:01.206471+00:00",
+  "mode": "observational",
+  "n_rows": 3240,
+  "time_col": "ts_dcs",
+  "group_col": "grade",
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "ts_dcs",
+    "n_rows": 3240,
+    "n_time_values": 3240,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "headbox_pressure_kPa",
+      "r": 0.8688,
+      "p_value": 0.0,
+      "n": 3215,
+      "best_lag": 0,
+      "best_lag_r": 0.8688,
+      "lag_window_consistent": false,
+      "detrended_r": 0.5725,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.022501,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "approach_flow_lpm",
+      "r": 0.2698,
+      "p_value": 0.0,
+      "n": 3237,
+      "best_lag": 0,
+      "best_lag_r": 0.2698,
+      "lag_window_consistent": false,
+      "detrended_r": 0.3682,
+      "trend_confounded": false,
+      "contribution_delta_r2": 2.3e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "fan_pump_speed_rpm",
+      "r": 0.8755,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -5,
+      "best_lag_r": 0.8782,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4288,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.001834,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "white_water_consistency_pct",
+      "r": 0.7509,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 1,
+      "best_lag_r": 0.7523,
+      "lag_window_consistent": true,
+      "detrended_r": 0.2476,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000748,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "retention_aid_dosage_ppm",
+      "r": 0.8595,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 6,
+      "best_lag_r": 0.8673,
+      "lag_window_consistent": true,
+      "detrended_r": 0.3776,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.002376,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "slice_opening_mm",
+      "r": 0.1367,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 0,
+      "best_lag_r": 0.1367,
+      "lag_window_consistent": false,
+      "detrended_r": 0.3186,
+      "trend_confounded": true,
+      "contribution_delta_r2": 3.2e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "machine_speed_mmin",
+      "r": 0.1562,
+      "p_value": 0.0,
+      "n": 3236,
+      "best_lag": 0,
+      "best_lag_r": 0.1562,
+      "lag_window_consistent": false,
+      "detrended_r": 0.3455,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000776,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "stock_temp_C",
+      "r": -0.5253,
+      "p_value": 0.0,
+      "n": 3238,
+      "best_lag": 8,
+      "best_lag_r": -0.5354,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0073,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000332,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "jet_to_wire_ratio",
+      "r": 0.0164,
+      "p_value": 0.3512,
+      "n": 3240,
+      "best_lag": -4,
+      "best_lag_r": 0.0201,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0132,
+      "trend_confounded": false,
+      "contribution_delta_r2": 7e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.3512
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "vacuum_pump1_kPa",
+      "r": 0.023,
+      "p_value": 0.1903,
+      "n": 3240,
+      "best_lag": 0,
+      "best_lag_r": 0.023,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0243,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.000267,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.20933000000000002
+    },
+    {
+      "target": "cd_basis_weight_cv_pct",
+      "parameter": "vacuum_pump2_kPa",
+      "r": 0.0657,
+      "p_value": 0.0002,
+      "n": 3235,
+      "best_lag": -5,
+      "best_lag_r": 0.0853,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0194,
+      "trend_confounded": true,
+      "contribution_delta_r2": 1e-06,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0002444444444444445
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "headbox_pressure_kPa",
+      "r": -0.6484,
+      "p_value": 0.0,
+      "n": 3215,
+      "best_lag": -7,
+      "best_lag_r": -0.6599,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1422,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.022501,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "approach_flow_lpm",
+      "r": -0.0738,
+      "p_value": 0.0,
+      "n": 3237,
+      "best_lag": -7,
+      "best_lag_r": -0.1002,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0018,
+      "trend_confounded": true,
+      "contribution_delta_r2": 2.3e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "fan_pump_speed_rpm",
+      "r": -0.7306,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 1,
+      "best_lag_r": -0.7308,
+      "lag_window_consistent": true,
+      "detrended_r": -0.2371,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.001834,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "white_water_consistency_pct",
+      "r": -0.6238,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -6,
+      "best_lag_r": -0.6358,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1305,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000748,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "retention_aid_dosage_ppm",
+      "r": -0.7183,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -2,
+      "best_lag_r": -0.7267,
+      "lag_window_consistent": true,
+      "detrended_r": -0.2107,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.002376,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "slice_opening_mm",
+      "r": 0.0247,
+      "p_value": 0.16,
+      "n": 3240,
+      "best_lag": 6,
+      "best_lag_r": 0.0327,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0076,
+      "trend_confounded": true,
+      "contribution_delta_r2": 3.2e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.22
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "machine_speed_mmin",
+      "r": 0.0216,
+      "p_value": 0.2183,
+      "n": 3236,
+      "best_lag": 6,
+      "best_lag_r": 0.0266,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0105,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000776,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.2668111111111111
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "stock_temp_C",
+      "r": 0.4332,
+      "p_value": 0.0,
+      "n": 3238,
+      "best_lag": 10,
+      "best_lag_r": 0.4511,
+      "lag_window_consistent": true,
+      "detrended_r": -0.023,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000332,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "jet_to_wire_ratio",
+      "r": -0.0202,
+      "p_value": 0.25,
+      "n": 3240,
+      "best_lag": -6,
+      "best_lag_r": -0.0256,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0175,
+      "trend_confounded": false,
+      "contribution_delta_r2": 7e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.275
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "vacuum_pump1_kPa",
+      "r": -0.0077,
+      "p_value": 0.6633,
+      "n": 3240,
+      "best_lag": -7,
+      "best_lag_r": -0.0486,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0022,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000267,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6633
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "vacuum_pump2_kPa",
+      "r": -0.0289,
+      "p_value": 0.1002,
+      "n": 3235,
+      "best_lag": 8,
+      "best_lag_r": -0.076,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0269,
+      "trend_confounded": true,
+      "contribution_delta_r2": 1e-06,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.15745714285714288
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "headbox_pressure_kPa",
+      "delta_r2": 0.022501,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "retention_aid_dosage_ppm",
+      "delta_r2": 0.002376,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "fan_pump_speed_rpm",
+      "delta_r2": 0.001834,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "machine_speed_mmin",
+      "delta_r2": 0.000776,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "white_water_consistency_pct",
+      "delta_r2": 0.000748,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "stock_temp_C",
+      "delta_r2": 0.000332,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "vacuum_pump1_kPa",
+      "delta_r2": 0.000267,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "jet_to_wire_ratio",
+      "delta_r2": 7e-05,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "slice_opening_mm",
+      "delta_r2": 3.2e-05,
+      "r_full_model": 0.851491
+    },
+    {
+      "response": "cd_basis_weight_cv_pct",
+      "factor": "approach_flow_lpm",
+      "delta_r2": 2.3e-05,
+      "r_full_model": 0.851491
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 2,
+    "total_tests": 22,
+    "total_significant_q05": 15
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "SERIOUS_CONCERNS — Multiple statistical robustness issues detected. Key correlations should be re-verified before drawing causal conclusions.",
+    "summary": {
+      "total_targets": 2,
+      "total_parameters": 16,
+      "skew_affected_columns": 1,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 9,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 4,
+      "fatal_issues": 0,
+      "serious_count": 4,
+      "moderate_count": 10
+    },
+    "lag_warning": null
+  }
+}

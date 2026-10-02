@@ -1,0 +1,33 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-scen",
+  "title": "温度越限数据集",
+  "note": "temp 缓慢漂移越限(>90 报警),press/flow 正常;请判根因(传感器漂移 vs 真实工艺失稳)",
+  "window": {
+    "from_ms": 1760000000000,
+    "to_ms": 1760000360000
+  },
+  "lines": [
+    {
+      "lineId": "line-a",
+      "lineName": "示范产线"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "temp",
+      "unit": "℃",
+      "file": "nodes/temp.csv"
+    },
+    {
+      "id": "press",
+      "unit": "MPa",
+      "file": "nodes/press.csv"
+    },
+    {
+      "id": "flow",
+      "unit": "m3/h",
+      "file": "nodes/flow.csv"
+    }
+  ]
+}

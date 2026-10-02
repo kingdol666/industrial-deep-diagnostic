@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-10-01T12:59:55.268330+00:00",
+  "mode": "observational",
+  "n_rows": 1200,
+  "time_col": "t",
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "t",
+    "n_rows": 1200,
+    "n_time_values": 1200,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "y",
+      "parameter": "x1",
+      "r": 0.0995,
+      "p_value": 0.0006,
+      "n": 1200,
+      "best_lag": -4,
+      "best_lag_r": 0.6498,
+      "lag_window_consistent": true,
+      "detrended_r": 0.113,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.005911,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.0006
+    },
+    {
+      "target": "y",
+      "parameter": "drift_a",
+      "r": 0.7335,
+      "p_value": 0.0,
+      "n": 1200,
+      "best_lag": 7,
+      "best_lag_r": 0.7372,
+      "lag_window_consistent": true,
+      "detrended_r": 0.011,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.008515,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "y",
+      "parameter": "drift_b",
+      "r": 0.7278,
+      "p_value": 0.0,
+      "n": 1200,
+      "best_lag": 6,
+      "best_lag_r": 0.7376,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0453,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.000262,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "y",
+      "factor": "drift_a",
+      "delta_r2": 0.008515,
+      "r_full_model": 0.54423
+    },
+    {
+      "response": "y",
+      "factor": "x1",
+      "delta_r2": 0.005911,
+      "r_full_model": 0.54423
+    },
+    {
+      "response": "y",
+      "factor": "drift_b",
+      "delta_r2": 0.000262,
+      "r_full_model": 0.54423
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 3,
+    "total_significant_q05": 3
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly.",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 3,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 2,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 2,
+      "fatal_issues": 0,
+      "serious_count": 2,
+      "moderate_count": 2
+    },
+    "lag_warning": null
+  }
+}

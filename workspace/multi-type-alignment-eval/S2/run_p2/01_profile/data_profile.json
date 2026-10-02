@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-10-01T12:57:37.166695+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-type-alignment-eval\\S2\\run_p2\\00_input\\data.csv",
+  "n_rows": 600,
+  "n_cols": 5,
+  "columns": [
+    {
+      "name": "t",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "product",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "x1",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 599,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "x2",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "y",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 599,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "y"
+    ],
+    "factors": [
+      "x1",
+      "x2"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "product"
+    ]
+  },
+  "design": {
+    "n_runs": 600,
+    "n_factor_cols": 2,
+    "n_distinct_combos": 600,
+    "balanced": null,
+    "balance_ratio": null,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": 4,
+    "axial_points": 6,
+    "alpha_axial": 0.9410064834398936,
+    "replicates": null,
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "4 center points + 6 axial points (alpha=0.9410064834398936)",
+      "mode overridden by user context to observational (the evidence grade is NOT overridden)"
+    ],
+    "design_type": "rsm_ccd",
+    "mode": "observational",
+    "mode_overridden": true
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

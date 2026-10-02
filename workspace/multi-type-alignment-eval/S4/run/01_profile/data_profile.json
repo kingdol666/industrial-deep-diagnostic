@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-10-01T12:59:19.864526+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-type-alignment-eval\\S4\\run\\00_input\\data.csv",
+  "n_rows": 600,
+  "n_cols": 5,
+  "columns": [
+    {
+      "name": "timestamp",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "band_mean",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "band_ref_mean",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 598,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "furnace_temp_C",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    },
+    {
+      "name": "stir_speed_rpm",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 600,
+      "n_missing": 0,
+      "n_valid": 600,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "band_mean"
+    ],
+    "factors": [
+      "furnace_temp_C",
+      "stir_speed_rpm",
+      "band_ref_mean"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": []
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.15 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

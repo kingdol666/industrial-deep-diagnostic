@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-10-01T05:06:40.701133+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_fineness.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — fineness",
+      "response": "fineness",
+      "bytes": 39655,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1403 ok; ink ratio 14.0% across 4 quadrants"
+    },
+    {
+      "file": "residuals_fineness.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — fineness",
+      "response": "fineness",
+      "bytes": 77065,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0938 ok; ink ratio 9.4% across 4 quadrants"
+    },
+    {
+      "file": "pareto_specific_energy.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — specific_energy",
+      "response": "specific_energy",
+      "bytes": 40749,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1276 ok; ink ratio 12.8% across 4 quadrants"
+    },
+    {
+      "file": "residuals_specific_energy.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — specific_energy",
+      "response": "specific_energy",
+      "bytes": 81244,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1145 ok; ink ratio 11.4% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_fineness.png",
+      "type": "main_effects",
+      "title": "Main effects — fineness",
+      "response": "fineness",
+      "bytes": 37206,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0439 ok; ink ratio 4.4% across 4 quadrants"
+    },
+    {
+      "file": "contour_fineness.png",
+      "type": "contour",
+      "title": "Predicted response contour — fineness",
+      "response": "fineness",
+      "bytes": 26966,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0681 ok; ink ratio 6.8% across 4 quadrants"
+    }
+  ]
+}

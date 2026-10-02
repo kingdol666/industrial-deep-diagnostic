@@ -1,0 +1,145 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "reactor_temp_C",
+      "factor_unit": null,
+      "response": "quality_index",
+      "range": [
+        183.9,
+        186.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.708235,
+        "direction_semantics": "观察性结论：reactor_temp_C 处于窗内上三分位 vs 下三分位时，quality_index 均值差为 0.7082（方向已按目标校正）",
+        "ci95": [
+          0.102606,
+          1.313865
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 170,
+      "evidence_refs": [
+        "correlation_report.json#quality_index.reactor_temp_C",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "feed_sulfur_ppm",
+      "factor_unit": null,
+      "response": "conversion_pct",
+      "range": [
+        5.4,
+        7.7
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.406768,
+        "direction_semantics": "观察性结论：feed_sulfur_ppm 处于窗内上三分位 vs 下三分位时，conversion_pct 均值差为 0.4068（方向已按目标校正）",
+        "ci95": [
+          0.153208,
+          0.660328
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 162,
+      "evidence_refs": [
+        "correlation_report.json#conversion_pct.feed_sulfur_ppm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "reactor_temp_C": 187.2,
+      "feed_sulfur_ppm": 6.5
+    },
+    "distance_to_window": {
+      "OW-001": 0.6,
+      "OW-002": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 reactor_temp_C 调整至 [183.9, 186.6]"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "quality_index": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 81.454028
+    },
+    "conversion_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 81.533611
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 6
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 1440,
+    "time_span": "2026-04-01 00:00:00 .. 2026-05-30 23:00:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "reactor_temp_C": {
+        "min": 182.7,
+        "max": 190.5
+      },
+      "feed_sulfur_ppm": {
+        "min": 5.0,
+        "max": 8.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "86a5f2af535680ed8b05e976a6567bcaa33bb799064b1f216ee967f13caf094e",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

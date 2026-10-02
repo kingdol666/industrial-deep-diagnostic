@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-01T07:42:47.856905+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlation matrix",
+      "response": null,
+      "bytes": 53653,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4932 ok; ink ratio 49.3% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "thermal_efficiency_pct",
+      "bytes": 29556,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1332 ok; ink ratio 13.3% across 4 quadrants"
+    },
+    {
+      "file": "timeline_thermal_efficiency_pct.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — thermal_efficiency_pct",
+      "response": "thermal_efficiency_pct",
+      "bytes": 78862,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5373 ok; ink ratio 53.7% across 4 quadrants"
+    },
+    {
+      "file": "timeline_pressure_drop_bar.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — pressure_drop_bar",
+      "response": "pressure_drop_bar",
+      "bytes": 75248,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5406 ok; ink ratio 54.1% across 4 quadrants"
+    },
+    {
+      "file": "segments_thermal_efficiency_pct.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — thermal_efficiency_pct",
+      "response": "thermal_efficiency_pct",
+      "bytes": 42209,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.3847 ok; ink ratio 38.5% across 4 quadrants"
+    }
+  ]
+}

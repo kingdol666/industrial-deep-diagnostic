@@ -1,0 +1,60 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "y": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": null,
+      "current": -0.345172
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "未检出稳态段 — 无法产出可信窗口",
+      "reason_code": "observational",
+      "design_hint": "按当前工况补做小型试验设计（因子数 + 2 个中心点）",
+      "runs": null
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "NO_STEADY_SEGMENTS",
+      "message": "无稳态段可用 — 建议基于全部数据的方向性结论并安排确认试验"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 40,
+    "time_span": null,
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "5ef1c3c8df08a5df03c1bd5f7ad49dbd3f7cdbbafb087157aff4f0db849dcd72",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

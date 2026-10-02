@@ -1,0 +1,59 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "total_defects": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 204.791946
+    },
+    "oligomer": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 29.087248
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 149,
+    "time_span": "2026-05-04 14:42:00 .. 2026-05-13 14:26:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "f7df6e563b6ca541a0aae60602a877aa02c987620ede56f320796450df568cfc",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

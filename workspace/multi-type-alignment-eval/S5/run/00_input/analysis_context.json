@@ -1,0 +1,49 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "y",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "x1",
+      "type": "numeric"
+    },
+    {
+      "col": "drift_a",
+      "type": "numeric"
+    },
+    {
+      "col": "drift_b",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "t",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 10,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S5 truth: y=50+0.6*x1(t-4)+0.002t; drift_a/b co-trend"
+    ]
+  },
+  "_predictor_cols": [
+    "x1",
+    "drift_a",
+    "drift_b"
+  ]
+}

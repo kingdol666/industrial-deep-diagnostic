@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-10-01T07:07:34.965930+00:00",
+  "n_rows": 67,
+  "time_col": "ts_start",
+  "capability": [
+    {
+      "response": "total_defects",
+      "n": 67,
+      "mean": 89.462687,
+      "std_overall": 87.686482,
+      "sigma_within_mr": 63.789491,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 3.1612,
+        "excess_kurtosis": 10.6886,
+        "ad_statistic": 7.8171,
+        "ad_critical_5pct": 0.743,
+        "normal": false
+      },
+      "autocorr_lag1": -0.1266,
+      "n_eff": 86,
+      "note": null
+    },
+    {
+      "response": "oligomer",
+      "n": 67,
+      "mean": 20.0,
+      "std_overall": 39.633549,
+      "sigma_within_mr": 21.101977,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 3.9496,
+        "excess_kurtosis": 14.7922,
+        "ad_statistic": 15.6221,
+        "ad_critical_5pct": 0.743,
+        "normal": false
+      },
+      "autocorr_lag1": -0.0182,
+      "n_eff": 69,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 7,
+      "end": 21,
+      "n_rows": 15,
+      "response_means": {
+        "total_defects": 94.933333,
+        "oligomer": 18.733333
+      },
+      "score": -56.833333,
+      "selected_for_windows": true
+    },
+    {
+      "start": 43,
+      "end": 66,
+      "n_rows": 24,
+      "response_means": {
+        "total_defects": 96.583333,
+        "oligomer": 19.0
+      },
+      "score": -57.791667,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 20,
+    "total_rows": 67,
+    "steady_state_ratio": 0.5821,
+    "regime_distribution": {
+      "marginal": {
+        "count": 7,
+        "pct": 10.45
+      },
+      "steady": {
+        "count": 39,
+        "pct": 58.21
+      },
+      "transition": {
+        "count": 21,
+        "pct": 31.34
+      }
+    }
+  }
+}

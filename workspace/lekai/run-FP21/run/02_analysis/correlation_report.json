@@ -1,0 +1,2286 @@
+{
+  "generated_at": "2026-10-01T07:07:37.623108+00:00",
+  "mode": "observational",
+  "n_rows": 19,
+  "time_col": "ts_start",
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "ts_start",
+    "n_rows": 19,
+    "n_time_values": 19,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "total_defects",
+      "parameter": "F_PS002@PV1_mean",
+      "r": 0.1946,
+      "p_value": 0.4247,
+      "n": 19,
+      "best_lag": -1,
+      "best_lag_r": -0.4993,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1638,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "F_PS003@PV1_mean",
+      "r": -0.1685,
+      "p_value": 0.4905,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.6983,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1585,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "F_PS005@PV1_mean",
+      "r": 0.0741,
+      "p_value": 0.7631,
+      "n": 19,
+      "best_lag": -1,
+      "best_lag_r": 0.4618,
+      "lag_window_consistent": true,
+      "detrended_r": 0.017,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8609333333333333
+    },
+    {
+      "target": "total_defects",
+      "parameter": "F_PS006@PV1_mean",
+      "r": -0.3462,
+      "p_value": 0.1465,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.5947,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1477,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH001@PV_mean",
+      "r": 0.3478,
+      "p_value": 0.1446,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8256,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1168,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH002@PV_mean",
+      "r": 0.3748,
+      "p_value": 0.1138,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.7701,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1695,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "SERIOUS",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "correlation is outlier-driven",
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH003@PV_mean",
+      "r": 0.3627,
+      "p_value": 0.127,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.865,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1399,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "SERIOUS",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "correlation is outlier-driven",
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH004@PV_mean",
+      "r": 0.3576,
+      "p_value": 0.1328,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8279,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1438,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH005@PV_mean",
+      "r": 0.3603,
+      "p_value": 0.1297,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8882,
+      "lag_window_consistent": true,
+      "detrended_r": 0.143,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "SERIOUS",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "correlation is outlier-driven",
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH006@PV_mean",
+      "r": 0.3024,
+      "p_value": 0.2082,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9209,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0448,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH007@PV_mean",
+      "r": 0.3309,
+      "p_value": 0.1664,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9103,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0901,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH008@PV_mean",
+      "r": 0.3465,
+      "p_value": 0.1461,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8902,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1192,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH009@PV_mean",
+      "r": 0.3064,
+      "p_value": 0.2021,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.938,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0324,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH010@PV_mean",
+      "r": 0.2941,
+      "p_value": 0.2216,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9193,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0128,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH011@PV_mean",
+      "r": 0.293,
+      "p_value": 0.2235,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.921,
+      "lag_window_consistent": true,
+      "detrended_r": 0.016,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH012@PV_mean",
+      "r": 0.1495,
+      "p_value": 0.5414,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9291,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5417,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH013@PV_mean",
+      "r": 0.1501,
+      "p_value": 0.5397,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.928,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5399,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH014@PV_mean",
+      "r": 0.1484,
+      "p_value": 0.5444,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9278,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5383,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH015@PV_mean",
+      "r": 0.1502,
+      "p_value": 0.5393,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9267,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5381,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH016@PV_mean",
+      "r": 0.163,
+      "p_value": 0.5049,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9216,
+      "lag_window_consistent": true,
+      "detrended_r": 0.557,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH017@PV_mean",
+      "r": 0.1652,
+      "p_value": 0.499,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9255,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5637,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "MD_TH018@PV_mean",
+      "r": 0.166,
+      "p_value": 0.497,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9262,
+      "lag_window_consistent": true,
+      "detrended_r": 0.5653,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C00@PV1_mean",
+      "r": 0.1203,
+      "p_value": 0.6238,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.3598,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0247,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8096
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C01@PV1_mean",
+      "r": -0.2041,
+      "p_value": 0.402,
+      "n": 19,
+      "best_lag": -2,
+      "best_lag_r": -0.5622,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0081,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C40@PV1_mean",
+      "r": -0.2025,
+      "p_value": 0.4056,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.4833,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3135,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C4B@PV1_mean",
+      "r": -0.1996,
+      "p_value": 0.4127,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.4846,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3113,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C7C@PV1_mean",
+      "r": 0.0065,
+      "p_value": 0.979,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.4884,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0806,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9825
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C7D@PV1_mean",
+      "r": -0.186,
+      "p_value": 0.4457,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.3412,
+      "lag_window_consistent": true,
+      "detrended_r": -0.118,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C7E@PV1_mean",
+      "r": 0.1118,
+      "p_value": 0.6485,
+      "n": 19,
+      "best_lag": -1,
+      "best_lag_r": -0.4354,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1115,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8096
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C7F@PV1_mean",
+      "r": -0.0181,
+      "p_value": 0.9413,
+      "n": 19,
+      "best_lag": -2,
+      "best_lag_r": 0.404,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0448,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9825
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C80@PV1_mean",
+      "r": -0.0888,
+      "p_value": 0.7176,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4975,
+      "lag_window_consistent": true,
+      "detrended_r": 0.127,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8309052631578947
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C81@PV1_mean",
+      "r": -0.2164,
+      "p_value": 0.3736,
+      "n": 19,
+      "best_lag": -2,
+      "best_lag_r": -0.5291,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1182,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C82@PV1_mean",
+      "r": 0.2513,
+      "p_value": 0.2993,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.4449,
+      "lag_window_consistent": true,
+      "detrended_r": 0.3514,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C83@PV1_mean",
+      "r": -0.0054,
+      "p_value": 0.9825,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.5694,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0425,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9825
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C84@PV1_mean",
+      "r": 0.1983,
+      "p_value": 0.4158,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4756,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4236,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C85@PV1_mean",
+      "r": -0.1171,
+      "p_value": 0.633,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": -0.4176,
+      "lag_window_consistent": true,
+      "detrended_r": -0.4327,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8096
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C86@PV1_mean",
+      "r": -0.1171,
+      "p_value": 0.633,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.504,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3131,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8096
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C87@PV1_mean",
+      "r": 0.0436,
+      "p_value": 0.8592,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.5572,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1952,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.94512
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C88@PV1_mean",
+      "r": -0.097,
+      "p_value": 0.6929,
+      "n": 19,
+      "best_lag": -4,
+      "best_lag_r": -0.4118,
+      "lag_window_consistent": true,
+      "detrended_r": 0.2754,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8239891891891891
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C89@PV1_mean",
+      "r": -0.1071,
+      "p_value": 0.6624,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": -0.5098,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1194,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8096
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C8A@PV1_mean",
+      "r": -0.0213,
+      "p_value": 0.9311,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.5602,
+      "lag_window_consistent": true,
+      "detrended_r": 0.132,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9825
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C8B@PV1_mean",
+      "r": 0.3194,
+      "p_value": 0.1825,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.5932,
+      "lag_window_consistent": true,
+      "detrended_r": 0.3358,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.7564615384615384
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C8C@PV1_mean",
+      "r": 0.2204,
+      "p_value": 0.3645,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.47,
+      "lag_window_consistent": true,
+      "detrended_r": 0.2948,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "total_defects",
+      "parameter": "W1C8D@PV1_mean",
+      "r": -0.1568,
+      "p_value": 0.5215,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.4874,
+      "lag_window_consistent": true,
+      "detrended_r": -0.2664,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7726967741935484
+    },
+    {
+      "target": "oligomer",
+      "parameter": "F_PS002@PV1_mean",
+      "r": 0.3239,
+      "p_value": 0.1761,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.4858,
+      "lag_window_consistent": true,
+      "detrended_r": 0.3036,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "F_PS003@PV1_mean",
+      "r": -0.2277,
+      "p_value": 0.3484,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.7125,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1536,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "F_PS005@PV1_mean",
+      "r": -0.0521,
+      "p_value": 0.8321,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": 0.4771,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1369,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9155300000000001
+    },
+    {
+      "target": "oligomer",
+      "parameter": "F_PS006@PV1_mean",
+      "r": -0.3821,
+      "p_value": 0.1065,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.6214,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1317,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH001@PV_mean",
+      "r": 0.3368,
+      "p_value": 0.1586,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8264,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0016,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH002@PV_mean",
+      "r": 0.3754,
+      "p_value": 0.1133,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.7515,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0799,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH003@PV_mean",
+      "r": 0.3756,
+      "p_value": 0.1131,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8571,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0626,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH004@PV_mean",
+      "r": 0.3468,
+      "p_value": 0.1458,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.8553,
+      "lag_window_consistent": true,
+      "detrended_r": 0.037,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH005@PV_mean",
+      "r": 0.3677,
+      "p_value": 0.1214,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9218,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0627,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH006@PV_mean",
+      "r": 0.3018,
+      "p_value": 0.2092,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9426,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0523,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH007@PV_mean",
+      "r": 0.3357,
+      "p_value": 0.16,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9391,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0017,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH008@PV_mean",
+      "r": 0.3523,
+      "p_value": 0.1391,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9222,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0351,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH009@PV_mean",
+      "r": 0.3178,
+      "p_value": 0.1849,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9577,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0549,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH010@PV_mean",
+      "r": 0.3085,
+      "p_value": 0.1988,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9447,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0679,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH011@PV_mean",
+      "r": 0.3027,
+      "p_value": 0.2078,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.9501,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0705,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH012@PV_mean",
+      "r": 0.1593,
+      "p_value": 0.5148,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9494,
+      "lag_window_consistent": true,
+      "detrended_r": 0.6421,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH013@PV_mean",
+      "r": 0.1614,
+      "p_value": 0.5091,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9511,
+      "lag_window_consistent": true,
+      "detrended_r": 0.642,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH014@PV_mean",
+      "r": 0.1593,
+      "p_value": 0.5149,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9512,
+      "lag_window_consistent": true,
+      "detrended_r": 0.6399,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH015@PV_mean",
+      "r": 0.1618,
+      "p_value": 0.508,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9505,
+      "lag_window_consistent": true,
+      "detrended_r": 0.6401,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH016@PV_mean",
+      "r": 0.1671,
+      "p_value": 0.4941,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9473,
+      "lag_window_consistent": true,
+      "detrended_r": 0.6488,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH017@PV_mean",
+      "r": 0.1679,
+      "p_value": 0.4919,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9505,
+      "lag_window_consistent": true,
+      "detrended_r": 0.6542,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "MD_TH018@PV_mean",
+      "r": 0.168,
+      "p_value": 0.4918,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.9509,
+      "lag_window_consistent": true,
+      "detrended_r": 0.655,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C00@PV1_mean",
+      "r": 0.1009,
+      "p_value": 0.6811,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.1529,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0192,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8324555555555556
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C01@PV1_mean",
+      "r": -0.2199,
+      "p_value": 0.3658,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4723,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0233,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C40@PV1_mean",
+      "r": -0.2325,
+      "p_value": 0.3382,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.4578,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3766,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C4B@PV1_mean",
+      "r": -0.2294,
+      "p_value": 0.3449,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.4574,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3743,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C7C@PV1_mean",
+      "r": -0.0771,
+      "p_value": 0.7536,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.4567,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1961,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8725894736842106
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C7D@PV1_mean",
+      "r": -0.1059,
+      "p_value": 0.6662,
+      "n": 19,
+      "best_lag": -3,
+      "best_lag_r": -0.2683,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0133,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8324555555555556
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C7E@PV1_mean",
+      "r": 0.2628,
+      "p_value": 0.277,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": -0.3327,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0333,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C7F@PV1_mean",
+      "r": 0.0091,
+      "p_value": 0.9705,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.2054,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0214,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9704999999999999
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C80@PV1_mean",
+      "r": -0.0843,
+      "p_value": 0.7315,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.5595,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1865,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8698918918918919
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C81@PV1_mean",
+      "r": -0.152,
+      "p_value": 0.5345,
+      "n": 19,
+      "best_lag": -2,
+      "best_lag_r": -0.4162,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0212,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7126666666666667
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C82@PV1_mean",
+      "r": 0.2585,
+      "p_value": 0.2853,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4535,
+      "lag_window_consistent": true,
+      "detrended_r": 0.387,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C83@PV1_mean",
+      "r": 0.0177,
+      "p_value": 0.9428,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": 0.2876,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0258,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9704999999999999
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C84@PV1_mean",
+      "r": 0.1984,
+      "p_value": 0.4155,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.5007,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4764,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C85@PV1_mean",
+      "r": -0.0446,
+      "p_value": 0.856,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.387,
+      "lag_window_consistent": true,
+      "detrended_r": -0.4051,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9186341463414635
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C86@PV1_mean",
+      "r": -0.1068,
+      "p_value": 0.6636,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.4813,
+      "lag_window_consistent": true,
+      "detrended_r": -0.347,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.8324555555555556
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C87@PV1_mean",
+      "r": 0.0521,
+      "p_value": 0.8323,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4668,
+      "lag_window_consistent": true,
+      "detrended_r": 0.2416,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9155300000000001
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C88@PV1_mean",
+      "r": -0.2205,
+      "p_value": 0.3643,
+      "n": 19,
+      "best_lag": -5,
+      "best_lag_r": -0.4064,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1666,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C89@PV1_mean",
+      "r": -0.2674,
+      "p_value": 0.2685,
+      "n": 19,
+      "best_lag": 1,
+      "best_lag_r": -0.4072,
+      "lag_window_consistent": true,
+      "detrended_r": -0.0376,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C8A@PV1_mean",
+      "r": -0.01,
+      "p_value": 0.9677,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4269,
+      "lag_window_consistent": true,
+      "detrended_r": 0.1822,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.9704999999999999
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C8B@PV1_mean",
+      "r": 0.3797,
+      "p_value": 0.1088,
+      "n": 19,
+      "best_lag": 1,
+      "best_lag_r": 0.5742,
+      "lag_window_consistent": true,
+      "detrended_r": 0.4123,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": "SERIOUS",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "correlation is outlier-driven"
+      ],
+      "q_value_bh": 0.6574857142857143
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C8C@PV1_mean",
+      "r": 0.2459,
+      "p_value": 0.3101,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": -0.4636,
+      "lag_window_consistent": true,
+      "detrended_r": 0.3447,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.6997913043478262
+    },
+    {
+      "target": "oligomer",
+      "parameter": "W1C8D@PV1_mean",
+      "r": -0.2032,
+      "p_value": 0.404,
+      "n": 19,
+      "best_lag": 5,
+      "best_lag_r": 0.4758,
+      "lag_window_consistent": true,
+      "detrended_r": -0.3474,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.0,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7079875
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "total_defects",
+      "factor": "F_PS002@PV1_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "F_PS003@PV1_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "F_PS005@PV1_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "F_PS006@PV1_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH001@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH002@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH003@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH004@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH005@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    },
+    {
+      "response": "total_defects",
+      "factor": "MD_TH006@PV_mean",
+      "delta_r2": 0.0,
+      "r_full_model": 1.0
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 2,
+    "total_tests": 88,
+    "total_significant_q05": 0
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "SERIOUS_CONCERNS — Multiple statistical robustness issues detected. Key correlations should be re-verified before drawing causal conclusions.",
+    "summary": {
+      "total_targets": 2,
+      "total_parameters": 46,
+      "skew_affected_columns": 3,
+      "outlier_driven_correlations": 4,
+      "trend_confounded_correlations": 15,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 8,
+      "change_points_detected": 0,
+      "fatal_issues": 0,
+      "serious_count": 12,
+      "moderate_count": 15
+    },
+    "lag_warning": null
+  }
+}

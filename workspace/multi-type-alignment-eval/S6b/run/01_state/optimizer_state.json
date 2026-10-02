@@ -1,0 +1,170 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261001-007",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "8235282c482a2af83e45d2c7b3ec19ef285a792c800db53ee496a9cb3532543f",
+  "phase": "converged",
+  "round_count": 8,
+  "trial_count": 25,
+  "budget": {
+    "max_rounds": 14,
+    "max_trials": 80,
+    "deadline": null,
+    "rounds_used": 8,
+    "trials_used": 25,
+    "replicates_used": 31
+  },
+  "incumbent": {
+    "setpoints": {
+      "die_bolt_T3_pct": 1.541242
+    },
+    "measured": {
+      "dev_pos07": {
+        "mean": 0.076333,
+        "sd": 0.019324,
+        "n": 3
+      }
+    },
+    "in_target": true,
+    "predicted_D": 0.982222,
+    "round_id": "R008"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      0.166667,
+      0.166667,
+      0.166667,
+      0.210526,
+      0.190476,
+      0.227273,
+      0.208333,
+      0.24
+    ],
+    "ci_in_limits": true,
+    "desirability_gate": true
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 25,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": 31.580284750040303,
+      "cond_K": 30875.303463249344
+    }
+  },
+  "belief": {
+    "stall_rounds": 2,
+    "max_ei_last": 5.066583878388586e-05,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 1.0
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 6,
+      "best_D": 0.301333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.525333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.829333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.829333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; confirm_failed_dual_gate"
+    },
+    {
+      "round_id": "R005",
+      "phase": "exploit",
+      "method": "lhs_fill",
+      "n_trials": 2,
+      "best_D": 0.829333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R006",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.829333,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; confirm_failed_dual_gate"
+    },
+    {
+      "round_id": "R007",
+      "phase": "exploit",
+      "method": "lhs_fill",
+      "n_trials": 2,
+      "best_D": 0.829333,
+      "failures": 0,
+      "notes": "duplication_ratio=1.0"
+    },
+    {
+      "round_id": "R008",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 0.982222,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "next_action": {
+    "recommendation": "stop",
+    "reasons": [
+      "dual gate satisfied"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": false,
+    "resume_hint": "campaign converged closed"
+  },
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T13:05:58.383840+00:00",
+      "detail": "confirm round R004: values=[0.0981, 0.085, 0.1057], ci_in_limits=True, desirability_gate=False"
+    },
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T13:06:02.799689+00:00",
+      "detail": "confirm round R006: values=[0.0559, 0.0917, 0.0256], ci_in_limits=True, desirability_gate=False"
+    },
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T13:06:07.233444+00:00",
+      "detail": "confirm round R008: values=[0.0543, 0.0904, 0.0843], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "provenance": {
+    "input_sha256": "8235282c482a2af83e45d2c7b3ec19ef285a792c800db53ee496a9cb3532543f",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

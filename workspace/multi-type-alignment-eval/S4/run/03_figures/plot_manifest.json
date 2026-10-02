@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-01T12:59:21.634767+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlations (q<0.05 or non-FAIL pairs; r values)",
+      "response": null,
+      "bytes": 34988,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4632 ok; ink ratio 46.3% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "band_mean",
+      "bytes": 21487,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1771 ok; ink ratio 17.7% across 4 quadrants"
+    },
+    {
+      "file": "timeline_band_mean.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — band_mean (green: steady, dashed: change points)",
+      "response": "band_mean",
+      "bytes": 115443,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.6547 ok; ink ratio 65.5% across 4 quadrants"
+    },
+    {
+      "file": "segments_band_mean.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — band_mean",
+      "response": "band_mean",
+      "bytes": 28532,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5023 ok; ink ratio 50.2% across 4 quadrants"
+    }
+  ]
+}

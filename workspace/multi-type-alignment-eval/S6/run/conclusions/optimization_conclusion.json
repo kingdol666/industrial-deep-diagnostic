@@ -1,0 +1,130 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261001-006",
+  "phase": "converged",
+  "verification": "verified",
+  "objective": {
+    "target_metric": "dev_pos07",
+    "goal": "minimize",
+    "target_range": null,
+    "tolerance": 0.15
+  },
+  "incumbent": {
+    "setpoints": {
+      "die_bolt_T3_pct": 2.041175
+    },
+    "measured": {
+      "dev_pos07": {
+        "mean": 0.0226,
+        "sd": 0.0,
+        "n": 1
+      }
+    },
+    "in_target": true,
+    "predicted_D": 1.0,
+    "round_id": "R001"
+  },
+  "confirm_round": "R004",
+  "confirm_values": {
+    "dev_pos07": [
+      0.0459,
+      0.0328,
+      0.0535
+    ]
+  },
+  "dual_gate": {
+    "replicates_in_window": true,
+    "ci_in_limits": true,
+    "desirability_gate": true,
+    "D": 1.0,
+    "D_max": 1.0
+  },
+  "D_max": 1.0,
+  "D_span": 1.0,
+  "domain": {
+    "die_bolt_T3_pct": {
+      "lo": 0.0,
+      "hi": 10.0
+    }
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 19,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": 20.181993745566512,
+      "cond_K": 24449.0969006197
+    }
+  },
+  "stationary_point": {
+    "coded": [
+      -0.59662211171959
+    ],
+    "classification": "min",
+    "eigenvalues": [
+      12.539489093796774
+    ],
+    "inside_box": true
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-01T13:26:22.300485+00:00",
+      "detail": "confirm round R004: values=[0.0459, 0.0328, 0.0535], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "budget": {
+    "max_rounds": 14,
+    "max_trials": 80,
+    "deadline": null,
+    "rounds_used": 4,
+    "trials_used": 19,
+    "replicates_used": 21
+  },
+  "generated_at": "2026-10-01T13:26:23.469348+00:00",
+  "provenance": {
+    "script_version": "1.0.0",
+    "input_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

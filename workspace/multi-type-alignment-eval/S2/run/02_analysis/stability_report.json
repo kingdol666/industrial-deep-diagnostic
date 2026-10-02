@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-10-01T12:56:16.645730+00:00",
+  "n_rows": 1200,
+  "time_col": "t",
+  "capability": [
+    {
+      "response": "y",
+      "n": 1200,
+      "mean": 54.792616,
+      "std_overall": 1.355214,
+      "sigma_within_mr": 0.484758,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.0133,
+        "excess_kurtosis": -1.1342,
+        "ad_statistic": 15.724,
+        "ad_critical_5pct": 0.752,
+        "normal": false
+      },
+      "autocorr_lag1": 0.8738,
+      "n_eff": 80,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 42,
+      "n_rows": 43,
+      "response_means": {
+        "y": 55.73224
+      },
+      "score": 55.73224,
+      "selected_for_windows": false
+    },
+    {
+      "start": 68,
+      "end": 88,
+      "n_rows": 21,
+      "response_means": {
+        "y": 56.229162
+      },
+      "score": 56.229162,
+      "selected_for_windows": true
+    },
+    {
+      "start": 114,
+      "end": 158,
+      "n_rows": 45,
+      "response_means": {
+        "y": 55.668702
+      },
+      "score": 55.668702,
+      "selected_for_windows": false
+    },
+    {
+      "start": 184,
+      "end": 244,
+      "n_rows": 61,
+      "response_means": {
+        "y": 55.875378
+      },
+      "score": 55.875378,
+      "selected_for_windows": false
+    },
+    {
+      "start": 270,
+      "end": 276,
+      "n_rows": 7,
+      "response_means": {
+        "y": 56.060131
+      },
+      "score": 56.060131,
+      "selected_for_windows": true
+    },
+    {
+      "start": 302,
+      "end": 364,
+      "n_rows": 63,
+      "response_means": {
+        "y": 55.934508
+      },
+      "score": 55.934508,
+      "selected_for_windows": false
+    },
+    {
+      "start": 390,
+      "end": 407,
+      "n_rows": 18,
+      "response_means": {
+        "y": 56.233433
+      },
+      "score": 56.233433,
+      "selected_for_windows": true
+    },
+    {
+      "start": 433,
+      "end": 582,
+      "n_rows": 150,
+      "response_means": {
+        "y": 55.934466
+      },
+      "score": 55.934466,
+      "selected_for_windows": false
+    },
+    {
+      "start": 617,
+      "end": 635,
+      "n_rows": 19,
+      "response_means": {
+        "y": 53.975449
+      },
+      "score": 53.975449,
+      "selected_for_windows": false
+    },
+    {
+      "start": 661,
+      "end": 1199,
+      "n_rows": 539,
+      "response_means": {
+        "y": 53.635348
+      },
+      "score": 53.635348,
+      "selected_for_windows": false
+    }
+  ],
+  "change_points": [
+    {
+      "response": "y",
+      "positions": [
+        600
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 24,
+    "total_rows": 1200,
+    "steady_state_ratio": 0.805,
+    "regime_distribution": {
+      "steady": {
+        "count": 966,
+        "pct": 80.5
+      },
+      "transition": {
+        "count": 225,
+        "pct": 18.75
+      },
+      "marginal": {
+        "count": 9,
+        "pct": 0.75
+      }
+    }
+  }
+}

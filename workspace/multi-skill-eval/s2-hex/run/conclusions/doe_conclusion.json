@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-10-01T07:42:47.857406+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "传热系数 heat_transfer_coeff_W_m2K 与热效率 thermal_efficiency_pct 呈全程最强正相关：r=0.9543（去趋势 r=0.9373，最优滞后 0，q(BH)=0.0，防伪裁决 PASS，ΔR²=0.0267 为 7 因子中最高贡献）；观测域 791–1101 W/m²K 内，稳态段热效率均值随结垢缓变漂移由 87.13（行 0-119 段）总体降至 75.28（行 2085-2159 段），与传热系数衰减同步，符合结垢致传热能力退化的物理机制。相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.heat_transfer_coeff_W_m2K"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-002",
+      "statement": "热出口温度 hot_outlet_temp_C 与热效率负相关 r=-0.8873（去趋势 -0.8357，最优滞后 0，q(BH)=0.0，防伪裁决 PASS）；观测域 65.8–73.7 °C，方向为出口温度越高热效率越低，与 OW-002 窗口（67.15–69.45 °C，上三分位较下三分位均值差 -2.926）方向一致；该变量同时受负荷与结垢状态影响，不能直接解释为可独立操作效应。相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.hot_outlet_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-003",
+      "statement": "趋近温差 approach_temp_C 与热效率负相关 r=-0.8212（最优滞后 -13 行，数据步长 30 min/行，约 6.5 h；去趋势 -0.7935，q(BH)=0.0，防伪裁决 PASS）；趋近温差增大即换热端差恶化，是结垢缓变漂移的典型伴生信号。相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.approach_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-004",
+      "statement": "对数平均温差 lmtd_C 与热效率负相关 r=-0.8081（最优滞后 -13 行，去趋势 -0.7936，q(BH)=0.0，防伪裁决 PASS）；结垢使传热系数下降后维持同样热负荷需要更大温差，故 LMTD 升高在此工况是传热退化的伴生信号而非独立可调因子。相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.lmtd_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    },
+    {
+      "id": "KF-005",
+      "statement": "冷流出口温度 cold_outlet_temp_C 与热效率正相关 r=0.7944（最优滞后 -12 行，去趋势 r=0.7956 与原始几乎一致，排除时间趋势混杂，q(BH)=0.0，防伪裁决 PASS），随漂移进程与热效率同步下行。相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#thermal_efficiency_pct.cold_outlet_temp_C"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.0
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "检出过程变点 — 结论仅适用于 applicability_domain 所限工况",
+    "[agent 补充·漂移轨迹] 热效率呈缓变下行漂移（结垢特征）：17 个稳态段均值由 87.13（行 0-119 段）总体降至 75.28（行 2085-2159 段），行 1216-1291 段触及最低 72.29 后于行 1335-1418 回升至 79.11 再继续下行；热效率检出 5 个变点（行 374/651/993/1300/1768，按 30 min/行折算约 08-08 19:00 至 09-06 20:00）；压降 17 段均值全程单调爬升 0.765→2.671 bar，检出 55 个变点（56 段）呈连续漂移而非台阶突变。stability_report.drift_flags 为空，漂移证据来自段均值轨迹，使用时须自行核对漂移时效",
+    "[agent 补充·能力指数] 两响应均未提供规格限（has_specs=false），Cp/Cpk/Pp/Ppk 全部为 null（不可计算）；替代证据显示漂移主导总方差：热效率整体标准差 3.967 vs 组内 MR 标准差 0.789（lag-1 自相关 0.960，n_eff=44），压降 0.579 vs 0.031（自相关 0.997），整体散布远大于组内散布，过程不处于单一统计受控状态；两响应均未通过正态检验（AD 统计量 34.774 / 25.654，临界 0.752）",
+    "[agent 补充·窗口时效] 6 个操作窗口全部派生自前 3 个最优稳态段（行 0-401，约 08-01 至 08-09 的轻垢工况），位于主要漂移发生之前而非漂移后工况；当前基线热效率 78.67（全程均值）已低于窗口段水平 83.66–87.13，压降 1.76 已高于窗口段 0.77–1.05；窗口外推至当前重垢工况前必须完成 CF-001 确认试验",
+    "[agent 补充·物理可操作性] heat_transfer_coeff_W_m2K 是结垢状态变量而非可直接设定的操作变量：达到 OW-001/OW-004 窗口（980–1081 W/m²K，当前 910，距下限 70）需依赖清洗/在线防垢等维护措施；实际操作变量 flow_rate_m3_hr、pump_speed_pct 在本次分析中被列为 ignore，未纳入因子"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_thermal_efficiency_pct.png",
+      "title": "Stability timeline — thermal_efficiency_pct"
+    },
+    {
+      "file": "timeline_pressure_drop_bar.png",
+      "title": "Stability timeline — pressure_drop_bar"
+    },
+    {
+      "file": "segments_thermal_efficiency_pct.png",
+      "title": "Steady-segment comparison — thermal_efficiency_pct"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 6,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

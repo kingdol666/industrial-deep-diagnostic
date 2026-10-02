@@ -1,0 +1,97 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "cd_basis_weight_cv_pct",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.5
+    },
+    {
+      "col": "strength_rel_pct",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "factors": [
+    {
+      "col": "headbox_pressure_kPa",
+      "type": "numeric"
+    },
+    {
+      "col": "approach_flow_lpm",
+      "type": "numeric"
+    },
+    {
+      "col": "fan_pump_speed_rpm",
+      "type": "numeric"
+    },
+    {
+      "col": "white_water_consistency_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "retention_aid_dosage_ppm",
+      "type": "numeric"
+    },
+    {
+      "col": "slice_opening_mm",
+      "type": "numeric"
+    },
+    {
+      "col": "machine_speed_mmin",
+      "type": "numeric"
+    },
+    {
+      "col": "stock_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "jet_to_wire_ratio",
+      "type": "numeric"
+    },
+    {
+      "col": "vacuum_pump1_kPa",
+      "type": "numeric"
+    },
+    {
+      "col": "vacuum_pump2_kPa",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "ts_dcs",
+  "group_col": "grade",
+  "run_order_col": null,
+  "max_lag": 10,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S3 paper headbox, multi-grade mixed, group_col=grade"
+    ]
+  },
+  "_predictor_cols": [
+    "headbox_pressure_kPa",
+    "approach_flow_lpm",
+    "fan_pump_speed_rpm",
+    "white_water_consistency_pct",
+    "retention_aid_dosage_ppm",
+    "slice_opening_mm",
+    "machine_speed_mmin",
+    "stock_temp_C",
+    "jet_to_wire_ratio",
+    "vacuum_pump1_kPa",
+    "vacuum_pump2_kPa"
+  ]
+}

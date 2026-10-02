@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-10-01T12:57:37.750138+00:00",
+  "mode": "observational",
+  "n_rows": 600,
+  "time_col": "t",
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "t",
+    "n_rows": 600,
+    "n_time_values": 600,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "y",
+      "parameter": "x1",
+      "r": 0.0899,
+      "p_value": 0.0277,
+      "n": 600,
+      "best_lag": -4,
+      "best_lag_r": 0.8893,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0899,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.008005,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.0554
+    },
+    {
+      "target": "y",
+      "parameter": "x2",
+      "r": 0.0105,
+      "p_value": 0.7973,
+      "n": 600,
+      "best_lag": -8,
+      "best_lag_r": 0.1021,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0103,
+      "trend_confounded": false,
+      "contribution_delta_r2": 3.4e-05,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.7973
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "y",
+      "factor": "x1",
+      "delta_r2": 0.008005,
+      "r_full_model": 0.008115
+    },
+    {
+      "response": "y",
+      "factor": "x2",
+      "delta_r2": 3.4e-05,
+      "r_full_model": 0.008115
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 2,
+    "total_significant_q05": 0
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "ROBUST — Statistical evidence passes robustness checks. Correlation findings are stable.",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 2,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 0,
+      "fatal_issues": 0,
+      "serious_count": 0,
+      "moderate_count": 0
+    },
+    "lag_warning": null
+  }
+}

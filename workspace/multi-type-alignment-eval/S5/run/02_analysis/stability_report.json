@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-10-01T12:59:55.401009+00:00",
+  "n_rows": 1200,
+  "time_col": "t",
+  "capability": [
+    {
+      "response": "y",
+      "n": 1200,
+      "mean": 51.163481,
+      "std_overall": 0.958534,
+      "sigma_within_mr": 0.447593,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": -0.0738,
+        "excess_kurtosis": -0.5232,
+        "ad_statistic": 1.9308,
+        "ad_critical_5pct": 0.752,
+        "normal": false
+      },
+      "autocorr_lag1": 0.7802,
+      "n_eff": 148,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 1199,
+      "n_rows": 1200,
+      "response_means": {
+        "y": 51.163481
+      },
+      "score": 51.163481,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [
+    {
+      "response": "y",
+      "positions": [
+        95,
+        399,
+        566,
+        822,
+        1055
+      ],
+      "detail": {
+        "n_segments": 6,
+        "n_changes": 5
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 24,
+    "total_rows": 1200,
+    "steady_state_ratio": 1.0,
+    "regime_distribution": {
+      "steady": {
+        "count": 1200,
+        "pct": 100.0
+      }
+    }
+  }
+}

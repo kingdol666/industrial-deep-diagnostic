@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-10-01T05:19:38.038483+00:00",
+  "n_rows": 40,
+  "time_col": null,
+  "capability": [
+    {
+      "response": "y",
+      "n": 40,
+      "mean": -0.345172,
+      "std_overall": 0.79623,
+      "sigma_within_mr": null,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.1322,
+        "excess_kurtosis": -0.5846,
+        "ad_statistic": 0.2005,
+        "ad_critical_5pct": 0.737,
+        "normal": true
+      },
+      "autocorr_lag1": null,
+      "n_eff": null,
+      "note": null
+    }
+  ],
+  "steady_segments": [],
+  "change_points": [],
+  "drift_flags": [],
+  "regime_summary": null
+}

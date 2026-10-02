@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-10-01T12:53:48.255879+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\multi-type-alignment-eval\\S1\\run\\00_input\\data.csv",
+  "n_rows": 1200,
+  "n_cols": 4,
+  "columns": [
+    {
+      "name": "t",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 1200,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "x1",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1199,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "x2",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1198,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    },
+    {
+      "name": "y",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 1200,
+      "n_missing": 0,
+      "n_valid": 1200,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "y"
+    ],
+    "factors": [
+      "x1",
+      "x2"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": []
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "continuous or mixed factors — discrete-design rules skipped",
+      "LHS occupancy only 0.12 (<0.85)",
+      "center-stripped retry did not match (4 center rows)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

@@ -1,0 +1,63 @@
+{
+  "data_path": "00_input/aligned.csv",
+  "mode_override": "observational",
+  "responses": [
+    {
+      "col": "dev_pos07",
+      "goal": "target",
+      "lsl": null,
+      "usl": null,
+      "target": 0.0,
+      "weight": null
+    },
+    {
+      "col": "mean_thk",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": 50.0,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "die_bolt_T3_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "melt_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "pull_speed_mpm",
+      "type": "numeric"
+    },
+    {
+      "col": "lip_gap_mm",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "timestamp",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "film-thickness demo: observational mode over one 40h production run",
+      "ground truth drivers: die_bolt_T3_pct -> pos_07 stripe (dev_pos07), melt_temp_C -> full-width MD drift (mean_thk); 5-min process-to-gauge lag aligned in 01_align.py"
+    ]
+  },
+  "_predictor_cols": [
+    "die_bolt_T3_pct",
+    "melt_temp_C",
+    "pull_speed_mpm",
+    "lip_gap_mm"
+  ]
+}

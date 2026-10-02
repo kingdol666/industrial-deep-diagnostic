@@ -1,0 +1,124 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261001-006",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+  "phase": "exhausted",
+  "round_count": 5,
+  "trial_count": 30,
+  "budget": {
+    "max_rounds": 14,
+    "max_trials": 80,
+    "deadline": null,
+    "rounds_used": 5,
+    "trials_used": 30,
+    "replicates_used": 30
+  },
+  "incumbent": {
+    "setpoints": {
+      "die_bolt_T3_pct": 9.311905
+    },
+    "measured": {
+      "dev_pos07": {
+        "mean": 13.3627,
+        "sd": 0.0,
+        "n": 1
+      }
+    },
+    "in_target": true,
+    "predicted_D": 0.0,
+    "round_id": "R001"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ci_in_limits": null,
+    "desirability_gate": null
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 30,
+    "noise_source": "residual_pool",
+    "fit_quality": {
+      "log_ml": 41.85273024886561,
+      "cond_K": 37723.214514551386
+    }
+  },
+  "belief": {
+    "stall_rounds": 4,
+    "max_ei_last": 4.560311405887478e-130,
+    "duplication_ratio": 1.0,
+    "domain_coverage": 1.0
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 6,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.333333"
+    },
+    {
+      "round_id": "R005",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 6,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=1.0"
+    }
+  ],
+  "next_action": {
+    "recommendation": "stop",
+    "reasons": [
+      "duplication_ratio 1.00 > 0.5"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": true,
+    "resume_hint": "ingest each round's trial_result.json"
+  },
+  "guardrail_log": [],
+  "provenance": {
+    "input_sha256": "d3f6cf627d6339ffe517b0a303524dee23b1b640698de1c0c40a9df9a6d204bf",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

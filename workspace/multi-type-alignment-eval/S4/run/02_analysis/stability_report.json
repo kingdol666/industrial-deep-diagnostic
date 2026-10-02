@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-10-01T12:59:21.044086+00:00",
+  "n_rows": 600,
+  "time_col": "timestamp",
+  "capability": [
+    {
+      "response": "band_mean",
+      "n": 600,
+      "mean": 38.745885,
+      "std_overall": 1.360243,
+      "sigma_within_mr": 0.454883,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": 0.2697,
+        "excess_kurtosis": -1.0079,
+        "ad_statistic": 8.0532,
+        "ad_critical_5pct": 0.751,
+        "normal": false
+      },
+      "autocorr_lag1": 0.8886,
+      "n_eff": 35,
+      "note": null
+    }
+  ],
+  "steady_segments": [
+    {
+      "start": 0,
+      "end": 61,
+      "n_rows": 62,
+      "response_means": {
+        "band_mean": 37.858469
+      },
+      "score": 37.858469,
+      "selected_for_windows": false
+    },
+    {
+      "start": 83,
+      "end": 459,
+      "n_rows": 377,
+      "response_means": {
+        "band_mean": 38.408602
+      },
+      "score": 38.408602,
+      "selected_for_windows": true
+    },
+    {
+      "start": 481,
+      "end": 538,
+      "n_rows": 58,
+      "response_means": {
+        "band_mean": 40.001449
+      },
+      "score": 40.001449,
+      "selected_for_windows": true
+    },
+    {
+      "start": 560,
+      "end": 599,
+      "n_rows": 40,
+      "response_means": {
+        "band_mean": 40.474361
+      },
+      "score": 40.474361,
+      "selected_for_windows": true
+    }
+  ],
+  "change_points": [
+    {
+      "response": "band_mean",
+      "positions": [
+        353
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": {
+    "method": "production_regime_detector (in-process, fast path)",
+    "window_rows": 20,
+    "total_rows": 600,
+    "steady_state_ratio": 0.895,
+    "regime_distribution": {
+      "steady": {
+        "count": 537,
+        "pct": 89.5
+      },
+      "transition": {
+        "count": 63,
+        "pct": 10.5
+      }
+    }
+  }
+}

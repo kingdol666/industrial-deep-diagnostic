@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "total_defects": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 89.462687
+    },
+    "oligomer": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 20.0
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    },
+    {
+      "code": "NO_FDR_SIGNIFICANT_PAIRS",
+      "response": "total_defects, oligomer",
+      "threshold": "q_value_bh < 0.05",
+      "message": "88 项检验（2 响应 × 44 参数，n=67）经 BH 校正后 0 项显著：total_defects 族最小 q=0.9571、oligomer 族最小 q=0.2092 — 任何单参数相关仅可作假设线索，不得作为调参依据"
+    },
+    {
+      "code": "OUTLIER_DRIVEN_CANDIDATES",
+      "response": "oligomer",
+      "threshold": "outlier_sensitivity = SERIOUS",
+      "message": "oligomer 的 5 条最强相关全部为离群驱动 FAIL：W1C7D r=-0.2885、W1C8C r=-0.2616、W1C01 r=+0.2567、W1C82 r=-0.2545、W1C88 r=-0.2542 — 须先核查缺陷尖峰批次并做稳健复检，方可引用"
+    },
+    {
+      "code": "RESPONSE_HEAVY_TAIL",
+      "response": "total_defects, oligomer",
+      "threshold": "AD > 0.743 (5% critical)",
+      "message": "双响应严重重尾：total_defects 偏度 3.16 / AD=7.82，oligomer 偏度 3.95 / AD=15.62 — Pearson CI 因此过宽，建窗前应先处置尖峰批次或改用稳健/变换统计"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 67,
+    "time_span": "2026-05-04 14:42:00 .. 2026-05-13 05:51:00",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+    "本合同 operating_windows 为空（n=67 批、0/88 检验通过 FDR）：下游不得引用任何推荐区间，仅可引用 watchlist 候选自行设计确认试验"
+  ],
+  "provenance": {
+    "input_sha256": "39192c4bbc8701ea35a4ef4ab66b56989553914a1193dc90a32c24e4c12b4fc3",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "agent"
+  }
+}

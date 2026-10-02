@@ -1,0 +1,264 @@
+{
+  "data_path": "00_input/batches.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "total_defects",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.5
+    },
+    {
+      "col": "oligomer",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "factors": [
+    {
+      "col": "F_PS002@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "F_PS003@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "F_PS005@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "F_PS006@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH001@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH002@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH003@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH004@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH005@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH006@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH007@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH008@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH009@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH010@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH011@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH012@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH013@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH014@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH015@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH016@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH017@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "MD_TH018@PV_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C00@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C01@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C40@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C4B@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C7C@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C7D@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C7E@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C7F@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C80@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C81@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C82@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C83@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C84@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C85@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C86@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C87@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C88@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C89@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C8A@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C8B@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C8C@PV1_mean",
+      "type": "numeric"
+    },
+    {
+      "col": "W1C8D@PV1_mean",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [
+    "batch_id"
+  ],
+  "time_col": "ts_start",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 5,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "lekai run-FP21"
+    ]
+  },
+  "_predictor_cols": [
+    "F_PS002@PV1_mean",
+    "F_PS003@PV1_mean",
+    "F_PS005@PV1_mean",
+    "F_PS006@PV1_mean",
+    "MD_TH001@PV_mean",
+    "MD_TH002@PV_mean",
+    "MD_TH003@PV_mean",
+    "MD_TH004@PV_mean",
+    "MD_TH005@PV_mean",
+    "MD_TH006@PV_mean",
+    "MD_TH007@PV_mean",
+    "MD_TH008@PV_mean",
+    "MD_TH009@PV_mean",
+    "MD_TH010@PV_mean",
+    "MD_TH011@PV_mean",
+    "MD_TH012@PV_mean",
+    "MD_TH013@PV_mean",
+    "MD_TH014@PV_mean",
+    "MD_TH015@PV_mean",
+    "MD_TH016@PV_mean",
+    "MD_TH017@PV_mean",
+    "MD_TH018@PV_mean",
+    "W1C00@PV1_mean",
+    "W1C01@PV1_mean",
+    "W1C40@PV1_mean",
+    "W1C4B@PV1_mean",
+    "W1C7C@PV1_mean",
+    "W1C7D@PV1_mean",
+    "W1C7E@PV1_mean",
+    "W1C7F@PV1_mean",
+    "W1C80@PV1_mean",
+    "W1C81@PV1_mean",
+    "W1C82@PV1_mean",
+    "W1C83@PV1_mean",
+    "W1C84@PV1_mean",
+    "W1C85@PV1_mean",
+    "W1C86@PV1_mean",
+    "W1C87@PV1_mean",
+    "W1C88@PV1_mean",
+    "W1C89@PV1_mean",
+    "W1C8A@PV1_mean",
+    "W1C8B@PV1_mean",
+    "W1C8C@PV1_mean",
+    "W1C8D@PV1_mean"
+  ]
+}

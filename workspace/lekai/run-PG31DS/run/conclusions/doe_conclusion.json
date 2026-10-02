@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-10-01T07:07:35.654314+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "anti_spurious_ok": true,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-01",
+      "statement": "单型号（PG31DS，67 批）分层后信号并未更干净：2 响应 × 44 参数共 88 项检验经 BH 校正后 0 项达 q<0.05（total_defects 族最小 q=0.9571，oligomer 族最小 q=0.2092）；total_defects 与全部 44 个过程量的相关 |r|≤0.155，全表最强 |r|=0.2885（oligomer~W1C7D）且被判离群驱动 FAIL。型号间混杂虽已去除，但型号内的参数—响应关系在本观测数据中不可辨识。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#multiple_testing",
+        "02_analysis/correlation_report.json#pairs"
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "KF-02",
+      "statement": "防伪汇总 overall_validity=SERIOUS_CONCERNS（serious_count=7）：oligomer 的 5 条最强相关全部为离群驱动（outlier_sensitivity=SERIOUS → FAIL：W1C01 r=0.2567、W1C7D r=-0.2885、W1C82 r=-0.2545、W1C88 r=-0.2542、W1C8C r=-0.2616），另发现 2 条 Spearman 分歧；46 个受检列中 24 个分布偏斜。另有 22 对因共享时间趋势被判 CAUTION（total_defects 15 对、oligomer 7 对），其原始相关不可直接采信。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#anti_spurious_summary",
+        "02_analysis/correlation_report.json#pairs[].verdicts"
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "KF-03",
+      "statement": "top 候选参数：oligomer 侧唯一同时满足 anti_spurious=PASS 且滞后窗口一致（lag_window_consistent=true）的候选为 F_PS006@PV1_mean（r=-0.2458，p=0.0449，q=0.2092，best_lag=+2）与 W1C8D@PV1_mean（r=+0.2440，p=0.0466，q=0.2092，best_lag=+2），均未达 FDR 显著；total_defects 侧最强候选 W1C8C@PV1_mean 仅 |r|=0.155（p=0.2103，q=0.9571，best_lag=+2 滞后一致）。F_PS006 与 oligomer 呈负相关（F_PS006 越高、oligomer 越低），仅为假设线索。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#pairs"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "KF-04",
+      "statement": "0 窗口的原因链（批次量 / CI / 响应重尾三者叠加）：n=67 批且稳态仅 2 段（rows 7–21 共 15 批、rows 43–66 共 24 批，稳态占比 58.21%）；双响应重尾（total_defects 偏度 3.16、超额峰度 10.69、AD=7.82；oligomer 偏度 3.95、超额峰度 14.79、AD=15.62，5% 临界 0.743）令 Pearson CI 过宽；FDR 后无显著对——没有任何候选达到建窗门槛。参数侧激励亦不足：LHS occupancy 仅 0.15（<0.85），W1C40 全程仅 10 个取值。",
+      "evidence_refs": [
+        "02_analysis/stability_report.json#steady_segments",
+        "02_analysis/stability_report.json#capability",
+        "01_profile/data_profile.json#design.detection_notes"
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "KF-05",
+      "statement": "效应高度分散、无单一主导杠杆：44 参数联合模型 r_full_model=0.7594，但单参数 ΔR² 最大仅 0.0506（MD_TH009@PV_mean，total_defects），top-10 全部 ≤5.1%；n=67 对 44 个预测元，联合模型存在过拟合风险，r_full_model 应视为上界而非可复现预测力。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#top_contributors"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "KF-06",
+      "statement": "出可执行窗口的条件（分析师判断，非脚本计算）：按当前效应量（|r|≈0.25–0.30）Fisher z 粗估，单一检验 80% 功效约需 ~123 批，计入 88 项 BH 校正负担后观测路径约需 150–250 批（取决于真效应个数），且需更宽的参数激励幅度与缺陷尖峰批次处置；更现实的路径是对 top 候选（F_PS006、W1C8D、MD_TH009）做有意扰动的小规模确认 DOE，而非继续累积观测批次。",
+      "evidence_refs": [
+        "02_analysis/correlation_report.json#multiple_testing",
+        "conclusions/recommendations.json#watchlist"
+      ],
+      "confidence": "low"
+    }
+  ],
+  "limitations": [
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations",
+    "响应重尾由少数缺陷尖峰批次主导（total_defects std=87.69 ≈ mean 89.46；oligomer std=39.63 ≈ 2×mean 20.0）：建任何窗口前应先核查尖峰批次成因并做稳健复检（分析师补充）",
+    "n=67 批对 44 个过程量，时间跨度仅约 8.6 天（2026-05-04 14:42 至 2026-05-13 05:51），覆盖单一生产窗口，结论外推需谨慎（分析师补充）",
+    "观测路径按当前效应量粗估需 150–250 批才可能通过 FDR；更快路径是对 top 候选做有意扰动的确认 DOE（分析师估算，非脚本计算）"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlation matrix"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_total_defects.png",
+      "title": "Stability timeline — total_defects"
+    },
+    {
+      "file": "timeline_oligomer.png",
+      "title": "Stability timeline — oligomer"
+    },
+    {
+      "file": "segments_total_defects.png",
+      "title": "Steady-segment comparison — total_defects"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 0,
+    "n_confirmations": 0,
+    "n_watchlist": 4,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制",
+      "本合同 operating_windows 为空（n=67 批、0/88 检验通过 FDR）：下游不得引用任何推荐区间，仅可引用 watchlist 候选自行设计确认试验"
+    ]
+  }
+}

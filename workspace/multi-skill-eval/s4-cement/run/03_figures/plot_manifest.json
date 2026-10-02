@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-01T07:46:07.212766+00:00",
+  "mode": "observational",
+  "plots": [
+    {
+      "file": "correlation_heatmap.png",
+      "type": "correlation_heatmap",
+      "title": "Validated correlation matrix",
+      "response": null,
+      "bytes": 70368,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.5580 ok; ink ratio 55.8% across 4 quadrants"
+    },
+    {
+      "file": "contribution_bar.png",
+      "type": "contribution_bar",
+      "title": "ΔR² contribution ranking",
+      "response": "strength_28d_MPa",
+      "bytes": 37598,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1120 ok; ink ratio 11.2% across 4 quadrants"
+    },
+    {
+      "file": "timeline_strength_28d_MPa.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — strength_28d_MPa",
+      "response": "strength_28d_MPa",
+      "bytes": 93520,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.6435 ok; ink ratio 64.3% across 4 quadrants"
+    },
+    {
+      "file": "timeline_blaine_fineness_cm2g.png",
+      "type": "stability_timeline",
+      "title": "Stability timeline — blaine_fineness_cm2g",
+      "response": "blaine_fineness_cm2g",
+      "bytes": 82295,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.6318 ok; ink ratio 63.2% across 4 quadrants"
+    },
+    {
+      "file": "segments_strength_28d_MPa.png",
+      "type": "segment_comparison",
+      "title": "Steady-segment comparison — strength_28d_MPa",
+      "response": "strength_28d_MPa",
+      "bytes": 28416,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4065 ok; ink ratio 40.6% across 4 quadrants"
+    }
+  ]
+}

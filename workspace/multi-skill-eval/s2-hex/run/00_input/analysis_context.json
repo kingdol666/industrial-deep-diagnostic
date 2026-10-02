@@ -1,0 +1,77 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "thermal_efficiency_pct",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.5
+    },
+    {
+      "col": "pressure_drop_bar",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "factors": [
+    {
+      "col": "hot_inlet_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "hot_outlet_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "cold_inlet_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "cold_outlet_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "approach_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "lmtd_C",
+      "type": "numeric"
+    },
+    {
+      "col": "heat_transfer_coeff_W_m2K",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "timestamp",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 15,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S2 heat exchanger scaling"
+    ]
+  },
+  "_predictor_cols": [
+    "hot_inlet_temp_C",
+    "hot_outlet_temp_C",
+    "cold_inlet_temp_C",
+    "cold_outlet_temp_C",
+    "approach_temp_C",
+    "lmtd_C",
+    "heat_transfer_coeff_W_m2K"
+  ]
+}

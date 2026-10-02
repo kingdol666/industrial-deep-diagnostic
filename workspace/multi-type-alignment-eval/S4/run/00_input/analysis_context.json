@@ -1,0 +1,49 @@
+{
+  "data_path": "00_input/data.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "band_mean",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "furnace_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "stir_speed_rpm",
+      "type": "numeric"
+    },
+    {
+      "col": "band_ref_mean",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [],
+  "time_col": "timestamp",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 8,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "S4 truth: band_mean(bins10-20) = 0.35*(furnace(t-3)-1180); furnace step +6 at frame 350"
+    ]
+  },
+  "_predictor_cols": [
+    "furnace_temp_C",
+    "stir_speed_rpm",
+    "band_ref_mean"
+  ]
+}
