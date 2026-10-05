@@ -1,0 +1,198 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261004-001",
+  "round_id": "R002",
+  "phase": "exploit",
+  "method": "rsm_augment",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "setpoints": {
+        "Concentration": 0.394221,
+        "Temperature": 78.443733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.458387,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.27954,
+          "ci95": [
+            0.21475,
+            0.34433
+          ]
+        }
+      },
+      "predicted_D": 1.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.204"
+    },
+    {
+      "trial_id": "R002-T02",
+      "setpoints": {
+        "Concentration": 0.394221,
+        "Temperature": 88.943733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.004636,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.662338,
+          "ci95": [
+            0.577046,
+            0.747631
+          ]
+        }
+      },
+      "predicted_D": 0.733678,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.424"
+    },
+    {
+      "trial_id": "R002-T03",
+      "setpoints": {
+        "Concentration": 0.394221,
+        "Temperature": 67.943733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.361861,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.58829,
+          "ci95": [
+            0.502856,
+            0.673724
+          ]
+        }
+      },
+      "predicted_D": 0.909225,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.34"
+    },
+    {
+      "trial_id": "R002-T04",
+      "setpoints": {
+        "Concentration": 0.634221,
+        "Temperature": 78.443733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.94938,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.335475,
+          "ci95": [
+            0.278414,
+            0.392536
+          ]
+        }
+      },
+      "predicted_D": 1.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.25"
+    },
+    {
+      "trial_id": "R002-T05",
+      "setpoints": {
+        "Concentration": 0.154221,
+        "Temperature": 78.443733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.488789,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.287349,
+          "ci95": [
+            0.175918,
+            0.398779
+          ]
+        }
+      },
+      "predicted_D": 1.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.489"
+    },
+    {
+      "trial_id": "R002-T06",
+      "setpoints": {
+        "Concentration": 0.154221,
+        "Temperature": 67.943733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.399674,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.479299,
+          "ci95": [
+            0.352237,
+            0.60636
+          ]
+        }
+      },
+      "predicted_D": 1.0,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.4"
+    },
+    {
+      "trial_id": "R002-T07",
+      "setpoints": {
+        "Concentration": 0.634221,
+        "Temperature": 67.943733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.906724,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.754764,
+          "ci95": [
+            0.66905,
+            0.840478
+          ]
+        }
+      },
+      "predicted_D": 0.514561,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.376"
+    },
+    {
+      "trial_id": "R002-T08",
+      "setpoints": {
+        "Concentration": 0.154221,
+        "Temperature": 88.943733
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.018867,
+      "expected": {
+        "impurity_pct": {
+          "mean": 0.610767,
+          "ci95": [
+            0.50682,
+            0.714713
+          ]
+        }
+      },
+      "predicted_D": 0.855938,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.183"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -9.393529,
+    "lengthscales": {
+      "x0": -0.779865,
+      "x1": 0.434315
+    },
+    "sigma_noise": 0.01013,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "6e29db275ca216fa7c2737af28c9a0b2f24987090e3ae9bd81321a22f98d0e73",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

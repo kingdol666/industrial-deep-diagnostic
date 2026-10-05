@@ -172,3 +172,7 @@ tmp/
 # workspace/doe-redteam/gen_cases.py; keep the generator + E2E_REPORT.md only)
 workspace/doe-redteam/*/run/
 workspace/e2e-doe/run/
+
+# field-test runtime outputs (raw run artifacts are regenerable; the curated
+# test assets — cases/truth/results/reports — are force-added in commits)
+workspace/field-tests/

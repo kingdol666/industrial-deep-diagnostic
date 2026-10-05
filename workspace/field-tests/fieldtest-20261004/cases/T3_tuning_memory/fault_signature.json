@@ -1,0 +1,22 @@
+{
+  "signature_version": "1.0",
+  "source_ref": "ALT-20261003-0217-001",
+  "anomalous_params": [
+    {
+      "parameter": "temp_c",
+      "direction": "high",
+      "severity": 2.8
+    },
+    {
+      "parameter": "speed_rpm",
+      "direction": "high",
+      "severity": 2.1
+    }
+  ],
+  "regime": {
+    "product": "PVC-M",
+    "machine": "calender-03",
+    "regime_label": "night_shift"
+  },
+  "degraded_metric": "yield_pct"
+}

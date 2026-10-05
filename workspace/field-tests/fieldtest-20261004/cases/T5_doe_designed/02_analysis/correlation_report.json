@@ -1,0 +1,159 @@
+{
+  "generated_at": "2026-10-05T01:36:39.280264+00:00",
+  "mode": "observational",
+  "n_rows": 12,
+  "time_col": null,
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": null,
+    "time_column": null,
+    "message": "No time column specified or found."
+  },
+  "pairs": [
+    {
+      "target": "Tear_Strength",
+      "parameter": "run_order",
+      "r": 0.1834,
+      "p_value": 0.5682,
+      "n": 12,
+      "best_lag": 9,
+      "best_lag_r": 0.8103,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0893,
+      "trend_confounded": true,
+      "contribution_delta_r2": 0.013926,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.7576
+    },
+    {
+      "target": "Tear_Strength",
+      "parameter": "Extrusion_Temp",
+      "r": 0.7398,
+      "p_value": 0.006,
+      "n": 12,
+      "best_lag": -9,
+      "best_lag_r": 0.9933,
+      "lag_window_consistent": true,
+      "detrended_r": 0.7389,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.559026,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L3",
+      "notes": [],
+      "q_value_bh": 0.024
+    },
+    {
+      "target": "Tear_Strength",
+      "parameter": "Draw_Ratio",
+      "r": -0.5869,
+      "p_value": 0.0448,
+      "n": 12,
+      "best_lag": -8,
+      "best_lag_r": -0.7555,
+      "lag_window_consistent": true,
+      "detrended_r": -0.569,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.344535,
+      "verdicts": {
+        "outlier_sensitivity": "SERIOUS",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "FAIL",
+      "evidence_level": "L4",
+      "notes": [
+        "correlation is outlier-driven"
+      ],
+      "q_value_bh": 0.0896
+    },
+    {
+      "target": "Tear_Strength",
+      "parameter": "Cooling_Rate",
+      "r": 0.0208,
+      "p_value": 0.9488,
+      "n": 12,
+      "best_lag": 8,
+      "best_lag_r": -0.7545,
+      "lag_window_consistent": true,
+      "detrended_r": 0.0156,
+      "trend_confounded": false,
+      "contribution_delta_r2": 0.000604,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.9488
+    }
+  ],
+  "top_contributors": [
+    {
+      "response": "Tear_Strength",
+      "factor": "Extrusion_Temp",
+      "delta_r2": 0.559026,
+      "r_full_model": 0.906073
+    },
+    {
+      "response": "Tear_Strength",
+      "factor": "Draw_Ratio",
+      "delta_r2": 0.344535,
+      "r_full_model": 0.906073
+    },
+    {
+      "response": "Tear_Strength",
+      "factor": "run_order",
+      "delta_r2": 0.013926,
+      "r_full_model": 0.906073
+    },
+    {
+      "response": "Tear_Strength",
+      "factor": "Cooling_Rate",
+      "delta_r2": 0.000604,
+      "r_full_model": 0.906073
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 4,
+    "total_significant_q05": 1
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly.",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 4,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 1,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 0,
+      "fatal_issues": 0,
+      "serious_count": 1,
+      "moderate_count": 0
+    },
+    "lag_warning": null
+  }
+}

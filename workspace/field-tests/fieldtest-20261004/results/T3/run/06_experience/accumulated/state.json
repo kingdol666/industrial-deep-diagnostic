@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-10-04T06:39:01.784Z",
+  "history": [
+    {
+      "ts": "2026-10-04T06:38:45.989Z",
+      "chunk_id": "exp_tuning_action_effect_PVC-M|ca_6d7959d486594335",
+      "result": "build",
+      "note": null
+    },
+    {
+      "ts": "2026-10-04T06:38:45.991Z",
+      "chunk_id": "exp_tuning_action_effect_PVC-M|ca_ede263eec22a6f4f",
+      "result": "build",
+      "note": null
+    },
+    {
+      "ts": "2026-10-04T06:39:01.777Z",
+      "chunk_id": "exp_fault_control_recipe_PVC-M|ca_2adda6ae0dd13c21",
+      "result": "effective",
+      "note": null
+    }
+  ],
+  "counters": {
+    "exp_tuning_action_effect_PVC-M|ca_6d7959d486594335": {
+      "corroboration": 1,
+      "refutation": 0
+    },
+    "exp_tuning_action_effect_PVC-M|ca_ede263eec22a6f4f": {
+      "corroboration": 1,
+      "refutation": 0
+    },
+    "exp_fault_control_recipe_PVC-M|ca_2adda6ae0dd13c21": {
+      "corroboration": 2,
+      "refutation": 0
+    }
+  }
+}

@@ -1,12 +1,12 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261001-135638-000",
+  "alert_id": "ALT-20261005-074939-000",
   "mode": "watch",
   "status": "alert",
   "group_scope": null,
-  "generated_at": "2026-10-01T13:56:38.207210+00:00",
+  "generated_at": "2026-10-05T07:49:39.546572+00:00",
   "source": {
-    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F4_cold_start\\watch.csv",
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F4_cold_start\\watch.csv",
     "sha256": "9df2727760300fc0b130b4125a58742cc70064dc6669db82bb2516f48ee3f57d",
     "window_start": null,
     "window_end": null,
@@ -42,11 +42,28 @@
       "n_outliers": 0,
       "max_d2": null
     },
-    "rows_skipped": 0
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 2,
+    "events_by_parameter": {
+      "baseline|-": {
+        "count": 1,
+        "alerts": 1
+      },
+      "spc|temp": {
+        "count": 1,
+        "alerts": 1
+      }
+    }
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261001-135638-001",
+      "alert_id": "ALT-20261005-074939-001",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -75,7 +92,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261001-135638-002",
+      "alert_id": "ALT-20261005-074939-002",
       "check_type": "baseline",
       "rule_name": "SELF_BASELINE",
       "parameter": null,
@@ -99,6 +116,40 @@
       "repeat_count": 1
     }
   ],
+  "events": [
+    {
+      "family": "baseline",
+      "parameter": null,
+      "group": null,
+      "severity_peak": "warn",
+      "first_index": null,
+      "last_index": null,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "SELF_BASELINE"
+      ],
+      "max_abs_statistic": 0.0,
+      "suppression_key": "_|baseline|SELF_BASELINE|_",
+      "event_id": "EVT-20261005074939-001"
+    },
+    {
+      "family": "spc",
+      "parameter": "temp",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 200,
+      "last_index": 200,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R1"
+      ],
+      "max_abs_statistic": 13.48591091659528,
+      "suppression_key": "__ALL__|spc|NELSON_R1|temp",
+      "event_id": "EVT-20261005074939-002"
+    }
+  ],
   "regime_summary": {
     "__ALL__": {
       "labels": {
@@ -118,7 +169,7 @@
   "provenance": {
     "input_sha256": "9df2727760300fc0b130b4125a58742cc70064dc6669db82bb2516f48ee3f57d",
     "script_version": "1.0.0",
-    "duration_ms": 16,
+    "duration_ms": 23,
     "zero_llm": true,
     "authored_by": "script"
   }

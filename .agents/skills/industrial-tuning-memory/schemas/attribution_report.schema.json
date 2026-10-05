@@ -29,6 +29,8 @@
         "n_eff_hi": { "type": ["integer", "null"] },
         "n_eff_lo": { "type": ["integer", "null"] },
         "direction_established": { "type": ["boolean", "null"] },
+        "direction_withheld": { "type": ["boolean", "null"], "description": "true = delta/CI kept but direction claim withheld (stop-transient fingerprint or confound; fieldtest-20261004 R2)" },
+        "stop_suspected": { "type": ["boolean", "null"], "description": "effect-window lag-1 autocorr < -0.15: stop/start transient fingerprint" },
         "stratified": {
           "type": ["array", "null"],
           "items": { "type": "object", "properties": { "group": { "type": "string" }, "n": { "type": "integer" }, "delta": { "type": ["number", "null"] }, "ci95": { "type": ["array", "null"], "items": { "type": "number" } }, "skipped": { "type": "boolean" } } }
@@ -37,6 +39,18 @@
     },
     "confound_detected": { "type": "boolean" },
     "attribution_compromised": { "type": "boolean" },
+    "warnings": {
+      "type": "array",
+      "description": "machine-readable degradation notices, e.g. settle-window truncation on dense action logs",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
     "anti_spurious": {
       "type": ["object", "null"],
       "properties": {

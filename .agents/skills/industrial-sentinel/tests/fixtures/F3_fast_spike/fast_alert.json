@@ -1,12 +1,12 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261001-135635-000",
+  "alert_id": "ALT-20261005-074936-000",
   "mode": "fast_screen",
   "status": "alert",
   "group_scope": "__ALL__",
-  "generated_at": "2026-10-01T13:56:35.173436+00:00",
+  "generated_at": "2026-10-05T07:49:36.213939+00:00",
   "source": {
-    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\b1.csv",
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\b1.csv",
     "sha256": "a10637494a3b7ede187e7ed036d0862ba9b93d4fcec1af30116cc871119e358b",
     "window_start": null,
     "window_end": null,
@@ -15,7 +15,7 @@
     "group_col": null
   },
   "baseline": {
-    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\watch_baseline.json",
+    "path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\watch_baseline.json",
     "baseline_version": "v1.0.0",
     "mode": "prior",
     "generated_from": null
@@ -40,7 +40,7 @@
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261001-135635-001",
+      "alert_id": "ALT-20261005-074936-001",
       "check_type": "multivariate",
       "rule_name": "ROBUST_Z_OUTLIER",
       "parameter": "temp",
@@ -67,7 +67,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261001-135635-002",
+      "alert_id": "ALT-20261005-074936-002",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -107,7 +107,7 @@
   "provenance": {
     "input_sha256": "a10637494a3b7ede187e7ed036d0862ba9b93d4fcec1af30116cc871119e358b",
     "script_version": "1.0.0",
-    "duration_ms": 9,
+    "duration_ms": 23,
     "zero_llm": true,
     "authored_by": "script"
   }

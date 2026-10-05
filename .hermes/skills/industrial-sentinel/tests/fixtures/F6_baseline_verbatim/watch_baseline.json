@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-baseline/1.0",
   "baseline_version": "v1.0.0",
-  "generated_at": "2026-10-01T13:56:40.545468+00:00",
+  "generated_at": "2026-10-05T07:49:42.006789+00:00",
   "generated_from": {
-    "doe_recommendations_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run\\conclusions\\recommendations.json",
-    "doe_run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run",
+    "doe_recommendations_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run\\conclusions\\recommendations.json",
+    "doe_run_dir": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F6_baseline_verbatim\\doe_run",
     "history_csv_sha256": "2e818321d81d48f1b3b6b5a3bc9720766310281b49539dadb2fdc7eaba68b12a",
     "recommendations_contract_version": "1.0"
   },
@@ -30,7 +30,8 @@
           "q10": 49.96849826333951,
           "q90": 50.032226554021726,
           "cv": 0.0004586823369318969,
-          "variance_ratio_baseline_std": 0.022934054919140467
+          "variance_ratio_baseline_std": 0.022934054919140467,
+          "ar1_rho": -0.7308
         },
         "press": {
           "center": 9.999807250175579,
@@ -41,7 +42,8 @@
           "q10": 9.987860325178842,
           "q90": 10.011860609283238,
           "cv": 0.0008689868952462908,
-          "variance_ratio_baseline_std": 0.008689701455391425
+          "variance_ratio_baseline_std": 0.008689701455391425,
+          "ar1_rho": -0.7317
         }
       },
       "indicators": {
@@ -101,15 +103,15 @@
         ],
         "corr_matrix_flat": [
           1.0,
-          -0.7325191701100626,
-          -0.7325191701100626,
+          -0.7325191701100624,
+          -0.7325191701100623,
           1.0
         ],
         "cholesky_lower": [
           1.0,
           0.0,
-          -0.7325191701100626,
-          0.680746403164398
+          -0.7325191701100623,
+          0.6807464031643984
         ]
       },
       "regime": {

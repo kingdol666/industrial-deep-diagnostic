@@ -30,17 +30,20 @@ knowledge_base:
   embedding_dim: 384
 
   # Source documents to index on startup
+  # (paths fixed 2026-10-05: the old `industrial-deep-diagnostic` skill was
+  # split into named skills — these files now live under ontology-builder /
+  # diagnostician; stale paths made POST /index a silent 0-chunk no-op)
   index_sources:
-    - path: "../.claude/skills/industrial-deep-diagnostic/resources/process_knowledge_base.md"
+    - path: "../.claude/skills/industrial-ontology-builder/resources/process_knowledge_base.md"
       type: markdown
       scenario: multi
-    - path: "../.claude/skills/industrial-deep-diagnostic/resources/parameter_to_physics.json"
+    - path: "../.claude/skills/industrial-diagnostician/resources/parameter_to_physics.json"
       type: json_params
       scenario: multi
-    - path: "../.claude/skills/industrial-deep-diagnostic/resources/evidence_rules.md"
+    - path: "../.claude/skills/industrial-diagnostician/resources/evidence_rules.md"
       type: markdown
       scenario: generic
-    - path: "../.claude/skills/industrial-deep-diagnostic/resources/diagnosis_method.md"
+    - path: "../.claude/skills/industrial-diagnostician/resources/diagnosis_method.md"
       type: markdown
       scenario: generic
     - path: "../.claude/skills/industrial-deep-diagnostic/resources/diagnostician_dual_drive_reference.md"

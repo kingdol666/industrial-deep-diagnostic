@@ -1,0 +1,101 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261004-001",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "Concentration": 0.195175,
+        "Temperature": 91.608085
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T02",
+      "setpoints": {
+        "Concentration": 0.28382,
+        "Temperature": 72.039091
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T03",
+      "setpoints": {
+        "Concentration": 0.653513,
+        "Temperature": 83.028653
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T04",
+      "setpoints": {
+        "Concentration": 0.748549,
+        "Temperature": 88.087403
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T05",
+      "setpoints": {
+        "Concentration": 0.894513,
+        "Temperature": 66.348262
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T06",
+      "setpoints": {
+        "Concentration": 0.359317,
+        "Temperature": 81.679501
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T07",
+      "setpoints": {
+        "Concentration": 0.494287,
+        "Temperature": 63.90207
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T08",
+      "setpoints": {
+        "Concentration": 0.599788,
+        "Temperature": 74.344019
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "6e29db275ca216fa7c2737af28c9a0b2f24987090e3ae9bd81321a22f98d0e73",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

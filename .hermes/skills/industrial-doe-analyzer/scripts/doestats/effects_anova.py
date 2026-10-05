@@ -235,6 +235,32 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
         specs = term_column_specs(term, base_specs)
         kept.add_term(term, specs, materialize_columns(base_df, specs))
 
+    # Disclosure: terms declared by the model but absent from the estimates.
+    # add_term returned False for these (their coded columns duplicate an
+    # earlier term's columns — exact alias — or collapsed to nothing for a
+    # zero-variance factor). Same for every response: the design matrix is
+    # built from terms/base_df only, so aliasing is response-independent.
+    kept_term_names = {t["name"] for t, _ in kept.term_specs_kept}
+    dropped_terms = {}
+    for term in terms:
+        if term["name"] in kept_term_names:
+            continue
+        if kept.alias_map.get(term["name"]):
+            dropped_terms[term["name"]] = {
+                "reason_code": "aliased",
+                "alias_chain": _term_level_alias(
+                    term["name"], kept.alias_map.get(term["name"], [])),
+                "detail": ("coded column(s) exactly duplicate an earlier term's "
+                           "columns — not estimable"),
+            }
+        else:
+            dropped_terms[term["name"]] = {
+                "reason_code": "zero_variance",
+                "alias_chain": [],
+                "detail": ("term has no coded columns (zero-variance factor or "
+                           "collapsed levels) — not estimable"),
+            }
+
     y_all = pd.to_numeric(df[response], errors="coerce")
     frame = pd.DataFrame(kept.values, columns=[f"c{j}" for j in range(kept.values.shape[1])],
                          index=df.index)
@@ -364,6 +390,7 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
                          if df_resid > 0 and n > 1 and ss_total > 0 else None,
         "saturated": saturated,
         "pooled_terms": pooled,
+        "dropped_terms": dropped_terms,
         "kept_terms": [t for t, _ in kept_specs],
         "colnames": kept_names,
         "term_of": kept_term_of,
@@ -405,6 +432,7 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
         "sigma_pure_error": _r(sigma_pe) if sigma_pe else None,
         "saturated": saturated,
         "pooled_terms": pooled,
+        "dropped_terms": dropped_terms,
         "lack_of_fit": lack,
         "r_squared": model["r_squared"],
         "adj_r_squared": model["adj_r_squared"],

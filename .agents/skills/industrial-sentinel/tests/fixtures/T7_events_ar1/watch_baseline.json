@@ -1,0 +1,76 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-05T07:49:48.506728+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "4f27af50621ce897a7ae2d71a59e9511d088bb6dd5b1f84c55c7771858b46c48",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "ts",
+    "group_col": null,
+    "numeric_columns": [
+      "temp"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "temp": {
+          "center": 49.92321615651593,
+          "sigma_within_mr": 0.36178949207614414,
+          "sigma_overall": 0.904644872060797,
+          "median": 49.93788429358237,
+          "mad": 0.6414772625864664,
+          "q10": 48.75670365744063,
+          "q90": 51.07696118151269,
+          "cv": 0.01812072501949023,
+          "variance_ratio_baseline_std": 0.904644872060797,
+          "ar1_rho": 0.8395,
+          "sigma_within_mr_ar1": 0.665877
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "temp"
+        ],
+        "corr_matrix_flat": [
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": [
+          332,
+          395,
+          1951
+        ]
+      },
+      "validity": {
+        "n_steady_rows": 2200,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 36.650h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "4f27af50621ce897a7ae2d71a59e9511d088bb6dd5b1f84c55c7771858b46c48",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

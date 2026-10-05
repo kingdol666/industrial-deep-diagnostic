@@ -18,6 +18,9 @@ Cases:
   F9  constant response, designed                  -> P0-3 (strict JSON, adj_r2 null)
   F10 6-row tiny data                              -> P0-4 (0 plots legal, gate PASS)
   F11 "Runtime (s)" + real date col                -> P0-6 (time axis picks the date)
+  F12 2^3 single rep + constant factor             -> P0-8 (model_spec.term_status
+                                                      reason codes: insufficient_df /
+                                                      aliased / zero_variance)
   tamper  G1/G3/G4 gate negative battery           -> AC5
   conflict  same-factor disjoint windows           -> P0-7 (chosen = higher |delta|)
   report-D designed report (F3 CCD)                -> Phase C (sections trim + G7 + tamper)
@@ -339,6 +342,34 @@ def fixture_f11():
     return make_run("F11", df, None)   # no context -> auto-inference path
 
 
+def fixture_f12():
+    """2^3 single-rep full factorial + one covariate + one constant factor.
+    The extra covariate column saturates the 8-run design (df_resid=0) so the
+    saturation guard pools A:B (insufficient_df); the 3-way interaction is
+    dropped at matrix build (aliased); Z is not estimable (zero_variance).
+    All three model_spec.term_status reason codes from one fixture."""
+    rng = np.random.default_rng(31)
+    rows = []
+    # hand-picked (NON factor-linear) covariate values: a linspace over the
+    # factorial run order would be exactly 2A + B + C/2 + const -> rank-deficient
+    ambient = [21.3, 18.7, 24.9, 19.2, 23.1, 18.1, 25.0, 20.4]
+    for i, (a, b, c) in enumerate(itertools.product([-1, 1], repeat=3)):
+        rows.append({"A": a, "B": b, "C": c, "Z": 42.0, "ambient": ambient[i],
+                     "yield": round(50.0 + 2.0 * a - 1.5 * b + 0.1 * ambient[i]
+                                    + float(rng.normal(0, 0.3)), 4)})
+    df = pd.DataFrame(rows)
+    ctx = {"data_path": "00_input/data.csv", "mode_override": "designed",
+           "responses": [{"col": "yield", "goal": "maximize", "lsl": None,
+                          "usl": None, "target": None, "weight": None}],
+           "factors": [{"col": "A", "type": "numeric"}, {"col": "B", "type": "numeric"},
+                       {"col": "C", "type": "numeric"}, {"col": "Z", "type": "numeric"}],
+           "blocks": [], "covariates": ["ambient"], "index_cols": [], "time_col": None,
+           "group_col": None, "run_order_col": None, "max_lag": 20, "alpha": 0.05,
+           "effect_size_threshold": 0.01, "constraints": [],
+           "inference": {"assigned_by": "user", "notes": ["F12 fixture"]}}
+    return make_run("F12", df, ctx)
+
+
 # ---------------------------------------------------------------- cases
 
 def case_f1():
@@ -413,6 +444,22 @@ def case_f2():
            any(t["term"] == "A" and t.get("estimable") and t.get("p_value") is not None
                for t in fam["tests"]),
            json.dumps([(t["term"], t.get("p_value")) for t in fam["tests"]]))
+    # P0-8: every DECLARED term absent from the estimates carries a reason code
+    spec = eff["model_spec"]
+    ts = spec.get("term_status") or {}
+    declared = (set(spec["main_effects"]) | set(spec["interactions"])
+                | set(spec.get("quadratic") or []) | set(spec.get("blocks") or [])
+                | set(spec.get("covariates") or []))
+    record("F2.term_status_covers_declared", set(ts) == declared,
+           f"declared={sorted(declared)} status={sorted(ts)}")
+    dropped = sorted(k for k, v in ts.items()
+                     if not v.get("estimated") and v.get("reason_code") == "aliased")
+    record("F2.aliased_drops_reasoned",
+           dropped == ["B:C", "B:D", "C:D"],
+           f"dropped={dropped} status={json.dumps(ts, ensure_ascii=False)[:300]}")
+    record("F2.estimated_mains",
+           all(ts.get(t, {}).get("estimated") for t in ("A", "B", "C", "D")),
+           str({t: ts.get(t) for t in ("A", "B", "C", "D")}))
     gate = run_gate(run_dir)
     record("F2.gate_exit0", gate.returncode == 0, gate.stdout[-500:])
 
@@ -795,6 +842,51 @@ def case_f11():
            str(span))
 
 
+def case_f12():
+    print("== F12: model_spec term_status reason codes (dropped-term disclosure) ==")
+    run_dir = fixture_f12()
+    proc = run_analyze(run_dir)
+    record("F12.analyze_exit0", proc.returncode == 0, proc.stderr[-600:])
+    if proc.returncode != 0:
+        return
+    eff = read(run_dir, "02_analysis/effect_table.json")
+    spec = eff["model_spec"]
+    ts = spec.get("term_status") or {}
+    declared = (set(spec["main_effects"]) | set(spec["interactions"])
+                | set(spec.get("quadratic") or []) | set(spec.get("blocks") or [])
+                | set(spec.get("covariates") or []))
+    record("F12.term_status_covers_declared", set(ts) == declared,
+           f"declared={sorted(declared)} status={sorted(ts)}")
+    record("F12.zero_variance_reason",
+           "Z" in spec["main_effects"]
+           and ts.get("Z", {}).get("reason_code") == "zero_variance"
+           and ts.get("Z", {}).get("estimated") is False,
+           f"main_effects={spec['main_effects']} Z={ts.get('Z')}")
+    record("F12.insufficient_df_reason",
+           ts.get("A:B", {}).get("reason_code") == "insufficient_df"
+           and ts.get("A:B", {}).get("estimated") is False,
+           str(ts.get("A:B")))
+    record("F12.aliased_reason",
+           ts.get("A:B:C", {}).get("reason_code") == "aliased"
+           and ts.get("A:B:C", {}).get("estimated") is False,
+           str(ts.get("A:B:C")))
+    record("F12.pooled_row_unchanged",
+           any(t["term"] == "A:B" and t.get("reason_code") == "pooled"
+               and t.get("estimable") is False
+               for f in eff["families"] for t in f["tests"]),
+           json.dumps([(t["term"], t.get("reason_code"))
+                       for t in eff["families"][0]["tests"]]))
+    est = sorted(k for k, v in ts.items() if v.get("estimated"))
+    record("F12.estimated_terms", est == ["A", "A:C", "B", "B:C", "C", "ambient"],
+           f"estimated={est}")
+    allowed = {"insufficient_df", "aliased", "zero_variance"}
+    bad = [(k, v.get("reason_code")) for k, v in ts.items()
+           if not v.get("estimated") and v.get("reason_code") not in allowed]
+    record("F12.unestimated_have_reason", not bad, str(bad))
+    gate = run_gate(run_dir)
+    record("F12.gate_exit0", gate.returncode == 0, gate.stdout[-500:])
+
+
 def case_conflict():
     print("== conflict: chosen = higher |delta| window (P0-7) ==")
     sys.path.insert(0, str(SCRIPTS))
@@ -1020,6 +1112,7 @@ def clean_fixture_artifacts(keep=False):
 CASES = {"F1": case_f1, "F2": case_f2, "F3": case_f3,
          "F4": case_f4, "F5": case_f5, "F6": case_f6, "F7": case_f7,
          "F8": case_f8, "F9": case_f9, "F10": case_f10, "F11": case_f11,
+         "F12": case_f12,
          "tamper": case_tamper, "conflict": case_conflict,
          "report-D": case_report_designed, "report-O": case_report_observational,
          "trend-block": case_trend_block, "conc-rules": case_conc_rules}

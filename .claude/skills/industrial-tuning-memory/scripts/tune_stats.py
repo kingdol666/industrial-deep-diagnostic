@@ -221,6 +221,24 @@ def _empty_segments():
             "dead_time_used": None, "boundaries": []}
 
 
+def _settle_warnings(seg, settle_steps):
+    """Machine-readable degradation notices for a post-window cut short of
+    settle_steps (dense action logs truncate every non-final action under the
+    default 200 — surface it instead of degrading to truncated/E0 silently)."""
+    trunc_by = (seg.get("effect") or {}).get("truncated_by")
+    if not trunc_by:
+        return []
+    eff = seg.get("effect") or {}
+    return [{
+        "code": "settle_window_truncated",
+        "message": (
+            f"effect window truncated to {eff.get('n')} finite rows by {trunc_by} "
+            f"(short of settle_steps={settle_steps}); effect degraded to "
+            f"truncated/E0 — rerun with an explicit --settle-steps from process "
+            f"knowledge if the true settling time is shorter"),
+    }]
+
+
 def attribute_action_log(log_id, log, logs, cur_index, seg, args, series, metric_missing,
                          group_vals=None):
     """Fill the attribution report for one action log (bundle = unit)."""
@@ -240,6 +258,7 @@ def attribute_action_log(log_id, log, logs, cur_index, seg, args, series, metric
         "confound_detected": False,
         "attribution_compromised": False,
         "anti_spurious": {"trend_check": None, "outlier_check": None},
+        "warnings": [],
         "evidence_grade": "E0",
         "provenance": {"script_version": SCRIPT_VERSION, "authored_by": "script"},
     }
@@ -332,12 +351,37 @@ def attribute_action_log(log_id, log, logs, cur_index, seg, args, series, metric
     else:
         out["attribution_status"] = "estimable"
 
+    # Stop-transient fingerprint (fieldtest-20261004 R2 finding): a strongly
+    # NEGATIVE lag-1 autocorrelation inside the effect window is the classic
+    # stop/start signature (plant halted for the maintenance that produced
+    # the action). A delta measured across a halt is not the action's effect
+    # — the 10-31 real-log case measured -112.6 kW where physics expects a
+    # rise. Only applied on NON-stratified runs: with group alternation the
+    # overall segment rho is negative by construction (B6 stratified fixture).
+    # Stratified real cases stay covered by the same-moment-confound branch.
+    eff_rho = seg["effect"].get("lag1_autocorr")
+    stop_suspected = (eff_rho is not None and eff_rho < -0.15
+                      and not stratified)
+    direction_established = bool(direction and not conflict)
+    direction_withheld = False
+    if stop_suspected and direction_established:
+        direction_established = False
+        direction_withheld = True
+        out["attribution_status"] = "direction_uncertain"
+    # Same-moment confound invalidates the effect-segment definition itself
+    # (flagging alone let a sign-inverted delta be quoted as established).
+    if out["confound_detected"] and direction_established:
+        direction_withheld = True
+        direction_established = False
+
     out["effect"] = {
         "delta": float(delta),
         "ci95": ci95,
         "n_eff_hi": int(n_eff_hi),
         "n_eff_lo": int(n_eff_lo),
-        "direction_established": bool(direction and not conflict),
+        "direction_established": direction_established,
+        "direction_withheld": direction_withheld,
+        "stop_suspected": bool(stop_suspected),
         "stratified": stratified,
     }
 
@@ -410,10 +454,13 @@ def attribute(run_dir, args):
             seg["boundaries"] = bounds
         report = attribute_action_log(log_id, log, logs, j, seg, args, series,
                                       metric_missing=metric_missing, group_vals=group_vals)
+        report["warnings"] = _settle_warnings(seg, args.settle_steps)
         _assert_enums(report)
         out_path = run_dir_p / REPORT_DIR / f"{log_id}.json"
         _write_json(out_path, report)
         written.append((log_id, report["attribution_status"], report["evidence_grade"]))
+        for w in report["warnings"]:
+            print(f"[tune_stats] {log_id}: warning: {w['code']}: {w['message']}")
         print(f"[tune_stats] {log_id}: status={report['attribution_status']} "
               f"grade={report['evidence_grade']} reason={report['reason_code']} "
               f"-> {REPORT_DIR}/{log_id}.json")

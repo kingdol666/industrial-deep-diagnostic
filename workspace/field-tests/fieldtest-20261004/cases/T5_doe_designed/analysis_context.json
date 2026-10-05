@@ -1,0 +1,32 @@
+{
+  "data_path": "00_input/doe_table.csv",
+  "mode_override": "designed",
+  "responses": [
+    {
+      "col": "Tear_Strength",
+      "goal": "maximize"
+    }
+  ],
+  "factors": [
+    {
+      "col": "Extrusion_Temp",
+      "type": "numeric"
+    },
+    {
+      "col": "Draw_Ratio",
+      "type": "numeric"
+    },
+    {
+      "col": "Cooling_Rate",
+      "type": "numeric"
+    }
+  ],
+  "run_order_col": "run_order",
+  "alpha": 0.05,
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "film extrusion tear-strength study; maximize Tear_Strength"
+    ]
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "Draw_Ratio",
+      "factor_unit": null,
+      "response": "Tear_Strength",
+      "range": [
+        2.0,
+        3.75
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -3.220625,
+        "direction_semantics": "因子 Draw_Ratio 每增加 1 个原始单位，响应 Tear_Strength 变化约 -3.220625（编码主效应 -3.220625/半极差 1.0）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 8.089416663374859e-05,
+      "sample_size": 12,
+      "evidence_refs": [
+        "effect_table.json#Tear_Strength.Draw_Ratio.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "Extrusion_Temp",
+      "factor_unit": null,
+      "response": "Tear_Strength",
+      "range": [
+        185.0,
+        195.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.405938,
+        "direction_semantics": "因子 Extrusion_Temp 每增加 1 个原始单位，响应 Tear_Strength 变化约 0.405938（编码主效应 4.059375/半极差 10.0）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 6.441361475875875e-05,
+      "sample_size": 12,
+      "evidence_refs": [
+        "effect_table.json#Tear_Strength.Extrusion_Temp.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "Draw_Ratio": 3.0,
+      "Extrusion_Temp": 185.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 Draw_Ratio 调整至 [2.0, 3.75]（当前已在窗内）"
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "coded": {
+          "Extrusion_Temp": 1.0,
+          "Draw_Ratio": -1.0
+        },
+        "D": 1.0,
+        "raw": {
+          "Extrusion_Temp": 195.0,
+          "Draw_Ratio": 2.0,
+          "Cooling_Rate": 25.0
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "Extrusion_Temp",
+        "Draw_Ratio"
+      ],
+      "nature": "交互显著（q=0.0006111608837730303, partial η²=0.973688），Tear_Strength 的因子效应随另一因子水平变化",
+      "q_value_bh": 0.0006111608837730303
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "Tear_Strength": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 41.83525
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 Tear_Strength: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "Tear_Strength"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 12,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "Draw_Ratio": {
+        "min": 2.0,
+        "max": 4.0
+      },
+      "Extrusion_Temp": {
+        "min": 175.0,
+        "max": 195.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "435a9832f20d29a5abced2dd107e469a82a31318a42a439cb1b8b0710eff0a0e",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

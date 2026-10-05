@@ -1,0 +1,162 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-04T06:36:02.414858+00:00",
+  "generated_from": {
+    "doe_recommendations_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\cases\\T2_sentinel_stream\\doe_prior\\conclusions\\recommendations.json",
+    "doe_run_dir": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\cases\\T2_sentinel_stream\\doe_prior",
+    "history_csv_sha256": "d0ee7d4361984f1dc267c447e5fca39ca0f5417c8db63216e04cb085b8007b40",
+    "recommendations_contract_version": "1.0"
+  },
+  "global": {
+    "time_col": "timestamp",
+    "group_col": null,
+    "numeric_columns": [
+      "temp_c",
+      "pressure_mpa",
+      "speed_rpm",
+      "flow_lpm"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "temp_c": {
+          "center": 84.99923333333332,
+          "sigma_within_mr": 0.07053112577555534,
+          "sigma_overall": 0.046057590181770046,
+          "median": 84.99985000000001,
+          "mad": 0.03985000000000127,
+          "q10": 84.93398,
+          "q90": 85.0603,
+          "cv": 0.0005418588894931608,
+          "variance_ratio_baseline_std": 0.046057590181770046
+        },
+        "pressure_mpa": {
+          "center": 2.399992638888889,
+          "sigma_within_mr": 0.004461846141705866,
+          "sigma_overall": 0.00288850077000967,
+          "median": 2.4,
+          "mad": 0.0024999999999999467,
+          "q10": 2.396,
+          "q90": 2.404,
+          "cv": 0.0012035456789346417,
+          "variance_ratio_baseline_std": 0.00288850077000967
+        },
+        "speed_rpm": {
+          "center": 1249.9997791666667,
+          "sigma_within_mr": 0.538434981603686,
+          "sigma_overall": 0.35054189503870975,
+          "median": 1249.99965,
+          "mad": 0.3029500000000098,
+          "q10": 1249.5064599999998,
+          "q90": 1250.48157,
+          "cv": 0.000280433565574231,
+          "variance_ratio_baseline_std": 0.35054189503870975
+        },
+        "flow_lpm": {
+          "center": 41.99891791666667,
+          "sigma_within_mr": 0.10787909724893731,
+          "sigma_overall": 0.0699278503483864,
+          "median": 41.99985,
+          "mad": 0.061350000000000904,
+          "q10": 41.90327,
+          "q90": 42.095310000000005,
+          "cv": 0.0016649917144802564,
+          "variance_ratio_baseline_std": 0.0699278503483864
+        }
+      },
+      "indicators": {},
+      "operating_windows": [
+        {
+          "factor": "speed_rpm",
+          "unit": "rpm",
+          "range": [
+            1225.0,
+            1275.0
+          ],
+          "confirmation_needed": false,
+          "source": "DOE F-2026-09 line-speed operating window (line L7, product PVC-M)",
+          "expected_effect": {
+            "direction": "within_window_stable"
+          }
+        }
+      ],
+      "applicability_domain": {
+        "factor_observed_ranges": {
+          "speed_rpm": [
+            1235.0,
+            1265.0
+          ]
+        }
+      },
+      "correlation": {
+        "cols": [
+          "temp_c",
+          "pressure_mpa",
+          "speed_rpm",
+          "flow_lpm"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.7532340939284157,
+          0.739342848482628,
+          -0.7482968195920546,
+          -0.7532340939284157,
+          1.0,
+          -0.7565236662349759,
+          0.7509521840992869,
+          0.739342848482628,
+          -0.7565236662349759,
+          1.0,
+          -0.7612665121679605,
+          -0.7482968195920546,
+          0.7509521840992869,
+          -0.7612665121679604,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.7532340939284157,
+          0.6577525368585352,
+          0.0,
+          0.0,
+          0.739342848482628,
+          -0.3034962458816693,
+          0.6010508972901771,
+          0.0,
+          -0.7482968195920546,
+          0.28477200270325326,
+          -0.20229796986549603,
+          0.56394353232668
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 720,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 11.983h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": [
+          "valid for product PVC-M on line L7 only"
+        ]
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "d0ee7d4361984f1dc267c447e5fca39ca0f5417c8db63216e04cb085b8007b40",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

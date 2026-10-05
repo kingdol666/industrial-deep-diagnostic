@@ -138,12 +138,13 @@ const ACTION_NESTED = {
 };
 const ATTR_KEYS = ['report_version', 'action_log_id', 'bundle_scope', 'attribution_status',
   'reason_code', 'metric', 'segments', 'effect', 'confound_detected',
-  'attribution_compromised', 'anti_spurious', 'evidence_grade', 'provenance'];
+  'attribution_compromised', 'anti_spurious', 'warnings', 'evidence_grade', 'provenance'];
 const ATTR_NESTED = {
   segments: ['baseline', 'effect', 'dead_time_used'],
   segment: ['row_range', 'n', 'n_eff', 'lag1_autocorr', 'truncated_by'],
-  effect: ['delta', 'ci95', 'n_eff_hi', 'n_eff_lo', 'direction_established', 'stratified'],
+  effect: ['delta', 'ci95', 'n_eff_hi', 'n_eff_lo', 'direction_established', 'direction_withheld', 'stop_suspected', 'stratified'],
   strat_item: ['group', 'n', 'delta', 'ci95', 'skipped'],
+  warning_item: ['code', 'message'],
   anti_spurious: ['trend_check', 'outlier_check'],
   provenance: ['script_version', 'authored_by'],
 };
@@ -227,6 +228,7 @@ function checkAttribStrict(file, label) {
     }
   }
   if (r.anti_spurious) bad = bad.concat(extra(r.anti_spurious, ATTR_NESTED.anti_spurious).map((k) => `${label}.anti_spurious.${k}`));
+  for (const w of r.warnings || []) bad = bad.concat(extra(w, ATTR_NESTED.warning_item).map((k) => `${label}.warnings.${k}`));
   if (r.provenance) bad = bad.concat(extra(r.provenance, ATTR_NESTED.provenance).map((k) => `${label}.provenance.${k}`));
   return bad;
 }

@@ -1,0 +1,14 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261004-001",
+  "target_metric": "impurity_pct",
+  "goal": "minimize",
+  "tolerance": 0.55,
+  "factors": [
+    {"name": "Temperature", "type": "numeric", "min": 60.0, "max": 95.0, "unit": "degC"},
+    {"name": "Concentration", "type": "numeric", "min": 0.1, "max": 0.9, "unit": "mass_frac"}
+  ],
+  "budget": {"max_rounds": 6, "max_trials": 24},
+  "noise": {"replicates_for_sigma": 3},
+  "seed": 42
+}

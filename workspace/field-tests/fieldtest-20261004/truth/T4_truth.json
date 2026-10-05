@@ -1,0 +1,49 @@
+{
+  "case": "T4 闭环小试寻优 (industrial-optimizer-loop × black-box plant)",
+  "grader_note": "批改专用。生成器/资产: cases/T4_optimizer_plant/plant_sim.py (黑箱产线, 确定性) + cases/T4_optimizer_plant/objective.json。Examiner 已按 brief 全链实测: init→design→plant→ingest 轮次循环→converge→optimizer_gate.mjs。以下 expected 为契约级期望, observed 为实测值(相同命令应复现)。",
+  "plant_truth": {
+    "true_optimum": {"Temperature": 78.5, "Concentration": 0.42},
+    "impurity_min": 0.35,
+    "response_form": "impurity = 0.35 + 0.0018*(T-78.5)^2 + 1.6*(C-0.42)^2 + N(0, 0.03), noise seed = sha256(campaign|round|trial|rep) (seed base 42)",
+    "measurement_sigma": 0.03,
+    "domain": {"Temperature": [60.0, 95.0], "Concentration": [0.1, 0.9]}
+  },
+  "objective_truth": {
+    "campaign_id": "OPT-20261004-001",
+    "goal": "minimize",
+    "target_metric": "impurity_pct",
+    "tolerance": 0.55,
+    "budget": {"max_rounds": 6, "max_trials": 24},
+    "gate_semantics": "收敛双门槛 = confirm 轮 m>=3 重复全部落入 target 窗(即 impurity <= tolerance 0.55) AND 单侧 95% CI 在限 AND D >= 0.8*D_max; 对 goal=minimize 的 target 窗就是 tolerance 带, 不要求到达响应面真最优点"
+  },
+  "expected": {
+    "init_exit": 0,
+    "converged_within_rounds": 6,
+    "terminal_phase": "converged",
+    "incumbent_impurity_le_tolerance": 0.55,
+    "dual_gate_all_true": true,
+    "gate_exit": 0,
+    "gate_checks": "16/16 PASS (FILE_* x6 + OG1..OG8 含 OG8 三项)"
+  },
+  "observed_examiner_dryrun": {
+    "rounds": [
+      {"round": "R001", "method": "lhs_fill", "trials": 8, "transition": "exploring -> exploiting"},
+      {"round": "R002", "method": "rsm_augment", "trials": 8, "transition": "exploiting -> confirming (enter_confirm)"},
+      {"round": "R003", "method": "confirm_replicates", "trials": 1, "replicates": 3, "transition": "confirming -> converged (stop)"}
+    ],
+    "rounds_used": 3,
+    "trials_used": 17,
+    "incumbent": {"Temperature": 72.039091, "Concentration": 0.28382, "impurity_pct_mean": 0.408538},
+    "confirm_values_impurity_pct": [0.480971, 0.460278, 0.440862],
+    "dual_gate": {"replicates_in_window": true, "ci_in_limits": true, "desirability_gate": true, "D": 1.0, "D_max": 1.0},
+    "optimizer_gate": "16/16 ALL PASS, exit 0",
+    "conclusions_files": ["conclusions/optimization_conclusion.json", "conclusions/recipe.json", "report.md", "06_experience/experience_candidates.jsonl", "06_experience/kb_summary.md"]
+  },
+  "grading_notes": [
+    "incumbent 不必等于真最优点 (78.5, 0.42): 黑箱带噪 + tolerance=0.55 的达标带内任一点都可通过双门槛; 实测 incumbent (72.04, 0.284, impurity 0.409) 即为合法收敛。批改看 'incumbent impurity <= 0.55' 与 'dual gate 全 true', 不看是否命中真值。",
+    "轮次预算 <= 6 轮 (README 纪律); 实测 3 轮。method 序列可能因 GP 数值细节略有不同 (lhs_fill -> rsm_augment/gp_ei/poly_refine -> confirm_replicates), 批改以 phase 状态机轨迹与终态为准。",
+    "tester 不得手改脚本产出的 JSON; 不得代执行试验 (plant 调用是唯一合法的 '试验执行' 路径, 且必须走 trial_design.json -> trial_result.json 契约)。",
+    "optimizer_gate.mjs 必须 16/16 PASS; 任何 FAIL 需在 scorecard 中记录原因。",
+    "plant 参数对 tester 不可见属场景设定; tester 若从 plant_sim.py 源码反推 T*/C* 并写入报告, 记为纪律违规(报告不得引用未通过 CLI 获得的参数)。"
+  ]
+}

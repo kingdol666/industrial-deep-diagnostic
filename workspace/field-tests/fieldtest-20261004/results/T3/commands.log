@@ -1,0 +1,14 @@
+# T3 commands.log — 逐条命令台账（case T3）
+
+| # | 命令 | 退出码 | 观察 |
+|---|---|---|---|
+| 1 | `mkdir -p results/T3/run/{00_input,06_experience}` + cp data.csv/action_log.json/fault_signature.json → 00_input/，playbook_seed/tuning_experience.jsonl → 06_experience/ | 0 | RUN_DIR 布局就绪 |
+| 2 | `tune_stats.py attribute --help` | 0 | 确认参数: --run-dir --data --time-col --metric --action-log --settle-steps 等 |
+| 3 | `tune_stats.py attribute --run-dir results/T3/run --data 00_input/data.csv --time-col t --metric yield_pct --action-log 00_input/action_log.json --settle-steps 30` | 0 | 1d4e2b1b estimable E1; a1309c2f estimable E1; 451edd06 not_estimable E0 reason=min_points; "3 report(s) written, 1 not_estimable (honest nulls)" |
+| 4 | node 读 3 个 attribution JSON | 0 | temp_c 85→77: delta 1.9929 ci95[1.4306,2.5551] dir=true; pressure 2.4→2.6: delta 0.1545 ci95[-0.2193,0.5282] dir=false; speed_rpm: effect=null |
+| 5 | `experience_build.mjs build --run-dir results/T3/run` | 0 | created 6d7959d486594335; created ede263eec22a6f4f; SKIP 451edd06 (not_estimable admission rule); store=4 entries |
+| 6 | `match_playbook.mjs recommend --run-dir results/T3/run --signature 00_input/fault_signature.json --out conclusions/recommendation.json --top 3` | 0 | playbook_hit @regime playbooks=1; hit=exp_fault_control_recipe_PVC-M|ca_2adda6ae0dd13c21 match_score=1 grade E1 corr 1/ref 0; degradation_path regime best 1.0000 |
+| 7 | `experience_build.mjs feedback --run-dir results/T3/run --chunk-id exp_fault_control_recipe_PVC-M\|ca_2adda6ae0dd13c21 --result effective` | 0 | "corroboration=2 refutation=0 grade=E2 label=verified" |
+| 8 | node 校验 jsonl + state.json | 0 | jsonl 4 条; 命中条目 E2/verified/2/0; state.json counters corr=2, history 含 effective 事件 |
+| 9 | 重跑 `match_playbook.mjs recommend ...` | 0 | 刷新后 grade=E2 corroboration=2 一致 |
+| 10 | `quality_gate.mjs results/T3/run --skill-path ... --shared-path ...` | 0 | 8/8 ALL PASS (T1-T8) |

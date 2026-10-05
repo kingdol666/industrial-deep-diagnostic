@@ -1,0 +1,18 @@
+# T1 commands.log — 逐条命令台账（fieldtest-20261004 / case T1）
+
+| # | 命令 | 退出码 | 观察 |
+|---|---|---|---|
+| 1 | `mkdir -p results/T1 ... results/T5` | 0 | 建产物目录 |
+| 2 | `"$PY" .../industrial-data-preprocessor/scripts/data_preprocessor.py --data-path cases/T1_preprocessor_mixed_inbox/inbox --output results/T1 --name fieldtest_T1` | 0 | status=ok; tables_found=8; selected=sensor_log.csv (301×7, time=timestamp, score 5.701); 有 pandas UserWarning (data_preprocessor.py:425) |
+| 3 | `node -e` dump preprocessing_report.json tables[] | 0 | 8 tables: sensor_log 301×7 / process_log.tsv 200×5 / dcs_gbk 180×4 / heater 90×4 / batch_records.json 120×5 / downtime.html 25×5 / qa_lab.xlsx(quality) 150×4 / operator_notes.md 40×4; context=0, skipped=0 |
+| 4 | `node -e` dump report sources/merge/quality/outputs | 0 | merge=outer_merge_on_time_column, key=timestamp, merged_files=[batch_records.json, dcs_export_gbk.csv, process_log.tsv, sensor_log.csv]; quality.missing_cell_pct=27.41, rows=301, cols=18 |
+| 5 | `node -e` 读 preprocessed_data.csv 头两行 | 0 | 301 数据行, 18 列, 时间列 batch_time, 表头带 BOM |
+| 6 | `head -3` 四个文本源文件 + `file` 全部源文件 | 0 | dcs_export_gbk.csv=GBK(中文列名), heater_export.csv=分号, process_log.tsv=TAB, 其余常规 |
+| 7 | `node -e` 读 batch_records.json / operator_notes.md / downtime.html | 0 | JSON 数组 120 条; md 管道表; html 表 2026-09-29 |
+| 8 | `"$PY" results/T1/qa_audit.py` | **1** | 前段通过; 在 pd.read_html(downtime.html) 崩溃: venv 缺 lxml (ImportError)。此前已确认: sensor_log 重复时间戳@行152/302(整行重复); batch_records B0058 moisture_pct=null; qa_lab 3 缺失(行39/90/123); dcs 离群 温度=999.9@行53, 转速=-3.2@行123 |
+| 9 | `"$PY" -c` 探测 lxml/bs4/html5lib + grep data_preprocessor.py | 0 | 三者全缺; 脚本用自带 regex HTML 抽取器 (data_preprocessor.py:372) — 解释了为何预处理器不受缺 lxml 影响 |
+| 10 | `"$PY" results/T1/qa_audit_part2.py` | 0 | downtime.html 25×5 无重复/缺失; operator_notes.md 42 管道行(含表头+分隔行, 即 40 数据行); 统一视图逐列非空: 温度/压力/转速 181/301, process 4 列 201/301, batch 4 列 120/301(moisture 119), sensor 6 列 301/301 |
+| 11 | `grep -c "^|" operator_notes.md` + node 读 B0057 + `"$PY" -c` 统一视图重复时间戳 | 0 | md 表共 42 行(=头+分隔+40 数据); 统一视图 batch_time=10:30:00 重复 2 行(第 152/153 行) — 预处理器未去重 |
+| 12 | `"$PY" -c` 定位 dcs 离群行与 B0058 | 0 | dcs 0-idx51=08:51 温度999.9; 0-idx121=10:01 转速-3.2; batch_records[57]=B0058 moisture_pct=null |
+| 13 | grep data_preprocessor.py (999/clip/interpolate/outlier/sentinel) | 0 | 无任何哨兵值/离群处理逻辑 — 999.9 与 -3.2 原样透传进统一视图 |
+| 14 | `"$PY" -c` 在统一视图找 999.9/-3.2 | 0 | 统一视图 idx51(08:51) 温度=999.90, idx121(10:01) 转速=-3.2 — 坏值透传证实 |

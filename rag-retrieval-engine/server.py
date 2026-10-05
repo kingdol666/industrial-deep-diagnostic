@@ -656,17 +656,35 @@ async def upload_and_index(
                 cid, sec, "user_documentation",
                 str(save_path), scenario, mechanism, params))
 
-    # Upsert into ChromaDB
+    # Upsert into ChromaDB. Seed-capable like /index/dir (a fresh KB has an
+    # empty collection — gating on kb_ready() made first uploads vanish), and
+    # guarded by the same truth-isolation rule as /index/dir.
+    if "ground_truth" in save_path.name.lower() or \
+            save_path.stem.lower() == "truth" or \
+            save_path.stem.lower().startswith("truth_") or \
+            save_path.stem.lower().endswith("_truth"):
+        return {
+            "status": "rejected_truth_isolation",
+            "filename": filename,
+            "detail": "ground-truth/truth-key files must never enter the "
+                      "retrieval KB (blind-diagnosis answer key)",
+        }
     upserted = 0
-    if chunks and r.kb_ready():
-        texts = [c["document"] for c in chunks]
-        ids = [c["id"] for c in chunks]
-        metadatas = [c["metadata"] for c in chunks]
-        embeddings = r.model.encode(texts).tolist()
-        r.collection.upsert(ids=ids, embeddings=embeddings,
-                            documents=texts, metadatas=metadatas)
-        upserted = len(chunks)
-        storage.mark_source_indexed(str(save_path), "user_documentation", upserted)
+    if chunks:
+        if r.collection is None:
+            try:
+                r._collection = r.client.create_collection(r.collection_name)
+            except Exception:
+                pass
+        if r.collection is not None:
+            texts = [c["document"] for c in chunks]
+            ids = [c["id"] for c in chunks]
+            metadatas = [c["metadata"] for c in chunks]
+            embeddings = r.model.encode(texts).tolist()
+            r.collection.upsert(ids=ids, embeddings=embeddings,
+                                documents=texts, metadatas=metadatas)
+            upserted = len(chunks)
+            storage.mark_source_indexed(str(save_path), "user_documentation", upserted)
 
     return {
         "status": "uploaded and indexed",
@@ -712,6 +730,32 @@ async def index_directory(
 
     results = []
     total_chunks = 0
+
+    # Truth-isolation guard (fieldtest-20261004): ground-truth files are the
+    # answer key for blind diagnosis/benchmark runs — they must NEVER enter a
+    # retrieval KB that diagnosing agents can query. Matches file AND parent
+    # directory names ("ground_truth*.md", "truth/T1_truth.md", ...).
+    def _is_truth_path(fpath):
+        try:
+            rel_parts = fpath.relative_to(target).parts
+        except ValueError:
+            rel_parts = (fpath.name,)
+        for seg in rel_parts:
+            s = seg.lower()
+            if "ground_truth" in s:
+                return True
+            stem = s.rsplit(".", 1)[0] if "." in s else s
+            if stem == "truth" or stem.startswith("truth_") \
+                    or stem.endswith("_truth"):
+                return True
+        return False
+
+    blocked = [f for f in files if _is_truth_path(f)]
+    if blocked:
+        files = [f for f in files if f not in blocked]
+        results.append({"skipped_truth_isolation": sorted(
+            {b.name for b in blocked})})
+
     for fpath in files:
         try:
             text = fpath.read_text(encoding="utf-8")
@@ -725,16 +769,26 @@ async def index_directory(
                 cid, sec, "user_documentation", str(fpath),
                 scenario, _guess_mechanism(sec), _extract_params_from_text(sec)))
 
-        if chunks and r.kb_ready():
-            texts = [c["document"] for c in chunks]
-            ids = [c["id"] for c in chunks]
-            metadatas = [c["metadata"] for c in chunks]
-            embeddings = r.model.encode(texts).tolist()
-            r.collection.upsert(ids=ids, embeddings=embeddings,
-                                documents=texts, metadatas=metadatas)
-            storage.mark_source_indexed(str(fpath), "user_documentation", len(chunks))
-            total_chunks += len(chunks)
-            results.append({"file": fpath.name, "chunks": len(chunks)})
+        if chunks:
+            # Seed-capable: a fresh KB has an empty/missing collection, so
+            # gating on kb_ready() here made the FIRST /index/dir call a
+            # silent 0-file no-op (kb_ready requires count>0 — chicken-and-
+            # egg). Ensure the collection exists, then upsert unconditionally.
+            if r.collection is None:
+                try:
+                    r._collection = r.client.create_collection(r.collection_name)
+                except Exception:
+                    pass
+            if r.collection is not None:
+                texts = [c["document"] for c in chunks]
+                ids = [c["id"] for c in chunks]
+                metadatas = [c["metadata"] for c in chunks]
+                embeddings = r.model.encode(texts).tolist()
+                r.collection.upsert(ids=ids, embeddings=embeddings,
+                                    documents=texts, metadatas=metadatas)
+                storage.mark_source_indexed(str(fpath), "user_documentation", len(chunks))
+                total_chunks += len(chunks)
+                results.append({"file": fpath.name, "chunks": len(chunks)})
 
     return {
         "status": "indexed",

@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-04T06:43:10.571944+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_Tear_Strength.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — Tear_Strength",
+      "response": "Tear_Strength",
+      "bytes": 42233,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1645 ok; ink ratio 16.4% across 4 quadrants"
+    },
+    {
+      "file": "residuals_Tear_Strength.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — Tear_Strength",
+      "response": "Tear_Strength",
+      "bytes": 70911,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0503 ok; ink ratio 5.0% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_Tear_Strength.png",
+      "type": "main_effects",
+      "title": "Main effects — Tear_Strength",
+      "response": "Tear_Strength",
+      "bytes": 51659,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0469 ok; ink ratio 4.7% across 4 quadrants"
+    },
+    {
+      "file": "contour_Tear_Strength.png",
+      "type": "contour",
+      "title": "Predicted response contour — Tear_Strength (top-Pareto pair Extrusion_Temp x Draw_Ratio)",
+      "response": "Tear_Strength",
+      "bytes": 132948,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4137 ok; ink ratio 41.4% across 4 quadrants"
+    }
+  ]
+}

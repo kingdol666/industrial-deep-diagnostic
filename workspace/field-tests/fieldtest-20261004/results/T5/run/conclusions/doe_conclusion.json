@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-10-04T06:43:10.572460+00:00",
+  "analysis_mode": "designed",
+  "design_type": "full_factorial",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": true,
+    "model_adequacy_ok": true,
+    "anti_spurious_ok": null,
+    "overridden_by": "user"
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "因子/项 Extrusion_Temp 对响应 Tear_Strength 存在正向效应：编码系数 4.059375，q(BH)=6.441361475875875e-05，partial η²=0.99505",
+      "evidence_refs": [
+        "effect_table.json#Tear_Strength.Extrusion_Temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 6.441361475875875e-05
+    },
+    {
+      "id": "KF-002",
+      "statement": "因子/项 Draw_Ratio 对响应 Tear_Strength 存在负向效应：编码系数 -3.220625，q(BH)=8.089416663374859e-05，partial η²=0.99216",
+      "evidence_refs": [
+        "effect_table.json#Tear_Strength.Draw_Ratio"
+      ],
+      "confidence": "high",
+      "fdr_q": 8.089416663374859e-05
+    }
+  ],
+  "limitations": [],
+  "figure_index": [
+    {
+      "file": "pareto_Tear_Strength.png",
+      "title": "Pareto of standardized effects — Tear_Strength"
+    },
+    {
+      "file": "residuals_Tear_Strength.png",
+      "title": "Residual diagnostics — Tear_Strength"
+    },
+    {
+      "file": "main_effects_Tear_Strength.png",
+      "title": "Main effects — Tear_Strength"
+    },
+    {
+      "file": "contour_Tear_Strength.png",
+      "title": "Predicted response contour — Tear_Strength (top-Pareto pair Extrusion_Temp x Draw_Ratio)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 0,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ]
+  }
+}

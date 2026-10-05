@@ -1,0 +1,12 @@
+# T5 commands.log — 逐条命令台账（case T5）
+
+| # | 命令 | 退出码 | 观察 |
+|---|---|---|---|
+| 1 | `mkdir -p results/T5/run/00_input` + cp doe_table.csv, analysis_context.json → results/T5/run/00_input/ | 0 | RUN_DIR 契约布局就绪 |
+| 2 | `analyze.py all --run-dir results/T5/run` | 0 | profile: rows=12 cols=5 mode=designed design=full_factorial; run: windows=2 confirmations=0 plots=4; contract v1.0 grade=A authored_by=script; report.html 99897 bytes charts=10 |
+| 3 | node 读 01_profile/data_profile.json | 0 | design_type=full_factorial, n_runs=12, n_distinct_combos=8, balanced=true, center_points=4, axial_points=0, mode_overridden=true |
+| 4 | node 读 02_analysis/effect_table.json | 0 | 7 terms 估出; 显著(BH q<0.05): Extrusion_Temp(+4.059375, q=6.44e-5), Draw_Ratio(-3.220625, q=8.09e-5), ET:DR(+1.741625, q=6.11e-4); 其余不显著; R²=0.997278, LOF p=0.8265; multiple_testing BH 7 tests 3 significant |
+| 5 | node 读 02_analysis/model.json | 0 | coded_coefficients 7 项与 effect_table 一致; residual diagnostics n_high_resid=0, max_cooks_d=0.149 |
+| 6 | node 读 conclusions/recommendations.json | 0 | OW-001 Draw_Ratio [2,3.75] delta -3.220625; OW-002 Extrusion_Temp [185,195] delta +0.405938; setpoints raw ET=195 DR=2 CR=25 D=1; watchlist STATIONARY_POINT_WARNING |
+| 7 | grep 未估 terms 说明 | 0 | Draw_Ratio^2 / Cooling_Rate^2 / 三阶交互声明于 model_spec 但无 tests 记录，无 reason_code — 记为粗糙点 |
+| 8 | `quality_gate.mjs results/T5/run --skill-path ... --shared-path ...` | 0 | 21/21 checks passed — ALL PASS |

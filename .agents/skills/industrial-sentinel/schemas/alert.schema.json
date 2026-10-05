@@ -6,7 +6,7 @@
   "required": ["contract_version", "alert_id", "mode", "status", "generated_at", "source", "baseline", "checks_summary", "alerts", "provenance"],
   "properties": {
     "contract_version": { "const": "sentinel-alert/1.0" },
-    "alert_id": { "type": "string", "pattern": "^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3}$" },
+    "alert_id": { "type": "string", "pattern": "^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3,}$" },
     "mode": { "enum": ["watch", "fast_screen"] },
     "status": { "enum": ["ok", "warn", "alert"] },
     "group_scope": { "type": ["string", "null"] },
@@ -41,7 +41,21 @@
         "window_projection": { "type": "object", "properties": { "n_triggered": { "type": "integer" } } },
         "regime": { "type": "object", "properties": { "labels": { "type": "object" }, "n_change_points_new": { "type": "integer" } } },
         "multivariate": { "type": "object", "properties": { "n_outliers": { "type": "integer" }, "max_d2": { "type": ["number", "null"] } } },
-        "rows_skipped": { "type": "integer" }
+        "rows_skipped": { "type": "integer" },
+        "event_count": { "type": "integer", "minimum": 0, "description": "len(events) — incident-level view (fieldtest-20261004 R2)" },
+        "events_by_parameter": { "type": "object", "description": "family|parameter -> {count, alerts}, top 10 by alert volume" },
+        "checks_skipped": {
+          "type": "array",
+          "description": "checks that did not run and why, e.g. C2 without operating_windows in the baseline",
+          "items": {
+            "type": "object",
+            "required": ["check", "reason"],
+            "properties": {
+              "check": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "alerts": {
@@ -100,6 +114,28 @@
           "suppression_key": { "type": "string" },
           "repeat_count": { "type": "integer", "minimum": 1 },
           "interpretation": { "type": ["string", "null"], "description": "agent-added Chinese note only; script numeric fields stay untouched" }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "title": "Incident-level aggregation of alerts (fieldtest-20261004 R2)",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "family", "severity_peak", "first_index", "last_index", "span_rows", "alert_count", "rules"],
+        "properties": {
+          "event_id": { "type": "string", "pattern": "^EVT-[0-9]+-[0-9]{3,}$" },
+          "family": { "type": ["string", "null"] },
+          "parameter": { "type": ["string", "null"] },
+          "group": { "type": ["string", "null"] },
+          "severity_peak": { "type": ["string", "null"] },
+          "first_index": { "type": ["integer", "null"] },
+          "last_index": { "type": ["integer", "null"] },
+          "span_rows": { "type": "integer", "minimum": 0 },
+          "alert_count": { "type": "integer", "minimum": 1 },
+          "rules": { "type": "array", "items": { "type": "string" } },
+          "max_abs_statistic": { "type": ["number", "null"] },
+          "suppression_key": { "type": ["string", "null"] }
         }
       }
     },

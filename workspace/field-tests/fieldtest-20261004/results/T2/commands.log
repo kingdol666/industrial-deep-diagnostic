@@ -1,0 +1,14 @@
+# T2 commands.log — 逐条命令台账（case T2）
+
+| # | 命令 | 退出码 | 观察 |
+|---|---|---|---|
+| 1 | `mkdir -p results/T2/{baseline,screen_normal,screen_drift,watch_changepoint,watch_drift,orphan_out}` | 0 | 目录就绪 |
+| 2 | `build_baseline.py --history-csv cases/T2_sentinel_stream/history.csv --doe-run-dir cases/T2_sentinel_stream/doe_prior --out results/T2/baseline/watch_baseline.json` | 0 | groups: __ALL__; DOE 先验 operating_windows(speed_rpm [1225,1275]) 逐字段注册成功 |
+| 3 | `sentinel_fast.py --data window_normal.csv --state results/T2/screen_normal/fast_state.json --baseline .../watch_baseline.json --out .../fast_alert.json` | 0 | status=ok alerts=0 (ring=240/300) |
+| 4 | `sentinel_fast.py --data window_drift.csv --state results/T2/screen_drift/... --out .../fast_alert.json` | 1 | status=alert alerts=7 (全部 speed_rpm: ROBUST_Z_OUTLIER×2, NELSON_R1×2, R5, R6 high; R2 warn) |
+| 5 | `sentinel.py watch --data window_changepoint.csv --out-dir results/T2/watch_changepoint` | 1 | alerts=3: ROBUST_Z_OUTLIER temp_c high(n=113); REGIME_CHANGE_NEW warn cp_position=121; VARIANCE_RATIO_HIGH temp_c warn ratio=34.7975; projection speed_rpm info (slope -0.0048/h, hours_to_edge 5228) |
+| 6 | `sentinel.py watch --data window_drift.csv --out-dir results/T2/watch_drift` | 1 | alerts=9: speed_rpm 族 + WINDOW_DRIFT_PROJECTION high (slope 3.6058/h, hours_to_edge 3.4439, direction up) + VARIANCE_RATIO_HIGH ratio 11.937 + NELSON_R2; projection level=high |
+| 7 | `sentinel_fast.py --data window_orphan.csv --baseline results/T2/orphan_out/watch_baseline.json(不存在) ...` | 2 | 完整输出已存 results/T2/orphan_out/stdout_stderr.txt: "no baseline (...) — refusing to run (exit 2)"; 未产出 fast_alert.json — 符合契约 |
+| 8 | `node quality_gate.mjs results/T2/watch_changepoint/alert.json --baseline ... --skill-path ... --shared-path ...` | 0 | 6/6 ALL PASS |
+| 9 | `node quality_gate.mjs results/T2/watch_drift/alert.json ...` | 0 | 6/6 ALL PASS |
+| 10 | sed -n docstring/SKILL.md 引用退出码契约 | 0 | sentinel_fast.py L15-21 语义表; SKILL.md "无基线（fast）| exit 2 拒跑——先建基线" |

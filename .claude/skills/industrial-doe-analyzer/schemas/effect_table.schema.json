@@ -15,7 +15,20 @@
         "quadratic": { "type": "array", "items": { "type": "string" } },
         "blocks": { "type": "array", "items": { "type": "string" } },
         "covariates": { "type": "array", "items": { "type": "string" } },
-        "pooled_terms": { "type": "array", "items": { "type": "string" } }
+        "pooled_terms": { "type": "array", "items": { "type": "string" } },
+        "term_status": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["estimated", "reason_code"],
+            "properties": {
+              "estimated": { "type": "boolean" },
+              "reason_code": { "enum": [null, "insufficient_df", "aliased", "zero_variance"] },
+              "detail": { "type": ["string", "null"] },
+              "alias_chain": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
       }
     },
     "coding": {

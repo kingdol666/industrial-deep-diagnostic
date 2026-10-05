@@ -255,3 +255,18 @@ timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-07-30T16:05:50	59cf28b	industrial-physical-auditor	46	46	independence_audit	overall	independence score: 46/100 (Δ+0)	dry_run
 2026-07-30T16:05:50	59cf28b	industrial-reporter	51	51	independence_audit	overall	independence score: 51/100 (Δ+0)	dry_run
 2026-07-30T16:05:50	59cf28b	rag-knowledge-builder	47	47	independence_audit	overall	independence score: 47/100 (Δ+0)	dry_run
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-data-preprocessor	-	88	baseline	-	T1盲测8/8格式PASS+修复回归44项; 质量旗标/连接键/排除码已落地; 待办: 物理不可能值分级	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-sentinel	-	85	baseline	-	T2退出码矩阵满分; 真实60天watch发现alert_id{3}模式溢出(3564条)+SPC告警风暴待治理; C2无操作窗提示已生效	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-sentinel	85	87	improved	physical	alert_id模式{3}->{3,}: 真实3564条告警复跑通过,watch_report恢复写出,电池94/94,证据=fieldtest-20261004/e2e-skills/sentinel_real	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-tuning-memory	-	92	baseline	-	T3满分:诚实null+准入+佐证晋升,gate 8/8; B15截断警告; 待办:真实维护日志归因(配额中断)	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-optimizer-loop	-	91	baseline	-	T4黑箱3/6轮收敛双门槛全过gate 16/16; 驻点信息已利用(in_tolerance_off_optimum); 设计注记:D在容差内不判别	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-doe-analyzer	-	92	baseline	-	T5效应与注入真值重合+BH-FDR; term_status原因码136/136; 观察模式确认门保守(live验证)	live
+2026-10-05T10:09:35	967a8b9+uncommitted	industrial-analysis-auto	-	90	baseline	-	真实引擎水泥磨机90天:主因机制族命中(Blaine -5.43 vs 真值-5.4),judge独立复算98/100,修复回路x2; Steps6-9因主机休眠未走完(恢复机制缺失)	live
+2026-10-05T10:23:17	967a8b9+uncommitted	industrial-sentinel	87	90	improved	statistical	events事件层(3540告警->1029事件,feed 829->67)+AR1 rho入账(power .88)+单参数corrcoef atleast_2d修复+gate TOP_KEYS加events; 电池107/107; 真实60天复跑通过; 剩余:按产线阈值治理属运维	live
+2026-10-05T10:23:17	967a8b9+uncommitted	industrial-sentinel	-	-	improved	physical	T7用例13项:事件聚合单元+AR1端到端+门禁; 证据=tests/fixtures/T7_events_ar1+sentinel_real/out_watch_v2	live
+2026-10-05T11:06:45	967a8b9+uncommitted	rag-knowledge-builder	-	82	baseline	-	真实语料构建实测发现3缺陷: config.yaml index_sources指向已更名技能(静默0块)、/index/dir在kb未就绪时假成功、真值文件可入库(治理P0)	live
+2026-10-05T11:06:45	967a8b9+uncommitted	rag-knowledge-builder	82	88	improved	evidence	config路径修复(4源60块)+种子能力修复+ground_truth隔离守卫+实测检索返回知识非真值; 遗留: chunk ID按文件名stem同名互覆(137创建/41在库)	live
+2026-10-05T11:06:45	967a8b9+uncommitted	industrial-tuning-memory	-	85	baseline	real_log_robustness	真实维护日志4动作: 诚实状态机工作(estimablex2/direction_uncertain/none)但发现停机瞬态污染归因窗(磨机停机在事件窗内)和同时刻熟料切换混杂(已正确flag); 待办:段选择器加运行状态过滤	live
+2026-10-05T11:06:45	967a8b9+uncommitted	industrial-deep-analysis	-	93	baseline	-	真实run目录E1-E4全链: 38列覆盖/4派生特征(1诚实NA)/14关系3权衡/16节点114边图,零摩擦	live
+2026-10-05T11:06:45	967a8b9+uncommitted	industrial-physics-bridge	-	93	baseline	-	真实run目录E5: 5竞争解释+15证据缺口,输出schema合规	live
+2026-10-05T11:29:20	967a8b9+uncommitted	industrial-tuning-memory	85	88	improved	real_log_robustness	评审驱动:同刻混杂/停机指纹(负lag1非分层)扣留direction_established(direction_withheld+stop_suspected入schema+gate);真实10-31案例符号反转delta不再可引用;电池169/169	live

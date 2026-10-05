@@ -110,7 +110,7 @@ if (fs.existsSync(validator)) {
 
 // ---- S3: STRICT extra-keys -------------------------------------------------
 const TOP_KEYS = ['contract_version', 'alert_id', 'mode', 'status', 'group_scope',
-  'generated_at', 'source', 'baseline', 'checks_summary', 'alerts',
+  'generated_at', 'source', 'baseline', 'checks_summary', 'alerts', 'events',
   'regime_summary', 'projection_summary', 'suppression', 'provenance'];
 const ALERT_KEYS = ['alert_id', 'check_type', 'rule_name', 'parameter', 'indicator',
   'group', 'severity', 'urgency', 'observed', 'threshold', 'evidence',

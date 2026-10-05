@@ -1,0 +1,101 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261004-001",
+  "round_id": "R001",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.687734
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T02",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.408538
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T03",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.440116
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T04",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.707391
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T05",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.971812
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T06",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.333712
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T07",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.70633
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    },
+    {
+      "trial_id": "R001-T08",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.432587
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    }
+  ],
+  "late_results": null,
+  "environment": null,
+  "ingest_meta": {
+    "source": "inbox_file",
+    "ingested_at": null
+  }
+}

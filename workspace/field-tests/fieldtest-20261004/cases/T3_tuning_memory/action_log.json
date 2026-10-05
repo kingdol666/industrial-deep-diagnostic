@@ -1,0 +1,113 @@
+[
+  {
+    "schema_version": "1.0",
+    "ts": "2026-10-04T01:40:00Z",
+    "actor": {
+      "actor_id": "eng_zhou",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "temp_c",
+        "from": 85.0,
+        "to": 77.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PVC-M",
+      "machine": "calender-03",
+      "regime_label": "night_shift",
+      "group_key": null
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "yield_pct",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-10-04T02:30:00Z",
+    "actor": {
+      "actor_id": "eng_zhou",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "pressure_mpa",
+        "from": 2.4,
+        "to": 2.6,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PVC-M",
+      "machine": "calender-03",
+      "regime_label": "night_shift",
+      "group_key": null
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "yield_pct",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-10-04T03:17:00Z",
+    "actor": {
+      "actor_id": "eng_li",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "speed_rpm",
+        "from": 1250.0,
+        "to": 1255.0,
+        "unit": "rpm"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PVC-M",
+      "machine": "calender-03",
+      "regime_label": "night_shift",
+      "group_key": null
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "yield_pct",
+      "observed_trajectory": "not_observed",
+      "observed_by": "engineer_reported"
+    }
+  }
+]

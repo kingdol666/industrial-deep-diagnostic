@@ -1,0 +1,260 @@
+[
+  {
+    "response": "Tear_Strength",
+    "n": 12,
+    "df_resid": 4,
+    "mse": 0.163934,
+    "coded_coefficients": {
+      "Extrusion_Temp": 4.059375,
+      "Draw_Ratio": -3.220625,
+      "Cooling_Rate": 0.114125,
+      "Extrusion_Temp^2": 0.074625,
+      "Extrusion_Temp:Draw_Ratio": 1.741625,
+      "Extrusion_Temp:Cooling_Rate": -0.353125,
+      "Draw_Ratio:Cooling_Rate": 0.076375
+    },
+    "r_squared": 0.997278,
+    "adj_r_squared": 0.992514,
+    "q_squared_loo": 0.991998,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 0.057092,
+      "p_value": 0.8265447157256617
+    },
+    "residual_diagnostics": {
+      "n": 12,
+      "n_params": 8,
+      "sigma_residual": 0.404887,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.875,
+      "leverage_cutoff_2p_over_n": 1.333333,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.14919,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 32.334,
+          "yhat": 32.294875,
+          "resid": 0.039125
+        },
+        {
+          "row_index": 1,
+          "y": 44.564,
+          "yhat": 44.603125,
+          "resid": -0.039125
+        },
+        {
+          "row_index": 2,
+          "y": 43.193,
+          "yhat": 43.153875,
+          "resid": 0.039125
+        },
+        {
+          "row_index": 3,
+          "y": 44.317,
+          "yhat": 44.277875,
+          "resid": 0.039125
+        },
+        {
+          "row_index": 4,
+          "y": 41.869,
+          "yhat": 41.7855,
+          "resid": 0.0835
+        },
+        {
+          "row_index": 5,
+          "y": 42.194,
+          "yhat": 41.7855,
+          "resid": 0.4085
+        },
+        {
+          "row_index": 6,
+          "y": 47.044,
+          "yhat": 47.083125,
+          "resid": -0.039125
+        },
+        {
+          "row_index": 7,
+          "y": 42.333,
+          "yhat": 42.372125,
+          "resid": -0.039125
+        },
+        {
+          "row_index": 8,
+          "y": 33.343,
+          "yhat": 33.382125,
+          "resid": -0.039125
+        },
+        {
+          "row_index": 9,
+          "y": 41.957,
+          "yhat": 41.7855,
+          "resid": 0.1715
+        },
+        {
+          "row_index": 10,
+          "y": 47.753,
+          "yhat": 47.713875,
+          "resid": 0.039125
+        },
+        {
+          "row_index": 11,
+          "y": 41.122,
+          "yhat": 41.7855,
+          "resid": -0.6635
+        }
+      ],
+      "normality": {
+        "skew": -1.424139,
+        "excess_kurtosis": 3.21179
+      }
+    },
+    "predictor": {
+      "base": {
+        "Extrusion_Temp": {
+          "kind": "numeric_main",
+          "factor": "Extrusion_Temp",
+          "mean": 185.0,
+          "half_range": 10.0
+        },
+        "Draw_Ratio": {
+          "kind": "numeric_main",
+          "factor": "Draw_Ratio",
+          "mean": 3.0,
+          "half_range": 1.0
+        },
+        "Cooling_Rate": {
+          "kind": "numeric_main",
+          "factor": "Cooling_Rate",
+          "mean": 25.0,
+          "half_range": 10.0
+        }
+      },
+      "terms": [
+        {
+          "term": "Extrusion_Temp",
+          "specs": [
+            {
+              "name": "Extrusion_Temp",
+              "fn": "identity",
+              "inputs": [
+                "Extrusion_Temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Draw_Ratio",
+          "specs": [
+            {
+              "name": "Draw_Ratio",
+              "fn": "identity",
+              "inputs": [
+                "Draw_Ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Cooling_Rate",
+          "specs": [
+            {
+              "name": "Cooling_Rate",
+              "fn": "identity",
+              "inputs": [
+                "Cooling_Rate"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Extrusion_Temp^2",
+          "specs": [
+            {
+              "name": "Extrusion_Temp^2",
+              "fn": "square",
+              "inputs": [
+                "Extrusion_Temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Extrusion_Temp:Draw_Ratio",
+          "specs": [
+            {
+              "name": "Extrusion_Temp*Draw_Ratio",
+              "fn": "product",
+              "inputs": [
+                "Extrusion_Temp",
+                "Draw_Ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Extrusion_Temp:Cooling_Rate",
+          "specs": [
+            {
+              "name": "Extrusion_Temp*Cooling_Rate",
+              "fn": "product",
+              "inputs": [
+                "Extrusion_Temp",
+                "Cooling_Rate"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "Draw_Ratio:Cooling_Rate",
+          "specs": [
+            {
+              "name": "Draw_Ratio*Cooling_Rate",
+              "fn": "product",
+              "inputs": [
+                "Draw_Ratio",
+                "Cooling_Rate"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "Extrusion_Temp": 4.059375,
+        "Draw_Ratio": -3.220625,
+        "Cooling_Rate": 0.114125,
+        "Extrusion_Temp^2": 0.074625,
+        "Extrusion_Temp*Draw_Ratio": 1.741625,
+        "Extrusion_Temp*Cooling_Rate": -0.353125,
+        "Draw_Ratio*Cooling_Rate": 0.076375
+      },
+      "intercept": 41.7855
+    },
+    "stationary_point": {
+      "coded": {
+        "Extrusion_Temp": 0.826481,
+        "Draw_Ratio": 2.327019,
+        "Cooling_Rate": 23.321833
+      },
+      "raw": {
+        "Extrusion_Temp": 193.26481,
+        "Draw_Ratio": 5.327019,
+        "Cooling_Rate": 258.218333
+      },
+      "classification": "saddle",
+      "inside_design_region": false,
+      "eigenvalues": [
+        -1.72105,
+        0.029935,
+        1.840365
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  }
+]

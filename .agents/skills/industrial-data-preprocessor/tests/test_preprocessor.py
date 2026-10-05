@@ -245,6 +245,94 @@ def test_no_tabular_dir() -> None:
     check("t10-context-kept", len(rep["context_files"]) == 1, str(rep["context_files"]))
 
 
+def test_quality_flags_merge_key_exclusions() -> None:
+    """t12: per-source quality_flags (duplicates/nulls/encoding/delimiter),
+    the ACTUAL join column in merge info, and per-file merge-exclusion reasons."""
+    d = _TMP / "t12"
+    out = d / "out"
+    d.mkdir(parents=True)
+    ts = pd.date_range("2025-06-01", periods=120, freq="min").strftime("%Y-%m-%d %H:%M:%S")
+
+    # a_batch.csv — FIRST alphabetically → its time col ("batch_time") becomes
+    # the join key even though the primary is b_process.csv ("timestamp").
+    # Injected: 2 exact duplicate rows (copies of rows 58/59) + 1 empty cell.
+    batch = pd.DataFrame({
+        "batch_time": ts,
+        "moisture_pct": np.where(np.arange(120) == 57, np.nan,
+                                 np.random.normal(12, 0.5, 120)),
+    })
+    pd.concat([batch.iloc[:60], batch.iloc[58:60], batch.iloc[60:]],
+              ignore_index=True).to_csv(d / "a_batch.csv", index=False)
+
+    # b_process.csv — most cols → primary; comma csv
+    pd.DataFrame({
+        "timestamp": ts,
+        "temp_C": np.random.normal(200, 5, 120),
+        "press_bar": np.random.normal(8, 0.2, 120),
+        "flow_m3h": np.random.normal(55, 1, 120),
+    }).to_csv(d / "b_process.csv", index=False)
+
+    # c_lab.csv — 20 rows → below_min_rows
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-06-01", periods=20, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "lab_ph": np.random.normal(7, 0.1, 20),
+    }).to_csv(d / "c_lab.csv", index=False)
+
+    # d_ambient.csv — GBK-encoded, disjoint June-vs-September time axis → low_overlap
+    amb = pd.DataFrame({
+        "timestamp": pd.date_range("2025-09-01", periods=120, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "环境温度": np.random.normal(25, 2, 120),
+    })
+    amb.to_csv(d / "d_ambient.csv", index=False, encoding="gb18030")
+
+    # e_notes.csv — 120 rows, no time column → no_timestamp
+    pd.DataFrame({
+        "operator": ["A", "B"] * 60,
+        "shift_note": ["note"] * 120,
+    }).to_csv(d / "e_notes.csv", index=False)
+
+    rep = run_case(d, out, "t12")
+
+    # (b) the ACTUAL join column: base table's time col, not the primary's
+    mg = rep.get("merge") or {}
+    check("t12-merge-key-actual", mg.get("key") == "batch_time", str(mg.get("key")))
+    check("t12-merge-primary-time", mg.get("primary_time_column") == "timestamp",
+          str(mg.get("primary_time_column")))
+    check("t12-merge-source-time-cols",
+          mg.get("source_time_columns", {}).get("a_batch.csv") == "batch_time"
+          and mg.get("source_time_columns", {}).get("b_process.csv") == "timestamp",
+          str(mg.get("source_time_columns")))
+    check("t12-selected-is-primary", (rep["selected_table"] or {}).get("file") == "b_process.csv",
+          str((rep["selected_table"] or {}).get("file")))
+
+    # (a) per-source quality flags
+    tabs = {t["file"]: t for t in rep["tables"]}
+    q_batch = tabs["a_batch.csv"]["quality_flags"]
+    check("t12-dup-count", q_batch["exact_duplicate_rows"]["count"] == 2,
+          str(q_batch["exact_duplicate_rows"]))
+    check("t12-dup-rows", q_batch["exact_duplicate_rows"]["row_indices_0based"] == [58, 59, 60, 61],
+          str(q_batch["exact_duplicate_rows"]["row_indices_0based"]))
+    check("t12-null-count", q_batch["null_cell_count"] == 1, str(q_batch["null_cell_count"]))
+    check("t12-encoding-csv", q_batch["encoding"] in ("utf-8", "utf-8-sig"),
+          str(q_batch["encoding"]))
+    check("t12-delimiter-csv", q_batch["delimiter"] == ",", str(q_batch["delimiter"]))
+    q_amb = tabs["d_ambient.csv"]["quality_flags"]
+    check("t12-encoding-gbk", q_amb["encoding"] == "gb18030", str(q_amb["encoding"]))
+    q_proc = tabs["b_process.csv"]["quality_flags"]
+    check("t12-proc-clean", q_proc["exact_duplicate_rows"]["count"] == 0
+          and q_proc["null_cell_count"] == 0, str(q_proc))
+
+    # (c) per-file exclusion reasons
+    excl = {e["file"]: e["reason_code"] for e in rep.get("merge_exclusions", [])}
+    check("t12-excl-below-min", excl.get("c_lab.csv") == "below_min_rows", str(excl))
+    check("t12-excl-low-overlap", excl.get("d_ambient.csv") == "low_overlap", str(excl))
+    check("t12-excl-no-ts", excl.get("e_notes.csv") == "no_timestamp", str(excl))
+    check("t12-excl-not-for-merged",
+          "a_batch.csv" not in excl and "b_process.csv" not in excl, str(excl))
+    check("t12-excl-details", all(e.get("detail") for e in rep.get("merge_exclusions", [])),
+          str(rep.get("merge_exclusions")))
+
+
 def main() -> None:
     print("preprocessor tests:")
     for fn in [
@@ -258,6 +346,7 @@ def main() -> None:
         test_batch_no_time,
         test_multiblock_delimited,
         test_no_tabular_dir,
+        test_quality_flags_merge_key_exclusions,
     ]:
         fn()
     shutil.rmtree(_TMP, ignore_errors=True)

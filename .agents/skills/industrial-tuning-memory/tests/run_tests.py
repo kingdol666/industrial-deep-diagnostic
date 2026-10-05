@@ -934,9 +934,81 @@ def case_b14():
     record("B14.gate_exit0", run_gate(run).returncode == 0, "")
 
 
+def derived_log_ids(run):
+    """action_log_id = ts8 + sha16(canonical) — same derivation as
+    segment_selector.derive_action_log_id, for locating attribution reports."""
+    import hashlib
+
+    def norm(o):
+        if isinstance(o, bool) or o is None:
+            return o
+        if isinstance(o, float) and o.is_integer() and abs(o) < 1e15:
+            return int(o)
+        if isinstance(o, dict):
+            return {k: norm(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [norm(v) for v in o]
+        return o
+
+    ids = {}
+    for lg in read(run, "00_input/action_log.json"):
+        ts8 = "".join(ch for ch in lg["ts"] if ch.isdigit())[:8]
+        digest = hashlib.sha256(json.dumps(norm(lg), ensure_ascii=False,
+                                           sort_keys=True, separators=(",", ":"))
+                                .encode("utf-8")).hexdigest()[:8]
+        ids[lg["ts"]] = ts8 + digest
+    return ids
+
+
+def case_b15():
+    print("== B15: dense action log -> settle-window truncation surfaced as a "
+          "machine-readable warning (default settle 200) ==")
+    run = make_run("B15")
+    # gaps 150 < settle 200: actions 1-2 are boundary-truncated, action 3 is not;
+    # y steps at each action row keep the deltas robustly signed (no LOO flips)
+    write_tsdata(run, 900, {"y": (50.0, 0.3)}, 71,
+                 {"y": [(100, 2.5), (250, 2.5), (400, 2.5)]})
+    logs = [
+        base_log(iso(100), [{"parameter": "temp", "from": 50.0, "to": 55.0, "unit": "degC"}]),
+        base_log(iso(250), [{"parameter": "press", "from": 1.0, "to": 1.1, "unit": "kPa"}]),
+        base_log(iso(400), [{"parameter": "feed", "from": 2.0, "to": 2.2, "unit": "t/h"}]),
+    ]
+    write_logs(run, logs)
+    proc = run_tune(run, "y")
+    record("B15.tune_exit0", proc.returncode == 0, proc.stderr[-300:])
+    ids = derived_log_ids(run)
+    reports = {}
+    for f in (run / "06_experience" / "attribution").glob("*.json"):
+        r = json.loads(f.read_text(encoding="utf-8"))
+        reports[r["action_log_id"]] = r
+
+    mid = reports[ids[iso(250)]]
+    record("B15.middle_truncated_by_action",
+           (mid["segments"]["effect"]["truncated_by"] or "").startswith("action_log"),
+           str(mid["segments"]["effect"]["truncated_by"]))
+    record("B15.middle_status_truncated", mid["attribution_status"] == "truncated",
+           mid["attribution_status"])
+    warn = [w for w in mid.get("warnings", [])
+            if w.get("code") == "settle_window_truncated"
+            and "settle_steps=200" in (w.get("message") or "")]
+    record("B15.middle_warning_present", bool(warn), str(mid.get("warnings")))
+    record("B15.middle_grade_E0", mid["evidence_grade"] == "E0", mid["evidence_grade"])
+
+    last = reports[ids[iso(400)]]
+    record("B15.last_not_truncated", last["segments"]["effect"]["truncated_by"] is None,
+           str(last["segments"]["effect"]["truncated_by"]))
+    record("B15.last_no_warnings", last.get("warnings") == [], str(last.get("warnings")))
+    record("B15.last_status_estimable", last["attribution_status"] == "estimable",
+           last["attribution_status"])
+    record("B15.stdout_warning_mention", "settle_window_truncated" in proc.stdout,
+           proc.stdout[-300:])
+    record("B15.gate_exit0", run_gate(run).returncode == 0, "")
+
+
 CASES = {"B1": case_b1, "B2": case_b2, "B3": case_b3, "B4": case_b4, "B5": case_b5,
          "B6": case_b6, "B7": case_b7, "B8": case_b8, "B9": case_b9, "B10": case_b10,
-         "B11": case_b11, "B12": case_b12, "B13": case_b13, "B14": case_b14}
+         "B11": case_b11, "B12": case_b12, "B13": case_b13, "B14": case_b14,
+         "B15": case_b15}
 
 
 def main():

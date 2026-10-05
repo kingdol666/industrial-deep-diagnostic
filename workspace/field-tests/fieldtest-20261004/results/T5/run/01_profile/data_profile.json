@@ -1,0 +1,106 @@
+{
+  "generated_at": "2026-10-04T06:43:09.436134+00:00",
+  "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\results\\T5\\run\\00_input\\doe_table.csv",
+  "n_rows": 12,
+  "n_cols": 5,
+  "columns": [
+    {
+      "name": "run_order",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 12,
+      "n_missing": 0,
+      "n_valid": 12,
+      "notes": ""
+    },
+    {
+      "name": "Extrusion_Temp",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 12,
+      "notes": ""
+    },
+    {
+      "name": "Draw_Ratio",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 12,
+      "notes": ""
+    },
+    {
+      "name": "Cooling_Rate",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 12,
+      "notes": ""
+    },
+    {
+      "name": "Tear_Strength",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 12,
+      "n_missing": 0,
+      "n_valid": 12,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "Tear_Strength"
+    ],
+    "factors": [
+      "Extrusion_Temp",
+      "Draw_Ratio",
+      "Cooling_Rate"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "run_order"
+    ]
+  },
+  "design": {
+    "n_runs": 12,
+    "n_factor_cols": 3,
+    "n_distinct_combos": 8,
+    "balanced": true,
+    "balance_ratio": 1.0,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": 4,
+    "axial_points": 0,
+    "alpha_axial": null,
+    "replicates": 1,
+    "detection_notes": [
+      "LHS occupancy only 0.00 (<0.85)",
+      "all 8 level combos present and balanced",
+      "detected after stripping 4 center rows",
+      "mode overridden by user context to designed (the evidence grade is NOT overridden)"
+    ],
+    "design_type": "full_factorial",
+    "mode": "designed",
+    "mode_overridden": true
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

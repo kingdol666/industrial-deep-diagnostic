@@ -1,0 +1,61 @@
+{
+  "case": "T5 DOE 设计实验分析 (industrial-doe-analyzer designed 模式)",
+  "grader_note": "批改专用。生成器: cases/_generators/gen_T5_doe.py (seed 20261005)。Examiner 已按 brief 实测 analyze.py all + quality_gate.mjs (exit 0)。",
+  "design_truth": {
+    "design_type": "full_factorial (2^3) + 4 center points = 12 runs, randomized run order",
+    "factors_coded_ranges": {
+      "Extrusion_Temp": {"low": 175.0, "center": 185.0, "high": 195.0, "unit": "degC"},
+      "Draw_Ratio": {"low": 2.0, "center": 3.0, "high": 4.0},
+      "Cooling_Rate": {"low": 15.0, "center": 25.0, "high": 35.0, "unit": "m/min"}
+    },
+    "response": "Tear_Strength",
+    "goal": "maximize"
+  },
+  "injected_effects_truth": {
+    "model": "Tear = 42.0 + 4.2*xA - 3.1*xB + 0.0*xC + 1.8*xA*xB + N(0, 0.4), xA/xB/xC ∈ {-1,0,+1} coded",
+    "A_Extrusion_Temp": {"coded_effect_per_step": 4.2, "direction": "positive (strong)"},
+    "B_Draw_Ratio": {"coded_effect_per_step": -3.1, "direction": "negative (strong)"},
+    "C_Cooling_Rate": {"coded_effect_per_step": 0.0, "direction": "null"},
+    "AB_interaction": {"coded_effect": 1.8},
+    "noise_sigma": 0.4,
+    "seed": 20261005
+  },
+  "expected_significance": {
+    "alpha_rule": "BH-FDR q < 0.05",
+    "significant": ["Extrusion_Temp (A)", "Draw_Ratio (B)", "Extrusion_Temp:Draw_Ratio (A×B)"],
+    "not_significant": ["Cooling_Rate (C)", "Extrusion_Temp^2 (curvature)", "Extrusion_Temp:Cooling_Rate", "Draw_Ratio:Cooling_Rate"]
+  },
+  "observed_examiner_dryrun": {
+    "design_detected": "full_factorial, center_points=4, rows=12, mode=designed",
+    "effect_table_coded_coefficients": {
+      "Extrusion_Temp": 4.059375,
+      "Draw_Ratio": -3.220625,
+      "Cooling_Rate": 0.114125,
+      "Extrusion_Temp^2": 0.074625,
+      "Extrusion_Temp:Draw_Ratio": 1.741625,
+      "Extrusion_Temp:Cooling_Rate": -0.353125,
+      "Draw_Ratio:Cooling_Rate": 0.076375
+    },
+    "q_values_bh": {
+      "Extrusion_Temp": 6.44e-05,
+      "Draw_Ratio": 8.09e-05,
+      "Cooling_Rate": 0.658,
+      "Extrusion_Temp^2": 0.778,
+      "Extrusion_Temp:Draw_Ratio": 6.11e-04,
+      "Extrusion_Temp:Cooling_Rate": 0.121,
+      "Draw_Ratio:Cooling_Rate": 0.726
+    },
+    "operating_windows": [
+      {"id": "OW-001", "factor": "Draw_Ratio", "range": [2.0, 3.75], "response": "Tear_Strength"},
+      {"id": "OW-002", "factor": "Extrusion_Temp", "range": [185.0, 195.0], "response": "Tear_Strength"}
+    ],
+    "direction_for_maximizing": "升高 Extrusion_Temp（正向主效应）并降低 Draw_Ratio（负向主效应），A×B 正交互强化两端组合；Cooling_Rate 不显著可任选",
+    "quality_gate": "21/21 ALL PASS, exit 0"
+  },
+  "grading_notes": [
+    "编码系数是 per coded step (deviation coding, x∈[-1,1])，与注入真值同口径；物理单位系数 = coded / half_range。",
+    "批改核心: A、B、A×B 显著且方向正确（A 正、B 负），C 不显著；设计识别为 full_factorial + 4 center points；操作窗方向为 '升 Temp / 降 Draw_Ratio'。",
+    "实测系数与注入值有采样偏差（σ=0.4 下的确定性抽样），批改以显著性判定与方向为准，系数大小 ±15% 内均视为一致。",
+    "quality_gate.mjs 21/21 PASS 是 '报告完成' 的前置条件。"
+  ]
+}

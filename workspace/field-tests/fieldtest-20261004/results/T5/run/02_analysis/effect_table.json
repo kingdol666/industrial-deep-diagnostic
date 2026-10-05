@@ -1,0 +1,209 @@
+{
+  "generated_at": "2026-10-04T06:43:09.461290+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "Extrusion_Temp",
+      "Draw_Ratio",
+      "Cooling_Rate"
+    ],
+    "interactions": [
+      "Extrusion_Temp:Draw_Ratio",
+      "Extrusion_Temp:Cooling_Rate",
+      "Draw_Ratio:Cooling_Rate",
+      "Extrusion_Temp:Draw_Ratio:Cooling_Rate"
+    ],
+    "quadratic": [
+      "Extrusion_Temp^2",
+      "Draw_Ratio^2",
+      "Cooling_Rate^2"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "pooled_terms": []
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "Extrusion_Temp": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "Draw_Ratio": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "Cooling_Rate": {
+        "type": "numeric",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "Tear_Strength",
+      "n": 12,
+      "df_resid": 4,
+      "df_pure_error": 3,
+      "df_lack_of_fit": 1,
+      "mse": 0.163934,
+      "mse_pure_error": 0.214496,
+      "sigma_pure_error": 0.463137,
+      "r_squared": 0.997278,
+      "adj_r_squared": 0.992514,
+      "q_squared_loo": 0.991998,
+      "mde": 1.112597,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": true,
+        "reason": null,
+        "f_stat": 0.057092,
+        "p_value": 0.8265447157256617
+      },
+      "tests": [
+        {
+          "term": "Extrusion_Temp",
+          "order": 1,
+          "coefficient": 4.059375,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 131.828203,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 804.155203,
+          "p_value": 9.201944965536964e-06,
+          "eta_squared": 0.547249,
+          "partial_eta_squared": 0.99505,
+          "effect_size_std": 8.764946,
+          "q_value_bh": 6.441361475875875e-05,
+          "pareto_rank": 1
+        },
+        {
+          "term": "Draw_Ratio",
+          "order": 1,
+          "coefficient": -3.220625,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 82.979403,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 506.176351,
+          "p_value": 2.3112619038213883e-05,
+          "eta_squared": 0.344466,
+          "partial_eta_squared": 0.99216,
+          "effect_size_std": 6.953929,
+          "q_value_bh": 8.089416663374859e-05,
+          "pareto_rank": 2
+        },
+        {
+          "term": "Cooling_Rate",
+          "order": 1,
+          "coefficient": 0.114125,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 0.104196,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.635599,
+          "p_value": 0.46995479700022774,
+          "eta_squared": 0.000433,
+          "partial_eta_squared": 0.137113,
+          "effect_size_std": 0.246417,
+          "q_value_bh": 0.6579367158003189,
+          "pareto_rank": 5
+        },
+        {
+          "term": "Extrusion_Temp^2",
+          "order": 2,
+          "coefficient": 0.074625,
+          "std_err": 0.247942,
+          "df": 1,
+          "ss_extra_ss": 0.01485,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.090588,
+          "p_value": 0.7784278734173417,
+          "eta_squared": 6.2e-05,
+          "partial_eta_squared": 0.022145,
+          "effect_size_std": 0.161129,
+          "q_value_bh": 0.7784278734173417,
+          "pareto_rank": 7
+        },
+        {
+          "term": "Extrusion_Temp:Draw_Ratio",
+          "order": 2,
+          "coefficient": 1.741625,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 24.266061,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 148.023555,
+          "p_value": 0.0002619260930455844,
+          "eta_squared": 0.100734,
+          "partial_eta_squared": 0.973688,
+          "effect_size_std": 3.760492,
+          "q_value_bh": 0.0006111608837730303,
+          "pareto_rank": 3
+        },
+        {
+          "term": "Extrusion_Temp:Cooling_Rate",
+          "order": 2,
+          "coefficient": -0.353125,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 0.997578,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 6.085251,
+          "p_value": 0.06918182969051676,
+          "eta_squared": 0.004141,
+          "partial_eta_squared": 0.603381,
+          "effect_size_std": 0.762463,
+          "q_value_bh": 0.12106820195840431,
+          "pareto_rank": 4
+        },
+        {
+          "term": "Draw_Ratio:Cooling_Rate",
+          "order": 2,
+          "coefficient": 0.076375,
+          "std_err": 0.143149,
+          "df": 1,
+          "ss_extra_ss": 0.046665,
+          "n": 12,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.284658,
+          "p_value": 0.6219324852879619,
+          "eta_squared": 0.000194,
+          "partial_eta_squared": 0.066437,
+          "effect_size_std": 0.164908,
+          "q_value_bh": 0.7255878995026221,
+          "pareto_rank": 6
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 7,
+    "total_significant_q05": 3,
+    "excluded_from_family": 0
+  }
+}

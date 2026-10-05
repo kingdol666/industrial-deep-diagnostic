@@ -1,0 +1,26 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261004-001",
+  "round_id": "R003",
+  "trials": [
+    {
+      "trial_id": "R003-T01",
+      "status": "completed",
+      "measurements": {
+        "impurity_pct": [
+          0.480971,
+          0.460278,
+          0.440862
+        ]
+      },
+      "measured_at": null,
+      "operator_note": "plant_sim deterministic black-box run"
+    }
+  ],
+  "late_results": null,
+  "environment": null,
+  "ingest_meta": {
+    "source": "inbox_file",
+    "ingested_at": null
+  }
+}

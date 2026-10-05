@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "DOE-20260920-001",
+  "operating_windows": [
+    {
+      "factor": "speed_rpm",
+      "unit": "rpm",
+      "range": [
+        1225.0,
+        1275.0
+      ],
+      "confirmation_needed": false,
+      "source": "DOE F-2026-09 line-speed operating window (line L7, product PVC-M)",
+      "expected_effect": {
+        "direction": "within_window_stable"
+      }
+    }
+  ],
+  "response_specs": {},
+  "applicability_domain": {
+    "factor_observed_ranges": {
+      "speed_rpm": [
+        1235.0,
+        1265.0
+      ]
+    }
+  },
+  "invalidation_conditions": [
+    "valid for product PVC-M on line L7 only"
+  ]
+}

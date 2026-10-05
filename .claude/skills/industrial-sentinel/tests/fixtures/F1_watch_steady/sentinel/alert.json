@@ -1,12 +1,12 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261001-135632-000",
+  "alert_id": "ALT-20261005-074933-000",
   "mode": "watch",
   "status": "ok",
   "group_scope": null,
-  "generated_at": "2026-10-01T13:56:32.735191+00:00",
+  "generated_at": "2026-10-05T07:49:33.556615+00:00",
   "source": {
-    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F1_watch_steady\\watch.csv",
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F1_watch_steady\\watch.csv",
     "sha256": "9097c9b1d89c44d5478bb460b97b657fa5a95ad91fbaf45520ddda526f52bf53",
     "window_start": null,
     "window_end": null,
@@ -15,7 +15,7 @@
     "group_col": null
   },
   "baseline": {
-    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F1_watch_steady\\watch_baseline.json",
+    "path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F1_watch_steady\\watch_baseline.json",
     "baseline_version": "v1.0.0",
     "mode": "prior",
     "generated_from": null
@@ -40,9 +40,18 @@
       "n_outliers": 0,
       "max_d2": null
     },
-    "rows_skipped": 0
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 0,
+    "events_by_parameter": {}
   },
   "alerts": [],
+  "events": [],
   "regime_summary": {
     "__ALL__": {
       "labels": {
@@ -62,7 +71,7 @@
   "provenance": {
     "input_sha256": "9097c9b1d89c44d5478bb460b97b657fa5a95ad91fbaf45520ddda526f52bf53",
     "script_version": "1.0.0",
-    "duration_ms": 12,
+    "duration_ms": 24,
     "zero_llm": true,
     "authored_by": "script"
   }

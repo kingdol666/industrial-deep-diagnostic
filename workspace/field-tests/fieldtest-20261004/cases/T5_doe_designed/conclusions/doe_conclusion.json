@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-10-05T01:36:40.149683+00:00",
+  "analysis_mode": "observational",
+  "design_type": "observational",
+  "evidence_grade": "B",
+  "grade_checklist": {
+    "randomization_ok": null,
+    "pure_error_df_gt0": null,
+    "resolution_ok": null,
+    "balanced": null,
+    "model_adequacy_ok": null,
+    "anti_spurious_ok": false,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "Extrusion_Temp 与 Tear_Strength 的相关 r=0.7398，滞后 -9 步，q(BH)=0.024，防伪裁决 PASS — 相关级证据，非因果",
+      "evidence_refs": [
+        "correlation_report.json#Tear_Strength.Extrusion_Temp"
+      ],
+      "confidence": "low",
+      "fdr_q": 0.024
+    }
+  ],
+  "limitations": [
+    "相关对 Draw_Ratio→Tear_Strength 存在离群点敏感证据（outlier_sensitivity=SERIOUS，r=-0.5869）— 结论对个别样本敏感，需复核原始数据或做稳健性重算",
+    "观察性数据：全部结论为相关级（evidence B），执行任何操作窗口前必须完成 confirmations"
+  ],
+  "figure_index": [
+    {
+      "file": "correlation_heatmap.png",
+      "title": "Validated correlations (q<0.05 or non-FAIL pairs; r values)"
+    },
+    {
+      "file": "contribution_bar.png",
+      "title": "ΔR² contribution ranking"
+    },
+    {
+      "file": "timeline_Tear_Strength.png",
+      "title": "Stability timeline — Tear_Strength (green: steady, dashed: change points)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 0,
+    "n_confirmations": 1,
+    "n_watchlist": 1,
+    "usage_rules": [
+      "observational 窗口在闭环执行前必须先跑 confirmations",
+      "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+    ]
+  }
+}

@@ -41,6 +41,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from sentinelcore import events as events_mod  # noqa: E402
 from sentinelcore import (  # noqa: E402
     ALERT_CONTRACT_VERSION,
     BASELINE_CONTRACT_VERSION,
@@ -65,7 +66,14 @@ from sentinelcore import _io, projection, regime_map, robust, spc, suppress  # n
 from sentinelcore.suppress import downgrade_severity, make_suppression_key  # noqa: E402
 
 DATA_SUFFIXES = (".csv", ".tsv", ".tab", ".parquet", ".pq")
-ALERT_ID_PATTERN = re.compile(r"^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3}$")
+# serial is {n:03d}-zero-padded but grows past 3 digits on long watches
+# (>999 alerts on real 60-day data); the pattern must accept the growth.
+ALERT_ID_PATTERN = re.compile(r"^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3,}$")
+# Machine-readable C2 coverage notice (alert.json checks_summary.checks_skipped
+# + watch_report.md): C2 silently no-ops when the effective baseline carries no
+# operating_windows, so the skip must be explicit (fieldtest-20261004 #2).
+C2_NO_WINDOWS_NOTICE = ("C2 drift projection disabled: no operating_windows "
+                        "in baseline (build with --doe-run-dir to enable)")
 
 DEFAULT_THRESHOLDS = {
     "run_length_r2": 9,
@@ -197,7 +205,10 @@ def check_group_spc(group, arrays, cols, store, th, quiet, time_hours,
     for col in cols:
         p = (store.get("parameters") or {}).get(col) or {}
         center = p.get("center")
-        sigma = p.get("sigma_within_mr")
+        # AR(1)-inflated sigma when the baseline stored one (material rho):
+        # MRbar/1.128 alone understates spread on autocorrelated series and
+        # storms Nelson rules on stationary stretches (fieldtest-20261004).
+        sigma = p.get("sigma_within_mr_ar1") or p.get("sigma_within_mr")
         if center is None or sigma is None or not sigma or sigma <= 0:
             continue
         x = arrays[col]
@@ -566,6 +577,28 @@ def render_report(template, context):
     return out
 
 
+def events_digest_md(events, limit=12):
+    """Incident digest for the Chinese report: one line per event, worst
+    first (peak severity, then alert_count). Empty input -> '-'."""
+    if not events:
+        return "-"
+    rank = {"critical": 0, "high": 1, "warn": 2, "info": 3}
+    top = sorted(events, key=lambda e: (rank.get(e["severity_peak"], 4),
+                                        -e["alert_count"]))[:limit]
+    rows = ["| 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |",
+            "|------|------|------|----------|----------|--------|------|"]
+    for e in top:
+        rows.append(
+            f"| {e['event_id']} | {e['parameter'] or '-'} | {e['family']} "
+            f"| {e['severity_peak']} | {e['span_rows']} "
+            f"| {e['alert_count']} | {'、'.join(e['rules'][:3])}"
+            f"{'…' if len(e['rules']) > 3 else ''} |")
+    if len(events) > limit:
+        rows.append(f"\n（其余 {len(events) - limit} 个事件见 alert.json 的 "
+                    f"events 数组；完整逐段告警在 alerts 数组，契约不变）")
+    return "\n".join(rows)
+
+
 def alerts_table_md(alerts):
     rows = ["| # | 级别 | 规则 | 参数/指标 | 分组 | 位置 | 观测值 | 建议 |",
             "|---|------|------|-----------|------|------|--------|------|"]
@@ -800,6 +833,18 @@ def cmd_watch(args):
     for i, a in enumerate(merged, 1):
         a["alert_id"] = make_alert_id(generated_at, i)
 
+    # Incident-level view: fold the (intentionally un-swallowed) episode
+    # alerts into events so a sustained excursion reads as one line in the
+    # report instead of hundreds. Pure post-process; `alerts` is untouched.
+    events = events_mod.aggregate_events(merged, generated_at=generated_at)
+    events_by_param = {}
+    for ev in events:
+        k = f"{ev['family']}|{ev['parameter']}" if ev["parameter"] is not None \
+            else f"{ev['family']}|-"
+        entry = events_by_param.setdefault(k, {"count": 0, "alerts": 0})
+        entry["count"] += 1
+        entry["alerts"] += ev["alert_count"]
+
     rules_hit = {}
     spc_n = 0
     proj_n = 0
@@ -816,6 +861,17 @@ def cmd_watch(args):
         status = STATUS["warn"]
     else:
         status = STATUS["ok"]
+
+    # ---- C2 coverage disclosure: the projection loop above silently no-ops
+    # when the effective baseline carries no operating_windows; surface it.
+    checks_skipped = []
+    if checks_cfg.get("window_projection", True) and not any(
+            (s.get("operating_windows") or [])
+            for s in (baseline.get("groups") or {}).values()):
+        checks_skipped.append({
+            "check": CHECK["window_projection"],
+            "reason": C2_NO_WINDOWS_NOTICE,
+        })
 
     duration_ms = int((datetime.datetime.now(datetime.timezone.utc) - t0).total_seconds() * 1000)
     window_start = window_end = None
@@ -854,8 +910,14 @@ def cmd_watch(args):
             "multivariate": {"n_outliers": mv_summary["n_outliers"],
                              "max_d2": mv_summary["max_d2"]},
             "rows_skipped": mv_summary["rows_skipped"],
+            "checks_skipped": checks_skipped,
+            "event_count": len(events),
+            "events_by_parameter": dict(sorted(
+                events_by_param.items(),
+                key=lambda kv: -kv[1]["alerts"])[:10]),
         },
         "alerts": merged,
+        "events": events,
         "regime_summary": {
             g: {"labels": regime_labels_summary.get(g, {})} for g in groups
         },
@@ -917,18 +979,25 @@ def cmd_watch(args):
         "PROJECTION_SECTION": ("\n".join(
             f"- **{p['factor']}**：当前 {p['current']:.4g}，斜率 {p['slope_per_hour']:.4g}/h，"
             f"距边界 {p['hours_to_edge'] if p['hours_to_edge'] is not None else '∞'} h"
-            f"（级别 {p['level']}）" for p in projection_summary) or "- 无操作窗口投影"),
+            f"（级别 {p['level']}）" for p in projection_summary)
+            or ("- **C2 漂移投影未启用**：基线中无 operating_windows —— "
+                "构建基线时传入 --doe-run-dir 注册 DOE 先验操作窗即可启用"
+                f"（{C2_NO_WINDOWS_NOTICE}）" if checks_skipped
+                else "- 无操作窗口投影")),
         "SUPPRESSION_SECTION": (
             f"合并触发 {len(payload['suppression']['applied'])} 组同 key 重复；"
             f"静默期 {quiet_rows_n} 行；同类抑制窗口 "
             f"{SUPPRESSION_DEFAULTS['suppress_window_minutes']} 分钟；迟滞 "
             f"{SUPPRESSION_DEFAULTS['hysteresis_points']} 点"),
+        "EVENTS_SECTION": events_digest_md(events),
         "DURATION_MS": duration_ms,
     })
     _io.write_text(out_dir / "watch_report.md", report)
 
     print(f"[sentinel] status={status} alerts={len(merged)} -> "
           f"{out_dir / 'alert.json'} ({duration_ms}ms)")
+    for skipped in checks_skipped:
+        print(f"[sentinel] notice: {skipped['reason']}")
     return EXIT_OK if status == STATUS["ok"] else EXIT_FINDINGS
 
 

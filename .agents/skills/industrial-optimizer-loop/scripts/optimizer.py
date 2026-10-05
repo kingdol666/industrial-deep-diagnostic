@@ -56,6 +56,57 @@ class ExecutionError(RuntimeError):
     """Contract violation that blocks the step (CLI -> exit 1)."""
 
 
+OFF_OPTIMUM_REL_THRESHOLD = 0.02  # >2% of a factor's range = material offset
+
+
+def off_optimum_disclosure(o, state, domain, stationary):
+    """fieldtest-20261004 W1: the frozen dual gate certifies tolerance
+    achievement at the incumbent, not global optimality. When the RSM
+    stationary point is goal-consistent (min<->minimize, max<->maximize),
+    inside the box, and materially away from the incumbent (max relative
+    factor distance > 2% of the factor range), surface it as
+    in_tolerance_off_optimum + recommended_refinement. The dual-gate
+    semantics are untouched: the gate still passes on tolerance achievement.
+    Returns (flag, refinement-or-None)."""
+    flag, refinement = False, None
+    cls = (stationary or {}).get("classification")
+    goal = o.get("goal")
+    if not (stationary or {}).get("inside_box") or cls not in ("min", "max"):
+        return flag, refinement
+    if not ((goal == "minimize" and cls == "min")
+            or (goal == "maximize" and cls == "max")):
+        return flag, refinement
+    names = acq.numeric_names(domain)
+    coded = stationary.get("coded") or []
+    if len(coded) != len(names):
+        return flag, refinement
+    stat_raw = acq.decode_point({f"x{i}": coded[i] for i in range(len(names))},
+                                domain)
+    inc_sp = (state.get("incumbent") or {}).get("setpoints") or {}
+    per_factor = {}
+    for f in names:
+        spec = domain[f]
+        rng = float(spec["hi"]) - float(spec["lo"])
+        inc_v = inc_sp.get(f)
+        if inc_v is None or not rng > 0:
+            continue
+        per_factor[f] = abs(float(stat_raw[f]) - float(inc_v)) / rng
+    if not per_factor or max(per_factor.values()) <= OFF_OPTIMUM_REL_THRESHOLD:
+        return flag, refinement
+    flag = True
+    refinement = {
+        "setpoints": {f: float(stat_raw[f]) for f in names},
+        "classification": cls,
+        "coded": [float(v) for v in coded],
+        "per_factor_rel_distance": {f: round(v, 6)
+                                    for f, v in per_factor.items()},
+        "note": ("stationary point is goal-consistent, in-box and materially "
+                 "away from the incumbent; confirm at this point before "
+                 "switching the recipe (dual gate unchanged)"),
+    }
+    return flag, refinement
+
+
 # ------------------------------------------------------------------ campaign io
 
 def run_manifest(run_dir):
@@ -1156,6 +1207,9 @@ def cmd_converge(run_dir):
         if cur_detail:
             stationary = (cur_detail or {}).get("stationary")
 
+    in_tolerance_off_optimum, recommended_refinement = off_optimum_disclosure(
+        o, state, domain, stationary)
+
     conclusion = {
         "contract_version": "1.0",
         "campaign_id": o["campaign_id"],
@@ -1173,6 +1227,8 @@ def cmd_converge(run_dir):
         "domain": domain,
         "model": state.get("model"),
         "stationary_point": stationary,
+        "in_tolerance_off_optimum": in_tolerance_off_optimum,
+        "recommended_refinement": recommended_refinement,
         "history": state.get("history", []),
         "guardrail_log": state.get("guardrail_log", []),
         "budget": state.get("budget"),
@@ -1188,6 +1244,16 @@ def cmd_converge(run_dir):
     from optcore.experience import (achieved_metrics, guardrail_envelope,
                                     regime_key)
     inc = state.get("incumbent") or {}
+    recipe_notes = []
+    if in_tolerance_off_optimum:
+        dists = (recommended_refinement or {}).get("per_factor_rel_distance") or {}
+        max_rel = max(dists.values()) if dists else 0.0
+        recipe_notes.append(
+            "in_tolerance_off_optimum: 达标收敛不等于全局最优 — RSM 驻点"
+            f"（classification={recommended_refinement['classification']}，盒内）"
+            f"距 incumbent 相对距离 {max_rel:.1%}（>2%）；驻点设定点见 "
+            "optimization_conclusion.json 的 recommended_refinement，建议在驻点处"
+            "补一轮 confirm_replicates 后再决定是否切换配方（双门槛语义不变）")
     recipe = {
         "contract_version": "1.0",
         "campaign_id": o["campaign_id"],
@@ -1200,6 +1266,7 @@ def cmd_converge(run_dir):
         "guardrails": guardrail_envelope(inc.get("setpoints") or {}, domain),
         "verification_status": verification_of(state),
         "dual_gate": dual_gate,
+        "notes": recipe_notes,
         "usage_rules": [
             "本文件为纯分析建议（advisory），IDD 不下发参数；执行决策由 AWS 侧做出",
             "仅在 guardrails 包络内、非外推点直接复用；越包络或越支撑需重新验证",
@@ -1230,6 +1297,16 @@ def render_report(conclusion, recipe, o, state):
         f"| {h['round_id']} | {h.get('phase')} | {h.get('method')} | "
         f"{h.get('n_trials')} | {h.get('best_D')} | {h.get('failures')} |"
         for h in conclusion.get("history") or [])
+    off_opt_line = ""
+    if conclusion.get("in_tolerance_off_optimum"):
+        rr = conclusion.get("recommended_refinement") or {}
+        dists = rr.get("per_factor_rel_distance") or {}
+        max_rel = max(dists.values()) if dists else 0.0
+        off_opt_line = (
+            f"- **达标收敛 ≠ 全局最优**：模型驻点（{rr.get('classification')}，盒内）"
+            f"距 incumbent 相对距离 {max_rel:.1%}（>2%）；驻点设定点见 "
+            "optimization_conclusion.json 的 `recommended_refinement`，"
+            "建议补一轮 confirm_replicates 后再决定是否切换配方")
     return f"""# 优化闭环报告 · {o['campaign_id']}
 
 > 本报告由 `optimizer.py converge` 确定性生成（零 LLM）；全部数字为脚本产出，
@@ -1257,7 +1334,7 @@ def render_report(conclusion, recipe, o, state):
 - 单侧 95% CI 在限内：{dg.get('ci_in_limits')}
 - D ≥ {DG}·D_max：{dg.get('desirability_gate')}（D={dg.get('D')}，
   D_max={dg.get('D_max')}）
-
+{off_opt_line}
 ## 轮次历史
 
 | 轮 | 阶段 | 方法 | 试验数 | best_D | 失败 |

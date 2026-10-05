@@ -1,7 +1,7 @@
 {
   "contract_version": "sentinel-baseline/1.0",
   "baseline_version": "v1.0.0",
-  "generated_at": "2026-10-01T13:56:33.415276+00:00",
+  "generated_at": "2026-10-05T07:49:34.294521+00:00",
   "generated_from": {
     "doe_recommendations_path": null,
     "doe_run_dir": null,
@@ -30,7 +30,8 @@
           "q10": 48.61237240143945,
           "q90": 51.296441929276774,
           "cv": 0.02025362078558962,
-          "variance_ratio_baseline_std": 1.0117854796166752
+          "variance_ratio_baseline_std": 1.0117854796166752,
+          "ar1_rho": 0.024
         },
         "press": {
           "center": 9.986286274522852,
@@ -41,7 +42,8 @@
           "q10": 9.441272256911084,
           "q90": 10.532172703197261,
           "cv": 0.041749867964036715,
-          "variance_ratio_baseline_std": 0.4169261334124012
+          "variance_ratio_baseline_std": 0.4169261334124012,
+          "ar1_rho": 0.0412
         }
       },
       "indicators": {},
@@ -54,14 +56,14 @@
         ],
         "corr_matrix_flat": [
           1.0,
-          0.07243826432759905,
-          0.07243826432759905,
+          0.072438264327599,
+          0.07243826432759902,
           1.0
         ],
         "cholesky_lower": [
           1.0,
           0.0,
-          0.07243826432759905,
+          0.07243826432759902,
           0.9973728980984018
         ]
       },

@@ -190,6 +190,7 @@ def _parse_delimited_text(path: Path) -> List[dict]:
         if header is not None and len(cur_rows) >= 2:
             blocks.append({"source": path.name, "sheet": None,
                            "format": "delimited", "encoding": enc,
+                           "delimiter": delim,
                            "header": header, "rows": cur_rows})
         cur_rows = []
         header = None
@@ -474,6 +475,32 @@ def _score_table(df: pd.DataFrame, time_col: Optional[str]) -> float:
     return score
 
 
+def _quality_flags(df: pd.DataFrame, block: dict) -> dict:
+    """Per-source quality disclosure (read-only audit — nothing is cleaned or
+    deduplicated here; downstream cleaning owns that). Reported per parsed
+    table: exact duplicate rows, null/empty cell count, and the encoding +
+    delimiter actually used to parse this table."""
+    dup_involved = df.duplicated(keep=False)   # every row that has a twin
+    dup_extra = df.duplicated(keep="first")    # redundant occurrences only
+    n_involved = int(dup_involved.sum())
+    empty_mask = df.astype(str).apply(lambda s: s.str.strip() == "")
+    null_cells = int((df.isna() | empty_mask).sum().sum())
+    return {
+        "exact_duplicate_rows": {
+            "count": int(dup_extra.sum()),
+            "row_indices_0based": [int(i) for i in df.index[dup_involved]][:10],
+            "row_indices_truncated": n_involved > 10,
+            "note": ("count = redundant occurrences beyond the first (dedup is NOT "
+                     "applied); row_indices_0based lists the rows involved in exact "
+                     "duplication, 0-based within the parsed table (header excluded), "
+                     "capped at 10"),
+        },
+        "null_cell_count": null_cells,
+        "encoding": block.get("encoding"),
+        "delimiter": block.get("delimiter"),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
@@ -516,6 +543,7 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
         "tables": [],
         "selected_table": None,
         "merge": None,
+        "merge_exclusions": [],
         "quality": {},
         "context_files": [],
         "skipped_files": [],
@@ -605,6 +633,7 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
                 "n_cols": int(df.shape[1]),
                 "time_column": tcol,
                 "score": round(score, 3),
+                "quality_flags": _quality_flags(df, b),
             })
 
     if not candidates:
@@ -637,10 +666,38 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
 
     # 3) attempt merge ONLY when no premerged product exists: several raw
     #    exports sharing a time axis, bounded by an anti-bloat gate so a failed
-    #    join can never produce a garbage mega-table.
+    #    join can never produce a garbage mega-table. Every table that does not
+    #    make the unified view gets an explicit per-file exclusion reason in
+    #    report["merge_exclusions"] (below_min_rows | no_timestamp | low_overlap,
+    #    plus premerged_file_used / merge_not_attempted when the merge itself
+    #    was skipped).
     large = [c for c in candidates if c[1]["n_rows"] >= 100]
-    if (selected_kind != "premerged_file" and len(large) >= 2
-            and primary is not None and primary[1]["time_column"]):
+    merge_exclusions: List[dict] = []
+    skip_reasons: Dict[int, Tuple[str, str]] = {}  # id(cand dict) -> (code, detail)
+    merged_dfs: List[Tuple[str, pd.DataFrame, str]] = []
+    merged_cand_ids: set = set()  # id(cand dict) of tables merged into the view
+    merge_attempted = (selected_kind != "premerged_file" and len(large) >= 2
+                       and primary is not None and primary[1]["time_column"])
+
+    if selected_kind == "premerged_file":
+        for fname, cand in candidates:
+            if primary is not None and cand is primary[1]:
+                continue
+            skip_reasons[id(cand)] = (
+                "premerged_file_used",
+                "directory contains an already-merged product file; "
+                "per-file time-axis merge skipped")
+    elif not merge_attempted:
+        note = ("primary table has no usable time column; merge skipped"
+                if primary is not None and not primary[1]["time_column"]
+                else "fewer than 2 merge-eligible tables (rows>=100 with usable time axis)")
+        for fname, cand in candidates:
+            if primary is not None and cand is primary[1]:
+                continue
+            if cand["n_rows"] >= 100 and cand["time_column"]:
+                skip_reasons[id(cand)] = ("merge_not_attempted", note)
+
+    if merge_attempted:
         pname, pcand = primary
         ptime = pcand["time_column"]
 
@@ -655,31 +712,53 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
                 return None
 
         base_axis = _time_axis(pcand)
-        merged_dfs: List[Tuple[str, pd.DataFrame, str]] = []
         for fname, cand in large:
             ctime = cand["time_column"]
-            if not (ctime and base_axis is not None):
+            if not ctime:
+                skip_reasons[id(cand)] = ("no_timestamp", "no time column detected")
                 continue
             axis = _time_axis(cand)
             if axis is None or len(axis) == 0:
+                skip_reasons[id(cand)] = (
+                    "no_timestamp",
+                    f"time column '{ctime}' did not parse to a usable time axis")
+                continue
+            if base_axis is None:
+                skip_reasons[id(cand)] = (
+                    "merge_not_attempted",
+                    f"primary table's time column '{ptime}' did not parse; merge skipped")
                 continue
             # overlap = |intersection of ranges| / |smaller range|
             lo = max(float(np.nanmin(axis)), float(np.nanmin(base_axis)))
             hi = min(float(np.nanmax(axis)), float(np.nanmax(base_axis)))
             span = min(float(np.nanmax(axis)) - float(np.nanmin(axis)),
                        float(np.nanmax(base_axis)) - float(np.nanmin(base_axis)))
-            if span <= 0 or (hi - lo) / span < 0.3:
+            overlap = (hi - lo) / span if span > 0 else 0.0
+            if span <= 0:
+                skip_reasons[id(cand)] = ("low_overlap",
+                                          "degenerate or non-overlapping time ranges")
+                continue
+            if overlap < 0.3:
+                skip_reasons[id(cand)] = (
+                    "low_overlap",
+                    f"time-axis overlap with primary {max(overlap, 0.0):.0%} < 30% gate")
                 continue
             merged_dfs.append((fname, cand["df"], ctime))
+            merged_cand_ids.add(id(cand))
         if len(merged_dfs) >= 2:
-            merge_info = {
-                "strategy": "outer_merge_on_time_column",
-                "key": ptime,
-                "note": "sheets matched by time-axis overlap >=30%; values normalized to ISO before join",
-                "merged_files": sorted({f for f, _, _ in merged_dfs}),
-            }
             base = merged_dfs[0][1].copy()
             base_time = merged_dfs[0][2]
+            merge_info = {
+                "strategy": "outer_merge_on_time_column",
+                "key": base_time,
+                "primary_time_column": ptime,
+                "source_time_columns": {f: t for f, _, t in merged_dfs},
+                "note": ("outer merge on the normalized time axis; 'key' is the join "
+                         "column actually used (the FIRST merged table's time column — "
+                         "it can differ from the primary table's own, which is reported "
+                         "in primary_time_column); values normalized to ISO before join"),
+                "merged_files": sorted({f for f, _, _ in merged_dfs}),
+            }
             base[base_time] = pd.to_datetime(base[base_time], errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S")
             for fname, df, ctime in merged_dfs[1:]:
                 right = df.copy()
@@ -710,6 +789,25 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
                                         "n_rows": int(base.shape[0]),
                                         "n_cols": int(base.shape[1]),
                                         "time_column": base_time})
+
+    # ---- per-file exclusion reasons for every table outside the unified view ----
+    for fname, cand in candidates:
+        if primary is not None and cand is primary[1]:
+            continue  # the selected (possibly merged) table is never "excluded"
+        if id(cand) in merged_cand_ids and merge_info is not None:
+            continue  # actually merged; merged-then-abandoned is disclosed in merge_info
+        if cand["n_rows"] < 100:
+            code, detail = "below_min_rows", f"{cand['n_rows']} rows < 100 merge threshold"
+        elif not cand["time_column"]:
+            code, detail = "no_timestamp", "no time column detected"
+        else:
+            code, detail = skip_reasons.get(id(cand)) or (
+                "merge_not_attempted",
+                "only one merge-eligible table (needs >=2); merge skipped"
+                if id(cand) in merged_cand_ids else "merge did not execute")
+        merge_exclusions.append({"file": fname, "sheet": cand.get("sheet"),
+                                 "reason_code": code, "detail": detail})
+    report["merge_exclusions"] = merge_exclusions
 
     fname, cand = primary
     df = cand["df"].copy()
@@ -790,6 +888,7 @@ def _fail_report(output_dir: Path, run_name: str, reason: str,
         "tables": [],
         "selected_table": None,
         "merge": None,
+        "merge_exclusions": [],
         "quality": {},
         "context_files": [],
         "skipped_files": [],

@@ -1,8 +1,8 @@
 {
   "state_version": "sentinel-state/1.0",
   "line_id": "__ALL__",
-  "updated_at": "2026-10-01T13:56:36.615671+00:00",
-  "baseline_ref": "D:\\codes\\myskills\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\watch_baseline.json",
+  "updated_at": "2026-10-05T07:49:37.838585+00:00",
+  "baseline_ref": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\watch_baseline.json",
   "last_seen_ts": null,
   "last_index": 759,
   "ring_buffer": {
@@ -1217,11 +1217,11 @@
   "projection_cache": {},
   "suppression": {
     "__ALL__|spc|NELSON_R1|temp": {
-      "since": "2026-10-01T13:56:35.173436+00:00",
+      "since": "2026-10-05T07:49:36.213939+00:00",
       "count": 4
     },
     "__ALL__|multivariate|ROBUST_Z_OUTLIER|temp": {
-      "since": "2026-10-01T13:56:35.173436+00:00",
+      "since": "2026-10-05T07:49:36.213939+00:00",
       "count": 3
     }
   },

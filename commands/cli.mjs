@@ -46,10 +46,12 @@ async function sm(command, flags) {
     const smArgs = [join(__dirname, 'service-manager.mjs'), command, ...targets];
     if (detach) smArgs.push('--detach');
 
+    // shell:false — NODE may contain spaces (D:\Program Files\...); shell:true
+    // would concatenate unquoted and truncate at the first space.
     const child = spawn(NODE, smArgs, {
       cwd: PROJECT_ROOT,
       stdio: 'inherit',
-      shell: IS_WIN,
+      shell: false,
     });
     const timer = setTimeout(() => { child.kill(); reject(new Error('Service manager timeout')); }, 120000);
     child.on('close', (code) => { clearTimeout(timer); code === 0 ? resolve() : reject(new Error(`Exit ${code}`)); });

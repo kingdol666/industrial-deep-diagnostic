@@ -1,0 +1,59 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261004-063615-000",
+  "mode": "fast_screen",
+  "status": "ok",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-04T06:36:15.464817+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\cases\\T2_sentinel_stream\\window_normal.csv",
+    "sha256": "1a650a52136f17f2177a589d2538b5f511ada58b28098e4e0cafbb51bdfbc3ec",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 240,
+    "time_col": "timestamp",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\results\\T2\\baseline\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": "D:\\codes\\industrial-deep-diagnostic\\workspace\\field-tests\\fieldtest-20261004\\cases\\T2_sentinel_stream\\doe_prior"
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 0,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 0,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "1a650a52136f17f2177a589d2538b5f511ada58b28098e4e0cafbb51bdfbc3ec",
+    "script_version": "1.0.0",
+    "duration_ms": 19,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

@@ -26,7 +26,12 @@
 
 {{SUPPRESSION_SECTION}}
 
-## 五、建议后续动作
+## 五、告警事件摘要（incidents）
+
+{{EVENTS_SECTION}}
+
+## 六、建议后续动作
 
 - 有 `high`/`critical` 告警：按告警中的 `suggested_check` 现场核查；需要根因分析时转 `industrial-diagnostician`，需要参数窗口/工况数据分析时转 `industrial-doe-analyzer`。
+- 事件摘要按峰值级别与告警数排序；完整逐段告警在 alert.json 的 `alerts` 数组（契约不变），事件视图在 `events` 数组。
 - 本报告由脚本生成（`authored_by: script`）；代理只允许追加中文 `interpretation` 注记，禁止改动任何数值字段。

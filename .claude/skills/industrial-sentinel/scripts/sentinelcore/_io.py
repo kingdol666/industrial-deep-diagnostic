@@ -149,24 +149,72 @@ def to_arrays(sub_df, cols):
     return out
 
 
+_DATETIME_UNIT_HOURS = {  # one native unit -> hours (x count)
+    "s": 3600.0, "ms": 3.6e6, "us": 3.6e9, "ns": 3.6e12,
+}
+
+# numeric epoch detection: (magnitude lower bound, divisor to hours), largest
+# first. Unit bands are ~1e3 apart (1e11 s would be year 5138, 1e11 ms is
+# 1970-01-02, ...), so magnitude uniquely identifies the epoch unit.
+_EPOCH_UNIT_LADDER = (
+    (1e17, 3.6e12),  # epoch ns
+    (1e14, 3.6e9),   # epoch us
+    (1e11, 3.6e6),   # epoch ms
+    (EPOCH_THRESHOLD, 3600.0),  # epoch s
+)
+
+
+def _hours_from_datetime(series):
+    """(t - t0) in hours for a datetime64 Series of ANY unit.
+
+    pandas >= 3 parses ISO strings to datetime64[us] (and keeps other native
+    units), so naive ``astype('int64') / 1e9`` hour math is off by 1e3 (us)
+    or worse. Normalize to datetime64[ns] first; fall back to native-unit
+    scaling only for dates outside the representable ns range.
+    """
+    if getattr(series.dtype, "tz", None) is not None:
+        series = series.dt.tz_convert("UTC").dt.tz_localize(None)
+    try:
+        vals = series.astype("datetime64[ns]").astype("int64").to_numpy()
+        return (vals - vals[0]) / 3.6e12
+    except (pd.errors.OutOfBoundsDatetime, OverflowError, ValueError):
+        unit, count = np.datetime_data(series.dtype)
+        scale = _DATETIME_UNIT_HOURS.get(str(unit), 3.6e12) * max(1, int(count))
+        vals = series.astype("int64").to_numpy(dtype=float)
+        return (vals - vals[0]) / scale
+
+
+def _hours_from_numeric(num):
+    """Hour axis from numeric time values: epoch ns/us/ms/s detected by
+    magnitude (see _EPOCH_UNIT_LADDER); below EPOCH_THRESHOLD values are
+    treated as already-hours (documented convention)."""
+    finite = num[np.isfinite(num)]
+    scale = float(np.nanmean(np.abs(finite))) if finite.size else 0.0
+    for threshold, divisor in _EPOCH_UNIT_LADDER:
+        if scale > threshold:
+            return (num - num[0]) / divisor
+    return num - num[0]
+
+
 def hours_axis(sub_df, time_col):
     """Numeric hour axis for slope computations; None when unusable.
 
-    datetime column  -> (t - t0) in hours
-    numeric epoch s  -> (v - v0) / 3600
-    numeric small    -> treated as already-hours (documented convention)
+    datetime column  -> (t - t0) in hours (unit-normalized via
+                        _hours_from_datetime: pandas 3 parses ISO strings to
+                        datetime64[us]; ns-normalization keeps the axis
+                        identical across input representations)
+    numeric          -> epoch ns/us/ms/s by magnitude (_hours_from_numeric);
+                        below EPOCH_THRESHOLD treated as already-hours
     """
     if time_col is None or str(time_col) not in sub_df.columns:
         return None
     s = sub_df[str(time_col)]
     if pd.api.types.is_datetime64_any_dtype(s):
-        vals = s.astype("int64").to_numpy() / 1e9
-        return (vals - vals[0]) / 3600.0
+        return _hours_from_datetime(s)
+    num_probe = pd.to_numeric(s, errors="coerce")
+    if num_probe.notna().mean() > 0.9:
+        return _hours_from_numeric(num_probe.to_numpy(dtype=float))
     parsed = pd.to_datetime(s, errors="coerce")
     if parsed.notna().mean() > 0.9:
-        vals = parsed.astype("int64").to_numpy() / 1e9
-        return (vals - vals[0]) / 3600.0
-    num = pd.to_numeric(s, errors="coerce").to_numpy(dtype=float)
-    if np.nanmean(np.abs(num[np.isfinite(num)])) > EPOCH_THRESHOLD:
-        return (num - num[0]) / 3600.0
-    return num - num[0]
+        return _hours_from_datetime(parsed)
+    return _hours_from_numeric(num_probe.to_numpy(dtype=float))

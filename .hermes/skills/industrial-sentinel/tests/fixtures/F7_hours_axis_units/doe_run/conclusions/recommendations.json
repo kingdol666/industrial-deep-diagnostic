@@ -1,0 +1,55 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "temp",
+      "factor_unit": "C",
+      "response": "quality",
+      "range": [
+        49.5,
+        50.5
+      ],
+      "expected_effect": {
+        "delta": 0.8,
+        "direction_semantics": "per unit",
+        "ci95": [
+          0.5,
+          1.1
+        ],
+        "unit": "sigma"
+      },
+      "confidence": "medium",
+      "fdr_q": 0.02,
+      "sample_size": 300,
+      "evidence_refs": [
+        "correlation:temp~quality"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": false,
+      "notes": "F7 canned window"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "temp": 49.6
+    },
+    "distance_to_window": {},
+    "move_instruction": null
+  },
+  "response_specs": {},
+  "confirmations": [],
+  "watchlist": [],
+  "constraints": [],
+  "applicability_domain": null,
+  "invalidation_conditions": [],
+  "usage_rules": [],
+  "provenance": {
+    "input_sha256": "canned",
+    "script_version": "1.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

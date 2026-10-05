@@ -43,6 +43,8 @@
               "properties": {
                 "center": { "type": "number" },
                 "sigma_within_mr": { "type": ["number", "null"] },
+                "ar1_rho": { "type": ["number", "null"], "description": "lag-1 autocorrelation of the steady window (fieldtest-20261004 R2); sigma_within_mr_ar1 inflates Nelson limits when material" },
+                "sigma_within_mr_ar1": { "type": ["number", "null"] },
                 "sigma_overall": { "type": ["number", "null"] },
                 "median": { "type": ["number", "null"] },
                 "mad": { "type": ["number", "null"] },

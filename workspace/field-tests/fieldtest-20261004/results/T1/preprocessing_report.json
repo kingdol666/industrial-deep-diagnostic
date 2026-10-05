@@ -1,0 +1,124 @@
+{
+  "run_name": "fieldtest_T1",
+  "input_path": "cases\\T1_preprocessor_mixed_inbox\\inbox",
+  "input_is_directory": true,
+  "sources": [],
+  "tables": [
+    {
+      "file": "batch_records.json",
+      "sheet": null,
+      "format": "json",
+      "n_rows": 120,
+      "n_cols": 5,
+      "time_column": "batch_time",
+      "score": 3.12
+    },
+    {
+      "file": "dcs_export_gbk.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 180,
+      "n_cols": 4,
+      "time_column": "时间",
+      "score": 3.48
+    },
+    {
+      "file": "downtime.html",
+      "sheet": null,
+      "format": "html",
+      "n_rows": 25,
+      "n_cols": 5,
+      "time_column": "start_time",
+      "score": 2.525
+    },
+    {
+      "file": "heater_export.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 90,
+      "n_cols": 4,
+      "time_column": "stamp",
+      "score": 3.39
+    },
+    {
+      "file": "operator_notes.md",
+      "sheet": null,
+      "format": "markdown",
+      "n_rows": 40,
+      "n_cols": 4,
+      "time_column": "shift_time",
+      "score": 1.84
+    },
+    {
+      "file": "process_log.tsv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 200,
+      "n_cols": 5,
+      "time_column": "process_time",
+      "score": 4.2
+    },
+    {
+      "file": "qa_lab.xlsx",
+      "sheet": "quality",
+      "format": "excel",
+      "n_rows": 150,
+      "n_cols": 4,
+      "time_column": null,
+      "score": 2.45
+    },
+    {
+      "file": "sensor_log.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 301,
+      "n_cols": 7,
+      "time_column": "timestamp",
+      "score": 5.701
+    }
+  ],
+  "selected_table": {
+    "file": "sensor_log.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 301,
+    "n_cols": 18,
+    "time_column": "batch_time",
+    "score": 5.701,
+    "why": "highest table score"
+  },
+  "merge": {
+    "strategy": "outer_merge_on_time_column",
+    "key": "timestamp",
+    "note": "sheets matched by time-axis overlap >=30%; values normalized to ISO before join",
+    "merged_files": [
+      "batch_records.json",
+      "dcs_export_gbk.csv",
+      "process_log.tsv",
+      "sensor_log.csv"
+    ]
+  },
+  "quality": {
+    "missing_cell_pct": 27.41,
+    "rows": 301,
+    "cols": 18,
+    "time_column": "batch_time",
+    "numeric_columns": [
+      "temp_c",
+      "pressure_mpa",
+      "speed_rpm",
+      "flow_lpm",
+      "vibration_mms",
+      "motor_amp"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "results\\T1\\preprocessed_data.csv",
+    "preprocessed_data.json": "results\\T1\\preprocessed_data.json",
+    "context_dir": "results\\T1\\context"
+  }
+}

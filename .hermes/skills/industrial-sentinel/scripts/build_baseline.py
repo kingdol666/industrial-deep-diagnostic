@@ -45,7 +45,8 @@ def _corr_store(arrays, cols):
     if ok.sum() < max(3, len(cols) + 2):
         return None
     sub = mat[ok]
-    corr = np.corrcoef(sub, rowvar=False)
+    # single-column corrcoef returns a 0-d scalar; atleast_2d keeps (1,1)
+    corr = np.atleast_2d(np.corrcoef(sub, rowvar=False))
     corr = np.nan_to_num(corr, nan=0.0)
     np.fill_diagonal(corr, 1.0)
     kept = list(range(len(cols)))
@@ -94,6 +95,20 @@ def _percentile(v, q):
     return float(np.percentile(v, q)) if v.size else None
 
 
+def _lag1_rho(v):
+    """Lag-1 Pearson autocorrelation, NaN-skipping; None when not estimable
+    (<3 finite points, zero variance, or non-finite result)."""
+    x = v[np.isfinite(v)]
+    if x.size < 3 or float(np.std(x, ddof=1)) <= 0:
+        return None
+    a, b = x[:-1], x[1:]
+    sa, sb = float(np.std(a, ddof=1)), float(np.std(b, ddof=1))
+    if sa <= 0 or sb <= 0:
+        return None
+    r = float(np.corrcoef(a, b)[0, 1])
+    return r if np.isfinite(r) else None
+
+
 def build_group_store(arrays, cols, time_hours, thresholds=None):
     """One group's parameter/correlation/regime store from raw arrays."""
     n = len(next(iter(arrays.values()))) if arrays else 0
@@ -135,6 +150,19 @@ def build_group_store(arrays, cols, time_hours, thresholds=None):
             "cv": (float(np.std(vs, ddof=1) / mean_abs)) if (vs.size and mean_abs) else None,
             "variance_ratio_baseline_std": sigma_all,
         }
+        # AR(1) autocorrelation of the steady window. MRbar/1.128 estimates the
+        # INNOVATION sigma; for rho>0 it understates the marginal sigma by
+        # sqrt(1-rho^2), tightening Nelson limits and storming R1/R5/R6 on
+        # stationary-but-autocorrelated series (fieldtest-20261004: 3,564
+        # alerts / 60 days). sigma_within_mr_ar1 = sigma/sqrt(1-rho^2) is the
+        # independence-assuming limit the rules were derived for. Stored only
+        # when material and safely estimable; C1 prefers it when present.
+        rho = _lag1_rho(vs)
+        if rho is not None and sigma_mr:
+            parameters[c]["ar1_rho"] = round(float(rho), 4)
+            if 0.30 < rho < 0.995:
+                parameters[c]["sigma_within_mr_ar1"] = round(
+                    float(sigma_mr / np.sqrt(1.0 - rho * rho)), 6)
 
     corr = _corr_store({c: arrays[c][steady] for c in cols}, cols) if n_steady else None
 

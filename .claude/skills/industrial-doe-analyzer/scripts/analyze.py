@@ -548,15 +548,50 @@ def _run_designed(run_dir, ctx, profile, df, fig_dir):
     for fam in families:
         _apply_alias_downgrade(fam, profile["design"])
 
+    # Per-term status for EVERY declared term: why a declared term is absent
+    # from the estimates. reason_code: insufficient_df (saturation pooling,
+    # C3) | aliased (coded columns duplicate an earlier term) | zero_variance
+    # (constant factor). Estimated terms carry reason_code null.
+    term_status = {}
+    for t in terms:
+        term_status[t["name"]] = {"estimated": True, "reason_code": None,
+                                  "detail": None, "alias_chain": []}
+    for meta in metas.values():
+        for tname, info in (meta.get("dropped_terms") or {}).items():
+            term_status[tname] = {"estimated": False,
+                                  "reason_code": info["reason_code"],
+                                  "detail": info.get("detail"),
+                                  "alias_chain": info.get("alias_chain") or []}
+    pooled_union = sorted({p for m in models.values() for p in m["pooled_terms"]})
+    for tname in pooled_union:
+        if term_status.get(tname, {}).get("estimated"):
+            term_status[tname] = {
+                "estimated": False, "reason_code": "insufficient_df",
+                "detail": ("pooled to recover residual df (saturation guard C3) in "
+                           ">=1 response; families[].tests carries reason_code "
+                           "\"pooled\" with a coefficient-only row"),
+                "alias_chain": []}
+    # zero-variance factors never reach build_terms — declare their main
+    # effects explicitly so the spec accounts for every modeled factor
+    zv_mains = [i["col"] for i in factor_info if i["zero_variance"]]
+    for tname in zv_mains:
+        term_status[tname] = {
+            "estimated": False, "reason_code": "zero_variance",
+            "detail": (f"factor '{tname}' is constant (zero variance) — the term "
+                       "and every interaction containing it are not estimable"),
+            "alias_chain": []}
+
     effect_table = {
         "generated_at": now(), "mode": "designed",
         "model_spec": {
-            "main_effects": [t["name"] for t in terms if t["kind"] == "main"],
+            "main_effects": ([t["name"] for t in terms if t["kind"] == "main"]
+                             + zv_mains),
             "interactions": [t["name"] for t in terms if t["kind"] in ("2fi", "fi")],
             "quadratic": [t["name"] for t in terms if t["kind"] == "quad"],
             "blocks": [t["name"] for t in terms if t["kind"] == "block"],
             "covariates": [t["name"] for t in terms if t["kind"] == "covariate"],
-            "pooled_terms": sorted({p for m in models.values() for p in m["pooled_terms"]}),
+            "pooled_terms": pooled_union,
+            "term_status": term_status,
         },
         "coding": {
             "method": "deviation",

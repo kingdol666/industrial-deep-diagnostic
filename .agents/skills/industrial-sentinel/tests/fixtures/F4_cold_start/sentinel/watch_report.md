@@ -1,10 +1,10 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-01T13:56:38.207210+00:00
+- **生成时间**：2026-10-05T07:49:39.546572+00:00
 - **总体状态**：**alert** · 告警数 **2**
-- **数据**：`D:\codes\myskills\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F4_cold_start\watch.csv`（240 行；时间列 -；分组列 -）
+- **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F4_cold_start\watch.csv`（240 行；时间列 -；分组列 -）
 - **基线**：模式：self（self:v1.0.0）
-- **耗时**：16 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
+- **耗时**：23 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
 
 > **冷启动提示**：本次运行为冷启动 self 基线（窗口前段稳态行自建，已跳过马氏距离），TTL 48 小时，请尽快用历史数据运行 build_baseline.py 固化正式基线
 
@@ -25,13 +25,21 @@
 
 ## 三、操作窗口投影（C2）
 
-- 无操作窗口投影
+- **C2 漂移投影未启用**：基线中无 operating_windows —— 构建基线时传入 --doe-run-dir 注册 DOE 先验操作窗即可启用（C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)）
 
 ## 四、防风暴抑制
 
 合并触发 0 组同 key 重复；静默期 30 行；同类抑制窗口 60 分钟；迟滞 5 点
 
-## 五、建议后续动作
+## 五、告警事件摘要（incidents）
+
+| 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |
+|------|------|------|----------|----------|--------|------|
+| EVT-20261005074939-002 | temp | spc | high | 0 | 1 | NELSON_R1 |
+| EVT-20261005074939-001 | - | baseline | warn | 0 | 1 | SELF_BASELINE |
+
+## 六、建议后续动作
 
 - 有 `high`/`critical` 告警：按告警中的 `suggested_check` 现场核查；需要根因分析时转 `industrial-diagnostician`，需要参数窗口/工况数据分析时转 `industrial-doe-analyzer`。
+- 事件摘要按峰值级别与告警数排序；完整逐段告警在 alert.json 的 `alerts` 数组（契约不变），事件视图在 `events` 数组。
 - 本报告由脚本生成（`authored_by: script`）；代理只允许追加中文 `interpretation` 注记，禁止改动任何数值字段。

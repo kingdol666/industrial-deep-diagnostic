@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.0",
+  "recommendation_id": "REC-20261004-063908-325",
+  "generated_at": "2026-10-04T06:39:08.610Z",
+  "source": {
+    "fault_signature": {
+      "signature_version": "1.0",
+      "source_ref": "ALT-20261003-0217-001",
+      "anomalous_params": [
+        {
+          "parameter": "temp_c",
+          "direction": "high",
+          "severity": 2.8
+        },
+        {
+          "parameter": "speed_rpm",
+          "direction": "high",
+          "severity": 2.1
+        }
+      ],
+      "regime": {
+        "product": "PVC-M",
+        "machine": "calender-03",
+        "regime_label": "night_shift"
+      },
+      "degraded_metric": "yield_pct"
+    },
+    "trigger_alert_id": "ALT-20261003-0217-001",
+    "campaign_id": null
+  },
+  "recommendation_status": "playbook_hit",
+  "match_scope": "regime",
+  "degradation_path": [
+    "regime: best 1.0000 (exp_fault_control_recipe_PVC-M|ca_2adda6ae0dd13c21)",
+    "-> playbook_hit @regime"
+  ],
+  "playbooks": [
+    {
+      "experience_id": "exp_fault_control_recipe_PVC-M|ca_2adda6ae0dd13c21",
+      "action_sequence": [
+        {
+          "parameter": "temp_c",
+          "to": 77,
+          "unit": "degC",
+          "to_level": null,
+          "step_order": 1,
+          "expected_effect": {
+            "delta": 1.58,
+            "ci95": [
+              1.02,
+              2.14
+            ]
+          }
+        },
+        {
+          "parameter": "speed_rpm",
+          "to": 1238,
+          "unit": "rpm",
+          "to_level": null,
+          "step_order": 2,
+          "expected_effect": {
+            "delta": 1.58,
+            "ci95": [
+              1.02,
+              2.14
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": 1.58,
+        "ci95": [
+          1.02,
+          2.14
+        ],
+        "metric": "yield_pct",
+        "direction_established": true
+      },
+      "evidence_grade": "E2",
+      "corroboration_count": 2,
+      "refutation_count": 0,
+      "provenance_alias": "eng_li",
+      "invalidation_conditions": [
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 1,
+      "autonomy_level": null
+    }
+  ],
+  "final_setpoints": null,
+  "fallback": null,
+  "ack": null,
+  "provenance": {
+    "script_version": "match_playbook/1.0",
+    "authored_by": "script"
+  }
+}

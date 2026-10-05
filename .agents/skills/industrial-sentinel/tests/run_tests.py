@@ -544,7 +544,260 @@ def case_tamper():
     record("tamper_extra_key_gate_fail", r.returncode == 1, r.stdout[-200:])
 
 
+# ---------------------------------------------------------------- F7
+
+F7_TIME_REPRS = ("iso_us", "iso_ns", "epoch_s", "epoch_ms", "epoch_us",
+                 "epoch_ns", "datetime")
+
+
+def f7_watch_frame(seed, n, time_repr):
+    """Watch window with +0.0008/row drift on temp; identical parameter values
+    across calls, only the time-column representation differs (1-min cadence
+    from 2026-03-01T00:00:00Z)."""
+    rng = np.random.default_rng(seed)
+    i = np.arange(n)
+    temp = 49.6 + 0.0008 * i + rng.normal(0, 0.1, n)
+    press = 10.0 + rng.normal(0, 0.04, n)
+    t0 = 1772323200  # 2026-03-01T00:00:00Z
+    base_s = t0 + 60 * i
+    base_dt = pd.Series(pd.to_datetime(base_s, unit="s"))
+    if time_repr == "iso_us":
+        ts = (base_dt.astype("datetime64[us]").dt.strftime("%Y-%m-%dT%H:%M:%S")
+              + ".123456")
+    elif time_repr == "iso_ns":
+        ts = (base_dt.astype("datetime64[ns]").dt.strftime("%Y-%m-%dT%H:%M:%S")
+              + ".123456789")
+    elif time_repr == "epoch_s":
+        ts = pd.Series(base_s)
+    elif time_repr == "epoch_ms":
+        ts = pd.Series(base_s * 10**3)
+    elif time_repr == "epoch_us":
+        ts = pd.Series(base_s * 10**6)
+    elif time_repr == "epoch_ns":
+        ts = pd.Series(base_s * 10**9)
+    elif time_repr == "datetime":
+        ts = base_dt
+    else:
+        raise ValueError(f"unknown time representation: {time_repr}")
+    return pd.DataFrame({"timestamp": ts, "temp": temp, "press": press})
+
+
+def f7_doe_artifacts(doe):
+    """Canned doe-analyzer recommendations carrying one operating window."""
+    (doe / "conclusions").mkdir(parents=True)
+    (doe / "02_analysis").mkdir(parents=True)
+    recs = {
+        "contract_version": "1.0",
+        "audience": "downstream_agent",
+        "operating_windows": [
+            {"id": "OW-001", "priority": 1, "factor": "temp", "factor_unit": "C",
+             "response": "quality", "range": [49.5, 50.5],
+             "expected_effect": {"delta": 0.8, "direction_semantics": "per unit",
+                                 "ci95": [0.5, 1.1], "unit": "sigma"},
+             "confidence": "medium", "fdr_q": 0.02, "sample_size": 300,
+             "evidence_refs": ["correlation:temp~quality"],
+             "extrapolation": False, "confirmation_needed": False,
+             "notes": "F7 canned window"},
+        ],
+        "current_baseline": {"point": {"temp": 49.6}, "distance_to_window": {},
+                             "move_instruction": None},
+        "response_specs": {},
+        "confirmations": [],
+        "watchlist": [],
+        "constraints": [],
+        "applicability_domain": None,
+        "invalidation_conditions": [],
+        "usage_rules": [],
+        "provenance": {"input_sha256": "canned", "script_version": "1.0",
+                       "seed": 42, "authored_by": "script"},
+    }
+    (doe / "conclusions" / "recommendations.json").write_text(
+        json.dumps(recs, ensure_ascii=False, indent=2), encoding="utf-8")
+    (doe / "02_analysis" / "stability_report.json").write_text(
+        json.dumps({"generated_at": "2026-10-01T00:00:00+00:00",
+                    "n_rows": 300, "time_col": None, "capability": [],
+                    "steady_segments": [], "change_points": [],
+                    "drift_flags": [], "regime_summary": None},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def case_f7():
+    print("[F7] hours_axis unit regression: identical hours_to_edge for the "
+          "same window as ISO-us strings / epoch s / epoch ns (pandas 3)")
+    # unit-level: all representations produce the same hour axis
+    sys.path.insert(0, str(SCRIPTS))
+    from sentinelcore._io import hours_axis  # noqa: E402
+
+    ref = None
+    for repr_name in F7_TIME_REPRS:
+        df = f7_watch_frame(7, 24, repr_name)
+        h = hours_axis(df, "timestamp")
+        if ref is None:
+            ref = h
+        rel = float(np.max(np.abs((h - ref) / np.maximum(np.abs(ref), 1e-12))))
+        record(f"F7_hours_axis_{repr_name}_rel_le_1e-6", rel <= 1e-6,
+               f"max_rel={rel:.3e}")
+
+    # end-to-end: identical C2 projection numbers across representations
+    d = case_dir("F7_hours_axis_units")
+    f2_history(d / "history.csv")
+    f7_doe_artifacts(d / "doe_run")
+    r = py([str(BUILD_BASELINE), "--history-csv", str(d / "history.csv"),
+            "--doe-run-dir", str(d / "doe_run"),
+            "--out", str(d / "watch_baseline.json")])
+    record("F7_baseline_build", r.returncode == 0, r.stdout + r.stderr)
+    require(r.returncode == 0, "F7_abort", "baseline build failed")
+
+    projs = {}
+    exit_codes = {}
+    for repr_name in F7_TIME_REPRS:
+        f7_watch_frame(7, 600, repr_name).to_csv(d / f"watch_{repr_name}.csv",
+                                                 index=False)
+        r = py([str(SENTINEL), "watch", "--data", str(d / f"watch_{repr_name}.csv"),
+                "--baseline", str(d / "watch_baseline.json"),
+                "--out-dir", str(d / "sentinel" / repr_name)])
+        exit_codes[repr_name] = r.returncode
+        require((d / "sentinel" / repr_name / "alert.json").exists(),
+                "F7_abort", f"no alert.json for {repr_name}")
+        alert = read(d / "sentinel" / repr_name / "alert.json")
+        psum = alert.get("projection_summary") or []
+        require(psum, "F7_abort", f"empty projection_summary for {repr_name}")
+        projs[repr_name] = psum[0]
+        if repr_name == "iso_us":
+            record("F7_windows_present_no_c2_skip",
+                   alert["checks_summary"].get("checks_skipped") == [],
+                   str(alert["checks_summary"].get("checks_skipped")))
+
+    record("F7_exit_codes_identical",
+           len(set(exit_codes.values())) == 1, str(exit_codes))
+    ref_proj = projs["iso_us"]
+    for repr_name, p in projs.items():
+        for key in ("hours_to_edge", "slope_per_hour", "current"):
+            a, b = ref_proj.get(key), p.get(key)
+            ok = (a is None and b is None) or (
+                a is not None and b is not None
+                and abs(a - b) <= 1e-6 * max(abs(a), abs(b), 1e-12))
+            record(f"F7_{key}_{repr_name}_identical", ok, f"{a} vs {b}")
+    g = run_gate(d / "sentinel" / "iso_us" / "alert.json",
+                 d / "watch_baseline.json")
+    record("F7_gate_pass", g.returncode == 0, g.stdout[-300:])
+
+
+# ---------------------------------------------------------------- F8
+
+F8_C2_NOTICE = ("C2 drift projection disabled: no operating_windows "
+                "in baseline (build with --doe-run-dir to enable)")
+
+
+def case_f8():
+    print("[F8] baseline without operating_windows -> explicit C2-skipped "
+          "notice in alert.json / watch_report.md / stdout")
+    d = case_dir("F8_c2_no_windows")
+    jitter_df(101, 400).to_csv(d / "history.csv", index=False)
+    r = py([str(BUILD_BASELINE), "--history-csv", str(d / "history.csv"),
+            "--out", str(d / "watch_baseline.json")])
+    record("F8_baseline_build", r.returncode == 0, r.stdout + r.stderr)
+    require(r.returncode == 0, "F8_abort", "baseline build failed")
+    bl = read(d / "watch_baseline.json")
+    require(not any(s.get("operating_windows") for s in bl["groups"].values()),
+            "F8_abort", "baseline unexpectedly has operating_windows")
+
+    jitter_df(202, 240).to_csv(d / "watch.csv", index=False)
+    r = py([str(SENTINEL), "watch", "--data", str(d / "watch.csv"),
+            "--baseline", str(d / "watch_baseline.json"),
+            "--out-dir", str(d / "sentinel")])
+    record("F8_watch_exit0", r.returncode == 0, f"rc={r.returncode} {r.stdout[-200:]}")
+    alert = read(d / "sentinel" / "alert.json")
+    skipped = alert["checks_summary"].get("checks_skipped")
+    record("F8_checks_skipped_entry",
+           skipped == [{"check": "window_projection", "reason": F8_C2_NOTICE}],
+           str(skipped))
+    report = (d / "sentinel" / "watch_report.md").read_text(encoding="utf-8")
+    record("F8_report_chinese_notice", "C2 漂移投影未启用" in report, "")
+    record("F8_report_contract_notice", F8_C2_NOTICE in report, "")
+    record("F8_stdout_notice", F8_C2_NOTICE in r.stdout,
+           r.stdout[-300:])
+    g = run_gate(d / "sentinel" / "alert.json", d / "watch_baseline.json")
+    record("F8_gate_pass", g.returncode == 0, g.stdout[-300:])
+
+
 # ---------------------------------------------------------------- driver
+
+def case_t7_events():
+    print("[T7] event aggregation + AR(1) sigma inflation (fieldtest R2)")
+    # ---- unit: aggregate_events grouping semantics
+    sys.path.insert(0, str(SENTINEL.parent))
+    from sentinelcore.events import aggregate_events  # noqa: E402
+
+    def mk(idx, param="p1", sev="warn", stat=-3.5):
+        return {"check_type": "spc", "rule_name": "NELSON_R1", "parameter": param,
+                "group": "1", "severity": sev, "suppression_key": f"g1|spc|{param}",
+                "observed": {"index": idx, "statistic": stat}}
+
+    evs = aggregate_events([mk(10), mk(60), mk(400), mk(460), mk(2000, "p2")],
+                           generated_at="2026-10-05T00:00:00Z")
+    record("T7_unit_samekey_gap_folds", len(evs) == 3, f"events={len(evs)}")
+    record("T7_unit_count", evs[0]["alert_count"] == 2 and evs[1]["alert_count"] == 2
+           and evs[2]["alert_count"] == 1,
+           str([(e["alert_count"], e["parameter"]) for e in evs]))
+    record("T7_unit_span", evs[0]["span_rows"] == 50 and evs[1]["span_rows"] == 60,
+           str([(e["first_index"], e["last_index"]) for e in evs[:2]]))
+    record("T7_unit_id", all(str(e["event_id"]).startswith("EVT-") for e in evs),
+           str([e["event_id"] for e in evs]))
+    seq = aggregate_events([mk(5), mk(10)])
+    record("T7_unit_deterministic", [e["event_id"] for e in seq] ==
+           [e["event_id"] for e in aggregate_events([mk(5), mk(10)])], "stable ids")
+
+    # ---- end-to-end: AR(1) baseline stores rho; watch folds into events
+    d = case_dir("T7_events_ar1")
+    rng = np.random.default_rng(20261005)
+    phi, eps = 0.85, 0.5
+
+    def ar1(n, rng, shift=0.0):
+        x = np.empty(n)
+        x[0] = 50.0 + shift
+        for t in range(1, n):
+            x[t] = 50.0 + shift + phi * (x[t - 1] - 50.0 - shift) \
+                + rng.normal(0, eps)
+        return x
+
+    # baseline = STATIONARY AR(1) only (no excursion — rho must reflect the
+    # process, not a trend); watch continues the same process with a shift
+    hist = ar1(2200, rng)
+    pd.DataFrame({"ts": pd.date_range("2026-01-01", periods=2200, freq="min"),
+                  "temp": hist}).to_csv(d / "history.csv", index=False)
+    r = py([str(BUILD_BASELINE), "--history-csv", str(d / "history.csv"),
+            "--time-col", "ts", "--parameters", "temp",
+            "--out", str(d / "watch_baseline.json")])
+    record("T7_baseline_build", r.returncode == 0, r.stdout + r.stderr[-200:])
+    require(r.returncode == 0, "T7_abort", "baseline build failed")
+    base = read(d / "watch_baseline.json")
+    gkey = sorted(base["groups"])[0]
+    p = base["groups"][gkey]["parameters"]["temp"]
+    record("T7_ar1_rho_stored", p.get("ar1_rho") is not None
+           and 0.70 < p["ar1_rho"] < 0.95, f"rho={p.get('ar1_rho')}")
+    record("T7_ar1_sigma_inflated", p.get("sigma_within_mr_ar1", 0) >
+           1.5 * (p.get("sigma_within_mr") or 1e-9),
+           f"ar1={p.get('sigma_within_mr_ar1')} mr={p.get('sigma_within_mr')}")
+
+    watch = ar1(200, rng, shift=4.0)
+    pd.DataFrame({"ts": pd.date_range("2026-01-03", periods=200, freq="min"),
+                  "temp": watch}).to_csv(d / "watch.csv", index=False)
+    r = py([str(SENTINEL), "watch", "--data", str(d / "watch.csv"),
+            "--baseline", str(d / "watch_baseline.json"), "--time-col", "ts",
+            "--out-dir", str(d / "sentinel")])
+    record("T7_watch_exit", r.returncode == 1, f"rc={r.returncode} {r.stdout[-200:]}")
+    require((d / "sentinel" / "alert.json").exists(), "T7_abort", "no alert.json")
+    alert = read(d / "sentinel" / "alert.json")
+    record("T7_events_in_payload", isinstance(alert.get("events"), list)
+           and "event_count" in alert.get("checks_summary", {}), "events layer")
+    record("T7_events_fold", len(alert.get("events", [])) < len(alert["alerts"]),
+           f"events={len(alert.get('events', []))} alerts={len(alert['alerts'])}")
+    record("T7_ar1_fewer_alerts", len(alert["alerts"]) < 60,
+           f"n_alerts={len(alert['alerts'])} (inflated sigma must curb storm)")
+    g = run_gate(d / "sentinel" / "alert.json", d / "watch_baseline.json")
+    record("T7_gate_pass", g.returncode == 0, g.stdout[-300:])
+
 
 CASES = {
     "F1": case_f1,
@@ -553,6 +806,9 @@ CASES = {
     "F4": case_f4,
     "F5": case_f5,
     "F6": case_f6,
+    "F7": case_f7,
+    "F8": case_f8,
+    "T7": case_t7_events,
     "tamper": case_tamper,
 }
 

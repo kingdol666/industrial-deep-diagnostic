@@ -1,0 +1,18 @@
+# T4 commands.log — 逐条命令台账（case T4）
+
+| # | 命令 | 退出码 | 观察 |
+|---|---|---|---|
+| 1 | `optimizer.py init --run-dir results/T4/campaign --objective cases/T4_optimizer_plant/objective.json` | 0 | campaign OPT-20261004-001; domain T[60,95] C[0.1,0.9]; seed 42 |
+| 2 | `optimizer.py design --run-dir results/T4/campaign` | 0 | R001 method=lhs_fill trials=8 dup_ratio=0.0 |
+| 3 | `plant_sim.py --design .../R001/trial_design.json --out .../R001/trial_result.json` | 0 | ran 8 trials |
+| 4 | `optimizer.py ingest --run-dir results/T4/campaign` | 0 | R001: exploring -> exploiting (continue_exploit); stall=0 max_EI=0.0101 best_D=1.0 |
+| 5 | `optimizer.py status` | 0 | incumbent T=72.039091 C=0.28382 impurity mean 0.408538 (n=1, R001); coverage 0.96 |
+| 6 | `optimizer.py design` | 0 | R002 method=rsm_augment trials=8 dup_ratio=0.0 |
+| 7 | `plant_sim.py --design .../R002/... --out .../R002/trial_result.json` | 0 | ran 8 trials |
+| 8 | `optimizer.py ingest` | 0 | R002: exploiting -> confirming (enter_confirm); stall=1 max_EI=1.633e-06 < eps_EI 0.003191 |
+| 9 | `optimizer.py design` | 0 | R003 method=confirm_replicates trials=1 (replicates=3 @ incumbent, selection_reason=confirm under dual gate) |
+| 10 | `plant_sim.py --design .../R003/... --out .../R003/trial_result.json` | 0 | ran 1 trial; measurements [0.480971, 0.460278, 0.440862] |
+| 11 | `optimizer.py ingest` | 0 | R003: confirming -> converged (stop); "dual gate satisfied"; budget 3 rounds / 17 trials / 19 replicates |
+| 12 | `optimizer.py converge --run-dir results/T4/campaign` | 0 | wrote optimization_conclusion.json + recipe.json + report.md + 2 experience files |
+| 13 | node 读 conclusion/recipe | 0 | dual_gate 全 true, D=1, D_max=1; final_setpoints C=0.28382 T=72.039091; achieved mean 0.4607 sd 0.0201 n=3 ci95_one_sided [0.4269, 0.4945]; verification_status=verified |
+| 14 | `optimizer_gate.mjs results/T4/campaign --skill-path ... --shared-path ...` | 0 | 16/16 passed — ALL PASS |

@@ -1,0 +1,52 @@
+{
+  "report_version": "1.0",
+  "action_log_id": "202610041d4e2b1b",
+  "bundle_scope": false,
+  "attribution_status": "estimable",
+  "reason_code": null,
+  "metric": "yield_pct",
+  "segments": {
+    "baseline": {
+      "row_range": [
+        70,
+        100
+      ],
+      "n": 30,
+      "n_eff": 15,
+      "lag1_autocorr": 0.3187463517401013
+    },
+    "effect": {
+      "row_range": [
+        105,
+        130
+      ],
+      "n": 25,
+      "n_eff": 15,
+      "lag1_autocorr": 0.23696105968579242,
+      "truncated_by": null
+    },
+    "dead_time_used": 0.0
+  },
+  "effect": {
+    "delta": 1.9928553333333525,
+    "ci95": [
+      1.430640409110767,
+      2.555070257555938
+    ],
+    "n_eff_hi": 15,
+    "n_eff_lo": 15,
+    "direction_established": true,
+    "stratified": null
+  },
+  "confound_detected": false,
+  "attribution_compromised": false,
+  "anti_spurious": {
+    "trend_check": "CAUTION",
+    "outlier_check": "PASS"
+  },
+  "evidence_grade": "E1",
+  "provenance": {
+    "script_version": "tune_stats/1.0",
+    "authored_by": "script"
+  }
+}

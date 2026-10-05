@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-10-05T01:36:39.283936+00:00",
+  "n_rows": 12,
+  "time_col": null,
+  "capability": [
+    {
+      "response": "Tear_Strength",
+      "n": 12,
+      "mean": 41.83525,
+      "std_overall": 4.679673,
+      "sigma_within_mr": null,
+      "has_specs": false,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": null,
+      "cnp": null,
+      "normality": {
+        "skew": -1.0041,
+        "excess_kurtosis": 0.1867,
+        "ad_statistic": 0.8242,
+        "ad_critical_5pct": 0.698,
+        "normal": false
+      },
+      "autocorr_lag1": null,
+      "n_eff": null,
+      "note": null
+    }
+  ],
+  "steady_segments": [],
+  "change_points": [],
+  "drift_flags": [],
+  "regime_summary": null
+}
