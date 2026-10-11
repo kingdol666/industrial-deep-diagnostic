@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "ts": "2026-10-06T02:07:43.770+08:00",
+  "actor": {
+    "actor_id": "aws_agent",
+    "actor_type": "control_system"
+  },
+  "actions": [
+    {
+      "parameter": "z1_sp",
+      "from": 201.6,
+      "to": 203.4,
+      "unit": "℃"
+    }
+  ],
+  "context": {
+    "product": "演示产品1",
+    "machine": "演示线1·挤出主机PLC"
+  },
+  "trigger": {
+    "trigger_type": "manual"
+  },
+  "attribution_confounds": [
+    {
+      "type": "other_action",
+      "note": "同期无换料/检修;为 GOAL 提档的受控阶跃"
+    }
+  ],
+  "recommendation_ref": null,
+  "ingest_meta": {
+    "source": "api"
+  }
+}

@@ -36,6 +36,8 @@
     "n_eff_hi": 253,
     "n_eff_lo": 15,
     "direction_established": false,
+    "direction_withheld": false,
+    "stop_suspected": false,
     "stratified": null
   },
   "confound_detected": false,
@@ -44,6 +46,7 @@
     "trend_check": "PASS",
     "outlier_check": "PASS"
   },
+  "warnings": [],
   "evidence_grade": "E1",
   "provenance": {
     "script_version": "tune_stats/1.0",

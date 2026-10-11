@@ -1,0 +1,146 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-11T02:23:30.942448+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "4cb63c035186d44a2b112a949b2d7624aa3a344921aca9845184440b8633d2a0",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "time",
+    "group_col": null,
+    "numeric_columns": [
+      "风压PV(dn-884bca68)",
+      "好氧区DO(dn-70fb6d7d)",
+      "进水COD(dn-918bbaa8)",
+      "进水氨氮(dn-74a93dd4)"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "风压PV(dn-884bca68)": {
+          "center": 60.34266900790167,
+          "sigma_within_mr": 0.7882903937478967,
+          "sigma_overall": 0.8282502605122715,
+          "median": 60.4,
+          "mad": 0.6000000000000014,
+          "q10": 59.3,
+          "q90": 61.4,
+          "cv": 0.013725781012500705,
+          "variance_ratio_baseline_std": 0.8282502605122715,
+          "ar1_rho": 0.087
+        },
+        "好氧区DO(dn-70fb6d7d)": {
+          "center": 3.9374626865671645,
+          "sigma_within_mr": 0.051703561056475875,
+          "sigma_overall": 0.10810708404421994,
+          "median": 3.91,
+          "mad": 0.040000000000000036,
+          "q10": 3.84,
+          "q90": 4.13,
+          "cv": 0.02745602756136134,
+          "variance_ratio_baseline_std": 0.10810708404421994,
+          "ar1_rho": 0.767,
+          "sigma_within_mr_ar1": 0.080584
+        },
+        "进水COD(dn-918bbaa8)": {
+          "center": 420.3103764921947,
+          "sigma_within_mr": 5.553817271589487,
+          "sigma_overall": 7.825949760630812,
+          "median": 420.0,
+          "mad": 5.0,
+          "q10": 411.0,
+          "q90": 430.0,
+          "cv": 0.018619454094719795,
+          "variance_ratio_baseline_std": 7.825949760630812,
+          "ar1_rho": 0.2834
+        },
+        "进水氨氮(dn-74a93dd4)": {
+          "center": 35.012213039485765,
+          "sigma_within_mr": 0.564915128285357,
+          "sigma_overall": 0.7774673523590732,
+          "median": 35.0,
+          "mad": 0.5,
+          "q10": 34.080000000000005,
+          "q90": 36.0,
+          "cv": 0.022205604412445106,
+          "variance_ratio_baseline_std": 0.7774673523590732,
+          "ar1_rho": 0.2609
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "风压PV(dn-884bca68)",
+          "好氧区DO(dn-70fb6d7d)",
+          "进水COD(dn-918bbaa8)",
+          "进水氨氮(dn-74a93dd4)"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.24519855912684604,
+          0.017236259312110817,
+          -0.001281119354066004,
+          0.24519855912684604,
+          1.0,
+          0.04809403664693697,
+          0.024159637059556607,
+          0.017236259312110817,
+          0.04809403664693697,
+          1.0,
+          -0.0367724386477203,
+          -0.0012811193540660038,
+          0.02415963705955661,
+          -0.036772438647720306,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.24519855912684604,
+          0.9694728807976625,
+          0.0,
+          0.0,
+          0.017236259312110817,
+          0.04524905396299197,
+          0.9988270293100703,
+          0.0,
+          -0.0012811193540660038,
+          0.025244404628530295,
+          -0.037937141524692006,
+          0.998960385631526
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": [
+          1024
+        ]
+      },
+      "validity": {
+        "n_steady_rows": 1139,
+        "steady_ratio": 0.9904347826086957,
+        "time_span": "0.000h .. 0.666h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "4cb63c035186d44a2b112a949b2d7624aa3a344921aca9845184440b8633d2a0",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

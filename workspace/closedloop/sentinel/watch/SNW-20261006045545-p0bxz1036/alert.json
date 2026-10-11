@@ -1,0 +1,2086 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261006-045546-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-06T04:55:46.145195+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\merged-ln-d7e0a2a2-20261006T125429.csv",
+    "sha256": "77583d145463e65bac791408d506649069bd0ae739266357f67ffc77bcd7369d",
+    "window_start": "2026-10-06T09:58:35.000+08:00",
+    "window_end": "2026-10-06T12:54:27.000+08:00",
+    "n_rows": 5000,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\演示线1·挤出主机PLC(Modbus TCP)\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 48,
+      "rules_hit": {
+        "NELSON_R1": 4,
+        "NELSON_R5": 7,
+        "NELSON_R6": 7,
+        "NELSON_R2": 8,
+        "NELSON_R3": 22
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "steady": 5000
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 5,
+      "max_d2": null
+    },
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 25,
+    "events_by_parameter": {
+      "spc|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)": {
+        "count": 17,
+        "alerts": 40
+      },
+      "spc|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)": {
+        "count": 3,
+        "alerts": 8
+      },
+      "multivariate|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)": {
+        "count": 3,
+        "alerts": 3
+      },
+      "multivariate|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)": {
+        "count": 2,
+        "alerts": 2
+      }
+    }
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261006-045546-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 17.4,
+        "statistic": -65.75780921153932,
+        "index": 1732,
+        "run_length": 51
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 51
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 稳健 z 分数 |-65.76| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-002",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -71.84714332692403,
+        "index": 1937,
+        "run_length": 64
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 64
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 稳健 z 分数 |-71.85| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-003",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -71.84714332692403,
+        "index": 2090,
+        "run_length": 2910
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 2910
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 稳健 z 分数 |-71.85| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-004",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 69.0,
+        "statistic": 14.558408,
+        "index": 2366,
+        "run_length": 2625
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 2625
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 稳健 z 分数 |14.56| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-005",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 69.0,
+        "statistic": 14.558408,
+        "index": 4988,
+        "run_length": 21
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 21
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 稳健 z 分数 |14.56| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 200.2,
+        "statistic": 3.4581045202312675,
+        "index": 1830,
+        "timestamp": "row 1830",
+        "run_length": 1831
+      },
+      "threshold": {
+        "bound": 5.207853,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1831
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 199.9,
+        "statistic": 3.285288582454232,
+        "index": 2041,
+        "timestamp": "row 2041",
+        "run_length": 210
+      },
+      "threshold": {
+        "bound": 5.207853,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 210
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-045546-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 180.7,
+        "statistic": -7.774931435276693,
+        "index": 4999,
+        "timestamp": "row 4999",
+        "run_length": 2936
+      },
+      "threshold": {
+        "bound": 5.207853,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2936
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.1,
+        "statistic": 28.917983312607216,
+        "index": 4977,
+        "timestamp": "row 4977",
+        "run_length": 4934
+      },
+      "threshold": {
+        "bound": 3.8683258926658732,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 4934
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 17.4,
+        "statistic": -101.84440689858181,
+        "index": 1732,
+        "timestamp": "row 1732",
+        "run_length": 1733
+      },
+      "threshold": {
+        "bound": 3.471902,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 1733
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -111.86773128965045,
+        "index": 1937,
+        "timestamp": "row 1937",
+        "run_length": 156
+      },
+      "threshold": {
+        "bound": 3.471902,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 156
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-012",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 208.6,
+        "statistic": 8.296950777988545,
+        "index": 2001,
+        "timestamp": "row 2001",
+        "run_length": 66
+      },
+      "threshold": {
+        "bound": 3.471902,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 66
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-013",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -111.86773128965045,
+        "index": 2090,
+        "timestamp": "row 2090",
+        "run_length": 91
+      },
+      "threshold": {
+        "bound": 3.471902,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-014",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 180.7,
+        "statistic": -7.774931435276693,
+        "index": 4999,
+        "timestamp": "row 4999",
+        "run_length": 2911
+      },
+      "threshold": {
+        "bound": 3.471902,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 2911
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-015",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 65.5,
+        "statistic": 30.779253588116013,
+        "index": 2353,
+        "timestamp": "row 2353",
+        "run_length": 2310
+      },
+      "threshold": {
+        "bound": 2.5788839284439153,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 2310
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-016",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.1,
+        "statistic": 28.917983312607216,
+        "index": 4977,
+        "timestamp": "row 4977",
+        "run_length": 2626
+      },
+      "threshold": {
+        "bound": 2.5788839284439153,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 2626
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 17.4,
+        "statistic": -101.84440689858181,
+        "index": 1732,
+        "timestamp": "row 1732",
+        "run_length": 1733
+      },
+      "threshold": {
+        "bound": 1.735951,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 1733
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -111.86773128965045,
+        "index": 1937,
+        "timestamp": "row 1937",
+        "run_length": 156
+      },
+      "threshold": {
+        "bound": 1.735951,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 156
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-019",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 208.6,
+        "statistic": 8.296950777988545,
+        "index": 2001,
+        "timestamp": "row 2001",
+        "run_length": 66
+      },
+      "threshold": {
+        "bound": 1.735951,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 66
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-020",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.0,
+        "statistic": -111.86773128965045,
+        "index": 2090,
+        "timestamp": "row 2090",
+        "run_length": 91
+      },
+      "threshold": {
+        "bound": 1.735951,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-021",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 180.7,
+        "statistic": -7.774931435276693,
+        "index": 4999,
+        "timestamp": "row 4999",
+        "run_length": 2911
+      },
+      "threshold": {
+        "bound": 1.735951,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 2911
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-022",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 65.5,
+        "statistic": 30.779253588116013,
+        "index": 2353,
+        "timestamp": "row 2353",
+        "run_length": 2310
+      },
+      "threshold": {
+        "bound": 1.2894419642219577,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 2310
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-023",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.1,
+        "statistic": 28.917983312607216,
+        "index": 4977,
+        "timestamp": "row 4977",
+        "run_length": 2626
+      },
+      "threshold": {
+        "bound": 1.2894419642219577,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 2626
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-024",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 205.4,
+        "statistic": 6.4535807750334,
+        "index": 8,
+        "timestamp": "row 8",
+        "run_length": 1732
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 1732
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-025",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 160.1,
+        "statistic": -19.641625829300484,
+        "index": 1740,
+        "timestamp": "row 1740",
+        "run_length": 51
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 51
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-026",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 154.8,
+        "statistic": -22.694707396694945,
+        "index": 1945,
+        "timestamp": "row 1945",
+        "run_length": 64
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 64
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-027",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 209.2,
+        "statistic": 8.642582653542634,
+        "index": 2009,
+        "timestamp": "row 2009",
+        "run_length": 89
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 89
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-028",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 156.8,
+        "statistic": -21.542601144847975,
+        "index": 2098,
+        "timestamp": "row 2098",
+        "run_length": 2910
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 2910
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-029",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 7.0,
+        "statistic": -14.589209377410775,
+        "index": 52,
+        "timestamp": "row 52",
+        "run_length": 2309
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 2309
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-030",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 64.2,
+        "statistic": 29.77106552221542,
+        "index": 2361,
+        "timestamp": "row 2361",
+        "run_length": 2625
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 2625
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-031",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 68.1,
+        "statistic": 32.7956297199172,
+        "index": 4987,
+        "timestamp": "row 4987",
+        "run_length": 21
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 21
+      },
+      "suggested_check": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-032",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 205.5,
+        "statistic": 6.511186087625745,
+        "index": 335,
+        "timestamp": "row 335",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-033",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 206.4,
+        "statistic": 7.029633900956886,
+        "index": 969,
+        "timestamp": "row 969",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-034",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 205.7,
+        "statistic": 6.626396712810436,
+        "index": 1393,
+        "timestamp": "row 1393",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-035",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 138.3,
+        "statistic": -32.19958397443245,
+        "index": 1737,
+        "timestamp": "row 1737",
+        "run_length": 19
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 19
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 6
+    },
+    {
+      "alert_id": "ALT-20261006-045546-036",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 204.8,
+        "statistic": 6.107948899479313,
+        "index": 2006,
+        "timestamp": "row 2006",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-037",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 126.4,
+        "statistic": -39.054616172921925,
+        "index": 2095,
+        "timestamp": "row 2095",
+        "run_length": 22
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 22
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-038",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.2,
+        "statistic": -8.062957998238435,
+        "index": 2178,
+        "timestamp": "row 2178",
+        "run_length": 8
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 8
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-045546-039",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 178.5,
+        "statistic": -9.042248312308354,
+        "index": 2384,
+        "timestamp": "row 2384",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-045546-040",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.3,
+        "statistic": -8.005352685646073,
+        "index": 2656,
+        "timestamp": "row 2656",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-041",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 179.6,
+        "statistic": -8.408589873792524,
+        "index": 2871,
+        "timestamp": "row 2871",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261006-045546-042",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 179.3,
+        "statistic": -8.581405811569558,
+        "index": 3051,
+        "timestamp": "row 3051",
+        "run_length": 8
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 8
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-043",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 178.8,
+        "statistic": -8.869432374531302,
+        "index": 3117,
+        "timestamp": "row 3117",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-044",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.7,
+        "statistic": -7.774931435276693,
+        "index": 3266,
+        "timestamp": "row 3266",
+        "run_length": 8
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 8
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-045",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.4,
+        "statistic": -7.947747373053729,
+        "index": 3345,
+        "timestamp": "row 3345",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-046",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.8,
+        "statistic": -7.717326122684331,
+        "index": 3477,
+        "timestamp": "row 3477",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 7
+    },
+    {
+      "alert_id": "ALT-20261006-045546-047",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.4,
+        "statistic": -7.947747373053729,
+        "index": 3894,
+        "timestamp": "row 3894",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-045546-048",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 181.4,
+        "statistic": -7.371694247130244,
+        "index": 4101,
+        "timestamp": "row 4101",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-045546-049",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 179.1,
+        "statistic": -8.696616436754265,
+        "index": 4306,
+        "timestamp": "row 4306",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-050",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.6,
+        "statistic": -7.832536747869038,
+        "index": 4465,
+        "timestamp": "row 4465",
+        "run_length": 7
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 7
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-051",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 179.4,
+        "statistic": -8.523800498977215,
+        "index": 4565,
+        "timestamp": "row 4565",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-045546-052",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 180.6,
+        "statistic": -7.832536747869038,
+        "index": 4660,
+        "timestamp": "row 4660",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-045546-053",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 181.6,
+        "statistic": -7.256483621945553,
+        "index": 4818,
+        "timestamp": "row 4818",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "repeat_count": 4
+    }
+  ],
+  "events": [
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 8,
+      "last_index": 8,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 6.4535807750334,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-001"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 52,
+      "last_index": 52,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 14.589209377410775,
+      "suppression_key": "__ALL__|spc|NELSON_R2|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "event_id": "EVT-20261006045546-002"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 335,
+      "last_index": 335,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 6.511186087625745,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-003"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 969,
+      "last_index": 969,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.029633900956886,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-004"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 1393,
+      "last_index": 1393,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 6.626396712810436,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-005"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1732,
+      "last_index": 1732,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 65.75780921153932,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-006"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1732,
+      "last_index": 2178,
+      "span_rows": 446,
+      "alert_count": 18,
+      "rules": [
+        "NELSON_R5",
+        "NELSON_R6",
+        "NELSON_R3",
+        "NELSON_R2",
+        "NELSON_R1"
+      ],
+      "max_abs_statistic": 111.86773128965045,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-007"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1937,
+      "last_index": 1937,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 71.84714332692403,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-008"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 2090,
+      "last_index": 2090,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 71.84714332692403,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-009"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 2353,
+      "last_index": 2361,
+      "span_rows": 8,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R5",
+        "NELSON_R6",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 30.779253588116013,
+      "suppression_key": "__ALL__|spc|NELSON_R5|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "event_id": "EVT-20261006045546-010"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 2366,
+      "last_index": 2366,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 14.558408,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "event_id": "EVT-20261006045546-011"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 2384,
+      "last_index": 2384,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 9.042248312308354,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-012"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 2656,
+      "last_index": 2656,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 8.005352685646073,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-013"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 2871,
+      "last_index": 2871,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 8.408589873792524,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-014"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 3051,
+      "last_index": 3117,
+      "span_rows": 66,
+      "alert_count": 2,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 8.869432374531302,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-015"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 3266,
+      "last_index": 3345,
+      "span_rows": 79,
+      "alert_count": 2,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.947747373053729,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-016"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 3477,
+      "last_index": 3477,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.717326122684331,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-017"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 3894,
+      "last_index": 3894,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.947747373053729,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-018"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 4101,
+      "last_index": 4101,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.371694247130244,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-019"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 4306,
+      "last_index": 4306,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 8.696616436754265,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-020"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 4465,
+      "last_index": 4660,
+      "span_rows": 195,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 8.523800498977215,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-021"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 4818,
+      "last_index": 4818,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 7.256483621945553,
+      "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-022"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 4977,
+      "last_index": 4987,
+      "span_rows": 10,
+      "alert_count": 4,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R6",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 32.7956297199172,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "event_id": "EVT-20261006045546-023"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 4988,
+      "last_index": 4988,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 14.558408,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+      "event_id": "EVT-20261006045546-024"
+    },
+    {
+      "family": "spc",
+      "parameter": "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 4999,
+      "last_index": 4999,
+      "span_rows": 0,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 7.774931435276693,
+      "suppression_key": "__ALL__|spc|NELSON_R1|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "event_id": "EVT-20261006045546-025"
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "steady": 5000
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R3|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 56
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)",
+        "repeat_count": 3
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "77583d145463e65bac791408d506649069bd0ae739266357f67ffc77bcd7369d",
+    "script_version": "1.0.0",
+    "duration_ms": 63,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

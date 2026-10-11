@@ -1,6 +1,6 @@
 # 调优经验库 KB 交接摘要（kb-ready）
 
-> 生成：industrial-tuning-memory experience_build.mjs · 2026-10-01T17:51:04.165Z · RUN_DIR: library
+> 生成：industrial-tuning-memory experience_build.mjs · 2026-10-05T18:07:52.023Z · RUN_DIR: library
 > 交接路径：供 AWS Agent 经 rag-bridge kb_agent 场景化入库（按 regime_key 分库检索）；IDD 不直连任何知识库/外部服务。
 > 证据分级为建议强度（advisory）——是否下发、如何下发（dispatch policy）由 AWS 侧决定。
 > 隐私：本文档仅含人员别名（eng_NN），不含原始人员 ID。

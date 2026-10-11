@@ -1,0 +1,219 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "fan_pump_speed_rpm",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        876.8,
+        894.88
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.6375,
+        "direction_semantics": "观察性结论：fan_pump_speed_rpm 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -1.637（方向已按目标校正）",
+        "ci95": [
+          -1.927134,
+          -1.347866
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 669,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.fan_pump_speed_rpm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "retention_aid_dosage_ppm",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        174.02,
+        210.88
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.429086,
+        "direction_semantics": "观察性结论：retention_aid_dosage_ppm 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -1.429（方向已按目标校正）",
+        "ci95": [
+          -1.733944,
+          -1.124227
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 669,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.retention_aid_dosage_ppm",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "white_water_consistency_pct",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        0.792,
+        0.9958
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -1.150097,
+        "direction_semantics": "观察性结论：white_water_consistency_pct 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -1.15（方向已按目标校正）",
+        "ci95": [
+          -1.460149,
+          -0.840045
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 671,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.white_water_consistency_pct",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    },
+    {
+      "id": "OW-004",
+      "priority": 4,
+      "factor": "headbox_pressure_kPa",
+      "factor_unit": null,
+      "response": "strength_rel_pct",
+      "range": [
+        15.115,
+        22.249
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.989132,
+        "direction_semantics": "观察性结论：headbox_pressure_kPa 处于窗内上三分位 vs 下三分位时，strength_rel_pct 均值差为 -0.9891（方向已按目标校正）",
+        "ci95": [
+          -1.285909,
+          -0.692355
+        ],
+        "unit": "response units"
+      },
+      "confidence": "low",
+      "fdr_q": null,
+      "sample_size": 668,
+      "evidence_refs": [
+        "correlation_report.json#strength_rel_pct.headbox_pressure_kPa",
+        "stability_report.json#steady_segments"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": true,
+      "notes": "窗口取自 3 个最优稳态段的 P10-P90"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "fan_pump_speed_rpm": 905.6,
+      "retention_aid_dosage_ppm": 228.7,
+      "white_water_consistency_pct": 1.043,
+      "headbox_pressure_kPa": 23.74
+    },
+    "distance_to_window": {
+      "OW-001": 10.72,
+      "OW-002": 17.82,
+      "OW-003": 0.0472,
+      "OW-004": 1.491
+    },
+    "move_instruction": "优先处理 OW-001：将 fan_pump_speed_rpm 调整至 [876.8, 894.88]"
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "strength_rel_pct": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": null,
+      "current": 96.396019
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "全部窗口来自观察性数据（相关级证据）— 闭环执行前必须确认",
+      "reason_code": "observational",
+      "design_hint": "在窗口中点附近做确认试验（每因子 ±半窗宽两点 + 中心点，2 次重复）",
+      "runs": 10
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "TREND_CONFOUNDED_NO_WINDOW",
+      "message": "strength_rel_pct~day 原始 r=-0.7305 主要由共同时间趋势驱动（去趋势 r=-0.0985，|detrended_r|<0.1）— 不产出操作窗口，仅列入观察清单等待去趋势后复核",
+      "factor": "day",
+      "response": "strength_rel_pct",
+      "threshold": "0.1"
+    },
+    {
+      "code": "OBSERVATIONAL_EVIDENCE",
+      "message": "本合同全部窗口为观察性（相关级）结论 — 不得在确认试验前直接闭环执行"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 3240,
+    "time_span": "2025-10-01 07:24:30 .. 2026-01-04 05:57:30",
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {
+      "fan_pump_speed_rpm": {
+        "min": 864.4,
+        "max": 956.3
+      },
+      "retention_aid_dosage_ppm": {
+        "min": 153.9,
+        "max": 298.5
+      },
+      "white_water_consistency_pct": {
+        "min": 0.3,
+        "max": 2.0
+      },
+      "headbox_pressure_kPa": {
+        "min": 13.51,
+        "max": 39.84
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "7b632aca89aa073ba49493d8363e3753c5be5049c534cf60d947d205944378a2",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

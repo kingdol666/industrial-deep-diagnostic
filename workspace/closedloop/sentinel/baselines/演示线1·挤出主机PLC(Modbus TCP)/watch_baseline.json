@@ -1,0 +1,115 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-06T16:53:05.285155+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "372386e6e82a1dfc6b836123e27d055d57dc6aad6026fd548ff8bfad20456e5e",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": null,
+    "group_col": null,
+    "numeric_columns": [
+      "ts_ms",
+      "melt_temp",
+      "gel_count"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "ts_ms": {
+          "center": 1791303367668.1025,
+          "sigma_within_mr": 1885.2659051444593,
+          "sigma_overall": 1041837.8129688774,
+          "median": 1791303366153.0,
+          "mad": 907258.0,
+          "q10": 1791301925394.0,
+          "q90": 1791304811092.0,
+          "cv": 5.816088060645638e-07,
+          "variance_ratio_baseline_std": 1041837.8129688774,
+          "ar1_rho": 1.0
+        },
+        "melt_temp": {
+          "center": 199.99899764150942,
+          "sigma_within_mr": 0.40215276470219086,
+          "sigma_overall": 0.40439203502113485,
+          "median": 200.0,
+          "mad": 0.30000000000001137,
+          "q10": 199.5,
+          "q90": 200.5,
+          "cv": 0.002021970308801208,
+          "variance_ratio_baseline_std": 0.40439203502113485,
+          "ar1_rho": 0.0256
+        },
+        "gel_count": {
+          "center": 4.772405660377358,
+          "sigma_within_mr": 0.37030063390447504,
+          "sigma_overall": 0.8574327411226271,
+          "median": 5.0,
+          "mad": 0.0,
+          "q10": 4.0,
+          "q90": 5.0,
+          "cv": 0.17966468111489692,
+          "variance_ratio_baseline_std": 0.8574327411226271,
+          "ar1_rho": 0.2423
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "ts_ms",
+          "melt_temp",
+          "gel_count"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.0198102200502454,
+          -0.3505369117954321,
+          -0.0198102200502454,
+          1.0,
+          0.0013834582565802795,
+          -0.35053691179543206,
+          0.0013834582565802795,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          -0.0198102200502454,
+          0.9998037583353849,
+          0.0,
+          -0.35053691179543206,
+          -0.005561846567849501,
+          0.9365324016453874
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 1696,
+        "steady_ratio": 1.0,
+        "time_span": null,
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "372386e6e82a1dfc6b836123e27d055d57dc6aad6026fd548ff8bfad20456e5e",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

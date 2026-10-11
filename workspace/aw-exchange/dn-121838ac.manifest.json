@@ -1,0 +1,62 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-20261006111344-1c8cf7",
+  "created_at": "2026-10-06T11:13:44.477+08:00",
+  "title": "MeltPressure阶跃未回落诊断数据集",
+  "note": "批次 rr-e8fbc 运行中,MeltPressure 疑似异常阶跃:10:58:55 基线 15.6 MPa → 10:59:00 阶跃 18.4 → 10:59:05 峰 18.7 → 平台 18.4~18.7 至 11:01:00 → 缓降至 ~18.1,11:10+ 持稳 ~18.1 未回基线 15.6(警戒线 16.1 持续越限,预警带 [3.6,41.4] 未触)。SP=127rpm 全程未变,非 SP 驱动(K≈0.117 MPa/rpm,到 18.5 需 +24rpm)。10:59:10–11:00:45 约 95s 采数断档(节点转 offline),恢复时 11:00:50 单点 15.0 疑似重同步毛刺;截至 11:11 节点状态位仍=offline 但数据持续流入(状态位与数据流矛盾)。请判别:真实工艺扰动(下游受阻/回流类)vs 传感链路故障偏置;关注阶跃沿形态、断档前后统计特征、缓降衰减形态、毛刺点质量位。",
+  "window": {
+    "from_ms": 1791251024456,
+    "to_ms": 1791256424456,
+    "from": "2026-10-06T09:43:44.456+08:00",
+    "to": "2026-10-06T11:13:44.456+08:00"
+  },
+  "lines": [
+    {
+      "lineId": "ln-83cfc594",
+      "lineName": "演示线2·熔体泵送单元(OPC UA)",
+      "description": "",
+      "runId": "rr-e8fbccff",
+      "productId": "pd-492ef219",
+      "productName": "演示产品2",
+      "recipeId": "rc-8f9cb3d9",
+      "recipeName": "演示配方2",
+      "recipeVersion": 6,
+      "daqWindows": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dn-121838ac",
+      "name": "演示·熔体泵送单元(OPC UA)·MeltPressure",
+      "unit": "MPa",
+      "line_id": "ln-83cfc594",
+      "range": {
+        "min": 0,
+        "max": 45
+      },
+      "warn": {
+        "low": 3.6,
+        "high": 41.4
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "模拟器设备「熔体泵送单元(OPC UA)」的 MeltPressure(真实 opcua 采样链路)",
+      "file": "nodes/dn-121838ac.csv",
+      "rows": 2409,
+      "value_range_observed": {
+        "min": 15,
+        "max": 18.8
+      },
+      "state_summary": {
+        "ok": 2403,
+        "offline": 6
+      }
+    }
+  ],
+  "totals": {
+    "files": 1,
+    "rows": 2409
+  },
+  "truncated_nodes": [],
+  "usage": "nodes/ 下每节点一份全量原始时序 CSV(ts_iso,ts_ms,value,state;无降采样)。请结合本清单的节点语义/量程/产线-配方上下文做分析;深度根因诊断请用 diag-bridge 的 diag_run(export_id=本 export_id)。"
+}

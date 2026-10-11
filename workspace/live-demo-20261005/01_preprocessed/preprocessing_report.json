@@ -1,0 +1,154 @@
+{
+  "run_name": "",
+  "input_path": "data\\paper_machine_headbox",
+  "input_is_directory": true,
+  "sources": [],
+  "tables": [
+    {
+      "file": "DCS_export_20251001_20251229.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 64800,
+      "n_cols": 15,
+      "time_column": "ts_dcs",
+      "score": 13.5,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 712,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "merged_dcs_qcs_20251001_20251229.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3240,
+      "n_cols": 23,
+      "time_column": "ts_dcs",
+      "score": 16.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 41,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "operator_event_log_2025Q4.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 623,
+      "n_cols": 3,
+      "time_column": "ts_event",
+      "score": 2.223,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "QCS_quality_export_20251001_20251229.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3240,
+      "n_cols": 9,
+      "time_column": "ts_qcs",
+      "score": 8.8,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 2,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "merged_dcs_qcs_20251001_20251229.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 3240,
+    "n_cols": 23,
+    "time_column": "ts_dcs",
+    "score": 16.0,
+    "why": "file is an already-merged/alignment product of the raw exports"
+  },
+  "merge": null,
+  "merge_exclusions": [
+    {
+      "file": "DCS_export_20251001_20251229.csv",
+      "sheet": null,
+      "reason_code": "premerged_file_used",
+      "detail": "directory contains an already-merged product file; per-file time-axis merge skipped"
+    },
+    {
+      "file": "operator_event_log_2025Q4.csv",
+      "sheet": null,
+      "reason_code": "premerged_file_used",
+      "detail": "directory contains an already-merged product file; per-file time-axis merge skipped"
+    },
+    {
+      "file": "QCS_quality_export_20251001_20251229.csv",
+      "sheet": null,
+      "reason_code": "premerged_file_used",
+      "detail": "directory contains an already-merged product file; per-file time-axis merge skipped"
+    }
+  ],
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 3240,
+    "cols": 23,
+    "time_column": "ts_dcs",
+    "numeric_columns": [
+      "day",
+      "shift",
+      "headbox_pressure_kPa",
+      "approach_flow_lpm",
+      "fan_pump_speed_rpm",
+      "white_water_consistency_pct",
+      "retention_aid_dosage_ppm",
+      "slice_opening_mm",
+      "machine_speed_mmin",
+      "stock_temp_C",
+      "jet_to_wire_ratio",
+      "vacuum_pump1_kPa",
+      "vacuum_pump2_kPa",
+      "cd_basis_weight_cv_pct",
+      "formation_index",
+      "ash_content_pct",
+      "moisture_pct",
+      "strength_rel_pct"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\live-demo-20261005\\01_preprocessed\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\live-demo-20261005\\01_preprocessed\\preprocessed_data.json",
+    "context_dir": "workspace\\live-demo-20261005\\01_preprocessed\\context"
+  }
+}

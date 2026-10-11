@@ -1,0 +1,115 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-06T21:44:42.165871+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "987e55057e5b4e3028a3808153dc2698ba17a3b17935cf294569be4c618c9d72",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "time",
+    "group_col": null,
+    "numeric_columns": [
+      "MeltTemp",
+      "PartWeight",
+      "InjPressPV"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "MeltTemp": {
+          "center": 235.89285714285717,
+          "sigma_within_mr": 0.32765957446808425,
+          "sigma_overall": 0.3257431064943224,
+          "median": 235.9,
+          "mad": 0.19999999999998863,
+          "q10": 235.4,
+          "q90": 236.3,
+          "cv": 0.0013808943197336906,
+          "variance_ratio_baseline_std": 0.3257431064943224,
+          "ar1_rho": 0.0515
+        },
+        "PartWeight": {
+          "center": 31.371349206349205,
+          "sigma_within_mr": 0.034893617021276434,
+          "sigma_overall": 0.037828099071524714,
+          "median": 31.37,
+          "mad": 0.02499999999999858,
+          "q10": 31.325,
+          "q90": 31.42,
+          "cv": 0.0012058167732189452,
+          "variance_ratio_baseline_std": 0.037828099071524714,
+          "ar1_rho": 0.1261
+        },
+        "InjPressPV": {
+          "center": 54.36428571428571,
+          "sigma_within_mr": 0.8609929078014184,
+          "sigma_overall": 0.7847001247064291,
+          "median": 54.3,
+          "mad": 0.6000000000000014,
+          "q10": 53.4,
+          "q90": 55.4,
+          "cv": 0.014434110821035356,
+          "variance_ratio_baseline_std": 0.7847001247064291,
+          "ar1_rho": -0.1468
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "MeltTemp",
+          "PartWeight",
+          "InjPressPV"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.09817322498634633,
+          -0.13495972099937703,
+          0.09817322498634633,
+          1.0,
+          0.12614901966612757,
+          -0.13495972099937703,
+          0.12614901966612757,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.09817322498634633,
+          0.9951693413162306,
+          0.0,
+          -0.13495972099937703,
+          0.14007510574584503,
+          0.9809000145060967
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 126,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.107h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "987e55057e5b4e3028a3808153dc2698ba17a3b17935cf294569be4c618c9d72",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

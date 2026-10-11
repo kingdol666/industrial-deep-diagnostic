@@ -1,0 +1,87 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-20261006045234-ec4b43",
+  "created_at": "2026-10-06T04:52:34.757+08:00",
+  "title": "206工况保持判读数据窗(120min)",
+  "note": "最终闭环 532def56:z2/z3=206℃ 批内生效后 120min 全窗。用途:①206 新工况重刷哨兵基线;②全窗批筛取告警统计判别扰动形态 vs 阶跃余波;③熔体 3min 均值 GOAL≥205.5 复核。",
+  "window": {
+    "from_ms": 1791226354648,
+    "to_ms": 1791233554648,
+    "from": "2026-10-06T02:52:34.648+08:00",
+    "to": "2026-10-06T04:52:34.648+08:00"
+  },
+  "lines": [
+    {
+      "lineId": "ln-d7e0a2a2",
+      "lineName": "演示线1·挤出主机PLC(Modbus TCP)",
+      "description": "",
+      "runId": "rr-9b067126",
+      "productId": "pd-787a4188",
+      "productName": "演示产品1",
+      "recipeId": "rc-bbab24bc",
+      "recipeName": "演示配方1",
+      "recipeVersion": 9,
+      "daqWindows": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dn-0183240d",
+      "name": "演示·挤出主机PLC(Modbus TCP)·熔体温度",
+      "unit": "℃",
+      "line_id": "ln-d7e0a2a2",
+      "range": {
+        "min": 0,
+        "max": 400
+      },
+      "warn": {
+        "low": 32,
+        "high": 368
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "模拟器设备「挤出主机PLC(Modbus TCP)」的 熔体温度(真实 modbus-tcp 采样链路)",
+      "file": "nodes/dn-0183240d.csv",
+      "rows": 3482,
+      "value_range_observed": {
+        "min": 204.2,
+        "max": 207.6
+      },
+      "state_summary": {
+        "ok": 3482
+      }
+    },
+    {
+      "id": "dn-a41c49cc",
+      "name": "演示·晶点计数从站(Modbus RTU)·晶点计数",
+      "unit": "个/m²",
+      "line_id": "ln-d7e0a2a2",
+      "range": {
+        "min": 0,
+        "max": 500
+      },
+      "warn": {
+        "low": 40,
+        "high": 460
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "模拟器设备「晶点计数从站(Modbus RTU)」的 晶点计数(真实 modbus-rtu 采样链路)",
+      "file": "nodes/dn-a41c49cc.csv",
+      "rows": 3483,
+      "value_range_observed": {
+        "min": 0,
+        "max": 9
+      },
+      "state_summary": {
+        "warn": 3483
+      }
+    }
+  ],
+  "totals": {
+    "files": 2,
+    "rows": 6965
+  },
+  "truncated_nodes": [],
+  "usage": "nodes/ 下每节点一份全量原始时序 CSV(ts_iso,ts_ms,value,state;无降采样)。请结合本清单的节点语义/量程/产线-配方上下文做分析;深度根因诊断请用 diag-bridge 的 diag_run(export_id=本 export_id)。"
+}

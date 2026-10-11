@@ -1,0 +1,778 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261006-163802-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-06T16:38:02.214758+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\demo1-melt-gel-clean-20261007T003154.csv",
+    "sha256": "63589698f2346821fdadc42599729c2188799cd3bbc6674acb41d18c750f52d6",
+    "window_start": "2026-10-06 23:44:06.679",
+    "window_end": "2026-10-07 00:31:52.880",
+    "n_rows": 1340,
+    "time_col": "ts_iso",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\演示线1\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 17,
+      "rules_hit": {
+        "NELSON_R1": 5,
+        "NELSON_R5": 5,
+        "NELSON_R6": 3,
+        "NELSON_R2": 4
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "abnormal": 8,
+          "marginal": 4,
+          "startup": 6,
+          "steady": 1322
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 4,
+      "max_d2": null
+    },
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 7,
+    "events_by_parameter": {
+      "spc|melt_temp": {
+        "count": 4,
+        "alerts": 11
+      },
+      "spc|gel_count": {
+        "count": 2,
+        "alerts": 6
+      },
+      "multivariate|gel_count": {
+        "count": 1,
+        "alerts": 1
+      }
+    }
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261006-163802-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 1.0,
+        "statistic": -11.124744167128734,
+        "index": 1317,
+        "run_length": 3
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "gel_count 稳健 z 分数 |-11.12| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|gel_count",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-163802-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 3.0,
+        "statistic": -80.63993690416643,
+        "index": 1,
+        "timestamp": "row 1",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 0.073842,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "gel_count 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|gel_count",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 4.0,
+        "statistic": -40.012651619369166,
+        "index": 1320,
+        "timestamp": "row 1320",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.073842,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "gel_count 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|gel_count",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261006-163802-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 201.5,
+        "statistic": 3.611040821172441,
+        "index": 16,
+        "timestamp": "row 16",
+        "run_length": 17
+      },
+      "threshold": {
+        "bound": 1.240396540338558,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 17
+      },
+      "suggested_check": "melt_temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-005",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 201.3,
+        "statistic": 3.127324541347765,
+        "index": 135,
+        "timestamp": "row 135",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 1.240396540338558,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "melt_temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 198.6,
+        "statistic": -3.4028452362857733,
+        "index": 948,
+        "timestamp": "row 948",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 1.240396540338558,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "melt_temp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 5.0,
+        "statistic": 0.6146336654281038,
+        "index": 2,
+        "timestamp": "row 2",
+        "run_length": 3
+      },
+      "threshold": {
+        "bound": 0.049228,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "gel_count 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|gel_count",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 4.0,
+        "statistic": -40.012651619369166,
+        "index": 1324,
+        "timestamp": "row 1324",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": 0.049228,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "gel_count 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|gel_count",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261006-163802-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 208.5,
+        "statistic": 20.541110615037063,
+        "index": 3,
+        "timestamp": "row 3",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.826931026892372,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "melt_temp 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|melt_temp",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261006-163802-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 200.1,
+        "statistic": 0.22502686239950304,
+        "index": 1150,
+        "timestamp": "row 1150",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.826931026892372,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "melt_temp 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 200.9,
+        "statistic": 2.1598919816983444,
+        "index": 1228,
+        "timestamp": "row 1228",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.826931026892372,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "melt_temp 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-012",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 4.0,
+        "statistic": -40.012651619369166,
+        "index": 1322,
+        "timestamp": "row 1322",
+        "run_length": 7
+      },
+      "threshold": {
+        "bound": 0.024614,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 7
+      },
+      "suggested_check": "gel_count 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|gel_count",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-163802-013",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 200.1,
+        "statistic": 0.22502686239950304,
+        "index": 20,
+        "timestamp": "row 20",
+        "run_length": 19
+      },
+      "threshold": {
+        "bound": 0.413465513446186,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 19
+      },
+      "suggested_check": "melt_temp 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|melt_temp",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261006-163802-014",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 199.8,
+        "statistic": -0.500547557337511,
+        "index": 1084,
+        "timestamp": "row 1084",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": 0.413465513446186,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "melt_temp 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-015",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "gel_count",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 5.0,
+        "statistic": 0.6146336654281038,
+        "index": 10,
+        "timestamp": "row 10",
+        "run_length": 1315
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 1315
+      },
+      "suggested_check": "gel_count 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|gel_count",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-016",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 203.8,
+        "statistic": 9.17377803915656,
+        "index": 11,
+        "timestamp": "row 11",
+        "run_length": 19
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 19
+      },
+      "suggested_check": "melt_temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 200.0,
+        "statistic": -0.01683127751283496,
+        "index": 330,
+        "timestamp": "row 330",
+        "run_length": 12
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "melt_temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|melt_temp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-163802-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "melt_temp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 200.0,
+        "statistic": -0.01683127751283496,
+        "index": 1186,
+        "timestamp": "row 1186",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "melt_temp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|melt_temp",
+      "repeat_count": 1
+    }
+  ],
+  "events": [
+    {
+      "family": "spc",
+      "parameter": "gel_count",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1,
+      "last_index": 10,
+      "span_rows": 9,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 80.63993690416643,
+      "suppression_key": "__ALL__|spc|NELSON_R1|gel_count",
+      "event_id": "EVT-20261006163802-001"
+    },
+    {
+      "family": "spc",
+      "parameter": "melt_temp",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 3,
+      "last_index": 135,
+      "span_rows": 132,
+      "alert_count": 5,
+      "rules": [
+        "NELSON_R5",
+        "NELSON_R2",
+        "NELSON_R1",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 20.541110615037063,
+      "suppression_key": "__ALL__|spc|NELSON_R5|melt_temp",
+      "event_id": "EVT-20261006163802-002"
+    },
+    {
+      "family": "spc",
+      "parameter": "melt_temp",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 330,
+      "last_index": 330,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 0.01683127751283496,
+      "suppression_key": "__ALL__|spc|NELSON_R2|melt_temp",
+      "event_id": "EVT-20261006163802-003"
+    },
+    {
+      "family": "spc",
+      "parameter": "melt_temp",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 948,
+      "last_index": 948,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R1"
+      ],
+      "max_abs_statistic": 3.4028452362857733,
+      "suppression_key": "__ALL__|spc|NELSON_R1|melt_temp",
+      "event_id": "EVT-20261006163802-004"
+    },
+    {
+      "family": "spc",
+      "parameter": "melt_temp",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1084,
+      "last_index": 1228,
+      "span_rows": 144,
+      "alert_count": 4,
+      "rules": [
+        "NELSON_R6",
+        "NELSON_R5",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 2.1598919816983444,
+      "suppression_key": "__ALL__|spc|NELSON_R6|melt_temp",
+      "event_id": "EVT-20261006163802-005"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "gel_count",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1317,
+      "last_index": 1317,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 11.124744167128734,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|gel_count",
+      "event_id": "EVT-20261006163802-006"
+    },
+    {
+      "family": "spc",
+      "parameter": "gel_count",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 1320,
+      "last_index": 1324,
+      "span_rows": 4,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R6",
+        "NELSON_R5"
+      ],
+      "max_abs_statistic": 40.012651619369166,
+      "suppression_key": "__ALL__|spc|NELSON_R1|gel_count",
+      "event_id": "EVT-20261006163802-007"
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "abnormal": 8,
+        "marginal": 4,
+        "startup": 6,
+        "steady": 1322
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|gel_count",
+        "repeat_count": 4
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|gel_count",
+        "repeat_count": 5
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|melt_temp",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|melt_temp",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|gel_count",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|melt_temp",
+        "repeat_count": 5
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|gel_count",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|melt_temp",
+        "repeat_count": 3
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "63589698f2346821fdadc42599729c2188799cd3bbc6674acb41d18c750f52d6",
+    "script_version": "1.0.0",
+    "duration_ms": 21,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

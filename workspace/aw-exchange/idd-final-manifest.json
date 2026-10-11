@@ -1,0 +1,364 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-20261011102132-70ecf2",
+  "created_at": "2026-10-11T10:21:32.382+08:00",
+  "title": "终验-40.5→42台阶窗(前后各15min)",
+  "note": "",
+  "window": {
+    "from_ms": 1791682892261,
+    "to_ms": 1791685292261,
+    "from": "2026-10-11T09:41:32.261+08:00",
+    "to": "2026-10-11T10:21:32.261+08:00"
+  },
+  "lines": [
+    {
+      "lineId": "ln-0d5bfeac",
+      "lineName": "A2O污水生化处理线",
+      "description": "AW-LINE:hlUsQDXXzZ A2O 污水线:曝气+加药+回流排泥+进出水;达标降耗多目标;来源=标准产线开发文档(污水线)",
+      "runId": "rr-77e96337",
+      "productId": "pd-717e9d91",
+      "productName": "A2O污水生化处理线·默认产品",
+      "recipeId": "rc-b45b9ada",
+      "recipeName": "A2O达标降耗基线配方",
+      "recipeVersion": 2,
+      "daqWindows": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dn-884bca68",
+      "name": "风压PV",
+      "unit": "kPa",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 20,
+        "max": 90
+      },
+      "warn": {
+        "low": 25.6,
+        "high": 84.4
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-884bca68.csv",
+      "rows": 1150,
+      "value_range_observed": {
+        "min": 57.1,
+        "max": 63
+      },
+      "state_summary": {
+        "ok": 1150
+      }
+    },
+    {
+      "id": "dn-70fb6d7d",
+      "name": "好氧区DO",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 10
+      },
+      "warn": {
+        "low": 1.5,
+        "high": 6
+      },
+      "interval_ms": 2000,
+      "decimals": 2,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-70fb6d7d.csv",
+      "rows": 1150,
+      "value_range_observed": {
+        "min": 3.73,
+        "max": 4.37
+      },
+      "state_summary": {
+        "ok": 1150
+      }
+    },
+    {
+      "id": "dn-33c4da60",
+      "name": "碱投加流量PV",
+      "unit": "L/h",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 130
+      },
+      "warn": {
+        "low": 10.4,
+        "high": 119.6
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-33c4da60.csv",
+      "rows": 1150,
+      "value_range_observed": {
+        "min": 0,
+        "max": 0
+      },
+      "state_summary": {
+        "warn": 1150
+      }
+    },
+    {
+      "id": "dn-1a7522d2",
+      "name": "除磷投加流量PV",
+      "unit": "L/h",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 100
+      },
+      "warn": {
+        "low": 8,
+        "high": 92
+      },
+      "interval_ms": 2000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-1a7522d2.csv",
+      "rows": 1150,
+      "value_range_observed": {
+        "min": 0,
+        "max": 0
+      },
+      "state_summary": {
+        "warn": 1150
+      }
+    },
+    {
+      "id": "dn-e2793212",
+      "name": "污泥浓度MLSS",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 1000,
+        "max": 8000
+      },
+      "warn": {
+        "low": 1560,
+        "high": 7440
+      },
+      "interval_ms": 5000,
+      "decimals": 0,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-e2793212.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 3455,
+        "max": 3613
+      },
+      "state_summary": {
+        "ok": 460
+      }
+    },
+    {
+      "id": "dn-918bbaa8",
+      "name": "进水COD",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 100,
+        "max": 900
+      },
+      "warn": {
+        "low": 164,
+        "high": 836
+      },
+      "interval_ms": 3000,
+      "decimals": 0,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-918bbaa8.csv",
+      "rows": 767,
+      "value_range_observed": {
+        "min": 394,
+        "max": 449
+      },
+      "state_summary": {
+        "ok": 767
+      }
+    },
+    {
+      "id": "dn-74a93dd4",
+      "name": "进水氨氮",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 10,
+        "max": 80
+      },
+      "warn": {
+        "low": 15.6,
+        "high": 74.4
+      },
+      "interval_ms": 3000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-74a93dd4.csv",
+      "rows": 767,
+      "value_range_observed": {
+        "min": 32.5,
+        "max": 38.1
+      },
+      "state_summary": {
+        "ok": 767
+      }
+    },
+    {
+      "id": "dn-2d87cc99",
+      "name": "出水COD",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 300
+      },
+      "warn": {
+        "low": 24,
+        "high": 80
+      },
+      "interval_ms": 5000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-2d87cc99.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 94.3,
+        "max": 100.1
+      },
+      "state_summary": {
+        "warn": 460
+      }
+    },
+    {
+      "id": "dn-0fca842d",
+      "name": "出水氨氮",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 60
+      },
+      "warn": {
+        "low": 4.8,
+        "high": 8
+      },
+      "interval_ms": 5000,
+      "decimals": 2,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-0fca842d.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 1.09,
+        "max": 1.86
+      },
+      "state_summary": {
+        "warn": 460
+      }
+    },
+    {
+      "id": "dn-35e9a456",
+      "name": "出水总磷",
+      "unit": "mg/L",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 8
+      },
+      "warn": {
+        "low": 0.64,
+        "high": 1
+      },
+      "interval_ms": 5000,
+      "decimals": 2,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-35e9a456.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 0.38,
+        "max": 0.49
+      },
+      "state_summary": {
+        "warn": 460
+      }
+    },
+    {
+      "id": "dn-fd7c8a2d",
+      "name": "出水pH",
+      "unit": "pH",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 4,
+        "max": 11
+      },
+      "warn": {
+        "low": 6,
+        "high": 9
+      },
+      "interval_ms": 5000,
+      "decimals": 2,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-fd7c8a2d.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 8.72,
+        "max": 8.96
+      },
+      "state_summary": {
+        "ok": 460
+      }
+    },
+    {
+      "id": "dn-482d7703",
+      "name": "出水浊度",
+      "unit": "NTU",
+      "line_id": "ln-0d5bfeac",
+      "range": {
+        "min": 0,
+        "max": 60
+      },
+      "warn": {
+        "low": 4.8,
+        "high": 55.2
+      },
+      "interval_ms": 5000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-482d7703.csv",
+      "rows": 460,
+      "value_range_observed": {
+        "min": 0.1,
+        "max": 0.6
+      },
+      "state_summary": {
+        "warn": 460
+      }
+    },
+    {
+      "id": "dn-20700007",
+      "name": "DO浓度剖面",
+      "kind": "vector",
+      "line_id": "ln-0d5bfeac",
+      "semantics": "DO浓度剖面(向量)",
+      "unit": "mg/L",
+      "file": "frames/dn-20700007.csv",
+      "frames": 200,
+      "points": 1400,
+      "value_range_observed": null,
+      "state_summary": {},
+      "metrics_summary": {},
+      "truncated": true
+    }
+  ],
+  "totals": {
+    "files": 12,
+    "rows": 8894
+  },
+  "truncated_nodes": [
+    "dn-20700007"
+  ],
+  "usage": "nodes/ 下每标量节点一份全量原始时序 CSV(ts_iso,ts_ms,value,state;无降采样);帧节点(vector/image)在 frames/ 下:向量=单 CSV 长表(ts_iso,ts_ms,point_index,value),图像=逐帧原文件 frames/<node_id>/<ts>.<ext>。请结合本清单的节点语义/量程/产线-配方上下文做分析;深度根因诊断请用 diag-bridge 的 diag_run(export_id=本 export_id)。"
+}

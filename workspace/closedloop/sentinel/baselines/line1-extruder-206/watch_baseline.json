@@ -1,0 +1,91 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-05T20:40:37.798651+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "f15707b561a354409be7645344d57e6751ecc43d0db3ef7613687f9e8dbe23d7",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "time",
+    "group_col": null,
+    "numeric_columns": [
+      "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+      "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)": {
+          "center": 206.04964775676675,
+          "sigma_within_mr": 0.36631626575751836,
+          "sigma_overall": 0.3902664792678291,
+          "median": 206.1,
+          "mad": 0.29999999999998295,
+          "q10": 205.6,
+          "q90": 206.6,
+          "cv": 0.0018940409921424514,
+          "variance_ratio_baseline_std": 0.3902664792678291,
+          "ar1_rho": 0.0549
+        },
+        "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)": {
+          "center": 4.00111234705228,
+          "sigma_within_mr": 1.4682245301681505,
+          "sigma_overall": 1.4944254305807085,
+          "median": 4.0,
+          "mad": 1.0,
+          "q10": 2.0,
+          "q90": 6.0,
+          "cv": 0.37350249154630444,
+          "variance_ratio_baseline_std": 1.4944254305807085,
+          "ar1_rho": 0.0017
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "演示·挤出主机PLC(Modbus TCP)·熔体温度(dn-0183240d)",
+          "演示·晶点计数从站(Modbus RTU)·晶点计数(dn-a41c49cc)"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.009699392830615388,
+          0.00969939283061539,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.00969939283061539,
+          0.9999529597829677
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 2697,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 1.549h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "f15707b561a354409be7645344d57e6751ecc43d0db3ef7613687f9e8dbe23d7",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

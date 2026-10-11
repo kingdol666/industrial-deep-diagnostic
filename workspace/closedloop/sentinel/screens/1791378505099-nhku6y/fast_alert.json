@@ -1,0 +1,1281 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261007-130826-000",
+  "mode": "fast_screen",
+  "status": "alert",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-07T13:08:26.284467+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\reg-latest.csv",
+    "sha256": "b5ce78b21986be027c72ab36f834a7a660851b30bc4dac2985a640ec12151d5b",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 92,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\inj-weight-ln5b\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 40,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 4,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261007-130826-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "注塑·SP注射速度回读(dn-9ebe1c76)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 100.0,
+        "statistic": 4.612768881856726,
+        "index": 1,
+        "run_length": 91
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP注射速度回读(dn-9ebe1c76) 稳健 z |4.61| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|注塑·SP注射速度回读(dn-9ebe1c76)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-002",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.3,
+        "statistic": -3.6396019999998916,
+        "index": 2,
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 稳健 z |-3.64| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-003",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "注塑·模具温度PV(dn-76a63d2c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 30.8,
+        "statistic": -44.13017424999937,
+        "index": 12,
+        "run_length": 91
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·模具温度PV(dn-76a63d2c) 稳健 z |-44.13| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|注塑·模具温度PV(dn-76a63d2c)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-004",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "注塑·注射压力(dn-9e70726e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 66.1,
+        "statistic": 10.615505833333302,
+        "index": 71,
+        "run_length": 91
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·注射压力(dn-9e70726e) 稳健 z |10.62| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|注塑·注射压力(dn-9e70726e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-005",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·SP保压压力回读(dn-b21e20cb)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 62.0,
+        "statistic": -38.8882476190476,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP保压压力回读(dn-b21e20cb) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·SP保压压力回读(dn-b21e20cb)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·SP模温回读(dn-0065481e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -501.2366974930362,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP模温回读(dn-0065481e) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·SP模温回读(dn-0065481e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·SP注射速度回读(dn-9ebe1c76)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 100.0,
+        "statistic": 948.2626000000001,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP注射速度回读(dn-9ebe1c76) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·SP注射速度回读(dn-9ebe1c76)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.31,
+        "statistic": -5.149242168160427,
+        "index": 6,
+        "run_length": 5
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261007-130826-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·模具温度PV(dn-76a63d2c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -59.51809309664696,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·模具温度PV(dn-76a63d2c) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·模具温度PV(dn-76a63d2c)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·注射压力(dn-9e70726e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.5,
+        "statistic": 13.524797575046453,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·注射压力(dn-9e70726e) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·注射压力(dn-9e70726e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·熔体温度(dn-4a69619f)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 224.7,
+        "statistic": -7.384282393369731,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·熔体温度(dn-4a69619f) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·熔体温度(dn-4a69619f)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-012",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·缩痕率(dn-72bfca8c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.99,
+        "statistic": -3.8135277150137017,
+        "index": 1,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "注塑·缩痕率(dn-72bfca8c) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·缩痕率(dn-72bfca8c)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261007-130826-013",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·节拍(dn-b12e8f1d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 12.8,
+        "statistic": -474.0588881355929,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·节拍(dn-b12e8f1d) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·节拍(dn-b12e8f1d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-014",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "注塑·飞边率(dn-1c371346)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.067,
+        "statistic": 4.110388425216493,
+        "index": 36,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "注塑·飞边率(dn-1c371346) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|注塑·飞边率(dn-1c371346)",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261007-130826-015",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·SP保压压力回读(dn-b21e20cb)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 62.0,
+        "statistic": -38.8882476190476,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP保压压力回读(dn-b21e20cb) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·SP保压压力回读(dn-b21e20cb)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-016",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·SP模温回读(dn-0065481e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -501.2366974930362,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP模温回读(dn-0065481e) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·SP模温回读(dn-0065481e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·SP注射速度回读(dn-9ebe1c76)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 100.0,
+        "statistic": 948.2626000000001,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP注射速度回读(dn-9ebe1c76) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·SP注射速度回读(dn-9ebe1c76)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.58,
+        "statistic": 1.5710958600084863,
+        "index": 19,
+        "run_length": 19
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 19
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-019",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·模具温度PV(dn-76a63d2c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -59.51809309664696,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·模具温度PV(dn-76a63d2c) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·模具温度PV(dn-76a63d2c)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-020",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·注射压力(dn-9e70726e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.5,
+        "statistic": 13.524797575046453,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·注射压力(dn-9e70726e) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·注射压力(dn-9e70726e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-021",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·熔体温度(dn-4a69619f)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 224.7,
+        "statistic": -7.384282393369731,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·熔体温度(dn-4a69619f) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·熔体温度(dn-4a69619f)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-022",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·缩痕率(dn-72bfca8c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 1.11,
+        "statistic": -2.63601740300947,
+        "index": 6,
+        "run_length": 3
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "注塑·缩痕率(dn-72bfca8c) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·缩痕率(dn-72bfca8c)",
+      "repeat_count": 10
+    },
+    {
+      "alert_id": "ALT-20261007-130826-023",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·节拍(dn-b12e8f1d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 12.8,
+        "statistic": -474.0588881355929,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·节拍(dn-b12e8f1d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·节拍(dn-b12e8f1d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-024",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "注塑·飞边率(dn-1c371346)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.054,
+        "statistic": 3.164787484408966,
+        "index": 38,
+        "run_length": 3
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "注塑·飞边率(dn-1c371346) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|注塑·飞边率(dn-1c371346)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-025",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·SP保压压力回读(dn-b21e20cb)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 62.0,
+        "statistic": -38.8882476190476,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP保压压力回读(dn-b21e20cb) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·SP保压压力回读(dn-b21e20cb)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-026",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·SP模温回读(dn-0065481e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -501.2366974930362,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP模温回读(dn-0065481e) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·SP模温回读(dn-0065481e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-027",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·SP注射速度回读(dn-9ebe1c76)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 100.0,
+        "statistic": 948.2626000000001,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP注射速度回读(dn-9ebe1c76) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·SP注射速度回读(dn-9ebe1c76)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-028",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.44,
+        "statistic": -1.9135238583013863,
+        "index": 25,
+        "run_length": 25
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 25
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261007-130826-029",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·模具温度PV(dn-76a63d2c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 32.0,
+        "statistic": -59.51809309664696,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·模具温度PV(dn-76a63d2c) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·模具温度PV(dn-76a63d2c)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-030",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·注射压力(dn-9e70726e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 63.5,
+        "statistic": 13.524797575046453,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·注射压力(dn-9e70726e) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·注射压力(dn-9e70726e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-031",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·熔体温度(dn-4a69619f)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 224.7,
+        "statistic": -7.384282393369731,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·熔体温度(dn-4a69619f) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·熔体温度(dn-4a69619f)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-032",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·缩痕率(dn-72bfca8c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 1.34,
+        "statistic": -0.3791226383346949,
+        "index": 28,
+        "run_length": 28
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 28
+      },
+      "suggested_check": "注塑·缩痕率(dn-72bfca8c) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·缩痕率(dn-72bfca8c)",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261007-130826-033",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "注塑·节拍(dn-b12e8f1d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 12.8,
+        "statistic": -474.0588881355929,
+        "index": 91,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·节拍(dn-b12e8f1d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|注塑·节拍(dn-b12e8f1d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-034",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·SP保压压力回读(dn-b21e20cb)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 60.0,
+        "statistic": -77.45510476190474,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP保压压力回读(dn-b21e20cb) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·SP保压压力回读(dn-b21e20cb)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-035",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·SP模温回读(dn-0065481e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 32.0,
+        "statistic": -501.2366974930362,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP模温回读(dn-0065481e) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·SP模温回读(dn-0065481e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-036",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·SP注射速度回读(dn-9ebe1c76)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 100.0,
+        "statistic": 948.2626000000001,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·SP注射速度回读(dn-9ebe1c76) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·SP注射速度回读(dn-9ebe1c76)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-037",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 32.36,
+        "statistic": -3.904735125906977,
+        "index": 10,
+        "run_length": 17
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 17
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261007-130826-038",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·制品克重(dn-5ec3ed17)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 32.44,
+        "statistic": -1.9135238583013863,
+        "index": 82,
+        "run_length": 9
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "注塑·制品克重(dn-5ec3ed17) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·制品克重(dn-5ec3ed17)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261007-130826-039",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·模具温度PV(dn-76a63d2c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 32.0,
+        "statistic": -59.51809309664696,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·模具温度PV(dn-76a63d2c) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·模具温度PV(dn-76a63d2c)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-040",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·注射压力(dn-9e70726e)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 63.3,
+        "statistic": 13.28721939962844,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·注射压力(dn-9e70726e) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·注射压力(dn-9e70726e)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-041",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·熔体温度(dn-4a69619f)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 225.1,
+        "statistic": -6.4019852435819695,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·熔体温度(dn-4a69619f) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·熔体温度(dn-4a69619f)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261007-130826-042",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·缩痕率(dn-72bfca8c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 1.33,
+        "statistic": -0.4772484976683809,
+        "index": 16,
+        "run_length": 71
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 71
+      },
+      "suggested_check": "注塑·缩痕率(dn-72bfca8c) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·缩痕率(dn-72bfca8c)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261007-130826-043",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·缩痕率(dn-72bfca8c)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 1.27,
+        "statistic": -1.0660036536704967,
+        "index": 88,
+        "run_length": 12
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 12
+      },
+      "suggested_check": "注塑·缩痕率(dn-72bfca8c) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·缩痕率(dn-72bfca8c)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261007-130826-044",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "注塑·节拍(dn-b12e8f1d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 12.8,
+        "statistic": -474.0588881355929,
+        "index": 9,
+        "run_length": 91
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 91
+      },
+      "suggested_check": "注塑·节拍(dn-b12e8f1d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|注塑·节拍(dn-b12e8f1d)",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|注塑·制品克重(dn-5ec3ed17)",
+        "repeat_count": 5
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|注塑·缩痕率(dn-72bfca8c)",
+        "repeat_count": 5
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|注塑·飞边率(dn-1c371346)",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|注塑·制品克重(dn-5ec3ed17)",
+        "repeat_count": 4
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|注塑·缩痕率(dn-72bfca8c)",
+        "repeat_count": 4
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|注塑·缩痕率(dn-72bfca8c)",
+        "repeat_count": 10
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|注塑·制品克重(dn-5ec3ed17)",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|注塑·缩痕率(dn-72bfca8c)",
+        "repeat_count": 3
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "b5ce78b21986be027c72ab36f834a7a660851b30bc4dac2985a640ec12151d5b",
+    "script_version": "1.0.0",
+    "duration_ms": 32,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\live-demo-20261005\\03_doe\\merged_dcs_qcs_20251001_20251229.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "strength_rel_pct",
+      "goal": null,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "day",
+      "type": "numeric"
+    },
+    {
+      "col": "shift",
+      "type": "categorical"
+    },
+    {
+      "col": "headbox_pressure_kPa",
+      "type": "numeric"
+    },
+    {
+      "col": "approach_flow_lpm",
+      "type": "numeric"
+    },
+    {
+      "col": "fan_pump_speed_rpm",
+      "type": "numeric"
+    },
+    {
+      "col": "white_water_consistency_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "retention_aid_dosage_ppm",
+      "type": "numeric"
+    },
+    {
+      "col": "slice_opening_mm",
+      "type": "numeric"
+    },
+    {
+      "col": "machine_speed_mmin",
+      "type": "numeric"
+    },
+    {
+      "col": "stock_temp_C",
+      "type": "numeric"
+    },
+    {
+      "col": "jet_to_wire_ratio",
+      "type": "numeric"
+    },
+    {
+      "col": "vacuum_pump1_kPa",
+      "type": "numeric"
+    },
+    {
+      "col": "vacuum_pump2_kPa",
+      "type": "numeric"
+    },
+    {
+      "col": "cd_basis_weight_cv_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "formation_index",
+      "type": "numeric"
+    },
+    {
+      "col": "ash_content_pct",
+      "type": "numeric"
+    },
+    {
+      "col": "moisture_pct",
+      "type": "categorical"
+    },
+    {
+      "col": "grade_running",
+      "type": "categorical"
+    },
+    {
+      "col": "grade",
+      "type": "categorical"
+    },
+    {
+      "col": "defect_grade",
+      "type": "categorical"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [
+    "ts_dcs",
+    "ts_qcs"
+  ],
+  "time_col": "ts_dcs",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "auto",
+    "notes": [
+      "analysis_context.json was absent — fields auto-inferred; review responses/factors before trusting windows",
+      "time_col: 'ts_dcs' accepted via content fallback (parse rate=1.00)"
+    ]
+  },
+  "_predictor_cols": [
+    "day",
+    "shift",
+    "headbox_pressure_kPa",
+    "approach_flow_lpm",
+    "fan_pump_speed_rpm",
+    "white_water_consistency_pct",
+    "retention_aid_dosage_ppm",
+    "slice_opening_mm",
+    "machine_speed_mmin",
+    "stock_temp_C",
+    "jet_to_wire_ratio",
+    "vacuum_pump1_kPa",
+    "vacuum_pump2_kPa",
+    "cd_basis_weight_cv_pct",
+    "formation_index",
+    "ash_content_pct",
+    "moisture_pct",
+    "grade_running",
+    "grade",
+    "defect_grade"
+  ]
+}

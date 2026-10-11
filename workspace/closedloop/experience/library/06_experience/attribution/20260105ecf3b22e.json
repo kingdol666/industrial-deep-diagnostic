@@ -36,6 +36,8 @@
     "n_eff_hi": 14,
     "n_eff_lo": 14,
     "direction_established": false,
+    "direction_withheld": false,
+    "stop_suspected": false,
     "stratified": null
   },
   "confound_detected": false,
@@ -44,6 +46,12 @@
     "trend_check": "CAUTION",
     "outlier_check": "PASS"
   },
+  "warnings": [
+    {
+      "code": "settle_window_truncated",
+      "message": "effect window truncated to 29 finite rows by action_log[1]@row67 (short of settle_steps=200); effect degraded to truncated/E0 — rerun with an explicit --settle-steps from process knowledge if the true settling time is shorter"
+    }
+  ],
   "evidence_grade": "E0",
   "provenance": {
     "script_version": "tune_stats/1.0",

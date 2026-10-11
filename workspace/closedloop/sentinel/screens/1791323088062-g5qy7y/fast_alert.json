@@ -1,0 +1,357 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261006-214448-000",
+  "mode": "fast_screen",
+  "status": "alert",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-06T21:44:48.494467+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\sentinel_inject1027_0516_0530.csv",
+    "sha256": "8bc59270fdd03dde3465318b8b5bca04f4df2cafc842805a3113ba838dc27fcd",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 29,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-902bc976\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 10,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 1,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261006-214448-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 232.44,
+        "statistic": -7.870639325000465,
+        "index": 1,
+        "run_length": 7
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 7
+      },
+      "suggested_check": "MeltTemp 稳健 z |-7.87| 超阈值（快筛），建议进入 watch 全量核查",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|MeltTemp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "InjPressPV",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 50.11,
+        "statistic": -4.941139091550945,
+        "index": 4,
+        "run_length": 5
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "InjPressPV 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|InjPressPV",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 234.36,
+        "statistic": -4.678200371057559,
+        "index": 7,
+        "run_length": 7
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 7
+      },
+      "suggested_check": "MeltTemp 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|MeltTemp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "InjPressPV",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 54.35,
+        "statistic": -0.016592139326890073,
+        "index": 12,
+        "run_length": 13
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "InjPressPV 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|InjPressPV",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-005",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 235.8,
+        "statistic": -0.2833951762523595,
+        "index": 8,
+        "run_length": 9
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "MeltTemp 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|MeltTemp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "InjPressPV",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 54.35,
+        "statistic": -0.016592139326890073,
+        "index": 12,
+        "run_length": 13
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 13
+      },
+      "suggested_check": "InjPressPV 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|InjPressPV",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 235.8,
+        "statistic": -0.2833951762523595,
+        "index": 8,
+        "run_length": 9
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "MeltTemp 窗口内多点超出 1σ 同侧，离散度升高，建议关注（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|MeltTemp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "InjPressPV",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 52.09,
+        "statistic": -2.6414685808425387,
+        "index": 8,
+        "run_length": 14
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 14
+      },
+      "suggested_check": "InjPressPV 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|InjPressPV",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 235.8,
+        "statistic": -0.2833951762523595,
+        "index": 8,
+        "run_length": 9
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "MeltTemp 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|MeltTemp",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "PartWeight",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 31.36,
+        "statistic": -0.32525164537356893,
+        "index": 11,
+        "run_length": 11
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "PartWeight 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|PartWeight",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261006-214448-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "MeltTemp",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 235.99,
+        "statistic": 0.29647495361776494,
+        "index": 9,
+        "run_length": 5
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "MeltTemp 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|MeltTemp",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "8bc59270fdd03dde3465318b8b5bca04f4df2cafc842805a3113ba838dc27fcd",
+    "script_version": "1.0.0",
+    "duration_ms": 13,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-20261010131136-a80a51",
+  "created_at": "2026-10-10T13:11:37.180+08:00",
+  "title": "炉温台阶签名排查(ln-c67805a6 监控约定自查)",
+  "note": "FurnaceTemp 于 12:39:30 与 13:09:55 观测到 ~9℃ 瞬跌(759→751);需测定跌沿间隔谱,判定是否 ~120.5s/~130.5s 周期方波签名(拍频 26.2min)。Hardness 作共模对照。",
+  "window": {
+    "from_ms": 1791601896989,
+    "to_ms": 1791609096989,
+    "from": "2026-10-10T11:11:36.989+08:00",
+    "to": "2026-10-10T13:11:36.989+08:00"
+  },
+  "lines": [
+    {
+      "lineId": "ln-db722eda",
+      "lineName": "退火验收线-1027",
+      "description": "AW-LINE:3zatnyZicB aw-line-onboarding skill tuning场景验收(退火五协议)",
+      "runId": "rr-eb5cacec",
+      "productId": "pd-4534cf8d",
+      "productName": "退火验收线-1027·默认产品",
+      "recipeId": "rc-b80fd6b7",
+      "recipeName": "退火验收基线配方",
+      "recipeVersion": 1,
+      "daqWindows": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dn-c76b8a5a",
+      "name": "FurnaceTemp",
+      "unit": "℃",
+      "line_id": "ln-db722eda",
+      "range": {
+        "min": 20,
+        "max": 900
+      },
+      "warn": {
+        "low": 90.4,
+        "high": 829.6
+      },
+      "interval_ms": 3000,
+      "decimals": 1,
+      "semantics": "熔体/箱体温度:热工艺核心被控量,热惯性大(变化平缓)。判读:与设定值偏差 ±2℃ 内为稳态;持续单边漂移 = 加热/散热失衡;骤升骤降多为扰动或传感器异常。",
+      "file": "nodes/dn-c76b8a5a.csv",
+      "rows": 1480,
+      "value_range_observed": {
+        "min": 739.9,
+        "max": 762.3
+      },
+      "state_summary": {
+        "ok": 1445,
+        "offline": 35
+      }
+    },
+    {
+      "id": "dn-93b1e5f0",
+      "name": "Hardness",
+      "unit": "HV",
+      "line_id": "ln-db722eda",
+      "range": {
+        "min": 60,
+        "max": 200
+      },
+      "warn": {
+        "low": 71.2,
+        "high": 188.8
+      },
+      "interval_ms": 3000,
+      "decimals": 1,
+      "semantics": "功率计:整机/关键设备有功功率,反映负载率与能耗;缓升=磨损或工艺漂移,突跳=启停或卡阻;与产量联用可得单位能耗,是能效优化的直接观测量。",
+      "file": "nodes/dn-93b1e5f0.csv",
+      "rows": 1520,
+      "value_range_observed": {
+        "min": 97,
+        "max": 104.6
+      },
+      "state_summary": {
+        "ok": 1515,
+        "offline": 5
+      }
+    }
+  ],
+  "totals": {
+    "files": 2,
+    "rows": 3000
+  },
+  "truncated_nodes": [],
+  "usage": "nodes/ 下每标量节点一份全量原始时序 CSV(ts_iso,ts_ms,value,state;无降采样);帧节点(vector/image)在 frames/ 下:向量=单 CSV 长表(ts_iso,ts_ms,point_index,value),图像=逐帧原文件 frames/<node_id>/<ts>.<ext>。请结合本清单的节点语义/量程/产线-配方上下文做分析;深度根因诊断请用 diag-bridge 的 diag_run(export_id=本 export_id)。"
+}

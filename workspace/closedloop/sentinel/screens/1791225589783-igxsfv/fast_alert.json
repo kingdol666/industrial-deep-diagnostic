@@ -1,0 +1,59 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261005-183950-000",
+  "mode": "fast_screen",
+  "status": "ok",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-05T18:39:50.918705+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\line1-disturb-0239-last400.csv",
+    "sha256": "def128a20a4e801dd0732842b1c0344fd49fb7ce677e94e8b334b6e49b086bc3",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 400,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\演示线1\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 0,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 0,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "def128a20a4e801dd0732842b1c0344fd49fb7ce677e94e8b334b6e49b086bc3",
+    "script_version": "1.0.0",
+    "duration_ms": 40,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

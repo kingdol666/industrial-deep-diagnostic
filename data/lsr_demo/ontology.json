@@ -1,0 +1,89 @@
+{
+  "scene": {
+    "name": "演示反应产线",
+    "process_type": "continuous_reactor",
+    "production_goal": "收率稳定 ≥ 96%，温度受控 80±1°C"
+  },
+  "signals": {
+    "process_parameters": [
+      {
+        "column": "reactor_temp",
+        "name": "反应器温度",
+        "unit": "°C",
+        "role": "parameter",
+        "normal_range": [
+          79.0,
+          81.0
+        ],
+        "target": 80.0,
+        "governing_law": "能量平衡：Q = m·Cp·ΔT",
+        "physical_meaning": "反应区温度，直接决定转化速率与副反应比例"
+      },
+      {
+        "column": "feed_rate",
+        "name": "进料流量",
+        "unit": "m3/h",
+        "role": "parameter",
+        "governing_law": "停留时间 τ = V/Q",
+        "physical_meaning": "进料流量，升高则停留时间缩短、转化率下降"
+      },
+      {
+        "column": "cooling_flow",
+        "name": "冷却流量",
+        "unit": "m3/h",
+        "role": "parameter",
+        "governing_law": "移热 Q = m·Cp·(T_out-T_in)",
+        "physical_meaning": "夹套冷却水流量，用于维持反应温度"
+      }
+    ],
+    "inspection_signals": [
+      {
+        "column": "yield_pct",
+        "name": "收率",
+        "unit": "%",
+        "role": "target",
+        "normal_range": [
+          95.5,
+          97.0
+        ],
+        "target": 96.2,
+        "governing_law": "Arrhenius 动力学 + 停留时间分布",
+        "physical_meaning": "产品质量指标"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "thermal_group": [
+      "reactor_temp",
+      "cooling_flow"
+    ],
+    "throughput_group": [
+      "feed_rate"
+    ]
+  },
+  "relationships": [
+    {
+      "from": "feed_rate",
+      "to": "yield_pct",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "进料流量↑ → 停留时间τ缩短 → 转化率↓ → 收率↓（τ = V/Q）",
+      "governing_equation": "τ = V/Q"
+    },
+    {
+      "from": "cooling_flow",
+      "to": "reactor_temp",
+      "type": "causal",
+      "strength": "medium",
+      "mechanism": "冷却流量↑ → 移热增强 → 反应温度↓",
+      "governing_equation": "Q = m·Cp·ΔT"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "catalyst_age",
+      "why": "催化剂活性随时间衰减，同时影响温度响应与收率基线",
+      "controlled": false
+    }
+  ]
+}

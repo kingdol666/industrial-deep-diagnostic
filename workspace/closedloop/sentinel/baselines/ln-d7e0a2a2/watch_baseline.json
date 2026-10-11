@@ -1,0 +1,91 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-10-06T19:25:39.746278+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "2e86ca6684d8fd6ac5dad93e45163ad0bbbf80a478858afce960d79f5f449e89",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "time",
+    "group_col": null,
+    "numeric_columns": [
+      "melt_temp",
+      "dot_count"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "melt_temp": {
+          "center": 207.78510028653295,
+          "sigma_within_mr": 0.3892557267465556,
+          "sigma_overall": 0.4012284351277834,
+          "median": 207.8,
+          "mad": 0.29999999999998295,
+          "q10": 207.3,
+          "q90": 208.3,
+          "cv": 0.0019309778929023043,
+          "variance_ratio_baseline_std": 0.4012284351277834,
+          "ar1_rho": 0.041
+        },
+        "dot_count": {
+          "center": 4.054285714285714,
+          "sigma_within_mr": 1.4606067995691847,
+          "sigma_overall": 1.4853328487968966,
+          "median": 4.0,
+          "mad": 1.0,
+          "q10": 2.0,
+          "q90": 6.0,
+          "cv": 0.3663611677793614,
+          "variance_ratio_baseline_std": 1.4853328487968966,
+          "ar1_rho": -0.0091
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "melt_temp",
+          "dot_count"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          0.1067161853240899,
+          0.10671618532408991,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.10671618532408991,
+          0.9942895231218494
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 350,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.199h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "2e86ca6684d8fd6ac5dad93e45163ad0bbbf80a478858afce960d79f5f449e89",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

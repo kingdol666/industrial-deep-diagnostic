@@ -11,7 +11,61 @@
       "history_csv": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-closedloop-t4\\e2e\\sentinel\\history.csv",
       "doe_run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\e2e-closedloop-t4\\e2e\\doe_run",
       "registered_at": "2026-10-01T17:45:09.117Z"
+    },
+    "演示线1": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\演示线1\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/line1_melt_steady_baseline_20261007_0340-0420.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-06T20:30:12.917Z"
+    },
+    "line1-extruder-206": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\line1-extruder-206\\watch_baseline.json",
+      "history_csv": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\baseline_206_steady.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-05T20:40:38.105Z"
+    },
+    "line1-extruder-206hold-20261006": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\line1-extruder-206hold-20261006\\watch_baseline.json",
+      "history_csv": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\daqexp-20261006045553-875a30\\merged.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-05T20:56:22.016Z"
+    },
+    "演示线1·挤出主机PLC(Modbus TCP)": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\演示线1·挤出主机PLC(Modbus TCP)\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/line1-recovery-steady-20261007T0046.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-06T16:53:05.375Z"
+    },
+    "ln-d7e0a2a2": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-d7e0a2a2\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/merged_steady_ascii.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-06T19:25:39.805Z"
+    },
+    "ln-902bc976": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-902bc976\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/sentinel_inject1027_steady1s_0523_0529.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-06T21:44:42.214Z"
+    },
+    "inj-weight-ln5b": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\inj-weight-ln5b\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/inj-run1.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-07T10:44:16.231Z"
+    },
+    "ln-0d5bfeac": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-0d5bfeac\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/merged-rr77e96-baseline-v2-5s.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-10T04:32:05.701Z"
+    },
+    "A2O-ln0d5bfeac": {
+      "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\A2O-ln0d5bfeac\\watch_baseline.json",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/idd-final-merged.csv",
+      "doe_run_dir": null,
+      "registered_at": "2026-10-11T02:23:31.000Z"
     }
   },
-  "last_line": "L1-UI"
+  "last_line": "A2O-ln0d5bfeac"
 }

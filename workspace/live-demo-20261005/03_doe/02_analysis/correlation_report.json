@@ -1,0 +1,459 @@
+{
+  "generated_at": "2026-10-05T08:15:09.210373+00:00",
+  "mode": "observational",
+  "n_rows": 3240,
+  "time_col": "ts_dcs",
+  "group_col": null,
+  "sorting_validation": {
+    "time_sorted": true,
+    "time_column": "ts_dcs",
+    "n_rows": 3240,
+    "n_time_values": 3240,
+    "message": "Time-sorted"
+  },
+  "pairs": [
+    {
+      "target": "strength_rel_pct",
+      "parameter": "day",
+      "r": -0.7305,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 0,
+      "best_lag_r": -0.7305,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0985,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "shift",
+      "r": 0.018,
+      "p_value": 0.3056,
+      "n": 3240,
+      "best_lag": -12,
+      "best_lag_r": -0.0294,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0262,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.3247
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "headbox_pressure_kPa",
+      "r": -0.6484,
+      "p_value": 0.0,
+      "n": 3215,
+      "best_lag": 20,
+      "best_lag_r": -0.6611,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1422,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "approach_flow_lpm",
+      "r": -0.0738,
+      "p_value": 0.0,
+      "n": 3237,
+      "best_lag": -15,
+      "best_lag_r": -0.104,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0018,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "fan_pump_speed_rpm",
+      "r": -0.7306,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 19,
+      "best_lag_r": -0.7328,
+      "lag_window_consistent": true,
+      "detrended_r": -0.2371,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "white_water_consistency_pct",
+      "r": -0.6238,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -6,
+      "best_lag_r": -0.6358,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1305,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "retention_aid_dosage_ppm",
+      "r": -0.7183,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -2,
+      "best_lag_r": -0.7267,
+      "lag_window_consistent": true,
+      "detrended_r": -0.2107,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "slice_opening_mm",
+      "r": 0.0247,
+      "p_value": 0.16,
+      "n": 3240,
+      "best_lag": -18,
+      "best_lag_r": 0.0384,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0076,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.20923076923076925
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "machine_speed_mmin",
+      "r": 0.0216,
+      "p_value": 0.2183,
+      "n": 3236,
+      "best_lag": -18,
+      "best_lag_r": 0.0321,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0105,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.26507857142857144
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "stock_temp_C",
+      "r": 0.4332,
+      "p_value": 0.0,
+      "n": 3238,
+      "best_lag": 14,
+      "best_lag_r": 0.4557,
+      "lag_window_consistent": true,
+      "detrended_r": -0.023,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "jet_to_wire_ratio",
+      "r": -0.0202,
+      "p_value": 0.25,
+      "n": 3240,
+      "best_lag": -6,
+      "best_lag_r": -0.0256,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0175,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.2833333333333333
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "vacuum_pump1_kPa",
+      "r": -0.0077,
+      "p_value": 0.6633,
+      "n": 3240,
+      "best_lag": -7,
+      "best_lag_r": -0.0486,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0022,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.6633
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "vacuum_pump2_kPa",
+      "r": -0.0289,
+      "p_value": 0.1002,
+      "n": 3235,
+      "best_lag": 15,
+      "best_lag_r": -0.0907,
+      "lag_window_consistent": false,
+      "detrended_r": 0.0269,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.15485454545454547
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "cd_basis_weight_cv_pct",
+      "r": -0.6925,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": -15,
+      "best_lag_r": -0.7058,
+      "lag_window_consistent": true,
+      "detrended_r": -0.1782,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "formation_index",
+      "r": 0.747,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 0,
+      "best_lag_r": 0.747,
+      "lag_window_consistent": false,
+      "detrended_r": 0.2771,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": "OK",
+        "loo_leverage": false,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "ash_content_pct",
+      "r": -0.2097,
+      "p_value": 0.0,
+      "n": 3240,
+      "best_lag": 1,
+      "best_lag_r": -0.2269,
+      "lag_window_consistent": false,
+      "detrended_r": -0.03,
+      "trend_confounded": true,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": "CONFOUNDED",
+        "simpson": null
+      },
+      "anti_spurious_verdict": "CAUTION",
+      "evidence_level": "L4",
+      "notes": [
+        "shared time trend confounds the raw correlation"
+      ],
+      "q_value_bh": 0.0
+    },
+    {
+      "target": "strength_rel_pct",
+      "parameter": "moisture_pct",
+      "r": -0.0249,
+      "p_value": 0.1571,
+      "n": 3238,
+      "best_lag": -13,
+      "best_lag_r": -0.0587,
+      "lag_window_consistent": false,
+      "detrended_r": -0.0291,
+      "trend_confounded": false,
+      "contribution_delta_r2": null,
+      "verdicts": {
+        "outlier_sensitivity": null,
+        "loo_leverage": null,
+        "time_trend": null,
+        "simpson": null
+      },
+      "anti_spurious_verdict": "PASS",
+      "evidence_level": "L4",
+      "notes": [],
+      "q_value_bh": 0.20923076923076925
+    }
+  ],
+  "top_contributors": [],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 17,
+    "total_significant_q05": 10
+  },
+  "anti_spurious_summary": {
+    "overall_validity": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly.",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 17,
+      "skew_affected_columns": 1,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 8,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 2,
+      "fatal_issues": 0,
+      "serious_count": 2,
+      "moderate_count": 8
+    },
+    "lag_warning": null
+  }
+}
