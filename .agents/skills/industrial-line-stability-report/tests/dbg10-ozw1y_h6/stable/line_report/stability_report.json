@@ -1,0 +1,762 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791606585-75xc1w",
+  "generated_at": "2026-10-10T04:29:45Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-10-01 08:00:00",
+    "end": "2026-10-02 00:39:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-line-stability-report\\tests\\dbg10-ozw1y_h6\\stable\\00_input\\data.csv",
+    "sha256": "sha256:2fa7e77186d1bfd70b949de55f1b1c717f74ff582443807e180909ead2f1c04d",
+    "time_col": "t",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "temp",
+      "press",
+      "rate",
+      "yield_pct"
+    ],
+    "inspection_cols": [
+      "yield_pct"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 1000,
+    "n_rows_used": 1000,
+    "time_span_seconds": 59940.0,
+    "sampling_interval_median_seconds": 60.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "temp": {
+        "assigned_by": "auto",
+        "label": "temp",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "press": {
+        "assigned_by": "auto",
+        "label": "press",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "rate": {
+        "assigned_by": "auto",
+        "label": "rate",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "yield_pct": {
+        "assigned_by": "auto",
+        "label": "yield_pct",
+        "unit": null,
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "regimes": {
+      "available": false,
+      "method": "sentinelcore_unavailable",
+      "change_points": [],
+      "regimes": [],
+      "abnormal_ratio": null
+    }
+  },
+  "parameters": [
+    {
+      "name": "temp",
+      "role": "parameter",
+      "condition": {
+        "label": "temp",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1000,
+      "row_range": [
+        0,
+        999
+      ],
+      "data_source": "raw",
+      "mu": 84.997832,
+      "median": 84.997964,
+      "sigma": 0.028254,
+      "sigma_within_mr": 0.028103,
+      "cv": 0.000332,
+      "min": 84.902457,
+      "max": 85.07715,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            250
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 9,
+          "indices": [
+            247,
+            249,
+            249,
+            664,
+            664,
+            744,
+            744,
+            901,
+            901
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 4,
+          "indices": [
+            16,
+            18,
+            485,
+            485
+          ]
+        }
+      },
+      "n_violation_points": 14,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000113,
+        "mk_p": 0.03142,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "press",
+      "role": "parameter",
+      "condition": {
+        "label": "press",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1000,
+      "row_range": [
+        0,
+        999
+      ],
+      "data_source": "raw",
+      "mu": 0.599994,
+      "median": 0.599956,
+      "sigma": 0.000821,
+      "sigma_within_mr": 0.000819,
+      "cv": 0.001367,
+      "min": 0.597776,
+      "max": 0.602391,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 5,
+          "indices": [
+            149,
+            857,
+            858,
+            859,
+            860
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            97,
+            97
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            231,
+            231,
+            346,
+            347,
+            394
+          ]
+        }
+      },
+      "n_violation_points": 12,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000126,
+        "mk_p": 0.570661,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "rate",
+      "role": "parameter",
+      "condition": {
+        "label": "rate",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1000,
+      "row_range": [
+        0,
+        999
+      ],
+      "data_source": "raw",
+      "mu": 119.996515,
+      "median": 119.995382,
+      "sigma": 0.252128,
+      "sigma_within_mr": 0.250401,
+      "cv": 0.0021,
+      "min": 119.08473,
+      "max": 120.787035,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 3,
+          "indices": [
+            311,
+            360,
+            675
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 8,
+          "indices": [
+            158,
+            492,
+            493,
+            494,
+            686,
+            687,
+            761,
+            996
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            447
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 6,
+          "indices": [
+            198,
+            198,
+            437,
+            437,
+            768,
+            770
+          ]
+        }
+      },
+      "n_violation_points": 18,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.000216,
+        "mk_p": 0.529051,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "yield_pct",
+      "role": "inspection",
+      "condition": {
+        "label": "yield_pct",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1000,
+      "row_range": [
+        0,
+        999
+      ],
+      "data_source": "raw",
+      "mu": 98.503516,
+      "median": 98.503628,
+      "sigma": 0.148127,
+      "sigma_within_mr": 0.150872,
+      "cv": 0.001503,
+      "min": 98.076326,
+      "max": 98.979013,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            86,
+            593
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 4,
+          "indices": [
+            71,
+            72,
+            73,
+            218
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            61,
+            84
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            396,
+            398,
+            849,
+            849,
+            850
+          ]
+        }
+      },
+      "n_violation_points": 13,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.000237,
+        "mk_p": 0.323721,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.013236,
+        "spearman": -0.014506,
+        "best_abs_r": 0.066954,
+        "best_lag_rows": 7,
+        "leader": "press",
+        "pearson_at_best": -0.065932,
+        "spearman_at_best": -0.066954,
+        "a": "press",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.002638,
+        "spearman": 0.002774,
+        "best_abs_r": 0.066104,
+        "best_lag_rows": 4,
+        "leader": "temp",
+        "pearson_at_best": -0.052378,
+        "spearman_at_best": -0.066104,
+        "a": "temp",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.001981,
+        "spearman": 0.004121,
+        "best_abs_r": 0.062796,
+        "best_lag_rows": 10,
+        "leader": "rate",
+        "pearson_at_best": 0.068003,
+        "spearman_at_best": 0.062796,
+        "a": "rate",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.028441,
+        "spearman": 0.027681,
+        "best_abs_r": 0.05429,
+        "best_lag_rows": 5,
+        "leader": "temp",
+        "pearson_at_best": -0.058119,
+        "spearman_at_best": -0.05429,
+        "a": "temp",
+        "b": "rate",
+        "n": 1000
+      },
+      {
+        "pearson": 0.016653,
+        "spearman": 0.024294,
+        "best_abs_r": 0.046161,
+        "best_lag_rows": 10,
+        "leader": "temp",
+        "pearson_at_best": 0.052983,
+        "spearman_at_best": 0.046161,
+        "a": "temp",
+        "b": "press",
+        "n": 1000
+      },
+      {
+        "pearson": -0.017852,
+        "spearman": -0.012535,
+        "best_abs_r": 0.041463,
+        "best_lag_rows": 1,
+        "leader": "press",
+        "pearson_at_best": -0.039791,
+        "spearman_at_best": -0.041463,
+        "a": "press",
+        "b": "rate",
+        "n": 1000
+      }
+    ],
+    "contributions": []
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 1000,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 60.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "temp",
+        "press",
+        "rate",
+        "yield_pct"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:2fa7e77186d1bfd70b949de55f1b1c717f74ff582443807e180909ead2f1c04d",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "local_fallback",
+    "regime_method": "sentinelcore_unavailable",
+    "ontology_source": null,
+    "python": "3.13.5",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "warn",
+      "category": "spc",
+      "title": "temp 检出 SPC 违规",
+      "detail": "共 14 个判异剧集命中（每百点 1.4 个，规则：NELSON_R1/NELSON_R5/NELSON_R6），控制限为中心值84.998±3σ_within（σ=0.0281）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 14,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.4,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.028103,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "temp"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "warn",
+      "category": "spc",
+      "title": "press 检出 SPC 违规",
+      "detail": "共 12 个判异剧集命中（每百点 1.2 个，规则：NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值0.6±3σ_within（σ=0.0008）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 12,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.2,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.000819,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "press"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "warn",
+      "category": "spc",
+      "title": "rate 检出 SPC 违规",
+      "detail": "共 18 个判异剧集命中（每百点 1.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值119.9954±3σ_within（σ=0.2504）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 18,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.8,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.250401,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "rate"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "yield_pct 检出 SPC 违规",
+      "detail": "共 13 个判异剧集命中（每百点 1.3 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值98.5036±3σ_within（σ=0.1509）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 13,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.3,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.150872,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "yield_pct"
+      ],
+      "confidence": 90
+    }
+  ],
+  "conclusion": {
+    "score": 99.0,
+    "grade": "A",
+    "grade_key": "stable",
+    "label": "稳定",
+    "statement": "该产线在本时段总体运行稳定（99.0 分，A 级）：评估 4 个参数，检出 57 个 SPC 违规剧集、0 项显著漂移。",
+    "n_parameters_assessed": 4,
+    "n_findings": 4,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 4,
+      "high": 0,
+      "critical": 0
+    }
+  }
+}

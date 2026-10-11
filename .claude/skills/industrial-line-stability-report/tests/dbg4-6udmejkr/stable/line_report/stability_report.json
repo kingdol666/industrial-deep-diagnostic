@@ -1,0 +1,609 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791603261-ynsd2l",
+  "generated_at": "2026-10-10T03:34:21Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-10-01 08:00:00",
+    "end": "2026-10-02 00:39:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-line-stability-report\\tests\\dbg4-6udmejkr\\stable\\00_input\\data.csv",
+    "sha256": "sha256:2fa7e77186d1bfd70b949de55f1b1c717f74ff582443807e180909ead2f1c04d",
+    "time_col": "t",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "temp",
+      "press",
+      "rate",
+      "yield_pct"
+    ],
+    "inspection_cols": [
+      "yield_pct"
+    ],
+    "ignored_cols": [],
+    "n_rows_raw": 1000,
+    "n_rows_used": 1000,
+    "time_span_seconds": 59940.0,
+    "sampling_interval_median_seconds": 60.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0
+  },
+  "parameters": [
+    {
+      "name": "temp",
+      "role": "parameter",
+      "n": 1000,
+      "mu": 84.997832,
+      "median": 84.997964,
+      "sigma": 0.028254,
+      "sigma_within_mr": 0.028103,
+      "cv": 0.000332,
+      "min": 84.902457,
+      "max": 85.07715,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "R1": {
+          "n_violations": 1,
+          "indices": [
+            250
+          ]
+        },
+        "R2": {
+          "n_violations": 0,
+          "indices": []
+        },
+        "R3": {
+          "n_violations": 0,
+          "indices": []
+        },
+        "R5": {
+          "n_violations": 5,
+          "indices": [
+            247,
+            249,
+            664,
+            744,
+            901
+          ]
+        },
+        "R6": {
+          "n_violations": 3,
+          "indices": [
+            16,
+            18,
+            485
+          ]
+        }
+      },
+      "n_violation_points": 9,
+      "drift": {
+        "slope_per_second": 0.000401,
+        "per_day_relative": 0.407704,
+        "mk_p": 0.03142,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "press",
+      "role": "parameter",
+      "n": 1000,
+      "mu": 0.599994,
+      "median": 0.599956,
+      "sigma": 0.000821,
+      "sigma_within_mr": 0.000819,
+      "cv": 0.001367,
+      "min": 0.597776,
+      "max": 0.602391,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "R1": {
+          "n_violations": 0,
+          "indices": []
+        },
+        "R2": {
+          "n_violations": 5,
+          "indices": [
+            149,
+            857,
+            858,
+            859,
+            860
+          ]
+        },
+        "R3": {
+          "n_violations": 7,
+          "indices": [
+            84,
+            232,
+            493,
+            494,
+            522,
+            858,
+            859
+          ]
+        },
+        "R5": {
+          "n_violations": 1,
+          "indices": [
+            97
+          ]
+        },
+        "R6": {
+          "n_violations": 4,
+          "indices": [
+            231,
+            346,
+            347,
+            394
+          ]
+        }
+      },
+      "n_violation_points": 17,
+      "drift": {
+        "slope_per_second": 3e-06,
+        "per_day_relative": 0.452344,
+        "mk_p": 0.570661,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "rate",
+      "role": "parameter",
+      "n": 1000,
+      "mu": 119.996515,
+      "median": 119.995382,
+      "sigma": 0.252128,
+      "sigma_within_mr": 0.250401,
+      "cv": 0.0021,
+      "min": 119.08473,
+      "max": 120.787035,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "R1": {
+          "n_violations": 3,
+          "indices": [
+            311,
+            360,
+            675
+          ]
+        },
+        "R2": {
+          "n_violations": 8,
+          "indices": [
+            158,
+            492,
+            493,
+            494,
+            686,
+            687,
+            761,
+            996
+          ]
+        },
+        "R3": {
+          "n_violations": 2,
+          "indices": [
+            174,
+            750
+          ]
+        },
+        "R5": {
+          "n_violations": 1,
+          "indices": [
+            447
+          ]
+        },
+        "R6": {
+          "n_violations": 4,
+          "indices": [
+            198,
+            437,
+            768,
+            770
+          ]
+        }
+      },
+      "n_violation_points": 18,
+      "drift": {
+        "slope_per_second": -0.001079,
+        "per_day_relative": 0.777157,
+        "mk_p": 0.529051,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "yield_pct",
+      "role": "inspection",
+      "n": 1000,
+      "mu": 98.503516,
+      "median": 98.503628,
+      "sigma": 0.148127,
+      "sigma_within_mr": 0.150872,
+      "cv": 0.001503,
+      "min": 98.076326,
+      "max": 98.979013,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "R1": {
+          "n_violations": 2,
+          "indices": [
+            86,
+            593
+          ]
+        },
+        "R2": {
+          "n_violations": 4,
+          "indices": [
+            71,
+            72,
+            73,
+            218
+          ]
+        },
+        "R3": {
+          "n_violations": 0,
+          "indices": []
+        },
+        "R5": {
+          "n_violations": 2,
+          "indices": [
+            61,
+            84
+          ]
+        },
+        "R6": {
+          "n_violations": 4,
+          "indices": [
+            396,
+            398,
+            849,
+            850
+          ]
+        }
+      },
+      "n_violation_points": 12,
+      "drift": {
+        "slope_per_second": -0.000974,
+        "per_day_relative": 0.854346,
+        "mk_p": 0.323721,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.013236,
+        "spearman": -0.014506,
+        "best_abs_r": 0.066954,
+        "best_lag_rows": 7,
+        "leader": "press",
+        "pearson_at_best": -0.065932,
+        "spearman_at_best": -0.066954,
+        "a": "press",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.002638,
+        "spearman": 0.002774,
+        "best_abs_r": 0.066104,
+        "best_lag_rows": 4,
+        "leader": "temp",
+        "pearson_at_best": -0.052378,
+        "spearman_at_best": -0.066104,
+        "a": "temp",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.001981,
+        "spearman": 0.004121,
+        "best_abs_r": 0.062796,
+        "best_lag_rows": 10,
+        "leader": "rate",
+        "pearson_at_best": 0.068003,
+        "spearman_at_best": 0.062796,
+        "a": "rate",
+        "b": "yield_pct",
+        "n": 1000
+      },
+      {
+        "pearson": 0.028441,
+        "spearman": 0.027681,
+        "best_abs_r": 0.05429,
+        "best_lag_rows": 5,
+        "leader": "temp",
+        "pearson_at_best": -0.058119,
+        "spearman_at_best": -0.05429,
+        "a": "temp",
+        "b": "rate",
+        "n": 1000
+      },
+      {
+        "pearson": 0.016653,
+        "spearman": 0.024294,
+        "best_abs_r": 0.046161,
+        "best_lag_rows": 10,
+        "leader": "temp",
+        "pearson_at_best": 0.052983,
+        "spearman_at_best": 0.046161,
+        "a": "temp",
+        "b": "press",
+        "n": 1000
+      },
+      {
+        "pearson": -0.017852,
+        "spearman": -0.012535,
+        "best_abs_r": 0.041463,
+        "best_lag_rows": 1,
+        "leader": "press",
+        "pearson_at_best": -0.039791,
+        "spearman_at_best": -0.041463,
+        "a": "press",
+        "b": "rate",
+        "n": 1000
+      }
+    ],
+    "contributions": []
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "provenance": {
+    "input_sha256": "sha256:2fa7e77186d1bfd70b949de55f1b1c717f74ff582443807e180909ead2f1c04d",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "python": "3.13.5",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "nelson_r1_r2_r3_r5_r6",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "weighted_penalty_score_v1"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "warn",
+      "category": "spc",
+      "title": "temp 检出 SPC 违规",
+      "detail": "共 9 个点越过判异规则（每百点 0.9 个，规则：R1/R5/R6），控制限为中心值±3σ_within（σ=0.0281）。",
+      "evidence": [
+        {
+          "metric": "violation_points",
+          "value": 9,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 0.9,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.028103,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "temp"
+      ]
+    },
+    {
+      "finding_id": "F002",
+      "severity": "warn",
+      "category": "spc",
+      "title": "press 检出 SPC 违规",
+      "detail": "共 17 个点越过判异规则（每百点 1.7 个，规则：R2/R3/R5/R6），控制限为中心值±3σ_within（σ=0.0008）。",
+      "evidence": [
+        {
+          "metric": "violation_points",
+          "value": 17,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.7,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.000819,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "press"
+      ]
+    },
+    {
+      "finding_id": "F003",
+      "severity": "warn",
+      "category": "spc",
+      "title": "rate 检出 SPC 违规",
+      "detail": "共 18 个点越过判异规则（每百点 1.8 个，规则：R1/R2/R3/R5/R6），控制限为中心值±3σ_within（σ=0.2504）。",
+      "evidence": [
+        {
+          "metric": "violation_points",
+          "value": 18,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.8,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.250401,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "rate"
+      ]
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "yield_pct 检出 SPC 违规",
+      "detail": "共 12 个点越过判异规则（每百点 1.2 个，规则：R1/R2/R5/R6），控制限为中心值±3σ_within（σ=0.1509）。",
+      "evidence": [
+        {
+          "metric": "violation_points",
+          "value": 12,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.2,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.150872,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "yield_pct"
+      ]
+    }
+  ],
+  "conclusion": {
+    "score": 99.0,
+    "grade": "A",
+    "grade_key": "stable",
+    "label": "稳定",
+    "statement": "该产线在本时段总体运行稳定（99.0 分，A 级）：评估 4 个参数，检出 56 个 SPC 违规点、0 项显著漂移。",
+    "n_parameters_assessed": 4,
+    "n_findings": 4,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 4,
+      "high": 0,
+      "critical": 0
+    }
+  }
+}

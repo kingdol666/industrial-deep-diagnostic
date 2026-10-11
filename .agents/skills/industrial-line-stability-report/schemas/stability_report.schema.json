@@ -1,0 +1,317 @@
+{
+  "$id": "line-stability-report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Line stability report (line-stability-report/1.0)",
+  "type": "object",
+  "required": ["contract_version", "report_id", "generated_at", "status",
+               "period", "data", "parameters", "conclusion", "integrations",
+               "provenance"],
+  "additionalProperties": true,
+  "properties": {
+    "contract_version": { "const": "line-stability-report/1.0" },
+    "report_id": { "type": "string", "pattern": "^LSR-[0-9]+-[a-z0-9]+$" },
+    "generated_at": { "type": "string" },
+    "status": { "enum": ["ok", "not_assessable"] },
+    "line": {
+      "type": "object",
+      "properties": {
+        "line_id": { "type": ["string", "null"] },
+        "product": { "type": ["string", "null"] }
+      }
+    },
+    "period": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] },
+        "requested": { "type": "object" }
+      }
+    },
+    "data": {
+      "type": "object",
+      "required": ["path", "sha256", "n_rows_raw", "n_rows_used", "time_col",
+                   "parameter_cols", "missing_rate", "coverage_ratio"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "n_rows_raw": { "type": "integer", "minimum": 0 },
+        "n_rows_used": { "type": "integer", "minimum": 0 },
+        "time_col": { "type": "string" },
+        "group_col": { "type": ["string", "null"] },
+        "parameter_cols": { "type": "array", "items": { "type": "string" } },
+        "inspection_cols": { "type": "array", "items": { "type": "string" } },
+        "sampling_interval_median_seconds": { "type": ["number", "null"] },
+        "missing_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "coverage_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "n", "median", "cv", "nelson",
+                     "n_violation_points", "drift", "spec"],
+        "properties": {
+          "name": { "type": "string" },
+          "role": { "enum": ["parameter", "inspection"] },
+          "n": { "type": "integer", "minimum": 0 },
+          "mu": { "type": ["number", "null"] },
+          "median": { "type": ["number", "null"] },
+          "sigma": { "type": ["number", "null"] },
+          "sigma_within_mr": { "type": ["number", "null"] },
+          "cv": { "type": ["number", "null"] },
+          "spec": {
+            "type": "object",
+            "properties": {
+              "lsl": { "type": ["number", "null"] },
+              "usl": { "type": ["number", "null"] },
+              "target": { "type": ["number", "null"] }
+            }
+          },
+          "capability": {
+            "type": ["object", "null"],
+            "properties": {
+              "cp": { "type": ["number", "null"] },
+              "cpk": { "type": ["number", "null"] },
+              "pp": { "type": ["number", "null"] },
+              "ppk": { "type": ["number", "null"] }
+            }
+          },
+          "nelson": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "n_episodes": { "type": "integer", "minimum": 0 },
+                "indices": { "type": "array", "items": { "type": "integer" } }
+              }
+            }
+          },
+          "n_violation_points": { "type": "integer", "minimum": 0 },
+          "condition": {
+            "type": ["object", "null"],
+            "description": "ontology-first understanding: label/unit/assigned_by/governing_law/group",
+            "properties": {
+              "label": { "type": ["string", "null"] },
+              "unit": { "type": ["string", "null"] },
+              "assigned_by": { "enum": ["ontology", "user", "auto", null] },
+              "governing_law": { "type": ["string", "null"] },
+              "physical_meaning": { "type": ["string", "null"] },
+              "group": { "type": ["string", "null"] },
+              "stage": { "type": ["string", "null"] },
+              "equipment": { "type": ["string", "null"] }
+            }
+          },
+          "row_range": { "type": "array", "items": { "type": "integer" } },
+          "data_source": { "type": "string" },
+          "drift": {
+            "type": "object",
+            "properties": {
+              "slope_per_second": { "type": ["number", "null"] },
+              "per_day_relative": { "type": ["number", "null"] },
+              "mk_p": { "type": ["number", "null"] },
+              "significant": { "type": "boolean" }
+            }
+          },
+          "baseline_ref": {
+            "type": ["object", "null"],
+            "properties": {
+              "baseline_median": { "type": "number" },
+              "robust_z": { "type": "number" },
+              "deviation": { "enum": ["none", "low", "high"] }
+            }
+          },
+          "score": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+          "score_breakdown": { "type": "object" }
+        }
+      }
+    },
+    "correlations": {
+      "type": "object",
+      "properties": {
+        "max_lag": { "type": "integer", "minimum": 0 },
+        "pairs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["a", "b", "best_abs_r", "best_lag_rows"],
+            "properties": {
+              "a": { "type": "string" },
+              "b": { "type": "string" },
+              "pearson": { "type": ["number", "null"] },
+              "spearman": { "type": ["number", "null"] },
+              "best_abs_r": { "type": "number", "minimum": 0, "maximum": 1 },
+              "best_lag_rows": { "type": "integer", "minimum": 0 },
+              "leader": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "contributions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["driver", "target", "abs_r", "share"],
+            "properties": {
+              "driver": { "type": "string" },
+              "target": { "type": "string" },
+              "abs_r": { "type": "number", "minimum": 0, "maximum": 1 },
+              "share": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "severity", "category", "title", "detail", "evidence"],
+        "properties": {
+          "finding_id": { "type": "string", "pattern": "^F\\d{3}$" },
+          "severity": {
+            "description": "literal must exist in .claude/shared/schemas/closedloop_enums.json severity",
+            "enum": ["info", "warn", "high", "critical"]
+          },
+          "category": { "enum": ["spc", "drift", "capability", "baseline_deviation",
+                                 "driver", "action", "data_quality", "window"] },
+          "title": { "type": "string" },
+          "detail": { "type": "string" },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["metric", "value", "source"],
+              "properties": {
+                "metric": { "type": "string" },
+                "value": {},
+                "threshold": {},
+                "source": { "type": "string" }
+              }
+            }
+          },
+          "affected": { "type": "array", "items": { "type": "string" } },
+          "confidence": {
+            "type": ["integer", "null"],
+            "minimum": 0, "maximum": 100,
+            "description": "deterministic rubric: evidence tier × ontology mechanism support, -20 when sampled"
+          },
+          "mechanism": {
+            "type": ["object", "null"],
+            "properties": {
+              "level": { "enum": ["known", "same_domain", "unknown"] },
+              "mechanism": { "type": ["string", "null"] },
+              "governing_equation": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "conclusion": {
+      "type": "object",
+      "required": ["score", "grade", "label", "statement", "n_parameters_assessed",
+                   "n_findings", "findings_by_severity"],
+      "properties": {
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "grade": { "enum": ["A", "B", "C", "D", null] },
+        "grade_key": {
+          "enum": ["stable", "sub_stable", "fluctuating", "unstable", "not_assessable"]
+        },
+        "label": { "type": "string" },
+        "statement": { "type": "string", "minLength": 6 },
+        "n_parameters_assessed": { "type": "integer", "minimum": 0 },
+        "n_findings": { "type": "integer", "minimum": 0 },
+        "findings_by_severity": {
+          "type": "object",
+          "required": ["info", "warn", "high", "critical"]
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "required": ["ontology", "columns"],
+      "properties": {
+        "ontology": {
+          "type": "object",
+          "properties": {
+            "mode": { "enum": ["ontology", "auto"] },
+            "path": { "type": ["string", "null"] },
+            "source": { "type": ["string", "null"] },
+            "reason": { "type": ["string", "null"] }
+          }
+        },
+        "scene": { "type": ["object", "null"] },
+        "columns": { "type": "object" },
+        "regimes": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "method": { "type": ["string", "null"] },
+            "change_points": { "type": "array", "items": { "type": "integer" } },
+            "regimes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["start", "end", "label", "n_rows"],
+                "properties": {
+                  "start": { "type": "integer" },
+                  "end": { "type": "integer" },
+                  "label": { "type": "string" },
+                  "n_rows": { "type": "integer" }
+                }
+              }
+            },
+            "abnormal_ratio": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "description": "darwin data-truth mandate: assumptions, confounders, spec coverage",
+      "properties": {
+        "data_source": { "type": "string" },
+        "sampling": { "type": "object" },
+        "spec_coverage": { "type": "object" },
+        "model_assumptions": { "type": "array", "items": { "type": "string" } },
+        "confounders": { "type": "array" },
+        "derived_fields": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "required": ["sentinel_baseline", "tuning_memory", "doe_analyzer"],
+      "properties": {
+        "sentinel_baseline": { "type": "object" },
+        "tuning_memory": { "type": "object" },
+        "doe_analyzer": { "type": "object" }
+      }
+    },
+    "degradations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check", "reason"],
+        "properties": {
+          "check": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["input_sha256", "script_version", "authored_by", "zero_llm", "methods"],
+      "properties": {
+        "input_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "script_version": { "type": "string" },
+        "authored_by": { "type": "string" },
+        "zero_llm": { "const": true },
+        "spc_source": { "type": ["string", "null"] },
+        "regime_method": { "type": ["string", "null"] },
+        "ontology_source": { "type": ["string", "null"] },
+        "methods": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

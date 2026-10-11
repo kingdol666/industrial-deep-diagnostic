@@ -1,0 +1,20 @@
+{
+  "contract_version": "line-stability-html-selfcheck/1.0",
+  "html_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-line-stability-report\\tests\\dbg4-6udmejkr\\stable\\line_report\\line_stability_report.html",
+  "size_bytes": 117488,
+  "report_id": "LSR-1791603261-ynsd2l",
+  "checks": {
+    "min_size": true,
+    "hero_conclusion": true,
+    "findings_section": true,
+    "evidence_table": true,
+    "charts_payload": true,
+    "echarts_cdn_3source": true,
+    "static_fallback": true,
+    "appendix_methods": true,
+    "advisory_disclaimer": true,
+    "no_placeholder": true
+  },
+  "pass": true,
+  "generated_at": "2026-10-10T03:34:22Z"
+}

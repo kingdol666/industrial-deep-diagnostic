@@ -1,0 +1,26 @@
+{
+  "_comment": "report_context 模板 — 全部字段可选；只填需要的。经 schemas/report_context.schema.json 校验。放到 00_input/report_context.json 或用 --context 传入。；preprocessing=上游预处理溯源（源文件/脚本/sha256），原样进入 report.data",
+  "line_id": "L1-extruder-206",
+  "product": "PE-LD film",
+  "time_col": "t",
+  "group_col": null,
+  "group_filter": null,
+  "start": "2026-10-01T08:00:00",
+  "end": "2026-10-01T20:00:00",
+  "parameter_cols": null,
+  "inspection_cols": [
+    "yield_pct"
+  ],
+  "spec_limits": {
+    "melt_temp_c": {
+      "lsl": 178.0,
+      "usl": 182.0,
+      "target": 180.0
+    }
+  },
+  "weights": null,
+  "baseline_path": "workspace/closedloop/sentinel/baselines/L1-extruder-206/watch_baseline.json",
+  "action_log": null,
+  "doe_run_dir": null,
+  "preprocessing": null
+}

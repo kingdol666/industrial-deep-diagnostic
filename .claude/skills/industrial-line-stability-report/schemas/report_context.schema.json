@@ -1,0 +1,113 @@
+{
+  "$id": "line-stability-report-context.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Line stability report context (all fields optional)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "data_path": {
+      "type": "string",
+      "description": "Production data table (CSV/TSV/XLSX/Parquet/JSON). Overridden by --data."
+    },
+    "line_id": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "product": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 64
+    },
+    "time_col": {
+      "type": "string"
+    },
+    "group_col": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "group_filter": {
+      "type": [
+        "string",
+        "number"
+      ],
+      "description": "When group_col is set, restrict the assessment to this group value."
+    },
+    "start": {
+      "type": "string",
+      "description": "Period start (ISO datetime or numeric consistent with the time column)."
+    },
+    "end": {
+      "type": "string",
+      "description": "Period end (inclusive)."
+    },
+    "parameter_cols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Pin process-parameter columns; default = all numeric columns."
+    },
+    "inspection_cols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Quality/inspection columns (also used as contribution-analysis targets)."
+    },
+    "spec_limits": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "lsl": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "usl": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "target": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        }
+      },
+      "description": "Per-parameter spec limits enabling Cpk/Ppk capability findings."
+    },
+    "weights": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      },
+      "description": "Per-parameter weights for the composite score; default equal weights."
+    },
+    "baseline_path": {
+      "type": "string",
+      "description": "sentinel watch_baseline.json."
+    },
+    "action_log": {
+      "type": "string",
+      "description": "tuning-memory action_log.json; requires a run-dir layout for attribution."
+    },
+    "doe_run_dir": {
+      "type": "string",
+      "description": "doe-analyzer run dir whose conclusions/recommendations.json supplies operating windows."
+    },
+    "preprocessing": {
+      "description": "Upstream preprocessing provenance (source export file, script, sha256, summary path) carried verbatim into report.data.preprocessing for the darwin traceability chain."
+    }
+  }
+}
