@@ -1,10 +1,10 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-05T07:49:47.789056+00:00
+- **生成时间**：2026-10-10T02:52:11.968170+00:00
 - **总体状态**：**ok** · 告警数 **0**
 - **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F8_c2_no_windows\watch.csv`（240 行；时间列 -；分组列 -）
 - **基线**：模式：prior（v1.0.0），路径：D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F8_c2_no_windows\watch_baseline.json
-- **耗时**：18 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
+- **耗时**：16 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
 
 
 ## 一、告警清单

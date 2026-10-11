@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074937-000",
+  "alert_id": "ALT-20261010-025200-000",
   "mode": "fast_screen",
   "status": "ok",
   "group_scope": "__ALL__",
-  "generated_at": "2026-10-05T07:49:37.304869+00:00",
+  "generated_at": "2026-10-10T02:52:00.633420+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F3_fast_spike\\b3.csv",
     "sha256": "b11e6b0e94169dcbafa95510a6729c4e65085ca7f8a3601392f01d97395be4b3",
@@ -52,7 +52,7 @@
   "provenance": {
     "input_sha256": "b11e6b0e94169dcbafa95510a6729c4e65085ca7f8a3601392f01d97395be4b3",
     "script_version": "1.0.0",
-    "duration_ms": 17,
+    "duration_ms": 16,
     "zero_llm": true,
     "authored_by": "script"
   }

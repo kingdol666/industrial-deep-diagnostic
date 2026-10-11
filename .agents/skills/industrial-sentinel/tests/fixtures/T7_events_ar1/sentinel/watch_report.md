@@ -1,6 +1,6 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-05T07:49:49.049497+00:00
+- **生成时间**：2026-10-10T02:52:13.312773+00:00
 - **总体状态**：**alert** · 告警数 **12**
 - **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\T7_events_ar1\watch.csv`（200 行；时间列 ts；分组列 -）
 - **基线**：模式：prior（v1.0.0），路径：D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\T7_events_ar1\watch_baseline.json
@@ -44,9 +44,9 @@
 
 | 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |
 |------|------|------|----------|----------|--------|------|
-| EVT-20261005074949-001 | temp | spc | high | 185 | 9 | NELSON_R2、NELSON_R3、NELSON_R1… |
-| EVT-20261005074949-002 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
-| EVT-20261005074949-003 | - | regime | warn | 56 | 2 | REGIME_CHANGE_NEW |
+| EVT-20261010025213-001 | temp | spc | high | 185 | 9 | NELSON_R2、NELSON_R3、NELSON_R1… |
+| EVT-20261010025213-002 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
+| EVT-20261010025213-003 | - | regime | warn | 56 | 2 | REGIME_CHANGE_NEW |
 
 ## 六、建议后续动作
 

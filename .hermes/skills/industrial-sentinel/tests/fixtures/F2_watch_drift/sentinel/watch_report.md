@@ -1,10 +1,10 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-05T07:49:34.911978+00:00
+- **生成时间**：2026-10-10T02:51:58.011200+00:00
 - **总体状态**：**alert** · 告警数 **145**
 - **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F2_watch_drift\watch.csv`（10000 行；时间列 timestamp；分组列 -）
 - **基线**：模式：prior（v1.0.0），路径：D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F2_watch_drift\watch_baseline.json
-- **耗时**：63 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
+- **耗时**：79 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
 
 
 ## 一、告警清单
@@ -177,18 +177,18 @@
 
 | 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |
 |------|------|------|----------|----------|--------|------|
-| EVT-20261005074934-074 | temp | spc | high | 280 | 4 | NELSON_R1、NELSON_R3、NELSON_R2 |
-| EVT-20261005074934-058 | temp | spc | high | 50 | 2 | NELSON_R6、NELSON_R3 |
-| EVT-20261005074934-066 | temp | spc | high | 0 | 1 | NELSON_R5 |
-| EVT-20261005074934-020 | temp | spc | warn | 445 | 8 | NELSON_R3、NELSON_R2 |
-| EVT-20261005074934-015 | temp | spc | warn | 418 | 6 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-001 | temp | spc | warn | 153 | 4 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-003 | temp | spc | warn | 244 | 4 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-034 | press | spc | warn | 123 | 4 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-042 | temp | spc | warn | 182 | 4 | NELSON_R3、NELSON_R2 |
-| EVT-20261005074934-007 | temp | spc | warn | 88 | 3 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-009 | temp | spc | warn | 104 | 3 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074934-014 | press | spc | warn | 104 | 3 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-074 | temp | spc | high | 280 | 4 | NELSON_R1、NELSON_R3、NELSON_R2 |
+| EVT-20261010025158-058 | temp | spc | high | 50 | 2 | NELSON_R6、NELSON_R3 |
+| EVT-20261010025158-066 | temp | spc | high | 0 | 1 | NELSON_R5 |
+| EVT-20261010025158-020 | temp | spc | warn | 445 | 8 | NELSON_R3、NELSON_R2 |
+| EVT-20261010025158-015 | temp | spc | warn | 418 | 6 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-001 | temp | spc | warn | 153 | 4 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-003 | temp | spc | warn | 244 | 4 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-034 | press | spc | warn | 123 | 4 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-042 | temp | spc | warn | 182 | 4 | NELSON_R3、NELSON_R2 |
+| EVT-20261010025158-007 | temp | spc | warn | 88 | 3 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-009 | temp | spc | warn | 104 | 3 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025158-014 | press | spc | warn | 104 | 3 | NELSON_R2、NELSON_R3 |
 
 （其余 68 个事件见 alert.json 的 events 数组；完整逐段告警在 alerts 数组，契约不变）
 

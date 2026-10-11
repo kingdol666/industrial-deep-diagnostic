@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074949-000",
+  "alert_id": "ALT-20261010-025213-000",
   "mode": "watch",
   "status": "alert",
   "group_scope": null,
-  "generated_at": "2026-10-05T07:49:49.049497+00:00",
+  "generated_at": "2026-10-10T02:52:13.312773+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\T7_events_ar1\\watch.csv",
     "sha256": "c87126ad0ea2c23f37a381551de558d956a4ae71731c7a2c67460dde8f96a523",
@@ -71,7 +71,7 @@
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261005-074949-001",
+      "alert_id": "ALT-20261010-025213-001",
       "check_type": "multivariate",
       "rule_name": "ROBUST_Z_OUTLIER",
       "parameter": "temp",
@@ -98,7 +98,7 @@
       "repeat_count": 11
     },
     {
-      "alert_id": "ALT-20261005-074949-002",
+      "alert_id": "ALT-20261010-025213-002",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -127,7 +127,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-003",
+      "alert_id": "ALT-20261010-025213-003",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -156,7 +156,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-004",
+      "alert_id": "ALT-20261010-025213-004",
       "check_type": "spc",
       "rule_name": "NELSON_R5",
       "parameter": "temp",
@@ -185,7 +185,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074949-005",
+      "alert_id": "ALT-20261010-025213-005",
       "check_type": "spc",
       "rule_name": "NELSON_R6",
       "parameter": "temp",
@@ -214,7 +214,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074949-006",
+      "alert_id": "ALT-20261010-025213-006",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -236,7 +236,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-007",
+      "alert_id": "ALT-20261010-025213-007",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -258,7 +258,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-008",
+      "alert_id": "ALT-20261010-025213-008",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -287,7 +287,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-009",
+      "alert_id": "ALT-20261010-025213-009",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -316,7 +316,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074949-010",
+      "alert_id": "ALT-20261010-025213-010",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -345,7 +345,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074949-011",
+      "alert_id": "ALT-20261010-025213-011",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -374,7 +374,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074949-012",
+      "alert_id": "ALT-20261010-025213-012",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -422,7 +422,7 @@
       ],
       "max_abs_statistic": 6.74270633140098,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074949-001"
+      "event_id": "EVT-20261010025213-001"
     },
     {
       "family": "multivariate",
@@ -438,7 +438,7 @@
       ],
       "max_abs_statistic": 3.646611010492944,
       "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|temp",
-      "event_id": "EVT-20261005074949-002"
+      "event_id": "EVT-20261010025213-002"
     },
     {
       "family": "regime",
@@ -454,7 +454,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_74",
-      "event_id": "EVT-20261005074949-003"
+      "event_id": "EVT-20261010025213-003"
     }
   ],
   "regime_summary": {

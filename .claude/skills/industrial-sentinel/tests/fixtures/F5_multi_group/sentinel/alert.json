@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074941-000",
+  "alert_id": "ALT-20261010-025205-000",
   "mode": "watch",
   "status": "alert",
   "group_scope": "line",
-  "generated_at": "2026-10-05T07:49:41.292536+00:00",
+  "generated_at": "2026-10-10T02:52:05.031319+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F5_multi_group\\watch.csv",
     "sha256": "9560722c6024934f0e6a77997d865628f77e4069f59541577880b320df434eba",
@@ -73,7 +73,7 @@
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261005-074941-001",
+      "alert_id": "ALT-20261010-025205-001",
       "check_type": "multivariate",
       "rule_name": "ROBUST_Z_OUTLIER",
       "parameter": "temp",
@@ -100,7 +100,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074941-002",
+      "alert_id": "ALT-20261010-025205-002",
       "check_type": "multivariate",
       "rule_name": "ROBUST_Z_OUTLIER",
       "parameter": "temp",
@@ -127,7 +127,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074941-003",
+      "alert_id": "ALT-20261010-025205-003",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -156,7 +156,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074941-004",
+      "alert_id": "ALT-20261010-025205-004",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -185,7 +185,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074941-005",
+      "alert_id": "ALT-20261010-025205-005",
       "check_type": "baseline",
       "rule_name": "UNSEEN_GROUP",
       "parameter": null,
@@ -222,7 +222,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "C|baseline|UNSEEN_GROUP|_",
-      "event_id": "EVT-20261005074941-001"
+      "event_id": "EVT-20261010025205-001"
     },
     {
       "family": "multivariate",
@@ -238,7 +238,7 @@
       ],
       "max_abs_statistic": 11.233259125314126,
       "suppression_key": "A|multivariate|ROBUST_Z_OUTLIER|temp",
-      "event_id": "EVT-20261005074941-002"
+      "event_id": "EVT-20261010025205-002"
     },
     {
       "family": "multivariate",
@@ -254,7 +254,7 @@
       ],
       "max_abs_statistic": 11.34450422849947,
       "suppression_key": "B|multivariate|ROBUST_Z_OUTLIER|temp",
-      "event_id": "EVT-20261005074941-003"
+      "event_id": "EVT-20261010025205-003"
     },
     {
       "family": "spc",
@@ -270,7 +270,7 @@
       ],
       "max_abs_statistic": 14.17394531128702,
       "suppression_key": "A|spc|NELSON_R1|temp",
-      "event_id": "EVT-20261005074941-004"
+      "event_id": "EVT-20261010025205-004"
     },
     {
       "family": "spc",
@@ -286,7 +286,7 @@
       ],
       "max_abs_statistic": 14.622717217788718,
       "suppression_key": "B|spc|NELSON_R1|temp",
-      "event_id": "EVT-20261005074941-005"
+      "event_id": "EVT-20261010025205-005"
     }
   ],
   "regime_summary": {
@@ -318,7 +318,7 @@
   "provenance": {
     "input_sha256": "9560722c6024934f0e6a77997d865628f77e4069f59541577880b320df434eba",
     "script_version": "1.0.0",
-    "duration_ms": 25,
+    "duration_ms": 24,
     "zero_llm": true,
     "authored_by": "script"
   }

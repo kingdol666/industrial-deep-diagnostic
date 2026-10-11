@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074934-000",
+  "alert_id": "ALT-20261010-025158-000",
   "mode": "watch",
   "status": "alert",
   "group_scope": null,
-  "generated_at": "2026-10-05T07:49:34.911978+00:00",
+  "generated_at": "2026-10-10T02:51:58.011200+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F2_watch_drift\\watch.csv",
     "sha256": "3097017106871a1028ef17725d9007427ba979bc3d73c3e7b5eb923f3615cd04",
@@ -72,7 +72,7 @@
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261005-074934-001",
+      "alert_id": "ALT-20261010-025158-001",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -101,7 +101,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-002",
+      "alert_id": "ALT-20261010-025158-002",
       "check_type": "spc",
       "rule_name": "NELSON_R1",
       "parameter": "temp",
@@ -130,7 +130,7 @@
       "repeat_count": 9
     },
     {
-      "alert_id": "ALT-20261005-074934-003",
+      "alert_id": "ALT-20261010-025158-003",
       "check_type": "spc",
       "rule_name": "NELSON_R5",
       "parameter": "temp",
@@ -159,7 +159,7 @@
       "repeat_count": 22
     },
     {
-      "alert_id": "ALT-20261005-074934-004",
+      "alert_id": "ALT-20261010-025158-004",
       "check_type": "spc",
       "rule_name": "NELSON_R6",
       "parameter": "temp",
@@ -188,7 +188,7 @@
       "repeat_count": 8
     },
     {
-      "alert_id": "ALT-20261005-074934-005",
+      "alert_id": "ALT-20261010-025158-005",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -210,7 +210,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-006",
+      "alert_id": "ALT-20261010-025158-006",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -232,7 +232,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-007",
+      "alert_id": "ALT-20261010-025158-007",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -254,7 +254,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-008",
+      "alert_id": "ALT-20261010-025158-008",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -276,7 +276,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-009",
+      "alert_id": "ALT-20261010-025158-009",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -298,7 +298,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-010",
+      "alert_id": "ALT-20261010-025158-010",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -320,7 +320,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-011",
+      "alert_id": "ALT-20261010-025158-011",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -342,7 +342,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-012",
+      "alert_id": "ALT-20261010-025158-012",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -364,7 +364,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-013",
+      "alert_id": "ALT-20261010-025158-013",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -386,7 +386,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-014",
+      "alert_id": "ALT-20261010-025158-014",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -408,7 +408,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-015",
+      "alert_id": "ALT-20261010-025158-015",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -430,7 +430,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-016",
+      "alert_id": "ALT-20261010-025158-016",
       "check_type": "regime",
       "rule_name": "REGIME_CHANGE_NEW",
       "parameter": null,
@@ -452,7 +452,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-017",
+      "alert_id": "ALT-20261010-025158-017",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -481,7 +481,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-018",
+      "alert_id": "ALT-20261010-025158-018",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -510,7 +510,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-019",
+      "alert_id": "ALT-20261010-025158-019",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -539,7 +539,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-020",
+      "alert_id": "ALT-20261010-025158-020",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -568,7 +568,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-021",
+      "alert_id": "ALT-20261010-025158-021",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -597,7 +597,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-022",
+      "alert_id": "ALT-20261010-025158-022",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -626,7 +626,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-023",
+      "alert_id": "ALT-20261010-025158-023",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -655,7 +655,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-024",
+      "alert_id": "ALT-20261010-025158-024",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -684,7 +684,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-025",
+      "alert_id": "ALT-20261010-025158-025",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -713,7 +713,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-026",
+      "alert_id": "ALT-20261010-025158-026",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -742,7 +742,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-027",
+      "alert_id": "ALT-20261010-025158-027",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -771,7 +771,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-028",
+      "alert_id": "ALT-20261010-025158-028",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -800,7 +800,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-029",
+      "alert_id": "ALT-20261010-025158-029",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -829,7 +829,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-030",
+      "alert_id": "ALT-20261010-025158-030",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -858,7 +858,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-031",
+      "alert_id": "ALT-20261010-025158-031",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -887,7 +887,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-032",
+      "alert_id": "ALT-20261010-025158-032",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -916,7 +916,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-033",
+      "alert_id": "ALT-20261010-025158-033",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -945,7 +945,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-034",
+      "alert_id": "ALT-20261010-025158-034",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -974,7 +974,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-035",
+      "alert_id": "ALT-20261010-025158-035",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1003,7 +1003,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-036",
+      "alert_id": "ALT-20261010-025158-036",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1032,7 +1032,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-037",
+      "alert_id": "ALT-20261010-025158-037",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1061,7 +1061,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-038",
+      "alert_id": "ALT-20261010-025158-038",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1090,7 +1090,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-039",
+      "alert_id": "ALT-20261010-025158-039",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1119,7 +1119,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-040",
+      "alert_id": "ALT-20261010-025158-040",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1148,7 +1148,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-041",
+      "alert_id": "ALT-20261010-025158-041",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1177,7 +1177,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-042",
+      "alert_id": "ALT-20261010-025158-042",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1206,7 +1206,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-043",
+      "alert_id": "ALT-20261010-025158-043",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1235,7 +1235,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-044",
+      "alert_id": "ALT-20261010-025158-044",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1264,7 +1264,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-045",
+      "alert_id": "ALT-20261010-025158-045",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1293,7 +1293,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-046",
+      "alert_id": "ALT-20261010-025158-046",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1322,7 +1322,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-047",
+      "alert_id": "ALT-20261010-025158-047",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1351,7 +1351,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-048",
+      "alert_id": "ALT-20261010-025158-048",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1380,7 +1380,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-049",
+      "alert_id": "ALT-20261010-025158-049",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1409,7 +1409,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-050",
+      "alert_id": "ALT-20261010-025158-050",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1438,7 +1438,7 @@
       "repeat_count": 4
     },
     {
-      "alert_id": "ALT-20261005-074934-051",
+      "alert_id": "ALT-20261010-025158-051",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1467,7 +1467,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-052",
+      "alert_id": "ALT-20261010-025158-052",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1496,7 +1496,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-053",
+      "alert_id": "ALT-20261010-025158-053",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1525,7 +1525,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-054",
+      "alert_id": "ALT-20261010-025158-054",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1554,7 +1554,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-055",
+      "alert_id": "ALT-20261010-025158-055",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1583,7 +1583,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-056",
+      "alert_id": "ALT-20261010-025158-056",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1612,7 +1612,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-057",
+      "alert_id": "ALT-20261010-025158-057",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1641,7 +1641,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-058",
+      "alert_id": "ALT-20261010-025158-058",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1670,7 +1670,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-059",
+      "alert_id": "ALT-20261010-025158-059",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1699,7 +1699,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-060",
+      "alert_id": "ALT-20261010-025158-060",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1728,7 +1728,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-061",
+      "alert_id": "ALT-20261010-025158-061",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1757,7 +1757,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-062",
+      "alert_id": "ALT-20261010-025158-062",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1786,7 +1786,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-063",
+      "alert_id": "ALT-20261010-025158-063",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1815,7 +1815,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-064",
+      "alert_id": "ALT-20261010-025158-064",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1844,7 +1844,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-065",
+      "alert_id": "ALT-20261010-025158-065",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1873,7 +1873,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-066",
+      "alert_id": "ALT-20261010-025158-066",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -1902,7 +1902,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-067",
+      "alert_id": "ALT-20261010-025158-067",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -1931,7 +1931,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-068",
+      "alert_id": "ALT-20261010-025158-068",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -1960,7 +1960,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-069",
+      "alert_id": "ALT-20261010-025158-069",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -1989,7 +1989,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-070",
+      "alert_id": "ALT-20261010-025158-070",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2018,7 +2018,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-071",
+      "alert_id": "ALT-20261010-025158-071",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2047,7 +2047,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-072",
+      "alert_id": "ALT-20261010-025158-072",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2076,7 +2076,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-073",
+      "alert_id": "ALT-20261010-025158-073",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2105,7 +2105,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-074",
+      "alert_id": "ALT-20261010-025158-074",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2134,7 +2134,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-075",
+      "alert_id": "ALT-20261010-025158-075",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2163,7 +2163,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-076",
+      "alert_id": "ALT-20261010-025158-076",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2192,7 +2192,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-077",
+      "alert_id": "ALT-20261010-025158-077",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2221,7 +2221,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-078",
+      "alert_id": "ALT-20261010-025158-078",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2250,7 +2250,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-079",
+      "alert_id": "ALT-20261010-025158-079",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2279,7 +2279,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-080",
+      "alert_id": "ALT-20261010-025158-080",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2308,7 +2308,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-081",
+      "alert_id": "ALT-20261010-025158-081",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2337,7 +2337,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-082",
+      "alert_id": "ALT-20261010-025158-082",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2366,7 +2366,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-083",
+      "alert_id": "ALT-20261010-025158-083",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2395,7 +2395,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-084",
+      "alert_id": "ALT-20261010-025158-084",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2424,7 +2424,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-085",
+      "alert_id": "ALT-20261010-025158-085",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2453,7 +2453,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-086",
+      "alert_id": "ALT-20261010-025158-086",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2482,7 +2482,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-087",
+      "alert_id": "ALT-20261010-025158-087",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2511,7 +2511,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-088",
+      "alert_id": "ALT-20261010-025158-088",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2540,7 +2540,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-089",
+      "alert_id": "ALT-20261010-025158-089",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2569,7 +2569,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-090",
+      "alert_id": "ALT-20261010-025158-090",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2598,7 +2598,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-091",
+      "alert_id": "ALT-20261010-025158-091",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2627,7 +2627,7 @@
       "repeat_count": 5
     },
     {
-      "alert_id": "ALT-20261005-074934-092",
+      "alert_id": "ALT-20261010-025158-092",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2656,7 +2656,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-093",
+      "alert_id": "ALT-20261010-025158-093",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2685,7 +2685,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-094",
+      "alert_id": "ALT-20261010-025158-094",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2714,7 +2714,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-095",
+      "alert_id": "ALT-20261010-025158-095",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2743,7 +2743,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-096",
+      "alert_id": "ALT-20261010-025158-096",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2772,7 +2772,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-097",
+      "alert_id": "ALT-20261010-025158-097",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2801,7 +2801,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-098",
+      "alert_id": "ALT-20261010-025158-098",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2830,7 +2830,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-099",
+      "alert_id": "ALT-20261010-025158-099",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2859,7 +2859,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-100",
+      "alert_id": "ALT-20261010-025158-100",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2888,7 +2888,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-101",
+      "alert_id": "ALT-20261010-025158-101",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2917,7 +2917,7 @@
       "repeat_count": 6
     },
     {
-      "alert_id": "ALT-20261005-074934-102",
+      "alert_id": "ALT-20261010-025158-102",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2946,7 +2946,7 @@
       "repeat_count": 5
     },
     {
-      "alert_id": "ALT-20261005-074934-103",
+      "alert_id": "ALT-20261010-025158-103",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -2975,7 +2975,7 @@
       "repeat_count": 3
     },
     {
-      "alert_id": "ALT-20261005-074934-104",
+      "alert_id": "ALT-20261010-025158-104",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -3004,7 +3004,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-105",
+      "alert_id": "ALT-20261010-025158-105",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -3033,7 +3033,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-106",
+      "alert_id": "ALT-20261010-025158-106",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3062,7 +3062,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-107",
+      "alert_id": "ALT-20261010-025158-107",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3091,7 +3091,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-108",
+      "alert_id": "ALT-20261010-025158-108",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3120,7 +3120,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-109",
+      "alert_id": "ALT-20261010-025158-109",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3149,7 +3149,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-110",
+      "alert_id": "ALT-20261010-025158-110",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3178,7 +3178,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-111",
+      "alert_id": "ALT-20261010-025158-111",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3207,7 +3207,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074934-112",
+      "alert_id": "ALT-20261010-025158-112",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3236,7 +3236,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-113",
+      "alert_id": "ALT-20261010-025158-113",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3265,7 +3265,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-114",
+      "alert_id": "ALT-20261010-025158-114",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3294,7 +3294,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-115",
+      "alert_id": "ALT-20261010-025158-115",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3323,7 +3323,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-116",
+      "alert_id": "ALT-20261010-025158-116",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3352,7 +3352,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-117",
+      "alert_id": "ALT-20261010-025158-117",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3381,7 +3381,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-118",
+      "alert_id": "ALT-20261010-025158-118",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3410,7 +3410,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-119",
+      "alert_id": "ALT-20261010-025158-119",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3439,7 +3439,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-120",
+      "alert_id": "ALT-20261010-025158-120",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3468,7 +3468,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-121",
+      "alert_id": "ALT-20261010-025158-121",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3497,7 +3497,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-122",
+      "alert_id": "ALT-20261010-025158-122",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -3526,7 +3526,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-123",
+      "alert_id": "ALT-20261010-025158-123",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3555,7 +3555,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-124",
+      "alert_id": "ALT-20261010-025158-124",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3584,7 +3584,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-125",
+      "alert_id": "ALT-20261010-025158-125",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3613,7 +3613,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-126",
+      "alert_id": "ALT-20261010-025158-126",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3642,7 +3642,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-127",
+      "alert_id": "ALT-20261010-025158-127",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3671,7 +3671,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-128",
+      "alert_id": "ALT-20261010-025158-128",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3700,7 +3700,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-129",
+      "alert_id": "ALT-20261010-025158-129",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3729,7 +3729,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-130",
+      "alert_id": "ALT-20261010-025158-130",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3758,7 +3758,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-131",
+      "alert_id": "ALT-20261010-025158-131",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3787,7 +3787,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-132",
+      "alert_id": "ALT-20261010-025158-132",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3816,7 +3816,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-133",
+      "alert_id": "ALT-20261010-025158-133",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3845,7 +3845,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-134",
+      "alert_id": "ALT-20261010-025158-134",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3874,7 +3874,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-135",
+      "alert_id": "ALT-20261010-025158-135",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3903,7 +3903,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-136",
+      "alert_id": "ALT-20261010-025158-136",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3932,7 +3932,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-137",
+      "alert_id": "ALT-20261010-025158-137",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3961,7 +3961,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-138",
+      "alert_id": "ALT-20261010-025158-138",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -3990,7 +3990,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-139",
+      "alert_id": "ALT-20261010-025158-139",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4019,7 +4019,7 @@
       "repeat_count": 4
     },
     {
-      "alert_id": "ALT-20261005-074934-140",
+      "alert_id": "ALT-20261010-025158-140",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4048,7 +4048,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-141",
+      "alert_id": "ALT-20261010-025158-141",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4077,7 +4077,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-142",
+      "alert_id": "ALT-20261010-025158-142",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4106,7 +4106,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-143",
+      "alert_id": "ALT-20261010-025158-143",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4135,7 +4135,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-144",
+      "alert_id": "ALT-20261010-025158-144",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4164,7 +4164,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074934-145",
+      "alert_id": "ALT-20261010-025158-145",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "temp",
@@ -4209,7 +4209,7 @@
       ],
       "max_abs_statistic": 0.3328076761089432,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-001"
+      "event_id": "EVT-20261010025158-001"
     },
     {
       "family": "spc",
@@ -4226,7 +4226,7 @@
       ],
       "max_abs_statistic": 0.1672152843304318,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-002"
+      "event_id": "EVT-20261010025158-002"
     },
     {
       "family": "spc",
@@ -4243,7 +4243,7 @@
       ],
       "max_abs_statistic": 0.12595793931066254,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-003"
+      "event_id": "EVT-20261010025158-003"
     },
     {
       "family": "spc",
@@ -4260,7 +4260,7 @@
       ],
       "max_abs_statistic": 0.14898678497415574,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-004"
+      "event_id": "EVT-20261010025158-004"
     },
     {
       "family": "spc",
@@ -4276,7 +4276,7 @@
       ],
       "max_abs_statistic": 0.1679786174389506,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-005"
+      "event_id": "EVT-20261010025158-005"
     },
     {
       "family": "spc",
@@ -4293,7 +4293,7 @@
       ],
       "max_abs_statistic": 0.2694088584084681,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-006"
+      "event_id": "EVT-20261010025158-006"
     },
     {
       "family": "spc",
@@ -4310,7 +4310,7 @@
       ],
       "max_abs_statistic": 0.15940886247288427,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-007"
+      "event_id": "EVT-20261010025158-007"
     },
     {
       "family": "spc",
@@ -4327,7 +4327,7 @@
       ],
       "max_abs_statistic": 0.20545789784871413,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-008"
+      "event_id": "EVT-20261010025158-008"
     },
     {
       "family": "spc",
@@ -4344,7 +4344,7 @@
       ],
       "max_abs_statistic": 0.0953820393385015,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-009"
+      "event_id": "EVT-20261010025158-009"
     },
     {
       "family": "spc",
@@ -4361,7 +4361,7 @@
       ],
       "max_abs_statistic": 0.13144074863528962,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-010"
+      "event_id": "EVT-20261010025158-010"
     },
     {
       "family": "spc",
@@ -4377,7 +4377,7 @@
       ],
       "max_abs_statistic": 0.30168762444572417,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-011"
+      "event_id": "EVT-20261010025158-011"
     },
     {
       "family": "spc",
@@ -4393,7 +4393,7 @@
       ],
       "max_abs_statistic": 0.03962650796298061,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-012"
+      "event_id": "EVT-20261010025158-012"
     },
     {
       "family": "spc",
@@ -4409,7 +4409,7 @@
       ],
       "max_abs_statistic": 0.11014959349332648,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-013"
+      "event_id": "EVT-20261010025158-013"
     },
     {
       "family": "spc",
@@ -4426,7 +4426,7 @@
       ],
       "max_abs_statistic": 0.13945682184643873,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-014"
+      "event_id": "EVT-20261010025158-014"
     },
     {
       "family": "spc",
@@ -4443,7 +4443,7 @@
       ],
       "max_abs_statistic": 0.21209418122840745,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-015"
+      "event_id": "EVT-20261010025158-015"
     },
     {
       "family": "spc",
@@ -4459,7 +4459,7 @@
       ],
       "max_abs_statistic": 0.20240862668985296,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-016"
+      "event_id": "EVT-20261010025158-016"
     },
     {
       "family": "spc",
@@ -4475,7 +4475,7 @@
       ],
       "max_abs_statistic": 0.10732429810246027,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-017"
+      "event_id": "EVT-20261010025158-017"
     },
     {
       "family": "spc",
@@ -4491,7 +4491,7 @@
       ],
       "max_abs_statistic": 0.1247012856762556,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-018"
+      "event_id": "EVT-20261010025158-018"
     },
     {
       "family": "spc",
@@ -4507,7 +4507,7 @@
       ],
       "max_abs_statistic": 0.06546083751563339,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-019"
+      "event_id": "EVT-20261010025158-019"
     },
     {
       "family": "spc",
@@ -4524,7 +4524,7 @@
       ],
       "max_abs_statistic": 0.30512803459065535,
       "suppression_key": "__ALL__|spc|NELSON_R3|temp",
-      "event_id": "EVT-20261005074934-020"
+      "event_id": "EVT-20261010025158-020"
     },
     {
       "family": "spc",
@@ -4540,7 +4540,7 @@
       ],
       "max_abs_statistic": 0.04519214959547418,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-021"
+      "event_id": "EVT-20261010025158-021"
     },
     {
       "family": "spc",
@@ -4556,7 +4556,7 @@
       ],
       "max_abs_statistic": 0.12844742580342328,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-022"
+      "event_id": "EVT-20261010025158-022"
     },
     {
       "family": "spc",
@@ -4572,7 +4572,7 @@
       ],
       "max_abs_statistic": 0.14063481986523937,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-023"
+      "event_id": "EVT-20261010025158-023"
     },
     {
       "family": "spc",
@@ -4588,7 +4588,7 @@
       ],
       "max_abs_statistic": 0.2508720095542386,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-024"
+      "event_id": "EVT-20261010025158-024"
     },
     {
       "family": "spc",
@@ -4605,7 +4605,7 @@
       ],
       "max_abs_statistic": 0.07637793536199167,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-025"
+      "event_id": "EVT-20261010025158-025"
     },
     {
       "family": "spc",
@@ -4621,7 +4621,7 @@
       ],
       "max_abs_statistic": 0.21139631833194275,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-026"
+      "event_id": "EVT-20261010025158-026"
     },
     {
       "family": "spc",
@@ -4637,7 +4637,7 @@
       ],
       "max_abs_statistic": 0.10565875653697097,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-027"
+      "event_id": "EVT-20261010025158-027"
     },
     {
       "family": "spc",
@@ -4653,7 +4653,7 @@
       ],
       "max_abs_statistic": 0.1498882733719714,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-028"
+      "event_id": "EVT-20261010025158-028"
     },
     {
       "family": "spc",
@@ -4669,7 +4669,7 @@
       ],
       "max_abs_statistic": 0.2494863422245197,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-029"
+      "event_id": "EVT-20261010025158-029"
     },
     {
       "family": "spc",
@@ -4685,7 +4685,7 @@
       ],
       "max_abs_statistic": 0.19066087211267407,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-030"
+      "event_id": "EVT-20261010025158-030"
     },
     {
       "family": "spc",
@@ -4701,7 +4701,7 @@
       ],
       "max_abs_statistic": 0.07905101341942514,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-031"
+      "event_id": "EVT-20261010025158-031"
     },
     {
       "family": "spc",
@@ -4717,7 +4717,7 @@
       ],
       "max_abs_statistic": 0.047238197766342235,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-032"
+      "event_id": "EVT-20261010025158-032"
     },
     {
       "family": "spc",
@@ -4733,7 +4733,7 @@
       ],
       "max_abs_statistic": 0.17297030210808262,
       "suppression_key": "__ALL__|spc|NELSON_R3|temp",
-      "event_id": "EVT-20261005074934-033"
+      "event_id": "EVT-20261010025158-033"
     },
     {
       "family": "spc",
@@ -4750,7 +4750,7 @@
       ],
       "max_abs_statistic": 0.17340990743309737,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-034"
+      "event_id": "EVT-20261010025158-034"
     },
     {
       "family": "spc",
@@ -4766,7 +4766,7 @@
       ],
       "max_abs_statistic": 0.07980613122309001,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-035"
+      "event_id": "EVT-20261010025158-035"
     },
     {
       "family": "spc",
@@ -4782,7 +4782,7 @@
       ],
       "max_abs_statistic": 0.19613590139655318,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-036"
+      "event_id": "EVT-20261010025158-036"
     },
     {
       "family": "spc",
@@ -4798,7 +4798,7 @@
       ],
       "max_abs_statistic": 0.0688835207898336,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-037"
+      "event_id": "EVT-20261010025158-037"
     },
     {
       "family": "spc",
@@ -4814,7 +4814,7 @@
       ],
       "max_abs_statistic": 0.13059425705735686,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-038"
+      "event_id": "EVT-20261010025158-038"
     },
     {
       "family": "spc",
@@ -4830,7 +4830,7 @@
       ],
       "max_abs_statistic": 0.20712655226938298,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-039"
+      "event_id": "EVT-20261010025158-039"
     },
     {
       "family": "spc",
@@ -4846,7 +4846,7 @@
       ],
       "max_abs_statistic": 0.13565101251731349,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-040"
+      "event_id": "EVT-20261010025158-040"
     },
     {
       "family": "spc",
@@ -4863,7 +4863,7 @@
       ],
       "max_abs_statistic": 0.0848727405040943,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-041"
+      "event_id": "EVT-20261010025158-041"
     },
     {
       "family": "spc",
@@ -4880,7 +4880,7 @@
       ],
       "max_abs_statistic": 0.18521545155231953,
       "suppression_key": "__ALL__|spc|NELSON_R3|temp",
-      "event_id": "EVT-20261005074934-042"
+      "event_id": "EVT-20261010025158-042"
     },
     {
       "family": "spc",
@@ -4896,7 +4896,7 @@
       ],
       "max_abs_statistic": 0.029745353738129757,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-043"
+      "event_id": "EVT-20261010025158-043"
     },
     {
       "family": "spc",
@@ -4913,7 +4913,7 @@
       ],
       "max_abs_statistic": 0.18655754805188532,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-044"
+      "event_id": "EVT-20261010025158-044"
     },
     {
       "family": "spc",
@@ -4930,7 +4930,7 @@
       ],
       "max_abs_statistic": 0.17698274323835905,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-045"
+      "event_id": "EVT-20261010025158-045"
     },
     {
       "family": "spc",
@@ -4947,7 +4947,7 @@
       ],
       "max_abs_statistic": 0.16007180753810027,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-046"
+      "event_id": "EVT-20261010025158-046"
     },
     {
       "family": "spc",
@@ -4964,7 +4964,7 @@
       ],
       "max_abs_statistic": 0.19234731073574934,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-047"
+      "event_id": "EVT-20261010025158-047"
     },
     {
       "family": "regime",
@@ -4980,7 +4980,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6183",
-      "event_id": "EVT-20261005074934-048"
+      "event_id": "EVT-20261010025158-048"
     },
     {
       "family": "regime",
@@ -4996,7 +4996,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6431",
-      "event_id": "EVT-20261005074934-049"
+      "event_id": "EVT-20261010025158-049"
     },
     {
       "family": "spc",
@@ -5012,7 +5012,7 @@
       ],
       "max_abs_statistic": 0.31956374802231924,
       "suppression_key": "__ALL__|spc|NELSON_R3|temp",
-      "event_id": "EVT-20261005074934-050"
+      "event_id": "EVT-20261010025158-050"
     },
     {
       "family": "spc",
@@ -5028,7 +5028,7 @@
       ],
       "max_abs_statistic": 0.0052185796983560346,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-051"
+      "event_id": "EVT-20261010025158-051"
     },
     {
       "family": "spc",
@@ -5044,7 +5044,7 @@
       ],
       "max_abs_statistic": 0.45044165220829563,
       "suppression_key": "__ALL__|spc|NELSON_R3|temp",
-      "event_id": "EVT-20261005074934-052"
+      "event_id": "EVT-20261010025158-052"
     },
     {
       "family": "regime",
@@ -5060,7 +5060,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6678",
-      "event_id": "EVT-20261005074934-053"
+      "event_id": "EVT-20261010025158-053"
     },
     {
       "family": "spc",
@@ -5076,7 +5076,7 @@
       ],
       "max_abs_statistic": 0.04131943532968952,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-054"
+      "event_id": "EVT-20261010025158-054"
     },
     {
       "family": "regime",
@@ -5092,7 +5092,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_6931",
-      "event_id": "EVT-20261005074934-055"
+      "event_id": "EVT-20261010025158-055"
     },
     {
       "family": "spc",
@@ -5108,7 +5108,7 @@
       ],
       "max_abs_statistic": 0.1897963743559626,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-056"
+      "event_id": "EVT-20261010025158-056"
     },
     {
       "family": "spc",
@@ -5125,7 +5125,7 @@
       ],
       "max_abs_statistic": 0.21765273418089673,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-057"
+      "event_id": "EVT-20261010025158-057"
     },
     {
       "family": "spc",
@@ -5142,7 +5142,7 @@
       ],
       "max_abs_statistic": 1.0444914749206193,
       "suppression_key": "__ALL__|spc|NELSON_R6|temp",
-      "event_id": "EVT-20261005074934-058"
+      "event_id": "EVT-20261010025158-058"
     },
     {
       "family": "regime",
@@ -5158,7 +5158,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_7422",
-      "event_id": "EVT-20261005074934-059"
+      "event_id": "EVT-20261010025158-059"
     },
     {
       "family": "spc",
@@ -5174,7 +5174,7 @@
       ],
       "max_abs_statistic": 0.2744720748157747,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-060"
+      "event_id": "EVT-20261010025158-060"
     },
     {
       "family": "spc",
@@ -5191,7 +5191,7 @@
       ],
       "max_abs_statistic": 0.12627259624183773,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-061"
+      "event_id": "EVT-20261010025158-061"
     },
     {
       "family": "regime",
@@ -5207,7 +5207,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_7809",
-      "event_id": "EVT-20261005074934-062"
+      "event_id": "EVT-20261010025158-062"
     },
     {
       "family": "spc",
@@ -5224,7 +5224,7 @@
       ],
       "max_abs_statistic": 0.1899080062744756,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-063"
+      "event_id": "EVT-20261010025158-063"
     },
     {
       "family": "regime",
@@ -5240,7 +5240,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8049",
-      "event_id": "EVT-20261005074934-064"
+      "event_id": "EVT-20261010025158-064"
     },
     {
       "family": "spc",
@@ -5256,7 +5256,7 @@
       ],
       "max_abs_statistic": 0.034114487128183026,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-065"
+      "event_id": "EVT-20261010025158-065"
     },
     {
       "family": "spc",
@@ -5272,7 +5272,7 @@
       ],
       "max_abs_statistic": 2.012763220074053,
       "suppression_key": "__ALL__|spc|NELSON_R5|temp",
-      "event_id": "EVT-20261005074934-066"
+      "event_id": "EVT-20261010025158-066"
     },
     {
       "family": "regime",
@@ -5288,7 +5288,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8382",
-      "event_id": "EVT-20261005074934-067"
+      "event_id": "EVT-20261010025158-067"
     },
     {
       "family": "spc",
@@ -5304,7 +5304,7 @@
       ],
       "max_abs_statistic": 0.04279273625012745,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-068"
+      "event_id": "EVT-20261010025158-068"
     },
     {
       "family": "regime",
@@ -5320,7 +5320,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8670",
-      "event_id": "EVT-20261005074934-069"
+      "event_id": "EVT-20261010025158-069"
     },
     {
       "family": "spc",
@@ -5337,7 +5337,7 @@
       ],
       "max_abs_statistic": 0.1600433856627315,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-070"
+      "event_id": "EVT-20261010025158-070"
     },
     {
       "family": "regime",
@@ -5353,7 +5353,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_8999",
-      "event_id": "EVT-20261005074934-071"
+      "event_id": "EVT-20261010025158-071"
     },
     {
       "family": "spc",
@@ -5369,7 +5369,7 @@
       ],
       "max_abs_statistic": 0.046676587379383766,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-072"
+      "event_id": "EVT-20261010025158-072"
     },
     {
       "family": "spc",
@@ -5385,7 +5385,7 @@
       ],
       "max_abs_statistic": 0.05784826086215368,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-073"
+      "event_id": "EVT-20261010025158-073"
     },
     {
       "family": "spc",
@@ -5403,7 +5403,7 @@
       ],
       "max_abs_statistic": 3.129722055331127,
       "suppression_key": "__ALL__|spc|NELSON_R1|temp",
-      "event_id": "EVT-20261005074934-074"
+      "event_id": "EVT-20261010025158-074"
     },
     {
       "family": "regime",
@@ -5419,7 +5419,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_9369",
-      "event_id": "EVT-20261005074934-075"
+      "event_id": "EVT-20261010025158-075"
     },
     {
       "family": "spc",
@@ -5436,7 +5436,7 @@
       ],
       "max_abs_statistic": 0.1868009426419332,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-076"
+      "event_id": "EVT-20261010025158-076"
     },
     {
       "family": "regime",
@@ -5452,7 +5452,7 @@
       ],
       "max_abs_statistic": 0.0,
       "suppression_key": "__ALL__|regime|REGIME_CHANGE_NEW|cp_9604",
-      "event_id": "EVT-20261005074934-077"
+      "event_id": "EVT-20261010025158-077"
     },
     {
       "family": "spc",
@@ -5468,7 +5468,7 @@
       ],
       "max_abs_statistic": 0.09270526163454505,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074934-078"
+      "event_id": "EVT-20261010025158-078"
     },
     {
       "family": "spc",
@@ -5484,7 +5484,7 @@
       ],
       "max_abs_statistic": 0.21860421749150763,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074934-079"
+      "event_id": "EVT-20261010025158-079"
     },
     {
       "family": "spc",
@@ -5500,7 +5500,7 @@
       ],
       "max_abs_statistic": 0.16462532490143594,
       "suppression_key": "__ALL__|spc|NELSON_R3|press",
-      "event_id": "EVT-20261005074934-080"
+      "event_id": "EVT-20261010025158-080"
     }
   ],
   "regime_summary": {
@@ -5552,7 +5552,7 @@
   "provenance": {
     "input_sha256": "3097017106871a1028ef17725d9007427ba979bc3d73c3e7b5eb923f3615cd04",
     "script_version": "1.0.0",
-    "duration_ms": 63,
+    "duration_ms": 79,
     "zero_llm": true,
     "authored_by": "script"
   }

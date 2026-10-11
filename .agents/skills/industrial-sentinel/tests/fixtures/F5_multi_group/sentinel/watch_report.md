@@ -1,10 +1,10 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-05T07:49:41.292536+00:00
+- **生成时间**：2026-10-10T02:52:05.031319+00:00
 - **总体状态**：**alert** · 告警数 **5**
 - **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F5_multi_group\watch.csv`（700 行；时间列 -；分组列 line）
 - **基线**：模式：prior（v1.0.0），路径：D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F5_multi_group\watch_baseline.json
-- **耗时**：25 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
+- **耗时**：24 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
 
 
 ## 一、告警清单
@@ -39,11 +39,11 @@
 
 | 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |
 |------|------|------|----------|----------|--------|------|
-| EVT-20261005074941-002 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
-| EVT-20261005074941-003 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
-| EVT-20261005074941-004 | temp | spc | high | 0 | 1 | NELSON_R1 |
-| EVT-20261005074941-005 | temp | spc | high | 0 | 1 | NELSON_R1 |
-| EVT-20261005074941-001 | - | baseline | warn | 0 | 1 | UNSEEN_GROUP |
+| EVT-20261010025205-002 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
+| EVT-20261010025205-003 | temp | multivariate | high | 0 | 1 | ROBUST_Z_OUTLIER |
+| EVT-20261010025205-004 | temp | spc | high | 0 | 1 | NELSON_R1 |
+| EVT-20261010025205-005 | temp | spc | high | 0 | 1 | NELSON_R1 |
+| EVT-20261010025205-001 | - | baseline | warn | 0 | 1 | UNSEEN_GROUP |
 
 ## 六、建议后续动作
 

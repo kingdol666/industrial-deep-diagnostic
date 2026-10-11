@@ -1,10 +1,10 @@
 # 产线哨兵巡检报告（watch 模式）
 
-- **生成时间**：2026-10-05T07:49:44.276511+00:00
+- **生成时间**：2026-10-10T02:52:08.282127+00:00
 - **总体状态**：**warn** · 告警数 **10**
 - **数据**：`D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F7_hours_axis_units\watch_epoch_s.csv`（600 行；时间列 timestamp；分组列 -）
 - **基线**：模式：prior（v1.0.0），路径：D:\codes\industrial-deep-diagnostic\.claude\skills\industrial-sentinel\tests\fixtures\F7_hours_axis_units\watch_baseline.json
-- **耗时**：20 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
+- **耗时**：16 ms（零 LLM / 零网络，全部统计由确定性脚本计算）
 
 
 ## 一、告警清单
@@ -42,14 +42,14 @@
 
 | 事件 | 参数 | 类别 | 峰值级别 | 跨度(行) | 告警数 | 规则 |
 |------|------|------|----------|----------|--------|------|
-| EVT-20261005074944-006 | press | spc | warn | 132 | 3 | NELSON_R2、NELSON_R3 |
-| EVT-20261005074944-001 | temp | window_projection | warn | 0 | 1 | WINDOW_DRIFT_PROJECTION |
-| EVT-20261005074944-002 | temp | spc | warn | 0 | 1 | NELSON_R2 |
-| EVT-20261005074944-003 | press | spc | warn | 0 | 1 | NELSON_R2 |
-| EVT-20261005074944-004 | press | spc | warn | 0 | 1 | NELSON_R2 |
-| EVT-20261005074944-005 | temp | spc | warn | 0 | 1 | NELSON_R2 |
-| EVT-20261005074944-007 | temp | spc | warn | 0 | 1 | NELSON_R2 |
-| EVT-20261005074944-008 | temp | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-006 | press | spc | warn | 132 | 3 | NELSON_R2、NELSON_R3 |
+| EVT-20261010025208-001 | temp | window_projection | warn | 0 | 1 | WINDOW_DRIFT_PROJECTION |
+| EVT-20261010025208-002 | temp | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-003 | press | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-004 | press | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-005 | temp | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-007 | temp | spc | warn | 0 | 1 | NELSON_R2 |
+| EVT-20261010025208-008 | temp | spc | warn | 0 | 1 | NELSON_R2 |
 
 ## 六、建议后续动作
 

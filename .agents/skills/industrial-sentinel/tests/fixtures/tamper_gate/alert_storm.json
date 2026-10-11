@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074933-000",
+  "alert_id": "ALT-20261010-025156-000",
   "mode": "watch",
   "status": "ok",
   "group_scope": null,
-  "generated_at": "2026-10-05T07:49:33.556615+00:00",
+  "generated_at": "2026-10-10T02:51:56.600039+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F1_watch_steady\\watch.csv",
     "sha256": "9097c9b1d89c44d5478bb460b97b657fa5a95ad91fbaf45520ddda526f52bf53",
@@ -130,7 +130,7 @@
   "provenance": {
     "input_sha256": "9097c9b1d89c44d5478bb460b97b657fa5a95ad91fbaf45520ddda526f52bf53",
     "script_version": "1.0.0",
-    "duration_ms": 24,
+    "duration_ms": 25,
     "zero_llm": true,
     "authored_by": "script"
   }

@@ -1,10 +1,10 @@
 {
   "contract_version": "sentinel-alert/1.0",
-  "alert_id": "ALT-20261005-074945-000",
+  "alert_id": "ALT-20261010-025209-000",
   "mode": "watch",
   "status": "warn",
   "group_scope": null,
-  "generated_at": "2026-10-05T07:49:45.379976+00:00",
+  "generated_at": "2026-10-10T02:52:09.413261+00:00",
   "source": {
     "data_path": "D:\\codes\\industrial-deep-diagnostic\\.claude\\skills\\industrial-sentinel\\tests\\fixtures\\F7_hours_axis_units\\watch_epoch_us.csv",
     "sha256": "43ff54351d73b19a65ce8205903298a507d8299451be2717445ed2ef662244e7",
@@ -63,7 +63,7 @@
   },
   "alerts": [
     {
-      "alert_id": "ALT-20261005-074945-001",
+      "alert_id": "ALT-20261010-025209-001",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -92,7 +92,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-002",
+      "alert_id": "ALT-20261010-025209-002",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -121,7 +121,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-003",
+      "alert_id": "ALT-20261010-025209-003",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -150,7 +150,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-004",
+      "alert_id": "ALT-20261010-025209-004",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "press",
@@ -179,7 +179,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074945-005",
+      "alert_id": "ALT-20261010-025209-005",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -208,7 +208,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-006",
+      "alert_id": "ALT-20261010-025209-006",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -237,7 +237,7 @@
       "repeat_count": 4
     },
     {
-      "alert_id": "ALT-20261005-074945-007",
+      "alert_id": "ALT-20261010-025209-007",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -266,7 +266,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-008",
+      "alert_id": "ALT-20261010-025209-008",
       "check_type": "spc",
       "rule_name": "NELSON_R2",
       "parameter": "temp",
@@ -295,7 +295,7 @@
       "repeat_count": 2
     },
     {
-      "alert_id": "ALT-20261005-074945-009",
+      "alert_id": "ALT-20261010-025209-009",
       "check_type": "spc",
       "rule_name": "NELSON_R3",
       "parameter": "press",
@@ -324,7 +324,7 @@
       "repeat_count": 1
     },
     {
-      "alert_id": "ALT-20261005-074945-010",
+      "alert_id": "ALT-20261010-025209-010",
       "check_type": "window_projection",
       "rule_name": "WINDOW_DRIFT_PROJECTION",
       "parameter": "temp",
@@ -370,7 +370,7 @@
       ],
       "max_abs_statistic": 0.04713507964551884,
       "suppression_key": "__ALL__|window_projection|WINDOW_DRIFT_PROJECTION|temp",
-      "event_id": "EVT-20261005074945-001"
+      "event_id": "EVT-20261010025209-001"
     },
     {
       "family": "spc",
@@ -386,7 +386,7 @@
       ],
       "max_abs_statistic": 0.3952827197824617,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074945-002"
+      "event_id": "EVT-20261010025209-002"
     },
     {
       "family": "spc",
@@ -402,7 +402,7 @@
       ],
       "max_abs_statistic": 0.17583293580283488,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074945-003"
+      "event_id": "EVT-20261010025209-003"
     },
     {
       "family": "spc",
@@ -418,7 +418,7 @@
       ],
       "max_abs_statistic": 0.07130634674011693,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074945-004"
+      "event_id": "EVT-20261010025209-004"
     },
     {
       "family": "spc",
@@ -434,7 +434,7 @@
       ],
       "max_abs_statistic": 0.1520003840231176,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074945-005"
+      "event_id": "EVT-20261010025209-005"
     },
     {
       "family": "spc",
@@ -451,7 +451,7 @@
       ],
       "max_abs_statistic": 0.1359580227643623,
       "suppression_key": "__ALL__|spc|NELSON_R2|press",
-      "event_id": "EVT-20261005074945-006"
+      "event_id": "EVT-20261010025209-006"
     },
     {
       "family": "spc",
@@ -467,7 +467,7 @@
       ],
       "max_abs_statistic": 0.13559628499968768,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074945-007"
+      "event_id": "EVT-20261010025209-007"
     },
     {
       "family": "spc",
@@ -483,7 +483,7 @@
       ],
       "max_abs_statistic": 0.11512143291422505,
       "suppression_key": "__ALL__|spc|NELSON_R2|temp",
-      "event_id": "EVT-20261005074945-008"
+      "event_id": "EVT-20261010025209-008"
     }
   ],
   "regime_summary": {
