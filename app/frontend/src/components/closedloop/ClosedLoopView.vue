@@ -17,20 +17,24 @@
       >{{ $t(`closedloop.subtabs.${key}`) }}</button>
     </nav>
 
-    <SentinelPanel v-if="subtab === 'sentinel'" :key="`s-${reloadKey}`" />
+    <AnalysisHubPanel v-if="subtab === 'hub'" :key="`hub-${reloadKey}`" />
+    <SentinelPanel v-else-if="subtab === 'sentinel'" :key="`s-${reloadKey}`" />
     <ExperiencePanel v-else-if="subtab === 'experience'" :key="`e-${reloadKey}`" />
+    <StabilityPanel v-else-if="subtab === 'stability'" :key="`lsr-${reloadKey}`" />
     <OptimizerPanel v-else :key="`o-${reloadKey}`" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import AnalysisHubPanel from './AnalysisHubPanel.vue';
 import SentinelPanel from './SentinelPanel.vue';
 import ExperiencePanel from './ExperiencePanel.vue';
 import OptimizerPanel from './OptimizerPanel.vue';
+import StabilityPanel from './StabilityPanel.vue';
 
-const subtabs = ['sentinel', 'experience', 'optimizer'];
-const subtab = ref('sentinel');
+const subtabs = ['hub', 'sentinel', 'experience', 'stability', 'optimizer'];
+const subtab = ref('hub');
 const reloadKey = ref(0);
 </script>
 

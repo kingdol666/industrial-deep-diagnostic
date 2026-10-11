@@ -39,7 +39,7 @@ function handleUnauthorized() {
   window.dispatchEvent(new CustomEvent('auth:unauthorized'));
 }
 
-function authHeaders(extra = {}) {
+export function authHeaders(extra = {}) {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
 }
@@ -302,6 +302,17 @@ export const api = {
   sentinelScreen: (params) =>
     request('/sentinel/screen', { method: 'POST', body: JSON.stringify(params) }),
   sentinelTask: (taskId) => request(`/sentinel/tasks/${encodeURIComponent(taskId)}`),
+  // 产线运行稳定性报告（协同 sentinel 基线 / tuning-memory 归因 / doe 操作窗）
+  lineReportRun: (params) =>
+    request('/line-report/tasks', { method: 'POST', body: JSON.stringify(params) }),
+  lineReportTask: (taskId) => request(`/line-report/tasks/${encodeURIComponent(taskId)}`),
+  lineReportRuns: () => request('/line-report/runs'),
+  // DOE/工况分析（分析中心「工况DOE分析」模式）
+  doeAnalysisRun: (params) =>
+    request('/doe-analysis/tasks', { method: 'POST', body: JSON.stringify(params) }),
+  doeAnalysisTask: (taskId) => request(`/doe-analysis/tasks/${encodeURIComponent(taskId)}`),
+  doeAnalysisRuns: () => request('/doe-analysis/runs'),
+  doeAnalysisRunDetail: (taskId) => request(`/doe-analysis/runs/${encodeURIComponent(taskId)}`),
   // 经验库：动作摄取（异步归因 job）→ 库视图 → 检索 → 反馈
   experienceIngest: (params) =>
     request('/experience/actions', { method: 'POST', body: JSON.stringify(params) }),

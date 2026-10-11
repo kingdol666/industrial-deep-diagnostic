@@ -14,6 +14,8 @@ import authRoutes from './routes/auth.routes.mjs';
 import sentinelRoutes from './routes/sentinel.routes.mjs';
 import experienceRoutes from './routes/experience.routes.mjs';
 import optimizerRoutes from './routes/optimizer.routes.mjs';
+import lineReportRoutes from './routes/line-report.routes.mjs';
+import doeAnalysisRoutes from './routes/doe-analysis.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -86,6 +88,10 @@ app.use('/api/ontology', ontologyRoutes);
 app.use('/api/sentinel', sentinelRoutes);
 app.use('/api/experience', experienceRoutes);
 app.use('/api/optimizer', optimizerRoutes);
+// 产线运行稳定性报告（闭环协同报告面：sentinel 基线 + tuning-memory 归因 + doe 操作窗）
+app.use('/api/line-report', lineReportRoutes);
+// DOE/工况分析（industrial-doe-analyzer HTTP 面：任意表数据自动判模式分析）
+app.use('/api/doe-analysis', doeAnalysisRoutes);
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {

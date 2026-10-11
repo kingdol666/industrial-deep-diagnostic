@@ -166,3 +166,130 @@ export function writeJson(path, obj) {
   writeFileSync(path, JSON.stringify(obj, null, 2), 'utf-8');
   return path;
 }
+
+/**
+ * 流式进程执行：与 runProcess 相同语义，但每产出一行就回调 onLine(line, stream)，
+ * 供 SSE 实时渲染 skill 脚本日志（分析中心/产线报告控制台）。
+ */
+export function runProcessStreaming(command, args, {
+  timeoutMs = 120000, cwd = PROJECT_ROOT, onLine = null,
+} = {}) {
+  return new Promise((resolvePromise) => {
+    const child = spawn(command, args, { cwd, windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      try { child.kill(); } catch { /* already gone */ }
+    }, timeoutMs);
+    const pump = (stream, kind) => {
+      let buf = '';
+      stream.setEncoding('utf8');
+      stream.on('data', (chunk) => {
+        if (kind === 'stdout') stdout += chunk; else stderr += chunk;
+        if (!onLine) return;
+        buf += chunk;
+        const lines = buf.split(/\r?\n/);
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          if (line.trim()) {
+            try { onLine(line, kind); } catch { /* listener must not break pump */ }
+          }
+        }
+      });
+    };
+    pump(child.stdout, 'stdout');
+    pump(child.stderr, 'stderr');
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      resolvePromise({ code: -1, stdout, stderr: `${stderr}${err.message}`, timedOut });
+    });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      resolvePromise({ code, stdout, stderr, timedOut });
+    });
+  });
+}
+
+export function uvPythonStreaming(scriptPath, cliArgs, opts = {}) {
+  return runProcessStreaming('uv',
+    ['run', '--project', '.claude/shared/scripts', 'python', scriptPath, ...cliArgs], opts);
+}
+
+/**
+ * 任务日志总线：环形缓冲 + 订阅。SSE 端点用它做「回放 + 实时」两段式推送。
+ */
+export function makeJobLog(cap = 800) {
+  const lines = [];
+  const listeners = new Set();
+  return {
+    log(line, stream = 'stdout') {
+      const entry = { ts: Date.now(), stream, line: String(line).slice(0, 500) };
+      lines.push(entry);
+      if (lines.length > cap) lines.shift();
+      for (const fn of listeners) {
+        try { fn(entry); } catch { /* ignore */ }
+      }
+    },
+    getLines: () => lines.slice(),
+    subscribe(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+  };
+}
+
+/**
+ * skill 任务 SSE：先回放已有日志，再实时推送，直到任务终态后发 done 并收流。
+ * 前端 EventSource 直接可用（不需要 POST，token 走 query 由 authGuard 处理）。
+ */
+export function streamTaskSSE(req, res, { getTask, getLog, taskId }) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
+  });
+  const send = (event, data) => {
+    if (res.destroyed) return;
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+  const finish = (task) => {
+    send('done', {
+      status: task?.status ?? 'unknown',
+      exit_code: task?.exit_code ?? null,
+      error: task?.error ?? null,
+      result: task?.result ?? null,
+    });
+    res.end();
+  };
+  const task = getTask(taskId);
+  if (!task) {
+    send('error', { message: 'Task not found' });
+    res.end();
+    return () => {};
+  }
+  if (task.status === 'completed' || task.status === 'failed') {
+    for (const entry of (getLog(taskId)?.getLines() ?? [])) send('log', entry);
+    finish(task);
+    return () => {};
+  }
+  for (const entry of (getLog(taskId)?.getLines() ?? [])) send('log', entry);
+  const unsubLog = getLog(taskId)?.subscribe((entry) => send('log', entry));
+  const poll = setInterval(() => {
+    const current = getTask(taskId);
+    if (!current) { clearInterval(poll); res.end(); return; }
+    send('status', { status: current.status });
+    if (current.status === 'completed' || current.status === 'failed') {
+      clearInterval(poll);
+      if (unsubLog) unsubLog();
+      finish(current);
+    }
+  }, 1000);
+  req.on('close', () => {
+    clearInterval(poll);
+    if (unsubLog) unsubLog();
+  });
+  return () => { clearInterval(poll); if (unsubLog) unsubLog(); };
+}
