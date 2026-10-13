@@ -35,8 +35,9 @@ Conclusions limited by weakest rank. Every non-observation cites its rank.
 
 ## Phase 0: Load All Evidence
 
-- [ ] CRITICAL (missing→stop): `feature_summary.json`, `validate_report.json`, `ontology.json`, `plot_manifest.json`, `extracted_knowledge.json`, `image_captions.json`, `visual_analysis.json`
-- [ ] IMPORTANT (missing→note): `anomaly_report.json`, `data_analysis_conclusion.json`, `causal_evidence_map.json`, `rag_deep_understanding.json`, `clarification_needed.json`, `parameter_to_physics.json`, etc.
+- [ ] CRITICAL (missing→stop): `feature_summary.json`, `validate_report.json`, `ontology.json`, `plot_manifest.json`, `image_captions.json`
+- [ ] Conditional: `visual_analysis.json` — CRITICAL only when VLM actually ran (`run_config.json.run_mode == "full"`, or run_manifest.json has no `vlm_analysis` skip entry). In a fast run with VLM skipped it is NOT required and must NOT stop the run: `image_captions.json` becomes the sole visual source — annotate those insights `[caption_fallback]` [Evidence Rank 4] and proceed. Conversely, when `visual_analysis.json` exists, `image_captions.json` downgrades to IMPORTANT.
+- [ ] IMPORTANT (missing→note): `extracted_knowledge.json` (RAG knowledge injection — missing means RAG was unavailable: proceed WITHOUT it, mark RAG-derived physics priors unavailable, cap RAG-only evidence at L5, and record the gap in the Phase 0 report; never stop), `anomaly_report.json`, `data_analysis_conclusion.json`, `causal_evidence_map.json`, `rag_deep_understanding.json`, `clarification_needed.json`, `parameter_to_physics.json`, etc.
 - [ ] Read `validate_report.json` FIRST: sorting, Simpson (>50% trend→confounded), outlier, change-point constraints
 - [ ] Extract TWO entry points from `anomaly_report.json`: `process_parameter_fluctuation` (process-only) + `dual_drive_analysis` (integrated). Do NOT merge too early
 - [ ] Read `time_lag_analysis.json` (if exists): apply lag-aware rules to all causal hypotheses
@@ -107,7 +108,7 @@ Conclusions limited by weakest rank. Every non-observation cites its rank.
 ### STEP A: Hypothesis Generation
 - [ ] Generate **≥3 competing hypotheses**, each with: causal chain (governing equations), quantitative verification, data evidence, visual alignment
 - [ ] Define **falsification conditions** for EVERY hypothesis
-- [ ] Execute Chain Link Validation: per arrow → data column exists? correlation significant? direction consistent? magnitude plausible?
+- [ ] Execute Chain Link Validation: per arrow → endpoint resolvable (measured data column, or a disclosed physical quantity listed in `inference_gaps[]`)? correlation significant? direction consistent? magnitude plausible?
 - [ ] CORRELATION_ABSENT → document in `diagnosis.json.causal_chain_validation` + `reasoning_chain.json` R4; correct chain; NEVER delete silently
 - [ ] >1 arrow unverified → cannot be DETERMINED, must be COMPETING_SET
 - Gate: <3 hypotheses OR no falsification → FAIL
@@ -167,11 +168,13 @@ Conclusions limited by weakest rank. Every non-observation cites its rank.
 
 | Factor | Max | Key Rule |
 |--------|-----|----------|
-| Statistical Strength | 20 | Survives Simpson+detrending+outlier |
-| Physical Plausibility | 25 | Pre-cached=baseline; RAG=-5; FP(PLAUSIBLE)=-10, (BORDERLINE)=-15. Proof: PROVEN+15/STRONG+10/SUPPORTIVE+5/WEAK-10/CONTRADICTED-20 |
+| Statistical Strength | 25 | Survives Simpson+detrending+outlier |
+| Physical Plausibility | 25 | Baseline = 25 (factor max) when physics is pre-cached; RAG=-5; FP(PLAUSIBLE)=-10, (BORDERLINE)=-15. Proof: PROVEN+15/STRONG+10/SUPPORTIVE+5/WEAK-10/CONTRADICTED-20 |
 | Temporal Evidence | 20 | No time col→**auto 0/20**. Lag-compensated r preferred |
 | Confounding-Free | 20 | No group col→reduced. BETWEEN_PRODUCT_ONLY reduces |
-| Symptom Completeness | 15 | Anomaly interval coverage |
+| Symptom Completeness | 10 | Anomaly interval coverage |
+
+(Maxima are normative: `schemas/confidence_schema.json` and `scripts/diagnostic-quality-check.mjs` enforce 25/25/20/20/10 — any other table in older references is superseded by this one.)
 
 - [ ] Apply **confidence ceilings**: 65 (INDISTINGUISHABLE), 50 ([PARAM_AMBIGUITY]). Stricter wins on tie
 - [ ] Record all adjustments in `confidence.adjustment_log`
@@ -180,11 +183,13 @@ Conclusions limited by weakest rank. Every non-observation cites its rank.
 
 ## Phase 7: Schema Validation
 
+**Schema authority (single source)**: `$SKILL_PATH/schemas/` is the ONLY authoring authority for the four diagnostic outputs — build and validate against it. `pipeline-finalize.mjs` re-checks with a byte-equivalent copy under `industrial-analysis-auto/schemas/`. `$SHARED_PATH/schemas/` keeps looser legacy duplicates (consumed by `schema-validation-loop.mjs` fallback and older docs) — passing them is necessary but NOT sufficient; never author against them.
+
 ```bash
-node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
-node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
-node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
-node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
+node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/diagnosis_schema.json" "$RUN_DIR/04_diagnostics/diagnosis.json"
+node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/evidence_schema.json" "$RUN_DIR/04_diagnostics/evidence.json"
+node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/confidence_schema.json" "$RUN_DIR/04_diagnostics/confidence.json"
+node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/reasoning_chain_schema.json" "$RUN_DIR/04_diagnostics/reasoning_chain.json"
 node "$SKILL_PATH/scripts/diagnostic-quality-check.mjs" "$RUN_DIR"
 ```
 

@@ -19,7 +19,16 @@ if (!runDir || !skillPath || !agentName) {
   process.exit(2);
 }
 
+// Schema authority: $SKILL_PATH/schemas is the strict single authoring source;
+// shared/schemas keeps looser legacy duplicates. Prefer the skill-side copy for
+// each mapped schema; fall back to shared only when the calling skill does not
+// ship that schema (older cross-skill dispatches).
+const skillSchemasDir = join(skillPath, 'schemas');
 const SCHEMAS_DIR = join(skillPath, '../../shared/schemas');
+function resolveSchemaPath(schemaFile) {
+  const skillSide = join(skillSchemasDir, schemaFile);
+  return fs.existsSync(skillSide) ? skillSide : join(SCHEMAS_DIR, schemaFile);
+}
 const AGENT_MAP = {
   'context-builder': ['ontology_schema.json'],
   'data-processor': ['data_analysis_conclusion_schema.json'],

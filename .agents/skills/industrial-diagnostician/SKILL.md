@@ -18,7 +18,7 @@ Core rule: **diagnosis = elimination**. Every conclusion satisfies the four cond
 | `02_processed/stage_digest.json` | **Speed fast path — read FIRST.** ≤2KB machine summary (data shape, top anomalies, top filtered correlations, chart plan, time-alignment mode). Full artifacts below are consulted on demand for the details a hypothesis actually needs |
 | `02_processed/data_analysis_conclusion.json` | Mandatory handoff file — statistical analysis conclusion |
 | `01_ontology/ontology.json` | Physical-semantic ontology |
-| `03_figures/visual_analysis.json` | VLM visual evidence |
+| `03_figures/visual_analysis.json` | VLM visual evidence (required when VLM ran — full mode; in a fast run with VLM skipped, `image_captions.json` is the visual source instead) |
 | `02_processed/time_lag_analysis.json` | Time-lag analysis (must be read if present) |
 | `02_processed/anomaly_report.json` | Anomaly report |
 | `02_processed/validate_report.json` | Statistical validation report |
@@ -169,9 +169,10 @@ node "$SKILL_PATH/scripts/schema-validation-loop.mjs" "$RUN_DIR" "$SKILL_PATH" d
 | Schema validation fail | Fix JSON → rewrite → re-validate (schema-validation-loop) |
 | Missing data_analysis_conclusion.json | Cannot proceed — upstream incomplete |
 | Missing time_lag_analysis.json | Not mandatory — mark no time-lag evidence, degrade temporal_evidence |
+| extracted_knowledge.json missing (RAG unavailable) | IMPORTANT degrade — proceed without RAG knowledge injection; mark RAG-derived physics priors unavailable, cap RAG-only evidence at L5, record gap in Phase 0 report; never stop |
 | No hypothesis resolvable | COMPETING_SET + honest disclosure of ambiguity |
 | Correlation confounded (Simpson/detrend) | Degrade evidence level, mark confound_detected: true |
-| VLM visual analysis unavailable | Degrade temporal_evidence, do not block diagnosis |
+| VLM visual analysis unavailable (fast mode VLM skip) | `visual_analysis.json` not required — use `image_captions.json` as `[caption_fallback]` [Evidence Rank 4], degrade temporal_evidence, do not block diagnosis |
 
 ## References
 

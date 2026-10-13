@@ -11,11 +11,13 @@ Detailed commands, tables, and templates moved from agent-protocol.md. Read only
 - `02_processed/validate_report.json`
 - `01_ontology/ontology.json`
 - `03_figures/plot_manifest.json`
-- `00_input/extracted_knowledge.json`
-- `03_figures/image_captions.json`
-- `03_figures/visual_analysis.json`
+- `03_figures/image_captions.json` — downgrades to IMPORTANT when `03_figures/visual_analysis.json` exists
+
+### 0.1a Conditional File
+- `03_figures/visual_analysis.json` — CRITICAL only when VLM actually ran (`run_config.json.run_mode == "full"`, or run_manifest.json has no `vlm_analysis` skip entry). In a fast run with VLM skipped it is NOT required and must NOT stop the run: `image_captions.json` becomes the sole visual source (`[caption_fallback]` [Evidence Rank 4]).
 
 ### 0.1 IMPORTANT Files (missing → note, continue)
+- `00_input/extracted_knowledge.json` — RAG knowledge injection; missing = RAG unavailable → proceed WITHOUT it, mark RAG-derived physics priors unavailable, cap RAG-only evidence at L5, record the gap (never stop)
 - `02_processed/anomaly_report.json`
 - `02_processed/data_analysis_conclusion.json` — Data Processor's expert handoff
 - `02_processed/causal_evidence_map.json`
@@ -386,7 +388,7 @@ For each causal chain, split into arrows `[cause]→[mechanism]→[intermediate]
 
 | Check | Data Source | Pass Condition |
 |------|-------------|---------------|
-| Data column exists | feature_summary column_names | Both ends map to data columns |
+| Endpoint resolvable | feature_summary column_names | Both ends map to measured data columns OR disclosed physical quantities — a latent intermediate (e.g. catalyst activity) is legal only if listed in `diagnosis.json.inference_gaps[]`, and the end-to-end cause→effect link must still be fully validated |
 | Statistical correlation | feature_summary correlation matrix | Pair has raw r entry |
 | Direction consistency | feature_summary r sign | Sign matches arrow direction |
 | Physical feasibility | Magnitude check L4 | Ratio ≤10× (PLAUSIBLE) or ≤100× (BORDERLINE) |
@@ -498,11 +500,13 @@ Each item cites BOTH data source AND physics source.
 
 | Factor | Max | Source | Notes |
 |--------|-----|--------|-------|
-| Statistical Strength | 20 | validate_report | Survives Simpson + detrending + outlier |
-| Physical Plausibility | 25 | Quantitative calculation | Pre-cached: baseline. RAG-extracted: -5. First-principles (PLAUSIBLE): -10. First-principles (BORDERLINE): -15. Proof strength adjustments: PROVEN +15, STRONG_EVIDENCE +10, SUPPORTIVE +5, WEAK -10, CONTRADICTED -20/eliminate |
+| Statistical Strength | 25 | validate_report | Survives Simpson + detrending + outlier |
+| Physical Plausibility | 25 | Quantitative calculation | Baseline = 25 (factor max) when physics is pre-cached. RAG-extracted: -5. First-principles (PLAUSIBLE): -10. First-principles (BORDERLINE): -15. Proof strength adjustments: PROVEN +15, STRONG_EVIDENCE +10, SUPPORTIVE +5, WEAK -10, CONTRADICTED -20/eliminate |
 | Temporal Evidence | 20 | CCF + visual | **No time column → auto 0/20.** Lag-compensated r preferred |
 | Confounding-Free | 20 | Simpson check | **No grouping column → reduced.** BETWEEN_PRODUCT_ONLY reduces |
-| Symptom Completeness | 15 | Anomaly interval coverage | How much of anomaly window does hypothesis explain? |
+| Symptom Completeness | 10 | Anomaly interval coverage | How much of anomaly window does hypothesis explain? |
+
+Maxima are normative per `schemas/confidence_schema.json` + `scripts/diagnostic-quality-check.mjs` (25/25/20/20/10).
 
 **Confidence ceilings**:
 - 65: INDISTINGUISHABLE competing hypotheses
@@ -520,11 +524,13 @@ Each item cites BOTH data source AND physics source.
 
 ## Phase 7: Schema Validation Commands
 
+Schema authority: validate against `$SKILL_PATH/schemas/` (strict, single authoring source — byte-equivalent to the copy `pipeline-finalize.mjs` re-checks). `$SHARED_PATH/schemas/` holds looser legacy duplicates; never author against them.
+
 ```bash
-node $SHARED_PATH/scripts/validate.mjs $SHARED_PATH/schemas/diagnosis_schema.json $RUN_DIR/04_diagnostics/diagnosis.json
-node $SHARED_PATH/scripts/validate.mjs $SHARED_PATH/schemas/evidence_schema.json $RUN_DIR/04_diagnostics/evidence.json
-node $SHARED_PATH/scripts/validate.mjs $SHARED_PATH/schemas/confidence_schema.json $RUN_DIR/04_diagnostics/confidence.json
-node $SHARED_PATH/scripts/validate.mjs $SHARED_PATH/schemas/reasoning_chain_schema.json $RUN_DIR/04_diagnostics/reasoning_chain.json
+node $SHARED_PATH/scripts/validate.mjs $SKILL_PATH/schemas/diagnosis_schema.json $RUN_DIR/04_diagnostics/diagnosis.json
+node $SHARED_PATH/scripts/validate.mjs $SKILL_PATH/schemas/evidence_schema.json $RUN_DIR/04_diagnostics/evidence.json
+node $SHARED_PATH/scripts/validate.mjs $SKILL_PATH/schemas/confidence_schema.json $RUN_DIR/04_diagnostics/confidence.json
+node $SHARED_PATH/scripts/validate.mjs $SKILL_PATH/schemas/reasoning_chain_schema.json $RUN_DIR/04_diagnostics/reasoning_chain.json
 node $SKILL_PATH/scripts/diagnostic-quality-check.mjs $RUN_DIR
 ```
 
