@@ -343,6 +343,7 @@ export function addVersion({
   inheritFrom = null,
   provenance = {},
   dataFile = null,
+  runDir = null,
   updatedAt = null,
 }) {
   const key = String(sceneKey || '').trim();
@@ -537,6 +538,7 @@ export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalida
     // dedupe 复用旧版本时 addVersion 靠它回填 schema_fp，否则条目永远
     // schema_fp=null、fast-reuse 永不命中（2026-10-13 fieldtest 实测）。
     dataFile: fps[0]?.fingerprinted_from || dataFile || null,
+    runDir: absRunDir,
   });
   return {
     scene_key: result.scene_key,

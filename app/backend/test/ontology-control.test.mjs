@@ -625,10 +625,13 @@ describe('ontology store CLI fingerprint propagation', () => {
       const runDir = join(dir, 'run');
       mkdirSync(join(runDir, '01_ontology'), { recursive: true });
       mkdirSync(join(runDir, '00_input'), { recursive: true });
-      writeFileSync(join(runDir, '01_ontology', 'ontology.json'), JSON.stringify(makeOntology({ scene: { name: scene } }), null, 2));
+      // 同一序列化产物供两侧使用：makeOntology 内嵌 created_at 时间戳，
+      // 两次独立调用内容必然不同，dedupe（内容哈希一致契约）会正确地判非重复
+      const ontoJson = JSON.stringify(makeOntology({ scene: { name: scene } }), null, 2);
+      writeFileSync(join(runDir, '01_ontology', 'ontology.json'), ontoJson);
       writeFileSync(join(runDir, 'run_manifest.json'), JSON.stringify({ run_id: 'fp-cli-test' }));
 
-      const legacy = store.addVersion({ sceneKey: scene, ontology: makeOntology({ scene: { name: scene } }), buildMode: 'full' });
+      const legacy = store.addVersion({ sceneKey: scene, ontology: ontoJson, buildMode: 'full' });
       assert.equal(store.getEntry(scene, legacy.version).schema_fp, null);
 
       const cli = join(process.cwd(), '..', '..', '.claude/shared/scripts/ontology_store.mjs');
