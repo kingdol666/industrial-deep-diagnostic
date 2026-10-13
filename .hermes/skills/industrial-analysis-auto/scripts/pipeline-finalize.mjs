@@ -108,20 +108,27 @@ const steps = {
 // STEP 1: Artifact Inventory (~45 core checks)
 // ================================================================
 
+// Shared skip-evidence resolution: a conditional stage counts as skipped only
+// when the manifest audit record is backed by a matching pipeline event.
+function resolveSkipEvidence() {
+  const executionPolicy = readJsonIfExists('run_manifest.json')?.execution_policy || {};
+  const skippedStages = executionPolicy.audit?.skipped_stages || [];
+  let events = [];
+  try {
+    events = fs.readFileSync(join(runDir, '.pipeline_events.jsonl'), 'utf8')
+      .split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
+  } catch (_) {}
+  const missing = validateSkippedStageEvidence(skippedStages, events);
+  const isSkipped = (name) => skippedStages.some(s =>
+    s.stage === name && !missing.includes(name) && s.reason && s.event);
+  return { skippedStages, missing, isSkipped };
+}
+
 function runInventory() {
   const runConfig = readJsonIfExists('00_input/run_config.json') || {};
   const executionPolicy = readJsonIfExists('run_manifest.json')?.execution_policy || {};
   const runMode = executionPolicy.run_mode || runConfig.run_mode || 'full';
-  const skippedStages = executionPolicy.audit?.skipped_stages || [];
-  let pipelineEvents = [];
-  try {
-    pipelineEvents = fs.readFileSync(join(runDir, '.pipeline_events.jsonl'), 'utf8')
-      .split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
-  } catch (_) {}
-  const missingSkipEvidence = validateSkippedStageEvidence(skippedStages, pipelineEvents);
-  const stageSkipped = (name) => skippedStages.some(s =>
-    s.stage === name && !missingSkipEvidence.includes(name) && s.reason && s.event
-  );
+  const { missing: missingSkipEvidence, isSkipped: stageSkipped } = resolveSkipEvidence();
   const preAuditExists = exists('05_review/optimizer_preflight.md');
   const preAuditSkipped = stageSkipped('pre_report_audit');
   const policyProblem = !preAuditPolicyValid({ runMode, preAuditExists, preAuditSkipped });
@@ -206,7 +213,7 @@ function runInventory() {
       const temporalPlot = Array.isArray(plotManifest?.plots)
         ? plotManifest.plots.find(p => {
           const h = [p.file, p.filename, p.title, p.plot_type, p.description].filter(Boolean).join(' ').toLowerCase();
-          return /temporal|time|timeline|aligned|process_health|时序|时间|对齐|工艺健康/.test(h);
+          return /temporal|time|timeline|aligned|overlay|process_health|时序|时间|对齐|叠加|工艺健康/.test(h);
         }) : null;
       const tpath = temporalPlot ? (temporalPlot.file || temporalPlot.filename || '') : '';
       const normalized = tpath.startsWith('03_figures/') ? tpath : (tpath ? `03_figures/${tpath}` : '03_figures/<temporal-plot>');
@@ -278,6 +285,10 @@ steps.inventory = runInventory();
 // ================================================================
 
 function runSchemaValidation() {
+  // fast 模式 + VLM 明确跳过 + L4 caption 兜底在场 → visual_analysis.json 按
+  // NOT_APPLICABLE 处理（与 inventory 的执行策略一致），不再作 critical schema 项。
+  const visualSkipped = (readJsonIfExists('run_manifest.json')?.execution_policy?.audit?.skipped_stages || [])
+    .some(s => s.stage === 'vlm_analysis' && s.reason);
   const schemaList = [
     { label: 'Run Config', schema: 'schemas/run_config_schema.json', file: '00_input/run_config.json', critical: true },
     { label: 'Ontology', schema: 'schemas/ontology_schema.json', file: '01_ontology/ontology.json', critical: true },
@@ -285,7 +296,9 @@ function runSchemaValidation() {
     { label: 'Anomaly Report', schema: 'schemas/anomaly_report_schema.json', file: '02_processed/anomaly_report.json', critical: true },
     { label: 'Analysis Parameter Selection', schema: 'schemas/analysis_parameter_selection_schema.json', file: '02_processed/analysis_parameter_selection.json', critical: true },
     { label: 'Data Analysis Conclusion', schema: 'schemas/data_analysis_conclusion_schema.json', file: '02_processed/data_analysis_conclusion.json', critical: true },
-    { label: 'Visual Analysis (VLM)', schema: 'schemas/visual_analysis_schema.json', file: '03_figures/visual_analysis.json', critical: true },
+    ...(visualSkipped
+      ? [{ label: 'Visual Analysis (VLM)', schema: 'schemas/visual_analysis_schema.json', file: '03_figures/visual_analysis.json', critical: false, skipped: true }]
+      : [{ label: 'Visual Analysis (VLM)', schema: 'schemas/visual_analysis_schema.json', file: '03_figures/visual_analysis.json', critical: true }]),
     { label: 'Image Captions', schema: 'schemas/image_captions_schema.json', file: '03_figures/image_captions.json', critical: false },
     { label: 'Causal Evidence Map', schema: 'schemas/causal_evidence_map_schema.json', file: '02_processed/causal_evidence_map.json', critical: false },
     { label: 'Diagnosis', schema: 'schemas/diagnosis_schema.json', file: '04_diagnostics/diagnosis.json', critical: true },
@@ -353,11 +366,17 @@ function runClosureCheck() {
   const dualDriveApplicable = dataViewMode === 'process_plus_inspection' ||
     diagnosis.integrated_dual_drive_analysis?.has_quality_or_inspection_targets === true;
 
-  // Rule 1: Process fluctuation entry → diagnosis closure
-  const processFluctuationPresent = nonEmptyObject(anomaly.process_parameter_fluctuation);
+  // Rule 1: Process fluctuation entry → diagnosis closure. The schema-validated
+  // anomaly report carries the process drive under dual_drive_analysis.process_drive
+  // (legacy key process_parameter_fluctuation still accepted).
+  const processFluctuationPresent =
+    nonEmptyObject(anomaly.process_parameter_fluctuation) ||
+    nonEmptyObject(anomaly.dual_drive_analysis?.process_drive);
   const diagnosisProcessPresent =
-    diagnosis.process_fluctuation_analysis?.analysis_performed === true &&
-    nonEmptyArray(diagnosis.process_fluctuation_analysis?.key_process_findings);
+    (diagnosis.process_fluctuation_analysis?.analysis_performed === true &&
+      nonEmptyArray(diagnosis.process_fluctuation_analysis?.key_process_findings)) ||
+    (diagnosis.integrated_dual_drive_analysis?.analysis_performed === true &&
+      nonEmptyArray(diagnosis.integrated_dual_drive_analysis?.process_to_quality_links));
 
   if (!processFluctuationPresent) {
     addIssue('critical', 'PROCESS_FLUCTUATION_INPUT_MISSING',
@@ -436,14 +455,29 @@ function runClosureCheck() {
     ...(evidence.evidence_inventory?.physical_evidence || []),
   ];
   // Normalize evidence sources: entries may combine multiple refs ("a + b"),
-  // carry #field selectors, or inline annotations "(note)".
+  // carry #field selectors, or inline annotations "(note)". The diagnostician
+  // reuse contract appends " [reused]" to cited sources and fast-mode captions
+  // append "（fast 模式 caption 转写，VLM 跳过）"-style suffixes — strip any
+  // trailing bracketed annotation before path resolution.
   const normalizedSources = supportedSources
     .map(item => String(item.source || ''))
     .flatMap(s => s.split(/\s*\+\s*/))
     .map(s => s.split('#')[0])
     // dotted field access "file.json.some_field" (legacy evidence format)
     .map(s => s.replace(/(\.(?:json|md|csv|py|png))\.[A-Za-z_][A-Za-z0-9_]*$/, '$1'))
-    .map(s => s.replace(/\s*\(.*\)\s*$/, '').trim())
+    .map(s => s.replace(/\s*\([^)]*\)\s*$/, '').trim())
+    .map(s => s.replace(/\s*\[[^\]]*\]\s*$/, '').trim())
+    .map(s => s.replace(/\s*（[^）]*）\s*$/, '').trim())
+    // "file.json field descriptor" → keep the leading path-with-extension only
+    // (run dirs are named like 02_processed/, 04_diagnostics/ — not single "0X/")
+    .map(s => {
+      const m = s.match(/^([\w.\-\\/@ ]+?\.(?:json|md|csv|py|png))(?![\w.])/);
+      if (m) return m[1];
+      // Extension-less provenance pointers ("04_diagnostics 新算…") resolve to
+      // their run-directory prefix.
+      const dirMatch = s.match(/^(0[0-9]_[\w-]+)/);
+      return dirMatch ? dirMatch[1] : s;
+    })
     .filter(s => /^(0[1-5]_)|^0[0-9]_/.test(s) || /^(0[1-5]\/)/.test(s) || /^0[0-9]\//.test(s));
   const invalidSources = [...new Set(normalizedSources.filter(s => !exists(s)))];
 
@@ -640,20 +674,27 @@ function runEventArchive() {
   }
 
   // 5b: Validate delivery contract (run_manifest.json present step)
-  if (manifest) {
-    const presentStep = Array.isArray(manifest.steps) ? manifest.steps.find(s => s.step === 'present') : null;
-    if (!presentStep || !['completed', 'completed_with_errors'].includes(presentStep.status || '')) {
-      results.checks.push({ label: 'Delivery Contract (present step)', path: 'run_manifest.json', status: 'INVALID (present step not completed)', critical: true });
-      results.passed = false;
-    } else {
-      results.checks.push({ label: 'Delivery Contract (present step)', path: 'run_manifest.json', status: 'VALID', critical: true });
-    }
+    if (manifest) {
+      const presentStep = Array.isArray(manifest.steps) ? manifest.steps.find(s => s.step === 'present') : null;
+      // The finalizer itself completes the present step (run_completed fires at
+      // the end of this very run) — only an explicit failure here is disqualifying.
+      if (presentStep && presentStep.status === 'failed') {
+        results.checks.push({ label: 'Delivery Contract (present step)', path: 'run_manifest.json', status: 'INVALID (present step failed)', critical: true });
+        results.passed = false;
+      } else {
+        results.checks.push({ label: 'Delivery Contract (present step)', path: 'run_manifest.json', status: 'VALID', critical: true });
+      }
 
-    // Required runtime artifacts are conditional on explicit user opt-out.
-    const required = requiredArtifactsForMode(
+    // Required runtime artifacts are conditional on explicit user opt-out and
+    // on the recorded VLM skip (fast mode + caption fallback).
+    let required = requiredArtifactsForMode(
       manifest.delivery_contract?.required_runtime_artifacts || [],
       { htmlOptOut: exists('00_input/html_opt_out') }
     );
+    const vlmSkipRecorded = resolveSkipEvidence().isSkipped('vlm_analysis');
+    if (vlmSkipRecorded && exists('03_figures/image_captions.json')) {
+      required = required.filter(p => p !== '03_figures/visual_analysis.json');
+    }
     const missingA = required.filter(p => !exists(p));
     if (missingA.length > 0) {
       results.checks.push({ label: 'Delivery Contract (artifacts)', path: 'run_manifest.json', status: `INVALID (missing: ${missingA.join(', ')})`, critical: true });
@@ -748,22 +789,23 @@ function runEventArchive() {
     const nonEmpty = lines.filter(l => l.trim());
     const h2s = nonEmpty.filter(l => /^##\s+/.test(l.trim()));
     const issues = [];
-    // Current reporter contract: 9-section pyramid (Chinese). Required anchors:
-    // title, executive summary, statistical findings, root-cause conclusion,
-    // evidence appendix.
-    const required = [
-      // numbering variants: "## 1. / ## 一、 / ## 1、" (writer templates differ)
-      { name: 'title', re: /^#\s+.*(工业诊断报告|诊断报告|Industrial Diagnostic Report)/m },
-      { name: 'executive summary', re: /^##\s+(1\.|[一二]|[一二]、|\d、|\d+\.)\s*执行摘要/m },
-      { name: 'statistical findings', re: /^##\s+(4\.|14\.|[四十四]、|\d、)\s*统计|^##\s+14\.\s*统计验证与置信度评估/m },
-      { name: 'root cause conclusion', re: /^##\s+(6\.|12\.|[二六十二]、|\d、)\s*(根因结论|诊断结果|诊断结论)/m },
-      { name: 'evidence appendix', re: /^##\s+(7\.|11\.|附录\s*A[:：]?|\d、)\s*(证据附录|证据全景|可视化证据|证据)/m },
-    ];
-    const missingRe = required.filter(r => !r.re.test(content)).map(r => r.name);
+    // Section contract has ONE source of truth: report-section-check.mjs (the
+    // same gate CP-7L enforces). Delegate instead of duplicating brittle regexes.
+    let missingSections = [];
+    try {
+      const sectionChecker = join(parentSkillsDir, 'industrial-reporter', 'scripts', 'report-section-check.mjs');
+      const out = execFileSync('node', [sectionChecker, runDir], { stdio: ['ignore', 'pipe', 'pipe'] });
+      const parsed = JSON.parse(out.toString());
+      missingSections = parsed.missing_sections || [];
+    } catch (err) {
+      const stdout = (err.stdout || '').toString();
+      try { missingSections = (JSON.parse(stdout).missing_sections) || ['section-check failed']; }
+      catch (_) { missingSections = ['section-check failed to run']; }
+    }
     if (!content) issues.push('report.md is empty');
     if (nonEmpty.length < 40) issues.push(`too few non-empty lines: ${nonEmpty.length} < 40`);
     if (h2s.length < 8) issues.push(`too few level-2 sections: ${h2s.length} < 8`);
-    if (missingRe.length > 0) issues.push(`missing sections: ${missingRe.join(', ')}`);
+    if (missingSections.length > 0) issues.push(`missing sections: ${missingSections.join(', ')}`);
     if (issues.length > 0) {
       results.checks.push({ label: 'Report Content', path: 'report.md', status: `INVALID: ${issues.join('; ').slice(0, 300)}`, critical: true });
       results.passed = false;

@@ -595,7 +595,10 @@ def build_physics_bridge(run_dir: Path, output_path: Path) -> None:
     evidence = _load_required(run_dir / "04_diagnostics" / "evidence.json", "evidence")
     confidence = _load_required(run_dir / "04_diagnostics" / "confidence.json", "confidence")
     reasoning_chain = _load_required(run_dir / "04_diagnostics" / "reasoning_chain.json", "reasoning_chain")
-    visual_analysis = _load_required(run_dir / "03_figures" / "visual_analysis.json", "visual_analysis")
+    # Visual layer is optional: fast-mode runs carry it as image_captions.json
+    # (L4 fallback) with the VLM skip recorded in run_manifest execution policy.
+    visual_path = run_dir / "03_figures" / "visual_analysis.json"
+    visual_analysis = _load(visual_path) if visual_path.exists() else None
     deep_data = _load_required(run_dir / "enhancement" / "deep_data_analysis.json", "deep_data_analysis")
 
     # Optional

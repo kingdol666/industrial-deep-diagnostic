@@ -392,6 +392,11 @@ export function addVersion({
   writeFileSync(absOntologyPath, content);
   // 写入后回读校验 UTF-8 往返无损（避免编码损伤静默入库）
   JSON.parse(readFileSync(absOntologyPath, 'utf-8'));
+  // schema.json 边车（若来源 run 生成过）随本体同版本入库，供 reuse 对齐产物
+  if (runDir) {
+    const sidecar = join(resolve(runDir), '01_ontology', 'schema.json');
+    if (existsSync(sidecar)) copyFileSync(sidecar, join(absDir, 'schema.json'));
+  }
 
   const now = updatedAt || new Date().toISOString();
   const entry = {
@@ -553,6 +558,10 @@ export function reuse({ source, runDir }) {
   mkdirSync(ontologyDir, { recursive: true });
   const dst = join(ontologyDir, 'ontology.json');
   copyFileSync(src, dst);
+  // schema.json 边车与本体同源发布——复用时一并带上，保证 reuse 与 full 构建
+  // 的 01_ontology/ 产物对齐（finalizer 把它列为 critical 工件）。
+  const sidecarSrc = join(dirname(src), 'schema.json');
+  if (existsSync(sidecarSrc)) copyFileSync(sidecarSrc, join(ontologyDir, 'schema.json'));
 
   // 更新 store 的 reuse 计数与 provenance 历史
   const idx = readIndex();

@@ -20,6 +20,7 @@ import {
   fileHash,
   isFreshBySignature,
   resolveEnhancementStatus,
+  reviewIsPassing,
   shouldBuildAssociationGraph,
 } from './orchestration_contract.mjs';
 
@@ -83,9 +84,11 @@ function pythonArgs(scriptArgs) {
 
 const UV_CMD = PY_ENV.uvCmd ? PY_ENV.uvCmd[0] : PYTHON_BIN;
 
-function runCmd(cmd, args, cwd, timeout = 120000) {
+function runCmd(cmd, args, cwd, timeout = 120000, { shell = true } = {}) {
   return new Promise((resolve) => {
-    const proc = spawn(cmd, args, { cwd, shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    // shell:false when cmd is a resolved binary path (e.g. process.execPath —
+    // "D:\Program Files\..." breaks under cmd word-splitting).
+    const proc = spawn(cmd, args, { cwd, shell, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     proc.stdout.on('data', (d) => { stdout += d.toString(); });
@@ -142,7 +145,7 @@ async function validateArtifact(schemaName, artifactPath, cwd) {
   const sharedRoot = path.resolve(__dirname, '..', '..', '..', 'shared');
   const validator = path.join(sharedRoot, 'scripts', 'validate.mjs');
   const schema = path.join(sharedRoot, 'schemas', schemaName);
-  const result = await runCmd(process.execPath, [validator, schema, artifactPath], cwd, 30000);
+  const result = await runCmd(process.execPath, [validator, schema, artifactPath], cwd, 30000, { shell: false });
   return result.ok ? null : (result.stdout || result.stderr || `schema validation failed: ${schemaName}`).slice(0, 500);
 }
 
@@ -167,12 +170,23 @@ const BASELINE_CHECKS = [
 function readinessCheck(runDir, dataPath = null) {
   const missing = [];
   const present = {};
+  // Execution-policy contract: a VLM skip recorded in the run manifest (with
+  // matching evidence event) downgrades visual_analysis.json to optional —
+  // the L4 image-caption fallback carries the visual layer instead.
+  let vlmSkipped = false;
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(runDir, 'run_manifest.json'), 'utf8'));
+    const skipped = manifest.execution_policy?.audit?.skipped_stages || [];
+    vlmSkipped = skipped.some(s => s.stage === 'vlm_analysis' && s.reason && s.event);
+  } catch { /* manifest absent → default required */ }
+  const captionsPresent = fileExists(path.join(runDir, '03_figures', 'image_captions.json'));
   for (const check of BASELINE_CHECKS) {
     const fp = path.join(runDir, check.file);
+    const optionalNow = check.file === '03_figures/visual_analysis.json' && vlmSkipped && captionsPresent;
     const ok = fileExists(fp);
     if (ok) {
       present[check.label] = true;
-    } else if (check.required) {
+    } else if (check.required && !optionalNow) {
       missing.push(check.file);
     }
   }
@@ -330,7 +344,7 @@ async function launchScripts(runDir) {
         path.join(runDir, '04_diagnostics', 'evidence.json'),
         path.join(runDir, '04_diagnostics', 'confidence.json'),
         path.join(runDir, '04_diagnostics', 'reasoning_chain.json'),
-        path.join(runDir, '03_figures', 'visual_analysis.json'),
+        { path: path.join(runDir, '03_figures', 'visual_analysis.json'), optional: true },
         { path: path.join(runDir, '00_input', 'rag_deep_understanding.json'), optional: true },
         path.join(enhanceDir, 'deep_data_analysis.json'),
         path.join(enhanceDir, 'association_graph.json'),

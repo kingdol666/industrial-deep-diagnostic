@@ -271,8 +271,22 @@ manifest.pipeline.integrity = manifest.pipeline.integrity || {};
 
 const logPath = join(runDir, '.pipeline_events.jsonl');
 const agent = flag('--agent') || 'main-agent';
-const explicitStep = flag('--step');
+let explicitStep = flag('--step');
 const inferredStep = explicitStep || AGENT_TO_STEP[agent] || null;
+// 防御：显式 --step 若不在 manifest 步骤清单且该 agent 有标准映射，则纠正为映射步骤
+// （历史事故：派发提示词写 --step report，而 manifest 步骤名为 reporter）。
+if (explicitStep && AGENT_TO_STEP[agent]) {
+  const manifestStepNames = new Set((manifest?.steps || []).map(s => s.step));
+  if (!manifestStepNames.has(explicitStep) && manifestStepNames.has(AGENT_TO_STEP[agent])) {
+    console.error(JSON.stringify({
+      ok: false,
+      error: 'STEP_NAME_CORRECTED',
+      from: explicitStep,
+      to: AGENT_TO_STEP[agent],
+    }, null, 2));
+    explicitStep = AGENT_TO_STEP[agent];
+  }
+}
 const filesWritten = parseFiles(flag('--files'));
 const extraData = parseJsonFlag('--data', {});
 const errors = flag('--errors');
@@ -334,6 +348,18 @@ if (stepRecord) {
   }
 
   if (['step_start', 'agent_start'].includes(eventName)) {
+    // 回退守卫：已完成（或带错误完成）的步骤不允许被迟到的 start 事件翻回
+    // in_progress——那会让前置条件门与真实进度脱钩（2026-10-13 fieldtest 实测）。
+    if (['completed', 'completed_with_errors'].includes(stepRecord.status || '')) {
+      console.error(JSON.stringify({
+        ok: false,
+        error: 'STEP_ALREADY_COMPLETED',
+        step: inferredStep,
+        status: stepRecord.status,
+        hint: 'append step_complete instead, or record a new attempt via repair_spawn'
+      }, null, 2));
+      process.exit(1);
+    }
     stepRecord.status = 'in_progress';
     stepRecord.started_at = stepRecord.started_at || event.timestamp;
     stepRecord.attempts = (stepRecord.attempts || 0) + 1;

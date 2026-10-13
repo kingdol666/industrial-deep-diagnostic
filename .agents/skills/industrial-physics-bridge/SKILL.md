@@ -25,7 +25,7 @@ A bridge layer from statistical regression to physical causality. Runs five phys
 | `04_diagnostics/evidence.json` | ✓ | Evidence inventory: evidence_inventory |
 | `04_diagnostics/confidence.json` | ✓ | Confidence decomposition: five_factor_breakdown, adjustment_log, ceilings |
 | `04_diagnostics/reasoning_chain.json` | ✓ | Reasoning chain: complete R1-R8 record |
-| `03_figures/visual_analysis.json` | ✓ | Visual analysis: figure inventory, key_visual_observations |
+| `03_figures/visual_analysis.json` | - | Visual analysis; optional — fast-mode runs carry the visual layer as `image_captions.json` (L4 fallback) with the VLM skip recorded in execution policy |
 | `enhancement/deep_data_analysis.json` | ✓ | Deep data analysis: relationships[], tradeoff_and_operability[] |
 | `00_input/rag_deep_understanding.json` | - | RAG deep understanding (optional) |
 

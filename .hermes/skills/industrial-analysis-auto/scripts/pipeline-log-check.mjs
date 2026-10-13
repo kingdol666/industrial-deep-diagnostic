@@ -132,6 +132,25 @@ function requiredAgentsForObservedArtifacts() {
     } catch (e) { /* unreadable VA handled elsewhere */ }
   }
 
+  // Execution-policy contract: an agent whose conditional stage was skipped
+  // with recorded evidence (manifest audit + matching pipeline event) is not
+  // required — same source of truth the finalizer enforces. Self-contained log
+  // read: this function also runs on the early-exit path before `events` exists.
+  const policySkips = (() => {
+    const manifest = readJson(join(runDir, 'run_manifest.json'), null) || {};
+    const skipped = manifest.execution_policy?.audit?.skipped_stages || [];
+    let logged = [];
+    try {
+      logged = fs.readFileSync(join(runDir, '.pipeline_events.jsonl'), 'utf8')
+        .split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
+    } catch { /* no log → no skip evidence */ }
+    return new Set(skipped
+      .filter(s => s.stage && s.reason && logged.some(e =>
+        e.event === s.event && e.skipped_stage === s.stage && e.reason === s.reason))
+      .map(s => s.stage));
+  })();
+  if (policySkips.has('vlm_analysis')) required.delete('vlm-visual-analyzer');
+
   return Array.from(required);
 }
 
@@ -268,9 +287,18 @@ function completesEquivalent(bucket, agent) {
   return events.some(e => e.event === 'step_complete' && e.step === stepName);
 }
 
+// The orchestrator may emit step_start on an agent's behalf (deterministic
+// remediation for sub-agents that skip their own start event).
+function startsEquivalent(bucket, agent) {
+  if (bucket.starts.length > 0) return true;
+  const stepName = agentToStep[agent];
+  if (!stepName) return false;
+  return events.some(e => e.event === 'step_start' && e.step === stepName);
+}
+
 for (const agent of requiredAgents) {
   const bucket = agentState.get(agent);
-  if (bucket.starts.length === 0) {
+  if (bucket.starts.length === 0 && !startsEquivalent(bucket, agent)) {
     issues.push({
       severity: 'critical',
       code: 'AGENT_START_MISSING',
