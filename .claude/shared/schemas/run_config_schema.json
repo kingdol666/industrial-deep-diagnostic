@@ -20,6 +20,12 @@
       "default": "auto",
       "description": "Controls user interaction level: auto=no questions, auto-execute full pipeline; interactive=ask user when CRITICAL/HIGH unknowns exist (original behavior); minimal=only ask for CRITICAL unknowns, use heuristics for the rest"
     },
+    "run_mode": {
+      "type": "string",
+      "enum": ["fast", "full"],
+      "default": "full",
+      "description": "Selects the diagnostic execution policy: fast for interactive runs with bounded optional analysis; full for benchmark or exhaustive runs. The orchestrator must record which conditional stages ran or were skipped."
+    },
     "analysis_constraints": {
       "type": "object",
       "properties": {

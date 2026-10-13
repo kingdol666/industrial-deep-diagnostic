@@ -369,8 +369,8 @@ uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/rag_client.p
 ## Verification
 
 ```bash
-# Check ontology output exists
-test -f "$RUN_DIR/ontology.json"
+# Check the draft artifact exists at the documented consumer destination
+test -f "$RUN_DIR/01_ontology/ontology.json"
 # RAG engine health (optional)
 uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/rag_client.py" health || echo "RAG offline — fallback used"
 ```

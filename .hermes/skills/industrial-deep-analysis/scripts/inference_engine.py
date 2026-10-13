@@ -89,10 +89,13 @@ def pairwise_scan(
     meta: List[dict] = []
 
     cols = [c for c in columns if c in df.columns]
+    # Convert every column exactly once — re-running pd.to_numeric on the same
+    # column for every pair dominates runtime on wide tables.
+    arrays = {c: pd.to_numeric(df[c], errors="coerce").to_numpy(dtype=float) for c in cols}
     for i, a in enumerate(cols):
-        x = pd.to_numeric(df[a], errors="coerce").to_numpy(dtype=float)
+        x = arrays[a]
         for b in cols[i + 1:]:
-            y = pd.to_numeric(df[b], errors="coerce").to_numpy(dtype=float)
+            y = arrays[b]
             mask = _finite_mask(x, y)
             n = int(mask.sum())
             if n < min_n:
@@ -141,6 +144,7 @@ def temporal_causality(
     t_vals: np.ndarray,
     max_lag: Optional[int] = None,
     min_n: int = MIN_PAIR_N,
+    order: Optional[np.ndarray] = None,
 ) -> dict:
     """Cross-correlation-function precedence test for a (x, y) time pair.
 
@@ -161,7 +165,8 @@ def temporal_causality(
                 "ccf_peak_r": 0.0, "p_value": 1.0, "p_floor_hit": False,
                 "lag_aligned_r": 0.0, "n_used": 0}
 
-    order = np.argsort(t_vals, kind="mergesort")
+    if order is None:
+        order = np.argsort(t_vals, kind="mergesort")
     xs = _detrend_series(np.asarray(x_raw, dtype=float)[order])
     ys = _detrend_series(np.asarray(y_raw, dtype=float)[order])
     fm = np.isfinite(xs) & np.isfinite(ys)

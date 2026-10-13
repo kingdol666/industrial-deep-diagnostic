@@ -10,6 +10,12 @@
 import fs from 'fs';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
+import {
+  preAuditPolicyValid,
+  requiredArtifactsForMode,
+  validateSkippedStageEvidence,
+  visualEvidenceSatisfied,
+} from './execution_policy.mjs';
 
 const args = process.argv.slice(2);
 const runDir = args[0];
@@ -68,12 +74,18 @@ function runScript(scriptName, extraArgs = []) {
 }
 
 // append pipeline event (fire-and-forget)
-function logEvent(event, extraArgs = []) {
+function logEvent(event, status, data = {}) {
   try {
-    execFileSync('node', [resolveScript('append-pipeline-event.mjs'), runDir, '--event', event, '--agent', 'main-agent', '--step', 'present', ...extraArgs], {
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-  } catch (_) {}
+    execFileSync('node', [
+      resolveScript('append-pipeline-event.mjs'), runDir,
+      '--event', event, '--agent', 'main-agent', '--step', 'present',
+      ...(status ? ['--status', status] : []),
+      '--data', JSON.stringify(data),
+    ], { stdio: ['ignore', 'pipe', 'pipe'] });
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 // ── results accumulators ─────────────────────────────────────────
@@ -97,10 +109,29 @@ const steps = {
 // ================================================================
 
 function runInventory() {
+  const runConfig = readJsonIfExists('00_input/run_config.json') || {};
+  const executionPolicy = readJsonIfExists('run_manifest.json')?.execution_policy || {};
+  const runMode = executionPolicy.run_mode || runConfig.run_mode || 'full';
+  const skippedStages = executionPolicy.audit?.skipped_stages || [];
+  let pipelineEvents = [];
+  try {
+    pipelineEvents = fs.readFileSync(join(runDir, '.pipeline_events.jsonl'), 'utf8')
+      .split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
+  } catch (_) {}
+  const missingSkipEvidence = validateSkippedStageEvidence(skippedStages, pipelineEvents);
+  const stageSkipped = (name) => skippedStages.some(s =>
+    s.stage === name && !missingSkipEvidence.includes(name) && s.reason && s.event
+  );
+  const preAuditExists = exists('05_review/optimizer_preflight.md');
+  const preAuditSkipped = stageSkipped('pre_report_audit');
+  const policyProblem = !preAuditPolicyValid({ runMode, preAuditExists, preAuditSkipped });
   const invChecks = [
     // ── Core runtime ──
     check('Run Manifest', 'run_manifest.json'),
     check('Run Config', '00_input/run_config.json'),
+    missingSkipEvidence.length === 0 && !policyProblem
+      ? { label: 'Execution Policy Evidence', path: '.pipeline_events.jsonl', status: `OK (${runMode}; pre-audit ${preAuditSkipped ? 'skipped with evidence' : 'completed'})`, critical: true }
+      : { label: 'Execution Policy Evidence', path: '.pipeline_events.jsonl', status: `INVALID (missing skip evidence: ${missingSkipEvidence.join(', ') || 'none'}; pre_audit=${preAuditExists}; pre_audit_skip=${preAuditSkipped}; mode=${runMode})`, critical: true },
 
     // ── Stage 1: Input ──
     check('Input Manifest', '00_input/input_manifest.json', false),
@@ -150,7 +181,20 @@ function runInventory() {
 
     // ── Stage 3.5: Figures & VLM ──
     check('Plot Manifest', '03_figures/plot_manifest.json'),
-    check('Visual Analysis', '03_figures/visual_analysis.json'),
+    (() => {
+      const result = check('Visual Analysis', '03_figures/visual_analysis.json', false);
+      if (visualEvidenceSatisfied({
+        runMode,
+        visualExists: result.status === 'OK',
+        captionsExist: exists('03_figures/image_captions.json'),
+        vlmSkipped: stageSkipped('vlm_analysis'),
+      })) {
+        return result.status === 'OK'
+          ? { ...result, critical: true }
+          : { label: 'Visual Analysis', path: '03_figures/visual_analysis.json', status: 'NOT_APPLICABLE (fast mode; L4 image-caption fallback present)', critical: false };
+      }
+      return { ...result, critical: true };
+    })(),
     check('Image Captions', '03_figures/image_captions.json'),
 
     // ── Temporal figure (conditional) ──
@@ -185,17 +229,28 @@ function runInventory() {
 
     // ── Stage 5: Judge & Audit ──
     check('Judge Feedback', '05_review/judge_feedback.json'),
-    check('Pre-Audit Report', '05_review/optimizer_preflight.md', false),
+    check('Pre-Audit Report', '05_review/optimizer_preflight.md', runMode === 'full'),
 
     // ── Stage 6-7: Report & Optimizer ──
     check('Report', 'report.md', false),
     check('Run Summary', 'run_summary.json'),
-    check('Optimizer', 'optimizer.md', false),
+    (() => {
+      const optimizer = check('Optimizer', 'optimizer.md', true);
+      if (optimizer.status !== 'OK') return optimizer;
+      const content = fs.readFileSync(join(runDir, 'optimizer.md'), 'utf8');
+      return /ENDORSED/.test(content)
+        ? { ...optimizer, status: 'OK (ENDORSED)' }
+        : { ...optimizer, status: 'INVALID (ENDORSED missing)' };
+    })(),
     check('Evidence Closure Report', 'evidence_closure_report.json', false),
 
     // ── Stage 8: HTML Visualization ──
-    check('Diagnostic HTML Report', 'diagnostic-report.html'),
-    check('HTML Review', '05_review/html_review.json'),
+    exists('00_input/html_opt_out')
+      ? { label: 'Diagnostic HTML Report', path: 'diagnostic-report.html', status: 'NOT_APPLICABLE (user opt-out)', critical: false }
+      : check('Diagnostic HTML Report', 'diagnostic-report.html'),
+    exists('00_input/html_opt_out')
+      ? { label: 'HTML Review', path: '05_review/html_review.json', status: 'NOT_APPLICABLE (user opt-out)', critical: false }
+      : check('HTML Review', '05_review/html_review.json'),
   ];
 
   const missing = invChecks.filter(c => c.status.startsWith('MISSING'));
@@ -224,6 +279,7 @@ steps.inventory = runInventory();
 
 function runSchemaValidation() {
   const schemaList = [
+    { label: 'Run Config', schema: 'schemas/run_config_schema.json', file: '00_input/run_config.json', critical: true },
     { label: 'Ontology', schema: 'schemas/ontology_schema.json', file: '01_ontology/ontology.json', critical: true },
     { label: 'Scenario Classification', schema: 'schemas/scenario_classification_schema.json', file: '02_processed/scenario_classification.json', critical: true },
     { label: 'Anomaly Report', schema: 'schemas/anomaly_report_schema.json', file: '02_processed/anomaly_report.json', critical: true },
@@ -546,8 +602,29 @@ steps.judge = runJudgeCrossAudit();
 // STEP 5: Pipeline Event Archive + Pipeline-Log-Check
 // ================================================================
 
+let finalOverallPass = false;
+
 function runEventArchive() {
   const results = { checks: [], passed: true };
+
+  // Execution policy is a runtime contract: conditional stages may be skipped
+  // only with an explicit mode and a recorded reason in run_manifest.json.
+  const manifest = readJsonIfExists('run_manifest.json');
+  const policy = manifest?.execution_policy;
+  const config = readJsonIfExists('00_input/run_config.json');
+  if (!policy || !['fast', 'full'].includes(policy.run_mode) || policy.run_mode !== config?.run_mode) {
+    results.checks.push({ label: 'Execution Policy', status: 'INVALID (missing or mismatched run_mode)', critical: true });
+    results.passed = false;
+  } else {
+    const skipped = policy.audit?.skipped_stages || [];
+    const missingReasons = skipped.filter(s => !s.stage || !s.reason || !s.event);
+    if (missingReasons.length > 0) {
+      results.checks.push({ label: 'Execution Policy', status: `INVALID (skipped stages lack evidence: ${missingReasons.length})`, critical: true });
+      results.passed = false;
+    } else {
+      results.checks.push({ label: 'Execution Policy', status: `VALID (${policy.run_mode}; ${skipped.length} documented skips)`, critical: true });
+    }
+  }
 
   // 5a: Run pipeline-log-check
   let logDetail = null;
@@ -563,7 +640,6 @@ function runEventArchive() {
   }
 
   // 5b: Validate delivery contract (run_manifest.json present step)
-  const manifest = readJsonIfExists('run_manifest.json');
   if (manifest) {
     const presentStep = Array.isArray(manifest.steps) ? manifest.steps.find(s => s.step === 'present') : null;
     if (!presentStep || !['completed', 'completed_with_errors'].includes(presentStep.status || '')) {
@@ -573,8 +649,11 @@ function runEventArchive() {
       results.checks.push({ label: 'Delivery Contract (present step)', path: 'run_manifest.json', status: 'VALID', critical: true });
     }
 
-    // Required runtime artifacts
-    const required = manifest.delivery_contract?.required_runtime_artifacts || [];
+    // Required runtime artifacts are conditional on explicit user opt-out.
+    const required = requiredArtifactsForMode(
+      manifest.delivery_contract?.required_runtime_artifacts || [],
+      { htmlOptOut: exists('00_input/html_opt_out') }
+    );
     const missingA = required.filter(p => !exists(p));
     if (missingA.length > 0) {
       results.checks.push({ label: 'Delivery Contract (artifacts)', path: 'run_manifest.json', status: `INVALID (missing: ${missingA.join(', ')})`, critical: true });
@@ -693,18 +772,20 @@ function runEventArchive() {
     }
   })();
 
-  // 5f: Append final pipeline events
-  logEvent('pipeline_finalize_complete', ['--status', results.passed ? 'PASS' : 'FAIL',
-    '--data', JSON.stringify({
-      inventory_ok: steps.inventory.ok,
-      inventory_total: steps.inventory.total,
-      schema_ok: steps.schema.ok,
-      schema_total: steps.schema.total,
-      closure_status: steps.closure.status,
-      judge_passed: steps.judge.passed,
-    })
-  ]);
-  logEvent('run_completed', ['--status', results.passed ? 'PASS' : 'FAIL']);
+  // The final run status is decided after all cross-audits below. Record only
+  // this event-loop check here; run_completed/run_failed are emitted afterward.
+  const eventWritten = logEvent('artifact_check_complete', null, {
+    artifact: 'pipeline_finalize_checks',
+    integrity_check: 'CHECKED',
+    inventory_ok: steps.inventory.ok,
+    schema_ok: steps.schema.ok,
+    closure_status: steps.closure.status,
+    judge_passed: steps.judge.passed,
+  });
+  if (!eventWritten) {
+    results.checks.push({ label: 'Finalize Event', status: 'FAILED to write artifact_check_complete', critical: true });
+    results.passed = false;
+  }
 
   return results;
 }
@@ -742,5 +823,14 @@ const finalReport = {
 
 // Write final report
 try { fs.writeFileSync(join(runDir, 'pipeline_finalize_report.json'), JSON.stringify(finalReport, null, 2) + '\n'); } catch (_) {}
+const finalEventWritten = overallPass
+  ? logEvent('run_completed', 'PASS', { finalize_report: 'pipeline_finalize_report.json' })
+  : logEvent('run_failed', 'FAIL', { finalize_report: 'pipeline_finalize_report.json' });
+const finalStatusPass = overallPass && finalEventWritten;
+if (!finalStatusPass) {
+  finalReport.overall = 'FAIL';
+  if (!finalEventWritten) finalReport.final_status_event = 'FAILED_TO_WRITE';
+  try { fs.writeFileSync(join(runDir, 'pipeline_finalize_report.json'), JSON.stringify(finalReport, null, 2) + '\n'); } catch (_) {}
+}
 console.log(JSON.stringify(finalReport, null, 2));
-process.exit(overallPass ? 0 : 1);
+process.exit(finalStatusPass ? 0 : 1);

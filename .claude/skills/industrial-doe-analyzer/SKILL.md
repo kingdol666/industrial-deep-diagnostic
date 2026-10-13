@@ -84,7 +84,7 @@ Key constraints:
 
 ## Downstream Contract (why this skill exists)
 
-`conclusions/recommendations.json` is written for **another agent** doing process tuning / optimization control. It contains: operating windows with units + expected effect + CI95 + confidence enum + FDR q + sample size; the current baseline working point and move instructions; window-conflict resolution; confirmation-experiment designs (when conclusions are observational, aliased, or saturated); an applicability domain (observed factor ranges, n, time span) and invalidation conditions. `contract_version` is `"1.0"`. Honest disclosure: contract v1.0 currently has no implemented consumer agent in this repository — it is a forward contract; downstream usage rules are embedded in the file itself.
+`conclusions/recommendations.json` is consumed by downstream optimization workflows when a run is explicitly linked: `industrial-optimizer-loop/scripts/optcore/windows_seed.py` reads operating windows into R001 trial seeds, and `optimizer_gate.mjs` validates the optional prior artifact. `industrial-line-stability-report` may also use DOE windows as advisory context. The optimizer still treats absent prior recommendations as legal; this is an optional handoff, not an automatic dispatch. The contract contains units, expected effect, CI95, confidence, FDR q, sample size, baseline working point, conflict resolution, confirmation experiments, applicability domain, and invalidation conditions.
 
 ## Verification
 

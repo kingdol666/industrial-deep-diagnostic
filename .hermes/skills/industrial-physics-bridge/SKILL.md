@@ -20,7 +20,7 @@ A bridge layer from statistical regression to physical causality. Runs five phys
 | File | Required | Description |
 |------|----------|-------------|
 | `01_ontology/ontology.json` | ✓ | Domain ontology: governing_law, predicted_functional_form, time_lag, data_direction_validated, relationships |
-| `02_processed/physics_check.json` | ✓ | physics_check output: quality_reset_analysis, manual_physics_verification |
+| `02_processed/physics_check.json` | - | Optional upstream physics-check context; the builder currently does not read this file directly. Carry relevant checks through `evidence.json`/`deep_data_analysis.json` when available. |
 | `04_diagnostics/diagnosis.json` | ✓ | Diagnosis output: hypotheses (surviving/eliminated), primary_finding |
 | `04_diagnostics/evidence.json` | ✓ | Evidence inventory: evidence_inventory |
 | `04_diagnostics/confidence.json` | ✓ | Confidence decomposition: five_factor_breakdown, adjustment_log, ceilings |

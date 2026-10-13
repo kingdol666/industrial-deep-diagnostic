@@ -25,12 +25,17 @@ function flag(name) {
 const dataPath = flag('--data-path');
 const name = flag('--name');
 const baseDir = flag('--base-dir') || 'workspace/diagnostic-runs';
+const runMode = flag('--mode') || 'full';
 const processDesc = flag('--process-description') || '';
 const objective = flag('--objective') || '';
 
 if (!dataPath || !name) {
-  console.error('Usage: node entry_a_init.mjs --data-path <data> --name <run_name> [--base-dir <dir>]');
+  console.error('Usage: node entry_a_init.mjs --data-path <data> --name <run_name> [--mode fast|full] [--base-dir <dir>]');
   process.exit(1);
+}
+if (!['fast', 'full'].includes(runMode)) {
+  console.error(`ERROR: invalid --mode ${JSON.stringify(runMode)}; expected fast or full`);
+  process.exit(2);
 }
 
 const projectRoot = path.resolve(import.meta.dirname, '..', '..', '..', '..');
@@ -53,9 +58,13 @@ function runScript(script, scriptArgs) {
 // Step 1: setup run dir
 let runDir = null;
 try {
-  const setupOut = runScript(path.join(autoSkill, 'scripts', 'setup.mjs'), ['--name', name, '--base-dir', baseDir]);
+  const setupOut = runScript(path.join(autoSkill, 'scripts', 'setup.mjs'), ['--name', name, '--mode', runMode, '--base-dir', baseDir]);
   const parsed = JSON.parse(setupOut);
   runDir = parsed.run_dir;
+  const setupConfig = JSON.parse(fs.readFileSync(path.join(runDir, '00_input', 'run_config.json'), 'utf8'));
+  if (setupConfig.run_mode !== runMode || parsed.manifest?.execution_policy?.run_mode !== runMode) {
+    throw new Error(`run_mode propagation mismatch: requested=${runMode}, config=${setupConfig.run_mode}`);
+  }
 } catch (e) {
   console.error('ERROR: setup.mjs failed:', e.message);
   process.exit(1);
@@ -149,26 +158,26 @@ try {
       null, 2
     ) + '\n'
   );
-  fs.writeFileSync(
-    path.join(runDir, '00_input', 'run_config.json'),
-    JSON.stringify(
-      {
-        data_path: inspectedPath,
-        raw_data_path: dataPath,
-        interaction_mode: 'auto',
-        process_description: processDesc,
-        user_objective: objective,
-        analysis_constraints: {
-          max_web_research_queries: 5,
-          judge_score_threshold: 90,
-          max_judge_iterations: 3,
-          max_reviewer_iterations: 2,
-          global_max_iterations: 5,
-        },
-      },
-      null, 2
-    ) + '\n'
-  );
+  const configPath = path.join(runDir, '00_input', 'run_config.json');
+  const baseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const runConfig = {
+    ...baseConfig,
+    data_path: inspectedPath,
+    raw_data_path: dataPath,
+    interaction_mode: 'auto',
+    run_mode: runMode,
+    process_description: processDesc,
+    user_objective: objective,
+    analysis_constraints: {
+      ...baseConfig.analysis_constraints,
+      max_web_research_queries: 5,
+      judge_score_threshold: 90,
+      max_judge_iterations: 3,
+      max_reviewer_iterations: 2,
+      global_max_iterations: 5,
+    },
+  };
+  fs.writeFileSync(configPath, JSON.stringify(runConfig, null, 2) + '\n');
 } catch (e) {
   console.error('ERROR: inspect/input-write failed:', e.message);
   process.exit(1);

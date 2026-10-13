@@ -33,8 +33,29 @@ End-to-end industrial deep diagnosis auto-orchestrator. Upload sensor/process da
 Input : CSV/XLSX/Parquet industrial sensor/process data
 Output: Chinese-language diagnostic report (report.md) + HTML visualization walkthrough page (diagnostic-report.html)
 Core  : ontology construction → detrending/stratification/Simpson detection → competing hypotheses → physics verification → Judge review → HTML visualization
-Default: FULL-AUTO — 8 steps run continuously, zero human intervention
+Default: FULL-AUTO — baseline Steps 0-9 run continuously; optional deep enhancement is Step 10
 ```
+
+## Run Modes (run_config.run_mode)
+
+| Mode | Purpose | Trigger |
+|------|---------|---------|
+| **fast** | Quick root-cause + correlation answer, same reasoning core | explicitly set by caller with `--mode fast` / run_config.run_mode=fast |
+| **full** (default) | Benchmark/paper-grade full evidence chain | default from setup.mjs; benchmark pipeline; user asks for 完整/详尽 |
+
+**fast vs full — what is cut (reasoning core untouched: ontology-first, competing-hypotheses exclusion, four-condition causality, judge gate, final physical audit all stay)**:
+
+| # | Cut in fast | Rationale | Saves |
+|---|-------------|-----------|:-----:|
+| 1 | Step 2P separate pre-profile agent NOT dispatched — data-processor runs Phase 0-1 in-process (parallel pre-profile only for >20K rows) | separate agent = protocol re-read + duplicate probing for small data | ~8 min |
+| 2 | Step 3.5 VLM: only CRITICAL-priority plots, cap 4; skip entirely if no vision model | VLM is L4 evidence, judge discounts it anyway | ~8 min |
+| 3 | Step 5b pre-report audit SKIPPED — CP-8 final audit remains the sole physical gate | pre-audit + final audit overlap heavily on small runs | ~13 min |
+| 4 | Plot budget ≤8 (trend overlay / dual-axis compensation / stratified scatter / CCF window / correlation robustness / causal evidence + 2 free) | 18 plots burned 12 min; 6 carry the reasoning | ~10 min |
+| 5 | Diagnostician reuses upstream statistics verbatim (marked `[reused]`), computes only discriminative tests | upstream already computed global/detrended/within-group r, Granger, change-points | ~10 min |
+| 6 | Report embeds ≤8 key figures | smaller report, faster HTML | ~3 min |
+| 7 | RAG: single attempt, 60s timeout, then `parameter_to_physics.json` fallback | 502 retry loops burned minutes | ~2 min |
+
+Same 80-row fieldtest scene (2026-10-13): full-mode measured ≈115 min; fast-mode projection ≈35-45 min. fast-mode conclusion parity is enforced by the unchanged judge gate (≥90) + CP-8 final audit — not by skipping evidence, only by skipping redundant passes.
 
 ## Core Principle
 
@@ -54,24 +75,27 @@ Step 0-1: Setup + Inspect (main agent)
     ↓
 Step 2+2.5: [industrial-ontology-builder] → CP-2, CP-3
     ↓
-Step 3+3.3: [industrial-data-processor] → CP-4 (includes VLM visual analysis)
-    ↓       ┌── repair max 3 ──┐
-    ├───────┤                  │
-    ↓       ↓                  │
-Step 5a:   Step 5b:            │
-[judge]    [physical-auditor]  │
-   │     (pre-report, parallel)│
-   └───────┬───────────────────┘
-           ↓ pass
-     Step 6: [industrial-reporter] → CP-7
-           ↓
-     Step 7: [industrial-physical-auditor](final)
-           ↓ ENDORSED
-     Step 8: [industrial-html-visualizer]  ← AUTO
-           ↓
-     Step 8.5: [industrial-html-reviewer] → CP-9
-           ↓ PASS
-     Step 9: Finalize (main agent)
+Step 3+3.3: [industrial-data-processor] → CP-4
+    ├─ fast: ≤8 plots; VLM ≤4 CRITICAL plots or caption fallback; no separate 2P agent
+    └─ full: profile pre-pass eligible >20K rows; full plot/VLM policy
+    ↓
+Step 4: [diagnostician] → CP-5
+    ├─ fast: reuse upstream statistics; ≤16 tool-call advisory
+    └─ full: exhaustive competing-hypothesis protocol
+    ↓
+Step 5a: [judge] → CP-6
+    ├─ full only: Step 5b pre-report physical audit
+    └─ fast: record 5b skip reason; CP-8 remains mandatory
+    ↓ CP-6 pass
+Step 6: [industrial-reporter] → CP-7 + CP-7L
+    ↓
+Step 7: [industrial-physical-auditor] (final) → CP-8 ENDORSED
+    ↓
+Step 8: [industrial-html-visualizer] (unless explicit opt-out)
+    ↓
+Step 8.5: [industrial-html-reviewer] → CP-9
+    ↓ PASS
+Step 9: Finalize; only then record run_completed
 ```
 
 ## Sub-Skill Map
@@ -90,7 +114,18 @@ Step 5a:   Step 5b:            │
 
 ## Dispatch
 
-Each sub-step dispatches its corresponding sub-agent via the Claude Code `Agent` tool:
+Each sub-step dispatches its corresponding sub-agent via the Claude Code `Agent` tool.
+
+**Before dispatch, read the schema-validated `00_input/run_config.json` and use `run_mode` as the mode authority.** For each conditional stage that is skipped, append a matching `artifact_check_complete` event with `--data '{"skipped_stage":"<stage>","reason":"<reason>"}'` and append the same `{stage, reason, event:"artifact_check_complete"}` record to `run_manifest.execution_policy.audit.skipped_stages`. The finalizer rejects a declared skip without a matching log event. Do not add skip records for stages that actually ran.
+
+**Every dispatch prompt SHOULD carry these four audit lines**. The Agent tool has no hard per-call tool-count limiter; `HARD_BUDGET` is an instruction, not mechanical enforcement. The machine-enforced controls are schema-validated `run_mode`, final artifact gates, and recording of conditional-stage skips:
+
+```
+HARD_BUDGET: ≤N tool calls for this task; when reached, finalize with what exists and report gaps (N = budget-table cap ×2)
+MODE: fast | full
+SINGLE_READ: the essentials are already inlined here — read SKILL.md at most once, never re-read after work starts
+REUSE_MANDATE: statistics already in 02_processed/* are cited as [reused], never recomputed
+```
 
 ```javascript
 // Step 2+2.5: Ontology Builder
@@ -210,7 +245,7 @@ SKILL_PATH="<this-skill-directory>"
 PROJECT_ROOT="$(cd "$SKILL_PATH/../../.." && pwd)"
 
 # Create run directory
-node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --mode fast|full --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 
 # Setup Python venv
 node "$SHARED_PATH/scripts/uv_env_setup.mjs"
@@ -268,6 +303,8 @@ node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
   --files 00_input/input_manifest.json,00_input/user_context.json
 ```
 
+**Write DATA_PATH back into run_config (fingerprint contract, mandatory)**: the ontology asset store fingerprints the data at publish time via `run_config.data_path` / `input_manifest.files[]`; if neither is filled, the entry is stored with `schema_fp=null` and fast-reuse can NEVER hit (observed 2026-10-13: published ontology unusable for reuse). After Step 1, set `00_input/run_config.json` → `data_path: "<DATA_PATH>"` (and prefer `input_manifest.files: [{path: "<DATA_PATH>"}]`).
+
 ### Step 2-F: Ontology Deterministic Fast Path (reuse hit ≤60s, plan v5 F1)
 
 **Before** dispatching Step 2, attempt the deterministic fast path (pure script asset copy + validation, no semantic judgment; outside the scope of Blacklist #2 "main agent executes the sub-agent protocol"):
@@ -308,15 +345,31 @@ node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR"
 ```
 **CP-3**: `clarification_needed.json` contains `AUTO_RESOLVED` or `USER_CONFIRMED`
 
-### Step 2P (parallel with Step 2, default-on): Data Profiling Pre-Pass
+### Step 2P (parallel with Step 2, full mode and >20K rows only; fast mode: merged into Step 3): Data Profiling Pre-Pass
 
-After Step 1 completes, data format/quality/production-state profiling **does not depend on ontology semantics**; the Phase 0-1 pre-pass of `data-processor` (producing `02_processed/pre_profile.json`) is dispatched **in parallel by default** with Step 2 (single message, two Agent calls). Once the ontology is ready, data-processor resumes from Phase 2 and consumes pre_profile.json, skipping duplicate probing. Semantic analysis (discrepancy / R2 validation) **must wait for the ontology** — the semantic part of the ontology_first contract is unchanged. Fall back to serial only when the harness provably cannot run two agents concurrently (record `not_applicable_reason: serial_harness`).
+Read `run_mode` before dispatch. Only `full` mode with >20K rows launches the separate pre-profile agent in parallel with Step 2. In `fast` mode (or ≤20K rows), Step 3 performs Phase 0-1 in-process; do not launch a duplicate agent. If Step 2P is skipped, call the legal event helper:
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event artifact_check_complete --agent main-agent --step inspect \
+  --data '{"skipped_stage":"data_profile_prepass","reason":"<fast_mode|below_20k_rows>","integrity_check":"NOT_APPLICABLE"}'
+```
+
+The event helper mirrors `{stage, reason, event}` into `run_manifest.execution_policy.audit.skipped_stages`; do not hand-edit the manifest. Semantic analysis (discrepancy/R2 validation) still waits for ontology in both modes.
 
 ### Step 3 + 3.3: Data Processor
 
 Read `skill://industrial-data-processor` and dispatch via `Agent({subagent_type: "data-processor", ...})`. **ontology_first** — read ontology before any statistical work. If `02_processed/pre_profile.json` exists (Step 2P artifact), resume from its conclusions and skip duplicate probing.
 
-**VLM early-dispatch rule (A4, cuts ~9 min of serial wall clock)**: the VLM pass (Phase 5.5) only depends on `plot_manifest.json` + `vlm_input_manifest.json`, not on the statistical conclusions. As orchestrator, poll for those two files; the moment they exist, dispatch the vlm-visual-analyzer agent **in parallel** with the data-processor's remaining phases. VLM reads charts only — no data dependency, no quality risk. The large-data regime detector is vectorized (numpy path is default above 20K rows; the pure-Python path remains a fallback below that).
+**VLM early-dispatch rule (A4)**: VLM depends on `plot_manifest.json` + `vlm_input_manifest.json`; when dispatched, start as soon as those files exist and overlap with remaining data processing. In `fast` mode dispatch only if a vision-capable model is reachable and there are CRITICAL plots, capped at 4; otherwise require `image_captions.json` L4 fallback and record the skip:
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event artifact_check_complete --agent main-agent --step data_processor \
+  --data '{"skipped_stage":"vlm_analysis","reason":"<no_vision_model|no_critical_plots|fast_mode_skip>","integrity_check":"NOT_APPLICABLE"}'
+```
+
+The logger mirrors the skip into execution_policy for finalizer verification. In `full` mode, VLM is attempted when the vision model is reachable; unavailable VLM requires the same caption fallback and a recorded skip. The large-data regime detector is vectorized (numpy path above 20K rows).
 
 Post-processing after agent completes:
 ```bash
@@ -347,9 +400,19 @@ For repair loops, pass `REPAIR_INSTRUCTIONS=<instructions>`; for rounds 2/3 also
 
 Read `skill://industrial-judge` and dispatch via `Agent({subagent_type: "judge", ...})`. 10-item quality gate → `judge_feedback.json`. The feedback must contain a **structured repair scope** `repair_scope: [{dimension, files, instructions}]` (Step 4 repair rounds recompute in a targeted way based on it, avoiding full recomputation of the 4 diagnosis JSONs). In rounds 2/3 the Judge re-reviews only in-scope dimensions plus previous-round blocking re-checks; already-pass dimensions reference previous-round conclusions.
 
-### Step 5b: Physical Auditor (Pre-Report)
+### Step 5b: Physical Auditor (Pre-Report) — **full mode only**
 
 Read `skill://industrial-physical-auditor` with `PRE_REPORT_AUDIT=true`. Dispatch via `Agent({subagent_type: "report-reviewer", ...})`. Runs **parallel** with Judge. Outputs `optimizer_preflight.md`.
+
+**Run-mode rule**: `fast` mode skips 5b — CP-8 final audit (Step 7) remains mandatory. Record the skip via the legal event helper; the helper mirrors it into the manifest for finalizer verification:
+
+```bash
+node "$SHARED_PATH/scripts/append-pipeline-event.mjs" "$RUN_DIR" \
+  --event artifact_check_complete --agent main-agent --step judge \
+  --data '{"skipped_stage":"pre_report_audit","reason":"fast_mode","integrity_check":"NOT_APPLICABLE"}'
+```
+
+This is a skip of a redundant pre-report pass only; it never skips the final physical audit or CP-8 ENDORSED gate. Do not write `run_completed` before finalizer passes.
 
 ### Repair Loop (Best-of-3)
 
@@ -366,7 +429,7 @@ for iter in 1..3:
 # after loop: restore best_round_{best_round}/*
 write 05_review/judge_repair_summary.json
 if best_score < 90: mark [BEST_EFFORT] + confidence ≤70
-proceed to Step 6 regardless  # NEVER halt
+write the report draft for diagnosis transparency, but finalizer keeps run status FAILED until Judge verdict=pass and all critical gates pass; never write run_completed for a best-effort draft
 ```
 
 **Anti-Oscillation**: >70% issue-type overlap vs previous round → oscillation. 3rd oscillation → `COMPETING_SET`, confidence ≤50.
@@ -374,6 +437,8 @@ proceed to Step 6 regardless  # NEVER halt
 ### Step 6: Reporter
 
 Read `skill://industrial-reporter` and dispatch via `Agent({subagent_type: "reporter", ...})`. **Judge-gated**: only proceed if verdict==pass ∧ score≥90 OR `judge_repair_summary` proves 3 rounds exhausted.
+
+**Section contract (inline into the dispatch prompt — lint L5 enforces it)**: report.md MUST contain 9 keyword sections — 执行摘要 / 核心证据(对齐图) / 诊断结论 / 证据全景 / 竞争假设(排除逻辑) / 详细推导(推理过程) / 推理链 / 统计(数据统计) / 行动方案(局限). Fast mode additionally caps: ≤250 lines, ≤6 embedded figures.
 
 **CP-7**: `report.md` + `run_summary.json` exist
 
@@ -468,31 +533,33 @@ fully isolated from baseline artifacts; the E1-E6 mtime skip mechanism makes rep
 | Step 8-9 HTML+finalize | 6 | Degrade to static mode |
 | Step 10 enhancement | 3 | Script chain is zero-LLM; exceeding the cap = anomaly |
 
-If the same Step exceeds its budget by 2x twice in a row → record the `step_overbudget` pipeline event and summarize in run_summary.
+If the same Step exceeds its budget 2x consecutively → record a `step_overbudget` pipeline event and surface it in run_summary.
+
+**Enforcement (not advisory)**: the cap is passed INTO each dispatch prompt as a hard tool-call budget — `HARD_BUDGET: ≤N tool calls for this task; when reached, finalize with what you have and report gaps`. Reading the full SKILL.md again counts against the budget (single-read rule below). Measured waste when budgets were not passed: data-processor 98 tool calls / 28 min on 80 rows (2026-10-13 fieldtest) — the single largest wall-clock cost of the whole pipeline.
 
 ## Checkpoint Gates (Quick Reference)
 
 | CP | Position | Verify | Fail → |
 |:--|---------|--------|--------|
-| CP-1 | 1→2 | `input_manifest.json` + `user_context.json` + `run_config.json` | Back to Step 0 |
+| CP-1 | 1→2 | `input_manifest.json` + `user_context.json` + schema-valid `run_config.json` (`run_mode` = fast/full) | Back to Step 0 |
 | CP-2 | 2→2.5 | `ontology.json` ≥1KB + schema-valid | Re-run ontology-builder |
 | CP-3 | 2.5→3 | `clarification_status: AUTO_RESOLVED\|USER_CONFIRMED` | Resolve |
-| CP-4 | 3→4 | `data_analysis_conclusion.json` + plots>0 | Re-run data-processor |
+| CP-4 | 3→4 | `data_analysis_conclusion.json` + plot count within mode budget + plot path/ink validation | Re-run data-processor |
 | CP-5 | 4→5 | 4 diagnosis outputs schema-valid + quality-check | Repair diagnosis |
-| CP-6 | 5→6 | `judge_repair_summary.json` + pre-audit no FATAL | Repair (best-of-3) |
-| CP-7 | 6→7 | `report.md` + `run_summary.json` | Re-run reporter |
-| CP-8 | 7→8 | `optimizer.md` contains `ENDORSED` | Repair loop |
-| CP-9 | 8.5 | `diagnostic-report.html` ≥5120B + review pass | Re-run html-visualizer |
+| CP-6 | 5→6 | Judge pass + no blocking issues; full mode additionally requires pre-audit no FATAL; fast mode requires a recorded 5b skip and CP-8 final audit | Keep report draft as FAILED; repair/mark best-effort, never mark completed |
+| CP-7 | 6→7 | `report.md` + `run_summary.json` + section/lint checks | Re-run reporter |
+| CP-8 | 7→8 | `optimizer.md` contains `ENDORSED` | Final audit repair; no success status until endorsed |
+| CP-9 | 8.5 | `diagnostic-report.html` ≥5120B + review pass, unless explicit HTML opt-out is recorded | Re-run html-visualizer |
 
 ---
 
 ## Execution Discipline
 
-- **Default FULL-AUTO**: `interaction_mode=auto`, 8 steps continuous, zero human intervention. CP gates are machine-validated.
-- **Strictly sequential** — never skip, reorder, or silently omit steps. If not applicable, record `not_applicable_reason`.
-- **Ontology first**: Step 2 complete before Step 3. Pre-ontology work limited to data conversion/preprocessing.
-- **Step 5a + 5b** are the ONLY parallel steps. Everything else is serial.
-- **HTML auto-build**: CP-8 ENDORSED → immediately launch Steps 8→8.5→9, no user prompts.
+- **fast mode (default)**: `run_mode=fast` — steps 0→1→2→3(+3.5 capped VLM)→4→5a→6→7→8→8.5→9→9.5→10 continuous, Step 2P and 5b not dispatched (see Run Modes).
+- **Strictly sequential** — never skip, reorder, or silently drop a step. A step that does not apply must record `not_applicable_reason` (e.g. `fast_mode`, `no_vision_model`, `serial_harness`).
+- **Ontology first**: Step 2 completes before Step 3. Pre-ontology work is limited to data conversion/preprocessing.
+- **Step 5a + 5b** are the only parallel pair (5b runs in full mode only). Everything else is serial.
+- **HTML auto-build**: CP-8 ENDORSED → immediately launch Steps 8→8.5→9 with no user prompt.
 
 ### Token & Wait Discipline (plan v5 F2/F3 — execution efficiency discipline)
 
@@ -590,7 +657,7 @@ SKILL_PATH="<path-to-.claude/skills/industrial-analysis-auto>"
 SHARED_PATH="<path-to-.claude/shared>"
 
 # Step 0 setup validation
-node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+node "$SKILL_PATH/scripts/setup.mjs" --name <scene_name> --mode fast|full --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 node "$SHARED_PATH/scripts/uv_env_setup.mjs"
 
 # Step 1 inspect

@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 22 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` for DOE / production-condition data analysis outside the 9-stage pipeline, and the closed-loop trio `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` with backend integration routes under `/api/sentinel` · `/api/experience` · `/api/optimizer`)
+1. **Skills** (`.claude/skills/`) — 23 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` for DOE / production-condition data analysis outside the 9-stage pipeline, and the closed-loop trio `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` with backend integration routes under `/api/sentinel` · `/api/experience` · `/api/optimizer`)
 2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 
@@ -139,7 +139,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 - **Mandatory anti-spurious-correlation (v6.4–v6.7)**: lag-compensated CCF · production-state detection + steady-state filtering · batch identifier integrity · outlier leverage leave-one-out
 - **Automatic HTML build (non-interactive)**: after CP-8 `ENDORSED`, Steps 8→8.5→9 run back to back automatically by default, with no user prompt
 
-### Skill System (22 skills)
+### Skill System (23 skills)
 
 | Skill | Trigger conditions | Model |
 |-------|---------|:----:|

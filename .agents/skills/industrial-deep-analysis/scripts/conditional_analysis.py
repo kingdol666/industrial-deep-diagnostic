@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -327,6 +328,62 @@ def _build_candidate_pairs(
     return sorted(filtered)
 
 
+def _conditioning_base(df: pd.DataFrame) -> List[str]:
+    """Columns eligible as full-order conditioning variables (pair-independent).
+
+    Object metadata coerces to all-NaN and derived aggregates (_dev rolling
+    stats, regime_* one-hots) are near-duplicates of their parent signal —
+    conditioning on them would trivially collapse every correlation, so both
+    groups are excluded here once instead of per pair.
+    """
+    out: List[str] = []
+    for c in df.columns:
+        low = c.lower()
+        if low in ("timestamp", "time", "datetime", "date", "time_hours") or low.startswith("ts_"):
+            continue
+        if c.endswith("_dev") or c.startswith("regime_"):
+            continue
+        try:
+            nun = pd.to_numeric(df[c], errors="coerce").nunique(dropna=True)
+        except Exception:
+            continue
+        if nun > 1:
+            out.append(c)
+    return out
+
+
+def _build_pair_context(
+    df: pd.DataFrame,
+    ontology: dict,
+    selection: dict,
+    regime_filter: Optional[dict],
+) -> dict:
+    """Compute once-per-run invariants shared by every (predictor, target) pair.
+
+    Time-column detection, timestamp parsing, the temporal sort order, the
+    grouping column, and the conditioning-column base list are identical for
+    all pairs; recomputing them per pair dominated E3 runtime on wide tables.
+    Per-pair semantics are unchanged — only the shared work is hoisted.
+    """
+    time_col = _detect_time_col(df, ontology, selection)
+    tvals = None
+    order = None
+    if time_col and time_col in df.columns:
+        try:
+            tvals = pd.to_datetime(df[time_col]).astype("int64").to_numpy(dtype=float)
+        except Exception:
+            tvals = df[time_col].to_numpy(dtype=float)
+        order = np.argsort(tvals, kind="mergesort")
+    return {
+        "time_col": time_col,
+        "tvals": tvals,
+        "order": order,
+        "group_col": _detect_group_col(df, selection, regime_filter),
+        "all_tier_preds": _collect_tier_predictors(selection),
+        "others_base": _conditioning_base(df),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Per-pair computation
 # ---------------------------------------------------------------------------
@@ -469,10 +526,13 @@ def _compute_relationship(
     conclusion: dict,
     regime_filter: Optional[dict],
     time_col: Optional[str] = None,
+    ctx: Optional[dict] = None,
 ) -> dict:
     """Compute all relationship metrics for a single predictor→target pair."""
+    if ctx is None:
+        ctx = _build_pair_context(df, ontology, selection, regime_filter)
     if time_col is None:
-        time_col = _detect_time_col(df, ontology, selection)
+        time_col = ctx["time_col"]
     x_raw = _coerce_numeric(df[pred])
     y_raw = _coerce_numeric(df[tgt])
 
@@ -516,7 +576,7 @@ def _compute_relationship(
             pass
 
     # --- per_group ---
-    primary_group = _detect_group_col(df, selection, regime_filter)
+    primary_group = ctx["group_col"]
     per_group: List[float] = []
     if primary_group and primary_group in df.columns:
         per_group = _per_group_r(df, pred, tgt, primary_group)
@@ -545,12 +605,9 @@ def _compute_relationship(
                 "lag_aligned_r": 0.0, "n_used": 0}
 
     # Fresh lag-CCF precedence test on the actual time series
-    if time_col and time_col in df.columns and n_finite >= MIN_PAIR_N:
-        try:
-            tvals = pd.to_datetime(df[time_col]).astype("int64").to_numpy(dtype=float)
-        except Exception:
-            tvals = df[time_col].to_numpy(dtype=float)
-        temporal = temporal_causality(x_raw, y_raw, tvals)
+    if time_col and time_col in df.columns and n_finite >= MIN_PAIR_N \
+            and ctx["tvals"] is not None:
+        temporal = temporal_causality(x_raw, y_raw, ctx["tvals"], order=ctx["order"])
         if temporal.get("valid") and temporal.get("direction") != "concurrent":
             best_lag_steps = int(temporal.get("optimal_lag_steps", 0))
             lag_r = float(temporal.get("lag_aligned_r", steady_r))
@@ -601,7 +658,7 @@ def _compute_relationship(
     # --- partial correlation (controls from ALL tier shapes, not hardcoded keys) ---
     partial_r = 0.0
     partial_valid = False
-    all_tier_preds = _collect_tier_predictors(selection)
+    all_tier_preds = ctx["all_tier_preds"]
     controls = [c for c in all_tier_preds if c != pred and c in df.columns]
     if controls and n_finite >= MIN_PAIR_N:
         try:
@@ -616,20 +673,7 @@ def _compute_relationship(
     # to all-NaN, and derived aggregates (_dev rolling stats, regime_* one-hots)
     # are near-duplicates of the parent signal — conditioning on them would
     # trivially collapse every correlation and fake mediation channels.
-    others = []
-    for c in df.columns:
-        if c in (pred, tgt):
-            continue
-        if c.lower() in ("timestamp", "time", "datetime", "date", "time_hours") or c.lower().startswith("ts_"):
-            continue
-        if c.endswith("_dev") or c.startswith("regime_"):
-            continue
-        try:
-            nun = pd.to_numeric(df[c], errors="coerce").nunique(dropna=True)
-        except Exception:
-            continue
-        if nun > 1:
-            others.append(c)
+    others = [c for c in ctx["others_base"] if c not in (pred, tgt)]
     partial_full = conditional_independence(df, pred, tgt, others)
     partial_full_r = float(partial_full.get("partial_r", 0.0))
     partial_full_valid = bool(partial_full.get("valid", False))
@@ -682,7 +726,7 @@ def _compute_relationship(
     # --- change-point co-movement + leverage stability + moderator ---
     cp_movement = _cached_cp_movement(df, pred, tgt)
     loo = leverage_stability(x, y)
-    primary_group = _detect_group_col(df, selection, regime_filter)
+    primary_group = ctx["group_col"]
     interaction = moderator_check(df, pred, tgt, primary_group or None, per_group,
                                   partition_name=primary_group)
 
@@ -763,10 +807,12 @@ def build_relationships(
     relationships: List[dict] = []
     primary_p_values: List[float] = []
 
+    ctx = _build_pair_context(df, ontology, selection, regime_filter)
     for pred, tgt in candidate_pairs:
         if pred not in df.columns or tgt not in df.columns:
             continue
-        rel = _compute_relationship(df, pred, tgt, ontology, selection, conclusion, regime_filter)
+        rel = _compute_relationship(df, pred, tgt, ontology, selection, conclusion,
+                                    regime_filter, ctx=ctx)
         relationships.append(rel)
         primary_p_values.append(rel["p_value"])
 
@@ -792,6 +838,7 @@ def main() -> None:
     if not run_dir.is_dir():
         print(f"ERROR: run-dir does not exist: {run_dir}", file=sys.stderr)
         sys.exit(1)
+    t0 = time.monotonic()
 
     output = Path(args.output) if args.output else run_dir / "enhancement" / "deep_data_analysis.json"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -865,6 +912,7 @@ def main() -> None:
         print(f"[association_graph] {len(graph['nodes'])} nodes, {len(graph['edges'])} edges → {graph_output}")
     except Exception as exc:  # pragma: no cover — graph must never break E3
         print(f"[association_graph] WARNING: graph build failed: {exc}", file=sys.stderr)
+    print(f"[conditional_analysis] elapsed {time.monotonic() - t0:.1f}s")
 
 
 if __name__ == "__main__":

@@ -22,14 +22,16 @@ Fully automated enhancement pipeline for industrial diagnostics. Starting from a
 | E0 | `enhance_orchestrator.mjs` | Baseline readiness check, sha256 verification, manifest generation |
 | E1 | `coverage_builder.py` (deep-analysis) | Full-column coverage analysis → `analysis_coverage.json` |
 | E2 | `derived_feature_builder.py` (deep-analysis) | Physical derived-feature construction → `derived_features.json` |
-| E3 | `conditional_analysis.py` (deep-analysis) | Conditional relationship analysis + actionability + reasoning evidence → `deep_data_analysis.json` |
-| E3.5 | `association_graph_builder.py` (deep-analysis) | Full-variable association network + temporal/conditional-independence/mediation/change-point/leverage inference → `association_graph.json` |
+| E3 | `conditional_analysis.py` (deep-analysis) | Conditional relationship analysis + actionability + reasoning evidence → `deep_data_analysis.json` **(already emits `association_graph.json` at end of run)** |
+| — | `association_graph_builder.py` (deep-analysis) | Standalone/manual graph rebuild only; not scheduled in the E0-E8 orchestrator because E3 already emits and validates the graph |
 | E5 | `physics_bridge_builder.py` (physics-bridge) | Physical mechanism bridging → `physics_bridge.json` |
 | E6 | `knowledge_fusion.py` | Knowledge fusion → `enhanced_knowledge.json` |
 | E7a | `markdown_publisher.py` | Markdown publishing → `enhanced_analysis.md` |
 | E7b | `html_builder.py` (enhanced-html-visualizer) | ECharts HTML visualization → `enhanced-analysis.html` |
 | E7c | `html_reviewer.py` (enhanced-html-reviewer) | HTML review → `enhancement_html_review.json` |
 | E8 | `enhance_orchestrator.mjs` (finalize) | Status writing, summary output |
+
+> Mode B E0→E8 is a deterministic script chain — **zero LLM** (runtime depends on data size and Python startup; E3 measured ≈0.4 s pure compute on a 3.2K-row scene). Never dispatch agents for E-stages. Mode A's baseline diagnosis still uses LLM agents; only its E0→E8 enhancement tail is deterministic.
 
 ## Inputs (read-only)
 
@@ -73,8 +75,8 @@ All outputs are written to `RUN_DIR/enhancement/`:
 
 | Mode | Invocation | Behavior |
 |------|---------|------|
-| **Mode A: integrated auto full pipeline (new data)** | `--data-path <data> --name <run_name>` or pass `DATA_PATH` to the agent | (1) Automatically initialize RUN_DIR (setup + inspect + manifest) → (2) Execute the auto Step 0-9 baseline (agent orchestration) → (3) E0-E8 deep enhancement. One invocation completes the whole flow |
-| **Mode B: build on an existing RUN_DIR (deep analysis)** | `--run-dir <RUN_DIR>` | Skip the baseline and run E0-E8 directly (E0 verifies baseline artifacts; BLOCKED if missing) |
+| **Mode A: integrated pipeline (new data)** | `--data-path <data> --name <run_name> [--mode fast|full]` or pass `DATA_PATH` and `MODE` to the agent | (1) Auto-initialize RUN_DIR (setup + inspect + manifest) → (2) execute the auto Step 0-9 baseline using the selected mode (default full) → (3) E0-E8 deep enhancement. One invocation initializes the whole flow; LLM baseline agents still need dispatch. |
+| **Mode B: build on an existing RUN_DIR (deep analysis)** | `--run-dir <RUN_DIR>` | Skip the baseline and run E0-E8 directly (E0 verifies baseline artifacts; BLOCKED if missing) — **zero LLM end-to-end** |
 
 **Mode A is a complete closed loop**: the CLI performs deterministic initialization (`entry_a_init.mjs`); the LLM baseline steps (ontology building / data processing / competing-hypothesis diagnosis / report / HTML) are dispatched in sequence by the enhance-orchestrator agent following the Step 0-9 order of `skill://industrial-analysis-auto`; once the baseline `optimizer.md` contains ENDORSED, E0-E8 starts automatically.
 

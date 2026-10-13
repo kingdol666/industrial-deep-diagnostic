@@ -25,7 +25,8 @@
 - [ ] Verify `enhancement/derived_data.csv` exists and contains every `computed` feature column
 
 ### Phase 4: Run E3+E4+E3.5 — Conditional Analysis + Tradeoffs + Association Graph
-- [ ] Execute `conditional_analysis.py --run-dir <RUN_DIR>` (writes `deep_data_analysis.json` AND `association_graph.json`)
+- [ ] Execute `conditional_analysis.py --run-dir <RUN_DIR>` (writes `deep_data_analysis.json` AND `association_graph.json` — E3 already emits the graph; do NOT also run `association_graph_builder.py` in the same pass)
+- [ ] Run `verify_enhancement.py --run-dir <RUN_DIR>` — it asserts all structural checks below in one pass; only investigate rules it reports FAIL on. The remaining items are kept as reference for what the verifier asserts:
 - [ ] Verify `enhancement/deep_data_analysis.json` is created
 - [ ] Verify at least one relationship exists for every ontology relationship that resolves to actual columns (INCLUDING process→process edges)
 - [ ] For any relationship whose ontology marks `data_direction_validated=false`, verify `operability=ENDOGENOUS_RESPONSE` (compensation response, not cause)
@@ -39,15 +40,8 @@
 - [ ] Standalone rerun possible: `association_graph_builder.py --run-dir <RUN_DIR>` rebuilds only the graph
 
 ### Phase 5: Cross-Validation
-- [ ] All columns in `analysis_coverage.columns[]` have distinct `column` names
-- [ ] All derived features with status `computed` have `derived: true`
-- [ ] All derived features with status `not_applicable` have `derived: false` and nonempty `formula`/`physics_basis`
-- [ ] No relationship has `predictor == target`
-- [ ] No relationship has predictor in metadata/control cols
-- [ ] Neutral finite values (0.0) in numeric fields are paired with explicit validity flags
-- [ ] `git status` shows no modifications to existing baseline files
+- [ ] Rerun `verify_enhancement.py` after any fix; it re-asserts every rule below (distinct column names, derived:true on computed features, formula/reason on skipped ones, no predictor==target, no metadata/control predictors, neutral zeros paired with validity flags). Additionally confirm `git status` shows no modifications to existing baseline files.
 
 ### Phase 6: Report
-- [ ] Write execution summary to `.superpowers/sdd/doe-enhance-plan/task-3-report.md`
-- [ ] Include exact commands run, counts, and any concerns
-- [ ] Record commit hash after committing only Task 3 files
+- [ ] Write execution summary to `<RUN_DIR>/enhancement/execution_summary.md`
+- [ ] Include exact commands run, counts from `verify_enhancement.py` output, and any concerns

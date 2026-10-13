@@ -99,6 +99,7 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 
 ## Core Rules
 
+- **Reuse upstream statistics — never recompute**: global/detrended/within-group correlations, Granger lag tests, CUSUM change points, stationarity, LOO stability in `02_processed/data_analysis_conclusion.json` + `time_lag_analysis.json` + `anomaly_report.json` are cited verbatim as `[reused]` with source file; recompute ONLY the hypothesis-discriminating test that upstream did not run (e.g. a competing hypothesis needs a comparison the processor never made). Recomputing upstream statistics burned ~10 min and 26 tool calls on the 2026-10-13 fieldtest and is a discipline violation.
 - **3+ hypotheses** — each with falsification conditions + causal chain (governing equation)
 - **2+ EXCLUDED** — via NO_RESET, IMPOSSIBLE physics, IMPLAUSIBLE magnitude, CONTRADICTED ontology
 - **Conclusion types**: `DETERMINED` / `COMPETING_SET` / `NEEDS_DATA`

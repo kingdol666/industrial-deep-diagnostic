@@ -9,6 +9,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+import { execFileSync } from 'child_process';
 
 // 破坏性用例只操作「新建的测试场景」，绝不触碰既有场景。
 const store = await import('../../../.claude/shared/scripts/ontology_store.mjs');
@@ -613,6 +614,39 @@ describe('asset listing and overview', () => {
 });
 
 // ─────────────────────── 全链路 ───────────────────────
+
+describe('ontology store CLI fingerprint propagation', () => {
+  test('publish data-file heals an identical legacy entry without schema fingerprint', () => {
+    const scene = `${TEST_SCENE}_fingerprint_cli`;
+    const dir = mkdtempSync(join(tmpdir(), 'idd-onto-cli-fp-'));
+    try {
+      const csv = join(dir, 'run_data.csv');
+      writeFileSync(csv, 'ts,col_a,col_b\\n1,10.1,25\\n2,10.2,26\\n3,10.3,27\\n');
+      const runDir = join(dir, 'run');
+      mkdirSync(join(runDir, '01_ontology'), { recursive: true });
+      mkdirSync(join(runDir, '00_input'), { recursive: true });
+      writeFileSync(join(runDir, '01_ontology', 'ontology.json'), JSON.stringify(makeOntology({ scene: { name: scene } }), null, 2));
+      writeFileSync(join(runDir, 'run_manifest.json'), JSON.stringify({ run_id: 'fp-cli-test' }));
+
+      const legacy = store.addVersion({ sceneKey: scene, ontology: makeOntology({ scene: { name: scene } }), buildMode: 'full' });
+      assert.equal(store.getEntry(scene, legacy.version).schema_fp, null);
+
+      const cli = join(process.cwd(), '..', '..', '.claude/shared/scripts/ontology_store.mjs');
+      const published = JSON.parse(execFileSync(process.execPath, [
+        cli, 'publish', '--run-dir', runDir, '--scene', scene, '--data-file', csv,
+      ], { cwd: process.cwd(), encoding: 'utf8' }));
+      assert.equal(published.deduped, true);
+      assert.ok(published.schema_fp);
+      assert.equal(store.getEntry(scene, legacy.version).schema_fp, published.schema_fp);
+
+      const reused = store.fastReuse({ dataPath: csv, runDir: join(dir, 'next'), scene });
+      assert.equal(reused.fastPath, true, JSON.stringify(reused));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      try { store.removeScene(scene); } catch {}
+    }
+  });
+});
 
 describe('end-to-end: build → persist → read → reuse → edit → reuse again', () => {
   test('the full lifecycle holds', () => {

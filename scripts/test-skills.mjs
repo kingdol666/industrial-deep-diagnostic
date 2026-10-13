@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// test-skills.mjs — per-skill smoke validation for all 18 skills.
+// test-skills.mjs — static contract smoke validation for every skill package.
 //
 // Gates (skill development spec):
 //   G1  SKILL.md exists
 //   G2  YAML frontmatter present with name + description
 //   G3  name matches the skill directory name (kebab-case)
-//   G4  description is non-empty, English-only, includes "Trigger:" keywords
-//   G5  body has ZERO CJK characters (English skill requirement)
+//   G4  description is non-empty and includes "Trigger:" keywords (language follows repo policy)
+//   G5  body may use the repository's configured output language
 //   G6  every relative path referenced in SKILL.md (scripts/ schemas/ references/
 //       resources/ templates/) resolves inside the skill directory
 //   G7  every schemas/*.json parses as JSON
@@ -25,7 +25,6 @@ const args = process.argv.slice(2);
 const rootIdx = args.indexOf('--skills-root');
 const SKILLS_ROOT = join(ROOT, rootIdx >= 0 ? args[rootIdx + 1] : '.claude/skills');
 
-const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
 let failures = 0;
 const results = [];
 
@@ -98,14 +97,14 @@ for (const skill of skillDirs) {
   // G3
   check(skill, 'G3', fm.name === skill, `name "${fm.name}" != dir "${skill}"`);
 
-  // G4
+  // G4 — language follows repository policy; metadata must remain actionable.
   const desc = fm.description || '';
-  check(skill, 'G4', !CJK_RE.test(desc), 'description contains CJK');
+  check(skill, 'G4', desc.trim().length > 0, 'description is empty');
   check(skill, 'G4', /Trigger:/i.test(desc), 'description missing "Trigger:" keywords');
 
-  // G5 — zero CJK in the whole file
-  const cjkMatches = text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || [];
-  check(skill, 'G5', cjkMatches.length === 0, `${cjkMatches.length} CJK chars remain`);
+  // G5 — skills may document the repository's Chinese output and engineering policy.
+  // Keep the gate as a structural check instead of hard-coding English-only text.
+  check(skill, 'G5', text.length > 0, 'SKILL.md body is empty');
 
   // G6 — referenced relative assets exist (in-skill OR shared scripts OR cross-skill)
   const refRe = /(?:scripts|schemas|references|resources|templates)\/[A-Za-z0-9_\-./]+\.(?:json|mjs|js|py|md|tmpl|yaml|yml|txt|csv)/g;

@@ -373,6 +373,18 @@ if (eventName === 'artifact_finalize_complete') {
 
 if (eventName === 'artifact_check_complete') {
   manifest.pipeline.integrity.last_artifact_check = status || extraData.integrity_check || 'unknown';
+  if (extraData.skipped_stage && extraData.reason) {
+    const audit = manifest.execution_policy?.audit;
+    if (!manifest.execution_policy || !audit) {
+      console.error('SKIPPED_STAGE_POLICY_MISSING: run_manifest.execution_policy.audit is required');
+      process.exit(1);
+    }
+    const record = { stage: extraData.skipped_stage, reason: extraData.reason, event: eventName };
+    const skipped = audit.skipped_stages = Array.isArray(audit.skipped_stages) ? audit.skipped_stages : [];
+    const index = skipped.findIndex(item => item.stage === record.stage);
+    if (index >= 0) skipped[index] = record;
+    else skipped.push(record);
+  }
 }
 
 if (eventName === 'run_completed') {

@@ -38,7 +38,7 @@ uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-an
 ```
 For every cleaned-data column, emits:
 - `role` from ontology signal / selection fallback
-- `coverage_status` enum: `covered_primary`, `covered_conditional`, `pruned_physics`, `pruned_confounded`, `not_applicable`, `insufficient_data`
+- `coverage_status` enum: `covered_primary`, `covered_conditional`, `pruned_physics`, `pruned_confounded`, `not_applicable`, `insufficient_data`, `derived_and_used` (derived `_dev` aggregates already consumed by E2/E3)
 - `unit` from ontology metadata, else `dimensionless` (numeric) or `metadata` (non-numeric)
 - `n_total`, `n_steady` as finite numeric counts after coercion
 - `support_domain` with p5/p25/p50/p75/p95/n/current_median for numeric columns; finite sentinel values (0.0, n=1) for non-numeric metadata with explicit reason
@@ -76,6 +76,14 @@ Per pair computes: `global` (erfc-safe p-value with scientific floor — never 0
 uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/association_graph_builder.py --run-dir <RUN_DIR>
 ```
 Full pairwise scan over all numeric columns (metadata/time/`_dev`/`regime_*` excluded) → `association_graph.json`: nodes (role/unit) + edges with `relationship` ∈ {supports, inhibits, contradicts}, `sign`, `confidence` (q + LOO stability + CI consistency), `causal_ceiling`, `ontology_contradiction`, and full `statistical_evidence` (temporal direction, partial, mediation channels, change-point alignment, interaction).
+
+Note: E3 (`conditional_analysis.py`) already emits `association_graph.json` at the end of its run, so a separate E3.5 invocation is **only** for rebuilding the graph without recomputing relationships. Do not run both in the same pass.
+
+### One-shot Verification
+```
+uv run --project "$SHARED_PATH/scripts" python .claude/skills/industrial-deep-analysis/scripts/verify_enhancement.py --run-dir <RUN_DIR>
+```
+Asserts every structural invariant of E1→E3.5 in a single pass (coverage covers all cleaned columns with legal statuses; computed derived features exist in `derived_data.csv`; every relationship has legal `q_value`/operability/validity flags; tradeoffs carry all eight fields; graph edges reference real nodes with legal semantics) and exits non-zero naming the failing rule. Run this **once** after E3 instead of reading each output JSON back.
 
 ### E4: Tradeoff Builder
 ```

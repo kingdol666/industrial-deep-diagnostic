@@ -124,6 +124,8 @@ Key design specs for VLM chart (see `resources/visual_analysis_framework.md` §D
 - Fonts >= 12pt, high contrast
 - Titles in English (for matplotlib rendering compatibility)
 
+**Plot budget (hard cap, enforced at CP-4)**: `fast` mode ≤ **8** plots, `full` mode ≤ **18**. The mandatory set (6) covers the reasoning core — temporal overlay / per-group overlay / stratified scatter / CCF lag window / correlation robustness / causal evidence map. Additional plots are optional decoration: a plot that does not change a hypothesis verdict must not be generated. Measured on the 2026-10-13 fieldtest: 18 plots burned ~12 min and the judge cited 6; the rest were never referenced by any downstream gate.
+
 #### Step 1: Build VLM Input Filter Manifest
 
 **Not all images go to VLM.** Only images with true spatio-temporal alignment carry diagnostic value for VLM. Generate `vlm_input_manifest.json` to filter:
@@ -134,6 +136,8 @@ Key design specs for VLM chart (see `resources/visual_analysis_framework.md` §D
 | **MANDATORY** | Per-product temporal overlay | VLM reads group-specific degradation patterns | `fig_vlm_per_product_overlay.png` |
 | **SUPPLEMENTARY** | Scatter with confounder coloring | VLM checks Simpson Paradox (cluster separation) | `separator_vs_residue.png` |
 | **NOT_FOR_VLM** | Single-param trend, bar chart, basic plot | No cross-parameter insight for VLM | `correlation_robustness.png`, `mill_power_trend.png` |
+
+**Run-mode rule**: `fast` mode caps the VLM set at **4 CRITICAL/MANDATORY plots** (or skips VLM entirely when no vision model is reachable — `image_captions.json` L4 fallback already covers those plots).
 
 ```bash
 # Generate vlm_input_manifest.json (selects which images VLM reads)

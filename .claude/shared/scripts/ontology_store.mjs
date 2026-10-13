@@ -364,9 +364,23 @@ export function addVersion({
     } catch { return false; }
   });
   if (deduped) {
+    // 指纹回填：旧条目可能在 dataFile 缺失时代入库（schema_fp=null），dedupe
+    // 复用版本时若本次带 dataFile 则就地补算——否则该条目永远无法被
+    // fast-reuse 命中（2026-10-13 fieldtest 实测）。
+    if (!deduped.schema_fp && dataFile) {
+      try {
+        const fp = computeFingerprint(dataFile);
+        deduped.schema_fp = fp.schema_fp;
+        deduped.content_fp = fp.content_fp;
+        deduped.fingerprinted_from = resolve(dataFile);
+        deduped.fingerprinted_at = new Date().toISOString();
+        writeIndex(idx);
+      } catch { /* 指纹算不出就保持 null：publish 照常去重，reuse 继续 miss */ }
+    }
     return {
       scene_key: key, version: deduped.version, path: join(STORE_DIR, deduped.path),
-      deduped: true, summary: deduped.summary || summarizeOntology(parsed),
+      deduped: true, schema_fp: deduped.schema_fp || null,
+      summary: deduped.summary || summarizeOntology(parsed),
     };
   }
 
@@ -514,6 +528,10 @@ export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalida
     origin: 'agent',
     provenance: { built_from_run: runId },
     inheritFrom: fps[0] || null,
+    // 指纹传递契约：publish 必须把已指纹化的数据文件交给 addVersion ——
+    // dedupe 复用旧版本时 addVersion 靠它回填 schema_fp，否则条目永远
+    // schema_fp=null、fast-reuse 永不命中（2026-10-13 fieldtest 实测）。
+    dataFile: fps[0]?.fingerprinted_from || dataFile || null,
   });
   return {
     scene_key: result.scene_key,
@@ -878,6 +896,9 @@ function cli() {
           scene: arg('scene'),
           buildMode: arg('build-mode') || 'full',
           quality: arg('quality') || 'unvalidated',
+          // CLI 侧此前丢弃 dataFile —— publish() 支持但永远收不到，导致
+          // run_config.data_path 也未填时 schema_fp 恒为 null，fast-reuse 永不命中。
+          dataFile: arg('data-file'),
         });
         console.log(JSON.stringify(result, null, 2));
         break;

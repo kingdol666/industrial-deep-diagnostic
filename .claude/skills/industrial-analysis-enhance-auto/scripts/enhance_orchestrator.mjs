@@ -16,6 +16,12 @@ import path from 'path';
 import crypto from 'crypto';
 import { spawn, execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import {
+  fileHash,
+  isFreshBySignature,
+  resolveEnhancementStatus,
+  shouldBuildAssociationGraph,
+} from './orchestration_contract.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,7 +68,9 @@ function resolvePythonEnv() {
   return { uvCmd: null, python: 'python' }; // last-resort fallback
 }
 
-const PY_ENV = resolvePythonEnv();
+const PY_ENV = process.env.HARNESS_TEST_PYTHON
+  ? { uvCmd: null, python: process.env.HARNESS_TEST_PYTHON }
+  : resolvePythonEnv();
 const PYTHON_BIN = PY_ENV.python;
 
 /** Build argv for a Python script: uv run prefix when available, else venv python. */
@@ -90,15 +98,52 @@ function runCmd(cmd, args, cwd, timeout = 120000) {
   });
 }
 
-/** Check if file f is newer than all files in refs[] */
-function isNewerThan(f, refs) {
-  if (!fileExists(f)) return false;
-  const fstat = fs.statSync(f);
-  for (const r of refs) {
-    if (!fileExists(r)) return false; // ref missing → re-run (output not current)
-    if (fs.statSync(r).mtime > fstat.mtime) return false;
+function signaturePath(output) {
+  return `${output}.signature.json`;
+}
+
+function phaseSignature(scriptPath, inputs, schemaPath = null) {
+  const sourceHash = fileHash(scriptPath);
+  const schemas = schemaPath ? (Array.isArray(schemaPath) ? schemaPath : [schemaPath]) : [];
+  const schemaHashes = schemas.map(fileHash);
+  if (!sourceHash || schemaHashes.some(hash => !hash)) return null;
+  const scriptHash = crypto.createHash('sha256').update(JSON.stringify([sourceHash, ...schemaHashes])).digest('hex');
+  const inputHashes = {};
+  for (const entry of inputs) {
+    const input = typeof entry === 'string' ? entry : entry.path;
+    const optional = typeof entry === 'object' && entry.optional === true;
+    const hash = fileHash(input);
+    if (!hash && !optional) return null;
+    inputHashes[path.resolve(input)] = hash;
   }
-  return true;
+  return { scriptHash, inputs: inputHashes };
+}
+
+function isCurrent(output, inputs, scriptPath, schemaPath = null) {
+  if (!fileExists(output)) return false;
+  const previousPath = signaturePath(output);
+  if (!fileExists(previousPath)) return false;
+  try {
+    const previous = JSON.parse(fs.readFileSync(previousPath, 'utf8'));
+    const current = phaseSignature(scriptPath, inputs, schemaPath);
+    return isFreshBySignature(previous, current);
+  } catch {
+    return false;
+  }
+}
+
+function writePhaseSignature(output, inputs, scriptPath, schemaPath = null) {
+  const signature = phaseSignature(scriptPath, inputs, schemaPath);
+  if (!signature) throw new Error(`Cannot fingerprint all inputs for ${path.basename(output)}`);
+  fs.writeFileSync(signaturePath(output), JSON.stringify(signature, null, 2) + '\\n');
+}
+
+async function validateArtifact(schemaName, artifactPath, cwd) {
+  const sharedRoot = path.resolve(__dirname, '..', '..', '..', 'shared');
+  const validator = path.join(sharedRoot, 'scripts', 'validate.mjs');
+  const schema = path.join(sharedRoot, 'schemas', schemaName);
+  const result = await runCmd(process.execPath, [validator, schema, artifactPath], cwd, 30000);
+  return result.ok ? null : (result.stdout || result.stderr || `schema validation failed: ${schemaName}`).slice(0, 500);
 }
 
 // ── E0: readiness check ────────────────────────────────────────────────
@@ -216,6 +261,8 @@ async function launchScripts(runDir) {
         '--run-dir', runDir,
       ]),
       output: path.join(enhanceDir, 'analysis_coverage.json'),
+      script: path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'coverage_builder.py'),
+      schema: 'analysis_coverage_schema.json',
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
         path.join(runDir, '02_processed', 'feature_summary.json'),
@@ -232,9 +279,12 @@ async function launchScripts(runDir) {
         '--run-dir', runDir,
       ]),
       output: path.join(enhanceDir, 'derived_features.json'),
+      script: path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'derived_feature_builder.py'),
+      schema: 'derived_features_schema.json',
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
         path.join(runDir, '02_processed', 'cleaned_data.csv'),
+        path.join(runDir, '02_processed', 'analysis_parameter_selection.json'),
         path.join(enhanceDir, 'analysis_coverage.json'),
       ],
     },
@@ -246,26 +296,19 @@ async function launchScripts(runDir) {
         '--run-dir', runDir,
       ]),
       output: path.join(enhanceDir, 'deep_data_analysis.json'),
+      graphOutput: path.join(enhanceDir, 'association_graph.json'),
+      graphSchema: 'association_graph_schema.json',
+      script: path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'conditional_analysis.py'),
+      schema: 'deep_data_analysis_schema.json',
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
         path.join(runDir, '02_processed', 'cleaned_data.csv'),
+        path.join(runDir, '02_processed', 'analysis_parameter_selection.json'),
+        { path: path.join(runDir, '02_processed', 'production_regime_filter.json'), optional: true },
+        { path: path.join(enhanceDir, 'derived_data.csv'), optional: true },
         path.join(enhanceDir, 'analysis_coverage.json'),
         path.join(enhanceDir, 'derived_features.json'),
         path.join(runDir, '02_processed', 'data_analysis_conclusion.json'),
-      ],
-    },
-    {
-      phase: 'E3.5',
-      cmd: UV_CMD,
-      args: pythonArgs([
-        path.join(skillRoot, 'industrial-deep-analysis', 'scripts', 'association_graph_builder.py'),
-        '--run-dir', runDir,
-      ]),
-      output: path.join(enhanceDir, 'association_graph.json'),
-      inputs: [
-        path.join(runDir, '01_ontology', 'ontology.json'),
-        path.join(runDir, '02_processed', 'cleaned_data.csv'),
-        path.join(enhanceDir, 'deep_data_analysis.json'),
       ],
     },
     {
@@ -276,23 +319,43 @@ async function launchScripts(runDir) {
         '--run-dir', runDir,
       ]),
       output: path.join(enhanceDir, 'physics_bridge.json'),
+      script: path.join(skillRoot, 'industrial-physics-bridge', 'scripts', 'physics_bridge_builder.py'),
+      schema: 'physics_bridge_schema.json',
       inputs: [
         path.join(runDir, '01_ontology', 'ontology.json'),
+        path.join(runDir, '02_processed', 'analysis_parameter_selection.json'),
+        { path: path.join(runDir, '02_processed', 'production_regime_filter.json'), optional: true },
+        { path: path.join(enhanceDir, 'derived_data.csv'), optional: true },
         path.join(runDir, '04_diagnostics', 'diagnosis.json'),
         path.join(runDir, '04_diagnostics', 'evidence.json'),
         path.join(runDir, '04_diagnostics', 'confidence.json'),
         path.join(runDir, '04_diagnostics', 'reasoning_chain.json'),
         path.join(runDir, '03_figures', 'visual_analysis.json'),
+        { path: path.join(runDir, '00_input', 'rag_deep_understanding.json'), optional: true },
         path.join(enhanceDir, 'deep_data_analysis.json'),
+        path.join(enhanceDir, 'association_graph.json'),
       ],
     },
   ];
 
   const results = [];
+  const schemaFile = (name) => path.join(path.resolve(__dirname, '..', '..', '..', 'shared', 'schemas'), name);
   for (const s of scripts) {
-    if (isNewerThan(s.output, s.inputs)) {
-      results.push({ phase: s.phase, status: 'skipped', reason: 'output is current' });
-      continue;
+    const output = s.output;
+    const schemaPath = s.graphSchema ? [schemaFile(s.schema), schemaFile(s.graphSchema)] : schemaFile(s.schema);
+    const graphSchemaPath = s.graphSchema ? schemaFile(s.graphSchema) : null;
+    const graphCurrent = s.phase !== 'E3' || isCurrent(s.graphOutput, s.inputs, s.script, graphSchemaPath);
+    if (isCurrent(output, s.inputs, s.script, schemaPath) && graphCurrent) {
+      const graphError = s.phase === 'E3' ? await validateArtifact(s.graphSchema, s.graphOutput, runDir) : null;
+      if (!graphError) {
+        results.push({ phase: s.phase, status: 'skipped', reason: 'input+script signatures are current' });
+        continue;
+      }
+    }
+    if (s.phase === 'E3') {
+      for (const stale of [s.output, signaturePath(s.output), s.graphOutput, signaturePath(s.graphOutput)]) {
+        try { fs.rmSync(stale, { force: true }); } catch (_) {}
+      }
     }
     const r = await runCmd(s.cmd, s.args, runDir, 120000);
     results.push({
@@ -301,71 +364,106 @@ async function launchScripts(runDir) {
       code: r.code,
       stderr: r.stderr ? r.stderr.slice(0, 500) : '',
     });
-    if (!r.ok) {
+    if (!r.ok) return { ok: false, results };
+    if (!fileExists(output)) {
+      results.push({ phase: s.phase, status: 'failed', reason: `output ${output} not created` });
       return { ok: false, results };
     }
-    // Verify output was created
-    if (!fileExists(s.output)) {
-      results.push({ phase: s.phase, status: 'failed', reason: `output ${s.output} not created` });
+    const validationError = await validateArtifact(s.schema, output, runDir);
+    if (validationError) {
+      results.push({ phase: s.phase, status: 'failed', reason: validationError });
       return { ok: false, results };
     }
+    if (s.phase === 'E3') {
+      if (!fileExists(s.graphOutput)) {
+        results.push({ phase: s.phase, status: 'failed', reason: 'E3 did not emit association_graph.json' });
+        return { ok: false, results };
+      }
+      const graphError = await validateArtifact(s.graphSchema, s.graphOutput, runDir);
+      if (graphError) {
+        results.push({ phase: s.phase, status: 'failed', reason: graphError });
+        return { ok: false, results };
+      }
+      writePhaseSignature(s.graphOutput, s.inputs, s.script, graphSchemaPath);
+    }
+    writePhaseSignature(output, s.inputs, s.script, schemaPath);
   }
 
   // E6: knowledge fusion
   const fusionOutput = path.join(enhanceDir, 'enhanced_knowledge.json');
   const fusionScript = path.join(__dirname, 'knowledge_fusion.py');
-  const fusionResult = await runCmd(UV_CMD, pythonArgs([fusionScript, '--run-dir', runDir, '--output', fusionOutput]), runDir);
-  results.push({
-    phase: 'E6',
-    status: fusionResult.ok ? 'ok' : 'failed',
-    code: fusionResult.code,
-    stderr: fusionResult.stderr ? fusionResult.stderr.slice(0, 500) : '',
-  });
-  if (!fusionResult.ok) return { ok: false, results };
+  const fusionInputs = [
+    path.join(enhanceDir, 'analysis_coverage.json'),
+    path.join(enhanceDir, 'derived_features.json'),
+    path.join(enhanceDir, 'deep_data_analysis.json'),
+    path.join(enhanceDir, 'association_graph.json'),
+    path.join(enhanceDir, 'physics_bridge.json'),
+    path.join(runDir, '04_diagnostics', 'diagnosis.json'),
+    path.join(runDir, '04_diagnostics', 'evidence.json'),
+    path.join(runDir, '04_diagnostics', 'confidence.json'),
+    path.join(runDir, '04_diagnostics', 'reasoning_chain.json'),
+  ];
+  const knowledgeSchema = schemaFile('enhanced_knowledge_schema.json');
+  if (!isCurrent(fusionOutput, fusionInputs, fusionScript, knowledgeSchema)) {
+    const fusionResult = await runCmd(UV_CMD, pythonArgs([fusionScript, '--run-dir', runDir, '--output', fusionOutput]), runDir);
+    results.push({ phase: 'E6', status: fusionResult.ok ? 'ok' : 'failed', code: fusionResult.code,
+      stderr: fusionResult.stderr ? fusionResult.stderr.slice(0, 500) : '' });
+    if (!fusionResult.ok) return { ok: false, results };
+    if (!fileExists(fusionOutput)) return { ok: false, results: [...results, { phase: 'E6', status: 'failed', reason: 'enhanced_knowledge.json not created' }] };
+    const validationError = await validateArtifact('enhanced_knowledge_schema.json', fusionOutput, runDir);
+    if (validationError) return { ok: false, results: [...results, { phase: 'E6', status: 'failed', reason: validationError }] };
+    writePhaseSignature(fusionOutput, fusionInputs, fusionScript, knowledgeSchema);
+  } else {
+    results.push({ phase: 'E6', status: 'skipped', reason: 'input+script signature is current' });
+  }
 
   // E7a: markdown publisher
   const mdOutput = path.join(enhanceDir, 'enhanced_analysis.md');
   const tmplPath = path.join(__dirname, '..', 'templates', 'enhanced_analysis.md.tmpl');
   const pubScript = path.join(__dirname, 'markdown_publisher.py');
-  const pubResult = await runCmd(UV_CMD, pythonArgs([pubScript, '--knowledge', fusionOutput, '--template', tmplPath, '--output', mdOutput]), runDir);
-  results.push({
-    phase: 'E7a',
-    status: pubResult.ok ? 'ok' : 'failed',
-    code: pubResult.code,
-    stderr: pubResult.stderr ? pubResult.stderr.slice(0, 500) : '',
-  });
+  const pubInputs = [fusionOutput, tmplPath];
+  if (!isCurrent(mdOutput, pubInputs, pubScript)) {
+    const pubResult = await runCmd(UV_CMD, pythonArgs([pubScript, '--knowledge', fusionOutput, '--template', tmplPath, '--output', mdOutput]), runDir);
+    results.push({ phase: 'E7a', status: pubResult.ok ? 'ok' : 'failed', code: pubResult.code,
+      stderr: pubResult.stderr ? pubResult.stderr.slice(0, 500) : '' });
+    if (!pubResult.ok || !fileExists(mdOutput)) return { ok: false, results };
+    writePhaseSignature(mdOutput, pubInputs, pubScript);
+  } else {
+    results.push({ phase: 'E7a', status: 'skipped', reason: 'input+script signature is current' });
+  }
 
   // E7b: enhanced HTML visualizer
   const htmlOutput = path.join(enhanceDir, 'enhanced-analysis.html');
   const htmlBuilderScript = path.join(skillRoot, 'industrial-enhanced-html-visualizer', 'scripts', 'html_builder.py');
-  const htmlResult = await runCmd(UV_CMD, pythonArgs([htmlBuilderScript, '--knowledge', fusionOutput, '--output', htmlOutput]), runDir);
-  results.push({
-    phase: 'E7b',
-    status: htmlResult.ok ? 'ok' : 'failed',
-    code: htmlResult.code,
-    stderr: htmlResult.stderr ? htmlResult.stderr.slice(0, 500) : '',
-  });
+  const htmlInputs = [fusionOutput];
+  if (!isCurrent(htmlOutput, htmlInputs, htmlBuilderScript)) {
+    const htmlResult = await runCmd(UV_CMD, pythonArgs([htmlBuilderScript, '--knowledge', fusionOutput, '--output', htmlOutput]), runDir);
+    results.push({ phase: 'E7b', status: htmlResult.ok ? 'ok' : 'failed', code: htmlResult.code,
+      stderr: htmlResult.stderr ? htmlResult.stderr.slice(0, 500) : '' });
+    if (!htmlResult.ok || !fileExists(htmlOutput)) return { ok: false, results };
+    writePhaseSignature(htmlOutput, htmlInputs, htmlBuilderScript);
+  } else {
+    results.push({ phase: 'E7b', status: 'skipped', reason: 'input+script signature is current' });
+  }
 
-  // E7c: enhanced HTML reviewer
+  // E7c: HTML review verdict is a release gate, not merely a successful subprocess.
   const reviewOutput = path.join(enhanceDir, 'enhancement_html_review.json');
   const selfcheckPath = path.join(enhanceDir, 'html_selfcheck.json');
   const reviewerScript = path.join(skillRoot, 'industrial-enhanced-html-reviewer', 'scripts', 'html_reviewer.py');
   const reviewResult = await runCmd(UV_CMD, pythonArgs([reviewerScript, '--knowledge', fusionOutput, '--html', htmlOutput, '--output', reviewOutput, '--selfcheck', selfcheckPath]), runDir);
-  results.push({
-    phase: 'E7c',
-    status: reviewResult.ok ? 'ok' : 'failed',
-    code: reviewResult.code,
-    stderr: reviewResult.stderr ? reviewResult.stderr.slice(0, 500) : '',
-  });
+  results.push({ phase: 'E7c', status: reviewResult.ok ? 'ok' : 'failed', code: reviewResult.code,
+    stderr: reviewResult.stderr ? reviewResult.stderr.slice(0, 500) : '' });
+  if (!reviewResult.ok || !fileExists(reviewOutput)) return { ok: false, results };
+  const reviewValidation = await validateArtifact('enhancement_html_review_schema.json', reviewOutput, runDir);
+  if (reviewValidation) return { ok: false, results: [...results, { phase: 'E7c', status: 'failed', reason: reviewValidation }] };
+  let review;
+  try { review = JSON.parse(fs.readFileSync(reviewOutput, 'utf8')); }
+  catch { return { ok: false, results: [...results, { phase: 'E7c', status: 'failed', reason: 'review JSON is unreadable' }] }; }
+  if (!reviewIsPassing(review)) {
+    return { ok: false, results: [...results, { phase: 'E7c', status: 'failed', reason: `review verdict=${review.verdict}` }] };
+  }
 
-  return {
-    ok: fusionResult.ok && pubResult.ok && htmlResult.ok && reviewResult.ok,
-    results,
-    fusionOutput,
-    markdownOutput: mdOutput,
-    htmlOutput,
-    reviewOutput,
-  };
+  return { ok: true, results, fusionOutput, markdownOutput: mdOutput, htmlOutput, reviewOutput };
 }
 
 // ── E8: finalize ──────────────────────────────────────────────────────
@@ -374,13 +472,13 @@ function finalize(runDir, manifest, launchResults) {
   const enhanceDir = path.join(runDir, 'enhancement');
   const kbPath = path.join(enhanceDir, 'enhanced_knowledge.json');
 
-  let enhancementStatus = 'FAILED';
+  let knowledgeStatus = 'FAILED';
   let warnings = [];
 
   if (fileExists(kbPath)) {
     try {
       const kb = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
-      enhancementStatus = kb.enhancement_status || 'FAILED';
+      knowledgeStatus = kb.enhancement_status || 'FAILED';
 
       // Count CONFOUNDED and NOT_IDENTIFIABLE among edges that carry a real
       // operability verdict (UNCLASSIFIED graph edges from the full pairwise
@@ -393,7 +491,7 @@ function finalize(runDir, manifest, launchResults) {
         (e) => e.operability === 'CONFOUNDED' || e.operability === 'NOT_IDENTIFIABLE'
       ).length;
       if (classified.length > 0 && confoundedCount / classified.length > 0.3) {
-        if (enhancementStatus !== 'READY_WITH_WARNINGS') {
+        if (knowledgeStatus !== 'READY_WITH_WARNINGS') {
           warnings.push(
             `${confoundedCount}/${relationships.length} relationships are CONFOUNDED or NOT_IDENTIFIABLE (>30%)`
           );
@@ -403,6 +501,17 @@ function finalize(runDir, manifest, launchResults) {
       warnings.push('Failed to parse enhanced_knowledge.json');
     }
   }
+
+  let review = null;
+  const reviewPath = path.join(enhanceDir, 'enhancement_html_review.json');
+  try {
+    if (fileExists(reviewPath)) review = JSON.parse(fs.readFileSync(reviewPath, 'utf8'));
+  } catch { /* invalid or stale review remains a hard failure below */ }
+  const launchOk = launchResults.ok === true;
+  const enhancementStatus = resolveEnhancementStatus({ launchOk, knowledgeStatus, review });
+  if (!launchOk) warnings.push('One or more required enhancement stages failed; stale prior artifacts cannot mark this run READY.');
+  if (review && review.verdict !== 'pass') warnings.push(`HTML reviewer verdict=${review.verdict}; READY is blocked.`);
+  if (!review) warnings.push('HTML review artifact is missing or unreadable.');
 
   const statusObj = {
     status: enhancementStatus,
@@ -436,21 +545,27 @@ async function main() {
   let dataPath = null;
   let name = null;
   let baseDir = null;
+  let requestedMode = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--run-dir' && i + 1 < args.length) runDir = args[++i];
     if (args[i] === '--data-path' && i + 1 < args.length) dataPath = args[++i];
     if (args[i] === '--name' && i + 1 < args.length) name = args[++i];
     if (args[i] === '--base-dir' && i + 1 < args.length) baseDir = args[++i];
+    if (args[i] === '--mode' && i + 1 < args.length) requestedMode = args[++i];
+  }
+  if (requestedMode && !['fast', 'full'].includes(requestedMode)) {
+    console.error(`ERROR: invalid --mode ${JSON.stringify(requestedMode)}; expected fast or full`);
+    process.exit(2);
   }
 
   // Mode A: no --run-dir but --data-path given → initialize the run dir first
   if (!runDir && dataPath) {
     if (!name) {
-      console.error('Usage (entry A): node enhance_orchestrator.mjs --data-path <data> --name <run_name> [--base-dir <dir>]');
+      console.error('Usage (entry A): node enhance_orchestrator.mjs --data-path <data> --name <run_name> [--mode fast|full] [--base-dir <dir>]');
       process.exit(1);
     }
-    const initArgs = ['--data-path', dataPath, '--name', name];
+    const initArgs = ['--data-path', dataPath, '--name', name, '--mode', requestedMode || 'full'];
     if (baseDir) initArgs.push('--base-dir', baseDir);
     const initScript = path.join(__dirname, 'entry_a_init.mjs');
     const initResult = await runCmd(process.execPath, [initScript, ...initArgs], process.cwd(), 120000);
@@ -491,6 +606,17 @@ async function main() {
   }
 
   runDir = path.resolve(runDir);
+  const configPath = path.join(runDir, '00_input', 'run_config.json');
+  let runConfig = null;
+  try { runConfig = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch { /* E0 reports the missing/corrupt config */ }
+  if (runConfig && !['fast', 'full'].includes(runConfig.run_mode)) {
+    console.error(`ERROR: run_config.run_mode must be fast or full; got ${JSON.stringify(runConfig.run_mode)}`);
+    process.exit(2);
+  }
+  if (requestedMode && runConfig && requestedMode !== runConfig.run_mode) {
+    console.error(`ERROR: --mode ${requestedMode} does not match RUN_DIR run_mode ${runConfig.run_mode}`);
+    process.exit(2);
+  }
 
   // E0: readiness check
   const ready = readinessCheck(runDir, dataPath);

@@ -8,9 +8,23 @@ import path from 'path';
 const args = process.argv.slice(2);
 const nameIdx = args.indexOf('--name');
 const baseIdx = args.indexOf('--base-dir');
+const modeIdx = args.indexOf('--mode');
+const runMode = modeIdx === -1 ? 'full' : args[modeIdx + 1];
+if (!['fast', 'full'].includes(runMode)) {
+  console.error(`ERROR: invalid --mode ${JSON.stringify(runMode)}; expected fast or full`);
+  process.exit(2);
+}
 
 const name = nameIdx !== -1 ? args[nameIdx + 1] : `run_${Date.now()}`;
 const baseDir = baseIdx !== -1 ? args[baseIdx + 1] : './workspace/diagnostic-runs';
+if (nameIdx !== -1 && !args[nameIdx + 1]) {
+  console.error('ERROR: --name requires a value');
+  process.exit(2);
+}
+if (baseIdx !== -1 && !args[baseIdx + 1]) {
+  console.error('ERROR: --base-dir requires a value');
+  process.exit(2);
+}
 
 const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 15);
 const runDir = path.join(baseDir, `${timestamp}_${name}`);
@@ -46,6 +60,7 @@ for (const sub of subdirs) {
 const defaultRunConfig = {
   data_path: '',
   interaction_mode: 'auto',
+  run_mode: runMode,
   ontology: { mode: 'auto', source: null },
   enhancement: { policy: 'auto', intent_hit: false },
   process_description: '',
@@ -76,6 +91,15 @@ const manifest = {
     outputs: [],
     notes: []
   })),
+  execution_policy: {
+    run_mode: runMode,
+    conditional_stages: {
+      data_profile_prepass: runMode === 'full' ? 'eligible_if_rows_over_20k' : 'skip',
+      vlm_analysis: runMode === 'full' ? 'eligible_if_vision_available' : 'max_4_critical_or_skip',
+      pre_report_audit: runMode === 'full' ? 'run' : 'skip',
+    },
+    audit: { skipped_stages: [], dispatch_budget_advisory: true },
+  },
   delivery_contract: {
     strict_pipeline_required: true,
     evidence_closure_required: true,
