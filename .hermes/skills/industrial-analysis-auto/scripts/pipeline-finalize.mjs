@@ -212,10 +212,10 @@ function runInventory() {
       const hasTimeCol = Boolean(inputManifest && (inputManifest.time_column || inputManifest.data_profile?.time_column));
       const temporalPlot = Array.isArray(plotManifest?.plots)
         ? plotManifest.plots.find(p => {
-          const h = [p.file, p.filename, p.title, p.plot_type, p.description].filter(Boolean).join(' ').toLowerCase();
+          const h = [p.file, p.filename, p.path, p.title, p.plot_type, p.description].filter(Boolean).join(' ').toLowerCase();
           return /temporal|time|timeline|aligned|overlay|process_health|时序|时间|对齐|叠加|工艺健康/.test(h);
         }) : null;
-      const tpath = temporalPlot ? (temporalPlot.file || temporalPlot.filename || '') : '';
+      const tpath = temporalPlot ? (temporalPlot.file || temporalPlot.filename || temporalPlot.path || '') : '';
       const normalized = tpath.startsWith('03_figures/') ? tpath : (tpath ? `03_figures/${tpath}` : '03_figures/<temporal-plot>');
 
       if (hasTimeCol) {

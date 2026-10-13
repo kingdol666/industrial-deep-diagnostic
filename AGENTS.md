@@ -220,12 +220,11 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 | `.claude/agents/<name>.md` | Claude Code format agent definition (not loaded by OMP, used only by native Claude Code) |
 
 ### Key Scripts
-- `setup.mjs` — creates the run directory structure
+- `setup.mjs` — creates the run directory structure (validates `--mode fast|full`)
 - `inspect.mjs` — data file inspection (streaming CSV/JSON/TSV parsing)
-- `stats.mjs` — advanced statistical analysis engine (Pearson/Spearman/stratification/lagged CCF/multiple testing)
-- `stats_validate.mjs` — statistical validation and robustness engine
+- `stats/` (`industrial-data-processor/scripts/stats/`) — deterministic statistical engine (`run.py` entry; core_stats / anti_spurious / batch_integrity: Pearson/Spearman/stratification/lagged CCF/multiple testing) — replaces the retired `stats.mjs` / `stats_validate.mjs`
 - `validate.mjs` — JSON Schema runtime validation (zero dependencies)
-- `artifact-check.mjs` — pipeline artifact completeness validation
+- `pipeline-finalize.mjs` — unified finalization (artifact inventory + schema sweep + evidence closure + judge cross-audit + event archive; absorbs the retired `artifact-check.mjs`)
 - `pipeline-log-check.mjs` — pipeline event log audit
 - `physics_check.py` / `dp_toolkit.py` — physical constraint validation
 - `visual_analysis.py` — VLM visual analysis

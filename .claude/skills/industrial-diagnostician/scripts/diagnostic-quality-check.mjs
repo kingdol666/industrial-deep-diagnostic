@@ -186,7 +186,8 @@ if (!nonEmptyArray(adjLog)) {
     'confidence.json 的 adjustment_log 为空，所有假设无置信度调整。');
 } else {
   for (const adj of adjLog) {
-    if (!adj.hypothesis_id || !adj.adjustment || !adj.reason) {
+    // adjustment 0 是合法账目（计入考量、净值为零）—— 只缺字段才告警
+    if (!adj.hypothesis_id || adj.adjustment === undefined || adj.adjustment === null || !adj.reason) {
       addIssue(issues, 'warning', 'CONFIDENCE_ADJUSTMENT_INCOMPLETE',
         'adjustment_log 某条缺少 hypothesis_id/adjustment/reason。');
     }
@@ -333,7 +334,18 @@ if (exists('03_figures/visual_analysis.json')) {
   if (visual.observation_mode === 'skeleton_pre_vlm') {
     addIssue(issues, 'critical', 'VLM_LEFT_AS_SKELETON', 'visual_analysis.json 仍为 skeleton_pre_vlm。');
   }
-  if (visualProvenance.source_agent !== 'vlm-visual-analyzer') {
+  // fast 模式 VLM 跳过契约：metadata 推理产物（未派发 VLM）的合法作者是
+  // data-processor（与 pipeline-log-check 的 METADATA_BACKED_SOURCE_MISSING 一致）；
+  // 只有 VLM 真正运行时才要求 vlm-visual-analyzer 归属。
+  const metadataModes = ['metadata_backed_inference', 'metadata_fallback', 'skeleton_pre_vlm'];
+  const vlmDidNotRun = metadataModes.includes(visual.observation_mode)
+    || metadataModes.includes(visualProvenance.stage)
+    || visual.vlm_dispatched === false;
+  if (vlmDidNotRun) {
+    if (visualProvenance.source_agent !== 'data-processor') {
+      addIssue(issues, 'critical', 'VLM_METADATA_SOURCE_INVALID', 'metadata_fallback 的 visual_analysis.json 必须由 data-processor 署名（vlm_dispatched:false）。');
+    }
+  } else if (visualProvenance.source_agent !== 'vlm-visual-analyzer') {
     addIssue(issues, 'critical', 'VLM_SOURCE_NOT_PROVEN', 'visual_analysis.json 未证明由 vlm-visual-analyzer 生成。');
   }
 }

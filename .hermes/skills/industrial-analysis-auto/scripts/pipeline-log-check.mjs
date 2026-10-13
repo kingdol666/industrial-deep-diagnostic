@@ -343,7 +343,13 @@ for (const agent of requiredAgents) {
       const previousAgentSteps = requiredPreviousStepsForAgent(agent, firstStart);
       const missingPrereqs = previousAgentSteps.filter((step) => {
         const prereqAgent = Object.keys(agentToStep).find((key) => agentToStep[key] === step);
-        return prereqAgent && agentState.get(prereqAgent)?.completes?.length === 0;
+        if (!prereqAgent) return false;
+        if (agentState.get(prereqAgent)?.completes?.length > 0) return false;
+        // Fast-path / main-agent remediation: a step_complete for the prereq
+        // step (e.g. context_builder via deterministic fast-reuse, where the
+        // context-builder agent is never dispatched) proves the stage done —
+        // same equivalence as completesEquivalent below.
+        return !events.some((e) => e.event === 'step_complete' && e.step === step);
       });
       if (missingPrereqs.length > 0) {
         issues.push({

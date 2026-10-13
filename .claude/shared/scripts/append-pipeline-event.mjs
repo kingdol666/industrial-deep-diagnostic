@@ -29,6 +29,10 @@ const VALID_EVENTS = new Set([
   'artifact_finalize_start',
   'artifact_finalize_complete',
   'artifact_check_complete',
+  // documented conditional-stage skips (SKILL.md Step 9.5 / Step 10):
+  // non-blocking degrade markers — never gate run_completed
+  'experience_skipped',
+  'enhance_skipped',
   'run_completed',
   'run_failed'
 ]);
