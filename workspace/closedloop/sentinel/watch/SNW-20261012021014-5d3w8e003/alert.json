@@ -1,0 +1,1255 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261012-021014-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-12T02:10:14.794187+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\diag-r2-full.csv",
+    "sha256": "3683de1f83d114de2b0ce739e97e5976b88f8a91f0e53f7f5cef0920726043c6",
+    "window_start": "2026-10-12T09:50:14.000+08:00",
+    "window_end": "2026-10-12T10:10:13.000+08:00",
+    "n_rows": 575,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\A2O-ln0d5bfeac\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 32,
+      "rules_hit": {
+        "NELSON_R1": 10,
+        "NELSON_R5": 6,
+        "NELSON_R6": 9,
+        "NELSON_R2": 6,
+        "NELSON_R3": 1
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "steady": 575
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 1,
+      "max_d2": null
+    },
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 9,
+    "events_by_parameter": {
+      "spc|进水氨氮(dn-74a93dd4)": {
+        "count": 1,
+        "alerts": 13
+      },
+      "spc|进水COD(dn-918bbaa8)": {
+        "count": 3,
+        "alerts": 12
+      },
+      "spc|好氧区DO(dn-70fb6d7d)": {
+        "count": 3,
+        "alerts": 5
+      },
+      "spc|风压PV(dn-884bca68)": {
+        "count": 1,
+        "alerts": 2
+      },
+      "multivariate|好氧区DO(dn-70fb6d7d)": {
+        "count": 1,
+        "alerts": 1
+      }
+    }
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261012-021014-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 5.2,
+        "statistic": 14.672145562499987,
+        "index": 376,
+        "run_length": 575
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 575
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 稳健 z 分数 |14.67| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 5.1,
+        "statistic": 14.426403671111327,
+        "index": 574,
+        "timestamp": "row 574",
+        "run_length": 575
+      },
+      "threshold": {
+        "bound": 0.24175200000000002,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 575
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 437.0,
+        "statistic": 3.005072491884271,
+        "index": 11,
+        "timestamp": "row 11",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 16.661451814768462,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 401.0,
+        "statistic": -3.4769556771298133,
+        "index": 125,
+        "timestamp": "row 125",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 16.661451814768462,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-005",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 403.0,
+        "statistic": -3.1168430010734753,
+        "index": 305,
+        "timestamp": "row 305",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 16.661451814768462,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261012-021014-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 440.0,
+        "statistic": 3.545241505968778,
+        "index": 478,
+        "timestamp": "row 478",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 16.661451814768462,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261012-021014-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 33.1,
+        "statistic": -3.3849563301477787,
+        "index": 4,
+        "timestamp": "row 4",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 1.6947453848560707,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 37.3,
+        "statistic": 4.04978880182971,
+        "index": 113,
+        "timestamp": "row 113",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 1.6947453848560707,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 37.1,
+        "statistic": 3.695753319354598,
+        "index": 220,
+        "timestamp": "row 220",
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 1.6947453848560707,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261012-021014-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 37.8,
+        "statistic": 4.9348775080175065,
+        "index": 539,
+        "timestamp": "row 539",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 1.6947453848560707,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "风压PV(dn-884bca68)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 57.8,
+        "statistic": -3.2255486405367053,
+        "index": 211,
+        "timestamp": "row 211",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 2.3648711812436902,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "风压PV(dn-884bca68) 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|风压PV(dn-884bca68)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-012",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 5.1,
+        "statistic": 14.426403671111327,
+        "index": 574,
+        "timestamp": "row 574",
+        "run_length": 575
+      },
+      "threshold": {
+        "bound": 0.161168,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 575
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-013",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 414.0,
+        "statistic": -1.1362232827636163,
+        "index": 2,
+        "timestamp": "row 2",
+        "run_length": 3
+      },
+      "threshold": {
+        "bound": 11.107634543178975,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水COD(dn-918bbaa8)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261012-021014-014",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 429.0,
+        "statistic": 1.5646217876589188,
+        "index": 107,
+        "timestamp": "row 107",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 11.107634543178975,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水COD(dn-918bbaa8)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261012-021014-015",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 411.0,
+        "statistic": -1.6763922968481233,
+        "index": 306,
+        "timestamp": "row 306",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 11.107634543178975,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水COD(dn-918bbaa8)",
+      "repeat_count": 14
+    },
+    {
+      "alert_id": "ALT-20261012-021014-016",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 34.6,
+        "statistic": -0.7296902115843874,
+        "index": 5,
+        "timestamp": "row 5",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 1.129830256570714,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 15
+    },
+    {
+      "alert_id": "ALT-20261012-021014-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 35.1,
+        "statistic": 0.15539849460340965,
+        "index": 398,
+        "timestamp": "row 398",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 1.129830256570714,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261012-021014-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 5.1,
+        "statistic": 14.426403671111327,
+        "index": 574,
+        "timestamp": "row 574",
+        "run_length": 575
+      },
+      "threshold": {
+        "bound": 0.080584,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 575
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-019",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 417.0,
+        "statistic": -0.5960542686791093,
+        "index": 6,
+        "timestamp": "row 6",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": 5.553817271589487,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水COD(dn-918bbaa8)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-020",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 427.0,
+        "statistic": 1.2045091116025808,
+        "index": 175,
+        "timestamp": "row 175",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 5.553817271589487,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水COD(dn-918bbaa8)",
+      "repeat_count": 9
+    },
+    {
+      "alert_id": "ALT-20261012-021014-021",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 431.0,
+        "statistic": 1.9247344637152568,
+        "index": 524,
+        "timestamp": "row 524",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": 5.553817271589487,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水COD(dn-918bbaa8)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261012-021014-022",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 34.4,
+        "statistic": -1.0837256940595112,
+        "index": 7,
+        "timestamp": "row 7",
+        "run_length": 8
+      },
+      "threshold": {
+        "bound": 0.564915128285357,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 8
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-023",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 33.4,
+        "statistic": -2.8539031064351055,
+        "index": 199,
+        "timestamp": "row 199",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": 0.564915128285357,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261012-021014-024",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 35.4,
+        "statistic": 0.6864517183160829,
+        "index": 315,
+        "timestamp": "row 315",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": 0.564915128285357,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 5
+    },
+    {
+      "alert_id": "ALT-20261012-021014-025",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 34.6,
+        "statistic": -0.7296902115843874,
+        "index": 546,
+        "timestamp": "row 546",
+        "run_length": 8
+      },
+      "threshold": {
+        "bound": 0.564915128285357,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 8
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-026",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "风压PV(dn-884bca68)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 58.7,
+        "statistic": -2.0838374042485275,
+        "index": 156,
+        "timestamp": "row 156",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 0.7882903937478967,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "风压PV(dn-884bca68) 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|风压PV(dn-884bca68)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-027",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 5.01,
+        "statistic": 13.309556654333804,
+        "index": 8,
+        "timestamp": "row 8",
+        "run_length": 575
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 575
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-028",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 434.0,
+        "statistic": 2.464903477799764,
+        "index": 18,
+        "timestamp": "row 18",
+        "run_length": 10
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 10
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|进水COD(dn-918bbaa8)",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-021014-029",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 417.0,
+        "statistic": -0.5960542686791093,
+        "index": 331,
+        "timestamp": "row 331",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "进水COD(dn-918bbaa8) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|进水COD(dn-918bbaa8)",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261012-021014-030",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 35.4,
+        "statistic": 0.6864517183160829,
+        "index": 316,
+        "timestamp": "row 316",
+        "run_length": 14
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 14
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-031",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 34.6,
+        "statistic": -0.7296902115843874,
+        "index": 454,
+        "timestamp": "row 454",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-032",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 34.3,
+        "statistic": -1.2607434352970732,
+        "index": 562,
+        "timestamp": "row 562",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "进水氨氮(dn-74a93dd4) 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|进水氨氮(dn-74a93dd4)",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-021014-033",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 5.1,
+        "statistic": 14.426403671111327,
+        "index": 241,
+        "timestamp": "row 241",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "好氧区DO(dn-70fb6d7d) 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|好氧区DO(dn-70fb6d7d)",
+      "repeat_count": 2
+    }
+  ],
+  "events": [
+    {
+      "family": "spc",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 2,
+      "last_index": 175,
+      "span_rows": 173,
+      "alert_count": 7,
+      "rules": [
+        "NELSON_R5",
+        "NELSON_R6",
+        "NELSON_R1",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 3.4769556771298133,
+      "suppression_key": "__ALL__|spc|NELSON_R5|进水COD(dn-918bbaa8)",
+      "event_id": "EVT-20261012021014-001"
+    },
+    {
+      "family": "spc",
+      "parameter": "进水氨氮(dn-74a93dd4)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 4,
+      "last_index": 562,
+      "span_rows": 558,
+      "alert_count": 13,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R6",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 4.9348775080175065,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+      "event_id": "EVT-20261012021014-002"
+    },
+    {
+      "family": "spc",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 8,
+      "last_index": 8,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 13.309556654333804,
+      "suppression_key": "__ALL__|spc|NELSON_R2|好氧区DO(dn-70fb6d7d)",
+      "event_id": "EVT-20261012021014-003"
+    },
+    {
+      "family": "spc",
+      "parameter": "风压PV(dn-884bca68)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 156,
+      "last_index": 211,
+      "span_rows": 55,
+      "alert_count": 2,
+      "rules": [
+        "NELSON_R6",
+        "NELSON_R1"
+      ],
+      "max_abs_statistic": 3.2255486405367053,
+      "suppression_key": "__ALL__|spc|NELSON_R6|风压PV(dn-884bca68)",
+      "event_id": "EVT-20261012021014-004"
+    },
+    {
+      "family": "spc",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": 241,
+      "last_index": 241,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "NELSON_R3"
+      ],
+      "max_abs_statistic": 14.426403671111327,
+      "suppression_key": "__ALL__|spc|NELSON_R3|好氧区DO(dn-70fb6d7d)",
+      "event_id": "EVT-20261012021014-005"
+    },
+    {
+      "family": "spc",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 305,
+      "last_index": 331,
+      "span_rows": 26,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 3.1168430010734753,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "event_id": "EVT-20261012021014-006"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 376,
+      "last_index": 376,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 14.672145562499987,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|好氧区DO(dn-70fb6d7d)",
+      "event_id": "EVT-20261012021014-007"
+    },
+    {
+      "family": "spc",
+      "parameter": "进水COD(dn-918bbaa8)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 478,
+      "last_index": 524,
+      "span_rows": 46,
+      "alert_count": 2,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 3.545241505968778,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+      "event_id": "EVT-20261012021014-008"
+    },
+    {
+      "family": "spc",
+      "parameter": "好氧区DO(dn-70fb6d7d)",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 574,
+      "last_index": 574,
+      "span_rows": 0,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 14.426403671111327,
+      "suppression_key": "__ALL__|spc|NELSON_R1|好氧区DO(dn-70fb6d7d)",
+      "event_id": "EVT-20261012021014-009"
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "steady": 575
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|进水COD(dn-918bbaa8)",
+        "repeat_count": 10
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮(dn-74a93dd4)",
+        "repeat_count": 9
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|进水COD(dn-918bbaa8)",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R2|进水氨氮(dn-74a93dd4)",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R3|好氧区DO(dn-70fb6d7d)",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|进水COD(dn-918bbaa8)",
+        "repeat_count": 24
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|进水氨氮(dn-74a93dd4)",
+        "repeat_count": 18
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|进水COD(dn-918bbaa8)",
+        "repeat_count": 16
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|进水氨氮(dn-74a93dd4)",
+        "repeat_count": 12
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "3683de1f83d114de2b0ce739e97e5976b88f8a91f0e53f7f5cef0920726043c6",
+    "script_version": "1.0.0",
+    "duration_ms": 28,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

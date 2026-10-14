@@ -56,9 +56,9 @@
     },
     "ln-0d5bfeac": {
       "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-0d5bfeac\\watch_baseline.json",
-      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/merged-rr77e96-baseline-v2-5s.csv",
+      "history_csv": "D:/codes/industrial-deep-diagnostic/workspace/aw-exchange/a2o_round1_hist_114rows.csv",
       "doe_run_dir": null,
-      "registered_at": "2026-10-10T04:32:05.701Z"
+      "registered_at": "2026-10-12T02:20:50.277Z"
     },
     "A2O-ln0d5bfeac": {
       "baseline_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\A2O-ln0d5bfeac\\watch_baseline.json",
@@ -67,5 +67,5 @@
       "registered_at": "2026-10-11T02:23:31.000Z"
     }
   },
-  "last_line": "A2O-ln0d5bfeac"
+  "last_line": "ln-0d5bfeac"
 }

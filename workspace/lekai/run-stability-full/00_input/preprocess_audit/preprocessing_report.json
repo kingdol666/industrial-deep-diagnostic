@@ -1,0 +1,924 @@
+{
+  "run_name": "lekai-fw3-mdo-audit",
+  "input_path": "data\\lekaiData",
+  "input_is_directory": true,
+  "recursive_discovery": true,
+  "mode": "stability_single_primary_v1",
+  "sources": [],
+  "source_dispositions": [
+    {
+      "relative_path": "2026年杂质点统计.xlsx",
+      "sheet": "CCD点子统计",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 5511,
+      "columns": 44,
+      "time_column": "日期",
+      "score": 7.0,
+      "time_parseability": 0.3154,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "align_data.py",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .py is not a supported table/context format"
+    },
+    {
+      "relative_path": "align_multidefect.py",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .py is not a supported table/context format"
+    },
+    {
+      "relative_path": "aligned_multidefect.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 149,
+      "columns": 187,
+      "time_column": "ts_start",
+      "score": 95.149,
+      "time_parseability": 1.0
+    },
+    {
+      "relative_path": "aligned_scratch_process.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 55,
+      "columns": 182,
+      "time_column": "ts_start",
+      "score": 93.055,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "aligned_scratch_process_full.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 149,
+      "columns": 184,
+      "time_column": "ts_start",
+      "score": 93.149,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "diagnostic.db-wal.xlsx",
+      "sheet": "Sheet1",
+      "role": "tabular_without_time",
+      "disposition": "excluded_from_scoring",
+      "reason": "stability score requires a parseable time column",
+      "rows": 5,
+      "columns": 20,
+      "time_column": null
+    },
+    {
+      "relative_path": "EX.xlsx",
+      "sheet": "1",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 7,
+      "time_column": "time",
+      "score": 8.4,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "EX.xlsx",
+      "sheet": "2",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 7,
+      "time_column": "time",
+      "score": 8.4,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "EX.xlsx",
+      "sheet": "3",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8641,
+      "columns": 7,
+      "time_column": "column",
+      "score": 8.4,
+      "time_parseability": 0.9999,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_tempture.xlsx",
+      "sheet": "1",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 19,
+      "time_column": "time",
+      "score": 16.0,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_tempture.xlsx",
+      "sheet": "2",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 25,
+      "time_column": "time",
+      "score": 19.0,
+      "time_parseability": 0.9999,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_tempture.xlsx",
+      "sheet": "MD_tempture",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8641,
+      "columns": 19,
+      "time_column": "column",
+      "score": 16.0,
+      "time_parseability": 0.9999,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_torque.xlsx",
+      "sheet": "1",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 25,
+      "time_column": "time",
+      "score": 19.0,
+      "time_parseability": 0.9999,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_torque.xlsx",
+      "sheet": "2",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 21,
+      "time_column": "time",
+      "score": 17.0,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "MD_torque.xlsx",
+      "sheet": "3",
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8641,
+      "columns": 21,
+      "time_column": "column",
+      "score": 17.0,
+      "time_parseability": 0.9999,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "merged_process_data.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 8640,
+      "columns": 45,
+      "time_column": "time",
+      "score": 29.0,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "merged_process_data_full.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 25921,
+      "columns": 45,
+      "time_column": "time",
+      "score": 29.0,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "scratch_defects.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 1729,
+      "columns": 10,
+      "time_column": "date",
+      "score": 6.729,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    }
+  ],
+  "tables": [
+    {
+      "file": "2026年杂质点统计.xlsx",
+      "sheet": "CCD点子统计",
+      "format": "excel",
+      "n_rows": 5511,
+      "n_cols": 44,
+      "time_column": "日期",
+      "time_parseability": 0.3154,
+      "score": 7.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 3771,
+          "row_indices_0based": [
+            1738,
+            1739,
+            1740,
+            1741,
+            1742,
+            1743,
+            1744,
+            1745,
+            1746,
+            1747
+          ],
+          "row_indices_truncated": true,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 177089,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "aligned_multidefect.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 149,
+      "n_cols": 187,
+      "time_column": "ts_start",
+      "time_parseability": 1.0,
+      "score": 95.149,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "aligned_scratch_process.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 55,
+      "n_cols": 182,
+      "time_column": "ts_start",
+      "time_parseability": 1.0,
+      "score": 93.055,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "aligned_scratch_process_full.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 149,
+      "n_cols": 184,
+      "time_column": "ts_start",
+      "time_parseability": 1.0,
+      "score": 93.149,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "diagnostic.db-wal.xlsx",
+      "sheet": "Sheet1",
+      "format": "excel",
+      "n_rows": 5,
+      "n_cols": 20,
+      "time_column": null,
+      "time_parseability": 0.0,
+      "score": 3.005,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 30,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "1",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 7,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 8.4,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "2",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 7,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 8.4,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "3",
+      "format": "excel",
+      "n_rows": 8641,
+      "n_cols": 7,
+      "time_column": "column",
+      "time_parseability": 0.9999,
+      "score": 8.4,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "1",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 19,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 16.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "2",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 25,
+      "time_column": "time",
+      "time_parseability": 0.9999,
+      "score": 19.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 6,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "MD_tempture",
+      "format": "excel",
+      "n_rows": 8641,
+      "n_cols": 19,
+      "time_column": "column",
+      "time_parseability": 0.9999,
+      "score": 16.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "1",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 25,
+      "time_column": "time",
+      "time_parseability": 0.9999,
+      "score": 19.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 4,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "2",
+      "format": "excel",
+      "n_rows": 8640,
+      "n_cols": 21,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 17.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "3",
+      "format": "excel",
+      "n_rows": 8641,
+      "n_cols": 21,
+      "time_column": "column",
+      "time_parseability": 0.9999,
+      "score": 17.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "xlsx",
+        "delimiter": null
+      }
+    },
+    {
+      "file": "merged_process_data.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 8640,
+      "n_cols": 45,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 29.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 18,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "merged_process_data_full.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 25921,
+      "n_cols": 45,
+      "time_column": "time",
+      "time_parseability": 1.0,
+      "score": 29.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 18,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "scratch_defects.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 1729,
+      "n_cols": 10,
+      "time_column": "date",
+      "time_parseability": 1.0,
+      "score": 6.729,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 37,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "aligned_multidefect.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 149,
+    "n_cols": 187,
+    "time_column": "ts_start",
+    "time_parseability": 1.0,
+    "score": 95.149,
+    "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+  },
+  "merge": {
+    "strategy": "single_primary_no_merge",
+    "reason": "folder stability mode does not resample or combine different acquisition cadences",
+    "merged_files": []
+  },
+  "merge_exclusions": [
+    {
+      "file": "2026年杂质点统计.xlsx",
+      "sheet": "CCD点子统计",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "aligned_scratch_process.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "aligned_scratch_process_full.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "1",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "2",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "EX.xlsx",
+      "sheet": "3",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "1",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "2",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_tempture.xlsx",
+      "sheet": "MD_tempture",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "1",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "2",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "MD_torque.xlsx",
+      "sheet": "3",
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "merged_process_data.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "merged_process_data_full.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "scratch_defects.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    }
+  ],
+  "quality": {
+    "rows": 149,
+    "cols": 187,
+    "time_column": "ts_start",
+    "numeric_columns": [
+      "meters",
+      "film_points",
+      "oligomer",
+      "dust",
+      "bubbles",
+      "melt_spots",
+      "MD_TH001@PV_mean",
+      "MD_TH001@PV_std",
+      "MD_TH001@PV_min",
+      "MD_TH001@PV_max",
+      "MD_TH002@PV_mean",
+      "MD_TH002@PV_std",
+      "MD_TH002@PV_min",
+      "MD_TH002@PV_max",
+      "MD_TH003@PV_mean",
+      "MD_TH003@PV_std",
+      "MD_TH003@PV_min",
+      "MD_TH003@PV_max",
+      "MD_TH004@PV_mean",
+      "MD_TH004@PV_std",
+      "MD_TH004@PV_min",
+      "MD_TH004@PV_max",
+      "MD_TH005@PV_mean",
+      "MD_TH005@PV_std",
+      "MD_TH005@PV_min",
+      "MD_TH005@PV_max",
+      "MD_TH006@PV_mean",
+      "MD_TH006@PV_std",
+      "MD_TH006@PV_min",
+      "MD_TH006@PV_max",
+      "MD_TH007@PV_mean",
+      "MD_TH007@PV_std",
+      "MD_TH007@PV_min",
+      "MD_TH007@PV_max",
+      "MD_TH008@PV_mean",
+      "MD_TH008@PV_std",
+      "MD_TH008@PV_min",
+      "MD_TH008@PV_max",
+      "MD_TH009@PV_mean",
+      "MD_TH009@PV_std",
+      "MD_TH009@PV_min",
+      "MD_TH009@PV_max",
+      "MD_TH010@PV_mean",
+      "MD_TH010@PV_std",
+      "MD_TH010@PV_min",
+      "MD_TH010@PV_max",
+      "MD_TH011@PV_mean",
+      "MD_TH011@PV_std",
+      "MD_TH011@PV_min",
+      "MD_TH011@PV_max",
+      "MD_TH012@PV_mean",
+      "MD_TH012@PV_std",
+      "MD_TH012@PV_min",
+      "MD_TH012@PV_max",
+      "MD_TH013@PV_mean",
+      "MD_TH013@PV_std",
+      "MD_TH013@PV_min",
+      "MD_TH013@PV_max",
+      "MD_TH014@PV_mean",
+      "MD_TH014@PV_std",
+      "MD_TH014@PV_min",
+      "MD_TH014@PV_max",
+      "MD_TH015@PV_mean",
+      "MD_TH015@PV_std",
+      "MD_TH015@PV_min",
+      "MD_TH015@PV_max",
+      "MD_TH016@PV_mean",
+      "MD_TH016@PV_std",
+      "MD_TH016@PV_min",
+      "MD_TH016@PV_max",
+      "MD_TH017@PV_mean",
+      "MD_TH017@PV_std",
+      "MD_TH017@PV_min",
+      "MD_TH017@PV_max",
+      "MD_TH018@PV_mean",
+      "MD_TH018@PV_std",
+      "MD_TH018@PV_min",
+      "MD_TH018@PV_max",
+      "W1C40@PV1_mean",
+      "W1C40@PV1_std",
+      "W1C40@PV1_min",
+      "W1C40@PV1_max",
+      "W1C7C@PV1_mean",
+      "W1C7C@PV1_std",
+      "W1C7C@PV1_min",
+      "W1C7C@PV1_max",
+      "W1C7D@PV1_mean",
+      "W1C7D@PV1_std",
+      "W1C7D@PV1_min",
+      "W1C7D@PV1_max",
+      "W1C7E@PV1_mean",
+      "W1C7E@PV1_std",
+      "W1C7E@PV1_min",
+      "W1C7E@PV1_max",
+      "W1C7F@PV1_mean",
+      "W1C7F@PV1_std",
+      "W1C7F@PV1_min",
+      "W1C7F@PV1_max",
+      "W1C80@PV1_mean",
+      "W1C80@PV1_std",
+      "W1C80@PV1_min",
+      "W1C80@PV1_max",
+      "W1C81@PV1_mean",
+      "W1C81@PV1_std",
+      "W1C81@PV1_min",
+      "W1C81@PV1_max",
+      "W1C82@PV1_mean",
+      "W1C82@PV1_std",
+      "W1C82@PV1_min",
+      "W1C82@PV1_max",
+      "W1C83@PV1_mean",
+      "W1C83@PV1_std",
+      "W1C83@PV1_min",
+      "W1C83@PV1_max",
+      "W1C84@PV1_mean",
+      "W1C84@PV1_std",
+      "W1C84@PV1_min",
+      "W1C84@PV1_max",
+      "W1C85@PV1_mean",
+      "W1C85@PV1_std",
+      "W1C85@PV1_min",
+      "W1C85@PV1_max",
+      "W1C86@PV1_mean",
+      "W1C86@PV1_std",
+      "W1C86@PV1_min",
+      "W1C86@PV1_max",
+      "W1C4B@PV1_mean",
+      "W1C4B@PV1_std",
+      "W1C4B@PV1_min",
+      "W1C4B@PV1_max",
+      "W1C87@PV1_mean",
+      "W1C87@PV1_std",
+      "W1C87@PV1_min",
+      "W1C87@PV1_max",
+      "W1C88@PV1_mean",
+      "W1C88@PV1_std",
+      "W1C88@PV1_min",
+      "W1C88@PV1_max",
+      "W1C89@PV1_mean",
+      "W1C89@PV1_std",
+      "W1C89@PV1_min",
+      "W1C89@PV1_max",
+      "W1C8A@PV1_mean",
+      "W1C8A@PV1_std",
+      "W1C8A@PV1_min",
+      "W1C8A@PV1_max",
+      "W1C8B@PV1_mean",
+      "W1C8B@PV1_std",
+      "W1C8B@PV1_min",
+      "W1C8B@PV1_max",
+      "W1C8C@PV1_mean",
+      "W1C8C@PV1_std",
+      "W1C8C@PV1_min",
+      "W1C8C@PV1_max",
+      "W1C8D@PV1_mean",
+      "W1C8D@PV1_std",
+      "W1C8D@PV1_min",
+      "W1C8D@PV1_max",
+      "W1C00@PV1_mean",
+      "W1C00@PV1_std",
+      "W1C00@PV1_min",
+      "W1C00@PV1_max",
+      "F_PS002@PV1_mean",
+      "F_PS002@PV1_std",
+      "F_PS002@PV1_min",
+      "F_PS002@PV1_max",
+      "F_PS003@PV1_mean",
+      "F_PS003@PV1_std",
+      "F_PS003@PV1_min",
+      "F_PS003@PV1_max",
+      "W1C01@PV1_mean",
+      "W1C01@PV1_std",
+      "W1C01@PV1_min",
+      "W1C01@PV1_max",
+      "F_PS005@PV1_mean",
+      "F_PS005@PV1_std",
+      "F_PS005@PV1_min",
+      "F_PS005@PV1_max",
+      "F_PS006@PV1_mean",
+      "F_PS006@PV1_std",
+      "F_PS006@PV1_min",
+      "F_PS006@PV1_max"
+    ],
+    "missing_cell_pct": 0.0
+  },
+  "context_files": [],
+  "skipped_files": [
+    {
+      "file": "align_data.py",
+      "reason": "extension .py is not a supported table/context format"
+    },
+    {
+      "file": "align_multidefect.py",
+      "reason": "extension .py is not a supported table/context format"
+    }
+  ],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\lekai\\run-stability-full\\00_input\\preprocess_audit\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\lekai\\run-stability-full\\00_input\\preprocess_audit\\preprocessed_data.json",
+    "context_dir": "workspace\\lekai\\run-stability-full\\00_input\\preprocess_audit\\context"
+  }
+}

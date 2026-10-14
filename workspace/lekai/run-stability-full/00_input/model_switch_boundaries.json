@@ -1,0 +1,1191 @@
+{
+  "source_file": "data/lekaiData/aligned_multidefect.csv",
+  "purpose": "Phase 2.5 交叉印证：把报告工况分段表中的变点对应到产品型号切换上",
+  "batch_count": 149,
+  "model_count": 9,
+  "window": {
+    "first_ts_start": "2026-05-04 14:42:00",
+    "last_ts_end": "2026-05-13 15:24:00"
+  },
+  "dirty_labels": {
+    "note": "model 原始标签带尾随空格，已在比对前 strip；原始值见 model_raw_count",
+    "raw_count": 11,
+    "distinct_raw_with_trailing_space": [
+      "PG32D ",
+      "PG32M "
+    ]
+  },
+  "model_counts": {
+    "PG31DS": 67,
+    "FP21": 19,
+    "PG32D": 16,
+    "PG32M": 13,
+    "PG32B": 10,
+    "PG32DS": 9,
+    "FG22": 6,
+    "PG22C": 6,
+    "FP41": 3
+  },
+  "boundaries": [
+    {
+      "at_ts": "2026-05-04 16:43:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32M",
+      "prev_batch": "H2652557",
+      "next_batch": "H2652577",
+      "gap_minutes_between_batches": -11.0
+    },
+    {
+      "at_ts": "2026-05-04 16:54:00",
+      "from_model": "PG32M",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652577",
+      "next_batch": "H2652558",
+      "gap_minutes_between_batches": -24.0
+    },
+    {
+      "at_ts": "2026-05-04 17:57:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32M",
+      "prev_batch": "H2652558",
+      "next_batch": "H2652578",
+      "gap_minutes_between_batches": -22.0
+    },
+    {
+      "at_ts": "2026-05-04 18:43:00",
+      "from_model": "PG32M",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652578",
+      "next_batch": "H2652560",
+      "gap_minutes_between_batches": -22.0
+    },
+    {
+      "at_ts": "2026-05-04 19:38:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32DS",
+      "prev_batch": "H2652560",
+      "next_batch": "H2652561",
+      "gap_minutes_between_batches": 2.0
+    },
+    {
+      "at_ts": "2026-05-04 23:33:00",
+      "from_model": "PG32DS",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652564",
+      "next_batch": "H2652543",
+      "gap_minutes_between_batches": -23.0
+    },
+    {
+      "at_ts": "2026-05-04 23:56:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32DS",
+      "prev_batch": "H2652543",
+      "next_batch": "H2652565",
+      "gap_minutes_between_batches": -42.0
+    },
+    {
+      "at_ts": "2026-05-05 22:34:00",
+      "from_model": "PG32DS",
+      "to_model": "PG32D",
+      "prev_batch": "H2652583",
+      "next_batch": "H2652584",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-06 02:25:00",
+      "from_model": "PG32D",
+      "to_model": "PG32M",
+      "prev_batch": "H2652587",
+      "next_batch": "H2652588",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-06 11:06:00",
+      "from_model": "PG32M",
+      "to_model": "FP21",
+      "prev_batch": "H2652592",
+      "next_batch": "H2652594",
+      "gap_minutes_between_batches": 58.0
+    },
+    {
+      "at_ts": "2026-05-06 13:42:00",
+      "from_model": "FP21",
+      "to_model": "FG22",
+      "prev_batch": "H2652596",
+      "next_batch": "H2652598",
+      "gap_minutes_between_batches": 32.0
+    },
+    {
+      "at_ts": "2026-05-06 20:29:00",
+      "from_model": "FG22",
+      "to_model": "FP21",
+      "prev_batch": "H2652600",
+      "next_batch": "H2652603",
+      "gap_minutes_between_batches": 250.0
+    },
+    {
+      "at_ts": "2026-05-06 21:19:00",
+      "from_model": "FP21",
+      "to_model": "FP41",
+      "prev_batch": "H2652603",
+      "next_batch": "H2652604",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-06 23:35:00",
+      "from_model": "FP41",
+      "to_model": "PG32D",
+      "prev_batch": "H2652604",
+      "next_batch": "H2652585",
+      "gap_minutes_between_batches": 35.0
+    },
+    {
+      "at_ts": "2026-05-07 00:39:00",
+      "from_model": "PG32D",
+      "to_model": "FP41",
+      "prev_batch": "H2652585",
+      "next_batch": "H2652606",
+      "gap_minutes_between_batches": 30.0
+    },
+    {
+      "at_ts": "2026-05-07 02:18:00",
+      "from_model": "FP41",
+      "to_model": "FP21",
+      "prev_batch": "H2652606",
+      "next_batch": "H2652607",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-07 06:23:00",
+      "from_model": "FP21",
+      "to_model": "FG22",
+      "prev_batch": "H2652609",
+      "next_batch": "H2652611",
+      "gap_minutes_between_batches": 55.0
+    },
+    {
+      "at_ts": "2026-05-07 11:56:00",
+      "from_model": "FG22",
+      "to_model": "PG32M",
+      "prev_batch": "H2652612",
+      "next_batch": "H2652618",
+      "gap_minutes_between_batches": 178.0
+    },
+    {
+      "at_ts": "2026-05-07 17:01:00",
+      "from_model": "PG32M",
+      "to_model": "PG32DS",
+      "prev_batch": "H2652621",
+      "next_batch": "H2652623",
+      "gap_minutes_between_batches": 40.0
+    },
+    {
+      "at_ts": "2026-05-07 19:12:00",
+      "from_model": "PG32DS",
+      "to_model": "PG32D",
+      "prev_batch": "H2652624",
+      "next_batch": "H2652625",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-07 21:08:00",
+      "from_model": "PG32D",
+      "to_model": "PG32M",
+      "prev_batch": "H2652626",
+      "next_batch": "H2652627",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-07 23:00:00",
+      "from_model": "PG32M",
+      "to_model": "FP41",
+      "prev_batch": "H2652628",
+      "next_batch": "H2652605",
+      "gap_minutes_between_batches": -43.0
+    },
+    {
+      "at_ts": "2026-05-08 00:16:00",
+      "from_model": "FP41",
+      "to_model": "PG32B",
+      "prev_batch": "H2652605",
+      "next_batch": "H2652630",
+      "gap_minutes_between_batches": -23.0
+    },
+    {
+      "at_ts": "2026-05-08 17:06:00",
+      "from_model": "PG32B",
+      "to_model": "FP21",
+      "prev_batch": "H2652639",
+      "next_batch": "H2652642",
+      "gap_minutes_between_batches": 274.0
+    },
+    {
+      "at_ts": "2026-05-09 05:22:00",
+      "from_model": "FP21",
+      "to_model": "PG22C",
+      "prev_batch": "H2652652",
+      "next_batch": "H2652654",
+      "gap_minutes_between_batches": 30.0
+    },
+    {
+      "at_ts": "2026-05-09 14:09:00",
+      "from_model": "PG22C",
+      "to_model": "PG32D",
+      "prev_batch": "H2652661",
+      "next_batch": "H2652662",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-09 15:40:00",
+      "from_model": "PG32D",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652662",
+      "next_batch": "H2652663",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-09 23:21:00",
+      "from_model": "PG31DS",
+      "to_model": "FP21",
+      "prev_batch": "H2652669",
+      "next_batch": "H2652648",
+      "gap_minutes_between_batches": -5.0
+    },
+    {
+      "at_ts": "2026-05-10 00:38:00",
+      "from_model": "FP21",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652648",
+      "next_batch": "H2652671",
+      "gap_minutes_between_batches": -23.0
+    },
+    {
+      "at_ts": "2026-05-12 12:17:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32D",
+      "prev_batch": "H2652718",
+      "next_batch": "H2652721",
+      "gap_minutes_between_batches": 225.0
+    },
+    {
+      "at_ts": "2026-05-12 21:50:00",
+      "from_model": "PG32D",
+      "to_model": "PG31DS",
+      "prev_batch": "H2652730",
+      "next_batch": "H2652731",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-13 06:58:00",
+      "from_model": "PG31DS",
+      "to_model": "PG32D",
+      "prev_batch": "H2652738",
+      "next_batch": "H2652739",
+      "gap_minutes_between_batches": 0.0
+    },
+    {
+      "at_ts": "2026-05-13 12:30:00",
+      "from_model": "PG32D",
+      "to_model": "FP21",
+      "prev_batch": "H2652739",
+      "next_batch": "H2652741",
+      "gap_minutes_between_batches": 239.0
+    }
+  ],
+  "timeline": [
+    {
+      "batch_id": "H2652556",
+      "ts_start": "2026-05-04 14:42:00",
+      "ts_end": "2026-05-04 15:47:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652557",
+      "ts_start": "2026-05-04 15:47:00",
+      "ts_end": "2026-05-04 16:54:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652577",
+      "ts_start": "2026-05-04 16:43:00",
+      "ts_end": "2026-05-04 17:18:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652558",
+      "ts_start": "2026-05-04 16:54:00",
+      "ts_end": "2026-05-04 18:19:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652578",
+      "ts_start": "2026-05-04 17:57:00",
+      "ts_end": "2026-05-04 19:05:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652560",
+      "ts_start": "2026-05-04 18:43:00",
+      "ts_end": "2026-05-04 19:36:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652561",
+      "ts_start": "2026-05-04 19:38:00",
+      "ts_end": "2026-05-04 20:59:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652562",
+      "ts_start": "2026-05-04 20:59:00",
+      "ts_end": "2026-05-04 22:30:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652564",
+      "ts_start": "2026-05-04 23:14:00",
+      "ts_end": "2026-05-04 23:56:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652543",
+      "ts_start": "2026-05-04 23:33:00",
+      "ts_end": "2026-05-05 00:38:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652565",
+      "ts_start": "2026-05-04 23:56:00",
+      "ts_end": "2026-05-05 01:20:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652581",
+      "ts_start": "2026-05-05 19:17:00",
+      "ts_end": "2026-05-05 20:23:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652582",
+      "ts_start": "2026-05-05 20:38:00",
+      "ts_end": "2026-05-05 21:27:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652583",
+      "ts_start": "2026-05-05 21:27:00",
+      "ts_end": "2026-05-05 22:34:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652584",
+      "ts_start": "2026-05-05 22:34:00",
+      "ts_end": "2026-05-05 23:35:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652586",
+      "ts_start": "2026-05-06 00:09:00",
+      "ts_end": "2026-05-06 01:27:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652587",
+      "ts_start": "2026-05-06 01:27:00",
+      "ts_end": "2026-05-06 02:25:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652588",
+      "ts_start": "2026-05-06 02:25:00",
+      "ts_end": "2026-05-06 04:11:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652589",
+      "ts_start": "2026-05-06 04:11:00",
+      "ts_end": "2026-05-06 05:51:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652590",
+      "ts_start": "2026-05-06 05:51:00",
+      "ts_end": "2026-05-06 06:48:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652591",
+      "ts_start": "2026-05-06 06:48:00",
+      "ts_end": "2026-05-06 08:29:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652592",
+      "ts_start": "2026-05-06 08:29:00",
+      "ts_end": "2026-05-06 10:08:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652594",
+      "ts_start": "2026-05-06 11:06:00",
+      "ts_end": "2026-05-06 11:50:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652596",
+      "ts_start": "2026-05-06 12:38:00",
+      "ts_end": "2026-05-06 13:10:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652598",
+      "ts_start": "2026-05-06 13:42:00",
+      "ts_end": "2026-05-06 14:23:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652599",
+      "ts_start": "2026-05-06 14:23:00",
+      "ts_end": "2026-05-06 15:40:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652600",
+      "ts_start": "2026-05-06 15:40:00",
+      "ts_end": "2026-05-06 16:19:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652603",
+      "ts_start": "2026-05-06 20:29:00",
+      "ts_end": "2026-05-06 21:19:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652604",
+      "ts_start": "2026-05-06 21:19:00",
+      "ts_end": "2026-05-06 23:00:00",
+      "model": "FP41"
+    },
+    {
+      "batch_id": "H2652585",
+      "ts_start": "2026-05-06 23:35:00",
+      "ts_end": "2026-05-07 00:09:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652606",
+      "ts_start": "2026-05-07 00:39:00",
+      "ts_end": "2026-05-07 02:18:00",
+      "model": "FP41"
+    },
+    {
+      "batch_id": "H2652607",
+      "ts_start": "2026-05-07 02:18:00",
+      "ts_end": "2026-05-07 03:09:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652608",
+      "ts_start": "2026-05-07 03:09:00",
+      "ts_end": "2026-05-07 04:22:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652609",
+      "ts_start": "2026-05-07 04:22:00",
+      "ts_end": "2026-05-07 05:28:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652611",
+      "ts_start": "2026-05-07 06:23:00",
+      "ts_end": "2026-05-07 07:10:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652611",
+      "ts_start": "2026-05-07 07:10:00",
+      "ts_end": "2026-05-07 08:24:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652612",
+      "ts_start": "2026-05-07 08:24:00",
+      "ts_end": "2026-05-07 08:58:00",
+      "model": "FG22"
+    },
+    {
+      "batch_id": "H2652618",
+      "ts_start": "2026-05-07 11:56:00",
+      "ts_end": "2026-05-07 12:49:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652619",
+      "ts_start": "2026-05-07 12:49:00",
+      "ts_end": "2026-05-07 14:32:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652620",
+      "ts_start": "2026-05-07 14:32:00",
+      "ts_end": "2026-05-07 15:30:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652621",
+      "ts_start": "2026-05-07 15:30:00",
+      "ts_end": "2026-05-07 16:21:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652623",
+      "ts_start": "2026-05-07 17:01:00",
+      "ts_end": "2026-05-07 18:06:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652624",
+      "ts_start": "2026-05-07 18:06:00",
+      "ts_end": "2026-05-07 19:12:00",
+      "model": "PG32DS"
+    },
+    {
+      "batch_id": "H2652625",
+      "ts_start": "2026-05-07 19:12:00",
+      "ts_end": "2026-05-07 20:13:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652626",
+      "ts_start": "2026-05-07 20:13:00",
+      "ts_end": "2026-05-07 21:08:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652627",
+      "ts_start": "2026-05-07 21:08:00",
+      "ts_end": "2026-05-07 22:04:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652628",
+      "ts_start": "2026-05-07 22:04:00",
+      "ts_end": "2026-05-07 23:43:00",
+      "model": "PG32M"
+    },
+    {
+      "batch_id": "H2652605",
+      "ts_start": "2026-05-07 23:00:00",
+      "ts_end": "2026-05-08 00:39:00",
+      "model": "FP41"
+    },
+    {
+      "batch_id": "H2652630",
+      "ts_start": "2026-05-08 00:16:00",
+      "ts_end": "2026-05-08 01:00:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652631",
+      "ts_start": "2026-05-08 01:00:00",
+      "ts_end": "2026-05-08 02:24:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652632",
+      "ts_start": "2026-05-08 02:24:00",
+      "ts_end": "2026-05-08 03:48:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652633",
+      "ts_start": "2026-05-08 03:48:00",
+      "ts_end": "2026-05-08 05:13:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652634",
+      "ts_start": "2026-05-08 05:13:00",
+      "ts_end": "2026-05-08 06:38:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652635",
+      "ts_start": "2026-05-08 06:38:00",
+      "ts_end": "2026-05-08 08:02:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652636",
+      "ts_start": "2026-05-08 08:02:00",
+      "ts_end": "2026-05-08 09:27:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652637",
+      "ts_start": "2026-05-08 09:27:00",
+      "ts_end": "2026-05-08 10:10:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652638",
+      "ts_start": "2026-05-08 10:10:00",
+      "ts_end": "2026-05-08 11:59:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652639",
+      "ts_start": "2026-05-08 11:59:00",
+      "ts_end": "2026-05-08 12:32:00",
+      "model": "PG32B"
+    },
+    {
+      "batch_id": "H2652642",
+      "ts_start": "2026-05-08 17:06:00",
+      "ts_end": "2026-05-08 18:35:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652643",
+      "ts_start": "2026-05-08 18:35:00",
+      "ts_end": "2026-05-08 20:05:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652644",
+      "ts_start": "2026-05-08 20:05:00",
+      "ts_end": "2026-05-08 20:52:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652645",
+      "ts_start": "2026-05-08 20:52:00",
+      "ts_end": "2026-05-08 21:37:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652646",
+      "ts_start": "2026-05-08 21:37:00",
+      "ts_end": "2026-05-08 22:17:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652647",
+      "ts_start": "2026-05-08 22:17:00",
+      "ts_end": "2026-05-08 23:21:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652649",
+      "ts_start": "2026-05-09 01:01:00",
+      "ts_end": "2026-05-09 02:05:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652651",
+      "ts_start": "2026-05-09 02:21:00",
+      "ts_end": "2026-05-09 03:12:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652652",
+      "ts_start": "2026-05-09 03:12:00",
+      "ts_end": "2026-05-09 04:52:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652654",
+      "ts_start": "2026-05-09 05:22:00",
+      "ts_end": "2026-05-09 06:22:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652655",
+      "ts_start": "2026-05-09 06:22:00",
+      "ts_end": "2026-05-09 07:20:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652656",
+      "ts_start": "2026-05-09 07:20:00",
+      "ts_end": "2026-05-09 08:23:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652657",
+      "ts_start": "2026-05-09 08:23:00",
+      "ts_end": "2026-05-09 09:19:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652660",
+      "ts_start": "2026-05-09 12:36:00",
+      "ts_end": "2026-05-09 13:07:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652661",
+      "ts_start": "2026-05-09 13:07:00",
+      "ts_end": "2026-05-09 14:09:00",
+      "model": "PG22C"
+    },
+    {
+      "batch_id": "H2652662",
+      "ts_start": "2026-05-09 14:09:00",
+      "ts_end": "2026-05-09 15:40:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652663",
+      "ts_start": "2026-05-09 15:40:00",
+      "ts_end": "2026-05-09 16:51:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652664",
+      "ts_start": "2026-05-09 16:51:00",
+      "ts_end": "2026-05-09 17:54:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652665",
+      "ts_start": "2026-05-09 17:54:00",
+      "ts_end": "2026-05-09 18:58:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652666",
+      "ts_start": "2026-05-09 18:58:00",
+      "ts_end": "2026-05-09 20:02:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652667",
+      "ts_start": "2026-05-09 20:02:00",
+      "ts_end": "2026-05-09 21:05:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652668",
+      "ts_start": "2026-05-09 21:05:00",
+      "ts_end": "2026-05-09 22:16:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652669",
+      "ts_start": "2026-05-09 22:16:00",
+      "ts_end": "2026-05-09 23:26:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652648",
+      "ts_start": "2026-05-09 23:21:00",
+      "ts_end": "2026-05-10 01:01:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652671",
+      "ts_start": "2026-05-10 00:38:00",
+      "ts_end": "2026-05-10 01:45:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652672",
+      "ts_start": "2026-05-10 01:45:00",
+      "ts_end": "2026-05-10 02:57:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652673",
+      "ts_start": "2026-05-10 02:57:00",
+      "ts_end": "2026-05-10 04:10:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652674",
+      "ts_start": "2026-05-10 04:10:00",
+      "ts_end": "2026-05-10 05:21:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652675",
+      "ts_start": "2026-05-10 05:21:00",
+      "ts_end": "2026-05-10 06:26:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652676",
+      "ts_start": "2026-05-10 06:26:00",
+      "ts_end": "2026-05-10 07:36:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652677",
+      "ts_start": "2026-05-10 07:36:00",
+      "ts_end": "2026-05-10 08:53:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652678",
+      "ts_start": "2026-05-10 08:53:00",
+      "ts_end": "2026-05-10 09:59:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652679",
+      "ts_start": "2026-05-10 09:59:00",
+      "ts_end": "2026-05-10 10:59:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652680",
+      "ts_start": "2026-05-10 10:59:00",
+      "ts_end": "2026-05-10 12:15:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652682",
+      "ts_start": "2026-05-10 13:25:00",
+      "ts_end": "2026-05-10 14:35:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652683",
+      "ts_start": "2026-05-10 14:35:00",
+      "ts_end": "2026-05-10 15:45:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652681",
+      "ts_start": "2026-05-10 15:15:00",
+      "ts_end": "2026-05-11 13:25:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652684",
+      "ts_start": "2026-05-10 15:45:00",
+      "ts_end": "2026-05-10 16:50:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652685",
+      "ts_start": "2026-05-10 16:50:00",
+      "ts_end": "2026-05-10 18:07:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652686",
+      "ts_start": "2026-05-10 18:07:00",
+      "ts_end": "2026-05-10 19:16:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652687",
+      "ts_start": "2026-05-10 19:16:00",
+      "ts_end": "2026-05-10 20:26:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652688",
+      "ts_start": "2026-05-10 20:26:00",
+      "ts_end": "2026-05-10 21:42:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652689",
+      "ts_start": "2026-05-10 21:42:00",
+      "ts_end": "2026-05-10 22:51:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652670",
+      "ts_start": "2026-05-10 23:26:00",
+      "ts_end": "2026-05-11 00:38:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652691",
+      "ts_start": "2026-05-11 00:01:00",
+      "ts_end": "2026-05-11 01:10:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652692",
+      "ts_start": "2026-05-11 01:10:00",
+      "ts_end": "2026-05-11 02:20:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652693",
+      "ts_start": "2026-05-11 02:20:00",
+      "ts_end": "2026-05-11 03:32:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652694",
+      "ts_start": "2026-05-11 03:32:00",
+      "ts_end": "2026-05-11 04:42:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652695",
+      "ts_start": "2026-05-11 04:42:00",
+      "ts_end": "2026-05-11 05:52:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652696",
+      "ts_start": "2026-05-11 05:52:00",
+      "ts_end": "2026-05-11 07:16:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652697",
+      "ts_start": "2026-05-11 07:16:00",
+      "ts_end": "2026-05-11 08:26:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652698",
+      "ts_start": "2026-05-11 08:26:00",
+      "ts_end": "2026-05-11 09:36:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652699",
+      "ts_start": "2026-05-11 09:36:00",
+      "ts_end": "2026-05-11 10:47:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652700",
+      "ts_start": "2026-05-11 10:47:00",
+      "ts_end": "2026-05-11 11:57:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652702",
+      "ts_start": "2026-05-11 12:04:00",
+      "ts_end": "2026-05-11 13:38:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652703",
+      "ts_start": "2026-05-11 13:38:00",
+      "ts_end": "2026-05-11 14:53:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652704",
+      "ts_start": "2026-05-11 14:53:00",
+      "ts_end": "2026-05-11 16:00:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652705",
+      "ts_start": "2026-05-11 16:00:00",
+      "ts_end": "2026-05-11 17:10:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652706",
+      "ts_start": "2026-05-11 17:10:00",
+      "ts_end": "2026-05-11 18:16:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652707",
+      "ts_start": "2026-05-11 18:16:00",
+      "ts_end": "2026-05-11 19:27:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652708",
+      "ts_start": "2026-05-11 19:27:00",
+      "ts_end": "2026-05-11 20:35:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652709",
+      "ts_start": "2026-05-11 20:38:00",
+      "ts_end": "2026-05-11 21:58:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652710",
+      "ts_start": "2026-05-11 21:58:00",
+      "ts_end": "2026-05-11 23:04:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652690",
+      "ts_start": "2026-05-11 22:51:00",
+      "ts_end": "2026-05-12 00:01:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652712",
+      "ts_start": "2026-05-12 00:15:00",
+      "ts_end": "2026-05-12 01:24:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652713",
+      "ts_start": "2026-05-12 01:24:00",
+      "ts_end": "2026-05-12 02:33:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652714",
+      "ts_start": "2026-05-12 02:33:00",
+      "ts_end": "2026-05-12 03:49:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652715",
+      "ts_start": "2026-05-12 03:49:00",
+      "ts_end": "2026-05-12 04:56:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652716",
+      "ts_start": "2026-05-12 04:46:00",
+      "ts_end": "2026-05-12 06:07:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652717",
+      "ts_start": "2026-05-12 06:07:00",
+      "ts_end": "2026-05-12 07:17:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652718",
+      "ts_start": "2026-05-12 07:17:00",
+      "ts_end": "2026-05-12 08:32:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652721",
+      "ts_start": "2026-05-12 12:17:00",
+      "ts_end": "2026-05-12 12:49:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652722",
+      "ts_start": "2026-05-12 12:49:00",
+      "ts_end": "2026-05-12 14:07:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652723",
+      "ts_start": "2026-05-12 14:07:00",
+      "ts_end": "2026-05-12 15:09:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652724",
+      "ts_start": "2026-05-12 15:09:00",
+      "ts_end": "2026-05-12 16:33:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652725",
+      "ts_start": "2026-05-12 16:23:00",
+      "ts_end": "2026-05-12 17:06:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652727",
+      "ts_start": "2026-05-12 18:31:00",
+      "ts_end": "2026-05-12 19:08:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652729",
+      "ts_start": "2026-05-12 19:34:00",
+      "ts_end": "2026-05-12 21:01:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652730",
+      "ts_start": "2026-05-12 21:01:00",
+      "ts_end": "2026-05-12 21:50:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652731",
+      "ts_start": "2026-05-12 21:50:00",
+      "ts_end": "2026-05-12 23:03:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652711",
+      "ts_start": "2026-05-12 23:04:00",
+      "ts_end": "2026-05-13 00:15:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652733",
+      "ts_start": "2026-05-13 00:10:00",
+      "ts_end": "2026-05-13 01:21:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652734",
+      "ts_start": "2026-05-13 01:21:00",
+      "ts_end": "2026-05-13 02:25:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652735",
+      "ts_start": "2026-05-13 02:25:00",
+      "ts_end": "2026-05-13 03:37:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652736",
+      "ts_start": "2026-05-13 03:37:00",
+      "ts_end": "2026-05-13 04:42:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652737",
+      "ts_start": "2026-05-13 04:42:00",
+      "ts_end": "2026-05-13 05:51:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652738",
+      "ts_start": "2026-05-13 05:51:00",
+      "ts_end": "2026-05-13 06:58:00",
+      "model": "PG31DS"
+    },
+    {
+      "batch_id": "H2652739",
+      "ts_start": "2026-05-13 06:58:00",
+      "ts_end": "2026-05-13 08:31:00",
+      "model": "PG32D"
+    },
+    {
+      "batch_id": "H2652741",
+      "ts_start": "2026-05-13 12:30:00",
+      "ts_end": "2026-05-13 13:28:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652742",
+      "ts_start": "2026-05-13 13:28:00",
+      "ts_end": "2026-05-13 14:26:00",
+      "model": "FP21"
+    },
+    {
+      "batch_id": "H2652743",
+      "ts_start": "2026-05-13 14:26:00",
+      "ts_end": "2026-05-13 15:24:00",
+      "model": "FP21"
+    }
+  ]
+}

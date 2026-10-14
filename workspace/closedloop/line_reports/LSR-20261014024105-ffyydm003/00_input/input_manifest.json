@@ -1,0 +1,63 @@
+{
+  "manifest_version": "line-report-folder-input/1.0",
+  "input_kind": "directory",
+  "source_directory": "D:\\codes\\industrial-deep-diagnostic\\data\\lsr_demo_noonto",
+  "discovered_files": [
+    {
+      "relative_path": "line_demo.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 864,
+      "columns": 5,
+      "time_column": "t",
+      "score": 4.864,
+      "time_parseability": 1,
+      "sha256": "sha256:51e144266bf49fef8f646fb160ba5c99b2ae0acbacb8e1d7ed5d29d09bf6a6ea",
+      "size_bytes": 81015
+    }
+  ],
+  "selected_table": {
+    "file": "line_demo.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 864,
+    "n_cols": 5,
+    "time_column": "t",
+    "time_parseability": 1,
+    "score": 4.864,
+    "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+  },
+  "scoring_table": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014024105-ffyydm003\\00_input\\preprocessed_data.csv",
+    "sha256": "sha256:5b713e22e18d411ce08e37582a3fc98f3b27f794f2e1998e8214f2dd98c7d566",
+    "rows": 864,
+    "columns": 5,
+    "time_column": "t"
+  },
+  "merge": {
+    "strategy": "single_primary_no_merge",
+    "reason": "folder stability mode does not resample or combine different acquisition cadences",
+    "merged_files": []
+  },
+  "merge_exclusions": [],
+  "source_dispositions": [
+    {
+      "relative_path": "line_demo.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 864,
+      "columns": 5,
+      "time_column": "t",
+      "score": 4.864,
+      "time_parseability": 1,
+      "sha256": "sha256:51e144266bf49fef8f646fb160ba5c99b2ae0acbacb8e1d7ed5d29d09bf6a6ea",
+      "size_bytes": 81015
+    }
+  ],
+  "context_files": [],
+  "skipped_files": []
+}

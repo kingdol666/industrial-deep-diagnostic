@@ -1,0 +1,23 @@
+{
+  "contract_version": "line-stability-html-selfcheck/1.0",
+  "html_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023422-axv0wg001\\line_report\\line_stability_report.html",
+  "size_bytes": 224817,
+  "report_id": "LSR-1791945281-31ysk5",
+  "checks": {
+    "min_size": true,
+    "hero_conclusion": true,
+    "condition_section": true,
+    "findings_section": true,
+    "evidence_table": true,
+    "limitations_section": true,
+    "charts_payload": true,
+    "echarts_cdn_3source": true,
+    "static_fallback": true,
+    "appendix_methods": true,
+    "advisory_disclaimer": true,
+    "no_placeholder": true,
+    "snapshot_iff": true
+  },
+  "pass": true,
+  "generated_at": "2026-10-14T02:34:44Z"
+}

@@ -1,0 +1,175 @@
+{
+  "line_id": "BOPET-L1-BC2",
+  "preprocessing": {
+    "mode": "directory_adaptive",
+    "source_directory": "D:\\codes\\industrial-deep-diagnostic\\data\\bopet_cases\\bc2_filter_dp_cycles",
+    "recursive_discovery": true,
+    "report_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023422-axv0wg001\\00_input\\preprocessing_report.json",
+    "manifest_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023422-axv0wg001\\00_input\\input_manifest.json",
+    "source_files": [
+      {
+        "relative_path": "dcs_melt_system_10min.csv",
+        "sheet": null,
+        "role": "primary_time_series",
+        "disposition": "selected",
+        "reason": "highest-scoring eligible time-series table",
+        "rows": 3024,
+        "columns": 8,
+        "time_column": "时间",
+        "score": 9.1,
+        "time_parseability": 1,
+        "sha256": "sha256:3d97b98ea91c08d095d8eeba863197433166e0448cfc982beaac4c1967961b29",
+        "size_bytes": 200655
+      },
+      {
+        "relative_path": "generate_data.py",
+        "role": "skipped",
+        "disposition": "skipped",
+        "reason": "extension .py is not a supported table/context format",
+        "sha256": "sha256:4e1acfd7eaff4613597b0f4f2b71b34d69f163c1381d307e16a58b5b7af5df9e",
+        "size_bytes": 5737
+      },
+      {
+        "relative_path": "generation_manifest.json",
+        "role": "metadata",
+        "disposition": "context_only",
+        "reason": "filename identifies a data-generation manifest; retained as provenance, not a scoring table",
+        "sha256": "sha256:eebdd326bd9720d35197ac362cf7fb0b1accac2d5e177b7f8191989ad44b7925",
+        "size_bytes": 1394
+      },
+      {
+        "relative_path": "ground_truth.md",
+        "role": "protected_truth",
+        "disposition": "protected_excluded",
+        "reason": "truth/answer reference is excluded without reading or copying its contents",
+        "sha256": null,
+        "size_bytes": null
+      },
+      {
+        "relative_path": "maintenance_log.csv",
+        "role": "event",
+        "disposition": "excluded_from_scoring",
+        "reason": "filename indicates sparse events/maintenance; not a continuous sample series",
+        "sha256": "sha256:c3c5ac8d8a7e61aa27a8596a5a826c0845a3448abacc0bac639dbef7db4411e5",
+        "size_bytes": 397
+      },
+      {
+        "relative_path": "qc_shift_8h.csv",
+        "role": "auxiliary",
+        "disposition": "excluded_from_scoring",
+        "reason": "filename indicates lower-frequency quality/inspection measurements",
+        "sha256": "sha256:5c607984c13523d51b056b6a8359766582b76f0b38a51b3e3d879ed85682893e",
+        "size_bytes": 1870
+      },
+      {
+        "relative_path": "题目.md",
+        "role": "context",
+        "disposition": "context_only",
+        "reason": "filename indicates documentation/metadata rather than process time series",
+        "sha256": "sha256:29f36a495ef1fced7b8c88ab7992ffa0af67066a37827a7a2032f673fb28ffd1",
+        "size_bytes": 2705
+      }
+    ],
+    "selected_table": {
+      "file": "dcs_melt_system_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 8,
+      "time_column": "时间",
+      "time_parseability": 1,
+      "score": 9.1,
+      "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+    },
+    "merge": {
+      "strategy": "single_primary_no_merge",
+      "reason": "folder stability mode does not resample or combine different acquisition cadences",
+      "merged_files": []
+    },
+    "merge_exclusions": [],
+    "source_dispositions": [
+      {
+        "relative_path": "dcs_melt_system_10min.csv",
+        "sheet": null,
+        "role": "primary_time_series",
+        "disposition": "selected",
+        "reason": "highest-scoring eligible time-series table",
+        "rows": 3024,
+        "columns": 8,
+        "time_column": "时间",
+        "score": 9.1,
+        "time_parseability": 1
+      },
+      {
+        "relative_path": "generate_data.py",
+        "role": "skipped",
+        "disposition": "skipped",
+        "reason": "extension .py is not a supported table/context format"
+      },
+      {
+        "relative_path": "generation_manifest.json",
+        "role": "metadata",
+        "disposition": "context_only",
+        "reason": "filename identifies a data-generation manifest; retained as provenance, not a scoring table"
+      },
+      {
+        "relative_path": "ground_truth.md",
+        "role": "protected_truth",
+        "disposition": "protected_excluded",
+        "reason": "truth/answer reference is excluded without reading or copying its contents"
+      },
+      {
+        "relative_path": "maintenance_log.csv",
+        "role": "event",
+        "disposition": "excluded_from_scoring",
+        "reason": "filename indicates sparse events/maintenance; not a continuous sample series"
+      },
+      {
+        "relative_path": "qc_shift_8h.csv",
+        "role": "auxiliary",
+        "disposition": "excluded_from_scoring",
+        "reason": "filename indicates lower-frequency quality/inspection measurements"
+      },
+      {
+        "relative_path": "题目.md",
+        "role": "context",
+        "disposition": "context_only",
+        "reason": "filename indicates documentation/metadata rather than process time series"
+      }
+    ],
+    "context_files": [
+      "generation_manifest.json",
+      "题目.md"
+    ],
+    "skipped_files": [
+      {
+        "file": "generate_data.py",
+        "reason": "extension .py is not a supported table/context format"
+      }
+    ],
+    "quality": {
+      "rows": 3024,
+      "cols": 8,
+      "time_column": "时间",
+      "numeric_columns": [
+        "换网器入口压力(bar)",
+        "换网器出口压力(bar)",
+        "过滤器压差(bar)",
+        "计量泵电流(A)",
+        "熔体温度(℃)",
+        "薄膜厚度MD波动(μm)",
+        "挤出机螺杆转速(rpm)"
+      ],
+      "missing_cell_pct": 0
+    },
+    "scoring_table": {
+      "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023422-axv0wg001\\00_input\\preprocessed_data.csv",
+      "sha256": "sha256:3d97b98ea91c08d095d8eeba863197433166e0448cfc982beaac4c1967961b29",
+      "rows": 3024,
+      "columns": 8,
+      "time_column": "时间"
+    }
+  },
+  "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023422-axv0wg001\\00_input\\preprocessed_data.csv",
+  "time_col": "时间"
+}

@@ -1,0 +1,96 @@
+{
+  "run_name": "DEMO-REACTOR-L1",
+  "input_path": "D:\\codes\\industrial-deep-diagnostic\\data\\lsr_demo",
+  "input_is_directory": true,
+  "recursive_discovery": true,
+  "mode": "stability_single_primary_v1",
+  "sources": [
+    {
+      "file": "ontology.json",
+      "role": "metadata",
+      "reason": "filename identifies an ontology model; retained as context for semantic wiring, not a scoring table"
+    }
+  ],
+  "source_dispositions": [
+    {
+      "relative_path": "line_demo.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 864,
+      "columns": 5,
+      "time_column": "t",
+      "score": 4.864,
+      "time_parseability": 1.0
+    },
+    {
+      "relative_path": "ontology.json",
+      "role": "metadata",
+      "disposition": "context_only",
+      "reason": "filename identifies an ontology model; retained as context for semantic wiring, not a scoring table"
+    }
+  ],
+  "tables": [
+    {
+      "file": "line_demo.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 864,
+      "n_cols": 5,
+      "time_column": "t",
+      "time_parseability": 1.0,
+      "score": 4.864,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "line_demo.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 864,
+    "n_cols": 5,
+    "time_column": "t",
+    "time_parseability": 1.0,
+    "score": 4.864,
+    "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+  },
+  "merge": {
+    "strategy": "single_primary_no_merge",
+    "reason": "folder stability mode does not resample or combine different acquisition cadences",
+    "merged_files": []
+  },
+  "merge_exclusions": [],
+  "quality": {
+    "rows": 864,
+    "cols": 5,
+    "time_column": "t",
+    "numeric_columns": [
+      "reactor_temp",
+      "feed_rate",
+      "cooling_flow",
+      "yield_pct"
+    ],
+    "missing_cell_pct": 0.0
+  },
+  "context_files": [
+    "ontology.json"
+  ],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023702-suxicp002\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023702-suxicp002\\00_input\\preprocessed_data.json",
+    "context_dir": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014023702-suxicp002\\00_input\\context"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "data_path": "D:\\codes\\industrial-deep-diagnostic\\data\\lekaiData\\merged_process_data_full.csv",
+  "line_id": "lekai-FW3-MDO",
+  "product": "BOPET 薄膜 · 乐凯 FW3 线 · MD 纵拉段",
+  "time_col": "time",
+  "start": "2026-05-04 15:00:00",
+  "end": "2026-05-13 15:00:00",
+  "preprocessing": {
+    "script": ".claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py",
+    "argv": [
+      "--data-path", "data/lekaiData",
+      "--output", "workspace/lekai/run-stability-full/00_input/preprocess_audit",
+      "--name", "lekai-fw3-mdo-audit",
+      "--recursive",
+      "--stability-single-primary"
+    ],
+    "mode": "stability_single_primary_v1",
+    "status": "ok",
+    "purpose": "逐文件角色审计与预处理溯源；不参与评分，本报告的分析对象由用户裁定的主表决定",
+    "report_path": "workspace/lekai/run-stability-full/00_input/preprocess_audit/preprocessing_report.json",
+    "disposition_summary": {
+      "tabular_candidates_scored": 19,
+      "python_sources_skipped": 2,
+      "note": "aligned_multidefect.csv / aligned_scratch_process*.csv / merged_process_data*.csv / EX.xlsx / MD_tempture.xlsx / MD_torque.xlsx / scratch_defects.csv / 2026年杂质点统计.xlsx / diagnostic.db-wal.xlsx 均进入角色审计"
+    },
+    "auto_selected_primary": {
+      "file": "aligned_multidefect.csv",
+      "n_rows": 149,
+      "n_cols": 187,
+      "time_column": "ts_start",
+      "score": 95.149,
+      "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+    },
+    "analysis_target": {
+      "file": "merged_process_data_full.csv",
+      "n_rows": 25921,
+      "n_cols": 45,
+      "time_column": "time",
+      "auto_score": 29.0,
+      "why": "用户裁定：30 秒等间隔逐时刻过程时序表，为本报告唯一分析对象"
+    },
+    "divergence": "目录预处理器的自动主表选择（aligned_multidefect.csv，批次级 149 行）与用户裁定的主表（merged_process_data_full.csv，25921 行 × 45 列逐 30 秒时序）不一致；本报告采纳用户裁定，预处理审计仅作为输入角色与溯源证据，不改变分析对象。"
+  }
+}

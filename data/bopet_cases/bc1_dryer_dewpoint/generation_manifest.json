@@ -1,0 +1,33 @@
+{
+  "generator": "generate_data.py",
+  "seed": 101,
+  "rows": {
+    "dcs_dryer_extruder_10min.csv": 2016,
+    "lab_film_quality_4h.csv": 84
+  },
+  "period": [
+    "2026-09-01 00:00:00",
+    "2026-09-14 23:50:00"
+  ],
+  "sampling": {
+    "dcs": "10min",
+    "lab": "4h"
+  },
+  "files": {
+    "dcs": {
+      "path": "dcs_dryer_extruder_10min.csv",
+      "sha256": "7738ec7f876f319f277124ca70633a2f006a81eba9a064d19ad178dfaa1e4704"
+    },
+    "lab": {
+      "path": "lab_film_quality_4h.csv",
+      "sha256": "9c360d4c98407c022e7f96b76b5fa7e050e9ade770d5b8e4fd4656b84549c9e2"
+    }
+  },
+  "events": {
+    "F1_再生加热器老化": "09-05 18:00 起再生风温 175→118℃ 下滑，露点 -60→-40℃ 缓升（无设定变更，设备性问题）",
+    "F2_水分携带": "露点越过 -52℃ 后 PET 含水率 35→~125 ppm，滞后 2~4 h",
+    "F3_质量联动": "含水率 >80 ppm 后雾度 1.85→3.5%、晶点 3→~37 个/㎡（滞后 8~12 h）；熔体压力波动增大、挤出电流微降",
+    "红鲱鱼": "主挤温度/预结晶/干燥风温/铸片辊温度全程平稳"
+  },
+  "basis": "工艺窗口取自乐凯 FW3 快照（data/lekai-test）典型运行值；干燥露点/含水/雾度机理参考 BOPET 干燥工艺常识"
+}

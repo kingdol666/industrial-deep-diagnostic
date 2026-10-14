@@ -1,0 +1,270 @@
+==================== feature_summary ====================
+<root> | type=object | required=['columns', 'dataset_profile', 'metadata'] | desc=Schema for feature_summary.json — statistical profile of every column in the dataset. Consumed by di
+columns | type=object | desc=Per-column statistical summaries
+dataset_profile | type=object | required=['row_count', 'column_count']
+dataset_profile.row_count | type=integer
+dataset_profile.column_count | type=integer
+dataset_profile.time_range | type=object
+dataset_profile.time_range.start | type=number
+dataset_profile.time_range.end | type=number
+dataset_profile.time_range.duration | type=number
+dataset_profile.product_groups | type=array
+dataset_profile.group_sizes | type=object
+metadata | type=object | required=['generated_by']
+metadata.generated_by | type=string
+metadata.data_source | type=None | enum=['cleaned', 'raw_fallback']
+metadata.timestamp | type=string
+==================== scenario_classification ====================
+<root> | type=object | required=['scene_type', 'process_category', 'confidence'] | desc=Schema for the scenario classification output from Data Processor. Defines the process type and adap
+scene_type | type=string | desc=Human-readable scene name, e.g., 'cement_ball_mill_grinding'
+process_category | type=string | desc=Descriptive process category label. This is a free-form field — use whatever terms best describe THI
+confidence | type=string | enum=['high', 'medium', 'low'] | desc=Confidence in the classification. Low if based only on column name heuristics without ontology.
+classification_basis | type=array | desc=Evidence used for classification
+ontology_available | type=boolean | desc=Whether ontology.json existed at classification time
+adaptive_visualization_plan | type=object | desc=Which visualization strategies apply to this process category
+adaptive_visualization_plan.time_series_required | type=boolean
+adaptive_visualization_plan.scatter_plots_required | type=boolean
+adaptive_visualization_plan.heatmap_required | type=boolean
+adaptive_visualization_plan.ccf_lag_analysis | type=boolean
+adaptive_visualization_plan.transition_analysis | type=boolean
+adaptive_visualization_plan.batch_cycle_overlay | type=boolean
+adaptive_visualization_plan.quality_reset_check | type=boolean
+adaptive_visualization_plan.custom_strategies | type=array
+expected_physics | type=array | desc=Expected physical behaviors for this process type, used by Diagnostician
+degradation_candidates | type=array | desc=Candidates for degradation analysis based on process type
+==================== anomaly_report ====================
+<root> | type=object | required=['targets', 'transition_events'] | desc=Schema for anomaly detection output from Data Processor Step 4.3. Contains anomaly intervals, thresh
+targets | type=object | desc=Per-quality-target anomaly analysis
+transition_events | type=array | desc=Detected categorical column change events
+  [items of transition_events]
+transition_events[].index | type=integer
+transition_events[].type | type=string | desc=e.g., tool_change, material_switch, shift_change, grade_change
+transition_events[].column | type=string
+transition_events[].from | type=string
+transition_events[].to | type=string
+transition_events[].quality_before | type=object
+transition_events[].quality_after | type=object
+transition_events[].quality_jump_sigma | type=number
+quality_reset_analysis | type=object | required=['reset_found', 'details', 'summary'] | desc=PRE-COMPUTED quality reset analysis. For each transition event, analyzes whether quality resets (imp
+quality_reset_analysis.reset_found | type=boolean | desc=True if ANY transition shows quality reset (component replacement was effective)
+quality_reset_analysis.total_transitions_analyzed | type=integer | desc=Number of transition events analyzed
+quality_reset_analysis.details | type=array | desc=Per-transition-per-quality-metric analysis
+  [items of quality_reset_analysis.details]
+quality_reset_analysis.details[].transition_index | type=integer | desc=Row index of the transition event
+quality_reset_analysis.details[].transition_type | type=string | desc=e.g., tool_change, material_switch
+quality_reset_analysis.details[].from | type=string | desc=Previous categorical value
+quality_reset_analysis.details[].to | type=string | desc=New categorical value
+quality_reset_analysis.details[].quality_metric | type=string | desc=Which quality metric was analyzed
+quality_reset_analysis.details[].mean_before | type=number | desc=Mean quality value BEFORE transition (context window of ~20 points)
+quality_reset_analysis.details[].mean_after | type=number | desc=Mean quality value AFTER transition (context window of ~20 points)
+quality_reset_analysis.details[].effect_size_cohens_d | type=number/null | desc=Cohen's d effect size for before/after difference
+quality_reset_analysis.details[].reset_detected | type=boolean | desc=True if quality significantly improved after component replacement
+quality_reset_analysis.details[].reset_classification | type=string | enum=['RESET', 'NO_RESET', 'WORSENED', 'INCONCLUSIVE', 'PARTIAL_RECOVERY']
+quality_reset_analysis.details[].interpretation | type=string | desc=Natural language interpretation of the reset analysis
+quality_reset_analysis.details[].n_before | type=integer | desc=Number of data points in the 'before' window
+quality_reset_analysis.details[].n_after | type=integer | desc=Number of data points in the 'after' window
+quality_reset_analysis.summary | type=string | desc=One-sentence summary of overall reset analysis (e.g., 'Tool change shows NO quality reset — degradat
+==================== data_analysis_conclusion ====================
+<root> | type=object | required=['run_id', 'generated_at', 'analysis_mode', 'baseline_script_results', 'expert_custom_analysis', 'ontology_industry_interpretation', 'adaptive_decision_audit', 'analysis_coverage_matrix', 'data_supported_conclusions', 'handoff_to_diagnostician', 'time_lag_analysis', 'analysis_boundary', 'data_cleaning_provenance'] | desc=Structured expert data-analysis conclusion produced by Data Processor. It summarizes baseline-script
+run_id | type=string
+generated_at | type=string
+analysis_mode | type=string | enum=['ontology_guided_baseline', 'ontology_guided_plus_custom', 'baseline_plus_custom', 'baseline_only_with_justification', 'custom_only_emergency'] | desc=How the Data Processor combined ontology guidance, fixed scripts, and expert-written analysis.
+baseline_script_results | type=object | required=['scripts_run', 'key_findings', 'limitations']
+baseline_script_results.scripts_run | type=array
+baseline_script_results.key_findings | type=array
+  [items of baseline_script_results.key_findings]
+baseline_script_results.key_findings[].finding | type=string
+baseline_script_results.key_findings[].source | type=string
+baseline_script_results.key_findings[].evidence_rank | type=integer
+baseline_script_results.limitations | type=array
+expert_custom_analysis | type=object | required=['custom_scripts_written', 'script_inventory', 'analysis_questions', 'custom_outputs', 'why_needed']
+expert_custom_analysis.custom_scripts_written | type=boolean
+expert_custom_analysis.script_inventory | type=array
+  [items of expert_custom_analysis.script_inventory]
+expert_custom_analysis.script_inventory[].script | type=string
+expert_custom_analysis.script_inventory[].purpose | type=string
+expert_custom_analysis.script_inventory[].inputs | type=array
+expert_custom_analysis.script_inventory[].outputs | type=array
+expert_custom_analysis.analysis_questions | type=array
+expert_custom_analysis.custom_outputs | type=array
+expert_custom_analysis.why_needed | type=string
+ontology_industry_interpretation | type=array | desc=How ontology and industry knowledge change the interpretation of raw data findings.
+  [items of ontology_industry_interpretation]
+ontology_industry_interpretation[].parameter_or_pattern | type=string
+ontology_industry_interpretation[].ontology_role | type=string
+ontology_industry_interpretation[].industry_knowledge | type=string
+ontology_industry_interpretation[].interpretation | type=string
+ontology_industry_interpretation[].confidence | type=string | enum=['high', 'medium', 'low']
+adaptive_decision_audit | type=object | required=['data_view_mode', 'mode_justification', 'data_shapes_detected', 'selected_analyses', 'skipped_or_not_applicable', 'custom_analysis_required', 'expert_review_summary'] | desc=Machine-readable proof that Data Processor selected analyses from the actual data shape instead of o
+adaptive_decision_audit.data_view_mode | type=string | enum=['process_plus_inspection', 'process_only', 'inspection_only', 'unknown']
+adaptive_decision_audit.mode_justification | type=string
+adaptive_decision_audit.data_shapes_detected | type=array
+adaptive_decision_audit.selected_analyses | type=array
+  [items of adaptive_decision_audit.selected_analyses]
+adaptive_decision_audit.selected_analyses[].analysis | type=string
+adaptive_decision_audit.selected_analyses[].reason | type=string
+adaptive_decision_audit.selected_analyses[].evidence_artifacts | type=array
+adaptive_decision_audit.selected_analyses[].coverage_status | type=string | enum=['covered', 'partial', 'planned']
+adaptive_decision_audit.skipped_or_not_applicable | type=array
+  [items of adaptive_decision_audit.skipped_or_not_applicable]
+adaptive_decision_audit.skipped_or_not_applicable[].analysis | type=string
+adaptive_decision_audit.skipped_or_not_applicable[].status | type=string | enum=['skipped', 'not_applicable']
+adaptive_decision_audit.skipped_or_not_applicable[].reason | type=string
+adaptive_decision_audit.custom_analysis_required | type=boolean
+adaptive_decision_audit.custom_analysis_reason | type=string
+adaptive_decision_audit.expert_review_summary | type=string
+analysis_coverage_matrix | type=object | required=['pure_process_analysis', 'process_inspection_dual_drive', 'grouping_confounding', 'temporal_regime_event', 'scenario_specific'] | desc=Coverage status for expert industrial data-analysis dimensions.
+analysis_coverage_matrix.pure_process_analysis | type=object | required=['status', 'evidence_artifacts', 'summary']
+analysis_coverage_matrix.pure_process_analysis.status | type=string | enum=['covered', 'partial', 'not_applicable', 'missing']
+analysis_coverage_matrix.pure_process_analysis.evidence_artifacts | type=array
+analysis_coverage_matrix.pure_process_analysis.summary | type=string
+analysis_coverage_matrix.pure_process_analysis.gaps | type=array
+analysis_coverage_matrix.process_inspection_dual_drive | type=object | required=['status', 'evidence_artifacts', 'summary']
+analysis_coverage_matrix.process_inspection_dual_drive.status | type=string | enum=['covered', 'partial', 'not_applicable', 'missing']
+analysis_coverage_matrix.process_inspection_dual_drive.evidence_artifacts | type=array
+analysis_coverage_matrix.process_inspection_dual_drive.summary | type=string
+analysis_coverage_matrix.process_inspection_dual_drive.gaps | type=array
+analysis_coverage_matrix.grouping_confounding | type=object | required=['status', 'evidence_artifacts', 'summary']
+analysis_coverage_matrix.grouping_confounding.status | type=string | enum=['covered', 'partial', 'not_applicable', 'missing']
+analysis_coverage_matrix.grouping_confounding.evidence_artifacts | type=array
+analysis_coverage_matrix.grouping_confounding.summary | type=string
+analysis_coverage_matrix.grouping_confounding.gaps | type=array
+analysis_coverage_matrix.temporal_regime_event | type=object | required=['status', 'evidence_artifacts', 'summary']
+analysis_coverage_matrix.temporal_regime_event.status | type=string | enum=['covered', 'partial', 'not_applicable', 'missing']
+analysis_coverage_matrix.temporal_regime_event.evidence_artifacts | type=array
+analysis_coverage_matrix.temporal_regime_event.summary | type=string
+analysis_coverage_matrix.temporal_regime_event.gaps | type=array
+analysis_coverage_matrix.scenario_specific | type=object | required=['status', 'evidence_artifacts', 'summary']
+analysis_coverage_matrix.scenario_specific.status | type=string | enum=['covered', 'partial', 'not_applicable', 'missing']
+analysis_coverage_matrix.scenario_specific.evidence_artifacts | type=array
+analysis_coverage_matrix.scenario_specific.summary | type=string
+analysis_coverage_matrix.scenario_specific.gaps | type=array
+data_supported_conclusions | type=array | desc=Conclusions supported by data analysis before final diagnosis.
+  [items of data_supported_conclusions]
+data_supported_conclusions[].conclusion | type=string
+data_supported_conclusions[].supporting_sources | type=array
+data_supported_conclusions[].evidence_strength | type=string | enum=['strong', 'moderate', 'weak', 'inconclusive']
+data_supported_conclusions[].diagnostic_relevance | type=string
+data_supported_conclusions[].known_caveats | type=array
+handoff_to_diagnostician | type=object | required=['priority_hypothesis_inputs', 'evidence_gaps', 'recommended_diagnostic_focus']
+handoff_to_diagnostician.priority_hypothesis_inputs | type=array
+  [items of handoff_to_diagnostician.priority_hypothesis_inputs]
+handoff_to_diagnostician.priority_hypothesis_inputs[].candidate | type=string
+handoff_to_diagnostician.priority_hypothesis_inputs[].why_prioritized | type=string
+handoff_to_diagnostician.priority_hypothesis_inputs[].supporting_artifacts | type=array
+handoff_to_diagnostician.evidence_gaps | type=array
+handoff_to_diagnostician.recommended_diagnostic_focus | type=array
+time_lag_analysis | type=object | required=['applicable', 'pairs_analyzed', 'significant_lags_found', 'key_recommendations'] | desc=v6.4 TIME-LAG: Auto-detected process-to-inspection time lags. Required when a time column exists and
+time_lag_analysis.applicable | type=boolean
+time_lag_analysis.not_applicable_reason | type=string/null
+time_lag_analysis.sampling_interval_seconds | type=number
+time_lag_analysis.max_lag_searched | type=object
+time_lag_analysis.max_lag_searched.steps | type=integer
+time_lag_analysis.max_lag_searched.seconds | type=number
+time_lag_analysis.pairs_analyzed | type=integer
+time_lag_analysis.significant_lags_found | type=integer
+time_lag_analysis.physics_consistent_count | type=integer
+time_lag_analysis.physics_discrepancy_count | type=integer
+time_lag_analysis.no_physics_prior_count | type=integer
+time_lag_analysis.key_findings | type=array
+  [items of time_lag_analysis.key_findings]
+time_lag_analysis.key_findings[].predictor | type=string
+time_lag_analysis.key_findings[].target | type=string
+time_lag_analysis.key_findings[].optimal_lag_steps | type=integer
+time_lag_analysis.key_findings[].optimal_lag_seconds | type=number
+time_lag_analysis.key_findings[].confidence | type=string
+time_lag_analysis.key_findings[].raw_r | type=number
+time_lag_analysis.key_findings[].lag_compensated_r | type=number
+time_lag_analysis.key_findings[].r_improvement_pct | type=number
+time_lag_analysis.key_findings[].physics_agreement | type=string
+time_lag_analysis.key_findings[].interpretation | type=string
+time_lag_analysis.key_recommendations | type=array
+  [items of time_lag_analysis.key_recommendations]
+time_lag_analysis.key_recommendations[].pair | type=string
+time_lag_analysis.key_recommendations[].recommended_lag_steps | type=integer
+time_lag_analysis.key_recommendations[].recommended_lag_seconds | type=number
+time_lag_analysis.key_recommendations[].action | type=string
+time_lag_analysis.physics_discrepancy_alerts | type=array
+  [items of time_lag_analysis.physics_discrepancy_alerts]
+time_lag_analysis.physics_discrepancy_alerts[].pair | type=string
+time_lag_analysis.physics_discrepancy_alerts[].agreement | type=string
+time_lag_analysis.physics_discrepancy_alerts[].message | type=string
+time_lag_analysis.physics_discrepancy_alerts[].expected_lag_raw | type=string
+time_lag_analysis.physics_discrepancy_alerts[].observed_lag_seconds | type=number
+analysis_boundary | type=object | desc=Phase 0.4 ontology-guided analysis boundary — what was analyzed, what was pruned, and why. Populated
+data_cleaning_provenance | type=object | required=['data_source', 'integrity_checks', 'cleaning_operations'] | desc=Audit trail of data cleaning — what was cleaned, why, and which data source (cleaned vs raw_fallback
+data_cleaning_provenance.data_source | type=string | enum=['cleaned', 'raw_fallback']
+data_cleaning_provenance.data_source_reason | type=string
+data_cleaning_provenance.integrity_checks | type=object
+data_cleaning_provenance.integrity_checks.row_count | type=object
+data_cleaning_provenance.integrity_checks.type_integrity | type=object
+data_cleaning_provenance.integrity_checks.range_fidelity | type=object
+data_cleaning_provenance.cleaning_operations | type=array | desc=Each cleaning action taken: what, how many rows affected, and WHY. Non-empty required — every cleani
+  [items of data_cleaning_provenance.cleaning_operations]
+data_cleaning_provenance.cleaning_operations[].operation | type=string | enum=['dedup', 'sort', 'time_sort', 'type_coerce', 'missing_handle', 'outlier', 'derived_feature', 'derived_feature_add', 'regime_filter', 'other']
+data_cleaning_provenance.cleaning_operations[].target | type=string
+data_cleaning_provenance.cleaning_operations[].rows_affected | type=integer
+data_cleaning_provenance.cleaning_operations[].rationale | type=string
+data_cleaning_provenance.repair_attempts | type=array
+==================== analysis_parameter_selection ====================
+<root> | type=object | required=['source', 'ontology_file', 'parameter_physical_groups', 'quality_targets', 'analysis_tiers', 'pruned', 'predictor_cols', 'exclude_cols'] | desc=Phase 0.4 ontology-guided analysis selection — machine-readable tier assignments, predictor/exclude 
+source | type=string | desc=Phase origin marker
+ontology_file | type=string | desc=Path to the ontology file used for selection
+parameter_physical_groups | type=object | desc=Parameters grouped by process stage, physical domain, or causal chain
+quality_targets | type=array | desc=Columns representing quality/inspection outputs, identified from ontology
+analysis_tiers | type=object | required=['tier_1']
+analysis_tiers.tier_1 | type=array | desc=Same-stage parameters with known causal physics — analyze first
+  [items of analysis_tiers.tier_1]
+analysis_tiers.tier_1[].target | type=string
+analysis_tiers.tier_1[].predictor | type=string
+analysis_tiers.tier_1[].justification | type=string
+analysis_tiers.tier_2 | type=array | desc=Upstream parameters with plausible propagation paths
+  [items of analysis_tiers.tier_2]
+analysis_tiers.tier_2[].target | type=string
+analysis_tiers.tier_2[].predictor | type=string
+analysis_tiers.tier_2[].justification | type=string
+analysis_tiers.tier_3 | type=array | desc=Parameters with indirect or uncertain physical connections
+  [items of analysis_tiers.tier_3]
+analysis_tiers.tier_3[].target | type=string
+analysis_tiers.tier_3[].predictor | type=string
+analysis_tiers.tier_3[].justification | type=string
+pruned | type=array | desc=Parameter pairs excluded from analysis with physical justification
+  [items of pruned]
+pruned[].predictor | type=string
+pruned[].target | type=string/null
+pruned[].reason | type=string
+predictor_cols | type=array | desc=Parameter columns to include in statistical analysis (Tier 1+2 predictors)
+exclude_cols | type=array | desc=Columns to exclude from all statistical analysis (metadata, IDs, redundant sensors)
+derived_features_to_compute | type=array | desc=Scenario-specific derived features to compute based on ontology roles
+==================== plot_manifest ====================
+<root> | type=object | required=['plots', 'metadata'] | desc=Schema for plot_manifest.json — inventory of all generated PNG charts with metadata. Consumed by vlm
+plots | type=array
+  [items of plots]
+plots[].filename | type=string
+plots[].figure_type | type=None | enum=['temporal_overlay', 'scatter', 'boxplot', 'heatmap', 'event_response', 'simpson_stratified', 'correlation_bar', 'causal_evidence_map', 'time_lag_ccf', 'distribution', 'trend', 'other']
+plots[].priority | type=integer
+plots[].title | type=string
+plots[].description | type=string
+plots[].parameters_shown | type=array
+plots[].diagnostic_question | type=string
+plots[].vlm_priority | type=None | enum=['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']
+plots[].width_px | type=integer
+plots[].height_px | type=integer
+plots[].dpi | type=integer
+plots[].file_size_kb | type=number
+plots[].generation_status | type=None | enum=['success', 'degraded', 'failed']
+plots[].time_aligned | type=boolean
+plots[].has_event_markers | type=boolean
+plots[].per_product | type=boolean
+metadata | type=object | required=['generated_by', 'total_plots', 'generation_timestamp']
+metadata.generated_by | type=string
+metadata.total_plots | type=integer
+metadata.successful_plots | type=integer
+metadata.degraded_plots | type=integer
+metadata.failed_plots | type=integer
+metadata.generation_timestamp | type=string
+metadata.data_source | type=None | enum=['cleaned', 'raw_fallback']
+metadata.scenario_type | type=string
+metadata.focus_product | type=string/null | desc=焦点产品/物料(无产品概念的场景为 null)
+==================== image_captions ====================
+<root> | type=None | desc=Per-figure structured descriptions for downstream agents that cannot view PNG images. Accepts both f

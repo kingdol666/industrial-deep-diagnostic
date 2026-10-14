@@ -1,0 +1,653 @@
+{
+  "ontology_version": "lekai-fw3-mdo/1.0",
+  "scene": {
+    "name": "乐凯 FW3 BOPET 产线 · MD 纵拉段",
+    "process_type": "BOPET 双向拉伸薄膜 — 熔体挤出 → 纵向拉伸 (MDO 18 辊) 连续生产",
+    "production_goal": "在 PET Tg 以上完成纵向拉伸取向，随后急冷定型，稳定获得厚度与取向一致的薄膜",
+    "equipment": [
+      {
+        "id": "main_extruder",
+        "name": "主挤出机 (MG)",
+        "function": "主层熔融挤出"
+      },
+      {
+        "id": "secondary_extruder",
+        "name": "辅挤出机 (SG)",
+        "function": "共挤层熔融挤出"
+      },
+      {
+        "id": "md_stretcher",
+        "name": "MD纵拉机 (18辊)",
+        "function": "薄膜纵向拉伸：加热至Tg以上→拉伸→冷却定型"
+      }
+    ],
+    "stages": [
+      {
+        "stage": "熔体挤出段 (upstream)",
+        "range": "上游",
+        "columns": [
+          "W1C7C@PV1",
+          "W1C7D@PV1",
+          "W1C7E@PV1",
+          "W1C7F@PV1",
+          "W1C80@PV1",
+          "W1C81@PV1",
+          "W1C82@PV1",
+          "W1C83@PV1",
+          "W1C84@PV1",
+          "W1C85@PV1",
+          "W1C86@PV1",
+          "W1C87@PV1",
+          "W1C88@PV1",
+          "W1C89@PV1",
+          "W1C8A@PV1",
+          "W1C8B@PV1",
+          "W1C8C@PV1",
+          "W1C8D@PV1",
+          "W1C00@PV1",
+          "F_PS002@PV1",
+          "F_PS003@PV1",
+          "W1C01@PV1",
+          "F_PS005@PV1",
+          "F_PS006@PV1"
+        ],
+        "description": "主/辅挤出机熔融挤出与过滤（主过滤器前/后熔体压力）"
+      },
+      {
+        "stage": "预加热段 (near Tg)",
+        "range": "1#–5# 辊",
+        "columns": [
+          "MD_TH001@PV",
+          "MD_TH002@PV",
+          "MD_TH003@PV",
+          "MD_TH004@PV",
+          "MD_TH005@PV",
+          "W1C7C@PV1",
+          "W1C7D@PV1",
+          "W1C7E@PV1",
+          "W1C7F@PV1",
+          "W1C80@PV1",
+          "W1C40@PV1"
+        ],
+        "description": "辊温贴近 PET Tg（≈75°C），薄膜预热、尚未取向；1# 辊为拉伸入口慢辊"
+      },
+      {
+        "stage": "拉伸段 (above Tg)",
+        "range": "6#–11# 辊",
+        "columns": [
+          "MD_TH006@PV",
+          "MD_TH007@PV",
+          "MD_TH008@PV",
+          "MD_TH009@PV",
+          "MD_TH010@PV",
+          "MD_TH011@PV",
+          "W1C81@PV1",
+          "W1C82@PV1",
+          "W1C83@PV1",
+          "W1C84@PV1",
+          "W1C85@PV1",
+          "W1C86@PV1",
+          "W1C4B@PV1"
+        ],
+        "description": "辊温升至 Tg 以上，纵向拉伸取向发生区；12# 辊为拉伸出口快辊，与 1# 辊速度之比即拉伸比"
+      },
+      {
+        "stage": "急冷定型段 (<< Tg)",
+        "range": "12#–18# 辊",
+        "columns": [
+          "MD_TH012@PV",
+          "MD_TH013@PV",
+          "MD_TH014@PV",
+          "MD_TH015@PV",
+          "MD_TH016@PV",
+          "MD_TH017@PV",
+          "MD_TH018@PV",
+          "W1C87@PV1",
+          "W1C88@PV1",
+          "W1C89@PV1",
+          "W1C8A@PV1",
+          "W1C8B@PV1",
+          "W1C8C@PV1",
+          "W1C8D@PV1"
+        ],
+        "description": "温度远低于 Tg，拉伸后的取向结构被急冷冻结定型"
+      }
+    ]
+  },
+  "signals": {
+    "MD纵拉辊温度·预加热段": [
+      {
+        "column": "MD_TH001@PV",
+        "name": "1#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "1#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH002@PV",
+        "name": "2#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "2#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH003@PV",
+        "name": "3#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "3#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH004@PV",
+        "name": "4#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "4#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH005@PV",
+        "name": "5#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "5#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊温度·拉伸段": [
+      {
+        "column": "MD_TH006@PV",
+        "name": "6#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "6#纵拉辊温度（跨越 PET Tg（≈75°C）进入拉伸段）",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH007@PV",
+        "name": "7#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "7#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH008@PV",
+        "name": "8#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "8#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH009@PV",
+        "name": "9#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "9#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH010@PV",
+        "name": "10#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "10#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH011@PV",
+        "name": "11#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "11#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊温度·急冷定型段": [
+      {
+        "column": "MD_TH012@PV",
+        "name": "12#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "12#纵拉辊温度（由拉伸段降至远低于 PET Tg 的急冷定型区）",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH013@PV",
+        "name": "13#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "13#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH014@PV",
+        "name": "14#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "14#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH015@PV",
+        "name": "15#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "15#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH016@PV",
+        "name": "16#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "16#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH017@PV",
+        "name": "17#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "17#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "MD_TH018@PV",
+        "name": "18#纵拉辊温度",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "18#纵拉辊温度",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊扭矩·预加热段": [
+      {
+        "column": "W1C7C@PV1",
+        "name": "1#纵拉辊扭矩 (预加热始端)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "1#纵拉辊扭矩 (预加热始端)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C7D@PV1",
+        "name": "2#纵拉辊扭矩 (预加热段)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "2#纵拉辊扭矩 (预加热段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C7E@PV1",
+        "name": "3#纵拉辊扭矩 (预加热段)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "3#纵拉辊扭矩 (预加热段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C7F@PV1",
+        "name": "4#纵拉辊扭矩 (预加热段)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "4#纵拉辊扭矩 (预加热段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C80@PV1",
+        "name": "5#纵拉辊扭矩 (预加热段)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "5#纵拉辊扭矩 (预加热段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊扭矩·拉伸段": [
+      {
+        "column": "W1C81@PV1",
+        "name": "6#纵拉辊扭矩 (拉伸起始)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "6#纵拉辊扭矩 (拉伸起始)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C82@PV1",
+        "name": "7#纵拉辊扭矩 (拉伸主段)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "7#纵拉辊扭矩 (拉伸主段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C83@PV1",
+        "name": "8#纵拉辊扭矩 (拉伸主段)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "8#纵拉辊扭矩 (拉伸主段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C84@PV1",
+        "name": "9#纵拉辊扭矩 (拉伸主段)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "9#纵拉辊扭矩 (拉伸主段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C85@PV1",
+        "name": "10#纵拉辊扭矩 (拉伸末段)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "10#纵拉辊扭矩 (拉伸末段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C86@PV1",
+        "name": "11#纵拉辊扭矩 (拉伸完成点)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "11#纵拉辊扭矩 (拉伸完成点)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊扭矩·急冷定型段": [
+      {
+        "column": "W1C87@PV1",
+        "name": "12#纵拉辊扭矩 (急冷始端)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "12#纵拉辊扭矩 (急冷始端)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C88@PV1",
+        "name": "13#纵拉辊扭矩 (急冷段)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "13#纵拉辊扭矩 (急冷段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C89@PV1",
+        "name": "14#纵拉辊扭矩 (急冷段)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "14#纵拉辊扭矩 (急冷段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C8A@PV1",
+        "name": "15#纵拉辊扭矩 (急冷段)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "15#纵拉辊扭矩 (急冷段)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C8B@PV1",
+        "name": "16#纵拉辊扭矩 (冷却定型)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "16#纵拉辊扭矩 (冷却定型)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C8C@PV1",
+        "name": "17#纵拉辊扭矩 (冷却定型)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "17#纵拉辊扭矩 (冷却定型)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C8D@PV1",
+        "name": "18#纵拉辊扭矩 (冷却出口)",
+        "role": "parameter",
+        "stage_ref": "急冷定型段 (<< Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "18#纵拉辊扭矩 (冷却出口)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "MD纵拉辊速与拉伸比": [
+      {
+        "column": "W1C40@PV1",
+        "name": "1#纵拉辊线速度 (拉伸入口速度/慢辊)",
+        "role": "parameter",
+        "stage_ref": "预加热段 (near Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "1#纵拉辊线速度 (拉伸入口速度/慢辊)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C4B@PV1",
+        "name": "12#纵拉辊线速度 (拉伸出口速度/快辊)",
+        "role": "parameter",
+        "stage_ref": "拉伸段 (above Tg)",
+        "equipment_ref": "md_stretcher",
+        "physical_meaning": "12#纵拉辊线速度 (拉伸出口速度/快辊)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ],
+    "挤出机转速与熔体压力": [
+      {
+        "column": "W1C00@PV1",
+        "name": "主挤出机螺杆转速 (MG-SPEED)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "main_extruder",
+        "physical_meaning": "主挤出机螺杆转速 (MG-SPEED)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "F_PS002@PV1",
+        "name": "主过滤器前熔体压力 (MF-P-BEFORE)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "main_extruder",
+        "physical_meaning": "主过滤器前熔体压力 (MF-P-BEFORE)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "F_PS003@PV1",
+        "name": "主过滤器后熔体压力 (MF-P-AFTER)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "main_extruder",
+        "physical_meaning": "主过滤器后熔体压力 (MF-P-AFTER)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "W1C01@PV1",
+        "name": "辅挤出机螺杆转速 (SG-SPEED)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "secondary_extruder",
+        "physical_meaning": "辅挤出机螺杆转速 (SG-SPEED)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "F_PS005@PV1",
+        "name": "辅过滤器前熔体压力 (SF-P-BEFORE)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "secondary_extruder",
+        "physical_meaning": "辅过滤器前熔体压力 (SF-P-BEFORE)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      },
+      {
+        "column": "F_PS006@PV1",
+        "name": "辅过滤器后熔体压力 (SF-P-AFTER)",
+        "role": "parameter",
+        "stage_ref": "熔体挤出段 (upstream)",
+        "equipment_ref": "secondary_extruder",
+        "physical_meaning": "辅过滤器后熔体压力 (SF-P-AFTER)",
+        "source": "parameter_mapping.json (XLSX mapping + data verified)"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "MD纵拉辊温度·预加热段": [
+      "MD_TH001@PV",
+      "MD_TH002@PV",
+      "MD_TH003@PV",
+      "MD_TH004@PV",
+      "MD_TH005@PV"
+    ],
+    "MD纵拉辊温度·拉伸段": [
+      "MD_TH006@PV",
+      "MD_TH007@PV",
+      "MD_TH008@PV",
+      "MD_TH009@PV",
+      "MD_TH010@PV",
+      "MD_TH011@PV"
+    ],
+    "MD纵拉辊温度·急冷定型段": [
+      "MD_TH012@PV",
+      "MD_TH013@PV",
+      "MD_TH014@PV",
+      "MD_TH015@PV",
+      "MD_TH016@PV",
+      "MD_TH017@PV",
+      "MD_TH018@PV"
+    ],
+    "MD纵拉辊扭矩·预加热段": [
+      "W1C7C@PV1",
+      "W1C7D@PV1",
+      "W1C7E@PV1",
+      "W1C7F@PV1",
+      "W1C80@PV1"
+    ],
+    "MD纵拉辊扭矩·拉伸段": [
+      "W1C81@PV1",
+      "W1C82@PV1",
+      "W1C83@PV1",
+      "W1C84@PV1",
+      "W1C85@PV1",
+      "W1C86@PV1"
+    ],
+    "MD纵拉辊扭矩·急冷定型段": [
+      "W1C87@PV1",
+      "W1C88@PV1",
+      "W1C89@PV1",
+      "W1C8A@PV1",
+      "W1C8B@PV1",
+      "W1C8C@PV1",
+      "W1C8D@PV1"
+    ],
+    "MD纵拉辊速与拉伸比": [
+      "W1C40@PV1",
+      "W1C4B@PV1"
+    ],
+    "挤出机转速与熔体压力": [
+      "W1C00@PV1",
+      "F_PS002@PV1",
+      "F_PS003@PV1",
+      "W1C01@PV1",
+      "F_PS005@PV1",
+      "F_PS006@PV1"
+    ]
+  },
+  "relationships": [
+    {
+      "from": "W1C4B@PV1",
+      "to": "W1C40@PV1",
+      "type": "derived_parameter",
+      "strength": null,
+      "mechanism": "MD 纵向拉伸比 = 12#（出口快辊）线速度 ÷ 1#（入口慢辊）线速度；来源 parameter_mapping.derived_parameters.MD_DRAW_RATIO",
+      "governing_equation": "W1C4B@PV1 / W1C40@PV1"
+    },
+    {
+      "from": "F_PS002@PV1",
+      "to": "F_PS003@PV1",
+      "type": "derived_parameter",
+      "strength": null,
+      "mechanism": "主过滤器压差 = 主过滤器前熔体压力 − 主过滤器后熔体压力；来源 parameter_mapping.derived_parameters.MF_FILTER_DELTA_P",
+      "governing_equation": "F_PS002@PV1 - F_PS003@PV1"
+    },
+    {
+      "from": "F_PS005@PV1",
+      "to": "F_PS006@PV1",
+      "type": "derived_parameter",
+      "strength": null,
+      "mechanism": "辅过滤器压差 = 辅过滤器前熔体压力 − 辅过滤器后熔体压力；来源 parameter_mapping.derived_parameters.SF_FILTER_DELTA_P",
+      "governing_equation": "F_PS005@PV1 - F_PS006@PV1"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "产品型号/规格切换（同期 11 个型号、149 批次）",
+      "why": "换规格会改变温度与辊速设定，在时间序列上形成工况台阶；不做型号分层的漂移/波动归因会把台阶误读为过程失控",
+      "controlled": false
+    },
+    {
+      "variable": "人工调参与工艺调整动作（本期无 action_log）",
+      "why": "缺少调参动作台账，无法区分“操作引起的台阶”与“过程自发漂移”",
+      "controlled": false
+    },
+    {
+      "variable": "慢变设备状态（滤网堵塞、模头结垢、辊面状态等）",
+      "why": "原始数据无设备状态直接记录，此类状态只能以缓慢累积效应间接体现",
+      "controlled": false
+    }
+  ],
+  "metadata": {
+    "units": {},
+    "source_document": "data/lekaiData/parameter_mapping.json",
+    "source_verified_by": "逐行比对XLSX映射表与aligned_multidefect.csv实际数据",
+    "source_confidence": "verified — 每个参数含义均由XLSX和数据双重确认",
+    "source_unverified_fields": "unit(单位)和causal_relationships(因果关系)基于物理常识推断，未在数据中直接确认",
+    "source_scene": "BOPET挤出→纵拉段生产过程",
+    "main_table": "data/lekaiData/merged_process_data_full.csv",
+    "time_col": "time",
+    "column_count": 44,
+    "deliberately_empty": {
+      "unit": "parameter_mapping._meta.unverified_fields 声明单位为物理常识推断，未在数据中确认 → 全部留空",
+      "normal_range/target/spec": "用户裁定无规格限；parameter_mapping.typical_from_data 为自参照口径，明令不得当规格 → 全部留空，Cpk 不计算",
+      "governing_law": "parameter_mapping 未提供经核验的控制方程 → 逐信号留空；仅 3 个代数恒等式写入 relationships.governing_equation"
+    },
+    "constructed_by": "workspace/lekai/run-stability-full/00_input/build_ontology_from_mapping.py"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261012-022125-000",
+  "mode": "fast_screen",
+  "status": "alert",
+  "group_scope": "__ALL__",
+  "generated_at": "2026-10-12T02:21:25.859194+00:00",
+  "source": {
+    "data_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\aw-exchange\\a2o_round1_screen_1021.csv",
+    "sha256": "7a1a1f74d9c67168b4e2cf09cc403c58dd5dd587fa3b5dba52f96496c7e186dd",
+    "window_start": null,
+    "window_end": null,
+    "n_rows": 12,
+    "time_col": "time",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\sentinel\\baselines\\ln-0d5bfeac\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 3,
+      "rules_hit": {}
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {},
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 0,
+      "max_d2": null
+    },
+    "rows_skipped": 0
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261012-022125-001",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "出水总磷_mgL",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.57,
+        "statistic": 3.079371872303697,
+        "index": 0,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "出水总磷_mgL 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|出水总磷_mgL",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261012-022125-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "进水氨氮_mgL",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 33.45,
+        "statistic": -4.15814883623399,
+        "index": 11,
+        "run_length": 1
+      },
+      "threshold": {
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "进水氨氮_mgL 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|进水氨氮_mgL",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261012-022125-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "出水总磷_mgL",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 0.56,
+        "statistic": 2.0345849870578063,
+        "index": 2,
+        "run_length": 3
+      },
+      "threshold": {
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "出水总磷_mgL 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源（快筛）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|出水总磷_mgL",
+      "repeat_count": 1
+    }
+  ],
+  "regime_summary": null,
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|出水总磷_mgL",
+        "repeat_count": 2
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "7a1a1f74d9c67168b4e2cf09cc403c58dd5dd587fa3b5dba52f96496c7e186dd",
+    "script_version": "1.0.0",
+    "duration_ms": 13,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

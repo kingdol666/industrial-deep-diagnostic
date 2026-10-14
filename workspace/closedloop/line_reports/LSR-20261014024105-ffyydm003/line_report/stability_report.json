@@ -1,0 +1,1309 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791945668-iudlp8",
+  "generated_at": "2026-10-14T02:41:08Z",
+  "status": "ok",
+  "line": {
+    "line_id": "DEMO-REACTOR-NOONTO",
+    "product": null
+  },
+  "period": {
+    "start": "2026-10-07 08:00:00",
+    "end": "2026-10-10 07:55:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014024105-ffyydm003\\00_input\\preprocessed_data.csv",
+    "sha256": "sha256:5b713e22e18d411ce08e37582a3fc98f3b27f794f2e1998e8214f2dd98c7d566",
+    "time_col": "t",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "yield_pct",
+      "reactor_temp",
+      "feed_rate",
+      "cooling_flow"
+    ],
+    "inspection_cols": [
+      "yield_pct"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 864,
+    "n_rows_used": 864,
+    "time_span_seconds": 258900.0,
+    "sampling_interval_median_seconds": 300.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 4,
+      "share": 0.0,
+      "examples": []
+    },
+    "preprocessing": {
+      "mode": "directory_adaptive",
+      "source_directory": "D:\\codes\\industrial-deep-diagnostic\\data\\lsr_demo_noonto",
+      "recursive_discovery": true,
+      "report_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014024105-ffyydm003\\00_input\\preprocessing_report.json",
+      "manifest_path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014024105-ffyydm003\\00_input\\input_manifest.json",
+      "source_files": [
+        {
+          "relative_path": "line_demo.csv",
+          "sheet": null,
+          "role": "primary_time_series",
+          "disposition": "selected",
+          "reason": "highest-scoring eligible time-series table",
+          "rows": 864,
+          "columns": 5,
+          "time_column": "t",
+          "score": 4.864,
+          "time_parseability": 1,
+          "sha256": "sha256:51e144266bf49fef8f646fb160ba5c99b2ae0acbacb8e1d7ed5d29d09bf6a6ea",
+          "size_bytes": 81015
+        }
+      ],
+      "selected_table": {
+        "file": "line_demo.csv",
+        "sheet": null,
+        "format": "delimited",
+        "n_rows": 864,
+        "n_cols": 5,
+        "time_column": "t",
+        "time_parseability": 1,
+        "score": 4.864,
+        "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+      },
+      "merge": {
+        "strategy": "single_primary_no_merge",
+        "reason": "folder stability mode does not resample or combine different acquisition cadences",
+        "merged_files": []
+      },
+      "merge_exclusions": [],
+      "source_dispositions": [
+        {
+          "relative_path": "line_demo.csv",
+          "sheet": null,
+          "role": "primary_time_series",
+          "disposition": "selected",
+          "reason": "highest-scoring eligible time-series table",
+          "rows": 864,
+          "columns": 5,
+          "time_column": "t",
+          "score": 4.864,
+          "time_parseability": 1
+        }
+      ],
+      "context_files": [],
+      "skipped_files": [],
+      "quality": {
+        "rows": 864,
+        "cols": 5,
+        "time_column": "t",
+        "numeric_columns": [
+          "reactor_temp",
+          "feed_rate",
+          "cooling_flow",
+          "yield_pct"
+        ],
+        "missing_cell_pct": 0
+      },
+      "scoring_table": {
+        "path": "D:\\codes\\industrial-deep-diagnostic\\workspace\\closedloop\\line_reports\\LSR-20261014024105-ffyydm003\\00_input\\preprocessed_data.csv",
+        "sha256": "sha256:5b713e22e18d411ce08e37582a3fc98f3b27f794f2e1998e8214f2dd98c7d566",
+        "rows": 864,
+        "columns": 5,
+        "time_column": "t"
+      }
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "reactor_temp": {
+        "assigned_by": "auto",
+        "label": "reactor_temp",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "feed_rate": {
+        "assigned_by": "auto",
+        "label": "feed_rate",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "cooling_flow": {
+        "assigned_by": "auto",
+        "label": "cooling_flow",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "yield_pct": {
+        "assigned_by": "auto",
+        "label": "yield_pct",
+        "unit": null,
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 863,
+          "label": "steady",
+          "n_rows": 864
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "yield_pct",
+      "role": "inspection",
+      "condition": {
+        "label": "yield_pct",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 864,
+      "row_range": [
+        0,
+        863
+      ],
+      "data_source": "raw",
+      "mu": 95.780141,
+      "median": 95.886266,
+      "sigma": 0.440249,
+      "sigma_within_mr": 0.118174,
+      "cv": 0.004594,
+      "min": 94.756243,
+      "max": 96.567144,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 109,
+          "indices": [
+            1,
+            4,
+            7,
+            9,
+            12,
+            16,
+            19,
+            25,
+            27,
+            30,
+            35,
+            43,
+            46,
+            48,
+            52,
+            54,
+            57,
+            60,
+            67,
+            79,
+            81,
+            85,
+            88,
+            90,
+            96,
+            104,
+            106,
+            108,
+            111,
+            114,
+            119,
+            126,
+            129,
+            136,
+            140,
+            147,
+            149,
+            154,
+            158,
+            162,
+            164,
+            167,
+            171,
+            179,
+            184,
+            186,
+            188,
+            192,
+            198,
+            204,
+            206,
+            210,
+            214,
+            227,
+            230,
+            235,
+            237,
+            240,
+            242,
+            244,
+            246,
+            251,
+            257,
+            260,
+            263,
+            269,
+            271,
+            275,
+            277,
+            287,
+            291,
+            294,
+            304,
+            307,
+            310,
+            314,
+            319,
+            325,
+            345,
+            348,
+            354,
+            367,
+            376,
+            387,
+            527,
+            543,
+            559,
+            563,
+            567,
+            572,
+            577,
+            583,
+            590,
+            602,
+            605,
+            608,
+            610,
+            613,
+            615,
+            619,
+            621,
+            624,
+            638,
+            643,
+            647,
+            664,
+            670,
+            711,
+            863
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 37,
+          "indices": [
+            2,
+            13,
+            17,
+            22,
+            27,
+            50,
+            58,
+            68,
+            91,
+            97,
+            137,
+            149,
+            168,
+            173,
+            211,
+            252,
+            267,
+            271,
+            278,
+            301,
+            307,
+            329,
+            336,
+            342,
+            350,
+            359,
+            378,
+            389,
+            401,
+            487,
+            496,
+            505,
+            518,
+            528,
+            544,
+            552,
+            863
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 11,
+          "indices": [
+            8,
+            124,
+            330,
+            353,
+            382,
+            401,
+            467,
+            496,
+            515,
+            558,
+            573
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            126,
+            196
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 11,
+          "indices": [
+            280,
+            341,
+            360,
+            370,
+            401,
+            410,
+            467,
+            496,
+            519,
+            546,
+            863
+          ]
+        }
+      },
+      "n_violation_points": 170,
+      "drift": {
+        "slope_per_second": -6e-06,
+        "per_day_relative": 0.005023,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 69,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -16,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -15,
+        "baseline_penalty": 0,
+        "total": 69
+      }
+    },
+    {
+      "name": "reactor_temp",
+      "role": "parameter",
+      "condition": {
+        "label": "reactor_temp",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 864,
+      "row_range": [
+        0,
+        863
+      ],
+      "data_source": "raw",
+      "mu": 79.99832,
+      "median": 80.004007,
+      "sigma": 0.356217,
+      "sigma_within_mr": 0.336836,
+      "cv": 0.00445,
+      "min": 78.962415,
+      "max": 81.889538,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            51,
+            242
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            65,
+            139,
+            558
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 3,
+          "indices": [
+            98,
+            246,
+            773
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            139,
+            248,
+            412,
+            504,
+            701,
+            846
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 4,
+          "indices": [
+            140,
+            413,
+            454,
+            702
+          ]
+        }
+      },
+      "n_violation_points": 18,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 3.2e-05,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 98,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -2,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 98
+      }
+    },
+    {
+      "name": "feed_rate",
+      "role": "parameter",
+      "condition": {
+        "label": "feed_rate",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 864,
+      "row_range": [
+        0,
+        863
+      ],
+      "data_source": "raw",
+      "mu": 104.758005,
+      "median": 104.574952,
+      "sigma": 0.781356,
+      "sigma_within_mr": 0.181867,
+      "cv": 0.007454,
+      "min": 103.343286,
+      "max": 106.63013,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 109,
+          "indices": [
+            0,
+            5,
+            7,
+            15,
+            20,
+            30,
+            33,
+            35,
+            38,
+            40,
+            46,
+            49,
+            60,
+            62,
+            66,
+            73,
+            81,
+            83,
+            86,
+            90,
+            92,
+            94,
+            103,
+            107,
+            111,
+            114,
+            117,
+            122,
+            125,
+            130,
+            134,
+            138,
+            140,
+            143,
+            146,
+            154,
+            164,
+            168,
+            171,
+            173,
+            176,
+            182,
+            184,
+            188,
+            190,
+            192,
+            194,
+            196,
+            198,
+            202,
+            210,
+            214,
+            217,
+            223,
+            227,
+            230,
+            240,
+            243,
+            251,
+            253,
+            255,
+            261,
+            268,
+            270,
+            275,
+            280,
+            283,
+            289,
+            292,
+            301,
+            307,
+            309,
+            312,
+            316,
+            318,
+            321,
+            333,
+            336,
+            353,
+            474,
+            481,
+            490,
+            516,
+            522,
+            527,
+            531,
+            536,
+            541,
+            543,
+            547,
+            550,
+            554,
+            560,
+            565,
+            570,
+            575,
+            577,
+            584,
+            596,
+            601,
+            608,
+            612,
+            622,
+            641,
+            648,
+            654,
+            656,
+            663,
+            863
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 6,
+          "indices": [
+            8,
+            353,
+            476,
+            497,
+            507,
+            526
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 4,
+          "indices": [
+            29,
+            240,
+            343,
+            605
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 17,
+          "indices": [
+            127,
+            212,
+            231,
+            302,
+            325,
+            344,
+            355,
+            369,
+            385,
+            419,
+            499,
+            509,
+            517,
+            524,
+            538,
+            573,
+            863
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 8,
+          "indices": [
+            329,
+            356,
+            373,
+            386,
+            475,
+            485,
+            491,
+            863
+          ]
+        }
+      },
+      "n_violation_points": 144,
+      "drift": {
+        "slope_per_second": 1e-05,
+        "per_day_relative": 0.008231,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 72,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -13,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -15,
+        "baseline_penalty": 0,
+        "total": 72
+      }
+    },
+    {
+      "name": "cooling_flow",
+      "role": "parameter",
+      "condition": {
+        "label": "cooling_flow",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 864,
+      "row_range": [
+        0,
+        863
+      ],
+      "data_source": "raw",
+      "mu": 49.995021,
+      "median": 50.006976,
+      "sigma": 0.222579,
+      "sigma_within_mr": 0.217973,
+      "cv": 0.004449,
+      "min": 49.325968,
+      "max": 50.628636,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 3,
+          "indices": [
+            84,
+            187,
+            598
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            119,
+            735
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            187,
+            547
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            384,
+            476
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            737,
+            779
+          ]
+        }
+      },
+      "n_violation_points": 11,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000537,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.938942,
+        "spearman": -0.893576,
+        "best_abs_r": 0.897251,
+        "best_lag_rows": 4,
+        "leader": "feed_rate",
+        "pearson_at_best": -0.938244,
+        "spearman_at_best": -0.897251,
+        "a": "yield_pct",
+        "b": "feed_rate",
+        "n": 864
+      },
+      {
+        "pearson": 0.096624,
+        "spearman": 0.095942,
+        "best_abs_r": 0.124917,
+        "best_lag_rows": 10,
+        "leader": "feed_rate",
+        "pearson_at_best": 0.104599,
+        "spearman_at_best": 0.124917,
+        "a": "feed_rate",
+        "b": "cooling_flow",
+        "n": 864
+      },
+      {
+        "pearson": -0.090833,
+        "spearman": -0.093647,
+        "best_abs_r": 0.105728,
+        "best_lag_rows": 1,
+        "leader": "cooling_flow",
+        "pearson_at_best": -0.096094,
+        "spearman_at_best": -0.105728,
+        "a": "yield_pct",
+        "b": "cooling_flow",
+        "n": 864
+      },
+      {
+        "pearson": 0.009777,
+        "spearman": 0.01074,
+        "best_abs_r": 0.058251,
+        "best_lag_rows": 4,
+        "leader": "reactor_temp",
+        "pearson_at_best": 0.052146,
+        "spearman_at_best": 0.058251,
+        "a": "reactor_temp",
+        "b": "cooling_flow",
+        "n": 864
+      },
+      {
+        "pearson": -0.006331,
+        "spearman": -0.005164,
+        "best_abs_r": 0.037162,
+        "best_lag_rows": 6,
+        "leader": "reactor_temp",
+        "pearson_at_best": -0.023458,
+        "spearman_at_best": -0.037162,
+        "a": "yield_pct",
+        "b": "reactor_temp",
+        "n": 864
+      },
+      {
+        "pearson": -0.00979,
+        "spearman": -0.014641,
+        "best_abs_r": 0.022735,
+        "best_lag_rows": 6,
+        "leader": "reactor_temp",
+        "pearson_at_best": 0.014484,
+        "spearman_at_best": 0.022735,
+        "a": "reactor_temp",
+        "b": "feed_rate",
+        "n": 864
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "feed_rate",
+        "target": "yield_pct",
+        "abs_r": 0.897251,
+        "best_lag_rows": 4,
+        "share": 1.0
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 864,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 300.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "yield_pct",
+        "reactor_temp",
+        "feed_rate",
+        "cooling_flow"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:5b713e22e18d411ce08e37582a3fc98f3b27f794f2e1998e8214f2dd98c7d566",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "python": "3.13.5",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "yield_pct 检出 SPC 违规",
+      "detail": "共 170 个判异剧集命中（每百点 19.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值95.8863±3σ_within（σ=0.1182）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 170,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 19.68,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.118174,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "yield_pct"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "reactor_temp 检出 SPC 违规",
+      "detail": "共 18 个判异剧集命中（每百点 2.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值80.004±3σ_within（σ=0.3368）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 18,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 2.08,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.336836,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "reactor_temp"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "feed_rate 检出 SPC 违规",
+      "detail": "共 144 个判异剧集命中（每百点 16.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值104.575±3σ_within（σ=0.1819）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 144,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 16.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.181867,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "feed_rate"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "cooling_flow 检出 SPC 违规",
+      "detail": "共 11 个判异剧集命中（每百点 1.3 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值50.007±3σ_within（σ=0.218）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 11,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.27,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.217973,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "cooling_flow"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "drift",
+      "title": "yield_pct 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.502%/天，方向对应斜率 -0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.005023,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": -6e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "yield_pct"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F006",
+      "severity": "warn",
+      "category": "drift",
+      "title": "feed_rate 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.823%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.008231,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 1e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "feed_rate"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F007",
+      "severity": "info",
+      "category": "driver",
+      "title": "feed_rate 是 yield_pct 波动的主要解释项",
+      "detail": "滞后补偿后 |r|² 归一，feed_rate 解释了 yield_pct 约 100% 的方差（|r|=0.8973，领先 4 行）。本体未见因果边——占比仅为统计分解。置信度 50。",
+      "evidence": [
+        {
+          "metric": "share",
+          "value": 1.0,
+          "source": "lstcore",
+          "threshold": ">=0.4",
+          "derived": true
+        },
+        {
+          "metric": "abs_r",
+          "value": 0.897251,
+          "source": "lstcore",
+          "derived": true
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "feed_rate",
+        "yield_pct"
+      ],
+      "confidence": 50,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null
+      }
+    },
+    {
+      "finding_id": "F008",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：yield_pct ↔ feed_rate [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.8973（feed_rate 领先 4 行）；零滞后 Pearson=-0.9389。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.897251,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 4,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "yield_pct",
+        "feed_rate"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 84.5,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（84.5 分，B 级）：评估 4 个参数，检出 343 个 SPC 违规剧集、2 项显著漂移；最需关注：yield_pct。",
+    "n_parameters_assessed": 4,
+    "n_findings": 8,
+    "findings_by_severity": {
+      "info": 2,
+      "warn": 3,
+      "high": 3,
+      "critical": 0
+    }
+  }
+}
