@@ -179,3 +179,10 @@ workspace/field-tests/
 
 # ZCode CLI local session state (plans, tool-local config)
 .zcode/
+
+# ------------------------------------------------------- Local datasets
+# data/ holds working/synthetic datasets that stay local; every folder under it
+# ships a deterministic generator script, so nothing here needs git history.
+# NOTE: gitignore does not untrack already-committed files — run
+# `git rm -r --cached data/` explicitly if a full untrack is ever wanted.
+/data/
