@@ -34,6 +34,7 @@ center-line re-estimation. See `references/method_notes.md` for every formula an
 | `scripts/sentinelcore/` | `_io` 加载+路径校验 · `spc` Nelson · `projection` 窗口投影 · `regime_map` 稳态映射 · `robust` 稳健z+马氏 · `suppress` 防风暴 |
 | `<out>/sentinel/alert.json` | sentinel-alert/1.0 contract（schema + gate 双验） |
 | `<out>/sentinel/watch_report.md` | 中文巡检报告（模板渲染） |
+| `scripts/build_screen_report.py` | watch 之后的自包含 HTML 报告步骤：读 alert.json + 监视窗 CSV → `sentinel/quick_screen_report.html`（确定性内联 SVG 折线 + 判异红点 + 告警表 + 降级披露，零 LLM/零网络/零 CDN）。watch 完成后执行：`python scripts/build_screen_report.py --run-dir <run-dir>`（exit 0 ok / 1 有告警且已出报告 / 2 不可渲染） |
 
 ## Dispatch（调用卡）
 
