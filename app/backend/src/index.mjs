@@ -11,6 +11,7 @@ import ompRoutes from './routes/omp.routes.mjs';
 import ontologyRoutes from './routes/ontology.routes.mjs';
 import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
+import externalRoutes from './routes/external.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -64,6 +65,9 @@ if (process.env.AUTH_ENABLED !== '0') {
 
 // Auth routes（register/login 为公开端点；/me 与 /tokens 需认证）
 app.use('/api/auth', authRoutes);
+
+// External integration surface (stable v1 namespace for outside applications)
+app.use('/api/external', externalRoutes);
 
 // API routes
 app.use('/api/files', fileRoutes);
