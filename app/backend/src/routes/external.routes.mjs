@@ -21,6 +21,7 @@ import {
 } from '../services/diagnosis.service.mjs';
 import {
   buildExternalResult, chatWithRun, findIntent, listIntents,
+  createTask, refreshTask, getTaskEntry, listTaskEntries, getTaskByRun,
 } from '../services/external.service.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 
@@ -87,6 +88,12 @@ router.post('/v1/analyze', async (req, res) => {
       maxTurns: body.maxTurns,
     });
     const runId = created.runId;
+    // Non-wait callers track THIS id through the task manager: the entry owns
+    // progress polling and, once terminal, the stored unified result incl.
+    // report file paths (md + every html artifact).
+    const task = createTask(runId, {
+      intent, harness, scene: body.sceneName ?? null, objective: body.question ?? null,
+    });
     try {
       triggerDiagnosis(runId);
     } catch (execErr) {
@@ -98,30 +105,27 @@ router.post('/v1/analyze', async (req, res) => {
     const capMs = Math.max(1, Number(body.wait_timeout_minutes) || 30) * 60 * 1000;
     if (wait) {
       const deadline = Date.now() + capMs;
-      while (Date.now() < deadline) {
+      let cur = await refreshTask(task.task_id);
+      while (cur && !TERMINAL.has(cur.status) && Date.now() < deadline) {
         await new Promise((r) => setTimeout(r, 2000));
-        const cur = await buildExternalResult(runId);
-        if (!cur) break;
-        if (TERMINAL.has(cur.status)) {
-          return res.json({ success: true, data: cur });
-        }
+        cur = await refreshTask(task.task_id);
+      }
+      if (cur && TERMINAL.has(cur.status)) {
+        return res.json({ success: true, data: cur });
       }
       return res.status(202).json({
         success: true,
-        data: { ...((await buildExternalResult(runId)) || { run_id: runId }), wait: 'timeout_still_running' },
+        data: { ...(cur || task), wait: 'timeout_still_running' },
       });
     }
 
     res.status(202).json({
       success: true,
       data: {
+        task_id: task.task_id,
         run_id: runId,
-        status: 'running',
-        links: {
-          status: `/api/external/v1/analyze/${runId}`,
-          result: `/api/external/v1/analyze/${runId}`,
-          stream: `/api/external/v1/analyze/${runId}/stream`,
-        },
+        status: task.status,
+        links: task.links,
       },
     });
   } catch (err) {
@@ -132,7 +136,51 @@ router.post('/v1/analyze', async (req, res) => {
   }
 });
 
-// ── GET /v1/analyze/:runId — unified status/result view ────────────────────
+// ── GET /v1/tasks — list tasks tracked by this backend instance ────────────
+router.get('/v1/tasks', (req, res) => {
+  res.json({ success: true, data: listTaskEntries() });
+});
+
+// ── GET /v1/tasks/:taskId — live progress view (poll this) ─────────────────
+router.get('/v1/tasks/:taskId', async (req, res) => {
+  const entry = await refreshTask(req.params.taskId);
+  if (!entry) {
+    // fall back to run-based lookup when the caller only knows the run id
+    const byRun = getTaskByRun(req.params.taskId);
+    if (byRun) return res.json({ success: true, data: await refreshTask(byRun.task_id) });
+    return res.status(404).json({ success: false, error: 'Task not found' });
+  }
+  res.json({ success: true, data: entry });
+});
+
+// ── GET /v1/tasks/:taskId/result — the stored analysis result ──────────────
+// Returns the manager's stored result (stable across calls): summary/score/
+// verdict/report.md plus concrete md/html file paths. 409 while still running.
+router.get('/v1/tasks/:taskId/result', async (req, res) => {
+  const entry = await refreshTask(req.params.taskId);
+  if (!entry) return res.status(404).json({ success: false, error: 'Task not found' });
+  if (!TERMINAL.has(entry.status)) {
+    return res.status(409).json({
+      success: false,
+      code: 'EXTERNAL_TASK_RUNNING',
+      error: `task is ${entry.status} — result is available after completion`,
+      data: { task_id: entry.task_id, status: entry.status, progress: entry.progress },
+    });
+  }
+  res.json({
+    success: true,
+    data: {
+      task_id: entry.task_id,
+      run_id: entry.run_id,
+      status: entry.status,
+      finished_at: entry.finished_at,
+      result: entry.result,
+      error: entry.error,
+    },
+  });
+});
+
+// ── GET /v1/analyze/:runId — unified status/result view (run-based) ────────
 router.get('/v1/analyze/:runId', async (req, res) => {
   const view = await buildExternalResult(req.params.runId);
   if (!view) return res.status(404).json({ success: false, error: 'Run not found' });
