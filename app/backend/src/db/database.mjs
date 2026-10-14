@@ -264,7 +264,8 @@ const stmts = {
   completeRun: db.prepare(`
     UPDATE diagnostic_runs
     SET status = 'completed', workspace_path = @workspacePath, report_path = @reportPath,
-        score = @score, judge_verdict = @judgeVerdict, completed_at = datetime('now'), updated_at = datetime('now')
+        score = @score, judge_verdict = @judgeVerdict, error_message = NULL,
+        completed_at = datetime('now'), updated_at = datetime('now')
     WHERE run_id = @runId
   `),
   failRun: db.prepare(`
