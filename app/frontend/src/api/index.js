@@ -125,6 +125,8 @@ export const api = {
   getReport: (name) => request(`/files/workspace/report/${name}`),
   getOptimizer: (name) => request(`/files/workspace/optimizer/${name}`),
   listWorkspaceFiles: (name) => request(`/files/workspace/files/${name}`),
+  // HTML reports inside a run dir (run-relative paths, any subdirectory)
+  listRunHtml: (name) => request(`/files/workspace/html/${encodeURIComponent(name)}`),
   getChartData: (dirName) => request(`/analysis/chart-data/${encodeURIComponent(dirName)}`),
 
   // Diagnosis

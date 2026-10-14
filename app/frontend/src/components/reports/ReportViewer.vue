@@ -108,7 +108,7 @@
           >{{ showChartPanel ? $t('report.chartCollapse') : $t('report.chartToggle') }}</button>
         </div>
       </div>
-      <div class="report-tabs" v-if="hasOptimizer || hasHtml">
+      <div class="report-tabs" v-if="hasOptimizer || htmlReports.length > 0">
         <button
           :class="['tab-btn', { active: activeTab === 'report' }]"
           @click="activeTab = 'report'"
@@ -119,21 +119,23 @@
           @click="activeTab = 'optimizer'"
         >{{ $t('report.audit') }}</button>
         <button
-          v-if="hasHtml"
-          :class="['tab-btn', { active: activeTab === 'html' }]"
-          @click="activeTab = 'html'"
-        >{{ $t('report.htmlReport') }}</button>
+          v-for="h in htmlReports"
+          :key="h.path"
+          :class="['tab-btn', { active: activeTab === 'html:' + h.path }]"
+          @click="activeTab = 'html:' + h.path"
+          :title="h.path"
+        >{{ h.label }}</button>
       </div>
       <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
       <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
       <div class="report-body" v-if="activeTab === 'optimizer' && !viewRaw" v-html="renderedOptimizer"></div>
       <pre class="report-raw" v-if="activeTab === 'optimizer' && viewRaw">{{ optimizerContent }}</pre>
-      <div class="report-html-wrap" v-if="activeTab === 'html'">
+      <div class="report-html-wrap" v-if="activeTab.startsWith('html:') && htmlReportSrc">
         <iframe
           :src="htmlReportSrc"
           class="report-html-frame"
           sandbox="allow-scripts allow-same-origin"
-          :title="$t('report.htmlReport')"
+          :title="activeTab.slice(5)"
         ></iframe>
       </div>
     </div>
@@ -195,9 +197,14 @@ const reportContent = ref(null);
 const optimizerContent = ref(null);
 const hasOptimizer = ref(false);
 const hasHtml = ref(false);
+// Every HTML artifact the run dir contains (run-relative paths), one viewer
+// tab each — covers whatever filename convention the executing skill used.
+const htmlReports = ref([]);
 const activeTab = ref('report');
 const htmlReportSrc = computed(() =>
-  selectedRun.value ? assetUrl(selectedRun.value, 'diagnostic-report.html') : '',
+  selectedRun.value && activeTab.value.startsWith('html:')
+    ? assetUrl(selectedRun.value, activeTab.value.slice(5))
+    : '',
 );
 const viewRaw = ref(false);
 const loadingReport = ref(false);
@@ -229,8 +236,7 @@ watch(() => props.targetRunName, (name) => {
     reportContent.value = null;
     optimizerContent.value = null;
     hasOptimizer.value = false;
-    hasHtml.value = !!matchRun?.hasHtml;
-    if (!matchRun?.hasHtml) probeHtml(requestedName);
+    loadHtmlReports(requestedName);
     activeTab.value = 'report';
     loadingFiles.value = true;
     api.listWorkspaceFiles(name).then(files => {
@@ -305,20 +311,50 @@ function goToList() {
   optimizerContent.value = null;
   hasOptimizer.value = false;
   hasHtml.value = false;
+  htmlReports.value = [];
   activeTab.value = 'report';
   runFiles.value = [];
 }
 
-async function probeHtml(runName) {
+// Fetch every HTML artifact in the run dir via the backend lister. Falls back
+// to the legacy single-convention probe when the lister is unavailable.
+async function loadHtmlReports(runName) {
+  htmlReports.value = [];
+  hasHtml.value = false;
   try {
-    const res = await fetch(assetUrl(runName, 'diagnostic-report.html'), {
-      method: 'HEAD',
-      headers: authHeaders(),
-    });
-    if (selectedRun.value === runName) hasHtml.value = res.ok;
+    const list = await api.listRunHtml(runName);
+    if (selectedRun.value !== runName) return;
+    const paths = Array.isArray(list) ? list : [];
+    htmlReports.value = paths.map(p => ({ path: p, label: htmlTabLabel(p) }));
+    hasHtml.value = htmlReports.value.length > 0;
   } catch {
-    if (selectedRun.value === runName) hasHtml.value = false;
+    try {
+      const res = await fetch(assetUrl(runName, 'diagnostic-report.html'), {
+        method: 'HEAD',
+        headers: authHeaders(),
+      });
+      if (selectedRun.value !== runName) return;
+      if (res.ok) {
+        htmlReports.value = [{ path: 'diagnostic-report.html', label: htmlTabLabel('diagnostic-report.html') }];
+        hasHtml.value = true;
+      }
+    } catch {
+      if (selectedRun.value === runName) hasHtml.value = false;
+    }
   }
+}
+
+function htmlTabLabel(path) {
+  const dir = path.includes('/') ? path.split('/').slice(0, -1).join('/') : '';
+  const base = path.split('/').pop().replace(/\.html$/i, '');
+  const known = {
+    'diagnostic-report': t('report.htmlNames.diagnostic'),
+    'line_stability_report': t('report.htmlNames.stability'),
+    'quick_screen_report': t('report.htmlNames.quickScreen'),
+    'report': t('report.htmlNames.analysis'),
+  };
+  const name = known[base] || base;
+  return dir ? `${name} · ${dir}` : name;
 }
 
 function goToFiles() {
@@ -335,7 +371,7 @@ async function openRun(run) {
   reportContent.value = null;
   optimizerContent.value = null;
   hasOptimizer.value = false;
-  hasHtml.value = !!run.hasHtml;
+  loadHtmlReports(requestedName);
   activeTab.value = 'report';
 
   loadingFiles.value = true;

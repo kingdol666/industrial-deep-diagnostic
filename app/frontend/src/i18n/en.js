@@ -473,6 +473,12 @@ export default {
     empty: 'No diagnostic artifacts found. Start a diagnosis on the Diagnose page first.',
     hasReport: 'Report',
     htmlReport: 'HTML Report',
+    htmlNames: {
+      diagnostic: 'HTML Diagnostic Report',
+      stability: 'HTML Stability Report',
+      quickScreen: 'HTML Quick Screen Report',
+      analysis: 'HTML Analysis Report',
+    },
     hasOptimizer: 'Audit',
     noArtifact: 'No artifacts',
     readReport: 'Read Report',

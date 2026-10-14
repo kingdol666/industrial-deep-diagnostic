@@ -473,6 +473,12 @@ export default {
     empty: '暂未发现诊断产物。请先在诊断页发起一次诊断。',
     hasReport: '报告',
     htmlReport: 'HTML 报告',
+    htmlNames: {
+      diagnostic: 'HTML 诊断报告',
+      stability: 'HTML 稳定性报告',
+      quickScreen: 'HTML 快筛报告',
+      analysis: 'HTML 分析报告',
+    },
     hasOptimizer: '审计',
     noArtifact: '无产物',
     readReport: '阅读报告',
