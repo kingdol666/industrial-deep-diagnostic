@@ -12,7 +12,7 @@ Every understood column gets {label, unit, role, normal_range, target,
 tolerance, stage, equipment, governing_law, physical_meaning, group} with an
 `assigned_by` provenance of "ontology" | "user" | "auto". report_context wins
 over ontology; ontology wins over heuristics. Relationship edges and
-confounders feed the darwin counterfactual constraints (physical mechanism,
+confounders feed the counterfactual constraints (physical mechanism,
 uncontrolled confounders).
 """
 from __future__ import annotations
@@ -207,7 +207,7 @@ def build_understanding(ontology: dict | None, columns: list[str],
 
 
 def mechanism_for(understanding: dict, a: str, b: str) -> dict:
-    """Darwin physical-mechanism check for a correlated pair.
+    """Physical-mechanism check for a correlated pair.
 
     Returns {level: known|same_domain|unknown, mechanism, governing_equation}.
     "known"    — the ontology asserts a causal edge between the two columns.
@@ -236,7 +236,7 @@ def mechanism_for(understanding: dict, a: str, b: str) -> dict:
 
 
 def systematic_sample(n_rows: int, max_rows: int = 100_000) -> int:
-    """Deterministic stride to cap rows (darwin: >100K systematic sampling)."""
+    """Deterministic stride to cap rows (>100K systematic sampling)."""
     if n_rows <= max_rows:
         return 1
     return int((n_rows + max_rows - 1) // max_rows)

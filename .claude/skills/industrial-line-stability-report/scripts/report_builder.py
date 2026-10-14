@@ -56,15 +56,22 @@ def build(report: dict, charts: dict) -> str:
                 None: "无法评估"}.get(c.get("grade"), c.get("label") or "")
 
     # ---------- hero ----------
+    subj = report.get("subject") or {}
+    noun = subj.get("noun") or "产线"
+    display = (subj.get("display") or report['line'].get('line_id')
+               or report['line'].get('product') or '未命名场景')
+    hero_title = f"{noun}运行稳定性报告" if noun in ("产线", "系统") else "运行稳定性报告"
+    objective = report.get("objective")
     hero = f"""
     <section class="hero">
       <div class="hero-main">
-        <div class="hero-title">产线运行稳定性报告</div>
+        <div class="hero-title">{_esc(hero_title)}</div>
         <div class="hero-sub">
-          <span class="chip">{_esc(report['line'].get('line_id') or '未命名产线')}</span>
+          <span class="chip">{_esc(display)}</span>
           {f'<span class="chip ghost">{_esc(report["line"].get("product"))}</span>' if report['line'].get('product') else ''}
           <span class="chip ghost">时段：{_period_label(report['period'])}</span>
         </div>
+        {f'<div class="hero-sub"><span class="chip ghost">分析目标：{_esc(objective)}</span></div>' if objective else ''}
         <div class="statement">{_esc(c['statement'])}</div>
       </div>
       <div class="hero-score" style="--g:{grade_color}">
@@ -161,7 +168,7 @@ def build(report: dict, charts: dict) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>产线运行稳定性报告 · {_esc(report['line'].get('line_id') or report['report_id'])}</title>
+<title>{_esc(hero_title)} · {_esc(report['line'].get('line_id') or report['report_id'])}</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
@@ -289,7 +296,7 @@ def build(report: dict, charts: dict) -> str:
 
   <div class="foot">
     <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
-    属咨询性分析产物，不构成参数下发或控制指令；行动决策归生产线管理方。<br>
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归业务管理方。<br>
     <b>生成物：</b>{_esc(report['report_id'])} ·
     contract {_esc(report['contract_version'])} ·
     script v{_esc(report['provenance']['script_version'])} ·
@@ -545,7 +552,7 @@ def _methods_html(report: dict) -> str:
         "theil_sen_mk_drift": "漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）"
                               "+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。",
         "lagged_spearman_max10": "相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；"
-                                 "物理机制由本体 relationships/参数组校验（darwin 四条件）。",
+                                 "物理机制由本体 relationships/参数组校验（机制四条件）。",
         "contribution_r2_share": "贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比"
                                  "（阈值 |r|≥0.3），领先行数一并记录。",
         "regime_segmentation_c3": "工况分段：复用 industrial-sentinel regime_map（方差比+漂移坡道"
@@ -556,8 +563,8 @@ def _methods_html(report: dict) -> str:
         "weighted_penalty_score_v1": "评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离"
                                      "分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，"
                                      "C≥50 波动，D&lt;50 不稳定。",
-        "darwin_limitations": "数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；"
-                              "假设、混杂因子与规格覆盖显式列出（见下）。",
+        "data_truth_limitations": "数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；"
+                                  "假设、混杂因子与规格覆盖显式列出（见下）。",
     }
     lis = "".join(f"<li><code>{_esc(m)}</code> — {doc.get(m, '')}</li>" for m in methods)
     return (f"<div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul>{lis}</ul>"
@@ -581,7 +588,7 @@ def _limitations_html(report: dict) -> str:
     assumptions = "".join(f"<li>{_esc(a)}</li>" for a in lim.get("model_assumptions", []))
     return f"""
     <div style='margin-top:16px'>
-      <b>假设与局限（darwin 数据真值条款）</b>
+      <b>假设与局限（数据真值条款）</b>
       <table>
         <tr><th>数据来源</th><td>{_esc(lim.get('data_source', ''))}</td></tr>
         <tr><th>抽样</th><td>{'系统抽样 stride=' + _esc(sampling.get('stride')) if sampling.get('sampled') else '全量入评（' + _esc(sampling.get('n_rows_analyzed')) + ' 行）'}</td></tr>
@@ -602,7 +609,7 @@ def selfcheck(html_path: str, report: dict) -> dict:
         text = f.read()
     checks = {
         "min_size": size >= 8192,
-        "hero_conclusion": "产线运行稳定性报告" in text and "statement" in text.replace("'", '"'),
+        "hero_conclusion": "运行稳定性报告" in text and "statement" in text.replace("'", '"'),
         "condition_section": "工况理解" in text,
         "findings_section": "核心发现" in text,
         "evidence_table": "ev-table" in text,
@@ -627,13 +634,18 @@ def selfcheck(html_path: str, report: dict) -> dict:
 
 
 def build_markdown(report: dict) -> str:
-    """Chinese Markdown companion report (same numbers as the HTML, darwin
+    """Chinese Markdown companion report (same numbers as the HTML, data
     traceability preserved: derived marks + limitations + provenance)."""
     c = report["conclusion"]
     data = report["data"]
+    subj = report.get("subject") or {}
+    noun = subj.get("noun") or "产线"
+    display = (subj.get("display") or report['line'].get('line_id')
+               or report['line'].get('product') or '未命名场景')
+    hero_title = f"{noun}运行稳定性报告" if noun in ("产线", "系统") else "运行稳定性报告"
     lines: list[str] = []
     ap = lines.append
-    ap(f"# 产线运行稳定性报告 · {report['line'].get('line_id') or report['report_id']}")
+    ap(f"# {hero_title} · {display}")
     ap("")
     ap(f"- **报告编号**：{report['report_id']}（{report['contract_version']}）")
     ap(f"- **时段**：{report['period'].get('start')} ~ {report['period'].get('end')}")
@@ -744,7 +756,7 @@ def build_markdown(report: dict) -> str:
     lim = report.get("limitations") or {}
     if lim:
         ap("")
-        ap("### 假设与局限（darwin 条款）")
+        ap("### 假设与局限（数据真值条款）")
         ap("")
         ap(f"- {lim.get('data_source')}")
         for a in lim.get("model_assumptions", []):

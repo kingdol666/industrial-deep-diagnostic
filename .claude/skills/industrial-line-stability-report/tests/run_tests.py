@@ -534,7 +534,7 @@ def scenario_html_and_gate(base, stable_out):
         selfcheck = json.load(f)
     check("html.size_ge_8k", selfcheck["size_bytes"] >= 8192, str(selfcheck["size_bytes"]))
     check("html.selfcheck_pass", selfcheck["pass"] is True)
-    check("html.hero_cn", "产线运行稳定性报告" in html)
+    check("html.hero_cn", "运行稳定性报告" in html)
     check("html.findings_cn", "核心发现" in html)
     check("html.evidence_tables", "ev-table" in html)
     check("html.methods_appendix", "方法与阈值" in html)
@@ -724,22 +724,26 @@ def scenario_reuse_and_regime(base):
           abs(next(p for p in rep["parameters"] if p["name"] == "temp")["score"]) < 100)
 
 
-def scenario_confidence_and_darwin(base, stable_out):
-    print("[S15] darwin mandates: limitations/derived/row_range in real report")
+def scenario_confidence_and_data_truth(base, stable_out):
+    print("[S15] data-truth mandates: limitations/derived/row_range in real report")
     rep = load_report(stable_out)
     lim = rep["limitations"]
-    check("darwin.limitations_present",
+    check("data_truth.limitations_present",
           "raw" in lim.get("data_source", "") and lim.get("model_assumptions"))
-    check("darwin.spec_coverage_keys",
+    check("data_truth.spec_coverage_keys",
           set(lim.get("spec_coverage", {}).keys()) == {"user", "ontology", "none"})
     p0 = rep["parameters"][0]
-    check("darwin.row_range_and_source",
+    check("data_truth.row_range_and_source",
           p0.get("row_range") == [0, p0["n"] - 1] and p0.get("data_source") == "raw")
     pairs = rep["correlations"]["pairs"]
     if pairs:
-        check("darwin.pair_derived", pairs[0].get("best_abs_r") is not None)
-    check("darwin.provenance_fields",
+        check("data_truth.pair_derived", pairs[0].get("best_abs_r") is not None)
+    check("data_truth.provenance_fields",
           "spc_source" in rep["provenance"] and "regime_method" in rep["provenance"])
+    check("data_truth.subject_present",
+          (rep.get("subject") or {}).get("noun") in ("产线", "系统", "对象"))
+    check("data_truth.weights_source",
+          rep["provenance"].get("weights_source") in ("user", "role_weights", "equal"))
 
 
 def scenario_sampling(base):
@@ -786,7 +790,7 @@ def main():
         scenario_schema_validation(base, stable_out)
         scenario_ontology(base)
         scenario_reuse_and_regime(base)
-        scenario_confidence_and_darwin(base, stable_out)
+        scenario_confidence_and_data_truth(base, stable_out)
         scenario_sampling(base)
     finally:
         shutil.rmtree(base, ignore_errors=True)

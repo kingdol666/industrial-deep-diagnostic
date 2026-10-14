@@ -11,8 +11,9 @@
    d. 全部未命中 → auto 模式继续（脚本会用确定性启发推断并标 assigned_by=auto），并在交付时建议用户：需要物理语义/控制方程级解读时，先用 `industrial-ontology-builder` 建本体（支持资产复用）再重跑本 skill。
 2. 确认输入三选一：`--data <file>`、`--run-dir`（`00_input/` 下有数据文件）、或 context 的 `data_path`。
 3. 若用户提供的信息足以填写 `templates/report_context.template.json`（产线名/时段/规格限/协同路径/ontology_path），写出 `00_input/report_context.json`（经 report_context.schema.json 校验）。用户显式给的规格限/参数角色优先级高于本体。
-4. 明确告诉用户哪些协同输入可用：sentinel 基线、action_log（本期是否有人工调参）、doe_run（或是否加 `--doe-auto` 让 doe-analyzer 现场做观测分析）。缺席的协同项将在报告 degradations 中如实记录——不要为了凑数编造路径。
-5. 禁止读取/改写 benchmark ground truth（`scripts/benchmark/cases/benchmark_cases.json`）。
+4. **意图与场景识别**：确定被分析对象是什么——用户语境/本体 scene 显示非产线场景（能耗、环境、实验室流程等）时，把 `scenario` 写入 report_context；用户给了分析目标（想回答什么问题）时写 `objective`。两者驱动报告主语（产线/系统/对象三档自适应）与头部目标展示；都不给则脚本按本体 scene / line_id 自动推断。
+5. 明确告诉用户哪些协同输入可用：sentinel 基线、action_log（本期是否有人工调参）、doe_run（或是否加 `--doe-auto` 让 doe-analyzer 现场做观测分析）。缺席的协同项将在报告 degradations 中如实记录——不要为了凑数编造路径。
+6. 禁止读取/改写 benchmark ground truth（`scripts/benchmark/cases/benchmark_cases.json`）。
 
 ## Phase 1 — 确定性分析
 

@@ -288,7 +288,7 @@
     },
     "limitations": {
       "type": "object",
-      "description": "darwin data-truth mandate: assumptions, confounders, spec coverage",
+      "description": "data-truth mandate: assumptions, confounders, spec coverage",
       "properties": {
         "data_source": { "type": "string" },
         "sampling": { "type": "object" },
@@ -298,6 +298,16 @@
         "derived_fields": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "subject": {
+      "type": "object",
+      "description": "adaptive narrative subject: what the analyzed system is",
+      "properties": {
+        "noun": { "enum": ["产线", "系统", "对象"] },
+        "display": { "type": ["string", "null"] },
+        "source": { "enum": ["context.scenario", "ontology.scene", "context.line", "default"] }
+      }
+    },
+    "objective": { "type": "string", "description": "user analysis objective (from report_context.objective)" },
     "integrations": {
       "type": "object",
       "required": ["sentinel_baseline", "tuning_memory", "doe_analyzer"],
