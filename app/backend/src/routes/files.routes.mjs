@@ -8,7 +8,7 @@ import { config, PROJECT_ROOT, data as dataConfig } from '../../../../config/loa
 import {
   listDataDir, listDataFolder, createDataFolder, deleteDataFolder,
   listWorkspaceRuns, getWorkspaceReport, getWorkspaceOptimizer,
-  listWorkspaceFiles, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
+  listWorkspaceFiles, listWorkspaceHtml, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
 } from '../services/files.service.mjs';
 import { rewriteHtmlAssetUrls, callerToken, isHtmlContentType } from '../utils/html-assets.mjs';
 
@@ -178,6 +178,19 @@ router.get('/workspace/files/:runName', async (req, res) => {
     res.json({ success: true, data: files });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// List the HTML reports produced inside a run dir (any subdirectory). The
+// Reports viewer renders one tab per entry so every analysis skill's HTML
+// artifact is viewable regardless of the filename convention it uses.
+router.get('/workspace/html/:runName', async (req, res) => {
+  try {
+    const htmls = await listWorkspaceHtml(req.params.runName);
+    res.json({ success: true, data: htmls });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 

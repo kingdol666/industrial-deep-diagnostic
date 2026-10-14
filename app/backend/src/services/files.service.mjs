@@ -150,6 +150,28 @@ export async function listWorkspaceFiles(runName) {
   return await listDirRecursive(runDir, runDir);
 }
 
+// HTML reports produced inside a run dir, as run-relative paths sorted with
+// root-level artifacts first (the conventional primary report). Consumed by
+// the Reports viewer to render one HTML tab per artifact, whatever filename
+// convention the executing skill used.
+export async function listWorkspaceHtml(runName) {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(String(runName))) {
+    const err = new Error('Invalid run name');
+    err.status = 400;
+    throw err;
+  }
+  const runDir = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', runName);
+  if (!existsSync(runDir)) return null;
+  const files = await listDirRecursive(runDir, runDir);
+  return files
+    .filter((f) => f.ext === '.html')
+    .map((f) => f.path)
+    .sort((a, b) => {
+      const depth = a.split('/').length - b.split('/').length;
+      return depth !== 0 ? depth : a.localeCompare(b);
+    });
+}
+
 // Create a data subfolder
 export async function createDataFolder(name, description = '') {
   const folderPath = join(DATA_DIR, name);
@@ -212,9 +234,12 @@ export async function getWorkspaceAsset(runName, subpath) {
 
   const { realpath: resolvePath } = await import('fs/promises');
   const resolved = await resolvePath(filePath);
-  const workspaceRoot = await resolvePath(join(PROJECT_ROOT, 'workspace'));
+  // Containment base must be the REAL path of the runs root: diagnostic-runs
+  // may itself be a junction (run-archive migration), so comparing the file's
+  // realpath against `realpath(workspace)` fails for every run (403 for all).
+  const runsRoot = await resolvePath(join(PROJECT_ROOT, 'workspace', 'diagnostic-runs'));
 
-  if (!resolved.startsWith(workspaceRoot)) {
+  if (resolved !== runsRoot && !resolved.startsWith(runsRoot + sep)) {
     const err = new Error('Access denied');
     err.status = 403;
     throw err;

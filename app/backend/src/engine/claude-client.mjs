@@ -109,7 +109,12 @@ export function buildEnhancementDirective(enhancement) {
 export const ANALYSIS_INTENTS = {
   'deep-diagnosis': null, // default — full 9-stage pipeline via industrial-analysis-auto
   'stability-report': { skill: 'industrial-line-stability-report' },
-  'quick-screen': { skill: 'industrial-sentinel' },
+  'quick-screen': {
+    skill: 'industrial-sentinel',
+    // Deterministic HTML step — the sentinel protocol ends at alert.json +
+    // watch_report.md; this builder turns them into the viewable HTML report.
+    htmlStep: 'uv run --project .claude/shared/scripts python .claude/skills/industrial-sentinel/scripts/build_screen_report.py --run-dir "<RUN_DIR>"',
+  },
   'doe-analysis': { skill: 'industrial-doe-analyzer' },
   'experience-mining': { skill: 'industrial-tuning-memory' },
   'optimizer-campaign': { skill: 'industrial-optimizer-loop' },
@@ -140,6 +145,7 @@ export function buildIntentDirective(intent, sceneName) {
 - Create the run workspace first, then keep every artifact inside it:
   node .claude/skills/industrial-analysis-auto/scripts/setup.mjs --name "${safeRunScene}" --mode fast --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 - Perform the analysis for real on the data files listed above: run the skill's scripts as tools against the actual data, read their real outputs, and iterate on what they return. Every number you report must come from a tool executed during this run — never fabricate, hard-code, or copy example values.
+${spec.htmlStep ? `- HTML report step (MANDATORY, after the analysis, before writing report.md): run \`${spec.htmlStep}\` with <RUN_DIR> set to the run workspace. If uv is unavailable, execute the same script with the shared venv python (.claude/shared/scripts/.venv/Scripts/python.exe on Windows, .venv/bin/python elsewhere). Verify the HTML file path it prints exists before finishing.` : ''}
 - Finish by writing report.md at the root of the run dir: a narrative in the report language that answers the analysis question, citing only artifacts produced in this run.
 `;
 }
