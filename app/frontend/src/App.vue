@@ -179,7 +179,11 @@
         </div>
 
         <div v-else-if="currentTab === 'closedloop'" class="app-view-frame closedloop-frame">
-          <ClosedLoopView />
+          <ClosedLoopView
+            :harness="harness"
+            @launched="onPanelLaunched"
+            @open-run="onContinueRun"
+          />
         </div>
 
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
@@ -454,6 +458,13 @@ function onSelectFiles(files) {
 
 function onDiagnosisStarted(runId) {
   autoOpenRunId.value = runId;
+}
+
+// Specialized-analysis panel launched a real harness run — jump to the live
+// run view so the agent process streams in front of the user.
+function onPanelLaunched(runId) {
+  autoOpenRunId.value = runId;
+  currentTab.value = 'diagnose';
 }
 
 function onContinueRun(runId) {

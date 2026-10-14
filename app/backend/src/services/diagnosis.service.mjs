@@ -11,6 +11,7 @@ import {
   PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR,
   registerChild as claudeRegisterChild, closeQuery as claudeCloseQuery,
   getSessionMessages, getSessionInfo,
+  resolveAnalysisIntent,
 } from '../engine/claude-client.mjs';
 import {
   startDiagnosis as ompStartDiagnosis, startSessionChat as ompStartSessionChat,
@@ -227,6 +228,17 @@ export function createDiagnosisRun(params) {
           model, permissionMode } = params;
   const harness = normalizeHarness(params.harness);
 
+  // Analysis intent — every intent is executed by the real agent; a
+  // non-default one re-points the run at its skill protocol (buildIntentDirective).
+  const analysisIntent = resolveAnalysisIntent(params.analysisIntent);
+  if (!analysisIntent) {
+    const err = new Error(`Unknown analysisIntent: ${JSON.stringify(params.analysisIntent)}`);
+    err.status = 400;
+    err.code = 'ANALYSIS_INTENT_UNKNOWN';
+    throw err;
+  }
+  const isDefaultIntent = analysisIntent === 'deep-diagnosis';
+
   // Per-harness model / permission-mode switching — validated against the
   // harness's own catalog (mirrors what the engine really supports), so an
   // unsupported choice is a 400, never a silent fallback.
@@ -241,16 +253,23 @@ export function createDiagnosisRun(params) {
   const effectiveModel = model || null;
   const effectivePermissionMode = permissionMode || null;
 
-  // Enhancement (E0-E8) policy — Phase C of optimization plan v4
-  const enhancement = resolveEnhancementPolicy(params.enhancement, userQuestion);
+  // Enhancement (E0-E8) policy — Phase C of optimization plan v4.
+  // Non-default intents run a different skill protocol: the E0-E8 chain and
+  // the ontology Phase -1 directives are pipeline-specific and must not leak
+  // into those prompts.
+  const enhancement = isDefaultIntent
+    ? resolveEnhancementPolicy(params.enhancement, userQuestion)
+    : { policy: 'off', intentHit: false, matched: [] };
 
   // Ontology asset policy — Phase A of optimization plan v4
-  const ontology = resolveOntologyDirective({
-    ontologyMode: params.ontologyMode,
-    ontologyScene: params.ontologyScene,
-    ontologySource: params.ontologySource,
-    dataPath, folderPath, dataPaths,
-  });
+  const ontology = isDefaultIntent
+    ? resolveOntologyDirective({
+        ontologyMode: params.ontologyMode,
+        ontologyScene: params.ontologyScene,
+        ontologySource: params.ontologySource,
+        dataPath, folderPath, dataPaths,
+      })
+    : null;
 
   let mode, dataPathForDb, scene, dataFolder;
 
@@ -300,9 +319,10 @@ export function createDiagnosisRun(params) {
     maxTurns: maxTurns ?? config.claude.max_turns,
     reportLanguage: reportLanguage || diagConfig.default_language,
     harness,
-    ontologyHit: ontology.hit,
+    ontologyHit: ontology?.hit ?? 0,
     enhancementPolicy: enhancement.policy,
     enhancementTriggered: enhancement.intentHit ? 1 : 0,
+    analysisIntent,
   });
 
   createRun(runId);
@@ -310,11 +330,12 @@ export function createDiagnosisRun(params) {
     timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes,
     ontology,
     enhancement,
+    analysisIntent,
     model: effectiveModel,
     permissionMode: effectivePermissionMode,
   });
 
-  return { runId, name, status: 'pending', mode, harness, ontologyHit: ontology.hit, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
+  return { runId, name, status: 'pending', mode, harness, analysisIntent, ontologyHit: ontology?.hit ?? 0, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
 }
 
 // ── Zombie pending hygiene ──────────────────────────────────────────────
@@ -807,6 +828,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     const preExistingDirs = snapshotWorkspaceDirs();
 
     const engine = resolveEngine(run.harness);
+    const runIntent = meta.analysisIntent || 'deep-diagnosis';
     const result = engine.startDiagnosis({
       analysisTarget,
       userQuestion: run.user_question,
@@ -817,8 +839,9 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
-      ontology: meta.ontology || null,
-      enhancement: meta.enhancement || null,
+      ontology: runIntent === 'deep-diagnosis' ? (meta.ontology || null) : null,
+      enhancement: runIntent === 'deep-diagnosis' ? (meta.enhancement || null) : null,
+      analysisIntent: runIntent,
       // Forward ONLY an explicitly selected model — run.model is display data
       // (may hold a legacy claude default) and must not reach other engines.
       model: meta.model || null,

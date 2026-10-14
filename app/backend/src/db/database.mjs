@@ -136,6 +136,14 @@ export function initDB() {
     db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN enhancement_triggered INTEGER DEFAULT 0`);
   }
 
+  // Migration: analysis intent — every run is a real agent execution; the
+  // intent names which skill protocol the harness drove (deep-diagnosis is
+  // the default 9-stage pipeline). Legacy rows predate the workbench.
+  if (!cols.some(c => c.name === 'analysis_intent')) {
+    db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN analysis_intent TEXT DEFAULT 'deep-diagnosis'`);
+    db.exec(`UPDATE diagnostic_runs SET analysis_intent = 'deep-diagnosis' WHERE analysis_intent IS NULL`);
+  }
+
   const chatCols = db.prepare('PRAGMA table_info(chat_sessions)').all();
   const hasOriginSessionId = chatCols.some(c => c.name === 'origin_session_id');
   if (!hasOriginSessionId) {
@@ -237,8 +245,8 @@ initDB();
 // Prepared statements
 const stmts = {
   insertRun: db.prepare(`
-    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered)
-    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered)
+    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent)
+    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered, @analysisIntent)
   `),
   setRunOntologyHit: db.prepare(`
     UPDATE diagnostic_runs SET ontology_hit = @ontologyHit, updated_at = datetime('now') WHERE run_id = @runId
@@ -273,7 +281,7 @@ const stmts = {
   getAllRuns: db.prepare(`
     SELECT id, run_id, name, scene_name, data_path, data_folder, user_question, status,
            session_id, workspace_path, report_path, score, judge_verdict, harness,
-           ontology_hit, enhancement_policy, enhancement_triggered,
+           ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
   `),

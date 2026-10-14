@@ -801,7 +801,7 @@ a { color: inherit; }
   flex-direction: column;
 }
 
-/* 闭环控制台：满高独立滚动（同本体页范式） */
+/* 专项分析（智能体面板）：满高独立滚动（同本体页范式） */
 .app-content-closedloop {
   overflow: hidden;
   padding: 8px 12px 10px;

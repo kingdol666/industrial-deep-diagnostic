@@ -11,11 +11,6 @@ import ompRoutes from './routes/omp.routes.mjs';
 import ontologyRoutes from './routes/ontology.routes.mjs';
 import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
-import sentinelRoutes from './routes/sentinel.routes.mjs';
-import experienceRoutes from './routes/experience.routes.mjs';
-import optimizerRoutes from './routes/optimizer.routes.mjs';
-import lineReportRoutes from './routes/line-report.routes.mjs';
-import doeAnalysisRoutes from './routes/doe-analysis.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -70,10 +65,6 @@ if (process.env.AUTH_ENABLED !== '0') {
 // Auth routes（register/login 为公开端点；/me 与 /tokens 需认证）
 app.use('/api/auth', authRoutes);
 
-// Serve uploaded data files statically (for preview/download)
-app.use('/data-files', express.static(join(PROJECT_ROOT, 'data')));
-app.use('/workspace-files', express.static(join(PROJECT_ROOT, 'workspace')));
-
 // API routes
 app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
@@ -84,14 +75,9 @@ app.use('/api/omp', ompRoutes);
 app.use('/api/harness', harnessRoutes);
 app.use('/api/ontology', ontologyRoutes);
 
-// 闭环三件套（Workstream D 集成层：产线哨兵 / 调优经验库 / 目标闭环寻优）
-app.use('/api/sentinel', sentinelRoutes);
-app.use('/api/experience', experienceRoutes);
-app.use('/api/optimizer', optimizerRoutes);
-// 产线运行稳定性报告（闭环协同报告面：sentinel 基线 + tuning-memory 归因 + doe 操作窗）
-app.use('/api/line-report', lineReportRoutes);
-// DOE/工况分析（industrial-doe-analyzer HTTP 面：任意表数据自动判模式分析）
-app.use('/api/doe-analysis', doeAnalysisRoutes);
+// 专项分析（稳定性/快筛/经验/寻优）已全部改为 harness 真实执行：前端经
+// POST /api/diagnosis/start { analysisIntent } 拉起对应 skill 的智能体运行。
+// 旧的固定脚本 HTTP 集成（/api/sentinel 等）已整体退役。
 
 // Health check with DB status, active runs, and metrics
 app.get('/api/health', (req, res) => {

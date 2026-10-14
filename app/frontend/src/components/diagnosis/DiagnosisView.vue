@@ -31,61 +31,85 @@
         </div>
       </div>
 
-      <!-- Control Panel -->
+      <!-- Agent Workbench Panel -->
       <div class="ctrl-bar" v-if="analysisTarget && !started">
         <div class="ctrl-form">
+          <div class="wb-block">
+            <div class="wb-label">{{ $t('workbench.intentLabel') }}</div>
+            <div class="wb-intent-grid" role="radiogroup">
+              <button
+                v-for="it in INTENTS" :key="it.id"
+                type="button" role="radio" :aria-checked="analysisIntent === it.id"
+                :class="['wb-intent-card', { active: analysisIntent === it.id }]"
+                @click="analysisIntent = it.id"
+              >
+                <span class="wb-intent-icon">{{ it.icon }}</span>
+                <span class="wb-intent-name">{{ $t(`workbench.intents.${it.id}.name`) }}</span>
+                <span class="wb-intent-desc">{{ $t(`workbench.intents.${it.id}.desc`) }}</span>
+              </button>
+            </div>
+            <p class="wb-note">{{ $t('workbench.agentNote') }}</p>
+          </div>
+
           <input v-model="sceneName" :placeholder="$t('diagnosis.sceneNamePlaceholder')" class="ctrl-input" />
           <textarea v-model="userQuestion" :placeholder="$t('diagnosis.questionPlaceholder')" rows="3" class="ctrl-textarea"></textarea>
+
+          <details class="wb-advanced">
+            <summary>{{ $t('workbench.advanced') }}</summary>
+            <div class="ctrl-row wb-advanced-row">
+              <div class="turns-control">
+                <label class="turns-label">{{ $t('diagnosis.maxTurns') }}</label>
+                <select v-model.number="maxTurns" class="ctrl-input ctrl-select">
+                  <option :value="0">{{ $t('diagnosis.unlimited') }}</option>
+                  <option :value="10">10</option>
+                  <option :value="50">50</option>
+                  <option :value="100">100</option>
+                  <option :value="200">200</option>
+                  <option :value="300">300</option>
+                  <option :value="500">500</option>
+                </select>
+              </div>
+              <div class="turns-control" v-if="engineOptions.models.length">
+                <label class="turns-label">{{ $t('diagnosis.model') }}</label>
+                <select v-model="modelSel" class="ctrl-input ctrl-select">
+                  <option value="">{{ $t('diagnosis.model_default') }}</option>
+                  <option v-for="m in engineOptions.models" :key="m.id" :value="m.id">{{ m.label }}</option>
+                </select>
+              </div>
+              <div class="turns-control" v-if="engineOptions.permissionModes.length > 1">
+                <label class="turns-label">{{ $t('diagnosis.permissionMode') }}</label>
+                <select v-model="permSel" class="ctrl-input ctrl-select">
+                  <option value="">{{ $t('diagnosis.permission_default') }}</option>
+                  <option v-for="pm in engineOptions.permissionModes" :key="pm.id" :value="pm.id">{{ pm.label }}</option>
+                </select>
+              </div>
+              <div class="turns-control">
+                <label class="turns-label">{{ $t('diagnosis.reportLanguage') }}</label>
+                <select v-model="reportLanguage" class="ctrl-input ctrl-select">
+                  <option value="zh">{{ $t('diagnosis.chinese') }}</option>
+                  <option value="en">{{ $t('diagnosis.english') }}</option>
+                </select>
+              </div>
+              <div class="turns-control" v-if="analysisIntent === 'deep-diagnosis'">
+                <label class="turns-label">{{ $t('diagnosis.ontologyPolicy') }}</label>
+                <select v-model="ontologyMode" class="ctrl-input ctrl-select">
+                  <option value="auto">{{ $t('diagnosis.ontologyAuto') }}</option>
+                  <option value="full">{{ $t('diagnosis.ontologyFull') }}</option>
+                  <option v-if="ontologyScenes.length" value="reuse">{{ $t('diagnosis.ontologyReuse') }}</option>
+                </select>
+              </div>
+              <div class="turns-control" v-if="analysisIntent === 'deep-diagnosis'">
+                <label class="turns-label">{{ $t('diagnosis.enhancementPolicy') }}</label>
+                <select v-model="enhancement" class="ctrl-input ctrl-select">
+                  <option value="auto">{{ $t('diagnosis.enhancementAuto') }}</option>
+                  <option value="on">{{ $t('diagnosis.enhancementOn') }}</option>
+                  <option value="off">{{ $t('diagnosis.enhancementOff') }}</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
           <div class="ctrl-row">
-            <div class="turns-control">
-              <label class="turns-label">{{ $t('diagnosis.maxTurns') }}</label>
-              <select v-model.number="maxTurns" class="ctrl-input ctrl-select">
-                <option :value="0">{{ $t('diagnosis.unlimited') }}</option>
-                <option :value="10">10</option>
-                <option :value="50">50</option>
-                <option :value="100">100</option>
-                <option :value="200">200</option>
-                <option :value="300">300</option>
-                <option :value="500">500</option>
-              </select>
-            </div>
-            <div class="turns-control" v-if="engineOptions.models.length">
-              <label class="turns-label">{{ $t('diagnosis.model') }}</label>
-              <select v-model="modelSel" class="ctrl-input ctrl-select">
-                <option value="">{{ $t('diagnosis.model_default') }}</option>
-                <option v-for="m in engineOptions.models" :key="m.id" :value="m.id">{{ m.label }}</option>
-              </select>
-            </div>
-            <div class="turns-control" v-if="engineOptions.permissionModes.length > 1">
-              <label class="turns-label">{{ $t('diagnosis.permissionMode') }}</label>
-              <select v-model="permSel" class="ctrl-input ctrl-select">
-                <option value="">{{ $t('diagnosis.permission_default') }}</option>
-                <option v-for="pm in engineOptions.permissionModes" :key="pm.id" :value="pm.id">{{ pm.label }}</option>
-              </select>
-            </div>
-            <div class="turns-control">
-              <label class="turns-label">{{ $t('diagnosis.reportLanguage') }}</label>
-              <select v-model="reportLanguage" class="ctrl-input ctrl-select">
-                <option value="zh">{{ $t('diagnosis.chinese') }}</option>
-                <option value="en">{{ $t('diagnosis.english') }}</option>
-              </select>
-            </div>
-            <div class="turns-control">
-              <label class="turns-label">{{ $t('diagnosis.ontologyPolicy') }}</label>
-              <select v-model="ontologyMode" class="ctrl-input ctrl-select">
-                <option value="auto">{{ $t('diagnosis.ontologyAuto') }}</option>
-                <option value="full">{{ $t('diagnosis.ontologyFull') }}</option>
-                <option v-if="ontologyScenes.length" value="reuse">{{ $t('diagnosis.ontologyReuse') }}</option>
-              </select>
-            </div>
-            <div class="turns-control">
-              <label class="turns-label">{{ $t('diagnosis.enhancementPolicy') }}</label>
-              <select v-model="enhancement" class="ctrl-input ctrl-select">
-                <option value="auto">{{ $t('diagnosis.enhancementAuto') }}</option>
-                <option value="on">{{ $t('diagnosis.enhancementOn') }}</option>
-                <option value="off">{{ $t('diagnosis.enhancementOff') }}</option>
-              </select>
-            </div>
             <button class="ctrl-btn ctrl-btn-go" @click="start" :disabled="!analysisTarget">
               {{ $t('diagnosis.startDiagnosis') }}
             </button>
@@ -322,6 +346,19 @@ const ontologyMode = ref('auto');
 const enhancement = ref('auto');
 const ontologyScenes = ref([]);
 const started = ref(false);
+
+// ── Analysis intents — every task is executed by the real integrated agent.
+// The ids mirror ANALYSIS_INTENTS in the backend (claude-client.mjs); a
+// non-default intent re-points the run at the matching skill protocol.
+const INTENTS = [
+  { id: 'deep-diagnosis', icon: '◎' },
+  { id: 'stability-report', icon: '∿' },
+  { id: 'quick-screen', icon: '⌖' },
+  { id: 'doe-analysis', icon: '⚗' },
+  { id: 'experience-mining', icon: '☰' },
+  { id: 'optimizer-campaign', icon: '⇄' },
+];
+const analysisIntent = ref('deep-diagnosis');
 const elapsed = ref('0:00');
 const currentPhase = ref('');
 const progressPct = ref(0);
@@ -528,9 +565,10 @@ async function start() {
     sceneName: sceneName.value || undefined,
     reportLanguage: reportLanguage.value,
     harness: props.harness || 'claude',
-    ontologyMode: ontologyMode.value,
-    ontologyScene: ontologyMode.value === 'reuse' ? (sceneName.value || undefined) : undefined,
-    enhancement: enhancement.value,
+    analysisIntent: analysisIntent.value,
+    ontologyMode: analysisIntent.value === 'deep-diagnosis' ? ontologyMode.value : undefined,
+    ontologyScene: analysisIntent.value === 'deep-diagnosis' && ontologyMode.value === 'reuse' ? (sceneName.value || undefined) : undefined,
+    enhancement: analysisIntent.value === 'deep-diagnosis' ? enhancement.value : 'off',
   };
   startedHarness.value = payload.harness;
 
@@ -878,6 +916,40 @@ onUnmounted(() => {
   border-radius: var(--radius); padding: 18px;
   box-shadow: var(--shadow-sm);
 }
+
+/* ========== Agent Workbench: intent cards ========== */
+.wb-block { display: flex; flex-direction: column; gap: 8px; }
+.wb-label { font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: .3px; }
+.wb-intent-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;
+}
+.wb-intent-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  text-align: left; cursor: pointer;
+  background: var(--surface-soft); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  transition: border-color .15s, background .15s, transform .15s;
+  font-family: inherit; color: var(--text);
+}
+.wb-intent-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-1px); }
+.wb-intent-card.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.wb-intent-icon { font-size: 16px; color: var(--accent); }
+.wb-intent-name { font-size: 13px; font-weight: 600; }
+.wb-intent-card.active .wb-intent-name { color: var(--accent); }
+.wb-intent-desc { font-size: 11px; line-height: 1.5; color: var(--text2); }
+.wb-note { margin: 0; font-size: 11px; line-height: 1.6; color: var(--text2); }
+.wb-advanced { border: 1px dashed var(--border); border-radius: 10px; padding: 0; }
+.wb-advanced summary {
+  cursor: pointer; padding: 8px 12px; font-size: 12px; color: var(--text2);
+  user-select: none; list-style-position: inside;
+}
+.wb-advanced summary:hover { color: var(--text); }
+.wb-advanced[open] summary { border-bottom: 1px dashed var(--border); }
+.wb-advanced-row { padding: 10px 12px; flex-wrap: wrap; }
 .ctrl-input, .ctrl-textarea {
   background: var(--surface-soft); border: 1px solid var(--border);
   border-radius: 14px; padding: 10px 13px; color: var(--text);

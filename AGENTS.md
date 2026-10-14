@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 23 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` for DOE / production-condition data analysis outside the 9-stage pipeline, and the closed-loop trio `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` with backend integration routes under `/api/sentinel` · `/api/experience` · `/api/optimizer`)
+1. **Skills** (`.claude/skills/`) — 23 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` and the specialist quartet `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` / `industrial-line-stability-report`). There are **no fixed-script HTTP analysis endpoints**: every specialist analysis is a real harness agent run dispatched via `POST /api/diagnosis/start { analysisIntent }` (ids: `deep-diagnosis` / `stability-report` / `quick-screen` / `doe-analysis` / `experience-mining` / `optimizer-campaign`), streamed live in the frontend (Analysis workbench + Specialist panels) and persisted like any diagnostic run.
 2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 

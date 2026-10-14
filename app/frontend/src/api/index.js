@@ -293,48 +293,9 @@ export const api = {
   ompHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/html`,
   ompEnhHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/enhancement/html`,
 
-  // ── Closed-loop console（闭环三件套：sentinel / experience / optimizer）──
-  // 哨兵：基线 / 批筛任务 / 增量快筛 / 基线登记表
-  sentinelBaselines: () => request('/sentinel/baselines'),
-  sentinelBaselineBuild: (params) =>
-    request('/sentinel/baseline', { method: 'POST', body: JSON.stringify(params) }),
-  sentinelWatch: (params) =>
-    request('/sentinel/tasks', { method: 'POST', body: JSON.stringify(params) }),
-  sentinelScreen: (params) =>
-    request('/sentinel/screen', { method: 'POST', body: JSON.stringify(params) }),
-  sentinelTask: (taskId) => request(`/sentinel/tasks/${encodeURIComponent(taskId)}`),
-  // 产线运行稳定性报告（协同 sentinel 基线 / tuning-memory 归因 / doe 操作窗）
-  lineReportRun: (params) =>
-    request('/line-report/tasks', { method: 'POST', body: JSON.stringify(params) }),
-  lineReportTask: (taskId) => request(`/line-report/tasks/${encodeURIComponent(taskId)}`),
-  lineReportRuns: () => request('/line-report/runs'),
-  // DOE/工况分析（分析中心「工况DOE分析」模式）
-  doeAnalysisRun: (params) =>
-    request('/doe-analysis/tasks', { method: 'POST', body: JSON.stringify(params) }),
-  doeAnalysisTask: (taskId) => request(`/doe-analysis/tasks/${encodeURIComponent(taskId)}`),
-  doeAnalysisRuns: () => request('/doe-analysis/runs'),
-  doeAnalysisRunDetail: (taskId) => request(`/doe-analysis/runs/${encodeURIComponent(taskId)}`),
-  // 经验库：动作摄取（异步归因 job）→ 库视图 → 检索 → 反馈
-  experienceIngest: (params) =>
-    request('/experience/actions', { method: 'POST', body: JSON.stringify(params) }),
-  experienceJob: (jobId) => request(`/experience/attribution/${encodeURIComponent(jobId)}`),
-  experienceRecommend: (params) =>
-    request('/experience/recommend', { method: 'POST', body: JSON.stringify(params) }),
-  experienceLibrary: () => request('/experience/library'),
-  experienceFeedback: (params) =>
-    request('/experience/feedback', { method: 'POST', body: JSON.stringify(params) }),
-  // 寻优：campaign 全生命周期
-  optimizerCampaigns: () => request('/optimizer/campaigns'),
-  optimizerCampaign: (objective) =>
-    request('/optimizer/campaign', { method: 'POST', body: JSON.stringify({ objective }) }),
-  optimizerRound: (params) =>
-    request('/optimizer/round', { method: 'POST', body: JSON.stringify(params) }),
-  optimizerState: (campaignId) =>
-    request(`/optimizer/state${campaignId ? `?campaign_id=${encodeURIComponent(campaignId)}` : ''}`),
-  optimizerPause: (campaignId) =>
-    request('/optimizer/pause', { method: 'POST', body: JSON.stringify({ campaign_id: campaignId }) }),
-  optimizerResume: (campaignId) =>
-    request('/optimizer/resume', { method: 'POST', body: JSON.stringify({ campaign_id: campaignId }) }),
+  // 说明：固定脚本分析（sentinel / line-report / doe-analysis / experience /
+  // optimizer 的 HTTP 直包端点）已从产品面退役——所有分析由集成智能体经
+  // /api/diagnosis/start（analysisIntent）真实执行。
 };
 
 // WebSocket URL (same host, port determined at runtime) — 连接时携带 token 鉴权

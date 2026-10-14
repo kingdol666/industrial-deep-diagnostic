@@ -21,6 +21,7 @@ import { join, isAbsolute } from 'path';
 import {
   buildRuntimeProtocol, buildPrompt, resolveAnalysisTarget,
   isDangerousCommand, buildOntologyDirective, buildEnhancementDirective,
+  ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
   DATA_DIR, WORKSPACE_DIR,
 } from './claude-client.mjs';
 
@@ -315,6 +316,7 @@ export function startDiagnosis({
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
+  analysisIntent = 'deep-diagnosis',
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const ompSession = parseOmpSessionId(sessionId);
@@ -333,15 +335,26 @@ export function startDiagnosis({
   } else {
     // OMP discovers .claude/skills natively; point it at the skill explicitly
     // and inline the runtime protocol (avoiding oversized argv payloads).
-    const skillMd = join(PROJECT_ROOT, config.claude.skill_dir || '.claude/skills/industrial-analysis-auto', 'SKILL.md');
+    // A non-default analysis intent re-points the skill reference at the
+    // intent's own skill — buildIntentDirective marks the pipeline rules as
+    // superseded for that run.
+    const intent = resolveAnalysisIntent(analysisIntent);
+    const intentSpec = intent && intent !== 'deep-diagnosis' ? ANALYSIS_INTENTS[intent] : null;
+    const skillMd = join(
+      PROJECT_ROOT,
+      intentSpec
+        ? `.claude/skills/${intentSpec.skill}`
+        : (config.claude.skill_dir || '.claude/skills/industrial-analysis-auto'),
+      'SKILL.md',
+    );
     const skillRef = existsSync(skillMd)
-      ? `First read the authoritative skill definition at ${skillMd} and follow its full pipeline contract as binding.`
-      : `Follow the industrial deep diagnostic skill protocol (industrial-analysis-auto).`;
+      ? `First read the authoritative skill definition at ${skillMd} and follow its full protocol contract as binding.`
+      : `Follow the ${intentSpec ? intentSpec.skill : 'industrial deep diagnostic skill (industrial-analysis-auto)'} protocol.`;
     prompt = `${buildRuntimeProtocol(sceneName, lang)}
 
 ${skillRef}
 
-${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
   }
 
   query.sendPrompt(prompt).catch(err => {

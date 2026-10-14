@@ -100,6 +100,50 @@ export function buildEnhancementDirective(enhancement) {
   return lines.join('\n') + '\n';
 }
 
+// ── Analysis intent directive — appended to the user prompt for ALL engines ──
+// v4 AgentWorkShop: the product has no fixed-script analysis surface. Every
+// run is executed by the real agent; a non-default intent re-points the run
+// at the matching skill protocol instead of the 9-stage deep-diagnosis
+// pipeline. The skill's own scripts still run — but under agent control,
+// reading real outputs and iterating, never as a canned HTTP wrapper.
+export const ANALYSIS_INTENTS = {
+  'deep-diagnosis': null, // default — full 9-stage pipeline via industrial-analysis-auto
+  'stability-report': { skill: 'industrial-line-stability-report' },
+  'quick-screen': { skill: 'industrial-sentinel' },
+  'doe-analysis': { skill: 'industrial-doe-analyzer' },
+  'experience-mining': { skill: 'industrial-tuning-memory' },
+  'optimizer-campaign': { skill: 'industrial-optimizer-loop' },
+};
+
+export function resolveAnalysisIntent(value) {
+  if (value === undefined || value === null || value === '' || value === 'deep-diagnosis') {
+    return 'deep-diagnosis';
+  }
+  return Object.prototype.hasOwnProperty.call(ANALYSIS_INTENTS, String(value))
+    ? String(value)
+    : null;
+}
+
+export function buildIntentDirective(intent, sceneName) {
+  const resolved = resolveAnalysisIntent(intent);
+  if (!resolved || resolved === 'deep-diagnosis') return '';
+  const spec = ANALYSIS_INTENTS[resolved];
+  // Filename-grade normalization: this string lands in a command the agent
+  // is told to copy-execute, so it must stay a safe single path segment.
+  const safeRunScene = sanitize(sceneName || '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'run';
+  return `
+## Analysis Intent Directive
+
+- ANALYSIS_INTENT: ${resolved}
+- This run does NOT execute the default 9-stage deep-diagnosis pipeline. Do not run the industrial-analysis-auto pipeline steps, do not dispatch its sub-agent topology, and do not apply its judge/review gates — the pipeline-specific runtime rules above are superseded by this directive.
+- Executing skill: ${spec.skill}. FIRST read .claude/skills/${spec.skill}/SKILL.md in full (plus the references it points to) and follow that protocol as the binding contract of this run.
+- Create the run workspace first, then keep every artifact inside it:
+  node .claude/skills/industrial-analysis-auto/scripts/setup.mjs --name "${safeRunScene}" --mode fast --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
+- Perform the analysis for real on the data files listed above: run the skill's scripts as tools against the actual data, read their real outputs, and iterate on what they return. Every number you report must come from a tool executed during this run — never fabricate, hard-code, or copy example values.
+- Finish by writing report.md at the root of the run dir: a narrative in the report language that answers the analysis question, citing only artifacts produced in this run.
+`;
+}
+
 export function buildSystemPrompt(sceneName, reportLanguage, skillContent) {
   const runtimeProtocol = buildRuntimeProtocol(sceneName, reportLanguage);
   if (!skillContent) return runtimeProtocol;
@@ -268,6 +312,7 @@ export function startDiagnosis({
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
+  analysisIntent = 'deep-diagnosis',
   model = null, permissionMode = null,
 }) {
   if (!sdkAvailable || !queryFn) {
@@ -297,6 +342,7 @@ export function startDiagnosis({
   const prompt = resumeSessionId
     ? buildResumePrompt(followUpMessage)
     : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)
+      + buildIntentDirective(analysisIntent, sceneName)
       + buildOntologyDirective(ontology)
       + buildEnhancementDirective(enhancement);
 

@@ -20,12 +20,6 @@ export default defineConfig({
         target: frontend.backend_url,
         changeOrigin: true,
       },
-      // 报告产物（line-report/doe 的 html_url/md_url 都是 /workspace-files/...
-      // 相对 URL）：前端 iframe/fetch 直接用，必须与 /api 一样代理到后端。
-      '/workspace-files': {
-        target: frontend.backend_url,
-        changeOrigin: true,
-      },
       '/ws': {
         target: frontend.ws_url,
         ws: true,

@@ -297,6 +297,7 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
     runId, maxTurns = 0, timeoutMinutes = 0,
     reportLanguage, followUpMessage, sessionId = null,
     ontology = null, enhancement = null,
+    analysisIntent = 'deep-diagnosis',
     model = null,
   }) {
     void maxTurns; // one-shot engines loop internally; turn budget == timeout
@@ -311,7 +312,7 @@ export function createOneShotEngineClient(spec, { buildPrompt, defaultTimeoutMin
     } else if (buildPrompt) {
       const built = buildPrompt({
         analysisTarget, userQuestion, sceneName, reportLanguage,
-        followUpMessage, ontology, enhancement,
+        followUpMessage, ontology, enhancement, analysisIntent,
       });
       dataPaths = built.dataPaths || [];
       prompt = built.prompt;

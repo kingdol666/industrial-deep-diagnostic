@@ -176,3 +176,6 @@ workspace/e2e-doe/run/
 # field-test runtime outputs (raw run artifacts are regenerable; the curated
 # test assets — cases/truth/results/reports — are force-added in commits)
 workspace/field-tests/
+
+# ZCode CLI local session state (plans, tool-local config)
+.zcode/
