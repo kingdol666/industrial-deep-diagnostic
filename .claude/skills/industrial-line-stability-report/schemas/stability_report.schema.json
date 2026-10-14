@@ -192,7 +192,8 @@
             "enum": ["info", "warn", "high", "critical"]
           },
           "category": { "enum": ["spc", "drift", "capability", "baseline_deviation",
-                                 "driver", "action", "data_quality", "window"] },
+                                 "driver", "action", "data_quality", "window",
+                                 "regime"] },
           "title": { "type": "string" },
           "detail": { "type": "string" },
           "evidence": {
