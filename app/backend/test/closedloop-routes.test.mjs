@@ -20,7 +20,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { mkdtempSync, mkdirSync, rmSync, existsSync } from 'fs';
+import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -216,6 +216,54 @@ describe('sentinel routes — 真实 CLI（build_baseline / sentinel_fast / watc
     const nf = await req('GET', '/api/sentinel/tasks/SNW-nonexistent');
     assert.equal(nf.status, 404);
   });
+
+  test('watch 目录输入：自适应选主时序表并审计辅助文件', { timeout: 240000 }, async () => {
+    const dir = join(CL_ROOT, 'sentinel-folder');
+    mkdirSync(dir, { recursive: true });
+    // 干净窗数据（配合登记基线 PG31DS-B 的口径），200 行
+    const rows = ['t,temp,press'];
+    for (let i = 0; i < 200; i++) {
+      rows.push([
+        new Date(Date.UTC(2026, 9, 5, 8, 0, 0) + i * 60000).toISOString(),
+        (50 + (Math.random() - 0.5) * 0.2).toFixed(4),
+        (1.2 + (Math.random() - 0.5) * 0.02).toFixed(5),
+      ].join(','));
+    }
+    writeFileSync(join(dir, 'process_timeseries.csv'), rows.join('\n'));
+    writeFileSync(join(dir, 'maintenance_log.csv'), 'event_time,event\n2026-10-05T10:00:00Z,filter swap\n');
+    writeFileSync(join(dir, 'README.md'), '# sentinel folder fixture');
+
+    // 先建一条干净基线（与 FX 干净窗同口径的稳定数据）
+    const reg = await req('POST', '/api/sentinel/baseline', {
+      body: { line: 'FOLDER-L1', history_csv: join(FX, 'sentinel_history.csv'), time_col: 't' },
+    });
+    assert.equal(reg.status, 200);
+    const regDone = await pollUntil(async () => {
+      const v = await req('GET', `/api/sentinel/tasks/${reg.body.data.task_id}`);
+      return { done: v.body?.data?.status === 'completed', value: v.body?.data };
+    }, { label: 'folder fixture baseline' });
+    assert.ok(regDone.baseline_path);
+
+    const r = await req('POST', '/api/sentinel/tasks', {
+      body: { data_dir: dir, input_kind: 'directory', time_col: 't' },
+    });
+    assert.equal(r.status, 200, JSON.stringify(r.body));
+    const done = await pollUntil(async () => {
+      const v = await req('GET', `/api/sentinel/tasks/${r.body.data.task_id}`);
+      const s = v.body?.data?.status;
+      return { done: s === 'completed' || s === 'failed', value: v.body?.data };
+    }, { label: 'watch folder task' });
+    assert.equal(done.status, 'completed', JSON.stringify(done).slice(0, 500));
+    assert.ok(done.input_manifest_path && existsSync(done.input_manifest_path), 'manifest written');
+    const manifest = JSON.parse(await import('fs').then(({ readFileSync }) => readFileSync(done.input_manifest_path, 'utf8')));
+    assert.equal(manifest.selected_table.file, 'process_timeseries.csv');
+    const dispositions = Object.fromEntries(manifest.source_dispositions.map((item) => [item.relative_path, item]));
+    assert.equal(dispositions['maintenance_log.csv'].disposition, 'excluded_from_scoring');
+    assert.equal(dispositions['README.md'].disposition, 'context_only');
+
+    const mismatch = await req('POST', '/api/sentinel/tasks', { body: { data_dir: dir, input_kind: 'file' } });
+    assert.equal(mismatch.status, 400);
+  });
 });
 
 // ─────────────────────────── experience ─────────────────────────────────
@@ -276,6 +324,43 @@ describe('experience routes — 真实 CLI（tune_stats / experience_build / mat
     assert.equal(done.reports[0].attribution.attribution_status, 'estimable');
     assert.ok(done.reports[0].attribution.effect !== null);
     assert.ok(existsSync(done.reports[0].report_path));
+  });
+
+  test('数据集目录输入：data_dir 自适应选主表 → 归因 estimable', { timeout: 180000 }, async () => {
+    const dir = join(CL_ROOT, 'experience-folder');
+    mkdirSync(dir, { recursive: true });
+    // 与 FX/experience_data.csv 同口径：1 秒采样 600 行，动作时刻 +3 阶跃
+    const rows = ['t,x,y'];
+    for (let i = 0; i < 600; i++) {
+      const x = 50 + (i >= 300 ? 3 : 0) + (Math.random() - 0.5) * 2;
+      rows.push([
+        new Date(Date.UTC(2026, 0, 15, 0, 0, i)).toISOString(),
+        x.toFixed(6), (x + (Math.random() - 0.5) * 0.5).toFixed(6),
+      ].join(','));
+    }
+    writeFileSync(join(dir, 'process_timeseries.csv'), rows.join('\n'));
+    writeFileSync(join(dir, 'maintenance_log.csv'), 'event_time,event\n2026-01-15T00:05:00Z,swap\n');
+
+    const r = await req('POST', '/api/experience/actions', {
+      body: {
+        action_log: { ...ACTION_LOG, action_log_id: '20260301_e2e00002' },
+        data_dir: dir,
+        input_kind: 'directory',
+        metric: 'y',
+        time_col: 't',
+      },
+    });
+    assert.equal(r.status, 200, JSON.stringify(r.body));
+    const jobId2 = r.body.data.attribution_job_id;
+    assert.ok(jobId2);
+    const done = await pollUntil(async () => {
+      const v = await req('GET', `/api/experience/attribution/${jobId2}`);
+      return { done: v.body?.data?.status === 'completed' || v.body?.data?.status === 'failed', value: v.body?.data };
+    }, { label: 'experience folder job' });
+    assert.equal(done.status, 'completed', JSON.stringify(done).slice(0, 600));
+    assert.equal(done.reports[0].attribution.attribution_status, 'estimable');
+    assert.ok(existsSync(join(dir, '..', '.closedloop-test-' + process.pid, 'experience', 'library', '00_input', '_staging', 'input_manifest.json'))
+      || existsSync(done.reports[0].report_path));
   });
 
   test('GET /actions/:id/status → completed', async () => {

@@ -1010,6 +1010,7 @@ export default {
 
   closedloop: {
     subtabs: { hub: 'Analysis Hub', sentinel: 'Sentinel', experience: 'Memory', stability: 'Line Report', optimizer: 'Optimizer' },
+    dataPicker: { up: 'Parent folder', loading: 'Loading folder…', empty: 'This folder is empty.', noFiles: 'No supported data files in this folder. Open a subfolder.', noFolders: 'No data folders are available here.', incompatible: 'This input is not compatible with the selected analysis mode.', useFolder: 'Analyze this entire folder adaptively', selectedFolder: 'Folder selected for analysis', folderAdaptive: 'Adaptive folder mode: the skill identifies a primary time-series table and audits auxiliary files.', selected: 'Selected input', none: 'No file or folder selected', clear: 'Clear selection' },
     hub: {
       title: 'Analysis Hub (skill mode selector)',
       desc: 'Pick a dataset and an analysis mode — one entry dispatches different skills: line stability report (ontology-first + closed-loop collaboration), DOE/condition analysis (auto mode detection for any tabular data), sentinel watch (SPC + drift projection). Execution streams live; inspect the HTML / Markdown report and artifact manifest when done.',

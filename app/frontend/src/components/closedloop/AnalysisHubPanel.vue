@@ -6,7 +6,7 @@
       <p class="cl-card-desc">{{ $t('closedloop.hub.desc') }}</p>
       <div class="hub-modes">
         <button v-for="m in modes" :key="m.key" type="button"
-                :class="['hub-mode', { active: mode === m.key }]" @click="mode = m.key">
+                :class="['hub-mode', { active: mode === m.key }]" @click="selectMode(m.key)">
           <span class="hub-mode-name">{{ $t(`closedloop.hub.mode.${m.key}`) }}</span>
           <span class="hub-mode-desc">{{ $t(`closedloop.hub.modeDesc.${m.key}`) }}</span>
           <span class="hub-mode-skill">{{ m.skill }}</span>
@@ -14,12 +14,8 @@
       </div>
 
       <div class="cl-form" style="margin-top: 12px">
-        <div class="cl-field">
-          <label>{{ $t('closedloop.hub.dataCsv') }}</label>
-          <input v-model="form.data_path" list="cl-data-paths-hub" placeholder="data/.../xxx.csv" />
-          <datalist id="cl-data-paths-hub">
-            <option v-for="p in dataPaths" :key="p" :value="p" />
-          </datalist>
+        <div class="cl-field wide">
+          <DataFilePicker v-model="form.data_input" :label="$t('closedloop.hub.dataCsv')" :extensions="dataExtensions" allow-folder />
         </div>
         <div class="cl-field">
           <label>{{ $t('closedloop.stability.line') }}</label>
@@ -76,9 +72,11 @@
       </div>
 
       <div class="cl-actions">
-        <button type="button" class="cl-btn" :disabled="busy" @click="run">
+        <button type="button" class="cl-btn" :disabled="busy || !dataCompatible" @click="run">
           {{ busy ? $t('closedloop.common.busy') : $t('closedloop.hub.run') }}
         </button>
+        <span v-if="form.data_input?.kind === 'directory'" class="cl-note">{{ $t('closedloop.dataPicker.folderAdaptive') }}</span>
+        <span v-if="!dataCompatible" class="cl-note">{{ $t('closedloop.dataPicker.incompatible') }}</span>
         <span v-if="error" class="cl-alert error">{{ error }}</span>
       </div>
     </section>
@@ -189,6 +187,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { api, authHeaders } from '../../api/index.js';
 import { useI18n } from 'vue-i18n';
 import { renderMarkdown } from '../../utils/markdown.js';
+import DataFilePicker from './DataFilePicker.vue';
 
 const { t } = useI18n();
 
@@ -198,6 +197,11 @@ const modes = [
   { key: 'sentinel', skill: 'industrial-sentinel' },
 ];
 const mode = ref('stability');
+const dataCompatible = computed(() => !form.data_input?.path || form.data_input.kind === 'directory'
+  || dataExtensions.value.includes(extensionOf(form.data_input.path)));
+const dataExtensions = computed(() => mode.value === 'stability'
+  ? ['.csv', '.tsv', '.xlsx', '.xls', '.parquet', '.json']
+  : mode.value === 'sentinel' ? ['.csv', '.tsv', '.tab', '.parquet', '.pq'] : ['.csv']);
 const busy = ref(false);
 const error = ref('');
 const taskId = ref(null);
@@ -208,15 +212,23 @@ const resultTab = ref('html');
 const summary = ref(null);
 const doeSummary = ref(null);
 const mdHtml = ref('');
-const dataPaths = ref([]);
 const baselines = ref([]);
 const runs = ref([]);
 
 const form = reactive({
-  data_path: '', line_id: '', time_col: 't',
+  data_input: { kind: 'file', path: '' }, line_id: '', time_col: 't',
   start: '', end: '', ontology_path: '', baseline_path: '',
   scene: '', context_text: '',
 });
+
+function extensionOf(value) {
+  const normalized = String(value || '').replace(/\\\\/g, '/');
+  const basename = normalized.slice(normalized.lastIndexOf('/') + 1);
+  const ext = basename.includes('.') ? basename.slice(basename.lastIndexOf('.')).toLowerCase() : '';
+  return ext;
+}
+
+function selectMode(nextMode) { mode.value = nextMode; }
 
 const statusText = computed(() => {
   if (busy.value) return t('closedloop.common.running');
@@ -281,9 +293,11 @@ function pushLine(entry) {
 
 async function runStability() {
   const created = await api.lineReportRun({
-    data_path: form.data_path,
+    ...(form.data_input.kind === 'directory'
+      ? { data_dir: form.data_input.path, input_kind: 'directory' }
+      : { data_path: form.data_input.path, input_kind: 'file' }),
     line_id: form.line_id || null,
-    time_col: form.time_col || null,
+    ...(form.data_input.kind === 'directory' && form.time_col === 't' ? { time_col: null } : { time_col: form.time_col || null }),
     start: form.start || null,
     end: form.end || null,
     baseline_path: form.baseline_path || null,
@@ -317,7 +331,9 @@ async function runDoe() {
     catch { throw new Error(t('closedloop.common.jsonInvalid')); }
   }
   const created = await api.doeAnalysisRun({
-    data_path: form.data_path,
+    ...(form.data_input.kind === 'directory'
+      ? { data_dir: form.data_input.path, input_kind: 'directory' }
+      : { data_path: form.data_input.path, input_kind: 'file' }),
     time_col: form.time_col || null,
     scene: form.scene || null,
     context,
@@ -344,7 +360,9 @@ async function runDoe() {
 
 async function runSentinel() {
   const created = await api.sentinelWatch({
-    data_path: form.data_path,
+    ...(form.data_input.kind === 'directory'
+      ? { data_dir: form.data_input.path, input_kind: 'directory' }
+      : { data_path: form.data_input.path, input_kind: 'file' }),
     baseline_path: form.baseline_path || null,
     time_col: form.time_col || null,
   });
@@ -373,7 +391,7 @@ async function runSentinel() {
 }
 
 async function run() {
-  if (!form.data_path) return;
+  if (!form.data_input?.path) return;
   busy.value = true;
   error.value = '';
   result.value = null;
@@ -402,25 +420,6 @@ async function loadMd() {
   } catch { mdHtml.value = ''; }
 }
 
-async function loadDataPaths() {
-  try {
-    const folders = await api.listData();
-    const out = [];
-    for (const f of (folders || []).slice(0, 40)) {
-      const name = typeof f === 'string' ? f : (f.name || f.folder);
-      if (!name || name.startsWith('.')) continue;
-      try {
-        const files = await api.listData(name);
-        for (const file of (files || []).slice(0, 20)) {
-          const fname = typeof file === 'string' ? file : (file.name || file.file);
-          if (fname && /\.(csv|json)$/i.test(fname)) out.push(`data/${name}/${fname}`);
-        }
-      } catch { /* folder may be a plain file entry */ }
-    }
-    dataPaths.value = out;
-  } catch { /* listing optional */ }
-}
-
 async function loadBaselines() {
   try {
     const data = await api.sentinelBaselines();
@@ -447,7 +446,7 @@ async function loadRuns() {
 
 watch(resultTab, (tab) => { if (tab === 'md') loadMd(); });
 
-onMounted(() => { loadDataPaths(); loadBaselines(); loadRuns(); });
+onMounted(() => { loadBaselines(); loadRuns(); });
 </script>
 
 <style scoped>

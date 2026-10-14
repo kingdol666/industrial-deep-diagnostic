@@ -19,7 +19,7 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 ## 定位
 
 ```
-输入：  时段生产数据（加工参数 ± 检测指标，CSV/TSV/XLSX/Parquet/JSON，≥50 行）
+输入：  生产时序表（文件输入支持 CSV/TSV/XLSX/Parquet/JSON；≥50 行）或整个服务器数据文件夹（递归自适应发现；≥50 行可解析时序主表）
 协同：  sentinel 基线（可选） · tuning-memory 动作归因（可选） · doe-analyzer 操作窗（可选）
 输出：  <out>/stability_report.json      机器可读契约 line-stability-report/1.0
         <out>/charts.json                 图表数据束 line-stability-charts/1.0
@@ -49,8 +49,9 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 
 | Mode | 入口 | 输入 | 时延 | 退出码 |
 |---|---|---|---|---|
-| script-only（后端/无人值守） | `stability_analyzer.py analyze` | 数据 + 可选协同输入 | 秒级 | 0/1/2/3 |
-| agent-assisted（完整报告） | 本 SKILL.md → Phase 0-4 | 同上 + agent 解读 | 分钟级 | 同上 + gate |
+- `stability_analyzer.py analyze` 文件模式分析一个输入表；HTTP line-report 的目录模式先运行 `industrial-data-preprocessor/data_preprocessor.py --stability-single-primary --recursive`，再将其唯一主时序规范表交给 analyzer。
+- 目录模式按确定性评分选择一个 ≥50 行且时间列 ≥80% 可解析的主表；默认不跨文件合并/重采样不同采样频率。QC/检测表、维修/事件表、manifest/说明材料按角色审计；真值/答案文件不读取、不复制、不哈希。逐文件处置与 SHA-256 存入 `00_input/input_manifest.json`，摘要通过 `data.preprocessing` 进入 JSON/HTML/Markdown。
+- 文件夹内若存在 `ontology*.json` 且用户未显式传本体，HTTP 编排层自动将其接线为 `--ontology` 输入（`condition.ontology.path` 可追溯）。同表内的 SV（设定值）列通常近似不变，会被时间不变量通道守卫剔除评分并出 data_quality 发现；PV（实际值）列正常入评。
 
 ## Inputs / Outputs
 

@@ -126,6 +126,78 @@ describe('line-report routes', { timeout: 240000 }, () => {
     assert.ok(text.includes('L1-TEST'));
   });
 
+  test('directory input adaptively selects a primary table and audits auxiliary files', { timeout: 180000 }, async () => {
+    const dir = join(DATA_ROOT, 'adaptive-folder');
+    mkdirSync(dir, { recursive: true });
+    const dcs = join(dir, 'process_timeseries.csv');
+    writeStableCsv(dcs, 240);
+    writeFileSync(join(dir, 'qc_shift_8h.csv'), 'time,yield_pct\\n'
+      + Array.from({ length: 63 }, (_, i) => `${new Date(Date.UTC(2026, 9, 1, i)).toISOString()},${98 + i / 100}`).join('\\n'));
+    writeFileSync(join(dir, 'maintenance_log.csv'), 'event_time,event\\n2026-10-02T00:00:00Z,filter change\\n');
+    writeFileSync(join(dir, 'README.md'), '# Mixed folder\\nAuxiliary files have different cadence.');
+    writeFileSync(join(dir, 'ground_truth.md'), '# Must not be loaded by preprocessing');
+    writeFileSync(join(dir, 'ontology.json'), JSON.stringify({
+      scene: { name: 'FOLDER-TEST', process_type: 'batch' },
+      signals: {},
+    }));
+
+    const created = await req('POST', '/api/line-report/tasks', {
+      data_dir: dir, input_kind: 'directory', line_id: 'FOLDER-TEST', time_col: null,
+    });
+    assert.equal(created.status, 200, JSON.stringify(created.body));
+    const final = await pollUntil(async () => {
+      const v = await req('GET', `/api/line-report/tasks/${created.body.data.task_id}`);
+      const done = v.body?.data?.status === 'completed' || v.body?.data?.status === 'failed';
+      return { done, value: v.body?.data };
+    }, { label: 'folder line-report task' });
+    assert.equal(final.status, 'completed', JSON.stringify(final).slice(0, 700));
+    const runDir = final.result.run_dir;
+    const manifest = JSON.parse(await import('fs').then(({ readFileSync }) => readFileSync(join(runDir, '00_input', 'input_manifest.json'), 'utf8')));
+    const report = JSON.parse(await import('fs').then(({ readFileSync }) => readFileSync(final.result.report_path, 'utf8')));
+    assert.equal(manifest.input_kind, 'directory');
+    assert.equal(manifest.selected_table.file, 'process_timeseries.csv');
+    assert.equal(manifest.scoring_table.rows, 240);
+    assert.equal(manifest.scoring_table.time_column, 't');
+    assert.ok(manifest.scoring_table.sha256.startsWith('sha256:'));
+    const dispositions = Object.fromEntries(manifest.source_dispositions.map((item) => [item.relative_path, item]));
+    assert.equal(dispositions['qc_shift_8h.csv'].role, 'auxiliary');
+    assert.equal(dispositions['qc_shift_8h.csv'].disposition, 'excluded_from_scoring');
+    assert.equal(dispositions['maintenance_log.csv'].role, 'event');
+    assert.equal(dispositions['maintenance_log.csv'].disposition, 'excluded_from_scoring');
+    assert.equal(dispositions['README.md'].disposition, 'context_only');
+    assert.equal(dispositions['ground_truth.md'].disposition, 'protected_excluded');
+    assert.equal(dispositions['ground_truth.md'].sha256, null);
+    assert.equal(dispositions['ground_truth.md'].size_bytes, null);
+    assert.equal(dispositions['ontology.json'].disposition, 'context_only');
+    assert.ok(final.result.report_summary.n_parameters_assessed > 0);
+    assert.equal(report.data.n_rows_used, 240);
+    assert.equal(report.data.preprocessing.mode, 'directory_adaptive');
+    assert.equal(report.data.preprocessing.source_directory, dir);
+    assert.ok(String(report.condition?.ontology?.path || '').includes('ontology.json'),
+      `ontology auto-wired, got ${JSON.stringify(report.condition?.ontology)}`);
+    assert.ok(report.data.preprocessing.manifest_path.endsWith('input_manifest.json'));
+    assert.ok(report.data.preprocessing.source_files.some((item) => item.relative_path === 'process_timeseries.csv' && item.disposition === 'selected'));
+    assert.ok(final.result.html_url.includes('/workspace-files/'));
+    const detail = await req('GET', `/api/line-report/runs/${created.body.data.task_id}`);
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.data.report.report_id, report.report_id);
+  });
+
+  test('folder API rejects mismatched kind, path escape and non-directories', async () => {
+    const wrongKind = await req('POST', '/api/line-report/tasks', {
+      data_dir: DATA_ROOT, input_kind: 'file',
+    });
+    assert.equal(wrongKind.status, 400);
+    const outside = await req('POST', '/api/line-report/tasks', {
+      data_dir: 'C:/Windows', input_kind: 'directory',
+    });
+    assert.equal(outside.status, 400);
+    const notDir = await req('POST', '/api/line-report/tasks', {
+      data_dir: dataCsv, input_kind: 'directory',
+    });
+    assert.equal(notDir.status, 400);
+  });
+
   test('missing data_path → 400', async () => {
     const r = await req('POST', '/api/line-report/tasks', { line_id: 'x' });
     assert.equal(r.status, 400);
@@ -137,6 +209,17 @@ describe('line-report routes', { timeout: 240000 }, () => {
       data_path: 'C:/Windows/win.ini',
     });
     assert.equal(r.status, 400);
+  });
+
+  test('directory and unsupported extension are rejected before task creation', async () => {
+    const folder = await req('POST', '/api/line-report/tasks', { data_path: DATA_ROOT });
+    assert.equal(folder.status, 400);
+    assert.match(folder.body.error, /expected a data file/);
+    const unsupported = join(DATA_ROOT, 'notes.txt');
+    writeFileSync(unsupported, 'not tabular data');
+    const ext = await req('POST', '/api/line-report/tasks', { data_path: unsupported });
+    assert.equal(ext.status, 400);
+    assert.match(ext.body.error, /unsupported file type/);
   });
 
   test('tiny data → completed with honest not_assessable (code 2)', async () => {

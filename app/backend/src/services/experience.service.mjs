@@ -17,12 +17,14 @@
 // 未携带时沿用最近注册的数据集（插件 experience_log 不传数据，此为继承语义）；
 // 从未注册则 tune_stats 以 not_estimable/metric_missing 诚实收尾，job 仍算完成。
 
-import { join, resolve } from 'path';
+import { join } from 'path';
+import { spawnSync } from 'child_process';
 import { existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
 import { createHash } from 'crypto';
+import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import {
-  closedloopRoot, ensureDir, readJsonSafe, writeJson,
-  uvPython, nodeScript, tail, resolveServerPath,
+  closedloopRoot, ensureDir, readJsonSafe, writeJson, resolveDataFile, resolveDataDirectory,
+  uvPython, nodeScript, tail,
 } from './closedloop.util.mjs';
 
 const SKILL_SCRIPTS = '.claude/skills/industrial-tuning-memory/scripts';
@@ -106,13 +108,68 @@ function deriveActionLogId(log) {
 
 // ── 数据集注册 ───────────────────────────────────────────────────────────
 
-function registerDataset({ data_path, metric = null, time_col = 't', group_key = null, dead_time = null }) {
-  if (!data_path) return datasetMeta();
-  const abs = resolveServerPath(data_path);
-  if (!existsSync(abs)) {
-    const err = new Error(`data_path not found: ${data_path}`);
+function preprocessFolderSync(dataAbs, stagingDir, name) {
+  const script = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+  const res = spawnSync('uv',
+    ['run', '--project', '.claude/shared/scripts', 'python', script,
+     '--data-path', dataAbs, '--output', stagingDir, '--name', name,
+     '--single-primary', '--recursive'],
+    { cwd: PROJECT_ROOT, encoding: 'utf8', timeout: 300000, windowsHide: true });
+  const report = readJsonSafe(join(stagingDir, 'preprocessing_report.json'), null);
+  if (res.status !== 0 || !report || report.status !== 'ok') {
+    const err = new Error(`folder preprocessing failed: ${report?.status || tail((res.stderr || '') + (res.stdout || ''))}`);
     err.status = 400;
     throw err;
+  }
+  writeJson(join(stagingDir, 'input_manifest.json'), {
+    manifest_version: 'experience-folder-input/1.0',
+    source_directory: String(dataAbs),
+    selected_table: report.selected_table,
+    source_dispositions: report.source_dispositions || [],
+    merge_exclusions: report.merge_exclusions || [],
+    notes: ['time column renormalized to ISO8601 UTC so action timestamps align with tune_stats'],
+  });
+  const canonical = join(stagingDir, 'preprocessed_data.csv');
+  // 预处理器把时间规范化为无时区 "YYYY-MM-DD HH:MM:SS"；tune_stats 的动作时间戳
+  // 是 UTC（带 Z），naive/aware 混比对齐会错位 → 还原为显式 UTC 再落盘。
+  const timeCol = report.selected_table?.time_column || report.quality?.time_column;
+  if (timeCol) {
+    const text = readFileSync(canonical, 'utf8');
+    const lines = text.split(/\r?\n/);
+    // preprocessor 写 utf-8-sig：首列名可能带 BOM 前缀
+    lines[0] = lines[0].replace(/^\uFEFF/, '');
+    const header = (lines[0] || '').split(',');
+    const idx = header.indexOf(timeCol);
+    if (idx >= 0) {
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i]) continue;
+        const cells = lines[i].split(',');
+        if (idx < cells.length && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(cells[idx])) {
+          cells[idx] = cells[idx].replace(' ', 'T') + 'Z';
+          lines[i] = cells.join(',');
+        }
+      }
+      writeFileSync(canonical, lines.join('\n'));
+    }
+  }
+  return canonical;
+}
+
+function registerDataset({ data_path = null, data_dir = null, input_kind = null, metric = null, time_col = 't', group_key = null, dead_time = null }) {
+  if (!data_path && !data_dir) return datasetMeta();
+  const resolvedKind = data_dir ? 'directory' : 'file';
+  if (Boolean(data_path) === Boolean(data_dir) || (input_kind && input_kind !== resolvedKind)) {
+    const err = new Error(`provide exactly one of data_path or data_dir with matching input_kind '${resolvedKind}'`);
+    err.status = 400;
+    throw err;
+  }
+  let abs;
+  if (data_dir) {
+    const sourceAbs = resolveDataDirectory(data_dir, 'data_dir');
+    const staging = ensureDir(join(libraryDir(), '00_input', '_staging'));
+    abs = preprocessFolderSync(sourceAbs, staging, metric || 'folder-dataset');
+  } else {
+    abs = resolveDataFile(data_path, 'data_path', ['.csv']);
   }
   copyFileSync(abs, join(libraryDir(), '00_input', 'data.csv'));
   const meta = {
@@ -235,7 +292,7 @@ export function ingestActions(body) {
 
   // 数据集注册（可选；未带则沿用最近注册的 metric/data）
   let meta = datasetMeta();
-  if (body?.data_path) meta = registerDataset(body);
+  if (body?.data_path || body?.data_dir) meta = registerDataset(body);
 
   // 幂等落盘 + 已知 job 复用
   const existingJobs = new Set();

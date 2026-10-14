@@ -53,6 +53,11 @@ def drift(x: np.ndarray, interval_seconds: float | None) -> dict:
     mk_p < 0.01 AND relative drift >= 0.1%/day. A pure-noise series routinely
     passes p<0.05 on ~1000 points, and extrapolating its tiny slope to a full
     day produces absurd percentages — the materiality gate prevents that.
+
+    Performance: when the relative slope is below the 0.1%/day materiality
+    gate, Mann-Kendall is SKIPPED (its p-value cannot change the verdict) and
+    mk_skipped records why — kendalltau is O(n^2) and dominated wide-table
+    runs. Significance outcomes are bit-identical to always computing it.
     """
     clean = x[~np.isnan(x)]
     res = {"slope_per_second": None, "per_day_relative": None,
@@ -62,10 +67,9 @@ def drift(x: np.ndarray, interval_seconds: float | None) -> dict:
     t = np.arange(len(clean), dtype=float)
     try:
         slope = stats.theilslopes(clean, t)[0]
-        mk_p = float(stats.kendalltau(t, clean).pvalue)
     except Exception:
         return res
-    if not np.isfinite(slope) or not np.isfinite(mk_p):
+    if not np.isfinite(slope):
         return res
     scale = float(np.median(clean))
     if abs(scale) < 1e-12:
@@ -73,11 +77,21 @@ def drift(x: np.ndarray, interval_seconds: float | None) -> dict:
     # slope is [unit]/row; one row spans `interval_seconds`, so [unit]/s = slope/interval
     per_sec = float(slope) / (interval_seconds or 1.0)
     res["slope_per_second"] = _r(per_sec)
-    res["mk_p"] = round(mk_p, 6)
-    per_day_rel = None
     if scale and np.isfinite(scale) and abs(scale) > 1e-12:
         per_day_rel = _r(abs(per_sec) * SECONDS_PER_DAY / abs(scale))
         res["per_day_relative"] = per_day_rel
+    per_day_rel = res["per_day_relative"]
+    if per_day_rel is None or per_day_rel < 0.001:
+        # 无法过显著性双门槛的第二条 → MK 检验不改变判定，跳过并如实记录
+        res["mk_skipped"] = "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+        return res
+    try:
+        mk_p = float(stats.kendalltau(t, clean).pvalue)
+    except Exception:
+        return res
+    if not np.isfinite(mk_p):
+        return res
+    res["mk_p"] = round(mk_p, 6)
     res["significant"] = bool(mk_p < 0.01 and per_day_rel is not None
                               and per_day_rel >= 0.001)
     return res

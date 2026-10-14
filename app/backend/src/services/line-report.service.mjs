@@ -11,11 +11,12 @@
 // 静态路由直接可开。协同输入（sentinel 基线 / tuning-memory action_log /
 // doe-analyzer run）全部可选，缺席由脚本侧降级记录。
 
-import { join, relative, isAbsolute } from 'path';
-import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
+import { createHash } from 'crypto';
+import { join, relative, isAbsolute, dirname, sep } from 'path';
+import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync, statSync } from 'fs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import {
-  closedloopRoot, ensureDir, readJsonSafe,
+  closedloopRoot, ensureDir, readJsonSafe, resolveDataFile, resolveDataDirectory,
   TaskTable, uvPythonStreaming, uvPython, nodeScript, tail, resolveServerPath,
   makeJobLog,
 } from './closedloop.util.mjs';
@@ -51,13 +52,19 @@ export function getTaskLog(taskId) {
 function resolveInputPath(value, name, { optional = false } = {}) {
   if (value === undefined || value === null || value === '') {
     if (optional) return null;
-    const err = new Error(`${name} is required (got ${value === undefined ? 'undefined' : JSON.stringify(value)})`);
+    const err = new Error(`${name} is required`);
     err.status = 400;
     throw err;
   }
+  if (name === 'data_path') {
+    return resolveDataFile(value, name, ['.csv', '.tsv', '.xlsx', '.xls', '.parquet', '.json']);
+  }
+  if (name === 'doe_run_dir') return resolveDataDirectory(value, name);
+  if (name === 'baseline_path') return resolveDataFile(value, name, ['.json']);
+  if (name === 'ontology_path') return resolveDataFile(value, name, ['.json']);
   const resolved = resolveServerPath(String(value));
-  if (!resolved || !existsSync(resolved)) {
-    const err = new Error(`${name}: file not found: ${value}`);
+  if (!existsSync(resolved)) {
+    const err = new Error(`${name}: path not found: ${value}`);
     err.status = 400;
     throw err;
   }
@@ -73,17 +80,31 @@ function resolveInputPath(value, name, { optional = false } = {}) {
 
 export function submitReport(body = {}) {
   const {
-    data_path, line_id = null, product = null, time_col = null,
+    data_path = null, data_dir = null, input_kind = null,
+    line_id = null, product = null, time_col = null,
     start = null, end = null, baseline_path = null, action_log = null,
     doe_run_dir = null, spec_limits = null, weights = null,
     parameter_cols = null, inspection_cols = null, metric = null,
     ontology_path = null, scene = null, doe_auto = false,
   } = body;
 
-  const dataAbs = resolveInputPath(data_path, 'data_path');
+  if (Boolean(data_path) === Boolean(data_dir) || (input_kind && input_kind !== (data_dir ? 'directory' : 'file'))) {
+    const err = new Error('provide exactly one of data_path or data_dir with a matching input_kind');
+    err.status = 400;
+    throw err;
+  }
+  const resolvedKind = data_dir ? 'directory' : 'file';
+  if (input_kind && input_kind !== resolvedKind) {
+    const err = new Error(`input_kind must be '${resolvedKind}' for the selected input`);
+    err.status = 400;
+    throw err;
+  }
+  const dataAbs = data_dir
+    ? resolveDataDirectory(data_dir, 'data_dir')
+    : resolveDataFile(data_path, 'data_path', ['.csv', '.tsv', '.xlsx', '.xls', '.parquet', '.json']);
   const baselineAbs = baseline_path ? resolveInputPath(baseline_path, 'baseline_path') : null;
   const doeAbs = doe_run_dir ? resolveInputPath(doe_run_dir, 'doe_run_dir') : null;
-  const ontologyAbs = ontology_path ? resolveInputPath(ontology_path, 'ontology_path') : null;
+  let ontologyAbs = ontology_path ? resolveInputPath(ontology_path, 'ontology_path') : null;
   if (doeAbs && !existsSync(join(doeAbs, 'conclusions', 'recommendations.json'))) {
     const err = new Error('doe_run_dir has no conclusions/recommendations.json — '
       + 'run industrial-doe-analyzer first');
@@ -97,10 +118,10 @@ export function submitReport(body = {}) {
   (async () => {
     const runDir = join(root(), task.task_id);
     const inputDir = ensureDir(join(runDir, '00_input'));
-    const outDir = join(runDir, 'line_report');
-
+    const outDir = ensureDir(join(runDir, 'line_report'));
+    const log = jobLogFor(task.task_id);
     const context = {};
-    if (dataAbs) context.data_path = dataAbs;
+    if (!data_dir && dataAbs) context.data_path = dataAbs;
     if (line_id) context.line_id = String(line_id);
     if (product) context.product = String(product);
     if (time_col) context.time_col = String(time_col);
@@ -125,10 +146,100 @@ export function submitReport(body = {}) {
       }
     }
 
-    const log = jobLogFor(task.task_id);
-    log.log(`[hub] 提交产线稳定性报告任务 ${task.task_id}（data=${data_path}）`);
+    log.log(`[hub] 提交产线稳定性报告任务 ${task.task_id}（input=${data_dir || data_path}）`);
+    let analysisDataPath = dataAbs;
+    if (data_dir) {
+      log.log('[hub] 文件夹输入：启动自适应文件发现与预处理…');
+      const preprocessor = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+      const prep = await uvPythonStreaming(preprocessor, [
+        '--data-path', dataAbs,
+        '--output', inputDir,
+        '--name', line_id || task.task_id,
+        '--stability-single-primary',
+        '--recursive',
+      ], { timeoutMs: 300000, onLine: (line, stream) => log.log(line, stream) });
+      const prepReportPath = join(inputDir, 'preprocessing_report.json');
+      const prepReport = readJsonSafe(prepReportPath, null);
+      if (prep.code !== 0 || !prepReport) {
+        throw new Error(`folder preprocessing failed (${prep.code}): ${tail(prep.stderr) || tail(prep.stdout)}`);
+      }
+      if (prepReport.status !== 'ok' || !existsSync(join(inputDir, 'preprocessed_data.csv'))) {
+        const auditPath = join(runDir, 'input_audit.json');
+        writeFileSync(auditPath, JSON.stringify(prepReport, null, 2));
+        throw new Error(`folder contains no usable primary time series: ${prepReport.status || 'missing canonical table'}; audit: ${auditPath}`);
+      }
+      const selected = prepReport.selected_table;
+      if (!selected || !selected.time_column || Number(selected.n_rows || 0) < 50) {
+        throw new Error('folder preprocessing did not find a time-series primary table with at least 50 rows');
+      }
+      const sourceFiles = (prepReport.source_dispositions || []).map((item) => {
+        if (item.role === 'protected_truth' || item.disposition === 'protected_excluded') {
+          return { ...item, sha256: null, size_bytes: null };
+        }
+        const sourcePath = item.relative_path ? join(dataAbs, item.relative_path) : null;
+        if (!sourcePath || !existsSync(sourcePath) || !statSync(sourcePath).isFile()) {
+          return { ...item, sha256: null, size_bytes: null };
+        }
+        const info = statSync(sourcePath);
+        return { ...item, sha256: `sha256:${createHash('sha256').update(readFileSync(sourcePath)).digest('hex')}`, size_bytes: info.size };
+      });
+      context.preprocessing = {
+        mode: 'directory_adaptive',
+        source_directory: dataAbs,
+        recursive_discovery: true,
+        report_path: prepReportPath,
+        manifest_path: join(inputDir, 'input_manifest.json'),
+        source_files: sourceFiles,
+        selected_table: prepReport.selected_table,
+        merge: prepReport.merge,
+        merge_exclusions: prepReport.merge_exclusions || [],
+        source_dispositions: prepReport.source_dispositions || [],
+        context_files: prepReport.context_files || [],
+        skipped_files: prepReport.skipped_files || [],
+        quality: prepReport.quality || {},
+      };
+      analysisDataPath = join(inputDir, 'preprocessed_data.csv');
+      context.data_path = analysisDataPath;
+      context.time_col = time_col || selected.time_column;
+      const inputHash = createHash('sha256').update(readFileSync(analysisDataPath)).digest('hex');
+      const manifest = {
+        manifest_version: 'line-report-folder-input/1.0',
+        input_kind: 'directory',
+        source_directory: dataAbs,
+        discovered_files: sourceFiles,
+        selected_table: prepReport.selected_table,
+        scoring_table: { path: analysisDataPath, sha256: `sha256:${inputHash}`, rows: selected.n_rows, columns: selected.n_cols, time_column: selected.time_column },
+        merge: prepReport.merge,
+        merge_exclusions: prepReport.merge_exclusions || [],
+        source_dispositions: sourceFiles,
+        context_files: prepReport.context_files || [],
+        skipped_files: prepReport.skipped_files || [],
+      };
+      context.preprocessing = { ...context.preprocessing, manifest_path: join(inputDir, 'input_manifest.json'), scoring_table: manifest.scoring_table };
+      writeFileSync(join(inputDir, 'input_manifest.json'), JSON.stringify(manifest, null, 2));
+      writeFileSync(join(inputDir, 'report_context.json'), JSON.stringify(context, null, 2));
+      if (!ontologyAbs) {
+        const ontologyFile = (prepReport.source_dispositions || []).find((item) =>
+          item.disposition === 'context_only' && /ontology[^/]*\.json$/i.test(item.relative_path || ''));
+        if (ontologyFile) {
+          ontologyAbs = resolveDataFile(join(dataAbs, ontologyFile.relative_path), 'ontology_path', ['.json']);
+          context.ontology_path = ontologyAbs;
+          writeFileSync(join(inputDir, 'report_context.json'), JSON.stringify(context, null, 2));
+          log.log(`[hub] 检测到文件夹内本体 ${ontologyFile.relative_path}，自动接线为本体输入`);
+        }
+      }
+      log.log(`[hub] 预处理完成：主表 ${selected.file}${selected.sheet ? ` / ${selected.sheet}` : ''}，${selected.n_rows} 行、${selected.n_cols} 列`);
+      for (const item of prepReport.merge_exclusions || []) log.log(`[hub] 未并入 ${item.file}: ${item.reason_code} — ${item.detail}`);
+      for (const item of prepReport.source_dispositions || []) {
+        if (['event', 'auxiliary', 'context', 'metadata', 'protected_truth', 'skipped'].includes(item.role)
+            || ['excluded_from_scoring', 'context_only', 'protected_excluded', 'skipped'].includes(item.disposition)) {
+          log.log(`[hub] 文件 ${item.relative_path}: ${item.role}/${item.disposition} — ${item.reason}`);
+        }
+      }
+    }
     const args = ['analyze', '--run-dir', runDir, '--out-dir', outDir];
-    if (time_col) args.push('--time-col', String(time_col));
+    if (analysisDataPath) args.push('--data', analysisDataPath);
+    if (time_col && !(data_dir && time_col === 't')) args.push('--time-col', String(time_col));
     if (metric) args.push('--metric', String(metric));
     if (baselineAbs) args.push('--baseline', baselineAbs);
     if (actionLogPath) args.push('--action-log', actionLogPath);
@@ -188,6 +299,8 @@ export function submitReport(body = {}) {
         run_dir: runDir,
         outcome: analyzer.code === 0 ? 'ok' : 'findings',
         report_path: join(outDir, 'stability_report.json'),
+        input_manifest_path: data_dir ? join(inputDir, 'input_manifest.json') : null,
+        preprocessing_report_path: data_dir ? join(inputDir, 'preprocessing_report.json') : null,
         html_path: join(outDir, 'line_stability_report.html'),
         html_url: toWebUrl(join(outDir, 'line_stability_report.html')),
         md_path: existsSync(mdPath) ? mdPath : null,
@@ -266,7 +379,7 @@ export function getReport(taskId) {
     task_id: taskId,
     html_url: toWebUrl(join(root(), taskId, 'line_report', 'line_stability_report.html')),
     report_path: repPath,
-    report,
+    report: rep,
   };
 }
 

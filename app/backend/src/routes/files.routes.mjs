@@ -6,7 +6,7 @@ import { join, basename } from 'path';
 import { existsSync } from 'fs';
 import { config, PROJECT_ROOT, data as dataConfig } from '../../../../config/loader.mjs';
 import {
-  listDataDir, createDataFolder, deleteDataFolder,
+  listDataDir, listDataFolder, createDataFolder, deleteDataFolder,
   listWorkspaceRuns, getWorkspaceReport, getWorkspaceOptimizer,
   listWorkspaceFiles, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
 } from '../services/files.service.mjs';
@@ -20,6 +20,16 @@ const router = Router();
 const upload = multer({
   dest: UPLOAD_DIR,
   limits: { fileSize: dataConfig.upload.max_file_size_mb * 1024 * 1024 },
+});
+
+// Browse a nested data folder using a safely resolved relative path.
+router.get('/data/browse', async (req, res) => {
+  try {
+    const entries = await listDataFolder(req.query.path || '');
+    res.json({ success: true, data: entries });
+  } catch (err) {
+    res.status(err.status || 500).json({ success: false, error: err.message });
+  }
 });
 
 // List all data files and folders

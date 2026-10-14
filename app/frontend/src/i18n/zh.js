@@ -1010,6 +1010,7 @@ export default {
 
   closedloop: {
     subtabs: { hub: '分析中心 Hub', sentinel: '哨兵 Sentinel', experience: '经验库 Memory', stability: '产线报告 Stability', optimizer: '寻优 Optimizer' },
+    dataPicker: { up: '上级目录', loading: '正在读取目录…', empty: '该目录为空。', noFiles: '此目录中没有当前分析支持的数据文件，请打开子文件夹。', noFolders: '此目录无可用数据文件夹。', incompatible: '当前输入与所选分析模式不兼容，请重新选择。', useFolder: '对整个文件夹做自适应分析', selectedFolder: '将分析整个文件夹', folderAdaptive: '目录自适应模式：skill 将识别主时序表并审计辅助文件。', selected: '当前输入', none: '尚未选择文件或文件夹', clear: '清除选择' },
     hub: {
       title: '分析中心（skill 分析模式选择）',
       desc: '选择数据与分析模式——同一个入口调度不同 skill：产线稳定性报告（本体优先+闭环协同）、工况DOE分析（任意表数据自动判模式）、哨兵批筛（SPC+漂移投影）。执行过程实时流式渲染，完成后直接查看 HTML / Markdown 报告与产物清单。',

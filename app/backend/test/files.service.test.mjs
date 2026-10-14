@@ -3,11 +3,11 @@
 // destructive endpoints must refuse those names even when called exactly.
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'fs';
+import { mkdtempSync, writeFileSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, basename } from 'path';
 
-const { isSystemDatabaseFile, listDataDir, deleteDataFolder } = await import('../src/services/files.service.mjs');
+const { isSystemDatabaseFile, listDataDir, listDataFolder, deleteDataFolder, DATA_DIR } = await import('../src/services/files.service.mjs');
 const { config } = await import('../../../config/loader.mjs');
 
 const DB_FILE = basename(config.database.path);
@@ -38,6 +38,24 @@ describe('listDataDir — hides system database artifacts from the user listing'
 
     const entries = await listDataDir(dir);
     assert.deepEqual(entries.map((e) => e.name), ['sensor.csv']);
+  });
+});
+
+describe('listDataFolder — safely browses nested directories under data root', () => {
+  test('lists nested entries and rejects traversal or non-folder paths', async () => {
+    const dir = join(DATA_DIR, `.browse-test-${process.pid}`);
+    mkdirSync(join(dir, 'nested'), { recursive: true });
+    writeFileSync(join(dir, 'nested', 'sample.csv'), 't,x\\n1,2\\n');
+    try {
+      const entries = await listDataFolder(`.browse-test-${process.pid}/nested`);
+      assert.deepEqual(entries.map((entry) => entry.name), ['sample.csv']);
+      await assert.rejects(() => listDataFolder('../workspace'), (err) => err.status === 400);
+      await assert.rejects(() => listDataFolder(`.browse-test-${process.pid}/nested/sample.csv`), (err) => err.status === 400);
+      await assert.rejects(() => listDataFolder(`.browse-test-${process.pid}/../..`), (err) => err.status === 400);
+    } finally {
+      const { rmSync } = await import('fs');
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

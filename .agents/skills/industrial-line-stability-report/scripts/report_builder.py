@@ -145,7 +145,17 @@ def build(report: dict, charts: dict) -> str:
     prep = data.get("preprocessing")
     prep_s = (prep if isinstance(prep, str)
               else json.dumps(prep, ensure_ascii=False)) if prep else None
-    prep_row = (f"<tr><th>预处理溯源</th><td>{_esc(prep_s)}</td></tr>" if prep_s else "")
+    prep_row = ""
+    if isinstance(prep, dict) and prep.get("mode") == "directory_adaptive":
+        dispositions = prep.get("source_dispositions") or []
+        primary = prep.get("selected_table") or {}
+        rows = "".join(f"<tr><td>{_esc(x.get('relative_path', ''))}</td><td>{_esc(x.get('role', ''))}</td><td>{_esc(x.get('disposition', ''))}</td><td>{_esc(x.get('reason', ''))}</td></tr>" for x in dispositions)
+        prep_row = (f"<tr><th>文件夹自适应输入</th><td>评分主表 {_esc(primary.get('file') or '—')}；"
+                    f"时间列 {_esc(primary.get('time_column') or '—')}；{primary.get('n_rows', 0)} 行。"
+                    f"完整来源及 SHA-256：<code>{_esc(prep.get('manifest_path') or '00_input/input_manifest.json')}</code></td></tr>"
+                    f"<tr><td colspan=2><table><thead><tr><th>来源</th><th>角色</th><th>处置</th><th>原因</th></tr></thead><tbody>{rows}</tbody></table></td></tr>")
+    elif prep_s:
+        prep_row = f"<tr><th>预处理溯源</th><td>{_esc(prep_s)}</td></tr>"
     doc = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -719,7 +729,16 @@ def build_markdown(report: dict) -> str:
     ap(f"- 时间列/采样间隔：{data['time_col']} / "
        f"{_num(data.get('sampling_interval_median_seconds'), 2)} s；缺失率 {data.get('missing_rate', 0):.2%}")
     prep = data.get("preprocessing")
-    if prep:
+    if isinstance(prep, dict) and prep.get("mode") == "directory_adaptive":
+        primary = prep.get("selected_table") or {}
+        ap(f"- 输入模式：自适应目录 `{prep.get('source_directory')}`；评分主表 `{primary.get('file')}`（{primary.get('n_rows')} 行，时间列 `{primary.get('time_column')}`）。")
+        ap(f"- 逐文件来源角色/处置及 SHA-256：`{prep.get('manifest_path') or '00_input/input_manifest.json'}`")
+        ap("")
+        ap("| 来源文件 | 角色 | 处置 | 原因 |")
+        ap("|---|---|---|---|")
+        for item in prep.get("source_files", []):
+            ap(f"| {item.get('relative_path')} | {item.get('role')} | {item.get('disposition')} | {item.get('reason')} |")
+    elif prep:
         prep_s = prep if isinstance(prep, str) else json.dumps(prep, ensure_ascii=False)
         ap(f"- 预处理溯源：{prep_s}")
     lim = report.get("limitations") or {}

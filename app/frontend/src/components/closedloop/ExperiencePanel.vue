@@ -20,8 +20,7 @@
             <textarea v-model="ingest.actions" rows="8" spellcheck="false" />
           </div>
           <div class="cl-field">
-            <label>{{ $t('closedloop.experience.dataset') }}</label>
-            <input v-model="ingest.data_path" list="exp-data-paths" placeholder="data/.../series.csv" />
+            <DataFilePicker v-model="ingest.data_input" :label="$t('closedloop.experience.dataset')" :extensions="['.csv']" allow-folder />
           </div>
           <div class="cl-form">
             <div class="cl-field">
@@ -125,9 +124,6 @@
       <div v-if="fbOutcome" class="cl-alert" :class="fbOutcome.ok ? 'ok' : 'error'">{{ fbOutcome.text }}</div>
     </section>
 
-    <datalist id="exp-data-paths">
-      <option v-for="p in dataPaths" :key="p" :value="p" />
-    </datalist>
   </div>
 </template>
 
@@ -135,16 +131,16 @@
 import { onMounted, reactive, ref } from 'vue';
 import { api } from '../../api/index.js';
 import { useI18n } from 'vue-i18n';
+import DataFilePicker from './DataFilePicker.vue';
 
 const { t } = useI18n();
 
 const library = ref({});
-const dataPaths = ref([]);
 const busy = reactive({ ingest: false, recommend: false, feedback: false });
 
 const ingest = reactive({
   actions: '',
-  data_path: '',
+  data_input: { kind: 'file', path: '' },
   metric: 'yield_pct',
   time_col: 't',
 });
@@ -197,25 +193,7 @@ async function loadLibrary() {
     library.value = data || {};
   } catch { library.value = {}; }
 }
-async function loadDataPaths() {
-  try {
-    const folders = await api.listData();
-    const out = [];
-    for (const f of (folders || []).slice(0, 40)) {
-      const name = typeof f === 'string' ? f : (f.name || f.folder);
-      if (!name || name.startsWith('.')) continue;
-      try {
-        const files = await api.listData(name);
-        for (const file of (files || []).slice(0, 20)) {
-          const fname = typeof file === 'string' ? file : (file.name || file.file);
-          if (fname && /\.(csv|json)$/i.test(fname)) out.push(`data/${name}/${fname}`);
-        }
-      } catch { /* entry may be a plain file */ }
-    }
-    dataPaths.value = out;
-  } catch { /* optional */ }
-}
-onMounted(() => { loadLibrary(); loadDataPaths(); });
+onMounted(() => { loadLibrary(); });
 
 async function submitIngest() {
   const parsed = parseJson(ingest.actions);
@@ -228,7 +206,9 @@ async function submitIngest() {
   try {
     const data = await api.experienceIngest({
       action_log: parsed.value,
-      data_path: ingest.data_path || undefined,
+      ...(ingest.data_input.kind === 'directory'
+        ? { data_dir: ingest.data_input.path, input_kind: 'directory' }
+        : { data_path: ingest.data_input.path || undefined, input_kind: 'file' }),
       metric: ingest.metric || null,
       time_col: ingest.time_col || 't',
     });

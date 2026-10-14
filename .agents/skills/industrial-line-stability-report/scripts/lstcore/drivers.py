@@ -1,12 +1,39 @@
-"""Cross-parameter driver analysis: lag-compensated correlation + contribution."""
+"""Cross-parameter driver analysis: lag-compensated correlation + contribution.
+
+Performance contract (identical outputs to the scipy reference): Spearman per
+lag is Pearson of average ranks computed ON THAT LAG'S SLICE (subset ranks
+must be recomputed — dropping rows shifts other members' ranks, so global
+ranks cannot be reused across lags). Compared with calling scipy.spearmanr
+per slice (~510µs of per-call overhead, 39k calls dominated a 61-param run at
+~24 s), the pandas-rank + centered-Pearson form computes the same values at a
+fraction of the cost.
+"""
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 DEFAULT_MAX_LAG = 10
 MIN_OVERLAP = 20
+
+
+def _pearson(xs: np.ndarray, ys: np.ndarray) -> float | None:
+    """Centered Pearson correlation; None when undefined (< overlap / zero var)."""
+    n = xs.size
+    if n < MIN_OVERLAP:
+        return None
+    xm = xs - xs.mean()
+    ym = ys - ys.mean()
+    denom = float(np.sqrt((xm @ xm) * (ym @ ym)))
+    if not np.isfinite(denom) or denom <= 0:
+        return None
+    r = float((xm @ ym) / denom)
+    return r if np.isfinite(r) else None
+
+
+def _avg_ranks(v: np.ndarray) -> np.ndarray:
+    """Average-tie ranks on the given values (equals scipy rankdata('average'))."""
+    return pd.Series(v).rank(method="average").to_numpy(dtype=float)
 
 
 def _pair_corr(a: np.ndarray, b: np.ndarray, max_lag: int,
@@ -21,53 +48,67 @@ def _pair_corr(a: np.ndarray, b: np.ndarray, max_lag: int,
     """
     n = len(a)
     cap = min(max_lag, max(0, n - MIN_OVERLAP))
+    a_nan = bool(np.isnan(a).any())
+    b_nan = bool(np.isnan(b).any())
     best = {"best_abs_r": 0.0, "best_lag_rows": 0, "leader": "none"}
-    pearson_at_best = spearman_at_best = None
-    for lag in range(0, cap + 1):
-        if lag == 0:
-            oriented = [("none", a, b)]
-        elif both_directions:
-            oriented = [("a", a[:-lag], b[lag:]),   # a leads b by `lag` rows
-                        ("b", b[:-lag], a[lag:])]   # b leads a by `lag` rows
-        else:
-            oriented = [("a", a[:-lag], b[lag:])]
-        for leader, x, y in oriented:
-            mask = ~(np.isnan(x) | np.isnan(y))
-            xs, ys = x[mask], y[mask]
-            if len(xs) < MIN_OVERLAP:
-                continue
-            r_sp = float(stats.spearmanr(xs, ys).statistic)
-            if not np.isfinite(r_sp):
-                continue
-            if abs(r_sp) > abs(best["best_abs_r"]):
-                r_pe = (float(stats.pearsonr(xs, ys).statistic)
-                        if np.std(xs) > 0 and np.std(ys) > 0 else None)
-                best = {"best_abs_r": round(abs(r_sp), 6),
-                        "best_lag_rows": lag, "leader": leader}
-                spearman_at_best = round(r_sp, 6)
-                pearson_at_best = (round(r_pe, 6)
-                                   if r_pe is not None and np.isfinite(r_pe) else None)
+    best_at = (None, None)  # raw values at the best slice, for pearson_at_best
+    spearman_at_best = None
+
+    def consider(token, lag, xs, ys):
+        nonlocal best, best_at, spearman_at_best
+        if xs.size < MIN_OVERLAP:
+            return
+        r = _pearson(_avg_ranks(xs), _avg_ranks(ys))
+        if r is None:
+            return
+        if abs(r) > abs(best["best_abs_r"]):
+            best = {"best_abs_r": round(abs(r), 6),
+                    "best_lag_rows": lag, "leader": token}
+            spearman_at_best = round(r, 6)
+            best_at = (xs, ys)
+
+    def valid(x_raw, y_raw):
+        if a_nan or b_nan:
+            m = ~(np.isnan(x_raw) | np.isnan(y_raw))
+            return x_raw[m], y_raw[m]
+        return x_raw, y_raw
+
+    # lag0（方向对称；完整重叠）
+    xs, ys = valid(a, b)
+    consider("none", 0, xs, ys)
+    for lag in range(1, cap + 1):
+        oriented = [("a", a[:-lag], b[lag:])]
+        if both_directions:
+            oriented.append(("b", b[:-lag], a[lag:]))
+        for token, xa, ya in oriented:
+            xs, ys = valid(xa, ya)
+            consider(token, lag, xs, ys)
+
     lag0 = _lag0(a, b)
+    pearson_at_best = (_pearson(*best_at) if best_at[0] is not None else None)
     return {
         "pearson": lag0["pearson"],
         "spearman": lag0["spearman"],
         "best_abs_r": best["best_abs_r"],
         "best_lag_rows": best["best_lag_rows"],
         "leader": best["leader"],
-        **({"pearson_at_best": pearson_at_best, "spearman_at_best": spearman_at_best}),
+        "pearson_at_best": (round(pearson_at_best, 6)
+                            if pearson_at_best is not None
+                            and np.isfinite(pearson_at_best) else None),
+        "spearman_at_best": spearman_at_best,
     }
 
 
 def _lag0(a: np.ndarray, b: np.ndarray) -> dict:
     mask = ~(np.isnan(a) | np.isnan(b))
     x, y = a[mask], b[mask]
-    if len(x) < MIN_OVERLAP or np.std(x) == 0 or np.std(y) == 0:
+    if len(x) < MIN_OVERLAP:
         return {"pearson": None, "spearman": None}
-    r_pe = float(stats.pearsonr(x, y).statistic)
-    r_sp = float(stats.spearmanr(x, y).statistic)
+    r_pe = _pearson(x, y)
+    r_sp = _pearson(_avg_ranks(x), _avg_ranks(y))
     return {
-        "pearson": round(r_pe, 6) if np.isfinite(r_pe) else None,
-        "spearman": round(r_sp, 6) if np.isfinite(r_sp) else None,
+        "pearson": round(r_pe, 6) if r_pe is not None and np.isfinite(r_pe) else None,
+        "spearman": round(r_sp, 6) if r_sp is not None and np.isfinite(r_sp) else None,
     }
 
 

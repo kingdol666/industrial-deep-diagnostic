@@ -27,6 +27,7 @@ is genuinely **data-source agnostic**.
 
 - `--data-path`: a single file **or** a directory (any mix of the formats
   below). The input is NEVER modified.
+- `--stability-single-primary --recursive`: folder-only profile for line-stability reporting. Recursively discovers supported sources, selects one ≥50-row time-series primary by deterministic score (premerged-name preference first), preserves context/metadata, excludes sparse events and explicitly named low-frequency quality sources, and never resamples or merges multiple cadences. Every discovered source receives a disposition/reason; ground-truth/answer files are excluded without reading or copying their contents.
 
 ## Outputs (written under `--output`, typically `RUN_DIR/00_input/`)
 
@@ -58,6 +59,16 @@ is genuinely **data-source agnostic**.
    right side).
 4. Non-tabular files are copied into `context/` and listed in the report — the
    ontology builder uses them as process background.
+5. The stability-specific `--stability-single-primary --recursive` mode does
+   not merge different sampling cadences. It selects one ≥50-row time-series
+   primary and records all auxiliary/event/context/skipped files with reasons.
+   Truth/answer references are filename-audited only and their contents are
+   neither parsed nor copied. Ontology JSONs (`ontology*.json`, `*本体*`) are
+   classified as metadata context so downstream skills can auto-wire them.
+6. PV/SV columns inside the primary table are NOT pre-filtered here: PV
+   (actual) channels are scored normally; near-constant SV (setpoint)
+   channels are dropped downstream by the stability analyzer's
+   time-invariant-channel guard and disclosed as a data_quality finding.
 
 ## Normalization
 

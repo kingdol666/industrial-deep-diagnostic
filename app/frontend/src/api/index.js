@@ -95,6 +95,7 @@ export const api = {
 
   // Data files
   listData: (folder) => request(folder ? `/files/data/${folder}` : '/files/data'),
+  browseData: (path = '') => request(`/files/data/browse?path=${encodeURIComponent(path)}`),
   createFolder: (name, description) =>
     request('/files/data/folder', { method: 'POST', body: JSON.stringify({ name, description }) }),
   deleteFolder: (name) =>

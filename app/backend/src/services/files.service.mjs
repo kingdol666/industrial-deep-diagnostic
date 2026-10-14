@@ -3,7 +3,7 @@
 import { readdir, stat, mkdir, rm, readFile, realpath } from 'fs/promises';
 import { existsSync } from 'fs';
 import { execFile as execFileCallback } from 'child_process';
-import { join, extname, dirname, resolve, basename } from 'path';
+import { join, extname, dirname, resolve, relative, basename, isAbsolute, sep } from 'path';
 import { homedir } from 'os';
 import { promisify } from 'util';
 import { config, PROJECT_ROOT, data as dataConfig, pipeline as pipeConfig } from '../../../../config/loader.mjs';
@@ -21,6 +21,36 @@ const execFile = promisify(execFileCallback);
 export function isSystemDatabaseFile(name) {
   const dbFileName = basename(config.database.path);
   return typeof name === 'string' && (name === dbFileName || name.startsWith(`${dbFileName}-`));
+}
+
+export async function listDataFolder(relativePath = '') {
+  const folderPath = resolve(DATA_DIR, String(relativePath || ''));
+  const rel = relative(DATA_DIR, folderPath);
+  if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    const err = new Error('Invalid data folder path');
+    err.status = 400;
+    throw err;
+  }
+  const rootReal = await realpath(DATA_DIR);
+  const folderReal = await realpath(folderPath).catch(() => null);
+  if (!folderReal) {
+    const err = new Error('Data folder not found');
+    err.status = 404;
+    throw err;
+  }
+  const realRel = relative(rootReal, folderReal);
+  if (realRel === '..' || realRel.startsWith(`..${sep}`) || isAbsolute(realRel)) {
+    const err = new Error('Data folder path is outside data root');
+    err.status = 400;
+    throw err;
+  }
+  const info = await stat(folderReal);
+  if (!info.isDirectory()) {
+    const err = new Error('Data path is not a folder');
+    err.status = 400;
+    throw err;
+  }
+  return listDataDir(folderReal);
 }
 
 // List contents of a data directory with metadata

@@ -53,7 +53,7 @@ _SKIP_EXTS = {
     ".yaml", ".log", ".bak",
 }
 _TABLE_EXTS = {".csv", ".tsv", ".txt", ".dat", ".xlsx", ".xlsm", ".xls",
-               ".json", ".md", ".markdown", ".html", ".htm"}
+               ".json", ".md", ".markdown", ".html", ".htm", ".parquet", ".pq"}
 _TIME_HINTS = ("time", "timestamp", "datetime", "date", "zeit", "ts_", "时间",
                "日期", "时刻")
 _MAIN_SHEET_HINTS = ("data", "记录", "统计", "历史", "history", "export", "查询")
@@ -501,19 +501,61 @@ def _quality_flags(df: pd.DataFrame, block: dict) -> dict:
     }
 
 
+def _file_role(path: Path) -> Tuple[str, str]:
+    """Conservative name-based role hint for audit; never merges event/context roles."""
+    low = path.stem.lower()
+    compact = low.replace("-", "_").replace(" ", "_")
+    if any(k in compact for k in ("maintenance", "repair", "维修", "检修", "event", "事件", "alarm", "告警")):
+        return "event", "filename indicates sparse events/maintenance; not a continuous sample series"
+    if any(compact.startswith(k) or f"_{k}" in compact for k in ("qc", "quality", "inspection", "质检", "检测", "lab")):
+        return "auxiliary", "filename indicates lower-frequency quality/inspection measurements"
+    if "manifest" in compact:
+        return "metadata", "filename identifies a data-generation manifest; retained as provenance, not a scoring table"
+    if "ontology" in compact or "本体" in compact:
+        return "metadata", "filename identifies an ontology model; retained as context for semantic wiring, not a scoring table"
+    if any(k in compact for k in ("readme", "ground_truth", "truth", "题目", "说明", "manual")):
+        return "context", "filename indicates documentation/metadata rather than process time series"
+    return "candidate", "tabular candidate; role determined by table score and time-axis checks"
+
+
+def _same_column_meaning(left: pd.Series, right: pd.Series) -> bool:
+    """Require overlapping values in shared numeric columns to agree before joining."""
+    lnum = pd.to_numeric(left, errors="coerce")
+    rnum = pd.to_numeric(right, errors="coerce")
+    both = lnum.notna() & rnum.notna()
+    if both.sum() == 0:
+        both_s = left.notna() & right.notna()
+        return not both_s.any() or bool((left[both_s].astype(str) == right[both_s].astype(str)).all())
+    lv, rv = lnum[both].to_numpy(), rnum[both].to_numpy()
+    scale = np.maximum(1.0, np.maximum(np.abs(lv), np.abs(rv)))
+    return bool((np.abs(lv - rv) <= 1e-8 * scale).all())
+
+
+def _numeric_columns(df: pd.DataFrame) -> set:
+    return {str(col) for col in df.columns
+            if pd.to_numeric(df[col], errors="coerce").notna().mean() > 0.7}
+
+
 # ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
 
-def _discover_sources(data_path: Path) -> List[Path]:
+def _discover_sources(data_path: Path, recursive: bool = False, exclude_paths: Optional[set] = None) -> List[Path]:
     if data_path.is_file():
         return [data_path]
+    exclude_paths = exclude_paths or set()
+    iterator = data_path.rglob('*') if recursive else data_path.iterdir()
     out: List[Path] = []
-    for p in sorted(data_path.iterdir()):
-        if p.is_dir():
+    for path in iterator:
+        if path.is_dir() or path.is_symlink():
             continue
-        out.append(p)
-    return out
+        resolved = path.resolve()
+        if resolved in exclude_paths:
+            continue
+        if any(part.startswith('.') or part in {'node_modules', '__pycache__'} for part in path.relative_to(data_path).parts):
+            continue
+        out.append(path)
+    return sorted(out, key=lambda path: path.relative_to(data_path).as_posix().casefold())
 
 
 def _classify(path: Path) -> str:
@@ -866,6 +908,169 @@ def preprocess(data_path: Path, output_dir: Path, run_name: str = "") -> dict:
     return report
 
 
+
+
+def _preprocess_stability_folder(data_path: Path, output_dir: Path, run_name: str = "", recursive: bool = True) -> dict:
+    """Folder contract for stability reports: discover every source, score one time-series primary, audit the rest."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    context_dir = output_dir / "context"
+    context_dir.mkdir(parents=True, exist_ok=True)
+    excluded_prefix = ()
+    if data_path.is_dir() and output_dir.resolve().is_relative_to(data_path.resolve()):
+        excluded_prefix = output_dir.resolve().relative_to(data_path.resolve()).parts
+    sources = _discover_sources(data_path, recursive=recursive)
+    if excluded_prefix:
+        sources = [p for p in sources if p.relative_to(data_path).parts[:len(excluded_prefix)] != excluded_prefix]
+
+    audit = {
+        "run_name": run_name, "input_path": str(data_path), "input_is_directory": data_path.is_dir(),
+        "recursive_discovery": recursive, "mode": "stability_single_primary_v1",
+        "sources": [], "source_dispositions": [], "tables": [], "selected_table": None,
+        "merge": None, "merge_exclusions": [], "quality": {}, "context_files": [],
+        "skipped_files": [], "status": "ok",
+    }
+    candidates = []
+    for source in sources:
+        relative_path = source.relative_to(data_path).as_posix() if data_path.is_dir() else source.name
+        protected_name = source.stem.casefold()
+        if any(token in protected_name for token in ("ground_truth", "groundtruth", "truth", "answer", "solution", "评分参考", "标准答案")):
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": "protected_truth", "disposition": "protected_excluded",
+                                                 "reason": "truth/answer reference is excluded without reading or copying its contents"})
+            continue
+        role_hint, role_reason = _file_role(source)
+        cls = _classify(source)
+        if cls == "skip":
+            reason = f"extension {source.suffix or '(none)'} is not a supported table/context format"
+            audit["skipped_files"].append({"file": relative_path, "reason": reason})
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": "skipped", "disposition": "skipped", "reason": reason})
+            continue
+        if role_hint in ("context", "metadata") or cls == "context":
+            destination = context_dir / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+            audit["context_files"].append(relative_path)
+            role = "metadata" if role_hint == "metadata" else "context"
+            reason = role_reason if role_hint in ("context", "metadata") else "non-tabular document preserved as context"
+            audit["sources"].append({"file": relative_path, "role": role, "reason": reason})
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": role,
+                                                 "disposition": "context_only", "reason": reason})
+            continue
+        if role_hint in ("event", "auxiliary"):
+            audit["sources"].append({"file": relative_path, "role": role_hint, "reason": role_reason})
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": role_hint,
+                                                 "disposition": "excluded_from_scoring", "reason": role_reason})
+            continue
+
+        ext = source.suffix.lower()
+        try:
+            if ext in (".csv", ".tsv", ".txt", ".dat"):
+                blocks = _parse_delimited_text(source)
+            elif ext in (".xlsx", ".xlsm", ".xls"):
+                blocks = _parse_excel(source)
+            elif ext == ".json":
+                blocks = _parse_json(source)
+            elif ext in (".parquet", ".pq"):
+                frame = pd.read_parquet(source)
+                blocks = [{"source": source.name, "sheet": None, "format": "parquet",
+                           "encoding": None, "header": [str(c) for c in frame.columns],
+                           "rows": frame.astype(object).where(pd.notna(frame), None).values.tolist()}]
+            elif ext in (".md", ".markdown"):
+                blocks = _parse_markdown(source)
+            elif ext in (".html", ".htm"):
+                blocks = _parse_html(source)
+            else:
+                blocks = []
+        except Exception as exc:
+            reason = f"table parse failed: {exc}"
+            audit["sources"].append({"file": relative_path, "role": "error", "reason": reason})
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": "error", "disposition": "error", "reason": reason})
+            continue
+
+        if not blocks or any("error" in block for block in blocks):
+            reason = next((block["error"] for block in blocks if "error" in block), "no tabular content detected")
+            role = "error" if any("error" in block for block in blocks) else "no_tabular"
+            audit["sources"].append({"file": relative_path, "role": role, "reason": reason})
+            audit["source_dispositions"].append({"relative_path": relative_path, "role": role,
+                                                 "disposition": "error" if role == "error" else "excluded_from_scoring",
+                                                 "reason": reason})
+            continue
+
+        for block_index, block in enumerate(blocks):
+            frame = _block_to_df(block)
+            if frame.shape[0] < 2 or frame.shape[1] < 1:
+                continue
+            if block.get("format") in ("markdown", "html") and frame.shape[0] < 5:
+                audit["sources"].append({"file": relative_path, "role": "context", "reason": "small document table is context, not process data"})
+                audit["source_dispositions"].append({"relative_path": relative_path, "role": "context", "disposition": "context_only", "reason": "small document table is context, not process data"})
+                continue
+            time_col = _detect_time_col(frame)
+            time_parseability = 0.0
+            if time_col:
+                time_parseability = float(pd.to_datetime(frame[time_col], errors="coerce").notna().mean())
+            score = _score_table(frame, time_col)
+            table = {"file": relative_path, "sheet": block.get("sheet"), "format": block.get("format", ext.lstrip('.')),
+                     "n_rows": int(len(frame)), "n_cols": int(len(frame.columns)), "time_column": time_col,
+                     "time_parseability": round(time_parseability, 4),
+                     "score": round(score, 3), "quality_flags": _quality_flags(frame, block),
+                     "block_index": block_index, "df": frame}
+            audit["tables"].append({k: v for k, v in table.items() if k not in ("df", "block_index")})
+            if time_col:
+                candidates.append(table)
+                audit["source_dispositions"].append({"relative_path": relative_path, "sheet": block.get("sheet"),
+                    "role": "time_series_candidate", "disposition": "candidate", "reason": role_reason,
+                    "rows": len(frame), "columns": len(frame.columns), "time_column": time_col,
+                    "score": table["score"], "time_parseability": table["time_parseability"]})
+            else:
+                audit["source_dispositions"].append({"relative_path": relative_path, "sheet": block.get("sheet"),
+                    "role": "tabular_without_time", "disposition": "excluded_from_scoring",
+                    "reason": "stability score requires a parseable time column", "rows": len(frame),
+                    "columns": len(frame.columns), "time_column": None})
+
+    eligible = [item for item in candidates if item["n_rows"] >= 50 and item["time_parseability"] >= 0.8]
+    if not eligible:
+        audit["status"] = "no_time_series"
+        audit["reason"] = "no time-series table with at least 50 rows was found"
+        _write_report(output_dir, audit)
+        return audit
+    primary = max(eligible, key=lambda item: (int(_looks_premerged(item["file"])), item["score"], item["time_parseability"], item["n_rows"], item["file"].casefold()))
+    for item in candidates:
+        if item is primary:
+            for disposition in audit["source_dispositions"]:
+                if disposition.get("relative_path") == item["file"] and disposition.get("sheet") == item.get("sheet"):
+                    disposition.update({"role": "primary_time_series", "disposition": "selected",
+                                        "reason": "highest-scoring eligible time-series table"})
+                    break
+            continue
+        role, reason = _file_role(Path(item["file"]))
+        detail = f"{reason}; stability folder mode uses one primary time-series table; no resampling or blind merge"
+        code = "below_min_rows" if item["n_rows"] < 50 else "single_primary_policy"
+        audit["merge_exclusions"].append({"file": item["file"], "sheet": item.get("sheet"),
+                                          "reason_code": code, "detail": detail})
+        for disposition in audit["source_dispositions"]:
+            if disposition.get("relative_path") == item["file"] and disposition.get("sheet") == item.get("sheet"):
+                disposition.update({"role": role, "disposition": "excluded_from_scoring",
+                                    "reason": detail, "reason_code": code})
+                break
+
+    df = primary["df"].copy()
+    time_col = primary["time_column"]
+    parsed = pd.to_datetime(df[time_col], errors="coerce")
+    df[time_col] = parsed.dt.strftime("%Y-%m-%d %H:%M:%S").where(parsed.notna(), df[time_col].astype(str))
+    audit["selected_table"] = {k: v for k, v in primary.items() if k not in ("df", "block_index", "quality_flags")}
+    audit["selected_table"]["why"] = "highest-scoring time-series candidate (premerged filename gets priority)"
+    audit["merge"] = {"strategy": "single_primary_no_merge", "reason": "folder stability mode does not resample or combine different acquisition cadences", "merged_files": []}
+    audit["quality"] = {"rows": len(df), "cols": len(df.columns), "time_column": time_col,
+                        "numeric_columns": _numeric_cols(df),
+                        "missing_cell_pct": round(float(df.isna().mean().mean()) * 100, 2)}
+    csv_out = output_dir / "preprocessed_data.csv"
+    json_out = output_dir / "preprocessed_data.json"
+    df.to_csv(csv_out, index=False, encoding="utf-8-sig")
+    df.to_json(json_out, orient="records", force_ascii=False, indent=1)
+    audit["outputs"] = {"preprocessed_data.csv": str(csv_out), "preprocessed_data.json": str(json_out), "context_dir": str(context_dir)}
+    _write_report(output_dir, audit)
+    return audit
+
+
 def _numeric_cols(df: pd.DataFrame) -> List[str]:
     out = []
     for c in df.columns:
@@ -909,6 +1114,9 @@ def main() -> None:
     ap.add_argument("--data-path", required=True, help="file or directory")
     ap.add_argument("--output", required=True, help="output dir (RUN_DIR/00_input)")
     ap.add_argument("--name", default="", help="run name (optional)")
+    ap.add_argument("--recursive", action="store_true", help="discover sources recursively")
+    ap.add_argument("--stability-single-primary", "--single-primary", dest="stability_single_primary",
+                    action="store_true", help="adaptive folder audit with one primary table; no multi-cadence merge")
     args = ap.parse_args()
 
     data_path = Path(args.data_path)
@@ -916,16 +1124,21 @@ def main() -> None:
         print(f"ERROR: data path does not exist: {data_path}", file=sys.stderr)
         sys.exit(1)
     output = Path(args.output)
-    report = preprocess(data_path, output, args.name)
+    single_primary = getattr(args, "stability_single_primary", False)
+    report = (_preprocess_stability_folder(data_path, output, args.name, recursive=True)
+              if single_primary else preprocess(data_path, output, args.name))
     print(json.dumps({
         "status": report["status"],
         "selected": report.get("selected_table"),
         "tables_found": len(report.get("tables", [])),
         "context_files": len(report.get("context_files", [])),
         "skipped_files": len(report.get("skipped_files", [])),
+        "source_files_found": len(report.get("source_dispositions", [])) if single_primary else len(report.get("sources", [])) + len(report.get("tables", [])),
+        "source_dispositions": report.get("source_dispositions", []),
         "report": str(output / "preprocessing_report.json"),
     }, indent=2, ensure_ascii=False))
-    sys.exit(0 if report["status"] in ("ok", "no_tabular_data") else 1)
+    ok_statuses = ("ok",) if single_primary else ("ok", "no_tabular_data")
+    sys.exit(0 if report["status"] in ok_statuses else 1)
 
 
 if __name__ == "__main__":

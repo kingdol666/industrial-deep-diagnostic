@@ -33,7 +33,7 @@ _HERE = Path(__file__).resolve().parent
 _SCRIPTS = _HERE.parent / "scripts"
 sys.path.insert(0, str(_SCRIPTS))
 
-from data_preprocessor import preprocess  # noqa: E402
+from data_preprocessor import preprocess, _preprocess_stability_folder  # noqa: E402
 
 _FAILURES: list[str] = []
 _TMP: Path = Path(tempfile.mkdtemp(prefix="prep_test_"))
@@ -333,6 +333,45 @@ def test_quality_flags_merge_key_exclusions() -> None:
           str(rep.get("merge_exclusions")))
 
 
+def test_stability_folder_adaptive_bc2_shape() -> None:
+    repo = _HERE.parents[3]
+    data = repo / "data" / "bopet_cases" / "bc2_filter_dp_cycles"
+    out = _TMP / "stability-folder-bc2" / "00_input"
+    rep = _preprocess_stability_folder(data, out, "BC2", recursive=True)
+    check("folder-status", rep["status"] == "ok", rep.get("reason", rep["status"]))
+    check("folder-recursive", rep["recursive_discovery"] is True, str(rep.get("recursive_discovery")))
+    check("folder-primary-dcs", rep["selected_table"]["file"] == "dcs_melt_system_10min.csv",
+          str(rep.get("selected_table")))
+    check("folder-primary-row-count", rep["selected_table"]["n_rows"] == 3024,
+          str(rep["selected_table"]["n_rows"]))
+    check("folder-primary-time-detected", rep["selected_table"]["time_column"] == "时间",
+          str(rep["selected_table"].get("time_column")))
+    by_file = {item["relative_path"]: item for item in rep["source_dispositions"]}
+    check("folder-qc-audit", by_file["qc_shift_8h.csv"]["role"] == "auxiliary"
+          and by_file["qc_shift_8h.csv"]["disposition"] == "excluded_from_scoring",
+          str(by_file.get("qc_shift_8h.csv")))
+    check("folder-maintenance-audit", by_file["maintenance_log.csv"]["role"] == "event"
+          and by_file["maintenance_log.csv"]["disposition"] == "excluded_from_scoring",
+          str(by_file.get("maintenance_log.csv")))
+    check("folder-context-manifest", by_file["generation_manifest.json"]["role"] == "metadata"
+          and by_file["generation_manifest.json"]["disposition"] == "context_only",
+          str(by_file.get("generation_manifest.json")))
+    check("folder-ground-truth-protected", by_file["ground_truth.md"]["disposition"] == "protected_excluded",
+          str(by_file.get("ground_truth.md")))
+    df = pd.read_csv(out / "preprocessed_data.csv")
+    check("folder-canonical-only-dcs", df.shape == (3024, 8), str(df.shape))
+
+
+def test_stability_folder_no_time_series() -> None:
+    data = _TMP / "stability-no-time"
+    data.mkdir(parents=True)
+    pd.DataFrame({"batch": [f"B{i}" for i in range(60)], "yield_pct": np.arange(60)}).to_csv(data / "batch.csv", index=False)
+    out = _TMP / "stability-no-time-out"
+    rep = _preprocess_stability_folder(data, out, "NO-TIME", recursive=True)
+    check("folder-no-time-status", rep["status"] == "no_time_series", str(rep["status"]))
+    check("folder-no-time-no-output", not (out / "preprocessed_data.csv").exists(), "must not synthesize a series")
+
+
 def main() -> None:
     print("preprocessor tests:")
     for fn in [
@@ -347,6 +386,8 @@ def main() -> None:
         test_multiblock_delimited,
         test_no_tabular_dir,
         test_quality_flags_merge_key_exclusions,
+        test_stability_folder_adaptive_bc2_shape,
+        test_stability_folder_no_time_series,
     ]:
         fn()
     shutil.rmtree(_TMP, ignore_errors=True)

@@ -10,7 +10,7 @@ import { join, relative, isAbsolute } from 'path';
 import { existsSync, readdirSync, writeFileSync, copyFileSync } from 'fs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import {
-  closedloopRoot, ensureDir, readJsonSafe,
+  closedloopRoot, ensureDir, readJsonSafe, resolveDataFile, resolveDataDirectory,
   TaskTable, uvPythonStreaming, nodeScript, tail, resolveServerPath, makeJobLog,
 } from './closedloop.util.mjs';
 
@@ -39,23 +39,7 @@ export function getTaskLog(taskId) {
 }
 
 function resolveInputPath(value, name) {
-  if (value === undefined || value === null || value === '') {
-    const err = new Error(`${name} is required (got ${value === undefined ? 'undefined' : JSON.stringify(value)})`);
-    err.status = 400;
-    throw err;
-  }
-  const resolved = resolveServerPath(String(value));
-  if (!resolved || !existsSync(resolved)) {
-    const err = new Error(`${name}: file not found: ${value}`);
-    err.status = 400;
-    throw err;
-  }
-  if (!resolved.startsWith(PROJECT_ROOT)) {
-    const err = new Error(`${name}: path outside project root is not allowed: ${value}`);
-    err.status = 400;
-    throw err;
-  }
-  return resolved;
+  return resolveDataFile(value, name, ['.csv']);
 }
 
 function collectArtifacts(runDir) {
@@ -79,9 +63,18 @@ function collectArtifacts(runDir) {
 
 export function submitDoeAnalysis(body = {}) {
   const {
-    data_path, time_col = null, context = null, mode = null, scene = null,
+    data_path = null, data_dir = null, input_kind = null,
+    time_col = null, context = null, mode = null, scene = null,
   } = body;
-  const dataAbs = resolveInputPath(data_path, 'data_path');
+  const resolvedKind = data_dir ? 'directory' : 'file';
+  if (Boolean(data_path) === Boolean(data_dir) || (input_kind && input_kind !== resolvedKind)) {
+    const err = new Error(`provide exactly one of data_path or data_dir with matching input_kind '${resolvedKind}'`);
+    err.status = 400;
+    throw err;
+  }
+  const dataAbs = data_dir
+    ? resolveDataDirectory(data_dir, 'data_dir')
+    : resolveDataFile(data_path, 'data_path', ['.csv']);
 
   const task = doeTasks.create({ kind: 'doe-analysis', prefix: 'DOE' });
   doeTasks.markRunning(task.task_id);
@@ -89,9 +82,45 @@ export function submitDoeAnalysis(body = {}) {
 
   (async () => {
     const runDir = join(root(), task.task_id);
-    ensureDir(join(runDir, '00_input'));
-    log.log(`[hub] 提交 DOE/工况分析任务 ${task.task_id}（data=${data_path}）`);
-    copyFileSync(dataAbs, join(runDir, '00_input', 'data.csv'));
+    const inputDir = ensureDir(join(runDir, '00_input'));
+    log.log(`[hub] 提交 DOE/工况分析任务 ${task.task_id}（input=${data_dir || data_path}）`);
+    let inputManifestPath = null;
+    let preprocessingReportPath = null;
+    if (data_dir) {
+      log.log('[hub] 文件夹输入：启动自适应文件发现与预处理…');
+      const preprocessor = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+      const prep = await uvPythonStreaming(preprocessor, [
+        '--data-path', dataAbs,
+        '--output', inputDir,
+        '--name', scene || task.task_id,
+        '--single-primary',
+        '--recursive',
+      ], { timeoutMs: 300000, onLine: (line, stream) => log.log(line, stream) });
+      const prepReport = readJsonSafe(join(inputDir, 'preprocessing_report.json'), null);
+      if (prep.code !== 0 || !prepReport) {
+        throw new Error(`folder preprocessing failed (${prep.code}): ${tail(prep.stderr) || tail(prep.stdout)}`);
+      }
+      const canonical = join(inputDir, 'preprocessed_data.csv');
+      if (prepReport.status !== 'ok' || !existsSync(canonical)) {
+        throw new Error(`folder contains no usable primary time series: ${prepReport.status || 'missing canonical table'}`);
+      }
+      inputManifestPath = join(inputDir, 'input_manifest.json');
+      preprocessingReportPath = join(inputDir, 'preprocessing_report.json');
+      writeFileSync(inputManifestPath, JSON.stringify({
+        manifest_version: 'doe-folder-input/1.0',
+        input_kind: 'directory',
+        source_directory: dataAbs,
+        selected_table: prepReport.selected_table,
+        source_dispositions: prepReport.source_dispositions || [],
+        merge_exclusions: prepReport.merge_exclusions || [],
+        context_files: prepReport.context_files || [],
+        skipped_files: prepReport.skipped_files || [],
+      }, null, 2));
+      copyFileSync(canonical, join(inputDir, 'data.csv'));
+      log.log(`[hub] 预处理完成：主表 ${prepReport.selected_table?.file || '—'}，${prepReport.selected_table?.n_rows ?? '?'} 行`);
+    } else {
+      copyFileSync(dataAbs, join(inputDir, 'data.csv'));
+    }
     // analyze.py 不收 --time-col：时间列等偏好统一走 analysis_context.json
     const ctx = { data_path: '00_input/data.csv' };
     if (time_col) ctx.time_col = String(time_col);
@@ -140,6 +169,8 @@ export function submitDoeAnalysis(body = {}) {
         scene: scene ?? null,
         report_path: existsSync(reportHtml) ? reportHtml : null,
         report_url: toWebUrl(reportHtml),
+        input_manifest_path: inputManifestPath,
+        preprocessing_report_path: preprocessingReportPath,
         conclusions: {
           doe_conclusion: conclusion,
           recommendations,

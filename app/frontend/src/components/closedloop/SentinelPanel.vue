@@ -32,9 +32,8 @@
             <label>{{ $t('closedloop.sentinel.line') }}</label>
             <input v-model="buildForm.line" placeholder="L1" />
           </div>
-          <div class="cl-field">
-            <label>{{ $t('closedloop.sentinel.historyCsv') }}</label>
-            <input v-model="buildForm.history_csv" list="cl-data-paths" placeholder="data/.../history.csv" />
+          <div class="cl-field wide">
+            <DataFilePicker v-model="buildForm.history_input" :label="$t('closedloop.sentinel.historyCsv')" :extensions="['.csv', '.tsv', '.tab', '.parquet', '.pq']" allow-folder />
           </div>
           <div class="cl-field">
             <label>{{ $t('closedloop.sentinel.doeRunDir') }} · {{ $t('closedloop.common.optional') }}</label>
@@ -56,9 +55,8 @@
       <section class="cl-card">
         <h3>{{ $t('closedloop.sentinel.watchTitle') }}</h3>
         <div class="cl-form">
-          <div class="cl-field">
-            <label>{{ $t('closedloop.sentinel.watchData') }}</label>
-            <input v-model="watchForm.data_path" list="cl-data-paths" placeholder="data/.../window.csv" />
+          <div class="cl-field wide">
+            <DataFilePicker v-model="watchForm.data_input" :label="$t('closedloop.sentinel.watchData')" :extensions="['.csv', '.tsv', '.tab', '.parquet', '.pq']" allow-folder />
           </div>
           <div class="cl-field">
             <label>{{ $t('closedloop.sentinel.baselinePath') }}</label>
@@ -82,9 +80,8 @@
     <section class="cl-card">
       <h3>{{ $t('closedloop.sentinel.screenTitle') }}</h3>
       <div class="cl-form">
-        <div class="cl-field">
-          <label>{{ $t('closedloop.sentinel.screenData') }}</label>
-          <input v-model="screenForm.data_path" list="cl-data-paths" placeholder="data/.../new_rows.csv" />
+        <div class="cl-field wide">
+          <DataFilePicker v-model="screenForm.data_input" :label="$t('closedloop.sentinel.screenData')" :extensions="['.csv', '.tsv', '.tab', '.parquet', '.pq']" />
         </div>
         <div class="cl-field">
           <label>{{ $t('closedloop.sentinel.timeCol') }}</label>
@@ -111,9 +108,6 @@
     <datalist id="cl-baseline-paths">
       <option v-for="b in baselines" :key="b.line" :value="b.baseline_path" />
     </datalist>
-    <datalist id="cl-data-paths">
-      <option v-for="p in dataPaths" :key="p" :value="p" />
-    </datalist>
   </div>
 </template>
 
@@ -121,17 +115,17 @@
 import { defineComponent, h, onMounted, reactive, ref } from 'vue';
 import { api } from '../../api/index.js';
 import { useI18n } from 'vue-i18n';
+import DataFilePicker from './DataFilePicker.vue';
 
 const { t } = useI18n();
 
 const baselines = ref([]);
-const dataPaths = ref([]);
 const busy = reactive({ build: false, watch: false, screen: false });
 const tasks = reactive({ build: null, watch: null });
 const screenResult = ref(null);
-const buildForm = reactive({ line: '', history_csv: '', doe_run_dir: '', time_col: 't' });
-const watchForm = reactive({ data_path: '', baseline_path: '', time_col: 't' });
-const screenForm = reactive({ data_path: '', time_col: 't' });
+const buildForm = reactive({ line: '', history_input: { kind: 'file', path: '' }, doe_run_dir: '', time_col: 't' });
+const watchForm = reactive({ data_input: { kind: 'file', path: '' }, baseline_path: '', time_col: 't' });
+const screenForm = reactive({ data_input: { kind: 'file', path: '' }, time_col: 't' });
 
 function shortPath(p) {
   if (!p) return '-';
@@ -142,26 +136,6 @@ function exitClass(code) {
   if (code === 0) return 'ok-text';
   if (code === 1) return 'warn-text';
   return 'bad-text';
-}
-
-// 服务端真实数据文件清单 → datalist（folder/file 两级拼路径）
-async function loadDataPaths() {
-  try {
-    const folders = await api.listData();
-    const out = [];
-    for (const f of (folders || []).slice(0, 40)) {
-      const name = typeof f === 'string' ? f : (f.name || f.folder);
-      if (!name || name.startsWith('.')) continue;
-      try {
-        const files = await api.listData(name);
-        for (const file of (files || []).slice(0, 20)) {
-          const fname = typeof file === 'string' ? file : (file.name || file.file);
-          if (fname && /\.(csv|json)$/i.test(fname)) out.push(`data/${name}/${fname}`);
-        }
-      } catch { /* folder may be a plain file entry */ }
-    }
-    dataPaths.value = out;
-  } catch { /* listing optional */ }
 }
 
 // 提交即返 task_id → 每秒轮询直到 completed/failed
@@ -180,13 +154,15 @@ async function pollTask(taskId, slot, onDone) {
 }
 
 async function submitBuild() {
-  if (!buildForm.line || !buildForm.history_csv) return;
+  if (!buildForm.line || !buildForm.history_input?.path) return;
   busy.build = true;
   tasks.build = { status: 'queued' };
   try {
     const data = await api.sentinelBaselineBuild({
       line: buildForm.line,
-      history_csv: buildForm.history_csv,
+      ...(buildForm.history_input.kind === 'directory'
+        ? { data_dir: buildForm.history_input.path, input_kind: 'directory' }
+        : { history_csv: buildForm.history_input.path, input_kind: 'file' }),
       doe_run_dir: buildForm.doe_run_dir || null,
       time_col: buildForm.time_col || null,
     });
@@ -197,12 +173,14 @@ async function submitBuild() {
 }
 
 async function submitWatch() {
-  if (!watchForm.data_path) return;
+  if (!watchForm.data_input?.path) return;
   busy.watch = true;
   tasks.watch = { status: 'queued' };
   try {
     const data = await api.sentinelWatch({
-      data_path: watchForm.data_path,
+      ...(watchForm.data_input.kind === 'directory'
+        ? { data_dir: watchForm.data_input.path, input_kind: 'directory' }
+        : { data_path: watchForm.data_input.path, input_kind: 'file' }),
       baseline_path: watchForm.baseline_path || null,
       time_col: watchForm.time_col || null,
     });
@@ -213,12 +191,12 @@ async function submitWatch() {
 }
 
 async function submitScreen() {
-  if (!screenForm.data_path) return;
+  if (!screenForm.data_input?.path || screenForm.data_input.kind !== 'file') return;
   busy.screen = true;
   screenResult.value = null;
   try {
     const data = await api.sentinelScreen({
-      data_path: screenForm.data_path,
+      data_path: screenForm.data_input.path,
       time_col: screenForm.time_col || null,
     });
     screenResult.value = data;
@@ -234,7 +212,7 @@ async function loadBaselines() {
     baselines.value = Object.entries(lines).map(([line, entry]) => ({ line, ...entry }));
   } catch { baselines.value = []; }
 }
-onMounted(() => { loadBaselines(); loadDataPaths(); });
+onMounted(() => { loadBaselines(); });
 
 // ── 内联子组件（template 内 kebab-case 使用）──
 const AlertTable = defineComponent({

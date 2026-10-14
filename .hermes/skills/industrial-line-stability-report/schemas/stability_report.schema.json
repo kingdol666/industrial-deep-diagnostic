@@ -41,6 +41,24 @@
         "group_col": { "type": ["string", "null"] },
         "parameter_cols": { "type": "array", "items": { "type": "string" } },
         "inspection_cols": { "type": "array", "items": { "type": "string" } },
+        "preprocessing": {
+          "type": ["object", "null"],
+          "properties": {
+            "mode": { "enum": ["directory_adaptive"] },
+            "source_directory": { "type": "string" },
+            "recursive_discovery": { "type": "boolean" },
+            "report_path": { "type": "string" },
+            "manifest_path": { "type": "string" },
+            "selected_table": { "type": "object" },
+            "scoring_table": { "type": "object" },
+            "source_files": { "type": "array", "items": { "type": "object" } },
+            "source_dispositions": { "type": "array", "items": { "type": "object" } },
+            "merge_exclusions": { "type": "array", "items": { "type": "object" } },
+            "context_files": { "type": "array", "items": { "type": "string" } },
+            "skipped_files": { "type": "array", "items": { "type": "object" } },
+            "quality": { "type": "object" }
+          }
+        },
         "sampling_interval_median_seconds": { "type": ["number", "null"] },
         "missing_rate": { "type": "number", "minimum": 0, "maximum": 1 },
         "coverage_ratio": { "type": "number", "minimum": 0, "maximum": 1 }

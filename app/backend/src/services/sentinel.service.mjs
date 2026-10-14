@@ -11,11 +11,12 @@
 // 产线已登记基线”语义）。登记表持久化到 <root>/sentinel/baselines/registry.json。
 
 import { join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, statSync, writeFileSync } from 'fs';
 import { createHash } from 'crypto';
+import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import {
-  closedloopRoot, ensureDir, readJsonSafe, writeJson,
-  TaskTable, uvPython, tail, resolveServerPath,
+  closedloopRoot, ensureDir, readJsonSafe, writeJson, resolveDataFile, resolveDataDirectory,
+  TaskTable, uvPython, uvPythonStreaming, tail, resolveServerPath,
 } from './closedloop.util.mjs';
 
 const SKILL_SCRIPTS = '.claude/skills/industrial-sentinel/scripts';
@@ -55,20 +56,45 @@ export function getBaselineFor(line = null, explicitPath = null) {
 
 // ── 公共校验 ─────────────────────────────────────────────────────────────
 
-function requireExistingFile(value, name, { optional = false } = {}) {
+const FOLDER_PREPROCESSOR = join(PROJECT_ROOT, '.claude', 'skills', 'industrial-data-preprocessor', 'scripts', 'data_preprocessor.py');
+
+/** 目录输入 → 自适应预处理 → 主时序规范表（含 manifest 落盘）。 */
+async function stageFolderPrimary(dataAbs, stagingDir, name) {
+  const proc = await uvPythonStreaming(FOLDER_PREPROCESSOR, [
+    '--data-path', dataAbs,
+    '--output', stagingDir,
+    '--name', name,
+    '--single-primary',
+    '--recursive',
+  ], { timeoutMs: 300000 });
+  const report = readJsonSafe(join(stagingDir, 'preprocessing_report.json'), null);
+  if (proc.code !== 0 || !report || report.status !== 'ok') {
+    throw new Error(`folder preprocessing failed: ${report?.status || tail(proc.stderr) || tail(proc.stdout)}`);
+  }
+  const canonical = join(stagingDir, 'preprocessed_data.csv');
+  if (!existsSync(canonical)) {
+    throw new Error('folder preprocessing produced no canonical table');
+  }
+  writeFileSync(join(stagingDir, 'input_manifest.json'), JSON.stringify({
+    manifest_version: 'sentinel-folder-input/1.0',
+    source_directory: String(dataAbs),
+    selected_table: report.selected_table,
+    source_dispositions: report.source_dispositions || [],
+    merge_exclusions: report.merge_exclusions || [],
+    context_files: report.context_files || [],
+    skipped_files: report.skipped_files || [],
+  }, null, 2));
+  return canonical;
+}
+
+function requireExistingFile(value, name, { optional = false, extensions = ['.csv', '.tsv', '.tab', '.parquet', '.pq'] } = {}) {
   if (value === undefined || value === null || value === '') {
     if (optional) return null;
     const err = new Error(`${name} is required`);
     err.status = 400;
     throw err;
   }
-  const resolved = resolveServerPath(value);
-  if (!existsSync(resolved)) {
-    const err = new Error(`${name} not found: ${value}`);
-    err.status = 400;
-    throw err;
-  }
-  return resolved;
+  return resolveDataFile(value, name, extensions);
 }
 
 /** 读快筛/批筛产出的 alert.json，裁成 HTTP 摘要（原文件路径一并回传）。 */
@@ -107,7 +133,7 @@ function alertSummary(alertPath, exitCode, extra = {}) {
 export async function screen({ data_path, baseline_path = null, time_col = null, group_col = null }) {
   const dataAbs = requireExistingFile(data_path, 'data_path');
   const baselineAbs = baseline_path
-    ? requireExistingFile(baseline_path, 'baseline_path')
+    ? resolveDataFile(baseline_path, 'baseline_path', ['.json'])
     : getBaselineFor(null, null);
 
   if (!baselineAbs) {
@@ -171,23 +197,42 @@ export async function screen({ data_path, baseline_path = null, time_col = null,
  * 完成后 GET /api/sentinel/tasks/:taskId 取 alert.json / watch_report.md 路径。
  */
 export function submitWatch(body) {
-  const { data_path, baseline_path = null, time_col = null, group_col = null, out_dir = null } = body ?? {};
-  const dataAbs = requireExistingFile(data_path, 'data_path');
-  const baselineAbs = baseline_path ? requireExistingFile(baseline_path, 'baseline_path') : getBaselineFor(null, null);
+  const {
+    data_path = null, data_dir = null, input_kind = null,
+    baseline_path = null, time_col = null, group_col = null, out_dir = null,
+  } = body ?? {};
+  const resolvedKind = data_dir ? 'directory' : 'file';
+  if (Boolean(data_path) === Boolean(data_dir) || (input_kind && input_kind !== resolvedKind)) {
+    const err = new Error(`provide exactly one of data_path or data_dir with matching input_kind '${resolvedKind}'`);
+    err.status = 400;
+    throw err;
+  }
+  const dataAbs = data_dir
+    ? resolveDataDirectory(data_dir, 'data_dir')
+    : requireExistingFile(data_path, 'data_path');
+  const baselineAbs = baseline_path ? resolveDataFile(baseline_path, 'baseline_path', ['.json']) : getBaselineFor(null, null);
 
   const task = watchTasks.create({ kind: 'sentinel_watch', prefix: 'SNW' });
   const outDir = out_dir ? ensureDir(String(out_dir)) : ensureDir(join(root(), 'watch', task.task_id));
 
   // 异步前先落 queued 任务（submit 后台执行；HTTP 立即返回）
   (async () => {
-    const args = ['watch', '--data', dataAbs, '--out-dir', outDir];
+    let inputData = dataAbs;
+    let input_manifest_path = null;
+    if (data_dir) {
+      inputData = await stageFolderPrimary(dataAbs, ensureDir(join(outDir, '00_input')), task.task_id);
+      input_manifest_path = join(outDir, '00_input', 'input_manifest.json');
+    }
+    const args = ['watch', '--data', inputData, '--out-dir', outDir];
     if (baselineAbs) args.push('--baseline', baselineAbs);
     if (time_col) args.push('--time-col', String(time_col));
     if (group_col) args.push('--group-col', String(group_col));
     const proc = await uvPython(join(SKILL_SCRIPTS, 'sentinel.py'), args, { timeoutMs: 180000 });
     const code = Number(proc.code ?? -1);
     const view = alertSummary(join(outDir, 'alert.json'), code, {
-      data_path: dataAbs,
+      data_path: inputData,
+      data_dir: data_dir ? dataAbs : null,
+      input_manifest_path,
       baseline_path: baselineAbs,
       report_path: existsSync(join(outDir, 'watch_report.md')) ? join(outDir, 'watch_report.md') : null,
       stdout_tail: tail(proc.stdout, 800),
@@ -237,16 +282,24 @@ export function watchTaskView(taskId) {
  * POST /api/sentinel/baseline —— build_baseline.py 异步包装。
  * 成功后按 line 登记基线（后续 screen/watch 缺省回落）。
  */
-export function submitBaseline({ line, history_csv, doe_run_dir = null, time_col = null, group_col = null }) {
+export function submitBaseline({ line, history_csv = null, data_dir = null, input_kind = null, doe_run_dir = null, time_col = null, group_col = null }) {
   if (!line || typeof line !== 'string') {
     const err = new Error('line is required (产线/机组标识)');
     err.status = 400;
     throw err;
   }
-  const historyAbs = requireExistingFile(history_csv, 'history_csv');
+  const resolvedKind = data_dir ? 'directory' : 'file';
+  if (Boolean(history_csv) === Boolean(data_dir) || (input_kind && input_kind !== resolvedKind)) {
+    const err = new Error(`provide exactly one of history_csv or data_dir with matching input_kind '${resolvedKind}'`);
+    err.status = 400;
+    throw err;
+  }
+  let historyAbs = data_dir
+    ? resolveDataDirectory(data_dir, 'data_dir')
+    : requireExistingFile(history_csv, 'history_csv', { extensions: ['.csv', '.tsv', '.tab', '.parquet', '.pq'] });
   const doeDir = doe_run_dir ? resolveServerPath(doe_run_dir) : null;
-  if (doe_run_dir && (!doeDir || !existsSync(doeDir))) {
-    const err = new Error(`doe_run_dir not found: ${doe_run_dir}`);
+  if (doe_run_dir && (!doeDir || !existsSync(doeDir) || !statSync(doeDir).isDirectory())) {
+    const err = new Error(`doe_run_dir must be an existing directory: ${doe_run_dir}`);
     err.status = 400;
     throw err;
   }
@@ -254,8 +307,12 @@ export function submitBaseline({ line, history_csv, doe_run_dir = null, time_col
   const task = baselineTasks.create({ kind: 'sentinel_baseline', prefix: 'SNB' });
   const outPath = join(root(), 'baselines', line, 'watch_baseline.json');
   ensureDir(join(outPath, '..'));
+  const stagingDir = data_dir ? ensureDir(join(root(), 'baselines', line, '_staging')) : null;
 
   (async () => {
+    if (data_dir) {
+      historyAbs = await stageFolderPrimary(dataAbs, stagingDir, line);
+    }
     const args = ['--history-csv', historyAbs, '--out', outPath];
     if (doeDir) args.push('--doe-run-dir', doeDir);
     if (time_col) args.push('--time-col', String(time_col));
@@ -272,6 +329,7 @@ export function submitBaseline({ line, history_csv, doe_run_dir = null, time_col
         line,
         baseline_path: existsSync(outPath) ? outPath : null,
         history_csv: historyAbs,
+        data_dir: data_dir ? dataAbs : null,
         doe_run_dir,
         stdout_tail: tail(proc.stdout, 600),
       },

@@ -11,8 +11,8 @@
 //   - 只收集 exit code / stdout / stderr；结果文件路径回传，脚本产物不搬运不改写
 
 import { spawn } from 'child_process';
-import { join, resolve } from 'path';
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs';
+import { join, resolve, relative, extname, isAbsolute, sep } from 'path';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, realpathSync, statSync } from 'fs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 
 // 数据根目录：默认 workspace/closedloop（评测敏感的 data/ 目录绝不触碰）。
@@ -34,10 +34,72 @@ export function closedloopRoot() {
 export function resolveServerPath(value) {
   const raw = String(value ?? '');
   if (!raw) return raw;
-  if (resolve(raw) === raw) return raw; // already absolute
-  const rooted = join(PROJECT_ROOT, raw);
-  if (existsSync(rooted)) return rooted;
-  return raw;
+  if (isAbsolute(raw)) return resolve(raw);
+  return resolve(PROJECT_ROOT, raw);
+}
+
+export function resolveDataDirectory(value, name) {
+  if (value === undefined || value === null || value === '') {
+    const err = new Error(`${name} is required`);
+    err.status = 400;
+    throw err;
+  }
+  const candidate = resolveServerPath(value);
+  let actual;
+  try { actual = realpathSync(candidate); }
+  catch {
+    const err = new Error(`${name}: directory not found: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  const project = realpathSync(PROJECT_ROOT);
+  const rel = relative(project, actual);
+  if (!rel || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    const err = new Error(`${name}: path outside project root is not allowed: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  if (!statSync(actual).isDirectory()) {
+    const err = new Error(`${name}: expected a directory: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  return actual;
+}
+
+export function resolveDataFile(value, name, allowedExtensions) {
+  if (value === undefined || value === null || value === '') {
+    const err = new Error(`${name} is required`);
+    err.status = 400;
+    throw err;
+  }
+  const candidate = resolveServerPath(value);
+  let actual;
+  try { actual = realpathSync(candidate); }
+  catch {
+    const err = new Error(`${name}: file not found: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  const project = realpathSync(PROJECT_ROOT);
+  const rel = relative(project, actual);
+  if (!rel || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    const err = new Error(`${name}: path outside project root is not allowed: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  if (!statSync(actual).isFile()) {
+    const err = new Error(`${name}: expected a data file, but the selected path is a directory or non-file: ${value}`);
+    err.status = 400;
+    throw err;
+  }
+  const ext = extname(actual).toLowerCase();
+  if (!allowedExtensions.includes(ext)) {
+    const err = new Error(`${name}: unsupported file type ${ext || '(no extension)'}; supported: ${allowedExtensions.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+  return actual;
 }
 
 export function ensureDir(dir) {
