@@ -142,7 +142,7 @@ export default {
       runsSuffix: 'Runs',
     },
     closedloop: {
-      label: 'Specialist',
+      label: 'Expert Analysis',
       kicker: 'Skill-Driven Agent Analysis',
       title: 'Specialist Agent Analysis',
       description: 'Stability report, sentinel screen, experience mining, optimizer campaign — each panel spawns a real agent on the selected engine that analyzes your chosen data folder under the matching skill protocol, streams the process live, and persists every artifact. Fixed-script analysis is fully retired.',

@@ -142,7 +142,7 @@ export default {
       runsSuffix: 'Runs',
     },
     closedloop: {
-      label: '专项分析',
+      label: 'Expert Analysis',
       kicker: 'Skill-Driven Agent Analysis',
       title: '专项智能体分析',
       description: '稳定性报告、哨兵快筛、经验挖掘、闭环寻优——每个面板都以所选执行引擎拉起真实智能体，按对应 skill 协议对你选定的数据文件夹做真实分析，过程实时流式展示，产物落盘可追溯。固定脚本分析已全部退役。',
