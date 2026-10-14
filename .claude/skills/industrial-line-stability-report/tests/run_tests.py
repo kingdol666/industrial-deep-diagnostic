@@ -410,10 +410,10 @@ def scenario_frozen_snapshot(base):
     check("snap.builder_ok", b.returncode == 0, b.stderr[-300:])
     with open(os.path.join(out, "line_stability_report.html"), encoding="utf-8") as f:
         html = f.read()
-    check("snap.html_section", "当前工况快照" in html and "瞬时值" in html)
+    check("snap.html_section", "当前状态快照" in html and "瞬时值" in html)
     with open(os.path.join(out, "line_stability_report.md"), encoding="utf-8") as f:
         md = f.read()
-    check("snap.md_section", "当前工况快照" in md)
+    check("snap.md_section", "当前状态快照" in md)
     g = node_gate(os.path.join(out, "stability_report.json"), out)
     check("snap.gate_pass", g.returncode == 0, g.stdout[-300:])
 
@@ -684,7 +684,7 @@ def scenario_ontology(base):
     with open(os.path.join(out, "line_stability_report.html"), encoding="utf-8") as f:
         html = f.read()
     check("ontology.html_condition_section", b2.returncode == 0 and
-          "工况理解" in html and "演示反应线" in html)
+          "场景理解" in html and "演示反应线" in html)
     check("ontology.html_mechanism_line", "物理机制" in html)
     check("ontology.html_limitations", "假设与局限" in html and "feed_source" in html)
     return rep

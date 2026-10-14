@@ -28,7 +28,7 @@ row6+  数据：每个时刻两行——列1=设定值/实际值，列0=时间�
    - **时间不变量列保留**（它们是"快照导出/死点"的证据，skill 会自动剔除评分并声明），
      在 parse_summary 里给每列标 `time_invariant: true/false`。
 5. 写 `parse_summary.json`：源文件 sha256、行/列范围、列映射、剔除清单、保留通道的
-   min/max/mean/nunique —— darwin 溯源要求，报告里 `context.preprocessing` 引用它。
+   min/max/mean/nunique —— 数据真值溯源要求，报告里 `context.preprocessing` 引用它。
 6. 产物放进 `<run_dir>/00_input/`，`report_context.json` 加：
 
 ```json

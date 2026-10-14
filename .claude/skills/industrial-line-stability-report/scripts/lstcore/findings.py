@@ -152,10 +152,10 @@ def generate(report: dict) -> list[dict]:
     cps = regimes_res.get("change_points") or []
     if regimes_res.get("available") and cps:
         first = cps[0]
-        _f(out, "warn", "regime", f"工况发生结构性切换（{len(cps)} 个显著变点）",
-           f"sentinel C3 工况分段在本时段检出 {len(cps)} 个显著变点"
+        _f(out, "warn", "regime", f"运行状态发生结构性切换（{len(cps)} 个显著分段变点）",
+           f"sentinel C3 分段在本时段检出 {len(cps)} 个显著变点"
            f"（首个位于第 {first} 行附近）；全时段评分可能混合不同工况，"
-           f"请结合下方工况分段表分段解读。",
+           f"请结合下方运行状态分段表分段解读。",
            [_ev("change_points", len(cps), "0", derived=True),
             _ev("segmentation_method", regimes_res.get("method"), None,
                 "sentinel regime_map")],

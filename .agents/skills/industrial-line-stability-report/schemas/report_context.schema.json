@@ -92,7 +92,17 @@
         "type": "number",
         "minimum": 0
       },
-      "description": "Per-parameter weights for the composite score; default equal weights."
+      "description": "Per-parameter weights for the composite score; default = ontology-role adaptive (quality/inspection signals x2) when available, else equal weights."
+    },
+    "scenario": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Free-text scenario of the analyzed system (e.g. production line, energy/HVAC system, lab process). Drives the adaptive narrative subject; inferred from the ontology scene when omitted."
+    },
+    "objective": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "What the user wants this analysis to answer; surfaced in the report hero as the analysis objective."
     },
     "baseline_path": {
       "type": "string",
@@ -107,7 +117,7 @@
       "description": "doe-analyzer run dir whose conclusions/recommendations.json supplies operating windows."
     },
     "preprocessing": {
-      "description": "Upstream preprocessing provenance (source export file, script, sha256, summary path) carried verbatim into report.data.preprocessing for the darwin traceability chain."
+      "description": "Upstream preprocessing provenance (source export file, script, sha256, summary path) carried verbatim into report.data.preprocessing for the data traceability chain."
     }
   }
 }

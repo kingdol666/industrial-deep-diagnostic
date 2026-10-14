@@ -39,7 +39,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from lstcore import __version__ as SCRIPT_VERSION  # noqa: E402
-from lstcore import charts, drivers, findings, ontology, profile, score  # noqa: E402
+from lstcore import charts, drivers, findings, ontology, profile, score, subject as _subject  # noqa: E402
 from lstcore import _io, regime, spc_adapter  # noqa: E402
 
 REPORT_CONTRACT = "line-stability-report/1.0"
@@ -191,7 +191,7 @@ def _merge_doe(doe_run_dir: str, params: list[dict]) -> dict:
 def _build_limitations(prof: dict, roles: dict, understanding: dict,
                        sampled: bool, stride: int, params: list[dict],
                        max_lag: int) -> dict:
-    """Darwin mandate: explicit assumptions, limitations and confounders."""
+    """Data-truth mandate: explicit assumptions, limitations and confounders."""
     spec_sources = {
         "user": [p["name"] for p in params if (p["spec"] or {}).get("source") == "user"],
         "ontology": [p["name"] for p in params if (p["spec"] or {}).get("source") == "ontology"],
@@ -300,6 +300,19 @@ def analyze(args) -> tuple[dict, dict, int]:
         return {}
 
     weights = context.get("weights") or None
+    weights_source = "user" if weights else "equal"
+    if not weights:
+        # Adaptive default: quality/inspection signals (user-declared or
+        # ontology-typed) carry double weight — the composite then reflects
+        # what the scenario actually cares about, not just channel count.
+        role_weights = {col: 2.0 for col, doc in understanding["columns"].items()
+                        if doc.get("role") == "inspection"}
+        if role_weights:
+            weights = role_weights
+            weights_source = "role_weights"
+
+    # Subject/scenario resolution — drives adaptive narrative (产线/系统/对象)
+    subj = _subject.resolve_subject(context, understanding)
 
     # ── per-parameter stability (SPC via sentinelcore reuse) ──────────────
     baseline_refs = {}
@@ -476,7 +489,7 @@ def analyze(args) -> tuple[dict, dict, int]:
             "ignored_cols": roles["ignored_cols"],
             "sampled": sampled, "stride": stride,
             **prof,
-            # darwin traceability: carry the upstream preprocessing provenance
+            # data traceability: carry the upstream preprocessing provenance
             # (raw export → tidy table) into the report verbatim
             **({"preprocessing": context["preprocessing"]}
                if context.get("preprocessing") is not None else {}),
@@ -488,6 +501,9 @@ def analyze(args) -> tuple[dict, dict, int]:
         "degradations": degradation,
         "limitations": _build_limitations(prof, roles, understanding, sampled,
                                           stride, parameters, max_lag),
+        "subject": subj,
+        **({"objective": context["objective"]}
+           if context.get("objective") else {}),
         "provenance": {
             "input_sha256": _io.sha256_file(data_path),
             "script_version": SCRIPT_VERSION,
@@ -496,13 +512,14 @@ def analyze(args) -> tuple[dict, dict, int]:
             "spc_source": spc_adapter.source_name(),
             "regime_method": regimes_res.get("method"),
             "ontology_source": ont["source"],
+            "weights_source": weights_source,
             "python": sys.version.split()[0],
             "numpy": np.__version__, "pandas": pd.__version__,
             "methods": ["sentinelcore_nelson_episodes", "mrbar_sigma_1.128",
                         "cpk_within_ppk_overall", "theil_sen_mk_drift",
                         "lagged_spearman_max10", "contribution_r2_share",
                         "regime_segmentation_c3", "ontology_first_condition",
-                        "weighted_penalty_score_v1", "darwin_limitations"],
+                        "weighted_penalty_score_v1", "data_truth_limitations"],
         },
     }
 
@@ -514,7 +531,8 @@ def analyze(args) -> tuple[dict, dict, int]:
         for f in report["findings"]:
             sev_counts[f["severity"]] += 1
         top = [p["name"] for p in parameters if p["score"] < 70][:3]
-        stmt = (f"该产线在本时段总体运行{label}（{comp} 分，{grade} 级）：评估 "
+        stmt = (f"{_subject.sentence_subject(subj['noun'])}在本时段总体运行{label}"
+                f"（{comp} 分，{grade} 级）：评估 "
                 f"{len(parameters)} 个参数，检出 {sum(p['n_violation_points'] for p in parameters)} 个 "
                 f"SPC 违规剧集、{sum(1 for p in parameters if (p.get('drift') or {}).get('significant'))} 项显著漂移"
                 + (f"；工况分段检出 {len(regimes_res.get('change_points', []))} 个显著变点"

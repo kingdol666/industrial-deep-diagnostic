@@ -243,7 +243,7 @@ def build(report: dict, charts: dict) -> str:
 <div class="wrap">
   {hero}
 
-  <h2>工况理解（本体优先）</h2>
+  <h2>场景理解（本体优先）</h2>
   {condition_html}
 
   <h2>核心发现（结论与证据）</h2>
@@ -429,7 +429,7 @@ def build(report: dict, charts: dict) -> str:
 
 
 def _condition_html(report: dict) -> str:
-    """工况理解 section: ontology narrative + per-column understanding + regimes."""
+    """场景理解 section: ontology narrative + per-column understanding + regimes."""
     cond = report.get("condition") or {}
     ont = cond.get("ontology") or {}
     scene = cond.get("scene") or {}
@@ -482,7 +482,7 @@ def _condition_html(report: dict) -> str:
                         f"<td>{_esc(s.get('stage') or '—')}</td>"
                         f"<td class=num>{_num(s.get('value'))}{unit}</td>"
                         f"<td>{_esc(s.get('governing_law') or '—')}</td></tr>")
-        snap_html = (f"<div style='margin-top:10px'><b>当前工况快照（数据为单时刻快照导出，"
+        snap_html = (f"<div style='margin-top:10px'><b>当前状态快照（数据为单时刻快照导出，"
                      f"以下为导出时刻的瞬时值，非时段统计）</b>"
                      f"<table><thead><tr><th>参数（本体名）</th><th>工段</th><th>瞬时值</th>"
                      f"<th>控制方程</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>")
@@ -491,12 +491,12 @@ def _condition_html(report: dict) -> str:
         for i, seg in enumerate(regimes["regimes"]):
             rows.append(f"<tr><td>段 {i + 1}</td><td class=num>行 {seg['start']}–{seg['end']}"
                         f"（{seg['n_rows']} 行）</td><td>{_esc(seg['label'])}</td></tr>")
-        regime_html = (f"<div style='margin-top:10px'><b>工况分段（sentinel C3，"
+        regime_html = (f"<div style='margin-top:10px'><b>运行状态分段（sentinel C3，"
                        f"方法 { _esc(regimes.get('method')) }；变点 {len(regimes.get('change_points', []))} 个）</b>"
                        f"<table><thead><tr><th>段</th><th>行范围</th><th>主导状态</th></tr></thead>"
                        f"<tbody>{''.join(rows)}</tbody></table></div>")
     elif regimes.get("method"):
-        regime_html = (f"<div class='empty' style='margin-top:8px'>工况分段未启用"
+        regime_html = (f"<div class='empty' style='margin-top:8px'>运行状态分段未启用"
                        f"（{_esc(regimes.get('method'))}）。</div>")
 
     return (f"<div class='panel'><p style='margin:0 0 8px'>{head}</p>"
@@ -555,9 +555,9 @@ def _methods_html(report: dict) -> str:
                                  "物理机制由本体 relationships/参数组校验（机制四条件）。",
         "contribution_r2_share": "贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比"
                                  "（阈值 |r|≥0.3），领先行数一并记录。",
-        "regime_segmentation_c3": "工况分段：复用 industrial-sentinel regime_map（方差比+漂移坡道"
+        "regime_segmentation_c3": "运行状态分段：复用 industrial-sentinel regime_map（方差比+漂移坡道"
                                   "融合 + 二分分割显著变点），变点与主导状态逐段列出。",
-        "ontology_first_condition": "本体优先：先于任何统计构建工况理解"
+        "ontology_first_condition": "本体优先：先于任何统计构建场景理解"
                                     "（显式路径 > 00_input/01_ontology 产物 > 本体资产库），"
                                     "每个推断字段带 assigned_by=ontology|user|auto。",
         "weighted_penalty_score_v1": "评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离"
@@ -610,7 +610,7 @@ def selfcheck(html_path: str, report: dict) -> dict:
     checks = {
         "min_size": size >= 8192,
         "hero_conclusion": "运行稳定性报告" in text and "statement" in text.replace("'", '"'),
-        "condition_section": "工况理解" in text,
+        "condition_section": "场景理解" in text,
         "findings_section": "核心发现" in text,
         "evidence_table": "ev-table" in text,
         "limitations_section": "假设与局限" in text,
@@ -620,7 +620,7 @@ def selfcheck(html_path: str, report: dict) -> dict:
         "appendix_methods": "方法与阈值" in text,
         "advisory_disclaimer": "不构成参数下发" in text,
         "no_placeholder": "PLACEHOLDER" not in text.upper().replace("PLACEHOLDER_TEXT", ""),
-        "snapshot_iff": ("当前工况快照" in text) == bool((report.get("condition") or {}).get("snapshot")),
+        "snapshot_iff": ("当前状态快照" in text) == bool((report.get("condition") or {}).get("snapshot")),
     }
     return {
         "contract_version": "line-stability-html-selfcheck/1.0",
@@ -656,7 +656,7 @@ def build_markdown(report: dict) -> str:
     cond = report.get("condition") or {}
     if cond.get("scene"):
         scene = cond["scene"]
-        ap("## 工况理解（本体优先）")
+        ap("## 场景理解（本体优先）")
         ap("")
         ap(f"- 场景：{scene.get('name') or '—'}（{scene.get('process_type') or '—'}）；"
            f"生产目标：{scene.get('production_goal') or '—'}")
@@ -676,7 +676,7 @@ def build_markdown(report: dict) -> str:
         snap = cond.get("snapshot") or []
         if snap:
             ap("")
-            ap("### 当前工况快照（单时刻瞬时值，非时段统计）")
+            ap("### 当前状态快照（单时刻瞬时值，非时段统计）")
             ap("")
             ap("| 参数 | 本体名 | 工段 | 瞬时值 | 控制方程 |")
             ap("|---|---|---|---|---|")
@@ -687,7 +687,7 @@ def build_markdown(report: dict) -> str:
         regimes = (cond.get("regimes") or {})
         if regimes.get("available") and regimes.get("regimes"):
             ap("")
-            ap(f"**工况分段**（sentinel C3，方法 {regimes.get('method')}；"
+            ap(f"**运行状态分段**（sentinel C3，方法 {regimes.get('method')}；"
                f"变点 {len(regimes.get('change_points', []))} 个）")
             ap("")
             ap("| 段 | 行范围 | 主导状态 |")

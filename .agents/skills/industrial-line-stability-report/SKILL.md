@@ -9,12 +9,13 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 
 ## 设计原则（house rules）
 
-1. **本体优先**：先理解工况、再碰统计。本体发现顺序：`--ontology` 显式路径 → `<run_dir>/00_input|01_ontology/ontology.json`（ontology-builder 产物）→ `data/ontology_store` 资产库按 scene 匹配 → 都没有才进入 auto 模式（启发推断），**每个理解字段带 `assigned_by=ontology|user|auto` 溯源**。本体提供的 normal_range 在用户未给规格时回退为 Cpk 规格限；relationships 作为相关性发现的物理机制校验（darwin 四条件）；confounders 进入报告"假设与局限"。
-2. **不重复造轮子**（复用=单一事实源）：Nelson 判异剧集与稳健 z 复用 `industrial-sentinel/sentinelcore`（spc/robust），工况分段复用 `sentinelcore/regime_map`（C3 方差比+漂移坡道+二分变点），操作窗来自 `industrial-doe-analyzer` recommendations，动作归因调 `industrial-tuning-memory` tune_stats，`--doe-auto` 可选深腿直接跑 doe 观测分析并融合其 BH-FDR 相关报告。复用不可用时显式降级（provenance.spc_source=local_fallback 等）。
-3. **确定性**：评分、发现、证据全部来自脚本；agent 禁止改动任何数值字段，只能追加中文 `interpretation` 字段与面向人的解读。
-4. **诚实性**：行数 <50 或无数值参数列 → `status=not_assessable`（exit 2），说明原因，不评分不编造；协同输入缺席时在 `degradations` 记录原因；>100k 行系统抽样并标记 `data.sampled`。
-5. **darwin 数据真值条款**：数值可由原始表复算（data_source=raw、row_range、方法清单）；推导字段标 `derived:true`；每条发现带 0-100 确定性置信度（统计证据 × 本体机制支持，抽样 -20）；`limitations` 显式列出模型假设、规格覆盖与未控混杂。
-6. **咨询边界**：报告仅描述"发生了什么、有多稳"，绝不构成参数下发指令（HTML 页脚已声明）。
+1. **本体优先**：先理解工况、再碰统计。本体发现顺序：`--ontology` 显式路径 → `<run_dir>/00_input|01_ontology/ontology.json`（ontology-builder 产物）→ `data/ontology_store` 资产库按 scene 匹配 → 都没有才进入 auto 模式（启发推断），**每个理解字段带 `assigned_by=ontology|user|auto` 溯源**。本体提供的 normal_range 在用户未给规格时回退为 Cpk 规格限；relationships 作为相关性发现的物理机制校验（机制四条件）；confounders 进入报告"假设与局限"。
+2. **意图与场景自适应**：分析主语与措辞不写死"产线"——按 `context.scenario` → 本体 scene（process_type/name）→ `context.line_id|product` 的顺序推断主语（**产线 / 系统 / 对象** 三档）并进报告标题与结论句；`context.objective`（分析目标）直接进入报告头部；用户未声明权重时，质检/响应类信号（用户 inspection_cols 或本体 role）自动加权 ×2（provenance.weights_source=ontology_roles）。任意数值时序场景（产线、能耗、环境、实验室流程……）都适用。
+3. **不重复造轮子**（复用=单一事实源）：Nelson 判异剧集与稳健 z 复用 `industrial-sentinel/sentinelcore`（spc/robust），工况分段复用 `sentinelcore/regime_map`（C3 方差比+漂移坡道+二分变点），操作窗来自 `industrial-doe-analyzer` recommendations，动作归因调 `industrial-tuning-memory` tune_stats，`--doe-auto` 可选深腿直接跑 doe 观测分析并融合其 BH-FDR 相关报告。复用不可用时显式降级（provenance.spc_source=local_fallback 等）。
+4. **确定性**：评分、发现、证据全部来自脚本；agent 禁止改动任何数值字段，只能追加中文 `interpretation` 字段与面向人的解读。
+5. **诚实性**：行数 <50 或无数值参数列 → `status=not_assessable`（exit 2），说明原因，不评分不编造；协同输入缺席时在 `degradations` 记录原因；>100k 行系统抽样并标记 `data.sampled`。
+6. **数据真值条款**：数值可由原始表复算（data_source=raw、row_range、方法清单）；推导字段标 `derived:true`；每条发现带 0-100 确定性置信度（统计证据 × 本体机制支持，抽样 -20）；`limitations` 显式列出模型假设、规格覆盖与未控混杂。
+7. **咨询边界**：报告仅描述"发生了什么、有多稳"，绝不构成参数下发指令（HTML 页脚已声明）。
 
 ## 定位
 

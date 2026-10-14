@@ -1,4 +1,4 @@
-"""Finding generation with darwin counterfactual constraints.
+"""Finding generation with counterfactual constraints.
 
 Every finding carries machine-checkable evidence, a deterministic confidence
 (0-100, rubric below) and — for correlation/driver findings — a physical
@@ -124,7 +124,7 @@ def generate(report: dict) -> list[dict]:
             sev = "high" if cpk < 1.0 else "warn" if cpk < 1.33 else None
             if sev:
                 spec_src = (p.get("spec") or {}).get("source") or "user"
-                _f(out, sev, "capability", f"{name} 工序能力不足",
+                _f(out, sev, "capability", f"{name} 规格能力不足",
                    f"Cpk={_fmt(cpk)}（阈值：≥1.33 合格，<1.0 不足），"
                    f"规格界限 LSL={_fmt(p['spec'].get('lsl'))} / USL={_fmt(p['spec'].get('usl'))}"
                    f"（来源：{'本体资产' if spec_src == 'ontology' else '用户提供'}）。",
@@ -152,16 +152,16 @@ def generate(report: dict) -> list[dict]:
     cps = regimes_res.get("change_points") or []
     if regimes_res.get("available") and cps:
         first = cps[0]
-        _f(out, "warn", "regime", f"工况发生结构性切换（{len(cps)} 个显著变点）",
-           f"sentinel C3 工况分段在本时段检出 {len(cps)} 个显著变点"
+        _f(out, "warn", "regime", f"运行状态发生结构性切换（{len(cps)} 个显著分段变点）",
+           f"sentinel C3 分段在本时段检出 {len(cps)} 个显著变点"
            f"（首个位于第 {first} 行附近）；全时段评分可能混合不同工况，"
-           f"请结合下方工况分段表分段解读。",
+           f"请结合下方运行状态分段表分段解读。",
            [_ev("change_points", len(cps), "0", derived=True),
             _ev("segmentation_method", regimes_res.get("method"), None,
                 "sentinel regime_map")],
            confidence=70 + spen)
 
-    # ── correlation drivers with darwin mechanism check ────────────────────
+    # ── correlation drivers with mechanism check ───────────────────────────
     pairs = report.get("correlations", {}).get("pairs", [])
     top_pairs = [p for p in pairs if abs(p["best_abs_r"]) >= 0.7][:3]
     for pair in top_pairs:
