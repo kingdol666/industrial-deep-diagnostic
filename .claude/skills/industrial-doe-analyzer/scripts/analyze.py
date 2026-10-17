@@ -62,6 +62,17 @@ TIME_PARSE_SAMPLE = 200
 TIME_PARSE_MIN_RATE = 0.8
 DATA_SUFFIXES = (".csv", ".xlsx", ".xls", ".parquet", ".feather", ".json", ".tsv")
 
+# P0-4: 00_input holds descriptors alongside the run table. None of these is data.
+AUX_INPUT_NAMES = {"doe_context.json", "analysis_context.json", "analysis_context.merged.json"}
+
+
+def is_aux_input_name(name):
+    low = name.lower()
+    return (name in AUX_INPUT_NAMES
+            or low.endswith("_manifest.json")
+            or low.startswith("readme")
+            or low.startswith("."))
+
 
 def now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -251,12 +262,22 @@ def _run_manifest(run_dir):
 
 
 def _find_data(run_dir, data_path):
+    """Resolve the run table (P0-4). An explicitly declared path always wins; without
+    one, scan 00_input skipping subdirectories (exclusions/) and aux files — a context
+    or manifest file must never be picked up as the data table (contracts §3)."""
     run_dir_v = _contained(run_dir)
     if data_path:
-        return _contained(data_path, run_dir_v)
+        p = _contained(data_path, run_dir_v)
+        if not p.is_file():
+            raise FileNotFoundError(f"declared data file not found: {p}")
+        return p
     in_dir = run_dir_v / "00_input"
     for p in sorted(in_dir.iterdir()):
-        if p.suffix.lower() in DATA_SUFFIXES and p.name != "analysis_context.json":
+        if not p.is_file():
+            continue
+        if is_aux_input_name(p.name):
+            continue
+        if p.suffix.lower() in DATA_SUFFIXES:
             return _contained(p, run_dir_v)
     raise FileNotFoundError(f"no data file under {in_dir}")
 

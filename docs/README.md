@@ -27,6 +27,7 @@
 | [skill-optimization-plan-v4.md](skill-optimization-plan-v4.md) | 技能系统优化计划 v4（已实施：本体资产化/提速/意图驱动） |
 | [efficiency-optimization-plan-v5.md](efficiency-optimization-plan-v5.md) | 效率优化计划 v5（已实施：确定性快路径） |
 | [process-engineer-perspective.md](process-engineer-perspective.md) | 工艺工程师视角的系统可用性设计 |
+| [plans/doe-analysis-flow-optimization-plan-2026-10-17.md](plans/doe-analysis-flow-optimization-plan-2026-10-17.md) | DOE 数据分析流程优化计划（本体优先/可执行闭环）+ [契约冻结](plans/contracts/README.md) + [验收 traceability](plans/doe-traceability.md) |
 
 ## 阅读顺序
 

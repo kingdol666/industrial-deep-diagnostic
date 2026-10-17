@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DOE artifact manifest (contracts v1.1) — tasks result and external result share this shape",
+  "type": "object",
+  "required": ["contract_version", "run_id", "artifacts"],
+  "properties": {
+    "contract_version": { "enum": ["1.0", "1.1"] },
+    "schema_version": { "type": "string" },
+    "run_id": { "type": "string" },
+    "run_dir": { "type": ["string", "null"] },
+    "analysis_intent": { "type": ["string", "null"] },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "path", "sha256"],
+        "properties": {
+          "kind": {
+            "enum": ["ontology", "ontology_brief", "ontology_coverage", "ontology_feedback",
+                     "ontology_consistency", "data_profile", "analysis_plan", "effect_table",
+                     "model", "association_screen", "doe_conclusion", "recommendations",
+                     "next_design", "optimization_guidance", "report", "report_html"]
+          },
+          "path": { "type": "string", "description": "POSIX-separated path relative to run_dir" },
+          "url": { "type": ["string", "null"] },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "schema_version": { "type": ["string", "null"] },
+          "bytes": { "type": ["integer", "null"], "minimum": 0 },
+          "produced_by": { "type": ["string", "null"] },
+          "ontology_version": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "missing": {
+      "type": "array",
+      "description": "explicit failures — a missing or schema-invalid artifact must be listed here, never silently skipped",
+      "items": {
+        "type": "object",
+        "required": ["kind", "reason"],
+        "properties": {
+          "kind": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

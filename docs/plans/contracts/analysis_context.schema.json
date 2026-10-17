@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DOE analysis context — canonical resolved context (contracts v1.1)",
+  "description": "Superset of the skill projection. Every field may carry assigned_by provenance via provenance.assigned_by.",
+  "type": "object",
+  "required": ["data_path"],
+  "properties": {
+    "contract_version": { "enum": ["1.0", "1.1"] },
+    "experiment_id": { "type": ["string", "null"] },
+    "line_id": { "type": ["string", "null"] },
+    "product_id": { "type": ["string", "null"] },
+    "recipe_id": { "type": ["string", "null"] },
+    "objective": { "type": ["string", "null"] },
+    "data_path": { "type": "string" },
+    "data_stage": { "enum": ["design_only", "collected", null] },
+    "design_type_declared": { "type": ["string", "null"] },
+    "mode_override": { "enum": [null, "designed", "observational"] },
+    "responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["col"],
+        "properties": {
+          "col": { "type": "string" },
+          "name": { "type": ["string", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "goal": { "enum": ["maximize", "minimize", "target", null] },
+          "lsl": { "type": ["number", "null"] },
+          "usl": { "type": ["number", "null"] },
+          "target": { "type": ["number", "null"] },
+          "weight": { "type": ["number", "null"], "minimum": 0 },
+          "ontology_signal": { "type": ["string", "null"] },
+          "platform_metric_ref": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["col"],
+        "properties": {
+          "col": { "type": "string" },
+          "name": { "type": ["string", "null"] },
+          "type": { "enum": ["numeric", "categorical", null] },
+          "unit": { "type": ["string", "null"] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "levels": { "type": ["array", "null"] },
+          "role": { "type": ["string", "null"] },
+          "expected_sign": { "type": ["string", "null"] },
+          "physical_meaning": { "type": ["string", "null"] },
+          "ontology_signal": { "type": ["string", "null"] },
+          "platform_ref": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "blocks": { "type": "array", "items": { "type": "string" } },
+    "covariates": { "type": "array", "items": { "type": "string" } },
+    "index_cols": { "type": "array", "items": { "type": "string" } },
+    "time_col": { "type": ["string", "null"] },
+    "group_col": { "type": ["string", "null"] },
+    "run_order_col": { "type": ["string", "null"] },
+    "replicates_col": { "type": ["string", "null"] },
+    "max_lag": { "type": ["integer", "null"], "minimum": 1 },
+    "alpha": { "type": ["number", "null"], "minimum": 0.001, "maximum": 0.2 },
+    "effect_size_threshold": { "type": ["number", "null"], "minimum": 0 },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor"],
+        "properties": {
+          "factor": { "type": "string" },
+          "type": { "enum": ["box", "linear", "safety", null] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "coeff": { "type": ["object", "null"] },
+          "hard": { "type": ["boolean", "null"] },
+          "reason": { "type": ["string", "null"] },
+          "source": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "current_setpoint": { "type": ["object", "null"] },
+    "baseline_source": { "type": ["string", "null"] },
+    "design_region": {
+      "type": ["object", "null"],
+      "properties": {
+        "factorial_bounds": { "type": "object" },
+        "axial_alpha": { "type": ["number", "null"] },
+        "design_hull": { "type": ["string", "null"] }
+      }
+    },
+    "units": {
+      "type": ["object", "null"],
+      "properties": {
+        "factors": { "type": "object" },
+        "responses": { "type": "object" },
+        "conflicts": { "type": "array" }
+      }
+    },
+    "ontology": {
+      "type": ["object", "null"],
+      "properties": {
+        "profile": { "enum": ["doe", "diagnosis", null] },
+        "mode": { "enum": ["off", "auto", "full", null] },
+        "scene_key": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "data_stage": { "enum": ["design_only", "collected", null] }
+      }
+    },
+    "provenance": {
+      "type": ["object", "null"],
+      "properties": {
+        "assigned_by": {
+          "type": "object",
+          "description": "field.path -> user|ontology|auto",
+          "additionalProperties": { "enum": ["user", "ontology", "auto"] }
+        },
+        "platform": { "type": ["string", "null"] },
+        "created_by": { "type": ["string", "null"] },
+        "created_at": { "type": ["string", "null"] },
+        "adapter_version": { "type": ["string", "null"] }
+      }
+    },
+    "inference": {
+      "type": "object",
+      "properties": {
+        "assigned_by": { "enum": ["user", "auto"] },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "_predictor_cols": { "type": "array", "items": { "type": "string" } }
+  }
+}
