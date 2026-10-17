@@ -327,7 +327,20 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
     unit_of = {i["col"]: i.get("unit") for i in factor_info}
 
     # --- C4 pure error / lack-of-fit ---
-    df_pe, ss_pe, df_lof, ss_lof, f_lof, p_lof = _pure_error(X_use, y, rss, df_resid)
+    # Replicates are defined in FACTOR space: runs sharing a factor combination are
+    # genuine repeats even when a covariate or a block varies between them. Keying
+    # the replicate groups on the full model matrix instead would silently destroy
+    # the pure-error estimate of every blocked/covariate-adjusted design — a CCD
+    # with six centre points would report df_pure_error = 0 (no lack-of-fit test,
+    # no sigma_pure_error, no MDE). So the key uses the design-factor main-effect
+    # columns only; the nuisance columns stay in the model but out of the key.
+    kept_names = [kept.names[j] for j in keep_idx]
+    kept_term_of = [kept.term_of[j] for j in keep_idx]
+    kept_kind_of = [kept.kind_of[j] for j in keep_idx]
+    design_main_terms = {t["name"] for t in terms if t.get("kind") == "main"}
+    key_mask = [j for j, tname in enumerate(kept_term_of) if tname in design_main_terms]
+    X_key = X_use[:, key_mask] if key_mask else X_use
+    df_pe, ss_pe, df_lof, ss_lof, f_lof, p_lof = _pure_error(X_key, y, rss, df_resid)
     sigma_pe = float(np.sqrt(ss_pe / df_pe)) if df_pe and df_pe > 0 else None
 
     # --- C2 extra-SS ANOVA via reduced-model refit ---
@@ -337,9 +350,6 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
     # interactions containing the tested term (deviation coding), so the value is
     # the Type-III-style single-deletion extra-SS and p values are coding-dependent
     # (profile emits an UNBALANCED_DESIGN caveat in that case).
-    kept_names = [kept.names[j] for j in keep_idx]
-    kept_term_of = [kept.term_of[j] for j in keep_idx]
-    kept_kind_of = [kept.kind_of[j] for j in keep_idx]
     tests = []
     seen = []
     for j, tname in enumerate(kept_term_of):

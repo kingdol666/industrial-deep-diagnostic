@@ -9,6 +9,7 @@
 | 契约冻结（Phase 0） | `frozen` | run_table / doe_context / analysis_context / artifact manifest + round-trip | [contracts/README.md](contracts/README.md) |
 | 基线快照（Phase 0） | 冻结 | 双仓库 SHA/工具链/测试基线/隔离工作树 | [doe-baseline-2026-10-17.md](doe-baseline-2026-10-17.md) |
 | 验收执行摘要 | 证据 | 套件结果 / MC / 性能 / 端到端实测 / 延期项 | [evidence/doe-2026-10-17/summary.md](evidence/doe-2026-10-17/summary.md) |
+| **DOE 端到端演示**（BOPET 真实场景） | 可重跑 | 模拟真实试验数据 + 植入真值 + 60 条断言 + 人读报告 | [demo/doe-bopet/README.md](demo/doe-bopet/README.md) |
 
 ## 执行约定
 

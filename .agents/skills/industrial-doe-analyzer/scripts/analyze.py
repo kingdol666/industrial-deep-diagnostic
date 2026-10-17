@@ -340,11 +340,18 @@ def cmd_profile(run_dir, data_path=None, context_path=None):
 
     numeric = set(_numeric_cols(df))
     columns_block, caveats = [], []
+    # Structural grouping columns (replicate / run-order / group keys) are part of
+    # the run's identity, not unused data: labelling them `ignore` misleads a
+    # reader, and their structural blanks (a replicate_group is empty for every
+    # unreplicated run) must never be reported as a data-quality problem.
+    structural = sorted({ctx.get("replicates_col"), ctx.get("run_order_col"),
+                         ctx.get("group_col")} - {None})
     roles = {"responses": response_cols,
              "factors": factor_cols,
              "blocks": [b for b in ctx.get("blocks", []) if b in df.columns],
              "covariates": [c for c in ctx.get("covariates", []) if c in df.columns],
-             "index": [c for c in ctx.get("index_cols", []) if c in df.columns],
+             "index": sorted({c for c in ctx.get("index_cols", []) if c in df.columns}
+                             | {c for c in structural if c in df.columns}),
              "ignore": []}
     for c in df.columns:
         role = "ignore"
@@ -420,7 +427,14 @@ def cmd_profile(run_dir, data_path=None, context_path=None):
                 "evidence": {"balanced": False,
                              "balance_ratio": design.get("balance_ratio")}})
     dup_rows = int(df.duplicated().sum())
-    high_missing = [c["name"] for c in columns_block if (c["n_missing"] or 0) > 0.3 * len(df)]
+    # Only columns that actually feed the analysis can be a data-quality problem.
+    # A blank replicate_group on unreplicated runs, or an unused bookkeeping
+    # column, must not raise HIGH_MISSING — that would send a process engineer
+    # chasing a non-issue.
+    _analysis_roles = {"factor", "response", "block", "covariate"}
+    high_missing = [c["name"] for c in columns_block
+                    if c["role"] in _analysis_roles
+                    and (c["n_missing"] or 0) > 0.3 * len(df)]
     if high_missing:
         caveats.append({"code": "HIGH_MISSING",
                         "message": f"缺失率>30% 的列: {high_missing}", "severity": "warn"})

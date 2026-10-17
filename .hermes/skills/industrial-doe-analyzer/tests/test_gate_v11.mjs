@@ -62,6 +62,11 @@ function runGate(runDir) {
   return { rc: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
 }
 const hasLine = (out, re) => out.split(/\r?\n/).some((l) => re.test(l));
+// A gate that actually RAN (as opposed to degrading to "n/a (…)"). Guarding this
+// matters: a gate that silently reports n/a on every run looks green while
+// checking nothing.
+const hasRealPass = (out, id) => out.split(/\r?\n/)
+  .some((l) => l.startsWith(`PASS ${id}`) && !l.includes('- n/a'));
 
 // ---------------------------------------------------------------- helpers
 
@@ -396,14 +401,19 @@ function main() {
   const g1 = runGate(legacy);
   gateReport('legacy', g1.out);
   assert('legacy.gate_exit0', g1.rc === 0, g1.out.slice(-700));
-  // contract §9 铁律: the legacy analyzer path emits v1.0 only. If a parallel
-  // change ever wires v1.1 into that path, the gates must still PASS (never
-  // n/a), so both worlds are asserted — n/a stays covered by the na_probe above.
+  // Absence handling (absence => explicit n/a PASS, never FAIL) is covered by the
+  // na_probe group above. Here the question is the opposite one: on a REAL run the
+  // four v1.1 gates must actually execute — a gate that silently degrades to n/a
+  // looks green while checking nothing. analyze.py always takes the v1.1 path now,
+  // so the legacy "v1.0-only output" world is asserted only if it ever returns.
   for (const id of V11_GATES) {
     assert(`legacy.${id}_not_failed`, !hasLine(g1.out, new RegExp(`^FAIL ${id}\\b`)), '');
     if (!legacyHasV11) {
       assert(`legacy.${id}_na`, hasLine(g1.out, new RegExp(`^PASS ${id} - n/a`)),
         'expected an explicit n/a PASS line');
+    } else {
+      assert(`legacy.${id}_real`, hasRealPass(g1.out, id),
+        'expected the gate to actually run on a v1.1 artifact set, not report n/a');
     }
   }
   assert('legacy.g6_strict_keys_pass',

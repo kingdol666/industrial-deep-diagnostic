@@ -1,0 +1,804 @@
+[
+  {
+    "response": "thickness_um",
+    "n": 21,
+    "df_resid": 8,
+    "mse": 0.033551,
+    "coded_coefficients": {
+      "tdo_z4_temp": 1.218105,
+      "mdo_speed": -0.972979,
+      "tdo_ratio": -0.45621,
+      "ambient_temp": -0.273241,
+      "tdo_z4_temp^2": -1.095105,
+      "mdo_speed^2": -0.786529,
+      "tdo_ratio^2": -0.49038,
+      "tdo_z4_temp:mdo_speed": 0.844657,
+      "tdo_z4_temp:tdo_ratio": -0.106244,
+      "mdo_speed:tdo_ratio": 0.133309
+    },
+    "r_squared": 0.996342,
+    "adj_r_squared": 0.990856,
+    "q_squared_loo": 0.964308,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": -1.920001,
+      "p_value": 1.0
+    },
+    "residual_diagnostics": {
+      "n": 21,
+      "n_params": 13,
+      "sigma_residual": 0.18317,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.977937,
+      "leverage_cutoff_2p_over_n": 1.238095,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 1.198596,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 48.385,
+          "yhat": 48.439332,
+          "resid": -0.054332
+        },
+        {
+          "row_index": 1,
+          "y": 49.426,
+          "yhat": 49.654533,
+          "resid": -0.228533
+        },
+        {
+          "row_index": 2,
+          "y": 44.975,
+          "yhat": 44.974629,
+          "resid": 0.000371
+        },
+        {
+          "row_index": 3,
+          "y": 48.999,
+          "yhat": 49.015846,
+          "resid": -0.016846
+        },
+        {
+          "row_index": 4,
+          "y": 47.532,
+          "yhat": 47.514783,
+          "resid": 0.017217
+        },
+        {
+          "row_index": 6,
+          "y": 44.443,
+          "yhat": 44.351443,
+          "resid": 0.091557
+        },
+        {
+          "row_index": 7,
+          "y": 48.144,
+          "yhat": 48.089298,
+          "resid": 0.054702
+        },
+        {
+          "row_index": 8,
+          "y": 50.225,
+          "yhat": 50.202413,
+          "resid": 0.022587
+        },
+        {
+          "row_index": 9,
+          "y": 47.516,
+          "yhat": 47.54007,
+          "resid": -0.02407
+        },
+        {
+          "row_index": 10,
+          "y": 47.897,
+          "yhat": 47.996041,
+          "resid": -0.099041
+        },
+        {
+          "row_index": 11,
+          "y": 50.251,
+          "yhat": 50.153442,
+          "resid": 0.097558
+        },
+        {
+          "row_index": 12,
+          "y": 48.853,
+          "yhat": 48.985733,
+          "resid": -0.132733
+        },
+        {
+          "row_index": 13,
+          "y": 50.132,
+          "yhat": 50.00075,
+          "resid": 0.13125
+        },
+        {
+          "row_index": 14,
+          "y": 50.119,
+          "yhat": 49.924151,
+          "resid": 0.194849
+        },
+        {
+          "row_index": 15,
+          "y": 49.798,
+          "yhat": 49.918473,
+          "resid": -0.120473
+        },
+        {
+          "row_index": 16,
+          "y": 49.806,
+          "yhat": 49.674524,
+          "resid": 0.131476
+        },
+        {
+          "row_index": 17,
+          "y": 50.032,
+          "yhat": 50.221007,
+          "resid": -0.189007
+        },
+        {
+          "row_index": 18,
+          "y": 50.226,
+          "yhat": 50.158006,
+          "resid": 0.067994
+        },
+        {
+          "row_index": 19,
+          "y": 49.657,
+          "yhat": 49.738876,
+          "resid": -0.081876
+        },
+        {
+          "row_index": 20,
+          "y": 49.912,
+          "yhat": 49.743911,
+          "resid": 0.168089
+        },
+        {
+          "row_index": 21,
+          "y": 44.293,
+          "yhat": 44.323743,
+          "resid": -0.030743
+        }
+      ],
+      "normality": {
+        "skew": -0.185591,
+        "excess_kurtosis": -0.754706
+      }
+    },
+    "predictor": {
+      "base": {
+        "tdo_z4_temp": {
+          "kind": "numeric_main",
+          "factor": "tdo_z4_temp",
+          "mean": 200.0,
+          "half_range": 4.0
+        },
+        "mdo_speed": {
+          "kind": "numeric_main",
+          "factor": "mdo_speed",
+          "mean": 320.0,
+          "half_range": 10.0
+        },
+        "tdo_ratio": {
+          "kind": "numeric_main",
+          "factor": "tdo_ratio",
+          "mean": 3.0,
+          "half_range": 0.1
+        },
+        "block[B1]": {
+          "kind": "level",
+          "factor": "block",
+          "level": "B1",
+          "reference": "B3"
+        },
+        "block[B2]": {
+          "kind": "level",
+          "factor": "block",
+          "level": "B2",
+          "reference": "B3"
+        },
+        "ambient_temp": {
+          "kind": "numeric_main",
+          "factor": "ambient_temp",
+          "mean": 24.438,
+          "half_range": 0.535
+        }
+      },
+      "terms": [
+        {
+          "term": "tdo_z4_temp",
+          "specs": [
+            {
+              "name": "tdo_z4_temp",
+              "fn": "identity",
+              "inputs": [
+                "tdo_z4_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed",
+          "specs": [
+            {
+              "name": "mdo_speed",
+              "fn": "identity",
+              "inputs": [
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_ratio",
+          "specs": [
+            {
+              "name": "tdo_ratio",
+              "fn": "identity",
+              "inputs": [
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "block",
+          "specs": [
+            {
+              "name": "block[B1]",
+              "fn": "identity",
+              "inputs": [
+                "block[B1]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "block",
+          "specs": [
+            {
+              "name": "block[B2]",
+              "fn": "identity",
+              "inputs": [
+                "block[B2]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "ambient_temp",
+          "specs": [
+            {
+              "name": "ambient_temp",
+              "fn": "identity",
+              "inputs": [
+                "ambient_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp^2",
+          "specs": [
+            {
+              "name": "tdo_z4_temp^2",
+              "fn": "square",
+              "inputs": [
+                "tdo_z4_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed^2",
+          "specs": [
+            {
+              "name": "mdo_speed^2",
+              "fn": "square",
+              "inputs": [
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_ratio^2",
+          "specs": [
+            {
+              "name": "tdo_ratio^2",
+              "fn": "square",
+              "inputs": [
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp:mdo_speed",
+          "specs": [
+            {
+              "name": "tdo_z4_temp*mdo_speed",
+              "fn": "product",
+              "inputs": [
+                "tdo_z4_temp",
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp:tdo_ratio",
+          "specs": [
+            {
+              "name": "tdo_z4_temp*tdo_ratio",
+              "fn": "product",
+              "inputs": [
+                "tdo_z4_temp",
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed:tdo_ratio",
+          "specs": [
+            {
+              "name": "mdo_speed*tdo_ratio",
+              "fn": "product",
+              "inputs": [
+                "mdo_speed",
+                "tdo_ratio"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "tdo_z4_temp": 1.218105,
+        "mdo_speed": -0.972979,
+        "tdo_ratio": -0.45621,
+        "block[B1]": 0.024775,
+        "block[B2]": -0.033778,
+        "ambient_temp": -0.273241,
+        "tdo_z4_temp^2": -1.095105,
+        "mdo_speed^2": -0.786529,
+        "tdo_ratio^2": -0.49038,
+        "tdo_z4_temp*mdo_speed": 0.844657,
+        "tdo_z4_temp*tdo_ratio": -0.106244,
+        "mdo_speed*tdo_ratio": 0.133309
+      },
+      "intercept": 49.981543
+    },
+    "stationary_point": {
+      "coded": {
+        "tdo_z4_temp": 0.411957,
+        "mdo_speed": -0.445661,
+        "tdo_ratio": -0.570363
+      },
+      "raw": {
+        "tdo_z4_temp": 201.647827,
+        "mdo_speed": 315.543389,
+        "tdo_ratio": 2.942964
+      },
+      "classification": "max",
+      "inside_design_region": true,
+      "eigenvalues": [
+        -2.795625,
+        -1.023052,
+        -0.92535
+      ],
+      "warning": null
+    }
+  },
+  {
+    "response": "haze_pct",
+    "n": 22,
+    "df_resid": 9,
+    "mse": 0.00095,
+    "coded_coefficients": {
+      "tdo_z4_temp": 0.158905,
+      "mdo_speed": 0.012101,
+      "tdo_ratio": -0.007502,
+      "ambient_temp": -0.023965,
+      "tdo_z4_temp^2": 0.211932,
+      "mdo_speed^2": 0.335681,
+      "tdo_ratio^2": 0.094114,
+      "tdo_z4_temp:mdo_speed": 0.015469,
+      "tdo_z4_temp:tdo_ratio": 0.015449,
+      "mdo_speed:tdo_ratio": 0.023976
+    },
+    "r_squared": 0.995879,
+    "adj_r_squared": 0.990385,
+    "q_squared_loo": 0.979654,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": -0.684258,
+      "p_value": 1.0
+    },
+    "residual_diagnostics": {
+      "n": 22,
+      "n_params": 13,
+      "sigma_residual": 0.030818,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.83729,
+      "leverage_cutoff_2p_over_n": 1.181818,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.453015,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 1.9236,
+          "yhat": 1.92237,
+          "resid": 0.00123
+        },
+        {
+          "row_index": 1,
+          "y": 2.2316,
+          "yhat": 2.23071,
+          "resid": 0.00089
+        },
+        {
+          "row_index": 2,
+          "y": 1.9029,
+          "yhat": 1.906025,
+          "resid": -0.003125
+        },
+        {
+          "row_index": 3,
+          "y": 2.2384,
+          "yhat": 2.227776,
+          "resid": 0.010624
+        },
+        {
+          "row_index": 4,
+          "y": 1.8551,
+          "yhat": 1.866322,
+          "resid": -0.011222
+        },
+        {
+          "row_index": 5,
+          "y": 2.2014,
+          "yhat": 2.198873,
+          "resid": 0.002527
+        },
+        {
+          "row_index": 6,
+          "y": 1.9627,
+          "yhat": 1.925545,
+          "resid": 0.037155
+        },
+        {
+          "row_index": 7,
+          "y": 2.288,
+          "yhat": 2.289828,
+          "resid": -0.001828
+        },
+        {
+          "row_index": 8,
+          "y": 1.7713,
+          "yhat": 1.790864,
+          "resid": -0.019564
+        },
+        {
+          "row_index": 9,
+          "y": 1.5093,
+          "yhat": 1.487343,
+          "resid": 0.021957
+        },
+        {
+          "row_index": 10,
+          "y": 1.7725,
+          "yhat": 1.769333,
+          "resid": 0.003167
+        },
+        {
+          "row_index": 11,
+          "y": 1.7629,
+          "yhat": 1.763675,
+          "resid": -0.000775
+        },
+        {
+          "row_index": 12,
+          "y": 1.5131,
+          "yhat": 1.493738,
+          "resid": 0.019362
+        },
+        {
+          "row_index": 13,
+          "y": 1.5307,
+          "yhat": 1.54767,
+          "resid": -0.01697
+        },
+        {
+          "row_index": 14,
+          "y": 1.4545,
+          "yhat": 1.406409,
+          "resid": 0.048091
+        },
+        {
+          "row_index": 15,
+          "y": 1.4328,
+          "yhat": 1.43584,
+          "resid": -0.00304
+        },
+        {
+          "row_index": 16,
+          "y": 1.4043,
+          "yhat": 1.418638,
+          "resid": -0.014338
+        },
+        {
+          "row_index": 17,
+          "y": 1.4559,
+          "yhat": 1.466568,
+          "resid": -0.010668
+        },
+        {
+          "row_index": 18,
+          "y": 1.4556,
+          "yhat": 1.456848,
+          "resid": -0.001248
+        },
+        {
+          "row_index": 19,
+          "y": 1.4007,
+          "yhat": 1.424282,
+          "resid": -0.023582
+        },
+        {
+          "row_index": 20,
+          "y": 2.2459,
+          "yhat": 2.238549,
+          "resid": 0.007351
+        },
+        {
+          "row_index": 21,
+          "y": 1.843,
+          "yhat": 1.888993,
+          "resid": -0.045993
+        }
+      ],
+      "normality": {
+        "skew": 0.317976,
+        "excess_kurtosis": 0.832353
+      }
+    },
+    "predictor": {
+      "base": {
+        "tdo_z4_temp": {
+          "kind": "numeric_main",
+          "factor": "tdo_z4_temp",
+          "mean": 200.0,
+          "half_range": 4.0
+        },
+        "mdo_speed": {
+          "kind": "numeric_main",
+          "factor": "mdo_speed",
+          "mean": 320.0,
+          "half_range": 10.0
+        },
+        "tdo_ratio": {
+          "kind": "numeric_main",
+          "factor": "tdo_ratio",
+          "mean": 3.0,
+          "half_range": 0.1
+        },
+        "block[B1]": {
+          "kind": "level",
+          "factor": "block",
+          "level": "B1",
+          "reference": "B3"
+        },
+        "block[B2]": {
+          "kind": "level",
+          "factor": "block",
+          "level": "B2",
+          "reference": "B3"
+        },
+        "ambient_temp": {
+          "kind": "numeric_main",
+          "factor": "ambient_temp",
+          "mean": 24.438,
+          "half_range": 0.535
+        }
+      },
+      "terms": [
+        {
+          "term": "tdo_z4_temp",
+          "specs": [
+            {
+              "name": "tdo_z4_temp",
+              "fn": "identity",
+              "inputs": [
+                "tdo_z4_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed",
+          "specs": [
+            {
+              "name": "mdo_speed",
+              "fn": "identity",
+              "inputs": [
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_ratio",
+          "specs": [
+            {
+              "name": "tdo_ratio",
+              "fn": "identity",
+              "inputs": [
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "block",
+          "specs": [
+            {
+              "name": "block[B1]",
+              "fn": "identity",
+              "inputs": [
+                "block[B1]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "block",
+          "specs": [
+            {
+              "name": "block[B2]",
+              "fn": "identity",
+              "inputs": [
+                "block[B2]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "ambient_temp",
+          "specs": [
+            {
+              "name": "ambient_temp",
+              "fn": "identity",
+              "inputs": [
+                "ambient_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp^2",
+          "specs": [
+            {
+              "name": "tdo_z4_temp^2",
+              "fn": "square",
+              "inputs": [
+                "tdo_z4_temp"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed^2",
+          "specs": [
+            {
+              "name": "mdo_speed^2",
+              "fn": "square",
+              "inputs": [
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_ratio^2",
+          "specs": [
+            {
+              "name": "tdo_ratio^2",
+              "fn": "square",
+              "inputs": [
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp:mdo_speed",
+          "specs": [
+            {
+              "name": "tdo_z4_temp*mdo_speed",
+              "fn": "product",
+              "inputs": [
+                "tdo_z4_temp",
+                "mdo_speed"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "tdo_z4_temp:tdo_ratio",
+          "specs": [
+            {
+              "name": "tdo_z4_temp*tdo_ratio",
+              "fn": "product",
+              "inputs": [
+                "tdo_z4_temp",
+                "tdo_ratio"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "mdo_speed:tdo_ratio",
+          "specs": [
+            {
+              "name": "mdo_speed*tdo_ratio",
+              "fn": "product",
+              "inputs": [
+                "mdo_speed",
+                "tdo_ratio"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "tdo_z4_temp": 0.158905,
+        "mdo_speed": 0.012101,
+        "tdo_ratio": -0.007502,
+        "block[B1]": 0.010751,
+        "block[B2]": 0.00981,
+        "ambient_temp": -0.023965,
+        "tdo_z4_temp^2": 0.211932,
+        "mdo_speed^2": 0.335681,
+        "tdo_ratio^2": 0.094114,
+        "tdo_z4_temp*mdo_speed": 0.015469,
+        "tdo_z4_temp*tdo_ratio": 0.015449,
+        "mdo_speed*tdo_ratio": 0.023976
+      },
+      "intercept": 1.432793
+    },
+    "stationary_point": {
+      "coded": {
+        "tdo_z4_temp": -0.377097,
+        "mdo_speed": -0.011919,
+        "tdo_ratio": 0.072326
+      },
+      "raw": {
+        "tdo_z4_temp": 198.491611,
+        "mdo_speed": 319.880812,
+        "tdo_ratio": 3.007233
+      },
+      "classification": "min",
+      "inside_design_region": true,
+      "eigenvalues": [
+        0.186135,
+        0.423717,
+        0.673603
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  }
+]

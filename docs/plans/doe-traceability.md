@@ -91,7 +91,36 @@ Runner:                  zcode agent session (AGENTS.md 工作区)
                          phase3 82/82；gate-v11 44/44；roundtrip 28/28；backend 135/135
 ```
 
-## 6. Phase 0 必填 case 对照
+## 6. 端到端演示（2026-10-17 追加）
+
+`docs/plans/demo/doe-bopet/`：一份模拟真实试验的数据（面心 CCD + 3 区组 + 重复 +
+1 个缺失读数 + 协变量 + 共线列 + 噪声列），带植入真值与一键重跑驱动。
+
+```
+[DEMO] 60/60 checks passed — ALL GREEN
+[GATE] 25/25 checks passed — ALL PASS
+[contract] v1.1 | grade=A
+```
+
+该演示不是新的验收来源，而是对下列条目的**端到端复证**（同一批断言口径）：
+
+| 验收 ID | 演示中的对应断言 |
+|---|---|
+| DS-01 | `design.type` / `design.center_points` / `design.axial_points` / `design.mode` |
+| DS-02 | 植入效应逐个 `effect.thickness.*` / `effect.haze.*`（对 q(BH)） |
+| DS-03 | `recs.matrix_complete` / `recs.matrix_no_silent_cell` |
+| DS-04 | `recs.joint_actionable` / `recs.joint_thickness_in_spec` / `recs.joint_haze_under_usl` |
+| DS-05 | `recs.joint_hard_zero` / `recs.joint_inside_hard_limits` |
+| DS-06 | `recs.joint_units_valid` |
+| DS-08 | `recs.window_role` + 联合点同时满足两响应 |
+| DS-10 | `screen.*` + `discipline.no_nuisance_window/_setpoint/_patch` |
+| DS-11 | `model.stationary_point_recovered` / `_inside` |
+| OD-09 | `ontology.coverage_complete`（因子 3/3、响应 2/2、未匹配 0） |
+| AR-01 | `manifest.no_missing` / `manifest.core_kinds` / `manifest.sha256_matches` |
+| AR-02 | `report.section.*`（含 `sec-11`）/ `report.size` / `report.charts` / `report.readings` |
+| DS-13 | 该演示暴露并修复了 5 个缺陷（纯误差口径等），136 既有断言零变化 |
+
+## 7. Phase 0 必填 case 对照
 
 | 建议 case | 落位 | 状态 |
 |---|---|---|

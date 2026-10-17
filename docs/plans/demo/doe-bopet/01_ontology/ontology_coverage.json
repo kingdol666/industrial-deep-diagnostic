@@ -1,0 +1,109 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "bopet-tdo-thickness",
+  "profile": "doe",
+  "data_stage": "collected",
+  "context_fp": "sha256:573a901fb3f74d6278a849961b919eaccbe554c241a5889586784dad4de9d19b",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:5329c7af76bb471df6ff92d6746f7830ce30b40cee2064b9ea6a488a6fd253b5",
+  "generated_by": "doe_ontology_prepare.py",
+  "factors": [
+    {
+      "col": "tdo_z4_temp",
+      "name": "tdo_z4_temp",
+      "status": "matched",
+      "reason": "factor 'tdo_z4_temp' bound to ontology signal 'tdo_z4_temp'",
+      "unit": "°C",
+      "ontology_signal": "TDO_Z4_SETPOINT"
+    },
+    {
+      "col": "mdo_speed",
+      "name": "mdo_speed",
+      "status": "matched",
+      "reason": "factor 'mdo_speed' bound to ontology signal 'mdo_speed'",
+      "unit": "m/min",
+      "ontology_signal": "MD_LINE_SPEED"
+    },
+    {
+      "col": "tdo_ratio",
+      "name": "tdo_ratio",
+      "status": "matched",
+      "reason": "factor 'tdo_ratio' bound to ontology signal 'tdo_ratio'",
+      "unit": "-",
+      "ontology_signal": "TDO_STRETCH_RATIO"
+    }
+  ],
+  "responses": [
+    {
+      "col": "thickness_um",
+      "name": "thickness_um",
+      "status": "matched",
+      "reason": "response 'thickness_um' bound to ontology signal 'thickness_um'",
+      "unit": "um",
+      "ontology_signal": "FILM_THICKNESS_MEAN"
+    },
+    {
+      "col": "haze_pct",
+      "name": "haze_pct",
+      "status": "matched",
+      "reason": "response 'haze_pct' bound to ontology signal 'haze_pct'",
+      "unit": "%",
+      "ontology_signal": "FILM_HAZE"
+    }
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "tdo_z4_temp",
+        "name": "tdo_z4_temp",
+        "status": "matched",
+        "reason": "factor 'tdo_z4_temp' bound to ontology signal 'tdo_z4_temp'"
+      },
+      {
+        "kind": "factor",
+        "col": "mdo_speed",
+        "name": "mdo_speed",
+        "status": "matched",
+        "reason": "factor 'mdo_speed' bound to ontology signal 'mdo_speed'"
+      },
+      {
+        "kind": "factor",
+        "col": "tdo_ratio",
+        "name": "tdo_ratio",
+        "status": "matched",
+        "reason": "factor 'tdo_ratio' bound to ontology signal 'tdo_ratio'"
+      },
+      {
+        "kind": "response",
+        "col": "thickness_um",
+        "name": "thickness_um",
+        "status": "matched",
+        "reason": "response 'thickness_um' bound to ontology signal 'thickness_um'"
+      },
+      {
+        "kind": "response",
+        "col": "haze_pct",
+        "name": "haze_pct",
+        "status": "matched",
+        "reason": "response 'haze_pct' bound to ontology signal 'haze_pct'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 3,
+    "n_responses_matched": 2,
+    "n_factors_covered": 3,
+    "n_responses_covered": 2,
+    "n_factors_declared": 3,
+    "n_responses_declared": 2,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "elapsed_ms": 69,
+  "generated_at": "2026-10-17T10:34:19.783771+00:00"
+}

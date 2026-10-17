@@ -7,7 +7,7 @@
   "memory_cap_mb": 2048.0,
   "runs": {
     "100x8x3": {
-      "seconds": 11.38,
+      "seconds": 11.051,
       "peak_mb": 57.5,
       "n_rows": 100,
       "n_factors": 8,
@@ -15,7 +15,7 @@
       "budget_seconds": 60.0
     },
     "1000x10x3": {
-      "seconds": 13.086,
+      "seconds": 12.952,
       "peak_mb": 18.4,
       "n_rows": 1000,
       "n_factors": 10,
@@ -23,7 +23,7 @@
       "budget_seconds": 120.0
     },
     "8_active_windows": {
-      "seconds": 8.74,
+      "seconds": 9.128,
       "peak_mb": 100.3,
       "n_active": 8,
       "grid_n": 4,

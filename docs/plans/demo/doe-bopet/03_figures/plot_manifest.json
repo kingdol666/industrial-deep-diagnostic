@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-10-17T10:34:21.832987+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_thickness_um.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — thickness_um",
+      "response": "thickness_um",
+      "bytes": 43943,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1987 ok; ink ratio 19.9% across 4 quadrants"
+    },
+    {
+      "file": "residuals_thickness_um.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — thickness_um",
+      "response": "thickness_um",
+      "bytes": 82074,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0858 ok; ink ratio 8.6% across 4 quadrants"
+    },
+    {
+      "file": "pareto_haze_pct.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — haze_pct",
+      "response": "haze_pct",
+      "bytes": 42798,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1730 ok; ink ratio 17.3% across 4 quadrants"
+    },
+    {
+      "file": "residuals_haze_pct.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — haze_pct",
+      "response": "haze_pct",
+      "bytes": 74216,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0611 ok; ink ratio 6.1% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_thickness_um.png",
+      "type": "main_effects",
+      "title": "Main effects — thickness_um",
+      "response": "thickness_um",
+      "bytes": 49362,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0411 ok; ink ratio 4.1% across 4 quadrants"
+    },
+    {
+      "file": "contour_thickness_um.png",
+      "type": "contour",
+      "title": "Predicted response contour — thickness_um (top-Pareto pair tdo_z4_temp x mdo_speed)",
+      "response": "thickness_um",
+      "bytes": 43584,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0449 ok; ink ratio 4.5% across 4 quadrants"
+    }
+  ]
+}

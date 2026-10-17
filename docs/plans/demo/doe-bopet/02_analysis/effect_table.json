@@ -1,0 +1,726 @@
+{
+  "generated_at": "2026-10-17T10:34:20.650681+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio"
+    ],
+    "interactions": [
+      "tdo_z4_temp:mdo_speed",
+      "tdo_z4_temp:tdo_ratio",
+      "mdo_speed:tdo_ratio"
+    ],
+    "quadratic": [
+      "tdo_z4_temp^2",
+      "mdo_speed^2",
+      "tdo_ratio^2"
+    ],
+    "blocks": [
+      "block"
+    ],
+    "covariates": [
+      "ambient_temp"
+    ],
+    "pooled_terms": [],
+    "term_status": {
+      "tdo_z4_temp": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "mdo_speed": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "tdo_ratio": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "block": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "ambient_temp": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "tdo_z4_temp^2": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "mdo_speed^2": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "tdo_ratio^2": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "tdo_z4_temp:mdo_speed": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "tdo_z4_temp:tdo_ratio": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "mdo_speed:tdo_ratio": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      }
+    }
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "tdo_z4_temp": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "mdo_speed": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "tdo_ratio": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "block": {
+        "type": "categorical",
+        "zero_variance": false
+      },
+      "ambient_temp": {
+        "type": "numeric",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "thickness_um",
+      "n": 21,
+      "df_resid": 8,
+      "df_pure_error": 7,
+      "df_lack_of_fit": 1,
+      "mse": 0.033551,
+      "mse_pure_error": 0.052837,
+      "sigma_pure_error": 0.229862,
+      "r_squared": 0.996342,
+      "adj_r_squared": 0.990856,
+      "q_squared_loo": 0.964308,
+      "mde": 0.327109,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": true,
+        "reason": null,
+        "f_stat": -1.920001,
+        "p_value": 1.0
+      },
+      "tests": [
+        {
+          "term": "tdo_z4_temp",
+          "order": 1,
+          "coefficient": 1.218105,
+          "std_err": 0.069734,
+          "df": 1,
+          "ss_extra_ss": 10.237477,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            1.057299,
+            1.378911
+          ],
+          "std_effect": 0.635912,
+          "term_unit": "°C/coded",
+          "f_stat": 305.128735,
+          "p_value": 1.1771003863088768e-07,
+          "eta_squared": 0.139504,
+          "partial_eta_squared": 0.974451,
+          "effect_size_std": 5.299277,
+          "q_value_bh": 1.2948104249397644e-06,
+          "pareto_rank": 1
+        },
+        {
+          "term": "mdo_speed",
+          "order": 1,
+          "coefficient": -0.972979,
+          "std_err": 0.064698,
+          "df": 1,
+          "ss_extra_ss": 7.588156,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -1.122173,
+            -0.823785
+          ],
+          "std_effect": -0.507944,
+          "term_unit": "m/min/coded",
+          "f_stat": 226.165542,
+          "p_value": 3.777016506908013e-07,
+          "eta_squared": 0.103403,
+          "partial_eta_squared": 0.965836,
+          "effect_size_std": 4.232874,
+          "q_value_bh": 2.0773590787994075e-06,
+          "pareto_rank": 2
+        },
+        {
+          "term": "tdo_ratio",
+          "order": 1,
+          "coefficient": -0.45621,
+          "std_err": 0.086167,
+          "df": 1,
+          "ss_extra_ss": 0.9405,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.654911,
+            -0.257509
+          ],
+          "std_effect": -0.238165,
+          "term_unit": "-/coded",
+          "f_stat": 28.031682,
+          "p_value": 0.0007332461221067335,
+          "eta_squared": 0.012816,
+          "partial_eta_squared": 0.777973,
+          "effect_size_std": 1.984708,
+          "q_value_bh": 0.001344284557195678,
+          "pareto_rank": 6
+        },
+        {
+          "term": "block",
+          "order": 1,
+          "coefficient": null,
+          "std_err": null,
+          "df": 2,
+          "ss_extra_ss": 0.007201,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": null,
+          "std_effect": null,
+          "term_unit": "coded",
+          "f_stat": 0.107309,
+          "p_value": 0.899518990984313,
+          "eta_squared": 9.8e-05,
+          "partial_eta_squared": 0.026126,
+          "effect_size_std": null,
+          "q_value_bh": 0.899518990984313
+        },
+        {
+          "term": "ambient_temp",
+          "order": 1,
+          "coefficient": -0.273241,
+          "std_err": 0.099882,
+          "df": 1,
+          "ss_extra_ss": 0.251091,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.503569,
+            -0.042914
+          ],
+          "std_effect": -0.142646,
+          "term_unit": "coded",
+          "f_stat": 7.483791,
+          "p_value": 0.025620893086556986,
+          "eta_squared": 0.003422,
+          "partial_eta_squared": 0.483331,
+          "effect_size_std": 1.188717,
+          "q_value_bh": 0.03522872799401586,
+          "pareto_rank": 8
+        },
+        {
+          "term": "tdo_z4_temp^2",
+          "order": 2,
+          "coefficient": -1.095105,
+          "std_err": 0.141851,
+          "df": 1,
+          "ss_extra_ss": 1.999672,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -1.422213,
+            -0.767997
+          ],
+          "std_effect": -0.5717,
+          "term_unit": "coded",
+          "f_stat": 59.60038,
+          "p_value": 5.6375693086946594e-05,
+          "eta_squared": 0.027249,
+          "partial_eta_squared": 0.881657,
+          "effect_size_std": 4.764175,
+          "q_value_bh": 0.00015503315598910312,
+          "pareto_rank": 4
+        },
+        {
+          "term": "mdo_speed^2",
+          "order": 2,
+          "coefficient": -0.786529,
+          "std_err": 0.135046,
+          "df": 1,
+          "ss_extra_ss": 1.138093,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -1.097945,
+            -0.475113
+          ],
+          "std_effect": -0.410608,
+          "term_unit": "coded",
+          "f_stat": 33.920938,
+          "p_value": 0.00039416788254128735,
+          "eta_squared": 0.015509,
+          "partial_eta_squared": 0.809165,
+          "effect_size_std": 3.421739,
+          "q_value_bh": 0.0008671693415908321,
+          "pareto_rank": 5
+        },
+        {
+          "term": "tdo_ratio^2",
+          "order": 2,
+          "coefficient": -0.49038,
+          "std_err": 0.116389,
+          "df": 1,
+          "ss_extra_ss": 0.595593,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.758773,
+            -0.221986
+          ],
+          "std_effect": -0.256003,
+          "term_unit": "coded",
+          "f_stat": 17.751693,
+          "p_value": 0.0029426872066128074,
+          "eta_squared": 0.008116,
+          "partial_eta_squared": 0.689341,
+          "effect_size_std": 2.133361,
+          "q_value_bh": 0.004624222753248698,
+          "pareto_rank": 7
+        },
+        {
+          "term": "tdo_z4_temp:mdo_speed",
+          "order": 2,
+          "coefficient": 0.844657,
+          "std_err": 0.100074,
+          "df": 1,
+          "ss_extra_ss": 2.390145,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.613885,
+            1.075429
+          ],
+          "std_effect": 0.440954,
+          "term_unit": "coded",
+          "f_stat": 71.238441,
+          "p_value": 2.9635589854016793e-05,
+          "eta_squared": 0.03257,
+          "partial_eta_squared": 0.899039,
+          "effect_size_std": 3.674618,
+          "q_value_bh": 0.00010866382946472824,
+          "pareto_rank": 3
+        },
+        {
+          "term": "tdo_z4_temp:tdo_ratio",
+          "order": 2,
+          "coefficient": -0.106244,
+          "std_err": 0.094234,
+          "df": 1,
+          "ss_extra_ss": 0.042648,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.323549,
+            0.111061
+          ],
+          "std_effect": -0.055465,
+          "term_unit": "coded",
+          "f_stat": 1.271133,
+          "p_value": 0.2922314374282436,
+          "eta_squared": 0.000581,
+          "partial_eta_squared": 0.137107,
+          "effect_size_std": 0.462207,
+          "q_value_bh": 0.32145458117106795,
+          "pareto_rank": 10
+        },
+        {
+          "term": "mdo_speed:tdo_ratio",
+          "order": 2,
+          "coefficient": 0.133309,
+          "std_err": 0.082914,
+          "df": 1,
+          "ss_extra_ss": 0.086731,
+          "n": 21,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.057891,
+            0.324508
+          ],
+          "std_effect": 0.069594,
+          "term_unit": "coded",
+          "f_stat": 2.585011,
+          "p_value": 0.14654643906684986,
+          "eta_squared": 0.001182,
+          "partial_eta_squared": 0.244214,
+          "effect_size_std": 0.579949,
+          "q_value_bh": 0.17911231441503872,
+          "pareto_rank": 9
+        }
+      ]
+    },
+    {
+      "response": "haze_pct",
+      "n": 22,
+      "df_resid": 9,
+      "df_pure_error": 7,
+      "df_lack_of_fit": 2,
+      "mse": 0.00095,
+      "mse_pure_error": 0.001518,
+      "sigma_pure_error": 0.03896,
+      "r_squared": 0.995879,
+      "adj_r_squared": 0.990385,
+      "q_squared_loo": 0.979654,
+      "mde": 0.054168,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": true,
+        "reason": null,
+        "f_stat": -0.684258,
+        "p_value": 1.0
+      },
+      "tests": [
+        {
+          "term": "tdo_z4_temp",
+          "order": 1,
+          "coefficient": 0.158905,
+          "std_err": 0.010349,
+          "df": 1,
+          "ss_extra_ss": 0.223924,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.135494,
+            0.182316
+          ],
+          "std_effect": 0.505597,
+          "term_unit": "°C/coded",
+          "f_stat": 235.768009,
+          "p_value": 9.206894869632333e-08,
+          "eta_squared": 0.107948,
+          "partial_eta_squared": 0.96323,
+          "effect_size_std": 4.078687,
+          "q_value_bh": 7.038834626810828e-07,
+          "pareto_rank": 1
+        },
+        {
+          "term": "mdo_speed",
+          "order": 1,
+          "coefficient": 0.012101,
+          "std_err": 0.009207,
+          "df": 1,
+          "ss_extra_ss": 0.001641,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.008727,
+            0.032929
+          ],
+          "std_effect": 0.038503,
+          "term_unit": "m/min/coded",
+          "f_stat": 1.727427,
+          "p_value": 0.22124762290818967,
+          "eta_squared": 0.000791,
+          "partial_eta_squared": 0.161029,
+          "effect_size_std": 0.310607,
+          "q_value_bh": 0.27891838218612397,
+          "pareto_rank": 7
+        },
+        {
+          "term": "tdo_ratio",
+          "order": 1,
+          "coefficient": -0.007502,
+          "std_err": 0.012072,
+          "df": 1,
+          "ss_extra_ss": 0.000367,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.034812,
+            0.019807
+          ],
+          "std_effect": -0.023871,
+          "term_unit": "-/coded",
+          "f_stat": 0.386195,
+          "p_value": 0.5497209685039467,
+          "eta_squared": 0.000177,
+          "partial_eta_squared": 0.041145,
+          "effect_size_std": 0.192567,
+          "q_value_bh": 0.5497209685039467,
+          "pareto_rank": 10
+        },
+        {
+          "term": "block",
+          "order": 1,
+          "coefficient": null,
+          "std_err": null,
+          "df": 2,
+          "ss_extra_ss": 0.003047,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": null,
+          "std_effect": null,
+          "term_unit": "coded",
+          "f_stat": 1.604333,
+          "p_value": 0.25356216562374906,
+          "eta_squared": 0.001469,
+          "partial_eta_squared": 0.262819,
+          "effect_size_std": null,
+          "q_value_bh": 0.27891838218612397
+        },
+        {
+          "term": "ambient_temp",
+          "order": 1,
+          "coefficient": -0.023965,
+          "std_err": 0.015968,
+          "df": 1,
+          "ss_extra_ss": 0.002139,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.060087,
+            0.012158
+          ],
+          "std_effect": -0.07625,
+          "term_unit": "coded",
+          "f_stat": 2.252297,
+          "p_value": 0.16765608885779687,
+          "eta_squared": 0.001031,
+          "partial_eta_squared": 0.200163,
+          "effect_size_std": 0.615111,
+          "q_value_bh": 0.27891838218612397,
+          "pareto_rank": 6
+        },
+        {
+          "term": "tdo_z4_temp^2",
+          "order": 2,
+          "coefficient": 0.211932,
+          "std_err": 0.023102,
+          "df": 1,
+          "ss_extra_ss": 0.079931,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.159672,
+            0.264193
+          ],
+          "std_effect": 0.674316,
+          "term_unit": "coded",
+          "f_stat": 84.158228,
+          "p_value": 7.299555892961555e-06,
+          "eta_squared": 0.038532,
+          "partial_eta_squared": 0.90339,
+          "effect_size_std": 5.439755,
+          "q_value_bh": 2.676503827419237e-05,
+          "pareto_rank": 3
+        },
+        {
+          "term": "mdo_speed^2",
+          "order": 2,
+          "coefficient": 0.335681,
+          "std_err": 0.022706,
+          "df": 1,
+          "ss_extra_ss": 0.207575,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.284315,
+            0.387046
+          ],
+          "std_effect": 1.068052,
+          "term_unit": "coded",
+          "f_stat": 218.55422,
+          "p_value": 1.279788113965605e-07,
+          "eta_squared": 0.100066,
+          "partial_eta_squared": 0.960449,
+          "effect_size_std": 8.616051,
+          "q_value_bh": 7.038834626810828e-07,
+          "pareto_rank": 2
+        },
+        {
+          "term": "tdo_ratio^2",
+          "order": 2,
+          "coefficient": 0.094114,
+          "std_err": 0.018925,
+          "df": 1,
+          "ss_extra_ss": 0.023487,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.051302,
+            0.136927
+          ],
+          "std_effect": 0.299448,
+          "term_unit": "coded",
+          "f_stat": 24.729607,
+          "p_value": 0.0007668668846272118,
+          "eta_squared": 0.011323,
+          "partial_eta_squared": 0.733172,
+          "effect_size_std": 2.415668,
+          "q_value_bh": 0.0021088839327248325,
+          "pareto_rank": 4
+        },
+        {
+          "term": "tdo_z4_temp:mdo_speed",
+          "order": 2,
+          "coefficient": 0.015469,
+          "std_err": 0.012162,
+          "df": 1,
+          "ss_extra_ss": 0.001537,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.012043,
+            0.042982
+          ],
+          "std_effect": 0.04922,
+          "term_unit": "coded",
+          "f_stat": 1.617815,
+          "p_value": 0.23527778986958542,
+          "eta_squared": 0.000741,
+          "partial_eta_squared": 0.152368,
+          "effect_size_std": 0.397061,
+          "q_value_bh": 0.27891838218612397,
+          "pareto_rank": 9
+        },
+        {
+          "term": "tdo_z4_temp:tdo_ratio",
+          "order": 2,
+          "coefficient": 0.015449,
+          "std_err": 0.011866,
+          "df": 1,
+          "ss_extra_ss": 0.00161,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            -0.011395,
+            0.042292
+          ],
+          "std_effect": 0.049153,
+          "term_unit": "coded",
+          "f_stat": 1.69486,
+          "p_value": 0.22529389169421712,
+          "eta_squared": 0.000776,
+          "partial_eta_squared": 0.158474,
+          "effect_size_std": 0.396524,
+          "q_value_bh": 0.27891838218612397,
+          "pareto_rank": 8
+        },
+        {
+          "term": "mdo_speed:tdo_ratio",
+          "order": 2,
+          "coefficient": 0.023976,
+          "std_err": 0.010409,
+          "df": 1,
+          "ss_extra_ss": 0.005039,
+          "n": 22,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": [
+            0.000429,
+            0.047523
+          ],
+          "std_effect": 0.076286,
+          "term_unit": "coded",
+          "f_stat": 5.305561,
+          "p_value": 0.04674013345600892,
+          "eta_squared": 0.002429,
+          "partial_eta_squared": 0.370874,
+          "effect_size_std": 0.615407,
+          "q_value_bh": 0.10282829360321963,
+          "pareto_rank": 5
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 2,
+    "total_tests": 22,
+    "total_significant_q05": 12,
+    "excluded_from_family": 0
+  },
+  "interval_semantics": "四类区间互不替代（effect_table.json v1.1）：① 效应 CI effect_ci95（每行）= β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)（编码尺度，跨响应比较用 std_effect）；② 均值 CI mean_ci95（= 既有 ci95 语义）= ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)；③ 预测区间 pi95 = ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)（覆盖单个未来观测；宽度必大于同点均值 CI；禁止当作合格率/通过率）；④ 容差区间 tolerance_interval_95_95 = ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)（覆盖 95% 总体 @95% 置信）。",
+  "response_units": {
+    "haze_pct": "%",
+    "thickness_um": "um"
+  }
+}

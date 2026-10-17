@@ -463,7 +463,7 @@ class ReportBuilder:
             ("分派", "mode", "designed / observational", "模式决定方法链"),
             ("Phase 2", "stats", "确定性统计（numpy/scipy）", "effect_table · model · correlation · stability"),
             ("Phase 3", "agent", "agent 仅解读，不改数", "key_findings 措辞"),
-            ("G1–G7", "gate", "质量门（Node 独立复核）", "gate PASS 才允许交付"),
+            ("G1–G11", "gate", "质量门（Node 独立复核）", "gate PASS 才允许交付"),
             ("报告", "report", "本页 report.html", "9 工件确定性渲染"),
         ]
         W, H, bh, gap = 1180, 128, 92, 28
@@ -487,7 +487,7 @@ class ReportBuilder:
         parts.append("</svg>")
         body = (f'<figure class="chart"><figcaption class="chart-head"><span class="chart-title">Phase 0 → 报告 流程带</span></figcaption>'
                 + "".join(parts)
-                + _reading("六段流程：profile 探查 → 模式分派 → 确定性统计 → agent 解读 → G1–G7 质量门 → 本页渲染。",
+                + _reading("六段流程：profile 探查 → 模式分派 → 确定性统计 → agent 解读 → G1–G11 质量门 → 本页渲染。",
                            "脚本算数（numpy/scipy 固定口径），agent 只改措辞；质量门用独立 Node 进程复核工件。",
                            "数字的产出与审计分离 — 页面上任何统计量都能在附录工件里找到原值与 sha256。")
                 + "</figure>")
@@ -1052,11 +1052,13 @@ class ReportBuilder:
             n_conf = sum(1 for r in rows if r["confirm"])
             chart = self.add_chart(
                 "forest", {"rows": rows},
-                f"操作窗口 Forest 图（{len(rows)} 个窗口；灰带=观测域，色带=窗口，菱形=当前基线，须=CI95）",
+                f"操作窗口 Forest 图（{len(rows)} 个边际窗口；灰带=观测域，色带=窗口，菱形=当前基线，须=CI95）",
                 (f"{n_conf} 个窗口需要确认试验后才能执行；"
                  f"{len(conf_info)} 个因子存在多响应窗口冲突（已标注 chosen/落选）",
                  "窗口色带落在灰带边缘甚至触边 → 外推风险；菱形（当前基线）离窗口越远，调整代价越大",
-                 "这是全报告最直接的动作清单 — 每个 OW 的 range 都可对照灰带判断「调多少、往哪调」"),
+                 "这些是「边际诊断」（window_role=marginal_diagnostic）：它说明单独动这个因子往哪边走、"
+                 "能动多远，不等于可以直接执行。可执行的是 §11 的联合推荐点 joint_setpoints —— "
+                 "它同时满足硬约束与全部带规格的响应"),
                 key="forest")
             toggle = ('<label class="toggle"><input type="checkbox" id="toggle-ci" checked/>显示 CI95</label>')
             chart = chart.replace("</figcaption>", f"{toggle}</figcaption>")

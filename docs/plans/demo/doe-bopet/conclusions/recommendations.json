@@ -1,0 +1,855 @@
+{
+  "contract_version": "1.1",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "tdo_ratio",
+      "factor_unit": "-",
+      "response": "thickness_um",
+      "range": [
+        2.9,
+        3.075
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -4.5621,
+        "direction_semantics": "因子 tdo_ratio 每增加 1 个原始单位，响应 thickness_um 变化约 -4.5621（编码主效应 -0.45621/半极差 0.1）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          49.734245,
+          50.251263
+        ],
+        "pi95": [
+          49.497535,
+          50.487972
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          -6.54911,
+          -2.57509
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          49.364032,
+          50.621476
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 0.001344284557195678,
+      "sample_size": 21,
+      "evidence_refs": [
+        "effect_table.json#thickness_um.tdo_ratio.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "tdo_ratio",
+          "type": "box",
+          "min": 2.85,
+          "max": 3.15,
+          "hard": true,
+          "source": "platform"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 49.992754,
+        "mean_ci95": [
+          49.734245,
+          50.251263
+        ],
+        "pi95": [
+          49.497535,
+          50.487972
+        ],
+        "ti95_95": [
+          49.364032,
+          50.621476
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "tdo_z4_temp",
+      "factor_unit": "°C",
+      "response": "thickness_um",
+      "range": [
+        198.0,
+        203.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.304526,
+        "direction_semantics": "因子 tdo_z4_temp 每增加 1 个原始单位，响应 thickness_um 变化约 0.304526（编码主效应 1.218105/半极差 4.0）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          49.514465,
+          50.221923
+        ],
+        "pi95": [
+          49.31725,
+          50.419137
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          0.264325,
+          0.344728
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          49.239472,
+          50.496916
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 1.2948104249397644e-06,
+      "sample_size": 21,
+      "evidence_refs": [
+        "effect_table.json#thickness_um.tdo_z4_temp.main"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "tdo_z4_temp",
+          "type": "box",
+          "min": 195.0,
+          "max": 205.0,
+          "hard": true,
+          "source": "ontology"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 49.868194,
+        "mean_ci95": [
+          49.514465,
+          50.221923
+        ],
+        "pi95": [
+          49.31725,
+          50.419137
+        ],
+        "ti95_95": [
+          49.239472,
+          50.496916
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "mdo_speed",
+      "factor_unit": "m/min",
+      "response": "thickness_um",
+      "range": [
+        310.0,
+        325.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.097298,
+        "direction_semantics": "因子 mdo_speed 每增加 1 个原始单位，响应 thickness_um 变化约 -0.097298（编码主效应 -0.972979/半极差 10.0）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          50.087129,
+          50.785627
+        ],
+        "pi95": [
+          49.8883,
+          50.984456
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          -0.112217,
+          -0.082378
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          49.807656,
+          51.0651
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 2.0773590787994075e-06,
+      "sample_size": 21,
+      "evidence_refs": [
+        "effect_table.json#thickness_um.mdo_speed.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "mdo_speed",
+          "type": "box",
+          "min": 305.0,
+          "max": 335.0,
+          "hard": true,
+          "source": "platform"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 50.436378,
+        "mean_ci95": [
+          50.087129,
+          50.785627
+        ],
+        "pi95": [
+          49.8883,
+          50.984456
+        ],
+        "ti95_95": [
+          49.807656,
+          51.0651
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "tdo_ratio": 3.0,
+      "tdo_z4_temp": 200.0,
+      "mdo_speed": 320.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0,
+      "OW-003": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 tdo_ratio 调整至 [2.9, 3.075]（当前已在窗内）"
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "raw": {
+          "tdo_z4_temp": 201.0,
+          "mdo_speed": 322.5,
+          "tdo_ratio": 2.925
+        },
+        "D": 0.998173,
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct"
+        ],
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 50.00548,
+            "mean_ci95": [
+              49.649257,
+              50.361702
+            ],
+            "pi95": [
+              49.452932,
+              50.558027
+            ],
+            "d": 0.99726,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 1.571721,
+            "mean_ci95": [
+              1.514226,
+              1.629216
+            ],
+            "pi95": [
+              1.481356,
+              1.662087
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "value": 201.0,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct"
+        ],
+        "desirability": 0.998173,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 50.00548,
+            "mean_ci95": [
+              49.649257,
+              50.361702
+            ],
+            "pi95": [
+              49.452932,
+              50.558027
+            ],
+            "d": 0.99726,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 1.571721,
+            "mean_ci95": [
+              1.514226,
+              1.629216
+            ],
+            "pi95": [
+              1.481356,
+              1.662087
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "mdo_speed",
+      "value": 322.5,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct"
+        ],
+        "desirability": 0.998173,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 50.00548,
+            "mean_ci95": [
+              49.649257,
+              50.361702
+            ],
+            "pi95": [
+              49.452932,
+              50.558027
+            ],
+            "d": 0.99726,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 1.571721,
+            "mean_ci95": [
+              1.514226,
+              1.629216
+            ],
+            "pi95": [
+              1.481356,
+              1.662087
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "tdo_ratio",
+      "value": 2.925,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct"
+        ],
+        "desirability": 0.998173,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 50.00548,
+            "mean_ci95": [
+              49.649257,
+              50.361702
+            ],
+            "pi95": [
+              49.452932,
+              50.558027
+            ],
+            "d": 0.99726,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 1.571721,
+            "mean_ci95": [
+              1.514226,
+              1.629216
+            ],
+            "pi95": [
+              1.481356,
+              1.662087
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "tdo_z4_temp",
+        "mdo_speed"
+      ],
+      "nature": "交互显著（q=0.00010866382946472824, partial η²=0.899039），thickness_um 的因子效应随另一因子水平变化",
+      "q_value_bh": 0.00010866382946472824
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "thickness_um": {
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "goal": "target",
+      "current": 48.601
+    },
+    "haze_pct": {
+      "lsl": null,
+      "usl": 1.8,
+      "target": null,
+      "goal": "minimize",
+      "current": 1.779827
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 haze_pct: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "haze_pct"
+    }
+  ],
+  "constraints": [
+    {
+      "factor": "mdo_speed",
+      "type": "box",
+      "min": 305.0,
+      "max": 335.0,
+      "hard": true,
+      "source": "platform"
+    },
+    {
+      "factor": "tdo_ratio",
+      "type": "box",
+      "min": 2.85,
+      "max": 3.15,
+      "hard": true,
+      "source": "platform"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "type": "box",
+      "min": 195.0,
+      "max": 205.0,
+      "hard": true,
+      "source": "ontology"
+    }
+  ],
+  "applicability_domain": {
+    "n_rows": 22,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "tdo_ratio": {
+        "min": 2.9,
+        "max": 3.1
+      },
+      "tdo_z4_temp": {
+        "min": 196.0,
+        "max": 204.0
+      },
+      "mdo_speed": {
+        "min": 310.0,
+        "max": 330.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "f91e827b67af2e4e90231d137471fd3eb0fe6ecddf3a4905b95bb5d242fb1738",
+    "script_version": "1.1.0",
+    "seed": null,
+    "authored_by": "script"
+  },
+  "joint_windows": [
+    {
+      "id": "JW-001",
+      "responses": [
+        "thickness_um",
+        "haze_pct"
+      ],
+      "factors": {
+        "tdo_z4_temp": [
+          196.0,
+          203.0
+        ],
+        "mdo_speed": [
+          310.0,
+          327.5
+        ],
+        "tdo_ratio": [
+          2.9,
+          3.1
+        ]
+      },
+      "feasible": true,
+      "constraint_violations": 0,
+      "predicted": {
+        "thickness_um": {
+          "mean": 50.00548,
+          "mean_ci95": [
+            49.649257,
+            50.361702
+          ],
+          "pi95": [
+            49.452932,
+            50.558027
+          ],
+          "d": 0.99726,
+          "unit_status": "valid"
+        },
+        "haze_pct": {
+          "mean": 1.571721,
+          "mean_ci95": [
+            1.514226,
+            1.629216
+          ],
+          "pi95": [
+            1.481356,
+            1.662087
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        }
+      },
+      "desirability": 0.998173,
+      "method": "grid_search",
+      "evidence_level": "L3",
+      "responses_satisfied": [
+        "thickness_um",
+        "haze_pct"
+      ],
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "mdo_speed": 12.5,
+        "tdo_ratio": 0.075,
+        "tdo_z4_temp": 4.0
+      },
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "selection_scale": "desirability"
+    }
+  ],
+  "joint_setpoints": [
+    {
+      "id": "JS-001",
+      "method": "grid_search",
+      "factors": {
+        "tdo_z4_temp": 201.0,
+        "mdo_speed": 322.5,
+        "tdo_ratio": 2.925
+      },
+      "predicted": {
+        "thickness_um": {
+          "mean": 50.00548,
+          "mean_ci95": [
+            49.649257,
+            50.361702
+          ],
+          "pi95": [
+            49.452932,
+            50.558027
+          ],
+          "d": 0.99726,
+          "unit_status": "valid"
+        },
+        "haze_pct": {
+          "mean": 1.571721,
+          "mean_ci95": [
+            1.514226,
+            1.629216
+          ],
+          "pi95": [
+            1.481356,
+            1.662087
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        }
+      },
+      "responses_satisfied": [
+        "thickness_um",
+        "haze_pct"
+      ],
+      "feasible": true,
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "mdo_speed": 12.5,
+        "tdo_ratio": 0.075,
+        "tdo_z4_temp": 4.0
+      },
+      "desirability": 0.998173,
+      "joint_coverage": 0.9,
+      "evidence_level": "L3",
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "responses": [
+        "thickness_um",
+        "haze_pct"
+      ],
+      "selection_scale": "desirability"
+    }
+  ],
+  "units": {
+    "factors": {
+      "mdo_speed": {
+        "canonical": "m/min",
+        "display": "m/min",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "tdo_ratio": {
+        "canonical": "-",
+        "display": "-",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "tdo_z4_temp": {
+        "canonical": "degC",
+        "display": "°C",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      }
+    },
+    "responses": {
+      "haze_pct": {
+        "canonical": "%",
+        "display": "%",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "thickness_um": {
+        "canonical": "um",
+        "display": "um",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      }
+    },
+    "conflicts": []
+  },
+  "design_region": {
+    "type": "rsm_ccd",
+    "hull": "box",
+    "coded_bounds": {
+      "tdo_z4_temp": {
+        "min": 196.0,
+        "max": 204.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "mdo_speed": {
+        "min": 310.0,
+        "max": 330.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "tdo_ratio": {
+        "min": 2.9,
+        "max": 3.1,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      }
+    },
+    "axial_alpha": 1.0,
+    "max_leverage": 1.0,
+    "mean_leverage": 0.636364,
+    "leverage_threshold": 1.181818,
+    "n_exceed": 0,
+    "extrapolation_risk": "low",
+    "evaluated_points": 729,
+    "design_hull_confidence": "medium",
+    "factor_order": [
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio"
+    ],
+    "n_design_rows": 22,
+    "note": "CCD detected but no cube-corner level — box hull | declared design_hull='ccd_star' vs data-derived 'box' — data-derived hull wins"
+  },
+  "grid_plan": {
+    "n_active": 3,
+    "top_k": 8,
+    "grid_n": 9,
+    "n_grid_points": 729,
+    "approach": "grid",
+    "max_grid_points": 200000,
+    "deferred_factors": [],
+    "truncated": false,
+    "n_grid_factors": 3
+  },
+  "factor_response_matrix": [
+    {
+      "factor": "mdo_speed",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": 0.00121,
+      "effect_size": 0.161029,
+      "direction": "+",
+      "fdr_q": 0.27891838218612397,
+      "evidence_level": "L3",
+      "confidence": "low"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "thickness_um",
+      "window_id": "OW-003",
+      "no_window_reason": null,
+      "delta": -0.097298,
+      "effect_size": 0.965836,
+      "direction": "-",
+      "fdr_q": 2.0773590787994075e-06,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": -0.07502,
+      "effect_size": 0.041145,
+      "direction": "-",
+      "fdr_q": 0.5497209685039467,
+      "evidence_level": "L3",
+      "confidence": "low"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "thickness_um",
+      "window_id": "OW-001",
+      "no_window_reason": null,
+      "delta": -4.5621,
+      "effect_size": 0.777973,
+      "direction": "-",
+      "fdr_q": 0.001344284557195678,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.039726,
+      "effect_size": 0.96323,
+      "direction": "+",
+      "fdr_q": 7.038834626810828e-07,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "thickness_um",
+      "window_id": "OW-002",
+      "no_window_reason": null,
+      "delta": 0.304526,
+      "effect_size": 0.974451,
+      "direction": "+",
+      "fdr_q": 1.2948104249397644e-06,
+      "evidence_level": "L3",
+      "confidence": "high"
+    }
+  ],
+  "actionable_summary": {
+    "n_actionable": 4,
+    "n_blocked": 0,
+    "blocked": []
+  },
+  "interval_disclosure": {
+    "pi_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+    "ci_method": "ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)（均值响应，不是预测区间）",
+    "effect_ci_method": "β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)",
+    "tolerance_method": "ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)",
+    "note": "四类区间互不替代：ci95/mean_ci95=均值响应 95% CI（既有 ci95 语义，本版未改写）；pi95=单个未来观测预测区间（含 1 +，同点宽度必大于均值 CI）；pi95 不是合格率/通过率/收率，禁止据此宣称达标；tolerance_interval_95_95=95% 总体 @95% 置信容差区间。joint_coverage 为多响应联合覆盖的 Bonferroni 名义值 1-0.05*m。联合选优标度：desirability（禁止跨单位比较 raw delta，DS-04）。",
+    "joint_coverage": 0.9,
+    "coverage_check": {
+      "n": 2000,
+      "pi_point_coverage": 0.95
+    }
+  },
+  "association_screen_ref": {
+    "path": "02_analysis/association_screen.json",
+    "sha256": "cfbba0855a38bf7dfa5255ced366d20a71139dc63ee064264a2e4f9ba37bf635",
+    "n_pairs": 14,
+    "causal_claim": "none"
+  },
+  "next_design_ref": {
+    "path": "conclusions/next_design.json",
+    "sha256": "ee1a364f871c0e646067e7f3f2f388e0ca360900787f5308d89c4c408f6ceb1c",
+    "recommended_action": "none",
+    "primary_action_id": "ND-01"
+  }
+}

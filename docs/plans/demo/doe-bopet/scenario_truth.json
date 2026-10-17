@@ -1,0 +1,373 @@
+{
+  "scenario": "BOPET 12um TDO/MDO trial — face-centred CCD (alpha=1), 3 sessions",
+  "seed": 20261017,
+  "design": {
+    "type": "rsm_ccd",
+    "alpha": 1.0,
+    "factorial": "2^3",
+    "n_centre_executions": 6,
+    "n_axial": 6,
+    "n_repeats": 2,
+    "n_executions": 22,
+    "n_distinct_combinations": 15,
+    "n_blocks": 3,
+    "note": "face-centred so every execution stays inside the hard limits"
+  },
+  "factors": {
+    "tdo_z4_temp": {
+      "centre": 200.0,
+      "half_range": 4.0,
+      "unit": "°C"
+    },
+    "mdo_speed": {
+      "centre": 320.0,
+      "half_range": 10.0,
+      "unit": "m/min"
+    },
+    "tdo_ratio": {
+      "centre": 3.0,
+      "half_range": 0.1,
+      "unit": "-"
+    }
+  },
+  "planted_surface": {
+    "thickness_um": {
+      "intercept": 50.0,
+      "b_zt": 1.3,
+      "b_zm": -0.95,
+      "b_zr": -0.35,
+      "b_zt2": -1.1,
+      "b_zm2": -0.85,
+      "b_zr2": -0.45,
+      "b_zt_zm": 0.6
+    },
+    "haze_pct": {
+      "intercept": 1.45,
+      "b_zt": 0.15,
+      "b_zt2": 0.22,
+      "b_zm2": 0.3,
+      "b_zr2": 0.1
+    },
+    "noise_sigma": {
+      "thickness_um": 0.18,
+      "haze_pct": 0.035
+    },
+    "batch_offsets": {
+      "B1": 0.06,
+      "B2": -0.05,
+      "B3": 0.02
+    },
+    "convention": "zt/zm/zr are coded coordinates in [-1, 1]"
+  },
+  "expected_stationary_point_coded": {
+    "tdo_z4_temp": 0.4852,
+    "mdo_speed": -0.3876,
+    "tdo_ratio": -0.3889
+  },
+  "expected_stationary_point_raw": {
+    "tdo_z4_temp": 201.9408,
+    "mdo_speed": 316.124,
+    "tdo_ratio": 2.9611
+  },
+  "expected_at_stationary_point": {
+    "thickness_um": 50.5675,
+    "haze_pct": 1.6348
+  },
+  "expected_stationary_point_in_design_region": true,
+  "expected_significant_thickness_terms": [
+    "tdo_z4_temp",
+    "mdo_speed",
+    "tdo_z4_temp^2",
+    "mdo_speed^2",
+    "tdo_z4_temp:mdo_speed"
+  ],
+  "expected_significant_haze_terms": [
+    "mdo_speed^2",
+    "tdo_z4_temp^2"
+  ],
+  "expected_null_effects": {
+    "ambient_temp": "declared covariate, no true effect — may still test significant by chance at alpha=0.05; it must stay immaterial (|std_effect| far below the real factors) and must never reach a window / setpoint / recipe patch",
+    "chiller_pressure": "collinear with tdo_z4_temp — must not be recommended",
+    "shift_handover_min": "pure noise — must not be recommended"
+  },
+  "expected_recommendation": {
+    "actionable": true,
+    "thickness_within": [
+      48.0,
+      52.0
+    ],
+    "haze_ceiling": 1.8,
+    "hard_limits_respected": true
+  },
+  "data_quality": {
+    "failed_measurement_run": "doerun-006",
+    "empty_cells": 1,
+    "note": "allowed by the data contract; must be disclosed"
+  },
+  "runs": [
+    {
+      "run_id": "doerun-001",
+      "design_point_id": "dp-01",
+      "block": "B3",
+      "coded": [
+        -1,
+        -1,
+        -1
+      ],
+      "thickness_noiseless": 48.22,
+      "haze_noiseless": 1.92
+    },
+    {
+      "run_id": "doerun-002",
+      "design_point_id": "dp-02",
+      "block": "B1",
+      "coded": [
+        1,
+        -1,
+        -1
+      ],
+      "thickness_noiseless": 49.66,
+      "haze_noiseless": 2.22
+    },
+    {
+      "run_id": "doerun-003",
+      "design_point_id": "dp-03",
+      "block": "B3",
+      "coded": [
+        -1,
+        1,
+        -1
+      ],
+      "thickness_noiseless": 45.12,
+      "haze_noiseless": 1.92
+    },
+    {
+      "run_id": "doerun-004",
+      "design_point_id": "dp-04",
+      "block": "B1",
+      "coded": [
+        1,
+        1,
+        -1
+      ],
+      "thickness_noiseless": 48.96,
+      "haze_noiseless": 2.22
+    },
+    {
+      "run_id": "doerun-005",
+      "design_point_id": "dp-05",
+      "block": "B2",
+      "coded": [
+        -1,
+        -1,
+        1
+      ],
+      "thickness_noiseless": 47.45,
+      "haze_noiseless": 1.92
+    },
+    {
+      "run_id": "doerun-006",
+      "design_point_id": "dp-06",
+      "block": "B2",
+      "coded": [
+        1,
+        -1,
+        1
+      ],
+      "thickness_noiseless": 48.85,
+      "haze_noiseless": 2.22
+    },
+    {
+      "run_id": "doerun-007",
+      "design_point_id": "dp-07",
+      "block": "B2",
+      "coded": [
+        -1,
+        1,
+        1
+      ],
+      "thickness_noiseless": 44.35,
+      "haze_noiseless": 1.92
+    },
+    {
+      "run_id": "doerun-008",
+      "design_point_id": "dp-08",
+      "block": "B2",
+      "coded": [
+        1,
+        1,
+        1
+      ],
+      "thickness_noiseless": 48.15,
+      "haze_noiseless": 2.22
+    },
+    {
+      "run_id": "doerun-009",
+      "design_point_id": "dp-09",
+      "block": "B3",
+      "coded": [
+        1.0,
+        0,
+        0
+      ],
+      "thickness_noiseless": 50.22,
+      "haze_noiseless": 1.82
+    },
+    {
+      "run_id": "doerun-010",
+      "design_point_id": "dp-10",
+      "block": "B2",
+      "coded": [
+        -1.0,
+        0,
+        0
+      ],
+      "thickness_noiseless": 47.55,
+      "haze_noiseless": 1.52
+    },
+    {
+      "run_id": "doerun-011",
+      "design_point_id": "dp-11",
+      "block": "B1",
+      "coded": [
+        0,
+        1.0,
+        0
+      ],
+      "thickness_noiseless": 48.26,
+      "haze_noiseless": 1.75
+    },
+    {
+      "run_id": "doerun-012",
+      "design_point_id": "dp-12",
+      "block": "B1",
+      "coded": [
+        0,
+        -1.0,
+        0
+      ],
+      "thickness_noiseless": 50.16,
+      "haze_noiseless": 1.75
+    },
+    {
+      "run_id": "doerun-013",
+      "design_point_id": "dp-13",
+      "block": "B3",
+      "coded": [
+        0,
+        0,
+        1.0
+      ],
+      "thickness_noiseless": 49.22,
+      "haze_noiseless": 1.55
+    },
+    {
+      "run_id": "doerun-014",
+      "design_point_id": "dp-14",
+      "block": "B1",
+      "coded": [
+        0,
+        0,
+        -1.0
+      ],
+      "thickness_noiseless": 49.96,
+      "haze_noiseless": 1.55
+    },
+    {
+      "run_id": "doerun-015",
+      "design_point_id": "dp-15",
+      "block": "B3",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 50.02,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-016",
+      "design_point_id": "dp-15",
+      "block": "B1",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 50.06,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-017",
+      "design_point_id": "dp-15",
+      "block": "B2",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 49.95,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-018",
+      "design_point_id": "dp-15",
+      "block": "B2",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 49.95,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-019",
+      "design_point_id": "dp-15",
+      "block": "B1",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 50.06,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-020",
+      "design_point_id": "dp-15",
+      "block": "B2",
+      "coded": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "thickness_noiseless": 49.95,
+      "haze_noiseless": 1.45
+    },
+    {
+      "run_id": "doerun-021",
+      "design_point_id": "dp-02",
+      "block": "B1",
+      "coded": [
+        1,
+        -1,
+        -1
+      ],
+      "thickness_noiseless": 49.66,
+      "haze_noiseless": 2.22
+    },
+    {
+      "run_id": "doerun-022",
+      "design_point_id": "dp-07",
+      "block": "B3",
+      "coded": [
+        -1,
+        1,
+        1
+      ],
+      "thickness_noiseless": 44.42,
+      "haze_noiseless": 1.92
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "contract_version": "1.1",
+  "schema_version": "1.1",
+  "run_id": "doe-bopet-tdo-2026q4-r3",
+  "run_dir": "D:\\codes\\myskills\\idd-doe-impl\\docs\\plans\\demo\\doe-bopet",
+  "analysis_intent": null,
+  "artifacts": [
+    {
+      "kind": "ontology",
+      "path": "01_ontology/ontology.json",
+      "url": null,
+      "sha256": "c8e1a80e6690fe8256f3be866e1f5404f9f38a947d49d3b746f1e1e9060e501c",
+      "schema_version": null,
+      "bytes": 12845,
+      "produced_by": "doe_ontology_prepare",
+      "ontology_version": 1
+    },
+    {
+      "kind": "ontology_brief",
+      "path": "01_ontology/ontology_brief.json",
+      "url": null,
+      "sha256": "b41f932ea1a2ea97bb1b0780d25be0c541e78a3a94a5a1250f2ed002a04ab0ea",
+      "schema_version": "1.0",
+      "bytes": 10004,
+      "produced_by": "ontology_brief",
+      "ontology_version": 1
+    },
+    {
+      "kind": "ontology_coverage",
+      "path": "01_ontology/ontology_coverage.json",
+      "url": null,
+      "sha256": "4a528484346e33bba145ee4523487faa6e1e220c79c384ebf56dd85137837570",
+      "schema_version": "1.0",
+      "bytes": 3208,
+      "produced_by": "doe_ontology_prepare",
+      "ontology_version": 1
+    },
+    {
+      "kind": "ontology_feedback",
+      "path": "01_ontology/ontology_feedback.json",
+      "url": null,
+      "sha256": "0e2628fb6cdf4796f80a29ae049b8a6990eb44d2c7dc6502cb527fd53b8df2d7",
+      "schema_version": "1.0",
+      "bytes": 2644,
+      "produced_by": "ontology_consistency",
+      "ontology_version": 1
+    },
+    {
+      "kind": "ontology_consistency",
+      "path": "02_analysis/ontology_consistency.json",
+      "url": null,
+      "sha256": "59d8985677f35f4ad8e44ae27b4015cab491e5500d8539d89ad705208d9a0704",
+      "schema_version": "1.0",
+      "bytes": 5155,
+      "produced_by": "ontology_consistency",
+      "ontology_version": 1
+    },
+    {
+      "kind": "data_profile",
+      "path": "01_profile/data_profile.json",
+      "url": null,
+      "sha256": "51073b332ea428ba4f8150b655fd0923ca68f6087da7e66986060ce85fee58e0",
+      "schema_version": null,
+      "bytes": 4436,
+      "produced_by": "analyze.py:profile",
+      "ontology_version": 1
+    },
+    {
+      "kind": "analysis_plan",
+      "path": "01_profile/analysis_plan.md",
+      "url": null,
+      "sha256": "bf036e8d9a591a2bacaa315a46544bb6ad10dbed043ec9c9b5e0f31f746e5a2c",
+      "schema_version": null,
+      "bytes": 2622,
+      "produced_by": "agent (Phase B)",
+      "ontology_version": 1
+    },
+    {
+      "kind": "effect_table",
+      "path": "02_analysis/effect_table.json",
+      "url": null,
+      "sha256": "0cb392d414f8e4587a6214a863c10ebe2258075e91b16742e1077b7abd4d822c",
+      "schema_version": null,
+      "bytes": 21249,
+      "produced_by": "analyze.py:run",
+      "ontology_version": 1
+    },
+    {
+      "kind": "model",
+      "path": "02_analysis/model.json",
+      "url": null,
+      "sha256": "6c143fe9e051d195ee72dbaf050c45447add6d4c714172c26574118d187e7e0a",
+      "schema_version": null,
+      "bytes": 19164,
+      "produced_by": "analyze.py:run",
+      "ontology_version": 1
+    },
+    {
+      "kind": "association_screen",
+      "path": "02_analysis/association_screen.json",
+      "url": null,
+      "sha256": "cfbba0855a38bf7dfa5255ced366d20a71139dc63ee064264a2e4f9ba37bf635",
+      "schema_version": "1.0",
+      "bytes": 13383,
+      "produced_by": "association_screen",
+      "ontology_version": 1
+    },
+    {
+      "kind": "doe_conclusion",
+      "path": "conclusions/doe_conclusion.json",
+      "url": null,
+      "sha256": "f3e6b345ebce74cffc18df77c930da64dcf81d0fe5ef437ec47accba56d8d997",
+      "schema_version": null,
+      "bytes": 3940,
+      "produced_by": "conclusion_template",
+      "ontology_version": 1
+    },
+    {
+      "kind": "recommendations",
+      "path": "conclusions/recommendations.json",
+      "url": null,
+      "sha256": "88f69b3dfe610c69c97a99d8640e81f04e5612d723b4dead769dde415eb71d8b",
+      "schema_version": "1.1",
+      "bytes": 22112,
+      "produced_by": "analyze.py:run",
+      "ontology_version": 1
+    },
+    {
+      "kind": "next_design",
+      "path": "conclusions/next_design.json",
+      "url": null,
+      "sha256": "ee1a364f871c0e646067e7f3f2f388e0ca360900787f5308d89c4c408f6ceb1c",
+      "schema_version": "1.0",
+      "bytes": 2803,
+      "produced_by": "design_next",
+      "ontology_version": 1
+    },
+    {
+      "kind": "optimization_guidance",
+      "path": "conclusions/optimization_guidance.json",
+      "url": null,
+      "sha256": "6e5726578753fd46fb778ae7d3c33233bc4993b36a6f7b546b1fbdeeebb0c95d",
+      "schema_version": "1.0",
+      "bytes": 6435,
+      "produced_by": "optimization_guidance",
+      "ontology_version": 1
+    },
+    {
+      "kind": "report",
+      "path": "report.html",
+      "url": null,
+      "sha256": "62887e6a2e9e5cfc1eef38f3589ced3b5bb81a0ee6cf7e32589691f6b41d843b",
+      "schema_version": null,
+      "bytes": 148999,
+      "produced_by": "analyze.py:report",
+      "ontology_version": 1
+    }
+  ],
+  "missing": []
+}

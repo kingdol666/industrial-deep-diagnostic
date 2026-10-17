@@ -1,0 +1,231 @@
+{
+  "contract_version": "1.0",
+  "schema_version": "1.0",
+  "generated_at": "2026-10-17T10:34:21.837984+00:00",
+  "run_id": "doe-bopet",
+  "experiment_id": "doe-bopet-tdo-2026q4-r3",
+  "ontology_basis": {
+    "profile": "doe",
+    "scene_key": "bopet-tdo-thickness",
+    "version": 1,
+    "sha256": "sha256:5329c7af76bb471df6ff92d6746f7830ce30b40cee2064b9ea6a488a6fd253b5",
+    "reused": false,
+    "brief_ref": "01_ontology/ontology_brief.json"
+  },
+  "objective": "在安全窗口内寻找 TDO/MDO 工况，使厚度落在 50±2 µm 的同时抑制雾度（≤1.8%），并给出下一轮布点建议",
+  "recipe_patch": [
+    {
+      "factor": "mdo_speed",
+      "from": 320.0,
+      "to": 322.5,
+      "unit": "m/min",
+      "platform_ref": {
+        "recipe_param": "mdo_speed",
+        "node_id": "dw-mdo-01",
+        "plc_tag": "MDO_SPEED_SP",
+        "unit_conversion": 1.0,
+        "rounding": 0.5
+      },
+      "hard_limits": {
+        "min": 305,
+        "max": 335
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 322.5,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    },
+    {
+      "factor": "tdo_ratio",
+      "from": 3.0,
+      "to": 2.92,
+      "unit": "-",
+      "platform_ref": {
+        "recipe_param": "tdo_ratio",
+        "node_id": "dw-tdo-01",
+        "plc_tag": "TDO_RATIO_SP",
+        "unit_conversion": 1.0,
+        "rounding": 0.01
+      },
+      "hard_limits": {
+        "min": 2.85,
+        "max": 3.15
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 2.925,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "from": 200.0,
+      "to": 201.0,
+      "unit": "°C",
+      "platform_ref": {
+        "recipe_param": "tdo_z4_temp",
+        "node_id": "dw-tdo-z4",
+        "plc_tag": "TDO_Z4_SP",
+        "unit_conversion": 1.0,
+        "rounding": 0.1
+      },
+      "hard_limits": {
+        "min": 195,
+        "max": 205
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 201.0,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    }
+  ],
+  "node_setpoints": [
+    {
+      "node_id": "dn-haze-01",
+      "metric": "haze_pct",
+      "value": 1.571721,
+      "unit": "%",
+      "aggregation": "steady_mean",
+      "value_source": "joint_setpoints[].predicted.mean",
+      "response_goal": "minimize",
+      "spec_limits": {
+        "lsl": null,
+        "usl": 1.8,
+        "target": null
+      }
+    },
+    {
+      "node_id": "dn-thk-01",
+      "metric": "thickness_um",
+      "value": 50.00548,
+      "unit": "um",
+      "aggregation": "steady_mean",
+      "value_source": "joint_setpoints[].predicted.mean",
+      "response_goal": "target",
+      "spec_limits": {
+        "lsl": 48.0,
+        "usl": 52.0,
+        "target": 50.0
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "factor": "tdo_z4_temp",
+      "type": "box",
+      "min": 195.0,
+      "max": 205.0,
+      "hard": true,
+      "source": "ontology"
+    },
+    {
+      "factor": "mdo_speed",
+      "type": "box",
+      "min": 305.0,
+      "max": 335.0,
+      "hard": true,
+      "source": "platform"
+    },
+    {
+      "factor": "tdo_ratio",
+      "type": "box",
+      "min": 2.85,
+      "max": 3.15,
+      "hard": true,
+      "source": "platform"
+    }
+  ],
+  "next_design": {
+    "ref": "conclusions/next_design.json",
+    "primary_action_id": "ND-01",
+    "recommended_action": "none",
+    "n_runs": 0
+  },
+  "lineage": {
+    "parent_run_id": null,
+    "round": null,
+    "campaign_id": null
+  },
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "recommended_point_source": "joint_setpoints[JS-001]",
+    "actionable": true,
+    "actionable_blockers": [],
+    "inputs": [
+      {
+        "key": "analysis_context",
+        "path": "00_input/analysis_context.json",
+        "sha256": "410a93a2cd4f75137664adb47b7be24b3cf17233a7f30c53af31149d45ce216d",
+        "bytes": 7595
+      },
+      {
+        "key": "data_profile",
+        "path": "01_profile/data_profile.json",
+        "sha256": "51073b332ea428ba4f8150b655fd0923ca68f6087da7e66986060ce85fee58e0",
+        "bytes": 4436
+      },
+      {
+        "key": "doe_context",
+        "path": "00_input/doe_context.json",
+        "sha256": "7ef1d0c88b9b6b41ca1d7f52fcd8a7d5ee14d0dbe8d775d214cefcaa6855835d",
+        "bytes": 4815
+      },
+      {
+        "key": "next_design",
+        "path": "conclusions/next_design.json",
+        "sha256": "ee1a364f871c0e646067e7f3f2f388e0ca360900787f5308d89c4c408f6ceb1c",
+        "bytes": 2803
+      },
+      {
+        "key": "ontology_brief",
+        "path": "01_ontology/ontology_brief.json",
+        "sha256": "b41f932ea1a2ea97bb1b0780d25be0c541e78a3a94a5a1250f2ed002a04ab0ea",
+        "bytes": 10004
+      },
+      {
+        "key": "recommendations",
+        "path": "conclusions/recommendations.json",
+        "sha256": "88f69b3dfe610c69c97a99d8640e81f04e5612d723b4dead769dde415eb71d8b",
+        "bytes": 22112
+      },
+      {
+        "key": "run_manifest",
+        "path": "run_manifest.json",
+        "sha256": "e6929d3d08cff3bed4b09a5bce136fe42481f67b5d4b499616f6da58485594a9",
+        "bytes": 205
+      }
+    ],
+    "notes": [
+      "lineage 全部为 null（doe_context/analysis_context 未带 parent_run_id/round/campaign_id）"
+    ]
+  },
+  "platform_ref_missing": [],
+  "value_semantics": "recipe_patch.to 已应用 platform_ref.unit_conversion 与 rounding（平台单位）；value_analysis_units 为分析单位原值；within_limits 依据 platform_ref.hard_limits 计算"
+}

@@ -1,0 +1,116 @@
+{
+  "contract_version": "1.0",
+  "recommended_action": "none",
+  "rationale": "没有触发任何确认/补点规则：现有设计对当前结论足够",
+  "primary_action_id": "ND-01",
+  "actions": [
+    {
+      "id": "ND-01",
+      "action": "none",
+      "settings": [],
+      "n_runs": 0,
+      "block_policy": "n/a",
+      "replicate_policy": "n/a",
+      "expected_information": {
+        "note": "no confirmation / augmentation rule fired"
+      },
+      "constraints_ok": true,
+      "constraint_violations": [],
+      "source_evidence": [
+        "resolution=None",
+        "alias_chains=0",
+        "curvature_evidence=True",
+        "non_randomized=None",
+        "mode=designed"
+      ],
+      "primary": true
+    }
+  ],
+  "skipped_actions": [],
+  "design_type": "rsm_ccd",
+  "design_mode": "designed",
+  "resolution": null,
+  "randomization": {
+    "non_randomized": null,
+    "evidence": "randomization not declared"
+  },
+  "curvature_evidence": [
+    {
+      "response": "thickness_um",
+      "term": "tdo_z4_temp^2",
+      "p": 0.00015503315598910312,
+      "source": "effect_table"
+    },
+    {
+      "response": "thickness_um",
+      "term": "mdo_speed^2",
+      "p": 0.0008671693415908321,
+      "source": "effect_table"
+    },
+    {
+      "response": "thickness_um",
+      "term": "tdo_ratio^2",
+      "p": 0.004624222753248698,
+      "source": "effect_table"
+    },
+    {
+      "response": "haze_pct",
+      "term": "tdo_z4_temp^2",
+      "p": 2.676503827419237e-05,
+      "source": "effect_table"
+    },
+    {
+      "response": "haze_pct",
+      "term": "mdo_speed^2",
+      "p": 7.038834626810828e-07,
+      "source": "effect_table"
+    },
+    {
+      "response": "haze_pct",
+      "term": "tdo_ratio^2",
+      "p": 0.0021088839327248325,
+      "source": "effect_table"
+    }
+  ],
+  "has_quadratic_terms": true,
+  "design_region_bounds": {
+    "mdo_speed": {
+      "low": 310.0,
+      "high": 330.0,
+      "source": "ctx.design_region.factorial_bounds"
+    },
+    "tdo_ratio": {
+      "low": 2.9,
+      "high": 3.1,
+      "source": "ctx.design_region.factorial_bounds"
+    },
+    "tdo_z4_temp": {
+      "low": 196.0,
+      "high": 204.0,
+      "source": "ctx.design_region.factorial_bounds"
+    }
+  },
+  "hard_constraints": {
+    "mdo_speed": {
+      "min": 305.0,
+      "max": 335.0,
+      "source": "platform"
+    },
+    "tdo_ratio": {
+      "min": 2.85,
+      "max": 3.15,
+      "source": "platform"
+    },
+    "tdo_z4_temp": {
+      "min": 195.0,
+      "max": 205.0,
+      "source": "ontology"
+    }
+  },
+  "seed": null,
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "window_emission": "forbidden (design-only artifact)"
+  }
+}

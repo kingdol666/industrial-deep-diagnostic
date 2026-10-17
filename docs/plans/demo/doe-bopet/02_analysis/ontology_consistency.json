@@ -1,0 +1,132 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_consistency",
+  "profile": "doe",
+  "scene_key": "bopet-tdo-thickness",
+  "context_fp": "sha256:573a901fb3f74d6278a849961b919eaccbe554c241a5889586784dad4de9d19b",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:5329c7af76bb471df6ff92d6746f7830ce30b40cee2064b9ea6a488a6fd253b5",
+  "checked": 6,
+  "matched": 1,
+  "not_estimable": 0,
+  "not_estimable_detail": [],
+  "contradictions": [
+    {
+      "factor": "tdo_z4_temp",
+      "response": "thickness_um",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "severity": "advisory",
+      "note": "effect-table coefficient 1.218105 for 'tdo_z4_temp' → 'thickness_um' contradicts the ontology-predicted negative direction; advisory — statistical conclusions are NOT rewritten (check confounders / aliasing before acting)"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "haze_pct",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "severity": "advisory",
+      "note": "effect-table coefficient 0.158905 for 'tdo_z4_temp' → 'haze_pct' contradicts the ontology-predicted negative direction; advisory — statistical conclusions are NOT rewritten (check confounders / aliasing before acting)"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "haze_pct",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "severity": "advisory",
+      "note": "effect-table coefficient 0.012101 for 'mdo_speed' → 'haze_pct' contradicts the ontology-predicted negative direction; advisory — statistical conclusions are NOT rewritten (check confounders / aliasing before acting)"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "thickness_um",
+      "expected_sign": "positive",
+      "observed_sign": "negative",
+      "severity": "advisory",
+      "note": "effect-table coefficient -0.45621 for 'tdo_ratio' → 'thickness_um' contradicts the ontology-predicted positive direction; advisory — statistical conclusions are NOT rewritten (check confounders / aliasing before acting)"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "haze_pct",
+      "expected_sign": "positive",
+      "observed_sign": "negative",
+      "severity": "advisory",
+      "note": "effect-table coefficient -0.007502 for 'tdo_ratio' → 'haze_pct' contradicts the ontology-predicted positive direction; advisory — statistical conclusions are NOT rewritten (check confounders / aliasing before acting)"
+    }
+  ],
+  "advisory_only": true,
+  "pairs": [
+    {
+      "factor": "mdo_speed",
+      "response": "haze_pct",
+      "relation": "causal",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "coefficient": 0.012101,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "contradicted",
+      "reason": "observed sign positive is opposite to the ontology-expected direction negative"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "thickness_um",
+      "relation": "causal",
+      "expected_sign": "negative",
+      "observed_sign": "negative",
+      "coefficient": -0.972979,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "matched",
+      "reason": "observed sign negative agrees with the ontology-expected direction"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "haze_pct",
+      "relation": "causal",
+      "expected_sign": "positive",
+      "observed_sign": "negative",
+      "coefficient": -0.007502,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "contradicted",
+      "reason": "observed sign negative is opposite to the ontology-expected direction positive"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "thickness_um",
+      "relation": "causal",
+      "expected_sign": "positive",
+      "observed_sign": "negative",
+      "coefficient": -0.45621,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "contradicted",
+      "reason": "observed sign negative is opposite to the ontology-expected direction positive"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "haze_pct",
+      "relation": "causal",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "coefficient": 0.158905,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "contradicted",
+      "reason": "observed sign positive is opposite to the ontology-expected direction negative"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "thickness_um",
+      "relation": "causal",
+      "expected_sign": "negative",
+      "observed_sign": "positive",
+      "coefficient": 1.218105,
+      "estimable": true,
+      "evidence_level": "physics_prior",
+      "verdict": "contradicted",
+      "reason": "observed sign positive is opposite to the ontology-expected direction negative"
+    }
+  ],
+  "generated_at": "2026-10-17T10:34:21.830485+00:00",
+  "effect_table_sha256": null
+}

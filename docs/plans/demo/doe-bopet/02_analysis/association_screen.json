@@ -1,0 +1,455 @@
+{
+  "contract_version": "1.0",
+  "causal_claim": "none",
+  "n_rows": 22,
+  "n_pairs": 14,
+  "design_adjusted": true,
+  "alpha": 0.05,
+  "responses": [
+    "haze_pct",
+    "thickness_um"
+  ],
+  "design_columns": [
+    "mdo_speed",
+    "tdo_ratio",
+    "tdo_z4_temp"
+  ],
+  "model_columns": [
+    "ambient_temp",
+    "block"
+  ],
+  "adjustment_method": "每对 (response, variable) 回归：y ~ 设计列(该变量自身列除外) + 该变量；报告该变量系数与双侧 t 检验 p（秩亏则不报告）",
+  "window_emission": "forbidden (gate G8: association pairs never enter a window)",
+  "n_confounded_pairs": 0,
+  "excluded": [
+    {
+      "column": "replicate_kind",
+      "reason": "non_numeric_candidate"
+    },
+    {
+      "column": "design_point_id",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "haze_pct",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "replicate_group",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "run_id",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "run_order",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "thickness_um",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "block",
+      "reason": "categorical with 3 levels (>=3)",
+      "note": "分类因子（>=3 水平）不在本表筛选；其效应见 effect_table"
+    }
+  ],
+  "pairs": [
+    {
+      "factor": "ambient_temp",
+      "response": "haze_pct",
+      "kind": "non_factor",
+      "marginal": {
+        "r": 0.0157,
+        "p": 0.9448,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0648,
+        "p": 0.8111,
+        "n": 22,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 0.2664,
+        "t": 0.2433,
+        "df": 15
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=0.0157 (p=0.9448, n=22, core_stats)；设计调整后 coef=0.0648 (p=0.8111, n=22, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "block",
+      "response": "haze_pct",
+      "kind": "non_factor",
+      "marginal": null,
+      "design_adjusted": null,
+      "verdict": "marginal",
+      "note": "不可数值筛选（见 excluded）；仅有结构性分类；边际相关不可计算（有效样本不足或不可数值编码）；无设计调整估计（设计列不可用或秩亏），仅为边际线索",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L4"
+    },
+    {
+      "factor": "chiller_pressure",
+      "response": "haze_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.3772,
+        "p": 0.0835,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.3772 (p=0.0835, n=22, core_stats)；与设计列 tdo_z4_temp 共线 (|r|=0.9993) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "haze_pct",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": -0.0427,
+        "p": 0.8504,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0012,
+        "p": 0.9049,
+        "n": 22,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 0.0101,
+        "t": 0.1215,
+        "df": 15
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.0427 (p=0.8504, n=22, core_stats)；设计调整后 coef=0.0012 (p=0.9049, n=22, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "shift_handover_min",
+      "response": "haze_pct",
+      "kind": "unmodeled",
+      "marginal": {
+        "r": -0.271,
+        "p": 0.2225,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -0.0227,
+        "p": 0.2948,
+        "n": 22,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 0.0209,
+        "t": -1.0885,
+        "df": 14
+      },
+      "verdict": "unmodeled",
+      "note": "该列未进入拟合模型（未建模）：只能作描述性线索，禁止进入任何窗口；边际 r=-0.271 (p=0.2225, n=22, core_stats)；设计调整后 coef=-0.0227 (p=0.2948, n=22, 调整列=6)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "haze_pct",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": -0.0821,
+        "p": 0.7163,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -0.18,
+        "p": 0.8847,
+        "n": 22,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_z4_temp"
+        ],
+        "std_err": 1.22,
+        "t": -0.1475,
+        "df": 15
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.0821 (p=0.7163, n=22, core_stats)；设计调整后 coef=-0.18 (p=0.8847, n=22, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "haze_pct",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": 0.3969,
+        "p": 0.0674,
+        "n": 22,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0433,
+        "p": 0.1308,
+        "n": 22,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio"
+        ],
+        "std_err": 0.0271,
+        "t": 1.5985,
+        "df": 15
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=0.3969 (p=0.0674, n=22, core_stats)；设计调整后 coef=0.0433 (p=0.1308, n=22, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "ambient_temp",
+      "response": "thickness_um",
+      "kind": "non_factor",
+      "marginal": {
+        "r": -0.0051,
+        "p": 0.9826,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.114,
+        "p": 0.9157,
+        "n": 21,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 1.0573,
+        "t": 0.1078,
+        "df": 14
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.0051 (p=0.9826, n=21, core_stats)；设计调整后 coef=0.114 (p=0.9157, n=21, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "block",
+      "response": "thickness_um",
+      "kind": "non_factor",
+      "marginal": null,
+      "design_adjusted": null,
+      "verdict": "marginal",
+      "note": "不可数值筛选（见 excluded）；仅有结构性分类；边际相关不可计算（有效样本不足或不可数值编码）；无设计调整估计（设计列不可用或秩亏），仅为边际线索",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L4"
+    },
+    {
+      "factor": "chiller_pressure",
+      "response": "thickness_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.655,
+        "p": 0.0013,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.655 (p=0.0013, n=21, core_stats)；与设计列 tdo_z4_temp 共线 (|r|=0.9993) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "thickness_um",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": -0.5417,
+        "p": 0.0112,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -0.1207,
+        "p": 0.0132,
+        "n": 21,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 0.0425,
+        "t": -2.8368,
+        "df": 14
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.5417 (p=0.0112, n=21, core_stats)；设计调整后 coef=-0.1207 (p=0.0132, n=21, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": true,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "shift_handover_min",
+      "response": "thickness_um",
+      "kind": "unmodeled",
+      "marginal": {
+        "r": -0.0306,
+        "p": 0.8954,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -0.0245,
+        "p": 0.79,
+        "n": 21,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio",
+          "tdo_z4_temp"
+        ],
+        "std_err": 0.0902,
+        "t": -0.2719,
+        "df": 13
+      },
+      "verdict": "unmodeled",
+      "note": "该列未进入拟合模型（未建模）：只能作描述性线索，禁止进入任何窗口；边际 r=-0.0306 (p=0.8954, n=21, core_stats)；设计调整后 coef=-0.0245 (p=0.79, n=21, 调整列=6)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "thickness_um",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": -0.3514,
+        "p": 0.1183,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -1.7042,
+        "p": 0.7381,
+        "n": 21,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_z4_temp"
+        ],
+        "std_err": 4.9969,
+        "t": -0.3411,
+        "df": 14
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.3514 (p=0.1183, n=21, core_stats)；设计调整后 coef=-1.7042 (p=0.7381, n=21, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "thickness_um",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": 0.6407,
+        "p": 0.0018,
+        "n": 21,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.3667,
+        "p": 0.0064,
+        "n": 21,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "ambient_temp",
+          "block[B1]",
+          "block[B2]",
+          "mdo_speed",
+          "tdo_ratio"
+        ],
+        "std_err": 0.1146,
+        "t": 3.1996,
+        "df": 14
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=0.6407 (p=0.0018, n=21, core_stats)；设计调整后 coef=0.3667 (p=0.0064, n=21, 调整列=5)",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": true,
+      "evidence_level": "L3"
+    }
+  ]
+}

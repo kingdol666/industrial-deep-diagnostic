@@ -1,0 +1,380 @@
+{
+  "ontology_version": null,
+  "scene": {
+    "name": "bopet-tdo-thickness",
+    "process_type": "L5-bopet",
+    "production_goal": "在安全窗口内寻找 TDO/MDO 工况，使厚度落在 50±2 µm 的同时抑制雾度（≤1.8%），并给出下一轮布点建议",
+    "equipment": [],
+    "stages": [],
+    "objectives": [
+      "在安全窗口内寻找 TDO/MDO 工况，使厚度落在 50±2 µm 的同时抑制雾度（≤1.8%），并给出下一轮布点建议"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "thickness_um",
+        "column": "thickness_um",
+        "unit": "um",
+        "role": "target",
+        "physical_meaning": "thickness_um（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target; ontology_signal=FILM_THICKNESS_MEAN",
+        "expected_sign": null,
+        "knowledge_source": "user_provided",
+        "target": 50.0,
+        "tolerance": 2.0,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "haze_pct",
+        "column": "haze_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "haze_pct（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target; ontology_signal=FILM_HAZE",
+        "expected_sign": null,
+        "knowledge_source": "user_provided",
+        "target": null,
+        "tolerance": null,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "ambient_temp",
+        "column": "ambient_temp",
+        "role": "confounder",
+        "physical_meaning": "ambient_temp（分析上下文声明的协变量；可能同时影响因子与响应）",
+        "physical_meaning_confidence": "INFERRED",
+        "inference_basis": "declared in analysis_context.covariates",
+        "knowledge_source": "user_provided"
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "tdo_z4_temp",
+        "column": "tdo_z4_temp",
+        "unit": "°C",
+        "role": "control",
+        "physical_meaning": "TDO 北侧 Z4 加热区温度，主导纵向拉伸时的取向与结晶，直接影响厚度与雾度",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "declared in analysis_context/doe_context as control; ontology_signal=TDO_Z4_SETPOINT",
+        "expected_sign": "-",
+        "knowledge_source": "user_provided",
+        "control_type": "setpoint",
+        "normal_range": [
+          196,
+          204
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：196~204 °C 区间内可设定；方向预期 -",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "mdo_speed",
+        "column": "mdo_speed",
+        "unit": "m/min",
+        "role": "control",
+        "physical_meaning": "MDO 线速，与拉伸张力耦合；提速会减薄并抬高雾度",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "declared in analysis_context/doe_context as control; ontology_signal=MD_LINE_SPEED",
+        "expected_sign": "-",
+        "knowledge_source": "user_provided",
+        "control_type": "setpoint",
+        "normal_range": [
+          310,
+          330
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：310~330 m/min 区间内可设定；方向预期 -",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "tdo_ratio",
+        "column": "tdo_ratio",
+        "unit": "-",
+        "role": "control",
+        "physical_meaning": "TDO 纵横向拉伸比，影响厚度均匀性",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "declared in analysis_context/doe_context as control; ontology_signal=TDO_STRETCH_RATIO",
+        "expected_sign": "+",
+        "knowledge_source": "user_provided",
+        "control_type": "setpoint",
+        "normal_range": [
+          2.9,
+          3.1
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：2.9~3.1 - 区间内可设定；方向预期 +",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      }
+    ],
+    "events": [],
+    "metadata_columns": [
+      {
+        "name": "block",
+        "column": "block",
+        "role": "batch_id",
+        "description": "block（分析上下文声明的区组列）"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "factors": [
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio"
+    ]
+  },
+  "relationships": [
+    {
+      "from": "tdo_z4_temp",
+      "to": "thickness_um",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "TDO 北侧 Z4 加热区温度，主导纵向拉伸时的取向与结晶，直接影响厚度与雾度 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    },
+    {
+      "from": "tdo_z4_temp",
+      "to": "haze_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "TDO 北侧 Z4 加热区温度，主导纵向拉伸时的取向与结晶，直接影响厚度与雾度 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "thickness_um",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "MDO 线速，与拉伸张力耦合；提速会减薄并抬高雾度 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "haze_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "MDO 线速，与拉伸张力耦合；提速会减薄并抬高雾度 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "thickness_um",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "TDO 纵横向拉伸比，影响厚度均匀性 对 thickness_um 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "haze_pct",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "TDO 纵横向拉伸比，影响厚度均匀性 对 haze_pct 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "inferred": true,
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "ambient_temp",
+      "why": "declared as covariate in analysis_context (may co-move with factors and responses)",
+      "controlled": false
+    }
+  ],
+  "metadata": {
+    "units": {
+      "tdo_z4_temp": "°C",
+      "mdo_speed": "m/min",
+      "tdo_ratio": "-",
+      "thickness_um": "um",
+      "haze_pct": "%"
+    },
+    "sampling_rate": null,
+    "batch_id": "block",
+    "timezone": null
+  },
+  "doe": {
+    "profile": "doe",
+    "scene_key": "bopet-tdo-thickness",
+    "data_stage": "collected",
+    "design_type": "ccd",
+    "design_region": {
+      "factorial_bounds": {
+        "tdo_z4_temp": [
+          196,
+          204
+        ],
+        "mdo_speed": [
+          310,
+          330
+        ],
+        "tdo_ratio": [
+          2.9,
+          3.1
+        ]
+      },
+      "axial_alpha": 1.0,
+      "design_hull": "ccd_star"
+    },
+    "constraints": [
+      {
+        "factor": "tdo_z4_temp",
+        "type": "box",
+        "min": 195,
+        "max": 205,
+        "hard": true,
+        "reason": "安全与膜面缺陷限",
+        "source": "ontology"
+      },
+      {
+        "factor": "mdo_speed",
+        "type": "box",
+        "min": 305,
+        "max": 335,
+        "hard": true,
+        "reason": "设备设定上下限",
+        "source": "platform"
+      },
+      {
+        "factor": "tdo_ratio",
+        "type": "box",
+        "min": 2.85,
+        "max": 3.15,
+        "hard": true,
+        "reason": "工艺窗口限",
+        "source": "platform"
+      }
+    ],
+    "objectives": [
+      "在安全窗口内寻找 TDO/MDO 工况，使厚度落在 50±2 µm 的同时抑制雾度（≤1.8%），并给出下一轮布点建议"
+    ],
+    "factors": [
+      {
+        "col": "tdo_z4_temp",
+        "name": "tdo_z4_temp",
+        "expected_sign": "-",
+        "physical_meaning": "TDO 北侧 Z4 加热区温度，主导纵向拉伸时的取向与结晶，直接影响厚度与雾度",
+        "ontology_signal": "TDO_Z4_SETPOINT",
+        "unit": "°C",
+        "min": 196,
+        "max": 204,
+        "levels": null,
+        "confidence": "KNOWN"
+      },
+      {
+        "col": "mdo_speed",
+        "name": "mdo_speed",
+        "expected_sign": "-",
+        "physical_meaning": "MDO 线速，与拉伸张力耦合；提速会减薄并抬高雾度",
+        "ontology_signal": "MD_LINE_SPEED",
+        "unit": "m/min",
+        "min": 310,
+        "max": 330,
+        "levels": null,
+        "confidence": "KNOWN"
+      },
+      {
+        "col": "tdo_ratio",
+        "name": "tdo_ratio",
+        "expected_sign": "+",
+        "physical_meaning": "TDO 纵横向拉伸比，影响厚度均匀性",
+        "ontology_signal": "TDO_STRETCH_RATIO",
+        "unit": "-",
+        "min": 2.9,
+        "max": 3.1,
+        "levels": null,
+        "confidence": "KNOWN"
+      }
+    ],
+    "responses": [
+      {
+        "col": "thickness_um",
+        "name": "thickness_um",
+        "unit": "um",
+        "goal": "target",
+        "lsl": 48.0,
+        "usl": 52.0,
+        "target": 50.0,
+        "ontology_signal": "FILM_THICKNESS_MEAN",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "haze_pct",
+        "name": "haze_pct",
+        "unit": "%",
+        "goal": "minimize",
+        "lsl": null,
+        "usl": 1.8,
+        "target": null,
+        "ontology_signal": "FILM_HAZE",
+        "confidence": "INFERRED"
+      }
+    ],
+    "limitations": [
+      "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证"
+    ]
+  },
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证"
+  ],
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "doe",
+    "build_mode": "prior_knowledge",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "doe_context / analysis_context declarations + physics priors",
+    "context_fp_version": "doe-context-v1"
+  }
+}

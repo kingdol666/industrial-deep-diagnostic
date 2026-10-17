@@ -1,0 +1,204 @@
+{
+  "generated_at": "2026-10-17T10:34:20.638163+00:00",
+  "data_path": "D:\\codes\\myskills\\idd-doe-impl\\docs\\plans\\demo\\doe-bopet\\00_input\\run_table.csv",
+  "n_rows": 22,
+  "n_cols": 14,
+  "columns": [
+    {
+      "name": "run_id",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 22,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "design_point_id",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 15,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "replicate_group",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 14,
+      "n_valid": 8,
+      "notes": ""
+    },
+    {
+      "name": "replicate_kind",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "run_order",
+      "dtype": "int64",
+      "role": "index",
+      "role_assigned_by": "user",
+      "n_unique": 22,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "block",
+      "dtype": "str",
+      "role": "block",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "tdo_z4_temp",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "mdo_speed",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "tdo_ratio",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "thickness_um",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 21,
+      "n_missing": 1,
+      "n_valid": 21,
+      "notes": ""
+    },
+    {
+      "name": "haze_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 22,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "ambient_temp",
+      "dtype": "float64",
+      "role": "covariate",
+      "role_assigned_by": "user",
+      "n_unique": 22,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "chiller_pressure",
+      "dtype": "float64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 22,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    },
+    {
+      "name": "shift_handover_min",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 12,
+      "n_missing": 0,
+      "n_valid": 22,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "thickness_um",
+      "haze_pct"
+    ],
+    "factors": [
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio"
+    ],
+    "blocks": [
+      "block"
+    ],
+    "covariates": [
+      "ambient_temp"
+    ],
+    "index": [
+      "design_point_id",
+      "replicate_group",
+      "run_id",
+      "run_order"
+    ],
+    "ignore": [
+      "replicate_kind",
+      "chiller_pressure",
+      "shift_handover_min"
+    ]
+  },
+  "design": {
+    "n_runs": 22,
+    "n_factor_cols": 3,
+    "n_distinct_combos": 15,
+    "balanced": false,
+    "balance_ratio": 0.1667,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": 6,
+    "axial_points": 6,
+    "alpha_axial": 1.0,
+    "replicates": null,
+    "detection_notes": [
+      "6 center points + 6 axial points (alpha=1.0)"
+    ],
+    "design_type": "rsm_ccd",
+    "mode": "designed"
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}
